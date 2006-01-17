@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWAQSxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbWAQSxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbWAQSxP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 13:53:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWAQSxP
+	id S932236AbWAQSxj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 13:53:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWAQSxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 13:53:15 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:63400 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932231AbWAQSxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 13:53:14 -0500
-Message-ID: <43CD3CE4.3090300@comcast.net>
-Date: Tue, 17 Jan 2006 13:52:20 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Huge pages and small pages. . .
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=UTF-8
+	Tue, 17 Jan 2006 13:53:38 -0500
+Received: from pat.uio.no ([129.240.130.16]:16592 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932404AbWAQSxh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 13:53:37 -0500
+Subject: Re: Kernel 2.6.15.1 + NFS is 4 times slower than FTP!?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       Phil Oester <kernel@linuxace.com>, linux-kernel@vger.kernel.org,
+       apiszcz@lucidpixels.com
+In-Reply-To: <Pine.LNX.4.64.0601171338040.25508@p34>
+References: <Pine.LNX.4.64.0601161957300.16829@p34>
+	 <20060117012319.GA22161@linuxace.com>
+	 <Pine.LNX.4.64.0601162031220.2501@p34>
+	 <Pine.BSO.4.63.0601171846570.15077@rudy.mif.pg.gda.pl>
+	 <1137521483.14135.59.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0601171324010.25508@p34>
+	 <1137523035.7855.91.camel@lade.trondhjem.org>
+	 <Pine.LNX.4.64.0601171338040.25508@p34>
+Content-Type: text/plain
+Date: Tue, 17 Jan 2006 13:53:11 -0500
+Message-Id: <1137523991.7855.103.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.076, required 12,
+	autolearn=disabled, AWL 0.88, FORGED_RCVD_HELO 0.05,
+	PLING_QUERY 0.86, RCVD_IN_SORBS_DUL 0.14,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 2006-01-17 at 13:38 -0500, Justin Piszcz wrote:
+> Writing from SRC(A) -> DST(B).
+> I have not tested reading, but as I recall there were similar speed issues 
+> going the other way too, although I have not tested it recently.
 
-Is there anything in the kernel that shifts the physical pages for 1024
-physically allocated and contiguous virtual pages together physically
-and remaps them as one huge page?  This would probably work well for the
-low end of the heap, until someone figures out a way to tell the system
-to free intermittent pages in a big mapping (if the heap has an
-allocation up high, it can have huge, unused areas that are allocated).
- It may possibly work for disk cache as well, albeit I can't say for
-sure if it's common to have a 4 meg contiguous section of program data
-loaded.
+How were you testing it? I'm not sure that ftp will actually sync your
+file to disk (whereas that is pretty much mandatory for an NFS server),
+so unless you are transferring very large files, you would expect to see
+a speed difference due to caching of writes by the server.
 
-Shifting odd huge allocations around would be neat to, re:
+Cheers,
+  Trond
 
-{2m}[4M  ]{2m}  ->  [4M  ][4M  ]
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDzTzjhDd4aOud5P8RAud1AJ9MVy90XzvJWmgHmlBUdHcpsYNtWACfVxY6
-f/jYDM1XiM8/09TfrzEDI3w=
-=CsLK
------END PGP SIGNATURE-----

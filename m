@@ -1,34 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWAQSwm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbWAQSxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbWAQSwm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 13:52:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWAQSwm
+	id S932406AbWAQSxP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 13:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWAQSxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 13:52:42 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:63409 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932358AbWAQSwl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 13:52:41 -0500
-Subject: Re: [Alsa-devel] [2.6 patch] sound/pci/cs46xx/dsp_spos_scb_lib.c:
-	fix an assertion
-From: Lee Revell <rlrevell@joe-job.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: perex@suse.cz, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
-       D Binderman <dcb314@hotmail.com>
-In-Reply-To: <20060117184701.GC19398@stusta.de>
-References: <20060117184701.GC19398@stusta.de>
-Content-Type: text/plain
-Date: Tue, 17 Jan 2006 13:52:37 -0500
-Message-Id: <1137523957.19444.72.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
+	Tue, 17 Jan 2006 13:53:15 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:63400 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932231AbWAQSxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 13:53:14 -0500
+Message-ID: <43CD3CE4.3090300@comcast.net>
+Date: Tue, 17 Jan 2006 13:52:20 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Huge pages and small pages. . .
+X-Enigmail-Version: 0.92.1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-17 at 19:47 +0100, Adrian Bunk wrote:
-> D Binderman <dcb314@hotmail.com> reported the following in kernel 
-> Bugzilla #5903 [1]:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Already fixed in CVS
+Is there anything in the kernel that shifts the physical pages for 1024
+physically allocated and contiguous virtual pages together physically
+and remaps them as one huge page?  This would probably work well for the
+low end of the heap, until someone figures out a way to tell the system
+to free intermittent pages in a big mapping (if the heap has an
+allocation up high, it can have huge, unused areas that are allocated).
+ It may possibly work for disk cache as well, albeit I can't say for
+sure if it's common to have a 4 meg contiguous section of program data
+loaded.
 
+Shifting odd huge allocations around would be neat to, re:
+
+{2m}[4M  ]{2m}  ->  [4M  ][4M  ]
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFDzTzjhDd4aOud5P8RAud1AJ9MVy90XzvJWmgHmlBUdHcpsYNtWACfVxY6
+f/jYDM1XiM8/09TfrzEDI3w=
+=CsLK
+-----END PGP SIGNATURE-----

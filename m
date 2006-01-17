@@ -1,38 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWAQNfx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWAQNhF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932485AbWAQNfx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 08:35:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWAQNfx
+	id S932216AbWAQNhF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 08:37:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWAQNhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 08:35:53 -0500
-Received: from verein.lst.de ([213.95.11.210]:28336 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S932365AbWAQNfw (ORCPT
+	Tue, 17 Jan 2006 08:37:04 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:19627 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932216AbWAQNhC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 08:35:52 -0500
-Date: Tue, 17 Jan 2006 14:35:23 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Ric Wheeler <ric@emc.com>, Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
-       arnd@arndb.de, linux-kernel@vger.kernel.org,
-       "saparnis, carol" <saparnis_carol@emc.com>
-Subject: Re: [PATCH 2/2] dasd: remove dynamic ioctl registration
-Message-ID: <20060117133523.GA27322@lst.de>
-References: <20051216143348.GB19541@lst.de> <20060106110157.GA16725@lst.de> <43BE7C45.4090206@emc.com> <20060106142146.GA20094@lst.de> <43BE7EE4.3010203@emc.com> <1136970987.6147.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1136970987.6147.14.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Tue, 17 Jan 2006 08:37:02 -0500
+Message-ID: <43CCF2F7.4070205@pobox.com>
+Date: Tue, 17 Jan 2006 08:36:55 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Prakash Punnoor <prakash@punnoor.de>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.16-rc1
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org> <200601171416.13119.prakash@punnoor.de>
+In-Reply-To: <200601171416.13119.prakash@punnoor.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Prakash Punnoor wrote: > Compiling libata SIL breaks
+	with Linux 2.6.16-rc1: > > > CC drivers/scsi/sata_sil.o >
+	drivers/scsi/sata_sil.c: In function 'sil_port_irq': >
+	drivers/scsi/sata_sil.c:393: error: too many arguments to function >
+	'ata_qc_complete' > drivers/scsi/sata_sil.c:400: error: too many
+	arguments to function > 'ata_qc_complete' [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 11, 2006 at 10:16:27AM +0100, Martin Schwidefsky wrote:
-> The patch we got from EMC is for 2.4 and in its current form would never
-> have worked for 2.6 anyway. So 2.6 is already broken, no reason to hold
-> off the ioctl removal patch. We'll come up with a cleaned up solution.
+Prakash Punnoor wrote:
+> Compiling libata SIL breaks with Linux 2.6.16-rc1:
 > 
-> Christoph, please go ahead and push the patch to Andrew. 
+> 
+>   CC      drivers/scsi/sata_sil.o
+> drivers/scsi/sata_sil.c: In function 'sil_port_irq':
+> drivers/scsi/sata_sil.c:393: error: too many arguments to function 
+> 'ata_qc_complete'
+> drivers/scsi/sata_sil.c:400: error: too many arguments to function 
+> 'ata_qc_complete'
 
-Andrew, should I resend the two patches or can you grab them from the
-mbox?
+I don't know what source code you're compiling, but it's certainly not 
+2.6.16-rc1:
+
+[jgarzik@pretzel linux-2.6]$ grep -w ata_qc_complete 
+drivers/scsi/sata_sil.c
+[jgarzik@pretzel linux-2.6]$
+

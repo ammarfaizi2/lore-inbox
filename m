@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWAQXPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWAQXQJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWAQXPn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 18:15:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWAQXPn
+	id S964889AbWAQXQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 18:16:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbWAQXQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 18:15:43 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:64213
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S964791AbWAQXPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 18:15:42 -0500
-Date: Tue, 17 Jan 2006 15:15:10 -0800 (PST)
-Message-Id: <20060117.151510.125926130.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: adobriyan@gmail.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, asun@darksunrising.com
-Subject: Re: PATCH: cassini printk format warning
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060117134010.1e48fd79.akpm@osdl.org>
-References: <1137523175.14135.84.camel@localhost.localdomain>
-	<20060117213442.GA22002@mipter.zuzino.mipt.ru>
-	<20060117134010.1e48fd79.akpm@osdl.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 17 Jan 2006 18:16:09 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:10204 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964885AbWAQXQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 18:16:06 -0500
+From: "Sean Hefty" <sean.hefty@intel.com>
+To: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
+       "'Sean Hefty'" <sean.hefty@intel.com>
+Cc: <openib-general@openib.org>
+Subject: [PATCH 0/5] [RFC] Infiniband: connection abstraction
+Date: Tue, 17 Jan 2006 15:16:04 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Thread-Index: AcYbu/zrU6zfCVlKQduiSToJrEPb/g==
+Message-ID: <ORSMSX401FRaqbC8wSA0000003e@orsmsx401.amr.corp.intel.com>
+X-OriginalArrivalTime: 17 Jan 2006 23:16:05.0044 (UTC) FILETIME=[FD609F40:01C61BBB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Tue, 17 Jan 2006 13:40:10 -0800
+The following set of patches defines a connection abstraction for Infiniband and
+other RDMA devices, and serves several purposes:
 
-> Alexey Dobriyan <adobriyan@gmail.com> wrote:
-> > 	"%llx", (unsigned long long)u64
-> > 
-> > is the warningless way on all archs.
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15/2.6.15-mm4/broken-out/cassini-printk-fix.patch
+* It implements a connection protocol over Infiniband based on IP addressing.
+This greatly simplifies clients wishing to establish connections over
+Infiniband.
 
-I've added this to my tree, thanks Andrew.
+* It defines a connection abstraction that works over multiple RDMA devices.
+The submitted implementation targets Infiniband, but has been tested over other
+RDMA devices as well.
+
+* It handles RDMA device insertion and removal on behalf of its clients.
+
+The changes have been broken into 5 separate patches.  The basic purpose of each
+patch is:
+
+1. Provide common handling for marshalling data between userspace clients and
+kernel mode Infiniband 	drivers.
+
+2. Extend the Infiniband CM to include private data comparisons as part of its
+connection request matching process.
+
+3. Provide an address translation service that maps IP addresses to Infiniband
+addresses (GIDs).  This patch touches outside of the Infiniband core, so I'm
+including the netdev mailing list.
+
+4. Implement the kernel mode RDMA connection management agent.
+
+5. Implement the userspace RDMA connection management agent kernel support
+module.
+
+Please copy the openib-general mailing list on any replies.
+
+Thanks,
+Sean
 

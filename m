@@ -1,159 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbWAQUNc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbWAQUOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964801AbWAQUNc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 15:13:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbWAQUNc
+	id S964804AbWAQUOE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 15:14:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbWAQUOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 15:13:32 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:21457 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964804AbWAQUNb convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 15:13:31 -0500
-Date: Tue, 17 Jan 2006 12:13:48 -0800
-From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
-To: Mathieu =?ISO-8859-1?B?QulyYXJk?= <Mathieu.Berard@crans.org>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-ide@vger.kernel.org,
-       akpm <akpm@osdl.org>
-Subject: [PATCH 1/3] libata-acpi:more debugging
-Message-Id: <20060117121348.2f40e672.randy_d_dunlap@linux.intel.com>
-In-Reply-To: <43C948D1.9010007@crans.org>
-References: <43C948D1.9010007@crans.org>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-X-Face: "}I"O`t9.W]b]8SycP0Jap#<FU!b:16h{lR\#aFEpEf\3c]wtAL|,'>)%JR<P#Yg.88}`$#
- A#bhRMP(=%<w07"0#EoCxXWD%UDdeU]>,H)Eg(FP)?S1qh0ZJRu|mz*%SKpL7rcKI3(OwmK2@uo\b2
- GB:7w&?a,*<8v[ldN`5)MXFcm'cjwRs5)ui)j
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 17 Jan 2006 15:14:04 -0500
+Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:12168 "EHLO
+	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S964812AbWAQUN5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 15:13:57 -0500
+Date: Tue, 17 Jan 2006 21:13:49 +0100 (CET)
+From: Martin Drab <drab@kepler.fjfi.cvut.cz>
+To: Benjamin LaHaise <bcrl@kvack.org>
+cc: Cynbe ru Taren <cynbe@muq.org>, linux-kernel@vger.kernel.org
+Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
+In-Reply-To: <20060117193913.GD3714@kvack.org>
+Message-ID: <Pine.LNX.4.60.0601172047560.25680@kepler.fjfi.cvut.cz>
+References: <E1EywcM-0004Oz-IE@laurel.muq.org> <20060117193913.GD3714@kvack.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Jan 2006 19:54:09 +0100
-Mathieu Bérard <Mathieu.Berard@crans.org> wrote:
+On Tue, 17 Jan 2006, Benjamin LaHaise wrote:
 
-> Hi,
-> 2.6.15-mm4 crash on boot when loading the ata_piix or the ahci module.
-> Reverting the libata ACPI support patches workaround this bug.
+> On Tue, Jan 17, 2006 at 01:35:46PM -0600, Cynbe ru Taren wrote:
+> > In principle, RAID5 should allow construction of a
+> > disk-based store which is considerably MORE reliable
+> > than any individual drive.
+> > 
+> > In my experience, at least, using Linux RAID5 results
+> > in a disk storage system which is considerably LESS
+> > reliable than the underlying drives.
 > 
-> (Please CC me)
+> That is a function of how RAID5 works.  A properly configured RAID5 array 
+> will have a spare disk to take over in case one of the members fails, as 
+> otherwise you run a serious risk of not being able to recover any data.
+> 
+> > What happens repeatedly, at least in my experience over
+> > a variety of boxes running a variety of 2.4 and 2.6
+> > Linux kernel releases, is that any transient I/O problem
+> > results in a critical mass of RAID5 drives being marked
+> > 'failed', at which point there is no longer any supported
+> > way of retrieving the data on the RAID5 device, even
+> > though the underlying drives are all fine, and the underlying
+> > data on those drives almost certainly intact.
+> 
+> Underlying disks should not be experiencing transient failures.  Are you 
+> sure the problem isn't with the disk controller you're building your array 
+> on top of?  At the very least any bug report requires that information to 
+> be able to provide even a basic analysis of what is going wrong.
 
-Hi,
-This series of 3 patches to 2.6.15-mm4 fixes it for me.
-Thanks,
----
+Well, I had a similar experience lately with the Adaptec AAC-2410SA RAID 
+5 array. Due to the CPU overheating the whole box was suddenly shot down 
+by the CPU damage protection mechanism. While there is no battery backup 
+on this particular RAID controller, the sudden poweroff caused some very 
+localized inconsistency of one disk in the RAID. The configuration was 
+1x160 GB and 3x120GB, with the 160 GB being split into 120 GB part within 
+the RAID 5 and a 40 GB part as a separate volume. The inconsistency 
+happend in the 40 GB part of the 160 GB HDD (as reported by the Adaptec 
+BIOS media check). In particular the problem was in the /dev/sda2 (with 
+/dev/sda being the 40 GB Volume, /dev/sda1 being an NTFS Windows system, 
+and /dev/sda2 being ext3 Linux system).
 
-From: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+Now, what is interesting, is that Linux completely refused any possible 
+access to every byte within /dev/sda, not even dd(1) reading from any 
+position within /dev/sda, not even "fdisk /dev/sda", nothing. Everything 
+ended up with lots of following messages:
 
-Add more libata-acpi debugging, plus controlled by libata.printk value.
+        sd 0:0:0:0: SCSI error: return code = 0x8000002
+        sda: Current: sense key: Hardware Error
+            Additional sense: Internal target failure
+        Info fld=0x0
+        end_request: I/O error, dev sda, sector <some sector number>
 
-Signed-off-by: Randy Dunlap <randy_d_dunlap@linux.intel.com>
----
- drivers/scsi/libata-acpi.c |   53 ++++++++++++++++++++++++++++-----------------
- 1 files changed, 34 insertions(+), 19 deletions(-)
+I've consulted this with Mark Salyzyn, because I thought it was a problem 
+of the AACRAID driver. But I was told, that there is nothing that AACRAID 
+can possibly do about it, and that it is a problem of the upper Linux 
+layers (block device layer?) that are strictly fault intollerant, and 
+thouth the problem was just an inconsistency of one particular localized 
+region inside /dev/sda2, Linux was COMPLETELY UNABLE (!!!!!) to read a 
+single byte from the ENTIRE VOLUME (/dev/sda)!
 
---- linux-2615-mm4.orig/drivers/scsi/libata-acpi.c
-+++ linux-2615-mm4/drivers/scsi/libata-acpi.c
-@@ -371,17 +371,20 @@ int do_drive_get_GTF(struct ata_port *ap
- 	status = acpi_evaluate_object(atadev->obj_handle, "_GTF",
- 					NULL, &output);
- 	if (ACPI_FAILURE(status)) {
--		printk(KERN_DEBUG
--			"%s: Run _GTF error: status = 0x%x\n",
--			__FUNCTION__, status);
-+		if (ata_msg_probe(ap))
-+			printk(KERN_DEBUG
-+				"%s: Run _GTF error: status = 0x%x\n",
-+				__FUNCTION__, status);
- 		goto out;
- 	}
- 
- 	if (!output.length || !output.pointer) {
--		printk(KERN_DEBUG
--			"%s: Run _GTF: length or ptr is NULL (0x%llx, 0x%p)\n",
--			__FUNCTION__,
--			(unsigned long long)output.length, output.pointer);
-+		if (ata_msg_probe(ap))
-+			printk(KERN_DEBUG "%s: Run _GTF: "
-+				"length or ptr is NULL (0x%llx, 0x%p)\n",
-+				__FUNCTION__,
-+				(unsigned long long)output.length,
-+				output.pointer);
- 		acpi_os_free(output.pointer);
- 		goto out;
- 	}
-@@ -389,23 +392,32 @@ int do_drive_get_GTF(struct ata_port *ap
- 	out_obj = output.pointer;
- 	if (out_obj->type != ACPI_TYPE_BUFFER) {
- 		acpi_os_free(output.pointer);
--		printk(KERN_DEBUG "%s: Run _GTF: error: "
--			"expected object type of ACPI_TYPE_BUFFER, got 0x%x\n",
--			__FUNCTION__, out_obj->type);
-+		if (ata_msg_probe(ap))
-+			printk(KERN_DEBUG "%s: Run _GTF: error: "
-+				"expected object type of ACPI_TYPE_BUFFER, "
-+				"got 0x%x\n",
-+				__FUNCTION__, out_obj->type);
- 		err = -ENOENT;
- 		goto out;
- 	}
- 
--	if (out_obj->buffer.length % REGS_PER_GTF) {
-+	if (!out_obj->buffer.length || !out_obj->buffer.pointer ||
-+	    out_obj->buffer.length % REGS_PER_GTF) {
- 		if (ata_msg_drv(ap))
--			printk(KERN_ERR "%s: unexpected GTF length (%d)\n",
--				__FUNCTION__, out_obj->buffer.length);
-+			printk(KERN_ERR
-+				"%s: unexpected GTF length (%d) or addr (0x%p)\n",
-+				__FUNCTION__, out_obj->buffer.length,
-+				out_obj->buffer.pointer);
- 		err = -ENOENT;
- 		goto out;
- 	}
- 
- 	*gtf_length = out_obj->buffer.length;
- 	*gtf_address = (unsigned long)out_obj->buffer.pointer;
-+	if (ata_msg_probe(ap))
-+		printk(KERN_DEBUG "%s: returning "
-+			"gtf_length=%d, gtf_address=0x%lx\n",
-+			__FUNCTION__, *gtf_length, *gtf_address);
- 	err = 0;
- out:
- 	return err;
-@@ -510,8 +522,9 @@ int do_drive_set_taskfiles(struct ata_po
- 
- 	if (ata_msg_probe(ap))
- 		printk(KERN_DEBUG
--			"%s: total GTF bytes = %u (0x%x), gtf_count = %d\n",
--			__FUNCTION__, gtf_length, gtf_length, gtf_count);
-+			"%s: total GTF bytes=%u (0x%x), gtf_count=%d, addr=0x%lx\n",
-+			__FUNCTION__, gtf_length, gtf_length, gtf_count,
-+			gtf_address);
- 	if (gtf_length % REGS_PER_GTF) {
- 		if (ata_msg_drv(ap))
- 			printk(KERN_ERR "%s: unexpected GTF length (%d)\n",
-@@ -553,8 +566,9 @@ int ata_acpi_exec_tfs(struct ata_port *a
- 		return 0;
- 
- 	for (ix = 0; ix < ATA_MAX_DEVICES; ix++) {
--		printk(KERN_DEBUG "%s: call get_GTF, ix=%d\n",
--			__FUNCTION__, ix);
-+		if (ata_msg_probe(ap))
-+			printk(KERN_DEBUG "%s: call get_GTF, ix=%d\n",
-+				__FUNCTION__, ix);
- 		ret = do_drive_get_GTF(ap, &ap->device[ix],
- 				&gtf_length, &gtf_address);
- 		if (ret < 0) {
-@@ -564,8 +578,9 @@ int ata_acpi_exec_tfs(struct ata_port *a
- 			break;
- 		}
- 
--		printk(KERN_DEBUG "%s: call set_taskfiles, ix=%d\n",
--			__FUNCTION__, ix);
-+		if (ata_msg_probe(ap))
-+			printk(KERN_DEBUG "%s: call set_taskfiles, ix=%d\n",
-+				__FUNCTION__, ix);
- 		ret = do_drive_set_taskfiles(ap, &ap->device[ix],
- 				gtf_length, gtf_address);
- 		acpi_os_free((void *)gtf_address);
+And now for the best part: From Windows, I was able to access the ENTIRE 
+VOLUME without the slightest problem. Not only did Windows boot entirely 
+from the /dev/sda1, but using Total Commander's ext3 plugin I was also 
+able to access the ENTIRE /dev/sda2 and at least extract the most 
+important data and configurations, before I did the complete low-level 
+formatting of the drive, which fixed the inconsistency problem.
+
+I call this "AN IRONY" to be forced to use Windows to extract information 
+from Linux partition, wouldn't you? ;)
+
+(Besides, even GRUB (using BIOS) accessed the /dev/sda without 
+complications - as it was the bootable volume. Only Linux failed here a 
+100%. :()
+
+Martin

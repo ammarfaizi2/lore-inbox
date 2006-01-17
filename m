@@ -1,81 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWAQADg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWAQAPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbWAQADg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 19:03:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWAQADf
+	id S1751310AbWAQAPW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 19:15:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWAQAPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 19:03:35 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:21949 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1751305AbWAQADf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 19:03:35 -0500
-Message-Id: <200601161916.k0GJGm7T002751@laptop11.inf.utfsm.cl>
-To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.15: Filesystem capabilities 0.16 
-In-Reply-To: Message from Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de> 
-   of "Sat, 14 Jan 2006 22:21:50 BST." <8764om8pzl.fsf@goat.bogus.local> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
-Date: Mon, 16 Jan 2006 16:16:48 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 16 Jan 2006 21:03:31 -0300 (CLST)
+	Mon, 16 Jan 2006 19:15:22 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:41431 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751263AbWAQAPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 19:15:21 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: spereira@tusc.com.au
+Subject: Re: [PATCH 3/4 -2.6.15]:x25: 32 bit (socket layer) ioctl emulation for 64 bit kernels
+Date: Tue, 17 Jan 2006 01:15:06 +0100
+User-Agent: KMail/1.9.1
+Cc: YOSHIFUJI Hideaki /
+	 =?utf-8?q?=E5=90=89=E8=97=A4=E8=8B=B1=E6=98=8E?= 
+	<yoshfuji@linux-ipv6.org>,
+       acme@ghostprotocols.net, ak@muc.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, pereira.shaun@gmail.com
+References: <1137122079.5589.34.camel@spereira05.tusc.com.au> <200601161043.31742.arnd@arndb.de> <1137453135.6553.19.camel@spereira05.tusc.com.au>
+In-Reply-To: <1137453135.6553.19.camel@spereira05.tusc.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601170115.07019.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de> wrote:
-> This patch implements filesystem capabilities. It allows to run
-> privileged executables without the need for suid root.
-> 
-> Changes:
-> - updated to 2.6.15
-> 
-> This patch is available at:
-> <http://www.olafdietsche.de/linux/capability/>
-> 
-> Regards, Olaf.
-> 
-> diff -urN a/fs/Kconfig b/fs/Kconfig
-> --- a/fs/Kconfig	Wed Jan  4 22:01:06 2006
-> +++ b/fs/Kconfig	Sun Jan  8 15:12:25 2006
-> @@ -1209,6 +1209,69 @@
->  	  It's currently broken, so for now:
->  	  answer N.
->  
-> +config FS_CAPABILITIES
-> +	bool "Filesystem capabilities (Experimental)"
-> +	depends on EXPERIMENTAL
-> +	default n
-> +	help
-> +	  This implementation is likely _not_ POSIX compatible.
+Am Dienstag, 17. Januar 2006 00:12 schrieb Shaun Pereira:
+> +static int compat_x25_subscr_ioctl(unsigned int cmd,
+> +               struct compat_x25_subscrip_struct __user *x25_subscr32)
+> +{
+> +       struct x25_subscrip_struct x25_subscr;
+> +       struct x25_neigh *nb;
+> +       struct net_device *dev;
+> +       int rc = -EINVAL;
 > +
-> +	  If you say Y here, you will be able to grant selective privileges to
-> +	  executables on a needed basis. This means for some executables, there
-> +	  is no need anymore to run as root or as a suid root binary.
-> +
-> +	  For example, you may drop the SUID bit from ping and grant the
-> +	  CAP_NET_RAW capability:
-> +	  # chmod u-s /bin/ping
-> +	  # chcap cap_net_raw=ep /bin/ping
+> +       if (cmd != SIOCX25GSUBSCRIP && cmd != SIOCX25SSUBSCRIP)
+> +               goto out;
 
-Why the cap_ part? It should be enough to say, e.g.
-
-    chcap net-raw=ep /bin/ping
-
-('_' has SHIFT, normally... '-' is easier to type)
+btw, the above check is not needed here, but that's not my point.
 
 > +
-> +	  Another use would be to run system daemons with their own uid:
-> +	  # chcap cap_net_bind_service=ei /usr/sbin/named
-> +	  This sets the effective and inheritable capabilities of named.
-> +
-> +	  In your startup script:
-> +	  inhcaps cap_net_bind_service=i bind:bind /usr/sbin/named
+> +       rc = -EFAULT;
+> +       if(copy_from_user(&x25_subscr, x25_subscr32, sizeof(*x25_subscr32))) 
+> +               goto out;
 
-AFAIU, the =i implies inherited, why another command to set that?
+Unfortunately, I just found another bug in this code, similar to one you 
+already fixed in the sock_get_timestamp handler:
+You can't do the copy_from_user like this if the arguments have different 
+types. Changing the declaration 'struct x25_subscrip_struct x25_subscr;'
+to 'struct compat_x25_subscrip_struct x25_subscr;' should fix this problem,
+but please verify that it really works with a test case that relies on the 
+contents of x25_subscr->extended.
 
-Can't comment on the rest.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+	Arnd <><

@@ -1,60 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbWAQWtQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbWAQWzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932474AbWAQWtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 17:49:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWAQWtP
+	id S932484AbWAQWzY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 17:55:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWAQWzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 17:49:15 -0500
-Received: from 213-140-2-68.ip.fastwebnet.it ([213.140.2.68]:2704 "EHLO
-	aa001msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S932474AbWAQWtP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 17:49:15 -0500
-Date: Tue, 17 Jan 2006 23:49:52 +0100
-From: Mattia Dongili <malattia@linux.it>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: first bisection results in -mm3 [was: Re: 2.6.15-mm2: reiser3 oops on suspend and more (bonus oops shot!)]
-Message-ID: <20060117224951.GA3320@inferi.kami.home>
-Mail-Followup-To: john stultz <johnstul@us.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060110170037.4a614245.akpm@osdl.org> <20060111184027.GB4735@inferi.kami.home> <20060112220825.GA3490@inferi.kami.home> <1137108362.2890.141.camel@cog.beaverton.ibm.com> <20060114120816.GA3554@inferi.kami.home> <1137442582.27699.12.camel@cog.beaverton.ibm.com> <20060116204057.GC3639@inferi.kami.home> <1137458964.27699.65.camel@cog.beaverton.ibm.com> <20060117174953.GA3529@inferi.kami.home> <1137525090.27699.92.camel@cog.beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137525090.27699.92.camel@cog.beaverton.ibm.com>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.15-mm4-4 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.11
+	Tue, 17 Jan 2006 17:55:24 -0500
+Received: from sccrmhc13.comcast.net ([63.240.77.83]:22179 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S932484AbWAQWzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 17:55:23 -0500
+Subject: Re: differences between MADV_FREE and MADV_DONTNEED
+From: Nicholas Miell <nmiell@comcast.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Ulrich Drepper <drepper@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
+       Badari Pulavarty <pbadari@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, hugh@veritas.com, dvhltc@us.ibm.com,
+       linux-mm@kvack.org, blaisorblade@yahoo.it, jdike@addtoit.com
+In-Reply-To: <m1ek36r9vq.fsf@ebiederm.dsl.xmission.com>
+References: <20051111174309.5d544de4.akpm@osdl.org>
+	 <43757263.2030401@us.ibm.com> <20060116130649.GE15897@opteron.random>
+	 <43CBC37F.60002@FreeBSD.org> <20060116162808.GG15897@opteron.random>
+	 <43CBD1C4.5020002@FreeBSD.org> <20060116172449.GL15897@opteron.random>
+	 <m1r777rgq4.fsf@ebiederm.dsl.xmission.com> <43CC3922.2070205@FreeBSD.org>
+	 <1137459847.2842.6.camel@entropy> <20060117124315.GA7754@infradead.org>
+	 <m1ek36r9vq.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Date: Tue, 17 Jan 2006 14:55:18 -0800
+Message-Id: <1137538518.2842.9.camel@entropy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 17, 2006 at 11:11:30AM -0800, john stultz wrote:
-> On Tue, 2006-01-17 at 18:49 +0100, Mattia Dongili wrote:
-> > On Mon, Jan 16, 2006 at 04:49:18PM -0800, john stultz wrote:
-> > > On Mon, 2006-01-16 at 21:40 +0100, Mattia Dongili wrote:
-> > > > On Mon, Jan 16, 2006 at 12:16:21PM -0800, john stultz wrote:
-> > > > > I'll try to narrow that window down a bit and see if that doesn't
-> > > > > resolve the issue.
-> > > > 
-> > > > I'll be happy to test new patches if necessary (I'm running -mm4)
-> > > 
-> > > See if this patch doesn't resolve the issue. Its a bit hackish, but
-> > > basically I'm just holding off installing any clocksources until later
-> > > on at boot. This avoids some of the clocksource churn.
-> > 
-> > With the patch applied the boot went smooth.
+On Tue, 2006-01-17 at 11:23 -0700, Eric W. Biederman wrote:
+> Christoph Hellwig <hch@infradead.org> writes:
+> > On Mon, Jan 16, 2006 at 05:04:07PM -0800, Nicholas Miell wrote:
+> >> On Mon, 2006-01-16 at 16:24 -0800, Suleiman Souhlal wrote:
+> >> > Well, imho, MADV_DONTNEED should mean "I won't need this anytime soon", 
+> >> > and MADV_FREE "I will never need this again".
+> >> > 
+> >> 
+> >> POSIX doesn't have a madvise(), but it does have a posix_madvise(), with
+> >> flags defined as follows:
+> >> 
+> >> POSIX_MADV_NORMAL
+> >>    Specifies that the application has no advice to give on its behavior
+> >> with respect to the specified range. It is the default characteristic if
+> >> no advice is given for a range of memory.
+> >> POSIX_MADV_SEQUENTIAL
+> >>    Specifies that the application expects to access the specified range
+> >> sequentially from lower addresses to higher addresses.
+> >> POSIX_MADV_RANDOM
+> >>    Specifies that the application expects to access the specified range
+> >> in a random order.
+> >> POSIX_MADV_WILLNEED
+> >>    Specifies that the application expects to access the specified range
+> >> in the near future.
+> >> POSIX_MADV_DONTNEED
+> >>    Specifies that the application expects that it will not access the
+> >> specified range in the near future.
+> >> 
+> >> Note that glibc forwards posix_madvise() directly to madvise(2), which
+> >> means that right now, POSIX conformant apps which use
+> >> posix_madvise(addr, len, POSIX_MADV_DONTNEED) are silently corrupting
+> >> data on Linux systems.
+> >
+> > Does our MAD_DONTNEED numerical value match glibc's POSIX_MADV_DONTNEED?
+> >
+> > In either case I'd say we should backout this patch for now.  We should
+> > implement a real MADV_DONTNEED and rename the current one to MADV_FREE,
+> > but that's 2.6.17 material.
 > 
-> Great. Thanks for the testing. I'll send that one off to Andrew.
+> We definitely need to check this.  I am fairly certain  I have seen this conversation
+> before.
 
-I'm sorry, my very bad... it seems I somewhat forgot to remove
-clocksource=jiffies from the command line and that fooled me.
+Yes, POSIX_MADV_* have the same values as MADV_*. And if you're trying
+to find the actual implementation of posix_madvise() to verify its
+behavior, it is generated by script from a line in
+libc/sysdeps/unix/sysv/linux/syscalls.list.
 
-the stall is still there, tomorrow I'll reapply your debug-patch and
-report the full dmesg (with the finished_booting-hack enabled).
-
-Sorry again.
 -- 
-mattia
-:wq!
+Nicholas Miell <nmiell@comcast.net>
+

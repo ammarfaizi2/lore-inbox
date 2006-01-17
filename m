@@ -1,66 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWAQWN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbWAQWV3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbWAQWN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 17:13:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWAQWN5
+	id S964868AbWAQWV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 17:21:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWAQWV3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 17:13:57 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:12231 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964778AbWAQWN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 17:13:56 -0500
-Subject: Re: Kernel 2.6.15.1 + NFS is 4 times slower than FTP!?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Justin Piszcz <jpiszcz@lucidpixels.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
-       Phil Oester <kernel@linuxace.com>, linux-kernel@vger.kernel.org,
-       apiszcz@lucidpixels.com
-In-Reply-To: <Pine.LNX.4.61.0601172307030.7756@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.64.0601161957300.16829@p34>
-	 <20060117012319.GA22161@linuxace.com>
-	 <Pine.LNX.4.64.0601162031220.2501@p34>
-	 <Pine.BSO.4.63.0601171846570.15077@rudy.mif.pg.gda.pl>
-	 <1137521483.14135.59.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0601171324010.25508@p34>
-	 <1137523035.7855.91.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.64.0601171338040.25508@p34>
-	 <1137523991.7855.103.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.64.0601171354510.25508@p34>
-	 <1137524502.7855.107.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.61.0601172139230.30708@yvahk01.tjqt.qr>
-	 <Pine.LNX.4.64.0601171545310.19112@p34>
-	 <Pine.LNX.4.61.0601172307030.7756@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Tue, 17 Jan 2006 17:13:53 -0500
-Message-Id: <1137536034.19678.43.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
+	Tue, 17 Jan 2006 17:21:29 -0500
+Received: from natfrord.rzone.de ([81.169.145.161]:37250 "EHLO
+	natfrord.rzone.de") by vger.kernel.org with ESMTP id S964865AbWAQWV2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 17:21:28 -0500
+From: Stefan Rompf <stefan@loplof.de>
+To: Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: wireless: recap of current issues (configuration)
+Date: Tue, 17 Jan 2006 23:20:48 +0100
+User-Agent: KMail/1.8
+Cc: Sam Leffler <sam@errno.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <20060113195723.GB16166@tuxdriver.com> <43CAABD4.3070004@errno.com> <1137355912.2520.97.camel@localhost>
+In-Reply-To: <1137355912.2520.97.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601172320.49072.stefan@loplof.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-17 at 23:07 +0100, Jan Engelhardt wrote:
-> > auto   Can be mounted with the -a option.
-> >
-> > defaults
-> > Use default options: rw, suid, dev, exec,  auto,
-> > nouser, and async.
-> >
-> > The default is async, no?
-> 
-> The server side also needs to specify async in exports. You even get a 
-> warning if you do not specify sync or async, because the default had 
-> been changed once.
-> 
+Am Sonntag 15 Januar 2006 21:11 schrieb Johannes Berg:
 
-What is the date on the above man page?  Looks like the docs need to be
-updated.
+> [iwconfig mode ...]
+>
+> Yeah, I agree with this, it is much cleaner to handle in the kernel.
+> Think about the issues if you have a struct net_device that has 250
+> bytes of "payload" for the struct virtual_sta_device in it and you want
+> to switch that to a struct virtual_monitor_device. Icky.
 
-I believe the default was originally async, which violates the NFS spec
-and is dangerous, and changed to sync at some point.
+Well, nobody forces you to allocate dev->priv together with the net_device, 
+you can set and change this pointer yourself. So I don't see a problem here.
 
-Lee
-
+Stefan

@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbWAQUAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWAQUDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964788AbWAQUAu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 15:00:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWAQUAt
+	id S964792AbWAQUDw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 15:03:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWAQUDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 15:00:49 -0500
-Received: from smtpout.mac.com ([17.250.248.73]:56810 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S964788AbWAQUAt (ORCPT
+	Tue, 17 Jan 2006 15:03:52 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:22924 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S964792AbWAQUDv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 15:00:49 -0500
-Mime-Version: 1.0 (Apple Message framework v746.2)
-In-Reply-To: <E1EywcM-0004Oz-IE@laurel.muq.org>
-References: <E1EywcM-0004Oz-IE@laurel.muq.org>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <7BD9989C-3509-4895-8A4A-7CB59FABE288@mac.com>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
-Date: Tue, 17 Jan 2006 15:00:30 -0500
-To: LKML Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: Apple Mail (2.746.2)
+	Tue, 17 Jan 2006 15:03:51 -0500
+Date: Tue, 17 Jan 2006 21:03:45 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Ismail Donmez <ismail@uludag.org.tr>
+cc: linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
+Subject: Re: Suggested janitor task - remove __init/__exit from function
+ prototypes
+In-Reply-To: <200601171901.57621.ismail@uludag.org.tr>
+Message-ID: <Pine.LNX.4.61.0601172102390.11929@yvahk01.tjqt.qr>
+References: <31582.1137291095@ocs3.ocs.com.au> <Pine.LNX.4.61.0601171754270.18569@yvahk01.tjqt.qr>
+ <200601171901.57621.ismail@uludag.org.tr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW, when you get this message via the list (because I refuse to  
-touch challenge-response email systems), shut off your damn email  
-challenge-response system before posting to this list again.  Such  
-systems are exceptionally poor ettiquite on a public mailing list,  
-and more than likely most posters will flag your "challenge" as junk- 
-mail (as I did, and will continue doing).
-
-Cheers,
-Kyle Moffett
-
---
-Premature optimization is the root of all evil in programming
-   -- C.A.R. Hoare
-
+>> >Some function prototypes (in both .h and .c files) specify attributes
+>> >like __init and __exit in the prototype.  gcc (at least at 3.3.3) uses
+>> >the last such attribute that is actually specified, without issuing a
+>> >warning.
+>>
+>> How does gcc 2.95 handle it, requiring __init in both spots?
+>
+>gcc 3.2 is now required for mainline kernel.
+>
+Sure, but I asked because I maintain one piece of code (ttyrpld) that 
+should compile for both 2.4 and 2.6. OTOH, I could use it to make people 
+convert to 2.6 ;-)
 
 
+Jan Engelhardt
+-- 

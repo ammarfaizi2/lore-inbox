@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWAQH7G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWAQIEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751287AbWAQH7G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 02:59:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWAQH7F
+	id S1751302AbWAQIEW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 03:04:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWAQIEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 02:59:05 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:42684 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751287AbWAQH7E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 02:59:04 -0500
-Date: Tue, 17 Jan 2006 02:58:42 -0500
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, mita@miraclelinux.com, Keith Owens <kaos@ocs.com.au>
-Subject: Re: [patch 2.6.15-current] i386: multi-column stack backtraces
-Message-ID: <20060117075841.GA5710@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org,
-	mita@miraclelinux.com, Keith Owens <kaos@ocs.com.au>
-References: <200601170126_MC3-1-B602-EFCB@compuserve.com> <20060116224234.5a7ca488.akpm@osdl.org>
+	Tue, 17 Jan 2006 03:04:22 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:49092
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751302AbWAQIEV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 03:04:21 -0500
+Subject: Re: ktimer not firing ?
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Claudio Scordino <cloud.of.andor@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+       kernelnewbies@nl.linux.org, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <200601160945.47973.cloud.of.andor@gmail.com>
+References: <200511171639.27565.cloud.of.andor@gmail.com>
+	 <1132248488.10522.4.camel@localhost.localdomain>
+	 <200601160945.47973.cloud.of.andor@gmail.com>
+Content-Type: text/plain
+Date: Tue, 17 Jan 2006 09:04:44 +0100
+Message-Id: <1137485084.17609.28.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060116224234.5a7ca488.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 16, 2006 at 10:42:34PM -0800, Andrew Morton wrote:
+On Mon, 2006-01-16 at 09:45 -0500, Claudio Scordino wrote:
+> Hi,
+> 
+>    I know that ktimer is not yet part of the main tree of the Linux
+> kernel...
 
- > Presumably this is going to bust ksymoops.
- 
-Do people actually still use ksymoops for 2.6 kernels ?
+And will never be. ktimers have been superseeded by hrtimers. The base
+patch is merged into Linus tree and the high resolution patch can be
+found here:
 
-I resorted to it about 6 months ago for the first time in the
-better part of 3 years, and it didn't even compile.
-(I only wanted to disassemble a Code: line, addr resolution
- works for me [and most other distros afaik] with kksymoops now)
+http://www.tglx.de/projects/hrtimers/2.6.15/
 
- > Also the various other custom
- > oops-parsers which people have written themselves.
+> However, the timer never fires. I checked the return value of the start and 
+> it's correct (0 = success). Any idea of why the timer does not fire ?
 
-Given we've extended the oops output in several different
-ways without thought in the past, it seems a bit late.
-We added printing of module list in the middle of the output.
-We added various tainting flags over time.
+Have you checked the expiry value after you called (re)start? It might
+be far in the future.
 
-What other tools parse oopses ? ksymoops is the only one I recall.
+	tglx
 
- > The patch is a desirable change (I do get seasick reading x86_64 traces,
- > but I'll get over it), but it'll cause various bits of downstream grief.
-
-I'd be surprised if anyone noticed.
-
-*shrug*, in an ideal world, no-one would ever see an oops anyway :-P
- 
-		Dave
 

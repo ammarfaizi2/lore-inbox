@@ -1,211 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWAQSFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbWAQSHI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932158AbWAQSFR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 13:05:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWAQSFQ
+	id S932280AbWAQSHI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 13:07:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWAQSHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 13:05:16 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:45281 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S932152AbWAQSFO
+	Tue, 17 Jan 2006 13:07:08 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:62774 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932280AbWAQSHG convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 13:05:14 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Pat Gefre <pfg@sgi.com>, linux-ia64@vger.kernel.org
-Subject: [patch] sn_console.c minor cleanup
-From: Jes Sorensen <jes@sgi.com>
-Date: 17 Jan 2006 13:05:12 -0500
-Message-ID: <yq0ek36raqv.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Tue, 17 Jan 2006 13:07:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fwzDAnea8TWFZbzbQyQUpLQRJ2HZZ6J+hhmbboUAyFpV46vqBlS7bLiFK9BvlaHdN1bJ/SgxyZQ8MHy3YuWeSKE/A84QN5QDYpsICef3X6CLybfXU6WMi6tcFygeQ9mA23xctML71Wc3CxTztC1ypQBeE10dOB08kS2ICeGpcyM=
+Message-ID: <9a8748490601171007y426a02baq786d07a86f1632f7@mail.gmail.com>
+Date: Tue, 17 Jan 2006 19:07:04 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Diego Calleja <diegocg@gmail.com>
+Subject: Re: [KORG] GITWEB doesn't show any DIFF's
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>, mkrufky@m1k.net,
+       webmaster@kernel.org, linux-kernel@vger.kernel.org, mkrufky@gmail.com
+In-Reply-To: <20060117185244.e7b5cffc.diegocg@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <43CCF8BB.1050009@m1k.net>
+	 <200601171739.17168.s0348365@sms.ed.ac.uk>
+	 <20060117185244.e7b5cffc.diegocg@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 1/17/06, Diego Calleja <diegocg@gmail.com> wrote:
+> El Tue, 17 Jan 2006 17:39:17 +0000,
+> Alistair John Strachan <s0348365@sms.ed.ac.uk> escribió:
+>
+> > Seems to work for me right _now_, could you verify that this is still
+> > happening?
+>
+>
+> It happens for me, too - instead of showing me the diff, diffstat
+> shows me just:
+>
+>
+> file:844a6c9fb9490e585fc5371d759840b9e7ae327c -> file:21965e5ef25e8c1c86bd59da0f40350d4f821702
+> file:9a96f05883935a32955b216fcc3184bf162b0a85 -> file:63dd184ec808e7129efc3a355abdba4a21bf2c81
+>
+> With this commitdiff link, for example:
+> http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=7fab773de16ccaeb249acdc6e956a9759c68225d;hp=0046b06a367cd853efd3223ce60143f3a7952522
 
-A small round of house keeping for the sn_console.c driver.
-
-Cheers,
-Jes
+Seems to work just fine for me.
+With that link I get this :
 
 
-Fix printk level and remove unnecessary CONFIG_SMP|CONFIG_PREEMPT tests
-as this is taken care through the spinlock macros anyway.
 
-Signed-off-by: Jes Sorensen <jes@sgi.com>
-Signed-off-by: Pat Gefre <pfg@sgi.com>
+[PATCH] ide: AMD Geode GX/LX support
+From: "Jordan Crouse" <jordan.crouse@amd.com>
 
-----
+The core IDE engine on the CS5536 is the same as the other AMD southbridges,
+so unlike the CS5535, we can simply add the appropriate PCI headers to
+the existing amd74xx code.
 
- drivers/serial/sn_console.c |  129 +++++++++++++++++++-------------------------
- 1 files changed, 58 insertions(+), 71 deletions(-)
 
-Index: linux-2.6/drivers/serial/sn_console.c
-===================================================================
---- linux-2.6.orig/drivers/serial/sn_console.c
-+++ linux-2.6/drivers/serial/sn_console.c
-@@ -6,7 +6,7 @@
-  * driver for that.
-  *
-  *
-- * Copyright (c) 2004-2005 Silicon Graphics, Inc.  All Rights Reserved.
-+ * Copyright (c) 2004-2006 Silicon Graphics, Inc.  All Rights Reserved.
-  *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms of version 2 of the GNU General Public License
-@@ -829,8 +829,8 @@
- 		misc.name = DEVICE_NAME_DYNAMIC;
- 		retval = misc_register(&misc);
- 		if (retval != 0) {
--			printk
--			    ("Failed to register console device using misc_register.\n");
-+			printk(KERN_WARNING "Failed to register console "
-+			       "device using misc_register.\n");
- 			return -ENODEV;
- 		}
- 		sal_console_uart.major = MISC_MAJOR;
-@@ -942,88 +942,75 @@
- {
- 	unsigned long flags = 0;
- 	struct sn_cons_port *port = &sal_console_port;
--#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
- 	static int stole_lock = 0;
--#endif
- 
- 	BUG_ON(!port->sc_is_asynch);
- 
- 	/* We can't look at the xmit buffer if we're not registered with serial core
- 	 *  yet.  So only do the fancy recovery after registering
- 	 */
--	if (port->sc_port.info) {
--
--		/* somebody really wants this output, might be an
--		 * oops, kdb, panic, etc.  make sure they get it. */
--#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
--		if (spin_is_locked(&port->sc_port.lock)) {
--			int lhead = port->sc_port.info->xmit.head;
--			int ltail = port->sc_port.info->xmit.tail;
--			int counter, got_lock = 0;
-+	if (!port->sc_port.info) {
-+		/* Not yet registered with serial core - simple case */
-+		puts_raw_fixed(port->sc_ops->sal_puts_raw, s, count);
-+		return;
-+	}
- 
--			/*
--			 * We attempt to determine if someone has died with the
--			 * lock. We wait ~20 secs after the head and tail ptrs
--			 * stop moving and assume the lock holder is not functional
--			 * and plow ahead. If the lock is freed within the time out
--			 * period we re-get the lock and go ahead normally. We also
--			 * remember if we have plowed ahead so that we don't have
--			 * to wait out the time out period again - the asumption
--			 * is that we will time out again.
--			 */
-+	/* somebody really wants this output, might be an
-+	 * oops, kdb, panic, etc.  make sure they get it. */
-+	if (spin_is_locked(&port->sc_port.lock)) {
-+		int lhead = port->sc_port.info->xmit.head;
-+		int ltail = port->sc_port.info->xmit.tail;
-+		int counter, got_lock = 0;
+file:844a6c9fb9490e585fc5371d759840b9e7ae327c ->
+file:21965e5ef25e8c1c86bd59da0f40350d4f821702
+--- a/drivers/ide/pci/amd74xx.c
++++ b/drivers/ide/pci/amd74xx.c
+@@ -74,6 +74,7 @@ static struct amd_ide_chip {
+{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE, 0x50, AMD_UDMA_133 },
+{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE, 0x50, AMD_UDMA_133 },
+{ PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE, 0x50, AMD_UDMA_133 },
++ { PCI_DEVICE_ID_AMD_CS5536_IDE, 0x40, AMD_UDMA_100 },
+{ 0 }
+};
+@@ -491,6 +492,7 @@ static ide_pci_device_t amd74xx_chipsets
+/* 14 */ DECLARE_NV_DEV("NFORCE-MCP04"),
+/* 15 */ DECLARE_NV_DEV("NFORCE-MCP51"),
+/* 16 */ DECLARE_NV_DEV("NFORCE-MCP55"),
++ /* 17 */ DECLARE_AMD_DEV("AMD5536"),
+};
+static int __devinit amd74xx_probe(struct pci_dev *dev, const struct
+pci_device_id *id)
+@@ -527,6 +529,7 @@ static struct pci_device_id amd74xx_pci_
+{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_IDE,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 14 },
+{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_IDE,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 15 },
+{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_IDE,
+PCI_ANY_ID, PCI_ANY_ID, 0, 0, 16 },
++ { PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_CS5536_IDE, PCI_ANY_ID,
+PCI_ANY_ID, 0, 0, 17 },
+{ 0, },
+};
+MODULE_DEVICE_TABLE(pci, amd74xx_pci_tbl);
+file:9a96f05883935a32955b216fcc3184bf162b0a85 ->
+file:63dd184ec808e7129efc3a355abdba4a21bf2c81
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -487,6 +487,8 @@
+#define PCI_DEVICE_ID_AMD_8151_0 0x7454
+#define PCI_DEVICE_ID_AMD_8131_APIC 0x7450
++#define PCI_DEVICE_ID_AMD_CS5536_IDE 0x209A
 +
-+		/*
-+		 * We attempt to determine if someone has died with the
-+		 * lock. We wait ~20 secs after the head and tail ptrs
-+		 * stop moving and assume the lock holder is not functional
-+		 * and plow ahead. If the lock is freed within the time out
-+		 * period we re-get the lock and go ahead normally. We also
-+		 * remember if we have plowed ahead so that we don't have
-+		 * to wait out the time out period again - the asumption
-+		 * is that we will time out again.
-+		 */
- 
--			for (counter = 0; counter < 150; mdelay(125), counter++) {
--				if (!spin_is_locked(&port->sc_port.lock)
--				    || stole_lock) {
--					if (!stole_lock) {
--						spin_lock_irqsave(&port->
--								  sc_port.lock,
--								  flags);
--						got_lock = 1;
--					}
--					break;
--				} else {
--					/* still locked */
--					if ((lhead !=
--					     port->sc_port.info->xmit.head)
--					    || (ltail !=
--						port->sc_port.info->xmit.
--						tail)) {
--						lhead =
--						    port->sc_port.info->xmit.
--						    head;
--						ltail =
--						    port->sc_port.info->xmit.
--						    tail;
--						counter = 0;
--					}
-+		for (counter = 0; counter < 150; mdelay(125), counter++) {
-+			if (!spin_is_locked(&port->sc_port.lock)
-+			    || stole_lock) {
-+				if (!stole_lock) {
-+					spin_lock_irqsave(&port->sc_port.lock,
-+							  flags);
-+					got_lock = 1;
- 				}
--			}
--			/* flush anything in the serial core xmit buffer, raw */
--			sn_transmit_chars(port, 1);
--			if (got_lock) {
--				spin_unlock_irqrestore(&port->sc_port.lock,
--						       flags);
--				stole_lock = 0;
-+				break;
- 			} else {
--				/* fell thru */
--				stole_lock = 1;
-+				/* still locked */
-+				if ((lhead != port->sc_port.info->xmit.head)
-+				    || (ltail !=
-+					port->sc_port.info->xmit.tail)) {
-+					lhead =
-+						port->sc_port.info->xmit.head;
-+					ltail =
-+						port->sc_port.info->xmit.tail;
-+					counter = 0;
-+				}
- 			}
--			puts_raw_fixed(port->sc_ops->sal_puts_raw, s, count);
--		} else {
--			stole_lock = 0;
--#endif
--			spin_lock_irqsave(&port->sc_port.lock, flags);
--			sn_transmit_chars(port, 1);
-+		}
-+		/* flush anything in the serial core xmit buffer, raw */
-+		sn_transmit_chars(port, 1);
-+		if (got_lock) {
- 			spin_unlock_irqrestore(&port->sc_port.lock, flags);
--
--			puts_raw_fixed(port->sc_ops->sal_puts_raw, s, count);
--#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT)
-+			stole_lock = 0;
-+		} else {
-+			/* fell thru */
-+			stole_lock = 1;
- 		}
--#endif
--	}
--	else {
--		/* Not yet registered with serial core - simple case */
-+		puts_raw_fixed(port->sc_ops->sal_puts_raw, s, count);
-+	} else {
-+		stole_lock = 0;
-+		spin_lock_irqsave(&port->sc_port.lock, flags);
-+		sn_transmit_chars(port, 1);
-+		spin_unlock_irqrestore(&port->sc_port.lock, flags);
-+
- 		puts_raw_fixed(port->sc_ops->sal_puts_raw, s, count);
- 	}
- }
+#define PCI_VENDOR_ID_TRIDENT 0x1023
+#define PCI_DEVICE_ID_TRIDENT_4DWAVE_DX 0x2000
+#define PCI_DEVICE_ID_TRIDENT_4DWAVE_NX 0x2001
+
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

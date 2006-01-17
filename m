@@ -1,63 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWAQOvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWAQOxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbWAQOvH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 09:51:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWAQOvE
+	id S932082AbWAQOxa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 09:53:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWAQOvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 09:51:04 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:25251 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751212AbWAQOua (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 09:51:07 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:53421 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750928AbWAQOua
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 17 Jan 2006 09:50:30 -0500
-Message-Id: <20060117143327.825606000@sergelap>
+Message-Id: <20060117143327.142026000@sergelap>
 References: <20060117143258.150807000@sergelap>
-Date: Tue, 17 Jan 2006 08:33:20 -0600
+Date: Tue, 17 Jan 2006 08:33:16 -0600
 From: Serge Hallyn <serue@us.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: Hubertus Franke <frankeh@watson.ibm.com>,
        Cedric Le Goater <clg@fr.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
        Serge E Hallyn <serue@us.ibm.com>
-Subject: RFC [patch 22/34] PID Virtualization define vpid_to_pid functions
-Content-Disposition: inline; filename=F9-define-vpid-to-pid-translation.patch
+Subject: RFC [patch 18/34] PID Virtualization code enhancements for virtual pids in /proc
+Content-Disposition: inline; filename=F5-code-cleanup-procarray.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Introduce the reverse conversion functions namely from the 
-user virtual pid to the kernel pid.
-Again, we only specify the API here, will utilize the API 
-at the appropriate locations in subsequent patches and finally
-will provide a real implementation for the virtualization
-behind these functions together with the pid_to_vpid conversion.
-Any pid passed through the syscall interface from userspace
-is virtual and therefore must pass through this conversion 
-before it can be used as a kernel pid.
+To avoid ugly parameter specifications for the sprintf statement
+we pull the ppid,tpid computations out. Later these statements
+will get a tiny bit more elaborate, because we need to deal with
+the special case of an illegal task_vvpid (not in the same container)
+virtualization. This is simply in preparation for that.
 
 Signed-off-by: Hubertus Franke <frankeh@watson.ibm.com>
 ---
- sched.h |   10 ++++++++++
- 1 files changed, 10 insertions(+)
+ array.c |   14 +++++++++++---
+ 1 files changed, 11 insertions(+), 3 deletions(-)
 
-Index: linux-2.6.15/include/linux/sched.h
+Index: linux-2.6.15/fs/proc/array.c
 ===================================================================
---- linux-2.6.15.orig/include/linux/sched.h	2006-01-17 08:37:05.000000000 -0500
-+++ linux-2.6.15/include/linux/sched.h	2006-01-17 08:37:06.000000000 -0500
-@@ -878,6 +878,16 @@
- 	return pid;
- }
+--- linux-2.6.15.orig/fs/proc/array.c	2006-01-17 08:37:04.000000000 -0500
++++ linux-2.6.15/fs/proc/array.c	2006-01-17 08:37:04.000000000 -0500
+@@ -161,8 +161,17 @@
+ 	struct group_info *group_info;
+ 	int g;
+ 	struct fdtable *fdt = NULL;
++	pid_t ppid, tpid;
  
-+static inline pid_t vpid_to_pid(pid_t pid)
-+{
-+	return pid;
-+}
-+
-+static inline pid_t vpgid_to_pgid(pid_t pid)
-+{
-+	return pid;
-+}
-+
- /**
-  * pid_alive - check that a task structure is not stale
-  * @p: Task structure to be checked.
+ 	read_lock(&tasklist_lock);
++	if (pid_alive(p))
++		ppid = task_vtgid(p->group_leader->real_parent);
++	else
++		ppid = 0;
++	if (pid_alive(p) && p->ptrace)
++		tpid = task_vppid(p);
++	else
++		tpid = 0;
+ 	buffer += sprintf(buffer,
+ 		"State:\t%s\n"
+ 		"SleepAVG:\t%lu%%\n"
+@@ -175,9 +184,8 @@
+ 		get_task_state(p),
+ 		(p->sleep_avg/1024)*100/(1020000000/1024),
+ 	       	task_vtgid(p),
+-		task_vpid(p), pid_alive(p) ?
+-			task_vtgid(p->group_leader->real_parent) : 0,
+-		pid_alive(p) && p->ptrace ? task_vpid(p->parent) : 0,
++		task_vpid(p),
++		ppid, tpid,
+ 		p->uid, p->euid, p->suid, p->fsuid,
+ 		p->gid, p->egid, p->sgid, p->fsgid);
+ 	read_unlock(&tasklist_lock);
 
 --
 

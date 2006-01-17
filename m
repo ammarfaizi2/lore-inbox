@@ -1,98 +1,264 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWAQRRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWAQRTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbWAQRRj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 12:17:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWAQRRj
+	id S932180AbWAQRTb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 12:19:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbWAQRTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 12:17:39 -0500
-Received: from smtpout.mac.com ([17.250.248.88]:64448 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932211AbWAQRRi (ORCPT
+	Tue, 17 Jan 2006 12:19:31 -0500
+Received: from mba.ocn.ne.jp ([210.190.142.172]:25312 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S932180AbWAQRTa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 12:17:38 -0500
-In-Reply-To: <1137513818.14135.23.camel@localhost.localdomain>
-References: <20060117143258.150807000@sergelap> <20060117143326.283450000@sergelap> <1137511972.3005.33.camel@laptopd505.fenrus.org> <20060117155600.GF20632@sergelap.austin.ibm.com> <1137513818.14135.23.camel@localhost.localdomain>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <EF8F3CA7-3EB0-49FE-A51A-2A0DC020681D@mac.com>
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       LKML Kernel <linux-kernel@vger.kernel.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
+	Tue, 17 Jan 2006 12:19:30 -0500
+Date: Wed, 18 Jan 2006 02:19:01 +0900 (JST)
+Message-Id: <20060118.021901.71085469.anemo@mba.ocn.ne.jp>
+To: rmk+serial@arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org, ralf@linux-mips.org
+Subject: [PATCH] serial: serial_txx9 driver update
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-Date: Tue, 17 Jan 2006 12:16:12 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 17, 2006, at 11:19, Suleiman Souhlal wrote:
-> Why does there need a separate pid space for each container?  You  
-> don't really need one to make sure that only processes in the same  
-> containers can see each other.
+This patch updates serial_txx9 driver.  (diff from 2.6.16-rc1)
 
-On Jan 17, 2006, at 11:03, Alan Cox wrote:
-> This is an obscure, weird piece of functionality for some special  
-> case usages most of which are going to be eliminated by Xen. I  
-> don't see the kernel side justification for it at all.
->
-> Maybe you should remap it the other side of the user->kernel  
-> boundary ?
+ * More strict check in verify_port.  Cleanup.
+ * Do not insert a char caused previous overrun.
+ * Fix some spin_locks.
+ * Do not call uart_add_one_port for absent ports.
 
-To answer both questions at the same time, this is to make it  
-practical to reliably freeze and restore whole process-trees/jobs,  
-possibly restarting or migrating to a different computer in-between.   
-Such freeze/restore code is mostly possible now, except for programs  
-that store a pid internally to send a signal to another process.  The  
-usage would be something like this:
+Also, this patch removes a BROKEN tag from Kconfig.  This driver has
+been marked as BROKEN by removal of uart_register_port, but it has
+been solved already on Sep 2005.
 
-start:
-	create container:
-		run jobs
+Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 
-freeze
-	for each process/thread in the container:
-		send SIGSTOP to halt execution
-	for each process in the container:
-		store process data, filehandles, vpid, etc
-
-restore:
-	create container:
-		iterate over the frozen processes in the freeze file:
-			clone_with_pid(flags, original_vpid);
-			adjust session, connect filehandles, etc
-			remap shared memory, etc
-			block on atomic "resume" variable in mmap-ed file
-		
-		set "resume" to 1
-
-The end result is that you could freeze and resume _any_ process tree  
-in a container, even ones that do weird things with filehandles,  
-sockets, pids, etc.  Personally I would find this useful to migrate  
-an extensive memory-leak-debugging session in a large application  
-over from laptop to desktop or vice versa.  You could also freeze/ 
-migrate/restore a whole X session (not including the X process  
-itself, but all the client apps).  You could not do this at all for  
-statically-linked applications without kernel support, and it would  
-be rather inefficient to do even for dynamically-linked ones.
-
-The one other option would be to allow opening a file /proc/$PID/ 
-control, to which you could write a signal number, and require  
-freezable programs to use that interface to reliably send signals  
-(This also makes signals non-racy if you're reusing all 60000+ pids  
-on a regular basis).  This has the disadvantage of not even working  
-for existing dynamically-linked programs either..
-
-Cheers,
-Kyle Moffett
-
---
-There is no way to make Linux robust with unreliable memory  
-subsystems, sorry.  It would be like trying to make a human more  
-robust with an unreliable O2 supply. Memory just has to work.
-   -- Andi Kleen
-
-
+diff --git a/drivers/serial/Kconfig b/drivers/serial/Kconfig
+index 5e7199f..761c97c 100644
+--- a/drivers/serial/Kconfig
++++ b/drivers/serial/Kconfig
+@@ -858,7 +858,7 @@ config SERIAL_M32R_PLDSIO
+ 
+ config SERIAL_TXX9
+ 	bool "TMPTX39XX/49XX SIO support"
+-	depends HAS_TXX9_SERIAL && BROKEN
++	depends HAS_TXX9_SERIAL
+ 	select SERIAL_CORE
+ 	default y
+ 
+diff --git a/drivers/serial/serial_txx9.c b/drivers/serial/serial_txx9.c
+index ee98a86..b131383 100644
+--- a/drivers/serial/serial_txx9.c
++++ b/drivers/serial/serial_txx9.c
+@@ -33,6 +33,10 @@
+  *	1.02	Cleanup. (import 8250.c changes)
+  *	1.03	Fix low-latency mode. (import 8250.c changes)
+  *	1.04	Remove usage of deprecated functions, cleanup.
++ *	1.05	More strict check in verify_port.  Cleanup.
++ *	1.06	Do not insert a char caused previous overrun.
++ *		Fix some spin_locks.
++ *		Do not call uart_add_one_port for absent ports.
+  */
+ #include <linux/config.h>
+ 
+@@ -57,7 +61,7 @@
+ #include <asm/io.h>
+ #include <asm/irq.h>
+ 
+-static char *serial_version = "1.04";
++static char *serial_version = "1.06";
+ static char *serial_name = "TX39/49 Serial driver";
+ 
+ #define PASS_LIMIT	256
+@@ -210,7 +214,7 @@ static inline unsigned int sio_in(struct
+ {
+ 	switch (up->port.iotype) {
+ 	default:
+-		return *(volatile u32 *)(up->port.membase + offset);
++		return __raw_readl(up->port.membase + offset);
+ 	case UPIO_PORT:
+ 		return inl(up->port.iobase + offset);
+ 	}
+@@ -221,7 +225,7 @@ sio_out(struct uart_txx9_port *up, int o
+ {
+ 	switch (up->port.iotype) {
+ 	default:
+-		*(volatile u32 *)(up->port.membase + offset) = value;
++		__raw_writel(value, up->port.membase + offset);
+ 		break;
+ 	case UPIO_PORT:
+ 		outl(value, up->port.iobase + offset);
+@@ -259,34 +263,19 @@ sio_quot_set(struct uart_txx9_port *up, 
+ static void serial_txx9_stop_tx(struct uart_port *port)
+ {
+ 	struct uart_txx9_port *up = (struct uart_txx9_port *)port;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&up->port.lock, flags);
+ 	sio_mask(up, TXX9_SIDICR, TXX9_SIDICR_TIE);
+-	spin_unlock_irqrestore(&up->port.lock, flags);
+ }
+ 
+ static void serial_txx9_start_tx(struct uart_port *port)
+ {
+ 	struct uart_txx9_port *up = (struct uart_txx9_port *)port;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&up->port.lock, flags);
+ 	sio_set(up, TXX9_SIDICR, TXX9_SIDICR_TIE);
+-	spin_unlock_irqrestore(&up->port.lock, flags);
+ }
+ 
+ static void serial_txx9_stop_rx(struct uart_port *port)
+ {
+ 	struct uart_txx9_port *up = (struct uart_txx9_port *)port;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&up->port.lock, flags);
+ 	up->port.read_status_mask &= ~TXX9_SIDISR_RDIS;
+-#if 0
+-	sio_mask(up, TXX9_SIDICR, TXX9_SIDICR_RIE);
+-#endif
+-	spin_unlock_irqrestore(&up->port.lock, flags);
+ }
+ 
+ static void serial_txx9_enable_ms(struct uart_port *port)
+@@ -302,12 +291,16 @@ receive_chars(struct uart_txx9_port *up,
+ 	unsigned int disr = *status;
+ 	int max_count = 256;
+ 	char flag;
++	unsigned int next_ignore_status_mask;
+ 
+ 	do {
+ 		ch = sio_in(up, TXX9_SIRFIFO);
+ 		flag = TTY_NORMAL;
+ 		up->port.icount.rx++;
+ 
++		/* mask out RFDN_MASK bit added by previous overrun */
++		next_ignore_status_mask =
++			up->port.ignore_status_mask & ~TXX9_SIDISR_RFDN_MASK;
+ 		if (unlikely(disr & (TXX9_SIDISR_UBRK | TXX9_SIDISR_UPER |
+ 				     TXX9_SIDISR_UFER | TXX9_SIDISR_UOER))) {
+ 			/*
+@@ -328,8 +321,17 @@ receive_chars(struct uart_txx9_port *up,
+ 				up->port.icount.parity++;
+ 			else if (disr & TXX9_SIDISR_UFER)
+ 				up->port.icount.frame++;
+-			if (disr & TXX9_SIDISR_UOER)
++			if (disr & TXX9_SIDISR_UOER) {
+ 				up->port.icount.overrun++;
++				/*
++				 * The receiver read buffer still hold
++				 * a char which caused overrun.
++				 * Ignore next char by adding RFDN_MASK
++				 * to ignore_status_mask temporarily.
++				 */
++				next_ignore_status_mask |=
++					TXX9_SIDISR_RFDN_MASK;
++			}
+ 
+ 			/*
+ 			 * Mask off conditions which should be ingored.
+@@ -349,6 +351,7 @@ receive_chars(struct uart_txx9_port *up,
+ 		uart_insert_char(&up->port, disr, TXX9_SIDISR_UOER, ch, flag);
+ 
+ 	ignore_char:
++		up->port.ignore_status_mask = next_ignore_status_mask;
+ 		disr = sio_in(up, TXX9_SIDISR);
+ 	} while (!(disr & TXX9_SIDISR_UVALID) && (max_count-- > 0));
+ 	spin_unlock(&up->port.lock);
+@@ -450,14 +453,11 @@ static unsigned int serial_txx9_get_mctr
+ static void serial_txx9_set_mctrl(struct uart_port *port, unsigned int mctrl)
+ {
+ 	struct uart_txx9_port *up = (struct uart_txx9_port *)port;
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&up->port.lock, flags);
+ 	if (mctrl & TIOCM_RTS)
+ 		sio_mask(up, TXX9_SIFLCR, TXX9_SIFLCR_RTSSC);
+ 	else
+ 		sio_set(up, TXX9_SIFLCR, TXX9_SIFLCR_RTSSC);
+-	spin_unlock_irqrestore(&up->port.lock, flags);
+ }
+ 
+ static void serial_txx9_break_ctl(struct uart_port *port, int break_state)
+@@ -784,8 +784,13 @@ static void serial_txx9_config_port(stru
+ static int
+ serial_txx9_verify_port(struct uart_port *port, struct serial_struct *ser)
+ {
+-	if (ser->irq < 0 ||
+-	    ser->baud_base < 9600 || ser->type != PORT_TXX9)
++	unsigned long new_port = (unsigned long)ser->port +
++		((unsigned long)ser->port_high << ((sizeof(long) - sizeof(int)) * 8));
++	if (ser->type != port->type ||
++	    ser->irq != port->irq ||
++	    ser->io_type != port->iotype ||
++	    new_port != port->iobase ||
++	    (unsigned long)ser->iomem_base != port->mapbase)
+ 		return -EINVAL;
+ 	return 0;
+ }
+@@ -827,7 +832,8 @@ static void __init serial_txx9_register_
+ 
+ 		up->port.line = i;
+ 		up->port.ops = &serial_txx9_pops;
+-		uart_add_one_port(drv, &up->port);
++		if (up->port.iobase || up->port.mapbase)
++			uart_add_one_port(drv, &up->port);
+ 	}
+ }
+ 
+@@ -927,11 +933,6 @@ static int serial_txx9_console_setup(str
+ 		return -ENODEV;
+ 
+ 	/*
+-	 * Temporary fix.
+-	 */
+-	spin_lock_init(&port->lock);
+-
+-	/*
+ 	 *	Disable UART interrupts, set DTR and RTS high
+ 	 *	and set speed.
+ 	 */
+@@ -1041,11 +1042,10 @@ static int __devinit serial_txx9_registe
+ 	mutex_lock(&serial_txx9_mutex);
+ 	for (i = 0; i < UART_NR; i++) {
+ 		uart = &serial_txx9_ports[i];
+-		if (uart->port.type == PORT_UNKNOWN)
++		if (!(uart->port.iobase || uart->port.mapbase))
+ 			break;
+ 	}
+ 	if (i < UART_NR) {
+-		uart_remove_one_port(&serial_txx9_reg, &uart->port);
+ 		uart->port.iobase = port->iobase;
+ 		uart->port.membase = port->membase;
+ 		uart->port.irq      = port->irq;
+@@ -1080,9 +1080,8 @@ static void __devexit serial_txx9_unregi
+ 	uart->port.type = PORT_UNKNOWN;
+ 	uart->port.iobase = 0;
+ 	uart->port.mapbase = 0;
+-	uart->port.membase = 0;
++	uart->port.membase = NULL;
+ 	uart->port.dev = NULL;
+-	uart_add_one_port(&serial_txx9_reg, &uart->port);
+ 	mutex_unlock(&serial_txx9_mutex);
+ }
+ 
+@@ -1198,8 +1197,11 @@ static void __exit serial_txx9_exit(void
+ #ifdef ENABLE_SERIAL_TXX9_PCI
+ 	pci_unregister_driver(&serial_txx9_pci_driver);
+ #endif
+-	for (i = 0; i < UART_NR; i++)
+-		uart_remove_one_port(&serial_txx9_reg, &serial_txx9_ports[i].port);
++	for (i = 0; i < UART_NR; i++) {
++		struct uart_txx9_port *up = &serial_txx9_ports[i];
++		if (up->port.iobase || up->port.mapbase)
++			uart_remove_one_port(&serial_txx9_reg, &up->port);
++	}
+ 
+ 	uart_unregister_driver(&serial_txx9_reg);
+ }

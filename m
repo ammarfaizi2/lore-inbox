@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWAQXvb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbWAQXvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932398AbWAQXvb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 18:51:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbWAQXvb
+	id S932518AbWAQXvn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 18:51:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWAQXvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 18:51:31 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21133 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932398AbWAQXva (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 18:51:30 -0500
-Date: Tue, 17 Jan 2006 15:50:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bug tracking
-Message-Id: <20060117155013.27507a1b.akpm@osdl.org>
-In-Reply-To: <20060117231153.GG19398@stusta.de>
-References: <OFA777C944.9337E52B-ONC12570C1.0039A0E1-C12570C9.004D661A@avm.de>
-	<20060117224433.GF19398@stusta.de>
-	<20060117150612.345571ef.akpm@osdl.org>
-	<20060117231153.GG19398@stusta.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 17 Jan 2006 18:51:41 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:23438 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932516AbWAQXvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 18:51:39 -0500
+From: "Sean Hefty" <sean.hefty@intel.com>
+To: "'Stephen Hemminger'" <shemminger@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
+       <openib-general@openib.org>
+Subject: RE: [PATCH 2/5] [RFC] Infiniband: connection abstraction
+Date: Tue, 17 Jan 2006 15:51:23 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Thread-Index: AcYbv4GKi3GOH7PgQ7SAUxpZSCxGzgAAKDgg
+In-Reply-To: <20060117153838.3dc2cd2e@dxpl.pdx.osdl.net>
+Message-ID: <ORSMSX401eBBsQwY6YH00000044@orsmsx401.amr.corp.intel.com>
+X-OriginalArrivalTime: 17 Jan 2006 23:51:23.0544 (UTC) FILETIME=[EC1A1180:01C61BC0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
+>> +static void cm_mask_compare_data(u8 *dst, u8 *src, u8 *mask)
 >
-> On Tue, Jan 17, 2006 at 03:06:12PM -0800, Andrew Morton wrote:
-> >...
-> > c) Privately email the reporter, saying "if this bug is still present in
-> >    2.6.15, please raise a report at bugzilla.kernel.org"
-> > 
-> > I've sent 100-200 of these emails in the past few days.  Of the people
-> > who've responded, the great majority of these bugs were actually fixed, which
-> > is nice.
-> >...
-> 
-> Private emails have the disadvantage that noone else sees them.
+>static void cm_mask_compare_data(u8 *dst, const u8 *src, u8 *mask)
+>
+>but I would rename it to cm_mask_copy since it doesn't really do a compare.
 
-Sure.  But given that I've given the reporter only two options:
+I'll change this.  The function is masking the "data to use in the comparison",
+but I can see the confusion.
 
-a) Tell me it's fixed or
+>> +static int cm_compare_data(struct ib_cm_private_data_compare *src_data,
+>> +			   struct ib_cm_private_data_compare *dst_data)
+>
+>static int cm_compare_data(const struct ib_cm_private_data_compare *src,
+>		           cosnt struct ib_cm_private_data_compare *dst)
+>Your data type names are getting too long ^^^^^^^^^^^^^^^^^^^^^^^^
 
-b) take it to bugzilla
+I'll fix.
 
-I don't think there's much of interest to anyone else.  If the reporter
-chooses to be awkward and starts going into details then yeah, cc's need to
-be re-added.
+Thanks for the comments.
 
-> Does this imply that it can be assumed that you are tracking all 
-> unresolved bug reports sent to linux-kernel until they are either 
-> resolved or in Bugzilla?
+- Sean
 
-No, I can miss stuff.  And there are lots more mailing lists.  Many of
-them for drivers, which is where most of the bugs are.  
-
-So please don't let me discourage you from doing this - if a reporter gets
-multiple emails regarding a bug, he's unlikely to be offended - it's heaps
-better than zero emails!  I'll cc you in future if you like so we can avoid
-duplication.

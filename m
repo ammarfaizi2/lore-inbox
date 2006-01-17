@@ -1,264 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWAQRTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWAQRYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWAQRTb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 12:19:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbWAQRTb
+	id S932219AbWAQRYn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 12:24:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWAQRYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 12:19:31 -0500
-Received: from mba.ocn.ne.jp ([210.190.142.172]:25312 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S932180AbWAQRTa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 12:19:30 -0500
-Date: Wed, 18 Jan 2006 02:19:01 +0900 (JST)
-Message-Id: <20060118.021901.71085469.anemo@mba.ocn.ne.jp>
-To: rmk+serial@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org, ralf@linux-mips.org
-Subject: [PATCH] serial: serial_txx9 driver update
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Jan 2006 12:24:42 -0500
+Received: from vanessarodrigues.com ([192.139.46.150]:20957 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S932212AbWAQRYl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 12:24:41 -0500
+To: linux-kernel@vger.kernel.org
+Cc: linux-ia64@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Brent Casavant <bcasavan@sgi.com>
+Subject: [patch] sem2mutex ioc4.c
+From: Jes Sorensen <jes@sgi.com>
+Date: 17 Jan 2006 12:24:39 -0500
+Message-ID: <yq0mzhurcmg.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates serial_txx9 driver.  (diff from 2.6.16-rc1)
+Hi,
 
- * More strict check in verify_port.  Cleanup.
- * Do not insert a char caused previous overrun.
- * Fix some spin_locks.
- * Do not call uart_add_one_port for absent ports.
+Another simple sem2mutex conversion.
 
-Also, this patch removes a BROKEN tag from Kconfig.  This driver has
-been marked as BROKEN by removal of uart_register_port, but it has
-been solved already on Sep 2005.
+Cheers,
+Jes
 
-Signed-off-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 
-diff --git a/drivers/serial/Kconfig b/drivers/serial/Kconfig
-index 5e7199f..761c97c 100644
---- a/drivers/serial/Kconfig
-+++ b/drivers/serial/Kconfig
-@@ -858,7 +858,7 @@ config SERIAL_M32R_PLDSIO
+Convert to use a single mutex instead of two rwsems as this isn't
+performance critical.
+
+Signed-off-by: Jes Sorensen <jes@sgi.com>
+Signed-off-by: Brent Casavant <bcasavan@sgi.com>
+
+----
+
+ drivers/sn/ioc4.c |   41 ++++++++++++++++++-----------------------
+ 1 files changed, 18 insertions(+), 23 deletions(-)
+
+Index: linux-2.6.15-quilt/drivers/sn/ioc4.c
+===================================================================
+--- linux-2.6.15-quilt.orig/drivers/sn/ioc4.c
++++ linux-2.6.15-quilt/drivers/sn/ioc4.c
+@@ -31,7 +31,7 @@
+ #include <linux/ioc4.h>
+ #include <linux/mmtimer.h>
+ #include <linux/rtc.h>
+-#include <linux/rwsem.h>
++#include <linux/mutex.h>
+ #include <asm/sn/addrs.h>
+ #include <asm/sn/clksupport.h>
+ #include <asm/sn/shub_mmr.h>
+@@ -54,11 +54,10 @@
+  * Submodule management *
+  ************************/
  
- config SERIAL_TXX9
- 	bool "TMPTX39XX/49XX SIO support"
--	depends HAS_TXX9_SERIAL && BROKEN
-+	depends HAS_TXX9_SERIAL
- 	select SERIAL_CORE
- 	default y
+-static LIST_HEAD(ioc4_devices);
+-static DECLARE_RWSEM(ioc4_devices_rwsem);
++static DEFINE_MUTEX(ioc4_mutex);
  
-diff --git a/drivers/serial/serial_txx9.c b/drivers/serial/serial_txx9.c
-index ee98a86..b131383 100644
---- a/drivers/serial/serial_txx9.c
-+++ b/drivers/serial/serial_txx9.c
-@@ -33,6 +33,10 @@
-  *	1.02	Cleanup. (import 8250.c changes)
-  *	1.03	Fix low-latency mode. (import 8250.c changes)
-  *	1.04	Remove usage of deprecated functions, cleanup.
-+ *	1.05	More strict check in verify_port.  Cleanup.
-+ *	1.06	Do not insert a char caused previous overrun.
-+ *		Fix some spin_locks.
-+ *		Do not call uart_add_one_port for absent ports.
-  */
- #include <linux/config.h>
++static LIST_HEAD(ioc4_devices);
+ static LIST_HEAD(ioc4_submodules);
+-static DECLARE_RWSEM(ioc4_submodules_rwsem);
  
-@@ -57,7 +61,7 @@
- #include <asm/io.h>
- #include <asm/irq.h>
- 
--static char *serial_version = "1.04";
-+static char *serial_version = "1.06";
- static char *serial_name = "TX39/49 Serial driver";
- 
- #define PASS_LIMIT	256
-@@ -210,7 +214,7 @@ static inline unsigned int sio_in(struct
+ /* Register an IOC4 submodule */
+ int
+@@ -66,15 +65,13 @@
  {
- 	switch (up->port.iotype) {
- 	default:
--		return *(volatile u32 *)(up->port.membase + offset);
-+		return __raw_readl(up->port.membase + offset);
- 	case UPIO_PORT:
- 		return inl(up->port.iobase + offset);
+ 	struct ioc4_driver_data *idd;
+ 
+-	down_write(&ioc4_submodules_rwsem);
++	mutex_lock(&ioc4_mutex);
+ 	list_add(&is->is_list, &ioc4_submodules);
+-	up_write(&ioc4_submodules_rwsem);
+ 
+ 	/* Initialize submodule for each IOC4 */
+ 	if (!is->is_probe)
+-		return 0;
++		goto out;
+ 
+-	down_read(&ioc4_devices_rwsem);
+ 	list_for_each_entry(idd, &ioc4_devices, idd_list) {
+ 		if (is->is_probe(idd)) {
+ 			printk(KERN_WARNING
+@@ -84,8 +81,8 @@
+ 			       pci_name(idd->idd_pdev));
+ 		}
  	}
-@@ -221,7 +225,7 @@ sio_out(struct uart_txx9_port *up, int o
- {
- 	switch (up->port.iotype) {
- 	default:
--		*(volatile u32 *)(up->port.membase + offset) = value;
-+		__raw_writel(value, up->port.membase + offset);
- 		break;
- 	case UPIO_PORT:
- 		outl(value, up->port.iobase + offset);
-@@ -259,34 +263,19 @@ sio_quot_set(struct uart_txx9_port *up, 
- static void serial_txx9_stop_tx(struct uart_port *port)
- {
- 	struct uart_txx9_port *up = (struct uart_txx9_port *)port;
--	unsigned long flags;
+-	up_read(&ioc4_devices_rwsem);
 -
--	spin_lock_irqsave(&up->port.lock, flags);
- 	sio_mask(up, TXX9_SIDICR, TXX9_SIDICR_TIE);
--	spin_unlock_irqrestore(&up->port.lock, flags);
- }
- 
- static void serial_txx9_start_tx(struct uart_port *port)
- {
- 	struct uart_txx9_port *up = (struct uart_txx9_port *)port;
--	unsigned long flags;
--
--	spin_lock_irqsave(&up->port.lock, flags);
- 	sio_set(up, TXX9_SIDICR, TXX9_SIDICR_TIE);
--	spin_unlock_irqrestore(&up->port.lock, flags);
- }
- 
- static void serial_txx9_stop_rx(struct uart_port *port)
- {
- 	struct uart_txx9_port *up = (struct uart_txx9_port *)port;
--	unsigned long flags;
--
--	spin_lock_irqsave(&up->port.lock, flags);
- 	up->port.read_status_mask &= ~TXX9_SIDISR_RDIS;
--#if 0
--	sio_mask(up, TXX9_SIDICR, TXX9_SIDICR_RIE);
--#endif
--	spin_unlock_irqrestore(&up->port.lock, flags);
- }
- 
- static void serial_txx9_enable_ms(struct uart_port *port)
-@@ -302,12 +291,16 @@ receive_chars(struct uart_txx9_port *up,
- 	unsigned int disr = *status;
- 	int max_count = 256;
- 	char flag;
-+	unsigned int next_ignore_status_mask;
- 
- 	do {
- 		ch = sio_in(up, TXX9_SIRFIFO);
- 		flag = TTY_NORMAL;
- 		up->port.icount.rx++;
- 
-+		/* mask out RFDN_MASK bit added by previous overrun */
-+		next_ignore_status_mask =
-+			up->port.ignore_status_mask & ~TXX9_SIDISR_RFDN_MASK;
- 		if (unlikely(disr & (TXX9_SIDISR_UBRK | TXX9_SIDISR_UPER |
- 				     TXX9_SIDISR_UFER | TXX9_SIDISR_UOER))) {
- 			/*
-@@ -328,8 +321,17 @@ receive_chars(struct uart_txx9_port *up,
- 				up->port.icount.parity++;
- 			else if (disr & TXX9_SIDISR_UFER)
- 				up->port.icount.frame++;
--			if (disr & TXX9_SIDISR_UOER)
-+			if (disr & TXX9_SIDISR_UOER) {
- 				up->port.icount.overrun++;
-+				/*
-+				 * The receiver read buffer still hold
-+				 * a char which caused overrun.
-+				 * Ignore next char by adding RFDN_MASK
-+				 * to ignore_status_mask temporarily.
-+				 */
-+				next_ignore_status_mask |=
-+					TXX9_SIDISR_RFDN_MASK;
-+			}
- 
- 			/*
- 			 * Mask off conditions which should be ingored.
-@@ -349,6 +351,7 @@ receive_chars(struct uart_txx9_port *up,
- 		uart_insert_char(&up->port, disr, TXX9_SIDISR_UOER, ch, flag);
- 
- 	ignore_char:
-+		up->port.ignore_status_mask = next_ignore_status_mask;
- 		disr = sio_in(up, TXX9_SIDISR);
- 	} while (!(disr & TXX9_SIDISR_UVALID) && (max_count-- > 0));
- 	spin_unlock(&up->port.lock);
-@@ -450,14 +453,11 @@ static unsigned int serial_txx9_get_mctr
- static void serial_txx9_set_mctrl(struct uart_port *port, unsigned int mctrl)
- {
- 	struct uart_txx9_port *up = (struct uart_txx9_port *)port;
--	unsigned long flags;
- 
--	spin_lock_irqsave(&up->port.lock, flags);
- 	if (mctrl & TIOCM_RTS)
- 		sio_mask(up, TXX9_SIFLCR, TXX9_SIFLCR_RTSSC);
- 	else
- 		sio_set(up, TXX9_SIFLCR, TXX9_SIFLCR_RTSSC);
--	spin_unlock_irqrestore(&up->port.lock, flags);
- }
- 
- static void serial_txx9_break_ctl(struct uart_port *port, int break_state)
-@@ -784,8 +784,13 @@ static void serial_txx9_config_port(stru
- static int
- serial_txx9_verify_port(struct uart_port *port, struct serial_struct *ser)
- {
--	if (ser->irq < 0 ||
--	    ser->baud_base < 9600 || ser->type != PORT_TXX9)
-+	unsigned long new_port = (unsigned long)ser->port +
-+		((unsigned long)ser->port_high << ((sizeof(long) - sizeof(int)) * 8));
-+	if (ser->type != port->type ||
-+	    ser->irq != port->irq ||
-+	    ser->io_type != port->iotype ||
-+	    new_port != port->iobase ||
-+	    (unsigned long)ser->iomem_base != port->mapbase)
- 		return -EINVAL;
++ out:
++	mutex_unlock(&ioc4_mutex);
  	return 0;
  }
-@@ -827,7 +832,8 @@ static void __init serial_txx9_register_
  
- 		up->port.line = i;
- 		up->port.ops = &serial_txx9_pops;
--		uart_add_one_port(drv, &up->port);
-+		if (up->port.iobase || up->port.mapbase)
-+			uart_add_one_port(drv, &up->port);
+@@ -95,15 +92,13 @@
+ {
+ 	struct ioc4_driver_data *idd;
+ 
+-	down_write(&ioc4_submodules_rwsem);
++	mutex_lock(&ioc4_mutex);
+ 	list_del(&is->is_list);
+-	up_write(&ioc4_submodules_rwsem);
+ 
+ 	/* Remove submodule for each IOC4 */
+ 	if (!is->is_remove)
+-		return;
++		goto out;
+ 
+-	down_read(&ioc4_devices_rwsem);
+ 	list_for_each_entry(idd, &ioc4_devices, idd_list) {
+ 		if (is->is_remove(idd)) {
+ 			printk(KERN_WARNING
+@@ -113,7 +108,8 @@
+ 			       pci_name(idd->idd_pdev));
+ 		}
  	}
+-	up_read(&ioc4_devices_rwsem);
++ out:
++	mutex_unlock(&ioc4_mutex);
  }
  
-@@ -927,11 +933,6 @@ static int serial_txx9_console_setup(str
- 		return -ENODEV;
+ /*********************
+@@ -312,12 +308,11 @@
+ 	/* Track PCI-device specific data */
+ 	idd->idd_serial_data = NULL;
+ 	pci_set_drvdata(idd->idd_pdev, idd);
+-	down_write(&ioc4_devices_rwsem);
++
++	mutex_lock(&ioc4_mutex);
+ 	list_add(&idd->idd_list, &ioc4_devices);
+-	up_write(&ioc4_devices_rwsem);
  
- 	/*
--	 * Temporary fix.
--	 */
--	spin_lock_init(&port->lock);
--
--	/*
- 	 *	Disable UART interrupts, set DTR and RTS high
- 	 *	and set speed.
- 	 */
-@@ -1041,11 +1042,10 @@ static int __devinit serial_txx9_registe
- 	mutex_lock(&serial_txx9_mutex);
- 	for (i = 0; i < UART_NR; i++) {
- 		uart = &serial_txx9_ports[i];
--		if (uart->port.type == PORT_UNKNOWN)
-+		if (!(uart->port.iobase || uart->port.mapbase))
- 			break;
+ 	/* Add this IOC4 to all submodules */
+-	down_read(&ioc4_submodules_rwsem);
+ 	list_for_each_entry(is, &ioc4_submodules, is_list) {
+ 		if (is->is_probe && is->is_probe(idd)) {
+ 			printk(KERN_WARNING
+@@ -327,7 +322,7 @@
+ 			       pci_name(idd->idd_pdev));
+ 		}
  	}
- 	if (i < UART_NR) {
--		uart_remove_one_port(&serial_txx9_reg, &uart->port);
- 		uart->port.iobase = port->iobase;
- 		uart->port.membase = port->membase;
- 		uart->port.irq      = port->irq;
-@@ -1080,9 +1080,8 @@ static void __devexit serial_txx9_unregi
- 	uart->port.type = PORT_UNKNOWN;
- 	uart->port.iobase = 0;
- 	uart->port.mapbase = 0;
--	uart->port.membase = 0;
-+	uart->port.membase = NULL;
- 	uart->port.dev = NULL;
--	uart_add_one_port(&serial_txx9_reg, &uart->port);
- 	mutex_unlock(&serial_txx9_mutex);
+-	up_read(&ioc4_submodules_rwsem);
++	mutex_unlock(&ioc4_mutex);
+ 
+ 	return 0;
+ 
+@@ -351,7 +346,7 @@
+ 	idd = pci_get_drvdata(pdev);
+ 
+ 	/* Remove this IOC4 from all submodules */
+-	down_read(&ioc4_submodules_rwsem);
++	mutex_lock(&ioc4_mutex);
+ 	list_for_each_entry(is, &ioc4_submodules, is_list) {
+ 		if (is->is_remove && is->is_remove(idd)) {
+ 			printk(KERN_WARNING
+@@ -361,7 +356,7 @@
+ 			       pci_name(idd->idd_pdev));
+ 		}
+ 	}
+-	up_read(&ioc4_submodules_rwsem);
++	mutex_unlock(&ioc4_mutex);
+ 
+ 	/* Release resources */
+ 	iounmap(idd->idd_misc_regs);
+@@ -377,9 +372,9 @@
+ 	pci_disable_device(pdev);
+ 
+ 	/* Remove and free driver data */
+-	down_write(&ioc4_devices_rwsem);
++	mutex_lock(&ioc4_mutex);
+ 	list_del(&idd->idd_list);
+-	up_write(&ioc4_devices_rwsem);
++	mutex_unlock(&ioc4_mutex);
+ 	kfree(idd);
  }
  
-@@ -1198,8 +1197,11 @@ static void __exit serial_txx9_exit(void
- #ifdef ENABLE_SERIAL_TXX9_PCI
- 	pci_unregister_driver(&serial_txx9_pci_driver);
- #endif
--	for (i = 0; i < UART_NR; i++)
--		uart_remove_one_port(&serial_txx9_reg, &serial_txx9_ports[i].port);
-+	for (i = 0; i < UART_NR; i++) {
-+		struct uart_txx9_port *up = &serial_txx9_ports[i];
-+		if (up->port.iobase || up->port.mapbase)
-+			uart_remove_one_port(&serial_txx9_reg, &up->port);
-+	}
- 
- 	uart_unregister_driver(&serial_txx9_reg);
- }

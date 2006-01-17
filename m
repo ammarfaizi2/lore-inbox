@@ -1,63 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932507AbWAQORs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbWAQOWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932507AbWAQORs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 09:17:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWAQORs
+	id S932506AbWAQOWm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 09:22:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbWAQOWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 09:17:48 -0500
-Received: from smtp006.mail.ukl.yahoo.com ([217.12.11.95]:51643 "HELO
-	smtp006.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S932507AbWAQORp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 09:17:45 -0500
+	Tue, 17 Jan 2006 09:22:42 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:29634 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932506AbWAQOWl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 09:22:41 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=tWGkfa5y5boUmQ5VTML62W9TQ4PiJBIKGcN3tfFIsIruZWTeKtVLvVZJEmABE4EWDzaKi7LiazhZ//Zzsd9ql3UfZsVrCAoyOBvd4b4IIc23eqxTlQpRnWFz7dRax06U2NQyh0QTufUa8fh6lAy+Y1oixU2Cq+CvtqXgJyEyJxE=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PATCH 9/11] UML - Implement soft interrupts
-Date: Tue, 17 Jan 2006 15:17:37 +0100
-User-Agent: KMail/1.8.3
-Cc: Jeff Dike <jdike@addtoit.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200601152139.k0FLdp1G027747@ccure.user-mode-linux.org> <200601170124.32076.blaisorblade@yahoo.it> <20060117033227.GB17171@ccure.user-mode-linux.org>
-In-Reply-To: <20060117033227.GB17171@ccure.user-mode-linux.org>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=pE1yVBd/q9kovyEObow6qSTCYRRQfyT1NNYOCDtTn8YPOMJLKanWIfC+2B/+jrC83YCe+OeTWe1c0wrZJMe1emYZTx0nTnxfYCOtb5tY0E51lz8npZhDKS4uJfpHzVKCmLMlijh9jMUMkHlnB98OcFaAisDCoXAzQduBMiP3Pfk=
+Message-ID: <43CCFDAA.4010801@gmail.com>
+Date: Tue, 17 Jan 2006 15:22:34 +0100
+From: Patrizio Bassi <patrizio.bassi@gmail.com>
+Reply-To: patrizio.bassi@gmail.com
+Organization: patrizio.bassi@gmail.com
+User-Agent: Mozilla Thunderbird 1.5 (X11/20060112)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Takashi Iwai <tiwai@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.16-rc1 bug] alsa suspend/resume continues to fail for ens1370
+References: <43CCF2A4.6020704@gmail.com> <s5hy81f9bln.wl%tiwai@suse.de>
+In-Reply-To: <s5hy81f9bln.wl%tiwai@suse.de>
+X-Enigmail-Version: 0.93.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601171517.38199.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 January 2006 04:32, Jeff Dike wrote:
-> On Tue, Jan 17, 2006 at 01:24:31AM +0100, Blaisorblade wrote:
-> > ~25 %? Good! Which is delay vs. host?
+Takashi Iwai ha scritto:
+> At Tue, 17 Jan 2006 14:35:32 +0100,
+> Patrizio Bassi wrote:
+>   
+>> upgrading from 2.6.15-git5 to 2.6.16-rc1
+>>
+>> anche compiling my ens1370 driver statically in kernel i still have
+>> issues on saving/resuming
+>> mixer volumes.
+>>
+>> even applying this patch (inclused in lastest alsa-cvs snapshot)
+>>
+>>
+>> --- a/sound/pci/ens1370.c       7 Dec 2005 11:13:55 -0000       1.91
+>> +++ b/sound/pci/ens1370.c       10 Jan 2006 16:41:08 -0000
+>> @@ -2061,6 +2061,13 @@
+>>  #ifdef CHIP1371
+>>         snd_ac97_suspend(ensoniq->u.es1371.ac97);
+>>  #else
+>> +       /* try to reset AK4531 */
+>> +       outw(ES_1370_CODEC_WRITE(AK4531_RESET, 0x02), ES_REG(ensoniq,
+>> 1370_CODEC));
+>> +       inw(ES_REG(ensoniq, 1370_CODEC));
+>> +       udelay(100);
+>> +       outw(ES_1370_CODEC_WRITE(AK4531_RESET, 0x03), ES_REG(ensoniq,
+>> 1370_CODEC));
+>> +       inw(ES_REG(ensoniq, 1370_CODEC));
+>> +       udelay(100);
+>>         snd_ak4531_suspend(ensoniq->u.es1370.ak4531);
+>>  #endif
+>>         pci_set_power_state(pci, PCI_D3hot);
+>>
+>>
+>>
+>> it fails with 0x660 errors.
+>> i attach my dmesg.
+>>
+>> Ready to test, as usual :)
+>>     
 >
-> Delay vs a UML without the patch.
+> Hm, and does this happen also when you build as modules?
+> Does the driver work again if you reload the module after resume?
 >
-> > A curiosity - did you look at the similar code in Ingo Molnar's VCPU
-> > patch? I never found the time to split it out and compare differencies. I
-> > just remember it using assembler inserts for (maybe atomic) bitmask
-> > manipulations.
 >
-> It was separate from VCPU,
-conceptually, but I got only a blob comprising everything - never seen it 
-splitout (or maybe I split that out and forgot?)
+> Takashi
+>
+>   
+as module it works without reloading needed, but on suspend i still see
+0x660 errors.
 
-> but I never really looked at it since I already 
-> had this.  Some day I will to see if there are any trick in it that I
-> should use.
-
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+the problem is with built-in actually.

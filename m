@@ -1,93 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWAQTGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWAQTGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964777AbWAQTGM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 14:06:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964774AbWAQTGL
+	id S964787AbWAQTGx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 14:06:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWAQTGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 14:06:11 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:207 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932412AbWAQTGK (ORCPT
+	Tue, 17 Jan 2006 14:06:52 -0500
+Received: from holomorphy.com ([66.93.40.71]:39319 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S964783AbWAQTGv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 14:06:10 -0500
-Subject: Re: differences between MADV_FREE and MADV_DONTNEED
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Nicholas Miell <nmiell@comcast.net>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Ulrich Drepper <drepper@redhat.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, hugh@veritas.com,
-       dvhltc@us.ibm.com, linux-mm <linux-mm@kvack.org>, blaisorblade@yahoo.it,
-       jdike@addtoit.com
-In-Reply-To: <20060117124315.GA7754@infradead.org>
-References: <20051111174309.5d544de4.akpm@osdl.org>
-	 <43757263.2030401@us.ibm.com> <20060116130649.GE15897@opteron.random>
-	 <43CBC37F.60002@FreeBSD.org> <20060116162808.GG15897@opteron.random>
-	 <43CBD1C4.5020002@FreeBSD.org> <20060116172449.GL15897@opteron.random>
-	 <m1r777rgq4.fsf@ebiederm.dsl.xmission.com> <43CC3922.2070205@FreeBSD.org>
-	 <1137459847.2842.6.camel@entropy>  <20060117124315.GA7754@infradead.org>
-Content-Type: text/plain
-Date: Tue, 17 Jan 2006 11:06:38 -0800
-Message-Id: <1137524799.4966.144.camel@dyn9047017102.beaverton.ibm.com>
+	Tue, 17 Jan 2006 14:06:51 -0500
+Date: Tue, 17 Jan 2006 11:06:50 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Huge pages and small pages. . .
+Message-ID: <20060117190650.GC13708@holomorphy.com>
+References: <43CD3CE4.3090300@comcast.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43CD3CE4.3090300@comcast.net>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-17 at 12:43 +0000, Christoph Hellwig wrote:
-> On Mon, Jan 16, 2006 at 05:04:07PM -0800, Nicholas Miell wrote:
-> > On Mon, 2006-01-16 at 16:24 -0800, Suleiman Souhlal wrote:
-> > > Eric W. Biederman wrote:
-> > > > As I recall the logic with DONTNEED was to mark the mapping of
-> > > > the page clean so the page didn't need to be swapped out, it could
-> > > > just be dropped.
-> > > > 
-> > > > That is why they anonymous and the file backed cases differ.
-> > > > 
-> > > > Part of the point is to avoid the case of swapping the pages out if
-> > > > the application doesn't care what is on them anymore.
-> > > 
-> > > Well, imho, MADV_DONTNEED should mean "I won't need this anytime soon", 
-> > > and MADV_FREE "I will never need this again".
-> > > 
-> > 
-> > POSIX doesn't have a madvise(), but it does have a posix_madvise(), with
-> > flags defined as follows:
-> > 
-> > POSIX_MADV_NORMAL
-> >    Specifies that the application has no advice to give on its behavior
-> > with respect to the specified range. It is the default characteristic if
-> > no advice is given for a range of memory.
-> > POSIX_MADV_SEQUENTIAL
-> >    Specifies that the application expects to access the specified range
-> > sequentially from lower addresses to higher addresses.
-> > POSIX_MADV_RANDOM
-> >    Specifies that the application expects to access the specified range
-> > in a random order.
-> > POSIX_MADV_WILLNEED
-> >    Specifies that the application expects to access the specified range
-> > in the near future.
-> > POSIX_MADV_DONTNEED
-> >    Specifies that the application expects that it will not access the
-> > specified range in the near future.
-> > 
-> > Note that glibc forwards posix_madvise() directly to madvise(2), which
-> > means that right now, POSIX conformant apps which use
-> > posix_madvise(addr, len, POSIX_MADV_DONTNEED) are silently corrupting
-> > data on Linux systems.
-> 
-> Does our MAD_DONTNEED numerical value match glibc's POSIX_MADV_DONTNEED?
-> 
-> In either case I'd say we should backout this patch for now.  We should
-> implement a real MADV_DONTNEED and rename the current one to MADV_FREE,
-> but that's 2.6.17 material.
+On Tue, Jan 17, 2006 at 01:52:20PM -0500, John Richard Moser wrote:
+> Is there anything in the kernel that shifts the physical pages for 1024
+> physically allocated and contiguous virtual pages together physically
+> and remaps them as one huge page?  This would probably work well for the
+> low end of the heap, until someone figures out a way to tell the system
+> to free intermittent pages in a big mapping (if the heap has an
+> allocation up high, it can have huge, unused areas that are allocated).
+>  It may possibly work for disk cache as well, albeit I can't say for
+> sure if it's common to have a 4 meg contiguous section of program data
+> loaded.
+> Shifting odd huge allocations around would be neat to, re:
+> {2m}[4M  ]{2m}  ->  [4M  ][4M  ]
 
-Christoph,
+I've got bugs and feature work written by others that has sat on hold
+for ages to merge, so I won't be looking to experiment myself.
 
-What patch are you recommending backing out ? 
+Do write things yourself and send in the resulting patches, though.
 
-Thanks,
-Badari
 
+-- wli

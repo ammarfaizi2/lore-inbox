@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWAQPYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWAQPdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbWAQPYn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 10:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWAQPYn
+	id S1751280AbWAQPdA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 10:33:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWAQPdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 10:24:43 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:62439 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1751281AbWAQPYm
+	Tue, 17 Jan 2006 10:33:00 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:50095 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751280AbWAQPc7 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 10:24:42 -0500
-Date: Tue, 17 Jan 2006 08:24:42 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH] Fix building in a separate directory
-Message-ID: <20060117152442.GH19769@parisc-linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Jan 2006 10:32:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jtwyXEfBvWXuiNXmEUirs7AOpNppws3VEmEIXC5CUqxXEjuPej+b4NUwinRb1pV1seay+zh7K28SAPYRWZu1wk/rovs9so8Pj3zmtqsaEIYiGXnVybSHipCbfS+sObhRO2ZB9rssgZRuqM18vfKoO/OpJhAS0FhvxdfCMGigIi0=
+Message-ID: <6bffcb0e0601170732r2d400857i@mail.gmail.com>
+Date: Tue, 17 Jan 2006 16:32:58 +0100
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: =?ISO-8859-1?Q?Th=E9ophile_Helleboid_-_Chtitux?= 
+	<chtitux@gmail.com>
+Subject: Re: No kexec in menuconfig in 2.6.16-rc1
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4c50d3ee0601170530p2cbe98b8k@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+References: <4c50d3ee0601170530p2cbe98b8k@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Without this,
-make O=../b180 oldconfig ends:
+On 17/01/06, Théophile Helleboid - Chtitux <chtitux@gmail.com> wrote:
+> Hello,
+> I don't see the kexec option on linux-2.6.16-rc1
+> I have in my menuconfig :
+>      Timer frequency (250 HZ)  --->
+> and it's all
+> This option has been removed ?
+> I can see kexec in the search with /
+>
+> --
+> Chtitux -
+> Théophile Helleboid
+> -
 
-CRC32c (Castagnoli, et al) Cyclic Redundancy-Check (LIBCRC32C)
-[N/m/y/?] n
-make -C /home/willy/linux-2.6 O=/home/willy/b180 .kernelrelease
-Makefile:477: .config: No such file or directory
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_LOCK_KERNEL=y
 
-With it, make[2]: `/home/willy/linux-2.6/.kernelrelease' is up to date.
- is the end.
-
-Index: Makefile
-===================================================================
-RCS file: /var/cvs/linux-2.6/Makefile,v
-retrieving revision 1.437
-diff -u -p -r1.437 Makefile
---- a/Makefile	17 Jan 2006 14:49:47 -0000	1.437
-+++ b/Makefile	17 Jan 2006 15:20:55 -0000
-@@ -474,7 +474,7 @@ ifeq ($(dot-config),1)
- # oldconfig if changes are detected.
- -include .kconfig.d
- 
--include .config
-+include $(KBUILD_OUTPUT)/.config
- 
- # If .config needs to be updated, it will be done via the dependency
- # that autoconf has on .config.
+Regards,
+Michal Piotrowski

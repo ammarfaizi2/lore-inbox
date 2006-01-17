@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWAQHDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWAQHFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751227AbWAQHDw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 02:03:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbWAQHDw
+	id S1751286AbWAQHFc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 02:05:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWAQHFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 02:03:52 -0500
-Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:30459 "EHLO
-	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
-	id S1751227AbWAQHDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 02:03:51 -0500
-Message-ID: <43CC96C7.7030103@sw.ru>
-Date: Tue, 17 Jan 2006 10:03:35 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Olaf Hering <olh@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
-References: <20060116223431.GA24841@suse.de>	<43CC2AF8.4050802@sw.ru>	<20060116232957.GA26342@suse.de> <20060116180529.45283133.akpm@osdl.org>
-In-Reply-To: <20060116180529.45283133.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Jan 2006 02:05:32 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:63644 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1751286AbWAQHFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 02:05:31 -0500
+Date: Tue, 17 Jan 2006 16:05:34 +0900
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] changes about Call Trace:
+Message-ID: <20060117070534.GA10785@miraclelinux.com>
+References: <20060116121611.GA539@miraclelinux.com> <200601161322.12209.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601161322.12209.ak@suse.de>
+User-Agent: Mutt/1.5.9i
+From: mita@miraclelinux.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Olaf Hering <olh@suse.de> wrote:
->>  On Tue, Jan 17, Kirill Korotaev wrote:
->>
->>> Olaf, can you please check if my patch for busy inodes from -mm tree 
->>> helps you?
->> I cant reprpoduce it at will, thats the thing. It likely happens with NFS
->> mounts. agruen@suse.de did some work recently. But I remember even with
->> these changes (for a 2.6.13), the busy inodes did not disappear.
->>
->> Merging your patch into our cvs will give it more testing, I will do
->> that tomorrow if noone disagrees.
->>
+On Mon, Jan 16, 2006 at 01:22:11PM +0100, Andi Kleen wrote:
+> > b) I can't find useful usage for the symbol size in print_symbol().
+> >    And symbolsize seems to be fixed when vmlinux or modules are compiled.
+> >    So we can calculate it from vmlinux or modules.
+> >    How about removing the field of symbolsize in print_symbol()?
+> > 
+> >    [<ffffffffa008ef6c>] kjournald+0x406 [jbd]
 > 
-> The patch is certainly safe and stable.  But it's so huge and complex and
-> ugly that I was hoping that a better fix would turn up.  The bug itself
-> takes quite some ingenuity to hit.
-We have another idea how to reimplement it via refcounters instead of 
-lists. But I'm not sure when this will happen, due to lack of time :(
+> It's a double check that the oops is matching the vmlinux you're looking 
+> at.
 
-Kirill
+If we add system_utsname.version in oops so that we can compare with
+linux_banner[] in vmlinux, Will it be more precise and easier way to
+double check than checking symbolsize?
+
+--- 2.6-git/arch/i386/kernel/traps.c.orig	2006-01-17 12:45:41.000000000 +0900
++++ 2.6-git/arch/i386/kernel/traps.c	2006-01-17 12:49:35.000000000 +0900
+@@ -239,9 +239,10 @@ void show_registers(struct pt_regs *regs
+ 	}
+ 	print_modules();
+ 	printk(KERN_EMERG "CPU:    %d\nEIP:    %04x:[<%08lx>]    %s VLI\n"
+-			"EFLAGS: %08lx   (%s) \n",
++			"EFLAGS: %08lx   (%s %s) \n",
+ 		smp_processor_id(), 0xffff & regs->xcs, regs->eip,
+-		print_tainted(), regs->eflags, system_utsname.release);
++		print_tainted(), regs->eflags, system_utsname.release,
++		system_utsname.version);
+ 	print_symbol(KERN_EMERG "EIP is at %s\n", regs->eip);
+ 	printk(KERN_EMERG "eax: %08lx   ebx: %08lx   ecx: %08lx   edx: %08lx\n",
+ 		regs->eax, regs->ebx, regs->ecx, regs->edx);

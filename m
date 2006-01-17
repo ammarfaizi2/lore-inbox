@@ -1,70 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWAQSml@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWAQSnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbWAQSml (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 13:42:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWAQSml
+	id S932376AbWAQSnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 13:43:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWAQSnP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 13:42:41 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:28336 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932348AbWAQSmk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 13:42:40 -0500
-Message-ID: <43CD4C86.5B0BA4D0@tv-sign.ru>
-Date: Tue, 17 Jan 2006 22:59:02 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Christoph Lameter <clameter@engr.sgi.com>,
-       Shai Fultheim <shai@scalex86.org>, Nippun Goel <nippung@calsoftinc.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       dipankar@in.ibm.com
-Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single 
- threadedprocess at getrusage()
-References: <20051228225752.GB3755@localhost.localdomain> <43B57515.967F53E3@tv-sign.ru> <20060104231600.GA3664@localhost.localdomain> <43BD70AD.21FC6862@tv-sign.ru> <20060106094627.GA4272@localhost.localdomain> <43C0FC4B.567D18DC@tv-sign.ru> <20060108195848.GA4124@localhost.localdomain> <43C2B1B7.635DDF0B@tv-sign.ru> <20060109205442.GB3691@localhost.localdomain> <43C40507.D1A85679@tv-sign.ru> <20060116205618.GA5313@localhost.localdomain>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Jan 2006 13:43:15 -0500
+Received: from rrcs-24-73-230-86.se.biz.rr.com ([24.73.230.86]:44182 "EHLO
+	shaft.shaftnet.org") by vger.kernel.org with ESMTP id S932357AbWAQSnN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 13:43:13 -0500
+Date: Tue, 17 Jan 2006 13:41:14 -0500
+From: Stuffed Crust <pizza@shaftnet.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "John W. Linville" <linville@tuxdriver.com>,
+       Samuel Ortiz <samuel.ortiz@nokia.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Johannes Berg <johannes@sipsolutions.net>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: wireless: recap of current issues (configuration)
+Message-ID: <20060117184114.GB20298@shaftnet.org>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"John W. Linville" <linville@tuxdriver.com>,
+	Samuel Ortiz <samuel.ortiz@nokia.com>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Johannes Berg <johannes@sipsolutions.net>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20060113221935.GJ16166@tuxdriver.com> <1137191522.2520.63.camel@localhost> <20060114011726.GA19950@shaftnet.org> <43C97605.9030907@pobox.com> <20060115152034.GA1722@shaftnet.org> <Pine.LNX.4.58.0601152038540.19953@irie> <20060116170951.GA8596@shaftnet.org> <Pine.LNX.4.58.0601162020260.17348@irie> <20060116190629.GB5529@tuxdriver.com> <1137450281.15553.87.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eAbsdosE1cNLO4uF"
+Content-Disposition: inline
+In-Reply-To: <1137450281.15553.87.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender is SPF-compliant, not delayed by milter-greylist-2.0.2 (shaft.shaftnet.org [127.0.0.1]); Tue, 17 Jan 2006 13:41:16 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai wrote:
-> 
-> Sorry for the delay..
-> 
-> On Tue, Jan 10, 2006 at 10:03:35PM +0300, Oleg Nesterov wrote:
-> >
-> > Sorry, I can't undestand. Could you please be more verbose ?
-> 
-> Last thread (RUSAGE_SELF)               Exiting thread
->
-> [ ... ]
->
->         utime = cputime_add(utime, p->signal->utime); /* use cached load above */
->         stime = cputime_add(stime, p->signal->stime); /* load from memory */
 
-Thanks for your explanation, now I see what you mean.
+--eAbsdosE1cNLO4uF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-But don't we already discussed this issue? I think that RUSAGE_SELF
-case always not 100% accurate, so it is Ok to ignore this race.
+On Mon, Jan 16, 2006 at 10:24:41PM +0000, Alan Cox wrote:
+> If I have told my equipment to obey UK law I expect it to do so. If I
+> hop on the train to France and forget to revise my configuration I'd
+> prefer it also believed the APs
 
-What if that thread has not exited yet? We take tasklist lock, but
-this can't help, because this thread possibly updates it's ->xtime
-right now on another cpu, and we have exactly same problem.
+It's not that you might forget to revise your configuration, but that=20
+the vast majority of users will not revise anything, and still expect=20
+things to "just work".  Kind of like multi-band cell phones. =20
 
-> > However, do you have any numbers or thoughts why this optimization
-> > can make any _visible_ effect?
-> 
-> We know we don't need locks there, so I do not understand why we
-> should keep them.  Locks are always serializing and expensive operations.  I
-> believe on some arches disabling on-chip interrupts is also an expensive
-> operation...some arches might use hypervisor calls to do that which I guess
-> will have its own overhead...so why have it when we know we don't need it?
+This isn't that big of a deal in the 2.4GHz band, but when you start
+talking about 5GHz, especially in France, things get a lot trickier.
 
-I think it is better not to complicate the code unless we can see
-some difference in practice.
+Of course, all of this automagic "just work" crap only affects the STAs.=20
+For AP operation, we have to trust the user to set the correct locale --
+I don't see any way of including a sane "just-works" default in the
+stock kernel.org tree, so I think the default should be be "none".  This
+way the user is forced to explicitly set the regdomain in order for the
+AP startup to succeed.
 
-That said, I don't have a strong feeling that I am right (on both
-issues), so please feel free to ignore me.
+=2E..and pray that the AP isn't migrating to a different regdomain, but=20
+there's really nothing anyone can do about that.
 
-Oleg.
+ - Solomon
+--=20
+Solomon Peachy        				 ICQ: 1318344
+Melbourne, FL 					=20
+Quidquid latine dictum sit, altum viditur.
+
+--eAbsdosE1cNLO4uF
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFDzTpKPuLgii2759ARAgO4AJ9CD7o+BR/IqBN8UhpANGQBstW2sACggIUA
+vTd3Ct+uIXzCoaTrMycNhAw=
+=oR+o
+-----END PGP SIGNATURE-----
+
+--eAbsdosE1cNLO4uF--

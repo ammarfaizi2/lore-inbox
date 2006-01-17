@@ -1,49 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbWAQTFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWAQTGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932409AbWAQTFg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 14:05:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWAQTFg
+	id S964777AbWAQTGM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 14:06:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964774AbWAQTGL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 14:05:36 -0500
-Received: from zeus2.kernel.org ([204.152.191.36]:59052 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S932409AbWAQTFf (ORCPT
+	Tue, 17 Jan 2006 14:06:11 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:207 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932412AbWAQTGK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 14:05:35 -0500
-Date: Tue, 17 Jan 2006 20:04:45 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Ian Campbell <icampbell@arcom.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [WATCHDOG] sa1100_wdt.c sparse cleanups
-Message-ID: <20060117190445.GA4298@infomag.infomag.iguana.be>
-References: <1130921809.12578.179.camel@icampbell-debian> <20051105101026.GA28438@flint.arm.linux.org.uk> <1131358884.14696.57.camel@icampbell-debian>
+	Tue, 17 Jan 2006 14:06:10 -0500
+Subject: Re: differences between MADV_FREE and MADV_DONTNEED
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Nicholas Miell <nmiell@comcast.net>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Ulrich Drepper <drepper@redhat.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, hugh@veritas.com,
+       dvhltc@us.ibm.com, linux-mm <linux-mm@kvack.org>, blaisorblade@yahoo.it,
+       jdike@addtoit.com
+In-Reply-To: <20060117124315.GA7754@infradead.org>
+References: <20051111174309.5d544de4.akpm@osdl.org>
+	 <43757263.2030401@us.ibm.com> <20060116130649.GE15897@opteron.random>
+	 <43CBC37F.60002@FreeBSD.org> <20060116162808.GG15897@opteron.random>
+	 <43CBD1C4.5020002@FreeBSD.org> <20060116172449.GL15897@opteron.random>
+	 <m1r777rgq4.fsf@ebiederm.dsl.xmission.com> <43CC3922.2070205@FreeBSD.org>
+	 <1137459847.2842.6.camel@entropy>  <20060117124315.GA7754@infradead.org>
+Content-Type: text/plain
+Date: Tue, 17 Jan 2006 11:06:38 -0800
+Message-Id: <1137524799.4966.144.camel@dyn9047017102.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1131358884.14696.57.camel@icampbell-debian>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ian,
-
-> On Sat, 2005-11-05 at 10:10 +0000, Russell King wrote:
+On Tue, 2006-01-17 at 12:43 +0000, Christoph Hellwig wrote:
+> On Mon, Jan 16, 2006 at 05:04:07PM -0800, Nicholas Miell wrote:
+> > On Mon, 2006-01-16 at 16:24 -0800, Suleiman Souhlal wrote:
+> > > Eric W. Biederman wrote:
+> > > > As I recall the logic with DONTNEED was to mark the mapping of
+> > > > the page clean so the page didn't need to be swapped out, it could
+> > > > just be dropped.
+> > > > 
+> > > > That is why they anonymous and the file backed cases differ.
+> > > > 
+> > > > Part of the point is to avoid the case of swapping the pages out if
+> > > > the application doesn't care what is on them anymore.
+> > > 
+> > > Well, imho, MADV_DONTNEED should mean "I won't need this anytime soon", 
+> > > and MADV_FREE "I will never need this again".
+> > > 
+> > 
+> > POSIX doesn't have a madvise(), but it does have a posix_madvise(), with
+> > flags defined as follows:
+> > 
+> > POSIX_MADV_NORMAL
+> >    Specifies that the application has no advice to give on its behavior
+> > with respect to the specified range. It is the default characteristic if
+> > no advice is given for a range of memory.
+> > POSIX_MADV_SEQUENTIAL
+> >    Specifies that the application expects to access the specified range
+> > sequentially from lower addresses to higher addresses.
+> > POSIX_MADV_RANDOM
+> >    Specifies that the application expects to access the specified range
+> > in a random order.
+> > POSIX_MADV_WILLNEED
+> >    Specifies that the application expects to access the specified range
+> > in the near future.
+> > POSIX_MADV_DONTNEED
+> >    Specifies that the application expects that it will not access the
+> > specified range in the near future.
+> > 
+> > Note that glibc forwards posix_madvise() directly to madvise(2), which
+> > means that right now, POSIX conformant apps which use
+> > posix_madvise(addr, len, POSIX_MADV_DONTNEED) are silently corrupting
+> > data on Linux systems.
 > 
-> > It's probably better to use a union with these, eg:
+> Does our MAD_DONTNEED numerical value match glibc's POSIX_MADV_DONTNEED?
 > 
-> The common idiom in the watchdog drivers seems to be to use separate
-> variables. I'll leave it up to Wim if he wants to change that.
-> 
-> The following makes drivers/char/watchdog/sa1100_wdt.c sparse clean.
-> 
-> Signed-off-by: Ian Campbell <icampbell@arcom.com>
+> In either case I'd say we should backout this patch for now.  We should
+> implement a real MADV_DONTNEED and rename the current one to MADV_FREE,
+> but that's 2.6.17 material.
 
-I seem to have missed this last e-mail (I was moving around that time...).
-This is indeed how it's been done in other drivers. I just uploaded this "patch"
-into my -mm test tree. Within a week or two I'll move it to the final watchdog tree.
+Christoph,
 
-We should look to the struct watchdog part in more detail though.
-a union is an option, but probably not the only one :-)
+What patch are you recommending backing out ? 
 
-Greetings,
-Wim.
+Thanks,
+Badari
 

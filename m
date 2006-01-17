@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWAQTGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWAQTGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbWAQTGx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 14:06:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWAQTGw
+	id S964785AbWAQTGs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 14:06:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWAQTGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 14:06:52 -0500
-Received: from holomorphy.com ([66.93.40.71]:39319 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S964783AbWAQTGv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 14:06:51 -0500
-Date: Tue, 17 Jan 2006 11:06:50 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: John Richard Moser <nigelenki@comcast.net>
+	Tue, 17 Jan 2006 14:06:48 -0500
+Received: from uproxy.gmail.com ([66.249.92.202]:22560 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964783AbWAQTGr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 14:06:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=E3BgcyCFoiXi3stVwGjyJdlU1X///M9AhsAq3UOGr82yY5j1qvAGU2HaVl1QKmmZ7waGPpJM9EStlvkbUlgIchdk/GQiBb4TbNB2QaCWRlmzhrsxe1lvRgRmWnRT1St32z4IG7Gt1NH81LHQ9xQlwhOBkLI2BY/YCTfOdIHMqvo=
+Date: Tue, 17 Jan 2006 20:06:23 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Huge pages and small pages. . .
-Message-ID: <20060117190650.GC13708@holomorphy.com>
-References: <43CD3CE4.3090300@comcast.net>
+Subject: Re: Linux 2.6.16-rc1
+Message-Id: <20060117200623.e8226a74.diegocg@gmail.com>
+In-Reply-To: <Pine.LNX.4.64.0601170946050.3240@g5.osdl.org>
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+	<20060117183916.399b030f.diegocg@gmail.com>
+	<Pine.LNX.4.64.0601170946050.3240@g5.osdl.org>
+X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43CD3CE4.3090300@comcast.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 17, 2006 at 01:52:20PM -0500, John Richard Moser wrote:
-> Is there anything in the kernel that shifts the physical pages for 1024
-> physically allocated and contiguous virtual pages together physically
-> and remaps them as one huge page?  This would probably work well for the
-> low end of the heap, until someone figures out a way to tell the system
-> to free intermittent pages in a big mapping (if the heap has an
-> allocation up high, it can have huge, unused areas that are allocated).
->  It may possibly work for disk cache as well, albeit I can't say for
-> sure if it's common to have a 4 meg contiguous section of program data
-> loaded.
-> Shifting odd huge allocations around would be neat to, re:
-> {2m}[4M  ]{2m}  ->  [4M  ][4M  ]
-
-I've got bugs and feature work written by others that has sat on hold
-for ages to merge, so I won't be looking to experiment myself.
-
-Do write things yourself and send in the resulting patches, though.
+El Tue, 17 Jan 2006 10:25:49 -0800 (PST),
+Linus Torvalds <torvalds@osdl.org> escribió:
 
 
--- wli
+> Is this useful to you? I dunno.  I thought I'd spread the git gospel and 
+> see if somebody gives me a "Halleluja!"
+
+Yes, this could be useful for this task (and looking what files are
+created/deleted aswell), but it won't catch everything under the sun - 
+adding support for a new device in a already existing driver, for 
+example, or subtle changes in the semantics of a syscall, or adding
+yet another sockopt() option; there're many small changes that are
+"important".
+
+For now, I just look at the subject line of every mail sent to the 
+git-commits-head mailing list and decide from a quick look if
+the change is important or not. It's a very fast operation so 
+looking at a couple of hundreds of emails each day doesn't take
+more than a couple of minutes; I waste most of the time trying
+to understand what the change does to write a comprehensible
+description and format everything to put it in the "·$%&/( crappy
+HTML forms that wikis use. I agree that asking developers to "mark"
+important changes wouldn't work well, so I guess this is the only
+100% reliable method. Well, kernel releases are taking two months to
+be released, so i guess I should not try to do everything as soon
+as it is merged in the first two weeks but do the work in small 
+chunks.

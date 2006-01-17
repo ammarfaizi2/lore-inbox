@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbWAQOJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932505AbWAQOK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932503AbWAQOJl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 09:09:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbWAQOJl
+	id S932505AbWAQOK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 09:10:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWAQOK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 09:09:41 -0500
-Received: from [217.12.176.9] ([217.12.176.9]:7052 "EHLO poppero1")
-	by vger.kernel.org with ESMTP id S932503AbWAQOJk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 09:09:40 -0500
-Date: Tue, 17 Jan 2006 09:17:22 +0100
-From: Roberto Oppedisano <roberto.oppedisano@infracomspa.it>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.6.15-git - compilation error: 'rcupdate' undeclared
-Message-ID: <20060117081722.GA5282@infracomspa.it>
-References: <20060112175943.GA13967@infracomspa.it> <20060117051941.GA7434@us.ibm.com>
+	Tue, 17 Jan 2006 09:10:26 -0500
+Received: from cassarossa.samfundet.no ([129.241.93.19]:53937 "EHLO
+	cassarossa.samfundet.no") by vger.kernel.org with ESMTP
+	id S932505AbWAQOKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 09:10:25 -0500
+Date: Tue, 17 Jan 2006 15:10:19 +0100
+From: "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: NeilBrown <neilb@suse.de>, linux-raid@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 000 of 5] md: Introduction
+Message-ID: <20060117141019.GA32232@uio.no>
+References: <20060117174531.27739.patches@notabene> <43CCA80B.4020603@tls.msk.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20060117051941.GA7434@us.ibm.com>
-X-NCC-RegID: it.infracom
+In-Reply-To: <43CCA80B.4020603@tls.msk.ru>
+X-Operating-System: Linux 2.6.14.3 on a x86_64
+X-Message-Flag: Outlook? --> http://www.mozilla.org/products/thunderbird/
 User-Agent: Mutt/1.5.11
+X-Spam-Score: -0.0 (/)
+X-Spam-Report: Status=No hits=-0.0 required=5.0 tests=NO_RELAYS version=3.1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 16, 2006 at 09:19:41PM -0800, Paul E. McKenney wrote:
-> 2.6.15-git6 works builds and runs for me, with no compiler warnings
-> from rcupdate.c.  Exactly which version are you using?
+On Tue, Jan 17, 2006 at 11:17:15AM +0300, Michael Tokarev wrote:
+> Neil, is this online resizing/reshaping really needed?  I understand
+> all those words means alot for marketing persons - zero downtime,
+> online resizing etc, but it is much safer and easier to do that stuff
+> 'offline', on an inactive array, like raidreconf does - safer, easier,
+> faster, and one have more possibilities for more complex changes. 
 
-This was with latest git from linus tree (after a git pull). Now I
-downloaded a 2.6.16-git9 via ftp and I can compile it successfully. 
+Try the scenario where the resize takes a week, and you don't have enough
+spare disks to move it onto another server -- besides, that would take
+several days alone... This is the kind of use-case for which I wrote the
+original patch, and I'm grateful that Neil has picked it up again so we can
+finally get something working in.
 
-Probably something has gone wrong with my git setup (also now, after a
-git pull/git checkout -f, I still can't compile it). 
-
-ciao, Roberto
+/* Steinar */
 -- 
-Roberto Oppedisano
-Infracom Italia S.p.A.                         OSS and LIR Services
-Tel. +39 045 8271518   Fax  +39 045 8271499   Cell. +39 348 7419534
+Homepage: http://www.sesse.net/

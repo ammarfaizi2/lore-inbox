@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWAQDkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWAQEVD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751255AbWAQDkw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 22:40:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWAQDkw
+	id S1750770AbWAQEVD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jan 2006 23:21:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWAQEVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 22:40:52 -0500
-Received: from sandeen.net ([209.173.210.139]:31095 "EHLO mail.sandeen.net")
-	by vger.kernel.org with ESMTP id S1751255AbWAQDkw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 22:40:52 -0500
-Message-ID: <43CC673B.8050808@sgi.com>
-Date: Mon, 16 Jan 2006 21:40:43 -0600
-From: Eric Sandeen <sandeen@sgi.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Macintosh/20050716)
-X-Accept-Language: en-us, en
+	Mon, 16 Jan 2006 23:21:03 -0500
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:13646 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750770AbWAQEVB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jan 2006 23:21:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=lJt9czjx0PwkORqzsewkM0ISJEOgnzjAjt3H8iW4cL4PjfYtpYVlCDVdEJe0pvYluMEvWzsjx/8xpEcnWZ7oYwf0FyfkPsc4uzH12/wjthGQHprOebWTmpkGupDBvYXn+0UufdTVUgBwCaOh+OKlR0O1nuortoxRJcuXM9yaS00=  ;
+Message-ID: <43CC7094.9040404@yahoo.com.au>
+Date: Tue, 17 Jan 2006 15:20:36 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Andrew Morton <akpm@osdl.org>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: xfs: Makefile-linux-2.6 => Makefile?
-References: <20060109164214.GA10367@mars.ravnborg.org> <20060109164611.GA1382@infradead.org> <43C2CFBD.8040901@sgi.com> <20060109234532.78bda36a.akpm@osdl.org> <43C3E222.7020203@sgi.com> <20060116231952.GA8752@mars.ravnborg.org>
-In-Reply-To: <20060116231952.GA8752@mars.ravnborg.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Diego Calleja <diegocg@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Oops with current linus' git tree
+References: <20060116191556.bd3f551c.diegocg@gmail.com>
+In-Reply-To: <20060116191556.bd3f551c.diegocg@gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
->>Sam, is there any way to make this work with some code for the module in a 
->>subdirectory?
+Diego Calleja wrote:
+> I'm having two noticeable problems with the current linus' tree
 > 
+> 1) Oops while watching a DVD with kaffeine (kde based video player),
+>    oops pasted below.
 > 
-> Hi Eric.
-> I forgot to point out one ugly solution for this.
-> You can include a dummy Kbuild (Makefile) in each directory to support
-> this. I recall that reiser4 had similar question and this was the
-> solution I pointed out for them too.
-> No - I am not in favour of it. But for local development it could make
-> sense.
-> So it may solve the "Eric" part of it, but not the "Andrew" part of it
-> since these file will never get in the mainstream kernel (hopefully).
-> 
-> 	Sam
 
-Thanks, Sam - I'd considered that, too.  We may do it locally.
+ From your oops it looks as though the radix_tree_lookup in find_get_page
+has returned 0x40. It could be a flipped bit - is your memory OK?
 
--Eric
+Can you apply the attached patch and try to reproduce the oops?
+
+> 2) This is a dual p3 machine, but only one CPU is being used to
+>    run processes on it. CPU #1 is detected etc, but processes will
+>    be scheduled only in CPU #0. /proc/interrupts shows that CPU #1 is
+>    still used to service interrupts. I'm able to force processes to run
+>    on that CPU with taskset but it won't happen automatically like it
+>    usually does. dmesg here: http://terra.es/personal/diegocg/dmesg
+> 
+
+What happens if you run several infinite loops to increase the load?
+Does everything still stay on CPU0?
+
+> 
+> Jan 16 18:04:07 estel kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000040
+
+Thanks,
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

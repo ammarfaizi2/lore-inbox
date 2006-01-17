@@ -1,37 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWAQR5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWAQSDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932276AbWAQR5R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 12:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWAQR5R
+	id S932150AbWAQSDs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 13:03:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWAQSDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 12:57:17 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:26126 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S932276AbWAQR5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 12:57:16 -0500
-Message-ID: <43CD2FDF.8080006@shadowen.org>
-Date: Tue, 17 Jan 2006 17:56:47 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Tue, 17 Jan 2006 13:03:48 -0500
+Received: from uproxy.gmail.com ([66.249.92.196]:15190 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932150AbWAQSDr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 13:03:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=T34R6iJPMRaPkfwkvWDYCAwAXxLMAiYCgRezXizTavdGN30znYPjX3oANdmWh3T5CJOEu8AuWn6CKXFGIu+GI0DPdZjZMyUSqza57PyJ1WJjdE23VThEqz5NNhIeC4nzllvAkjGQp2U6et9RWgBH0M1+/QhSaLPyhdXQOGTroMc=
+Message-ID: <58cb370e0601171003q3e629131y115b665a93d083f3@mail.gmail.com>
+Date: Tue, 17 Jan 2006 19:03:45 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PATCH: SBC EPX does not check/claim I/O ports it uses
+Cc: calin@ajvar.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <1137520351.14135.40.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zonelists gfp_zone() is really gfp_zonelist()
-References: <20060117155010.GA16135@shadowen.org> <1137519100.5526.11.camel@localhost.localdomain>
-In-Reply-To: <1137519100.5526.11.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1137520351.14135.40.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
+Hi,
 
-> Hmm, but it's not really a zonelist, either.  It's an index into an
-> array of zonelists that gets you a zonelist.  How about
-> gfp_to_zonelist_nr()?
+> @@ -180,6 +181,9 @@
+>  static int __init watchdog_init(void)
+>  {
+>         int ret;
+> +
+> +       if (!request_region(EPXC3_WATCHDOG_CTL_REG, 2, "epxc3_watchdog"))
+> +               return -EBUSY;
+>
+>         ret = register_reboot_notifier(&epx_c3_notifier);
+>         if (ret) {
 
-Sounds fair, I'll respin the patch with a better name.
+Shouldn't resource be released when
+register_reboot_notifier() or misc_register() fails?
 
--apw
+Bartlomiej

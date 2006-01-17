@@ -1,92 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWAQIiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWAQIr6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbWAQIiq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 03:38:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932346AbWAQIiq
+	id S932071AbWAQIr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 03:47:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWAQIr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 03:38:46 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:64546 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932337AbWAQIip convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 03:38:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dn8+5Fqkt1M6aO/6Dx04WoIFS0DCv5yb56nzU7faB0gN8IW/24kHO7RWLIj0C963wxPvozw1igeUbBhU3ATPLpZniO4h5dfdrE+Y+fuvZUcM8EcPO3W5hVXCQVX5aj06GuUDSMkQR98bl9tbjfFZ0Tj3Zv1yNt8xGl8wEnzs6s4=
-Message-ID: <6e6e20a10601170038l2a1641edjdc8466093eec423a@mail.gmail.com>
-Date: Tue, 17 Jan 2006 09:38:43 +0100
-From: =?ISO-8859-1?Q?Bj=F6rn_Nilsson?= <bni.swe@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 3COM 3C940, does not work anymore after upgrade to 2.6.15
-Cc: shemminger@osdl.org
-In-Reply-To: <20060116100156.0a273b54@dxpl.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <6e6e20a10601160751v362d2312v6c99fa8db64ce7e1@mail.gmail.com>
-	 <20060116100156.0a273b54@dxpl.pdx.osdl.net>
+	Tue, 17 Jan 2006 03:47:58 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:21455 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932071AbWAQIr6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 03:47:58 -0500
+Date: Tue, 17 Jan 2006 00:47:11 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: sleddog@us.ibm.com, serue@us.ibm.com, michael@ellerman.id.au,
+       linuxppc64-dev@ozlabs.org, paulus@au1.ibm.com, anton@au1.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm4 failure on power5
+Message-Id: <20060117004711.1f4508cd.akpm@osdl.org>
+In-Reply-To: <20060117081749.GA10135@elte.hu>
+References: <20060116063530.GB23399@sergelap.austin.ibm.com>
+	<20060115230557.0f07a55c.akpm@osdl.org>
+	<200601170000.58134.michael@ellerman.id.au>
+	<20060116153748.GA25866@sergelap.austin.ibm.com>
+	<20060116215252.GA10538@cs.umn.edu>
+	<20060116170907.60149236.akpm@osdl.org>
+	<20060117081749.GA10135@elte.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/16/06, Stephen Hemminger <shemminger@osdl.org> wrote:
-> On Mon, 16 Jan 2006 16:51:22 +0100
-> Björn Nilsson <bni.swe@gmail.com> wrote:
+Ingo Molnar <mingo@elte.hu> wrote:
 >
-> > Hi,
-> >
-> > I have a problem with the network card attached to my motherboard
-> > after doing an upgrade of the kernel from 2.6.11 to 2.6.15.
-> >
-> > The Motherboard is an ASUS P4P800, and the network card is 3COM 3C940
-> > and is afaik a variant of SysKonnect SK-98xx.
-> >
-> > It worked with 2.6.15 until I shut the system down and started it up
-> > again for the first time with 2.6.15 running, and now the card does
-> > not work anymore. The driver is loaded, and it detects that the cable
-> > is plugged in and the interface is brought up (so says dmesg). The
-> > green led on the card is now turned off, it used to be on before.
-> >
-> > I have tried to reinstall the system from scratch (Using Debian 3.1
-> > installer cd), and to my astonishment the card is not working like it
-> > used to.
-> >
-> > It seems like 2.6.15 set the card in some state so it does not work
-> > anymore. Is this even possible? I have tried power cycling, even
-> > disconnected the power coord from the computer.
-> >
-> > When i used 2.6.11 I was using the sk98lin driver, when upgrading it
-> > is possible the newer skge driver was used, however I am not sure.
-> >
-> > Debian installer 3.1 uses 2.6.8 kernel with sk98lin driver.
-> >
-> > I have found others with the same/similar problem:
-> > http://bugs.gentoo.org/show_bug.cgi?id=100258
-> > http://marc.theaimsgroup.com/?l=linux-netdev&m=112268414417743&w=2
-> >
-> > But for me the card does not work even with 2.6.15. I dont have
-> > Wind*ws to test with, so I cant test the solution in one of the above
-> > emails.
-> >
-> > If the driver in 2.6.15 breaks cards of this type it is qiute a
-> > serious bug I think. Anyone have any suggestions as to how I can try
-> > to fix this? Reset the card in some way maybe?
-> >
-> > Please CC me.
-> >
-> > Regards
-> > /Björn
->
-> Pleas send me some more info.
-> * console output (dmesg)
-> * lspci -v
-> * which modules are loaded (lsmod)
->
->
-> --
-> Stephen Hemminger <shemminger@osdl.org>
-> OSDL http://developer.osdl.org/~shemminger
->
+> 
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > > If I revert just that patch, mm4 boots fine.  Its really not obvious to
+> > > me at all why that patch is breaking things though...
+> > 
+> > Yes, that is strange.  I do recall that if something accidentally 
+> > enables interrupts too early in boot, ppc64 machines tend to go 
+> > comatose.  But if we'd been running that code under 
+> > local_irq_disable(), down() would have spat a warning.
+> 
+> perhaps it was just luck it worked so far, and the bug could have had 
+> worse incarnations that the current clear hang if a certain generic 
+> codepath is touched in a perfectly valid way. Does CONFIG_DEBUG_MUTEXES 
+> (or any of the other debugging options) make any noise?
+> 
 
-I am currently travelling and dont have access to the machine right
-now, but I will post this info later in the week or this weekend.
+The bug happens on the G5 too.  There's nothing useful on the screen,
+nothing on netconsole.  Could the people whose machines have a fscking
+serial port please try CONFIG_DEBUG_MUTEXES?

@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbWAQR4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWAQR5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932264AbWAQR4s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 12:56:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWAQR4s
+	id S932276AbWAQR5R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 12:57:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWAQR5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 12:56:48 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:51644 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932264AbWAQR4r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 12:56:47 -0500
-Subject: PATCH: Fix warning on 64bit boxes
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Content-Type: text/plain
+	Tue, 17 Jan 2006 12:57:17 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:26126 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S932276AbWAQR5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 12:57:16 -0500
+Message-ID: <43CD2FDF.8080006@shadowen.org>
+Date: Tue, 17 Jan 2006 17:56:47 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zonelists gfp_zone() is really gfp_zonelist()
+References: <20060117155010.GA16135@shadowen.org> <1137519100.5526.11.camel@localhost.localdomain>
+In-Reply-To: <1137519100.5526.11.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Tue, 17 Jan 2006 17:56:05 +0000
-Message-Id: <1137520565.14135.45.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We cast an int to a void * which not unreasonably makes gcc suspicious.
-We don't actually care what type "type" is so use unsigned long so it
-matches pointer length on all platforms.
+Dave Hansen wrote:
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+> Hmm, but it's not really a zonelist, either.  It's an index into an
+> array of zonelists that gets you a zonelist.  How about
+> gfp_to_zonelist_nr()?
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.16-rc1/drivers/usb/storage/libusual.c linux-2.6.16-rc1/drivers/usb/storage/libusual.c
---- linux.vanilla-2.6.16-rc1/drivers/usb/storage/libusual.c	2006-01-17 15:52:54.000000000 +0000
-+++ linux-2.6.16-rc1/drivers/usb/storage/libusual.c	2006-01-17 17:19:01.000000000 +0000
-@@ -116,7 +116,7 @@
- static int usu_probe(struct usb_interface *intf,
- 			 const struct usb_device_id *id)
- {
--	int type;
-+	unsigned long type;
- 	int rc;
- 	unsigned long flags;
- 
+Sounds fair, I'll respin the patch with a better name.
 
+-apw

@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWAQWFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWAQWID@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbWAQWFh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 17:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbWAQWFh
+	id S964861AbWAQWID (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 17:08:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWAQWID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 17:05:37 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:34258 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S964859AbWAQWFh (ORCPT
+	Tue, 17 Jan 2006 17:08:03 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:13461 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S964861AbWAQWIB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 17:05:37 -0500
-Date: Tue, 17 Jan 2006 23:05:27 +0100 (MET)
+	Tue, 17 Jan 2006 17:08:01 -0500
+Date: Tue, 17 Jan 2006 23:07:49 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Antonio Vargas <windenntw@gmail.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Diego Calleja <diegocg@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.16-rc1
-In-Reply-To: <69304d110601171304h34c16fbfuf59df390c0fc58fd@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0601172259410.7756@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org> 
- <20060117183916.399b030f.diegocg@gmail.com>  <Pine.LNX.4.64.0601170946050.3240@g5.osdl.org>
-  <Pine.LNX.4.61.0601172104350.11929@yvahk01.tjqt.qr>
- <69304d110601171304h34c16fbfuf59df390c0fc58fd@mail.gmail.com>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       Phil Oester <kernel@linuxace.com>, linux-kernel@vger.kernel.org,
+       apiszcz@lucidpixels.com
+Subject: Re: Kernel 2.6.15.1 + NFS is 4 times slower than FTP!?
+In-Reply-To: <Pine.LNX.4.64.0601171545310.19112@p34>
+Message-ID: <Pine.LNX.4.61.0601172307030.7756@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0601161957300.16829@p34>  <20060117012319.GA22161@linuxace.com>
+  <Pine.LNX.4.64.0601162031220.2501@p34>  <Pine.BSO.4.63.0601171846570.15077@rudy.mif.pg.gda.pl>
+  <1137521483.14135.59.camel@localhost.localdomain>  <Pine.LNX.4.64.0601171324010.25508@p34>
+  <1137523035.7855.91.camel@lade.trondhjem.org>  <Pine.LNX.4.64.0601171338040.25508@p34>
+  <1137523991.7855.103.camel@lade.trondhjem.org>  <Pine.LNX.4.64.0601171354510.25508@p34>
+ <1137524502.7855.107.camel@lade.trondhjem.org> <Pine.LNX.4.61.0601172139230.30708@yvahk01.tjqt.qr>
+ <Pine.LNX.4.64.0601171545310.19112@p34>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> auto   Can be mounted with the -a option.
 >
->Maybe the way to make modern-style linux development (post 2.5) more
->manageable for mere mortals is to stop integrating things when the
->shortlog is so big that it can't be posted to the mailing list? Less
->changes, easier to see if you are able to help testing ;)
+> defaults
+> Use default options: rw, suid, dev, exec,  auto,
+> nouser, and async.
 >
+> The default is async, no?
 
-<lots of irony>
-Ridiculous, we'll never get there! Just look at 2.6.16-rc1 -
-oh, there was no shortlog posted?
-</lots of irony>
-
-You probably don't know the mailing list, but I think it does not accept 
-mails beyond 40K (some guess), but for sure it does not let 100KB through.
-The 2.6.16-rc1 shortlogs would still need to shrank by 1.3MB to get where 
-you want. However, if you read the description of [PATCH]es, you are 
-already there (which is, though, a combination of goes-in and stays-out).
+The server side also needs to specify async in exports. You even get a 
+warning if you do not specify sync or async, because the default had 
+been changed once.
 
 
 
 Jan Engelhardt
 -- 
-| Alphagate Systems, http://alphagate.hopto.org/
-| jengelh's site, http://jengelh.hopto.org/

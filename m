@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbWAQVRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbWAQVWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964847AbWAQVRj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 16:17:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWAQVRj
+	id S964850AbWAQVWh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 16:22:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbWAQVWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 16:17:39 -0500
-Received: from uproxy.gmail.com ([66.249.92.203]:41158 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932430AbWAQVRi (ORCPT
+	Tue, 17 Jan 2006 16:22:37 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:7883 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964850AbWAQVWg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 16:17:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=XSJqeLgRRahKyPKNmHSEnhxHXUOsmIUdWwFuiy0Iob09DzagW4UUbpZ/VB5F7xtsEthC+2DB5e6yvWXYujESFRLuq1UbkuUaAz6QcYPeXnLFUnbk30ynA+GMTeVwreslhUwK0MlvVxwREv1u15zNtkPwyiFT1Ti37ZzqPnhdqpc=
-Date: Wed, 18 Jan 2006 00:34:59 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, asun@darksunrising.com
-Subject: Re: PATCH: cassini printk format warning
-Message-ID: <20060117213442.GA22002@mipter.zuzino.mipt.ru>
-References: <1137523175.14135.84.camel@localhost.localdomain>
+	Tue, 17 Jan 2006 16:22:36 -0500
+Date: Tue, 17 Jan 2006 13:22:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zone gfp_flags generate from ZONE_ constants
+Message-Id: <20060117132214.2db664e2.akpm@osdl.org>
+In-Reply-To: <20060117155227.GA16176@shadowen.org>
+References: <20060117155227.GA16176@shadowen.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137523175.14135.84.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 17, 2006 at 06:39:34PM +0000, Alan Cox wrote:
-> --- linux.vanilla-2.6.16-rc1/drivers/net/cassini.c
-> +++ linux-2.6.16-rc1/drivers/net/cassini.c
-> @@ -1925,7 +1925,7 @@
->  	u64 compwb = le64_to_cpu(cp->init_block->tx_compwb);
->  #endif
->  	if (netif_msg_intr(cp))
-> -		printk(KERN_DEBUG "%s: tx interrupt, status: 0x%x, %lx\n",
-> +		printk(KERN_DEBUG "%s: tx interrupt, status: 0x%x, %llx\n",
->  			cp->dev->name, status, compwb);
+Andy Whitcroft <apw@shadowen.org> wrote:
+>
+> +/*
+>  + * Generate the zone modifier bit.  Zone ZONE_DEFAULT doesn't require a bit
+>  + * as the absence of all zone modifiers implies this zone.  Renormalise the
+>  + * zone number such that ZONE_DEFAULT is at the bottom and discard it.
+>  + * These must fit within the bitmask GFP_ZONEMASK defined in linux/mmzone.h.
+>  + */
+>  +#define __ZONE_BIT(x) (((x) ^ ZONE_DEFAULT) - 1)
+>  +#define ZONE_MODIFIER(x) ((__force gfp_t)(((x) == ZONE_DEFAULT)? (0) : \
+>  +							1UL << __ZONE_BIT(x)))
+>  +
+>  +#define __GFP_DMA	ZONE_MODIFIER(ZONE_DMA)
+>  +#define __GFP_HIGHMEM	ZONE_MODIFIER(ZONE_HIGHMEM)
+>   #ifdef CONFIG_DMA_IS_DMA32
+>  -#define __GFP_DMA32	((__force gfp_t)0x01)	/* ZONE_DMA is ZONE_DMA32 */
+>  +#define __GFP_DMA32	ZONE_MODIFIER(ZONE_DMA)	/* ZONE_DMA is ZONE_DMA32 */
+>   #elif BITS_PER_LONG < 64
+>  -#define __GFP_DMA32	((__force gfp_t)0x00)	/* ZONE_NORMAL is ZONE_DMA32 */
+>  +#define __GFP_DMA32	ZONE_MODIFIER(ZONE_NORMAL) /* ZONE_NORMAL is ZONE_DMA32 */
+>   #else
+>  -#define __GFP_DMA32	((__force gfp_t)0x04)	/* Has own ZONE_DMA32 */
+>  +#define __GFP_DMA32	ZONE_MODIFIER(ZONE_DMA32) /* Has own ZONE_DMA32 */
+>   #endif
 
-	"%llx", (unsigned long long)u64
+eek.  We often look at the hex value of gfp flags in debug output to work
+out what sort of allocation is being attempted.
 
-is the warningless way on all archs.
-
+I guess we could print out the values of these things at boot time..

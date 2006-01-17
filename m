@@ -1,77 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWAQNsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbWAQNz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932489AbWAQNsR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 08:48:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbWAQNsR
+	id S932491AbWAQNz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 08:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWAQNz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 08:48:17 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:1253 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932489AbWAQNsQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 08:48:16 -0500
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Linux 2.6.16-rc1
-Date: Tue, 17 Jan 2006 14:49:32 +0100
-User-Agent: KMail/1.9
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org> <200601171416.13119.prakash@punnoor.de> <43CCF2F7.4070205@pobox.com>
-In-Reply-To: <43CCF2F7.4070205@pobox.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1249386.599gbbzhZE";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601171449.32868.prakash@punnoor.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
+	Tue, 17 Jan 2006 08:55:29 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:14858 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932491AbWAQNz3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 08:55:29 -0500
+Date: Tue, 17 Jan 2006 14:57:31 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: Max Waterman <davidmaxwaterman+kernel@fastmail.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: io performance...
+Message-ID: <20060117135731.GM3945@suse.de>
+References: <43CB4CC3.4030904@fastmail.co.uk> <43CB4C03.7070304@wolfmountaingroup.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43CB4C03.7070304@wolfmountaingroup.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1249386.599gbbzhZE
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-Am Dienstag Januar 17 2006 14:36 schrieb Jeff Garzik:
-> Prakash Punnoor wrote:
-> > Compiling libata SIL breaks with Linux 2.6.16-rc1:
+On Mon, Jan 16 2006, Jeff V. Merkey wrote:
+> Max Waterman wrote:
+> 
+> >Hi,
 > >
+> >I've been referred to this list from the linux-raid list.
 > >
-> >   CC      drivers/scsi/sata_sil.o
-> > drivers/scsi/sata_sil.c: In function 'sil_port_irq':
-> > drivers/scsi/sata_sil.c:393: error: too many arguments to function
-> > 'ata_qc_complete'
-> > drivers/scsi/sata_sil.c:400: error: too many arguments to function
-> > 'ata_qc_complete'
->
-> I don't know what source code you're compiling, but it's certainly not
-> 2.6.16-rc1:
->
-> [jgarzik@pretzel linux-2.6]$ grep -w ata_qc_complete
-> drivers/scsi/sata_sil.c
-> [jgarzik@pretzel linux-2.6]$
+> >I've been playing with a RAID system, trying to obtain best bandwidth
+> >from it.
+> >
+> >I've noticed that I consistently get better (read) numbers from kernel 
+> >2.6.8
+> >than from later kernels.
+> 
+> 
+> To open the bottlenecks, the following works well.  Jens will shoot me 
+> for recommending this,
+> but it works well.  2.6.9 so far has the highest numbers with this fix.  
+> You can manually putz
+> around with these numbers, but they are an artificial constraint if you 
+> are using RAID technology
+> that caches ad elevators requests and consolidates them.
+> 
+> 
+> Jeff
+> 
+> 
 
-Ah sorry, you are right. I still had the experimental patch inside you once=
-=20
-posted...need to back that out...
+> 
+> diff -Naur ./include/linux/blkdev.h ../linux-2.6.9/./include/linux/blkdev.h
+> --- ./include/linux/blkdev.h	2004-10-18 15:53:43.000000000 -0600
+> +++ ../linux-2.6.9/./include/linux/blkdev.h	2005-12-06 09:54:46.000000000 -0700
+> @@ -23,8 +23,10 @@
+>  typedef struct elevator_s elevator_t;
+>  struct request_pm_state;
+>  
+> -#define BLKDEV_MIN_RQ	4
+> -#define BLKDEV_MAX_RQ	128	/* Default maximum */
+> +//#define BLKDEV_MIN_RQ	4
+> +//#define BLKDEV_MAX_RQ	128	/* Default maximum */
+> +#define BLKDEV_MIN_RQ	4096
+> +#define BLKDEV_MAX_RQ	8192	/* Default maximum */
 
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+Yeah I could shoot you. However I'm more interested in why this is
+necessary, eg I'd like to see some numbers from you comparing:
 
---nextPart1249386.599gbbzhZE
-Content-Type: application/pgp-signature
+- The stock settings
+- Doing
+        # echo 8192 > /sys/block/<dev>/queue/nr_requests
+  for each drive you are accessing.
+- The kernel with your patch.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+If #2 and #3 don't provide very similar profiles/scores, then we have
+something to look at.
 
-iD4DBQBDzPXsxU2n/+9+t5gRAoi3AJQJOC20gm4KSWejqR6oI08swmEqAJ9qb5WR
-0imE8k2lrjdXEKIPzJK29g==
-=WPc3
------END PGP SIGNATURE-----
+The BLKDEV_MIN_RQ increase is just silly and wastes a huge amount of
+memory for no good reason.
 
---nextPart1249386.599gbbzhZE--
+-- 
+Jens Axboe
+

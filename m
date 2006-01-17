@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbWAQKQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWAQKWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932383AbWAQKQh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 05:16:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbWAQKQh
+	id S932384AbWAQKWM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 05:22:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbWAQKWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 05:16:37 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:18886 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932383AbWAQKQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 05:16:36 -0500
-Date: Tue, 17 Jan 2006 19:16:37 +0900
-To: ak@suse.de, linux-kernel@vger.kernel.org
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: [PATCH 4/4] i386: print system_utsname.version in oops
-Message-ID: <20060117101637.GE19473@miraclelinux.com>
-References: <20060117101339.GA19473@miraclelinux.com>
+	Tue, 17 Jan 2006 05:22:12 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:2500 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S932384AbWAQKWM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 05:22:12 -0500
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@ocs.com.au>
+To: Andrew Morton <akpm@osdl.org>
+cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, mita@miraclelinux.com
+Subject: Re: [patch 2.6.15-current] i386: multi-column stack backtraces 
+In-reply-to: Your message of "Mon, 16 Jan 2006 22:42:34 -0800."
+             <20060116224234.5a7ca488.akpm@osdl.org> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060117101339.GA19473@miraclelinux.com>
-User-Agent: Mutt/1.5.9i
-From: mita@miraclelinux.com (Akinobu Mita)
+Date: Tue, 17 Jan 2006 21:22:09 +1100
+Message-ID: <9554.1137493329@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-print system_utsname.version in i386 oops to make it possible doing a
-double check that the oops is matching the vmlinux we're looking at.
+Andrew Morton (on Mon, 16 Jan 2006 22:42:34 -0800) wrote:
+>Chuck Ebbert <76306.1226@compuserve.com> wrote:
+>>
+>> Print stack backtraces in multiple columns, saving screen space.
+>> Number of columns is configurable and defaults to one so 
+>> behavior is backwards-compatible.
+>> 
+>> Also removes the brackets around addresses when printing more
+>> that one entry per line so they print as:
+>>     <address>
+>> instead of:
+>>     [<address>]
+>> This helps multiple entries fit better on one line.
+>> 
+>> Original idea by Dave Jones, taken from x86_64.
+>> 
+>
+>Presumably this is going to bust ksymoops.  Also the various other custom
+>oops-parsers which people have written themselves.
 
-for example:
-(2.6.15-git12) --> (2.6.15-git12 #1 SMP Tue Jan 17 13:59:15 JST 2006)
+Should not be a problem for ksymoops.  Most entries use this regex,
+where [ ] is optional.
 
-Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
-----
- traps.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+#define BRACKETED_ADDRESS       "\\[*<([0-9a-fA-F]{4,})>\\]* *"
 
---- 2.6-git/arch/i386/kernel/traps.c.orig	2006-01-17 12:45:41.000000000 +0900
-+++ 2.6-git/arch/i386/kernel/traps.c	2006-01-17 12:49:35.000000000 +0900
-@@ -239,9 +239,10 @@ void show_registers(struct pt_regs *regs
- 	}
- 	print_modules();
- 	printk(KERN_EMERG "CPU:    %d\nEIP:    %04x:[<%08lx>]    %s VLI\n"
--			"EFLAGS: %08lx   (%s) \n",
-+			"EFLAGS: %08lx   (%s %s) \n",
- 		smp_processor_id(), 0xffff & regs->xcs, regs->eip,
--		print_tainted(), regs->eflags, system_utsname.release);
-+		print_tainted(), regs->eflags, system_utsname.release,
-+		system_utsname.version);
- 	print_symbol(KERN_EMERG "EIP is at %s\n", regs->eip);
- 	printk(KERN_EMERG "eax: %08lx   ebx: %08lx   ecx: %08lx   edx: %08lx\n",
- 		regs->eax, regs->ebx, regs->ecx, regs->edx);
+Printing multiple addresses (with our without [ ]) plus their symbols
+on the same line will stop ksymoops processing at the first symbol
+name, but who cares?  If you can print a symbol then you already have
+kallsyms and you do not need ksymoops.  If you do not have kallsyms
+then the output is just multiple addresses on one line, which ksymoops
+already handles.
+

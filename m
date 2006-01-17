@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWAQPDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWAQPGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751004AbWAQPDE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 10:03:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWAQPDB
+	id S1750981AbWAQPGE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 10:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWAQPGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 10:03:01 -0500
-Received: from smtp5.wanadoo.fr ([193.252.22.26]:38663 "EHLO smtp5.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S1751157AbWAQPC7 (ORCPT
+	Tue, 17 Jan 2006 10:06:04 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:50091 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750915AbWAQPGA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 10:02:59 -0500
-X-ME-UUID: 20060117150257806.C4CA01C01644@mwinf0507.wanadoo.fr
-Date: Tue, 17 Jan 2006 16:06:45 +0100
-From: Philippe Elie <phil.el@wanadoo.fr>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, levon@movementarian.org,
-       Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: make "struct d_cookie" dependable on CONFIG_PROFILING?
-Message-ID: <20060117150645.GA775@zaniah>
-References: <20060117122701.GA26491@dmt.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060117122701.GA26491@dmt.cnet>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 17 Jan 2006 10:06:00 -0500
+Message-ID: <43CD07D5.30302@pobox.com>
+Date: Tue, 17 Jan 2006 10:05:57 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>
+Subject: sata_mv important note
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  For sata_mv users, you should be aware of three things:
+	1) The Marvell driver is experimental, and not yet considered ready for
+	production use. As Kconfig notes: HIGHLY EXPERIMENTAL. 2) There are PCI
+	Message Signalled Interrupt (MSI) problems that are not yet diagnosed.
+	Workaround is to disable MSI. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Jan 2006 at 10:27 +0000, Marcelo Tosatti wrote:
+
+For sata_mv users, you should be aware of three things:
+
+1) The Marvell driver is experimental, and not yet considered ready for 
+production use.  As Kconfig notes: HIGHLY EXPERIMENTAL.
+
+2) There are PCI Message Signalled Interrupt (MSI) problems that are not 
+yet diagnosed.  Workaround is to disable MSI.
+
+3) There are still some errata that are not yet implemented.  Thus, for 
+some systems, you may see either lockups or data corruption.  That's the 
+price of running a HIGHLY EXPERIMENTAL driver.
+
+Rest assured that all problem reports are read, even if you don't 
+receive a reply.  After enough feedback is received, the exact problem 
+becomes more clear.
+
+	Jeff
 
 
-> Is there any good reason for not making "struct dcookie_struct
-> *d_cookie" dependable on CONFIG_PROFILING? 
-> 
-> Shrinks "struct dentry" from 128 bytes to 124 on x86, allowing
-> 31 objects per slab instead of 30.
-> 
-> John Levon informed me that he had such selection in his
-> original patches, but was asked but take it off (?).
-
-iirc this was seen usefull by other tools than profiler but 
-fs/Makefile contains:
-
-obj-$(CONFIG_PROFILING)		+= dcookies.o
-
-and nobody complained agaisnt it.
-
--- 
-regards,
-Philippe Elie
 

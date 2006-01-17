@@ -1,74 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWAQKDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWAQKOT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932373AbWAQKDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 05:03:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWAQKDJ
+	id S932374AbWAQKOT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 05:14:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWAQKOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 05:03:09 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:19227 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932373AbWAQKDI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 05:03:08 -0500
-Date: Tue, 17 Jan 2006 11:05:09 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Keith Owens <kaos@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15 __disk_stat_add() called without preempt disabled
-Message-ID: <20060117100508.GE3945@suse.de>
-References: <13179.1137398969@kao2.melbourne.sgi.com>
+	Tue, 17 Jan 2006 05:14:19 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:52165 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S932374AbWAQKOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 05:14:19 -0500
+Date: Tue, 17 Jan 2006 19:14:22 +0900
+To: ak@suse.de, linux-kernel@vger.kernel.org
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: [PATCH 1/4] makes print_symbol() return int
+Message-ID: <20060117101422.GB19473@miraclelinux.com>
+References: <20060117101339.GA19473@miraclelinux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <13179.1137398969@kao2.melbourne.sgi.com>
+In-Reply-To: <20060117101339.GA19473@miraclelinux.com>
+User-Agent: Mutt/1.5.9i
+From: mita@miraclelinux.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 16 2006, Keith Owens wrote:
-> 2.6.15 on ia64, gcc 3.3.3, CONFIG_PREEMPT_DEBUG=y.
-> 
-> scsi(0): Resetting Cmnd=0xe00000b479ea7810, Handle=0x0000000000000001, action=0x0
-> scsi(0): Resetting Cmnd=0xe00000b479ea79e8, Handle=0x0000000000000002, action=0x0
-> scsi(0): Resetting Cmnd=0xe00000b479ea63c8, Handle=0x0000000000000003, action=0x0
-> scsi(0): Resetting Cmnd=0xe00000b479ea7810, Handle=0x0000000000000202, action=0x2
-> scsi(0:0:2:0): Queueing device reset command.
-> qla2300 0000:03:01.0: Mailbox command timeout occured. Issuing ISP abort.
-> qla2300 0000:03:01.0: Performing ISP error recovery - ha= e0000034790b4518.
-> scsi(0): mailbox timed out, mailbox0 4000, ictrl 0006, istatus 6006
-> qla2300 0000:03:01.0: LIP reset occured (f7f7).
-> qla2300 0000:03:01.0: LOOP UP detected (2 Gbps).
-> qla2300 0000:03:01.0: scsi(2:2:1): Abort command issued -- 2ea 2003.
-> sd 2:0:2:1: scsi: Device offlined - not ready after error recovery
-> sd 2:0:2:1: scsi: Device offlined - not ready after error recovery
-> BUG: using smp_processor_id() in preemptible [00000001] code: scsi_eh_2/4665
-> caller is __end_that_request_first+0x1b0/0x8e0
-> 
-> Call Trace:
->  [<a000000100013280>] show_stack+0x40/0xa0
->                                 sp=e00000b007dbfc00 bsp=e00000b007db90e8
->  [<a000000100013b10>] dump_stack+0x30/0x60
->                                 sp=e00000b007dbfdd0 bsp=e00000b007db90d0
->  [<a0000001003d7880>] debug_smp_processor_id+0x160/0x1a0
->                                 sp=e00000b007dbfdd0 bsp=e00000b007db90b0
->  [<a000000100399c90>] __end_that_request_first+0x1b0/0x8e0
->                                 sp=e00000b007dbfdd0 bsp=e00000b007db9028
+Use print_symbol() to dump call trace on x86-64.
 
-Hmm indeed, we are not necessarily atomic there, it's quite ok to be
-called with preemption+interrupts enabled.
+Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+----
 
-diff --git a/block/ll_rw_blk.c b/block/ll_rw_blk.c
-index bfcde0f..d715b0b 100644
---- a/block/ll_rw_blk.c
-+++ b/block/ll_rw_blk.c
-@@ -3195,7 +3195,7 @@ static int __end_that_request_first(stru
- 	if (blk_fs_request(req) && req->rq_disk) {
- 		const int rw = rq_data_dir(req);
+ traps.c |   29 +++++++----------------------
+ 1 files changed, 7 insertions(+), 22 deletions(-)
+
+--- 2.6-git/arch/x86_64/kernel/traps.c.orig	2006-01-16 22:05:38.000000000 +0900
++++ 2.6-git/arch/x86_64/kernel/traps.c	2006-01-16 22:07:36.000000000 +0900
+@@ -30,6 +30,7 @@
+ #include <linux/moduleparam.h>
+ #include <linux/nmi.h>
+ #include <linux/kprobes.h>
++#include <linux/kallsyms.h> 
  
--		__disk_stat_add(req->rq_disk, sectors[rw], nr_bytes >> 9);
-+		disk_stat_add(req->rq_disk, sectors[rw], nr_bytes >> 9);
- 	}
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+@@ -92,30 +93,14 @@ static inline void conditional_sti(struc
  
- 	total_bytes = bio_nbytes = 0;
-
--- 
-Jens Axboe
-
+ static int kstack_depth_to_print = 10;
+ 
+-#ifdef CONFIG_KALLSYMS
+-#include <linux/kallsyms.h> 
+-int printk_address(unsigned long address)
+-{ 
+-	unsigned long offset = 0, symsize;
+-	const char *symname;
+-	char *modname;
+-	char *delim = ":"; 
+-	char namebuf[128];
+-
+-	symname = kallsyms_lookup(address, &symsize, &offset, &modname, namebuf); 
+-	if (!symname) 
+-		return printk("[<%016lx>]", address);
+-	if (!modname) 
+-		modname = delim = ""; 		
+-        return printk("<%016lx>{%s%s%s%s%+ld}",
+-		      address,delim,modname,delim,symname,offset); 
+-} 
+-#else
+ int printk_address(unsigned long address)
+ { 
+-	return printk("[<%016lx>]", address);
+-} 
+-#endif
++	int len;
++
++	len = printk("<%016lx>", address);
++	len += print_symbol(" %s", address);
++	return len;
++}
+ 
+ static unsigned long *in_exception_stack(unsigned cpu, unsigned long stack,
+ 					unsigned *usedp, const char **idp)

@@ -1,181 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWAQRYn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWAQRZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbWAQRYn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 12:24:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWAQRYm
+	id S932218AbWAQRZa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 12:25:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbWAQRZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 12:24:42 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:20957 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S932212AbWAQRYl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 12:24:41 -0500
-To: linux-kernel@vger.kernel.org
-Cc: linux-ia64@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Brent Casavant <bcasavan@sgi.com>
-Subject: [patch] sem2mutex ioc4.c
-From: Jes Sorensen <jes@sgi.com>
-Date: 17 Jan 2006 12:24:39 -0500
-Message-ID: <yq0mzhurcmg.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Jan 2006 12:25:30 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:9426 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932218AbWAQRZ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 12:25:29 -0500
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>
+In-Reply-To: <1137513818.14135.23.camel@localhost.localdomain>
+References: <20060117143258.150807000@sergelap>
+	 <20060117143326.283450000@sergelap>
+	 <1137511972.3005.33.camel@laptopd505.fenrus.org>
+	 <20060117155600.GF20632@sergelap.austin.ibm.com>
+	 <1137513818.14135.23.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 17 Jan 2006 09:25:14 -0800
+Message-Id: <1137518714.5526.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 2006-01-17 at 16:03 +0000, Alan Cox wrote: 
+> On Maw, 2006-01-17 at 09:56 -0600, Serge E. Hallyn wrote:
+> > The virtual pid is different depending on who is asking.  So simply
+> > storing current->realpid and current->pid isn't helpful, as we would
+> > still need to call a function when a pid crosses user->kernel boundary.
+> 
+> This is an obscure, weird piece of functionality for some special case
+> usages most of which are going to be eliminated by Xen. I don't see the
+> kernel side justification for it at all.
 
-Another simple sem2mutex conversion.
+At least OpenVZ and vserver want very similar functionality.  They're
+both working with out-of-tree patch sets.  We each want to do subtly
+different things with tsk->pid, and task_pid() seemed to be a decent
+place to start.  OpenVZ has a very similar concept in its pid_task()
+function.
 
-Cheers,
-Jes
+Arjan had a very good point last time we posted these: we should
+consider getting rid of as many places in the kernel where pids are used
+to uniquely identify tasks, and just stick with task_struct pointers.  
 
+> Maybe you should remap it the other side of the user->kernel boundary ?
 
-Convert to use a single mutex instead of two rwsems as this isn't
-performance critical.
+We would very much like to run unmodified applications and libraries.
+Doing it in a patched libc is certainly a possibility, but it wouldn't
+make any future customers very happy.
 
-Signed-off-by: Jes Sorensen <jes@sgi.com>
-Signed-off-by: Brent Casavant <bcasavan@sgi.com>
+I also wonder if RedHat or SUSE would ever ship and support a special
+set of libraries for us.  Oh, and there are always statically linked
+apps... :)
 
-----
+-- Dave
 
- drivers/sn/ioc4.c |   41 ++++++++++++++++++-----------------------
- 1 files changed, 18 insertions(+), 23 deletions(-)
-
-Index: linux-2.6.15-quilt/drivers/sn/ioc4.c
-===================================================================
---- linux-2.6.15-quilt.orig/drivers/sn/ioc4.c
-+++ linux-2.6.15-quilt/drivers/sn/ioc4.c
-@@ -31,7 +31,7 @@
- #include <linux/ioc4.h>
- #include <linux/mmtimer.h>
- #include <linux/rtc.h>
--#include <linux/rwsem.h>
-+#include <linux/mutex.h>
- #include <asm/sn/addrs.h>
- #include <asm/sn/clksupport.h>
- #include <asm/sn/shub_mmr.h>
-@@ -54,11 +54,10 @@
-  * Submodule management *
-  ************************/
- 
--static LIST_HEAD(ioc4_devices);
--static DECLARE_RWSEM(ioc4_devices_rwsem);
-+static DEFINE_MUTEX(ioc4_mutex);
- 
-+static LIST_HEAD(ioc4_devices);
- static LIST_HEAD(ioc4_submodules);
--static DECLARE_RWSEM(ioc4_submodules_rwsem);
- 
- /* Register an IOC4 submodule */
- int
-@@ -66,15 +65,13 @@
- {
- 	struct ioc4_driver_data *idd;
- 
--	down_write(&ioc4_submodules_rwsem);
-+	mutex_lock(&ioc4_mutex);
- 	list_add(&is->is_list, &ioc4_submodules);
--	up_write(&ioc4_submodules_rwsem);
- 
- 	/* Initialize submodule for each IOC4 */
- 	if (!is->is_probe)
--		return 0;
-+		goto out;
- 
--	down_read(&ioc4_devices_rwsem);
- 	list_for_each_entry(idd, &ioc4_devices, idd_list) {
- 		if (is->is_probe(idd)) {
- 			printk(KERN_WARNING
-@@ -84,8 +81,8 @@
- 			       pci_name(idd->idd_pdev));
- 		}
- 	}
--	up_read(&ioc4_devices_rwsem);
--
-+ out:
-+	mutex_unlock(&ioc4_mutex);
- 	return 0;
- }
- 
-@@ -95,15 +92,13 @@
- {
- 	struct ioc4_driver_data *idd;
- 
--	down_write(&ioc4_submodules_rwsem);
-+	mutex_lock(&ioc4_mutex);
- 	list_del(&is->is_list);
--	up_write(&ioc4_submodules_rwsem);
- 
- 	/* Remove submodule for each IOC4 */
- 	if (!is->is_remove)
--		return;
-+		goto out;
- 
--	down_read(&ioc4_devices_rwsem);
- 	list_for_each_entry(idd, &ioc4_devices, idd_list) {
- 		if (is->is_remove(idd)) {
- 			printk(KERN_WARNING
-@@ -113,7 +108,8 @@
- 			       pci_name(idd->idd_pdev));
- 		}
- 	}
--	up_read(&ioc4_devices_rwsem);
-+ out:
-+	mutex_unlock(&ioc4_mutex);
- }
- 
- /*********************
-@@ -312,12 +308,11 @@
- 	/* Track PCI-device specific data */
- 	idd->idd_serial_data = NULL;
- 	pci_set_drvdata(idd->idd_pdev, idd);
--	down_write(&ioc4_devices_rwsem);
-+
-+	mutex_lock(&ioc4_mutex);
- 	list_add(&idd->idd_list, &ioc4_devices);
--	up_write(&ioc4_devices_rwsem);
- 
- 	/* Add this IOC4 to all submodules */
--	down_read(&ioc4_submodules_rwsem);
- 	list_for_each_entry(is, &ioc4_submodules, is_list) {
- 		if (is->is_probe && is->is_probe(idd)) {
- 			printk(KERN_WARNING
-@@ -327,7 +322,7 @@
- 			       pci_name(idd->idd_pdev));
- 		}
- 	}
--	up_read(&ioc4_submodules_rwsem);
-+	mutex_unlock(&ioc4_mutex);
- 
- 	return 0;
- 
-@@ -351,7 +346,7 @@
- 	idd = pci_get_drvdata(pdev);
- 
- 	/* Remove this IOC4 from all submodules */
--	down_read(&ioc4_submodules_rwsem);
-+	mutex_lock(&ioc4_mutex);
- 	list_for_each_entry(is, &ioc4_submodules, is_list) {
- 		if (is->is_remove && is->is_remove(idd)) {
- 			printk(KERN_WARNING
-@@ -361,7 +356,7 @@
- 			       pci_name(idd->idd_pdev));
- 		}
- 	}
--	up_read(&ioc4_submodules_rwsem);
-+	mutex_unlock(&ioc4_mutex);
- 
- 	/* Release resources */
- 	iounmap(idd->idd_misc_regs);
-@@ -377,9 +372,9 @@
- 	pci_disable_device(pdev);
- 
- 	/* Remove and free driver data */
--	down_write(&ioc4_devices_rwsem);
-+	mutex_lock(&ioc4_mutex);
- 	list_del(&idd->idd_list);
--	up_write(&ioc4_devices_rwsem);
-+	mutex_unlock(&ioc4_mutex);
- 	kfree(idd);
- }
- 

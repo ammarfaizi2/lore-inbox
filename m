@@ -1,59 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbWAQOAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932494AbWAQOBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932493AbWAQOAw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 09:00:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbWAQOAw
+	id S932494AbWAQOBh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 09:01:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbWAQOBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 09:00:52 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:40136 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932493AbWAQOAv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 09:00:51 -0500
-Date: Tue, 17 Jan 2006 15:00:50 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Michael Ellerman <michael@ellerman.id.au>
-Cc: Dave C Boutcher <sleddog@us.ibm.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, linuxppc64-dev@ozlabs.org,
-       paulus@au1.ibm.com, anton@au1.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-mm4 failure on power5
-Message-ID: <20060117140050.GA13188@elte.hu>
-References: <20060116063530.GB23399@sergelap.austin.ibm.com> <20060116153748.GA25866@sergelap.austin.ibm.com> <20060116215252.GA10538@cs.umn.edu> <200601180032.46867.michael@ellerman.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601180032.46867.michael@ellerman.id.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 17 Jan 2006 09:01:36 -0500
+Received: from thing.hostingexpert.com ([67.15.235.34]:37557 "EHLO
+	thing.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S932494AbWAQOBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 09:01:36 -0500
+Message-ID: <43CCF8BB.1050009@m1k.net>
+Date: Tue, 17 Jan 2006 09:01:31 -0500
+From: Michael Krufky <mkrufky@m1k.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: webmaster@kernel.org
+CC: lkml <linux-kernel@vger.kernel.org>, Michael Krufky <mkrufky@gmail.com>
+Subject: [KORG] GITWEB doesn't show any DIFF's
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+To Whom (and ALL) that it may concern:
 
-* Michael Ellerman <michael@ellerman.id.au> wrote:
+For the past week or so, I haven't been able to get gitweb, running on 
+kernel.org, to show me any diff's.
 
-> On Tue, 17 Jan 2006 08:52, Dave C Boutcher wrote:
-> > 2.6.15-mm4 won't boot on my power5 either.  I tracked it down to the
-> > following mutex patch from Ingo: kernel-kernel-cpuc-to-mutexes.patch
-> >
-> > If I revert just that patch, mm4 boots fine.  Its really not obvious to
-> > me at all why that patch is breaking things though...
-> 
-> My POWER5 (gr) LPAR seems to boot ok (3 times so far) with that patch, 
-> guess it's something subtle. That's with CONFIG_DEBUG_MUTEXES=y. And 
-> it's just booted once with CONFIG_DEBUG_MUTEXES=n.
-> 
-> And now it's booted the full mm4 patch set without blinking.
+For each commit, if I click on the "commit" link, or "commitdiff" link, 
+the best I get is something that looks like this:
 
-so it booted fine with CONFIG_DEBUG_MUTEXES=n but with that patch not 
-applied?
+file:fd8bc718f0e33df0a446d3d5c67f68929eca6490 
+<http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;h=fd8bc718f0e33df0a446d3d5c67f68929eca6490;hb=e0ad8486266c3415ab9c17f5c03c47edc7b93d7b;f=drivers/media/video/cx88/cx88-alsa.c> 
+-> file:e649f678d47ab0a749b89146867ff9b1f513f73a 
+<http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blob;h=e649f678d47ab0a749b89146867ff9b1f513f73a;hb=e0ad8486266c3415ab9c17f5c03c47edc7b93d7b;f=drivers/media/video/cx88/cx88-alsa.c>
 
-the patch will likely work around the bug, so DEBUG_MUTEXES=y/n should 
-make no difference with that patch applied.
+This is for "V4L/DVB (3375): git dvb callbacks fix" , but it happens for 
+every patch I try to view...  Even if I try to view the patch in "plan" 
+mode, the following is all that I can see:
 
-	Ingo
+From: Andrew Morton <akpm@osdl.org>
+Date: Sun, 15 Jan 2006 08:45:20 +0000 (-0200)
+Subject: V4L/DVB (3375): git dvb callbacks fix
+X-Git-Tag: v2.6.16-rc1
+X-Git-Url: http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=e0ad8486266c3415ab9c17f5c03c47edc7b93d7b
+
+V4L/DVB (3375): git dvb callbacks fix
+
+- Not sure what went wrong here, but SND_PCI_PM_CALLBACKS got deleted.
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+---
+
+(I havent seen this patch, and I'm really curious what happens in it, 
+and the explanation of the commit message -- these questions are 
+probably answered simply by viewing the patch, which I cant do :-(  )
+
+... I have tried this at multiple locations, using several different 
+browsers under different OS's ... It won't show me a diff no matter what 
+I do, and it USED to work (about a week ago)
+
+I'm surprised nobody has complained about this already.  (or maybe I 
+just didnt see any such thread about it)
+
+I like to use gitweb to review patches that have already been applied to 
+the various trees.  Can we do something to get this working again?
+
+Thank you,
+
+Michael Krufky
+...v4l / dvb...

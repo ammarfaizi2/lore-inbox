@@ -1,297 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWAQPAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWAQPAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbWAQPAv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 10:00:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWAQPAk
+	id S1751218AbWAQPAw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 10:00:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWAQPAf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 10:00:40 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:56517 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751244AbWAQOub
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 10:00:35 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:26531 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751239AbWAQOub (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 17 Jan 2006 09:50:31 -0500
-Message-Id: <20060117143328.694933000@sergelap>
+Message-Id: <20060117143329.386499000@sergelap>
 References: <20060117143258.150807000@sergelap>
-Date: Tue, 17 Jan 2006 08:33:25 -0600
+Date: Tue, 17 Jan 2006 08:33:29 -0600
 From: Serge Hallyn <serue@us.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: Hubertus Franke <frankeh@watson.ibm.com>,
        Cedric Le Goater <clg@fr.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
        Serge E Hallyn <serue@us.ibm.com>
-Subject: RFC [patch 27/34] PID Virtualization pidspace
-Content-Disposition: inline; filename=G1-pidspace.patch
+Subject: RFC [patch 31/34] PID Virtualization Implementation of low level virtualization functions
+Content-Disposition: inline; filename=G5-virtfunct-impl.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch introduces pitspaces to provide pid virtualization
-capabilities. A pidspace will be allocated for each container
-and destroyed (resources freed) when the container is 
-terminated.
-
-The global pid range ( 32 bit) is partitioned into 
-PID_MAX_LIMIT sized pidspaces. The virtualization
-is defined as kernel_pid ::= < pidspace_id, vpid >
-
-In this patch we are utilizing the existing pid management,
-i.e. allocation and hashing. We are providing a pidspace, as managed 
-previously, for each pidspace id. 
-
-Patch eliminates the explicit management of vpids and allows
-continued usage of the existing pid hashing and lookup functions.
+We finally utilize the pid space implementation to obtain a real virtualizaton
+inside the pid/vpid conversion functions. Care has been taken to retain
+the fast path (either in global context or in the same pidspace) as inline, 
+while the exception case (typically involves checking for container root)
+is handled separately.
 
 Signed-off-by: Hubertus Franke <frankeh@watson.ibm.com>
 ---
- include/linux/pid.h     |   27 +++++++++++-
- include/linux/threads.h |   17 +++++--
- kernel/fork.c           |    2 
- kernel/pid.c            |  105 +++++++++++++++++++++++++++++++++++++++++++-----
- 4 files changed, 135 insertions(+), 16 deletions(-)
+ include/linux/sched.h |   49 +++++++++++++++++++++++++++++++++++++++++++------
+ kernel/container.c    |   28 ++++++++++++++++++++++++++++
+ 2 files changed, 71 insertions(+), 6 deletions(-)
 
-Index: linux-2.6.15/kernel/fork.c
+Index: linux-2.6.15/include/linux/sched.h
 ===================================================================
---- linux-2.6.15.orig/kernel/fork.c	2006-01-17 08:37:07.000000000 -0500
-+++ linux-2.6.15/kernel/fork.c	2006-01-17 08:37:08.000000000 -0500
-@@ -1238,7 +1238,7 @@
+--- linux-2.6.15.orig/include/linux/sched.h	2006-01-17 08:37:08.000000000 -0500
++++ linux-2.6.15/include/linux/sched.h	2006-01-17 08:37:09.000000000 -0500
+@@ -870,9 +870,25 @@
+  *  pid domain translation functions:
+  *	- from kernel to user pid domain
+  */
++
++extern pid_t __pid_to_vpid_ctx_excp(pid_t pid, int psid_pid,
++				     const struct task_struct *ctx);
++
+ static inline pid_t pid_to_vpid_ctx(pid_t pid, const struct task_struct *ctx)
  {
- 	struct task_struct *p;
- 	int trace = 0;
--	long pid = alloc_pidmap();
-+	long pid = alloc_pidmap(DEFAULT_PIDSPACE);
- 	long vpid;
- 
- 	if (pid < 0)
-Index: linux-2.6.15/include/linux/pid.h
-===================================================================
---- linux-2.6.15.orig/include/linux/pid.h	2006-01-17 08:17:29.000000000 -0500
-+++ linux-2.6.15/include/linux/pid.h	2006-01-17 08:37:08.000000000 -0500
-@@ -36,7 +36,7 @@
-  */
- extern struct pid *FASTCALL(find_pid(enum pid_type, int));
- 
--extern int alloc_pidmap(void);
-+extern int alloc_pidmap(int pidspace_id);
- extern void FASTCALL(free_pidmap(int));
- extern void switch_exec_pids(struct task_struct *leader, struct task_struct *thread);
- 
-@@ -51,5 +51,30 @@
- 			prefetch((task)->pids[type].pid_list.next),	\
- 			hlist_unhashed(&(task)->pids[type].pid_chain));	\
- 	}								\
-+/*
-+ * Pidspace related definition for translation  real <-> virtual
-+ * and initialization functions
-+ */
+-	return pid;
++	int psid_pid, psid_ctx;
 +
-+#define DEFAULT_PIDSPACE	0
++	if (!ctx->container)
++		return pid;
 +
-+extern int pidspace_init(int pidspace_id);
-+extern int pidspace_free(int pidspace_id);
++	psid_ctx = pid_to_pidspace(ctx->__pid);
++	psid_pid = pid_to_pidspace(pid);
++	pid      = pidspace_pid_to_vpid(pid);
 +
-+static inline int pid_to_pidspace(int pid)
-+{
-+	return (pid >> PID_MAX_LIMIT_SHIFT);
-+}
++	if (likely(psid_ctx == psid_pid))
++		return pid;
 +
-+static inline int pidspace_vpid_to_pid(int pidspace_id, pid_t pid)
-+{
-+	return (pidspace_id << PID_MAX_LIMIT_SHIFT) | pid;
-+}
-+
-+static inline int pidspace_pid_to_vpid(pid_t pid)
-+{
-+	return (pid & (PID_MAX_LIMIT-1));
-+}
-+
- 
- #endif /* _LINUX_PID_H */
-Index: linux-2.6.15/include/linux/threads.h
-===================================================================
---- linux-2.6.15.orig/include/linux/threads.h	2006-01-17 08:17:29.000000000 -0500
-+++ linux-2.6.15/include/linux/threads.h	2006-01-17 08:37:08.000000000 -0500
-@@ -25,12 +25,21 @@
- /*
-  * This controls the default maximum pid allocated to a process
-  */
--#define PID_MAX_DEFAULT (CONFIG_BASE_SMALL ? 0x1000 : 0x8000)
-+#define PID_MAX_DEFAULT_SHIFT	(CONFIG_BASE_SMALL ? 12 : 15)
-+#define PID_MAX_DEFAULT 	(1<< PID_MAX_DEFAULT_SHIFT)
- 
- /*
-- * A maximum of 4 million PIDs should be enough for a while:
-+ * The entire global pid range is devided into pidspaces
-+ * each able to hold upto PID_MAX_LIMIT pids.
-+ * A maximum of 512 pidspace should be enough for a while
-+ * A maximum of 4 million PIDs per pidspace should be enough for a while:
-+ * we keep high bit reserved for negative values
-  */
--#define PID_MAX_LIMIT (CONFIG_BASE_SMALL ? PAGE_SIZE * 8 : \
--	(sizeof(long) > 4 ? 4 * 1024 * 1024 : PID_MAX_DEFAULT))
-+#define PID_MAX_LIMIT_SHIFT (CONFIG_BASE_SMALL ? PAGE_SHIFT + 8 : \
-+	(sizeof(long) > 4 ? 22 : PID_MAX_DEFAULT_SHIFT))
-+#define PID_MAX_LIMIT 		(1<<PID_MAX_LIMIT_SHIFT)
-+
-+#define MAX_NR_PIDSPACES 	(PID_MAX_LIMIT_SHIFT > 22 ?   \
-+				 1<<(32-PID_MAX_LIMIT_SHIFT-1) : 512)
- 
- #endif
-Index: linux-2.6.15/kernel/pid.c
-===================================================================
---- linux-2.6.15.orig/kernel/pid.c	2006-01-17 08:36:59.000000000 -0500
-+++ linux-2.6.15/kernel/pid.c	2006-01-17 08:37:08.000000000 -0500
-@@ -35,6 +35,7 @@
- int last_pid;
- 
- #define RESERVED_PIDS		300
-+#define RESERVED_PIDS_NON_DFLT    1
- 
- int pid_max_min = RESERVED_PIDS + 1;
- int pid_max_max = PID_MAX_LIMIT;
-@@ -57,29 +58,103 @@
- 	void *page;
- } pidmap_t;
- 
--static pidmap_t pidmap_array[PIDMAP_ENTRIES] =
-+struct pidspace {
-+	int last_pid;
-+	pidmap_t *pidmap_array;
-+};
-+
-+static pidmap_t dflt_pidmap_array[PIDMAP_ENTRIES] =
- 	 { [ 0 ... PIDMAP_ENTRIES-1 ] = { ATOMIC_INIT(BITS_PER_PAGE), NULL } };
- 
-+static struct pidspace pid_spaces[MAX_NR_PIDSPACES] =
-+	{ { 0, dflt_pidmap_array } };
-+
- static  __cacheline_aligned_in_smp DEFINE_SPINLOCK(pidmap_lock);
- 
-+int pidspace_init(int pidspace_id)
-+{
-+	pidmap_t *map;
-+	struct pidspace *pid_space =  &pid_spaces[pidspace_id];
-+	int i;
-+	int rc;
-+
-+	if (unlikely(pid_space->pidmap_array))
-+		return -EBUSY;
-+
-+	map = kmalloc(PIDMAP_ENTRIES*sizeof(pidmap_t), GFP_KERNEL);
-+	if (!map)
-+		return -ENOMEM;
-+
-+	for (i=0 ; i< PIDMAP_ENTRIES ; i++)
-+		map[i] = (pidmap_t){ ATOMIC_INIT(BITS_PER_PAGE), NULL };
-+
-+	/*
-+	 * Free the pidspace if someone raced with us
-+	 * installing it:
-+	 */
-+
-+	spin_lock(&pidmap_lock);
-+	if (pid_space->pidmap_array) {
-+		kfree(map);
-+		rc = -EAGAIN;
-+	} else {
-+		pid_space->pidmap_array = map;
-+		pid_space->last_pid = RESERVED_PIDS_NON_DFLT;
-+		rc = 0;
-+	}
-+	spin_unlock(&pidmap_lock);
-+	return rc;
-+}
-+
-+int pidspace_free(int pidspace_id)
-+{
-+	struct pidspace *pid_space =  &pid_spaces[pidspace_id];
-+	pidmap_t *map;
-+	int i;
-+
-+	spin_lock(&pidmap_lock);
-+	BUG_ON(pid_space->pidmap_array == NULL);
-+	map = pid_space->pidmap_array;
-+	pid_space->pidmap_array = NULL;
-+	spin_unlock(&pidmap_lock);
-+
-+	for ( i=0; i<PIDMAP_ENTRIES; i++)
-+		free_page((unsigned long)map[i].page);
-+	kfree(map);
-+	return 0;
-+}
-+
- fastcall void free_pidmap(int pid)
- {
--	pidmap_t *map = pidmap_array + pid / BITS_PER_PAGE;
--	int offset = pid & BITS_PER_PAGE_MASK;
-+	pidmap_t *map, *pidmap_array;
-+	int offset;
-+
-+	pidmap_array = pid_spaces[pid_to_pidspace(pid)].pidmap_array;
-+	pid = pidspace_pid_to_vpid(pid);
-+	map = pidmap_array + pid / BITS_PER_PAGE;
-+	offset = pid & BITS_PER_PAGE_MASK;
- 
- 	clear_bit(offset, map->page);
- 	atomic_inc(&map->nr_free);
++	return __pid_to_vpid_ctx_excp(pid, psid_pid, ctx);
  }
  
--int alloc_pidmap(void)
-+int alloc_pidmap(int pidspace_id)
+ static inline pid_t pid_to_vpid(pid_t pid)
+@@ -884,9 +900,11 @@
  {
--	int i, offset, max_scan, pid, last = last_pid;
--	pidmap_t *map;
-+	int i, offset, max_scan, pid, last;
-+	struct pidspace *pid_space;
-+	pidmap_t *map, *pidmap_array;
+ 	int isgrp = (pid < 0) ;
  
-+	pid_space = &pid_spaces[pidspace_id];
-+	last = pid_space->last_pid;
- 	pid = last + 1;
--	if (pid >= pid_max)
--		pid = RESERVED_PIDS;
-+	if (pid >= pid_max) {
-+		if (pidspace_id == DEFAULT_PIDSPACE)
-+			pid = RESERVED_PIDS;
-+		else
-+			pid = RESERVED_PIDS_NON_DFLT;
-+	}
- 	offset = pid & BITS_PER_PAGE_MASK;
-+	pidmap_array = pid_space->pidmap_array;
- 	map = &pidmap_array[pid/BITS_PER_PAGE];
- 	max_scan = (pid_max + BITS_PER_PAGE - 1)/BITS_PER_PAGE - !offset;
- 	for (i = 0; i <= max_scan; ++i) {
-@@ -102,7 +177,12 @@
- 			do {
- 				if (!test_and_set_bit(offset, map->page)) {
- 					atomic_dec(&map->nr_free);
--					last_pid = pid;
-+					pid_space->last_pid = pid;
-+					if (pidspace_id == 0) {
-+						last_pid = pid;
-+						return pid;
-+					}
-+					pid = pidspace_vpid_to_pid(pidspace_id, pid);
- 					return pid;
- 				}
- 				offset = find_next_offset(map, offset);
-@@ -122,7 +202,10 @@
- 			offset = 0;
- 		} else {
- 			map = &pidmap_array[0];
--			offset = RESERVED_PIDS;
-+			if (pidspace_id == DEFAULT_PIDSPACE)
-+				offset = RESERVED_PIDS;
-+			else
-+				offset = RESERVED_PIDS_NON_DFLT;
- 			if (unlikely(last == offset))
- 				break;
- 		}
-@@ -279,6 +362,8 @@
- {
- 	int i;
+-	if (isgrp) pid = -pid;
++	if (isgrp)
++		pid = -pid;
+ 	pid = pid_to_vpid_ctx(pid, ctx);
+-	if (isgrp) pid = -pid;
++	if (isgrp && pid != -1)
++		pid = -pid;
+ 	return pid;
+ }
  
-+	pidmap_t *pidmap_array = dflt_pidmap_array;
+@@ -895,13 +913,32 @@
+ 	return pgid_to_vpgid_ctx(pid, current);
+ }
+ 
++extern pid_t __vpid_to_pid_excp(pid_t pid);
 +
- 	pidmap_array->page = (void *)get_zeroed_page(GFP_KERNEL);
- 	set_bit(0, pidmap_array->page);
- 	atomic_dec(&pidmap_array->nr_free);
+ static inline pid_t vpid_to_pid(pid_t pid)
+ {
+-	return pid;
++	if (!current->container)
++		return pid;
++
++	if (pid == 1)
++		return current->container->init_pid;
++
++	if (!pid_to_pidspace(pid)) {
++		int psid = pid_to_pidspace(current->__pid);
++		return pidspace_vpid_to_pid(psid, pid);
++	}
++	return __vpid_to_pid_excp(pid);
+ }
+ 
+ static inline pid_t vpgid_to_pgid(pid_t pid)
+ {
++	int isgrp = (pid < 0) ;
++
++	if (isgrp)
++		pid = -pid;
++	pid = vpid_to_pid(pid);
++	if (isgrp && pid != -1)
++		pid = -pid;
+ 	return pid;
+ }
+ 
+@@ -931,7 +968,7 @@
+ static inline pid_t task_vpid_ctx(const struct task_struct *p,
+ 				   const struct task_struct *ctx)
+ {
+-	return task_pid(p);
++	return pid_to_vpid_ctx(task_pid(p), ctx);
+ }
+ 
+ static inline pid_t task_vpid(const struct task_struct *p)
+@@ -963,7 +1000,7 @@
+ 
+ static inline pid_t virt_process_group(const struct task_struct *p)
+ {
+-	return process_group(p);
++	return pid_to_vpid(process_group(p));
+ }
+ 
+ static inline unsigned int task_pidspace_id(const struct task_struct *p)
+Index: linux-2.6.15/kernel/container.c
+===================================================================
+--- linux-2.6.15.orig/kernel/container.c	2006-01-17 08:37:08.000000000 -0500
++++ linux-2.6.15/kernel/container.c	2006-01-17 08:37:09.000000000 -0500
+@@ -138,3 +138,31 @@
+ 	return rc;
+ }
+ 
++pid_t __pid_to_vpid_ctx_excp(pid_t pid, int pidspace_id,
++			     const struct task_struct *ctx)
++{
++	/* figure out whether pid .. virtual to pidspace_id_pid space
++	 * is meaningful to ctx (which is in differnt pidspace_id).
++	 * since a container's init_proc resides physically in psdi=0
++	 */
++	if (unlikely(ctx == ctx->container->init_proc)) {
++		if (pidspace_id != ctx->container->pidspace_id)
++			pid = -1;
++		return pid;
++	}
++	if (pid == ctx->container->init_pid)
++		return 1;
++	return -1;
++}
++
++pid_t __vpid_to_pid_excp(pid_t pid)
++{
++	/* we only let realpid pass as vpid if it marks the top of
++	 * current is the init_proc and vpid == init_pid
++	 */
++	if (current->container->pidspace_id == pid_to_pidspace(pid))
++		return pid;
++	return -1;
++}
++
++
 
 --
 

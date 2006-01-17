@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWAQKWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWAQK0f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932384AbWAQKWM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 05:22:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbWAQKWM
+	id S932387AbWAQK0f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 05:26:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWAQK0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 05:22:12 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:2500 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S932384AbWAQKWM (ORCPT
+	Tue, 17 Jan 2006 05:26:35 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:10948 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S932387AbWAQK0f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 05:22:12 -0500
+	Tue, 17 Jan 2006 05:26:35 -0500
 X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
 From: Keith Owens <kaos@ocs.com.au>
-To: Andrew Morton <akpm@osdl.org>
-cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, mita@miraclelinux.com
+To: Dave Jones <davej@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, mita@miraclelinux.com
 Subject: Re: [patch 2.6.15-current] i386: multi-column stack backtraces 
-In-reply-to: Your message of "Mon, 16 Jan 2006 22:42:34 -0800."
-             <20060116224234.5a7ca488.akpm@osdl.org> 
+In-reply-to: Your message of "Tue, 17 Jan 2006 02:58:42 CDT."
+             <20060117075841.GA5710@redhat.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 17 Jan 2006 21:22:09 +1100
-Message-ID: <9554.1137493329@ocs3.ocs.com.au>
+Date: Tue, 17 Jan 2006 21:26:33 +1100
+Message-ID: <9646.1137493593@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton (on Mon, 16 Jan 2006 22:42:34 -0800) wrote:
->Chuck Ebbert <76306.1226@compuserve.com> wrote:
->>
->> Print stack backtraces in multiple columns, saving screen space.
->> Number of columns is configurable and defaults to one so 
->> behavior is backwards-compatible.
->> 
->> Also removes the brackets around addresses when printing more
->> that one entry per line so they print as:
->>     <address>
->> instead of:
->>     [<address>]
->> This helps multiple entries fit better on one line.
->> 
->> Original idea by Dave Jones, taken from x86_64.
->> 
+Dave Jones (on Tue, 17 Jan 2006 02:58:42 -0500) wrote:
+>On Mon, Jan 16, 2006 at 10:42:34PM -0800, Andrew Morton wrote:
 >
->Presumably this is going to bust ksymoops.  Also the various other custom
->oops-parsers which people have written themselves.
+> > Presumably this is going to bust ksymoops.
+> 
+>Do people actually still use ksymoops for 2.6 kernels ?
+>
+>I resorted to it about 6 months ago for the first time in the
+>better part of 3 years, and it didn't even compile.
 
-Should not be a problem for ksymoops.  Most entries use this regex,
-where [ ] is optional.
-
-#define BRACKETED_ADDRESS       "\\[*<([0-9a-fA-F]{4,})>\\]* *"
-
-Printing multiple addresses (with our without [ ]) plus their symbols
-on the same line will stop ksymoops processing at the first symbol
-name, but who cares?  If you can print a symbol then you already have
-kallsyms and you do not need ksymoops.  If you do not have kallsyms
-then the output is just multiple addresses on one line, which ksymoops
-already handles.
+It compiles for me.  gcc version 4.0.2 20050901 (prerelease) (SUSE
+Linux).  There are a few warnings about pointer signedness but that is
+all.
 

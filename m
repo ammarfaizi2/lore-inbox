@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbWAQJJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWAQJW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbWAQJJH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 04:09:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWAQJJH
+	id S932366AbWAQJW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 04:22:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWAQJW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 04:09:07 -0500
-Received: from dtp.xs4all.nl ([80.126.206.180]:56627 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S932361AbWAQJJE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 04:09:04 -0500
-Date: Tue, 17 Jan 2006 10:09:03 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, ide <linux-ide@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       jgarzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 1/4] SATA ACPI build (applies to 2.6.16-git9)
-Message-ID: <20060117090903.GB25963@harddisk-recovery.nl>
-References: <20060113224252.38d8890f.rdunlap@xenotime.net> <20060116115607.GA18307@harddisk-recovery.nl> <20060116140713.GB18307@harddisk-recovery.com> <20060116224626.GS3945@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Jan 2006 04:22:58 -0500
+Received: from uproxy.gmail.com ([66.249.92.204]:22809 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932366AbWAQJW6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 04:22:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gEGq7nzj6nac+q7KL5hAuK1yupFlAFCBzrTTnnX6tvl5G6Tkjb0aEGwrSjQL+aVDcXcBSnK5Z9RmGdR8YGye2lazLSlZtP+bji6s7HgWgQbMlqJnp8A15t7bLquXrK7ZA8thZzjCApn5gfNRjD5uTz+DAxkN8TnaPKSX7XQRUPE=
+Message-ID: <aec7e5c30601170122o7766fd4ep6285e3651be1a81e@mail.gmail.com>
+Date: Tue, 17 Jan 2006 18:22:56 +0900
+From: Magnus Damm <magnus.damm@gmail.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: Race in new page migration code?
+Cc: Christoph Lameter <clameter@engr.sgi.com>, Nick Piggin <npiggin@suse.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+In-Reply-To: <43CCB262.9070304@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060116224626.GS3945@suse.de>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+References: <20060114155517.GA30543@wotan.suse.de>
+	 <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com>
+	 <20060114181949.GA27382@wotan.suse.de>
+	 <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com>
+	 <43C9DD98.5000506@yahoo.com.au>
+	 <Pine.LNX.4.62.0601152251550.17034@schroedinger.engr.sgi.com>
+	 <aec7e5c30601170029if0ed895le2c18b26eb7c6a42@mail.gmail.com>
+	 <43CCB262.9070304@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 16, 2006 at 11:46:27PM +0100, Jens Axboe wrote:
-> On Mon, Jan 16 2006, Erik Mouw wrote:
-> > Something like this should already be enough:
-> > 
-> >   This option enables support for SATA suspend/resume using ACPI.
-> > 
-> > If you really need this enabled to be able to use suspend/resume at
-> > all, you could add a line like:
-> > 
-> >   It's safe to say Y. If you say N, you might get serious disk
-> >   corruption when you suspend your machine.
-> 
-> That's simply not true. If you say N (if you could), you could risk
-> having a non-responsive disk after resume. However, it would have been
-> synced a suspend time so you wont corrupt anything.
+On 1/17/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> Magnus Damm wrote:
+> > On 1/16/06, Christoph Lameter <clameter@engr.sgi.com> wrote:
+> >
+> >>On Sun, 15 Jan 2006, Nick Piggin wrote:
+> >>
+> >>
+> >>>OK (either way is fine), but you should still drop the __isolate_lru_page
+> >>>nonsense and revert it like my patch does.
+> >>
+> >>Ok with me. Magnus: You needed the __isolate_lru_page for some other
+> >>purpose. Is that still the case?
+> >
+> >
+> > It made sense to have it broken out when it was used twice within
+> > vmscan.c, but now when the patch changed a lot and the function is
+> > used only once I guess the best thing is to inline it as Nick
+> > suggested. I will re-add it myself later on when I need it. Thanks.
+> >
+> > / magnus
+> >
+>
+> I'm curious, what do you need it for?
 
-That's what I mean: I have no idea if it eats your disks or not. The
-point is that if it does, it should be mentioned in the help text.
+I used that function when I worked on a memory resource control
+prototype. This prototype has been superseeded by the pzone memory
+resource controller posted on ckrm-tech recently.
 
-
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
-| Data lost? Stay calm and contact Harddisk-recovery.com
+/ magnus

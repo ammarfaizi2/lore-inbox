@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWAQKmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWAQKwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWAQKmy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 05:42:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWAQKmy
+	id S932386AbWAQKwV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 05:52:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWAQKwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 05:42:54 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:63941 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S932370AbWAQKmy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 05:42:54 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@ocs.com.au>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Akinobu Mita <mita@miraclelinux.com>, ak@suse.de,
+	Tue, 17 Jan 2006 05:52:21 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:53121 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932386AbWAQKwU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 05:52:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OmuOHmaNEEOT54uNgs+qqhrw1J8BG+hY8+gM4m79YL2R6/wVGohZCobvKJ5VtMQipZl0RQWVPngnF4ZvZjmkur+RCem6xcTv5e8IrHkdeWXjZ7o+Rf51G8tcC1g+3VkvWXC9IAi4X2J/Gqqu3dGQxvPqgsSK6COJ1ztrdguKzW8=
+Message-ID: <9a8748490601170252g1a89262n2745ef5bb3e1b16f@mail.gmail.com>
+Date: Tue, 17 Jan 2006 11:52:19 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Keith Owens <kaos@ocs.com.au>
+Subject: Re: [PATCH 3/4] compact print_symbol() output
+Cc: Akinobu Mita <mita@miraclelinux.com>, ak@suse.de,
        linux-kernel@vger.kernel.org, Chuck Ebbert <76306.1226@compuserve.com>,
        Christoph Hellwig <hch@infradead.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: [PATCH 0/4] compact call trace 
-In-reply-to: Your message of "Tue, 17 Jan 2006 11:31:27 BST."
-             <1137493887.3005.21.camel@laptopd505.fenrus.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 17 Jan 2006 21:42:52 +1100
-Message-ID: <10265.1137494572@ocs3.ocs.com.au>
+       Arjan van de Ven <arjan@infradead.org>
+In-Reply-To: <10099.1137494043@ocs3.ocs.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060117101555.GD19473@miraclelinux.com>
+	 <10099.1137494043@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven (on Tue, 17 Jan 2006 11:31:27 +0100) wrote:
->On Tue, 2006-01-17 at 19:13 +0900, Akinobu Mita wrote:
->> These patches will:
->> 
->> - break the various custom oops-parsers which people have written themselves.
->> - use common call trace format on x86-64.
->> - change offset format from hexadecimal to decimal in print_symbol()
->> - delete symbolsize in call trace in print_symbol().
->> - print system_utsname.version in oops so that we can doing a
->>   double check that the oops is matching the vmlinux we're looking at.
+On 1/17/06, Keith Owens <kaos@ocs.com.au> wrote:
+> Akinobu Mita (on Tue, 17 Jan 2006 19:15:55 +0900) wrote:
+> >- remove symbolsize field
+> >- change offset format from hexadecimal to decimal
 >
+> That is silly.  Almost every binutils tool prints offsets in hex,
+> including objdump and gdb.  Printing the trace offset in decimal just
+> makes more work for users to convert back to decimal to match up with
+> all the other tools.
 >
->at least then make the kallsyms lookup mark up the string somehow (say
->by putting a * in front of it) if the EIP is outside the size of the
->symbol; so that we can spot garbage better.
+Agreed.
+Also, hex output is shorter and often more natural for this type of data.
 
-There is no such thing as "outside the size of the symbol".  kallsyms
-does not save symbol size, it is calculated as the difference between
-this symbol and the next one in the table.  By definition, every size
-is correct - as long as all symbols are in the table.
-
-Some symbols are omitted from kallsyms, which makes the calculation of
-"symbol size" wrong for some symbols, those symbols appear bigger than
-they really are.  Printing the symbol size was done years ago as a hint
-to the reader, it told them what the kernel thought the symbol size was
-and gave them something to check against.  That was when there were
-very few symbols in the kernel, so most size calculations were wrong.
-Nowadays it is probably irrelevant.
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

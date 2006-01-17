@@ -1,36 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWAQQxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWAQQz2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbWAQQxh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 11:53:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWAQQxg
+	id S932192AbWAQQz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 11:55:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbWAQQz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 11:53:36 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:63874 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932204AbWAQQxg (ORCPT
+	Tue, 17 Jan 2006 11:55:28 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:4739 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932192AbWAQQz1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 11:53:36 -0500
-Date: Tue, 17 Jan 2006 17:53:31 +0100 (MET)
+	Tue, 17 Jan 2006 11:55:27 -0500
+Date: Tue, 17 Jan 2006 17:55:20 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andi Kleen <ak@suse.de>
-cc: Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] changes about Call Trace:
-In-Reply-To: <200601162322.36979.ak@suse.de>
-Message-ID: <Pine.LNX.4.61.0601171752330.18569@yvahk01.tjqt.qr>
-References: <20060116121611.GA539@miraclelinux.com> <200601161322.12209.ak@suse.de>
- <20060116134109.GA6707@miraclelinux.com> <200601162322.36979.ak@suse.de>
+To: Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Suggested janitor task - remove __init/__exit from function
+ prototypes
+In-Reply-To: <31582.1137291095@ocs3.ocs.com.au>
+Message-ID: <Pine.LNX.4.61.0601171754270.18569@yvahk01.tjqt.qr>
+References: <31582.1137291095@ocs3.ocs.com.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > The x86-64 format is more compact.
->> 
->> How about this update?
->> 
->> 1/3: change from "[<...>]" to  "<...>".
->> 2/3: change the format of offset from hexadecimal to decimal in.
+>Some function prototypes (in both .h and .c files) specify attributes
+>like __init and __exit in the prototype.  gcc (at least at 3.3.3) uses
+>the last such attribute that is actually specified, without issuing a
+>warning.
 
-i386 should also get these two things.
+How does gcc 2.95 handle it, requiring __init in both spots?
 
 
 Jan Engelhardt

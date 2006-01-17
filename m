@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWAQOCb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbWAQOEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbWAQOCb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 09:02:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWAQOCb
+	id S932499AbWAQOEF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 09:04:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932500AbWAQOEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 09:02:31 -0500
-Received: from joel.ist.utl.pt ([193.136.198.171]:21465 "EHLO joel.ist.utl.pt")
-	by vger.kernel.org with ESMTP id S932153AbWAQOCa (ORCPT
+	Tue, 17 Jan 2006 09:04:04 -0500
+Received: from ns2.suse.de ([195.135.220.15]:7897 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932496AbWAQOEB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 09:02:30 -0500
-Date: Tue, 17 Jan 2006 14:02:22 +0000 (WET)
-From: Rui Saraiva <rmps@joel.ist.utl.pt>
-To: tpmdd_devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.15+]: Trusted Platform depends on Security models
-Message-ID: <Pine.LNX.4.64.0601171359120.25253@joel.ist.utl.pt>
+	Tue, 17 Jan 2006 09:04:01 -0500
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] [PATCH/RFC] Unify mapping from PXM to node id.
+Date: Tue, 17 Jan 2006 15:05:32 +0100
+User-Agent: KMail/1.8
+Cc: Yasunori Goto <y-goto@jp.fujitsu.com>,
+       ACPI-ML <linux-acpi@vger.kernel.org>, linux-ia64@vger.kernel.org,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       "Luck, Tony" <tony.luck@intel.com>, "Brown, Len" <len.brown@intel.com>
+References: <20060117205442.5B9A.Y-GOTO@jp.fujitsu.com>
+In-Reply-To: <20060117205442.5B9A.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601171505.32933.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 17 January 2006 13:36, Yasunori Goto wrote:
+> Hello.
+>
+> This patch is to unify mapping from pxm to node id as a common code.
+> In current code, i386, x86-64, and ia64 have its mapping by each own code.
+> But PXM is defined by ACPI and node id is used generically. So,
+> I think there is no reason to define it on each arch's code.
+> This mapping should be written at drivers/acpi/numa.c.
+>
 
-It seems that "TPM Hardware Support" (CONFIG_TCG_TPM) depends on
-"Enable different security models" (CONFIG_SECURITY). Without this last
-option, I get:
+> Please comment.
 
-$ make modules_install
-. . .
-if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F System.map 2.6.16-rc1; fi
-WARNING: /lib/modules/2.6.16-rc1/kernel/drivers/char/tpm/tpm_bios.ko needs unknown symbol securityfs_create_dir
-WARNING: /lib/modules/2.6.16-rc1/kernel/drivers/char/tpm/tpm_bios.ko needs unknown symbol securityfs_remove
-WARNING: /lib/modules/2.6.16-rc1/kernel/drivers/char/tpm/tpm_bios.ko needs unknown symbol securityfs_create_file
-$
+The array is unnecessary big - PXMs are only 8bit so it could be u8.
 
-Regards,
+Looks ok to me on x86-64 in principle, except that the __devinits should
+be probably __cpuinits. I haven't tested/compiled it though
 
-Signed-off-by: Rui Saraiva <rmps@mail.pt>
-
----
-
---- linux-2.6.16-rc1/drivers/char/Kconfig	2006-01-17 13:36:14.000000000 +0000
-+++ linux-2.6.16-rc1-rmps/drivers/char/Kconfig	2006-01-17 13:36:43.000000000 +0000
-@@ -6,7 +6,7 @@ menu "TPM devices"
-
-  config TCG_TPM
-  	tristate "TPM Hardware Support"
--	depends on EXPERIMENTAL
-+	depends on EXPERIMENTAL && SECURITY
-  	---help---
-  	  If you have a TPM security chip in your system, which
-  	  implements the Trusted Computing Group's specification,
+-Andi

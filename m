@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWAQUun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbWAQUvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964830AbWAQUun (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 15:50:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWAQUun
+	id S932437AbWAQUvX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 15:51:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932440AbWAQUvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 15:50:43 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:25790 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964830AbWAQUum (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 15:50:42 -0500
-Date: Tue, 17 Jan 2006 12:50:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: schwidefsky@de.ibm.com, ric@emc.com, hch@lst.de, arnd@arndb.de,
-       linux-kernel@vger.kernel.org, saparnis_carol@emc.com
-Subject: Re: [PATCH 2/2] dasd: remove dynamic ioctl registration
-Message-Id: <20060117125013.1d51d211.akpm@osdl.org>
-In-Reply-To: <20060117133523.GA27322@lst.de>
-References: <20051216143348.GB19541@lst.de>
-	<20060106110157.GA16725@lst.de>
-	<43BE7C45.4090206@emc.com>
-	<20060106142146.GA20094@lst.de>
-	<43BE7EE4.3010203@emc.com>
-	<1136970987.6147.14.camel@localhost.localdomain>
-	<20060117133523.GA27322@lst.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Tue, 17 Jan 2006 15:51:23 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:53974 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932437AbWAQUvW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 15:51:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dmwL9ihhbfVTj0KQXvmGKX7Xd5GGphsBuibv6HGFjoPuvEQrXmHBlaRFqvFiTp6z/Gts+S3OfGNrepBlu3AUP2swqNeC62h1lVwbISC66H6N/rgxSpOW8RkEfzWFszqXxD9Y/RPAGzhGnO1O5hZdMHW+5E+SV9K5sTAg0C9AD+M=
+Message-ID: <9a8748490601171251o16eeb115hb33f68bb4b13ea1a@mail.gmail.com>
+Date: Tue, 17 Jan 2006 21:51:20 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Jon Maloy <jon.maloy@ericsson.com>
+Subject: Re: [PATCH] TIPC: add Kconfig help text
+Cc: Per Liden <per.liden@ericsson.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Allan Stephens <allan.stephens@windriver.com>,
+       tipc-discussion@lists.sourceforge.net
+In-Reply-To: <43CD0FD8.4090003@ericsson.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200601172058.31503.jesper.juhl@gmail.com>
+	 <Pine.LNX.4.64.0601172105180.17253@ulinpc219.uab.ericsson.se>
+	 <9a8748490601171224q15d1b8e9n23706782c85f26d7@mail.gmail.com>
+	 <9a8748490601171238y12be9933ha8068985cf2a1cbf@mail.gmail.com>
+	 <43CD0FD8.4090003@ericsson.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@lst.de> wrote:
->
-> On Wed, Jan 11, 2006 at 10:16:27AM +0100, Martin Schwidefsky wrote:
-> > The patch we got from EMC is for 2.4 and in its current form would never
-> > have worked for 2.6 anyway. So 2.6 is already broken, no reason to hold
-> > off the ioctl removal patch. We'll come up with a cleaned up solution.
-> > 
-> > Christoph, please go ahead and push the patch to Andrew. 
-> 
-> Andrew, should I resend the two patches or can you grab them from the
-> mbox?
+On 1/17/06, Jon Maloy <jon.maloy@ericsson.com> wrote:
+> That has also been fixed, but not pulled in yet. Same reason as above.
 
-I found them, and they still seem to apply.
+Excellent - thanks - guess I should have checked that git repo before ranting.
+Now we just need to teach you guys not to top-post and everything will
+be peachy ;-)
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

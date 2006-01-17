@@ -1,54 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWAQE7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWAQFGw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbWAQE7n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jan 2006 23:59:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWAQE7n
+	id S1750719AbWAQFGw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 00:06:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751106AbWAQFGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jan 2006 23:59:43 -0500
-Received: from xenotime.net ([66.160.160.81]:50840 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751108AbWAQE7m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jan 2006 23:59:42 -0500
-Date: Mon, 16 Jan 2006 20:59:37 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, james.bottomley@steeleye.com
-Subject: Re: [PATCH/RFC] SATA in its own config menu
-Message-Id: <20060116205937.5f593356.rdunlap@xenotime.net>
-In-Reply-To: <43CBAABC.6070200@pobox.com>
-References: <20060115135728.7b13996d.rdunlap@xenotime.net>
-	<43CBAABC.6070200@pobox.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Jan 2006 00:06:52 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:26566 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750719AbWAQFGv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 00:06:51 -0500
+Date: Mon, 16 Jan 2006 21:06:29 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Nick Piggin <npiggin@suse.de>
+cc: Andi Kleen <ak@suse.de>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: Race in new page migration code?
+In-Reply-To: <20060116165618.GB21064@wotan.suse.de>
+Message-ID: <Pine.LNX.4.62.0601162104550.21654@schroedinger.engr.sgi.com>
+References: <20060114155517.GA30543@wotan.suse.de>
+ <Pine.LNX.4.62.0601160807580.19672@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.61.0601161620060.9395@goblin.wat.veritas.com> <200601161751.26991.ak@suse.de>
+ <20060116165618.GB21064@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jan 2006 09:16:28 -0500 Jeff Garzik wrote:
+On Mon, 16 Jan 2006, Nick Piggin wrote:
 
-> Randy.Dunlap wrote:
-> > From: Randy Dunlap <rdunlap@xenotime.net>
+> On Mon, Jan 16, 2006 at 05:51:26PM +0100, Andi Kleen wrote:
 > > 
-> > Put SATA into its own menu.  Reason:  using SCSI is an
-> > implementation detail that users need not know about.
+> > I agree with Christoph that the zero page should be ignored - old behaviour
+> > was really a bug.
 > > 
-> > Enabling SATA selects SCSI since SATA uses SCSI as a function
-> > library supplier.  It also enables BLK_DEV_SD since that is
-> > what SATA drives look like in Linux.
-> > 
-> > Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-> > ---
-> >  drivers/Kconfig           |    2 
-> >  drivers/scsi/Kconfig      |  138 --------------------------------------------
-> >  drivers/scsi/Kconfig.sata |  142 ++++++++++++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 144 insertions(+), 138 deletions(-)
 > 
-> This needs to be done after the code gets moved to drivers/ata...
+> Fair enough. It would be nice to have a comment there has Hugh said;
+> it is not always clear what PageReserved is intended to test for.
 
-Thanks.  It was an RFC and it got comments.
-That's all that I hoped for.
+Something like this? Are there still other uses of PageReserved than the 
+zero page?
 
----
-~Randy
+
+Explain the use of PageReserved in check_pte_range.
+
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
+
+Index: linux-2.6.15/mm/mempolicy.c
+===================================================================
+--- linux-2.6.15.orig/mm/mempolicy.c	2006-01-14 10:56:31.000000000 -0800
++++ linux-2.6.15/mm/mempolicy.c	2006-01-16 21:03:03.000000000 -0800
+@@ -211,6 +211,17 @@ static int check_pte_range(struct vm_are
+ 		page = vm_normal_page(vma, addr, *pte);
+ 		if (!page)
+ 			continue;
++		/*
++		 * The check for PageReserved here is important to avoid
++		 * handling zero pages and other pages that may have been
++		 * marked special by the system.
++		 *
++		 * If the PageReserved would not be checked here then f.e.
++		 * the location of the zero page could have an influence
++		 * on MPOL_MF_STRICT, zero pages would be counted for
++		 * the per node stats, and there would be useless attempts
++		 * to put zero pages on the migration list.
++		 */
+ 		if (PageReserved(page))
+ 			continue;
+ 		nid = page_to_nid(page);
+

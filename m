@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWAQSMw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWAQSOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWAQSMw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 13:12:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWAQSMw
+	id S932257AbWAQSOi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 13:14:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWAQSOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 13:12:52 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:62445 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932096AbWAQSMu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 13:12:50 -0500
-Subject: Re: RFC [patch 00/34] PID Virtualization Overview
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Suleiman Souhlal <ssouhlal@FreeBSD.org>
-Cc: Serge Hallyn <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>
-In-Reply-To: <43CD32F0.9010506@FreeBSD.org>
-References: <20060117143258.150807000@sergelap>
-	 <43CD18FF.4070006@FreeBSD.org>
-	 <1137517698.8091.29.camel@localhost.localdomain>
-	 <43CD32F0.9010506@FreeBSD.org>
-Content-Type: text/plain
-Date: Tue, 17 Jan 2006 10:12:37 -0800
-Message-Id: <1137521557.5526.18.camel@localhost.localdomain>
+	Tue, 17 Jan 2006 13:14:38 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:30476 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932257AbWAQSOh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 13:14:37 -0500
+Date: Tue, 17 Jan 2006 19:14:16 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, mita@miraclelinux.com
+Subject: Re: [patch 2.6.15-current] i386: multi-column stack backtraces
+Message-ID: <20060117181416.GB8047@mars.ravnborg.org>
+References: <20060116224234.5a7ca488.akpm@osdl.org> <9554.1137493329@ocs3.ocs.com.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9554.1137493329@ocs3.ocs.com.au>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-17 at 10:09 -0800, Suleiman Souhlal wrote:
-> Dave Hansen wrote:
-> > One use for containers might be to pick a container from a system, wrap
-> > it up, and transport it to another system where it would continue to
-> > run.  We would have to make sure that the pids did not collide with any
-> > containers running on the target system.
+On Tue, Jan 17, 2006 at 09:22:09PM +1100, Keith Owens wrote:
+> >
+> >Presumably this is going to bust ksymoops.  Also the various other custom
+> >oops-parsers which people have written themselves.
 > 
-> Couldn't you assign new pids when the container is transported to the 
-> other system?
+> Should not be a problem for ksymoops.  Most entries use this regex,
+> where [ ] is optional.
 
-You do assign new pids, at least as far as the kernel is concerned.
-However, any processes that continue to run would get confused if their
-pid changed.  You have to make sure that the tasks have a _consistent_
-view of which process is which pid.
+In that case can we then remove the CONFIG option?
+If needed to be configurable a commandline option could do it,
+so one does not have to rebuild the kernel.
 
--- Dave
-
+	Sam

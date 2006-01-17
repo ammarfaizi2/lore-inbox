@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWAQNIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWAQNPG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbWAQNIw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 08:08:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWAQNIv
+	id S1750863AbWAQNPG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 08:15:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbWAQNPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 08:08:51 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:57002 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932455AbWAQNIu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 08:08:50 -0500
-Message-ID: <43CCEC5F.7020801@pobox.com>
-Date: Tue, 17 Jan 2006 08:08:47 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Tue, 17 Jan 2006 08:15:06 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:26096 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750863AbWAQNPE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 08:15:04 -0500
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Linux 2.6.16-rc1
+Date: Tue, 17 Jan 2006 14:16:12 +0100
+User-Agent: KMail/1.9
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
 MIME-Version: 1.0
-To: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       John Ronciak <john.ronciak@intel.com>,
-       Jesse Brandeburg <jesse.brandeburg@intel.com>
-Subject: Re: [PATCH ] ethtool: Remove duplex info from CTRL register dump
-References: <20060112071642.29428.23880.stgit@Gecko.tarbal.com>
-In-Reply-To: <20060112071642.29428.23880.stgit@Gecko.tarbal.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart5957638.a4u4io4G4y";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Jeff Kirsher wrote: > The duplex control register is
-	used for setting the driver and is not > necessary for debug purposes.
-	The value of the duplex control register is > what the register's
-	current value is and may not reflect the correct status > of te current
-	connection. That is what the duplex status register is used > for. To
-	keep from confusing the user, we are removing the duplex register >
-	from the ethtool dump of the registers. > > Signed-off-by: Jeff Kirsher
-	<jeffrey.t.kirsher@intel.com> > Signed-off-by: Jesse Brandeburg
-	<jesse.brandeburg@intel.com> > Signed-off-by: John Ronciak
-	<john.ronciak@intel.com> [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Message-Id: <200601171416.13119.prakash@punnoor.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Kirsher wrote:
-> The duplex control register is used for setting the driver and is not
-> necessary for debug purposes.  The value of the duplex control register is
-> what the register's current value is and may not reflect the correct status
-> of te current connection.  That is what the duplex status register is used
-> for.  To keep from confusing the user, we are removing the duplex register
-> from the ethtool dump of the registers.
-> 
-> Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-> Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-> Signed-off-by: John Ronciak <john.ronciak@intel.com>
+--nextPart5957638.a4u4io4G4y
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-applied, after replacing "ethtool:" with "e1000:" in the subject line.
-
-	Jeff
+Compiling libata SIL breaks with Linux 2.6.16-rc1:
 
 
+  CC      drivers/scsi/sata_sil.o
+drivers/scsi/sata_sil.c: In function 'sil_port_irq':
+drivers/scsi/sata_sil.c:393: error: too many arguments to function=20
+'ata_qc_complete'
+drivers/scsi/sata_sil.c:400: error: too many arguments to function=20
+'ata_qc_complete'
 
+HTH,
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
+
+--nextPart5957638.a4u4io4G4y
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDzO4dxU2n/+9+t5gRAodXAKDFpFuebhAwKKSOyzI6qEw//02OVQCg8nX5
+gt9BlkvDCyyt2fEa1ee9oX0=
+=90os
+-----END PGP SIGNATURE-----
+
+--nextPart5957638.a4u4io4G4y--

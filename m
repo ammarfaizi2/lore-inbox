@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751240AbWAQPBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWAQPBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751240AbWAQPBh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 10:01:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWAQPBg
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S1751244AbWAQPBg (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 17 Jan 2006 10:01:36 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:48811 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751263AbWAQPBS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 10:01:18 -0500
-Message-ID: <43CD06BB.7050802@pobox.com>
-Date: Tue, 17 Jan 2006 10:01:15 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWAQPBL
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 17 Jan 2006 10:01:11 -0500
+Received: from silver.veritas.com ([143.127.12.111]:41078 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1751239AbWAQPBA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 10:01:00 -0500
+Date: Tue, 17 Jan 2006 15:01:31 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Akinobu Mita <mita@miraclelinux.com>
+cc: Keith Owens <kaos@ocs.com.au>, ak@suse.de, linux-kernel@vger.kernel.org,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH 3/4] compact print_symbol() output
+In-Reply-To: <20060117112318.GA24671@miraclelinux.com>
+Message-ID: <Pine.LNX.4.61.0601171453270.6403@goblin.wat.veritas.com>
+References: <20060117101555.GD19473@miraclelinux.com> <10099.1137494043@ocs3.ocs.com.au>
+ <20060117112318.GA24671@miraclelinux.com>
 MIME-Version: 1.0
-To: Alexander Sbitnev <nwshuras@dezcom.mephi.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SX8 stability issue
-References: <204883.20060111160652@dezcom.mephi.ru> <43C55CAD.90609@pobox.com> <575186548.20060112141315@dezcom.mephi.ru>
-In-Reply-To: <575186548.20060112141315@dezcom.mephi.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Alexander Sbitnev wrote: >>Well, the in-kernel sx8
-	driver does not use NCQ at all, so you would >>have to have modified
-	the driver to turn it on. Presumably this means >>there is a bug in
-	your modifications? > > > Hmmm... Ok, driver doesn't care about NCQ at
-	all, as i understood all NCQ work > performed by it's firmware. Then we
-	have just a stability issue, not > directly linked to NCQ. Right? [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 17 Jan 2006 15:01:00.0267 (UTC) FILETIME=[D3F35BB0:01C61B76]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Sbitnev wrote:
->>Well, the in-kernel sx8 driver does not use NCQ at all, so you would
->>have to have modified the driver to turn it on.  Presumably this means 
->>there is a bug in your modifications?
+On Tue, 17 Jan 2006, Akinobu Mita wrote:
 > 
-> 
-> Hmmm... Ok, driver doesn't care about NCQ at all, as i understood all NCQ work
-> performed by it's firmware. Then we have just a stability issue, not
-> directly linked to NCQ. Right?
+> And do you have any objection to remove symbolsize output in
+> print_symbol()? I can't find useful usage about symbolsize in
+> print_symbol() except to do a double check that the oops is
+> matching the vmlinux we're looking at. (so I made 4/4)
+> Do you know any useful usage about symbolsize?
 
-I cannot say "correct", I can only guess "possibly yes."
+I've often found symbolsize useful.  Not when looking at an oops
+from my own machine.  But when looking at an oops posted on LKML,
+from someone who most likely has a different .config and different
+compiler, different optimization and different inlining from mine.
+symbolsize is a good clue as to how close their kernel is to the
+one I've got built on my machine, how likely guesses I make based
+on mine will apply to theirs, and whereabouts in the function that
+it oopsed.
 
-	Jeff
-
-
-
+Hugh

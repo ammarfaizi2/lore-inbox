@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWAQJzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWAQKDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbWAQJzW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 04:55:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWAQJzW
+	id S932373AbWAQKDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 05:03:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWAQKDJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 04:55:22 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:59530 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S932352AbWAQJzV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 04:55:21 -0500
-Date: Tue, 17 Jan 2006 10:55:31 +0100
-From: Sander <sander@humilis.net>
-To: NeilBrown <neilb@suse.de>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Subject: Re: [PATCH 005 of 5] md: Final stages of raid5 expand code.
-Message-ID: <20060117095531.GB27262@localhost.localdomain>
-Reply-To: sander@humilis.net
-References: <20060117174531.27739.patches@notabene> <1060117065635.27881@suse.de>
-MIME-Version: 1.0
+	Tue, 17 Jan 2006 05:03:09 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:19227 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932373AbWAQKDI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 05:03:08 -0500
+Date: Tue, 17 Jan 2006 11:05:09 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Keith Owens <kaos@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15 __disk_stat_add() called without preempt disabled
+Message-ID: <20060117100508.GE3945@suse.de>
+References: <13179.1137398969@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1060117065635.27881@suse.de>
-X-Uptime: 10:26:31 up 61 days, 25 min, 10 users,  load average: 2.57, 2.20, 1.86
-User-Agent: Mutt/1.5.11
+In-Reply-To: <13179.1137398969@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NeilBrown wrote (ao):
-> +config MD_RAID5_RESHAPE
+On Mon, Jan 16 2006, Keith Owens wrote:
+> 2.6.15 on ia64, gcc 3.3.3, CONFIG_PREEMPT_DEBUG=y.
+> 
+> scsi(0): Resetting Cmnd=0xe00000b479ea7810, Handle=0x0000000000000001, action=0x0
+> scsi(0): Resetting Cmnd=0xe00000b479ea79e8, Handle=0x0000000000000002, action=0x0
+> scsi(0): Resetting Cmnd=0xe00000b479ea63c8, Handle=0x0000000000000003, action=0x0
+> scsi(0): Resetting Cmnd=0xe00000b479ea7810, Handle=0x0000000000000202, action=0x2
+> scsi(0:0:2:0): Queueing device reset command.
+> qla2300 0000:03:01.0: Mailbox command timeout occured. Issuing ISP abort.
+> qla2300 0000:03:01.0: Performing ISP error recovery - ha= e0000034790b4518.
+> scsi(0): mailbox timed out, mailbox0 4000, ictrl 0006, istatus 6006
+> qla2300 0000:03:01.0: LIP reset occured (f7f7).
+> qla2300 0000:03:01.0: LOOP UP detected (2 Gbps).
+> qla2300 0000:03:01.0: scsi(2:2:1): Abort command issued -- 2ea 2003.
+> sd 2:0:2:1: scsi: Device offlined - not ready after error recovery
+> sd 2:0:2:1: scsi: Device offlined - not ready after error recovery
+> BUG: using smp_processor_id() in preemptible [00000001] code: scsi_eh_2/4665
+> caller is __end_that_request_first+0x1b0/0x8e0
+> 
+> Call Trace:
+>  [<a000000100013280>] show_stack+0x40/0xa0
+>                                 sp=e00000b007dbfc00 bsp=e00000b007db90e8
+>  [<a000000100013b10>] dump_stack+0x30/0x60
+>                                 sp=e00000b007dbfdd0 bsp=e00000b007db90d0
+>  [<a0000001003d7880>] debug_smp_processor_id+0x160/0x1a0
+>                                 sp=e00000b007dbfdd0 bsp=e00000b007db90b0
+>  [<a000000100399c90>] __end_that_request_first+0x1b0/0x8e0
+>                                 sp=e00000b007dbfdd0 bsp=e00000b007db9028
 
-Would this also be possible for raid6?
+Hmm indeed, we are not necessarily atomic there, it's quite ok to be
+called with preemption+interrupts enabled.
 
-> +	bool "Support adding drives to a raid-5 array (highly experimental)"
-> +	depends on MD_RAID5 && EXPERIMENTAL
-> +	---help---
-> +	  A RAID-5 set can be expanded by adding extra drives. This
-> +	  requires "restriping" the array which means (almost) every
-> +	  block must be written to a different place.
-> +
-> +          This option allows this restiping to be done while the array
-                                     ^^^^^^^^^
-                                     restriping
-
-> +	  is online.  However it is VERY EARLY EXPERIMENTAL code.
-> +	  In particular, if anything goes wrong while the restriping
-> +	  is happening, such as a power failure or a crash, all the
-> +	  data on the array will be LOST beyond any reasonable hope
-> +	  of recovery.
-> +
-> +	  This option is provided for experimentation and testing.
-> +	  Please to NOT use it on valuable data with good, tested, backups.
-                 ^^                             ^^^^
-                 do                             without
-
-Thanks a lot for this feature. I'll try to find a spare computer to test
-this on. Thanks!
-
-	Kind regards, Sander
+diff --git a/block/ll_rw_blk.c b/block/ll_rw_blk.c
+index bfcde0f..d715b0b 100644
+--- a/block/ll_rw_blk.c
++++ b/block/ll_rw_blk.c
+@@ -3195,7 +3195,7 @@ static int __end_that_request_first(stru
+ 	if (blk_fs_request(req) && req->rq_disk) {
+ 		const int rw = rq_data_dir(req);
+ 
+-		__disk_stat_add(req->rq_disk, sectors[rw], nr_bytes >> 9);
++		disk_stat_add(req->rq_disk, sectors[rw], nr_bytes >> 9);
+ 	}
+ 
+ 	total_bytes = bio_nbytes = 0;
 
 -- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+Jens Axboe
+

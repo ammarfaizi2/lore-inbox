@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWAQRus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWAQRxF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbWAQRus (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 12:50:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWAQRus
+	id S932137AbWAQRxF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 12:53:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWAQRxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 12:50:48 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:12858 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751264AbWAQRur convert rfc822-to-8bit
+	Tue, 17 Jan 2006 12:53:05 -0500
+Received: from uproxy.gmail.com ([66.249.92.197]:30450 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932137AbWAQRxE convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 12:50:47 -0500
+	Tue, 17 Jan 2006 12:53:04 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kZHv54CLnSy0LnD4T8ylcC9TMNsq0JGfHj26d/+GcxyZmKkyxE5AwneDQvBphp7JAfAlFwiAztcyPgSlPU2GUdLMZ8O+/hx7CKDf6ikG9ezuFwohTicr3+SzRoln5Mzm0ycvhsA23fF9BVNkt+HMpZBCeeCLH0MTpYAZ2sXpBTA=
-Message-ID: <a36005b50601170950u307ffb9dl52dc3655a1b90fa6@mail.gmail.com>
-Date: Tue, 17 Jan 2006 09:50:46 -0800
-From: Ulrich Drepper <drepper@gmail.com>
-To: david singleton <dsingleton@mvista.com>
-Subject: Re: [robust-futex-3] futex: robust futex support
-Cc: akpm@osdl.org, mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <C59522FA-8700-11DA-B27C-000A959BB91E@mvista.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43C84D4B.70407@mvista.com>
-	 <a36005b50601141602y641567ebh5ff9b6a1fad4d7d2@mail.gmail.com>
-	 <746DBAD6-855A-11DA-A824-000A959BB91E@mvista.com>
-	 <a36005b50601142118h3a07a640ra668dab13129683b@mail.gmail.com>
-	 <C59522FA-8700-11DA-B27C-000A959BB91E@mvista.com>
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=qSULyeFlTGXajEt2For4nT4zXIKeJySuqnBy43FBGfFQiYPaCYgE4zlRKvqim5wWQNoBN+9GKzntFNBUU8Qm1td+lb9SOvWDFRNbkBXENWJ0sLkrUACCvcTxzvdr04Enx3kLnMpVRsDbKNo07c7rU4khkAgx9IDsadw2z+jcbxo=
+Date: Tue, 17 Jan 2006 18:52:44 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: mkrufky@m1k.net, webmaster@kernel.org, linux-kernel@vger.kernel.org,
+       mkrufky@gmail.com
+Subject: Re: [KORG] GITWEB doesn't show any DIFF's
+Message-Id: <20060117185244.e7b5cffc.diegocg@gmail.com>
+In-Reply-To: <200601171739.17168.s0348365@sms.ed.ac.uk>
+References: <43CCF8BB.1050009@m1k.net>
+	<200601171739.17168.s0348365@sms.ed.ac.uk>
+X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And another thing: semaphores are on their way out.  So, in
-futex_deregister and in futex_head, shouldn't you use mutexes?  I
-don't see that you realy need semaphores.
+El Tue, 17 Jan 2006 17:39:17 +0000,
+Alistair John Strachan <s0348365@sms.ed.ac.uk> escribió:
 
-In futex_register, you define mm and initialize it with current->mm. 
-That's OK.  But why then are you using
+> Seems to work for me right _now_, could you verify that this is still 
+> happening?
 
-+       down_read(&current->mm->mmap_sem);
 
-just a few lines below?
+It happens for me, too - instead of showing me the diff, diffstat
+shows me just:
 
-And finally (for now): in get_futex_key the VMA containing the futex
-is determined.  And yet, in futex_register you have an identical
-find_extend_vma call.  I don't know how expensive this function is. 
-But I would assume that at least the error handling in futex_register
-can go away since the VMA cannot be torn down while mmap_sem is taken,
-right?  But perhaps this just points to more inconsistencies.  Why is
-the list/sem lookup in get_futex_key?  Only to share the code with
-futex_deregister.  But is that really worth it?  The majority of calls
-to get_futex_key come from all the other call sites so the code you
-added is only a cost without any gain.  Especially since you could in
-futex_register do the whole thing without any additional cost and
-because most of the new tests in get_futex_key are again tested in
-futex_register (to determined shared vs non-shared) and do not have to
-be tested in futex_deregister (we know the futex is in shared memory).
 
-I suggest that if find_extend_vma is sufficiently expensive, pass a
-pointer to a variable of that type to get_futex_key.  If it is cheap,
-don't do anything.  Pull the new code in get_futex_key into
-futex_register and futex_deregister, optimize out unnecessary code,
-and merge with the rest of the functions.  It'll be much less
-invasive.
+file:844a6c9fb9490e585fc5371d759840b9e7ae327c -> file:21965e5ef25e8c1c86bd59da0f40350d4f821702
+file:9a96f05883935a32955b216fcc3184bf162b0a85 -> file:63dd184ec808e7129efc3a355abdba4a21bf2c81
+
+With this commitdiff link, for example: 
+http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=7fab773de16ccaeb249acdc6e956a9759c68225d;hp=0046b06a367cd853efd3223ce60143f3a7952522

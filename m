@@ -1,58 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWAQTjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbWAQTjy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932418AbWAQTjN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 14:39:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWAQTjN
+	id S932416AbWAQTjy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 14:39:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWAQTjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 14:39:13 -0500
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:11144 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S932418AbWAQTjM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 14:39:12 -0500
-Date: Tue, 17 Jan 2006 20:39:10 +0100 (CET)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: IPMI BMC + MSI K1-1000S with tg3 and networking failure
-Message-ID: <Pine.LNX.4.60.0601172006440.25680@kepler.fjfi.cvut.cz>
+	Tue, 17 Jan 2006 14:39:53 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:57262 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932416AbWAQTjw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 14:39:52 -0500
+Message-ID: <43CD4800.20604@pobox.com>
+Date: Tue, 17 Jan 2006 14:39:44 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Dave Dillow <dave@thedillows.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Adaptec 1420SA issues with MSI
+References: <1136667984.2799.0.camel@obelisk.thedillows.org> <20060109221323.65f6987d.akpm@osdl.org>
+In-Reply-To: <20060109221323.65f6987d.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Andrew Morton wrote: > Andi says "It's more likely a
+	hardware bug that needs to be handled by the > driver maintainer.
+	sata_mv has an pci_enable_msi(). Hardware that reports > MSI capability
+	but breaks when it's actually used is not unheard of." > > -sata_mv
+	0000:00:0a.0: 32 slots 4 ports unknown mode IRQ via MSI > -ata1: SATA
+	max UDMA/133 cmd 0x0 ctl 0xE0A22120 bmdma 0x0 irq 177 > -ata2: SATA max
+	UDMA/133 cmd 0x0 ctl 0xE0A24120 bmdma 0x0 irq 177 > -ata3: SATA max
+	UDMA/133 cmd 0x0 ctl 0xE0A26120 bmdma 0x0 irq 177 > -ata4: SATA max
+	UDMA/133 cmd 0x0 ctl 0xE0A28120 bmdma 0x0 irq 177 > +sata_mv
+	0000:00:0a.0: 32 slots 4 ports unknown mode IRQ via INTx > +ata1: SATA
+	max UDMA/133 cmd 0x0 ctl 0xE0A22120 bmdma 0x0 irq 18 > +ata2: SATA max
+	UDMA/133 cmd 0x0 ctl 0xE0A24120 bmdma 0x0 irq 18 > +ata3: SATA max
+	UDMA/133 cmd 0x0 ctl 0xE0A26120 bmdma 0x0 irq 18 > +ata4: SATA max
+	UDMA/133 cmd 0x0 ctl 0xE0A28120 bmdma 0x0 irq 18 > > It seems strange
+	that pci_enable_msi() succeeded if the device is not > MSI-capable?
+	[...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton wrote:
+> Andi says "It's more likely a hardware bug that needs to be handled by the
+> driver maintainer.  sata_mv has an pci_enable_msi().  Hardware that reports
+> MSI capability but breaks when it's actually used is not unheard of."
+> 
+> -sata_mv 0000:00:0a.0: 32 slots 4 ports unknown mode IRQ via MSI
+> -ata1: SATA max UDMA/133 cmd 0x0 ctl 0xE0A22120 bmdma 0x0 irq 177
+> -ata2: SATA max UDMA/133 cmd 0x0 ctl 0xE0A24120 bmdma 0x0 irq 177
+> -ata3: SATA max UDMA/133 cmd 0x0 ctl 0xE0A26120 bmdma 0x0 irq 177
+> -ata4: SATA max UDMA/133 cmd 0x0 ctl 0xE0A28120 bmdma 0x0 irq 177
+> +sata_mv 0000:00:0a.0: 32 slots 4 ports unknown mode IRQ via INTx
+> +ata1: SATA max UDMA/133 cmd 0x0 ctl 0xE0A22120 bmdma 0x0 irq 18
+> +ata2: SATA max UDMA/133 cmd 0x0 ctl 0xE0A24120 bmdma 0x0 irq 18
+> +ata3: SATA max UDMA/133 cmd 0x0 ctl 0xE0A26120 bmdma 0x0 irq 18
+> +ata4: SATA max UDMA/133 cmd 0x0 ctl 0xE0A28120 bmdma 0x0 irq 18
+> 
+> It seems strange that pci_enable_msi() succeeded if the device is not
+> MSI-capable?
 
-does anyone here happen to have any experience with using the IPMI 1.5 BMC 
-with Linux? I have a MSI K1-1000S server with Broadcom Tigon3 dual GLAN 
-and a MS-9549 BMC server management card. I tried to enable the IPMI 
-remote management functionality over the shared LAN. I've succeeded using 
-the ipmitools, the remote managing works quite well.
+See http://lkml.org/lkml/2006/1/17/145
 
-But as I did this, the ordinary network communication in Linux stopped 
-working. Some packets seem to flow both ways if I try to communicate, but 
-nothing seems to happen. If I try simple ping from inside to outside, it 
-does mostly nothing, from time to time I get about 2 or 3 responses in 
-about 10 minute period, so that means that it is not completely dead, but 
-somehow the packets are either mostly blocked by the BMC or worse, altered 
-by the BMC. (If I read the IPMI 1.5 spec correctly, the BMC should be 
-almost completely transparent to the remaining network packet stream.)
-And when I try to access the server from outside, I get only to the BMC as 
-expected, but when I try for instance the ssh access, I get a "Connection 
-refused", though sshd is running properly.
+pci_enable_msi() has a problem where it succeeds when it should not, but 
+also, sata_mv is still missing some errata workarounds that could be 
+affecting MSI platforms.
 
-No matter what configuration I try to set on the BMC, I cannot revert the 
-behaviour. Before I managed to set the BMC configuration for the first 
-time, everything worked as expected (without the remote server management 
-functionality of course). Currently the only way I managed to make the 
-ordinary Linux networking to work is to physically remove the BMC card 
-(which of course results in no sensors, no fan control, etc.).
+	Jeff
 
-This leads me to a question. Isn't there some extra setting that the 
-tg3 driver has to do to cooperate with the BMC to share the ethernet 
-connection? (Perhaps the driver is not ready for such a cooperation?) Or 
-is there some extra trick that I have to set on the BMC to make it work 
-correctly with the other traffic?
 
-Any suggestions or hints are very welcome, because currently the server is 
-pretty much unusable. :(
-
-Martin

@@ -1,45 +1,54 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbWAOXXO (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 15 Jan 2006 18:23:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWAOXXO
+	id S1751263AbWAQPRe (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 17 Jan 2006 10:17:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWAQPRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jan 2006 18:23:14 -0500
-Received: from itkiel.de ([213.203.202.44]:62655 "EHLO watty3.itkiel.de")
-	by vger.kernel.org with ESMTP id S1750960AbWAOXXN (ORCPT
+	Tue, 17 Jan 2006 10:17:33 -0500
+Received: from 209-247-220-50.hostportal.com ([209.247.220.50]:62215 "EHLO
+	mail.olympostour.com") by vger.kernel.org with ESMTP
+	id S1751222AbWAQPRd convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jan 2006 18:23:13 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Bank Of America
-From: support@boa.com
-Message-Id: <20060115233324.8F25F29A427@watty3.itkiel.de>
-Date: Mon, 16 Jan 2006 00:33:24 +0100 (CET)
+	Tue, 17 Jan 2006 10:17:33 -0500
+Subject: =?iso-8859-1?Q?Fazla_Lafa_Gerek_Yok?=
+From: "=?iso-8859-1?Q?info@agacevler=2Ecom?=" <info@agacevler.com>
+Date: Tue, 17 Jan 2006 13:30:35 +0200
+To: "=?iso-8859-1?Q?linux-kernel@vger=2Ekernel=2Eorg?=" 
+	<linux-kernel@vger.kernel.org>
+X-Priority: 3
+X-MSMail-Priority: Normal
+Content-Transfer-Encoding: 7BIT
+MIME-Version: 1.0
+X-Mailer: JMail 4.4 by Dimac
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <200601171330780.SM00428@w2k3w8>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750961AbWAOXXO@vger.kernel.org>
-
-
-Customer ID : 000-5432-654386-PSI
-
- 
-
-This e-mail is to inform you that your account will be suspended within 48 hours due to your Account
-Inactivity. You will have to confirm certain Account Information in order to continue your account
-subscription.
-
- 
-
-Verify My Account Information here:
-
-http://www.vab-sh.de/boa
-
-
-You can help us provide you with the most relevant information by 
-taking a moment to tell us your e-mail preferences.
-And of course you can unsubscribe at any time. 
-Remember, Bank of America is committed to your security and protection. 
-To find out more, take a look at our Information Security section 
-under Privacy and Security on the Web site.
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751263AbWAQPRe@vger.kernel.org>
 
 
 
+300 kisilik Toplanti Salonu ile hizmetinizdeyiz.
+
+Doganin tekrar fethettigi tarihi Olympos'ta, Olympos Turkmen Pansiyon, her turlu laptop ve diger medya cihazlarin baglanabildigi dev cine-vision donanimiyla, 300 kisilik dogal ahsap toplanti salonu ile Turkiye'de bir ilk'e imza atti.
+
+Turkiye'nin hicbir yerinde antik ve modern dunya birbirine bu kadar yakin olmamistir.
+Ahsap bungalow veya agac evlerde tatil yapmanin keyfi bir baskadir.
+
+Kahvalti ve Aksam Yemegi
+Cay ve Kahve
+Gunes ve Issiz Sahiller
+Hikaye ve Efsaneler
+Raki ve Balik
+Hamakta Sallanmak
+Gece Hayati ve Eglence
+Caretta Caretta Kaplumbaglar
+Efsanevi Olympos Atesleri
+
+Kahvalti ve Aksam Yemegi limitsiz Bufe olarak fiyata dahildir: sadece 15,- YTL
+
+Ogrencilere ve Gruplara ozel indirimler.
+
+Gorusmek uzere,
+Olympos Turkmen Pansiyon
+www.agacevler.com
 

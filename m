@@ -1,102 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWAQOu6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWAQOu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751162AbWAQOu6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 09:50:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWAQOuw
+	id S1751064AbWAQOu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 09:50:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751088AbWAQOuu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 09:50:52 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:36834 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751122AbWAQOua (ORCPT
+	Tue, 17 Jan 2006 09:50:50 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:30178 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751116AbWAQOua (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 17 Jan 2006 09:50:30 -0500
-Message-Id: <20060117143328.520447000@sergelap>
+Message-Id: <20060117143327.312822000@sergelap>
 References: <20060117143258.150807000@sergelap>
-Date: Tue, 17 Jan 2006 08:33:24 -0600
+Date: Tue, 17 Jan 2006 08:33:17 -0600
 From: Serge Hallyn <serue@us.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: Hubertus Franke <frankeh@watson.ibm.com>,
        Cedric Le Goater <clg@fr.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
        Serge E Hallyn <serue@us.ibm.com>
-Subject: RFC [patch 26/34] PID Virtualization Documentation
-Content-Disposition: inline; filename=G0-documentation.patch
+Subject: RFC [patch 19/34] PID Virtualization Define pid_to_vpid functions
+Content-Disposition: inline; filename=F6-define-pid-to-vpid-translation.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First (incomplete) attempt of documentation
+In this patch we introduce convertion functions to 
+translate pids into virtual pids. These are just the APIs
+not the implementation yet.
+Subsequent patches will utilize these internal functions
+to rewrite the task virtual pid/ppid/tgid access functions
+such that finally we only have to rewrite these virtual
+conversion functions to actually obtain the pid virtualization.
+
 Signed-off-by: Hubertus Franke <frankeh@watson.ibm.com>
 ---
- containers.txt |   64 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 64 insertions(+)
+ sched.h |   14 ++++++++++++++
+ 1 files changed, 14 insertions(+)
 
-Index: linux-2.6.15/Documentation/containers.txt
+Index: linux-2.6.15/include/linux/sched.h
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.15/Documentation/containers.txt	2006-01-17 08:37:07.000000000 -0500
-@@ -0,0 +1,64 @@
-+This document describes the basics of the container
+--- linux-2.6.15.orig/include/linux/sched.h	2006-01-17 08:37:03.000000000 -0500
++++ linux-2.6.15/include/linux/sched.h	2006-01-17 08:37:05.000000000 -0500
+@@ -865,6 +865,20 @@
+ }
+ 
+ /**
++ *  pid domain translation functions:
++ *	- from kernel to user pid domain
++ */
++static inline pid_t pid_to_vpid(pid_t pid)
++{
++	return pid;
++}
 +
-+Hubertus Franke	<frankeh@watson.ibm.com>
-+Serge E Hallyn	<serue@us.ibm.com>
-+Cedric Legoater <clg@fr.ibm.com>
++static inline pid_t pgid_to_vpgid(pid_t pid)
++{
++	return pid;
++}
 +
-+Applications and associated processes can be containerized into
-+"isolated" soft partitions. The goal is to make containers
-+transparently migratable. To do so certain resources identifiers
-+need to be virtualized.
-+These includes
-+	- pids, gids,
-+	- SysV ids
-+	- procfs
-+Only resource belonging to a container can be accessed within
-+the container.
-+
-+A "container" is created through a helper program <contexe>,
-+that is supplied separately.
-+A process moves itself to a container by writing
-+the name of the container to create to /proc/container.
-+Doing so makes the calling process the pseudo init process
-+of the container.
-+
-+
-+For example "contexe -j2 /bin/bash" spawns a bash within
-+a new container <cont_2> and make the contexe process
-+the containers virtual initproc.
-+
-+
-+PID-VIRTUALIZATION:
-+-------------------
-+
-+Let Process <A> be the currently running process ( e.g. bash with pid 913 )
-+Each container has an associated pidspace id associated. Each pidspace
-+id is managed like the standard pid range in linux.
-+
-+We obtain the following tree, where <pidspace | vpid > denotes the
-+internal pid which is obtained by bitmasking.
-+
-+A some older bash < 0 | 913 >
-+	|
-+	\/
-+B == contexe == < 0 | 1087 >      ( also container->init_proc := A
-+				   	 container->init_pid  := 1087
-+	|
-+	\/
-+C == /bin/bash == < 1 | 2 >
-+
-+
-+let's define the results here we are expecting.
-+
-+C in context of B:      vpid = 2
-+B in context of C:	vpid = 1
-+
-+B in context of A:	vpid = pid = 1087
-+C in context of A:	vpid = pid = < 1 | 2 >
-+
-+A in context of B:	vpid = pid = 913
-+A in context of C:	vpid = -1
-+
-+< More to Follow >
-+
-+
++/**
+  * pid_alive - check that a task structure is not stale
+  * @p: Task structure to be checked.
+  *
 
 --
 

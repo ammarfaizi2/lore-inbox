@@ -1,166 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWAQOub@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWAQOvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbWAQOub (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 09:50:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWAQOub
+	id S1751195AbWAQOvj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 09:51:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWAQOvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 17 Jan 2006 09:51:23 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:942 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750864AbWAQOub (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 17 Jan 2006 09:50:31 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:27337 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750864AbWAQOua
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 09:50:30 -0500
-Message-Id: <20060117143325.734450000@sergelap>
+Message-Id: <20060117143329.723437000@sergelap>
 References: <20060117143258.150807000@sergelap>
-Date: Tue, 17 Jan 2006 08:33:08 -0600
+Date: Tue, 17 Jan 2006 08:33:31 -0600
 From: Serge Hallyn <serue@us.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: Hubertus Franke <frankeh@watson.ibm.com>,
        Cedric Le Goater <clg@fr.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
        Serge E Hallyn <serue@us.ibm.com>
-Subject: RFC [patch 10/34] PID Virtualization Change pid accesses: security/
-Content-Disposition: inline; filename=B9-change-pid-tgid-references-security
+Subject: RFC [patch 33/34] PID Virtualization per container /proc filesystem 
+Content-Disposition: inline; filename=G7-percontainer-procfs.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change pid accesses for security modules.
+Provide the interception and virtualization of the proc interface.
+In particular, from within the container the processes need to be 
+identified as virtual under /proc as well as we need to limit the 
+ones shown to the ones in the container.
+NOTE: This is only temporarily since this exhibits some performance problems.
 
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+Signed-off-by: Cedric Le Goater <clg@fr.ibm.com>
+Signed-off-by: Serge E Hallyn <serue@us.ibm.com>
 ---
- commoncap.c             |    2 +-
- keys/process_keys.c     |    6 +++---
- keys/request_key_auth.c |    2 +-
- seclvl.c                |   16 ++++++++--------
- selinux/avc.c           |    4 ++--
- 5 files changed, 15 insertions(+), 15 deletions(-)
+ base.c  |    2 ++
+ inode.c |   28 ++++++++++++++++++++++++++++
+ 2 files changed, 30 insertions(+)
 
-Index: linux-2.6.15/security/commoncap.c
+Index: linux-2.6.15/fs/proc/inode.c
 ===================================================================
---- linux-2.6.15.orig/security/commoncap.c	2006-01-17 08:36:28.000000000 -0500
-+++ linux-2.6.15/security/commoncap.c	2006-01-17 08:37:01.000000000 -0500
-@@ -169,7 +169,7 @@
- 	/* For init, we want to retain the capabilities set
- 	 * in the init_task struct. Thus we skip the usual
- 	 * capability rules */
--	if (current->pid != 1) {
-+	if (task_pid(current) != 1) {
- 		current->cap_permitted = new_permitted;
- 		current->cap_effective =
- 		    cap_intersect (new_permitted, bprm->cap_effective);
-Index: linux-2.6.15/security/keys/process_keys.c
-===================================================================
---- linux-2.6.15.orig/security/keys/process_keys.c	2006-01-17 08:36:28.000000000 -0500
-+++ linux-2.6.15/security/keys/process_keys.c	2006-01-17 08:37:01.000000000 -0500
-@@ -140,7 +140,7 @@
- 	char buf[20];
- 	int ret;
+--- linux-2.6.15.orig/fs/proc/inode.c	2006-01-17 08:17:28.000000000 -0500
++++ linux-2.6.15/fs/proc/inode.c	2006-01-17 08:37:10.000000000 -0500
+@@ -190,6 +190,33 @@
+ 	return NULL;
+ }			
  
--	sprintf(buf, "_tid.%u", tsk->pid);
-+	sprintf(buf, "_tid.%u", task_pid(tsk));
- 
- 	keyring = keyring_alloc(buf, tsk->uid, tsk->gid, 1, NULL);
- 	if (IS_ERR(keyring)) {
-@@ -173,7 +173,7 @@
- 	int ret;
- 
- 	if (!tsk->signal->process_keyring) {
--		sprintf(buf, "_pid.%u", tsk->tgid);
-+		sprintf(buf, "_pid.%u", task_tgid(tsk));
- 
- 		keyring = keyring_alloc(buf, tsk->uid, tsk->gid, 1, NULL);
- 		if (IS_ERR(keyring)) {
-@@ -213,7 +213,7 @@
- 
- 	/* create an empty session keyring */
- 	if (!keyring) {
--		sprintf(buf, "_ses.%u", tsk->tgid);
-+		sprintf(buf, "_ses.%u", task_tgid(tsk));
- 
- 		keyring = keyring_alloc(buf, tsk->uid, tsk->gid, 1, NULL);
- 		if (IS_ERR(keyring)) {
-Index: linux-2.6.15/security/keys/request_key_auth.c
-===================================================================
---- linux-2.6.15.orig/security/keys/request_key_auth.c	2006-01-17 08:36:28.000000000 -0500
-+++ linux-2.6.15/security/keys/request_key_auth.c	2006-01-17 08:37:01.000000000 -0500
-@@ -60,7 +60,7 @@
- 		else {
- 			/* it isn't - use this process as the context */
- 			rka->context = current;
--			rka->pid = current->pid;
-+			rka->pid = task_pid(current);
- 		}
- 
- 		rka->target_key = key_get((struct key *) data);
-Index: linux-2.6.15/security/seclvl.c
-===================================================================
---- linux-2.6.15.orig/security/seclvl.c	2006-01-17 08:36:28.000000000 -0500
-+++ linux-2.6.15/security/seclvl.c	2006-01-17 08:37:01.000000000 -0500
-@@ -296,7 +296,7 @@
- static int seclvl_ptrace(struct task_struct *parent, struct task_struct *child)
++/* This service performs checks on virtualization marker to allow multiple
++ * dentries with the same name in the dcache.
++ */
++
++#define procpid_check_marker(task, data) (task->container == data)
++static int proc_root_compare(struct dentry *dentry, struct qstr *a,
++			      struct qstr *b)
++{
++	/* CAUTION: to evaluate pointer of target dentry, we assume parameter
++	 * 'a' is its 'd_name' field. This is always the case anyway.
++	 */
++	struct dentry* d = (struct dentry *)
++		((unsigned long) a -
++		((unsigned long) &dentry->d_name - (unsigned long) dentry));
++	int result = 1;
++
++	if (a->len == b->len && !memcmp(a->name, b->name, a->len))
++		result = !procpid_check_marker(current, d->d_fsdata);
++
++	return result;
++}
++
++static struct dentry_operations root_dentry_operations =
++{
++	d_compare:      proc_root_compare,
++};
++
+ int proc_fill_super(struct super_block *s, void *data, int silent)
  {
- 	if (seclvl >= 0) {
--		if (child->pid == 1) {
-+		if (task_pid(child) == 1) {
- 			seclvl_printk(1, KERN_WARNING, "Attempt to ptrace "
- 				      "the init process dissallowed in "
- 				      "secure level %d\n", seclvl);
-@@ -313,7 +313,7 @@
- static int seclvl_capable(struct task_struct *tsk, int cap)
- {
- 	/* init can do anything it wants */
--	if (tsk->pid == 1)
-+	if (task_pid(tsk) == 1)
- 		return 0;
+ 	struct inode * root_inode;
+@@ -213,6 +240,7 @@
+ 	s->s_root = d_alloc_root(root_inode);
+ 	if (!s->s_root)
+ 		goto out_no_root;
++	s->s_root->d_op = &root_dentry_operations;
+ 	return 0;
  
- 	switch (seclvl) {
-@@ -375,10 +375,10 @@
- 		    (tv->tv_sec == now.tv_sec && tv->tv_nsec < now.tv_nsec)) {
- 			seclvl_printk(1, KERN_WARNING, "Attempt to decrement "
- 				      "time in secure level %d denied: "
--				      "current->pid = [%d], "
--				      "current->group_leader->pid = [%d]\n",
--				      seclvl, current->pid,
--				      current->group_leader->pid);
-+				      "current pid = [%d], "
-+				      "current->group_leader pid = [%d]\n",
-+				      seclvl, task_pid(current),
-+				      task_pid(current->group_leader));
- 			return -EPERM;
- 		}		/* if attempt to decrement time */
- 	}			/* if seclvl > 1 */
-@@ -424,7 +424,7 @@
- static int
- seclvl_inode_permission(struct inode *inode, int mask, struct nameidata *nd)
- {
--	if (current->pid != 1 && S_ISBLK(inode->i_mode) && (mask & MAY_WRITE)) {
-+	if (task_pid(current) != 1 && S_ISBLK(inode->i_mode) && (mask & MAY_WRITE)) {
- 		switch (seclvl) {
- 		case 2:
- 			seclvl_printk(1, KERN_WARNING, "Write to block device "
-@@ -479,7 +479,7 @@
-  */
- static int seclvl_umount(struct vfsmount *mnt, int flags)
- {
--	if (current->pid == 1)
-+	if (task_pid(current) == 1)
- 		return 0;
- 	if (seclvl == 2) {
- 		seclvl_printk(1, KERN_WARNING, "Attempt to unmount in secure "
-Index: linux-2.6.15/security/selinux/avc.c
+ out_no_root:
+Index: linux-2.6.15/fs/proc/base.c
 ===================================================================
---- linux-2.6.15.orig/security/selinux/avc.c	2006-01-17 08:36:28.000000000 -0500
-+++ linux-2.6.15/security/selinux/avc.c	2006-01-17 08:37:01.000000000 -0500
-@@ -558,8 +558,8 @@
- 	audit_log_format(ab, " for ");
- 	if (a && a->tsk)
- 		tsk = a->tsk;
--	if (tsk && tsk->pid) {
--		audit_log_format(ab, " pid=%d comm=", tsk->pid);
-+	if (tsk && task_pid(tsk)) {
-+		audit_log_format(ab, " pid=%d comm=", task_pid(tsk));
- 		audit_log_untrustedstring(ab, tsk->comm);
- 	}
- 	if (a) {
+--- linux-2.6.15.orig/fs/proc/base.c	2006-01-17 08:37:09.000000000 -0500
++++ linux-2.6.15/fs/proc/base.c	2006-01-17 08:37:10.000000000 -0500
+@@ -1497,6 +1497,7 @@
+ 	inode->i_op = &proc_pid_link_inode_operations;
+ 	inode->i_size = 64;
+ 	ei->op.proc_get_link = proc_fd_link;
++	dentry->d_fsdata = current->container;
+ 	dentry->d_op = &tid_fd_dentry_operations;
+ 	d_add(dentry, inode);
+ 	return NULL;
+@@ -2002,6 +2003,7 @@
+ 	inode->i_nlink = 4;
+ #endif
+ 
++	dentry->d_fsdata = current->container;
+ 	dentry->d_op = &pid_base_dentry_operations;
+ 
+ 	died = 0;
 
 --
 

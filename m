@@ -1,18 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWAQSdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWAQShf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbWAQSdx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 13:33:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbWAQSdx
+	id S932326AbWAQShf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 13:37:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWAQShe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 13:33:53 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:19333 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932200AbWAQSdv (ORCPT
+	Tue, 17 Jan 2006 13:37:34 -0500
+Received: from pat.uio.no ([129.240.130.16]:4796 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932326AbWAQShe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 13:33:51 -0500
+	Tue, 17 Jan 2006 13:37:34 -0500
 Subject: Re: Kernel 2.6.15.1 + NFS is 4 times slower than FTP!?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
        Phil Oester <kernel@linuxace.com>, linux-kernel@vger.kernel.org,
        apiszcz@lucidpixels.com
 In-Reply-To: <Pine.LNX.4.64.0601171324010.25508@p34>
@@ -23,25 +24,32 @@ References: <Pine.LNX.4.64.0601161957300.16829@p34>
 	 <1137521483.14135.59.camel@localhost.localdomain>
 	 <Pine.LNX.4.64.0601171324010.25508@p34>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 17 Jan 2006 18:33:18 +0000
-Message-Id: <1137522798.14135.80.camel@localhost.localdomain>
+Date: Tue, 17 Jan 2006 13:37:14 -0500
+Message-Id: <1137523035.7855.91.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.336, required 12,
+	autolearn=disabled, AWL 0.62, FORGED_RCVD_HELO 0.05,
+	PLING_QUERY 0.86, RCVD_IN_SORBS_DUL 0.14,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-01-17 at 13:24 -0500, Justin Piszcz wrote:
+On Tue, 2006-01-17 at 13:24 -0500, Justin Piszcz wrote:
 > Alan, is it normal for FTP to be 2x as fast as NFS?
 > With 100mbps, I never seemed to have any issues, but with GIGABIT I 
 > definitely see all sorts of weird issues.
 
-NFS performance is limited by the fact it is a file system so sees only
-what the file system can tell it. It also takes a hit because it has
-strict rules on committing data to disk before acknowledging it (so data
-is not lost over a crash). That makes NFS a bigger user of CPU resources
-and more disk dependant than FTP which simply throws the entire file
-down the pipe when in binary mode, does no processing and makes no
-guarantee about restarts or what hits disk
+Reading or writing?
 
+The readahead algorithm has been borken in 2.6.x for at least the past 6
+months. It leads to NFS collapsing down to 4k reads on the wire instead
+of doing 32k or 64k.
+An effort was made to look at fixing this, but it turns out that nobody
+really understands the current messy implementation, and so progress has
+been slow.
+
+Cheers,
+  Trond
 

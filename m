@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWAQN2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbWAQNa2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932456AbWAQN2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 08:28:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWAQN2Z
+	id S932477AbWAQNa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 08:30:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWAQNa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 08:28:25 -0500
-Received: from AMarseille-252-1-93-6.w86-202.abo.wanadoo.fr ([86.202.148.6]:61595
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S932456AbWAQN2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 08:28:25 -0500
-To: mueller@teamix.net (Richard Mueller)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Strange Problems with ARP and Linux
-References: <43CCE123.1010608@teamix.net>
-X-Face: %JOeya=Dg!}[/#Go&*&cQ+)){p1c8}u\Fg2Q3&)kothIq|JnWoVzJtCFo~4X<uJ\9cHK'.w 3:{EoxBR
-From: Mathieu Chouquet-Stringer <ml2news@free.fr>
-Organization: Uh?
-Date: 17 Jan 2006 14:28:15 +0100
-In-Reply-To: <43CCE123.1010608@teamix.net>
-Message-ID: <m3slrn2dcg.fsf@localhost.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Tue, 17 Jan 2006 08:30:28 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:3994 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932477AbWAQNa1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 08:30:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=WooGL49Lon+z34K8iMw8ndr+Z5N+faX6b5oFgv3VWYAxNXOIXrCSp82p0WapFH/2HPYMNlwn8jFSFXQnwlllQkTdbapSEtlOIvWo3xgfuZjJBsQrojIk/CFk/Sxe4kDp4ZXmcAAqkPEUi/IUN6vcvp8FYR2WQyLChHf9ysSou9w=
+Message-ID: <4c50d3ee0601170530p2cbe98b8k@mail.gmail.com>
+Date: Tue, 17 Jan 2006 14:30:26 +0100
+From: =?ISO-8859-1?Q?Th=E9ophile_Helleboid_-_Chtitux?= 
+	<chtitux@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: No kexec in menuconfig in 2.6.16-rc1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mueller@teamix.net (Richard Mueller) writes:
-> Hy... (the same was posted to linux-net yesterday)
-> [..]
+Hello,
+I don't see the kexec option on linux-2.6.16-rc1
+I have in my menuconfig :
+     Timer frequency (250 HZ)  --->
+and it's all
+This option has been removed ?
+I can see kexec in the search with /
 
-It's the expected behavior. Look for arp_ignore and arp_announce under
-linux/Documentation/networking/ip-sysctl.txt
-
--- 
-Mathieu Chouquet-Stringer
-    "Le disparu, si l'on vénère sa mémoire, est plus présent et
-                 plus puissant que le vivant".
-           -- Antoine de Saint-Exupéry, Citadelle --
+--
+Chtitux -
+Théophile Helleboid

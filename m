@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWAQK0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932331AbWAQKbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932387AbWAQK0f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 05:26:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWAQK0f
+	id S932331AbWAQKbc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 05:31:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWAQKbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 05:26:35 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:10948 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S932387AbWAQK0f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 05:26:35 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@ocs.com.au>
-To: Dave Jones <davej@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, mita@miraclelinux.com
-Subject: Re: [patch 2.6.15-current] i386: multi-column stack backtraces 
-In-reply-to: Your message of "Tue, 17 Jan 2006 02:58:42 CDT."
-             <20060117075841.GA5710@redhat.com> 
+	Tue, 17 Jan 2006 05:31:32 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:1974 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932331AbWAQKbc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 05:31:32 -0500
+Subject: Re: [PATCH 0/4] compact call trace
+From: Arjan van de Ven <arjan@infradead.org>
+To: Akinobu Mita <mita@miraclelinux.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>
+In-Reply-To: <20060117101339.GA19473@miraclelinux.com>
+References: <20060117101339.GA19473@miraclelinux.com>
+Content-Type: text/plain
+Date: Tue, 17 Jan 2006 11:31:27 +0100
+Message-Id: <1137493887.3005.21.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 17 Jan 2006 21:26:33 +1100
-Message-ID: <9646.1137493593@ocs3.ocs.com.au>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones (on Tue, 17 Jan 2006 02:58:42 -0500) wrote:
->On Mon, Jan 16, 2006 at 10:42:34PM -0800, Andrew Morton wrote:
->
-> > Presumably this is going to bust ksymoops.
+On Tue, 2006-01-17 at 19:13 +0900, Akinobu Mita wrote:
+> These patches will:
 > 
->Do people actually still use ksymoops for 2.6 kernels ?
->
->I resorted to it about 6 months ago for the first time in the
->better part of 3 years, and it didn't even compile.
+> - break the various custom oops-parsers which people have written themselves.
+> - use common call trace format on x86-64.
+> - change offset format from hexadecimal to decimal in print_symbol()
+> - delete symbolsize in call trace in print_symbol().
+> - print system_utsname.version in oops so that we can doing a
+>   double check that the oops is matching the vmlinux we're looking at.
 
-It compiles for me.  gcc version 4.0.2 20050901 (prerelease) (SUSE
-Linux).  There are a few warnings about pointer signedness but that is
-all.
+
+at least then make the kallsyms lookup mark up the string somehow (say
+by putting a * in front of it) if the EIP is outside the size of the
+symbol; so that we can spot garbage better.
+
 

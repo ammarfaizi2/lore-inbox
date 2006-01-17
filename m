@@ -1,33 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWAQQPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWAQQTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbWAQQPo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 11:15:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWAQQPo
+	id S932104AbWAQQTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 11:19:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWAQQTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 11:15:44 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:2459 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1751308AbWAQQPo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 11:15:44 -0500
-Date: Tue, 17 Jan 2006 09:15:43 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: linux-kernel@vger.kernel.org
-Subject: PID virtualisation snafu
-Message-ID: <20060117161543.GJ19769@parisc-linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Tue, 17 Jan 2006 11:19:25 -0500
+Received: from elvis.mu.org ([192.203.228.196]:51702 "EHLO elvis.mu.org")
+	by vger.kernel.org with ESMTP id S932104AbWAQQTY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 11:19:24 -0500
+Message-ID: <43CD18FF.4070006@FreeBSD.org>
+Date: Tue, 17 Jan 2006 08:19:11 -0800
+From: Suleiman Souhlal <ssouhlal@FreeBSD.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051204)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Serge Hallyn <serue@us.ibm.com>
+CC: linux-kernel@vger.kernel.org, Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: RFC [patch 00/34] PID Virtualization Overview
+References: <20060117143258.150807000@sergelap>
+In-Reply-To: <20060117143258.150807000@sergelap>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Serge Hallyn wrote:
 
-Are there any web archives of l-k that give out the email address of
-the author?
+> The mechanism to start a container 
+> is to 'echo "container_name" > /proc/container'  which creates a new
+> container and associates the calling process with it. All subsequently
+> forked tasks then belong to that container.
+> There is a separate pid space associated with each container.
+> Only processes/task belonging to the same container "see" each other.
 
-I can tell the author of the virtualisation patches hasn't even tried to
-compile them.  Here's one example:
+Why does there need a separate pid space for each container?
+You don't really need one to make sure that only processes in the same 
+containers can see each other.
 
-- host->host_no, tmp->pid, tmp->device->id, tmp->device->lun, tmp->result);
-+ host->host_no, tmtask_pid(p), tmp->device->id, tmp->device->lun, tmp->result);
-
+-- Suleiman

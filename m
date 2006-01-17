@@ -1,63 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWAQUqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWAQUqw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbWAQUqA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 15:46:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWAQUp7
+	id S932439AbWAQUqw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 15:46:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWAQUqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 15:45:59 -0500
-Received: from lucidpixels.com ([66.45.37.187]:23941 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S932435AbWAQUp6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 15:45:58 -0500
-Date: Tue, 17 Jan 2006 15:45:57 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
-       Phil Oester <kernel@linuxace.com>, linux-kernel@vger.kernel.org,
-       apiszcz@lucidpixels.com
-Subject: Re: Kernel 2.6.15.1 + NFS is 4 times slower than FTP!?
-In-Reply-To: <Pine.LNX.4.61.0601172139230.30708@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.64.0601171545310.19112@p34>
-References: <Pine.LNX.4.64.0601161957300.16829@p34>  <20060117012319.GA22161@linuxace.com>
-  <Pine.LNX.4.64.0601162031220.2501@p34>  <Pine.BSO.4.63.0601171846570.15077@rudy.mif.pg.gda.pl>
-  <1137521483.14135.59.camel@localhost.localdomain>  <Pine.LNX.4.64.0601171324010.25508@p34>
-  <1137523035.7855.91.camel@lade.trondhjem.org>  <Pine.LNX.4.64.0601171338040.25508@p34>
-  <1137523991.7855.103.camel@lade.trondhjem.org>  <Pine.LNX.4.64.0601171354510.25508@p34>
- <1137524502.7855.107.camel@lade.trondhjem.org> <Pine.LNX.4.61.0601172139230.30708@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 17 Jan 2006 15:46:51 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63917 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932439AbWAQUqv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 15:46:51 -0500
+Subject: PATCH: Set latency when resetting it821x out of firmware mode
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 17 Jan 2006 20:46:18 +0000
+Message-Id: <1137530778.14135.91.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-               auto   Can be mounted with the -a option.
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-               defaults
-                      Use default options: rw, suid, dev, exec,  auto,
-                      nouser, and async.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.16-rc1/drivers/ide/pci/it821x.c linux-2.6.16-rc1/drivers/ide/pci/it821x.c
+--- linux.vanilla-2.6.16-rc1/drivers/ide/pci/it821x.c	2006-01-17 15:36:23.000000000 +0000
++++ linux-2.6.16-rc1/drivers/ide/pci/it821x.c	2006-01-17 16:36:38.000000000 +0000
+@@ -733,7 +733,7 @@
+ 
+ 	pci_write_config_dword(dev,0x4C, 0x02040204);
+ 	pci_write_config_byte(dev, 0x42, 0x36);
+-	pci_write_config_byte(dev, PCI_LATENCY_TIMER, 0);
++	pci_write_config_byte(dev, PCI_LATENCY_TIMER, 0x20);
+ }
+ 
+ static unsigned int __devinit init_chipset_it821x(struct pci_dev *dev, const char *name)
 
-The default is async, no?
-
-On Tue, 17 Jan 2006, Jan Engelhardt wrote:
-
->>> Did you get my other e-mail?
->>>
->>> $ cp file /nfs/destination
->>> $ lftp> put file
->>
->>
->> Yes, but how big a file is this? Is it significantly larger than the
->> amount of cache memory on the server? As I said, if ftp is failing to
->> sync the file to disk, then you may be comparing apples and oranges.
->
->
-> Ok, so what happens if you use NFS with the async option, does it go a
-> little faster?
->
->
->
-> Jan Engelhardt
-> -- 
->

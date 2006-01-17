@@ -1,90 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWAQTTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWAQT1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbWAQTTb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 14:19:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWAQTTb
+	id S1751316AbWAQT1L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 14:27:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWAQT1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 14:19:31 -0500
-Received: from web25802.mail.ukl.yahoo.com ([217.12.10.187]:64949 "HELO
-	web25802.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751257AbWAQTTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 14:19:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.es;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=TD7iKQAKZE+4k7f5VzueAXPzPeniNd/2oS+MYWtQqR4CiPO0PwgX7txL9dBsBXh4mwdMe5MszkVu2i5WWS3j7BvNCoxUB09WMEnp8HkI680x+jQZz0f4SSlVgkK8QYGbxUJqBoe2Hqsy9kEO0krJFJLCTfxZJGylNqzSDFPvkLA=  ;
-Message-ID: <20060117191924.85950.qmail@web25802.mail.ukl.yahoo.com>
-Date: Tue, 17 Jan 2006 20:19:23 +0100 (CET)
-From: Albert Herranz <albert_herranz@yahoo.es>
-Subject: [PATCH 2.6.16-rc1] powerpc: fix for kexec ppc32
-To: fastboot@osdl.org, linux-kernel@vger.kernel.org
+	Tue, 17 Jan 2006 14:27:11 -0500
+Received: from host-87-74-62-169.bulldogdsl.com ([87.74.62.169]:47429 "EHLO
+	host-87-74-62-169.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1751265AbWAQT1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 14:27:10 -0500
+Message-ID: <43CD4504.8020705@unsolicited.net>
+Date: Tue, 17 Jan 2006 19:27:00 +0000
+From: David R <david@unsolicited.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-189009834-1137525563=:69180"
-Content-Transfer-Encoding: 8bit
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.16-rc1
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigD838971DC5B3B9A4E3F3AEA9"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-189009834-1137525563=:69180
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigD838971DC5B3B9A4E3F3AEA9
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Hi,
+Linus Torvalds wrote:
+> Ok, it's two weeks since 2.6.15, and the merge window is closed.
 
-Signed-off-by: Albert Herranz
-<albert_herranz@yahoo.es>
+Everything seems fine with rc1 on my VIA Based Athlon 64 (64 bit kernel, SuSE
+10 base) apart from my USB2 scanner. It's detected just fine (as normal), but
+the (32bit) copy of VueScan that I use crawls along during preview like a
+constipated tortoise. This is markedly similar to when 2.6.15 is under heavy
+CPU load... high speed USB transfers slow to a crawl then too but everything
+is fine at other times.
 
-The following patch fixes kexec on ppc32.
-o kexec.h is included from assembly code, thus C code
-must be properly protected.
-o (embedded) ppc32 systems use machine_kexec_simple
-whose declaration vanished during a recent powerpc
-merge change.
+dmesg etc looks ok. I'd appreciate it if anyone has any thoughts?
 
-Cheers,
-Albert
-
+Cheers
+David
 
 
-	
-	
-		
-______________________________________________ 
-LLama Gratis a cualquier PC del Mundo. 
-Llamadas a fijos y móviles desde 1 céntimo por minuto. 
-http://es.voice.yahoo.com
---0-189009834-1137525563=:69180
-Content-Type: text/x-patch; name="kexec-ppc32-fix.patch"
-Content-Description: 3855670793-kexec-ppc32-fix.patch
-Content-Disposition: inline; filename="kexec-ppc32-fix.patch"
+--------------enigD838971DC5B3B9A4E3F3AEA9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
---- a/include/asm-powerpc/kexec.h	2006-01-17 19:08:34.000000000 +0100
-+++ b/include/asm-powerpc/kexec.h	2006-01-17 19:10:45.000000000 +0100
-@@ -33,6 +33,7 @@
- 
- #ifdef CONFIG_KEXEC
- 
-+#ifndef __ASSEMBLY__
- #ifdef __powerpc64__
- /*
-  * This function is responsible for capturing register states if coming
-@@ -104,7 +105,6 @@ static inline void crash_setup_regs(stru
- 					struct pt_regs *oldregs) { }
- #endif /* !__powerpc64 __ */
- 
--#ifndef __ASSEMBLY__
- #define MAX_NOTE_BYTES 1024
- 
- #ifdef __powerpc64__
-@@ -121,6 +121,8 @@ extern void default_machine_kexec(struct
- extern int default_machine_kexec_prepare(struct kimage *image);
- extern void default_machine_crash_shutdown(struct pt_regs *regs);
- 
-+extern void machine_kexec_simple(struct kimage *image);
-+
- #endif /* ! __ASSEMBLY__ */
- #endif /* CONFIG_KEXEC */
- #endif /* __KERNEL__ */
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
---0-189009834-1137525563=:69180--
+iD8DBQFDzUUKDYHcaCYtZo4RAp/AAJ9kohlzwpB7/E2n2es0uHvVSKU5WQCg0j37
+d7H2iASEhybOkoAQt8JpOf4=
+=0fJb
+-----END PGP SIGNATURE-----
+
+--------------enigD838971DC5B3B9A4E3F3AEA9--

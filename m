@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWAQQch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWAQQef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbWAQQch (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 11:32:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWAQQcg
+	id S932161AbWAQQef (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 11:34:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWAQQef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 11:32:36 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:34476 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S932115AbWAQQcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 11:32:36 -0500
-Date: Tue, 17 Jan 2006 17:32:35 +0100
-From: Jan Kara <jack@suse.cz>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: unmount oops in log_do_checkpoint
-Message-ID: <20060117163235.GA18895@atrey.karlin.mff.cuni.cz>
-References: <20060116160420.GA21064@wotan.suse.de> <20060116212250.GD12159@atrey.karlin.mff.cuni.cz> <20060117113727.GB24083@wotan.suse.de> <20060117034601.6556322a.akpm@osdl.org> <20060117115945.GC24083@wotan.suse.de> <20060117140929.GA23497@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Jan 2006 11:34:35 -0500
+Received: from outgoing.smtp.agnat.pl ([193.239.44.83]:17683 "EHLO
+	outgoing.smtp.agnat.pl") by vger.kernel.org with ESMTP
+	id S932161AbWAQQee convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 11:34:34 -0500
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: Sebastian Kuzminsky <seb@highlab.com>
+Subject: Re: sata_mv important note
+Date: Tue, 17 Jan 2006 17:34:25 +0100
+User-Agent: KMail/1.9.1
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <43CD07D5.30302@pobox.com> <E1EytdC-0006DE-IS@highlab.com>
+In-Reply-To: <E1EytdC-0006DE-IS@highlab.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20060117140929.GA23497@wotan.suse.de>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200601171734.25598.arekm@pld-linux.org>
+X-Authenticated-Id: arekm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Jan 17, 2006 at 12:59:45PM +0100, Nick Piggin wrote:
-> > On Tue, Jan 17, 2006 at 03:46:01AM -0800, Andrew Morton wrote:
-> > > Nick Piggin <npiggin@suse.de> wrote:
-> > > >
-> > > > On Mon, Jan 16, 2006 at 10:22:50PM +0100, Jan Kara wrote:
-> > > > > > 2.6.15-git12 (and 11, not sure when it started) oops when unmounting
-> > > > > > an ext3 filesystem. Looks like 'transaction' in log_do_checkpoint is
-> > > > > > garbage.
-> > > > > > 
-> > > > 
-> > > > [oops]
-> > > > 
-> > > > >   It would be useful to find out which patch cause it (by git bisect)
-> > > > > but one obvious suspect is my merged ext3 patch to checkpoint.c. I'll
-> > > > > investigate tomorrow.
-> > > > > 
-> > > > 
-> > > > Yep, reverting jbd split checkpoint lists in -git12 fixes it. It is
-> > > > 100% reproducible so far, and every time rebooting with a patched
-> > > > kernel fails to result in the oops.
-> > > > 
-> > > 
-> > > But that patch was in -mm for months.  How come you didn't hit the oops
-> > > earlier?  One would almost expect some odd patch interaction, but changes
-> > > in ext3 have been small for a long time.
-> > 
-> > Haven't run -mm on that machine for quite a while, unfortunately.
-> > 
-> > What's strange is that nobody else has hit it... 
-> > 
-> 
-> Maybe it is because people haven't been turning on their debugging options,
-> tsk tsk ;) It only oopses when DEBUG_SLAB and DEBUG_PAGEALLOC are both
-> enabled. And only then when the jbd patch is not reverted. Weird.
-  Hmm, that's really strange, maybe we have some use-after-free
-problem or so... I'll see what I can do :).
+On Tuesday 17 January 2006 17:24, Sebastian Kuzminsky wrote:
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> > For sata_mv users, you should be aware of three things:
+> >
+> > 1) The Marvell driver is experimental, and not yet considered ready for
+> > production use.  As Kconfig notes: HIGHLY EXPERIMENTAL.
+>
+> Right, understood.
 
-								Honza
+I'm using:
+
+03:03.0 SCSI storage controller: Marvell Technology Group Ltd. MV88SX6041 
+4-port SATA II PCI-X Controller (rev 07)
+
+but with http://www.keffective.com/mvsata/FC3/mvSata-3.4.2a-patched.tbz driver
+and it works nicely (+ 2.8GHz Xeon HT, smp kernel). I was quite suprised to 
+see that there are no problems with it in typical usage (while I'm sure that 
+this driver is far away from kernel standards).
+
 -- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Arkadiusz Mi¶kiewicz                    PLD/Linux Team
+http://www.t17.ds.pwr.wroc.pl/~misiek/  http://ftp.pld-linux.org/

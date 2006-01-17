@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWAQIVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbWAQI3S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWAQIVE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 03:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWAQIVE
+	id S932328AbWAQI3S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 03:29:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWAQI3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 03:21:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:45768 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932323AbWAQIVD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 03:21:03 -0500
-Date: Tue, 17 Jan 2006 00:20:26 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Jones <davej@redhat.com>
-Cc: 76306.1226@compuserve.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       mita@miraclelinux.com, Keith Owens <kaos@ocs.com.au>
-Subject: Re: [patch 2.6.15-current] i386: multi-column stack backtraces
-Message-Id: <20060117002026.24ee50b4.akpm@osdl.org>
-In-Reply-To: <20060117075841.GA5710@redhat.com>
-References: <200601170126_MC3-1-B602-EFCB@compuserve.com>
-	<20060116224234.5a7ca488.akpm@osdl.org>
-	<20060117075841.GA5710@redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Tue, 17 Jan 2006 03:29:18 -0500
+Received: from uproxy.gmail.com ([66.249.92.201]:26401 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932328AbWAQI3R convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 03:29:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fJJfcUyBW6bqfK6mk0fmcLO4E4Bjqv6DpIy5Wm6i335hD1JSx6SWbikHSCVKcoh0X1Pu86OVnxzBKRdC4e+PoqYYuHnBen/KdIitfNaT6QAjh6uacgwZRxYsJwEGncV1vFOb6wywtr8HNAZCOqtx2Dbc+Vw/TUZMky93L5eVIw4=
+Message-ID: <aec7e5c30601170029if0ed895le2c18b26eb7c6a42@mail.gmail.com>
+Date: Tue, 17 Jan 2006 17:29:15 +0900
+From: Magnus Damm <magnus.damm@gmail.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: Race in new page migration code?
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Nick Piggin <npiggin@suse.de>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+In-Reply-To: <Pine.LNX.4.62.0601152251550.17034@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060114155517.GA30543@wotan.suse.de>
+	 <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com>
+	 <20060114181949.GA27382@wotan.suse.de>
+	 <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com>
+	 <43C9DD98.5000506@yahoo.com.au>
+	 <Pine.LNX.4.62.0601152251550.17034@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> wrote:
+On 1/16/06, Christoph Lameter <clameter@engr.sgi.com> wrote:
+> On Sun, 15 Jan 2006, Nick Piggin wrote:
 >
-> On Mon, Jan 16, 2006 at 10:42:34PM -0800, Andrew Morton wrote:
-> 
->  > Presumably this is going to bust ksymoops.
->  
-> Do people actually still use ksymoops for 2.6 kernels ?
-
-They do if they've disabled kallsyms...
-
+> > OK (either way is fine), but you should still drop the __isolate_lru_page
+> > nonsense and revert it like my patch does.
 >
-> What other tools parse oopses ? ksymoops is the only one I recall.
-> 
+> Ok with me. Magnus: You needed the __isolate_lru_page for some other
+> purpose. Is that still the case?
 
-Embedded systems dink with the output, log it to nvram, etc.  Custom stuff.
+It made sense to have it broken out when it was used twice within
+vmscan.c, but now when the patch changed a lot and the function is
+used only once I guess the best thing is to inline it as Nick
+suggested. I will re-add it myself later on when I need it. Thanks.
 
-I think we can live with the breakage, but let's get Keith's input.
+/ magnus

@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbWAQOhH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWAQOub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750876AbWAQOhH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 09:37:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbWAQOhH
+	id S1750996AbWAQOub (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 09:50:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWAQOua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 09:37:07 -0500
-Received: from mxsf06.cluster1.charter.net ([209.225.28.206]:44673 "EHLO
-	mxsf06.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S932084AbWAQOhF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 09:37:05 -0500
-X-IronPort-AV: i="3.99,376,1131339600"; 
-   d="scan'208"; a="2031604563:sNHT17873180"
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17357.271.619918.45917@smtp.charter.net>
-Date: Tue, 17 Jan 2006 09:37:03 -0500
-From: "John Stoffel" <john@stoffel.org>
-To: NeilBrown <neilb@suse.de>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Subject: Re: [PATCH 001 of 5] md: Split disks array out of raid5 conf structure so it is easier to grow.
-In-Reply-To: <1060117065614.27831@suse.de>
-References: <20060117174531.27739.patches@notabene>
-	<1060117065614.27831@suse.de>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+	Tue, 17 Jan 2006 09:50:30 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:42181 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750996AbWAQOua
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 09:50:30 -0500
+Message-Id: <20060117143326.452219000@sergelap>
+References: <20060117143258.150807000@sergelap>
+Date: Tue, 17 Jan 2006 08:33:12 -0600
+From: Serge Hallyn <serue@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
+       Serge E Hallyn <serue@us.ibm.com>
+Subject: RFC [patch 14/34] PID Virtualization const parameter for process group
+Content-Disposition: inline; filename=F1-const-task-parameter.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "NeilBrown" == NeilBrown  <neilb@suse.de> writes:
+Change parameter in access functions to const.
+We try to be more diligent with the "const" attribute.
+As a result not introducing const for this function will
+result in many compiler warnings.
 
-NeilBrown> Previously the array of disk information was included in
-NeilBrown> the raid5 'conf' structure which was allocated to an
-NeilBrown> appropriate size.  This makes it awkward to change the size
-NeilBrown> of that array.  So we split it off into a separate
-NeilBrown> kmalloced array which will require a little extra indexing,
-NeilBrown> but is much easier to grow.
+Signed-off-by: Hubertus Franke <frankeh@watson.ibm.com>
+---
+ sched.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Neil,
+Index: linux-2.6.15/include/linux/sched.h
+===================================================================
+--- linux-2.6.15.orig/include/linux/sched.h	2006-01-17 08:37:03.000000000 -0500
++++ linux-2.6.15/include/linux/sched.h	2006-01-17 08:37:03.000000000 -0500
+@@ -859,7 +859,7 @@
+ 	atomic_t fs_excl;	/* holding fs exclusive resources */
+ };
+ 
+-static inline pid_t process_group(struct task_struct *tsk)
++static inline pid_t process_group(const struct task_struct *tsk)
+ {
+ 	return tsk->signal->pgrp;
+ }
 
-Instead of setting mddev->private = NULL, should you be doing a kfree
-on it as well when you are in an abort state?
+--
 
-John

@@ -1,108 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbWAQVEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWAQVEe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964833AbWAQVEO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 16:04:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWAQVEO
+	id S964845AbWAQVEe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 16:04:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWAQVEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 16:04:14 -0500
-Received: from master.soleranetworks.com ([67.137.28.188]:44974 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S932430AbWAQVEN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 16:04:13 -0500
-Message-ID: <43CD42DE.8040209@wolfmountaingroup.com>
-Date: Tue, 17 Jan 2006 12:17:50 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-Cc: Max Waterman <davidmaxwaterman+kernel@fastmail.co.uk>,
+	Tue, 17 Jan 2006 16:04:34 -0500
+Received: from uproxy.gmail.com ([66.249.92.207]:11399 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932408AbWAQVEd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 16:04:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AefwtmyWxXwgfOBZu5X4+tZpZiTYfMBoxexpJcuxsn62oQMAKpViYAPFnBnvatyQSc1XIg5ZyVD5wf12GnIlD/cuWaOuwXKJUE4DIqlG0Var2XXiJJDBZHbkc3qVxCV1aGqq4rt+p4nUD0IYfhow5S9by3/C2ZaDQRE1bIsSru8=
+Message-ID: <69304d110601171304h34c16fbfuf59df390c0fc58fd@mail.gmail.com>
+Date: Tue, 17 Jan 2006 22:04:31 +0100
+From: Antonio Vargas <windenntw@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Linus Torvalds <torvalds@osdl.org>, Diego Calleja <diegocg@gmail.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: io performance...
-References: <43CB4CC3.4030904@fastmail.co.uk> <43CB4C03.7070304@wolfmountaingroup.com> <20060117135731.GM3945@suse.de>
-In-Reply-To: <20060117135731.GM3945@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: Linux 2.6.16-rc1
+In-Reply-To: <Pine.LNX.4.61.0601172104350.11929@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+	 <20060117183916.399b030f.diegocg@gmail.com>
+	 <Pine.LNX.4.64.0601170946050.3240@g5.osdl.org>
+	 <Pine.LNX.4.61.0601172104350.11929@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+On 1/17/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> >> Can I ask if it's possible to "mark" new features/important changes?
+> >
+> >Well, I'd rather not do it in the source control management itself, simply
+> >because people are notoriously bad at deciding what is "important".
+> >
+> >It goes something like this: "By definition, anything _you_ work for is
+> >crap and unimportant, while _my_ work is the most important thing ever,
+> >even if it happens to be just fixing typos".
+> >
+> Important is what is important for all members of an "independent" group.
+> We already have a small example: kerneltraffic. Though it's just one person
+> and therefore possibly biased, the magazine picks out what's [deemed]
+> important.
+> Typos don't really advance to important IMO, even if they fix oopses (e.g.
+> a missing ! somewhere). More important are world news, news that Joe
+> Default User thinks is good - "full double preemption", "O(0.5) scheduler"
+> and other illusory things. Just think of if you had to commercially sell
+> a Linux kernel CD what features you would print on the cover.
+> As for me, it was important to see SCHED_BATCH going in, as I started
+> to look through the big changelog :)
+> Well, my 2 euros. (Yeah, 200 cents!)
+>
 
->On Mon, Jan 16 2006, Jeff V. Merkey wrote:
->  
->
->>Max Waterman wrote:
->>
->>    
->>
->>>Hi,
->>>
->>>I've been referred to this list from the linux-raid list.
->>>
->>>I've been playing with a RAID system, trying to obtain best bandwidth
->>>      
->>>
->>>from it.
->>    
->>
->>>I've noticed that I consistently get better (read) numbers from kernel 
->>>2.6.8
->>>than from later kernels.
->>>      
->>>
->>To open the bottlenecks, the following works well.  Jens will shoot me 
->>for recommending this,
->>but it works well.  2.6.9 so far has the highest numbers with this fix.  
->>You can manually putz
->>around with these numbers, but they are an artificial constraint if you 
->>are using RAID technology
->>that caches ad elevators requests and consolidates them.
->>
->>
->>Jeff
->>
->>
->>    
->>
->
->  
->
->>diff -Naur ./include/linux/blkdev.h ../linux-2.6.9/./include/linux/blkdev.h
->>--- ./include/linux/blkdev.h	2004-10-18 15:53:43.000000000 -0600
->>+++ ../linux-2.6.9/./include/linux/blkdev.h	2005-12-06 09:54:46.000000000 -0700
->>@@ -23,8 +23,10 @@
->> typedef struct elevator_s elevator_t;
->> struct request_pm_state;
->> 
->>-#define BLKDEV_MIN_RQ	4
->>-#define BLKDEV_MAX_RQ	128	/* Default maximum */
->>+//#define BLKDEV_MIN_RQ	4
->>+//#define BLKDEV_MAX_RQ	128	/* Default maximum */
->>+#define BLKDEV_MIN_RQ	4096
->>+#define BLKDEV_MAX_RQ	8192	/* Default maximum */
->>    
->>
->
->Yeah I could shoot you. However I'm more interested in why this is
->necessary, eg I'd like to see some numbers from you comparing:
->
->- The stock settings
->- Doing
->        # echo 8192 > /sys/block/<dev>/queue/nr_requests
->  for each drive you are accessing.
->- The kernel with your patch.
->
->If #2 and #3 don't provide very similar profiles/scores, then we have
->something to look at.
->
->The BLKDEV_MIN_RQ increase is just silly and wastes a huge amount of
->memory for no good reason.
->
->  
->
-Yep. I build it into the kernel to save the trouble of sending it to 
-proc. Jens recommendation
-will work just fine. It has the same affect of increasing the max 
-requests outstanding.
+Maybe the way to make modern-style linux development (post 2.5) more
+manageable for mere mortals is to stop integrating things when the
+shortlog is so big that it can't be posted to the mailing list? Less
+changes, easier to see if you are able to help testing ;)
 
-Jeff
+--
+Greetz, Antonio Vargas aka winden of network
+
+http://wind.codepixel.com/
+windNOenSPAMntw@gmail.com
+thesameasabove@amigascne.org
+
+Every day, every year
+you have to work
+you have to study
+you have to scene.

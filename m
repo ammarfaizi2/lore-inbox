@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWAQSzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWAQSzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbWAQSzN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 13:55:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWAQSzM
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 13:55:12 -0500
-Received: from hera.kernel.org ([140.211.167.34]:4548 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S932231AbWAQSzL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S932388AbWAQSzL (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 17 Jan 2006 13:55:11 -0500
-Date: Tue, 17 Jan 2006 10:53:53 -0800
-From: Nathan Laredo <laredo@hera.kernel.org>
-To: Michael Krufky <mkrufky@m1k.net>
-Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>, webmaster@kernel.org,
-       lkml <linux-kernel@vger.kernel.org>, Michael Krufky <mkrufky@gmail.com>
-Subject: Re: [KORG] GITWEB doesn't show any DIFF's
-Message-ID: <20060117185353.GA28302@hera.kernel.org>
-References: <43CCF8BB.1050009@m1k.net> <200601171739.17168.s0348365@sms.ed.ac.uk> <43CD309A.3030704@m1k.net> <200601171817.00182.s0348365@sms.ed.ac.uk> <43CD36FC.4020801@m1k.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43CD36FC.4020801@m1k.net>
-User-Agent: Mutt/1.4.1i
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWAQSzK
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 17 Jan 2006 13:55:10 -0500
+Received: from lucidpixels.com ([66.45.37.187]:57757 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S932388AbWAQSzJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 13:55:09 -0500
+Date: Tue, 17 Jan 2006 13:55:07 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
+       Phil Oester <kernel@linuxace.com>, linux-kernel@vger.kernel.org,
+       apiszcz@lucidpixels.com
+Subject: Re: Kernel 2.6.15.1 + NFS is 4 times slower than FTP!?
+In-Reply-To: <1137523991.7855.103.camel@lade.trondhjem.org>
+Message-ID: <Pine.LNX.4.64.0601171354510.25508@p34>
+References: <Pine.LNX.4.64.0601161957300.16829@p34>  <20060117012319.GA22161@linuxace.com>
+  <Pine.LNX.4.64.0601162031220.2501@p34>  <Pine.BSO.4.63.0601171846570.15077@rudy.mif.pg.gda.pl>
+  <1137521483.14135.59.camel@localhost.localdomain>  <Pine.LNX.4.64.0601171324010.25508@p34>
+  <1137523035.7855.91.camel@lade.trondhjem.org>  <Pine.LNX.4.64.0601171338040.25508@p34>
+ <1137523991.7855.103.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 17, 2006 at 01:27:08PM -0500, Michael Krufky wrote:
-> >Also, try s/www/zeus2/ in the URL to see if it's a problem 
-> >specific to one server (I wonder if the reason some of us have 
-> >problems and others don't is that we are being http load 
-> >balanced).
-> >
-> Well, when I used zeus2 directly, I can see the diff...... I tried doing 
-> the same with  zeus1, and in fact, the diff does not show.
-> 
-> That solves it!
-> 
-> Zeus2 is working correctly, Zeus1 isnt showing us any diff's ......
-> 
-> Thanks for the help, now, can this be fixed?
+Did you get my other e-mail?
 
-A couple things were happening here...
+$ cp file /nfs/destination
+$ lftp> put file
 
-zeus1 suffered a cpu fan failure and was shutdown by external 
-hardware that rebooted it into a different kernel (which ended
-up resolving the 64-bit sendfile issue (older kernel)
 
-load average on zeus1 was well over 150 with the older kernel--
-and a bit of investigation went into whether or not the kernel
-was the cause, but in the process of investigation, a third problem 
-was discovered...
+On Tue, 17 Jan 2006, Trond Myklebust wrote:
 
-Logwatch left 39GB of turds in /tmp filling up the entire root
-filesystem causing gitweb to fail because it had nowhere to
-write temp files (also why the bandwidth graph wasn't showing
-up as well for zeus1).
-
-The root filesystem is only 50GB on that machine while /var/log
-is hundreds of gigabytes...
-
-/tmp was cleared out, the system is now on a more stable kernel
-that should resolve the 64-bit sendfile issues, and the system
-load appears to now be at a reasonable level...
-
-We will be updating the kernel on the other machine after the
-current one proves stable with 64-bit sendfile support.
-
-That should fix the problem with apache not being able to
-serve DVD images...
-
--- Nathan Laredo
-laredo@kernel.org
+> On Tue, 2006-01-17 at 13:38 -0500, Justin Piszcz wrote:
+>> Writing from SRC(A) -> DST(B).
+>> I have not tested reading, but as I recall there were similar speed issues
+>> going the other way too, although I have not tested it recently.
+>
+> How were you testing it? I'm not sure that ftp will actually sync your
+> file to disk (whereas that is pretty much mandatory for an NFS server),
+> so unless you are transferring very large files, you would expect to see
+> a speed difference due to caching of writes by the server.
+>
+> Cheers,
+>  Trond
+>

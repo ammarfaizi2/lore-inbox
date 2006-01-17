@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964839AbWAQUtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWAQUun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964839AbWAQUtW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 15:49:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964840AbWAQUtW
+	id S964830AbWAQUun (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 15:50:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWAQUun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 15:49:22 -0500
-Received: from silver.veritas.com ([143.127.12.111]:49931 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S964839AbWAQUtV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 15:49:21 -0500
-Date: Tue, 17 Jan 2006 20:49:48 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Christoph Lameter <clameter@engr.sgi.com>
-cc: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: Race in new page migration code?
-In-Reply-To: <Pine.LNX.4.62.0601171207300.28161@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.61.0601172047350.9392@goblin.wat.veritas.com>
-References: <20060114155517.GA30543@wotan.suse.de>
- <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com>
- <20060114181949.GA27382@wotan.suse.de> <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com>
- <Pine.LNX.4.61.0601151053420.4500@goblin.wat.veritas.com>
- <Pine.LNX.4.62.0601152251080.17034@schroedinger.engr.sgi.com>
- <Pine.LNX.4.61.0601161143190.7123@goblin.wat.veritas.com>
- <Pine.LNX.4.62.0601170926440.24552@schroedinger.engr.sgi.com>
- <Pine.LNX.4.61.0601171805430.8030@goblin.wat.veritas.com>
- <Pine.LNX.4.62.0601171207300.28161@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 17 Jan 2006 20:49:17.0679 (UTC) FILETIME=[7BC75FF0:01C61BA7]
+	Tue, 17 Jan 2006 15:50:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:25790 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964830AbWAQUum (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 15:50:42 -0500
+Date: Tue, 17 Jan 2006 12:50:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: schwidefsky@de.ibm.com, ric@emc.com, hch@lst.de, arnd@arndb.de,
+       linux-kernel@vger.kernel.org, saparnis_carol@emc.com
+Subject: Re: [PATCH 2/2] dasd: remove dynamic ioctl registration
+Message-Id: <20060117125013.1d51d211.akpm@osdl.org>
+In-Reply-To: <20060117133523.GA27322@lst.de>
+References: <20051216143348.GB19541@lst.de>
+	<20060106110157.GA16725@lst.de>
+	<43BE7C45.4090206@emc.com>
+	<20060106142146.GA20094@lst.de>
+	<43BE7EE4.3010203@emc.com>
+	<1136970987.6147.14.camel@localhost.localdomain>
+	<20060117133523.GA27322@lst.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Jan 2006, Christoph Lameter wrote:
+Christoph Hellwig <hch@lst.de> wrote:
+>
+> On Wed, Jan 11, 2006 at 10:16:27AM +0100, Martin Schwidefsky wrote:
+> > The patch we got from EMC is for 2.4 and in its current form would never
+> > have worked for 2.6 anyway. So 2.6 is already broken, no reason to hold
+> > off the ioctl removal patch. We'll come up with a cleaned up solution.
+> > 
+> > Christoph, please go ahead and push the patch to Andrew. 
 > 
-> Simplify migrate_page_add after feedback from Hugh.
-> 
-> Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> Andrew, should I resend the two patches or can you grab them from the
+> mbox?
 
-If you're happy with that one, yes, I certainly am too.
-
-Hugh
+I found them, and they still seem to apply.

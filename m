@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWAQIIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWAQIRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751306AbWAQIIX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 03:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWAQIIX
+	id S932315AbWAQIRz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 03:17:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbWAQIRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 03:08:23 -0500
-Received: from mail.asc.de ([82.100.219.35]:21330 "EHLO mail.asc.de")
-	by vger.kernel.org with ESMTP id S1751306AbWAQIIW (ORCPT
+	Tue, 17 Jan 2006 03:17:54 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:1683 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932315AbWAQIRx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 03:08:22 -0500
-Message-ID: <43CCA5F4.2020900@asc.de>
-Date: Tue, 17 Jan 2006 09:08:20 +0100
-From: Reinhold Jordan <r.jordan@asc.de>
-Organization: ASC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: de-de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: option memmap
-References: <43C51ABD.4050204@asc.de> <43C62818.6030001@asc.de> <728201270601120652g21c8b2d5t340cf01f7c0d91fc@mail.gmail.com>
-In-Reply-To: <728201270601120652g21c8b2d5t340cf01f7c0d91fc@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 17 Jan 2006 08:08:21.0049 (UTC) FILETIME=[2E4E8290:01C61B3D]
+	Tue, 17 Jan 2006 03:17:53 -0500
+Date: Tue, 17 Jan 2006 09:17:49 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dave C Boutcher <sleddog@us.ibm.com>, serue@us.ibm.com,
+       michael@ellerman.id.au, linuxppc64-dev@ozlabs.org, paulus@au1.ibm.com,
+       anton@au1.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm4 failure on power5
+Message-ID: <20060117081749.GA10135@elte.hu>
+References: <20060116063530.GB23399@sergelap.austin.ibm.com> <20060115230557.0f07a55c.akpm@osdl.org> <200601170000.58134.michael@ellerman.id.au> <20060116153748.GA25866@sergelap.austin.ibm.com> <20060116215252.GA10538@cs.umn.edu> <20060116170907.60149236.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060116170907.60149236.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-> Did you use memmap option in combination with mem option.mem option is
-> used to specify the amount of memory to be used & memmap specifies the
-> region map.
+* Andrew Morton <akpm@osdl.org> wrote:
 
-thanks for this hint. Now I see a difference between
-memmap=128K$7936K mem=130944K
-and
-mem=130944K memmap=128K$7936K
-With mem first, the memmap region is listed as user defined. With memmap
-first, it isn't.
+> > If I revert just that patch, mm4 boots fine.  Its really not obvious to
+> > me at all why that patch is breaking things though...
+> 
+> Yes, that is strange.  I do recall that if something accidentally 
+> enables interrupts too early in boot, ppc64 machines tend to go 
+> comatose.  But if we'd been running that code under 
+> local_irq_disable(), down() would have spat a warning.
 
-But I have to do more tests. In both cases my system crash on heavy load.
-After trying the badram patch I'm not sure, that my address ranges are
-correct...
+perhaps it was just luck it worked so far, and the bug could have had 
+worse incarnations that the current clear hang if a certain generic 
+codepath is touched in a perfectly valid way. Does CONFIG_DEBUG_MUTEXES 
+(or any of the other debugging options) make any noise?
 
-Thanks, Reinhold
-
--- 
-ASC telecom AG                   Research & Development
-Seibelstr. 2                     F: +49-6021-5001-309
-D-63768 Hösbach                  E: r.jordan@asc.de
-      Visit us on http://www.asctelecom.com
+	Ingo

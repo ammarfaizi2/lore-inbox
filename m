@@ -1,82 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWAQO5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWAQPAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWAQO5c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 09:57:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbWAQOun
+	id S932146AbWAQPAV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 10:00:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWAQPAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 09:50:43 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:23266 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750918AbWAQOua (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 09:50:30 -0500
-Message-Id: <20060117143326.283450000@sergelap>
+	Tue, 17 Jan 2006 10:00:20 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:39625 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751263AbWAQOuc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 09:50:32 -0500
+Message-Id: <20060117143329.554149000@sergelap>
 References: <20060117143258.150807000@sergelap>
-Date: Tue, 17 Jan 2006 08:33:11 -0600
+Date: Tue, 17 Jan 2006 08:33:30 -0600
 From: Serge Hallyn <serue@us.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: Hubertus Franke <frankeh@watson.ibm.com>,
        Cedric Le Goater <clg@fr.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
        Serge E Hallyn <serue@us.ibm.com>
-Subject: RFC [patch 13/34] PID Virtualization Define new task_pid api
-Content-Disposition: inline; filename=BC-define-pid-handlers
+Subject: RFC [patch 32/34] PID Virtualization Handle special case vpid return cases
+Content-Disposition: inline; filename=G6-vpid-rc-special-handling.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually define the task_pid() and task_tgid() functions.  Also
-replace pid with __pid so as to make sure any missed accessors are
-caught.
+Certain places in the virtual pid return locations need special handling
+to return the appropriate information back to the user.
 
-The resulting object code seems to be identical in most cases, and is
-actually shorter in cases where current->pid is used twice in a row,
-as it does not dereference task-> twice.
-
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+Signed-off-by: Hubertus Franke <frankeh@watson.ibm.com>
 ---
- sched.h |   16 +++++++++++++---
- 1 files changed, 13 insertions(+), 3 deletions(-)
+ fs/proc/array.c |   15 +++++++++------
+ fs/proc/base.c  |    2 ++
+ kernel/signal.c |    8 ++++++--
+ 3 files changed, 17 insertions(+), 8 deletions(-)
 
-Index: linux-2.6.15/include/linux/sched.h
+Index: linux-2.6.15/fs/proc/base.c
 ===================================================================
---- linux-2.6.15.orig/include/linux/sched.h	2006-01-17 08:18:22.000000000 -0500
-+++ linux-2.6.15/include/linux/sched.h	2006-01-17 08:37:03.000000000 -0500
-@@ -732,8 +732,8 @@
- 	/* ??? */
- 	unsigned long personality;
- 	unsigned did_exec:1;
--	pid_t pid;
--	pid_t tgid;
-+	pid_t __pid;
-+	pid_t __tgid;
- 	/* 
- 	 * pointers to (original) parent process, youngest child, younger sibling,
- 	 * older sibling, respectively.  (p->father can be replaced with 
-@@ -877,6 +877,16 @@
- 	return p->pids[PIDTYPE_PID].nr != 0;
- }
+--- linux-2.6.15.orig/fs/proc/base.c	2006-01-17 08:37:07.000000000 -0500
++++ linux-2.6.15/fs/proc/base.c	2006-01-17 08:37:09.000000000 -0500
+@@ -2103,6 +2103,8 @@
  
-+static inline pid_t task_pid(const struct task_struct *p)
-+{
-+	return p->__pid;
-+}
-+
-+static inline pid_t task_tgid(const struct task_struct *p)
-+{
-+	return p->__tgid;
-+}
-+
- extern void free_task(struct task_struct *tsk);
- extern void __put_task_struct(struct task_struct *tsk);
- #define get_task_struct(tsk) do { atomic_inc(&(tsk)->usage); } while(0)
-@@ -1200,7 +1210,7 @@
+ 	for ( ; p != &init_task; p = next_task(p)) {
+ 		int tgid = task_vpid_ctx(p, current);
++		if (tgid < 0)
++			continue;
+ 		if (!pid_alive(p))
+ 			continue;
+ 		if (--index >= 0)
+Index: linux-2.6.15/fs/proc/array.c
+===================================================================
+--- linux-2.6.15.orig/fs/proc/array.c	2006-01-17 08:37:07.000000000 -0500
++++ linux-2.6.15/fs/proc/array.c	2006-01-17 08:37:09.000000000 -0500
+@@ -164,13 +164,16 @@
+ 	pid_t ppid, tpid;
  
- extern task_t * FASTCALL(next_thread(const task_t *p));
+ 	read_lock(&tasklist_lock);
+-	if (pid_alive(p))
++	if (pid_alive(p)) {
+ 		ppid = task_vtgid_ctx(p->group_leader->real_parent, current);
+-	else
++		if (ppid < 0) ppid = 1;
++	} else {
+ 		ppid = 0;
+-	if (pid_alive(p) && p->ptrace)
++	}
++	if (pid_alive(p) && p->ptrace) {
+ 		tpid = task_vppid_ctx(p, current);
+-	else
++		if (tpid < 0) tpid = 0;
++	} else
+ 		tpid = 0;
+ 	buffer += sprintf(buffer,
+ 		"State:\t%s\n"
+@@ -183,8 +186,8 @@
+ 		"Gid:\t%d\t%d\t%d\t%d\n",
+ 		get_task_state(p),
+ 		(p->sleep_avg/1024)*100/(1020000000/1024),
+-	       	task_vtgid_ctx(p,current),
+-		task_vpid_ctx(p,current),
++	       	task_vtgid_ctx(p, current),
++		task_vpid_ctx(p, current),
+ 		ppid, tpid,
+ 		p->uid, p->euid, p->suid, p->fsuid,
+ 		p->gid, p->egid, p->sgid, p->fsgid);
+Index: linux-2.6.15/kernel/signal.c
+===================================================================
+--- linux-2.6.15.orig/kernel/signal.c	2006-01-17 08:37:07.000000000 -0500
++++ linux-2.6.15/kernel/signal.c	2006-01-17 08:37:09.000000000 -0500
+@@ -2257,6 +2257,12 @@
+ 	struct siginfo info;
+ 	struct task_struct *p;
  
--#define thread_group_leader(p)	(p->pid == p->tgid)
-+#define thread_group_leader(p)	(task_pid(p) == task_tgid(p))
++	pid  = vpid_to_pid(pid);
++	if (pid < 0)
++		return pid;
++	tgid = vpid_to_pid(tgid);
++	if (tgid < 0)
++		return tgid;
+ 	error = -ESRCH;
+ 	info.si_signo = sig;
+ 	info.si_errno = 0;
+@@ -2264,8 +2270,6 @@
+ 	info.si_pid = task_vtgid(current);
+ 	info.si_uid = current->uid;
  
- static inline int thread_group_empty(task_t *p)
- {
+-	pid  = vpid_to_pid(pid);
+-	tgid = vpid_to_pid(tgid);
+ 	read_lock(&tasklist_lock);
+ 	p = find_task_by_pid(pid);
+ 	if (p && (tgid <= 0 || task_tgid(p) == tgid)) {
 
 --
 

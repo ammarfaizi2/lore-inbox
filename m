@@ -1,52 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWAQRcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWAQRem@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbWAQRcb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 12:32:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWAQRca
+	id S932230AbWAQRem (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 12:34:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWAQRel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 12:32:30 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:35038 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932232AbWAQRca convert rfc822-to-8bit
+	Tue, 17 Jan 2006 12:34:41 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:50890
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932230AbWAQRel
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 12:32:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sCexE208PiT7A4V3j5fI7EvphPzjloRGkDxe8DMpHGESsXSa5SxxxOLuWKFt99k/6QG0JbUSITCjmCCCFLi5TCwJCjuEuenZaAYDoOzYzvAw7ztrlSUEpvGvl/09V5nmakxnfMtECY5dtrXhqhzTugT6zpYtW6N6Z2PXKaxpDXw=
-Message-ID: <a36005b50601170932r1f0a9eb8kea35015ede1e9b8f@mail.gmail.com>
-Date: Tue, 17 Jan 2006 09:32:29 -0800
-From: Ulrich Drepper <drepper@gmail.com>
-To: david singleton <dsingleton@mvista.com>
-Subject: Re: [robust-futex-3] futex: robust futex support
-Cc: akpm@osdl.org, mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <C59522FA-8700-11DA-B27C-000A959BB91E@mvista.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43C84D4B.70407@mvista.com>
-	 <a36005b50601141602y641567ebh5ff9b6a1fad4d7d2@mail.gmail.com>
-	 <746DBAD6-855A-11DA-A824-000A959BB91E@mvista.com>
-	 <a36005b50601142118h3a07a640ra668dab13129683b@mail.gmail.com>
-	 <C59522FA-8700-11DA-B27C-000A959BB91E@mvista.com>
+	Tue, 17 Jan 2006 12:34:41 -0500
+Subject: Re: [ANNOUNCE] 2.6.15-rc5-hrt2 - hrtimers based high resolution
+	patches
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, George Anzinger <george@mvista.com>,
+       john stultz <johnstul@us.ibm.com>, Roman Zippel <zippel@linux-m68k.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1136937547.6197.73.camel@localhost.localdomain>
+References: <1134385343.4205.72.camel@tglx.tec.linutronix.de>
+	 <1134507927.18921.26.camel@localhost.localdomain>
+	 <20051214084019.GA18708@elte.hu>  <20051214084333.GA20284@elte.hu>
+	 <1136937547.6197.73.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 17 Jan 2006 18:35:05 +0100
+Message-Id: <1137519305.17609.48.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/16/06, david singleton <dsingleton@mvista.com> wrote:
->         I've fixed another memory leak in free_robust_list.   The entries in
-> the slab caches
-> now look correct through the full test suite up to 7500 threads.   Does
-> your glibc
-> work correctly with this patch?
+On Tue, 2006-01-10 at 18:59 -0500, Steven Rostedt wrote:
+> And this _is_ protected, but I just discovered that this does _not_
+> protect against hrtimer_start!
+> 
+> In hrtimer_start we have:
+> 
+> 	base = lock_hrtimer_base(timer, &flags);
+> 
+> 	/* Remove an active timer from the queue: */
+> 	remove_hrtimer(timer, base);
+> 
+> Which can be called after that spin_unlock_irq is done by the
+> run_hrtimer_queue, and we will hit a bug (as I did).  This is not an
+> easy race to hit. 
 
-I'll see shortly.
+Right, but there should be actually no use case where this happens.
 
-But looking at the patch, I don't understand the use of
-FUTEX_ATTR_SHARED.  The EADDRNOTAVAIL error is something the kernel
-has to return if the address is not that of an object in a shared
-memory region.  It's not information directly provided by the user of
-futex_register.
+For now I prefer to add a 
 
-So, I suggest removing the attr parameter from futex_register and
-after get_futex_key, when you know where the futex is actually
-located, return -EADDRNOTAVAIL if the futex is in private memory.
+BUG_ON(base->curr_timer == timer); 
+
+into hrtimer_start to find the real reason.
+
+> Here's an example of a race for this problem:
+> In posix-timers.c: commen_timer_set:
+> 
+>    If we get preempted between hrtimer_try_to_cancel and
+>    hrtimer_restart.
+> 
+>    Then a new thread adds the timer back (by a threaded program).
+
+I don't see how this should happen.
+
+sys_timer_settime()
+	timr = lock_timer(timer_id, flag);
+
+Now the k_itimer, which is the container of the hrtimer is locked.
+
+common_timer_set()
+	if (hrtimer_try_to_cancel() < 0)
+		return TIMER_RETRY;
+	....
+	hrtimer_start();
+	return;
+
+back in sys_timer_settime()
+
+	unlock_timer(timr);
+
+So how gets this timer added back, when the container lock is held
+across the complete operation ?
+
+> Now the question is what's the right solution?  Can hrtimer_start
+> schedule?  Probably not, maybe we should add something to check this and
+> have hrtimer_start return -1 if it is running, and let who ever called
+> it figure out what to do?  Maybe have a hrtimer_cancel_start atomic
+> operation? As well as a hrtimer_try_to_cancel_start?
+
+The posix timer code does already the Right Thing, as it uses
+hrtimer_try_to_cancel() and reacts on the return value. This is
+necessary to prevent a dead lock with the k_itimer lock. 
+
+I try to reproduce this with your test program on my test boxes.
+
+	tglx
+
+

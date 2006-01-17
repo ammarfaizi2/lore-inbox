@@ -1,79 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbWAQNkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWAQNsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932478AbWAQNkT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 08:40:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbWAQNkT
+	id S932489AbWAQNsR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 08:48:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932490AbWAQNsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 08:40:19 -0500
-Received: from ozlabs.org ([203.10.76.45]:24228 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932478AbWAQNkR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 08:40:17 -0500
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-To: Dave C Boutcher <sleddog@us.ibm.com>
-Subject: Re: 2.6.15-mm4 failure on power5
-Date: Wed, 18 Jan 2006 00:32:43 +1100
-User-Agent: KMail/1.8.3
-Cc: "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linuxppc64-dev@ozlabs.org, paulus@au1.ibm.com, anton@au1.ibm.com,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-References: <20060116063530.GB23399@sergelap.austin.ibm.com> <20060116153748.GA25866@sergelap.austin.ibm.com> <20060116215252.GA10538@cs.umn.edu>
-In-Reply-To: <20060116215252.GA10538@cs.umn.edu>
+	Tue, 17 Jan 2006 08:48:17 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:1253 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932489AbWAQNsQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 08:48:16 -0500
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Linux 2.6.16-rc1
+Date: Tue, 17 Jan 2006 14:49:32 +0100
+User-Agent: KMail/1.9
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org> <200601171416.13119.prakash@punnoor.de> <43CCF2F7.4070205@pobox.com>
+In-Reply-To: <43CCF2F7.4070205@pobox.com>
 MIME-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart3187557.rjtkziG21e";
+  boundary="nextPart1249386.599gbbzhZE";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200601180032.46867.michael@ellerman.id.au>
+Message-Id: <200601171449.32868.prakash@punnoor.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3187557.rjtkziG21e
+--nextPart1249386.599gbbzhZE
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-On Tue, 17 Jan 2006 08:52, Dave C Boutcher wrote:
-> 2.6.15-mm4 won't boot on my power5 either.  I tracked it down to the
-> following mutex patch from Ingo: kernel-kernel-cpuc-to-mutexes.patch
+Am Dienstag Januar 17 2006 14:36 schrieb Jeff Garzik:
+> Prakash Punnoor wrote:
+> > Compiling libata SIL breaks with Linux 2.6.16-rc1:
+> >
+> >
+> >   CC      drivers/scsi/sata_sil.o
+> > drivers/scsi/sata_sil.c: In function 'sil_port_irq':
+> > drivers/scsi/sata_sil.c:393: error: too many arguments to function
+> > 'ata_qc_complete'
+> > drivers/scsi/sata_sil.c:400: error: too many arguments to function
+> > 'ata_qc_complete'
 >
-> If I revert just that patch, mm4 boots fine.  Its really not obvious to
-> me at all why that patch is breaking things though...
+> I don't know what source code you're compiling, but it's certainly not
+> 2.6.16-rc1:
+>
+> [jgarzik@pretzel linux-2.6]$ grep -w ata_qc_complete
+> drivers/scsi/sata_sil.c
+> [jgarzik@pretzel linux-2.6]$
 
-My POWER5 (gr) LPAR seems to boot ok (3 times so far) with that patch, gues=
-s=20
-it's something subtle. That's with CONFIG_DEBUG_MUTEXES=3Dy. And it's just=
+Ah sorry, you are right. I still had the experimental patch inside you once=
 =20
-booted once with CONFIG_DEBUG_MUTEXES=3Dn.
-
-And now it's booted the full mm4 patch set without blinking.
-
-cheers
+posted...need to back that out...
 
 =2D-=20
-Michael Ellerman
-IBM OzLabs
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
 
-email: michael:ellerman.id.au
-inmsg: mpe:jabber.org
-wwweb: http://michael.ellerman.id.au
-phone: +61 2 6212 1183 (tie line 70 21183)
-
-We do not inherit the earth from our ancestors,
-we borrow it from our children. - S.M.A.R.T Person
-
---nextPart3187557.rjtkziG21e
+--nextPart1249386.599gbbzhZE
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-iD8DBQBDzPH+dSjSd0sB4dIRApilAJ9yEZUN2DyWlAzQOujduK5GjvNWnwCgvcbC
-nkvKqN1MHVXOS8DeJaMmAgQ=
-=qy8v
+iD4DBQBDzPXsxU2n/+9+t5gRAoi3AJQJOC20gm4KSWejqR6oI08swmEqAJ9qb5WR
+0imE8k2lrjdXEKIPzJK29g==
+=WPc3
 -----END PGP SIGNATURE-----
 
---nextPart3187557.rjtkziG21e--
+--nextPart1249386.599gbbzhZE--

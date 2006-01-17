@@ -1,91 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbWAQMo7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbWAQMxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbWAQMo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 07:44:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWAQMo7
+	id S932475AbWAQMxf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 07:53:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWAQMxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 07:44:59 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:53962 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932462AbWAQMo7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 07:44:59 -0500
-Date: Tue, 17 Jan 2006 12:43:15 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Nicholas Miell <nmiell@comcast.net>
-Cc: Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Ulrich Drepper <drepper@redhat.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Badari Pulavarty <pbadari@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, hugh@veritas.com, dvhltc@us.ibm.com,
-       linux-mm@kvack.org, blaisorblade@yahoo.it, jdike@addtoit.com,
-       akpm@osdl.org
-Subject: Re: differences between MADV_FREE and MADV_DONTNEED
-Message-ID: <20060117124315.GA7754@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Nicholas Miell <nmiell@comcast.net>,
-	Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-	Ulrich Drepper <drepper@redhat.com>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Andrea Arcangeli <andrea@suse.de>,
-	Badari Pulavarty <pbadari@us.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	hugh@veritas.com, dvhltc@us.ibm.com, linux-mm@kvack.org,
-	blaisorblade@yahoo.it, jdike@addtoit.com
-References: <20051111174309.5d544de4.akpm@osdl.org> <43757263.2030401@us.ibm.com> <20060116130649.GE15897@opteron.random> <43CBC37F.60002@FreeBSD.org> <20060116162808.GG15897@opteron.random> <43CBD1C4.5020002@FreeBSD.org> <20060116172449.GL15897@opteron.random> <m1r777rgq4.fsf@ebiederm.dsl.xmission.com> <43CC3922.2070205@FreeBSD.org> <1137459847.2842.6.camel@entropy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137459847.2842.6.camel@entropy>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 17 Jan 2006 07:53:34 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:37802 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932468AbWAQMxd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 07:53:33 -0500
+Message-ID: <43CCE8C6.4010103@pobox.com>
+Date: Tue, 17 Jan 2006 07:53:26 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: akpm@osdl.org, jason.d.gaston@intel.com
+CC: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/2] ata_piix: add Intel ICH8 device IDs
+References: <200601170526.k0H5QpuM026968@shell0.pdx.osdl.net>
+In-Reply-To: <200601170526.k0H5QpuM026968@shell0.pdx.osdl.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  akpm@osdl.org wrote: > From: Jason Gaston
+	<jason.d.gaston@intel.com> > > Add the Intel ICH8 DID's to the
+	ata_piix.c and quirks.c file for IDE mode SATA > support. > >
+	Signed-off-by: Jason Gaston <Jason.d.gaston@intel.com> > Signed-off-by:
+	Andrew Morton <akpm@osdl.org> [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 16, 2006 at 05:04:07PM -0800, Nicholas Miell wrote:
-> On Mon, 2006-01-16 at 16:24 -0800, Suleiman Souhlal wrote:
-> > Eric W. Biederman wrote:
-> > > As I recall the logic with DONTNEED was to mark the mapping of
-> > > the page clean so the page didn't need to be swapped out, it could
-> > > just be dropped.
-> > > 
-> > > That is why they anonymous and the file backed cases differ.
-> > > 
-> > > Part of the point is to avoid the case of swapping the pages out if
-> > > the application doesn't care what is on them anymore.
-> > 
-> > Well, imho, MADV_DONTNEED should mean "I won't need this anytime soon", 
-> > and MADV_FREE "I will never need this again".
-> > 
+akpm@osdl.org wrote:
+> From: Jason Gaston <jason.d.gaston@intel.com>
 > 
-> POSIX doesn't have a madvise(), but it does have a posix_madvise(), with
-> flags defined as follows:
+> Add the Intel ICH8 DID's to the ata_piix.c and quirks.c file for IDE mode SATA
+> support.
 > 
-> POSIX_MADV_NORMAL
->    Specifies that the application has no advice to give on its behavior
-> with respect to the specified range. It is the default characteristic if
-> no advice is given for a range of memory.
-> POSIX_MADV_SEQUENTIAL
->    Specifies that the application expects to access the specified range
-> sequentially from lower addresses to higher addresses.
-> POSIX_MADV_RANDOM
->    Specifies that the application expects to access the specified range
-> in a random order.
-> POSIX_MADV_WILLNEED
->    Specifies that the application expects to access the specified range
-> in the near future.
-> POSIX_MADV_DONTNEED
->    Specifies that the application expects that it will not access the
-> specified range in the near future.
-> 
-> Note that glibc forwards posix_madvise() directly to madvise(2), which
-> means that right now, POSIX conformant apps which use
-> posix_madvise(addr, len, POSIX_MADV_DONTNEED) are silently corrupting
-> data on Linux systems.
+> Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
 
-Does our MAD_DONTNEED numerical value match glibc's POSIX_MADV_DONTNEED?
+NAK, adds a duplicate entry to the locally declared struct ata_port_info.
 
-In either case I'd say we should backout this patch for now.  We should
-implement a real MADV_DONTNEED and rename the current one to MADV_FREE,
-but that's 2.6.17 material.
+Otherwise, OK.
+
+	Jeff
+
+
+

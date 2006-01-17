@@ -1,83 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWAQPwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbWAQP4E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWAQPwk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 10:52:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWAQPwk
+	id S1750814AbWAQP4E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 10:56:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWAQP4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 10:52:40 -0500
-Received: from 81-179-245-126.dsl.pipex.com ([81.179.245.126]:17632 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1750754AbWAQPwj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 10:52:39 -0500
-Date: Tue, 17 Jan 2006 15:52:27 +0000
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] zone gfp_flags generate from ZONE_ constants
-Message-ID: <20060117155227.GA16176@shadowen.org>
-MIME-Version: 1.0
+	Tue, 17 Jan 2006 10:56:04 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:29644 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750814AbWAQP4C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 10:56:02 -0500
+Date: Tue, 17 Jan 2006 09:56:00 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Serge Hallyn <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+Message-ID: <20060117155600.GF20632@sergelap.austin.ibm.com>
+References: <20060117143258.150807000@sergelap> <20060117143326.283450000@sergelap> <1137511972.3005.33.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1137511972.3005.33.camel@laptopd505.fenrus.org>
 User-Agent: Mutt/1.5.11
-From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-zone gfp_flags generate from ZONE_ constants
+Quoting Arjan van de Ven (arjan@infradead.org):
+> On Tue, 2006-01-17 at 08:33 -0600, Serge Hallyn wrote:
+> > plain text document attachment (BC-define-pid-handlers)
+> > Actually define the task_pid() and task_tgid() functions.  Also
+> > replace pid with __pid so as to make sure any missed accessors are
+> > caught.
+> 
+> This question was asked a few times before without satisfactory answer:
+> *WHY* this abstraction.
+> There is *NO* point. Really. 
+> 
+> (And if the answer is "but we want to play tricks later", just make a
+> current->realpid or whatever, but leave current->pid be the virtual pid.
+> Your abstraction helps NOTHING there. Zero Nada Noppes).
 
-Change the allocation of the __GFP_zone style zone modifiers so that
-they are generated from the values of the ZONE_zone definitions.
-Note that when no zone modifiers are specified select the default
-zone, typically ZONE_NORMAL.
+The virtual pid is different depending on who is asking.  So simply
+storing current->realpid and current->pid isn't helpful, as we would
+still need to call a function when a pid crosses user->kernel boundary.
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
----
- gfp.h    |   22 ++++++++++++++++------
- mmzone.h |    2 ++
- 2 files changed, 18 insertions(+), 6 deletions(-)
-diff -upN reference/include/linux/gfp.h current/include/linux/gfp.h
---- reference/include/linux/gfp.h
-+++ current/include/linux/gfp.h
-@@ -11,15 +11,25 @@ struct vm_area_struct;
- /*
-  * GFP bitmasks..
-  */
--/* Zone modifiers in GFP_ZONEMASK (see linux/mmzone.h - low three bits) */
--#define __GFP_DMA	((__force gfp_t)0x01u)
--#define __GFP_HIGHMEM	((__force gfp_t)0x02u)
-+
-+/*
-+ * Generate the zone modifier bit.  Zone ZONE_DEFAULT doesn't require a bit
-+ * as the absence of all zone modifiers implies this zone.  Renormalise the
-+ * zone number such that ZONE_DEFAULT is at the bottom and discard it.
-+ * These must fit within the bitmask GFP_ZONEMASK defined in linux/mmzone.h.
-+ */
-+#define __ZONE_BIT(x) (((x) ^ ZONE_DEFAULT) - 1)
-+#define ZONE_MODIFIER(x) ((__force gfp_t)(((x) == ZONE_DEFAULT)? (0) : \
-+							1UL << __ZONE_BIT(x)))
-+
-+#define __GFP_DMA	ZONE_MODIFIER(ZONE_DMA)
-+#define __GFP_HIGHMEM	ZONE_MODIFIER(ZONE_HIGHMEM)
- #ifdef CONFIG_DMA_IS_DMA32
--#define __GFP_DMA32	((__force gfp_t)0x01)	/* ZONE_DMA is ZONE_DMA32 */
-+#define __GFP_DMA32	ZONE_MODIFIER(ZONE_DMA)	/* ZONE_DMA is ZONE_DMA32 */
- #elif BITS_PER_LONG < 64
--#define __GFP_DMA32	((__force gfp_t)0x00)	/* ZONE_NORMAL is ZONE_DMA32 */
-+#define __GFP_DMA32	ZONE_MODIFIER(ZONE_NORMAL) /* ZONE_NORMAL is ZONE_DMA32 */
- #else
--#define __GFP_DMA32	((__force gfp_t)0x04)	/* Has own ZONE_DMA32 */
-+#define __GFP_DMA32	ZONE_MODIFIER(ZONE_DMA32) /* Has own ZONE_DMA32 */
- #endif
- 
- /*
-diff -upN reference/include/linux/mmzone.h current/include/linux/mmzone.h
---- reference/include/linux/mmzone.h
-+++ current/include/linux/mmzone.h
-@@ -77,6 +77,8 @@ struct per_cpu_pageset {
- #define MAX_NR_ZONES		4	/* Sync this with ZONES_SHIFT */
- #define ZONES_SHIFT		2	/* ceil(log2(MAX_NR_ZONES)) */
- 
-+/* Select the zone to use when no __GFP flags are selected. */
-+#define ZONE_DEFAULT           ZONE_NORMAL
- 
- /*
-  * When a memory allocation must conform to specific limitations (such
+However we could make the patch far less invasive by skipping the
+task_pid() macro altogether.  Switching current->pid to current->__pid
+was to make sure we catch any ->pid accesses which we may have missed,
+during compilation.
+
+Is that approach (keeping task->pid as the real pid and dropping the
+task_pid() macro) preferred by all?
+
+-serge
+

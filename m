@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbWAQTDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbWAQTFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbWAQTDi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 14:03:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWAQTDi
+	id S932409AbWAQTFg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 14:05:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbWAQTFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 14:03:38 -0500
-Received: from lucidpixels.com ([66.45.37.187]:33733 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S932402AbWAQTDh (ORCPT
+	Tue, 17 Jan 2006 14:05:36 -0500
+Received: from zeus2.kernel.org ([204.152.191.36]:59052 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S932409AbWAQTFf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 14:03:37 -0500
-Date: Tue, 17 Jan 2006 14:03:36 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
-       Phil Oester <kernel@linuxace.com>, linux-kernel@vger.kernel.org,
-       apiszcz@lucidpixels.com
-Subject: Re: Kernel 2.6.15.1 + NFS is 4 times slower than FTP!?
-In-Reply-To: <1137524502.7855.107.camel@lade.trondhjem.org>
-Message-ID: <Pine.LNX.4.64.0601171402230.25508@p34>
-References: <Pine.LNX.4.64.0601161957300.16829@p34>  <20060117012319.GA22161@linuxace.com>
-  <Pine.LNX.4.64.0601162031220.2501@p34>  <Pine.BSO.4.63.0601171846570.15077@rudy.mif.pg.gda.pl>
-  <1137521483.14135.59.camel@localhost.localdomain>  <Pine.LNX.4.64.0601171324010.25508@p34>
-  <1137523035.7855.91.camel@lade.trondhjem.org>  <Pine.LNX.4.64.0601171338040.25508@p34>
-  <1137523991.7855.103.camel@lade.trondhjem.org>  <Pine.LNX.4.64.0601171354510.25508@p34>
- <1137524502.7855.107.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 17 Jan 2006 14:05:35 -0500
+Date: Tue, 17 Jan 2006 20:04:45 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Ian Campbell <icampbell@arcom.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [WATCHDOG] sa1100_wdt.c sparse cleanups
+Message-ID: <20060117190445.GA4298@infomag.infomag.iguana.be>
+References: <1130921809.12578.179.camel@icampbell-debian> <20051105101026.GA28438@flint.arm.linux.org.uk> <1131358884.14696.57.camel@icampbell-debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1131358884.14696.57.camel@icampbell-debian>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The file is 700MB.
+Hi Ian,
 
-Machine A (src) has 2GB of RAM / 2GB of swap
-Machine B (dst) has 1GB of RAM / 2GB of swap.
+> On Sat, 2005-11-05 at 10:10 +0000, Russell King wrote:
+> 
+> > It's probably better to use a union with these, eg:
+> 
+> The common idiom in the watchdog drivers seems to be to use separate
+> variables. I'll leave it up to Wim if he wants to change that.
+> 
+> The following makes drivers/char/watchdog/sa1100_wdt.c sparse clean.
+> 
+> Signed-off-by: Ian Campbell <icampbell@arcom.com>
 
-Justin.
+I seem to have missed this last e-mail (I was moving around that time...).
+This is indeed how it's been done in other drivers. I just uploaded this "patch"
+into my -mm test tree. Within a week or two I'll move it to the final watchdog tree.
 
-On Tue, 17 Jan 2006, Trond Myklebust wrote:
+We should look to the struct watchdog part in more detail though.
+a union is an option, but probably not the only one :-)
 
-> On Tue, 2006-01-17 at 13:55 -0500, Justin Piszcz wrote:
->> Did you get my other e-mail?
->>
->> $ cp file /nfs/destination
->> $ lftp> put file
->
->
-> Yes, but how big a file is this? Is it significantly larger than the
-> amount of cache memory on the server? As I said, if ftp is failing to
-> sync the file to disk, then you may be comparing apples and oranges.
->
-> Cheers,
->  Trond
->
->> On Tue, 17 Jan 2006, Trond Myklebust wrote:
->>
->>> On Tue, 2006-01-17 at 13:38 -0500, Justin Piszcz wrote:
->>>> Writing from SRC(A) -> DST(B).
->>>> I have not tested reading, but as I recall there were similar speed issues
->>>> going the other way too, although I have not tested it recently.
->>>
->>> How were you testing it? I'm not sure that ftp will actually sync your
->>> file to disk (whereas that is pretty much mandatory for an NFS server),
->>> so unless you are transferring very large files, you would expect to see
->>> a speed difference due to caching of writes by the server.
->>>
->>> Cheers,
->>>  Trond
->>>
->
+Greetings,
+Wim.
+

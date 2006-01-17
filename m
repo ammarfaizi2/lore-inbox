@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbWAQL7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWAQMKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750905AbWAQL7s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 06:59:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWAQL7s
+	id S932381AbWAQMKT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 07:10:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWAQMKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 06:59:48 -0500
-Received: from ns.suse.de ([195.135.220.2]:24529 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750763AbWAQL7r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 06:59:47 -0500
-Date: Tue, 17 Jan 2006 12:59:45 +0100
-From: Nick Piggin <npiggin@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <npiggin@suse.de>, jack@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: unmount oops in log_do_checkpoint
-Message-ID: <20060117115945.GC24083@wotan.suse.de>
-References: <20060116160420.GA21064@wotan.suse.de> <20060116212250.GD12159@atrey.karlin.mff.cuni.cz> <20060117113727.GB24083@wotan.suse.de> <20060117034601.6556322a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Jan 2006 07:10:18 -0500
+Received: from wproxy.gmail.com ([64.233.184.201]:4910 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932381AbWAQMKR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 07:10:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=H1T6zacSp9UCvSb8yOczbvvuZchDOJNfdlQrWiaSJOu5IkBqKGaqIJPTCTf/fyF5ejyP3Os2q1+34CV0SDipVXvmf8gQVURklFFKcX+KuMuBq2hLqH2Qd5bsKcqoWSjs1Uu92zarjQ5R/zp12Zjzcwn+QMbfVNZkyIDzpfavZbQ=
+Message-ID: <f69849430601170410q67fd075cka5fbff213b7f08d9@mail.gmail.com>
+Date: Tue, 17 Jan 2006 04:10:15 -0800
+From: kernel coder <lhrkernelcoder@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Observation on IDE read operation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060117034601.6556322a.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 17, 2006 at 03:46:01AM -0800, Andrew Morton wrote:
-> Nick Piggin <npiggin@suse.de> wrote:
-> >
-> > On Mon, Jan 16, 2006 at 10:22:50PM +0100, Jan Kara wrote:
-> > > > 2.6.15-git12 (and 11, not sure when it started) oops when unmounting
-> > > > an ext3 filesystem. Looks like 'transaction' in log_do_checkpoint is
-> > > > garbage.
-> > > > 
-> > 
-> > [oops]
-> > 
-> > >   It would be useful to find out which patch cause it (by git bisect)
-> > > but one obvious suspect is my merged ext3 patch to checkpoint.c. I'll
-> > > investigate tomorrow.
-> > > 
-> > 
-> > Yep, reverting jbd split checkpoint lists in -git12 fixes it. It is
-> > 100% reproducible so far, and every time rebooting with a patched
-> > kernel fails to result in the oops.
-> > 
-> 
-> But that patch was in -mm for months.  How come you didn't hit the oops
-> earlier?  One would almost expect some odd patch interaction, but changes
-> in ext3 have been small for a long time.
+hi,
 
-Haven't run -mm on that machine for quite a while, unfortunately.
+I was analyzing the IDE i/o mechanism in linux kernel 2.4.32.I
+observed following sequence of read requests to read a particular file
+with size around 13kb.
 
-What's strange is that nobody else has hit it... 
+1) block no=9706		 number of sectors=20
 
+2) block no=9723		 number of sectors=4
 
+3) block no=9725		 number of sectors=2
+
+4) block no=9726		 number of sectors=2
+
+As u can see 4 different requests were made to read blocks 9706 to
+9715 , 9723 to 9724 , 9725 , 9726.
+
+The function __make_request ensures that requests are rearranged and
+merged so that consective blocks are read in one request.So please
+tell me why separete requests were made for reading blocks 9723 to
+9724 , 9725 , 9726 ,when requests from 9724 to 9726 can be merged into
+one.
+
+Is it suitable that instead of generating separte requests for reading
+ 9706 to 9715 and 9723 to 9726 blocks ,just one request for reading
+9706 to 9726 blocks is issued.This will cause irrelevant blocks (9716
+to 9722) to be read as well but they can be discarded.
+
+ If all data blocks of that particular file are read in one
+request,will it increase  the speed of read operation on that file.
+
+shahzad

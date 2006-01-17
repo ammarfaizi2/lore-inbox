@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWAQX2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWAQXbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbWAQX2I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 18:28:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWAQX2I
+	id S932238AbWAQXbv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 18:31:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWAQXbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 18:28:08 -0500
-Received: from free.wgops.com ([69.51.116.66]:42505 "EHLO shell.wgops.com")
-	by vger.kernel.org with ESMTP id S932101AbWAQX2G (ORCPT
+	Tue, 17 Jan 2006 18:31:51 -0500
+Received: from fmr13.intel.com ([192.55.52.67]:12941 "EHLO
+	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932238AbWAQXbu convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 18:28:06 -0500
-Date: Tue, 17 Jan 2006 16:27:39 -0700
-From: Michael Loftis <mloftis@wgops.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
-Message-ID: <B34375EBA93D2866BECF5995@d216-220-25-20.dynip.modwest.com>
-In-Reply-To: <E1EywcM-0004Oz-IE@laurel.muq.org>
-References: <E1EywcM-0004Oz-IE@laurel.muq.org>
-X-Mailer: Mulberry/4.0.4 (Mac OS X)
+	Tue, 17 Jan 2006 18:31:50 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-MailScanner-Information: Please contact support@wgops.com
-X-MailScanner: WGOPS clean
-X-MailScanner-From: mloftis@wgops.com
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Boot problem with [PATCH] x86_64: Allow kernel page tables upto the end of memory
+Date: Tue, 17 Jan 2006 15:31:44 -0800
+Message-ID: <2BD5725B505DC54E8CDCF251DC8A2E7E09599C6C@fmsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Boot problem with [PATCH] x86_64: Allow kernel page tables upto the end of memory
+Thread-Index: AcYbrj9Jb+pNjYiVQBWEOzMTP86VcwAD3BhQ
+From: "Chen, Tim C" <tim.c.chen@intel.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 17 Jan 2006 23:31:45.0497 (UTC) FILETIME=[2DEE5C90:01C61BBE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen wrote:
+> On Tuesday 17 January 2006 22:32, Tim Chen wrote:
+>> Hi Andi,
+>> 
+>> With this patch in 2.6.15-git12,
+>> 
+>>
+(http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a
+>> =com mit;h=6c5acd160a10c76e8debf4f8fa8256d7c914f290), I found that
+>> kernel could  no longer boot when I include "mem=1G" boot option on a
+>> dual Xeon machine  that has more than 4G of memory.  The machine
+>> boots normally without  "mem=1G" specified or when the patch is
+>> backed out. I have included the boot log of the failed boot and the
+>> normal boot for  your reference.  The table_start was relocated from
+>> 0x8000 to 0x100000000  with the patch applied.
+> 
+> Still don't understand why 4GB doesn't work with mem=, but git13 will
+> not relocate the tables there anymore and shouldn't have this
+> problem.  
+> 
+> -Andi
 
+Thanks.  I have verified that git13 code no longer have this issue.
 
---On January 17, 2006 1:35:46 PM -0600 Cynbe ru Taren <cynbe@muq.org> wrote:
-
->
-> Just in case the RAID5 maintainers aren't aware of it:
->
-> The current Linux kernel RAID5 implementation is just
-> too fragile to be used for most of the applications
-> where it would be most useful.
->
-> In principle, RAID5 should allow construction of a
-> disk-based store which is considerably MORE reliable
-> than any individual drive.
-
-Absolutely not.  The more spindles the more chances of a double failure. 
-Simple statistics will mean that unless you have mirrors the more drives 
-you add the more chance of two of them (really) failing at once and choking 
-the whole system.
-
-That said, there very well could be (are?) cases where md needs to do a 
-better job of handling the world unravelling.
+Tim

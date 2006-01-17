@@ -1,100 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWAQRem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWAQRil@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbWAQRem (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 12:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWAQRel
+	id S932251AbWAQRil (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 12:38:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWAQRil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 12:34:41 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:50890
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932230AbWAQRel
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 12:34:41 -0500
-Subject: Re: [ANNOUNCE] 2.6.15-rc5-hrt2 - hrtimers based high resolution
-	patches
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, George Anzinger <george@mvista.com>,
-       john stultz <johnstul@us.ibm.com>, Roman Zippel <zippel@linux-m68k.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1136937547.6197.73.camel@localhost.localdomain>
-References: <1134385343.4205.72.camel@tglx.tec.linutronix.de>
-	 <1134507927.18921.26.camel@localhost.localdomain>
-	 <20051214084019.GA18708@elte.hu>  <20051214084333.GA20284@elte.hu>
-	 <1136937547.6197.73.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 17 Jan 2006 18:35:05 +0100
-Message-Id: <1137519305.17609.48.camel@localhost.localdomain>
+	Tue, 17 Jan 2006 12:38:41 -0500
+Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:52191 "EHLO
+	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
+	id S932241AbWAQRij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 12:38:39 -0500
+Date: Tue, 17 Jan 2006 09:38:18 -0800
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: Chase Venters <chase.venters@clientec.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Jiri Benc <jbenc@suse.cz>,
+       Stefan Rompf <stefan@loplof.de>,
+       Mike Kershaw <dragorn@kismetwireless.net>,
+       Krzysztof Halasa <khc@pm.waw.pl>, Robert Hancock <hancockr@shaw.ca>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Denis Vlasenko <vda@ilport.com.ua>,
+       Danny van Dyk <kugelfang@gentoo.org>,
+       Stephen Hemminger <shemminger@osdl.org>, feyd <feyd@nmskb.cz>,
+       Andreas Mohr <andim2@users.sourceforge.net>,
+       Bas Vermeulen <bvermeul@blackstar.nl>, Jean Tourrilhes <jt@hpl.hp.com>,
+       Daniel Drake <dsd@gentoo.org>, Ulrich Kunitz <kune@deine-taler.de>,
+       Phil Dibowitz <phil@ipom.com>, Simon Kelley <simon@thekelleys.org.uk>,
+       Marcel Holtmann <marcel@holtmann.org>,
+       Patrick McHardy <kaber@trash.net>, Ingo Oeser <netdev@axxeo.de>,
+       Harald Welte <laforge@gnumonks.org>,
+       Ben Greear <greearb@candelatech.com>, Thomas Graf <tgraf@suug.ch>
+Subject: Re: wireless: recap of current issues (stack)
+Message-ID: <20060117173818.GA19159@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20060113195723.GB16166@tuxdriver.com> <20060113213200.GG16166@tuxdriver.com> <200601131703.29677.chase.venters@clientec.com> <200601141451.16232.mbuesch@freenet.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601141451.16232.mbuesch@freenet.de>
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+User-Agent: Mutt/1.5.9i
+From: Jean Tourrilhes <jt@hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-10 at 18:59 -0500, Steven Rostedt wrote:
-> And this _is_ protected, but I just discovered that this does _not_
-> protect against hrtimer_start!
+On Sat, Jan 14, 2006 at 02:51:14PM +0100, Michael Buesch wrote:
+> On Saturday 14 January 2006 00:03, you wrote:
+> > As an aside to this whole thing, I know we're talking about *kernel* wireless 
+> > but it's worthless to most people without good userland support as well. 
+> > Anyone have any thoughts and feelings on what things look like on the 
+> > desktop? I think if we work closely with some desktop people, we can shepard 
+> > in some wonderful new desktop support on top of the new netlink API.
 > 
-> In hrtimer_start we have:
-> 
-> 	base = lock_hrtimer_base(timer, &flags);
-> 
-> 	/* Remove an active timer from the queue: */
-> 	remove_hrtimer(timer, base);
-> 
-> Which can be called after that spin_unlock_irq is done by the
-> run_hrtimer_queue, and we will hit a bug (as I did).  This is not an
-> easy race to hit. 
+> I am in the KDE development and have (almost) full access to the KDE svn
+> repository. Altought I did not do much coding on KDE apps recently,
+> I will be able to help in WiFi support for KDE.
+> The first thing I thought of, was a tray icon with basic information
+> about the available interfaces and basic configuration
+> capabilities.
 
-Right, but there should be actually no use case where this happens.
+	There is already at least 2 KDE applications for WiFi stuff,
+and both are fully fledged (i.e. not just a signal meter) :
+		http://websvn.kde.org/trunk/KDE/kdenetwork/wifi/
+		http://websvn.kde.org/trunk/kdenonbeta/kifi/
+	Note that I've used neither, so I don't know how good they are
+and what features are missing. If you decide to write another apps,
+please send me the link so I can add it on my web page.
 
-For now I prefer to add a 
+> Greetings Michael.
 
-BUG_ON(base->curr_timer == timer); 
+	Have fun...
 
-into hrtimer_start to find the real reason.
-
-> Here's an example of a race for this problem:
-> In posix-timers.c: commen_timer_set:
-> 
->    If we get preempted between hrtimer_try_to_cancel and
->    hrtimer_restart.
-> 
->    Then a new thread adds the timer back (by a threaded program).
-
-I don't see how this should happen.
-
-sys_timer_settime()
-	timr = lock_timer(timer_id, flag);
-
-Now the k_itimer, which is the container of the hrtimer is locked.
-
-common_timer_set()
-	if (hrtimer_try_to_cancel() < 0)
-		return TIMER_RETRY;
-	....
-	hrtimer_start();
-	return;
-
-back in sys_timer_settime()
-
-	unlock_timer(timr);
-
-So how gets this timer added back, when the container lock is held
-across the complete operation ?
-
-> Now the question is what's the right solution?  Can hrtimer_start
-> schedule?  Probably not, maybe we should add something to check this and
-> have hrtimer_start return -1 if it is running, and let who ever called
-> it figure out what to do?  Maybe have a hrtimer_cancel_start atomic
-> operation? As well as a hrtimer_try_to_cancel_start?
-
-The posix timer code does already the Right Thing, as it uses
-hrtimer_try_to_cancel() and reacts on the return value. This is
-necessary to prevent a dead lock with the k_itimer lock. 
-
-I try to reproduce this with your test program on my test boxes.
-
-	tglx
-
+	Jean
 

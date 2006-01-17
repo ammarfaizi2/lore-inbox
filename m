@@ -1,126 +1,1085 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbWAQNPR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbWAQNQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932325AbWAQNPR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 08:15:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWAQNPR
+	id S932346AbWAQNQr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 08:16:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWAQNQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 08:15:17 -0500
-Received: from wproxy.gmail.com ([64.233.184.204]:11732 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932325AbWAQNPQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 08:15:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=LNzXg2i37Es9AFyGEAcOfepZ+NMKODQ634DS/Whv3qj/mA8dk+798gn+iHNBJbGbu9ulvlWOFPrkrJHh5jw0uyIKXvrWMNYl5VYOc2qSBIVQxVurjI/hbEmgu69jDz+pEH+KKOffFpePUPl6VJKHBTKoD/exhB3Z90eieVyB/8M=
-Message-ID: <4c50d3ee0601170515m5a5fb502w@mail.gmail.com>
-Date: Tue, 17 Jan 2006 14:15:13 +0100
-From: =?ISO-8859-1?Q?Th=E9ophile_Helleboid_-_Chtitux?= 
-	<chtitux@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Bug in the new 2.6.16-rc1, without .conf file
+	Tue, 17 Jan 2006 08:16:47 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:427 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932324AbWAQNQp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 08:16:45 -0500
+Message-ID: <43CCEE36.3060809@pobox.com>
+Date: Tue, 17 Jan 2006 08:16:38 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: PATCH: Initial PATA driver for SiS chipset IDE
+References: <1136326875.22598.56.camel@localhost.localdomain>
+In-Reply-To: <1136326875.22598.56.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Alan Cox wrote: > This is mostly a port of the
+	drivers/ide/pci driver by Lionel and > Vojtech to the new libata layer.
+	Bugs excepted it's functionally > equivalent to the old driver with the
+	patch I sent for that one earlier. > > Tested on the SiS chipsets I
+	have here running a full Fedora Core 4. > > Alan > > Signed-off-by:
+	Alan Cox <alan@redhat.com> > > /* > * pata_sis.c - SiS ATA driver > * >
+	* (C) 2005 Red Hat <alan@redhat.com> [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I've just download the linux-kernel 2.6.16-rc1.
-I have downloaded it from
-ftp://ftp.free.fr/pub/linux/kernel/v2.6/linux-2.6.15.tar.bz2 and I
-have used ketchup to patch it.
-I run make menuconfig and get :
-chtituxx linux-2.6.15 # make menuconfig
-scripts/kconfig/mconf arch/i386/Kconfig
-#
-# using defaults found in arch/i386/defconfig
-#
-arch/i386/defconfig:121:warning: trying to assign nonexistent symbol
-HAVE_DEC_LOCK
-arch/i386/defconfig:171:warning: trying to assign nonexistent symbol
-PCI_USE_VECTOR
-arch/i386/defconfig:173:warning: trying to assign nonexistent symbol PCI_NAMES
-arch/i386/defconfig:216:warning: trying to assign nonexistent symbol
-PARPORT_PC_CML1
-arch/i386/defconfig:220:warning: trying to assign nonexistent symbol
-PARPORT_OTHER
-arch/i386/defconfig:247:warning: trying to assign nonexistent symbol
-BLK_DEV_CARMEL
-arch/i386/defconfig:268:warning: trying to assign nonexistent symbol
-IDE_TASKFILE_IO
-arch/i386/defconfig:287:warning: trying to assign nonexistent symbol
-BLK_DEV_ADMA
-arch/i386/defconfig:360:warning: trying to assign nonexistent symbol
-SCSI_MEGARAID
-arch/i386/defconfig:371:warning: trying to assign nonexistent symbol
-SCSI_CPQFCTS
-arch/i386/defconfig:392:warning: trying to assign nonexistent symbol
-SCSI_QLOGIC_ISP
-arch/i386/defconfig:395:warning: trying to assign nonexistent symbol
-SCSI_QLA2XXX
-arch/i386/defconfig:401:warning: trying to assign nonexistent symbol
-SCSI_QLA6322
-arch/i386/defconfig:455:warning: trying to assign nonexistent symbol
-IEEE1394_CMP
-arch/i386/defconfig:472:warning: trying to assign nonexistent symbol NETLINK_DEV
-arch/i386/defconfig:506:warning: trying to assign nonexistent symbol
-IP_NF_MATCH_LIMIT
-arch/i386/defconfig:508:warning: trying to assign nonexistent symbol
-IP_NF_MATCH_MAC
-arch/i386/defconfig:509:warning: trying to assign nonexistent symbol
-IP_NF_MATCH_PKTTYPE
-arch/i386/defconfig:510:warning: trying to assign nonexistent symbol
-IP_NF_MATCH_MARK
-arch/i386/defconfig:517:warning: trying to assign nonexistent symbol
-IP_NF_MATCH_LENGTH
-arch/i386/defconfig:519:warning: trying to assign nonexistent symbol
-IP_NF_MATCH_TCPMSS
-arch/i386/defconfig:520:warning: trying to assign nonexistent symbol
-IP_NF_MATCH_HELPER
-arch/i386/defconfig:521:warning: trying to assign nonexistent symbol
-IP_NF_MATCH_STATE
-arch/i386/defconfig:522:warning: trying to assign nonexistent symbol
-IP_NF_MATCH_CONNTRACK
-arch/i386/defconfig:537:warning: trying to assign nonexistent symbol
-IP_NF_TARGET_MARK
-arch/i386/defconfig:538:warning: trying to assign nonexistent symbol
-IP_NF_TARGET_CLASSIFY
-arch/i386/defconfig:545:warning: trying to assign nonexistent symbol
-IP_NF_TARGET_NOTRACK
-arch/i386/defconfig:564:warning: trying to assign nonexistent symbol
-NET_FASTROUTE
-arch/i386/defconfig:565:warning: trying to assign nonexistent symbol
-NET_HW_FLOWCONTROL
-arch/i386/defconfig:715:warning: trying to assign nonexistent symbol
-SOUND_GAMEPORT
-arch/i386/defconfig:771:warning: trying to assign nonexistent symbol QIC02_TAPE
-arch/i386/defconfig:807:warning: trying to assign nonexistent symbol DRM_GAMMA
-arch/i386/defconfig:983:warning: trying to assign nonexistent symbol
-USB_BLUETOOTH_TTY
-arch/i386/defconfig:993:warning: trying to assign nonexistent symbol
-USB_STORAGE_HP8200e
-arch/i386/defconfig:1019:warning: trying to assign nonexistent symbol
-USB_HPUSBSCSI
-arch/i386/defconfig:1054:warning: trying to assign nonexistent symbol USB_TIGL
-arch/i386/defconfig:1112:warning: trying to assign nonexistent symbol DEVFS_FS
-arch/i386/defconfig:1113:warning: trying to assign nonexistent symbol
-DEVPTS_FS_XATTR
-arch/i386/defconfig:1241:warning: trying to assign nonexistent symbol
-X86_STD_RESOURCES
-arch/i386/defconfig:1242:warning: trying to assign nonexistent symbol PC
-*
+Alan Cox wrote:
+> This is mostly a port of the drivers/ide/pci driver by Lionel and
+> Vojtech to the new libata layer. Bugs excepted it's functionally
+> equivalent to the old driver with the patch I sent for that one earlier.
+> 
+> Tested on the SiS chipsets I have here running a full Fedora Core 4.
+> 
+> Alan
+> 
+> Signed-off-by: Alan Cox <alan@redhat.com>
+> 
+> /*
+>  *    pata_sis.c - SiS ATA driver
+>  *
+>  *	(C) 2005 Red Hat <alan@redhat.com>
 
-Your kernel configuration changes were NOT saved.
+It's now 2006 :)
 
-Makefile:477: .config: Aucun fichier ou répertoire de ce type
-chtituxx linux-2.6.15 #
 
-The interface of the config is here, but when I closed or I browse in
-the config menu, I can see it.
-After a "touch .config", there is no error.
-make gconfig makes the same error ...
---
-Chtitux -
-Théophile Helleboid
+>  *    Based upon linux/drivers/ide/pci/sis5513.c
+>  * Copyright (C) 1999-2000	Andre Hedrick <andre@linux-ide.org>
+>  * Copyright (C) 2002		Lionel Bouton <Lionel.Bouton@inet6.fr>, Maintainer
+>  * Copyright (C) 2003		Vojtech Pavlik <vojtech@suse.cz>
+>  * SiS Taiwan		: for direct support and hardware.
+>  * Daniela Engert	: for initial ATA100 advices and numerous others.
+>  * John Fremlin, Manfred Spraul, Dave Morgan, Peter Kjellerstedt	:
+>  *			  for checking code correctness, providing patches.
+>  * Original tests and design on the SiS620 chipset.
+>  * ATA100 tests and design on the SiS735 chipset.
+>  * ATA16/33 support from specs
+>  * ATA133 support for SiS961/962 by L.C. Chang <lcchang@sis.com.tw>
+>  *
+>  *
+>  *	TODO
+>  *	Check MWDMA on drives that don't support MWDMA speed pio cycles ?
+>  *	More Testing
+>  */
+> 
+> #include <linux/kernel.h>
+> #include <linux/module.h>
+> #include <linux/pci.h>
+> #include <linux/init.h>
+> #include <linux/blkdev.h>
+> #include <linux/delay.h>
+> #include <linux/device.h>
+> #include <scsi/scsi_host.h>
+> #include <linux/libata.h>
+> #include <linux/ata.h>
+> 
+> #define DRV_NAME	"pata_sis"
+> #define DRV_VERSION	"0.1"
+> 
+> struct sis_chipset {
+> 	u16 device;			/* PCI host ID */
+> 	struct ata_port_info *info;	/* Info block */
+> 	/* Probably add family, cable detect type etc here to clean
+> 	   up code later */
+> };
+> 
+> /**
+>  *	sis_133_cable_detect	-	check for 40/80 pin
+>  *	@ap: Port
+>  *
+>  *	Perform cable detection for the later UDMA133 capable
+>  *	SiS chipset.
+>  */
+>  
+> static int sis_133_cable_detect(struct ata_port *ap)
+> {
+> 	struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
+> 	u16 tmp;
+> 	
+> 	pci_read_config_word(pdev, 0x50 + 2 * ap->hard_port_no, &tmp);
+> 	if(tmp & 0x8000)
+
+space
+
+
+> 		return ATA_CBL_PATA40;
+> 	return ATA_CBL_PATA80;
+> }
+> 
+> /**
+>  *	sis_phy_reset - Probe specified port on PATA host controller
+>  *	@ap: Port to probe
+>  *
+>  *	LOCKING:
+>  *	None (inherited from caller).
+>  */
+> 
+> static void sis_133_phy_reset(struct ata_port *ap)
+> {
+> 	struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
+> 	static struct pci_bits sis_enable_bits[] = {
+
+const
+
+
+> 		{ 0x4aU, 1U, 0x02UL, 0x02UL },	/* port 0 */
+> 		{ 0x4aU, 1U, 0x04UL, 0x04UL },	/* port 1 */
+> 	};
+> 
+> 	if (!pci_test_config_bits(pdev, &sis_enable_bits[ap->hard_port_no])) {
+> 		ata_port_disable(ap);
+> 		printk(KERN_INFO "ata%u: port disabled. ignoring.\n", ap->id);
+> 		return;
+> 	}
+> 	ap->cbl = sis_133_cable_detect(ap);
+> 	ata_port_probe(ap);
+> 	ata_bus_reset(ap);
+> }
+> 
+> 
+> /**
+>  *	sis_66_cable_detect	-	check for 40/80 pin
+>  *	@ap: Port
+>  *
+>  *	Perform cable detection on the UDMA66, UDMA100 and early UDMA133
+>  *	SiS IDE controllers.
+>  */
+>  
+> static int sis_66_cable_detect(struct ata_port *ap)
+> {
+> 	struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
+> 	u8 tmp;
+> 	
+> 	pci_read_config_byte(pdev, 0x48, &tmp);
+> 	tmp >>= ap->hard_port_no;
+> 	if(tmp & 0x10)
+
+space
+
+
+> 		return ATA_CBL_PATA40;
+> 	return ATA_CBL_PATA80;
+> }
+> 
+> /**
+>  *	sis_66_phy_reset - Probe specified port on PATA host controller
+>  *	@ap: Port to probe
+>  *
+>  *	LOCKING:
+>  *	None (inherited from caller).
+>  */
+> 
+> static void sis_66_phy_reset(struct ata_port *ap)
+> {
+> 	struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
+> 	static struct pci_bits sis_enable_bits[] = {
+> 		{ 0x4aU, 1U, 0x02UL, 0x02UL },	/* port 0 */
+> 		{ 0x4aU, 1U, 0x04UL, 0x04UL },	/* port 1 */
+> 	};
+
+const
+
+
+> 	if (!pci_test_config_bits(pdev, &sis_enable_bits[ap->hard_port_no])) {
+> 		ata_port_disable(ap);
+> 		printk(KERN_INFO "ata%u: port disabled. ignoring.\n", ap->id);
+> 		return;
+> 	}
+> 	ap->cbl = sis_66_cable_detect(ap);
+> 	ata_port_probe(ap);
+> 	ata_bus_reset(ap);
+> }
+> 
+> 
+> /**
+>  *	sis_old_phy_reset - Probe specified port on PATA host controller
+>  *	@ap: Port to probe
+>  *
+>  *	LOCKING:
+>  *	None (inherited from caller).
+>  */
+> 
+> static void sis_old_phy_reset(struct ata_port *ap)
+> {
+> 	struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
+> 	static struct pci_bits sis_enable_bits[] = {
+> 		{ 0x4aU, 1U, 0x02UL, 0x02UL },	/* port 0 */
+> 		{ 0x4aU, 1U, 0x04UL, 0x04UL },	/* port 1 */
+> 	};
+
+const
+
+> 	if (!pci_test_config_bits(pdev, &sis_enable_bits[ap->hard_port_no])) {
+> 		ata_port_disable(ap);
+> 		printk(KERN_INFO "ata%u: port disabled. ignoring.\n", ap->id);
+> 		return;
+> 	}
+> 	ap->cbl = ATA_CBL_PATA40;
+> 	ata_port_probe(ap);
+> 	ata_bus_reset(ap);
+> }
+> 
+> /**
+>  *	sis_set_fifo	-	Set RWP fifo bits for this device
+>  *	@ap: Port
+>  *	@adev: Device
+>  *
+>  *	SIS chipsets implement prefetch/postwrite bits for each device
+>  *	on both channels. This functionality is not ATAPI compatible and
+>  *	must be configured according to the class of device present
+>  */
+>  
+> static void sis_set_fifo(struct ata_port *ap, struct ata_device *adev)
+> {
+> 	struct pci_dev *pdev = to_pci_dev(ap->host_set->dev);
+> 	u8 reg4b;
+
+When the verbalization of a magic constant creeps into the naming of a 
+variable, you know it's time to replace some magic numbers with named 
+constants...
+
+
+> 	u8 mask = 0x11;
+> 	
+> 	mask <<= (2 * ap->hard_port_no);
+> 	mask <<= adev->devno;
+> 	
+> 	pci_read_config_byte(pdev, 0x4B, &reg4b);
+> 	reg4b &= ~mask;
+> 	
+> 	/* Enable for ATA (disk) only */
+> 	if(adev->class == ATA_DEV_ATA)
+
+space
+
+
+> 		reg4b |= mask;
+> 	pci_write_config_byte(pdev, 0x4B, reg4b);
+> }
+> 
+> /**
+>  *	sis_old_set_piomode - Initialize host controller PATA PIO timings
+>  *	@ap: Port whose timings we are configuring
+>  *	@adev: Device we are configuring for.
+>  *
+>  *	Set PIO mode for device, in host controller PCI config space. This
+>  *	function handles PIO set up for all chips that are pre ATA100 and
+>  *	also early ATA100 devices.
+>  *
+>  *	LOCKING:
+>  *	None (inherited from caller).
+>  */
+> 
+> static void sis_old_set_piomode (struct ata_port *ap, struct ata_device *adev)
+> {
+> 	struct pci_dev *pdev	= to_pci_dev(ap->host_set->dev);
+> 	int port = 0x40 + 4 * ap->hard_port_no +  2 * adev->devno;
+> 	u8 t1, t2;
+> 	int speed = adev->pio_mode - XFER_PIO_0;
+> 	
+> 	const u8 active[]   = { 0x00, 0x07, 0x04, 0x03, 0x01 };
+> 	const u8 recovery[] = { 0x00, 0x06, 0x04, 0x03, 0x03 };
+> 	
+> 	sis_set_fifo(ap, adev);
+> 	
+> 	pci_read_config_byte(pdev, port, &t1);
+> 	pci_read_config_byte(pdev, port + 1, &t2);
+> 	
+> 	t1 &= ~0x0F;	/* Clear active/recovery timings */
+> 	t2 &= ~0x07;
+> 	
+> 	t1 |= active[speed];
+> 	t2 |= recovery[speed];
+> 	
+> 	pci_write_config_byte(pdev, port, t1);
+> 	pci_write_config_byte(pdev, port + 1, t2);
+> }
+> 
+> /**
+>  *	sis_100_set_pioode - Initialize host controller PATA PIO timings
+>  *	@ap: Port whose timings we are configuring
+>  *	@adev: Device we are configuring for.
+>  *
+>  *	Set PIO mode for device, in host controller PCI config space. This
+>  *	function handles PIO set up for ATA100 devices and early ATA133.
+>  *
+>  *	LOCKING:
+>  *	None (inherited from caller).
+>  */
+> 
+> static void sis_100_set_piomode (struct ata_port *ap, struct ata_device *adev)
+> {
+> 	struct pci_dev *pdev	= to_pci_dev(ap->host_set->dev);
+> 	int port = 0x40 + 4 * ap->hard_port_no +  2 * adev->devno;
+> 	int speed = adev->pio_mode - XFER_PIO_0;
+> 	
+> 	const u8 actrec[] = { 0x00, 0x67, 0x44, 0x33, 0x31 };
+> 	
+> 	sis_set_fifo(ap, adev);
+> 	
+> 	pci_write_config_byte(pdev, port, actrec[speed]);
+> }
+> 
+> /**
+>  *	sis_133_set_pioode - Initialize host controller PATA PIO timings
+>  *	@ap: Port whose timings we are configuring
+>  *	@adev: Device we are configuring for.
+>  *
+>  *	Set PIO mode for device, in host controller PCI config space. This
+>  *	function handles PIO set up for the later ATA133 devices.
+>  *
+>  *	LOCKING:
+>  *	None (inherited from caller).
+>  */
+> 
+> static void sis_133_set_piomode (struct ata_port *ap, struct ata_device *adev)
+> {
+> 	struct pci_dev *pdev	= to_pci_dev(ap->host_set->dev);
+> 	int port = 0x40;
+> 	u32 t1;
+> 	u32 reg54;
+> 	int speed = adev->pio_mode - XFER_PIO_0;
+> 
+> 	const u32 timing100[] = {
+> 		0x28269000,	/* Recovery << 24 | Act << 16 | Ini << 12 */
+> 		0x0C266000,
+> 		0x04263000,
+> 		0x0C0A3000,
+> 		0x05093000
+> 	};
+> 	const u32 timing133[] = {
+> 		0x1E1C6000,	/* Recovery << 24 | Act << 16 | Ini << 12 */
+> 		0x091C4000,
+> 		0x031C2000,
+> 		0x09072000,
+> 		0x04062000
+> 	};
+> 
+> 	sis_set_fifo(ap, adev);
+> 
+> 	pci_read_config_dword(pdev, 0x54, &reg54);
+> 	if(reg54 & 0x40000000)
+> 		port = 0x70;
+> 	port += 8 * ap->hard_port_no +  4 * adev->devno;
+> 
+> 	pci_read_config_dword(pdev, port, &t1);
+> 	t1 &= 0xC0C00FFF;	/* Mask out timing */
+> 	
+> 	if(t1 & 0x08)		/* 100 or 133 ? */
+> 		t1 |= timing133[speed];
+> 	else
+> 		t1 |= timing100[speed];
+> 	pci_write_config_byte(pdev, port, t1);
+> }
+> 
+> /**
+>  *	sis_old_set_dmamode - Initialize host controller PATA DMA timings
+>  *	@ap: Port whose timings we are configuring
+>  *	@adev: Device to program
+>  *
+>  *	Set UDMA/MWDMA mode for device, in host controller PCI config space.
+>  *	Handles pre UDMA and UDMA33 devices. Supports MWDMA as well unlike
+>  *	the old ide/pci driver.
+>  *
+>  *	LOCKING:
+>  *	None (inherited from caller).
+>  */
+> 
+> static void sis_old_set_dmamode (struct ata_port *ap, struct ata_device *adev)
+> {
+> 	struct pci_dev *pdev	= to_pci_dev(ap->host_set->dev);
+> 	int speed = adev->dma_mode - XFER_MW_DMA_0;
+> 	int drive_pci = 0x40 + 4 * ap->hard_port_no + 2 * adev->devno;
+> 	u16 timing;
+> 	
+> 	const u16 mwdma_bits[] = { 0x707, 0x202, 0x202 };
+> 	const u16 udma_bits[]  = {
+> 		0xE000, 0xC000, 0xA000 
+> 	};
+> 	
+> 	pci_read_config_word(pdev, drive_pci, &timing);
+> 	
+> 	if(adev->dma_mode < XFER_UDMA_0) {
+
+space
+
+
+> 		/* bits 3-0 hold recovery timing bits 8-10 active timing and
+> 		   the higer bits are dependant on the device */
+> 		timing &= ~ 0x870F;
+> 		timing |= mwdma_bits[speed];
+> 		pci_write_config_word(pdev, drive_pci, timing);
+> 	} else {
+> 		/* Bit 15 is UDMA on/off, bit 13-14 are cycle time */
+> 		speed = adev->dma_mode - XFER_UDMA_0;
+> 		timing &= ~0x6000;
+> 		timing |= udma_bits[speed];
+> 	}
+> }
+> 
+> /**
+>  *	sis_66_set_dmamode - Initialize host controller PATA DMA timings
+>  *	@ap: Port whose timings we are configuring
+>  *	@adev: Device to program
+>  *
+>  *	Set UDMA/MWDMA mode for device, in host controller PCI config space.
+>  *	Handles UDMA66 and early UDMA100 devices. Supports MWDMA as well unlike
+>  *	the old ide/pci driver.
+>  *
+>  *	LOCKING:
+>  *	None (inherited from caller).
+>  */
+> 
+> static void sis_66_set_dmamode (struct ata_port *ap, struct ata_device *adev)
+> {
+> 	struct pci_dev *pdev	= to_pci_dev(ap->host_set->dev);
+> 	int speed = adev->dma_mode - XFER_MW_DMA_0;
+> 	int drive_pci = 0x40 + 4 * ap->hard_port_no + 2 * adev->devno;
+> 	u16 timing;
+> 	
+> 	const u16 mwdma_bits[] = { 0x707, 0x202, 0x202 };
+> 	const u16 udma_bits[]  = { 0xF000, 0xD000, 0xB000, 0xA000, 0x9000};
+> 	
+> 	pci_read_config_word(pdev, drive_pci, &timing);
+> 	
+> 	if(adev->dma_mode < XFER_UDMA_0) {
+
+space
+
+
+> 		/* bits 3-0 hold recovery timing bits 8-10 active timing and
+> 		   the higer bits are dependant on the device, bit 15 udma */
+> 		timing &= ~ 0x870F;
+> 		timing |= mwdma_bits[speed];
+> 	} else {
+> 		/* Bit 15 is UDMA on/off, bit 12-14 are cycle time */
+> 		speed = adev->dma_mode - XFER_UDMA_0;
+> 		timing &= ~0x6000;
+> 		timing |= udma_bits[speed];
+> 	}
+> 	pci_write_config_word(pdev, drive_pci, timing);
+> }
+> 
+> /**
+>  *	sis_100_set_dmamode - Initialize host controller PATA DMA timings
+>  *	@ap: Port whose timings we are configuring
+>  *	@adev: Device to program
+>  *
+>  *	Set UDMA/MWDMA mode for device, in host controller PCI config space.
+>  *	Handles UDMA66 and early UDMA100 devices. 
+>  *
+>  *	LOCKING:
+>  *	None (inherited from caller).
+>  */
+> 
+> static void sis_100_set_dmamode (struct ata_port *ap, struct ata_device *adev)
+> {
+> 	struct pci_dev *pdev	= to_pci_dev(ap->host_set->dev);
+> 	int speed = adev->dma_mode - XFER_MW_DMA_0;
+> 	int drive_pci = 0x40 + 4 * ap->hard_port_no + 2 * adev->devno;
+> 	u16 timing;
+> 
+> 	const u16 udma_bits[]  = { 0x8B00, 0x8700, 0x8500, 0x8300, 0x8200, 0x8100};
+> 	
+> 	pci_read_config_word(pdev, drive_pci, &timing);
+> 	
+> 	if(adev->dma_mode < XFER_UDMA_0) {
+
+space
+
+
+> 		/* NOT SUPPORTED YET: NEED DATA SHEET. DITTO IN OLD DRIVER */
+> 	} else {
+> 		/* Bit 15 is UDMA on/off, bit 12-14 are cycle time */
+> 		speed = adev->dma_mode - XFER_UDMA_0;
+> 		timing &= ~0x0F00;
+> 		timing |= udma_bits[speed];
+> 	}
+> 	pci_write_config_word(pdev, drive_pci, timing);
+> }
+> 
+> /**
+>  *	sis_133_early_set_dmamode - Initialize host controller PATA DMA timings
+>  *	@ap: Port whose timings we are configuring
+>  *	@adev: Device to program
+>  *
+>  *	Set UDMA/MWDMA mode for device, in host controller PCI config space.
+>  *	Handles early SiS 961 bridges. Supports MWDMA as well unlike
+>  *	the old ide/pci driver.
+>  *
+>  *	LOCKING:
+>  *	None (inherited from caller).
+>  */
+> 
+> static void sis_133_early_set_dmamode (struct ata_port *ap, struct ata_device *adev)
+> {
+> 	struct pci_dev *pdev	= to_pci_dev(ap->host_set->dev);
+> 	int speed = adev->dma_mode - XFER_MW_DMA_0;
+> 	int drive_pci = 0x40 + 4 * ap->hard_port_no + 2 * adev->devno;
+> 	u16 timing;
+> 	
+> 	const u16 udma_bits[]  = { 0x8F00, 0x8A00, 0x8700, 0x8500, 0x8300, 0x8200, 0x8100};
+> 	
+> 	pci_read_config_word(pdev, drive_pci, &timing);
+> 	
+> 	if(adev->dma_mode < XFER_UDMA_0) {
+
+space
+
+
+> 		/* NOT SUPPORTED YET: NEED DATA SHEET. DITTO IN OLD DRIVER */
+> 	} else {
+> 		/* Bit 15 is UDMA on/off, bit 12-14 are cycle time */
+> 		speed = adev->dma_mode - XFER_UDMA_0;
+> 		timing &= ~0x0F00;
+> 		timing |= udma_bits[speed];
+> 	}
+> 	pci_write_config_word(pdev, drive_pci, timing);
+> }
+> 
+> /**
+>  *	sis_133_set_dmamode - Initialize host controller PATA DMA timings
+>  *	@ap: Port whose timings we are configuring
+>  *	@adev: Device to program
+>  *
+>  *	Set UDMA/MWDMA mode for device, in host controller PCI config space.
+>  *	Handles early SiS 961 bridges. Supports MWDMA as well unlike
+>  *	the old ide/pci driver.
+>  *
+>  *	LOCKING:
+>  *	None (inherited from caller).
+>  */
+> 
+> static void sis_133_set_dmamode (struct ata_port *ap, struct ata_device *adev)
+> {
+> 	struct pci_dev *pdev	= to_pci_dev(ap->host_set->dev);
+> 	int speed = adev->dma_mode - XFER_MW_DMA_0;
+> 	int port = 0x40;
+> 	u32 t1;
+> 	u32 reg54;
+> 	
+> 	/* bits 4- cycle time 8 - cvs time */
+> 	const u32 timing_u100[] = { 0x6B0, 0x470, 0x350, 0x140, 0x120, 0x110, 0x000 };
+> 	const u32 timing_u133[] = { 0x9F0, 0x6A0, 0x470, 0x250, 0x230, 0x220, 0x210 };
+> 	
+> 	pci_read_config_dword(pdev, 0x54, &reg54);
+> 	if(reg54 & 0x40000000)
+
+space
+
+
+> 		port = 0x70;
+> 	port += 8 * ap->hard_port_no +  4 * adev->devno;
+> 	
+> 	pci_read_config_dword(pdev, port, &t1);
+> 	
+> 	if(adev->dma_mode < XFER_UDMA_0) {
+
+space
+
+
+> 		t1 &= ~0x00000004;
+> 		/* FIXME: need data sheet to add MWDMA here. Also lacking on
+> 		   ide/pci driver */
+> 	} else {
+> 		speed = adev->dma_mode - XFER_UDMA_0;
+> 		/* if & 8 no UDMA133 - need info for ... */
+> 		t1 &= ~0x00000FF0;
+> 		t1 |= 0x00000004;
+> 		if(t1 & 0x08)
+> 			t1 |= timing_u133[speed];
+> 		else
+> 			t1 |= timing_u100[speed];
+> 	}
+> 	pci_write_config_dword(pdev, port, t1);
+> }
+> 
+> static struct scsi_host_template sis_sht = {
+> 	.module			= THIS_MODULE,
+> 	.name			= DRV_NAME,
+> 	.ioctl			= ata_scsi_ioctl,
+> 	.queuecommand		= ata_scsi_queuecmd,
+> 	.eh_strategy_handler	= ata_scsi_error,
+> 	.can_queue		= ATA_DEF_QUEUE,
+> 	.this_id		= ATA_SHT_THIS_ID,
+> 	.sg_tablesize		= LIBATA_MAX_PRD,
+> 	.max_sectors		= ATA_MAX_SECTORS,
+> 	.cmd_per_lun		= ATA_SHT_CMD_PER_LUN,
+> 	.emulated		= ATA_SHT_EMULATED,
+> 	.use_clustering		= ATA_SHT_USE_CLUSTERING,
+> 	.proc_name		= DRV_NAME,
+> 	.dma_boundary		= ATA_DMA_BOUNDARY,
+> 	.slave_configure	= ata_scsi_slave_config,
+> 	.bios_param		= ata_std_bios_param,
+> 	.ordered_flush		= 1,
+> };
+> 
+> static const struct ata_port_operations sis_133_ops = {
+> 	.port_disable		= ata_port_disable,
+> 	.set_piomode		= sis_133_set_piomode,
+> 	.set_dmamode		= sis_133_set_dmamode,
+> 
+> 	.tf_load		= ata_tf_load,
+> 	.tf_read		= ata_tf_read,
+> 	.check_status		= ata_check_status,
+> 	.exec_command		= ata_exec_command,
+> 	.dev_select		= ata_std_dev_select,
+> 
+> 	.phy_reset		= sis_133_phy_reset,
+> 
+> 	.bmdma_setup		= ata_bmdma_setup,
+> 	.bmdma_start		= ata_bmdma_start,
+> 	.bmdma_stop		= ata_bmdma_stop,
+> 	.bmdma_status		= ata_bmdma_status,
+> 	.qc_prep		= ata_qc_prep,
+> 	.qc_issue		= ata_qc_issue_prot,
+> 
+> 	.eng_timeout		= ata_eng_timeout,
+> 
+> 	.irq_handler		= ata_interrupt,
+> 	.irq_clear		= ata_bmdma_irq_clear,
+> 
+> 	.port_start		= ata_port_start,
+> 	.port_stop		= ata_port_stop,
+> 	.host_stop		= ata_host_stop,
+> };
+> 
+> static const struct ata_port_operations sis_133_early_ops = {
+> 	.port_disable		= ata_port_disable,
+> 	.set_piomode		= sis_100_set_piomode,
+> 	.set_dmamode		= sis_133_early_set_dmamode,
+> 
+> 	.tf_load		= ata_tf_load,
+> 	.tf_read		= ata_tf_read,
+> 	.check_status		= ata_check_status,
+> 	.exec_command		= ata_exec_command,
+> 	.dev_select		= ata_std_dev_select,
+> 
+> 	.phy_reset		= sis_66_phy_reset,
+> 
+> 	.bmdma_setup		= ata_bmdma_setup,
+> 	.bmdma_start		= ata_bmdma_start,
+> 	.bmdma_stop		= ata_bmdma_stop,
+> 	.bmdma_status		= ata_bmdma_status,
+> 	.qc_prep		= ata_qc_prep,
+> 	.qc_issue		= ata_qc_issue_prot,
+> 
+> 	.eng_timeout		= ata_eng_timeout,
+> 
+> 	.irq_handler		= ata_interrupt,
+> 	.irq_clear		= ata_bmdma_irq_clear,
+> 
+> 	.port_start		= ata_port_start,
+> 	.port_stop		= ata_port_stop,
+> 	.host_stop		= ata_host_stop,
+> };
+> 
+> static const struct ata_port_operations sis_100_ops = {
+> 	.port_disable		= ata_port_disable,
+> 	.set_piomode		= sis_100_set_piomode,
+> 	.set_dmamode		= sis_100_set_dmamode,
+> 
+> 	.tf_load		= ata_tf_load,
+> 	.tf_read		= ata_tf_read,
+> 	.check_status		= ata_check_status,
+> 	.exec_command		= ata_exec_command,
+> 	.dev_select		= ata_std_dev_select,
+> 
+> 	.phy_reset		= sis_66_phy_reset,
+> 
+> 	.bmdma_setup		= ata_bmdma_setup,
+> 	.bmdma_start		= ata_bmdma_start,
+> 	.bmdma_stop		= ata_bmdma_stop,
+> 	.bmdma_status		= ata_bmdma_status,
+> 	.qc_prep		= ata_qc_prep,
+> 	.qc_issue		= ata_qc_issue_prot,
+> 
+> 	.eng_timeout		= ata_eng_timeout,
+> 
+> 	.irq_handler		= ata_interrupt,
+> 	.irq_clear		= ata_bmdma_irq_clear,
+> 
+> 	.port_start		= ata_port_start,
+> 	.port_stop		= ata_port_stop,
+> 	.host_stop		= ata_host_stop,
+> };
+> 
+> static const struct ata_port_operations sis_66_ops = {
+> 	.port_disable		= ata_port_disable,
+> 	.set_piomode		= sis_old_set_piomode,
+> 	.set_dmamode		= sis_66_set_dmamode,
+> 
+> 	.tf_load		= ata_tf_load,
+> 	.tf_read		= ata_tf_read,
+> 	.check_status		= ata_check_status,
+> 	.exec_command		= ata_exec_command,
+> 	.dev_select		= ata_std_dev_select,
+> 
+> 	.phy_reset		= sis_66_phy_reset,
+> 
+> 	.bmdma_setup		= ata_bmdma_setup,
+> 	.bmdma_start		= ata_bmdma_start,
+> 	.bmdma_stop		= ata_bmdma_stop,
+> 	.bmdma_status		= ata_bmdma_status,
+> 	.qc_prep		= ata_qc_prep,
+> 	.qc_issue		= ata_qc_issue_prot,
+> 
+> 	.eng_timeout		= ata_eng_timeout,
+> 
+> 	.irq_handler		= ata_interrupt,
+> 	.irq_clear		= ata_bmdma_irq_clear,
+> 
+> 	.port_start		= ata_port_start,
+> 	.port_stop		= ata_port_stop,
+> 	.host_stop		= ata_host_stop,
+> };
+> 
+> static const struct ata_port_operations sis_old_ops = {
+> 	.port_disable		= ata_port_disable,
+> 	.set_piomode		= sis_old_set_piomode,
+> 	.set_dmamode		= sis_old_set_dmamode,
+> 
+> 	.tf_load		= ata_tf_load,
+> 	.tf_read		= ata_tf_read,
+> 	.check_status		= ata_check_status,
+> 	.exec_command		= ata_exec_command,
+> 	.dev_select		= ata_std_dev_select,
+> 
+> 	.phy_reset		= sis_old_phy_reset,
+> 
+> 	.bmdma_setup		= ata_bmdma_setup,
+> 	.bmdma_start		= ata_bmdma_start,
+> 	.bmdma_stop		= ata_bmdma_stop,
+> 	.bmdma_status		= ata_bmdma_status,
+> 	.qc_prep		= ata_qc_prep,
+> 	.qc_issue		= ata_qc_issue_prot,
+> 
+> 	.eng_timeout		= ata_eng_timeout,
+> 
+> 	.irq_handler		= ata_interrupt,
+> 	.irq_clear		= ata_bmdma_irq_clear,
+> 
+> 	.port_start		= ata_port_start,
+> 	.port_stop		= ata_port_stop,
+> 	.host_stop		= ata_host_stop,
+> };
+> 
+> static struct ata_port_info sis_info = {
+> 	.sht		= &sis_sht,
+> 	.host_flags	= ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
+> 	.pio_mask	= 0x1f,	/* pio0-4 */
+> 	.mwdma_mask	= 0x07,
+> 	.udma_mask	= 0,
+> 	.port_ops	= &sis_old_ops,
+> };
+> static struct ata_port_info sis_info33 = {
+> 	.sht		= &sis_sht,
+> 	.host_flags	= ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
+> 	.pio_mask	= 0x1f,	/* pio0-4 */
+> 	.mwdma_mask	= 0x07,
+> 	.udma_mask	= ATA_UDMA2,	/* UDMA 33 */
+> 	.port_ops	= &sis_old_ops,
+> };
+> static struct ata_port_info sis_info66 = {
+> 	.sht		= &sis_sht,
+> 	.host_flags	= ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
+> 	.pio_mask	= 0x1f,	/* pio0-4 */
+> 	.udma_mask	= ATA_UDMA4,	/* UDMA 66 */
+> 	.port_ops	= &sis_66_ops,
+> };
+> static struct ata_port_info sis_info100 = {
+> 	.sht		= &sis_sht,
+> 	.host_flags	= ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
+> 	.pio_mask	= 0x1f,	/* pio0-4 */
+> 	.udma_mask	= ATA_UDMA5,
+> 	.port_ops	= &sis_100_ops,
+> };
+> static struct ata_port_info sis_info100_early = {
+> 	.sht		= &sis_sht,
+> 	.host_flags	= ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
+> 	.udma_mask	= ATA_UDMA5,
+> 	.pio_mask	= 0x1f,	/* pio0-4 */
+> 	.port_ops	= &sis_66_ops,
+> };
+> static struct ata_port_info sis_info133 = {
+> 	.sht		= &sis_sht,
+> 	.host_flags	= ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
+> 	.pio_mask	= 0x1f,	/* pio0-4 */
+> 	.udma_mask	= ATA_UDMA6,
+> 	.port_ops	= &sis_133_ops,
+> };
+> static struct ata_port_info sis_info133_early = {
+> 	.sht		= &sis_sht,
+> 	.host_flags	= ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
+> 	.pio_mask	= 0x1f,	/* pio0-4 */
+> 	.udma_mask	= ATA_UDMA6,
+> 	.port_ops	= &sis_133_early_ops,
+> };
+> 
+> 
+> static void sis_fixup(struct pci_dev *pdev, struct sis_chipset *sis)
+> {
+> 	u16 regw;
+> 	u8 reg;
+> 	
+> 	if (sis->info == &sis_info133) {
+> 		pci_read_config_word(pdev, 0x50, &regw);
+> 		if(regw & 0x08)
+> 			pci_write_config_word(pdev, 0x50, regw & ~0x08);
+> 		pci_read_config_word(pdev, 0x52, &regw);
+> 		if(regw & 0x08)
+> 			pci_write_config_word(pdev, 0x52, regw & ~0x08);
+> 		return;
+> 	}
+> 	
+> 	if (sis->info == &sis_info133_early || sis->info == &sis_info100) {
+> 		/* Fix up latency */
+> 		pci_write_config_byte(pdev, PCI_LATENCY_TIMER, 0x80);
+> 		/* Set compatibility bit */
+> 		pci_read_config_byte(pdev, 0x49, &reg);
+> 		if (!(reg & 0x01))
+> 			pci_write_config_byte(pdev, 0x49, reg | 0x01);
+> 		return;
+> 	}
+> 	
+> 	if (sis->info == &sis_info66 || sis->info == &sis_info100_early) {
+> 		/* Fix up latency */
+> 		pci_write_config_byte(pdev, PCI_LATENCY_TIMER, 0x80);
+> 		/* Set compatibility bit */
+> 		pci_read_config_byte(pdev, 0x52, &reg);
+> 		if (!(reg & 0x04))
+> 			pci_write_config_byte(pdev, 0x52, reg | 0x04);
+> 		return;
+> 	}
+> 	
+> 	if (sis->info == &sis_info33) {
+> 		pci_read_config_byte(pdev, PCI_CLASS_PROG, &reg);
+> 		if (( reg & 0x0F ) != 0x00)
+> 			pci_write_config_byte(pdev, PCI_CLASS_PROG, reg & 0xF0);
+> 		/* Fall through to ATA16 fixup below */
+> 	}
+> 	
+> 	if (sis->info == &sis_info || sis->info == &sis_info33) {
+> 		/* force per drive recovery and active timings
+> 		   needed on ATA_33 and below chips */
+> 		pci_read_config_byte(pdev, 0x52, &reg);
+> 		if (!(reg & 0x08))
+> 			pci_write_config_byte(pdev, 0x52, reg|0x08);
+> 		return;
+> 	}
+> 	
+> 	BUG();
+> }
+> 
+> /**
+>  *	sis_init_one - Register SiS ATA PCI device with kernel services
+>  *	@pdev: PCI device to register
+>  *	@ent: Entry in sis_pci_tbl matching with @pdev
+>  *
+>  *	Called from kernel PCI layer.  We probe for combined mode (sigh),
+>  *	and then hand over control to libata, for it to do the rest.
+>  *
+>  *	LOCKING:
+>  *	Inherited from PCI layer (may sleep).
+>  *
+>  *	RETURNS:
+>  *	Zero on success, or -ERRNO value.
+>  */
+> 
+> static int sis_init_one (struct pci_dev *pdev, const struct pci_device_id *ent)
+> {
+> 	static int printed_version;
+> 	static struct ata_port_info *port_info[2];
+> 	struct ata_port_info *port;
+> 	struct pci_dev *host;
+> 	struct sis_chipset *chipset = NULL;
+> 	
+> 	static struct sis_chipset sis_chipsets[] = {
+> 		{ 0x0745, &sis_info100 },
+> 		{ 0x0735, &sis_info100 },
+> 		{ 0x0733, &sis_info100 },
+> 		{ 0x0635, &sis_info100 },
+> 		{ 0x0633, &sis_info100 },
+> 		
+> 		{ 0x0730, &sis_info100_early },	/* 100 with ATA 66 layout */
+> 		{ 0x0550, &sis_info100_early },	/* 100 with ATA 66 layout */
+> 		
+> 		{ 0x0640, &sis_info66 },
+> 		{ 0x0630, &sis_info66 },
+> 		{ 0x0620, &sis_info66 },
+> 		{ 0x0540, &sis_info66 },
+> 		{ 0x0530, &sis_info66 },
+> 		
+> 		{ 0x5600, &sis_info33 },
+> 		{ 0x5598, &sis_info33 },
+> 		{ 0x5597, &sis_info33 },
+> 		{ 0x5591, &sis_info33 },
+> 		{ 0x5582, &sis_info33 },
+> 		{ 0x5581, &sis_info33 },
+> 		
+> 		{ 0x5596, &sis_info },
+> 		{ 0x5571, &sis_info },
+> 		{ 0x5517, &sis_info },
+> 		{ 0x5511, &sis_info },
+> 		
+> 		{0}
+> 	};
+> 	static struct sis_chipset sis133_early = {
+> 		0x0, &sis_info133_early
+> 	};
+> 	static struct sis_chipset sis133 = {
+> 		0x0, &sis_info133
+> 	};
+> 	static struct sis_chipset sis100_early = {
+> 		0x0, &sis_info100_early
+> 	};
+> 	static struct sis_chipset sis100 = {
+> 		0x0, &sis_info100
+> 	};
+> 	
+> 	if (!printed_version++)
+> 		dev_printk(KERN_DEBUG, &pdev->dev,
+> 			   "version " DRV_VERSION "\n");
+> 			   
+> 	/* We have to find the bridge first */
+> 	
+> 	for (chipset = &sis_chipsets[0]; chipset->device; chipset++) {
+> 		host = pci_get_device(0x1039, chipset->device, NULL);
+> 		if (host != NULL) {
+> 			if (chipset->device == 0x630) {	/* SIS630 */
+> 				u8 host_rev;
+> 				pci_read_config_byte(host, PCI_REVISION_ID, &host_rev);
+> 				if(host_rev >= 0x30)	/* 630 ET */
+> 					chipset = &sis100_early;
+> 			}
+> 			break;
+> 		}
+> 	}
+> 	
+> 	/* Look for concealed bridges */
+> 	if (host == NULL) {
+> 		/* Second check */
+> 		u32 idemisc;
+> 		u16 trueid;
+> 		
+> 		/* Disable ID masking and register remapping then
+> 		   see what the real ID is */
+> 		
+> 		pci_read_config_dword(pdev, 0x54, &idemisc);
+> 		pci_write_config_dword(pdev, 0x54, idemisc & 0x7fffffff);
+> 		pci_read_config_word(pdev, PCI_DEVICE_ID, &trueid);
+> 		pci_write_config_dword(pdev, 0x54, idemisc);
+> 
+> 		switch(trueid) {
+> 		case 0x5518:	/* SIS 962/963 */
+> 			chipset = &sis133;
+> 			if ((idemisc & 0x40000000) == 0) {
+> 				pci_write_config_dword(pdev, 0x54, idemisc | 0x40000000);
+> 				printk(KERN_INFO "SIS5513: Switching to 5513 register mapping\n");
+> 			}
+> 			break;
+> 		case 0x0180:	/* SIS 965L */
+> 			chipset =  &sis133;
+> 			break;
+> 		}
+> 	}
+> 
+> 	/* Further check */	
+> 	if(chipset == NULL) {
+> 		struct pci_dev *lpc_bridge;
+> 		u16 trueid;
+> 		u8 prefctl;
+> 		u8 idecfg;
+> 		u8 sbrev;
+> 		
+> 		/* Try the second unmasking technique */
+> 		pci_read_config_byte(pdev, 0x4a, &idecfg);
+> 		pci_write_config_byte(pdev, 0x4a, idecfg | 0x10);
+> 		pci_read_config_word(pdev, PCI_DEVICE_ID, &trueid);
+> 		pci_write_config_byte(pdev, 0x4a, idecfg);
+> 		
+> 		switch(trueid) {
+> 		case 0x5517:
+> 			lpc_bridge = pci_get_slot(0x00, 0x10); /* Bus 0 Dev 2 Fn 0 */
+> 			if(lpc_bridge == NULL)
+> 				break;
+> 			pci_read_config_byte(lpc_bridge, PCI_REVISION_ID, &sbrev);
+> 			pci_read_config_byte(pdev, 0x49, &prefctl);
+> 			pci_dev_put(lpc_bridge);
+> 		
+> 			if(sbrev == 0x10 && (prefctl & 0x80)) {
+> 				chipset = &sis133_early;
+> 				break;
+> 			} 
+> 			chipset = &sis100;
+> 			break;
+> 		}
+> 	}		
+> 	pci_dev_put(host);
+> 	
+> 	/* No chipset info, no support */
+> 	if (chipset == NULL)
+> 		return -ENODEV;
+> 		
+> 	port = chipset->info;
+> 	port->private_data = chipset;
+> 
+> 	sis_fixup(pdev, chipset);
+> 		
+> 	port_info[0] = port_info[1] = port;
+> 	return ata_pci_init_one(pdev, port_info, 2);
+> }
+> 
+> static const struct pci_device_id sis_pci_tbl[] = {
+> 	{ 0x1039, 0x5513, PCI_ANY_ID, PCI_ANY_ID, },
+> 	{ 0x1039, 0x5518, PCI_ANY_ID, PCI_ANY_ID, },
+> 	{ }	/* terminate list */
+> };
+> 
+> static struct pci_driver sis_pci_driver = {
+> 	.name			= DRV_NAME,
+> 	.id_table		= sis_pci_tbl,
+> 	.probe			= sis_init_one,
+> 	.remove			= ata_pci_remove_one,
+> };
+> 
+> static int __init sis_init(void)
+> {
+> 	int rc;
+> 
+> 	DPRINTK("pci_module_init\n");
+> 	rc = pci_module_init(&sis_pci_driver);
+> 	if (rc)
+> 		return rc;
+> 
+> 	DPRINTK("done\n");
+> 	return 0;
+> }
+
+Overblown (I know, its probably based on my own code).
+
+Replace all that code with one line:
+
+	return pci_register_driver(&sis_pci_driver);
+
+Otherwise, driver looks fine.
+

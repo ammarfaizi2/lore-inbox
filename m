@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWAQH7H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWAQH7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751290AbWAQH7H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 02:59:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWAQH7H
+	id S1751287AbWAQH7G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 02:59:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWAQH7F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 02:59:07 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:55701 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751290AbWAQH7E (ORCPT
+	Tue, 17 Jan 2006 02:59:05 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42684 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751287AbWAQH7E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 17 Jan 2006 02:59:04 -0500
-Date: Tue, 17 Jan 2006 08:59:24 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Jason Baron <jbaron@redhat.com>
-Cc: linux-kernel@vger.kernel.org, drepper@redhat.com, Tony.Reix@bull.net,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [2.6 patch] fix sched_setscheduler semantics
-Message-ID: <20060117075924.GC13580@elte.hu>
-References: <Pine.LNX.4.61.0601161650540.21530@dhcp83-105.boston.redhat.com>
+Date: Tue, 17 Jan 2006 02:58:42 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, mita@miraclelinux.com, Keith Owens <kaos@ocs.com.au>
+Subject: Re: [patch 2.6.15-current] i386: multi-column stack backtraces
+Message-ID: <20060117075841.GA5710@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Chuck Ebbert <76306.1226@compuserve.com>,
+	linux-kernel@vger.kernel.org, torvalds@osdl.org,
+	mita@miraclelinux.com, Keith Owens <kaos@ocs.com.au>
+References: <200601170126_MC3-1-B602-EFCB@compuserve.com> <20060116224234.5a7ca488.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601161650540.21530@dhcp83-105.boston.redhat.com>
+In-Reply-To: <20060116224234.5a7ca488.akpm@osdl.org>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 16, 2006 at 10:42:34PM -0800, Andrew Morton wrote:
 
-* Jason Baron <jbaron@redhat.com> wrote:
+ > Presumably this is going to bust ksymoops.
+ 
+Do people actually still use ksymoops for 2.6 kernels ?
 
-> Therefore, i'd suggest the following patch. Verified to fix the 
-> attached test case. Thanks to Tony Reix for pointing this out.
+I resorted to it about 6 months ago for the first time in the
+better part of 3 years, and it didn't even compile.
+(I only wanted to disassemble a Code: line, addr resolution
+ works for me [and most other distros afaik] with kksymoops now)
 
-indeed - good catch.
+ > Also the various other custom
+ > oops-parsers which people have written themselves.
 
->  asmlinkage long sys_sched_setscheduler(pid_t pid, int policy,
->  				       struct sched_param __user *param)
->  {
-> +	/* negative values for policy are not valid */
-> +	if (policy < 0)
-> +		return -EINVAL;
-> +
->  	return do_sched_setscheduler(pid, policy, param);
+Given we've extended the oops output in several different
+ways without thought in the past, it seems a bit late.
+We added printing of module list in the middle of the output.
+We added various tainting flags over time.
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
+What other tools parse oopses ? ksymoops is the only one I recall.
 
-	Ingo
+ > The patch is a desirable change (I do get seasick reading x86_64 traces,
+ > but I'll get over it), but it'll cause various bits of downstream grief.
+
+I'd be surprised if anyone noticed.
+
+*shrug*, in an ideal world, no-one would ever see an oops anyway :-P
+ 
+		Dave
+

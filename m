@@ -1,293 +1,297 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWAQO6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWAQPAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932121AbWAQO6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 09:58:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWAQOue
+	id S1751251AbWAQPAv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 10:00:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWAQPAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 09:50:34 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:23203 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751004AbWAQOua (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 09:50:30 -0500
-Message-Id: <20060117143326.795416000@sergelap>
+	Tue, 17 Jan 2006 10:00:40 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:56517 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751244AbWAQOub
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 09:50:31 -0500
+Message-Id: <20060117143328.694933000@sergelap>
 References: <20060117143258.150807000@sergelap>
-Date: Tue, 17 Jan 2006 08:33:14 -0600
+Date: Tue, 17 Jan 2006 08:33:25 -0600
 From: Serge Hallyn <serue@us.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: Hubertus Franke <frankeh@watson.ibm.com>,
        Cedric Le Goater <clg@fr.ibm.com>, Dave Hansen <haveblue@us.ibm.com>,
        Serge E Hallyn <serue@us.ibm.com>
-Subject: RFC [patch 16/34] PID Virtualization return virtual pids where required
-Content-Disposition: inline; filename=F3-replace-pid-kernel-access-with-virt-access.patch
+Subject: RFC [patch 27/34] PID Virtualization pidspace
+Content-Disposition: inline; filename=G1-pidspace.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In this patch we now identify where in the kernel code conceptually
-a virtual pid(etc.) needs to be returned to userspace. This is at the 
-kernel/user interfaces. We need to identify all locations where 
-pids are returned, broadly they fall into 3 categories:
-(a) syscall return parameter, 
-(b) syscall return code, 
-(c) through a datastructure filled in a syscall
+This patch introduces pitspaces to provide pid virtualization
+capabilities. A pidspace will be allocated for each container
+and destroyed (resources freed) when the container is 
+terminated.
 
-The process_group virtualization will be done in the following patch.
+The global pid range ( 32 bit) is partitioned into 
+PID_MAX_LIMIT sized pidspaces. The virtualization
+is defined as kernel_pid ::= < pidspace_id, vpid >
+
+In this patch we are utilizing the existing pid management,
+i.e. allocation and hashing. We are providing a pidspace, as managed 
+previously, for each pidspace id. 
+
+Patch eliminates the explicit management of vpids and allows
+continued usage of the existing pid hashing and lookup functions.
 
 Signed-off-by: Hubertus Franke <frankeh@watson.ibm.com>
 ---
- arch/ia64/kernel/signal.c |    2 +-
- fs/binfmt_elf.c           |    8 ++++----
- fs/proc/array.c           |   12 ++++++------
- fs/proc/base.c            |    8 ++++----
- kernel/exit.c             |    4 ++--
- kernel/fork.c             |    4 ++--
- kernel/sched.c            |    2 +-
- kernel/signal.c           |   10 +++++-----
- kernel/timer.c            |    4 ++--
- 9 files changed, 27 insertions(+), 27 deletions(-)
+ include/linux/pid.h     |   27 +++++++++++-
+ include/linux/threads.h |   17 +++++--
+ kernel/fork.c           |    2 
+ kernel/pid.c            |  105 +++++++++++++++++++++++++++++++++++++++++++-----
+ 4 files changed, 135 insertions(+), 16 deletions(-)
 
-Index: linux-2.6.15/arch/ia64/kernel/signal.c
-===================================================================
---- linux-2.6.15.orig/arch/ia64/kernel/signal.c	2006-01-17 08:37:02.000000000 -0500
-+++ linux-2.6.15/arch/ia64/kernel/signal.c	2006-01-17 08:37:04.000000000 -0500
-@@ -270,7 +270,7 @@
- 	si.si_signo = SIGSEGV;
- 	si.si_errno = 0;
- 	si.si_code = SI_KERNEL;
--	si.si_pid = task_pid(current);
-+	si.si_pid = task_vpid(current);
- 	si.si_uid = current->uid;
- 	si.si_addr = sc;
- 	force_sig_info(SIGSEGV, &si, current);
-Index: linux-2.6.15/fs/binfmt_elf.c
-===================================================================
---- linux-2.6.15.orig/fs/binfmt_elf.c	2006-01-17 08:36:57.000000000 -0500
-+++ linux-2.6.15/fs/binfmt_elf.c	2006-01-17 08:37:04.000000000 -0500
-@@ -1270,8 +1270,8 @@
- 	prstatus->pr_info.si_signo = prstatus->pr_cursig = signr;
- 	prstatus->pr_sigpend = p->pending.signal.sig[0];
- 	prstatus->pr_sighold = p->blocked.sig[0];
--	prstatus->pr_pid = task_pid(p);
--	prstatus->pr_ppid = task_pid(p->parent);
-+	prstatus->pr_pid = task_vpid(p);
-+	prstatus->pr_ppid = task_vppid(p);
- 	prstatus->pr_pgrp = process_group(p);
- 	prstatus->pr_sid = p->signal->session;
- 	if (thread_group_leader(p)) {
-@@ -1316,8 +1316,8 @@
- 			psinfo->pr_psargs[i] = ' ';
- 	psinfo->pr_psargs[len] = 0;
- 
--	psinfo->pr_pid = task_pid(p);
--	psinfo->pr_ppid = task_pid(p->parent);
-+	psinfo->pr_pid = task_vpid(p);
-+	psinfo->pr_ppid = task_vppid(p);
- 	psinfo->pr_pgrp = process_group(p);
- 	psinfo->pr_sid = p->signal->session;
- 
-Index: linux-2.6.15/fs/proc/array.c
-===================================================================
---- linux-2.6.15.orig/fs/proc/array.c	2006-01-17 08:36:57.000000000 -0500
-+++ linux-2.6.15/fs/proc/array.c	2006-01-17 08:37:04.000000000 -0500
-@@ -174,10 +174,10 @@
- 		"Gid:\t%d\t%d\t%d\t%d\n",
- 		get_task_state(p),
- 		(p->sleep_avg/1024)*100/(1020000000/1024),
--	       	task_tgid(p),
--		task_pid(p), pid_alive(p) ?
--			task_tgid(p->group_leader->real_parent) : 0,
--		pid_alive(p) && p->ptrace ? task_pid(p->parent) : 0,
-+	       	task_vtgid(p),
-+		task_vpid(p), pid_alive(p) ?
-+			task_vtgid(p->group_leader->real_parent) : 0,
-+		pid_alive(p) && p->ptrace ? task_vpid(p->parent) : 0,
- 		p->uid, p->euid, p->suid, p->fsuid,
- 		p->gid, p->egid, p->sgid, p->fsgid);
- 	read_unlock(&tasklist_lock);
-@@ -390,7 +390,7 @@
- 		it_real_value = task->signal->it_real_value;
- 	}
- 	ppid = pid_alive(task) ?
--		task_tgid(task->group_leader->real_parent) : 0;
-+		task_vtgid(task->group_leader->real_parent) : 0;
- 	read_unlock(&tasklist_lock);
- 
- 	if (!whole || num_threads<2)
-@@ -417,7 +417,7 @@
- 	res = sprintf(buffer,"%d (%s) %c %d %d %d %d %d %lu %lu \
- %lu %lu %lu %lu %lu %ld %ld %ld %ld %d %ld %llu %lu %ld %lu %lu %lu %lu %lu \
- %lu %lu %lu %lu %lu %lu %lu %lu %d %d %lu %lu\n",
--		task_pid(task),
-+		task_vpid(task),
- 		tcomm,
- 		state,
- 		ppid,
-Index: linux-2.6.15/fs/proc/base.c
-===================================================================
---- linux-2.6.15.orig/fs/proc/base.c	2006-01-17 08:36:57.000000000 -0500
-+++ linux-2.6.15/fs/proc/base.c	2006-01-17 08:37:04.000000000 -0500
-@@ -1878,14 +1878,14 @@
- 			      int buflen)
- {
- 	char tmp[30];
--	sprintf(tmp, "%d", task_tgid(current));
-+	sprintf(tmp, "%d", task_vtgid(current));
- 	return vfs_readlink(dentry,buffer,buflen,tmp);
- }
- 
- static void *proc_self_follow_link(struct dentry *dentry, struct nameidata *nd)
- {
- 	char tmp[30];
--	sprintf(tmp, "%d", task_tgid(current));
-+	sprintf(tmp, "%d", task_vtgid(current));
- 	return ERR_PTR(vfs_follow_link(nd,tmp));
- }	
- 
-@@ -2100,7 +2100,7 @@
- 		p = next_task(&init_task);
- 
- 	for ( ; p != &init_task; p = next_task(p)) {
--		int tgid = task_pid(p);
-+		int tgid = task_vpid(p);
- 		if (!pid_alive(p))
- 			continue;
- 		if (--index >= 0)
-@@ -2133,7 +2133,7 @@
- 	 * via next_thread().
- 	 */
- 	if (pid_alive(task)) do {
--		int tid = task_pid(task);
-+		int tid = task_vpid(task);
- 
- 		if (--index >= 0)
- 			continue;
-Index: linux-2.6.15/kernel/exit.c
-===================================================================
---- linux-2.6.15.orig/kernel/exit.c	2006-01-17 08:36:59.000000000 -0500
-+++ linux-2.6.15/kernel/exit.c	2006-01-17 08:37:04.000000000 -0500
-@@ -1143,7 +1143,7 @@
- 		p->exit_state = EXIT_ZOMBIE;
- 		return retval;
- 	}
--	retval = task_pid(p);
-+	retval = task_vpid(p);
- 	if (p->real_parent != p->parent) {
- 		write_lock_irq(&tasklist_lock);
- 		/* Double-check with lock held.  */
-@@ -1278,7 +1278,7 @@
- 	if (!retval && infop)
- 		retval = put_user(p->uid, &infop->si_uid);
- 	if (!retval)
--		retval = task_pid(p);
-+		retval = task_vpid(p);
- 	put_task_struct(p);
- 
- 	BUG_ON(!retval);
 Index: linux-2.6.15/kernel/fork.c
 ===================================================================
---- linux-2.6.15.orig/kernel/fork.c	2006-01-17 08:36:59.000000000 -0500
-+++ linux-2.6.15/kernel/fork.c	2006-01-17 08:37:04.000000000 -0500
-@@ -848,7 +848,7 @@
+--- linux-2.6.15.orig/kernel/fork.c	2006-01-17 08:37:07.000000000 -0500
++++ linux-2.6.15/kernel/fork.c	2006-01-17 08:37:08.000000000 -0500
+@@ -1238,7 +1238,7 @@
  {
- 	current->clear_child_tid = tidptr;
+ 	struct task_struct *p;
+ 	int trace = 0;
+-	long pid = alloc_pidmap();
++	long pid = alloc_pidmap(DEFAULT_PIDSPACE);
+ 	long vpid;
  
--	return task_pid(current);
-+	return task_vpid(current);
- }
- 
- /*
-@@ -928,7 +928,7 @@
- 	p->__pid = pid;
- 	retval = -EFAULT;
- 	if (clone_flags & CLONE_PARENT_SETTID)
--		if (put_user(task_pid(p), parent_tidptr))
-+		if (put_user(task_vpid(p), parent_tidptr))
- 			goto bad_fork_cleanup;
- 
- 	p->proc_dentry = NULL;
-Index: linux-2.6.15/kernel/sched.c
+ 	if (pid < 0)
+Index: linux-2.6.15/include/linux/pid.h
 ===================================================================
---- linux-2.6.15.orig/kernel/sched.c	2006-01-17 08:36:59.000000000 -0500
-+++ linux-2.6.15/kernel/sched.c	2006-01-17 08:37:04.000000000 -0500
-@@ -1653,7 +1653,7 @@
- 	preempt_enable();
- #endif
- 	if (current->set_child_tid)
--		put_user(task_pid(current), current->set_child_tid);
-+		put_user(task_vpid(current), current->set_child_tid);
- }
- 
- /*
-Index: linux-2.6.15/kernel/signal.c
-===================================================================
---- linux-2.6.15.orig/kernel/signal.c	2006-01-17 08:36:59.000000000 -0500
-+++ linux-2.6.15/kernel/signal.c	2006-01-17 08:37:04.000000000 -0500
-@@ -800,7 +800,7 @@
- 			q->info.si_signo = sig;
- 			q->info.si_errno = 0;
- 			q->info.si_code = SI_USER;
--			q->info.si_pid = task_pid(current);
-+			q->info.si_pid = task_vpid(current);
- 			q->info.si_uid = current->uid;
- 			break;
- 		case (unsigned long) SEND_SIG_PRIV:
-@@ -1469,7 +1469,7 @@
- 
- 	info.si_signo = sig;
- 	info.si_errno = 0;
--	info.si_pid = task_pid(tsk);
-+	info.si_pid = task_vpid(tsk);
- 	info.si_uid = tsk->uid;
- 
- 	/* FIXME: find out whether or not this is supposed to be c*time. */
-@@ -1534,7 +1534,7 @@
- 
- 	info.si_signo = SIGCHLD;
- 	info.si_errno = 0;
--	info.si_pid = task_pid(tsk);
-+	info.si_pid = task_vpid(tsk);
- 	info.si_uid = tsk->uid;
- 
- 	/* FIXME: find out whether or not this is supposed to be c*time. */
-@@ -2245,7 +2245,7 @@
- 	info.si_signo = sig;
- 	info.si_errno = 0;
- 	info.si_code = SI_USER;
--	info.si_pid = task_tgid(current);
-+	info.si_pid = task_vtgid(current);
- 	info.si_uid = current->uid;
- 
- 	return kill_something_info(sig, &info, pid);
-@@ -2261,7 +2261,7 @@
- 	info.si_signo = sig;
- 	info.si_errno = 0;
- 	info.si_code = SI_TKILL;
--	info.si_pid = task_tgid(current);
-+	info.si_pid = task_vtgid(current);
- 	info.si_uid = current->uid;
- 
- 	read_lock(&tasklist_lock);
-Index: linux-2.6.15/kernel/timer.c
-===================================================================
---- linux-2.6.15.orig/kernel/timer.c	2006-01-17 08:36:59.000000000 -0500
-+++ linux-2.6.15/kernel/timer.c	2006-01-17 08:37:04.000000000 -0500
-@@ -941,7 +941,7 @@
+--- linux-2.6.15.orig/include/linux/pid.h	2006-01-17 08:17:29.000000000 -0500
++++ linux-2.6.15/include/linux/pid.h	2006-01-17 08:37:08.000000000 -0500
+@@ -36,7 +36,7 @@
   */
- asmlinkage long sys_getpid(void)
- {
--	return task_tgid(current);
-+	return task_vtgid(current);
- }
+ extern struct pid *FASTCALL(find_pid(enum pid_type, int));
+ 
+-extern int alloc_pidmap(void);
++extern int alloc_pidmap(int pidspace_id);
+ extern void FASTCALL(free_pidmap(int));
+ extern void switch_exec_pids(struct task_struct *leader, struct task_struct *thread);
+ 
+@@ -51,5 +51,30 @@
+ 			prefetch((task)->pids[type].pid_list.next),	\
+ 			hlist_unhashed(&(task)->pids[type].pid_chain));	\
+ 	}								\
++/*
++ * Pidspace related definition for translation  real <-> virtual
++ * and initialization functions
++ */
++
++#define DEFAULT_PIDSPACE	0
++
++extern int pidspace_init(int pidspace_id);
++extern int pidspace_free(int pidspace_id);
++
++static inline int pid_to_pidspace(int pid)
++{
++	return (pid >> PID_MAX_LIMIT_SHIFT);
++}
++
++static inline int pidspace_vpid_to_pid(int pidspace_id, pid_t pid)
++{
++	return (pidspace_id << PID_MAX_LIMIT_SHIFT) | pid;
++}
++
++static inline int pidspace_pid_to_vpid(pid_t pid)
++{
++	return (pid & (PID_MAX_LIMIT-1));
++}
++
+ 
+ #endif /* _LINUX_PID_H */
+Index: linux-2.6.15/include/linux/threads.h
+===================================================================
+--- linux-2.6.15.orig/include/linux/threads.h	2006-01-17 08:17:29.000000000 -0500
++++ linux-2.6.15/include/linux/threads.h	2006-01-17 08:37:08.000000000 -0500
+@@ -25,12 +25,21 @@
+ /*
+  * This controls the default maximum pid allocated to a process
+  */
+-#define PID_MAX_DEFAULT (CONFIG_BASE_SMALL ? 0x1000 : 0x8000)
++#define PID_MAX_DEFAULT_SHIFT	(CONFIG_BASE_SMALL ? 12 : 15)
++#define PID_MAX_DEFAULT 	(1<< PID_MAX_DEFAULT_SHIFT)
  
  /*
-@@ -1115,7 +1115,7 @@
- /* Thread ID - the internal kernel "pid" */
- asmlinkage long sys_gettid(void)
+- * A maximum of 4 million PIDs should be enough for a while:
++ * The entire global pid range is devided into pidspaces
++ * each able to hold upto PID_MAX_LIMIT pids.
++ * A maximum of 512 pidspace should be enough for a while
++ * A maximum of 4 million PIDs per pidspace should be enough for a while:
++ * we keep high bit reserved for negative values
+  */
+-#define PID_MAX_LIMIT (CONFIG_BASE_SMALL ? PAGE_SIZE * 8 : \
+-	(sizeof(long) > 4 ? 4 * 1024 * 1024 : PID_MAX_DEFAULT))
++#define PID_MAX_LIMIT_SHIFT (CONFIG_BASE_SMALL ? PAGE_SHIFT + 8 : \
++	(sizeof(long) > 4 ? 22 : PID_MAX_DEFAULT_SHIFT))
++#define PID_MAX_LIMIT 		(1<<PID_MAX_LIMIT_SHIFT)
++
++#define MAX_NR_PIDSPACES 	(PID_MAX_LIMIT_SHIFT > 22 ?   \
++				 1<<(32-PID_MAX_LIMIT_SHIFT-1) : 512)
+ 
+ #endif
+Index: linux-2.6.15/kernel/pid.c
+===================================================================
+--- linux-2.6.15.orig/kernel/pid.c	2006-01-17 08:36:59.000000000 -0500
++++ linux-2.6.15/kernel/pid.c	2006-01-17 08:37:08.000000000 -0500
+@@ -35,6 +35,7 @@
+ int last_pid;
+ 
+ #define RESERVED_PIDS		300
++#define RESERVED_PIDS_NON_DFLT    1
+ 
+ int pid_max_min = RESERVED_PIDS + 1;
+ int pid_max_max = PID_MAX_LIMIT;
+@@ -57,29 +58,103 @@
+ 	void *page;
+ } pidmap_t;
+ 
+-static pidmap_t pidmap_array[PIDMAP_ENTRIES] =
++struct pidspace {
++	int last_pid;
++	pidmap_t *pidmap_array;
++};
++
++static pidmap_t dflt_pidmap_array[PIDMAP_ENTRIES] =
+ 	 { [ 0 ... PIDMAP_ENTRIES-1 ] = { ATOMIC_INIT(BITS_PER_PAGE), NULL } };
+ 
++static struct pidspace pid_spaces[MAX_NR_PIDSPACES] =
++	{ { 0, dflt_pidmap_array } };
++
+ static  __cacheline_aligned_in_smp DEFINE_SPINLOCK(pidmap_lock);
+ 
++int pidspace_init(int pidspace_id)
++{
++	pidmap_t *map;
++	struct pidspace *pid_space =  &pid_spaces[pidspace_id];
++	int i;
++	int rc;
++
++	if (unlikely(pid_space->pidmap_array))
++		return -EBUSY;
++
++	map = kmalloc(PIDMAP_ENTRIES*sizeof(pidmap_t), GFP_KERNEL);
++	if (!map)
++		return -ENOMEM;
++
++	for (i=0 ; i< PIDMAP_ENTRIES ; i++)
++		map[i] = (pidmap_t){ ATOMIC_INIT(BITS_PER_PAGE), NULL };
++
++	/*
++	 * Free the pidspace if someone raced with us
++	 * installing it:
++	 */
++
++	spin_lock(&pidmap_lock);
++	if (pid_space->pidmap_array) {
++		kfree(map);
++		rc = -EAGAIN;
++	} else {
++		pid_space->pidmap_array = map;
++		pid_space->last_pid = RESERVED_PIDS_NON_DFLT;
++		rc = 0;
++	}
++	spin_unlock(&pidmap_lock);
++	return rc;
++}
++
++int pidspace_free(int pidspace_id)
++{
++	struct pidspace *pid_space =  &pid_spaces[pidspace_id];
++	pidmap_t *map;
++	int i;
++
++	spin_lock(&pidmap_lock);
++	BUG_ON(pid_space->pidmap_array == NULL);
++	map = pid_space->pidmap_array;
++	pid_space->pidmap_array = NULL;
++	spin_unlock(&pidmap_lock);
++
++	for ( i=0; i<PIDMAP_ENTRIES; i++)
++		free_page((unsigned long)map[i].page);
++	kfree(map);
++	return 0;
++}
++
+ fastcall void free_pidmap(int pid)
  {
--	return task_pid(current);
-+	return task_vpid(current);
+-	pidmap_t *map = pidmap_array + pid / BITS_PER_PAGE;
+-	int offset = pid & BITS_PER_PAGE_MASK;
++	pidmap_t *map, *pidmap_array;
++	int offset;
++
++	pidmap_array = pid_spaces[pid_to_pidspace(pid)].pidmap_array;
++	pid = pidspace_pid_to_vpid(pid);
++	map = pidmap_array + pid / BITS_PER_PAGE;
++	offset = pid & BITS_PER_PAGE_MASK;
+ 
+ 	clear_bit(offset, map->page);
+ 	atomic_inc(&map->nr_free);
  }
  
- static long __sched nanosleep_restart(struct restart_block *restart)
+-int alloc_pidmap(void)
++int alloc_pidmap(int pidspace_id)
+ {
+-	int i, offset, max_scan, pid, last = last_pid;
+-	pidmap_t *map;
++	int i, offset, max_scan, pid, last;
++	struct pidspace *pid_space;
++	pidmap_t *map, *pidmap_array;
+ 
++	pid_space = &pid_spaces[pidspace_id];
++	last = pid_space->last_pid;
+ 	pid = last + 1;
+-	if (pid >= pid_max)
+-		pid = RESERVED_PIDS;
++	if (pid >= pid_max) {
++		if (pidspace_id == DEFAULT_PIDSPACE)
++			pid = RESERVED_PIDS;
++		else
++			pid = RESERVED_PIDS_NON_DFLT;
++	}
+ 	offset = pid & BITS_PER_PAGE_MASK;
++	pidmap_array = pid_space->pidmap_array;
+ 	map = &pidmap_array[pid/BITS_PER_PAGE];
+ 	max_scan = (pid_max + BITS_PER_PAGE - 1)/BITS_PER_PAGE - !offset;
+ 	for (i = 0; i <= max_scan; ++i) {
+@@ -102,7 +177,12 @@
+ 			do {
+ 				if (!test_and_set_bit(offset, map->page)) {
+ 					atomic_dec(&map->nr_free);
+-					last_pid = pid;
++					pid_space->last_pid = pid;
++					if (pidspace_id == 0) {
++						last_pid = pid;
++						return pid;
++					}
++					pid = pidspace_vpid_to_pid(pidspace_id, pid);
+ 					return pid;
+ 				}
+ 				offset = find_next_offset(map, offset);
+@@ -122,7 +202,10 @@
+ 			offset = 0;
+ 		} else {
+ 			map = &pidmap_array[0];
+-			offset = RESERVED_PIDS;
++			if (pidspace_id == DEFAULT_PIDSPACE)
++				offset = RESERVED_PIDS;
++			else
++				offset = RESERVED_PIDS_NON_DFLT;
+ 			if (unlikely(last == offset))
+ 				break;
+ 		}
+@@ -279,6 +362,8 @@
+ {
+ 	int i;
+ 
++	pidmap_t *pidmap_array = dflt_pidmap_array;
++
+ 	pidmap_array->page = (void *)get_zeroed_page(GFP_KERNEL);
+ 	set_bit(0, pidmap_array->page);
+ 	atomic_dec(&pidmap_array->nr_free);
 
 --
 

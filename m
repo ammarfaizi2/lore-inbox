@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbWAQTl7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWAQTnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbWAQTl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 14:41:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWAQTl7
+	id S932294AbWAQTnV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 14:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWAQTnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 14:41:59 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:36756 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932411AbWAQTl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 14:41:58 -0500
-Message-Id: <200601171941.k0HJfwg14084@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [patch] bug fix in dio handling write error
-Date: Tue, 17 Jan 2006 11:41:58 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcYbnhP84hS2P8VRSFGw/m5+LpvQsQ==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Tue, 17 Jan 2006 14:43:21 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:23982 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S932294AbWAQTnU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 14:43:20 -0500
+Date: Tue, 17 Jan 2006 14:39:13 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Cynbe ru Taren <cynbe@muq.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
+Message-ID: <20060117193913.GD3714@kvack.org>
+References: <E1EywcM-0004Oz-IE@laurel.muq.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1EywcM-0004Oz-IE@laurel.muq.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a bug in direct-io on propagating write error up to the
-higher I/O layer.  When performing an async ODIRECT write to a
-block device, if a device error occurred (like media error or disk
-is pulled), the error code is only propagated from device driver
-to the DIO layer.  The error code stops at finished_one_bio(). The
-aysnc write, however, is supposedly have a corresponding AIO event
-with appropriate return code (in this case -EIO).  Application
-which waits on the async write event, will hang forever since such
-AIO event is lost forever (if such app did not use the timeout
-option in io_getevents call. Regardless, an AIO event is lost).
+On Tue, Jan 17, 2006 at 01:35:46PM -0600, Cynbe ru Taren wrote:
+> In principle, RAID5 should allow construction of a
+> disk-based store which is considerably MORE reliable
+> than any individual drive.
+> 
+> In my experience, at least, using Linux RAID5 results
+> in a disk storage system which is considerably LESS
+> reliable than the underlying drives.
 
-The problem is that calls to aio_complete() is conditioned upon
-READ, but it should've handle WRITE error as well.
+That is a function of how RAID5 works.  A properly configured RAID5 array 
+will have a spare disk to take over in case one of the members fails, as 
+otherwise you run a serious risk of not being able to recover any data.
 
+> What happens repeatedly, at least in my experience over
+> a variety of boxes running a variety of 2.4 and 2.6
+> Linux kernel releases, is that any transient I/O problem
+> results in a critical mass of RAID5 drives being marked
+> 'failed', at which point there is no longer any supported
+> way of retrieving the data on the RAID5 device, even
+> though the underlying drives are all fine, and the underlying
+> data on those drives almost certainly intact.
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+Underlying disks should not be experiencing transient failures.  Are you 
+sure the problem isn't with the disk controller you're building your array 
+on top of?  At the very least any bug report requires that information to 
+be able to provide even a basic analysis of what is going wrong.
 
+Personally, I am of the opinion that RAID5 should not be used by the 
+vast majority of people as the failure modes it entails are far too 
+complex for most people to cope with.
 
---- linux-2.6.15/fs/direct-io.c.orig	2006-01-17 11:54:17.010422462 -0800
-+++ linux-2.6.15/fs/direct-io.c	2006-01-17 12:08:00.444982688 -0800
-@@ -253,8 +253,7 @@ static void finished_one_bio(struct dio 
- 			dio_complete(dio, offset, transferred);
- 
- 			/* Complete AIO later if falling back to buffered i/o */
--			if (dio->result == dio->size ||
--				((dio->rw == READ) && dio->result)) {
-+			if (dio->result == dio->size || dio->result) {
- 				aio_complete(dio->iocb, transferred, 0);
- 				kfree(dio);
- 				return;
-
-
-
+		-ben
+-- 
+"You know, I've seen some crystals do some pretty trippy shit, man."
+Don't Email: <dont@kvack.org>.

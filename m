@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWAQTnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbWAQTrd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWAQTnV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 14:43:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWAQTnV
+	id S932417AbWAQTrd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 14:47:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWAQTrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 14:43:21 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:23982 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S932294AbWAQTnU (ORCPT
+	Tue, 17 Jan 2006 14:47:33 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:61870 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932417AbWAQTrc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 14:43:20 -0500
-Date: Tue, 17 Jan 2006 14:39:13 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Cynbe ru Taren <cynbe@muq.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
-Message-ID: <20060117193913.GD3714@kvack.org>
-References: <E1EywcM-0004Oz-IE@laurel.muq.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1EywcM-0004Oz-IE@laurel.muq.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 17 Jan 2006 14:47:32 -0500
+Message-ID: <43CD49CE.7090806@pobox.com>
+Date: Tue, 17 Jan 2006 14:47:26 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rene Herman <rene.herman@keyaccess.nl>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev list <netdev@oss.sgi.com>
+Subject: Re: DE2104X
+References: <43BED847.7040709@keyaccess.nl>
+In-Reply-To: <43BED847.7040709@keyaccess.nl>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Rene Herman wrote: > Hi Jeff. > > Upgraded a DEC Multia
+	to 2.6 today and noticed its 21040 was split off > into the "de2104x"
+	driver. Also see it's marked "experimental" and just > wanted to report
+	that it seems to be working fine on the 21040 as found > in a DEC
+	Multia (Pentium variant): [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 17, 2006 at 01:35:46PM -0600, Cynbe ru Taren wrote:
-> In principle, RAID5 should allow construction of a
-> disk-based store which is considerably MORE reliable
-> than any individual drive.
+Rene Herman wrote:
+> Hi Jeff.
 > 
-> In my experience, at least, using Linux RAID5 results
-> in a disk storage system which is considerably LESS
-> reliable than the underlying drives.
+> Upgraded a DEC Multia to 2.6 today and noticed its 21040 was split off 
+> into the "de2104x" driver. Also see it's marked "experimental" and just 
+> wanted to report that it seems to be working fine on the 21040 as found 
+> in a DEC Multia (Pentium variant):
 
-That is a function of how RAID5 works.  A properly configured RAID5 array 
-will have a spare disk to take over in case one of the members fails, as 
-otherwise you run a serious risk of not being able to recover any data.
+Thanks much for the report, that driver doesn't get much testing.
 
-> What happens repeatedly, at least in my experience over
-> a variety of boxes running a variety of 2.4 and 2.6
-> Linux kernel releases, is that any transient I/O problem
-> results in a critical mass of RAID5 drives being marked
-> 'failed', at which point there is no longer any supported
-> way of retrieving the data on the RAID5 device, even
-> though the underlying drives are all fine, and the underlying
-> data on those drives almost certainly intact.
+I believe there is still a problem with cable types other than 10baseT, 
+but I would have to search deep in the archives to find info.
 
-Underlying disks should not be experiencing transient failures.  Are you 
-sure the problem isn't with the disk controller you're building your array 
-on top of?  At the very least any bug report requires that information to 
-be able to provide even a basic analysis of what is going wrong.
+	Jeff
 
-Personally, I am of the opinion that RAID5 should not be used by the 
-vast majority of people as the failure modes it entails are far too 
-complex for most people to cope with.
 
-		-ben
--- 
-"You know, I've seen some crystals do some pretty trippy shit, man."
-Don't Email: <dont@kvack.org>.

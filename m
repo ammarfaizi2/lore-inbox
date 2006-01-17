@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932424AbWAQTxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932421AbWAQTxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932424AbWAQTxA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 14:53:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbWAQTxA
+	id S932421AbWAQTxo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 14:53:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWAQTxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 14:53:00 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:32727 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S932424AbWAQTw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 14:52:59 -0500
-Date: Tue, 17 Jan 2006 11:52:37 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Christoph Lameter <clameter@engr.sgi.com>,
-       Shai Fultheim <shai@scalex86.org>, Nippun Goel <nippung@calsoftinc.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       dipankar@in.ibm.com
-Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single threadedprocess at getrusage()
-Message-ID: <20060117195237.GA5289@localhost.localdomain>
-References: <20060104231600.GA3664@localhost.localdomain> <43BD70AD.21FC6862@tv-sign.ru> <20060106094627.GA4272@localhost.localdomain> <43C0FC4B.567D18DC@tv-sign.ru> <20060108195848.GA4124@localhost.localdomain> <43C2B1B7.635DDF0B@tv-sign.ru> <20060109205442.GB3691@localhost.localdomain> <43C40507.D1A85679@tv-sign.ru> <20060116205618.GA5313@localhost.localdomain> <43CD4C86.5B0BA4D0@tv-sign.ru>
+	Tue, 17 Jan 2006 14:53:44 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:18636
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932421AbWAQTxn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 14:53:43 -0500
+Subject: Re: Linux 2.6.16-rc1 - hrtimer hotfix
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+Content-Type: text/plain
+Date: Tue, 17 Jan 2006 20:54:08 +0100
+Message-Id: <1137527648.17180.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43CD4C86.5B0BA4D0@tv-sign.ru>
-User-Agent: Mutt/1.4.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 17, 2006 at 10:59:02PM +0300, Oleg Nesterov wrote:
-> Ravikiran G Thirumalai wrote:
-> > 
-> > Sorry for the delay..
-> > 
-> > On Tue, Jan 10, 2006 at 10:03:35PM +0300, Oleg Nesterov wrote:
-> > >
-> > > Sorry, I can't undestand. Could you please be more verbose ?
-> > 
-> > Last thread (RUSAGE_SELF)               Exiting thread
-> >
-> > [ ... ]
-> >
-> >         utime = cputime_add(utime, p->signal->utime); /* use cached load above */
-> >         stime = cputime_add(stime, p->signal->stime); /* load from memory */
-> 
-> Thanks for your explanation, now I see what you mean.
-> 
-> But don't we already discussed this issue? I think that RUSAGE_SELF
-> case always not 100% accurate, so it is Ok to ignore this race.
+On Tue, 2006-01-17 at 00:19 -0800, Linus Torvalds wrote:
+> Ok, it's two weeks since 2.6.15, and the merge window is closed.
 
-It is not 100% accurate as in we lose time accounting for one clock tick
-for the task_struct->utime, stime counters.  But
-task_struct->signal->utime,stime collect rusage times of an exiting thread,
-so we would be introducing large inaccuracies if we don't use rmb here.
-Take the case when an exiting thread has a large utime stime value, and
-rusage reports utime before thread exit and stime after thread exit... the
-result would look wierd.
-So IMHO, while inaccuracies in task_struct->xxx time can be tolerated, it
-might not be such a good idea to for task_struct->signal->xxx counters.
+Please pull from
 
-Thanks,
-Kiran
+master.kernel.org:/pub/scm/linux/kernel/git/tglx/hrtimer-2.6.git
+
+	tglx
+
+
+ itimer.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff-tree 52ae41e3d11d6f1828c5827861b7b83b7e854222 (from
+2664b25051f7ab96b22b199aa2f5ef6a949a4296)
+Author: Thomas Gleixner <tglx@linutronix.de>
+Date:   Tue Jan 17 20:03:14 2006 +0100
+
+    [hrtimers] Fixup itimer conversion
+
+    The itimer conversion removed the locking which protects
+    the timer and variables in the shared signal structure.
+    Steven Rostedt found the problem in the latest -rt patches.
+
+    Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+
+

@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWAQUIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWAQUJD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbWAQUIG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 15:08:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWAQUIG
+	id S964800AbWAQUJD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 15:09:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWAQUJD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 15:08:06 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:38585 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964794AbWAQUIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 15:08:05 -0500
-Subject: Re: Linux 2.6.16-rc1 - hrtimer hotfix
-From: Lee Revell <rlrevell@joe-job.com>
-To: tglx@linutronix.de
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1137527648.17180.10.camel@localhost.localdomain>
+	Tue, 17 Jan 2006 15:09:03 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:19667 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S964798AbWAQUJA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 15:09:00 -0500
+Date: Tue, 17 Jan 2006 21:08:54 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Diego Calleja <diegocg@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16-rc1
+In-Reply-To: <Pine.LNX.4.64.0601170946050.3240@g5.osdl.org>
+Message-ID: <Pine.LNX.4.61.0601172104350.11929@yvahk01.tjqt.qr>
 References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
-	 <1137527648.17180.10.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 17 Jan 2006 15:08:02 -0500
-Message-Id: <1137528482.19678.19.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+ <20060117183916.399b030f.diegocg@gmail.com> <Pine.LNX.4.64.0601170946050.3240@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-17 at 20:54 +0100, Thomas Gleixner wrote:
-> On Tue, 2006-01-17 at 00:19 -0800, Linus Torvalds wrote:
-> > Ok, it's two weeks since 2.6.15, and the merge window is closed.
-> 
-> Please pull from
-> 
-> master.kernel.org:/pub/scm/linux/kernel/git/tglx/hrtimer-2.6.git
+>> Can I ask if it's possible to "mark" new features/important changes?
+>
+>Well, I'd rather not do it in the source control management itself, simply 
+>because people are notoriously bad at deciding what is "important".
+>
+>It goes something like this: "By definition, anything _you_ work for is 
+>crap and unimportant, while _my_ work is the most important thing ever, 
+>even if it happens to be just fixing typos".
+>
+Important is what is important for all members of an "independent" group.
+We already have a small example: kerneltraffic. Though it's just one person 
+and therefore possibly biased, the magazine picks out what's [deemed] 
+important.
+Typos don't really advance to important IMO, even if they fix oopses (e.g. 
+a missing ! somewhere). More important are world news, news that Joe 
+Default User thinks is good - "full double preemption", "O(0.5) scheduler" 
+and other illusory things. Just think of if you had to commercially sell 
+a Linux kernel CD what features you would print on the cover.
+As for me, it was important to see SCHED_BATCH going in, as I started 
+to look through the big changelog :)
+Well, my 2 euros. (Yeah, 200 cents!)
 
-Does this mean 2.6.16 will have high res timers?
 
-Lee
 
+Jan Engelhardt
+-- 

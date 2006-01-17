@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWAQIr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWAQJBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbWAQIr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 03:47:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWAQIr6
+	id S932353AbWAQJBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 04:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWAQJBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 03:47:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21455 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932071AbWAQIr6 (ORCPT
+	Tue, 17 Jan 2006 04:01:09 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:2097 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S932353AbWAQJBI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 03:47:58 -0500
-Date: Tue, 17 Jan 2006 00:47:11 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: sleddog@us.ibm.com, serue@us.ibm.com, michael@ellerman.id.au,
-       linuxppc64-dev@ozlabs.org, paulus@au1.ibm.com, anton@au1.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-mm4 failure on power5
-Message-Id: <20060117004711.1f4508cd.akpm@osdl.org>
-In-Reply-To: <20060117081749.GA10135@elte.hu>
-References: <20060116063530.GB23399@sergelap.austin.ibm.com>
-	<20060115230557.0f07a55c.akpm@osdl.org>
-	<200601170000.58134.michael@ellerman.id.au>
-	<20060116153748.GA25866@sergelap.austin.ibm.com>
-	<20060116215252.GA10538@cs.umn.edu>
-	<20060116170907.60149236.akpm@osdl.org>
-	<20060117081749.GA10135@elte.hu>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 17 Jan 2006 04:01:08 -0500
+Date: Tue, 17 Jan 2006 10:01:01 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, ide <linux-ide@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       jgarzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 1/4] SATA ACPI build (applies to 2.6.16-git9)
+Message-ID: <20060117090101.GA25963@harddisk-recovery.nl>
+References: <20060113224252.38d8890f.rdunlap@xenotime.net> <20060116115607.GA18307@harddisk-recovery.nl> <20060116140713.GB18307@harddisk-recovery.com> <20060116210418.GG29663@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060116210418.GG29663@stusta.de>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
->
-> 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > > If I revert just that patch, mm4 boots fine.  Its really not obvious to
-> > > me at all why that patch is breaking things though...
+On Mon, Jan 16, 2006 at 10:04:18PM +0100, Adrian Bunk wrote:
+> On Mon, Jan 16, 2006 at 03:07:13PM +0100, Erik Mouw wrote:
+> > On Mon, Jan 16, 2006 at 12:56:07PM +0100, Erik Mouw wrote:
+> > > Could you add some help text over here? At first glance I got the
+> > > impression this was a host driver that works through ACPI calls, but by
+> > > reading the rest of your patches it turns out it is a suspend/resume
+> > > helper.
 > > 
-> > Yes, that is strange.  I do recall that if something accidentally 
-> > enables interrupts too early in boot, ppc64 machines tend to go 
-> > comatose.  But if we'd been running that code under 
-> > local_irq_disable(), down() would have spat a warning.
+> > Something like this should already be enough:
+> > 
+> >   This option enables support for SATA suspend/resume using ACPI.
+> > 
+> > If you really need this enabled to be able to use suspend/resume at
+> > all, you could add a line like:
+> > 
+> >   It's safe to say Y. If you say N, you might get serious disk
+> >   corruption when you suspend your machine.
+> >...
 > 
-> perhaps it was just luck it worked so far, and the bug could have had 
-> worse incarnations that the current clear hang if a certain generic 
-> codepath is touched in a perfectly valid way. Does CONFIG_DEBUG_MUTEXES 
-> (or any of the other debugging options) make any noise?
+> Why?
 > 
+> This is not a user-visible option...
 
-The bug happens on the G5 too.  There's nothing useful on the screen,
-nothing on netconsole.  Could the people whose machines have a fscking
-serial port please try CONFIG_DEBUG_MUTEXES?
+Just curious, how do you see it's not user visible?
+
+
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+| Data lost? Stay calm and contact Harddisk-recovery.com

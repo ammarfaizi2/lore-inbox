@@ -1,84 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbWAQOWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWAQO1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932506AbWAQOWm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 09:22:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932508AbWAQOWm
+	id S932510AbWAQO1M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 09:27:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWAQO1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 09:22:42 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:29634 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932506AbWAQOWl (ORCPT
+	Tue, 17 Jan 2006 09:27:12 -0500
+Received: from hera.kernel.org ([140.211.167.34]:16811 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932510AbWAQO1L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 09:22:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=pE1yVBd/q9kovyEObow6qSTCYRRQfyT1NNYOCDtTn8YPOMJLKanWIfC+2B/+jrC83YCe+OeTWe1c0wrZJMe1emYZTx0nTnxfYCOtb5tY0E51lz8npZhDKS4uJfpHzVKCmLMlijh9jMUMkHlnB98OcFaAisDCoXAzQduBMiP3Pfk=
-Message-ID: <43CCFDAA.4010801@gmail.com>
-Date: Tue, 17 Jan 2006 15:22:34 +0100
-From: Patrizio Bassi <patrizio.bassi@gmail.com>
-Reply-To: patrizio.bassi@gmail.com
-Organization: patrizio.bassi@gmail.com
-User-Agent: Mozilla Thunderbird 1.5 (X11/20060112)
-MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.16-rc1 bug] alsa suspend/resume continues to fail for ens1370
-References: <43CCF2A4.6020704@gmail.com> <s5hy81f9bln.wl%tiwai@suse.de>
-In-Reply-To: <s5hy81f9bln.wl%tiwai@suse.de>
-X-Enigmail-Version: 0.93.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Jan 2006 09:27:11 -0500
+Date: Tue, 17 Jan 2006 10:27:01 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: linux-kernel@vger.kernel.org
+Cc: levon@movementarian.org, Al Viro <viro@ftp.linux.org.uk>
+Subject: make "struct d_cookie" dependable on CONFIG_PROFILING?
+Message-ID: <20060117122701.GA26491@dmt.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai ha scritto:
-> At Tue, 17 Jan 2006 14:35:32 +0100,
-> Patrizio Bassi wrote:
->   
->> upgrading from 2.6.15-git5 to 2.6.16-rc1
->>
->> anche compiling my ens1370 driver statically in kernel i still have
->> issues on saving/resuming
->> mixer volumes.
->>
->> even applying this patch (inclused in lastest alsa-cvs snapshot)
->>
->>
->> --- a/sound/pci/ens1370.c       7 Dec 2005 11:13:55 -0000       1.91
->> +++ b/sound/pci/ens1370.c       10 Jan 2006 16:41:08 -0000
->> @@ -2061,6 +2061,13 @@
->>  #ifdef CHIP1371
->>         snd_ac97_suspend(ensoniq->u.es1371.ac97);
->>  #else
->> +       /* try to reset AK4531 */
->> +       outw(ES_1370_CODEC_WRITE(AK4531_RESET, 0x02), ES_REG(ensoniq,
->> 1370_CODEC));
->> +       inw(ES_REG(ensoniq, 1370_CODEC));
->> +       udelay(100);
->> +       outw(ES_1370_CODEC_WRITE(AK4531_RESET, 0x03), ES_REG(ensoniq,
->> 1370_CODEC));
->> +       inw(ES_REG(ensoniq, 1370_CODEC));
->> +       udelay(100);
->>         snd_ak4531_suspend(ensoniq->u.es1370.ak4531);
->>  #endif
->>         pci_set_power_state(pci, PCI_D3hot);
->>
->>
->>
->> it fails with 0x660 errors.
->> i attach my dmesg.
->>
->> Ready to test, as usual :)
->>     
->
-> Hm, and does this happen also when you build as modules?
-> Does the driver work again if you reload the module after resume?
->
->
-> Takashi
->
->   
-as module it works without reloading needed, but on suspend i still see
-0x660 errors.
 
-the problem is with built-in actually.
+Hi,
+
+Is there any good reason for not making "struct dcookie_struct
+*d_cookie" dependable on CONFIG_PROFILING? 
+
+Shrinks "struct dentry" from 128 bytes to 124 on x86, allowing
+31 objects per slab instead of 30.
+
+John Levon informed me that he had such selection in his
+original patches, but was asked but take it off (?).
+
+
+--- ./fs/dcache.c.orig	2006-01-17 09:52:31.000000000 -0200
++++ ./fs/dcache.c	2006-01-17 09:52:50.000000000 -0200
+@@ -743,7 +743,9 @@ struct dentry *d_alloc(struct dentry * p
+ 	dentry->d_op = NULL;
+ 	dentry->d_fsdata = NULL;
+ 	dentry->d_mounted = 0;
++#ifdef CONFIG_PROFILING
+ 	dentry->d_cookie = NULL;
++#endif
+ 	INIT_HLIST_NODE(&dentry->d_hash);
+ 	INIT_LIST_HEAD(&dentry->d_lru);
+ 	INIT_LIST_HEAD(&dentry->d_subdirs);
+--- ./include/linux/dcache.h.orig	2006-01-17 09:54:12.000000000 -0200
++++ ./include/linux/dcache.h	2006-01-17 09:55:26.000000000 -0200
+@@ -108,7 +108,9 @@ struct dentry {
+ 	struct dentry_operations *d_op;
+ 	struct super_block *d_sb;	/* The root of the dentry tree */
+ 	void *d_fsdata;			/* fs-specific data */
++#ifdef CONFIG_PROFILING
+ 	struct dcookie_struct *d_cookie; /* cookie, if any */
++#endif
+ 	int d_mounted;
+ 	unsigned char d_iname[DNAME_INLINE_LEN_MIN];	/* small names */
+ };

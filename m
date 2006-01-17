@@ -1,69 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWAQJW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWAQJuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbWAQJW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 04:22:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWAQJW6
+	id S1751346AbWAQJuY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 04:50:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWAQJuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 04:22:58 -0500
-Received: from uproxy.gmail.com ([66.249.92.204]:22809 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932366AbWAQJW6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 04:22:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gEGq7nzj6nac+q7KL5hAuK1yupFlAFCBzrTTnnX6tvl5G6Tkjb0aEGwrSjQL+aVDcXcBSnK5Z9RmGdR8YGye2lazLSlZtP+bji6s7HgWgQbMlqJnp8A15t7bLquXrK7ZA8thZzjCApn5gfNRjD5uTz+DAxkN8TnaPKSX7XQRUPE=
-Message-ID: <aec7e5c30601170122o7766fd4ep6285e3651be1a81e@mail.gmail.com>
-Date: Tue, 17 Jan 2006 18:22:56 +0900
-From: Magnus Damm <magnus.damm@gmail.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: Race in new page migration code?
-Cc: Christoph Lameter <clameter@engr.sgi.com>, Nick Piggin <npiggin@suse.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
-In-Reply-To: <43CCB262.9070304@yahoo.com.au>
+	Tue, 17 Jan 2006 04:50:24 -0500
+Received: from lucidpixels.com ([66.45.37.187]:52370 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1751346AbWAQJuV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 04:50:21 -0500
+Date: Tue, 17 Jan 2006 04:50:20 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
+To: Phil Oester <kernel@linuxace.com>
+cc: linux-kernel@vger.kernel.org, apiszcz@lucidpixels.com
+Subject: Re: Kernel 2.6.15.1 + NFS is 4 times slower than FTP!?
+In-Reply-To: <20060117012319.GA22161@linuxace.com>
+Message-ID: <Pine.LNX.4.64.0601170450020.2377@p34>
+References: <Pine.LNX.4.64.0601161957300.16829@p34> <20060117012319.GA22161@linuxace.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060114155517.GA30543@wotan.suse.de>
-	 <Pine.LNX.4.62.0601140955340.11378@schroedinger.engr.sgi.com>
-	 <20060114181949.GA27382@wotan.suse.de>
-	 <Pine.LNX.4.62.0601141040400.11601@schroedinger.engr.sgi.com>
-	 <43C9DD98.5000506@yahoo.com.au>
-	 <Pine.LNX.4.62.0601152251550.17034@schroedinger.engr.sgi.com>
-	 <aec7e5c30601170029if0ed895le2c18b26eb7c6a42@mail.gmail.com>
-	 <43CCB262.9070304@yahoo.com.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/17/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> Magnus Damm wrote:
-> > On 1/16/06, Christoph Lameter <clameter@engr.sgi.com> wrote:
-> >
-> >>On Sun, 15 Jan 2006, Nick Piggin wrote:
-> >>
-> >>
-> >>>OK (either way is fine), but you should still drop the __isolate_lru_page
-> >>>nonsense and revert it like my patch does.
-> >>
-> >>Ok with me. Magnus: You needed the __isolate_lru_page for some other
-> >>purpose. Is that still the case?
-> >
-> >
-> > It made sense to have it broken out when it was used twice within
-> > vmscan.c, but now when the patch changed a lot and the function is
-> > used only once I guess the best thing is to inline it as Nick
-> > suggested. I will re-add it myself later on when I need it. Thanks.
-> >
-> > / magnus
-> >
+NFS is still twice as slow as FTP, but best with a r/w size of 8192.
+
+DEFAULT, NO OPTIONS
+# mount p34:/ /nfs/p34
+$ /usr/bin/time cp 700mb.img  /p34/x/d
+0.01user 1.64system 0:34.23elapsed 4%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+196minor)pagefaults 0swaps
+
+TCP, NO CACHING
+# mount p34:/ /nfs/p34 -o nfsvers=3,tcp,noac
+$ /usr/bin/time cp 700mb.img  /p34/x/a
+0.02user 5.25system 0:58.43elapsed 9%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+197minor)pagefaults 0swaps
+
+UDP, NO CACHING
+# mount p34:/ /nfs/p34 -o nfsvers=3,noac
+$ /usr/bin/time cp 700mb.img  /p34/x/b
+0.02user 5.54system 1:00.34elapsed 9%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+196minor)pagefaults 0swaps
+
+UDP, NO CACHING (w/65535 r/w size)
+# mount p34:/ /nfs/p34 -o nfsvers=3,noac,rsize=65535,wsize=65535
+$ /usr/bin/time cp 700mb.img  /p34/x/c
+0.01user 5.75system 0:59.89elapsed 9%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+196minor)pagefaults 0swaps
+
+# mount p34:/ /nfs/p34 -o nfsvers=3,rsize=8192,wsize=8192
+0.04user 1.78system 0:14.16elapsed 12%CPU (0avgtext+0avgdata 
+0maxresident)k
+0inputs+0outputs (0major+190minor)pagefaults 0swaps
+
+UDP, NFSV3 + (w/8192 r/w size)
+$ /usr/bin/time cp 700mb.img  /p34/x/g
+0.04user 1.78system 0:14.16elapsed 12%CPU (0avgtext+0avgdata 
+0maxresident)k
+0inputs+0outputs (0major+190minor)pagefaults 0swaps
+
+TCP, NFSV3 + (w/8192 r/w size)
+0.03user 1.81system 0:14.98elapsed 12%CPU (0avgtext+0avgdata 
+0maxresident)k
+0inputs+0outputs (0major+190minor)pagefaults 0swaps
+
+UDP, NFSV3 + (w/16384 r/w size)
+# mount p34:/ /nfs/p34 -o nfsvers=3,rsize=16834,wsize=16384
+$ /usr/bin/time cp 700mb.img  /p34/x/e
+0.03user 1.75system 0:20.20elapsed 8%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+192minor)pagefaults 0swaps
+
+UDP, NFSV3 + (w/32768 r/w size)
+# mount p34:/ /nfs/p34 -o nfsvers=3,rsize=32768,wsize=32768
+  /usr/bin/time cp 700mb.img  /p34/x/f
+0.01user 1.59system 0:32.87elapsed 4%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+196minor)pagefaults 0swaps
+
+
+
+
+
+
+On Mon, 16 Jan 2006, Phil Oester wrote:
+
+> On Mon, Jan 16, 2006 at 08:07:02PM -0500, Justin Piszcz wrote:
+>> I suppose I should try NFS with TCP, yes?
 >
-> I'm curious, what do you need it for?
-
-I used that function when I worked on a memory resource control
-prototype. This prototype has been superseeded by the pzone memory
-resource controller posted on ckrm-tech recently.
-
-/ magnus
+> Precisely.
+>
+> Phil
+>

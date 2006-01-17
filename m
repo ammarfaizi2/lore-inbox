@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWAQL0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWAQL1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbWAQL0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 06:26:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWAQL0Q
+	id S932403AbWAQL1g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 06:27:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbWAQL1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 06:26:16 -0500
-Received: from hobbit.corpit.ru ([81.13.94.6]:63829 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S932395AbWAQL0P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 06:26:15 -0500
-Message-ID: <43CCD453.9070900@tls.msk.ru>
-Date: Tue, 17 Jan 2006 14:26:11 +0300
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Tue, 17 Jan 2006 06:27:36 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63762 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932403AbWAQL1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 06:27:36 -0500
+Date: Tue, 17 Jan 2006 12:27:36 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, ide <linux-ide@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       jgarzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 1/4] SATA ACPI build (applies to 2.6.16-git9)
+Message-ID: <20060117112736.GK29663@stusta.de>
+References: <20060113224252.38d8890f.rdunlap@xenotime.net> <20060116115607.GA18307@harddisk-recovery.nl> <20060116140713.GB18307@harddisk-recovery.com> <20060116210418.GG29663@stusta.de> <20060117090101.GA25963@harddisk-recovery.nl>
 MIME-Version: 1.0
-To: sander@humilis.net
-CC: NeilBrown <neilb@suse.de>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Subject: Re: [PATCH 000 of 5] md: Introduction
-References: <20060117174531.27739.patches@notabene> <43CCA80B.4020603@tls.msk.ru> <20060117095019.GA27262@localhost.localdomain>
-In-Reply-To: <20060117095019.GA27262@localhost.localdomain>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060117090101.GA25963@harddisk-recovery.nl>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sander wrote:
-> Michael Tokarev wrote (ao):
-[]
->>Neil, is this online resizing/reshaping really needed? I understand
->>all those words means alot for marketing persons - zero downtime,
->>online resizing etc, but it is much safer and easier to do that stuff
->>'offline', on an inactive array, like raidreconf does - safer, easier,
->>faster, and one have more possibilities for more complex changes. It
->>isn't like you want to add/remove drives to/from your arrays every
->>day... Alot of good hw raid cards are unable to perform such reshaping
->>too.
-[]
-> Actually, I don't understand why you bother at all. One writes the
-> feature. Another uses it. How would this feature harm you?
+On Tue, Jan 17, 2006 at 10:01:01AM +0100, Erik Mouw wrote:
+> On Mon, Jan 16, 2006 at 10:04:18PM +0100, Adrian Bunk wrote:
+> > On Mon, Jan 16, 2006 at 03:07:13PM +0100, Erik Mouw wrote:
+> > > On Mon, Jan 16, 2006 at 12:56:07PM +0100, Erik Mouw wrote:
+> > > > Could you add some help text over here? At first glance I got the
+> > > > impression this was a host driver that works through ACPI calls, but by
+> > > > reading the rest of your patches it turns out it is a suspend/resume
+> > > > helper.
+> > > 
+> > > Something like this should already be enough:
+> > > 
+> > >   This option enables support for SATA suspend/resume using ACPI.
+> > > 
+> > > If you really need this enabled to be able to use suspend/resume at
+> > > all, you could add a line like:
+> > > 
+> > >   It's safe to say Y. If you say N, you might get serious disk
+> > >   corruption when you suspend your machine.
+> > >...
+> > 
+> > Why?
+> > 
+> > This is not a user-visible option...
+> 
+> Just curious, how do you see it's not user visible?
 
-This is about code complexity/bloat.  It's already complex enouth.
-I rely on the stability of the linux softraid subsystem, and want
-it to be reliable. Adding more features, especially non-trivial
-ones, does not buy you bugfree raid subsystem, just the opposite:
-it will have more chances to crash, to eat your data etc, and will
-be harder in finding/fixing bugs.
+There's neither a "prompt" line nor a string after the "bool".
 
-Raid code is already too fragile, i'm afraid "simple" I/O errors
-(which is what we need raid for) may crash the system already, and
-am waiting for the next whole system crash due to eg superblock
-update error or whatnot.  I saw all sorts of failures due to
-linux softraid already (we use it here alot), including ones
-which required complete array rebuild with heavy data loss.
+> Erik
 
-Any "unnecessary bloat" (note the quotes: I understand some
-people like this and other features) makes whole system even
-more fragile than it is already.
+cu
+Adrian
 
-Compare this with my statement about "offline" "reshaper" above:
-separate userspace (easier to write/debug compared with kernel
-space) program which operates on an inactive array (no locking
-needed, no need to worry about other I/O operations going to the
-array at the time of reshaping etc), with an ability to plan it's
-I/O strategy in alot more efficient and safer way...  Yes this
-apprpach has one downside: the array has to be inactive.  But in
-my opinion it's worth it, compared to more possibilities to lose
-your data, even if you do NOT use that feature at all...
+-- 
 
-/mjt
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

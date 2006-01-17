@@ -1,36 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbWAQSKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWAQSKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbWAQSKO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 13:10:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbWAQSKO
+	id S932160AbWAQSKj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 13:10:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWAQSKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 13:10:14 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:29860 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932156AbWAQSKM (ORCPT
+	Tue, 17 Jan 2006 13:10:38 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:52488 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S932160AbWAQSK3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 13:10:12 -0500
-Subject: Re: PATCH: SBC EPX does not check/claim I/O ports it uses
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: calin@ajvar.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <58cb370e0601171003q3e629131y115b665a93d083f3@mail.gmail.com>
-References: <1137520351.14135.40.camel@localhost.localdomain>
-	 <58cb370e0601171003q3e629131y115b665a93d083f3@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 17 Jan 2006 18:09:28 +0000
-Message-Id: <1137521369.14135.56.camel@localhost.localdomain>
+	Tue, 17 Jan 2006 13:10:29 -0500
+Date: Tue, 17 Jan 2006 19:10:12 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Ryan Anderson <ryan@michonline.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Junio C Hamano <junkio@cox.net>,
+       git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: git-diff-files and fakeroot
+Message-ID: <20060117181012.GA8047@mars.ravnborg.org>
+References: <43CC5231.3090005@michonline.com> <7vzmlvk2bs.fsf@assigned-by-dhcp.cox.net> <20060117052758.GA22839@mythryan2.michonline.com> <95E085A7-B910-4C01-BA6E-43971A6F5F97@mac.com> <43CC89F0.7060109@michonline.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43CC89F0.7060109@michonline.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-01-17 at 19:03 +0100, Bartlomiej Zolnierkiewicz wrote:
-> >         ret = register_reboot_notifier(&epx_c3_notifier);
-> >         if (ret) {
+On Tue, Jan 17, 2006 at 01:08:48AM -0500, Ryan Anderson wrote:
 > 
-> Shouldn't resource be released when
-> register_reboot_notifier() or misc_register() fails?
+> I think I might take your suggestion, and fix up the builddeb script to
+> do the "run as root" part itself, rather than needing to do it outside. 
+> It would make it possible to just run "make oldconfig deb-pkg" which
+> would make things a little bit simpler.
+If we do something it must be consistent for all *-pkg targets.
+So fixing up builddeb is not enough, we must fix it for rpm etc also.
 
-Yes, let me insert my brain and post a corrected patch.
+Not that I have looked into what is needed, but we shall not have
+inconsistent behavious between the different *-pkg targets.
 
+	Sam

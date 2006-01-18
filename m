@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030295AbWARTCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030349AbWARTHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030295AbWARTCP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 14:02:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWARTCO
+	id S1030349AbWARTHV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 14:07:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030355AbWARTHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 14:02:14 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:54149 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964911AbWARTCO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 14:02:14 -0500
-Subject: Re: RFC [patch 00/34] PID Virtualization Overview
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Suleiman Souhlal <ssouhlal@FreeBSD.org>, Serge Hallyn <serue@us.ibm.com>,
-       linux-kernel@vger.kernel.org, Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>
-In-Reply-To: <1137522550.14135.76.camel@localhost.localdomain>
-References: <20060117143258.150807000@sergelap>
-	 <43CD18FF.4070006@FreeBSD.org>
-	 <1137517698.8091.29.camel@localhost.localdomain>
-	 <43CD32F0.9010506@FreeBSD.org>
-	 <1137521557.5526.18.camel@localhost.localdomain>
-	 <1137522550.14135.76.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 18 Jan 2006 11:01:52 -0800
-Message-Id: <1137610912.24321.50.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Jan 2006 14:07:21 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:5040 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030349AbWARTHV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 14:07:21 -0500
+Message-ID: <43CE91EA.2060204@redhat.com>
+Date: Wed, 18 Jan 2006 11:07:22 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5 (X11/20060112)
+MIME-Version: 1.0
+To: Michael Tokarev <mjt@tls.msk.ru>
+CC: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
+       David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [PATCH] pepoll_wait ...
+References: <Pine.LNX.4.63.0601171933400.15529@localhost.localdomain> <43CE8B14.4020909@tls.msk.ru>
+In-Reply-To: <43CE8B14.4020909@tls.msk.ru>
+X-Enigmail-Version: 0.93.1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigBB282D0F6560B7E440A289CF"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-17 at 18:29 +0000, Alan Cox wrote:
-> On Maw, 2006-01-17 at 10:12 -0800, Dave Hansen wrote:
-> > You do assign new pids, at least as far as the kernel is concerned.
-> > However, any processes that continue to run would get confused if their
-> > pid changed.  You have to make sure that the tasks have a _consistent_
-> > view of which process is which pid.
-> 
-> Don't reassign the pid at all. Keep task->container and do the job
-> explicitly. Most task searches for a pid are abstracted already and most
-> users of ->pid who try and use it for comparing two tasks for equality
-> or for keeping a task reference are already terminally racey and want
-> fixing anyway.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigBB282D0F6560B7E440A289CF
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Other than searches, there appear to be quite a number of drivers an
-subsystems that like to print out pids.  I can't find any cases yet
-where these are integral to functionality, but I wonder what approach we
-should take.  Should we deprecate printk'ing of pids?  Make a special
-function or % modifier to turn a task_struct into something printable?
+Michael Tokarev wrote:
+> How about epoll_pwait() instead?  It looks more appropriate, for
+> my eyes anyway.  (Just a name, nothing more)
 
-A function would run into issues of having buffers in which to print the
-output.  But, we'd be able to do things like:
+It's just a name but I have thought along the same lines. It's just more
+pleasing.
 
-	sprintf(buffer, "%d:%d", tsk->container, tsk->pid);
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
 
--- Dave
 
+--------------enigBB282D0F6560B7E440A289CF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFDzpHv2ijCOnn/RHQRAkftAKCeWv/+if0J/2FEVwG4d81o0iZDWACeJR6q
+mwo520Fv0cgivsSo4aCetHQ=
+=PjML
+-----END PGP SIGNATURE-----
+
+--------------enigBB282D0F6560B7E440A289CF--

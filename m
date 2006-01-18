@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbWARPxW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWARPxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030358AbWARPxW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 10:53:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030361AbWARPxW
+	id S1030362AbWARPxx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 10:53:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030361AbWARPxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 10:53:22 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:34964 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030358AbWARPxV (ORCPT
+	Wed, 18 Jan 2006 10:53:53 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:19072 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S1030362AbWARPxv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 10:53:21 -0500
-Date: Wed, 18 Jan 2006 16:53:20 +0100
-From: Nick Piggin <npiggin@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [patch] ati_pcigart: simplify page_count manipulations
-Message-ID: <20060118155320.GC28418@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 18 Jan 2006 10:53:51 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 2.6.15] ia64: use i386 dmi_scan.c
+Date: Wed, 18 Jan 2006 08:53:46 -0700
+User-Agent: KMail/1.8.3
+Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-ia64@vger.kernel.org,
+       openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
+       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
+       linux-kernel@vger.kernel.org
+References: <20060104221627.GA26064@lists.us.dell.com> <200601171717.03192.bjorn.helgaas@hp.com> <200601180332.19692.ak@suse.de>
+In-Reply-To: <200601180332.19692.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Message-Id: <200601180853.46290.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allocate a compound page for the user mapping instead of tweaking
-the page refcounts.
+On Tuesday 17 January 2006 19:32, Andi Kleen wrote:
+> At least on x86-64/i386 the ioremap is actually cached unless a MTRR
+> changes it, but it normally doesn't here. If one wants to force uncached
+> access one has to use ioremap_uncached(). You're saying IA64 ioremap
+> forces uncached access? That seems weird.
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
+Right.  On ia64, ioremap() and ioremap_nocache() are the same.  You'd
+have to ask David about the history behind this.
 
-Index: linux-2.6/drivers/char/drm/ati_pcigart.c
-===================================================================
---- linux-2.6.orig/drivers/char/drm/ati_pcigart.c
-+++ linux-2.6/drivers/char/drm/ati_pcigart.c
-@@ -59,17 +59,16 @@ static void *drm_ati_alloc_pcigart_table
- 	int i;
- 	DRM_DEBUG("%s\n", __FUNCTION__);
- 
--	address = __get_free_pages(GFP_KERNEL, ATI_PCIGART_TABLE_ORDER);
-+	address = __get_free_pages(GFP_KERNEL | __GFP_COMP,
-+					ATI_PCIGART_TABLE_ORDER);
- 	if (address == 0UL) {
- 		return 0;
- 	}
- 
- 	page = virt_to_page(address);
- 
--	for (i = 0; i < ATI_PCIGART_TABLE_PAGES; i++, page++) {
--		get_page(page);
-+	for (i = 0; i < ATI_PCIGART_TABLE_PAGES; i++, page++)
- 		SetPageReserved(page);
--	}
- 
- 	DRM_DEBUG("%s: returning 0x%08lx\n", __FUNCTION__, address);
- 	return (void *)address;
-@@ -83,10 +82,8 @@ static void drm_ati_free_pcigart_table(v
- 
- 	page = virt_to_page((unsigned long)address);
- 
--	for (i = 0; i < ATI_PCIGART_TABLE_PAGES; i++, page++) {
--		__put_page(page);
-+	for (i = 0; i < ATI_PCIGART_TABLE_PAGES; i++, page++)
- 		ClearPageReserved(page);
--	}
- 
- 	free_pages((unsigned long)address, ATI_PCIGART_TABLE_ORDER);
- }
+> > +	if (efi_enabled) {
+> > +		if (efi_mem_attributes(base & EFI_MEMORY_WB)) {
+> > +			iomem = 0;
+> > +			buf = (u8 *) phys_to_virt(base);
+> > +		} else if (efi_mem_attributes(base & EFI_MEMORY_UC))
+> > +			buf = dmi_ioremap(base, len);
+> > +		else
+> > +			buf = NULL;
+> 
+> I would expect your ioremap to already do such a lookup. That is at least
+> how MTRRs on i386/x86-64 work.  If it does not how about you fix
+> ioremap()?
+
+Yes, hiding this all inside ioremap() is probably a good idea.
+It'll slow it down a lot, but I guess it's probably not used in
+performance paths anyway.  Thanks for the advice.

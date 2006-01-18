@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbWARAyR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbWARAzB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbWARAyR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 19:54:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbWARAyR
+	id S932528AbWARAzB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 19:55:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbWARAyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 19:54:17 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:28568 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S964978AbWARAyQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 19:54:16 -0500
-Subject: [patch 1/4]  pci: return max reserved busnr
+	Tue, 17 Jan 2006 19:54:49 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:64133 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932528AbWARAyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 19:54:41 -0500
+Subject: [patch 3/4] pci: really fix parent's subordinate busnr
 From: Kristen Accardi <kristen.c.accardi@intel.com>
 To: linux-kernel@vger.kernel.org
 Cc: greg@kroah.com, pcihpd-discuss@lists.sourceforge.net, len.brown@intel.com,
@@ -17,61 +17,36 @@ Cc: greg@kroah.com, pcihpd-discuss@lists.sourceforge.net, len.brown@intel.com,
 References: <20060116200218.275371000@whizzy>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Tue, 17 Jan 2006 16:56:56 -0800
-Message-Id: <1137545816.19858.46.camel@whizzy>
+Date: Tue, 17 Jan 2006 16:57:01 -0800
+Message-Id: <1137545822.19858.48.camel@whizzy>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-X-OriginalArrivalTime: 18 Jan 2006 00:54:04.0607 (UTC) FILETIME=[ADDEBCF0:01C61BC9]
+X-OriginalArrivalTime: 18 Jan 2006 00:54:09.0953 (UTC) FILETIME=[B10E7910:01C61BC9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change the semantics of this call to return the max reserved
-bus number instead of just the max assigned bus number.
+After you find the maximum value of the subordinate buses below the child
+bus, you must fix the parent's subordinate bus number again, otherwise
+it may be too small.
 
 Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com> 
 
 
- drivers/pci/pci.c   |    5 +++--
- include/linux/pci.h |    1 +
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/pci/probe.c |    5 +++++
+ 1 files changed, 5 insertions(+)
 
---- linux-2.6.15-mm.orig/drivers/pci/pci.c
-+++ linux-2.6.15-mm/drivers/pci/pci.c
-@@ -19,7 +19,6 @@
- #include <asm/dma.h>	/* isa_dma_bridge_buggy */
- #include "pci.h"
- 
--#if 0
- 
- /**
-  * pci_bus_max_busnr - returns maximum PCI bus number of given bus' children
-@@ -34,7 +33,7 @@ pci_bus_max_busnr(struct pci_bus* bus)
- 	struct list_head *tmp;
- 	unsigned char max, n;
- 
--	max = bus->number;
-+	max = bus->subordinate;
- 	list_for_each(tmp, &bus->children) {
- 		n = pci_bus_max_busnr(pci_bus_b(tmp));
- 		if(n > max)
-@@ -42,7 +41,9 @@ pci_bus_max_busnr(struct pci_bus* bus)
- 	}
- 	return max;
- }
-+EXPORT_SYMBOL_GPL(pci_bus_max_busnr);
- 
-+#if 0
- /**
-  * pci_max_busnr - returns maximum PCI bus number
-  *
---- linux-2.6.15-mm.orig/include/linux/pci.h
-+++ linux-2.6.15-mm/include/linux/pci.h
-@@ -514,6 +514,7 @@ int pci_scan_bridge(struct pci_bus *bus,
- void pci_walk_bus(struct pci_bus *top, void (*cb)(struct pci_dev *, void *),
- 		  void *userdata);
- int pci_cfg_space_size(struct pci_dev *dev);
-+unsigned char pci_bus_max_busnr(struct pci_bus* bus);
- 
- /* kmem_cache style wrapper around pci_alloc_consistent() */
- 
+--- linux-2.6.15-mm.orig/drivers/pci/probe.c
++++ linux-2.6.15-mm/drivers/pci/probe.c
+@@ -537,6 +537,11 @@ int __devinit pci_scan_bridge(struct pci
+ 			pci_fixup_parent_subordinate_busnr(child, max);
+ 			/* Now we can scan all subordinate buses... */
+ 			max = pci_scan_child_bus(child);
++			/*
++			 * now fix it up again since we have found
++			 * the real value of max.
++			 */
++			pci_fixup_parent_subordinate_busnr(child, max);
+ 		} else {
+ 			/*
+ 			 * For CardBus bridges, we leave 4 bus numbers
 

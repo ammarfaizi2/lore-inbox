@@ -1,62 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWARKeq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWARKf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964840AbWARKeq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 05:34:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWARKeq
+	id S964863AbWARKf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 05:35:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWARKf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 05:34:46 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:55255 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S964840AbWARKep
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 05:34:45 -0500
-Date: Wed, 18 Jan 2006 13:34:37 +0300
-From: Vitaly Bordug <vbordug@ru.mvista.com>
-To: John Ronciak <john.ronciak@gmail.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Stephen Hemminger <shemminger@osdl.org>,
-       jgarzik@pobox.com, saw@saw.sw.com.sg, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] remove drivers/net/eepro100.c
-Message-ID: <20060118133437.3840827f@vitb.dev.rtsoft.ru>
-In-Reply-To: <56a8daef0601171427s75894fid0f8c4f9e2b28e50@mail.gmail.com>
-References: <20060105181826.GD12313@stusta.de>
-	<20060115161958.07e3c7f1@vitb.dev.rtsoft.ru>
-	<20060115160340.6f8cc7d6@localhost.localdomain>
-	<20060117184834.GD19398@stusta.de>
-	<56a8daef0601171427s75894fid0f8c4f9e2b28e50@mail.gmail.com>
-Organization: MontaVista software, Inc.
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; i386-redhat-linux-gnu)
+	Wed, 18 Jan 2006 05:35:56 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:11153 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S964863AbWARKfz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 05:35:55 -0500
+Date: Wed, 18 Jan 2006 11:35:54 +0100
+From: Jan Kara <jack@suse.cz>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: unmount oops in log_do_checkpoint
+Message-ID: <20060118103554.GB1323@atrey.karlin.mff.cuni.cz>
+References: <20060116160420.GA21064@wotan.suse.de> <20060116212250.GD12159@atrey.karlin.mff.cuni.cz> <20060117113727.GB24083@wotan.suse.de> <20060117034601.6556322a.akpm@osdl.org> <20060117115945.GC24083@wotan.suse.de> <20060117140929.GA23497@wotan.suse.de> <20060117163235.GA18895@atrey.karlin.mff.cuni.cz> <20060117163622.GA20740@wotan.suse.de> <20060117222353.GA26770@atrey.karlin.mff.cuni.cz> <20060118054136.GA27838@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="UlVJffcvxoiEqYs2"
+Content-Disposition: inline
+In-Reply-To: <20060118054136.GA27838@wotan.suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Jan 2006 14:27:16 -0800
-John Ronciak <john.ronciak@gmail.com> wrote:
 
-> We don't of any problems reported against e100 that have not been
-> talked about in this thread (in old ARCH types).  I think the eepro100
-> driver should be removed from the config "just in case" but we are in
-> full support of the e100 driver and if somebody says that it's not
-> working on one of the different ARCHs we are willing to work with them
-> to get it fixed.  The problem is that we don't have all these
-> different ARCH systems around to test against.
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+> On Tue, Jan 17, 2006 at 11:23:53PM +0100, Jan Kara wrote:
+> > > On Tue, Jan 17, 2006 at 05:32:35PM +0100, Jan Kara wrote:
+> > > > > On Tue, Jan 17, 2006 at 12:59:45PM +0100, Nick Piggin wrote:
+> > > > > 
+> > > > > Maybe it is because people haven't been turning on their debugging options,
+> > > > > tsk tsk ;) It only oopses when DEBUG_SLAB and DEBUG_PAGEALLOC are both
+> > > > > enabled. And only then when the jbd patch is not reverted. Weird.
+> > > >   Hmm, that's really strange, maybe we have some use-after-free
+> > > > problem or so... I'll see what I can do :).
+> > > > 
+> > > 
+> > > Are you able to reproduce? If not I can test patches...
+> >   Hmm, I was not able to reproduce the problem even with those debug
+> > options set :(. As I'm looking into the code it seems that somebody
+> > managed to free the transaction but did not clear the
+> > j_checkpoint_transactions pointer. It's even stranger that it's during
+> > umount time when there should not be much processes playing with the JBD
+> > structures on that filesystem.
+> >   Attached is the patch that fixes two minor possible problems I've
+> > found. Neither of them should be causing your oops but one never knows
+> > :). Also turn on the JBD debugging in config. Maybe it spits something
+> > useful. If you still see the same oops, I'll create some debugging
+> > patch.
 > 
-> Another thing is that removal of the driver (or disabling the config)
-> will hopefully force the issue in that people with these ARCHs will
-> use the e100 and if they have problems we can get them fixed in the
-> e100 driver.  At this point nobody seems to be able to define a "real"
-> problem other than talking about it.
+> This patch does the trick. Survived several reboots now while without
+> the patch it has oopsed 100% of the time so far. Thanks!
+  Good to hear :).
 
-Ok then, let's go ahead, but 
-I vote for config exclusion as a first step,
-so if anybody will run into problems, will use old mature stuff until e100 get fixed.
+> I have also attached a full jbd debug output and oops for the vanilla
+> 2.6.16-rc1 case, just in case that helps.
+  It helped me to verify my idea why my patch helped. Thanks. The problem was
+the || instead of && in log_do_checkpoint(). When the journal checkpoint
+list became empty, the pointer check in the loop failed and so because
+of || we tried also the second check which was using transaction->t_tid.
+If the transaction was already freed, bad luck...
+  Andrew, attached is the fix with logs etc. I split my original patch
+into two as they are in fact unrelated things. Please apply.
 
-Due to rollback the removed driver - back and forth in killing/resurrecting stuff is not a good example to follow within the kernel.
-
-Generally speaking, e100 should replace eepro*, but I can see no reason for rush in doing that one-step.
-
-
+								Honza
 -- 
-Sincerely, 
-Vitaly
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
+
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="jbd-2.6.16-rc1-1-log_do_checkpoint_fix.diff"
+
+While checkpointing we have to check that our transaction still is in the
+checkpoint list *and* (not or) that it's not just a different transaction
+with the same address.
+
+Signed-off-by: Jan Kara <jack@suse.cz>
+
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.16-rc1/fs/jbd/checkpoint.c linux-2.6.16-rc1-1-checkpoint-fix/fs/jbd/checkpoint.c
+--- linux-2.6.16-rc1/fs/jbd/checkpoint.c	2006-01-17 21:44:02.000000000 +0100
++++ linux-2.6.16-rc1-1-checkpoint-fix/fs/jbd/checkpoint.c	2006-01-17 23:35:49.000000000 +0100
+@@ -338,7 +338,7 @@ restart:
+ 	 * done (maybe it's a new transaction, but it fell at the same
+ 	 * address).
+ 	 */
+- 	if (journal->j_checkpoint_transactions == transaction ||
++ 	if (journal->j_checkpoint_transactions == transaction &&
+ 			transaction->t_tid == this_tid) {
+ 		int batch_count = 0;
+ 		struct buffer_head *bhs[NR_BATCH];
+
+
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="jbd-2.6.16-rc1-2-commit_remove_trans_fix.diff"
+
+We have to check that also the second checkpoint list is non-empty before
+dropping the transaction.
+
+Signed-off-by: Jan Kara <jack@suse.cz>
+
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.16-rc1/fs/jbd/commit.c linux-2.6.16-rc1-1-checkpoint-fix/fs/jbd/commit.c
+--- linux-2.6.16-rc1/fs/jbd/commit.c	2006-01-15 00:20:12.000000000 +0100
++++ linux-2.6.16-rc1-1-checkpoint-fix/fs/jbd/commit.c	2006-01-17 23:35:19.000000000 +0100
+@@ -829,7 +829,8 @@ restart_loop:
+ 	journal->j_committing_transaction = NULL;
+ 	spin_unlock(&journal->j_state_lock);
+ 
+-	if (commit_transaction->t_checkpoint_list == NULL) {
++	if (commit_transaction->t_checkpoint_list == NULL &&
++	    commit_transaction->t_checkpoint_io_list == NULL) {
+ 		__journal_drop_transaction(journal, commit_transaction);
+ 	} else {
+ 		if (journal->j_checkpoint_transactions == NULL) {
+
+--UlVJffcvxoiEqYs2--

@@ -1,99 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932519AbWARAT5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbWARAVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932519AbWARAT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 19:19:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbWARAT5
+	id S964933AbWARAVM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 19:21:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWARAVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 19:19:57 -0500
-Received: from ozlabs.org ([203.10.76.45]:59858 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932519AbWARAT4 (ORCPT
+	Tue, 17 Jan 2006 19:21:12 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:19659 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964934AbWARAVK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 19:19:56 -0500
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.15-mm4 failure on power5
-Date: Wed, 18 Jan 2006 11:19:36 +1100
-User-Agent: KMail/1.8.3
-Cc: Dave C Boutcher <sleddog@us.ibm.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, linuxppc64-dev@ozlabs.org,
-       paulus@au1.ibm.com, anton@au1.ibm.com, linux-kernel@vger.kernel.org
-References: <20060116063530.GB23399@sergelap.austin.ibm.com> <200601180032.46867.michael@ellerman.id.au> <20060117140050.GA13188@elte.hu>
-In-Reply-To: <20060117140050.GA13188@elte.hu>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2115656.CDpOnf0t70";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601181119.39872.michael@ellerman.id.au>
+	Tue, 17 Jan 2006 19:21:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=hCr+619uyjcuVI2FSbX9c6aiDIqIbzP43Lvs9+yUusizg64tJpKc675aML1zh9RfUemXBBzaOoS1vfrD86qnl4qWpsKvRqKvWFtp7r7/dxqoGBsMAzU+qBUCYdxXPZbheFuFBSfRDfp0EEKqAQo4nQluxQOd8eTfFNQfldbbCXM=
+Date: Wed, 18 Jan 2006 03:38:31 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 5/5] ufs: switch to inode_inc_count, inode_dec_count
+Message-ID: <20060118003831.GF24835@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2115656.CDpOnf0t70
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-On Wed, 18 Jan 2006 01:00, Ingo Molnar wrote:
-> * Michael Ellerman <michael@ellerman.id.au> wrote:
-> > On Tue, 17 Jan 2006 08:52, Dave C Boutcher wrote:
-> > > 2.6.15-mm4 won't boot on my power5 either.  I tracked it down to the
-> > > following mutex patch from Ingo: kernel-kernel-cpuc-to-mutexes.patch
-> > >
-> > > If I revert just that patch, mm4 boots fine.  Its really not obvious =
-to
-> > > me at all why that patch is breaking things though...
-> >
-> > My POWER5 (gr) LPAR seems to boot ok (3 times so far) with that patch,
-> > guess it's something subtle. That's with CONFIG_DEBUG_MUTEXES=3Dy. And
-> > it's just booted once with CONFIG_DEBUG_MUTEXES=3Dn.
-> >
-> > And now it's booted the full mm4 patch set without blinking.
->
-> so it booted fine with CONFIG_DEBUG_MUTEXES=3Dn but with that patch not
-> applied?
->
-> the patch will likely work around the bug, so DEBUG_MUTEXES=3Dy/n should
-> make no difference with that patch applied.
+ fs/ufs/namei.c |   48 ++++++++++++++++++------------------------------
+ 1 files changed, 18 insertions(+), 30 deletions(-)
 
-It booted fine _with_ the patch applied, with DEBUG_MUTEXES=3Dy and n.
+--- a/fs/ufs/namei.c
++++ b/fs/ufs/namei.c
+@@ -43,18 +43,6 @@
+ #define UFSD(x)
+ #endif
+ 
+-static inline void ufs_inc_count(struct inode *inode)
+-{
+-	inode->i_nlink++;
+-	mark_inode_dirty(inode);
+-}
+-
+-static inline void ufs_dec_count(struct inode *inode)
+-{
+-	inode->i_nlink--;
+-	mark_inode_dirty(inode);
+-}
+-
+ static inline int ufs_add_nondir(struct dentry *dentry, struct inode *inode)
+ {
+ 	int err = ufs_add_link(dentry, inode);
+@@ -62,7 +50,7 @@ static inline int ufs_add_nondir(struct 
+ 		d_instantiate(dentry, inode);
+ 		return 0;
+ 	}
+-	ufs_dec_count(inode);
++	inode_dec_count(inode);
+ 	iput(inode);
+ 	return err;
+ }
+@@ -173,7 +161,7 @@ out:
+ 	return err;
+ 
+ out_fail:
+-	ufs_dec_count(inode);
++	inode_dec_count(inode);
+ 	iput(inode);
+ 	goto out;
+ }
+@@ -191,7 +179,7 @@ static int ufs_link (struct dentry * old
+ 	}
+ 
+ 	inode->i_ctime = CURRENT_TIME_SEC;
+-	ufs_inc_count(inode);
++	inode_inc_count(inode);
+ 	atomic_inc(&inode->i_count);
+ 
+ 	error = ufs_add_nondir(dentry, inode);
+@@ -208,7 +196,7 @@ static int ufs_mkdir(struct inode * dir,
+ 		goto out;
+ 
+ 	lock_kernel();
+-	ufs_inc_count(dir);
++	inode_inc_count(dir);
+ 
+ 	inode = ufs_new_inode(dir, S_IFDIR|mode);
+ 	err = PTR_ERR(inode);
+@@ -218,7 +206,7 @@ static int ufs_mkdir(struct inode * dir,
+ 	inode->i_op = &ufs_dir_inode_operations;
+ 	inode->i_fop = &ufs_dir_operations;
+ 
+-	ufs_inc_count(inode);
++	inode_inc_count(inode);
+ 
+ 	err = ufs_make_empty(inode, dir);
+ 	if (err)
+@@ -234,11 +222,11 @@ out:
+ 	return err;
+ 
+ out_fail:
+-	ufs_dec_count(inode);
+-	ufs_dec_count(inode);
++	inode_dec_count(inode);
++	inode_dec_count(inode);
+ 	iput (inode);
+ out_dir:
+-	ufs_dec_count(dir);
++	inode_dec_count(dir);
+ 	unlock_kernel();
+ 	goto out;
+ }
+@@ -260,7 +248,7 @@ static int ufs_unlink(struct inode * dir
+ 		goto out;
+ 
+ 	inode->i_ctime = dir->i_ctime;
+-	ufs_dec_count(inode);
++	inode_dec_count(inode);
+ 	err = 0;
+ out:
+ 	unlock_kernel();
+@@ -277,8 +265,8 @@ static int ufs_rmdir (struct inode * dir
+ 		err = ufs_unlink(dir, dentry);
+ 		if (!err) {
+ 			inode->i_size = 0;
+-			ufs_dec_count(inode);
+-			ufs_dec_count(dir);
++			inode_dec_count(inode);
++			inode_dec_count(dir);
+ 		}
+ 	}
+ 	unlock_kernel();
+@@ -319,35 +307,35 @@ static int ufs_rename (struct inode * ol
+ 		new_de = ufs_find_entry (new_dentry, &new_bh);
+ 		if (!new_de)
+ 			goto out_dir;
+-		ufs_inc_count(old_inode);
++		inode_inc_count(old_inode);
+ 		ufs_set_link(new_dir, new_de, new_bh, old_inode);
+ 		new_inode->i_ctime = CURRENT_TIME_SEC;
+ 		if (dir_de)
+ 			new_inode->i_nlink--;
+-		ufs_dec_count(new_inode);
++		inode_dec_count(new_inode);
+ 	} else {
+ 		if (dir_de) {
+ 			err = -EMLINK;
+ 			if (new_dir->i_nlink >= UFS_LINK_MAX)
+ 				goto out_dir;
+ 		}
+-		ufs_inc_count(old_inode);
++		inode_inc_count(old_inode);
+ 		err = ufs_add_link(new_dentry, old_inode);
+ 		if (err) {
+-			ufs_dec_count(old_inode);
++			inode_dec_count(old_inode);
+ 			goto out_dir;
+ 		}
+ 		if (dir_de)
+-			ufs_inc_count(new_dir);
++			inode_inc_count(new_dir);
+ 	}
+ 
+ 	ufs_delete_entry (old_dir, old_de, old_bh);
+ 
+-	ufs_dec_count(old_inode);
++	inode_dec_count(old_inode);
+ 
+ 	if (dir_de) {
+ 		ufs_set_link(old_inode, dir_de, dir_bh, new_dir);
+-		ufs_dec_count(old_dir);
++		inode_dec_count(old_dir);
+ 	}
+ 	unlock_kernel();
+ 	return 0;
 
-Boutcher, to be clear, you can't boot with kernel-kernel-cpuc-to-mutexes.pa=
-tch=20
-applied and DEBUG_MUTEXES=3Dy ?
-
-But if you revert kernel-kernel-cpuc-to-mutexes.patch it boots ok?
-
-This is looking quite similar to another hang we're seeing on Power4 iSerie=
-s=20
-on mainline git:
-http://ozlabs.org/pipermail/linuxppc64-dev/2006-January/007679.html
-
-cheers
-
-=2D-=20
-Michael Ellerman
-IBM OzLabs
-
-email: michael:ellerman.id.au
-inmsg: mpe:jabber.org
-wwweb: http://michael.ellerman.id.au
-phone: +61 2 6212 1183 (tie line 70 21183)
-
-We do not inherit the earth from our ancestors,
-we borrow it from our children. - S.M.A.R.T Person
-
---nextPart2115656.CDpOnf0t70
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDzYmbdSjSd0sB4dIRAu/HAJ9C+xoWbCC820f+kWfgNRDET+AaHwCgpA/9
-gPuuFFvUqz9N+ALgBjv2gxE=
-=peic
------END PGP SIGNATURE-----
-
---nextPart2115656.CDpOnf0t70--

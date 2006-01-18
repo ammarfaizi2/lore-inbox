@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbWARIO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbWARIOJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964910AbWARIO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 03:14:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWARIO0
+	id S964905AbWARIOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 03:14:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWARIOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 03:14:26 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:58592 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S964898AbWARIOZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 03:14:25 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 18 Jan 2006 00:14:18 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@localhost.localdomain
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Andrew Morton <akpm@osdl.org>, Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] pepoll_wait ...
-In-Reply-To: <1137570528.30084.29.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.63.0601180010450.4942@localhost.localdomain>
-References: <Pine.LNX.4.63.0601171933400.15529@localhost.localdomain> 
- <43CDC21C.7050608@redhat.com> <20060117210318.1f4212f0.akpm@osdl.org> 
- <Pine.LNX.4.63.0601172338530.4942@localhost.localdomain>
- <1137570528.30084.29.camel@localhost.localdomain>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+	Wed, 18 Jan 2006 03:14:08 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:168 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S964772AbWARIOH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 03:14:07 -0500
+Date: Wed, 18 Jan 2006 09:14:07 +0100
+From: Sander <sander@humilis.net>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: Ross Vandegrift <ross@jose.lug.udel.edu>, linux-raid@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 000 of 5] md: Introduction
+Message-ID: <20060118081407.GC18945@localhost.localdomain>
+Reply-To: sander@humilis.net
+References: <20060117174531.27739.patches@notabene> <43CCA80B.4020603@tls.msk.ru> <20060117095019.GA27262@localhost.localdomain> <43CCD453.9070900@tls.msk.ru> <20060117160829.GA16606@lug.udel.edu> <43CD3388.9050107@tls.msk.ru>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43CD3388.9050107@tls.msk.ru>
+X-Uptime: 07:10:58 up 61 days, 21:15, 12 users,  load average: 3.17, 2.39, 2.01
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Jan 2006, David Woodhouse wrote:
+Michael Tokarev wrote (ao):
+> Most problematic case so far, which I described numerous times (like,
+> "why linux raid isn't Raid really, why it can be worse than plain
+> disk") is when, after single sector read failure, md kicks the whole
+> disk off the array, and when you start resync (after replacing the
+> "bad" drive or just remapping that bad sector or even doing nothing,
+> as it will be remapped in almost all cases during write, on real
+> drives anyway),
 
-> On Tue, 2006-01-17 at 23:40 -0800, Davide Libenzi wrote:
->> Hey, I've written in the comments that it depends on the
->> TIF_RESTORE_SIGMASK bits ;) The latest one that dwmw posted used such
->> feature, so I though to align epoll bits to that too.
->
-> The point is that TIF_RESTORE_SIGMASK needs to be implemented for each
-> architecture, and we only have it for powerpc, i386 and FR-V at the
-> moment. So in _generic_ files you have to use #ifdef TIF_RESTORE_SIGMASK
-> for now, until the other architectures catch up.
+If the (harddisk internal) remap succeeded, the OS doesn't see the bad
+sector at all I believe.
 
-Ok, will do. You then let me know when all archs are aligned so that I can 
-nuke the #ifdef and use TIF_RESTORE_SIGMASK.
+If you (the OS) do see a bad sector, the disk couldn't remap, and goes
+downhill from there, right?
 
+	Sander
 
-- Davide
-
-
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

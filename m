@@ -1,141 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030398AbWARQi4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030397AbWARQiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030398AbWARQi4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 11:38:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030400AbWARQiz
+	id S1030397AbWARQiz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 11:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbWARQiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 11:38:55 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:22456 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1030395AbWARQiz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 11:38:55 -0500
-Date: Wed, 18 Jan 2006 11:38:54 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrew Morton <akpm@osdl.org>
-cc: Chandra Seetharaman <sekharan@us.ibm.com>, Keith Owens <kaos@sgi.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 7/8] Notifier chain update
-Message-ID: <Pine.LNX.4.44L0.0601181125470.4632-100000@iolanthe.rowland.org>
+	Wed, 18 Jan 2006 11:38:54 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:22711 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030397AbWARQix (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 11:38:53 -0500
+Date: Wed, 18 Jan 2006 08:38:44 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <npiggin@suse.de>
+cc: Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>, David Miller <davem@davemloft.net>
+Subject: Re: [patch 0/4] mm: de-skew page refcount
+In-Reply-To: <20060118024106.10241.69438.sendpatchset@linux.site>
+Message-ID: <Pine.LNX.4.64.0601180830520.3240@g5.osdl.org>
+References: <20060118024106.10241.69438.sendpatchset@linux.site>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Notifier chain re-implementation (as638): Remove the notifier code
-used by the USB core and switch it over to the new standard API.
-There's no longer any need for the special USB code because the new
-API is protected.
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Chandra Seetharaman <sekharan@us.ibm.com>
-
----
-
-Index: l2616/drivers/usb/core/notify.c
-===================================================================
---- l2616.orig/drivers/usb/core/notify.c
-+++ l2616/drivers/usb/core/notify.c
-@@ -16,56 +16,7 @@
- #include "usb.h"
- 
- 
--static struct notifier_block *usb_notifier_list;
--static DECLARE_MUTEX(usb_notifier_lock);
--
--static void usb_notifier_chain_register(struct notifier_block **list,
--					struct notifier_block *n)
--{
--	down(&usb_notifier_lock);
--	while (*list) {
--		if (n->priority > (*list)->priority)
--			break;
--		list = &((*list)->next);
--	}
--	n->next = *list;
--	*list = n;
--	up(&usb_notifier_lock);
--}
--
--static void usb_notifier_chain_unregister(struct notifier_block **nl,
--				   struct notifier_block *n)
--{
--	down(&usb_notifier_lock);
--	while ((*nl)!=NULL) {
--		if ((*nl)==n) {
--			*nl = n->next;
--			goto exit;
--		}
--		nl=&((*nl)->next);
--	}
--exit:
--	up(&usb_notifier_lock);
--}
--
--static int usb_notifier_call_chain(struct notifier_block **n,
--				   unsigned long val, void *v)
--{
--	int ret=NOTIFY_DONE;
--	struct notifier_block *nb = *n;
--
--	down(&usb_notifier_lock);
--	while (nb) {
--		ret = nb->notifier_call(nb,val,v);
--		if (ret&NOTIFY_STOP_MASK) {
--			goto exit;
--		}
--		nb = nb->next;
--	}
--exit:
--	up(&usb_notifier_lock);
--	return ret;
--}
-+static BLOCKING_NOTIFIER_HEAD(usb_notifier_list);
- 
- /**
-  * usb_register_notify - register a notifier callback whenever a usb change happens
-@@ -75,7 +26,7 @@ exit:
-  */
- void usb_register_notify(struct notifier_block *nb)
- {
--	usb_notifier_chain_register(&usb_notifier_list, nb);
-+	blocking_notifier_chain_register(&usb_notifier_list, nb);
- }
- EXPORT_SYMBOL_GPL(usb_register_notify);
- 
-@@ -88,27 +39,28 @@ EXPORT_SYMBOL_GPL(usb_register_notify);
-  */
- void usb_unregister_notify(struct notifier_block *nb)
- {
--	usb_notifier_chain_unregister(&usb_notifier_list, nb);
-+	blocking_notifier_chain_unregister(&usb_notifier_list, nb);
- }
- EXPORT_SYMBOL_GPL(usb_unregister_notify);
- 
- 
- void usb_notify_add_device(struct usb_device *udev)
- {
--	usb_notifier_call_chain(&usb_notifier_list, USB_DEVICE_ADD, udev);
-+	blocking_notifier_call_chain(&usb_notifier_list, USB_DEVICE_ADD, udev);
- }
- 
- void usb_notify_remove_device(struct usb_device *udev)
- {
--	usb_notifier_call_chain(&usb_notifier_list, USB_DEVICE_REMOVE, udev);
-+	blocking_notifier_call_chain(&usb_notifier_list,
-+			USB_DEVICE_REMOVE, udev);
- }
- 
- void usb_notify_add_bus(struct usb_bus *ubus)
- {
--	usb_notifier_call_chain(&usb_notifier_list, USB_BUS_ADD, ubus);
-+	blocking_notifier_call_chain(&usb_notifier_list, USB_BUS_ADD, ubus);
- }
- 
- void usb_notify_remove_bus(struct usb_bus *ubus)
- {
--	usb_notifier_call_chain(&usb_notifier_list, USB_BUS_REMOVE, ubus);
-+	blocking_notifier_call_chain(&usb_notifier_list, USB_BUS_REMOVE, ubus);
- }
 
 
+On Wed, 18 Jan 2006, Nick Piggin wrote:
+>
+> The following patchset (against 2.6.16-rc1 + migrate race fixes) uses the new
+> atomic ops to do away with the offset page refcounting, and simplify the race
+> that it was designed to cover.
+> 
+> This allows some nice optimisations
+
+Why?
+
+The real downside is that "atomic_inc_nonzero()" is a lot more expensive 
+than checking for zero on x86 (and x86-64).
+
+The reason it's offset is that on architectures that automatically test 
+the _result_ of an atomic op (ie x86[-64]), it's easy to see when 
+something _becomes_ negative or _becomes_ zero, and that's what
+
+	atomic_add_negative
+	atomic_inc_and_test
+
+are optimized for (there's also "atomic_dec_and_test()" which reacts on 
+the count becoming zero, but that doesn't have a pairing: there's no way 
+to react to the count becoming one for the increment operation, so the 
+"atomic_dec_and_test()" is used for things where zero means "free it").
+
+Nothing else can be done that fast on x86. Everything else requires an 
+insane "load, update, cmpxchg" sequence.
+
+So I disagree with this patch series. It has real downsides. There's a 
+reason we have the offset.
+
+I suspect that whatever "nice optimizations" you have are quite doable 
+without doing this count pessimization.
+
+		Linus

@@ -1,196 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbWARDgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWARDse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964895AbWARDgf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 22:36:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWARDgf
+	id S964809AbWARDse (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 22:48:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWARDse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 22:36:35 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:10207 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S964895AbWARDgf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 22:36:35 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 17 Jan 2006 19:36:25 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@localhost.localdomain
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, David Woodhouse <dwmw2@infradead.org>
-Subject: [PATCH] pepoll_wait ...
-Message-ID: <Pine.LNX.4.63.0601171933400.15529@localhost.localdomain>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+	Tue, 17 Jan 2006 22:48:34 -0500
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:37286 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S964809AbWARDsd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 22:48:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=2rPdo1ASWmuUCjsxj4Xpo+Vgi4IiNpGAzVU81MLUvB0aGiGtxzu/xLq0LX+hgVWqdzBzcwEBimmZLx550Dp33BPaPjuULbmQKQ5hO59XpWeqvOpCTmNqiUPUsads2cNN+XebbCD3Mb8TSjcgQOBfPq0YgmuWYoRmuh8+hDCP62g=  ;
+Message-ID: <43CDB49D.3040305@yahoo.com.au>
+Date: Wed, 18 Jan 2006 14:23:09 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1283076843-1137548421=:15529"
+To: Diego Calleja <diegocg@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Oops with current linus' git tree
+References: <20060116191556.bd3f551c.diegocg@gmail.com>	<43CC7094.9040404@yahoo.com.au>	<20060117141725.d80a1221.diegocg@gmail.com> <20060118012029.db6bf538.diegocg@gmail.com>
+In-Reply-To: <20060118012029.db6bf538.diegocg@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Diego Calleja wrote:
+> El Tue, 17 Jan 2006 14:17:25 +0100,
+> Diego Calleja <diegocg@gmail.com> escribió:
+> 
+> 
+>>>Can you apply the attached patch and try to reproduce the oops?
+>>
+>>You're saying that I'll have to spend all the afternoon watching
+>>DVDs? Well, if the linux kernel needs it!
+> 
+> 
+> 
+> I've been running kaffeine for hours and i didn't triggered it, it's
+> hard to reproduce :/
+> 
 
---8323328-1283076843-1137548421=:15529
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
+That's what I feared. Thanks for trying though.
 
+> I'll continue trying to hit it, even if it was a hardware error
+> it should happen again!
+> 
 
-The attached patch implements the pepoll_wait system call, that extend the 
-event wait mechanism with the same logic ppoll and pselect do. The definition 
-of pepoll_wait is:
+Yeah, it is unlikely to hit the same place if it is, but if it
+is a rare bug then hopefully that check will catch it.
 
-int pepoll_wait(int epfd, struct epoll_event *events, int maxevents,
-                 int timeout, const sigset_t *sigmask, size_t sigsetsize);
-
-The difference between the vanilla epoll_wait and pepoll_wait is that the 
-latter allows the caller to specify a signal mask to be set while waiting for 
-events. Hence pepoll_wait will wait until either one monitored event, or an 
-unmasked signal happen. If sigmask is NULL, the pepoll_wait system call will 
-act exactly like epoll_wait. For the POSIX definition of pselect, information 
-is available here:
-
-http://www.opengroup.org/onlinepubs/009695399/functions/select.html
-
-This patch goes over 2.6.15-mm4 and depends on the TIF_RESTORE_SIGMASK bits.
-
-
-
-
-Signed-off-by: Davide Libenzi <davidel@xmailserver.org>
-
-
-
-- Davide
-
-
-
-arch/i386/kernel/syscall_table.S |    1
-fs/eventpoll.c                   |   58 ++++++++++++++++++++++++++++++++++-----
-include/asm-i386/unistd.h        |    3 +-
-include/linux/syscalls.h         |    3 ++
-4 files changed, 57 insertions(+), 8 deletions(-)
-
---8323328-1283076843-1137548421=:15529
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=pepoll-2.6.15-0.3.diff
-Content-Transfer-Encoding: BASE64
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME=pepoll-2.6.15-0.3.diff
-
-ZGlmZiAtTnJ1IGxpbnV4LTIuNi4xNS9hcmNoL2kzODYva2VybmVsL3N5c2Nh
-bGxfdGFibGUuUyBsaW51eC0yLjYuMTUubW9kL2FyY2gvaTM4Ni9rZXJuZWwv
-c3lzY2FsbF90YWJsZS5TDQotLS0gbGludXgtMi42LjE1L2FyY2gvaTM4Ni9r
-ZXJuZWwvc3lzY2FsbF90YWJsZS5TCTIwMDYtMDEtMTcgMTc6MTE6MTIuMDAw
-MDAwMDAwIC0wODAwDQorKysgbGludXgtMi42LjE1Lm1vZC9hcmNoL2kzODYv
-a2VybmVsL3N5c2NhbGxfdGFibGUuUwkyMDA2LTAxLTE3IDE3OjExOjU5LjAw
-MDAwMDAwMCAtMDgwMA0KQEAgLTMxMCwzICszMTAsNCBAQA0KIAkubG9uZyBz
-eXNfcHNlbGVjdDYNCiAJLmxvbmcgc3lzX3Bwb2xsDQogCS5sb25nIHN5c191
-bnNoYXJlCQkvKiAzMTAgKi8NCisJLmxvbmcgc3lzX3BlcG9sbF93YWl0DQpk
-aWZmIC1OcnUgbGludXgtMi42LjE1L2ZzL2V2ZW50cG9sbC5jIGxpbnV4LTIu
-Ni4xNS5tb2QvZnMvZXZlbnRwb2xsLmMNCi0tLSBsaW51eC0yLjYuMTUvZnMv
-ZXZlbnRwb2xsLmMJMjAwNi0wMS0xNyAxNzoxMToxNC4wMDAwMDAwMDAgLTA4
-MDANCisrKyBsaW51eC0yLjYuMTUubW9kL2ZzL2V2ZW50cG9sbC5jCTIwMDYt
-MDEtMTcgMTc6MTE6NTkuMDAwMDAwMDAwIC0wODAwDQpAQCAtMTA1LDYgKzEw
-NSw4IEBADQogLyogTWF4aW11bSBtc2VjIHRpbWVvdXQgdmFsdWUgc3RvcmVh
-YmxlIGluIGEgbG9uZyBpbnQgKi8NCiAjZGVmaW5lIEVQX01BWF9NU1RJTUVP
-IG1pbigxMDAwVUxMICogTUFYX1NDSEVEVUxFX1RJTUVPVVQgLyBIWiwgKExP
-TkdfTUFYIC0gOTk5VUxMKSAvIEhaKQ0KIA0KKyNkZWZpbmUgRVBfTUFYX0VW
-RU5UUyAoSU5UX01BWCAvIHNpemVvZihzdHJ1Y3QgZXBvbGxfZXZlbnQpKQ0K
-Kw0KIA0KIHN0cnVjdCBlcG9sbF9maWxlZmQgew0KIAlzdHJ1Y3QgZmlsZSAq
-ZmlsZTsNCkBAIC02NDksMjQgKzY1MSwyNSBAQA0KIAlyZXR1cm4gZXJyb3I7
-DQogfQ0KIA0KLSNkZWZpbmUgTUFYX0VWRU5UUyAoSU5UX01BWCAvIHNpemVv
-ZihzdHJ1Y3QgZXBvbGxfZXZlbnQpKQ0KIA0KIC8qDQogICogSW1wbGVtZW50
-IHRoZSBldmVudCB3YWl0IGludGVyZmFjZSBmb3IgdGhlIGV2ZW50cG9sbCBm
-aWxlLiBJdCBpcyB0aGUga2VybmVsDQotICogcGFydCBvZiB0aGUgdXNlciBz
-cGFjZSBlcG9sbF93YWl0KDIpLg0KKyAqIHBhcnQgb2YgdGhlIHVzZXIgc3Bh
-Y2UgcGVwb2xsX3dhaXQoMikuDQogICovDQotYXNtbGlua2FnZSBsb25nIHN5
-c19lcG9sbF93YWl0KGludCBlcGZkLCBzdHJ1Y3QgZXBvbGxfZXZlbnQgX191
-c2VyICpldmVudHMsDQotCQkJICAgICAgIGludCBtYXhldmVudHMsIGludCB0
-aW1lb3V0KQ0KK2FzbWxpbmthZ2UgbG9uZyBzeXNfcGVwb2xsX3dhaXQoaW50
-IGVwZmQsIHN0cnVjdCBlcG9sbF9ldmVudCBfX3VzZXIgKmV2ZW50cywNCisJ
-CQkJaW50IG1heGV2ZW50cywgaW50IHRpbWVvdXQsIGNvbnN0IHNpZ3NldF90
-IF9fdXNlciAqc2lnbWFzaywNCisJCQkJc2l6ZV90IHNpZ3NldHNpemUpDQog
-ew0KIAlpbnQgZXJyb3I7DQorCXNpZ3NldF90IGtzaWdtYXNrLCBzaWdzYXZl
-ZDsNCiAJc3RydWN0IGZpbGUgKmZpbGU7DQogCXN0cnVjdCBldmVudHBvbGwg
-KmVwOw0KIA0KLQlETlBSSU5USygzLCAoS0VSTl9JTkZPICJbJXBdIGV2ZW50
-cG9sbDogc3lzX2Vwb2xsX3dhaXQoJWQsICVwLCAlZCwgJWQpXG4iLA0KKwlE
-TlBSSU5USygzLCAoS0VSTl9JTkZPICJbJXBdIGV2ZW50cG9sbDogc3lzX3Bl
-cG9sbF93YWl0KCVkLCAlcCwgJWQsICVkKVxuIiwNCiAJCSAgICAgY3VycmVu
-dCwgZXBmZCwgZXZlbnRzLCBtYXhldmVudHMsIHRpbWVvdXQpKTsNCiANCiAJ
-LyogVGhlIG1heGltdW0gbnVtYmVyIG9mIGV2ZW50IG11c3QgYmUgZ3JlYXRl
-ciB0aGFuIHplcm8gKi8NCi0JaWYgKG1heGV2ZW50cyA8PSAwIHx8IG1heGV2
-ZW50cyA+IE1BWF9FVkVOVFMpDQorCWlmIChtYXhldmVudHMgPD0gMCB8fCBt
-YXhldmVudHMgPiBFUF9NQVhfRVZFTlRTKQ0KIAkJcmV0dXJuIC1FSU5WQUw7
-DQogDQogCS8qIFZlcmlmeSB0aGF0IHRoZSBhcmVhIHBhc3NlZCBieSB0aGUg
-dXNlciBpcyB3cml0ZWFibGUgKi8NCkBAIC02OTUsMTMgKzY5OCw0MSBAQA0K
-IAkgKi8NCiAJZXAgPSBmaWxlLT5wcml2YXRlX2RhdGE7DQogDQorCS8qDQor
-CSAqIElmIHRoZSBjYWxsZXIgd2FudHMgYSBjZXJ0YWluIHNpZ25hbCBtYXNr
-IHRvIGJlIHNldCBkdXJpbmcgdGhlIHdhaXQsDQorCSAqIHdlIGFwcGx5IGl0
-IGhlcmUuDQorCSAqLw0KKwlpZiAoc2lnbWFzaykgew0KKwkJaWYgKHNpZ3Nl
-dHNpemUgIT0gc2l6ZW9mKHNpZ3NldF90KSkNCisJCQlnb3RvIGVleGl0XzI7
-DQorCQllcnJvciA9IC1FRkFVTFQ7DQorCQlpZiAoY29weV9mcm9tX3VzZXIo
-JmtzaWdtYXNrLCBzaWdtYXNrLCBzaXplb2Yoa3NpZ21hc2spKSkNCisJCQln
-b3RvIGVleGl0XzI7DQorCQlzaWdkZWxzZXRtYXNrKCZrc2lnbWFzaywgc2ln
-bWFzayhTSUdLSUxMKSB8IHNpZ21hc2soU0lHU1RPUCkpOw0KKwkJc2lncHJv
-Y21hc2soU0lHX1NFVE1BU0ssICZrc2lnbWFzaywgJnNpZ3NhdmVkKTsNCisJ
-fQ0KKw0KIAkvKiBUaW1lIHRvIGZpc2ggZm9yIGV2ZW50cyAuLi4gKi8NCiAJ
-ZXJyb3IgPSBlcF9wb2xsKGVwLCBldmVudHMsIG1heGV2ZW50cywgdGltZW91
-dCk7DQogDQorCS8qDQorCSAqIElmIHdlIGNoYW5nZWQgdGhlIHNpZ25hbCBt
-YXNrLCB3ZSBuZWVkIHRvIHJlc3RvcmUgdGhlIG9yaWdpbmFsIG9uZS4NCisJ
-ICogSW4gY2FzZSB3ZSd2ZSBnb3QgYSBzaWduYWwgd2hpbGUgd2FpdGluZywg
-d2UgZG8gbm90IHJlc3RvcmUgdGhlIHNpZ25hbA0KKwkgKiBtYXNrIHlldCwg
-YW5kIHdlIGFsbG93IGRvX3NpZ25hbCgpIHRvIGRlbGl2ZXIgdGhlIHNpZ25h
-bCBvbiB0aGUgd2F5IGJhY2sNCisJICogdG8gdXNlcnNwYWNlLCBiZWZvcmUg
-dGhlIHNpZ25hbCBtYXNrIGlzIHJlc3RvcmVkLg0KKwkgKi8NCisJaWYgKGVy
-cm9yID09IC1FSU5UUikgew0KKwkJaWYgKHNpZ21hc2spIHsNCisJCQltZW1j
-cHkoJmN1cnJlbnQtPnNhdmVkX3NpZ21hc2ssICZzaWdzYXZlZCwgc2l6ZW9m
-KHNpZ3NhdmVkKSk7DQorCQkJc2V0X3RocmVhZF9mbGFnKFRJRl9SRVNUT1JF
-X1NJR01BU0spOw0KKwkJfQ0KKwl9IGVsc2UgaWYgKHNpZ21hc2spDQorCQlz
-aWdwcm9jbWFzayhTSUdfU0VUTUFTSywgJnNpZ3NhdmVkLCBOVUxMKTsNCisN
-CiBlZXhpdF8yOg0KIAlmcHV0KGZpbGUpOw0KIGVleGl0XzE6DQotCUROUFJJ
-TlRLKDMsIChLRVJOX0lORk8gIlslcF0gZXZlbnRwb2xsOiBzeXNfZXBvbGxf
-d2FpdCglZCwgJXAsICVkLCAlZCkgPSAlZFxuIiwNCisJRE5QUklOVEsoMywg
-KEtFUk5fSU5GTyAiWyVwXSBldmVudHBvbGw6IHN5c19wZXBvbGxfd2FpdCgl
-ZCwgJXAsICVkLCAlZCkgPSAlZFxuIiwNCiAJCSAgICAgY3VycmVudCwgZXBm
-ZCwgZXZlbnRzLCBtYXhldmVudHMsIHRpbWVvdXQsIGVycm9yKSk7DQogDQog
-CXJldHVybiBlcnJvcjsNCkBAIC03MDksNiArNzQwLDE5IEBADQogDQogDQog
-LyoNCisgKiBJbXBsZW1lbnQgdGhlIGV2ZW50IHdhaXQgaW50ZXJmYWNlIGZv
-ciB0aGUgZXZlbnRwb2xsIGZpbGUuIEl0IGlzIHRoZSBrZXJuZWwNCisgKiBw
-YXJ0IG9mIHRoZSB1c2VyIHNwYWNlIGVwb2xsX3dhaXQoMikuIFRoaXMganVz
-dCBjYWxscyB0aGUgc3VwZXItc2lzdGVyDQorICogc3lzX3BlcG9sbF93YWl0
-KCkgd2l0aG91dCBzaWduYWwgcGFyYW1ldGVycy4NCisgKi8NCithc21saW5r
-YWdlIGxvbmcgc3lzX2Vwb2xsX3dhaXQoaW50IGVwZmQsIHN0cnVjdCBlcG9s
-bF9ldmVudCBfX3VzZXIgKmV2ZW50cywNCisJCQkgICAgICAgaW50IG1heGV2
-ZW50cywgaW50IHRpbWVvdXQpDQorew0KKw0KKwlyZXR1cm4gc3lzX3BlcG9s
-bF93YWl0KGVwZmQsIGV2ZW50cywgbWF4ZXZlbnRzLCB0aW1lb3V0LCBOVUxM
-LCAwKTsNCit9DQorDQorDQorLyoNCiAgKiBDcmVhdGVzIHRoZSBmaWxlIGRl
-c2NyaXB0b3IgdG8gYmUgdXNlZCBieSB0aGUgZXBvbGwgaW50ZXJmYWNlLg0K
-ICAqLw0KIHN0YXRpYyBpbnQgZXBfZ2V0ZmQoaW50ICplZmQsIHN0cnVjdCBp
-bm9kZSAqKmVpbm9kZSwgc3RydWN0IGZpbGUgKiplZmlsZSwNCmRpZmYgLU5y
-dSBsaW51eC0yLjYuMTUvaW5jbHVkZS9hc20taTM4Ni91bmlzdGQuaCBsaW51
-eC0yLjYuMTUubW9kL2luY2x1ZGUvYXNtLWkzODYvdW5pc3RkLmgNCi0tLSBs
-aW51eC0yLjYuMTUvaW5jbHVkZS9hc20taTM4Ni91bmlzdGQuaAkyMDA2LTAx
-LTE3IDE3OjExOjE0LjAwMDAwMDAwMCAtMDgwMA0KKysrIGxpbnV4LTIuNi4x
-NS5tb2QvaW5jbHVkZS9hc20taTM4Ni91bmlzdGQuaAkyMDA2LTAxLTE3IDE3
-OjExOjU5LjAwMDAwMDAwMCAtMDgwMA0KQEAgLTMxNiw4ICszMTYsOSBAQA0K
-ICNkZWZpbmUgX19OUl9wc2VsZWN0NgkJMzA4DQogI2RlZmluZSBfX05SX3Bw
-b2xsCQkzMDkNCiAjZGVmaW5lIF9fTlJfdW5zaGFyZQkJMzEwDQorI2RlZmlu
-ZSBfX05SX3BlcG9sbF93YWl0CTMxMQ0KIA0KLSNkZWZpbmUgTlJfc3lzY2Fs
-bHMgMzExDQorI2RlZmluZSBOUl9zeXNjYWxscyAzMTINCiANCiAvKg0KICAq
-IHVzZXItdmlzaWJsZSBlcnJvciBudW1iZXJzIGFyZSBpbiB0aGUgcmFuZ2Ug
-LTEgLSAtMTI4OiBzZWUNCmRpZmYgLU5ydSBsaW51eC0yLjYuMTUvaW5jbHVk
-ZS9saW51eC9zeXNjYWxscy5oIGxpbnV4LTIuNi4xNS5tb2QvaW5jbHVkZS9s
-aW51eC9zeXNjYWxscy5oDQotLS0gbGludXgtMi42LjE1L2luY2x1ZGUvbGlu
-dXgvc3lzY2FsbHMuaAkyMDA2LTAxLTE3IDE3OjExOjE1LjAwMDAwMDAwMCAt
-MDgwMA0KKysrIGxpbnV4LTIuNi4xNS5tb2QvaW5jbHVkZS9saW51eC9zeXNj
-YWxscy5oCTIwMDYtMDEtMTcgMTc6MTI6NTkuMDAwMDAwMDAwIC0wODAwDQpA
-QCAtNDI4LDYgKzQyOCw5IEBADQogCQkJCXN0cnVjdCBlcG9sbF9ldmVudCBf
-X3VzZXIgKmV2ZW50KTsNCiBhc21saW5rYWdlIGxvbmcgc3lzX2Vwb2xsX3dh
-aXQoaW50IGVwZmQsIHN0cnVjdCBlcG9sbF9ldmVudCBfX3VzZXIgKmV2ZW50
-cywNCiAJCQkJaW50IG1heGV2ZW50cywgaW50IHRpbWVvdXQpOw0KK2FzbWxp
-bmthZ2UgbG9uZyBzeXNfcGVwb2xsX3dhaXQoaW50IGVwZmQsIHN0cnVjdCBl
-cG9sbF9ldmVudCBfX3VzZXIgKmV2ZW50cywNCisJCQkJaW50IG1heGV2ZW50
-cywgaW50IHRpbWVvdXQsIGNvbnN0IHNpZ3NldF90IF9fdXNlciAqc2lnbWFz
-aywNCisJCQkJc2l6ZV90IHNpZ3NldHNpemUpOw0KIGFzbWxpbmthZ2UgbG9u
-ZyBzeXNfZ2V0aG9zdG5hbWUoY2hhciBfX3VzZXIgKm5hbWUsIGludCBsZW4p
-Ow0KIGFzbWxpbmthZ2UgbG9uZyBzeXNfc2V0aG9zdG5hbWUoY2hhciBfX3Vz
-ZXIgKm5hbWUsIGludCBsZW4pOw0KIGFzbWxpbmthZ2UgbG9uZyBzeXNfc2V0
-ZG9tYWlubmFtZShjaGFyIF9fdXNlciAqbmFtZSwgaW50IGxlbik7DQo=
-
---8323328-1283076843-1137548421=:15529--
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

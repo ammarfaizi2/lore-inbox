@@ -1,68 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbWARAnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbWARAoy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965014AbWARAnf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 19:43:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWARAnf
+	id S932546AbWARAoy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 19:44:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbWARAoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 19:43:35 -0500
-Received: from pat.uio.no ([129.240.130.16]:13274 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S965011AbWARAnd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 19:43:33 -0500
-Subject: Re: Kernel 2.6.15.1 + NFS is 4 times slower than FTP!?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Justin Piszcz <jpiszcz@lucidpixels.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Tomasz =?iso-8859-2?Q?K=B3oczko?= <kloczek@rudy.mif.pg.gda.pl>,
-       Phil Oester <kernel@linuxace.com>, linux-kernel@vger.kernel.org,
-       apiszcz@lucidpixels.com
-In-Reply-To: <1137541179.3587.10.camel@mindpipe>
-References: <Pine.LNX.4.64.0601161957300.16829@p34>
-	 <20060117012319.GA22161@linuxace.com>
-	 <Pine.LNX.4.64.0601162031220.2501@p34>
-	 <Pine.BSO.4.63.0601171846570.15077@rudy.mif.pg.gda.pl>
-	 <1137521483.14135.59.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0601171324010.25508@p34>
-	 <1137523035.7855.91.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.64.0601171338040.25508@p34>
-	 <1137523991.7855.103.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.64.0601171354510.25508@p34>
-	 <1137524502.7855.107.camel@lade.trondhjem.org>
-	 <Pine.LNX.4.61.0601172139230.30708@yvahk01.tjqt.qr>
-	 <Pine.LNX.4.64.0601171545310.19112@p34>
-	 <Pine.LNX.4.61.0601172307030.7756@yvahk01.tjqt.qr>
-	 <1137536034.19678.43.camel@mindpipe>
-	 <Pine.LNX.4.64.0601171819370.30825@p34> <1137541179.3587.10.camel@mindpipe>
-Content-Type: text/plain
-Date: Tue, 17 Jan 2006 19:43:14 -0500
-Message-Id: <1137544994.7855.234.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.629, required 12,
-	autolearn=disabled, AWL 1.33, FORGED_RCVD_HELO 0.05,
-	PLING_QUERY 0.86, RCVD_IN_SORBS_DUL 0.14,
-	UIO_MAIL_IS_INTERNAL -5.00)
+	Tue, 17 Jan 2006 19:44:54 -0500
+Received: from customer-148-235-52-40.uninet-ide.com.mx ([148.235.52.40]:52657
+	"EHLO smtp.prodigy.net.mx") by vger.kernel.org with ESMTP
+	id S932546AbWARAox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 19:44:53 -0500
+Date: Tue, 17 Jan 2006 18:45:43 -0600
+From: Gain Paolo Mureddu <gmureddu@prodigy.net.mx>
+Subject: Problems building
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Message-id: <43CD8FB7.90508@prodigy.net.mx>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Enigmail-Version: 0.93.0.0
+X-imss-version: 2.035
+X-imss-result: Passed
+X-imss-scores: Clean:99.90000 C:2 M:3 S:5 R:5
+X-imss-settings: Baseline:3 C:4 M:4 S:4 R:4 (0.5000 0.5000)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-17 at 18:39 -0500, Lee Revell wrote:
-> On Tue, 2006-01-17 at 18:19 -0500, Justin Piszcz wrote:
-> > man mount
-> > 
-> 
-> async is the default for most filesystems but the NFS standard requires
-> writes to be synchronous.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On the server side, note. Not the client side. Justin appears to be
-looking at the client, whereas you are referring to an export option on
-the server.
+    For some reason I am getting a strange message when I try to build
+either -ck1 or 2, another message I tried to send to the list seems to
+not have gotten where I intended to, I'm quoting that message here also:
 
-The client only guarantees that writes must have been committed to disk
-on the server when either fsync() or close() have been called.
+Gain Paolo Mureddu wrote:
 
-Cheers,
-  Trond
+> So I have been struggling to get this kernel built, and apparently
+> I've narrowed this down to the sched_iso3.2 and/or isobatch_ionice
+> patches, however I can't be fully certain. Here is what is dumped
+> to the console, I've gotten two dumps, this and one concerning
+> sched.o, which I am still investigating. So here goes the dump:
+>
+> <build_dump> .... [snip] CC init/do_mounts_md.o In file included
+> from include/linux/bio.h:25, from include/linux/blkdev.h:14, from
+> include/linux/raid/md.h:21, from init/do_mounts_md.c:2:
+> include/linux/ioprio.h: En la función ?task_nice_ioprio?:
+> include/linux/ioprio.h:58: error: ?SCHED_BATCH? not declared here
+> (first use in this function) include/linux/ioprio.h:58: error:
+> (Each undeclared identifier is only reported once
+> include/linux/ioprio.h:58: error: for each function it appears in.)
+> include/linux/ioprio.h:60: error: ?SCHED_ISO? not declared here
+> (first use in this function) make[1]: *** [init/do_mounts_md.o]
+> Error 1 make: *** [init] Error 2 </build_dump> Anyone else with
+> troubles in x86_64 systems?
+>
+> TIA!
+>
+I get the same error, thus far I know that the file in question
+(iprio.h) inclues sched.h and that in sched.h SCHED_BATCH and
+SCHED_ISO are defined, so why am I getting this error in the said
+function, is beyond me.
+
+Any pointers?
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFDzY+aXM+XOp70dwoRArWhAJ0QLlLrb5yGH+qOr0ByJVdAQDskCwCfTy8K
+MXHVznEopuMqiaK/xh1PLmw=
+=5WjR
+-----END PGP SIGNATURE-----
 

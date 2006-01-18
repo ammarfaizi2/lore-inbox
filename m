@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030430AbWARUly@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030437AbWARUmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030430AbWARUly (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 15:41:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030431AbWARUly
+	id S1030437AbWARUmp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 15:42:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030434AbWARUmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 15:41:54 -0500
-Received: from uproxy.gmail.com ([66.249.92.198]:25547 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030430AbWARUlx (ORCPT
+	Wed, 18 Jan 2006 15:42:44 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:54021 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1030431AbWARUmn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 15:41:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=p00USIBgiuObFrQPGwd5fhsycKhvGDq3gEYc/Ili4AfwPoLGEXJay3SJU7KNNzwjdpbGPQzeDCbcd9BcKcG3v6YKB8fj3g/WQUg6CAx7vvCDKWAgXcx+AC78LuUqldy4FbcPLOwEIVYiAxiPBQhVXkGWr5J6rIUX0YdraMhEGTM=
-Date: Wed, 18 Jan 2006 23:59:14 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ian Molton <spyro@f2s.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] arm26: fixup get_signal_to_deliver call
-Message-ID: <20060118205914.GE12771@mipter.zuzino.mipt.ru>
+	Wed, 18 Jan 2006 15:42:43 -0500
+Date: Wed, 18 Jan 2006 21:42:34 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: maximilian attems <maks@sternwelten.at>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Bastian Blank <waldi@debian.org>
+Subject: Re: [patch] kbuild: add automatic updateconfig target
+Message-ID: <20060118204234.GC14340@mars.ravnborg.org>
+References: <20060118194056.GA26532@nancy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060118194056.GA26532@nancy>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+On Wed, Jan 18, 2006 at 08:40:56PM +0100, maximilian attems wrote:
+> From: Bastian Blank <waldi@debian.org>
+> 
+> current hack for daily build linux-2.6-git is quite ugly: 
+> yes "n" | make oldconfig
+> 
+> belows target helps to build git snapshots in a more automated way,
+> setting the new options to their default.
 
- arch/arm26/kernel/signal.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+Please always add Roman Zippel when dealing with kconfig changes.
+We had a similar though more advanced proposal named miniconfig a month
+or so ago but Roman had some grief with it so it was not applied.
 
---- a/arch/arm26/kernel/signal.c
-+++ b/arch/arm26/kernel/signal.c
-@@ -480,6 +480,7 @@ static int do_signal(sigset_t *oldset, s
- {
- 	siginfo_t info;
- 	int signr;
-+	struct k_sigaction ka;
- 
- 	/*
- 	 * We want the common case to go fast, which
-@@ -493,7 +494,7 @@ static int do_signal(sigset_t *oldset, s
-         if (current->ptrace & PT_SINGLESTEP)
-                 ptrace_cancel_bpt(current);
- 	
--        signr = get_signal_to_deliver(&info, regs, NULL);
-+        signr = get_signal_to_deliver(&info, &ka, regs, NULL);
-         if (signr > 0) {
-                 handle_signal(signr, &info, oldset, regs, syscall);
-                 if (current->ptrace & PT_SINGLESTEP)
+I've let Roman decide on this one too.
+Nitpicking below.
 
+	Sam
+	
+
+> +updateconfig: $(obj)/conf
+> +	$< -U arch/$(ARCH)/Kconfig
+
+The other methods uses small letters so please change to '-u'
+
+> -	set_random
+> +	set_random,
+> +	update_default,
+
+Keep same naming as the others. May I suggest set_default.
+
+You did not introduce a specific update.config file like for the other
+targets. Any reason for that?
+
+	Sam

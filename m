@@ -1,88 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWARLYO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030227AbWARL16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030224AbWARLYO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 06:24:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbWARLYO
+	id S1030227AbWARL16 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 06:27:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWARL16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 06:24:14 -0500
-Received: from ihug-mail.icp-qv1-irony1.iinet.net.au ([203.59.1.195]:57860
-	"EHLO mail-ihug.icp-qv1-irony1.iinet.net.au") by vger.kernel.org
-	with ESMTP id S1030224AbWARLYN (ORCPT
+	Wed, 18 Jan 2006 06:27:58 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:59594 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030227AbWARL15 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 06:24:13 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-Message-ID: <43CE2556.9070700@eyal.emu.id.au>
-Date: Wed, 18 Jan 2006 22:24:06 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Jean Delvare <khali@linux-fr.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.16-rc1
-References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org> <43CD67AE.9030501@eyal.emu.id.au> <20060117232701.GA7606@mars.ravnborg.org> <20060118085936.4773dd77.khali@linux-fr.org> <20060118091543.GA8277@mars.ravnborg.org>
-In-Reply-To: <20060118091543.GA8277@mars.ravnborg.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 18 Jan 2006 06:27:57 -0500
+Date: Wed, 18 Jan 2006 03:27:16 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: linux-kernel@vger.kernel.org, davej@redhat.com,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.16-rc1-mm1
+Message-Id: <20060118032716.7f0d9b6a.akpm@osdl.org>
+In-Reply-To: <43CE2210.60509@reub.net>
+References: <20060118005053.118f1abc.akpm@osdl.org>
+	<43CE2210.60509@reub.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> Could you please confirm that the above command is the one that trashes
-> /dev/null, then I will try to cook up something better.
+Reuben Farrelly <reuben-lkml@reub.net> wrote:
+>
+> My box came up first time lucky on this release, but I got a new oops:
+> 
+>  NET: Registered protocol family 1
+>  NET: Registered protocol family 17
+>  BUG: swapper/1, active lock [b19e6428(b19e6400-b19e6600)] freed!
+>    [<b01040d1>] show_trace+0xd/0xf
+>    [<b0104172>] dump_stack+0x17/0x19
+>    [<b0131c6d>] mutex_debug_check_no_locks_freed+0xff/0x18e
+>    [<b01544b3>] kfree+0x34/0x6a
+>    [<b02a6109>] cpufreq_add_dev+0x127/0x379
+>    [<b023abcb>] sysdev_driver_register+0x70/0xb0
+>    [<b02a67df>] cpufreq_register_driver+0x68/0xfe
+>    [<b03cc19d>] acpi_cpufreq_init+0xd/0xf
+>    [<b01003cc>] init+0xff/0x325
+>    [<b0100d25>] kernel_thread_helper+0x5/0xb
+>    [b19e6428] {cpufreq_add_dev}
+>  .. held by:           swapper:    1 [efe14ab0, 115]
+>  ... acquired at:               cpufreq_add_dev+0x9d/0x379
+>  p4-clockmod: P4/Xeon(TM) CPU On-Demand Clock Modulation available
 
-scripts/kconfig/lxdialog/check-lxdialog.sh with debug
-=====================================================
-
-ldflags()
-{
-echo "ldflags 1" >>/tmp/xxx 2>&1
-ls -l /dev/null >>/tmp/xxx 2>&1
-        echo "main() {}" | $cc -lncursesw -xc - -o /dev/null 2> /dev/null
-        if [ $? -eq 0 ]; then
-echo "ldflags 2" >>/tmp/xxx 2>&1
-ls -l /dev/null >>/tmp/xxx 2>&1
-                echo '-lncursesw'
-                exit
-        fi
-echo "ldflags 3" >>/tmp/xxx 2>&1
-ls -l /dev/null >>/tmp/xxx 2>&1
-        echo "main() {}" | $cc -lncurses -xc - -o /dev/null 2> /dev/null
-        if [ $? -eq 0 ]; then
-echo "ldflags 4" >>/tmp/xxx 2>&1
-ls -l /dev/null >>/tmp/xxx 2>&1
-                echo '-lncurses'
-                exit
-        fi
-echo "ldflags 5" >>/tmp/xxx 2>&1
-ls -l /dev/null >>/tmp/xxx 2>&1
-        echo "main() {}" | $cc -lcurses -xc - -o /dev/null 2> /dev/null
-        if [ $? -eq 0 ]; then
-echo "ldflags 6" >>/tmp/xxx 2>&1
-ls -l /dev/null >>/tmp/xxx 2>&1
-                echo '-lcurses'
-                exit
-        fi
-echo "ldflags 7" >>/tmp/xxx 2>&1
-ls -l /dev/null >>/tmp/xxx 2>&1
-        exit 1
-}
+Well yes, that code is kfree()ing a locked mutex.  It's somewhat weird to
+take a lock on a still-private object but whatever.  The code's legal
+enough.
 
 
-content of /tmp/xxx
-===================
+--- devel/drivers/cpufreq/cpufreq.c~cpufreq-mutex-locking-fix	2006-01-18 03:25:33.000000000 -0800
++++ devel-akpm/drivers/cpufreq/cpufreq.c	2006-01-18 03:25:55.000000000 -0800
+@@ -674,6 +674,7 @@ err_out_driver_exit:
+ 		cpufreq_driver->exit(policy);
+ 
+ err_out:
++	mutex_unlock(&policy->lock);
+ 	kfree(policy);
+ 
+ nomem_out:
+_
 
-ldflags 1
-crw-rw-rw-  1 root root 1, 3 Jan 18 22:20 /dev/null
-ldflags 3
-ls: /dev/null: No such file or directory
-ldflags 4
--rwxr-xr-x  1 root root 11650 Jan 18 22:20 /dev/null
-
--- 
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
-	attach .zip as .dat

@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030448AbWARUyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030455AbWARU5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030448AbWARUyn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 15:54:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030427AbWARUyn
+	id S1030455AbWARU5p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 15:57:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030457AbWARU5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 15:54:43 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:50395 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1030448AbWARUyn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 15:54:43 -0500
+	Wed, 18 Jan 2006 15:57:45 -0500
+Received: from host-87-74-62-169.bulldogdsl.com ([87.74.62.169]:54568 "EHLO
+	host-87-74-62-169.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1030455AbWARU5o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 15:57:44 -0500
+Message-ID: <43CEABBD.2050604@unsolicited.net>
+Date: Wed, 18 Jan 2006 20:57:33 +0000
+From: David R <david@unsolicited.net>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.6.16-rc1
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060118203231.GA14340@mars.ravnborg.org>
-References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
-	 <43CD67AE.9030501@eyal.emu.id.au> <20060117232701.GA7606@mars.ravnborg.org>
-	 <20060118085936.4773dd77.khali@linux-fr.org>
-	 <20060118091543.GA8277@mars.ravnborg.org>
-	 <Pine.LNX.4.61.0601181421210.19392@yvahk01.tjqt.qr>
-	 <20060118191247.62cc52cd.khali@linux-fr.org>
-	 <20060118203231.GA14340@mars.ravnborg.org>
-Content-Type: text/plain
-Date: Wed, 18 Jan 2006 12:54:37 -0800
-Message-Id: <1137617677.4757.90.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org> <43CD4504.8020705@unsolicited.net> <20060118045930.GC7292@kroah.com>
+In-Reply-To: <20060118045930.GC7292@kroah.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigFA784210DDEF79A188202919"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-18 at 21:32 +0100, Sam Ravnborg wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigFA784210DDEF79A188202919
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> But in the lxdialog case we need to execute the link step, because
-> what we really try to do is to check if gcc can find a specific
-> library in the search path.
+Greg KH wrote:
+>> dmesg etc looks ok. I'd appreciate it if anyone has any thoughts?
+>=20
+> Nothing has changed in usbfs that might cause this that I know of.  Can=
 
-Will -print-file-name not do the trick for you?
+> you use git to bisect what patch caused it?
+>=20
+> thanks,
+>=20
+> greg k-h
 
-$ gcc -print-file-name=libcurses.so | grep -q /
-$ echo $?
-0
-$ gcc -print-file-name=libfoobar.a | grep -q /
-$ echo $?
-1
+And indeed nothing had changed. There was a runaway process using 100% of=
+ the
+CPU causing the symptoms. After gently bashing my boot scripts around
+everything seems to work just fine. So, RC1 seems 100% on my setup.
 
-	<b
+Sorry for the noise.
+David
 
+
+
+--------------enigFA784210DDEF79A188202919
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFDzqvFDYHcaCYtZo4RAhNIAJ9MFeJBEr3fVqy5dY3ppHbsNLfDUgCgspiA
+UZSwsqdU8KO002+qY6yCAqQ=
+=9Y/d
+-----END PGP SIGNATURE-----
+
+--------------enigFA784210DDEF79A188202919--

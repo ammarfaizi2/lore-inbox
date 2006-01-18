@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932532AbWARNTg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932527AbWARNYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932532AbWARNTg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 08:19:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbWARNTg
+	id S932527AbWARNYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 08:24:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbWARNYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 08:19:36 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:26522 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S932532AbWARNTg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 08:19:36 -0500
-From: "Jiri Slaby" <xslaby@fi.muni.cz>
-Date: Wed, 18 Jan 2006 14:19:28 +0100
-To: Dominik Karall <dominik.karall@gmx.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: snd_pcm_format_name() problems [Re: 2.6.16-rc1-mm1]
-References: <20060118005053.118f1abc.akpm@osdl.org>
-In-Reply-To: <200601181155.59843.dominik.karall@gmx.net>
-Message-Id: <20060118131928.4050622B77C@anxur.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Wed, 18 Jan 2006 08:24:08 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:19692 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932527AbWARNYH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 08:24:07 -0500
+Date: Wed, 18 Jan 2006 14:22:58 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Jean Delvare <khali@linux-fr.org>, Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.16-rc1
+In-Reply-To: <20060118091543.GA8277@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.61.0601181421210.19392@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+ <43CD67AE.9030501@eyal.emu.id.au> <20060117232701.GA7606@mars.ravnborg.org>
+ <20060118085936.4773dd77.khali@linux-fr.org> <20060118091543.GA8277@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Karall wrote:
->On Wednesday, 18. January 2006 09:50, Andrew Morton wrote:
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.
->>6.16-rc1-mm1/
->
->  LD      .tmp_vmlinux1
->sound/built-in.o:(__ksymtab+0x670): undefined reference to 
->`snd_pcm_format_name'
->make: *** [.tmp_vmlinux1] Fehler 1
->
->If needed, I can provide my config as well.
-Nope.
-You can use these patches (they are in alsa tree yet) or enable `Verbose procfs
-contents in config' for the time being.
-http://kernel.org/git/?p=linux/kernel/git/perex/alsa-current.git;a=commit;h=e91dc6f893662674f1b224cd4948b8b9f5fb9439
 
-regards,
+>The shell script check-dialog.sh is called which again do:
+>echo "main() {}" | gcc -xc - -o /dev/null
+
+Ouch, I suggested using /dev/null instead of post-removing a.out ^_^
+Anyway, SUSE 10.0/i386:
+
+14:20 takeshi:~ > l /dev/null
+crw-rw-rw-  1 root root 1, 3 Sep  9 18:40 /dev/null
+14:20 takeshi:~ > echo 'main(){}' | gcc -xc -c - -o /dev/null
+14:21 takeshi:~ > echo $?
+0
+14:21 takeshi:~ > l /dev/null
+crw-rw-rw-  1 root root 1, 3 Sep  9 18:40 /dev/null
+
+
+14:22 takeshi:/home/jengelh # echo 'main(){}' | gcc -xc -c - -o /dev/null
+14:22 takeshi:/home/jengelh # echo $?
+0
+14:22 takeshi:/home/jengelh # l /dev/null
+crw-rw-rw-  1 root root 1, 3 Sep  9 18:40 /dev/null
+
+
+So what is (not) happening?
+
+>And it seems that gcc will trash /dev/null in your setup when doing
+>this.
+>One fix would be to avoid the two lines during distclean,
+>but I may have to resort to a temporary file.
+>
+>Could you please confirm that the above command is the one that trashes
+>/dev/null, then I will try to cook up something better.
+
+
+Jan Engelhardt
 -- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+| Alphagate Systems, http://alphagate.hopto.org/
+| jengelh's site, http://jengelh.hopto.org/

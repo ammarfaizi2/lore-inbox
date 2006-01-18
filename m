@@ -1,139 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030477AbWARVrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161010AbWARVrQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030477AbWARVrO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 16:47:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030475AbWARVrO
+	id S1161010AbWARVrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 16:47:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161012AbWARVrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 16:47:14 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:39364 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1030477AbWARVrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 16:47:15 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:23780 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1030478AbWARVrM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 18 Jan 2006 16:47:12 -0500
-Date: Wed, 18 Jan 2006 16:47:12 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrew Morton <akpm@osdl.org>
-cc: Kernel development list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 7/8] Notifier chain update: Update usb_notify
-Message-ID: <Pine.LNX.4.44L0.0601181646240.4974-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Linux 2.6.16-rc1
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060118212022.GA15828@mars.ravnborg.org>
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+	 <43CD67AE.9030501@eyal.emu.id.au> <20060117232701.GA7606@mars.ravnborg.org>
+	 <20060118085936.4773dd77.khali@linux-fr.org>
+	 <20060118091543.GA8277@mars.ravnborg.org>
+	 <Pine.LNX.4.61.0601181421210.19392@yvahk01.tjqt.qr>
+	 <20060118191247.62cc52cd.khali@linux-fr.org>
+	 <20060118203231.GA14340@mars.ravnborg.org>
+	 <1137617677.4757.90.camel@serpentine.pathscale.com>
+	 <20060118212022.GA15828@mars.ravnborg.org>
+Content-Type: text/plain
+Date: Wed, 18 Jan 2006 13:47:07 -0800
+Message-Id: <1137620827.4757.106.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Notifier chain re-implementation (as638): Remove the notifier code
-used by the USB core and switch it over to the new standard API.
-There's no longer any need for the special USB code because the new
-API is protected.
+On Wed, 2006-01-18 at 22:20 +0100, Sam Ravnborg wrote:
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Chandra Seetharaman <sekharan@us.ibm.com>
+> Much better - thanks!
+> I will push out a new path tomorrow.
 
----
+Just to be sure, something like this will work well, and bring you down
+to one program executed per test:
 
-Index: l2616/drivers/usb/core/notify.c
-===================================================================
---- l2616.orig/drivers/usb/core/notify.c
-+++ l2616/drivers/usb/core/notify.c
-@@ -16,56 +16,7 @@
- #include "usb.h"
- 
- 
--static struct notifier_block *usb_notifier_list;
--static DECLARE_MUTEX(usb_notifier_lock);
--
--static void usb_notifier_chain_register(struct notifier_block **list,
--					struct notifier_block *n)
--{
--	down(&usb_notifier_lock);
--	while (*list) {
--		if (n->priority > (*list)->priority)
--			break;
--		list = &((*list)->next);
--	}
--	n->next = *list;
--	*list = n;
--	up(&usb_notifier_lock);
--}
--
--static void usb_notifier_chain_unregister(struct notifier_block **nl,
--				   struct notifier_block *n)
--{
--	down(&usb_notifier_lock);
--	while ((*nl)!=NULL) {
--		if ((*nl)==n) {
--			*nl = n->next;
--			goto exit;
--		}
--		nl=&((*nl)->next);
--	}
--exit:
--	up(&usb_notifier_lock);
--}
--
--static int usb_notifier_call_chain(struct notifier_block **n,
--				   unsigned long val, void *v)
--{
--	int ret=NOTIFY_DONE;
--	struct notifier_block *nb = *n;
--
--	down(&usb_notifier_lock);
--	while (nb) {
--		ret = nb->notifier_call(nb,val,v);
--		if (ret&NOTIFY_STOP_MASK) {
--			goto exit;
--		}
--		nb = nb->next;
--	}
--exit:
--	up(&usb_notifier_lock);
--	return ret;
--}
-+static BLOCKING_NOTIFIER_HEAD(usb_notifier_list);
- 
- /**
-  * usb_register_notify - register a notifier callback whenever a usb change happens
-@@ -75,7 +26,7 @@ exit:
-  */
- void usb_register_notify(struct notifier_block *nb)
- {
--	usb_notifier_chain_register(&usb_notifier_list, nb);
-+	blocking_notifier_chain_register(&usb_notifier_list, nb);
- }
- EXPORT_SYMBOL_GPL(usb_register_notify);
- 
-@@ -88,27 +39,28 @@ EXPORT_SYMBOL_GPL(usb_register_notify);
-  */
- void usb_unregister_notify(struct notifier_block *nb)
- {
--	usb_notifier_chain_unregister(&usb_notifier_list, nb);
-+	blocking_notifier_chain_unregister(&usb_notifier_list, nb);
- }
- EXPORT_SYMBOL_GPL(usb_unregister_notify);
- 
- 
- void usb_notify_add_device(struct usb_device *udev)
- {
--	usb_notifier_call_chain(&usb_notifier_list, USB_DEVICE_ADD, udev);
-+	blocking_notifier_call_chain(&usb_notifier_list, USB_DEVICE_ADD, udev);
- }
- 
- void usb_notify_remove_device(struct usb_device *udev)
- {
--	usb_notifier_call_chain(&usb_notifier_list, USB_DEVICE_REMOVE, udev);
-+	blocking_notifier_call_chain(&usb_notifier_list,
-+			USB_DEVICE_REMOVE, udev);
- }
- 
- void usb_notify_add_bus(struct usb_bus *ubus)
- {
--	usb_notifier_call_chain(&usb_notifier_list, USB_BUS_ADD, ubus);
-+	blocking_notifier_call_chain(&usb_notifier_list, USB_BUS_ADD, ubus);
- }
- 
- void usb_notify_remove_bus(struct usb_bus *ubus)
- {
--	usb_notifier_call_chain(&usb_notifier_list, USB_BUS_REMOVE, ubus);
-+	blocking_notifier_call_chain(&usb_notifier_list, USB_BUS_REMOVE, ubus);
- }
+        $(findstring /,$(shell gcc -print-file-name=libcurses.so))
+
+You have to check for a "/" in the output, as -print-file-name will
+print its input unmodified if it can't actually find the file you
+specify.
+
+	<b
 

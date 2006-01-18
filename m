@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030357AbWARPt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030360AbWARPv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030357AbWARPt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 10:49:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030356AbWARPt2
+	id S1030360AbWARPv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 10:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030358AbWARPv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 10:49:28 -0500
-Received: from mail.tnnet.fi ([217.112.240.26]:46474 "EHLO mail.tnnet.fi")
-	by vger.kernel.org with ESMTP id S1030357AbWARPt1 (ORCPT
+	Wed, 18 Jan 2006 10:51:26 -0500
+Received: from mail.kroah.org ([69.55.234.183]:38541 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030360AbWARPv0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 10:49:27 -0500
-Message-ID: <43CE6384.284B823C@users.sourceforge.net>
-Date: Wed, 18 Jan 2006 17:49:24 +0200
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-To: linux-crypto@nl.linux.org
+	Wed, 18 Jan 2006 10:51:26 -0500
+Date: Wed, 18 Jan 2006 07:51:07 -0800
+From: Greg KH <greg@kroah.com>
+To: "Mukund JB." <mukundjb@esntechnologies.co.in>
 Cc: linux-kernel@vger.kernel.org
-Subject: Announce loop-AES-v3.1c file/swap crypto package
+Subject: Re: clarity on kref needed.
+Message-ID: <20060118155107.GA11895@kroah.com>
+References: <3AEC1E10243A314391FE9C01CD65429B28BE86@mail.esn.co.in>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3AEC1E10243A314391FE9C01CD65429B28BE86@mail.esn.co.in>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-loop-AES changes since previous release:
-- WBINVD assembler instruction is no longer used on Xen builds.
-- Makefile changed to probe .h header files instead of .c source files. (2.4
-  and 2.6 kernels)
-- compat_ioctl code updated to handle all 32bit/64bit loop ioctl conversions
-  on 2.6 kernels. No longer depends on fs/compat_ioctl.c handling them.
-- Semaphores are not used/needed anymore on 2.6 kernels.
-- Makefile changed to work around 2.6.16-rc1 build breakage.
+On Wed, Jan 18, 2006 at 12:27:45PM +0530, Mukund JB. wrote:
+> 
+> Dear All,
+> 
+> I have gone through kref and am planning to implement then in my usb driver.
 
-bzip2 compressed tarball is here:
+What kind of usb driver?
 
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v3.1c.tar.bz2
-    md5sum 3e54b8e66142fe58282e58075f73e58c
+> please terminate my misconceptions if any by correcting the statements below.
+> 
+> In the call below:
+> kref_init(&dev->kref);
+> 	sets the refcount in the kref to 1.
 
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v3.1c.tar.bz2.sign
+Yes.
 
+> kref_put(&dev->kref);
+> 	increment the refcount.
 
-Additional ciphers package changes since previous release:
-- Makefile changed to work around 2.6.16-rc1 build breakage.
+Hm, don't you mean "kref_get()" here?  If so, yes, that is correct.
 
-bzip2 compressed tarball is here:
+> kref_put(&dev->kref, mem_release );
+> What I understand is when the refcount falls back to '1', only then
+> the mem_release() function will be called.
 
-    http://loop-aes.sourceforge.net/ciphers/ciphers-v3.0c.tar.bz2
-    md5sum 8770eb519b448ef0d4a0306e015de283
+No, when it falls to 0 it will be called.
 
-    http://loop-aes.sourceforge.net/ciphers/ciphers-v3.0c.tar.bz2.sign
+> Is it correct? I mean, when is the mem_release () called i.e. when the
+> refcount is '0' or '1'.
 
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+0.  There's an OLS paper from a few years ago that describes kref in
+detail, as well as the in-kernel documentation of it (see the file
+Documentation/kref.txt).  Did you read that?
+
+thanks,
+
+greg k-h

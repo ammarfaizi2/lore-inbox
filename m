@@ -1,79 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964994AbWARAkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbWARAmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964994AbWARAkH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 19:40:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965058AbWARAkH
+	id S964985AbWARAmu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 19:42:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWARAmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 19:40:07 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:63920 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964994AbWARAkF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 19:40:05 -0500
-Message-ID: <43CD8E62.7060301@pobox.com>
-Date: Tue, 17 Jan 2006 19:40:02 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Tue, 17 Jan 2006 19:42:50 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:41694 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S964982AbWARAmr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 19:42:47 -0500
+Date: Wed, 18 Jan 2006 09:42:21 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [discuss] [PATCH/RFC] Unify mapping from PXM to node id.
+Cc: discuss@x86-64.org, ACPI-ML <linux-acpi@vger.kernel.org>,
+       linux-ia64@vger.kernel.org,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       "Luck, Tony" <tony.luck@intel.com>, "Brown, Len" <len.brown@intel.com>
+In-Reply-To: <200601171505.32933.ak@suse.de>
+References: <20060117205442.5B9A.Y-GOTO@jp.fujitsu.com> <200601171505.32933.ak@suse.de>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.057
+Message-Id: <20060118094209.019D.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-To: Thomas Backlund <tmb@mandriva.org>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sata_sil: combined irq + LBT DMA patch for testing
-References: <20051204011953.GA16381@havoc.gtf.org> <7744a2840512061147i5c101455g9ed99624aca344dd@mail.gmail.com> <43987A28.8070509@mandriva.org> <439899B6.2000302@pobox.com> <43B16B06.3000401@mandriva.org>
-In-Reply-To: <43B16B06.3000401@mandriva.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Thomas Backlund wrote: > Jeff Garzik wrote: > >> Thomas
-	Backlund wrote: >> >>> Richard Bollinger wrote: >>> >>>>> ata1: BUG: SG
-	size underflow >>>>> ata1: status=0x50 { DriveReady SeekComplete } >>>
-	>>> >>> >>> and onde by one the raid devices got deactivated until the
-	full >>> freeze... >> >> >> >> I think I know what's going on with the
-	'SG size underflow' thingy, >> give me a few days to come up with a
-	fix. >> >> Jeff >> >> >> > Any news on this? > or is it already fixed ?
-	[...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+X-Mailer: Becky! ver. 2.21.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Backlund wrote:
-> Jeff Garzik wrote:
+> On Tuesday 17 January 2006 13:36, Yasunori Goto wrote:
+> > Hello.
+> >
+> > This patch is to unify mapping from pxm to node id as a common code.
+> > In current code, i386, x86-64, and ia64 have its mapping by each own code.
+> > But PXM is defined by ACPI and node id is used generically. So,
+> > I think there is no reason to define it on each arch's code.
+> > This mapping should be written at drivers/acpi/numa.c.
+> >
 > 
->> Thomas Backlund wrote:
->>
->>> Richard Bollinger wrote:
->>>
->>>>> ata1: BUG: SG size underflow
->>>>> ata1: status=0x50 { DriveReady SeekComplete }
->>>
->>>
->>>
->>> and onde by one the raid devices got deactivated until the full 
->>> freeze...
->>
->>
->>
->> I think I know what's going on with the 'SG size underflow' thingy, 
->> give me a few days to come up with a fix.
->>
->>     Jeff
->>
->>
->>
-> Any news on this?
-> or is it already fixed ?
+> > Please comment.
+> 
+> The array is unnecessary big - PXMs are only 8bit so it could be u8.
+> 
+> Looks ok to me on x86-64 in principle, except that the __devinits should
+> be probably __cpuinits. I haven't tested/compiled it though
 
-Back-burner for the moment :(
+Ok. I'll modify them, and test it on x86-64 too.
+Thanks for your comment.
 
-	Jeff
-
+-- 
+Yasunori Goto 
 
 

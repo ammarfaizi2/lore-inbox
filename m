@@ -1,61 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161042AbWARXNh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161045AbWARXOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161042AbWARXNh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 18:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161043AbWARXNh
+	id S1161045AbWARXOk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 18:14:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161043AbWARXOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 18:13:37 -0500
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:63298 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S1161042AbWARXNg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 18:13:36 -0500
-Message-ID: <43CECC7D.1090200@suse.com>
-Date: Wed, 18 Jan 2006 18:17:17 -0500
-From: Jeff Mahoney <jeffm@suse.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Damien Wyart <damien.wyart@free.fr>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1 + reiser* from -rc1-mm1 : BUG with reiserfs
-References: <20060118122631.GA12363@localhost.localdomain> <43CEC61E.2040500@suse.com> <200601190004.36549.rjw@sisk.pl>
-In-Reply-To: <200601190004.36549.rjw@sisk.pl>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 18 Jan 2006 18:14:40 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:54509 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161046AbWARXOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 18:14:39 -0500
+Subject: Re: 2.6.16-rc1-mm1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Reuben Farrelly <reuben-lkml@reub.net>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       arjan@infradead.org
+In-Reply-To: <20060118190926.GB316@redhat.com>
+References: <20060118005053.118f1abc.akpm@osdl.org>
+	 <43CE2210.60509@reub.net> <20060118032716.7f0d9b6a.akpm@osdl.org>
+	 <20060118190926.GB316@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 18 Jan 2006 23:13:41 +0000
+Message-Id: <1137626021.1760.18.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Rafael J. Wysocki wrote:
-> On Wednesday, 18 January 2006 23:50, Jeff Mahoney wrote:
-> }-- snip --{
->> Sigh. Ok. Back out the reiserfs patches
+On Mer, 2006-01-18 at 14:09 -0500, Dave Jones wrote:
+> On Wed, Jan 18, 2006 at 03:27:16AM -0800, Andrew Morton wrote:
 > 
-> Those:
-> 
-> reiserfs-fix-is_reusable-bitmap-check-to-not-traverse-the-bitmap-info-array.patch
-> reiserfs-clean-up-bitmap-block-buffer-head-references.patch
-> reiserfs-move-bitmap-loading-to-bitmapc.patch
-> reiserfs-on-demand-bitmap-loading.patch
-> reiserfs-on-demand-bitmap-loading-fix.patch
-> reiserfs-on-demand-bitmap-loading-warning-fix.patch
+>  > Well yes, that code is kfree()ing a locked mutex.  It's somewhat weird to
+>  > take a lock on a still-private object but whatever.  The code's legal
+>  > enough.
+>  > 
 
-Just the on-demand bitmap stuff.
+If someone else can be waiting on it then it doesn't look legal ?
 
-- -Jeff
-
-- --
-Jeff Mahoney
-SUSE Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDzsx9LPWxlyuTD7IRAkkgAJ4vOU5rkF5U6G8tIWZQGBZBYdJCLwCfV9Mz
-xSz+fH3fdZuN2gPScRpazT8=
-=rz9K
------END PGP SIGNATURE-----

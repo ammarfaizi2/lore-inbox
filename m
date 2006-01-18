@@ -1,41 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030476AbWARVqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030462AbWARVqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030476AbWARVqO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 16:46:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030462AbWARVqO
+	id S1030462AbWARVqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 16:46:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030477AbWARVqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 16:46:14 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:3802 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1030477AbWARVqM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 16:46:12 -0500
-Date: Wed, 18 Jan 2006 16:42:04 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Andrew Morton <akpm@osdl.org>, Chandra Seetharaman <sekharan@us.ibm.com>,
-       Keith Owens <kaos@sgi.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/8] Notifier chain update
-Message-ID: <20060118214204.GG16285@kvack.org>
-References: <20060118181955.GF16285@kvack.org> <Pine.LNX.4.44L0.0601181517060.4974-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0601181517060.4974-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 18 Jan 2006 16:46:25 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:38852 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1030462AbWARVqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 16:46:23 -0500
+Date: Wed, 18 Jan 2006 16:46:22 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 6/8] Notifier chain update: Changes to dcdbas.c
+Message-ID: <Pine.LNX.4.44L0.0601181645480.4974-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 18, 2006 at 03:23:20PM -0500, Alan Stern wrote:
-> You can't use RCU protection around code that may sleep.  Whether the code
-> remains loaded in the kernel or is part of a removable module doesn't
-> enter into it.
+Notifier chain re-implementation (as637): dcdbas re-registers itself
+from within the callout. This is incorrect in two respects:
 
-A notifier callee should not be sleeping, if anything it should be putting 
-its work onto a workqueue and completing it when it gets scheduled if it 
-has to do something that blocks.
+	1. Callouts should not register/unregister.
+	2. It re-registers while the block is still in the list,
+	   which would corrupt the list.
 
-		-ben
--- 
-"You know, I've seen some crystals do some pretty trippy shit, man."
-Don't Email: <dont@kvack.org>.
+This patch fixes the problem by registering the callout to be the last
+one to be called when the event happens.
+
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Chandra Seetharaman <sekharan@us.ibm.com>
+
+---
+
+Index: l2616/drivers/firmware/dcdbas.c
+===================================================================
+--- l2616.orig/drivers/firmware/dcdbas.c
++++ l2616/drivers/firmware/dcdbas.c
+@@ -483,26 +483,15 @@ static void dcdbas_host_control(void)
+ static int dcdbas_reboot_notify(struct notifier_block *nb, unsigned long code,
+ 				void *unused)
+ {
+-	static unsigned int notify_cnt = 0;
+-
+ 	switch (code) {
+ 	case SYS_DOWN:
+ 	case SYS_HALT:
+ 	case SYS_POWER_OFF:
+ 		if (host_control_on_shutdown) {
+ 			/* firmware is going to perform host control action */
+-			if (++notify_cnt == 2) {
+-				printk(KERN_WARNING
+-				       "Please wait for shutdown "
+-				       "action to complete...\n");
+-				dcdbas_host_control();
+-			}
+-			/*
+-			 * register again and initiate the host control
+-			 * action on the second notification to allow
+-			 * everyone that registered to be notified
+-			 */
+-			register_reboot_notifier(nb);
++			printk(KERN_WARNING "Please wait for shutdown "
++			       "action to complete...\n");
++			dcdbas_host_control();
+ 		}
+ 		break;
+ 	}
+@@ -513,7 +502,7 @@ static int dcdbas_reboot_notify(struct n
+ static struct notifier_block dcdbas_reboot_nb = {
+ 	.notifier_call = dcdbas_reboot_notify,
+ 	.next = NULL,
+-	.priority = 0
++	.priority = INT_MIN
+ };
+ 
+ static DCDBAS_BIN_ATTR_RW(smi_data);
+

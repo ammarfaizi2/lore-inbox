@@ -1,65 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932527AbWARNYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbWARNZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932527AbWARNYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 08:24:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbWARNYI
+	id S932544AbWARNZO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 08:25:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbWARNZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 08:24:08 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:19692 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932527AbWARNYH (ORCPT
+	Wed, 18 Jan 2006 08:25:14 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:4055 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S932544AbWARNZM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 08:24:07 -0500
-Date: Wed, 18 Jan 2006 14:22:58 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Jean Delvare <khali@linux-fr.org>, Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.16-rc1
-In-Reply-To: <20060118091543.GA8277@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.61.0601181421210.19392@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
- <43CD67AE.9030501@eyal.emu.id.au> <20060117232701.GA7606@mars.ravnborg.org>
- <20060118085936.4773dd77.khali@linux-fr.org> <20060118091543.GA8277@mars.ravnborg.org>
+	Wed, 18 Jan 2006 08:25:12 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Johannes Berg <johannes@sipsolutions.net>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] hci_usb: implement suspend/resume
+Date: Wed, 18 Jan 2006 14:25:34 +0100
+User-Agent: KMail/1.8
+Cc: marcel@holtmann.org, maxk@qualcomm.com, linux-kernel@vger.kernel.org,
+       bluez-devel@lists.sourceforge.net
+References: <1137540084.4543.15.camel@localhost>
+In-Reply-To: <1137540084.4543.15.camel@localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601181425.35524.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Mittwoch, 18. Januar 2006 00:21 schrieb Johannes Berg:
+> The attached patch implements suspend/resume for the hci_usb bluetooth
+> driver by simply killing all outstanding urbs on suspend, and re-issuing
+> them on resume.
+> 
+> This allows me to actually use the internal bluetooth "dongle" in my
+> powerbook after suspend-to-ram without taking down all userland programs
+> (sdpd, ...) and the hci device and reloading the module.
+> 
+> Signed-Off-By: Johannes Berg <johannes@sipsolutions.net>
+> 
+> --- linux-2.6.15.1.orig/drivers/bluetooth/hci_usb.c	2006-01-18 00:08:54.840000000 +0100
+> +++ linux-2.6.15.1/drivers/bluetooth/hci_usb.c	2006-01-18 00:06:35.080000000 +0100
+> @@ -1043,11 +1043,55 @@
+>  	hci_free_dev(hdev);
+>  }
+>  
+> +static int hci_usb_suspend(struct usb_interface *intf, pm_message_t message)
+> +{
+> +	struct hci_usb *husb = usb_get_intfdata(intf);
+> +	int i;
+> +	unsigned long flags;
+> +	if (!husb || intf == husb->isoc_iface)
+> +		return 0;
+> +	
+> +	for (i = 0; i < 4; i++) {
+> +		struct _urb_queue *q = &husb->pending_q[i];
+> +		struct _urb *_urb;
+> +		spin_lock_irqsave(&q->lock, flags);
+> +		list_for_each_entry(_urb, &q->head, list)
+> +			usb_kill_urb(&_urb->urb);
+> +		spin_unlock_irqrestore(&q->lock, flags);
+> +	}
+> +	return 0;
 
->The shell script check-dialog.sh is called which again do:
->echo "main() {}" | gcc -xc - -o /dev/null
+This patch is wrong. usb_kill_urb() will sleep. You must not use it under
+a spinlock.
 
-Ouch, I suggested using /dev/null instead of post-removing a.out ^_^
-Anyway, SUSE 10.0/i386:
-
-14:20 takeshi:~ > l /dev/null
-crw-rw-rw-  1 root root 1, 3 Sep  9 18:40 /dev/null
-14:20 takeshi:~ > echo 'main(){}' | gcc -xc -c - -o /dev/null
-14:21 takeshi:~ > echo $?
-0
-14:21 takeshi:~ > l /dev/null
-crw-rw-rw-  1 root root 1, 3 Sep  9 18:40 /dev/null
-
-
-14:22 takeshi:/home/jengelh # echo 'main(){}' | gcc -xc -c - -o /dev/null
-14:22 takeshi:/home/jengelh # echo $?
-0
-14:22 takeshi:/home/jengelh # l /dev/null
-crw-rw-rw-  1 root root 1, 3 Sep  9 18:40 /dev/null
-
-
-So what is (not) happening?
-
->And it seems that gcc will trash /dev/null in your setup when doing
->this.
->One fix would be to avoid the two lines during distclean,
->but I may have to resort to a temporary file.
->
->Could you please confirm that the above command is the one that trashes
->/dev/null, then I will try to cook up something better.
-
-
-Jan Engelhardt
--- 
-| Alphagate Systems, http://alphagate.hopto.org/
-| jengelh's site, http://jengelh.hopto.org/
+	Regards
+		Oliver

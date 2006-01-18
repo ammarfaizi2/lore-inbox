@@ -1,128 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWARNLc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWARNOb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932390AbWARNLc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 08:11:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWARNLb
+	id S932479AbWARNOb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 08:14:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbWARNOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 08:11:31 -0500
-Received: from sinclair.provo.novell.com ([137.65.81.169]:50348 "EHLO
-	sinclair.provo.novell.com") by vger.kernel.org with ESMTP
-	id S932390AbWARNLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 08:11:31 -0500
-Message-Id: <43CE4C98.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Wed, 18 Jan 2006 06:11:36 -0700
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] tvec_bases too large for per-cpu data
+	Wed, 18 Jan 2006 08:14:31 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:48602 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S932479AbWARNOa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 08:14:30 -0500
+Subject: Re: [PATCH] hci_usb: implement suspend/resume
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: maxk@qualcomm.com, linux-kernel@vger.kernel.org,
+       bluez-devel@lists.sourceforge.net
+In-Reply-To: <1137540084.4543.15.camel@localhost>
+References: <1137540084.4543.15.camel@localhost>
+Content-Type: text/plain
+Date: Wed, 18 Jan 2006 14:13:18 +0100
+Message-Id: <1137589998.27515.8.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=__Part4361C398.0__="
+X-Mailer: Evolution 2.5.5 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=__Part4361C398.0__=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi Johannes,
 
-From: Jan Beulich <jbeulich@novell.com>
+> The attached patch implements suspend/resume for the hci_usb bluetooth
+> driver by simply killing all outstanding urbs on suspend, and re-issuing
+> them on resume.
+> 
+> This allows me to actually use the internal bluetooth "dongle" in my
+> powerbook after suspend-to-ram without taking down all userland programs
+> (sdpd, ...) and the hci device and reloading the module.
 
-With internal Xen-enabled kernels we see the kernel's static per-cpu
-data area
-exceed the limit of 32k on x86-64, and even native x86-64 kernels get
-fairly
-close to that limit. I generally question whether it is reasonable to
-have
-data structures several kb in size allocated as per-cpu data when the
-space
-there is rather limited.
-The biggest arch-independent consumer is tvec_bases (over 4k on 32-bit
-archs,
-over 8k on 64-bit ones), which now gets converted to use dynamically
-allocated
-memory instead.
+thanks for the patch. Due to the removed owner field it won't apply
+cleanly to 2.6.16-rc1, but I can fix this easily by myself.
 
-Signed-Off-By: Jan Beulich <jbeulich@novell.com>
+> +static int hci_usb_resume(struct usb_interface *intf)
+> +{
+> +	struct hci_usb *husb = usb_get_intfdata(intf);
+> +	int i, err;
+> +	unsigned long flags;
+> +	if (!husb || intf == husb->isoc_iface)
+> +		return 0;
+> +	
+> +	for (i = 0; i < 4; i++) {
+> +		struct _urb_queue *q = &husb->pending_q[i];
+> +		struct _urb *_urb;
+> +		spin_lock_irqsave(&q->lock, flags);
+> +		list_for_each_entry(_urb, &q->head, list) {
+> +			err = usb_submit_urb(&_urb->urb, GFP_ATOMIC);
+> +			if (err) break;
+> +		}
+> +		spin_unlock_irqrestore(&q->lock, flags);
+> +		if (err)
+> +			return -EIO;
+> +	}
+> +	return 0;
+> +}
 
-(actual patch attached)
+What happens if hci_usb_resume() really returns -EIO? Do we have to kill
+the URBs again or does the USB subsystems disconnect the device in this
+case?
 
---=__Part4361C398.0__=
-Content-Type: application/octet-stream; name="linux-2.6.16-rc1-per-cpu-tvec_bases.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="linux-2.6.16-rc1-per-cpu-tvec_bases.patch"
+Regards
 
-RnJvbTogSmFuIEJldWxpY2ggPGpiZXVsaWNoQG5vdmVsbC5jb20+CgpXaXRoIGludGVybmFsIFhl
-bi1lbmFibGVkIGtlcm5lbHMgd2Ugc2VlIHRoZSBrZXJuZWwncyBzdGF0aWMgcGVyLWNwdSBkYXRh
-IGFyZWEKZXhjZWVkIHRoZSBsaW1pdCBvZiAzMmsgb24geDg2LTY0LCBhbmQgZXZlbiBuYXRpdmUg
-eDg2LTY0IGtlcm5lbHMgZ2V0IGZhaXJseQpjbG9zZSB0byB0aGF0IGxpbWl0LiBJIGdlbmVyYWxs
-eSBxdWVzdGlvbiB3aGV0aGVyIGl0IGlzIHJlYXNvbmFibGUgdG8gaGF2ZQpkYXRhIHN0cnVjdHVy
-ZXMgc2V2ZXJhbCBrYiBpbiBzaXplIGFsbG9jYXRlZCBhcyBwZXItY3B1IGRhdGEgd2hlbiB0aGUg
-c3BhY2UKdGhlcmUgaXMgcmF0aGVyIGxpbWl0ZWQuClRoZSBiaWdnZXN0IGFyY2gtaW5kZXBlbmRl
-bnQgY29uc3VtZXIgaXMgdHZlY19iYXNlcyAob3ZlciA0ayBvbiAzMi1iaXQgYXJjaHMsCm92ZXIg
-OGsgb24gNjQtYml0IG9uZXMpLCB3aGljaCBub3cgZ2V0cyBjb252ZXJ0ZWQgdG8gdXNlIGR5bmFt
-aWNhbGx5IGFsbG9jYXRlZAptZW1vcnkgaW5zdGVhZC4KClNpZ25lZC1PZmYtQnk6IEphbiBCZXVs
-aWNoIDxqYmV1bGljaEBub3ZlbGwuY29tPgoKZGlmZiAtTnBydSAvaG9tZS9qYmV1bGljaC90bXAv
-bGludXgtMi42LjE2LXJjMS9rZXJuZWwvdGltZXIuYyAyLjYuMTYtcmMxLXBlci1jcHUtdHZlY19i
-YXNlcy9rZXJuZWwvdGltZXIuYwotLS0gL2hvbWUvamJldWxpY2gvdG1wL2xpbnV4LTIuNi4xNi1y
-YzEva2VybmVsL3RpbWVyLmMJMjAwNi0wMS0xOCAxMjozOToxMy4wMDAwMDAwMDAgKzAxMDAKKysr
-IDIuNi4xNi1yYzEtcGVyLWNwdS10dmVjX2Jhc2VzL2tlcm5lbC90aW1lci5jCTIwMDYtMDEtMTgg
-MTM6NTM6MjguMDAwMDAwMDAwICswMTAwCkBAIC04Niw3ICs4Niw4IEBAIHN0cnVjdCB0dmVjX3Rf
-YmFzZV9zIHsKIH0gX19fX2NhY2hlbGluZV9hbGlnbmVkX2luX3NtcDsKIAogdHlwZWRlZiBzdHJ1
-Y3QgdHZlY190X2Jhc2VfcyB0dmVjX2Jhc2VfdDsKLXN0YXRpYyBERUZJTkVfUEVSX0NQVSh0dmVj
-X2Jhc2VfdCwgdHZlY19iYXNlcyk7CitzdGF0aWMgREVGSU5FX1BFUl9DUFUodHZlY19iYXNlX3Qg
-KiwgdHZlY19iYXNlcyk7CitzdGF0aWMgdHZlY19iYXNlX3QgYm9vdF90dmVjX2Jhc2VzOwogCiBz
-dGF0aWMgaW5saW5lIHZvaWQgc2V0X3J1bm5pbmdfdGltZXIodHZlY19iYXNlX3QgKmJhc2UsCiAJ
-CQkJCXN0cnVjdCB0aW1lcl9saXN0ICp0aW1lcikKQEAgLTE1Nyw3ICsxNTgsNyBAQCBFWFBPUlRf
-U1lNQk9MKF9faW5pdF90aW1lcl9iYXNlKTsKIHZvaWQgZmFzdGNhbGwgaW5pdF90aW1lcihzdHJ1
-Y3QgdGltZXJfbGlzdCAqdGltZXIpCiB7CiAJdGltZXItPmVudHJ5Lm5leHQgPSBOVUxMOwotCXRp
-bWVyLT5iYXNlID0gJnBlcl9jcHUodHZlY19iYXNlcywgcmF3X3NtcF9wcm9jZXNzb3JfaWQoKSku
-dF9iYXNlOworCXRpbWVyLT5iYXNlID0gJnBlcl9jcHUodHZlY19iYXNlcywgcmF3X3NtcF9wcm9j
-ZXNzb3JfaWQoKSktPnRfYmFzZTsKIH0KIEVYUE9SVF9TWU1CT0woaW5pdF90aW1lcik7CiAKQEAg
-LTIxOCw3ICsyMTksNyBAQCBpbnQgX19tb2RfdGltZXIoc3RydWN0IHRpbWVyX2xpc3QgKnRpbWVy
-CiAJCXJldCA9IDE7CiAJfQogCi0JbmV3X2Jhc2UgPSAmX19nZXRfY3B1X3Zhcih0dmVjX2Jhc2Vz
-KTsKKwluZXdfYmFzZSA9IF9fZ2V0X2NwdV92YXIodHZlY19iYXNlcyk7CiAKIAlpZiAoYmFzZSAh
-PSAmbmV3X2Jhc2UtPnRfYmFzZSkgewogCQkvKgpAQCAtMjU4LDcgKzI1OSw3IEBAIEVYUE9SVF9T
-WU1CT0woX19tb2RfdGltZXIpOwogICovCiB2b2lkIGFkZF90aW1lcl9vbihzdHJ1Y3QgdGltZXJf
-bGlzdCAqdGltZXIsIGludCBjcHUpCiB7Ci0JdHZlY19iYXNlX3QgKmJhc2UgPSAmcGVyX2NwdSh0
-dmVjX2Jhc2VzLCBjcHUpOworCXR2ZWNfYmFzZV90ICpiYXNlID0gcGVyX2NwdSh0dmVjX2Jhc2Vz
-LCBjcHUpOwogICAJdW5zaWduZWQgbG9uZyBmbGFnczsKIAogICAJQlVHX09OKHRpbWVyX3BlbmRp
-bmcodGltZXIpIHx8ICF0aW1lci0+ZnVuY3Rpb24pOwpAQCAtNDkyLDcgKzQ5Myw3IEBAIHVuc2ln
-bmVkIGxvbmcgbmV4dF90aW1lcl9pbnRlcnJ1cHQodm9pZCkKIAl0dmVjX3QgKnZhcnJheVs0XTsK
-IAlpbnQgaSwgajsKIAotCWJhc2UgPSAmX19nZXRfY3B1X3Zhcih0dmVjX2Jhc2VzKTsKKwliYXNl
-ID0gX19nZXRfY3B1X3Zhcih0dmVjX2Jhc2VzKTsKIAlzcGluX2xvY2soJmJhc2UtPnRfYmFzZS5s
-b2NrKTsKIAlleHBpcmVzID0gYmFzZS0+dGltZXJfamlmZmllcyArIChMT05HX01BWCA+PiAxKTsK
-IAlsaXN0ID0gMDsKQEAgLTg1Niw3ICs4NTcsNyBAQCBFWFBPUlRfU1lNQk9MKHh0aW1lX2xvY2sp
-OwogICovCiBzdGF0aWMgdm9pZCBydW5fdGltZXJfc29mdGlycShzdHJ1Y3Qgc29mdGlycV9hY3Rp
-b24gKmgpCiB7Ci0JdHZlY19iYXNlX3QgKmJhc2UgPSAmX19nZXRfY3B1X3Zhcih0dmVjX2Jhc2Vz
-KTsKKwl0dmVjX2Jhc2VfdCAqYmFzZSA9IF9fZ2V0X2NwdV92YXIodHZlY19iYXNlcyk7CiAKICAJ
-aHJ0aW1lcl9ydW5fcXVldWVzKCk7CiAJaWYgKHRpbWVfYWZ0ZXJfZXEoamlmZmllcywgYmFzZS0+
-dGltZXJfamlmZmllcykpCkBAIC0xMjA5LDEyICsxMjEwLDMxIEBAIGFzbWxpbmthZ2UgbG9uZyBz
-eXNfc3lzaW5mbyhzdHJ1Y3Qgc3lzaW4KIAlyZXR1cm4gMDsKIH0KIAotc3RhdGljIHZvaWQgX19k
-ZXZpbml0IGluaXRfdGltZXJzX2NwdShpbnQgY3B1KQorc3RhdGljIGludCBfX2RldmluaXQgaW5p
-dF90aW1lcnNfY3B1KGludCBjcHUpCiB7CiAJaW50IGo7CiAJdHZlY19iYXNlX3QgKmJhc2U7CiAK
-LQliYXNlID0gJnBlcl9jcHUodHZlY19iYXNlcywgY3B1KTsKKwliYXNlID0gcGVyX2NwdSh0dmVj
-X2Jhc2VzLCBjcHUpOworCWlmIChsaWtlbHkoIWJhc2UpKSB7CisJCXN0YXRpYyBjaGFyIGJvb3Rf
-ZG9uZTsKKworCQlpZiAobGlrZWx5KGJvb3RfZG9uZSkpIHsKKyNpZmRlZiBDT05GSUdfTlVNQQor
-CQkJYmFzZSA9IGttYWxsb2Nfbm9kZShzaXplb2YoKmJhc2UpLCBHRlBfS0VSTkVMLCBjcHVfdG9f
-bm9kZShjcHUpKTsKKwkJCWlmICghYmFzZSkKKyNlbmRpZgorCQkJCWJhc2UgPSBrbWFsbG9jKHNp
-emVvZigqYmFzZSksIEdGUF9LRVJORUwpOworCQkJaWYgKCFiYXNlKQorCQkJCXJldHVybiAtRU5P
-TUVNOworCQkJbWVtc2V0KGJhc2UsIDAsIHNpemVvZigqYmFzZSkpOworCQl9CisJCWVsc2Ugewor
-CQkJYmFzZSA9ICZib290X3R2ZWNfYmFzZXM7CisJCQlib290X2RvbmUgPSAxOworCQl9CisJCXBl
-cl9jcHUodHZlY19iYXNlcywgY3B1KSA9IGJhc2U7CisJfQogCXNwaW5fbG9ja19pbml0KCZiYXNl
-LT50X2Jhc2UubG9jayk7CiAJZm9yIChqID0gMDsgaiA8IFRWTl9TSVpFOyBqKyspIHsKIAkJSU5J
-VF9MSVNUX0hFQUQoYmFzZS0+dHY1LnZlYyArIGopOwpAQCAtMTIyNiw2ICsxMjQ2LDcgQEAgc3Rh
-dGljIHZvaWQgX19kZXZpbml0IGluaXRfdGltZXJzX2NwdShpbgogCQlJTklUX0xJU1RfSEVBRChi
-YXNlLT50djEudmVjICsgaik7CiAKIAliYXNlLT50aW1lcl9qaWZmaWVzID0gamlmZmllczsKKwly
-ZXR1cm4gMDsKIH0KIAogI2lmZGVmIENPTkZJR19IT1RQTFVHX0NQVQpAQCAtMTI0OCw4ICsxMjY5
-LDggQEAgc3RhdGljIHZvaWQgX19kZXZpbml0IG1pZ3JhdGVfdGltZXJzKGludAogCWludCBpOwog
-CiAJQlVHX09OKGNwdV9vbmxpbmUoY3B1KSk7Ci0Jb2xkX2Jhc2UgPSAmcGVyX2NwdSh0dmVjX2Jh
-c2VzLCBjcHUpOwotCW5ld19iYXNlID0gJmdldF9jcHVfdmFyKHR2ZWNfYmFzZXMpOworCW9sZF9i
-YXNlID0gcGVyX2NwdSh0dmVjX2Jhc2VzLCBjcHUpOworCW5ld19iYXNlID0gZ2V0X2NwdV92YXIo
-dHZlY19iYXNlcyk7CiAKIAlsb2NhbF9pcnFfZGlzYWJsZSgpOwogCXNwaW5fbG9jaygmbmV3X2Jh
-c2UtPnRfYmFzZS5sb2NrKTsKQEAgLTEyNzksNyArMTMwMCw4IEBAIHN0YXRpYyBpbnQgX19kZXZp
-bml0IHRpbWVyX2NwdV9ub3RpZnkoc3QKIAlsb25nIGNwdSA9IChsb25nKWhjcHU7CiAJc3dpdGNo
-KGFjdGlvbikgewogCWNhc2UgQ1BVX1VQX1BSRVBBUkU6Ci0JCWluaXRfdGltZXJzX2NwdShjcHUp
-OworCQlpZiAoaW5pdF90aW1lcnNfY3B1KGNwdSkgPCAwKQorCQkJcmV0dXJuIE5PVElGWV9CQUQ7
-CiAJCWJyZWFrOwogI2lmZGVmIENPTkZJR19IT1RQTFVHX0NQVQogCWNhc2UgQ1BVX0RFQUQ6Cg==
+Marcel
 
---=__Part4361C398.0__=--
+

@@ -1,95 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161005AbWARVTW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030474AbWARVUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161005AbWARVTW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 16:19:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161009AbWARVTW
+	id S1030474AbWARVUj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 16:20:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030366AbWARVUi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 16:19:22 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:57496 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S964928AbWARVTU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 16:19:20 -0500
-Date: Wed, 18 Jan 2006 23:19:26 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: openib-general@openib.org, LKML <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org
-Cc: Roland Dreier <rolandd@cisco.com>
-Subject: Repost [PATCH 1 of 3] move destructor to struct neigh_parms
-Message-ID: <20060118211926.GE31280@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+	Wed, 18 Jan 2006 16:20:38 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:37643 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1030473AbWARVUh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 16:20:37 -0500
+Date: Wed, 18 Jan 2006 22:20:22 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16-rc1
+Message-ID: <20060118212022.GA15828@mars.ravnborg.org>
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org> <43CD67AE.9030501@eyal.emu.id.au> <20060117232701.GA7606@mars.ravnborg.org> <20060118085936.4773dd77.khali@linux-fr.org> <20060118091543.GA8277@mars.ravnborg.org> <Pine.LNX.4.61.0601181421210.19392@yvahk01.tjqt.qr> <20060118191247.62cc52cd.khali@linux-fr.org> <20060118203231.GA14340@mars.ravnborg.org> <1137617677.4757.90.camel@serpentine.pathscale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <1137617677.4757.90.camel@serpentine.pathscale.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry about reposting: the message didnt seem to make it to netdev.
+On Wed, Jan 18, 2006 at 12:54:37PM -0800, Bryan O'Sullivan wrote:
+> On Wed, 2006-01-18 at 21:32 +0100, Sam Ravnborg wrote:
+> 
+> > But in the lxdialog case we need to execute the link step, because
+> > what we really try to do is to check if gcc can find a specific
+> > library in the search path.
+> 
+> Will -print-file-name not do the trick for you?
+> 
+> $ gcc -print-file-name=libcurses.so | grep -q /
+> $ echo $?
+> 0
+> $ gcc -print-file-name=libfoobar.a | grep -q /
+> $ echo $?
+> 1
+Much better - thanks!
+I will push out a new path tomorrow.
 
----
-
-Hi!
-struct neigh_ops currently has a destructor field, unused by in-kernel
-drivers outside the infiniband subtree.
-infiniband ipoib in-tree driver currently uses this field, and we've
-run into problems: since the destructor is shared between neighbours
-that belong to different net devices, there's no way to set/clear it
-safely.
-
-It would be good to know what the design was
-behind putting the destructor method there in the first place.
-
-The following patch moves this field to neigh_parms where it can
-be safely set, together with its twin neigh_setup.
-Two additional patches in the patch series
-update ipoib to use this new interface.
-
-Please Cc me on replies, I'm not on the list.
-
----
-
-Move destructor from neigh_ops (which is shared between devices)
-to neigh_parms which is not, so that multiple drivers can set
-it safely.
-
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-
-Index: linux-2.6.15/net/core/neighbour.c
-===================================================================
---- linux-2.6.15.orig/net/core/neighbour.c	2006-01-12 11:58:15.000000000 +0200
-+++ linux-2.6.15/net/core/neighbour.c	2006-01-12 20:10:00.000000000 +0200
-@@ -586,8 +586,8 @@ void neigh_destroy(struct neighbour *nei
- 			kfree(hh);
- 	}
- 
--	if (neigh->ops && neigh->ops->destructor)
--		(neigh->ops->destructor)(neigh);
-+	if (neigh->parms->neigh_destructor)
-+		(neigh->parms->neigh_destructor)(neigh);
- 
- 	skb_queue_purge(&neigh->arp_queue);
- 
-Index: linux-2.6.15/include/net/neighbour.h
-===================================================================
---- linux-2.6.15.orig/include/net/neighbour.h	2006-01-03 05:21:10.000000000 +0200
-+++ linux-2.6.15/include/net/neighbour.h	2006-01-12 20:09:27.000000000 +0200
-@@ -68,6 +68,7 @@ struct neigh_parms
- 	struct net_device *dev;
- 	struct neigh_parms *next;
- 	int	(*neigh_setup)(struct neighbour *);
-+	void	(*neigh_destructor)(struct neighbour *);
- 	struct neigh_table *tbl;
- 
- 	void	*sysctl_table;
-@@ -145,7 +146,6 @@ struct neighbour
- struct neigh_ops
- {
- 	int			family;
--	void			(*destructor)(struct neighbour *);
- 	void			(*solicit)(struct neighbour *, struct sk_buff*);
- 	void			(*error_report)(struct neighbour *, struct sk_buff*);
- 	int			(*output)(struct sk_buff*);
-
--- 
-MST
-
+	Sam

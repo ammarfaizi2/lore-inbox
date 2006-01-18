@@ -1,84 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbWARIAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbWARIBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932379AbWARIAH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 03:00:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWARIAG
+	id S932404AbWARIBf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 03:01:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWARIBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 03:00:06 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:27792 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932379AbWARIAE (ORCPT
+	Wed, 18 Jan 2006 03:01:34 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:65202 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932404AbWARIBe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 03:00:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type;
-        b=Wn7aB65BWBIuONblxmwDPHKTfYPbxR/al2MBjTRjoHhaujkN7VktCQoBpcc+UtbYt+mYwgyqtbgBa6WJjOP8TOqdB1ZIdpbI3boW6HgQug1aLfS0IImZ1x89m2Y4aJVFBj/YVyzcFudvP0fhqmQHvL8mTYegD/Vlzm2p+qHPFVI=
-Message-ID: <3fe1d240601180000n511f9697m@mail.gmail.com>
-Date: Wed, 18 Jan 2006 16:00:03 +0800
-From: HuaFeijun <hua.feijun@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: hugetlb bug
+	Wed, 18 Jan 2006 03:01:34 -0500
+Message-ID: <43CE07C0.DA9B254A@tv-sign.ru>
+Date: Wed, 18 Jan 2006 12:17:52 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_24097_26836054.1137571203795"
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: Christoph Lameter <clameter@engr.sgi.com>,
+       Shai Fultheim <shai@scalex86.org>, Nippun Goel <nippung@calsoftinc.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       dipankar@in.ibm.com
+Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single 
+ threadedprocess at getrusage()
+References: <20060104231600.GA3664@localhost.localdomain> <43BD70AD.21FC6862@tv-sign.ru> <20060106094627.GA4272@localhost.localdomain> <43C0FC4B.567D18DC@tv-sign.ru> <20060108195848.GA4124@localhost.localdomain> <43C2B1B7.635DDF0B@tv-sign.ru> <20060109205442.GB3691@localhost.localdomain> <43C40507.D1A85679@tv-sign.ru> <20060116205618.GA5313@localhost.localdomain> <43CD4C86.5B0BA4D0@tv-sign.ru> <20060117195237.GA5289@localhost.localdomain>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_24097_26836054.1137571203795
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Ravikiran G Thirumalai wrote:
+> 
+> On Tue, Jan 17, 2006 at 10:59:02PM +0300, Oleg Nesterov wrote:
+> >
+> > But don't we already discussed this issue? I think that RUSAGE_SELF
+> > case always not 100% accurate, so it is Ok to ignore this race.
+> 
+> Take the case when an exiting thread has a large utime stime value, and
+> rusage reports utime before thread exit and stime after thread exit... the
+> result would look wierd.
+> So IMHO, while inaccuracies in task_struct->xxx time can be tolerated, it
+> might not be such a good idea to for task_struct->signal->xxx counters.
 
-Is it kernel bug? The code works normally on ia64 machine,howerver, on
-EM64T,it fails tot work.
-The function call of shmat will change /proc/meminfo;and  the shmdt
-can't restore it to original content.  How to restore it to original
-stauts?Thanks.
+Yes, you are right. Now I don't understand why I didn't understand this
+before. Thank you, Ravikiran.
 
-------=_Part_24097_26836054.1137571203795
-Content-Type: text/plain; name="meminfo"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="meminfo"
-
-SXMgaXQga2VybmVsIGJ1Zz8gVGhlIGNvZGUgd29ya3Mgbm9ybWFsbHkgb24gaWE2NCBtYWNoaW5l
-LGhvd2VydmVyLCBvbiBFTTY0VCxpdCBmYWlscyB0b3Qgd29yay4KVGhlIGZ1bmN0aW9uIGNhbGwg
-b2Ygc2htYXQgd2lsbCBjaGFuZ2UgL3Byb2MvbWVtaW5mbyBmaWxlJ3MgY29udGVudDthbmQgIHRo
-ZSBzaG1kdApjYW4ndCByZXN0b3JlIHRoZSBmaWxlJ3MgY29udGVudC4gIEhvdyB0byByZXN0b3Jl
-IGl0IHRvIG9yaWdpbmFsIHN0YXV0cz9UaGFua3MuCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KPT09IGJlZm9yZSBzaG1hdCA9PT0KTWVtVG90
-YWw6ICAgICAgMjA1NjM4OCBrQgpNZW1GcmVlOiAgICAgICAgNjA3MzAwIGtCCkJ1ZmZlcnM6ICAg
-ICAgICAgNDM5NzYga0IKQ2FjaGVkOiAgICAgICAgIDEzNDI1MiBrQgpTd2FwQ2FjaGVkOiAgICAg
-ICAgICAwIGtCCkFjdGl2ZTogICAgICAgICAxNTE5NDAga0IKSW5hY3RpdmU6ICAgICAgICA2MzQz
-NiBrQgpIaWdoVG90YWw6ICAgICAgICAgICAwIGtCCkhpZ2hGcmVlOiAgICAgICAgICAgIDAga0IK
-TG93VG90YWw6ICAgICAgMjA1NjM4OCBrQgpMb3dGcmVlOiAgICAgICAgNjA3MzAwIGtCClN3YXBU
-b3RhbDogICAgIDQwOTY1NjQga0IKU3dhcEZyZWU6ICAgICAgNDA5NjU2NCBrQgpEaXJ0eTogICAg
-ICAgICAgICAgMTc2IGtCCldyaXRlYmFjazogICAgICAgICAgIDAga0IKTWFwcGVkOiAgICAgICAg
-ICA1MDg4MCBrQgpTbGFiOiAgICAgICAgICAgIDkzMjM2IGtCCkNvbW1pdHRlZF9BUzogICAgOTAz
-NDAga0IKUGFnZVRhYmxlczogICAgICAgMzUyOCBrQgpWbWFsbG9jVG90YWw6IDUzNjg3MDkxMSBr
-QgpWbWFsbG9jVXNlZDogICAgMjY0NDM2IGtCClZtYWxsb2NDaHVuazogNTM2NjA2MjQzIGtCCkh1
-Z2VQYWdlc19Ub3RhbDogICA1MDAKSHVnZVBhZ2VzX0ZyZWU6ICAgIDUwMApIdWdlcGFnZXNpemU6
-ICAgICAyMDQ4IGtCCgo9PT0gYWZ0ZXIgc2htYXQgPT09Ck1lbVRvdGFsOiAgICAgIDIwNTYzODgg
-a0IKTWVtRnJlZTogICAgICAgIDYwNzMwMCBrQgpCdWZmZXJzOiAgICAgICAgIDQzOTc2IGtCCkNh
-Y2hlZDogICAgICAgICAxMzQyNTIga0IKU3dhcENhY2hlZDogICAgICAgICAgMCBrQgpBY3RpdmU6
-ICAgICAgICAgMTUxOTQwIGtCCkluYWN0aXZlOiAgICAgICAgNjM0MzYga0IKSGlnaFRvdGFsOiAg
-ICAgICAgICAgMCBrQgpIaWdoRnJlZTogICAgICAgICAgICAwIGtCCkxvd1RvdGFsOiAgICAgIDIw
-NTYzODgga0IKTG93RnJlZTogICAgICAgIDYwNzMwMCBrQgpTd2FwVG90YWw6ICAgICA0MDk2NTY0
-IGtCClN3YXBGcmVlOiAgICAgIDQwOTY1NjQga0IKRGlydHk6ICAgICAgICAgICAgIDE3NiBrQgpX
-cml0ZWJhY2s6ICAgICAgICAgICAwIGtCCk1hcHBlZDogICAgICAgICAgNTA4ODAga0IKU2xhYjog
-ICAgICAgICAgICA5MzIzNiBrQgpDb21taXR0ZWRfQVM6ICAgIDkwMzQwIGtCClBhZ2VUYWJsZXM6
-ICAgICAgIDM1Mjgga0IKVm1hbGxvY1RvdGFsOiA1MzY4NzA5MTEga0IKVm1hbGxvY1VzZWQ6ICAg
-IDI2NDQzNiBrQgpWbWFsbG9jQ2h1bms6IDUzNjYwNjI0MyBrQgpIdWdlUGFnZXNfVG90YWw6ICAg
-NTAwCkh1Z2VQYWdlc19GcmVlOiAgICAwCkh1Z2VwYWdlc2l6ZTogICAgIDIwNDgga0IKCj09PSBh
-ZnRlciBzaG1kdD09PQpNZW1Ub3RhbDogICAgICAyMDU2Mzg4IGtCCk1lbUZyZWU6ICAgICAgICA2
-MDczMDAga0IKQnVmZmVyczogICAgICAgICA0Mzk3NiBrQgpDYWNoZWQ6ICAgICAgICAgMTM0MjUy
-IGtCClN3YXBDYWNoZWQ6ICAgICAgICAgIDAga0IKQWN0aXZlOiAgICAgICAgIDE1MTk0MCBrQgpJ
-bmFjdGl2ZTogICAgICAgIDYzNDM2IGtCCkhpZ2hUb3RhbDogICAgICAgICAgIDAga0IKSGlnaEZy
-ZWU6ICAgICAgICAgICAgMCBrQgpMb3dUb3RhbDogICAgICAyMDU2Mzg4IGtCCkxvd0ZyZWU6ICAg
-ICAgICA2MDczMDAga0IKU3dhcFRvdGFsOiAgICAgNDA5NjU2NCBrQgpTd2FwRnJlZTogICAgICA0
-MDk2NTY0IGtCCkRpcnR5OiAgICAgICAgICAgICAxNzYga0IKV3JpdGViYWNrOiAgICAgICAgICAg
-MCBrQgpNYXBwZWQ6ICAgICAgICAgIDUwODgwIGtCClNsYWI6ICAgICAgICAgICAgOTMyMzYga0IK
-Q29tbWl0dGVkX0FTOiAgICA5MDM0MCBrQgpQYWdlVGFibGVzOiAgICAgICAzNTI4IGtCClZtYWxs
-b2NUb3RhbDogNTM2ODcwOTExIGtCClZtYWxsb2NVc2VkOiAgICAyNjQ0MzYga0IKVm1hbGxvY0No
-dW5rOiA1MzY2MDYyNDMga0IKSHVnZVBhZ2VzX1RvdGFsOiAgIDUwMApIdWdlUGFnZXNfRnJlZTog
-ICAgMApIdWdlcGFnZXNpemU6ICAgICAyMDQ4IGtC
-------=_Part_24097_26836054.1137571203795--
+Oleg.

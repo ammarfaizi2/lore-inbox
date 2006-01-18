@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030354AbWARPtR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbWARPxW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030354AbWARPtR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 10:49:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030357AbWARPtR
+	id S1030358AbWARPxW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 10:53:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030361AbWARPxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 10:49:17 -0500
-Received: from host233.omnispring.com ([69.44.168.233]:60387 "EHLO
-	iradimed.com") by vger.kernel.org with ESMTP id S1030354AbWARPtQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 10:49:16 -0500
-Message-ID: <43CE6363.2020402@cfl.rr.com>
-Date: Wed, 18 Jan 2006 10:48:51 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Max Waterman <davidmaxwaterman@fastmail.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: io performance...
-References: <43CB4CC3.4030904@fastmail.co.uk>  <43CDAFE3.8050203@fastmail.co.uk>  <43CDC44E.6080808@wolfmountaingroup.com> <1137576064.25819.11.camel@localhost.localdomain>
-In-Reply-To: <1137576064.25819.11.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Jan 2006 15:49:39.0585 (UTC) FILETIME=[CA69AF10:01C61C46]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.51.1032-14213.000
-X-TM-AS-Result: No--6.140000-5.000000-31
+	Wed, 18 Jan 2006 10:53:22 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:34964 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030358AbWARPxV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 10:53:21 -0500
+Date: Wed, 18 Jan 2006 16:53:20 +0100
+From: Nick Piggin <npiggin@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [patch] ati_pcigart: simplify page_count manipulations
+Message-ID: <20060118155320.GC28418@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was going to say, doesn't the kernel set the FUA bit on the write 
-request to push important flushes through the disk's write-back cache?  
-Like for filesystem journal flushes?
+Allocate a compound page for the user mapping instead of tweaking
+the page refcounts.
 
+Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-Alan Cox wrote:
-> Not always. If you have a cache flush command and the OS knows about
-> using it, or if you don't care if the data gets lost over a power
-> failure (eg /tmp and swap) it makes sense to force it.
->
-> The raid controller drivers that fake scsi don't always fake enough of
-> scsi to report that they support cache flushes and the like. That
-> doesn't mean the controller itself is neccessarily doing one thing or
-> the other.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
->   
-
+Index: linux-2.6/drivers/char/drm/ati_pcigart.c
+===================================================================
+--- linux-2.6.orig/drivers/char/drm/ati_pcigart.c
++++ linux-2.6/drivers/char/drm/ati_pcigart.c
+@@ -59,17 +59,16 @@ static void *drm_ati_alloc_pcigart_table
+ 	int i;
+ 	DRM_DEBUG("%s\n", __FUNCTION__);
+ 
+-	address = __get_free_pages(GFP_KERNEL, ATI_PCIGART_TABLE_ORDER);
++	address = __get_free_pages(GFP_KERNEL | __GFP_COMP,
++					ATI_PCIGART_TABLE_ORDER);
+ 	if (address == 0UL) {
+ 		return 0;
+ 	}
+ 
+ 	page = virt_to_page(address);
+ 
+-	for (i = 0; i < ATI_PCIGART_TABLE_PAGES; i++, page++) {
+-		get_page(page);
++	for (i = 0; i < ATI_PCIGART_TABLE_PAGES; i++, page++)
+ 		SetPageReserved(page);
+-	}
+ 
+ 	DRM_DEBUG("%s: returning 0x%08lx\n", __FUNCTION__, address);
+ 	return (void *)address;
+@@ -83,10 +82,8 @@ static void drm_ati_free_pcigart_table(v
+ 
+ 	page = virt_to_page((unsigned long)address);
+ 
+-	for (i = 0; i < ATI_PCIGART_TABLE_PAGES; i++, page++) {
+-		__put_page(page);
++	for (i = 0; i < ATI_PCIGART_TABLE_PAGES; i++, page++)
+ 		ClearPageReserved(page);
+-	}
+ 
+ 	free_pages((unsigned long)address, ATI_PCIGART_TABLE_ORDER);
+ }

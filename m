@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWARATL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932529AbWARAUF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbWARATL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 19:19:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbWARATK
+	id S932529AbWARAUF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 19:20:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWARAUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 19:19:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:60295 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964797AbWARATJ (ORCPT
+	Tue, 17 Jan 2006 19:20:05 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:22178 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932530AbWARAUD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 19:19:09 -0500
+	Tue, 17 Jan 2006 19:20:03 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=JTwsILxWrJxvpKct+FKPEvlKSoZMuaTcl/JugAsLOjfKltLQvk6D6iQJn20lLNCGp/970MjEAUDaLd8zIL9UTXXC8qmItqRr0arrec1hFmT1uZNW+MSmYhRzMKFerVThVAHYobf8GP1wsLuQSI0t5tG2qeRno5ZTK6KTB1PqpDQ=
-Date: Wed, 18 Jan 2006 03:36:30 +0300
+        b=ni9utud/Y9DF04vvqMqvVLUdU9+2xMamvdFjISW4mywsIa7us0nsopqFjXAB5mJJ/T/qKj3o4yXaTve1H5LJwp1qhIjJ2HivbN7+3MP705OIDJcnrjVpl5k/F+/Sk0a0xLT7cTMwgHjJur0tlVT+nPkhkyjtrCr18Q5Yx0BNaF4=
+Date: Wed, 18 Jan 2006 03:37:24 +0300
 From: Alexey Dobriyan <adobriyan@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 3/5] sysv: switch to inode_inc_count, inode_dec_count
-Message-ID: <20060118003630.GD24835@mipter.zuzino.mipt.ru>
+Subject: [PATCH 4/5] ext2: switch to inode_inc_count, inode_dec_count
+Message-ID: <20060118003724.GE24835@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -29,148 +29,160 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 ---
 
- fs/sysv/namei.c |   48 ++++++++++++++++++------------------------------
- 1 files changed, 18 insertions(+), 30 deletions(-)
+ fs/ext2/namei.c |   54 +++++++++++++++++++-----------------------------------
+ 1 files changed, 19 insertions(+), 35 deletions(-)
 
---- a/fs/sysv/namei.c
-+++ b/fs/sysv/namei.c
-@@ -16,18 +16,6 @@
- #include <linux/smp_lock.h>
- #include "sysv.h"
+--- a/fs/ext2/namei.c
++++ b/fs/ext2/namei.c
+@@ -36,22 +36,6 @@
+ #include "acl.h"
+ #include "xip.h"
  
--static inline void inc_count(struct inode *inode)
+-/*
+- * Couple of helper functions - make the code slightly cleaner.
+- */
+-
+-static inline void ext2_inc_count(struct inode *inode)
 -{
 -	inode->i_nlink++;
 -	mark_inode_dirty(inode);
 -}
 -
--static inline void dec_count(struct inode *inode)
+-static inline void ext2_dec_count(struct inode *inode)
 -{
 -	inode->i_nlink--;
 -	mark_inode_dirty(inode);
 -}
 -
- static int add_nondir(struct dentry *dentry, struct inode *inode)
+ static inline int ext2_add_nondir(struct dentry *dentry, struct inode *inode)
  {
- 	int err = sysv_add_link(dentry, inode);
-@@ -35,7 +23,7 @@ static int add_nondir(struct dentry *den
+ 	int err = ext2_add_link(dentry, inode);
+@@ -59,7 +43,7 @@ static inline int ext2_add_nondir(struct
  		d_instantiate(dentry, inode);
  		return 0;
  	}
--	dec_count(inode);
+-	ext2_dec_count(inode);
 +	inode_dec_count(inode);
  	iput(inode);
  	return err;
  }
-@@ -124,7 +112,7 @@ out:
+@@ -201,7 +185,7 @@ out:
  	return err;
  
  out_fail:
--	dec_count(inode);
+-	ext2_dec_count(inode);
 +	inode_dec_count(inode);
- 	iput(inode);
+ 	iput (inode);
  	goto out;
  }
-@@ -138,7 +126,7 @@ static int sysv_link(struct dentry * old
+@@ -215,7 +199,7 @@ static int ext2_link (struct dentry * ol
  		return -EMLINK;
  
  	inode->i_ctime = CURRENT_TIME_SEC;
--	inc_count(inode);
+-	ext2_inc_count(inode);
 +	inode_inc_count(inode);
  	atomic_inc(&inode->i_count);
  
- 	return add_nondir(dentry, inode);
-@@ -151,7 +139,7 @@ static int sysv_mkdir(struct inode * dir
- 
- 	if (dir->i_nlink >= SYSV_SB(dir->i_sb)->s_link_max) 
+ 	return ext2_add_nondir(dentry, inode);
+@@ -229,7 +213,7 @@ static int ext2_mkdir(struct inode * dir
+ 	if (dir->i_nlink >= EXT2_LINK_MAX)
  		goto out;
--	inc_count(dir);
+ 
+-	ext2_inc_count(dir);
 +	inode_inc_count(dir);
  
- 	inode = sysv_new_inode(dir, S_IFDIR|mode);
+ 	inode = ext2_new_inode (dir, S_IFDIR | mode);
  	err = PTR_ERR(inode);
-@@ -160,7 +148,7 @@ static int sysv_mkdir(struct inode * dir
+@@ -243,7 +227,7 @@ static int ext2_mkdir(struct inode * dir
+ 	else
+ 		inode->i_mapping->a_ops = &ext2_aops;
  
- 	sysv_set_inode(inode, 0);
- 
--	inc_count(inode);
+-	ext2_inc_count(inode);
 +	inode_inc_count(inode);
  
- 	err = sysv_make_empty(inode, dir);
+ 	err = ext2_make_empty(inode, dir);
  	if (err)
-@@ -175,11 +163,11 @@ out:
+@@ -258,11 +242,11 @@ out:
  	return err;
  
  out_fail:
--	dec_count(inode);
--	dec_count(inode);
+-	ext2_dec_count(inode);
+-	ext2_dec_count(inode);
 +	inode_dec_count(inode);
 +	inode_dec_count(inode);
  	iput(inode);
  out_dir:
--	dec_count(dir);
+-	ext2_dec_count(dir);
 +	inode_dec_count(dir);
  	goto out;
  }
  
-@@ -199,7 +187,7 @@ static int sysv_unlink(struct inode * di
+@@ -282,7 +266,7 @@ static int ext2_unlink(struct inode * di
  		goto out;
  
  	inode->i_ctime = dir->i_ctime;
--	dec_count(inode);
+-	ext2_dec_count(inode);
 +	inode_dec_count(inode);
+ 	err = 0;
  out:
  	return err;
- }
-@@ -213,8 +201,8 @@ static int sysv_rmdir(struct inode * dir
- 		err = sysv_unlink(dir, dentry);
+@@ -297,8 +281,8 @@ static int ext2_rmdir (struct inode * di
+ 		err = ext2_unlink(dir, dentry);
  		if (!err) {
  			inode->i_size = 0;
--			dec_count(inode);
--			dec_count(dir);
+-			ext2_dec_count(inode);
+-			ext2_dec_count(dir);
 +			inode_dec_count(inode);
 +			inode_dec_count(dir);
  		}
  	}
  	return err;
-@@ -258,34 +246,34 @@ static int sysv_rename(struct inode * ol
- 		new_de = sysv_find_entry(new_dentry, &new_page);
+@@ -338,41 +322,41 @@ static int ext2_rename (struct inode * o
+ 		new_de = ext2_find_entry (new_dir, new_dentry, &new_page);
  		if (!new_de)
  			goto out_dir;
--		inc_count(old_inode);
+-		ext2_inc_count(old_inode);
 +		inode_inc_count(old_inode);
- 		sysv_set_link(new_de, new_page, old_inode);
+ 		ext2_set_link(new_dir, new_de, new_page, old_inode);
  		new_inode->i_ctime = CURRENT_TIME_SEC;
  		if (dir_de)
  			new_inode->i_nlink--;
--		dec_count(new_inode);
+-		ext2_dec_count(new_inode);
 +		inode_dec_count(new_inode);
  	} else {
  		if (dir_de) {
  			err = -EMLINK;
- 			if (new_dir->i_nlink >= SYSV_SB(new_dir->i_sb)->s_link_max)
+ 			if (new_dir->i_nlink >= EXT2_LINK_MAX)
  				goto out_dir;
  		}
--		inc_count(old_inode);
+-		ext2_inc_count(old_inode);
 +		inode_inc_count(old_inode);
- 		err = sysv_add_link(new_dentry, old_inode);
+ 		err = ext2_add_link(new_dentry, old_inode);
  		if (err) {
--			dec_count(old_inode);
+-			ext2_dec_count(old_inode);
 +			inode_dec_count(old_inode);
  			goto out_dir;
  		}
  		if (dir_de)
--			inc_count(new_dir);
+-			ext2_inc_count(new_dir);
 +			inode_inc_count(new_dir);
  	}
  
- 	sysv_delete_entry(old_de, old_page);
--	dec_count(old_inode);
+ 	/*
+ 	 * Like most other Unix systems, set the ctime for inodes on a
+  	 * rename.
+-	 * ext2_dec_count() will mark the inode dirty.
++	 * inode_dec_count() will mark the inode dirty.
+ 	 */
+ 	old_inode->i_ctime = CURRENT_TIME_SEC;
+ 
+ 	ext2_delete_entry (old_de, old_page);
+-	ext2_dec_count(old_inode);
 +	inode_dec_count(old_inode);
  
  	if (dir_de) {
- 		sysv_set_link(dir_de, dir_page, new_dir);
--		dec_count(old_dir);
+ 		ext2_set_link(old_inode, dir_de, dir_page, new_dir);
+-		ext2_dec_count(old_dir);
 +		inode_dec_count(old_dir);
  	}
  	return 0;

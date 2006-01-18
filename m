@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWARIPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbWARIZh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbWARIPO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 03:15:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWARIPN
+	id S1030186AbWARIZh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 03:25:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbWARIZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 03:15:13 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:15550 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964898AbWARIPL (ORCPT
+	Wed, 18 Jan 2006 03:25:37 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:42912 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030186AbWARIZg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 03:15:11 -0500
-Date: Wed, 18 Jan 2006 09:15:27 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Andrew Morton <akpm@osdl.org>, Harald Welte <laforge@netfilter.org>,
-       coreteam@netfilter.org, linux-kernel@vger.kernel.org,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [netfilter-core] [patch 2.6.15-mm4] sem2mutex: netfilter x_table.c
-Message-ID: <20060118081527.GB2324@elte.hu>
-References: <20060114143042.GA17675@elte.hu> <43CDA834.3070301@trash.net>
+	Wed, 18 Jan 2006 03:25:36 -0500
+Date: Wed, 18 Jan 2006 00:24:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: ntl@pobox.com, anton@au1.ibm.com, linux-kernel@vger.kernel.org,
+       michael@ellerman.id.au, linuxppc64-dev@ozlabs.org, serue@us.ibm.com,
+       paulus@au1.ibm.com, torvalds@osdl.org
+Subject: Re: 2.6.15-mm4 failure on power5
+Message-Id: <20060118002459.3bc8f75a.akpm@osdl.org>
+In-Reply-To: <20060118080828.GA2324@elte.hu>
+References: <20060116063530.GB23399@sergelap.austin.ibm.com>
+	<200601180032.46867.michael@ellerman.id.au>
+	<20060117140050.GA13188@elte.hu>
+	<200601181119.39872.michael@ellerman.id.au>
+	<20060118033239.GA621@cs.umn.edu>
+	<20060118063732.GA21003@elte.hu>
+	<20060117225304.4b6dd045.akpm@osdl.org>
+	<20060118072815.GR2846@localhost.localdomain>
+	<20060117233734.506c2f2e.akpm@osdl.org>
+	<20060118080828.GA2324@elte.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43CDA834.3070301@trash.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Patrick McHardy <kaber@trash.net> wrote:
-
-> Ingo Molnar wrote:
-> >From: Ingo Molnar <mingo@elte.hu>
-> >
-> >semaphore to mutex conversion.
-> >
-> >the conversion was generated via scripts, and the result was validated
-> >automatically via a script as well.
+Ingo Molnar <mingo@elte.hu> wrote:
+>
 > 
-> I haven't followed all the mutex patches, is this intended
-> for mainline or for -mm?
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > > Yes, which would be why this code never triggered a warning when
+> > > cpucontrol was a semaphore.
+> > 
+> > Yup.  Perhaps a sane fix which preserves the unpleasant semantics is 
+> > to do irqsave in the mutex debug code.
+> 
+> i'd much rather remove that ugly hack from __might_sleep(). How many 
+> other bugs does it hide?
 
-best would be if you could pick the patches up (if they look good to 
-you, and if they pass testing with CONFIG_DEBUG_MUTEXES enabled), and 
-thus they would flow upstream once you did a merge with Andrew or Linus
-next time around.
+Gee, it was 2.6.0-test9.  I don't remember, but I do recall the problems
+were really really nasty, and what's the point?  We're only running one
+thread on one CPU at that time, so none of these things _will_ sleep.
 
-we'll still keep them in -mm, just to get early feedback (and to make 
-sure nothing is dropped on the floor), but the ultimate merging should 
-happen via maintainers. [so that the mutex patches impact maintainer's 
-workflow and their pending patches in the least minimal way.] If things 
-clash with our mutex migration changes in -mm, we'll redo the affected 
--mm mutex patches whenever Andrew pulls a maintainer tree.
+> Does it hide bugs that dont normally trigger 
+> during bootups on real hardware, but which could trigger on e.g. UML or 
+> on Xen? I really think such ugly workarounds are not justified, if other 
+> arches can get their act together. Would you make such an exception for 
+> other arches too, like ARM?
 
-	Ingo
+Don't care really, as long as a) the problems don't hit -mm or mainline and
+b) someone else fixes them.  Yes, it'd be nice to fix these things, and we
+might even find real bugs.  Perhaps things are better now, but I suspect
+it's a can of worms.
+
+> an irqsave in the mutex debug code will uglify the kernel/mutex.c code - 
+> i'd have to add extra "unsigned long flags" lines. [It will also slow 
+> down the debug code a bit - an extra PUSHF has to be done.]
+
+Small cost, really...

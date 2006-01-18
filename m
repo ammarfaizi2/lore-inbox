@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030316AbWARN6d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWARODO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030316AbWARN6d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 08:58:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbWARN6c
+	id S1030228AbWARODO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 09:03:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbWARODO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 08:58:32 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:52388 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030314AbWARN6c
+	Wed, 18 Jan 2006 09:03:14 -0500
+Received: from uproxy.gmail.com ([66.249.92.203]:17739 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030228AbWARODN convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 08:58:32 -0500
-Date: Wed, 18 Jan 2006 07:58:26 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Matthew Wilcox <matthew@wil.cx>
+	Wed, 18 Jan 2006 09:03:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=fKrhsroCbEU9ws4H/yfK5jv1c5ASO9ymZSfddD6UqLz2ShUN05QINNH6A7MSA1u6CHFF/yl6Du83wQmk8hNCpGp8t08ZLDSDOwv7V5xb8EgADiuhPYxVvsMB0J0CmrAimOKK3Dfe48DcSVD5G3WYfb44iN4qR2TQJUvR+UPajBA=
+Date: Wed, 18 Jan 2006 15:02:51 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PID virtualisation snafu
-Message-ID: <20060118135826.GA9743@sergelap.austin.ibm.com>
-References: <20060117161543.GJ19769@parisc-linux.org>
+Subject: Re: Oops with current linus' git tree
+Message-Id: <20060118150251.d13187fc.diegocg@gmail.com>
+In-Reply-To: <43CDB52A.9030103@yahoo.com.au>
+References: <20060116191556.bd3f551c.diegocg@gmail.com>
+	<43CC7094.9040404@yahoo.com.au>
+	<20060117141725.d80a1221.diegocg@gmail.com>
+	<43CDB52A.9030103@yahoo.com.au>
+X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060117161543.GJ19769@parisc-linux.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Matthew Wilcox (matthew@wil.cx):
-> 
-> Are there any web archives of l-k that give out the email address of
-> the author?
+El Wed, 18 Jan 2006 14:25:30 +1100,
+Nick Piggin <nickpiggin@yahoo.com.au> escribió:
 
-Regardless, that was me.
 
-> I can tell the author of the virtualisation patches hasn't even tried to
-> compile them.  Here's one example:
+> If you can report those configuration options and the symptoms in a
+> new thread to lkml that would be helpful. Also if you can work out
+> when it started happening, that helps too.
 
-Not only compiled, but on several architectures.  Thanks for
-catching this.  And your point is well taken - these need to be
-tested with 'make allmodconfig', since the pid accesses happen
-in all sorts of drivers...
 
-thanks,
--serge
+It's CONFIG_ACPI_PROCESSOR who triggers it; when compiled as module
+everything works but when compiled in the kernel one of the two
+CPUs doesn't get any process scheduled. I'll open a new bug report.

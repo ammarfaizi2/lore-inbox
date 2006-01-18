@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbWARA24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbWARAcN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964929AbWARA24 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 19:28:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWARA2M
+	id S932524AbWARAcN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 19:32:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbWARAcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 19:28:12 -0500
-Received: from [151.97.230.9] ([151.97.230.9]:16867 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S964979AbWARA1l (ORCPT
+	Tue, 17 Jan 2006 19:32:12 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:53680 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932524AbWARAcJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 19:27:41 -0500
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 3/9] uml: networking - clear transport-specific structure
-Date: Wed, 18 Jan 2006 01:19:29 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20060118001928.14622.13478.stgit@zion.home.lan>
-In-Reply-To: <20060117235659.14622.18544.stgit@zion.home.lan>
-References: <20060117235659.14622.18544.stgit@zion.home.lan>
+	Tue, 17 Jan 2006 19:32:09 -0500
+Message-ID: <43CD8C82.5030604@pobox.com>
+Date: Tue, 17 Jan 2006 19:32:02 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jason Gaston <jason.d.gaston@intel.com>
+CC: jgarzik@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Intel ICH8 SATA: add PCI device IDs
+References: <200601171228.48394.jason.d.gaston@intel.com>
+In-Reply-To: <200601171228.48394.jason.d.gaston@intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Jason Gaston wrote: > Resubmit after removing duplicate
+	entry. > > Signed-off-by: Jason Gaston <Jason.d.gaston@intel.com>
+	applied [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jason Gaston wrote:
+> Resubmit after removing duplicate entry.
+> 
+> Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+applied
 
-Pre-clear transport-specific private structure before passing it down.
-
-In fact, I just got a slab corruption and kernel panic on exit because kfree()
-was called on a pointer which probably was never allocated, BUT hadn't been set
-to NULL by the driver.
-
-As the code is full of such errors, I've decided for now to go the safe way
-(we're talking about drivers), and to do the simple thing. I'm also starting to
-fix drivers, and already sent a patch for the daemon transport.
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- arch/um/drivers/net_kern.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletions(-)
-
-diff --git a/arch/um/drivers/net_kern.c b/arch/um/drivers/net_kern.c
-index 5b8c64e..98350bb 100644
---- a/arch/um/drivers/net_kern.c
-+++ b/arch/um/drivers/net_kern.c
-@@ -322,6 +322,11 @@ static int eth_configure(int n, void *in
- 		return 1;
- 	}
- 
-+	lp = dev->priv;
-+	/* This points to the transport private data. It's still clear, but we
-+	 * must memset it to 0 *now*. Let's help the drivers. */
-+	memset(lp, 0, size);
-+
- 	/* sysfs register */
- 	if (!driver_registered) {
- 		platform_driver_register(&uml_net_driver);
-@@ -364,7 +369,6 @@ static int eth_configure(int n, void *in
- 		free_netdev(dev);
- 		return 1;
- 	}
--	lp = dev->priv;
- 
- 	/* lp.user is the first four bytes of the transport data, which
- 	 * has already been initialized.  This structure assignment will
 

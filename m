@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbWARDQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWARDWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964884AbWARDQf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 22:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWARDQf
+	id S964885AbWARDWg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 22:22:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbWARDWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 22:16:35 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:54248 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964884AbWARDQe (ORCPT
+	Tue, 17 Jan 2006 22:22:36 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:63943 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964885AbWARDWf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 22:16:34 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@ocs.com.au>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-cc: Andi Kleen <ak@suse.de>, Arjan van de Ven <arjan@infradead.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Akinobu Mita <mita@miraclelinux.com>, Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH 3/4] compact print_symbol() output 
-In-reply-to: Your message of "Tue, 17 Jan 2006 22:05:27 CDT."
-             <200601172208_MC3-1-B612-EE86@compuserve.com> 
+	Tue, 17 Jan 2006 22:22:35 -0500
+Date: Tue, 17 Jan 2006 19:22:16 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] mm: Convert global dirty_exceeded flag to per-node
+ node_dirty_exceeded
+Message-Id: <20060117192216.5a6f1d27.akpm@osdl.org>
+In-Reply-To: <20060118030959.GD5289@localhost.localdomain>
+References: <20060117020352.GB5313@localhost.localdomain>
+	<20060116181323.7a5f0ac7.akpm@osdl.org>
+	<20060118012953.GC5289@localhost.localdomain>
+	<20060117180956.7f2627a6.akpm@osdl.org>
+	<20060118030959.GD5289@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 18 Jan 2006 14:15:52 +1100
-Message-ID: <7483.1137554152@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert (on Tue, 17 Jan 2006 22:05:27 -0500) wrote:
->In-Reply-To: <200601171601.52995.ak@suse.de>
+Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
 >
->On Tue, 17 Jan 2006 at 16:01:52 +0100, Andi Kleen wrote:
->
->> On Tuesday 17 January 2006 16:01, Hugh Dickins wrote:
->> 
->> > I've often found symbolsize useful.  Not when looking at an oops
->> > from my own machine.  But when looking at an oops posted on LKML,
->> > from someone who most likely has a different .config and different
->> > compiler, different optimization and different inlining from mine.
->> > symbolsize is a good clue as to how close their kernel is to the
->> > one I've got built on my machine, how likely guesses I make based
->> > on mine will apply to theirs, and whereabouts in the function that
->> > it oopsed.
->> 
->> Yes that is why I want it too.
->
->OK, how about this: remove the "0x" from the function size, i.e. print:
->
->        kernel_symbol+0xd3/10e
->
->instead of:
->
->        kernel_symbol+0xd3/0x10e
->
->This saves two characters per symbol and it should still be clear that
->the second number is hexadecimal.
->
->Does that break any tools?
+> > OK.  That's a bit nasty, isn't it?  It can work well or poorly for
+> > different people depending upon vagaries of .config and the linker.
+> > 
+> > We should find out what it was sharing _with_.  Could you please run
+> > 
+> > 	nm -n vmlinux| grep -C5 dirty_exceeded
+> 
+> ffffffff805290c0 b irq_dir
+> ffffffff80529838 b root_irq_dir
+> ffffffff80529880 B max_pfn
+> ffffffff80529888 B min_low_pfn
+> ffffffff80529890 B max_low_pfn
+> ffffffff80529900 B nr_pagecache
+> ffffffff80529908 B nr_swap_pages
+> ffffffff80529980 b boot_pageset
+> ffffffff8052a980 B laptop_mode
+> ffffffff8052a984 B block_dump
+> ffffffff8052a988 b dirty_exceeded
+> ffffffff8052a990 b total_pages
+> ffffffff8052a998 B nr_pdflush_threads
+> ffffffff8052a9a0 b last_empty_jifs
+> ffffffff8052a9c0 B slab_reclaim_pages
+> ffffffff8052a9c4 b slab_break_gfp_order
+> ffffffff8052a9c8 b g_cpucache_up
+> ffffffff8052a9d0 b cache_chain
+> ffffffff8052a9e0 b cache_chain_sem
+> ffffffff8052aa00 b offslab_limit
+> ffffffff8052aa08 B page_cluster
+> 
+> Maybe slab_reclaim_pages is the culprit? 
+> 
 
-Not, just CONFUSE-A-HUMAN (incorporating AMAZE-A-VOLE LTD, STUN-A-STOAT
-LTD, PUZZLE-A-PUMA LTD, STARTLE-A-THOMPSON'S GAZELLE LTD,
-BEWILDEREBEEST INC, DISTRACT-A-BEE).  Yes, I need a life.
+I guess so - pretty much everything else there should be in __read_mostly
+anwyay, apart from nr_pagecache.
 
+slab_reclaim_pages is just a silly beancounting thing for overcommit.  We
+could give it the approximate-counting treatment like pagecache_acct() I
+guess.

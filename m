@@ -1,87 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030293AbWARHZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbWARHYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030293AbWARHZk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 02:25:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030290AbWARHZj
+	id S1030289AbWARHYz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 02:24:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030285AbWARHYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 02:25:39 -0500
-Received: from 203-59-65-76.dyn.iinet.net.au ([203.59.65.76]:23493 "EHLO
-	eagle.themaw.net") by vger.kernel.org with ESMTP id S1030285AbWARHZJ
+	Wed, 18 Jan 2006 02:24:53 -0500
+Received: from 203-59-65-76.dyn.iinet.net.au ([203.59.65.76]:18885 "EHLO
+	eagle.themaw.net") by vger.kernel.org with ESMTP id S1030274AbWARHYT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 02:25:09 -0500
-Date: Wed, 18 Jan 2006 15:24:30 +0800
-Message-Id: <200601180724.k0I7OUgg006210@eagle.themaw.net>
+	Wed, 18 Jan 2006 02:24:19 -0500
+Date: Wed, 18 Jan 2006 15:23:43 +0800
+Message-Id: <200601180723.k0I7NhHB006177@eagle.themaw.net>
 From: Ian Kent <raven@themaw.net>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
        linux-fsdevel@vger.kernel.org, autofs@linux.kernel.org
-Subject: [PATCH 12/13] autofs4 - change may_umount* functions to boolean
+Subject: [PATCH 8/13] autofs4 - remove update_atime unused function
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch changes the functions may_umount and may_umount_tree
-to boolean functions to aid code readability.
+This patch removes the update of i_atime from autofs4 in favour of
+having VFS update it. i_atime is never used for expire in autofs4.
 
 Signed-off-by: Ian Kent <raven@themaw.net>
 
 
---- linux-2.6.15-mm4/fs/namespace.c.may_umount-to-boolean	2006-01-15 16:06:59.000000000 +0800
-+++ linux-2.6.15-mm4/fs/namespace.c	2006-01-15 16:08:36.000000000 +0800
-@@ -421,9 +421,9 @@ int may_umount_tree(struct vfsmount *mnt
- 	spin_unlock(&vfsmount_lock);
- 
- 	if (actual_refs > minimum_refs)
--		return -EBUSY;
-+		return 0;
- 
--	return 0;
-+	return 1;
+--- linux-2.6.15-mm3/fs/autofs4/root.c.remove-update_atime	2006-01-13 16:21:05.000000000 +0800
++++ linux-2.6.15-mm3/fs/autofs4/root.c	2006-01-13 16:27:09.000000000 +0800
+@@ -84,24 +84,6 @@ static int autofs4_root_readdir(struct f
+ 	return dcache_readdir(file, dirent, filldir);
  }
  
- EXPORT_SYMBOL(may_umount_tree);
-@@ -443,10 +443,10 @@ EXPORT_SYMBOL(may_umount_tree);
-  */
- int may_umount(struct vfsmount *mnt)
+-/* Update usage from here to top of tree, so that scan of
+-   top-level directories will give a useful result */
+-static void autofs4_update_usage(struct vfsmount *mnt, struct dentry *dentry)
+-{
+-	struct dentry *top = dentry->d_sb->s_root;
+-
+-	spin_lock(&dcache_lock);
+-	for(; dentry != top; dentry = dentry->d_parent) {
+-		struct autofs_info *ino = autofs4_dentry_ino(dentry);
+-
+-		if (ino) {
+-			touch_atime(mnt, dentry);
+-			ino->last_used = jiffies;
+-		}
+-	}
+-	spin_unlock(&dcache_lock);
+-}
+-
+ static int autofs4_dir_open(struct inode *inode, struct file *file)
  {
--	int ret = 0;
-+	int ret = 1;
- 	spin_lock(&vfsmount_lock);
- 	if (propagate_mount_busy(mnt, 2))
--		ret = -EBUSY;
-+		ret = 0;
- 	spin_unlock(&vfsmount_lock);
- 	return ret;
+ 	struct dentry *dentry = file->f_dentry;
+@@ -246,10 +228,9 @@ out:
+ 	return dcache_readdir(file, dirent, filldir);
  }
---- linux-2.6.15-mm4/fs/autofs4/root.c.may_umount-to-boolean	2006-01-15 16:10:22.000000000 +0800
-+++ linux-2.6.15-mm4/fs/autofs4/root.c	2006-01-15 16:11:35.000000000 +0800
-@@ -699,7 +699,7 @@ static inline int autofs4_ask_umount(str
+ 
+-static int try_to_fill_dentry(struct vfsmount *mnt, struct dentry *dentry, int flags)
++static int try_to_fill_dentry(struct dentry *dentry, int flags)
  {
+-	struct super_block *sb = mnt->mnt_sb;
+-	struct autofs_sb_info *sbi = autofs4_sbi(sb);
++	struct autofs_sb_info *sbi = autofs4_sbi(dentry->d_sb);
+ 	struct autofs_info *ino = autofs4_dentry_ino(dentry);
  	int status = 0;
  
--	if (may_umount(mnt) == 0)
-+	if (may_umount(mnt))
- 		status = 1;
+@@ -323,13 +304,6 @@ static int try_to_fill_dentry(struct vfs
+ 		}
+ 	}
  
- 	DPRINTK("returning %d", status);
---- linux-2.6.15-mm4/fs/autofs4/expire.c.may_umount-to-boolean	2006-01-15 16:10:34.000000000 +0800
-+++ linux-2.6.15-mm4/fs/autofs4/expire.c	2006-01-15 16:10:54.000000000 +0800
-@@ -64,7 +64,7 @@ static int autofs4_mount_busy(struct vfs
- 		goto done;
- 
- 	/* Update the expiry counter if fs is busy */
--	if (may_umount_tree(mnt)) {
-+	if (!may_umount_tree(mnt)) {
- 		struct autofs_info *ino = autofs4_dentry_ino(top);
+-	/*
+-	 * We don't update the usages for the autofs daemon itself, this
+-	 * is necessary for recursive autofs mounts
+-	 */
+-	if (!autofs4_oz_mode(sbi))
+-		autofs4_update_usage(mnt, dentry);
+-
+ 	/* Initialize expiry counter after successful mount */
+ 	if (ino)
  		ino->last_used = jiffies;
- 		goto done;
---- linux-2.6.15-mm4/fs/autofs/dirhash.c.may_umount-to-boolean	2006-01-15 16:09:08.000000000 +0800
-+++ linux-2.6.15-mm4/fs/autofs/dirhash.c	2006-01-15 16:09:46.000000000 +0800
-@@ -92,7 +92,7 @@ struct autofs_dir_ent *autofs_expire(str
- 			;
- 		dput(dentry);
+@@ -357,7 +331,7 @@ static int autofs4_revalidate(struct den
+ 	/* Pending dentry */
+ 	if (autofs4_ispending(dentry)) {
+ 		if (!oz_mode)
+-			status = try_to_fill_dentry(nd->mnt, dentry, flags);
++			status = try_to_fill_dentry(dentry, flags);
+ 		return status;
+ 	}
  
--		if ( may_umount(mnt) == 0 ) {
-+		if ( may_umount(mnt) ) {
- 			mntput(mnt);
- 			DPRINTK(("autofs: signaling expire on %s\n", ent->name));
- 			return ent; /* Expirable! */
+@@ -374,15 +348,11 @@ static int autofs4_revalidate(struct den
+ 			 dentry, dentry->d_name.len, dentry->d_name.name);
+ 		spin_unlock(&dcache_lock);
+ 		if (!oz_mode)
+-			status = try_to_fill_dentry(nd->mnt, dentry, flags);
++			status = try_to_fill_dentry(dentry, flags);
+ 		return status;
+ 	}
+ 	spin_unlock(&dcache_lock);
+ 
+-	/* Update the usage list */
+-	if (!oz_mode)
+-		autofs4_update_usage(nd->mnt, dentry);
+-
+ 	return 1;
+ }
+ 

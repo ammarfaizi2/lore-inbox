@@ -1,45 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160998AbWARVEj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030472AbWARVGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160998AbWARVEj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 16:04:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030471AbWARVEj
+	id S1030472AbWARVGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 16:06:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbWARVGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 16:04:39 -0500
-Received: from mail.kroah.org ([69.55.234.183]:39064 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030470AbWARVEi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 16:04:38 -0500
-Date: Wed, 18 Jan 2006 13:04:05 -0800
-From: Greg KH <greg@kroah.com>
-To: David R <david@unsolicited.net>
-Cc: Linus Torvalds <torvalds@osdl.org>,
+	Wed, 18 Jan 2006 16:06:08 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:37796 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030472AbWARVGH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 16:06:07 -0500
+Message-ID: <43CEAD95.5010601@austin.ibm.com>
+Date: Wed, 18 Jan 2006 15:05:25 -0600
+From: Joel Schopp <jschopp@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <npiggin@suse.de>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.16-rc1
-Message-ID: <20060118210405.GA4682@kroah.com>
-References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org> <43CD4504.8020705@unsolicited.net> <20060118045930.GC7292@kroah.com> <43CEABBD.2050604@unsolicited.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43CEABBD.2050604@unsolicited.net>
-User-Agent: Mutt/1.5.11
+Subject: Re: [patch 2/2] powerpc: native atomic_add_unless
+References: <20060118063636.GA14608@wotan.suse.de> <20060118063921.GB14608@wotan.suse.de> <43CE76B8.1000905@austin.ibm.com> <20060118172822.GG28418@wotan.suse.de>
+In-Reply-To: <20060118172822.GG28418@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 18, 2006 at 08:57:33PM +0000, David R wrote:
-> Greg KH wrote:
-> >> dmesg etc looks ok. I'd appreciate it if anyone has any thoughts?
-> > 
-> > Nothing has changed in usbfs that might cause this that I know of.  Can
-> > you use git to bisect what patch caused it?
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> And indeed nothing had changed. There was a runaway process using 100% of the
-> CPU causing the symptoms. After gently bashing my boot scripts around
-> everything seems to work just fine. So, RC1 seems 100% on my setup.
+>>Why use a separate register here? Why not reuse %0 instead of using %1? 
+>>Registers are valuable.
+>>
+> You still need to get the output (t) because you need to return
+> whether the operation met with the "unless" case or not. If there is
+> a better way to do this then I'd like to know.
 
-Great, thanks for letting us know.
+I was thinking something like this would do:
 
-greg k-h
+static __inline__ int atomic_add_unless(atomic_t *v, int a, int u)
+{
+	int t;
+
+	__asm__ __volatile__ (
+	LWSYNC_ON_SMP
+"1:	lwarx	%0,0,%1		# atomic_add_unless\n\
+	cmpw	%0,%3 \n\
+	beq-	2f \n\
+	add	%0,%2,%0 \n"
+	PPC405_ERR77(0,%1)
+"	stwcx.	%0,0,%1 \n\
+	bne-	1b \n"
+	ISYNC_ON_SMP
+	"subf	%0,%2,%0 \n\
+2:"
+	: "=&r" (t)
+	: "r" (&v->counter), "r" (a), "r" (u)
+	: "cc", "memory");
+
+	return likely(t != u);
+}
+
+Though if I could figure out how to get gcc to do it I'd much rather do 
+something like this (which won't compile but I think illustrates the concept):
+
+static __inline__ int atomic_add_unless(atomic_t *v, int a, int u)
+{
+	int t;
+
+	__asm__ __volatile__ (
+	LWSYNC_ON_SMP
+"1:	lwarx	%0,0,%1		# atomic_add_unless\n\
+	cmpw	%0,%3 \n\
+	beq-	3f \n\
+	add	%0,%2,%0 \n"
+	PPC405_ERR77(0,%1)
+"	stwcx.	%0,0,%1 \n\
+	bne-	1b \n"
+	ISYNC_ON_SMP
+2:"
+	: "=&r" (t)
+	: "r" (&v->counter), "r" (a), "r" (u)
+	: "cc", "memory");
+
+	return 1;
+3:
+	return 0;
+}

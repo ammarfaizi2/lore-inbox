@@ -1,93 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbWARSZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWARSaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030189AbWARSZe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 13:25:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbWARSZe
+	id S1030240AbWARSaH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 13:30:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030246AbWARSaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 13:25:34 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:14098 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1030189AbWARSZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 13:25:34 -0500
-Message-ID: <43CE881A.1060403@shadowen.org>
-Date: Wed, 18 Jan 2006 18:25:30 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Wed, 18 Jan 2006 13:30:07 -0500
+Received: from quechua.inka.de ([193.197.184.2]:27852 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1030240AbWARSaG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 13:30:06 -0500
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+Subject: Re: interrupt routing ATi RS480M (MSI Megabook S270)
+To: linux-kernel@vger.kernel.org,
+       =?UTF-8?B?UmVuw6k=?= Rebe <rene@exactcode.de>
+Date: Wed, 18 Jan 2006 19:14:15 +0100
+References: <200601161607.24209.rene@exactcode.de>
+User-Agent: KNode/0.10
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: warning: read-write constraint -- 2.6.15-git8 onwards
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8Bit
+Message-Id: <20060118181421.11B0F21615@dungeon.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that the following commit causes a bunch of warnings out of
-most of the files in the kernel tree (see below for examples).  Backing
-this out seems to cure them?
+Check your bios revision. I had an irq routing issue too,
+till I updated to the latest BIOS version. Now both 2.6.14 plain
+and 2.6.15 ubuntu are fine, while 2.6.15 plain still gives me 
+some error (happends when acpi is loaded and whole sysfs is scanned).
 
-diff-tree 92934bcbf96bc9dc931c40ca5f1a57685b7b813b (from
-636aab5ce332d88a76362797a55804c7da643467)`
-tree eb9690ca6b23b5603429a8b3d290d6ca2545bcaf
-parent 636aab5ce332d88a76362797a55804c7da643467
-author Andi Kleen <ak@suse.de> 1137015752 +0100
-committer Linus Torvalds <torvalds@g5.osdl.org> 1137034871 -0800
+irqpoll option never had any effect for me, neither before nor
+after the bios update, neither on 2.6.14 plain, 15 plain or
+15 ubuntu.
 
-    [PATCH] i386/x86-64: Use input/output dependencies for bitops
+I'm using noapictimer option to keep the clock running at normal
+speed. without it runs at twice the normal speed.
 
-    Noticed by Andreas Schwab
+btw: what are you using for graphics?
+with (k)ubuntu breezy / xorg 6.8 the ati proprietory fglrx was
+flickering a lot. So I updated to (k)ubuntu dapper / x.org 6.9
+and tried both the open source radeon and the fglrx, but both
+are very unstable, writing emails in kontakt kills them often.
 
-    Signed-off-by: Andi Kleen <ak@suse.de>
-    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+so now I'm using vesa x11 driver which is terrible slow (too slow
+for playing movies) and uses 1024x768 while the display is 1280x800,
+but at least it is stable and flickers nearly not.
 
-Compiled with:
+Regards, Andreas
 
-    gcc version 3.3.4 (Debian 1:3.3.4-6sarge1)
-
--apw
-
-  CC      arch/x86_64/kernel/process.o
-include/asm/bitops.h: In function `default_idle':
-include/asm/bitops.h:65: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h:65: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h:30: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h:30: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h: In function `cpu_idle_wait':
-include/asm/bitops.h:30: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h:30: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h:30: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h:30: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h:65: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h:65: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h: In function `cpu_idle':
-include/asm/bitops.h:30: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h:30: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h: In function `set_personality_64bit':
-include/asm/bitops.h:65: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h:65: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h: In function `copy_thread':
-include/asm/bitops.h:30: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h:30: warning: read-write constraint does not allow a
-register
-  CC      arch/x86_64/kernel/signal.o
-include/asm/bitops.h: In function `do_notify_resume':
-include/asm/bitops.h:65: warning: read-write constraint does not allow a
-register
-include/asm/bitops.h:65: warning: read-write constraint does not allow a
-register

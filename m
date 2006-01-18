@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030181AbWAREzJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbWARE6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030181AbWAREzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 23:55:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbWAREzJ
+	id S1030183AbWARE6I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 23:58:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030185AbWARE6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 23:55:09 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:28138 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030181AbWAREzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 23:55:08 -0500
-Subject: Re: userspace filesystem Vs kernelspace filesystem
-From: Lee Revell <rlrevell@joe-job.com>
-To: jeff shia <tshxiayu@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <7cd5d4b40601172045j531a21b3y41db1dfbf84b769f@mail.gmail.com>
-References: <7cd5d4b40601172045j531a21b3y41db1dfbf84b769f@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 17 Jan 2006 23:55:05 -0500
-Message-Id: <1137560106.3587.57.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Jan 2006 23:58:08 -0500
+Received: from uproxy.gmail.com ([66.249.92.198]:17520 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030183AbWARE6H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 23:58:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=qOdSNl3NnXVYr603Pe4e/vPFH9h8416ttuVc7HJKq3dffag0YWP3RhWOzpPLIEd1a38smeBHN2FMCUSmbN2AnNHZAX0f29ZcCYchqco5kt+4oWHTr9coDGBsFpYf+Ae0UCeLfHUpqxU/TBBUQfBzj5mNSasLnzj/pKWdwUl+Du4=
+Message-ID: <cc723f590601172058n67fb2200ybfffba9bc4fc72ba@mail.gmail.com>
+Date: Wed, 18 Jan 2006 10:28:06 +0530
+From: Aneesh Kumar <aneesh.kumar@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Add entry.S function name to tag file
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_16100_17109266.1137560286359"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-18 at 12:45 +0800, jeff shia wrote:
-> Hello,everyone!
-> 
-> Linux kernel provides vfs for the various physical filesystems.The
-> profit we get from the
-> VFS is just the standard interface it provides such as read and write?
-> 
-> Can we implement a user space filesystem which is actually a library?I
-> think it will be
-> faster than kernel space filesystem through the vfs layer.
-> 
-> Any suggestions or commnets?
+------=_Part_16100_17109266.1137560286359
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Search list archives for FUSE (Filesystem in USErspace).
+How about a patch like the one attached below. I am not sure whether i
+got the regular expression correct. But it works for me.
 
-Lee
+-aneesh
 
+------=_Part_16100_17109266.1137560286359
+Content-Type: text/x-patch; name="Makefile.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="Makefile.diff"
+
+ZGlmZiAtLWdpdCBhL01ha2VmaWxlIGIvTWFrZWZpbGUKaW5kZXggMjUyYTY1OS4uNmM4NDc5ZSAx
+MDA2NDQKLS0tIGEvTWFrZWZpbGUKKysrIGIvTWFrZWZpbGUKQEAgLTEyNzIsNyArMTI3Miw3IEBA
+IGRlZmluZSBjbWRfdGFncwogCUNUQUdTRj1gY3RhZ3MgLS12ZXJzaW9uIHwgZ3JlcCAtaSBleHVi
+ZXJhbnQgPi9kZXYvbnVsbCAmJiAgICAgXAogICAgICAgICAgICAgICAgIGVjaG8gIi1JIF9faW5p
+dGRhdGEsX19leGl0ZGF0YSxfX2FjcXVpcmVzLF9fcmVsZWFzZXMgIFwKICAgICAgICAgICAgICAg
+ICAgICAgICAtSSBFWFBPUlRfU1lNQk9MLEVYUE9SVF9TWU1CT0xfR1BMICAgICAgICAgICAgICBc
+Ci0gICAgICAgICAgICAgICAgICAgICAgLS1leHRyYT0rZiAtLWMta2luZHM9K3B4ImA7ICAgICAg
+ICAgICAgICAgICAgICAgXAorICAgICAgICAgICAgICAgICAgICAgIC0tZXh0cmE9K2YgLS1jLWtp
+bmRzPStweCAtLXJlZ2V4LWFzbT0vRU5UUllcKChbXildKilcKS4qL1wxL2YvImA7ICBcCiAgICAg
+ICAgICAgICAgICAgJChhbGwtc291cmNlcykgfCB4YXJncyBjdGFncyAkJENUQUdTRiAtYQogZW5k
+ZWYKIAo=
+------=_Part_16100_17109266.1137560286359--

@@ -1,67 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030227AbWARL16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWARLa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030227AbWARL16 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 06:27:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWARL16
+	id S1030229AbWARLa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 06:30:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbWARLa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 06:27:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59594 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030227AbWARL15 (ORCPT
+	Wed, 18 Jan 2006 06:30:26 -0500
+Received: from wproxy.gmail.com ([64.233.184.204]:53918 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030229AbWARLaZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 06:27:57 -0500
-Date: Wed, 18 Jan 2006 03:27:16 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: linux-kernel@vger.kernel.org, davej@redhat.com,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.16-rc1-mm1
-Message-Id: <20060118032716.7f0d9b6a.akpm@osdl.org>
-In-Reply-To: <43CE2210.60509@reub.net>
-References: <20060118005053.118f1abc.akpm@osdl.org>
-	<43CE2210.60509@reub.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 18 Jan 2006 06:30:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
+        b=soCD4WYBf5AjoeMHuIg9mtn1Y07bQLeT+R5GUKlNfXem6tlL6lhWNMU4/ZE/QybgQP7nP6yRG3CzWtWarU6JJR5aU3fvlEL2TrZLLtNmXQEQi/nxnxYKMTQGuXXV50cr2uykeIA4UoUPjGAxeFtbdCTgcpMZwjwFgUNJJmRuhcQ=
+Message-ID: <43CE26CC.2020905@gmail.com>
+Date: Wed, 18 Jan 2006 12:30:20 +0100
+From: Patrizio Bassi <patrizio.bassi@gmail.com>
+Reply-To: patrizio.bassi@gmail.com
+Organization: patrizio.bassi@gmail.com
+User-Agent: Mozilla Thunderbird 1.5 (X11/20060112)
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] e1000 C style badness
+References: <5wgyi-18w-7@gated-at.bofh.it> <43CE02BD.8060309@gmail.com> <43CE0429.3090708@yahoo.com.au>
+In-Reply-To: <43CE0429.3090708@yahoo.com.au>
+X-Enigmail-Version: 0.93.1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reuben Farrelly <reuben-lkml@reub.net> wrote:
+Nick Piggin ha scritto:
+> Patrizio Bassi wrote:
+>> Jens Axboe ha scritto:
+>>
+>>> Hi,
+>>>
+>>> Recent e1000 updates introduced variable declarations after code. Fix
+>>> those up again.
+>>>
+>>> Signed-off-by: Jens Axboe <axboe@suse.de>
+>>>
+>>> diff --git a/drivers/net/e1000/e1000_main.c
+>>> b/drivers/net/e1000/e1000_main.c
+>>> index d0a5d16..ca68a04 100644
+>>> --- a/drivers/net/e1000/e1000_main.c
+>>> +++ b/drivers/net/e1000/e1000_main.c
+>>> @@ -2142,9 +2142,11 @@ e1000_leave_82542_rst(struct e1000_adapt
+>>>         e1000_pci_set_mwi(&adapter->hw);
+>>>
+>>>     if(netif_running(netdev)) {
+>>> +        struct e1000_rx_ring *ring;
+>>> +
+>>>         e1000_configure_rx(adapter);
+>>>         /* No need to loop, because 82542 supports only 1 queue */
+>>> -        struct e1000_rx_ring *ring = &adapter->rx_ring[0];
+>>> +        ring = &adapter->rx_ring[0];
+>>>         adapter->alloc_rx_buf(adapter, ring, E1000_DESC_UNUSED(ring));
+>>>     }
+>>> }
+>>> @@ -3583,8 +3585,8 @@ e1000_clean_rx_irq(struct e1000_adapter
+>>>     rx_desc = E1000_RX_DESC(*rx_ring, i);
+>>>
+>>>     while(rx_desc->status & E1000_RXD_STAT_DD) {
+>>> -        buffer_info = &rx_ring->buffer_info[i];
+>>>         u8 status;
+>>> +        buffer_info = &rx_ring->buffer_info[i];
+>>> #ifdef CONFIG_E1000_NAPI
+>>>         if(*work_done >= work_to_do)
+>>>             break;
+>>>
+>>
+>>
+>> Shouldn't variables declaration be on top of function and not on top of
+>> a block (like if, while, for...)?
+>>
 >
-> My box came up first time lucky on this release, but I got a new oops:
-> 
->  NET: Registered protocol family 1
->  NET: Registered protocol family 17
->  BUG: swapper/1, active lock [b19e6428(b19e6400-b19e6600)] freed!
->    [<b01040d1>] show_trace+0xd/0xf
->    [<b0104172>] dump_stack+0x17/0x19
->    [<b0131c6d>] mutex_debug_check_no_locks_freed+0xff/0x18e
->    [<b01544b3>] kfree+0x34/0x6a
->    [<b02a6109>] cpufreq_add_dev+0x127/0x379
->    [<b023abcb>] sysdev_driver_register+0x70/0xb0
->    [<b02a67df>] cpufreq_register_driver+0x68/0xfe
->    [<b03cc19d>] acpi_cpufreq_init+0xd/0xf
->    [<b01003cc>] init+0xff/0x325
->    [<b0100d25>] kernel_thread_helper+0x5/0xb
->    [b19e6428] {cpufreq_add_dev}
->  .. held by:           swapper:    1 [efe14ab0, 115]
->  ... acquired at:               cpufreq_add_dev+0x9d/0x379
->  p4-clockmod: P4/Xeon(TM) CPU On-Demand Clock Modulation available
-
-Well yes, that code is kfree()ing a locked mutex.  It's somewhat weird to
-take a lock on a still-private object but whatever.  The code's legal
-enough.
-
-
---- devel/drivers/cpufreq/cpufreq.c~cpufreq-mutex-locking-fix	2006-01-18 03:25:33.000000000 -0800
-+++ devel-akpm/drivers/cpufreq/cpufreq.c	2006-01-18 03:25:55.000000000 -0800
-@@ -674,6 +674,7 @@ err_out_driver_exit:
- 		cpufreq_driver->exit(policy);
- 
- err_out:
-+	mutex_unlock(&policy->lock);
- 	kfree(policy);
- 
- nomem_out:
-_
-
+> Any block is OK, and they all have the same nice symmetry - variables
+> come into scope at the top and go out of scope at the bottom.
+>
+ok, i'm still linked to the 70' C style (not confortable) :)
+old compilers failed with such syntax.

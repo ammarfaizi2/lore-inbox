@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbWARQtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWARQvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964849AbWARQtx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 11:49:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWARQtx
+	id S932342AbWARQvu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 11:51:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbWARQvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 11:49:53 -0500
-Received: from khc.piap.pl ([195.187.100.11]:1540 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S964849AbWARQtw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 11:49:52 -0500
-To: Michael Loftis <mloftis@wgops.com>
-Cc: Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org
-Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
-References: <E1EywcM-0004Oz-IE@laurel.muq.org>
-	<B34375EBA93D2866BECF5995@d216-220-25-20.dynip.modwest.com>
-	<43CD8A19.3010100@cfl.rr.com>
-	<7A7A0F7F294BB08D7CDA264C@d216-220-25-20.dynip.modwest.com>
-	<43CDA3B0.2030503@cfl.rr.com>
-	<4B3A20965B8B96960504A5C8@dhcp-2-206.wgops.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Wed, 18 Jan 2006 17:49:50 +0100
-In-Reply-To: <4B3A20965B8B96960504A5C8@dhcp-2-206.wgops.com> (Michael Loftis's message of "Tue, 17 Jan 2006 20:01:29 -0700")
-Message-ID: <m3slrlwkep.fsf@defiant.localdomain>
-MIME-Version: 1.0
+	Wed, 18 Jan 2006 11:51:49 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:12420 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932342AbWARQvs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 11:51:48 -0500
+Date: Wed, 18 Jan 2006 17:51:15 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Jan Glauber <jan.glauber@de.ibm.com>
+Subject: [PATCH 2/7] s390: overflow in sched_clock.
+Message-ID: <20060118165115.GB29266@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Loftis <mloftis@wgops.com> writes:
+From: Jan Glauber <jan.glauber@de.ibm.com>
 
-> Yup we're on the same page, we just didn't think we were.  It happens
-> :) R-5 (in theory) could be less reliable than a mirror
+The least significant bit of the TOD clock value returned by get_clock
+is the 4096th part of a microsecond. To get to nanoseconds the value
+needs to be divided by 4096 and multiplied with 1000. The current
+method multiplies first and then shifts the value to make the result
+as precise as possible. The disadvantage is that the multiplication
+with 1000 will overflow shortly after 52 days. sched_clock is used 
+by the scheduler for time stamp deltas, if an overflow occurs between
+two time stamps the scheduler will get confused.
 
-Statistically, RAID-5 with 3 or more disks is always less reliable than
-a mirror. Strip size doesn't matter.
+With the patch the problem occurs only after approx. one year, so the
+chance to run into this overflow is extremly low.
 
-> or possibly a
-> single drive,
+Signed-off-by: Jan Glauber <jan.glauber@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
 
-With lot of drives.
--- 
-Krzysztof Halasa
+ arch/s390/kernel/time.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -urpN linux-2.6/arch/s390/kernel/time.c linux-2.6-patched/arch/s390/kernel/time.c
+--- linux-2.6/arch/s390/kernel/time.c	2006-01-18 17:25:20.000000000 +0100
++++ linux-2.6-patched/arch/s390/kernel/time.c	2006-01-18 17:25:49.000000000 +0100
+@@ -61,7 +61,7 @@ extern unsigned long wall_jiffies;
+  */
+ unsigned long long sched_clock(void)
+ {
+-	return ((get_clock() - jiffies_timer_cc) * 1000) >> 12;
++	return ((get_clock() - jiffies_timer_cc) * 125) >> 9;
+ }
+ 
+ void tod_to_timeval(__u64 todval, struct timespec *xtime)

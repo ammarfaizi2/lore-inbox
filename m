@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030451AbWARUw1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030448AbWARUyn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030451AbWARUw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 15:52:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030448AbWARUw0
+	id S1030448AbWARUyn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 15:54:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030427AbWARUyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 15:52:26 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:13699 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1030447AbWARUwZ (ORCPT
+	Wed, 18 Jan 2006 15:54:43 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:50395 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1030448AbWARUyn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 15:52:25 -0500
-Date: Wed, 18 Jan 2006 15:52:21 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, jbenc@suse.cz,
-       softmac-dev@sipsolutions.net, bcm43xx-dev@lists.berlios.de
-Subject: Re: wireless: the contenders
-Message-ID: <20060118205221.GA11270@havoc.gtf.org>
-References: <20060118200616.GC6583@tuxdriver.com> <43CEA6EB.6080209@pobox.com> <20060118204844.GE6583@tuxdriver.com>
+	Wed, 18 Jan 2006 15:54:43 -0500
+Subject: Re: Linux 2.6.16-rc1
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060118203231.GA14340@mars.ravnborg.org>
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+	 <43CD67AE.9030501@eyal.emu.id.au> <20060117232701.GA7606@mars.ravnborg.org>
+	 <20060118085936.4773dd77.khali@linux-fr.org>
+	 <20060118091543.GA8277@mars.ravnborg.org>
+	 <Pine.LNX.4.61.0601181421210.19392@yvahk01.tjqt.qr>
+	 <20060118191247.62cc52cd.khali@linux-fr.org>
+	 <20060118203231.GA14340@mars.ravnborg.org>
+Content-Type: text/plain
+Date: Wed, 18 Jan 2006 12:54:37 -0800
+Message-Id: <1137617677.4757.90.camel@serpentine.pathscale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060118204844.GE6583@tuxdriver.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 18, 2006 at 03:48:49PM -0500, John W. Linville wrote:
-> On Wed, Jan 18, 2006 at 03:36:59PM -0500, Jeff Garzik wrote:
-> > John W. Linville wrote:
-> 
-> > >The "master" branch of that tree is (mostly) up-to-date w/ Linus, plus
-> > >changes I recently sent to Jeff.  Those changes are also available on
-> > >the "upstream-jgarzik" branch, but it is frozen to when I requested
-> > >Jeff's pull.
-> 
-> > Typically I do not update 'master' unless I am also updating 'upstream' 
-> > with vanilla Linus changes, in order to avoid screwing up the tree heads 
-> > and the diff.  When I do update 'master' from 'upstream', it is a 
-> > trivial matter to then pull those changes into 'upstream':
-> 
-> Good info...thanks!
-> 
-> FWIW, I have an "origin" branch that corresponds to Linus' tree.
-> I think that probably enables the same kind of usage as you noted...?
+On Wed, 2006-01-18 at 21:32 +0100, Sam Ravnborg wrote:
 
-Yep, it doesn't matter what you call it.
+> But in the lxdialog case we need to execute the link step, because
+> what we really try to do is to check if gcc can find a specific
+> library in the search path.
 
-I avoid 'origin' since a 'git pull' without arguments will automatically
-update that (and possibly master too).
+Will -print-file-name not do the trick for you?
 
-But it's just a name.  Any branch with vanilla Linus tree in it will
-achieve the behavior I described.
+$ gcc -print-file-name=libcurses.so | grep -q /
+$ echo $?
+0
+$ gcc -print-file-name=libfoobar.a | grep -q /
+$ echo $?
+1
 
-	Jeff
-
-
+	<b
 

@@ -1,38 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932496AbWARTtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030402AbWARTuk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932496AbWARTtW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 14:49:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbWARTtW
+	id S1030402AbWARTuk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 14:50:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030404AbWARTuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 14:49:22 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:62823 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932496AbWARTtW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 14:49:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=FdlCYr9NsY3GDlBYGVAjzx2z2Gnn0wdGnxs4MGqtisTyyjruassaNT44Pbmpif5fFzChxrFRDPIoYFOl+1xvOw4oRCwwQteX8XUThi4qLvuVZ/z43LsUoV5pZOV6tVYdkPSjjDNwKKeZ6v5MMpZPpjNAHUuavh8zL/Ny+/vl5c0=
-Message-ID: <632b79000601181149o67f1c013jfecc5e32ee17fe7e@mail.gmail.com>
-Date: Wed, 18 Jan 2006 13:49:21 -0600
-From: Don Dupuis <dondster@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Can't mlock hugetlb in 2.6.15
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Wed, 18 Jan 2006 14:50:40 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:36333 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030402AbWARTuj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 14:50:39 -0500
+Subject: Re: RFC [patch 00/34] PID Virtualization Overview
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Serge Hallyn <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>
+In-Reply-To: <1137613088.24321.60.camel@localhost.localdomain>
+References: <20060117143258.150807000@sergelap>
+	 <43CD18FF.4070006@FreeBSD.org>
+	 <1137517698.8091.29.camel@localhost.localdomain>
+	 <43CD32F0.9010506@FreeBSD.org>
+	 <1137521557.5526.18.camel@localhost.localdomain>
+	 <1137522550.14135.76.camel@localhost.localdomain>
+	 <1137610912.24321.50.camel@localhost.localdomain>
+	 <1137612537.3005.116.camel@laptopd505.fenrus.org>
+	 <1137613088.24321.60.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 18 Jan 2006 20:50:35 +0100
+Message-Id: <1137613835.3005.120.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an app that mlocks hugepages. The same app works just fine in 2.6.14.
-This app has 128MB or more of shared memory that is using hugepages via
-mmap. When I try this, I get the error "can't allocate memory".  Is this a
-kernel bug or is this not supported anymore.  I want to guarantee that
-this memory doesn't get swapped out to a swap device. I made the same
-modifications to include/linux/resource.h that was in 2.6.14, which
-set MLOCK_LIMIT to 2GB.
+On Wed, 2006-01-18 at 11:38 -0800, Dave Hansen wrote:
+> On Wed, 2006-01-18 at 20:28 +0100, Arjan van de Ven wrote:
+> > On Wed, 2006-01-18 at 11:01 -0800, Dave Hansen wrote:
+> > > Other than searches, there appear to be quite a number of drivers an
+> > > subsystems that like to print out pids.  I can't find any cases yet
+> > > where these are integral to functionality, but I wonder what approach we
+> > > should take. 
+> > 
+> > those should obviously print out the REAL pid, not the application
+> > pid ... so no changes needed.
+> 
+> One suggestion was to make all pid comparisons meaningless without some
+> kind of "container" context along with it.  The thought is that using
+> pids is inherently racy
 
-Thanks
+current->pid sure isn't racey, you yourself KNOW you're not going
+away :)
 
-Don
+
+
+
+

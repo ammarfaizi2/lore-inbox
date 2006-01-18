@@ -1,140 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbWARA3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbWARAaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964973AbWARA3q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 19:29:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWARA3p
+	id S964917AbWARAaY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 19:30:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWARAaX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 19:29:45 -0500
-Received: from [151.97.230.9] ([151.97.230.9]:12771 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S964973AbWARA1i (ORCPT
+	Tue, 17 Jan 2006 19:30:23 -0500
+Received: from free.wgops.com ([69.51.116.66]:26629 "EHLO shell.wgops.com")
+	by vger.kernel.org with ESMTP id S964920AbWARA3s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 19:27:38 -0500
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 6/9] uml: avoid malloc to sleep in atomic sections
-Date: Wed, 18 Jan 2006 01:19:40 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20060118001938.14622.47308.stgit@zion.home.lan>
-In-Reply-To: <20060117235659.14622.18544.stgit@zion.home.lan>
-References: <20060117235659.14622.18544.stgit@zion.home.lan>
+	Tue, 17 Jan 2006 19:29:48 -0500
+Date: Tue, 17 Jan 2006 17:29:20 -0700
+From: Michael Loftis <mloftis@wgops.com>
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
+Message-ID: <7A7A0F7F294BB08D7CDA264C@d216-220-25-20.dynip.modwest.com>
+In-Reply-To: <43CD8A19.3010100@cfl.rr.com>
+References: <E1EywcM-0004Oz-IE@laurel.muq.org>
+ <B34375EBA93D2866BECF5995@d216-220-25-20.dynip.modwest.com>
+ <43CD8A19.3010100@cfl.rr.com>
+X-Mailer: Mulberry/4.0.4 (Mac OS X)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-MailScanner-Information: Please contact support@wgops.com
+X-MailScanner: WGOPS clean
+X-MailScanner-From: mloftis@wgops.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-Ugly trick to help make malloc not sleeping - we can't do anything else. But
-this is not yet optimal, since spinlock don't trigger in_atomic() when
-preemption is disabled.
+--On January 17, 2006 7:21:45 PM -0500 Phillip Susi <psusi@cfl.rr.com> 
+wrote:
 
-Also, even if ugly, this was already used in one place, and was even more bogus.
-Fix it.
+> Your understanding of statistics leaves something to be desired.  As you
+> add disks the probability of a single failure is grows linearly, but the
+> probability of double failure grows much more slowly.  For example:
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+What about I said was inaccurate?  I never said that it increases 
+exponentially or anything like that, just that it does increase, which 
+you've proven.  I was speaking in the case of a RAID-5 set, where the 
+minimum is 3 drives, so every additional drive increases the chance of a 
+double fault condition.  Now if we're including mirrors and stripes/etc, 
+then that means we do have to look at the 2 spindle case, but the third 
+spindle and beyond keeps increasing.  If you've a 1% failure rate, and you 
+have 100+ drives, chances are pretty good you're going to see a failure. 
+Yes it's a LOT more complicated than that.
 
- arch/um/include/kern_util.h   |    4 +++-
- arch/um/include/user.h        |    1 +
- arch/um/kernel/process_kern.c |   21 +++++++++++++--------
- arch/um/os-Linux/helper.c     |    4 ++--
- 4 files changed, 19 insertions(+), 11 deletions(-)
+>
+> If 1 disk has a 1/1000 chance of failure, then
+> 2 disks have a (1/1000)^2 chance of double failure, and
+> 3 disks have a (1/1000)^2 * 3 chance of double failure
+> 4 disks have a (1/1000)^2 * 7 chance of double failure
+>
+> Thus the probability of double failure on this 4 drive array is ~142
+> times less than the odds of a single drive failing.  As the probably of a
+> single drive failing becomes more remote, then the ratio of that
+> probability to the probability of double fault in the array grows
+> exponentially.
+>
+> ( I think I did that right in my head... will check on a real calculator
+> later )
+>
+> This is why raid-5 was created: because the array has a much lower
+> probabiliy of double failure, and thus, data loss, than a single drive.
+> Then of course, if you are really paranoid, you can go with raid-6 ;)
+>
+>
+> Michael Loftis wrote:
+>> Absolutely not.  The more spindles the more chances of a double failure.
+>> Simple statistics will mean that unless you have mirrors the more drives
+>> you add the more chance of two of them (really) failing at once and
+>> choking the whole system.
+>>
+>> That said, there very well could be (are?) cases where md needs to do a
+>> better job of handling the world unravelling.
+>> -
+>
 
-diff --git a/arch/um/include/kern_util.h b/arch/um/include/kern_util.h
-index 8f4e46d..c649108 100644
---- a/arch/um/include/kern_util.h
-+++ b/arch/um/include/kern_util.h
-@@ -120,8 +120,10 @@ extern void machine_halt(void);
- extern int is_syscall(unsigned long addr);
- extern void arch_switch(void);
- extern void free_irq(unsigned int, void *);
--extern int um_in_interrupt(void);
- extern int cpu(void);
-+
-+/* Are we disallowed to sleep? Used to choose between GFP_KERNEL and GFP_ATOMIC. */
-+extern int __cant_sleep(void);
- extern void segv_handler(int sig, union uml_pt_regs *regs);
- extern void sigio_handler(int sig, union uml_pt_regs *regs);
- 
-diff --git a/arch/um/include/user.h b/arch/um/include/user.h
-index 0f865ef..91b0ac4 100644
---- a/arch/um/include/user.h
-+++ b/arch/um/include/user.h
-@@ -18,6 +18,7 @@ extern int open_gdb_chan(void);
- extern unsigned long strlcpy(char *, const char *, unsigned long);
- extern unsigned long strlcat(char *, const char *, unsigned long);
- extern void *um_vmalloc(int size);
-+extern void *um_vmalloc_atomic(int size);
- extern void vfree(void *ptr);
- 
- #endif
-diff --git a/arch/um/kernel/process_kern.c b/arch/um/kernel/process_kern.c
-index 7f13b85..d852c55 100644
---- a/arch/um/kernel/process_kern.c
-+++ b/arch/um/kernel/process_kern.c
-@@ -288,17 +288,27 @@ EXPORT_SYMBOL(disable_hlt);
- 
- void *um_kmalloc(int size)
- {
--	return(kmalloc(size, GFP_KERNEL));
-+	return kmalloc(size, GFP_KERNEL);
- }
- 
- void *um_kmalloc_atomic(int size)
- {
--	return(kmalloc(size, GFP_ATOMIC));
-+	return kmalloc(size, GFP_ATOMIC);
- }
- 
- void *um_vmalloc(int size)
- {
--	return(vmalloc(size));
-+	return vmalloc(size);
-+}
-+
-+void *um_vmalloc_atomic(int size)
-+{
-+	return __vmalloc(size, GFP_ATOMIC | __GFP_HIGHMEM, PAGE_KERNEL);
-+}
-+
-+int __cant_sleep(void) {
-+	return in_atomic() || irqs_disabled() || in_interrupt();
-+	/* Is in_interrupt() really needed? */
- }
- 
- unsigned long get_fault_addr(void)
-@@ -370,11 +380,6 @@ int smp_sigio_handler(void)
- 	return(0);
- }
- 
--int um_in_interrupt(void)
--{
--	return(in_interrupt());
--}
--
- int cpu(void)
- {
- 	return(current_thread->cpu);
-diff --git a/arch/um/os-Linux/helper.c b/arch/um/os-Linux/helper.c
-index 36cc847..6490a4f 100644
---- a/arch/um/os-Linux/helper.c
-+++ b/arch/um/os-Linux/helper.c
-@@ -60,7 +60,7 @@ int run_helper(void (*pre_exec)(void *),
- 
- 	if((stack_out != NULL) && (*stack_out != 0))
- 		stack = *stack_out;
--	else stack = alloc_stack(0, um_in_interrupt());
-+	else stack = alloc_stack(0, __cant_sleep());
- 	if(stack == 0)
- 		return(-ENOMEM);
- 
-@@ -124,7 +124,7 @@ int run_helper_thread(int (*proc)(void *
- 	unsigned long stack, sp;
- 	int pid, status, err;
- 
--	stack = alloc_stack(stack_order, um_in_interrupt());
-+	stack = alloc_stack(stack_order, __cant_sleep());
- 	if(stack == 0) return(-ENOMEM);
- 
- 	sp = stack + (page_size() << stack_order) - sizeof(void *);
 
+
+--
+"Genius might be described as a supreme capacity for getting its possessors
+into trouble of all kinds."
+-- Samuel Butler

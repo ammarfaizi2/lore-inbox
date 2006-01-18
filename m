@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbWARC4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbWARDBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964873AbWARC4W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 21:56:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWARC4W
+	id S964874AbWARDBj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 22:01:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWARDBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 21:56:22 -0500
-Received: from ozlabs.org ([203.10.76.45]:11485 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S964873AbWARC4V (ORCPT
+	Tue, 17 Jan 2006 22:01:39 -0500
+Received: from free.wgops.com ([69.51.116.66]:40202 "EHLO shell.wgops.com")
+	by vger.kernel.org with ESMTP id S964874AbWARDBj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 21:56:21 -0500
-Date: Wed, 18 Jan 2006 13:55:54 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: Andrew Morton <akpm@osdl.org>, arnd@arndb.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix sparse parse error in lppaca.h
-Message-ID: <20060118025554.GI762@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Bryan O'Sullivan <bos@serpentine.com>,
-	Andrew Morton <akpm@osdl.org>, arnd@arndb.de,
-	linux-kernel@vger.kernel.org
-References: <1137544465.4757.13.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Jan 2006 22:01:39 -0500
+Date: Tue, 17 Jan 2006 20:01:29 -0700
+From: Michael Loftis <mloftis@wgops.com>
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
+Message-ID: <4B3A20965B8B96960504A5C8@dhcp-2-206.wgops.com>
+In-Reply-To: <43CDA3B0.2030503@cfl.rr.com>
+References: <E1EywcM-0004Oz-IE@laurel.muq.org>
+ <B34375EBA93D2866BECF5995@d216-220-25-20.dynip.modwest.com>
+ <43CD8A19.3010100@cfl.rr.com>
+ <7A7A0F7F294BB08D7CDA264C@d216-220-25-20.dynip.modwest.com>
+ <43CDA3B0.2030503@cfl.rr.com>
+X-Mailer: Mulberry/4.0.4 (Mac OS X)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1137544465.4757.13.camel@serpentine.pathscale.com>
-User-Agent: Mutt/1.5.9i
+X-MailScanner-Information: Please contact support@wgops.com
+X-MailScanner: WGOPS clean
+X-MailScanner-From: mloftis@wgops.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 17, 2006 at 04:34:25PM -0800, Bryan O'Sullivan wrote:
-> sparse can't parse a struct definition in include/asm-powerpc/lppaca.h,
-> even though gcc can accept it.  The form looks like this:
-> 
->         struct __attribute__((whatever)) foo { };
-> 
-> An equivalent that both gcc and sparse can handle is
-> 
->         struct foo { } __attribute__((whatever));
-> 
-> This is the only definition of this type in the tree, and fixing it is
-> easier than fixing sparse.
-> 
-> Signed-off-by: Bryan O'Sullivan <bos@serpentine.com>
 
-Oops.
 
-Acked-by: David Gibson <david@gibson.dropbear.id.au>
+--On January 17, 2006 9:10:56 PM -0500 Phillip Susi <psusi@cfl.rr.com> 
+wrote:
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+> I understood you to be saying that a raid-5 was less reliable than a
+> single disk, which it is not.  Maybe I did not read correctly.  Yes, a 3
+> + n disk raid-5 has a higher chance of failure than a 3 disk raid-5, but
+> only slightly so, and in any case, a 3 disk raid-5 is FAR more reliable
+> than a single drive, and only slightly less reliable than a two disk
+> raid-1 ( though you get 3x the space for only 50% higher cost, so 6x
+> cheaper cost per byte of storage ).
+
+
+Yup we're on the same page, we just didn't think we were.  It happens :) 
+R-5 (in theory) could be less reliable than a mirror or possibly a single 
+drive, but it'd take a pretty obscene number of drives with excessively 
+large strip size.

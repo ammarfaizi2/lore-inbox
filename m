@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWARQvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWARQw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWARQvu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 11:51:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbWARQvt
+	id S932464AbWARQw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 11:52:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWARQw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 11:51:49 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:12420 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932342AbWARQvs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 11:51:48 -0500
-Date: Wed, 18 Jan 2006 17:51:15 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Jan Glauber <jan.glauber@de.ibm.com>
-Subject: [PATCH 2/7] s390: overflow in sched_clock.
-Message-ID: <20060118165115.GB29266@osiris.boeblingen.de.ibm.com>
+	Wed, 18 Jan 2006 11:52:58 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:3266 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932464AbWARQw5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 11:52:57 -0500
+Subject: Re: Why is wmb() a no-op on x86_64?
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+In-Reply-To: <200601181729.36423.ak@suse.de>
+References: <1137601417.4757.38.camel@serpentine.pathscale.com>
+	 <200601181729.36423.ak@suse.de>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Wed, 18 Jan 2006 08:52:49 -0800
+Message-Id: <1137603169.4757.50.camel@serpentine.pathscale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: mutt-ng/devel (Linux)
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jan Glauber <jan.glauber@de.ibm.com>
+On Wed, 2006-01-18 at 17:29 +0100, Andi Kleen wrote:
 
-The least significant bit of the TOD clock value returned by get_clock
-is the 4096th part of a microsecond. To get to nanoseconds the value
-needs to be divided by 4096 and multiplied with 1000. The current
-method multiplies first and then shifts the value to make the result
-as precise as possible. The disadvantage is that the multiplication
-with 1000 will overflow shortly after 52 days. sched_clock is used 
-by the scheduler for time stamp deltas, if an overflow occurs between
-two time stamps the scheduler will get confused.
+> Actually it is a compiler optimizer barrier, not a no-op.
 
-With the patch the problem occurs only after approx. one year, so the
-chance to run into this overflow is extremly low.
+Sorry, braino.
 
-Signed-off-by: Jan Glauber <jan.glauber@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
+> Hmm, I suppose one could add a wc_wmb() or somesuch, but WC 
+> is currently deeply architecture specific so I'm not sure
+> how you can even use it portably.
+> 
+> Why do you need the barrier?
 
- arch/s390/kernel/time.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+On x86_64, we fiddle with the MTRRs to enable write combining, which
+makes a huge difference to performance.  It's not clear to me what we
+should even do on other architectures, since the only generic entry
+point that even exposes write combining is pci_mmap_page_range, which is
+for PCI mmap through userspace, and half the arches I've looked at
+ignore its write_combine parameter.
 
-diff -urpN linux-2.6/arch/s390/kernel/time.c linux-2.6-patched/arch/s390/kernel/time.c
---- linux-2.6/arch/s390/kernel/time.c	2006-01-18 17:25:20.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/time.c	2006-01-18 17:25:49.000000000 +0100
-@@ -61,7 +61,7 @@ extern unsigned long wall_jiffies;
-  */
- unsigned long long sched_clock(void)
- {
--	return ((get_clock() - jiffies_timer_cc) * 1000) >> 12;
-+	return ((get_clock() - jiffies_timer_cc) * 125) >> 9;
- }
- 
- void tod_to_timeval(__u64 todval, struct timespec *xtime)
+	<b
+

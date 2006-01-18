@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161010AbWARVrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161021AbWARVxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161010AbWARVrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 16:47:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161012AbWARVrP
+	id S1161021AbWARVxy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 16:53:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161020AbWARVxy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 16:47:15 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:23780 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1030478AbWARVrM (ORCPT
+	Wed, 18 Jan 2006 16:53:54 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:2996 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161021AbWARVxx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 16:47:12 -0500
-Subject: Re: Linux 2.6.16-rc1
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060118212022.GA15828@mars.ravnborg.org>
-References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
-	 <43CD67AE.9030501@eyal.emu.id.au> <20060117232701.GA7606@mars.ravnborg.org>
-	 <20060118085936.4773dd77.khali@linux-fr.org>
-	 <20060118091543.GA8277@mars.ravnborg.org>
-	 <Pine.LNX.4.61.0601181421210.19392@yvahk01.tjqt.qr>
-	 <20060118191247.62cc52cd.khali@linux-fr.org>
-	 <20060118203231.GA14340@mars.ravnborg.org>
-	 <1137617677.4757.90.camel@serpentine.pathscale.com>
-	 <20060118212022.GA15828@mars.ravnborg.org>
-Content-Type: text/plain
-Date: Wed, 18 Jan 2006 13:47:07 -0800
-Message-Id: <1137620827.4757.106.camel@serpentine.pathscale.com>
+	Wed, 18 Jan 2006 16:53:53 -0500
+Date: Wed, 18 Jan 2006 13:53:36 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1-mm1 usb hub problems
+Message-Id: <20060118135336.58fee9b9.akpm@osdl.org>
+In-Reply-To: <20060118205752.GA1520@elf.ucw.cz>
+References: <20060118205752.GA1520@elf.ucw.cz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-18 at 22:20 +0100, Sam Ravnborg wrote:
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> Hi!
+> 
+> When I boot -mm1 in docking station, I get problems. First is ugly
+> warning near yenta:
+> 
+> Yenta: CardBus bridge found at 0000:09:02.0 [1014:0148]
+> Yenta: Using INTVAL to route CSC interrupts to PCI
+> Yenta: Routing CardBus interrupts to PCI
+> Yenta TI: socket 0000:09:02.0, mfunc 0x00001002, devctl 0x66
+> irq 11: nobody cared (try booting with the "irqpoll" option)
+> 
+> ...
+> and then I get problems with USB hub:
+> 
+> ...
+> ACPI: PCI Interrupt 0000:00:1d.2[C] -> Link [LNKC] -> GSI 9 (level,
+> low) -> IRQ 9
+> PCI: Setting latency timer of device 0000:00:1d.2 to 64
+> uhci_hcd 0000:00:1d.2: UHCI Host Controller
+> uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 4
+> uhci_hcd 0000:00:1d.2: irq 9, io base 0x00001840
+> usb usb4: configuration #1 chosen from 1 choice
+> hub 4-0:1.0: USB hub found
+> hub 4-0:1.0: 2 ports detected
+> ehci_hcd 0000:00:1d.7: Unlink after no-IRQ?  Controller is probably
+> using the wrong IRQ.
+> 
+>
+> Any ideas?
 
-> Much better - thanks!
-> I will push out a new path tomorrow.
-
-Just to be sure, something like this will work well, and bring you down
-to one program executed per test:
-
-        $(findstring /,$(shell gcc -print-file-name=libcurses.so))
-
-You have to check for a "/" in the output, as -print-file-name will
-print its input unmodified if it can't actually find the file you
-specify.
-
-	<b
+I guess ACPI IRQ routing would be a suspect.  Can you generate the -rc1
+dmesg and the -rc1-mm1 dmesg, diff them, look for ACPI differences?
 

@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030403AbWARTlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWARTps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030403AbWARTlv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 14:41:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030405AbWARTlv
+	id S932459AbWARTps (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 14:45:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbWARTps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 14:41:51 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:21510 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030403AbWARTlu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 14:41:50 -0500
-Date: Wed, 18 Jan 2006 20:41:47 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       Takashi Iwai <tiwai@suse.de>,
-       alsa devel <alsa-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Johannes Stezenbach <js@linuxtv.org>,
-       Linux and Kernel Video <video4linux-list@redhat.com>,
-       Manu Abraham <abraham.manu@gmail.com>
-Subject: Re: [RFC] Moving snd-bt87x and btaudio to drivers/media
-Message-ID: <20060118194147.GN19398@stusta.de>
-References: <1137590968.32449.46.camel@localhost>
+	Wed, 18 Jan 2006 14:45:48 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:32993 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S932459AbWARTpr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 14:45:47 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 18 Jan 2006 11:45:46 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@localhost.localdomain
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [patch] epoll_pwait ...
+In-Reply-To: <Pine.LNX.4.63.0601181132470.6878@localhost.localdomain>
+Message-ID: <Pine.LNX.4.63.0601181143530.6878@localhost.localdomain>
+References: <Pine.LNX.4.63.0601181132470.6878@localhost.localdomain>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137590968.32449.46.camel@localhost>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 18, 2006 at 11:29:28AM -0200, Mauro Carvalho Chehab wrote:
->...
-> 	This I couldn't found at any Kconfig (but module exists, and also an
-> entry at Makefile):
-> sound/oss/Makefile:obj-$(CONFIG_SOUND_BT878)    += btaudio.o
->...
+On Wed, 18 Jan 2006, Davide Libenzi wrote:
 
-The entry is in sound/oss/Kconfig.
+> Singed-off-by: Davide Libenzi <davidel@xmailserver.org>
 
-> Cheers, 
-> Mauro.
+Ehm, unless you really want to listen me singing :), this better be:
 
-cu
-Adrian
+Signed-off-by: Davide Libenzi <davidel@xmailserver.org>
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+
+
+- Davide
+
 

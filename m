@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbWARDdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWARDcp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964894AbWARDdM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 22:33:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWARDdL
+	id S964890AbWARDcp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 22:32:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964894AbWARDcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 22:33:11 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:32911 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S964894AbWARDdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 22:33:10 -0500
-Date: Tue, 17 Jan 2006 21:32:54 -0600
-From: Robin Holt <holt@sgi.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Robin Holt'" <holt@sgi.com>, Dave McCracken <dmccr@us.ibm.com>,
-       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH/RFC] Shared page tables
-Message-ID: <20060118033254.GA28446@lnx-holt.americas.sgi.com>
-References: <20060117235302.GA22451@lnx-holt.americas.sgi.com> <200601180127.k0I1R8g18386@unix-os.sc.intel.com>
+	Tue, 17 Jan 2006 22:32:45 -0500
+Received: from mail.cs.umn.edu ([128.101.36.202]:59091 "EHLO mail.cs.umn.edu")
+	by vger.kernel.org with ESMTP id S964890AbWARDcp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 22:32:45 -0500
+Date: Tue, 17 Jan 2006 21:32:39 -0600
+From: Dave C Boutcher <sleddog@us.ibm.com>
+To: Michael Ellerman <michael@ellerman.id.au>
+Cc: Ingo Molnar <mingo@elte.hu>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, linuxppc64-dev@ozlabs.org,
+       paulus@au1.ibm.com, anton@au1.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm4 failure on power5
+Message-ID: <20060118033239.GA621@cs.umn.edu>
+Reply-To: boutcher@cs.umn.edu
+Mail-Followup-To: Michael Ellerman <michael@ellerman.id.au>,
+	Ingo Molnar <mingo@elte.hu>, "Serge E. Hallyn" <serue@us.ibm.com>,
+	Andrew Morton <akpm@osdl.org>, linuxppc64-dev@ozlabs.org,
+	paulus@au1.ibm.com, anton@au1.ibm.com, linux-kernel@vger.kernel.org
+References: <20060116063530.GB23399@sergelap.austin.ibm.com> <200601180032.46867.michael@ellerman.id.au> <20060117140050.GA13188@elte.hu> <200601181119.39872.michael@ellerman.id.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200601180127.k0I1R8g18386@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <200601181119.39872.michael@ellerman.id.au>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 17, 2006 at 05:27:09PM -0800, Chen, Kenneth W wrote:
-> Robin Holt wrote on Tuesday, January 17, 2006 3:53 PM
-> > This appears to work on ia64 with the attached patch.  Could you
-> > send me any test application you think would be helpful for me
-> > to verify it is operating correctly?  I could not get the PTSHARE_PUD
-> > to compile.  I put _NO_ effort into it.  I found the following line
-> > was invalid and quit trying.
-> > 
-> > --- linux-2.6.orig/arch/ia64/Kconfig	2006-01-14 07:16:46.149226872 -0600
-> > +++ linux-2.6/arch/ia64/Kconfig	2006-01-14 07:25:02.228853432 -0600
-> > @@ -289,6 +289,38 @@ source "mm/Kconfig"
-> >  config ARCH_SELECT_MEMORY_MODEL
-> >  	def_bool y
-> >  
-> > +
-> > +config PTSHARE_HUGEPAGE
-> > +	bool
-> > +	depends on PTSHARE && PTSHARE_PMD
-> > +	default y
-> > +
+On Wed, Jan 18, 2006 at 11:19:36AM +1100, Michael Ellerman wrote:
+> It booted fine _with_ the patch applied, with DEBUG_MUTEXES=y and n.
 > 
-> You need to thread carefully with hugetlb ptshare on ia64. PTE for
-> hugetlb page on ia64 observe full page table levels, not like x86
-> that sits in the pmd level.
+> Boutcher, to be clear, you can't boot with kernel-kernel-cpuc-to-mutexes.patch 
+> applied and DEBUG_MUTEXES=y ?
+> 
+> But if you revert kernel-kernel-cpuc-to-mutexes.patch it boots ok?
+> 
+> This is looking quite similar to another hang we're seeing on Power4 iSeries 
+> on mainline git:
+> http://ozlabs.org/pipermail/linuxppc64-dev/2006-January/007679.html
 
-I did no testing with hugetlb pages.
+Correct...I die in exactly the same place every time with
+DEBUG_MUTEXES=Y.  I posted a backtrace that points into the _lock_cpu
+code, but I haven't really dug into the issue yet.  I believe this is
+very timing related (Serge was dying slightly differently).
 
-Robin
+-- 
+Dave Boutcher

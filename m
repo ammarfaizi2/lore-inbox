@@ -1,125 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbWARWYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbWARW3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932566AbWARWYG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 17:24:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932561AbWARWYG
+	id S932565AbWARW3h (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 17:29:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbWARW3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 17:24:06 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64745 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932542AbWARWYE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 17:24:04 -0500
-Date: Wed, 18 Jan 2006 23:23:48 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
-       pcihpd-discuss@lists.sourceforge.net, len.brown@intel.com,
-       linux-acpi@vger.kernel.org
-Subject: Re: [Pcihpd-discuss] Re: [patch 0/4]  Hot Dock/Undock support
-Message-ID: <20060118222348.GG1580@elf.ucw.cz>
-References: <1137545813.19858.45.camel@whizzy> <20060118130444.GA1518@elf.ucw.cz> <1137609747.31839.6.camel@whizzy> <20060118194554.GA1502@elf.ucw.cz> <1137618370.31839.12.camel@whizzy>
+	Wed, 18 Jan 2006 17:29:37 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:40418 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932565AbWARW3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 17:29:36 -0500
+Message-Id: <200601182229.k0IMTJ56003467@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Wireless issues (was Re: 2.6.16-rc1-mm1 
+In-Reply-To: Your message of "Wed, 18 Jan 2006 00:50:53 PST."
+             <20060118005053.118f1abc.akpm@osdl.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20060118005053.118f1abc.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137618370.31839.12.camel@whizzy>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: multipart/signed; boundary="==_Exmh_1137623359_2956P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 18 Jan 2006 17:29:19 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--==_Exmh_1137623359_2956P
+Content-Type: text/plain; charset=us-ascii
 
-> Hum, I don't think so (but maybe someone else knows for sure), I thought
-> that driver was specifically for a certain kind of IBM server, not an
-> IBM laptop.  It looks like from this output that the acpiphp is not
-> recognizing any hotplug capable devices on your laptop.  I believe that
-> this is defined by acpiphp as a slot which is "ejectable", meaning
-> contains an ACPI method called _EJ0.  I think we should take a look at
-> your dsdt to make sure that it seems reasonable, and also perhaps you
-> could send the output of lspci -vv -x with the laptop booted in the dock
-> just to see what kind of dock bridge you have and make sure everything
-> seems like it should work.  Please send the disassembled output of your
-> dsdt - if you've never done it before, instructions for doing this can
-> be found here: 
-> http://acpi.sourceforge.net/dsdt/index.php
+On Wed, 18 Jan 2006 00:50:53 PST, Andrew Morton said:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm1/
+> 
 
-I sent verbose lspci and acpidump via private email. Regular lspci
-looks like: (booted in dock but now undocked, sorry).
+My laptop has a Dell TrueMobile 1150 wireless card, which fell over using rc1-mm1.
 
-pavel@amd:~$ lspci
-0000:00:00.0 Host bridge: Intel Corporation 82855PM Processor to I/O Controller (rev 03)
-0000:00:01.0 PCI bridge: Intel Corporation 82855PM Processor to AGP Controller (rev 03)
-0000:00:1d.0 USB Controller: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #1 (rev 01)
-0000:00:1d.1 USB Controller: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #2 (rev 01)
-0000:00:1d.2 USB Controller: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller #3 (rev 01)
-0000:00:1d.7 USB Controller: Intel Corporation 82801DB/DBM (ICH4/ICH4-M) USB2 EHCI Controller (rev 01)0000:00:1e.0 PCI bridge: Intel Corporation 82801 Mobile PCI Bridge (rev 81)
-0000:00:1f.0 ISA bridge: Intel Corporation 82801DBM (ICH4-M) LPC Interface Bridge (rev 01)
-0000:00:1f.1 IDE interface: Intel Corporation 82801DBM (ICH4-M) IDE Controller (rev 01)
-0000:00:1f.3 SMBus: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) SMBus Controller (rev 01)
-0000:00:1f.5 Multimedia audio controller: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 01)
-0000:00:1f.6 Modem: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Modem Controller (rev 01)
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M6 LY
-0000:02:00.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev aa)
-0000:02:00.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev aa)
-0000:02:00.2 FireWire (IEEE 1394): Ricoh Co Ltd R5C552 IEEE 1394 Controller (rev 02)
-0000:02:01.0 Ethernet controller: Intel Corporation 82540EP Gigabit Ethernet Controller (Mobile) (rev
-03)
-0000:02:02.0 Network controller: Intel Corporation PRO/Wireless 2200BG (rev 05)
-0000:02:03.0 ffff: Texas Instruments PCI2032 PCI Docking Bridge (rev ff)
-0000:09:00.0 ffff: Hewlett-Packard Company J2585B HP 10/100VG PCI LAN Adapter (rev ff)
-0000:09:01.0 ffff: Silicon Image, Inc. PCI0648 (rev ff)
-0000:09:02.0 ffff: Texas Instruments PCI1420 (rev ff)
-0000:09:02.1 ffff: Texas Instruments PCI1420 (rev ff)
+/sbin/pccardctl ident:
 
-The ffff: lines are probably what is contained inside the dock.
+Socket 2:
+  product info: "Dell", "TrueMobile 1150 Series PC Card", "Version 01.01", ""
+  manfid: 0x0156, 0x0002
+  function: 6 (network)
 
-Device GDCK looks like dock to my untrained eye. Unfortunately its
-type is IBM0079... ...
+Found in 2.6.16-rc1-mm1 dmesg:
 
-Ahha, and ibm_acpi.c agrees with me.
+orinoco 0.15rc3 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
+orinoco_cs 0.15rc3 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
+orinoco_cs: GetNextTuple(): No matching CIS configuration.  Maybe you need the ignore_cis_vcc=1 parameter.
+2.0: GetFirstTuple: No more items
+orinoco_cs: GetNextTuple(): No matching CIS configuration.  Maybe you need the ignore_cis_vcc=1 parameter.
+2.0: GetFirstTuple: No more items
 
-IBM_HANDLE(dock, root, "\\_SB.GDCK",    /* X30, X31, X40 */
+and a non-functioning wireless card.
 
-        Scope (\_SB)
-        {
-            Device (GDCK)
-            {
-                Name (_HID, EisaId ("IBM0079"))
-                Name (_CID, 0x150CD041)
-                Method (_STA, 0, NotSerialized)
-                {
-...
-                Method (_DCK, 1, NotSerialized)
-                {
-                    Store (0x00, Local0)
-                    If (LEqual (GGID (), 0x03))
-                    {
-                        Store (\_SB.PCI0.LPC.EC.SDCK (Arg0), Local0)
-                    }
+A 2.6.15 dmesg says:
 
-                    If (LEqual (GGID (), 0x00))
-                    {
-                        Store (\_SB.PCI0.PCI1.DOCK.DDCK (Arg0), Local0)
-                    }
+orinoco 0.15rc3 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
+orinoco_cs 0.15rc3 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
+eth3: Hardware identity 0005:0004:0005:0000
+eth3: Station identity  001f:0001:0008:000a
+eth3: Firmware determined as Lucent/Agere 8.10
+eth3: Ad-hoc demo mode supported
+eth3: IEEE standard IBSS ad-hoc mode supported
+eth3: WEP supported, 104-bit key
+eth3: MAC address 00:02:2D:5C:11:48
+eth3: Station name "HERMES I"
+eth3: ready
+eth3: index 0x01: Vcc 3.3, irq 11, io 0xe100-0xe13f
 
-                    Return (Local0)
-                }
+I haven't tried adding ignore_cis_vcc to the boot yet, I'm on my way out the door...
 
-                Method (_EJ0, 1, NotSerialized)
-                {
-                    If (LEqual (GGID (), 0x03))
-                    {
-                        \_SB.PCI0.LPC.EC.SEJ0 (Arg0)
-                    }
+--==_Exmh_1137623359_2956P
+Content-Type: application/pgp-signature
 
-                    If (LEqual (GGID (), 0x00))
-                    {
-                        \_SB.PCI0.PCI1.DOCK.DEJ0 (Arg0)
-                    }
-                }
-....
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Hope this helps.
-						Pavel
--- 
-Thanks, Sharp!
+iD8DBQFDzsE/cC3lWbTT17ARAj20AJ9uV8SDaByDOCxKLaFPXPMVsP7c9ACeJrr3
+oO0lrJ4gKIkiix6aH677abk=
+=rW8K
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1137623359_2956P--

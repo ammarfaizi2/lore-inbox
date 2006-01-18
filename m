@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030459AbWARXid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030460AbWARXkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030459AbWARXid (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 18:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030460AbWARXid
+	id S1030460AbWARXkh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 18:40:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030461AbWARXkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 18:38:33 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:42217 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030459AbWARXic (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 18:38:32 -0500
-Date: Wed, 18 Jan 2006 18:37:39 -0500
-From: Dave Jones <davej@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, Reuben Farrelly <reuben-lkml@reub.net>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       arjan@infradead.org
-Subject: Re: 2.6.16-rc1-mm1
-Message-ID: <20060118233739.GH5278@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-	Reuben Farrelly <reuben-lkml@reub.net>,
-	linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-	arjan@infradead.org
-References: <20060118005053.118f1abc.akpm@osdl.org> <43CE2210.60509@reub.net> <20060118032716.7f0d9b6a.akpm@osdl.org> <20060118190926.GB316@redhat.com> <1137626021.1760.18.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 18 Jan 2006 18:40:37 -0500
+Received: from liaag2aa.mx.compuserve.com ([149.174.40.154]:24811 "EHLO
+	liaag2aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1030460AbWARXkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 18:40:36 -0500
+Date: Wed, 18 Jan 2006 18:35:08 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch 2.6.16-rc1] i386: print kernel version in register
+  dumps
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Akinobu Mita <mita@miraclelinux.com>, Andi Kleen <ak@suse.de>
+Message-ID: <200601181837_MC3-1-B629-329F@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1137626021.1760.18.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 18, 2006 at 11:13:41PM +0000, Alan Cox wrote:
- > On Mer, 2006-01-18 at 14:09 -0500, Dave Jones wrote:
- > > On Wed, Jan 18, 2006 at 03:27:16AM -0800, Andrew Morton wrote:
- > > 
- > >  > Well yes, that code is kfree()ing a locked mutex.  It's somewhat weird to
- > >  > take a lock on a still-private object but whatever.  The code's legal
- > >  > enough.
- > >  > 
- > 
- > If someone else can be waiting on it then it doesn't look legal ?
+Show first field of kernel version in register dumps like x86_64 does.
 
-it's allocated in this function, and we only kfree it in an error path
-if something goes wrong.  If we get to the kfree, the policy has
-never been seen anywhere outside of cpufreq_add_dev(), so nothing
-else can be waiting on it.
+Changes output from e.g.:
+	(2.6.16-rc1)
+to:
+	(2.6.16-rc1 #12)
 
-		Dave
+Signed-Off-By: Chuck Ebbert <76306.1226@compuserve.com>
 
+--- 2.6.15a.orig/arch/i386/kernel/process.c
++++ 2.6.15a/arch/i386/kernel/process.c
+@@ -296,8 +296,10 @@ void show_regs(struct pt_regs * regs)
+ 
+ 	if (user_mode(regs))
+ 		printk(" ESP: %04x:%08lx",0xffff & regs->xss,regs->esp);
+-	printk(" EFLAGS: %08lx    %s  (%s)\n",
+-	       regs->eflags, print_tainted(), system_utsname.release);
++	printk(" EFLAGS: %08lx    %s  (%s %.*s)\n",
++	       regs->eflags, print_tainted(), system_utsname.release,
++	       (int)strcspn(system_utsname.version, " "),
++	       system_utsname.version);
+ 	printk("EAX: %08lx EBX: %08lx ECX: %08lx EDX: %08lx\n",
+ 		regs->eax,regs->ebx,regs->ecx,regs->edx);
+ 	printk("ESI: %08lx EDI: %08lx EBP: %08lx",
+--- 2.6.15a.orig/arch/i386/kernel/traps.c
++++ 2.6.15a/arch/i386/kernel/traps.c
+@@ -260,9 +260,11 @@ void show_registers(struct pt_regs *regs
+ 	}
+ 	print_modules();
+ 	printk(KERN_EMERG "CPU:    %d\nEIP:    %04x:[<%08lx>]    %s VLI\n"
+-			"EFLAGS: %08lx   (%s) \n",
++			"EFLAGS: %08lx   (%s %.*s) \n",
+ 		smp_processor_id(), 0xffff & regs->xcs, regs->eip,
+-		print_tainted(), regs->eflags, system_utsname.release);
++		print_tainted(), regs->eflags, system_utsname.release,
++		(int)strcspn(system_utsname.version, " "),
++		system_utsname.version);
+ 	print_symbol(KERN_EMERG "EIP is at %s\n", regs->eip);
+ 	printk(KERN_EMERG "eax: %08lx   ebx: %08lx   ecx: %08lx   edx: %08lx\n",
+ 		regs->eax, regs->ebx, regs->ecx, regs->edx);
+_

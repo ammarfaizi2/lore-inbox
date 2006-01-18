@@ -1,50 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030404AbWARUH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030408AbWARUGz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030404AbWARUH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 15:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030411AbWARUH3
+	id S1030408AbWARUGz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 15:06:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030406AbWARUGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 15:07:29 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:3624 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S1030406AbWARUH1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 15:07:27 -0500
-X-IronPort-AV: i="3.99,381,1131350400"; 
-   d="scan'208"; a="393304004:sNHT32510288"
-To: Jes Sorensen <jes@sgi.com>
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: Why is wmb() a no-op on x86_64?
-X-Message-Flag: Warning: May contain useful information
-References: <1137601417.4757.38.camel@serpentine.pathscale.com>
-	<200601181729.36423.ak@suse.de>
-	<1137603169.4757.50.camel@serpentine.pathscale.com>
-	<yq04q41qxcw.fsf@jaguar.mkp.net>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Wed, 18 Jan 2006 12:07:23 -0800
-In-Reply-To: <yq04q41qxcw.fsf@jaguar.mkp.net> (Jes Sorensen's message of "18
- Jan 2006 12:06:39 -0500")
-Message-ID: <ada4q41wb9g.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 18 Jan 2006 20:07:25.0508 (UTC) FILETIME=[CCD24040:01C61C6A]
+	Wed, 18 Jan 2006 15:06:55 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:18707 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1030277AbWARUGy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 15:06:54 -0500
+Date: Wed, 18 Jan 2006 15:06:20 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, jbenc@suse.cz, softmac-dev@sipsolutions.net,
+       bcm43xx-dev@lists.berlios.de
+Subject: wireless: the contenders
+Message-ID: <20060118200616.GC6583@tuxdriver.com>
+Mail-Followup-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	jbenc@suse.cz, softmac-dev@sipsolutions.net,
+	bcm43xx-dev@lists.berlios.de
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Bryan> On x86_64, we fiddle with the MTRRs to enable write
-    Bryan> combining, which makes a huge difference to performance.
-    Bryan> It's not clear to me what we should even do on other
-    Bryan> architectures, since the only generic entry point that even
-    Bryan> exposes write combining is pci_mmap_page_range, which is
-    Bryan> for PCI mmap through userspace, and half the arches I've
-    Bryan> looked at ignore its write_combine parameter.
+First, the news everyone will like.  Thanks to the kernel.org team
+I now have a place to publish a wireless tree:
 
-    Jes> A job for mmiowb() perhaps?
+   git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-2.6.git
 
-I don't think the semantics of mmiowb() do what is desired here.
-mmiowb() is all about ordering writes between separate CPUs, and the
-issue at hand here is that write-combining buffers might reorder
-writes from a single CPU.
+The tree there has a number of branches, so many that you need
+a scorecard...
 
- - R.
+Branches
+--------
+
+The "master" branch of that tree is (mostly) up-to-date w/ Linus, plus
+changes I recently sent to Jeff.  Those changes are also available on
+the "upstream-jgarzik" branch, but it is frozen to when I requested
+Jeff's pull.
+
+The tree also has "softmac" and "dscape" branches.  The "softmac"
+branch includes the Johannes Berg softmac code as well as the the
+BCM43xx driver based upon that code.  The "dscape" branch includes
+the DeviceScape patches from Jiri Benc as well as the BCM43xx driver
+ported to the DeviceScape stack.
+
+The fact that the BCM43xx team has ported their driver to both stacks
+provides us an excellent opportunity for some objective, "apples to
+apples" comparisons between the major stacks.  I would like to take
+this opportunity to thank them for taking the trouble to do that work
+and to make both versions available for comparison.
+
+BTW, those trying to actually use the dscape code will want to poke
+around Jiri's kernel.org directories:
+
+   http://www.kernel.org/pub/linux/kernel/people/jbenc/
+
+Jiri has some information there that will likely be useful to you.
+
+The other branches are for administrative purposes, and can mostly
+be ignored.
+
+Patches
+-------
+
+Along with bugfixes and enhancements to the current code (which will
+be targeting the "master" branch), I would like to see driver and
+stack patches for both the "softmac" and "dscape" branches.  I would
+like to see what is really out there before making a final call on
+which stack to adopt permanently.
+
+If you have an out-of-tree driver which targets either (or both)
+stacks, please send patches.  If you are working on porting an
+in-kernel driver to one of these stacks (either from the other stack
+or from its private stack), please send patches.  If you have fixes
+or enhancements pending for either of these stacks, then please
+send patches.
+
+Don't waste any time with your patches.  There is good reason to make
+a decision quickly, and plenty of pressure to do so.  Your code could
+be a significant factor in making that decision.
+
+I know that many of you believe that this approach is a bad idea,
+for a variety of reasons.  I find those arguments valid, and
+even persuasive.  The point of this exercise is NOT to push two
+stacks forward into Linus' kernel.  The point is to catalog the
+true state of affairs and to collect as large a wireless driver
+codebase as possible.  You might think of this as a Domesday Book
+(http://en.wikipedia.org/wiki/Domesday_Book) for Linux wireless.
+
+Summary
+-------
+
+Hopefully the act of collecting these patches will also allow the less
+motivated among us to have a chance to evaluate the stacks involved.
+There are bound to be some wise and skilled kernel hackers out there
+that are just a little too busy to track-down all these patches
+themselves...  :-)
+
+I appreciate all the commentary and ideas expressed over the past
+couple of weeks.  I also think the driver writers are doing a good
+job with what they've been given so far.  I hope this helps to bring
+the driver guys in out of the cold, and to put some weight behind
+the discussions of where we need to go.
+
+Thanks,
+
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

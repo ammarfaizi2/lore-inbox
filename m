@@ -1,93 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWARGyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbWARHAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbWARGyf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 01:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWARGye
+	id S1030268AbWARHAs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 02:00:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbWARHAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 01:54:34 -0500
-Received: from 203-59-65-76.dyn.iinet.net.au ([203.59.65.76]:56473 "EHLO
-	eagle.themaw.net") by vger.kernel.org with ESMTP id S1751366AbWARGun
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 01:50:43 -0500
-Date: Wed, 18 Jan 2006 14:48:39 +0800
-Message-Id: <200601180648.k0I6mdHm005830@eagle.themaw.net>
-From: Ian Kent <raven@themaw.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org, autofs@linux.kernel.org
-Title: [PATCH 3/13] autofs4 - can't mount due to mount point dir not empty
+	Wed, 18 Jan 2006 02:00:47 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:47493 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030268AbWARHAq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 02:00:46 -0500
+Subject: Re: Linux 2.6.16-rc1 -- which gcc version?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jeff Chua <jeffchua@silk.corp.fedex.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0601180810270.29057@boston.corp.fedex.com>
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+	 <20060117183916.399b030f.diegocg@gmail.com>
+	 <Pine.LNX.4.64.0601170946050.3240@g5.osdl.org>
+	 <Pine.LNX.4.64.0601180810270.29057@boston.corp.fedex.com>
+Content-Type: text/plain
+Date: Wed, 18 Jan 2006 08:00:40 +0100
+Message-Id: <1137567640.3005.64.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch addresses a problem where stale dentrys stop mounts
-from happening.
-
-When a mount point directory is pre-created and a non-existent
-entry within it is requested a dentry ends up being created within
-the mount point directory which stops future mounts. The problem
-is solved by ignoring negative, unhashed dentrys in the mount point 
-d_subdirs list.
-
-Additionally the apparent cacheing of -ENOENT returns from requests
-is removed. The test on d_time is a tautology and d_time is not
-initialised and has an unexpected value. In short it doesn't do
-what it's meant to.
-
-The cacheing of failed requests to the daemon is important and will
-be followed up later.
-
-Signed-off-by: Ian Kent <raven@themaw.net>
+On Wed, 2006-01-18 at 08:22 +0800, Jeff Chua wrote:
+> 
+> Which gcc version should I use, now that gcc-2.95.3 can't compile
+> 2.6.16-rc1 anymore? gcc-3.3 as mentioned in the patch?
 
 
---- linux-2.6.15-mm3/fs/autofs4/root.c.failed-lookup	2006-01-13 16:12:20.000000000 +0800
-+++ linux-2.6.15-mm3/fs/autofs4/root.c	2006-01-13 16:13:33.000000000 +0800
-@@ -294,14 +294,13 @@ static int try_to_fill_dentry(struct vfs
- 
- 		/* Turn this into a real negative dentry? */
- 		if (status == -ENOENT) {
--			dentry->d_time = jiffies + AUTOFS_NEGATIVE_TIMEOUT;
- 			spin_lock(&dentry->d_lock);
- 			dentry->d_flags &= ~DCACHE_AUTOFS_PENDING;
- 			spin_unlock(&dentry->d_lock);
--			return 1;
-+			return 0;
- 		} else if (status) {
- 			/* Return a negative dentry, but leave it "pending" */
--			return 1;
-+			return 0;
- 		}
- 	/* Trigger mount for path component or follow link */
- 	} else if (flags & (LOOKUP_CONTINUE | LOOKUP_DIRECTORY) ||
-@@ -360,13 +359,13 @@ static int autofs4_revalidate(struct den
- 
- 	/* Negative dentry.. invalidate if "old" */
- 	if (dentry->d_inode == NULL)
--		return (dentry->d_time - jiffies <= AUTOFS_NEGATIVE_TIMEOUT);
-+		return 0;
- 
- 	/* Check for a non-mountpoint directory with no contents */
- 	spin_lock(&dcache_lock);
- 	if (S_ISDIR(dentry->d_inode->i_mode) &&
- 	    !d_mountpoint(dentry) && 
--	    list_empty(&dentry->d_subdirs)) {
-+	    simple_empty_nolock(dentry)) {
- 		DPRINTK("dentry=%p %.*s, emptydir",
- 			 dentry, dentry->d_name.len, dentry->d_name.name);
- 		spin_unlock(&dcache_lock);
---- linux-2.6.15-mm3/fs/autofs4/autofs_i.h.failed-lookup	2006-01-13 16:05:10.000000000 +0800
-+++ linux-2.6.15-mm3/fs/autofs4/autofs_i.h	2006-01-13 16:13:33.000000000 +0800
-@@ -40,14 +40,6 @@
- 
- #define AUTOFS_SUPER_MAGIC 0x0187
- 
--/*
-- * If the daemon returns a negative response (AUTOFS_IOC_FAIL) then the
-- * kernel will keep the negative response cached for up to the time given
-- * here, although the time can be shorter if the kernel throws the dcache
-- * entry away.  This probably should be settable from user space.
-- */
--#define AUTOFS_NEGATIVE_TIMEOUT (60*HZ)	/* 1 minute */
--
- /* Unified info structure.  This is pointed to by both the dentry and
-    inode structures.  Each file in the filesystem has an instance of this
-    structure.  It holds a reference to the dentry, so dentries are never
+alternative is to just use any compiler that came with a distro, and is
+at least of 3.2 vintage. (the 3.3 thing is mostly for arm; 3.2 on arm
+seemed to not have been a good thing). Distros usually put in fixes to
+gcc that are from higher/later versions, eg gcc.gnu.org releases
+sometimes have a few bad bugs at release time that will get fixed later,
+while the distros put those fixes in immediately.
+
+

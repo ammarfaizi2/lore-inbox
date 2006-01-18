@@ -1,85 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbWARFuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWARF4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751328AbWARFuS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 00:50:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWARFuR
+	id S1751309AbWARF4p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 00:56:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWARF4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 00:50:17 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:40839 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S1751328AbWARFuQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 00:50:16 -0500
-From: Ian Wienand <ianw@gelato.unsw.edu.au>
-To: Paul Mundt <lethal@linux-sh.org>,
-       John Richard Moser <nigelenki@comcast.net>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org
-Date: Wed, 18 Jan 2006 16:50:03 +1100
-Cc: Paul Cameron Davies <pauld@cse.unsw.edu.au>
-Subject: Re: Huge pages and small pages. . .
-Message-ID: <20060118055003.GD11721@cse.unsw.EDU.AU>
-References: <43CD3CE4.3090300@comcast.net> <Pine.LNX.4.61.0601171358240.1682@chaos.analogic.com> <43CD481A.6040606@comcast.net> <20060117231802.GA14314@linux-sh.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9dgjiU4MmWPVapMU"
-Content-Disposition: inline
-In-Reply-To: <20060117231802.GA14314@linux-sh.org>
-User-Agent: Mutt/1.5.9i
+	Wed, 18 Jan 2006 00:56:45 -0500
+Received: from mf00.sitadelle.com ([212.94.174.67]:45257 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1751309AbWARF4p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 00:56:45 -0500
+Message-ID: <43CDD892.6090605@cosmosbay.com>
+Date: Wed, 18 Jan 2006 06:56:34 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
+       jeffrey.t.kirsher@intel.com
+Subject: Re: [PATCH 11/17] fuse: add number of waiting requests attribute
+References: <20060114003948.793910000@dorka.pomaz.szeredi.hu>	<20060114004114.241169000@dorka.pomaz.szeredi.hu> <20060113172846.3ea49670.akpm@osdl.org>
+In-Reply-To: <20060113172846.3ea49670.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---9dgjiU4MmWPVapMU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Wed, Jan 18, 2006 at 01:18:02AM +0200, Paul Mundt wrote:
-> Transparent superpages would certainly be nice. There's already various
-> superpage implementations floating around, but not without their
-> drawbacks. You might consider the Shimizu superpage patch for x86 if
-> you're not too concerned about demotion when trying to swap out the page.
+Andrew Morton a écrit :
+> Miklos Szeredi <miklos@szeredi.hu> wrote:
+>> +	/** The number of requests waiting for completion */
+>> +	atomic_t num_waiting;
 > 
-> There's some links on this subject on the ia64 wiki:
+> This doesn't get initialised anywhere.
 > 
-> 	http://www.gelato.unsw.edu.au/IA64wiki/SuperPages
+> Presumably you're relying on a memset somewhere.  That might work on all
+> architectures, AFAIK.  But in theory it's wrong.  If, for example, the
+> architecture implements atomic_t via a spinlock-plus-integer, and that
+> spinlock's unlocked state is not all-bits-zero, we're dead.
+> 
+> So we should initialise it with
+> 
+> 	foo->num_waiting = ATOMIC_INIT(0);
+> 
+> 
+> 
+> nb: it is not correct to initialise an atomic_t with
+> 
+> 	atomic_set(a, 0);
+> 
+> because in the above theoretical case case where the arch uses a spinlock
+> in the atomic_t, that spinlock doesn't get initialised.  I bet we've got code
+> in there which does this.
 
-Hi,
+Hum... I tracked one missing atomic_set() or ATOMIC_INIT in e1000 driver then.
 
-I'm working on superpages, targeted at Itanium, and I just updated
-the WiKi page to explain a bit more where I'm at.
+e1000_alloc_queues() does :
 
-http://www.gelato.unsw.edu.au/IA64wiki/Ia64SuperPages
+#ifdef CONFIG_E1000_NAPI
+         size = sizeof(struct net_device) * adapter->num_queues;
+         adapter->polling_netdev = kmalloc(size, GFP_KERNEL);
+         if (!adapter->polling_netdev) {
+                 kfree(adapter->tx_ring);
+                 kfree(adapter->rx_ring);
+                 return -ENOMEM;
+         }
+         memset(adapter->polling_netdev, 0, size);
+#endif
 
-We're also looking at other things, like completely abstracting out
-the 3 level page table to allow us to experiment with VM schemes more
-appropriate for large, sparse address spaces and superpages.
+So this driver clearly assumes a memset(... 0 ...) also initialize atomic_t to 
+  0   ((struct net_device *)->refcnt for example)
 
-This is far from realistic migrate into the kernel stuff (so not
-really for here), but if sufficient (say 5 or 10) people drop me a
-reply email to say they're interested I can start a low-traffic list
-where we can discuss long term (far-fetched?) VM implementation ideas,
-share patches, etc.
-
-> Since this topic seems to come up rather frequently, perhaps it would be
-> worthwhile documenting some of this on the linux-mm wiki.
-
-Yes, I'll look at putting something in there too.
-
--i
-ianw@gelato.unsw.edu.au
-http://www.gelato.unsw.edu.au
-
---9dgjiU4MmWPVapMU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDzdcLWDlSU/gp6ecRAixHAKCTuRrWrN4cn5UhoIdK4wKoKh+IfgCfX1xM
-D1WOw4gFSuOrCwqKE65Mh4c=
-=czkf
------END PGP SIGNATURE-----
-
---9dgjiU4MmWPVapMU--
+Eric

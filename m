@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbWAREyh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWAREzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964939AbWAREyh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 23:54:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbWAREyh
+	id S1030184AbWAREzn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 23:55:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbWAREzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 23:54:37 -0500
-Received: from mail.kroah.org ([69.55.234.183]:56810 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964939AbWAREyh (ORCPT
+	Tue, 17 Jan 2006 23:55:43 -0500
+Received: from mail.kroah.org ([69.55.234.183]:19435 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030182AbWAREzm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 23:54:37 -0500
-Date: Tue, 17 Jan 2006 20:54:07 -0800
+	Tue, 17 Jan 2006 23:55:42 -0500
+Date: Tue, 17 Jan 2006 20:55:18 -0800
 From: Greg KH <greg@kroah.com>
 To: Dave Hansen <haveblue@us.ibm.com>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Serge E. Hallyn" <serue@us.ibm.com>,
@@ -17,7 +17,7 @@ Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Serge E. Hallyn" <serue@us.ibm.com>,
        Hubertus Franke <frankeh@watson.ibm.com>,
        Cedric Le Goater <clg@fr.ibm.com>
 Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-Message-ID: <20060118045407.GA7292@kroah.com>
+Message-ID: <20060118045518.GB7292@kroah.com>
 References: <20060117143258.150807000@sergelap> <20060117143326.283450000@sergelap> <1137511972.3005.33.camel@laptopd505.fenrus.org> <20060117155600.GF20632@sergelap.austin.ibm.com> <1137513818.14135.23.camel@localhost.localdomain> <1137518714.5526.8.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -29,7 +29,12 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, Jan 17, 2006 at 09:25:14AM -0800, Dave Hansen wrote:
 > 
-> I also wonder if RedHat or SUSE would ever ship and support a special
-> set of libraries for us.
+> Arjan had a very good point last time we posted these: we should
+> consider getting rid of as many places in the kernel where pids are used
+> to uniquely identify tasks, and just stick with task_struct pointers.  
 
-Don't both companies do that today with their s390 releases?  :)
+That's a very good idea, why didn't you do that?
+
+thanks,
+
+greg k-h

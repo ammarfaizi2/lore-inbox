@@ -1,88 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbWARAaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbWARAaZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964917AbWARAaY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 19:30:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWARAaX
+	id S964919AbWARAaZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 19:30:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbWARAaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 19:30:23 -0500
-Received: from free.wgops.com ([69.51.116.66]:26629 "EHLO shell.wgops.com")
-	by vger.kernel.org with ESMTP id S964920AbWARA3s (ORCPT
+	Tue, 17 Jan 2006 19:30:24 -0500
+Received: from [151.97.230.9] ([151.97.230.9]:11491 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S964919AbWARA1h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 19:29:48 -0500
-Date: Tue, 17 Jan 2006 17:29:20 -0700
-From: Michael Loftis <mloftis@wgops.com>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
-Message-ID: <7A7A0F7F294BB08D7CDA264C@d216-220-25-20.dynip.modwest.com>
-In-Reply-To: <43CD8A19.3010100@cfl.rr.com>
-References: <E1EywcM-0004Oz-IE@laurel.muq.org>
- <B34375EBA93D2866BECF5995@d216-220-25-20.dynip.modwest.com>
- <43CD8A19.3010100@cfl.rr.com>
-X-Mailer: Mulberry/4.0.4 (Mac OS X)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-MailScanner-Information: Please contact support@wgops.com
-X-MailScanner: WGOPS clean
-X-MailScanner-From: mloftis@wgops.com
+	Tue, 17 Jan 2006 19:27:37 -0500
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH 4/9] uml: fix spinlock recursion and sleep-inside-spinlock in error path
+Date: Wed, 18 Jan 2006 01:19:33 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Message-Id: <20060118001931.14622.17211.stgit@zion.home.lan>
+In-Reply-To: <20060117235659.14622.18544.stgit@zion.home.lan>
+References: <20060117235659.14622.18544.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
---On January 17, 2006 7:21:45 PM -0500 Phillip Susi <psusi@cfl.rr.com> 
-wrote:
+In this error path, when the interface has had a problem, we call dev_close(),
+which is disallowed for two reasons:
 
-> Your understanding of statistics leaves something to be desired.  As you
-> add disks the probability of a single failure is grows linearly, but the
-> probability of double failure grows much more slowly.  For example:
+*) takes again the UML internal spinlock, inside the ->stop method of this
+   device
+*) can be called in process context only, while we're in interrupt context.
 
-What about I said was inaccurate?  I never said that it increases 
-exponentially or anything like that, just that it does increase, which 
-you've proven.  I was speaking in the case of a RAID-5 set, where the 
-minimum is 3 drives, so every additional drive increases the chance of a 
-double fault condition.  Now if we're including mirrors and stripes/etc, 
-then that means we do have to look at the 2 spindle case, but the third 
-spindle and beyond keeps increasing.  If you've a 1% failure rate, and you 
-have 100+ drives, chances are pretty good you're going to see a failure. 
-Yes it's a LOT more complicated than that.
+I've also thought that calling dev_close() may be a wrong policy to follow, but
+it's not up to me to decide that.
 
->
-> If 1 disk has a 1/1000 chance of failure, then
-> 2 disks have a (1/1000)^2 chance of double failure, and
-> 3 disks have a (1/1000)^2 * 3 chance of double failure
-> 4 disks have a (1/1000)^2 * 7 chance of double failure
->
-> Thus the probability of double failure on this 4 drive array is ~142
-> times less than the odds of a single drive failing.  As the probably of a
-> single drive failing becomes more remote, then the ratio of that
-> probability to the probability of double fault in the array grows
-> exponentially.
->
-> ( I think I did that right in my head... will check on a real calculator
-> later )
->
-> This is why raid-5 was created: because the array has a much lower
-> probabiliy of double failure, and thus, data loss, than a single drive.
-> Then of course, if you are really paranoid, you can go with raid-6 ;)
->
->
-> Michael Loftis wrote:
->> Absolutely not.  The more spindles the more chances of a double failure.
->> Simple statistics will mean that unless you have mirrors the more drives
->> you add the more chance of two of them (really) failing at once and
->> choking the whole system.
->>
->> That said, there very well could be (are?) cases where md needs to do a
->> better job of handling the world unravelling.
->> -
->
+However, we may end up with multiple dev_close() queued on the same device.
+But the initial test for (dev->flags & IFF_UP) makes this harmless, though -
+and dev_close() is supposed to care about races with itself. So there's no harm
+in delaying the shutdown, IMHO.
 
+Something to mark the interface as "going to shutdown" would be appreciated, but
+dev_deactivate has the same problems as dev_close(), so we can't use it either.
 
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
---
-"Genius might be described as a supreme capacity for getting its possessors
-into trouble of all kinds."
--- Samuel Butler
+ arch/um/drivers/net_kern.c |   15 +++++++++++++--
+ 1 files changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/arch/um/drivers/net_kern.c b/arch/um/drivers/net_kern.c
+index 98350bb..178f68b 100644
+--- a/arch/um/drivers/net_kern.c
++++ b/arch/um/drivers/net_kern.c
+@@ -68,6 +68,11 @@ static int uml_net_rx(struct net_device 
+ 	return pkt_len;
+ }
+ 
++static void uml_dev_close(void* dev)
++{
++	dev_close( (struct net_device *) dev);
++}
++
+ irqreturn_t uml_net_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ {
+ 	struct net_device *dev = dev_id;
+@@ -80,15 +85,21 @@ irqreturn_t uml_net_interrupt(int irq, v
+ 	spin_lock(&lp->lock);
+ 	while((err = uml_net_rx(dev)) > 0) ;
+ 	if(err < 0) {
++		DECLARE_WORK(close_work, uml_dev_close, dev);
+ 		printk(KERN_ERR 
+ 		       "Device '%s' read returned %d, shutting it down\n", 
+ 		       dev->name, err);
+-		dev_close(dev);
++		/* dev_close can't be called in interrupt context, and takes
++		 * again lp->lock.
++		 * And dev_close() can be safely called multiple times on the
++		 * same device, since it tests for (dev->flags & IFF_UP). So
++		 * there's no harm in delaying the device shutdown. */
++		schedule_work(&close_work);
+ 		goto out;
+ 	}
+ 	reactivate_fd(lp->fd, UM_ETH_IRQ);
+ 
+- out:
++out:
+ 	spin_unlock(&lp->lock);
+ 	return(IRQ_HANDLED);
+ }
+

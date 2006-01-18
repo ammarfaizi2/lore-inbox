@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWARKKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWARKMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751383AbWARKKz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 05:10:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWARKKz
+	id S1751397AbWARKMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 05:12:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWARKMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 05:10:55 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:20446 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751383AbWARKKy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 05:10:54 -0500
-Date: Wed, 18 Jan 2006 11:10:53 +0100
-From: Olaf Hering <olh@suse.de>
-To: Kumar Gala <galak@gate.crashing.org>,
-       Kumar Gala <galak@kernel.crashing.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [patch 6/6] serial8250: convert to the new platform device interface
-Message-ID: <20060118101052.GA16732@suse.de>
-References: <20060116233143.GB23097@flint.arm.linux.org.uk> <Pine.LNX.4.44.0601161752560.6677-100000@gate.crashing.org> <20060117193604.GA25724@suse.de> <20060118095642.GA20588@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060118095642.GA20588@flint.arm.linux.org.uk>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Wed, 18 Jan 2006 05:12:09 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:38154 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S1751384AbWARKMH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 05:12:07 -0500
+Date: Wed, 18 Jan 2006 18:11:32 +0800 (WST)
+From: Ian Kent <raven@themaw.net>
+To: Andrew Morton <akpm@osdl.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>
+Subject: [PATCH] autofs4 - fix typo in expire-not-busy-only patch
+Message-ID: <Pine.LNX.4.64.0601181807480.9142@eagle.themaw.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-themaw-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-1.896,
+	required 5, autolearn=not spam, BAYES_00 -2.60,
+	DATE_IN_PAST_12_24 0.70)
+X-themaw-MailScanner-From: raven@themaw.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Wed, Jan 18, Russell King wrote:
 
-> 8250 does not depend on ISA - at least not in mainline.  If it did depend
-> on ISA, that would be completely wrong.
+Sorry, this error got through.
 
-Maybe something else is busted, cant get serial output without such
-change.
+Signed-off-by: Ian Kent <raven@themaw.net>
 
--- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+--- linux-2.6.16-rc1/fs/autofs4/expire.c.expire-not-busy-only-fix	2006-01-18 17:55:15.000000000 +0800
++++ linux-2.6.16-rc1/fs/autofs4/expire.c	2006-01-18 17:56:28.000000000 +0800
+@@ -255,11 +255,11 @@ static struct dentry *autofs4_expire(str
+ 				dentry, (int)dentry->d_name.len, dentry->d_name.name);
+ 
+ 			/* Can we umount this guy */
+-			if (autofs4_mount_busy(mnt, dentry)) {
++			if (autofs4_mount_busy(mnt, dentry))
+ 				goto next;
+ 
+ 			/* Can we expire this guy */
+-			if (autofs4_can_expire(dentry, timeout, do_now))
++			if (autofs4_can_expire(dentry, timeout, do_now)) {
+ 				expired = dentry;
+ 				break;
+ 			}
+

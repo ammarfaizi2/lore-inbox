@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbWARSME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbWARSNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbWARSME (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 13:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWARSME
+	id S1030185AbWARSNj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 13:13:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWARSNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 13:12:04 -0500
-Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:10503 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S964901AbWARSMB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 13:12:01 -0500
-Date: Wed, 18 Jan 2006 19:12:47 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>, Sam Ravnborg <sam@ravnborg.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Subject: Re: Linux 2.6.16-rc1
-Message-Id: <20060118191247.62cc52cd.khali@linux-fr.org>
-In-Reply-To: <Pine.LNX.4.61.0601181421210.19392@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
-	<43CD67AE.9030501@eyal.emu.id.au>
-	<20060117232701.GA7606@mars.ravnborg.org>
-	<20060118085936.4773dd77.khali@linux-fr.org>
-	<20060118091543.GA8277@mars.ravnborg.org>
-	<Pine.LNX.4.61.0601181421210.19392@yvahk01.tjqt.qr>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 18 Jan 2006 13:13:39 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:10924 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964900AbWARSNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 13:13:38 -0500
+Message-ID: <43CE854E.4060703@ichips.intel.com>
+Date: Wed, 18 Jan 2006 10:13:34 -0800
+From: Sean Hefty <mshefty@ichips.intel.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Grant Grundler <iod00d@hp.com>
+CC: Sean Hefty <sean.hefty@intel.com>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] RE: [PATCH 2/5] [RFC] Infiniband: connection
+ abstraction
+References: <ORSMSX401FRaqbC8wSA0000003e@orsmsx401.amr.corp.intel.com> <ORSMSX401FRaqbC8wSA00000040@orsmsx401.amr.corp.intel.com> <20060118020342.GB3740@esmail.cup.hp.com> <43CE7EDB.7030201@ichips.intel.com> <20060118180243.GD6818@esmail.cup.hp.com>
+In-Reply-To: <20060118180243.GD6818@esmail.cup.hp.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jan, Sam,
-
-> Anyway, SUSE 10.0/i386:
+Grant Grundler wrote:
+>>>Is this code going to get invoked very often?
+>>
+>>In practice, it would be invoked when matching any listen requests 
+>>originating from the CMA (RDMA connection abstraction).
 > 
-> 14:20 takeshi:~ > l /dev/null
-> crw-rw-rw-  1 root root 1, 3 Sep  9 18:40 /dev/null
-> 14:20 takeshi:~ > echo 'main(){}' | gcc -xc -c - -o /dev/null
-> 14:21 takeshi:~ > echo $?
-> 0
-> 14:21 takeshi:~ > l /dev/null
-> crw-rw-rw-  1 root root 1, 3 Sep  9 18:40 /dev/null
+> hrm..I'm not sure how to translate your answer into a workload.
+> e.g. which netperf or netpipe test would excercise this alot?
+> Or would it take something like MPI or specweb/ttcp?
+
+The code will be invoked at least once for every connection that is established.
+
+>>>e.g something like:
+>>>	for (i = 0; i < IB_CM_PRIVATE_DATA_COMPARE_SIZE/sizeof(unsigned 
+>>>	long);
+>>>									i++)
+>>>		((unsigned long *)dst)[i] = ((unsigned long *)src)[i] 
+>>>						& ((unsigned long *)mask)[i];
+>>
+>>Yes - something like this should work.  Thanks.
 > 
 > 
-> 14:22 takeshi:/home/jengelh # echo 'main(){}' | gcc -xc -c - -o /dev/null
-> 14:22 takeshi:/home/jengelh # echo $?
-> 0
-> 14:22 takeshi:/home/jengelh # l /dev/null
-> crw-rw-rw-  1 root root 1, 3 Sep  9 18:40 /dev/null
-> 
-> So what is (not) happening?
+> Do you need a patch?
+> I can submit one but it will be untested.
 
-This ain't exactly the same command Sam had me test earlier today. This
-one breaks my /dev/null:
+I will incorporate the change with the next set of updates.  Someone else 
+pointed out that I'd need to make sure that there won't be any alignment issues.
 
-  echo "main() {}" | gcc -xc - -o /dev/null
-
-But this one doesn't:
-
-  echo 'main() {}' | gcc -xc -c - -o /dev/null
-
-I.e., the additional -c seems to make a difference (at least in my
-case.) Sam, maybe that's an easier and more efficient fix than
-resorting to a temporary file?
-
-Thanks,
--- 
-Jean Delvare
+- Sean

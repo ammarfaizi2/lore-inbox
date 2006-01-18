@@ -1,49 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWARGug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751380AbWARGvS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbWARGug (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 01:50:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWARGuf
+	id S1751380AbWARGvS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 01:51:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWARGvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 01:50:35 -0500
-Received: from 203-59-65-76.dyn.iinet.net.au ([203.59.65.76]:54169 "EHLO
-	eagle.themaw.net") by vger.kernel.org with ESMTP id S1751361AbWARGuf
+	Wed, 18 Jan 2006 01:51:17 -0500
+Received: from 203-59-65-76.dyn.iinet.net.au ([203.59.65.76]:59289 "EHLO
+	eagle.themaw.net") by vger.kernel.org with ESMTP id S1751376AbWARGu5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 01:50:35 -0500
-Date: Wed, 18 Jan 2006 14:49:07 +0800
-Message-Id: <200601180649.k0I6n7J8005871@eagle.themaw.net>
+	Wed, 18 Jan 2006 01:50:57 -0500
+Date: Wed, 18 Jan 2006 14:49:00 +0800
+Message-Id: <200601180649.k0I6n0ar005861@eagle.themaw.net>
 From: Ian Kent <raven@themaw.net>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
        linux-fsdevel@vger.kernel.org, autofs@linux.kernel.org
-Title: [PATCH 11/13] autofs4 - rename simple_empty_nolock function
+Title: [PATCH 9/13] autofs4 - add a show mount options for proc filesystem
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch renames the function simple_empty_nolock to
-__simple_empty in line with kernel naming conventions.
+This patch adds show_options method to display autofs4 mount options
+in the proc filesystem.
 
 Signed-off-by: Ian Kent <raven@themaw.net>
 
 
---- linux-2.6.15-mm3/fs/autofs4/autofs_i.h.rename-simple_empty_nolock	2006-01-13 16:27:45.000000000 +0800
-+++ linux-2.6.15-mm3/fs/autofs4/autofs_i.h	2006-01-13 16:28:06.000000000 +0800
-@@ -200,7 +200,7 @@ static inline int simple_positive(struct
- 	return dentry->d_inode && !d_unhashed(dentry);
+--- linux-2.6.15-mm2/fs/autofs4/inode.c.add-show_options	2006-01-11 16:11:06.000000000 +0800
++++ linux-2.6.15-mm2/fs/autofs4/inode.c	2006-01-11 16:26:19.000000000 +0800
+@@ -13,6 +13,7 @@
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/file.h>
++#include <linux/seq_file.h>
+ #include <linux/pagemap.h>
+ #include <linux/parser.h>
+ #include <linux/bitops.h>
+@@ -163,9 +164,26 @@ static void autofs4_put_super(struct sup
+ 	DPRINTK("shutting down");
  }
  
--static inline int simple_empty_nolock(struct dentry *dentry)
-+static inline int __simple_empty(struct dentry *dentry)
- {
- 	struct dentry *child;
- 	int ret = 0;
---- linux-2.6.15-mm3/fs/autofs4/root.c.rename-simple_empty_nolock	2006-01-13 16:27:09.000000000 +0800
-+++ linux-2.6.15-mm3/fs/autofs4/root.c	2006-01-13 16:28:07.000000000 +0800
-@@ -343,7 +343,7 @@ static int autofs4_revalidate(struct den
- 	spin_lock(&dcache_lock);
- 	if (S_ISDIR(dentry->d_inode->i_mode) &&
- 	    !d_mountpoint(dentry) && 
--	    simple_empty_nolock(dentry)) {
-+	    __simple_empty(dentry)) {
- 		DPRINTK("dentry=%p %.*s, emptydir",
- 			 dentry, dentry->d_name.len, dentry->d_name.name);
- 		spin_unlock(&dcache_lock);
++static int autofs4_show_options(struct seq_file *m, struct vfsmount *mnt)
++{
++	struct autofs_sb_info *sbi = autofs4_sbi(mnt->mnt_sb);
++
++	if (!sbi)
++		return 0;
++
++	seq_printf(m, ",fd=%d", sbi->pipefd);
++	seq_printf(m, ",pgrp=%d", sbi->oz_pgrp);
++	seq_printf(m, ",timeout=%lu", sbi->exp_timeout/HZ);
++	seq_printf(m, ",minproto=%d", sbi->min_proto);
++	seq_printf(m, ",maxproto=%d", sbi->max_proto);
++
++	return 0;
++}
++
+ static struct super_operations autofs4_sops = {
+ 	.put_super	= autofs4_put_super,
+ 	.statfs		= simple_statfs,
++	.show_options	= autofs4_show_options,
+ };
+ 
+ enum {Opt_err, Opt_fd, Opt_uid, Opt_gid, Opt_pgrp, Opt_minproto, Opt_maxproto};
+@@ -261,7 +279,6 @@ int autofs4_fill_super(struct super_bloc
+ 	int pipefd;
+ 	struct autofs_sb_info *sbi;
+ 	struct autofs_info *ino;
+-	int minproto, maxproto;
+ 
+ 	sbi = (struct autofs_sb_info *) kmalloc(sizeof(*sbi), GFP_KERNEL);
+ 	if ( !sbi )
+@@ -273,12 +290,15 @@ int autofs4_fill_super(struct super_bloc
+ 	s->s_fs_info = sbi;
+ 	sbi->magic = AUTOFS_SBI_MAGIC;
+ 	sbi->root = NULL;
++	sbi->pipefd = -1;
+ 	sbi->catatonic = 0;
+ 	sbi->exp_timeout = 0;
+ 	sbi->oz_pgrp = process_group(current);
+ 	sbi->sb = s;
+ 	sbi->version = 0;
+ 	sbi->sub_version = 0;
++	sbi->min_proto = 0;
++	sbi->max_proto = 0;
+ 	init_MUTEX(&sbi->wq_sem);
+ 	spin_lock_init(&sbi->fs_lock);
+ 	sbi->queues = NULL;
+@@ -311,22 +331,26 @@ int autofs4_fill_super(struct super_bloc
+ 	if (parse_options(data, &pipefd,
+ 			  &root_inode->i_uid, &root_inode->i_gid,
+ 			  &sbi->oz_pgrp,
+-			  &minproto, &maxproto)) {
++			  &sbi->min_proto, &sbi->max_proto)) {
+ 		printk("autofs: called with bogus options\n");
+ 		goto fail_dput;
+ 	}
+ 
+ 	/* Couldn't this be tested earlier? */
+-	if (maxproto < AUTOFS_MIN_PROTO_VERSION ||
+-	    minproto > AUTOFS_MAX_PROTO_VERSION) {
++	if (sbi->max_proto < AUTOFS_MIN_PROTO_VERSION ||
++	    sbi->min_proto > AUTOFS_MAX_PROTO_VERSION) {
+ 		printk("autofs: kernel does not match daemon version "
+ 		       "daemon (%d, %d) kernel (%d, %d)\n",
+-			minproto, maxproto,
++			sbi->min_proto, sbi->max_proto,
+ 			AUTOFS_MIN_PROTO_VERSION, AUTOFS_MAX_PROTO_VERSION);
+ 		goto fail_dput;
+ 	}
+ 
+-	sbi->version = maxproto > AUTOFS_MAX_PROTO_VERSION ? AUTOFS_MAX_PROTO_VERSION : maxproto;
++	/* Establish highest kernel protocol version */
++	if (sbi->max_proto > AUTOFS_MAX_PROTO_VERSION)
++		sbi->version = AUTOFS_MAX_PROTO_VERSION;
++	else
++		sbi->version = sbi->max_proto;
+ 	sbi->sub_version = AUTOFS_PROTO_SUBVERSION;
+ 
+ 	DPRINTK("pipe fd = %d, pgrp = %u", pipefd, sbi->oz_pgrp);
+@@ -339,6 +363,7 @@ int autofs4_fill_super(struct super_bloc
+ 	if ( !pipe->f_op || !pipe->f_op->write )
+ 		goto fail_fput;
+ 	sbi->pipe = pipe;
++	sbi->pipefd = pipefd;
+ 
+ 	/*
+ 	 * Take a reference to the root dentry so we get a chance to
+--- linux-2.6.15-mm2/fs/autofs4/autofs_i.h.add-show_options	2006-01-11 16:11:06.000000000 +0800
++++ linux-2.6.15-mm2/fs/autofs4/autofs_i.h	2006-01-11 16:26:19.000000000 +0800
+@@ -86,11 +86,14 @@ struct autofs_wait_queue {
+ struct autofs_sb_info {
+ 	u32 magic;
+ 	struct dentry *root;
++	int pipefd;
+ 	struct file *pipe;
+ 	pid_t oz_pgrp;
+ 	int catatonic;
+ 	int version;
+ 	int sub_version;
++	int min_proto;
++	int max_proto;
+ 	unsigned long exp_timeout;
+ 	int reghost_enabled;
+ 	int needs_reghost;

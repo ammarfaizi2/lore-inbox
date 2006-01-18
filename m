@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWARWLi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbWARWNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932551AbWARWLi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 17:11:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbWARWLi
+	id S932553AbWARWNy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 17:13:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWARWNx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 17:11:38 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:50104 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932522AbWARWLh (ORCPT
+	Wed, 18 Jan 2006 17:13:53 -0500
+Received: from mail.kroah.org ([69.55.234.183]:33715 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932553AbWARWNx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 17:11:37 -0500
-Date: Wed, 18 Jan 2006 14:11:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: torvalds@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [git patches] e1000 fixes
-Message-Id: <20060118141118.78767e3d.akpm@osdl.org>
-In-Reply-To: <20060118212449.GA13260@havoc.gtf.org>
-References: <20060118212449.GA13260@havoc.gtf.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 18 Jan 2006 17:13:53 -0500
+Date: Wed, 18 Jan 2006 14:13:21 -0800
+From: Greg KH <greg@kroah.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: David Brownell <david-b@pacbell.net>,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] ehci calling put_device from irq handler
+Message-ID: <20060118221321.GA20481@kroah.com>
+References: <20060118212901.GA8923@kroah.com> <Pine.LNX.4.44L0.0601181648010.4974-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0601181648010.4974-100000@iolanthe.rowland.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> wrote:
->
-> Let's see how this goes...  if there are further problems, I'll just
->  revert the entire thing, and push these changes (and the previous set)
->  into upstream-2.6.17 branch.
+On Wed, Jan 18, 2006 at 04:54:04PM -0500, Alan Stern wrote:
+> On Wed, 18 Jan 2006, Greg KH wrote:
 > 
->  I don't mind them updating the defconfig files, even though most people
->  are too slack to worry about it, since its pretty clear the default
->  choice.
+> > We can not call put_device() from irq context :(
+> > 
+> > I added a "might_sleep()" to the driver core and get the following from
+> > the ehci driver.  Any thoughts?
 > 
+> In principle the put_device and corresponding get_device calls aren't
+> needed.  We don't release a usb_device structure until after disabling all
+> its endpoints, and disabling an endpoint will wait until all the URBs for
+> that endpoint have completed.  So there's no reason to keep a reference to
+> the device structure for each URB.
 > 
->  Please pull from 'upstream-fixes' branch of
->  master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
+> I see that uhci-hcd is guilty of the same thing (reference acquired for 
+> each QH, released while holding a spinlock).  Probably each of the 
+> host controller drivers is.
 
-These patches fix e1000 for me, thanks.
+Great, care to make up a patch to fix this?
+
+:)
+
+thanks,
+
+greg k-h

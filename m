@@ -1,173 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbWARTM3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030388AbWARTTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030371AbWARTM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 14:12:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbWARTM3
+	id S1030388AbWARTTU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 14:19:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030389AbWARTTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 14:12:29 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:16114 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1030371AbWARTM2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 14:12:28 -0500
-Message-ID: <43CE92E5.6030206@comcast.net>
-Date: Wed, 18 Jan 2006 14:11:33 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Wed, 18 Jan 2006 14:19:20 -0500
+Received: from penta.pentaserver.com ([66.45.247.194]:59047 "EHLO
+	penta.pentaserver.com") by vger.kernel.org with ESMTP
+	id S1030388AbWARTTT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 14:19:19 -0500
+Message-ID: <43CE9149.10806@gmail.com>
+Date: Wed, 18 Jan 2006 23:04:41 +0400
+From: Manu Abraham <abraham.manu@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-CC: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Huge pages and small pages. . .
-References: <43CD3CE4.3090300@comcast.net> <Pine.LNX.4.61.0601171358240.1682@chaos.analogic.com> <43CD481A.6040606@comcast.net> <43CE1A46.1020601@aitel.hist.no>
-In-Reply-To: <43CE1A46.1020601@aitel.hist.no>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=UTF-8
+To: Takashi Iwai <tiwai@suse.de>
+CC: Mauro Carvalho Chehab <mchehab@infradead.org>,
+       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
+       alsa devel <alsa-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Johannes Stezenbach <js@linuxtv.org>,
+       Linux and Kernel Video <video4linux-list@redhat.com>
+Subject: Re: [RFC] Moving snd-bt87x and btaudio to drivers/media
+References: <1137590968.32449.46.camel@localhost> <s5h8xtdtsej.wl%tiwai@suse.de>
+In-Reply-To: <s5h8xtdtsej.wl%tiwai@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - penta.pentaserver.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - gmail.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Takashi Iwai wrote:
+> At Wed, 18 Jan 2006 11:29:28 -0200,
+> Mauro Carvalho Chehab wrote:
+>   
+>> Lee/Andrew/Linus/Takashi and others,
+>>
+>> 	Currently, we have some audio modules for multimedia devices under
+>> drivers/media and others under sound. They also appear under different
+>> points at Kconfig menus. 
+>>
+>> 	So, for BTTV support, current structure at linus -git is (from Kconfig
+>> perspective):
+>>
+>> 	Sound/ALSA/PCI Devices/Bt87x Audio capture
+>> 		sound/snd-bt87x.ko - ALSA audio for bttv boards
+>> 	Sound/OSS/TV Card (bt848) mixer support
+>> 		drivers/media/video/tvmixer.ko
+>>
+>> 	Multimedia/V4L/BT848 V4L
+>> 		drivers/media/video/bttv.ko
+>> 	Multimedia/V4L/BT848 V4L/DVB-ATSC support
+>> 		drivers/media/dvb/bt8xx/bt878.ko
+>> 		drivers/media/dvb/bt8xx/dvb-bt8xx.o
+>>
+>> 	This I couldn't found at any Kconfig (but module exists, and also an
+>> entry at Makefile):
+>> sound/oss/Makefile:obj-$(CONFIG_SOUND_BT878)    += btaudio.o
+>>
+>> 	For SAA7134 and CX88, all are under Multimedia/V4L. All
+>> OSS/ALSA/DVB/MPEG options are under the driver name.
+>>
+>> 	IMHO, from users perspective, it makes much more sense if all BTTV
+>> moules (even sound ones) being under bttv video driver. Current module
+>> allows using audio driver without video, but this doesn't make sense,
+>> since audio will be only available, in practice, after selecting a
+>> video/audio input or tuning a channel. These functionalities are
+>> provided by bttv. So, we could even disable audio modules if bttv were
+>> not compiled.
+>>
+>> 	Also, bug 5995 showed a problem when user have a bttv card and dvb is
+>> also probed. dvb also handles audio, so, currently, it is mutually
+>> exclusive with snd-bt87x audio.
+>>
+>> 	So, my proposal is to move sound/snd-bt87x.ko to drivers/media, moving
+>> also its menu, and moving tvmixer menu also. After it, should move some
+>> related code at bttv dvb modules, to reduce or eliminate mutually
+>> exclusiveness between the two. 
+>>
+>> 	We might keep supporting btaudio, but I think this is already obsoleted
+>> by alsa one, so, IMHO, we can just drop it. We intend to do the same
+>> with saa7134-oss after some time (kernel 2.6.15 is the first with this
+>> module, so we may remove it on 2.6.18 to give some time for testing).
+>>     
+>
+> Which directory do you suppose exactly?  drivers/media/tv (or
+> something like that), or existing one like drivers/media/video?
+>   
+
+Since we have the majority of existing bttv code in drivers/media/video, 
+i was planning to move some existing dvb code into drivers/media/video. 
+If we have alsa code also in the same place, we can have a consolidation 
+of code, might be easier to go through the code, but that is my personal 
+opinion, but having code related to one chip in one place might make it 
+look better probably..
 
 
+Manu
 
-Helge Hafting wrote:
-> John Richard Moser wrote:
-> 
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->>
->>
->> linux-os (Dick Johnson) wrote:
->>  
->>
->>> On Tue, 17 Jan 2006, John Richard Moser wrote:
->>>
->>>
->>> Is there anything in the kernel that shifts the physical pages for 1024
->>> physically allocated and contiguous virtual pages together physically
->>> and remaps them as one huge page?  This would probably work well for the
->>>
->>>
->>>   
->>>
->>>> A page is something that is defined by the CPU. Perhaps you mean
->>>> "order"? When acquiring pages for DMA, they need to be contiguous if
->>>> you are going to access more than one page at a time. Therefore, one
->>>> can attempt to get two or more pages, i.e., the order or pages.
->>>>     
->>>> Since the CPU uses virtual memory always, there is no advantage to
->>>> having contiguous pages. You just map anything that's free into
->>>> what looks like contiguous memory and away you go.
->>>>     
->>
->>
->> Well, pages are typically 4KiB seen by the MMU.  If you fault across
->> them, you need to have them cached in the TLB; if the TLB runs out of
->> room, you invalidate entries; then when you hit entries not in the TLB,
->> the TLB has to searhc for the page mapping in the PTE chain.
->>
->> There are 4MiB pages, called "huge pages," that if you clump 1024
->> contiguous 4KiB pages together and draw a PTE entry up for can correlate
->> to a single TLB entry.  In this way, there's no page faulting until you
->> cross boundaries spaced 4MiB apart from eachother, and you use 1 TLB
->> entry where you would normally use 1024.
->>
->>  
->>
->>> low end of the heap, until someone figures out a way to tell the system
->>> to free intermittent pages in a big mapping (if the heap has an
->>> allocation up high, it can have huge, unused areas that are allocated).
->>>
->>>
->>>   
->>>
->>>> The actual allocation only occurs when an access happens. You can
->>>> allocate all the virtual memory in the machine and never use any
->>>> of it. When you allocate memory, the kernel just marks a promised
->>>> page 'not present'. When you attempt to access it, a page-fault
->>>> occurs and the kernel tries to find a free page to map into your
->>>> address space.
->>>>     
->>
->>
->> Yes.  The heap manager brk()s up the heap to allocate more space, all
->> mapped to the zero page; then the application writes to these pages,
->> causing them to be COW'd to real memory.  They will stay forever
->> allocated until the highest pages of the heap are unused by the program,
->> in which case the heap manager brk()s down the heap and frees them to
->> the system.
->>
->> Currently the heap manager can't seem to tell the system that a page
->> somewhere in the middle of the heap isn't really needed anymore, and can
->> be freed and mapped back to the zero page to await COW again.  So in
->> effect, you'll eventually wind out with a heap that's 20, 50, 100, or
->> 200 megs wide and probably all actually mapped to real, usable memory;
->> at this point, you can probably replace most of those entries with huge
->> pages to save on TLB entries and page faults.
->>  
->>
-> This would be a nice performance win _if_ the program is
-> actually using all those pages regularly. And I mean _all_.
-> 
-> The idea fails if we get any memory pressure, and some
-> of the little-used pages gets swapped out.  You can't swap
-> out part of a huge page, so you either have to break it up,
-> or suffer the possibly large performance loss of having
-> one megabyte less of virtual memory.   (That'll be even worse
-> if several processes do this, of course.)
-> 
->> When the program would try to free up "pages" in a huge page, the kernel
->> would have to recognize that the application is working in terms of 4KiB
->> small pages, and take appropriate action shattering the huge page back
->> into 1024 small pages first.
->>  
->>
-> To see whether this is worthwile, I suggest instrumenting a kernel
-> to detect:
-> (1) When a process gets opportunity to have a huge page
->      (I.e. it has a sufficiently large and aligned memory block,
->       none of it is swapped, and rearranging into contigous
->       physical memory is possible.)
-> (2) When a huge page would need to be broken up.
->      (I.e. parts of a previously identified huge page gets swapped
->       out, deallocated, shared, memprotected and so on.)
-> 
-> 
-> Both of these detectors will be necessary anyway if automatic huge
-> pages gets deployed.  In the meantime, you can check to see
-> if such occations arise and for how long the huge pages remain
-> viable. I believe the swapper will kill them fast once you have
-> any memory pressure, and that fragmentation normally will prevent
-> such pages from forming.  But I could be wrong of course.
-> 
-
-You're probably right.  On a system with optimum memory, this would be
-optimal; aside from that it could get painful.
-
-> For this to be fesible, the reduction in TLB misses would have to
-> outweigh the initial cost of copying all that memory into a contigous
-> region, the cost of shattering the mapping once the swapper gets
-> aggressive, and of course the ongoing cost of identifying mergeable blocks.
-> 
-> Helge Hafting
-> 
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDzpLjhDd4aOud5P8RAmrAAJ0bTjc/SIrTSUECLIIEG8xCNjVnBACdF/N3
-Cl/3+2m2nNm7IsGhJcFsWUs=
-=Vrrl
------END PGP SIGNATURE-----

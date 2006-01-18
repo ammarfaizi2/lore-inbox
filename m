@@ -1,71 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWARDWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWARDZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964885AbWARDWg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 22:22:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbWARDWg
+	id S932241AbWARDZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 22:25:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWARDZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 22:22:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:63943 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964885AbWARDWf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 22:22:35 -0500
-Date: Tue, 17 Jan 2006 19:22:16 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] mm: Convert global dirty_exceeded flag to per-node
- node_dirty_exceeded
-Message-Id: <20060117192216.5a6f1d27.akpm@osdl.org>
-In-Reply-To: <20060118030959.GD5289@localhost.localdomain>
-References: <20060117020352.GB5313@localhost.localdomain>
-	<20060116181323.7a5f0ac7.akpm@osdl.org>
-	<20060118012953.GC5289@localhost.localdomain>
-	<20060117180956.7f2627a6.akpm@osdl.org>
-	<20060118030959.GD5289@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Jan 2006 22:25:56 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:53646 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932241AbWARDZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 22:25:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=pPpC7dT9by2dj3rwVw9jEhlC6OO8fDsAFHTSuMOu60FWIA4cjLwyr2/Am6vJcjuNlOCUMPUhUlyleX4HpErovM1j55Nc7BBbGrQOPUtp8bbWEE2kJQXbKsekVpSxL+cKboz6S7iF80NUkchKuar4GBUEBXKqoEfCjUEI5A/ipwo=  ;
+Message-ID: <43CDB52A.9030103@yahoo.com.au>
+Date: Wed, 18 Jan 2006 14:25:30 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Diego Calleja <diegocg@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Oops with current linus' git tree
+References: <20060116191556.bd3f551c.diegocg@gmail.com>	<43CC7094.9040404@yahoo.com.au> <20060117141725.d80a1221.diegocg@gmail.com>
+In-Reply-To: <20060117141725.d80a1221.diegocg@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
->
-> > OK.  That's a bit nasty, isn't it?  It can work well or poorly for
-> > different people depending upon vagaries of .config and the linker.
-> > 
-> > We should find out what it was sharing _with_.  Could you please run
-> > 
-> > 	nm -n vmlinux| grep -C5 dirty_exceeded
-> 
-> ffffffff805290c0 b irq_dir
-> ffffffff80529838 b root_irq_dir
-> ffffffff80529880 B max_pfn
-> ffffffff80529888 B min_low_pfn
-> ffffffff80529890 B max_low_pfn
-> ffffffff80529900 B nr_pagecache
-> ffffffff80529908 B nr_swap_pages
-> ffffffff80529980 b boot_pageset
-> ffffffff8052a980 B laptop_mode
-> ffffffff8052a984 B block_dump
-> ffffffff8052a988 b dirty_exceeded
-> ffffffff8052a990 b total_pages
-> ffffffff8052a998 B nr_pdflush_threads
-> ffffffff8052a9a0 b last_empty_jifs
-> ffffffff8052a9c0 B slab_reclaim_pages
-> ffffffff8052a9c4 b slab_break_gfp_order
-> ffffffff8052a9c8 b g_cpucache_up
-> ffffffff8052a9d0 b cache_chain
-> ffffffff8052a9e0 b cache_chain_sem
-> ffffffff8052aa00 b offslab_limit
-> ffffffff8052aa08 B page_cluster
-> 
-> Maybe slab_reclaim_pages is the culprit? 
+Diego Calleja wrote:
+> El Tue, 17 Jan 2006 15:20:36 +1100,
+> Nick Piggin <nickpiggin@yahoo.com.au> escribió:
 > 
 
-I guess so - pretty much everything else there should be in __read_mostly
-anwyay, apart from nr_pagecache.
+>>What happens if you run several infinite loops to increase the load?
+>>Does everything still stay on CPU0?
+> 
+> 
+> Yes, I run several "cat /dev/zero > /dev/null &" and they all kept in
+> CPU #0. 
+> 
+> I did a bitsection search and I couldn't found the culprit, apparently
+> it is caused by a config option; now it works fine after switching off
+> CONFIG_HOTPLUG_CPU and some ACPI options. Also, when it didn't work
+> the CPU that would get all the processes could be CPU #0 or #1 - it
+> changed randomly depending on the boot.
+> 
 
-slab_reclaim_pages is just a silly beancounting thing for overcommit.  We
-could give it the approximate-counting treatment like pagecache_acct() I
-guess.
+If you can report those configuration options and the symptoms in a
+new thread to lkml that would be helpful. Also if you can work out
+when it started happening, that helps too.
+
+Thanks,
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

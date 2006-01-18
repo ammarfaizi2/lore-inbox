@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbWARTaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbWARTiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbWARTaT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 14:30:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWARTaT
+	id S1030256AbWARTiS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 14:38:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030389AbWARTiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 14:30:19 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:60349 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964923AbWARTaS (ORCPT
+	Wed, 18 Jan 2006 14:38:18 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:61380 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030256AbWARTiR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 14:30:18 -0500
-Date: Wed, 18 Jan 2006 14:38:11 -0500 (EST)
-From: Jason Baron <jbaron@redhat.com>
-X-X-Sender: jbaron@dhcp83-105.boston.redhat.com
-To: Nick Piggin <npiggin@suse.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 1/2] x86_64: pageattr use single list
-In-Reply-To: <20060117150316.7411.98772.sendpatchset@linux.site>
-Message-ID: <Pine.LNX.4.61.0601181437030.6584@dhcp83-105.boston.redhat.com>
-References: <20060117150307.7411.94174.sendpatchset@linux.site>
- <20060117150316.7411.98772.sendpatchset@linux.site>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 18 Jan 2006 14:38:17 -0500
+Subject: Re: RFC [patch 00/34] PID Virtualization Overview
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Serge Hallyn <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>
+In-Reply-To: <1137612537.3005.116.camel@laptopd505.fenrus.org>
+References: <20060117143258.150807000@sergelap>
+	 <43CD18FF.4070006@FreeBSD.org>
+	 <1137517698.8091.29.camel@localhost.localdomain>
+	 <43CD32F0.9010506@FreeBSD.org>
+	 <1137521557.5526.18.camel@localhost.localdomain>
+	 <1137522550.14135.76.camel@localhost.localdomain>
+	 <1137610912.24321.50.camel@localhost.localdomain>
+	 <1137612537.3005.116.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Wed, 18 Jan 2006 11:38:08 -0800
+Message-Id: <1137613088.24321.60.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 18 Jan 2006, Nick Piggin wrote:
-
-> Use page->lru.next to implement the singly linked list of pages rather
-> than the struct deferred_page which needs to be allocated and freed for
-> each page.
+On Wed, 2006-01-18 at 20:28 +0100, Arjan van de Ven wrote:
+> On Wed, 2006-01-18 at 11:01 -0800, Dave Hansen wrote:
+> > Other than searches, there appear to be quite a number of drivers an
+> > subsystems that like to print out pids.  I can't find any cases yet
+> > where these are integral to functionality, but I wonder what approach we
+> > should take. 
 > 
-> Signed-off-by: Nick Piggin <npiggin@suse.de>
-> Acked-by: Andi Kleen <ak@suse.de>
-> 
-> Index: linux-2.6/arch/x86_64/mm/pageattr.c
-> ===================================================================
+> those should obviously print out the REAL pid, not the application
+> pid ... so no changes needed.
 
-...
+One suggestion was to make all pid comparisons meaningless without some
+kind of "container" context along with it.  The thought is that using
+pids is inherently racy, and relatively meaningless anyway, so the
+kernel shouldn't be dealing with them. (The obvious exception being in
+userspace interfaces)
 
-> +
-> +	flush_map((dpage && !dpage->lru.next) ? (unsigned long)page_address(dpage) : 0);
-> +	while (dpage) {
-> +		__free_page(dpage);
-> +		dpage = (struct page *)dpage->lru.next;
->  	} 
->  } 
->  
+This would let tsk->pid be anything that it likes as long as it has a
+unique pid in its container.
 
-do you want to be touching a struct page that was just freed?
+But, it seems that many drivers like to print out pids as a unique
+identifier for the task.  Should we just let them print those
+potentially non-unique identifiers, deprecate and kill them, or provide
+a replacement with something else which is truly unique?
 
--Jason
+-- Dave
+

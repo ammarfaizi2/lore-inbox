@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbWARFNT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbWARFOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030239AbWARFNT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 00:13:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbWARFNT
+	id S1030252AbWARFOe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 00:14:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbWARFOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 00:13:19 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:28545 "EHLO
-	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S1030239AbWARFNT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 00:13:19 -0500
-Message-ID: <43CDC607.2040501@wolfmountaingroup.com>
-Date: Tue, 17 Jan 2006 21:37:27 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Max Waterman <davidmaxwaterman+kernel@fastmail.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: io performance...
-References: <43CB4CC3.4030904@fastmail.co.uk> <43CDAFE3.8050203@fastmail.co.uk> <43CDC44E.6080808@wolfmountaingroup.com> <43CDCD9F.5050500@fastmail.co.uk>
-In-Reply-To: <43CDCD9F.5050500@fastmail.co.uk>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+	Wed, 18 Jan 2006 00:14:34 -0500
+Received: from xenotime.net ([66.160.160.81]:28329 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030250AbWARFOd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 00:14:33 -0500
+Date: Tue, 17 Jan 2006 21:14:26 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, linux-dvb-maintainer@linuxtv.org,
+       mchehab@brturbo.com.br
+Subject: [PATCH] dvb: fix printk format warning
+Message-Id: <20060117211426.573066bb.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Max Waterman wrote:
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-> Jeff V. Merkey wrote:
->
->> Max Waterman wrote:
->>
->>> One further question. I get these messages 'in' dmesg :
->>>
->>> sda: asking for cache data failed
->>> sda: assuming drive cache: write through
->>>
->>> How can I force it to be 'write back'?
->>
->>
->>
->>
->> Forcing write back is a very bad idea unless you have a battery 
->> backed up RAID controller.  
->
->
-> We do.
->
-> In any case, I wonder what the consequences of assuming 'write 
-> through' when the array is configured as 'write back'? Is it just 
-> different settings for different caches?
+Fix printk type warning:
+drivers/media/dvb/b2c2/flexcop-pci.c:164: warning: format '%08x' expects type 'unsigned int', but argument 4 has type 'dma_addr_t'
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/media/dvb/b2c2/flexcop-pci.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
+
+--- linux-2616-rc1.orig/drivers/media/dvb/b2c2/flexcop-pci.c
++++ linux-2616-rc1/drivers/media/dvb/b2c2/flexcop-pci.c
+@@ -161,8 +161,10 @@ static irqreturn_t flexcop_pci_isr(int i
+ 			fc->read_ibi_reg(fc,dma1_008).dma_0x8.dma_cur_addr << 2;
+ 		u32 cur_pos = cur_addr - fc_pci->dma[0].dma_addr0;
+ 
+-		deb_irq("%u irq: %08x cur_addr: %08x: cur_pos: %08x, last_cur_pos: %08x ",
+-				jiffies_to_usecs(jiffies - fc_pci->last_irq),v.raw,cur_addr,cur_pos,fc_pci->last_dma1_cur_pos);
++		deb_irq("%u irq: %08x cur_addr: %llx: cur_pos: %08x, last_cur_pos: %08x ",
++				jiffies_to_usecs(jiffies - fc_pci->last_irq),
++				v.raw, (unsigned long long)cur_addr, cur_pos,
++				fc_pci->last_dma1_cur_pos);
+ 		fc_pci->last_irq = jiffies;
+ 
+ 		/* buffer end was reached, restarted from the beginning
 
 
-It is.  This is something that should be configured in a RAID 
-controller.  OS should always be write through.
-
-Jeff
-
->
-> Max.
->
->> Jeff
->>
->>>
->>> Max.
->>> -
->>> To unsubscribe from this list: send the line "unsubscribe 
->>> linux-kernel" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>> Please read the FAQ at  http://www.tux.org/lkml/
->>>
->>
->
->
-
+---

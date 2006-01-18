@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161001AbWARVXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030366AbWARV1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161001AbWARVXU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 16:23:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbWARVXU
+	id S1030366AbWARV1R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 16:27:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbWARV1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 16:23:20 -0500
-Received: from pat.uio.no ([129.240.130.16]:64448 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S964928AbWARVXT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 16:23:19 -0500
-Subject: RE: [PATCH 2/3] Fix problems on multi-TB filesystem and file
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Takashi Sato <sho@tnes.nec.co.jp>
-Cc: "'Andrew Morton'" <akpm@osdl.org>,
-       "'Andreas Dilger'" <adilger@clusterfs.com>, torvalds@osdl.org,
-       viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <000101c61c2e$59230b20$4168010a@bsd.tnes.nec.co.jp>
-References: <000101c61c2e$59230b20$4168010a@bsd.tnes.nec.co.jp>
-Content-Type: text/plain
-Date: Wed, 18 Jan 2006 16:22:48 -0500
-Message-Id: <1137619368.8706.42.camel@lade.trondhjem.org>
+	Wed, 18 Jan 2006 16:27:17 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:39833 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP
+	id S1030366AbWARV1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 16:27:16 -0500
+Date: Wed, 18 Jan 2006 23:27:32 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Shirley Ma <xma@us.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, netdev <netdev@vger.kernel.org>,
+       openib-general@openib.org, openib-general-bounces@openib.org
+Subject: Re: Fwd: [PATCH 1 of 3] move destructor to struct	neigh_parms
+Message-ID: <20060118212732.GA32283@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <OFB2D358DB.F7A4CFB5-ON872570FA.007138E4-882570FA.00714019@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.02, required 12,
-	autolearn=disabled, AWL 1.79, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OFB2D358DB.F7A4CFB5-ON872570FA.007138E4-882570FA.00714019@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-18 at 21:54 +0900, Takashi Sato wrote:
-> > CONFIG_LFS would become a specialised option for embedded systems and
-> > for the minority of people who self-compile kernels.  I just don't
-> > think that's worth the maintainability hassle.
+Quoting Shirley Ma <xma@us.ibm.com>:
+> Subject: Re: Fwd: [PATCH 1 of 3] move destructor to struct neigh_parms
 > 
-> I added CONFIG_LSF to use large filesystem over network with >2TB file
-> even on a small system as CONFIG_LBD disable.  And I heard that some
-> people dislike network filesystems depending on block device.
 > 
-> Trond, do you have comments about integrating CONFIG_LFS and
-> CONFIG_LBD?
+> >+                 if (neigh->parms->neigh_destructor)
+> >+                                  (neigh->parms->neigh_destructor)(neigh); 
+> 
+> Is that safe without checking neigh->parms here?
 
-If you do merge CONFIG_LFS and CONFIG_LBD, then please throw out the
-name CONFIG_LBD in favour of CONFIG_LFS, since the resulting option will
-_not_ be block device specific.
+Yes, we have neigh_parms_put(neigh->parms); a couple of lines below.
 
-Unless someone has some really good arguments against it, I too would
-vote for hiding both options behind CONFIG_EMBEDDED.
-
-Cheers,
-  Trond
-
+-- 
+MST

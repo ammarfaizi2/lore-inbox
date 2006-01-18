@@ -1,48 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWARGun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWARGyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751373AbWARGun (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 01:50:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWARGuk
+	id S1751395AbWARGyF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 01:54:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbWARGxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 01:50:40 -0500
-Received: from 203-59-65-76.dyn.iinet.net.au ([203.59.65.76]:54937 "EHLO
-	eagle.themaw.net") by vger.kernel.org with ESMTP id S1751366AbWARGuh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 01:50:37 -0500
-Date: Wed, 18 Jan 2006 14:48:28 +0800
-Message-Id: <200601180648.k0I6mS8N005815@eagle.themaw.net>
-From: Ian Kent <raven@themaw.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org, autofs@linux.kernel.org
-Title: [PATCH 0/13] autofs4 - various cleanups, updates and bug fixes
+	Wed, 18 Jan 2006 01:53:47 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:40585 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932128AbWARGxg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 01:53:36 -0500
+Date: Tue, 17 Jan 2006 22:53:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: michael@ellerman.id.au, serue@us.ibm.com, linuxppc64-dev@ozlabs.org,
+       paulus@au1.ibm.com, anton@au1.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-mm4 failure on power5
+Message-Id: <20060117225304.4b6dd045.akpm@osdl.org>
+In-Reply-To: <20060118063732.GA21003@elte.hu>
+References: <20060116063530.GB23399@sergelap.austin.ibm.com>
+	<200601180032.46867.michael@ellerman.id.au>
+	<20060117140050.GA13188@elte.hu>
+	<200601181119.39872.michael@ellerman.id.au>
+	<20060118033239.GA621@cs.umn.edu>
+	<20060118063732.GA21003@elte.hu>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the first set of patches for autofs in moving toward a
-kernel <-> userspace communication protocol update.
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> 
+> * Dave C Boutcher <sleddog@us.ibm.com> wrote:
+> 
+> > On Wed, Jan 18, 2006 at 11:19:36AM +1100, Michael Ellerman wrote:
+> > > It booted fine _with_ the patch applied, with DEBUG_MUTEXES=y and n.
+> > > 
+> > > Boutcher, to be clear, you can't boot with kernel-kernel-cpuc-to-mutexes.patch 
+> > > applied and DEBUG_MUTEXES=y ?
+> > > 
+> > > But if you revert kernel-kernel-cpuc-to-mutexes.patch it boots ok?
+> > > 
+> > > This is looking quite similar to another hang we're seeing on Power4 iSeries 
+> > > on mainline git:
+> > > http://ozlabs.org/pipermail/linuxppc64-dev/2006-January/007679.html
+> > 
+> > Correct...I die in exactly the same place every time with 
+> > DEBUG_MUTEXES=Y.  I posted a backtrace that points into the _lock_cpu 
+> > code, but I haven't really dug into the issue yet.  I believe this is 
+> > very timing related (Serge was dying slightly differently).
+> 
+> so my question still is: _without_ the workaround patch, i.e. with 
+> vanilla -mm4, and DEBUG_MUTEXES=n, do you get a hang?
+> 
+> the reason for my question is that DEBUG_MUTEXES=y will e.g. enable 
+> interrupts
 
-The changes implemented in the patch set are:
+That used to kill ppc64 and yes, it died in timer interrupts.
 
-1) lookup-cleanup - cleanup of whitespace and formating changes.
-2) readdir-cleanup - changes readdir routines to use the cursor
-   based routines in libfs.c.
-3) failed-lookup - fix stale dentrys stopping mounts.
-4) expire-cleanup - change return values and names of two functions
-   to aid code readability.
-5) expire-traversal-cleanup - simplify expire by adapting it to
-   use the "next_entry" function from namespace.c.
-6) expire-tree-false-negative - fix an expire case which returns
-   busy on tree mounts when they are not.
-7) expire-not-busy-only - alter expire semantics to match that
-   needed for a rework of autofs direct mounts.
-8) remove-update_atime - remove update of atime in favour of
-   letting the VFS update it.
-9) add-show_options - add show_options method to display autofs4
-   mount options in the proc filesystem.
-10) waitq-cleanup - whitespace cleanup of waitq.c
-11) rename-simple_empty_nolock - rename function according to
-   kernel conventions.
-12) may_umount-to-boolean - change may_umount* functions to
-  boolean to aid code readability.
+> - so buggy early bootup code which relies on interrupts being 
+> off might be surprised by it.
+
+I don't think it's necessarily buggy that bootup code needs interrupts
+disabled.  It _is_ buggy that bootup code which needs interrupts disabled
+is calling lock_cpu_hotplug().
+
+> The fact that you observed that it's 
+> somehow related to the timer interrupt seems to strengthen this 
+> suspicion. DEBUG_MUTEXES=n on the other hand should have no such 
+> interrupt-enabling effects.
+> 
+> [ if this indeed is the case then i'll add irqs_off() checks to
+>   DEBUG_MUTEXES=y, to ensure that the mutex APIs are never called with 
+>   interrupts disabled. ]
+
+Yes, I suppose so.  But we're already calling might_sleep(), and
+might_sleep() checks for that.  Perhaps the might_sleep() check is being
+defeated by the nasty system_running check.
+
+There's a sad story behind that system_running check in might_sleep(). 
+Because the kernel early boot is running in an in_atomic() state, a great
+number of bogus might_sleep() warnings come out because of various code
+doing potentially-sleepy things.  I ended up adding the system_running
+test, with the changelog "OK, I give up.  Kill all the might_sleep warnings
+from the early boot process." Undoing that and fixing up the fallout would
+be a lot of nasty work.
+
 

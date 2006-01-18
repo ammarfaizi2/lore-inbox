@@ -1,52 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964953AbWARVov@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbWARVpu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964953AbWARVov (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 16:44:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbWARVov
+	id S1030393AbWARVpu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 16:45:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030475AbWARVpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 16:44:51 -0500
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:60128 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S964953AbWARVou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 16:44:50 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
-To: Roman Zippel <zippel@linux-m68k.org>, Ben Collins <ben.collins@ubuntu.com>,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Wed, 18 Jan 2006 22:51:11 +0100
-References: <5roZI-5y9-29@gated-at.bofh.it> <5sSVt-5Du-1@gated-at.bofh.it> <5sWwg-2Bq-21@gated-at.bofh.it> <5t4kf-5Px-11@gated-at.bofh.it> <5t5zv-7GD-31@gated-at.bofh.it> <5tXA1-3Lh-35@gated-at.bofh.it> <5u04G-7s6-19@gated-at.bofh.it> <5u8Yt-317-41@gated-at.bofh.it> <5u9L8-4gd-19@gated-at.bofh.it> <5uadH-4TM-1@gated-at.bofh.it> <5uaQp-5UL-7@gated-at.bofh.it> <5ubjI-6KH-21@gated-at.bofh.it> <5ubtB-6Xy-9@gated-at.bofh.it> <5uBdT-2Gn-23@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Wed, 18 Jan 2006 16:45:49 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:8079 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1030462AbWARVps (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 16:45:48 -0500
+Date: Wed, 18 Jan 2006 16:45:47 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 5/8] Notifier chain update: Don't unregister yourself
+Message-ID: <Pine.LNX.4.44L0.0601181645020.4974-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1EzLCy-0001uG-7x@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel <zippel@linux-m68k.org> wrote:
-> On Thu, 12 Jan 2006, Ben Collins wrote:
+Notifier chain re-implementation (as636): Two notifier chain callout
+routines try to unregister themselves.  The new blocking-notifier API
+does not support this, so this patch fixes the problem by adding a new
+flag.
 
->> What I don't understand is that if oldconfig is an interactive target,
->> why make it work when interactivity is not available?
-> 
-> It means it will accept any input and no input (by just pressing enter or
-> ctrl-d) means the default answer.
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Chandra Seetharaman <sekharan@us.ibm.com>
 
-If I press ^D, I'd expect to select the abort option (like e.g. all sane
-GUIs do if you close yes/no/abort dialogs instead of selecting a button).
-I can see no advantage from implementing this unexpected behaviour.
+---
 
-<rant>
-I don't understand programmers trying to go ahead even if they know they're
-going the wrong way. The header file can't be found - let's see if it wasn't
-needed, maybe the programmer inserted it just for fun! There is an unknown
-argument '--version'? Just ignore it and start the operation, it won't have
-been that important! *grrrrrr*
-</rant>
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Index: l2616/drivers/parisc/led.c
+===================================================================
+--- l2616.orig/drivers/parisc/led.c
++++ l2616/drivers/parisc/led.c
+@@ -499,11 +499,16 @@ static int led_halt(struct notifier_bloc
+ static struct notifier_block led_notifier = {
+ 	.notifier_call = led_halt,
+ };
++static int notifier_disabled = 0;
+ 
+ static int led_halt(struct notifier_block *nb, unsigned long event, void *buf) 
+ {
+ 	char *txt;
+-	
++
++	if (notifier_disabled)
++		return NOTIFY_OK;
++
++	notifier_disabled = 1;
+ 	switch (event) {
+ 	case SYS_RESTART:	txt = "SYSTEM RESTART";
+ 				break;
+@@ -527,7 +532,6 @@ static int led_halt(struct notifier_bloc
+ 		if (led_func_ptr)
+ 			led_func_ptr(0xff); /* turn all LEDs ON */
+ 	
+-	unregister_reboot_notifier(&led_notifier);
+ 	return NOTIFY_OK;
+ }
+ 
+@@ -758,6 +762,12 @@ not_found:
+ 	return 1;
+ }
+ 
++static void __exit led_exit(void)
++{
++	unregister_reboot_notifier(&led_notifier);
++	return;
++}
++
+ #ifdef CONFIG_PROC_FS
+ module_init(led_create_procfs)
+ #endif
+Index: l2616/drivers/scsi/gdth.c
+===================================================================
+--- l2616.orig/drivers/scsi/gdth.c
++++ l2616/drivers/scsi/gdth.c
+@@ -671,7 +671,7 @@ static struct file_operations gdth_fops 
+ static struct notifier_block gdth_notifier = {
+     gdth_halt, NULL, 0
+ };
+-
++static int notifier_disabled = 0;
+ 
+ static void gdth_delay(int milliseconds)
+ {
+@@ -4595,13 +4595,13 @@ static int __init gdth_detect(struct scs
+         add_timer(&gdth_timer);
+ #endif
+         major = register_chrdev(0,"gdth",&gdth_fops);
++        notifier_disabled = 0;
+         register_reboot_notifier(&gdth_notifier);
+     }
+     gdth_polling = FALSE;
+     return gdth_ctr_vcount;
+ }
+ 
+-
+ static int gdth_release(struct Scsi_Host *shp)
+ {
+     int hanum;
+@@ -5632,10 +5632,14 @@ static int gdth_halt(struct notifier_blo
+     char            cmnd[MAX_COMMAND_SIZE];   
+ #endif
+ 
++    if (notifier_disabled)
++    	return NOTIFY_OK;
++
+     TRACE2(("gdth_halt() event %d\n",(int)event));
+     if (event != SYS_RESTART && event != SYS_HALT && event != SYS_POWER_OFF)
+         return NOTIFY_DONE;
+ 
++    notifier_disabled = 1;
+     printk("GDT-HA: Flushing all host drives .. ");
+     for (hanum = 0; hanum < gdth_ctr_count; ++hanum) {
+         gdth_flush(hanum);
+@@ -5650,10 +5654,8 @@ static int gdth_halt(struct notifier_blo
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+         sdev = scsi_get_host_dev(gdth_ctr_tab[hanum]);
+         srp  = scsi_allocate_request(sdev, GFP_KERNEL);
+-        if (!srp) {
+-            unregister_reboot_notifier(&gdth_notifier);
++        if (!srp)
+             return NOTIFY_OK;
+-        }
+         srp->sr_cmd_len = 12;
+         srp->sr_use_sg = 0;
+         gdth_do_req(srp, &gdtcmd, cmnd, 10);
+@@ -5662,10 +5664,8 @@ static int gdth_halt(struct notifier_blo
+ #else
+         sdev = scsi_get_host_dev(gdth_ctr_tab[hanum]);
+         scp  = scsi_allocate_device(sdev, 1, FALSE);
+-        if (!scp) {
+-            unregister_reboot_notifier(&gdth_notifier);
++        if (!scp)
+             return NOTIFY_OK;
+-        }
+         scp->cmd_len = 12;
+         scp->use_sg = 0;
+         gdth_do_cmd(scp, &gdtcmd, cmnd, 10);
+@@ -5679,7 +5679,6 @@ static int gdth_halt(struct notifier_blo
+ #ifdef GDTH_STATISTICS
+     del_timer(&gdth_timer);
+ #endif
+-    unregister_reboot_notifier(&gdth_notifier);
+     return NOTIFY_OK;
+ }
+ 
+

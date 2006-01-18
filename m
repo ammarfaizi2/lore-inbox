@@ -1,72 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWARMEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWARMLK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030244AbWARMEy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 07:04:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbWARMEy
+	id S1030243AbWARMLK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 07:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030246AbWARMLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 07:04:54 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:25765 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1030245AbWARMEx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 07:04:53 -0500
-Subject: Re: PATCH: (For review) Teach libata to tune master/slave
-	seperately
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
-In-Reply-To: <58cb370e0601180340v529c04fdq5dc962285a6fc1c0@mail.gmail.com>
-References: <1137531678.14135.105.camel@localhost.localdomain>
-	 <58cb370e0601180340v529c04fdq5dc962285a6fc1c0@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 18 Jan 2006 12:04:25 +0000
-Message-Id: <1137585865.25819.27.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 18 Jan 2006 07:11:10 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:33700 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1030243AbWARMLJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 07:11:09 -0500
+From: "Jiri Slaby" <xslaby@fi.muni.cz>
+Date: Wed, 18 Jan 2006 13:10:46 +0100
+Subject: Re: PATCH: SBC EPX does not check/claim I/O ports it uses (2nd Edition)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, calin@ajvar.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+References: <1137520351.14135.40.camel@localhost.localdomain>
+	 <58cb370e0601171003q3e629131y115b665a93d083f3@mail.gmail.com>
+In-reply-to: <1137523345.14135.85.camel@localhost.localdomain>
+Message-Id: <20060118121046.15C3122B38B@anxur.fi.muni.cz>
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-01-18 at 12:40 +0100, Bartlomiej Zolnierkiewicz wrote:
-> The core logic is changed (in the positive way): ata_pio_modes()
-> is finally used for obtaining PIO mask to be used.
-
-Ah yes, Jeff hadn't previously merged the small version of that change.
-Indeed description is a little incorrect.
-
-> Please update the patch description or make it a separate change.
+Alan Cox wrote:
+>Signed-off-by: Alan Cox <alan@redhat.com>
+>
+>--- linux.vanilla-2.6.16-rc1/drivers/char/watchdog/sbc_epx_c3.c	2006-01-17 15:52:53.000000000 +0000
+>+++ linux-2.6.16-rc1/drivers/char/watchdog/sbc_epx_c3.c	2006-01-17 18:27:39.149607944 +0000
+>@@ -25,6 +25,7 @@
+> #include <linux/notifier.h>
+> #include <linux/reboot.h>
+> #include <linux/init.h>
+>+#include <linux/ioport.h>
+> #include <asm/uaccess.h>
+> #include <asm/io.h>
 > 
-> The other functional change is the ordering of programming host/devices:
+>@@ -180,12 +181,15 @@
+> static int __init watchdog_init(void)
+> {
+> 	int ret;
+>+	
+>+	if (!request_region(EPXC3_WATCHDOG_CTL_REG, 2, "epxc3_watchdog"))
+>+		return -EBUSY;
 > 
-> previously:
-> * program PIO for device 0 [host]
-> * program PIO for device 1 [host]
-> * program DMA for device 0 [host]
-> * program DMA for device 1 [host]
-> * program xfer mode for device 0 [device]
-> * program xfer mode for device 1 [device]
+> 	ret = register_reboot_notifier(&epx_c3_notifier);
+> 	if (ret) {
+> 		printk(KERN_ERR PFX "cannot register reboot notifier "
+> 			"(err=%d)\n", ret);
+>-		return ret;
+>+		goto out;
+> 	}
 > 
-> now:
-> * program PIO for device 0 [host]
-> * program DMA for device 0 [host]
-> * program xfer mode for device 0 [device]
-> * program PIO for device 1 [host]
-> * program DMA for device 1 [host]
-> * program xfer mode for device 0 [device]
+> 	ret = misc_register(&epx_c3_miscdev);
+>@@ -193,12 +197,16 @@
+> 		printk(KERN_ERR PFX "cannot register miscdev on minor=%d "
+> 			"(err=%d)\n", WATCHDOG_MINOR, ret);
+> 		unregister_reboot_notifier(&epx_c3_notifier);
+>-		return ret;
+>+		goto out;
+> 	}
 > 
-> This change is OK but I wonder what is the reason for it?
-
-It simply how suffling the code re-ordered it. I don't think its a
-problem but if anyone has a problem I can go and re-re-order it.
-
-libata also really should do adev->pio_mode = XFER_PIO_0; ->set_piomode
-before doing its initial identify etc because there is no guarantee the
-BIOS didn't leave the hardware in a bogus state.
-
-> > I have. Introduces no new bugs I've found but obviously piix secondary
-> > slave doesn't reliably work with or without this change because of the
-> > current piix driver bug.
+> 	printk(banner);
 > 
-> I thought it was merged already (it is obviously correct)?
+> 	return 0;
+>+
+>+out:
+>+	release_region(EPXC3_WATCHDOG_CTL_REG, 2);
+>+	return ret;
+> }
+> 
+> static void __exit watchdog_exit(void)
+But now, you forgot to add release_region in this (exit) function :)?
 
-Apparently not.
-
+regards,
+-- 
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

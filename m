@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWARD1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbWARDdM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932344AbWARD1A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 22:27:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWARD1A
+	id S964894AbWARDdM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 22:33:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWARDdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 22:27:00 -0500
-Received: from h80ad245a.async.vt.edu ([128.173.36.90]:30145 "EHLO
-	h80ad245a.async.vt.edu") by vger.kernel.org with ESMTP
-	id S932344AbWARD07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 22:26:59 -0500
-Message-Id: <200601180325.k0I3P8tF008591@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Andi Kleen <ak@suse.de>, Arjan van de Ven <arjan@infradead.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Keith Owens <kaos@ocs.com.au>, Akinobu Mita <mita@miraclelinux.com>,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH 3/4] compact print_symbol() output 
-In-Reply-To: Your message of "Tue, 17 Jan 2006 22:05:27 EST."
-             <200601172208_MC3-1-B612-EE86@compuserve.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <200601172208_MC3-1-B612-EE86@compuserve.com>
+	Tue, 17 Jan 2006 22:33:11 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:32911 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964894AbWARDdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 22:33:10 -0500
+Date: Tue, 17 Jan 2006 21:32:54 -0600
+From: Robin Holt <holt@sgi.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Robin Holt'" <holt@sgi.com>, Dave McCracken <dmccr@us.ibm.com>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH/RFC] Shared page tables
+Message-ID: <20060118033254.GA28446@lnx-holt.americas.sgi.com>
+References: <20060117235302.GA22451@lnx-holt.americas.sgi.com> <200601180127.k0I1R8g18386@unix-os.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1137554707_3023P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 17 Jan 2006 22:25:07 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601180127.k0I1R8g18386@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1137554707_3023P
-Content-Type: text/plain; charset=us-ascii
-
-On Tue, 17 Jan 2006 22:05:27 EST, Chuck Ebbert said:
-
-> OK, how about this: remove the "0x" from the function size, i.e. print:
+On Tue, Jan 17, 2006 at 05:27:09PM -0800, Chen, Kenneth W wrote:
+> Robin Holt wrote on Tuesday, January 17, 2006 3:53 PM
+> > This appears to work on ia64 with the attached patch.  Could you
+> > send me any test application you think would be helpful for me
+> > to verify it is operating correctly?  I could not get the PTSHARE_PUD
+> > to compile.  I put _NO_ effort into it.  I found the following line
+> > was invalid and quit trying.
+> > 
+> > --- linux-2.6.orig/arch/ia64/Kconfig	2006-01-14 07:16:46.149226872 -0600
+> > +++ linux-2.6/arch/ia64/Kconfig	2006-01-14 07:25:02.228853432 -0600
+> > @@ -289,6 +289,38 @@ source "mm/Kconfig"
+> >  config ARCH_SELECT_MEMORY_MODEL
+> >  	def_bool y
+> >  
+> > +
+> > +config PTSHARE_HUGEPAGE
+> > +	bool
+> > +	depends on PTSHARE && PTSHARE_PMD
+> > +	default y
+> > +
 > 
->         kernel_symbol+0xd3/10e
-> 
-> instead of:
-> 
->         kernel_symbol+0xd3/0x10e
-> 
-> This saves two characters per symbol and it should still be clear that
-> the second number is hexadecimal.
+> You need to thread carefully with hugetlb ptshare on ia64. PTE for
+> hugetlb page on ia64 observe full page table levels, not like x86
+> that sits in the pmd level.
 
-Good.  Now repeat for a function that's 6 bytes shorter.
+I did no testing with hugetlb pages.
 
---==_Exmh_1137554707_3023P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDzbUTcC3lWbTT17ARAjz5AJ9htGvMzDaEvIZz9BkSfV8ABf8yJACeMZQ+
-EWHoQfFXUDaFCcJUElz1HuM=
-=A4w6
------END PGP SIGNATURE-----
-
---==_Exmh_1137554707_3023P--
+Robin

@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWARGLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWARGNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbWARGLw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 01:11:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWARGLw
+	id S1751343AbWARGNd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 01:13:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWARGNd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 01:11:52 -0500
-Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:19942 "EHLO
-	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S1751342AbWARGLw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 01:11:52 -0500
-Date: Wed, 18 Jan 2006 00:11:24 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Dave Hansen <haveblue@us.ibm.com>, Robin Holt <holt@sgi.com>
-cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH/RFC] Shared page tables
-Message-ID: <318E5C5091D3BB0EA8F0C497@[10.1.1.4]>
-In-Reply-To: <1137543450.27951.4.camel@localhost.localdomain>
-References: <A6D73CCDC544257F3D97F143@[10.1.1.4]>	
- <20060117235302.GA22451@lnx-holt.americas.sgi.com>
- <1137543450.27951.4.camel@localhost.localdomain>
-X-Mailer: Mulberry/4.0.0b4 (Linux/x86)
+	Wed, 18 Jan 2006 01:13:33 -0500
+Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:20700 "EHLO
+	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751343AbWARGNd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 01:13:33 -0500
+Date: Wed, 18 Jan 2006 01:08:09 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH 3/4] compact print_symbol() output
+To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
+Cc: Hugh Dickins <hugh@veritas.com>, Akinobu Mita <mita@miraclelinux.com>,
+       Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>,
+       Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>
+Message-ID: <200601180110_MC3-1-B60F-59DE@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In-Reply-To: <200601180325.k0I3P8tF008591@turing-police.cc.vt.edu>
 
---On Tuesday, January 17, 2006 16:17:30 -0800 Dave Hansen
-<haveblue@us.ibm.com> wrote:
+On Tue, 17 Jan 2006 at 22:25:07 -0500, Valdis.Kletnieks wrote:
 
-> On Tue, 2006-01-17 at 17:53 -0600, Robin Holt wrote:
->> This appears to work on ia64 with the attached patch.  Could you
->> send me any test application you think would be helpful for me
->> to verify it is operating correctly?  I could not get the PTSHARE_PUD
->> to compile.  I put _NO_ effort into it.  I found the following line
->> was invalid and quit trying.
-> ...
->> +config PTSHARE
->> +	bool "Share page tables"
->> +	default y
->> +	help
->> +	  Turn on sharing of page tables between processes for large shared
->> +	  memory regions.
-> ...
+> On Tue, 17 Jan 2006 22:05:27 EST, Chuck Ebbert said:
 > 
-> These are probably best put in mm/Kconfig, especially if you're going to
-> have verbatim copies in each architecture.
+> > OK, how about this: remove the "0x" from the function size, i.e. print:
+> > 
+> >         kernel_symbol+0xd3/10e
+> > 
+> > instead of:
+> > 
+> >         kernel_symbol+0xd3/0x10e
+> > 
+> > This saves two characters per symbol and it should still be clear that
+> > the second number is hexadecimal.
+>
+> Good.  Now repeat for a function that's 6 bytes shorter.
 
-No, the specific variables that should be set are different per
-architecture, and some (most) architectures don't yet support shared page
-tables.  It's likely some never will.
+OK, I probably should have done that:
 
-Dave McCracken
+        kernel_symbol+0xd3/108
 
+My point is that if the "numerator" is hex you should assume the
+"denominator" is too.
+-- 
+Chuck
+Currently reading: _Einstein's Bridge_ by John Cramer

@@ -1,86 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbWARW3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbWARWcw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932565AbWARW3h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 17:29:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbWARW3h
+	id S932567AbWARWcw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 17:32:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbWARWcw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 17:29:37 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:40418 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932565AbWARW3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 17:29:36 -0500
-Message-Id: <200601182229.k0IMTJ56003467@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Wireless issues (was Re: 2.6.16-rc1-mm1 
-In-Reply-To: Your message of "Wed, 18 Jan 2006 00:50:53 PST."
-             <20060118005053.118f1abc.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20060118005053.118f1abc.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1137623359_2956P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Wed, 18 Jan 2006 17:29:19 -0500
+	Wed, 18 Jan 2006 17:32:52 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:57503 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S932567AbWARWcv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 17:32:51 -0500
+Date: Wed, 18 Jan 2006 23:32:33 +0100
+From: maximilian attems <maks@sternwelten.at>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Bastian Blank <waldi@debian.org>
+Subject: Re: [patch] kbuild: add automatic updateconfig target
+Message-ID: <20060118223233.GA6217@nancy>
+References: <20060118194056.GA26532@nancy> <20060118204234.GC14340@mars.ravnborg.org> <20060118204750.GD14340@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060118204750.GD14340@mars.ravnborg.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1137623359_2956P
-Content-Type: text/plain; charset=us-ascii
+On Wed, 18 Jan 2006, Sam Ravnborg wrote:
 
-On Wed, 18 Jan 2006 00:50:53 PST, Andrew Morton said:
+> On Wed, Jan 18, 2006 at 09:42:34PM +0100, Sam Ravnborg wrote:
+> > Please always add Roman Zippel when dealing with kconfig changes.
+> And I should do so in my replies - yes!
+> Please use this mail for futher comments to keep all in the loop.
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm1/
-> 
+> 	Sam
 
-My laptop has a Dell TrueMobile 1150 wireless card, which fell over using rc1-mm1.
+ok will do.
+ 	
+> > On Wed, Jan 18, 2006 at 08:40:56PM +0100, maximilian attems wrote:
+> > > From: Bastian Blank <waldi@debian.org>
+> > > 
+> > > current hack for daily build linux-2.6-git is quite ugly: 
+> > > yes "n" | make oldconfig
+> > > 
+> > > belows target helps to build git snapshots in a more automated way,
+> > > setting the new options to their default.
+> > 
+> > Please always add Roman Zippel when dealing with kconfig changes.
+> > We had a similar though more advanced proposal named miniconfig a month
+> > or so ago but Roman had some grief with it so it was not applied.
+> > 
+> > I've let Roman decide on this one too.
+> > Nitpicking below.
+> > 
+> > 	Sam
+> > 	
+> > 
+> > > +updateconfig: $(obj)/conf
+> > > +	$< -U arch/$(ARCH)/Kconfig
+> > 
+> > The other methods uses small letters so please change to '-u'
+> > 
+> > > -	set_random
+> > > +	set_random,
+> > > +	update_default,
+> > 
+> > Keep same naming as the others. May I suggest set_default.
 
-/sbin/pccardctl ident:
+ok easy stuff.
+ 
+> > You did not introduce a specific update.config file like for the other
+> > targets. Any reason for that?
+> > 
+> > 	Sam
 
-Socket 2:
-  product info: "Dell", "TrueMobile 1150 Series PC Card", "Version 01.01", ""
-  manfid: 0x0156, 0x0002
-  function: 6 (network)
+naah, looks more like an oversight.
+will rediff and resend.
 
-Found in 2.6.16-rc1-mm1 dmesg:
-
-orinoco 0.15rc3 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
-orinoco_cs 0.15rc3 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
-orinoco_cs: GetNextTuple(): No matching CIS configuration.  Maybe you need the ignore_cis_vcc=1 parameter.
-2.0: GetFirstTuple: No more items
-orinoco_cs: GetNextTuple(): No matching CIS configuration.  Maybe you need the ignore_cis_vcc=1 parameter.
-2.0: GetFirstTuple: No more items
-
-and a non-functioning wireless card.
-
-A 2.6.15 dmesg says:
-
-orinoco 0.15rc3 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
-orinoco_cs 0.15rc3 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
-eth3: Hardware identity 0005:0004:0005:0000
-eth3: Station identity  001f:0001:0008:000a
-eth3: Firmware determined as Lucent/Agere 8.10
-eth3: Ad-hoc demo mode supported
-eth3: IEEE standard IBSS ad-hoc mode supported
-eth3: WEP supported, 104-bit key
-eth3: MAC address 00:02:2D:5C:11:48
-eth3: Station name "HERMES I"
-eth3: ready
-eth3: index 0x01: Vcc 3.3, irq 11, io 0xe100-0xe13f
-
-I haven't tried adding ignore_cis_vcc to the boot yet, I'm on my way out the door...
-
---==_Exmh_1137623359_2956P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDzsE/cC3lWbTT17ARAj20AJ9uV8SDaByDOCxKLaFPXPMVsP7c9ACeJrr3
-oO0lrJ4gKIkiix6aH677abk=
-=rW8K
------END PGP SIGNATURE-----
-
---==_Exmh_1137623359_2956P--
+-- 
+maks

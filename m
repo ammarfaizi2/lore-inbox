@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030345AbWARP2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030348AbWARPdp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030345AbWARP2l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 10:28:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030347AbWARP2l
+	id S1030348AbWARPdp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 10:33:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030349AbWARPdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 10:28:41 -0500
-Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:52097
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S1030345AbWARP2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 10:28:41 -0500
-Message-ID: <43CE5E9D.3090707@microgate.com>
-Date: Wed, 18 Jan 2006 09:28:29 -0600
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Wed, 18 Jan 2006 10:33:45 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:43182 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1030348AbWARPdo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 10:33:44 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: [PATCH] hci_usb: implement suspend/resume
+Date: Wed, 18 Jan 2006 16:34:08 +0100
+User-Agent: KMail/1.8
+Cc: linux-usb-devel@lists.sourceforge.net, marcel@holtmann.org,
+       maxk@qualcomm.com, linux-kernel@vger.kernel.org,
+       bluez-devel@lists.sourceforge.net
+References: <1137540084.4543.15.camel@localhost> <200601181425.35524.oliver@neukum.org> <1137593621.4543.22.camel@localhost>
+In-Reply-To: <1137593621.4543.22.camel@localhost>
 MIME-Version: 1.0
-To: Jiri Slaby <xslaby@fi.muni.cz>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] synclink_gt fix size of register value storage
-References: <20060118120337.9AB3522B3C4@anxur.fi.muni.cz>
-In-Reply-To: <20060118120337.9AB3522B3C4@anxur.fi.muni.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601181634.08869.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
->>-	unsigned char val;
->>+	unsigned short val;
+Am Mittwoch, 18. Januar 2006 15:13 schrieb Johannes Berg:
+> On Wed, 2006-01-18 at 14:25 +0100, Oliver Neukum wrote:
 > 
-> Shouldn't be this u16 rather than ushort?
+> > This patch is wrong. usb_kill_urb() will sleep. You must not use it under
+> > a spinlock.
+> 
+> Whoops. Good catch. I'll have to analyse the logic with the lists being
+> used here (and probably add a temporary list). Will try to get a new
+> patch until tomorrow.
+> 
+> [side note: how about adding might_sleep() to usb_kill_urb? Then I'd at
+> least have noticed this right away]
 
-It could be argued that way.
-A quick search of CodingStyle does not
-reference the uXX types.
+Good idea.
 
-unsigned short is guaranteed to be
-at least 16 bits, so no data is lost.
-The value is written to the register using
-writew(), so no more than 16 bits are used.
-Using unsigned short here will always work.
-
-Do you know of a Linux environment where
-unsigned short is not 16 bits?
-
--- 
-Paul Fulghum
-Microgate Systems, Ltd.
+	Regards
+		Oliver

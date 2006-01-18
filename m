@@ -1,156 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932497AbWARMxW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbWARMzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932497AbWARMxW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 07:53:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbWARMxW
+	id S932516AbWARMzF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 07:55:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbWARMzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 07:53:22 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:29152 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932497AbWARMxV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 07:53:21 -0500
-Date: Wed, 18 Jan 2006 13:53:05 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, ntl@pobox.com, anton@au1.ibm.com,
-       linux-kernel@vger.kernel.org, michael@ellerman.id.au,
-       linuxppc64-dev@ozlabs.org, serue@us.ibm.com, paulus@au1.ibm.com,
-       torvalds@osdl.org
-Subject: [patch] add trylock_kernel()
-Message-ID: <20060118125305.GA30907@elte.hu>
-References: <20060118063732.GA21003@elte.hu> <20060117225304.4b6dd045.akpm@osdl.org> <20060118072815.GR2846@localhost.localdomain> <20060117233734.506c2f2e.akpm@osdl.org> <20060118080828.GA2324@elte.hu> <20060118002459.3bc8f75a.akpm@osdl.org> <20060118091834.GA21366@elte.hu> <20060118023509.50fe2701.akpm@osdl.org> <43CE1C8B.3010802@yahoo.com.au> <20060118110739.GA11316@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060118110739.GA11316@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.7 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 18 Jan 2006 07:55:04 -0500
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:18364 "EHLO
+	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S932516AbWARMzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 07:55:03 -0500
+From: "Takashi Sato" <sho@tnes.nec.co.jp>
+To: "'Andrew Morton'" <akpm@osdl.org>,
+       "'Andreas Dilger'" <adilger@clusterfs.com>,
+       <trond.myklebust@fys.uio.no>
+Cc: <torvalds@osdl.org>, <viro@zeniv.linux.org.uk>,
+       <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
+Subject: RE: [PATCH 2/3] Fix problems on multi-TB filesystem and file
+Date: Wed, 18 Jan 2006 21:54:36 +0900
+Message-ID: <000101c61c2e$59230b20$4168010a@bsd.tnes.nec.co.jp>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <20060113131947.05ee9ffc.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+> > > On the other hand, for a fairly fat .config which has 17 filesystems in
+> > > .vmlinux:
+> > >
+> > >    text    data     bss     dec     hex filename
+> > > 4633032 1011304  248288 5892624  59ea10 vmlinux		CONFIG_LSF=y
+> > > 4633680 1011304  248288 5893272  59ec98 vmlinux		CONFIG_LSF=n
+> > >
+> > > It's probably less 0.5 kbytes for usual embedded .config.
+> > > I just don't think the benefit of CONFIG_LSF outweighs its costs.
 
-> the way i fixed it in my tree was to add a trylock_kernel(), and to 
-> check for success in init/main.c. See the patch below.
+I looked into the number of struct inode on slab of x86
+in cases i_blocks is both 4 bytes and 8 bytes.
+As the following tables, the number of inodes per slab is the same
+in both cases.  So at least on x86, there seems to be no influence for
+the memory usage by extending inode->i_blocks.
 
-i had a silly bug in the spinlock variant, and some extra unneeded 
-change from another debug patch - fixed patch is below. Tested on x86, 
-with and without CONFIG_PREEMPT_BKL.
+In default configuration (CONFIG_QUOTA=ON, CONFIG_INOTIFY=ON):
+-------------------------------------------------------------
+In case inode->i_blocks is unsigned long
+                size of inode(byte)     the number per slab
+ext2_inode_info        588                       6
+ext3_inode_info        612                       6
 
-	Ingo
+In case inode->i_blocks is unsigned long long
+                size of inode(byte)    the number per slab
+ext2_inode_info        592                       6
+ext3_inode_info        616                       6
+--------------------------------------------------------------
 
---
-introduce trylock_kernel(), to be used by the early init code to acquire 
-the BKL in an atomic way.
+CONFIG_QUOTA=OFF, CONFIG_INOTIFY=OFF:
+-------------------------------------------------------------
+In case inode->i_blocks is unsigned long
+                size of inode(byte)    the number per slab
+ext2_inode_info             540                  7
+ext3_inode_info             564                  7
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+In case inode->i_blocks is unsigned long long
+                size of inode(byte)    the number per slab
+ext2_inode_info             544                  7
+ext3_inode_info             568                  7
+--------------------------------------------------------------
 
-----
+> > Two options exist IMHO:
+> > - remove the new CONFIG_* parameters and stick with CONFIG_LBD (this could
+> >   still use a separate type from sector_t if desired) to reduce the amount
+> >   of testing combinations needed
+> > - make the new CONFIG_* default to on and allow it to be disabled with
+> >   CONFIG_BASE_SMALL
+>
+> Well yes, but we still have the printk problem.
+>
+> CONFIG_LFS would become a specialised option for embedded systems and
+> for the minority of people who self-compile kernels.  I just don't
+> think that's worth the maintainability hassle.
 
- include/linux/smp_lock.h |    1 +
- init/main.c              |   13 ++++++++-----
- lib/kernel_lock.c        |   34 ++++++++++++++++++++++++++++++++++
- 3 files changed, 43 insertions(+), 5 deletions(-)
+I added CONFIG_LSF to use large filesystem over network with >2TB file
+even on a small system as CONFIG_LBD disable.  And I heard that some
+people dislike network filesystems depending on block device.
 
-Index: linux/include/linux/smp_lock.h
-===================================================================
---- linux.orig/include/linux/smp_lock.h
-+++ linux/include/linux/smp_lock.h
-@@ -39,6 +39,7 @@ static inline int reacquire_kernel_lock(
- }
- 
- extern void __lockfunc lock_kernel(void)	__acquires(kernel_lock);
-+extern int __lockfunc trylock_kernel(void);
- extern void __lockfunc unlock_kernel(void)	__releases(kernel_lock);
- 
- #else
-Index: linux/init/main.c
-===================================================================
---- linux.orig/init/main.c
-+++ linux/init/main.c
-@@ -443,11 +443,14 @@ asmlinkage void __init start_kernel(void
- {
- 	char * command_line;
- 	extern struct kernel_param __start___param[], __stop___param[];
--/*
-- * Interrupts are still disabled. Do necessary setups, then
-- * enable them
-- */
--	lock_kernel();
-+
-+	/*
-+	 * Interrupts are still disabled. Do necessary setups, then
-+	 * enable them. This is the first time we take the BKL, so
-+	 * it must succeed:
-+	 */
-+	if (!trylock_kernel())
-+		WARN_ON(1);
- 	page_address_init();
- 	printk(KERN_NOTICE);
- 	printk(linux_banner);
-Index: linux/lib/kernel_lock.c
-===================================================================
---- linux.orig/lib/kernel_lock.c
-+++ linux/lib/kernel_lock.c
-@@ -76,6 +76,23 @@ void __lockfunc lock_kernel(void)
- 	task->lock_depth = depth;
- }
- 
-+int __lockfunc trylock_kernel(void)
-+{
-+	struct task_struct *task = current;
-+	int depth = task->lock_depth + 1;
-+
-+	if (likely(!depth)) {
-+		if (unlikely(down_trylock(&kernel_sem)))
-+			return 0;
-+		else
-+			__acquire(kernel_sem);
-+	}
-+
-+	task->lock_depth = depth;
-+	return 1;
-+}
-+
-+
- void __lockfunc unlock_kernel(void)
- {
- 	struct task_struct *task = current;
-@@ -194,6 +211,22 @@ void __lockfunc lock_kernel(void)
- 	current->lock_depth = depth;
- }
- 
-+int __lockfunc trylock_kernel(void)
-+{
-+	struct task_struct *task = current;
-+	int depth = task->lock_depth + 1;
-+
-+	if (likely(!depth)) {
-+		if (unlikely(!spin_trylock(&kernel_flag)))
-+			return 0;
-+		else
-+			__acquire(kernel_sem);
-+	}
-+
-+	task->lock_depth = depth;
-+	return 1;
-+}
-+
- void __lockfunc unlock_kernel(void)
- {
- 	BUG_ON(current->lock_depth < 0);
-@@ -204,5 +237,6 @@ void __lockfunc unlock_kernel(void)
- #endif
- 
- EXPORT_SYMBOL(lock_kernel);
-+/* we do not export trylock_kernel(). BKL code should shrink :-) */
- EXPORT_SYMBOL(unlock_kernel);
- 
+Trond, do you have comments about integrating CONFIG_LFS and
+CONFIG_LBD?
+
+-- Takashi Sato
+
+

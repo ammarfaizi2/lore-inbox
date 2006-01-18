@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030304AbWARMQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWARMVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030304AbWARMQh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 07:16:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030303AbWARMQg
+	id S1030205AbWARMVV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 07:21:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWARMVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 07:16:36 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46790 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030195AbWARMQf (ORCPT
+	Wed, 18 Jan 2006 07:21:21 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:18134 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030205AbWARMVV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 07:16:35 -0500
-Date: Wed, 18 Jan 2006 13:16:15 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
-       pcihpd-discuss@lists.sourceforge.net, len.brown@intel.com,
-       linux-acpi@vger.kernel.org
-Subject: Re: [patch 0/4]  Hot Dock/Undock support
-Message-ID: <20060118121615.GA13800@elf.ucw.cz>
-References: <1137545813.19858.45.camel@whizzy>
+	Wed, 18 Jan 2006 07:21:21 -0500
+Date: Wed, 18 Jan 2006 04:20:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Jiri Slaby" <xslaby@fi.muni.cz>
+Cc: alan@lxorguk.ukuu.org.uk, bzolnier@gmail.com, calin@ajvar.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: SBC EPX does not check/claim I/O ports it uses (2nd
+ Edition)
+Message-Id: <20060118042051.02fdc4ca.akpm@osdl.org>
+In-Reply-To: <20060118121046.15C3122B38B@anxur.fi.muni.cz>
+References: <1137520351.14135.40.camel@localhost.localdomain>
+	<58cb370e0601171003q3e629131y115b665a93d083f3@mail.gmail.com>
+	<20060118121046.15C3122B38B@anxur.fi.muni.cz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137545813.19858.45.camel@whizzy>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+"Jiri Slaby" <xslaby@fi.muni.cz> wrote:
+>
+> > static void __exit watchdog_exit(void)
+>  But now, you forgot to add release_region in this (exit) function :)?
 
-> This series of patches is against the -mm kernel, and will enable
-> docking station support.  It is an early patch, but still pretty 
-> functional, so I think it's worthwhile to include at this point.
+yup.  That'll give a nice oops reading /proc/ioports after rmmod...
 
-They seem to be in 2.6.16-rc1-mm1 patch, good.
 
-> Supported Features:
-> * Hot Dock/Undock via hardware control
-> * Enumeration of PCI Devices on Dock Station (Hot Add/Remove) via pci 
-> 
-> Not Supported Yet (but will be with laptops with sane dsdts):
-> * _EJD, _EDL support for devices that aren't enumerable
-> * hot add of devices other than PCI devices (such as the serial/lpt etc).
-> * More thorough testing needs to be done for everything, but especially
->   video, as I've not even begun to worry about that.
-...
-> Please comment on these patches, and test if you have a docking station
-> available.  When you find problems, if you would like me to debug them,
-> please load the acpiphp driver with the debug param (modprobe
-> acpiphp debug=1),
+--- devel/drivers/char/watchdog/sbc_epx_c3.c~sbc-epx-does-not-check-claim-i-o-ports-it-uses-2nd-edition-fix	2006-01-18 04:19:58.000000000 -0800
++++ devel-akpm/drivers/char/watchdog/sbc_epx_c3.c	2006-01-18 04:19:58.000000000 -0800
+@@ -213,6 +213,7 @@ static void __exit watchdog_exit(void)
+ {
+ 	misc_deregister(&epx_c3_miscdev);
+ 	unregister_reboot_notifier(&epx_c3_notifier);
++	release_region(EPXC3_WATCHDOG_CTL_REG, 2);
+ }
+ 
+ module_init(watchdog_init);
+_
 
-I'll try to test them and write some small docking HOWTO (or maybe
-force you to write it :-). This is not exactly easy to setup...
-								Pavel
--- 
-Thanks, Sharp!

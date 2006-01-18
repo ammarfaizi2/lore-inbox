@@ -1,107 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbWARHYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbWARH0f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030289AbWARHYz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 02:24:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030285AbWARHYx
+	id S1030290AbWARH0f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 02:26:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030287AbWARHYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 02:24:53 -0500
-Received: from 203-59-65-76.dyn.iinet.net.au ([203.59.65.76]:18885 "EHLO
-	eagle.themaw.net") by vger.kernel.org with ESMTP id S1030274AbWARHYT
+	Wed, 18 Jan 2006 02:24:49 -0500
+Received: from 203-59-65-76.dyn.iinet.net.au ([203.59.65.76]:20677 "EHLO
+	eagle.themaw.net") by vger.kernel.org with ESMTP id S1030275AbWARHYf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 02:24:19 -0500
-Date: Wed, 18 Jan 2006 15:23:43 +0800
-Message-Id: <200601180723.k0I7NhHB006177@eagle.themaw.net>
+	Wed, 18 Jan 2006 02:24:35 -0500
+Date: Wed, 18 Jan 2006 15:23:53 +0800
+Message-Id: <200601180723.k0I7Nruv006185@eagle.themaw.net>
 From: Ian Kent <raven@themaw.net>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
        linux-fsdevel@vger.kernel.org, autofs@linux.kernel.org
-Subject: [PATCH 8/13] autofs4 - remove update_atime unused function
+Subject: [PATCH 9/13] autofs4 - add a show mount options for proc filesystem
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes the update of i_atime from autofs4 in favour of
-having VFS update it. i_atime is never used for expire in autofs4.
+This patch adds show_options method to display autofs4 mount options
+in the proc filesystem.
 
 Signed-off-by: Ian Kent <raven@themaw.net>
 
 
---- linux-2.6.15-mm3/fs/autofs4/root.c.remove-update_atime	2006-01-13 16:21:05.000000000 +0800
-+++ linux-2.6.15-mm3/fs/autofs4/root.c	2006-01-13 16:27:09.000000000 +0800
-@@ -84,24 +84,6 @@ static int autofs4_root_readdir(struct f
- 	return dcache_readdir(file, dirent, filldir);
+--- linux-2.6.15-mm2/fs/autofs4/inode.c.add-show_options	2006-01-11 16:11:06.000000000 +0800
++++ linux-2.6.15-mm2/fs/autofs4/inode.c	2006-01-11 16:26:19.000000000 +0800
+@@ -13,6 +13,7 @@
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/file.h>
++#include <linux/seq_file.h>
+ #include <linux/pagemap.h>
+ #include <linux/parser.h>
+ #include <linux/bitops.h>
+@@ -163,9 +164,26 @@ static void autofs4_put_super(struct sup
+ 	DPRINTK("shutting down");
  }
  
--/* Update usage from here to top of tree, so that scan of
--   top-level directories will give a useful result */
--static void autofs4_update_usage(struct vfsmount *mnt, struct dentry *dentry)
--{
--	struct dentry *top = dentry->d_sb->s_root;
--
--	spin_lock(&dcache_lock);
--	for(; dentry != top; dentry = dentry->d_parent) {
--		struct autofs_info *ino = autofs4_dentry_ino(dentry);
--
--		if (ino) {
--			touch_atime(mnt, dentry);
--			ino->last_used = jiffies;
--		}
--	}
--	spin_unlock(&dcache_lock);
--}
--
- static int autofs4_dir_open(struct inode *inode, struct file *file)
- {
- 	struct dentry *dentry = file->f_dentry;
-@@ -246,10 +228,9 @@ out:
- 	return dcache_readdir(file, dirent, filldir);
- }
++static int autofs4_show_options(struct seq_file *m, struct vfsmount *mnt)
++{
++	struct autofs_sb_info *sbi = autofs4_sbi(mnt->mnt_sb);
++
++	if (!sbi)
++		return 0;
++
++	seq_printf(m, ",fd=%d", sbi->pipefd);
++	seq_printf(m, ",pgrp=%d", sbi->oz_pgrp);
++	seq_printf(m, ",timeout=%lu", sbi->exp_timeout/HZ);
++	seq_printf(m, ",minproto=%d", sbi->min_proto);
++	seq_printf(m, ",maxproto=%d", sbi->max_proto);
++
++	return 0;
++}
++
+ static struct super_operations autofs4_sops = {
+ 	.put_super	= autofs4_put_super,
+ 	.statfs		= simple_statfs,
++	.show_options	= autofs4_show_options,
+ };
  
--static int try_to_fill_dentry(struct vfsmount *mnt, struct dentry *dentry, int flags)
-+static int try_to_fill_dentry(struct dentry *dentry, int flags)
- {
--	struct super_block *sb = mnt->mnt_sb;
--	struct autofs_sb_info *sbi = autofs4_sbi(sb);
-+	struct autofs_sb_info *sbi = autofs4_sbi(dentry->d_sb);
- 	struct autofs_info *ino = autofs4_dentry_ino(dentry);
- 	int status = 0;
+ enum {Opt_err, Opt_fd, Opt_uid, Opt_gid, Opt_pgrp, Opt_minproto, Opt_maxproto};
+@@ -261,7 +279,6 @@ int autofs4_fill_super(struct super_bloc
+ 	int pipefd;
+ 	struct autofs_sb_info *sbi;
+ 	struct autofs_info *ino;
+-	int minproto, maxproto;
  
-@@ -323,13 +304,6 @@ static int try_to_fill_dentry(struct vfs
- 		}
+ 	sbi = (struct autofs_sb_info *) kmalloc(sizeof(*sbi), GFP_KERNEL);
+ 	if ( !sbi )
+@@ -273,12 +290,15 @@ int autofs4_fill_super(struct super_bloc
+ 	s->s_fs_info = sbi;
+ 	sbi->magic = AUTOFS_SBI_MAGIC;
+ 	sbi->root = NULL;
++	sbi->pipefd = -1;
+ 	sbi->catatonic = 0;
+ 	sbi->exp_timeout = 0;
+ 	sbi->oz_pgrp = process_group(current);
+ 	sbi->sb = s;
+ 	sbi->version = 0;
+ 	sbi->sub_version = 0;
++	sbi->min_proto = 0;
++	sbi->max_proto = 0;
+ 	init_MUTEX(&sbi->wq_sem);
+ 	spin_lock_init(&sbi->fs_lock);
+ 	sbi->queues = NULL;
+@@ -311,22 +331,26 @@ int autofs4_fill_super(struct super_bloc
+ 	if (parse_options(data, &pipefd,
+ 			  &root_inode->i_uid, &root_inode->i_gid,
+ 			  &sbi->oz_pgrp,
+-			  &minproto, &maxproto)) {
++			  &sbi->min_proto, &sbi->max_proto)) {
+ 		printk("autofs: called with bogus options\n");
+ 		goto fail_dput;
  	}
  
--	/*
--	 * We don't update the usages for the autofs daemon itself, this
--	 * is necessary for recursive autofs mounts
--	 */
--	if (!autofs4_oz_mode(sbi))
--		autofs4_update_usage(mnt, dentry);
--
- 	/* Initialize expiry counter after successful mount */
- 	if (ino)
- 		ino->last_used = jiffies;
-@@ -357,7 +331,7 @@ static int autofs4_revalidate(struct den
- 	/* Pending dentry */
- 	if (autofs4_ispending(dentry)) {
- 		if (!oz_mode)
--			status = try_to_fill_dentry(nd->mnt, dentry, flags);
-+			status = try_to_fill_dentry(dentry, flags);
- 		return status;
+ 	/* Couldn't this be tested earlier? */
+-	if (maxproto < AUTOFS_MIN_PROTO_VERSION ||
+-	    minproto > AUTOFS_MAX_PROTO_VERSION) {
++	if (sbi->max_proto < AUTOFS_MIN_PROTO_VERSION ||
++	    sbi->min_proto > AUTOFS_MAX_PROTO_VERSION) {
+ 		printk("autofs: kernel does not match daemon version "
+ 		       "daemon (%d, %d) kernel (%d, %d)\n",
+-			minproto, maxproto,
++			sbi->min_proto, sbi->max_proto,
+ 			AUTOFS_MIN_PROTO_VERSION, AUTOFS_MAX_PROTO_VERSION);
+ 		goto fail_dput;
  	}
  
-@@ -374,15 +348,11 @@ static int autofs4_revalidate(struct den
- 			 dentry, dentry->d_name.len, dentry->d_name.name);
- 		spin_unlock(&dcache_lock);
- 		if (!oz_mode)
--			status = try_to_fill_dentry(nd->mnt, dentry, flags);
-+			status = try_to_fill_dentry(dentry, flags);
- 		return status;
- 	}
- 	spin_unlock(&dcache_lock);
+-	sbi->version = maxproto > AUTOFS_MAX_PROTO_VERSION ? AUTOFS_MAX_PROTO_VERSION : maxproto;
++	/* Establish highest kernel protocol version */
++	if (sbi->max_proto > AUTOFS_MAX_PROTO_VERSION)
++		sbi->version = AUTOFS_MAX_PROTO_VERSION;
++	else
++		sbi->version = sbi->max_proto;
+ 	sbi->sub_version = AUTOFS_PROTO_SUBVERSION;
  
--	/* Update the usage list */
--	if (!oz_mode)
--		autofs4_update_usage(nd->mnt, dentry);
--
- 	return 1;
- }
+ 	DPRINTK("pipe fd = %d, pgrp = %u", pipefd, sbi->oz_pgrp);
+@@ -339,6 +363,7 @@ int autofs4_fill_super(struct super_bloc
+ 	if ( !pipe->f_op || !pipe->f_op->write )
+ 		goto fail_fput;
+ 	sbi->pipe = pipe;
++	sbi->pipefd = pipefd;
  
+ 	/*
+ 	 * Take a reference to the root dentry so we get a chance to
+--- linux-2.6.15-mm2/fs/autofs4/autofs_i.h.add-show_options	2006-01-11 16:11:06.000000000 +0800
++++ linux-2.6.15-mm2/fs/autofs4/autofs_i.h	2006-01-11 16:26:19.000000000 +0800
+@@ -86,11 +86,14 @@ struct autofs_wait_queue {
+ struct autofs_sb_info {
+ 	u32 magic;
+ 	struct dentry *root;
++	int pipefd;
+ 	struct file *pipe;
+ 	pid_t oz_pgrp;
+ 	int catatonic;
+ 	int version;
+ 	int sub_version;
++	int min_proto;
++	int max_proto;
+ 	unsigned long exp_timeout;
+ 	int reghost_enabled;
+ 	int needs_reghost;

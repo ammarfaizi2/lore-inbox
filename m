@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030375AbWARQX0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030378AbWARQZs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030375AbWARQX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 11:23:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030378AbWARQX0
+	id S1030378AbWARQZs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 11:25:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030380AbWARQZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 11:23:26 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:23711 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030375AbWARQX0
+	Wed, 18 Jan 2006 11:25:48 -0500
+Received: from uproxy.gmail.com ([66.249.92.195]:48717 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030378AbWARQZr convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 11:23:26 -0500
-Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>
-In-Reply-To: <20060118045518.GB7292@kroah.com>
-References: <20060117143258.150807000@sergelap>
-	 <20060117143326.283450000@sergelap>
-	 <1137511972.3005.33.camel@laptopd505.fenrus.org>
-	 <20060117155600.GF20632@sergelap.austin.ibm.com>
-	 <1137513818.14135.23.camel@localhost.localdomain>
-	 <1137518714.5526.8.camel@localhost.localdomain>
-	 <20060118045518.GB7292@kroah.com>
-Content-Type: text/plain
-Date: Wed, 18 Jan 2006 08:23:15 -0800
-Message-Id: <1137601395.7850.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Jan 2006 11:25:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HvbkRgI67uCWrrJpjM614lEAGOCaXom+fSjJpAuzSTKGvFYUskknrGCPMDakzZAyNjpilSZ8HqKBVBCFFwc9eP94ps6WFcEcawk802Yb1DZyK/UrHpQJaM8bf/KTlB/6LpdHl03Vtx0CNDlH9vDDUDh5CoA+RL3/gptdSgvWqBM=
+Message-ID: <58cb370e0601180825l105d81fbk9a5e57b722255f96@mail.gmail.com>
+Date: Wed, 18 Jan 2006 17:25:44 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Phillip Susi <psusi@cfl.rr.com>
+Subject: Re: io performance...
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       Max Waterman <davidmaxwaterman@fastmail.co.uk>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <43CE6363.2020402@cfl.rr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43CB4CC3.4030904@fastmail.co.uk> <43CDAFE3.8050203@fastmail.co.uk>
+	 <43CDC44E.6080808@wolfmountaingroup.com>
+	 <1137576064.25819.11.camel@localhost.localdomain>
+	 <43CE6363.2020402@cfl.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-17 at 20:55 -0800, Greg KH wrote:
-> On Tue, Jan 17, 2006 at 09:25:14AM -0800, Dave Hansen wrote:
-> > 
-> > Arjan had a very good point last time we posted these: we should
-> > consider getting rid of as many places in the kernel where pids are used
-> > to uniquely identify tasks, and just stick with task_struct pointers.  
-> 
-> That's a very good idea, why didn't you do that?
+On 1/18/06, Phillip Susi <psusi@cfl.rr.com> wrote:
+> I was going to say, doesn't the kernel set the FUA bit on the write
+> request to push important flushes through the disk's write-back cache?
+> Like for filesystem journal flushes?
 
-Because we were being stupid and shoudn't have posted this massive set
-of patches to LKML again before addressing the comments we got last
-time, or doing _anything_ new with them.
+Yes if:
+* you have a disk supporting FUA
+* you have kernel >= 2.6.16-rc1
+* you are using SCSI (this includes libata) driver [ support for IDE driver
+  will be merged later when races in changing IDE  settings are fixed ]
 
--- Dave
+Bartlomiej
 
+> Alan Cox wrote:
+> > Not always. If you have a cache flush command and the OS knows about
+> > using it, or if you don't care if the data gets lost over a power
+> > failure (eg /tmp and swap) it makes sense to force it.
+> >
+> > The raid controller drivers that fake scsi don't always fake enough of
+> > scsi to report that they support cache flushes and the like. That
+> > doesn't mean the controller itself is neccessarily doing one thing or
+> > the other.

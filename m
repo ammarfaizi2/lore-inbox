@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbWARCmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWARCrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964852AbWARCmR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 21:42:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbWARCmQ
+	id S964844AbWARCrS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 21:47:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWARCrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 21:42:16 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:30398 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964852AbWARCmP (ORCPT
+	Tue, 17 Jan 2006 21:47:18 -0500
+Received: from soohrt.org ([85.131.246.150]:13033 "EHLO quickstop.soohrt.org")
+	by vger.kernel.org with ESMTP id S964844AbWARCrR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 21:42:15 -0500
-Date: Tue, 17 Jan 2006 18:33:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: torvalds@osdl.org, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Reuben Farrelly <reuben-lkml@reub.net>
-Subject: Re: [git patches] 2.6.x libata updates
-Message-Id: <20060117183318.1031c0d2.akpm@osdl.org>
-In-Reply-To: <20060118021530.GA23108@havoc.gtf.org>
-References: <20060118021530.GA23108@havoc.gtf.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 17 Jan 2006 21:47:17 -0500
+Date: Wed, 18 Jan 2006 03:47:10 +0100
+From: Horst Schirmeier <horst@schirmeier.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: udev/hotplug and automatic /dev node creation
+Message-ID: <20060118024710.GB26895@quickstop.soohrt.org>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> wrote:
->
->  Please pull from 'upstream-linus' branch of
->  master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+Hi,
 
-I worry that whatever it is which has busted Reuben's machine will leak
-into mainline.  This patch probably isn't it.
+I'm looking for documentation regarding how to write a Linux kernel
+module that creates its own /dev node via udev/hotplug.
+register_chrdev() and a simple udev/rules.d/ entry don't seem to be
+sufficient...
 
-I guess if we can feed libata and acpi into mainline in little bits and
-pieces like this, that'll help us work out the cause.
+Any suggestions on where to start reading are welcome.
 
-Reuben has spent ages bisecting lots of patches, but the bug is quite
-intermittent, which makes the process quite maddeningly error-prone and
-slow.
+Kind regards,
+ Horst
 
-Then again, perhaps merging it up is the best way of fixing it: someone out
-there will hit the thing more repeatably and will have a better shot at
-finding the cause.
-
-
+-- 
+PGP-Key 0xD40E0E7A

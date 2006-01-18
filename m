@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932526AbWARCaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbWARCds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932526AbWARCaz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 21:30:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbWARCaz
+	id S932537AbWARCds (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 21:33:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932541AbWARCds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 21:30:55 -0500
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:18056 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S932526AbWARCay
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 21:30:54 -0500
-Date: Wed, 18 Jan 2006 03:30:49 +0100 (CET)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Michael Loftis <mloftis@wgops.com>
-cc: Benjamin LaHaise <bcrl@kvack.org>, Cynbe ru Taren <cynbe@muq.org>,
+	Tue, 17 Jan 2006 21:33:48 -0500
+Received: from ns2.suse.de ([195.135.220.15]:6584 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932532AbWARCdr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 21:33:47 -0500
+From: Andi Kleen <ak@suse.de>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: [PATCH 2.6.15] ia64: use i386 dmi_scan.c
+Date: Wed, 18 Jan 2006 03:32:19 +0100
+User-Agent: KMail/1.8
+Cc: Matt Domsch <Matt_Domsch@dell.com>, linux-ia64@vger.kernel.org,
+       openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
+       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
-In-Reply-To: <A1F2470FFF6F1B84CEF78FC4@d216-220-25-20.dynip.modwest.com>
-Message-ID: <Pine.LNX.4.60.0601180326250.30177@kepler.fjfi.cvut.cz>
-References: <E1EywcM-0004Oz-IE@laurel.muq.org> <20060117193913.GD3714@kvack.org>
- <Pine.LNX.4.60.0601172047560.25680@kepler.fjfi.cvut.cz>
- <A1F2470FFF6F1B84CEF78FC4@d216-220-25-20.dynip.modwest.com>
+References: <20060104221627.GA26064@lists.us.dell.com> <200601131724.42054.bjorn.helgaas@hp.com> <200601171717.03192.bjorn.helgaas@hp.com>
+In-Reply-To: <200601171717.03192.bjorn.helgaas@hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601180332.19692.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Jan 2006, Michael Loftis wrote:
-> --On January 17, 2006 9:13:49 PM +0100 Martin Drab <drab@kepler.fjfi.cvut.cz> wrote:
-> 
-> > I've consulted this with Mark Salyzyn, because I thought it was a problem
-> > of the AACRAID driver. But I was told, that there is nothing that AACRAID
-> > can possibly do about it, and that it is a problem of the upper Linux
-> > layers (block device layer?) that are strictly fault intollerant, and
-> > thouth the problem was just an inconsistency of one particular localized
-> > region inside /dev/sda2, Linux was COMPLETELY UNABLE (!!!!!) to read a
-> > single byte from the ENTIRE VOLUME (/dev/sda)!
-> 
-> Actually...this is also related to how the controller reports the error. If it
-> reports a device level death/failure rather than a read error, Linux is just
+On Wednesday 18 January 2006 01:17, Bjorn Helgaas wrote:
+> On Friday 13 January 2006 17:24, Bjorn Helgaas wrote:
+> > ... the
+> > DMI stuff crashes HP sx2000 (and probably sx1000) boxes, probably
+> > because of some memory attribute problem.  So I'll have more
+> > feedback after I debug that ;-)
+>
+> It *is* a memory attribute problem.  The current code always calls
+> ioremap() on efi.smbios.  The first problem is that this is a
+> physical address on x86, but a virtual address on ia64.
+>
+> The second problem is that we don't check the supported attributes
+> for the SMBIOS table.  On HP sx1000/sx2000, these tables are in system
+> memory, which doesn't support uncacheable access, so iorem
+> ap() does the wrong thing.
 
-Yes, but that wasn't the case here. I've witnessed that a while ago, but 
-this time, no. Just a read error, no device death nor going off-line. 
-Otherwise I wouldn't be that much surprised that Linux didn't even try. 
-The controller didn't do anything that would prevent system from reading. 
-Windows used that and worked, Linux unfortunatelly didn't even try. That's 
-why I'm talking about it here.
+At least on x86-64/i386 the ioremap is actually cached unless a MTRR
+changes it, but it normally doesn't here. If one wants to force uncached
+access one has to use ioremap_uncached(). You're saying IA64 ioremap
+forces uncached access? That seems weird.
 
-> taking that on face value.  Yup, it should retry though.  Other possibilities
-> exist including the volume going offline at the controller level, having
-> nothing to do with Linux, this is most often the problem I see with RAIDs.
+> +	if (efi_enabled) {
+> +		if (efi_mem_attributes(base & EFI_MEMORY_WB)) {
+> +			iomem = 0;
+> +			buf = (u8 *) phys_to_virt(base);
+> +		} else if (efi_mem_attributes(base & EFI_MEMORY_UC))
+> +			buf = dmi_ioremap(base, len);
+> +		else
+> +			buf = NULL;
 
-Martin
+I would expect your ioremap to already do such a lookup. That is at least
+how MTRRs on i386/x86-64 work.  If it does not how about you fix
+ioremap()? Or provide a suitable ia64 dmi_ioremap, but it's likely
+better to do it generally.
+
+Regarding physical vs virtual efi.smbios -- it sounds nasty to have such
+a difference in the EFI support for different architectures. Matthew, do
+you have a suggestion how this can be unified?
+
+-Andi

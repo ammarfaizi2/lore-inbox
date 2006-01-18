@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWARF4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWARGLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751309AbWARF4p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 00:56:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWARF4p
+	id S1751342AbWARGLw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 01:11:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWARGLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 00:56:45 -0500
-Received: from mf00.sitadelle.com ([212.94.174.67]:45257 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1751309AbWARF4p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 00:56:45 -0500
-Message-ID: <43CDD892.6090605@cosmosbay.com>
-Date: Wed, 18 Jan 2006 06:56:34 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Wed, 18 Jan 2006 01:11:52 -0500
+Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:19942 "EHLO
+	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S1751342AbWARGLw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 01:11:52 -0500
+Date: Wed, 18 Jan 2006 00:11:24 -0600
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Dave Hansen <haveblue@us.ibm.com>, Robin Holt <holt@sgi.com>
+cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH/RFC] Shared page tables
+Message-ID: <318E5C5091D3BB0EA8F0C497@[10.1.1.4]>
+In-Reply-To: <1137543450.27951.4.camel@localhost.localdomain>
+References: <A6D73CCDC544257F3D97F143@[10.1.1.4]>	
+ <20060117235302.GA22451@lnx-holt.americas.sgi.com>
+ <1137543450.27951.4.camel@localhost.localdomain>
+X-Mailer: Mulberry/4.0.0b4 (Linux/x86)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
-       jeffrey.t.kirsher@intel.com
-Subject: Re: [PATCH 11/17] fuse: add number of waiting requests attribute
-References: <20060114003948.793910000@dorka.pomaz.szeredi.hu>	<20060114004114.241169000@dorka.pomaz.szeredi.hu> <20060113172846.3ea49670.akpm@osdl.org>
-In-Reply-To: <20060113172846.3ea49670.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton a écrit :
-> Miklos Szeredi <miklos@szeredi.hu> wrote:
->> +	/** The number of requests waiting for completion */
->> +	atomic_t num_waiting;
-> 
-> This doesn't get initialised anywhere.
-> 
-> Presumably you're relying on a memset somewhere.  That might work on all
-> architectures, AFAIK.  But in theory it's wrong.  If, for example, the
-> architecture implements atomic_t via a spinlock-plus-integer, and that
-> spinlock's unlocked state is not all-bits-zero, we're dead.
-> 
-> So we should initialise it with
-> 
-> 	foo->num_waiting = ATOMIC_INIT(0);
-> 
-> 
-> 
-> nb: it is not correct to initialise an atomic_t with
-> 
-> 	atomic_set(a, 0);
-> 
-> because in the above theoretical case case where the arch uses a spinlock
-> in the atomic_t, that spinlock doesn't get initialised.  I bet we've got code
-> in there which does this.
 
-Hum... I tracked one missing atomic_set() or ATOMIC_INIT in e1000 driver then.
+--On Tuesday, January 17, 2006 16:17:30 -0800 Dave Hansen
+<haveblue@us.ibm.com> wrote:
 
-e1000_alloc_queues() does :
+> On Tue, 2006-01-17 at 17:53 -0600, Robin Holt wrote:
+>> This appears to work on ia64 with the attached patch.  Could you
+>> send me any test application you think would be helpful for me
+>> to verify it is operating correctly?  I could not get the PTSHARE_PUD
+>> to compile.  I put _NO_ effort into it.  I found the following line
+>> was invalid and quit trying.
+> ...
+>> +config PTSHARE
+>> +	bool "Share page tables"
+>> +	default y
+>> +	help
+>> +	  Turn on sharing of page tables between processes for large shared
+>> +	  memory regions.
+> ...
+> 
+> These are probably best put in mm/Kconfig, especially if you're going to
+> have verbatim copies in each architecture.
 
-#ifdef CONFIG_E1000_NAPI
-         size = sizeof(struct net_device) * adapter->num_queues;
-         adapter->polling_netdev = kmalloc(size, GFP_KERNEL);
-         if (!adapter->polling_netdev) {
-                 kfree(adapter->tx_ring);
-                 kfree(adapter->rx_ring);
-                 return -ENOMEM;
-         }
-         memset(adapter->polling_netdev, 0, size);
-#endif
+No, the specific variables that should be set are different per
+architecture, and some (most) architectures don't yet support shared page
+tables.  It's likely some never will.
 
-So this driver clearly assumes a memset(... 0 ...) also initialize atomic_t to 
-  0   ((struct net_device *)->refcnt for example)
+Dave McCracken
 
-Eric

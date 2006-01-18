@@ -1,49 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbWARAcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWARAbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932524AbWARAcN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 19:32:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbWARAcM
+	id S965006AbWARAbf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 19:31:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbWARAbf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 19:32:12 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:53680 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932524AbWARAcJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 19:32:09 -0500
-Message-ID: <43CD8C82.5030604@pobox.com>
-Date: Tue, 17 Jan 2006 19:32:02 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Tue, 17 Jan 2006 19:31:35 -0500
+Received: from relay.bostream.com ([81.26.227.9]:24528 "EHLO
+	endeavour.mit.um.bostream.net") by vger.kernel.org with ESMTP
+	id S932533AbWARAbe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 19:31:34 -0500
+Message-ID: <43CD8C64.4080909@letterboxes.org>
+Date: Wed, 18 Jan 2006 01:31:32 +0100
+From: =?UTF-8?B?Q2hyaXN0ZXIgQsOkY2tzdHLDtm0=?= 
+	<cbackstrom@letterboxes.org>
+User-Agent: Mozilla Thunderbird 1.0.6-7.1.20060mdk (X11/20050322)
+X-Accept-Language: sv, en-us, en
 MIME-Version: 1.0
-To: Jason Gaston <jason.d.gaston@intel.com>
-CC: jgarzik@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Intel ICH8 SATA: add PCI device IDs
-References: <200601171228.48394.jason.d.gaston@intel.com>
-In-Reply-To: <200601171228.48394.jason.d.gaston@intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Re: amd64 cdrom access locks system
+References: <S1750841AbWAQXWc/20060117232242Z+104@vger.kernel.org>
+In-Reply-To: <S1750841AbWAQXWc/20060117232242Z+104@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Jason Gaston wrote: > Resubmit after removing duplicate
-	entry. > > Signed-off-by: Jason Gaston <Jason.d.gaston@intel.com>
-	applied [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Gaston wrote:
-> Resubmit after removing duplicate entry.
+ > Aric Cyr <Aric.Cyr () gmail ! com> writes:
+> > Bartlomiej Zolnierkiewicz <bzolnier <at> gmail.com> writes:
 > 
-> Signed-off-by:  Jason Gaston <Jason.d.gaston@intel.com>
+>> 
+>> On 6/14/05, Jeff Wiegley <jeffw <at> cyte.com> wrote:
+>> > using "dev=/dev/hda" yeilds the exact same behavior...
+>> > 
+>> >    Jun 14 03:21:50 localhost kernel: ide-cd: cmd 0x3 timed out
+>> >    Jun 14 03:21:50 localhost kernel: hda: lost interrupt
+>> >    Jun 14 03:22:50 localhost kernel: ide-cd: cmd 0x3 timed out
+>> >    Jun 14 03:22:50 localhost kernel: hda: lost interrupt
+>> >    Jun 14 03:23:30 localhost kernel: hda: lost interrupt
+>> 
+>> Jens, any idea?
+>> 
+>> > And I'm a little confused by Robert's suggestion... Should it
+>> > ever be possible for a user-space application to cause lost
+>> > interrupts and other kernel state problems regardless of what
+>> > "interface" is used?? Sure, if the application uses the wrong
+>> > interface it should get spanked somehow but should it be able to
+>> > mess up the kernel for other applications as well? (Like now
+>> > I can't read or eject.)
+>> 
+>> It shouldn't be possible unless it is "raw" interface
+>> (requires CAP_SYS_RAWIO) w/o checking all possible
+>> parameters (it is not always possible) or device is buggy.
+>> 
+>> Also it is quite unlikely that somebody will fix obsolete
+>> interface (hey, it got obsoleted for some reason .
+>> 
+>> Bartlomiej
+>> 
+> 
+> Has this problem been fixed at all or any workarounds known?  I am having the
+> exact same issue with similar hardware and the alim15x3 driver.  In my case it
+> does not matter which method I use for cdrecord (ATA:, ATAPI: or dev=/dev/hda),
+> I will always get the lost interrupts from the command "cdrecord -atip".  I have
+> tried other drives without success so I don't believe that is the problem. 
+> Interestingly cdrdao does not have any problems at all and burns perfectly, so I
+> suspect that cdrecord might be throwing some command that ide-cd or the IDE
+> drive doesn't like and fails to recover from.  However, disabling DMA on the
+> drive via hdparm makes cdrecord work perfectly, so I suspect the alim15x3 driver
+> more than anything else.  I can play DVDs for hours with DMA enabled just fine
+> though... go figure.  My current kernel is 2.6.14-gentoo-r6, but I have had this
+> problem since I first had got the system (around 2.6.12).
 
-applied
+Exactly the same problems here, on a laptop (Amd64, Mandriva 2006, 
+linux-2.6.15) with an:
 
+ALi Corporation M5229 IDE (rev c7)
 
+The cd-writer locks up if the DMA is enabled, as above. But the drive is 
+usable if it is disabled.
+
+The only other potential problem I've found is that the UDMA timings for 
+the /dev/hda is "???" (see below).
+
+----------------------------------------------
+#> cat /proc/ide/ali
+
+                                 Ali M15x3 Chipset.
+                                 ------------------
+PCI Clock: 0.
+CD_ROM FIFO:No , CD_ROM DMA:Yes
+FIFO Status: contains 1 Words, runs.
+
+----------------primary channel---------secondary channel---------
+
+channel status:       Off			Off
+both channels togth:  Yes			Yes
+Channel state:        busy			OK
+Add. Setup Timing:    1T			1T
+Command Act. Count:   3T			3T
+Command Rec. Count:   1T			1T
+
+----------------drive0----------drive1----------drive0----------drive1------
+
+DMA enabled:	Yes		No		Yes		No
+FIFO threshold:	4 Words		4 Words		4 Words		4 Words
+FIFO mode:	FIFO Off	FIFO Off	FIFO Off	FIFO Off
+Dt RW act. Cnt	3T		8T		3T		8T
+Dt RW rec. Cnt	1T		16T		1T		16T
+
+-----------------------------------UDMATimings--------------------------------
+
+UDMA:		OK		No		OK		No
+UDMA timings:	???		1.5T		2.5T		1.5T
+
+--------------------------------------
+
+> 
+> I'm really anxious to track this down so if anyone has any information, or need
+> something from me (logs or debugging) please don't hesitate to ask.
+> 
+
+The same situation here. I've seen a few reports about this behaviour 
+with the alim15x3 driver before, so I just wanted to report my problems 
+too. If someone has any idea what's happening I'd be glad to try out any 
+patches. Please CC me, as I am not subscribed to the list.
+
+/Chris
+> Regards,
+>   Aric
+> 

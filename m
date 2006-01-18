@@ -1,187 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030389AbWARTkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030399AbWARTlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030389AbWARTkB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 14:40:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030393AbWARTkB
+	id S1030399AbWARTlP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 14:41:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030403AbWARTlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 14:40:01 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:32737 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id S1030389AbWARTkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 14:40:00 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 18 Jan 2006 11:39:56 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@localhost.localdomain
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, David Woodhouse <dwmw2@infradead.org>
-Subject: [patch] epoll_pwait ...
-Message-ID: <Pine.LNX.4.63.0601181132470.6878@localhost.localdomain>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+	Wed, 18 Jan 2006 14:41:15 -0500
+Received: from baikonur.stro.at ([213.239.196.228]:56474 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S1030399AbWARTlO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 14:41:14 -0500
+Date: Wed, 18 Jan 2006 20:40:56 +0100
+From: maximilian attems <maks@sternwelten.at>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       Bastian Blank <waldi@debian.org>
+Subject: [patch] kbuild: add automatic updateconfig target
+Message-ID: <20060118194056.GA26532@nancy>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-391076099-1137613196=:6878"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+From: Bastian Blank <waldi@debian.org>
 
---8323328-391076099-1137613196=:6878
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+current hack for daily build linux-2.6-git is quite ugly: 
+yes "n" | make oldconfig
 
+belows target helps to build git snapshots in a more automated way,
+setting the new options to their default.
 
-The attached patch implements the epoll_pwait system call, that extend the 
-event wait mechanism with the same logic ppoll and pselect do. The 
-definition of epoll_pwait is:
-
-int epoll_pwait(int epfd, struct epoll_event *events, int maxevents,
-                 int timeout, const sigset_t *sigmask, size_t sigsetsize);
-
-The difference between the vanilla epoll_wait and epoll_pwait is that the 
-latter allows the caller to specify a signal mask to be set while waiting 
-for events. Hence epoll_pwait will wait until either one monitored event, 
-or an unmasked signal happen. If sigmask is NULL, the epoll_pwait system 
-call will act exactly like epoll_wait. For the POSIX definition of 
-pselect, information is available here:
-
-http://www.opengroup.org/onlinepubs/009695399/functions/select.html
-
-This patch goes over 2.6.15-mm4 and the epoll_pwait definition depends on 
-the TIF_RESTORE_SIGMASK bits.
-
-ChangeLog:
-
-o Make it conditional to TIF_RESTORE_SIGMASK definition to avoid breaking
-   archs that do not still support it
-
-o Changed the name to epoll_pwait
-
-o Changed the order of "sigmask" and "error" checks in the epoll_pwait
-   exit path
+Signed-off-by: maximilian attems <maks@sternwelten.at>
 
 
-
-Singed-off-by: Davide Libenzi <davidel@xmailserver.org>
-
-
-
-- Davide
-
-
-
-arch/i386/kernel/syscall_table.S |    1
-fs/eventpoll.c                   |   55 ++++++++++++++++++++++++++++++++++++---
-include/asm-i386/unistd.h        |    3 +-
-include/linux/syscalls.h         |    3 ++
-4 files changed, 58 insertions(+), 4 deletions(-)
-
---8323328-391076099-1137613196=:6878
-Content-Type: TEXT/plain; charset=US-ASCII; name=epoll_pwait-2.6.15-0.4.diff
-Content-Transfer-Encoding: BASE64
-Content-Description: 
-Content-Disposition: attachment; filename=epoll_pwait-2.6.15-0.4.diff
-
-ZGlmZiAtTnJ1IGxpbnV4LTIuNi4xNS9hcmNoL2kzODYva2VybmVsL3N5c2Nh
-bGxfdGFibGUuUyBsaW51eC0yLjYuMTUubW9kL2FyY2gvaTM4Ni9rZXJuZWwv
-c3lzY2FsbF90YWJsZS5TDQotLS0gbGludXgtMi42LjE1L2FyY2gvaTM4Ni9r
-ZXJuZWwvc3lzY2FsbF90YWJsZS5TCTIwMDYtMDEtMTggMTE6MDU6MzUuMDAw
-MDAwMDAwIC0wODAwDQorKysgbGludXgtMi42LjE1Lm1vZC9hcmNoL2kzODYv
-a2VybmVsL3N5c2NhbGxfdGFibGUuUwkyMDA2LTAxLTE4IDExOjA2OjQyLjAw
-MDAwMDAwMCAtMDgwMA0KQEAgLTMxMCwzICszMTAsNCBAQA0KIAkubG9uZyBz
-eXNfcHNlbGVjdDYNCiAJLmxvbmcgc3lzX3Bwb2xsDQogCS5sb25nIHN5c191
-bnNoYXJlCQkvKiAzMTAgKi8NCisJLmxvbmcgc3lzX2Vwb2xsX3B3YWl0DQpk
-aWZmIC1OcnUgbGludXgtMi42LjE1L2ZzL2V2ZW50cG9sbC5jIGxpbnV4LTIu
-Ni4xNS5tb2QvZnMvZXZlbnRwb2xsLmMNCi0tLSBsaW51eC0yLjYuMTUvZnMv
-ZXZlbnRwb2xsLmMJMjAwNi0wMS0xOCAxMTowNTozNy4wMDAwMDAwMDAgLTA4
-MDANCisrKyBsaW51eC0yLjYuMTUubW9kL2ZzL2V2ZW50cG9sbC5jCTIwMDYt
-MDEtMTggMTE6MzE6MTIuMDAwMDAwMDAwIC0wODAwDQpAQCAtMTA1LDYgKzEw
-NSw4IEBADQogLyogTWF4aW11bSBtc2VjIHRpbWVvdXQgdmFsdWUgc3RvcmVh
-YmxlIGluIGEgbG9uZyBpbnQgKi8NCiAjZGVmaW5lIEVQX01BWF9NU1RJTUVP
-IG1pbigxMDAwVUxMICogTUFYX1NDSEVEVUxFX1RJTUVPVVQgLyBIWiwgKExP
-TkdfTUFYIC0gOTk5VUxMKSAvIEhaKQ0KIA0KKyNkZWZpbmUgRVBfTUFYX0VW
-RU5UUyAoSU5UX01BWCAvIHNpemVvZihzdHJ1Y3QgZXBvbGxfZXZlbnQpKQ0K
-Kw0KIA0KIHN0cnVjdCBlcG9sbF9maWxlZmQgew0KIAlzdHJ1Y3QgZmlsZSAq
-ZmlsZTsNCkBAIC01MDYsNyArNTA4LDcgQEANCiAgKi8NCiBhc21saW5rYWdl
-IGxvbmcgc3lzX2Vwb2xsX2NyZWF0ZShpbnQgc2l6ZSkNCiB7DQotCWludCBl
-cnJvciwgZmQ7DQorCWludCBlcnJvciwgZmQgPSAtMTsNCiAJc3RydWN0IGV2
-ZW50cG9sbCAqZXA7DQogCXN0cnVjdCBpbm9kZSAqaW5vZGU7DQogCXN0cnVj
-dCBmaWxlICpmaWxlOw0KQEAgLTY0OSw3ICs2NTEsNiBAQA0KIAlyZXR1cm4g
-ZXJyb3I7DQogfQ0KIA0KLSNkZWZpbmUgTUFYX0VWRU5UUyAoSU5UX01BWCAv
-IHNpemVvZihzdHJ1Y3QgZXBvbGxfZXZlbnQpKQ0KIA0KIC8qDQogICogSW1w
-bGVtZW50IHRoZSBldmVudCB3YWl0IGludGVyZmFjZSBmb3IgdGhlIGV2ZW50
-cG9sbCBmaWxlLiBJdCBpcyB0aGUga2VybmVsDQpAQCAtNjY2LDcgKzY2Nyw3
-IEBADQogCQkgICAgIGN1cnJlbnQsIGVwZmQsIGV2ZW50cywgbWF4ZXZlbnRz
-LCB0aW1lb3V0KSk7DQogDQogCS8qIFRoZSBtYXhpbXVtIG51bWJlciBvZiBl
-dmVudCBtdXN0IGJlIGdyZWF0ZXIgdGhhbiB6ZXJvICovDQotCWlmIChtYXhl
-dmVudHMgPD0gMCB8fCBtYXhldmVudHMgPiBNQVhfRVZFTlRTKQ0KKwlpZiAo
-bWF4ZXZlbnRzIDw9IDAgfHwgbWF4ZXZlbnRzID4gRVBfTUFYX0VWRU5UUykN
-CiAJCXJldHVybiAtRUlOVkFMOw0KIA0KIAkvKiBWZXJpZnkgdGhhdCB0aGUg
-YXJlYSBwYXNzZWQgYnkgdGhlIHVzZXIgaXMgd3JpdGVhYmxlICovDQpAQCAt
-NzA4LDYgKzcwOSw1NCBAQA0KIH0NCiANCiANCisjaWZkZWYgVElGX1JFU1RP
-UkVfU0lHTUFTSw0KKw0KKy8qDQorICogSW1wbGVtZW50IHRoZSBldmVudCB3
-YWl0IGludGVyZmFjZSBmb3IgdGhlIGV2ZW50cG9sbCBmaWxlLiBJdCBpcyB0
-aGUga2VybmVsDQorICogcGFydCBvZiB0aGUgdXNlciBzcGFjZSBlcG9sbF9w
-d2FpdCgyKS4NCisgKi8NCithc21saW5rYWdlIGxvbmcgc3lzX2Vwb2xsX3B3
-YWl0KGludCBlcGZkLCBzdHJ1Y3QgZXBvbGxfZXZlbnQgX191c2VyICpldmVu
-dHMsDQorCQkJCWludCBtYXhldmVudHMsIGludCB0aW1lb3V0LCBjb25zdCBz
-aWdzZXRfdCBfX3VzZXIgKnNpZ21hc2ssDQorCQkJCXNpemVfdCBzaWdzZXRz
-aXplKQ0KK3sNCisJaW50IGVycm9yOw0KKwlzaWdzZXRfdCBrc2lnbWFzaywg
-c2lnc2F2ZWQ7DQorDQorCS8qDQorCSAqIElmIHRoZSBjYWxsZXIgd2FudHMg
-YSBjZXJ0YWluIHNpZ25hbCBtYXNrIHRvIGJlIHNldCBkdXJpbmcgdGhlIHdh
-aXQsDQorCSAqIHdlIGFwcGx5IGl0IGhlcmUuDQorCSAqLw0KKwlpZiAoc2ln
-bWFzaykgew0KKwkJaWYgKHNpZ3NldHNpemUgIT0gc2l6ZW9mKHNpZ3NldF90
-KSkNCisJCQlyZXR1cm4gLUVJTlZBTDsNCisJCWlmIChjb3B5X2Zyb21fdXNl
-cigma3NpZ21hc2ssIHNpZ21hc2ssIHNpemVvZihrc2lnbWFzaykpKQ0KKwkJ
-CXJldHVybiAtRUZBVUxUOw0KKwkJc2lnZGVsc2V0bWFzaygma3NpZ21hc2ss
-IHNpZ21hc2soU0lHS0lMTCkgfCBzaWdtYXNrKFNJR1NUT1ApKTsNCisJCXNp
-Z3Byb2NtYXNrKFNJR19TRVRNQVNLLCAma3NpZ21hc2ssICZzaWdzYXZlZCk7
-DQorCX0NCisNCisJZXJyb3IgPSBzeXNfZXBvbGxfd2FpdChlcGZkLCBldmVu
-dHMsIG1heGV2ZW50cywgdGltZW91dCk7DQorDQorCS8qDQorCSAqIElmIHdl
-IGNoYW5nZWQgdGhlIHNpZ25hbCBtYXNrLCB3ZSBuZWVkIHRvIHJlc3RvcmUg
-dGhlIG9yaWdpbmFsIG9uZS4NCisJICogSW4gY2FzZSB3ZSd2ZSBnb3QgYSBz
-aWduYWwgd2hpbGUgd2FpdGluZywgd2UgZG8gbm90IHJlc3RvcmUgdGhlIHNp
-Z25hbA0KKwkgKiBtYXNrIHlldCwgYW5kIHdlIGFsbG93IGRvX3NpZ25hbCgp
-IHRvIGRlbGl2ZXIgdGhlIHNpZ25hbCBvbiB0aGUgd2F5IGJhY2sNCisJICog
-dG8gdXNlcnNwYWNlLCBiZWZvcmUgdGhlIHNpZ25hbCBtYXNrIGlzIHJlc3Rv
-cmVkLg0KKwkgKi8NCisJaWYgKHNpZ21hc2spIHsNCisJCWlmIChlcnJvciA9
-PSAtRUlOVFIpIHsNCisJCQltZW1jcHkoJmN1cnJlbnQtPnNhdmVkX3NpZ21h
-c2ssICZzaWdzYXZlZCwgc2l6ZW9mKHNpZ3NhdmVkKSk7DQorCQkJc2V0X3Ro
-cmVhZF9mbGFnKFRJRl9SRVNUT1JFX1NJR01BU0spOwkJCQ0KKwkJfSBlbHNl
-DQorCQkJc2lncHJvY21hc2soU0lHX1NFVE1BU0ssICZzaWdzYXZlZCwgTlVM
-TCk7DQorCX0NCisNCisJcmV0dXJuIGVycm9yOw0KK30NCisNCisjZW5kaWYg
-LyogI2lmZGVmIFRJRl9SRVNUT1JFX1NJR01BU0sgKi8NCisNCisNCiAvKg0K
-ICAqIENyZWF0ZXMgdGhlIGZpbGUgZGVzY3JpcHRvciB0byBiZSB1c2VkIGJ5
-IHRoZSBlcG9sbCBpbnRlcmZhY2UuDQogICovDQpkaWZmIC1OcnUgbGludXgt
-Mi42LjE1L2luY2x1ZGUvYXNtLWkzODYvdW5pc3RkLmggbGludXgtMi42LjE1
-Lm1vZC9pbmNsdWRlL2FzbS1pMzg2L3VuaXN0ZC5oDQotLS0gbGludXgtMi42
-LjE1L2luY2x1ZGUvYXNtLWkzODYvdW5pc3RkLmgJMjAwNi0wMS0xOCAxMTow
-NTozOC4wMDAwMDAwMDAgLTA4MDANCisrKyBsaW51eC0yLjYuMTUubW9kL2lu
-Y2x1ZGUvYXNtLWkzODYvdW5pc3RkLmgJMjAwNi0wMS0xOCAxMTowNjo1Ni4w
-MDAwMDAwMDAgLTA4MDANCkBAIC0zMTYsOCArMzE2LDkgQEANCiAjZGVmaW5l
-IF9fTlJfcHNlbGVjdDYJCTMwOA0KICNkZWZpbmUgX19OUl9wcG9sbAkJMzA5
-DQogI2RlZmluZSBfX05SX3Vuc2hhcmUJCTMxMA0KKyNkZWZpbmUgX19OUl9l
-cG9sbF9wd2FpdAkzMTENCiANCi0jZGVmaW5lIE5SX3N5c2NhbGxzIDMxMQ0K
-KyNkZWZpbmUgTlJfc3lzY2FsbHMgMzEyDQogDQogLyoNCiAgKiB1c2VyLXZp
-c2libGUgZXJyb3IgbnVtYmVycyBhcmUgaW4gdGhlIHJhbmdlIC0xIC0gLTEy
-ODogc2VlDQpkaWZmIC1OcnUgbGludXgtMi42LjE1L2luY2x1ZGUvbGludXgv
-c3lzY2FsbHMuaCBsaW51eC0yLjYuMTUubW9kL2luY2x1ZGUvbGludXgvc3lz
-Y2FsbHMuaA0KLS0tIGxpbnV4LTIuNi4xNS9pbmNsdWRlL2xpbnV4L3N5c2Nh
-bGxzLmgJMjAwNi0wMS0xOCAxMTowNTozOC4wMDAwMDAwMDAgLTA4MDANCisr
-KyBsaW51eC0yLjYuMTUubW9kL2luY2x1ZGUvbGludXgvc3lzY2FsbHMuaAky
-MDA2LTAxLTE4IDExOjA3OjExLjAwMDAwMDAwMCAtMDgwMA0KQEAgLTQyOCw2
-ICs0MjgsOSBAQA0KIAkJCQlzdHJ1Y3QgZXBvbGxfZXZlbnQgX191c2VyICpl
-dmVudCk7DQogYXNtbGlua2FnZSBsb25nIHN5c19lcG9sbF93YWl0KGludCBl
-cGZkLCBzdHJ1Y3QgZXBvbGxfZXZlbnQgX191c2VyICpldmVudHMsDQogCQkJ
-CWludCBtYXhldmVudHMsIGludCB0aW1lb3V0KTsNCithc21saW5rYWdlIGxv
-bmcgc3lzX2Vwb2xsX3B3YWl0KGludCBlcGZkLCBzdHJ1Y3QgZXBvbGxfZXZl
-bnQgX191c2VyICpldmVudHMsDQorCQkJCWludCBtYXhldmVudHMsIGludCB0
-aW1lb3V0LCBjb25zdCBzaWdzZXRfdCBfX3VzZXIgKnNpZ21hc2ssDQorCQkJ
-CXNpemVfdCBzaWdzZXRzaXplKTsNCiBhc21saW5rYWdlIGxvbmcgc3lzX2dl
-dGhvc3RuYW1lKGNoYXIgX191c2VyICpuYW1lLCBpbnQgbGVuKTsNCiBhc21s
-aW5rYWdlIGxvbmcgc3lzX3NldGhvc3RuYW1lKGNoYXIgX191c2VyICpuYW1l
-LCBpbnQgbGVuKTsNCiBhc21saW5rYWdlIGxvbmcgc3lzX3NldGRvbWFpbm5h
-bWUoY2hhciBfX3VzZXIgKm5hbWUsIGludCBsZW4pOw0K
-
---8323328-391076099-1137613196=:6878--
+diff --git a/scripts/kconfig/Makefile b/scripts/kconfig/Makefile
+index 5760e05..5bf2718 100644
+--- a/scripts/kconfig/Makefile
++++ b/scripts/kconfig/Makefile
+@@ -23,6 +23,9 @@ oldconfig: $(obj)/conf
+ silentoldconfig: $(obj)/conf
+ 	$< -s arch/$(ARCH)/Kconfig
+ 
++updateconfig: $(obj)/conf
++	$< -U arch/$(ARCH)/Kconfig
++
+ update-po-config: $(obj)/kxgettext
+ 	xgettext --default-domain=linux \
+           --add-comments --keyword=_ --keyword=N_ \
+@@ -74,6 +77,7 @@ help:
+ 	@echo  '  xconfig	  - Update current config utilising a QT based front-end'
+ 	@echo  '  gconfig	  - Update current config utilising a GTK based front-end'
+ 	@echo  '  oldconfig	  - Update current config utilising a provided .config as base'
++	@echo  '  updateconfig	  - Update current config in an automated way'
+ 	@echo  '  randconfig	  - New config with random answer to all options'
+ 	@echo  '  defconfig	  - New config with default answer to all options'
+ 	@echo  '  allmodconfig	  - New config selecting modules when possible'
+diff --git a/scripts/kconfig/conf.c b/scripts/kconfig/conf.c
+index 10eeae5..4e7b6a1 100644
+--- a/scripts/kconfig/conf.c
++++ b/scripts/kconfig/conf.c
+@@ -24,7 +24,8 @@ enum {
+ 	set_yes,
+ 	set_mod,
+ 	set_no,
+-	set_random
++	set_random,
++	update_default,
+ } input_mode = ask_all;
+ char *defconfig_file;
+ 
+@@ -117,6 +118,7 @@ static void conf_askvalue(struct symbol 
+ 		fgets_check_stream(line, 128, stdin);
+ 		return;
+ 	case set_default:
++	case update_default:
+ 		printf("%s\n", def);
+ 		return;
+ 	default:
+@@ -390,6 +392,7 @@ static int conf_choice(struct menu *menu
+ 		case set_yes:
+ 		case set_mod:
+ 		case set_no:
++		case update_default:
+ 			cnt = def;
+ 			printf("%d\n", cnt);
+ 			break;
+@@ -544,6 +547,9 @@ int main(int ac, char **av)
+ 			input_mode = set_random;
+ 			srandom(time(NULL));
+ 			break;
++		case 'U':
++			input_mode = update_default;
++			break;
+ 		case 'h':
+ 		case '?':
+ 			printf("%s [-o|-s] config\n", av[0]);
+@@ -568,6 +574,7 @@ int main(int ac, char **av)
+ 		}
+ 		break;
+ 	case ask_silent:
++	case update_default:
+ 		if (stat(".config", &tmpstat)) {
+ 			printf(_("***\n"
+ 				"*** You have not yet configured your kernel!\n"

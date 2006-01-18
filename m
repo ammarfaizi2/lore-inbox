@@ -1,53 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030248AbWARFMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbWARFNT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030248AbWARFMe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 00:12:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbWARFMe
+	id S1030239AbWARFNT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 00:13:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbWARFNT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 00:12:34 -0500
-Received: from mail.kroah.org ([69.55.234.183]:24451 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030237AbWARFMd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 00:12:33 -0500
-Date: Tue, 17 Jan 2006 21:11:40 -0800
-From: Greg KH <greg@kroah.com>
-To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Cc: Kristen Accardi <kristen.c.accardi@intel.com>,
-       linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
-       len.brown@intel.com, linux-acpi@vger.kernel.org, pavel@ucw.cz
-Subject: Re: [Pcihpd-discuss] [patch 2/4]  acpiphp: handle dock bridges
-Message-ID: <20060118051140.GB7493@kroah.com>
-References: <20060116200218.275371000@whizzy> <1137545819.19858.47.camel@whizzy> <43CDA761.5040707@jp.fujitsu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43CDA761.5040707@jp.fujitsu.com>
-User-Agent: Mutt/1.5.11
+	Wed, 18 Jan 2006 00:13:19 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:28545 "EHLO
+	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S1030239AbWARFNT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 00:13:19 -0500
+Message-ID: <43CDC607.2040501@wolfmountaingroup.com>
+Date: Tue, 17 Jan 2006 21:37:27 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Max Waterman <davidmaxwaterman+kernel@fastmail.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: io performance...
+References: <43CB4CC3.4030904@fastmail.co.uk> <43CDAFE3.8050203@fastmail.co.uk> <43CDC44E.6080808@wolfmountaingroup.com> <43CDCD9F.5050500@fastmail.co.uk>
+In-Reply-To: <43CDCD9F.5050500@fastmail.co.uk>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 18, 2006 at 11:26:41AM +0900, Kenji Kaneshige wrote:
-> Hi,
-> 
-> > +static struct acpiphp_func * get_func(struct acpiphp_slot *slot,
-> > +					struct pci_dev *dev)
-> > +{
-> > +	struct list_head *l;
-> > +	struct acpiphp_func *func;
-> > +	struct pci_bus *bus = slot->bridge->pci_bus;
-> > +
-> > +	list_for_each (l, &slot->funcs) {
-> > +		func = list_entry(l, struct acpiphp_func, sibling);
-> > +		if (pci_get_slot(bus, PCI_DEVFN(slot->device,
-> > +					func->function)) == dev)
-> > +			return func;
-> > +	}
-> 
-> This seems to leak reference counter of pci_dev. I think you
-> must call pci_dev_put() also.
+Max Waterman wrote:
 
-Yes, good catch.
+> Jeff V. Merkey wrote:
+>
+>> Max Waterman wrote:
+>>
+>>> One further question. I get these messages 'in' dmesg :
+>>>
+>>> sda: asking for cache data failed
+>>> sda: assuming drive cache: write through
+>>>
+>>> How can I force it to be 'write back'?
+>>
+>>
+>>
+>>
+>> Forcing write back is a very bad idea unless you have a battery 
+>> backed up RAID controller.  
+>
+>
+> We do.
+>
+> In any case, I wonder what the consequences of assuming 'write 
+> through' when the array is configured as 'write back'? Is it just 
+> different settings for different caches?
 
-thanks,
 
-greg k-h
+It is.  This is something that should be configured in a RAID 
+controller.  OS should always be write through.
+
+Jeff
+
+>
+> Max.
+>
+>> Jeff
+>>
+>>>
+>>> Max.
+>>> -
+>>> To unsubscribe from this list: send the line "unsubscribe 
+>>> linux-kernel" in
+>>> the body of a message to majordomo@vger.kernel.org
+>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>> Please read the FAQ at  http://www.tux.org/lkml/
+>>>
+>>
+>
+>
+

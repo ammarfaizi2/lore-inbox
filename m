@@ -1,145 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbWARKcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWARKeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932414AbWARKcN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 05:32:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWARKcN
+	id S964840AbWARKeq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 05:34:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbWARKeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 05:32:13 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:49579 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932414AbWARKcM
+	Wed, 18 Jan 2006 05:34:46 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:55255 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S964840AbWARKep
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 05:32:12 -0500
-Message-ID: <43CE1A46.1020601@aitel.hist.no>
-Date: Wed, 18 Jan 2006 11:36:54 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John Richard Moser <nigelenki@comcast.net>
-CC: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Huge pages and small pages. . .
-References: <43CD3CE4.3090300@comcast.net> <Pine.LNX.4.61.0601171358240.1682@chaos.analogic.com> <43CD481A.6040606@comcast.net>
-In-Reply-To: <43CD481A.6040606@comcast.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Wed, 18 Jan 2006 05:34:45 -0500
+Date: Wed, 18 Jan 2006 13:34:37 +0300
+From: Vitaly Bordug <vbordug@ru.mvista.com>
+To: John Ronciak <john.ronciak@gmail.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Stephen Hemminger <shemminger@osdl.org>,
+       jgarzik@pobox.com, saw@saw.sw.com.sg, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [RFC: 2.6 patch] remove drivers/net/eepro100.c
+Message-ID: <20060118133437.3840827f@vitb.dev.rtsoft.ru>
+In-Reply-To: <56a8daef0601171427s75894fid0f8c4f9e2b28e50@mail.gmail.com>
+References: <20060105181826.GD12313@stusta.de>
+	<20060115161958.07e3c7f1@vitb.dev.rtsoft.ru>
+	<20060115160340.6f8cc7d6@localhost.localdomain>
+	<20060117184834.GD19398@stusta.de>
+	<56a8daef0601171427s75894fid0f8c4f9e2b28e50@mail.gmail.com>
+Organization: MontaVista software, Inc.
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Richard Moser wrote:
+On Tue, 17 Jan 2006 14:27:16 -0800
+John Ronciak <john.ronciak@gmail.com> wrote:
 
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->
->
->linux-os (Dick Johnson) wrote:
->  
->
->>On Tue, 17 Jan 2006, John Richard Moser wrote:
->>
->>
->>Is there anything in the kernel that shifts the physical pages for 1024
->>physically allocated and contiguous virtual pages together physically
->>and remaps them as one huge page?  This would probably work well for the
->>
->>
->>    
->>
->>>A page is something that is defined by the CPU. Perhaps you mean
->>>"order"? When acquiring pages for DMA, they need to be contiguous if
->>>you are going to access more than one page at a time. Therefore, one
->>>can attempt to get two or more pages, i.e., the order or pages.
->>>      
->>>
->>>Since the CPU uses virtual memory always, there is no advantage to
->>>having contiguous pages. You just map anything that's free into
->>>what looks like contiguous memory and away you go.
->>>      
->>>
->
->Well, pages are typically 4KiB seen by the MMU.  If you fault across
->them, you need to have them cached in the TLB; if the TLB runs out of
->room, you invalidate entries; then when you hit entries not in the TLB,
->the TLB has to searhc for the page mapping in the PTE chain.
->
->There are 4MiB pages, called "huge pages," that if you clump 1024
->contiguous 4KiB pages together and draw a PTE entry up for can correlate
->to a single TLB entry.  In this way, there's no page faulting until you
->cross boundaries spaced 4MiB apart from eachother, and you use 1 TLB
->entry where you would normally use 1024.
->
->  
->
->>low end of the heap, until someone figures out a way to tell the system
->>to free intermittent pages in a big mapping (if the heap has an
->>allocation up high, it can have huge, unused areas that are allocated).
->>
->>
->>    
->>
->>>The actual allocation only occurs when an access happens. You can
->>>allocate all the virtual memory in the machine and never use any
->>>of it. When you allocate memory, the kernel just marks a promised
->>>page 'not present'. When you attempt to access it, a page-fault
->>>occurs and the kernel tries to find a free page to map into your
->>>address space.
->>>      
->>>
->
->Yes.  The heap manager brk()s up the heap to allocate more space, all
->mapped to the zero page; then the application writes to these pages,
->causing them to be COW'd to real memory.  They will stay forever
->allocated until the highest pages of the heap are unused by the program,
->in which case the heap manager brk()s down the heap and frees them to
->the system.
->
->Currently the heap manager can't seem to tell the system that a page
->somewhere in the middle of the heap isn't really needed anymore, and can
->be freed and mapped back to the zero page to await COW again.  So in
->effect, you'll eventually wind out with a heap that's 20, 50, 100, or
->200 megs wide and probably all actually mapped to real, usable memory;
->at this point, you can probably replace most of those entries with huge
->pages to save on TLB entries and page faults.
->  
->
-This would be a nice performance win _if_ the program is
-actually using all those pages regularly. And I mean _all_.
+> We don't of any problems reported against e100 that have not been
+> talked about in this thread (in old ARCH types).  I think the eepro100
+> driver should be removed from the config "just in case" but we are in
+> full support of the e100 driver and if somebody says that it's not
+> working on one of the different ARCHs we are willing to work with them
+> to get it fixed.  The problem is that we don't have all these
+> different ARCH systems around to test against.
+> 
+> Another thing is that removal of the driver (or disabling the config)
+> will hopefully force the issue in that people with these ARCHs will
+> use the e100 and if they have problems we can get them fixed in the
+> e100 driver.  At this point nobody seems to be able to define a "real"
+> problem other than talking about it.
 
-The idea fails if we get any memory pressure, and some
-of the little-used pages gets swapped out.  You can't swap
-out part of a huge page, so you either have to break it up,
-or suffer the possibly large performance loss of having
-one megabyte less of virtual memory.   (That'll be even worse
-if several processes do this, of course.)
+Ok then, let's go ahead, but 
+I vote for config exclusion as a first step,
+so if anybody will run into problems, will use old mature stuff until e100 get fixed.
 
->When the program would try to free up "pages" in a huge page, the kernel
->would have to recognize that the application is working in terms of 4KiB
->small pages, and take appropriate action shattering the huge page back
->into 1024 small pages first.
->  
->
-To see whether this is worthwile, I suggest instrumenting a kernel
-to detect:
-(1) When a process gets opportunity to have a huge page
-      (I.e. it has a sufficiently large and aligned memory block,
-       none of it is swapped, and rearranging into contigous
-       physical memory is possible.)
-(2) When a huge page would need to be broken up.
-      (I.e. parts of a previously identified huge page gets swapped
-       out, deallocated, shared, memprotected and so on.)
+Due to rollback the removed driver - back and forth in killing/resurrecting stuff is not a good example to follow within the kernel.
+
+Generally speaking, e100 should replace eepro*, but I can see no reason for rush in doing that one-step.
 
 
-Both of these detectors will be necessary anyway if automatic huge
-pages gets deployed.  In the meantime, you can check to see
-if such occations arise and for how long the huge pages remain
-viable. I believe the swapper will kill them fast once you have
-any memory pressure, and that fragmentation normally will prevent
-such pages from forming.  But I could be wrong of course.
-
-For this to be fesible, the reduction in TLB misses would have to
-outweigh the initial cost of copying all that memory into a contigous
-region, the cost of shattering the mapping once the swapper gets
-aggressive, and of course the ongoing cost of identifying mergeable blocks.
-
-Helge Hafting
+-- 
+Sincerely, 
+Vitaly

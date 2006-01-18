@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbWARLtR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030241AbWARLxt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030238AbWARLtR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 06:49:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWARLtR
+	id S1030241AbWARLxt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 06:53:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWARLxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 06:49:17 -0500
-Received: from ozlabs.org ([203.10.76.45]:61319 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1030238AbWARLtQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 06:49:16 -0500
+	Wed, 18 Jan 2006 06:53:49 -0500
+Received: from 81-178-120-66.dsl.pipex.com ([81.178.120.66]:34016 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1030241AbWARLxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 06:53:48 -0500
+Date: Wed, 18 Jan 2006 11:53:32 +0000
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] migrate_page_add mangled brackets during merge
+Message-ID: <20060118115332.GA15951@shadowen.org>
+References: <20060118005053.118f1abc.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17358.11049.367188.552649@cargo.ozlabs.ibm.com>
-Date: Wed, 18 Jan 2006 22:48:57 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Jan Beulich" <JBeulich@novell.com>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@muc.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] CONFIG_UNWIND_INFO
-In-Reply-To: <20060114045635.1462fb9e.akpm@osdl.org>
-References: <4370AF4A.76F0.0078.0@novell.com>
-	<20060114045635.1462fb9e.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+InReply-To: <20060118005053.118f1abc.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
+From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+migrate_page_add mangled brackets during merge
 
-> If you do a `make oldconfig' with CONFIG_DEBUG_KERNEL you get
-> -fasynchronous-unwind-tables and (on my yellowdog-4 toolchain at least) the
-> ppc64 kernel doesn't like that one bit. 
-> 
-> 
-> EXT3-fs: mounted filesystem with ordered data mode.
-> ADDRCONF(NETDEV_UP): eth0: link is not ready
-> tg3: eth0: Link is up at 100 Mbps, full duplex.
-> tg3: eth0: Flow control is off for TX and off for RX.
-> ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
-> autofs: Unknown ADD relocation: 44
-> sunrpc: Unknown ADD relocation: 44
+It appears that there was some kind of merge mangle in migrate_page_add().
+Sort out an extraneous bracket and a couple of spacing issues.
 
-We aren't handling R_PPC64_REL64 relocations in our module code.  This
-patch (completely untested :) might help.
-
-Paul.
-
-diff --git a/arch/powerpc/kernel/module_64.c b/arch/powerpc/kernel/module_64.c
-index 928b858..4885f39 100644
---- a/arch/powerpc/kernel/module_64.c
-+++ b/arch/powerpc/kernel/module_64.c
-@@ -337,6 +337,10 @@ int apply_relocate_add(Elf64_Shdr *sechd
- 			*(unsigned long *)location = value;
- 			break;
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+ mempolicy.c |    4 +---
+ 1 files changed, 1 insertion(+), 3 deletions(-)
+diff -upN reference/mm/mempolicy.c current/mm/mempolicy.c
+--- reference/mm/mempolicy.c
++++ current/mm/mempolicy.c
+@@ -533,17 +533,15 @@ long do_get_mempolicy(int *policy, nodem
+ /*
+  * page migration
+  */
+-
+ static void migrate_page_add(struct page *page, struct list_head *pagelist,
+ 				unsigned long flags)
+ {
+ 	/*
+ 	 * Avoid migrating a page that is shared with others.
+ 	 */
+-	if ((flags & MPOL_MF_MOVE_ALL) || page_mapcount(page) ==1)
++	if ((flags & MPOL_MF_MOVE_ALL) || page_mapcount(page) == 1)
+ 		if (isolate_lru_page(page))
+ 			list_add(&page->lru, pagelist);
+-	}
+ }
  
-+		case R_PPC64_REL64:
-+			*location = value - (unsigned long) location;
-+			break;
-+
- 		case R_PPC64_TOC:
- 			*(unsigned long *)location = my_r2(sechdrs, me);
- 			break;
+ /*

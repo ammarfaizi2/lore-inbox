@@ -1,82 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWARMLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbWARMM3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030243AbWARMLK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 07:11:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030246AbWARMLK
+	id S1030270AbWARMM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 07:12:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbWARMM3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 07:11:10 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:33700 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1030243AbWARMLJ
+	Wed, 18 Jan 2006 07:12:29 -0500
+Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:1540 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1030270AbWARMM2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 07:11:09 -0500
-From: "Jiri Slaby" <xslaby@fi.muni.cz>
-Date: Wed, 18 Jan 2006 13:10:46 +0100
-Subject: Re: PATCH: SBC EPX does not check/claim I/O ports it uses (2nd Edition)
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, calin@ajvar.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-References: <1137520351.14135.40.camel@localhost.localdomain>
-	 <58cb370e0601171003q3e629131y115b665a93d083f3@mail.gmail.com>
-In-reply-to: <1137523345.14135.85.camel@localhost.localdomain>
-Message-Id: <20060118121046.15C3122B38B@anxur.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Wed, 18 Jan 2006 07:12:28 -0500
+Date: Wed, 18 Jan 2006 13:13:04 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.16-rc1
+Message-Id: <20060118131304.23088492.khali@linux-fr.org>
+In-Reply-To: <20060118091543.GA8277@mars.ravnborg.org>
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+	<43CD67AE.9030501@eyal.emu.id.au>
+	<20060117232701.GA7606@mars.ravnborg.org>
+	<20060118085936.4773dd77.khali@linux-fr.org>
+	<20060118091543.GA8277@mars.ravnborg.org>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->Signed-off-by: Alan Cox <alan@redhat.com>
->
->--- linux.vanilla-2.6.16-rc1/drivers/char/watchdog/sbc_epx_c3.c	2006-01-17 15:52:53.000000000 +0000
->+++ linux-2.6.16-rc1/drivers/char/watchdog/sbc_epx_c3.c	2006-01-17 18:27:39.149607944 +0000
->@@ -25,6 +25,7 @@
-> #include <linux/notifier.h>
-> #include <linux/reboot.h>
-> #include <linux/init.h>
->+#include <linux/ioport.h>
-> #include <asm/uaccess.h>
-> #include <asm/io.h>
-> 
->@@ -180,12 +181,15 @@
-> static int __init watchdog_init(void)
-> {
-> 	int ret;
->+	
->+	if (!request_region(EPXC3_WATCHDOG_CTL_REG, 2, "epxc3_watchdog"))
->+		return -EBUSY;
-> 
-> 	ret = register_reboot_notifier(&epx_c3_notifier);
-> 	if (ret) {
-> 		printk(KERN_ERR PFX "cannot register reboot notifier "
-> 			"(err=%d)\n", ret);
->-		return ret;
->+		goto out;
-> 	}
-> 
-> 	ret = misc_register(&epx_c3_miscdev);
->@@ -193,12 +197,16 @@
-> 		printk(KERN_ERR PFX "cannot register miscdev on minor=%d "
-> 			"(err=%d)\n", WATCHDOG_MINOR, ret);
-> 		unregister_reboot_notifier(&epx_c3_notifier);
->-		return ret;
->+		goto out;
-> 	}
-> 
-> 	printk(banner);
-> 
-> 	return 0;
->+
->+out:
->+	release_region(EPXC3_WATCHDOG_CTL_REG, 2);
->+	return ret;
-> }
-> 
-> static void __exit watchdog_exit(void)
-But now, you forgot to add release_region in this (exit) function :)?
+Hi Sam,
 
-regards,
+> The shell script check-dialog.sh is called which again do:
+> echo "main() {}" | gcc -xc - -o /dev/null
+> 
+> And it seems that gcc will trash /dev/null in your setup when doing
+> this.
+> One fix would be to avoid the two lines during distclean,
+> but I may have to resort to a temporary file.
+> 
+> Could you please confirm that the above command is the one that trashes
+> /dev/null, then I will try to cook up something better.
+
+I confirm that this one line is causing the trouble:
+
+root@arrakis:~> ls -l /dev/null
+crw-rw-rw-  1 root root 1, 3 2006-01-18 13:34 /dev/null
+root@arrakis:~> echo "main() {}" | gcc -xc - -o /dev/null
+root@arrakis:~> ls -l /dev/null
+crwxrwxrwx  1 root root 1, 3 2006-01-18 13:34 /dev/null
+root@arrakis:~> 
+
+This is with both gcc 3.3.6 from Slackware 10.2 and gcc 4.0.2 from Suse
+10.0. Didn't try with self-compiled gcc versions on these systems.
+
+BTW, I have noticed recently an "a.out" file at the root of my linux
+sources tree when I build a kernel.
+
+-rwxr-xr-x   1 khali users  11K 2006-01-16 19:51 a.out*
+
+Running it doesn't seem to do anything useful. Is this file generated
+here on purpose? Is it somehow related to the current issue?
+
+Thanks,
 -- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+Jean Delvare

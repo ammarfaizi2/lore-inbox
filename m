@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWARMVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbWARMWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030205AbWARMVV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 07:21:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbWARMVV
+	id S1030303AbWARMWX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 07:22:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbWARMWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 07:21:21 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:18134 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030205AbWARMVV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 07:21:21 -0500
-Date: Wed, 18 Jan 2006 04:20:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Jiri Slaby" <xslaby@fi.muni.cz>
-Cc: alan@lxorguk.ukuu.org.uk, bzolnier@gmail.com, calin@ajvar.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: SBC EPX does not check/claim I/O ports it uses (2nd
- Edition)
-Message-Id: <20060118042051.02fdc4ca.akpm@osdl.org>
-In-Reply-To: <20060118121046.15C3122B38B@anxur.fi.muni.cz>
-References: <1137520351.14135.40.camel@localhost.localdomain>
-	<58cb370e0601171003q3e629131y115b665a93d083f3@mail.gmail.com>
-	<20060118121046.15C3122B38B@anxur.fi.muni.cz>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Wed, 18 Jan 2006 07:22:23 -0500
+Received: from uproxy.gmail.com ([66.249.92.199]:38056 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030303AbWARMWW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 07:22:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ADehFDAmpPahwPoaygNYgVqmwpC+OWNuo0Pwv/WoPCt64dqjWtyCUa0Y0VY1FkAd1Nf/tvaJj92c5XmqeMMkfqiQ+6JekwZ+y1f3SzsNEQc+9aOHo+TjJpfUXA+/dbUbYNP/bCtb3H98kuUr0j7fzeFmo3hzOD3vMuDm39h0h/k=
+Message-ID: <84144f020601180422q78ecdf37mb8b8e9d1f40039d1@mail.gmail.com>
+Date: Wed, 18 Jan 2006 14:22:19 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Sven Lauritzen <the-pulse@gmx.net>
+Subject: Re: [BUG] at mm/slab.c:1235! (Version 2.6.15)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1137582956.1774.15.camel@berlin.slsd>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1137582956.1774.15.camel@berlin.slsd>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jiri Slaby" <xslaby@fi.muni.cz> wrote:
->
-> > static void __exit watchdog_exit(void)
->  But now, you forgot to add release_region in this (exit) function :)?
+Hi,
 
-yup.  That'll give a nice oops reading /proc/ioports after rmmod...
+On 1/18/06, Sven Lauritzen <the-pulse@gmx.net> wrote:
+> Last night my machine crashed and I found this report in the syslog.
+> Kernel version is 2.6.15 vanilla. I've pasted .config and lspci -vvv
+> output. Please let me know if you need more information. I hope this is
+> the right place to drop the report.
 
+Try enabling CONFIG_DEBUG_SLAB and CONFIG_DEBUG_PAGEALLOC to see if
+they pick up anything.
 
---- devel/drivers/char/watchdog/sbc_epx_c3.c~sbc-epx-does-not-check-claim-i-o-ports-it-uses-2nd-edition-fix	2006-01-18 04:19:58.000000000 -0800
-+++ devel-akpm/drivers/char/watchdog/sbc_epx_c3.c	2006-01-18 04:19:58.000000000 -0800
-@@ -213,6 +213,7 @@ static void __exit watchdog_exit(void)
- {
- 	misc_deregister(&epx_c3_miscdev);
- 	unregister_reboot_notifier(&epx_c3_notifier);
-+	release_region(EPXC3_WATCHDOG_CTL_REG, 2);
- }
- 
- module_init(watchdog_init);
-_
+On 1/18/06, Sven Lauritzen <the-pulse@gmx.net> wrote:
+> Jan 18 06:27:16 berlin kernel: kernel BUG at mm/slab.c:1235!
+> Jan 18 06:27:16 berlin kernel: invalid operand: 0000 [#1]
+> Jan 18 06:27:16 berlin kernel: PREEMPT
+> Jan 18 06:27:16 berlin kernel: Modules linked in: snd_ens1371
+> snd_ac97_codec snd_seq_dummy snd_seq_oss snd_seq_midi snd_rawmidi
+> snd_seq_midi_event snd_seq snd_seq_device snd_ac97_bus
+> Jan 18 06:27:16 berlin kernel: CPU:    0
+> Jan 18 06:27:16 berlin kernel: EIP:    0060:[<c013f4bd>]    Not tainted
+> VLI
+> Jan 18 06:27:16 berlin kernel: EFLAGS: 00010046   (2.6.15)
+> Jan 18 06:27:16 berlin kernel: EIP is at kmem_freepages+0x3d/0xa0
 
+I don't quite see how this could happen. Is the box otherwise stable?
+Have you run memtest86 on it?
+
+                             Pekka

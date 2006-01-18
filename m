@@ -1,48 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWARLYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWARLYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030225AbWARLYf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 06:24:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbWARLYf
+	id S1030224AbWARLYO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 06:24:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbWARLYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 06:24:35 -0500
-Received: from dtp.xs4all.nl ([80.126.206.180]:16346 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1030225AbWARLYf (ORCPT
+	Wed, 18 Jan 2006 06:24:14 -0500
+Received: from ihug-mail.icp-qv1-irony1.iinet.net.au ([203.59.1.195]:57860
+	"EHLO mail-ihug.icp-qv1-irony1.iinet.net.au") by vger.kernel.org
+	with ESMTP id S1030224AbWARLYN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 06:24:35 -0500
-Date: Wed, 18 Jan 2006 12:24:31 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Michael Loftis <mloftis@wgops.com>, linux-kernel@vger.kernel.org
-Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
-Message-ID: <20060118112431.GA11868@harddisk-recovery.nl>
-References: <E1EywcM-0004Oz-IE@laurel.muq.org> <B34375EBA93D2866BECF5995@d216-220-25-20.dynip.modwest.com> <D62A7AD5-0954-4FA9-8E20-0E026A3E765A@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D62A7AD5-0954-4FA9-8E20-0E026A3E765A@mac.com>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+	Wed, 18 Jan 2006 06:24:13 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+Message-ID: <43CE2556.9070700@eyal.emu.id.au>
+Date: Wed, 18 Jan 2006 22:24:06 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Jean Delvare <khali@linux-fr.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.16-rc1
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org> <43CD67AE.9030501@eyal.emu.id.au> <20060117232701.GA7606@mars.ravnborg.org> <20060118085936.4773dd77.khali@linux-fr.org> <20060118091543.GA8277@mars.ravnborg.org>
+In-Reply-To: <20060118091543.GA8277@mars.ravnborg.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 17, 2006 at 07:12:57PM -0500, Kyle Moffett wrote:
-> The most reliable RAID-5 you can build is a 3-drive system.  For each  
-> byte of data, you have a half-byte of parity, meaning that half the  
-> data-space (not including the parity) can fail without data loss.   
-> I'm ignoring the issue of rotating parity drive for simplicity, but  
-> that only affects performance, not the algorithm.  If you want any  
-> kind of _real_ reliability and speed, you should buy a couple good  
-> hardware RAID-5 units and mirror them in software.
+Sam Ravnborg wrote:
+> Could you please confirm that the above command is the one that trashes
+> /dev/null, then I will try to cook up something better.
 
-Actually, the most reliable RAID-5 is a 2 drive system, where you have
-a full byte of reduncancy for each byte of data. Two drive RAID-5
-systems are usually called RAID-1, but if you write out the formulas it
-becomes clear that RAID-1 is just a special case of RAID-5.
+scripts/kconfig/lxdialog/check-lxdialog.sh with debug
+=====================================================
+
+ldflags()
+{
+echo "ldflags 1" >>/tmp/xxx 2>&1
+ls -l /dev/null >>/tmp/xxx 2>&1
+        echo "main() {}" | $cc -lncursesw -xc - -o /dev/null 2> /dev/null
+        if [ $? -eq 0 ]; then
+echo "ldflags 2" >>/tmp/xxx 2>&1
+ls -l /dev/null >>/tmp/xxx 2>&1
+                echo '-lncursesw'
+                exit
+        fi
+echo "ldflags 3" >>/tmp/xxx 2>&1
+ls -l /dev/null >>/tmp/xxx 2>&1
+        echo "main() {}" | $cc -lncurses -xc - -o /dev/null 2> /dev/null
+        if [ $? -eq 0 ]; then
+echo "ldflags 4" >>/tmp/xxx 2>&1
+ls -l /dev/null >>/tmp/xxx 2>&1
+                echo '-lncurses'
+                exit
+        fi
+echo "ldflags 5" >>/tmp/xxx 2>&1
+ls -l /dev/null >>/tmp/xxx 2>&1
+        echo "main() {}" | $cc -lcurses -xc - -o /dev/null 2> /dev/null
+        if [ $? -eq 0 ]; then
+echo "ldflags 6" >>/tmp/xxx 2>&1
+ls -l /dev/null >>/tmp/xxx 2>&1
+                echo '-lcurses'
+                exit
+        fi
+echo "ldflags 7" >>/tmp/xxx 2>&1
+ls -l /dev/null >>/tmp/xxx 2>&1
+        exit 1
+}
 
 
-Erik
+content of /tmp/xxx
+===================
+
+ldflags 1
+crw-rw-rw-  1 root root 1, 3 Jan 18 22:20 /dev/null
+ldflags 3
+ls: /dev/null: No such file or directory
+ldflags 4
+-rwxr-xr-x  1 root root 11650 Jan 18 22:20 /dev/null
 
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
-| Data lost? Stay calm and contact Harddisk-recovery.com
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+	attach .zip as .dat

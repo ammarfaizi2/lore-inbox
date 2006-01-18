@@ -1,34 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWARDDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWARDJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964784AbWARDDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 22:03:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWARDDJ
+	id S964866AbWARDJS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 22:09:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbWARDJR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 22:03:09 -0500
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:64434 "EHLO
-	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S964784AbWARDDI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 22:03:08 -0500
-X-Sasl-enc: jstnLHfGv8mrR8fGb4+zOJ72dm55anaI+2TI4AEBrSOX 1137553384
-Message-ID: <43CDAFE3.8050203@fastmail.co.uk>
-Date: Wed, 18 Jan 2006 11:02:59 +0800
-From: Max Waterman <davidmaxwaterman@fastmail.co.uk>
-User-Agent: Thunderbird 1.6a1 (Macintosh/20060116)
+	Tue, 17 Jan 2006 22:09:17 -0500
+Received: from liaag1aa.mx.compuserve.com ([149.174.40.27]:22733 "EHLO
+	liaag1aa.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S964866AbWARDJR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 22:09:17 -0500
+Date: Tue, 17 Jan 2006 22:05:26 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 2.6.15-current] i386: multi-column stack
+  backtraces
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: mita@miraclelinux.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Message-ID: <200601172208_MC3-1-B612-EE85@compuserve.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: io performance...
-References: <43CB4CC3.4030904@fastmail.co.uk>
-In-Reply-To: <43CB4CC3.4030904@fastmail.co.uk>
-Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One further question. I get these messages 'in' dmesg :
+In-Reply-To: <20060117181416.GB8047@mars.ravnborg.org>
 
-sda: asking for cache data failed
-sda: assuming drive cache: write through
+On Tue, 17 Jan 2006 19:14:16 +0100, Sam Ravnborg wrote:
 
-How can I force it to be 'write back'?
+> On Tue, Jan 17, 2006 at 09:22:09PM +1100, Keith Owens wrote:
+> > Should not be a problem for ksymoops.  Most entries use this regex,
+> > where [ ] is optional.
+> 
+> In that case can we then remove the CONFIG option?
+> If needed to be configurable a commandline option could do it,
+> so one does not have to rebuild the kernel.
 
-Max.
+I guess it could be a command-line option, but how many times would
+you change it?  Only traps.o get rebuilt when you change the config,
+and that plus the kernel relink is pretty fast anyway.
+
+-- 
+Chuck

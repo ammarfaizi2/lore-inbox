@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964770AbWARIIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWARII1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964770AbWARIIX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 03:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbWARIIW
+	id S964880AbWARII1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 03:08:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964772AbWARII1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 03:08:22 -0500
-Received: from thorn.pobox.com ([208.210.124.75]:54178 "EHLO thorn.pobox.com")
-	by vger.kernel.org with ESMTP id S964770AbWARIIV (ORCPT
+	Wed, 18 Jan 2006 03:08:27 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:13547 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964880AbWARII0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 03:08:21 -0500
-Date: Wed, 18 Jan 2006 02:08:12 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       anton@au1.ibm.com, linux-kernel@vger.kernel.org, michael@ellerman.id.au,
-       linuxppc64-dev@ozlabs.org, serue@us.ibm.com, paulus@au1.ibm.com
+	Wed, 18 Jan 2006 03:08:26 -0500
+Date: Wed, 18 Jan 2006 09:08:28 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nathan Lynch <ntl@pobox.com>, anton@au1.ibm.com,
+       linux-kernel@vger.kernel.org, michael@ellerman.id.au,
+       linuxppc64-dev@ozlabs.org, serue@us.ibm.com, paulus@au1.ibm.com,
+       Linus Torvalds <torvalds@osdl.org>
 Subject: Re: 2.6.15-mm4 failure on power5
-Message-ID: <20060118080812.GT2846@localhost.localdomain>
-References: <20060116063530.GB23399@sergelap.austin.ibm.com> <20060115230557.0f07a55c.akpm@osdl.org> <200601170000.58134.michael@ellerman.id.au> <20060116153748.GA25866@sergelap.austin.ibm.com> <20060116215252.GA10538@cs.umn.edu> <20060116170907.60149236.akpm@osdl.org> <20060117081749.GA10135@elte.hu> <20060117165244.GA23254@cs.umn.edu> <20060117165555.GA24562@cs.umn.edu> <20060118064050.GQ2846@localhost.localdomain>
+Message-ID: <20060118080828.GA2324@elte.hu>
+References: <20060116063530.GB23399@sergelap.austin.ibm.com> <200601180032.46867.michael@ellerman.id.au> <20060117140050.GA13188@elte.hu> <200601181119.39872.michael@ellerman.id.au> <20060118033239.GA621@cs.umn.edu> <20060118063732.GA21003@elte.hu> <20060117225304.4b6dd045.akpm@osdl.org> <20060118072815.GR2846@localhost.localdomain> <20060117233734.506c2f2e.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060118064050.GQ2846@localhost.localdomain>
+In-Reply-To: <20060117233734.506c2f2e.akpm@osdl.org>
 User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Lynch wrote:
-> Dave C Boutcher wrote:
-> > On Tue, Jan 17, 2006 at 10:52:44AM -0600, Dave C Boutcher wrote:
-> > > Well, it turns out that I've been running with CONFIG_DEBUG_MUTEXES all
-> > > along...so no noise.  My console output is a little different that
-> > > Serge's, so I think this is timing related.  Also note that I'm dying in
-> > > the timer interrupt...
-> > 
-> > duh... here's the backtrace
-> > 0:mon> t
-> > [c000000000577890] c0000000000034b4 decrementer_common+0xb4/0x100
-> > --- Exception: 901 (Decrementer) at c0000000004627ec
-> > .__mutex_lock_interruptible_slowpath+0x3bc/0x4c4
-> > [c000000000577c60] c000000000075064 .__lock_cpu_hotplug+0x44/0xa8
-> > [c000000000577ce0] c000000000075600 .register_cpu_notifier+0x24/0x68
-> > [c000000000577d70] c00000000052cd7c .do_init_bootmem+0x68c/0xab0
-> > [c000000000577e50] c000000000522c84 .setup_arch+0x21c/0x2c0
-> > [c000000000577ef0] c00000000051a538 .start_kernel+0x40/0x280
-> > [c000000000577f90] c000000000008574 .hmt_init+0x0/0x8c
-> 
-> The mutex debug code (debug_spin_unlock in kernel/mutex-debug.h) is
-> doing a local_irq_enable way before we're ready.
 
-Looks like not only the powerpc setup_arch code could trigger this --
-rcu_init, init_timers, and sched_init all do register_cpu_notifier
-(and hence mutex_lock, therefore potentially enabling interrupts too
-early in the mutex debug case) before the initial local_irq_enable in
-start_kernel.
+* Andrew Morton <akpm@osdl.org> wrote:
+
+> > Yes, which would be why this code never triggered a warning when
+> > cpucontrol was a semaphore.
+> 
+> Yup.  Perhaps a sane fix which preserves the unpleasant semantics is 
+> to do irqsave in the mutex debug code.
+
+i'd much rather remove that ugly hack from __might_sleep(). How many 
+other bugs does it hide? Does it hide bugs that dont normally trigger 
+during bootups on real hardware, but which could trigger on e.g. UML or 
+on Xen? I really think such ugly workarounds are not justified, if other 
+arches can get their act together. Would you make such an exception for 
+other arches too, like ARM?
+
+an irqsave in the mutex debug code will uglify the kernel/mutex.c code - 
+i'd have to add extra "unsigned long flags" lines. [It will also slow 
+down the debug code a bit - an extra PUSHF has to be done.]
+
+	Ingo

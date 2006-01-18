@@ -1,48 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161014AbWARVsG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030477AbWARVrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161014AbWARVsG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 16:48:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbWARVsF
+	id S1030477AbWARVrO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 16:47:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030475AbWARVrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 16:48:05 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:1678 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1161012AbWARVsC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 16:48:02 -0500
-Date: Wed, 18 Jan 2006 21:47:09 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org, greg@kroah.com,
-       pcihpd-discuss@lists.sourceforge.net, len.brown@intel.com,
-       linux-acpi@vger.kernel.org
-Subject: Re: [Pcihpd-discuss] Re: [patch 0/4]  Hot Dock/Undock support
-Message-ID: <20060118214709.GA12010@srcf.ucam.org>
-References: <1137545813.19858.45.camel@whizzy> <20060118130444.GA1518@elf.ucw.cz> <1137609747.31839.6.camel@whizzy> <20060118194554.GA1502@elf.ucw.cz> <1137618370.31839.12.camel@whizzy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137618370.31839.12.camel@whizzy>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+	Wed, 18 Jan 2006 16:47:14 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:39364 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1030477AbWARVrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 16:47:12 -0500
+Date: Wed, 18 Jan 2006 16:47:12 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andrew Morton <akpm@osdl.org>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 7/8] Notifier chain update: Update usb_notify
+Message-ID: <Pine.LNX.4.44L0.0601181646240.4974-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 18, 2006 at 01:06:09PM -0800, Kristen Accardi wrote:
+Notifier chain re-implementation (as638): Remove the notifier code
+used by the USB core and switch it over to the new standard API.
+There's no longer any need for the special USB code because the new
+API is protected.
 
-> Hum, I don't think so (but maybe someone else knows for sure), I thought
-> that driver was specifically for a certain kind of IBM server, not an
-> IBM laptop.  It looks like from this output that the acpiphp is not
-> recognizing any hotplug capable devices on your laptop.  I believe that
-> this is defined by acpiphp as a slot which is "ejectable", meaning
-> contains an ACPI method called _EJ0.  
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Chandra Seetharaman <sekharan@us.ibm.com>
 
-To the best of my knowledge, the X-series docking station doesn't 
-contain any PCI devices. It's an extension of the IDE bus plus some 
-broken out serial, parallel, USB and so on. I'd expect driver support 
-for it to just require supporting the dock object and calling its eject 
-routine when the user hits the eject button.
+---
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Index: l2616/drivers/usb/core/notify.c
+===================================================================
+--- l2616.orig/drivers/usb/core/notify.c
++++ l2616/drivers/usb/core/notify.c
+@@ -16,56 +16,7 @@
+ #include "usb.h"
+ 
+ 
+-static struct notifier_block *usb_notifier_list;
+-static DECLARE_MUTEX(usb_notifier_lock);
+-
+-static void usb_notifier_chain_register(struct notifier_block **list,
+-					struct notifier_block *n)
+-{
+-	down(&usb_notifier_lock);
+-	while (*list) {
+-		if (n->priority > (*list)->priority)
+-			break;
+-		list = &((*list)->next);
+-	}
+-	n->next = *list;
+-	*list = n;
+-	up(&usb_notifier_lock);
+-}
+-
+-static void usb_notifier_chain_unregister(struct notifier_block **nl,
+-				   struct notifier_block *n)
+-{
+-	down(&usb_notifier_lock);
+-	while ((*nl)!=NULL) {
+-		if ((*nl)==n) {
+-			*nl = n->next;
+-			goto exit;
+-		}
+-		nl=&((*nl)->next);
+-	}
+-exit:
+-	up(&usb_notifier_lock);
+-}
+-
+-static int usb_notifier_call_chain(struct notifier_block **n,
+-				   unsigned long val, void *v)
+-{
+-	int ret=NOTIFY_DONE;
+-	struct notifier_block *nb = *n;
+-
+-	down(&usb_notifier_lock);
+-	while (nb) {
+-		ret = nb->notifier_call(nb,val,v);
+-		if (ret&NOTIFY_STOP_MASK) {
+-			goto exit;
+-		}
+-		nb = nb->next;
+-	}
+-exit:
+-	up(&usb_notifier_lock);
+-	return ret;
+-}
++static BLOCKING_NOTIFIER_HEAD(usb_notifier_list);
+ 
+ /**
+  * usb_register_notify - register a notifier callback whenever a usb change happens
+@@ -75,7 +26,7 @@ exit:
+  */
+ void usb_register_notify(struct notifier_block *nb)
+ {
+-	usb_notifier_chain_register(&usb_notifier_list, nb);
++	blocking_notifier_chain_register(&usb_notifier_list, nb);
+ }
+ EXPORT_SYMBOL_GPL(usb_register_notify);
+ 
+@@ -88,27 +39,28 @@ EXPORT_SYMBOL_GPL(usb_register_notify);
+  */
+ void usb_unregister_notify(struct notifier_block *nb)
+ {
+-	usb_notifier_chain_unregister(&usb_notifier_list, nb);
++	blocking_notifier_chain_unregister(&usb_notifier_list, nb);
+ }
+ EXPORT_SYMBOL_GPL(usb_unregister_notify);
+ 
+ 
+ void usb_notify_add_device(struct usb_device *udev)
+ {
+-	usb_notifier_call_chain(&usb_notifier_list, USB_DEVICE_ADD, udev);
++	blocking_notifier_call_chain(&usb_notifier_list, USB_DEVICE_ADD, udev);
+ }
+ 
+ void usb_notify_remove_device(struct usb_device *udev)
+ {
+-	usb_notifier_call_chain(&usb_notifier_list, USB_DEVICE_REMOVE, udev);
++	blocking_notifier_call_chain(&usb_notifier_list,
++			USB_DEVICE_REMOVE, udev);
+ }
+ 
+ void usb_notify_add_bus(struct usb_bus *ubus)
+ {
+-	usb_notifier_call_chain(&usb_notifier_list, USB_BUS_ADD, ubus);
++	blocking_notifier_call_chain(&usb_notifier_list, USB_BUS_ADD, ubus);
+ }
+ 
+ void usb_notify_remove_bus(struct usb_bus *ubus)
+ {
+-	usb_notifier_call_chain(&usb_notifier_list, USB_BUS_REMOVE, ubus);
++	blocking_notifier_call_chain(&usb_notifier_list, USB_BUS_REMOVE, ubus);
+ }
+

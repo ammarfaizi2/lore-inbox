@@ -1,38 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030343AbWARQsG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030383AbWARQsI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030343AbWARQsG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 11:48:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbWARQsF
+	id S1030383AbWARQsI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 11:48:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030403AbWARQsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 11:48:05 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:34311
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1030343AbWARQsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 11:48:04 -0500
-Message-Id: <43CE7F58.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Wed, 18 Jan 2006 17:48:08 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: <tony.luck@intel.com>, "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-       "Andrew Morton" <akpm@osdl.org>, "Paul Mackerras" <paulus@samba.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] CONFIG_UNWIND_INFO
-References: <4370AF4A.76F0.0078.0@novell.com>  <20060118151816.GA82365@muc.de>  <43CE73A0.76F0.0078.0@novell.com> <200601181711.47163.ak@suse.de>
-In-Reply-To: <200601181711.47163.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Wed, 18 Jan 2006 11:48:07 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:18876 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030383AbWARQsG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 11:48:06 -0500
+Date: Wed, 18 Jan 2006 08:48:01 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <npiggin@suse.de>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/2] atomic_add_unless sadness
+In-Reply-To: <20060118063636.GA14608@wotan.suse.de>
+Message-ID: <Pine.LNX.4.64.0601180842440.3240@g5.osdl.org>
+References: <20060118063636.GA14608@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->The usual use case is that you only need it on disk for your gdb,
->but not in RAM.
-
-If you care about gdb, you'd be building with CONFIG_DEBUG_INFO anyway, and get the same information in .debug_frames
-(which already is a noload section) without the need to enable CONFIG_UNWIND_INFO.
-
-Jan
 
 
+On Wed, 18 Jan 2006, Nick Piggin wrote:
+>
+> For some reason gcc 4 on at least i386 and ppc64 (that I have tested with)
+> emit two cmpxchges for atomic_add_unless unless we put branch hints in.
+> (it is unlikely for the "unless" case to trigger, and it is unlikely for
+> cmpxchg to fail).
+
+Irrelevant. If "atomic_add_unless()" is in a hot path and inlined, we're 
+doing something else wrong anyway. It's not a good op to use. Just think 
+of it as being very expensive.
+
+The _only_ user of "atomic_add_unless()" is "dec_and_lock()", which isn't 
+even inlined. The fact that gcc ends up "unrolling" the loop once is just 
+fine.
+
+Please keep it that way. 
+
+		Linus

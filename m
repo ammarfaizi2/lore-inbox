@@ -1,111 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbWARA2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbWARA2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964935AbWARA2e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 19:28:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbWARA2Q
+	id S964927AbWARA2H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 19:28:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWARA2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 19:28:16 -0500
-Received: from [151.97.230.9] ([151.97.230.9]:14051 "EHLO ssc.unict.it")
-	by vger.kernel.org with ESMTP id S964976AbWARA1j (ORCPT
+	Tue, 17 Jan 2006 19:28:06 -0500
+Received: from [151.97.230.9] ([151.97.230.9]:20451 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S964980AbWARA1m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 19:27:39 -0500
+	Tue, 17 Jan 2006 19:27:42 -0500
 From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 9/9] uml ubd code: fix a bit of whitespace
-Date: Wed, 18 Jan 2006 01:19:50 +0100
+Subject: [PATCH 1/9] uml: avoid sysfs warning on hot-unplug
+Date: Wed, 18 Jan 2006 01:19:21 +0100
 To: Andrew Morton <akpm@osdl.org>
 Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
        user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20060118001949.14622.23014.stgit@zion.home.lan>
+Message-Id: <20060118001920.14622.79573.stgit@zion.home.lan>
 In-Reply-To: <20060117235659.14622.18544.stgit@zion.home.lan>
 References: <20060117235659.14622.18544.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Correct a bit of whitespace problems while working here.
+From: Jeff Dike <jdike@addtoit.com>, Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+
+Define a release method for the ubd and network driver so that sysfs doesn't
+complain when one is removed via:
+
+host $ uml_mconsole <umid> remove <dev>
+
+Done by Jeff around January for ubd only, later lost, then restored in his tree
+- however I'm merging it now since there's no reason to leave this here.
+
+We don't need to do any cleanup in the new added method, because when hot-unplug
+is done by uml_mconsole we already handle cleanup in mconsole infrastructure,
+i.e.  mc_device->remove (net_remove/ubd_remove), which is also the calling
+method.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- arch/um/drivers/ubd_kern.c |   31 +++++++++++++++++--------------
- 1 files changed, 17 insertions(+), 14 deletions(-)
+ arch/um/drivers/net_kern.c |    6 ++++++
+ arch/um/drivers/ubd_kern.c |    6 ++++++
+ 2 files changed, 12 insertions(+), 0 deletions(-)
 
+diff --git a/arch/um/drivers/net_kern.c b/arch/um/drivers/net_kern.c
+index fb1f9fb..5b8c64e 100644
+--- a/arch/um/drivers/net_kern.c
++++ b/arch/um/drivers/net_kern.c
+@@ -276,6 +276,11 @@ static struct platform_driver uml_net_dr
+ };
+ static int driver_registered;
+ 
++/* Sysfs requires a ->release when mconsole hot-unplug is done */
++static void dummy_device_release(struct device *dev)
++{
++}
++
+ static int eth_configure(int n, void *init, char *mac,
+ 			 struct transport *transport)
+ {
+@@ -324,6 +329,7 @@ static int eth_configure(int n, void *in
+ 	}
+ 	device->pdev.id = n;
+ 	device->pdev.name = DRIVER_NAME;
++	device->pdev.dev.release = dummy_device_release;
+ 	platform_device_register(&device->pdev);
+ 	SET_NETDEV_DEV(dev,&device->pdev.dev);
+ 
 diff --git a/arch/um/drivers/ubd_kern.c b/arch/um/drivers/ubd_kern.c
-index e498f34..f93af66 100644
+index 7696f8d..49dda56 100644
 --- a/arch/um/drivers/ubd_kern.c
 +++ b/arch/um/drivers/ubd_kern.c
-@@ -1200,15 +1200,16 @@ int open_ubd_file(char *file, struct ope
- 	int fd, err, sectorsize, asked_switch, mode = 0644;
- 
- 	fd = os_open_file(file, *openflags, mode);
--	if(fd < 0){
--		if((fd == -ENOENT) && (create_cow_out != NULL))
-+	if (fd < 0) {
-+		if ((fd == -ENOENT) && (create_cow_out != NULL))
- 			*create_cow_out = 1;
--                if(!openflags->w ||
--                   ((fd != -EROFS) && (fd != -EACCES))) return(fd);
-+                if (!openflags->w ||
-+                   ((fd != -EROFS) && (fd != -EACCES)))
-+			return fd;
- 		openflags->w = 0;
- 		fd = os_open_file(file, *openflags, mode);
--		if(fd < 0)
--			return(fd);
-+		if (fd < 0)
-+			return fd;
-         }
- 
- 	err = os_lock_file(fd, openflags->w);
-@@ -1218,7 +1219,8 @@ int open_ubd_file(char *file, struct ope
- 	}
- 
- 	/* Succesful return case! */
--	if(backing_file_out == NULL) return(fd);
-+	if(backing_file_out == NULL)
-+		return(fd);
- 
- 	err = read_cow_header(file_reader, &fd, &version, &backing_file, &mtime,
- 			      &size, &sectorsize, &align, bitmap_offset_out);
-@@ -1227,7 +1229,8 @@ int open_ubd_file(char *file, struct ope
- 		       "errno = %d\n", file, -err);
- 		goto out_close;
- 	}
--	if(err) return(fd);
-+	if(err)
-+		return(fd);
- 
- 	asked_switch = path_requires_switch(*backing_file_out, backing_file, file);
- 
-@@ -1236,24 +1239,24 @@ int open_ubd_file(char *file, struct ope
- 		printk("Switching backing file to '%s'\n", *backing_file_out);
- 		err = write_cow_header(file, fd, *backing_file_out,
- 				       sectorsize, align, &size);
--		if(err){
-+		if (err) {
- 			printk("Switch failed, errno = %d\n", -err);
- 			goto out_close;
- 		}
--	}
--	else {
-+	} else {
- 		*backing_file_out = backing_file;
- 		err = backing_file_mismatch(*backing_file_out, size, mtime);
--		if(err) goto out_close;
-+		if (err)
-+			goto out_close;
- 	}
- 
- 	cow_sizes(version, size, sectorsize, align, *bitmap_offset_out,
- 		  bitmap_len_out, data_offset_out);
- 
--        return(fd);
-+        return fd;
-  out_close:
- 	os_close_file(fd);
--	return(err);
-+	return err;
+@@ -617,6 +617,11 @@ static int ubd_open_dev(struct ubd *dev)
+ 	return(err);
  }
  
- int create_cow_file(char *cow_file, char *backing_file, struct openflags flags,
++/* Sysfs requires a ->release when mconsole hot-unplug is done */
++static void dummy_device_release(struct device *dev)
++{
++}
++
+ static int ubd_new_disk(int major, u64 size, int unit,
+ 			struct gendisk **disk_out)
+ 			
+@@ -652,6 +657,7 @@ static int ubd_new_disk(int major, u64 s
+ 	if (major == MAJOR_NR) {
+ 		ubd_dev[unit].pdev.id   = unit;
+ 		ubd_dev[unit].pdev.name = DRIVER_NAME;
++		ubd_dev[unit].pdev.dev.release = dummy_device_release;
+ 		platform_device_register(&ubd_dev[unit].pdev);
+ 		disk->driverfs_dev = &ubd_dev[unit].pdev.dev;
+ 	}
 

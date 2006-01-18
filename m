@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030423AbWARUiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030426AbWARUjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030423AbWARUiH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 15:38:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030427AbWARUiG
+	id S1030426AbWARUjP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 15:39:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030427AbWARUjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 15:38:06 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:20497 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1030426AbWARUiF (ORCPT
+	Wed, 18 Jan 2006 15:39:15 -0500
+Received: from uproxy.gmail.com ([66.249.92.199]:32442 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030426AbWARUjO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 15:38:05 -0500
-Date: Wed, 18 Jan 2006 21:37:59 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: menuconfig elements unaligned
-Message-ID: <20060118203759.GB14340@mars.ravnborg.org>
-References: <Pine.LNX.4.61.0601182118001.29502@yvahk01.tjqt.qr>
+	Wed, 18 Jan 2006 15:39:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=ADL4/pZGVdDVBMT7lNhx35SLBhx2gG2PsrrkIvGNCuM4WCb0p7PwAM15i4RjtYnYPHxd3LgkP69CfjUIkKVoN6GKtAuo3U/lrqE0LvZJg6flBjPuhK33scw8DBEykmQMKT1fVh5RU3gbtI320N9eBj/+BxZQOKEvKlsxtFP3NUc=
+Date: Wed, 18 Jan 2006 23:56:37 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ian Molton <spyro@f2s.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] arm26: fix warnings about NR_IRQS being not defined
+Message-ID: <20060118205637.GB12771@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601182118001.29502@yvahk01.tjqt.qr>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 18, 2006 at 09:20:11PM +0100, Jan Engelhardt wrote:
-> Hi,
-> 
-> 
-> in Drivers > Network > 10 or 100Mbit, this shows up:
-> 
->  [*] EISA, VLB, PCI and on board controllers
->  < >   AMD PCnet32 PCI support
->  < >   AMD 8111 (new PCI lance) support
->  < >   Adaptec Starfire/DuraLAN support
->  < >   Broadcom 4400 ethernet support (EXPERIMENTAL)
->  < >   Reverse Engineered nForce Ethernet support (EXPERIMENTAL)
->  < > Digi Intl. RightSwitch SE-X support
->  < > EtherExpressPro/100 support (eepro100, original Becker driver)
->  < > Intel(R) PRO/100+ support
-> 
-> Deactivating EISA would suggest that Digi Intl. and everything below would
-> remain visible, but they do not. If someone got the time to, please fix it.
-Looks OK here.
-amd64 with defconfig.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-	Sam
+ include/asm-arm26/hardirq.h |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+--- a/include/asm-arm26/hardirq.h
++++ b/include/asm-arm26/hardirq.h
+@@ -4,6 +4,7 @@
+ #include <linux/config.h>
+ #include <linux/cache.h>
+ #include <linux/threads.h>
++#include <asm/irq.h>
+ 
+ typedef struct {
+ 	unsigned int __softirq_pending;
+

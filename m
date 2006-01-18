@@ -1,84 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWARLa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbWARLdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbWARLa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 06:30:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbWARLa0
+	id S1030188AbWARLdi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 06:33:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbWARLdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 06:30:26 -0500
-Received: from wproxy.gmail.com ([64.233.184.204]:53918 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030229AbWARLaZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 06:30:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:content-type:content-transfer-encoding;
-        b=soCD4WYBf5AjoeMHuIg9mtn1Y07bQLeT+R5GUKlNfXem6tlL6lhWNMU4/ZE/QybgQP7nP6yRG3CzWtWarU6JJR5aU3fvlEL2TrZLLtNmXQEQi/nxnxYKMTQGuXXV50cr2uykeIA4UoUPjGAxeFtbdCTgcpMZwjwFgUNJJmRuhcQ=
-Message-ID: <43CE26CC.2020905@gmail.com>
-Date: Wed, 18 Jan 2006 12:30:20 +0100
-From: Patrizio Bassi <patrizio.bassi@gmail.com>
-Reply-To: patrizio.bassi@gmail.com
-Organization: patrizio.bassi@gmail.com
-User-Agent: Mozilla Thunderbird 1.5 (X11/20060112)
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] e1000 C style badness
-References: <5wgyi-18w-7@gated-at.bofh.it> <43CE02BD.8060309@gmail.com> <43CE0429.3090708@yahoo.com.au>
-In-Reply-To: <43CE0429.3090708@yahoo.com.au>
-X-Enigmail-Version: 0.93.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Jan 2006 06:33:38 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30476 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030188AbWARLdh (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 06:33:37 -0500
+Date: Wed, 18 Jan 2006 11:33:31 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alon Bar-Lev <alon.barlev@gmail.com>
+Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: [serial] [adddevice] Serial controller: Decision Computer International Co. PCCOM2 (rev 02)
+Message-ID: <20060118113331.GA24960@flint.arm.linux.org.uk>
+Mail-Followup-To: Alon Bar-Lev <alon.barlev@gmail.com>,
+	Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+References: <43CB6694.1040704@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43CB6694.1040704@gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin ha scritto:
-> Patrizio Bassi wrote:
->> Jens Axboe ha scritto:
->>
->>> Hi,
->>>
->>> Recent e1000 updates introduced variable declarations after code. Fix
->>> those up again.
->>>
->>> Signed-off-by: Jens Axboe <axboe@suse.de>
->>>
->>> diff --git a/drivers/net/e1000/e1000_main.c
->>> b/drivers/net/e1000/e1000_main.c
->>> index d0a5d16..ca68a04 100644
->>> --- a/drivers/net/e1000/e1000_main.c
->>> +++ b/drivers/net/e1000/e1000_main.c
->>> @@ -2142,9 +2142,11 @@ e1000_leave_82542_rst(struct e1000_adapt
->>>         e1000_pci_set_mwi(&adapter->hw);
->>>
->>>     if(netif_running(netdev)) {
->>> +        struct e1000_rx_ring *ring;
->>> +
->>>         e1000_configure_rx(adapter);
->>>         /* No need to loop, because 82542 supports only 1 queue */
->>> -        struct e1000_rx_ring *ring = &adapter->rx_ring[0];
->>> +        ring = &adapter->rx_ring[0];
->>>         adapter->alloc_rx_buf(adapter, ring, E1000_DESC_UNUSED(ring));
->>>     }
->>> }
->>> @@ -3583,8 +3585,8 @@ e1000_clean_rx_irq(struct e1000_adapter
->>>     rx_desc = E1000_RX_DESC(*rx_ring, i);
->>>
->>>     while(rx_desc->status & E1000_RXD_STAT_DD) {
->>> -        buffer_info = &rx_ring->buffer_info[i];
->>>         u8 status;
->>> +        buffer_info = &rx_ring->buffer_info[i];
->>> #ifdef CONFIG_E1000_NAPI
->>>         if(*work_done >= work_to_do)
->>>             break;
->>>
->>
->>
->> Shouldn't variables declaration be on top of function and not on top of
->> a block (like if, while, for...)?
->>
->
-> Any block is OK, and they all have the same nice symmetry - variables
-> come into scope at the top and go out of scope at the bottom.
->
-ok, i'm still linked to the 70' C style (not confortable) :)
-old compilers failed with such syntax.
+On Mon, Jan 16, 2006 at 11:25:40AM +0200, Alon Bar-Lev wrote:
+> There is a new device which is look like:
+
+Patch looks good.  Please read Documentation/SubmittingPatches for
+sign-off information.  Thanks.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,128 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWARHXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030283AbWARHYw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbWARHXI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 02:23:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbWARHXI
+	id S1030283AbWARHYw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 02:24:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030284AbWARHYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 02:23:08 -0500
-Received: from 203-59-65-76.dyn.iinet.net.au ([203.59.65.76]:11973 "EHLO
-	eagle.themaw.net") by vger.kernel.org with ESMTP id S964912AbWARHXG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 02:23:06 -0500
-Date: Wed, 18 Jan 2006 15:22:31 +0800
-Message-Id: <200601180722.k0I7MVpn006120@eagle.themaw.net>
-From: Ian Kent <raven@themaw.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org, autofs@linux.kernel.org
-Subject: [PATCH 1/13] autofs4 - lookup white space cleanup
+	Wed, 18 Jan 2006 02:24:51 -0500
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:24195 "EHLO
+	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1030269AbWARHY0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 02:24:26 -0500
+X-Sasl-enc: e1N7R0RqbDWZASkIMFHijZoWKl4YwRT+0MxUI1+53p2V 1137569064
+Message-ID: <43CDED23.5060701@fastmail.co.uk>
+Date: Wed, 18 Jan 2006 15:24:19 +0800
+From: Max Waterman <davidmaxwaterman+kernel@fastmail.co.uk>
+User-Agent: Thunderbird 1.6a1 (Macintosh/20060116)
+MIME-Version: 1.0
+To: Phillip Susi <psusi@cfl.rr.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: io performance...
+References: <43CB4CC3.4030904@fastmail.co.uk> <43CD2405.4070902@cfl.rr.com>
+In-Reply-To: <43CD2405.4070902@cfl.rr.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Whitespace and formating changes to lookup code.
+Phillip Susi wrote:
+> Did you direct the program to use O_DIRECT?
 
-Signed-off-by: Ian Kent <raven@themaw.net>
+I'm just using the s/w (iorate/bonnie++) with default options - I'm no 
+expert. I could try though.
 
+> If not then I believe the 
+> problem you are seeing is that the generic block layer is not performing 
+> large enough readahead to keep all the disks in the array reading at 
+> once, because the stripe width is rather large.  What stripe factor did 
+> you format the array using?
 
---- linux-2.6.16-rc1/fs/autofs4/root.c.lookup-cleanup	2006-01-18 09:20:22.000000000 +0800
-+++ linux-2.6.16-rc1/fs/autofs4/root.c	2006-01-18 09:24:03.000000000 +0800
-@@ -296,20 +296,20 @@ static int try_to_fill_dentry(struct vfs
- {
- 	struct super_block *sb = mnt->mnt_sb;
- 	struct autofs_sb_info *sbi = autofs4_sbi(sb);
--	struct autofs_info *de_info = autofs4_dentry_ino(dentry);
-+	struct autofs_info *ino = autofs4_dentry_ino(dentry);
- 	int status = 0;
- 
- 	/* Block on any pending expiry here; invalidate the dentry
-            when expiration is done to trigger mount request with a new
-            dentry */
--	if (de_info && (de_info->flags & AUTOFS_INF_EXPIRING)) {
-+	if (ino && (ino->flags & AUTOFS_INF_EXPIRING)) {
- 		DPRINTK("waiting for expire %p name=%.*s",
- 			 dentry, dentry->d_name.len, dentry->d_name.name);
- 
- 		status = autofs4_wait(sbi, dentry, NFY_NONE);
--		
-+
- 		DPRINTK("expire done status=%d", status);
--		
-+
- 		/*
- 		 * If the directory still exists the mount request must
- 		 * continue otherwise it can't be followed at the right
-@@ -323,18 +323,21 @@ static int try_to_fill_dentry(struct vfs
- 	DPRINTK("dentry=%p %.*s ino=%p",
- 		 dentry, dentry->d_name.len, dentry->d_name.name, dentry->d_inode);
- 
--	/* Wait for a pending mount, triggering one if there isn't one already */
-+	/*
-+	 * Wait for a pending mount, triggering one if there
-+	 * isn't one already
-+	 */
- 	if (dentry->d_inode == NULL) {
- 		DPRINTK("waiting for mount name=%.*s",
- 			 dentry->d_name.len, dentry->d_name.name);
- 
- 		status = autofs4_wait(sbi, dentry, NFY_MOUNT);
--		 
-+
- 		DPRINTK("mount done status=%d", status);
- 
- 		if (status && dentry->d_inode)
- 			return 0; /* Try to get the kernel to invalidate this dentry */
--		
-+
- 		/* Turn this into a real negative dentry? */
- 		if (status == -ENOENT) {
- 			dentry->d_time = jiffies + AUTOFS_NEGATIVE_TIMEOUT;
-@@ -367,8 +370,10 @@ static int try_to_fill_dentry(struct vfs
- 		}
- 	}
- 
--	/* We don't update the usages for the autofs daemon itself, this
--	   is necessary for recursive autofs mounts */
-+	/*
-+	 * We don't update the usages for the autofs daemon itself, this
-+	 * is necessary for recursive autofs mounts
-+	 */
- 	if (!autofs4_oz_mode(sbi))
- 		autofs4_update_usage(mnt, dentry);
- 
-@@ -384,9 +389,9 @@ static int try_to_fill_dentry(struct vfs
-  * yet completely filled in, and revalidate has to delay such
-  * lookups..
-  */
--static int autofs4_revalidate(struct dentry * dentry, struct nameidata *nd)
-+static int autofs4_revalidate(struct dentry *dentry, struct nameidata *nd)
- {
--	struct inode * dir = dentry->d_parent->d_inode;
-+	struct inode *dir = dentry->d_parent->d_inode;
- 	struct autofs_sb_info *sbi = autofs4_sbi(dir->i_sb);
- 	int oz_mode = autofs4_oz_mode(sbi);
- 	int flags = nd ? nd->flags : 0;
-@@ -462,12 +467,13 @@ static struct dentry *autofs4_lookup(str
- 	DPRINTK("name = %.*s",
- 		dentry->d_name.len, dentry->d_name.name);
- 
-+	/* File name too long to exist */
- 	if (dentry->d_name.len > NAME_MAX)
--		return ERR_PTR(-ENAMETOOLONG);/* File name too long to exist */
-+		return ERR_PTR(-ENAMETOOLONG);
- 
- 	sbi = autofs4_sbi(dir->i_sb);
--
- 	oz_mode = autofs4_oz_mode(sbi);
-+
- 	DPRINTK("pid = %u, pgrp = %u, catatonic = %d, oz_mode = %d",
- 		 current->pid, process_group(current), sbi->catatonic, oz_mode);
- 
-@@ -519,7 +525,7 @@ static struct dentry *autofs4_lookup(str
- 	 * doesn't do the right thing for all system calls, but it should
- 	 * be OK for the operations we permit from an autofs.
- 	 */
--	if ( dentry->d_inode && d_unhashed(dentry) )
-+	if (dentry->d_inode && d_unhashed(dentry))
- 		return ERR_PTR(-ENOENT);
- 
- 	return NULL;
+I left the stripe size at the default, which, I believe, is 64K bytes; 
+same as your fakeraid below.
+
+I did play with 'blockdev --setra' too.
+
+I noticed it was 256 with a single disk, and, with s/w raid, it 
+increased by 256 for each extra disk in the array. IE for the raid 0 
+array with 4 drives, it was 1024.
+
+With h/w raid, however, it did not increase when I added disks. Should I 
+use 'blockdev --setra 320' (ie 64 x 5 = 320, since we're now running 
+RAID5 on 5 drives)?
+
+> I have a sata fakeraid at home of two drives using a stripe factor of 64 
+> KB.  If I don't issue O_DIRECT IO requests of at least 128 KB ( the 
+> stripe width ), then throughput drops significantly.  If I issue 
+> multiple async requests of smaller size that totals at least 128 KB, 
+> throughput also remains high.  If you only issue a single 32 KB request 
+> at a time, then two requests must go to one drive and be completed 
+> before the other drive gets any requests, so it remains idle a lot of 
+> the time.
+
+I think that makes sense (which is a change in this RAID performance 
+business :( ).
+
+Thanks.
+
+Max.
+
+> Max Waterman wrote:
+>> Hi,
+>>
+>> I've been referred to this list from the linux-raid list.
+>>
+>> I've been playing with a RAID system, trying to obtain best bandwidth
+>> from it.
+>>
+>> I've noticed that I consistently get better (read) numbers from kernel 
+>> 2.6.8
+>> than from later kernels.
+>>
+>> For example, I get 135MB/s on 2.6.8, but I typically get ~90MB/s on later
+>> kernels.
+>>
+>> I'm using this :
+>>
+>> <http://www.sharcnet.ca/~hahn/iorate.c>
+>>
+>> to measure the iorate. I'm using the debian distribution. The h/w is a 
+>> MegaRAID
+>> 320-2. The array I'm measuring is a RAID0 of 4 Fujitsu Max3073NC 
+>> 15Krpm drives.
+>>
+>> The later kernels I've been using are :
+>>
+>> 2.6.12-1-686-smp
+>> 2.6.14-2-686-smp
+>> 2.6.15-1-686-smp
+>>
+>> The kernel which gives us the best results is :
+>>
+>> 2.6.8-2-386
+>>
+>> (note that it's not an smp kernel)
+>>
+>> I'm testing on an otherwise idle system.
+>>
+>> Any ideas to why this might be? Any other advice/help?
+>>
+>> Thanks!
+>>
+>> Max.
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe 
+>> linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>
+> 
+

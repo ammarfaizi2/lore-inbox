@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbWARIOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWARIPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964905AbWARIOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 03:14:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWARIOI
+	id S964898AbWARIPO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 03:15:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWARIPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 03:14:08 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:168 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S964772AbWARIOH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 03:14:07 -0500
-Date: Wed, 18 Jan 2006 09:14:07 +0100
-From: Sander <sander@humilis.net>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: Ross Vandegrift <ross@jose.lug.udel.edu>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 000 of 5] md: Introduction
-Message-ID: <20060118081407.GC18945@localhost.localdomain>
-Reply-To: sander@humilis.net
-References: <20060117174531.27739.patches@notabene> <43CCA80B.4020603@tls.msk.ru> <20060117095019.GA27262@localhost.localdomain> <43CCD453.9070900@tls.msk.ru> <20060117160829.GA16606@lug.udel.edu> <43CD3388.9050107@tls.msk.ru>
-MIME-Version: 1.0
+	Wed, 18 Jan 2006 03:15:13 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:15550 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964898AbWARIPL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 03:15:11 -0500
+Date: Wed, 18 Jan 2006 09:15:27 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Andrew Morton <akpm@osdl.org>, Harald Welte <laforge@netfilter.org>,
+       coreteam@netfilter.org, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [netfilter-core] [patch 2.6.15-mm4] sem2mutex: netfilter x_table.c
+Message-ID: <20060118081527.GB2324@elte.hu>
+References: <20060114143042.GA17675@elte.hu> <43CDA834.3070301@trash.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43CD3388.9050107@tls.msk.ru>
-X-Uptime: 07:10:58 up 61 days, 21:15, 12 users,  load average: 3.17, 2.39, 2.01
-User-Agent: Mutt/1.5.11
+In-Reply-To: <43CDA834.3070301@trash.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.7 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Tokarev wrote (ao):
-> Most problematic case so far, which I described numerous times (like,
-> "why linux raid isn't Raid really, why it can be worse than plain
-> disk") is when, after single sector read failure, md kicks the whole
-> disk off the array, and when you start resync (after replacing the
-> "bad" drive or just remapping that bad sector or even doing nothing,
-> as it will be remapped in almost all cases during write, on real
-> drives anyway),
 
-If the (harddisk internal) remap succeeded, the OS doesn't see the bad
-sector at all I believe.
+* Patrick McHardy <kaber@trash.net> wrote:
 
-If you (the OS) do see a bad sector, the disk couldn't remap, and goes
-downhill from there, right?
+> Ingo Molnar wrote:
+> >From: Ingo Molnar <mingo@elte.hu>
+> >
+> >semaphore to mutex conversion.
+> >
+> >the conversion was generated via scripts, and the result was validated
+> >automatically via a script as well.
+> 
+> I haven't followed all the mutex patches, is this intended
+> for mainline or for -mm?
 
-	Sander
+best would be if you could pick the patches up (if they look good to 
+you, and if they pass testing with CONFIG_DEBUG_MUTEXES enabled), and 
+thus they would flow upstream once you did a merge with Andrew or Linus
+next time around.
 
--- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+we'll still keep them in -mm, just to get early feedback (and to make 
+sure nothing is dropped on the floor), but the ultimate merging should 
+happen via maintainers. [so that the mutex patches impact maintainer's 
+workflow and their pending patches in the least minimal way.] If things 
+clash with our mutex migration changes in -mm, we'll redo the affected 
+-mm mutex patches whenever Andrew pulls a maintainer tree.
+
+	Ingo

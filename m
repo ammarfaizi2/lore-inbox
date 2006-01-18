@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWARDZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWARD1A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbWARDZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 22:25:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWARDZ4
+	id S932344AbWARD1A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 22:27:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWARD1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 22:25:56 -0500
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:53646 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932241AbWARDZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 22:25:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=pPpC7dT9by2dj3rwVw9jEhlC6OO8fDsAFHTSuMOu60FWIA4cjLwyr2/Am6vJcjuNlOCUMPUhUlyleX4HpErovM1j55Nc7BBbGrQOPUtp8bbWEE2kJQXbKsekVpSxL+cKboz6S7iF80NUkchKuar4GBUEBXKqoEfCjUEI5A/ipwo=  ;
-Message-ID: <43CDB52A.9030103@yahoo.com.au>
-Date: Wed, 18 Jan 2006 14:25:30 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Diego Calleja <diegocg@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Oops with current linus' git tree
-References: <20060116191556.bd3f551c.diegocg@gmail.com>	<43CC7094.9040404@yahoo.com.au> <20060117141725.d80a1221.diegocg@gmail.com>
-In-Reply-To: <20060117141725.d80a1221.diegocg@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 17 Jan 2006 22:27:00 -0500
+Received: from h80ad245a.async.vt.edu ([128.173.36.90]:30145 "EHLO
+	h80ad245a.async.vt.edu") by vger.kernel.org with ESMTP
+	id S932344AbWARD07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 22:26:59 -0500
+Message-Id: <200601180325.k0I3P8tF008591@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Andi Kleen <ak@suse.de>, Arjan van de Ven <arjan@infradead.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Keith Owens <kaos@ocs.com.au>, Akinobu Mita <mita@miraclelinux.com>,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH 3/4] compact print_symbol() output 
+In-Reply-To: Your message of "Tue, 17 Jan 2006 22:05:27 EST."
+             <200601172208_MC3-1-B612-EE86@compuserve.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200601172208_MC3-1-B612-EE86@compuserve.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1137554707_3023P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 17 Jan 2006 22:25:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja wrote:
-> El Tue, 17 Jan 2006 15:20:36 +1100,
-> Nick Piggin <nickpiggin@yahoo.com.au> escribió:
-> 
+--==_Exmh_1137554707_3023P
+Content-Type: text/plain; charset=us-ascii
 
->>What happens if you run several infinite loops to increase the load?
->>Does everything still stay on CPU0?
-> 
-> 
-> Yes, I run several "cat /dev/zero > /dev/null &" and they all kept in
-> CPU #0. 
-> 
-> I did a bitsection search and I couldn't found the culprit, apparently
-> it is caused by a config option; now it works fine after switching off
-> CONFIG_HOTPLUG_CPU and some ACPI options. Also, when it didn't work
-> the CPU that would get all the processes could be CPU #0 or #1 - it
-> changed randomly depending on the boot.
-> 
+On Tue, 17 Jan 2006 22:05:27 EST, Chuck Ebbert said:
 
-If you can report those configuration options and the symptoms in a
-new thread to lkml that would be helpful. Also if you can work out
-when it started happening, that helps too.
+> OK, how about this: remove the "0x" from the function size, i.e. print:
+> 
+>         kernel_symbol+0xd3/10e
+> 
+> instead of:
+> 
+>         kernel_symbol+0xd3/0x10e
+> 
+> This saves two characters per symbol and it should still be clear that
+> the second number is hexadecimal.
 
-Thanks,
-Nick
+Good.  Now repeat for a function that's 6 bytes shorter.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+--==_Exmh_1137554707_3023P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDzbUTcC3lWbTT17ARAjz5AJ9htGvMzDaEvIZz9BkSfV8ABf8yJACeMZQ+
+EWHoQfFXUDaFCcJUElz1HuM=
+=A4w6
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1137554707_3023P--

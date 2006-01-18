@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWARAeb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbWARAfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964838AbWARAeb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 19:34:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbWARAeb
+	id S964951AbWARAfg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 19:35:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964954AbWARAff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 19:34:31 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:34770 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S964838AbWARAea (ORCPT
+	Tue, 17 Jan 2006 19:35:35 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:55216 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964958AbWARAfe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 19:34:30 -0500
-Subject: [PATCH] Fix sparse parse error in lppaca.h
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: Andrew Morton <akpm@osdl.org>, arnd@arndb.de, david@gibson.dropbear.id.au
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Tue, 17 Jan 2006 16:34:25 -0800
-Message-Id: <1137544465.4757.13.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 17 Jan 2006 19:35:34 -0500
+Message-ID: <43CD8D52.30509@pobox.com>
+Date: Tue, 17 Jan 2006 19:35:30 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: ide <linux-ide@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH 2/4] libata debugging support
+References: <20060113224252.38d8890f.rdunlap@xenotime.net> <20060113224414.20509944.rdunlap@xenotime.net>
+In-Reply-To: <20060113224414.20509944.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Randy.Dunlap wrote: > From: Borislav Petkov
+	<petkov@uni-muenster.de> > > libata new debugging macro definitions > >
+	Signed-off-by: Borislav Petkov <petkov@uni-muenster.de> >
+	Signed-off-by: Randy Dunlap <randy_d_dunlap@linux.intel.com> [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sparse can't parse a struct definition in include/asm-powerpc/lppaca.h,
-even though gcc can accept it.  The form looks like this:
+Randy.Dunlap wrote:
+> From: Borislav Petkov <petkov@uni-muenster.de>
+> 
+> libata new debugging macro definitions
+> 
+> Signed-off-by: Borislav Petkov <petkov@uni-muenster.de>
+> Signed-off-by: Randy Dunlap <randy_d_dunlap@linux.intel.com>
 
-        struct __attribute__((whatever)) foo { };
-
-An equivalent that both gcc and sparse can handle is
-
-        struct foo { } __attribute__((whatever));
-
-This is the only definition of this type in the tree, and fixing it is
-easier than fixing sparse.
-
-Signed-off-by: Bryan O'Sullivan <bos@serpentine.com>
-
-diff -r 89be36ca2767 include/asm-powerpc/lppaca.h
---- a/include/asm-powerpc/lppaca.h	Wed Jan 18 04:00:05 2006 +0000
-+++ b/include/asm-powerpc/lppaca.h	Tue Jan 17 16:27:27 2006 -0800
-@@ -31,7 +31,7 @@
- 
- /* The Hypervisor barfs if the lppaca crosses a page boundary.  A 1k
-  * alignment is sufficient to prevent this */
--struct __attribute__((__aligned__(0x400))) lppaca {
-+struct lppaca {
- //=============================================================================
- // CACHE_LINE_1 0x0000 - 0x007F Contains read-only data
- // NOTE: The xDynXyz fields are fields that will be dynamically changed by
-@@ -129,7 +129,7 @@
- // CACHE_LINE_4-5 0x0100 - 0x01FF Contains PMC interrupt data
- //=============================================================================
- 	u8	pmc_save_area[256];	// PMC interrupt Area           x00-xFF
--};
-+} __attribute__((__aligned__(0x400)));
- 
- extern struct lppaca lppaca[];
- 
-
+applied to 'debug' branch of libata-dev.git, and will soon move it to an 
+'upstream' branch.
 
 

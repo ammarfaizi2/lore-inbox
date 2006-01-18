@@ -1,120 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWARQ7k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWARRDt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751355AbWARQ7k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 11:59:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWARQ7k
+	id S1751288AbWARRDt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 12:03:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWARRDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 11:59:40 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:65180 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751355AbWARQ7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 11:59:39 -0500
-Date: Wed, 18 Jan 2006 17:59:12 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Horst Hummel <horst.hummel@de.ibm.com>
-Subject: [PATCH 7/7] s390: dasd wait for clear i/o interrupt.
-Message-ID: <20060118165912.GG29266@osiris.boeblingen.de.ibm.com>
+	Wed, 18 Jan 2006 12:03:49 -0500
+Received: from mail.kroah.org ([69.55.234.183]:1450 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751288AbWARRDs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 12:03:48 -0500
+Date: Wed, 18 Jan 2006 09:02:12 -0800
+From: Greg KH <greg@kroah.com>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: user-mode-linux-devel@lists.sourceforge.net, akpm@osdl.org,
+       Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] Re: [PATCH 1/9] uml: avoid sysfs warning on hot-unplug
+Message-ID: <20060118170212.GB12757@kroah.com>
+References: <20060118011200.GA28086@kroah.com> <200601181253.54942.blaisorblade@yahoo.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: mutt-ng/devel (Linux)
+In-Reply-To: <200601181253.54942.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Horst Hummel <horst.hummel@de.ibm.com>
+On Wed, Jan 18, 2006 at 12:53:54PM +0100, Blaisorblade wrote:
+> On Wednesday 18 January 2006 02:12, Greg KH wrote:
+> > > From: Jeff Dike <jdike@addtoit.com>, Paolo 'Blaisorblade' Giarrusso
+> > > <blaisorblade@yahoo.it>
+> > >
+> > > Define a release method for the ubd and network driver so that sysfs
+> > > doesn't complain when one is removed via:
+> 
+> > What?  No.  The kernel is complaining for a reason, don't try to
+> > out-smart it.
+> 
+> I'm not trying to ignore the warning.
 
-The sleep_on function clears a running cqr without waiting for the
-related interrupt. This can lead to a panic at the time the interrupt
-is processed because the related memory might already be freed.
-Wait for clear-interrupt and de-queue cqr prior to return.
+By providing a release function that does nothing, all you are doing is
+shutting the kernel up.  You are not doing anything to "fix" the real
+problem at all.
 
-Signed-off-by: Horst Hummel <horst.hummel@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
----
+> > > host $ uml_mconsole <umid> remove <dev>
+> 
+> > > Done by Jeff around January for ubd only, later lost, then restored in
+> > > his tree - however I'm merging it now since there's no reason to leave
+> > > this here.
+> 
+> > > We don't need to do any cleanup in the new added method, because when
+> > > hot-unplug is done by uml_mconsole we already handle cleanup in mconsole
+> > > infrastructure, i.e.  mc_device->remove (net_remove/ubd_remove), which is
+> > > also the calling method.
+> 
+> > Huh?  You have 2 different release functions for the same object?
+> 
+> Not sure which ones you refer. net_remove and ubd_remove are for different 
+> devices; mc_device->remove and the sysfs release are in different layers and 
+> for different things.
 
- drivers/s390/block/dasd.c |   45 +++++++++++++++++++++++++++++++++------------
- 1 files changed, 33 insertions(+), 12 deletions(-)
+Ok, but you are still adding 2 empty release functions.
 
-diff -urpN linux-2.6/drivers/s390/block/dasd.c linux-2.6-patched/drivers/s390/block/dasd.c
---- linux-2.6/drivers/s390/block/dasd.c	2006-01-18 17:25:49.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/block/dasd.c	2006-01-18 17:25:54.000000000 +0100
-@@ -674,11 +674,8 @@ dasd_term_IO(struct dasd_ccw_req * cqr)
- 		rc = ccw_device_clear(device->cdev, (long) cqr);
- 		switch (rc) {
- 		case 0:	/* termination successful */
--		        if (cqr->retries > 0) {
--				cqr->retries--;
--				cqr->status = DASD_CQR_CLEAR;
--			} else
--				cqr->status = DASD_CQR_FAILED;
-+			cqr->retries--;
-+			cqr->status = DASD_CQR_CLEAR;
- 			cqr->stopclk = get_clock();
- 			DBF_DEV_EVENT(DBF_DEBUG, device,
- 				      "terminate cqr %p successful",
-@@ -1307,7 +1304,7 @@ dasd_tasklet(struct dasd_device * device
- 	/* Now call the callback function of requests with final status */
- 	list_for_each_safe(l, n, &final_queue) {
- 		cqr = list_entry(l, struct dasd_ccw_req, list);
--		list_del(&cqr->list);
-+		list_del_init(&cqr->list);
- 		if (cqr->callback != NULL)
- 			(cqr->callback)(cqr, cqr->callback_data);
- 	}
-@@ -1392,7 +1389,9 @@ _wait_for_wakeup(struct dasd_ccw_req *cq
- 
- 	device = cqr->device;
- 	spin_lock_irq(get_ccwdev_lock(device->cdev));
--	rc = cqr->status == DASD_CQR_DONE || cqr->status == DASD_CQR_FAILED;
-+	rc = ((cqr->status == DASD_CQR_DONE ||
-+	       cqr->status == DASD_CQR_FAILED) &&
-+	      list_empty(&cqr->list));
- 	spin_unlock_irq(get_ccwdev_lock(device->cdev));
- 	return rc;
- }
-@@ -1456,15 +1455,37 @@ dasd_sleep_on_interruptible(struct dasd_
- 	while (!finished) {
- 		rc = wait_event_interruptible(wait_q, _wait_for_wakeup(cqr));
- 		if (rc != -ERESTARTSYS) {
--			/* Request status is either done or failed. */
--			rc = (cqr->status == DASD_CQR_FAILED) ? -EIO : 0;
-+			/* Request is final (done or failed) */
-+			rc = (cqr->status == DASD_CQR_DONE) ? 0 : -EIO;
- 			break;
- 		}
- 		spin_lock_irq(get_ccwdev_lock(device->cdev));
--		if (cqr->status == DASD_CQR_IN_IO &&
--		    device->discipline->term_IO(cqr) == 0) {
--			list_del(&cqr->list);
-+		switch (cqr->status) {
-+		case DASD_CQR_IN_IO:
-+                        /* terminate runnig cqr */
-+			if (device->discipline->term_IO) {
-+				cqr->retries = -1;
-+				device->discipline->term_IO(cqr);
-+				/*nished =
-+				 * wait (non-interruptible) for final status
-+				 * because signal ist still pending
-+				 */
-+				spin_unlock_irq(get_ccwdev_lock(device->cdev));
-+				wait_event(wait_q, _wait_for_wakeup(cqr));
-+				spin_lock_irq(get_ccwdev_lock(device->cdev));
-+				rc = (cqr->status == DASD_CQR_DONE) ? 0 : -EIO;
-+				finished = 1;
-+			}
-+			break;
-+		case DASD_CQR_QUEUED:
-+			/* request  */
-+			list_del_init(&cqr->list);
-+			rc = -EIO;
- 			finished = 1;
-+			break;
-+		default:
-+			/* cqr with 'non-interruptable' status - just wait */
-+			break;
- 		}
- 		spin_unlock_irq(get_ccwdev_lock(device->cdev));
- 	}
+Please do not do that, if you think you need this, your code logic is
+wrong.
+
+As for your specific bug report, sorry, I really don't know.
+
+good luck,
+
+greg k-h

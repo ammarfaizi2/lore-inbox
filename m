@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030309AbWARNsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030310AbWARNyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030309AbWARNsp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 08:48:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbWARNsp
+	id S1030310AbWARNyq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 08:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbWARNyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 08:48:45 -0500
-Received: from mail-in-09.arcor-online.net ([151.189.21.49]:36781 "EHLO
-	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1030309AbWARNso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 08:48:44 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: NFS problem
-To: Conio sandiago <coniodiago@gmail.com>,
-       Conio sandiago <coniodiago@gmail.com>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Wed, 18 Jan 2006 14:55:09 +0100
-References: <5wdAz-5a0-7@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1EzDmI-0001X2-EH@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+	Wed, 18 Jan 2006 08:54:46 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:49357 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1030310AbWARNyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 08:54:46 -0500
+Date: Wed, 18 Jan 2006 15:54:13 +0200 (EET)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Sven Lauritzen <the-pulse@gmx.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] at mm/slab.c:1235! (Version 2.6.15)
+In-Reply-To: <1137591682.1774.35.camel@berlin.slsd>
+Message-ID: <Pine.LNX.4.58.0601181547580.20218@sbz-30.cs.Helsinki.FI>
+References: <1137582956.1774.15.camel@berlin.slsd> 
+ <84144f020601180422q78ecdf37mb8b8e9d1f40039d1@mail.gmail.com>
+ <1137591682.1774.35.camel@berlin.slsd>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Conio sandiago <coniodiago@gmail.com> wrote:
+On Wed, 2006-01-18 at 14:22 +0200, Pekka Enberg wrote:
+> > Try enabling CONFIG_DEBUG_SLAB and CONFIG_DEBUG_PAGEALLOC to see if
+> > they pick up anything.
 
-> i am having some problem in having root file system on NFS,
-> i am developing a linux embedded system,. when i have a root file
-> system on a NFS and i try to boot the kernel through a repeater hub ,
-> then the kernel hangs at freeing init memory.
-> 
->  if i connect the board with the PC through a cross cable,
-> then the system works ok.
+On Wed, 18 Jan 2006, Sven Lauritzen wrote:
+> Ok, I'll try that. I guess I'll find the results in syslog?
 
-Can you mount nfs-shares from a desktop system through the repeater hub?
-I guess, either the cable or the HUB is defective.
+Yes. They'll give us a better oops if they pick up something.
+ 
+On Wed, 2006-01-18 at 14:22 +0200, Pekka Enberg wrote:
+> > I don't quite see how this could happen. Is the box otherwise stable?
+> > Have you run memtest86 on it?
+ 
+On Wed, 18 Jan 2006, Sven Lauritzen wrote:
+> It's the first crash within 4 days. I have exchanged motherboard and ram
+> of the box, so maybe there's something worng. But it seems that the
+> crash was caused by high traffic on the disk drive. 6:25 is the time,
+> when findutils and logrotate and so on start to run.
 
-BTW: You should rather use a switch than a hub, especially for nfs.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Indeed that's because the kernel starts reclaiming memory and attempts to 
+shrink the slabs. It's just that the page we're freeing is being managed 
+by the slab allocator and I don't see how anyone else could be messing 
+around with it. The fact that it's one bit error makes me think it could 
+be due to faulty memory.
+
+			Pekka

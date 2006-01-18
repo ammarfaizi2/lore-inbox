@@ -1,58 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbWARLME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbWARLP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030220AbWARLME (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 06:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbWARLME
+	id S1030219AbWARLP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 06:15:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030222AbWARLP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 06:12:04 -0500
-Received: from smtp009.mail.ukl.yahoo.com ([217.12.11.63]:37478 "HELO
-	smtp009.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1030220AbWARLMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 06:12:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=ELOZAUGNDS8oA74uDgZNwLaw3vqO4tDnkgLoRQOV3IPJAzGeVcaH/dzyOhZN7Yxr+msCqizOcRa1YMaAHSizdr6TFqOzu1oxbKXLobdlu7OTRmEXI81bcl8ql796hL8HqJmOBXSTzmJR4TzScUpn1Z5dlYKMr3qFsWQ+Em4Er4k=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Jeff Dike <jdike@addtoit.com>
-Subject: Re: [PATCH 1/9] uml: avoid sysfs warning on hot-unplug
-Date: Wed, 18 Jan 2006 12:11:49 +0100
-User-Agent: KMail/1.8.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-References: <20060117235659.14622.18544.stgit@zion.home.lan> <20060118001920.14622.79573.stgit@zion.home.lan> <20060118025354.GA13825@ccure.user-mode-linux.org>
-In-Reply-To: <20060118025354.GA13825@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Jan 2006 06:15:27 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:4066 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030219AbWARLP0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 06:15:26 -0500
+Date: Wed, 18 Jan 2006 12:15:40 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ntl@pobox.com, anton@au1.ibm.com, linux-kernel@vger.kernel.org,
+       michael@ellerman.id.au, linuxppc64-dev@ozlabs.org, serue@us.ibm.com,
+       paulus@au1.ibm.com, torvalds@osdl.org
+Subject: [patch] make bug messages more consistent
+Message-ID: <20060118111540.GA14023@elte.hu>
+References: <20060118033239.GA621@cs.umn.edu> <20060118063732.GA21003@elte.hu> <20060117225304.4b6dd045.akpm@osdl.org> <20060118072815.GR2846@localhost.localdomain> <20060117233734.506c2f2e.akpm@osdl.org> <20060118080828.GA2324@elte.hu> <20060118002459.3bc8f75a.akpm@osdl.org> <20060118091834.GA21366@elte.hu> <20060118023509.50fe2701.akpm@osdl.org> <20060118104319.GB7885@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601181211.50190.blaisorblade@yahoo.it>
+In-Reply-To: <20060118104319.GB7885@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 18 January 2006 03:53, Jeff Dike wrote:
-> On Wed, Jan 18, 2006 at 01:19:21AM +0100, Paolo 'Blaisorblade' Giarrusso 
-wrote:
-> > Done by Jeff around January for ubd only, later lost, then restored in
-> > his tree - however I'm merging it now since there's no reason to leave
-> > this here.
->
-> The original was dinged by hch for covering over a problem without really
-> fixing it.
->
-> We need to think about this one some more.
+while we are changing debugging code. One problem is that we've got a 
+hodgepodge of bug messages right now, and i frequently miss e.g.  
+'Badness' messages from the kernel because they simply do not stick out 
+visually. 'BUG' is much more apparent and also makes it obvious that 
+there's a kernel bug here. Here's a patch that makes the messages more 
+consistent:
 
-About this, have you reported upstream the "crash with remove ubd2 and ubd3" 
-thing caused by wrong refcounts? Greg and friends tend to fix various drivers 
-all around, I guess it's the right policy to ask them to fix this too.
+--
 
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
+consolidate all kernel bug printouts to begin with the "BUG: " string.  
+Makes it easier to find them in large bootup logs.
 
-		
-___________________________________ 
-Yahoo! Messenger with Voice: chiama da PC a telefono a tariffe esclusive 
-http://it.messenger.yahoo.com
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+----
+
+ include/asm-generic/bug.h |    4 ++--
+ kernel/sched.c            |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+Index: linux/include/asm-generic/bug.h
+===================================================================
+--- linux.orig/include/asm-generic/bug.h
++++ linux/include/asm-generic/bug.h
+@@ -7,7 +7,7 @@
+ #ifdef CONFIG_BUG
+ #ifndef HAVE_ARCH_BUG
+ #define BUG() do { \
+-	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
++	printk("BUG: failure at %s:%d/%s()!\n", __FILE__, __LINE__, __FUNCTION__); \
+ 	panic("BUG!"); \
+ } while (0)
+ #endif
+@@ -19,7 +19,7 @@
+ #ifndef HAVE_ARCH_WARN_ON
+ #define WARN_ON(condition) do { \
+ 	if (unlikely((condition)!=0)) { \
+-		printk("Badness in %s at %s:%d\n", __FUNCTION__, __FILE__, __LINE__); \
++		printk("BUG: warning at %s:%d/%s()\n", __FILE__, __LINE__, __FUNCTION__); \
+ 		dump_stack(); \
+ 	} \
+ } while (0)
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c
++++ linux/kernel/sched.c
+@@ -2973,7 +2973,7 @@ asmlinkage void __sched schedule(void)
+ 	 */
+ 	if (likely(!current->exit_state)) {
+ 		if (unlikely(in_atomic())) {
+-			printk(KERN_ERR "scheduling while atomic: "
++			printk(KERN_ERR "BUG: scheduling while atomic: "
+ 				"%s/0x%08x/%d\n",
+ 				current->comm, preempt_count(), current->pid);
+ 			dump_stack();
+@@ -6293,7 +6293,7 @@ void __might_sleep(char *file, int line)
+ 		if (time_before(jiffies, prev_jiffy + HZ) && prev_jiffy)
+ 			return;
+ 		prev_jiffy = jiffies;
+-		printk(KERN_ERR "Debug: sleeping function called from invalid"
++		printk(KERN_ERR "BUG: sleeping function called from invalid"
+ 				" context at %s:%d\n", file, line);
+ 		printk("in_atomic():%d, irqs_disabled():%d\n",
+ 			in_atomic(), irqs_disabled());

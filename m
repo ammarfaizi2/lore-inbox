@@ -1,52 +1,196 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWARDcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbWARDgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964890AbWARDcp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 22:32:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964894AbWARDcp
+	id S964895AbWARDgf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 22:36:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWARDgf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 22:32:45 -0500
-Received: from mail.cs.umn.edu ([128.101.36.202]:59091 "EHLO mail.cs.umn.edu")
-	by vger.kernel.org with ESMTP id S964890AbWARDcp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 22:32:45 -0500
-Date: Tue, 17 Jan 2006 21:32:39 -0600
-From: Dave C Boutcher <sleddog@us.ibm.com>
-To: Michael Ellerman <michael@ellerman.id.au>
-Cc: Ingo Molnar <mingo@elte.hu>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, linuxppc64-dev@ozlabs.org,
-       paulus@au1.ibm.com, anton@au1.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-mm4 failure on power5
-Message-ID: <20060118033239.GA621@cs.umn.edu>
-Reply-To: boutcher@cs.umn.edu
-Mail-Followup-To: Michael Ellerman <michael@ellerman.id.au>,
-	Ingo Molnar <mingo@elte.hu>, "Serge E. Hallyn" <serue@us.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, linuxppc64-dev@ozlabs.org,
-	paulus@au1.ibm.com, anton@au1.ibm.com, linux-kernel@vger.kernel.org
-References: <20060116063530.GB23399@sergelap.austin.ibm.com> <200601180032.46867.michael@ellerman.id.au> <20060117140050.GA13188@elte.hu> <200601181119.39872.michael@ellerman.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601181119.39872.michael@ellerman.id.au>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 17 Jan 2006 22:36:35 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:10207 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S964895AbWARDgf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 22:36:35 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 17 Jan 2006 19:36:25 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@localhost.localdomain
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, David Woodhouse <dwmw2@infradead.org>
+Subject: [PATCH] pepoll_wait ...
+Message-ID: <Pine.LNX.4.63.0601171933400.15529@localhost.localdomain>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1283076843-1137548421=:15529"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 18, 2006 at 11:19:36AM +1100, Michael Ellerman wrote:
-> It booted fine _with_ the patch applied, with DEBUG_MUTEXES=y and n.
-> 
-> Boutcher, to be clear, you can't boot with kernel-kernel-cpuc-to-mutexes.patch 
-> applied and DEBUG_MUTEXES=y ?
-> 
-> But if you revert kernel-kernel-cpuc-to-mutexes.patch it boots ok?
-> 
-> This is looking quite similar to another hang we're seeing on Power4 iSeries 
-> on mainline git:
-> http://ozlabs.org/pipermail/linuxppc64-dev/2006-January/007679.html
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Correct...I die in exactly the same place every time with
-DEBUG_MUTEXES=Y.  I posted a backtrace that points into the _lock_cpu
-code, but I haven't really dug into the issue yet.  I believe this is
-very timing related (Serge was dying slightly differently).
+--8323328-1283076843-1137548421=:15529
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
 
--- 
-Dave Boutcher
+
+The attached patch implements the pepoll_wait system call, that extend the 
+event wait mechanism with the same logic ppoll and pselect do. The definition 
+of pepoll_wait is:
+
+int pepoll_wait(int epfd, struct epoll_event *events, int maxevents,
+                 int timeout, const sigset_t *sigmask, size_t sigsetsize);
+
+The difference between the vanilla epoll_wait and pepoll_wait is that the 
+latter allows the caller to specify a signal mask to be set while waiting for 
+events. Hence pepoll_wait will wait until either one monitored event, or an 
+unmasked signal happen. If sigmask is NULL, the pepoll_wait system call will 
+act exactly like epoll_wait. For the POSIX definition of pselect, information 
+is available here:
+
+http://www.opengroup.org/onlinepubs/009695399/functions/select.html
+
+This patch goes over 2.6.15-mm4 and depends on the TIF_RESTORE_SIGMASK bits.
+
+
+
+
+Signed-off-by: Davide Libenzi <davidel@xmailserver.org>
+
+
+
+- Davide
+
+
+
+arch/i386/kernel/syscall_table.S |    1
+fs/eventpoll.c                   |   58 ++++++++++++++++++++++++++++++++++-----
+include/asm-i386/unistd.h        |    3 +-
+include/linux/syscalls.h         |    3 ++
+4 files changed, 57 insertions(+), 8 deletions(-)
+
+--8323328-1283076843-1137548421=:15529
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=pepoll-2.6.15-0.3.diff
+Content-Transfer-Encoding: BASE64
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME=pepoll-2.6.15-0.3.diff
+
+ZGlmZiAtTnJ1IGxpbnV4LTIuNi4xNS9hcmNoL2kzODYva2VybmVsL3N5c2Nh
+bGxfdGFibGUuUyBsaW51eC0yLjYuMTUubW9kL2FyY2gvaTM4Ni9rZXJuZWwv
+c3lzY2FsbF90YWJsZS5TDQotLS0gbGludXgtMi42LjE1L2FyY2gvaTM4Ni9r
+ZXJuZWwvc3lzY2FsbF90YWJsZS5TCTIwMDYtMDEtMTcgMTc6MTE6MTIuMDAw
+MDAwMDAwIC0wODAwDQorKysgbGludXgtMi42LjE1Lm1vZC9hcmNoL2kzODYv
+a2VybmVsL3N5c2NhbGxfdGFibGUuUwkyMDA2LTAxLTE3IDE3OjExOjU5LjAw
+MDAwMDAwMCAtMDgwMA0KQEAgLTMxMCwzICszMTAsNCBAQA0KIAkubG9uZyBz
+eXNfcHNlbGVjdDYNCiAJLmxvbmcgc3lzX3Bwb2xsDQogCS5sb25nIHN5c191
+bnNoYXJlCQkvKiAzMTAgKi8NCisJLmxvbmcgc3lzX3BlcG9sbF93YWl0DQpk
+aWZmIC1OcnUgbGludXgtMi42LjE1L2ZzL2V2ZW50cG9sbC5jIGxpbnV4LTIu
+Ni4xNS5tb2QvZnMvZXZlbnRwb2xsLmMNCi0tLSBsaW51eC0yLjYuMTUvZnMv
+ZXZlbnRwb2xsLmMJMjAwNi0wMS0xNyAxNzoxMToxNC4wMDAwMDAwMDAgLTA4
+MDANCisrKyBsaW51eC0yLjYuMTUubW9kL2ZzL2V2ZW50cG9sbC5jCTIwMDYt
+MDEtMTcgMTc6MTE6NTkuMDAwMDAwMDAwIC0wODAwDQpAQCAtMTA1LDYgKzEw
+NSw4IEBADQogLyogTWF4aW11bSBtc2VjIHRpbWVvdXQgdmFsdWUgc3RvcmVh
+YmxlIGluIGEgbG9uZyBpbnQgKi8NCiAjZGVmaW5lIEVQX01BWF9NU1RJTUVP
+IG1pbigxMDAwVUxMICogTUFYX1NDSEVEVUxFX1RJTUVPVVQgLyBIWiwgKExP
+TkdfTUFYIC0gOTk5VUxMKSAvIEhaKQ0KIA0KKyNkZWZpbmUgRVBfTUFYX0VW
+RU5UUyAoSU5UX01BWCAvIHNpemVvZihzdHJ1Y3QgZXBvbGxfZXZlbnQpKQ0K
+Kw0KIA0KIHN0cnVjdCBlcG9sbF9maWxlZmQgew0KIAlzdHJ1Y3QgZmlsZSAq
+ZmlsZTsNCkBAIC02NDksMjQgKzY1MSwyNSBAQA0KIAlyZXR1cm4gZXJyb3I7
+DQogfQ0KIA0KLSNkZWZpbmUgTUFYX0VWRU5UUyAoSU5UX01BWCAvIHNpemVv
+ZihzdHJ1Y3QgZXBvbGxfZXZlbnQpKQ0KIA0KIC8qDQogICogSW1wbGVtZW50
+IHRoZSBldmVudCB3YWl0IGludGVyZmFjZSBmb3IgdGhlIGV2ZW50cG9sbCBm
+aWxlLiBJdCBpcyB0aGUga2VybmVsDQotICogcGFydCBvZiB0aGUgdXNlciBz
+cGFjZSBlcG9sbF93YWl0KDIpLg0KKyAqIHBhcnQgb2YgdGhlIHVzZXIgc3Bh
+Y2UgcGVwb2xsX3dhaXQoMikuDQogICovDQotYXNtbGlua2FnZSBsb25nIHN5
+c19lcG9sbF93YWl0KGludCBlcGZkLCBzdHJ1Y3QgZXBvbGxfZXZlbnQgX191
+c2VyICpldmVudHMsDQotCQkJICAgICAgIGludCBtYXhldmVudHMsIGludCB0
+aW1lb3V0KQ0KK2FzbWxpbmthZ2UgbG9uZyBzeXNfcGVwb2xsX3dhaXQoaW50
+IGVwZmQsIHN0cnVjdCBlcG9sbF9ldmVudCBfX3VzZXIgKmV2ZW50cywNCisJ
+CQkJaW50IG1heGV2ZW50cywgaW50IHRpbWVvdXQsIGNvbnN0IHNpZ3NldF90
+IF9fdXNlciAqc2lnbWFzaywNCisJCQkJc2l6ZV90IHNpZ3NldHNpemUpDQog
+ew0KIAlpbnQgZXJyb3I7DQorCXNpZ3NldF90IGtzaWdtYXNrLCBzaWdzYXZl
+ZDsNCiAJc3RydWN0IGZpbGUgKmZpbGU7DQogCXN0cnVjdCBldmVudHBvbGwg
+KmVwOw0KIA0KLQlETlBSSU5USygzLCAoS0VSTl9JTkZPICJbJXBdIGV2ZW50
+cG9sbDogc3lzX2Vwb2xsX3dhaXQoJWQsICVwLCAlZCwgJWQpXG4iLA0KKwlE
+TlBSSU5USygzLCAoS0VSTl9JTkZPICJbJXBdIGV2ZW50cG9sbDogc3lzX3Bl
+cG9sbF93YWl0KCVkLCAlcCwgJWQsICVkKVxuIiwNCiAJCSAgICAgY3VycmVu
+dCwgZXBmZCwgZXZlbnRzLCBtYXhldmVudHMsIHRpbWVvdXQpKTsNCiANCiAJ
+LyogVGhlIG1heGltdW0gbnVtYmVyIG9mIGV2ZW50IG11c3QgYmUgZ3JlYXRl
+ciB0aGFuIHplcm8gKi8NCi0JaWYgKG1heGV2ZW50cyA8PSAwIHx8IG1heGV2
+ZW50cyA+IE1BWF9FVkVOVFMpDQorCWlmIChtYXhldmVudHMgPD0gMCB8fCBt
+YXhldmVudHMgPiBFUF9NQVhfRVZFTlRTKQ0KIAkJcmV0dXJuIC1FSU5WQUw7
+DQogDQogCS8qIFZlcmlmeSB0aGF0IHRoZSBhcmVhIHBhc3NlZCBieSB0aGUg
+dXNlciBpcyB3cml0ZWFibGUgKi8NCkBAIC02OTUsMTMgKzY5OCw0MSBAQA0K
+IAkgKi8NCiAJZXAgPSBmaWxlLT5wcml2YXRlX2RhdGE7DQogDQorCS8qDQor
+CSAqIElmIHRoZSBjYWxsZXIgd2FudHMgYSBjZXJ0YWluIHNpZ25hbCBtYXNr
+IHRvIGJlIHNldCBkdXJpbmcgdGhlIHdhaXQsDQorCSAqIHdlIGFwcGx5IGl0
+IGhlcmUuDQorCSAqLw0KKwlpZiAoc2lnbWFzaykgew0KKwkJaWYgKHNpZ3Nl
+dHNpemUgIT0gc2l6ZW9mKHNpZ3NldF90KSkNCisJCQlnb3RvIGVleGl0XzI7
+DQorCQllcnJvciA9IC1FRkFVTFQ7DQorCQlpZiAoY29weV9mcm9tX3VzZXIo
+JmtzaWdtYXNrLCBzaWdtYXNrLCBzaXplb2Yoa3NpZ21hc2spKSkNCisJCQln
+b3RvIGVleGl0XzI7DQorCQlzaWdkZWxzZXRtYXNrKCZrc2lnbWFzaywgc2ln
+bWFzayhTSUdLSUxMKSB8IHNpZ21hc2soU0lHU1RPUCkpOw0KKwkJc2lncHJv
+Y21hc2soU0lHX1NFVE1BU0ssICZrc2lnbWFzaywgJnNpZ3NhdmVkKTsNCisJ
+fQ0KKw0KIAkvKiBUaW1lIHRvIGZpc2ggZm9yIGV2ZW50cyAuLi4gKi8NCiAJ
+ZXJyb3IgPSBlcF9wb2xsKGVwLCBldmVudHMsIG1heGV2ZW50cywgdGltZW91
+dCk7DQogDQorCS8qDQorCSAqIElmIHdlIGNoYW5nZWQgdGhlIHNpZ25hbCBt
+YXNrLCB3ZSBuZWVkIHRvIHJlc3RvcmUgdGhlIG9yaWdpbmFsIG9uZS4NCisJ
+ICogSW4gY2FzZSB3ZSd2ZSBnb3QgYSBzaWduYWwgd2hpbGUgd2FpdGluZywg
+d2UgZG8gbm90IHJlc3RvcmUgdGhlIHNpZ25hbA0KKwkgKiBtYXNrIHlldCwg
+YW5kIHdlIGFsbG93IGRvX3NpZ25hbCgpIHRvIGRlbGl2ZXIgdGhlIHNpZ25h
+bCBvbiB0aGUgd2F5IGJhY2sNCisJICogdG8gdXNlcnNwYWNlLCBiZWZvcmUg
+dGhlIHNpZ25hbCBtYXNrIGlzIHJlc3RvcmVkLg0KKwkgKi8NCisJaWYgKGVy
+cm9yID09IC1FSU5UUikgew0KKwkJaWYgKHNpZ21hc2spIHsNCisJCQltZW1j
+cHkoJmN1cnJlbnQtPnNhdmVkX3NpZ21hc2ssICZzaWdzYXZlZCwgc2l6ZW9m
+KHNpZ3NhdmVkKSk7DQorCQkJc2V0X3RocmVhZF9mbGFnKFRJRl9SRVNUT1JF
+X1NJR01BU0spOw0KKwkJfQ0KKwl9IGVsc2UgaWYgKHNpZ21hc2spDQorCQlz
+aWdwcm9jbWFzayhTSUdfU0VUTUFTSywgJnNpZ3NhdmVkLCBOVUxMKTsNCisN
+CiBlZXhpdF8yOg0KIAlmcHV0KGZpbGUpOw0KIGVleGl0XzE6DQotCUROUFJJ
+TlRLKDMsIChLRVJOX0lORk8gIlslcF0gZXZlbnRwb2xsOiBzeXNfZXBvbGxf
+d2FpdCglZCwgJXAsICVkLCAlZCkgPSAlZFxuIiwNCisJRE5QUklOVEsoMywg
+KEtFUk5fSU5GTyAiWyVwXSBldmVudHBvbGw6IHN5c19wZXBvbGxfd2FpdCgl
+ZCwgJXAsICVkLCAlZCkgPSAlZFxuIiwNCiAJCSAgICAgY3VycmVudCwgZXBm
+ZCwgZXZlbnRzLCBtYXhldmVudHMsIHRpbWVvdXQsIGVycm9yKSk7DQogDQog
+CXJldHVybiBlcnJvcjsNCkBAIC03MDksNiArNzQwLDE5IEBADQogDQogDQog
+LyoNCisgKiBJbXBsZW1lbnQgdGhlIGV2ZW50IHdhaXQgaW50ZXJmYWNlIGZv
+ciB0aGUgZXZlbnRwb2xsIGZpbGUuIEl0IGlzIHRoZSBrZXJuZWwNCisgKiBw
+YXJ0IG9mIHRoZSB1c2VyIHNwYWNlIGVwb2xsX3dhaXQoMikuIFRoaXMganVz
+dCBjYWxscyB0aGUgc3VwZXItc2lzdGVyDQorICogc3lzX3BlcG9sbF93YWl0
+KCkgd2l0aG91dCBzaWduYWwgcGFyYW1ldGVycy4NCisgKi8NCithc21saW5r
+YWdlIGxvbmcgc3lzX2Vwb2xsX3dhaXQoaW50IGVwZmQsIHN0cnVjdCBlcG9s
+bF9ldmVudCBfX3VzZXIgKmV2ZW50cywNCisJCQkgICAgICAgaW50IG1heGV2
+ZW50cywgaW50IHRpbWVvdXQpDQorew0KKw0KKwlyZXR1cm4gc3lzX3BlcG9s
+bF93YWl0KGVwZmQsIGV2ZW50cywgbWF4ZXZlbnRzLCB0aW1lb3V0LCBOVUxM
+LCAwKTsNCit9DQorDQorDQorLyoNCiAgKiBDcmVhdGVzIHRoZSBmaWxlIGRl
+c2NyaXB0b3IgdG8gYmUgdXNlZCBieSB0aGUgZXBvbGwgaW50ZXJmYWNlLg0K
+ICAqLw0KIHN0YXRpYyBpbnQgZXBfZ2V0ZmQoaW50ICplZmQsIHN0cnVjdCBp
+bm9kZSAqKmVpbm9kZSwgc3RydWN0IGZpbGUgKiplZmlsZSwNCmRpZmYgLU5y
+dSBsaW51eC0yLjYuMTUvaW5jbHVkZS9hc20taTM4Ni91bmlzdGQuaCBsaW51
+eC0yLjYuMTUubW9kL2luY2x1ZGUvYXNtLWkzODYvdW5pc3RkLmgNCi0tLSBs
+aW51eC0yLjYuMTUvaW5jbHVkZS9hc20taTM4Ni91bmlzdGQuaAkyMDA2LTAx
+LTE3IDE3OjExOjE0LjAwMDAwMDAwMCAtMDgwMA0KKysrIGxpbnV4LTIuNi4x
+NS5tb2QvaW5jbHVkZS9hc20taTM4Ni91bmlzdGQuaAkyMDA2LTAxLTE3IDE3
+OjExOjU5LjAwMDAwMDAwMCAtMDgwMA0KQEAgLTMxNiw4ICszMTYsOSBAQA0K
+ICNkZWZpbmUgX19OUl9wc2VsZWN0NgkJMzA4DQogI2RlZmluZSBfX05SX3Bw
+b2xsCQkzMDkNCiAjZGVmaW5lIF9fTlJfdW5zaGFyZQkJMzEwDQorI2RlZmlu
+ZSBfX05SX3BlcG9sbF93YWl0CTMxMQ0KIA0KLSNkZWZpbmUgTlJfc3lzY2Fs
+bHMgMzExDQorI2RlZmluZSBOUl9zeXNjYWxscyAzMTINCiANCiAvKg0KICAq
+IHVzZXItdmlzaWJsZSBlcnJvciBudW1iZXJzIGFyZSBpbiB0aGUgcmFuZ2Ug
+LTEgLSAtMTI4OiBzZWUNCmRpZmYgLU5ydSBsaW51eC0yLjYuMTUvaW5jbHVk
+ZS9saW51eC9zeXNjYWxscy5oIGxpbnV4LTIuNi4xNS5tb2QvaW5jbHVkZS9s
+aW51eC9zeXNjYWxscy5oDQotLS0gbGludXgtMi42LjE1L2luY2x1ZGUvbGlu
+dXgvc3lzY2FsbHMuaAkyMDA2LTAxLTE3IDE3OjExOjE1LjAwMDAwMDAwMCAt
+MDgwMA0KKysrIGxpbnV4LTIuNi4xNS5tb2QvaW5jbHVkZS9saW51eC9zeXNj
+YWxscy5oCTIwMDYtMDEtMTcgMTc6MTI6NTkuMDAwMDAwMDAwIC0wODAwDQpA
+QCAtNDI4LDYgKzQyOCw5IEBADQogCQkJCXN0cnVjdCBlcG9sbF9ldmVudCBf
+X3VzZXIgKmV2ZW50KTsNCiBhc21saW5rYWdlIGxvbmcgc3lzX2Vwb2xsX3dh
+aXQoaW50IGVwZmQsIHN0cnVjdCBlcG9sbF9ldmVudCBfX3VzZXIgKmV2ZW50
+cywNCiAJCQkJaW50IG1heGV2ZW50cywgaW50IHRpbWVvdXQpOw0KK2FzbWxp
+bmthZ2UgbG9uZyBzeXNfcGVwb2xsX3dhaXQoaW50IGVwZmQsIHN0cnVjdCBl
+cG9sbF9ldmVudCBfX3VzZXIgKmV2ZW50cywNCisJCQkJaW50IG1heGV2ZW50
+cywgaW50IHRpbWVvdXQsIGNvbnN0IHNpZ3NldF90IF9fdXNlciAqc2lnbWFz
+aywNCisJCQkJc2l6ZV90IHNpZ3NldHNpemUpOw0KIGFzbWxpbmthZ2UgbG9u
+ZyBzeXNfZ2V0aG9zdG5hbWUoY2hhciBfX3VzZXIgKm5hbWUsIGludCBsZW4p
+Ow0KIGFzbWxpbmthZ2UgbG9uZyBzeXNfc2V0aG9zdG5hbWUoY2hhciBfX3Vz
+ZXIgKm5hbWUsIGludCBsZW4pOw0KIGFzbWxpbmthZ2UgbG9uZyBzeXNfc2V0
+ZG9tYWlubmFtZShjaGFyIF9fdXNlciAqbmFtZSwgaW50IGxlbik7DQo=
+
+--8323328-1283076843-1137548421=:15529--

@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbWARMM3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030271AbWARMOD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030270AbWARMM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 07:12:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbWARMM3
+	id S1030271AbWARMOD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 07:14:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbWARMOB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 07:12:29 -0500
-Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:1540 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1030270AbWARMM2
+	Wed, 18 Jan 2006 07:14:01 -0500
+Received: from soohrt.org ([85.131.246.150]:24463 "EHLO quickstop.soohrt.org")
+	by vger.kernel.org with ESMTP id S1030271AbWARMOB convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 07:12:28 -0500
-Date: Wed, 18 Jan 2006 13:13:04 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.16-rc1
-Message-Id: <20060118131304.23088492.khali@linux-fr.org>
-In-Reply-To: <20060118091543.GA8277@mars.ravnborg.org>
-References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
-	<43CD67AE.9030501@eyal.emu.id.au>
-	<20060117232701.GA7606@mars.ravnborg.org>
-	<20060118085936.4773dd77.khali@linux-fr.org>
-	<20060118091543.GA8277@mars.ravnborg.org>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Wed, 18 Jan 2006 07:14:01 -0500
+Date: Wed, 18 Jan 2006 13:13:59 +0100
+From: Horst Schirmeier <horst@schirmeier.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: udev/hotplug and automatic /dev node creation
+Message-ID: <20060118121359.GC26895@quickstop.soohrt.org>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
+References: <20060118024710.GB26895@quickstop.soohrt.org> <20060118040718.GA6579@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20060118040718.GA6579@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
-
-> The shell script check-dialog.sh is called which again do:
-> echo "main() {}" | gcc -xc - -o /dev/null
+On Tue, 17 Jan 2006, Greg KH wrote:
+> On Wed, Jan 18, 2006 at 03:47:10AM +0100, Horst Schirmeier wrote:
+> > Hi,
+> > 
+> > I'm looking for documentation regarding how to write a Linux kernel
+> > module that creates its own /dev node via udev/hotplug.
+> > register_chrdev() and a simple udev/rules.d/ entry don't seem to be
+> > sufficient...
 > 
-> And it seems that gcc will trash /dev/null in your setup when doing
-> this.
-> One fix would be to avoid the two lines during distclean,
-> but I may have to resort to a temporary file.
+> Yes, register_chrdev() will do nothing for udev.
 > 
-> Could you please confirm that the above command is the one that trashes
-> /dev/null, then I will try to cook up something better.
+> Take a look at the book, Linux Device Drivers, third edition (free
+> online).  In the chapter about the driver model, there is a section
+> about what udev needs.  The functions it says to use are no longer in
+> the kernel, but it should point you in the right direction (hint, use
+> class_device_create().)
 
-I confirm that this one line is causing the trouble:
+Thank you very much, I'll look into this book and class_device_create().
 
-root@arrakis:~> ls -l /dev/null
-crw-rw-rw-  1 root root 1, 3 2006-01-18 13:34 /dev/null
-root@arrakis:~> echo "main() {}" | gcc -xc - -o /dev/null
-root@arrakis:~> ls -l /dev/null
-crwxrwxrwx  1 root root 1, 3 2006-01-18 13:34 /dev/null
-root@arrakis:~> 
+> If you have a pointer to your code, I can probably knock out a patch for
+> you very quickly.
 
-This is with both gcc 3.3.6 from Slackware 10.2 and gcc 4.0.2 from Suse
-10.0. Didn't try with self-compiled gcc versions on these systems.
+I have no doubt you'll be able to do that, but my primary intention is
+to dig into that myself :) thanks again.
 
-BTW, I have noticed recently an "a.out" file at the root of my linux
-sources tree when I build a kernel.
+Kind regards,
+ Horst
 
--rwxr-xr-x   1 khali users  11K 2006-01-16 19:51 a.out*
-
-Running it doesn't seem to do anything useful. Is this file generated
-here on purpose? Is it somehow related to the current issue?
-
-Thanks,
 -- 
-Jean Delvare
+PGP-Key 0xD40E0E7A

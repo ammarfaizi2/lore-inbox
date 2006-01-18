@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030377AbWARQXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030375AbWARQX0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030377AbWARQXt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 11:23:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030376AbWARQXs
+	id S1030375AbWARQX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 11:23:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030378AbWARQX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 11:23:48 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:4543 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1030377AbWARQXs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 11:23:48 -0500
-Subject: Why is wmb() a no-op on x86_64?
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: linux-kernel@vger.kernel.org, discuss@x86-64.org, Andi Kleen <ak@suse.de>
+	Wed, 18 Jan 2006 11:23:26 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:23711 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030375AbWARQX0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 11:23:26 -0500
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Serge E. Hallyn" <serue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>
+In-Reply-To: <20060118045518.GB7292@kroah.com>
+References: <20060117143258.150807000@sergelap>
+	 <20060117143326.283450000@sergelap>
+	 <1137511972.3005.33.camel@laptopd505.fenrus.org>
+	 <20060117155600.GF20632@sergelap.austin.ibm.com>
+	 <1137513818.14135.23.camel@localhost.localdomain>
+	 <1137518714.5526.8.camel@localhost.localdomain>
+	 <20060118045518.GB7292@kroah.com>
 Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Wed, 18 Jan 2006 08:23:37 -0800
-Message-Id: <1137601417.4757.38.camel@serpentine.pathscale.com>
+Date: Wed, 18 Jan 2006 08:23:15 -0800
+Message-Id: <1137601395.7850.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andi -
+On Tue, 2006-01-17 at 20:55 -0800, Greg KH wrote:
+> On Tue, Jan 17, 2006 at 09:25:14AM -0800, Dave Hansen wrote:
+> > 
+> > Arjan had a very good point last time we posted these: we should
+> > consider getting rid of as many places in the kernel where pids are used
+> > to uniquely identify tasks, and just stick with task_struct pointers.  
+> 
+> That's a very good idea, why didn't you do that?
 
-I notice that wmb() is a no-op on x86_64 kernels unless
-CONFIG_UNORDERED_IO is set.  Is there any particular reason for this?
-It's not similarly conditional on other platforms, and as a consequence,
-in our driver (which requires a write barrier in some situations for
-correctness), I have to add the following piece of ugliness:
+Because we were being stupid and shoudn't have posted this massive set
+of patches to LKML again before addressing the comments we got last
+time, or doing _anything_ new with them.
 
-#if defined(CONFIG_X86_64) && !defined(CONFIG_UNORDERED_IO)
-#define ipath_wmb() asm volatile("sfence" ::: "memory")
-#else
-#define ipath_wmb() wmb()
-#endif
-
-	<b
+-- Dave
 

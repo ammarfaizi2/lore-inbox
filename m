@@ -1,77 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbWARBaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWARBmr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932468AbWARBaF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 20:30:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWARBaF
+	id S1751277AbWARBmr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 20:42:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWARBmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 20:30:05 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:43696 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S932468AbWARBaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 20:30:03 -0500
-Date: Tue, 17 Jan 2006 17:29:53 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] mm: Convert global dirty_exceeded flag to per-node node_dirty_exceeded
-Message-ID: <20060118012953.GC5289@localhost.localdomain>
-References: <20060117020352.GB5313@localhost.localdomain> <20060116181323.7a5f0ac7.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060116181323.7a5f0ac7.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 17 Jan 2006 20:42:47 -0500
+Received: from stinky.trash.net ([213.144.137.162]:42638 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S1751277AbWARBmq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 20:42:46 -0500
+Message-ID: <43CD9CDA.6030509@trash.net>
+Date: Wed, 18 Jan 2006 02:41:46 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: Linux 2.6.16-rc1
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org> <200601172106.k0HL6LMW008241@turing-police.cc.vt.edu>
+In-Reply-To: <200601172106.k0HL6LMW008241@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 16, 2006 at 06:13:23PM -0800, Andrew Morton wrote:
-> Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
-> >
-> > Convert global dirty_exceeded flag to per-node node_dirty_exceeded.
-> > 
-> > dirty_exceeded ping pongs between nodes in order to force all cpus in
-> > the system to increase the frequency of calls to balance_dirty_pages.
-> > 
-> > Currently dirty_exceeded is used by balance_dirty_pages_ratelimited to
-> > force all CPUs in the system call balance_dirty_pages often, in order to
-> > reduce the amount of dirty pages in the entire system (based on
-> > dirty_thresh and one CPU exceeding thee ratelimits).  As dirty_exceeded
-> > is a global variable, it will ping-pong between nodes of a NUMA system
-> > which is not good.
+Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 17 Jan 2006 00:19:56 PST, Linus Torvalds said:
 > 
-> Did you not test this obvious little optimisation?
+> 
+>>And largish networking updates: there's a "common netfilter" setup now, 
+>>which you'll notice when you do "make config" or equivalent, since a lot 
+>>of the netfilter rules now work on ipv4 and/or ipv6 rather than having 
+>>separate (and duplicate) versions for each.
+> 
+> 
+> Hooray! Finally. ;)
+> 
+> Does this require modprobing of the modules by hand, or is there a version
+> of iptables in the pipe that knows how to do this?  I checked the CVS snapshot
+> directory on ftp.netfilter.org last night, and the latest one there didn't
+> know about this yet.
 
-We ran the test we encountered this problem on with your patch.
-At first it looked like it did not help.  But later we found that there was
-false sharing on this variable.  So padding dirty_exceeded to cacheline
-along with your patch helps.
-
-Thanks,
-Kiran
-
-
-Avoid false sharing on dirty_exceeded.
-
-Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
-
-Index: build-2.6.15/mm/page-writeback.c
-===================================================================
---- build-2.6.15.orig/mm/page-writeback.c	2006-01-17 12:46:00.000000000 -0800
-+++ build-2.6.15/mm/page-writeback.c	2006-01-17 16:21:47.000000000 -0800
-@@ -46,7 +46,7 @@
- static long ratelimit_pages = 32;
- 
- static long total_pages;	/* The total number of pages in the machine. */
--static int dirty_exceeded;	/* Dirty mem may be over limit */
-+static int dirty_exceeded __cacheline_aligned_in_smp;	/* Dirty mem may be over limit */
- 
- /*
-  * When balance_dirty_pages decides that the caller needs to perform some
+The modules have aliases for their old names, so they should get
+autoloaded. The matches and targets that didn't exist for IPv6
+before need new extensions in userspace before they can be used
+though.

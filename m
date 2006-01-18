@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161239AbWASPvV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161242AbWASPtt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161239AbWASPvV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 10:51:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161245AbWASPvV
+	id S1161242AbWASPtt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 10:49:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161241AbWASPts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 10:51:21 -0500
-Received: from mail6.sea5.speakeasy.net ([69.17.117.8]:64492 "EHLO
-	mail6.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S1161239AbWASPvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 10:51:20 -0500
-Date: Thu, 19 Jan 2006 10:51:22 -0500 (EST)
-From: James Morris <jmorris@namei.org>
-X-X-Sender: jmorris@excalibur.intercode
-To: "David S. Miller" <davem@davemloft.net>
-cc: sfr@canb.auug.org.au, dwmw2@infradead.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: - add-pselect-ppoll-system-call-implementation-tidy.patch removed
- from -mm tree
-In-Reply-To: <20060118.223629.100108404.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.64.0601191048260.24315@excalibur.intercode>
-References: <200601190052.k0J0qmKC009977@shell0.pdx.osdl.net>
- <1137648119.30084.94.camel@localhost.localdomain> <20060119171708.7f856b42.sfr@canb.auug.org.au>
- <20060118.223629.100108404.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Jan 2006 10:49:48 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19460 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1161188AbWASPts
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 10:49:48 -0500
+Date: Wed, 18 Jan 2006 14:51:16 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: dtor_core@ameritech.net
+Cc: Kristen Accardi <kristen.c.accardi@intel.com>,
+       linux-kernel@vger.kernel.org, greg@kroah.com,
+       pcihpd-discuss@lists.sourceforge.net, len.brown@intel.com,
+       linux-acpi@vger.kernel.org
+Subject: Re: [Pcihpd-discuss] Re: [patch 0/4] Hot Dock/Undock support
+Message-ID: <20060118145116.GA2757@ucw.cz>
+References: <1137545813.19858.45.camel@whizzy> <20060118130444.GA1518@elf.ucw.cz> <1137609747.31839.6.camel@whizzy> <20060118194554.GA1502@elf.ucw.cz> <1137618370.31839.12.camel@whizzy> <20060118222348.GG1580@elf.ucw.cz> <1137629220.31839.56.camel@whizzy> <d120d5000601190723k3339f92eufc3bc1d0832f6058@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000601190723k3339f92eufc3bc1d0832f6058@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Jan 2006, David S. Miller wrote:
+Hi!
 
-> I wish there were an exception for function prototypes and definitions.
-> Why?  So grep actually works.
+> > > Hope this helps.
+> > >                                               Pavel
+> >
+> >
+> > so the problem that I see is that this dsdt defines two separate dock
+> > devices, one outside the scope of pci, and one within it.  The one
+> > outside the scope of pci defines the _EJ0 and _DCK methods.  So, when
+> > acpiphp loads, it scans the pci slots for ejectable slots, finds none
+> > (because _EJ0 is defined in the dock device that is outside the scope of
+> > pci) and exits.  This dsdt is different from the others I've used in
+> > that most of them define all methods related to docking under the actual
+> > dock bridge (within the scope of pci).  perhaps some acpi people can
+> > shed some light on the best way to handle this - otherwise I'm sure I
+> > can hack something up that will be less than acceptable :).
+> >
 > 
-> Hmmm, what args does function X take?  Let's try this:
-> 
-> bash$ git grep X
-> 
-> Oops, the args went past 80 columns and was split up, so I only
-> get the first few in the grep output.
+> ACPI has (had?) a braindamage - it drops devices that do not present
+> when initially scanning ACPI namespace. So if you boot undocked - too
+> bad. Driver won't ever see your docking station.
 
-Linus already made this exception, some time ago on lkml, IIRC). I think 
-it was 120 cols for functions.
+I think I booted docked....
 
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+Thanks, Sharp!

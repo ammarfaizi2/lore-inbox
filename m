@@ -1,56 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbWAREqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964937AbWAREw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964944AbWAREqk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 23:46:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWAREqk
+	id S964937AbWAREw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 23:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbWAREw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 23:46:40 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:16317 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964938AbWAREqj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 23:46:39 -0500
-Message-ID: <43CDC75B.8070408@jp.fujitsu.com>
-Date: Wed, 18 Jan 2006 13:43:07 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Tue, 17 Jan 2006 23:52:56 -0500
+Received: from xproxy.gmail.com ([66.249.82.194]:10738 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964937AbWAREwz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 23:52:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=DlYSHtspOHBBq4VUlzxtYdvHAYsfTUP/OqgMzb1fvCBoPea3Q2IMPInH92k87rUGqy/BZM2pAM8RTQsGHdO8INqNwXU582iXJsdl8rRK7B9+kMDz5CjxeoytMxrWYcv0LbzkTIwadHP0uGI/xTr1lF42uXv8NImpRgUccCkduiE=
+Message-ID: <993d182d0601172052j34daab5bj9bab14178a6b1742@mail.gmail.com>
+Date: Wed, 18 Jan 2006 10:22:54 +0530
+From: Conio sandiago <coniodiago@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: NFS problem
 MIME-Version: 1.0
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-CC: linux-kernel@vger.kernel.org, greg@kroah.com,
-       pcihpd-discuss@lists.sourceforge.net, len.brown@intel.com,
-       linux-acpi@vger.kernel.org, pavel@ucw.cz
-Subject: Re: [Pcihpd-discuss] [patch 2/4]  acpiphp: handle dock bridges
-References: <20060116200218.275371000@whizzy> <1137545819.19858.47.camel@whizzy>
-In-Reply-To: <1137545819.19858.47.camel@whizzy>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristen Accardi wrote:
-> +static acpi_status handle_dock(struct acpiphp_func *func, int dock)
-> +{
-> +	acpi_status status;
-> +	struct acpi_object_list arg_list;
-> +	union acpi_object arg;
-> +	struct acpi_buffer buffer = {ACPI_ALLOCATE_BUFFER, NULL};
-> +
-> +	dbg("%s: enter\n", __FUNCTION__);
-> +
-> +	/* _DCK method has one argument */
-> +	arg_list.count = 1;
-> +	arg_list.pointer = &arg;
-> +	arg.type = ACPI_TYPE_INTEGER;
-> +	arg.integer.value = dock;
-> +	status = acpi_evaluate_object(func->handle, "_DCK",
-> +					&arg_list, &buffer);
-> +	if (ACPI_FAILURE(status))
-> +		err("%s: failed to dock!!\n", MY_NAME);
-> +
-> +	return status;
-> +}
+Hi all,
+i am having some problem in having root file system on NFS,
+i am developing a linux embedded system,. when i have a root file
+system on a NFS and i try to boot the kernel through a repeater hub ,
+then the kernel hangs at freeing init memory.
 
-I think you need to add acpi_os_free() for freeing buffer.pointer.
+ if i connect the board with the PC through a cross cable,
+then the system works ok.
 
-Thanks,
-Kenji Kaneshige
+does anybody has some idea about it

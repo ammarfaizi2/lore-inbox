@@ -1,78 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbWARETw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbWAREpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964922AbWARETw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 23:19:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbWARETw
+	id S964934AbWAREpm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 23:45:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWAREpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 23:19:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26769 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964922AbWARETw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 23:19:52 -0500
-Message-ID: <43CDC21C.7050608@redhat.com>
-Date: Tue, 17 Jan 2006 20:20:44 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5 (X11/20060112)
+	Tue, 17 Jan 2006 23:45:42 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:25814 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964934AbWAREpm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 23:45:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ELBYrnfu9wyYEcywo9i6hue48nZKTgMDvK9XZO6qZCqVvWizGMWPAkdqkVyeiI3NaiZ+qPy93DQqeBKoL+gZxro4Ihd/CsMsqaZcAaLxhcPdQSF11LsxOgbDQF1Je/u+nKSm6i9YIK2ZDHjL9lFaiuwTFbtuF7wzMD5FWDICwIk=
+Message-ID: <7cd5d4b40601172045j531a21b3y41db1dfbf84b769f@mail.gmail.com>
+Date: Wed, 18 Jan 2006 12:45:41 +0800
+From: jeff shia <tshxiayu@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: userspace filesystem Vs kernelspace filesystem
 MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>,
-       David Woodhouse <dwmw2@infradead.org>
-Subject: Re: [PATCH] pepoll_wait ...
-References: <Pine.LNX.4.63.0601171933400.15529@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.63.0601171933400.15529@localhost.localdomain>
-X-Enigmail-Version: 0.93.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigCD0C289E2CA51AF7136D280B"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigCD0C289E2CA51AF7136D280B
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Hello,everyone!
 
-Davide Libenzi wrote:
-> The attached patch implements the pepoll_wait system call, that extend
-> the event wait mechanism with the same logic ppoll and pselect do. The
-> definition of pepoll_wait is: [...]
+Linux kernel provides vfs for the various physical filesystems.The
+profit we get from the
+VFS is just the standard interface it provides such as read and write?
 
-I definitely ACK this patch, it's needed for the same reasons we need
-pselect and ppoll.
+Can we implement a user space filesystem which is actually a library?I
+think it will be
+faster than kernel space filesystem through the vfs layer.
 
+Any suggestions or commnets?
 
-> +	if (error =3D=3D -EINTR) {
-> +		if (sigmask) {
-> +			memcpy(&current->saved_sigmask, &sigsaved, sizeof(sigsaved));
-> +			set_thread_flag(TIF_RESTORE_SIGMASK);
-> +		}
-> +	} else if (sigmask)
-> +		sigprocmask(SIG_SETMASK, &sigsaved, NULL);
-
-This part I'd clean up a bit, though.  Move the if (sigmask) test to the
-top and have the EINTR test decide what to do.  As is the code would be
-a bit irritating if it wouldn't be so trivial.  The important thing is
-that you only do something special if sigmask !=3D NULL.
-
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
-
-
---------------enigCD0C289E2CA51AF7136D280B
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFDzcIc2ijCOnn/RHQRAq5JAJ9yK8JpdlVmTGb9KuvtQjMxjE+EYACeJsdp
-9okEH0h8rDfJzpSJqHhDkMo=
-=fq8o
------END PGP SIGNATURE-----
-
---------------enigCD0C289E2CA51AF7136D280B--
+Thank you!

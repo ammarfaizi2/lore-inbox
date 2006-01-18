@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbWARTTO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbWART1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030384AbWARTTO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 14:19:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030388AbWARTTO
+	id S964920AbWART1X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 14:27:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbWART1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 14:19:14 -0500
-Received: from twinlark.arctic.org ([207.7.145.18]:57012 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id S1030384AbWARTTN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 14:19:13 -0500
-Date: Wed, 18 Jan 2006 11:19:12 -0800 (PST)
-From: dean gaudet <dean@arctic.org>
-To: viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: [PATCH] fcntl F_SETFL and read-only IS_APPEND files 
-Message-ID: <Pine.LNX.4.63.0601181024170.29932@twinlark.arctic.org>
+	Wed, 18 Jan 2006 14:27:23 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:4992 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964912AbWART1W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 14:27:22 -0500
+Date: Wed, 18 Jan 2006 11:27:13 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nick Piggin <npiggin@suse.de>
+cc: Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>, David Miller <davem@davemloft.net>
+Subject: Re: [patch 0/4] mm: de-skew page refcount
+In-Reply-To: <20060118170558.GE28418@wotan.suse.de>
+Message-ID: <Pine.LNX.4.64.0601181122120.3240@g5.osdl.org>
+References: <20060118024106.10241.69438.sendpatchset@linux.site>
+ <Pine.LNX.4.64.0601180830520.3240@g5.osdl.org> <20060118170558.GE28418@wotan.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
 
-there is code in setfl() which attempts to preserve the O_APPEND flag on 
-IS_APPEND files... however IS_APPEND files could also be opened O_RDONLY 
-and in that case setfl() should not require O_APPEND...
 
-coreutils 5.93 tail -f attempts to set O_NONBLOCK even on regular files... 
-unfortunately if you try this on an append-only log file the result is 
-this:
+On Wed, 18 Jan 2006, Nick Piggin wrote:
+> 
+> > So I disagree with this patch series. It has real downsides. There's a 
+> > reason we have the offset.
+> 
+> Yes, there is a reason, I detailed it in the changelog and got rid of it.
 
-fcntl64(3, F_GETFL)                     = 0x8000 (flags O_RDONLY|O_LARGEFILE)
-fcntl64(3, F_SETFL, O_RDONLY|O_NONBLOCK|O_LARGEFILE) = -1 EPERM (Operation not permitted)
+And I'm not applying it. I'd be crazy to replace good code by code that is 
+objectively _worse_.
 
-i offer up the patch below as one way of fixing the problem... i've tested 
-it fixes the problem with tail -f but haven't really tested beyond that.
+The fact that you _document_ that it's worse doesn't make it any better.
 
-(i also reported the coreutils bug upstream... it shouldn't fail imho... 
-<https://savannah.gnu.org/bugs/index.php?func=detailitem&item_id=15473>)
+The places that you improve (in the other patches) seem to have nothing at 
+all to do with the counter skew issue, so I don't see the point.
 
--dean
+So let me repeat: WHY DID YOU MAKE THE CODE WORSE?
 
-Signed-off-by: dean gaudet <dean@arctic.org>
-
---- linux-2.6.14.4.orig/fs/fcntl.c	2005-10-27 17:02:08.000000000 -0700
-+++ linux-2.6.14.4/fs/fcntl.c	2006-01-18 10:33:38.000000000 -0800
-@@ -207,8 +207,10 @@
- 	struct inode * inode = filp->f_dentry->d_inode;
- 	int error = 0;
- 
--	/* O_APPEND cannot be cleared if the file is marked as append-only */
--	if (!(arg & O_APPEND) && IS_APPEND(inode))
-+	/* O_APPEND cannot be cleared if the file is marked as append-only
-+	 * and the file is open for write.
-+	 */
-+	if (((arg ^ filp->f_flags) & O_APPEND) && IS_APPEND(inode))
- 		return -EPERM;
- 
- 	/* O_NOATIME can only be set by the owner or superuser */
+		Linus

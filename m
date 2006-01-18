@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWARFEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWARFF7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932275AbWARFEX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 00:04:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbWARFEX
+	id S932309AbWARFF7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 00:05:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbWARFF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 00:04:23 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:54495 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932275AbWARFEW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 00:04:22 -0500
-Date: Tue, 17 Jan 2006 21:03:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: davidel@xmailserver.org, linux-kernel@vger.kernel.org, davem@davemloft.net,
-       dwmw2@infradead.org
-Subject: Re: [PATCH] pepoll_wait ...
-Message-Id: <20060117210318.1f4212f0.akpm@osdl.org>
-In-Reply-To: <43CDC21C.7050608@redhat.com>
-References: <Pine.LNX.4.63.0601171933400.15529@localhost.localdomain>
-	<43CDC21C.7050608@redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 18 Jan 2006 00:05:58 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:27777 "EHLO
+	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S932309AbWARFF6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 00:05:58 -0500
+Message-ID: <43CDC44E.6080808@wolfmountaingroup.com>
+Date: Tue, 17 Jan 2006 21:30:06 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Max Waterman <davidmaxwaterman@fastmail.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: io performance...
+References: <43CB4CC3.4030904@fastmail.co.uk> <43CDAFE3.8050203@fastmail.co.uk>
+In-Reply-To: <43CDAFE3.8050203@fastmail.co.uk>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper <drepper@redhat.com> wrote:
+Max Waterman wrote:
+
+> One further question. I get these messages 'in' dmesg :
 >
-> Davide Libenzi wrote:
-> > The attached patch implements the pepoll_wait system call, that extend
-> > the event wait mechanism with the same logic ppoll and pselect do. The
-> > definition of pepoll_wait is: [...]
-> 
-> I definitely ACK this patch, it's needed for the same reasons we need
-> pselect and ppoll.
-> 
+> sda: asking for cache data failed
+> sda: assuming drive cache: write through
+>
+> How can I force it to be 'write back'?
 
-It busts most architectures.
 
-fs/eventpoll.c: In function `sys_pepoll_wait':
-fs/eventpoll.c:727: error: `TIF_RESTORE_SIGMASK' undeclared (first use in this function)
 
-It seems that the preferred way to fix this is to sprinkle #ifdef
-TIF_RESTORE_SIGMASK all over the code.
+Forcing write back is a very bad idea unless you have a battery backed 
+up RAID controller.   
+
+Jeff
+
+>
+> Max.
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

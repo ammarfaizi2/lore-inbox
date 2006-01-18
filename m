@@ -1,83 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030435AbWARUmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030442AbWARUnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030435AbWARUmt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 15:42:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030431AbWARUms
+	id S1030442AbWARUnV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 15:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030439AbWARUnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 15:42:48 -0500
-Received: from uproxy.gmail.com ([66.249.92.197]:1132 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030435AbWARUmr (ORCPT
+	Wed, 18 Jan 2006 15:43:20 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46798 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030433AbWARUnS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 15:42:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=emFWLuJHGvZ+f/NzzCwDTyDOIm9AFHTwkCH7CurM3MFQg7T9BdsetZEuSjliDJI64VRY/Q/XUwRqtl+TgX/RsW/FiNvkWNsFuoAe4TZ5FN4AsO4Nmh9gphCVJvrZlC5UudBqU4OlG7xjubHGMWD0iPFE4kYx5jt74YZRIYzY4Bg=
-Date: Thu, 19 Jan 2006 00:00:10 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ian Molton <spyro@f2s.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] arm26: fixup asm statement in kernel/fiq.c
-Message-ID: <20060118210010.GF12771@mipter.zuzino.mipt.ru>
+	Wed, 18 Jan 2006 15:43:18 -0500
+Date: Wed, 18 Jan 2006 20:45:54 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
+       pcihpd-discuss@lists.sourceforge.net, len.brown@intel.com,
+       linux-acpi@vger.kernel.org
+Subject: Re: [Pcihpd-discuss] Re: [patch 0/4]  Hot Dock/Undock support
+Message-ID: <20060118194554.GA1502@elf.ucw.cz>
+References: <1137545813.19858.45.camel@whizzy> <20060118130444.GA1518@elf.ucw.cz> <1137609747.31839.6.camel@whizzy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1137609747.31839.6.camel@whizzy>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+Hi!
 
- arch/arm26/kernel/fiq.c |   32 ++++++++++++++++----------------
- 1 files changed, 16 insertions(+), 16 deletions(-)
+> > > This series of patches is against the -mm kernel, and will enable
+> > > docking station support.  It is an early patch, but still pretty 
+> > > functional, so I think it's worthwhile to include at this point.
+> > > For some laptops, it's necessary to use the pci=assign-busses kernel 
+> > > parameter, because some _DCK methods will attempt to assign bus numbers
+> > > to the dock bridge (incorrectly).
+> > 
+> > On thinkpad X32: I selected
+...
+> > Recompiled, rebooted with machine out of dock. /sys/bus/pci/slots/ is
+> > empty. I then inserted machine into dock, and locked it:
+> > 
+> > root@amd:/sys/bus/pci/slots# echo dock > /proc/acpi/ibm/dock
+> > root@amd:/sys/bus/pci/slots# ls
+> > root@amd:/sys/bus/pci/slots#
+> > 
+> > ...still empty. What am I doing wrong?
+> 
+> You may not use the ibm_acpi driver at the same time as the acpiphp
+> driver for docking.  This is because the ibm_acpi driver also tries to
+> handle the dock event notification, and doesn't actually do any
+> hotplugging of the devices.  So, you want to set that config option to
+> N.  What you are doing above is actually writing to the ibm_acpi
+> driver.
 
---- a/arch/arm26/kernel/fiq.c
-+++ b/arch/arm26/kernel/fiq.c
-@@ -104,14 +104,14 @@ void set_fiq_regs(struct pt_regs *regs)
- {
- 	register unsigned long tmp, tmp2;
- 	__asm__ volatile (
--	"mov	%0, pc
--	bic	%1, %0, #0x3
--	orr	%1, %1, %3
--	teqp	%1, #0		@ select FIQ mode
--	mov	r0, r0
--	ldmia	%2, {r8 - r14}
--	teqp	%0, #0		@ return to SVC mode
--	mov	r0, r0"
-+	"mov	%0, pc					\n"
-+	"bic	%1, %0, #0x3				\n"
-+	"orr	%1, %1, %3				\n"
-+	"teqp	%1, #0		@ select FIQ mode	\n"
-+	"mov	r0, r0					\n"
-+	"ldmia	%2, {r8 - r14}				\n"
-+	"teqp	%0, #0		@ return to SVC mode	\n"
-+	"mov	r0, r0					"
- 	: "=&r" (tmp), "=&r" (tmp2)
- 	: "r" (&regs->ARM_r8), "I" (PSR_I_BIT | PSR_F_BIT | MODE_FIQ26)
- 	/* These registers aren't modified by the above code in a way
-@@ -125,14 +125,14 @@ void get_fiq_regs(struct pt_regs *regs)
- {
- 	register unsigned long tmp, tmp2;
- 	__asm__ volatile (
--	"mov	%0, pc
--	bic	%1, %0, #0x3
--	orr	%1, %1, %3
--	teqp	%1, #0		@ select FIQ mode
--	mov	r0, r0
--	stmia	%2, {r8 - r14}
--	teqp	%0, #0		@ return to SVC mode
--	mov	r0, r0"
-+	"mov	%0, pc					\n"
-+	"bic	%1, %0, #0x3				\n"
-+	"orr	%1, %1, %3				\n"
-+	"teqp	%1, #0		@ select FIQ mode	\n"
-+	"mov	r0, r0					\n"
-+	"stmia	%2, {r8 - r14}				\n"
-+	"teqp	%0, #0		@ return to SVC mode	\n"
-+	"mov	r0, r0					"
- 	: "=&r" (tmp), "=&r" (tmp2)
- 	: "r" (&regs->ARM_r8), "I" (PSR_I_BIT | PSR_F_BIT | MODE_FIQ26)
- 	/* These registers aren't modified by the above code in a way
+Done.
 
+> I didn't provide a way to do undocking via software. I just use the
+> button on the dock station.  You should however, see something
+> in /sys/bus/pci/slots - can you scan your dmesg to make sure that the
+> acpiphp driver is running?  You might run it as a module and enable
+> debugging:
+> 
+> modprobe acpiphp debug=1
+> 
+> This way we can see if it finds your dock slot and registers the notify
+> handler.
+
+Result is:
+
+root@amd:/data/l/linux-mm/drivers/pci/hotplug# insmod acpiphp.ko debug=1
+insmod: error inserting 'acpiphp.ko': -1 No such device
+root@amd:/data/l/linux-mm/drivers/pci/hotplug# dmesg | tail -3
+Failure of coda_cnode_make for root: error -19
+acpiphp: ACPI Hot Plug PCI Controller Driver version: 0.5
+acpiphp_glue: Total 0 slots
+root@amd:/data/l/linux-mm/drivers/pci/hotplug#
+
+Should I have CONFIG_HOTPLUG_PCI_ACPI_IBM set?
+
+								Pavel
+
+-- 
+Thanks, Sharp!

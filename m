@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbWARAWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932549AbWARAVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932558AbWARAWP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 19:22:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932590AbWARAWP
+	id S932549AbWARAVv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 19:21:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbWARAVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 19:22:15 -0500
-Received: from mx15.sac.fedex.com ([199.81.195.17]:1296 "EHLO
-	mx15.sac.fedex.com") by vger.kernel.org with ESMTP id S932436AbWARAWM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 19:22:12 -0500
-Date: Wed, 18 Jan 2006 08:22:53 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.16-rc1 -- which gcc version?
-In-Reply-To: <Pine.LNX.4.64.0601170946050.3240@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0601180810270.29057@boston.corp.fedex.com>
-References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
- <20060117183916.399b030f.diegocg@gmail.com> <Pine.LNX.4.64.0601170946050.3240@g5.osdl.org>
+	Tue, 17 Jan 2006 19:21:51 -0500
+Received: from ms-smtp-03-smtplb.tampabay.rr.com ([65.32.5.133]:60365 "EHLO
+	ms-smtp-03.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S932549AbWARAVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 19:21:49 -0500
+Message-ID: <43CD8A19.3010100@cfl.rr.com>
+Date: Tue, 17 Jan 2006 19:21:45 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051010)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/18/2006
- 08:22:07 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/18/2006
- 08:22:09 AM,
-	Serialize complete at 01/18/2006 08:22:09 AM
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Michael Loftis <mloftis@wgops.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
+References: <E1EywcM-0004Oz-IE@laurel.muq.org> <B34375EBA93D2866BECF5995@d216-220-25-20.dynip.modwest.com>
+In-Reply-To: <B34375EBA93D2866BECF5995@d216-220-25-20.dynip.modwest.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Your understanding of statistics leaves something to be desired.  As you 
+add disks the probability of a single failure is grows linearly, but the 
+probability of double failure grows much more slowly.  For example:
+
+If 1 disk has a 1/1000 chance of failure, then
+2 disks have a (1/1000)^2 chance of double failure, and
+3 disks have a (1/1000)^2 * 3 chance of double failure
+4 disks have a (1/1000)^2 * 7 chance of double failure
+
+Thus the probability of double failure on this 4 drive array is ~142 
+times less than the odds of a single drive failing.  As the probably of 
+a single drive failing becomes more remote, then the ratio of that 
+probability to the probability of double fault in the array grows 
+exponentially.
+
+( I think I did that right in my head... will check on a real calculator 
+  later )
+
+This is why raid-5 was created: because the array has a much lower 
+probabiliy of double failure, and thus, data loss, than a single drive. 
+  Then of course, if you are really paranoid, you can go with raid-6 ;)
 
 
-Which gcc version should I use, now that gcc-2.95.3 can't compile
-2.6.16-rc1 anymore? gcc-3.3 as mentioned in the patch?
-
-Thanks,
-Jeff.
-
-
-
-On Tuesday 17 January 2006 03:19, Linus Torvalds wrote:
->Ok, it's two weeks since 2.6.15, and the merge window is closed.
-
-
-diff --git a/arch/arm/kernel/asm-offsets.c b/arch/arm/kernel/asm-offsets.c
-index 04d3082..0abbce8 100644
---- a/arch/arm/kernel/asm-offsets.c
-+++ b/arch/arm/kernel/asm-offsets.c
--#error    Known good compilers: 2.95.3, 2.95.4, 2.96, 3.3
-+#error    Known good compilers: 3.3
-
-
-diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-index d737821..f23d3c6 100644
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -42,8 +42,6 @@ extern void __chk_io_ptr(void __iomem *)
-  # include <linux/compiler-gcc4.h>
-  #elif __GNUC__ == 3
-  # include <linux/compiler-gcc3.h>
--#elif __GNUC__ == 2
--# include <linux/compiler-gcc2.h>
-  #else
-  # error Sorry, your compiler is too old/not recognized.
-  #endif
-
+Michael Loftis wrote:
+> Absolutely not.  The more spindles the more chances of a double failure. 
+> Simple statistics will mean that unless you have mirrors the more drives 
+> you add the more chance of two of them (really) failing at once and 
+> choking the whole system.
+> 
+> That said, there very well could be (are?) cases where md needs to do a 
+> better job of handling the world unravelling.
+> -

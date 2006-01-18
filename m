@@ -1,136 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932514AbWARARM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbWARASU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932514AbWARARM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 19:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbWARARM
+	id S932515AbWARASU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 19:18:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbWARAST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 19:17:12 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:1228 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S932241AbWARARL (ORCPT
+	Tue, 17 Jan 2006 19:18:19 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:11903 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932515AbWARASR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 19:17:11 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Subject: Re: [PATCH 2.6.15] ia64: use i386 dmi_scan.c
-Date: Tue, 17 Jan 2006 17:17:03 -0700
-User-Agent: KMail/1.8.3
-Cc: linux-ia64@vger.kernel.org, ak@suse.de,
-       openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
-       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
-       linux-kernel@vger.kernel.org
-References: <20060104221627.GA26064@lists.us.dell.com> <20060106223932.GB9230@lists.us.dell.com> <200601131724.42054.bjorn.helgaas@hp.com>
-In-Reply-To: <200601131724.42054.bjorn.helgaas@hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Jan 2006 19:18:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=bXw8JBbhYFPxd+23+x+t5PVsej5d89qKMS4Bh6phdltZ2DwzSrJFDPaFoHLOM81sCCKS+v+2+koI4iUAGd/YLzg1mkJNN/tWeE2BfoMYC7RvseYPTi9C+oLoLK8ySd31CVANq4nkdFq43do/d5IGvJK7lqIvlH9dtNEXOPOxO50=
+Date: Wed, 18 Jan 2006 03:35:38 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2/5] minix: switch to inode_inc_count, inode_dec_count
+Message-ID: <20060118003538.GC24835@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601171717.03192.bjorn.helgaas@hp.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 January 2006 17:24, Bjorn Helgaas wrote:
-> ... the
-> DMI stuff crashes HP sx2000 (and probably sx1000) boxes, probably
-> because of some memory attribute problem.  So I'll have more
-> feedback after I debug that ;-)
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-It *is* a memory attribute problem.  The current code always calls
-ioremap() on efi.smbios.  The first problem is that this is a
-physical address on x86, but a virtual address on ia64.
+ fs/minix/namei.c |   48 ++++++++++++++++++------------------------------
+ 1 files changed, 18 insertions(+), 30 deletions(-)
 
-The second problem is that we don't check the supported attributes
-for the SMBIOS table.  On HP sx1000/sx2000, these tables are in system
-memory, which doesn't support uncacheable access, so ioremap() does
-the wrong thing.
-
-The patch below addresses both problems (but I can't test the x86 EFI
-change).  I don't really like it, because the memory attribute checking
-is not complete (it only checks the first page, not the whole range),
-and there's already very similar code in acpi_os_map_memory(),
-acpi_os_read_memory(), acpi_os_write_memory(), and efi_range_is_wc().
-
-But it's a start, and maybe the consolidation could be done later.
-
-Index: work-mm3/arch/i386/kernel/dmi_scan.c
-===================================================================
---- work-mm3.orig/arch/i386/kernel/dmi_scan.c	2006-01-17 15:18:42.000000000 -0700
-+++ work-mm3/arch/i386/kernel/dmi_scan.c	2006-01-17 16:58:11.000000000 -0700
-@@ -39,9 +39,18 @@
- 			    void (*decode)(struct dmi_header *))
- {
- 	u8 *buf, *data;
--	int i = 0;
-+	int iomem = 1, i = 0;
- 		
--	buf = dmi_ioremap(base, len);
-+	if (efi_enabled) {
-+		if (efi_mem_attributes(base & EFI_MEMORY_WB)) {
-+			iomem = 0;
-+			buf = (u8 *) phys_to_virt(base);
-+		} else if (efi_mem_attributes(base & EFI_MEMORY_UC))
-+			buf = dmi_ioremap(base, len);
-+		else
-+			buf = NULL;
-+	} else
-+		buf = dmi_ioremap(base, len);
- 	if (buf == NULL)
- 		return -1;
+--- a/fs/minix/namei.c
++++ b/fs/minix/namei.c
+@@ -6,18 +6,6 @@
  
-@@ -66,7 +75,8 @@
- 		data += 2;
- 		i++;
+ #include "minix.h"
+ 
+-static inline void inc_count(struct inode *inode)
+-{
+-	inode->i_nlink++;
+-	mark_inode_dirty(inode);
+-}
+-
+-static inline void dec_count(struct inode *inode)
+-{
+-	inode->i_nlink--;
+-	mark_inode_dirty(inode);
+-}
+-
+ static int add_nondir(struct dentry *dentry, struct inode *inode)
+ {
+ 	int err = minix_add_link(dentry, inode);
+@@ -25,7 +13,7 @@ static int add_nondir(struct dentry *den
+ 		d_instantiate(dentry, inode);
+ 		return 0;
  	}
--	dmi_iounmap(buf, len);
-+	if (iomem)
-+		dmi_iounmap(buf, len);
- 	return 0;
+-	dec_count(inode);
++	inode_dec_count(inode);
+ 	iput(inode);
+ 	return err;
+ }
+@@ -125,7 +113,7 @@ out:
+ 	return err;
+ 
+ out_fail:
+-	dec_count(inode);
++	inode_dec_count(inode);
+ 	iput(inode);
+ 	goto out;
+ }
+@@ -139,7 +127,7 @@ static int minix_link(struct dentry * ol
+ 		return -EMLINK;
+ 
+ 	inode->i_ctime = CURRENT_TIME_SEC;
+-	inc_count(inode);
++	inode_inc_count(inode);
+ 	atomic_inc(&inode->i_count);
+ 	return add_nondir(dentry, inode);
+ }
+@@ -152,7 +140,7 @@ static int minix_mkdir(struct inode * di
+ 	if (dir->i_nlink >= minix_sb(dir->i_sb)->s_link_max)
+ 		goto out;
+ 
+-	inc_count(dir);
++	inode_inc_count(dir);
+ 
+ 	inode = minix_new_inode(dir, &err);
+ 	if (!inode)
+@@ -163,7 +151,7 @@ static int minix_mkdir(struct inode * di
+ 		inode->i_mode |= S_ISGID;
+ 	minix_set_inode(inode, 0);
+ 
+-	inc_count(inode);
++	inode_inc_count(inode);
+ 
+ 	err = minix_make_empty(inode, dir);
+ 	if (err)
+@@ -178,11 +166,11 @@ out:
+ 	return err;
+ 
+ out_fail:
+-	dec_count(inode);
+-	dec_count(inode);
++	inode_dec_count(inode);
++	inode_dec_count(inode);
+ 	iput(inode);
+ out_dir:
+-	dec_count(dir);
++	inode_dec_count(dir);
+ 	goto out;
  }
  
-@@ -216,19 +226,30 @@
- 	int rc;
+@@ -202,7 +190,7 @@ static int minix_unlink(struct inode * d
+ 		goto end_unlink;
  
- 	if (efi_enabled) {
--		if (!efi.smbios)
-+		unsigned long phys_addr = __pa(efi.smbios);
-+		int iomem = 0;
-+
-+		if (!phys_addr)
- 			goto out;
- 
-                /* This is called as a core_initcall() because it isn't
-                 * needed during early boot.  This also means we can
-                 * iounmap the space when we're done with it.
- 		*/
--		p = ioremap((unsigned long)efi.smbios, 0x10000);
-+		if (efi_mem_attributes(phys_addr & EFI_MEMORY_WB))
-+			p = (char *) phys_to_virt(phys_addr);
-+		else if (efi_mem_attributes(phys_addr & EFI_MEMORY_UC)) {
-+			iomem = 1;
-+			p = ioremap(phys_addr, 0x10000);
-+		} else
-+			p = NULL;
-+
- 		if (p == NULL)
- 			goto out;
- 
- 		rc = dmi_present(p + 0x10); /* offset of _DMI_ string */
--		iounmap(p);
-+		if (iomem)
-+			iounmap(p);
- 		if (!rc)
- 			return;
+ 	inode->i_ctime = dir->i_ctime;
+-	dec_count(inode);
++	inode_dec_count(inode);
+ end_unlink:
+ 	return err;
+ }
+@@ -215,8 +203,8 @@ static int minix_rmdir(struct inode * di
+ 	if (minix_empty_dir(inode)) {
+ 		err = minix_unlink(dir, dentry);
+ 		if (!err) {
+-			dec_count(dir);
+-			dec_count(inode);
++			inode_dec_count(dir);
++			inode_dec_count(inode);
+ 		}
  	}
-Index: work-mm3/arch/i386/kernel/efi.c
-===================================================================
---- work-mm3.orig/arch/i386/kernel/efi.c	2005-10-27 18:02:08.000000000 -0600
-+++ work-mm3/arch/i386/kernel/efi.c	2006-01-17 17:10:20.000000000 -0700
-@@ -391,7 +391,7 @@
- 			printk(KERN_INFO " ACPI=0x%lx ", config_tables[i].table);
- 		} else
- 		    if (efi_guidcmp(config_tables[i].guid, SMBIOS_TABLE_GUID) == 0) {
--			efi.smbios = (void *) config_tables[i].table;
-+			efi.smbios = __va(config_tables[i].table);
- 			printk(KERN_INFO " SMBIOS=0x%lx ", config_tables[i].table);
- 		} else
- 		    if (efi_guidcmp(config_tables[i].guid, HCDP_TABLE_GUID) == 0) {
+ 	return err;
+@@ -257,34 +245,34 @@ static int minix_rename(struct inode * o
+ 		new_de = minix_find_entry(new_dentry, &new_page);
+ 		if (!new_de)
+ 			goto out_dir;
+-		inc_count(old_inode);
++		inode_inc_count(old_inode);
+ 		minix_set_link(new_de, new_page, old_inode);
+ 		new_inode->i_ctime = CURRENT_TIME_SEC;
+ 		if (dir_de)
+ 			new_inode->i_nlink--;
+-		dec_count(new_inode);
++		inode_dec_count(new_inode);
+ 	} else {
+ 		if (dir_de) {
+ 			err = -EMLINK;
+ 			if (new_dir->i_nlink >= info->s_link_max)
+ 				goto out_dir;
+ 		}
+-		inc_count(old_inode);
++		inode_inc_count(old_inode);
+ 		err = minix_add_link(new_dentry, old_inode);
+ 		if (err) {
+-			dec_count(old_inode);
++			inode_dec_count(old_inode);
+ 			goto out_dir;
+ 		}
+ 		if (dir_de)
+-			inc_count(new_dir);
++			inode_inc_count(new_dir);
+ 	}
+ 
+ 	minix_delete_entry(old_de, old_page);
+-	dec_count(old_inode);
++	inode_dec_count(old_inode);
+ 
+ 	if (dir_de) {
+ 		minix_set_link(dir_de, dir_page, new_dir);
+-		dec_count(old_dir);
++		inode_dec_count(old_dir);
+ 	}
+ 	return 0;
+ 
+

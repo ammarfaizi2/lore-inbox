@@ -1,59 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWARG3t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751349AbWARGgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbWARG3t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 01:29:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWARG3t
+	id S1751349AbWARGgj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 01:36:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751351AbWARGgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 01:29:49 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:6558 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751347AbWARG3s (ORCPT
+	Wed, 18 Jan 2006 01:36:39 -0500
+Received: from ns.suse.de ([195.135.220.2]:13287 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751349AbWARGgi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 01:29:48 -0500
-Date: Tue, 17 Jan 2006 22:29:43 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Keith Owens <kaos@sgi.com>, John Hesterberg <jh@sgi.com>,
-       Matt Helsley <matthltc@us.ibm.com>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Shailabh Nagar <nagar@watson.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Jay Lan <jlan@engr.sgi.com>, LKML <linux-kernel@vger.kernel.org>,
-       elsa-devel@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       Erik Jacobson <erikj@sgi.com>, Jack Steiner <steiner@sgi.com>
-Subject: Re: [Lse-tech] Re: [ckrm-tech] Re: [PATCH 00/01] Move Exit Connectors
-Message-ID: <20060118062943.GC10765@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060117172617.GA9283@us.ibm.com> <22822.1137542267@ocs3.ocs.com.au> <20060118024948.GA10407@us.ibm.com> <1137552907.3587.49.camel@mindpipe>
+	Wed, 18 Jan 2006 01:36:38 -0500
+Date: Wed, 18 Jan 2006 07:36:37 +0100
+From: Nick Piggin <npiggin@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [patch 1/2] atomic_add_unless sadness
+Message-ID: <20060118063636.GA14608@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1137552907.3587.49.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 17, 2006 at 09:55:06PM -0500, Lee Revell wrote:
-> On Tue, 2006-01-17 at 18:49 -0800, Paul E. McKenney wrote:
-> > - * softirq handlers will have completed, since in some kernels
-> > + * softirq handlers will have completed, since in some kernels, these
-> > + * handlers can run in process context, and can block.
-> >   * 
-> 
-> I was under the impression that softirq handlers can run in process
-> context in all kernels.  Specifically, in realtime variants softirqs
-> always run in process context, and in mainline this only happens under
-> high load.
+For some reason gcc 4 on at least i386 and ppc64 (that I have tested with)
+emit two cmpxchges for atomic_add_unless unless we put branch hints in.
+(it is unlikely for the "unless" case to trigger, and it is unlikely for
+cmpxchg to fail).
 
-We might be talking past each other on this one.  If I am not getting
-too confused, it is possible to configure a mainline kernel so that
-the load cannot rise high enough to force softirqs into process
-context.  Although looking at 2.6.15, it appears that this would
-require rebuilding after hand-editing the value of MAX_SOFTIRQ_RESTART,
-which some might feel too-brutal of tweaking to be considered mere
-"configuration".
+So put these hints in for architectures which have a native cas, and
+make the loop a bit more readable in the process.
 
-In any case, the key point of the comment is that synchronize_sched()
-is not guaranteed to wait for all pending softirq handlers to complete.
-Does the comment make that sufficiently clear?
+So this patch isn't for inclusion just yet (incomplete, not widely tested),
+however hopefully we can get some discussion about the best way to implement
+this.
 
-						Thanx, Paul
+Index: linux-2.6/include/asm-i386/atomic.h
+===================================================================
+--- linux-2.6.orig/include/asm-i386/atomic.h
++++ linux-2.6/include/asm-i386/atomic.h
+@@ -231,9 +231,15 @@ static __inline__ int atomic_sub_return(
+ ({								\
+ 	int c, old;						\
+ 	c = atomic_read(v);					\
+-	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
++	for (;;) {						\
++		if (unlikely(c == (u)))				\
++			break;					\
++		old = atomic_cmpxchg((v), c, c + (a));		\
++		if (likely(old == c))				\
++			break;					\
+ 		c = old;					\
+-	c != (u);						\
++	}							\
++	likely(c != (u));					\
+ })
+ #define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
+ 
+Index: linux-2.6/include/asm-ia64/atomic.h
+===================================================================
+--- linux-2.6.orig/include/asm-ia64/atomic.h
++++ linux-2.6/include/asm-ia64/atomic.h
+@@ -95,9 +95,15 @@ ia64_atomic64_sub (__s64 i, atomic64_t *
+ ({								\
+ 	int c, old;						\
+ 	c = atomic_read(v);					\
+-	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
++	for (;;) {						\
++		if (unlikely(c == (u)))				\
++			break;					\
++		old = atomic_cmpxchg((v), c, c + (a));		\
++		if (likely(old == c))				\
++			break;					\
+ 		c = old;					\
+-	c != (u);						\
++	}							\
++	likely(c != (u));					\
+ })
+ #define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
+ 
+Index: linux-2.6/include/asm-x86_64/atomic.h
+===================================================================
+--- linux-2.6.orig/include/asm-x86_64/atomic.h
++++ linux-2.6/include/asm-x86_64/atomic.h
+@@ -405,9 +405,15 @@ static __inline__ long atomic64_sub_retu
+ ({								\
+ 	int c, old;						\
+ 	c = atomic_read(v);					\
+-	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
++	for (;;) {						\
++		if (unlikely(c == (u)))				\
++			break;					\
++		old = atomic_cmpxchg((v), c, c + (a));		\
++		if (likely(old == c))				\
++			break;					\
+ 		c = old;					\
+-	c != (u);						\
++	}							\
++	likely(c != (u));					\
+ })
+ #define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
+ 
+Index: linux-2.6/include/asm-s390/atomic.h
+===================================================================
+--- linux-2.6.orig/include/asm-s390/atomic.h
++++ linux-2.6/include/asm-s390/atomic.h
+@@ -89,11 +89,16 @@ static __inline__ int atomic_cmpxchg(ato
+ static __inline__ int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int c, old;
+-
+ 	c = atomic_read(v);
+-	while (c != u && (old = atomic_cmpxchg(v, c, c + a)) != c)
++	for (;;) {
++		if (unlikely(c == u))
++			break;
++		old = atomic_cmpxchg(v, c, c + a);
++		if (likely(old == c))
++			break;
+ 		c = old;
+-	return c != u;
++	}
++	return likely(c != u);
+ }
+ 
+ #define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
+Index: linux-2.6/include/asm-sparc64/atomic.h
+===================================================================
+--- linux-2.6.orig/include/asm-sparc64/atomic.h
++++ linux-2.6/include/asm-sparc64/atomic.h
+@@ -78,9 +78,15 @@ extern int atomic64_sub_ret(int, atomic6
+ ({								\
+ 	int c, old;						\
+ 	c = atomic_read(v);					\
+-	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
++	for (;;) {						\
++		if (unlikely(c == (u)))				\
++			break;					\
++		old = atomic_cmpxchg((v), c, c + (a));		\
++		if (likely(old == c))				\
++			break;					\
+ 		c = old;					\
+-	c != (u);						\
++	}							\
++	likely(c != (u));					\
+ })
+ #define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
+ 
+Index: linux-2.6/include/asm-m68k/atomic.h
+===================================================================
+--- linux-2.6.orig/include/asm-m68k/atomic.h
++++ linux-2.6/include/asm-m68k/atomic.h
+@@ -146,9 +146,15 @@ static inline void atomic_set_mask(unsig
+ ({								\
+ 	int c, old;						\
+ 	c = atomic_read(v);					\
+-	while (c != (u) && (old = atomic_cmpxchg((v), c, c + (a))) != c) \
++	for (;;) {						\
++		if (unlikely(c == (u)))				\
++			break;					\
++		old = atomic_cmpxchg((v), c, c + (a));		\
++		if (likely(old == c))				\
++			break;					\
+ 		c = old;					\
+-	c != (u);						\
++	}							\
++	likely(c != (u));					\
+ })
+ #define atomic_inc_not_zero(v) atomic_add_unless((v), 1, 0)
+ 

@@ -1,48 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030266AbWARHGB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWARHHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030266AbWARHGB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 02:06:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030269AbWARHGB
+	id S1030263AbWARHHB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 02:07:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbWARHHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 02:06:01 -0500
-Received: from [202.125.80.34] ([202.125.80.34]:54549 "EHLO mail.esn.co.in")
-	by vger.kernel.org with ESMTP id S1030266AbWARHGA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 02:06:00 -0500
-Subject: clarity on kref needed.
-Date: Wed, 18 Jan 2006 12:27:45 +0530
+	Wed, 18 Jan 2006 02:07:01 -0500
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:1504 "EHLO
+	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1030263AbWARHHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 02:07:00 -0500
+X-Sasl-enc: pHz7eFH5KFhSzNEznw8KSsg5RJksJRpX6IanBV4orEF/ 1137568014
+Message-ID: <43CDE907.8070508@fastmail.co.uk>
+Date: Wed, 18 Jan 2006 15:06:47 +0800
+From: Max Waterman <davidmaxwaterman+kernel@fastmail.co.uk>
+User-Agent: Thunderbird 1.6a1 (Macintosh/20060116)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <3AEC1E10243A314391FE9C01CD65429B28BE86@mail.esn.co.in>
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PCMCIA Lists please
-Thread-Index: AcYLlI4SZGZ9qm2WQmiQuRM6Fl+7IwQZz5nA
-From: "Mukund JB." <mukundjb@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: io performance...
+References: <43CB4CC3.4030904@fastmail.co.uk> <43CDAFE3.8050203@fastmail.co.uk> <43CDC44E.6080808@wolfmountaingroup.com> <43CDCD9F.5050500@fastmail.co.uk> <43CDC607.2040501@wolfmountaingroup.com>
+In-Reply-To: <43CDC607.2040501@wolfmountaingroup.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff V. Merkey wrote:
+> Max Waterman wrote:
+> 
+>> Jeff V. Merkey wrote:
+>>
+>>> Max Waterman wrote:
+>>>
+>>>> One further question. I get these messages 'in' dmesg :
+>>>>
+>>>> sda: asking for cache data failed
+>>>> sda: assuming drive cache: write through
+>>>>
+>>>> How can I force it to be 'write back'?
+>>>
+>>>
+>>>
+>>>
+>>> Forcing write back is a very bad idea unless you have a battery 
+>>> backed up RAID controller.  
+>>
+>>
+>> We do.
+>>
+>> In any case, I wonder what the consequences of assuming 'write 
+>> through' when the array is configured as 'write back'? Is it just 
+>> different settings for different caches?
+> 
+> 
+> It is.  This is something that should be configured in a RAID 
+> controller.  OS should always be write through.
 
-Dear All,
+Ok, thanks for clearing that up, though I now wonder why the message is 
+there.
 
-I have gone through kref and am planning to implement then in my usb driver.
-please terminate my misconceptions if any by correcting the statements below.
+<shrug>
 
-In the call below:
-kref_init(&dev->kref);
-	sets the refcount in the kref to 1.
+Max.
 
-kref_put(&dev->kref);
-	increment the refcount.
-
-kref_put(&dev->kref, mem_release );
-What I understand is when the refcount falls back to '1', only then the mem_release() function will be called.
-Is it correct? I mean, when is the mem_release () called i.e. when the refcount is '0' or '1'.
-
-Thanks & Regards,
-Mukund Jampala
+> 
+> Jeff
+> 
+>>
+>> Max.
+>>
+>>> Jeff
+>>>
+>>>>
+>>>> Max.
+>>>> -
+>>>> To unsubscribe from this list: send the line "unsubscribe 
+>>>> linux-kernel" in
+>>>> the body of a message to majordomo@vger.kernel.org
+>>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>> Please read the FAQ at  http://www.tux.org/lkml/
+>>>>
+>>>
+>>
+>>
+> 
 

@@ -1,36 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWARBQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWARB1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbWARBQd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 20:16:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWARBQd
+	id S964774AbWARB1d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 20:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbWARB1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 20:16:33 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17575 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932443AbWARBQc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 20:16:32 -0500
-Date: Tue, 17 Jan 2006 17:18:28 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] Extract inode_inc_count(), inode_dec_count()
-Message-Id: <20060117171828.76d481bd.akpm@osdl.org>
-In-Reply-To: <20060118003453.GB24835@mipter.zuzino.mipt.ru>
-References: <20060118003453.GB24835@mipter.zuzino.mipt.ru>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 17 Jan 2006 20:27:33 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:32683 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S964774AbWARB1d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 20:27:33 -0500
+Message-Id: <200601180127.k0I1R8g18386@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Robin Holt'" <holt@sgi.com>, "Dave McCracken" <dmccr@us.ibm.com>
+Cc: "Hugh Dickins" <hugh@veritas.com>, "Andrew Morton" <akpm@osdl.org>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Linux Memory Management" <linux-mm@kvack.org>
+Subject: RE: [PATCH/RFC] Shared page tables
+Date: Tue, 17 Jan 2006 17:27:09 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcYbwWz7YMGPOQ4DQsm63GMRaRD+1wADCOag
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <20060117235302.GA22451@lnx-holt.americas.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan <adobriyan@gmail.com> wrote:
->
-> +static inline void inode_inc_count(struct inode *inode)
-> +{
-> +	inode->i_nlink++;
-> +	mark_inode_dirty(inode);
-> +}
+Robin Holt wrote on Tuesday, January 17, 2006 3:53 PM
+> This appears to work on ia64 with the attached patch.  Could you
+> send me any test application you think would be helpful for me
+> to verify it is operating correctly?  I could not get the PTSHARE_PUD
+> to compile.  I put _NO_ effort into it.  I found the following line
+> was invalid and quit trying.
+> 
+> --- linux-2.6.orig/arch/ia64/Kconfig	2006-01-14 07:16:46.149226872 -0600
+> +++ linux-2.6/arch/ia64/Kconfig	2006-01-14 07:25:02.228853432 -0600
+> @@ -289,6 +289,38 @@ source "mm/Kconfig"
+>  config ARCH_SELECT_MEMORY_MODEL
+>  	def_bool y
+>  
+> +
+> +config PTSHARE_HUGEPAGE
+> +	bool
+> +	depends on PTSHARE && PTSHARE_PMD
+> +	default y
+> +
 
-hm, OK.  I think I'll switch these all to inode_inc_link_count(), to
-clearly distinguish them from the various functions which diddle ->i_count.
+You need to thread carefully with hugetlb ptshare on ia64. PTE for
+hugetlb page on ia64 observe full page table levels, not like x86
+that sits in the pmd level.
+
+- Ken
+

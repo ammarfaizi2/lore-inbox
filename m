@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWAREzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030181AbWAREzJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030184AbWAREzn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jan 2006 23:55:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbWAREzn
+	id S1030181AbWAREzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jan 2006 23:55:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbWAREzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jan 2006 23:55:43 -0500
-Received: from mail.kroah.org ([69.55.234.183]:19435 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030182AbWAREzm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jan 2006 23:55:42 -0500
-Date: Tue, 17 Jan 2006 20:55:18 -0800
-From: Greg KH <greg@kroah.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-Message-ID: <20060118045518.GB7292@kroah.com>
-References: <20060117143258.150807000@sergelap> <20060117143326.283450000@sergelap> <1137511972.3005.33.camel@laptopd505.fenrus.org> <20060117155600.GF20632@sergelap.austin.ibm.com> <1137513818.14135.23.camel@localhost.localdomain> <1137518714.5526.8.camel@localhost.localdomain>
+	Tue, 17 Jan 2006 23:55:09 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:28138 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1030181AbWAREzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jan 2006 23:55:08 -0500
+Subject: Re: userspace filesystem Vs kernelspace filesystem
+From: Lee Revell <rlrevell@joe-job.com>
+To: jeff shia <tshxiayu@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <7cd5d4b40601172045j531a21b3y41db1dfbf84b769f@mail.gmail.com>
+References: <7cd5d4b40601172045j531a21b3y41db1dfbf84b769f@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 17 Jan 2006 23:55:05 -0500
+Message-Id: <1137560106.3587.57.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137518714.5526.8.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 17, 2006 at 09:25:14AM -0800, Dave Hansen wrote:
+On Wed, 2006-01-18 at 12:45 +0800, jeff shia wrote:
+> Hello,everyone!
 > 
-> Arjan had a very good point last time we posted these: we should
-> consider getting rid of as many places in the kernel where pids are used
-> to uniquely identify tasks, and just stick with task_struct pointers.  
+> Linux kernel provides vfs for the various physical filesystems.The
+> profit we get from the
+> VFS is just the standard interface it provides such as read and write?
+> 
+> Can we implement a user space filesystem which is actually a library?I
+> think it will be
+> faster than kernel space filesystem through the vfs layer.
+> 
+> Any suggestions or commnets?
 
-That's a very good idea, why didn't you do that?
+Search list archives for FUSE (Filesystem in USErspace).
 
-thanks,
+Lee
 
-greg k-h

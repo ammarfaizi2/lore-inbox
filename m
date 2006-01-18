@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161028AbWARWBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161027AbWARWBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161028AbWARWBE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 17:01:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161031AbWARWBE
+	id S1161027AbWARWBH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 17:01:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161030AbWARWBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 17:01:04 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:7641
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1161028AbWARWBD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 17:01:03 -0500
-Date: Wed, 18 Jan 2006 14:00:56 -0800 (PST)
-Message-Id: <20060118.140056.39962680.davem@davemloft.net>
-To: stern@rowland.harvard.edu
-Cc: bcrl@kvack.org, akpm@osdl.org, sekharan@us.ibm.com, kaos@sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/8] Notifier chain update
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.44L0.0601181656430.4974-100000@iolanthe.rowland.org>
-References: <20060118214204.GG16285@kvack.org>
-	<Pine.LNX.4.44L0.0601181656430.4974-100000@iolanthe.rowland.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 18 Jan 2006 17:01:07 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:24010 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1161029AbWARWBF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 17:01:05 -0500
+Subject: Re: [Pcihpd-discuss] Re: [patch 0/4]  Hot Dock/Undock support
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
+       pcihpd-discuss@lists.sourceforge.net, len.brown@intel.com,
+       linux-acpi@vger.kernel.org
+In-Reply-To: <20060118204251.GA1544@elf.ucw.cz>
+References: <1137545813.19858.45.camel@whizzy>
+	 <20060118130444.GA1518@elf.ucw.cz> <1137609747.31839.6.camel@whizzy>
+	 <20060118204251.GA1544@elf.ucw.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 18 Jan 2006 13:43:00 -0800
+Message-Id: <1137620581.31839.21.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-OriginalArrivalTime: 18 Jan 2006 21:40:07.0034 (UTC) FILETIME=[BFBFC5A0:01C61C77]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
-Date: Wed, 18 Jan 2006 16:57:30 -0500 (EST)
-
-> On Wed, 18 Jan 2006, Benjamin LaHaise wrote:
+On Wed, 2006-01-18 at 21:42 +0100, Pavel Machek wrote:
+> Hi!
 > 
-> > A notifier callee should not be sleeping, if anything it should be putting 
-> > its work onto a workqueue and completing it when it gets scheduled if it 
-> > has to do something that blocks.
+> There's a bug in error handling:
 > 
-> Sez who?  If it's not documented in the kernel source, I don't believe 
-> it.
+> int __init acpiphp_glue_init(void)
+> {
+>         int num = 0;
+> 
+>         acpi_walk_namespace(ACPI_TYPE_DEVICE, ACPI_ROOT_OBJECT,
+>                         ACPI_UINT32_MAX, find_root_bridges, &num,
+> NULL);
+> 
+>         if (num <= 0)
+>                 return -1;
+>         else
+>                 acpi_pci_register_driver(&acpi_pci_hp_driver);
+> 
+>         return 0;
+> }
+> 
+> You register driver here, but if acpiphp_get_num_slots() returns 0
+> later, you return -ENODEV, aborting load of driver, but without
+> undergistering that driver. It oopses after a while. Same problem if
+> init_slots() returns error.
+> 
+> 								Pavel
 
-Many notifiers even get run from software interrupt context,
-making sleeping illegal.
+This one needs some more thought on how to fix, because I'm not certain
+if we have the code in place to back out of this once we find root
+bridges that exist.  it might be easy, but it might not be. 
 
-For example, IPV6 addresses can get added/removed from a device
-in response to packets, and these operations trigger the
-inet6addr_chain notifier in net/ipv6/addrconf.c
-
-So sleeping in a notifier is indeed illegal.

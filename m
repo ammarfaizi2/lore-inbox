@@ -1,58 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030361AbWARVba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbWARVjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030361AbWARVba (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 16:31:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbWARVba
+	id S964941AbWARVjq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 16:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbWARVjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 16:31:30 -0500
-Received: from mail.kroah.org ([69.55.234.183]:10148 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030361AbWARVb3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 16:31:29 -0500
-Date: Wed, 18 Jan 2006 13:29:01 -0800
-From: Greg KH <greg@kroah.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: ehci calling put_device from irq handler
-Message-ID: <20060118212901.GA8923@kroah.com>
+	Wed, 18 Jan 2006 16:39:46 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:64452 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S964941AbWARVjp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 16:39:45 -0500
+Subject: Re: [Pcihpd-discuss] Re: [patch 0/4]  Hot Dock/Undock support
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
+       pcihpd-discuss@lists.sourceforge.net, len.brown@intel.com,
+       linux-acpi@vger.kernel.org
+In-Reply-To: <20060118194554.GA1502@elf.ucw.cz>
+References: <1137545813.19858.45.camel@whizzy>
+	 <20060118130444.GA1518@elf.ucw.cz> <1137609747.31839.6.camel@whizzy>
+	 <20060118194554.GA1502@elf.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 18 Jan 2006 13:06:09 -0800
+Message-Id: <1137618370.31839.12.camel@whizzy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-OriginalArrivalTime: 18 Jan 2006 21:03:15.0484 (UTC) FILETIME=[999005C0:01C61C72]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We can not call put_device() from irq context :(
+On Wed, 2006-01-18 at 20:45 +0100, Pavel Machek wrote:
+> Hi!
+> 
+> > > > This series of patches is against the -mm kernel, and will enable
+> > > > docking station support.  It is an early patch, but still pretty 
+> > > > functional, so I think it's worthwhile to include at this point.
+> > > > For some laptops, it's necessary to use the pci=assign-busses kernel 
+> > > > parameter, because some _DCK methods will attempt to assign bus numbers
+> > > > to the dock bridge (incorrectly).
+> > > 
+> > > On thinkpad X32: I selected
+> ...
+> > > Recompiled, rebooted with machine out of dock. /sys/bus/pci/slots/ is
+> > > empty. I then inserted machine into dock, and locked it:
+> > > 
+> > > root@amd:/sys/bus/pci/slots# echo dock > /proc/acpi/ibm/dock
+> > > root@amd:/sys/bus/pci/slots# ls
+> > > root@amd:/sys/bus/pci/slots#
+> > > 
+> > > ...still empty. What am I doing wrong?
+> > 
+> > You may not use the ibm_acpi driver at the same time as the acpiphp
+> > driver for docking.  This is because the ibm_acpi driver also tries to
+> > handle the dock event notification, and doesn't actually do any
+> > hotplugging of the devices.  So, you want to set that config option to
+> > N.  What you are doing above is actually writing to the ibm_acpi
+> > driver.
+> 
+> Done.
+> 
+> > I didn't provide a way to do undocking via software. I just use the
+> > button on the dock station.  You should however, see something
+> > in /sys/bus/pci/slots - can you scan your dmesg to make sure that the
+> > acpiphp driver is running?  You might run it as a module and enable
+> > debugging:
+> > 
+> > modprobe acpiphp debug=1
+> > 
+> > This way we can see if it finds your dock slot and registers the notify
+> > handler.
+> 
+> Result is:
+> 
+> root@amd:/data/l/linux-mm/drivers/pci/hotplug# insmod acpiphp.ko debug=1
+> insmod: error inserting 'acpiphp.ko': -1 No such device
+> root@amd:/data/l/linux-mm/drivers/pci/hotplug# dmesg | tail -3
+> Failure of coda_cnode_make for root: error -19
+> acpiphp: ACPI Hot Plug PCI Controller Driver version: 0.5
+> acpiphp_glue: Total 0 slots
+> root@amd:/data/l/linux-mm/drivers/pci/hotplug#
+> 
+> Should I have CONFIG_HOTPLUG_PCI_ACPI_IBM set?
+> 
+> 								Pavel
+> 
 
-I added a "might_sleep()" to the driver core and get the following from
-the ehci driver.  Any thoughts?
 
-thanks,
+Hum, I don't think so (but maybe someone else knows for sure), I thought
+that driver was specifically for a certain kind of IBM server, not an
+IBM laptop.  It looks like from this output that the acpiphp is not
+recognizing any hotplug capable devices on your laptop.  I believe that
+this is defined by acpiphp as a slot which is "ejectable", meaning
+contains an ACPI method called _EJ0.  I think we should take a look at
+your dsdt to make sure that it seems reasonable, and also perhaps you
+could send the output of lspci -vv -x with the laptop booted in the dock
+just to see what kind of dock bridge you have and make sure everything
+seems like it should work.  Please send the disassembled output of your
+dsdt - if you've never done it before, instructions for doing this can
+be found here: 
+http://acpi.sourceforge.net/dsdt/index.php
 
-greg k-h
+thanks!
+Kristen
 
-
-Debug: sleeping function called from invalid context at drivers/base/core.c:343
-in_atomic():1, irqs_disabled():0
- [<c012006d>] __might_sleep+0x9e/0xa6
- [<c0270400>] put_device+0x1c/0x35
- [<f883ebde>] usb_hcd_giveback_urb+0x23/0x84 [usbcore]
- [<f8820f40>] ehci_urb_done+0x8d/0xcf [ehci_hcd]
- [<f8821138>] qh_completions+0x1b6/0x359 [ehci_hcd]
- [<f882208d>] scan_async+0x8a/0x13f [ehci_hcd]
- [<f8824e77>] ehci_work+0x59/0xd2 [ehci_hcd]
- [<f88255d7>] ehci_irq+0x185/0x336 [ehci_hcd]
- [<c0106a10>] do_gettimeofday+0x1e/0xbf
- [<c0127ae5>] getnstimeofday+0x14/0x2a
- [<c0139f6c>] ktime_get_ts+0x5e/0x66
- [<c0139ea3>] ktime_get+0x1b/0x43
- [<c013a521>] hrtimer_run_queues+0x50/0xf9
- [<f883ec6f>] usb_hcd_irq+0x30/0x68 [usbcore]
- [<c0144b18>] handle_IRQ_event+0x39/0x6d
- [<c0144bd4>] __do_IRQ+0x88/0xfc
- [<c0105789>] do_IRQ+0x19/0x24
- [<c0103b82>] common_interrupt+0x1a/0x20
- [<c01012a5>] mwait_idle+0x2a/0x34
- [<c0101103>] cpu_idle+0x7f/0xb4
- [<c041e898>] start_kernel+0x166/0x17f
- [<c041e2b6>] unknown_bootoption+0x0/0x1e0

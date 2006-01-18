@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbWARWJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbWARWLi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932547AbWARWJU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 17:09:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbWARWJU
+	id S932551AbWARWLi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 17:11:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbWARWLi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 17:09:20 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2747 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932547AbWARWJS (ORCPT
+	Wed, 18 Jan 2006 17:11:38 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:50104 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932522AbWARWLh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 17:09:18 -0500
-Date: Wed, 18 Jan 2006 23:08:59 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Kristen Accardi <kristen.c.accardi@intel.com>,
-       linux-kernel@vger.kernel.org, greg@kroah.com,
-       pcihpd-discuss@lists.sourceforge.net, len.brown@intel.com,
-       linux-acpi@vger.kernel.org
-Subject: Re: [Pcihpd-discuss] Re: [patch 0/4]  Hot Dock/Undock support
-Message-ID: <20060118220859.GE1580@elf.ucw.cz>
-References: <1137545813.19858.45.camel@whizzy> <20060118130444.GA1518@elf.ucw.cz> <1137609747.31839.6.camel@whizzy> <20060118194554.GA1502@elf.ucw.cz> <1137618370.31839.12.camel@whizzy> <20060118214709.GA12010@srcf.ucam.org>
+	Wed, 18 Jan 2006 17:11:37 -0500
+Date: Wed, 18 Jan 2006 14:11:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: torvalds@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [git patches] e1000 fixes
+Message-Id: <20060118141118.78767e3d.akpm@osdl.org>
+In-Reply-To: <20060118212449.GA13260@havoc.gtf.org>
+References: <20060118212449.GA13260@havoc.gtf.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060118214709.GA12010@srcf.ucam.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On St 18-01-06 21:47:09, Matthew Garrett wrote:
-> On Wed, Jan 18, 2006 at 01:06:09PM -0800, Kristen Accardi wrote:
+Jeff Garzik <jgarzik@pobox.com> wrote:
+>
+> Let's see how this goes...  if there are further problems, I'll just
+>  revert the entire thing, and push these changes (and the previous set)
+>  into upstream-2.6.17 branch.
 > 
-> > Hum, I don't think so (but maybe someone else knows for sure), I thought
-> > that driver was specifically for a certain kind of IBM server, not an
-> > IBM laptop.  It looks like from this output that the acpiphp is not
-> > recognizing any hotplug capable devices on your laptop.  I believe that
-> > this is defined by acpiphp as a slot which is "ejectable", meaning
-> > contains an ACPI method called _EJ0.  
+>  I don't mind them updating the defconfig files, even though most people
+>  are too slack to worry about it, since its pretty clear the default
+>  choice.
 > 
-> To the best of my knowledge, the X-series docking station doesn't 
-> contain any PCI devices. It's an extension of the IDE bus plus some 
-> broken out serial, parallel, USB and so on. I'd expect driver support 
-> for it to just require supporting the dock object and calling its eject 
-> routine when the user hits the eject button.
+> 
+>  Please pull from 'upstream-fixes' branch of
+>  master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
 
-My docking station (there are two different versions of them,
-"regular" and "port extender") certainly contains PCI device. I
-installed hp100 network card into it :-).
-
-							Pavel
-
--- 
-Thanks, Sharp!
+These patches fix e1000 for me, thanks.

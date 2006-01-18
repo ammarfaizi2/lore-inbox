@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWARMDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWARMEy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964822AbWARMDw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 07:03:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbWARMDw
+	id S1030244AbWARMEy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 07:04:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030258AbWARMEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 07:03:52 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:38040 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S964822AbWARMDw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 07:03:52 -0500
-From: "Jiri Slaby" <xslaby@fi.muni.cz>
-Date: Wed, 18 Jan 2006 13:03:37 +0100
-Subject: Re: [PATCH] synclink_gt fix size of register value storage
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-reply-to: <1137515718.3403.5.camel@amdx2.microgate.com>
-Message-Id: <20060118120337.9AB3522B3C4@anxur.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Wed, 18 Jan 2006 07:04:54 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:25765 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1030245AbWARMEx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 07:04:53 -0500
+Subject: Re: PATCH: (For review) Teach libata to tune master/slave
+	seperately
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
+In-Reply-To: <58cb370e0601180340v529c04fdq5dc962285a6fc1c0@mail.gmail.com>
+References: <1137531678.14135.105.camel@localhost.localdomain>
+	 <58cb370e0601180340v529c04fdq5dc962285a6fc1c0@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 18 Jan 2006 12:04:25 +0000
+Message-Id: <1137585865.25819.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Fulghum wrote:
-> Fix incorrect variable size used to hold
-> register value. This bug might wipe out a portion of the
-> TCR value when setting the interface options.
-> 
-> Signed-off-by: Paul Fulghum <paulkf@microgate.com>
-> 
-> 
-> --- linux-2.6.16-rc1/drivers/char/synclink_gt.c	2006-01-17 09:31:20.000000000 -0600
-> +++ linux-2.6.16-rc1-mg/drivers/char/synclink_gt.c	2006-01-17 10:22:48.000000000 -0600
-> @@ -2630,7 +2630,7 @@ static int get_interface(struct slgt_inf
->  static int set_interface(struct slgt_info *info, int if_mode)
->  {
->   	unsigned long flags;
-> -	unsigned char val;
-> +	unsigned short val;
-Shouldn't be this u16 rather than ushort?
+On Mer, 2006-01-18 at 12:40 +0100, Bartlomiej Zolnierkiewicz wrote:
+> The core logic is changed (in the positive way): ata_pio_modes()
+> is finally used for obtaining PIO mask to be used.
 
-regards,
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+Ah yes, Jeff hadn't previously merged the small version of that change.
+Indeed description is a little incorrect.
+
+> Please update the patch description or make it a separate change.
+> 
+> The other functional change is the ordering of programming host/devices:
+> 
+> previously:
+> * program PIO for device 0 [host]
+> * program PIO for device 1 [host]
+> * program DMA for device 0 [host]
+> * program DMA for device 1 [host]
+> * program xfer mode for device 0 [device]
+> * program xfer mode for device 1 [device]
+> 
+> now:
+> * program PIO for device 0 [host]
+> * program DMA for device 0 [host]
+> * program xfer mode for device 0 [device]
+> * program PIO for device 1 [host]
+> * program DMA for device 1 [host]
+> * program xfer mode for device 0 [device]
+> 
+> This change is OK but I wonder what is the reason for it?
+
+It simply how suffling the code re-ordered it. I don't think its a
+problem but if anyone has a problem I can go and re-re-order it.
+
+libata also really should do adev->pio_mode = XFER_PIO_0; ->set_piomode
+before doing its initial identify etc because there is no guarantee the
+BIOS didn't leave the hardware in a bogus state.
+
+> > I have. Introduces no new bugs I've found but obviously piix secondary
+> > slave doesn't reliably work with or without this change because of the
+> > current piix driver bug.
+> 
+> I thought it was merged already (it is obviously correct)?
+
+Apparently not.
+

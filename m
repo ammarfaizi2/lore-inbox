@@ -1,107 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWARMmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWARMoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbWARMmv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 07:42:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932481AbWARMmv
+	id S932482AbWARMoF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 07:44:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbWARMoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 07:42:51 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:41746 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932390AbWARMmu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 07:42:50 -0500
-Date: Wed, 18 Jan 2006 13:42:42 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: Jean Delvare <khali@linux-fr.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.16-rc1
-Message-ID: <20060118124242.GA12752@mars.ravnborg.org>
-References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org> <43CD67AE.9030501@eyal.emu.id.au> <20060117232701.GA7606@mars.ravnborg.org> <20060118085936.4773dd77.khali@linux-fr.org> <20060118091543.GA8277@mars.ravnborg.org> <43CE2556.9070700@eyal.emu.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
+	Wed, 18 Jan 2006 07:44:05 -0500
+Received: from uproxy.gmail.com ([66.249.92.204]:63204 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932482AbWARMoD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 07:44:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XAmQXhq1F3rofVagMP2+BFTBwVEp0XKZyTDQ20/8cpVvJycYYYYUFjiQjYSKgaaYnNQFGCfHJHxplOQ37JnYL045/3Yk5Ecl/JPeUR+kInFxfPSEKKfYBZcqqyQ5G88dBUT3ajCI4rjxT5ReUJLmWxwW9DwnV8JvTFwlDnNbIFA=
+Message-ID: <58cb370e0601180444i1af5a6c7y51156877db1ae826@mail.gmail.com>
+Date: Wed, 18 Jan 2006 13:44:01 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PATCH: (For review) Teach libata to tune master/slave seperately
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
+In-Reply-To: <1137585865.25819.27.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43CE2556.9070700@eyal.emu.id.au>
-User-Agent: Mutt/1.5.11
+References: <1137531678.14135.105.camel@localhost.localdomain>
+	 <58cb370e0601180340v529c04fdq5dc962285a6fc1c0@mail.gmail.com>
+	 <1137585865.25819.27.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Eyal, Jean.
+On 1/18/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Mer, 2006-01-18 at 12:40 +0100, Bartlomiej Zolnierkiewicz wrote:
+> > The core logic is changed (in the positive way): ata_pio_modes()
+> > is finally used for obtaining PIO mask to be used.
+>
+> Ah yes, Jeff hadn't previously merged the small version of that change.
+> Indeed description is a little incorrect.
+>
+> > Please update the patch description or make it a separate change.
+> >
+> > The other functional change is the ordering of programming host/devices:
+> >
+> > previously:
+> > * program PIO for device 0 [host]
+> > * program PIO for device 1 [host]
+> > * program DMA for device 0 [host]
+> > * program DMA for device 1 [host]
+> > * program xfer mode for device 0 [device]
+> > * program xfer mode for device 1 [device]
+> >
+> > now:
+> > * program PIO for device 0 [host]
+> > * program DMA for device 0 [host]
+> > * program xfer mode for device 0 [device]
+> > * program PIO for device 1 [host]
+> > * program DMA for device 1 [host]
+> > * program xfer mode for device 0 [device]
+> >
+> > This change is OK but I wonder what is the reason for it?
+>
+> It simply how suffling the code re-ordered it. I don't think its a
+> problem but if anyone has a problem I can go and re-re-order it.
 
+I think it is fine, no need for change.
 
-> 
-> content of /tmp/xxx
-> ===================
-> 
-> ldflags 1
-> crw-rw-rw-  1 root root 1, 3 Jan 18 22:20 /dev/null
-> ldflags 3
-> ls: /dev/null: No such file or directory
-> ldflags 4
-> -rwxr-xr-x  1 root root 11650 Jan 18 22:20 /dev/null
+> libata also really should do adev->pio_mode = XFER_PIO_0; ->set_piomode
+> before doing its initial identify etc because there is no guarantee the
+> BIOS didn't leave the hardware in a bogus state.
 
-Following patch fix it.
-We now evaluate the value of the variabls only when needed.
-And gcc do not use '-o /dev/null' since this is not good.
+seconded
 
-	Sam
-
-diff --git a/scripts/kconfig/lxdialog/Makefile b/scripts/kconfig/lxdialog/Makefile
-index fae3e29..3441b56 100644
---- a/scripts/kconfig/lxdialog/Makefile
-+++ b/scripts/kconfig/lxdialog/Makefile
-@@ -2,8 +2,11 @@
- #
- 
- check-lxdialog  := $(srctree)/$(src)/check-lxdialog.sh
--HOST_EXTRACFLAGS:= $(shell $(CONFIG_SHELL) $(check-lxdialog) -ccflags)
--HOST_LOADLIBES  := $(shell $(CONFIG_SHELL) $(check-lxdialog) -ldflags $(HOSTCC))
-+
-+#¤ Use reursively expanded variables so we do not call gcc unless
-+# we really need to do so. (Do not call gcc as part of make mrproper)
-+HOST_EXTRACFLAGS = $(shell $(CONFIG_SHELL) $(check-lxdialog) -ccflags)
-+HOST_LOADLIBES   = $(shell $(CONFIG_SHELL) $(check-lxdialog) -ldflags $(HOSTCC))
-  
- HOST_EXTRACFLAGS += -DLOCALE 
- 
-diff --git a/scripts/kconfig/lxdialog/check-lxdialog.sh b/scripts/kconfig/lxdialog/check-lxdialog.sh
-index 448e353..0ec6552 100644
---- a/scripts/kconfig/lxdialog/check-lxdialog.sh
-+++ b/scripts/kconfig/lxdialog/check-lxdialog.sh
-@@ -1,20 +1,24 @@
- #!/bin/sh
- # Check ncurses compatibility
- 
-+# Temp file, try to clean up after us
-+tmp=.lxdialog.tmp
-+trap "rm -f $tmp" 0 1 2 3 15
-+
- # What library to link
- ldflags()
- {
--	echo "main() {}" | $cc -lncursesw -xc - -o /dev/null 2> /dev/null
-+	echo "main() {}" | $cc -lncursesw -xc - -o $tmp 2> /dev/null
- 	if [ $? -eq 0 ]; then
- 		echo '-lncursesw'
- 		exit
- 	fi
--	echo "main() {}" | $cc -lncurses -xc - -o /dev/null 2> /dev/null
-+	echo "main() {}" | $cc -lncurses -xc - -o $tmp 2> /dev/null
- 	if [ $? -eq 0 ]; then
- 		echo '-lncurses'
- 		exit
- 	fi
--	echo "main() {}" | $cc -lcurses -xc - -o /dev/null 2> /dev/null
-+	echo "main() {}" | $cc -lcurses -xc - -o $tmp 2> /dev/null
- 	if [ $? -eq 0 ]; then
- 		echo '-lcurses'
- 		exit
-@@ -39,7 +43,7 @@ ccflags()
- compiler=""
- # Check if we can link to ncurses
- check() {
--	echo "main() {}" | $cc -xc - -o /dev/null 2> /dev/null
-+	echo "main() {}" | $cc -xc - -o $tmp 2> /dev/null
- 	if [ $? != 0 ]; then
- 		echo " *** Unable to find the ncurses libraries."          1>&2
- 		echo " *** make menuconfig require the ncurses libraries"  1>&2
+Bartlomiej

@@ -1,124 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161003AbWARVRa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWARVTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161003AbWARVRa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 16:17:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161001AbWARVRa
+	id S964911AbWARVTk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 16:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161002AbWARVTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 16:17:30 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30120 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1160999AbWARVR3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 16:17:29 -0500
-Date: Wed, 18 Jan 2006 22:11:40 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
-       pcihpd-discuss@lists.sourceforge.net, len.brown@intel.com,
-       linux-acpi@vger.kernel.org
-Subject: Re: [Pcihpd-discuss] Re: [patch 0/4]  Hot Dock/Undock support
-Message-ID: <20060118211140.GA2058@elf.ucw.cz>
-References: <1137545813.19858.45.camel@whizzy> <20060118130444.GA1518@elf.ucw.cz> <1137609747.31839.6.camel@whizzy>
+	Wed, 18 Jan 2006 16:19:39 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:58520 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S964911AbWARVTi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 16:19:38 -0500
+Date: Wed, 18 Jan 2006 23:19:53 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: LKML <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org
+Cc: openib-general@openib.org, Roland Dreier <rolandd@cisco.com>
+Subject: Repost [PATCH 2 of 3] ipoib: move destructor to struct neigh_parms
+Message-ID: <20060118211953.GF31280@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1137609747.31839.6.camel@whizzy>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry about reposting: the message didnt seem to make it to netdev.
 
-Few cleanups for acpiphp_glue, and spelling fix in warning. It still
-does not use consistent function definitions, but lets pretentd it is
-to fit into 80 columns.
+---
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+Move destructor from neigh_ops (which is shared between devices)
+to neigh_parms which is not, so that multiple drivers can set
+it safely.
 
---- clean-mm/drivers/pci/hotplug/acpiphp_glue.c	2006-01-18 12:52:02.000000000 +0100
-+++ linux-mm/drivers/pci/hotplug/acpiphp_glue.c	2006-01-18 22:09:08.000000000 +0100
-@@ -91,14 +94,12 @@
- 	acpi_handle tmp;
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+
+Index: linux-2.6.15/drivers/infiniband/ulp/ipoib/ipoib_main.c
+===================================================================
+--- linux-2.6.15.orig/drivers/infiniband/ulp/ipoib/ipoib_main.c	2006-01-12 20:30:52.000000000 +0200
++++ linux-2.6.15/drivers/infiniband/ulp/ipoib/ipoib_main.c	2006-01-12 20:31:26.000000000 +0200
+@@ -247,7 +247,6 @@ static void path_free(struct net_device 
+ 		if (neigh->ah)
+ 			ipoib_put_ah(neigh->ah);
+ 		*to_ipoib_neigh(neigh->neighbour) = NULL;
+-		neigh->neighbour->ops->destructor = NULL;
+ 		kfree(neigh);
+ 	}
  
- 	status = acpi_get_handle(handle, "_ADR", &tmp);
--	if (ACPI_FAILURE(status)) {
-+	if (ACPI_FAILURE(status))
- 		return 0;
--	}
+@@ -530,7 +529,6 @@ static void neigh_add_path(struct sk_buf
+ err:
+ 	*to_ipoib_neigh(skb->dst->neighbour) = NULL;
+ 	list_del(&neigh->list);
+-	neigh->neighbour->ops->destructor = NULL;
+ 	kfree(neigh);
  
- 	status = acpi_get_handle(handle, "_EJ0", &tmp);
--	if (ACPI_FAILURE(status)) {
-+	if (ACPI_FAILURE(status))
- 		return 0;
--	}
- 
- 	return 1;
+ 	++priv->stats.tx_dropped;
+@@ -769,21 +767,9 @@ static void ipoib_neigh_destructor(struc
+ 		ipoib_put_ah(ah);
  }
-@@ -470,7 +473,7 @@
- 			dbg("%s: _STA evaluation failure\n", __FUNCTION__);
- 			return 0;
- 		}
--		if ((tmp & ACPI_STA_FUNCTIONING) == 0)
-+		if (!(tmp & ACPI_STA_FUNCTIONING))
- 			/* don't register this object */
- 			return 0;
- 	}
-@@ -503,12 +508,12 @@
- 		return 0;
- 	}
  
- 	/* search P2P bridges under this host bridge */
- 	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, (u32)1,
- 				     find_p2p_bridge, pci_bus, NULL);
- 
- 	if (ACPI_FAILURE(status))
--		warn("find_p2p_bridge faied (error code = 0x%x)\n",status);
-+		warn("find_p2p_bridge failed (error code = 0x%x)\n", status);
+-static int ipoib_neigh_setup(struct neighbour *neigh)
+-{
+-	/*
+-	 * Is this kosher?  I can't find anybody in the kernel that
+-	 * sets neigh->destructor, so we should be able to set it here
+-	 * without trouble.
+-	 */
+-	neigh->ops->destructor = ipoib_neigh_destructor;
+-
+-	return 0;
+-}
+-
+ static int ipoib_neigh_setup_dev(struct net_device *dev, struct neigh_parms *parms)
+ {
+-	parms->neigh_setup = ipoib_neigh_setup;
++	parms->neigh_destructor = ipoib_neigh_destructor;
  
  	return 0;
  }
-@@ -587,7 +593,7 @@
- 	}
- }
- 
--static struct pci_dev * get_apic_pci_info(acpi_handle handle)
-+static struct pci_dev *get_apic_pci_info(acpi_handle handle)
- {
- 	struct acpi_pci_id id;
- 	struct pci_bus *bus;
-@@ -891,8 +897,8 @@
-  * this slot and return the one that represents the given
-  * pci_dev structure.
-  */
--static struct acpiphp_func * get_func(struct acpiphp_slot *slot,
--					struct pci_dev *dev)
-+static struct
-+acpiphp_func *get_func(struct acpiphp_slot *slot, struct pci_dev *dev)
- {
- 	struct list_head *l;
- 	struct acpiphp_func *func;
-@@ -912,8 +918,7 @@
- /** acpiphp_max_busnr - find the max reserved busnr for this bus
-  *  @bus: the bus to scan
-  */
--static unsigned char
--acpiphp_max_busnr(struct pci_bus *bus)
-+static unsigned char acpiphp_max_busnr(struct pci_bus *bus)
- {
- 	struct list_head *tmp;
- 	unsigned char max, n;
-@@ -1476,9 +1481,9 @@
- 	if (is_root_bridge(handle)) {
- 		acpi_install_notify_handler(handle, ACPI_SYSTEM_NOTIFY,
- 				handle_hotplug_event_bridge, NULL);
--			(*count)++;
-+		(*count)++;
- 	}
--	return AE_OK ;
-+	return AE_OK;
- }
- 
- static struct acpi_pci_driver acpi_pci_hp_driver = {
 
 
 -- 
-Thanks, Sharp!
+MST

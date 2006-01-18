@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbWARWrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932579AbWARWtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932574AbWARWrr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 17:47:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWARWrr
+	id S932579AbWARWtz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 17:49:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932578AbWARWtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 17:47:47 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31900 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932574AbWARWrq (ORCPT
+	Wed, 18 Jan 2006 17:49:55 -0500
+Received: from ns1.suse.de ([195.135.220.2]:31109 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932579AbWARWty (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 17:47:46 -0500
-Date: Wed, 18 Jan 2006 23:47:32 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, mita@miraclelinux.com, Keith Owens <kaos@ocs.com.au>
-Subject: Re: [patch 2.6.15-current] i386: multi-column stack backtraces
-Message-ID: <20060118224732.GA1812@elf.ucw.cz>
-References: <200601170126_MC3-1-B602-EFCB@compuserve.com> <20060116224234.5a7ca488.akpm@osdl.org>
+	Wed, 18 Jan 2006 17:49:54 -0500
+Date: Wed, 18 Jan 2006 23:49:53 +0100
+From: Jan Blunck <jblunck@suse.de>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Olaf Hering <olh@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
+Message-ID: <20060118224953.GA31364@hasse.suse.de>
+References: <20060116223431.GA24841@suse.de> <43CC2AF8.4050802@sw.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060116224234.5a7ca488.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43CC2AF8.4050802@sw.ru>
+"From: jblunck@suse.de"
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Jan 17, Kirill Korotaev wrote:
 
-> > Print stack backtraces in multiple columns, saving screen space.
-> > Number of columns is configurable and defaults to one so 
-> > behavior is backwards-compatible.
-> > 
-> > Also removes the brackets around addresses when printing more
-> > that one entry per line so they print as:
-> >     <address>
-> > instead of:
-> >     [<address>]
-> > This helps multiple entries fit better on one line.
-> > 
-> > Original idea by Dave Jones, taken from x86_64.
-> > 
-> 
-> Presumably this is going to bust ksymoops.  Also the various other custom
-> oops-parsers which people have written themselves.
-> 
-> > +config STACK_BACKTRACE_COLS
-> 
-> It's pretty sad to go and make something like this a config option.  But
-> given that it is, believe it or not, an exported-to-userspace interface, I
-> guess there's not much choice.
+> Olaf, can you please check if my patch for busy inodes from -mm tree 
+> helps you?
+> Patch name is fix-of-dcache-race-leading-to-busy-inodes-on-umount.patch
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15/2.6.15-mm4/broken-out/fix-of-dcache-race-leading-to-busy-inodes-on-umount.patch
 
-I don't think we should call printk()s "userspace interface". Yes,
-someone may do dmesg | custom-grep-to-find-all-the-hardware, but
-thats clearly stupid. I also believe that oops dump is so closely tied
-to kernel that it is fair to change... plus this should better not be
-configurable, or userspace will have hard time parsing it.
-								Pavel
+This patch is just wrong. It is hiding bugs in file systems. The problem is
+that somewhere the reference counting on the vfsmount objects is wrong. The
+file system is unmounted before the last dentry is dereferenced. Either you
+didn't hold a reference to the proper vfsmount objects at all or you
+dereference it too early. See Al Viros patch series (search for "namei fixes")
+on how to fix this issues.
+
+Regards,
+	Jan
+
 -- 
-Thanks, Sharp!
+Jan Blunck                                               jblunck@suse.de
+SuSE LINUX AG - A Novell company
+Maxfeldstr. 5                                          +49-911-74053-608
+D-90409 Nürnberg                                      http://www.suse.de

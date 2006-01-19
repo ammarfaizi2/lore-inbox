@@ -1,77 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161275AbWASTDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161296AbWASTFq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161275AbWASTDY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 14:03:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161283AbWASTDY
+	id S1161296AbWASTFq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 14:05:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161302AbWASTFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 14:03:24 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:31137 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161275AbWASTDX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 14:03:23 -0500
-Date: Thu, 19 Jan 2006 19:03:15 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Adrian Bunk <bunk@stusta.de>, starvik@axis.com, dev-etrax@axis.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: cris: asm-offsets related build failure
-Message-ID: <20060119190315.GQ27946@ftp.linux.org.uk>
-References: <20060119001852.GO19398@stusta.de> <20060119085730.GP27946@ftp.linux.org.uk> <20060119163433.GA12724@mars.ravnborg.org>
-Mime-Version: 1.0
+	Thu, 19 Jan 2006 14:05:46 -0500
+Received: from zeus2.kernel.org ([204.152.191.36]:32663 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S1161296AbWASTFp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 14:05:45 -0500
+Date: Thu, 19 Jan 2006 19: 5:45 +0300
+From: "Dianna Huggins" <andries@clt.bellsouth.net>
+X-Mailer: The Bat! (v3.5.30) CD5BF9353B3B7091
+Reply-To: "Dianna Huggins" <andries@clt.bellsouth.net>
+X-Priority: 3 (Normal)
+Message-ID: <7404827363.20060119190545@clt.bellsouth.net>
+To: linux-kernel@vger.kernel.org
+Subject: [RE] 01-18-06 Information Release
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060119163433.GA12724@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 05:34:33PM +0100, Sam Ravnborg wrote:
-> On Thu, Jan 19, 2006 at 08:57:30AM +0000, Al Viro wrote:
-> > On Thu, Jan 19, 2006 at 01:18:52AM +0100, Adrian Bunk wrote:
-> > > Hi Sam,
-> > > 
-> > > the following build failure is present on the cris architecture:
-> > > 
-> > > <--  snip  -->
-> > > 
-> > > ...
-> > > make[1]: *** No rule to make target `arch/cris/kernel/asm-offsets.c', 
-> > > needed by `arch/cris/kernel/asm-offsets.s'.  Stop.
-> > > make: *** [prepare0] Error 2
-> > 
-> > Subject: [PATCH] fix a typo in arch/cris/Makefile
-> > 
-> > fallout from "kbuild: cris use generic asm-offsets.h support" - symlink
-> > target was wrong
-> Hi Al.
-> 
-> Can I have a Signed-off-by: ... patch
-> or do you submit it yourself?
+Dark Dynamite Inc. Jumps from $0.65 in Dec to a of $1.70 Today
 
-Subject: [PATCH] fix a typo in arch/cris/Makefile
 
-fallout from "kbuild: cris use generic asm-offsets.h support" - symlink
-target was wrong
+This one has been making Our members huge returns in the last month. Recent news 
+releases on new contracts and upcoming projects has sparked interest among traders.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
+Now these contracts are in place and being fullfilled. As per agreements, DKDY has 
+recieved Intial funds of $296,000.00 USD to begin preperations for April.
 
- arch/cris/Makefile |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Symb0l: DKDY
+Tuesday's High: $1.70
+Short Term Projection: $2.25 - 2.50
+Long Term: $3.75 - $4.25
+Indicat0r: S t r o n g   B u y
 
-9812c3418f4068bb8940924a871e5bc0713d4e41
-diff --git a/arch/cris/Makefile b/arch/cris/Makefile
-index ea65d58..ee11469 100644
---- a/arch/cris/Makefile
-+++ b/arch/cris/Makefile
-@@ -119,7 +119,7 @@ $(SRC_ARCH)/.links:
- 	@ln -sfn $(SRC_ARCH)/$(SARCH)/lib $(SRC_ARCH)/lib
- 	@ln -sfn $(SRC_ARCH)/$(SARCH) $(SRC_ARCH)/arch
- 	@ln -sfn $(SRC_ARCH)/$(SARCH)/vmlinux.lds.S $(SRC_ARCH)/kernel/vmlinux.lds.S
--	@ln -sfn $(SRC_ARCH)/$(SARCH)/asm-offsets.c $(SRC_ARCH)/kernel/asm-offsets.c
-+	@ln -sfn $(SRC_ARCH)/$(SARCH)/kernel/asm-offsets.c $(SRC_ARCH)/kernel/asm-offsets.c
- 	@touch $@
- 
- # Create link to sub arch includes
--- 
-0.99.9.GIT
+We believe that DKDY has more to show. Starting in april the visitors and revenues 
+are going to rise. For now the stock is rising with anticipation.
+
+Pick up this great stock Thursday morning and watch it rise.
+
+Review The News:
+
+DKDY is in schedule and recieving initial investments of $296,000 USD to produced 
+the banquets listed in last weeks announcement
+
+Last Week D K D Y announced the agreement to begin nightly banquets in April 2006
+that are expected to increase visitors to the park by over 18000 per month, doubling
+its annual attendance and creating an increase in re venues by over $3,400,000.00.
+
+Dark Dynamite Inc. has reached a cooperation agree ment , for initiating a 
+large-scale outdoor Qin dynasty Cultural Dinner Show program for performing Qin 
+dynasty dancers and songs in the Theme Park of Qin E - Pang Palace 
+(''the T h e m e  P a r k'') from April 2006.
+
+Dark Dynamite Inc. contracts and operates the Theme Park of Qin E-Pang Palace 
+('the T h e m e  P a r k') through its wholly owned subsidiary in China, Shannxi 
+Kai da Tourism Co., Ltd., a professional tourism consultancy and management firm. 
+
+
+Happy Trading Members!

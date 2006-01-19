@@ -1,52 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWASJXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWASJ3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750750AbWASJXb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 04:23:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWASJXb
+	id S1750913AbWASJ3x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 04:29:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWASJ3x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 04:23:31 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:41482 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1750750AbWASJXa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 04:23:30 -0500
-Date: Thu, 19 Jan 2006 10:23:20 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Miles Lane <miles.lane@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.16-rc1-git1 -- Build error "make: *** [include/linux/version.h] Error 2"
-Message-ID: <20060119092320.GA8588@mars.ravnborg.org>
-References: <a44ae5cd0601182247h1b173289ncbc6dc405cbb0bb4@mail.gmail.com> <20060119073509.GA8231@mars.ravnborg.org> <a44ae5cd0601190115y6f6e93a1y6b6b6284280259fd@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Jan 2006 04:29:53 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:37901 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750913AbWASJ3w convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 04:29:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NqlSgbpJDq/mkOZgha99kIq4faaoUAWHdw+VD3K8GhJnxMHdu5JFqTpRLGW6yhjpeO8hocSsJlBVyW6WQZwtoIbRBDe5URJLD6pLW3jWaBoBdM7PLtEm8ogusCBYwvJ9rv5Nr9NIHl208hcqb+8aO6YrnGydaMZgvXEgIoCkw2M=
+Message-ID: <7c3341450601190129r64a97880q22d576734214b6ac@mail.gmail.com>
+Date: Thu, 19 Jan 2006 09:29:51 +0000
+From: Nick <nick@linicks.net>
+To: Rumi Szabolcs <rumi_ml@rtfm.hu>
+Subject: Re: 2.4.x kernel uptime counter problem
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060119110834.bb048266.rumi_ml@rtfm.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <a44ae5cd0601190115y6f6e93a1y6b6b6284280259fd@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+References: <20060119110834.bb048266.rumi_ml@rtfm.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 01:15:49AM -0800, Miles Lane wrote:
-> I do have .kernelrelease that contains:
-> "2.6.16-rc1-mm1 .file null .ident
-> GCC:(GNU)4.0.320060115(prerelease)(Ubuntu4.0.2-7ubuntu1) .section
-> .note.GNU-stack,,@progbits"
-> I tried deleting it,  but it gets recreated.
-> 
-> I'm pretty frustrated.  I have built hundreds of kernels and have not
-> hit this problem before.
-> 
-> Any help is most appreciated!
-This can also be a side-effect of /dev/null being damaged.
-In scripts/kconfig/lxdialog/check-lxdialog.sh we do:
-echo main() {} | gcc -nncursesw -cx - -o /dev/null
+On 1/19/06, Rumi Szabolcs <rumi_ml@rtfm.hu> wrote:
+> Hello!
+>
+> I've got a Linux system running the 2.4.26 kernel which was about
+> to pass the 500 day mark these days and now suddenly what I see is
+> that the uptime counter has reset:
+>
+> $ uname -a && w && cat /proc/uptime && last -1 reboot
+> Linux quasar 2.4.26 #3 SMP Tue Sep 7 09:22:08 CEST 2004 i686 Intel(R) Pentium(R) 4 CPU 2.60GHz GenuineIntel GNU/Linux
+>  09:38:08 up 1 day, 12:49,  5 users,  load average: 0.00, 0.00, 0.00
+> USER     TTY        LOGIN@   IDLE   JCPU   PCPU WHAT
+> rumi     pty/s0    08:53    0.00s  0.04s  0.02s screen -r
+> rumi     ttyp1     10Sep04 31:58   9:12   9:12  epic
+> rumi     ttyp3     Tue12   44:33m  0.01s  0.01s -/bin/bash
+> rumi     ttyp2     13Feb05  8days  0.11s  0.11s -/bin/bash
+> rumi     ttypc     11Dec05  0.00s  0.12s  0.11s -/bin/bash
+> 132596.51 39801752.60
+> reboot   system boot  2.4.26           Tue Sep  7 18:47         (498+15:50)
+>
+> From the above it can be seen that the system is running continuously
+> and wasn't rebooted 36 hours ago as the uptime counter would suggest.
+>
+> Is this a known bug?
 
-I could imagine that your /dev/null has become a regular file and is now
-filled with garbage.
-And then the trick:
-cat /dev/null $(wildcard .kernelrelease)
-causes KERNELRELEASE to be full of crap.
 
-Care to check that?
+It's not a bug - it is a feature.  uptime rolls over after 497 days.
 
-I have not a patch ready to fix the /dev/null issue - later today.
+[sic]
+It computes the result of the "uptime" based on the internal "jiffies"
+counter, which counts the time since boot, in units of 10
+milliseconds.
+This is typecast as an "unsigned long" - on the Intel boxes, that's an
+unsigned 32-bit number.
+Well, it turns out that in a 32-bit number, you can store 497.1 days
+before the number wraps.
 
-	Sam
+
+You can use:
+last -xf /var/run/utmp runlevel
+
+to get true uptime in this instance.
+
+Nick
+
+--
+http://sourceforge.net/projects/quake2plus/
+
+"Person who say it cannot be done should not interrupt person doing it."
+-Chinese Proverb

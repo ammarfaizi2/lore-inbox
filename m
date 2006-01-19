@@ -1,117 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161009AbWASDdn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030492AbWASDgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161009AbWASDdn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 22:33:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161055AbWASDdm
+	id S1030492AbWASDgx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 22:36:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030486AbWASDgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 22:33:42 -0500
-Received: from mx1.rowland.org ([192.131.102.7]:57612 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S1161009AbWASDdm (ORCPT
+	Wed, 18 Jan 2006 22:36:52 -0500
+Received: from mail.kroah.org ([69.55.234.183]:41931 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030483AbWASDgv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 22:33:42 -0500
-Date: Wed, 18 Jan 2006 22:33:40 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "David S. Miller" <davem@davemloft.net>, <bcrl@kvack.org>, <akpm@osdl.org>,
-       <sekharan@us.ibm.com>, <kaos@sgi.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/8] Notifier chain update
-In-Reply-To: <1137625585.1760.9.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44L0.0601182204090.18293-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 18 Jan 2006 22:36:51 -0500
+Date: Wed, 18 Jan 2006 19:35:32 -0800
+From: Greg KH <gregkh@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/base/: proper prototypes
+Message-ID: <20060119033532.GA16518@suse.de>
+References: <20060119013242.GX19398@stusta.de> <20060119025146.GA15257@suse.de> <20060119032808.GJ19398@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060119032808.GJ19398@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Jan 2006, Benjamin LaHaise wrote:
-
-> On Wed, Jan 18, 2006 at 05:09:10PM -0500, Alan Stern wrote:
-> > On Wed, 18 Jan 2006, Benjamin LaHaise wrote:
+On Thu, Jan 19, 2006 at 04:28:08AM +0100, Adrian Bunk wrote:
+> On Wed, Jan 18, 2006 at 06:51:47PM -0800, Greg KH wrote:
+> > On Thu, Jan 19, 2006 at 02:32:42AM +0100, Adrian Bunk wrote:
+> > > This patch contains the following changes:
+> > > - move prototypes to base.h
+> > > - sys.c should #include "base.h" for getting the prototype of it's
+> > >   global function system_bus_init()
+> > > 
+> > > Note that hidden in this patch there's a bugfix:
+> > > 
+> > > Caller and callee disagreed regarding the return type of 
+> > > sysdev_shutdown().
+> > > 
+> > > 
+> > > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > > 
+> > > ---
+> > > 
+> > >  drivers/base/base.h           |    6 ++++++
+> > >  drivers/base/power/resume.c   |    3 +--
+> > >  drivers/base/power/shutdown.c |    2 +-
+> > >  drivers/base/power/suspend.c  |    3 +--
+> > >  drivers/base/sys.c            |    2 ++
+> > >  5 files changed, 11 insertions(+), 5 deletions(-)
+> > > 
+> > > --- linux-2.6.16-rc1-mm1-full/drivers/base/base.h.old	2006-01-18 23:17:52.000000000 +0100
+> > > +++ linux-2.6.16-rc1-mm1-full/drivers/base/base.h	2006-01-18 23:41:33.000000000 +0100
+> > > @@ -1,6 +1,8 @@
+> > >  
+> > >  /* initialisation functions */
+> > >  
+> > > +#include <linux/device.h>
+> > > +
 > > 
-> > > The notifier interface is supposed to be *light weight*.
-> > 
-> > Again, where is that documented?
+> > Why is this extra #include needed?  It shouldn't be.
 > 
-> Read the kernel.  Notifiers are called from all sorts of hot paths, so they 
-> damned well better be light.
+> struct class_device and struct class_device_attribute are needed since 
+> they are used in base.h .
 
-_Some_ notifiers better be light.  Others can be heavier.  And it sure 
-would be a good thing to indicate in the code which are which.  That's a 
-lot better than trying to read and understand the entire kernel in order 
-to gather impressions about how a certain class of routines is used.
+But anyone who includes base.h will have already included this header
+file, right?  That was my point.
 
-In the patch we classified chains as blocking or atomic based on how they
-were used, not on how often they get called.  The patch includes a
-provision specifically for lightweight notifiers: the raw notifier type.  
-If you want to identify which chains should be switched over to the raw
-type, then fine.  But _you_ will have to provide protection for them.
+thanks,
 
-> > Which is worse: overhead due to cache misses or an oops caused by code 
-> > being called after it was unloaded?
-> 
-> Given that the overhead need not be present at all, neither.
-> 
-> > Do you have a better proposal for a way to prevent blocking notifier 
-> > chains from being modified while in use?  Or would you prefer to rewrite 
-> > all the callout routines that currently block, so that all the notifier 
-> > chains can be made atomic and we don't need the blocking notifier API?
-> 
-> Easy: in register_notifier stuff a serial number for each entry put on 
-> a notifier chain.  Remember the serial number of the entry before performing 
-> ->notifier_call in notifier_call_chain.  Upon return, if the chain has been 
-> modified (easy to detect by nature of the serial number changing), walk 
-> the chain looking for the entry following the last serial number run.  Voila, 
-> rcu can be used to protect the chain's contents.
-
-What happens if the last serial number run is no longer on the chain?  
-You would never find it, and so would never know where to pick up from.  
-And what happens if the chain is changed while you are checking (or just
-after you have checked) the serial number?  There's still a race.
-
-You see?  Doing this correctly is not so easy after all...
-
-If you think about it a little more carefully, you'll see why.  To be
-safe, unregistration has to guarantee when it returns that the entry being
-removed is not in use and will not be called in the future.  If other CPUs
-are traversing the chain in a lightweight fashion, the only way you can
-fulfill this guarantee is to wait until all the current traversers have 
-finished, a la RCU.  And if the traversers can sleep, the simplest way to 
-wait for them is to use an rwsem.
-
-
-On Wed, 18 Jan 2006, Alan Cox wrote:
-
-> On Mer, 2006-01-18 at 14:00 -0800, David S. Miller wrote:
-> > For example, IPV6 addresses can get added/removed from a device
-> > in response to packets, and these operations trigger the
-> > inet6addr_chain notifier in net/ipv6/addrconf.c
-> > 
-> > So sleeping in a notifier is indeed illegal.
-> 
-> On the specific example yet. Notifiers get used for many things and
-> there has never been a rule about them not sleeping. There are lots of
-> cases where notifiers sleeping make sense including its early use in
-> power manglement.
-> 
-> Notifiers should not have locks. That was intentional in the original
-> implementation.
-
-But not documented.
-
->  You want locks, you implement them in the API *using*
-> the notifier, because its odds on you actually need to hold that lock
-> for other things too.
-
-In going through the kernel, looking for places where notifier chains were
-locked locally, there were surprisingly few instances (no more than one, I
-think) where that lock was used for other things too.
-
-There are a lot of notifier chains that _can_ use locks.  That's what the 
-patch is for, to provide the locking for them, all in one place, so they 
-don't have to do it themselves in many different places.
-
-For other notifier chains that don't want locking (or don't want the kind
-of locking provided by the new API), there's always the raw notifier type.
-
-Alan Stern
-
+greg k-h

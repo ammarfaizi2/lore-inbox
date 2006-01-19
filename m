@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161419AbWASVIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161426AbWASVKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161419AbWASVIk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 16:08:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161421AbWASVIk
+	id S1161426AbWASVKd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 16:10:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161428AbWASVKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 16:08:40 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:9194
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1161419AbWASVIj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 16:08:39 -0500
-Subject: Re: [PATCH] Clean up of hrtimer code.
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: george@mvista.com
-Cc: Lee Revell <rlrevell@joe-job.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <43CFFC60.8010405@mvista.com>
-References: <43CEF172.2000308@mvista.com>
-	 <1137701896.7947.56.camel@localhost.localdomain>
-	 <43CFFC60.8010405@mvista.com>
-Content-Type: text/plain
-Date: Thu, 19 Jan 2006 22:09:14 +0100
-Message-Id: <1137704954.7947.65.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
+	Thu, 19 Jan 2006 16:10:33 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:39861 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1161426AbWASVKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 16:10:32 -0500
+Message-ID: <43CFFFCB.7060002@ichips.intel.com>
+Date: Thu, 19 Jan 2006 13:08:27 -0800
+From: Sean Hefty <mshefty@ichips.intel.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+CC: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
+       Greg Kroah-Hartman <greg@kroah.com>, Roland Dreier <rdreier@cisco.com>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [openib-general] Re: RFC: ipath ioctls and their replacements
+References: <1137631411.4757.218.camel@serpentine.pathscale.com>	 <m1y81cpqt8.fsf@ebiederm.dsl.xmission.com>	 <1137688158.3693.29.camel@serpentine.pathscale.com>	 <m1hd80oz9b.fsf@ebiederm.dsl.xmission.com>	 <43CFDF5F.5060409@ichips.intel.com> <1137696901.3693.66.camel@serpentine.pathscale.com>
+In-Reply-To: <1137696901.3693.66.camel@serpentine.pathscale.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George,
+Bryan O'Sullivan wrote:
+> Our lowest-level driver works in the absence of any IB support being
+> compiled into the kernel, so in that situation, there are no QPs or any
+> other management infrastructure present at all.  All of that stuff lives
+> in a higher layer, in which situation the cut-down subnet management
+> agent doesn't get used, and something like OpenSM is more appropriate.
 
-On Thu, 2006-01-19 at 12:53 -0800, George Anzinger wrote:
-> > The assumption that the CLOCK_REALTIME/MONOTONIC relationship is valid
-> > for all additional clocks is not correct.
-> 
-> Well, it is until it isn't.  There really does need to be a paring of some 
-> sort to sort out the ABS flag.
+I'm struggling to understand what your card does then.  From this, it sounds 
+like a standard network card that just happens to use IB physicals.  Do you just 
+send raw packets?  How is the LRH formatted by your card?  I.e. what's setting 
+up the dlid, slid, vl, etc.?  Can your card interoperate with other IB devices 
+on the network when running in this mode?
 
-How is this applicable to some additional non posix clocks ? It applies
-to CLOCK_MONOTONIC and CLOCK_REALTIME, but nothing speaks against
-implementing CLOCK_WHATEVER with a totally different behaviour vs. the
-ABS_TIME flag. Am I missing something ?
-
-> >> 
-> >> static inline int common_timer_create(struct k_itimer *new_timer)
-> >> {
-> >>-	hrtimer_init(&new_timer->it.real.timer, new_timer->it_clock);
-> > 
-> > 
-> > I kept that init as a dummy one. Thats simpler than adding all the 
-> > if(!base) stuff into the hrtimer code. Not having those checks gives a
-> > nice oops, when somebody tries to access a non initialized hrtimer !
-> 
-> An additional problem that you may want to address it that the SIGEV_NONE 
-> timers never get their time set (that being done by being put in the timer 
-> queue) and so the return value on a timer_gettime() is wrong.  I have updated 
-> the absolute timer test on sourceforge (in the CVS) to test for this, and, of 
-> course it fails.  I, in one version, added a NO_QUEUE flag to the mode to 
-> tell the enqueue_timer code to return just prior to actually doing the 
-> enqueue to handle this.  The other possibility is to fill the expire time in 
-> in posix-timers.c, but that means it has to do stuff that is already coded in 
-> enqueue_timer.  Your choice, but currently what happens is wrong.
-
-Thanks for pointing this out. I fix this before pushing stuff.
-
-	tglx
-
-
+- Sean

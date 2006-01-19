@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030506AbWASB5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161154AbWASCMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030506AbWASB5F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 20:57:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030508AbWASB5F
+	id S1161154AbWASCMM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 21:12:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161161AbWASCMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 20:57:05 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:22223 "EHLO
-	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1030506AbWASB5C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 20:57:02 -0500
-Date: Wed, 18 Jan 2006 19:58:59 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: io performance...
-In-reply-to: <5wdKh-5wF-15@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43CEF263.9060102@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=windows-1252; format=flowed
-Content-transfer-encoding: 7bit
-References: <5vx8f-1Al-21@gated-at.bofh.it> <5wbRY-3cF-3@gated-at.bofh.it>
- <5wdKh-5wF-15@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Wed, 18 Jan 2006 21:12:10 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:17418 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161158AbWASCLv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 21:11:51 -0500
+Date: Thu, 19 Jan 2006 03:11:50 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, jgarzik@pobox.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] schedule SHAPER for removal
+Message-ID: <20060119021150.GC19398@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff V. Merkey wrote:
-> Max Waterman wrote:
-> 
->> One further question. I get these messages 'in' dmesg :
->>
->> sda: asking for cache data failed
->> sda: assuming drive cache: write through
->>
->> How can I force it to be 'write back'?
-> 
-> Forcing write back is a very bad idea unless you have a battery backed 
-> up RAID controller.  
 
-This is not what these messages are referring to. Those write through 
-vs. write back messages are referring to detecting the drive write cache 
-mode, not setting it. Whether or not the write cache is enabled is used 
-to determine whether the sd driver uses SYNCHRONIZE CACHE commands to 
-flush the write cache on the device. If the drive says its write cache 
-is off or doesn't support determining the cache status, the kernel will 
-not issue SYNCHRONIZE CACHE commands. This may be a bad thing if the 
-device is really using write caching..
-	
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was already sent on:
+- 13 Jan 2006
+
+--- linux-2.6.15-mm3-full/Documentation/feature-removal-schedule.txt.old	2006-01-13 15:02:15.000000000 +0100
++++ linux-2.6.15-mm3-full/Documentation/feature-removal-schedule.txt	2006-01-13 15:06:19.000000000 +0100
+@@ -164,0 +165,6 @@
++---------------------------
++
++What:   Traffic Shaper (CONFIG_SHAPER)
++When:   July 2006
++Why:    obsoleted by the code in net/sched/
++Who:    Adrian Bunk <bunk@stusta.de
+--- linux-2.6.15-mm3-full/drivers/net/Kconfig.old	2006-01-13 15:06:34.000000000 +0100
++++ linux-2.6.15-mm3-full/drivers/net/Kconfig	2006-01-13 15:06:49.000000000 +0100
+@@ -2663,7 +2663,7 @@
+ 	  "SCSI generic support".
+ 
+ config SHAPER
+-	tristate "Traffic Shaper (EXPERIMENTAL)"
++	tristate "Traffic Shaper (OBSOLETE)"
+ 	depends on EXPERIMENTAL
+ 	---help---
+ 	  The traffic shaper is a virtual network device that allows you to
 

@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWASXmA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWASXlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751301AbWASXmA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 18:42:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWASXlw
+	id S1750817AbWASXlv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 18:41:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWASXlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 18:41:52 -0500
-Received: from hera.kernel.org ([140.211.167.34]:48585 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1750826AbWASXlt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 18:41:49 -0500
-Date: Thu, 19 Jan 2006 19:41:45 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Nick Piggin <npiggin@suse.de>
-Cc: Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       David Miller <davem@davemloft.net>
-Subject: Re: [patch 3/3] mm: PageActive no testset
-Message-ID: <20060119214145.GA5115@dmt.cnet>
-References: <20060118024106.10241.69438.sendpatchset@linux.site> <20060118024139.10241.73020.sendpatchset@linux.site> <20060118141346.GB7048@dmt.cnet> <20060119145008.GA20126@wotan.suse.de> <20060119165222.GC4418@dmt.cnet> <20060119200226.GA1756@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Jan 2006 18:41:50 -0500
+Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:31925 "HELO
+	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1750817AbWASXlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 18:41:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=tZKJiLle6Sz5ELzYxdaS/8WoR+/MVFXEOJZmmNFNE4snFTVI42kGz0I6jd9ItCCP4KNR4HAAtdoMoMF8kGPLLv5BqhYKpzREiDX/S1MsqvJHmDvGuS8crPgxkVaFPxL2AAfT4xrdYodmbricboZhrLjLP29yH2PTGBemFfmuJyU=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: [uml-devel] [PATCH 8/8] uml: avoid "CONFIG_NR_CPUS undeclared" bogus error messages
+Date: Fri, 20 Jan 2006 00:41:08 +0100
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+References: <20060118235132.4626.74049.stgit@zion.home.lan> <200601191601.31805.blaisorblade@yahoo.it> <20060119194356.GA8670@ccure.user-mode-linux.org>
+In-Reply-To: <20060119194356.GA8670@ccure.user-mode-linux.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20060119200226.GA1756@wotan.suse.de>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200601200041.14590.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 09:02:26PM +0100, Nick Piggin wrote:
-> On Thu, Jan 19, 2006 at 02:52:22PM -0200, Marcelo Tosatti wrote:
-> > On Thu, Jan 19, 2006 at 03:50:08PM +0100, Nick Piggin wrote:
-> > 
-> > > The test-set / test-clear operations also kind of imply that it is
-> > > being used for locking or without other synchronisation (usually).
-> > 
-> > Non-atomic versions such as __ClearPageLRU()/__ClearPageActive() are 
-> > not usable, though.
-> > 
-> 
-> Correct. Although I was able to use them in a couple of other places
-> in a subsequent patch in the series. I trust you don't see a problem
-> with those usages?
+On Thursday 19 January 2006 20:43, Jeff Dike wrote:
+> On Thu, Jan 19, 2006 at 04:01:28PM +0100, Blaisorblade wrote:
+> > Gerd Knorr in his tty patch, instead, used forward declarations, like:
+> >
+> > struct task_struct;
+> >
+> > what about that?
 
-Indeed, sorry. Would you mind adding a comment that page->flags must be
-accessed atomically otherwise and that __ versions are special as to
-when the page cannot be referenced anymore? (its really not obvious)
+> I don't think so.  At least when you use void *, you are using a type
+> that's not incorrect.  In userspace code, those task_structs start
+> referring to host task_structs, which is definitely very wrong.
 
-Also this comments on top of page-flags.h could be updated
+Possibly yes, but as long as we don't dereference the pointer (and in a 
+prototype you're not going to do that) there's no problem.
 
- * During disk I/O, PG_locked is used. This bit is set before I/O and
- * reset when I/O completes. page_waitqueue(page) is a wait queue of all tasks
- * waiting for the I/O on this page to complete.
+Using a type makes the code clearer, and it doesn't hide any warning GCC may 
+give (behaving well is left to us only).
 
-s/PG_locked/PG_writeback/
+In fact, btw (before I forget) we have currently the wrong errno used in 
+sys-i386/ldt.c. Just wrote the fix (it's adding a silly os_ptrace_ldt). Going 
+to compile and send.
 
- * Note that the referenced bit, the page->lru list_head and the active,
- * inactive_dirty and inactive_clean lists are protected by the
- * zone->lru_lock, and *NOT* by the usual PG_locked bit!
+> > Those functions probably should be moved anyway because they're
+> > useless there
 
-inactive_dirty and inactive_clean do not exist anymore
+> Yeah.
 
+> 				Jeff
 
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
+	
 
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

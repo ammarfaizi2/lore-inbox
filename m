@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161227AbWASSys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161248AbWASSzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161227AbWASSys (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 13:54:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161248AbWASSys
+	id S1161248AbWASSzG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 13:55:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161275AbWASSzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 13:54:48 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:54929 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1161227AbWASSyr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 13:54:47 -0500
-Subject: Re: [Alsa-devel] Re: RFC: OSS driver removal, a slightly different
-	approach
-From: Lee Revell <rlrevell@joe-job.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, perex@suse.cz,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <20060119182859.GW19398@stusta.de>
-References: <20060119174600.GT19398@stusta.de>
-	 <1137694944.32195.1.camel@mindpipe>  <20060119182859.GW19398@stusta.de>
+	Thu, 19 Jan 2006 13:55:05 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:50922 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1161258AbWASSzC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 13:55:02 -0500
+Subject: Re: [openib-general] Re: RFC: ipath ioctls and their replacements
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Sean Hefty <mshefty@ichips.intel.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
+       Greg Kroah-Hartman <greg@kroah.com>, Roland Dreier <rdreier@cisco.com>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <43CFDF5F.5060409@ichips.intel.com>
+References: <1137631411.4757.218.camel@serpentine.pathscale.com>
+	 <m1y81cpqt8.fsf@ebiederm.dsl.xmission.com>
+	 <1137688158.3693.29.camel@serpentine.pathscale.com>
+	 <m1hd80oz9b.fsf@ebiederm.dsl.xmission.com>
+	 <43CFDF5F.5060409@ichips.intel.com>
 Content-Type: text/plain
-Date: Thu, 19 Jan 2006 13:54:45 -0500
-Message-Id: <1137696885.32195.12.camel@mindpipe>
+Organization: PathScale, Inc.
+Date: Thu, 19 Jan 2006 10:55:01 -0800
+Message-Id: <1137696901.3693.66.camel@serpentine.pathscale.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-19 at 19:28 +0100, Adrian Bunk wrote:
-> On Thu, Jan 19, 2006 at 01:22:23PM -0500, Lee Revell wrote:
-> > On Thu, 2006-01-19 at 18:46 +0100, Adrian Bunk wrote:
-> > > 3. no ALSA drivers for the same hardware
-> > > 
-> > > SOUND_SB 
-> > 
-> > ALSA certainly does support "100% Sound Blaster compatibles (SB16/32/64,
-> > ESS, Jazz16)", it would be a joke if it didn't...
-> 
-> That's not the problem, I should have added an explanation:
-> 
-> SOUND_SB (due to SOUND_KAHLUA and SOUND_PAS)
-> 
+On Thu, 2006-01-19 at 10:50 -0800, Sean Hefty wrote:
 
-Hmm.  From sound/oss/kahlua.c:
+> I'm not familiar with the driver, but would the lower level verbs interfaces 
+> work for this?  Could you just post whatever datagrams that you want directly to 
+> your management QPs?
 
-/*
- *      Initialisation code for Cyrix/NatSemi VSA1 softaudio
- *
- *      (C) Copyright 2003 Red Hat Inc <alan@redhat.com>
- *
+Our lowest-level driver works in the absence of any IB support being
+compiled into the kernel, so in that situation, there are no QPs or any
+other management infrastructure present at all.  All of that stuff lives
+in a higher layer, in which situation the cut-down subnet management
+agent doesn't get used, and something like OpenSM is more appropriate.
 
-Why was a new OSS driver written and accepted at such a late date, when
-OSS was already deprecated?
-
-Lee
+	<b
 

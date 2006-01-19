@@ -1,48 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161132AbWASEet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161308AbWASEh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161132AbWASEet (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 23:34:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161139AbWASEet
+	id S1161308AbWASEh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 23:37:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161309AbWASEh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 23:34:49 -0500
-Received: from fsmlabs.com ([168.103.115.128]:34688 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1161132AbWASEes (ORCPT
+	Wed, 18 Jan 2006 23:37:56 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:61625 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161308AbWASEhz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 23:34:48 -0500
-X-ASG-Debug-ID: 1137645255-25837-10-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Wed, 18 Jan 2006 20:39:14 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrew Morton <akpm@osdl.org>, anton@au1.ibm.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>, michael@ellerman.id.au,
-       Linus Torvalds <torvalds@osdl.org>, ntl@pobox.com, serue@us.ibm.com,
-       Linux PPC64 <linuxppc64-dev@ozlabs.org>, paulus@au1.ibm.com
-X-ASG-Orig-Subj: Re: [patch] turn on might_sleep() in early bootup code too
-Subject: Re: [patch] turn on might_sleep() in early bootup code too
-In-Reply-To: <20060118104319.GB7885@elte.hu>
-Message-ID: <Pine.LNX.4.64.0601182027570.20777@montezuma.fsmlabs.com>
-References: <200601181119.39872.michael@ellerman.id.au> <20060118033239.GA621@cs.umn.edu>
- <20060118063732.GA21003@elte.hu> <20060117225304.4b6dd045.akpm@osdl.org>
- <20060118072815.GR2846@localhost.localdomain> <20060117233734.506c2f2e.akpm@osdl.org>
- <20060118080828.GA2324@elte.hu> <20060118002459.3bc8f75a.akpm@osdl.org>
- <20060118091834.GA21366@elte.hu> <20060118023509.50fe2701.akpm@osdl.org>
- <20060118104319.GB7885@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.7530
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+	Wed, 18 Jan 2006 23:37:55 -0500
+Date: Wed, 18 Jan 2006 20:37:33 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] prototypes for *at functions & typo fix
+Message-Id: <20060118203733.5aac5ee4.akpm@osdl.org>
+In-Reply-To: <200601190429.k0J4TWXD018136@devserv.devel.redhat.com>
+References: <200601190429.k0J4TWXD018136@devserv.devel.redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Jan 2006, Ingo Molnar wrote:
+Ulrich Drepper <drepper@redhat.com> wrote:
+>
+> Do we really need the __NR_ia32_* macros?  The userlevel on x86-64 should be bi-arch and provide the native ia32 unistd.h.
 
-> lock_cpu_hotplug() has design problems i think: hotplug-locked sections 
-> are slowly spreading in the kernel, encompassing more and more code :-) 
-> Shouldnt the CPU hotplug lock be a spinlock to begin with?
-
-The way it's used certainly is bizarre, but a spinlock would be harder to 
-work with as a lot of the code protected by it sleep.
+I'd have thought that x86 and x86_64 could source-level-share the syscall
+table, yes.  ppc manages to.

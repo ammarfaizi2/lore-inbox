@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030341AbWASBkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbWASBks@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030341AbWASBkl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 20:40:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030415AbWASBkl
+	id S1030415AbWASBks (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 20:40:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030497AbWASBks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 20:40:41 -0500
-Received: from spooner.celestial.com ([192.136.111.35]:16009 "EHLO
-	spooner.celestial.com") by vger.kernel.org with ESMTP
-	id S1030341AbWASBkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 20:40:40 -0500
-Date: Wed, 18 Jan 2006 20:40:44 -0500
-From: Kurt Wall <kwall@kurtwerks.com>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.16-rc1
-Message-ID: <20060119014044.GC17917@kurtwerks.com>
-Mail-Followup-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org> <43CD67AE.9030501@eyal.emu.id.au> <20060117232701.GA7606@mars.ravnborg.org> <20060118085936.4773dd77.khali@linux-fr.org> <20060118091543.GA8277@mars.ravnborg.org> <20060118100133.GE6980@kurtwerks.com> <43CEAEE0.2060109@eyal.emu.id.au>
-Mime-Version: 1.0
+	Wed, 18 Jan 2006 20:40:48 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4106 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030415AbWASBks (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 20:40:48 -0500
+Date: Thu, 19 Jan 2006 02:40:46 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] don't allow users to set CONFIG_BROKEN=y
+Message-ID: <20060119014046.GY19398@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43CEAEE0.2060109@eyal.emu.id.au>
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.16-rc1krw
-X-Woot: Woot!
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 08:10:56AM +1100, Eyal Lebedinsky took 0 lines to write:
-> Kurt Wall wrote:
-> > Seems to be okay here with both gcc 3.4.4 and gcc 4.0.2:
-> 
-> You must run as root to see it.
+Do not allow people to create configurations with CONFIG_BROKEN=y.
 
-Eew. Yes, with root, I get it with both compilers:
+The sole reason for CONFIG_BROKEN=y would be if you are working on 
+fixing a broken driver, but in this case editing the Kconfig file is 
+trivial.
 
-root@luther:~# ls -l /dev/null
-crw-rw-rw-  1 root sys 1, 3 1994-07-17 19:46 /dev/null
-root@luther:~# echo "main() {}" | gcc -xc - -o /dev/null
-root@luther:~# ls -l /dev/null
-crwxrwxrwx  1 root sys 1, 3 1994-07-17 19:46 /dev/null
+Never ever should a user enable CONFIG_BROKEN.
 
-root@luther:~# ls -l /dev/null
-crw-rw-rw-  1 root sys 1, 3 1994-07-17 19:46 /dev/null
-root@luther:~# echo "main() {}" | /usr/local/gcc4/bin/gcc -xc - -o
-/dev/null
-root@luther:~# ls -l /dev/null
-crwxrwxrwx  1 root sys 1, 3 1994-07-17 19:46 /dev/null
 
-Obviously gcc shouldn't do such at thing, but just as obviously, don't
-build the kernel as root.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Kurt
--- 
-"Right now I'm having amnesia and deja vu at the same time."
-	-- Steven Wright
+---
+
+This patch was already sent on:
+- 6 Jan 2006
+- 13 Dec 2005
+
+--- linux-2.6.15-rc5-mm2-full/init/Kconfig.old	2005-12-13 18:48:40.000000000 +0100
++++ linux-2.6.15-rc5-mm2-full/init/Kconfig	2005-12-13 18:48:52.000000000 +0100
+@@ -31,19 +31,8 @@
+ 	  you say Y here, you will be offered the choice of using features or
+ 	  drivers that are currently considered to be in the alpha-test phase.
+ 
+-config CLEAN_COMPILE
+-	bool "Select only drivers expected to compile cleanly" if EXPERIMENTAL
+-	default y
+-	help
+-	  Select this option if you don't even want to see the option
+-	  to configure known-broken drivers.
+-
+-	  If unsure, say Y
+-
+ config BROKEN
+ 	bool
+-	depends on !CLEAN_COMPILE
+-	default y
+ 
+ config BROKEN_ON_SMP
+ 	bool
+

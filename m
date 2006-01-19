@@ -1,62 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161418AbWASUrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161420AbWASUsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161418AbWASUrO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 15:47:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161420AbWASUrO
+	id S1161420AbWASUsq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 15:48:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161421AbWASUsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 15:47:14 -0500
-Received: from host233.omnispring.com ([69.44.168.233]:35809 "EHLO
-	iradimed.com") by vger.kernel.org with ESMTP id S1161418AbWASUrO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 15:47:14 -0500
-Message-ID: <43CFFAB8.2090104@cfl.rr.com>
-Date: Thu, 19 Jan 2006 15:46:48 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 19 Jan 2006 15:48:46 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:41945 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1161420AbWASUsp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 15:48:45 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Peter Osterlund <petero2@telia.com>
-CC: linux kernel <linux-kernel@vger.kernel.org>, axboe@suse.de
-Subject: Re: [PATCH] pktcdvd & udf bugfixes
-References: <43C5D71B.1060002@cfl.rr.com> <m3oe2e2983.fsf@telia.com> <43C94464.4040500@cfl.rr.com> <m3hd861o2r.fsf@telia.com> <43C982C0.1070605@cfl.rr.com> <m3r779z9on.fsf@telia.com> <m31wz9yuoh.fsf@telia.com> <43CB0C81.1030605@cfl.rr.com> <m3oe2cy8ds.fsf@telia.com>
-In-Reply-To: <m3oe2cy8ds.fsf@telia.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 19 Jan 2006 20:48:04.0408 (UTC) FILETIME=[A4EE9B80:01C61D39]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.51.1032-14216.000
-X-TM-AS-Result: No--10.500000-5.000000-31
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: about sanitize_e820_map()
+Date: Thu, 19 Jan 2006 12:47:37 -0800
+Message-ID: <88056F38E9E48644A0F562A38C64FB6006F49A28@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: about sanitize_e820_map()
+Thread-Index: AcYXcPaKCwt9M30KRwGXXfdYyFwelAFx7cgg
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: <psbfan@po.harenet.ne.jp>, <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <akpm@osdl.org>
+X-OriginalArrivalTime: 19 Jan 2006 20:47:38.0508 (UTC) FILETIME=[957E94C0:01C61D39]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I got a kernel compiled with your patches, but have not been able 
-to test it yet. Last week the red laser crapped out on my sony 710A 
-dvd/rw drive, so I got a new 810A and when I go to format the cd-rw with 
-cdrwtool, the drive fails the write command with sense code 00.04.04, 
-and then fails any commands after that and won't eject the disc until I 
-do a hdparm -w. I guess the firmware is defective and craps itself when 
-you try to do a packet mode write ( updating didn't help ), so I'm 
-returning this drive and ordering the nice sata plextor one instead.
+ 
 
-Will let you know when I get the new drive if your patch works out well 
-or not.
+>Date: Thu, 12 Jan 2006 11:02:49 +0900 (JST)
+>From: Toshiyuki Ishii <psbfan@po.harenet.ne.jp>
+>To: linux-kernel@vger.kernel.org
+>Subject: about sanitize_e820_map()
+>
+>
+>
+>Good evening.
+>I am Toshiyuki Ishii at Kurashiki in Japan.
+>
+>I am a beginner of kernel source code,
+>so sorry if I am misunderstanding.
+>
+>In sanitize_e820_map(),
+>When sorting change_point[] by address and swapping
+>two maps that represets the same memory region
+>and have a different address, end address for privious change_point
+>and start address for current change_point,
+>"if" statement is
+>
+>if ((change_point[i]->addr < change_point[i-1]->addr) ||
+>
+>     ((change_point[i]->addr == change_point[i-1]->addr) &&
+>      (change_point[i]->addr == change_point[i]->pbios->addr) &&
+>      (change_point[i-1]->addr != change_point[i-1]->pbios->addr))
+>
+>There are two conditions and I think the first one is sorting 
+>by address.
+>I have a qestion in the second condition.
+>
+>I think second line
+>
+>change_point[i]->addr == change_point[i]->pbios->addr
+>
+>checks that current change_point represents start address.
+>and third line
+>
+>change_point[i-1]->addr != change_point[i-1]->pbios->addr
+>
+>checks that previous change_point represents end address.
+>If this "if" statement intends to swap maps for "the same" region
+>that match these condition,
 
-Peter Osterlund wrote:
-> Phillip Susi <psusi@cfl.rr.com> writes:
->
->   
->> I get this:
->>
->> drivers/block/pktcdvd.c:1992: error: label ‘out_unclaim’ used but
->> not defined
->>
->> Also the patch did not cleanly apply. It looks like you didn't get all
->> of your changes into the diff. Unless you have some other patches that
->> I don't? This is against 2.6.15 right?
->>     
->
-> I thought it would apply on top of your patch, but didn't actually
-> check. Try this patch series instead:
->
->         http://web.telia.com/~u89404340/patches/packet/2.6/2.6.15-git11/
->
->   
+As I understand this code, this is trying to swap the start and end of
+"different" regions. Start and end of same region will always be sorted 
+and end will appear after start (As we check for non-zero size and 
+setup change_point in a way that start is before end).
 
+But, there can be end of one region coinciding with start of next
+region. 
+In which case, this sorting puts the start before the end so that we 
+can properly find out overlaps later.
+
+I think the existing code is doing the right thing.
+
+Thanks,
+Venki

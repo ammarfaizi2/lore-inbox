@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161101AbWASAdD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161104AbWASAiF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161101AbWASAdD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 19:33:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161098AbWASAdD
+	id S1161104AbWASAiF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 19:38:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161105AbWASAiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 19:33:03 -0500
-Received: from ns.suse.de ([195.135.220.2]:51859 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161097AbWASAdA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 19:33:00 -0500
-From: Neil Brown <neilb@suse.de>
-To: sander@humilis.net
-Date: Thu, 19 Jan 2006 11:32:53 +1100
+	Wed, 18 Jan 2006 19:38:05 -0500
+Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:2725 "EHLO
+	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1161104AbWASAiE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 19:38:04 -0500
+Date: Wed, 18 Jan 2006 19:36:00 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 2.6.15-current] i386: multi-column stack
+  backtraces
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Keith Owens <kaos@ocs.com.au>, mita@miraclelinux.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Message-ID: <200601181937_MC3-1-B627-6D56@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17358.56885.928063.466619@cse.unsw.edu.au>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Subject: Re: [PATCH 005 of 5] md: Final stages of raid5 expand code.
-In-Reply-To: message from Sander on Tuesday January 17
-References: <20060117174531.27739.patches@notabene>
-	<1060117065635.27881@suse.de>
-	<20060117095531.GB27262@localhost.localdomain>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday January 17, sander@humilis.net wrote:
-> NeilBrown wrote (ao):
-> > +config MD_RAID5_RESHAPE
-> 
-> Would this also be possible for raid6?
+In-Reply-To: <20060118224732.GA1812@elf.ucw.cz>
 
+On Wed, 18 Jan 2006, Pavel Machek wrote:
 
-Yes.  The will follow once raid5 is reasonably reliable.  It is
-essentially the same change to a different file.
-(One day we will merge raid5 and raid6 together into the one module,
-but not today).
+> I also believe that oops dump is so closely tied
+> to kernel that it is fair to change... plus this should better not be
+> configurable, or userspace will have hard time parsing it.
 
-> > +          This option allows this restiping to be done while the array
->                                      ^^^^^^^^^
->                                      restriping
-> > +	  Please to NOT use it on valuable data with good, tested, backups.
->                  ^^                             ^^^^
->                  do                             without
+Userspace will still have to cope with the old format anyway.
 
-Thanks * 3.
+I'll send a patch to change the default to two columns so the
+new format gets some exposure, though.
 
-> 
-> Thanks a lot for this feature. I'll try to find a spare computer to test
-> this on. Thanks!
-
-That would be great!
-
-NeilBrown
+-- 
+Chuck
+Currently reading: _Noise_ by Hal Clement

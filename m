@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbWASGkJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964956AbWASGq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964952AbWASGkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 01:40:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbWASGkI
+	id S964956AbWASGq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 01:46:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbWASGq0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 01:40:08 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.26]:21405 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S964952AbWASGkH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 01:40:07 -0500
-Date: Wed, 18 Jan 2006 22:40:01 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: lethal@linux-sh.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       James.Bottomley@steeleye.com
-Subject: Re: [PATCH] bitmap: Support for pages > BITS_PER_LONG.
-Message-Id: <20060118224001.5d38d8bf.pj@sgi.com>
-In-Reply-To: <20060118220753.3f005b5a.pj@sgi.com>
-References: <20060119014812.GB18181@linux-sh.org>
-	<20060118220753.3f005b5a.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Jan 2006 01:46:26 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:10932 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S964956AbWASGq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 01:46:26 -0500
+Message-ID: <43CF1CCF.20007@wolfmountaingroup.com>
+Date: Wed, 18 Jan 2006 21:59:59 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Inserting Commas into Those Big Numbers 
+Content-Type: multipart/mixed;
+ boundary="------------030601020003040109020005"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Someone unnamed has suggested I submit a patch with these cleanups.
+This is a multi-part message in MIME format.
+--------------030601020003040109020005
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-But I am  lazy git who hates to test code, and it looks like Paul
-Mundt is in a position to actually test that whatever we end up
-with still works.
 
-So I intend to send in two totally untested patches shortly:
- 1) some minor cleanups of these bitmap routines, and
- 2) Mundt's > BITS_PER_LONG patch, more or less, on top of that.
+If anyone cares to make the kernel output more readable, heres a code 
+snippet that formats any text string with numbers (decimal) to
+insert commas.  I am too old and going blind looking at computer screen 
+with these long numbers.  If useful to anyone, enjoy.
 
-Then perhaps Mundt could retest and fix what I broke, then send in a
-final pair of patches for Andrew's consideration.
+Jeff
 
-If this isn't such a hot idea, Mundt, holler, and we can work
-something else out.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+
+--------------030601020003040109020005
+Content-Type: text/x-csrc;
+ name="sprintf_comma.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sprintf_comma.c"
+
+
+void sprintf_comma(char *buf, char *fmt, ...)
+{
+
+     register long i, r, flag, len;
+     va_list args;
+
+     va_start(args, fmt);
+     vsprintf(buf, fmt, args);
+     va_end(args);
+
+     for (len = i = strlen(buf), flag = 0; i >= 0; i--)
+     {
+	if (buf[i] >= '0' && buf[i] <= '9')
+	{
+	   if (++flag > 3)
+	   {
+	      flag = 1;
+	      for (r = ++len; r > i; r--)
+		 buf[r] = buf[r - 1];
+	      buf[i + 1] = ',';
+	   }
+	}
+     }
+}
+
+
+--------------030601020003040109020005--

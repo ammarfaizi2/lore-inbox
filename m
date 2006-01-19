@@ -1,37 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161241AbWASQQu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161179AbWASQUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161241AbWASQQu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 11:16:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161248AbWASQQt
+	id S1161179AbWASQUh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 11:20:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161188AbWASQUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 11:16:49 -0500
-Received: from mail.kroah.org ([69.55.234.183]:45462 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161241AbWASQQt (ORCPT
+	Thu, 19 Jan 2006 11:20:37 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:63949 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1161179AbWASQUg convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 11:16:49 -0500
-Date: Thu, 19 Jan 2006 07:55:19 -0800
-From: Greg KH <greg@kroah.com>
-To: "Mukund JB." <mukundjb@esntechnologies.co.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: clarity on kref needed.
-Message-ID: <20060119155519.GA22830@kroah.com>
-References: <3AEC1E10243A314391FE9C01CD65429B28BF3C@mail.esn.co.in>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3AEC1E10243A314391FE9C01CD65429B28BF3C@mail.esn.co.in>
-User-Agent: Mutt/1.5.11
+	Thu, 19 Jan 2006 11:20:36 -0500
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Subject: RE: [2.6 patch] kernel/kprobes.c: fix a warning #ifndef ARCH_SUPPORTS_KRETPROBES
+Date: Thu, 19 Jan 2006 08:18:15 -0800
+Message-ID: <44BDAFB888F59F408FAE3CC35AB4704102CF809E@orsmsx409>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6 patch] kernel/kprobes.c: fix a warning #ifndef ARCH_SUPPORTS_KRETPROBES
+Thread-Index: AcYcncmtryta9FRSR62Vv4SF5LkN/QAdchNA
+From: "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
+To: "Adrian Bunk" <bunk@stusta.de>, "Andrew Morton" <akpm@osdl.org>
+Cc: <prasanna@in.ibm.com>, <ananth@in.ibm.com>, <davem@davemloft.net>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 19 Jan 2006 16:18:17.0047 (UTC) FILETIME=[F4835670:01C61D13]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 12:30:40PM +0530, Mukund JB. wrote:
-> 
-> Can you give me some pointers & documentation links for HOWTO using
-> libusb/usbfs instead of a kernel driver.
+Andrew,
+	This patch looks good to me and Acking this patch, please apply.
 
-Try reading the libusb documentation.  If you have further questions,
-try the libusb developer mailing list.
+-Anil Keshavamurthy
 
-good luck,
+>From: Adrian Bunk [mailto:bunk@stusta.de] 
+>Sent: Wednesday, January 18, 2006 6:12 PM
+>To: Andrew Morton
+>Cc: prasanna@in.ibm.com; ananth@in.ibm.com; Keshavamurthy, 
+>Anil S; davem@davemloft.net; linux-kernel@vger.kernel.org
+>Subject: [2.6 patch] kernel/kprobes.c: fix a warning #ifndef 
+>ARCH_SUPPORTS_KRETPROBES
+>
+>This patch fixes the following warning #ifndef 
+>ARCH_SUPPORTS_KRETPROBES:
+>
+><--  snip  -->
+>
+>...
+>  CC      kernel/kprobes.o
+>kernel/kprobes.c:353: warning: 'pre_handler_kretprobe' defined 
+>but not used
+>...
+>
+><--  snip  -->
+>
+>
+>Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-greg k-h
+Acked-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+
+>
+>---
+>
+>This patch was already sent on:
+>- 14 Jan 2006
+

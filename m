@@ -1,77 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932587AbWASJTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWASJXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932587AbWASJTE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 04:19:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbWASJTD
+	id S1750750AbWASJXb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 04:23:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWASJXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 04:19:03 -0500
-Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:11700 "EHLO
-	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932575AbWASJTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 04:19:01 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Chase Venters <chase.venters@clientec.com>
-Subject: Re: scsi cmd slab leak? (Was Re: [ck] Anyone been having OOM killer problems lately?)
-Date: Thu, 19 Jan 2006 20:18:49 +1100
-User-Agent: KMail/1.9
-Cc: ck@vds.kolivas.org, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-References: <200601181951.16708.chase.venters@clientec.com> <200601191849.45002.kernel@kolivas.org> <200601190316.05247.chase.venters@clientec.com>
-In-Reply-To: <200601190316.05247.chase.venters@clientec.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1288584.PIYjHUxP9e";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601192018.51972.kernel@kolivas.org>
+	Thu, 19 Jan 2006 04:23:31 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:41482 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1750750AbWASJXa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 04:23:30 -0500
+Date: Thu, 19 Jan 2006 10:23:20 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Miles Lane <miles.lane@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16-rc1-git1 -- Build error "make: *** [include/linux/version.h] Error 2"
+Message-ID: <20060119092320.GA8588@mars.ravnborg.org>
+References: <a44ae5cd0601182247h1b173289ncbc6dc405cbb0bb4@mail.gmail.com> <20060119073509.GA8231@mars.ravnborg.org> <a44ae5cd0601190115y6f6e93a1y6b6b6284280259fd@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a44ae5cd0601190115y6f6e93a1y6b6b6284280259fd@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1288584.PIYjHUxP9e
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, Jan 19, 2006 at 01:15:49AM -0800, Miles Lane wrote:
+> I do have .kernelrelease that contains:
+> "2.6.16-rc1-mm1 .file null .ident
+> GCC:(GNU)4.0.320060115(prerelease)(Ubuntu4.0.2-7ubuntu1) .section
+> .note.GNU-stack,,@progbits"
+> I tried deleting it,  but it gets recreated.
+> 
+> I'm pretty frustrated.  I have built hundreds of kernels and have not
+> hit this problem before.
+> 
+> Any help is most appreciated!
+This can also be a side-effect of /dev/null being damaged.
+In scripts/kconfig/lxdialog/check-lxdialog.sh we do:
+echo main() {} | gcc -nncursesw -cx - -o /dev/null
 
-On Thursday 19 January 2006 20:15, Chase Venters wrote:
-> On Thursday 19 January 2006 01:49, Con Kolivas wrote:
-> > > 	Do I have something madly leaking in my kernel?
-> >
-> > Yes! post /proc/slabinfo
->
-> (attached). Looks like quite a few scsi commands! Next steps?
->
-> > Con
->
-> Thanks!
-> Chase
+I could imagine that your /dev/null has become a regular file and is now
+filled with garbage.
+And then the trick:
+cat /dev/null $(wildcard .kernelrelease)
+causes KERNELRELEASE to be full of crap.
 
-Inded it does
-scsi_cmd_cache    1547440 1547440    384   10    1 : tunables   54   27    =
-8 :=20
-slabdata 154744 154744      0
+Care to check that?
 
-This looks suspiciously large. To be absolutely certain, though, you have t=
-o=20
-reproduce the problem with a vanilla kernel, and no binary drivers anywhere=
-=2E=20
-My patches don't touch the scsi code directly, but the only way to be certa=
-in=20
-is to use vanilla.
+I have not a patch ready to fix the /dev/null issue - later today.
 
-Cheers,
-Con
-
---nextPart1288584.PIYjHUxP9e
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDz1l7ZUg7+tp6mRURAqBzAJ9E3DGJNrfEKk4VApggwzhsH0pORgCbBsQi
-JAnniCCVE0ZXO7mB+kBY77c=
-=i8a5
------END PGP SIGNATURE-----
-
---nextPart1288584.PIYjHUxP9e--
+	Sam

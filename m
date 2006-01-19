@@ -1,35 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161461AbWASWnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161462AbWASWoH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161461AbWASWnE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 17:43:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161462AbWASWnE
+	id S1161462AbWASWoH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 17:44:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161466AbWASWoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 17:43:04 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:36737
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1161461AbWASWnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 17:43:03 -0500
-Date: Thu, 19 Jan 2006 14:43:02 -0800
-From: Greg KH <greg@kroah.com>
-To: "Ed L. Cashin" <ecashin@coraid.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.15-git9] aoe [1/8]: zero packet data after skb allocation
-Message-ID: <20060119224302.GA27679@kroah.com>
-References: <1d5bd928255f552b12b1b329c92257bb@coraid.com>
+	Thu, 19 Jan 2006 17:44:06 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52459 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161462AbWASWoF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 17:44:05 -0500
+Date: Thu, 19 Jan 2006 17:42:22 -0500
+From: Dave Jones <davej@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Lee Revell <rlrevell@joe-job.com>, Krzysztof Halasa <khc@pm.waw.pl>,
+       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org, perex@suse.cz
+Subject: Re: [Alsa-devel] Re: RFC: OSS driver removal, a slightly different approach
+Message-ID: <20060119224222.GW21663@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Lee Revell <rlrevell@joe-job.com>, Krzysztof Halasa <khc@pm.waw.pl>,
+	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+	alsa-devel@alsa-project.org, perex@suse.cz
+References: <20060119174600.GT19398@stusta.de> <m3ek34vucz.fsf@defiant.localdomain> <1137703413.32195.23.camel@mindpipe> <1137709135.8471.73.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1d5bd928255f552b12b1b329c92257bb@coraid.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1137709135.8471.73.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 12:37:24PM -0500, Ed L. Cashin wrote:
-> These eight patches supercede the seven aoe patches sent on January
-> third for the 2.6.15-rc7 kernel.  A bug existed in the Jan. 3 set of
-> patches where the retransmit timer for an AoE device AoE timer could
-> be added twice.  That bug has been fixed in this set of patches.
+On Thu, Jan 19, 2006 at 10:18:55PM +0000, Alan Cox wrote:
+ > On Iau, 2006-01-19 at 15:43 -0500, Lee Revell wrote:
+ > > Even the NeoMagic 256 which is a Pentium II era device and was in
+ > > widespread use we cannot find a tester for.
+ > 
+ > There are plenty of neomagic audio users around, I've seen bug reports
+ > about neomagic + ALSA hangs that have been filed.
 
-Ok, now I got them all, sorry about that, slow email system here...
+They should be pretty easy to track down. Search for bug reports
+with "Dell Latitude hangs" :-)
 
-greg k-h
+Here's three from Fedora bugzilla to start with..
+http://tinyurl.com/dcy3e
+
+(The bug is long-since fixed, but the reporters may still have the
+ hardware and be willing to provide feedback to ALSA developers)
+
+		Dave
+

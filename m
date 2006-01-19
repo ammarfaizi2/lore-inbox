@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932569AbWASGbG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932571AbWASGbd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932569AbWASGbG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 01:31:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932571AbWASGbG
+	id S932571AbWASGbd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 01:31:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbWASGbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 01:31:06 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:55762 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932569AbWASGbF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 01:31:05 -0500
-Date: Wed, 18 Jan 2006 22:30:39 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: - add-pselect-ppoll-system-call-implementation-tidy.patch
- removed from -mm tree
-Message-Id: <20060118223039.1d9dfe64.akpm@osdl.org>
-In-Reply-To: <20060119171708.7f856b42.sfr@canb.auug.org.au>
-References: <200601190052.k0J0qmKC009977@shell0.pdx.osdl.net>
-	<1137648119.30084.94.camel@localhost.localdomain>
-	<20060119171708.7f856b42.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Jan 2006 01:31:33 -0500
+Received: from smtpq3.tilbu1.nb.home.nl ([213.51.146.202]:8927 "EHLO
+	smtpq3.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S932571AbWASGbc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 01:31:32 -0500
+Message-ID: <43CF329A.90204@keyaccess.nl>
+Date: Thu, 19 Jan 2006 07:32:58 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: AMD756 no host side cable detection
+Content-Type: multipart/mixed;
+ boundary="------------060704010709030203000001"
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Rothwell <sfr@canb.auug.org.au> wrote:
->
-> Documentation/CodingStyle says:
-> 
->  The limit on the length of lines is 80 columns and this is a hard limit.
-> 
->  Statements longer than 80 columns will be broken into sensible chunks.
->  Descendants are always substantially shorter than the parent and are placed
->  substantially to the right. The same applies to function headers with a long
->  argument list. Long strings are as well broken into shorter strings.
+This is a multi-part message in MIME format.
+--------------060704010709030203000001
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-That's pretty stern.
+Hi Bartlomiej.
 
-I'd be happy with a 96-col standard, or 100 or whatever - it's more
-convenient and I use twin 20" guns.  But other people have different
-hardware constraints and different work practices, so they want 80 cols. 
-If we're going to get down and change the standard then OK, let's have that
-bunfight.  But while there's a standard we should stick to it so we don't
-screw over the people who like to use standard-sized xterms.
+I'm still applying this one:
 
-And yes, some editors can do sideways-scrolling to make wider-than-80
-acceptable in an 80-col window.  But other people's setups don't do that,
-and the cost to those people of wrappy code is higher than the cost of
-looking at standardly-laid-out code to fancy-editor users.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110304128900342&w=2
 
-So the lowest common denominator wins, because they hurt more than anyone
-else if we go outside 80-cols.  I use 80-col xterms precisely for this
-reason: so that the code which goes in will look OK to those users.
+locally. Could you perhaps push it onwards?
+
+Rene.
+
+--------------060704010709030203000001
+Content-Type: text/plain;
+ name="amd_80w.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="amd_80w.diff"
+
+SW5kZXg6IGxvY2FsL2RyaXZlcnMvaWRlL3BjaS9hbWQ3NHh4LmMKPT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQot
+LS0gbG9jYWwub3JpZy9kcml2ZXJzL2lkZS9wY2kvYW1kNzR4eC5jCTIwMDYtMDEtMTggMDk6
+MzY6MjQuMDAwMDAwMDAwICswMTAwCisrKyBsb2NhbC9kcml2ZXJzL2lkZS9wY2kvYW1kNzR4
+eC5jCTIwMDYtMDEtMTggMDk6MzY6NDIuMDAwMDAwMDAwICswMTAwCkBAIC0zNDcsMTAgKzM0
+Nyw4IEBAIHN0YXRpYyB1bnNpZ25lZCBpbnQgX19kZXZpbml0IGluaXRfY2hpcHMKIAkJCWJy
+ZWFrOwogCiAJCWNhc2UgQU1EX1VETUFfNjY6Ci0JCQlwY2lfcmVhZF9jb25maWdfZHdvcmQo
+ZGV2LCBBTURfVURNQV9USU1JTkcsICZ1KTsKLQkJCWZvciAoaSA9IDI0OyBpID49IDA7IGkg
+LT0gOCkKLQkJCQlpZiAoKHUgPj4gaSkgJiA0KQotCQkJCQlhbWRfODB3IHw9ICgxIDw8ICgx
+IC0gKGkgPj4gNCkpKTsKKwkJCS8qIG5vIGhvc3Qgc2lkZSBjYWJsZSBkZXRlY3Rpb24gKi8K
+KwkJCWFtZF84MHcgPSAweDAzOwogCQkJYnJlYWs7CiAJfQogCkBAIC0zODYsOCArMzg0LDYg
+QEAgc3RhdGljIHVuc2lnbmVkIGludCBfX2RldmluaXQgaW5pdF9jaGlwcwogCWlmIChhbWRf
+Y2xvY2sgPCAyMDAwMCB8fCBhbWRfY2xvY2sgPiA1MDAwMCkgewogCQlwcmludGsoS0VSTl9X
+QVJOSU5HICIlczogVXNlciBnaXZlbiBQQ0kgY2xvY2sgc3BlZWQgaW1wb3NzaWJsZSAoJWQp
+LCB1c2luZyAzMyBNSHogaW5zdGVhZC5cbiIsCiAJCQlhbWRfY2hpcHNldC0+bmFtZSwgYW1k
+X2Nsb2NrKTsKLQkJcHJpbnRrKEtFUk5fV0FSTklORyAiJXM6IFVzZSBpZGUwPWF0YTY2IGlm
+IHlvdSB3YW50IHRvIGFzc3VtZSA4MC13aXJlIGNhYmxlXG4iLAotCQkJYW1kX2NoaXBzZXQt
+Pm5hbWUpOwogCQlhbWRfY2xvY2sgPSAzMzMzMzsKIAl9CiAK
+--------------060704010709030203000001--

@@ -1,33 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161165AbWASLPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161174AbWASL3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161165AbWASLPj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 06:15:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161166AbWASLPi
+	id S1161174AbWASL3J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 06:29:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161083AbWASL3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 06:15:38 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:61330
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1161165AbWASLPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 06:15:38 -0500
-Message-Id: <43CF82EE.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Thu, 19 Jan 2006 12:15:42 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <sam@ravnborg.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: problem building in separate directory
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Thu, 19 Jan 2006 06:29:09 -0500
+Received: from uproxy.gmail.com ([66.249.92.200]:28339 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161174AbWASL3I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 06:29:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=ZGUiVb1Ljc7uwDFKtRMvzRpR99v9q0P4LM8J112OuQJI7EiHlG8AX4Lp/boZNnJQl1Fhl5UclDUpVnY0S4r5lw/JHJoyXINRWN892UvCf0oAmXI1c5I+vhcPMMl8iICF+okZmn7dRoPbp8+4W6jP051LCqxmE49pWmhfIGPRTnM=
+Message-ID: <cc723f590601190329h5239c4dfnff23c07a5bbc384e@mail.gmail.com>
+Date: Thu, 19 Jan 2006 16:59:05 +0530
+From: Aneesh Kumar <aneesh.kumar@gmail.com>
+To: sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Add entry.S labels to tag file.
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_1767_30643192.1137670145830"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam,
+------=_Part_1767_30643192.1137670145830
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-beyond the problem reported in http://marc.theaimsgroup.com/?l=linux-kernel&m=113751198318080&w=2, I see another
-problem: There now is a .kernelrelease file getting generated in the source tree, making it impossible to build from a
-read-only one. Thus I don't think the patch suggested there is correct. Instead, arrangements must be made for the make
-to happen in the output tree instead. I didn't have time to come up with a patch for this, yet.
+The below patch add functions defined using ENTRY macro to the tag
+file generated
+using ctags.
 
-Jan
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@gmail.com>
+
+------=_Part_1767_30643192.1137670145830
+Content-Type: text/plain; name=Makefile.diff; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="Makefile.diff"
+
+diff --git a/Makefile b/Makefile
+index 252a659..8f0cc11 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1272,7 +1272,7 @@ define cmd_tags
+ 	CTAGSF=`ctags --version | grep -i exuberant >/dev/null &&     \
+                 echo "-I __initdata,__exitdata,__acquires,__releases  \
+                       -I EXPORT_SYMBOL,EXPORT_SYMBOL_GPL              \
+-                      --extra=+f --c-kinds=+px"`;                     \
++                      --extra=+f --c-kinds=+px --regex-asm=/ENTRY\(([^)]*)\).*/\1/"`;  \
+                 $(all-sources) | xargs ctags $$CTAGSF -a
+ endef
+ 
+
+------=_Part_1767_30643192.1137670145830--

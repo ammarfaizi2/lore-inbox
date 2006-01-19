@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161122AbWASVne@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161437AbWASVps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161122AbWASVne (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 16:43:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161425AbWASVne
+	id S1161437AbWASVps (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 16:45:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161439AbWASVps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 16:43:34 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:8967 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161122AbWASVnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 16:43:33 -0500
-Date: Thu, 19 Jan 2006 22:43:32 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, perex@suse.cz
-Subject: Re: RFC: OSS driver removal, a slightly different approach
-Message-ID: <20060119214332.GZ19398@stusta.de>
-References: <20060119174600.GT19398@stusta.de> <9a8748490601191306q75b101b5g488aee398d420a00@mail.gmail.com>
+	Thu, 19 Jan 2006 16:45:48 -0500
+Received: from omta05sl.mx.bigpond.com ([144.140.93.195]:8531 "EHLO
+	omta05sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1161437AbWASVpr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 16:45:47 -0500
+Message-ID: <43D00887.6010409@bigpond.net.au>
+Date: Fri, 20 Jan 2006 08:45:43 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9a8748490601191306q75b101b5g488aee398d420a00@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>,
+       Paolo Ornati <ornati@fastwebnet.it>
+Subject: [ANNOUNCE][RFC] PlugSched-6.2 for  2.6.16-rc1 and 2.6.16-rc1-mm1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 19 Jan 2006 21:45:44 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 10:06:47PM +0100, Jesper Juhl wrote:
-> On 1/19/06, Adrian Bunk <bunk@stusta.de> wrote:
-> [snip]
-> > My proposed timeline is:
-> [snip]
-> > - after the release of 2.6.17 (and before 2.6.18):
-> >   remove the subset of drivers marked at OBSOLETE_OSS_DRIVER without
-> >   known regressions in the ALSA drivers for the same hardware
-> 
-> May I suggest you also update the "When" part of this entry in
-> Documentation/feature-removal-schedule.txt :
-> 
-> What:   drivers depending on OBSOLETE_OSS_DRIVER
-> When:   January 2006
-> Why:    OSS drivers with ALSA replacements
-> Who:    Adrian Bunk <bunk@stusta.de>
+This version continues the major gutting of the SPA based schedulers to
+reduce overhead.  The inclusion of the mechanisms for gathering and
+displaying accrued scheduling statistics have been remove as they are 
+not an integral part of the scheduler and were mainly there to help with 
+tuning.  Sorry Jake, if you still need these for your genetic algorithm 
+work I can provide a patch to add them to all schedulers?
 
-Sure. This will be sent as part of my patch to update the 
-OBSOLETE_OSS_DRIVER dependencies.
+Additionally, the mechanism for auto detection and preferential
+treatment of media streamers in the spa_ws scheduler has been removed. 
+The reason for this is that my testing shows that the performance of 
+media streamers on spa_ws is adequate without it.
 
-cu
-Adrian
+Modifications have been made to spa_ws to (hopefully) address the issues 
+raised by Paolo Ornati recently and a new entitlement based 
+interpretation of "nice" scheduler, spa_ebs, which is a cut down version 
+of the Zaphod schedulers "eb" mode has been added as this mode of Zaphod 
+performed will for Paolo's problem when he tried it at my request. 
+Paolo, could you please give these a test drive on your problem?
 
+A patch for 2.6.16-rc1 is available at:
+
+<http://prdownloads.sourceforge.net/cpuse/plugsched-6.2-for-2.6.16-rc1.patch?download>
+
+and a patch for 2.6.16-rc1-mm1 is available at:
+
+<http://prdownloads.sourceforge.net/cpuse/plugsched-6.2-for-2.6.16-rc1-mm1.patch?download>
+
+Very Brief Documentation:
+
+You can select a default scheduler at kernel build time.  If you wish to
+boot with a scheduler other than the default it can be selected at boot
+time by adding:
+
+cpusched=<scheduler>
+
+to the boot command line where <scheduler> is one of: ingosched,
+nicksched, staircase, spa_no_frills, spa_ws, spa_svr, spa_ebs or zaphod. 
+  If you don't change the default when you build the kernel the default 
+scheduler will be ingosched (which is the normal scheduler).
+
+The scheduler in force on a running system can be determined by the
+contents of:
+
+/proc/scheduler
+
+Control parameters for the scheduler can be read/set via files in:
+
+/sys/cpusched/<scheduler>/
+
+Peter
 -- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

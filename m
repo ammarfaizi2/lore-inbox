@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161383AbWASUI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161387AbWASULG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161383AbWASUI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 15:08:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161385AbWASUI6
+	id S1161387AbWASULG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 15:11:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161384AbWASULF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 15:08:58 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:19469 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1161383AbWASUI5 (ORCPT
+	Thu, 19 Jan 2006 15:11:05 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:679 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S1161380AbWASULD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 15:08:57 -0500
-Date: Thu, 19 Jan 2006 21:08:32 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jan Beulich <JBeulich@novell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problem building in separate directory
-Message-ID: <20060119200832.GF3557@mars.ravnborg.org>
-References: <43CF82EE.76F0.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Jan 2006 15:11:03 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Subject: [PATCH 0/5] ia64 ioremap, DMI, EFI system table
+Date: Thu, 19 Jan 2006 13:10:57 -0700
+User-Agent: KMail/1.8.3
+Cc: linux-ia64@vger.kernel.org, ak@suse.de,
+       openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
+       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
+References: <20060104221627.GA26064@lists.us.dell.com> <200601181029.46352.bjorn.helgaas@hp.com> <20060118181116.GA5537@lists.us.dell.com>
+In-Reply-To: <20060118181116.GA5537@lists.us.dell.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <43CF82EE.76F0.0078.0@novell.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200601191310.57303.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 12:15:42PM +0100, Jan Beulich wrote:
-> Sam,
-> 
-> beyond the problem reported in http://marc.theaimsgroup.com/?l=linux-kernel&m=113751198318080&w=2, I see another
-> problem: There now is a .kernelrelease file getting generated in the source tree, making it impossible to build from a
-> read-only one. Thus I don't think the patch suggested there is correct. Instead, arrangements must be made for the make
-> to happen in the output tree instead. I didn't have time to come up with a patch for this, yet.
-> 
+OK, here's a set of patches to (hopefully) clean up this area
+a bit:
 
-Hi Jan.
+1  Simplify efi_mem_attribute_range() so I can use it both for
+   /dev/mem validation and ioremap() attribute checking.
 
-Both issues are now fixed, see patches I just sent out.
+2  Make ia64 ioremap() check memory attributes, so it works for
+   plain memory that only supports write-back access, as well as
+   for MMIO space that only supports uncacheable access.
 
-	Sam
+3  DMI ioremaps too much space, which makes it fail on machines
+   where the SMBIOS table is near the end of a memory region.
+
+4  Keep EFI table addresses as physical, not virtual.  The SMBIOS
+   address was physical on x86 but virtual on ia64, which broke
+   dmi_scan_machine().
+
+5  Use smarter ioremap() implementation to remove some cruft in
+   acpi_os_{read,write,map}_memory().  This one's just an optional
+   cleanup; I don't think it fixes any bugs.

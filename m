@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161245AbWASPwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161247AbWASPyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161245AbWASPwt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 10:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161247AbWASPwt
+	id S1161247AbWASPyF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 10:54:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161248AbWASPyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 10:52:49 -0500
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:36172 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S1161245AbWASPwt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 10:52:49 -0500
-Message-ID: <43CFB6B1.8000908@suse.com>
-Date: Thu, 19 Jan 2006 10:56:33 -0500
-From: Jeff Mahoney <jeffm@suse.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Thu, 19 Jan 2006 10:54:05 -0500
+Received: from rtr.ca ([64.26.128.89]:20894 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1161247AbWASPyE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 10:54:04 -0500
+Message-ID: <43CFB60B.2090703@rtr.ca>
+Date: Thu, 19 Jan 2006 10:53:47 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-To: Damien Wyart <damien.wyart@free.fr>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1 + reiser* from -rc1-mm1 : BUG with reiserfs
-References: <20060118122631.GA12363@localhost.localdomain> <43CEC61E.2040500@suse.com> <200601190004.36549.rjw@sisk.pl> <43CECC7D.1090200@suse.com> <20060119094205.GA14907@localhost.localdomain>
-In-Reply-To: <20060119094205.GA14907@localhost.localdomain>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Neil Brown <neilb@suse.de>
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
+       Cynbe ru Taren <cynbe@muq.org>, linux-kernel@vger.kernel.org
+Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
+References: <E1EywcM-0004Oz-IE@laurel.muq.org>	<43CE1E52.3030907@aitel.hist.no>	<43CE6997.6090005@rtr.ca> <17358.53535.449726.814333@cse.unsw.edu.au>
+In-Reply-To: <17358.53535.449726.814333@cse.unsw.edu.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Neil Brown wrote:
+>
+> Very recent 2.6 kernels do exactly this.  They don't drop a drive on a
+> read error, only on a write error.  On a read error they generate the
+> data from elsewhere and schedule a write, then a re-read.
 
-Damien Wyart wrote:
-> Hello,
-> 
->>>> Sigh. Ok. Back out the reiserfs patches
-> * Jeff Mahoney <jeffm@suse.com> [2006-01-18 18:17]:
->> Just the on-demand bitmap stuff.
-> 
-> New test this morning with latest 2.6.16-rc1-git pulled with git, and
-> all reiserfs and reiser4 patches from -rc1-mm1, EXCEPT the three
-> on-demand bitmap for reiserfs. And when booting, the systems half
-> crashes with this error. So I guess the bad patches are not only the
-> ones for on-demand bitmap...
+Well done, then.  Further to this:
 
-Indeed. What's happening here is that the SB_AP_BITMAP(s) macro is
-evaluating to NULL since other places use it too early.
+Pardon me for not looking at the specifics of the code here,
+but experience shows that rewriting just the single sector
+is often not enough to repair an error.  The drive often just
+continues to fail when only the bad sector is rewritten by itself.
 
-As I said, these patches should never have been sent out.
+Dumb drives, or what, I don't know, but they seem to respond
+better when the entire physical track is rewritten.
 
-- -Jeff
+Since we rarely know what a physical track is these days,
+this often boils down to simply rewriting a 64KB chunk
+centered on the failed sector.  So far, this strategy has
+always worked for me.
 
-- --
-Jeff Mahoney
-SUSE Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDz7axLPWxlyuTD7IRArQxAJ9d6gijEPjXxKnXcC5FNWUuT95eqACcDURU
-HOTcl/BhvTd2RwAO4fd/ZZ0=
-=Ct4w
------END PGP SIGNATURE-----
+Cheers

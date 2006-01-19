@@ -1,76 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161031AbWASE3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161132AbWASEet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161031AbWASE3m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 23:29:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161132AbWASE3m
+	id S1161132AbWASEet (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 23:34:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161139AbWASEet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 23:29:42 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:35227 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161031AbWASE3l (ORCPT
+	Wed, 18 Jan 2006 23:34:49 -0500
+Received: from fsmlabs.com ([168.103.115.128]:34688 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1161132AbWASEes (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 23:29:41 -0500
-Date: Wed, 18 Jan 2006 23:29:32 -0500
-From: Ulrich Drepper <drepper@redhat.com>
-Message-Id: <200601190429.k0J4TWXD018136@devserv.devel.redhat.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] prototypes for *at functions & typo fix
+	Wed, 18 Jan 2006 23:34:48 -0500
+X-ASG-Debug-ID: 1137645255-25837-10-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Wed, 18 Jan 2006 20:39:14 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@osdl.org>, anton@au1.ibm.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>, michael@ellerman.id.au,
+       Linus Torvalds <torvalds@osdl.org>, ntl@pobox.com, serue@us.ibm.com,
+       Linux PPC64 <linuxppc64-dev@ozlabs.org>, paulus@au1.ibm.com
+X-ASG-Orig-Subj: Re: [patch] turn on might_sleep() in early bootup code too
+Subject: Re: [patch] turn on might_sleep() in early bootup code too
+In-Reply-To: <20060118104319.GB7885@elte.hu>
+Message-ID: <Pine.LNX.4.64.0601182027570.20777@montezuma.fsmlabs.com>
+References: <200601181119.39872.michael@ellerman.id.au> <20060118033239.GA621@cs.umn.edu>
+ <20060118063732.GA21003@elte.hu> <20060117225304.4b6dd045.akpm@osdl.org>
+ <20060118072815.GR2846@localhost.localdomain> <20060117233734.506c2f2e.akpm@osdl.org>
+ <20060118080828.GA2324@elte.hu> <20060118002459.3bc8f75a.akpm@osdl.org>
+ <20060118091834.GA21366@elte.hu> <20060118023509.50fe2701.akpm@osdl.org>
+ <20060118104319.GB7885@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.7530
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's the follow-up patch which introduces the prototypes for the new syscalls.  There was also a typo in one of the new symbols.  Do we really need the __NR_ia32_* macros?  The userlevel on x86-64 should be bi-arch and provide the native ia32 unistd.h.
+On Wed, 18 Jan 2006, Ingo Molnar wrote:
 
-Signed-off-by: Ulrich Drepper <drepper@redhat.com>
+> lock_cpu_hotplug() has design problems i think: hotplug-locked sections 
+> are slowly spreading in the kernel, encompassing more and more code :-) 
+> Shouldnt the CPU hotplug lock be a spinlock to begin with?
 
-diff --git a/include/asm-x86_64/ia32_unistd.h b/include/asm-x86_64/ia32_unistd.h
-index e87cd83..9afc0c7 100644
---- a/include/asm-x86_64/ia32_unistd.h
-+++ b/include/asm-x86_64/ia32_unistd.h
-@@ -300,7 +300,7 @@
- #define __NR_ia32_inotify_add_watch	292
- #define __NR_ia32_inotify_rm_watch	293
- #define __NR_ia32_migrate_pages		294
--#define __NR_ia32_opanat		295
-+#define __NR_ia32_openat		295
- #define __NR_ia32_mkdirat		296
- #define __NR_ia32_mknodat		297
- #define __NR_ia32_fchownat		298
-diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
-index e666d60..c0c894d 100644
---- a/include/linux/syscalls.h
-+++ b/include/linux/syscalls.h
-@@ -534,4 +534,35 @@ asmlinkage long sys_spu_run(int fd, __u3
- asmlinkage long sys_spu_create(const char __user *name,
- 		unsigned int flags, mode_t mode);
- 
-+asmlinkage long sys_mknodat(int dfd, const char __user * filename, int mode,
-+			    unsigned dev);
-+asmlinkage long sys_mkdirat(int dfd, const char __user * pathname, int mode);
-+asmlinkage long sys_unlinkat(int dfd, const char __user * pathname, int flag);
-+asmlinkage long sys_symlinkat(const char __user * oldname,
-+			      int newdfd, const char __user * newname);
-+asmlinkage long sys_linkat(int olddfd, const char __user *oldname,
-+			   int newdfd, const char __user *newname);
-+asmlinkage long sys_renameat(int olddfd, const char __user * oldname,
-+			     int newdfd, const char __user * newname);
-+asmlinkage long sys_futimesat(int dfd, char __user *filename,
-+			      struct timeval __user *utimes);
-+asmlinkage long sys_faccessat(int dfd, const char __user *filename, int mode);
-+asmlinkage long sys_fchmodat(int dfd, const char __user * filename,
-+			     mode_t mode);
-+asmlinkage long sys_fchownat(int dfd, const char __user *filename, uid_t user,
-+			     gid_t group, int flag);
-+asmlinkage long sys_openat(int dfd, const char __user *filename, int flags,
-+			   int mode);
-+asmlinkage long sys_newfstatat(int dfd, char __user *filename,
-+			       struct stat __user *statbuf, int flag);
-+asmlinkage long sys_readlinkat(int dfd, const char __user *path, char __user *buf,
-+			       int bufsiz);
-+asmlinkage long compat_sys_futimesat(int dfd, char __user *filename,
-+				     struct compat_timeval __user *t);
-+asmlinkage long compat_sys_newfstatat(int dfd, char __user * filename,
-+				      struct compat_stat __user *statbuf,
-+				      int flag);
-+asmlinkage long +compat_sys_openat(int dfd, const char __user *filename,
-+				   int flags, int mode);
-+
- #endif
+The way it's used certainly is bizarre, but a spinlock would be harder to 
+work with as a lot of the code protected by it sleep.

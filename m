@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161268AbWASQZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030427AbWASQ3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161268AbWASQZd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 11:25:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161295AbWASQZd
+	id S1030427AbWASQ3O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 11:29:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbWASQ3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 11:25:33 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:57515 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1161268AbWASQZd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 11:25:33 -0500
-Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
-       Cynbe ru Taren <cynbe@muq.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <43CFB747.3000807@rtr.ca>
-References: <E1EywcM-0004Oz-IE@laurel.muq.org>
-	 <43CE1E52.3030907@aitel.hist.no>  <43CE6997.6090005@rtr.ca>
-	 <1137605541.29681.13.camel@localhost.localdomain> <43CFB747.3000807@rtr.ca>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 19 Jan 2006 16:25:00 +0000
-Message-Id: <1137687900.8471.32.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 19 Jan 2006 11:29:13 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:64826 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030427AbWASQ3N convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 11:29:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=JHjwIlZEgXyz5sn8of6xmyz6EFjWCEmaSBkK3unK7NfkBhVzYeFH8FEXadO+RhOzbDXKPqmljKZG/abosU69cJTJSBm7uwDuFsEZUrZ6U8J5SxqKPOeOdduKlm7GLLHtrjscxnRViGuaWWMZ6dq7W/QYSozxLUqcuQ9ivkGUP8s=
+Message-ID: <7a37e95e0601190829w6538856h9ff0eb33faf1100a@mail.gmail.com>
+Date: Thu, 19 Jan 2006 21:59:12 +0530
+From: Deven Balani <devenbalani@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Any Driver builds a non-PCI scatter-gather table to do a DMA transfer
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2006-01-19 at 10:59 -0500, Mark Lord wrote:
-> But the card is a total slug unless the host does 32-bit PIO to/from it.
-> Do we have that capability in libata yet?
+Hi All!
 
-Very very easy to sort out. Just need a ->pio_xfer method set. Would
-then eliminate some of the core driver flags and let us do vlb sync for
-legacy hw
+I am writing a driver on an ARM platform which needs to build a
+scatter-gather table to
+do the DMA transaction.
+Can any one refer a driver which already implements such a mechanism
+for non-PCI Bus on linux-2.4.x kernels.
 
+Regards,
+Deven
+--
+"A smile confuses an approaching frown..."

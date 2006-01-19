@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161215AbWASO5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161221AbWASPBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161215AbWASO5x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 09:57:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161221AbWASO5x
+	id S1161221AbWASPBr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 10:01:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161224AbWASPBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 09:57:53 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:38068 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1161215AbWASO5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 09:57:52 -0500
-Date: Thu, 19 Jan 2006 15:57:51 +0100
-From: Jan Kara <jack@suse.cz>
-To: Roopesh <roopesh@cyberspace.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Synchronization between VFS and special IO requests to a block device.
-Message-ID: <20060119145751.GA10185@atrey.karlin.mff.cuni.cz>
-References: <20060118110022.GA32663@grex.cyberspace.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Jan 2006 10:01:47 -0500
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:20824 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1161221AbWASPBq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 10:01:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.it;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=0DWWlfJ5F9uEnpPzkbchaF9sQvFTLtWM5opc4PfaObCqD20bzYjaJ7S2TtGVhMUro04WirX1QBKmTLa8rGMyR/BTEJyd+fIu4pDg4ki3vn1/87D2mfe0QZFnOfPlz67TL297fV099GjjJf28MmEaycQuTKcXj9d2yhOXnjqFKy8=  ;
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: [uml-devel] [PATCH 8/8] uml: avoid "CONFIG_NR_CPUS undeclared" bogus error messages
+Date: Thu, 19 Jan 2006 16:01:28 +0100
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+References: <20060118235132.4626.74049.stgit@zion.home.lan> <20060118235522.4626.2825.stgit@zion.home.lan> <20060119042104.GC8265@ccure.user-mode-linux.org>
+In-Reply-To: <20060119042104.GC8265@ccure.user-mode-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060118110022.GA32663@grex.cyberspace.org>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200601191601.31805.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+On Thursday 19 January 2006 05:21, Jeff Dike wrote:
+> On Thu, Jan 19, 2006 at 12:55:23AM +0100, Paolo 'Blaisorblade' Giarrusso 
+wrote:
+> > -extern struct task_struct *idle_threads[NR_CPUS];
+> > -
+>
+> BTW, this isn't the only problem there.  There are three declarations
+> towards the bottom with struct task_struct in them which have to be moved.
 
-> 	I have an SD card, a partition of which is mounted and is accessed
->   only through VFS, and certain sectors out of this partition having
->   some special data which is accessed by the applications only through
->   certain ioctls to the device. 
->   
->   My problem is in synchronizing/serializing these two accesses to the
->   hardware, especially since I dont want a VFS request to be handled 
->   by the driver inbetween two specific ioctls.  I understand that the
-> 	strategy routine should be atomic and that it cant wait on a lock or 
-> 	sleep.  Any pointers/suggestions/help?
-  If your areas are 4KB (size of pages) aligned and you really always
-access either through VFS or though ioctl, then you need no
-synchronization (VFS does not care about areas accessed through ioctl)
-and ioctl does not care about areas accessed by VFS. Or you need to
-somehow ensure that some space written by VFS is written before some
-ioctl is called?
+I saw that after, but let's say a thing which I always forgot to say:
 
-								Honza
+we're often using void * in protos when we can't include a type declaration in 
+the needed file.
 
+Gerd Knorr in his tty patch, instead, used forward declarations, like:
+
+struct task_struct; 
+
+what about that?
+
+Those functions probably should be moved anyway because they're useless there, 
+but I'm using this occasion to avoid forgetting this.
 -- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+
+		
+___________________________________ 
+Yahoo! Messenger with Voice: chiama da PC a telefono a tariffe esclusive 
+http://it.messenger.yahoo.com

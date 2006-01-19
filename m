@@ -1,42 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422650AbWASWKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422651AbWASWKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422650AbWASWKU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 17:10:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422651AbWASWKU
+	id S1422651AbWASWKj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 17:10:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422658AbWASWKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 17:10:20 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:13017 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422650AbWASWKS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 17:10:18 -0500
-Date: Thu, 19 Jan 2006 17:10:06 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: alan@redhat.com
-Subject: EDAC config cleanup
-Message-ID: <20060119221006.GA31404@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, alan@redhat.com
-Mime-Version: 1.0
+	Thu, 19 Jan 2006 17:10:39 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:27399 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1422657AbWASWKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 17:10:37 -0500
+Date: Thu, 19 Jan 2006 23:10:36 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: [RFC: 2.6 patch] drivers/ide/ide-io.c: make __ide_end_request() static
+Message-ID: <20060119221036.GA19398@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The AMD76x chipsets aren't used in 64-bit, so don't
-offer the driver to the user.
+Since there's no longer any external user, we can make 
+__ide_end_request() static.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
 
---- linux-2.6.15.noarch/drivers/edac/Kconfig~	2006-01-19 17:00:16.000000000 -0500
-+++ linux-2.6.15.noarch/drivers/edac/Kconfig	2006-01-19 17:03:33.000000000 -0500
-@@ -46,7 +46,7 @@ config EDAC_MM_EDAC
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was already sent on:
+- 7 Jan 2006
+
+ drivers/ide/ide-io.c |    5 ++---
+ include/linux/ide.h  |    1 -
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+--- linux-2.6.15-mm2-full/include/linux/ide.h.old	2006-01-07 17:49:26.000000000 +0100
++++ linux-2.6.15-mm2-full/include/linux/ide.h	2006-01-07 17:49:31.000000000 +0100
+@@ -1000,7 +1000,6 @@
+ extern int noautodma;
  
- config EDAC_AMD76X
- 	tristate "AMD 76x (760, 762, 768)"
--	depends on EDAC_MM_EDAC  && PCI
-+	depends on EDAC_MM_EDAC && PCI X86_32
- 	help
- 	  Support for error detection and correction on the AMD 76x
- 	  series of chipsets used with the Athlon processor.
+ extern int ide_end_request (ide_drive_t *drive, int uptodate, int nrsecs);
+-extern int __ide_end_request (ide_drive_t *drive, struct request *rq, int uptodate, int nrsecs);
+ 
+ /*
+  * This is used on exit from the driver to designate the next irq handler
+--- linux-2.6.15-mm2-full/drivers/ide/ide-io.c.old	2006-01-07 17:49:38.000000000 +0100
++++ linux-2.6.15-mm2-full/drivers/ide/ide-io.c	2006-01-07 17:50:13.000000000 +0100
+@@ -55,8 +55,8 @@
+ #include <asm/io.h>
+ #include <asm/bitops.h>
+ 
+-int __ide_end_request(ide_drive_t *drive, struct request *rq, int uptodate,
+-		      int nr_sectors)
++static int __ide_end_request(ide_drive_t *drive, struct request *rq,
++			     int uptodate, int nr_sectors)
+ {
+ 	int ret = 1;
+ 
+@@ -94,7 +94,6 @@
+ 	}
+ 	return ret;
+ }
+-EXPORT_SYMBOL(__ide_end_request);
+ 
+ /**
+  *	ide_end_request		-	complete an IDE I/O
+

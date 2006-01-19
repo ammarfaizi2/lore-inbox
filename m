@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161219AbWASOvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161215AbWASO5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161219AbWASOvu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 09:51:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161220AbWASOvu
+	id S1161215AbWASO5x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 09:57:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161221AbWASO5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 09:51:50 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:5186 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161219AbWASOvt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 09:51:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TseGncwVGVMBxA3kozOOy5ZAvzjyEhaqz2/L2nBA33TjEuGtKRdpgto47o7DVwWKV3Y0feKIWwXGTAwnyQCHSQKUk2/ZJHya6SnZ/mvwSwO20Jf71ebfKVzHrqs5+kYICG+7pK9+g0V8Q0/AB8UqA+SNT0ljUgJWcL9B3BXIOBg=
-Message-ID: <d120d5000601190651s63fa9413w2cb021c8e4682ec4@mail.gmail.com>
-Date: Thu, 19 Jan 2006 09:51:48 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: Re: [PATCH] Fix compile warning in bt8xx module
-Cc: Russell King <rmk+kernel@arm.linux.org.uk>, Greg KH <greg@kroah.com>,
-       Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1137667261.5754.3.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 19 Jan 2006 09:57:53 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:38068 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1161215AbWASO5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 09:57:52 -0500
+Date: Thu, 19 Jan 2006 15:57:51 +0100
+From: Jan Kara <jack@suse.cz>
+To: Roopesh <roopesh@cyberspace.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Synchronization between VFS and special IO requests to a block device.
+Message-ID: <20060119145751.GA10185@atrey.karlin.mff.cuni.cz>
+References: <20060118110022.GA32663@grex.cyberspace.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200601152332.54168.dtor_core@ameritech.net>
-	 <1137667261.5754.3.camel@localhost>
+In-Reply-To: <20060118110022.GA32663@grex.cyberspace.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/19/06, Mauro Carvalho Chehab <mchehab@infradead.org> wrote:
-> Dmitry,
->
->        Your patch conflicted with another one by Jean Delaware.
->
->        Please next time send dvb or v4l patches to me c/c to
-> video4linux-list@redhat.com and linux-dvb-maintainer@linuxtv.org
->
+  Hello,
 
-My apologies. The original change did not come from your tree, it was
-a wholesale tree update, that's why I sent it to patch originator.
-Next time I will make sure to CC you and V4L/DVB lists.
+> 	I have an SD card, a partition of which is mounted and is accessed
+>   only through VFS, and certain sectors out of this partition having
+>   some special data which is accessed by the applications only through
+>   certain ioctls to the device. 
+>   
+>   My problem is in synchronizing/serializing these two accesses to the
+>   hardware, especially since I dont want a VFS request to be handled 
+>   by the driver inbetween two specific ioctls.  I understand that the
+> 	strategy routine should be atomic and that it cant wait on a lock or 
+> 	sleep.  Any pointers/suggestions/help?
+  If your areas are 4KB (size of pages) aligned and you really always
+access either through VFS or though ioctl, then you need no
+synchronization (VFS does not care about areas accessed through ioctl)
+and ioctl does not care about areas accessed by VFS. Or you need to
+somehow ensure that some space written by VFS is written before some
+ioctl is called?
 
---
-Dmitry
+								Honza
+
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

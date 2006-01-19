@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWASQu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWASQwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964798AbWASQu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 11:50:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbWASQu5
+	id S1751398AbWASQwt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 11:52:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWASQwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 11:50:57 -0500
-Received: from [222.190.10.170] ([222.190.10.170]:51472 "HELO 134F4118")
-	by vger.kernel.org with SMTP id S964798AbWASQu4 (ORCPT
+	Thu, 19 Jan 2006 11:52:49 -0500
+Received: from rtr.ca ([64.26.128.89]:41367 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751398AbWASQws (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 11:50:56 -0500
-Message-ID: <346h162z.4440647@209.132.176.167>
-Date: Thu, 19 Jan 2006 11:48:14 -0800
-From: "Admissions Office " <univ_aecbu@directline-holidays.co.uk>
-X-Mailer: MIME-tools 5.490 (Entity 5.457)
+	Thu, 19 Jan 2006 11:52:48 -0500
+Message-ID: <43CFC3D0.1010607@rtr.ca>
+Date: Thu, 19 Jan 2006 11:52:32 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: [2.6 patch] the scheduled removal of the obsolete raw driver
+References: <20060119030251.GG19398@stusta.de>	 <20060118194103.5c569040.akpm@osdl.org> <1137689071.4966.190.camel@dyn9047017102.beaverton.ibm.com>
+In-Reply-To: <1137689071.4966.190.camel@dyn9047017102.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: (-2.694) BAYES_00
-X-Recipient: <linux-kernel@vger.kernel.org>
-Subject: Tiered of been passed over for that promotion because you  =?ISO-8859-1?Q?=20don=92t?= have the proper Degree? 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good News for the New Year...
+Badari Pulavarty wrote:
+>
+> But again, its really useful to have raw driver to do simple "dd" tests
+> to test raw performance for disks (for comparing with filesystems, block
+> devices etc..). Without that, we need to add option to "dd" for
+> O_DIRECT.
 
-Obtain a Prosperous Future, Money-Earning Power, and the Prestige that comes with having the Career You've always dreamed about with our New Prestigious University Program.
+Perhaps it's time for 'dd' to acquire something like the 'hdparm --direct' flag.
+(and, oops, maybe I should add it to the man page for hdparm too!).
 
-If you qualify, no required tests, classes, books or examinations are needed to obtain your degree and transcripts.
-
-Confidentiality Assured 
-
-1-206-202-1768  
-
-24 hours a day, 7 days a week including Sundays and Holidays
-
-Have a nice day
--Admissions Office
-
-
+Cheers

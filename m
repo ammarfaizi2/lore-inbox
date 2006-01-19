@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932585AbWASJrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932590AbWASJuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932585AbWASJrk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 04:47:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932588AbWASJrk
+	id S932590AbWASJuA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 04:50:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932591AbWASJt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 04:47:40 -0500
-Received: from h80ad24de.async.vt.edu ([128.173.36.222]:62115 "EHLO
-	h80ad24de.async.vt.edu") by vger.kernel.org with ESMTP
-	id S932585AbWASJrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 04:47:40 -0500
-Message-Id: <200601190947.k0J9l4Cu029568@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.16-rc1-mm1 - produce useful info for kzalloc with DEBUG_SLAB 
-In-Reply-To: Your message of "Thu, 19 Jan 2006 10:58:13 +0200."
-             <84144f020601190058s2e8e86a8ya761fcb4fdd8eeaa@mail.gmail.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <200601190830.k0J8UG9Q008899@turing-police.cc.vt.edu>
-            <84144f020601190058s2e8e86a8ya761fcb4fdd8eeaa@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1137664022_3359P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Thu, 19 Jan 2006 04:49:59 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:33481 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932590AbWASJt7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 04:49:59 -0500
+Subject: Re: [PATCH] powerpc: remove useless spinlock from mpc83xx watchdog
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kumar Gala <galak@gate.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, wim@iguana.be, linux-kernel@vger.kernel.org,
+       linuxppc-embedded@ozlabs.org
+In-Reply-To: <Pine.LNX.4.44.0601190057130.8484-100000@gate.crashing.org>
+References: <Pine.LNX.4.44.0601190057130.8484-100000@gate.crashing.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Thu, 19 Jan 2006 04:47:03 -0500
+Date: Thu, 19 Jan 2006 09:49:16 +0000
+Message-Id: <1137664156.8471.16.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1137664022_3359P
-Content-Type: text/plain; charset=us-ascii
-
-On Thu, 19 Jan 2006 10:58:13 +0200, Pekka Enberg said:
-> On 1/19/06, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
-> > The following patch makes a few minor changes so the CONFIG_DEBUG_SLAB
-> > statistics report the actual caller for kzalloc() - otherwise its call to
-> > kmalloc() just points at kzalloc().  Basically, we force __always_inline on
-> > several routines, so the __builtin_return_address calls point where we
-> > want them to point, even if gcc wouldn't otherwise do it.
+On Iau, 2006-01-19 at 00:58 -0600, Kumar Gala wrote:
+> Since we can only open the watchdog once having a spinlock to protect
+> multiple access is pointless.
 > 
-> Couldn't we use this [1] trick Steven came up with for this?
-> 
->   1. http://article.gmane.org/gmane.linux.kernel/362494
+> Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 
-I posted the basic idea of this patch back on Dec 18, Steven came up with
-his stuff about 2 weeks later, and it's a bit too creative with its use of
-the preprocessor for my tastes,  so I didn't retrofit the idea.
+NAK
 
-On the other hand, I'm not *that* attached to my solution - if somebody wants
-to code a patch Steven's way and toss it to Andrew, they're welcome to do so,
-and we'll let Andrew decide. ;)
+This is a common mistake.
 
---==_Exmh_1137664022_3359P
-Content-Type: application/pgp-signature
+open is called on the open() call and is indeed in this case 'single
+open', but file handles can be inherited and many users may have access
+to a single file handle.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+eg
 
-iD8DBQFDz2AWcC3lWbTT17ARAss4AJ9I7/S1ulJZZ/DMer+g/U1e0tyhsACgqMDH
-FUCdCfO8KfQGhzpoGCuBnuQ=
-=YtXZ
------END PGP SIGNATURE-----
+	f = open("/dev/watchdog", O_RDWR);
+	fork();
+	while(1) {
+		write(f, "Boing", 5);
+	}
 
---==_Exmh_1137664022_3359P--
+Alan
+

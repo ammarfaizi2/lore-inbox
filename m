@@ -1,81 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161065AbWASEHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161263AbWASEPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161065AbWASEHV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 23:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161062AbWASEHU
+	id S1161263AbWASEPX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 23:15:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161285AbWASEPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 23:07:20 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:22932
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1161065AbWASEHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 23:07:19 -0500
-Date: Wed, 18 Jan 2006 20:07:11 -0800
-From: Greg KH <gregkh@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/base/: proper prototypes
-Message-ID: <20060119040711.GA17312@suse.de>
-References: <20060119013242.GX19398@stusta.de> <20060119025146.GA15257@suse.de> <20060119032808.GJ19398@stusta.de> <20060119033532.GA16518@suse.de> <20060119034011.GK19398@stusta.de>
+	Wed, 18 Jan 2006 23:15:22 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:62388 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161221AbWASEPU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 23:15:20 -0500
+Date: Wed, 18 Jan 2006 20:15:00 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com,
+       horst.hummel@de.ibm.com
+Subject: Re: [PATCH 6/7] s390: dasd open counter.
+Message-Id: <20060118201500.1e1deafa.akpm@osdl.org>
+In-Reply-To: <20060118165745.GF29266@osiris.boeblingen.de.ibm.com>
+References: <20060118165745.GF29266@osiris.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060119034011.GK19398@stusta.de>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 04:40:11AM +0100, Adrian Bunk wrote:
-> On Wed, Jan 18, 2006 at 07:35:32PM -0800, Greg KH wrote:
-> > On Thu, Jan 19, 2006 at 04:28:08AM +0100, Adrian Bunk wrote:
-> > > On Wed, Jan 18, 2006 at 06:51:47PM -0800, Greg KH wrote:
-> > > > On Thu, Jan 19, 2006 at 02:32:42AM +0100, Adrian Bunk wrote:
-> > > > > This patch contains the following changes:
-> > > > > - move prototypes to base.h
-> > > > > - sys.c should #include "base.h" for getting the prototype of it's
-> > > > >   global function system_bus_init()
-> > > > > 
-> > > > > Note that hidden in this patch there's a bugfix:
-> > > > > 
-> > > > > Caller and callee disagreed regarding the return type of 
-> > > > > sysdev_shutdown().
-> > > > > 
-> > > > > 
-> > > > > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> > > > > 
-> > > > > ---
-> > > > > 
-> > > > >  drivers/base/base.h           |    6 ++++++
-> > > > >  drivers/base/power/resume.c   |    3 +--
-> > > > >  drivers/base/power/shutdown.c |    2 +-
-> > > > >  drivers/base/power/suspend.c  |    3 +--
-> > > > >  drivers/base/sys.c            |    2 ++
-> > > > >  5 files changed, 11 insertions(+), 5 deletions(-)
-> > > > > 
-> > > > > --- linux-2.6.16-rc1-mm1-full/drivers/base/base.h.old	2006-01-18 23:17:52.000000000 +0100
-> > > > > +++ linux-2.6.16-rc1-mm1-full/drivers/base/base.h	2006-01-18 23:41:33.000000000 +0100
-> > > > > @@ -1,6 +1,8 @@
-> > > > >  
-> > > > >  /* initialisation functions */
-> > > > >  
-> > > > > +#include <linux/device.h>
-> > > > > +
-> > > > 
-> > > > Why is this extra #include needed?  It shouldn't be.
-> > > 
-> > > struct class_device and struct class_device_attribute are needed since 
-> > > they are used in base.h .
-> > 
-> > But anyone who includes base.h will have already included this header
-> > file, right?  That was my point.
+Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+>
+> From: Horst Hummel <horst.hummel@de.ibm.com>
 > 
-> drivers/base/sys.c doesn't (this is why I noticed it).
+> The open_count is increased for every opener, that includes the
+> blkdev_get in dasd_scan_partitions. This tampers the open_count
+> in BIODASDINFO. Hide the internal open from user-space.
+> 
+> Signed-off-by: Horst Hummel <horst.hummel@de.ibm.com>
+> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+> ---
+> 
+>  drivers/s390/block/dasd_ioctl.c |    9 ++++++++-
+>  1 files changed, 8 insertions(+), 1 deletion(-)
+> 
+> diff -urpN linux-2.6/drivers/s390/block/dasd_ioctl.c linux-2.6-patched/drivers/s390/block/dasd_ioctl.c
+> --- linux-2.6/drivers/s390/block/dasd_ioctl.c	2006-01-18 17:25:49.000000000 +0100
+> +++ linux-2.6-patched/drivers/s390/block/dasd_ioctl.c	2006-01-18 17:25:53.000000000 +0100
+> @@ -421,8 +421,15 @@ dasd_ioctl_information(struct block_devi
+>  	dasd_info->cu_model = cdev->id.cu_model;
+>  	dasd_info->dev_type = cdev->id.dev_type;
+>  	dasd_info->dev_model = cdev->id.dev_model;
+> -	dasd_info->open_count = atomic_read(&device->open_count);
+>  	dasd_info->status = device->state;
+> +	/*
+> +	 * The open_count is increased for every opener, that includes
+> +	 * the blkdev_get in dasd_scan_partitions.
+> +	 * This must be hidden from user-space.
+> +	 */
+> +	dasd_info->open_count = atomic_read(&device->open_count);
+> +	if (!device->bdev)
+> +		dasd_info->open_count++;
 
-Then it would be easier to add it there, if needed, than adding it to
-base.h where it will tried to be included twice for all of the other
-driver core files :)
-
-Care to redo it?
-
-thanks,
-
-greg k-h
+I'll change the above to atomic_inc().

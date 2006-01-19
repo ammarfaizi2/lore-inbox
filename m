@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161281AbWASI4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161282AbWASI5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161281AbWASI4S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 03:56:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161282AbWASI4S
+	id S1161282AbWASI5d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 03:57:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161283AbWASI5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 03:56:18 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:45958 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161281AbWASI4R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 03:56:17 -0500
-Date: Thu, 19 Jan 2006 00:56:00 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Andy Chittenden" <AChittenden@bluearc.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Out of Memory: Killed process 16498 (java).
-Message-Id: <20060119005600.4e465e9d.akpm@osdl.org>
-In-Reply-To: <89E85E0168AD994693B574C80EDB9C2703555F85@uk-email.terastack.bluearc.com>
-References: <89E85E0168AD994693B574C80EDB9C2703555F85@uk-email.terastack.bluearc.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 19 Jan 2006 03:57:33 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:38561 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161282AbWASI5c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 03:57:32 -0500
+Date: Thu, 19 Jan 2006 08:57:30 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: sam@ravnborg.org, starvik@axis.com, dev-etrax@axis.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: cris: asm-offsets related build failure
+Message-ID: <20060119085730.GP27946@ftp.linux.org.uk>
+References: <20060119001852.GO19398@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060119001852.GO19398@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Andy Chittenden" <AChittenden@bluearc.com> wrote:
->
-> Why does running the following command cause processes to be killed:
+On Thu, Jan 19, 2006 at 01:18:52AM +0100, Adrian Bunk wrote:
+> Hi Sam,
 > 
-> 	dd if=/dev/zero of=/u/u1/andyc/tmpfile bs=1M count=8k
+> the following build failure is present on the cris architecture:
 > 
-> And I noticed one of my windows disappeared. Further investigation
-> showed that was my terminator window (java based app: see
-> http://software.jessies.org/terminator/). I found this in my syslog:
+> <--  snip  -->
 > 
-> Jan 17 11:12:58 boco kernel: Out of Memory: Killed process 16498 (java).
-> 
-> My hardware: amd64 based machine (ASUS A8V Deluxe motherboard) with 4Gb
-> of memory.
-> My kernel: debian package linux-image-2.6.15-1-amd64-k8 package
-> installed. IE its running 2.6.15 compiled for amd64.
-> 
-> This is repeatable. The above dd command also causes the machine to
-> become very unresponsive (eg windows don't focus).
+> ...
+> make[1]: *** No rule to make target `arch/cris/kernel/asm-offsets.c', 
+> needed by `arch/cris/kernel/asm-offsets.s'.  Stop.
+> make: *** [prepare0] Error 2
 
-What type of filesytem is being written to?
+Subject: [PATCH] fix a typo in arch/cris/Makefile
 
-Has someone tuned /proc/sys/vm/swappiness, or something else under
-/proc/sys/vm?
+fallout from "kbuild: cris use generic asm-offsets.h support" - symlink
+target was wrong
 
-It'd be useful to see the dmesg output from that oom event.
+---
+
+ arch/cris/Makefile |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+9812c3418f4068bb8940924a871e5bc0713d4e41
+diff --git a/arch/cris/Makefile b/arch/cris/Makefile
+index ea65d58..ee11469 100644
+--- a/arch/cris/Makefile
++++ b/arch/cris/Makefile
+@@ -119,7 +119,7 @@ $(SRC_ARCH)/.links:
+ 	@ln -sfn $(SRC_ARCH)/$(SARCH)/lib $(SRC_ARCH)/lib
+ 	@ln -sfn $(SRC_ARCH)/$(SARCH) $(SRC_ARCH)/arch
+ 	@ln -sfn $(SRC_ARCH)/$(SARCH)/vmlinux.lds.S $(SRC_ARCH)/kernel/vmlinux.lds.S
+-	@ln -sfn $(SRC_ARCH)/$(SARCH)/asm-offsets.c $(SRC_ARCH)/kernel/asm-offsets.c
++	@ln -sfn $(SRC_ARCH)/$(SARCH)/kernel/asm-offsets.c $(SRC_ARCH)/kernel/asm-offsets.c
+ 	@touch $@
+ 
+ # Create link to sub arch includes
+-- 
+0.99.9.GIT

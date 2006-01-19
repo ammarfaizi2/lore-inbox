@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161280AbWASQJr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161301AbWASQK6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161280AbWASQJr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 11:09:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161301AbWASQJq
+	id S1161301AbWASQK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 11:10:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161295AbWASQK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 11:09:46 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:26385 "HELO
+	Thu, 19 Jan 2006 11:10:58 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:28177 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161296AbWASQJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 11:09:46 -0500
-Date: Thu, 19 Jan 2006 17:09:44 +0100
+	id S1161301AbWASQK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 11:10:57 -0500
+Date: Thu, 19 Jan 2006 17:10:56 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Jes Sorensen <jes@sgi.com>
-Cc: Dave Jones <davej@redhat.com>, pfg@sgi.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/sn/ must be entered for CONFIG_SGI_IOC3
-Message-ID: <20060119160944.GN19398@stusta.de>
-References: <20060117235521.GA14298@redhat.com> <20060119032423.GI19398@stusta.de> <yq0vewg7dc7.fsf@jaguar.mkp.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Badari Pulavarty <pbadari@us.ibm.com>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: Re: [2.6 patch] the scheduled removal of the obsolete raw driver
+Message-ID: <20060119161056.GO19398@stusta.de>
+References: <20060119030251.GG19398@stusta.de> <20060118194103.5c569040.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <yq0vewg7dc7.fsf@jaguar.mkp.net>
+In-Reply-To: <20060118194103.5c569040.akpm@osdl.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 04:54:00AM -0500, Jes Sorensen wrote:
-> >>>>> "Adrian" == Adrian Bunk <bunk@stusta.de> writes:
+On Wed, Jan 18, 2006 at 07:41:03PM -0800, Andrew Morton wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> > Let's do the scheduled removal of the obsolete raw driver in 2.6.17.
+> > 
 > 
-> Adrian> On Tue, Jan 17, 2006 at 06:55:21PM -0500, Dave Jones wrote:
-> >> kernel/drivers/serial/ioc3_serial.ko needs unknown symbol
-> >> ioc3_unregister_submodule
-> >> 
-> >> CONFIG_SERIAL_SGI_IOC3=m CONFIG_SGI_IOC3=m
+> heh.  I was just thinking that I hadn't heard from Badari and Ken in a while.
 > 
-> Adrian> The untested patch below should fix it.
-> 
-> Actually I think this is more appropriate so we don't end up with 17
-> cases that add drivers/sn to the build lib.
->...
+> I doubt if this'll fly.  We're stuck with it.
 
-I haven't tested your patch, but I agree that it's a better approach 
-than my patch.
- 
-> Cheers,
-> Jes
->...
+Why is the person listed in Documentation/feature-removal-schedule.txt 
+the last one to hear that someone still requires something scheduled for 
+removal?
 
 cu
 Adrian

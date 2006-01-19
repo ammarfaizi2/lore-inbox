@@ -1,113 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161327AbWASTKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161231AbWASTNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161327AbWASTKu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 14:10:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161310AbWASTKr
+	id S1161231AbWASTNm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 14:13:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161330AbWASTNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 14:10:47 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:49084 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1161338AbWASTKO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 14:10:14 -0500
-From: Mel Gorman <mel@csn.ul.ie>
-To: linux-mm@kvack.org
-Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Message-Id: <20060119190906.16909.60763.sendpatchset@skynet.csn.ul.ie>
-In-Reply-To: <20060119190846.16909.14133.sendpatchset@skynet.csn.ul.ie>
-References: <20060119190846.16909.14133.sendpatchset@skynet.csn.ul.ie>
-Subject: [PATCH 4/5] ppc64 - Specify amount of kernel memory at boot time
-Date: Thu, 19 Jan 2006 19:09:06 +0000 (GMT)
+	Thu, 19 Jan 2006 14:13:41 -0500
+Received: from rutherford.zen.co.uk ([212.23.3.142]:6075 "EHLO
+	rutherford.zen.co.uk") by vger.kernel.org with ESMTP
+	id S1161333AbWASTNj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 14:13:39 -0500
+Message-ID: <43CFE4D4.2020900@cantab.net>
+Date: Thu, 19 Jan 2006 19:13:24 +0000
+From: David Vrabel <dvrabel@cantab.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Takashi Iwai <tiwai@suse.de>
+CC: Lee Revell <rlrevell@joe-job.com>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       perex@suse.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [Alsa-devel] Re: RFC: OSS driver removal, a slightly different
+ approach
+References: <20060119174600.GT19398@stusta.de>	<1137694944.32195.1.camel@mindpipe>	<20060119182859.GW19398@stusta.de>	<1137696885.32195.12.camel@mindpipe> <s5hk6cw9h07.wl%tiwai@suse.de>
+In-Reply-To: <s5hk6cw9h07.wl%tiwai@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-Rutherford-IP: [82.70.146.41]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Takashi Iwai wrote:
+> At Thu, 19 Jan 2006 13:54:45 -0500,
+> Lee Revell wrote:
+> 
+>>On Thu, 2006-01-19 at 19:28 +0100, Adrian Bunk wrote:
+>>
+>>>On Thu, Jan 19, 2006 at 01:22:23PM -0500, Lee Revell wrote:
+>>>
+>>>>On Thu, 2006-01-19 at 18:46 +0100, Adrian Bunk wrote:
+>>>>
+>>>>>3. no ALSA drivers for the same hardware
+>>>>>
+>>>>>SOUND_SB 
+>>>>
+>>>>ALSA certainly does support "100% Sound Blaster compatibles (SB16/32/64,
+>>>>ESS, Jazz16)", it would be a joke if it didn't...
+>>>
+>>>That's not the problem, I should have added an explanation:
+>>>
+>>>SOUND_SB (due to SOUND_KAHLUA and SOUND_PAS)
+>>>
+>>
+>>Hmm.  From sound/oss/kahlua.c:
+>>
+>>/*
+>> *      Initialisation code for Cyrix/NatSemi VSA1 softaudio
+>> *
+>> *      (C) Copyright 2003 Red Hat Inc <alan@redhat.com>
+>> *
+>>
+>>Why was a new OSS driver written and accepted at such a late date, when
+>>OSS was already deprecated?
+> 
+> 
+> You'll find out that it must be pretty easy to write kahlua driver for
+> ALSA, too, if you look at kahlua.c.  Just need a hardware to certify
+> if this is really demanded...
 
-This patch adds the kernelcore= parameter for ppc64.
+Is this the audio on the Cyrix MediaGX (later National Semiconductor 
+Geode GXm)?  I have access to hardware with that CPUs that I can test 
+with if someone wants to write an ALSA driver. Er... though I'm not sure 
+what VSA version the BIOS has.
 
-The amount of memory will requested will not be reserved in all nodes. The
-first node that is found that can accomodate the requested amount of memory
-and have remaining more for ZONE_EASYRCLM is used. If a node has memory holes,
-it also will not be used.
+I seem to recall that the Soundblaster 16 emulation provided by the VSA 
+code worked fine so perhaps this can be dropped entirely.  I've not 
+touched a MediaGX based board in many years so I may be remembering 
+incorrectly.  The Soundblaster 16 emulation does work fine on AMD Geode 
+GX1 boards.
 
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-103_x86coremem/arch/powerpc/mm/numa.c linux-2.6.16-rc1-mm1-104_ppc64coremem/arch/powerpc/mm/numa.c
---- linux-2.6.16-rc1-mm1-103_x86coremem/arch/powerpc/mm/numa.c	2006-01-17 07:44:47.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-104_ppc64coremem/arch/powerpc/mm/numa.c	2006-01-19 11:39:36.000000000 +0000
-@@ -21,6 +21,7 @@
- #include <asm/lmb.h>
- #include <asm/system.h>
- #include <asm/smp.h>
-+#include <asm/machdep.h>
- 
- static int numa_enabled = 1;
- 
-@@ -722,20 +723,50 @@ void __init paging_init(void)
- 	unsigned long zones_size[MAX_NR_ZONES];
- 	unsigned long zholes_size[MAX_NR_ZONES];
- 	int nid;
-+	unsigned long core_mem_size = 0;
-+	unsigned long core_mem_pfn = 0;
-+	char *opt;
- 
- 	memset(zones_size, 0, sizeof(zones_size));
- 	memset(zholes_size, 0, sizeof(zholes_size));
- 
-+	/* Check if ZONE_EASYRCLM should be populated */
-+	opt = strstr(cmd_line, "kernelcore=");
-+	if (opt) {
-+		opt += 11;
-+		core_mem_size = memparse(opt, &opt);
-+		core_mem_pfn = core_mem_size >> PAGE_SHIFT;
-+	}
-+
- 	for_each_online_node(nid) {
- 		unsigned long start_pfn, end_pfn, pages_present;
- 
- 		get_region(nid, &start_pfn, &end_pfn, &pages_present);
- 
--		zones_size[ZONE_DMA] = end_pfn - start_pfn;
--		zholes_size[ZONE_DMA] = zones_size[ZONE_DMA] - pages_present;
-+		/*
-+		 * Set up a zone for EASYRCLM as long as this node is large
-+		 * enough to accomodate the requested size and that there
-+		 * are no memory holes
-+		 */
-+		if (end_pfn - start_pfn <= core_mem_pfn ||
-+				end_pfn - start_pfn != pages_present) {
-+			zones_size[ZONE_DMA] = end_pfn - start_pfn;
-+			zholes_size[ZONE_DMA] =
-+				zones_size[ZONE_DMA] - pages_present;
-+			core_mem_pfn -= (end_pfn - start_pfn);
-+		} else {
-+			zones_size[ZONE_DMA] = core_mem_pfn;
-+			zones_size[ZONE_EASYRCLM] = end_pfn - core_mem_pfn;
-+			zholes_size[ZONE_DMA] = 0;
-+			zholes_size[ZONE_EASYRCLM] = 0;
-+			core_mem_pfn = 0;
-+		}
- 
--		dbg("free_area_init node %d %lx %lx (hole: %lx)\n", nid,
-+		dbg("free_area_init DMA node %d %lx %lx (hole: %lx)\n", nid,
- 		    zones_size[ZONE_DMA], start_pfn, zholes_size[ZONE_DMA]);
-+		dbg("free_area_init EASYRCLM node %d %lx %lx (hole: %lx)\n",
-+		    nid, zones_size[ZONE_EASYRCLM], start_pfn,
-+		    zholes_size[ZONE_DMA]);
- 
- 		free_area_init_node(nid, NODE_DATA(nid), zones_size, start_pfn,
- 				    zholes_size);
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-103_x86coremem/mm/page_alloc.c linux-2.6.16-rc1-mm1-104_ppc64coremem/mm/page_alloc.c
---- linux-2.6.16-rc1-mm1-103_x86coremem/mm/page_alloc.c	2006-01-19 11:37:52.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-104_ppc64coremem/mm/page_alloc.c	2006-01-19 11:39:36.000000000 +0000
-@@ -1568,7 +1568,11 @@ static int __init build_zonelists_node(p
- 		zone = pgdat->node_zones + zone_type;
- 		if (populated_zone(zone)) {
- #ifndef CONFIG_HIGHMEM
--			BUG_ON(zone_type > ZONE_NORMAL);
-+			/*
-+			 * On architectures with only ZONE_DMA, it is still
-+			 * valid to have a ZONE_EASYRCLM
-+			 */
-+			BUG_ON(zone_type == ZONE_HIGHMEM);
- #endif
- 			zonelist->zones[nr_zones++] = zone;
- 			check_highest_zone(zone_type);
+David Vrabel

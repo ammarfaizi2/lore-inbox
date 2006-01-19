@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161287AbWASEZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161291AbWASE0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161287AbWASEZN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 23:25:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161290AbWASEZN
+	id S1161291AbWASE0A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 23:26:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161293AbWASE0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 23:25:13 -0500
-Received: from pat.uio.no ([129.240.130.16]:24968 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1161287AbWASEZM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 23:25:12 -0500
-Subject: Re: Can you specify a local IP or Interface to be used on
-	a	per	NFS mount basis?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43CF0768.60703@candelatech.com>
-References: <43CECB00.40405@candelatech.com>
-	 <1137631728.13076.1.camel@lade.trondhjem.org>
-	 <43CEF7A6.30802@candelatech.com>
-	 <1137641084.8864.3.camel@lade.trondhjem.org>
-	 <43CF0768.60703@candelatech.com>
-Content-Type: text/plain
-Date: Wed, 18 Jan 2006 23:24:58 -0500
-Message-Id: <1137644698.8864.8.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.363, required 12,
-	autolearn=disabled, AWL 1.45, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+	Wed, 18 Jan 2006 23:26:00 -0500
+Received: from mailout1.pacific.net.au ([61.8.0.84]:7144 "EHLO
+	mailout1.pacific.net.au") by vger.kernel.org with ESMTP
+	id S1161291AbWASEZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 23:25:59 -0500
+Date: Thu, 19 Jan 2006 15:25:37 +1100
+Message-Id: <200601190425.k0J4PbGD024378@typhaon.pacific.net.au>
+From: "David Luyer" <david@luyer.net>
+To: LKML <linux-kernel@vger.kernel.org>, rick@linuxmafia.com
+Subject: Resolution: ASUS A7V-E SE + Linux Kernel 2.6.15.1 + SATA
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-18 at 19:28 -0800, Ben Greear wrote:
+The problem -- 30 seconds for each disk IO operation, followed by
+syslog messages such as:
 
-> > As David said, the place to fix it is in xs_bindresvport(), but there is
-> > no support for passing this sort of information through the current NFS
-> > binary mount structure. You would have to hack that up yourself.
-> 
-> I can think of some horrible hacks to grab info out of a text file based
-> on the mount point or some other available info...but if I actually
-> attempted to do it right..would you consider the patch for kernel
-> inclusion?  Is it OK to modify the binary mount structure?
+  ata1: slow completion (cmd ef)
+  ata2: slow completion (cmd ef)
+  ata1: command 0x25 timeout, stat 0x50 host_stat 24
+  ata2: command 0x25 timeout, stat 0x50 host_stat 24
 
-It is possible, yes: the binary structure carries a version number that
-allows the kernel to distinguish the various revisions that the userland
-mount program supports.
+The cause -- the ASUS A7V-E with the sata_via driver does not
+receive interupts without ACPI enabled (yet another Via IRQ quirk,
+or incomplete handing or the currently known quirks?).  Once ACPI
+is enabled, the SATA works perfectly, on both a A7V-E SE and a
+A7V-E Deluxe.
 
-That said, the concensus at the moment appears to be that we should move
-towards a text-based mount structure for NFS (like most of the other
-filesystems have, and like NFSroot has) so I'd be reluctant to take
-patches that define new binary structures.
+These VT8237R based boards use a VT6420 Serial ATA chip
+(attention http://linuxmafia.com/faq/Hardware/sata.html maintainer!).
 
-Cheers,
-  Trond
+The next problems seem to be 64-bit regions being used for the
+ethernet (SKGE) and Nvida 7800GTX on a 32-bit kernel causing
+the drivers for these devices to refuse to load.
 
+David.
+-- 
+David Luyer
+Pacific Internet (Australia) Pty Ltd
+Business card: http://www.luyer.net/bc.html
+Important notice: http://www.pacific.net.au/disclaimer/

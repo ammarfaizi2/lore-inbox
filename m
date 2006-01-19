@@ -1,104 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161290AbWASJxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161300AbWASJyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161290AbWASJxV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 04:53:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161296AbWASJxV
+	id S1161300AbWASJyF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 04:54:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161298AbWASJyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 04:53:21 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:12809 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1161290AbWASJxU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 04:53:20 -0500
-Date: Thu, 19 Jan 2006 10:53:10 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] kconfig: fix /dev/null breakage
-Message-ID: <20060119095310.GA11323@mars.ravnborg.org>
-Mime-Version: 1.0
+	Thu, 19 Jan 2006 04:54:04 -0500
+Received: from vanessarodrigues.com ([192.139.46.150]:3503 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1161296AbWASJyC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 04:54:02 -0500
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Dave Jones <davej@redhat.com>, pfg@sgi.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/sn/ must be entered for CONFIG_SGI_IOC3
+References: <20060117235521.GA14298@redhat.com>
+	<20060119032423.GI19398@stusta.de>
+From: Jes Sorensen <jes@sgi.com>
+Date: 19 Jan 2006 04:54:00 -0500
+In-Reply-To: <20060119032423.GI19398@stusta.de>
+Message-ID: <yq0vewg7dc7.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Following patch should fix all issues with /dev/null changing
-permissions and becoming a rugulary file.
-Thanks to Bryan for the gcc -print-file-name=libxxx.so idea!
+>>>>> "Adrian" == Adrian Bunk <bunk@stusta.de> writes:
 
-To do the final check I still use a link. Just to make sure everything
-is OK.
-That may prove overkill, but left it as is for now.
+Adrian> On Tue, Jan 17, 2006 at 06:55:21PM -0500, Dave Jones wrote:
+>> kernel/drivers/serial/ioc3_serial.ko needs unknown symbol
+>> ioc3_unregister_submodule
+>> 
+>> CONFIG_SERIAL_SGI_IOC3=m CONFIG_SGI_IOC3=m
 
-Jan, Eyal, Jean, Bryan - thanks for testing/inputs!
+Adrian> The untested patch below should fix it.
 
-PS. Feeling shitty, will push out after some sleep.
+Actually I think this is more appropriate so we don't end up with 17
+cases that add drivers/sn to the build lib.
 
-	Sam
-	
-diff --git a/scripts/kconfig/lxdialog/Makefile b/scripts/kconfig/lxdialog/Makefile
-index fae3e29..bbf4887 100644
---- a/scripts/kconfig/lxdialog/Makefile
-+++ b/scripts/kconfig/lxdialog/Makefile
-@@ -2,8 +2,11 @@
- #
+Dave, does this solve the problem?
+
+Cheers,
+Jes
+
+Include drivers/sn when CONFIG_IA64_SGI_SN2 or CONFIG_IA64_GENERIC
+is enabled.
+
+Signed-off-by: Jes Sorensen <jes@sgi.com>
+----
+
+ arch/ia64/Kconfig |    3 +++
+ drivers/Makefile  |    2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+Index: linux-2.6/arch/ia64/Kconfig
+===================================================================
+--- linux-2.6.orig/arch/ia64/Kconfig
++++ linux-2.6/arch/ia64/Kconfig
+@@ -374,6 +374,9 @@
+ 	  To use this option, you have to ensure that the "/proc file system
+ 	  support" (CONFIG_PROC_FS) is enabled, too.
  
- check-lxdialog  := $(srctree)/$(src)/check-lxdialog.sh
--HOST_EXTRACFLAGS:= $(shell $(CONFIG_SHELL) $(check-lxdialog) -ccflags)
--HOST_LOADLIBES  := $(shell $(CONFIG_SHELL) $(check-lxdialog) -ldflags $(HOSTCC))
++config SGI_SN
++	def_bool y if (IA64_SGI_SN2 || IA64_GENERIC)
 +
-+# Use reursively expanded variables so we do not call gcc unless
-+# we really need to do so. (Do not call gcc as part of make mrproper)
-+HOST_EXTRACFLAGS = $(shell $(CONFIG_SHELL) $(check-lxdialog) -ccflags)
-+HOST_LOADLIBES   = $(shell $(CONFIG_SHELL) $(check-lxdialog) -ldflags $(HOSTCC))
-  
- HOST_EXTRACFLAGS += -DLOCALE 
+ source "drivers/firmware/Kconfig"
  
-diff --git a/scripts/kconfig/lxdialog/check-lxdialog.sh b/scripts/kconfig/lxdialog/check-lxdialog.sh
-index 448e353..120d624 100644
---- a/scripts/kconfig/lxdialog/check-lxdialog.sh
-+++ b/scripts/kconfig/lxdialog/check-lxdialog.sh
-@@ -4,17 +4,17 @@
- # What library to link
- ldflags()
- {
--	echo "main() {}" | $cc -lncursesw -xc - -o /dev/null 2> /dev/null
-+	$cc -print-file-name=libncursesw.so | grep -q /
- 	if [ $? -eq 0 ]; then
- 		echo '-lncursesw'
- 		exit
- 	fi
--	echo "main() {}" | $cc -lncurses -xc - -o /dev/null 2> /dev/null
-+	$cc -print-file-name=libncurses.so | grep -q /
- 	if [ $? -eq 0 ]; then
- 		echo '-lncurses'
- 		exit
- 	fi
--	echo "main() {}" | $cc -lcurses -xc - -o /dev/null 2> /dev/null
-+	$cc -print-file-name=libcurses.so | grep -q /
- 	if [ $? -eq 0 ]; then
- 		echo '-lcurses'
- 		exit
-@@ -36,10 +36,13 @@ ccflags()
- 	fi
- }
- 
--compiler=""
-+# Temp file, try to clean up after us
-+tmp=.lxdialog.tmp
-+trap "rm -f $tmp" 0 1 2 3 15
-+
- # Check if we can link to ncurses
- check() {
--	echo "main() {}" | $cc -xc - -o /dev/null 2> /dev/null
-+	echo "main() {}" | $cc -xc - -o $tmp 2> /dev/null
- 	if [ $? != 0 ]; then
- 		echo " *** Unable to find the ncurses libraries."          1>&2
- 		echo " *** make menuconfig require the ncurses libraries"  1>&2
-@@ -59,6 +62,7 @@ if [ $# == 0 ]; then
- 	exit 1
- fi
- 
-+cc=""
- case "$1" in
- 	"-check")
- 		shift
+ source "fs/Kconfig.binfmt"
+Index: linux-2.6/drivers/Makefile
+===================================================================
+--- linux-2.6.orig/drivers/Makefile
++++ linux-2.6/drivers/Makefile
+@@ -69,7 +69,7 @@
+ obj-$(CONFIG_CPU_FREQ)		+= cpufreq/
+ obj-$(CONFIG_MMC)		+= mmc/
+ obj-$(CONFIG_INFINIBAND)	+= infiniband/
+-obj-$(CONFIG_SGI_IOC4)		+= sn/
++obj-$(CONFIG_SGI_SN)		+= sn/
+ obj-y				+= firmware/
+ obj-$(CONFIG_CRYPTO)		+= crypto/
+ obj-$(CONFIG_SUPERH)		+= sh/

@@ -1,48 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161334AbWASTPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161330AbWASTXc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161334AbWASTPp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 14:15:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161330AbWASTPp
+	id S1161330AbWASTXc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 14:23:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161341AbWASTXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 14:15:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43226 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161334AbWASTPn (ORCPT
+	Thu, 19 Jan 2006 14:23:32 -0500
+Received: from mail.suse.de ([195.135.220.2]:48054 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161330AbWASTXY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 14:15:43 -0500
-Date: Thu, 19 Jan 2006 14:13:18 -0500
-From: Dave Jones <davej@redhat.com>
-To: Nick <nick@linicks.net>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] offer CC_OPTIMIZE_FOR_SIZE only if EXPERIMENTAL
-Message-ID: <20060119191317.GH21663@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Nick <nick@linicks.net>,
-	Krzysztof Halasa <khc@pm.waw.pl>,
-	Jesper Juhl <jesper.juhl@gmail.com>, Adrian Bunk <bunk@stusta.de>,
-	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20051214191006.GC23349@stusta.de> <20051214140531.7614152d.akpm@osdl.org> <20051214221304.GE23349@stusta.de> <9a8748490512141418w2a3811a9iffe83b5f285e2910@mail.gmail.com> <9a8748490512141428q29f39ca5x66d2c52e22aa9208@mail.gmail.com> <20051215004006.GA19354@redhat.com> <m3bqzijtev.fsf@defiant.localdomain> <7c3341450601191017o796faf45r2cc5c8e544dcfe11@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7c3341450601191017o796faf45r2cc5c8e544dcfe11@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 19 Jan 2006 14:23:24 -0500
+From: Nick Piggin <npiggin@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <npiggin@suse.de>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-Id: <20060119192210.11913.49481.sendpatchset@linux.site>
+In-Reply-To: <20060119192131.11913.27564.sendpatchset@linux.site>
+References: <20060119192131.11913.27564.sendpatchset@linux.site>
+Subject: [patch 4/6] mm: less atomic ops
+Date: Thu, 19 Jan 2006 20:23:20 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 06:17:56PM +0000, Nick wrote:
+In the page release paths, we can be sure that nobody will mess with our
+page->flags because the refcount has dropped to 0. So no need for atomic
+operations here.
 
- > > Version-Release number of selected component (if applicable):
- > > gcc-4.0.1-4.fc4 and gcc-4.0.2-8.fc4 (i.e., FC4-current)
- > >
- > 
- > I use Os on all my builds of everything, including the option for the kernel
- > - that bug doesn't hit me on (heavily updated) Slackware 10, and I have
- > never seen no ill effect:
- > 
- > gcc version 3.3.4
+Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-It's a regression introduced in gcc4
-
-		Dave
+Index: linux-2.6/include/linux/page-flags.h
+===================================================================
+--- linux-2.6.orig/include/linux/page-flags.h
++++ linux-2.6/include/linux/page-flags.h
+@@ -247,10 +247,12 @@ extern void __mod_page_state_offset(unsi
+ #define PageLRU(page)		test_bit(PG_lru, &(page)->flags)
+ #define SetPageLRU(page)	set_bit(PG_lru, &(page)->flags)
+ #define ClearPageLRU(page)	clear_bit(PG_lru, &(page)->flags)
++#define __ClearPageLRU(page)	__clear_bit(PG_lru, &(page)->flags)
+ 
+ #define PageActive(page)	test_bit(PG_active, &(page)->flags)
+ #define SetPageActive(page)	set_bit(PG_active, &(page)->flags)
+ #define ClearPageActive(page)	clear_bit(PG_active, &(page)->flags)
++#define __ClearPageActive(page)	__clear_bit(PG_active, &(page)->flags)
+ 
+ #define PageSlab(page)		test_bit(PG_slab, &(page)->flags)
+ #define SetPageSlab(page)	set_bit(PG_slab, &(page)->flags)
+Index: linux-2.6/mm/swap.c
+===================================================================
+--- linux-2.6.orig/mm/swap.c
++++ linux-2.6/mm/swap.c
+@@ -212,7 +212,7 @@ void fastcall __page_cache_release(struc
+ 		struct zone *zone = page_zone(page);
+ 		spin_lock_irqsave(&zone->lru_lock, flags);
+ 		BUG_ON(!PageLRU(page));
+-		ClearPageLRU(page);
++		__ClearPageLRU(page);
+ 		del_page_from_lru(zone, page);
+ 		spin_unlock_irqrestore(&zone->lru_lock, flags);
+ 	}
+@@ -256,7 +256,7 @@ void release_pages(struct page **pages, 
+ 				spin_lock_irq(&zone->lru_lock);
+ 			}
+ 			BUG_ON(!PageLRU(page));
+-			ClearPageLRU(page);
++			__ClearPageLRU(page);
+ 			del_page_from_lru(zone, page);
+ 		}
+ 
+Index: linux-2.6/include/linux/mm_inline.h
+===================================================================
+--- linux-2.6.orig/include/linux/mm_inline.h
++++ linux-2.6/include/linux/mm_inline.h
+@@ -32,7 +32,7 @@ del_page_from_lru(struct zone *zone, str
+ {
+ 	list_del(&page->lru);
+ 	if (PageActive(page)) {
+-		ClearPageActive(page);
++		__ClearPageActive(page);
+ 		zone->nr_active--;
+ 	} else {
+ 		zone->nr_inactive--;

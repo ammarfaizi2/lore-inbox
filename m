@@ -1,69 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161212AbWASOVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161218AbWASOpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161212AbWASOVV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 09:21:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161213AbWASOVV
+	id S1161218AbWASOpv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 09:45:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161205AbWASOpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 09:21:21 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:47254 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1161212AbWASOVU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 09:21:20 -0500
-In-Reply-To: <1137664156.8471.16.camel@localhost.localdomain>
-References: <Pine.LNX.4.44.0601190057130.8484-100000@gate.crashing.org> <1137664156.8471.16.camel@localhost.localdomain>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <0D215BB4-D75D-439C-BB33-4880315C1191@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, wim@iguana.be,
-       LKML List <linux-kernel@vger.kernel.org>,
-       "Linuxppc-Embedded ((E-Mail))" <linuxppc-embedded@ozlabs.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: [PATCH] powerpc: remove useless spinlock from mpc83xx watchdog
-Date: Thu, 19 Jan 2006 08:21:14 -0600
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-X-Mailer: Apple Mail (2.746.2)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Thu, 19 Jan 2006 09:45:50 -0500
+Received: from cantor.suse.de ([195.135.220.2]:13706 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161176AbWASOpu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 09:45:50 -0500
+Date: Thu, 19 Jan 2006 15:45:48 +0100
+From: Nick Piggin <npiggin@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <npiggin@suse.de>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [patch] sg: simplify page_count manipulations
+Message-ID: <20060119144548.GF958@wotan.suse.de>
+References: <20060118155242.GB28418@wotan.suse.de> <20060118195937.3586c94f.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060118195937.3586c94f.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 18, 2006 at 07:59:37PM -0800, Andrew Morton wrote:
+> Nick Piggin <npiggin@suse.de> wrote:
+> > -	/* N.B. correction _not_ applied to base page of each allocation */
+> > -	for (k = 0; k < rsv_schp->k_use_sg; ++k, ++sg) {
+> > -		for (m = PAGE_SIZE; m < sg->length; m += PAGE_SIZE) {
+> > -			page = sg->page;
+> > -			if (startFinish)
+> > -				get_page(page);
+> > -			else {
+> > -				if (page_count(page) > 0)
+> > -					__put_page(page);
+> > -			}
+> > -		}
+> > -	}
+> > -}
+> 
+> What on earth is the above trying to do?  The inner loop is a rather
+> complex way of doing atomic_add(&page->count, sg->length/PAGE_SIZE).  One
+> suspects there's a missing "[m]" in there.
+> 
 
-On Jan 19, 2006, at 3:49 AM, Alan Cox wrote:
+It does this on the first mmap of the device, in the hope that subsequent
+nopage, unmaps would not free the constituent pages in the scatterlist.
 
-> On Iau, 2006-01-19 at 00:58 -0600, Kumar Gala wrote:
->> Since we can only open the watchdog once having a spinlock to protect
->> multiple access is pointless.
->>
->> Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
->
-> NAK
->
-> This is a common mistake.
->
-> open is called on the open() call and is indeed in this case 'single
-> open', but file handles can be inherited and many users may have  
-> access
-> to a single file handle.
->
-> eg
->
-> 	f = open("/dev/watchdog", O_RDWR);
-> 	fork();
-> 	while(1) {
-> 		write(f, "Boing", 5);
-> 	}
->
-> Alan
+> Yes, using a compound page for the refcounting sounds sane, but I think
+> this code is fragile and has monsters in it.
 
-Thanks, you learn something new every day.
-
-- kumar
 

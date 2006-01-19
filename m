@@ -1,134 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161406AbWASUOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161414AbWASUQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161406AbWASUOj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 15:14:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161407AbWASUOi
+	id S1161414AbWASUQA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 15:16:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161409AbWASUP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 15:14:38 -0500
-Received: from atlrel9.hp.com ([156.153.255.214]:50658 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S1161403AbWASUOf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 15:14:35 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Subject: [PATCH 5/5] ACPI: clean up memory attribute checking for map/read/write
-Date: Thu, 19 Jan 2006 13:14:31 -0700
-User-Agent: KMail/1.8.3
-Cc: linux-ia64@vger.kernel.org, ak@suse.de,
-       openipmi-developer@lists.sourceforge.net, akpm@osdl.org,
-       "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-References: <20060104221627.GA26064@lists.us.dell.com> <20060118181116.GA5537@lists.us.dell.com> <200601191310.57303.bjorn.helgaas@hp.com>
-In-Reply-To: <200601191310.57303.bjorn.helgaas@hp.com>
+	Thu, 19 Jan 2006 15:15:59 -0500
+Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:38028 "EHLO
+	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP
+	id S1161411AbWASUP6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 15:15:58 -0500
+Date: Thu, 19 Jan 2006 21:14:28 +0100 (CET)
+From: Martin Drab <drab@kepler.fjfi.cvut.cz>
+To: Phillip Susi <psusi@cfl.rr.com>
+cc: govind raj <agovinda04@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: RAID 5+0 support
+In-Reply-To: <43CFE34F.8060309@cfl.rr.com>
+Message-ID: <Pine.LNX.4.60.0601192113030.14341@kepler.fjfi.cvut.cz>
+References: <BAY109-F267E92D32B75385FDB680DD61C0@phx.gbl> <43CFCBB2.3050003@cfl.rr.com>
+ <Pine.LNX.4.60.0601191933250.14341@kepler.fjfi.cvut.cz> <43CFE34F.8060309@cfl.rr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601191314.31705.bjorn.helgaas@hp.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ia64 ioremap is now smart enough to use the correct memory attributes,
-so remove the EFI checks from osl.c.
+On Thu, 19 Jan 2006, Phillip Susi wrote:
 
-Depends on the previous ia64 ioremap patch.
+> Martin Drab wrote:
+> > Speed is the issue here, I believe. By stripping two RAID-5 arrays you ought
+> > to get the reliability of the RAID-5 but with considerably higher speed.
+> > That's basically why RAID-50 exists, I think.
+> 
+> One big raid-5 would have higher speed because it would have one more disk
+> allocated to storing data rather than more parity.  The raid 5+0 isn't really
+> going to be any more reliable because it can withstand a single failure in
+> either half, but not two failures in one half, so in the face of a double
+> failure, you have a 50/50 chance of one being in each half. 
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Well, yes and no. See for instance:
 
-Index: work-mm3/drivers/acpi/osl.c
-===================================================================
---- work-mm3.orig/drivers/acpi/osl.c	2006-01-19 11:37:23.000000000 -0700
-+++ work-mm3/drivers/acpi/osl.c	2006-01-19 11:38:05.000000000 -0700
-@@ -180,22 +180,14 @@
- acpi_os_map_memory(acpi_physical_address phys, acpi_size size,
- 		   void __iomem ** virt)
- {
--	if (efi_enabled) {
--		if (EFI_MEMORY_WB & efi_mem_attributes(phys)) {
--			*virt = (void __iomem *)phys_to_virt(phys);
--		} else {
--			*virt = ioremap(phys, size);
--		}
--	} else {
--		if (phys > ULONG_MAX) {
--			printk(KERN_ERR PREFIX "Cannot map memory that high\n");
--			return AE_BAD_PARAMETER;
--		}
--		/*
--		 * ioremap checks to ensure this is in reserved space
--		 */
--		*virt = ioremap((unsigned long)phys, size);
-+	if (phys > ULONG_MAX) {
-+		printk(KERN_ERR PREFIX "Cannot map memory that high\n");
-+		return AE_BAD_PARAMETER;
- 	}
-+	/*
-+	 * ioremap checks to ensure this is in reserved space
-+	 */
-+	*virt = ioremap((unsigned long)phys, size);
- 
- 	if (!*virt)
- 		return AE_NO_MEMORY;
-@@ -405,18 +397,8 @@
- {
- 	u32 dummy;
- 	void __iomem *virt_addr;
--	int iomem = 0;
- 
--	if (efi_enabled) {
--		if (EFI_MEMORY_WB & efi_mem_attributes(phys_addr)) {
--			/* HACK ALERT! We can use readb/w/l on real memory too.. */
--			virt_addr = (void __iomem *)phys_to_virt(phys_addr);
--		} else {
--			iomem = 1;
--			virt_addr = ioremap(phys_addr, width);
--		}
--	} else
--		virt_addr = (void __iomem *)phys_to_virt(phys_addr);
-+	virt_addr = ioremap(phys_addr, width);
- 	if (!value)
- 		value = &dummy;
- 
-@@ -434,10 +416,7 @@
- 		BUG();
- 	}
- 
--	if (efi_enabled) {
--		if (iomem)
--			iounmap(virt_addr);
--	}
-+	iounmap(virt_addr);
- 
- 	return AE_OK;
- }
-@@ -446,18 +425,8 @@
- acpi_os_write_memory(acpi_physical_address phys_addr, u32 value, u32 width)
- {
- 	void __iomem *virt_addr;
--	int iomem = 0;
- 
--	if (efi_enabled) {
--		if (EFI_MEMORY_WB & efi_mem_attributes(phys_addr)) {
--			/* HACK ALERT! We can use writeb/w/l on real memory too */
--			virt_addr = (void __iomem *)phys_to_virt(phys_addr);
--		} else {
--			iomem = 1;
--			virt_addr = ioremap(phys_addr, width);
--		}
--	} else
--		virt_addr = (void __iomem *)phys_to_virt(phys_addr);
-+	virt_addr = ioremap(phys_addr, width);
- 
- 	switch (width) {
- 	case 8:
-@@ -473,8 +442,7 @@
- 		BUG();
- 	}
- 
--	if (iomem)
--		iounmap(virt_addr);
-+	iounmap(virt_addr);
- 
- 	return AE_OK;
- }
+http://en.wikipedia.org/wiki/RAID#RAID_50_.28RAID_5.2B0.29
+
+Martin

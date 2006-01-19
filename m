@@ -1,63 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161381AbWASXYB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161358AbWASXXV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161381AbWASXYB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 18:24:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161471AbWASXYB
+	id S1161358AbWASXXV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 18:23:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161381AbWASXXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 18:24:01 -0500
-Received: from lemon.ken.nicta.com.au ([203.143.174.44]:14045 "EHLO
-	lemon.gelato.unsw.edu.au") by vger.kernel.org with ESMTP
-	id S1161381AbWASXYA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 18:24:00 -0500
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Jan 2006 18:23:21 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:58819 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1161358AbWASXXV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 18:23:21 -0500
+Subject: [PATCH] Blacklist TSC from systems where it is known to be bad
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 19 Jan 2006 15:23:15 -0800
+Message-Id: <1137712995.27699.124.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17360.8073.622104.500429@berry.gelato.unsw.EDU.AU>
-Date: Fri, 20 Jan 2006 10:23:53 +1100
-To: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
-X-Mailer: VM 7.19 under 21.4 (patch 18) "Social Property" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
-X-SA-Exim-Connect-IP: 203.143.160.117
-X-SA-Exim-Mail-From: peterc@gelato.unsw.edu.au
-Subject: Re: Include assembly entry points in TAGS 
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:39:27 +0000)
-X-SA-Exim-Scanned: Yes (on lemon.gelato.unsw.edu.au)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	This patch adds a blacklist infrastructure to the TSC clocksource as
+well as an entry for the 380XD Thinkpad. This allows us to manually add
+systems (mainly older-laptops) where the TSC frequency is changed by the
+BIOS without any notification to the OS.
 
-As it stands, etags doesn't find labels in the IA64 or i386 assembler source 
-code, because they're disguised inside a preprocessor macro. 
+The justification for using a blacklist instead of trying to detect the
+problem is because the detectable symptoms are exactly the same as what
+is observed when interrupts arrive too frequently (a semi-common issue
+w/ broken PIT hardware), and the number of other older laptops with this
+issue is likely small.
+
+This patch resolves bugme bug #5868.
+
+thanks
+-john
+
+
+diff --git a/arch/i386/kernel/tsc.c b/arch/i386/kernel/tsc.c
+index cab2546..7e72219 100644
+--- a/arch/i386/kernel/tsc.c
++++ b/arch/i386/kernel/tsc.c
+@@ -9,6 +9,7 @@
+ #include <linux/cpufreq.h>
+ #include <linux/jiffies.h>
+ #include <linux/init.h>
++#include <linux/dmi.h>
  
-I propose the attached fix, which adds a regular expression to enable 
-labels disguised by ENTRY() and GLOBAL_ENTRY() macros. 
+ #include <asm/delay.h>
+ #include <asm/tsc.h>
+@@ -359,6 +360,27 @@ static int tsc_update_callback(void)
+ 	return change;
+ }
  
-There's a similar problem for MIPS, which needs to match LEAF(entrypoint) 
++static int __init dmi_mark_tsc_unstable(struct dmi_system_id *d)
++{
++	printk(KERN_NOTICE "%s detected: marking TSC unstable.\n",
++		       d->ident);
++	mark_tsc_unstable();
++	return 0;
++}
++
++/* List of systems that have known TSC problems */
++static struct dmi_system_id __initdata bad_tsc_dmi_table[] = {
++	{
++	 .callback = dmi_mark_tsc_unstable,
++	 .ident = "IBM Thinkpad 380XD",
++	 .matches = {
++		     DMI_MATCH(DMI_BOARD_VENDOR, "IBM"),
++		     DMI_MATCH(DMI_BOARD_NAME, "2635FA0"),
++		     },
++	 },
++	 {}
++};
++
+ /*
+  * Make an educated guess if the TSC is trustworthy and synchronized
+  * over all CPUs.
+@@ -376,16 +398,21 @@ static __init int unsynchronized_tsc(voi
+  	return num_possible_cpus() > 1;
+ }
  
-Signed-off-by: Peter Chubb <peterc@gelato.unsw.edu.au> 
+-/* NUMAQ can't use TSC: */
+ static int __init init_tsc_clocksource(void)
+ {
+-	/* TSC initialization is done in arch/i386/kernel/tsc.c */
++
+ 	if (cpu_has_tsc && tsc_khz && !tsc_disable) {
+-		if (unsynchronized_tsc()) /* lower rating if unsynced */
++		/* check blacklist */
++		dmi_check_system(bad_tsc_dmi_table);
++
++		if (unsynchronized_tsc()) /* mark unstable if unsynced */
+ 			mark_tsc_unstable();
+ 		current_tsc_khz = tsc_khz;
+ 		clocksource_tsc.mult = clocksource_khz2mult(current_tsc_khz,
+ 							clocksource_tsc.shift);
++		/* lower the rating if we already know its unstable: */
++		if (check_tsc_unstable())
++			clocksource_tsc.rating = 50;
+ 		register_clocksource(&clocksource_tsc);
+ 	}
  
 
-If you're using Emacs and TAGS, it's useful to be able to get the
-global assembler variables as tags into the TAGS file.  But they're
-hidden by a macro.  This patch teaches etags about the macro.
 
- Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Index: linux-2.6-vmm/Makefile
-===================================================================
---- linux-2.6-vmm.orig/Makefile	2006-01-17 11:38:27.544972040 +1100
-+++ linux-2.6-vmm/Makefile	2006-01-17 11:42:02.587956460 +1100
-@@ -1251,7 +1251,7 @@ define cmd_TAGS
-                 echo "-I __initdata,__exitdata,__acquires,__releases  \
-                       -I EXPORT_SYMBOL,EXPORT_SYMBOL_GPL              \
-                       --extra=+f --c-kinds=+px"`;                     \
--                $(all-sources) | xargs etags $$ETAGSF -a
-+                $(all-sources) | xargs etags $$ETAGSF -a  --regex='{asm}/^\(GLOBAL_\)?ENTRY(\([^)]*\))/\2/'
- endef
- 
- TAGS: FORCE
+

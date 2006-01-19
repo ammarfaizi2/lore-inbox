@@ -1,74 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964956AbWASGq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbWASGrP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964956AbWASGq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 01:46:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbWASGq0
+	id S964959AbWASGrP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 01:47:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWASGrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 01:46:26 -0500
-Received: from master.soleranetworks.com ([67.137.28.188]:10932 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S964956AbWASGq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 01:46:26 -0500
-Message-ID: <43CF1CCF.20007@wolfmountaingroup.com>
-Date: Wed, 18 Jan 2006 21:59:59 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Thu, 19 Jan 2006 01:47:15 -0500
+Received: from uproxy.gmail.com ([66.249.92.201]:9225 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964959AbWASGrO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 01:47:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=p3+8Xn0G2nKcNX0cBclF9z0YClkY5bkT04nxHvT/c0Y/2aUGsWlmeQKgS3J88GgzJb4K5QnzEqgxeQXo05VCvPCFNYelFVa65+8d/UG+lLhIHa37G7hLGDf8mtrQ6fzLTAPD9o3KWYKVWhPUmuKtQgQH7tm5jmfWd+t/WdEmcGU=
+Message-ID: <a44ae5cd0601182247h1b173289ncbc6dc405cbb0bb4@mail.gmail.com>
+Date: Wed, 18 Jan 2006 22:47:13 -0800
+From: Miles Lane <miles.lane@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.16-rc1-git1 -- Build error "make: *** [include/linux/version.h] Error 2"
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Inserting Commas into Those Big Numbers 
-Content-Type: multipart/mixed;
- boundary="------------030601020003040109020005"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030601020003040109020005
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-
-If anyone cares to make the kernel output more readable, heres a code 
-snippet that formats any text string with numbers (decimal) to
-insert commas.  I am too old and going blind looking at computer screen 
-with these long numbers.  If useful to anyone, enjoy.
-
-Jeff
-
-
-
---------------030601020003040109020005
-Content-Type: text/x-csrc;
- name="sprintf_comma.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sprintf_comma.c"
-
-
-void sprintf_comma(char *buf, char *fmt, ...)
-{
-
-     register long i, r, flag, len;
-     va_list args;
-
-     va_start(args, fmt);
-     vsprintf(buf, fmt, args);
-     va_end(args);
-
-     for (len = i = strlen(buf), flag = 0; i >= 0; i--)
-     {
-	if (buf[i] >= '0' && buf[i] <= '9')
-	{
-	   if (++flag > 3)
-	   {
-	      flag = 1;
-	      for (r = ++len; r > i; r--)
-		 buf[r] = buf[r - 1];
-	      buf[i + 1] = ',';
-	   }
-	}
-     }
-}
-
-
---------------030601020003040109020005--
+make all install modules modules_install
+/bin/sh: -c: line 0: syntax error near unexpected token `('
+/bin/sh: -c: line 0: `set -e; echo '  CHK    
+include/linux/version.h'; mkdir -p include/linux/;      if [ `echo -n
+"2.6.16-rc1-git1 .file null .ident
+GCC:(GNU)4.0.320060115(prerelease)(Ubuntu4.0.2-7ubuntu1) .section
+.note.GNU-stack,,@progbits" | wc -c ` -gt 64 ]; then echo
+'"2.6.16-rc1-git1 .file null .ident
+GCC:(GNU)4.0.320060115(prerelease)(Ubuntu4.0.2-7ubuntu1) .section
+.note.GNU-stack,,@progbits" exceeds 64 characters' >&2; exit 1; fi;
+(echo \#define UTS_RELEASE \"2.6.16-rc1-git1 .file null .ident
+GCC:(GNU)4.0.320060115(prerelease)(Ubuntu4.0.2-7ubuntu1) .section
+.note.GNU-stack,,@progbits\"; echo \#define LINUX_VERSION_CODE `expr 2
+\\* 65536 + 6 \\* 256 + 16`; echo '#define KERNEL_VERSION(a,b,c) (((a)
+<< 16) + ((b) << 8) + (c))'; ) < /usr/src/linux-2.6/Makefile >
+include/linux/version.h.tmp; if [ -r include/linux/version.h ] && cmp
+-s include/linux/version.h include/linux/version.h.tmp; then rm -f
+include/linux/version.h.tmp; else echo '  UPD    
+include/linux/version.h'; mv -f include/linux/version.h.tmp
+include/linux/version.h; fi'
+make: *** [include/linux/version.h] Error 2

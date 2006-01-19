@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161084AbWASASy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161074AbWASAVA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161084AbWASASy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 19:18:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161074AbWASASy
+	id S1161074AbWASAVA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 19:21:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161087AbWASAVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 19:18:54 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:29705 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161084AbWASASx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 19:18:53 -0500
-Date: Thu, 19 Jan 2006 01:18:52 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: sam@ravnborg.org
-Cc: starvik@axis.com, dev-etrax@axis.com, linux-kernel@vger.kernel.org
-Subject: cris: asm-offsets related build failure
-Message-ID: <20060119001852.GO19398@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Wed, 18 Jan 2006 19:21:00 -0500
+Received: from uproxy.gmail.com ([66.249.92.206]:16604 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161086AbWASAU7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 19:20:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=E7pC2LTWegPBBXEuItALsli2AlDoocj/Zw9RRfm1EWxBHOZclsDUVamvowWcvzJuJpw5GKRaydIzlACwOfPNZXE2ARuSWcBuq7CZLOWUjfmgko9FFk6DUGCab4r9VYw5tLfZgC7IYjQ9mAYziG5niz4NgBj935UVO+RD5XOL10k=
+Date: Thu, 19 Jan 2006 01:20:40 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: linux-acpi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: CONFIG_ACPI_PROCESSOR=y confuses the cpu scheduler
+Message-Id: <20060119012040.733335f4.diegocg@gmail.com>
+X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
+If I compile CONFIG_ACPI_PROCESSOR in the kernel, one of the two cpus
+doesn't get scheduled any process. The CPU works and everything, it
+services interrupts and I can force processes to run on that CPU
+with taskset, but they won't get scheduled in that CPU no matter
+how much processes and load you put on the machine.
 
-the following build failure is present on the cris architecture:
+However, when I compile it as a module everything works fine. I can't
+say when this started happening; I noticed it in the current linus 
+git tree from a couple of days ago, but testing 2.6.15-rc7 didn't
+help. The machine is a dual P3 machine.
 
-<--  snip  -->
+Here's a working dmesg: http://terra.es/personal/diegocg/dmesg-acpi
+a dmesg of the machine after setting CONFIG_ACPI_PROCESSOR to y:
+http://terra.es/personal/diegocg/dmesg-acpi-no
+and a acpidump output: http://terra.es/personal/diegocg/acpidump
 
-...
-make[1]: *** No rule to make target `arch/cris/kernel/asm-offsets.c', 
-needed by `arch/cris/kernel/asm-offsets.s'.  Stop.
-make: *** [prepare0] Error 2
-
-<--  snip  -->
-
-
-The problem seems to be that the cris port has two different files for 
-this purpose:
-arch/cris/arch-v10/kernel/asm-offsets.c
-arch/cris/arch-v32/kernel/asm-offsets.c
-
-
-What is the best way to handle this?
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

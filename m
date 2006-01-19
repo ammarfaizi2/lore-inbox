@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161251AbWASHfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161246AbWASHfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161251AbWASHfX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 02:35:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161246AbWASHfW
+	id S1161246AbWASHfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 02:35:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161243AbWASHfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 19 Jan 2006 02:35:24 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:8199 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1161250AbWASHfW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 19 Jan 2006 02:35:22 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:48063 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1161251AbWASHfV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 02:35:21 -0500
-Subject: Re: 2.6.15-rc5: latency regression vs 2.6.14 in
-	exit_mmap->free_pgtables
-From: Lee Revell <rlrevell@joe-job.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0601190717180.6003@goblin.wat.veritas.com>
-References: <1135726300.22744.25.camel@mindpipe>
-	 <Pine.LNX.4.61.0512282205450.2963@goblin.wat.veritas.com>
-	 <1137634961.626.2.camel@mindpipe>
-	 <Pine.LNX.4.61.0601190717180.6003@goblin.wat.veritas.com>
-Content-Type: text/plain
-Date: Thu, 19 Jan 2006 02:35:18 -0500
-Message-Id: <1137656119.4736.39.camel@mindpipe>
+Date: Thu, 19 Jan 2006 08:35:09 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Miles Lane <miles.lane@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16-rc1-git1 -- Build error "make: *** [include/linux/version.h] Error 2"
+Message-ID: <20060119073509.GA8231@mars.ravnborg.org>
+References: <a44ae5cd0601182247h1b173289ncbc6dc405cbb0bb4@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a44ae5cd0601182247h1b173289ncbc6dc405cbb0bb4@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-19 at 07:29 +0000, Hugh Dickins wrote:
-> On Wed, 18 Jan 2006, Lee Revell wrote:
-> > On Wed, 2005-12-28 at 22:59 +0000, Hugh Dickins wrote:
-> > > 
-> > > On my list to work on; but the TLB always needs great care, and this
-> > > goes down into architectural divergences, with truncation of a mapped
-> > > file adding further awkward constraints.  I imagine 2.6.16-rc1 is only
-> > > a couple of weeks away, so it's unlikely to be fixed in 2.6.16 either.
-> > 
-> > Is this believed to be fixed in 2.6.16-rc1?
-> 
-> Not at all, I'm afraid.  Do you think I ought to try to persuade Linus
-> and Andrew to take that ugly free_pgtables #ifdef CONFIG_PREEMPT patch
-> in the interim before we've the proper latency fix there?  (I doubt the
-> mmu_gather rewrite in 2.6.17 too, but perhaps a reasonable compromise.)
+On Wed, Jan 18, 2006 at 10:47:13PM -0800, Miles Lane wrote:
+> make all install modules modules_install
+> /bin/sh: -c: line 0: syntax error near unexpected token `('
+> /bin/sh: -c: line 0: `set -e; echo '  CHK    
+> include/linux/version.h'; mkdir -p include/linux/;      if [ `echo -n
+> "2.6.16-rc1-git1 .file null .ident
+> GCC:(GNU)4.0.320060115(prerelease)(Ubuntu4.0.2-7ubuntu1) .section
+> .note.GNU-stack,,@progbits" | wc -c ` -gt 64 ]; then echo
+> '"2.6.16-rc1-git1 .file null .ident
+> GCC:(GNU)4.0.320060115(prerelease)(Ubuntu4.0.2-7ubuntu1) .section
+> .note.GNU-stack,,@progbits" exceeds 64 characters' >&2; exit 1; fi;
+> (echo \#define UTS_RELEASE \"2.6.16-rc1-git1 .file null .ident
+> GCC:(GNU)4.0.320060115(prerelease)(Ubuntu4.0.2-7ubuntu1) .section
+> .note.GNU-stack,,@progbits\"; echo \#define LINUX_VERSION_CODE `expr 2
+> \\* 65536 + 6 \\* 256 + 16`; echo '#define KERNEL_VERSION(a,b,c) (((a)
+> << 16) + ((b) << 8) + (c))'; ) < /usr/src/linux-2.6/Makefile >
+> include/linux/version.h.tmp; if [ -r include/linux/version.h ] && cmp
+> -s include/linux/version.h include/linux/version.h.tmp; then rm -f
+> include/linux/version.h.tmp; else echo '  UPD    
+> include/linux/version.h'; mv -f include/linux/version.h.tmp
+> include/linux/version.h; fi'
+> make: *** [include/linux/version.h] Error 2
+Do you have any file in your build directory named localversion* ?
+That would explain the loon line that includes 
+".file null .ident GCC: ..."
 
-For the time being, this is overshadowed by long latencies (~8ms or so)
-in rt_garbage_collect() and rt_run_flush().  Previously I was under the
-impression those could be worked around by sysctl/proc tuning, but this
-is not the case.
+Otherwise something else goes in and trigger the long localversion.
+The variable CONFIG_LOCALVERSION may also be set to a wrong value in
+your environment but this is unlikely.
 
-Until those are fixed I would say it's low priority.
-
-Lee
-
+	Sam

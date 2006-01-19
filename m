@@ -1,73 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWASXlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWASXl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWASXlv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 18:41:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWASXlu
+	id S1750815AbWASXl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 18:41:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWASXl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 18:41:50 -0500
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:31925 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750817AbWASXlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 18:41:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=tZKJiLle6Sz5ELzYxdaS/8WoR+/MVFXEOJZmmNFNE4snFTVI42kGz0I6jd9ItCCP4KNR4HAAtdoMoMF8kGPLLv5BqhYKpzREiDX/S1MsqvJHmDvGuS8crPgxkVaFPxL2AAfT4xrdYodmbricboZhrLjLP29yH2PTGBemFfmuJyU=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Jeff Dike <jdike@addtoit.com>
-Subject: Re: [uml-devel] [PATCH 8/8] uml: avoid "CONFIG_NR_CPUS undeclared" bogus error messages
-Date: Fri, 20 Jan 2006 00:41:08 +0100
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-References: <20060118235132.4626.74049.stgit@zion.home.lan> <200601191601.31805.blaisorblade@yahoo.it> <20060119194356.GA8670@ccure.user-mode-linux.org>
-In-Reply-To: <20060119194356.GA8670@ccure.user-mode-linux.org>
+	Thu, 19 Jan 2006 18:41:27 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:12969 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1750815AbWASXl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 18:41:27 -0500
+Message-ID: <43D023DD.7000609@tmr.com>
+Date: Thu, 19 Jan 2006 18:42:21 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601200041.14590.blaisorblade@yahoo.it>
+Newsgroups: gmane.linux.kernel
+To: Diego Calleja <diegocg@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16-rc1
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org> <20060117183916.399b030f.diegocg@gmail.com>
+In-Reply-To: <20060117183916.399b030f.diegocg@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 19 January 2006 20:43, Jeff Dike wrote:
-> On Thu, Jan 19, 2006 at 04:01:28PM +0100, Blaisorblade wrote:
-> > Gerd Knorr in his tty patch, instead, used forward declarations, like:
-> >
-> > struct task_struct;
-> >
-> > what about that?
+Diego Calleja wrote:
+> El Tue, 17 Jan 2006 00:19:56 -0800 (PST),
+> Linus Torvalds <torvalds@osdl.org> escribió:
+> 
+> 
+>>Anyway, it's out there now. The ShortLog is pretty readable - if you are 
+>>into that kind of stuff - but as usual for an -rc1 release (which has all 
+>>the frantic merging going on), it's actually too big to post on the kernel 
+>>list due to the size limits. It's weighs in at 4000+ lines and 169kB.
+> 
+> 
+> Can I ask if it's possible to "mark" new features/important changes?
 
-> I don't think so.  At least when you use void *, you are using a type
-> that's not incorrect.  In userspace code, those task_structs start
-> referring to host task_structs, which is definitely very wrong.
+New features are easy, they usually result in changes to the config 
+file. You can learn a lot with "diff" that way.
 
-Possibly yes, but as long as we don't dereference the pointer (and in a 
-prototype you're not going to do that) there's no problem.
+However, you really need to read the patches to see what they are 
+supposed to change. That's a long and thankless job, but it's a wiki, 
+right? So ask a few people to just look at parts of it and write 
+comments on what they see. Few for filesystems, few for networks, stuff 
+like that. And a few to look at "other."
 
-Using a type makes the code clearer, and it doesn't hide any warning GCC may 
-give (behaving well is left to us only).
+If you do all the work it's not a wiki it's a blog...
+> 
+> I've maintaining http://wiki.kernelnewbies.org/LinuxChanges
+> for three releases and the amount of changes is so big it takes hours 
+> to extract the relevant changes, adding some special string in the 
+> description field could help to automate this process and make better
+> changelogs.
+> 
+> It's not only better for me, I also know there're more people ej: man
+> page maintainers looking at the full changelogs to find out if 
+> something has changed. There're lot of nice things being merged on 
+> each release, but there's not a way to tell people that those features 
+> exist; even kernel developers don't really know what is going on in 
+> other parts of the kernel. A "useful" changelog is one of the few
+> things the linux kernel has been missing for ages, IMO ;)
 
-In fact, btw (before I forget) we have currently the wrong errno used in 
-sys-i386/ldt.c. Just wrote the fix (it's adding a silly os_ptrace_ldt). Going 
-to compile and send.
-
-> > Those functions probably should be moved anyway because they're
-> > useless there
-
-> Yeah.
-
-> 				Jeff
-
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it

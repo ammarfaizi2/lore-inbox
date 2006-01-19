@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161352AbWAST1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161353AbWAST2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161352AbWAST1k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 14:27:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161353AbWAST1k
+	id S1161353AbWAST2K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 14:28:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161354AbWAST2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 14:27:40 -0500
-Received: from fsmlabs.com ([168.103.115.128]:42383 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1161352AbWAST1j (ORCPT
+	Thu, 19 Jan 2006 14:28:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56547 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161353AbWAST2I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 14:27:39 -0500
-X-ASG-Debug-ID: 1137698856-12931-39-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Thu, 19 Jan 2006 11:32:37 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Gilles May <gilles@jekyll.org>
-cc: linux-kernel@vger.kernel.org
-X-ASG-Orig-Subj: Re: SMP trouble
-Subject: Re: SMP trouble
-In-Reply-To: <43CFD877.4090503@jekyll.org>
-Message-ID: <Pine.LNX.4.64.0601191132010.1579@montezuma.fsmlabs.com>
-References: <43CAFF80.2020707@jekyll.org> <Pine.LNX.4.64.0601181817410.20777@montezuma.fsmlabs.com>
- <43CFD877.4090503@jekyll.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.7564
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+	Thu, 19 Jan 2006 14:28:08 -0500
+Date: Thu, 19 Jan 2006 14:26:54 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [patch] halt_on_oops command line option
+Message-ID: <20060119192654.GL21663@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, davej@codemonkey.org.uk,
+	linux-kernel@vger.kernel.org
+References: <20060118232255.3814001b.akpm@osdl.org> <20060119073951.GC21663@redhat.com> <20060118235958.6b466a86.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060118235958.6b466a86.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Jan 2006, Gilles May wrote:
+On Wed, Jan 18, 2006 at 11:59:58PM -0800, Andrew Morton wrote:
+ > Dave Jones <davej@redhat.com> wrote:
+ > >
+ > > On Wed, Jan 18, 2006 at 11:22:55PM -0800, Andrew Morton wrote:
+ > >  > 
+ > >  > How's this look?
+ > >  > Attempt to fix the problem wherein people's oops reports scroll off the screen
+ > >  > due to repeated oopsing or to oopses on other CPUs.
+ > >  > 
+ > >  > If this happens the user can reboot with the `halt_on_oops' option.  It will
+ > >  > allow the first oopsing CPU to print an oops record just a single time.  Second
+ > >  > oopsing attempts, or oopses on other CPUs will cause those CPUs to enter a
+ > >  > tight loop.
+ > > 
+ > > seems a bit aggressive for UP.  Now if my sound driver oopses, I don't
+ > > just lose sound, I lock up.  (That's why I made it a pause, not a halt
+ > > in my earlier patch).
+ > > 
+ > 
+ > Well I'm assuming people would only enable the option if they are
+ > experiencing persistently-scrolling-off oopses.
 
-> Attached the bootlog with noapic parameter passed to the kernel. It still
-> freezes though. :(
-> What I do exactly to make it freeze is after boot:
-> 
-> In one console I do a ping -f to a box on my local network using the e100
-> card. (integrated on the motherboard)
-> 
-> In another console I copy a 2.5 GB file from my USB HDD to the IDE HDD in a
-> while loop (or do a readcd from USB DVD Writer to a file on IDE HDD)
+For this to be useful for me, I'd want it always on.  The majority of
+oopses our users hit are one offs, and they don't usually know when
+they're going to get an oops ;-)
 
-Can you try it whilst copying from say SCSI disk to IDE disk?
+ > We could make the boot option be number-of-seconds-to-pause I guess.  Do
+ > you think it's really worth it?
+
+Beats locking up indefinitly on UP.
+
+		Dave
+

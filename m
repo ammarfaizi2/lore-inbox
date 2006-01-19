@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161090AbWASLwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161175AbWASMbe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161090AbWASLwv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 06:52:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161197AbWASLwv
+	id S1161175AbWASMbe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 07:31:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161173AbWASMbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 06:52:51 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:8908 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1161090AbWASLwu (ORCPT
+	Thu, 19 Jan 2006 07:31:34 -0500
+Received: from sipsolutions.net ([66.160.135.76]:39177 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S1161149AbWASMbd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 06:52:50 -0500
-Date: Thu, 19 Jan 2006 12:52:35 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: 7eggert@gmx.de
-cc: Ben Collins <ben.collins@ubuntu.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 15/15] kconf: Check for eof from input stream.
-In-Reply-To: <E1EzLCy-0001uG-7x@be1.lrz>
-Message-ID: <Pine.LNX.4.61.0601191250330.11765@scrub.home>
-References: <5roZI-5y9-29@gated-at.bofh.it> <5sSVt-5Du-1@gated-at.bofh.it>
- <5sWwg-2Bq-21@gated-at.bofh.it> <5t4kf-5Px-11@gated-at.bofh.it>
- <5t5zv-7GD-31@gated-at.bofh.it> <5tXA1-3Lh-35@gated-at.bofh.it>
- <5u04G-7s6-19@gated-at.bofh.it> <5u8Yt-317-41@gated-at.bofh.it>
- <5u9L8-4gd-19@gated-at.bofh.it> <5uadH-4TM-1@gated-at.bofh.it>
- <5uaQp-5UL-7@gated-at.bofh.it> <5ubjI-6KH-21@gated-at.bofh.it>
- <5ubtB-6Xy-9@gated-at.bofh.it> <5uBdT-2Gn-23@gated-at.bofh.it>
- <E1EzLCy-0001uG-7x@be1.lrz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Jan 2006 07:31:33 -0500
+Subject: Re: [Bcm43xx-dev] wireless: the contenders
+From: Johannes Berg <johannes@sipsolutions.net>
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, jbenc@suse.cz,
+       softmac-dev@sipsolutions.net, bcm43xx-dev@lists.berlios.de
+In-Reply-To: <20060118200616.GC6583@tuxdriver.com>
+References: <20060118200616.GC6583@tuxdriver.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-lFS7LUadRcu3LLEimu4F"
+Date: Thu, 19 Jan 2006 01:19:40 +0100
+Message-Id: <1137629980.4385.9.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, 18 Jan 2006, Bodo Eggert wrote:
+--=-lFS7LUadRcu3LLEimu4F
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > It means it will accept any input and no input (by just pressing enter or
-> > ctrl-d) means the default answer.
-> 
-> If I press ^D, I'd expect to select the abort option
+On Wed, 2006-01-18 at 15:06 -0500, John W. Linville wrote:
 
-That would be ^C. ^D means end-of-file and it's up to the application, 
-whether it needs further information to continue or not.
+> The tree also has "softmac" and "dscape" branches.  The "softmac"
+> branch includes the Johannes Berg softmac code as well as the the
+> BCM43xx driver based upon that code.
 
-bye, Roman
+I guess that branch also contains my enhancements to ieee80211, do you
+have any intentions of pulling those over to your upstream tree? I
+suppose I should rather post them as a series of patches to netdev for
+wider consideration.
+
+johannes
+
+--=-lFS7LUadRcu3LLEimu4F
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (SIP Solutions)
+
+iQIVAwUAQ87bG6Vg1VMiehFYAQLEVhAAtWkcYWirBPIzkPEsFXiEwxDjRbmIswUc
+7lW1CuO5T3rFz9erXp6fScqf/RxBD5zsdanT3ZULqi6KT153KPcKfUdMoOFNyVb5
+fXPBXgNL546OhBENlSZPVyoP7LgVwJrfRCZpwx5JuIg3vvhFlrajGvLH3YcO8wmI
+BsGU9xnErRuUfD8jirXFeUxPX6QLUdcsfr7LSKEQbfaWp1aCRd0m8EnOz+fdPFqL
+L8/U4JruCbkQsb3FMj7nN1qNq0WZvvV6NasKgBljycUGs2i7/tWQHPVocIUietM/
+4/rs4vztfwMYSv2FtgzyLVyAwd94eIA8R1h19H+WVb7N/5OCa3XWqZ8azP0Og4oo
+giM+9UCBwAMJLxe7oKEdgDBUDIcIXJNSdvEPmGjRGPDxC61zF5+JmwtZEFl4MzYw
+SMs/oZqhGP5h3QDPsKTB6BTe032BuA3maPHbYgKI2INGSwb0BGqVXACHKIkbbQTC
+4Jfl1z33GJx6yxLt2vmjoLPZGeNBqS1O/i7nBmXUDf8/mSLUB5lMdTbr/puRPFR9
+Ea59QSX9gaTd24IqW4pBPv9NKIPqILxVwvUhoSDGn5kCH67BGRQrniumPQcG7scw
+jZGEOW1V4INxCsNkNX5YnCr8Ej7431kilKEifTmxFhHdq0F+QnnMCE9DwAW64WVY
+mrsnlfTTsVE=
+=AK07
+-----END PGP SIGNATURE-----
+
+--=-lFS7LUadRcu3LLEimu4F--
+

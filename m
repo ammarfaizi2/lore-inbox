@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161248AbWASSzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161269AbWASS6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161248AbWASSzG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 13:55:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161275AbWASSzF
+	id S1161269AbWASS6K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 13:58:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161275AbWASS6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 13:55:05 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:50922 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1161258AbWASSzC (ORCPT
+	Thu, 19 Jan 2006 13:58:09 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:8467 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1161269AbWASS6H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 13:55:02 -0500
-Subject: Re: [openib-general] Re: RFC: ipath ioctls and their replacements
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Sean Hefty <mshefty@ichips.intel.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-       Greg Kroah-Hartman <greg@kroah.com>, Roland Dreier <rdreier@cisco.com>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <43CFDF5F.5060409@ichips.intel.com>
-References: <1137631411.4757.218.camel@serpentine.pathscale.com>
-	 <m1y81cpqt8.fsf@ebiederm.dsl.xmission.com>
-	 <1137688158.3693.29.camel@serpentine.pathscale.com>
-	 <m1hd80oz9b.fsf@ebiederm.dsl.xmission.com>
-	 <43CFDF5F.5060409@ichips.intel.com>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Thu, 19 Jan 2006 10:55:01 -0800
-Message-Id: <1137696901.3693.66.camel@serpentine.pathscale.com>
+	Thu, 19 Jan 2006 13:58:07 -0500
+Date: Thu, 19 Jan 2006 19:57:20 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Fr?d?ric L. W. Meunier" <2@pervalidus.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kbuild: create .kernelrelease at *config step
+Message-ID: <20060119185720.GA25157@mars.ravnborg.org>
+References: <Pine.LNX.4.64.0601191626140.1300@dyndns.pervalidus.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0601191626140.1300@dyndns.pervalidus.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-19 at 10:50 -0800, Sean Hefty wrote:
+On Thu, Jan 19, 2006 at 04:31:03PM -0200, Fr?d?ric L. W. Meunier wrote:
+> Is this expected ?
+> 
+> $ cd /usr/local/src/kernel/linux-2.6.16
+> $ make O=/home/fredlwm/objdir/ oldconfig
+> ...
+> make -C /usr/local/src/kernel/linux-2.6.16 O=/home/fredlwm/objdir 
+> .kernelrelease
+> Makefile:480: .config: No such file or directory
+> 
+> .config is in /home/fredlwm/objdir
+> 
+> .kernelrelease gets created in 
+> /usr/local/src/kernel/linux-2.6.16 . I thought nothing would be 
+> written to the sources directory. What if I were on a read-only 
+> filesystem ?
+> 
+> I didn't try to build it. Are these harmless ?
 
-> I'm not familiar with the driver, but would the lower level verbs interfaces 
-> work for this?  Could you just post whatever datagrams that you want directly to 
-> your management QPs?
+This is a bug, I will post a simple patch shortly to fix it.
 
-Our lowest-level driver works in the absence of any IB support being
-compiled into the kernel, so in that situation, there are no QPs or any
-other management infrastructure present at all.  All of that stuff lives
-in a higher layer, in which situation the cut-down subnet management
-agent doesn't get used, and something like OpenSM is more appropriate.
-
-	<b
-
+	Sam

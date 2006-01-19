@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161426AbWASVKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161435AbWASVXX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161426AbWASVKd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 16:10:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161428AbWASVKd
+	id S1161435AbWASVXX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 16:23:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161434AbWASVXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 16:10:33 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:39861 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1161426AbWASVKc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 16:10:32 -0500
-Message-ID: <43CFFFCB.7060002@ichips.intel.com>
-Date: Thu, 19 Jan 2006 13:08:27 -0800
-From: Sean Hefty <mshefty@ichips.intel.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-       Greg Kroah-Hartman <greg@kroah.com>, Roland Dreier <rdreier@cisco.com>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [openib-general] Re: RFC: ipath ioctls and their replacements
-References: <1137631411.4757.218.camel@serpentine.pathscale.com>	 <m1y81cpqt8.fsf@ebiederm.dsl.xmission.com>	 <1137688158.3693.29.camel@serpentine.pathscale.com>	 <m1hd80oz9b.fsf@ebiederm.dsl.xmission.com>	 <43CFDF5F.5060409@ichips.intel.com> <1137696901.3693.66.camel@serpentine.pathscale.com>
-In-Reply-To: <1137696901.3693.66.camel@serpentine.pathscale.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Jan 2006 16:23:23 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:55721 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S1161432AbWASVXW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 16:23:22 -0500
+Date: Thu, 19 Jan 2006 22:22:18 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>, Neil Brown <neilb@suse.de>
+Cc: "Lincoln Dale (ltd)" <ltd@cisco.com>, Michael Tokarev <mjt@tls.msk.ru>,
+       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+Subject: Re: [PATCH 000 of 5] md: Introduction
+Message-ID: <20060119212218.GK22163@marowsky-bree.de>
+References: <26A66BC731DAB741837AF6B2E29C1017D47EA0@xmb-hkg-413.apac.cisco.com> <Pine.LNX.4.61.0601181427090.19392@yvahk01.tjqt.qr> <17358.52476.290687.858954@cse.unsw.edu.au> <Pine.LNX.4.61.0601192104560.26558@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.61.0601192104560.26558@yvahk01.tjqt.qr>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bryan O'Sullivan wrote:
-> Our lowest-level driver works in the absence of any IB support being
-> compiled into the kernel, so in that situation, there are no QPs or any
-> other management infrastructure present at all.  All of that stuff lives
-> in a higher layer, in which situation the cut-down subnet management
-> agent doesn't get used, and something like OpenSM is more appropriate.
+On 2006-01-19T21:12:02, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
 
-I'm struggling to understand what your card does then.  From this, it sounds 
-like a standard network card that just happens to use IB physicals.  Do you just 
-send raw packets?  How is the LRH formatted by your card?  I.e. what's setting 
-up the dlid, slid, vl, etc.?  Can your card interoperate with other IB devices 
-on the network when running in this mode?
+> > Use md for raid1, raid5, raid6 - anything with redundancy.
+> > Use dm for multipath, crypto, linear, LVM, snapshot
+> There are pairs of files that look like they would do the same thing:
+> 
+>   raid1.c  <-> dm-raid1.c
+>   linear.c <-> dm-linear.c
 
-- Sean
+Sure there's some historical overlap. It'd make sense if DM used the md
+raid personalities, yes.
+
+
+Sincerely,
+    Lars Marowsky-Brée
+
+-- 
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
+"Ignorance more frequently begets confidence than does knowledge"
+

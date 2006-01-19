@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161018AbWASSwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161220AbWASSx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161018AbWASSwc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 13:52:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161258AbWASSwb
+	id S1161220AbWASSx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 13:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161227AbWASSx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 13:52:31 -0500
-Received: from mummy.ncsc.mil ([144.51.88.129]:45798 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1161018AbWASSwa (ORCPT
+	Thu, 19 Jan 2006 13:53:28 -0500
+Received: from hera.kernel.org ([140.211.167.34]:46515 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1161220AbWASSx1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 13:52:30 -0500
-Subject: [patch 1/1] selinux: change file_alloc_security to use GFP_KERNEL
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: lkml <linux-kernel@vger.kernel.org>, James Morris <jmorris@namei.org>,
-       Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Thu, 19 Jan 2006 13:57:55 -0500
-Message-Id: <1137697075.3648.52.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 19 Jan 2006 13:53:27 -0500
+Date: Thu, 19 Jan 2006 14:52:22 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       David Miller <davem@davemloft.net>
+Subject: Re: [patch 3/3] mm: PageActive no testset
+Message-ID: <20060119165222.GC4418@dmt.cnet>
+References: <20060118024106.10241.69438.sendpatchset@linux.site> <20060118024139.10241.73020.sendpatchset@linux.site> <20060118141346.GB7048@dmt.cnet> <20060119145008.GA20126@wotan.suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060119145008.GA20126@wotan.suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch changes the SELinux file_alloc_security function to use
-GFP_KERNEL rather than GFP_ATOMIC; the use of GFP_ATOMIC appears to be a
-remnant of when this function was being called with the files_lock
-spinlock held, and is no longer necessary.  Please apply.
+On Thu, Jan 19, 2006 at 03:50:08PM +0100, Nick Piggin wrote:
+> Hi Marcelo,
+> 
+> On Wed, Jan 18, 2006 at 12:13:46PM -0200, Marcelo Tosatti wrote:
+> > Hi Nick,
+> > 
+> > On Wed, Jan 18, 2006 at 11:40:58AM +0100, Nick Piggin wrote:
+> > > PG_active is protected by zone->lru_lock, it does not need TestSet/TestClear
+> > > operations.
+> > 
+> > page->flags bits (including PG_active and PG_lru bits) are touched by
+> > several codepaths which do not hold zone->lru_lock. 
+> > 
+> > AFAICT zone->lru_lock guards access to the LRU list, and no more than
+> > that.
+> > 
+> 
+> Yep.
+> 
+> > Moreover, what about consistency of the rest of page->flags bits?
+> > 
+> 
+> That's OK, set_bit and clear_bit are atomic as well, they just don't
+> imply memory barriers and can be implemented a bit more simply.
 
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-Acked-by:  James Morris <jmorris@namei.org>
+Indeed!
 
----
+> The test-set / test-clear operations also kind of imply that it is
+> being used for locking or without other synchronisation (usually).
 
- security/selinux/hooks.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Non-atomic versions such as __ClearPageLRU()/__ClearPageActive() are 
+not usable, though.
 
-Index: linux-2.6/security/selinux/hooks.c
-===================================================================
-RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/hooks.c,v
-retrieving revision 1.175
-diff -u -p -r1.175 hooks.c
---- linux-2.6/security/selinux/hooks.c	3 Jan 2006 16:36:59 -0000	1.175
-+++ linux-2.6/security/selinux/hooks.c	18 Jan 2006 18:27:18 -0000
-@@ -191,7 +191,7 @@ static int file_alloc_security(struct fi
- 	struct task_security_struct *tsec = current->security;
- 	struct file_security_struct *fsec;
- 
--	fsec = kzalloc(sizeof(struct file_security_struct), GFP_ATOMIC);
-+	fsec = kzalloc(sizeof(struct file_security_struct), GFP_KERNEL);
- 	if (!fsec)
- 		return -ENOMEM;
- 
+PPC:
 
+static __inline__ void __clear_bit(unsigned long nr,
+                                   volatile unsigned long *addr)
+{
+        unsigned long mask = BITOP_MASK(nr);
+        unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
 
-
--- 
-Stephen Smalley
-National Security Agency
-
+        *p &= ~mask;
+}

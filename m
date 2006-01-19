@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161260AbWASQGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161280AbWASQJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161260AbWASQGR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 11:06:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161280AbWASQGR
+	id S1161280AbWASQJr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 11:09:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161301AbWASQJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 11:06:17 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:15368 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1161260AbWASQGR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 11:06:17 -0500
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       James Courtier-Dutton <James@superbug.demon.co.uk>,
-       Willy Tarreau <willy@w.ods.org>,
-       linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: X killed
-References: <43CA883B.2020504@superbug.demon.co.uk>
-	<20060115192711.GO7142@w.ods.org>
-	<43CCE5C8.7030605@superbug.demon.co.uk>
-	<Pine.LNX.4.61.0601172111070.11929@yvahk01.tjqt.qr>
-	<1137529025.19678.24.camel@mindpipe>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: if it payed rent for disk space, you'd be rich.
-Date: Thu, 19 Jan 2006 16:06:05 +0000
-In-Reply-To: <1137529025.19678.24.camel@mindpipe> (Lee Revell's message of
- "17 Jan 2006 21:21:43 -0000")
-Message-ID: <871wz4nqxe.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Thu, 19 Jan 2006 11:09:46 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:26385 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161296AbWASQJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 11:09:46 -0500
+Date: Thu, 19 Jan 2006 17:09:44 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Jes Sorensen <jes@sgi.com>
+Cc: Dave Jones <davej@redhat.com>, pfg@sgi.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/sn/ must be entered for CONFIG_SGI_IOC3
+Message-ID: <20060119160944.GN19398@stusta.de>
+References: <20060117235521.GA14298@redhat.com> <20060119032423.GI19398@stusta.de> <yq0vewg7dc7.fsf@jaguar.mkp.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yq0vewg7dc7.fsf@jaguar.mkp.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Jan 2006, Lee Revell wrote:
-> The problem is, this python application is not supposed to kill 
-> anything, so I think it is a bug in X, but I cannot find any way to 
-> trace the fault. Even gdb says the application was killed, so exited 
-> normally, and results in no back trace.
+On Thu, Jan 19, 2006 at 04:54:00AM -0500, Jes Sorensen wrote:
+> >>>>> "Adrian" == Adrian Bunk <bunk@stusta.de> writes:
 > 
-> Is there any way in Linux to find out who did the "killing" ?"
+> Adrian> On Tue, Jan 17, 2006 at 06:55:21PM -0500, Dave Jones wrote:
+> >> kernel/drivers/serial/ioc3_serial.ko needs unknown symbol
+> >> ioc3_unregister_submodule
+> >> 
+> >> CONFIG_SERIAL_SGI_IOC3=m CONFIG_SGI_IOC3=m
+> 
+> Adrian> The untested patch below should fix it.
+> 
+> Actually I think this is more appropriate so we don't end up with 17
+> cases that add drivers/sn to the build lib.
+>...
 
-It's probably easiest to build the X server with debugging and use the
-two-machine procedure outlined in
-<http://xorg.freedesktop.org/wiki/DebuggingTheXserver>.
+I haven't tested your patch, but I agree that it's a better approach 
+than my patch.
+ 
+> Cheers,
+> Jes
+>...
 
-(If you don't have two machines and two displays, debugging it gets
-very much harder.)
+cu
+Adrian
 
 -- 
-`Logic and human nature don't seem to mix very well,
- unfortunately.' --- Velvet Wood
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

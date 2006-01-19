@@ -1,52 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161057AbWASDta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030486AbWASDyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161057AbWASDta (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 22:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030511AbWASDta
+	id S1030486AbWASDyq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 22:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030511AbWASDyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 22:49:30 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:41646 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030486AbWASDt3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 22:49:29 -0500
-Date: Wed, 18 Jan 2006 19:49:11 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Greg KH <greg@kroah.com>
-Cc: bos@pathscale.com, rdreier@cisco.com, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: RFC: ipath ioctls and their replacements
-Message-Id: <20060118194911.4da86c22.akpm@osdl.org>
-In-Reply-To: <20060119025741.GC15706@kroah.com>
-References: <1137631411.4757.218.camel@serpentine.pathscale.com>
-	<20060119025741.GC15706@kroah.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 18 Jan 2006 22:54:46 -0500
+Received: from bigip-smtp1.dyxnet.com ([202.66.146.141]:61892 "EHLO
+	bigip-smtp1.dyxnet.com") by vger.kernel.org with ESMTP
+	id S1030486AbWASDyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 22:54:45 -0500
+Message-ID: <43CF0D19.6050009@thizgroup.com>
+Date: Thu, 19 Jan 2006 11:52:57 +0800
+From: Zhang Le <robert@thizgroup.com>
+User-Agent: Mail/News 1.5 (X11/20060113)
+MIME-Version: 1.0
+To: Aneesh Kumar <aneesh.kumar@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Add entry.S function name to tag file
+References: <cc723f590601172058n67fb2200ybfffba9bc4fc72ba@mail.gmail.com>
+In-Reply-To: <cc723f590601172058n67fb2200ybfffba9bc4fc72ba@mail.gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=gb18030
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Aneesh Kumar wrote:
+> How about a patch like the one attached below. I am not sure whether i
+> got the regular expression correct. But it works for me.
 >
+> -aneesh
+>
+> ----------------------------------------------------------------------
+>
+> diff --git a/Makefile b/Makefile
+> index 252a659..6c8479e 100644
+> --- a/Makefile
+> +++ b/Makefile
+> @@ -1272,7 +1272,7 @@ define cmd_tags
+>      CTAGSF=`ctags --version | grep -i exuberant >/dev/null &&     \
+>                  echo "-I __initdata,__exitdata,__acquires,__releases  \
+>                        -I EXPORT_SYMBOL,EXPORT_SYMBOL_GPL              \
+> -                      --extra=+f --c-kinds=+px"`;                     \
+> +                      --extra=+f --c-kinds=+px
+--regex-asm=/ENTRY\(([^)]*)\).*/\1/f/"`;  \
+>                  $(all-sources) | xargs ctags $$CTAGSF -a
+>  endef
+> 
+In fact, ENTRY()'s are not functions
+they are just label's
+some are functions
+some are variables
+no need to add "f" here
 
-Sorry for sticking my head in a beehive, but.  Stand back and look at it:
+the following is just OK
+- --regex-asm=/ENTRY\(([^)]*)\).*/\1/"
 
-> Shouldn't you just open the proper chip device and port device itself?
-> Why not just use mmap?  What's the special needs?
-> sysfs file.
-> Use poll.
-> Use netlink for subnet stuff.
-> Use debugfs.
-> Use the pci sysfs config files, don't duplicate existing functionality.
-> netlink or debugfs.
+the only difference between tags file generated from these two
+different option
+is like this
+- -alignment_check    arch/i386/kernel/entry.S 
+/^ENTRY(alignment_check)$/;"    r
++alignment_check    arch/i386/kernel/entry.S 
+/^ENTRY(alignment_check)$/;"    f
 
-For a driver-bodging interface design, this is simply nutty.
+- --
+Zhang Le, Robert
+Linux Engineer/Trainer
 
-And it makes the driver developer learn a pile of extra stuff and it
-introduces lots of linkages everywhere and heaven knows what the driver's
-userspace interface description ends up looking like.
+Institute of Thiz Technology Limited
+Address: Unit 1004, 10/F, Tower B,
+Hunghom Commercial Centre, 37 Ma Tau Wai Road,
+To Kwa Wan, Kowloon, Hong Kong
+Telephone: (852) 2735 2725
+Mobile:(852) 9845 4336
+Fax: (852) 2111 0702
+URL: http://www.thizgroup.com
+Public key: gpg --keyserver pgp.mit.edu --recv-keys 1E4E2973
 
-ioctl() would have to be pretty darn bad to be worse than all this random
-stuff.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-Just saying...
+iD8DBQFDzw0ZvFHICB5OKXMRAsyGAJ0TeXETc5OxTaovom9YHxzQkcbpyACeLJ58
+Ztl/ug1VR4JoNM8nzIwTwyk=
+=zQwU
+-----END PGP SIGNATURE-----
+

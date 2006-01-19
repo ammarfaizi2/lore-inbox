@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161458AbWASWc5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161460AbWASWdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161458AbWASWc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 17:32:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161460AbWASWc4
+	id S1161460AbWASWdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 17:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161462AbWASWdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 17:32:56 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:61830
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1161458AbWASWcz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 17:32:55 -0500
-Date: Thu, 19 Jan 2006 14:32:51 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-m68k@vger.kernel.org,
-       geert@linux-m68k.org, torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: License oddity in some m68k files
-Message-ID: <20060119223251.GB27106@kroah.com>
-References: <20060119180947.GA25001@kroah.com> <Pine.LNX.4.61.0601192014010.30994@scrub.home> <20060119220431.GA4739@kroah.com> <1137708896.8471.71.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Thu, 19 Jan 2006 17:33:08 -0500
+Received: from mx1.suse.de ([195.135.220.2]:44751 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161460AbWASWdG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 17:33:06 -0500
+From: Neil Brown <neilb@suse.de>
+To: Phillip Susi <psusi@cfl.rr.com>
+Date: Fri, 20 Jan 2006 09:32:51 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137708896.8471.71.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
+Message-ID: <17360.5011.975665.371008@cse.unsw.edu.au>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       "Lincoln Dale (ltd)" <ltd@cisco.com>, Michael Tokarev <mjt@tls.msk.ru>,
+       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+Subject: Re: [PATCH 000 of 5] md: Introduction
+In-Reply-To: message from Phillip Susi on Thursday January 19
+References: <26A66BC731DAB741837AF6B2E29C1017D47EA0@xmb-hkg-413.apac.cisco.com>
+	<Pine.LNX.4.61.0601181427090.19392@yvahk01.tjqt.qr>
+	<17358.52476.290687.858954@cse.unsw.edu.au>
+	<43D00FFA.1040401@cfl.rr.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 10:14:56PM +0000, Alan Cox wrote:
-> On Iau, 2006-01-19 at 14:04 -0800, Greg KH wrote:
-> > Ah, ok, thanks, that makes sense.  How about a simple pointer to the
-> > license info from the .S files to the README file so that people (like
-> > me), don't get confused again?  I've attached a patch below if you wish
-> > to apply it.
-> > 
-> They specifically ask as is their right within the GPL that you note if
-> you modify the files. Otherwise seems fine.
+On Thursday January 19, psusi@cfl.rr.com wrote:
+> I'm currently of the opinion that dm needs a raid5 and raid6 module 
+> added, then the user land lvm tools fixed to use them, and then you 
+> could use dm instead of md.  The benefit being that dm pushes things 
+> like volume autodetection and management out of the kernel to user space 
+> where it belongs.  But that's just my opinion...
 
-Hm, any idea on how to note that I modified the file in such a way that
-would be acceptable?  How about this?
+The in-kernel autodetection in md is purely legacy support as far as I
+am concerned.  md does volume detection in user space via 'mdadm'.
 
-+|
-+|      For details on the license for this file, please see the
-+|      file, README, in this same directory.  Note, this paragraph in
-+|	this comment has been added from the original version of this
-+|	file from the author.
+What other "things like" were you thinking of.
 
-thanks,
-
-greg k-h
+NeilBrown

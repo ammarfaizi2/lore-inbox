@@ -1,78 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161393AbWASTtR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161149AbWASTxP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161393AbWASTtR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 14:49:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161390AbWASTtR
+	id S1161149AbWASTxP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 14:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161368AbWASTxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 14:49:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:25987 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161393AbWASTtP (ORCPT
+	Thu, 19 Jan 2006 14:53:15 -0500
+Received: from mx1.suse.de ([195.135.220.2]:59835 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161149AbWASTxO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 14:49:15 -0500
-Date: Thu, 19 Jan 2006 14:48:36 -0500
-From: Dave Jones <davej@redhat.com>
-To: Andy Chittenden <AChittenden@bluearc.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       lwoodman@redhat.com
-Subject: Re: Out of Memory: Killed process 16498 (java).
-Message-ID: <20060119194836.GM21663@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andy Chittenden <AChittenden@bluearc.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	lwoodman@redhat.com
-References: <89E85E0168AD994693B574C80EDB9C270355601F@uk-email.terastack.bluearc.com>
+	Thu, 19 Jan 2006 14:53:14 -0500
+Date: Thu, 19 Jan 2006 20:53:13 +0100
+From: Nick Piggin <npiggin@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 5/6] mm: simplify vmscan vs release refcounting
+Message-ID: <20060119195312.GA13887@wotan.suse.de>
+References: <20060119192131.11913.27564.sendpatchset@linux.site> <20060119192219.11913.30071.sendpatchset@linux.site> <Pine.LNX.4.64.0601191130590.3240@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <89E85E0168AD994693B574C80EDB9C270355601F@uk-email.terastack.bluearc.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <Pine.LNX.4.64.0601191130590.3240@g5.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 03:11:45PM -0000, Andy Chittenden wrote:
- > DMA free:20kB min:24kB low:28kB high:36kB active:0kB inactive:0kB
- > present:12740kB pages_scanned:4 all_unreclaimable? yes
+On Thu, Jan 19, 2006 at 11:35:29AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Thu, 19 Jan 2006, Nick Piggin wrote:
+> >
+> > The VM has an interesting race where a page refcount can drop to zero, but
+> > it is still on the LRU lists for a short time. This was solved by testing
+> > a 0->1 refcount transition when picking up pages from the LRU, and dropping
+> > the refcount in that case.
+> 
+> Heh. Now you keep the count offset, but you also end up removing all the 
+> comments about it (still) being -1 for free. 
+> 
+> And your changelog talks about "atomic_inc_not_zero()" even though the 
+> code actually does
+> 
+> 	atomic_add_unless(&page->_count, 1, -1);
+> 
+> which makes it pretty confusing ;)
+> 
+> I also think it's wrong - you've changed put_page_testzero() to use 
+> "atomic_dec_and_test()", even though the count is based on -1.
+> 
+> So this patch _only_ works together with the next one, and is invalid in 
+> many ways on its own. You should re-split the de-skew part correctly..
+> 
 
-Note we only scanned 4 pages before we gave up.
-Larry Woodman came up with this patch below that clears all_unreclaimable
-when in two places where we've made progress at freeing up some pages
-which has helped oom situations for some of our users.
+Man I'm really happy one of us is awake. Sorry, I'll resend the last two.
 
-From: Larry Woodman <lwoodman@redhat.com>
-Signed-off-by: Dave Jones <davej@redhat.com>
-
---- linux-2.6/mm/filemap.c~	2005-12-10 01:47:15.000000000 -0500
-+++ linux-2.6/mm/filemap.c	2005-12-10 01:47:46.000000000 -0500
-@@ -471,11 +471,18 @@ EXPORT_SYMBOL(unlock_page);
-  */
- void end_page_writeback(struct page *page)
- {
-+	struct zone *zone = page_zone(page);
- 	if (!TestClearPageReclaim(page) || rotate_reclaimable_page(page)) {
- 		if (!test_clear_page_writeback(page))
- 			BUG();
- 	}
- 	smp_mb__after_clear_bit();
-+	if (zone->all_unreclaimable) {
-+		spin_lock(&zone->lock);
-+		zone->all_unreclaimable = 0;
-+		zone->pages_scanned = 0;
-+		spin_unlock(&zone->lock);
-+	}
- 	wake_up_page(page, PG_writeback);
- }
- EXPORT_SYMBOL(end_page_writeback);
---- linux-2.6.15/mm/page_alloc.c~	2006-01-09 13:40:03.000000000 -0500
-+++ linux-2.6.15/mm/page_alloc.c	2006-01-09 13:40:50.000000000 -0500
-@@ -722,6 +722,11 @@ static void fastcall free_hot_cold_page(
- 	if (pcp->count >= pcp->high) {
- 		free_pages_bulk(zone, pcp->batch, &pcp->list, 0);
- 		pcp->count -= pcp->batch;
-+	} else if (zone->all_unreclaimable) {
-+		spin_lock(&zone->lock);
-+		zone->all_unreclaimable = 0;
-+		zone->pages_scanned = 0;
-+		spin_unlock(&zone->lock);
- 	}
- 	local_irq_restore(flags);
- 	put_cpu();
+Nick

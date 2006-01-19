@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161474AbWASW5b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161479AbWASW5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161474AbWASW5b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 17:57:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161478AbWASW5b
+	id S1161479AbWASW5U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 17:57:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161478AbWASW5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 17:57:31 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:16612 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1161474AbWASW5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 17:57:30 -0500
-Subject: RE: My vote against eepro* removal
-From: Steven Rostedt <rostedt@goodmis.org>
-To: kus Kusche Klaus <kus@keba.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1137697744.6762.106.camel@localhost.localdomain>
-References: <AAD6DA242BC63C488511C611BD51F367323322@MAILIT.keba.co.at>
-	 <1137697744.6762.106.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 19 Jan 2006 17:57:25 -0500
-Message-Id: <1137711445.6762.116.camel@localhost.localdomain>
+	Thu, 19 Jan 2006 17:57:20 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:29642
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1161473AbWASW5T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 17:57:19 -0500
+Date: Thu, 19 Jan 2006 14:57:16 -0800
+From: Greg KH <greg@kroah.com>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: Andrew Morton <akpm@osdl.org>, Roland Dreier <rdreier@cisco.com>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: RFC: ipath ioctls and their replacements
+Message-ID: <20060119225716.GB27689@kroah.com>
+References: <1137631411.4757.218.camel@serpentine.pathscale.com> <20060119025741.GC15706@kroah.com> <1137646957.25584.17.camel@localhost.localdomain> <20060119053940.GB21467@kroah.com> <1137649988.25584.67.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1137649988.25584.67.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-19 at 14:09 -0500, Steven Rostedt wrote:
-> On Thu, 2006-01-19 at 11:26 +0100, kus Kusche Klaus wrote:
-> > > From: Lee Revell
-> > > On Thu, 2006-01-19 at 08:19 +0100, kus Kusche Klaus wrote:
-> > > > Last time I tested (around 2.6.12), eepro100 worked much better 
-> > > > in -rt kernels w.r.t. latencies than e100:
+On Wed, Jan 18, 2006 at 09:53:08PM -0800, Bryan O'Sullivan wrote:
+> On Wed, 2006-01-18 at 21:39 -0800, Greg KH wrote:
 > 
-> Try the latest -rt kernel with e100 to see if it still is a delay.  You
-> can also run in PREEMPT_DESKTOP so that the interrupt handlers are not
-> threads and see if that shows up in the latency.
+> > Ok, that's fair enough.  But if you want to do something like ptys, then
+> > why not just have your own filesystem for this driver?
+> 
+> If you think it's appropriate to implement a new filesystem to replace a
+> single ioctl that returns two integers, we can probably do that, but
+> more realistically, the GETPORT ioctl can probably live a long and
+> untroubled life as another netlink message.
 
-I just booted up 2.6.15-rt6 (PREEMPT_DESKTOP, regular soft and hard
-irqs) on a 366 MHz UP machine with init=/bin/bash.  Loaded the e100
-driver, setup the network. Then started to ping it from another box.  I
-had a 80 usec latency, and that wasn't even from the network card.
+Well it only takes about 250 lines to make a new fs these days, but a
+single netlink message would probably be smaller :)
 
-So, e100 should not be a problem.  I did see the interrupts go off every
-2 seconds too.
+> > You are just making your own type of special interface up as you
+> > go, so the complexity is also there (this complexity would normally be
+> > in some core code, which I am hoping that your code will turn into for
+> > other devices of the same type, right?)
+> 
+> The most important chunk of likely common code I can see at the moment
+> is the stuff for bodging user page mappings that we got hammered over
+> already.  The drivers/infiniband/ tree already has code that does
+> something like this, and a few other not-yet-in-tree network drivers
+> that support RDMA have similar needs, too.
 
-Check to see if you still get the latencies with e100 and the latest
-kernel.
+The RDMA-loving people need to get together and hammer out a proposal
+that the network people can laugh at and shoot down all at once :)
 
-As Lee already said.  You notice something fishy __PLEASE__ report it.
-Arjan's response was that this shows that we should only have one driver
-for a certain task, otherwise people wont report a problem with one, if
-the other satisfies their needs. And thus, the problem remains.
+Ok, maybe not shoot down, but they do need to get together and come up
+with some kind of solution, add-hok implementations in a bunch of
+different drivers, in a bunch of different ways is not the proper thing
+to do, no matter _how_ different the hardware works at the lower levels.
 
--- Steve
+thanks,
 
+greg k-h

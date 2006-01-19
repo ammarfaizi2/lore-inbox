@@ -1,78 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030479AbWASCmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030465AbWASCx2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030479AbWASCmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 21:42:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030509AbWASCmJ
+	id S1030465AbWASCx2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 21:53:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030510AbWASCx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 21:42:09 -0500
-Received: from bigip-smtp2.dyxnet.com ([202.66.146.142]:55966 "EHLO
-	bigip-smtp2.dyxnet.com") by vger.kernel.org with ESMTP
-	id S1030479AbWASCmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 21:42:08 -0500
-Message-ID: <43CEFC11.6020103@thizgroup.com>
-Date: Thu, 19 Jan 2006 10:40:17 +0800
-From: Zhang Le <robert@thizgroup.com>
-User-Agent: Mail/News 1.5 (X11/20060113)
-MIME-Version: 1.0
-To: Aneesh Kumar <aneesh.kumar@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Add entry.S function name to tag file
-References: <cc723f590601172058n67fb2200ybfffba9bc4fc72ba@mail.gmail.com>
-In-Reply-To: <cc723f590601172058n67fb2200ybfffba9bc4fc72ba@mail.gmail.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=gb18030
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Jan 2006 21:53:28 -0500
+Received: from mail.kroah.org ([69.55.234.183]:25272 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030465AbWASCx2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 21:53:28 -0500
+Date: Wed, 18 Jan 2006 18:51:47 -0800
+From: Greg KH <gregkh@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/base/: proper prototypes
+Message-ID: <20060119025146.GA15257@suse.de>
+References: <20060119013242.GX19398@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060119013242.GX19398@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Jan 19, 2006 at 02:32:42AM +0100, Adrian Bunk wrote:
+> This patch contains the following changes:
+> - move prototypes to base.h
+> - sys.c should #include "base.h" for getting the prototype of it's
+>   global function system_bus_init()
+> 
+> Note that hidden in this patch there's a bugfix:
+> 
+> Caller and callee disagreed regarding the return type of 
+> sysdev_shutdown().
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+>  drivers/base/base.h           |    6 ++++++
+>  drivers/base/power/resume.c   |    3 +--
+>  drivers/base/power/shutdown.c |    2 +-
+>  drivers/base/power/suspend.c  |    3 +--
+>  drivers/base/sys.c            |    2 ++
+>  5 files changed, 11 insertions(+), 5 deletions(-)
+> 
+> --- linux-2.6.16-rc1-mm1-full/drivers/base/base.h.old	2006-01-18 23:17:52.000000000 +0100
+> +++ linux-2.6.16-rc1-mm1-full/drivers/base/base.h	2006-01-18 23:41:33.000000000 +0100
+> @@ -1,6 +1,8 @@
+>  
+>  /* initialisation functions */
+>  
+> +#include <linux/device.h>
+> +
 
-Aneesh Kumar wrote:
-> How about a patch like the one attached below. I am not sure
-> whether i got the regular expression correct. But it works for me.
->
-> -aneesh
->
-> ----------------------------------------------------------------------
->
->
-> diff --git a/Makefile b/Makefile index 252a659..6c8479e 100644 ---
-> a/Makefile +++ b/Makefile @@ -1272,7 +1272,7 @@ define cmd_tags
-> CTAGSF=`ctags --version | grep -i exuberant >/dev/null &&     \
-> echo "-I __initdata,__exitdata,__acquires,__releases  \ -I
-> EXPORT_SYMBOL,EXPORT_SYMBOL_GPL              \ -
-> --extra=+f --c-kinds=+px"`;                     \ +
-> --extra=+f --c-kinds=+px --regex-asm=/ENTRY\(([^)]*)\).*/\1/f/"`;
-> \
-what's the meaning of "f"
-kind-spec?
-But `exuberant-ctags --list-kinds` here shows ASM don't have "f" kind
+Why is this extra #include needed?  It shouldn't be.
 
-> $(all-sources) | xargs ctags $$CTAGSF -a endef
->
+thanks,
 
-
-- --
-Zhang Le, Robert
-Linux Engineer/Trainer
-
-Institute of Thiz Technology Limited
-Address: Unit 1004, 10/F, Tower B,
-Hunghom Commercial Centre, 37 Ma Tau Wai Road,
-To Kwa Wan, Kowloon, Hong Kong
-Telephone: (852) 2735 2725
-Mobile:(852) 9845 4336
-Fax: (852) 2111 0702
-URL: http://www.thizgroup.com
-Public key: gpg --keyserver pgp.mit.edu --recv-keys 1E4E2973
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFDzvwQvFHICB5OKXMRAun5AJ9R4JxmJHpWDSeMfeWK0uFZrii1IwCgkqPS
-PK1yVn5CBm69k5prJXIpllU=
-=fMv5
------END PGP SIGNATURE-----
-
+greg k-h

@@ -1,60 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161017AbWASRtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWASRtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161017AbWASRtM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 12:49:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWASRtM
+	id S1751374AbWASRtm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 12:49:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWASRtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 12:49:12 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:4868 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751374AbWASRtM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 12:49:12 -0500
-Date: Thu, 19 Jan 2006 18:49:11 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Michael H. Warfield" <mhw@WittsEnd.com>
-Subject: [git patch] Move ip2.c and ip2main.c to drivers/char/ip2/
-Message-ID: <20060119174911.GV19398@stusta.de>
+	Thu, 19 Jan 2006 12:49:42 -0500
+Received: from webapps.arcom.com ([194.200.159.168]:38927 "EHLO
+	webapps.arcom.com") by vger.kernel.org with ESMTP id S1751374AbWASRtl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 12:49:41 -0500
+Message-ID: <43CFD12F.2070900@cantab.net>
+Date: Thu, 19 Jan 2006 17:49:35 +0000
+From: David Vrabel <dvrabel@cantab.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+To: Greg KH <gregkh@suse.de>
+CC: David Vrabel <dvrabel@arcom.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [patch 0/2] driver core: platform_get_irq*(): return -ENXIO on error
+References: <43BD534E.8050701@arcom.com> <20060105173717.GA11279@suse.de> <43BD5F5E.1070108@arcom.com> <20060105180815.GB13317@suse.de>
+In-Reply-To: <20060105180815.GB13317@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Jan 2006 17:53:47.0734 (UTC) FILETIME=[4C44C760:01C61D21]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please pull from:
+platform_get_irq*() can't return 0 on error since 0 may be a valid IRQ.,
+instead return a -ve error code.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/bunk/trivial.git
+platform_get_irq-return-error:
+  - return -ENXIO if platform_get_irq*() can't find the resource.
 
+platform_get_irq-fix-users-on-error:
+  - fix all the users of platform_get_irq*() so they do something
+sensible when it returns an error.
 
-This tree contains the following change:
-
-    Move ip2.c and ip2main.c to drivers/char/ip2/ where the other files
-    used by this driver reside.
-    
-    Renamed ip2.c to ip2base.c to allow ip2.o to be built from multiple
-    objects.
-    
-    Signed-off-by: Adrian Bunk <bunk@stusta.de>
-    Acked-by: Michael H. Warfield <mhw@WittsEnd.com>
-
-
-The diffstat is big, but changes are actually only:
-- move ip2.c and ip2main.c to drivers/char/ip2/
-- rename ip2.c to ip2base.c (the module is still called ip2)
-- adjust some #include's in the moved files to the new location
-
-Further cleanup patches will go the usual way through Michael/Andrew, 
-but this straightforward moving of files should be done through git.
-
-
- drivers/char/Makefile      |    2 
- drivers/char/ip2.c         |  109 -
- drivers/char/ip2/Makefile  |    8 
- drivers/char/ip2/ip2base.c |  109 +
- drivers/char/ip2/ip2main.c | 3260 +++++++++++++++++++++++++++++++++++++
- drivers/char/ip2main.c     | 3260 -------------------------------------
- 6 files changed, 3378 insertions(+), 3370 deletions(-)
-
-
+David Vrabel

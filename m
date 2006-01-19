@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422661AbWASWNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422658AbWASWMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422661AbWASWNG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 17:13:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422662AbWASWNF
+	id S1422658AbWASWMN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 17:12:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422663AbWASWMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 17:13:05 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:43953 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1422661AbWASWNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 17:13:04 -0500
-Subject: Re: [PATCH] powerpc: remove useless spinlock from mpc83xx watchdog
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Kumar Gala <galak@gate.crashing.org>, Andrew Morton <akpm@osdl.org>,
-       wim@iguana.be, linux-kernel@vger.kernel.org,
-       linuxppc-embedded@ozlabs.org
-In-Reply-To: <20060119164811.GB4418@dmt.cnet>
-References: <Pine.LNX.4.44.0601190057130.8484-100000@gate.crashing.org>
-	 <1137664156.8471.16.camel@localhost.localdomain>
-	 <20060119164811.GB4418@dmt.cnet>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 19 Jan 2006 22:12:19 +0000
-Message-Id: <1137708739.8471.69.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 19 Jan 2006 17:12:13 -0500
+Received: from xenotime.net ([66.160.160.81]:16874 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1422658AbWASWML (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 17:12:11 -0500
+Date: Thu, 19 Jan 2006 14:12:11 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Dave Jones <davej@redhat.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, alan@redhat.com
+Subject: Re: EDAC config cleanup
+In-Reply-To: <20060119221006.GA31404@redhat.com>
+Message-ID: <Pine.LNX.4.58.0601191411560.11660@shark.he.net>
+References: <20060119221006.GA31404@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2006-01-19 at 14:48 -0200, Marcelo Tosatti wrote:
-> On Thu, Jan 19, 2006 at 09:49:16AM +0000, Alan Cox wrote:
-> > 
-> > 	f = open("/dev/watchdog", O_RDWR);
-> > 	fork();
-> > 	while(1) {
-> > 		write(f, "Boing", 5);
-> > 	}
-> 
-> Oops.
-> 
-> At least 50% of the watchdog drivers rely solely on the "wdt_is_open"
-> atomic variable and are broken with respect to synchronization.
+On Thu, 19 Jan 2006, Dave Jones wrote:
 
-What an excellent janitors project
+> The AMD76x chipsets aren't used in 64-bit, so don't
+> offer the driver to the user.
+>
+> Signed-off-by: Dave Jones <davej@redhat.com>
+>
+> --- linux-2.6.15.noarch/drivers/edac/Kconfig~	2006-01-19 17:00:16.000000000 -0500
+> +++ linux-2.6.15.noarch/drivers/edac/Kconfig	2006-01-19 17:03:33.000000000 -0500
+> @@ -46,7 +46,7 @@ config EDAC_MM_EDAC
+>
+>  config EDAC_AMD76X
+>  	tristate "AMD 76x (760, 762, 768)"
+> -	depends on EDAC_MM_EDAC  && PCI
+> +	depends on EDAC_MM_EDAC && PCI X86_32
+                                      ^ && ???
 
+>  	help
+>  	  Support for error detection and correction on the AMD 76x
+>  	  series of chipsets used with the Athlon processor.
+> -
+
+-- 
+~Randy

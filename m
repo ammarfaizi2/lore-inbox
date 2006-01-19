@@ -1,107 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161056AbWASHJD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161066AbWASHPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161056AbWASHJD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 02:09:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161138AbWASHJC
+	id S1161066AbWASHPO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 02:15:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161067AbWASHPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 02:09:02 -0500
-Received: from [202.125.80.34] ([202.125.80.34]:53714 "EHLO mail.esn.co.in")
-	by vger.kernel.org with ESMTP id S1161056AbWASHJB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 02:09:01 -0500
-Subject: RE: clarity on kref needed.
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Thu, 19 Jan 2006 12:30:40 +0530
-Content-class: urn:content-classes:message
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Message-ID: <3AEC1E10243A314391FE9C01CD65429B28BF3C@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: clarity on kref needed.
-Thread-Index: AcYcuVQcIv9WWkYVSZi4eTJnrpJ8+gADIMBg
-From: "Mukund JB." <mukundjb@esntechnologies.co.in>
-To: "Greg KH" <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>
+	Thu, 19 Jan 2006 02:15:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:44219 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161066AbWASHPN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 02:15:13 -0500
+Subject: Re: RFC [patch 00/34] PID Virtualization Overview
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dave Hansen <haveblue@us.ibm.com>, Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Serge Hallyn <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>
+In-Reply-To: <1137624867.1760.1.camel@localhost.localdomain>
+References: <20060117143258.150807000@sergelap>
+	 <43CD18FF.4070006@FreeBSD.org>
+	 <1137517698.8091.29.camel@localhost.localdomain>
+	 <43CD32F0.9010506@FreeBSD.org>
+	 <1137521557.5526.18.camel@localhost.localdomain>
+	 <1137522550.14135.76.camel@localhost.localdomain>
+	 <1137610912.24321.50.camel@localhost.localdomain>
+	 <1137612537.3005.116.camel@laptopd505.fenrus.org>
+	 <1137613088.24321.60.camel@localhost.localdomain>
+	 <1137624867.1760.1.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 19 Jan 2006 08:15:06 +0100
+Message-Id: <1137654906.2993.10.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-01-18 at 22:54 +0000, Alan Cox wrote:
+> On Mer, 2006-01-18 at 11:38 -0800, Dave Hansen wrote:
+> > But, it seems that many drivers like to print out pids as a unique
+> > identifier for the task.  Should we just let them print those
+> > potentially non-unique identifiers, deprecate and kill them, or provide
+> > a replacement with something else which is truly unique?
+> 
+> Pick a format for container number + pid and document/stick with it -
+> something like container::pid (eg 0::114) or 114[0] whatever so long as
+> it is consistent
 
-Can you give me some pointers & documentation links for HOWTO using libusb/usbfs instead of a kernel driver.
+having a pid_to_string(<task struct>) or maybe task_to_string() thing
+for convenient printing of pids/tasks.. I'm all for that. Means you can
+even configure how verbose you want it to be (include ->comm or not,
+->state maybe etc)
 
-Regards,
-Mukund Jampala
-
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Thursday, January 19, 2006 11:03 AM
-> To: Mukund JB.
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: clarity on kref needed.
-> 
-> 
-> On Thu, Jan 19, 2006 at 10:35:37AM +0530, Mukund JB. wrote:
-> > 
-> > 
-> > > -----Original Message-----
-> > > From: Greg KH [mailto:greg@kroah.com]
-> > > Sent: Thursday, January 19, 2006 10:33 AM
-> > > To: Mukund JB.
-> > > Cc: linux-kernel@vger.kernel.org
-> > > Subject: Re: clarity on kref needed.
-> > > 
-> > > 
-> > > On Thu, Jan 19, 2006 at 10:15:51AM +0530, Mukund JB. wrote:
-> > > > 
-> > > > > > I have gone through kref and am planning to implement then 
-> > > > > in my usb driver.
-> > > > > 
-> > > > > What kind of usb driver?
-> > > > It is a finger print authentication USB driver. it 
-> doesn ot do the
-> > > > authgentication but transports data to the application 
-> which really
-> > > > does some processing.
-> > > 
-> > > You shouldn't need a kernel driver for this, it can be done 
-> > > in userspace
-> > > with libusb/usbfs, right?
-> > 
-> > I mean I will register a char driver. I will just write a 
-> simple char
-> > kernel module to read data from the USB device and zero 
-> copy it to the
-> > userspace application. I guess that is the minimum work we 
-> need to do.
-> 
-> You can do that from userspace with libusb/usbfs with no kernel driver
-> needed.  Why not do that instead?
-> 
-> > Is there any other way using libusb/usbfs in which we can do this
-> > without a need of USB kernel driver?
-> 
-> Yes, use libusb/usbfs :)
-> 
-> > > > No, I did not find any Documentation/kref.txt.
-> > > > But I have read about kred in the link below:
-> > > > 
-> > > http://developer.osdl.org/dev/robustmutexes/src/fusyn.hg/Docum
-> > entation/kref.txt
-> > > >
-> > > >Is kref depricated because I find nothing related to it 
-> in linux/Documentation/?
-> > 
-> > > What kernel version are you looking at?  Look in the 
-> kernel source tree
-> > > from kernel.org.  What kernel tree are you building your 
-> driver against.
-> > 
-> > I am planning it for 2.6.11.12.
-> 
-> That's a pretty old kernel version, why not use the latest version?
-> 
-> thanks,
-> 
-> greg k-h
-> 

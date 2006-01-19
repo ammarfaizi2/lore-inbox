@@ -1,63 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWASD2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbWASD3S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964871AbWASD2t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 22:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbWASD2t
+	id S964931AbWASD3S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 22:29:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbWASD3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 22:28:49 -0500
-Received: from ns2.lanforge.com ([66.165.47.211]:37255 "EHLO ns2.lanforge.com")
-	by vger.kernel.org with ESMTP id S964871AbWASD2s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 22:28:48 -0500
-Message-ID: <43CF0768.60703@candelatech.com>
-Date: Wed, 18 Jan 2006 19:28:40 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Can you specify a local IP or Interface to be used on a	per	NFS
- mount basis?
-References: <43CECB00.40405@candelatech.com>	 <1137631728.13076.1.camel@lade.trondhjem.org>	 <43CEF7A6.30802@candelatech.com> <1137641084.8864.3.camel@lade.trondhjem.org>
-In-Reply-To: <1137641084.8864.3.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Jan 2006 22:29:18 -0500
+Received: from [198.99.130.12] ([198.99.130.12]:22473 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S964926AbWASD3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 22:29:17 -0500
+Date: Wed, 18 Jan 2006 23:21:04 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [PATCH 8/8] uml: avoid "CONFIG_NR_CPUS undeclared" bogus error messages
+Message-ID: <20060119042104.GC8265@ccure.user-mode-linux.org>
+References: <20060118235132.4626.74049.stgit@zion.home.lan> <20060118235522.4626.2825.stgit@zion.home.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060118235522.4626.2825.stgit@zion.home.lan>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> On Wed, 2006-01-18 at 18:21 -0800, Ben Greear wrote:
-> 
-> 
->>>NFS doesn't know anything about ip packet routing. That is a networking
->>>issue.
->>
->>When a socket is created, you can optionally bind to local IP, interface and/or
->>IP-Port.  Somewhere, NFS is opening a socket I assume?  So, is there a way to
->>ask it to bind?
-> 
-> 
-> 
-> As David said, the place to fix it is in xs_bindresvport(), but there is
-> no support for passing this sort of information through the current NFS
-> binary mount structure. You would have to hack that up yourself.
+On Thu, Jan 19, 2006 at 12:55:23AM +0100, Paolo 'Blaisorblade' Giarrusso wrote:
+> -extern struct task_struct *idle_threads[NR_CPUS];
+> -
 
-I can think of some horrible hacks to grab info out of a text file based
-on the mount point or some other available info...but if I actually
-attempted to do it right..would you consider the patch for kernel
-inclusion?  Is it OK to modify the binary mount structure?
+BTW, this isn't the only problem there.  There are three declarations
+towards the bottom with struct task_struct in them which have to be moved.
 
-Ben
-
-> 
-> Cheers,
->   Trond
-> 
-
-
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
-
+				Jeff

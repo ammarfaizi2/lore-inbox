@@ -1,43 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161172AbWASC3e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030479AbWASCmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161172AbWASC3e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 21:29:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161173AbWASC3e
+	id S1030479AbWASCmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 21:42:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030509AbWASCmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 21:29:34 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:54678
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1161172AbWASC3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 21:29:34 -0500
-Date: Wed, 18 Jan 2006 18:29:35 -0800 (PST)
-Message-Id: <20060118.182935.80593235.davem@davemloft.net>
-To: greearb@candelatech.com
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-Subject: Re: Can you specify a local IP or Interface to be used on a per
- NFS mount basis?
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <43CEF7A6.30802@candelatech.com>
-References: <43CECB00.40405@candelatech.com>
-	<1137631728.13076.1.camel@lade.trondhjem.org>
-	<43CEF7A6.30802@candelatech.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 18 Jan 2006 21:42:09 -0500
+Received: from bigip-smtp2.dyxnet.com ([202.66.146.142]:55966 "EHLO
+	bigip-smtp2.dyxnet.com") by vger.kernel.org with ESMTP
+	id S1030479AbWASCmI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 21:42:08 -0500
+Message-ID: <43CEFC11.6020103@thizgroup.com>
+Date: Thu, 19 Jan 2006 10:40:17 +0800
+From: Zhang Le <robert@thizgroup.com>
+User-Agent: Mail/News 1.5 (X11/20060113)
+MIME-Version: 1.0
+To: Aneesh Kumar <aneesh.kumar@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Add entry.S function name to tag file
+References: <cc723f590601172058n67fb2200ybfffba9bc4fc72ba@mail.gmail.com>
+In-Reply-To: <cc723f590601172058n67fb2200ybfffba9bc4fc72ba@mail.gmail.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=gb18030
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ben Greear <greearb@candelatech.com>
-Date: Wed, 18 Jan 2006 18:21:26 -0800
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> When a socket is created, you can optionally bind to local IP,
-> interface and/or IP-Port.  Somewhere, NFS is opening a socket I
-> assume?  So, is there a way to ask it to bind?
+Aneesh Kumar wrote:
+> How about a patch like the one attached below. I am not sure
+> whether i got the regular expression correct. But it works for me.
+>
+> -aneesh
+>
+> ----------------------------------------------------------------------
+>
+>
+> diff --git a/Makefile b/Makefile index 252a659..6c8479e 100644 ---
+> a/Makefile +++ b/Makefile @@ -1272,7 +1272,7 @@ define cmd_tags
+> CTAGSF=`ctags --version | grep -i exuberant >/dev/null &&     \
+> echo "-I __initdata,__exitdata,__acquires,__releases  \ -I
+> EXPORT_SYMBOL,EXPORT_SYMBOL_GPL              \ -
+> --extra=+f --c-kinds=+px"`;                     \ +
+> --extra=+f --c-kinds=+px --regex-asm=/ENTRY\(([^)]*)\).*/\1/f/"`;
+> \
+what's the meaning of "f"
+kind-spec?
+But `exuberant-ctags --list-kinds` here shows ASM don't have "f" kind
 
-Things like net/sunrpc/xprtsock.c:xs_bindresvport() will bind,
-but to a specific port.  It leaves the address field all zeros
-which makes the kernel pick a default.
+> $(all-sources) | xargs ctags $$CTAGSF -a endef
+>
 
-net/sunrpc/svcsock.c does something similar, you can get it
-to use a particular port but it uses INADDR_ANY for the
-address during the bind().
+
+- --
+Zhang Le, Robert
+Linux Engineer/Trainer
+
+Institute of Thiz Technology Limited
+Address: Unit 1004, 10/F, Tower B,
+Hunghom Commercial Centre, 37 Ma Tau Wai Road,
+To Kwa Wan, Kowloon, Hong Kong
+Telephone: (852) 2735 2725
+Mobile:(852) 9845 4336
+Fax: (852) 2111 0702
+URL: http://www.thizgroup.com
+Public key: gpg --keyserver pgp.mit.edu --recv-keys 1E4E2973
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFDzvwQvFHICB5OKXMRAun5AJ9R4JxmJHpWDSeMfeWK0uFZrii1IwCgkqPS
+PK1yVn5CBm69k5prJXIpllU=
+=fMv5
+-----END PGP SIGNATURE-----
+

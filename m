@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161080AbWASKIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161169AbWASKNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161080AbWASKIX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 05:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161114AbWASKIX
+	id S1161169AbWASKNi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 05:13:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161225AbWASKNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 05:08:23 -0500
-Received: from general.keba.co.at ([193.154.24.243]:41859 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S1161080AbWASKIW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 05:08:22 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 19 Jan 2006 05:13:38 -0500
+Received: from wavehammer.waldi.eu.org ([82.139.196.55]:15319 "EHLO
+	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
+	id S1161169AbWASKNh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 05:13:37 -0500
+Date: Thu, 19 Jan 2006 11:13:31 +0100
+From: Bastian Blank <waldi@debian.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: maximilian attems <maks@sternwelten.at>,
+       Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] kbuild: add automatic updateconfig target
+Message-ID: <20060119101331.GB27042@wavehammer.waldi.eu.org>
+Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
+	maximilian attems <maks@sternwelten.at>,
+	Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>
+References: <20060118194056.GA26532@nancy> <20060118204234.GC14340@mars.ravnborg.org> <20060118204750.GD14340@mars.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: My vote against eepro* removal
-Date: Thu, 19 Jan 2006 11:08:17 +0100
-Message-ID: <AAD6DA242BC63C488511C611BD51F367323321@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: My vote against eepro* removal
-Thread-Index: AcYcy9rqb/G5qZO0RDe1/KEdpPhhOwAE7mPA
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060118204750.GD14340@mars.ravnborg.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Arjan van de Ven
-> On Thu, 2006-01-19 at 08:19 +0100, kus Kusche Klaus wrote:
-> > Last time I tested (around 2.6.12), eepro100 worked much better 
-> > in -rt kernels w.r.t. latencies than e100:
-> 
-> no offence but this is EXACTLY the reason why having 2 drivers for the
-> same hardware is bad. People (in general) will switch to the 
-> 2nd driver
-> if they hit some thing that is suboptimal, rather than 
-> reporting or even
-> fixing it. The result of that is that you end up with 2 drivers, each
-> serving a portion of the users but both suboptimal in non-overlapping
-> ways. Having one driver that's good enough for both groups is clearly
-> superior to that....
+On Wed, Jan 18, 2006 at 09:47:50PM +0100, Sam Ravnborg wrote:
+> > Keep same naming as the others. May I suggest set_default.
 
-You describe exactly what happened: I had a problem with e100, I tried
-eepro100, I was happy with eepro100 (I didn't notice it was scheduled
-for removal), I didn't care about e100 any more...
+set_* is something different. It uses the default config, not the actual
+one.
 
-I also agree that things should not happen that way, but it was the
-easy way.
+Bastian
 
 -- 
-Klaus Kusche                 (Software Development - Control Systems)
-KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
-Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
-E-Mail: kus@keba.com                                WWW: www.keba.com
- 
+Those who hate and fight must stop themselves -- otherwise it is not stopped.
+		-- Spock, "Day of the Dove", stardate unknown

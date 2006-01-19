@@ -1,75 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161049AbWASRwc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWASRyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161049AbWASRwc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 12:52:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161062AbWASRwc
+	id S1751394AbWASRyM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 12:54:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWASRyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 12:52:32 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:41231 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S1161049AbWASRwb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 12:52:31 -0500
-Message-ID: <43CFD1DB.4010900@arcom.com>
-Date: Thu, 19 Jan 2006 17:52:27 +0000
-From: David Vrabel <dvrabel@arcom.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Thu, 19 Jan 2006 12:54:12 -0500
+Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:58507 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S1751394AbWASRyL (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Thu, 19 Jan 2006 12:54:11 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: David Vrabel <dvrabel@arcom.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [patch 1/2] driver core: platform_get_irq*(): return -ENXIO on error
-References: <43BD534E.8050701@arcom.com> <20060105173717.GA11279@suse.de> <43BD5F5E.1070108@arcom.com> <20060105180815.GB13317@suse.de> <43CFD12F.2070900@cantab.net>
-In-Reply-To: <43CFD12F.2070900@cantab.net>
-Content-Type: multipart/mixed;
- boundary="------------040806000401080206010409"
-X-OriginalArrivalTime: 19 Jan 2006 17:56:39.0640 (UTC) FILETIME=[B2BB8D80:01C61D21]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17359.53508.481749.294382@gargle.gargle.HOWL>
+Date: Thu, 19 Jan 2006 20:48:52 +0300
+To: Nick Piggin <npiggin@suse.de>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       David Miller <davem@davemloft.net>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+Subject: Re: [patch 2/4] mm: PageLRU no testset
+Newsgroups: gmane.linux.kernel,gmane.linux.kernel.mm
+In-Reply-To: <20060118024128.10241.82524.sendpatchset@linux.site>
+References: <20060118024106.10241.69438.sendpatchset@linux.site>
+	<20060118024128.10241.82524.sendpatchset@linux.site>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040806000401080206010409
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Nick Piggin writes:
+ > PG_lru is protected by zone->lru_lock. It does not need TestSet/TestClear
+ > operations.
+ > 
+ > Signed-off-by: Nick Piggin <npiggin@suse.de>
+ > 
+ > Index: linux-2.6/mm/vmscan.c
+ > ===================================================================
+ > --- linux-2.6.orig/mm/vmscan.c
+ > +++ linux-2.6/mm/vmscan.c
+ > @@ -775,9 +775,10 @@ int isolate_lru_page(struct page *page)
+ >  	if (PageLRU(page)) {
+ >  		struct zone *zone = page_zone(page);
+ >  		spin_lock_irq(&zone->lru_lock);
+ > -		if (TestClearPageLRU(page)) {
+ > +		if (PageLRU(page)) {
+ >  			ret = 1;
+ >  			get_page(page);
+ > +			ClearPageLRU(page);
 
-platform_get_irq*() cannot return 0 on error as 0 is a valid IRQ on some
-platforms, return -ENXIO instead.
+Why is that better? ClearPageLRU() is also "atomic" operation (in the
+sense of using LOCK_PREFIX on x86), so it seems this change strictly
+adds cycles to the hot-path when page is on LRU.
 
-Signed-off-by: David Vrabel <dvrabel@arcom.com>
--- 
-David Vrabel, Design Engineer
-
-Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
-Cambridge CB1 7EA, UK         Web: http://www.arcom.com/
-
---------------040806000401080206010409
-Content-Type: text/plain;
- name="platform_get_irq-return-error"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="platform_get_irq-return-error"
-
-Index: linux-2.6-working/drivers/base/platform.c
-===================================================================
---- linux-2.6-working.orig/drivers/base/platform.c	2006-01-05 16:49:23.000000000 +0000
-+++ linux-2.6-working/drivers/base/platform.c	2006-01-05 17:10:18.000000000 +0000
-@@ -59,7 +59,7 @@
- {
- 	struct resource *r = platform_get_resource(dev, IORESOURCE_IRQ, num);
- 
--	return r ? r->start : 0;
-+	return r ? r->start : -ENXIO;
- }
- 
- /**
-@@ -94,7 +94,7 @@
- {
- 	struct resource *r = platform_get_resource_byname(dev, IORESOURCE_IRQ, name);
- 
--	return r ? r->start : 0;
-+	return r ? r->start : -ENXIO;
- }
- 
- /**
-
---------------040806000401080206010409--
+Nikita.

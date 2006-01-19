@@ -1,44 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbWASSbL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161135AbWASSgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030308AbWASSbL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 13:31:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030314AbWASSbK
+	id S1161135AbWASSgi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 13:36:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbWASSgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 13:31:10 -0500
-Received: from 200-170-96-180.veloxmail.com.br ([200.170.96.180]:16266 "EHLO
-	lolita-out.veloxmail.com.br") by vger.kernel.org with ESMTP
-	id S1030308AbWASSbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 13:31:09 -0500
-X-Authenticated-User: fredlwm@veloxmail.com.br
-X-Authenticated-User: fredlwm@veloxmail.com.br
-Date: Thu, 19 Jan 2006 16:31:03 -0200 (BRST)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <2@pervalidus.net>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kbuild: create .kernelrelease at *config step
-Message-ID: <Pine.LNX.4.64.0601191626140.1300@dyndns.pervalidus.net>
-X-Archive: encrypt
+	Thu, 19 Jan 2006 13:36:37 -0500
+Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:35468 "EHLO
+	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP
+	id S1030322AbWASSgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 13:36:37 -0500
+Date: Thu, 19 Jan 2006 19:36:12 +0100 (CET)
+From: Martin Drab <drab@kepler.fjfi.cvut.cz>
+To: Phillip Susi <psusi@cfl.rr.com>
+cc: govind raj <agovinda04@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: RAID 5+0 support
+In-Reply-To: <43CFCBB2.3050003@cfl.rr.com>
+Message-ID: <Pine.LNX.4.60.0601191933250.14341@kepler.fjfi.cvut.cz>
+References: <BAY109-F267E92D32B75385FDB680DD61C0@phx.gbl> <43CFCBB2.3050003@cfl.rr.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is this expected ?
+On Thu, 19 Jan 2006, Phillip Susi wrote:
 
-$ cd /usr/local/src/kernel/linux-2.6.16
-$ make O=/home/fredlwm/objdir/ oldconfig
-...
-make -C /usr/local/src/kernel/linux-2.6.16 O=/home/fredlwm/objdir .kernelrelease
-Makefile:480: .config: No such file or directory
+> Why on earth would you want to stripe two raid-5's instead of using one raid-5
+> that is twice as big?  You'd get more usable disk space that way. 
 
-.config is in /home/fredlwm/objdir
+Speed is the issue here, I believe. By stripping two RAID-5 arrays you 
+ought to get the reliability of the RAID-5 but with considerably higher 
+speed. That's basically why RAID-50 exists, I think.
 
-.kernelrelease gets created in 
-/usr/local/src/kernel/linux-2.6.16 . I thought nothing would be 
-written to the sources directory. What if I were on a read-only 
-filesystem ?
-
-I didn't try to build it. Are these harmless ?
-
--- 
-How to contact me - http://www.pervalidus.net/contact.html
+Martin

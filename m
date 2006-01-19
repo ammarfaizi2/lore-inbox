@@ -1,164 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161347AbWASTKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161335AbWASTJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161347AbWASTKG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 14:10:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161348AbWASTKG
+	id S1161335AbWASTJo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 14:09:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161338AbWASTJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 14:10:06 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:48060 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1161347AbWASTKE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 14:10:04 -0500
-From: Mel Gorman <mel@csn.ul.ie>
-To: linux-mm@kvack.org
-Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Message-Id: <20060119190851.16909.7597.sendpatchset@skynet.csn.ul.ie>
-In-Reply-To: <20060119190846.16909.14133.sendpatchset@skynet.csn.ul.ie>
-References: <20060119190846.16909.14133.sendpatchset@skynet.csn.ul.ie>
-Subject: [PATCH 1/5] Add __GFP_EASYRCLM flag and update callers
-Date: Thu, 19 Jan 2006 19:08:51 +0000 (GMT)
+	Thu, 19 Jan 2006 14:09:44 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:12425 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1161335AbWASTJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 14:09:43 -0500
+Subject: RE: My vote against eepro* removal
+From: Steven Rostedt <rostedt@goodmis.org>
+To: kus Kusche Klaus <kus@keba.com>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323322@MAILIT.keba.co.at>
+References: <AAD6DA242BC63C488511C611BD51F367323322@MAILIT.keba.co.at>
+Content-Type: text/plain
+Date: Thu, 19 Jan 2006 14:09:04 -0500
+Message-Id: <1137697744.6762.106.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-01-19 at 11:26 +0100, kus Kusche Klaus wrote:
+> > From: Lee Revell
+> > On Thu, 2006-01-19 at 08:19 +0100, kus Kusche Klaus wrote:
+> > > Last time I tested (around 2.6.12), eepro100 worked much better 
+> > > in -rt kernels w.r.t. latencies than e100:
 
-This creates a zone modifier __GFP_EASYRCLM and a set of GFP flags called
-GFP_RCLMUSER. The only difference between GFP_HIGHUSER and GFP_RCLMUSER is the
-zone that is used. Callers appropriate to use the ZONE_EASYRCLM are changed.
+Try the latest -rt kernel with e100 to see if it still is a delay.  You
+can also run in PREEMPT_DESKTOP so that the interrupt handlers are not
+threads and see if that shows up in the latency.
 
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/fs/compat.c linux-2.6.16-rc1-mm1-101_antifrag_flags/fs/compat.c
---- linux-2.6.16-rc1-mm1-clean/fs/compat.c	2006-01-19 11:21:58.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-101_antifrag_flags/fs/compat.c	2006-01-19 11:37:10.000000000 +0000
-@@ -1397,7 +1397,7 @@ static int compat_copy_strings(int argc,
- 			page = bprm->page[i];
- 			new = 0;
- 			if (!page) {
--				page = alloc_page(GFP_HIGHUSER);
-+				page = alloc_page(GFP_RCLMUSER);
- 				bprm->page[i] = page;
- 				if (!page) {
- 					ret = -ENOMEM;
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/fs/exec.c linux-2.6.16-rc1-mm1-101_antifrag_flags/fs/exec.c
---- linux-2.6.16-rc1-mm1-clean/fs/exec.c	2006-01-19 11:21:58.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-101_antifrag_flags/fs/exec.c	2006-01-19 11:37:10.000000000 +0000
-@@ -238,7 +238,7 @@ static int copy_strings(int argc, char _
- 			page = bprm->page[i];
- 			new = 0;
- 			if (!page) {
--				page = alloc_page(GFP_HIGHUSER);
-+				page = alloc_page(GFP_RCLMUSER);
- 				bprm->page[i] = page;
- 				if (!page) {
- 					ret = -ENOMEM;
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/fs/inode.c linux-2.6.16-rc1-mm1-101_antifrag_flags/fs/inode.c
---- linux-2.6.16-rc1-mm1-clean/fs/inode.c	2006-01-19 11:21:58.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-101_antifrag_flags/fs/inode.c	2006-01-19 11:37:10.000000000 +0000
-@@ -147,7 +147,7 @@ static struct inode *alloc_inode(struct 
- 		mapping->a_ops = &empty_aops;
-  		mapping->host = inode;
- 		mapping->flags = 0;
--		mapping_set_gfp_mask(mapping, GFP_HIGHUSER);
-+		mapping_set_gfp_mask(mapping, GFP_RCLMUSER);
- 		mapping->assoc_mapping = NULL;
- 		mapping->backing_dev_info = &default_backing_dev_info;
- 
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/include/asm-i386/page.h linux-2.6.16-rc1-mm1-101_antifrag_flags/include/asm-i386/page.h
---- linux-2.6.16-rc1-mm1-clean/include/asm-i386/page.h	2006-01-19 11:21:59.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-101_antifrag_flags/include/asm-i386/page.h	2006-01-19 11:37:10.000000000 +0000
-@@ -36,7 +36,8 @@
- #define clear_user_page(page, vaddr, pg)	clear_page(page)
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
- 
--#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
-+#define alloc_zeroed_user_highpage(vma, vaddr) \
-+	alloc_page_vma(GFP_RCLMUSER | __GFP_ZERO, vma, vaddr)
- #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
- 
- /*
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/include/linux/gfp.h linux-2.6.16-rc1-mm1-101_antifrag_flags/include/linux/gfp.h
---- linux-2.6.16-rc1-mm1-clean/include/linux/gfp.h	2006-01-17 07:44:47.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-101_antifrag_flags/include/linux/gfp.h	2006-01-19 11:37:10.000000000 +0000
-@@ -21,6 +21,7 @@ struct vm_area_struct;
- #else
- #define __GFP_DMA32	((__force gfp_t)0x04)	/* Has own ZONE_DMA32 */
- #endif
-+#define __GFP_EASYRCLM  ((__force gfp_t)0x08u)
- 
- /*
-  * Action modifiers - doesn't change the zoning
-@@ -65,6 +66,8 @@ struct vm_area_struct;
- #define GFP_USER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HARDWALL)
- #define GFP_HIGHUSER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HARDWALL | \
- 			 __GFP_HIGHMEM)
-+#define GFP_RCLMUSER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HARDWALL | \
-+			__GFP_EASYRCLM)
- 
- /* Flag - indicates that the buffer will be suitable for DMA.  Ignored on some
-    platforms, used as appropriate on others */
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/include/linux/highmem.h linux-2.6.16-rc1-mm1-101_antifrag_flags/include/linux/highmem.h
---- linux-2.6.16-rc1-mm1-clean/include/linux/highmem.h	2006-01-17 07:44:47.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-101_antifrag_flags/include/linux/highmem.h	2006-01-19 11:37:10.000000000 +0000
-@@ -47,7 +47,7 @@ static inline void clear_user_highpage(s
- static inline struct page *
- alloc_zeroed_user_highpage(struct vm_area_struct *vma, unsigned long vaddr)
- {
--	struct page *page = alloc_page_vma(GFP_HIGHUSER, vma, vaddr);
-+	struct page *page = alloc_page_vma(GFP_RCLMUSER, vma, vaddr);
- 
- 	if (page)
- 		clear_user_highpage(page, vaddr);
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/mm/memory.c linux-2.6.16-rc1-mm1-101_antifrag_flags/mm/memory.c
---- linux-2.6.16-rc1-mm1-clean/mm/memory.c	2006-01-19 11:21:59.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-101_antifrag_flags/mm/memory.c	2006-01-19 11:37:10.000000000 +0000
-@@ -1472,7 +1472,7 @@ gotten:
- 		if (!new_page)
- 			goto oom;
- 	} else {
--		new_page = alloc_page_vma(GFP_HIGHUSER, vma, address);
-+		new_page = alloc_page_vma(GFP_RCLMUSER, vma, address);
- 		if (!new_page)
- 			goto oom;
- 		cow_user_page(new_page, old_page, address);
-@@ -2071,7 +2071,7 @@ retry:
- 
- 		if (unlikely(anon_vma_prepare(vma)))
- 			goto oom;
--		page = alloc_page_vma(GFP_HIGHUSER, vma, address);
-+		page = alloc_page_vma(GFP_RCLMUSER, vma, address);
- 		if (!page)
- 			goto oom;
- 		copy_user_highpage(page, new_page, address);
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/mm/shmem.c linux-2.6.16-rc1-mm1-101_antifrag_flags/mm/shmem.c
---- linux-2.6.16-rc1-mm1-clean/mm/shmem.c	2006-01-19 11:21:59.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-101_antifrag_flags/mm/shmem.c	2006-01-19 11:37:10.000000000 +0000
-@@ -921,6 +921,8 @@ shmem_alloc_page(gfp_t gfp, struct shmem
- 	pvma.vm_policy = mpol_shared_policy_lookup(&info->policy, idx);
- 	pvma.vm_pgoff = idx;
- 	pvma.vm_end = PAGE_SIZE;
-+	if (gfp & __GFP_HIGHMEM)
-+		gfp = (gfp & ~__GFP_HIGHMEM) | __GFP_EASYRCLM;
- 	page = alloc_page_vma(gfp | __GFP_ZERO, &pvma, 0);
- 	mpol_free(pvma.vm_policy);
- 	return page;
-@@ -936,6 +938,8 @@ shmem_swapin(struct shmem_inode_info *in
- static inline struct page *
- shmem_alloc_page(gfp_t gfp,struct shmem_inode_info *info, unsigned long idx)
- {
-+	if (gfp & __GFP_HIGHMEM)
-+		gfp = (gfp & ~__GFP_HIGHMEM) | __GFP_EASYRCLM;
- 	return alloc_page(gfp | __GFP_ZERO);
- }
- #endif
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/mm/swap_state.c linux-2.6.16-rc1-mm1-101_antifrag_flags/mm/swap_state.c
---- linux-2.6.16-rc1-mm1-clean/mm/swap_state.c	2006-01-19 11:21:59.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-101_antifrag_flags/mm/swap_state.c	2006-01-19 11:37:10.000000000 +0000
-@@ -334,7 +334,7 @@ struct page *read_swap_cache_async(swp_e
- 		 * Get a new page to read into from swap.
- 		 */
- 		if (!new_page) {
--			new_page = alloc_page_vma(GFP_HIGHUSER, vma, addr);
-+			new_page = alloc_page_vma(GFP_RCLMUSER, vma, addr);
- 			if (!new_page)
- 				break;		/* Out of memory */
- 		}
+-- Steve
+
+

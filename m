@@ -1,384 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161411AbWASURp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161407AbWASUTG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161411AbWASURp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 15:17:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161410AbWASURp
+	id S1161407AbWASUTG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 15:19:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161410AbWASUTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 15:17:45 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:36585
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1161407AbWASURn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 15:17:43 -0500
-Subject: Re: [PATCH] Clean up of hrtimer code.
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: george@mvista.com
-Cc: Lee Revell <rlrevell@joe-job.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <43CEF172.2000308@mvista.com>
-References: <43CEF172.2000308@mvista.com>
-Content-Type: text/plain
-Date: Thu, 19 Jan 2006 21:18:16 +0100
-Message-Id: <1137701896.7947.56.camel@localhost.localdomain>
+	Thu, 19 Jan 2006 15:19:06 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:28686 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1161407AbWASUTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 15:19:04 -0500
+Date: Thu, 19 Jan 2006 21:18:57 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Nick <nick@linicks.net>
+Cc: Rumi Szabolcs <rumi_ml@rtfm.hu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x kernel uptime counter problem
+Message-ID: <20060119201857.GQ7142@w.ods.org>
+References: <20060119110834.bb048266.rumi_ml@rtfm.hu> <7c3341450601190129r64a97880q22d576734214b6ac@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7c3341450601190129r64a97880q22d576734214b6ac@mail.gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George,
-
-On Wed, 2006-01-18 at 17:54 -0800, George Anzinger wrote:
-> Description:
+On Thu, Jan 19, 2006 at 09:29:51AM +0000, Nick wrote:
+> On 1/19/06, Rumi Szabolcs <rumi_ml@rtfm.hu> wrote:
+> > Hello!
+> >
+> > I've got a Linux system running the 2.4.26 kernel which was about
+> > to pass the 500 day mark these days and now suddenly what I see is
+> > that the uptime counter has reset:
+> >
+> > $ uname -a && w && cat /proc/uptime && last -1 reboot
+> > Linux quasar 2.4.26 #3 SMP Tue Sep 7 09:22:08 CEST 2004 i686 Intel(R) Pentium(R) 4 CPU 2.60GHz GenuineIntel GNU/Linux
+> >  09:38:08 up 1 day, 12:49,  5 users,  load average: 0.00, 0.00, 0.00
+> > USER     TTY        LOGIN@   IDLE   JCPU   PCPU WHAT
+> > rumi     pty/s0    08:53    0.00s  0.04s  0.02s screen -r
+> > rumi     ttyp1     10Sep04 31:58   9:12   9:12  epic
+> > rumi     ttyp3     Tue12   44:33m  0.01s  0.01s -/bin/bash
+> > rumi     ttyp2     13Feb05  8days  0.11s  0.11s -/bin/bash
+> > rumi     ttypc     11Dec05  0.00s  0.12s  0.11s -/bin/bash
+> > 132596.51 39801752.60
+> > reboot   system boot  2.4.26           Tue Sep  7 18:47         (498+15:50)
+> >
+> > From the above it can be seen that the system is running continuously
+> > and wasn't rebooted 36 hours ago as the uptime counter would suggest.
+> >
+> > Is this a known bug?
 > 
-> This patch cleans up the interface to hrtimers by changing the init code
-> to pass the mode as well as the clock.  This allow the init code to
-> select the correct base and eliminates extra timer re-init code in
-> posix-timers.  We also simplify the restart interface by defining a
-> restart union with an entry for nanosleep use.
+> 
+> It's not a bug - it is a feature.  uptime rolls over after 497 days.
+> 
+> [sic]
+> It computes the result of the "uptime" based on the internal "jiffies"
+> counter, which counts the time since boot, in units of 10
+> milliseconds.
+> This is typecast as an "unsigned long" - on the Intel boxes, that's an
+> unsigned 32-bit number.
+> Well, it turns out that in a 32-bit number, you can store 497.1 days
+> before the number wraps.
+> 
+> 
+> You can use:
+> last -xf /var/run/utmp runlevel
+> 
+> to get true uptime in this instance.
+> 
+> Nick
 
-Thanks. I revamped it against mainline and picked up most of your
-changes with a couple of modifications.
+I would add that if you need to get valid outputs after such an uptime,
+you can apply the vhz-j64 patch available at Robert Love's (RML) on
+kernel.org.
 
-Will show up later tonight in the hrtimer-git repository on kernel.org
-when I finished testing.
-
-	tglx
-
-> +/**
-> + * We want to use the "monotonic" base for everything except
-> + * CLOCK_REALTIME* with the absolute flag set.  We need to
-> + * account for the hole in the clocks caused by the CPU clocks
-> + * (sigh).  We could use a case statement or, depend on REALTIME
-> + * clocks being even and MONOTONIC being odd.  This even allow us
-> + * to expand easily beyond 2 clocks.
-> + *
-> + */
-> +#define _clock_to_base(clock) (clock <= CLOCK_MONOTONIC ? clock : clock - 2)
-> +int clock_to_base_index(clock_t clock, enum hrtimer_mode mode)
-> +{
-> +	int baseindex = _clock_to_base(clock);
-> +
-> +	if (mode == HRTIMER_ABS)
-> +		return baseindex;
-> +	return baseindex | 1;
-> +}
-
-I skipped this, as I prefer that we add two unused entries into the base
-array for following reasons:
-
-If the code gets called with one of the skipped clock_ids, the magic
-adjustment corrects them to a valid clock id and we certainly could get
-some hard to track problems that way.
-
-The assumption that the CLOCK_REALTIME/MONOTONIC relationship is valid
-for all additional clocks is not correct.
-
->  /**
->   * hrtimer_init - initialize a timer to the given clock
->   *
->   * @timer:	the timer to be initialized
->   * @clock_id:	the clock to be used
-> - */
-> -void hrtimer_init(struct hrtimer *timer, const clockid_t clock_id)
-> +  * mode:        HRTIMER_ABS if absolute mode
-> +*/
-> +void hrtimer_init(struct hrtimer *timer, const clockid_t clock_id,
-> +		  enum hrtimer_mode mode)
->  {
-> +	struct hrtimer_base *bases =
-> +		per_cpu(hrtimer_bases, raw_smp_processor_id());
-> +
->  	memset(timer, 0, sizeof(struct hrtimer));
-> -	hrtimer_rebase(timer, clock_id);
-> +	timer->base = &bases[clock_to_base_index(clock_id, mode)];
->  }
-
-Changed that to the rules above.
- 
- 
-> -	restart = &current_thread_info()->restart_block;
-> -	restart->fn = (clockid == CLOCK_MONOTONIC) ?
-> -		nanosleep_restart_mono : nanosleep_restart_real;
-> -	restart->arg0 = timer.expires.tv64 & 0xFFFFFFFF;
-> -	restart->arg1 = timer.expires.tv64 >> 32;
-> -	restart->arg2 = (unsigned long) rmtp;
-> +	restart = (union restart_union *)&current_thread_info()->restart_block;
-> +	restart->ns.fn = nanosleep_restart;
-> +	restart->ns.time = timer.expires;
-> +	restart->ns.rmtp = rmtp;
-> +	restart->ns.mode = (unsigned char)mode;
-> +	restart->ns.clock = (unsigned char)clockid;
-
-Adding 
-
-	restart->arg3 = timer.base->index;
-
-is just enough. No need for creating this union thingy. The mode
-information is not necessary, as the timer is always restarted in
-absolute mode with the existing expires value on the previous base.
-
-
->  	return -ERESTART_RESTARTBLOCK;
->  }
-> Index: linux-2.6.16-rc/kernel/posix-timers.c
-> ===================================================================
-> --- linux-2.6.16-rc.orig/kernel/posix-timers.c
-> +++ linux-2.6.16-rc/kernel/posix-timers.c
-> @@ -194,9 +194,6 @@ static inline int common_clock_set(const
->  
->  static inline int common_timer_create(struct k_itimer *new_timer)
->  {
-> -	hrtimer_init(&new_timer->it.real.timer, new_timer->it_clock);
-
-I kept that init as a dummy one. Thats simpler than adding all the 
-if(!base) stuff into the hrtimer code. Not having those checks gives a
-nice oops, when somebody tries to access a non initialized hrtimer !
-
-George, thats the current revamped version against 2.6.16-rc1:
-
-include/linux/hrtimer.h |    5 +---
- kernel/fork.c           |    2 -
- kernel/hrtimer.c        |   57 +++++++++++++++++++-----------------------------
- kernel/posix-timers.c   |   37 +++++++------------------------
- 4 files changed, 35 insertions(+), 66 deletions(-)
-
-diff --git a/include/linux/hrtimer.h b/include/linux/hrtimer.h
-index c657f3d..6361544 100644
---- a/include/linux/hrtimer.h
-+++ b/include/linux/hrtimer.h
-@@ -101,9 +101,8 @@ struct hrtimer_base {
- /* Exported timer functions: */
- 
- /* Initialize timers: */
--extern void hrtimer_init(struct hrtimer *timer, const clockid_t which_clock);
--extern void hrtimer_rebase(struct hrtimer *timer, const clockid_t which_clock);
--
-+extern void hrtimer_init(struct hrtimer *timer, clockid_t which_clock,
-+			 enum hrtimer_mode mode);
- 
- /* Basic timer operations: */
- extern int hrtimer_start(struct hrtimer *timer, ktime_t tim,
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 4ae8cfc..7f0ab5e 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -802,7 +802,7 @@ static inline int copy_signal(unsigned l
- 	init_sigpending(&sig->shared_pending);
- 	INIT_LIST_HEAD(&sig->posix_timers);
- 
--	hrtimer_init(&sig->real_timer, CLOCK_MONOTONIC);
-+	hrtimer_init(&sig->real_timer, CLOCK_MONOTONIC, HRTIMER_REL);
- 	sig->it_real_incr.tv64 = 0;
- 	sig->real_timer.function = it_real_fn;
- 	sig->real_timer.data = tsk;
-diff --git a/kernel/hrtimer.c b/kernel/hrtimer.c
-index f580dd9..383ef7b 100644
---- a/kernel/hrtimer.c
-+++ b/kernel/hrtimer.c
-@@ -66,6 +66,12 @@ EXPORT_SYMBOL_GPL(ktime_get_real);
- 
- /*
-  * The timer bases:
-+ *
-+ * Note: If we want to add new timer bases, we have to skip the two
-+ * clock ids captured by the cpu-timers. We do this by holding empty
-+ * entries rather than doing math adjustment of the clock ids.
-+ * This ensures that we capture erroneous accesses to these clock ids
-+ * rather than moving them into the range of valid clock id's.
-  */
- 
- #define MAX_HRTIMER_BASES 2
-@@ -483,29 +489,25 @@ ktime_t hrtimer_get_remaining(const stru
- }
- 
- /**
-- * hrtimer_rebase - rebase an initialized hrtimer to a different base
-+ * hrtimer_init - initialize a timer to the given clock
-  *
-- * @timer:	the timer to be rebased
-+ * @timer:	the timer to be initialized
-  * @clock_id:	the clock to be used
-+ * @mode:	timer mode abs/rel
-  */
--void hrtimer_rebase(struct hrtimer *timer, const clockid_t clock_id)
-+void hrtimer_init(struct hrtimer *timer, clockid_t clock_id, 
-+		  enum hrtimer_mode mode)
- {
- 	struct hrtimer_base *bases;
- 
-+	memset(timer, 0, sizeof(struct hrtimer));
-+
- 	bases = per_cpu(hrtimer_bases, raw_smp_processor_id());
--	timer->base = &bases[clock_id];
--}
- 
--/**
-- * hrtimer_init - initialize a timer to the given clock
-- *
-- * @timer:	the timer to be initialized
-- * @clock_id:	the clock to be used
-- */
--void hrtimer_init(struct hrtimer *timer, const clockid_t clock_id)
--{
--	memset(timer, 0, sizeof(struct hrtimer));
--	hrtimer_rebase(timer, clock_id);
-+	if (clock_id == CLOCK_REALTIME && mode != HRTIMER_ABS)
-+		clock_id = CLOCK_MONOTONIC;
-+
-+	timer->base = &bases[clock_id];
- }
- 
- /**
-@@ -643,8 +645,7 @@ schedule_hrtimer_interruptible(struct hr
- 	return schedule_hrtimer(timer, mode);
- }
- 
--static long __sched
--nanosleep_restart(struct restart_block *restart, clockid_t clockid)
-+static long __sched nanosleep_restart(struct restart_block *restart)
- {
- 	struct timespec __user *rmtp;
- 	struct timespec tu;
-@@ -654,7 +655,7 @@ nanosleep_restart(struct restart_block *
- 
- 	restart->fn = do_no_restart_syscall;
- 
--	hrtimer_init(&timer, clockid);
-+	hrtimer_init(&timer, (clockid_t) restart->arg3, HRTIMER_ABS);
- 
- 	timer.expires.tv64 = ((u64)restart->arg1 << 32) | (u64) restart->arg0;
- 
-@@ -674,16 +675,6 @@ nanosleep_restart(struct restart_block *
- 	return -ERESTART_RESTARTBLOCK;
- }
- 
--static long __sched nanosleep_restart_mono(struct restart_block *restart)
--{
--	return nanosleep_restart(restart, CLOCK_MONOTONIC);
--}
--
--static long __sched nanosleep_restart_real(struct restart_block *restart)
--{
--	return nanosleep_restart(restart, CLOCK_REALTIME);
--}
--
- long hrtimer_nanosleep(struct timespec *rqtp, struct timespec __user *rmtp,
- 		       const enum hrtimer_mode mode, const clockid_t clockid)
- {
-@@ -692,7 +683,7 @@ long hrtimer_nanosleep(struct timespec *
- 	struct timespec tu;
- 	ktime_t rem;
- 
--	hrtimer_init(&timer, clockid);
-+	hrtimer_init(&timer, clockid, mode);
- 
- 	timer.expires = timespec_to_ktime(*rqtp);
- 
-@@ -710,11 +701,11 @@ long hrtimer_nanosleep(struct timespec *
- 		return -EFAULT;
- 
- 	restart = &current_thread_info()->restart_block;
--	restart->fn = (clockid == CLOCK_MONOTONIC) ?
--		nanosleep_restart_mono : nanosleep_restart_real;
-+	restart->fn = nanosleep_restart;
- 	restart->arg0 = timer.expires.tv64 & 0xFFFFFFFF;
- 	restart->arg1 = timer.expires.tv64 >> 32;
- 	restart->arg2 = (unsigned long) rmtp;
-+	restart->arg3 = (unsigned long) timer.base->index;
- 
- 	return -ERESTART_RESTARTBLOCK;
- }
-@@ -741,10 +732,8 @@ static void __devinit init_hrtimers_cpu(
- 	struct hrtimer_base *base = per_cpu(hrtimer_bases, cpu);
- 	int i;
- 
--	for (i = 0; i < MAX_HRTIMER_BASES; i++) {
-+	for (i = 0; i < MAX_HRTIMER_BASES; i++, base++)
- 		spin_lock_init(&base->lock);
--		base++;
--	}
- }
- 
- #ifdef CONFIG_HOTPLUG_CPU
-diff --git a/kernel/posix-timers.c b/kernel/posix-timers.c
-index 3b606d3..54f0866 100644
---- a/kernel/posix-timers.c
-+++ b/kernel/posix-timers.c
-@@ -194,9 +194,7 @@ static inline int common_clock_set(const
- 
- static int common_timer_create(struct k_itimer *new_timer)
- {
--	hrtimer_init(&new_timer->it.real.timer, new_timer->it_clock);
--	new_timer->it.real.timer.data = new_timer;
--	new_timer->it.real.timer.function = posix_timer_fn;
-+	hrtimer_init(&new_timer->it.real.timer, new_timer->it_clock, 0);
- 	return 0;
- }
- 
-@@ -693,6 +691,7 @@ common_timer_set(struct k_itimer *timr, 
- 		 struct itimerspec *new_setting, struct itimerspec *old_setting)
- {
- 	struct hrtimer *timer = &timr->it.real.timer;
-+	enum hrtimer_mode mode;
- 
- 	if (old_setting)
- 		common_timer_get(timr, old_setting);
-@@ -714,14 +713,10 @@ common_timer_set(struct k_itimer *timr, 
- 	if (!new_setting->it_value.tv_sec && !new_setting->it_value.tv_nsec)
- 		return 0;
- 
--	/* Posix madness. Only absolute CLOCK_REALTIME timers
--	 * are affected by clock sets. So we must reiniatilize
--	 * the timer.
--	 */
--	if (timr->it_clock == CLOCK_REALTIME && (flags & TIMER_ABSTIME))
--		hrtimer_rebase(timer, CLOCK_REALTIME);
--	else
--		hrtimer_rebase(timer, CLOCK_MONOTONIC);
-+	mode = flags & TIMER_ABSTIME ? HRTIMER_ABS : HRTIMER_REL;
-+	hrtimer_init(&timr->it.real.timer, timr->it_clock, mode);
-+	timr->it.real.timer.data = timr;
-+	timr->it.real.timer.function = posix_timer_fn;
- 
- 	timer->expires = timespec_to_ktime(new_setting->it_value);
- 
-@@ -732,8 +727,7 @@ common_timer_set(struct k_itimer *timr, 
- 	if (((timr->it_sigev_notify & ~SIGEV_THREAD_ID) == SIGEV_NONE))
- 		return 0;
- 
--	hrtimer_start(timer, timer->expires, (flags & TIMER_ABSTIME) ?
--		      HRTIMER_ABS : HRTIMER_REL);
-+	hrtimer_start(timer, timer->expires, mode);
- 	return 0;
- }
- 
-@@ -948,21 +942,8 @@ sys_clock_getres(const clockid_t which_c
- static int common_nsleep(const clockid_t which_clock, int flags,
- 			 struct timespec *tsave, struct timespec __user *rmtp)
- {
--	int mode = flags & TIMER_ABSTIME ? HRTIMER_ABS : HRTIMER_REL;
--	int clockid = which_clock;
--
--	switch (which_clock) {
--	case CLOCK_REALTIME:
--		/* Posix madness. Only absolute timers on clock realtime
--		   are affected by clock set. */
--		if (mode != HRTIMER_ABS)
--			clockid = CLOCK_MONOTONIC;
--	case CLOCK_MONOTONIC:
--		break;
--	default:
--		return -EINVAL;
--	}
--	return hrtimer_nanosleep(tsave, rmtp, mode, clockid);
-+	return hrtimer_nanosleep(tsave, rmtp, flags & TIMER_ABSTIME ?
-+				 HRTIMER_ABS : HRTIMER_REL, which_clock);
- }
- 
- asmlinkage long
- 
-
-
+Regards,
+Willy
 

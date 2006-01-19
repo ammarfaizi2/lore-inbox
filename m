@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422647AbWASVbo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161436AbWASVle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422647AbWASVbo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 16:31:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422649AbWASVbW
+	id S1161436AbWASVle (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 16:41:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161434AbWASVle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 16:31:22 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:16321 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422644AbWASVbU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 16:31:20 -0500
-Date: Thu, 19 Jan 2006 15:30:39 -0600
-From: David Teigland <teigland@redhat.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/7] dlm: missing variable
-Message-ID: <20060119213039.GA31387@redhat.com>
+	Thu, 19 Jan 2006 16:41:34 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:5564 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161405AbWASVld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 16:41:33 -0500
+Subject: Re: License oddity in some m68k files
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: linux-m68k@vger.kernel.org, geert@linux-m68k.org, zippel@linux-m68k.org,
+       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060119180947.GA25001@kroah.com>
+References: <20060119180947.GA25001@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 19 Jan 2006 21:40:12 +0000
+Message-Id: <1137706812.8471.51.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We're supposed to be checking a flag bit but the flags variable was
-missing.
+On Iau, 2006-01-19 at 10:09 -0800, Greg KH wrote:
+> Someone recently pointed out to me the following wording on some of the
+> m68k files that reads:
+> 
+> |               Copyright (C) Motorola, Inc. 1990
+> |                       All Rights Reserved
+> |
 
-Signed-off-by: David Teigland <teigland@redhat.com>
 
-Index: linux/drivers/dlm/device.c
-===================================================================
---- linux.orig/drivers/dlm/device.c
-+++ linux/drivers/dlm/device.c
-@@ -800,7 +800,7 @@ static int do_user_lock(struct file_info
- 
- 		/* If this is a persistent lock we will have to create a
- 		   lockinfo again */
--		if (!li && DLM_LKF_PERSISTENT) {
-+		if (!li && (kparams->flags & DLM_LKF_PERSISTENT)) {
- 			li = allocate_lockinfo(fi, cmd, kparams);
- 
- 			li->li_lksb.sb_lkid = kparams->lkid;
+You'll need to dig back through the archives but this was discussed and
+resolved when the M68K merge was done or shortly afterwards. There is no
+obvious problem with the licenses either. I believe Jes Sorensen did the
+merge in question.
+
+README
+
+| You are hereby granted a copyright license to use, modify, and
+| distribute the SOFTWARE so long as this entire notice is retained
+| without alteration in any modified and/or redistributed versions,
+| and that such modified versions are clearly identified as such.
+| No licenses are granted by implication, estoppel or otherwise
+| under any patents or trademarks of Motorola, Inc.
+
+All Rights Reserved is not a problem since there is a license with it
+"Not evidence blah" is not a problem because we have permission to
+redistribute it.
+
+

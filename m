@@ -1,61 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161361AbWASTqD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161363AbWASTrG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161361AbWASTqD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 14:46:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161362AbWASTqB
+	id S1161363AbWASTrG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 14:47:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161364AbWASTrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 14:46:01 -0500
-Received: from cable-212.76.255.90.static.coditel.net ([212.76.255.90]:13964
-	"EHLO jekyll.org") by vger.kernel.org with ESMTP id S1161361AbWASTqA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 14:46:00 -0500
-Message-ID: <43CFEC68.4070704@jekyll.org>
-Date: Thu, 19 Jan 2006 20:45:44 +0100
-From: Gilles May <gilles@jekyll.org>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SMP trouble
-References: <43CAFF80.2020707@jekyll.org> <Pine.LNX.4.64.0601181817410.20777@montezuma.fsmlabs.com> <43CFD877.4090503@jekyll.org> <Pine.LNX.4.64.0601191132010.1579@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.64.0601191132010.1579@montezuma.fsmlabs.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Jan 2006 14:47:05 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:55247 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1161363AbWASTrD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 14:47:03 -0500
+Date: Thu, 19 Jan 2006 13:46:47 -0600 (CST)
+From: Mark Maule <maule@sgi.com>
+To: linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Tony Luck <tony.luck@intel.com>, gregkh@suse.de,
+       Mark Maule <maule@sgi.com>
+Message-Id: <20060119194647.12213.44658.14543@lnx-maule.americas.sgi.com>
+Subject: [PATCH 0/3] msi abstractions and support for altix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
+Resend #5:  bug fixes
 
->On Thu, 19 Jan 2006, Gilles May wrote:
->
->  
->
->>Attached the bootlog with noapic parameter passed to the kernel. It still
->>freezes though. :(
->>What I do exactly to make it freeze is after boot:
->>
->>In one console I do a ping -f to a box on my local network using the e100
->>card. (integrated on the motherboard)
->>
->>In another console I copy a 2.5 GB file from my USB HDD to the IDE HDD in a
->>while loop (or do a readcd from USB DVD Writer to a file on IDE HDD)
->>    
->>
->
->Can you try it whilst copying from say SCSI disk to IDE disk?
->  
->
-I don't think it has something to do with the USB card, nor the HDD oder 
-the DVD writer connected to it..
-Just to be sure I bought a new USB card with a different chip even, 
-hangs with both controllers..
-Besides it freezes aswell if I do the ping and IDE to IDE copies and 
-listening music.. Looks like high
-IO loads brings it down, no matter where it comes from..
-The wierd part is that it's only with Linux SMP, not with UP, and no 
-problems like that on WindowsXP SP2..
+Patch set to abstract portions of the MSI core so that it can be used on
+architectures which don't use standard interrupt controllers.
 
-This starts giving me serious headaches.. ;)
+Changes from Resend #4
 
-Regards, Gilles May
++ Fix an x86_64 build problem
++ Fix an ia64 CONFIG_IA64_GENERIC build problem
++ Fix a bug in the new ia64 reserve_irq_vector()
++ Restore dev->irq if msi_ops->setup fails
++ Redo msi-altix.patch so it applies on 2.6.16-rc1
+
+Changes from Resend #3 
+
++ Move external declarations of msi_apic_ops out of routines, and up earlier
+  in the respective .h files.
++ Add comments to the msi_ops structure declaration
+
+Changes from Resend #2
+
++ Cleanup the ia64 platform_msi_init macro so it works on non-altix ia64
+
+Changes from initial version
+
++ Change uintXX_t to uXX
++ Change _callouts to _ops
++ Renamed the _generic routines to _apic and moved them to a new file
+  msi-apic.c
++ Have each msi_arch_init() routine call msi_register() with the desired
+  msi ops for that platform.
++ Moved msi_address, msi_data, and related defs out of msi.h and into
+  msi-apic.c, replaced by shifts/masks.
++ Rolled msi-arch-init.patch and msi-callouts.patch into a single msi-ops.patch
+
+Mark
+
+1/3 msi-ops.patch
+	Add an msi_arch_init() hook which can be used to perform platform
+	specific setup prior to msi use.
+
+	Define a set of msi ops to implement the platform-specific tasks:
+
+	    setup - set up plumbing to get a vector directed at a default
+		cpu, and return the corresponding MSI bus address and data.
+	    teardown - inverse of msi_setup
+	    target - retarget a vector to a given cpu
+
+	Define the routine msi_register() called from msi_arch_init()
+	to set the desired ops.
+
+	Move a bunch of apic-specific code out of the msi core .h/.c and
+	into a new msi-apic.c file.
+
+2/3 ia64-per-platform-device-vector.patch
+	For the ia64 arch, allow per-platform definitions of
+	IA64_FIRST_DEVICE_VECTOR and IA64_LAST_DEVICE_VECTOR.
+	
+3/3 msi-altix.patch 
+	Altix specific callouts to implement MSI.

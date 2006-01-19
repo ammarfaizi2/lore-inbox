@@ -1,70 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161267AbWASTBM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161275AbWASTDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161267AbWASTBM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 14:01:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161275AbWASTBM
+	id S1161275AbWASTDY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 14:03:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161283AbWASTDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 14:01:12 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:36498 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1161267AbWASTBL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 14:01:11 -0500
-Subject: Re: [Alsa-devel] Re: RFC: OSS driver removal, a slightly
-	different	approach
-From: Lee Revell <rlrevell@joe-job.com>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org, perex@suse.cz,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <s5hk6cw9h07.wl%tiwai@suse.de>
-References: <20060119174600.GT19398@stusta.de>
-	 <1137694944.32195.1.camel@mindpipe> <20060119182859.GW19398@stusta.de>
-	 <1137696885.32195.12.camel@mindpipe>  <s5hk6cw9h07.wl%tiwai@suse.de>
-Content-Type: text/plain
-Date: Thu, 19 Jan 2006 14:01:08 -0500
-Message-Id: <1137697269.32195.14.camel@mindpipe>
+	Thu, 19 Jan 2006 14:03:24 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:31137 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161275AbWASTDX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 14:03:23 -0500
+Date: Thu, 19 Jan 2006 19:03:15 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Adrian Bunk <bunk@stusta.de>, starvik@axis.com, dev-etrax@axis.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: cris: asm-offsets related build failure
+Message-ID: <20060119190315.GQ27946@ftp.linux.org.uk>
+References: <20060119001852.GO19398@stusta.de> <20060119085730.GP27946@ftp.linux.org.uk> <20060119163433.GA12724@mars.ravnborg.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060119163433.GA12724@mars.ravnborg.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-19 at 20:04 +0100, Takashi Iwai wrote:
-> At Thu, 19 Jan 2006 13:54:45 -0500,
-> Lee Revell wrote:
-> > 
-> > On Thu, 2006-01-19 at 19:28 +0100, Adrian Bunk wrote:
-> > > On Thu, Jan 19, 2006 at 01:22:23PM -0500, Lee Revell wrote:
-> > > > On Thu, 2006-01-19 at 18:46 +0100, Adrian Bunk wrote:
-> > > > > 3. no ALSA drivers for the same hardware
-> > > > > 
-> > > > > SOUND_SB 
-> > > > 
-> > > > ALSA certainly does support "100% Sound Blaster compatibles (SB16/32/64,
-> > > > ESS, Jazz16)", it would be a joke if it didn't...
+On Thu, Jan 19, 2006 at 05:34:33PM +0100, Sam Ravnborg wrote:
+> On Thu, Jan 19, 2006 at 08:57:30AM +0000, Al Viro wrote:
+> > On Thu, Jan 19, 2006 at 01:18:52AM +0100, Adrian Bunk wrote:
+> > > Hi Sam,
 > > > 
-> > > That's not the problem, I should have added an explanation:
+> > > the following build failure is present on the cris architecture:
 > > > 
-> > > SOUND_SB (due to SOUND_KAHLUA and SOUND_PAS)
+> > > <--  snip  -->
 > > > 
+> > > ...
+> > > make[1]: *** No rule to make target `arch/cris/kernel/asm-offsets.c', 
+> > > needed by `arch/cris/kernel/asm-offsets.s'.  Stop.
+> > > make: *** [prepare0] Error 2
 > > 
-> > Hmm.  From sound/oss/kahlua.c:
+> > Subject: [PATCH] fix a typo in arch/cris/Makefile
 > > 
-> > /*
-> >  *      Initialisation code for Cyrix/NatSemi VSA1 softaudio
-> >  *
-> >  *      (C) Copyright 2003 Red Hat Inc <alan@redhat.com>
-> >  *
-> > 
-> > Why was a new OSS driver written and accepted at such a late date, when
-> > OSS was already deprecated?
+> > fallout from "kbuild: cris use generic asm-offsets.h support" - symlink
+> > target was wrong
+> Hi Al.
 > 
-> You'll find out that it must be pretty easy to write kahlua driver for
-> ALSA, too, if you look at kahlua.c.  Just need a hardware to certify
-> if this is really demanded...
+> Can I have a Signed-off-by: ... patch
+> or do you submit it yourself?
 
-Yes, it looks simple enough to write a driver without the hardware, as
-long as someone volunteers to test it...
+Subject: [PATCH] fix a typo in arch/cris/Makefile
 
-Lee
+fallout from "kbuild: cris use generic asm-offsets.h support" - symlink
+target was wrong
 
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+
+ arch/cris/Makefile |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+9812c3418f4068bb8940924a871e5bc0713d4e41
+diff --git a/arch/cris/Makefile b/arch/cris/Makefile
+index ea65d58..ee11469 100644
+--- a/arch/cris/Makefile
++++ b/arch/cris/Makefile
+@@ -119,7 +119,7 @@ $(SRC_ARCH)/.links:
+ 	@ln -sfn $(SRC_ARCH)/$(SARCH)/lib $(SRC_ARCH)/lib
+ 	@ln -sfn $(SRC_ARCH)/$(SARCH) $(SRC_ARCH)/arch
+ 	@ln -sfn $(SRC_ARCH)/$(SARCH)/vmlinux.lds.S $(SRC_ARCH)/kernel/vmlinux.lds.S
+-	@ln -sfn $(SRC_ARCH)/$(SARCH)/asm-offsets.c $(SRC_ARCH)/kernel/asm-offsets.c
++	@ln -sfn $(SRC_ARCH)/$(SARCH)/kernel/asm-offsets.c $(SRC_ARCH)/kernel/asm-offsets.c
+ 	@touch $@
+ 
+ # Create link to sub arch includes
+-- 
+0.99.9.GIT

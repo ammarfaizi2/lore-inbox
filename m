@@ -1,46 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161291AbWASE0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161031AbWASE3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161291AbWASE0A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 23:26:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161293AbWASE0A
+	id S1161031AbWASE3m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 23:29:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161132AbWASE3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 23:26:00 -0500
-Received: from mailout1.pacific.net.au ([61.8.0.84]:7144 "EHLO
-	mailout1.pacific.net.au") by vger.kernel.org with ESMTP
-	id S1161291AbWASEZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 23:25:59 -0500
-Date: Thu, 19 Jan 2006 15:25:37 +1100
-Message-Id: <200601190425.k0J4PbGD024378@typhaon.pacific.net.au>
-From: "David Luyer" <david@luyer.net>
-To: LKML <linux-kernel@vger.kernel.org>, rick@linuxmafia.com
-Subject: Resolution: ASUS A7V-E SE + Linux Kernel 2.6.15.1 + SATA
+	Wed, 18 Jan 2006 23:29:42 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:35227 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1161031AbWASE3l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 23:29:41 -0500
+Date: Wed, 18 Jan 2006 23:29:32 -0500
+From: Ulrich Drepper <drepper@redhat.com>
+Message-Id: <200601190429.k0J4TWXD018136@devserv.devel.redhat.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] prototypes for *at functions & typo fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem -- 30 seconds for each disk IO operation, followed by
-syslog messages such as:
+Here's the follow-up patch which introduces the prototypes for the new syscalls.  There was also a typo in one of the new symbols.  Do we really need the __NR_ia32_* macros?  The userlevel on x86-64 should be bi-arch and provide the native ia32 unistd.h.
 
-  ata1: slow completion (cmd ef)
-  ata2: slow completion (cmd ef)
-  ata1: command 0x25 timeout, stat 0x50 host_stat 24
-  ata2: command 0x25 timeout, stat 0x50 host_stat 24
+Signed-off-by: Ulrich Drepper <drepper@redhat.com>
 
-The cause -- the ASUS A7V-E with the sata_via driver does not
-receive interupts without ACPI enabled (yet another Via IRQ quirk,
-or incomplete handing or the currently known quirks?).  Once ACPI
-is enabled, the SATA works perfectly, on both a A7V-E SE and a
-A7V-E Deluxe.
-
-These VT8237R based boards use a VT6420 Serial ATA chip
-(attention http://linuxmafia.com/faq/Hardware/sata.html maintainer!).
-
-The next problems seem to be 64-bit regions being used for the
-ethernet (SKGE) and Nvida 7800GTX on a 32-bit kernel causing
-the drivers for these devices to refuse to load.
-
-David.
--- 
-David Luyer
-Pacific Internet (Australia) Pty Ltd
-Business card: http://www.luyer.net/bc.html
-Important notice: http://www.pacific.net.au/disclaimer/
+diff --git a/include/asm-x86_64/ia32_unistd.h b/include/asm-x86_64/ia32_unistd.h
+index e87cd83..9afc0c7 100644
+--- a/include/asm-x86_64/ia32_unistd.h
++++ b/include/asm-x86_64/ia32_unistd.h
+@@ -300,7 +300,7 @@
+ #define __NR_ia32_inotify_add_watch	292
+ #define __NR_ia32_inotify_rm_watch	293
+ #define __NR_ia32_migrate_pages		294
+-#define __NR_ia32_opanat		295
++#define __NR_ia32_openat		295
+ #define __NR_ia32_mkdirat		296
+ #define __NR_ia32_mknodat		297
+ #define __NR_ia32_fchownat		298
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index e666d60..c0c894d 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -534,4 +534,35 @@ asmlinkage long sys_spu_run(int fd, __u3
+ asmlinkage long sys_spu_create(const char __user *name,
+ 		unsigned int flags, mode_t mode);
+ 
++asmlinkage long sys_mknodat(int dfd, const char __user * filename, int mode,
++			    unsigned dev);
++asmlinkage long sys_mkdirat(int dfd, const char __user * pathname, int mode);
++asmlinkage long sys_unlinkat(int dfd, const char __user * pathname, int flag);
++asmlinkage long sys_symlinkat(const char __user * oldname,
++			      int newdfd, const char __user * newname);
++asmlinkage long sys_linkat(int olddfd, const char __user *oldname,
++			   int newdfd, const char __user *newname);
++asmlinkage long sys_renameat(int olddfd, const char __user * oldname,
++			     int newdfd, const char __user * newname);
++asmlinkage long sys_futimesat(int dfd, char __user *filename,
++			      struct timeval __user *utimes);
++asmlinkage long sys_faccessat(int dfd, const char __user *filename, int mode);
++asmlinkage long sys_fchmodat(int dfd, const char __user * filename,
++			     mode_t mode);
++asmlinkage long sys_fchownat(int dfd, const char __user *filename, uid_t user,
++			     gid_t group, int flag);
++asmlinkage long sys_openat(int dfd, const char __user *filename, int flags,
++			   int mode);
++asmlinkage long sys_newfstatat(int dfd, char __user *filename,
++			       struct stat __user *statbuf, int flag);
++asmlinkage long sys_readlinkat(int dfd, const char __user *path, char __user *buf,
++			       int bufsiz);
++asmlinkage long compat_sys_futimesat(int dfd, char __user *filename,
++				     struct compat_timeval __user *t);
++asmlinkage long compat_sys_newfstatat(int dfd, char __user * filename,
++				      struct compat_stat __user *statbuf,
++				      int flag);
++asmlinkage long +compat_sys_openat(int dfd, const char __user *filename,
++				   int flags, int mode);
++
+ #endif

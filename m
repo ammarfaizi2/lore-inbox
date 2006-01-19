@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbWASR1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWASReL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030194AbWASR1y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 12:27:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbWASR1x
+	id S1030226AbWASReL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 12:34:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWASReL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 12:27:53 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:26267 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030194AbWASR1x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 12:27:53 -0500
-Date: Thu, 19 Jan 2006 09:27:14 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nick Piggin <npiggin@suse.de>
-cc: Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>, David Miller <davem@davemloft.net>
-Subject: Re: [patch 0/4] mm: de-skew page refcount
-In-Reply-To: <20060119170656.GA9904@wotan.suse.de>
-Message-ID: <Pine.LNX.4.64.0601190917271.3240@g5.osdl.org>
-References: <20060118024106.10241.69438.sendpatchset@linux.site>
- <Pine.LNX.4.64.0601180830520.3240@g5.osdl.org> <20060118170558.GE28418@wotan.suse.de>
- <Pine.LNX.4.64.0601181122120.3240@g5.osdl.org> <20060119140039.GA958@wotan.suse.de>
- <Pine.LNX.4.64.0601190756390.3240@g5.osdl.org> <20060119170656.GA9904@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Jan 2006 12:34:11 -0500
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:28059
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1751275AbWASReK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 12:34:10 -0500
+Subject: Re: pppd oopses current linu's git tree on disconnect
+From: Paul Fulghum <paulkf@microgate.com>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <20060119010601.f259bb32.diegocg@gmail.com>
+References: <20060119010601.f259bb32.diegocg@gmail.com>
+Content-Type: text/plain
+Date: Thu, 19 Jan 2006 11:33:59 -0600
+Message-Id: <1137692039.3279.1.camel@amdx2.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-01-19 at 01:06 +0100, Diego Calleja wrote:
+> I got this on my log files (56k serial modem, pentium 3 smp machine, the
+> machine didn't hang, in fact I could connect again to send this bug
+> report). If needed, here's the dmesg: http://www.terra.es/personal/diegocg/dmesg
+> and .config: http://www.terra.es/personal/diegocg/.config. I've never seen
+> this so I assumed it could be a problem with the "TTY layer buffering revamp"
+
+Can you try the attached patch please?
+Does this occur frequently?
+
+Thanks
+
+-- 
+Paul Fulghum
+Microgate Systems, Ltd
+--- linux-2.6.16-rc1/include/linux/tty_flip.h	2006-01-19 10:18:49.000000000 -0600
++++ linux-2.6.16-rc1-mg/include/linux/tty_flip.h	2006-01-19 10:20:50.000000000 -0600
+@@ -16,13 +16,23 @@ extern int tty_prepare_flip_string_flags
+ _INLINE_ int tty_insert_flip_char(struct tty_struct *tty,
+ 				   unsigned char ch, char flag)
+ {
+-	struct tty_buffer *tb = tty->buf.tail;
++	struct tty_buffer *tb;
++	unsigned long flags;
++	int rc;
++
++	spin_lock_irqsave(&tty->read_lock, flags);
++
++	tb = tty->buf.tail;
+ 	if (tb && tb->used < tb->size) {
+ 		tb->flag_buf_ptr[tb->used] = flag;
+ 		tb->char_buf_ptr[tb->used++] = ch;
++		spin_unlock_irqrestore(&tty->read_lock, flags);
+ 		return 1;
+ 	}
+-	return tty_insert_flip_string_flags(tty, &ch, &flag, 1);
++	rc = tty_insert_flip_string_flags(tty, &ch, &flag, 1);
++
++	spin_unlock_irqrestore(&tty->read_lock, flags);
++	return rc;
+ }
+ 
+ _INLINE_ void tty_schedule_flip(struct tty_struct *tty)
 
 
-On Thu, 19 Jan 2006, Nick Piggin wrote:
-> 
-> Hmm... this is what the de-skew patch _did_ (although it was wrapped
-> in a function called get_page_unless_zero), in fact the main aim was
-> to prevent this twiddling and the de-skewing was just a nice side effect
-> (I guess the patch title is misleading).
-> 
-> So I'm confused...
-
-The thing I minded was the _other_ changes, namely the de-skewing itself. 
-It seemed totally unnecessary to what you claimed was the point of the 
-patch.
-
-So I objected to the patch on the grounds that it did what you claimed 
-badly. All the _optimization_ was totally independent of that de-skewing, 
-and the de-skewing was a potential un-optimization.
-
-But if you do the optimizations as one independent set of patches, and 
-_then_ do the counter thing as a "simplify logic" patch, I don't see that 
-as a problem.
-
-Side note: I may be crazy, but for me when merging, one of the biggest 
-things is "does this pass my 'makes sense' detector". I look less at the 
-end result, than I actually look at the _change_. See?
-
-That's why two separate patches that do the same thing as one combined 
-patch may make sense, even if the _combined_ one does not (it could go the 
-other way too, obviously).
-
-		Linus

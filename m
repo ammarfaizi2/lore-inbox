@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422646AbWASWIH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422650AbWASWKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422646AbWASWIH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 17:08:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422656AbWASWIH
+	id S1422650AbWASWKU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 17:10:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422651AbWASWKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 17:08:07 -0500
-Received: from uproxy.gmail.com ([66.249.92.205]:9991 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422646AbWASWIG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 17:08:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=imlAsZy6jDyn23esKXd+zRb/qqjiM3AHagZoH1V+6gNhNNDs098orrdyJ0A72TlCGdrf9IZijbBjkn7GVACmDgp+JMYM2gEhZ4aj8YizYYtoca3YeAfRhgXDKtYIrvU6Ihuf5+/8QwuvJVG7/22WlF2BDMaFzL06K8WhC5mcuEE=
-Date: Thu, 19 Jan 2006 23:07:46 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: pppd oopses current linu's git tree on disconnect
-Message-Id: <20060119230746.ea78fcf4.diegocg@gmail.com>
-In-Reply-To: <1137692039.3279.1.camel@amdx2.microgate.com>
-References: <20060119010601.f259bb32.diegocg@gmail.com>
-	<1137692039.3279.1.camel@amdx2.microgate.com>
-X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
+	Thu, 19 Jan 2006 17:10:20 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:13017 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422650AbWASWKS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 17:10:18 -0500
+Date: Thu, 19 Jan 2006 17:10:06 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: alan@redhat.com
+Subject: EDAC config cleanup
+Message-ID: <20060119221006.GA31404@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, alan@redhat.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 19 Jan 2006 11:33:59 -0600,
-Paul Fulghum <paulkf@microgate.com> escribió:
+The AMD76x chipsets aren't used in 64-bit, so don't
+offer the driver to the user.
 
-> Can you try the attached patch please?
-> Does this occur frequently?
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-Not at all - I've tried to trigger it tons of times and didn't happen again,
-I even put a pon/poff in a loop but nothing happened; so I can't confirm if
-your patch does fix it, but I'm running the patch and nothing bad seems to
-happen.
+--- linux-2.6.15.noarch/drivers/edac/Kconfig~	2006-01-19 17:00:16.000000000 -0500
++++ linux-2.6.15.noarch/drivers/edac/Kconfig	2006-01-19 17:03:33.000000000 -0500
+@@ -46,7 +46,7 @@ config EDAC_MM_EDAC
+ 
+ config EDAC_AMD76X
+ 	tristate "AMD 76x (760, 762, 768)"
+-	depends on EDAC_MM_EDAC  && PCI
++	depends on EDAC_MM_EDAC && PCI X86_32
+ 	help
+ 	  Support for error detection and correction on the AMD 76x
+ 	  series of chipsets used with the Athlon processor.

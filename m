@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422643AbWASVbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422645AbWASVbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422643AbWASVbV (ORCPT <rfc822;willy@w.ods.org>);
+	id S1422645AbWASVbV (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 19 Jan 2006 16:31:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422648AbWASVbU
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422648AbWASVbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 16:31:20 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19649 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422643AbWASVbU (ORCPT
+	Thu, 19 Jan 2006 16:31:21 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:16833 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422645AbWASVbU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 19 Jan 2006 16:31:20 -0500
-Date: Thu, 19 Jan 2006 15:30:57 -0600
+Date: Thu, 19 Jan 2006 15:30:50 -0600
 From: David Teigland <teigland@redhat.com>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 5/7] dlm: printk with ll
-Message-ID: <20060119213057.GE31387@redhat.com>
+Subject: [PATCH 3/7] dlm: fix unlock race
+Message-ID: <20060119213050.GC31387@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,87 +22,66 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Use ll printk format for 64 bit values.
+Fix a race where an attempt to unlock a lock in the completion AST routine
+could crash on SMP.
 
+Signed-off-by: Patrick Caulfield <pcaulfie@redhat.com>
 Signed-off-by: David Teigland <teigland@redhat.com>
 
-Index: linux/drivers/dlm/debug_fs.c
+Index: linux/drivers/dlm/device.c
 ===================================================================
---- linux.orig/drivers/dlm/debug_fs.c
-+++ linux/drivers/dlm/debug_fs.c
-@@ -63,12 +63,12 @@ static void print_lock(struct seq_file *
- 		/* FIXME: this warns on Alpha */
- 		if (lkb->lkb_status == DLM_LKSTS_CONVERT
- 		    || lkb->lkb_status == DLM_LKSTS_GRANTED)
--			seq_printf(s, " %" PRIx64 "-%" PRIx64,
-+			seq_printf(s, " %llx-%llx",
- 				   lkb->lkb_range[GR_RANGE_START],
- 				   lkb->lkb_range[GR_RANGE_END]);
- 		if (lkb->lkb_status == DLM_LKSTS_CONVERT
- 		    || lkb->lkb_status == DLM_LKSTS_WAITING)
--			seq_printf(s, " (%" PRIx64 "-%" PRIx64 ")",
-+			seq_printf(s, " (%llx-%llx)",
- 				   lkb->lkb_range[RQ_RANGE_START],
- 				   lkb->lkb_range[RQ_RANGE_END]);
+--- linux.orig/drivers/dlm/device.c
++++ linux/drivers/dlm/device.c
+@@ -53,6 +53,7 @@ static rwlock_t lockinfo_lock;
+ #define LI_FLAG_COMPLETE   1
+ #define LI_FLAG_FIRSTLOCK  2
+ #define LI_FLAG_PERSISTENT 3
++#define LI_FLAG_ONLIST     4
+ 
+ /* flags in ls_flags*/
+ #define LS_FLAG_DELETED   1
+@@ -382,6 +383,7 @@ static void ast_routine(void *param)
+ 
+ 			spin_lock(&li->li_file->fi_li_lock);
+ 			list_del(&li->li_ownerqueue);
++			clear_bit(LI_FLAG_ONLIST, &li->li_flags);
+ 			spin_unlock(&li->li_file->fi_li_lock);
+ 			release_lockinfo(li);
+ 			return;
+@@ -889,6 +891,7 @@ static int do_user_lock(struct file_info
+ 
+ 		spin_lock(&fi->fi_li_lock);
+ 		list_add(&li->li_ownerqueue, &fi->fi_li_list);
++		set_bit(LI_FLAG_ONLIST, &li->li_flags);
+ 		spin_unlock(&fi->fi_li_lock);
+ 		if (add_lockinfo(li))
+ 			printk(KERN_WARNING "Add lockinfo failed\n");
+@@ -920,6 +923,7 @@ static int do_user_unlock(struct file_in
+ 			return -ENOMEM;
+ 		spin_lock(&fi->fi_li_lock);
+ 		list_add(&li->li_ownerqueue, &fi->fi_li_list);
++		set_bit(LI_FLAG_ONLIST, &li->li_flags);
+ 		spin_unlock(&fi->fi_li_lock);
  	}
-Index: linux/drivers/dlm/dlm_internal.h
-===================================================================
---- linux.orig/drivers/dlm/dlm_internal.h
-+++ linux/drivers/dlm/dlm_internal.h
-@@ -42,12 +42,6 @@
  
- #define DLM_LOCKSPACE_LEN	64
+@@ -934,6 +938,12 @@ static int do_user_unlock(struct file_in
+ 	if (kparams->flags & DLM_LKF_CANCEL && li->li_grmode != -1)
+ 		convert_cancel = 1;
  
--#if (BITS_PER_LONG == 64)
--#define PRIx64 "lx"
--#else
--#define PRIx64 "Lx"
--#endif
--
- /* Size of the temp buffer midcomms allocates on the stack.
-    We try to make this large enough so most messages fit.
-    FIXME: should sctp make this unnecessary? */
-Index: linux/drivers/dlm/recover.c
-===================================================================
---- linux.orig/drivers/dlm/recover.c
-+++ linux/drivers/dlm/recover.c
-@@ -420,7 +420,7 @@ int dlm_recover_master_reply(struct dlm_
- 
- 	r = recover_list_find(ls, rc->rc_id);
- 	if (!r) {
--		log_error(ls, "dlm_recover_master_reply no id %"PRIx64"",
-+		log_error(ls, "dlm_recover_master_reply no id %llx",
- 			  rc->rc_id);
- 		goto out;
++	/* Wait until dlm_lock() has completed */
++	if (!test_bit(LI_FLAG_ONLIST, &li->li_flags)) {
++		down(&li->li_firstlock);
++		up(&li->li_firstlock);
++	}
++
+ 	/* dlm_unlock() passes a 0 for castaddr which means don't overwrite
+ 	   the existing li_castaddr as that's the completion routine for
+ 	   unlocks. dlm_unlock_wait() specifies a new AST routine to be
+@@ -949,6 +959,7 @@ static int do_user_unlock(struct file_in
+ 	if (!status && !convert_cancel) {
+ 		spin_lock(&fi->fi_li_lock);
+ 		list_del(&li->li_ownerqueue);
++		clear_bit(LI_FLAG_ONLIST, &li->li_flags);
+ 		spin_unlock(&fi->fi_li_lock);
  	}
-Index: linux/drivers/dlm/recoverd.c
-===================================================================
---- linux.orig/drivers/dlm/recoverd.c
-+++ linux/drivers/dlm/recoverd.c
-@@ -45,7 +45,7 @@ static int ls_recover(struct dlm_ls *ls,
- 	unsigned long start;
- 	int error, neg = 0;
  
--	log_debug(ls, "recover %"PRIx64"", rv->seq);
-+	log_debug(ls, "recover %llx", rv->seq);
- 
- 	down(&ls->ls_recoverd_active);
- 
-@@ -199,7 +199,7 @@ static int ls_recover(struct dlm_ls *ls,
- 
- 	dlm_astd_wake();
- 
--	log_debug(ls, "recover %"PRIx64" done: %u ms", rv->seq,
-+	log_debug(ls, "recover %llx done: %u ms", rv->seq,
- 		  jiffies_to_msecs(jiffies - start));
- 	up(&ls->ls_recoverd_active);
- 
-@@ -207,7 +207,7 @@ static int ls_recover(struct dlm_ls *ls,
- 
-  fail:
- 	dlm_release_root_list(ls);
--	log_debug(ls, "recover %"PRIx64" error %d", rv->seq, error);
-+	log_debug(ls, "recover %llx error %d", rv->seq, error);
- 	up(&ls->ls_recoverd_active);
- 	return error;
- }

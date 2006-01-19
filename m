@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbWASXjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWASXmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030275AbWASXjB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 18:39:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030326AbWASXjB
+	id S1751301AbWASXmA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 18:42:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWASXlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 18:39:01 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:56737 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030275AbWASXjA (ORCPT
+	Thu, 19 Jan 2006 18:41:52 -0500
+Received: from hera.kernel.org ([140.211.167.34]:48585 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750826AbWASXlt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 18:39:00 -0500
-Date: Thu, 19 Jan 2006 15:40:28 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: davej@redhat.com, davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [patch] halt_on_oops command line option
-Message-Id: <20060119154028.4f1347c5.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0601191520480.11660@shark.he.net>
-References: <20060118232255.3814001b.akpm@osdl.org>
-	<20060119073951.GC21663@redhat.com>
-	<20060118235958.6b466a86.akpm@osdl.org>
-	<20060119192654.GL21663@redhat.com>
-	<20060119151805.1c4dc2af.akpm@osdl.org>
-	<Pine.LNX.4.58.0601191520480.11660@shark.he.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 19 Jan 2006 18:41:49 -0500
+Date: Thu, 19 Jan 2006 19:41:45 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       David Miller <davem@davemloft.net>
+Subject: Re: [patch 3/3] mm: PageActive no testset
+Message-ID: <20060119214145.GA5115@dmt.cnet>
+References: <20060118024106.10241.69438.sendpatchset@linux.site> <20060118024139.10241.73020.sendpatchset@linux.site> <20060118141346.GB7048@dmt.cnet> <20060119145008.GA20126@wotan.suse.de> <20060119165222.GC4418@dmt.cnet> <20060119200226.GA1756@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060119200226.GA1756@wotan.suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
->
-> On Thu, 19 Jan 2006, Andrew Morton wrote:
+On Thu, Jan 19, 2006 at 09:02:26PM +0100, Nick Piggin wrote:
+> On Thu, Jan 19, 2006 at 02:52:22PM -0200, Marcelo Tosatti wrote:
+> > On Thu, Jan 19, 2006 at 03:50:08PM +0100, Nick Piggin wrote:
+> > 
+> > > The test-set / test-clear operations also kind of imply that it is
+> > > being used for locking or without other synchronisation (usually).
+> > 
+> > Non-atomic versions such as __ClearPageLRU()/__ClearPageActive() are 
+> > not usable, though.
+> > 
 > 
-> > diff -puN Documentation/kernel-parameters.txt~pause_on_oops-command-line-option Documentation/kernel-parameters.txt
-> > --- 25/Documentation/kernel-parameters.txt~pause_on_oops-command-line-option	Thu Jan 19 14:42:25 2006
-> > +++ 25-akpm/Documentation/kernel-parameters.txt	Thu Jan 19 14:51:35 2006
-> > @@ -544,6 +544,11 @@ running once the system is up.
-> >
-> >  	gvp11=		[HW,SCSI]
-> >
-> > +	pause_on_oops=
-> > +			Halt all CPUs after the first oops has been printed for
-> > +			the specified number of seconds.  This is to be used if
-> > +			your oopses keep scrolling off the screen.
-> > +
-> >  	hashdist=	[KNL,NUMA] Large hashes allocated during boot
-> >  			are distributed across NUMA nodes.  Defaults on
-> >  			for IA-64, off otherwise.
-> 
-> Why there?
+> Correct. Although I was able to use them in a couple of other places
+> in a subsequent patch in the series. I trust you don't see a problem
+> with those usages?
 
-Coz I did s/halt_on_oops/pause_on_oops/ on the original patch ;)
+Indeed, sorry. Would you mind adding a comment that page->flags must be
+accessed atomically otherwise and that __ versions are special as to
+when the page cannot be referenced anymore? (its really not obvious)
+
+Also this comments on top of page-flags.h could be updated
+
+ * During disk I/O, PG_locked is used. This bit is set before I/O and
+ * reset when I/O completes. page_waitqueue(page) is a wait queue of all tasks
+ * waiting for the I/O on this page to complete.
+
+s/PG_locked/PG_writeback/
+
+ * Note that the referenced bit, the page->lru list_head and the active,
+ * inactive_dirty and inactive_clean lists are protected by the
+ * zone->lru_lock, and *NOT* by the usual PG_locked bit!
+
+inactive_dirty and inactive_clean do not exist anymore
+
+
+
+

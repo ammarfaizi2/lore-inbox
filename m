@@ -1,83 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161061AbWASD74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161059AbWASEDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161061AbWASD74 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 22:59:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161059AbWASD74
+	id S1161059AbWASEDe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 23:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161060AbWASEDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 22:59:56 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:48560 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161058AbWASD7z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 22:59:55 -0500
-Date: Wed, 18 Jan 2006 19:59:37 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <npiggin@suse.de>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [patch] sg: simplify page_count manipulations
-Message-Id: <20060118195937.3586c94f.akpm@osdl.org>
-In-Reply-To: <20060118155242.GB28418@wotan.suse.de>
-References: <20060118155242.GB28418@wotan.suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 18 Jan 2006 23:03:34 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:54983
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1161059AbWASEDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 23:03:33 -0500
+Date: Wed, 18 Jan 2006 20:03:18 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: bos@pathscale.com, rdreier@cisco.com, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: RFC: ipath ioctls and their replacements
+Message-ID: <20060119040318.GA17121@kroah.com>
+References: <1137631411.4757.218.camel@serpentine.pathscale.com> <20060119025741.GC15706@kroah.com> <20060118194911.4da86c22.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060118194911.4da86c22.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <npiggin@suse.de> wrote:
->
-> Hi Linus,
+On Wed, Jan 18, 2006 at 07:49:11PM -0800, Andrew Morton wrote:
+> Greg KH <greg@kroah.com> wrote:
+> >
 > 
-> What do you think about the following couple of patches? Hugh's had a
-> look and thinks they're OK.
+> Sorry for sticking my head in a beehive, but.  Stand back and look at it:
 > 
-
-Gad.  You're brave.
-
-> Allocate a compound page for the user mapping instead of tweaking
-> the page refcounts.
+> > Shouldn't you just open the proper chip device and port device itself?
+> > Why not just use mmap?  What's the special needs?
+> > sysfs file.
+> > Use poll.
+> > Use netlink for subnet stuff.
+> > Use debugfs.
+> > Use the pci sysfs config files, don't duplicate existing functionality.
+> > netlink or debugfs.
 > 
-> Signed-off-by: Nick Piggin <npiggin@suse.de>
+> For a driver-bodging interface design, this is simply nutty.
+
+One can rightfully argue that they are doing some huge messy things, and
+deserve the extra mess if they persist in trying to do it.
+
+> And it makes the driver developer learn a pile of extra stuff and it
+> introduces lots of linkages everywhere and heaven knows what the driver's
+> userspace interface description ends up looking like.
 > 
-> Index: linux-2.6/drivers/scsi/sg.c
-> ===================================================================
-> --- linux-2.6.orig/drivers/scsi/sg.c
-> +++ linux-2.6/drivers/scsi/sg.c
-> @@ -1140,32 +1140,6 @@ sg_fasync(int fd, struct file *filp, int
->  	return (retval < 0) ? retval : 0;
->  }
->  
-> -/* When startFinish==1 increments page counts for pages other than the 
-> -   first of scatter gather elements obtained from alloc_pages().
-> -   When startFinish==0 decrements ... */
-> -static void
-> -sg_rb_correct4mmap(Sg_scatter_hold * rsv_schp, int startFinish)
-> -{
-> -	struct scatterlist *sg = rsv_schp->buffer;
-> -	struct page *page;
-> -	int k, m;
-> -
-> -	SCSI_LOG_TIMEOUT(3, printk("sg_rb_correct4mmap: startFinish=%d, scatg=%d\n", 
-> -				   startFinish, rsv_schp->k_use_sg));
-> -	/* N.B. correction _not_ applied to base page of each allocation */
-> -	for (k = 0; k < rsv_schp->k_use_sg; ++k, ++sg) {
-> -		for (m = PAGE_SIZE; m < sg->length; m += PAGE_SIZE) {
-> -			page = sg->page;
-> -			if (startFinish)
-> -				get_page(page);
-> -			else {
-> -				if (page_count(page) > 0)
-> -					__put_page(page);
-> -			}
-> -		}
-> -	}
-> -}
+> ioctl() would have to be pretty darn bad to be worse than all this random
+> stuff.
 
-What on earth is the above trying to do?  The inner loop is a rather
-complex way of doing atomic_add(&page->count, sg->length/PAGE_SIZE).  One
-suspects there's a missing "[m]" in there.
+It is.  It's giving any driver writer the ability to pretty much create
+as many different and new and incompatible system calls directly into
+the kernel, making their driver "just a little different" from every
+other type of driver.  Do you really feel confident in allowing this?
 
-Yes, using a compound page for the refcounting sounds sane, but I think
-this code is fragile and has monsters in it.
+I sure do not.
 
+But if they use the interfaces that are present in the kernel (sysfs,
+debugfs, netlink, firmware interface), their driver will automatically
+work with the already-written userspace tools and their driver will
+usually not contain nasty bugs that show up on 64->32bit issues, and
+security problems where every user can mess with things they should not
+(like lots of ioctls have been known to have in the past.)
+
+We are trying very hard here to make it easier on both the users and the
+driver writers (that's why we wrote that infrastructure in the first
+place.)
+
+thanks,
+
+greg k-h

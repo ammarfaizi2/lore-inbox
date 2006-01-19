@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030488AbWASFLO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161107AbWASFN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030488AbWASFLO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 00:11:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161323AbWASFLO
+	id S1161107AbWASFN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 00:13:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161322AbWASFN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 00:11:14 -0500
-Received: from fsmlabs.com ([168.103.115.128]:16513 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1030488AbWASFLN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 00:11:13 -0500
-X-ASG-Debug-ID: 1137647470-29057-16-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Wed, 18 Jan 2006 21:16:11 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Gilles May <gilles@jekyll.org>
-cc: linux-kernel@vger.kernel.org
-X-ASG-Orig-Subj: Re: SMP trouble
-Subject: Re: SMP trouble
-In-Reply-To: <43CAFF80.2020707@jekyll.org>
-Message-ID: <Pine.LNX.4.64.0601181817410.20777@montezuma.fsmlabs.com>
-References: <43CAFF80.2020707@jekyll.org>
+	Thu, 19 Jan 2006 00:13:59 -0500
+Received: from [202.125.80.34] ([202.125.80.34]:9660 "EHLO mail.esn.co.in")
+	by vger.kernel.org with ESMTP id S1161107AbWASFN6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 00:13:58 -0500
+Subject: RE: clarity on kref needed.
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.7533
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Thu, 19 Jan 2006 10:35:37 +0530
+Content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Message-ID: <3AEC1E10243A314391FE9C01CD65429B28BF15@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: clarity on kref needed.
+Thread-Index: AcYctT3+Vb9t3zFlSYu4b9DLUyCysAAAEk5A
+From: "Mukund JB." <mukundjb@esntechnologies.co.in>
+To: "Greg KH" <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Jan 2006, Gilles May wrote:
 
-> I got a wierd problem with my dual Athlon box.
-> The board is a K7D Master-L with 2 Athlon-MP 2800+ processors.
-> Running it with SMP enabled in the kernel makes it freeze on heavy activity. I
-> can always reproduce a freeze
-> by watching a movie while copying files to/from USB disk, or on ping -f to a
-> box on my LAN. Without SMP
-> support in the kernel I can do this for hours and no freeze.
-> The kernels I tried are ranging from 2.6.11-1.1369 (FC4) to 2.6.15 vanilla
-> kernel. Running from console
-> with no X nor any proprietary modules loaded.
 
-Try booting the SMP kernel with 'noapic' kernel parameter and then send 
-the kernel bootlog.
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Thursday, January 19, 2006 10:33 AM
+> To: Mukund JB.
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: clarity on kref needed.
+> 
+> 
+> On Thu, Jan 19, 2006 at 10:15:51AM +0530, Mukund JB. wrote:
+> > 
+> > > > I have gone through kref and am planning to implement then 
+> > > in my usb driver.
+> > > 
+> > > What kind of usb driver?
+> > It is a finger print authentication USB driver. it doesn ot do the
+> > authgentication but transports data to the application which really
+> > does some processing.
+> 
+> You shouldn't need a kernel driver for this, it can be done 
+> in userspace
+> with libusb/usbfs, right?
+
+I mean I will register a char driver. I will just write a simple char kernel module to read data from the USB device and
+zero copy it to the userspace application. I guess that is the minimum work we need to do.
+
+Is there any other way using libusb/usbfs in which we can do this without a need of USB kernel driver? 
+
+> > No, I did not find any Documentation/kref.txt.
+> > But I have read about kred in the link below:
+> > 
+> http://developer.osdl.org/dev/robustmutexes/src/fusyn.hg/Docum
+entation/kref.txt
+> >
+> >Is kref depricated because I find nothing related to it in linux/Documentation/?
+
+> What kernel version are you looking at?  Look in the kernel source tree
+> from kernel.org.  What kernel tree are you building your driver against.
+
+I am planning it for 2.6.11.12.
+
+Regards,
+Mukund Jampala

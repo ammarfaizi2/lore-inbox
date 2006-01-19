@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161276AbWASInf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161274AbWASImD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161276AbWASInf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 03:43:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161277AbWASIne
+	id S1161274AbWASImD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 03:42:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161275AbWASImD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 03:43:34 -0500
-Received: from usmimesweeper.bluearc.com ([63.203.197.133]:12307 "EHLO
-	us-mimesweeper.terastack.bluearc.com") by vger.kernel.org with ESMTP
-	id S1161276AbWASIne convert rfc822-to-8bit (ORCPT
+	Thu, 19 Jan 2006 03:42:03 -0500
+Received: from xizor.is.scarlet.be ([193.74.71.21]:24295 "EHLO
+	xizor.is.scarlet.be") by vger.kernel.org with ESMTP
+	id S1161274AbWASImB convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 03:43:34 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 19 Jan 2006 03:42:01 -0500
+Date: Thu, 19 Jan 2006 09:41:54 +0100
+Message-Id: <ITC05V$CEEE7E19B7F22BB040EA06068471D72B@scarlet.be>
+Subject: 2.6.16-rc1-git1 -- Build error "make: *** [include/linux/version.h] 
+	Error 2"
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Out of Memory: Killed process 16498 (java).
-Date: Thu, 19 Jan 2006 08:43:25 -0000
-Message-ID: <89E85E0168AD994693B574C80EDB9C2703555F85@uk-email.terastack.bluearc.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Out of Memory: Killed process 16498 (java).
-Thread-Index: AcYc1GmD8gB76EyOS1qVvL9C8X/bMg==
-From: "Andy Chittenden" <AChittenden@bluearc.com>
-To: <linux-kernel@vger.kernel.org>
+X-Sensitivity: 3
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+From: "" <joel.soete@tiscali.be>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+X-XaM3-API-Version: 4.1 (B54)
+X-type: 0
+X-SenderIP: 57.67.177.33
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why does running the following command cause processes to be killed:
+Miles,
 
-	dd if=/dev/zero of=/u/u1/andyc/tmpfile bs=1M count=8k
+I read you experiment the same pb, as it makes me lost my previous day ;-(.
 
-And I noticed one of my windows disappeared. Further investigation
-showed that was my terminator window (java based app: see
-http://software.jessies.org/terminator/). I found this in my syslog:
+As far as I can investigate, it came from a pb with 'make mrproper' which (i
+don't know yet when/how) rm a char dev namely /dev/null which is then replaced
+by a ordinary file?
 
-Jan 17 11:12:58 boco kernel: Out of Memory: Killed process 16498 (java).
+Anyway you have to 'rm /dev/null' and recreate the char dev:
+e.g. with a debian install
+# cd /dev
+# ./MAKEDEV null 
 
-My hardware: amd64 based machine (ASUS A8V Deluxe motherboard) with 4Gb
-of memory.
-My kernel: debian package linux-image-2.6.15-1-amd64-k8 package
-installed. IE its running 2.6.15 compiled for amd64.
+Joel
 
-This is repeatable. The above dd command also causes the machine to
-become very unresponsive (eg windows don't focus).
- 
--- 
-Andy, BlueArc Engineering
+---------------------------------------------------------------
+A free anti-spam and anti-virus filter on all Scarlet mailboxes
+More info on http://www.scarlet.be/
+

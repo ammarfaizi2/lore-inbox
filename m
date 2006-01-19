@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422655AbWASVcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422654AbWASVcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422655AbWASVcP (ORCPT <rfc822;willy@w.ods.org>);
+	id S1422654AbWASVcP (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 19 Jan 2006 16:32:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422650AbWASVbp
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422649AbWASVbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 16:31:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:29377 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422651AbWASVbm (ORCPT
+	Thu, 19 Jan 2006 16:31:48 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:22977 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422644AbWASVbX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 16:31:42 -0500
-Date: Thu, 19 Jan 2006 15:31:11 -0600
+	Thu, 19 Jan 2006 16:31:23 -0500
+Date: Thu, 19 Jan 2006 15:30:54 -0600
 From: David Teigland <teigland@redhat.com>
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 7/7] dlm: sem2mutex
-Message-ID: <20060119213111.GG31387@redhat.com>
+Subject: [PATCH 4/7] dlm: remove true false defines
+Message-ID: <20060119213054.GD31387@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,590 +22,399 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convert semaphore to mutex.
+Replace TRUE/FALSE with 1/0.
 
 Signed-off-by: David Teigland <teigland@redhat.com>
 
 Index: linux/drivers/dlm/ast.c
 ===================================================================
---- linux.orig/drivers/dlm/ast.c	2006-01-19 13:39:18.000000000 -0600
-+++ linux/drivers/dlm/ast.c	2006-01-19 13:40:53.000000000 -0600
-@@ -21,7 +21,7 @@
- static spinlock_t		ast_queue_lock;
- static struct task_struct *	astd_task;
- static unsigned long		astd_wakeflags;
--static struct semaphore		astd_running;
-+static struct mutex		astd_running;
+--- linux.orig/drivers/dlm/ast.c
++++ linux/drivers/dlm/ast.c
+@@ -56,7 +56,7 @@ static void process_asts(void)
+ 	int type = 0, found, bmode;
  
- 
- void dlm_del_ast(struct dlm_lkb *lkb)
-@@ -117,10 +117,10 @@
- 			schedule();
- 		set_current_state(TASK_RUNNING);
- 
--		down(&astd_running);
-+		mutex_lock(&astd_running);
- 		if (test_and_clear_bit(WAKE_ASTS, &astd_wakeflags))
- 			process_asts();
--		up(&astd_running);
-+		mutex_unlock(&astd_running);
- 	}
- 	return 0;
- }
-@@ -140,7 +140,7 @@
- 
- 	INIT_LIST_HEAD(&ast_queue);
- 	spin_lock_init(&ast_queue_lock);
--	init_MUTEX(&astd_running);
-+	mutex_init(&astd_running);
- 
- 	p = kthread_run(dlm_astd, NULL, "dlm_astd");
- 	if (IS_ERR(p))
-@@ -157,11 +157,11 @@
- 
- void dlm_astd_suspend(void)
- {
--	down(&astd_running);
-+	mutex_lock(&astd_running);
- }
- 
- void dlm_astd_resume(void)
- {
--	up(&astd_running);
-+	mutex_unlock(&astd_running);
- }
- 
-Index: linux/drivers/dlm/config.c
-===================================================================
---- linux.orig/drivers/dlm/config.c	2006-01-19 13:39:18.000000000 -0600
-+++ linux/drivers/dlm/config.c	2006-01-19 13:42:17.000000000 -0600
-@@ -162,7 +162,7 @@
- struct space {
- 	struct config_group group;
- 	struct list_head members;
--	struct semaphore members_lock;
-+	struct mutex members_lock;
- 	int members_count;
- };
- 
-@@ -374,7 +374,7 @@
- 	sp->group.default_groups[1] = NULL;
- 
- 	INIT_LIST_HEAD(&sp->members);
--	init_MUTEX(&sp->members_lock);
-+	mutex_init(&sp->members_lock);
- 	sp->members_count = 0;
- 	return &sp->group;
- 
-@@ -453,10 +453,10 @@
- 	nd->nodeid = -1;
- 	nd->weight = 1;  /* default weight of 1 if none is set */
- 
--	down(&sp->members_lock);
-+	mutex_lock(&sp->members_lock);
- 	list_add(&nd->list, &sp->members);
- 	sp->members_count++;
--	up(&sp->members_lock);
-+	mutex_unlock(&sp->members_lock);
- 
- 	return &nd->item;
- }
-@@ -466,10 +466,10 @@
- 	struct space *sp = to_space(g->cg_item.ci_parent);
- 	struct node *nd = to_node(i);
- 
--	down(&sp->members_lock);
-+	mutex_lock(&sp->members_lock);
- 	list_del(&nd->list);
- 	sp->members_count--;
--	up(&sp->members_lock);
-+	mutex_unlock(&sp->members_lock);
- 
- 	config_item_put(i);
- }
-@@ -677,7 +677,7 @@
- 	if (!sp)
- 		return -EEXIST;
- 
--	down(&sp->members_lock);
-+	mutex_lock(&sp->members_lock);
- 	if (!sp->members_count) {
- 		rv = 0;
- 		goto out;
-@@ -698,7 +698,7 @@
- 
- 	*ids_out = ids;
-  out:
--	up(&sp->members_lock);
-+	mutex_unlock(&sp->members_lock);
- 	put_space(sp);
- 	return rv;
- }
-@@ -713,14 +713,14 @@
- 	if (!sp)
- 		goto out;
- 
--	down(&sp->members_lock);
-+	mutex_lock(&sp->members_lock);
- 	list_for_each_entry(nd, &sp->members, list) {
- 		if (nd->nodeid != nodeid)
- 			continue;
- 		w = nd->weight;
- 		break;
- 	}
--	up(&sp->members_lock);
-+	mutex_unlock(&sp->members_lock);
- 	put_space(sp);
-  out:
- 	return w;
-Index: linux/drivers/dlm/device.c
-===================================================================
---- linux.orig/drivers/dlm/device.c	2006-01-19 13:38:54.000000000 -0600
-+++ linux/drivers/dlm/device.c	2006-01-19 14:25:00.000000000 -0600
-@@ -43,7 +43,7 @@
- static struct file_operations _dlm_fops;
- static const char *name_prefix="dlm";
- static struct list_head user_ls_list;
--static struct semaphore user_ls_lock;
-+static struct mutex user_ls_lock;
- 
- /* Lock infos are stored in here indexed by lock ID */
- static DEFINE_IDR(lockinfo_idr);
-@@ -212,18 +212,18 @@
- {
- 	struct user_ls *lsinfo;
- 
--	down(&user_ls_lock);
-+	mutex_lock(&user_ls_lock);
- 	lsinfo = __find_lockspace(minor);
--	up(&user_ls_lock);
-+	mutex_unlock(&user_ls_lock);
- 
- 	return lsinfo;
- }
- 
- static void add_lockspace_to_list(struct user_ls *lsinfo)
- {
--	down(&user_ls_lock);
-+	mutex_lock(&user_ls_lock);
- 	list_add(&lsinfo->ls_list, &user_ls_list);
--	up(&user_ls_lock);
-+	mutex_unlock(&user_ls_lock);
- }
- 
- /* Register a lockspace with the DLM and create a misc
-@@ -277,7 +277,7 @@
- 	return 0;
- }
- 
--/* Called with the user_ls_lock semaphore held */
-+/* Called with the user_ls_lock mutex held */
- static int unregister_lockspace(struct user_ls *lsinfo, int force)
- {
- 	int status;
-@@ -570,7 +570,7 @@
- 	 * then free the struct. If it's an AUTOFREE lockspace
- 	 * then free the whole thing.
- 	 */
--	down(&user_ls_lock);
-+	mutex_lock(&user_ls_lock);
- 	if (atomic_dec_and_test(&lsinfo->ls_refcnt)) {
- 
- 		if (lsinfo->ls_lockspace) {
-@@ -582,7 +582,7 @@
- 			kfree(lsinfo);
+ 	for (;;) {
+-		found = FALSE;
++		found = 0;
+ 		spin_lock(&ast_queue_lock);
+ 		list_for_each_entry(lkb, &ast_queue, lkb_astqueue) {
+ 			r = lkb->lkb_resource;
+@@ -68,7 +68,7 @@ static void process_asts(void)
+ 			list_del(&lkb->lkb_astqueue);
+ 			type = lkb->lkb_ast_type;
+ 			lkb->lkb_ast_type = 0;
+-			found = TRUE;
++			found = 1;
+ 			break;
  		}
- 	}
--	up(&user_ls_lock);
-+	mutex_unlock(&user_ls_lock);
- 	put_file_info(f);
- 
- 	/* Restore signals */
-@@ -620,10 +620,10 @@
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EPERM;
- 
--	down(&user_ls_lock);
-+	mutex_lock(&user_ls_lock);
- 	lsinfo = __find_lockspace(kparams->minor);
- 	if (!lsinfo) {
--		up(&user_ls_lock);
-+		mutex_unlock(&user_ls_lock);
- 		return -EINVAL;
- 	}
- 
-@@ -631,7 +631,7 @@
- 		force = 2;
- 
- 	status = unregister_lockspace(lsinfo, force);
--	up(&user_ls_lock);
-+	mutex_unlock(&user_ls_lock);
- 
- 	return status;
- }
-@@ -1066,7 +1066,7 @@
- 	int r;
- 
- 	INIT_LIST_HEAD(&user_ls_list);
--	init_MUTEX(&user_ls_lock);
-+	mutex_init(&user_ls_lock);
- 	rwlock_init(&lockinfo_lock);
- 
- 	ctl_device.name = "dlm-control";
-Index: linux/drivers/dlm/dlm_internal.h
+ 		spin_unlock(&ast_queue_lock);
+Index: linux/drivers/dlm/dir.c
 ===================================================================
---- linux.orig/drivers/dlm/dlm_internal.h	2006-01-19 13:39:18.000000000 -0600
-+++ linux/drivers/dlm/dlm_internal.h	2006-01-19 14:15:32.000000000 -0600
-@@ -35,6 +35,7 @@
- #include <linux/kref.h>
- #include <linux/kernel.h>
- #include <linux/jhash.h>
-+#include <linux/mutex.h>
- #include <asm/semaphore.h>
- #include <asm/uaccess.h>
+--- linux.orig/drivers/dlm/dir.c
++++ linux/drivers/dlm/dir.c
+@@ -33,7 +33,7 @@ static void put_free_de(struct dlm_ls *l
  
-@@ -252,7 +253,7 @@
- struct dlm_rsb {
- 	struct dlm_ls		*res_ls;	/* the lockspace */
- 	struct kref		res_ref;
--	struct semaphore	res_sem;
-+	struct mutex		res_mutex;
- 	unsigned long		res_flags;
- 	int			res_length;	/* length of rsb name */
- 	int			res_nodeid;
-@@ -435,7 +436,7 @@
- 	struct dlm_dirtable	*ls_dirtbl;
- 	uint32_t		ls_dirtbl_size;
- 
--	struct semaphore	ls_waiters_sem;
-+	struct mutex		ls_waiters_mutex;
- 	struct list_head	ls_waiters;	/* lkbs needing a reply */
- 
- 	struct list_head	ls_nodes;	/* current nodes in ls */
-@@ -458,14 +459,14 @@
- 
- 	struct timer_list	ls_timer;
- 	struct task_struct	*ls_recoverd_task;
--	struct semaphore	ls_recoverd_active;
-+	struct mutex		ls_recoverd_active;
- 	spinlock_t		ls_recover_lock;
- 	uint32_t		ls_recover_status; /* DLM_RS_ */
- 	uint64_t		ls_recover_seq;
- 	struct dlm_recover	*ls_recover_args;
- 	struct rw_semaphore	ls_in_recovery;	/* block local requests */
- 	struct list_head	ls_requestqueue;/* queue remote requests */
--	struct semaphore	ls_requestqueue_lock;
-+	struct mutex		ls_requestqueue_mutex;
- 	char			*ls_recover_buf;
- 	struct list_head	ls_recover_list;
- 	spinlock_t		ls_recover_list_lock;
-Index: linux/drivers/dlm/lock.c
-===================================================================
---- linux.orig/drivers/dlm/lock.c	2006-01-19 13:39:18.000000000 -0600
-+++ linux/drivers/dlm/lock.c	2006-01-19 14:35:25.638621443 -0600
-@@ -269,7 +269,7 @@
- 	r->res_ls = ls;
- 	r->res_length = len;
- 	memcpy(r->res_name, name, len);
--	init_MUTEX(&r->res_sem);
-+	mutex_init(&r->res_mutex);
- 
- 	INIT_LIST_HEAD(&r->res_lookup);
- 	INIT_LIST_HEAD(&r->res_grantqueue);
-@@ -712,7 +712,7 @@
+ static struct dlm_direntry *get_free_de(struct dlm_ls *ls, int len)
  {
- 	struct dlm_ls *ls = lkb->lkb_resource->res_ls;
+-	int found = FALSE;
++	int found = 0;
+ 	struct dlm_direntry *de;
  
--	down(&ls->ls_waiters_sem);
-+	mutex_lock(&ls->ls_waiters_mutex);
- 	if (lkb->lkb_wait_type) {
- 		log_print("add_to_waiters error %d", lkb->lkb_wait_type);
- 		goto out;
-@@ -721,7 +721,7 @@
- 	kref_get(&lkb->lkb_ref);
- 	list_add(&lkb->lkb_wait_reply, &ls->ls_waiters);
-  out:
--	up(&ls->ls_waiters_sem);
-+	mutex_unlock(&ls->ls_waiters_mutex);
- }
- 
- static int _remove_from_waiters(struct dlm_lkb *lkb)
-@@ -745,9 +745,9 @@
- 	struct dlm_ls *ls = lkb->lkb_resource->res_ls;
- 	int error;
- 
--	down(&ls->ls_waiters_sem);
-+	mutex_lock(&ls->ls_waiters_mutex);
- 	error = _remove_from_waiters(lkb);
--	up(&ls->ls_waiters_sem);
-+	mutex_unlock(&ls->ls_waiters_mutex);
- 	return error;
- }
- 
-@@ -3205,7 +3205,7 @@
- {
- 	struct dlm_lkb *lkb, *safe;
- 
--	down(&ls->ls_waiters_sem);
-+	mutex_lock(&ls->ls_waiters_mutex);
- 
- 	list_for_each_entry_safe(lkb, safe, &ls->ls_waiters, lkb_wait_reply) {
- 		log_debug(ls, "pre recover waiter lkid %x type %d flags %x",
-@@ -3253,7 +3253,7 @@
- 				  lkb->lkb_wait_type);
- 		}
- 	}
--	up(&ls->ls_waiters_sem);
-+	mutex_unlock(&ls->ls_waiters_mutex);
- }
- 
- static int remove_resend_waiter(struct dlm_ls *ls, struct dlm_lkb **lkb_ret)
-@@ -3261,7 +3261,7 @@
- 	struct dlm_lkb *lkb;
- 	int rv = 0;
- 
--	down(&ls->ls_waiters_sem);
-+	mutex_lock(&ls->ls_waiters_mutex);
- 	list_for_each_entry(lkb, &ls->ls_waiters, lkb_wait_reply) {
- 		if (lkb->lkb_flags & DLM_IFL_RESEND) {
- 			rv = lkb->lkb_wait_type;
-@@ -3270,7 +3270,7 @@
+ 	spin_lock(&ls->ls_recover_list_lock);
+@@ -42,7 +42,7 @@ static struct dlm_direntry *get_free_de(
+ 			list_del(&de->list);
+ 			de->master_nodeid = 0;
+ 			memset(de->name, 0, len);
+-			found = TRUE;
++			found = 1;
  			break;
  		}
  	}
--	up(&ls->ls_waiters_sem);
-+	mutex_unlock(&ls->ls_waiters_mutex);
- 
- 	if (!rv)
- 		lkb = NULL;
-Index: linux/drivers/dlm/lock.h
+Index: linux/drivers/dlm/dlm_internal.h
 ===================================================================
---- linux.orig/drivers/dlm/lock.h	2006-01-19 13:39:18.000000000 -0600
-+++ linux/drivers/dlm/lock.h	2006-01-19 14:16:25.000000000 -0600
-@@ -38,12 +38,12 @@
+--- linux.orig/drivers/dlm/dlm_internal.h
++++ linux/drivers/dlm/dlm_internal.h
+@@ -42,14 +42,6 @@
  
- static inline void lock_rsb(struct dlm_rsb *r)
+ #define DLM_LOCKSPACE_LEN	64
+ 
+-#ifndef TRUE
+-#define TRUE 1
+-#endif
+-
+-#ifndef FALSE
+-#define FALSE 0
+-#endif
+-
+ #if (BITS_PER_LONG == 64)
+ #define PRIx64 "lx"
+ #else
+Index: linux/drivers/dlm/lock.c
+===================================================================
+--- linux.orig/drivers/dlm/lock.c
++++ linux/drivers/dlm/lock.c
+@@ -215,15 +215,15 @@ static inline int is_master_copy(struct 
  {
--	down(&r->res_sem);
-+	mutex_lock(&r->res_mutex);
+ 	if (lkb->lkb_flags & DLM_IFL_MSTCPY)
+ 		DLM_ASSERT(lkb->lkb_nodeid, dlm_print_lkb(lkb););
+-	return (lkb->lkb_flags & DLM_IFL_MSTCPY) ? TRUE : FALSE;
++	return (lkb->lkb_flags & DLM_IFL_MSTCPY) ? 1 : 0;
  }
  
- static inline void unlock_rsb(struct dlm_rsb *r)
+ static inline int middle_conversion(struct dlm_lkb *lkb)
  {
--	up(&r->res_sem);
-+	mutex_unlock(&r->res_mutex);
+ 	if ((lkb->lkb_grmode==DLM_LOCK_PR && lkb->lkb_rqmode==DLM_LOCK_CW) ||
+ 	    (lkb->lkb_rqmode==DLM_LOCK_PR && lkb->lkb_grmode==DLM_LOCK_CW))
+-		return TRUE;
+-	return FALSE;
++		return 1;
++	return 0;
  }
  
- #endif
-Index: linux/drivers/dlm/lockspace.c
-===================================================================
---- linux.orig/drivers/dlm/lockspace.c	2006-01-19 13:38:54.000000000 -0600
-+++ linux/drivers/dlm/lockspace.c	2006-01-19 14:19:50.000000000 -0600
-@@ -31,7 +31,7 @@
- #endif
+ static inline int down_conversion(struct dlm_lkb *lkb)
+@@ -775,14 +775,14 @@ static int shrink_bucket(struct dlm_ls *
+ 	int count = 0, found;
  
- static int			ls_count;
--static struct semaphore		ls_lock;
-+static struct mutex		ls_lock;
- static struct list_head		lslist;
- static spinlock_t		lslist_lock;
- static struct task_struct *	scand_task;
-@@ -177,7 +177,7 @@
- 	int error;
+ 	for (;;) {
+-		found = FALSE;
++		found = 0;
+ 		write_lock(&ls->ls_rsbtbl[b].lock);
+ 		list_for_each_entry_reverse(r, &ls->ls_rsbtbl[b].toss,
+ 					    res_hashchain) {
+ 			if (!time_after_eq(jiffies, r->res_toss_time +
+ 					   dlm_config.toss_secs * HZ))
+ 				continue;
+-			found = TRUE;
++			found = 1;
+ 			break;
+ 		}
  
- 	ls_count = 0;
--	init_MUTEX(&ls_lock);
-+	mutex_init(&ls_lock);
- 	INIT_LIST_HEAD(&lslist);
- 	spin_lock_init(&lslist_lock);
+@@ -1027,9 +1027,9 @@ static inline int first_in_list(struct d
+ 	struct dlm_lkb *first = list_entry(head->next, struct dlm_lkb,
+ 					   lkb_statequeue);
+ 	if (lkb->lkb_id == first->lkb_id)
+-		return TRUE;
++		return 1;
  
-@@ -397,7 +397,7 @@
+-	return FALSE;
++	return 0;
+ }
+ 
+ /* Return 1 if the locks' ranges overlap.  If the lkb has no range then it is
+@@ -1038,13 +1038,13 @@ static inline int first_in_list(struct d
+ static inline int ranges_overlap(struct dlm_lkb *lkb1, struct dlm_lkb *lkb2)
+ {
+ 	if (!lkb1->lkb_range || !lkb2->lkb_range)
+-		return TRUE;
++		return 1;
+ 
+ 	if (lkb1->lkb_range[RQ_RANGE_END] < lkb2->lkb_range[GR_RANGE_START] ||
+ 	    lkb1->lkb_range[RQ_RANGE_START] > lkb2->lkb_range[GR_RANGE_END])
+-		return FALSE;
++		return 0;
+ 
+-	return TRUE;
++	return 1;
+ }
+ 
+ /* Check if the given lkb conflicts with another lkb on the queue. */
+@@ -1057,9 +1057,9 @@ static int queue_conflict(struct list_he
+ 		if (this == lkb)
+ 			continue;
+ 		if (ranges_overlap(lkb, this) && !modes_compat(this, lkb))
+-			return TRUE;
++			return 1;
+ 	}
+-	return FALSE;
++	return 0;
+ }
+ 
+ /*
+@@ -1103,7 +1103,7 @@ static int conversion_deadlock_detect(st
+ 			continue;
+ 
+ 		if (!modes_compat(this, lkb) && !modes_compat(lkb, this))
+-			return TRUE;
++			return 1;
  	}
  
- 	INIT_LIST_HEAD(&ls->ls_waiters);
--	init_MUTEX(&ls->ls_waiters_sem);
-+	mutex_init(&ls->ls_waiters_mutex);
+ 	/* if lkb is on the convert queue and is preventing the first
+@@ -1114,10 +1114,10 @@ static int conversion_deadlock_detect(st
+ 	if (self && self != first) {
+ 		if (!modes_compat(lkb, first) &&
+ 		    !queue_conflict(&rsb->res_grantqueue, first))
+-			return TRUE;
++			return 1;
+ 	}
  
- 	INIT_LIST_HEAD(&ls->ls_nodes);
- 	INIT_LIST_HEAD(&ls->ls_nodes_gone);
-@@ -415,14 +415,14 @@
- 	ls->ls_uevent_result = 0;
+-	return FALSE;
++	return 0;
+ }
  
- 	ls->ls_recoverd_task = NULL;
--	init_MUTEX(&ls->ls_recoverd_active);
-+	mutex_init(&ls->ls_recoverd_active);
- 	spin_lock_init(&ls->ls_recover_lock);
- 	ls->ls_recover_status = 0;
- 	ls->ls_recover_seq = 0;
- 	ls->ls_recover_args = NULL;
- 	init_rwsem(&ls->ls_in_recovery);
- 	INIT_LIST_HEAD(&ls->ls_requestqueue);
--	init_MUTEX(&ls->ls_requestqueue_lock);
-+	mutex_init(&ls->ls_requestqueue_mutex);
+ /*
+@@ -1157,7 +1157,7 @@ static int _can_be_granted(struct dlm_rs
+ 	 */
  
- 	ls->ls_recover_buf = kmalloc(dlm_config.buffer_size, GFP_KERNEL);
- 	if (!ls->ls_recover_buf)
-@@ -492,7 +492,7 @@
+ 	if (lkb->lkb_exflags & DLM_LKF_EXPEDITE)
+-		return TRUE;
++		return 1;
+ 
+ 	/*
+ 	 * A shortcut. Without this, !queue_conflict(grantqueue, lkb) would be
+@@ -1200,7 +1200,7 @@ static int _can_be_granted(struct dlm_rs
+ 	 */
+ 
+ 	if (now && conv && !(lkb->lkb_exflags & DLM_LKF_QUECVT))
+-		return TRUE;
++		return 1;
+ 
+ 	/*
+ 	 * When using range locks the NOORDER flag is set to avoid the standard
+@@ -1208,7 +1208,7 @@ static int _can_be_granted(struct dlm_rs
+ 	 */
+ 
+ 	if (lkb->lkb_exflags & DLM_LKF_NOORDER)
+-		return TRUE;
++		return 1;
+ 
+ 	/*
+ 	 * 6-3: Once in that queue [CONVERTING], a conversion request cannot be
+@@ -1217,7 +1217,7 @@ static int _can_be_granted(struct dlm_rs
+ 	 */
+ 
+ 	if (!now && conv && first_in_list(lkb, &r->res_convertqueue))
+-		return TRUE;
++		return 1;
+ 
+ 	/*
+ 	 * 6-4: By default, a new request is immediately granted only if all
+@@ -1232,7 +1232,7 @@ static int _can_be_granted(struct dlm_rs
+ 
+ 	if (now && !conv && list_empty(&r->res_convertqueue) &&
+ 	    list_empty(&r->res_waitqueue))
+-		return TRUE;
++		return 1;
+ 
+ 	/*
+ 	 * 6-4: Once a lock request is in the queue of ungranted new requests,
+@@ -1244,7 +1244,7 @@ static int _can_be_granted(struct dlm_rs
+ 
+ 	if (!now && !conv && list_empty(&r->res_convertqueue) &&
+ 	    first_in_list(lkb, &r->res_waitqueue))
+-		return TRUE;
++		return 1;
+ 
+  out:
+ 	/*
+@@ -1257,7 +1257,7 @@ static int _can_be_granted(struct dlm_rs
+ 		lkb->lkb_sbflags |= DLM_SBF_DEMOTED;
+ 	}
+ 
+-	return FALSE;
++	return 0;
+ }
+ 
+ /*
+@@ -1308,7 +1308,7 @@ static int grant_pending_convert(struct 
+ 
+ 	list_for_each_entry_safe(lkb, s, &r->res_convertqueue, lkb_statequeue) {
+ 		demoted = is_demoted(lkb);
+-		if (can_be_granted(r, lkb, FALSE)) {
++		if (can_be_granted(r, lkb, 0)) {
+ 			grant_lock_pending(r, lkb);
+ 			grant_restart = 1;
+ 		} else {
+@@ -1333,7 +1333,7 @@ static int grant_pending_wait(struct dlm
+ 	struct dlm_lkb *lkb, *s;
+ 
+ 	list_for_each_entry_safe(lkb, s, &r->res_waitqueue, lkb_statequeue) {
+-		if (can_be_granted(r, lkb, FALSE))
++		if (can_be_granted(r, lkb, 0))
+ 			grant_lock_pending(r, lkb);
+                 else
+ 			high = max_t(int, lkb->lkb_rqmode, high);
+@@ -1705,7 +1705,7 @@ static int do_request(struct dlm_rsb *r,
  {
  	int error = 0;
  
--	down(&ls_lock);
-+	mutex_lock(&ls_lock);
- 	if (!ls_count)
- 		error = threads_start();
+-	if (can_be_granted(r, lkb, TRUE)) {
++	if (can_be_granted(r, lkb, 1)) {
+ 		grant_lock(r, lkb);
+ 		queue_cast(r, lkb, 0);
+ 		goto out;
+@@ -1733,7 +1733,7 @@ static int do_convert(struct dlm_rsb *r,
+ 
+ 	/* changing an existing lock may allow others to be granted */
+ 
+-	if (can_be_granted(r, lkb, TRUE)) {
++	if (can_be_granted(r, lkb, 1)) {
+ 		grant_lock(r, lkb);
+ 		queue_cast(r, lkb, 0);
+ 		grant_pending_locks(r);
+@@ -2556,7 +2556,7 @@ static void receive_convert(struct dlm_l
+ {
+ 	struct dlm_lkb *lkb;
+ 	struct dlm_rsb *r;
+-	int error, reply = TRUE;
++	int error, reply = 1;
+ 
+ 	error = find_lkb(ls, ms->m_remid, &lkb);
  	if (error)
-@@ -502,7 +502,7 @@
- 	if (!error)
- 		ls_count++;
-  out:
--	up(&ls_lock);
-+	mutex_unlock(&ls_lock);
- 	return error;
- }
- 
-@@ -628,11 +628,11 @@
- 	kobject_unregister(&ls->ls_kobj);
- 	kfree(ls);
- 
--	down(&ls_lock);
-+	mutex_lock(&ls_lock);
- 	ls_count--;
- 	if (!ls_count)
- 		threads_stop();
--	up(&ls_lock);
-+	mutex_unlock(&ls_lock);
- 
- 	module_put(THIS_MODULE);
- 	return 0;
-Index: linux/drivers/dlm/recoverd.c
+Index: linux/drivers/dlm/member.c
 ===================================================================
---- linux.orig/drivers/dlm/recoverd.c	2006-01-19 13:39:18.000000000 -0600
-+++ linux/drivers/dlm/recoverd.c	2006-01-19 14:19:13.000000000 -0600
-@@ -47,7 +47,7 @@
+--- linux.orig/drivers/dlm/member.c
++++ linux/drivers/dlm/member.c
+@@ -79,9 +79,9 @@ static int dlm_is_member(struct dlm_ls *
  
- 	log_debug(ls, "recover %llx", rv->seq);
- 
--	down(&ls->ls_recoverd_active);
-+	mutex_lock(&ls->ls_recoverd_active);
- 
- 	/*
- 	 * Suspending and resuming dlm_astd ensures that no lkb's from this ls
-@@ -201,14 +201,14 @@
- 
- 	log_debug(ls, "recover %llx done: %u ms", rv->seq,
- 		  jiffies_to_msecs(jiffies - start));
--	up(&ls->ls_recoverd_active);
-+	mutex_unlock(&ls->ls_recoverd_active);
- 
- 	return 0;
- 
-  fail:
- 	dlm_release_root_list(ls);
- 	log_debug(ls, "recover %llx error %d", rv->seq, error);
--	up(&ls->ls_recoverd_active);
-+	mutex_unlock(&ls->ls_recoverd_active);
- 	return error;
+ 	list_for_each_entry(memb, &ls->ls_nodes, list) {
+ 		if (memb->nodeid == nodeid)
+-			return TRUE;
++			return 1;
+ 	}
+-	return FALSE;
++	return 0;
  }
  
-@@ -275,11 +275,11 @@
+ int dlm_is_removed(struct dlm_ls *ls, int nodeid)
+@@ -90,9 +90,9 @@ int dlm_is_removed(struct dlm_ls *ls, in
  
- void dlm_recoverd_suspend(struct dlm_ls *ls)
+ 	list_for_each_entry(memb, &ls->ls_nodes_gone, list) {
+ 		if (memb->nodeid == nodeid)
+-			return TRUE;
++			return 1;
+ 	}
+-	return FALSE;
++	return 0;
+ }
+ 
+ static void clear_memb_list(struct list_head *head)
+@@ -178,10 +178,10 @@ int dlm_recover_members(struct dlm_ls *l
+ 	/* move departed members from ls_nodes to ls_nodes_gone */
+ 
+ 	list_for_each_entry_safe(memb, safe, &ls->ls_nodes, list) {
+-		found = FALSE;
++		found = 0;
+ 		for (i = 0; i < rv->node_count; i++) {
+ 			if (memb->nodeid == rv->nodeids[i]) {
+-				found = TRUE;
++				found = 1;
+ 				break;
+ 			}
+ 		}
+Index: linux/drivers/dlm/midcomms.c
+===================================================================
+--- linux.orig/drivers/dlm/midcomms.c
++++ linux/drivers/dlm/midcomms.c
+@@ -119,7 +119,7 @@ int dlm_process_incoming_buffer(int node
+ 
+ 		switch (msg->h_cmd) {
+ 		case DLM_MSG:
+-			dlm_receive_message(msg, nodeid, FALSE);
++			dlm_receive_message(msg, nodeid, 0);
+ 			break;
+ 
+ 		case DLM_RCOM:
+Index: linux/drivers/dlm/recover.c
+===================================================================
+--- linux.orig/drivers/dlm/recover.c
++++ linux/drivers/dlm/recover.c
+@@ -477,8 +477,8 @@ static int all_queues_empty(struct dlm_r
+ 	if (!list_empty(&r->res_grantqueue) ||
+ 	    !list_empty(&r->res_convertqueue) ||
+ 	    !list_empty(&r->res_waitqueue))
+-		return FALSE;
+-	return TRUE;
++		return 0;
++	return 1;
+ }
+ 
+ static int recover_locks(struct dlm_rsb *r)
+@@ -586,18 +586,18 @@ static void recover_lvb(struct dlm_rsb *
  {
--	down(&ls->ls_recoverd_active);
-+	mutex_lock(&ls->ls_recoverd_active);
- }
+ 	struct dlm_lkb *lkb, *high_lkb = NULL;
+ 	uint32_t high_seq = 0;
+-	int lock_lvb_exists = FALSE;
+-	int big_lock_exists = FALSE;
++	int lock_lvb_exists = 0;
++	int big_lock_exists = 0;
+ 	int lvblen = r->res_ls->ls_lvblen;
  
- void dlm_recoverd_resume(struct dlm_ls *ls)
- {
--	up(&ls->ls_recoverd_active);
-+	mutex_unlock(&ls->ls_recoverd_active);
- }
+ 	list_for_each_entry(lkb, &r->res_grantqueue, lkb_statequeue) {
+ 		if (!(lkb->lkb_exflags & DLM_LKF_VALBLK))
+ 			continue;
+ 
+-		lock_lvb_exists = TRUE;
++		lock_lvb_exists = 1;
+ 
+ 		if (lkb->lkb_grmode > DLM_LOCK_CR) {
+-			big_lock_exists = TRUE;
++			big_lock_exists = 1;
+ 			goto setflag;
+ 		}
+ 
+@@ -611,10 +611,10 @@ static void recover_lvb(struct dlm_rsb *
+ 		if (!(lkb->lkb_exflags & DLM_LKF_VALBLK))
+ 			continue;
+ 
+-		lock_lvb_exists = TRUE;
++		lock_lvb_exists = 1;
+ 
+ 		if (lkb->lkb_grmode > DLM_LOCK_CR) {
+-			big_lock_exists = TRUE;
++			big_lock_exists = 1;
+ 			goto setflag;
+ 		}
  
 Index: linux/drivers/dlm/requestqueue.c
 ===================================================================
---- linux.orig/drivers/dlm/requestqueue.c	2006-01-19 13:39:18.000000000 -0600
-+++ linux/drivers/dlm/requestqueue.c	2006-01-19 14:21:37.000000000 -0600
-@@ -47,9 +47,9 @@
- 	e->nodeid = nodeid;
- 	memcpy(e->request, hd, length);
- 
--	down(&ls->ls_requestqueue_lock);
-+	mutex_lock(&ls->ls_requestqueue_mutex);
- 	list_add_tail(&e->list, &ls->ls_requestqueue);
--	up(&ls->ls_requestqueue_lock);
-+	mutex_unlock(&ls->ls_requestqueue_mutex);
- }
- 
- int dlm_process_requestqueue(struct dlm_ls *ls)
-@@ -58,16 +58,16 @@
- 	struct dlm_header *hd;
- 	int error = 0;
- 
--	down(&ls->ls_requestqueue_lock);
-+	mutex_lock(&ls->ls_requestqueue_mutex);
- 
- 	for (;;) {
- 		if (list_empty(&ls->ls_requestqueue)) {
--			up(&ls->ls_requestqueue_lock);
-+			mutex_unlock(&ls->ls_requestqueue_mutex);
- 			error = 0;
- 			break;
- 		}
- 		e = list_entry(ls->ls_requestqueue.next, struct rq_entry, list);
--		up(&ls->ls_requestqueue_lock);
-+		mutex_unlock(&ls->ls_requestqueue_mutex);
+--- linux.orig/drivers/dlm/requestqueue.c
++++ linux/drivers/dlm/requestqueue.c
+@@ -70,7 +70,7 @@ int dlm_process_requestqueue(struct dlm_
+ 		up(&ls->ls_requestqueue_lock);
  
  		hd = (struct dlm_header *) e->request;
- 		error = dlm_receive_message(hd, e->nodeid, 1);
-@@ -78,13 +78,13 @@
- 			break;
- 		}
+-		error = dlm_receive_message(hd, e->nodeid, TRUE);
++		error = dlm_receive_message(hd, e->nodeid, 1);
  
--		down(&ls->ls_requestqueue_lock);
-+		mutex_lock(&ls->ls_requestqueue_mutex);
- 		list_del(&e->list);
- 		kfree(e);
- 
- 		if (dlm_locking_stopped(ls)) {
- 			log_debug(ls, "process_requestqueue abort running");
--			up(&ls->ls_requestqueue_lock);
-+			mutex_unlock(&ls->ls_requestqueue_mutex);
- 			error = -EINTR;
- 			break;
- 		}
-@@ -105,15 +105,15 @@
- void dlm_wait_requestqueue(struct dlm_ls *ls)
- {
- 	for (;;) {
--		down(&ls->ls_requestqueue_lock);
-+		mutex_lock(&ls->ls_requestqueue_mutex);
- 		if (list_empty(&ls->ls_requestqueue))
- 			break;
- 		if (dlm_locking_stopped(ls))
- 			break;
--		up(&ls->ls_requestqueue_lock);
-+		mutex_unlock(&ls->ls_requestqueue_mutex);
- 		schedule();
- 	}
--	up(&ls->ls_requestqueue_lock);
-+	mutex_unlock(&ls->ls_requestqueue_mutex);
- }
- 
- static int purge_request(struct dlm_ls *ls, struct dlm_message *ms, int nodeid)
-@@ -170,7 +170,7 @@
- 	struct dlm_message *ms;
- 	struct rq_entry *e, *safe;
- 
--	down(&ls->ls_requestqueue_lock);
-+	mutex_lock(&ls->ls_requestqueue_mutex);
- 	list_for_each_entry_safe(e, safe, &ls->ls_requestqueue, list) {
- 		ms = (struct dlm_message *) e->request;
- 
-@@ -179,6 +179,6 @@
- 			kfree(e);
- 		}
- 	}
--	up(&ls->ls_requestqueue_lock);
-+	mutex_unlock(&ls->ls_requestqueue_mutex);
- }
- 
+ 		if (error == -EINTR) {
+ 			/* entry is left on requestqueue */

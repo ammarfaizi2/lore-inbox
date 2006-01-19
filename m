@@ -1,41 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161117AbWASAsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161120AbWASAs5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161117AbWASAsj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 19:48:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161119AbWASAsj
+	id S1161120AbWASAs5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 19:48:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161119AbWASAs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 19:48:39 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:44687
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1161117AbWASAsi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 19:48:38 -0500
-Date: Wed, 18 Jan 2006 16:48:39 -0800 (PST)
-Message-Id: <20060118.164839.74431051.davem@davemloft.net>
-To: bos@pathscale.com
-Cc: akpm@osdl.org, rdreier@cisco.com, linux-kernel@vger.kernel.org,
-       greg@kroah.com, openib-general@openib.org
-Subject: Re: RFC: ipath ioctls and their replacements
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <1137631411.4757.218.camel@serpentine.pathscale.com>
-References: <1137631411.4757.218.camel@serpentine.pathscale.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Jan 2006 19:48:56 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:41481 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161120AbWASAsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 19:48:55 -0500
+Date: Thu, 19 Jan 2006 01:48:54 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Max Waterman <davidmaxwaterman+kernel@fastmail.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: io performance...
+Message-ID: <20060119004853.GP19398@stusta.de>
+References: <43CB4CC3.4030904@fastmail.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43CB4CC3.4030904@fastmail.co.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Bryan O'Sullivan <bos@pathscale.com>
-Date: Wed, 18 Jan 2006 16:43:31 -0800
+On Mon, Jan 16, 2006 at 03:35:31PM +0800, Max Waterman wrote:
+> Hi,
+> 
+> I've been referred to this list from the linux-raid list.
+> 
+> I've been playing with a RAID system, trying to obtain best bandwidth
+> from it.
+> 
+> I've noticed that I consistently get better (read) numbers from kernel 2.6.8
+> than from later kernels.
+> 
+> For example, I get 135MB/s on 2.6.8, but I typically get ~90MB/s on later
+> kernels.
+> 
+> I'm using this :
+> 
+> <http://www.sharcnet.ca/~hahn/iorate.c>
+> 
+> to measure the iorate. I'm using the debian distribution. The h/w is a 
+> MegaRAID
+> 320-2. The array I'm measuring is a RAID0 of 4 Fujitsu Max3073NC 15Krpm 
+> drives.
+> 
+> The later kernels I've been using are :
+> 
+> 2.6.12-1-686-smp
+> 2.6.14-2-686-smp
+> 2.6.15-1-686-smp
+> 
+> The kernel which gives us the best results is :
+> 
+> 2.6.8-2-386
+> 
+> (note that it's not an smp kernel)
+> 
+> I'm testing on an otherwise idle system.
+> 
+> Any ideas to why this might be? Any other advice/help?
 
-> Obviously, we'd prefer the number to be zero, but I don't think we
-> can do that without submitting a driver that isn't very useful.
+You should try to narrow the problem a bit down.
 
-You can use an interface such a netlink for device configuration.
-It can do better type checking, can be used by generic tools, and
-some day soon will be transferable over the wire so that one can
-perform remote configuration changes.
+Possible causes are:
+- kernel regression between 2.6.8 and 2.6.12
+- SMP <-> !SMP support
+- patches and/or configuration changes in the Debian kernels
 
-Let's let ioctl()'s go the way of the cave man.  It's one of the
-worst designed interfaces undef UNIX :)
+You should try self-compiled unmodified 2.6.8 and 2.6.12 ftp.kernel.org 
+kernels with the same .config (modulo differences by "make oldconfig").
+
+After this test, you know whether you are in the first case.
+If yes, you could do a bisect search for finding the point where the 
+regression started.
+
+> Thanks!
+> 
+> Max.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

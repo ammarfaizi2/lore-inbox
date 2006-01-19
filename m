@@ -1,103 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161063AbWASEGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161065AbWASEHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161063AbWASEGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 23:06:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161065AbWASEGY
+	id S1161065AbWASEHV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 23:07:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161062AbWASEHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 23:06:24 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:15073 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161063AbWASEGY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 23:06:24 -0500
-Date: Thu, 19 Jan 2006 09:35:49 +0530
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+	Wed, 18 Jan 2006 23:07:20 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:22932
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1161065AbWASEHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 23:07:19 -0500
+Date: Wed, 18 Jan 2006 20:07:11 -0800
+From: Greg KH <gregkh@suse.de>
 To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, prasanna@in.ibm.com,
-       anil.s.keshavamurthy@intel.com, davem@davemloft.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] kernel/kprobes.c: fix a warning #ifndef ARCH_SUPPORTS_KRETPROBES
-Message-ID: <20060119040549.GA2326@in.ibm.com>
-Reply-To: ananth@in.ibm.com
-References: <20060119021154.GD19398@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/base/: proper prototypes
+Message-ID: <20060119040711.GA17312@suse.de>
+References: <20060119013242.GX19398@stusta.de> <20060119025146.GA15257@suse.de> <20060119032808.GJ19398@stusta.de> <20060119033532.GA16518@suse.de> <20060119034011.GK19398@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060119021154.GD19398@stusta.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060119034011.GK19398@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 03:11:54AM +0100, Adrian Bunk wrote:
-> This patch fixes the following warning #ifndef ARCH_SUPPORTS_KRETPROBES:
+On Thu, Jan 19, 2006 at 04:40:11AM +0100, Adrian Bunk wrote:
+> On Wed, Jan 18, 2006 at 07:35:32PM -0800, Greg KH wrote:
+> > On Thu, Jan 19, 2006 at 04:28:08AM +0100, Adrian Bunk wrote:
+> > > On Wed, Jan 18, 2006 at 06:51:47PM -0800, Greg KH wrote:
+> > > > On Thu, Jan 19, 2006 at 02:32:42AM +0100, Adrian Bunk wrote:
+> > > > > This patch contains the following changes:
+> > > > > - move prototypes to base.h
+> > > > > - sys.c should #include "base.h" for getting the prototype of it's
+> > > > >   global function system_bus_init()
+> > > > > 
+> > > > > Note that hidden in this patch there's a bugfix:
+> > > > > 
+> > > > > Caller and callee disagreed regarding the return type of 
+> > > > > sysdev_shutdown().
+> > > > > 
+> > > > > 
+> > > > > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > > > > 
+> > > > > ---
+> > > > > 
+> > > > >  drivers/base/base.h           |    6 ++++++
+> > > > >  drivers/base/power/resume.c   |    3 +--
+> > > > >  drivers/base/power/shutdown.c |    2 +-
+> > > > >  drivers/base/power/suspend.c  |    3 +--
+> > > > >  drivers/base/sys.c            |    2 ++
+> > > > >  5 files changed, 11 insertions(+), 5 deletions(-)
+> > > > > 
+> > > > > --- linux-2.6.16-rc1-mm1-full/drivers/base/base.h.old	2006-01-18 23:17:52.000000000 +0100
+> > > > > +++ linux-2.6.16-rc1-mm1-full/drivers/base/base.h	2006-01-18 23:41:33.000000000 +0100
+> > > > > @@ -1,6 +1,8 @@
+> > > > >  
+> > > > >  /* initialisation functions */
+> > > > >  
+> > > > > +#include <linux/device.h>
+> > > > > +
+> > > > 
+> > > > Why is this extra #include needed?  It shouldn't be.
+> > > 
+> > > struct class_device and struct class_device_attribute are needed since 
+> > > they are used in base.h .
+> > 
+> > But anyone who includes base.h will have already included this header
+> > file, right?  That was my point.
 > 
-> <--  snip  -->
-> 
-> ...
->   CC      kernel/kprobes.o
-> kernel/kprobes.c:353: warning: 'pre_handler_kretprobe' defined but not used
-> ...
-> 
-> <--  snip  -->
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Acked-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+> drivers/base/sys.c doesn't (this is why I noticed it).
 
-Ananth
-> 
-> ---
-> 
-> This patch was already sent on:
-> - 14 Jan 2006
-> 
-> --- linux-2.6.15-mm4-sparc64/kernel/kprobes.c.old	2006-01-14 20:17:59.000000000 +0100
-> +++ linux-2.6.15-mm4-sparc64/kernel/kprobes.c	2006-01-14 20:19:03.000000000 +0100
-> @@ -344,23 +344,6 @@
->  	spin_unlock_irqrestore(&kretprobe_lock, flags);
->  }
->  
-> -/*
-> - * This kprobe pre_handler is registered with every kretprobe. When probe
-> - * hits it will set up the return probe.
-> - */
-> -static int __kprobes pre_handler_kretprobe(struct kprobe *p,
-> -					   struct pt_regs *regs)
-> -{
-> -	struct kretprobe *rp = container_of(p, struct kretprobe, kp);
-> -	unsigned long flags = 0;
-> -
-> -	/*TODO: consider to only swap the RA after the last pre_handler fired */
-> -	spin_lock_irqsave(&kretprobe_lock, flags);
-> -	arch_prepare_kretprobe(rp, regs);
-> -	spin_unlock_irqrestore(&kretprobe_lock, flags);
-> -	return 0;
-> -}
-> -
->  static inline void free_rp_inst(struct kretprobe *rp)
->  {
->  	struct kretprobe_instance *ri;
-> @@ -578,6 +561,23 @@
->  
->  #ifdef ARCH_SUPPORTS_KRETPROBES
->  
-> +/*
-> + * This kprobe pre_handler is registered with every kretprobe. When probe
-> + * hits it will set up the return probe.
-> + */
-> +static int __kprobes pre_handler_kretprobe(struct kprobe *p,
-> +					   struct pt_regs *regs)
-> +{
-> +	struct kretprobe *rp = container_of(p, struct kretprobe, kp);
-> +	unsigned long flags = 0;
-> +
-> +	/*TODO: consider to only swap the RA after the last pre_handler fired */
-> +	spin_lock_irqsave(&kretprobe_lock, flags);
-> +	arch_prepare_kretprobe(rp, regs);
-> +	spin_unlock_irqrestore(&kretprobe_lock, flags);
-> +	return 0;
-> +}
-> +
->  int __kprobes register_kretprobe(struct kretprobe *rp)
->  {
->  	int ret = 0;
-> 
+Then it would be easier to add it there, if needed, than adding it to
+base.h where it will tried to be included twice for all of the other
+driver core files :)
+
+Care to redo it?
+
+thanks,
+
+greg k-h

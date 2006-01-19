@@ -1,72 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161114AbWASKZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161198AbWASK06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161114AbWASKZI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 05:25:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161179AbWASKZI
+	id S1161198AbWASK06 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 05:26:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161337AbWASK06
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 05:25:08 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:44571 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1161114AbWASKZG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 05:25:06 -0500
-Message-ID: <43CF693D.4020104@sw.ru>
-Date: Thu, 19 Jan 2006 13:26:05 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Thu, 19 Jan 2006 05:26:58 -0500
+Received: from general.keba.co.at ([193.154.24.243]:19332 "EHLO
+	helga.keba.co.at") by vger.kernel.org with ESMTP id S1161198AbWASK05 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 05:26:57 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Jan Blunck <jblunck@suse.de>
-CC: Olaf Hering <olh@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
-References: <20060116223431.GA24841@suse.de> <43CC2AF8.4050802@sw.ru> <20060118224953.GA31364@hasse.suse.de> <43CF6170.3050608@sw.ru> <20060119100443.GD10267@hasse.suse.de>
-In-Reply-To: <20060119100443.GD10267@hasse.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: My vote against eepro* removal
+Date: Thu, 19 Jan 2006 11:26:51 +0100
+Message-ID: <AAD6DA242BC63C488511C611BD51F367323322@MAILIT.keba.co.at>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: My vote against eepro* removal
+Thread-Index: AcYcyXLu7ygelEPvQ1GAEXvAEf8NMQAFtQ5Q
+From: "kus Kusche Klaus" <kus@keba.com>
+To: "Lee Revell" <rlrevell@joe-job.com>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>This patch has nothing to do with vfsmount references and doesn't hide 
->>anything. It just adds syncronization barrier between do_umount() and 
->>shrink_dcache() since the latter can work with dentries/inodes without 
->>holding locks.
->>
->>So if you think there is something wrong with it, please, be more specific.
->>
+> From: Lee Revell
+> On Thu, 2006-01-19 at 08:19 +0100, kus Kusche Klaus wrote:
+> > Last time I tested (around 2.6.12), eepro100 worked much better 
+> > in -rt kernels w.r.t. latencies than e100:
+> > 
+> > e100 caused a periodic latency of about 500 microseconds
+> > exactly every 2 seconds, no matter what the load on the interface
+> > was (i.e. even on an idle interface).
+> > 
+> > eepro100 did not show any latencies that long, it worked much
+> > smoother w.r.t. latencies.
+> > 
+> > Of course I would prefer to have e100 fixed over keeping eepro100
+> > around forever, but the last time I checked, it still wasn't fixed.
 > 
-> 
-> You can only unmount a file system if there are no references to the vfsmount
-> object anymore. Since shrink_dcache*() is called after checking the refcount of
-> vfsmount while unmounting the file system, it isn't possible to hold a
-> reference to a dentry (and therefore call dput()) after this point in
-> time. Therefore your reference counting on the vfsmount is wrong which is the
-> root case for your problem of busy inodes.
+> Please provide latency traces to illustrate the problematic code path.
 
-You didn't take into account shrink_dcache*() on memory pressure. It 
-works when it works. And when it calls dput() it detaches dentry from 
-the whole tree and starts to work with inode. do_umount() can 
-successfully shrink the other part of the tree, since dentry in question 
-is detached, complain about busy inode (it is really being put on 
-another CPU, but still busy) and destroy super block.
+It's not a "latency": As far as I can tell, interrupts or preemption
+are not disabled, the latency tracer doesn't show anything.
 
-another scenario from patch comment:
+I just noticed that low-pri rt processes did not get scheduled for
+about 500 microseconds when e100 was active (even if the net was
+idle), and that there were no such breaks with eepro100.
 
-CPU 1				CPU 2
-~~~~~				~~~~~
-umount /dev/sda1
-generic_shutdown_super          shrink_dcache_memory()
-shrink_dcache_parent            dput dentry
-select_parent                   prune_one_dentry()
-                                 <<<< child is dead, locks are released,
-                                   but parent is still referenced!!! >>>>
-skip dentry->parent,
-since it's d_count > 0
+I didn't analyze it in detail at that time, I believed that the e100
+interrupt handler thread was running every 2 seconds for 500 
+microseconds, because the interrupt count of eth0 incremented every
+2 seconds, exactly when my rt processes paused.
 
-message: BUSY inodes after umount...
-                                 <<< parent is left on dentry_unused list,
-                                    referencing freed super block >>>
+This would be bad: That irq thread is at rt prio 47 on my system, 
+above many importent things.
 
+However, I checked more closely now, and found out that only a small
+portion of the 500 microseconds is spent in the irq thread. Most of
+it is spent in the timer thread, at rt prio 1, so the whole thing
+is a much smaller problem than I originally believed.
 
-Kirill
+Must be the function e100_watchdog.
 
+> It sounds like you have known about this issue for a while, were you
+> waiting for it to fix itself?
 
+See my other reply: I didn't notice that eepro100 is to be removed,
+and as long as eepro100 was there, it was no problem for me.
+
+-- 
+Klaus Kusche                 (Software Development - Control Systems)
+KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
+Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
+E-Mail: kus@keba.com                                WWW: www.keba.com
+ 

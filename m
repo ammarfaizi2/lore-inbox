@@ -1,249 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbWASFlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbWASFnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932542AbWASFlj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 00:41:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWASFlj
+	id S932486AbWASFnd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 00:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932545AbWASFnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 00:41:39 -0500
-Received: from ns.intellilink.co.jp ([61.115.5.249]:48322 "EHLO
-	mail.intellilink.co.jp") by vger.kernel.org with ESMTP
-	id S932542AbWASFli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 00:41:38 -0500
-Subject: Re: [PATCH 4/5] stack overflow safe kdump (2.6.15-i386) - nmi
-	handler and trap vector replacement
-From: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>
-To: vgoyal@in.ibm.com
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, ak@suse.de,
-       linux-kernel@vger.kernel.org, fastboot@lists.osdl.org
-In-Reply-To: <20060118020757.GF23143@in.ibm.com>
-References: <1137417904.2256.87.camel@localhost.localdomain>
-	 <20060118020757.GF23143@in.ibm.com>
-Content-Type: text/plain
-Organization: =?UTF-8?Q?NTT=E3=83=87=E3=83=BC=E3=82=BF=E5=85=88=E7=AB=AF=E6=8A=80?=
-	=?UTF-8?Q?=E8=A1=93=E6=A0=AA=E5=BC=8F=E4=BC=9A=E7=A4=BE?=
-Date: Thu, 19 Jan 2006 14:41:31 +0900
-Message-Id: <1137649291.2985.27.camel@localhost.localdomain>
+	Thu, 19 Jan 2006 00:43:33 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:22686
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S932486AbWASFnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 00:43:33 -0500
+Date: Wed, 18 Jan 2006 21:43:31 -0800
+From: Greg KH <greg@kroah.com>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org, rdreier@cisco.com,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: RFC: ipath ioctls and their replacements
+Message-ID: <20060119054331.GC21467@kroah.com>
+References: <1137631411.4757.218.camel@serpentine.pathscale.com> <20060118.164839.74431051.davem@davemloft.net> <1137633256.4757.225.camel@serpentine.pathscale.com> <20060118.171716.04998471.davem@davemloft.net> <1137647821.25584.33.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1137647821.25584.33.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-17 at 21:07 -0500, Vivek Goyal wrote:
-> On Mon, Jan 16, 2006 at 10:25:04PM +0900, Fernando Luis Vazquez Cao wrote:
-> > In the nmi path, we have the problem that both nmi_enter and nmi_exit in
-> > do_nmi (see code below) make extensive use of "current" (which might be
-> > invalid) indirectly (specially through the kernel preemption code).
-> > Create a new nmi trap handler robust against stack overflows and use it
-> > on the crash dump path.
-> > 
-> > ---
-> > diff -urNp linux-2.6.15/arch/i386/kernel/crash.c
-> > linux-2.6.15-sov/arch/i386/kernel/crash.c
-> > --- linux-2.6.15/arch/i386/kernel/crash.c	2006-01-16 20:29:50.000000000
-> > +0900
-> > +++ linux-2.6.15-sov/arch/i386/kernel/crash.c	2006-01-16
-> > 20:33:55.000000000 +0900
-> > @@ -22,6 +22,7 @@
-> >  #include <asm/nmi.h>
-> >  #include <asm/hw_irq.h>
-> >  #include <asm/apic.h>
-> > +#include <mach_traps.h>
-> >  #include <mach_ipi.h>
-> >  
-> >  
-> > @@ -142,6 +143,7 @@ static int crash_nmi_callback(struct pt_
-> >  	if (cpu == crashing_cpu)
-> >  		return 1;
-> >  	local_irq_disable();
-> > +	disable_nmi();
-> >  
-> >  	if (!user_mode(regs)) {
-> >  		crash_setup_regs(&fixed_regs, regs);
-> > @@ -167,13 +169,18 @@ static void smp_send_nmi_allbutself(void
-> >  	send_IPI_allbutself(APIC_DM_NMI);
-> >  }
-> >  
-> > +static void set_crash_nmi(void)
-> > +{
-> > +	set_crash_nmi_callback(crash_nmi_callback);
-> > +}
-> > +
+On Wed, Jan 18, 2006 at 09:17:01PM -0800, Bryan O'Sullivan wrote:
+> On Wed, 2006-01-18 at 17:17 -0800, David S. Miller wrote:
 > 
-> Is it required to be a separate function? Probably can call
-> set_crash_nmi_callback() directly.
-Thanks for the catch.
-
-> >  static void nmi_shootdown_cpus(void)
-> >  {
-> >  	unsigned long msecs;
-> >  
-> >  	atomic_set(&waiting_for_crash_ipi, num_online_cpus() - 1);
-> > -	/* Would it be better to replace the trap vector here? */
-> > -	set_nmi_callback(crash_nmi_callback);
-> > +	/* Set the nmi handler appropriately for the crash case */
-> > +	set_crash_nmi();
-> >  	/* Ensure the new callback function is set before sending
-> >  	 * out the NMI
-> >  	 */
-> > diff -urNp linux-2.6.15/arch/i386/kernel/entry.S
-> > linux-2.6.15-sov/arch/i386/kernel/entry.S
-> > --- linux-2.6.15/arch/i386/kernel/entry.S	2006-01-03 12:21:10.000000000
-> > +0900
-> > +++ linux-2.6.15-sov/arch/i386/kernel/entry.S	2006-01-16
-> > 21:52:24.000000000 +0900
-> > @@ -590,6 +590,41 @@ nmi_16bit_stack:
-> >  	.long 1b,iret_exc
-> >  .previous
-> >  
-> > +ENTRY(crash_nmi)
-> > +	pushl %eax
-> > +	movl %ss, %eax
-> > +	cmpw $__ESPFIX_SS, %ax
-> > +	popl %eax
-> > +	je crash_nmi_16bit_stack
-> > +	pushl %eax
-> > +	SAVE_ALL
-> > +	xorl %edx,%edx		# zero error code
-> > +	movl %esp,%eax		# pt_regs pointer
-> > +	call do_crash_nmi
-> > +	jmp restore_all
-> > +crash_nmi_16bit_stack:
-> > +	/* create the pointer to lss back */
-> > +	pushl %ss
-> > +	pushl %esp
-> > +	movzwl %sp, %esp
-> > +	addw $4, (%esp)
-> > +	/* copy the iret frame of 12 bytes */
-> > +        .rept 3
-> > +	pushl 16(%esp)
-> > +	.endr
-> > +	pushl %eax
-> > +	SAVE_ALL
-> > +	FIXUP_ESPFIX_STACK              # %eax == %esp
-> > +	xorl %edx,%edx                  # zero error code
-> > +	call do_crash_nmi
-> > +	RESTORE_REGS
-> > +	lss 12+4(%esp), %esp            # back to 16bit stack
-> > +1:      iret
-> > +.section __ex_table,"a"
-> > +	.align 4
-> > +	.long 1b,iret_exc
-> > +.previous
-> > +
-> >  KPROBE_ENTRY(int3)
-> >  	pushl $-1			# mark this as an int
-> >  	SAVE_ALL
-> > diff -urNp linux-2.6.15/arch/i386/kernel/traps.c
-> > linux-2.6.15-sov/arch/i386/kernel/traps.c
-> > --- linux-2.6.15/arch/i386/kernel/traps.c	2006-01-03 12:21:10.000000000
-> > +0900
-> > +++ linux-2.6.15-sov/arch/i386/kernel/traps.c	2006-01-16
-> > 20:51:31.000000000 +0900
-> > @@ -74,6 +74,7 @@ struct desc_struct idt_table[256] __attr
-> >  asmlinkage void divide_error(void);
-> >  asmlinkage void debug(void);
-> >  asmlinkage void nmi(void);
-> > +asmlinkage void crash_nmi(void);
-> >  asmlinkage void int3(void);
-> >  asmlinkage void overflow(void);
-> >  asmlinkage void bounds(void);
-> > @@ -641,23 +642,37 @@ static int dummy_nmi_callback(struct pt_
-> >  }
-> >   
-> >  static nmi_callback_t nmi_callback = dummy_nmi_callback;
-> > - 
-> > -fastcall void do_nmi(struct pt_regs * regs, long error_code)
-> > +
-> > +static fastcall unsigned int __do_nmi(struct pt_regs * regs, long
-> > error_code)
-> >  {
-> >  	int cpu;
-> >  
-> > -	nmi_enter();
-> > -
-> > -	cpu = smp_processor_id();
-> > +	cpu = safe_smp_processor_id();
-> >  
-> >  	++nmi_count(cpu);
-> >  
-> >  	if (!rcu_dereference(nmi_callback)(regs, cpu))
-> >  		default_do_nmi(regs);
-> >  
-> > +	return 0;
-> > +}
-> > +
-> > +#define _do_nmi(regs, error_code, nmih) nmih(regs, error_code);
-> > +
-> > +fastcall void do_nmi(struct pt_regs * regs, long error_code)
-> > +{
-> > +	nmi_enter();
-> > +
-> > +	_do_nmi(regs, error_code, __do_nmi);
-> > +
-> >  	nmi_exit();
-> >  }
-> >  
-> > +fastcall void do_crash_nmi(struct pt_regs * regs, long error_code)
-> > +{
-> > +	_do_nmi(regs, error_code, __do_nmi);
-> > +}
-> > +
-> >  void set_nmi_callback(nmi_callback_t callback)
-> >  {
-> >  	rcu_assign_pointer(nmi_callback, callback);
-> > @@ -670,6 +685,17 @@ void unset_nmi_callback(void)
-> >  }
-> >  EXPORT_SYMBOL_GPL(unset_nmi_callback);
-> >  
-> > +void set_crash_nmi_callback(nmi_callback_t callback)
-> > +{
-> > +	/* XXX Do we need to do this atomically? */
-> > +	disable_nmi();
-> > +	unset_nmi_callback();
-> > +	/* Replace the trap vector */
-> > +	set_intr_gate(2,&crash_nmi);
-> > +	rcu_assign_pointer(nmi_callback, callback);
-> > +}
-> > +EXPORT_SYMBOL_GPL(set_crash_nmi_callback);
-> > +
+> > It's going to give you strict typing, and extensible attributes for
+> > the configuration attributes you define.  So if you determine later
+> > "oh we need to add this knob for changing X" you can do that without
+> > breaking the existing interface.
 > 
-> Why do we need to export this symbol?
-This is a vestige of the code I used for testing. Sure, we do not need
-to export this symbol.
+> Wow.  OK, that is not immediately obvious from reading the code.  The
+> only modules in drivers/ that seem to use netlink are iscsi, connector,
+> and w1.  It's more extensive in net/, I see.
 
-> In fact, probably can get rid of 
-> set_crash_nmi_callback(). After the system crash and replacing the trap
-> vector, proably there is no point in keeping mutiple type of callback
-> things. Action is more or less decided, that is save registers and halt
-> upon an NMI.
-I implemented the callback mechanism for flexibility. I think that on
-the event of a system crash we may want to do something different than
-booting a crash dump capturing kernel: failover, just shutting down the
-system, etc.
+The attribute stuff is pretty new, and I do not think any code in
+drivers/ uses it yet.  But it is well documented in
+include/net/netlink.h, have you looked at that?
 
-> >  #ifdef CONFIG_KPROBES
-> >  fastcall void __kprobes do_int3(struct pt_regs *regs, long error_code)
-> >  {
-> > diff -urNp linux-2.6.15/include/asm-i386/mach-default/mach_traps.h
-> > linux-2.6.15-sov/include/asm-i386/mach-default/mach_traps.h
-> > --- linux-2.6.15/include/asm-i386/mach-default/mach_traps.h	2006-01-03
-> > 12:21:10.000000000 +0900
-> > +++ linux-2.6.15-sov/include/asm-i386/mach-default/mach_traps.h
-> > 2006-01-16 20:33:55.000000000 +0900
-> > @@ -20,6 +20,11 @@ static inline unsigned char get_nmi_reas
-> >  	return inb(0x61);
-> >  }
-> >  
-> > +static inline void disable_nmi(void)
-> > +{
-> > +	outb(0x8f, 0x70);
-> > +}
-> > +
+> > Try not to get discouraged, give it a shot :)
 > 
-> Will it disable NMIs originating from LAPIC?
-I think that, at least, this disables NMIs originating from "external"
-sources (NMI watchdog, etc). I am not sure if it applies to NMIs
-originating from the LAPIC too. Anyway, the former are the interrupts I
-want to prevent from happening. Eric, could you comment on this?
+> It's not obvious what chunk of the the tree is a good example to follow.
+> Just look what happened when I suggested to Greg that I use the Dell
+> firmware loader as an example :-)
 
+Well, it is good that you asked, far too many people do not.  And others
+wonder why we are so insistant on everyone doing things properly in all
+parts of the kernel, it's because of this reason.
+
+Which reminds me to go back and look at that dell driver again...
+
+thanks,
+
+greg k-h

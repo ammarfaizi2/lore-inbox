@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422638AbWASVxr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161446AbWASVxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422638AbWASVxr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 16:53:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161449AbWASVxq
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 16:53:46 -0500
-Received: from 81-179-234-91.dsl.pipex.com ([81.179.234.91]:27589 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1161448AbWASVxp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1161446AbWASVxp (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 19 Jan 2006 16:53:45 -0500
-Date: Thu, 19 Jan 2006 21:52:36 +0000
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dave Hansen <haveblue@us.ibm.com>, Mel Gorman <mel@csn.ul.ie>,
-       lhms-devel@lists.sourceforge.net, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH 1/2] GFP_ZONETYPES add commentry on how to calculate
-Message-ID: <20060119215236.GA29614@shadowen.org>
-References: <1137205485.7130.81.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-InReply-To: <1137205485.7130.81.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
-From: Andy Whitcroft <apw@shadowen.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161447AbWASVxo
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 19 Jan 2006 16:53:44 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:48015 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1161446AbWASVxn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 16:53:43 -0500
+Subject: Re: [openib-general] Re: RFC: ipath ioctls and their replacements
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Sean Hefty <mshefty@ichips.intel.com>, Andrew Morton <akpm@osdl.org>,
+       Greg Kroah-Hartman <greg@kroah.com>, Roland Dreier <rdreier@cisco.com>,
+       linux-kernel@vger.kernel.org, openib-general@openib.org,
+       "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <m1oe28nemx.fsf@ebiederm.dsl.xmission.com>
+References: <1137631411.4757.218.camel@serpentine.pathscale.com>
+	 <m1y81cpqt8.fsf@ebiederm.dsl.xmission.com>
+	 <1137688158.3693.29.camel@serpentine.pathscale.com>
+	 <m1hd80oz9b.fsf@ebiederm.dsl.xmission.com>
+	 <43CFDF5F.5060409@ichips.intel.com>
+	 <1137696901.3693.66.camel@serpentine.pathscale.com>
+	 <m1oe28nemx.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Thu, 19 Jan 2006 13:53:43 -0800
+Message-Id: <1137707623.3693.97.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GFP_ZONETYPES define using GFP_ZONEMASK and add commentry
+On Thu, 2006-01-19 at 13:31 -0700, Eric W. Biederman wrote:
 
-Add commentry explaining the optimisation that we can apply to
-GFP_ZONETYPES when the lest most bit is a 'loaner', it can only be
-set in isolation.
+> Ok this is one piece of the puzzle.  At your lowest level your hardware
+> does not have QP's but it does have something similar to isolate a userspace
+> process correct?
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
----
- mmzone.h |    8 ++++++++
- 1 file changed, 8 insertions(+)
-diff -upN reference/include/linux/mmzone.h current/include/linux/mmzone.h
---- reference/include/linux/mmzone.h
-+++ current/include/linux/mmzone.h
-@@ -91,6 +91,14 @@ struct per_cpu_pageset {
-  * be 8 (2 ** 3) zonelists.  GFP_ZONETYPES defines the number of possible
-  * combinations of zone modifiers in "zone modifier space".
-  *
-+ * As an optimisation any zone modifier bits which are only valid when
-+ * no other zone modifier bits are set (loners) should be placed in
-+ * the highest order bits of this field.  This allows us to reduce the
-+ * extent of the zonelists thus saving space.  For example in the case
-+ * of three zone modifier bits, we could require up to eight zonelists.
-+ * If the left most zone modifier is a "loner" then the highest valid
-+ * zonelist would be four allowing us to allocate only five zonelists.
-+ *
-  * NOTE! Make sure this matches the zones in <linux/gfp.h>
-  */
- #define GFP_ZONEMASK	0x07
+Right.  We implement almost none of the IB protocols in hardware.
+
+	<b
+

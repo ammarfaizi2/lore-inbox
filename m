@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbWASRqD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161017AbWASRtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751356AbWASRqD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 12:46:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161046AbWASRqD
+	id S1161017AbWASRtM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 12:49:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWASRtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 12:46:03 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1540 "HELO
+	Thu, 19 Jan 2006 12:49:12 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:4868 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751356AbWASRqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 12:46:01 -0500
-Date: Thu, 19 Jan 2006 18:46:00 +0100
+	id S1751374AbWASRtM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 12:49:12 -0500
+Date: Thu, 19 Jan 2006 18:49:11 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Cc: alsa-devel@alsa-project.org, perex@suse.cz
-Subject: RFC: OSS driver removal, a slightly different approach
-Message-ID: <20060119174600.GT19398@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Michael H. Warfield" <mhw@WittsEnd.com>
+Subject: [git patch] Move ip2.c and ip2main.c to drivers/char/ip2/
+Message-ID: <20060119174911.GV19398@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,140 +23,38 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My proposal to remove OSS drivers where ALSA drivers for the same 
-hardware exists had two reasons:
+Linus, please pull from:
 
-1. remove obsolete and mostly unmaintained code
-2. get bugs in the ALSA drivers reported that weren't previously
-   reported due to the possible workaround of using the OSS drivers
-
-I'm slowly getting more and more reports for the second case.
+  git://git.kernel.org/pub/scm/linux/kernel/git/bunk/trivial.git
 
 
-The list below divides the OSS drivers into the following three 
-categories:
-1. ALSA drivers for the same hardware
-2. ALSA drivers for the same hardware with known problems
-3. no ALSA drivers for the same hardware
+This tree contains the following change:
+
+    Move ip2.c and ip2main.c to drivers/char/ip2/ where the other files
+    used by this driver reside.
+    
+    Renamed ip2.c to ip2base.c to allow ip2.o to be built from multiple
+    objects.
+    
+    Signed-off-by: Adrian Bunk <bunk@stusta.de>
+    Acked-by: Michael H. Warfield <mhw@WittsEnd.com>
 
 
-My proposed timeline is:
-- shortly before 2.6.16 is released:
-  adjust OBSOLETE_OSS_DRIVER dependencies to match exactly the
-  drivers under 1.
-- from the release of 2.6.16 till the release of 2.6.17:
-  approx. two months for users to report problems with the ALSA
-  drivers for the same hardware
-- after the release of 2.6.17 (and before 2.6.18):
-  remove the subset of drivers marked at OBSOLETE_OSS_DRIVER without
-  known regressions in the ALSA drivers for the same hardware
+The diffstat is big, but changes are actually only:
+- move ip2.c and ip2main.c to drivers/char/ip2/
+- rename ip2.c to ip2base.c (the module is still called ip2)
+- adjust some #include's in the moved files to the new location
+
+Further cleanup patches will go the usual way through Michael/Andrew, 
+but this straightforward moving of files should be done through git.
 
 
-To make a long story short:
+ drivers/char/Makefile      |    2 
+ drivers/char/ip2.c         |  109 -
+ drivers/char/ip2/Makefile  |    8 
+ drivers/char/ip2/ip2base.c |  109 +
+ drivers/char/ip2/ip2main.c | 3260 +++++++++++++++++++++++++++++++++++++
+ drivers/char/ip2main.c     | 3260 -------------------------------------
+ 6 files changed, 3378 insertions(+), 3370 deletions(-)
 
-If you are using an OSS driver because the ALSA driver doesn't work 
-equally well on your hardware, send me an email with a bug number in the 
-ALSA bug tracking system now.
-
-
-A small FAQ:
-
-Q: But OSS is kewl and ALSA sucks!
-A: The decision for the OSS->ALSA move was four years ago.
-   If ALSA sucks, please help to improve ALSA.
-
-Q: What about the OSS emulation in ALSA?
-A: The OSS emulation in ALSA is not affected by my patches
-   (abd it's not in any way scheduled for removal).
-
-
-Please review the following list:
-
-
-1. ALSA drivers for the same hardware 
-
-SOUND_AD1889
-SOUND_AD1980
-SOUND_ALI5455
-SOUND_AU1000
-SOUND_AWE32_SYNTH
-SOUND_CMPCI
-SOUND_CS4232
-SOUND_CS4281
-SOUND_ES1370
-SOUND_ES1371
-SOUND_ESSSOLO1
-SOUND_FORTE
-SOUND_FUSION
-SOUND_GUS
-SOUND_HARMONY
-SOUND_MAD16
-SOUND_MAESTRO
-SOUND_MAESTRO3
-SOUND_MAUI
-SOUND_OPL3SA1
-SOUND_OPL3SA2
-SOUND_RME96XX
-SOUND_SGALAXY
-SOUND_SONICVIBES
-SOUND_SSCAPE
-SOUND_VIA82CXXX
-SOUND_WAVEFRONT
-SOUND_YMFPCI
-
-
-2. ALSA drivers for the same hardware with known problems
-
-SOUND_AD1816
-- ALSA #1301 (Kernel OSS emulation stops working after a few seconds
-              when used with VoIP softphones)
-
-SOUND_EMU10K1
-- ALSA #1735 (OSS emulation 4-channel mode rear channels not working)
-
-SOUND_ICH
-- Alan Cox: ALSA driver lacks "support for AC97 wired touchscreens
-                               and the like"
-
-SOUND_NM256
-- ALSA #328 (snd-nm256 freezes Dell Latitude LS)
-
-SOUND_TRIDENT
-- ALSA #1293 (device supported by OSS but not by ALSA)
-- maintainer of the OSS driver wants his driver to stay
-
-
-3. no ALSA drivers for the same hardware
-
-SOUND_ACI_MIXER
-SOUND_ADLIB
-SOUND_AEDSP16
-SOUND_AU1550_AC97
-SOUND_BCM_CS4297A
-SOUND_HAL2
-SOUND_IT8172
-SOUND_KAHLUA
-SOUND_MSNDCLAS
-SOUND_MSNDPIN
-SOUND_PAS
-SOUND_PSS
-SOUND_SB
-SOUND_SH_DAC_AUDIO
-SOUND_TRIX
-SOUND_VIDC
-SOUND_VRC5477
-SOUND_VWSND
-SOUND_WAVEARTIST
-
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

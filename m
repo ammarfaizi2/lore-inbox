@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbWASGkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbWASGkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964948AbWASGkH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 01:40:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbWASGkH
+	id S964952AbWASGkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 01:40:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbWASGkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 19 Jan 2006 01:40:08 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.26]:21405 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S964952AbWASGkH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 19 Jan 2006 01:40:07 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:32723 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964948AbWASGkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 01:40:06 -0500
-Subject: Re: - add-pselect-ppoll-system-call-implementation-tidy.patch
-	removed from -mm tree
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060118223039.1d9dfe64.akpm@osdl.org>
-References: <200601190052.k0J0qmKC009977@shell0.pdx.osdl.net>
-	 <1137648119.30084.94.camel@localhost.localdomain>
-	 <20060119171708.7f856b42.sfr@canb.auug.org.au>
-	 <20060118223039.1d9dfe64.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 19 Jan 2006 17:40:08 +1100
-Message-Id: <1137652808.30084.125.camel@localhost.localdomain>
+Date: Wed, 18 Jan 2006 22:40:01 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: lethal@linux-sh.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       James.Bottomley@steeleye.com
+Subject: Re: [PATCH] bitmap: Support for pages > BITS_PER_LONG.
+Message-Id: <20060118224001.5d38d8bf.pj@sgi.com>
+In-Reply-To: <20060118220753.3f005b5a.pj@sgi.com>
+References: <20060119014812.GB18181@linux-sh.org>
+	<20060118220753.3f005b5a.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-18 at 22:30 -0800, Andrew Morton wrote:
-> So the lowest common denominator wins, because they hurt more than
-> anyone else if we go outside 80-cols.  I use 80-col xterms precisely
-> for this reason: so that the code which goes in will look OK to those
-> users.
+Someone unnamed has suggested I submit a patch with these cleanups.
 
-That would make some sense if it weren't for the fact that the snippet
-of patch I just showed doesn't actually improve the situation for the
-lowest common denominator -- it only makes it worse for the rest of us.
+But I am  lazy git who hates to test code, and it looks like Paul
+Mundt is in a position to actually test that whatever we end up
+with still works.
 
-Put real meaningful stuff within 80 columns by all means -- but please
-allow lines to be longer than that if they're just 'fluff'. 
+So I intend to send in two totally untested patches shortly:
+ 1) some minor cleanups of these bitmap routines, and
+ 2) Mundt's > BITS_PER_LONG patch, more or less, on top of that.
+
+Then perhaps Mundt could retest and fix what I broke, then send in a
+final pair of patches for Andrew's consideration.
+
+If this isn't such a hot idea, Mundt, holler, and we can work
+something else out.
 
 -- 
-dwmw2
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

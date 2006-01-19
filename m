@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161072AbWASHSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161071AbWASHTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161072AbWASHSl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 02:18:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161073AbWASHSl
+	id S1161071AbWASHTv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 02:19:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161076AbWASHTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 02:18:41 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:50619 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161072AbWASHSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 02:18:40 -0500
-Subject: Re: - add-pselect-ppoll-system-call-implementation-tidy.patch
-	removed from -mm tree
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, davem@davemloft.net,
-       sfr@canb.auug.org.au, linux-kernel@vger.kernel.org
-In-Reply-To: <20060118230227.5e761d27.akpm@osdl.org>
-References: <200601190052.k0J0qmKC009977@shell0.pdx.osdl.net>
-	 <1137648119.30084.94.camel@localhost.localdomain>
-	 <20060119171708.7f856b42.sfr@canb.auug.org.au>
-	 <20060118.223629.100108404.davem@davemloft.net>
-	 <1137653279.27267.15.camel@lade.trondhjem.org>
-	 <20060118230227.5e761d27.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 19 Jan 2006 18:18:29 +1100
-Message-Id: <1137655109.30084.148.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 19 Jan 2006 02:19:51 -0500
+Received: from general.keba.co.at ([193.154.24.243]:44669 "EHLO
+	helga.keba.co.at") by vger.kernel.org with ESMTP id S1161071AbWASHTu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 02:19:50 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: My vote against eepro* removal
+Date: Thu, 19 Jan 2006 08:19:37 +0100
+Message-ID: <AAD6DA242BC63C488511C611BD51F367323320@MAILIT.keba.co.at>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: My vote against eepro* removal
+Thread-Index: AcYcyLRs/hzvoSHvSD62aE+mDAYIYg==
+From: "kus Kusche Klaus" <kus@keba.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-18 at 23:02 -0800, Andrew Morton wrote:
-> hm.  Why not use $EDITOR's ctags/etags/etc?
+Last time I tested (around 2.6.12), eepro100 worked much better 
+in -rt kernels w.r.t. latencies than e100:
 
-Some editors don't have them -- and certainly not for the git trees
-pulled from upstream which I keep pristine.
+e100 caused a periodic latency of about 500 microseconds
+exactly every 2 seconds, no matter what the load on the interface
+was (i.e. even on an idle interface).
 
--- 
-dwmw2
+eepro100 did not show any latencies that long, it worked much
+smoother w.r.t. latencies.
+
+Of course I would prefer to have e100 fixed over keeping eepro100
+around forever, but the last time I checked, it still wasn't fixed.
+
+Klaus Kusche
+Entwicklung Software - Steuerung
+Software Development - Control
+
+KEBA AG
+A-4041 Linz
+Gewerbepark Urfahr
+Tel +43 / 732 / 7090-3120
+Fax +43 / 732 / 7090-6301
+E-Mail: kus@keba.com
+www.keba.com
+
 

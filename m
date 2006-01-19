@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbWASGYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbWASG2g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932561AbWASGYq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 01:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbWASGYq
+	id S932564AbWASG2g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 01:28:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWASG2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 01:24:46 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:56292 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932561AbWASGYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 01:24:45 -0500
-Subject: Re: - add-pselect-ppoll-system-call-implementation-tidy.patch
-	removed from -mm tree
-From: David Woodhouse <dwmw2@infradead.org>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060119171708.7f856b42.sfr@canb.auug.org.au>
-References: <200601190052.k0J0qmKC009977@shell0.pdx.osdl.net>
-	 <1137648119.30084.94.camel@localhost.localdomain>
-	 <20060119171708.7f856b42.sfr@canb.auug.org.au>
-Content-Type: text/plain
-Date: Thu, 19 Jan 2006 17:24:47 +1100
-Message-Id: <1137651887.30084.118.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 19 Jan 2006 01:28:35 -0500
+Received: from smtpq1.tilbu1.nb.home.nl ([213.51.146.200]:51603 "EHLO
+	smtpq1.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
+	id S932564AbWASG2f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 01:28:35 -0500
+Message-ID: <43CF31E8.9030705@keyaccess.nl>
+Date: Thu, 19 Jan 2006 07:30:00 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Adam Belay <ambx1@neo.rr.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH]  PnPBIOS: Missing SMALL_TAG_ENDDEP tag
+Content-Type: multipart/mixed;
+ boundary="------------050707070202050109090301"
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-19 at 17:17 +1100, Stephen Rothwell wrote:
-> The limit on the length of lines is 80 columns and this is a hard limit.
-> 
-> Statements longer than 80 columns will be broken into sensible chunks.
-> Descendants are always substantially shorter than the parent and are placed
-> substantially to the right. The same applies to function headers with a long
-> argument list. Long strings are as well broken into shorter strings.
+This is a multi-part message in MIME format.
+--------------050707070202050109090301
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-We can submit patches for the cases where the guidelines listed in
-Documentation/CodingStyle diverge from common sense. 
+Hi Andrew.
 
-In _some_ cases, the text which one might put after the 80th column is
-actually important to the flow of the program and really should be put
-back into the 'normal' text area. That's fair enough -- I'm not arguing
-that we should leave 80-column text areas behind altogether.
+Sorry, second copy, forgot to CC LKML.
 
-But in this case it's just the length argument to a memcpy, and there's
-no real information there. Similarly, people have recently been observed
-to start wrapping the strings in debugging printks onto a second line
-gratuitously. In _those_ cases, it really is counter-productive -- it's
-_fine_ if that text is off the right-hand side of the screen.
+Without the attached, the kernel complains about my BIOS' PNP tables. It
+was ACKed before, but never merged:
 
-If your editor wraps it onto the next line, then that sucks -- but at
-least it only sucks for _you_, and you wouldn't really benefit by the
-proposed 'fix' anyway, because the proposed 'fix' is just to wrap it so
-that it sucks for _all_ of us.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110237794007900&w=2
 
--- 
-dwmw2
+Rene.
 
+
+--------------050707070202050109090301
+Content-Type: text/plain;
+ name="rsparser.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="rsparser.diff"
+
+SW5kZXg6IGxvY2FsL2RyaXZlcnMvcG5wL3BucGJpb3MvcnNwYXJzZXIuYwo9PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09Ci0tLSBsb2NhbC5vcmlnL2RyaXZlcnMvcG5wL3BucGJpb3MvcnNwYXJzZXIuYwkyMDA2
+LTAxLTAzIDA0OjIxOjEwLjAwMDAwMDAwMCArMDEwMAorKysgbG9jYWwvZHJpdmVycy9wbnAv
+cG5wYmlvcy9yc3BhcnNlci5jCTIwMDYtMDEtMTggMDk6NDE6MDcuMDAwMDAwMDAwICswMTAw
+CkBAIC00NDgsMTEgKzQ0OCw3IEBAIHBucGJpb3NfcGFyc2VfcmVzb3VyY2Vfb3B0aW9uX2Rh
+dGEodW5zaWcKIAkJCWJyZWFrOwogCiAJCWNhc2UgU01BTExfVEFHX0VORDoKLQkJCWlmIChv
+cHRpb25faW5kZXBlbmRlbnQgIT0gb3B0aW9uKQotCQkJCXByaW50ayhLRVJOX1dBUk5JTkcg
+IlBuUEJJT1M6IE1pc3NpbmcgU01BTExfVEFHX0VORERFUCB0YWdcbiIpOwotCQkJcCA9IHAg
+KyAyOwotICAgICAgICAJCXJldHVybiAodW5zaWduZWQgY2hhciAqKXA7Ci0JCQlicmVhazsK
+KyAgICAgICAgCQlyZXR1cm4gcCArIDI7CiAKIAkJZGVmYXVsdDogLyogYW4gdW5rb3duIHRh
+ZyAqLwogCQkJbGVuX2VycjoK
+--------------050707070202050109090301--

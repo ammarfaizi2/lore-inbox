@@ -1,79 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWASJ3x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWASJaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750913AbWASJ3x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 04:29:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWASJ3x
+	id S1751291AbWASJaj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 04:30:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWASJaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 04:29:53 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:37901 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750913AbWASJ3w convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 04:29:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NqlSgbpJDq/mkOZgha99kIq4faaoUAWHdw+VD3K8GhJnxMHdu5JFqTpRLGW6yhjpeO8hocSsJlBVyW6WQZwtoIbRBDe5URJLD6pLW3jWaBoBdM7PLtEm8ogusCBYwvJ9rv5Nr9NIHl208hcqb+8aO6YrnGydaMZgvXEgIoCkw2M=
-Message-ID: <7c3341450601190129r64a97880q22d576734214b6ac@mail.gmail.com>
-Date: Thu, 19 Jan 2006 09:29:51 +0000
-From: Nick <nick@linicks.net>
-To: Rumi Szabolcs <rumi_ml@rtfm.hu>
-Subject: Re: 2.4.x kernel uptime counter problem
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060119110834.bb048266.rumi_ml@rtfm.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060119110834.bb048266.rumi_ml@rtfm.hu>
+	Thu, 19 Jan 2006 04:30:39 -0500
+Received: from mailout1.pacific.net.au ([61.8.0.84]:54433 "EHLO
+	mailout1.pacific.net.au") by vger.kernel.org with ESMTP
+	id S1751291AbWASJaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 04:30:39 -0500
+Date: Thu, 19 Jan 2006 20:30:28 +1100
+Message-Id: <200601190930.k0J9US4P009504@typhaon.pacific.net.au>
+From: "David Luyer" <david@luyer.net>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: SKY2 driver - version 0.13 - buggy but working
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/19/06, Rumi Szabolcs <rumi_ml@rtfm.hu> wrote:
-> Hello!
->
-> I've got a Linux system running the 2.4.26 kernel which was about
-> to pass the 500 day mark these days and now suddenly what I see is
-> that the uptime counter has reset:
->
-> $ uname -a && w && cat /proc/uptime && last -1 reboot
-> Linux quasar 2.4.26 #3 SMP Tue Sep 7 09:22:08 CEST 2004 i686 Intel(R) Pentium(R) 4 CPU 2.60GHz GenuineIntel GNU/Linux
->  09:38:08 up 1 day, 12:49,  5 users,  load average: 0.00, 0.00, 0.00
-> USER     TTY        LOGIN@   IDLE   JCPU   PCPU WHAT
-> rumi     pty/s0    08:53    0.00s  0.04s  0.02s screen -r
-> rumi     ttyp1     10Sep04 31:58   9:12   9:12  epic
-> rumi     ttyp3     Tue12   44:33m  0.01s  0.01s -/bin/bash
-> rumi     ttyp2     13Feb05  8days  0.11s  0.11s -/bin/bash
-> rumi     ttypc     11Dec05  0.00s  0.12s  0.11s -/bin/bash
-> 132596.51 39801752.60
-> reboot   system boot  2.4.26           Tue Sep  7 18:47         (498+15:50)
->
-> From the above it can be seen that the system is running continuously
-> and wasn't rebooted 36 hours ago as the uptime counter would suggest.
->
-> Is this a known bug?
+Your new SKY2 driver in the latest 2.6.16-rc1 snapshots does millions
+of printk()s (approximately 230,000 per second) ... but works!
 
+Motherboard: A7V-E SE (onboard Marvel GE)
+OS: Linux current snapshot (2.6.16-rc1-g0f36b018), 32-bit on AMD64
+PCI options: ACPI, PCI, PCI Express, MSI enabled
 
-It's not a bug - it is a feature.  uptime rolls over after 497 days.
+dmesg|egrep 'sky2|messages suppressed':
 
-[sic]
-It computes the result of the "uptime" based on the internal "jiffies"
-counter, which counts the time since boot, in units of 10
-milliseconds.
-This is typecast as an "unsigned long" - on the Intel boxes, that's an
-unsigned 32-bit number.
-Well, it turns out that in a 32-bit number, you can store 497.1 days
-before the number wraps.
+sky2 v0.13 addr 0xdc000000 irq 66 Yukon-EC (0xb6) rev 2
+sky2 eth0: addr 00:13:d4:f6:be:52
+sky2 0000:05:00.0: pci express error (0x0)
+sky2 0000:05:00.0: pci express error (0x0)
+sky2 0000:05:00.0: pci express error (0x0)
+sky2 0000:05:00.0: pci express error (0x0)
+sky2 0000:05:00.0: pci express error (0x0)
+sky2 0000:05:00.0: pci express error (0x0)
+sky2 0000:05:00.0: pci express error (0x0)
+sky2 0000:05:00.0: pci express error (0x0)
+sky2 0000:05:00.0: pci express error (0x0)
+sky2 0000:05:00.0: pci express error (0x0)
+printk: 1144326 messages suppressed.
+sky2 0000:05:00.0: pci express error (0x0)
+printk: 1141162 messages suppressed.
+sky2 0000:05:00.0: pci express error (0x0)
+printk: 1122566 messages suppressed.
+sky2 0000:05:00.0: pci express error (0x0)
+printk: 1125246 messages suppressed.
+sky2 0000:05:00.0: pci express error (0x0)
+printk: 1124271 messages suppressed.
+sky2 0000:05:00.0: pci express error (0x0)
+printk: 1130645 messages suppressed.
 
-
-You can use:
-last -xf /var/run/utmp runlevel
-
-to get true uptime in this instance.
-
-Nick
-
---
-http://sourceforge.net/projects/quake2plus/
-
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
+David.
+-- 
+Pacific Internet (Australia) Pty Ltd
+Business card: http://www.luyer.net/bc.html
+Important notice: http://www.pacific.net.au/disclaimer/

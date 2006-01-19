@@ -1,63 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030465AbWASCx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030510AbWASCyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030465AbWASCx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 21:53:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030510AbWASCx2
+	id S1030510AbWASCyL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 21:54:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030511AbWASCyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 21:53:28 -0500
-Received: from mail.kroah.org ([69.55.234.183]:25272 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030465AbWASCx2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 21:53:28 -0500
-Date: Wed, 18 Jan 2006 18:51:47 -0800
-From: Greg KH <gregkh@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/base/: proper prototypes
-Message-ID: <20060119025146.GA15257@suse.de>
-References: <20060119013242.GX19398@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 18 Jan 2006 21:54:11 -0500
+Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:49575 "EHLO
+	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1030510AbWASCyJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 21:54:09 -0500
+Date: Wed, 18 Jan 2006 21:48:35 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch 2.6.16-rc1-mm1] i386: make stack backtrace default to
+  two columns
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200601182151_MC3-1-B629-3B4A@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060119013242.GX19398@stusta.de>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 02:32:42AM +0100, Adrian Bunk wrote:
-> This patch contains the following changes:
-> - move prototypes to base.h
-> - sys.c should #include "base.h" for getting the prototype of it's
->   global function system_bus_init()
-> 
-> Note that hidden in this patch there's a bugfix:
-> 
-> Caller and callee disagreed regarding the return type of 
-> sysdev_shutdown().
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
->  drivers/base/base.h           |    6 ++++++
->  drivers/base/power/resume.c   |    3 +--
->  drivers/base/power/shutdown.c |    2 +-
->  drivers/base/power/suspend.c  |    3 +--
->  drivers/base/sys.c            |    2 ++
->  5 files changed, 11 insertions(+), 5 deletions(-)
-> 
-> --- linux-2.6.16-rc1-mm1-full/drivers/base/base.h.old	2006-01-18 23:17:52.000000000 +0100
-> +++ linux-2.6.16-rc1-mm1-full/drivers/base/base.h	2006-01-18 23:41:33.000000000 +0100
-> @@ -1,6 +1,8 @@
->  
->  /* initialisation functions */
->  
-> +#include <linux/device.h>
-> +
+Make stack backtrace columns default to 2 so this gets
+some testing.
 
-Why is this extra #include needed?  It shouldn't be.
+Signed-Off-By: Chuck Ebbert <76306.1226@compuserve.com>
 
-thanks,
-
-greg k-h
+--- 2.6.16-rc1-mm1.orig/arch/i386/Kconfig.debug
++++ 2.6.16-rc1-mm1/arch/i386/Kconfig.debug
+@@ -34,7 +34,7 @@ config DEBUG_STACK_USAGE
+ config STACK_BACKTRACE_COLS
+ 	int "Stack backtraces per line" if DEBUG_KERNEL
+ 	range 1 3
+-	default 1
++	default 2
+ 	help
+ 	  Selects how many stack backtrace entries per line to display.

@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030470AbWASDY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030386AbWASDYW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030470AbWASDY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 22:24:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbWASDY0
+	id S1030386AbWASDYW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 22:24:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbWASDYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 22:24:26 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:46090 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964947AbWASDYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 22:24:25 -0500
-Date: Thu, 19 Jan 2006 04:24:24 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dave Jones <davej@redhat.com>, pfg@sgi.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: tony.luck@intel.com, linux-ia64@vger.kernel.org
-Subject: [2.6 patch] drivers/sn/ must be entered for CONFIG_SGI_IOC3
-Message-ID: <20060119032423.GI19398@stusta.de>
-References: <20060117235521.GA14298@redhat.com>
+	Wed, 18 Jan 2006 22:24:22 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:6975 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964928AbWASDYV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 22:24:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qL3ksOCGxWFeHKxYqzS2L0Nn9NfUQ9VqYaKPRQo58XYSLIbRWhHJbMdYleJiTOnWRiq79xnKT2SNNwPHi5zyfYq8w3LKM6ZzvnakOyJ2crqAPHFLn9TIjR1a+HQ0jjmi3QgQ3yV+P3Iouwo6XNdZ2zmAxu2rp3ET3598oJ4CKkw=
+Message-ID: <37219a840601181924gb00340fi3bbc853addefc493@mail.gmail.com>
+Date: Wed, 18 Jan 2006 22:24:20 -0500
+From: Michael Krufky <mkrufky@gmail.com>
+To: Linux and Kernel Video <video4linux-list@redhat.com>
+Subject: Re: [2.6 patch] VIDEO_CX88_ALSA must select SND_PCM
+Cc: mchehab@brturbo.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <20060119012120.GW19398@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060117235521.GA14298@redhat.com>
-User-Agent: Mutt/1.5.11
+References: <20060119012120.GW19398@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 17, 2006 at 06:55:21PM -0500, Dave Jones wrote:
+On 1/18/06, Adrian Bunk <bunk@stusta.de> wrote:
+> This patch fixes the following compile error:
+> <--  snip  -->
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> kernel/drivers/serial/ioc3_serial.ko needs unknown symbol ioc3_unregister_submodule
-> 
-> CONFIG_SERIAL_SGI_IOC3=m
-> CONFIG_SGI_IOC3=m
+Adrian-
 
-The untested patch below should fix it.
+I've applied this to our cvs tree.  Mauro will apply it to v4l-dvb.git
+with his first round of bugfix commits.
 
-> 		Dave
+Thanks,
 
-cu
-Adrian
-
-
-<--  snip  -->
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.16-rc1-mm1-full/drivers/Makefile.old	2006-01-19 04:14:24.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/Makefile	2006-01-19 04:14:57.000000000 +0100
-@@ -70,6 +70,7 @@
- obj-$(CONFIG_CPU_FREQ)		+= cpufreq/
- obj-$(CONFIG_MMC)		+= mmc/
- obj-$(CONFIG_INFINIBAND)	+= infiniband/
-+obj-$(CONFIG_SGI_IOC3)		+= sn/
- obj-$(CONFIG_SGI_IOC4)		+= sn/
- obj-y				+= firmware/
- obj-$(CONFIG_CRYPTO)		+= crypto/
-
+Michael

@@ -1,481 +1,1028 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161225AbWASKv2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161086AbWASKza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161225AbWASKv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 05:51:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161247AbWASKv2
+	id S1161086AbWASKza (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 05:55:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161165AbWASKza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 05:51:28 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:37132 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S1161225AbWASKv1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 05:51:27 -0500
-Message-ID: <43CF6F25.9070704@arcom.com>
-Date: Thu, 19 Jan 2006 10:51:17 +0000
-From: David Vrabel <dvrabel@arcom.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Thu, 19 Jan 2006 05:55:30 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:2663 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161086AbWASKz3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 05:55:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type;
+        b=BBPu++DYwQAxjEnwK104gdfikm4yzh6RUIEkP0J4BU5aXg227jSJJL3gXRBShq/dSyLjaI5Fk1YME54VyVrlB8dG5WcgDi3Wglq6ZRSwz/zwGDXkEc+DF+jNQ3/nJhgxD1Fnmu7GMNYArBFU0h7tu/cg2FVRtdFCrvgAzQv8ToU=
+Message-ID: <43CF709F.4070406@gmail.com>
+Date: Thu, 19 Jan 2006 11:57:35 +0100
+From: =?ISO-8859-1?Q?Daniel_Aragon=E9s?= <danarag@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: es-ar, es, en-us, en
 MIME-Version: 1.0
-To: Stephen Street <stephen@streetfiresound.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: PXA2xx SPI controller updated for 2.6.16-rc1?
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH/RFC] minix filesystem: Update to V3
 Content-Type: multipart/mixed;
- boundary="------------060204030205060407000908"
-X-OriginalArrivalTime: 19 Jan 2006 10:55:28.0062 (UTC) FILETIME=[DBB2C5E0:01C61CE6]
+ boundary="------------040204060306060402060405"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------060204030205060407000908
-Content-Type: text/plain; charset=ISO-8859-1
+--------------040204060306060402060405
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Stephen,
+This patch is the exact copy of the patch posted by me to comp.os.minix on January 11:
 
-Do you have a version of the PXA2xx SPI contoller driver more recent
-that the one posted at the end of October 2005?  There are some SPI (and
-other) API changes required for 2.6.16-rc1.
+http://groups.google.com/group/comp.os.minix/browse_thread/thread/dcb26c98757137de
 
-I've attached my attempt (PIO works but DMA doesn't) if it's of any use.
+That post was complemented on January 14 for 2.4.x kernels:
 
-The patch also:
-  - includes support for the different clock on the PXA27x
-  - calculates the correct clock divisor (at least on the PXA27x...)
-  - allows null_cs_control for PIO transfer.
+http://groups.google.com/group/comp.os.minix/browse_thread/thread/947bd2ecefcec8f6/01d74ddca53f638a#01d74ddca53f638a
 
-I'm currently using SSP3 on the PXA27x with the slave chip select GPIO
-line configured as SSPSFRM3 instead of a GPIO.  This works fine provided
-that each spi_message consists of a single spi_transfer.  With more than
- one transfer they're not back-to-back and SSPSFRM3 is deasserted
-between transfers.
+Since then, no feedback at all has come up to me. So I optimistically adhere to the principle "no news, good news", because I know that the patch works!
 
-It looks like you're waiting for the transmit buffer in the controller
-to empty before switching to the next transfer.  Is it possible to
-switch to the next transfer immediatly upon exhausting the transfer's
-tx_buf?  Perhaps (in the DMA case) by chaining several DMA descriptors
-together?
+I submit this patch to the members of the list and kernel mantainers for their evaluation and comments, and if found appropiate, to include it into the kernel sources.
 
-At the higher SPI clock rates available on the PXA27x (up to 13 MHz with
-the internal clock) PIO mode doesn't seem to feed the transmit buffer
-fast enough resulting in gaps between each byte/word of the transfer.  I
-would assume using DMA would not show this?
+The modifications I have made to the preexistent code have been four:
 
-David Vrabel
--- 
-David Vrabel, Design Engineer
+1.- The layout of the superblock variables is different in version V3.
 
-Arcom, Clifton Road           Tel: +44 (0)1223 411200 ext. 3233
-Cambridge CB1 7EA, UK         Web: http://www.arcom.com/
+2.- Disable writings to "s_state" because it has been droped out from the superblock, and its former address is now used by another parameter.
 
---------------060204030205060407000908
+3.- Change the references to the constant "BLOCK_SIZE" to the variables "s_blocksize" or "b_size", so allowing for multiple size blocks.
+
+4.- Introduce the new structure "minix3_dir_entry" to cope with the padding that is needed to employ 60 characters long names in the new directory entries of 64 bytes.
+
+Both patches follow, attached as text files: "V3_2dot6_patch.txt" and "V3_2dot4_patch.txt"
+
+Signed-off-by: Daniel Aragones <danarag@gmail.com>
+
+--------------040204060306060402060405
 Content-Type: text/plain;
- name="drivers-spi-pxa2xx-ssp-fixes"
+ name="V3_2dot6_patch.txt"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="drivers-spi-pxa2xx-ssp-fixes"
+ filename="V3_2dot6_patch.txt"
 
-Index: linux-2.6-working/drivers/spi/pxa2xx_spi_ssp.c
-===================================================================
---- linux-2.6-working.orig/drivers/spi/pxa2xx_spi_ssp.c	2006-01-18 17:42:26.000000000 +0000
-+++ linux-2.6-working/drivers/spi/pxa2xx_spi_ssp.c	2006-01-18 17:42:27.000000000 +0000
-@@ -107,8 +107,8 @@
-  
- #include <linux/init.h>
- #include <linux/module.h>
--#include <linux/device.h>
--#include <linux/spi.h>
-+#include <linux/platform_device.h>
-+#include <linux/spi/spi.h>
- #include <linux/ioport.h>
- #include <linux/errno.h>
- #include <linux/interrupt.h>
-@@ -128,7 +128,11 @@
- MODULE_DESCRIPTION("PXA2xx SSP SPI Contoller");
- MODULE_LICENSE("GPL");
- 
--#define MAX_SPEED_HZ 3686400
-+#if defined(CONFIG_PXA25x)
-+#  define MAX_SPEED_HZ  3686400
-+#elif defined(CONFIG_PXA27x)
-+#  define MAX_SPEED_HZ 13000000
-+#endif
- #define MAX_BUSES 3
- 
- #define DMA_INT_MASK (DCSR_ENDINTR | DCSR_STARTINTR | DCSR_BUSERR)
-@@ -140,7 +144,8 @@
- struct master_data;
- 
- struct transfer_state {
--	int index;
-+	enum { TRANSFER_START, TRANSFER, TRANSFER_END, TRANSFER_ABORT } state;
-+	struct spi_transfer *transfer;
- 	int len;
- 	void *tx;
- 	void *tx_end;
-@@ -253,8 +258,9 @@
- 
- static inline void dump_message(struct spi_message *msg)
- {
--	int i;
--	struct device *dev = &msg->dev->dev;
-+	int i = 0;
-+	struct device *dev = &msg->spi->dev;
-+	struct spi_transfer *t;
- 	
- 	dev_dbg(dev, "message = %p\n", msg);
- 	dev_dbg(dev, "    complete = %p\n", msg->complete);
-@@ -262,23 +268,23 @@
- 	dev_dbg(dev, "    actual_length = %u\n", msg->actual_length);
- 	dev_dbg(dev, "    status = %d\n", msg->status);
- 	dev_dbg(dev, "    state = %p\n", msg->state);
--	dev_dbg(dev, "    n_transfers = %u\n", msg->n_transfer);
--		
--	for (i = 0; i < msg->n_transfer; i++) {
-+
-+	list_for_each_entry (t, &msg->transfers, transfer_list) {
- 		dev_dbg(dev, "        %d, tx_buf = %p\n", 
--				i, msg->transfers[i].tx_buf);
-+				i, t->tx_buf);
- 		dev_dbg(dev, "        %d, rx_buf = %p\n", 
--				i, msg->transfers[i].rx_buf);
-+				i, t->rx_buf);
- 		dev_dbg(dev, "        %d, tx_dma = %p\n", 
--				i, (void *)msg->transfers[i].tx_dma);
-+				i, (void *)t->tx_dma);
- 		dev_dbg(dev, "        %d, rx_dma = %p\n", 
--				i, (void *)msg->transfers[i].rx_dma);
-+				i, (void *)t->rx_dma);
- 		dev_dbg(dev, "        %d, len = %u\n", 
--				i, msg->transfers[i].len);
-+				i, t->len);
- 		dev_dbg(dev, "        %d, cs_change = %u\n", 
--				i, msg->transfers[i].cs_change);
-+				i, t->cs_change);
- 		dev_dbg(dev, "        %d, delay_usecs = %u\n", 
--				i, msg->transfers[i].delay_usecs);
-+				i, t->delay_usecs);
-+		i++;
+diff -ur orig.linux-2.6.14.5/fs/minix/bitmap.c updated.linux-2.6.14.5/fs/minix/bitmap.c
+--- orig.linux-2.6.14.5/fs/minix/bitmap.c	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/fs/minix/bitmap.c	2006-01-11 19:41:41.000000000 +0100
+@@ -26,14 +26,14 @@
+ 	for (i=0; i<numblocks-1; i++) {
+ 		if (!(bh=map[i])) 
+ 			return(0);
+-		for (j=0; j<BLOCK_SIZE; j++)
++		for (j=0; j<bh->b_size; j++)
+ 			sum += nibblemap[bh->b_data[j] & 0xf]
+ 				+ nibblemap[(bh->b_data[j]>>4) & 0xf];
  	}
+ 
+ 	if (numblocks==0 || !(bh=map[numblocks-1]))
+ 		return(0);
+-	i = ((numbits-(numblocks-1)*BLOCK_SIZE*8)/16)*2;
++	i = ((numbits-(numblocks-1)*bh->b_size*8)/16)*2;
+ 	for (j=0; j<i; j++) {
+ 		sum += nibblemap[bh->b_data[j] & 0xf]
+ 			+ nibblemap[(bh->b_data[j]>>4) & 0xf];
+@@ -145,15 +145,15 @@
+ 		return NULL;
+ 	}
+ 	ino--;
+-	block = 2 + sbi->s_imap_blocks + sbi->s_zmap_blocks +
+-		 ino / MINIX2_INODES_PER_BLOCK;
++	block = 2 + sbi->s_imap_blocks + sbi->s_zmap_blocks + 
++		ino / MINIX2_INODES_PER_BLOCK(sb->s_blocksize);
+ 	*bh = sb_bread(sb, block);
+ 	if (!*bh) {
+ 		printk("unable to read i-node block\n");
+ 		return NULL;
+ 	}
+ 	p = (void *)(*bh)->b_data;
+-	return p + ino % MINIX2_INODES_PER_BLOCK;
++	return p + ino % MINIX2_INODES_PER_BLOCK(sb->s_blocksize);
  }
  
-@@ -373,7 +379,7 @@
- 					channel);
- 		
- 		drv_data->buserr_cnt++;
--		drv_data->cur_state.index = -2;
-+		drv_data->cur_state.state = TRANSFER_ABORT;
- 		tasklet_schedule(&drv_data->pump_transfers);
- 	}
- 	
-@@ -414,7 +420,7 @@
+ /* Clear the link count and mode of a deleted inode on disk. */
+diff -ur orig.linux-2.6.14.5/fs/minix/dir.c updated.linux-2.6.14.5/fs/minix/dir.c
+--- orig.linux-2.6.14.5/fs/minix/dir.c	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/fs/minix/dir.c	2006-01-11 19:41:41.000000000 +0100
+@@ -4,6 +4,8 @@
+  *  Copyright (C) 1991, 1992 Linus Torvalds
+  *
+  *  minix directory handling functions
++ *
++ *  Updated to filesystem version 3 by Daniel Aragones
+  */
  
- 		drv_data->ror_cnt++;
+ #include "minix.h"
+@@ -11,6 +13,7 @@
+ #include <linux/smp_lock.h>
  
--		state->index = -2;
-+		state->state = TRANSFER_ABORT;
- 		tasklet_schedule(&drv_data->pump_transfers);
+ typedef struct minix_dir_entry minix_dirent;
++typedef struct minix3_dir_entry minix3_dirent;
  
- 		return IRQ_HANDLED;
-@@ -438,13 +444,13 @@
- 				|| (__REG(sssr) & SSSR_BSY));
- 		
- 		/* Handle trailing byte, must unmap the dma buffers */		
--		dma_unmap_single(&msg->dev->dev, 
--					msg->transfers[state->index].tx_dma, 
--					msg->transfers[state->index].len, 
-+		dma_unmap_single(&msg->spi->dev,
-+					state->transfer->tx_dma,
-+					state->transfer->len,
- 					DMA_TO_DEVICE);
--		dma_unmap_single(&msg->dev->dev, 
--					msg->transfers[state->index].rx_dma, 
--					msg->transfers[state->index].len, 
-+		dma_unmap_single(&msg->spi->dev,
-+					state->transfer->rx_dma,
-+					state->transfer->len,
- 					DMA_FROM_DEVICE);
- 		
- 		/* Calculate number of trailing bytes */
-@@ -455,12 +461,16 @@
- 			state->read(sssr, ssdr, state);
+ static int minix_readdir(struct file *, void *, filldir_t);
+ 
+@@ -108,14 +111,22 @@
+ 		limit = kaddr + minix_last_byte(inode, n) - chunk_size;
+ 		for ( ; p <= limit ; p = minix_next_entry(p, sbi)) {
+ 			minix_dirent *de = (minix_dirent *)p;
++			minix3_dirent *de3 = (minix3_dirent *)p;
+ 			if (de->inode) {
+ 				int over;
+-				unsigned l = strnlen(de->name,sbi->s_namelen);
+-
+-				offset = p - kaddr;
+-				over = filldir(dirent, de->name, l,
+-						(n<<PAGE_CACHE_SHIFT) | offset,
+-						de->inode, DT_UNKNOWN);
++				if (!(sbi->s_version == MINIX_V3)) {
++					unsigned l = strnlen(de->name,sbi->s_namelen);
++					offset = p - kaddr;
++					over = filldir(dirent, de->name, l,
++					(n<<PAGE_CACHE_SHIFT) | offset,
++					de->inode, DT_UNKNOWN);
++				} else {
++					unsigned l = strnlen(de3->name,sbi->s_namelen);
++					offset = p - kaddr;
++					over = filldir(dirent, de3->name, l,
++					(n<<PAGE_CACHE_SHIFT) | offset,
++					de3->inode, DT_UNKNOWN);
++				}
+ 				if (over) {
+ 					dir_put_page(page);
+ 					goto done;
+@@ -158,7 +169,7 @@
+ 	unsigned long npages = dir_pages(dir);
+ 	struct page *page = NULL;
+ 	struct minix_dir_entry *de;
+-
++	struct minix3_dir_entry *de3;
+ 	*res_page = NULL;
+ 
+ 	for (n = 0; n < npages; n++) {
+@@ -169,17 +180,26 @@
+ 
+ 		kaddr = (char*)page_address(page);
+ 		de = (struct minix_dir_entry *) kaddr;
++		de3 = (struct minix3_dir_entry *) kaddr;
+ 		kaddr += minix_last_byte(dir, n) - sbi->s_dirsize;
+-		for ( ; (char *) de <= kaddr ; de = minix_next_entry(de,sbi)) {
+-			if (!de->inode)
+-				continue;
+-			if (namecompare(namelen,sbi->s_namelen,name,de->name))
+-				goto found;
++		for ( ; (char *) de <= kaddr ;
++					de = minix_next_entry(de,sbi),
++					de3 = minix_next_entry(de3,sbi)) {
++			if (!(sbi->s_version == MINIX_V3)) {
++				if (!de->inode)
++					continue;
++				if (namecompare(namelen,sbi->s_namelen,name,de->name))
++					goto found;
++			} else {
++				if (!de3->inode)
++					continue;
++				if (namecompare(namelen,sbi->s_namelen,name,de3->name))
++					goto found;
++			}
  		}
- 
--		if (msg->transfers[state->index].cs_change)
-+		if (state->transfer->cs_change)
- 			state->cs_control(PXA2XX_CS_DEASSERT);
- 		
- 		/* Schedule transfer tasklet */
--		msg->actual_length += msg->transfers[state->index].len;
--		++state->index;
-+		msg->actual_length += state->transfer->len;
-+		if (state->transfer->transfer_list.next == &msg->transfers)
-+			state->state = TRANSFER_END;
-+		else
-+			state->transfer = list_entry(state->transfer->transfer_list.next,
-+						     struct spi_transfer, transfer_list);
- 		tasklet_schedule(&drv_data->pump_transfers);
- 		
- 		return IRQ_HANDLED;
-@@ -491,13 +501,12 @@
- 			flush(drv_data);
- 			
- 			printk(KERN_WARNING "interrupt_transfer: fifo overun, "
--					"index=%d tx_len=%d rx_len=%d\n", 
--					state->index, 
-+					"tx_len=%d rx_len=%d\n", 
- 					(state->tx_end - state->tx), 
- 					(state->rx_end - state->rx)); 
- 
- 			drv_data->ror_cnt++;
--			state->index = -2;
-+			state->state = TRANSFER_ABORT;
- 			tasklet_schedule(&drv_data->pump_transfers);
- 
- 			return IRQ_HANDLED;
-@@ -523,13 +532,17 @@
- 			__REG(sssr) = SSSR_TINT | SSSR_ROR ;
- 			__REG(sscr1) &= ~(SSCR1_TIE | SSCR1_RIE | SSCR1_TINTE);
- 			
--			msg->actual_length += msg->transfers[state->index].len;
-+			msg->actual_length += state->transfer->len;
- 	
--			if (msg->transfers[state->index].cs_change)
-+			if (state->transfer->cs_change)
- 				state->cs_control(PXA2XX_CS_DEASSERT);
- 
- 			/* Schedule transfer tasklet */
--			++state->index;
-+			if (state->transfer->transfer_list.next == &msg->transfers)
-+				state->state = TRANSFER_END;
-+			else
-+				state->transfer = list_entry(state->transfer->transfer_list.next,
-+							     struct spi_transfer, transfer_list);
- 			tasklet_schedule(&drv_data->pump_transfers);
- 			
- 			return IRQ_HANDLED;
-@@ -587,7 +600,7 @@
- 		return;
+ 		dir_put_page(page);
  	}
- 	
--	chip = spi_get_ctldata(message->dev);
-+	chip = spi_get_ctldata(message->spi);
- 	if (!chip) {
- 		printk(KERN_ERR "pxs2xx_spi_ssp: bad chip data\n");
- 		drv_data->cur_msg = NULL;
-@@ -596,7 +609,7 @@
- 	}
- 		
- 	/* Handle for abort */
--	if (state->index == -2) {
-+	if (state->state == TRANSFER_ABORT) {
- 		message->status = -EIO;
- 		if (message->complete) {
- 			message->complete(message->context);
-@@ -607,8 +620,8 @@
- 	}
+ 	return NULL;
+-
+ found:
+ 	*res_page = page;
+ 	return de;
+@@ -194,6 +214,7 @@
+ 	struct minix_sb_info * sbi = minix_sb(sb);
+ 	struct page *page = NULL;
+ 	struct minix_dir_entry * de;
++	struct minix3_dir_entry * de3;
+ 	unsigned long npages = dir_pages(dir);
+ 	unsigned long n;
+ 	char *kaddr;
+@@ -216,6 +237,7 @@
+ 		kaddr = (char*)page_address(page);
+ 		dir_end = kaddr + minix_last_byte(dir, n);
+ 		de = (minix_dirent *)kaddr;
++		de3 = (minix3_dirent *)kaddr;
+ 		kaddr += PAGE_CACHE_SIZE - sbi->s_dirsize;
+ 		while ((char *)de <= kaddr) {
+ 			if ((char *)de == dir_end) {
+@@ -226,9 +248,16 @@
+ 			if (!de->inode)
+ 				goto got_it;
+ 			err = -EEXIST;
+-			if (namecompare(namelen,sbi->s_namelen,name,de->name))
+-				goto out_unlock;
+-			de = minix_next_entry(de, sbi);
++			if (!(sbi->s_version == MINIX_V3)) {
++				if (namecompare(namelen,sbi->s_namelen,name,de->name))
++					goto out_unlock;
++				de = minix_next_entry(de, sbi);
++			} else {
++				if (namecompare(namelen,sbi->s_namelen,name,de3->name))
++					goto out_unlock;
++				de = minix_next_entry(de, sbi);
++				de3 = minix_next_entry(de3, sbi);
++			}
+ 		}
+ 		unlock_page(page);
+ 		dir_put_page(page);
+@@ -242,9 +271,15 @@
+ 	err = page->mapping->a_ops->prepare_write(NULL, page, from, to);
+ 	if (err)
+ 		goto out_unlock;
+-	memcpy (de->name, name, namelen);
+-	memset (de->name + namelen, 0, sbi->s_dirsize - namelen - 2);
+-	de->inode = inode->i_ino;
++		if (!(sbi->s_version == MINIX_V3)) {
++		memcpy (de->name, name, namelen);
++		memset (de->name + namelen, 0, sbi->s_dirsize - namelen - 2);
++		de->inode = inode->i_ino;
++		} else {
++		memcpy (de3->name, name, namelen);
++		memset (de3->name + namelen, 0, sbi->s_dirsize - namelen - 4);
++		de3->inode = inode->i_ino;
++		}
+ 	err = dir_commit_chunk(page, from, to);
+ 	dir->i_mtime = dir->i_ctime = CURRENT_TIME_SEC;
+ 	mark_inode_dirty(dir);
+@@ -286,6 +321,7 @@
+ 	struct page *page = grab_cache_page(mapping, 0);
+ 	struct minix_sb_info * sbi = minix_sb(inode->i_sb);
+ 	struct minix_dir_entry * de;
++	struct minix3_dir_entry * de3;
+ 	char *kaddr;
+ 	int err;
  
- 	/* Handle end of message */
--	if (state->index == message->n_transfer) {
--		if (!message->transfers[state->index].cs_change)
-+	if (state->state == TRANSFER_END) {
-+		if (state->transfer->cs_change)
- 			state->cs_control(PXA2XX_CS_DEASSERT);
+@@ -301,11 +337,13 @@
+ 	memset(kaddr, 0, PAGE_CACHE_SIZE);
  
- 		message->status = 0;
-@@ -620,15 +633,14 @@
+ 	de = (struct minix_dir_entry *)kaddr;
+-	de->inode = inode->i_ino;
+-	strcpy(de->name,".");
++	de3 = (struct minix3_dir_entry *)kaddr;
++	de->inode = de3->inode = inode->i_ino;
++	(sbi->s_version == MINIX_V3) ? strcpy(de3->name,".") : strcpy(de->name,".");
+ 	de = minix_next_entry(de, sbi);
+-	de->inode = dir->i_ino;
+-	strcpy(de->name,"..");
++	de3 = minix_next_entry(de3, sbi);
++	de->inode = de3->inode = dir->i_ino;
++	(sbi->s_version == MINIX_V3) ? strcpy(de3->name,"..") : strcpy(de->name,"..");
+ 	kunmap_atomic(kaddr, KM_USER0);
+ 
+ 	err = dir_commit_chunk(page, 0, 2 * sbi->s_dirsize);
+@@ -326,27 +364,42 @@
+ 	for (i = 0; i < npages; i++) {
+ 		char *kaddr;
+ 		minix_dirent * de;
++		minix3_dirent * de3 = NULL;
+ 		page = dir_get_page(inode, i);
+ 
+ 		if (IS_ERR(page))
+ 			continue;
+ 
+ 		kaddr = (char *)page_address(page);
++		if (sbi->s_version == MINIX_V3)
++			de3 = (minix3_dirent *)kaddr;
+ 		de = (minix_dirent *)kaddr;
+ 		kaddr += minix_last_byte(inode, i) - sbi->s_dirsize;
+ 
+ 		while ((char *)de <= kaddr) {
+ 			if (de->inode != 0) {
+ 				/* check for . and .. */
+-				if (de->name[0] != '.')
+-					goto not_empty;
+-				if (!de->name[1]) {
+-					if (de->inode != inode->i_ino)
++				if (!(sbi->s_version == MINIX_V3)) {
++					if (de->name[0] != '.')
++						goto not_empty;
++					if (!de->name[1]) {
++						if (de->inode != inode->i_ino)
++						goto not_empty;
++					} else if (de->name[1] != '.')
++						goto not_empty;
++					else if (de->name[2])
++						goto not_empty;
++				} else {
++					if (de3->name[0] != '.')
+ 						goto not_empty;
+-				} else if (de->name[1] != '.')
+-					goto not_empty;
+-				else if (de->name[2])
+-					goto not_empty;
++					if (!de3->name[1]) {
++						if (de3->inode != inode->i_ino)
++						goto not_empty;
++					} else if (de3->name[1] != '.')
++						goto not_empty;
++					else if (de3->name[2])
++						goto not_empty;
++				}
+ 			}
+ 			de = minix_next_entry(de, sbi);
+ 		}
+diff -ur orig.linux-2.6.14.5/fs/minix/inode.c updated.linux-2.6.14.5/fs/minix/inode.c
+--- orig.linux-2.6.14.5/fs/minix/inode.c	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/fs/minix/inode.c	2006-01-11 19:41:41.000000000 +0100
+@@ -7,6 +7,7 @@
+  *	Minix V2 fs support.
+  *
+  *  Modified for 680x0 by Andreas Schwab
++ *  Updated to filesystem version 3 by Daniel Aragones
+  */
+ 
+ #include <linux/module.h>
+@@ -36,7 +37,8 @@
+ 	struct minix_sb_info *sbi = minix_sb(sb);
+ 
+ 	if (!(sb->s_flags & MS_RDONLY)) {
+-		sbi->s_ms->s_state = sbi->s_mount_state;
++		if (sbi->s_version != MINIX_V3)	 /* s_state is now out from V3 sb */
++			sbi->s_ms->s_state = sbi->s_mount_state;
+ 		mark_buffer_dirty(sbi->s_sbh);
  	}
- 	
- 	/* Handle start of message */
--	if (state->index == -1) {
-+	if (state->state == TRANSFER_START) {
- 		restore_state(drv_data, chip);
- 		flush(drv_data);
--		++state->index;
+ 	for (i = 0; i < sbi->s_imap_blocks; i++)
+@@ -117,21 +119,23 @@
+ 		    !(sbi->s_mount_state & MINIX_VALID_FS))
+ 			return 0;
+ 		/* Mounting a rw partition read-only. */
+-		ms->s_state = sbi->s_mount_state;
++		if (sbi->s_version != MINIX_V3)
++			ms->s_state = sbi->s_mount_state;
+ 		mark_buffer_dirty(sbi->s_sbh);
+ 	} else {
+ 	  	/* Mount a partition which is read-only, read-write. */
+ 		sbi->s_mount_state = ms->s_state;
+-		ms->s_state &= ~MINIX_VALID_FS;
++		if (sbi->s_version != MINIX_V3)
++			ms->s_state &= ~MINIX_VALID_FS;
+ 		mark_buffer_dirty(sbi->s_sbh);
+ 
+-		if (!(sbi->s_mount_state & MINIX_VALID_FS))
+-			printk ("MINIX-fs warning: remounting unchecked fs, "
+-				"running fsck is recommended.\n");
+-		else if ((sbi->s_mount_state & MINIX_ERROR_FS))
+-			printk ("MINIX-fs warning: remounting fs with errors, "
+-				"running fsck is recommended.\n");
 -	}
--	
--	/* Delay if requested at end of transfer*/
--	if (state->index > 1) {
--		transfer = message->transfers + (state->index - 1);
-+		state->transfer = list_entry(message->transfers.next, struct spi_transfer, transfer_list);
-+	} else {
-+		/* Delay if requested at end of transfer*/
-+		transfer = list_entry(state->transfer->transfer_list.prev,
-+				      struct spi_transfer, transfer_list);
- 		if (transfer->delay_usecs)
- 			udelay(transfer->delay_usecs);
- 	}
-@@ -636,7 +648,7 @@
- 	/* Setup the transfer state based on the type of transfer */	
- 	flush(drv_data);
- 	drv_data->trans_cnt++;
--	transfer = message->transfers + state->index;
-+	transfer = state->transfer;
- 	state->cs_control = !chip->cs_control ? 
- 				null_cs_control : chip->cs_control;
- 	state->tx = (void *)transfer->tx_buf;
-@@ -666,7 +678,7 @@
- 		
- 		/* Disable cache on rx buffer */
- 		transfer->rx_dma = 
--			dma_map_single(&message->dev->dev, 
-+			dma_map_single(&message->spi->dev, 
- 					state->rx, 
- 					rx_map_len, 
- 					DMA_FROM_DEVICE);
-@@ -695,7 +707,7 @@
- 		
- 		/* Disable cache on tx buffer */
- 		transfer->tx_dma = 
--			dma_map_single(&message->dev->dev, 
-+			dma_map_single(&message->spi->dev, 
- 					state->tx, 
- 					tx_map_len, 
- 					DMA_TO_DEVICE);
-@@ -791,7 +803,7 @@
- 		return;
- 	}
- 	
--	chip = spi_get_ctldata(message->dev);
-+	chip = spi_get_ctldata(message->spi);
- 	if (!chip) {
- 		printk(KERN_ERR "pxs2xx_spi_ssp: bad chip data\n");
- 		drv_data->cur_msg = NULL;
-@@ -800,7 +812,7 @@
- 	}
- 		
- 	/* Handle for abort */
--	if (state->index == -2) {
-+	if (state->state == TRANSFER_ABORT) {
- 		message->status = -EIO;
- 		if (message->complete) {
- 			message->complete(message->context);
-@@ -811,9 +823,9 @@
- 	}
- 
- 	/* Handle end of message */
--	if (state->index == message->n_transfer) {
--		if (!message->transfers[state->index].cs_change)
--		state->cs_control(PXA2XX_CS_DEASSERT);
-+	if (state->state == TRANSFER_END) {
-+		if (state->transfer->cs_change)
-+			state->cs_control(PXA2XX_CS_DEASSERT);
- 
- 		message->status = 0;
- 		if (message->complete)
-@@ -824,15 +836,15 @@
- 	}
- 	
- 	/* Handle start of message */
--	if (state->index == -1) {
-+	if (state->state == TRANSFER_START) {
- 		restore_state(drv_data, chip);
- 		flush(drv_data);
--		++state->index;
--	}
--	
--	/* Delay if requested at end of transfer*/
--	if (state->index > 1) {
--		transfer = message->transfers + (state->index - 1);
-+		state->transfer = list_entry(message->transfers.next,
-+					     struct spi_transfer, transfer_list);
-+	} else {
-+		/* Delay if requested at end of transfer*/
-+		transfer = list_entry(state->transfer->transfer_list.prev,
-+				      struct spi_transfer, transfer_list);
- 		if (transfer->delay_usecs)
- 			udelay(transfer->delay_usecs);
- 	}
-@@ -840,8 +852,9 @@
- 	/* Setup the transfer state based on the type of transfer */	
- 	flush(drv_data);
- 	drv_data->trans_cnt++;
--	transfer = message->transfers + state->index;
--	state->cs_control = chip->cs_control;
-+	transfer = state->transfer;
-+	state->cs_control = chip->cs_control ? 
-+		chip->cs_control : null_cs_control;
- 	state->tx = (void *)transfer->tx_buf;
- 	state->tx_end = state->tx + (transfer->len * chip->n_bytes);
- 	state->rx = transfer->rx_buf;
-@@ -892,7 +905,7 @@
- 	
- 	/* Setup message transfer and schedule transfer pump */
- 	drv_data->cur_msg->state = &drv_data->cur_state;
--	drv_data->cur_state.index = -1;
-+	drv_data->cur_state.state = TRANSFER_START;
- 	drv_data->cur_state.len = 0;
- 	tasklet_schedule(&drv_data->pump_transfers);
- 			
-@@ -921,7 +934,7 @@
- 	struct pxa2xx_spi_chip *chip_info;
- 	struct chip_data *chip;
- 	
--	chip_info = (struct pxa2xx_spi_chip *)spi->platform_data;
-+	chip_info = (struct pxa2xx_spi_chip *)spi->controller_data;
- 	
- 	/* Only alloc on first setup */
- 	chip = spi_get_ctldata(spi);
-@@ -935,7 +948,7 @@
- 	}
- 	
- 	chip->cs_control = chip_info->cs_control;
--	chip->cr0 = SSCR0_SerClkDiv((MAX_SPEED_HZ / spi->max_speed_hz) + 2) 
-+	chip->cr0 = SSCR0_SerClkDiv((MAX_SPEED_HZ / (spi->max_speed_hz + 1)) + 1)
- 			| SSCR0_Motorola 
- 			| SSCR0_DataSize(spi->bits_per_word) 
- 			| SSCR0_SSE
-@@ -1003,7 +1016,7 @@
- 				spi->master->bus_num, spi->chip_select);
++		if (!(sbi->s_mount_state & MINIX_VALID_FS) && (sbi->s_version != MINIX_V3))
++			printk ("MINIX-fs warning: remounting unchecked Minix filesystem V%i, "
++				"running fsck is recommended.\n", sbi->s_version);
++		else if ((sbi->s_mount_state & MINIX_ERROR_FS) && (sbi->s_version != MINIX_V3))
++			printk ("MINIX-fs warning: remounting Minix filesystem V%i with errors, "
++				"running fsck is recommended.\n", sbi->s_version);
++ 	}
+ 	return 0;
  }
  
--static ssize_t trans_cnt_show(struct device *dev, char *buf)
-+static ssize_t trans_cnt_show(struct device *dev, struct device_attribute *attr, char *buf)
- {	
- 	struct spi_master *master = dev_get_drvdata(dev);
- 	struct master_data *drv_data = class_get_devdata(&master->cdev);
-@@ -1012,7 +1025,7 @@
- }
- DEVICE_ATTR(transfer_count, 0444, trans_cnt_show, NULL);
+@@ -197,6 +201,23 @@
+ 		sbi->s_dirsize = 32;
+ 		sbi->s_namelen = 30;
+ 		sbi->s_link_max = MINIX2_LINK_MAX;
++	} else if ( *(__u16 *)(bh->b_data + 24) == MINIX3_SUPER_MAGIC) {
++
++		s->s_magic = MINIX3_SUPER_MAGIC;
++		sbi->s_imap_blocks = *(__u16 *)(bh->b_data + 6);
++		sbi->s_zmap_blocks = *(__u16 *)(bh->b_data + 8);
++		sbi->s_firstdatazone = *(__u16 *)(bh->b_data + 10);
++		sbi->s_log_zone_size = *(__u16 *)(bh->b_data + 12);
++		sbi->s_max_size = *(__u32 *)(bh->b_data + 16);
++		sbi->s_nzones = *(__u32 *)(bh->b_data + 20);
++		sbi->s_dirsize = 64;
++		sbi->s_namelen = 60;
++		sbi->s_version = MINIX_V3;
++		sbi->s_link_max = MINIX2_LINK_MAX;
++			if ( *(__u16 *)(bh->b_data + 28) != 1024) {
++				if (!sb_set_blocksize(s,( *(__u16 *)(bh->b_data + 28))))
++ 				goto out_bad_hblock;
++		}
+ 	} else
+ 		goto out_no_fs;
  
--static ssize_t dma_trans_cnt_show(struct device *dev, char *buf)
-+static ssize_t dma_trans_cnt_show(struct device *dev, struct device_attribute *attr, char *buf)
+@@ -240,15 +261,16 @@
+ 		s->s_root->d_op = &minix_dentry_operations;
+ 
+ 	if (!(s->s_flags & MS_RDONLY)) {
+-		ms->s_state &= ~MINIX_VALID_FS;
++		if(sbi->s_version != MINIX_V3) /* s_state is now out from V3 sb */
++			ms->s_state &= ~MINIX_VALID_FS;
+ 		mark_buffer_dirty(bh);
+ 	}
+-	if (!(sbi->s_mount_state & MINIX_VALID_FS))
+-		printk ("MINIX-fs: mounting unchecked file system, "
+-			"running fsck is recommended.\n");
+- 	else if (sbi->s_mount_state & MINIX_ERROR_FS)
+-		printk ("MINIX-fs: mounting file system with errors, "
+-			"running fsck is recommended.\n");
++	if (!(sbi->s_mount_state & MINIX_VALID_FS) && (sbi->s_version != MINIX_V3))
++		printk ("MINIX-fs: mounting unchecked Minix filesystem V%i, "
++			"running fsck is recommended.\n", sbi->s_version);
++ 	else if ((sbi->s_mount_state & MINIX_ERROR_FS) && (sbi->s_version != MINIX_V3))
++		printk ("MINIX-fs: mounting Minix filesystem V%i with errors, "
++			"running fsck is recommended.\n", sbi->s_version);
+ 	return 0;
+ 
+ out_iput:
+@@ -277,8 +299,8 @@
+ 
+ out_no_fs:
+ 	if (!silent)
+-		printk("VFS: Can't find a Minix or Minix V2 filesystem on device "
+-		       "%s.\n", s->s_id);
++		printk("VFS: Can't find a Minix filesystem V1 | V2 | V3 on device "
++ 		       "%s.\n", s->s_id);
+     out_release:
+ 	brelse(bh);
+ 	goto out;
+@@ -536,12 +558,14 @@
+ 
+ int minix_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
  {
- 	struct spi_master *master = dev_get_drvdata(dev);
- 	struct master_data *drv_data = class_get_devdata(&master->cdev);
-@@ -1021,7 +1034,7 @@
++	struct inode * dir = dentry->d_parent->d_inode;
++	struct super_block * sb = dir->i_sb;
+ 	generic_fillattr(dentry->d_inode, stat);
+ 	if (INODE_VERSION(dentry->d_inode) == MINIX_V1)
+ 		stat->blocks = (BLOCK_SIZE / 512) * V1_minix_blocks(stat->size);
+ 	else
+-		stat->blocks = (BLOCK_SIZE / 512) * V2_minix_blocks(stat->size);
+-	stat->blksize = BLOCK_SIZE;
++		stat->blocks = (sb->s_blocksize / 512) * V2_minix_blocks(stat->size);
++	stat->blksize = sb->s_blocksize;
+ 	return 0;
  }
- DEVICE_ATTR(dma_transfer_count, 0444, dma_trans_cnt_show, NULL);
  
--static ssize_t int_trans_cnt_show(struct device *dev, char *buf)
-+static ssize_t int_trans_cnt_show(struct device *dev, struct device_attribute *attr, char *buf)
+diff -ur orig.linux-2.6.14.5/fs/minix/itree_common.c updated.linux-2.6.14.5/fs/minix/itree_common.c
+--- orig.linux-2.6.14.5/fs/minix/itree_common.c	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/fs/minix/itree_common.c	2006-01-11 19:41:41.000000000 +0100
+@@ -23,7 +23,7 @@
+ 
+ static inline block_t *block_end(struct buffer_head *bh)
  {
- 	struct spi_master *master = dev_get_drvdata(dev);
- 	struct master_data *drv_data = class_get_devdata(&master->cdev);
-@@ -1030,7 +1043,7 @@
+-	return (block_t *)((char*)bh->b_data + BLOCK_SIZE);
++	return (block_t *)((char*)bh->b_data + bh->b_size);
  }
- DEVICE_ATTR(interrupt_transfer_count, 0444, int_trans_cnt_show, NULL);
  
--static ssize_t bigunalign_cnt_show(struct device *dev, char *buf)
-+static ssize_t bigunalign_cnt_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
- 	struct spi_master *master = dev_get_drvdata(dev);
- 	struct master_data *drv_data = class_get_devdata(&master->cdev);
-@@ -1039,7 +1052,7 @@
- }
- DEVICE_ATTR(big_unaligned_count, 0444, bigunalign_cnt_show, NULL);
+ static inline Indirect *get_branch(struct inode *inode,
+@@ -85,7 +85,7 @@
+ 		branch[n].key = cpu_to_block(nr);
+ 		bh = sb_getblk(inode->i_sb, parent);
+ 		lock_buffer(bh);
+-		memset(bh->b_data, 0, BLOCK_SIZE);
++		memset(bh->b_data, 0, bh->b_size);
+ 		branch[n].bh = bh;
+ 		branch[n].p = (block_t*) bh->b_data + offsets[n];
+ 		*branch[n].p = branch[n].key;
+@@ -292,6 +292,7 @@
  
--static ssize_t buserr_cnt_show(struct device *dev, char *buf)
-+static ssize_t buserr_cnt_show(struct device *dev, struct device_attribute *attr, char *buf)
+ static inline void truncate (struct inode * inode)
  {
- 	struct spi_master *master = dev_get_drvdata(dev);
- 	struct master_data *drv_data = class_get_devdata(&master->cdev);
-@@ -1048,7 +1061,7 @@
- }
- DEVICE_ATTR(bus_error_count, 0444, buserr_cnt_show, NULL);
++	struct super_block * sb = inode->i_sb;
+ 	block_t *idata = i_data(inode);
+ 	int offsets[DEPTH];
+ 	Indirect chain[DEPTH];
+@@ -301,7 +302,7 @@
+ 	int first_whole;
+ 	long iblock;
  
--static ssize_t ror_cnt_show(struct device *dev, char *buf)
-+static ssize_t ror_cnt_show(struct device *dev, struct device_attribute *attr, char *buf)
- {
- 	struct spi_master *master = dev_get_drvdata(dev);
- 	struct master_data *drv_data = class_get_devdata(&master->cdev);
+-	iblock = (inode->i_size + BLOCK_SIZE-1) >> 10;
++	iblock = (inode->i_size + sb->s_blocksize -1) >> 10;
+ 	block_truncate_page(inode->i_mapping, inode->i_size, get_block);
+ 
+ 	n = block_to_path(inode, iblock, offsets);
+diff -ur orig.linux-2.6.14.5/fs/minix/minix.h updated.linux-2.6.14.5/fs/minix/minix.h
+--- orig.linux-2.6.14.5/fs/minix/minix.h	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/fs/minix/minix.h	2006-01-11 19:41:41.000000000 +0100
+@@ -12,6 +12,7 @@
+ 
+ #define MINIX_V1		0x0001		/* original minix fs */
+ #define MINIX_V2		0x0002		/* minix V2 fs */
++#define MINIX_V3		0x0003		/* minix V3 fs */
+ 
+ /*
+  * minix fs inode data in memory
+diff -ur orig.linux-2.6.14.5/include/linux/minix_fs.h updated.linux-2.6.14.5/include/linux/minix_fs.h
+--- orig.linux-2.6.14.5/include/linux/minix_fs.h	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/include/linux/minix_fs.h	2006-01-11 19:41:41.000000000 +0100
+@@ -23,11 +23,12 @@
+ #define MINIX_SUPER_MAGIC2	0x138F		/* minix fs, 30 char names */
+ #define MINIX2_SUPER_MAGIC	0x2468		/* minix V2 fs */
+ #define MINIX2_SUPER_MAGIC2	0x2478		/* minix V2 fs, 30 char names */
++#define MINIX3_SUPER_MAGIC	0x4d5a		/* minix V3 fs */ 
+ #define MINIX_VALID_FS		0x0001		/* Clean fs. */
+ #define MINIX_ERROR_FS		0x0002		/* fs has errors. */
+ 
+ #define MINIX_INODES_PER_BLOCK ((BLOCK_SIZE)/(sizeof (struct minix_inode)))
+-#define MINIX2_INODES_PER_BLOCK ((BLOCK_SIZE)/(sizeof (struct minix2_inode)))
++#define MINIX2_INODES_PER_BLOCK(b) ((b)/(sizeof (struct minix2_inode)))
+ 
+ /*
+  * This is the original minix inode layout on disk.
+@@ -82,4 +83,9 @@
+ 	char name[0];
+ };
+ 
++struct minix3_dir_entry {
++	__u16 inode;
++	__u16 padding;
++	char name[0];
++};
+ #endif
 
---------------060204030205060407000908--
+--------------040204060306060402060405
+Content-Type: text/plain;
+ name="V3_2dot4_patch.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="V3_2dot4_patch.txt"
+
+diff -ur orig.linux-2.4.32/fs/minix/bitmap.c updated.linux-2.4.32/fs/minix/bitmap.c
+--- orig.linux-2.4.32/fs/minix/bitmap.c	2002-02-25 20:38:09.000000000 +0100
++++ updated.linux-2.4.32/fs/minix/bitmap.c	2006-01-14 20:57:54.000000000 +0100
+@@ -27,14 +27,14 @@
+ 	for (i=0; i<numblocks-1; i++) {
+ 		if (!(bh=map[i])) 
+ 			return(0);
+-		for (j=0; j<BLOCK_SIZE; j++)
++		for (j=0; j<bh->b_size; j++)
+ 			sum += nibblemap[bh->b_data[j] & 0xf]
+ 				+ nibblemap[(bh->b_data[j]>>4) & 0xf];
+ 	}
+ 
+ 	if (numblocks==0 || !(bh=map[numblocks-1]))
+ 		return(0);
+-	i = ((numbits-(numblocks-1)*BLOCK_SIZE*8)/16)*2;
++	i = ((numbits-(numblocks-1)*bh->b_size*8)/16)*2;
+ 	for (j=0; j<i; j++) {
+ 		sum += nibblemap[bh->b_data[j] & 0xf]
+ 			+ nibblemap[(bh->b_data[j]>>4) & 0xf];
+@@ -157,14 +157,14 @@
+ 	}
+ 	ino--;
+ 	block = 2 + sbi->s_imap_blocks + sbi->s_zmap_blocks +
+-		 ino / MINIX2_INODES_PER_BLOCK;
++		 ino / MINIX2_INODES_PER_BLOCK(sb->s_blocksize);
+ 	*bh = sb_bread(sb, block);
+ 	if (!*bh) {
+ 		printk("unable to read i-node block\n");
+ 		return NULL;
+ 	}
+ 	p = (void *)(*bh)->b_data;
+-	return p + ino % MINIX2_INODES_PER_BLOCK;
++	return p + ino % MINIX2_INODES_PER_BLOCK(sb->s_blocksize);
+ }
+ 
+ /* Clear the link count and mode of a deleted inode on disk. */
+diff -ur orig.linux-2.4.32/fs/minix/dir.c updated.linux-2.4.32/fs/minix/dir.c
+--- orig.linux-2.4.32/fs/minix/dir.c	2002-02-25 20:38:09.000000000 +0100
++++ updated.linux-2.4.32/fs/minix/dir.c	2006-01-14 20:57:54.000000000 +0100
+@@ -4,6 +4,9 @@
+  *  Copyright (C) 1991, 1992 Linus Torvalds
+  *
+  *  minix directory handling functions
++ *
++ *  Updated to filesystem version 3 by Daniel Aragones
++ *
+  */
+ 
+ #include <linux/fs.h>
+@@ -11,6 +14,7 @@
+ #include <linux/pagemap.h>
+ 
+ typedef struct minix_dir_entry minix_dirent;
++typedef struct minix3_dir_entry minix3_dirent;
+ 
+ static int minix_readdir(struct file *, void *, filldir_t);
+ 
+@@ -95,14 +99,22 @@
+ 		limit = kaddr + PAGE_CACHE_SIZE - chunk_size;
+ 		for ( ; p <= limit ; p = minix_next_entry(p, sbi)) {
+ 			minix_dirent *de = (minix_dirent *)p;
++			minix3_dirent *de3 = (minix3_dirent *)p;
+ 			if (de->inode) {
+ 				int over;
+-				unsigned l = strnlen(de->name,sbi->s_namelen);
+-
+-				offset = p - kaddr;
+-				over = filldir(dirent, de->name, l,
+-						(n<<PAGE_CACHE_SHIFT) | offset,
+-						de->inode, DT_UNKNOWN);
++				if (!(sbi->s_version == MINIX_V3)) {
++					unsigned l = strnlen(de->name,sbi->s_namelen);
++					offset = p - kaddr;
++					over = filldir(dirent, de->name, l,
++					(n<<PAGE_CACHE_SHIFT) | offset,
++					de->inode, DT_UNKNOWN);
++				} else {
++					unsigned l = strnlen(de3->name,sbi->s_namelen);
++					offset = p - kaddr;
++					over = filldir(dirent, de3->name, l,
++					(n<<PAGE_CACHE_SHIFT) | offset,
++					de3->inode, DT_UNKNOWN);
++				}
+ 				if (over) {
+ 					dir_put_page(page);
+ 					goto done;
+@@ -145,7 +157,7 @@
+ 	unsigned long npages = dir_pages(dir);
+ 	struct page *page = NULL;
+ 	struct minix_dir_entry *de;
+-
++	struct minix3_dir_entry *de3;
+ 	*res_page = NULL;
+ 
+ 	for (n = 0; n < npages; n++) {
+@@ -156,12 +168,22 @@
+ 
+ 		kaddr = (char*)page_address(page);
+ 		de = (struct minix_dir_entry *) kaddr;
++		de3 = (struct minix3_dir_entry *) kaddr;
+ 		kaddr += PAGE_CACHE_SIZE - sbi->s_dirsize;
+-		for ( ; (char *) de <= kaddr ; de = minix_next_entry(de,sbi)) {
+-			if (!de->inode)
+-				continue;
+-			if (namecompare(namelen,sbi->s_namelen,name,de->name))
+-				goto found;
++		for ( ; (char *) de <= kaddr ;
++					de = minix_next_entry(de,sbi),
++					de3 = minix_next_entry(de3,sbi)) {
++			if (!(sbi->s_version == MINIX_V3)) {
++				if (!de->inode)
++					continue;
++				if (namecompare(namelen,sbi->s_namelen,name,de->name))
++					goto found; 		
++			} else {
++				if (!de3->inode)
++					continue;
++				if (namecompare(namelen,sbi->s_namelen,name,de3->name))
++					goto found;
++			}
+ 		}
+ 		dir_put_page(page);
+ 	}
+@@ -181,6 +203,7 @@
+ 	struct minix_sb_info * sbi = &sb->u.minix_sb;
+ 	struct page *page = NULL;
+ 	struct minix_dir_entry * de;
++	struct minix3_dir_entry * de3;
+ 	unsigned long npages = dir_pages(dir);
+ 	unsigned long n;
+ 	char *kaddr;
+@@ -195,14 +218,22 @@
+ 			goto out;
+ 		kaddr = (char*)page_address(page);
+ 		de = (minix_dirent *)kaddr;
++		de3 = (minix3_dirent *)kaddr;
+ 		kaddr += PAGE_CACHE_SIZE - sbi->s_dirsize;
+ 		while ((char *)de <= kaddr) {
+ 			if (!de->inode)
+ 				goto got_it;
+ 			err = -EEXIST;
+-			if (namecompare(namelen,sbi->s_namelen,name,de->name))
+-				goto out_page;
+-			de = minix_next_entry(de, sbi);
++			if (!(sbi->s_version == MINIX_V3)) {
++				if (namecompare(namelen,sbi->s_namelen,name,de->name)) 		
++					goto out_page;
++ 				de = minix_next_entry(de, sbi);
++			} else {
++				if (namecompare(namelen,sbi->s_namelen,name,de3->name))
++					goto out_unlock;
++				de = minix_next_entry(de, sbi);
++				de3 = minix_next_entry(de3, sbi);
++			}
+ 		}
+ 		dir_put_page(page);
+ 	}
+@@ -216,9 +247,15 @@
+ 	err = page->mapping->a_ops->prepare_write(NULL, page, from, to);
+ 	if (err)
+ 		goto out_unlock;
+-	memcpy (de->name, name, namelen);
+-	memset (de->name + namelen, 0, sbi->s_dirsize - namelen - 2);
+-	de->inode = inode->i_ino;
++		if (!(sbi->s_version == MINIX_V3)) {
++		memcpy (de->name, name, namelen);
++		memset (de->name + namelen, 0, sbi->s_dirsize - namelen - 2);
++		de->inode = inode->i_ino;
++		} else {
++		memcpy (de3->name, name, namelen);
++		memset (de3->name + namelen, 0, sbi->s_dirsize - namelen - 4);
++		de3->inode = inode->i_ino;
++		}
+ 	err = dir_commit_chunk(page, from, to);
+ 	dir->i_mtime = dir->i_ctime = CURRENT_TIME;
+ 	mark_inode_dirty(dir);
+@@ -258,6 +295,7 @@
+ 	struct page *page = grab_cache_page(mapping, 0);
+ 	struct minix_sb_info * sbi = &inode->i_sb->u.minix_sb;
+ 	struct minix_dir_entry * de;
++	struct minix3_dir_entry * de3;
+ 	char *base;
+ 	int err;
+ 
+@@ -269,13 +307,14 @@
+ 
+ 	base = (char*)page_address(page);
+ 	memset(base, 0, PAGE_CACHE_SIZE);
+-
+-	de = (struct minix_dir_entry *) base;
+-	de->inode = inode->i_ino;
+-	strcpy(de->name,".");
++	de = (struct minix_dir_entry *)base;
++	de3 = (struct minix3_dir_entry *)base;
++	de->inode = de3->inode = inode->i_ino;
++	(sbi->s_version == MINIX_V3) ? strcpy(de3->name,".") : strcpy(de->name,".");
+ 	de = minix_next_entry(de, sbi);
+-	de->inode = dir->i_ino;
+-	strcpy(de->name,"..");
++	de3 = minix_next_entry(de3, sbi);
++	de->inode = de3->inode = dir->i_ino;
++	(sbi->s_version == MINIX_V3) ? strcpy(de3->name,"..") : strcpy(de->name,"..");
+ 
+ 	err = dir_commit_chunk(page, 0, 2 * sbi->s_dirsize);
+ fail:
+@@ -296,27 +335,42 @@
+ 	for (i = 0; i < npages; i++) {
+ 		char *kaddr;
+ 		minix_dirent * de;
++		minix3_dirent * de3 = NULL;
+ 		page = dir_get_page(inode, i);
+ 
+ 		if (IS_ERR(page))
+ 			continue;
+ 
+ 		kaddr = (char *)page_address(page);
++		if (sbi->s_version == MINIX_V3)
++			de3 = (minix3_dirent *)kaddr;
+ 		de = (minix_dirent *)kaddr;
+ 		kaddr += PAGE_CACHE_SIZE - sbi->s_dirsize;
+ 
+ 		while ((char *)de <= kaddr) {
+ 			if (de->inode != 0) {
+ 				/* check for . and .. */
+-				if (de->name[0] != '.')
+-					goto not_empty;
+-				if (!de->name[1]) {
+-					if (de->inode != inode->i_ino)
++				if (!(sbi->s_version == MINIX_V3)) {
++					if (de->name[0] != '.')
++						goto not_empty;
++					if (!de->name[1]) {
++						if (de->inode != inode->i_ino)
++							goto not_empty;
++					} else if (de->name[1] != '.')
++						goto not_empty;
++					else if (de->name[2])
+ 						goto not_empty;
+-				} else if (de->name[1] != '.')
+-					goto not_empty;
+-				else if (de->name[2])
+-					goto not_empty;
++				} else {
++					if (de3->name[0] != '.')
++						goto not_empty;
++					if (!de3->name[1]) {
++						if (de3->inode != inode->i_ino)
++							goto not_empty;
++					} else if (de3->name[1] != '.')
++						goto not_empty;
++					else if (de3->name[2])
++						goto not_empty;
++				}
+ 			}
+ 			de = minix_next_entry(de, sbi);
+ 		}
+diff -ur orig.linux-2.4.32/fs/minix/inode.c updated.linux-2.4.32/fs/minix/inode.c
+--- orig.linux-2.4.32/fs/minix/inode.c	2003-11-28 19:26:21.000000000 +0100
++++ updated.linux-2.4.32/fs/minix/inode.c	2006-01-14 20:57:55.000000000 +0100
+@@ -7,6 +7,7 @@
+  *	Minix V2 fs support.
+  *
+  *  Modified for 680x0 by Andreas Schwab
++ *  Updated to filesystem version 3 by Daniel Aragones
+  */
+ 
+ #include <linux/module.h>
+@@ -28,7 +29,7 @@
+ static void minix_delete_inode(struct inode *inode)
+ {
+ 	lock_kernel();
+-
++	truncate_inode_pages(&inode->i_data, 0);
+ 	inode->i_size = 0;
+ 	minix_truncate(inode);
+ 	minix_free_inode(inode);
+@@ -45,23 +46,24 @@
+ static void minix_write_super(struct super_block * sb)
+ {
+ 	struct minix_super_block * ms;
++	struct minix_sb_info *sbi = &sb->u.minix_sb;
+ 
+ 	if (!(sb->s_flags & MS_RDONLY)) {
+ 		ms = sb->u.minix_sb.s_ms;
+-
+-		if (ms->s_state & MINIX_VALID_FS)
+-			ms->s_state &= ~MINIX_VALID_FS;
+-		minix_commit_super(sb);
++		if (sbi->s_version != MINIX_V3) { /* s_state is out from V3 sb */
++			if (ms->s_state & MINIX_VALID_FS)
++				ms->s_state &= ~MINIX_VALID_FS;
++			minix_commit_super(sb);
++		}
+ 	}
+ 	sb->s_dirt = 0;
+ }
+ 
+-
+ static void minix_put_super(struct super_block *sb)
+ {
+ 	int i;
+-
+-	if (!(sb->s_flags & MS_RDONLY)) {
++	struct minix_sb_info *sbi = &sb->u.minix_sb;
++	if (!(sb->s_flags & MS_RDONLY) && (sbi->s_version != MINIX_V3)) {
+ 		sb->u.minix_sb.s_ms->s_state = sb->u.minix_sb.s_mount_state;
+ 		mark_buffer_dirty(sb->u.minix_sb.s_sbh);
+ 	}
+@@ -88,11 +90,12 @@
+ static int minix_remount (struct super_block * sb, int * flags, char * data)
+ {
+ 	struct minix_super_block * ms;
++	struct minix_sb_info *sbi = &sb->u.minix_sb;
+ 
+ 	ms = sb->u.minix_sb.s_ms;
+ 	if ((*flags & MS_RDONLY) == (sb->s_flags & MS_RDONLY))
+ 		return 0;
+-	if (*flags & MS_RDONLY) {
++	if ((*flags & MS_RDONLY) && (sbi->s_version != MINIX_V3)){
+ 		if (ms->s_state & MINIX_VALID_FS ||
+ 		    !(sb->u.minix_sb.s_mount_state & MINIX_VALID_FS))
+ 			return 0;
+@@ -102,20 +105,21 @@
+ 		sb->s_dirt = 1;
+ 		minix_commit_super(sb);
+ 	}
+-	else {
++	else if (sbi->s_version != MINIX_V3){
+ 	  	/* Mount a partition which is read-only, read-write. */
+ 		sb->u.minix_sb.s_mount_state = ms->s_state;
+ 		ms->s_state &= ~MINIX_VALID_FS;
+ 		mark_buffer_dirty(sb->u.minix_sb.s_sbh);
+ 		sb->s_dirt = 1;
++		}
++
++		if (!(sb->u.minix_sb.s_mount_state & MINIX_VALID_FS) && (sbi->s_version != MINIX_V3))
++			printk ("MINIX-fs warning: remounting unchecked Minix filesystem V%i, "
++				"running fsck is recommended.\n", sbi->s_version);
++		else if ((sb->u.minix_sb.s_mount_state & MINIX_ERROR_FS) && (sbi->s_version != MINIX_V3))
++			printk ("MINIX-fs warning: remounting Minix filesystem V%i with errors, "
++				"running fsck is recommended.\n", sbi->s_version);
+ 
+-		if (!(sb->u.minix_sb.s_mount_state & MINIX_VALID_FS))
+-			printk ("MINIX-fs warning: remounting unchecked fs, "
+-				"running fsck is recommended.\n");
+-		else if ((sb->u.minix_sb.s_mount_state & MINIX_ERROR_FS))
+-			printk ("MINIX-fs warning: remounting fs with errors, "
+-				"running fsck is recommended.\n");
+-	}
+ 	return 0;
+ }
+ 
+@@ -182,6 +186,23 @@
+ 		sbi->s_dirsize = 32;
+ 		sbi->s_namelen = 30;
+ 		sbi->s_link_max = MINIX2_LINK_MAX;
++	} else if ( *(__u16 *)(bh->b_data + 24) == MINIX3_SUPER_MAGIC) {
++
++		s->s_magic = MINIX3_SUPER_MAGIC;
++		sbi->s_imap_blocks = *(__u16 *)(bh->b_data + 6);
++		sbi->s_zmap_blocks = *(__u16 *)(bh->b_data + 8);
++		sbi->s_firstdatazone = *(__u16 *)(bh->b_data + 10);
++		sbi->s_log_zone_size = *(__u16 *)(bh->b_data + 12);
++		sbi->s_max_size = *(__u32 *)(bh->b_data + 16);
++		sbi->s_nzones = *(__u32 *)(bh->b_data + 20);
++		sbi->s_dirsize = 64;
++		sbi->s_namelen = 60;
++		sbi->s_version = MINIX_V3;
++		sbi->s_link_max = MINIX2_LINK_MAX;
++			if ( *(__u16 *)(bh->b_data + 28) != 1024) {
++				if (!sb_set_blocksize(s,( *(__u16 *)(bh->b_data + 28))))
++ 				goto out_bad_hblock;
++		}
+ 	} else
+ 		goto out_no_fs;
+ 
+@@ -224,17 +245,17 @@
+ 	if (!NO_TRUNCATE)
+ 		s->s_root->d_op = &minix_dentry_operations;
+ 
+-	if (!(s->s_flags & MS_RDONLY)) {
+-		ms->s_state &= ~MINIX_VALID_FS;
++	if (!(s->s_flags & MS_RDONLY) && (sbi->s_version != MINIX_V3)) {
++		ms->s_state &= ~MINIX_VALID_FS; /* s_state is out from V3 sb */
+ 		mark_buffer_dirty(bh);
+ 		s->s_dirt = 1;
+ 	}
+-	if (!(sbi->s_mount_state & MINIX_VALID_FS))
+-		printk ("MINIX-fs: mounting unchecked file system, "
+-			"running fsck is recommended.\n");
+- 	else if (sbi->s_mount_state & MINIX_ERROR_FS)
+-		printk ("MINIX-fs: mounting file system with errors, "
+-			"running fsck is recommended.\n");
++	if (!(sbi->s_mount_state & MINIX_VALID_FS) && (sbi->s_version != MINIX_V3))
++		printk ("MINIX-fs: mounting unchecked Minix filesystem V%i, "
++			"running fsck is recommended.\n", sbi->s_version);
++ 	else if ((sbi->s_mount_state & MINIX_ERROR_FS) && (sbi->s_version != MINIX_V3))
++		printk ("MINIX-fs: mounting Minix filesystem V%i with errors, "
++			"running fsck is recommended.\n", sbi->s_version);
+ 	return s;
+ 
+ out_iput:
+@@ -263,7 +284,7 @@
+ 
+ out_no_fs:
+ 	if (!silent)
+-		printk("VFS: Can't find a Minix or Minix V2 filesystem on device "
++		printk("VFS: Can't find a Minix filesystem V1 | V2 | V3 on device "
+ 		       "%s.\n", kdevname(dev));
+     out_release:
+ 	brelse(bh);
+diff -ur orig.linux-2.4.32/fs/minix/itree_common.c updated.linux-2.4.32/fs/minix/itree_common.c
+--- orig.linux-2.4.32/fs/minix/itree_common.c	2002-02-25 20:38:09.000000000 +0100
++++ updated.linux-2.4.32/fs/minix/itree_common.c	2006-01-14 20:57:54.000000000 +0100
+@@ -21,7 +21,7 @@
+ 
+ static inline block_t *block_end(struct buffer_head *bh)
+ {
+-	return (block_t *)((char*)bh->b_data + BLOCK_SIZE);
++	return (block_t *)((char*)bh->b_data + bh->b_size);
+ }
+ 
+ static inline Indirect *get_branch(struct inode *inode,
+@@ -81,7 +81,7 @@
+ 		branch[n].key = cpu_to_block(nr);
+ 		bh = sb_getblk(inode->i_sb, parent);
+ 		lock_buffer(bh);
+-		memset(bh->b_data, 0, BLOCK_SIZE);
++		memset(bh->b_data, 0, bh->b_size);
+ 		branch[n].bh = bh;
+ 		branch[n].p = (block_t*) bh->b_data + offsets[n];
+ 		*branch[n].p = branch[n].key;
+@@ -292,6 +292,7 @@
+ 
+ static inline void truncate (struct inode * inode)
+ {
++	struct super_block * sb = inode->i_sb;
+ 	block_t *idata = i_data(inode);
+ 	int offsets[DEPTH];
+ 	Indirect chain[DEPTH];
+@@ -301,7 +302,7 @@
+ 	int first_whole;
+ 	long iblock;
+ 
+-	iblock = (inode->i_size + BLOCK_SIZE-1) >> 10;
++	iblock = (inode->i_size + sb->s_blocksize -1) >> 10;
+ 	block_truncate_page(inode->i_mapping, inode->i_size, get_block);
+ 
+ 	n = block_to_path(inode, iblock, offsets);
+diff -ur orig.linux-2.4.32/include/linux/minix_fs.h updated.linux-2.4.32/include/linux/minix_fs.h
+--- orig.linux-2.4.32/include/linux/minix_fs.h	2001-09-07 18:45:51.000000000 +0200
++++ updated.linux-2.4.32/include/linux/minix_fs.h	2006-01-14 20:57:55.000000000 +0100
+@@ -23,14 +23,16 @@
+ #define MINIX_SUPER_MAGIC2	0x138F		/* minix fs, 30 char names */
+ #define MINIX2_SUPER_MAGIC	0x2468		/* minix V2 fs */
+ #define MINIX2_SUPER_MAGIC2	0x2478		/* minix V2 fs, 30 char names */
++#define MINIX3_SUPER_MAGIC	0x4d5a		/* minix V3 fs */ 
+ #define MINIX_VALID_FS		0x0001		/* Clean fs. */
+ #define MINIX_ERROR_FS		0x0002		/* fs has errors. */
+ 
+ #define MINIX_INODES_PER_BLOCK ((BLOCK_SIZE)/(sizeof (struct minix_inode)))
+-#define MINIX2_INODES_PER_BLOCK ((BLOCK_SIZE)/(sizeof (struct minix2_inode)))
++#define MINIX2_INODES_PER_BLOCK(b) ((b)/(sizeof (struct minix2_inode)))
+ 
+ #define MINIX_V1		0x0001		/* original minix fs */
+ #define MINIX_V2		0x0002		/* minix V2 fs */
++#define MINIX_V3		0x0003		/* minix V3 fs */
+ 
+ #define INODE_VERSION(inode)	inode->i_sb->u.minix_sb.s_version
+ 
+@@ -87,6 +89,12 @@
+ 	char name[0];
+ };
+ 
++struct minix3_dir_entry {
++	__u16 inode;
++	__u16 padding;
++	char name[0];
++};
++
+ #ifdef __KERNEL__
+ 
+ /*
+
+--------------040204060306060402060405--

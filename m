@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161152AbWASCLr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161160AbWASCMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161152AbWASCLr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 21:11:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161155AbWASCLr
+	id S1161160AbWASCMS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 21:12:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161157AbWASCMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 21:11:47 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:14090 "HELO
+	Wed, 18 Jan 2006 21:12:15 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:15626 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161152AbWASCLo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 21:11:44 -0500
-Date: Thu, 19 Jan 2006 03:11:42 +0100
+	id S1161156AbWASCLt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 21:11:49 -0500
+Date: Thu, 19 Jan 2006 03:11:47 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/scsi/aic7xxx/: possible cleanups
-Message-ID: <20060119021142.GA19398@stusta.de>
+Cc: linux-kernel@vger.kernel.org, macro@linux-mips.org,
+       rmk+serial@arm.linux.org.uk, linux-serial@vger.kernel.org,
+       tony.luck@intel.com, linux-ia64@vger.kernel.org
+Subject: [RFC: 2.6 patch] kill _INLINE_
+Message-ID: <20060119021147.GB19398@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,920 +24,630 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make needlessly global code static
-- #if 0 the following unused global functions:
-  - aic79xx_core.c: ahd_print_scb
-  - aic79xx_core.c: ahd_suspend
-  - aic79xx_core.c: ahd_resume
-  - aic79xx_core.c: ahd_dump_scbs
-  - aic79xx_osm.c: ahd_softc_comp
+This patch removes all occurances of _INLINE_ in the kernel.
+
+With the exception of tty_flip.h, I've simply removed the inline's since 
+gcc should know best which functions to be inlined.
+
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 10 Jan 2006
+- 13 Jan 2006
 
- drivers/scsi/aic7xxx/aic79xx.h         |   53 -----
- drivers/scsi/aic7xxx/aic79xx_core.c    |  262 +++++++++++++++----------
- drivers/scsi/aic7xxx/aic79xx_inline.h  |   30 --
- drivers/scsi/aic7xxx/aic79xx_osm.c     |    4 
- drivers/scsi/aic7xxx/aic79xx_osm.h     |    6 
- drivers/scsi/aic7xxx/aic79xx_osm_pci.c |    2 
- drivers/scsi/aic7xxx/aic79xx_pci.c     |    7 
- drivers/scsi/aic7xxx/aic79xx_proc.c    |    2 
- drivers/scsi/aic7xxx/aic7xxx.h         |    2 
- drivers/scsi/aic7xxx/aic7xxx_osm.c     |    2 
- drivers/scsi/aic7xxx/aic7xxx_osm.h     |    2 
- drivers/scsi/aic7xxx/aic7xxx_osm_pci.c |    2 
- drivers/scsi/aic7xxx/aic7xxx_pci.c     |    4 
- 13 files changed, 178 insertions(+), 200 deletions(-)
+ arch/ia64/hp/sim/simserial.c       |    7 --
+ arch/xtensa/platform-iss/console.c |    4 -
+ drivers/char/amiserial.c           |   18 ++-----
+ drivers/isdn/hisax/config.c        |    1 
+ drivers/isdn/hisax/elsa.c          |    1 
+ drivers/serial/68328serial.c       |    9 +--
+ drivers/serial/au1x00_uart.c       |   11 ++--
+ drivers/serial/crisv10.c           |   68 +++++++++--------------------
+ drivers/serial/m32r_sio.c          |   15 ++----
+ drivers/serial/sunsu.c             |   13 ++---
+ drivers/tc/zs.c                    |    9 +--
+ include/linux/tty_flip.h           |   12 +----
+ 12 files changed, 56 insertions(+), 112 deletions(-)
 
---- devel/drivers/scsi/aic7xxx/aic79xx_inline.h~drivers-scsi-aic7xxx-possible-cleanups	2005-07-12 15:26:40.000000000 -0700
-+++ devel-akpm/drivers/scsi/aic7xxx/aic79xx_inline.h	2005-07-12 15:26:40.000000000 -0700
-@@ -418,10 +418,6 @@ ahd_targetcmd_offset(struct ahd_softc *a
+--- linux-2.6.15-mm3-full/include/linux/tty_flip.h.old	2006-01-13 12:48:30.000000000 +0100
++++ linux-2.6.15-mm3-full/include/linux/tty_flip.h	2006-01-13 12:49:17.000000000 +0100
+@@ -7,14 +7,8 @@
+ extern int tty_prepare_flip_string(struct tty_struct *tty, unsigned char **chars, size_t size);
+ extern int tty_prepare_flip_string_flags(struct tty_struct *tty, unsigned char **chars, char **flags, size_t size);
+ 
+-#ifdef INCLUDE_INLINE_FUNCS
+-#define _INLINE_ extern
+-#else
+-#define _INLINE_ static __inline__
+-#endif
+-
+-_INLINE_ int tty_insert_flip_char(struct tty_struct *tty,
+-				   unsigned char ch, char flag)
++static inline int tty_insert_flip_char(struct tty_struct *tty,
++				       unsigned char ch, char flag)
+ {
+ 	struct tty_buffer *tb = tty->buf.tail;
+ 	if (tb && tb->used < tb->size) {
+@@ -25,7 +19,7 @@
+ 	return tty_insert_flip_string_flags(tty, &ch, &flag, 1);
  }
  
- /*********************** Miscelaneous Support Functions ***********************/
--static __inline void	ahd_complete_scb(struct ahd_softc *ahd,
--					 struct scb *scb);
--static __inline void	ahd_update_residual(struct ahd_softc *ahd,
--					    struct scb *scb);
- static __inline struct ahd_initiator_tinfo *
- 			ahd_fetch_transinfo(struct ahd_softc *ahd,
- 					    char channel, u_int our_id,
-@@ -467,32 +463,6 @@ static __inline uint32_t
- 			ahd_get_sense_bufaddr(struct ahd_softc *ahd,
- 					      struct scb *scb);
+-_INLINE_ void tty_schedule_flip(struct tty_struct *tty)
++static inline void tty_schedule_flip(struct tty_struct *tty)
+ {
+ 	schedule_delayed_work(&tty->buf.work, 1);
+ }
+--- linux-2.6.15-mm3-full/drivers/isdn/hisax/config.c.old	2006-01-13 12:49:28.000000000 +0100
++++ linux-2.6.15-mm3-full/drivers/isdn/hisax/config.c	2006-01-13 12:49:40.000000000 +0100
+@@ -25,7 +25,6 @@
+ #include <linux/workqueue.h>
+ #include <linux/interrupt.h>
+ #define HISAX_STATUS_BUFSIZE 4096
+-#define INCLUDE_INLINE_FUNCS
  
--static __inline void
--ahd_complete_scb(struct ahd_softc *ahd, struct scb *scb)
--{
--	uint32_t sgptr;
--
--	sgptr = ahd_le32toh(scb->hscb->sgptr);
--	if ((sgptr & SG_STATUS_VALID) != 0)
--		ahd_handle_scb_status(ahd, scb);
--	else
--		ahd_done(ahd, scb);
--}
--
--/*
-- * Determine whether the sequencer reported a residual
-- * for this SCB/transaction.
-- */
--static __inline void
--ahd_update_residual(struct ahd_softc *ahd, struct scb *scb)
--{
--	uint32_t sgptr;
--
--	sgptr = ahd_le32toh(scb->hscb->sgptr);
--	if ((sgptr & SG_STATUS_VALID) != 0)
--		ahd_calc_residual(ahd, scb);
--}
--
  /*
-  * Return pointers to the transfer negotiation information
-  * for the specified our_id/remote_id pair.
---- devel/drivers/scsi/aic7xxx/aic79xx_osm_pci.c~drivers-scsi-aic7xxx-possible-cleanups	2005-07-12 15:26:40.000000000 -0700
-+++ devel-akpm/drivers/scsi/aic7xxx/aic79xx_osm_pci.c	2005-07-12 15:26:40.000000000 -0700
-@@ -82,7 +82,7 @@ static struct pci_device_id ahd_linux_pc
+  * This structure array contains one entry per card. An entry looks
+--- linux-2.6.15-mm3-full/arch/ia64/hp/sim/simserial.c.old	2006-01-13 12:49:57.000000000 +0100
++++ linux-2.6.15-mm3-full/arch/ia64/hp/sim/simserial.c	2006-01-13 12:50:52.000000000 +0100
+@@ -46,11 +46,6 @@
+ #define KEYBOARD_INTR	3	/* must match with simulator! */
  
- MODULE_DEVICE_TABLE(pci, ahd_linux_pci_id_table);
+ #define NR_PORTS	1	/* only one port for now */
+-#define SERIAL_INLINE	1
+-
+-#ifdef SERIAL_INLINE
+-#define _INLINE_ inline
+-#endif
  
--struct pci_driver aic79xx_pci_driver = {
-+static struct pci_driver aic79xx_pci_driver = {
- 	.name		= "aic79xx",
- 	.probe		= ahd_linux_pci_dev_probe,
- 	.remove		= ahd_linux_pci_dev_remove,
-diff -puN drivers/scsi/aic7xxx/aic79xx_pci.c~drivers-scsi-aic7xxx-possible-cleanups drivers/scsi/aic7xxx/aic79xx_pci.c
---- devel/drivers/scsi/aic7xxx/aic79xx_pci.c~drivers-scsi-aic7xxx-possible-cleanups	2005-07-12 15:26:40.000000000 -0700
-+++ devel-akpm/drivers/scsi/aic7xxx/aic79xx_pci.c	2005-07-12 15:26:40.000000000 -0700
-@@ -99,7 +99,7 @@ static ahd_device_setup_t ahd_aic7901A_s
- static ahd_device_setup_t ahd_aic7902_setup;
- static ahd_device_setup_t ahd_aic790X_setup;
+ #define IRQ_T(info) ((info->flags & ASYNC_SHARE_IRQ) ? SA_SHIRQ : SA_INTERRUPT)
  
--struct ahd_pci_identity ahd_pci_ident_table [] =
-+static struct ahd_pci_identity ahd_pci_ident_table [] =
+@@ -244,7 +239,7 @@
+ 	local_irq_restore(flags);
+ }
+ 
+-static _INLINE_ void transmit_chars(struct async_struct *info, int *intr_done)
++static void transmit_chars(struct async_struct *info, int *intr_done)
  {
- 	/* aic7901 based controllers */
- 	{
-@@ -196,7 +196,7 @@ struct ahd_pci_identity ahd_pci_ident_ta
- 	}
- };
+ 	int count;
+ 	unsigned long flags;
+--- linux-2.6.15-mm3-full/arch/xtensa/platform-iss/console.c.old	2006-01-13 12:52:10.000000000 +0100
++++ linux-2.6.15-mm3-full/arch/xtensa/platform-iss/console.c	2006-01-13 12:52:20.000000000 +0100
+@@ -31,10 +31,6 @@
+ #include <linux/tty.h>
+ #include <linux/tty_flip.h>
  
--const u_int ahd_num_pci_devs = NUM_ELEMENTS(ahd_pci_ident_table);
-+static const u_int ahd_num_pci_devs = NUM_ELEMENTS(ahd_pci_ident_table);
- 		
- #define	DEVCONFIG		0x40
- #define		PCIXINITPAT	0x0000E000ul
-@@ -240,6 +240,7 @@ static int	ahd_check_extport(struct ahd_
- static void	ahd_configure_termination(struct ahd_softc *ahd,
- 					  u_int adapter_control);
- static void	ahd_pci_split_intr(struct ahd_softc *ahd, u_int intstat);
-+static void	ahd_pci_intr(struct ahd_softc *ahd);
+-#ifdef SERIAL_INLINE
+-#define _INLINE_ inline
+-#endif
+-
+ #define SERIAL_MAX_NUM_LINES 1
+ #define SERIAL_TIMER_VALUE (20 * HZ)
  
- struct ahd_pci_identity *
- ahd_find_pci_device(ahd_dev_softc_t pci)
-@@ -759,7 +760,7 @@ static const char *pci_status_strings[] 
- 	"%s: Address or Write Phase Parity Error Detected in %s.\n"
- };
+--- linux-2.6.15-mm3-full/drivers/char/amiserial.c.old	2006-01-13 12:52:31.000000000 +0100
++++ linux-2.6.15-mm3-full/drivers/char/amiserial.c	2006-01-13 12:53:40.000000000 +0100
+@@ -46,8 +46,6 @@
  
--void
-+static void
- ahd_pci_intr(struct ahd_softc *ahd)
- {
- 	uint8_t		pci_status[8];
-diff -puN drivers/scsi/aic7xxx/aic7xxx.h~drivers-scsi-aic7xxx-possible-cleanups drivers/scsi/aic7xxx/aic7xxx.h
---- devel/drivers/scsi/aic7xxx/aic7xxx.h~drivers-scsi-aic7xxx-possible-cleanups	2005-07-12 15:26:40.000000000 -0700
-+++ devel-akpm/drivers/scsi/aic7xxx/aic7xxx.h	2005-07-12 15:26:40.000000000 -0700
-@@ -1136,8 +1136,6 @@ struct ahc_pci_identity {
- 	char			*name;
- 	ahc_device_setup_t	*setup;
- };
--extern struct ahc_pci_identity ahc_pci_ident_table[];
--extern const u_int ahc_num_pci_devs;
+ /* Sanity checks */
  
- /***************************** VL/EISA Declarations ***************************/
- struct aic7770_identity {
-diff -puN drivers/scsi/aic7xxx/aic7xxx_osm.c~drivers-scsi-aic7xxx-possible-cleanups drivers/scsi/aic7xxx/aic7xxx_osm.c
---- devel/drivers/scsi/aic7xxx/aic7xxx_osm.c~drivers-scsi-aic7xxx-possible-cleanups	2005-07-12 15:26:40.000000000 -0700
-+++ devel-akpm/drivers/scsi/aic7xxx/aic7xxx_osm.c	2005-07-12 15:26:40.000000000 -0700
-@@ -334,7 +334,7 @@ static uint32_t aic7xxx_seltime;
-  * force all outstanding transactions to be serviced prior to a new
-  * transaction.
+-#define SERIAL_INLINE
+-  
+ #if defined(MODULE) && defined(SERIAL_DEBUG_MCOUNT)
+ #define DBG_CNT(s) printk("(%s): [%x] refc=%d, serc=%d, ttyc=%d -> %s\n", \
+  tty->name, (info->flags), serial_driver->refcount,info->count,tty->count,s)
+@@ -95,10 +93,6 @@
+ #include <asm/amigahw.h>
+ #include <asm/amigaints.h>
+ 
+-#ifdef SERIAL_INLINE
+-#define _INLINE_ inline
+-#endif
+-
+ #define custom amiga_custom
+ static char *serial_name = "Amiga-builtin serial driver";
+ 
+@@ -254,14 +248,14 @@
+  * This routine is used by the interrupt handler to schedule
+  * processing in the software interrupt portion of the driver.
   */
--uint32_t aic7xxx_periodic_otag;
-+static uint32_t aic7xxx_periodic_otag;
- 
- /*
-  * Module information and settable options.
-diff -puN drivers/scsi/aic7xxx/aic7xxx_osm.h~drivers-scsi-aic7xxx-possible-cleanups drivers/scsi/aic7xxx/aic7xxx_osm.h
---- devel/drivers/scsi/aic7xxx/aic7xxx_osm.h~drivers-scsi-aic7xxx-possible-cleanups	2005-07-12 15:26:40.000000000 -0700
-+++ devel-akpm/drivers/scsi/aic7xxx/aic7xxx_osm.h	2005-07-12 15:26:40.000000000 -0700
-@@ -565,8 +565,6 @@ ahc_unlock(struct ahc_softc *ahc, unsign
- #define PCIR_SUBVEND_0	0x2c
- #define PCIR_SUBDEV_0	0x2e
- 
--extern struct pci_driver aic7xxx_pci_driver;
--
- typedef enum
+-static _INLINE_ void rs_sched_event(struct async_struct *info,
+-				  int event)
++static void rs_sched_event(struct async_struct *info,
++			   int event)
  {
- 	AHC_POWER_STATE_D0,
-diff -puN drivers/scsi/aic7xxx/aic7xxx_osm_pci.c~drivers-scsi-aic7xxx-possible-cleanups drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
---- devel/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c~drivers-scsi-aic7xxx-possible-cleanups	2005-07-12 15:26:40.000000000 -0700
-+++ devel-akpm/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c	2005-07-12 15:26:40.000000000 -0700
-@@ -130,7 +130,7 @@ static struct pci_device_id ahc_linux_pc
- 
- MODULE_DEVICE_TABLE(pci, ahc_linux_pci_id_table);
- 
--struct pci_driver aic7xxx_pci_driver = {
-+static struct pci_driver aic7xxx_pci_driver = {
- 	.name		= "aic7xxx",
- 	.probe		= ahc_linux_pci_dev_probe,
- 	.remove		= ahc_linux_pci_dev_remove,
-diff -puN drivers/scsi/aic7xxx/aic7xxx_pci.c~drivers-scsi-aic7xxx-possible-cleanups drivers/scsi/aic7xxx/aic7xxx_pci.c
---- devel/drivers/scsi/aic7xxx/aic7xxx_pci.c~drivers-scsi-aic7xxx-possible-cleanups	2005-07-12 15:26:40.000000000 -0700
-+++ devel-akpm/drivers/scsi/aic7xxx/aic7xxx_pci.c	2005-07-12 15:26:40.000000000 -0700
-@@ -164,7 +164,7 @@ static ahc_device_setup_t ahc_aha394XX_s
- static ahc_device_setup_t ahc_aha494XX_setup;
- static ahc_device_setup_t ahc_aha398XX_setup;
- 
--struct ahc_pci_identity ahc_pci_ident_table [] =
-+static struct ahc_pci_identity ahc_pci_ident_table [] =
- {
- 	/* aic7850 based controllers */
- 	{
-@@ -549,7 +549,7 @@ struct ahc_pci_identity ahc_pci_ident_ta
- 	}
- };
- 
--const u_int ahc_num_pci_devs = NUM_ELEMENTS(ahc_pci_ident_table);
-+static const u_int ahc_num_pci_devs = NUM_ELEMENTS(ahc_pci_ident_table);
- 		
- #define AHC_394X_SLOT_CHANNEL_A	4
- #define AHC_394X_SLOT_CHANNEL_B	5
-_
---- linux-2.6.15-mm2-full/drivers/scsi/aic7xxx/aic79xx_osm.h.old	2006-01-10 22:15:33.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/scsi/aic7xxx/aic79xx_osm.h	2006-01-10 22:17:42.000000000 +0100
-@@ -526,9 +526,6 @@
- 	int pos;
- };
- 
--void	ahd_format_transinfo(struct info_str *info,
--			     struct ahd_transinfo *tinfo);
--
- /******************************** Locking *************************************/
- static __inline void
- ahd_lockinit(struct ahd_softc *ahd)
-@@ -602,8 +599,6 @@
- #define PCIXM_STATUS_MAXCRDS	0x1C00	/* Maximum Cumulative Read Size */
- #define PCIXM_STATUS_RCVDSCEM	0x2000	/* Received a Split Comp w/Error msg */
- 
--extern struct pci_driver aic79xx_pci_driver;
--
- typedef enum
- {
- 	AHD_POWER_STATE_D0,
-@@ -884,7 +879,6 @@
- irqreturn_t
- 	ahd_linux_isr(int irq, void *dev_id, struct pt_regs * regs);
- void	ahd_platform_flushwork(struct ahd_softc *ahd);
--int	ahd_softc_comp(struct ahd_softc *, struct ahd_softc *);
- void	ahd_done(struct ahd_softc*, struct scb*);
- void	ahd_send_async(struct ahd_softc *, char channel,
- 		       u_int target, u_int lun, ac_code, void *);
---- linux-2.6.15-mm2-full/drivers/scsi/aic7xxx/aic79xx_osm.c.old	2006-01-10 22:15:49.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/scsi/aic7xxx/aic79xx_osm.c	2006-01-10 22:16:59.000000000 +0100
-@@ -312,7 +312,7 @@
-  * force all outstanding transactions to be serviced prior to a new
-  * transaction.
-  */
--uint32_t aic79xx_periodic_otag;
-+static uint32_t aic79xx_periodic_otag;
- 
- /*
-  * Module information and settable options.
-@@ -794,6 +794,7 @@
- 	return (0);
+ 	info->event |= 1 << event;
+ 	tasklet_schedule(&info->tlet);
  }
  
-+#if 0
- /********************* Platform Dependent Functions ***************************/
- /*
-  * Compare "left hand" softc with "right hand" softc, returning:
-@@ -847,6 +848,7 @@
- 	value = rahd->channel - lahd->channel;
- 	return (value);
- }
-+#endif  /*  0  */
- 
- static void
- ahd_linux_setup_iocell_info(u_long index, int instance, int targ, int32_t value)
---- linux-2.6.15-mm2-full/drivers/scsi/aic7xxx/aic79xx_proc.c.old	2006-01-10 22:17:57.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/scsi/aic7xxx/aic79xx_proc.c	2006-01-10 22:18:05.000000000 +0100
-@@ -138,7 +138,7 @@
- 	return (len);
- }
- 
--void
-+static void
- ahd_format_transinfo(struct info_str *info, struct ahd_transinfo *tinfo)
+-static _INLINE_ void receive_chars(struct async_struct *info)
++static void receive_chars(struct async_struct *info)
  {
- 	u_int speed;
---- linux-2.6.15-mm2-full/drivers/scsi/aic7xxx/aic79xx.h.old	2006-01-10 21:43:06.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/scsi/aic7xxx/aic79xx.h	2006-01-10 22:21:52.000000000 +0100
-@@ -974,8 +974,6 @@
- 
- int		ahd_write_seeprom(struct ahd_softc *ahd, uint16_t *buf,
- 				  u_int start_addr, u_int count);
--int		ahd_wait_seeprom(struct ahd_softc *ahd);
--int		ahd_verify_vpd_cksum(struct vpd_config *vpd);
- int		ahd_verify_cksum(struct seeprom_config *sc);
- int		ahd_acquire_seeprom(struct ahd_softc *ahd);
- void		ahd_release_seeprom(struct ahd_softc *ahd);
-@@ -1308,8 +1306,6 @@
- 	char			*name;
- 	ahd_device_setup_t	*setup;
- };
--extern struct ahd_pci_identity ahd_pci_ident_table [];
--extern const u_int ahd_num_pci_devs;
- 
- /***************************** VL/EISA Declarations ***************************/
- struct aic7770_identity {
-@@ -1327,15 +1323,6 @@
- /*************************** Function Declarations ****************************/
- /******************************************************************************/
- void			ahd_reset_cmds_pending(struct ahd_softc *ahd);
--u_int			ahd_find_busy_tcl(struct ahd_softc *ahd, u_int tcl);
--void			ahd_busy_tcl(struct ahd_softc *ahd,
--				     u_int tcl, u_int busyid);
--static __inline void	ahd_unbusy_tcl(struct ahd_softc *ahd, u_int tcl);
--static __inline void
--ahd_unbusy_tcl(struct ahd_softc *ahd, u_int tcl)
--{
--	ahd_busy_tcl(ahd, tcl, SCB_LIST_NULL);
--}
- 
- /***************************** PCI Front End *********************************/
- struct	ahd_pci_identity *ahd_find_pci_device(ahd_dev_softc_t);
-@@ -1344,7 +1331,6 @@
- int	ahd_pci_test_register_access(struct ahd_softc *);
- 
- /************************** SCB and SCB queue management **********************/
--int		ahd_probe_scbs(struct ahd_softc *);
- void		ahd_qinfifo_requeue_tail(struct ahd_softc *ahd,
- 					 struct scb *scb);
- int		ahd_match_scb(struct ahd_softc *ahd, struct scb *scb,
-@@ -1362,33 +1348,20 @@
- int			 ahd_parse_cfgdata(struct ahd_softc *ahd,
- 					   struct seeprom_config *sc);
- void			 ahd_intr_enable(struct ahd_softc *ahd, int enable);
--void			 ahd_update_coalescing_values(struct ahd_softc *ahd,
--						      u_int timer,
--						      u_int maxcmds,
--						      u_int mincmds);
--void			 ahd_enable_coalescing(struct ahd_softc *ahd,
--					       int enable);
- void			 ahd_pause_and_flushwork(struct ahd_softc *ahd);
- int			 ahd_suspend(struct ahd_softc *ahd); 
--int			 ahd_resume(struct ahd_softc *ahd);
- void			 ahd_set_unit(struct ahd_softc *, int);
- void			 ahd_set_name(struct ahd_softc *, char *);
- struct scb		*ahd_get_scb(struct ahd_softc *ahd, u_int col_idx);
- void			 ahd_free_scb(struct ahd_softc *ahd, struct scb *scb);
--void			 ahd_alloc_scbs(struct ahd_softc *ahd);
- void			 ahd_free(struct ahd_softc *ahd);
- int			 ahd_reset(struct ahd_softc *ahd, int reinit);
--void			 ahd_shutdown(void *arg);
- int			 ahd_write_flexport(struct ahd_softc *ahd,
- 					    u_int addr, u_int value);
- int			 ahd_read_flexport(struct ahd_softc *ahd, u_int addr,
- 					   uint8_t *value);
--int			 ahd_wait_flexport(struct ahd_softc *ahd);
- 
- /*************************** Interrupt Services *******************************/
--void			ahd_pci_intr(struct ahd_softc *ahd);
--void			ahd_clear_intstat(struct ahd_softc *ahd);
--void			ahd_flush_qoutfifo(struct ahd_softc *ahd);
- void			ahd_run_qoutfifo(struct ahd_softc *ahd);
- #ifdef AHD_TARGET_MODE
- void			ahd_run_tqinfifo(struct ahd_softc *ahd, int paused);
-@@ -1397,7 +1370,6 @@
- void			ahd_handle_seqint(struct ahd_softc *ahd, u_int intstat);
- void			ahd_handle_scsiint(struct ahd_softc *ahd,
- 					   u_int intstat);
--void			ahd_clear_critical_section(struct ahd_softc *ahd);
- 
- /***************************** Error Recovery *********************************/
- typedef enum {
-@@ -1414,23 +1386,9 @@
- 					     char channel, int lun, u_int tag,
- 					     int stop_on_first, int remove,
- 					     int save_state);
--void			ahd_freeze_devq(struct ahd_softc *ahd, struct scb *scb);
- int			ahd_reset_channel(struct ahd_softc *ahd, char channel,
- 					  int initiate_reset);
--int			ahd_abort_scbs(struct ahd_softc *ahd, int target,
--				       char channel, int lun, u_int tag,
--				       role_t role, uint32_t status);
--void			ahd_restart(struct ahd_softc *ahd);
--void			ahd_clear_fifo(struct ahd_softc *ahd, u_int fifo);
--void			ahd_handle_scb_status(struct ahd_softc *ahd,
--					      struct scb *scb);
--void			ahd_handle_scsi_status(struct ahd_softc *ahd,
--					       struct scb *scb);
--void			ahd_calc_residual(struct ahd_softc *ahd,
--					  struct scb *scb);
- /*************************** Utility Functions ********************************/
--struct ahd_phase_table_entry*
--			ahd_lookup_phase_entry(int phase);
- void			ahd_compile_devinfo(struct ahd_devinfo *devinfo,
- 					    u_int our_id, u_int target,
- 					    u_int lun, char channel,
-@@ -1438,14 +1396,6 @@
- /************************** Transfer Negotiation ******************************/
- void			ahd_find_syncrate(struct ahd_softc *ahd, u_int *period,
- 					  u_int *ppr_options, u_int maxsync);
--void			ahd_validate_offset(struct ahd_softc *ahd,
--					    struct ahd_initiator_tinfo *tinfo,
--					    u_int period, u_int *offset,
--					    int wide, role_t role);
--void			ahd_validate_width(struct ahd_softc *ahd,
--					   struct ahd_initiator_tinfo *tinfo,
--					   u_int *bus_width,
--					   role_t role);
- /*
-  * Negotiation types.  These are used to qualify if we should renegotiate
-  * even if our goal and current transport parameters are identical.
-@@ -1515,10 +1465,8 @@
- #define AHD_SHOW_INT_COALESCING	0x10000
- #define AHD_DEBUG_SEQUENCER	0x20000
- #endif
--void			ahd_print_scb(struct scb *scb);
- void			ahd_print_devinfo(struct ahd_softc *ahd,
- 					  struct ahd_devinfo *devinfo);
--void			ahd_dump_sglist(struct scb *scb);
- void			ahd_dump_card_state(struct ahd_softc *ahd);
- int			ahd_print_register(ahd_reg_parse_entry_t *table,
- 					   u_int num_entries,
-@@ -1527,5 +1475,4 @@
- 					   u_int value,
- 					   u_int *cur_column,
- 					   u_int wrap_point);
--void			ahd_dump_scbs(struct ahd_softc *ahd);
- #endif /* _AIC79XX_H_ */
---- linux-2.6.15-mm2-full/drivers/scsi/aic7xxx/aic79xx_core.c.old	2006-01-10 22:34:30.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/scsi/aic7xxx/aic79xx_core.c	2006-01-10 22:38:47.000000000 +0100
-@@ -54,7 +54,7 @@
- 
- 
- /***************************** Lookup Tables **********************************/
--char *ahd_chip_names[] =
-+static char *ahd_chip_names[] =
- {
- 	"NONE",
- 	"aic7901",
-@@ -157,7 +157,7 @@
- 	AHDMSG_1B,
- 	AHDMSG_2B,
- 	AHDMSG_EXT
--} ahd_msgtype;
-+	} ahd_msgtype;
- static int		ahd_sent_msg(struct ahd_softc *ahd, ahd_msgtype type,
- 				     u_int msgval, int full);
- static int		ahd_parse_msg(struct ahd_softc *ahd,
-@@ -239,10 +239,33 @@
- 					      struct target_cmd *cmd);
- #endif
- 
-+static int		ahd_abort_scbs(struct ahd_softc *ahd, int target,
-+				       char channel, int lun, u_int tag,
-+				       role_t role, uint32_t status);
-+static void		ahd_alloc_scbs(struct ahd_softc *ahd);
-+static void		ahd_busy_tcl(struct ahd_softc *ahd, u_int tcl,
-+				     u_int scbid);
-+static void		ahd_calc_residual(struct ahd_softc *ahd,
-+					  struct scb *scb);
-+static void		ahd_clear_critical_section(struct ahd_softc *ahd);
-+static void		ahd_clear_intstat(struct ahd_softc *ahd);
-+static void		ahd_enable_coalescing(struct ahd_softc *ahd,
-+					      int enable);
-+static u_int		ahd_find_busy_tcl(struct ahd_softc *ahd, u_int tcl);
-+static void		ahd_freeze_devq(struct ahd_softc *ahd,
-+					struct scb *scb);
-+static void		ahd_handle_scb_status(struct ahd_softc *ahd,
-+					      struct scb *scb);
-+static struct ahd_phase_table_entry* ahd_lookup_phase_entry(int phase);
-+static void		ahd_shutdown(void *arg);
-+static void		ahd_update_coalescing_values(struct ahd_softc *ahd,
-+						     u_int timer,
-+						     u_int maxcmds,
-+						     u_int mincmds);
-+static int		ahd_verify_vpd_cksum(struct vpd_config *vpd);
-+static int		ahd_wait_seeprom(struct ahd_softc *ahd);
-+
- /******************************** Private Inlines *****************************/
--static __inline void	ahd_assert_atn(struct ahd_softc *ahd);
--static __inline int	ahd_currently_packetized(struct ahd_softc *ahd);
--static __inline int	ahd_set_active_fifo(struct ahd_softc *ahd);
- 
- static __inline void
- ahd_assert_atn(struct ahd_softc *ahd)
-@@ -296,11 +319,44 @@
- 	}
- }
- 
-+static __inline void
-+ahd_unbusy_tcl(struct ahd_softc *ahd, u_int tcl)
-+{
-+	ahd_busy_tcl(ahd, tcl, SCB_LIST_NULL);
-+}
-+
-+/*
-+ * Determine whether the sequencer reported a residual
-+ * for this SCB/transaction.
-+ */
-+static __inline void
-+ahd_update_residual(struct ahd_softc *ahd, struct scb *scb)
-+{
-+	uint32_t sgptr;
-+
-+	sgptr = ahd_le32toh(scb->hscb->sgptr);
-+	if ((sgptr & SG_STATUS_VALID) != 0)
-+		ahd_calc_residual(ahd, scb);
-+}
-+
-+static __inline void
-+ahd_complete_scb(struct ahd_softc *ahd, struct scb *scb)
-+{
-+	uint32_t sgptr;
-+
-+	sgptr = ahd_le32toh(scb->hscb->sgptr);
-+	if ((sgptr & SG_STATUS_VALID) != 0)
-+		ahd_handle_scb_status(ahd, scb);
-+	else
-+		ahd_done(ahd, scb);
-+}
-+
-+
- /************************* Sequencer Execution Control ************************/
- /*
-  * Restart the sequencer program from address zero
-  */
--void
-+static void
- ahd_restart(struct ahd_softc *ahd)
- {
- 
-@@ -336,7 +392,7 @@
- 	ahd_unpause(ahd);
- }
- 
--void
-+static void
- ahd_clear_fifo(struct ahd_softc *ahd, u_int fifo)
- {
- 	ahd_mode_state	 saved_modes;
-@@ -360,7 +416,7 @@
-  * Flush and completed commands that are sitting in the command
-  * complete queues down on the chip but have yet to be dma'ed back up.
-  */
--void
-+static void
- ahd_flush_qoutfifo(struct ahd_softc *ahd)
- {
- 	struct		scb *scb;
-@@ -845,6 +901,51 @@
- 	ahd_free(ahd);
- }
- 
-+#ifdef AHD_DEBUG
-+static void
-+ahd_dump_sglist(struct scb *scb)
-+{
-+	int i;
-+
-+	if (scb->sg_count > 0) {
-+		if ((scb->ahd_softc->flags & AHD_64BIT_ADDRESSING) != 0) {
-+			struct ahd_dma64_seg *sg_list;
-+
-+			sg_list = (struct ahd_dma64_seg*)scb->sg_list;
-+			for (i = 0; i < scb->sg_count; i++) {
-+				uint64_t addr;
-+				uint32_t len;
-+
-+				addr = ahd_le64toh(sg_list[i].addr);
-+				len = ahd_le32toh(sg_list[i].len);
-+				printf("sg[%d] - Addr 0x%x%x : Length %d%s\n",
-+				       i,
-+				       (uint32_t)((addr >> 32) & 0xFFFFFFFF),
-+				       (uint32_t)(addr & 0xFFFFFFFF),
-+				       sg_list[i].len & AHD_SG_LEN_MASK,
-+				       (sg_list[i].len & AHD_DMA_LAST_SEG)
-+				     ? " Last" : "");
-+			}
-+		} else {
-+			struct ahd_dma_seg *sg_list;
-+
-+			sg_list = (struct ahd_dma_seg*)scb->sg_list;
-+			for (i = 0; i < scb->sg_count; i++) {
-+				uint32_t len;
-+
-+				len = ahd_le32toh(sg_list[i].len);
-+				printf("sg[%d] - Addr 0x%x%x : Length %d%s\n",
-+				       i,
-+				       (len & AHD_SG_HIGH_ADDR_MASK) >> 24,
-+				       ahd_le32toh(sg_list[i].addr),
-+				       len & AHD_SG_LEN_MASK,
-+				       len & AHD_DMA_LAST_SEG ? " Last" : "");
-+			}
-+		}
-+	}
-+}
-+#endif  /*  AHD_DEBUG  */
-+
- void
- ahd_handle_seqint(struct ahd_softc *ahd, u_int intstat)
- {
-@@ -2439,7 +2540,7 @@
- }
- 
- #define AHD_MAX_STEPS 2000
--void
-+static void
- ahd_clear_critical_section(struct ahd_softc *ahd)
- {
- 	ahd_mode_state	saved_modes;
-@@ -2563,7 +2664,7 @@
- /*
-  * Clear any pending interrupt status.
-  */
--void
-+static void
- ahd_clear_intstat(struct ahd_softc *ahd)
- {
- 	AHD_ASSERT_MODES(ahd, ~(AHD_MODE_UNKNOWN_MSK|AHD_MODE_CFG_MSK),
-@@ -2594,6 +2695,8 @@
- #ifdef AHD_DEBUG
- uint32_t ahd_debug = AHD_DEBUG_OPTS;
- #endif
-+
-+#if 0
- void
- ahd_print_scb(struct scb *scb)
- {
-@@ -2618,49 +2721,7 @@
- 	       SCB_GET_TAG(scb));
- 	ahd_dump_sglist(scb);
- }
--
--void
--ahd_dump_sglist(struct scb *scb)
--{
--	int i;
--
--	if (scb->sg_count > 0) {
--		if ((scb->ahd_softc->flags & AHD_64BIT_ADDRESSING) != 0) {
--			struct ahd_dma64_seg *sg_list;
--
--			sg_list = (struct ahd_dma64_seg*)scb->sg_list;
--			for (i = 0; i < scb->sg_count; i++) {
--				uint64_t addr;
--				uint32_t len;
--
--				addr = ahd_le64toh(sg_list[i].addr);
--				len = ahd_le32toh(sg_list[i].len);
--				printf("sg[%d] - Addr 0x%x%x : Length %d%s\n",
--				       i,
--				       (uint32_t)((addr >> 32) & 0xFFFFFFFF),
--				       (uint32_t)(addr & 0xFFFFFFFF),
--				       sg_list[i].len & AHD_SG_LEN_MASK,
--				       (sg_list[i].len & AHD_DMA_LAST_SEG)
--				     ? " Last" : "");
--			}
--		} else {
--			struct ahd_dma_seg *sg_list;
--
--			sg_list = (struct ahd_dma_seg*)scb->sg_list;
--			for (i = 0; i < scb->sg_count; i++) {
--				uint32_t len;
--
--				len = ahd_le32toh(sg_list[i].len);
--				printf("sg[%d] - Addr 0x%x%x : Length %d%s\n",
--				       i,
--				       (len & AHD_SG_HIGH_ADDR_MASK) >> 24,
--				       ahd_le32toh(sg_list[i].addr),
--				       len & AHD_SG_LEN_MASK,
--				       len & AHD_DMA_LAST_SEG ? " Last" : "");
--			}
--		}
--	}
--}
-+#endif  /*  0  */
- 
- /************************* Transfer Negotiation *******************************/
- /*
-@@ -2823,7 +2884,7 @@
-  * Truncate the given synchronous offset to a value the
-  * current adapter type and syncrate are capable of.
-  */
--void
-+static void
- ahd_validate_offset(struct ahd_softc *ahd,
- 		    struct ahd_initiator_tinfo *tinfo,
- 		    u_int period, u_int *offset, int wide,
-@@ -2854,7 +2915,7 @@
-  * Truncate the given transfer width parameter to a value the
-  * current adapter type is capable of.
-  */
--void
-+static void
- ahd_validate_width(struct ahd_softc *ahd, struct ahd_initiator_tinfo *tinfo,
- 		   u_int *bus_width, role_t role)
- {
-@@ -3363,7 +3424,7 @@
- 	       devinfo->target, devinfo->lun);
- }
- 
--struct ahd_phase_table_entry*
-+static struct ahd_phase_table_entry*
- ahd_lookup_phase_entry(int phase)
- {
- 	struct ahd_phase_table_entry *entry;
-@@ -5266,7 +5327,7 @@
+         int status;
+ 	int serdatr;
+@@ -350,7 +344,7 @@
  	return;
  }
  
--void
-+static void
- ahd_shutdown(void *arg)
+-static _INLINE_ void transmit_chars(struct async_struct *info)
++static void transmit_chars(struct async_struct *info)
  {
- 	struct	ahd_softc *ahd;
-@@ -5395,7 +5456,7 @@
- /*
-  * Determine the number of SCBs available on the controller
-  */
--int
-+static int
- ahd_probe_scbs(struct ahd_softc *ahd) {
- 	int i;
- 
-@@ -5844,7 +5905,7 @@
- 	ahd_platform_scb_free(ahd, scb);
- }
- 
--void
-+static void
- ahd_alloc_scbs(struct ahd_softc *ahd)
- {
- 	struct scb_data *scb_data;
-@@ -6884,7 +6945,7 @@
- 	ahd_outb(ahd, HCNTRL, hcntrl);
- }
- 
--void
-+static void
- ahd_update_coalescing_values(struct ahd_softc *ahd, u_int timer, u_int maxcmds,
- 			     u_int mincmds)
- {
-@@ -6902,7 +6963,7 @@
- 	ahd_outb(ahd, INT_COALESCING_MINCMDS, -mincmds);
- }
- 
--void
-+static void
- ahd_enable_coalescing(struct ahd_softc *ahd, int enable)
- {
- 
-@@ -6991,6 +7052,7 @@
- 	ahd->flags &= ~AHD_ALL_INTERRUPTS;
- }
- 
-+#if 0
- int
- ahd_suspend(struct ahd_softc *ahd)
- {
-@@ -7004,7 +7066,9 @@
- 	ahd_shutdown(ahd);
- 	return (0);
- }
-+#endif  /*  0  */
- 
-+#if 0
- int
- ahd_resume(struct ahd_softc *ahd)
- {
-@@ -7014,6 +7078,7 @@
- 	ahd_restart(ahd);
- 	return (0);
- }
-+#endif  /*  0  */
- 
- /************************** Busy Target Table *********************************/
- /*
-@@ -7046,7 +7111,7 @@
- /*
-  * Return the untagged transaction id for a given target/channel lun.
-  */
--u_int
-+static u_int
- ahd_find_busy_tcl(struct ahd_softc *ahd, u_int tcl)
- {
- 	u_int scbid;
-@@ -7059,7 +7124,7 @@
- 	return (scbid);
- }
- 
--void
-+static void
- ahd_busy_tcl(struct ahd_softc *ahd, u_int tcl, u_int scbid)
- {
- 	u_int scb_offset;
-@@ -7107,7 +7172,7 @@
- 	return match;
- }
- 
--void
-+static void
- ahd_freeze_devq(struct ahd_softc *ahd, struct scb *scb)
- {
- 	int	target;
-@@ -7548,7 +7613,7 @@
-  * been modified from CAM_REQ_INPROG.  This routine assumes that the sequencer
-  * is paused before it is called.
-  */
--int
-+static int
- ahd_abort_scbs(struct ahd_softc *ahd, int target, char channel,
- 	       int lun, u_int tag, role_t role, uint32_t status)
- {
-@@ -7896,18 +7961,8 @@
- }
- 
- /****************************** Status Processing *****************************/
--void
--ahd_handle_scb_status(struct ahd_softc *ahd, struct scb *scb)
--{
--	if (scb->hscb->shared_data.istatus.scsi_status != 0) {
--		ahd_handle_scsi_status(ahd, scb);
--	} else {
--		ahd_calc_residual(ahd, scb);
--		ahd_done(ahd, scb);
--	}
--}
- 
--void
-+static void
- ahd_handle_scsi_status(struct ahd_softc *ahd, struct scb *scb)
- {
- 	struct hardware_scb *hscb;
-@@ -8115,10 +8170,21 @@
+ 	custom.intreq = IF_TBE;
+ 	mb();
+@@ -390,7 +384,7 @@
  	}
  }
  
+-static _INLINE_ void check_modem_status(struct async_struct *info)
++static void check_modem_status(struct async_struct *info)
+ {
+ 	unsigned char status = ciab.pra & (SER_DCD | SER_CTS | SER_DSR);
+ 	unsigned char dstatus;
+@@ -1960,7 +1954,7 @@
+  * number, and identifies which options were configured into this
+  * driver.
+  */
+-static _INLINE_ void show_serial_version(void)
++static void show_serial_version(void)
+ {
+  	printk(KERN_INFO "%s version %s\n", serial_name, serial_version);
+ }
+--- linux-2.6.15-mm3-full/drivers/isdn/hisax/elsa.c.old	2006-01-13 12:54:11.000000000 +0100
++++ linux-2.6.15-mm3-full/drivers/isdn/hisax/elsa.c	2006-01-13 12:54:19.000000000 +0100
+@@ -108,7 +108,6 @@
+ #define ELSA_ASSIGN      4
+ 
+ #define RS_ISR_PASS_LIMIT 256
+-#define _INLINE_ inline
+ #define FLG_MODEM_ACTIVE 1
+ /* IPAC AUX */
+ #define ELSA_IPAC_LINE_LED	0x40	/* Bit 6 Gelbe LED */
+--- linux-2.6.15-mm3-full/drivers/serial/68328serial.c.old	2006-01-13 12:54:29.000000000 +0100
++++ linux-2.6.15-mm3-full/drivers/serial/68328serial.c	2006-01-13 12:55:02.000000000 +0100
+@@ -101,8 +101,6 @@
+ 
+ #define RS_ISR_PASS_LIMIT 256
+ 
+-#define _INLINE_ inline
+-
+ static void change_speed(struct m68k_serial *info);
+ 
+ /*
+@@ -263,7 +261,7 @@
+ 	/* Drop into the debugger */
+ }
+ 
+-static _INLINE_ void status_handle(struct m68k_serial *info, unsigned short status)
++static void status_handle(struct m68k_serial *info, unsigned short status)
+ {
+ #if 0
+ 	if(status & DCD) {
+@@ -290,7 +288,8 @@
+ 	return;
+ }
+ 
+-static _INLINE_ void receive_chars(struct m68k_serial *info, struct pt_regs *regs, unsigned short rx)
++static void receive_chars(struct m68k_serial *info, struct pt_regs *regs,
++			  unsigned short rx)
+ {
+ 	struct tty_struct *tty = info->tty;
+ 	m68328_uart *uart = &uart_addr[info->line];
+@@ -360,7 +359,7 @@
+ 	return;
+ }
+ 
+-static _INLINE_ void transmit_chars(struct m68k_serial *info)
++static void transmit_chars(struct m68k_serial *info)
+ {
+ 	m68328_uart *uart = &uart_addr[info->line];
+ 
+--- linux-2.6.15-mm3-full/drivers/serial/au1x00_uart.c.old	2006-01-13 12:55:14.000000000 +0100
++++ linux-2.6.15-mm3-full/drivers/serial/au1x00_uart.c	2006-01-13 12:55:41.000000000 +0100
+@@ -133,13 +133,12 @@
+ 	{ "AU1X00_UART",16,	UART_CLEAR_FIFO | UART_USE_FIFO },
+ };
+ 
+-static _INLINE_ unsigned int serial_in(struct uart_8250_port *up, int offset)
++static unsigned int serial_in(struct uart_8250_port *up, int offset)
+ {
+ 	return au_readl((unsigned long)up->port.membase + offset);
+ }
+ 
+-static _INLINE_ void
+-serial_out(struct uart_8250_port *up, int offset, int value)
++static void serial_out(struct uart_8250_port *up, int offset, int value)
+ {
+ 	au_writel(value, (unsigned long)up->port.membase + offset);
+ }
+@@ -237,7 +236,7 @@
+ 	serial_out(up, UART_IER, up->ier);
+ }
+ 
+-static _INLINE_ void
 +static void
-+ahd_handle_scb_status(struct ahd_softc *ahd, struct scb *scb)
-+{
-+	if (scb->hscb->shared_data.istatus.scsi_status != 0) {
-+		ahd_handle_scsi_status(ahd, scb);
-+	} else {
-+		ahd_calc_residual(ahd, scb);
-+		ahd_done(ahd, scb);
-+	}
-+}
-+
- /*
-  * Calculate the residual for a just completed SCB.
+ receive_chars(struct uart_8250_port *up, int *status, struct pt_regs *regs)
+ {
+ 	struct tty_struct *tty = up->port.info->tty;
+@@ -312,7 +311,7 @@
+ 	spin_lock(&up->port.lock);
+ }
+ 
+-static _INLINE_ void transmit_chars(struct uart_8250_port *up)
++static void transmit_chars(struct uart_8250_port *up)
+ {
+ 	struct circ_buf *xmit = &up->port.info->xmit;
+ 	int count;
+@@ -346,7 +345,7 @@
+ 		serial8250_stop_tx(&up->port);
+ }
+ 
+-static _INLINE_ void check_modem_status(struct uart_8250_port *up)
++static void check_modem_status(struct uart_8250_port *up)
+ {
+ 	int status;
+ 
+--- linux-2.6.15-mm3-full/drivers/serial/crisv10.c.old	2006-01-13 12:55:52.000000000 +0100
++++ linux-2.6.15-mm3-full/drivers/serial/crisv10.c	2006-01-13 13:03:38.000000000 +0100
+@@ -480,8 +480,6 @@
+ #include "serial_compat.h"
+ #endif
+ 
+-#define _INLINE_ inline
+-
+ struct tty_driver *serial_driver;
+ 
+ /* serial subtype definitions */
+@@ -590,8 +588,6 @@
+ static void rs_wait_until_sent(struct tty_struct *tty, int timeout);
+ static int rs_write(struct tty_struct * tty, int from_user,
+                     const unsigned char *buf, int count);
+-extern _INLINE_ int rs_raw_write(struct tty_struct * tty, int from_user,
+-                            const unsigned char *buf, int count);
+ #ifdef CONFIG_ETRAX_RS485
+ static int e100_write_rs485(struct tty_struct * tty, int from_user,
+                             const unsigned char *buf, int count);
+@@ -1541,8 +1537,7 @@
+ 
+ /* the tx DMA uses only dma_descr interrupt */
+ 
+-static _INLINE_ void
+-e100_disable_txdma_irq(struct e100_serial *info)
++static void e100_disable_txdma_irq(struct e100_serial *info)
+ {
+ #ifdef SERIAL_DEBUG_INTR
+ 	printk("txdma_irq(%d): 0\n",info->line);
+@@ -1551,8 +1546,7 @@
+ 	*R_IRQ_MASK2_CLR = info->irq;
+ }
+ 
+-static _INLINE_ void
+-e100_enable_txdma_irq(struct e100_serial *info)
++static void e100_enable_txdma_irq(struct e100_serial *info)
+ {
+ #ifdef SERIAL_DEBUG_INTR
+ 	printk("txdma_irq(%d): 1\n",info->line);
+@@ -1561,8 +1555,7 @@
+ 	*R_IRQ_MASK2_SET = info->irq;
+ }
+ 
+-static _INLINE_ void
+-e100_disable_txdma_channel(struct e100_serial *info)
++static void e100_disable_txdma_channel(struct e100_serial *info)
+ {
+ 	unsigned long flags;
+ 
+@@ -1602,8 +1595,7 @@
+ }
+ 
+ 
+-static _INLINE_ void
+-e100_enable_txdma_channel(struct e100_serial *info)
++static void e100_enable_txdma_channel(struct e100_serial *info)
+ {
+ 	unsigned long flags;
+ 
+@@ -1628,8 +1620,7 @@
+ 	restore_flags(flags);
+ }
+ 
+-static _INLINE_ void
+-e100_disable_rxdma_channel(struct e100_serial *info)
++static void e100_disable_rxdma_channel(struct e100_serial *info)
+ {
+ 	unsigned long flags;
+ 
+@@ -1668,8 +1659,7 @@
+ }
+ 
+ 
+-static _INLINE_ void
+-e100_enable_rxdma_channel(struct e100_serial *info)
++static void e100_enable_rxdma_channel(struct e100_serial *info)
+ {
+ 	unsigned long flags;
+ 
+@@ -1916,9 +1906,7 @@
+  * This routine is used by the interrupt handler to schedule
+  * processing in the software interrupt portion of the driver.
   */
--void
-+static void
- ahd_calc_residual(struct ahd_softc *ahd, struct scb *scb)
+-static _INLINE_ void
+-rs_sched_event(struct e100_serial *info,
+-				    int event)
++static void rs_sched_event(struct e100_serial *info, int event)
  {
- 	struct hardware_scb *hscb;
-@@ -8945,6 +9011,7 @@
- 		ahd_unpause(ahd);
+ 	if (info->event & (1 << event))
+ 		return;
+@@ -2158,8 +2146,9 @@
+ 	return 1;
  }
  
-+#if 0
- void
- ahd_dump_scbs(struct ahd_softc *ahd)
+-extern _INLINE_ unsigned int
+-handle_descr_data(struct e100_serial *info, struct etrax_dma_descr *descr, unsigned int recvl)
++static unsigned int handle_descr_data(struct e100_serial *info,
++				      struct etrax_dma_descr *descr,
++				      unsigned int recvl)
  {
-@@ -8970,6 +9037,7 @@
- 	ahd_set_scbptr(ahd, saved_scb_index);
- 	ahd_restore_modes(ahd, saved_modes);
- }
-+#endif  /*  0  */
+ 	struct etrax_recv_buffer *buffer = phys_to_virt(descr->buf) - sizeof *buffer;
  
- /**************************** Flexport Logic **********************************/
- /*
-@@ -9072,7 +9140,7 @@
- /*
-  * Wait ~100us for the serial eeprom to satisfy our request.
-  */
--int
-+static int
- ahd_wait_seeprom(struct ahd_softc *ahd)
- {
- 	int cnt;
-@@ -9090,7 +9158,7 @@
-  * Validate the two checksums in the per_channel
-  * vital product data struct.
-  */
--int
-+static int
- ahd_verify_vpd_cksum(struct vpd_config *vpd)
- {
- 	int i;
-@@ -9169,6 +9237,24 @@
- 	/* Currently a no-op */
+@@ -2185,8 +2174,7 @@
+ 	return recvl;
  }
  
-+/*
-+ * Wait at most 2 seconds for flexport arbitration to succeed.
-+ */
-+static int
-+ahd_wait_flexport(struct ahd_softc *ahd)
-+{
-+	int cnt;
-+
-+	AHD_ASSERT_MODES(ahd, AHD_MODE_SCSI_MSK, AHD_MODE_SCSI_MSK);
-+	cnt = 1000000 * 2 / 5;
-+	while ((ahd_inb(ahd, BRDCTL) & FLXARBACK) == 0 && --cnt)
-+		ahd_delay(5);
-+
-+	if (cnt == 0)
-+		return (ETIMEDOUT);
-+	return (0);
-+}
-+
- int
- ahd_write_flexport(struct ahd_softc *ahd, u_int addr, u_int value)
+-static _INLINE_ unsigned int
+-handle_all_descr_data(struct e100_serial *info)
++static unsigned int handle_all_descr_data(struct e100_serial *info)
  {
-@@ -9210,24 +9296,6 @@
- 	return (0);
+ 	struct etrax_dma_descr *descr;
+ 	unsigned int recvl;
+@@ -2233,8 +2221,7 @@
+ 	return ret;
  }
  
--/*
-- * Wait at most 2 seconds for flexport arbitration to succeed.
-- */
--int
--ahd_wait_flexport(struct ahd_softc *ahd)
+-static _INLINE_ void
+-receive_chars_dma(struct e100_serial *info)
++static void receive_chars_dma(struct e100_serial *info)
+ {
+ 	struct tty_struct *tty;
+ 	unsigned char rstat;
+@@ -2295,8 +2282,7 @@
+ 	*info->icmdadr = IO_STATE(R_DMA_CH6_CMD, cmd, restart);
+ }
+ 
+-static _INLINE_ int
+-start_recv_dma(struct e100_serial *info)
++static int start_recv_dma(struct e100_serial *info)
+ {
+ 	struct etrax_dma_descr *descr = info->rec_descr;
+ 	struct etrax_recv_buffer *buffer;
+@@ -2351,11 +2337,6 @@
+ }
+ 
+ 
+-static _INLINE_ void
+-status_handle(struct e100_serial *info, unsigned short status)
 -{
--	int cnt;
--
--	AHD_ASSERT_MODES(ahd, AHD_MODE_SCSI_MSK, AHD_MODE_SCSI_MSK);
--	cnt = 1000000 * 2 / 5;
--	while ((ahd_inb(ahd, BRDCTL) & FLXARBACK) == 0 && --cnt)
--		ahd_delay(5);
--
--	if (cnt == 0)
--		return (ETIMEDOUT);
--	return (0);
 -}
 -
- /************************* Target Mode ****************************************/
- #ifdef AHD_TARGET_MODE
- cam_status
+ /* the bits in the MASK2 register are laid out like this:
+    DMAI_EOP DMAI_DESCR DMAO_EOP DMAO_DESCR
+    where I is the input channel and O is the output channel for the port.
+@@ -2457,8 +2438,7 @@
+ 	return IRQ_RETVAL(handled);
+ } /* rec_interrupt */
+ 
+-static _INLINE_ int
+-force_eop_if_needed(struct e100_serial *info)
++static int force_eop_if_needed(struct e100_serial *info)
+ {
+ 	/* We check data_avail bit to determine if data has
+ 	 * arrived since last time
+@@ -2502,8 +2482,7 @@
+ 	return 1;
+ }
+ 
+-extern _INLINE_ void
+-flush_to_flip_buffer(struct e100_serial *info)
++static void flush_to_flip_buffer(struct e100_serial *info)
+ {
+ 	struct tty_struct *tty;
+ 	struct etrax_recv_buffer *buffer;
+@@ -2614,8 +2593,7 @@
+ 	tty_flip_buffer_push(tty);
+ }
+ 
+-static _INLINE_ void
+-check_flush_timeout(struct e100_serial *info)
++static void check_flush_timeout(struct e100_serial *info)
+ {
+ 	/* Flip what we've got (if we can) */
+ 	flush_to_flip_buffer(info);
+@@ -2744,7 +2722,7 @@
+ 
+ */
+ 
+-extern _INLINE_
++static
+ struct e100_serial * handle_ser_rx_interrupt_no_dma(struct e100_serial *info)
+ {
+ 	unsigned long data_read;
+@@ -2878,8 +2856,7 @@
+ 	return info;
+ }
+ 
+-extern _INLINE_
+-struct e100_serial* handle_ser_rx_interrupt(struct e100_serial *info)
++static struct e100_serial* handle_ser_rx_interrupt(struct e100_serial *info)
+ {
+ 	unsigned char rstat;
+ 
+@@ -2998,7 +2975,7 @@
+ 	return info;
+ } /* handle_ser_rx_interrupt */
+ 
+-extern _INLINE_ void handle_ser_tx_interrupt(struct e100_serial *info)
++static void handle_ser_tx_interrupt(struct e100_serial *info)
+ {
+ 	unsigned long flags;
+ 
+@@ -3624,9 +3601,8 @@
+ 	restore_flags(flags);
+ }
+ 
+-extern _INLINE_ int
+-rs_raw_write(struct tty_struct * tty, int from_user,
+-	  const unsigned char *buf, int count)
++static int rs_raw_write(struct tty_struct * tty, int from_user,
++			const unsigned char *buf, int count)
+ {
+ 	int	c, ret = 0;
+ 	struct e100_serial *info = (struct e100_serial *)tty->driver_data;
+@@ -4713,7 +4689,7 @@
+  * /proc fs routines....
+  */
+ 
+-extern _INLINE_ int line_info(char *buf, struct e100_serial *info)
++static int line_info(char *buf, struct e100_serial *info)
+ {
+ 	char	stat_buf[30];
+ 	int	ret;
+--- linux-2.6.15-mm3-full/drivers/serial/m32r_sio.c.old	2006-01-13 13:03:55.000000000 +0100
++++ linux-2.6.15-mm3-full/drivers/serial/m32r_sio.c	2006-01-13 13:04:26.000000000 +0100
+@@ -248,17 +248,17 @@
+ 
+ #endif /* CONFIG_SERIAL_M32R_PLDSIO */
+ 
+-static _INLINE_ unsigned int sio_in(struct uart_sio_port *up, int offset)
++static unsigned int sio_in(struct uart_sio_port *up, int offset)
+ {
+ 	return __sio_in(up->port.iobase + offset);
+ }
+ 
+-static _INLINE_ void sio_out(struct uart_sio_port *up, int offset, int value)
++static void sio_out(struct uart_sio_port *up, int offset, int value)
+ {
+ 	__sio_out(value, up->port.iobase + offset);
+ }
+ 
+-static _INLINE_ unsigned int serial_in(struct uart_sio_port *up, int offset)
++static unsigned int serial_in(struct uart_sio_port *up, int offset)
+ {
+ 	if (!offset)
+ 		return 0;
+@@ -266,8 +266,7 @@
+ 	return __sio_in(offset);
+ }
+ 
+-static _INLINE_ void
+-serial_out(struct uart_sio_port *up, int offset, int value)
++static void serial_out(struct uart_sio_port *up, int offset, int value)
+ {
+ 	if (!offset)
+ 		return;
+@@ -326,8 +325,8 @@
+ 	serial_out(up, UART_IER, up->ier);
+ }
+ 
+-static _INLINE_ void receive_chars(struct uart_sio_port *up, int *status,
+-	struct pt_regs *regs)
++static void receive_chars(struct uart_sio_port *up, int *status,
++			  struct pt_regs *regs)
+ {
+ 	struct tty_struct *tty = up->port.info->tty;
+ 	unsigned char ch;
+@@ -400,7 +399,7 @@
+ 	tty_flip_buffer_push(tty);
+ }
+ 
+-static _INLINE_ void transmit_chars(struct uart_sio_port *up)
++static void transmit_chars(struct uart_sio_port *up)
+ {
+ 	struct circ_buf *xmit = &up->port.info->xmit;
+ 	int count;
+--- linux-2.6.15-mm3-full/drivers/serial/sunsu.c.old	2006-01-13 13:04:35.000000000 +0100
++++ linux-2.6.15-mm3-full/drivers/serial/sunsu.c	2006-01-13 13:05:04.000000000 +0100
+@@ -102,9 +102,7 @@
+ #endif
+ };
+ 
+-#define _INLINE_
+-
+-static _INLINE_ unsigned int serial_in(struct uart_sunsu_port *up, int offset)
++static unsigned int serial_in(struct uart_sunsu_port *up, int offset)
+ {
+ 	offset <<= up->port.regshift;
+ 
+@@ -121,8 +119,7 @@
+ 	}
+ }
+ 
+-static _INLINE_ void
+-serial_out(struct uart_sunsu_port *up, int offset, int value)
++static void serial_out(struct uart_sunsu_port *up, int offset, int value)
+ {
+ #ifndef CONFIG_SPARC64
+ 	/*
+@@ -319,7 +316,7 @@
+ 	spin_unlock_irqrestore(&up->port.lock, flags);
+ }
+ 
+-static _INLINE_ struct tty_struct *
++static struct tty_struct *
+ receive_chars(struct uart_sunsu_port *up, unsigned char *status, struct pt_regs *regs)
+ {
+ 	struct tty_struct *tty = up->port.info->tty;
+@@ -398,7 +395,7 @@
+ 	return tty;
+ }
+ 
+-static _INLINE_ void transmit_chars(struct uart_sunsu_port *up)
++static void transmit_chars(struct uart_sunsu_port *up)
+ {
+ 	struct circ_buf *xmit = &up->port.info->xmit;
+ 	int count;
+@@ -434,7 +431,7 @@
+ 		__stop_tx(up);
+ }
+ 
+-static _INLINE_ void check_modem_status(struct uart_sunsu_port *up)
++static void check_modem_status(struct uart_sunsu_port *up)
+ {
+ 	int status;
+ 
+--- linux-2.6.15-mm3-full/drivers/tc/zs.c.old	2006-01-13 13:05:13.000000000 +0100
++++ linux-2.6.15-mm3-full/drivers/tc/zs.c	2006-01-13 13:05:35.000000000 +0100
+@@ -186,8 +186,6 @@
+ #define RS_STROBE_TIME 10
+ #define RS_ISR_PASS_LIMIT 256
+ 
+-#define _INLINE_ inline
+-
+ static void probe_sccs(void);
+ static void change_speed(struct dec_serial *info);
+ static void rs_wait_until_sent(struct tty_struct *tty, int timeout);
+@@ -344,14 +342,13 @@
+  * This routine is used by the interrupt handler to schedule
+  * processing in the software interrupt portion of the driver.
+  */
+-static _INLINE_ void rs_sched_event(struct dec_serial *info, int event)
++static void rs_sched_event(struct dec_serial *info, int event)
+ {
+ 	info->event |= 1 << event;
+ 	tasklet_schedule(&info->tlet);
+ }
+ 
+-static _INLINE_ void receive_chars(struct dec_serial *info,
+-				   struct pt_regs *regs)
++static void receive_chars(struct dec_serial *info, struct pt_regs *regs)
+ {
+ 	struct tty_struct *tty = info->tty;
+ 	unsigned char ch, stat, flag;
+@@ -441,7 +438,7 @@
+ 		rs_sched_event(info, RS_EVENT_WRITE_WAKEUP);
+ }
+ 
+-static _INLINE_ void status_handle(struct dec_serial *info)
++static void status_handle(struct dec_serial *info)
+ {
+ 	unsigned char stat;
+ 
+

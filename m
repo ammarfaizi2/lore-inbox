@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161232AbWASHes@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161251AbWASHfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161232AbWASHes (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 02:34:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161235AbWASHes
+	id S1161251AbWASHfX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 02:35:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161246AbWASHfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 02:34:48 -0500
-Received: from h80ad24de.async.vt.edu ([128.173.36.222]:35554 "EHLO
-	h80ad24de.async.vt.edu") by vger.kernel.org with ESMTP
-	id S1161229AbWASHer (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 02:34:47 -0500
-Message-Id: <200601190734.k0J7Y6i5004199@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org,
-       Dominik Brodowski <linux@dominikbrodowski.net>
-Subject: Re: Wireless issues (was Re: 2.6.16-rc1-mm1 
-In-Reply-To: Your message of "Wed, 18 Jan 2006 14:56:19 PST."
-             <20060118145619.4b5c7a3a.akpm@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20060118005053.118f1abc.akpm@osdl.org> <200601182229.k0IMTJ56003467@turing-police.cc.vt.edu>
-            <20060118145619.4b5c7a3a.akpm@osdl.org>
+	Thu, 19 Jan 2006 02:35:22 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:48063 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1161251AbWASHfV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 02:35:21 -0500
+Subject: Re: 2.6.15-rc5: latency regression vs 2.6.14 in
+	exit_mmap->free_pgtables
+From: Lee Revell <rlrevell@joe-job.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0601190717180.6003@goblin.wat.veritas.com>
+References: <1135726300.22744.25.camel@mindpipe>
+	 <Pine.LNX.4.61.0512282205450.2963@goblin.wat.veritas.com>
+	 <1137634961.626.2.camel@mindpipe>
+	 <Pine.LNX.4.61.0601190717180.6003@goblin.wat.veritas.com>
+Content-Type: text/plain
+Date: Thu, 19 Jan 2006 02:35:18 -0500
+Message-Id: <1137656119.4736.39.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1137656019_3359P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
-Date: Thu, 19 Jan 2006 02:33:39 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1137656019_3359P
-Content-Type: text/plain; charset=us-ascii
+On Thu, 2006-01-19 at 07:29 +0000, Hugh Dickins wrote:
+> On Wed, 18 Jan 2006, Lee Revell wrote:
+> > On Wed, 2005-12-28 at 22:59 +0000, Hugh Dickins wrote:
+> > > 
+> > > On my list to work on; but the TLB always needs great care, and this
+> > > goes down into architectural divergences, with truncation of a mapped
+> > > file adding further awkward constraints.  I imagine 2.6.16-rc1 is only
+> > > a couple of weeks away, so it's unlikely to be fixed in 2.6.16 either.
+> > 
+> > Is this believed to be fixed in 2.6.16-rc1?
+> 
+> Not at all, I'm afraid.  Do you think I ought to try to persuade Linus
+> and Andrew to take that ugly free_pgtables #ifdef CONFIG_PREEMPT patch
+> in the interim before we've the proper latency fix there?  (I doubt the
+> mmu_gather rewrite in 2.6.17 too, but perhaps a reasonable compromise.)
 
-On Wed, 18 Jan 2006 14:56:19 PST, Andrew Morton said:
+For the time being, this is overshadowed by long latencies (~8ms or so)
+in rt_garbage_collect() and rt_run_flush().  Previously I was under the
+impression those could be worked around by sysctl/proc tuning, but this
+is not the case.
 
-> There are orinoco changes in git-pcmcia.patch.  Could you try reverting
-> add-support-for-possio-gcc-aka-pcmcia-siemens-mc45.patch and then
-> git-pcmcia.patch?
+Until those are fixed I would say it's low priority.
 
-It turns out that we lost the initialization for the 'config_info_t conf;', so
-the compare to conf.Vcc was broken.  Here's a works-for-me patch.
+Lee
 
-Signed-Off-By: Valdis Kletnieks <valdis.kletnieks@vt.edu>
----
-
---- linux-2.6.16-rc1-mm1/drivers/net/wireless/orinoco_cs.c.v1	2006-01-19 01:52:03.000000000 -0500
-+++ linux-2.6.16-rc1-mm1/drivers/net/wireless/orinoco_cs.c	2006-01-19 02:21:25.000000000 -0500
-@@ -205,6 +205,10 @@ orinoco_cs_config(struct pcmcia_device *
- 	/* Configure card */
- 	link->state |= DEV_CONFIG;
- 
-+	/* Look up the current Vcc */
-+	CS_CHECK(GetConfigurationInfo,
-+		pcmcia_get_configuration_info(link, &conf));
-+
- 	/*
- 	 * In this loop, we scan the CIS for configuration table
- 	 * entries, each of which describes a valid card
-
-
---==_Exmh_1137656019_3359P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFDz0DTcC3lWbTT17ARAlIBAKDhGs0p7o6iRp6jcIkloLS8DgptwwCg2BDQ
-WHG1DIGzRvtIKomJQRYuYiM=
-=oXJS
------END PGP SIGNATURE-----
-
---==_Exmh_1137656019_3359P--

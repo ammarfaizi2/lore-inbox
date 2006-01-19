@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422664AbWASWNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422671AbWASWPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422664AbWASWNv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 17:13:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422667AbWASWNu
+	id S1422671AbWASWPX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 17:15:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422668AbWASWPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 17:13:50 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:39561 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422664AbWASWNe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 17:13:34 -0500
-Date: Thu, 19 Jan 2006 14:15:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Jones <davej@redhat.com>
-Cc: AChittenden@bluearc.com, linux-kernel@vger.kernel.org, lwoodman@redhat.com,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: Out of Memory: Killed process 16498 (java).
-Message-Id: <20060119141515.5f779b8d.akpm@osdl.org>
-In-Reply-To: <20060119194836.GM21663@redhat.com>
-References: <89E85E0168AD994693B574C80EDB9C270355601F@uk-email.terastack.bluearc.com>
-	<20060119194836.GM21663@redhat.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 19 Jan 2006 17:15:23 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:5284 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1422667AbWASWPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 17:15:21 -0500
+Subject: Re: License oddity in some m68k files
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, linux-m68k@vger.kernel.org,
+       geert@linux-m68k.org, torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060119220431.GA4739@kroah.com>
+References: <20060119180947.GA25001@kroah.com>
+	 <Pine.LNX.4.61.0601192014010.30994@scrub.home>
+	 <20060119220431.GA4739@kroah.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Thu, 19 Jan 2006 22:14:56 +0000
+Message-Id: <1137708896.8471.71.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> wrote:
->
-> On Thu, Jan 19, 2006 at 03:11:45PM -0000, Andy Chittenden wrote:
->  > DMA free:20kB min:24kB low:28kB high:36kB active:0kB inactive:0kB
->  > present:12740kB pages_scanned:4 all_unreclaimable? yes
+On Iau, 2006-01-19 at 14:04 -0800, Greg KH wrote:
+> Ah, ok, thanks, that makes sense.  How about a simple pointer to the
+> license info from the .S files to the README file so that people (like
+> me), don't get confused again?  I've attached a patch below if you wish
+> to apply it.
 > 
-> Note we only scanned 4 pages before we gave up.
-> Larry Woodman came up with this patch below that clears all_unreclaimable
-> when in two places where we've made progress at freeing up some pages
-> which has helped oom situations for some of our users.
+They specifically ask as is their right within the GPL that you note if
+you modify the files. Otherwise seems fine.
 
-That won't help - there are exactly zero pages on ZONE_DMA's LRU.
 
-The problem appears to be that all of the DMA zone has been gobbled up by
-the BIO layer.  It seems quite inappropriate that a modern 64-bit machine
-is allocating tons of disk I/O pages from the teeny ZONE_DMA.  I'm
-suspecting that someone has gone and set a queue's ->bounce_gfp to the wrong
-thing.
-
-Jens, would you have time to investigate please?

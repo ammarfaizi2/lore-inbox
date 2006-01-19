@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161282AbWASI5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161284AbWASI6R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161282AbWASI5d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 03:57:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161283AbWASI5d
+	id S1161284AbWASI6R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 03:58:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161285AbWASI6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 03:57:33 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:38561 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1161282AbWASI5c
+	Thu, 19 Jan 2006 03:58:17 -0500
+Received: from uproxy.gmail.com ([66.249.92.205]:44879 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161284AbWASI6R convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 03:57:32 -0500
-Date: Thu, 19 Jan 2006 08:57:30 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: sam@ravnborg.org, starvik@axis.com, dev-etrax@axis.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: cris: asm-offsets related build failure
-Message-ID: <20060119085730.GP27946@ftp.linux.org.uk>
-References: <20060119001852.GO19398@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Jan 2006 03:58:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XqFRlMzu7ZgVzMQXDEqvkjKUX2pn1DrhZmIdVReNQcqdfA33mnC5KSefkZ8mcw1KeE9jiO34pYpP6OUJpQkKKYaSkwQgefAEHyK+OoKLUxlfKgBMOHKL3bm8PNSqfgYS+crAf2RDmxINpTnXITH+DU8quJ6I2eX5bPGa6RaGp1g=
+Message-ID: <84144f020601190058s2e8e86a8ya761fcb4fdd8eeaa@mail.gmail.com>
+Date: Thu, 19 Jan 2006 10:58:13 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
+Subject: Re: [PATCH] 2.6.16-rc1-mm1 - produce useful info for kzalloc with DEBUG_SLAB
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200601190830.k0J8UG9Q008899@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060119001852.GO19398@stusta.de>
-User-Agent: Mutt/1.4.1i
+References: <200601190830.k0J8UG9Q008899@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 01:18:52AM +0100, Adrian Bunk wrote:
-> Hi Sam,
-> 
-> the following build failure is present on the cris architecture:
-> 
-> <--  snip  -->
-> 
-> ...
-> make[1]: *** No rule to make target `arch/cris/kernel/asm-offsets.c', 
-> needed by `arch/cris/kernel/asm-offsets.s'.  Stop.
-> make: *** [prepare0] Error 2
+Hi Valdis,
 
-Subject: [PATCH] fix a typo in arch/cris/Makefile
+On 1/19/06, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+> The following patch makes a few minor changes so the CONFIG_DEBUG_SLAB
+> statistics report the actual caller for kzalloc() - otherwise its call to
+> kmalloc() just points at kzalloc().  Basically, we force __always_inline on
+> several routines, so the __builtin_return_address calls point where we
+> want them to point, even if gcc wouldn't otherwise do it.
 
-fallout from "kbuild: cris use generic asm-offsets.h support" - symlink
-target was wrong
+Couldn't we use this [1] trick Steven came up with for this?
 
----
+  1. http://article.gmane.org/gmane.linux.kernel/362494
 
- arch/cris/Makefile |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-9812c3418f4068bb8940924a871e5bc0713d4e41
-diff --git a/arch/cris/Makefile b/arch/cris/Makefile
-index ea65d58..ee11469 100644
---- a/arch/cris/Makefile
-+++ b/arch/cris/Makefile
-@@ -119,7 +119,7 @@ $(SRC_ARCH)/.links:
- 	@ln -sfn $(SRC_ARCH)/$(SARCH)/lib $(SRC_ARCH)/lib
- 	@ln -sfn $(SRC_ARCH)/$(SARCH) $(SRC_ARCH)/arch
- 	@ln -sfn $(SRC_ARCH)/$(SARCH)/vmlinux.lds.S $(SRC_ARCH)/kernel/vmlinux.lds.S
--	@ln -sfn $(SRC_ARCH)/$(SARCH)/asm-offsets.c $(SRC_ARCH)/kernel/asm-offsets.c
-+	@ln -sfn $(SRC_ARCH)/$(SARCH)/kernel/asm-offsets.c $(SRC_ARCH)/kernel/asm-offsets.c
- 	@touch $@
- 
- # Create link to sub arch includes
--- 
-0.99.9.GIT
+                                    Pekka

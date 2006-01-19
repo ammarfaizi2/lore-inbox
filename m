@@ -1,85 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbWASRFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbWASRHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932483AbWASRFP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 12:05:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbWASRFP
+	id S932560AbWASRHE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 12:07:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWASRHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 12:05:15 -0500
-Received: from streetfiresound.liquidweb.com ([64.91.233.29]:15005 "EHLO
-	host.streetfiresound.liquidweb.com") by vger.kernel.org with ESMTP
-	id S932483AbWASRFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 12:05:13 -0500
-Subject: Re: PXA2xx SPI controller updated for 2.6.16-rc1?
-From: Stephen Street <stephen@streetfiresound.com>
-Reply-To: stephen@streetfiresound.com
-To: David Vrabel <dvrabel@arcom.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43CF6F25.9070704@arcom.com>
-References: <43CF6F25.9070704@arcom.com>
-Content-Type: text/plain
-Organization: StreetFire Sound Labs
-Date: Thu, 19 Jan 2006 09:05:09 -0800
-Message-Id: <1137690309.4623.24.camel@localhost.localdomain>
+	Thu, 19 Jan 2006 12:07:04 -0500
+Received: from mx1.suse.de ([195.135.220.2]:33698 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750826AbWASRHC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 12:07:02 -0500
+Date: Thu, 19 Jan 2006 18:06:56 +0100
+From: Nick Piggin <npiggin@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Nick Piggin <npiggin@suse.de>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>, David Miller <davem@davemloft.net>
+Subject: Re: [patch 0/4] mm: de-skew page refcount
+Message-ID: <20060119170656.GA9904@wotan.suse.de>
+References: <20060118024106.10241.69438.sendpatchset@linux.site> <Pine.LNX.4.64.0601180830520.3240@g5.osdl.org> <20060118170558.GE28418@wotan.suse.de> <Pine.LNX.4.64.0601181122120.3240@g5.osdl.org> <20060119140039.GA958@wotan.suse.de> <Pine.LNX.4.64.0601190756390.3240@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-22) 
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host.streetfiresound.liquidweb.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - streetfiresound.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0601190756390.3240@g5.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-19 at 10:51 +0000, David Vrabel wrote:
-> Stephen,
+On Thu, Jan 19, 2006 at 08:36:14AM -0800, Linus Torvalds wrote:
 > 
-> Do you have a version of the PXA2xx SPI contoller driver more recent
-> that the one posted at the end of October 2005?  There are some SPI (and
-> other) API changes required for 2.6.16-rc1.
+> So I _think_ that at least the case in "isolate_lru_page()", you'd 
+> actually be better off doing the "test-and-clear" instead of separate 
+> "test" and "clear-bit" ops, no? In that one, it would seem that 99+% of 
+> the time, the bit is set (because we tested it just before getting the 
+> lock).
 > 
-I'm working on it now.  I expect to have something with in the week.  I
-had some user space problems bringing up 2.6.15 which has cause some
-delay.
+> No?
+> 
 
-> I've attached my attempt (PIO works but DMA doesn't) if it's of any use.
-> 
-> The patch also:
->   - includes support for the different clock on the PXA27x
->   - calculates the correct clock divisor (at least on the PXA27x...)
->   - allows null_cs_control for PIO transfer.
-> 
-I will review and integrate you changes. THANKS!
+Well in isolate_lru_page, the test operation is actually optional
+(ie. it is the conditional for a BUG). And I have plans for making
+some of those configurable....
 
-> I'm currently using SSP3 on the PXA27x with the slave chip select GPIO
-> line configured as SSPSFRM3 instead of a GPIO.  This works fine provided
-> that each spi_message consists of a single spi_transfer.  With more than
->  one transfer they're not back-to-back and SSPSFRM3 is deasserted
-> between transfers.
-I believe this is the correct SSP in SPI mode behavior for PXA2xx.
+But at least on the G5, test_and_clear can be noticable (although
+IIRC it was in the noise for _this_ articular case) because of the
+memory barriers required.
 
 > 
-> It looks like you're waiting for the transmit buffer in the controller
-> to empty before switching to the next transfer.  Is it possible to
-> switch to the next transfer immediatly upon exhausting the transfer's
-> tx_buf?  Perhaps (in the DMA case) by chaining several DMA descriptors
-> together?
-DMA descriptor chaining the next optimization for the driver.  I want to
-get the driver cleaned up, tested and posted before starting this.
-
+> Now, that whole "we might touch the page count" thing does actually worry 
+> me a bit. The locking rules are subtle (but they -seem- safe: before we 
+> actually really put the page on the free-list in the freeing path, we'll 
+> have locked the LRU list if it was on one).
 > 
-> At the higher SPI clock rates available on the PXA27x (up to 13 MHz with
-> the internal clock) PIO mode doesn't seem to feed the transmit buffer
-> fast enough resulting in gaps between each byte/word of the transfer.  I
-> would assume using DMA would not show this?
-Correct, I think the PXA2xx even states this in the docs.
 
-Thanks your input, I really appreciate it.  I will send you my updates
-ASAP.  Most likely a 2.6.15 version quickly follow by a 2.6.16-rc
-version.
+Yes, I think Andrew did his homework. I thought it through quite a bit
+before sending the patches and again after your feedback. Subtle though,
+no doubt.
 
-Stephen
+> But if you were to change _that_ one to a
+> 
+> 	atomic_add_unless(&page->counter, 1, -1);
+> 
+> I think that would be a real cleanup. And at that point I won't even 
+> complain that "atomic_inc_test()" is faster - that "get_page_testone()" 
+> thing is just fundamentally a bit scary, so I'd applaud it regardless.
+> 
+
+Hmm... this is what the de-skew patch _did_ (although it was wrapped
+in a function called get_page_unless_zero), in fact the main aim was
+to prevent this twiddling and the de-skewing was just a nice side effect
+(I guess the patch title is misleading).
+
+So I'm confused...
+
+> (The difference: the "counter skewing" may be unexpected, but it's just a 
+> simple trick. In contrast, the "touch the count after the page may be 
+> already in the freeing stage" is a scary subtle thing. Even if I can't 
+> see any actual bug in it, it just worries me in a way that offsetting a 
+> counter by one does not..)
+> 
+
+Don't worry, you'll be seeing that patch again -- it is required for
+lockless pagecache.
+
+Nick
 

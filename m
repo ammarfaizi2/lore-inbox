@@ -1,70 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbWASGGI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbWASGIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030298AbWASGGI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 01:06:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWASGGI
+	id S932548AbWASGIM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 01:08:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbWASGIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 01:06:08 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:29640 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932545AbWASGGH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 01:06:07 -0500
-Message-ID: <43CF2CA3.5020001@redhat.com>
-Date: Wed, 18 Jan 2006 22:07:31 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Thunderbird 1.5 (X11/20060112)
-MIME-Version: 1.0
-To: Nicholas Miell <nmiell@comcast.net>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] prototypes for *at functions & typo fix
-References: <200601190429.k0J4TWXD018136@devserv.devel.redhat.com>	 <20060118203733.5aac5ee4.akpm@osdl.org> <1137646586.2842.6.camel@entropy>
-In-Reply-To: <1137646586.2842.6.camel@entropy>
-X-Enigmail-Version: 0.93.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigB4274C94C7FCC131BB6E12A2"
+	Thu, 19 Jan 2006 01:08:12 -0500
+Received: from ns.intellilink.co.jp ([61.115.5.249]:15818 "EHLO
+	mail.intellilink.co.jp") by vger.kernel.org with ESMTP
+	id S932548AbWASGIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 01:08:11 -0500
+Subject: Re: [PATCH 0/5] stack overflow safe kdump (2.6.15-i386)
+From: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>
+To: vgoyal@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>,
+       ak@suse.de, fastboot@lists.osdl.org
+In-Reply-To: <20060118015649.GE23143@in.ibm.com>
+References: <1137417795.2256.83.camel@localhost.localdomain>
+	 <20060118015649.GE23143@in.ibm.com>
+Content-Type: text/plain
+Organization: =?UTF-8?Q?NTT=E3=83=87=E3=83=BC=E3=82=BF=E5=85=88=E7=AB=AF=E6=8A=80?=
+	=?UTF-8?Q?=E8=A1=93=E6=A0=AA=E5=BC=8F=E4=BC=9A=E7=A4=BE?=
+Date: Thu, 19 Jan 2006 15:07:55 +0900
+Message-Id: <1137650875.2985.39.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigB4274C94C7FCC131BB6E12A2
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Tue, 2006-01-17 at 20:56 -0500, Vivek Goyal wrote:
+> On Mon, Jan 16, 2006 at 10:23:15PM +0900, Fernando Luis Vazquez Cao wrote:
+> > Hi,
+> > 
+> > The following set of patches aims at making kdump robust against stack
+> > overflows. 
+> > 
+> > In this new version I tried to incorporate all the ideas received after
+> > a previous post. However, there is still room for further improvements
+> > some of which I point out below (see "->"). I would appreciate your
+> > comments before I start working on them.
+> > 
+> > This patch set does the following:
+> > 
+> > * Substitute "smp_processor_id" with the stack overflow-safe
+> > "safe_smp_processor_id" in the reboot path to the second kernel.
+> > 
+> > * Use a private 4K stack for the NMI handler (if CONFIG_4KSTACKS
+> > enabled).
+> > 
+> > * On the event of a system crash:
+> >    - Replace NMI trap vector with "crash_nmi".
+> >    - Replace NMI handler with "do_crash_nmi".
+> > 
+> > List of patches (the last two should be applied in the order of
+> > appearance):
+> > 
+> > [1/5] safe_smp_processor_id: Stack overflow safe implementation of
+> > smp_processor_id.
+> > 
+> > [2/5] use_safe_smp_processor_id: Replace smp_processor_id with
+> > safe_smp_processor_id in arch/i386/kernel/crash.c.
+> > 
+> > [3/5] fault: Take stack overflows into account in do_page_fault.
+> > 
+> > [4/5] nmi_vector: In the nmi path, we have the problem that both nmi_enter and
+> > nmi_exit in do_nmi (see code below) make heavy use of "current" indirectly
+> > (specially through the kernel preemption code). To avoid this execution path the
+> > nmi trap handler is substituted with a stack overflow safe replacement.
+> > 
+> >    -> Regarding the implementation, I have some doubts:
+> >       - Should the NMI vector replaced atomically?
+> >       - Should the NMI watchdog be stopped? Should NMIs be disabled in the crash
+> >         path of each CPU?
+> >       This is important because after replacing the nmi handler the NMI
+> >       watchdog will continue generating interrupts that need to be handled
+> >       properly. If we can avoid this a kdump-specific nmi vector handler
+> >       (ENTRY(crash_nmi)) could be safely used.
+> 
+> Can we have something like per cpu flag which will be set if NMI is received
+> after crash (after replacing the trap vector). If another NMI occurs on 
+> the same cpu and if flag is set, return and don't process it further.
+The problem is that when one CPU crashes in a SMP system and the NMI
+watchdog is enabled, the others will continue receiving NMI from the
+watchdog and will eventually also receive the NMI from the crashing CPU.
+The NMI handler has to be able to process both adequately if we cannot
+stop the NMI watchdog atomically. Even if we used such a flag we would
+need to figure out the originator of the NMI.
 
-Nicholas Miell wrote:
-> AMD64 renumbered all the syscalls for optimal cacheline usage or
-> something stupid like that. I suppose the x86 emulation on AMD64 kernel=
-s
-> could share the i386 table, but then _NR_foo will have a different valu=
-e
-> depending on context, and that'll just get confusing.
+Regards,
 
-Yes, the syscall numbers are quite different, especially because x86 has
-all syscalls, even the obsolete ones.
+Fernando
 
-But what I mean is that the __NR_ia32_* macros in
-asm-x86-64/ia32_unistd.h aren't used anywhere in the kernel.  And in
-userland the asm-x86/unistd.h file is used when compiling x86 apps.  At
-least this is how the kernel headers for userlevel use should be set up.
-
---=20
-=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
-=E2=9E=A7 Mountain View, CA =E2=9D=96
-
-
---------------enigB4274C94C7FCC131BB6E12A2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFDzyyj2ijCOnn/RHQRAhL5AJ9M4Z40OIrkaJ5KuCvpnFTf9Wol5QCfdTDa
-ovAp2R5VLVmBogbeugh1PtA=
-=/Nqq
------END PGP SIGNATURE-----
-
---------------enigB4274C94C7FCC131BB6E12A2--

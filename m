@@ -1,62 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161126AbWASA6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161123AbWASA54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161126AbWASA6E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jan 2006 19:58:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161127AbWASA6E
+	id S1161123AbWASA54 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jan 2006 19:57:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161126AbWASA54
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jan 2006 19:58:04 -0500
-Received: from moutng.kundenserver.de ([212.227.126.188]:5373 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1161126AbWASA6C convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jan 2006 19:58:02 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: spereira@tusc.com.au
-Subject: Re: 32 bit (socket layer) ioctl emulation for 64 bit kernels
-Date: Thu, 19 Jan 2006 01:57:37 +0100
-User-Agent: KMail/1.9.1
-Cc: YOSHIFUJI Hideaki /
-	 =?utf-8?q?=E5=90=89=E8=97=A4=E8=8B=B1=E6=98=8E?= 
-	<yoshfuji@linux-ipv6.org>,
-       acme@ghostprotocols.net, ak@muc.de, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, pereira.shaun@gmail.com,
-       Arnd Bergmann <arnd@arndb.de>
-References: <1137122079.5589.34.camel@spereira05.tusc.com.au> <200601170115.07019.arnd@arndb.de> <1137567396.14130.2.camel@spereira05.tusc.com.au>
-In-Reply-To: <1137567396.14130.2.camel@spereira05.tusc.com.au>
+	Wed, 18 Jan 2006 19:57:56 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:45577 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161123AbWASA5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jan 2006 19:57:55 -0500
+Date: Thu, 19 Jan 2006 01:57:54 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: defconfig compile errors due to the tty changes
+Message-ID: <20060119005754.GQ19398@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601190157.38277.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Wednesday 18 January 2006 07:56 schrieb Shaun Pereira:
->  Assuming you are happy with the state of the patches, is there anyway
-> for me to know if they will become a part of the next release?
+Hi Alan,
 
-I don't see any more technical problems with your patches. You still need
-to proper patch description and Signed-off-by: line like it is described
-in Documentation/SubmittingPatches.
-You can add an 'Acked-by: Arnd Bergmann <arnd@arndb.de>' line to the four
-patches you posted last if you like.
+it seems the following defconfig compile errors [1] are caused by your 
+tty changes:
 
-> Usually submitted/reviewed patches to netdev does not not always
-> guarantee they will be acccepted/signed-off.
-> Any advice would be useful
 
-I'm not that familiar with the process for non-driver patches for netdev
-(nor for device drivers as it seems ;-)), but my understanding is that you 
-should address those to Jeff Garzik as well, asking for inclusion in the
-netdev-2.6 git tree in your introductory '[PATCH 0/4]' mail.
+m68knommu:
 
-Since the official merge window for 2.6.16 is now over (2.6.16-rc1 has been
-released), it may have to wait for 2.6.17 to become part of the mainline
-kernel, that probably depends on Jeffs judgement.
+<--  snip  -->
 
-I would think it can still go in since it is a bug fix for the execution of
-32 bit programs using x25 ioctls, but it's clearly not my decision ;-).
+...
+/usr/src/ctest/git/kernel/drivers/serial/mcfserial.c: In function `receive_chars':
+/usr/src/ctest/git/kernel/drivers/serial/mcfserial.c:354: error: structure has no member named `flip'
+make[3]: *** [drivers/serial/mcfserial.o] Error 1
 
-	Arnd <><
+<--  snip  -->
+
+
+v850:
+
+<--  snip  -->
+
+...
+  CC      arch/v850/kernel/simcons.o
+/usr/src/ctest/git/kernel/arch/v850/kernel/simcons.c: In function `simcons_poll_tty':
+/usr/src/ctest/git/kernel/arch/v850/kernel/simcons.c:127: error: structure has no member named `flip'
+/usr/src/ctest/git/kernel/arch/v850/kernel/simcons.c:130: error: structure has no member named `flip'
+/usr/src/ctest/git/kernel/arch/v850/kernel/simcons.c:134: error: structure has no member named `flip'
+/usr/src/ctest/git/kernel/arch/v850/kernel/simcons.c:135: error: structure has no member named `flip'
+/usr/src/ctest/git/kernel/arch/v850/kernel/simcons.c:136: error: structure has no member named `flip'
+/usr/src/ctest/git/kernel/arch/v850/kernel/simcons.c:137: error: structure has no member named `flip'
+make[2]: *** [arch/v850/kernel/simcons.o] Error 1
+
+<--   snip  -->
+
+
+xtensa:
+
+<--  snip  -->
+
+...
+  CC      arch/xtensa/platform-iss/console.o
+/usr/src/ctest/git/kernel/arch/xtensa/platform-iss/console.c: In function `rs_poll':
+/usr/src/ctest/git/kernel/arch/xtensa/platform-iss/console.c:131: error: structure has no member named `flip'
+/usr/src/ctest/git/kernel/arch/xtensa/platform-iss/console.c:132: error: structure has no member named `flip'
+/usr/src/ctest/git/kernel/arch/xtensa/platform-iss/console.c:133: error: structure has no member named `flip'
+make[2]: *** [arch/xtensa/platform-iss/console.o] Error 1
+
+<--  snip  -->
+
+
+Can you fix them?
+
+
+TIA
+Adrian
+
+[1] http://l4x.org/k/
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

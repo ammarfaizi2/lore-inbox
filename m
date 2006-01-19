@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161310AbWASTL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161345AbWASTMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161310AbWASTL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 14:11:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161334AbWASTLS
+	id S1161345AbWASTMg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 14:12:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161340AbWASTL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 14:11:18 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:55228 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1161310AbWASTLK (ORCPT
+	Thu, 19 Jan 2006 14:11:56 -0500
+Received: from ns1.coraid.com ([65.14.39.133]:19368 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S1161337AbWASTLy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 14:11:10 -0500
-From: Mel Gorman <mel@csn.ul.ie>
-To: linux-mm@kvack.org
-Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Message-Id: <20060119190911.16909.76842.sendpatchset@skynet.csn.ul.ie>
-In-Reply-To: <20060119190846.16909.14133.sendpatchset@skynet.csn.ul.ie>
-References: <20060119190846.16909.14133.sendpatchset@skynet.csn.ul.ie>
-Subject: [PATCH 5/5] ForTesting - Prevent OOM killer firing for high-order allocations
-Date: Thu, 19 Jan 2006 19:09:11 +0000 (GMT)
+	Thu, 19 Jan 2006 14:11:54 -0500
+Message-ID: <e506e5e61e4a3821850c62e32bc95b17@coraid.com>
+Date: Thu, 19 Jan 2006 13:46:27 -0500
+To: linux-kernel@vger.kernel.org
+CC: ecashin@coraid.com, Greg K-H <greg@kroah.com>
+Subject: [PATCH 2.6.15-git9] aoe [6/8]: update device information on last close
+From: "Ed L. Cashin" <ecashin@coraid.com>
+References: <E1EzelK-0006sT-00@kokone>
+Gcc: nnfolder:Mail/sent-200601
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
 
-Stop going OOM for high-order allocations. During testing of high order
-allocations, we do not want the OOM killing everything in sight.
+Instead of making the user wait or do it manually, refresh
+device information on its last close by issuing a config
+query to the device.
 
-For comparison between kernels during the high order allocatioon stress
-test, this patch is applied to both the stock -mm kernel and the kernel
-using ZONE_EASYRCLM.
-
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-104_ppc64coremem/mm/page_alloc.c linux-2.6.16-rc1-mm1-902_highorderoom/mm/page_alloc.c
---- linux-2.6.16-rc1-mm1-104_ppc64coremem/mm/page_alloc.c	2006-01-19 16:43:20.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-902_highorderoom/mm/page_alloc.c	2006-01-19 16:44:03.000000000 +0000
-@@ -1080,8 +1080,11 @@ rebalance:
- 		if (page)
- 			goto got_pg;
+diff -upr 2.6.15-git9-orig/drivers/block/aoe/aoeblk.c 2.6.15-git9-aoe/drivers/block/aoe/aoeblk.c
+--- 2.6.15-git9-orig/drivers/block/aoe/aoeblk.c	2006-01-19 13:31:22.000000000 -0500
++++ 2.6.15-git9-aoe/drivers/block/aoe/aoeblk.c	2006-01-19 13:31:23.000000000 -0500
+@@ -109,7 +109,7 @@ aoeblk_release(struct inode *inode, stru
  
--		out_of_memory(gfp_mask, order);
--		goto restart;
-+		/* Only go OOM for low-order allocations */
-+		if (order <= 3) {
-+			out_of_memory(gfp_mask, order);
-+			goto restart;
-+		}
- 	}
+ 	spin_lock_irqsave(&d->lock, flags);
  
- 	/*
+-	if (--d->nopen == 0 && !(d->flags & DEVFL_UP)) {
++	if (--d->nopen == 0) {
+ 		spin_unlock_irqrestore(&d->lock, flags);
+ 		aoecmd_cfg(d->aoemajor, d->aoeminor);
+ 		return 0;
+
+
+-- 
+  "Ed L. Cashin" <ecashin@coraid.com>

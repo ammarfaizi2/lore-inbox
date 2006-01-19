@@ -1,58 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161149AbWASTxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161373AbWASTzX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161149AbWASTxP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 14:53:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161368AbWASTxP
+	id S1161373AbWASTzX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 14:55:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161374AbWASTzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 14:53:15 -0500
-Received: from mx1.suse.de ([195.135.220.2]:59835 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161149AbWASTxO (ORCPT
+	Thu, 19 Jan 2006 14:55:23 -0500
+Received: from mx2.suse.de ([195.135.220.15]:13784 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161373AbWASTzV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 14:53:14 -0500
-Date: Thu, 19 Jan 2006 20:53:13 +0100
+	Thu, 19 Jan 2006 14:55:21 -0500
 From: Nick Piggin <npiggin@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nick Piggin <npiggin@suse.de>, Andrew Morton <akpm@osdl.org>,
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <npiggin@suse.de>,
        Linux Memory Management <linux-mm@kvack.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 5/6] mm: simplify vmscan vs release refcounting
-Message-ID: <20060119195312.GA13887@wotan.suse.de>
-References: <20060119192131.11913.27564.sendpatchset@linux.site> <20060119192219.11913.30071.sendpatchset@linux.site> <Pine.LNX.4.64.0601191130590.3240@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0601191130590.3240@g5.osdl.org>
-User-Agent: Mutt/1.5.6i
+Message-Id: <20060119195404.14171.55511.sendpatchset@linux.site>
+In-Reply-To: <20060119195355.14171.14613.sendpatchset@linux.site>
+References: <20060119195355.14171.14613.sendpatchset@linux.site>
+Subject: [resend][patch 6/6] mm: de-skew page refcounting
+Date: Thu, 19 Jan 2006 20:55:15 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 11:35:29AM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Thu, 19 Jan 2006, Nick Piggin wrote:
-> >
-> > The VM has an interesting race where a page refcount can drop to zero, but
-> > it is still on the LRU lists for a short time. This was solved by testing
-> > a 0->1 refcount transition when picking up pages from the LRU, and dropping
-> > the refcount in that case.
-> 
-> Heh. Now you keep the count offset, but you also end up removing all the 
-> comments about it (still) being -1 for free. 
-> 
-> And your changelog talks about "atomic_inc_not_zero()" even though the 
-> code actually does
-> 
-> 	atomic_add_unless(&page->_count, 1, -1);
-> 
-> which makes it pretty confusing ;)
-> 
-> I also think it's wrong - you've changed put_page_testzero() to use 
-> "atomic_dec_and_test()", even though the count is based on -1.
-> 
-> So this patch _only_ works together with the next one, and is invalid in 
-> many ways on its own. You should re-split the de-skew part correctly..
-> 
+atomic_add_unless (atomic_inc_not_zero) no longer requires an offset
+refcount to function correctly.
 
-Man I'm really happy one of us is awake. Sorry, I'll resend the last two.
+Signed-off-by: Nick Piggin <npiggin@suse.de>
 
-Nick
+Index: linux-2.6/include/linux/mm.h
+===================================================================
+--- linux-2.6.orig/include/linux/mm.h
++++ linux-2.6/include/linux/mm.h
+@@ -286,15 +286,6 @@ struct page {
+  *
+  * Also, many kernel routines increase the page count before a critical
+  * routine so they can be sure the page doesn't go away from under them.
+- *
+- * Since 2.6.6 (approx), a free page has ->_count = -1.  This is so that we
+- * can use atomic_add_negative(-1, page->_count) to detect when the page
+- * becomes free and so that we can also use atomic_inc_and_test to atomically
+- * detect when we just tried to grab a ref on a page which some other CPU has
+- * already deemed to be freeable.
+- *
+- * NO code should make assumptions about this internal detail!  Use the provided
+- * macros which retain the old rules: page_count(page) == 0 is a free page.
+  */
+ 
+ /*
+@@ -303,8 +294,8 @@ struct page {
+  */
+ static inline int put_page_testzero(struct page *page)
+ {
+-	BUG_ON(atomic_read(&page->_count) == -1);
+-	return atomic_add_negative(-1, &page->_count);
++	BUG_ON(atomic_read(&page->_count) == 0);
++	return atomic_dec_and_test(&page->_count);
+ }
+ 
+ /*
+@@ -313,10 +304,10 @@ static inline int put_page_testzero(stru
+  */
+ static inline int get_page_unless_zero(struct page *page)
+ {
+-	return atomic_add_unless(&page->_count, 1, -1);
++	return atomic_inc_not_zero(&page->_count);
+ }
+ 
+-#define set_page_count(p,v) 	atomic_set(&(p)->_count, (v) - 1)
++#define set_page_count(p,v) 	atomic_set(&(p)->_count, (v))
+ #define __put_page(p)		atomic_dec(&(p)->_count)
+ 
+ extern void FASTCALL(__page_cache_release(struct page *));
+@@ -325,7 +316,7 @@ static inline int page_count(struct page
+ {
+ 	if (PageCompound(page))
+ 		page = (struct page *)page_private(page);
+-	return atomic_read(&page->_count) + 1;
++	return atomic_read(&page->_count);
+ }
+ 
+ static inline void get_page(struct page *page)

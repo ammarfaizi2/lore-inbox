@@ -1,59 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161203AbWASOBd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161187AbWASOAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161203AbWASOBd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 09:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161207AbWASOBd
+	id S1161187AbWASOAr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 09:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161203AbWASOAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 09:01:33 -0500
-Received: from mx2.suse.de ([195.135.220.15]:37289 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161203AbWASOBc (ORCPT
+	Thu, 19 Jan 2006 09:00:47 -0500
+Received: from mx1.suse.de ([195.135.220.2]:59778 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161187AbWASOAr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 09:01:32 -0500
-Date: Thu, 19 Jan 2006 15:01:27 +0100
+	Thu, 19 Jan 2006 09:00:47 -0500
+Date: Thu, 19 Jan 2006 15:00:39 +0100
 From: Nick Piggin <npiggin@suse.de>
-To: Jason Baron <jbaron@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
 Cc: Nick Piggin <npiggin@suse.de>,
+       Linux Memory Management <linux-mm@kvack.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 1/2] x86_64: pageattr use single list
-Message-ID: <20060119140127.GB958@wotan.suse.de>
-References: <20060117150307.7411.94174.sendpatchset@linux.site> <20060117150316.7411.98772.sendpatchset@linux.site> <Pine.LNX.4.61.0601181437030.6584@dhcp83-105.boston.redhat.com>
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>, David Miller <davem@davemloft.net>
+Subject: Re: [patch 0/4] mm: de-skew page refcount
+Message-ID: <20060119140039.GA958@wotan.suse.de>
+References: <20060118024106.10241.69438.sendpatchset@linux.site> <Pine.LNX.4.64.0601180830520.3240@g5.osdl.org> <20060118170558.GE28418@wotan.suse.de> <Pine.LNX.4.64.0601181122120.3240@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601181437030.6584@dhcp83-105.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0601181122120.3240@g5.osdl.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 18, 2006 at 02:38:11PM -0500, Jason Baron wrote:
+On Wed, Jan 18, 2006 at 11:27:13AM -0800, Linus Torvalds wrote:
+> 
 > 
 > On Wed, 18 Jan 2006, Nick Piggin wrote:
-> 
-> > Use page->lru.next to implement the singly linked list of pages rather
-> > than the struct deferred_page which needs to be allocated and freed for
-> > each page.
 > > 
-> > Signed-off-by: Nick Piggin <npiggin@suse.de>
-> > Acked-by: Andi Kleen <ak@suse.de>
+> > > So I disagree with this patch series. It has real downsides. There's a 
+> > > reason we have the offset.
 > > 
-> > Index: linux-2.6/arch/x86_64/mm/pageattr.c
-> > ===================================================================
+> > Yes, there is a reason, I detailed it in the changelog and got rid of it.
 > 
-> ...
-> 
-> > +
-> > +	flush_map((dpage && !dpage->lru.next) ? (unsigned long)page_address(dpage) : 0);
-> > +	while (dpage) {
-> > +		__free_page(dpage);
-> > +		dpage = (struct page *)dpage->lru.next;
-> >  	} 
-> >  } 
-> >  
-> 
-> do you want to be touching a struct page that was just freed?
+> And I'm not applying it. I'd be crazy to replace good code by code that is 
+> objectively _worse_.
 > 
 
-No, thanks. Good catch.
+And you're not? Damn.
+
+> The fact that you _document_ that it's worse doesn't make it any better.
+> 
+> The places that you improve (in the other patches) seem to have nothing at 
+> all to do with the counter skew issue, so I don't see the point.
+> 
+
+You know, I believe you're right. I needed the de-skewing patch for
+something unrelated and it seemed that it opened the possibility for
+the following optimisations (ie. because we no longer touch a page
+after its refcount goes to zero).
+
+But actually it doesn't matter that we might touch page_count, only
+that we not clear PageLRU. So the enabler is simply moving the
+TestClearPageLRU after the get_page_testone.
+
+So I'll respin the patches without the de-skewing and the series
+will become much smaller and neater.
+
+> So let me repeat: WHY DID YOU MAKE THE CODE WORSE?
+> 
+
+You've never bothered me about that until now...
+
+Thanks for the feedback!
 
 Nick

@@ -1,82 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161256AbWASIAl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161254AbWASIA3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161256AbWASIAl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 03:00:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161257AbWASIAl
+	id S1161254AbWASIA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 03:00:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161257AbWASIA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 03:00:41 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:2406 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1161256AbWASIAk (ORCPT
+	Thu, 19 Jan 2006 03:00:29 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:9703 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161254AbWASIA3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 03:00:40 -0500
-Date: Thu, 19 Jan 2006 09:02:00 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Jon Smirl <jonsmirl@gmail.com>,
-       jeffrey.t.kirsher@intel.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] e1000 C style badness
-Message-ID: <20060119080200.GA4349@suse.de>
-References: <20060118080738.GD3945@suse.de> <20060118083721.GA4222@suse.de> <9e4733910601180953i11963df9n232cd8980c4bf7f2@mail.gmail.com> <43CE8567.5040205@pobox.com> <20060118182012.GR4222@suse.de> <4807377b0601181110y72e1e4f2w8337c559713f2da4@mail.gmail.com>
+	Thu, 19 Jan 2006 03:00:29 -0500
+Date: Wed, 18 Jan 2006 23:59:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [patch] halt_on_oops command line option
+Message-Id: <20060118235958.6b466a86.akpm@osdl.org>
+In-Reply-To: <20060119073951.GC21663@redhat.com>
+References: <20060118232255.3814001b.akpm@osdl.org>
+	<20060119073951.GC21663@redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4807377b0601181110y72e1e4f2w8337c559713f2da4@mail.gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 18 2006, Jesse Brandeburg wrote:
-> On 1/18/06, Jens Axboe <axboe@suse.de> wrote:
-> > On Wed, Jan 18 2006, Jeff Garzik wrote:
-> > > We'll get it fixed ASAP, even if it means reverting all those patches.
-> >
-> > Thanks, it is rather critical. At least it didn't get included in -rc1,
-> > that would have been a disaster :-)
+Dave Jones <davej@redhat.com> wrote:
+>
+> On Wed, Jan 18, 2006 at 11:22:55PM -0800, Andrew Morton wrote:
+>  > 
+>  > How's this look?
+>  > Attempt to fix the problem wherein people's oops reports scroll off the screen
+>  > due to repeated oopsing or to oopses on other CPUs.
+>  > 
+>  > If this happens the user can reboot with the `halt_on_oops' option.  It will
+>  > allow the first oopsing CPU to print an oops record just a single time.  Second
+>  > oopsing attempts, or oopses on other CPUs will cause those CPUs to enter a
+>  > tight loop.
 > 
-> just FYI, I have a patch for the e1000 breakage which will be out as
-> soon as I can generate it.
+> seems a bit aggressive for UP.  Now if my sound driver oopses, I don't
+> just lose sound, I lock up.  (That's why I made it a pause, not a halt
+> in my earlier patch).
+> 
 
-Newest -git works for me. Well sort of, I get a lot of these:
+Well I'm assuming people would only enable the option if they are
+experiencing persistently-scrolling-off oopses.
 
-e1000: eth0: e1000_watchdog_task: NIC Link is Up 1000 Mbps Full Duplex
-e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
-  Tx Queue             <0>
-  TDH                  <72>
-  TDT                  <e5>
-  next_to_use          <e5>
-  next_to_clean        <6f>
-buffer_info[next_to_clean]
-  time_stamp           <10000160a>
-  next_to_watch        <72>
-  jiffies              <100001e09>
-  next_to_watch.status <0>
-e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
-  Tx Queue             <0>
-  TDH                  <72>
-  TDT                  <e5>
-  next_to_use          <e5>
-  next_to_clean        <6f>
-buffer_info[next_to_clean]
-  time_stamp           <10000160a>
-  next_to_watch        <72>
-  jiffies              <1000025da>
-  next_to_watch.status <0>
-e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
-  Tx Queue             <0>
-  TDH                  <72>
-  TDT                  <e5>
-  next_to_use          <e5>
-  next_to_clean        <6f>
-buffer_info[next_to_clean]
-  time_stamp           <10000160a>
-  next_to_watch        <72>
-  jiffies              <10000357b>
-  next_to_watch.status <0>
-NETDEV WATCHDOG: eth0: transmit timed out
-e1000: eth0: e1000_watchdog_task: NIC Link is Up 1000 Mbps Full Duplex
-
-
--- 
-Jens Axboe
-
+We could make the boot option be number-of-seconds-to-pause I guess.  Do
+you think it's really worth it?

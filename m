@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030301AbWASS3D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbWASSbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030301AbWASS3D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 13:29:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030313AbWASS3D
+	id S1030308AbWASSbL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 13:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030314AbWASSbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 13:29:03 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:41220 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030301AbWASS3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 13:29:01 -0500
-Date: Thu, 19 Jan 2006 19:28:59 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, perex@suse.cz
-Subject: Re: RFC: OSS driver removal, a slightly different approach
-Message-ID: <20060119182859.GW19398@stusta.de>
-References: <20060119174600.GT19398@stusta.de> <1137694944.32195.1.camel@mindpipe>
+	Thu, 19 Jan 2006 13:31:10 -0500
+Received: from 200-170-96-180.veloxmail.com.br ([200.170.96.180]:16266 "EHLO
+	lolita-out.veloxmail.com.br") by vger.kernel.org with ESMTP
+	id S1030308AbWASSbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 13:31:09 -0500
+X-Authenticated-User: fredlwm@veloxmail.com.br
+X-Authenticated-User: fredlwm@veloxmail.com.br
+Date: Thu, 19 Jan 2006 16:31:03 -0200 (BRST)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <2@pervalidus.net>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kbuild: create .kernelrelease at *config step
+Message-ID: <Pine.LNX.4.64.0601191626140.1300@dyndns.pervalidus.net>
+X-Archive: encrypt
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137694944.32195.1.camel@mindpipe>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 01:22:23PM -0500, Lee Revell wrote:
-> On Thu, 2006-01-19 at 18:46 +0100, Adrian Bunk wrote:
-> > 3. no ALSA drivers for the same hardware
-> > 
-> > SOUND_SB 
-> 
-> ALSA certainly does support "100% Sound Blaster compatibles (SB16/32/64,
-> ESS, Jazz16)", it would be a joke if it didn't...
+Is this expected ?
 
-That's not the problem, I should have added an explanation:
+$ cd /usr/local/src/kernel/linux-2.6.16
+$ make O=/home/fredlwm/objdir/ oldconfig
+...
+make -C /usr/local/src/kernel/linux-2.6.16 O=/home/fredlwm/objdir .kernelrelease
+Makefile:480: .config: No such file or directory
 
-SOUND_SB (due to SOUND_KAHLUA and SOUND_PAS)
+.config is in /home/fredlwm/objdir
 
-> Lee
+.kernelrelease gets created in 
+/usr/local/src/kernel/linux-2.6.16 . I thought nothing would be 
+written to the sources directory. What if I were on a read-only 
+filesystem ?
 
-cu
-Adrian
+I didn't try to build it. Are these harmless ?
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+How to contact me - http://www.pervalidus.net/contact.html

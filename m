@@ -1,140 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932556AbWASGLD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932554AbWASGR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932556AbWASGLD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 01:11:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWASGLD
+	id S932554AbWASGR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 01:17:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWASGR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 01:11:03 -0500
-Received: from smtpq2.tilbu1.nb.home.nl ([213.51.146.201]:56269 "EHLO
-	smtpq2.tilbu1.nb.home.nl") by vger.kernel.org with ESMTP
-	id S932554AbWASGLC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 01:11:02 -0500
-Message-ID: <43CF2DC9.7010307@keyaccess.nl>
-Date: Thu, 19 Jan 2006 07:12:25 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] MODULE_ALIAS_{BLOCK,CHAR}DEV_MAJOR for drivers/scsi
-Content-Type: multipart/mixed;
- boundary="------------050208020702050306070603"
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Thu, 19 Jan 2006 01:17:27 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:35523 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S932554AbWASGR1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 01:17:27 -0500
+Date: Thu, 19 Jan 2006 17:17:08 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: - add-pselect-ppoll-system-call-implementation-tidy.patch
+ removed from -mm tree
+Message-Id: <20060119171708.7f856b42.sfr@canb.auug.org.au>
+In-Reply-To: <1137648119.30084.94.camel@localhost.localdomain>
+References: <200601190052.k0J0qmKC009977@shell0.pdx.osdl.net>
+	<1137648119.30084.94.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Thu__19_Jan_2006_17_17_08_+1100_1q=+sW=a5xpamGbz"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050208020702050306070603
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+--Signature=_Thu__19_Jan_2006_17_17_08_+1100_1q=+sW=a5xpamGbz
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi Andrew.
+Hi David,
 
-Janitorial patch adding device-major aliases in drivers/scsi, allowing 
-kmod autoload:
+On Thu, 19 Jan 2006 16:21:59 +1100 David Woodhouse <dwmw2@infradead.org> wr=
+ote:
+>
+> On Wed, 2006-01-18 at 16:52 -0800, akpm@osdl.org wrote:
+> > -                       memcpy(&current->saved_sigmask, &sigsaved, size=
+of(sigsaved));
+> > +                       memcpy(&current->saved_sigmask, &sigsaved,
+> > +                                       sizeof(sigsaved));
+>=20
+> I still object to this.
+>=20
+> You justified it on the basis that some people have editors which will
+> wrap the original version onto a second line and make it look ugly...
+> yet your 'fix' is to wrap it onto a second line and make it look ugly
+> for _all_ of us, not just for those using crap editors. I really don't
+> see the overall benefit.
 
-MODULE_ALIAS_CHARDEV_MAJOR(SCSI_CHANGER_MAJOR)
-MODULE_ALIAS_CHARDEV_MAJOR(OSST_MAJOR)
-MODULE_ALIAS_CHARDEV_MAJOR(SCSI_TAPE_MAJOR)
-MODULE_ALIAS_BLOCKDEV_MAJOR(SCSI_CDROM_MAJOR)
-MODULE_ALIAS_BLOCKDEV_MAJOR(SCSI_DISKN_MAJOR)
+Documentation/CodingStyle says:
 
-Submitted the SCSI_TAPE_MAJOR before to the driver author, but never got 
-a reply:
+The limit on the length of lines is 80 columns and this is a hard limit.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110589612809217&w=2
+Statements longer than 80 columns will be broken into sensible chunks.
+Descendants are always substantially shorter than the parent and are placed
+substantially to the right. The same applies to function headers with a long
+argument list. Long strings are as well broken into shorter strings.
 
-Rene.
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
+--Signature=_Thu__19_Jan_2006_17_17_08_+1100_1q=+sW=a5xpamGbz
+Content-Type: application/pgp-signature
 
---------------050208020702050306070603
-Content-Type: text/plain;
- name="scsi_module_alias_major.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="scsi_module_alias_major.diff"
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-SW5kZXg6IGxvY2FsL2RyaXZlcnMvc2NzaS9zZy5jCj09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGxvY2Fs
-Lm9yaWcvZHJpdmVycy9zY3NpL3NnLmMJMjAwNi0wMS0xOSAwNjo0MTo1OS4wMDAwMDAwMDAg
-KzAxMDAKKysrIGxvY2FsL2RyaXZlcnMvc2NzaS9zZy5jCTIwMDYtMDEtMTkgMDY6NDI6MTYu
-MDAwMDAwMDAwICswMTAwCkBAIC0xNjUyLDYgKzE2NTIsNyBAQCBNT0RVTEVfQVVUSE9SKCJE
-b3VnbGFzIEdpbGJlcnQiKTsKIE1PRFVMRV9ERVNDUklQVElPTigiU0NTSSBnZW5lcmljIChz
-ZykgZHJpdmVyIik7CiBNT0RVTEVfTElDRU5TRSgiR1BMIik7CiBNT0RVTEVfVkVSU0lPTihT
-R19WRVJTSU9OX1NUUik7CitNT0RVTEVfQUxJQVNfQ0hBUkRFVl9NQUpPUihTQ1NJX0dFTkVS
-SUNfTUFKT1IpOwogCiBNT0RVTEVfUEFSTV9ERVNDKGRlZl9yZXNlcnZlZF9zaXplLCAic2l6
-ZSBvZiBidWZmZXIgcmVzZXJ2ZWQgZm9yIGVhY2ggZmQiKTsKIE1PRFVMRV9QQVJNX0RFU0Mo
-YWxsb3dfZGlvLCAiYWxsb3cgZGlyZWN0IEkvTyAoZGVmYXVsdDogMCAoZGlzYWxsb3cpKSIp
-OwpAQCAtMzE0Miw0ICszMTQzLDMgQEAgc3RhdGljIGludCBzZ19wcm9jX3NlcV9zaG93X2Rl
-YnVnKHN0cnVjdAogCiBtb2R1bGVfaW5pdChpbml0X3NnKTsKIG1vZHVsZV9leGl0KGV4aXRf
-c2cpOwotTU9EVUxFX0FMSUFTX0NIQVJERVZfTUFKT1IoU0NTSV9HRU5FUklDX01BSk9SKTsK
-SW5kZXg6IGxvY2FsL2RyaXZlcnMvc2NzaS9zci5jCj09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGxvY2Fs
-Lm9yaWcvZHJpdmVycy9zY3NpL3NyLmMJMjAwNi0wMS0xOSAwNjo0MTo1OS4wMDAwMDAwMDAg
-KzAxMDAKKysrIGxvY2FsL2RyaXZlcnMvc2NzaS9zci5jCTIwMDYtMDEtMTkgMDY6NDI6MTYu
-MDAwMDAwMDAwICswMTAwCkBAIC01OCw2ICs1OCwxMCBAQAogI2luY2x1ZGUgInNjc2lfbG9n
-Z2luZy5oIgogI2luY2x1ZGUgInNyLmgiCiAKK01PRFVMRV9ERVNDUklQVElPTigiU0NTSSBj
-ZHJvbSAoc3IpIGRyaXZlciIpOworTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOworTU9EVUxFX0FM
-SUFTX0JMT0NLREVWX01BSk9SKFNDU0lfQ0RST01fTUFKT1IpOworCiAjZGVmaW5lIFNSX0RJ
-U0tTCTI1NgogCiAjZGVmaW5lIE1BWF9SRVRSSUVTCTMKSW5kZXg6IGxvY2FsL2RyaXZlcnMv
-c2NzaS9jaC5jCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGxvY2FsLm9yaWcvZHJpdmVycy9zY3NpL2No
-LmMJMjAwNi0wMS0xOSAwNjo0MTo1OS4wMDAwMDAwMDAgKzAxMDAKKysrIGxvY2FsL2RyaXZl
-cnMvc2NzaS9jaC5jCTIwMDYtMDEtMTkgMDY6NDI6MTYuMDAwMDAwMDAwICswMTAwCkBAIC0z
-OSw2ICszOSw3IEBACiBNT0RVTEVfREVTQ1JJUFRJT04oImRldmljZSBkcml2ZXIgZm9yIHNj
-c2kgbWVkaWEgY2hhbmdlciBkZXZpY2VzIik7CiBNT0RVTEVfQVVUSE9SKCJHZXJkIEtub3Jy
-IDxrcmF4ZWxAYnl0ZXNleC5vcmc+Iik7CiBNT0RVTEVfTElDRU5TRSgiR1BMIik7CitNT0RV
-TEVfQUxJQVNfQ0hBUkRFVl9NQUpPUihTQ1NJX0NIQU5HRVJfTUFKT1IpOwogCiBzdGF0aWMg
-aW50IGluaXQgPSAxOwogbW9kdWxlX3BhcmFtKGluaXQsIGludCwgMDQ0NCk7CkluZGV4OiBs
-b2NhbC9kcml2ZXJzL3Njc2kvb3NzdC5jCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGxvY2FsLm9yaWcv
-ZHJpdmVycy9zY3NpL29zc3QuYwkyMDA2LTAxLTE5IDA2OjQxOjU5LjAwMDAwMDAwMCArMDEw
-MAorKysgbG9jYWwvZHJpdmVycy9zY3NpL29zc3QuYwkyMDA2LTAxLTE5IDA2OjQyOjE2LjAw
-MDAwMDAwMCArMDEwMApAQCAtODcsNiArODcsNyBAQCBzdGF0aWMgaW50IG1heF9zZ19zZWdz
-ID0gMDsKIE1PRFVMRV9BVVRIT1IoIldpbGxlbSBSaWVkZSIpOwogTU9EVUxFX0RFU0NSSVBU
-SU9OKCJPblN0cmVhbSB7REktfEZXLXxTQy18VVNCfXszMHw1MH0gVGFwZSBEcml2ZXIiKTsK
-IE1PRFVMRV9MSUNFTlNFKCJHUEwiKTsKK01PRFVMRV9BTElBU19DSEFSREVWX01BSk9SKE9T
-U1RfTUFKT1IpOwogCiBtb2R1bGVfcGFyYW0obWF4X2RldiwgaW50LCAwNDQ0KTsKIE1PRFVM
-RV9QQVJNX0RFU0MobWF4X2RldiwgIk1heGltdW0gbnVtYmVyIG9mIE9uU3RyZWFtIFRhcGUg
-RHJpdmVzIHRvIGF0dGFjaCAoNCkiKTsKSW5kZXg6IGxvY2FsL2RyaXZlcnMvc2NzaS9zZC5j
-Cj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT0KLS0tIGxvY2FsLm9yaWcvZHJpdmVycy9zY3NpL3NkLmMJMjAwNi0w
-MS0xOSAwNjo0MTo1OS4wMDAwMDAwMDAgKzAxMDAKKysrIGxvY2FsL2RyaXZlcnMvc2NzaS9z
-ZC5jCTIwMDYtMDEtMTkgMDY6NDI6MTYuMDAwMDAwMDAwICswMTAwCkBAIC03MCw2ICs3MCwy
-NyBAQAogICovCiAjZGVmaW5lIFNEX01BSk9SUwkxNgogCitNT0RVTEVfQVVUSE9SKCJFcmlj
-IFlvdW5nZGFsZSIpOworTU9EVUxFX0RFU0NSSVBUSU9OKCJTQ1NJIGRpc2sgKHNkKSBkcml2
-ZXIiKTsKK01PRFVMRV9MSUNFTlNFKCJHUEwiKTsKKworTU9EVUxFX0FMSUFTX0JMT0NLREVW
-X01BSk9SKFNDU0lfRElTSzBfTUFKT1IpOworTU9EVUxFX0FMSUFTX0JMT0NLREVWX01BSk9S
-KFNDU0lfRElTSzFfTUFKT1IpOworTU9EVUxFX0FMSUFTX0JMT0NLREVWX01BSk9SKFNDU0lf
-RElTSzJfTUFKT1IpOworTU9EVUxFX0FMSUFTX0JMT0NLREVWX01BSk9SKFNDU0lfRElTSzNf
-TUFKT1IpOworTU9EVUxFX0FMSUFTX0JMT0NLREVWX01BSk9SKFNDU0lfRElTSzRfTUFKT1Ip
-OworTU9EVUxFX0FMSUFTX0JMT0NLREVWX01BSk9SKFNDU0lfRElTSzVfTUFKT1IpOworTU9E
-VUxFX0FMSUFTX0JMT0NLREVWX01BSk9SKFNDU0lfRElTSzZfTUFKT1IpOworTU9EVUxFX0FM
-SUFTX0JMT0NLREVWX01BSk9SKFNDU0lfRElTSzdfTUFKT1IpOworTU9EVUxFX0FMSUFTX0JM
-T0NLREVWX01BSk9SKFNDU0lfRElTSzhfTUFKT1IpOworTU9EVUxFX0FMSUFTX0JMT0NLREVW
-X01BSk9SKFNDU0lfRElTSzlfTUFKT1IpOworTU9EVUxFX0FMSUFTX0JMT0NLREVWX01BSk9S
-KFNDU0lfRElTSzEwX01BSk9SKTsKK01PRFVMRV9BTElBU19CTE9DS0RFVl9NQUpPUihTQ1NJ
-X0RJU0sxMV9NQUpPUik7CitNT0RVTEVfQUxJQVNfQkxPQ0tERVZfTUFKT1IoU0NTSV9ESVNL
-MTJfTUFKT1IpOworTU9EVUxFX0FMSUFTX0JMT0NLREVWX01BSk9SKFNDU0lfRElTSzEzX01B
-Sk9SKTsKK01PRFVMRV9BTElBU19CTE9DS0RFVl9NQUpPUihTQ1NJX0RJU0sxNF9NQUpPUik7
-CitNT0RVTEVfQUxJQVNfQkxPQ0tERVZfTUFKT1IoU0NTSV9ESVNLMTVfTUFKT1IpOworCiAv
-KgogICogVGhpcyBpcyBsaW1pdGVkIGJ5IHRoZSBuYW1pbmcgc2NoZW1lIGVuZm9yY2VkIGlu
-IHNkX3Byb2JlLAogICogYWRkIGFub3RoZXIgY2hhcmFjdGVyIHRvIGl0IGlmIHlvdSByZWFs
-bHkgbmVlZCBtb3JlIGRpc2tzLgpAQCAtMTczNSw5ICsxNzU2LDUgQEAgc3RhdGljIHZvaWQg
-X19leGl0IGV4aXRfc2Qodm9pZCkKIAkJdW5yZWdpc3Rlcl9ibGtkZXYoc2RfbWFqb3IoaSks
-ICJzZCIpOwogfQogCi1NT0RVTEVfTElDRU5TRSgiR1BMIik7Ci1NT0RVTEVfQVVUSE9SKCJF
-cmljIFlvdW5nZGFsZSIpOwotTU9EVUxFX0RFU0NSSVBUSU9OKCJTQ1NJIGRpc2sgKHNkKSBk
-cml2ZXIiKTsKLQogbW9kdWxlX2luaXQoaW5pdF9zZCk7CiBtb2R1bGVfZXhpdChleGl0X3Nk
-KTsKSW5kZXg6IGxvY2FsL2RyaXZlcnMvc2NzaS9zdC5jCj09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGxv
-Y2FsLm9yaWcvZHJpdmVycy9zY3NpL3N0LmMJMjAwNi0wMS0xOSAwNjo0MTo1OS4wMDAwMDAw
-MDAgKzAxMDAKKysrIGxvY2FsL2RyaXZlcnMvc2NzaS9zdC5jCTIwMDYtMDEtMTkgMDY6NDI6
-MTYuMDAwMDAwMDAwICswMTAwCkBAIC04Nyw4ICs4Nyw5IEBAIHN0YXRpYyBpbnQgc3RfbnJf
-ZGV2Owogc3RhdGljIHN0cnVjdCBjbGFzcyAqc3Rfc3lzZnNfY2xhc3M7CiAKIE1PRFVMRV9B
-VVRIT1IoIkthaSBNYWtpc2FyYSIpOwotTU9EVUxFX0RFU0NSSVBUSU9OKCJTQ1NJIFRhcGUg
-RHJpdmVyIik7CitNT0RVTEVfREVTQ1JJUFRJT04oIlNDU0kgdGFwZSAoc3QpIGRyaXZlciIp
-OwogTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOworTU9EVUxFX0FMSUFTX0NIQVJERVZfTUFKT1Io
-U0NTSV9UQVBFX01BSk9SKTsKIAogLyogU2V0ICdwZXJtJyAoNHRoIGFyZ3VtZW50KSB0byAw
-IHRvIGRpc2FibGUgbW9kdWxlX3BhcmFtJ3MgZGVmaW5pdGlvbgogICogb2Ygc3lzZnMgcGFy
-YW1ldGVycyAod2hpY2ggbW9kdWxlX3BhcmFtIGRvZXNuJ3QgeWV0IHN1cHBvcnQpLgo=
---------------050208020702050306070603--
+iD8DBQFDzy7rFdBgD/zoJvwRAqRYAJ9laWQWLKMy7dkPKxYmTbRFyd2rbQCcDz15
+kKFW/qbPPThpvVXdzdoCzeI=
+=zgUE
+-----END PGP SIGNATURE-----
+
+--Signature=_Thu__19_Jan_2006_17_17_08_+1100_1q=+sW=a5xpamGbz--

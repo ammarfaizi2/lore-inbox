@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbWATV0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWATV3V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751065AbWATV0h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 16:26:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWATV0h
+	id S1751161AbWATV3V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 16:29:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWATV3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 16:26:37 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:62737 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751065AbWATV0g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 16:26:36 -0500
-Date: Fri, 20 Jan 2006 22:26:35 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org, spyro@f2s.com
-Subject: 2.6.16-rc1-mm2: arch/arm26/kernel/fiq.c still doesn't compile
-Message-ID: <20060120212635.GC31803@stusta.de>
-References: <20060120031555.7b6d65b7.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 20 Jan 2006 16:29:21 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:7560 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751161AbWATV3U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 16:29:20 -0500
+Date: Fri, 20 Jan 2006 22:29:17 +0100
+From: Olaf Hering <olh@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org, linuxppc-dev@ozlabs.org
+Subject: Re: [Alsa-devel] RFC: OSS driver removal, a slightly different approach
+Message-ID: <20060120212917.GA14405@suse.de>
+References: <20060119174600.GT19398@stusta.de> <20060120115443.GA16582@palantir8> <20060120190415.GM19398@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20060120031555.7b6d65b7.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060120190415.GM19398@stusta.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 20, 2006 at 03:15:55AM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.16-rc1-mm1:
->...
-> +arm26-fixup-asm-statement-in-kernel-fiqc.patch
->...
->  arm25 fixes
->...
+ On Fri, Jan 20, Adrian Bunk wrote:
 
-This doesn't seem to be enough to fix the arm27 compilation [1]:
+ 
+> Can someone from the ppc developers drop me a small note whether 
+> SND_POWERMAC completely replaces DMASOUND_PMAC?
 
-<--  snip  -->
-
-...
-  CC      arch/arm26/kernel/fiq.o
-/usr/src/ctest/mm/kernel/arch/arm26/kernel/fiq.c:1: note: future releases of GCC will not support -mapcs-26
-/usr/src/ctest/mm/kernel/arch/arm26/kernel/fiq.c: In function `set_fiq_regs':
-/usr/src/ctest/mm/kernel/arch/arm26/kernel/fiq.c:122: error: fp cannot be used in asm here
-make[2]: *** [arch/arm26/kernel/fiq.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
-
-[1] http://l4x.org/k/?d=10230
+It doesnt. Some tumbler models work only after one plug/unplug cycle of
+the headphone. early powerbooks report/handle the mute settings
+incorrectly. there are likely more bugs.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+short story of a lazy sysadmin:
+ alias appserv=wotan

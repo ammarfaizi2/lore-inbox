@@ -1,139 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWATVUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWATVVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbWATVUE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 16:20:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWATVUD
+	id S932209AbWATVVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 16:21:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWATVVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 16:20:03 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:34274 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932195AbWATVUB (ORCPT
+	Fri, 20 Jan 2006 16:21:25 -0500
+Received: from free.wgops.com ([69.51.116.66]:10254 "EHLO shell.wgops.com")
+	by vger.kernel.org with ESMTP id S932209AbWATVVY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 16:20:01 -0500
-Date: Fri, 20 Jan 2006 21:19:53 +0000
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 7/9] device-mapper snapshot: fix origin_write pending_exception submission
-Message-ID: <20060120211953.GH4724@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 20 Jan 2006 16:21:24 -0500
+Date: Fri, 20 Jan 2006 14:21:06 -0700
+From: Michael Loftis <mloftis@wgops.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Valdis.Kletnieks@vt.edu, dtor_core@ameritech.net,
+       James Courtier-Dutton <James@superbug.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE?
+Message-ID: <5793EB6F192350088E0AC4CE@d216-220-25-20.dynip.modwest.com>
+In-Reply-To: <20060120200051.GA12610@flint.arm.linux.org.uk>
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
+ <43D10FF8.8090805@superbug.co.uk>
+ <6769FDC09295B7E6078A5089@d216-220-25-20.dynip.modwest.com>
+ <d120d5000601200850w611e8af8v41a0786b7dc973d9@mail.gmail.com>
+ <30D11C032F1FC0FE9CA1CDFD@d216-220-25-20.dynip.modwest.com>
+ <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu>
+ <E27F809F04C1C673D283E84F@d216-220-25-20.dynip.modwest.com>
+ <20060120200051.GA12610@flint.arm.linux.org.uk>
+X-Mailer: Mulberry/4.0.4 (Mac OS X)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-MailScanner-Information: Please contact support@wgops.com
+X-MailScanner: WGOPS clean
+X-MailScanner-From: mloftis@wgops.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Say you have several snapshots of the same origin and then you issue
-a write to some place in the origin for the first time.
-
-Before the device-mapper snapshot target lets the write go through to 
-the underlying device, it needs to make a copy of the data that 
-is about to be overwritten.  Each snapshot is independent, so it makes 
-one copy for each snapshot.
-
-__origin_write() loops through each snapshot and checks to see
-whether a copy is needed for that snapshot.  (A copy is only needed
-the first time that data changes.)  
-
-If a copy is needed, the code allocates a 'pending_exception' structure 
-holding the details.  It links these together for all the snapshots, then 
-works its way through this list and submits the copying requests to
-the kcopyd thread by calling start_copy().  When each request is
-completed, the original pending_exception structure gets freed in
-pending_complete().
-
-If you're very unlucky, this structure can get freed *before* the 
-submission process has finished walking the list.
 
 
-This patch:
-  1) Creates a new temporary list pe_queue to hold the pending exception 
-structures;
-  2) Does all the bookkeeping up-front, then walks through the new list
-safely and calls start_copy() for each pending_exception that needed it;
-  3) Avoids attempting to add pe->siblings to the list if it's already
-connected.
+--On January 20, 2006 8:00:52 PM +0000 Russell King 
+<rmk+lkml@arm.linux.org.uk> wrote:
+
+> On Fri, Jan 20, 2006 at 12:21:40PM -0700, Michael Loftis wrote:
+>> I think that it's fine to push the maintenance effort away from the
+>> mainline developers, probably even desireable, but then the
+>> bugfixing/etc  tends to happen in a disparate manner, off on lots of
+>> forks at different  places without them making their way back to some
+>> central place.
+>
+> The responsibility for ensuring that those bugfixes get back to "some
+> central place" is with the folk who created the bugfixes.
+>
+> I've seen this _far_ too many times - it's what I call "the CVS disease"
+> and it happens _a_ _lot_ in certain areas.
+>
+> Developer X uses a CVS tree for his work and has write access to that
+> tree.  He finds a bug, and fixes it.  Maybe he writes a good explaination
+> of the bug and puts it in the CVS commit comments.  He commits the fix.
+> When he's done with development, he walks away and the fix never gets
+> submitted.  (Not everyone operates this way, but I know some do.)
+>
+>
+> As a mainline guy myself, I'll say we're all welcome to whatever bug
+> fixes come our way.  We just need someone to send them to us with an
+> adequate explaination of the bug.
+
+OK, my question though related to that is, where would they be included? 
+For most of my cases, latest development doesn't really help.  I'd still 
+have to maintain a completely forked kernel.  Would they be included or 
+eligible for the 4th digit releases you're talking about?  But then that 
+seems that efforts might get really spread out across the many 3rd digit 
+releases, making that situation just as bad, or worse, as the previous 
+odd/even issues.
+
+>
+>> And that seems where we're going with this conversation.  A fork/forks
+>> at  various versions to maintain bugfixes and support updates that's
+>> (more?)  open to submitters writing patches.  Maintained by a separate
+>> group or  party, but with the 'blessing' from mainline to do so.  A
+>> place for those  sorts of efforts to be focused, without necessarily
+>> involving the primary  developers.
+>
+> Do you know about the bugfix-only kernel series, which have 4-digit
+> versions - 2.6.x.y - which is the compromise to satisfy folk with the
+> issue you're bringing up in this paragraph?
+
+I don't see any maintenance releases on 2.6.8 edxcept one which addresses a 
+separate issue I ran into I don't see an updated e1000 in 2.6.8 (I'm not 
+sure where exactly this particlar e1000 gets supported Manuf ID is intel, 
+0x0108 is the device id...IIRC) but I'm pretty sure it's supported in 
+2.6.15, can't go much earlier than that because 2.6.9 and later seem to 
+have bugs with aic7xxx up until 2.6.14 or 15 (not clear here, I haven't 
+done enough testing, so basing that on input from others) as mentioned 
+though 2.6.8 also has buglets.  I think 2.6.8.1 actually has a fix for the 
+NFS problem I forgot about in my slightly earlier reply to a separate part 
+of this thread, though I don't know if Debian has included that in their 
+2.6.8 kernels or not.  Not even totally sure that's the issue I was seeing, 
+I'm still investigating that too.
+
+I think the four digit bugfix only stuff is an excellent step, and 
+necessary.  But the thing that I need more is stable APIs (both userland 
+and kernel, and at the kernel<->userland interface) *with* bugfixes and 
+(hopefully with) trivial hardware support update backports, like the 
+replacement e1000 driver.  And I guess I shouldn't say 'I' need, but 
+colleagues need.  And it's not just one company or one project or one 
+client/customer.  And not all the issues are the same, but they come back 
+to needing somewhere that's kept 'dusted off' but not rearranged (too?) 
+regularly.
 
 
-[NB This does not fix all the races in this code.  More patches will follow.]
-
-Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
-
-Index: linux-2.6.14-rc2/drivers/md/dm-snap.c
-===================================================================
---- linux-2.6.14-rc2.orig/drivers/md/dm-snap.c	2006-01-11 14:59:56.000000000 +0000
-+++ linux-2.6.14-rc2/drivers/md/dm-snap.c	2006-01-11 18:31:00.000000000 +0000
-@@ -49,6 +49,11 @@ struct pending_exception {
- 	struct bio_list snapshot_bios;
- 
- 	/*
-+	 * Short-term queue of pending exceptions prior to submission.
-+	 */
-+	struct list_head list;
-+
-+	/*
- 	 * Other pending_exceptions that are processing this
- 	 * chunk.  When this list is empty, we know we can
- 	 * complete the origins.
-@@ -937,8 +942,9 @@ static int __origin_write(struct list_he
- 	int r = 1, first = 1;
- 	struct dm_snapshot *snap;
- 	struct exception *e;
--	struct pending_exception *pe, *last = NULL;
-+	struct pending_exception *pe, *next_pe, *last = NULL;
- 	chunk_t chunk;
-+	LIST_HEAD(pe_queue);
- 
- 	/* Do all the snapshots on this origin */
- 	list_for_each_entry (snap, snapshots, list) {
-@@ -972,12 +978,19 @@ static int __origin_write(struct list_he
- 				snap->valid = 0;
- 
- 			} else {
--				if (last)
-+				if (first) {
-+					bio_list_add(&pe->origin_bios, bio);
-+					r = 0;
-+					first = 0;
-+				}
-+				if (last && list_empty(&pe->siblings))
- 					list_merge(&pe->siblings,
- 						   &last->siblings);
--
-+				if (!pe->started) {
-+					pe->started = 1;
-+					list_add_tail(&pe->list, &pe_queue);
-+				}
- 				last = pe;
--				r = 0;
- 			}
- 		}
- 
-@@ -987,24 +1000,8 @@ static int __origin_write(struct list_he
- 	/*
- 	 * Now that we have a complete pe list we can start the copying.
- 	 */
--	if (last) {
--		pe = last;
--		do {
--			down_write(&pe->snap->lock);
--			if (first)
--				bio_list_add(&pe->origin_bios, bio);
--			if (!pe->started) {
--				pe->started = 1;
--				up_write(&pe->snap->lock);
--				start_copy(pe);
--			} else
--				up_write(&pe->snap->lock);
--			first = 0;
--			pe = list_entry(pe->siblings.next,
--					struct pending_exception, siblings);
--
--		} while (pe != last);
--	}
-+	list_for_each_entry_safe(pe, next_pe, &pe_queue, list)
-+		start_copy(pe);
- 
- 	return r;
- }

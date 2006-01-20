@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWATWwm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWATWzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbWATWwm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 17:52:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWATWwm
+	id S932287AbWATWzz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 17:55:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWATWzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 17:52:42 -0500
-Received: from uproxy.gmail.com ([66.249.92.194]:28369 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932259AbWATWwl (ORCPT
+	Fri, 20 Jan 2006 17:55:55 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:45021 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932287AbWATWzy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 17:52:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=UuKHx5hghDb7OaTmJExRn5ZN86yqPR3i2Pab3pSnE4mVJMZBSShBwjEjeU6SX0FBTRjMVtFQJU/7z7SrQGvT+pCeLWyGwlPQj8XwANtJ0Q2amSne5DuArmy20q1uETRFsahMNVLzZ5u4/5Vlk1+H1W1EOQFtLJvdOAqIBZHAh1o=
-Date: Sat, 21 Jan 2006 02:10:05 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] drivers/serial/sh-sci.c: add forgotten {
-Message-ID: <20060120231005.GA3511@mipter.zuzino.mipt.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Fri, 20 Jan 2006 17:55:54 -0500
+Message-Id: <200601202254.k0KMsls1011155@laptop11.inf.utfsm.cl>
+To: Michael Loftis <mloftis@wgops.com>
+cc: Marc Koschewski <marc@osknowledge.org>, linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE? 
+In-Reply-To: Message from Michael Loftis <mloftis@wgops.com> 
+   of "Fri, 20 Jan 2006 09:07:16 PDT." <B6DE6A4FC14860A23FE95FF3@d216-220-25-20.dynip.modwest.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
+Date: Fri, 20 Jan 2006 19:54:47 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 20 Jan 2006 19:55:50 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+Michael Loftis <mloftis@wgops.com> wrote:
 
- Watch for next l4x.org run to find out if it works. ;-)
- Specifically, section "h8300".
+[...]
 
- drivers/serial/sh-sci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Lots of things still out there depend on devfs.
 
---- a/drivers/serial/sh-sci.c
-+++ b/drivers/serial/sh-sci.c
-@@ -646,19 +646,19 @@ static inline int sci_handle_errors(stru
- }
- 
- static inline int sci_handle_breaks(struct uart_port *port)
- {
- 	int copied = 0;
- 	unsigned short status = sci_in(port, SCxSR);
- 	struct tty_struct *tty = port->info->tty;
- 	struct sci_port *s = &sci_ports[port->line];
- 
--	if (!s->break_flag && status & SCxSR_BRK(port))
-+	if (!s->break_flag && status & SCxSR_BRK(port)) {
- #if defined(CONFIG_CPU_SH3)
- 		/* Debounce break */
- 		s->break_flag = 1;
- #endif
- 		/* Notify of BREAK */
- 		if(tty_insert_flip_char(tty, 0, TTY_BREAK))
- 			copied++;
- 		pr_debug("sci: BREAK detected\n");
- 	}
+Nothing in the regular kernel, nothing in any sane distribution.
 
+devfs has been slated for the axe for a /very/ long time.
+
+>                                                  So now if I want to
+> develop my kmod on recent kernels I have to be in the business of
+> maintaining a lot more userland stuff, like mkinitrd, installers,
+> etc. that have come to rely on devfs.
+
+Your own fault that you didn't heed the warnings about stuff to be deleted
+and didn't keep up with the regular development around the kernel. Not the
+kernel hackers' responsibility.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

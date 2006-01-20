@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWATTXK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWATTXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbWATTXK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 14:23:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbWATTXJ
+	id S1750807AbWATTXM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 14:23:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWATTXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 20 Jan 2006 14:23:11 -0500
+Received: from [63.81.120.158] ([63.81.120.158]:30446 "EHLO hermes.mvista.com")
+	by vger.kernel.org with ESMTP id S1751041AbWATTXJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 20 Jan 2006 14:23:09 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:11241
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1750807AbWATTXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 14:23:08 -0500
-Date: Fri, 20 Jan 2006 11:23:08 -0800
-From: Greg KH <greg@kroah.com>
-To: Greg KH <gregkh@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [GIT PATCH] PCI patches for 2.6.16-rc1
-Message-ID: <20060120192307.GA7831@kroah.com>
-References: <20060120190400.GA12894@kroah.com>
+Subject: Re: BUG in check_monotonic_clock()
+From: Daniel Walker <dwalker@mvista.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: george@wildturkeyranch.net, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de
+In-Reply-To: <1137784177.27699.260.camel@cog.beaverton.ibm.com>
+References: <1137779515.3202.3.camel@localhost.localdomain>
+	 <1137782296.27699.253.camel@cog.beaverton.ibm.com>
+	 <1137782896.3202.9.camel@localhost.localdomain>
+	 <1137783149.27699.256.camel@cog.beaverton.ibm.com>
+	 <1137783751.3202.11.camel@localhost.localdomain>
+	 <1137784177.27699.260.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Fri, 20 Jan 2006 11:23:07 -0800
+Message-Id: <1137784987.3202.14.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060120190400.GA12894@kroah.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 20, 2006 at 11:04:00AM -0800, Greg KH wrote:
-> Here are some small PCI patches against your latest git tree.  They have
-> all been in the -mm tree for a while with no problems.
-> 
-> They do the following:
-> 	- document some feature-removal things for the future
-> 	- add support for amd pci hotplug devices to the shpchp driver.
-> 	- fix bugs and update the ppc64 rpaphp pci hotplug driver.
-> 	- add some new and remove some duplicate pci ids.
-> 	- make it more obvious that some msi functions are really being
-> 	  used.
-> 
-> Please pull from:
-> 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
-> or if master.kernel.org hasn't synced up yet:
-> 	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
-> 
-> The full patches will be sent to the linux-pci mailing list, if anyone
-> wants to see them.
+On Fri, 2006-01-20 at 11:09 -0800, john stultz wrote:
 
-Oops, also sent them to the linux-kernel mailing list too, sorry about
-that.
+> That's what I was guessing. So there aren't any TSC inconsistency
+> messages in the dmesg? Odd.
 
-/me hits his patchbomb script with a big stick...
+I didn't see any ..
+
+> 
+> > Isn't there a handy proc entry for this? 
+> 
+> Yep, there's a sysfs entry:
+> 
+> 	/sys/devices/system/clocksource/clocksource0/current_clocksource 
+
+Great! The patch that George sent me fixed it .. Thanks George !
+
+Daniel
+

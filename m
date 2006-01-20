@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbWATRrl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbWATRv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751015AbWATRrl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 12:47:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWATRrl
+	id S1750977AbWATRv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 12:51:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWATRv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 12:47:41 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:64386 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751015AbWATRrk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 12:47:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=cQpJC5AGzmK7nFaeoIETJbbwJO+gldk3jUnN29KqQNlnkjgOeNk6zfG5c7UDD72TS0o15lunucPr3Qt09Rw7BaJUOjTBc2abuUxabx5xDdgtf/smPQEnNz+cFHulsYbOch5zje3Hn4gDD9iMUd47o8X0jdyNTuJ7BC5RQuPzctU=
-Message-ID: <e9c3a7c20601200947t1d3c1c4eybea2adb97a10c92c@mail.gmail.com>
-Date: Fri, 20 Jan 2006 10:47:39 -0700
-From: Dan Williams <dan.j.williams@gmail.com>
-To: linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: hugetlbfs on ARM / how to mmap() 36-bit PCI memory?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Fri, 20 Jan 2006 12:51:57 -0500
+Received: from [63.81.120.158] ([63.81.120.158]:48879 "EHLO hermes.mvista.com")
+	by vger.kernel.org with ESMTP id S1750951AbWATRv5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 12:51:57 -0500
+Subject: BUG in check_monotonic_clock()
+From: Daniel Walker <dwalker@mvista.com>
+To: mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org, tglx@linutronix.de
+Content-Type: text/plain
+Date: Fri, 20 Jan 2006 09:51:54 -0800
+Message-Id: <1137779515.3202.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just went through an experiment trying to mmap a PCI resource via
-the /sys/bus/pci/devices/<device name>/resource[n] on a XSC3 platform.
- I discovered, correct me if I am wrong, that remap_pfn_range only
-acts on 2nd level (4K) pte's.  On this platform PCI memory is only
-available at a 36-bit physical address.
 
-In looking for an answer I found this post from Deepak in the thread:
-"clean way to support >32bit addr on 32bit CPU "
-http://marc.theaimsgroup.com/?t=110540164100006&r=1&w=2
 
-<snip>
-Not doable. I believe PAE allows for normal 4K pages to be used when
-mapping > 32-bits. XSC3 and ARMv6 only allow for > 32 bit addresses
-when using 16MB pages (supersections), so we need to instead use
-the hugetlb approach.
+This is off a dual P3 during boot with 2.6.15-rt6. I'll send the .config
+privately . I had a fair amount of debugging on.
 
-~Deepak
-</snip>
 
-Questions
-1) Currently ARM does not appear to have support for hugetlbfs, is
-this in the works / any pointers to help get me started with the code?
-2) Does the hugetlbfs interface support PCI memory or is it only meant for RAM?
-3) Is there a better approach than hugetlb to mmap PCI space in this scenario?
+check_monotonic_clock: monotonic inconsistency detected!
+        from        1a27e7384 (7021163396) to        19f92d748 (6972168008).
+udev/238[CPU#1]: BUG in check_monotonic_clock at kernel/time/timeofday.c:160
+ [<c0105b03>] dump_stack+0x23/0x30 (20)
+ [<c0129e43>] __WARN_ON+0x63/0x80 (40)
+ [<c0148584>] check_monotonic_clock+0xd4/0xe0 (52)
+ [<c01489b8>] get_monotonic_clock+0xc8/0x100 (56)
+ [<c014475d>] __hrtimer_start+0xdd/0x100 (40)
+ [<c0400046>] schedule_hrtimer+0x46/0xd0 (48)
+ [<c0144f0f>] hrtimer_nanosleep+0x5f/0x130 (104)
+ [<c0145053>] sys_nanosleep+0x73/0x80 (36)
+ [<c0104b2a>] syscall_call+0x7/0xb (-4020)
+---------------------------
+| preempt count: 00000002 ]
+| 2-level deep critical section nesting:
+----------------------------------------
+.. [<c014cf1c>] .... add_preempt_count+0x1c/0x20
+.....[<c0143e2a>] ..   ( <= lock_hrtimer_base+0x2a/0x60)
+.. [<c014cf1c>] .... add_preempt_count+0x1c/0x20
+.....[<c0129df6>] ..   ( <= __WARN_ON+0x16/0x80)
 
-Thanks,
 
-Dan

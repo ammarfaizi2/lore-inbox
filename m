@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWATTuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWATTy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWATTuz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 14:50:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWATTuz
+	id S932108AbWATTy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 14:54:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWATTy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 14:50:55 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:63160
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932117AbWATTuz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 14:50:55 -0500
-Date: Fri, 20 Jan 2006 11:46:13 -0800 (PST)
-Message-Id: <20060120.114613.54096131.davem@davemloft.net>
-To: laforge@netfilter.org
-Cc: torvalds@osdl.org, bboissin@gmail.com, xslaby@fi.muni.cz, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Iptables error
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060120193201.GP4603@sunbeam.de.gnumonks.org>
-References: <40f323d00601200843m32e8f5cbv5733209ce82b8a13@mail.gmail.com>
-	<Pine.LNX.4.64.0601201148220.3672@evo.osdl.org>
-	<20060120193201.GP4603@sunbeam.de.gnumonks.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jan 2006 14:54:29 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:19916 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932108AbWATTy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 14:54:28 -0500
+To: linux-kernel@vger.kernel.org
+Cc: "Alan Cox <alan@lxorguk.ukuu.org.uk> Dave Hansen" 
+	<haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Serge Hallyn <serue@us.ibm.com>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: RFC: Multiple instances of kernel namespaces.
+References: <20060117143258.150807000@sergelap> <43CD18FF.4070006@FreeBSD.org>
+	<1137517698.8091.29.camel@localhost.localdomain>
+	<43CD32F0.9010506@FreeBSD.org>
+	<1137521557.5526.18.camel@localhost.localdomain>
+	<1137522550.14135.76.camel@localhost.localdomain>
+	<1137610912.24321.50.camel@localhost.localdomain>
+	<1137612537.3005.116.camel@laptopd505.fenrus.org>
+	<1137613088.24321.60.camel@localhost.localdomain>
+	<1137624867.1760.1.camel@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 20 Jan 2006 12:53:16 -0700
+In-Reply-To: <1137624867.1760.1.camel@localhost.localdomain> (Alan Cox's
+ message of "Wed, 18 Jan 2006 22:54:27 +0000")
+Message-ID: <m1bqy6oevn.fsf_-_@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Harald Welte <laforge@netfilter.org>
-Date: Fri, 20 Jan 2006 20:32:01 +0100
 
-> The problem seems to have been accidentially introduced by DaveM's
-> "simplification" of my original patch.
-> 
-> I've already asked Dave to revert his change and apply my original
-> patch (see attachment), which _should_ fix the problem.
+At this point I have to confess I have been working on something
+similar, to IBM's pid virtualization work.  But I have what is at
+least for me a unifying concept, that makes things easier to think
+about.
 
-Your struct won't be 8-byte aligned either as far as I
-can tell on x86_64.
+The idea is to think about things in terms of namespaces.  Currently
+in the kernel we have the fs/mount namespace already implemented.
 
-We need to use the aligned_u64 thing if you want that.
+Partly this helps on what the interface for creating a new namespace
+instance should be.  'clone(CLONE_NEW<NAMESPACE_TYPE>)', and how
+it should be managed from the kernel data structures.
+
+Partly thinking of things as namespaces helps me scope the problem.
+
+Does this sound like a sane approach?
+
+Eric

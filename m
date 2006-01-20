@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWATNRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWATNUK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750945AbWATNRT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 08:17:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbWATNRT
+	id S1750943AbWATNUK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 08:20:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750950AbWATNUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 08:17:19 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:55228 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750941AbWATNRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 08:17:19 -0500
-Subject: Re: [Alsa-devel] Re: RFC: OSS driver removal, a
-	slightly	different	approach
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Lee Revell <rlrevell@joe-job.com>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
-       perex@suse.cz
-In-Reply-To: <s5hd5in9p5v.wl%tiwai@suse.de>
-References: <20060119174600.GT19398@stusta.de>
-	 <1137694944.32195.1.camel@mindpipe> <20060119182859.GW19398@stusta.de>
-	 <1137696885.32195.12.camel@mindpipe> <s5hk6cw9h07.wl%tiwai@suse.de>
-	 <1137697269.32195.14.camel@mindpipe>
-	 <1137708573.8471.65.camel@localhost.localdomain>
-	 <s5hd5in9p5v.wl%tiwai@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 20 Jan 2006 13:14:58 +0000
-Message-Id: <1137762898.24161.13.camel@localhost.localdomain>
+	Fri, 20 Jan 2006 08:20:10 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:5827 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750943AbWATNUI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 08:20:08 -0500
+Date: Fri, 20 Jan 2006 08:20:06 -0500
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>
+Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>,
+       ak@suse.de, fastboot@lists.osdl.org
+Subject: Re: [PATCH 0/5] stack overflow safe kdump (2.6.15-i386)
+Message-ID: <20060120132006.GF4695@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <1137417795.2256.83.camel@localhost.localdomain> <20060118015649.GE23143@in.ibm.com> <1137650875.2985.39.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1137650875.2985.39.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2006-01-20 at 11:20 +0100, Takashi Iwai wrote:
-> BTW, I remember that there was a driver for native geode audio support
-> at the time of ALSA 0.5.x or earlier.  I must have the code somewhere
-> in my storage.  The porting would be much much harder than kaulha (sb 
-> emulation), though.
+On Thu, Jan 19, 2006 at 03:07:55PM +0900, Fernando Luis Vazquez Cao wrote:
+> > >    -> Regarding the implementation, I have some doubts:
+> > >       - Should the NMI vector replaced atomically?
+> > >       - Should the NMI watchdog be stopped? Should NMIs be disabled in the crash
+> > >         path of each CPU?
+> > >       This is important because after replacing the nmi handler the NMI
+> > >       watchdog will continue generating interrupts that need to be handled
+> > >       properly. If we can avoid this a kdump-specific nmi vector handler
+> > >       (ENTRY(crash_nmi)) could be safely used.
+> > 
+> > Can we have something like per cpu flag which will be set if NMI is received
+> > after crash (after replacing the trap vector). If another NMI occurs on 
+> > the same cpu and if flag is set, return and don't process it further.
+> The problem is that when one CPU crashes in a SMP system and the NMI
+> watchdog is enabled, the others will continue receiving NMI from the
+> watchdog and will eventually also receive the NMI from the crashing CPU.
+> The NMI handler has to be able to process both adequately if we cannot
+> stop the NMI watchdog atomically. Even if we used such a flag we would
+> need to figure out the originator of the NMI.
+> 
 
-The two drivers cover different versions of the Kahlua firmware. VSA1
-was the original (at least AFAIK) firmware block. It provides SB16
-emulation but has no hooks for drivers to 'take over' properly as you
-really want to hook into SMI. VSA2 (the next gen firmware) had various
-changes and differences and Cyrix long ago released a rather icky but
-working 'native' driver for that.
+Well, once system has crashed we have replaced the NMI callback with
+crash_nmi_callback(), I would tend to think that there might not be 
+any need to differentiate between various NMIs.
 
-I have the Cyrix public and most of the earlier NDA documentation if
-there are questions but I can't redistribute it.
-
-Alan
-
+Though disabling other NMIs is the right way to handle it, but if there is
+no straight easy way to do that then, even if I executed the
+crash_nmi_callback() due to NMI originating from other source than NMI IPI
+from crashing cpu, probably should be ok.

@@ -1,133 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWATJ4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWATJ5K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWATJ4t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 04:56:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbWATJ4t
+	id S1750780AbWATJ5K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 04:57:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbWATJ5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 04:56:49 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:6296 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750777AbWATJ4t (ORCPT
+	Fri, 20 Jan 2006 04:57:10 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:60609 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1750780AbWATJ5C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 04:56:49 -0500
-Date: Fri, 20 Jan 2006 01:56:43 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: akpm@osdl.org, James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
-Subject: Re: [TEST PATCH 3/3] lib bitmap region restructure
-Message-Id: <20060120015643.11e8707c.pj@sgi.com>
-In-Reply-To: <20060120081305.GB3918@linux-sh.org>
-References: <20060120020757.19584.33756.sendpatchset@jackhammer.engr.sgi.com>
-	<20060120020808.19584.3859.sendpatchset@jackhammer.engr.sgi.com>
-	<20060120081305.GB3918@linux-sh.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Fri, 20 Jan 2006 04:57:02 -0500
+Date: Fri, 20 Jan 2006 12:55:48 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: kus Kusche Klaus <kus@keba.com>
+Cc: John Ronciak <john.ronciak@gmail.com>, Adrian Bunk <bunk@stusta.de>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       john.ronciak@intel.com, ganesh.venkatesan@intel.com,
+       jesse.brandeburg@intel.com, netdev@vger.kernel.org,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: My vote against eepro* removal
+Message-ID: <20060120095548.GA16000@2ka.mipt.ru>
+References: <AAD6DA242BC63C488511C611BD51F367323324@MAILIT.keba.co.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323324@MAILIT.keba.co.at>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 20 Jan 2006 12:55:49 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul - I told Andrew in a side discussion that he can ignore us until we
-finished hashing this out.
+On Fri, Jan 20, 2006 at 10:37:43AM +0100, kus Kusche Klaus (kus@keba.com) wrote:
+> > From: John Ronciak
+> > During the watchdog the e100 driver reads all of the status registers
+> > from the actual hardware.  There are 26 (worst case) register reads. 
+> > There is also a spin lock for another check in the watchdog.  It would
+> > still surprise me that all of this would take 500 usec.  If you are
+> > seeing this delay, you can comment out the scheduling of the watchdog
+> > to see if this goes away.  We'll need to narrow down exactly what in
+> > the watchdog is causing the delay
+> 
+> Retested it.
 
-Once you have something you like, then could you send lkml and Andrew
-and the rest of us on the cc list one full set of these patches, in
-nicely cleaned up ready to publish form, asking Andrew to take them?
+...
 
-I'll almost certainly agree with any of the variations you are
-considering now, and chime in with my "signed-off-by" to your
-post.  If you want to get fancy, you can put, on exactly line
-one at the top of the patch "From Paul Jackson <pj@sgi.com>"
-for those patches that you'd rather I get blamed for than you.
+> Effect of the e100 driver:
+> * There is no measurable effect when my test program is running
+>   at prio 2 - 99.
+> * For prio 1, I get an interval of 500-650 us every 2 seconds,
+>   which indicates a scheduling latency of 380-530 us.
+> Hence, some piece of code is running for ~500 us at rt prio 1.
+> 
+> Analysis of e100:
+> * If I comment out the whole body of e100_watchdog except for the
+>   timer re-registration, the delays are gone (so it is really the
+>   body of e100_watchdog). However, this makes eth0 non-functional.
+> * Commenting out parts of it, I found out that most of the time
+>   goes into its first half: The code from mii_ethtool_gset to
+>   mii_check_link (including) makes the big difference, as far as
+>   I can tell especially mii_ethtool_gset.
 
-If you decide to change the alignment to at most word boundaries,
-instead of the (1 << order) I had for all sizes, then probably best to
-redo my patch 3/3 to your choice.  No sense sending in 4 patches,
-where patch 4 just reverses a rejected design decision of patch 3.
+Each MDIO read can take upto 2 msecs (!) and at least 20 usecs in e100,
+and this runs in timer handler.
+Concider attaching (only compile tested) patch which moves e100 watchdog
+into workqueue.
 
-Paul Mundt wrote:
-> bitmap_find_free_region() switches to walking the bitmap in 1 << order
-> steps, as opposed to nbitsperlong, which causes it to skip over more
-> space than it needs to and we end up fragmenting the bitmap pretty
-> quickly
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 
-Ah - I guess my problem is that I believed James code comment:
+diff --git a/drivers/net/e100.c b/drivers/net/e100.c
+index 22cd045..e884578 100644
+--- a/drivers/net/e100.c
++++ b/drivers/net/e100.c
+@@ -549,7 +549,7 @@ struct nic {
+ 	enum phy phy;
+ 	struct params params;
+ 	struct net_device_stats net_stats;
+-	struct timer_list watchdog;
++	struct work_struct watchdog;
+ 	struct timer_list blink_timer;
+ 	struct mii_if_info mii;
+ 	struct work_struct tx_timeout_task;
+@@ -1495,7 +1495,7 @@ static void e100_adjust_adaptive_ifs(str
+ 	}
+ }
+ 
+-static void e100_watchdog(unsigned long data)
++static void e100_watchdog(void *data)
+ {
+ 	struct nic *nic = (struct nic *)data;
+ 	struct ethtool_cmd cmd;
+@@ -1539,7 +1539,7 @@ static void e100_watchdog(unsigned long 
+ 	else
+ 		nic->flags &= ~ich_10h_workaround;
+ 
+-	mod_timer(&nic->watchdog, jiffies + E100_WATCHDOG_PERIOD);
++	schedule_delayed_work(&nic->watchdog, E100_WATCHDOG_PERIOD);
+ }
+ 
+ static inline void e100_xmit_prepare(struct nic *nic, struct cb *cb,
+@@ -2004,7 +2004,7 @@ static int e100_up(struct nic *nic)
+ 		goto err_clean_cbs;
+ 	e100_set_multicast_list(nic->netdev);
+ 	e100_start_receiver(nic, NULL);
+-	mod_timer(&nic->watchdog, jiffies);
++	schedule_work(&nic->watchdog);
+ 	if((err = request_irq(nic->pdev->irq, e100_intr, SA_SHIRQ,
+ 		nic->netdev->name, nic->netdev)))
+ 		goto err_no_irq;
+@@ -2016,7 +2016,7 @@ static int e100_up(struct nic *nic)
+ 	return 0;
+ 
+ err_no_irq:
+-	del_timer_sync(&nic->watchdog);
++	cancel_rearming_delayed_work(&nic->watchdog);
+ err_clean_cbs:
+ 	e100_clean_cbs(nic);
+ err_rx_clean_list:
+@@ -2031,7 +2031,7 @@ static void e100_down(struct nic *nic)
+ 	netif_stop_queue(nic->netdev);
+ 	e100_hw_reset(nic);
+ 	free_irq(nic->pdev->irq, nic->netdev);
+-	del_timer_sync(&nic->watchdog);
++	flush_scheduled_work();
+ 	netif_carrier_off(nic->netdev);
+ 	e100_clean_cbs(nic);
+ 	e100_rx_clean_list(nic);
+@@ -2570,9 +2570,7 @@ static int __devinit e100_probe(struct p
+ 
+ 	pci_set_master(pdev);
+ 
+-	init_timer(&nic->watchdog);
+-	nic->watchdog.function = e100_watchdog;
+-	nic->watchdog.data = (unsigned long)nic;
++	INIT_WORK(&nic->watchdog, e100_watchdog, nic);
+ 	init_timer(&nic->blink_timer);
+ 	nic->blink_timer.function = e100_blink_led;
+ 	nic->blink_timer.data = (unsigned long)nic;
 
- * This is used to allocate a memory region from a bitmap.  The idea is
- * that the region has to be 1<<order sized and 1<<order aligned (this
- * makes the search algorithm much faster).
-
-I thought this meant that it was a design requirement (the "idea")
-to have the alignment always be (1 << order).  Apparently it was
-just a useful performance tweak, for the sub-word sizes.
-
-Apparently for the multiword case you are adding, you recommend going
-for tighter packing of the allocated regions, rather than extending
-the alignment constraint past a single word.
-
-> ... causes it to skip over more
-> space than it needs to and we end up fragmenting the bitmap pretty
-> quickly.
-
-Just guessing here, since I've no clue what your typical access
-pattern is.  But it might actually be that you got less fragmentation
-over the long haul with a uniform alignment to (1 << order), than with
-an alignment to at most a word boundary.  Certainly as you observed the
-early allocations will take more space, but the (1 << order) alignment
-seems to nicely mimic a buddy heap, which over an extended period of
-insertions and deletions (allocs and frees or whatever) resists
-fragmentation rather well.
-
-I actually don't care either way, however.
-
-If you are going with the alignment to at most a word boundary,
-rather than uniformly to (1 << order) bits, then could you fix one
-more comment, my rephrasing of James initial comment:
-
- * A region of a bitmap is a sequence of bits in the bitmap, of
- * some size '1 << order' (a power of two), alligned to that same
- * '1 << order' power of two.
-
-After the spelling error you caught, and this restatement of
-alignment, this comment should become something like:
-
- * A region of a bitmap is a sequence of bits in the bitmap, of
- * some size '1 << order' (a power of two).  For regions smaller
- * than one word (namely, if ((1 << order) < BITS_PER_LONG), then
- * the region is aligned to that same '1 << order' power of two.
- * For regions one word or longer in size, the region is aligned
- * to a word boundary ("word" being unsigned long).
-
-Hmmm ... one more comment needs the same treatment.
-
-My comment:
-
- * Find a region of free (zero) bits in a @bitmap of @bits bits and
- * allocate them (set them to one).  Only consider regions of length
- * a power (@order) of two, alligned to that power of two, which
- * makes the search algorithm much faster.
-
-would become something like:
-
- * Find a region of free (zero) bits in a @bitmap of @bits bits and
- * allocate them (set them to one).  Only consider regions of length
- * a power (@order) of two, aligned to either that power of two, or to
- * word boundaries, whichever is smaller.
-
-If you're going to change this alignment to be at most to a word
-boundary, then read over my code carefully, in patch 3/3, looking
-for any other places where I assumed the (1 << order) alignment.
-
-There is one possible performance hit with this changed alignment.
-
-The performance of bitmap_find_free_region() becomes essentially
-O(N**2) rather than O(Log2 N).  The search loop would scan forward
-with REG_OP_ISFREE from each word in succession, until it found
-the requested sequence of free words, rather than scanning just
-from the words on (1 << order) bits alignment.  Since it looks in
-more places, the worst case times are longer.
+> -- 
+> Klaus Kusche                 (Software Development - Control Systems)
+> KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
+> Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
+> E-Mail: kus@keba.com                                WWW: www.keba.com
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+	Evgeniy Polyakov

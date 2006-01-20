@@ -1,74 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWATWrY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWATWsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932252AbWATWrY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 17:47:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWATWrY
+	id S932260AbWATWsO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 17:48:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWATWsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 17:47:24 -0500
-Received: from S01060080c85517f6.wp.shawcable.net ([24.79.196.167]:15571 "EHLO
-	ubb.ca") by vger.kernel.org with ESMTP id S932252AbWATWrX (ORCPT
+	Fri, 20 Jan 2006 17:48:14 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:60577 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932258AbWATWsL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 17:47:23 -0500
-In-Reply-To: <20060120144114.08f0c340.akpm@osdl.org>
-References: <6951EFDF-9499-40D5-AD09-2AE217A0A579@ubb.ca> <20060120044407.432eae02.akpm@osdl.org> <20060120203104.GA31803@stusta.de> <20060120144114.08f0c340.akpm@osdl.org>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <8BD55BB2-E4C4-4E73-970B-0C4FD4EDD19B@ubb.ca>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+	Fri, 20 Jan 2006 17:48:11 -0500
+Date: Fri, 20 Jan 2006 14:50:06 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Anton Titov <a.titov@host.bg>
+Cc: chase.venters@clientec.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: OOM Killer killing whole system
+Message-Id: <20060120145006.0a773262.akpm@osdl.org>
+In-Reply-To: <1137793685.11771.58.camel@localhost>
+References: <1137337516.11767.50.camel@localhost>
+	<20060120041114.7f06ecd8.akpm@osdl.org>
+	<Pine.LNX.4.64.0601201401500.14198@turbotaz.ourhouse>
+	<1137793685.11771.58.camel@localhost>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Tony Mantler <nicoya@ubb.ca>
-Subject: Re: CONFIG_MK6 = lsof hangs unkillable
-Date: Fri, 20 Jan 2006 16:47:15 -0600
-To: Andrew Morton <akpm@osdl.org>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 20-Jan-06, at 4:41 PM, Andrew Morton wrote:
-
-> Adrian Bunk <bunk@stusta.de> wrote:
->>
->> On Fri, Jan 20, 2006 at 04:44:07AM -0800, Andrew Morton wrote:
->>> Tony Mantler <nicoya@ubb.ca> wrote:
->>>>
->>>> I'm having trouble running lsof on 2.6.15.1 when the kernel is
->>>> compiled with CONFIG_MK6. When run as root, lsof will segfault, and
->>>> when run as a user lsof will hang unkillable.
->>>>
->>>> The same kernel, same machine, but compiled with CONFIG_MK7 runs  
->>>> just
->>>> lsof just fine.
->>>
->>> That's creepy.  CONFIG_MK6 hardly does anything.  The main thing  
->>> it does is
->>> feed `-march=k6' into the compiler.  MK7 uses `-march=athlon'.
->>> ...
->>
->> CONFIG_MK7 results in a bigger L1_CACHE_SHIFT than CONFIG_MK6.
->>
->> AFAIR it wouldn't be the first time that changing L1_CACHE_SHIFT  
->> would
->> hide a real bug visible with a different L1_CACHE_SHIFT.
->>
+Anton Titov <a.titov@host.bg> wrote:
 >
-> hm, OK.  Well that's something we can ask Tony to eliminate, by  
-> patching
-> his Kconfig.cpu to make CONFIG_MK6 have the larger L1_CACHE_SHIFT  
-> (and/or
-> vice versa).
+> On Fri, 2006-01-20 at 14:04 -0600, Chase Venters wrote:
+> > On Fri, 20 Jan 2006, Andrew Morton wrote:
+> > >> Jan 15 06:05:09 vip 216477 pages slab
+> > >
+> > > It's all in slab.  800MB.
+> > >
+> > > I'd be suspecting a slab memory leak.  If it happens again, please take a
+> > > copy of /proc/slabinfo, send it.
+> > >
+> > 
+> > Andrew & Anton,
+> >  The culprit was 1.5 million SCSI commands in the scsi command cache. 
+> > 
+> > Thanks,
+> > Chase
+> 
+> I currently have this:
+> scsi_cmd_cache    1458778 1458790    384   10    1 : tunables   54 27
+> 8 : slabdata 145879 145879      0
+> 
+> in /proc/slabinfo, which is pretty close to 1.5 million. The system is
+> working fine but it should be not very loaded anyway, so a mem leakage
+> will not show up early. Just checked, that scsi_cmd_cache on other
+> machines of mine is under 100, so it seems like a problem.
 
-Just tested that a few seconds ago, actually.
+That's great, thanks.
 
-CONFIG_MK6 with CONFIG_L1_CACHE_SHIFT=6 results in the same crash.
+This is 2.6.15 and we have a deadly bug in scsi.
 
-I'm going to twiddle the configs again and see if I can make a  
-CONFIG_MK7 kernel with -march=k6
-
-
-Cheers - Tony 'Nicoya' Mantler :)
-
---
-Tony 'Nicoya' Mantler -- Master of Code-fu -- nicoya@ubb.ca
---  http://nicoya.feline.pp.se/  --  http://www.ubb.ca/  --
+Next time you reboot 2.6.15 on that machine can you please send the output
+of `dmesg -s 1000000'?  You might have to set CONFIG_LOG_BUF_SHIFT=17 to
+prevent it from being truncated.
 

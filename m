@@ -1,75 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWATRzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWATRzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbWATRzo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 12:55:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWATRzo
+	id S1751005AbWATRzA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 12:55:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWATRzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 12:55:44 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:53381 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751121AbWATRzn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 12:55:43 -0500
-From: "Jiri Slaby" <xslaby@fi.muni.cz>
-Date: Fri, 20 Jan 2006 18:55:28 +0100
-To: "Jiri Slaby" <xslaby@fi.muni.cz>
-Cc: linux-kernel@vger.kernel.org, gareth@valinux.com
-Subject: Re: spurious 8259A interrupt: IRQ7
-In-reply-to: <20060115171134.94B7B22AEFB@anxur.fi.muni.cz>
-Message-Id: <20060120175526.8DD5A22AEAC@anxur.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Fri, 20 Jan 2006 12:55:00 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:60816 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751005AbWATRy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 12:54:59 -0500
+Subject: Re: [Pcihpd-discuss] [patch 2/4] acpiphp: handle dock bridges
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: MUNEDA Takahiro <muneda.takahiro@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
+       pcihpd-discuss@lists.sourceforge.net, len.brown@intel.com,
+       linux-acpi@vger.kernel.org, pavel@ucw.cz
+In-Reply-To: <87r773a8dz.wl%muneda.takahiro@jp.fujitsu.com>
+References: <20060116200218.275371000@whizzy>
+	 <1137545819.19858.47.camel@whizzy>
+	 <87r773a8dz.wl%muneda.takahiro@jp.fujitsu.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 20 Jan 2006 09:56:59 -0800
+Message-Id: <1137779819.16192.5.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-OriginalArrivalTime: 20 Jan 2006 17:53:56.0925 (UTC) FILETIME=[7C28F6D0:01C61DEA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hello,
->
->I have this problem with irq 7. There are many ERR interrupts as you can see in
->the table below.
->Count of errorneous is similar to count of radeon interrupts (since start of
->system).
->It appears in all kernels I tried (since 2.6.11.7).
->           CPU0       
->  0:     367164          XT-PIC  timer
->  1:       2397          XT-PIC  i8042
->  2:          0          XT-PIC  cascade
->  5:       5355          XT-PIC  ATI IXP, eth0
->  8:          1          XT-PIC  rtc
->  9:        163          XT-PIC  acpi
-> 10:      25595          XT-PIC  ehci_hcd:usb1, ohci_hcd:usb2, ohci_hcd:usb3
-> 11:      85385          XT-PIC  radeon@pci:0000:01:05.0
-> 12:       4991          XT-PIC  i8042
-> 14:       8576          XT-PIC  ide0
-> 15:      12774          XT-PIC  ide1
->NMI:          0 
->LOC:     367136 
->ERR:      82119
->MIS:          0
->
->without running X, there is no ERR (and also no irq 11).
->Card:
->01:05.0 VGA compatible controller: ATI Technologies Inc RS300M AGP [Radeon Mobility 9100IGP] (prog-if 00 [VGA])
->        Subsystem: ASUSTeK Computer Inc.: Unknown device 1902
->        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
->        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->        Latency: 64 (2000ns min), Cache Line Size 10
->        Interrupt: pin A routed to IRQ 11
->        Region 0: Memory at e8000000 (32-bit, prefetchable) [size=64M]
->        Region 1: I/O ports at d000 [size=256]
->        Region 2: Memory at fda00000 (32-bit, non-prefetchable) [size=64K]
->        Expansion ROM at fd900000 [disabled] [size=128K]
->        Capabilities: [58] AGP version 3.0
->                Status: RQ=256 Iso- ArqSz=0 Cal=7 SBA+ ITACoh- GART64- HTrans- 64bit+ FW+ AGP3+ Rate=x4,x8
->                Command: RQ=32 ArqSz=0 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x8
->        Capabilities: [50] Power Management version 2
->                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
->                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-Me again, I found out, that if I load parport_pc (its irq handler takes
-care of irq7, i guess) earlier than X starts, there is no line spurious IRQ7.
-Does this mean badly written radeon int handler or somewhat?
+On Fri, 2006-01-20 at 12:24 +0900, MUNEDA Takahiro wrote:
+> Hi,
+> 
+> At Tue, 17 Jan 2006 16:56:59 -0800,
+> Kristen Accardi <kristen.c.accardi@intel.com> wrote:
+> > 
+> > @@ -681,6 +713,88 @@ static int acpiphp_configure_ioapics(acp
+> (snip)
+> > +static int acpiphp_bus_add(struct acpiphp_func *func)
+> > +{
+> > +	acpi_handle phandle;
+> > +	struct acpi_device *device, *pdevice;
+> > +	int ret_val;
+> > +
+> > +	acpi_get_parent(func->handle, &phandle);
+> > +	if (acpi_bus_get_device(phandle, &pdevice)) {
+> > +		dbg("no parent device, assuming NULL\n");
+> > +		pdevice = NULL;
+> > +	}
+> > +	ret_val = acpi_bus_add(&device, pdevice, func->handle,
+> > +			ACPI_BUS_TYPE_DEVICE);
+> > +	if (ret_val)
+> > +		dbg("cannot add bridge to acpi list\n");
+> > +
+> > +	/*
+> > +	 * try to start anyway.  We could have failed to add
+> > +	 * simply because this bus had previously been added
+> > +	 * on another dock.  Don't bother with the return value
+> > +	 * we just keep going.
+> > +	 */
+> > +	ret_val = acpi_bus_start(device);
+> > +
+> > +	return ret_val;
+> > +}
+> > +
+> > +
+> > +
+> 
+> When the device is docked, acpi_bus_add() is called to register
+> the device into acpi list. But if the device is undocked,
+> acpi_bus_trim() doesn't called.
+> Can you hot-add/remove the dock station repeatedly?
+> 
+> Thanks,
+> MUNE
+> 
 
-thanks,
---
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+Yes you can.  The reason for this is because even if we fail the call to
+acpi_bus_add(), we ignore the return value and call acpi_bus_start()
+anyway.
+

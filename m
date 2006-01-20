@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161233AbWAUEf6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161253AbWAUEkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161233AbWAUEf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 23:35:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161271AbWAUEf5
+	id S1161253AbWAUEkR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 23:40:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161257AbWAUEkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 23:35:57 -0500
-Received: from relay03.pair.com ([209.68.5.17]:65031 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S1161229AbWAUEf5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 23:35:57 -0500
-X-pair-Authenticated: 67.163.102.102
-From: Chase Venters <chase.venters@clientec.com>
-Organization: Clientec, Inc.
-To: Anton Titov <a.titov@host.bg>
-Subject: Re: OOM Killer killing whole system
-Date: Fri, 20 Jan 2006 22:35:26 -0600
-User-Agent: KMail/1.9
-Cc: JamesBottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <1137337516.11767.50.camel@localhost> <200601202153.27386.chase.venters@clientec.com> <1137817289.11771.85.camel@localhost>
-In-Reply-To: <1137817289.11771.85.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601202235.48352.chase.venters@clientec.com>
+	Fri, 20 Jan 2006 23:40:16 -0500
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:33223 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S1161253AbWAUEkP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 23:40:15 -0500
+Date: Fri, 20 Jan 2006 18:22:10 -0500
+From: Ben Collins <bcollins@ubuntu.com>
+Subject: Re: [Alsa-devel] RFC: OSS driver removal, a slightly different	approach
+In-reply-to: <1137799001.12998.59.camel@localhost.localdomain>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Olaf Hering <olh@suse.de>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       linuxppc-dev@ozlabs.org, Ben Collins <ben.collins@ubuntu.com>
+Message-id: <1137799330.13530.30.camel@grayson>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.5
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <20060119174600.GT19398@stusta.de>
+ <20060120115443.GA16582@palantir8> <20060120190415.GM19398@stusta.de>
+ <20060120212917.GA14405@suse.de>
+ <1137799001.12998.59.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 20 January 2006 22:21, Anton Titov wrote:
-> On Fri, 2006-01-20 at 21:53 -0600, Chase Venters wrote:
-> > Random guess... Asus P5GDC-V with Firewire and USB turned off?
->
-> Exactly (Asus P5GDC-V Deluxe actually, with few more things off). So
-> maybe it's ICH6?
+On Sat, 2006-01-21 at 10:16 +1100, Benjamin Herrenschmidt wrote:
+> On Fri, 2006-01-20 at 22:29 +0100, Olaf Hering wrote:
+> >  On Fri, Jan 20, Adrian Bunk wrote:
+> > 
+> >  
+> > > Can someone from the ppc developers drop me a small note whether 
+> > > SND_POWERMAC completely replaces DMASOUND_PMAC?
+> > 
+> > It doesnt. Some tumbler models work only after one plug/unplug cycle of
+> > the headphone. early powerbooks report/handle the mute settings
+> > incorrectly. there are likely more bugs.
+> 
+> Interesting... Ben Collins hacked something to have Toonie work as a
+> "default" driver for non supported machine and saw that problem too, I
+> think he fixes it, I'll check with him what's up there and if his fix
+> applied to tumbler.c as well.
 
-Just a shot in the dark, but in the last few kernel revisions have you 
-experienced any SATA problems with DMA timeouts, in some versions leading to 
-a hang?
+My "fix" was basically the result of converting to the platform
+functions. It's hit or miss whether this works with tumbler too.
 
-Cheers,
-Chase
+You can try the Ubuntu kernel packages (they can be unpacked and used on
+non Ubuntu systems pretty easily) to see if it works for you. Tumbler
+platform function conversion isn't even tested, so I'd be happy to hear
+any feedback.
+
+-- 
+Ben Collins
+Kernel Developer - Ubuntu Linux
+

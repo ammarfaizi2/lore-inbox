@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWATQKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWATQOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750857AbWATQKw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 11:10:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWATQKw
+	id S1751045AbWATQOf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 11:14:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbWATQOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 11:10:52 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:28549
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1750846AbWATQKv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 11:10:51 -0500
-Date: Fri, 20 Jan 2006 08:10:44 -0800
-From: Greg KH <gregkh@suse.de>
-To: "V. Ananda Krishnan" <mansarov@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       rmk@arm.linux.org.uk, akpm@osdl.org
-Subject: Re: [PATCH]-jsm driver fix for linux-2.6.16-rc1
-Message-ID: <20060120161044.GA26249@suse.de>
-References: <43D1099E.3050509@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43D1099E.3050509@us.ibm.com>
-User-Agent: Mutt/1.5.11
+	Fri, 20 Jan 2006 11:14:35 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:29676 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750977AbWATQOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 11:14:34 -0500
+Date: Fri, 20 Jan 2006 10:14:21 -0600 (CST)
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, jes@sgi.com,
+       tony.luck@intel.com
+Subject: Re: [PATCH] SN2 user-MMIO CPU migration
+In-Reply-To: <20060120083651.GA3970@elte.hu>
+Message-ID: <20060120101221.R91550@chenjesu.americas.sgi.com>
+References: <20060118163305.Y42462@chenjesu.americas.sgi.com>
+ <20060120083651.GA3970@elte.hu>
+Organization: "Silicon Graphics, Inc."
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 20, 2006 at 10:02:38AM -0600, V. Ananda Krishnan wrote:
-> @@ -20,8 +20,11 @@
->   *
->   * Contact Information:
->   * Scott H Kilau <Scott_Kilau@digi.com>
-> - * Wendy Xiong   <wendyx@us.ltcfwd.linux.ibm.com>
-> - *
-> + * Wendy Xiong   <wendyx>
+On Fri, 20 Jan 2006, Ingo Molnar wrote:
 
-That's not an email address, why not just fix Wendy's to be correct, or
-drop it if that's not the person to contact?
+> hm, why isnt the synchronization done in switch_to()? Your arch-level 
+> switch_to() could have something like thread->last_cpu_sync, and if 
+> thread->last_cpu_sync != this_cpu, do the flush. This would not only 
+> keep this stuff out of the generic scheduler, but it would also optimize 
+> things a bit more: the moment we do a set_task_cpu() it does not mean 
+> that CPU _will_ run the task. Another CPU could grab that task later on.  
 
-> +        /*
-> +         * If the DONT_FLIP flag is on, don't flush our buffer, and act
+Very good points all around.  I'll rework the changes in just the
+manner you mentioned.
 
-Wrong code indentation, use tabs please.  This is in a number of places
-in the patch.
+Brent
 
-thanks,
-
-greg k-h
+-- 
+Brent Casavant                          All music is folk music.  I ain't
+bcasavan@sgi.com                        never heard a horse sing a song.
+Silicon Graphics, Inc.                    -- Louis Armstrong

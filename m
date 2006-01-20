@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWATTKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWATTLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbWATTKF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 14:10:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWATTKE
+	id S932070AbWATTLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 14:11:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWATTLI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 14:10:04 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:57249 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932074AbWATTJp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 14:09:45 -0500
-Subject: Re: BUG in check_monotonic_clock()
-From: john stultz <johnstul@us.ibm.com>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, tglx@linutronix.de
-In-Reply-To: <1137783751.3202.11.camel@localhost.localdomain>
-References: <1137779515.3202.3.camel@localhost.localdomain>
-	 <1137782296.27699.253.camel@cog.beaverton.ibm.com>
-	 <1137782896.3202.9.camel@localhost.localdomain>
-	 <1137783149.27699.256.camel@cog.beaverton.ibm.com>
-	 <1137783751.3202.11.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 20 Jan 2006 11:09:37 -0800
-Message-Id: <1137784177.27699.260.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 20 Jan 2006 14:11:08 -0500
+Received: from free.wgops.com ([69.51.116.66]:60935 "EHLO shell.wgops.com")
+	by vger.kernel.org with ESMTP id S932098AbWATTLB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 14:11:01 -0500
+Date: Fri, 20 Jan 2006 12:10:46 -0700
+From: Michael Loftis <mloftis@wgops.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: dtor_core@ameritech.net, James Courtier-Dutton <James@superbug.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE?
+Message-ID: <FA3D104304F2211988DC6E90@d216-220-25-20.dynip.modwest.com>
+In-Reply-To: <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu>
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
+ <43D10FF8.8090805@superbug.co.uk>
+ <6769FDC09295B7E6078A5089@d216-220-25-20.dynip.modwest.com>
+ <d120d5000601200850w611e8af8v41a0786b7dc973d9@mail.gmail.com>           
+ <30D11C032F1FC0FE9CA1CDFD@d216-220-25-20.dynip.modwest.com>
+ <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu>
+X-Mailer: Mulberry/4.0.4 (Mac OS X)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-MailScanner-Information: Please contact support@wgops.com
+X-MailScanner: WGOPS clean
+X-MailScanner-From: mloftis@wgops.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-20 at 11:02 -0800, Daniel Walker wrote:
-> On Fri, 2006-01-20 at 10:52 -0800, john stultz wrote:
-> > On Fri, 2006-01-20 at 10:48 -0800, Daniel Walker wrote:
-> > > On Fri, 2006-01-20 at 10:38 -0800, john stultz wrote:
-> > > 
-> > > > Hey Daniel,
-> > > > 	Thanks for the bug report. Could you tell me what clocksource was being
-> > > > used at the time? I'm guessing its the TSC, but usually we'll see
-> > > > separate TSC inconsistency messages in the log.
-> > > > 
-> > > > thanks
-> > > > -john
-> > > > 
-> > > 
-> > > I had CONFIG_HPET_TIMER turned on. Also X86_TSC was on. 
-> > 
-> > So, booting up the box, what is the last message that looks like:
-> > 
-> > 	Time: xyz clocksource has been installed.
-> 
-> Last one is,
-> kernel: Time: tsc clocksource has been installed.
-
-That's what I was guessing. So there aren't any TSC inconsistency
-messages in the dmesg? Odd.
 
 
-> Isn't there a handy proc entry for this? 
+--On January 20, 2006 2:03:52 PM -0500 Valdis.Kletnieks@vt.edu wrote:
 
-Yep, there's a sysfs entry:
+> But you're perfectly happy to make the kernel developers do the
+> equivalent thing when they have to maintain 2 forks (a stable and devel).
+> Go back and look at the status of the 2.5 tree - there were *large*
+> chunks of time when 2.4 or 2.5 would get an important bugfix, but the
+> other tree wouldn't get it for *weeks* because of the hassle of
+> cross-porting the patch.
 
-	/sys/devices/system/clocksource/clocksource0/current_clocksource 
+Weeks is better than never, and still better than commercial vendors. ;)
 
-thanks
--john
-
+--
+"Genius might be described as a supreme capacity for getting its possessors
+into trouble of all kinds."
+-- Samuel Butler

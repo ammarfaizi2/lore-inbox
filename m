@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbWATWQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWATWUJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbWATWQo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 17:16:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWATWQo
+	id S932243AbWATWUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 17:20:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWATWUJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 17:16:44 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:2969 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932239AbWATWQn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 17:16:43 -0500
-Date: Fri, 20 Jan 2006 14:18:01 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: linux-kernel@vger.kernel.org, dsingleton@mvista.com, drepper@gmail.com,
-       mingo@elte.hu
-Subject: Re: [robust-futex-4] futex: robust futex support
-Message-Id: <20060120141801.71d842f7.akpm@osdl.org>
-In-Reply-To: <200601201841.24565.ioe-lkml@rameria.de>
-References: <43C84D4B.70407@mvista.com>
-	<F3EB614C-8892-11DA-AF83-000A959BB91E@mvista.com>
-	<20060118212256.1553b0ec.akpm@osdl.org>
-	<200601201841.24565.ioe-lkml@rameria.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 20 Jan 2006 17:20:09 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:527 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932243AbWATWUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 17:20:07 -0500
+Date: Fri, 20 Jan 2006 23:19:43 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Guennadi Liakhovetski <gl@dsa-ac.de>
+Cc: linux-kernel@vger.kernel.org,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [PATCH 2.4.32] usb-uhci.c failing "-"
+Message-ID: <20060120221943.GS7142@w.ods.org>
+References: <Pine.LNX.4.63.0601200928480.1049@pcgl.dsa-ac.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0601200928480.1049@pcgl.dsa-ac.de>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser <ioe-lkml@rameria.de> wrote:
->
-> > > +	list_for_each_entry_safe(this, next, head, list) {
-> > > +		list_del(&this->list);
-> > > +		kmem_cache_free(robust_futex_cachep, this);
-> > > +	}
-> > 
-> > If we're throwing away the entire contents of the list, there's no need to
-> > detach items as we go.
->  
-> Couldn't even detach the list elements first by
+On Fri, Jan 20, 2006 at 09:33:26AM +0100, Guennadi Liakhovetski wrote:
+> Hi
 > 
-> list_splice_init(&mapping->robust_head->robust_list, head);
-> 
-> and free the list from "head" after releasing the mutex? 
-> This would reduce lock contention, no?
+> Looks like a bug?
 
-Yes, it would reduce lock contention nicely.
+Looks like you're right.
+
+Marcelo, I've merged it into -upstream.
+
+> Thanks
+> Guennadi
+
+Thanks,
+Willy
+
+> ---------------------------------
+> Guennadi Liakhovetski, Ph.D.
+> DSA Daten- und Systemtechnik GmbH
+> Pascalstr. 28
+> D-52076 Aachen
+> Germany
+> 
+> Signed-off-by Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+> 
+> --- a/drivers/usb/host/usb-uhci.c	Fri Jan 20 09:27:50 2006
+> +++ b/drivers/usb/host/usb-uhci.c	Fri Jan 20 09:28:05 2006
+> @@ -2505,7 +2505,7 @@
+>  			((urb_priv_t*)urb->hcpriv)->flags=0;
+>  		}
+> 
+> -		if ((urb->status != -ECONNABORTED) && (urb->status != 
+> ECONNRESET) &&
+> +		if ((urb->status != -ECONNABORTED) && (urb->status != 
+> -ECONNRESET) &&
+>  			    (urb->status != -ENOENT)) {
+> 
+>  			urb->status = -EINPROGRESS;
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

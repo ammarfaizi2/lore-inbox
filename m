@@ -1,59 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWATTLs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWATTL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbWATTLs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 14:11:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbWATTFH
+	id S932102AbWATTL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 14:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbWATTLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 14:05:07 -0500
-Received: from mail.kroah.org ([69.55.234.183]:25552 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750803AbWATTE7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 14:04:59 -0500
-Cc: bunk@stusta.de
-Subject: [PATCH] PCI: schedule PCI_LEGACY_PROC for removal
-In-Reply-To: <11377838772370@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 20 Jan 2006 11:04:37 -0800
-Message-Id: <11377838773155@kroah.com>
+	Fri, 20 Jan 2006 14:11:49 -0500
+Received: from hera.kernel.org ([140.211.167.34]:42682 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932093AbWATTLG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 14:11:06 -0500
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: GPL V3 and Linux
+Date: Fri, 20 Jan 2006 11:11:03 -0800
+Organization: OSDL
+Message-ID: <20060120111103.2ee5b531@dxpl.pdx.osdl.net>
+References: <43D114A8.4030900@wolfmountaingroup.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1137784263 11997 10.8.0.74 (20 Jan 2006 19:11:03 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Fri, 20 Jan 2006 19:11:03 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] PCI: schedule PCI_LEGACY_PROC for removal
+On Fri, 20 Jan 2006 09:49:44 -0700
+"Jeff V. Merkey" <jmerkey@wolfmountaingroup.com> wrote:
 
-PCI_LEGACY_PROC is deprecated since 2.5.53 in favor of lspci(8).
+> Cudos to Stallman, The patent retaliation clause is exactly what has 
+> been missing.  The inclusion of custom binaries was a little vague, but
+> the net of it is that the end user can combine the separate parts, and 
+> have the freedom to do so given the GPL3 terms.  Any concensus on 
+> whether Linux will move to GPL3?   
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+No consensus exists, and it would require agreement from all the copyright
+holders.
 
----
-commit ba2320f76f3b46144b69ebacedcc03e81107fd9a
-tree ed0c786c9b2a1d34680ab1efd01afe5e7dfa7319
-parent 3ee68c4af3fd7228c1be63254b9f884614f9ebb2
-author Adrian Bunk <bunk@stusta.de> Thu, 29 Dec 2005 20:07:25 +0100
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 20 Jan 2006 10:29:33 -0800
-
- Documentation/feature-removal-schedule.txt |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
-
-diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
-index b4a1ea7..b8143bd 100644
---- a/Documentation/feature-removal-schedule.txt
-+++ b/Documentation/feature-removal-schedule.txt
-@@ -148,3 +148,10 @@ Why:	The 8250 serial driver now has the 
- 	brother on Alchemy SOCs.  The loss of features is not considered an
- 	issue.
- Who:	Ralf Baechle <ralf@linux-mips.org>
-+
-+---------------------------
-+
-+What:	Legacy /proc/pci interface (PCI_LEGACY_PROC)
-+When:	March 2006
-+Why:	deprecated since 2.5.53 in favor of lspci(8)
-+Who:	Adrian Bunk <bunk@stusta.de>
-
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger

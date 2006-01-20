@@ -1,623 +1,370 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750835AbWATLQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWATLZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750835AbWATLQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 06:16:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWATLQQ
+	id S1750832AbWATLZd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 06:25:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWATLZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 06:16:16 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17353 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750829AbWATLQP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 06:16:15 -0500
-Date: Fri, 20 Jan 2006 03:15:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.16-rc1-mm2
-Message-Id: <20060120031555.7b6d65b7.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 20 Jan 2006 06:25:32 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:8893 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750832AbWATLZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 06:25:31 -0500
+Date: Fri, 20 Jan 2006 20:24:41 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       ACPI-ML <linux-acpi@vger.kernel.org>
+Subject: [RFT/PATCH]Unify mapping from pxm to node id (take 2).
+Cc: linux-ia64@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
+       "Brown, Len" <len.brown@intel.com>, x86-64 Discuss <discuss@x86-64.org>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.057
+Message-Id: <20060120195733.1263.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.21.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm2/
-
-
-- This kernel has a big ACPI update
-
-- reiser3 should be safe(r) to use.
-
-
-Known problems:
-
-- You'll probably see something like this
-
-Memory: 4017084k/6291456k available (2896k kernel code, 176452k reserved, 1868k data, 208k init)
-BUG: sleeping function called from invalid context at kernel/mutex.c:84         in_atomic():1, irqs_disabled():0
-Call Trace: <ffffffff8012374e>{__might_sleep+177} <ffffffff803cd7da>{mutex_lock+26}
-<ffffffff8016b533>{kmem_cache_create+161} <ffffffff8063b0fb>{free_all_boo
-
-
-  in early boot.  Please ignore.
-
-- drivers/i2c/busses/scx200_acb.c doesn't compile on architectures which
-  don't have asm/msr.h.
-
-
-
-Boilerplate:
-
-- -mm kernel commit activity can be reviewed by subscribing to the
-  mm-commits mailing list.
-
-        echo "subscribe mm-commits" | mail majordomo@vger.kernel.org
-
-- If you hit a bug in -mm and it's not obvious which patch caused it, it is
-  most valuable if you can perform a bisection search to identify which patch
-  introduced the bug.  Instructions for this process are at
-
-        http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
-
-  But beware that this process takes some time (around ten rebuilds and
-  reboots), so consider reporting the bug first and if we cannot immediately
-  identify the faulty patch, then perform the bisection search.
-
-- When reporting bugs, please try to Cc: the relevant maintainer and mailing
-  list on any email.
-
-
-
-Changes since 2.6.16-rc1-mm1:
-
-
- linus.patch
- git-acpi.patch
- git-agpgart.patch
- git-alsa.patch
- git-audit.patch
- git-blktrace.patch
- git-block.patch
- git-cfq.patch
- git-cpufreq.patch
- git-ia64.patch
- git-infiniband.patch
- git-kbuild.patch
- git-libata-all.patch
- git-netdev-all.patch
- git-ntfs.patch
- git-ocfs2.patch
- git-powerpc.patch
- git-sym2.patch
- git-pcmcia.patch
- git-sas-jg.patch
- git-watchdog.patch
-
- External trees
-
--x86_64-fix-mce-exception-stack-for-boot-cpu.patch
--scsi_transport_spi-build-fix.patch
--synclink_gt-fix-size-of-register-value-storage.patch
--dsp_spos_scb_lib-assignment-fix.patch
--sem2mutex-drivers-hwmon.patch
--sem2mutex-i2c-2.patch
--sem2mutex-arch-ia64-ia32-sys_ia32c.patch
--sem2mutex-arch-ia64-kernel-perfmonc.patch
--ia64-eliminate-softlockup-warning.patch
--RT_CACHE_STAT_INC-warning-fix.patch
--net-fix-1.patch
--gregkh-pci-pci-msi-vector-targeting-abstractions-fix.patch
--sem2mutex-drivers-pcmcia.patch
--sem2mutex-drivers-usb.patch
--usb-iomega-umini-is-unusual.patch
--net2280-warning-fix.patch
--auerswald-support-more-tk-devices.patch
--libusual-fix-warning-on-64bit-boxes.patch
--mm-dirty_exceeded-speedup.patch
--mm-dirty_exceeded-speedup-fix.patch
--mm-migration-page-refcounting-fix.patch
--mm-migration-page-refcounting-fix-warning-fix.patch
--mm-migration-page-refcounting-fix-warning-fix-2.patch
--mm-migration-page-refcounting-fix-2.patch
--simplify-migrate_page_add.patch
--zone-reclaim-resurrect-may_swap.patch
--zone-reclaim-reclaim-logic.patch
--zone-reclaim-reclaim-logic-tidy.patch
--zone-reclaim-reclaim-logic-tweaks.patch
--zone-reclaim-proc-override.patch
--sem2mutex-mm-slabc.patch
--numa-policies-in-the-slab-allocator-v2.patch
--mm-optimize-numa-policy-handling-in-slab-allocator.patch
--uml-add-__raw_writel-definition.patch
--uml-move-ldt-creation.patch
--uml-move-libc-dependent-utility-procedures.patch
--uml-move-libc-dependent-time-code.patch
--uml-change-interface-to-boot_timer_handler.patch
--uml-move-headers-to-arch-um-include.patch
--uml-move-libc-dependent-skas-memory-mapping-code.patch
--uml-move-libc-dependent-skas-process-handling.patch
--uml-eliminate-some-globals.patch
--uml-implement-soft-interrupts.patch
--uml-use-setjmp-longjmp-instead-of-sigsetjmp-siglongjmp.patch
--uml-tt-mode-softint-fixes.patch
--uml-remove-leftover-from-patch-revertal.patch
--uml-make-daemon-transport-behave-properly.patch
--uml-networking-clear-transport-specific-structure.patch
--uml-fix-spinlock-recursion-and-sleep-inside-spinlock-in-error-path.patch
--uml-sigio-code-reduce-spinlock-hold-time.patch
--uml-avoid-malloc-to-sleep-in-atomic-sections.patch
--uml-arch-kconfig-menu-cleanups.patch
--uml-allow-again-to-move-backing-file-and-to-override-saved-location.patch
--uml-ubd-code-fix-a-bit-of-whitespace.patch
--prevent-trident-driver-from-grabbing-pcnet32-hardware.patch
--sem2mutex-drivers-macintosh-windfarm_corec.patch
--elevator=as-back-compatibility.patch
--v9fs-add-readpage-support.patch
--fix-sched_setscheduler-semantics.patch
--add-missing-syscall-declarations.patch
--hfs-cleanup-hfsplus-prints.patch
--hfs-cleanup-hfs-prints.patch
--hfs-add-hfsx-support.patch
--hfs-set-correct-ctime.patch
--hfs-set-correct-create-date-for-links.patch
--hfs-set-type-creator-for-symlinks.patch
--edac-atomic-scrub-operations.patch
--edac-drivers-for-amd-76x-and-intel-e750x-e752x.patch
--edac-drivers-for-intel-i82860-i82875.patch
--edac-drivers-for-radisys-82600.patch
--edac-core-edac-support-code.patch
--edac-core-edac-support-code-fix.patch
--edac-with-sysfs-interface-added.patch
--edac-with-sysfs-interface-added-tidy.patch
--edac-swsusp-fixes.patch
--edac-change-default-also-handle-pulled-hardware.patch
--nfsd-check-error-status-from-nfsd_sync_dir.patch
--nfsd-remove-inline-from-a-couple-of-large-nfs-functions.patch
--svcrpc-save-and-restore-the-daddr-field-when-request-deferred.patch
--nfsd4-misc-lock-fixes.patch
--nfsd4-fix-nfsd4_lock-cleanup-on-failure.patch
--nfsd4-rename-lk_stateowner.patch
--nfsd4-remove-release_state_owner.patch
--nfsd4-fix-check_for_locks.patch
--nfsd4-operation-debugging.patch
--svcrpc-gss-handle-the-gss_s_continue.patch
--svcrpc-gss-server-context-init-failure-handling.patch
--svcrpc-gss-svc-context-creation-error-handling.patch
--nfsd4-fix-open-of-recovery-directory.patch
--nfsd4-recovery-lookup-dir-check.patch
--nfsd4-handle-replays-of-failed-open-reclaims.patch
--nfsd4-no-replays-on-unconfirmed-owners.patch
--nfsd4-nfs4statec-miscellaneous-goto-removals.patch
--nfsd4-simplify-process-open1-logic.patch
--nfsd4-dont-create-on-open-that-fails-due-to-err_grace.patch
--nfsd4-fix-open_downgrade.patch
--nfsd4-fix-bug-in-rdattr_error-return.patch
--nfsd4-clean-up-settattr-code.patch
--nfsd-vfsc-endianness-fixes.patch
--nfsd4_truncate-bogus-return-value.patch
--nfserr_serverfault-returned-host-endian.patch
--nfsd4_lock-returns-bogus-values-to-clients.patch
--knfsd-fix-some-more-errno-nfserr-confusion-in-vfsc.patch
--knfsd-provide-missing-nfsv2-part-of-patch-for-checking-vfs_getattr.patch
--exportfs-add-find_acceptable_alias-helper.patch
--vfa-at-functions-core.patch
--vfs-at-functions-i386.patch
--vfs-at-functions-x86_64.patch
--generic-sys_rt_sigsuspend.patch
--generic-sys_rt_sigsuspend-asmlinkage-fix.patch
--handle-tif_restore_sigmask-for-frv.patch
--handle-tif_restore_sigmask-for-i386.patch
--tif_restore_sigmask-support-for-arch-powerpc.patch
--uml-add-tif_restore_sigmask-support.patch
--uml-use-generic-sys_rt_sigsuspend.patch
--add-pselect-ppoll-system-call-implementation.patch
--add-pselect-ppoll-system-call-implementation-rename-types.patch
--add-pselect-ppoll-system-call-implementation-tidy.patch
--add-pselect-ppoll-system-call-implementation-fix.patch
--add-pselect-ppoll-system-calls-on-i386.patch
-
- Merged
-
-+x86_64-compat_sys_futimesat-fix.patch
-
- x86_64 fix
-
-+config_isa-does-not-make-sense-for-config_ppc_pseries.patch
-
- pSeries lacks ISA.
-
-+prototypes-for-at-functions-typo-fix.patch
-+prototypes-for-at-functions-typo-fix-fix.patch
-
- syscalls.h additions.
-
-+knfsd-restore-recently-broken-acl-functionality-to-nfs-server.patch
-
- knfsd fix
-
-+config_doublefault-kconfig-fix.patch
-
- Kconfig cleanup
-
-+hdspm-printk-warning-fixes.patch
-+pcxhr-printk-warning-fix.patch
-
- Warning fixes
-
-+git-audit-fixup.patch
-
- Fix reject due to git-audit.
-
--sem2mutex-audit_netlink_sem-fix.patch
-
- Folded into sem2mutex-audit_netlink_sem.patch
-
-+gregkh-driver-drivers-base-proper-prototypes.patch
-+gregkh-driver-empty_release_functions_are_broken.patch
--gregkh-driver-aoe-type-cleanups.patch-added-to-mm-tree.patch
--gregkh-driver-aoe-skb_check-cleanup.patch
-+gregkh-driver-aoe-update-driver-compatibility-string.patch
-
- Driver tree updates
-
-+drm-ati-use-null-instead-of-0.patch
-+ati_pcigart-simplify-page_count-manipulations.patch
-
- DRM cleanups
-
-+gregkh-i2c-hwmon-f71805f-add-documentation.patch
-+gregkh-i2c-hwmon-f71805f-new-driver.patch
-+gregkh-i2c-hwmon-it87-probe-i2c-0x2d-only.patch
--gregkh-i2c-hwmon-f71805f-new-driver.patch
--gregkh-i2c-hwmon-f71805f-add-documentation.patch
-+gregkh-i2c-i2c-scx200_acb-01-whitespace.patch
-+gregkh-i2c-i2c-scx200_acb-02-debug.patch
-+gregkh-i2c-i2c-scx200_acb-03-refactor.patch
-+gregkh-i2c-i2c-scx200_acb-04-lock_kernel.patch
-+gregkh-i2c-i2c-scx200_acb-05-cs5535.patch
-+gregkh-i2c-i2c-scx200_acb-06-poll.patch
-+gregkh-i2c-i2c-scx200_acb-07-docs.patch
-+gregkh-i2c-hwmon-sensor-attr-array-2.patch
-+gregkh-i2c-hwmon-w83792d-use-attr-arrays.patch
-+gregkh-i2c-hwmon-w83792d-drop-useless-macros.patch
-+gregkh-i2c-i2c-speedup-block-transfers.patch
-+gregkh-i2c-i2c-convert-semaphores-to-mutexes-2.patch
-+gregkh-i2c-i2c-convert-semaphores-to-mutexes-3.patch
-+gregkh-i2c-hwmon-convert-semaphores-to-mutexes.patch
-+gregkh-i2c-hwmon-f71805f-convert-semaphore-to-mutex.patch
-+gregkh-i2c-hwmon-w83627hf-add-w83687thf-support.patch
-
- I2C tree updates
-
-+sem2mutex-input-layer-3.patch
-
- More mutex conversions
-
-+m25p80-printk-warning-fix.patch
-
- Warning fix
-
-+drivers-mtd-small-cleanups.patch
-
- MTD cleanups
-
--git-netdev-all-revert-e1000-changes.patch
-
- e1000 got fixed.
-
-+kbuild-menu-hide-empty-netdevices-menu-when-net-is-disabled.patch
-+tweak-orinoco_cs-debugging-message.patch
-
- netdev fixlets
-
--gregkh-pci-pci-msi-vector-targeting-abstractions.patch
--gregkh-pci-pci-per-platform-ia64_-first-last-_device_vector-definitions.patch
-+gregkh-pci-powerpc-pci-hotplug-remove-rpaphp_find_bus.patch
-+gregkh-pci-powerpc-pci-hotplug-remove-rpaphp_fixup_new_pci_devices.patch
-+gregkh-pci-powerpc-pci-hotplug-merge-config_pci_adapter.patch
-+gregkh-pci-powerpc-pci-hotplug-remove-remove_bus_device.patch
-+gregkh-pci-powerpc-pci-hotplug-de-convolute-rpaphp_unconfig_pci_adap.patch
-+gregkh-pci-powerpc-pci-hotplug-merge-rpaphp_enable_pci_slot.patch
-+gregkh-pci-powerpc-pci-hotplug-cleanup-add-prefix.patch
-+gregkh-pci-powerpc-pci-hotplug-minor-cleanup-forward-decls.patch
-+gregkh-pci-powerpc-pci-hotplug-shuffle-error-checking-to-better-location.patch
-+gregkh-pci-pci-cyblafb-remove-pci_module_init-return-really.patch
-+gregkh-pci-msi-vector-targeting-abstractions.patch
-+gregkh-pci-per-platform-ia64_-first-last-_device_vector-definitions.patch
-+gregkh-pci-altix-msi-support.patch
-
- PCI tree updates
-
-+git-pcmcia-orinoco_cs-fix.patch
-
- git-pcmcia fix
-
-+megaraid-unused-variable.patch
-
- Warning fix
-
-+drivers-scsi-aic7xxx-possible-cleanups.patch
-+module_alias_blockchardev_major-for-drivers-scsi.patch
-
- SCSI cleanups and fix.
-
-+gregkh-usb-usb-remove-misc-devfs-droppings.patch
-+gregkh-usb-usb-net2280-warning-fix.patch
-+gregkh-usb-add-might_sleep-to-usb_unlink_urb.patch
-+gregkh-usb-usb-add-new-pl2303-device-ids.patch
-+gregkh-usb-usb-cp2101-add-new-device-ids.patch
-+gregkh-usb-usb-arm26-fix-compilation-of-drivers-usb-core-message.c.patch
-+gregkh-usb-usbatm-trivial-modifications.patch
-+gregkh-usb-usbatm-add-flags-field.patch
-+gregkh-usb-usbatm-remove-.owner.patch
-+gregkh-usb-usbatm-kzalloc-conversion.patch
-+gregkh-usb-usbatm-xusbatm-rewrite.patch
-+gregkh-usb-usbatm-shutdown-open-connections-when-disconnected.patch
-+gregkh-usb-usbatm-return-correct-error-code-when-out-of-memory.patch
-+gregkh-usb-usbatm-use-dev_kfree_skb_any-rather-than-dev_kfree_skb.patch
-+gregkh-usb-usbatm-measure-buffer-size-in-bytes-force-valid-sizes.patch
-+gregkh-usb-usbatm-allow-isochronous-transfer.patch
-+gregkh-usb-usbatm-handle-urbs-containing-partial-cells.patch
-+gregkh-usb-usbatm-bump-version-numbers.patch
-+gregkh-usb-usbatm-eilseq-workaround.patch
-+gregkh-usb-usbatm-semaphore-to-mutex-conversion.patch
-+gregkh-usb-ueagle-add-iso-support.patch
-+gregkh-usb-ueagle-cosmetic.patch
-+gregkh-usb-ueagle-cmv-name-bug.patch
-+gregkh-usb-usb-add-new-auerswald-device-ids.patch
-+gregkh-usb-usb-libusual-fix-warning-on-64bit-boxes.patch
-+gregkh-usb-usb-core-and-hcds-don-t-put_device-while-atomic.patch
-
- USB tree updates
-
-+usb-yealink-printk-warning-fixes.patch
-+usb-usbip-warning-fixes.patch
-
- Warning fixes
-
-+x86_64-defconfig-update.patch
-+x86_64-config-unwind-info.patch
-+x86_64-vsyscall-patch-xen.patch
-+x86_64-nmi-kprobes.patch
-+x86_64-apic-main-timer.patch
-+x86_64-apic-main-timer-default.patch
-+x86_64-timer-resume.patch
-
- x86_64 tree update
-
-+hrtimers-fixup-itimer-conversion.patch
-+hrtimers-fix-possible-use-of-null-pointer-in.patch
-+hrtimers-fix-oldvalue-return-in-setitimer.patch
-+hrtimers-fix-posix-timer-requeue-race.patch
-+hrtimers-cleanups-and-simplifications.patch
-+hrtimers-add-back-lost-credit-lines.patch
-+hrtimers-set-correct-initial-expiry-time-for-relative.patch
-+hrtimers-set-correct-initial-expiry-time-for-relative-fix.patch
-
- hrtimers fixes
-
-+optimize-off-node-performance-of-zone-reclaim.patch
-+zone_reclaim-reclaim-on-memory-only-node-support.patch
-+gfp_zonetypes-add-commentry-on-how-to-calculate.patch
-+gfp_zonetypes-calculate-from-gfp_zonemask.patch
-+mm-improve-function-of-sc-may_writepage.patch
-
- mm fixes and updates.
-
-+produce-useful-info-for-kzalloc-with-debug_slab.patch
-
- Make kzalloc() play properly with slab debugging
-
-+dump_stack-in-oom.patch
-
- Do a stack dump in oom-killings.
-
-+selinux-fix-and-cleanup-mprotect-checks.patch
-+selinux-change-file_alloc_security-to-use-gfp_kernel.patch
-
- SELinux updates
-
-+i386-multi-column-stack-backtraces-update.patch
-
- Make the x86 stack dumps default to two columns.
-
-+i386-print-kernel-version-in-register.patch
-
- Print build number in oopses.
-
-+arm26-fix-find_first_zero_bit-related-warnings.patch
-+arm26-fix-warnings-about-nr_irqs-being-not-defined.patch
-+arm26-remove-irq_exit-from-hardirqh.patch
-+arm26-select-system-type-via-choice.patch
-+arm26-fixup-get_signal_to_deliver-call.patch
-+arm26-fixup-asm-statement-in-kernel-fiqc.patch
-+arm26-drop-local-task_running-copy.patch
-+arm26-drop-first-arg-of-prepare_arch_switch-finish_arch_switch.patch
-+arm26-add-__kernel_old_dev_t-for-nfsd.patch
-+arm26-select-blk_dev_fd-only-on-a5k.patch
-
- arm25 fixes
-
-+efi-dev-mem-simplify-efi_mem_attribute_range.patch
-+ia64-ioremap-check-efi-for-valid-memory-attributes.patch
-+ia64-ioremap-check-efi-for-valid-memory-attributes-fix.patch
-+dmi-only-ioremap-stuff-we-actually-need.patch
-+efi-keep-physical-table-addresses-in-efi-structure.patch
-+acpi-clean-up-memory-attribute-checking-for-map-read-write.patch
-
- ia64/DMI work.
-
-+uml-typo-fixup.patch
-+uml-comments-about-libc-conflict-guards.patch
-+uml-fix-hugest-stack-users.patch
-+uml-fix-apples-bananas-typo.patch
-+uml-tt-syscall_debug-fix-buglet-introduced-in-cleanup.patch
-+uml-skas0-hold-own-ldt-fixups-for-x86-64.patch
-+uml-some-harmless-sparse-warning-fixes.patch
-+uml-avoid-config_nr_cpus-undeclared-bogus-error-messages.patch
-
- UML updates
-
-+s390-build-dasd_cmd-into-dasd_mod.patch
-+s390-dasd-remove-dynamic-ioctl-registration.patch
-+s390-remove-cvs-generated-information.patch
-+s390-overflow-in-sched_clock.patch
-+s390-monotonic_clock-interface.patch
-+s390-hangcheck-timer-support.patch
-+s390-ccw_device_probe_console-return-value.patch
-+s390-dasd-open-counter.patch
-+s390-dasd-wait-for-clear-i-o-interrupt.patch
-
- s390 updates
-
-+work-around-ppc64-bootup-bug-by-making-mutex-debugging-save-restore-irqs.patch
-
- Don't accidentally enable interrupts in mutex debugging code: powerpc falls
- over.
-
-+kernel-kernel-cpuc-to-mutexes.patch
-
- Bring back this mutex conversion.
-
-+sbc-epx-does-not-check-claim-i-o-ports-it-uses-2nd-edition-fix.patch
-
- Fix watchdog driver
-
-+parport-fix-printk-format-warning.patch
-+dvb-fix-printk-format-warning.patch
-
- Warning fixes
-
-+fix-cpucontrol-cache_chain_mutex-lock-inversion-bug.patch
-
- Fix deadlock.
-
-+make-bug-messages-more-consistent.patch
-+make-bug-messages-more-consistent-update.patch
-
- Make the bug messages say "BUG:"
-
-+add-trylock_kernel.patch
-+add-trylock_kernel-fix.patch
-
- More workarounds for the enabling of might_sleep() debugging in early boot.
-
-+turn-on-might_sleep-in-early-bootup-code-too.patch
-
- Enable might_sleep() debugging in early boot.
-
-+dont-allow-users-to-set-config_broken=y.patch
-
- CONFIG_BROKEN really means it.
-
-+kill-_inline_.patch
-
- Remove _INLINE_
-
-+pause_on_oops-command-line-option.patch
-
- I wrote a patch!  If your oopses are scrolling off the screen, add
- `pause_on_oops=100000' to the kernel boot command line.
-
-+pnpbios-missing-small_tag_enddep-tag.patch
-
- pnpbios fix.
-
-+fix-i2o_scsi-oops-on-abort.patch
-
- i2o driver fix
-
-+build_lock_ops-cleanup-preempt_disable-usage.patch
-
- spinlock speedup
-
-+tpm_infineon-fix-printk-format-warning.patch
-+tpm_bios-needs-more-securityfs_-functions.patch
-+tpm_bios-securityfs-error-checking-fix.patch
-+tpm_bios-indexing-fix.patch
-
- tpm driver fixes
-
-+someone-broke-reiserfs-v3-mount-options-this-fixes-it.patch
-
- Fix reiser3 mount option handling.
-
-+parport_serial-printk-warning-fix.patch
-+quota_v2-printk-warning-fixes.patch
-+sxc-printk-warning-fixes.patch
-
- Warning fixes.
-
-+autofs4-lookup-white-space-cleanup.patch
-+autofs4-use-libfs-routines-for-readdir.patch
-+autofs4-cant-mount-due-to-mount-point-dir-not-empty.patch
-+autofs4-expire-code-readability-cleanup.patch
-+autofs4-simplify-expire-tree-traversal.patch
-+autofs4-fix-false-negative-return-from-expire.patch
-+autofs4-expire-mounts-that-hold-no-extra-references-only.patch
-+autofs4-expire-mounts-that-hold-no-extra-references-only-fix.patch
-+autofs4-remove-update_atime-unused-function.patch
-+autofs4-add-a-show-mount-options-for-proc-filesystem.patch
-+autofs4-white-space-cleanup-for-waitqc.patch
-+autofs4-rename-simple_empty_nolock-function.patch
-+autofs4-change-may_umount-functions-to-boolean.patch
-+autofs4-increase-module-version.patch
-
- Autofs4 updates.
-
--reiserfs-fix-is_reusable-bitmap-check-to-not-traverse-the-bitmap-info-array.patch
--reiserfs-clean-up-bitmap-block-buffer-head-references.patch
--reiserfs-move-bitmap-loading-to-bitmapc.patch
--reiserfs-on-demand-bitmap-loading.patch
--reiserfs-on-demand-bitmap-loading-fix.patch
--reiserfs-on-demand-bitmap-loading-warning-fix.patch
-
- Dropped - baaaad.
-
-+ext3-get-blocks-multiple-block-allocation-cleanup.patch
-
- Tidy ext3-get-blocks-multiple-block-allocation.patch
-
--powerpc-fastpaths-for-mutex-subsystem.patch
-
- Dropped.
-
-+x86-blacklist-tsc-from-systems-where-it-is-known-to-be-bad.patch
-
- Work around dodgy TSCs
-
-+kernel-kprobesc-fix-a-warning-ifndef-arch_supports_kretprobes.patch
-
- Warning fix.
-
-+dlm-recovery-remove-true-false-defines.patch
-+dlm-device-interface-missing-variable.patch
-+dlm-device-interface-check-allocation.patch
-+dlm-device-interface-fix-unlock-race.patch
-+dlm-device-interface-use-kzalloc.patch
-+dlm-sem2mutex.patch
-
- DLM updates.
-
-+drivers-ide-ide-ioc-make-__ide_end_request-static.patch
-
- IDE cleanup
-
-+epoll_pwait.patch
-
- epoll feature addition (controversial).
-
-+documentation-ioctl-messtxt-update.patch
-
- ioctl() documentation update.
-
-
-
-
-All 761 patches:
-
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm2/patch-list
+Hello.
+
+I modified previous patch which is to unify mapping from pxm to
+node id.
+And I could test it on ia64 and x86-64 box with dummy SRAT
+emulation. 
+However, I couldn't make NUMA emulation environment for i386 
+by dummy SRAT. (It couldn't boot up due to fault of mount root dir).
+So, test of this patch hasn't completed.  :-(
+
+Unfortunately, I don't have any i386 NUMA machine.
+So, I would like to ask to test this patch on i386 NUMA machine.
+
+Does anyone have i386 NUMA box? If so, please test this.
+
+Thanks.
+
+----------------------------
+
+This patch is to unify mapping from pxm to node id.
+In current code, i386, x86-64, and ia64 have its mapping by each own code.
+But PXM is defined by ACPI and node id is used generically. So,
+I think there is no reason to define it on each arch's code.
+This mapping should be written at drivers/acpi/numa.c as a common code.
+
+This patch is for 2.6.15.
+
+
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+
+Index: unify_pxm/arch/i386/kernel/srat.c
+===================================================================
+--- unify_pxm.orig/arch/i386/kernel/srat.c	2006-01-17 19:59:15.000000000 +0900
++++ unify_pxm/arch/i386/kernel/srat.c	2006-01-17 19:59:18.000000000 +0900
+@@ -213,13 +213,6 @@ static __init void node_read_chunk(int n
+ 		node_end_pfn[nid] = memory_chunk->end_pfn;
+ }
+ 
+-static u8 pxm_to_nid_map[MAX_PXM_DOMAINS];/* _PXM to logical node ID map */
+-
+-int pxm_to_node(int pxm)
+-{
+-	return pxm_to_nid_map[pxm];
+-}
+-
+ /* Parse the ACPI Static Resource Affinity Table */
+ static int __init acpi20_parse_srat(struct acpi_table_srat *sratp)
+ {
+@@ -235,10 +228,6 @@ static int __init acpi20_parse_srat(stru
+ 	memset(node_memory_chunk, 0, sizeof(node_memory_chunk));
+ 	memset(zholes_size, 0, sizeof(zholes_size));
+ 
+-	/* -1 in these maps means not available */
+-	memset(pxm_to_nid_map, -1, sizeof(pxm_to_nid_map));
+-	memset(nid_to_pxm_map, -1, sizeof(nid_to_pxm_map));
+-
+ 	num_memory_chunks = 0;
+ 	while (p < end) {
+ 		switch (*p) {
+@@ -278,9 +267,7 @@ static int __init acpi20_parse_srat(stru
+ 	nodes_clear(node_online_map);
+ 	for (i = 0; i < MAX_PXM_DOMAINS; i++) {
+ 		if (BMAP_TEST(pxm_bitmap, i)) {
+-			nid = num_online_nodes();
+-			pxm_to_nid_map[i] = nid;
+-			nid_to_pxm_map[nid] = i;
++			int nid = acpi_map_pxm_to_node(i);
+ 			node_set_online(nid);
+ 		}
+ 	}
+@@ -288,7 +275,7 @@ static int __init acpi20_parse_srat(stru
+ 
+ 	/* set cnode id in memory chunk structure */
+ 	for (i = 0; i < num_memory_chunks; i++)
+-		node_memory_chunk[i].nid = pxm_to_nid_map[node_memory_chunk[i].pxm];
++		node_memory_chunk[i].nid = pxm_to_node(node_memory_chunk[i].pxm);
+ 
+ 	printk("pxm bitmap: ");
+ 	for (i = 0; i < sizeof(pxm_bitmap); i++) {
+Index: unify_pxm/arch/ia64/kernel/acpi.c
+===================================================================
+--- unify_pxm.orig/arch/ia64/kernel/acpi.c	2006-01-17 19:59:15.000000000 +0900
++++ unify_pxm/arch/ia64/kernel/acpi.c	2006-01-17 21:12:12.000000000 +0900
+@@ -409,9 +409,6 @@ static int __initdata srat_num_cpus;	/* 
+ static u32 __devinitdata pxm_flag[PXM_FLAG_LEN];
+ #define pxm_bit_set(bit)	(set_bit(bit,(void *)pxm_flag))
+ #define pxm_bit_test(bit)	(test_bit(bit,(void *)pxm_flag))
+-/* maps to convert between proximity domain and logical node ID */
+-int __devinitdata pxm_to_nid_map[MAX_PXM_DOMAINS];
+-int __initdata nid_to_pxm_map[MAX_NUMNODES];
+ static struct acpi_table_slit __initdata *slit_table;
+ 
+ /*
+@@ -500,22 +497,18 @@ void __init acpi_numa_arch_fixup(void)
+ 	 * MCD - This can probably be dropped now.  No need for pxm ID to node ID
+ 	 * mapping with sparse node numbering iff MAX_PXM_DOMAINS <= MAX_NUMNODES.
+ 	 */
+-	/* calculate total number of nodes in system from PXM bitmap */
+-	memset(pxm_to_nid_map, -1, sizeof(pxm_to_nid_map));
+-	memset(nid_to_pxm_map, -1, sizeof(nid_to_pxm_map));
+ 	nodes_clear(node_online_map);
+ 	for (i = 0; i < MAX_PXM_DOMAINS; i++) {
+ 		if (pxm_bit_test(i)) {
+-			int nid = num_online_nodes();
+-			pxm_to_nid_map[i] = nid;
+-			nid_to_pxm_map[nid] = i;
++			int nid = acpi_map_pxm_to_node(i);
++			pxm_bit_set(i);
+ 			node_set_online(nid);
+ 		}
+ 	}
+ 
+ 	/* set logical node id in memory chunk structure */
+ 	for (i = 0; i < num_node_memblks; i++)
+-		node_memblk[i].nid = pxm_to_nid_map[node_memblk[i].nid];
++		node_memblk[i].nid = pxm_to_node(node_memblk[i].nid);
+ 
+ 	/* assign memory bank numbers for each chunk on each node */
+ 	for_each_online_node(i) {
+@@ -529,7 +522,7 @@ void __init acpi_numa_arch_fixup(void)
+ 
+ 	/* set logical node id in cpu structure */
+ 	for (i = 0; i < srat_num_cpus; i++)
+-		node_cpuid[i].nid = pxm_to_nid_map[node_cpuid[i].nid];
++		node_cpuid[i].nid = pxm_to_node(node_cpuid[i].nid);
+ 
+ 	printk(KERN_INFO "Number of logical nodes in system = %d\n",
+ 	       num_online_nodes());
+@@ -542,11 +535,11 @@ void __init acpi_numa_arch_fixup(void)
+ 	for (i = 0; i < slit_table->localities; i++) {
+ 		if (!pxm_bit_test(i))
+ 			continue;
+-		node_from = pxm_to_nid_map[i];
++		node_from = pxm_to_node(i);
+ 		for (j = 0; j < slit_table->localities; j++) {
+ 			if (!pxm_bit_test(j))
+ 				continue;
+-			node_to = pxm_to_nid_map[j];
++			node_to = pxm_to_node(j);
+ 			node_distance(node_from, node_to) =
+ 			    slit_table->entry[i * slit_table->localities + j];
+ 		}
+@@ -752,9 +745,9 @@ int acpi_map_cpu2node(acpi_handle handle
+ 
+ 	/*
+ 	 * Assuming that the container driver would have set the proximity
+-	 * domain and would have initialized pxm_to_nid_map[pxm_id] && pxm_flag
++	 * domain and would have initialized pxm_to_node(pxm_id) && pxm_flag
+ 	 */
+-	node_cpuid[cpu].nid = (pxm_id < 0) ? 0 : pxm_to_nid_map[pxm_id];
++	node_cpuid[cpu].nid = (pxm_id < 0) ? 0 : pxm_to_node(pxm_id);
+ 
+ 	node_cpuid[cpu].phys_id = physid;
+ #endif
+@@ -880,7 +873,7 @@ acpi_map_iosapic(acpi_handle handle, u32
+ 	if (pxm < 0)
+ 		return AE_OK;
+ 
+-	node = pxm_to_nid_map[pxm];
++	node = pxm_to_node(pxm);
+ 
+ 	if (node >= MAX_NUMNODES || !node_online(node) ||
+ 	    cpus_empty(node_to_cpumask(node)))
+Index: unify_pxm/drivers/acpi/numa.c
+===================================================================
+--- unify_pxm.orig/drivers/acpi/numa.c	2006-01-17 19:59:15.000000000 +0900
++++ unify_pxm/drivers/acpi/numa.c	2006-01-19 12:07:19.000000000 +0900
+@@ -36,12 +36,56 @@
+ #define _COMPONENT	ACPI_NUMA
+ ACPI_MODULE_NAME("numa")
+ 
++static nodemask_t nodes_found_map = NODE_MASK_NONE;
++#define PXM_INVAL	0xff
++#define NID_INVAL	0xff
++
++/* maps to convert between proximity domain and logical node ID */
++u8 __cpuinitdata pxm_to_node_map[MAX_PXM_DOMAINS]
++				= { [0 ... MAX_PXM_DOMAINS - 1] = NID_INVAL };
++u8 __cpuinitdata node_to_pxm_map[MAX_NUMNODES]
++				= { [0 ... MAX_NUMNODES - 1] = PXM_INVAL };
++
+ extern int __init acpi_table_parse_madt_family(enum acpi_table_id id,
+ 					       unsigned long madt_size,
+ 					       int entry_id,
+ 					       acpi_madt_entry_handler handler,
+ 					       unsigned int max_entries);
+ 
++int __cpuinit pxm_to_node(u8 pxm)
++{
++	return (int)pxm_to_node_map[pxm];
++}
++
++u8 __cpuinit node_to_pxm(int node)
++{
++	return node_to_pxm_map[node];
++}
++
++int __cpuinit acpi_map_pxm_to_node(u8 pxm)
++{
++	u8 node = pxm_to_node_map[pxm];
++
++	if (node == NID_INVAL){
++		if (nodes_weight(nodes_found_map) >= MAX_NUMNODES)
++			return -1;
++		node = first_unset_node(nodes_found_map);
++		pxm_to_node_map[pxm] = node;
++		node_to_pxm_map[node] = pxm;
++		node_set(node, nodes_found_map);
++	}
++
++	return (int)node;
++}
++
++void __cpuinit acpi_unmap_pxm_to_node(int node)
++{
++	u8 pxm = node_to_pxm_map[node];
++	pxm_to_node_map[pxm] = NID_INVAL;
++	node_to_pxm_map[node] = PXM_INVAL;
++	node_clear(node, nodes_found_map);
++}
++
+ void __init acpi_table_print_srat_entry(acpi_table_entry_header * header)
+ {
+ 
+Index: unify_pxm/arch/x86_64/mm/srat.c
+===================================================================
+--- unify_pxm.orig/arch/x86_64/mm/srat.c	2006-01-17 19:59:15.000000000 +0900
++++ unify_pxm/arch/x86_64/mm/srat.c	2006-01-17 19:59:18.000000000 +0900
+@@ -21,30 +21,11 @@
+ static struct acpi_table_slit *acpi_slit;
+ 
+ static nodemask_t nodes_parsed __initdata;
+-static nodemask_t nodes_found __initdata;
+ static struct node nodes[MAX_NUMNODES] __initdata;
+-static __u8  pxm2node[256] = { [0 ... 255] = 0xff };
+-
+-static int node_to_pxm(int n);
+-
+-int pxm_to_node(int pxm)
+-{
+-	if ((unsigned)pxm >= 256)
+-		return 0;
+-	return pxm2node[pxm];
+-}
+ 
+ static __init int setup_node(int pxm)
+ {
+-	unsigned node = pxm2node[pxm];
+-	if (node == 0xff) {
+-		if (nodes_weight(nodes_found) >= MAX_NUMNODES)
+-			return -1;
+-		node = first_unset_node(nodes_found); 
+-		node_set(node, nodes_found);
+-		pxm2node[pxm] = node;
+-	}
+-	return pxm2node[pxm];
++	return acpi_map_pxm_to_node(pxm);
+ }
+ 
+ static __init int conflicting_nodes(unsigned long start, unsigned long end)
+@@ -205,17 +186,6 @@ int __init acpi_scan_nodes(unsigned long
+ 	return 0;
+ }
+ 
+-static int node_to_pxm(int n)
+-{
+-       int i;
+-       if (pxm2node[n] == n)
+-               return n;
+-       for (i = 0; i < 256; i++)
+-               if (pxm2node[i] == n)
+-                       return i;
+-       return 0;
+-}
+-
+ int __node_distance(int a, int b)
+ {
+ 	int index;
+Index: unify_pxm/include/asm-x86_64/numa.h
+===================================================================
+--- unify_pxm.orig/include/asm-x86_64/numa.h	2006-01-17 19:59:15.000000000 +0900
++++ unify_pxm/include/asm-x86_64/numa.h	2006-01-17 19:59:18.000000000 +0900
+@@ -9,7 +9,6 @@ struct node { 
+ };
+ 
+ extern int compute_hash_shift(struct node *nodes, int numnodes);
+-extern int pxm_to_node(int nid);
+ 
+ #define ZONE_ALIGN (1UL << (MAX_ORDER+PAGE_SHIFT))
+ 
+Index: unify_pxm/include/acpi/acpi_numa.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ unify_pxm/include/acpi/acpi_numa.h	2006-01-19 12:10:24.000000000 +0900
+@@ -0,0 +1,18 @@
++#ifndef __ACPI_NUMA_H
++#define __ACPI_NUMA_H
++
++#ifdef CONFIG_ACPI_NUMA
++#include <linux/kernel.h>
++
++/* Proximity bitmap length; _PXM is at most 255 (8 bit)*/
++#define MAX_PXM_DOMAINS (256)
++extern u8 __cpuinitdata pxm_to_node_map[MAX_PXM_DOMAINS];
++extern u8 __cpuinitdata node_to_pxm_map[MAX_NUMNODES];
++
++extern int __cpuinit pxm_to_node(u8);
++extern u8 __cpuinit node_to_pxm(int);
++extern int __cpuinit acpi_map_pxm_to_node(u8);
++extern void __cpuinit acpi_unmap_pxm_to_node(int);
++
++#endif				/* CONFIG_ACPI_NUMA */
++#endif				/* __ACP_NUMA_H */
+Index: unify_pxm/arch/ia64/pci/pci.c
+===================================================================
+--- unify_pxm.orig/arch/ia64/pci/pci.c	2006-01-17 19:59:15.000000000 +0900
++++ unify_pxm/arch/ia64/pci/pci.c	2006-01-17 19:59:18.000000000 +0900
+@@ -353,7 +353,7 @@ pci_acpi_scan_root(struct acpi_device *d
+ 	pxm = acpi_get_pxm(controller->acpi_handle);
+ #ifdef CONFIG_NUMA
+ 	if (pxm >= 0)
+-		controller->node = pxm_to_nid_map[pxm];
++		controller->node = pxm_to_node(pxm);
+ #endif
+ 
+ 	acpi_walk_resources(device->handle, METHOD_NAME__CRS, count_window,
+Index: unify_pxm/include/linux/acpi.h
+===================================================================
+--- unify_pxm.orig/include/linux/acpi.h	2006-01-17 19:59:15.000000000 +0900
++++ unify_pxm/include/linux/acpi.h	2006-01-17 19:59:18.000000000 +0900
+@@ -38,6 +38,7 @@
+ #include <acpi/acpi.h>
+ #include <acpi/acpi_bus.h>
+ #include <acpi/acpi_drivers.h>
++#include <acpi/acpi_numa.h>
+ #include <asm/acpi.h>
+ 
+
+-- 
+Yasunori Goto 
 
 

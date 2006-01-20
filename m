@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWATTHG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWATTG1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWATTHG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 14:07:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWATTFV
+	id S932067AbWATTG1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 14:06:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbWATTF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 14:05:21 -0500
-Received: from mail.kroah.org ([69.55.234.183]:33744 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751173AbWATTFE convert rfc822-to-8bit
+	Fri, 20 Jan 2006 14:05:26 -0500
+Received: from mail.kroah.org ([69.55.234.183]:33488 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751171AbWATTFD convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 14:05:04 -0500
-Cc: bunk@stusta.de
-Subject: [PATCH] PCI: drivers/pci/pci.c: #if 0 pci_find_ext_capability()
-In-Reply-To: <1137783877218@kroah.com>
+	Fri, 20 Jan 2006 14:05:03 -0500
+Cc: pavel@ucw.cz
+Subject: [PATCH] PCI Hotplug: fix up coding style issues
+In-Reply-To: <11377838771056@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 20 Jan 2006 11:04:37 -0800
-Message-Id: <11377838771790@kroah.com>
+Date: Fri, 20 Jan 2006 11:04:38 -0800
+Message-Id: <1137783878475@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,62 +24,97 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] PCI: drivers/pci/pci.c: #if 0 pci_find_ext_capability()
+[PATCH] PCI Hotplug: fix up coding style issues
 
-This patch #if 0's the unused global function pci_find_ext_capability().
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit fcac4238faf5cace3946d6c0102c176370483ed6
-tree aadecf0a10301aebeeb69d12d6709e14e6fef511
-parent ac142f4e6f34d59ae0554dc96fe5bb030df02ab9
-author Adrian Bunk <bunk@stusta.de> Fri, 06 Jan 2006 03:25:37 +0100
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 20 Jan 2006 10:29:33 -0800
+commit 4153374c18ee71fa8bdaa6a7e88ec42f8ec633f4
+tree 9357f0c6a5eafe316803b3151c013bcac3c99bf4
+parent 705f309deedc7b2c5c00d89f78336f1e68fe504b
+author Pavel Machek <pavel@ucw.cz> Sun, 08 Jan 2006 20:11:59 +0100
+committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 20 Jan 2006 10:29:34 -0800
 
- drivers/pci/pci.c   |    2 ++
- include/linux/pci.h |    2 --
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/hotplug/acpiphp_ibm.c |   21 +++++++++------------
+ drivers/pci/hotplug/ibmphp_core.c |    4 ++--
+ 2 files changed, 11 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index d2a633e..d2d1879 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -163,6 +163,7 @@ int pci_bus_find_capability(struct pci_b
- 	return __pci_bus_find_cap(bus, devfn, hdr_type & 0x7f, cap);
- }
+diff --git a/drivers/pci/hotplug/acpiphp_ibm.c b/drivers/pci/hotplug/acpiphp_ibm.c
+index 7e7f913..317457d 100644
+--- a/drivers/pci/hotplug/acpiphp_ibm.c
++++ b/drivers/pci/hotplug/acpiphp_ibm.c
+@@ -302,7 +302,7 @@ static int ibm_get_table_from_acpi(char 
+ 	}
  
-+#if 0
- /**
-  * pci_find_ext_capability - Find an extended capability
-  * @dev: PCI device to query
-@@ -210,6 +211,7 @@ int pci_find_ext_capability(struct pci_d
+ 	package = (union acpi_object *) buffer.pointer;
+-	if(!(package) ||
++	if (!(package) ||
+ 			(package->type != ACPI_TYPE_PACKAGE) ||
+ 			!(package->package.elements)) {
+ 		err("%s:  Invalid APCI object\n", __FUNCTION__);
+@@ -405,7 +405,7 @@ static acpi_status __init ibm_find_acpi_
+ 	}
+ 	info.hardware_id.value[sizeof(info.hardware_id.value) - 1] = '\0';
  
- 	return 0;
- }
-+#endif  /*  0  */
+-	if(info.current_status && (info.valid & ACPI_VALID_HID) &&
++	if (info.current_status && (info.valid & ACPI_VALID_HID) &&
+ 			(!strcmp(info.hardware_id.value, IBM_HARDWARE_ID1) ||
+ 			!strcmp(info.hardware_id.value, IBM_HARDWARE_ID2))) {
+ 		dbg("found hardware: %s, handle: %p\n", info.hardware_id.value,
+@@ -449,13 +449,11 @@ static int __init ibm_acpiphp_init(void)
+ 	}
  
- /**
-  * pci_find_parent_resource - return resource region of parent bus of given region
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 0a44072..fe1a2b0 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -406,7 +406,6 @@ struct pci_dev *pci_find_device_reverse 
- struct pci_dev *pci_find_slot (unsigned int bus, unsigned int devfn);
- int pci_find_capability (struct pci_dev *dev, int cap);
- int pci_find_next_capability (struct pci_dev *dev, u8 pos, int cap);
--int pci_find_ext_capability (struct pci_dev *dev, int cap);
- struct pci_bus * pci_find_next_bus(const struct pci_bus *from);
+ 	ibm_note.device = device;
+-	status = acpi_install_notify_handler(
+-			ibm_acpi_handle,
+-			ACPI_DEVICE_NOTIFY,
+-			ibm_handle_events,
++	status = acpi_install_notify_handler(ibm_acpi_handle,
++			ACPI_DEVICE_NOTIFY, ibm_handle_events,
+ 			&ibm_note);
+ 	if (ACPI_FAILURE(status)) {
+-		err("%s:  Failed to register notification handler\n",
++		err("%s: Failed to register notification handler\n",
+ 				__FUNCTION__);
+ 		retval = -EBUSY;
+ 		goto init_cleanup;
+@@ -482,14 +480,13 @@ static void __exit ibm_acpiphp_exit(void
+ 	if (acpiphp_unregister_attention(&ibm_attention_info))
+ 		err("%s: attention info deregistration failed", __FUNCTION__);
  
- struct pci_dev *pci_get_device (unsigned int vendor, unsigned int device, struct pci_dev *from);
-@@ -626,7 +625,6 @@ static inline int pci_register_driver(st
- static inline void pci_unregister_driver(struct pci_driver *drv) { }
- static inline int pci_find_capability (struct pci_dev *dev, int cap) {return 0; }
- static inline int pci_find_next_capability (struct pci_dev *dev, u8 post, int cap) { return 0; }
--static inline int pci_find_ext_capability (struct pci_dev *dev, int cap) {return 0; }
- static inline const struct pci_device_id *pci_match_device(const struct pci_device_id *ids, const struct pci_dev *dev) { return NULL; }
+-	   status = acpi_remove_notify_handler(
++	status = acpi_remove_notify_handler(
+ 			   ibm_acpi_handle,
+ 			   ACPI_DEVICE_NOTIFY,
+ 			   ibm_handle_events);
+-	   if (ACPI_FAILURE(status))
+-		   err("%s:  Notification handler removal failed\n",
+-				   __FUNCTION__);
+-	// remove the /sys entries
++	if (ACPI_FAILURE(status))
++		err("%s: Notification handler removal failed\n", __FUNCTION__);
++	/* remove the /sys entries */
+ 	if (sysfs_remove_bin_file(sysdir, &ibm_apci_table_attr))
+ 		err("%s: removal of sysfs file apci_table failed\n",
+ 				__FUNCTION__);
+diff --git a/drivers/pci/hotplug/ibmphp_core.c b/drivers/pci/hotplug/ibmphp_core.c
+index aabf1e7..dc59da6 100644
+--- a/drivers/pci/hotplug/ibmphp_core.c
++++ b/drivers/pci/hotplug/ibmphp_core.c
+@@ -235,12 +235,12 @@ static int set_attention_status(struct h
+ {
+ 	int rc = 0;
+ 	struct slot *pslot;
+-	u8 cmd;
++	u8 cmd = 0x00;     /* avoid compiler warning */
  
- /* Power management related routines */
+ 	debug("set_attention_status - Entry hotplug_slot[%lx] value[%x]\n",
+ 			(ulong) hotplug_slot, value);
+ 	ibmphp_lock_operations();
+-	cmd = 0x00;     // avoid compiler warning
++
+ 
+ 	if (hotplug_slot) {
+ 		switch (value) {
 

@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422716AbWATBa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030466AbWATBfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422716AbWATBa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 20:30:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422714AbWATBa1
+	id S1030466AbWATBfi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 20:35:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030483AbWATBfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 20:30:27 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:33499 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030466AbWATBa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 20:30:26 -0500
-Date: Thu, 19 Jan 2006 17:30:14 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] shrink_list: Use of && instead || leads to unintended
- writing of pages
-In-Reply-To: <20060119172032.04bad017.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0601191727210.13819@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0601191602260.13428@schroedinger.engr.sgi.com>
- <20060119164341.0fb9c7e3.akpm@osdl.org> <Pine.LNX.4.62.0601191648440.13602@schroedinger.engr.sgi.com>
- <20060119172032.04bad017.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Jan 2006 20:35:37 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52434 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030466AbWATBfh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 20:35:37 -0500
+Date: Thu, 19 Jan 2006 20:34:02 -0500
+From: Dave Jones <davej@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Lee Revell <rlrevell@joe-job.com>, Krzysztof Halasa <khc@pm.waw.pl>,
+       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org, perex@suse.cz
+Subject: Re: [Alsa-devel] Re: RFC: OSS driver removal, a slightly different approach
+Message-ID: <20060120013402.GF3798@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Lee Revell <rlrevell@joe-job.com>, Krzysztof Halasa <khc@pm.waw.pl>,
+	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+	alsa-devel@alsa-project.org, perex@suse.cz
+References: <20060119174600.GT19398@stusta.de> <m3ek34vucz.fsf@defiant.localdomain> <1137703413.32195.23.camel@mindpipe> <1137709135.8471.73.camel@localhost.localdomain> <20060119224222.GW21663@redhat.com> <1137711088.3241.9.camel@mindpipe> <1137719627.8471.89.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1137719627.8471.89.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Jan 2006, Andrew Morton wrote:
+On Fri, Jan 20, 2006 at 01:13:47AM +0000, Alan Cox wrote:
+ > On Iau, 2006-01-19 at 17:51 -0500, Lee Revell wrote:
+ > > The status is we need someone who has the hardware who can add printk's
+ > > to the driver to identify what triggers the hang.  It should not be
+ > > hard, the OSS driver reportedly works.
+ > > 
+ > > https://bugtrack.alsa-project.org/alsa-bug/view.php?id=328
+ > > 
+ > > The bug has been in FEEDBACK state for a long time.
+ > 
+ > 99.9% of users don't ever look in ALSA bugzilla. 
+ > 
+ > A dig shows
+ > 
+ > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=157371
+ > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=171221
 
-> laptop_mode=1: don't write out dirty pages if we're only performing light
-> scanning.  But do write them out once page reclaim starts getting into
-> difficulty.
+Lee, if you can point me at a patch with debugging printk's I'm
+happy to throw that into the next Fedora test update for the
+users in the latter bug to test. (The first one seemed to go AWOL)
 
-Ahh. Now I see ..... Wrong field.
+		Dave
 
-> I guess if zone reclaim wants to permanently disable writeback then it'll
-> be needing a new scan_control flag for that.  Which means that we need to
-
-We have such a flag and its called may_swap (was introduced by Martin 
-Hicks). If we cannot swap then we should not write out pages.
-
-Thus we need this fix instead:
-
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.16-rc1-mm1/mm/vmscan.c
-===================================================================
---- linux-2.6.16-rc1-mm1.orig/mm/vmscan.c	2006-01-19 15:50:19.000000000 -0800
-+++ linux-2.6.16-rc1-mm1/mm/vmscan.c	2006-01-19 17:26:50.000000000 -0800
-@@ -491,7 +491,7 @@ static int shrink_list(struct list_head 
- 				goto keep_locked;
- 			if (!may_enter_fs)
- 				goto keep_locked;
--			if (laptop_mode && !sc->may_writepage)
-+			if ((laptop_mode && !sc->may_writepage) || !sc->may_swap)
- 				goto keep_locked;
- 
- 			/* Page is dirty, try to write it out here */

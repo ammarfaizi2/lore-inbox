@@ -1,67 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422736AbWATCRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422737AbWATCSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422736AbWATCRj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 21:17:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422737AbWATCRj
+	id S1422737AbWATCSr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 21:18:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422740AbWATCSq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 21:17:39 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:9093 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S1422736AbWATCRh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 21:17:37 -0500
-Date: Fri, 20 Jan 2006 13:17:04 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: dwmw2@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: - add-pselect-ppoll-system-call-implementation-tidy.patch
- removed from -mm tree
-Message-Id: <20060120131704.51995386.sfr@canb.auug.org.au>
-In-Reply-To: <20060118.223629.100108404.davem@davemloft.net>
-References: <200601190052.k0J0qmKC009977@shell0.pdx.osdl.net>
-	<1137648119.30084.94.camel@localhost.localdomain>
-	<20060119171708.7f856b42.sfr@canb.auug.org.au>
-	<20060118.223629.100108404.davem@davemloft.net>
-X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Fri__20_Jan_2006_13_17_04_+1100_OmVUNvBAGR=Ptl=0"
+	Thu, 19 Jan 2006 21:18:46 -0500
+Received: from c-67-174-241-67.hsd1.ca.comcast.net ([67.174.241.67]:13739 "EHLO
+	plato.virtuousgeek.org") by vger.kernel.org with ESMTP
+	id S1422739AbWATCSp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 21:18:45 -0500
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: Brent Casavant <bcasavan@sgi.com>
+Subject: Re: [PATCH] SN2 user-MMIO CPU migration
+Date: Thu, 19 Jan 2006 18:18:43 -0800
+User-Agent: KMail/1.9
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, jes@sgi.com,
+       tony.luck@intel.com
+References: <20060118163305.Y42462@chenjesu.americas.sgi.com>
+In-Reply-To: <20060118163305.Y42462@chenjesu.americas.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601191818.43157.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__20_Jan_2006_13_17_04_+1100_OmVUNvBAGR=Ptl=0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, 18 Jan 2006 22:36:29 -0800 (PST) "David S. Miller" <davem@davemloft=
-.net> wrote:
+On Thursday, January 19, 2006 4:06 pm, Brent Casavant wrote:
+>  #ifndef __ARCH_WANT_UNLOCKED_CTXSW
+>  static inline int task_running(runqueue_t *rq, task_t *p)
+> @@ -936,6 +939,7 @@ static int migrate_task(task_t *p, int d
+>  	 * it is sufficient to simply update the task's cpu field.
+>  	 */
+>  	if (!p->array && !task_running(rq, p)) {
+> +		arch_task_migrate(p);
+>  		set_task_cpu(p, dest_cpu);
+>  		return 0;
+>  	}
+> @@ -1353,6 +1357,7 @@ static int try_to_wake_up(task_t *p, uns
+>  out_set_cpu:
+>  	new_cpu = wake_idle(new_cpu, p);
+>  	if (new_cpu != cpu) {
+> +		arch_task_migrate(p);
+>  		set_task_cpu(p, new_cpu);
+>  		task_rq_unlock(rq, &flags);
+>  		/* might preempt at this point */
+> @@ -1876,6 +1881,7 @@ void pull_task(runqueue_t *src_rq, prio_
+>  {
+>  	dequeue_task(p, src_array);
+>  	dec_nr_running(p, src_rq);
+> +	arch_task_migrate(p);
+>  	set_task_cpu(p, this_cpu);
+>  	inc_nr_running(p, this_rq);
+>  	enqueue_task(p, this_array);
+> @@ -4547,6 +4553,7 @@ static void __migrate_task(struct task_s
+>  	if (!cpu_isset(dest_cpu, p->cpus_allowed))
+>  		goto out;
 >
-> Hmmm, what args does function X take?  Let's try this:
->=20
-> bash$ git grep X
->=20
-> Oops, the args went past 80 columns and was split up, so I only
-> get the first few in the grep output.
+> +	arch_task_migrate(p);
+>  	set_task_cpu(p, dest_cpu);
+>  	if (p->array) {
+>  		/*
 
-git grep -A2 X
+Maybe you could just turn the above into mmiowb() calls instead?  That 
+would cover altix, origin, and ppc as well I think.  On other platforms 
+it would be a complete no-op.
 
-:-)  (now I am just being silly :-))
-
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Fri__20_Jan_2006_13_17_04_+1100_OmVUNvBAGR=Ptl=0
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD0EgmFdBgD/zoJvwRAo9eAJ9TFdB+5YILXUVoUmhlS8GGGJlfdACdEtgk
-EizrHft132s91m+fCG5A+xU=
-=YUJk
------END PGP SIGNATURE-----
-
---Signature=_Fri__20_Jan_2006_13_17_04_+1100_OmVUNvBAGR=Ptl=0--
+Jesse

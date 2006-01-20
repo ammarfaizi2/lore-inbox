@@ -1,36 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422707AbWATAun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbWATA4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422707AbWATAun (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 19:50:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422710AbWATAun
+	id S1030285AbWATA4q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 19:56:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030332AbWATA4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 19:50:43 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:19873 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1422707AbWATAum (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 19:50:42 -0500
-Date: Thu, 19 Jan 2006 16:49:57 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] shrink_list: Use of && instead || leads to unintended
- writing of pages
-In-Reply-To: <20060119164341.0fb9c7e3.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0601191648440.13602@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0601191602260.13428@schroedinger.engr.sgi.com>
- <20060119164341.0fb9c7e3.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Jan 2006 19:56:45 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:5346
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030285AbWATA4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 19:56:45 -0500
+Date: Thu, 19 Jan 2006 16:56:35 -0800 (PST)
+Message-Id: <20060119.165635.104653932.davem@davemloft.net>
+To: laforge@netfilter.org
+Cc: netfilter-devel@lists.netfilter.org, mikpe@user.it.uu.se,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x_tables: fix alignment on [at least] ppc32
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060120004512.GT4603@sunbeam.de.gnumonks.org>
+References: <17358.19458.555996.684819@alkaid.it.uu.se>
+	<20060118150158.GL4603@sunbeam.de.gnumonks.org>
+	<20060120004512.GT4603@sunbeam.de.gnumonks.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Jan 2006, Andrew Morton wrote:
+From: Harald Welte <laforge@netfilter.org>
+Date: Fri, 20 Jan 2006 01:45:12 +0100
 
-> The effects of this fix will be a) slightly improved memory allocator
-> latency, b) somehat improved disk writeout patterns and c) somewhat
-> increased risk of ooms.
+> [NETFILTER] x_tables: Fix XT_ALIGN() macro on [at least] ppc32
+> 
+> To keep backwards compatibility with old iptables userspace programs,
+> the new XT_ALIGN macro always has to return the same value as IPT_ALIGN,
+> IP6T_ALIGN or ARPT_ALIGN in previous kernels.
+> 
+> However, in those kernels the macro was defined in dependency to the
+> respective layer3 specifi data structures, which we can no longer do with
+> x_tables.
+> 
+> The fix is an ugly kludge, but it has been tested to solve the problem. Yet
+> another reason to move away from the current {ip,ip6,arp,eb}tables like
+> data structures.
+> 
+> Signed-off-by: Harald Welte <laforge@netfilter.org>
 
-If we do not operate in laptop mode and are not using zone_reclaim 
-(!may_writepage) which is the common case then there will be no effect at 
-all.
+Harald, I'm going to modify this to just use u_int64_t as that
+should be totally sufficient.
 
+It is the largest type, and will produce the desired results without
+the silly structure.
+
+Some malloc() implementations use "long double" to figure out the
+largest type size and alignment requirements any C type might have
+on the machine.  But there is no reason to use that here.

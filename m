@@ -1,96 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWATShp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbWATShY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751145AbWATShp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 13:37:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWATShp
+	id S1751144AbWATShY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 13:37:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWATShY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 13:37:45 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:40393 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S1751140AbWATSho convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 13:37:44 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [perfmon] Re: quick overview of the perfmon2 interface
-Date: Fri, 20 Jan 2006 10:37:42 -0800
-Message-ID: <3C87FFF91369A242B9C9147F8BD0908A02C6955C@cacexc04.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [perfmon] Re: quick overview of the perfmon2 interface
-thread-index: AcYd23vlDpF1+LsPTEiURN5p7jXBcwADERYQ
-From: "Truong, Dan" <dan.truong@hp.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: "Eranian, Stephane" <stephane.eranian@hp.com>, <perfmon@napali.hpl.hp.com>,
-       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <perfctr-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 20 Jan 2006 18:37:43.0406 (UTC) FILETIME=[99AA28E0:01C61DF0]
+	Fri, 20 Jan 2006 13:37:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:53992 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751100AbWATShX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 13:37:23 -0500
+Date: Fri, 20 Jan 2006 19:36:21 +0100
+From: Heinz Mauelshagen <mauelshagen@redhat.com>
+To: Neil Brown <neilb@suse.de>
+Cc: Phillip Susi <psusi@cfl.rr.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       "Lincoln Dale (ltd)" <ltd@cisco.com>, Michael Tokarev <mjt@tls.msk.ru>,
+       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+Subject: Re: [PATCH 000 of 5] md: Introduction
+Message-ID: <20060120183621.GA2799@redhat.com>
+Reply-To: mauelshagen@redhat.com
+References: <26A66BC731DAB741837AF6B2E29C1017D47EA0@xmb-hkg-413.apac.cisco.com> <Pine.LNX.4.61.0601181427090.19392@yvahk01.tjqt.qr> <17358.52476.290687.858954@cse.unsw.edu.au> <43D00FFA.1040401@cfl.rr.com> <17360.5011.975665.371008@cse.unsw.edu.au> <43D02033.4070008@cfl.rr.com> <17360.9233.215291.380922@cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17360.9233.215291.380922@cse.unsw.edu.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Would you want Stephane to guard the extended
-functionalities with tunables or something to
-Disable their regular use and herd enterprise
-Tools into a standard mold... yet allow R&D to
-Move on by enabling the extentions?
-
-
-
-Just crippling flexibility/cutting functionality
-is like removing words out of a dictionary to
-prevent people from thinking different.
-
-It would restrict the R&D mindset, and new ideas.
-The field hasn't grown yet to a stable mature form.
-It is just beginning: profiling, monitoring, tuning,
-compilers, JIT...
-
-Flexibility is/was needed because:
-- Tools need to port to Perfmon with min cost.
-- Ability to support novel R&D ideas.
-- Ability to support growth beyond just PMU data
-- Allows early data aggregation
-- Allow OS data correlated to PMU
-
-What standardization adds:
-- Coordinated access to PMU rssources from all tools
-- All tools/formats etc all plug into the same OS framework.
-- The interface gets ported across multiple platforms.
-- The functionality is rich for all (fast data transfers,
-  multiplexing, system vs thead, etc.)
-
-Dan-
-
-> -----Original Message-----
-> From: perfmon-bounces@napali.hpl.hp.com [mailto:perfmon-
-> bounces@napali.hpl.hp.com] On Behalf Of Andrew Morton
-> Sent: Thursday, December 22, 2005 5:47 AM
-> To: Truong, Dan
-> Cc: Eranian, Stephane; perfmon@napali.hpl.hp.com; linux-
-> ia64@vger.kernel.org; linux-kernel@vger.kernel.org; perfctr-
-> devel@lists.sourceforge.net
-> Subject: Re: [perfmon] Re: quick overview of the perfmon2 interface
+On Fri, Jan 20, 2006 at 10:43:13AM +1100, Neil Brown wrote:
+> On Thursday January 19, psusi@cfl.rr.com wrote:
+> > Neil Brown wrote:
+> > > 
+> > > The in-kernel autodetection in md is purely legacy support as far as I
+> > > am concerned.  md does volume detection in user space via 'mdadm'.
+> > > 
+> > > What other "things like" were you thinking of.
+> > > 
+> > 
+> > Oh, I suppose that's true.  Well, another thing is your new mods to 
+> > support on the fly reshaping, which dm could do from user space.  Then 
+> > of course, there's multipath and snapshots and other lvm things which 
+> > you need dm for, so why use both when one will do?  That's my take on it.
 > 
-> "Truong, Dan" <dan.truong@hp.com> wrote:
-> >
-> > The PMU is becoming a standard commodity. Once Perfmon is
-> > "the" Linux interface, all the tools can align on it and
-> > coexist, push their R&D forward, and more importantly become
-> > fully productized for businesses usage.
-> >
+> Maybe the problem here is thinking of md and dm as different things.
+> Try just not thinking of them at all.  
+> Think about it like this:
+>   The linux kernel support lvm
+>   The linux kernel support multipath
+>   The linux kernel support snapshots
+>   The linux kernel support raid0
+>   The linux kernel support raid1
+>   The linux kernel support raid5
 > 
-> The apparently-extreme flexibility of the perfmon interfaces would
-tend to
-> militate against that, actually.  It'd become better productised if it
-had
-> one interface and stuck to it.
+> Use the bits that you want, and not the bits that you don't.
 > 
-> (I haven't processed Stephane's reply yet - will get there)
+> dm and md are just two different interface styles to various bits of
+> this.  Neither is clearly better than the other, partly because
+> different people have different tastes.
 > 
-> _______________________________________________
-> perfmon mailing list
-> perfmon@linux.hpl.hp.com
-> http://www.hpl.hp.com/hosted/linux/mail-archives/perfmon/
+> Maybe what you really want is for all of these functions to be managed
+> under the one umbrella application.  I think that is was EVMS tried to
+> do. 
+> 
+> One big selling point that 'dm' has is 'dmraid' - a tool that allows
+> you to use a lot of 'fakeraid' cards.  People would like dmraid to
+> work with raid5 as well, and that is a good goal.
+> However it doesn't mean that dm needs to get it's own raid5
+> implementation or that md/raid5 needs to be merged with dm.
+
+That's a valid point to make but it can ;)
+
+> It can be achieved by giving md/raid5 the right interfaces so that
+> metadata can be managed from userspace (and I am nearly there).
+
+Yeah, and I'm nearly there to have a RAID4 and RAID5 target for dm
+(which took advantage of the raid address calculation and the bio to
+stripe cache copy code of md raid5).
+
+See http://people.redhat.com/heinzm/sw/dm/dm-raid45/dm-raid45_2.6.15_200601201914.patch.bz2 (no Makefile / no Kconfig changes) for early code reference.
+
+> Then 'dmraid' (or a similar tool) can use 'dm' interfaces for some
+> raid levels and 'md' interfaces for others.
+
+Yes, that's possible but there's recommendations to have a native target
+for dm to do RAID5, so I started to implement it.
+
+> 
+> NeilBrown
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+-- 
+
+Regards,
+Heinz    -- The LVM Guy --
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+Heinz Mauelshagen                                 Red Hat GmbH
+Consulting Development Engineer                   Am Sonnenhang 11
+Cluster and Storage Development                   56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@RedHat.com                            +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

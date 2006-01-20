@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422696AbWATAUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161401AbWATAZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422696AbWATAUE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 19:20:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161428AbWATAUE
+	id S1161401AbWATAZi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 19:25:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161422AbWATAZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 19:20:04 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:46856 "HELO
+	Thu, 19 Jan 2006 19:25:38 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:50696 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1161422AbWATAUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 19:20:03 -0500
-Date: Fri, 20 Jan 2006 01:20:02 +0100
+	id S1161401AbWATAZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 19:25:37 -0500
+Date: Fri, 20 Jan 2006 01:25:37 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: pavel@suse.cz
-Cc: linux-pm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] help text: SOFTWARE_SUSPEND doesn't need ACPI
-Message-ID: <20060120002002.GH19398@stusta.de>
+To: davej@codemonkey.org.uk
+Cc: cpufreq@lists.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] X86_GX_SUSPMOD must depend on PCI
+Message-ID: <20060120002537.GI19398@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,25 +22,34 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The note that SOFTWARE_SUSPEND doesn't need APM is helpful, but nowadays 
-the information that it doesn't need ACPI, too, is even more helpful.
+This patch fixes the following compile error:
+
+...
+  CC      arch/i386/kernel/cpu/cpufreq/gx-suspmod.o
+arch/i386/kernel/cpu/cpufreq/gx-suspmod.c: In function 'gx_detect_chipset':
+arch/i386/kernel/cpu/cpufreq/gx-suspmod.c:193: error: implicit declaration of function 'pci_match_id'
+arch/i386/kernel/cpu/cpufreq/gx-suspmod.c:193: warning: comparison between pointer and integer
+make[3]: *** [arch/i386/kernel/cpu/cpufreq/gx-suspmod.o] Error 1
+
+<--  snip  -->
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.16-rc1-mm1-full/kernel/power/Kconfig.old	2006-01-20 01:14:09.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/kernel/power/Kconfig	2006-01-20 01:14:19.000000000 +0100
-@@ -39,11 +39,11 @@
- config SOFTWARE_SUSPEND
- 	bool "Software Suspend"
- 	depends on PM && SWAP && (X86 && (!SMP || SUSPEND_SMP)) || ((FRV || PPC32) && !SMP)
- 	---help---
- 	  Enable the possibility of suspending the machine.
--	  It doesn't need APM.
-+	  It doesn't need ACPI or APM.
- 	  You may suspend your machine by 'swsusp' or 'shutdown -z <time>' 
- 	  (patch for sysvinit needed). 
+---
+
+This patch was already sent on:
+- 21 Nov 2005
+
+--- linux-2.6.15-rc1-mm2-full/arch/i386/kernel/cpu/cpufreq/Kconfig.old	2005-11-21 19:59:21.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/arch/i386/kernel/cpu/cpufreq/Kconfig	2005-11-21 19:59:48.000000000 +0100
+@@ -96,6 +96,7 @@
  
- 	  It creates an image which is saved in your active swap. Upon next
- 	  boot, pass the 'resume=/dev/swappartition' argument to the kernel to
+ config X86_GX_SUSPMOD
+ 	tristate "Cyrix MediaGX/NatSemi Geode Suspend Modulation"
++	depends on PCI
+ 	help
+ 	 This add the CPUFreq driver for NatSemi Geode processors which
+ 	 support suspend modulation.
+
 

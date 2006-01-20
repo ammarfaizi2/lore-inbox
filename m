@@ -1,67 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWATQgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWATQgu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751068AbWATQgc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 11:36:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbWATQgc
+	id S1751074AbWATQgu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 11:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWATQgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 11:36:32 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:18626 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1751064AbWATQgc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 11:36:32 -0500
-Date: Fri, 20 Jan 2006 17:36:19 +0100
-From: Harald Welte <laforge@netfilter.org>
-To: Jiri Slaby <xslaby@fi.muni.cz>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "David S.Miller" <davem@davemloft.net>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Iptables error [Was: 2.6.16-rc1-mm2]
-Message-ID: <20060120163619.GK4603@sunbeam.de.gnumonks.org>
-References: <20060120031555.7b6d65b7.akpm@osdl.org> <20060120162317.5F70722B383@anxur.fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OHFW44Kv8gQ39vd8"
+	Fri, 20 Jan 2006 11:36:50 -0500
+Received: from free.wgops.com ([69.51.116.66]:63500 "EHLO shell.wgops.com")
+	by vger.kernel.org with ESMTP id S1751072AbWATQgt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 11:36:49 -0500
+Date: Fri, 20 Jan 2006 09:36:35 -0700
+From: Michael Loftis <mloftis@wgops.com>
+To: James Courtier-Dutton <James@superbug.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE?
+Message-ID: <6769FDC09295B7E6078A5089@d216-220-25-20.dynip.modwest.com>
+In-Reply-To: <43D10FF8.8090805@superbug.co.uk>
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
+ <43D10FF8.8090805@superbug.co.uk>
+X-Mailer: Mulberry/4.0.4 (Mac OS X)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060120162317.5F70722B383@anxur.fi.muni.cz>
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.0 (/)
+X-MailScanner-Information: Please contact support@wgops.com
+X-MailScanner: WGOPS clean
+X-MailScanner-From: mloftis@wgops.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---OHFW44Kv8gQ39vd8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 20, 2006 at 05:23:18PM +0100, Jiri Slaby wrote:
+--On January 20, 2006 4:29:44 PM +0000 James Courtier-Dutton 
+<James@superbug.co.uk> wrote:
 
-> Commit 4f2d7680cb1ac5c5a70f3ba2447d5aa5c0a1643a (Linus' 2.6 git tree) bre=
-aks my
-> iptables (1.3.4):
+> It is unclear what you are really ranting about here. The "stable" kernel
+> is stable or at least as stable as it is going to be. It is left to
+> distros to make it even more stable. The interface to user land has not
+> changed.
+> If all you are ranting about is the move from devfs to udevd, then all
+> the user land tools dealing with them have been updated already.
 
-You missed to indicate on which architecture?
+That's the nail on the head exactly.  Why is this being done in an even 
+numbered kernel?  This represents an API change that has knock on well 
+outside of the kernel, and should be done in development releases.  Why is 
+it LK is the only major project (that I know of) that does this?  This is 
+akin to apache changing the format of httpd.conf and saying in say 1.3.38 
+and saying 'well we made the userland tools too.'
 
---=20
-- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
+>
+> What is the real specific problem you are having?
 
---OHFW44Kv8gQ39vd8
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Well there's a whole grab bag of them that I'll be getting to over the next 
+few months, but the most immediate is the fact that I've gotten new 
+hardware from a venduh that requires me to build a new Debian installer and 
+new debian kernels.  I also have custom packages that depend on devfs being 
+there and now it's not.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+Yes I realise this change isn't out of the blue or anything, but it's in a 
+'stable' kernel.  Why bother calling 2.6 stable?  We may as well have 
+stayed at 2.5 if this sort of thing is going to continue to be pulled.
 
-iD8DBQFD0RGDXaXGVTD0i/8RAlk3AJ41NRb8q0REoA2s7FK9XBlA1fSeHwCfU6xw
-O1ZJ9ZFAfIiUoUumtkLDtLQ=
-=hd8/
------END PGP SIGNATURE-----
+>
+> James
+>
+>
 
---OHFW44Kv8gQ39vd8--
+
+
+--
+"Genius might be described as a supreme capacity for getting its possessors
+into trouble of all kinds."
+-- Samuel Butler

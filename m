@@ -1,33 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161500AbWATEh5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422698AbWATEru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161500AbWATEh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 23:37:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161501AbWATEh5
+	id S1422698AbWATEru (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 23:47:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422702AbWATEru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 23:37:57 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:47333 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161500AbWATEh4 (ORCPT
+	Thu, 19 Jan 2006 23:47:50 -0500
+Received: from ozlabs.org ([203.10.76.45]:42399 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1422698AbWATEru (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 23:37:56 -0500
-Date: Thu, 19 Jan 2006 20:37:30 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, kjhall@us.ibm.com
-Subject: Re: [PATCH] tpm_infineon: fix printk format warning
-Message-Id: <20060119203730.4934a1c8.akpm@osdl.org>
-In-Reply-To: <20060119202458.367279b8.rdunlap@xenotime.net>
-References: <20060119202458.367279b8.rdunlap@xenotime.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 19 Jan 2006 23:47:50 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17360.27469.840898.303811@cargo.ozlabs.ibm.com>
+Date: Fri, 20 Jan 2006 15:47:09 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Andi Kleen <ak@muc.de>
+Cc: Andrew Morton <akpm@osdl.org>, Jan Beulich <JBeulich@novell.com>,
+       linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>, tony.luck@intel.com
+Subject: Re: [PATCH] CONFIG_UNWIND_INFO
+In-Reply-To: <20060118151816.GA82365@muc.de>
+References: <4370AF4A.76F0.0078.0@novell.com>
+	<20060114045635.1462fb9e.akpm@osdl.org>
+	<17358.11049.367188.552649@cargo.ozlabs.ibm.com>
+	<20060118151816.GA82365@muc.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
->
-> -				"Could not set IO-ports to %04x\n",
->  +				"Could not set IO-ports to %lx\n",
->  
+Andi Kleen writes:
 
-I stuck a "0x" in there too.
+> The module loader should be discarding these sections on most architectures
+> because there is nothing that needs them and it's just a waste of memory
+> to store them.
+
+Apparently the module loader loads all sections marked SHF_ALLOC,
+reasonably enough.
+
+Why would we want the unwind tables in the .ko but not in kernel
+memory?  Isn't the point of this so that we can add an in-kernel
+unwinder?
+
+Paul.

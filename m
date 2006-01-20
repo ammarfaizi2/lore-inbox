@@ -1,270 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422703AbWATAch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161441AbWATAnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422703AbWATAch (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 19:32:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422704AbWATAch
+	id S1161441AbWATAnh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 19:43:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161422AbWATAnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 19:32:37 -0500
-Received: from uproxy.gmail.com ([66.249.92.195]:46155 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422703AbWATAcg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 19:32:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=SQ+4Z67GaBYKzm7/gyx8+kRm8FHwEyOynXq2MvVBGscXbsenNWX6hFvlTvivg17QGjb4DEsSAmptvFRPd8amdzsF5OY9pdaTBn+gVCDZQm45lSz32Hbmji3YnNEZfzWeJKG1T3VVfnwydUH3w7pbG153yHN2XnUwkHOB8BO4sOE=
-Date: Fri, 20 Jan 2006 03:50:01 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH -mm] Documentation/ioctl-mess.txt: update
-Message-ID: <20060120005001.GA10912@mipter.zuzino.mipt.ru>
+	Thu, 19 Jan 2006 19:43:37 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:53203
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1161441AbWATAng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 19:43:36 -0500
+Date: Thu, 19 Jan 2006 16:40:42 -0800 (PST)
+Message-Id: <20060119.164042.74751188.davem@davemloft.net>
+To: torvalds@osdl.org
+CC: dwmw2@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH]: Fix regression added by ppoll/pselect code.
+From: "David S. Miller" <davem@davemloft.net>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Several of tty ioctls, tun driver, udf, usbdevfs. VUIDGFORMAT,
-VUIDSFORMAT dissapeared somewhere.
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+The compat layer timeout handling changes in:
 
- Documentation/ioctl-mess.txt |  183 ++++++++++++++++++++++++++++++++++--------
- 1 files changed, 146 insertions(+), 37 deletions(-)
+9f72949f679df06021c9e43886c9191494fdb007
 
---- a/Documentation/ioctl-mess.txt
-+++ b/Documentation/ioctl-mess.txt
-@@ -4181,7 +4181,9 @@ N: TIOCSETC
- I: struct tchars
- O: -
- 
--TIOCSETD
-+N: TIOCSETD
-+I: int
-+O: -
- 
- N: TIOCSETN
- I: struct sgttyb
-@@ -4195,35 +4197,102 @@ N: TIOCSLTC
- I: struct ltchars
- O: -
- 
--TIOCSPGRP
--TIOCSPTLCK
-+N: TIOCSPGRP
-+I: pid_t
-+O: -
-+
-+N: TIOCSPTLCK
-+I: int
-+O: -
-+
- TIOCSSERIAL
- TIOCSSOFTCAR
- TIOCSTART
--TIOCSTI
-+
-+N: TIOCSTI
-+I: char
-+O: -
-+
- TIOCSTOP
--TIOCSWINSZ
-+
-+N: TIOCSWINSZ
-+I: struct winsize
-+O: -
-+
- TIOCTTYGSTRUCT
--TOSH_SMM
--TS_GET_CAL
--TS_SET_CAL
--TUBGETI
--TUBGETMOD
--TUBGETO
--TUBICMD
--TUBOCMD
-+
-+N: TOSH_SMM
-+I: SMMRegisters
-+O: SMMRegisters
-+
-+N: TS_GET_CAL
-+I: -
-+O: struct ts_calibration
-+
-+N: TS_SET_CAL
-+I: struct ts_calibration
-+O: -
-+
-+N: TUBGETI
-+I: -
-+O: char
-+
-+N: TUBGETMOD
-+I: -
-+O: struct raw3270_iocb
-+
-+N: TUBGETO
-+I: -
-+O: char
-+
-+N: TUBICMD
-+I: (int) arg
-+O: -
-+
-+N: TUBOCMD
-+I: (int) arg
-+O: -
-+
- TUBSETMOD
- TUNER_SET_TYPE_ADDR
--TUNSETDEBUG
-+
-+N: TUNSETDEBUG
-+I: (int) arg
-+O: -
-+
- TUNSETIFF
--TUNSETLINK
--TUNSETNOCSUM
--TUNSETOWNER
--TUNSETPERSIST
--UDF_GETEABLOCK
--UDF_GETEASIZE
--UDF_GETVOLIDENT
--UDF_RELOCATE_BLOCKS
-+
-+N: TUNSETLINK
-+I: (int) arg
-+O: -
-+
-+N: TUNSETNOCSUM
-+I: (unsigned long) arg
-+O: -
-+
-+N: TUNSETOWNER
-+I: (uid_t) arg
-+O: -
-+
-+N: TUNSETPERSIST
-+I: (unsigned long) arg
-+O: -
-+
-+N: UDF_GETEABLOCK
-+I: -
-+O: char [UDF_I_LENEATTR(inode)]
-+
-+N: UDF_GETEASIZE
-+I: -
-+O: int
-+
-+N: UDF_GETVOLIDENT
-+I: -
-+O: char [32]
-+
-+N: UDF_RELOCATE_BLOCKS
-+I: long
-+O: long
- 
- UI_BEGIN_FF_ERASE
- UI_BEGIN_FF_UPLOAD
-@@ -4274,29 +4343,72 @@ I: (int) arg
- O: -
- 
- UNPROTECT_ARRAY
--USBDEVFS_BULK
-+
-+N: USBDEVFS_BULK
-+I: struct usbdevfs_bulktransfer
-+O: -
-+
- USBDEVFS_BULK32
--USBDEVFS_CLAIMINTERFACE
--USBDEVFS_CLEAR_HALT
-+
-+N: USBDEVFS_CLAIMINTERFACE
-+I: unsigned int
-+O: -
-+
-+N: USBDEVFS_CLEAR_HALT
-+I: unsigned int
-+O: -
-+
- USBDEVFS_CONNECT
--USBDEVFS_CONNECTINFO
-+
-+N: USBDEVFS_CONNECTINFO
-+I: -
-+O: struct usbdevfs_connectinfo
-+
- USBDEVFS_CONTROL
- USBDEVFS_CONTROL32
--USBDEVFS_DISCARDURB
-+
-+N: USBDEVFS_DISCARDURB
-+I: -
-+O: -
-+
- USBDEVFS_DISCONNECT
--USBDEVFS_DISCSIGNAL
-+
-+N: USBDEVFS_DISCSIGNAL
-+I: struct usbdevfs_disconnectsignal
-+O: -
-+
- USBDEVFS_DISCSIGNAL32
--USBDEVFS_GETDRIVER
-+
-+N: USBDEVFS_GETDRIVER
-+I: struct usbdevfs_getdriver
-+O: struct usbdevfs_getdriver
-+
- USBDEVFS_HUB_PORTINFO
- USBDEVFS_REAPURB
- USBDEVFS_REAPURB32
- USBDEVFS_REAPURBNDELAY
- USBDEVFS_REAPURBNDELAY32
--USBDEVFS_RELEASEINTERFACE
--USBDEVFS_RESET
--USBDEVFS_RESETEP
--USBDEVFS_SETCONFIGURATION
--USBDEVFS_SETINTERFACE
-+
-+N: USBDEVFS_RELEASEINTERFACE
-+I: unsigned int
-+O: -
-+
-+N: USBDEVFS_RESET
-+I: -
-+O: -
-+
-+N: USBDEVFS_RESETEP
-+I: unsigned int
-+O: -
-+
-+N: USBDEVFS_SETCONFIGURATION
-+I: unsigned int
-+O: -
-+
-+N: USBDEVFS_SETINTERFACE
-+I: struct usbdevfs_setinterface
-+O: -
-+
- USBDEVFS_SUBMITURB
- USBDEVFS_SUBMITURB32
- USBTEST_REQUEST
-@@ -4611,9 +4723,6 @@ N: VT_WAITACTIVE
- I: (int) arg
- O: -
- 
--VUIDGFORMAT
--VUIDSFORMAT
--
- N: WDIOC_GETBOOTSTATUS
- I: -
- O: int
+are busted.  This is most easily seen with an X application
+that uses sub-second select/poll timeout such as emacs.  You
+hit a key and it takes a second or so before the app responds.
 
+The two ROUND_UP() calls upon entry are using {tv,ts}_sec where it
+should instead be using {tv_usec,ts_nsec}, which perfectly explains
+the observed incorrect behavior.
+
+Another bug shot down with git bisect.
+
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/fs/compat.c b/fs/compat.c
+index 18b21b4..ff0bafc 100644
+--- a/fs/compat.c
++++ b/fs/compat.c
+@@ -1743,7 +1743,7 @@ asmlinkage long compat_sys_select(int n,
+ 		if ((u64)tv.tv_sec >= (u64)MAX_INT64_SECONDS)
+ 			timeout = -1;	/* infinite */
+ 		else {
+-			timeout = ROUND_UP(tv.tv_sec, 1000000/HZ);
++			timeout = ROUND_UP(tv.tv_usec, 1000000/HZ);
+ 			timeout += tv.tv_sec * HZ;
+ 		}
+ 	}
+@@ -1884,7 +1884,7 @@ asmlinkage long compat_sys_ppoll(struct 
+ 		/* We assume that ts.tv_sec is always lower than
+ 		   the number of seconds that can be expressed in
+ 		   an s64. Otherwise the compiler bitches at us */
+-		timeout = ROUND_UP(ts.tv_sec, 1000000000/HZ);
++		timeout = ROUND_UP(ts.tv_nsec, 1000000000/HZ);
+ 		timeout += ts.tv_sec * HZ;
+ 	}
+ 

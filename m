@@ -1,89 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWATRww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWATRzo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751044AbWATRww (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 12:52:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbWATRww
+	id S1751121AbWATRzo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 12:55:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWATRzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 12:52:52 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:22436 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP
-	id S1751005AbWATRwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 12:52:51 -0500
-Date: Fri, 20 Jan 2006 18:53:44 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: dtor_core@ameritech.net
-Cc: Marc Koschewski <marc@osknowledge.org>, Michael Loftis <mloftis@wgops.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE?
-Message-ID: <20060120175343.GF5873@stiffy.osknowledge.org>
-References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com> <20060120155919.GA5873@stiffy.osknowledge.org> <d120d5000601200840o704af2e5h6d9087b62594bbe1@mail.gmail.com> <20060120164827.GD5873@stiffy.osknowledge.org> <d120d5000601200855y7318e708va22a21607cf9c078@mail.gmail.com> <20060120172431.GE5873@stiffy.osknowledge.org> <d120d5000601200943o200b3452yff84151b0d495774@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000601200943o200b3452yff84151b0d495774@mail.gmail.com>
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.16-rc1-marc-g18a41440-dirty
-User-Agent: Mutt/1.5.11
+	Fri, 20 Jan 2006 12:55:44 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:53381 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751121AbWATRzn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 12:55:43 -0500
+From: "Jiri Slaby" <xslaby@fi.muni.cz>
+Date: Fri, 20 Jan 2006 18:55:28 +0100
+To: "Jiri Slaby" <xslaby@fi.muni.cz>
+Cc: linux-kernel@vger.kernel.org, gareth@valinux.com
+Subject: Re: spurious 8259A interrupt: IRQ7
+In-reply-to: <20060115171134.94B7B22AEFB@anxur.fi.muni.cz>
+Message-Id: <20060120175526.8DD5A22AEAC@anxur.fi.muni.cz>
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Dmitry Torokhov <dmitry.torokhov@gmail.com> [2006-01-20 12:43:12 -0500]:
+>Hello,
+>
+>I have this problem with irq 7. There are many ERR interrupts as you can see in
+>the table below.
+>Count of errorneous is similar to count of radeon interrupts (since start of
+>system).
+>It appears in all kernels I tried (since 2.6.11.7).
+>           CPU0       
+>  0:     367164          XT-PIC  timer
+>  1:       2397          XT-PIC  i8042
+>  2:          0          XT-PIC  cascade
+>  5:       5355          XT-PIC  ATI IXP, eth0
+>  8:          1          XT-PIC  rtc
+>  9:        163          XT-PIC  acpi
+> 10:      25595          XT-PIC  ehci_hcd:usb1, ohci_hcd:usb2, ohci_hcd:usb3
+> 11:      85385          XT-PIC  radeon@pci:0000:01:05.0
+> 12:       4991          XT-PIC  i8042
+> 14:       8576          XT-PIC  ide0
+> 15:      12774          XT-PIC  ide1
+>NMI:          0 
+>LOC:     367136 
+>ERR:      82119
+>MIS:          0
+>
+>without running X, there is no ERR (and also no irq 11).
+>Card:
+>01:05.0 VGA compatible controller: ATI Technologies Inc RS300M AGP [Radeon Mobility 9100IGP] (prog-if 00 [VGA])
+>        Subsystem: ASUSTeK Computer Inc.: Unknown device 1902
+>        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+>        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>        Latency: 64 (2000ns min), Cache Line Size 10
+>        Interrupt: pin A routed to IRQ 11
+>        Region 0: Memory at e8000000 (32-bit, prefetchable) [size=64M]
+>        Region 1: I/O ports at d000 [size=256]
+>        Region 2: Memory at fda00000 (32-bit, non-prefetchable) [size=64K]
+>        Expansion ROM at fd900000 [disabled] [size=128K]
+>        Capabilities: [58] AGP version 3.0
+>                Status: RQ=256 Iso- ArqSz=0 Cal=7 SBA+ ITACoh- GART64- HTrans- 64bit+ FW+ AGP3+ Rate=x4,x8
+>                Command: RQ=32 ArqSz=0 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x8
+>        Capabilities: [50] Power Management version 2
+>                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+>                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+Me again, I found out, that if I load parport_pc (its irq handler takes
+care of irq7, i guess) earlier than X starts, there is no line spurious IRQ7.
+Does this mean badly written radeon int handler or somewhat?
 
-> On 1/20/06, Marc Koschewski <marc@osknowledge.org> wrote:
-> > * Dmitry Torokhov <dmitry.torokhov@gmail.com> [2006-01-20 11:55:38 -0500]:
-> >
-> > > On 1/20/06, Marc Koschewski <marc@osknowledge.org> wrote:
-> > > > * Dmitry Torokhov <dmitry.torokhov@gmail.com> [2006-01-20 > >
-> > > > > Marc, have you tried 2.6.16-rc1 yet? Does it also give you problems
-> > > > > with psmouse?
-> > > > >
-> > > >
-> > > > Not yet, Dmitry. I just managed to get today's -git compiled and running. I'll
-> > > > give it a try tonite.
-> > > >
-> > > > Moreover, I put a
-> > > >
-> > > >        echo -n 0 > /sys/bus/serio/devices/serio0/resync_time
-> > > >
-> > > > in my initscripts. Since then I didn't see any problem. I'll report later how it
-> > > > went with that line removed and stock 2.6.16-rc1.
-> > > >
-> > >
-> > > Ok, if psmouse gives you a fit and setting resync_time to 0 cures it,
-> > > please do the follwing:
-> > >
-> > > echo -n 5 > /sys/bus/serio/devices/serioX/resync_time
-> > > echo 1 > /sys/modules/i8042/parameters/debug
-> > > ... wait 10 seconds ...
-> > > move the mouse slightly
-> > > ... wait another 10 seconds ...
-> > > move the mouse slighty again
-> > > echo 0 > /sys/modules/i8042/parameters/debug
-> > >
-> > > and send me your dmesg (or better /var/log/messages or whatever file
-> > > you use for kernel messages).
-> > >
-> > > --
-> > > Dmitry
-> >
-> > OK, here goes:
-> >
-> 
-> Hmm, I see 2 perfectly healthy resyncs. Could you remind me what is
-> exactly wrong with the mouse on your box? Does it give you fits right
-> now (you seem to leave resync on)?
-
-Well, the pointer seems to be very happy when jumping into the (mostly) upper
-right corner. Then it seems like movement and clicks somehow get swallowed
-away or stacked and after that get issued in a) either wrong order or b) wrong.
-Moreover, even if I didn't click any button (including btn 4 + 5 for wheel
-up/down) the mouse clicks into the window what often opens context menus.
-Sometimes it then even clicks in. Once it logged me off that way from GNOME
-because selecting the entry from the menu and hit 'Log out'. Summary: unusable.
-
-Let me repeat this with a clean 2.6.16-rc1 install without any patches and
-resync_timing of 5 tonite. I'll send the whole kern.log part from gdm login (the
-agpgart lines) until the mouse jumps then. 
-
-Marc
+thanks,
+--
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+B67499670407CE62ACC8 22A032CC55C339D47A7E

@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWATRgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWATRhp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWATRgp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 12:36:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWATRgp
+	id S1751108AbWATRhp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 12:37:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbWATRhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 12:36:45 -0500
-Received: from c-67-174-241-67.hsd1.ca.comcast.net ([67.174.241.67]:9406 "EHLO
-	plato.virtuousgeek.org") by vger.kernel.org with ESMTP
-	id S1750776AbWATRgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 12:36:44 -0500
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Brent Casavant <bcasavan@sgi.com>
-Subject: Re: [PATCH] SN2 user-MMIO CPU migration
-Date: Fri, 20 Jan 2006 09:36:20 -0800
-User-Agent: KMail/1.9
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, jes@sgi.com,
-       tony.luck@intel.com
-References: <20060118163305.Y42462@chenjesu.americas.sgi.com> <200601191818.43157.jbarnes@virtuousgeek.org> <20060120003303.O81637@chenjesu.americas.sgi.com>
-In-Reply-To: <20060120003303.O81637@chenjesu.americas.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jan 2006 12:37:45 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:6193 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751108AbWATRho (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 12:37:44 -0500
+Date: Fri, 20 Jan 2006 18:39:39 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andy Chittenden <AChittenden@bluearc.com>
+Cc: Andrew Morton <akpm@osdl.org>, davej@redhat.com,
+       linux-kernel@vger.kernel.org, lwoodman@redhat.com
+Subject: Re: Out of Memory: Killed process 16498 (java).
+Message-ID: <20060120173939.GN13429@suse.de>
+References: <89E85E0168AD994693B574C80EDB9C27035561DE@uk-email.terastack.bluearc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601200936.21111.jbarnes@virtuousgeek.org>
+In-Reply-To: <89E85E0168AD994693B574C80EDB9C27035561DE@uk-email.terastack.bluearc.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, January 19, 2006 10:47 pm, Brent Casavant wrote:
-> On Thu, 19 Jan 2006, Jesse Barnes wrote:
-> > Maybe you could just turn the above into mmiowb() calls instead? 
-> > That would cover altix, origin, and ppc as well I think.  On other
-> > platforms it would be a complete no-op.
->
-> As you obviously noted, the core of the code was lifted from mmiowb().
-> But no, an mmiowb() as such isn't correct.  At the time this code is
-> executing, it's on a CPU remote from the one which issued any PIO
-> writes to the device.  So in this case we need to poll the Shub
-> register for a remote node, but mmiowb() only polls for the Shub
-> corresponding to the current CPU.
+On Fri, Jan 20 2006, Andy Chittenden wrote:
+> > Andy, can you try and boot with this applied?
+> 
+> At boot,
+> 
+> # dmesg | grep bounce:
+> bounce: queue ffff81013fa5cd18, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013fa5ca88, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013fa5c7f8, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013fa5c568, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013fa5c2d8, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013fa5c048, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013f93bd18, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013f93ba88, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013f93b7f8, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013f93b568, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013f93b2d8, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013f93b048, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013fa31d18, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013fa31a88, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013fa317f8, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013fa31568, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013fa312d8, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013fa312d8, setting pfn 1048575, max_low 1310720
+> bounce: queue ffff81013fa31048, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013fa31048, setting pfn 1048575, max_low 1310720
+> bounce: queue ffff81013f51fd18, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013f51fd18, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013f51fa88, setting pfn 1310720, max_low 1310720
+> bounce: queue ffff81013f51fa88, setting pfn 1048575, max_low 1310720
+> bounce: queue ffff81013f51f7f8, setting pfn 1310720, max_low 1310720
+> 
+> No change when I ran the test.
 
-Ah, ok.  It sounds like Ingo might have a better place to put it anyway.  
-(I was thinking this was on the switch out path on the CPU where the 
-task last ran, didn't look at it in detail.)
+Please include the full dmesg, so I can see which queue is what. Most of
+them look ok (1310720 is BLK_BOUNCE_HIGH), 1048575 is a little weird
+though. So full dmesg please!
 
-Of course, the other option is just to require tasks that do MMIO 
-accesses from userspace to be pinned to particular CPU or node. :)
+Perhaps this is a wrapping problem of some sort.
 
-Thanks,
-Jesse
+-- 
+Jens Axboe
+

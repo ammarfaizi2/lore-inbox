@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWATI0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWATI3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWATI0q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 03:26:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWATI0p
+	id S1750730AbWATI3N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 03:29:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWATI3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 03:26:45 -0500
-Received: from mailgate2.urz.uni-halle.de ([141.48.3.8]:28652 "EHLO
-	mailgate2.uni-halle.de") by vger.kernel.org with ESMTP
-	id S1750723AbWATI0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 03:26:45 -0500
-Date: Fri, 20 Jan 2006 09:25:50 +0100
-From: Clemens Ladisch <clemens@ladisch.de>
-Subject: Re: [Alsa-devel] Re: RFC: OSS driver removal,
- a slightly different approach
-In-reply-to: <m3ek34vucz.fsf@defiant.localdomain>
-X-Originating-IP: 213.238.46.206
-To: Krzysztof Halasa <khc@pm.waw.pl>, Martin Langer <martin-langer@gmx.de>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org
-Message-id: <1137745550.43d09e8ebde13@webmail.uni-halle.de>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.8
-References: <20060119174600.GT19398@stusta.de>
- <m3ek34vucz.fsf@defiant.localdomain>
-X-Scan-Signature: 6cb34d70a4ee32cac1889b569d577157
+	Fri, 20 Jan 2006 03:29:13 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:11495
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750730AbWATI3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 03:29:13 -0500
+Date: Fri, 20 Jan 2006 00:28:33 -0800 (PST)
+Message-Id: <20060120.002833.66197299.davem@davemloft.net>
+To: lkml@tlinx.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16-rc1
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <43D09C21.6030607@tlinx.org>
+References: <69304d110601171304h34c16fbfuf59df390c0fc58fd@mail.gmail.com>
+	<Pine.LNX.4.61.0601172259410.7756@yvahk01.tjqt.qr>
+	<43D09C21.6030607@tlinx.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa wrote:
+From: "L. A. Walsh" <lkml@tlinx.org>
+Date: Fri, 20 Jan 2006 00:15:29 -0800
 
-> Adrian Bunk <bunk@stusta.de> writes:
->
-> > 3. no ALSA drivers for the same hardware
-> >
-> > SOUND_ACI_MIXER
->
-> Never heard
+>     That seems a bit unproductive given the amount of patches
+> that get sent to the list. It would be easier for senders
+> and, likely, readers to sort through topics if people could
+> put patches in 1 post rather than sending 10-20 consecutive
+> "[PATCH XX/30]"...
 
-A chip used on miroPCM (ISA) cards.  An ALSA driver has been written for it,
-and it seems the ACI stuff is supported.  (This driver is not yet in the
-kernel tree.)
-
-Martin, has your miro.c a complete implementation of what is in aci.c?
-
-
-Clemens
+As postmaster, I strongly disagree.  Having to split up
+large patches is a feature.

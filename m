@@ -1,90 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWATS3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWATSgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbWATS3T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 13:29:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWATS3T
+	id S1751139AbWATSgT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 13:36:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbWATSgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 13:29:19 -0500
-Received: from tux06.ltc.ic.unicamp.br ([143.106.24.50]:2505 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1751138AbWATS3S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 13:29:18 -0500
-Date: Fri, 20 Jan 2006 18:37:21 +0000
-To: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, adilger@clusterfs.com, akpm@osdl.org
-Subject: [PATCH] ext3: Properly report backup blocks present in a group
-Message-ID: <20060120183721.GB25386@br.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-From: glommer@br.ibm.com (Glauber de Oliveira Costa)
+	Fri, 20 Jan 2006 13:36:18 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:37307 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1751139AbWATSgS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 13:36:18 -0500
+Message-ID: <43D114A8.4030900@wolfmountaingroup.com>
+Date: Fri, 20 Jan 2006 09:49:44 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: GPL V3 and Linux
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In filesystems with the meta block group flag on, ext3_bg_num_gdb()
-fails to report the correct number of blocks used to store the group
-descriptor backups in a given group. It happens because meta_bg
-follows a different logic from the original ext3 backup placement
-in groups multiples of 3, 5 and 7.
+Cudos to Stallman, The patent retaliation clause is exactly what has 
+been missing.  The inclusion of custom binaries was a little vague, but
+the net of it is that the end user can combine the separate parts, and 
+have the freedom to do so given the GPL3 terms.  Any concensus on 
+whether Linux will move to GPL3?   I support adoption and congrats to 
+Stallman -- A++++.
 
-Signed-off-by: Glauber de Oliveira Costa <glommer@br.ibm.com>
-
----
-
- fs/ext3/balloc.c |   33 +++++++++++++++++++++++++++++----
- 1 files changed, 29 insertions(+), 4 deletions(-)
-
-1164cfd9b1b413f6c4b86bac11006ba2b933ccb1
-diff --git a/fs/ext3/balloc.c b/fs/ext3/balloc.c
-index 6250fcd..8bf87b0 100644
---- a/fs/ext3/balloc.c
-+++ b/fs/ext3/balloc.c
-@@ -1499,6 +1499,25 @@ int ext3_bg_has_super(struct super_block
- 	return 1;
- }
- 
-+static unsigned long ext3_bg_num_gdb_meta(struct super_block *sb, int group)
-+{
-+	unsigned long metagroup = group / EXT3_DESC_PER_BLOCK(sb);
-+	unsigned long first = metagroup * EXT3_DESC_PER_BLOCK(sb);
-+	unsigned long last = first + EXT3_DESC_PER_BLOCK(sb) - 1;
-+
-+	if (group == first || group == first + 1 || group == last)
-+		return 1;
-+	return 0;
-+}
-+
-+static unsigned long ext3_bg_num_gdb_nometa(struct super_block *sb, int group)
-+{
-+	if (EXT3_HAS_RO_COMPAT_FEATURE(sb,EXT3_FEATURE_RO_COMPAT_SPARSE_SUPER)&&
-+	    !ext3_group_sparse(group))
-+		return 0;
-+	return EXT3_SB(sb)->s_gdb_count;
-+}
-+
- /**
-  *	ext3_bg_num_gdb - number of blocks used by the group table in group
-  *	@sb: superblock for filesystem
-@@ -1510,9 +1529,15 @@ int ext3_bg_has_super(struct super_block
-  */
- unsigned long ext3_bg_num_gdb(struct super_block *sb, int group)
- {
--	if (EXT3_HAS_RO_COMPAT_FEATURE(sb,EXT3_FEATURE_RO_COMPAT_SPARSE_SUPER)&&
--	    !ext3_group_sparse(group))
--		return 0;
--	return EXT3_SB(sb)->s_gdb_count;
-+	unsigned long first_meta_bg = 
-+		cpu_to_le32(EXT3_SB(sb)->s_es->s_first_meta_bg);
-+	unsigned long metagroup = group / EXT3_DESC_PER_BLOCK(sb);
-+
-+	if (!EXT3_HAS_INCOMPAT_FEATURE(sb,EXT3_FEATURE_INCOMPAT_META_BG)
-+			|| metagroup < first_meta_bg)
-+		return ext3_bg_num_gdb_nometa(sb,group);
-+	
-+	return ext3_bg_num_gdb_meta(sb,group);
-+
- }
- 
--- 
-1.0.4
+Jeff

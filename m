@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWATVxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWATVzB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbWATVxp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 16:53:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWATVxp
+	id S1751180AbWATVzB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 16:55:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWATVzB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 16:53:45 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:28951 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751177AbWATVxp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 16:53:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=sMe9ispLkB1/iWeKaax/ezsPn98KYYDWq8kg2ztv0eTsCKL7K/wO50ddCx+bE6022MAwvcqSGSwAKdz4aDcHzPFE5Zt84VOOaRnN9bhbWGaPWuwG34p7/qLYwqFJIAtUpQd7dUvbPn4briOUzQp5obgeAVJJWiUjb+XzpfX53Ik=
-Message-ID: <9e4733910601201353g36284133xf68c4f6eae1344b4@mail.gmail.com>
-Date: Fri, 20 Jan 2006 16:53:44 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: sendfile() with 100 simultaneous 100MB files
+	Fri, 20 Jan 2006 16:55:01 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:1458 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751180AbWATVzA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 16:55:00 -0500
+Message-Id: <200601202154.k0KLsYg04513@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Hugh Dickins'" <hugh@veritas.com>, "Dave McCracken" <dmccr@us.ibm.com>
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Linux Memory Management" <linux-mm@kvack.org>
+Subject: RE: [PATCH/RFC] Shared page tables
+Date: Fri, 20 Jan 2006 13:54:34 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcYeCBooFmU3O4rRRHqkmWAnOYk6ngAAqbOA
+In-Reply-To: <Pine.LNX.4.61.0601202020001.8821@goblin.wat.veritas.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was reading this blog post about the lighttpd web server.
-http://blog.lighttpd.net/articles/2005/11/11/optimizing-lighty-for-high-concurrent-large-file-downloads
-It describes problems they are having downloading 100 simultaneous 100MB files.
+Hugh Dickins wrote on Friday, January 20, 2006 1:24 PM
+> More comments, mostly trivial, against extracts from the patch below.
+> (Quite often I comment on one instance, but same applies in similar places.)
+> 
+> > --- 2.6.15/./include/asm-x86_64/pgtable.h	2006-01-02 21:21:10.000000000 -0600
+> > +++ 2.6.15-shpt/./include/asm-x86_64/pgtable.h	2006-01-03 10:30:01.000000000 -0600
+> > @@ -324,7 +321,8 @@ static inline int pmd_large(pmd_t pte) {
+> >  /*
+> >   * Level 4 access.
+> >   */
+> > -#define pgd_page(pgd) ((unsigned long) __va((unsigned long)pgd_val(pgd) & PTE_MASK))
+> > +#define pgd_page_kernel(pgd) ((unsigned long) __va((unsigned long)pgd_val(pgd) & PTE_MASK))
+> > +#define pgd_page(pgd)		(pfn_to_page(pgd_val(pgd) >> PAGE_SHIFT))
+> 
+> Hmm, so pgd_page changes its meaning: is that wise?  Looks like it isn't
+> used much outside of include/ so perhaps you're okay, and I can see the
+> attraction of using "_page" for something that supplies a struct page *.
+> I can also see the attraction of appending "_kernel" to the other,
+> following pte_offset_kernel, but "_kernel" isn't really appropriate.
+> Musing aloud, no particular suggestion.
 
-In this post they complain about sendfile() getting into seek storms and
-ending up in 72% IO wait. As a result they built a user space
-mechanism to work around the problems.
+I was wondering about that myself too:  in current code, pgd_page() and
+pud_page() deviate from pmd_page and pte_page in terms of symmetry.  The
+first two return virtual address of the pgd_val or pud_val, while pmd_page
+and pte_page both return point of struct page of underlying entry.  Is
+the asymmetry intentional?
 
-I tried looking at how the kernel implements sendfile(), I have
-minimal understanding of how the fs code works but it looks to me like
-sendfile() is working a page at a time. I was looking for code that
-does something like this...
 
-1) Compute an adaptive window size and read ahead the appropriate
-number of pages.  A larger window would minimize disk seeks.
+Because the way shared page table uses pgd_page and pud_page, it causes
+every arch who wants to enable the feature to redefine pgd_page and
+pud_page, not exactly nice though.
 
-2) Something along the lines of as soon as a page is sent age the page
-down in to the middle of page ages. That would allow for files that
-are repeatedly sent, but also reduce thrashing from files that are not
-sent frequently and shouldn't stay in the page cache.
+- Ken
 
-Any other ideas why sendfile() would get into a seek storm?
-
---
-Jon Smirl
-jonsmirl@gmail.com

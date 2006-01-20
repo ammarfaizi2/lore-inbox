@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWATVjw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWATVlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbWATVjw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 16:39:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWATVjw
+	id S1751169AbWATVlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 16:41:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWATVlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 16:39:52 -0500
-Received: from uproxy.gmail.com ([66.249.92.203]:62161 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751167AbWATVjv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 16:39:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=HLY81b8iVuxfxXN0CHlynmg3XJJDNw8vcaneNF8JtqnoVxBaz/+nKADSIIuNCFT+Y73UzVhd1dK4e99ctnJdoLfqraQv6EjxIYMTie0P1QQ4gNJYMTdJo+RI1puO3Dk7iNvaFPexPK+xxShWZ4Q/qJdXHq4/Dm2lxcPdo0HfsaU=
-Date: Sat, 21 Jan 2006 00:57:17 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, spyro@f2s.com
-Subject: Re: 2.6.16-rc1-mm2: arch/arm26/kernel/fiq.c still doesn't compile
-Message-ID: <20060120215717.GA13620@mipter.zuzino.mipt.ru>
-References: <20060120031555.7b6d65b7.akpm@osdl.org> <20060120212635.GC31803@stusta.de>
-Mime-Version: 1.0
+	Fri, 20 Jan 2006 16:41:16 -0500
+Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:36361 "EHLO
+	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
+	id S1751169AbWATVlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 16:41:15 -0500
+To: Michael Loftis <mloftis@wgops.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Valdis.Kletnieks@vt.edu,
+       dtor_core@ameritech.net, James Courtier-Dutton <James@superbug.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE?
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
+	<43D10FF8.8090805@superbug.co.uk>
+	<6769FDC09295B7E6078A5089@d216-220-25-20.dynip.modwest.com>
+	<d120d5000601200850w611e8af8v41a0786b7dc973d9@mail.gmail.com>
+	<30D11C032F1FC0FE9CA1CDFD@d216-220-25-20.dynip.modwest.com>
+	<200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu>
+	<E27F809F04C1C673D283E84F@d216-220-25-20.dynip.modwest.com>
+	<20060120200051.GA12610@flint.arm.linux.org.uk>
+	<5793EB6F192350088E0AC4CE@d216-220-25-20.dynip.modwest.com>
+From: Doug McNaught <doug@mcnaught.org>
+Date: Fri, 20 Jan 2006 16:40:50 -0500
+In-Reply-To: <5793EB6F192350088E0AC4CE@d216-220-25-20.dynip.modwest.com> (Michael
+ Loftis's message of "Fri, 20 Jan 2006 14:21:06 -0700")
+Message-ID: <87slrio9wd.fsf@asmodeus.mcnaught.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060120212635.GC31803@stusta.de>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 20, 2006 at 10:26:35PM +0100, Adrian Bunk wrote:
-> On Fri, Jan 20, 2006 at 03:15:55AM -0800, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.16-rc1-mm1:
-> >...
-> > +arm26-fixup-asm-statement-in-kernel-fiqc.patch
-> >...
-> >  arm25 fixes
-> >...
->
-> This doesn't seem to be enough to fix the arm27 compilation [1]:
+Michael Loftis <mloftis@wgops.com> writes:
 
->   CC      arch/arm26/kernel/fiq.o
-> /usr/src/ctest/mm/kernel/arch/arm26/kernel/fiq.c:1: note: future releases of GCC will not support -mapcs-26
-> /usr/src/ctest/mm/kernel/arch/arm26/kernel/fiq.c: In function `set_fiq_regs':
-> /usr/src/ctest/mm/kernel/arch/arm26/kernel/fiq.c:122: error: fp cannot be used in asm here
-> make[2]: *** [arch/arm26/kernel/fiq.o] Error 1
+> I think the four digit bugfix only stuff is an excellent step, and
+> necessary.  But the thing that I need more is stable APIs (both
+> userland and kernel, and at the kernel<->userland interface) *with*
+> bugfixes and (hopefully with) trivial hardware support update
+> backports, like the replacement e1000 driver.  And I guess I shouldn't
+> say 'I' need, but colleagues need.  And it's not just one company or
+> one project or one client/customer.  And not all the issues are the
+> same, but they come back to needing somewhere that's kept 'dusted off'
+> but not rearranged (too?) regularly.
 
-HOSTCC=gcc-3.4
+The point is that this is hard work, and not very interesting.
+Commercial distro vendors pay people to do it.  If you want a similar
+community effort, but you're not prepared to invest time, money, or
+leadership, well, too bad.
 
-Downgrading to 3.3.* helped me.
+And your desire for such a project to be "blessed" makes no sense.
+Create your fork, maintain it, and see who else wants to use it.  If
+it gets enough users and stays useful, I'm sure that it can be hosted
+on kernel.org -- that's really the only kind of "blessing" that there
+is.
 
+Remember that the people who maintained 2.2 and 2.4 as "stable"
+kernels volunteered to do it and put a *lot* of time into it.  It
+didn't just magically happen.
+
+-Doug

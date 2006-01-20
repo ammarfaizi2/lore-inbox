@@ -1,66 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbWATOtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751030AbWATOyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751042AbWATOtO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 09:49:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbWATOtO
+	id S1751030AbWATOyq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 09:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWATOyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 09:49:14 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:47613 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S1751035AbWATOtN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 09:49:13 -0500
-In-Reply-To: <43D0E95D.60802@emc.com>
-References: <20060119180947.GA25001@kroah.com>	 <Pine.LNX.4.61.0601192014010.30994@scrub.home>	 <20060119220431.GA4739@kroah.com>	 <1137708896.8471.71.camel@localhost.localdomain>	 <20060119223251.GB27106@kroah.com>  <43D0D5AC.2010604@emc.com> <1137760499.24161.0.camel@localhost.localdomain> <43D0E95D.60802@emc.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <9135D57E-3511-4A81-B54D-253F34F06C52@kernel.crashing.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
-       Roman Zippel <zippel@linux-m68k.org>, linux-m68k@vger.kernel.org,
-       geert@linux-m68k.org, torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: License oddity in some m68k files
-Date: Fri, 20 Jan 2006 08:49:10 -0600
-To: Ric Wheeler <ric@emc.com>
-X-Mailer: Apple Mail (2.746.2)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 20 Jan 2006 09:54:46 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:4760 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1751028AbWATOyq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 09:54:46 -0500
+Date: Fri, 20 Jan 2006 14:53:36 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: Joel Schopp <jschopp@austin.ibm.com>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lhms-devel@lists.sourceforge.net
+Subject: Re: [Lhms-devel] Re: [PATCH 0/5] Reducing fragmentation using zones
+In-Reply-To: <43D0BE27.5000807@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.58.0601201204100.14292@skynet>
+References: <20060119190846.16909.14133.sendpatchset@skynet.csn.ul.ie>
+ <43CFE77B.3090708@austin.ibm.com> <43D02B3E.5030603@jp.fujitsu.com>
+ <Pine.LNX.4.58.0601200102040.15823@skynet> <43D03C24.5080409@jp.fujitsu.com>
+ <Pine.LNX.4.58.0601200934300.10920@skynet> <43D0BE27.5000807@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 20 Jan 2006, KAMEZAWA Hiroyuki wrote:
 
-On Jan 20, 2006, at 7:45 AM, Ric Wheeler wrote:
-
-> Alan Cox wrote:
+> Mel Gorman wrote:>
+> > What sort of tests would you suggest? The tests I have been running to date
+> > are
+> >
+> > "kbuild + aim9" for regression testing
+> >
+> > "updatedb + 7 -j1 kernel compiles + highorder allocation" for seeing how
+> > easy it was to reclaim contiguous blocks
+> >
+> > What tests could be run that would be representative of real-world
+> > workloads?
+> >
 >
->> On Gwe, 2006-01-20 at 07:21 -0500, Ric Wheeler wrote:
->>
->>> The language in the source files is pretty strong and this looks  
->>> like
->>> Motorola should be asked to rerelease the files with a normal
->>> copyright notice in place of the current language...
->>>
->>
->> Its standard boilerplate from the period. Its a perfectly normal and
->> clear copyright notice.
->>
->> Alan
->>
-> Actually, that is the exact language our lawyers still give us to  
-> use today when we have not settled on license terms when we want to  
-> share code in a severely limited fashion.
+
+Before I get writing, I want to be clear on what tests are considered
+useful.
+
+> 1. Using 1000+ processes(threads) at once
+
+Would tiobench --threads be suitable or would the IO skew what you are
+looking for? If the IO is a problem, what would you recommend instead?
+
+> 2. heavy network load.
+
+Would iperf be suitable?
+
+> 3. running NFS
+
+Is running a kernel build over NFS reasonable? Should it be a remote NFS
+server or could I setup a NFS share and mount it locally? If a kernel
+build is not suitable, would tiobench over NFS be a better plan?
+
+> is maybe good.
 >
-> I still think it best that they (Freescale) modify their language  
-> to reference the actual license grant in the README.
+> > > > > And, for people who want to remove range of memory, list-based
+> > > > > approach
+> > > > > will
+> > > > > need some other hook and its flexibility is of no use.
+> > > > > (If list-based approach goes, I or someone will do.)
+> > > > >
+> > > > Will do what?
+> > > >
+> > > add kernelcore= boot option and so on :)
+> > > As you say, "In an ideal world, we would have both".
+> > >
+> >
+> > List-based was frowned at for adding complexity to the main path so we may
+> > not get list-based built on top of zone based even though it is certinatly
+> > possible. One reason to do zone-based was to do a comparison between them
+> > in terms of complexity. Hopefully, Nick Piggin (as the first big objector
+> > to the list-based approach) will make some sort of comment on what he
+> > thinks of zone-based in comparison to list-based.
+> >
+> I think there is another point.
+>
+> what I concern about is Linus's word ,this:
+> > My point is that regardless of what you _want_, defragmentation is
+> > _useless_. It's useless simply because for big areas it is so expensive as
+> > to be impractical.
+>
+> You should make your own answer for this before posting.
+>
 
-Good luck finding anyone in Freescale that would have any idea about  
-this.
+If it was expensive in absolute performance, then the aim9 figures would
+have suffered badly and kbuild would also be hit. It has never been shown
+that the list-based approach incurred a serious performance loss.
+Similarly, I have not been able to find a performance loss with zone-based
+unless it kernelcore was a small number. As both approaches reduce
+fragmentation in a way without a measurable performance loss, I disagree
+that defragmentation is "useless simply because for big areas it is so
+expensive as to be impractical".
 
-- kumar
+For "big areas", the issue is how big. When list-based was last released,
+peoples view of "big" was the size of a bank of memory that was about to
+be physically removed. AFAIK, that scenario is not as important as it was
+because it comes with a host of difficult problems.
+
+The scenario people really care about (someone correct me if I'm wrong
+here) for hot-remove is giving virtual machines more or less memory as
+demand requires. In this case, the "big"  area of memory required is the
+same size as a sparsemem section - 16MiB on the ppc64 and 64MiB on the x86
+(I think). Also, for hot-remove, it does not really matter where in the
+zone the chunk is, as long as it is free. For ppc64, 16MiB of contiguous
+memory is reasonably easy to get with the list-based approach and the case
+would likely be the same for x86 if the value of MAX_ORDER was increased.
+
+Both list-based and zone-based give the large chunks that could be
+removed, but with list-based memory can be added that is usable by the
+kernel and zone-based can only give more memory for userspace processes.
+If the workload requires more kernel memory, you are out of luck.
+
+The ideal would be bits of both would be available but I find it difficult
+to believe that will ever make it it. I believe that list-based is better
+overall because it's flexible and it helps both kernel and userspace.
+However, it affects the main allocator code paths and it was greeted with
+a severe kicking. Zone-based is less invasive, more predictable, probably
+has a better chance of getting in, but it requires careful tuning and the
+kernel cannot use hot-added memory at run-time.
+
+I'd prefer the list-based approach to make it in, but zone-based is better
+than nothing.
+
+> From the old threads (very long!), I think  one of the point was :
+> To use hugepages, sysadmin can specifies what he wants at boot time.
+> This guarantees 100% allocation of needed huge pages.
+> Why memhotplug cannot specifies "how much they can remove" before booting.
+> This will guaranntee 100% memory hotremove.
+>
+
+One distinction is that memory reserved for huge pages is not the same as
+memory placed in ZONE_EASYRCLM. Critically, pages in ZONE_EASYRCLM cannot
+be used by the kernel for slabs, buffer pages etc. On the x86, this is not
+a big issue because ZONE_HIGHMEM cannot be used anyway, but on
+architectures that can use all memory (or at least large portions of it)
+they would use ZONE_NORMAL, it is a big problem.
+
+> I think hugetlb and memory hotplug cannot be good reason for defragment.
+>
+
+Right now, they are the main reasons for needing low fragmentation.
+
+> Finding the reason for defragment is good.
+> Unfortunately, I don't know the cases of memory allocation failure
+> because of fragmentation with recent kernel.
+>
+> -- Kame
+>
+>
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

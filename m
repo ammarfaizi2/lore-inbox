@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWATTNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWATTNq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751149AbWATTNq (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751153AbWATTNq (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 20 Jan 2006 14:13:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWATTNY
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWATTN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 14:13:24 -0500
-Received: from mail.kroah.org ([69.55.234.183]:37584 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932066AbWATTFG convert rfc822-to-8bit
+	Fri, 20 Jan 2006 14:13:27 -0500
+Received: from mail.kroah.org ([69.55.234.183]:33232 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751172AbWATTFC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 14:05:06 -0500
-Cc: david.keck@amd.com
-Subject: [PATCH] PCI Hotplug: shpchp: AMD POGO errata fix
-In-Reply-To: <11377838782828@kroah.com>
+	Fri, 20 Jan 2006 14:05:02 -0500
+Cc: linas@austin.ibm.com
+Subject: [PATCH] powerpc/PCI hotplug: cleanup: add prefix
+In-Reply-To: <1137783879143@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 20 Jan 2006 11:04:38 -0800
-Message-Id: <11377838781658@kroah.com>
+Date: Fri, 20 Jan 2006 11:04:39 -0800
+Message-Id: <1137783879512@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,170 +24,198 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] PCI Hotplug: shpchp: AMD POGO errata fix
+[PATCH] powerpc/PCI hotplug: cleanup: add prefix
 
-This patch fixes the AMD POGO errata on the hotplug controller where the
-platform will lock up or reboot if PERR/SERR generation is enabled and a
-slot is sent an enable command.  This fix disables PERR/SERR generation
-before a slot is sent the enable command by first saving related
-registers, turning off SERR/PERR generation, enabling the slot, then
-restoring the registers.
+Minor cleanup. Add the prefix rpaphp_* to several generic-sounding routines.
+Remove rpaphp_remove_slot(), which is a one-liner.
 
-Signed-off-by: David Keck <david.keck@amd.com>
-Cc: Kristen Accardi <kristen.c.accardi@intel.com>
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+Acked-by: John Rose <johnrose@austin.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit 74fe8a7679336ce8229401b13f7af364694818b1
-tree 7e81db557f6d91a08ef8bcea60c4910fd7de1d86
-parent 40ae159c997fbabbf864283dda902850d136d5aa
-author Keck, David <david.keck@amd.com> Mon, 16 Jan 2006 15:22:36 -0600
-committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 20 Jan 2006 10:29:34 -0800
+commit 170aa7441c7f262b09b85ab21948bd95f3d80887
+tree a66122a1f1da2f7dfb940eddc6815aea42029e2a
+parent 259d8eac4d548e0e0fdbe25227e2ead29e73feb9
+author linas@austin.ibm.com <linas@austin.ibm.com> Thu, 12 Jan 2006 18:31:01 -0600
+committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 20 Jan 2006 10:29:35 -0800
 
- drivers/pci/hotplug/shpchp.h      |   94 +++++++++++++++++++++++++++++++++++++
- drivers/pci/hotplug/shpchp_ctrl.c |   12 ++++-
- 2 files changed, 105 insertions(+), 1 deletions(-)
+ drivers/pci/hotplug/rpadlpar_core.c |    4 ++--
+ drivers/pci/hotplug/rpaphp.h        |    6 +++---
+ drivers/pci/hotplug/rpaphp_core.c   |   14 +++++---------
+ drivers/pci/hotplug/rpaphp_pci.c    |    4 ++--
+ drivers/pci/hotplug/rpaphp_slot.c   |   16 ++++++++--------
+ 5 files changed, 20 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/pci/hotplug/shpchp.h b/drivers/pci/hotplug/shpchp.h
-index ce0e9b6..7d6f521 100644
---- a/drivers/pci/hotplug/shpchp.h
-+++ b/drivers/pci/hotplug/shpchp.h
-@@ -95,6 +95,7 @@ struct controller {
- 	u8 function;
- 	u8 slot_device_offset;
- 	u8 add_support;
-+	u32 pcix_misc2_reg;	/* for amd pogo errata */
- 	enum pci_bus_speed speed;
- 	u32 first_slot;		/* First physical slot number */
- 	u8 slot_bus;		/* Bus where the slots handled by this controller sit */
-@@ -113,6 +114,26 @@ struct hotplug_params {
+diff --git a/drivers/pci/hotplug/rpadlpar_core.c b/drivers/pci/hotplug/rpadlpar_core.c
+index 15e853e..d3aa9df 100644
+--- a/drivers/pci/hotplug/rpadlpar_core.c
++++ b/drivers/pci/hotplug/rpadlpar_core.c
+@@ -227,7 +227,7 @@ static int dlpar_remove_phb(char *drc_na
+ 	slot = find_slot(dn);
+ 	if (slot) {
+ 		/* Remove hotplug slot */
+-		if (rpaphp_remove_slot(slot)) {
++		if (rpaphp_deregister_slot(slot)) {
+ 			printk(KERN_ERR
+ 				"%s: unable to remove hotplug slot %s\n",
+ 				__FUNCTION__, drc_name);
+@@ -373,7 +373,7 @@ int dlpar_remove_pci_slot(char *drc_name
+ 	slot = find_slot(dn);
+ 	if (slot) {
+ 		/* Remove hotplug slot */
+-		if (rpaphp_remove_slot(slot)) {
++		if (rpaphp_deregister_slot(slot)) {
+ 			printk(KERN_ERR
+ 				"%s: unable to remove hotplug slot %s\n",
+ 				__FUNCTION__, drc_name);
+diff --git a/drivers/pci/hotplug/rpaphp.h b/drivers/pci/hotplug/rpaphp.h
+index 095c9aa..310b618 100644
+--- a/drivers/pci/hotplug/rpaphp.h
++++ b/drivers/pci/hotplug/rpaphp.h
+@@ -89,7 +89,7 @@ extern int num_slots;
  
- /* Define AMD SHPC ID  */
- #define PCI_DEVICE_ID_AMD_GOLAM_7450	0x7450 
-+#define PCI_DEVICE_ID_AMD_POGO_7458	0x7458
-+
-+/* AMD PCIX bridge registers */
-+
-+#define PCIX_MEM_BASE_LIMIT_OFFSET	0x1C
-+#define PCIX_MISCII_OFFSET		0x48
-+#define PCIX_MISC_BRIDGE_ERRORS_OFFSET	0x80
-+
-+/* AMD PCIX_MISCII masks and offsets */
-+#define PERRNONFATALENABLE_MASK		0x00040000
-+#define PERRFATALENABLE_MASK		0x00080000
-+#define PERRFLOODENABLE_MASK		0x00100000
-+#define SERRNONFATALENABLE_MASK		0x00200000
-+#define SERRFATALENABLE_MASK		0x00400000
-+
-+/* AMD PCIX_MISC_BRIDGE_ERRORS masks and offsets */
-+#define PERR_OBSERVED_MASK		0x00000001
-+
-+/* AMD PCIX_MEM_BASE_LIMIT masks */
-+#define RSE_MASK			0x40000000
+ /* rpaphp_pci.c */
+ extern int rpaphp_enable_pci_slot(struct slot *slot);
+-extern int register_pci_slot(struct slot *slot);
++extern int rpaphp_register_pci_slot(struct slot *slot);
+ extern int rpaphp_get_pci_adapter_status(struct slot *slot, int is_init, u8 * value);
+ extern int rpaphp_get_sensor_state(struct slot *slot, int *state);
  
- #define INT_BUTTON_IGNORE		0
- #define INT_PRESENCE_ON			1
-@@ -333,6 +354,79 @@ static inline int wait_for_ctrl_irq (str
+@@ -102,8 +102,8 @@ extern int rpaphp_get_drc_props(struct d
+ /* rpaphp_slot.c */
+ extern void dealloc_slot_struct(struct slot *slot);
+ extern struct slot *alloc_slot_struct(struct device_node *dn, int drc_index, char *drc_name, int power_domain);
+-extern int register_slot(struct slot *slot);
+-extern int deregister_slot(struct slot *slot);
++extern int rpaphp_register_slot(struct slot *slot);
++extern int rpaphp_deregister_slot(struct slot *slot);
+ extern int rpaphp_get_power_status(struct slot *slot, u8 * value);
+ extern int rpaphp_set_attention_status(struct slot *slot, u8 status);
+ 	
+diff --git a/drivers/pci/hotplug/rpaphp_core.c b/drivers/pci/hotplug/rpaphp_core.c
+index 341fdd5..c0e521c 100644
+--- a/drivers/pci/hotplug/rpaphp_core.c
++++ b/drivers/pci/hotplug/rpaphp_core.c
+@@ -196,11 +196,6 @@ static int get_max_bus_speed(struct hotp
+ 	return 0;
+ }
+ 
+-int rpaphp_remove_slot(struct slot *slot)
+-{
+-	return deregister_slot(slot);
+-}
+-
+ static int get_children_props(struct device_node *dn, int **drc_indexes,
+ 		int **drc_names, int **drc_types, int **drc_power_domains)
+ {
+@@ -307,13 +302,15 @@ static int is_php_dn(struct device_node 
+ 	return 0;
+ }
+ 
+-/****************************************************************
++/**
++ * rpaphp_add_slot -- add hotplug or dlpar slot
++ *
+  *	rpaphp not only registers PCI hotplug slots(HOTPLUG), 
+  *	but also logical DR slots(EMBEDDED).
+  *	HOTPLUG slot: An adapter can be physically added/removed. 
+  *	EMBEDDED slot: An adapter can be logically removed/added
+  *		  from/to a partition with the slot.
+- ***************************************************************/
++ */
+ int rpaphp_add_slot(struct device_node *dn)
+ {
+ 	struct slot *slot;
+@@ -344,7 +341,7 @@ int rpaphp_add_slot(struct device_node *
+ 			dbg("Found drc-index:0x%x drc-name:%s drc-type:%s\n",
+ 					indexes[i + 1], name, type);
+ 
+-			retval = register_pci_slot(slot);
++			retval = rpaphp_register_pci_slot(slot);
+ 		}
+ 	}
+ exit:
+@@ -462,6 +459,5 @@ module_init(rpaphp_init);
+ module_exit(rpaphp_exit);
+ 
+ EXPORT_SYMBOL_GPL(rpaphp_add_slot);
+-EXPORT_SYMBOL_GPL(rpaphp_remove_slot);
+ EXPORT_SYMBOL_GPL(rpaphp_slot_head);
+ EXPORT_SYMBOL_GPL(rpaphp_get_drc_props);
+diff --git a/drivers/pci/hotplug/rpaphp_pci.c b/drivers/pci/hotplug/rpaphp_pci.c
+index d1297d0..6f6cbed 100644
+--- a/drivers/pci/hotplug/rpaphp_pci.c
++++ b/drivers/pci/hotplug/rpaphp_pci.c
+@@ -199,7 +199,7 @@ exit_rc:
+ 	return -EINVAL;
+ }
+ 
+-int register_pci_slot(struct slot *slot)
++int rpaphp_register_pci_slot(struct slot *slot)
+ {
+ 	int rc = -EINVAL;
+ 
+@@ -207,7 +207,7 @@ int register_pci_slot(struct slot *slot)
+ 		goto exit_rc;
+ 	if (setup_pci_slot(slot))
+ 		goto exit_rc;
+-	rc = register_slot(slot);
++	rc = rpaphp_register_slot(slot);
+ exit_rc:
+ 	return rc;
+ }
+diff --git a/drivers/pci/hotplug/rpaphp_slot.c b/drivers/pci/hotplug/rpaphp_slot.c
+index daa89ae..04cc1e7 100644
+--- a/drivers/pci/hotplug/rpaphp_slot.c
++++ b/drivers/pci/hotplug/rpaphp_slot.c
+@@ -35,16 +35,16 @@
+ 
+ static ssize_t location_read_file (struct hotplug_slot *php_slot, char *buf)
+ {
+-        char *value;
+-        int retval = -ENOENT;
++	char *value;
++	int retval = -ENOENT;
+ 	struct slot *slot = (struct slot *)php_slot->private;
+ 
+ 	if (!slot)
+ 		return retval;
+ 
+-        value = slot->location;
+-        retval = sprintf (buf, "%s\n", value);
+-        return retval;
++	value = slot->location;
++	retval = sprintf (buf, "%s\n", value);
++	return retval;
+ }
+ 
+ static struct hotplug_slot_attribute hotplug_slot_attr_location = {
+@@ -137,7 +137,7 @@ static int is_registered(struct slot *sl
+ 	return 0;
+ }
+ 
+-int deregister_slot(struct slot *slot)
++int rpaphp_deregister_slot(struct slot *slot)
+ {
+ 	int retval = 0;
+ 	struct hotplug_slot *php_slot = slot->hotplug_slot;
+@@ -160,7 +160,7 @@ int deregister_slot(struct slot *slot)
  	return retval;
  }
  
-+static inline void amd_pogo_errata_save_misc_reg(struct slot *p_slot)
-+{
-+	u32 pcix_misc2_temp;
-+
-+	/* save MiscII register */
-+	pci_read_config_dword(p_slot->ctrl->pci_dev, PCIX_MISCII_OFFSET, &pcix_misc2_temp);
-+
-+	p_slot->ctrl->pcix_misc2_reg = pcix_misc2_temp;
-+
-+	/* clear SERR/PERR enable bits */
-+	pcix_misc2_temp &= ~SERRFATALENABLE_MASK;
-+	pcix_misc2_temp &= ~SERRNONFATALENABLE_MASK;
-+	pcix_misc2_temp &= ~PERRFLOODENABLE_MASK;
-+	pcix_misc2_temp &= ~PERRFATALENABLE_MASK;
-+	pcix_misc2_temp &= ~PERRNONFATALENABLE_MASK;
-+	pci_write_config_dword(p_slot->ctrl->pci_dev, PCIX_MISCII_OFFSET, pcix_misc2_temp);
-+}
-+
-+static inline void amd_pogo_errata_restore_misc_reg(struct slot *p_slot)
-+{
-+	u32 pcix_misc2_temp;
-+	u32 pcix_bridge_errors_reg;
-+	u32 pcix_mem_base_reg;
-+	u8  perr_set;
-+	u8  rse_set;
-+
-+	/* write-one-to-clear Bridge_Errors[ PERR_OBSERVED ] */
-+	pci_read_config_dword(p_slot->ctrl->pci_dev, PCIX_MISC_BRIDGE_ERRORS_OFFSET, &pcix_bridge_errors_reg);
-+	perr_set = pcix_bridge_errors_reg & PERR_OBSERVED_MASK;
-+	if (perr_set) {
-+		dbg ("%s  W1C: Bridge_Errors[ PERR_OBSERVED = %08X]\n",__FUNCTION__ , perr_set);
-+
-+		pci_write_config_dword(p_slot->ctrl->pci_dev, PCIX_MISC_BRIDGE_ERRORS_OFFSET, perr_set);
-+	}
-+
-+	/* write-one-to-clear Memory_Base_Limit[ RSE ] */
-+	pci_read_config_dword(p_slot->ctrl->pci_dev, PCIX_MEM_BASE_LIMIT_OFFSET, &pcix_mem_base_reg);
-+	rse_set = pcix_mem_base_reg & RSE_MASK;
-+	if (rse_set) {
-+		dbg ("%s  W1C: Memory_Base_Limit[ RSE ]\n",__FUNCTION__ );
-+
-+		pci_write_config_dword(p_slot->ctrl->pci_dev, PCIX_MEM_BASE_LIMIT_OFFSET, rse_set);
-+	}
-+	/* restore MiscII register */
-+	pci_read_config_dword( p_slot->ctrl->pci_dev, PCIX_MISCII_OFFSET, &pcix_misc2_temp );
-+
-+	if (p_slot->ctrl->pcix_misc2_reg & SERRFATALENABLE_MASK)
-+		pcix_misc2_temp |= SERRFATALENABLE_MASK;
-+	else
-+		pcix_misc2_temp &= ~SERRFATALENABLE_MASK;
-+
-+	if (p_slot->ctrl->pcix_misc2_reg & SERRNONFATALENABLE_MASK)
-+		pcix_misc2_temp |= SERRNONFATALENABLE_MASK;
-+	else
-+		pcix_misc2_temp &= ~SERRNONFATALENABLE_MASK;
-+
-+	if (p_slot->ctrl->pcix_misc2_reg & PERRFLOODENABLE_MASK)
-+		pcix_misc2_temp |= PERRFLOODENABLE_MASK;
-+	else
-+		pcix_misc2_temp &= ~PERRFLOODENABLE_MASK;
-+
-+	if (p_slot->ctrl->pcix_misc2_reg & PERRFATALENABLE_MASK)
-+		pcix_misc2_temp |= PERRFATALENABLE_MASK;
-+	else
-+		pcix_misc2_temp &= ~PERRFATALENABLE_MASK;
-+
-+	if (p_slot->ctrl->pcix_misc2_reg & PERRNONFATALENABLE_MASK)
-+		pcix_misc2_temp |= PERRNONFATALENABLE_MASK;
-+	else
-+		pcix_misc2_temp &= ~PERRNONFATALENABLE_MASK;
-+	pci_write_config_dword(p_slot->ctrl->pci_dev, PCIX_MISCII_OFFSET, pcix_misc2_temp);
-+}
-+
- #define SLOT_NAME_SIZE 10
+-int register_slot(struct slot *slot)
++int rpaphp_register_slot(struct slot *slot)
+ {
+ 	int retval;
  
- static inline void make_slot_name(char *buffer, int buffer_size, struct slot *slot)
-diff --git a/drivers/pci/hotplug/shpchp_ctrl.c b/drivers/pci/hotplug/shpchp_ctrl.c
-index 25ccb0e..643252d 100644
---- a/drivers/pci/hotplug/shpchp_ctrl.c
-+++ b/drivers/pci/hotplug/shpchp_ctrl.c
-@@ -894,7 +894,17 @@ int shpchp_enable_slot (struct slot *p_s
- 	dbg("%s: p_slot->pwr_save %x\n", __FUNCTION__, p_slot->pwr_save);
- 	p_slot->hpc_ops->get_latch_status(p_slot, &getstatus);
- 
--	rc = board_added(p_slot);
-+	if(((p_slot->ctrl->pci_dev->vendor == PCI_VENDOR_ID_AMD) ||
-+	    (p_slot->ctrl->pci_dev->device == PCI_DEVICE_ID_AMD_POGO_7458))
-+	     && p_slot->ctrl->num_slots == 1) {
-+		/* handle amd pogo errata; this must be done before enable  */
-+		amd_pogo_errata_save_misc_reg(p_slot);
-+		rc = board_added(p_slot);
-+		/* handle amd pogo errata; this must be done after enable  */
-+		amd_pogo_errata_restore_misc_reg(p_slot);
-+	} else
-+		rc = board_added(p_slot);
-+
- 	if (rc) {
- 		p_slot->hpc_ops->get_adapter_status(p_slot,
- 				&(p_slot->presence_save));
+@@ -169,7 +169,7 @@ int register_slot(struct slot *slot)
+ 		slot->power_domain, slot->type);
+ 	/* should not try to register the same slot twice */
+ 	if (is_registered(slot)) { /* should't be here */
+-		err("register_slot: slot[%s] is already registered\n", slot->name);
++		err("rpaphp_register_slot: slot[%s] is already registered\n", slot->name);
+ 		rpaphp_release_slot(slot->hotplug_slot);
+ 		return -EAGAIN;
+ 	}	
 

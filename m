@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWATXTP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932132AbWATXWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751189AbWATXTP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 18:19:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWATXTO
+	id S932132AbWATXWF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 18:22:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWATXWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 18:19:14 -0500
-Received: from gate.crashing.org ([63.228.1.57]:7814 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751189AbWATXTO (ORCPT
+	Fri, 20 Jan 2006 18:22:04 -0500
+Received: from ns.firmix.at ([62.141.48.66]:57836 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S932132AbWATXWC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 18:19:14 -0500
-Subject: Re: [Alsa-devel] RFC: OSS driver removal, a slightly different
-	approach
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Olaf Hering <olh@suse.de>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org, linuxppc-dev@ozlabs.org,
-       Ben Collins <ben.collins@ubuntu.com>
-In-Reply-To: <20060120212917.GA14405@suse.de>
-References: <20060119174600.GT19398@stusta.de>
-	 <20060120115443.GA16582@palantir8> <20060120190415.GM19398@stusta.de>
-	 <20060120212917.GA14405@suse.de>
+	Fri, 20 Jan 2006 18:22:02 -0500
+Subject: Re: Development tree, PLEASE?
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Michael Loftis <mloftis@wgops.com>
+Cc: Valdis.Kletnieks@vt.edu, dtor_core@ameritech.net,
+       James Courtier-Dutton <James@superbug.co.uk>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <FA3D104304F2211988DC6E90@d216-220-25-20.dynip.modwest.com>
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
+	 <43D10FF8.8090805@superbug.co.uk>
+	 <6769FDC09295B7E6078A5089@d216-220-25-20.dynip.modwest.com>
+	 <d120d5000601200850w611e8af8v41a0786b7dc973d9@mail.gmail.com>
+	 <30D11C032F1FC0FE9CA1CDFD@d216-220-25-20.dynip.modwest.com>
+	 <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu>
+	 <FA3D104304F2211988DC6E90@d216-220-25-20.dynip.modwest.com>
 Content-Type: text/plain
-Date: Sat, 21 Jan 2006 10:16:40 +1100
-Message-Id: <1137799001.12998.59.camel@localhost.localdomain>
+Organization: http://www.firmix.at/
+Date: Sat, 21 Jan 2006 00:20:51 +0100
+Message-Id: <1137799251.3296.9.camel@gimli.at.home>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-20 at 22:29 +0100, Olaf Hering wrote:
->  On Fri, Jan 20, Adrian Bunk wrote:
+On Fri, 2006-01-20 at 12:10 -0700, Michael Loftis wrote:
+> --On January 20, 2006 2:03:52 PM -0500 Valdis.Kletnieks@vt.edu wrote:
+> > But you're perfectly happy to make the kernel developers do the
+> > equivalent thing when they have to maintain 2 forks (a stable and devel).
+> > Go back and look at the status of the 2.5 tree - there were *large*
+> > chunks of time when 2.4 or 2.5 would get an important bugfix, but the
+> > other tree wouldn't get it for *weeks* because of the hassle of
+> > cross-porting the patch.
 > 
->  
-> > Can someone from the ppc developers drop me a small note whether 
-> > SND_POWERMAC completely replaces DMASOUND_PMAC?
-> 
-> It doesnt. Some tumbler models work only after one plug/unplug cycle of
-> the headphone. early powerbooks report/handle the mute settings
-> incorrectly. there are likely more bugs.
+> Weeks is better than never, and still better than commercial vendors. ;)
 
-Interesting... Ben Collins hacked something to have Toonie work as a
-"default" driver for non supported machine and saw that problem too, I
-think he fixes it, I'll check with him what's up there and if his fix
-applied to tumbler.c as well.
+Especially if someone else is doing the work (- to get back to the
+point).
 
-Ben.
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+
 
 

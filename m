@@ -1,112 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWATVsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWATVsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbWATVsL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 16:48:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbWATVsL
+	id S1751172AbWATVsb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 16:48:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWATVsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 16:48:11 -0500
-Received: from mail.host.bg ([85.196.174.5]:8160 "EHLO mail.host.bg")
-	by vger.kernel.org with ESMTP id S1751171AbWATVsJ (ORCPT
+	Fri, 20 Jan 2006 16:48:31 -0500
+Received: from free.wgops.com ([69.51.116.66]:46095 "EHLO shell.wgops.com")
+	by vger.kernel.org with ESMTP id S1751172AbWATVsa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 16:48:09 -0500
-Subject: Re: OOM Killer killing whole system
-From: Anton Titov <a.titov@host.bg>
-To: Chase Venters <chase.venters@clientec.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0601201401500.14198@turbotaz.ourhouse>
-References: <1137337516.11767.50.camel@localhost>
-	 <20060120041114.7f06ecd8.akpm@osdl.org>
-	 <Pine.LNX.4.64.0601201401500.14198@turbotaz.ourhouse>
-Content-Type: multipart/mixed; boundary="=-Ro/H1xwdEd8haIebtIfK"
-Organization: Host.bg
-Date: Fri, 20 Jan 2006 23:48:05 +0200
-Message-Id: <1137793685.11771.58.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Fri, 20 Jan 2006 16:48:30 -0500
+Date: Fri, 20 Jan 2006 14:48:22 -0700
+From: Michael Loftis <mloftis@wgops.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: dtor_core@ameritech.net, James Courtier-Dutton <James@superbug.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE?
+Message-ID: <0FA349BF620394796EB40A3A@d216-220-25-20.dynip.modwest.com>
+In-Reply-To: <9a8748490601201220h2d85fa4au780715ff287cf1eb@mail.gmail.com>
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>	
+ <43D10FF8.8090805@superbug.co.uk>	
+ <6769FDC09295B7E6078A5089@d216-220-25-20.dynip.modwest.com>	
+ <d120d5000601200850w611e8af8v41a0786b7dc973d9@mail.gmail.com>	
+ <30D11C032F1FC0FE9CA1CDFD@d216-220-25-20.dynip.modwest.com>
+ <9a8748490601201220h2d85fa4au780715ff287cf1eb@mail.gmail.com>
+X-Mailer: Mulberry/4.0.4 (Mac OS X)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-MailScanner-Information: Please contact support@wgops.com
+X-MailScanner: WGOPS clean
+X-MailScanner-From: mloftis@wgops.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-Ro/H1xwdEd8haIebtIfK
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 
-On Fri, 2006-01-20 at 14:04 -0600, Chase Venters wrote:
-> On Fri, 20 Jan 2006, Andrew Morton wrote:
-> >> Jan 15 06:05:09 vip 216477 pages slab
-> >
-> > It's all in slab.  800MB.
-> >
-> > I'd be suspecting a slab memory leak.  If it happens again, please take a
-> > copy of /proc/slabinfo, send it.
-> >
-> 
-> Andrew & Anton,
->  The culprit was 1.5 million SCSI commands in the scsi command cache. 
-> 
-> Thanks,
-> Chase
+--On January 20, 2006 9:20:19 PM +0100 Jesper Juhl <jesper.juhl@gmail.com> 
+wrote:
 
-I currently have this:
-scsi_cmd_cache    1458778 1458790    384   10    1 : tunables   54 27
-8 : slabdata 145879 145879      0
+> On 1/20/06, Michael Loftis <mloftis@wgops.com> wrote:
+>>
+> [snip]
+>> I'm trying to think of a way to relate this better but I just can't.
+>> What's needed is a 'target' for incremental updates, things like minor
+>> changes, bugfixes, etc.  I feel like supporting entirely new hardware
+>
+> That's called a vendor kernel.
+> You pay the vendor money, the vendor maintains a stable (as in feature
+> frozen) kernel, backports bugfixes for you etc.
+> Take a look at the RedHat and SuSE enterprise kernels, they seem to be
+> what you want.
 
-in /proc/slabinfo, which is pretty close to 1.5 million. The system is
-working fine but it should be not very loaded anyway, so a mem leakage
-will not show up early. Just checked, that scsi_cmd_cache on other
-machines of mine is under 100, so it seems like a problem.
+RedHat's kernel is, I'm sorry, a car wreck of too many patches.  We tried 
+that in the hosting environment, had many many gremlins as a result.  Most 
+of which are still unresolved.  I've got httpd's and mysqld's that the 
+root/listener process uses up almost all of the CPU.  And they're not doing 
+anything.
 
-Unfortunately, while being a programmer, I'm totally unaware
-what /proc/slabinfo means, but I'm perfectly willing to provide a shell
-(in case of Andrew or other famous developer it may be even root) on
-this machine.
+Even without that I'm all for cleaner kernels, hopefully with pretty well 
+documented reasons behind changes or clear reasons.  RH is trying to be 
+everything, which is fine for them and their intended audience.  I've never 
+really been happy with their kernels, nor with their base os.  Many are 
+though.
 
-I'm attaching the /proc/slabinfo
+Why can't a community do this though?  I guess the answer is there's no 
+reason a community cant, jsut the mainline developers are not going to, 
+because it's too much work.
 
-Thanks for help,
-Anton
+> In my book 'stable' means 'doesn't crash' and 'doesn't break userspace
+> without long advance notice', it doesn't mean 'does not evolve/goes
+> stale'.
+> And in my oppinion the current 2.6 tree succeeds in being a stable kernel.
+
+I think stable should also include bugfixes and updates without having to 
+take (potentially, if not certainly) incompatible changes along with that. 
+Which yes, is closer to many distro's models.
+
+>
+> Besides, I don't agree with your view that we break userspace all the
+> time as you seem to be saying in several of your mails, quite the
+> opposite - a lot of work goes into *not* breaking userspace.
+> Just take a look at how syscalls are maintained, even old obsolete
+> ones stay in place since removing them would break userspace. Stuff in
+> /proc does not get changed since that would potentially break
+> userspace. Look at the fact that you can still run ancient a.out
+> binaries on a recent 2.6.x kernel.
+> Even internal kernel APIs usually stay around with __deprecated or as
+> wrappers around new APIs for extensive periods of time.
+> And when stuff is removed it's announced for ages in advance. That
+> devfs would be removed was announced several *years* before it
+> actually happened. That old OSS drivers will be removed (but only for
+> hardware that has ALSA equivalents) has been announced months ago and
+> the removal won't happen for several months (at least) yet.
+>
+> I'd say the kernel tries damn hard at maintaining backwards
+> compatibility for userspace.
+> It tries less hard, but still makes a pretty good effort, for internal
+> APIs, but the real solution to the internal API churn is to get your
+> code merged as it'll then get updated automagically whenever something
+> changes - people who remove or change internals try very hard to also
+> update all (in-tree) users of the old stuff - take a look at when I
+> removed a small thing like verify_area() if you want an example.
+
+The only argument I have is one that won't fly at all here on LKML and 
+that's about all the corporate sponsors the LK has that are also doing 
+custom closed source modules that are only useful for their particular 
+hardware.  I'm working with more than one such company now, if they want to 
+step forward and name themselves they can, but I can't name them.  Without 
+these companies paying various salaries and developing using Linux and 
+pushing bugfixes back/etc on the open source portions of their products it 
+would be a different landscape.
+
+>> It's horrificly expensive to maintain large numbers of machines (even if
+>> it's automated) as it is.  If you're doing embedded development too or
+>> instead, it gets even harder when you need certain bugfixes or minor
+>> changes, but end up having to redevelop things or start maintaining your
+>> own kernel fork.
+>>
+> The solution here is to get your code merged in mainline.
+
+Most of it can't.  Or simply won't be accepted.  Noone else has use for a 
+PPC where the GPIO is driving a custom data acquisition FPGA, or things of 
+that nature.  Some of it is the same old problem of proprietary firmware 
+and IP.  Some of it isn't.  Most of it is just simply useless to everyone 
+but the device's manufacturer, and thus wouldn't be maintained anyway, much 
+less accepted.  I guess for those cases that it *might* be accepted and can 
+be exported I'll have to decide where the tradeoff occurs between answering 
+external questions about hardware that doesn't exist outside of these 
+devices and apps.
+
+There again, this is still just one part of the problem as a whole 
+discussed in this thread.
 
 
 
---=-Ro/H1xwdEd8haIebtIfK
-Content-Disposition: attachment; filename=slab.gz
-Content-Type: application/x-gzip; name=slab.gz
-Content-Transfer-Encoding: base64
 
-H4sICFhZ0UMCA3NsYWIAtVpLk6M2EL77V1CVy+5hUkjiIba2tmore8khqa1UtpIbhUEek7GBAex9
-/PpIagGSwJOAPD5Mw4D1qaV+fN1yd8r2ZXWovQfvytqurKt3Hv4Z7X7yquzMPO3zPsv78srSev9P
-98F7X13Ow6UQ5Q8GVw0fhY/Jb5rskXXj7Tuvv1TZ/sQ67/2pPJc9f2Of9fkxry+VuOmOWcuKA0ep
-W/G6+FqR9dkILP4xIA/X8KXsmpWnD7svv//6t2d/UJRIQX0hCA3EjbxG+pw8LxRPcCyeUB0evq0L
-z9/1eZPydSvS/SV/Yr3CIkj8xT5RyOO1CYWwwI/8RSgPGcLflRXr04axNs2z/DhuCZZ/Q6mcFwXj
-tRNUkx7KfZqdyqzTV1D+RaAVweP1HaCOWXf0Xh+q6Hpz9TyM5bgkDuVdKIBRuBIKh7rgUFnbWDja
-XiEXqJlWf3z8y1v4wMp50oxDhMfrFcY+g/ry6fMCEjiRh6kLVGAI7ldf067On9I/f/msI4FlY3Bb
-iUj8tQtoQ7Xs+cK4XZh44MJ39itDm/ETxrBVsTT5cFpAbC4gliELLwcmpAsO1eVdmebnYjJDFEQ4
-CCnIeGsUhG8PQoHlh+e0rPO0qevTpBeVFoEJrHQg7mK6dgmJIQDKhNGgfDDFRHhWsNowQkNwqHYB
-CktT8AiJQCtxJ1dxsw3yjMRtsOx4YC+rumDDjvH1pbEw8AB2NfClkskq1yIkTiYh1Sqqui8P3+34
-5OtCTH5ImCvU8k2xK54vdT8PGDAV4uTFtmuxK6v6pj6d0ubrs4YFcQNeE3umru8DxZrSgrqzVk/c
-q/pvsxXU13lrHrH3SkDtvRehtmplQx2y7nuVzxKk8dpG0mRDdcczO5t+xXNUTKQAvw1kXF3pVzxo
-R5oQUE3dld/SvjxzpqvrZkxpY2iy1bqUxRK/iF8hZ3WPIgY+wN5P9AKojIzt2A/oyG7QipwFS4di
-CyoKvCUoLD0ZNitYyy+oIUYoNfYS1EBlqCuVGRYwMqFgKoETF7STo4KiFr+AjJY4+bANtT89Fewq
-sr4BRUCdYKSECMdrobAhRijO0i5sZuzYpZy7BaUooap9cAiBlkJRIgkajlZqZRA0/uZuX9ZXlj+8
-4Xv/dmIX0hCUIH6Mx9n9fy6oPHV02BHKdOEBSs4XhcBnwpW0M8S6mKBMFzagvDiiI9SKvboFZfrV
-ABW75MZZla+gzLg0QCWhS7i1SeeglVUhyKlQhF1yox6YcCChlooRCtq4JBHD2AXUoTyx9CQKLD1r
-gRMp+uwlWCZj12ghyzgz4Ys5ICBnLtECguYgBNTT/nI4pIf8VFc6mqoHnELTsNXYAjuyTEv9UQiD
-+y5pZOALsZruLsubMq0b1mZVMVp7jGC2MAhwmGTtbs2WUEI1WduxlH3rl6ngxhrL5kwT1E2CuzVj
-LUJ1fda/ALWxHrahmpbX3ba5Eyo3JoihtyUXEKGVFhgQXQgLLB/tHDxZqFq0YBrQhXS2WSG4dMtY
-KlSDhkwkbIBQH1IAlswbrWOC3IrpJCDgioQ/49JIdfSQS1NrRs++d4cuLUq9g4twIp4jQl38Sk0X
-jWnkXPULBQLGr1Cj2sYHEEABVc+CSCiE1wbcQBein8AL79bsXAQUiYkGlCjaIxcQr/MrFMtUpATU
-qOWpmSVHGktPIpFLuE2QLjiUOGDpZrulk5DAT6Kpm7GiwrKJTFm06Sn7bp0hqBqWgoFLJogT5wKB
-ZyuOI/LV6FM+4hMVItweA1Ei2+xKgLGfebBtL7nZaqKgAiEOLqxaVWhsnl3PadayzMAjiSzmwkQR
-GdmMDFbmK1j2QXC33B26BQ9GfvwKpFPQszlaAiqAJ29cQBVxMNaSSJWdLCwEC4yd6Bn2dQFQR85g
-TCykMoYsipGKT2vLHnU4QEYX7rPuaWaDCIp7JPeHR1t/9I8VLgwV9SAEt6jqKr2eM7PxQ6Q6quyR
-Y6ki3MUsmsdi4bgi8SexNTDpY6i9+sEeEOHmjd98+u3jW5sxwaMBilh7BU2aAF79z5bgBLVIzu4N
-FYW8uNaV0l6TzwYoXtbdA2rpGJC4QM1ojIAinH/RG1rJZ6NZUFetxuG8V4dCEQ8+N7SSz0ao4C5Q
-Zumt/MsFahpDg6I8WRpK6TMSD0coZ2MfRhtjIPRSgZVthDLGmKBE7Lmp1dbAtKzVMNqUROgkNkIZ
-Y0xQopl+U6utnfZlrYbRxuoAEj6JHZr6iEKCo+pMGytj93FwU6vNTf1lv1KjTaeNeBJbodRCBeZe
-cU5kKmXMaOv5waJWIbJOKqDsUMfQG6Gg2TYIHCuzCKMXtLrXceMAZR2uA0dyOhWBH/QMYjQLTF/Q
-6l4nmwOUSc6As8ehC9TsJ0aQ8C2vsma0sTy4kYVfhNr4G61lGmM6cMTToXBgpFr9m7Qi4PhK8Og2
-aGX39GPpTwl10CqIdCHO1sUh9KzAH37GdNdfM+3+BUHEiRzJKQAA
-
-
---=-Ro/H1xwdEd8haIebtIfK--
 

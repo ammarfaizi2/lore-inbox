@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbWATTYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWATT2Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750949AbWATTYh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 14:24:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWATTYh
+	id S1751163AbWATT2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 14:28:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWATT2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 14:24:37 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:19431 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750949AbWATTYg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 14:24:36 -0500
-Message-Id: <200601201924.k0KJOVwc007471@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+	Fri, 20 Jan 2006 14:28:23 -0500
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:2152 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S1751161AbWATT2X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 14:28:23 -0500
+Date: Fri, 20 Jan 2006 14:27:50 -0500
+From: Ben Collins <bcollins@ubuntu.com>
+Subject: Re: Development tree, PLEASE?
+In-reply-to: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
 To: Michael Loftis <mloftis@wgops.com>
-Cc: dtor_core@ameritech.net, James Courtier-Dutton <James@superbug.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE? 
-In-Reply-To: Your message of "Fri, 20 Jan 2006 12:21:40 MST."
-             <E27F809F04C1C673D283E84F@d216-220-25-20.dynip.modwest.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com> <43D10FF8.8090805@superbug.co.uk> <6769FDC09295B7E6078A5089@d216-220-25-20.dynip.modwest.com> <d120d5000601200850w611e8af8v41a0786b7dc973d9@mail.gmail.com> <30D11C032F1FC0FE9CA1CDFD@d216-220-25-20.dynip.modwest.com> <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu>
-            <E27F809F04C1C673D283E84F@d216-220-25-20.dynip.modwest.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1137785071_3397P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 20 Jan 2006 14:24:31 -0500
+Cc: linux-kernel@vger.kernel.org
+Message-id: <1137785271.13530.10.camel@grayson>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.5
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1137785071_3397P
-Content-Type: text/plain; charset=us-ascii
+On Fri, 2006-01-20 at 08:17 -0700, Michael Loftis wrote:
+> OK, I don't know abotu others, but I'm starting to get sick of this 
+> unstable stable kernel.  Either change the statements allover that were 
+> made that even-numbered kernels were going to be stable or open 2.7. 
+> Removing devfs has profound effects on userland.  It's one thing to screw 
+> with all of the embedded developers, nearly all kernel module developers, 
+> etc, by changing internal APIs but this is completely out of hand.
 
-On Fri, 20 Jan 2006 12:21:40 MST, Michael Loftis said:
+Me, personally, I like it. It's much easier for the distro maintainers
+in that they can get the latest and greatest stuff without waiting an
+entire year for 2.<odd>.x to turn into 2.<even>.0, and wait a little
+more until 2.<even>.0 becomes something like 2.<even>.8 for it to be
+stable (because no one was testing the millions of lines of new code
+going into the development branch).
 
-> And that seems where we're going with this conversation.  A fork/forks at 
-> various versions to maintain bugfixes and support updates that's (more?) 
-> open to submitters writing patches.  Maintained by a separate group or 
-> party, but with the 'blessing' from mainline to do so.  A place for those 
-> sorts of efforts to be focused, without necessarily involving the primary 
-> developers.
+I think the new model is also easier for new
+drivers/filesystems/whatever, since they don't have to wait for the next
+development 2.<odd> branch to get their code in, and then wait for
+2.<even>.0 to be released so normal users and distros will get their new
+feature.
 
-Congrats. You just re-invented bugzilla.redhat.com.
+It also keeps development moving along _very_ quickly, and reduces how
+stale the stable kernel tree becomes. When 2.5.0 started, developers
+stopped working on 2.4.x because it was just too damn much work to track
+two trees. So 2.4.x became stagnant, and while development was moving on
+2.5.x, no one other than hardcore developers were using it, so there was
+very little testing of a tree that was getting a years worth of code
+changes.
 
---==_Exmh_1137785071_3397P
-Content-Type: application/pgp-signature
+So put me in for +1 on the current development model. It suits me,
+Ubuntu, and the Ubuntu users very well. We are on a 6 month release
+cycle, so a new kernel every 3 months fits us perfect. Means every 6
+months we can release a 3 month old kernel. Just old enough to be
+stable, not so old it's useless.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+-- 
+Ben Collins
+Kernel Developer - Ubuntu Linux
 
-iD8DBQFD0TjvcC3lWbTT17ARAviPAKDk7kv8nwo9+F3ET8wRy/V0ScrS7QCg8ZM0
-czSfBB0GyCX5ZgxZGENHM5c=
-=EWVD
------END PGP SIGNATURE-----
-
---==_Exmh_1137785071_3397P--

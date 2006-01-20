@@ -1,62 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWATSiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWATShp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbWATSiU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 13:38:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWATSiU
+	id S1751145AbWATShp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 13:37:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWATShp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 13:38:20 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:16005 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751140AbWATSiT
+	Fri, 20 Jan 2006 13:37:45 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:40393 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S1751140AbWATSho convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 13:38:19 -0500
-Subject: Re: BUG in check_monotonic_clock()
-From: john stultz <johnstul@us.ibm.com>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, tglx@linutronix.de
-In-Reply-To: <1137779515.3202.3.camel@localhost.localdomain>
-References: <1137779515.3202.3.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 20 Jan 2006 10:38:16 -0800
-Message-Id: <1137782296.27699.253.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jan 2006 13:37:44 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [perfmon] Re: quick overview of the perfmon2 interface
+Date: Fri, 20 Jan 2006 10:37:42 -0800
+Message-ID: <3C87FFF91369A242B9C9147F8BD0908A02C6955C@cacexc04.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [perfmon] Re: quick overview of the perfmon2 interface
+thread-index: AcYd23vlDpF1+LsPTEiURN5p7jXBcwADERYQ
+From: "Truong, Dan" <dan.truong@hp.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: "Eranian, Stephane" <stephane.eranian@hp.com>, <perfmon@napali.hpl.hp.com>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <perfctr-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 20 Jan 2006 18:37:43.0406 (UTC) FILETIME=[99AA28E0:01C61DF0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-20 at 09:51 -0800, Daniel Walker wrote:
+Would you want Stephane to guard the extended
+functionalities with tunables or something to
+Disable their regular use and herd enterprise
+Tools into a standard mold... yet allow R&D to
+Move on by enabling the extentions?
+
+
+
+Just crippling flexibility/cutting functionality
+is like removing words out of a dictionary to
+prevent people from thinking different.
+
+It would restrict the R&D mindset, and new ideas.
+The field hasn't grown yet to a stable mature form.
+It is just beginning: profiling, monitoring, tuning,
+compilers, JIT...
+
+Flexibility is/was needed because:
+- Tools need to port to Perfmon with min cost.
+- Ability to support novel R&D ideas.
+- Ability to support growth beyond just PMU data
+- Allows early data aggregation
+- Allow OS data correlated to PMU
+
+What standardization adds:
+- Coordinated access to PMU rssources from all tools
+- All tools/formats etc all plug into the same OS framework.
+- The interface gets ported across multiple platforms.
+- The functionality is rich for all (fast data transfers,
+  multiplexing, system vs thead, etc.)
+
+Dan-
+
+> -----Original Message-----
+> From: perfmon-bounces@napali.hpl.hp.com [mailto:perfmon-
+> bounces@napali.hpl.hp.com] On Behalf Of Andrew Morton
+> Sent: Thursday, December 22, 2005 5:47 AM
+> To: Truong, Dan
+> Cc: Eranian, Stephane; perfmon@napali.hpl.hp.com; linux-
+> ia64@vger.kernel.org; linux-kernel@vger.kernel.org; perfctr-
+> devel@lists.sourceforge.net
+> Subject: Re: [perfmon] Re: quick overview of the perfmon2 interface
 > 
-> This is off a dual P3 during boot with 2.6.15-rt6. I'll send the .config
-> privately . I had a fair amount of debugging on.
+> "Truong, Dan" <dan.truong@hp.com> wrote:
+> >
+> > The PMU is becoming a standard commodity. Once Perfmon is
+> > "the" Linux interface, all the tools can align on it and
+> > coexist, push their R&D forward, and more importantly become
+> > fully productized for businesses usage.
+> >
 > 
+> The apparently-extreme flexibility of the perfmon interfaces would
+tend to
+> militate against that, actually.  It'd become better productised if it
+had
+> one interface and stuck to it.
 > 
-> check_monotonic_clock: monotonic inconsistency detected!
->         from        1a27e7384 (7021163396) to        19f92d748 (6972168008).
-> udev/238[CPU#1]: BUG in check_monotonic_clock at kernel/time/timeofday.c:160
->  [<c0105b03>] dump_stack+0x23/0x30 (20)
->  [<c0129e43>] __WARN_ON+0x63/0x80 (40)
->  [<c0148584>] check_monotonic_clock+0xd4/0xe0 (52)
->  [<c01489b8>] get_monotonic_clock+0xc8/0x100 (56)
->  [<c014475d>] __hrtimer_start+0xdd/0x100 (40)
->  [<c0400046>] schedule_hrtimer+0x46/0xd0 (48)
->  [<c0144f0f>] hrtimer_nanosleep+0x5f/0x130 (104)
->  [<c0145053>] sys_nanosleep+0x73/0x80 (36)
->  [<c0104b2a>] syscall_call+0x7/0xb (-4020)
-> ---------------------------
-> | preempt count: 00000002 ]
-> | 2-level deep critical section nesting:
-> ----------------------------------------
-> .. [<c014cf1c>] .... add_preempt_count+0x1c/0x20
-> .....[<c0143e2a>] ..   ( <= lock_hrtimer_base+0x2a/0x60)
-> .. [<c014cf1c>] .... add_preempt_count+0x1c/0x20
-> .....[<c0129df6>] ..   ( <= __WARN_ON+0x16/0x80)
-
-Hey Daniel,
-	Thanks for the bug report. Could you tell me what clocksource was being
-used at the time? I'm guessing its the TSC, but usually we'll see
-separate TSC inconsistency messages in the log.
-
-thanks
--john
-
-
+> (I haven't processed Stephane's reply yet - will get there)
+> 
+> _______________________________________________
+> perfmon mailing list
+> perfmon@linux.hpl.hp.com
+> http://www.hpl.hp.com/hosted/linux/mail-archives/perfmon/

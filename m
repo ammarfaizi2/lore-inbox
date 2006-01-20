@@ -1,52 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWATTER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWATTEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932065AbWATTER (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 14:04:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWATTER
+	id S1751147AbWATTEN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 14:04:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWATTEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 14:04:17 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56848 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750803AbWATTEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 14:04:15 -0500
-Date: Fri, 20 Jan 2006 20:04:15 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org
-Cc: linuxppc-dev@ozlabs.org
-Subject: Re: [Alsa-devel] RFC: OSS driver removal, a slightly different approach
-Message-ID: <20060120190415.GM19398@stusta.de>
-References: <20060119174600.GT19398@stusta.de> <20060120115443.GA16582@palantir8>
-MIME-Version: 1.0
+	Fri, 20 Jan 2006 14:04:13 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:1712 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1751147AbWATTEL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 14:04:11 -0500
+Date: Fri, 20 Jan 2006 11:04:00 -0800
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [GIT PATCH] PCI patches for 2.6.16-rc1
+Message-ID: <20060120190400.GA12894@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060120115443.GA16582@palantir8>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 20, 2006 at 11:54:43AM +0000, Martin Habets wrote:
+Here are some small PCI patches against your latest git tree.  They have
+all been in the -mm tree for a while with no problems.
 
-> It seems to me we can already get rid of sound/oss/dmasound now.
-> I cannot find anything refering to it anymore, and the ALSA powermac
-> driver is being maintained.
+They do the following:
+	- document some feature-removal things for the future
+	- add support for amd pci hotplug devices to the shpchp driver.
+	- fix bugs and update the ppc64 rpaphp pci hotplug driver.
+	- add some new and remove some duplicate pci ids.
+	- make it more obvious that some msi functions are really being
+	  used.
 
-You are correct that I forgot to add the dmasound drivers to my list, 
-but I don't think we can get rid of all of them since I doubt the ALSA 
-powermac driver was able to drive m68k hardware.
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
 
-Can someone from the ppc developers drop me a small note whether 
-SND_POWERMAC completely replaces DMASOUND_PMAC?
+The full patches will be sent to the linux-pci mailing list, if anyone
+wants to see them.
 
-> Martin
+thanks,
 
-TIA
-Adrian
+greg k-h
 
--- 
+ Documentation/feature-removal-schedule.txt |   14 +
+ arch/i386/pci/irq.c                        |    5 
+ drivers/pci/hotplug/Kconfig                |    3 
+ drivers/pci/hotplug/acpiphp_ibm.c          |   21 --
+ drivers/pci/hotplug/ibmphp_core.c          |    4 
+ drivers/pci/hotplug/rpadlpar_core.c        |   64 +++---
+ drivers/pci/hotplug/rpaphp.h               |   14 -
+ drivers/pci/hotplug/rpaphp_core.c          |  114 ++++++-----
+ drivers/pci/hotplug/rpaphp_pci.c           |  277 +----------------------------
+ drivers/pci/hotplug/rpaphp_slot.c          |   16 -
+ drivers/pci/hotplug/shpchp.h               |   94 +++++++++
+ drivers/pci/hotplug/shpchp_ctrl.c          |   12 +
+ drivers/pci/msi.c                          |    8 
+ drivers/pci/msi.h                          |    6 
+ drivers/pci/pci.c                          |    2 
+ drivers/pci/setup-res.c                    |    1 
+ drivers/video/cyblafb.c                    |    1 
+ include/linux/pci.h                        |    2 
+ include/linux/pci_ids.h                    |   16 -
+ 19 files changed, 272 insertions(+), 402 deletions(-)
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+
+Adrian Bunk:
+      PCI: schedule PCI_LEGACY_PROC for removal
+      PCI: drivers/pci/pci.c: #if 0 pci_find_ext_capability()
+
+Arthur Othieno:
+      PCI: cyblafb: remove pci_module_init() return, really.
+
+Grant Coady:
+      PCI: pci_ids: remove duplicates gathered during merge period
+
+Grant Grundler:
+      PCI: make it easier to see that set_msi_affinity() is used
+
+Jason Gaston:
+      PCI: irq and pci_ids: patch for Intel ICH8
+
+Keck, David:
+      PCI Hotplug: shpchp: AMD POGO errata fix
+
+linas:
+      PCI Hotplug: PCI panic on dlpar add (add pci slot to running partition)
+      PCI Hotplug/powerpc: module build break
+
+linas@austin.ibm.com:
+      powerpc/PCI hotplug: cleanup: add prefix
+      powerpc/PCI hotplug: remove rpaphp_fixup_new_pci_devices()
+      powerpc/PCI hotplug: merge rpaphp_enable_pci_slot()
+      powerpc/PCI hotplug: merge config_pci_adapter
+      powerpc/PCI hotplug: minor cleanup forward decls
+      powerpc/PCI hotplug: remove rpaphp_find_bus()
+      powerpc/PCI hotplug: remove remove_bus_device()
+      powerpc/PCI hotplug: de-convolute rpaphp_unconfig_pci_adap
+      powerpc/PCI hotplug: shuffle error checking to better location.
+
+Mark Rustad:
+      PCI: restore 2 missing pci ids
+
+Pavel Machek:
+      PCI Hotplug: fix up coding style issues
+      PCI Hotplug: fix up Kconfig help text
+
+Richard Knutsson:
+      pci: Schedule removal of pci_module_init
 

@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWATWUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWATWYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbWATWUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 17:20:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWATWUJ
+	id S932249AbWATWYF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 17:24:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWATWYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 17:20:09 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:527 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932243AbWATWUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 17:20:07 -0500
-Date: Fri, 20 Jan 2006 23:19:43 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Guennadi Liakhovetski <gl@dsa-ac.de>
-Cc: linux-kernel@vger.kernel.org,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: [PATCH 2.4.32] usb-uhci.c failing "-"
-Message-ID: <20060120221943.GS7142@w.ods.org>
-References: <Pine.LNX.4.63.0601200928480.1049@pcgl.dsa-ac.de>
+	Fri, 20 Jan 2006 17:24:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:59290 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932082AbWATWYD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 17:24:03 -0500
+Date: Fri, 20 Jan 2006 14:22:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Truong, Dan" <dan.truong@hp.com>
+Cc: stephane.eranian@hp.com, perfmon@napali.hpl.hp.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       perfctr-devel@lists.sourceforge.net
+Subject: Re: [perfmon] Re: quick overview of the perfmon2 interface
+Message-Id: <20060120142247.28153379.akpm@osdl.org>
+In-Reply-To: <3C87FFF91369A242B9C9147F8BD0908A02C6955C@cacexc04.americas.cpqcorp.net>
+References: <3C87FFF91369A242B9C9147F8BD0908A02C6955C@cacexc04.americas.cpqcorp.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0601200928480.1049@pcgl.dsa-ac.de>
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 20, 2006 at 09:33:26AM +0100, Guennadi Liakhovetski wrote:
-> Hi
-> 
-> Looks like a bug?
+"Truong, Dan" <dan.truong@hp.com> wrote:
+>
+> Would you want Stephane to guard the extended
+> functionalities with tunables or something to
+> Disable their regular use and herd enterprise
+> Tools into a standard mold... yet allow R&D to
+> Move on by enabling the extentions?
 
-Looks like you're right.
+argh.  I'd prefer to avoid one-month gaps in the conversation, so we don't
+all forget what we were talking about.
 
-Marcelo, I've merged it into -upstream.
+Look, we just need to get these patches on the wire so we can all look at
+them, see what they do, understand what decisions were taken and why.
 
-> Thanks
-> Guennadi
-
-Thanks,
-Willy
-
-> ---------------------------------
-> Guennadi Liakhovetski, Ph.D.
-> DSA Daten- und Systemtechnik GmbH
-> Pascalstr. 28
-> D-52076 Aachen
-> Germany
-> 
-> Signed-off-by Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-> 
-> --- a/drivers/usb/host/usb-uhci.c	Fri Jan 20 09:27:50 2006
-> +++ b/drivers/usb/host/usb-uhci.c	Fri Jan 20 09:28:05 2006
-> @@ -2505,7 +2505,7 @@
->  			((urb_priv_t*)urb->hcpriv)->flags=0;
->  		}
-> 
-> -		if ((urb->status != -ECONNABORTED) && (urb->status != 
-> ECONNRESET) &&
-> +		if ((urb->status != -ECONNABORTED) && (urb->status != 
-> -ECONNRESET) &&
->  			    (urb->status != -ENOENT)) {
-> 
->  			urb->status = -EINPROGRESS;
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+The conciseness and completeness of those patches' covering descriptions
+will be key to helping this process along.

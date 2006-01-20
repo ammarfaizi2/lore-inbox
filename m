@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751063AbWATQdw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWATQe5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751063AbWATQdw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 11:33:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbWATQdw
+	id S1751067AbWATQe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 11:34:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbWATQe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 11:33:52 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:5018 "EHLO
+	Fri, 20 Jan 2006 11:34:57 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:11930 "EHLO
 	webbox4.loswebos.de") by vger.kernel.org with ESMTP
-	id S1751063AbWATQdv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 11:33:51 -0500
-Date: Fri, 20 Jan 2006 17:34:33 +0100
+	id S1751067AbWATQe4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 11:34:56 -0500
+Date: Fri, 20 Jan 2006 17:35:51 +0100
 From: Marc Koschewski <marc@osknowledge.org>
 To: Michael Loftis <mloftis@wgops.com>
 Cc: Marc Koschewski <marc@osknowledge.org>, linux-kernel@vger.kernel.org
 Subject: Re: Development tree, PLEASE?
-Message-ID: <20060120163433.GB5873@stiffy.osknowledge.org>
+Message-ID: <20060120163551.GC5873@stiffy.osknowledge.org>
 References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com> <20060120155919.GA5873@stiffy.osknowledge.org> <B6DE6A4FC14860A23FE95FF3@d216-220-25-20.dynip.modwest.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -58,49 +58,13 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > module? :D  I mean yeouch, the maintenance.  And it'd encourage the sort of 
 > thing we as kernel developers in general want to discourage, which is the 
 > use of deprecated APIs.
-
-I know. But you we're the one who started this off. The 'beast' should be
-maintained by people that need it. And it was just a brainstorm, moreover.
-
 > 
 > Lots of things still out there depend on devfs.  So now if I want to 
 > develop my kmod on recent kernels I have to be in the business of 
 > maintaining a lot more userland stuff, like mkinitrd, installers, etc. that 
 > have come to rely on devfs.
 
-What exactly relies on _devfs_?
-
-> 
-> The point is this is happening in what is being called a stable kernel. 
-> Stable it isn't.  The whole devfs thing is likely to cause me a lot of 
-> work, I'd stay with 2.4 in the worst affected things, but I can't.  devfs 
-> is newish for and already been deprecated and killed before a major release 
-> even, that just seems not right.
-
-As far as I remember the devfs maintainer didn't do just a one-liner of changes
-plus he was not to be reached by mail. No reply, no list acitivity, ... nothing.
-Just out of the town.
-
-> 
-> Anyway hopefully this thread wills tart some constructive thought on this 
-> rather than being pointless, but I had to get it out there.  I know I have 
-> a habit of showing up every other year or so. :)
-
-This thread will start something, yes. But I don't think we will have a decision
-in the end. The kernel grows. In size, in features, in just about anything. And
-from a developers point of view it's always wise to re-write a subsystem with a
-new API and the freedom to do _whatever_ one thinks she could do than re-write a
-subsystem due to maintaining the interface for compatibility.
-
-The two cases exactly are:
-
-	* _new_ code with all new features planned
-
-	or
-
-	* _partly new_ code with some new features due to API incompatibility a la
-	  'what we have to do is to get the best we can from what we have'
-
-And the latter is definitely the wrong way to go. Just my 2 cents...
+Moreover, as far as I remember... my devfsd -> udev transsition went as smooth
+as a reboot.
 
 Marc

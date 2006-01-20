@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWATUBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWATUBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWATUBc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 15:01:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbWATUBc
+	id S932119AbWATUBK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 15:01:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWATUBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 15:01:32 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:25307 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932076AbWATUBb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 15:01:31 -0500
-Date: Fri, 20 Jan 2006 14:01:24 -0600 (CST)
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, jes@sgi.com,
-       tony.luck@intel.com
-Subject: Re: [PATCH] SN2 user-MMIO CPU migration
-In-Reply-To: <200601200936.21111.jbarnes@virtuousgeek.org>
-Message-ID: <20060120134424.E91550@chenjesu.americas.sgi.com>
-References: <20060118163305.Y42462@chenjesu.americas.sgi.com>
- <200601191818.43157.jbarnes@virtuousgeek.org> <20060120003303.O81637@chenjesu.americas.sgi.com>
- <200601200936.21111.jbarnes@virtuousgeek.org>
-Organization: "Silicon Graphics, Inc."
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Jan 2006 15:01:10 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26889 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932119AbWATUBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 15:01:08 -0500
+Date: Fri, 20 Jan 2006 20:00:52 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Michael Loftis <mloftis@wgops.com>
+Cc: Valdis.Kletnieks@vt.edu, dtor_core@ameritech.net,
+       James Courtier-Dutton <James@superbug.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE?
+Message-ID: <20060120200051.GA12610@flint.arm.linux.org.uk>
+Mail-Followup-To: Michael Loftis <mloftis@wgops.com>,
+	Valdis.Kletnieks@vt.edu, dtor_core@ameritech.net,
+	James Courtier-Dutton <James@superbug.co.uk>,
+	linux-kernel@vger.kernel.org
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com> <43D10FF8.8090805@superbug.co.uk> <6769FDC09295B7E6078A5089@d216-220-25-20.dynip.modwest.com> <d120d5000601200850w611e8af8v41a0786b7dc973d9@mail.gmail.com> <30D11C032F1FC0FE9CA1CDFD@d216-220-25-20.dynip.modwest.com> <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu> <E27F809F04C1C673D283E84F@d216-220-25-20.dynip.modwest.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E27F809F04C1C673D283E84F@d216-220-25-20.dynip.modwest.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jan 2006, Jesse Barnes wrote:
+On Fri, Jan 20, 2006 at 12:21:40PM -0700, Michael Loftis wrote:
+> I think that it's fine to push the maintenance effort away from the 
+> mainline developers, probably even desireable, but then the bugfixing/etc 
+> tends to happen in a disparate manner, off on lots of forks at different 
+> places without them making their way back to some central place.
 
-> Of course, the other option is just to require tasks that do MMIO 
-> accesses from userspace to be pinned to particular CPU or node. :)
+The responsibility for ensuring that those bugfixes get back to "some
+central place" is with the folk who created the bugfixes.
 
-One idea I had was to add a counter into the mm struct that gets
-bumped if the process performs any MMIO mappings, so that only
-affected processes pay the penalty.  However, the added complexity
-in the drivers (e.g. handling partial unmaps, etc.) doesn't seem worth
-it.  On average this code adds 800ns to the task migration path, which
-is relatively infrequent and already a bit expensive (what with cold
-caches and the like).
+I've seen this _far_ too many times - it's what I call "the CVS disease"
+and it happens _a_ _lot_ in certain areas.
 
-Regarding the direction Ingo sent me down, and considering what Jack
-said about needing a hook for a future platform, I'm thinking of grabbing
-a bit in task->thread.flags that IA64_HAS_EXTRA_STATE() could detect and
-let ia64_{save,load}_extra() call new machvecs to perform this
-chipset-specific context management.  It's a bit overengineered for
-my particular case, but would allow Jack to plug in his work very
-cleanly.
+Developer X uses a CVS tree for his work and has write access to that
+tree.  He finds a bug, and fixes it.  Maybe he writes a good explaination
+of the bug and puts it in the CVS commit comments.  He commits the fix.
+When he's done with development, he walks away and the fix never gets
+submitted.  (Not everyone operates this way, but I know some do.)
 
-Brent
+
+As a mainline guy myself, I'll say we're all welcome to whatever bug
+fixes come our way.  We just need someone to send them to us with an
+adequate explaination of the bug.
+
+> And that seems where we're going with this conversation.  A fork/forks at 
+> various versions to maintain bugfixes and support updates that's (more?) 
+> open to submitters writing patches.  Maintained by a separate group or 
+> party, but with the 'blessing' from mainline to do so.  A place for those 
+> sorts of efforts to be focused, without necessarily involving the primary 
+> developers.
+
+Do you know about the bugfix-only kernel series, which have 4-digit
+versions - 2.6.x.y - which is the compromise to satisfy folk with the
+issue you're bringing up in this paragraph?
 
 -- 
-Brent Casavant                          All music is folk music.  I ain't
-bcasavan@sgi.com                        never heard a horse sing a song.
-Silicon Graphics, Inc.                    -- Louis Armstrong
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

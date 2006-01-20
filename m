@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161389AbWATFMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161391AbWATFj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161389AbWATFMS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 00:12:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161501AbWATFMS
+	id S1161391AbWATFj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 00:39:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161503AbWATFj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 00:12:18 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60611 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1161389AbWATFMQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 00:12:16 -0500
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Serge Hallyn <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: RFC [patch 00/34] PID Virtualization Overview
-References: <20060117143258.150807000@sergelap> <43CD18FF.4070006@FreeBSD.org>
-	<1137517698.8091.29.camel@localhost.localdomain>
-	<43CD32F0.9010506@FreeBSD.org>
-	<1137521557.5526.18.camel@localhost.localdomain>
-	<1137522550.14135.76.camel@localhost.localdomain>
-	<1137610912.24321.50.camel@localhost.localdomain>
-	<1137612537.3005.116.camel@laptopd505.fenrus.org>
-	<1137613088.24321.60.camel@localhost.localdomain>
-	<1137624867.1760.1.camel@localhost.localdomain>
-	<1137654906.2993.10.camel@laptopd505.fenrus.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 19 Jan 2006 22:11:18 -0700
-In-Reply-To: <1137654906.2993.10.camel@laptopd505.fenrus.org> (Arjan van de
- Ven's message of "Thu, 19 Jan 2006 08:15:06 +0100")
-Message-ID: <m1k6cvo555.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Fri, 20 Jan 2006 00:39:56 -0500
+Received: from fmr13.intel.com ([192.55.52.67]:229 "EHLO
+	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1161391AbWATFj4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 00:39:56 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: 2.6.16-rc1-mm1 usb hub problems
+Date: Fri, 20 Jan 2006 00:39:37 -0500
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3005C6CEE4@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.16-rc1-mm1 usb hub problems
+Thread-Index: AcYcgGsqgyBMwMBdQ2a8ncpiwMpu2ABAlqMg
+From: "Brown, Len" <len.brown@intel.com>
+To: "Pavel Machek" <pavel@ucw.cz>, "Andrew Morton" <akpm@osdl.org>
+Cc: <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 Jan 2006 05:39:45.0157 (UTC) FILETIME=[EB429B50:01C61D83]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> writes:
+>--- /tmp/rc1.mesg	2006-01-18 23:24:01.000000000 +0100
+>+++ /tmp/rc1-mm1.mesg	2006-01-18 23:32:24.000000000 +0100
+>@@ -1,4 +1,4 @@
+>-Linux version 2.6.15-dirty (pavel@amd) (gcc version 4.0.3 
+>20051201 (prerelease) (Debian 4.0.2-5)) #190 SMP PREEMPT Mon 
+>Jan 16 13:48:34 CET 2006
+>+Linux version 2.6.16-rc1-mm1 (pavel@amd) (gcc version 4.0.3 
+>20051201 (prerelease) (Debian 4.0.2-5)) #6 Wed Jan 18 20:48:34 CET 2006
 
-> On Wed, 2006-01-18 at 22:54 +0000, Alan Cox wrote:
->> On Mer, 2006-01-18 at 11:38 -0800, Dave Hansen wrote:
->> > But, it seems that many drivers like to print out pids as a unique
->> > identifier for the task.  Should we just let them print those
->> > potentially non-unique identifiers, deprecate and kill them, or provide
->> > a replacement with something else which is truly unique?
->> 
->> Pick a format for container number + pid and document/stick with it -
->> something like container::pid (eg 0::114) or 114[0] whatever so long as
->> it is consistent
->
-> having a pid_to_string(<task struct>) or maybe task_to_string() thing
-> for convenient printing of pids/tasks.. I'm all for that. Means you can
-> even configure how verbose you want it to be (include ->comm or not,
-> ->state maybe etc)
+>-68 Devices found containing: 68 _STA, 11 _INI methods
+>+68 Devices found containing: 3 _STA, 11 _INI methods
 
-The only way I can see to sanely do this is to pass it the temporary
-buffer it writes it's contents into.
-Something like:
-printk(KERN_XXX "%s\n", task_to_string(buf, tsk)); ?
+Expected and unrelated.  They're not missing, now we're
+a little smarter about not brute-force looking for methods
+that we can tell by context are not there.
 
+> ACPI: Interpreter enabled
+> ACPI: Using PIC for interrupt routing
+> ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 9 10 *11)
+>@@ -93,11 +88,13 @@
+> PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+> Boot video device is 0000:01:00.0
+> PCI: Transparent bridge - 0000:00:1e.0
 
-Eric
+This is new:
+
+>+PCI: Found IBM Dock II Cardbus Bridge applying quirk
+>+PCI: Found IBM Dock II Cardbus Bridge applying quirk
+
+cheers,
+-Len

@@ -1,119 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWATMFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWATMGu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750873AbWATMFD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 07:05:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWATMFD
+	id S1750882AbWATMGu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 07:06:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbWATMGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 07:05:03 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:21125 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750873AbWATMFB (ORCPT
+	Fri, 20 Jan 2006 07:06:50 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:64521 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750881AbWATMGt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 07:05:01 -0500
-Date: Fri, 20 Jan 2006 12:03:53 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: Joel Schopp <jschopp@austin.ibm.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
-Subject: Re: [PATCH 0/5] Reducing fragmentation using zones
-In-Reply-To: <43D03A48.8090105@jp.fujitsu.com>
-Message-ID: <Pine.LNX.4.58.0601201154320.14292@skynet>
-References: <20060119190846.16909.14133.sendpatchset@skynet.csn.ul.ie>
- <43CFE77B.3090708@austin.ibm.com> <Pine.LNX.4.58.0601200011190.15823@skynet>
- <43D03A48.8090105@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Jan 2006 07:06:49 -0500
+Date: Fri, 20 Jan 2006 13:08:44 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: davej@redhat.com, AChittenden@bluearc.com, linux-kernel@vger.kernel.org,
+       lwoodman@redhat.com
+Subject: Re: Out of Memory: Killed process 16498 (java).
+Message-ID: <20060120120844.GG13429@suse.de>
+References: <89E85E0168AD994693B574C80EDB9C270355601F@uk-email.terastack.bluearc.com> <20060119194836.GM21663@redhat.com> <20060119141515.5f779b8d.akpm@osdl.org> <20060120081231.GE4213@suse.de> <20060120002307.76bcbc27.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060120002307.76bcbc27.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jan 2006, KAMEZAWA Hiroyuki wrote:
-
-> Mel Gorman wrote:
-> > To satisfy this request, I did a quick rebase of the list-based approach
-> > against 2.6.16-rc1-mm1 to have a comparable set of benchmarks. I will post
-> > the patches in the morning after a re-read.
+On Fri, Jan 20 2006, Andrew Morton wrote:
+> Jens Axboe <axboe@suse.de> wrote:
 > >
-> Thank you.
+> > On Thu, Jan 19 2006, Andrew Morton wrote:
+> > > Dave Jones <davej@redhat.com> wrote:
+> > > >
+> > > > On Thu, Jan 19, 2006 at 03:11:45PM -0000, Andy Chittenden wrote:
+> > > >  > DMA free:20kB min:24kB low:28kB high:36kB active:0kB inactive:0kB
+> > > >  > present:12740kB pages_scanned:4 all_unreclaimable? yes
+> > > > 
+> > > > Note we only scanned 4 pages before we gave up.
+> > > > Larry Woodman came up with this patch below that clears all_unreclaimable
+> > > > when in two places where we've made progress at freeing up some pages
+> > > > which has helped oom situations for some of our users.
+> > > 
+> > > That won't help - there are exactly zero pages on ZONE_DMA's LRU.
+> > > 
+> > > The problem appears to be that all of the DMA zone has been gobbled up by
+> > > the BIO layer.  It seems quite inappropriate that a modern 64-bit machine
+> > > is allocating tons of disk I/O pages from the teeny ZONE_DMA.  I'm
+> > > suspecting that someone has gone and set a queue's ->bounce_gfp to the wrong
+> > > thing.
+> > > 
+> > > Jens, would you have time to investigate please?
+> > 
+> > Certainly, I'll get this tested and fixed this afternoon.
+> 
+> Wow ;)
 >
->
-> > So, in terms of performance on this set of tests, both approachs perform
-> > roughly the same as the stock kernel in terms of absolute performance. In
-> > terms of high-order allocations, zone-based appears to do better under
-> > load. However, if you look at the zones that are used, you will see that
-> > zone-based appears to do as well as list-based *only* because it has the
-> > EASYRCLM zone to play with. list-based was way better at keeping the
-> > normal zone defragmented as well as highmem which is especially obvious
-> > when tested at rest.  list-based was able to allocate 83 huge pages from
-> > ZONE_NORMAL at rest while zone-based only managed 8.
-> >
-> yes, this is intersiting point :)
-> list-based one can defrag NORMAL zone.
-> The point will be "does we need to defrag NORMAL ?" , I think.
+> You may find it's an x86_64 glitch - setting max_[low_]pfn wrong down in
+> the bowels of the arch mm init code, something like that.
+> 
+> I thought it might have been a regression which came in when we added
+> ZONE_DMA32 but the RH reporter is based on 2.6.14-<redhat stuff>, and he
+> didn't have ZONE_DMA32.
 
-The original intention was two fold. One, it helps HugeTLB in situations
-where it was not configured correctly at boot-time. this is the case for a
-number of sites running HPC-related jobs. The second objective was to help
-high-order kernel allocations to potentially reduce things like
-scatter-gather IO.
+Sorry, spoke too soon, I thought this was the 'bio/scsi leaks' which
+most likely is a scsi leak that also results in the bios not getting
+freed.
 
-> IMHO, I don't like to use NORMAL zone to alloc higher-order pages...
->
-
-Neither do a lot of people apparently.
-
-> > Secondly, zone-based requires careful configuration to be successful.  If
-> > booted with kernelcore=896MB for example, it only performs slightly better
-> > than the standard kernel. If booted with kernelcore=1024MB, it tends to
-> > perform slightly worse (more zone fallbacks I guess) and still only
-> > manages slighly better satisfaction of high order pages.
-> This is because HIGHMEM is too small, right ?
->
-
-Yes and it ends up falling back more to ZONE_NORMAL.
-
->
-> > On the flip side, zone-based code changes are easier to understand than
-> > the list-based ones (at least in terms of volume of code changes). The
-> > zone-based gives guarantees on what will happen in the future while
-> > list-based is best-effort.
-> >
-> > In terms of fragmentation, I still think that list-based is better overall
-> > without configuration.
-> I agree here.
->
-> > The results above also represent the best possible
-> > configuration with zone-based versus no configuration at all against
-> > list-based. In an environment with changing workloads a constant reality,
-> > I bet that list-based would win overall.
-> >
-> On x86, NORMAL is only 896M anyway. there is no discussion.
->
-
-There is a discussion with architecutes like ppc64 which do not have a
-normal zone (only ZONE_DMA) and 64 bit architectures that have very large
-normal zones.
-
-Take ppc64 as an example. Today, when memory is hot-added, it is available
-for use by the kernel and userspace applications. Right now, hot-added
-memory goes to ZONE_DMA but it should be going to ZONE_EASYRCLM. In this
-case, the size of the kernel at the beginning is fixed. If you allow the
-kernel zone to grow, it cannot be shrunk again and worse, if the kernel
-expands to take up available memory, it loses all advantages.
-
->
-> Honestly, I don't have enough experience with machines which doesn't
-> have Highmem. How large kernelcore should be ? It looks using list-based
-> and zone-based at the same time will make all people happy...
->
-
-How large kernelcore should be is the million dollar question. The
-administrator needs to know how much memory the kernel will require for
-the workload. That is no universal answer to this question. That was one
-reason we liked the list-based approach to anti-fragmentation. It could
-grow or shrink the regions used by user and kernel allocations as
-required. To do the same with zones is quite complex.
+This DMA32 zone shortage looks like a vm short coming, you're likely the
+better candidate to fix that :-)
 
 -- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+Jens Axboe
+

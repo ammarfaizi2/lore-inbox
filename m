@@ -1,77 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWATIZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWATI0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbWATIZw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 03:25:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWATIZw
+	id S1750723AbWATI0q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 03:26:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbWATI0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 03:25:52 -0500
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:35245 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1750729AbWATIZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 03:25:51 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: [SARCASM] Re: [2.6 patch] the scheduled removal of the obsolete raw driver
-Date: Fri, 20 Jan 2006 09:24:50 +0100
-User-Agent: KMail/1.7.2
-Cc: Adrian Bunk <bunk@stusta.de>, Badari Pulavarty <pbadari@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-References: <20060119030251.GG19398@stusta.de> <1137689071.4966.190.camel@dyn9047017102.beaverton.ibm.com> <20060119165832.GS19398@stusta.de>
-In-Reply-To: <20060119165832.GS19398@stusta.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1736195.naqfpKYS10";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601200924.56608.ioe-lkml@rameria.de>
+	Fri, 20 Jan 2006 03:26:45 -0500
+Received: from mailgate2.urz.uni-halle.de ([141.48.3.8]:28652 "EHLO
+	mailgate2.uni-halle.de") by vger.kernel.org with ESMTP
+	id S1750723AbWATI0p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 03:26:45 -0500
+Date: Fri, 20 Jan 2006 09:25:50 +0100
+From: Clemens Ladisch <clemens@ladisch.de>
+Subject: Re: [Alsa-devel] Re: RFC: OSS driver removal,
+ a slightly different approach
+In-reply-to: <m3ek34vucz.fsf@defiant.localdomain>
+X-Originating-IP: 213.238.46.206
+To: Krzysztof Halasa <khc@pm.waw.pl>, Martin Langer <martin-langer@gmx.de>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org
+Message-id: <1137745550.43d09e8ebde13@webmail.uni-halle.de>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.8
+References: <20060119174600.GT19398@stusta.de>
+ <m3ek34vucz.fsf@defiant.localdomain>
+X-Scan-Signature: 6cb34d70a4ee32cac1889b569d577157
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1736195.naqfpKYS10
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Krzysztof Halasa wrote:
 
-On Thursday 19 January 2006 17:58, Adrian Bunk wrote:
-> On Thu, Jan 19, 2006 at 08:44:31AM -0800, Badari Pulavarty wrote:
-> >...
-> > But again, its really useful to have raw driver to do simple "dd" tests
-> > to test raw performance for disks (for comparing with filesystems, block
-> > devices etc..). Without that, we need to add option to "dd" for
-> > O_DIRECT.
->=20
-> The oflag=3Ddirect option was added to GNU coreutils in version 5.3.0.
+> Adrian Bunk <bunk@stusta.de> writes:
+>
+> > 3. no ALSA drivers for the same hardware
+> >
+> > SOUND_ACI_MIXER
+>
+> Never heard
 
-And Debian Sarge is still at 5.2.1.=20
-(Not to obsolete iproute and ipsec-tools versions)
+A chip used on miroPCM (ISA) cards.  An ALSA driver has been written for it,
+and it seems the ACI stuff is supported.  (This driver is not yet in the
+kernel tree.)
 
-Ok, Debian Sarge is scheduled for removal from my
-system.
-
-What:   Debian Sarge
-When:   2006-02-04
-=46iles:  ssh root@bertha -c "find /bin /sbin /usr /lib"
-       =20
-Why:    Its maintained to slow for a number of years
-        and can be replaced by Kubuntu or Ubuntu.
-	Having a recent kernel (with more bugs fixed)
-	and trying to use it, becomes harder and harder.
-
-Who:    $FROM
+Martin, has your miro.c a complete implementation of what is in aci.c?
 
 
---nextPart1736195.naqfpKYS10
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD0J5YU56oYWuOrkARAs/2AJ9hOEXJy+FhmWYPC4JwJv2O+AvO2wCdE1nO
-K8oK9EmxOrbruMyjxzNh40M=
-=smt4
------END PGP SIGNATURE-----
-
---nextPart1736195.naqfpKYS10--
+Clemens

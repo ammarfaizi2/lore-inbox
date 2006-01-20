@@ -1,99 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbWATMSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWATMXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750889AbWATMSA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 07:18:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWATMR7
+	id S1750892AbWATMXE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 07:23:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbWATMXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 07:17:59 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:65494 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750883AbWATMR7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 07:17:59 -0500
-Date: Fri, 20 Jan 2006 04:17:27 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: davej@redhat.com, AChittenden@bluearc.com, linux-kernel@vger.kernel.org,
-       lwoodman@redhat.com
-Subject: Re: Out of Memory: Killed process 16498 (java).
-Message-Id: <20060120041727.5329f299.akpm@osdl.org>
-In-Reply-To: <20060120120844.GG13429@suse.de>
-References: <89E85E0168AD994693B574C80EDB9C270355601F@uk-email.terastack.bluearc.com>
-	<20060119194836.GM21663@redhat.com>
-	<20060119141515.5f779b8d.akpm@osdl.org>
-	<20060120081231.GE4213@suse.de>
-	<20060120002307.76bcbc27.akpm@osdl.org>
-	<20060120120844.GG13429@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 20 Jan 2006 07:23:04 -0500
+Received: from mexforward.lss.emc.com ([168.159.213.200]:37522 "EHLO
+	mexforward.lss.emc.com") by vger.kernel.org with ESMTP
+	id S1750883AbWATMXC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 07:23:02 -0500
+Message-ID: <43D0D5AC.2010604@emc.com>
+Date: Fri, 20 Jan 2006 07:21:00 -0500
+From: Ric Wheeler <ric@emc.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
+       linux-m68k@vger.kernel.org, geert@linux-m68k.org, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: License oddity in some m68k files
+References: <20060119180947.GA25001@kroah.com> <Pine.LNX.4.61.0601192014010.30994@scrub.home> <20060119220431.GA4739@kroah.com> <1137708896.8471.71.camel@localhost.localdomain> <20060119223251.GB27106@kroah.com>
+In-Reply-To: <20060119223251.GB27106@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2006.01.20.033120
+X-PerlMx-Spam: Gauge=, SPAM=1%, Reasons='EMC_FROM_00+ -3, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
+Greg KH wrote:
+
+>On Thu, Jan 19, 2006 at 10:14:56PM +0000, Alan Cox wrote:
+>  
 >
-> On Fri, Jan 20 2006, Andrew Morton wrote:
-> > Jens Axboe <axboe@suse.de> wrote:
-> > >
-> > > On Thu, Jan 19 2006, Andrew Morton wrote:
-> > > > Dave Jones <davej@redhat.com> wrote:
-> > > > >
-> > > > > On Thu, Jan 19, 2006 at 03:11:45PM -0000, Andy Chittenden wrote:
-> > > > >  > DMA free:20kB min:24kB low:28kB high:36kB active:0kB inactive:0kB
-> > > > >  > present:12740kB pages_scanned:4 all_unreclaimable? yes
-> > > > > 
-> > > > > Note we only scanned 4 pages before we gave up.
-> > > > > Larry Woodman came up with this patch below that clears all_unreclaimable
-> > > > > when in two places where we've made progress at freeing up some pages
-> > > > > which has helped oom situations for some of our users.
-> > > > 
-> > > > That won't help - there are exactly zero pages on ZONE_DMA's LRU.
-> > > > 
-> > > > The problem appears to be that all of the DMA zone has been gobbled up by
-> > > > the BIO layer.  It seems quite inappropriate that a modern 64-bit machine
-> > > > is allocating tons of disk I/O pages from the teeny ZONE_DMA.  I'm
-> > > > suspecting that someone has gone and set a queue's ->bounce_gfp to the wrong
-> > > > thing.
-> > > > 
-> > > > Jens, would you have time to investigate please?
-> > > 
-> > > Certainly, I'll get this tested and fixed this afternoon.
-> > 
-> > Wow ;)
-> >
-> > You may find it's an x86_64 glitch - setting max_[low_]pfn wrong down in
-> > the bowels of the arch mm init code, something like that.
-> > 
-> > I thought it might have been a regression which came in when we added
-> > ZONE_DMA32 but the RH reporter is based on 2.6.14-<redhat stuff>, and he
-> > didn't have ZONE_DMA32.
-> 
-> Sorry, spoke too soon, I thought this was the 'bio/scsi leaks' which
-> most likely is a scsi leak that also results in the bios not getting
-> freed.
-> 
-> This DMA32 zone shortage looks like a vm short coming, you're likely the
-> better candidate to fix that :-)
-
-It's not ZONE_DMA32.  It's the 12MB ZONE_DMA which is being exhausted on
-this 4GB 64-bit machine.
-
-Andy put a dump_stack() into the oom code and it pointed at 
+>>On Iau, 2006-01-19 at 14:04 -0800, Greg KH wrote:
+>>    
+>>
+>>>Ah, ok, thanks, that makes sense.  How about a simple pointer to the
+>>>license info from the .S files to the README file so that people (like
+>>>me), don't get confused again?  I've attached a patch below if you wish
+>>>to apply it.
+>>>
+>>>      
+>>>
+>>They specifically ask as is their right within the GPL that you note if
+>>you modify the files. Otherwise seems fine.
+>>    
+>>
+>
+>Hm, any idea on how to note that I modified the file in such a way that
+>would be acceptable?  How about this?
+>
+>+|
+>+|      For details on the license for this file, please see the
+>+|      file, README, in this same directory.  Note, this paragraph in
+>+|	this comment has been added from the original version of this
+>+|	file from the author.
+>
+>thanks,
+>
+>greg k-h
+>  
+>
+The language in the source files is pretty strong and this looks like Motorola should be asked to rerelease the files with a normal copyright notice in place of the current language...
 
 
- Call Trace:<ffffffff8014d7bc>{out_of_memory+48}
- <ffffffff8014f4b0>{__alloc_pages+536}
-        <ffffffff80169788>{bio_alloc_bioset+232}
- <ffffffff80169d03>{bio_copy_user+218}
-        <ffffffff801bd657>{blk_rq_map_user+136}
- <ffffffff801c0008>{sg_io+328}
-        <ffffffff801c047c>{scsi_cmd_ioctl+491}
- <ffffffff88005e22>{:ide_core:generic_ide_ioctl+631}
-        <ffffffff88202d0c>{:sd_mod:sd_ioctl+371}
- <ffffffff802a6db6>{schedule_timeout+158}
-        <ffffffff801bf165>{blkdev_ioctl+1365}
- <ffffffff80243cb2>{sys_sendto+251}
-        <ffffffff801751e5>{__pollwait+0}
- <ffffffff8016b16a>{block_ioctl+25}
-        <ffffffff801749f4>{do_ioctl+24} <ffffffff80174c46>{vfs_ioctl+541}
-        <ffffffff80174cb4>{sys_ioctl+89}
+ric
+
+
+

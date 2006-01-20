@@ -1,52 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbWATRv5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWATRww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750977AbWATRv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 12:51:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWATRv5
+	id S1751044AbWATRww (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 12:52:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbWATRww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 12:51:57 -0500
-Received: from [63.81.120.158] ([63.81.120.158]:48879 "EHLO hermes.mvista.com")
-	by vger.kernel.org with ESMTP id S1750951AbWATRv5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 12:51:57 -0500
-Subject: BUG in check_monotonic_clock()
-From: Daniel Walker <dwalker@mvista.com>
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org, tglx@linutronix.de
-Content-Type: text/plain
-Date: Fri, 20 Jan 2006 09:51:54 -0800
-Message-Id: <1137779515.3202.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jan 2006 12:52:52 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:22436 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP
+	id S1751005AbWATRwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 12:52:51 -0500
+Date: Fri, 20 Jan 2006 18:53:44 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: dtor_core@ameritech.net
+Cc: Marc Koschewski <marc@osknowledge.org>, Michael Loftis <mloftis@wgops.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE?
+Message-ID: <20060120175343.GF5873@stiffy.osknowledge.org>
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com> <20060120155919.GA5873@stiffy.osknowledge.org> <d120d5000601200840o704af2e5h6d9087b62594bbe1@mail.gmail.com> <20060120164827.GD5873@stiffy.osknowledge.org> <d120d5000601200855y7318e708va22a21607cf9c078@mail.gmail.com> <20060120172431.GE5873@stiffy.osknowledge.org> <d120d5000601200943o200b3452yff84151b0d495774@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000601200943o200b3452yff84151b0d495774@mail.gmail.com>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.16-rc1-marc-g18a41440-dirty
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Dmitry Torokhov <dmitry.torokhov@gmail.com> [2006-01-20 12:43:12 -0500]:
 
+> On 1/20/06, Marc Koschewski <marc@osknowledge.org> wrote:
+> > * Dmitry Torokhov <dmitry.torokhov@gmail.com> [2006-01-20 11:55:38 -0500]:
+> >
+> > > On 1/20/06, Marc Koschewski <marc@osknowledge.org> wrote:
+> > > > * Dmitry Torokhov <dmitry.torokhov@gmail.com> [2006-01-20 > >
+> > > > > Marc, have you tried 2.6.16-rc1 yet? Does it also give you problems
+> > > > > with psmouse?
+> > > > >
+> > > >
+> > > > Not yet, Dmitry. I just managed to get today's -git compiled and running. I'll
+> > > > give it a try tonite.
+> > > >
+> > > > Moreover, I put a
+> > > >
+> > > >        echo -n 0 > /sys/bus/serio/devices/serio0/resync_time
+> > > >
+> > > > in my initscripts. Since then I didn't see any problem. I'll report later how it
+> > > > went with that line removed and stock 2.6.16-rc1.
+> > > >
+> > >
+> > > Ok, if psmouse gives you a fit and setting resync_time to 0 cures it,
+> > > please do the follwing:
+> > >
+> > > echo -n 5 > /sys/bus/serio/devices/serioX/resync_time
+> > > echo 1 > /sys/modules/i8042/parameters/debug
+> > > ... wait 10 seconds ...
+> > > move the mouse slightly
+> > > ... wait another 10 seconds ...
+> > > move the mouse slighty again
+> > > echo 0 > /sys/modules/i8042/parameters/debug
+> > >
+> > > and send me your dmesg (or better /var/log/messages or whatever file
+> > > you use for kernel messages).
+> > >
+> > > --
+> > > Dmitry
+> >
+> > OK, here goes:
+> >
+> 
+> Hmm, I see 2 perfectly healthy resyncs. Could you remind me what is
+> exactly wrong with the mouse on your box? Does it give you fits right
+> now (you seem to leave resync on)?
 
-This is off a dual P3 during boot with 2.6.15-rt6. I'll send the .config
-privately . I had a fair amount of debugging on.
+Well, the pointer seems to be very happy when jumping into the (mostly) upper
+right corner. Then it seems like movement and clicks somehow get swallowed
+away or stacked and after that get issued in a) either wrong order or b) wrong.
+Moreover, even if I didn't click any button (including btn 4 + 5 for wheel
+up/down) the mouse clicks into the window what often opens context menus.
+Sometimes it then even clicks in. Once it logged me off that way from GNOME
+because selecting the entry from the menu and hit 'Log out'. Summary: unusable.
 
+Let me repeat this with a clean 2.6.16-rc1 install without any patches and
+resync_timing of 5 tonite. I'll send the whole kern.log part from gdm login (the
+agpgart lines) until the mouse jumps then. 
 
-check_monotonic_clock: monotonic inconsistency detected!
-        from        1a27e7384 (7021163396) to        19f92d748 (6972168008).
-udev/238[CPU#1]: BUG in check_monotonic_clock at kernel/time/timeofday.c:160
- [<c0105b03>] dump_stack+0x23/0x30 (20)
- [<c0129e43>] __WARN_ON+0x63/0x80 (40)
- [<c0148584>] check_monotonic_clock+0xd4/0xe0 (52)
- [<c01489b8>] get_monotonic_clock+0xc8/0x100 (56)
- [<c014475d>] __hrtimer_start+0xdd/0x100 (40)
- [<c0400046>] schedule_hrtimer+0x46/0xd0 (48)
- [<c0144f0f>] hrtimer_nanosleep+0x5f/0x130 (104)
- [<c0145053>] sys_nanosleep+0x73/0x80 (36)
- [<c0104b2a>] syscall_call+0x7/0xb (-4020)
----------------------------
-| preempt count: 00000002 ]
-| 2-level deep critical section nesting:
-----------------------------------------
-.. [<c014cf1c>] .... add_preempt_count+0x1c/0x20
-.....[<c0143e2a>] ..   ( <= lock_hrtimer_base+0x2a/0x60)
-.. [<c014cf1c>] .... add_preempt_count+0x1c/0x20
-.....[<c0129df6>] ..   ( <= __WARN_ON+0x16/0x80)
-
-
+Marc

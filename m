@@ -1,50 +1,316 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWATTeR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWATTg3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWATTeR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 14:34:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWATTeR
+	id S932093AbWATTg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 14:36:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbWATTg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 14:34:17 -0500
-Received: from relay10.CS.McGill.CA ([132.206.3.88]:15890 "EHLO
-	relay10.cs.mcgill.ca") by vger.kernel.org with ESMTP
-	id S932066AbWATTeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 14:34:16 -0500
-Message-ID: <43D13B2A.6020504@cs.ubishops.ca>
-Date: Fri, 20 Jan 2006 14:34:02 -0500
-From: Patrick McLean <pmclean@cs.ubishops.ca>
-User-Agent: Mail/News 1.5 (X11/20060112)
+	Fri, 20 Jan 2006 14:36:29 -0500
+Received: from gate.perex.cz ([85.132.177.35]:12182 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S932093AbWATTg2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 14:36:28 -0500
+Date: Fri, 20 Jan 2006 20:36:26 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Takashi Iwai <tiwai@suse.de>
+Subject: [ALSA PATCH] Sync with CVS
+Message-ID: <Pine.LNX.4.61.0601202033150.19304@tm8103.perex-int.cz>
 MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux
-References: <43D114A8.4030900@wolfmountaingroup.com> <20060120111103.2ee5b531@dxpl.pdx.osdl.net>
-In-Reply-To: <20060120111103.2ee5b531@dxpl.pdx.osdl.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> On Fri, 20 Jan 2006 09:49:44 -0700
-> "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com> wrote:
-> 
->> Cudos to Stallman, The patent retaliation clause is exactly what has 
->> been missing.  The inclusion of custom binaries was a little vague, but
->> the net of it is that the end user can combine the separate parts, and 
->> have the freedom to do so given the GPL3 terms.  Any concensus on 
->> whether Linux will move to GPL3?   
-> 
-> No consensus exists, and it would require agreement from all the copyright
-> holders.
-> 
+Linus, please do an update from:
 
-I don't think the kernel is going to move to v3, it's licensed 
-specifically as v2, this is from the top of COPYING:
+  rsync://rsync.kernel.org/pub/scm/linux/kernel/git/perex/alsa.git
 
- >  Also note that the only valid version of the GPL as far as the kernel
- >  is concerned is _this_ particular version of the license (ie v2, not
- >  v2.2 or v3.x or whatever), unless explicitly otherwise stated.
+The GNU patch is available at:
 
-Also, given that several of the copyright holders in the kernel are 
-dead, I don't think we will be able to obtain permission.
+  ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-git-2006-01-20.patch.gz
 
+Additional notes:
+
+  The patch contains mostly small fixes and semaphore -> mutex conversion
+  from Ingo (big part).
+
+The following files will be updated:
+
+ Documentation/sound/alsa/ALSA-Configuration.txt |   25 +
+ arch/arm/mach-pxa/mainstone.c                   |    4 
+ drivers/media/video/cx88/cx88-alsa.c            |   54 +-
+ drivers/media/video/saa7134/saa7134-alsa.c      |   65 +--
+ drivers/media/video/saa7134/saa7134.h           |    2 
+ drivers/pnp/card.c                              |    9 
+ include/asm-arm/arch-pxa/audio.h                |    4 
+ include/sound/ac97_codec.h                      |    4 
+ include/sound/ad1848.h                          |    2 
+ include/sound/ak4531_codec.h                    |    2 
+ include/sound/core.h                            |    8 
+ include/sound/cs4231.h                          |    4 
+ include/sound/cs46xx.h                          |    2 
+ include/sound/emu10k1.h                         |    4 
+ include/sound/emux_synth.h                      |    2 
+ include/sound/gus.h                             |    6 
+ include/sound/hwdep.h                           |    2 
+ include/sound/i2c.h                             |   10 
+ include/sound/info.h                            |    2 
+ include/sound/mixer_oss.h                       |    2 
+ include/sound/opl3.h                            |    3 
+ include/sound/pcm.h                             |    2 
+ include/sound/pcm_oss.h                         |    4 
+ include/sound/rawmidi.h                         |    4 
+ include/sound/sb16_csp.h                        |    2 
+ include/sound/seq_instr.h                       |    2 
+ include/sound/soundfont.h                       |    2 
+ include/sound/util_mem.h                        |    4 
+ include/sound/vx_core.h                         |    2 
+ include/sound/ymfpci.h                          |   10 
+ sound/arm/aaci.c                                |   10 
+ sound/arm/aaci.h                                |    2 
+ sound/arm/pxa2xx-ac97.c                         |   12 
+ sound/core/Kconfig                              |   18 
+ sound/core/hwdep.c                              |   43 +-
+ sound/core/info.c                               |   60 +-
+ sound/core/info_oss.c                           |   13 
+ sound/core/init.c                               |    2 
+ sound/core/memalloc.c                           |   22 -
+ sound/core/oss/copy.c                           |    5 
+ sound/core/oss/io.c                             |    5 
+ sound/core/oss/linear.c                         |    7 
+ sound/core/oss/mixer_oss.c                      |   14 
+ sound/core/oss/mulaw.c                          |   24 +
+ sound/core/oss/pcm_oss.c                        |   50 +-
+ sound/core/oss/pcm_plugin.c                     |  272 ++-----------
+ sound/core/oss/pcm_plugin.h                     |   30 -
+ sound/core/oss/plugin_ops.h                     |  166 --------
+ sound/core/oss/rate.c                           |   85 +---
+ sound/core/oss/route.c                          |  491 ++----------------------
+ sound/core/pcm.c                                |   45 +-
+ sound/core/pcm_native.c                         |   12 
+ sound/core/rawmidi.c                            |   57 +-
+ sound/core/seq/oss/seq_oss.c                    |   27 -
+ sound/core/seq/seq_clientmgr.c                  |   40 -
+ sound/core/seq/seq_clientmgr.h                  |    2 
+ sound/core/seq/seq_device.c                     |   53 +-
+ sound/core/seq/seq_instr.c                      |    6 
+ sound/core/seq/seq_midi.c                       |   20 
+ sound/core/seq/seq_ports.c                      |   12 
+ sound/core/seq/seq_queue.c                      |    6 
+ sound/core/seq/seq_queue.h                      |    2 
+ sound/core/sound.c                              |   23 -
+ sound/core/sound_oss.c                          |   23 -
+ sound/core/timer.c                              |   77 +--
+ sound/drivers/opl3/opl3_lib.c                   |    2 
+ sound/drivers/opl3/opl3_seq.c                   |   10 
+ sound/drivers/opl3/opl3_synth.c                 |   10 
+ sound/drivers/opl4/opl4_lib.c                   |    2 
+ sound/drivers/opl4/opl4_local.h                 |    2 
+ sound/drivers/opl4/opl4_proc.c                  |   10 
+ sound/drivers/opl4/opl4_seq.c                   |   12 
+ sound/drivers/vx/vx_core.c                      |    2 
+ sound/drivers/vx/vx_mixer.c                     |   72 +--
+ sound/i2c/i2c.c                                 |    2 
+ sound/isa/ad1848/ad1848_lib.c                   |   14 
+ sound/isa/cmi8330.c                             |    6 
+ sound/isa/cs423x/cs4231_lib.c                   |   30 -
+ sound/isa/cs423x/cs4236.c                       |    7 
+ sound/isa/cs423x/cs4236_lib.c                   |    4 
+ sound/isa/es18xx.c                              |  224 +++++++++-
+ sound/isa/gus/gus_dma.c                         |   10 
+ sound/isa/gus/gus_main.c                        |    2 
+ sound/isa/gus/gus_mem.c                         |   14 
+ sound/isa/gus/gus_synth.c                       |   14 
+ sound/isa/opl3sa2.c                             |   10 
+ sound/isa/sb/sb16.c                             |    4 
+ sound/isa/sb/sb16_csp.c                         |   12 
+ sound/isa/sscape.c                              |    6 
+ sound/isa/wavefront/wavefront.c                 |    7 
+ sound/pci/ac97/ac97_codec.c                     |   45 +-
+ sound/pci/ac97/ac97_patch.c                     |   63 ++-
+ sound/pci/ac97/ac97_pcm.c                       |    6 
+ sound/pci/ac97/ac97_proc.c                      |   14 
+ sound/pci/ac97/ak4531_codec.c                   |   28 -
+ sound/pci/ali5451/ali5451.c                     |    2 
+ sound/pci/atiixp.c                              |   21 -
+ sound/pci/atiixp_modem.c                        |   13 
+ sound/pci/au88x0/au88x0.c                       |   10 
+ sound/pci/au88x0/au88x0.h                       |   12 
+ sound/pci/au88x0/au88x0_core.c                  |   12 
+ sound/pci/au88x0/au88x0_eq.c                    |   33 -
+ sound/pci/au88x0/au88x0_eq.h                    |   31 -
+ sound/pci/au88x0/au88x0_eqdata.c                |    6 
+ sound/pci/au88x0/au88x0_mpu401.c                |    4 
+ sound/pci/au88x0/au88x0_synth.c                 |   10 
+ sound/pci/au88x0/au88x0_wt.h                    |   10 
+ sound/pci/au88x0/au88x0_xtalk.c                 |   16 
+ sound/pci/au88x0/au88x0_xtalk.h                 |   12 
+ sound/pci/bt87x.c                               |    4 
+ sound/pci/ca0106/ca0106_main.c                  |   12 
+ sound/pci/cmipci.c                              |   25 -
+ sound/pci/cs46xx/cs46xx_lib.c                   |   52 +-
+ sound/pci/cs46xx/dsp_spos.c                     |   58 +-
+ sound/pci/cs46xx/dsp_spos_scb_lib.c             |    8 
+ sound/pci/cs5535audio/cs5535audio.c             |    6 
+ sound/pci/emu10k1/emu10k1_main.c                |    5 
+ sound/pci/emu10k1/emufx.c                       |   22 -
+ sound/pci/emu10k1/emumixer.c                    |   10 
+ sound/pci/emu10k1/memory.c                      |   26 -
+ sound/pci/ens1370.c                             |   39 +
+ sound/pci/es1968.c                              |   22 -
+ sound/pci/hda/hda_codec.c                       |   51 +-
+ sound/pci/hda/hda_codec.h                       |    4 
+ sound/pci/hda/hda_intel.c                       |   76 +--
+ sound/pci/hda/patch_analog.c                    |   28 -
+ sound/pci/hda/patch_realtek.c                   |    2 
+ sound/pci/hda/patch_sigmatel.c                  |    1 
+ sound/pci/ice1712/aureon.c                      |  116 +++--
+ sound/pci/ice1712/aureon.h                      |    8 
+ sound/pci/ice1712/delta.c                       |   26 -
+ sound/pci/ice1712/hoontech.c                    |   26 -
+ sound/pci/ice1712/ice1712.c                     |    7 
+ sound/pci/ice1712/ice1712.h                     |   10 
+ sound/pci/ice1712/ice1724.c                     |   37 -
+ sound/pci/ice1712/phase.c                       |   10 
+ sound/pci/ice1712/pontis.c                      |   86 ++--
+ sound/pci/intel8x0.c                            |  154 ++++---
+ sound/pci/korg1212/korg1212.c                   |   17 
+ sound/pci/mixart/mixart.c                       |   21 -
+ sound/pci/mixart/mixart.h                       |    7 
+ sound/pci/mixart/mixart_core.c                  |   18 
+ sound/pci/mixart/mixart_mixer.c                 |   52 +-
+ sound/pci/nm256/nm256.c                         |   16 
+ sound/pci/pcxhr/pcxhr.c                         |   45 +-
+ sound/pci/pcxhr/pcxhr.h                         |    5 
+ sound/pci/pcxhr/pcxhr_core.c                    |    2 
+ sound/pci/pcxhr/pcxhr_mixer.c                   |   75 +--
+ sound/pci/rme9652/hdspm.c                       |    6 
+ sound/pci/trident/trident.c                     |    8 
+ sound/pci/trident/trident_memory.c              |   36 -
+ sound/pci/via82xx.c                             |    3 
+ sound/pci/vx222/vx222_ops.c                     |   18 
+ sound/pci/ymfpci/ymfpci.c                       |    5 
+ sound/pci/ymfpci/ymfpci_main.c                  |   40 +
+ sound/pcmcia/vx/vxp_mixer.c                     |   12 
+ sound/ppc/pmac.c                                |    2 
+ sound/sparc/cs4231.c                            |   34 -
+ sound/synth/emux/emux.c                         |    2 
+ sound/synth/emux/emux_oss.c                     |   12 
+ sound/synth/emux/emux_proc.c                    |    8 
+ sound/synth/emux/emux_seq.c                     |   12 
+ sound/synth/emux/soundfont.c                    |    6 
+ sound/synth/util_mem.c                          |   15 
+ sound/usb/usbaudio.c                            |   75 ++-
+ sound/usb/usbmidi.c                             |    2 
+ sound/usb/usbquirks.h                           |   61 ++
+ sound/usb/usx2y/usbusx2y.c                      |    2 
+ sound/usb/usx2y/usbusx2y.h                      |    2 
+ sound/usb/usx2y/usbusx2yaudio.c                 |    8 
+ sound/usb/usx2y/usx2yhwdeppcm.c                 |   12 
+ 171 files changed, 2089 insertions(+), 2301 deletions(-)
+
+
+The following things were done:
+
+Adam Belay:
+      [ALSA] check return code in pnp_register_card_driver()
+
+Andrew Morton:
+      [ALSA] Fix a typo in snd_assert()
+      [ALSA] hdsp - Fix printk warnings
+      [ALSA] pcxhr - Fix printk warning
+
+Brent Cook:
+      [ALSA] Add support for EDIROL UM-3ex
+
+Chris Ball:
+      [ALSA] intel8x0: Add quirk for Optiplex GX270
+
+Clemens Ladisch:
+      [ALSA] usb-audio: cosmetic changes
+      [ALSA] usb-audio: don't use empty packets at start of playback
+      [ALSA] usb-audio: factor out packet size calculation code
+      [ALSA] ymfpci: fix SPDIF sample rate information
+      [ALSA] ymfpci: fix swapped channels in SPDIF output
+      [ALSA] usb-audio: fix non-48k sample rates with SB Audigy 2 ZS
+      [ALSA] usb-audio: add Edirol PC-50 support
+      [ALSA] usb-audio: add Roland G-70 support
+      [ALSA] usb-audio: fix number of G-70 ports
+      [ALSA] usb-audio: add UM-1EX/UM-2EX information
+
+Ingo Molnar:
+      [ALSA] Remove BKL from sound/core/info.c
+      [ALSA] semaphore -> mutex (core part)
+      [ALSA] semaphore -> mutex (driver part)
+      [ALSA] semaphore -> mutex (ISA part)
+      [ALSA] semaphore -> mutex (PCI part)
+      [ALSA] semaphore -> mutex (Archs, misc buses)
+
+James Courtier-Dutton:
+      [ALSA] snd-ca0106: Fixed ALSA bug#1600
+
+Jaroslav Kysela:
+      [ALSA] bt87x - fix detection of unknown card
+      [ALSA] PCM midlevel & PCM OSS - make procfs & OSS plugin code optional
+      [ALSA] ymfpci - make rear channel swap optional
+      [ALSA] snd_pcm_format_name() is no longer exported
+
+Jason Gaston:
+      [ALSA] hda-intel - patch for Intel ICH8
+
+Jon Mason:
+      [ALSA] Prevent ALSA trident driver from grabbing pcnet32 hardware
+      [ALSA] ali5451: Add PCI_DEVICE and #defines in snd_ali_ids
+
+Mark Salazar:
+      [ALSA] #1/4 for Zoom Video - resolve common vs chipset specific mixer controls
+      [ALSA] #2/4 for Zoom Video - resolve number of record sources
+      [ALSA] #3/4 for Zoom Video - change Hardware Volume interrupt handling
+      [ALSA] #4/4 for Zoom Video - add Zoom Video support
+
+Martin Drab:
+      [ALSA] bt87x - Fix the unability of snd-bt87x to recognize AVerMedia Studio
+
+Rene Rebe:
+      [ALSA] AMD cs5536 ID for cs5535audio
+
+Stelian Pop:
+      [ALSA] sound/ppc/pmac.c typo
+
+Takashi Iwai:
+      [ALSA] pcxhr - Suppress debug messages
+      [ALSA] via82xx - Add dxs_support for ASUS mobo
+      [ALSA] Fix compilation without CONFIG_PNP
+      [ALSA] emu10k1 - Fix silence problems after suspend
+      [ALSA] emu10k1 - Fix the confliction of 'Front' control
+      [ALSA] via82xx - Add dxs_support entry
+      [ALSA] pcxhr - Fix the sample rate changes
+      [ALSA] hda-codec - Add model entry for Sony VAIO
+      [ALSA] ac97 - Suppress jack sense controls for Thinkpads
+      [ALSA] ens1370 - Fix resume
+      [ALSA] ac97 - Fix CLFE channel setting of ALC850
+      [ALSA] intel8x0 - Fix/cleanup detection of codecs on SIS7012
+      [ALSA] hda-intel - Add single_cmd option for debugging
+      [ALSA] Fix a typo
+      [ALSA] Clean up pcm-oss plugins
+      [ALSA] ice1724 - Add support of Prodigy-7.1LT
+      [ALSA] Update description of ice1724 driver
+      [ALSA] au88x0 - 64bit arch fixes
+      [ALSA] hda-codec - Fix capture on Sigmatel STAC92xx codecs
+      [ALSA] Fix snd_xxx_t typedefs
+      [ALSA] au88x0 - Fix structs for equalizer
+      [ALSA] via82xx - Add dxs_support entry for EpoX 9HEAI
+      [ALSA] au88x0 - Fix a compile warning
+      [ALSA] opl3sa2 - Fix conflict of driver name on sysfs
+      [ALSA] sb16 - Fix duplicated PnP entry
+      [ALSA] Add the notes on PM to ens1370/ens1371 sections
+      [ALSA] Fix mulaw -> linear conversion in OSS PCM emulation
+
+Ulrich Mueller:
+      [ALSA] intel8x0 - Fix duplicate ac97_quirks entry
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

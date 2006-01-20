@@ -1,156 +1,294 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161312AbWATCzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161452AbWATC4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161312AbWATCzL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 21:55:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161438AbWATCzL
+	id S1161452AbWATC4L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 21:56:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161438AbWATCzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 21:55:11 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:33261
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1161312AbWATCzJ
+	Thu, 19 Jan 2006 21:55:45 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:39661
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1161421AbWATCzO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 21:55:09 -0500
-Message-Id: <20060120021336.134802000@tglx.tec.linutronix.de>
-Date: Fri, 20 Jan 2006 02:55:44 -0000
+	Thu, 19 Jan 2006 21:55:14 -0500
+Message-Id: <20060120021342.973972000@tglx.tec.linutronix.de>
+References: <20060120021336.134802000@tglx.tec.linutronix.de>
+Date: Fri, 20 Jan 2006 02:55:50 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        George Anzinger <george@wildturkeyranch.net>,
        Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 0/7] hrtimers updates
+Subject: [PATCH 5/7] [hrtimers] Cleanups and simplifications
+Content-Disposition: inline;
+	filename=0005-hrtimers-Cleanups-and-simplifications.txt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
 
-please pull from
+From: George Anzinger <george@wildturkeyranch.net>
+Date: 1137711354 +0100
 
-master.kernel.org:/pub/scm/linux/kernel/git/tglx/hrtimer-2.6.git
+This patch cleans up the interface to hrtimers by changing the init code
+to pass the mode as well as the clock.  This allow the init code to
+select the correct base and eliminates extra timer re-init code in
+posix-timers.  We also simplify the restart interface nanosleep use.
 
-This is an update on following issues:
+Signed-off-by: George Anzinger <george@mvista.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 
-- itimer locking
-- NULL pointer usage
-- oldvalue return in setitimer bug#5617
-- posix-timer requeue race
-- hrtimer cleanups and simplifications
-- correct initial value for relative SIGEV_NONE timers
+---
 
-	tglx
+ include/linux/hrtimer.h |    5 ++--
+ kernel/fork.c           |    2 +-
+ kernel/hrtimer.c        |   59 +++++++++++++++++++----------------------------
+ kernel/posix-timers.c   |   37 +++++++----------------------
+ 4 files changed, 36 insertions(+), 67 deletions(-)
 
-diff-tree a1f15939b7af18c5abcd4810ccd512467c77a6b1 (from 4b2719dcb1143a18de16162f2562045e40487e49)
-Author: Thomas Gleixner <tglx@linutronix.de>
-Date:   Fri Jan 20 02:19:44 2006 +0100
-
-    [hrtimers] Set correct initial expiry time for relative SIGEV_NONE timers
-    
-    The expiry time for relative timers with SIGEV_NONE set was never
-    updated to the correct value.
-    
-    Pointed out by George Anzinger.
-    
-    Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-
-:100644 100644 28e72fd0029fa466e1768d40bcb10b28a2505450 e2fa4c03c2589784a031036916a603e7fe0ac18d M	kernel/posix-timers.c
-
-diff-tree 4b2719dcb1143a18de16162f2562045e40487e49 (from 0ea0b28ad86d611745b0a55b472f46d27c38e7a2)
-Author: Thomas Gleixner <tglx@linutronix.de>
-Date:   Fri Jan 20 01:29:11 2006 +0100
-
-    [hrtimers] Add back lost credit lines
-    
-    At some point we added credits to people who actively helped
-    to bring k/hr-timers along. This was lost in the big code
-    revamp. Add it back.
-    
-    Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-    Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
-:100644 100644 1bd6552cc34134c4e19d5565e992fc91b9785910 6aca67a569a2ff907830ef64e6b69dafc154996c M	include/linux/ktime.h
-:100644 100644 efff9496b2fae67de84bf2d044a901f8a546ad2d 2b6e1757aeddf118f43c31111f46224b00f5d25e M	kernel/hrtimer.c
-
-diff-tree 0ea0b28ad86d611745b0a55b472f46d27c38e7a2 (from 7a42511f275d3c895be54f4e578921fc35e25dd2)
-Author: George Anzinger <george@wildturkeyranch.net>
-Date:   Thu Jan 19 23:55:54 2006 +0100
-
-    [hrtimers] Cleanups and simplifications
-    
-    This patch cleans up the interface to hrtimers by changing the init code
-    to pass the mode as well as the clock.  This allow the init code to
-    select the correct base and eliminates extra timer re-init code in
-    posix-timers.  We also simplify the restart interface nanosleep use.
-    
-    Signed-off-by: George Anzinger <george@mvista.com>
-    Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-
-:100644 100644 c657f3d4924a14e5714b818a1788c28859872a12 6361544bb6ae5fef3ee1dcd84dc8788262bd7917 M	include/linux/hrtimer.h
-:100644 100644 4ae8cfc1c89cffdee486c2a3b28316e583a40747 7f0ab5ee948c633a8065e685a5147e0df3d439ad M	kernel/fork.c
-:100644 100644 f580dd9db2863bee71e16129fce63956b7344b72 efff9496b2fae67de84bf2d044a901f8a546ad2d M	kernel/hrtimer.c
-:100644 100644 3b606d361b529dfda6097ba08e60bbdfd3be62aa 28e72fd0029fa466e1768d40bcb10b28a2505450 M	kernel/posix-timers.c
-
-diff-tree 7a42511f275d3c895be54f4e578921fc35e25dd2 (from 3f59dd20898d805781b3eac7ed0807e7a0b30f2f)
-Author: Steven Rostedtrostedt@goodmis.org <rostedt@goodmis.org>
-Date:   Thu Jan 19 23:52:29 2006 +0100
-
-    [hrtimers] Fix posix-timer requeue race
-    
-    CPU0 expires a posix-timer and runs the callback function.
-    The signal is queued.
-    After releasing the posix-timer lock and before returning to
-    hrtimer_run_queue CPU0 gets interrupted.
-    CPU1 delivers the queued signal and rearms the timer.
-    CPU0 comes back to hrtimer_run_queue and sets the timer state to expired.
-    The next modification of the timer can result in an oops, because the state
-    information is wrong.
-    
-    Keep track of state = RUNNING and check if the state has been in the return
-    path of hrtimer_run_queue. In case the state has been changed, ignore a
-    restart request and do not touch the state variable.
-    
-    Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-    Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-
-:100644 100644 089bfb1fa01a771d7c11ee7de4227deb88d29b00 c657f3d4924a14e5714b818a1788c28859872a12 M	include/linux/hrtimer.h
-:100644 100644 f1c4155b49ac140051538f12046cb553674657f9 f580dd9db2863bee71e16129fce63956b7344b72 M	kernel/hrtimer.c
-
-diff-tree 3f59dd20898d805781b3eac7ed0807e7a0b30f2f (from a42e5a139db5c1759bc98729152618ed5b80410e)
-Author: Thomas Gleixner <tglx@linutronix.de>
-Date:   Thu Jan 19 15:36:22 2006 +0100
-
-    [hrtimers] Fix oldvalue return in setitimer
-    
-    This resolves bugzilla bug#5617. The oldvalue of the
-    timer was read after the timer was cancelled, so the
-    remaining time was always zero.
-    
-    Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-
-:100644 100644 6433d06855063d477c4c037e00ad660aea4319fd 379be2f8c84c33445b9cea549fe2c7215d3d6cc4 M	kernel/itimer.c
-
-diff-tree a42e5a139db5c1759bc98729152618ed5b80410e (from 52ae41e3d11d6f1828c5827861b7b83b7e854222)
-Author: Thomas Gleixner <tglx@linutronix.de>
-Date:   Tue Jan 17 22:50:51 2006 +0100
-
-    [hrtimers] Fix possible use of NULL pointer in posix-timers
-    
-    Fixup the conversion of posix-timers to hrtimers.
-    
-    Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-
-:100644 100644 197208b3aa2ad837517d27662e5bacaafd75258b 3b606d361b529dfda6097ba08e60bbdfd3be62aa M	kernel/posix-timers.c
-
-diff-tree 52ae41e3d11d6f1828c5827861b7b83b7e854222 (from 2664b25051f7ab96b22b199aa2f5ef6a949a4296)
-Author: Thomas Gleixner <tglx@linutronix.de>
-Date:   Tue Jan 17 20:03:14 2006 +0100
-
-    [hrtimers] Fixup itimer conversion
-    
-    The itimer conversion removed the locking which protects
-    the timer and variables in the shared signal structure.
-    Steven Rostedt found the problem in the latest -rt patches.
-    
-    Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-
-:100644 100644 c2c05c4ff28d5bd7bd32cf8ca1eea1dc768b71c2 6433d06855063d477c4c037e00ad660aea4319fd M	kernel/itimer.c
+0ea0b28ad86d611745b0a55b472f46d27c38e7a2
+diff --git a/include/linux/hrtimer.h b/include/linux/hrtimer.h
+index c657f3d..6361544 100644
+--- a/include/linux/hrtimer.h
++++ b/include/linux/hrtimer.h
+@@ -101,9 +101,8 @@ struct hrtimer_base {
+ /* Exported timer functions: */
+ 
+ /* Initialize timers: */
+-extern void hrtimer_init(struct hrtimer *timer, const clockid_t which_clock);
+-extern void hrtimer_rebase(struct hrtimer *timer, const clockid_t which_clock);
+-
++extern void hrtimer_init(struct hrtimer *timer, clockid_t which_clock,
++			 enum hrtimer_mode mode);
+ 
+ /* Basic timer operations: */
+ extern int hrtimer_start(struct hrtimer *timer, ktime_t tim,
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 4ae8cfc..7f0ab5e 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -802,7 +802,7 @@ static inline int copy_signal(unsigned l
+ 	init_sigpending(&sig->shared_pending);
+ 	INIT_LIST_HEAD(&sig->posix_timers);
+ 
+-	hrtimer_init(&sig->real_timer, CLOCK_MONOTONIC);
++	hrtimer_init(&sig->real_timer, CLOCK_MONOTONIC, HRTIMER_REL);
+ 	sig->it_real_incr.tv64 = 0;
+ 	sig->real_timer.function = it_real_fn;
+ 	sig->real_timer.data = tsk;
+diff --git a/kernel/hrtimer.c b/kernel/hrtimer.c
+index f580dd9..efff949 100644
+--- a/kernel/hrtimer.c
++++ b/kernel/hrtimer.c
+@@ -66,6 +66,12 @@ EXPORT_SYMBOL_GPL(ktime_get_real);
+ 
+ /*
+  * The timer bases:
++ *
++ * Note: If we want to add new timer bases, we have to skip the two
++ * clock ids captured by the cpu-timers. We do this by holding empty
++ * entries rather than doing math adjustment of the clock ids.
++ * This ensures that we capture erroneous accesses to these clock ids
++ * rather than moving them into the range of valid clock id's.
+  */
+ 
+ #define MAX_HRTIMER_BASES 2
+@@ -483,29 +489,25 @@ ktime_t hrtimer_get_remaining(const stru
+ }
+ 
+ /**
+- * hrtimer_rebase - rebase an initialized hrtimer to a different base
++ * hrtimer_init - initialize a timer to the given clock
+  *
+- * @timer:	the timer to be rebased
++ * @timer:	the timer to be initialized
+  * @clock_id:	the clock to be used
++ * @mode:	timer mode abs/rel
+  */
+-void hrtimer_rebase(struct hrtimer *timer, const clockid_t clock_id)
++void hrtimer_init(struct hrtimer *timer, clockid_t clock_id,
++		  enum hrtimer_mode mode)
+ {
+ 	struct hrtimer_base *bases;
+ 
++	memset(timer, 0, sizeof(struct hrtimer));
++
+ 	bases = per_cpu(hrtimer_bases, raw_smp_processor_id());
+-	timer->base = &bases[clock_id];
+-}
+ 
+-/**
+- * hrtimer_init - initialize a timer to the given clock
+- *
+- * @timer:	the timer to be initialized
+- * @clock_id:	the clock to be used
+- */
+-void hrtimer_init(struct hrtimer *timer, const clockid_t clock_id)
+-{
+-	memset(timer, 0, sizeof(struct hrtimer));
+-	hrtimer_rebase(timer, clock_id);
++	if (clock_id == CLOCK_REALTIME && mode != HRTIMER_ABS)
++		clock_id = CLOCK_MONOTONIC;
++
++	timer->base = &bases[clock_id];
+ }
+ 
+ /**
+@@ -643,8 +645,7 @@ schedule_hrtimer_interruptible(struct hr
+ 	return schedule_hrtimer(timer, mode);
+ }
+ 
+-static long __sched
+-nanosleep_restart(struct restart_block *restart, clockid_t clockid)
++static long __sched nanosleep_restart(struct restart_block *restart)
+ {
+ 	struct timespec __user *rmtp;
+ 	struct timespec tu;
+@@ -654,7 +655,7 @@ nanosleep_restart(struct restart_block *
+ 
+ 	restart->fn = do_no_restart_syscall;
+ 
+-	hrtimer_init(&timer, clockid);
++	hrtimer_init(&timer, (clockid_t) restart->arg3, HRTIMER_ABS);
+ 
+ 	timer.expires.tv64 = ((u64)restart->arg1 << 32) | (u64) restart->arg0;
+ 
+@@ -674,16 +675,6 @@ nanosleep_restart(struct restart_block *
+ 	return -ERESTART_RESTARTBLOCK;
+ }
+ 
+-static long __sched nanosleep_restart_mono(struct restart_block *restart)
+-{
+-	return nanosleep_restart(restart, CLOCK_MONOTONIC);
+-}
+-
+-static long __sched nanosleep_restart_real(struct restart_block *restart)
+-{
+-	return nanosleep_restart(restart, CLOCK_REALTIME);
+-}
+-
+ long hrtimer_nanosleep(struct timespec *rqtp, struct timespec __user *rmtp,
+ 		       const enum hrtimer_mode mode, const clockid_t clockid)
+ {
+@@ -692,7 +683,7 @@ long hrtimer_nanosleep(struct timespec *
+ 	struct timespec tu;
+ 	ktime_t rem;
+ 
+-	hrtimer_init(&timer, clockid);
++	hrtimer_init(&timer, clockid, mode);
+ 
+ 	timer.expires = timespec_to_ktime(*rqtp);
+ 
+@@ -700,7 +691,7 @@ long hrtimer_nanosleep(struct timespec *
+ 	if (rem.tv64 <= 0)
+ 		return 0;
+ 
+-	/* Absolute timers do not update the rmtp value: */
++	/* Absolute timers do not update the rmtp value and restart: */
+ 	if (mode == HRTIMER_ABS)
+ 		return -ERESTARTNOHAND;
+ 
+@@ -710,11 +701,11 @@ long hrtimer_nanosleep(struct timespec *
+ 		return -EFAULT;
+ 
+ 	restart = &current_thread_info()->restart_block;
+-	restart->fn = (clockid == CLOCK_MONOTONIC) ?
+-		nanosleep_restart_mono : nanosleep_restart_real;
++	restart->fn = nanosleep_restart;
+ 	restart->arg0 = timer.expires.tv64 & 0xFFFFFFFF;
+ 	restart->arg1 = timer.expires.tv64 >> 32;
+ 	restart->arg2 = (unsigned long) rmtp;
++	restart->arg3 = (unsigned long) timer.base->index;
+ 
+ 	return -ERESTART_RESTARTBLOCK;
+ }
+@@ -741,10 +732,8 @@ static void __devinit init_hrtimers_cpu(
+ 	struct hrtimer_base *base = per_cpu(hrtimer_bases, cpu);
+ 	int i;
+ 
+-	for (i = 0; i < MAX_HRTIMER_BASES; i++) {
++	for (i = 0; i < MAX_HRTIMER_BASES; i++, base++)
+ 		spin_lock_init(&base->lock);
+-		base++;
+-	}
+ }
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+diff --git a/kernel/posix-timers.c b/kernel/posix-timers.c
+index 3b606d3..28e72fd 100644
+--- a/kernel/posix-timers.c
++++ b/kernel/posix-timers.c
+@@ -194,9 +194,7 @@ static inline int common_clock_set(const
+ 
+ static int common_timer_create(struct k_itimer *new_timer)
+ {
+-	hrtimer_init(&new_timer->it.real.timer, new_timer->it_clock);
+-	new_timer->it.real.timer.data = new_timer;
+-	new_timer->it.real.timer.function = posix_timer_fn;
++	hrtimer_init(&new_timer->it.real.timer, new_timer->it_clock, 0);
+ 	return 0;
+ }
+ 
+@@ -693,6 +691,7 @@ common_timer_set(struct k_itimer *timr, 
+ 		 struct itimerspec *new_setting, struct itimerspec *old_setting)
+ {
+ 	struct hrtimer *timer = &timr->it.real.timer;
++	enum hrtimer_mode mode;
+ 
+ 	if (old_setting)
+ 		common_timer_get(timr, old_setting);
+@@ -714,14 +713,10 @@ common_timer_set(struct k_itimer *timr, 
+ 	if (!new_setting->it_value.tv_sec && !new_setting->it_value.tv_nsec)
+ 		return 0;
+ 
+-	/* Posix madness. Only absolute CLOCK_REALTIME timers
+-	 * are affected by clock sets. So we must reiniatilize
+-	 * the timer.
+-	 */
+-	if (timr->it_clock == CLOCK_REALTIME && (flags & TIMER_ABSTIME))
+-		hrtimer_rebase(timer, CLOCK_REALTIME);
+-	else
+-		hrtimer_rebase(timer, CLOCK_MONOTONIC);
++	mode = flags & TIMER_ABSTIME ? HRTIMER_ABS : HRTIMER_REL;
++	hrtimer_init(&timr->it.real.timer, timr->it_clock, mode);
++	timr->it.real.timer.data = timr;
++	timr->it.real.timer.function = posix_timer_fn;
+ 
+ 	timer->expires = timespec_to_ktime(new_setting->it_value);
+ 
+@@ -732,8 +727,7 @@ common_timer_set(struct k_itimer *timr, 
+ 	if (((timr->it_sigev_notify & ~SIGEV_THREAD_ID) == SIGEV_NONE))
+ 		return 0;
+ 
+-	hrtimer_start(timer, timer->expires, (flags & TIMER_ABSTIME) ?
+-		      HRTIMER_ABS : HRTIMER_REL);
++	hrtimer_start(timer, timer->expires, mode);
+ 	return 0;
+ }
+ 
+@@ -948,21 +942,8 @@ sys_clock_getres(const clockid_t which_c
+ static int common_nsleep(const clockid_t which_clock, int flags,
+ 			 struct timespec *tsave, struct timespec __user *rmtp)
+ {
+-	int mode = flags & TIMER_ABSTIME ? HRTIMER_ABS : HRTIMER_REL;
+-	int clockid = which_clock;
+-
+-	switch (which_clock) {
+-	case CLOCK_REALTIME:
+-		/* Posix madness. Only absolute timers on clock realtime
+-		   are affected by clock set. */
+-		if (mode != HRTIMER_ABS)
+-			clockid = CLOCK_MONOTONIC;
+-	case CLOCK_MONOTONIC:
+-		break;
+-	default:
+-		return -EINVAL;
+-	}
+-	return hrtimer_nanosleep(tsave, rmtp, mode, clockid);
++	return hrtimer_nanosleep(tsave, rmtp, flags & TIMER_ABSTIME ?
++				 HRTIMER_ABS : HRTIMER_REL, which_clock);
+ }
+ 
+ asmlinkage long
+-- 
+1.0.8
 
 --
 

@@ -1,416 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750847AbWATQBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbWATQFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750847AbWATQBN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 11:01:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWATQBN
+	id S1750905AbWATQFy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 11:05:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbWATQFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 11:01:13 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:32440 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750808AbWATQBM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 11:01:12 -0500
-Message-ID: <43D1099E.3050509@us.ibm.com>
-Date: Fri, 20 Jan 2006 10:02:38 -0600
-From: "V. Ananda Krishnan" <mansarov@us.ibm.com>
-User-Agent: Thunderbird 1.5 (X11/20051025)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: alan@lxorguk.ukuu.org.uk, rmk@arm.linux.org.uk, akpm@osdl.org,
-       gregkh@suse.de
-Subject: [PATCH]-jsm driver fix for linux-2.6.16-rc1
-Content-Type: multipart/mixed;
- boundary="------------040307080005070709060707"
+	Fri, 20 Jan 2006 11:05:54 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:41856 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1750808AbWATQFy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 11:05:54 -0500
+Subject: Re: [PATCH 1/6] 2.6.16-rc1 perfmon2 patch for review
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Stephane Eranian <eranian@frankl.hpl.hp.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200601201520.k0KFKCdY023112@frankl.hpl.hp.com>
+References: <200601201520.k0KFKCdY023112@frankl.hpl.hp.com>
+Content-Type: text/plain
+Date: Fri, 20 Jan 2006 08:05:48 -0800
+Message-Id: <1137773148.28944.29.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040307080005070709060707
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 2006-01-20 at 07:20 -0800, Stephane Eranian wrote:
 
-Hi,
+> + * Fast, simple, yet decent quality random number generator based on
+> + * a paper by David G. Carta ("Two Fast Implementations of the
+> + * `Minimal Standard' Random Number Generator," Communications of the
+> + * ACM, January, 1990).
 
-   The following patch takes into account the dynamically allocated 
-tty_buf changes and hence fixes the jsm driver.  Please let me have the 
-feed-back.
+What on earth do you need a random number generator for?
 
-Thanks
-V. Ananda Krishnan
+> + * XXX: Hack until we figure out which header file to use.
+> + *      Could use linux/random.h but then we would need
+> + *      asm-XX/random.h which does not exists yet
+> + */
+> +#ifdef __ia64__
+> +#define __HAVE_ARCH_CARTA_RANDOM32
+> +#endif
 
---------------040307080005070709060707
-Content-Type: text/plain;
- name="jsm_buf_chg_patch_012006.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="jsm_buf_chg_patch_012006.txt"
+Please use the same mechanism as I did last week for __iowrite_copy32,
+instead of this ifdeffery.  If you search the archives, you'll find it.
 
-diff -Naupr linux-2.6.16-rc1/drivers/serial/Kconfig linux-2.6.16-rc1-jsm/drivers/serial/Kconfig
---- linux-2.6.16-rc1/drivers/serial/Kconfig	2006-01-17 01:44:47.000000000 -0600
-+++ linux-2.6.16-rc1-jsm/drivers/serial/Kconfig	2006-01-19 14:09:36.582948368 -0600
-@@ -893,7 +893,7 @@ config SERIAL_VR41XX_CONSOLE
- 
- config SERIAL_JSM
-         tristate "Digi International NEO PCI Support"
--	depends on PCI && BROKEN
-+	depends on PCI 
-         select SERIAL_CORE
-         help
-           This is a driver for Digi International's Neo series
-diff -Naupr linux-2.6.16-rc1/drivers/serial/jsm/jsm_tty.c linux-2.6.16-rc1-jsm/drivers/serial/jsm/jsm_tty.c
---- linux-2.6.16-rc1/drivers/serial/jsm/jsm_tty.c	2006-01-17 01:44:47.000000000 -0600
-+++ linux-2.6.16-rc1-jsm/drivers/serial/jsm/jsm_tty.c	2006-01-19 15:49:32.860940944 -0600
-@@ -20,8 +20,11 @@
-  *
-  * Contact Information:
-  * Scott H Kilau <Scott_Kilau@digi.com>
-- * Wendy Xiong   <wendyx@us.ltcfwd.linux.ibm.com>
-- *
-+ * Wendy Xiong   <wendyx>
-+ * Ananda Venkatarman <mansarov@us.ibm.com>
-+ * Modifications:
-+ * 01/19/06:	changed jsm_input routine to use the dynamically allocated
-+ *		tty_buffer changes. Contributors: Scott Kilau and Ananda V.
-  ***********************************************************************/
- #include <linux/tty.h>
- #include <linux/tty_flip.h>
-@@ -497,16 +500,16 @@ void jsm_input(struct jsm_channel *ch)
- {
- 	struct jsm_board *bd;
- 	struct tty_struct *tp;
-+	struct tty_ldisc *ld;
- 	u32 rmask;
- 	u16 head;
- 	u16 tail;
- 	int data_len;
- 	unsigned long lock_flags;
--	int flip_len;
-+	int flip_len = 0;
- 	int len = 0;
- 	int n = 0;
- 	char *buf = NULL;
--	char *buf2 = NULL;
- 	int s = 0;
- 	int i = 0;
- 
-@@ -574,29 +577,53 @@ void jsm_input(struct jsm_channel *ch)
- 
- 	/*
- 	 * If the rxbuf is empty and we are not throttled, put as much
--	 * as we can directly into the linux TTY flip buffer.
--	 * The jsm_rawreadok case takes advantage of carnal knowledge that
--	 * the char_buf and the flag_buf are next to each other and
--	 * are each of (2 * TTY_FLIPBUF_SIZE) size.
-+	 * as we can directly into the linux TTY buffer.
- 	 *
- 	 * NOTE: if(!tty->real_raw), the call to ldisc.receive_buf
- 	 *actually still uses the flag buffer, so you can't
- 	 *use it for input data
- 	 */
--	if (jsm_rawreadok) {
--		if (tp->real_raw)
--			flip_len = MYFLIPLEN;
--		else
--			flip_len = 2 * TTY_FLIPBUF_SIZE;
--	} else
--		flip_len = TTY_FLIPBUF_SIZE - tp->flip.count;
-+	if ((jsm_rawreadok) && (tp->real_raw))
-+		flip_len = MYFLIPLEN;
-+	else
-+		flip_len = TTY_FLIPBUF_SIZE;
- 
- 	len = min(data_len, flip_len);
- 	len = min(len, (N_TTY_BUF_SIZE - 1) - tp->read_cnt);
-+	ld = tty_ldisc_ref(tp);
-+
-+        /*
-+         * If the DONT_FLIP flag is on, don't flush our buffer, and act
-+         * like the ld doesn't have any space to put the data right now.
-+         */
-+        if (test_bit(TTY_DONT_FLIP, &tp->flags))
-+                len = 0;
-+
-+        /*
-+         * If we were unable to get a reference to the ld,
-+         * don't flush our buffer, and act like the ld doesn't
-+         * have any space to put the data right now.
-+         */
-+        if (!ld) {
-+                len = 0;
-+        } else {
-+                /*
-+                 * If ld doesn't have a pointer to a receive_buf function,
-+                 * flush the data, then act like the ld doesn't have any
-+                 * space to put the data right now.
-+                 */
-+                if (!ld->receive_buf) {
-+                        ch->ch_r_head = ch->ch_r_tail;
-+                        len = 0;
-+                }
-+        }
-+
- 
- 	if (len <= 0) {
- 		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
- 		jsm_printk(READ, INFO, &ch->ch_bd->pci_dev, "jsm_input 1\n");
-+		if (ld)
-+			tty_ldisc_deref(ld);
- 		return;
- 	}
- 
-@@ -604,157 +631,117 @@ void jsm_input(struct jsm_channel *ch)
- 	 * If we're bypassing flip buffers on rx, we can blast it
- 	 * right into the beginning of the buffer.
- 	 */
--	if (jsm_rawreadok) {
--		if (tp->real_raw) {
--			if (ch->ch_flags & CH_FLIPBUF_IN_USE) {
--				jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
--					"JSM - FLIPBUF in use. delaying input\n");
--				spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
--				return;
--			}
--			ch->ch_flags |= CH_FLIPBUF_IN_USE;
--			buf = ch->ch_bd->flipbuf;
--			buf2 = NULL;
--		} else {
--			buf = tp->flip.char_buf;
--			buf2 = tp->flip.flag_buf;
-+	if ((jsm_rawreadok) && (tp->real_raw)) {
-+		if (ch->ch_flags & CH_FLIPBUF_IN_USE) {
-+			jsm_printk(READ, INFO, &ch->ch_bd->pci_dev, "JSM - FLIPBUF in use, delaying input\n");
-+		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
-+		if (ld)
-+			tty_ldisc_deref(ld);
-+		return;
- 		}
--	} else {
--		buf = tp->flip.char_buf_ptr;
--		buf2 = tp->flip.flag_buf_ptr;
--	}
-+		ch->ch_flags |= CH_FLIPBUF_IN_USE;
-+		buf = ch->ch_bd->flipbuf;
- 
--	n = len;
--
--	/*
--	 * n now contains the most amount of data we can copy,
--	 * bounded either by the flip buffer size or the amount
--	 * of data the card actually has pending...
--	 */
--	while (n) {
--		s = ((head >= tail) ? head : RQUEUESIZE) - tail;
--		s = min(s, n);
-+		n = len;
- 
--		if (s <= 0)
--			break;
- 
--		memcpy(buf, ch->ch_rqueue + tail, s);
--
--		/* buf2 is only set when port isn't raw */
--		if (buf2)
--			memcpy(buf2, ch->ch_equeue + tail, s);
--
--		tail += s;
--		buf += s;
--		if (buf2)
--			buf2 += s;
--		n -= s;
--		/* Flip queue if needed */
--		tail &= rmask;
--	}
--
--	/*
--	 * In high performance mode, we don't have to update
--	 * flag_buf or any of the counts or pointers into flip buf.
--	 */
--	if (!jsm_rawreadok) {
--		if (I_PARMRK(tp) || I_BRKINT(tp) || I_INPCK(tp)) {
--			for (i = 0; i < len; i++) {
--				/*
--				 * Give the Linux ld the flags in the
--				 * format it likes.
--				 */
--				if (tp->flip.flag_buf_ptr[i] & UART_LSR_BI)
--					tp->flip.flag_buf_ptr[i] = TTY_BREAK;
--				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_PE)
--					tp->flip.flag_buf_ptr[i] = TTY_PARITY;
--				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_FE)
--					tp->flip.flag_buf_ptr[i] = TTY_FRAME;
--				else
--					tp->flip.flag_buf_ptr[i] = TTY_NORMAL;
--			}
--		} else {
--			memset(tp->flip.flag_buf_ptr, 0, len);
-+		/*
-+		 * n now contains the most amount of data we can copy,
-+		 * bounded either by the flip buffer size or the amount
-+		 * of data the card actually has pending...
-+		 */
-+		while (n) {
-+			s = ((head >= tail) ? head : RQUEUESIZE) - tail;
-+			s = min(s, n);
-+
-+			if (s <= 0)
-+				break;
-+
-+			memcpy(buf, ch->ch_rqueue + tail, s);
-+			tail += s;
-+			buf += s;
-+
-+			n -= s;
-+			/* Flip queue if needed */
-+			tail &= rmask;
- 		}
- 
--		tp->flip.char_buf_ptr += len;
--		tp->flip.flag_buf_ptr += len;
--		tp->flip.count += len;
--	}
--	else if (!tp->real_raw) {
--		if (I_PARMRK(tp) || I_BRKINT(tp) || I_INPCK(tp)) {
--			for (i = 0; i < len; i++) {
--				/*
--				 * Give the Linux ld the flags in the
--				 * format it likes.
--				 */
--				if (tp->flip.flag_buf_ptr[i] & UART_LSR_BI)
--					tp->flip.flag_buf_ptr[i] = TTY_BREAK;
--				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_PE)
--					tp->flip.flag_buf_ptr[i] = TTY_PARITY;
--				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_FE)
--					tp->flip.flag_buf_ptr[i] = TTY_FRAME;
--				else
--					tp->flip.flag_buf_ptr[i] = TTY_NORMAL;
--			}
--		} else
--			memset(tp->flip.flag_buf, 0, len);
--	}
--
--	/*
--	 * If we're doing raw reads, jam it right into the
--	 * line disc bypassing the flip buffers.
--	 */
--	if (jsm_rawreadok) {
--		if (tp->real_raw) {
--			ch->ch_r_tail = tail & rmask;
--			ch->ch_e_tail = tail & rmask;
--
--			jsm_check_queue_flow_control(ch);
--
--			/* !!! WE *MUST* LET GO OF ALL LOCKS BEFORE CALLING RECEIVE BUF !!! */
--
--			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
--
--			jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
--				"jsm_input. %d real_raw len:%d calling receive_buf for board %d\n",
--				__LINE__, len, ch->ch_bd->boardnum);
--			tp->ldisc.receive_buf(tp, ch->ch_bd->flipbuf, NULL, len);
--
--			/* Allow use of channel flip buffer again */
--			spin_lock_irqsave(&ch->ch_lock, lock_flags);
--			ch->ch_flags &= ~CH_FLIPBUF_IN_USE;
--			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
--
--		} else {
--			ch->ch_r_tail = tail & rmask;
--			ch->ch_e_tail = tail & rmask;
--
--			jsm_check_queue_flow_control(ch);
--
--			/* !!! WE *MUST* LET GO OF ALL LOCKS BEFORE CALLING RECEIVE BUF !!! */
--			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
--
--			jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
--				"jsm_input. %d not real_raw len:%d calling receive_buf for board %d\n",
--				__LINE__, len, ch->ch_bd->boardnum);
--
--			tp->ldisc.receive_buf(tp, tp->flip.char_buf, tp->flip.flag_buf, len);
--		}
--	} else {
- 		ch->ch_r_tail = tail & rmask;
- 		ch->ch_e_tail = tail & rmask;
--
- 		jsm_check_queue_flow_control(ch);
- 
-+		/* !!! WE *MUST* LET GO OF ALL LOCKS BEFORE CALLING RECEIVE BUF !!! */
- 		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
- 
- 		jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
--			"jsm_input. %d not jsm_read raw okay scheduling flip\n", __LINE__);
--		tty_schedule_flip(tp);
--	}
-+	"jsm_input. %d real_raw len:%d calling receive_buf for board %d\n", __LINE__, len, ch->ch_bd->boardnum);
-+		tp->ldisc.receive_buf(tp, ch->ch_bd->flipbuf, NULL, len);
- 
--	jsm_printk(IOCTL, INFO, &ch->ch_bd->pci_dev, "finish\n");
-+		/* Allow use of channel flip buffer again */
-+		spin_lock_irqsave(&ch->ch_lock, lock_flags);
-+		ch->ch_flags &= ~CH_FLIPBUF_IN_USE;
-+		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
-+
-+        }
-+        else {
-+                len = tty_buffer_request_room(tp, len);
-+                n = len;
-+
-+                /*
-+                 * n now contains the most amount of data we can copy,
-+                 * bounded either by the flip buffer size or the amount
-+                 * of data the card actually has pending...
-+                 */
-+                while (n) {
-+                        s = ((head >= tail) ? head : RQUEUESIZE) - tail;
-+                        s = min(s, n);
-+
-+                        if (s <= 0)
-+                                break;
-+
-+                        /*
-+                         * If conditions are such that ld needs to see all
-+                         * UART errors, we will have to walk each character
-+                         * and error byte and send them to the buffer one at
-+                         * a time.
-+                         */
-+
-+                if (I_PARMRK(tp) || I_BRKINT(tp) || I_INPCK(tp)) {
-+                        for (i = 0; i < s; i++) {
-+                                /*
-+                                 * Give the Linux ld the flags in the
-+                                 * format it likes.
-+                                 */
-+                                if (*(ch->ch_equeue +tail +i) & UART_LSR_BI)
-+                                        tty_insert_flip_char(tp, *(ch->ch_rqueue +tail +i),  TTY_BREAK);
-+                                else if (*(ch->ch_equeue +tail +i) & UART_LSR_PE)
-+                                        tty_insert_flip_char(tp, *(ch->ch_rqueue +tail +i), TTY_PARITY);
-+                                else if (*(ch->ch_equeue +tail +i) & UART_LSR_FE)                                        tty_insert_flip_char(tp, *(ch->ch_rqueue +tail +i), TTY_FRAME);
-+                                else
-+                                        tty_insert_flip_char(tp, *(ch->ch_rqueue +tail +i), TTY_NORMAL);
-+                        }
-+                } else {
-+			tty_insert_flip_string(tp, ch->ch_rqueue + tail, s) ;
-+                }
-+		tail += s;
-+		n -= s;
-+                        /* Flip queue if needed */
-+                        tail &= rmask;
-+                }
-+
-+                ch->ch_r_tail = tail & rmask;
-+                ch->ch_e_tail = tail & rmask;
-+                jsm_check_queue_flow_control(ch);
-+                spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
-+
-+                /* Tell the tty layer its okay to "eat" the data now */
-+                tty_flip_buffer_push(tp);
-+        }
-+
-+        if (ld)
-+                tty_ldisc_deref(ld);
-+
-+        jsm_printk(IOCTL, INFO, &ch->ch_bd->pci_dev, "finish\n");
- }
- 
- static void jsm_carrier(struct jsm_channel *ch)
+> +/*
+> + * Request structure used to define a context
+> + */
+> +typedef struct {
+> +	pfm_uuid_t	ctx_smpl_buf_id;   /* which buffer format to use */
+> +	u32		ctx_flags;	   /* noblock/block */
 
---------------040307080005070709060707--
+Please define a pfm_flags_t or similar type, and mark it __bitwise for
+sparse.
+
+> +	int		ctx_fd;		   /* ret arg: fd for context */
+
+Why not an s32?
+
+> +	u32 reg_flags;	   	/* input: flags, return: reg error */
+
+This overloading is a bit gross, if I understand it correctly.  You're
+passing in a bitmask and getting back an integer, is that right?  Or is
+it a different kind of bitmask in either direction?
+
+> +/*
+> + * argument structure for pfm_write_pmds() and pfm_read_pmds()
+> + */
+> +typedef struct {
+> +	u16 reg_num;	   	/* which register */
+> +	u16 reg_set;	   	/* event set for this register */
+> +	u32 reg_flags;	   	/* input: flags, return: reg error */
+> +	u64 reg_value;	   	/* initial pmc/pmd value */
+> +	u64 reg_long_reset;	/* value to reload after notification */
+> +	u64 reg_short_reset;   	/* reset after counter overflow */
+> +	u64 reg_last_reset_val;	/* return: PMD last reset value */
+> +	u64 reg_ovfl_switch_cnt;/* #overflows before switch */
+> +	unsigned long reg_reset_pmds[PFM_PMD_BV]; /* reset on overflow */
+> +	unsigned long reg_smpl_pmds[PFM_PMD_BV];  /* record in sample */
+> +	u64 reg_smpl_eventid;  	/* opaque event identifier */
+> +	u64 reg_random_mask; 	/* bitmask used to limit random value */
+> +	u32 reg_random_seed;   	/* seed for randomization */
+> +	u32 reg_reserved2[7];	/* for future use */
+> +} pfarg_pmd_t;
+
+If this header file is shared with userspace (it looks like it is) and
+these are syscall arguments, these should all be double-underscored
+fixed-size types, as should all other types and structs that may be used
+by userspace.  Using unsigned long, in particular, makes extra work for
+multiarch machines that will have to repack those structs.
+
+
+> + * default value for the user and group security parameters in
+> + * /proc/sys/kernel/perfmon
+> + */
+> +#define PFM_GROUP_PERM_ANY	-1	/* any user/group */
+
+/proc????
+
+> +extern int  pfm_get_args(void __user *arg, size_t sz, void **kargs);
+
+Please don't declare functions as extern.  It's redundant, and the head
+penguins don't like the style.
+
+Also, some comment in the header that makes it obvious where's the
+boundary between functions that are purely internal to perfmon,
+functions that can be used by other kernel subsystems (if any), and
+syscalls would be useful.
+
+> +/* use for IA-64 only */
+> +#ifdef __ia64__
+> +#define pfm_release_dbregs(_t) 		do { } while (0)
+> +#define pfm_use_dbregs(_t)     		(0)
+> +#endif
+
+Please move this to asm-ia64/perfmon.h, then.
+
+> +/*
+> + * This header is at the beginning of the sampling buffer returned to the user.
+
+How big are these sampling buffers, and would they be a better match for
+relayfs?
+
+	<b
+

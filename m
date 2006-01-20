@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWATTQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWATTWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbWATTQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 14:16:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWATTQJ
+	id S1751178AbWATTWF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 14:22:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWATTWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 14:16:09 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:7098 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1750807AbWATTQI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 14:16:08 -0500
-Date: Fri, 20 Jan 2006 11:16:10 -0800
-From: Greg KH <greg@kroah.com>
-To: Michael Loftis <mloftis@wgops.com>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 20 Jan 2006 14:22:05 -0500
+Received: from free.wgops.com ([69.51.116.66]:6927 "EHLO shell.wgops.com")
+	by vger.kernel.org with ESMTP id S1751178AbWATTWD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 14:22:03 -0500
+Date: Fri, 20 Jan 2006 12:21:40 -0700
+From: Michael Loftis <mloftis@wgops.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: dtor_core@ameritech.net, James Courtier-Dutton <James@superbug.co.uk>,
+       linux-kernel@vger.kernel.org
 Subject: Re: Development tree, PLEASE?
-Message-ID: <20060120191609.GA7530@kroah.com>
+Message-ID: <E27F809F04C1C673D283E84F@d216-220-25-20.dynip.modwest.com>
+In-Reply-To: <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu>
 References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+ <43D10FF8.8090805@superbug.co.uk>
+ <6769FDC09295B7E6078A5089@d216-220-25-20.dynip.modwest.com>
+ <d120d5000601200850w611e8af8v41a0786b7dc973d9@mail.gmail.com>           
+ <30D11C032F1FC0FE9CA1CDFD@d216-220-25-20.dynip.modwest.com>
+ <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu>
+X-Mailer: Mulberry/4.0.4 (Mac OS X)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
-User-Agent: Mutt/1.5.11
+X-MailScanner-Information: Please contact support@wgops.com
+X-MailScanner: WGOPS clean
+X-MailScanner-From: mloftis@wgops.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 20, 2006 at 08:17:40AM -0700, Michael Loftis wrote:
-> 
-> Normally I wouldn't care, and I'd just stay away from 'stable' until 
-> someone finally figured out that a dev tree really is needed, but I can't 
-> stay quiet anymore.  2.6.x is anything but stable right now.  It might be 
-> stable in the sense that most any development kernel is stable in that it 
-> runs without crashing, but it's not at all stable in the sense that 
-> everything is changing as if it were an odd numbered dev tree.
 
-Please detail your specific problems that you are having.  General rants
-don't help anyone except make you feel better :)
 
-thanks,
+--On January 20, 2006 2:03:52 PM -0500 Valdis.Kletnieks@vt.edu wrote:
 
-greg k-h
+> But you're perfectly happy to make the kernel developers do the
+> equivalent thing when they have to maintain 2 forks (a stable and devel).
+> Go back and look at the status of the 2.5 tree - there were *large*
+> chunks of time when 2.4 or 2.5 would get an important bugfix, but the
+> other tree wouldn't get it for *weeks* because of the hassle of
+> cross-porting the patch.
+
+To more fully respond though....
+
+Weeks is fine, and better than never.  And there may be cases in which the 
+decision has to be made to 'abandon' a particular stable release in favor 
+of a newer version because of the difficulty or inability to backport fixes.
+
+I think that it's fine to push the maintenance effort away from the 
+mainline developers, probably even desireable, but then the bugfixing/etc 
+tends to happen in a disparate manner, off on lots of forks at different 
+places without them making their way back to some central place.
+
+And that seems where we're going with this conversation.  A fork/forks at 
+various versions to maintain bugfixes and support updates that's (more?) 
+open to submitters writing patches.  Maintained by a separate group or 
+party, but with the 'blessing' from mainline to do so.  A place for those 
+sorts of efforts to be focused, without necessarily involving the primary 
+developers.
+
+

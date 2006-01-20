@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWATPXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWATPXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750726AbWATPXY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 10:23:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWATPXF
+	id S1750753AbWATPXA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 10:23:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWATPW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 10:23:05 -0500
-Received: from atlrel8.hp.com ([156.153.255.206]:5593 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S1750785AbWATPWn (ORCPT
+	Fri, 20 Jan 2006 10:22:59 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:32459 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S1750753AbWATPWn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 20 Jan 2006 10:22:43 -0500
-Date: Fri, 20 Jan 2006 07:20:15 -0800
+Date: Fri, 20 Jan 2006 07:20:16 -0800
 From: Stephane Eranian <eranian@frankl.hpl.hp.com>
-Message-Id: <200601201520.k0KFKFsl023136@frankl.hpl.hp.com>
+Message-Id: <200601201520.k0KFKGwB023144@frankl.hpl.hp.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/6] 2.6.16-rc1 perfmon2 patch for review
+Subject: [PATCH 5/6] 2.6.16-rc1 perfmon2 patch for review
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -50,151 +50,164 @@ we did not post it directly to lkml.
 The patch is submitted for review by platform maintainers.
 
 Thanks.
-diff -urN linux-2.6.16-rc1.orig/arch/i386/Kconfig linux-2.6.16-rc1/arch/i386/Kconfig
---- linux-2.6.16-rc1.orig/arch/i386/Kconfig	2006-01-18 08:48:14.000000000 -0800
-+++ linux-2.6.16-rc1/arch/i386/Kconfig	2006-01-18 08:50:31.000000000 -0800
-@@ -711,6 +711,21 @@
+diff -urN linux-2.6.16-rc1.orig/arch/x86_64/Kconfig linux-2.6.16-rc1/arch/x86_64/Kconfig
+--- linux-2.6.16-rc1.orig/arch/x86_64/Kconfig	2006-01-18 08:48:15.000000000 -0800
++++ linux-2.6.16-rc1/arch/x86_64/Kconfig	2006-01-18 08:50:44.000000000 -0800
+@@ -479,6 +479,21 @@
  
- 	  Say N.
+ source kernel/Kconfig.hz
  
 +menu "Hardware Performance Monitoring support"
 +
 +config PERFMON
-+  	bool "Perfmon2 performance monitoring interface"
++ 	bool "Perfmon2 performance monitoring interface"
 +	select X86_LOCAL_APIC
 +	default y
-+  	help
-+  	  include the perfmon2 performance monitoring interface
-+ 	  in the kernel. See <http://www.hpl.hp.com/research/linux/perfmon> for
-+ 	  more details. If you're unsure, say Y.
-+ 
-+source "arch/i386/perfmon/Kconfig"
-+endmenu
++ 	help
++ 	  include the perfmon2 performance monitoring interface
++	  in the kernel.  See <http://www.hpl.hp.com/research/linux/perfmon> for
++	  more details.  If you're unsure, say Y.
 +
++source "arch/x86_64/perfmon/Kconfig"
++
++endmenu
 +
  endmenu
  
+ #
+diff -urN linux-2.6.16-rc1.orig/arch/x86_64/Makefile linux-2.6.16-rc1/arch/x86_64/Makefile
+--- linux-2.6.16-rc1.orig/arch/x86_64/Makefile	2006-01-18 08:48:15.000000000 -0800
++++ linux-2.6.16-rc1/arch/x86_64/Makefile	2006-01-18 08:50:44.000000000 -0800
+@@ -63,6 +63,7 @@
+ 					   arch/x86_64/crypto/
+ core-$(CONFIG_IA32_EMULATION)		+= arch/x86_64/ia32/
+ drivers-$(CONFIG_PCI)			+= arch/x86_64/pci/
++drivers-$(CONFIG_PERFMON)		+= arch/x86_64/perfmon/
+ drivers-$(CONFIG_OPROFILE)		+= arch/x86_64/oprofile/
  
-diff -urN linux-2.6.16-rc1.orig/arch/i386/Makefile linux-2.6.16-rc1/arch/i386/Makefile
---- linux-2.6.16-rc1.orig/arch/i386/Makefile	2006-01-18 08:48:14.000000000 -0800
-+++ linux-2.6.16-rc1/arch/i386/Makefile	2006-01-18 08:50:31.000000000 -0800
-@@ -84,6 +84,7 @@
- head-y := arch/i386/kernel/head.o arch/i386/kernel/init_task.o
- 
- libs-y 					+= arch/i386/lib/
-+core-$(CONFIG_PERFMON)			+= arch/i386/perfmon/
- core-y					+= arch/i386/kernel/ \
- 					   arch/i386/mm/ \
- 					   arch/i386/$(mcore-y)/ \
-diff -urN linux-2.6.16-rc1.orig/arch/i386/kernel/apic.c linux-2.6.16-rc1/arch/i386/kernel/apic.c
---- linux-2.6.16-rc1.orig/arch/i386/kernel/apic.c	2006-01-18 08:48:14.000000000 -0800
-+++ linux-2.6.16-rc1/arch/i386/kernel/apic.c	2006-01-18 08:50:31.000000000 -0800
-@@ -27,6 +27,7 @@
+ boot := arch/x86_64/boot
+diff -urN linux-2.6.16-rc1.orig/arch/x86_64/kernel/apic.c linux-2.6.16-rc1/arch/x86_64/kernel/apic.c
+--- linux-2.6.16-rc1.orig/arch/x86_64/kernel/apic.c	2006-01-18 08:48:15.000000000 -0800
++++ linux-2.6.16-rc1/arch/x86_64/kernel/apic.c	2006-01-18 08:50:44.000000000 -0800
+@@ -26,6 +26,7 @@
+ #include <linux/kernel_stat.h>
  #include <linux/sysdev.h>
- #include <linux/cpu.h>
  #include <linux/module.h>
 +#include <linux/perfmon.h>
  
  #include <asm/atomic.h>
  #include <asm/smp.h>
-@@ -1149,6 +1150,8 @@
- 	update_process_times(user_mode_vm(regs));
+@@ -869,6 +870,7 @@
+ void smp_local_timer_interrupt(struct pt_regs *regs)
+ {
+ 	profile_tick(CPU_PROFILING, regs);
++ 	pfm_handle_switch_timeout();
+ #ifdef CONFIG_SMP
+ 	update_process_times(user_mode(regs));
  #endif
+diff -urN linux-2.6.16-rc1.orig/arch/x86_64/kernel/entry.S linux-2.6.16-rc1/arch/x86_64/kernel/entry.S
+--- linux-2.6.16-rc1.orig/arch/x86_64/kernel/entry.S	2006-01-18 08:48:15.000000000 -0800
++++ linux-2.6.16-rc1/arch/x86_64/kernel/entry.S	2006-01-18 08:50:44.000000000 -0800
+@@ -648,6 +648,11 @@
  
-+	pfm_handle_switch_timeout();
+ ENTRY(spurious_interrupt)
+ 	apicinterrupt SPURIOUS_APIC_VECTOR,smp_spurious_interrupt
 +
- 	/*
- 	 * We take the 'long' return path, and there every subsystem
- 	 * grabs the apropriate locks (kernel lock/ irq lock).
-diff -urN linux-2.6.16-rc1.orig/arch/i386/kernel/entry.S linux-2.6.16-rc1/arch/i386/kernel/entry.S
---- linux-2.6.16-rc1.orig/arch/i386/kernel/entry.S	2006-01-18 08:48:14.000000000 -0800
-+++ linux-2.6.16-rc1/arch/i386/kernel/entry.S	2006-01-18 08:50:31.000000000 -0800
-@@ -432,6 +432,16 @@
- /* The include is where all of the SMP etc. interrupts come from */
- #include "entry_arch.h"
- 
-+#if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_PERFMON)
++#ifdef CONFIG_PERFMON
 +ENTRY(pmu_interrupt)
-+  	pushl $LOCAL_PERFMON_VECTOR-256
-+  	SAVE_ALL
-+  	pushl %esp
-+ 	call pfm_intr_handler
-+  	addl $4, %esp
-+  	jmp ret_from_intr
++	apicinterrupt LOCAL_PERFMON_VECTOR, pfm_intr_handler
 +#endif
-+
- ENTRY(divide_error)
- 	pushl $0			# no error code
- 	pushl $do_divide_error
-diff -urN linux-2.6.16-rc1.orig/arch/i386/kernel/i8259.c linux-2.6.16-rc1/arch/i386/kernel/i8259.c
---- linux-2.6.16-rc1.orig/arch/i386/kernel/i8259.c	2006-01-02 19:21:10.000000000 -0800
-+++ linux-2.6.16-rc1/arch/i386/kernel/i8259.c	2006-01-18 08:50:31.000000000 -0800
-@@ -11,6 +11,7 @@
+ #endif
+ 				
+ /*
+diff -urN linux-2.6.16-rc1.orig/arch/x86_64/kernel/i8259.c linux-2.6.16-rc1/arch/x86_64/kernel/i8259.c
+--- linux-2.6.16-rc1.orig/arch/x86_64/kernel/i8259.c	2006-01-18 08:48:15.000000000 -0800
++++ linux-2.6.16-rc1/arch/x86_64/kernel/i8259.c	2006-01-18 08:50:44.000000000 -0800
+@@ -13,6 +13,7 @@
  #include <linux/kernel_stat.h>
  #include <linux/sysdev.h>
  #include <linux/bitops.h>
 +#include <linux/perfmon.h>
  
- #include <asm/8253pit.h>
+ #include <asm/acpi.h>
  #include <asm/atomic.h>
-@@ -427,6 +428,8 @@
- 	 */
- 	setup_pit_timer();
- 
-+ 	pfm_vector_init();
+@@ -589,6 +590,8 @@
+ 	/* IPI vectors for APIC spurious and error interrupts */
+ 	set_intr_gate(SPURIOUS_APIC_VECTOR, spurious_interrupt);
+ 	set_intr_gate(ERROR_APIC_VECTOR, error_interrupt);
 +
++ 	pfm_vector_init();
+ #endif
+ 
  	/*
- 	 * External FPU? Set up irq13 if so, for
- 	 * original braindamaged IBM FERR coupling.
-diff -urN linux-2.6.16-rc1.orig/arch/i386/kernel/process.c linux-2.6.16-rc1/arch/i386/kernel/process.c
---- linux-2.6.16-rc1.orig/arch/i386/kernel/process.c	2006-01-18 08:48:14.000000000 -0800
-+++ linux-2.6.16-rc1/arch/i386/kernel/process.c	2006-01-18 08:50:31.000000000 -0800
-@@ -33,6 +33,7 @@
- #include <linux/delay.h>
- #include <linux/reboot.h>
- #include <linux/init.h>
+diff -urN linux-2.6.16-rc1.orig/arch/x86_64/kernel/nmi.c linux-2.6.16-rc1/arch/x86_64/kernel/nmi.c
+--- linux-2.6.16-rc1.orig/arch/x86_64/kernel/nmi.c	2006-01-18 08:48:15.000000000 -0800
++++ linux-2.6.16-rc1/arch/x86_64/kernel/nmi.c	2006-01-18 08:50:44.000000000 -0800
+@@ -247,6 +247,7 @@
+ 	old_owner = lapic_nmi_owner;
+ 	lapic_nmi_owner |= LAPIC_NMI_RESERVED;
+ 	spin_unlock(&lapic_nmi_owner_lock);
++printk("CPU%d old_owner=0x%x lapic_nmi_owner=0x%x\n", smp_processor_id(), old_owner, lapic_nmi_owner);
+ 	if (old_owner & LAPIC_NMI_RESERVED)
+ 		return -EBUSY;
+ 	if (old_owner & LAPIC_NMI_WATCHDOG)
+diff -urN linux-2.6.16-rc1.orig/arch/x86_64/kernel/process.c linux-2.6.16-rc1/arch/x86_64/kernel/process.c
+--- linux-2.6.16-rc1.orig/arch/x86_64/kernel/process.c	2006-01-18 08:48:15.000000000 -0800
++++ linux-2.6.16-rc1/arch/x86_64/kernel/process.c	2006-01-18 08:50:44.000000000 -0800
+@@ -37,6 +37,7 @@
+ #include <linux/random.h>
+ #include <linux/kprobes.h>
+ #include <linux/notifier.h>
 +#include <linux/perfmon.h>
- #include <linux/mc146818rtc.h>
- #include <linux/module.h>
- #include <linux/kallsyms.h>
-@@ -386,6 +387,7 @@
- 		tss->io_bitmap_base = INVALID_IO_BITMAP_OFFSET;
+ 
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+@@ -372,6 +373,7 @@
+ 		t->io_bitmap_max = 0;
  		put_cpu();
  	}
-+	pfm_exit_thread(tsk);
++	pfm_exit_thread(me);
  }
  
  void flush_thread(void)
-@@ -437,6 +439,8 @@
- 	savesegment(fs,p->thread.fs);
- 	savesegment(gs,p->thread.gs);
+@@ -473,6 +475,8 @@
+ 	asm("mov %%es,%0" : "=m" (p->thread.es));
+ 	asm("mov %%ds,%0" : "=m" (p->thread.ds));
  
-+ 	pfm_copy_thread(p, childregs);
++	pfm_copy_thread(p, childregs);
 +
- 	tsk = current;
- 	if (unlikely(NULL != tsk->thread.io_bitmap_ptr)) {
+ 	if (unlikely(me->thread.io_bitmap_ptr != NULL)) { 
  		p->thread.io_bitmap_ptr = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
-@@ -695,6 +699,8 @@
- 
- 	disable_tsc(prev_p, next_p);
- 
-+ 	pfm_ctxswin(next_p);
+ 		if (!p->thread.io_bitmap_ptr) {
+@@ -496,6 +500,8 @@
+ 		if (err) 
+ 			goto out;
+ 	}
 +
++
+ 	err = 0;
+ out:
+ 	if (err && p->thread.io_bitmap_ptr) {
+@@ -624,6 +630,7 @@
+ 			memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
+ 		}
+ 	}
++	pfm_ctxswin(next_p);
+ 
  	return prev_p;
  }
- 
-diff -urN linux-2.6.16-rc1.orig/arch/i386/kernel/signal.c linux-2.6.16-rc1/arch/i386/kernel/signal.c
---- linux-2.6.16-rc1.orig/arch/i386/kernel/signal.c	2006-01-02 19:21:10.000000000 -0800
-+++ linux-2.6.16-rc1/arch/i386/kernel/signal.c	2006-01-18 08:50:31.000000000 -0800
-@@ -21,6 +21,7 @@
- #include <linux/suspend.h>
- #include <linux/ptrace.h>
- #include <linux/elf.h>
+diff -urN linux-2.6.16-rc1.orig/arch/x86_64/kernel/signal.c linux-2.6.16-rc1/arch/x86_64/kernel/signal.c
+--- linux-2.6.16-rc1.orig/arch/x86_64/kernel/signal.c	2006-01-02 19:21:10.000000000 -0800
++++ linux-2.6.16-rc1/arch/x86_64/kernel/signal.c	2006-01-18 08:50:44.000000000 -0800
+@@ -24,6 +24,7 @@
+ #include <linux/stddef.h>
+ #include <linux/personality.h>
+ #include <linux/compiler.h>
 +#include <linux/perfmon.h>
- #include <asm/processor.h>
  #include <asm/ucontext.h>
  #include <asm/uaccess.h>
-@@ -667,6 +668,11 @@
+ #include <asm/i387.h>
+@@ -496,6 +497,10 @@
  		regs->eflags |= TF_MASK;
  		clear_thread_flag(TIF_SINGLESTEP);
  	}
@@ -202,86 +215,58 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/kernel/signal.c linux-2.6.16-rc1/arch/
 +	 * must be done before signals
 +	 */
 +	pfm_handle_work();
-+
+ 
  	/* deal with pending signal delivery */
  	if (thread_info_flags & _TIF_SIGPENDING)
- 		do_signal(regs,oldset);
-diff -urN linux-2.6.16-rc1.orig/arch/i386/kernel/syscall_table.S linux-2.6.16-rc1/arch/i386/kernel/syscall_table.S
---- linux-2.6.16-rc1.orig/arch/i386/kernel/syscall_table.S	2006-01-18 08:48:14.000000000 -0800
-+++ linux-2.6.16-rc1/arch/i386/kernel/syscall_table.S	2006-01-18 08:50:31.000000000 -0800
-@@ -294,3 +294,15 @@
- 	.long sys_inotify_add_watch
- 	.long sys_inotify_rm_watch
- 	.long sys_migrate_pages
-+   	.long sys_pfm_create_context   /* 295 */
-+    	.long sys_pfm_write_pmcs
-+    	.long sys_pfm_write_pmds
-+    	.long sys_pfm_read_pmds
-+    	.long sys_pfm_load_context
-+    	.long sys_pfm_start		/* 300 */
-+    	.long sys_pfm_stop
-+    	.long sys_pfm_restart
-+    	.long sys_pfm_create_evtsets
-+    	.long sys_pfm_getinfo_evtsets
-+    	.long sys_pfm_delete_evtsets	/* 305 */
-+	.long sys_pfm_unload_context
-diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/Kconfig linux-2.6.16-rc1/arch/i386/perfmon/Kconfig
---- linux-2.6.16-rc1.orig/arch/i386/perfmon/Kconfig	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.16-rc1/arch/i386/perfmon/Kconfig	2006-01-18 08:50:31.000000000 -0800
-@@ -0,0 +1,34 @@
-+config PERFMON_P6
-+	tristate "Support for P6 hardware performance counters"
-+	depends on PERFMON
-+	default m
-+	help
-+	Enables support for the P6-style hardware performance counters.
-+	Not to be used for Pentium M processors.
-+	If unsure, say M.
+diff -urN linux-2.6.16-rc1.orig/arch/x86_64/perfmon/Kconfig linux-2.6.16-rc1/arch/x86_64/perfmon/Kconfig
+--- linux-2.6.16-rc1.orig/arch/x86_64/perfmon/Kconfig	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.16-rc1/arch/x86_64/perfmon/Kconfig	2006-01-18 08:50:44.000000000 -0800
+@@ -0,0 +1,27 @@
 +
-+config PERFMON_PM
-+	tristate "Support for Pentium M hardware performance counters"
-+	depends on PERFMON
-+	default m
-+	help
-+	Enables support for the Pentium M processor performance counters.
-+	Not to be used with P6-style processors.
-+	If unsure, say M.
-+
-+config PERFMON_P4
-+	tristate "Support for 32-bit P4/Xeon hardware performance counters"
-+	depends on PERFMON
-+	default m
-+	help
-+	Enables support for the 32-bit P4/Xeon style hardware performance counters
-+	If unsure, say M.
-+
-+config PERFMON_P4_PEBS
-+         tristate "Support for Intel P4 PEBS sampling format"
-+	 depends on PERFMON_P4
++config X86_64_PERFMON_AMD
++         tristate "Support AMD X86-64 generic hardware performance counters"
++	 depends on PERFMON
 +         default m
 +         help
-+         Enables support for Precise Event-Based Sampling (PEBS) on the Intel P4
-+	 processors which support it.  Does not work with P6 processors.
++         Enables support for the generic AMD X86-64 hardware performance
++	 counters. Does not work with Intel EM64T processors.
 +         If unsure, say m.
-diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/Makefile linux-2.6.16-rc1/arch/i386/perfmon/Makefile
---- linux-2.6.16-rc1.orig/arch/i386/perfmon/Makefile	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.16-rc1/arch/i386/perfmon/Makefile	2006-01-18 08:50:31.000000000 -0800
-@@ -0,0 +1,9 @@
++
++config X86_64_PERFMON_EM64T
++         tristate "Support Intel EM64T hardware performance counters"
++	 depends on PERFMON
++         default m
++         help
++         Enables support for the Intel EM64T hardware performance
++	 counters. Does not work with AMD X86-64 processors.
++         If unsure, say m.
++	 
++config X86_64_PERFMON_EM64T_PEBS
++         tristate "Support for Intel EM64T PEBS sampling format"
++	 depends on X86_64_PERFMON_EM64T
++         default m
++         help
++         Enables support for Precise Event-Based Sampling (PEBS) on the Intel EM64T
++	 processors which support it.  Does not work with AMD X86-64 processors.
++         If unsure, say m.
+diff -urN linux-2.6.16-rc1.orig/arch/x86_64/perfmon/Makefile linux-2.6.16-rc1/arch/x86_64/perfmon/Makefile
+--- linux-2.6.16-rc1.orig/arch/x86_64/perfmon/Makefile	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.16-rc1/arch/x86_64/perfmon/Makefile	2006-01-18 08:50:44.000000000 -0800
+@@ -0,0 +1,8 @@
 +#
 +# Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
 +# Contributed by Stephane Eranian <eranian@hpl.hp.com>
 +#
-+obj-$(CONFIG_PERFMON)		+= perfmon.o
-+obj-$(CONFIG_PERFMON_P6)	+= perfmon_p6.o
-+obj-$(CONFIG_PERFMON_PM)	+= perfmon_pm.o
-+obj-$(CONFIG_PERFMON_P4)	+= perfmon_p4.o
-+obj-$(CONFIG_PERFMON_P4_PEBS)	+= perfmon_p4_pebs_smpl.o
-diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arch/i386/perfmon/perfmon.c
---- linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.16-rc1/arch/i386/perfmon/perfmon.c	2006-01-18 08:50:31.000000000 -0800
-@@ -0,0 +1,1076 @@
++obj-$(CONFIG_PERFMON)			+= perfmon.o
++obj-$(CONFIG_X86_64_PERFMON_AMD)	+= perfmon_amd.o
++obj-$(CONFIG_X86_64_PERFMON_EM64T)	+= perfmon_em64t.o
++obj-$(CONFIG_X86_64_PERFMON_EM64T_PEBS)	+= perfmon_em64t_pebs_smpl.o
+diff -urN linux-2.6.16-rc1.orig/arch/x86_64/perfmon/perfmon.c linux-2.6.16-rc1/arch/x86_64/perfmon/perfmon.c
+--- linux-2.6.16-rc1.orig/arch/x86_64/perfmon/perfmon.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.16-rc1/arch/x86_64/perfmon/perfmon.c	2006-01-18 08:50:44.000000000 -0800
+@@ -0,0 +1,1072 @@
 +/*
-+ * This file implements the I386 specific
++ * This file implements the AMD X86-64/Intel EM64T specific
 + * support for the perfmon2 interface
 + *
 + * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
@@ -289,17 +274,17 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 + */
 +#include <linux/interrupt.h>
 +#include <linux/perfmon.h>
-+#include <linux/smp.h>
 +
 +#define MSR_IA32_PEBS_ENABLE	0x3f1 /* unique per-thread */
 +#define MSR_IA32_DS_AREA	0x600 /* unique per-thread */
++
 +
 +DEFINE_PER_CPU(int, apic_state);
 +DEFINE_PER_CPU(u64 *, nmi_pmds);
 +DEFINE_PER_CPU(u64 *, nmi_pmcs);
 +
 +/*
-+ * Debug Store (DS) management area (for P4/Xeon PEBS)
++ * Debug Store (DS) management area (for Intel EM64T PEBS)
 + */
 +struct pfm_ds_area {
 +	unsigned long	bts_buf_base;
@@ -356,8 +341,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +static u8 get_smt_id(void)
 +{
 +	struct pfm_arch_pmu_info *arch_info = pfm_pmu_conf->arch_info;
-+	u8 apic_id ;
-+
++	u8 apic_id,val8 ;
 +	/*
 +	 * not HT enabled
 +	 */
@@ -368,7 +352,8 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	 * TODO : add per_cpu caching here to avoid calling cpuid repeatedly
 +	 */
 +	apic_id = (cpuid_ebx(1)&0xff000000) >> 24;
-+	return apic_id & get_smt_id_mask();
++	val8 = apic_id & get_smt_id_mask();
++	return val8;
 +}
 +
 +void __pfm_write_reg(const struct pfm_arch_ext_reg *xreg, u64 val)
@@ -397,25 +382,23 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	 * - move the T0_OS/T0_USR bits into T1 slots
 +	 * - move the OVF_PMI_T0 bits into T1 slot
 +	 *
-+	 * The P4  write checker systematically clears T1
-+	 * fields, i.e., user only works with T0.
++	 * The EM64T write checker systematically clears T1
++	 * fields, i.e., user  only works with T0.
 +	 */
 +	if (smt_id > 0) {
 +		if (xreg->reg_type & PFM_REGT_ESCR) {
-+			val |= ((val & 0xc) >> 2);
-+			/* clear bits 3:2 */
-+			val &= ~0xc;
++			val |= (val >> 2) & 0x3;
++			val &= ~(1ULL << 2);
 +		} else if (xreg->reg_type & PFM_REGT_CCCR) {
 +			pmi = (val >> 26) & 0x1;
 +			if (pmi) {
-+				val &=~(1UL<<26);
-+				val |= 1UL<<27;
++				val &=~(1ULL<<26);
++				val |= 1ULL<<27;
 +			}
 +		}
 +	}
 +	
 +	if (xreg->addrs[smt_id]) {
-+		DPRINT(("[0x%lx]=0x%llx\n", xreg->addrs[smt_id], val));
 +		wrmsrl(xreg->addrs[smt_id], val);
 +	}
 +}
@@ -435,6 +418,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +
 +	if (xreg->addrs[smt_id] != 0) {
 +		rdmsrl(xreg->addrs[smt_id], *val);
++
 +		/*
 +		 * move the Tx_OS and Tx_USR bits into
 +		 * T0 slots setting the T1 slots to zero
@@ -464,6 +448,9 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	 * at this point, we may not have a way to remove the condition.
 +	 * As such, we need to keep the interrupt masked until a PMU
 +	 * description is loaded. At that point, we can enable intr.
++	 *
++	 * We have seen problems on EM64T machines on boot with spurious
++	 * PMU interrupts.
 +	 */
 +	if (nmi_watchdog != NMI_LOCAL_APIC) {
 +		apic_write(APIC_LVTPC, APIC_LVT_MASKED|LOCAL_PERFMON_VECTOR);
@@ -482,7 +469,8 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	struct pfm_arch_context *ctx_arch;
 +	
 +	ctx_arch = pfm_ctx_arch(ctx);
-+	ctx_arch->flags = ctx_flags & PFM_I386_FL_INSECURE;
++
++	ctx_arch->flags = ctx_flags & PFM_X86_64_FL_INSECURE;
 +}
 +
 +/*
@@ -508,7 +496,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +		 * for system-wide or self-monitoring, we always enable
 +		 * rdpmc at user level
 +		 */
-+		ctx_arch->flags |= PFM_I386_FL_INSECURE;
++		ctx_arch->flags |= PFM_X86_64_FL_INSECURE;
 +
 +		pfm_set_pce();
 +		DPRINT(("setting cr4.pce (rdpmc authorized at user level)\n"));
@@ -532,7 +520,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +
 +	ctx_arch = pfm_ctx_arch(ctx);
 +
-+	if (ctx_arch->flags & PFM_I386_FL_INSECURE) {
++	if (ctx_arch->flags & PFM_X86_64_FL_INSECURE) {
 +		pfm_clear_pce();
 +		DPRINT(("clearing cr4.pce\n"));
 +	}
@@ -559,11 +547,8 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +
 +	set = ctx->ctx_active_set;
 +
-+	/*
-+	 * stop active monitoring and collect overflow information
-+	 */
-+	pfm_stop_active(current, ctx, set);
-+	
++	pfm_stop_active(current, ctx, ctx->ctx_active_set);
++
 +	/*
 +	 * PMU is stopped, thus PEBS is stopped already
 +	 * on PEBS full interrupt, the IQ_CCCR4 counter does
@@ -581,7 +566,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	 * XXX: remove assumption on IQ_CTR4 and IQ_CTR5 being mapped onto
 +	 *      the same PMD.
 +	 */
-+	if (ctx_arch->flags & PFM_I386_FL_USE_PEBS) {
++	if (ctx_arch->flags & PFM_X86_64_FL_USE_PEBS) {
 +		ds = ctx_arch->ds_area;
 +		if (ds->pebs_index >= ds->pebs_intr_thres
 +		    && pfm_bv_isset(set->set_used_pmds, arch_info->pebs_ctr_idx)) {
@@ -610,10 +595,8 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	 * reload DS area pointer because it is cleared by
 +	 * pfm_stop_active()
 +	 */
-+	if (ctx_arch->flags & PFM_I386_FL_USE_PEBS) {
-+		wrmsr(MSR_IA32_DS_AREA, ctx_arch->ds_area, 0);
-+		DPRINT(("restoring DS\n"));
-+	}
++	if (ctx_arch->flags & PFM_X86_64_FL_USE_PEBS)
++		wrmsrl(MSR_IA32_DS_AREA, ctx_arch->ds_area);
 +}
 +
 +/*
@@ -636,23 +619,18 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	if (ctx->ctx_fl_system)
 +		return;
 +
-+	if (ctx_arch->flags & PFM_I386_FL_INSECURE) {
++	if (ctx_arch->flags & PFM_X86_64_FL_INSECURE)
 +		pfm_set_pce();
-+		DPRINT(("setting cr4.pce\n"));
-+	}
-+
 +	/*
 +	 * reload DS management area pointer. Pointer
 +	 * not managed as a PMC hus it is not restored
 +	 * with the rest of the registers.
 +	 */
-+	if (ctx_arch->flags & PFM_I386_FL_USE_PEBS) {
-+		wrmsr(MSR_IA32_DS_AREA, ctx_arch->ds_area, 0);
-+		DPRINT(("restored DS\n"));
-+	}
++	if (ctx_arch->flags & PFM_X86_64_FL_USE_PEBS)
++		wrmsrl(MSR_IA32_DS_AREA, ctx_arch->ds_area);
 +}
 +
-+static void __pfm_stop_active_p6(struct task_struct *task, struct pfm_context *ctx,
++static void __pfm_stop_active_amd(struct task_struct *task, struct pfm_context *ctx,
 +				   struct pfm_event_set *set)
 +{
 +	struct pfm_arch_pmu_info *arch_info = pfm_pmu_conf->arch_info;
@@ -683,12 +661,12 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	for (i = 0; i < max; i++) {
 +		if (pfm_bv_isset(set->set_used_pmds, i)) {
 +			rdmsrl(xrd[i].addrs[0], val);
++			//DPRINT_ovfl(("pmd%d[0x%lx]=0x%llx sw_pmd=0x%llx\n", i, xrd[i].addrs[0], val, set->set_view->set_pmds[i]));
 +			if ((val & wmask) == 0) {
-+                                DPRINT_ovfl(("pmd%d overflow\n", i));
++                                //DPRINT_ovfl(("pmd%d overflow\n", i));
 +				pfm_bv_set(set->set_povfl_pmds, i);
 +				set->set_npend_ovfls++;
 +			}
-+
 +		}
 +	}
 +}
@@ -716,7 +694,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	/*
 +	 * stop PEBS and clear DS area pointer
 +	 */
-+	if (ctx_arch->flags & PFM_I386_FL_USE_PEBS) {
++	if (ctx_arch->flags & PFM_X86_64_FL_USE_PEBS) {
 +		wrmsr(MSR_IA32_PEBS_ENABLE, 0, 0);
 +		wrmsr(MSR_IA32_DS_AREA, 0, 0);
 +	}
@@ -762,9 +740,9 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +				pfm_bv_set(set->set_povfl_pmds, xrc[i].ctr);
 +				set->set_npend_ovfls++;
 +			}
++
 +		}
 +	}
-+
 +}
 +
 +/*
@@ -817,10 +795,8 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	if (ctx->ctx_fl_system)
 +		return;
 +
-+	if (ctx_arch->flags & PFM_I386_FL_INSECURE) {
++	if (ctx_arch->flags & PFM_X86_64_FL_INSECURE)
 +		pfm_clear_pce();
-+		DPRINT(("clearing cr4.pce\n"));
-+	}
 +
 +	/*
 +	 * disable lazy restore of PMCS on ctxswin because
@@ -867,7 +843,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	/*
 +	 * we must actually install all implemented pmcs registers because
 +	 * until started, we do not touch any PMC registers. On P4, touching
-+	 * only the CCCR (which have the enable field) is not enough. On P6,
++	 * only the CCCR (which have the enable field) is not enough. On AMD
 +	 * all PMC have an enable bit, so this is not worse.
 +	 */
 +	for (i = 0; i < max_pmc; i++) {
@@ -882,10 +858,8 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	 * the set of PMCs with an enable bit. This is reserved for counter
 +	 * PMC, i.e., CCCR.
 +	 */
-+	if (task == current && (ctx_arch->flags & PFM_I386_FL_USE_PEBS)) {
-+		wrmsr(MSR_IA32_DS_AREA, ctx_arch->ds_area, 0);
-+		DPRINT(("restoring DS\n"));
-+	}
++	if (task == current && (ctx_arch->flags & PFM_X86_64_FL_USE_PEBS))
++		wrmsrl(MSR_IA32_DS_AREA, ctx_arch->ds_area);
 +}
 +
 +void pfm_arch_start(struct task_struct *task, struct pfm_context *ctx,
@@ -900,6 +874,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +
 +	__pfm_arch_start(task, ctx, set);
 +}
++
 +
 +/*
 + * function called from pfm_switch_sets(), pfm_context_load_thread(),
@@ -920,7 +895,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	max_rw_pmd = pfm_pmu_conf->max_rw_pmd;
 +	cnt_mask = pfm_pmu_conf->cnt_pmds;
 +	ovfl_mask = pfm_pmu_conf->ovfl_mask;
-+	impl_rw_mask= pfm_pmu_conf->impl_rw_pmds;
++	impl_rw_mask = pfm_pmu_conf->impl_rw_pmds;
 +	pmds = set->set_view->set_pmds;
 +
 +	xregs = arch_info->pmd_addrs;
@@ -929,7 +904,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	 * must restore all pmds to avoid leaking
 +	 * especially when PFM_I386_FL_INSECURE is set.
 +	 *
-+	 * XXX: should check PFM_I386_FL_INSECURE==0 and use used_pmd instead
++	 * XXX: should check PFM_X86_64_FL_INSECURE==0 and use used_pmd instead
 +	 */
 +	for (i = 0; i < max_rw_pmd; i++) {
 +		if (likely(pfm_bv_isset(impl_rw_mask, i))) {
@@ -943,8 +918,8 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +
 +/*
 + * function called from pfm_switch_sets(), pfm_context_load_thread(),
-+ * pfm_context_load_sys(), pfm_ctxswin_*().
-+ * Context is locked. Interrupts are masked. set cannot be NULL.
++ * pfm_context_load_sys(), pfm_ctxswin_*(), pfm_switch_sets()
++ * context is locked. Interrupts are masked. set cannot be NULL.
 + * Access to the PMU is guaranteed.
 + *
 + * function must restore all PMC registers from set, if needed.
@@ -996,10 +971,10 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	u16 i, max_pmd;
 +
 +	ovfl_mask = pfm_pmu_conf->ovfl_mask;
-+	max_pmd = pfm_pmu_conf->max_pmd;
 +	cnt_mask = pfm_pmu_conf->cnt_pmds;
 +	used_mask = set->set_used_pmds;
 +	pmds = set->set_view->set_pmds;
++	max_pmd = pfm_pmu_conf->max_pmd;
 +
 +	xregs = arch_info->pmd_addrs;
 +
@@ -1022,11 +997,17 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	irq_enter();
 +	pfm_interrupt_handler(LOCAL_PERFMON_VECTOR, NULL, regs);
 +	irq_exit();
++
 +	/*
-+	 * On Intel P6, Pentium M, P4:
++	 * Intel EM64T:
 +	 * 	- it is necessary to clear the MASK field for the LVTPC
 +	 * 	  vector. Otherwise interrupts will stay masked. See
 +	 * 	  section 8.5.1
++	 *
++	 * AMD X8-64:
++	 * 	- the documentation does not stipulate the behavior.
++	 * 	  To be safe, we also rewrite the vector to clear the
++	 * 	  mask field
 +	 *
 +	 * We only clear the mask field, if there is a PMU description
 +	 * loaded. Otherwise we would have a problem  because without
@@ -1042,13 +1023,37 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	if (pfm_pmu_conf) apic_write(APIC_LVTPC, LOCAL_PERFMON_VECTOR);
 +}
 +
++
 +asmlinkage void  pmu_interrupt(void);
 +void pfm_vector_init(void)
 +{
 +	set_intr_gate(LOCAL_PERFMON_VECTOR, (void *)pmu_interrupt);
 +	printk("CPU%d installed perfmon gate\n", smp_processor_id());
 +}
-+	
++
++int pfm_arch_initialize(void)
++{
++	return 0;
++}
++
++void pfm_arch_mask_monitoring(struct pfm_context *ctx)
++{
++	/*
++	 * on X86-64 masking/unmasking uses start/stop
++	 * mechanism
++	 */
++	pfm_arch_stop(current, ctx, ctx->ctx_active_set);
++}
++
++void pfm_arch_unmask_monitoring(struct pfm_context *ctx)
++{
++	/*
++	 * on X86-64 masking/unmasking uses start/stop
++	 * mechanism
++	 */
++	__pfm_arch_start(current, ctx, ctx->ctx_active_set);
++}
++
 +static void __pfm_stop_one_pmu(void *data)
 +{
 +	struct pfm_pmu_config *cfg = data;
@@ -1085,7 +1090,22 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +
 +/*
 + * called from pfm_register_pmu_config() after the new
-+ * config has been validated and installed. The pfm_session_lock
++ * config has been validated and installed. No lock
++ * is held. Interrupts are not masked.
++ *
++ * The role of the function is, based on the PMU description, to
++ * put the PMU into a quiet state on each CPU. This function is
++ * not necessary if there is an architected way of doing this
++ * for a processor family.
++ */
++void pfm_arch_pmu_config_init(struct pfm_pmu_config *cfg)
++{
++	on_each_cpu(__pfm_stop_one_pmu, cfg, 1, 1);
++}
++
++/*
++ * called from pfm_register_pmu_config() after the new
++ * config has been validated and installed. The pfs_lock is held
 + * is held.
 + *
 + * Must sanity check the arch-specific config information
@@ -1099,55 +1119,17 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	struct pfm_arch_pmu_info *arch_info = cfg->arch_info;
 +
 +	switch(arch_info->pmu_style) {
-+		case PFM_I386_PMU_P4:
++		case PFM_X86_64_PMU_P4:
 +			pfm_stop_active = __pfm_stop_active_p4;
 +			break;
-+		case PFM_I386_PMU_P6:
-+			pfm_stop_active = __pfm_stop_active_p6;
++		case PFM_X86_64_PMU_AMD:
++			pfm_stop_active = __pfm_stop_active_amd;
 +			break;
 +		default:
 +			printk(KERN_ERR"unknown pmu_style=%d\n", arch_info->pmu_style);
 +			return -1;
 +	}
 +	return 0;
-+}
-+
-+/*
-+ * called from pfm_register_pmu_config() after the new
-+ * config has been validated and installed. No lock
-+ * is held. Interrupts are not masked.
-+ *
-+ * The role of the function is, based on the PMU description, to
-+ * put the PMU into a quiet state on each CPU. This function is
-+ * not necessary if there is an architected way of doing this
-+ * for a processor family.
-+ */
-+void pfm_arch_pmu_config_init(struct pfm_pmu_config *cfg)
-+{
-+	on_each_cpu(__pfm_stop_one_pmu, cfg, 1, 1);
-+}
-+	
-+int pfm_arch_initialize(void)
-+{
-+	return 0;
-+}
-+
-+void pfm_arch_mask_monitoring(struct pfm_context *ctx)
-+{
-+	/*
-+	 * on IA-32 masking/unmasking uses start/stop
-+	 * mechanism
-+	 */
-+	pfm_arch_stop(current, ctx, ctx->ctx_active_set);
-+}
-+
-+void pfm_arch_unmask_monitoring(struct pfm_context *ctx)
-+{
-+	/*
-+	 * on IA-32 masking/unmasking uses start/stop
-+	 * mechanism
-+	 */
-+	__pfm_arch_start(current, ctx, ctx->ctx_active_set);
 +}
 +
 +static void pfm_save_pmu_nmi(void)
@@ -1247,7 +1229,6 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	 */
 +	apic_write(APIC_LVTPC, __get_cpu_var(apic_state));
 +	pfm_restore_pmu_nmi();
-+	__get_cpu_var(apic_state) = 0;
 +}
 +
 +static int
@@ -1356,12 +1337,141 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon.c linux-2.6.16-rc1/arc
 +	}
 +	return 0;
 +}
-diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4.c linux-2.6.16-rc1/arch/i386/perfmon/perfmon_p4.c
---- linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.16-rc1/arch/i386/perfmon/perfmon_p4.c	2006-01-18 08:50:31.000000000 -0800
+diff -urN linux-2.6.16-rc1.orig/arch/x86_64/perfmon/perfmon_amd.c linux-2.6.16-rc1/arch/x86_64/perfmon/perfmon_amd.c
+--- linux-2.6.16-rc1.orig/arch/x86_64/perfmon/perfmon_amd.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.16-rc1/arch/x86_64/perfmon/perfmon_amd.c	2006-01-18 08:50:44.000000000 -0800
+@@ -0,0 +1,125 @@
++/*
++ * This file contains the AMD generic X86-64 PMU register
++ * description tables and pmc checker used by perfmon.c.
++ *
++ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
++ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
++ */
++#include <linux/module.h>
++#include <linux/perfmon.h>
++
++MODULE_AUTHOR("Stephane Eranian <eranian@hpl.hp.com>");
++MODULE_DESCRIPTION("AMD X86-64 PMU description table");
++MODULE_LICENSE("GPL");
++
++static struct pfm_arch_pmu_info pfm_x86_64_pmu_info={
++	.pmc_addrs = {
++		{{MSR_K7_EVNTSEL0, 0}, 0, PFM_REGT_PERFSEL},
++		{{MSR_K7_EVNTSEL1, 0}, 1, PFM_REGT_PERFSEL},
++		{{MSR_K7_EVNTSEL2, 0}, 2, PFM_REGT_PERFSEL},
++		{{MSR_K7_EVNTSEL3, 0}, 3, PFM_REGT_PERFSEL},
++	},
++	.pmd_addrs = {
++		{{MSR_K7_PERFCTR0, 0}, 0, PFM_REGT_CTR},
++		{{MSR_K7_PERFCTR1, 0}, 0, PFM_REGT_CTR},
++		{{MSR_K7_PERFCTR2, 0}, 0, PFM_REGT_CTR},
++		{{MSR_K7_PERFCTR3, 0}, 0, PFM_REGT_CTR},
++	},
++	.pmu_style = PFM_X86_64_PMU_AMD,
++	.lps_per_core = 1
++};
++
++/*
++ * reserved bits must be zero
++ *
++ * - upper 32 bits are reserved
++ * - APIC enable bit is reserved (forced to 1)
++ * - bit 21 is reserved
++ */
++#define PFM_X86_64_RSVD	~((0xffffffffULL<<32)	\
++				| (PFM_ONE_64<<20)	\
++				| (PFM_ONE_64<<21))
++
++/*
++ * force Local APIC interrupt on overflow
++ */
++#define PFM_X86_64_VAL  (PFM_ONE_64<<20)
++#define PFM_X86_64_NO64	    (PFM_ONE_64<<20)
++
++static struct pfm_reg_desc pfm_x86_64_pmc_desc[PFM_MAX_PMCS+1]={
++/* pmc0  */ { PFM_REG_W64, "PERFSEL0", PFM_X86_64_VAL, PFM_X86_64_RSVD, PFM_X86_64_NO64},
++/* pmc1  */ { PFM_REG_W64, "PERFSEL1", PFM_X86_64_VAL, PFM_X86_64_RSVD, PFM_X86_64_NO64},
++/* pmc2  */ { PFM_REG_W64, "PERFSEL2", PFM_X86_64_VAL, PFM_X86_64_RSVD, PFM_X86_64_NO64},
++/* pmc3  */ { PFM_REG_W64, "PERFSEL3", PFM_X86_64_VAL, PFM_X86_64_RSVD, PFM_X86_64_NO64},
++	    { PFM_REG_END} /* end marker */
++};
++
++static struct pfm_reg_desc pfm_x86_64_pmd_desc[PFM_MAX_PMDS+1]={
++/* pmd0  */ { PFM_REG_C, "PERFCTR0", 0x0, -1},
++/* pmd1  */ { PFM_REG_C, "PERFCTR1", 0x0, -1},
++/* pmd2  */ { PFM_REG_C, "PERFCTR2", 0x0, -1},
++/* pmd3  */ { PFM_REG_C, "PERFCTR3", 0x0, -1},
++	    { PFM_REG_END} /* end marker */
++};
++
++static int pfm_x86_64_probe_pmu(void)
++{
++	printk(KERN_INFO"perfmon_x86_64: family=%d x86_model=%d\n",
++		cpu_data->x86,
++		cpu_data->x86_model);
++
++	if (cpu_data->x86 != 15) {
++		printk(KERN_INFO"perfmon_x86_64: unsupported family=%d\n", cpu_data->x86);
++		return -1;
++	}
++
++	if (cpu_data->x86_vendor != X86_VENDOR_AMD) {
++		printk(KERN_INFO"perfmon_x86_64: not an AMD processor\n");
++		return -1;
++	}
++
++	/*
++	 * check for local APIC (required)
++	 */
++	if (!cpu_has_apic) {
++		printk(KERN_INFO"perfmon_x86_64: no local APIC, unsupported\n");
++		return -1;
++	}
++	return 0;
++}
++
++static struct pfm_pmu_config pfm_x86_64_pmu_conf={
++	.pmu_name = "AMD X86-64",
++	.counter_width = 47,
++	.pmd_desc = pfm_x86_64_pmd_desc,
++	.pmc_desc = pfm_x86_64_pmc_desc,
++	.probe_pmu = pfm_x86_64_probe_pmu,
++	.version = "1.0",
++	.arch_info = &pfm_x86_64_pmu_info,
++	.flags = PFM_PMU_BUILTIN_FLAG,
++	.owner = THIS_MODULE
++};
++	
++static int __init pfm_x86_64_pmu_init_module(void)
++{
++	unsigned int i;
++
++	/*
++	 * XXX: could be hardcoded for this PMU model
++	 */
++	bitmap_zero(pfm_x86_64_pmu_info.enable_mask, PFM_MAX_HW_PMCS);
++	for(i=0; i < PFM_MAX_HW_PMCS; i++) {
++		if (pfm_x86_64_pmu_info.pmc_addrs[i].reg_type & PFM_REGT_PERFSEL) {
++			pfm_bv_set(pfm_x86_64_pmu_info.enable_mask, i);
++		}
++	}
++	return pfm_register_pmu_config(&pfm_x86_64_pmu_conf);
++}
++
++static void __exit pfm_x86_64_pmu_cleanup_module(void)
++{
++	pfm_unregister_pmu_config(&pfm_x86_64_pmu_conf);
++}
++
++module_init(pfm_x86_64_pmu_init_module);
++module_exit(pfm_x86_64_pmu_cleanup_module);
+diff -urN linux-2.6.16-rc1.orig/arch/x86_64/perfmon/perfmon_em64t.c linux-2.6.16-rc1/arch/x86_64/perfmon/perfmon_em64t.c
+--- linux-2.6.16-rc1.orig/arch/x86_64/perfmon/perfmon_em64t.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.16-rc1/arch/x86_64/perfmon/perfmon_em64t.c	2006-01-18 08:50:44.000000000 -0800
 @@ -0,0 +1,390 @@
 +/*	
-+ * This file contains the P4/Xeon 32-bit PMU register description tables
++ * This file contains the EM64T PMU register description tables
 + * and pmc checker used by perfmon.c.
 + *
 + * Copyright (c) 2005 Intel Corporation
@@ -1373,9 +1483,8 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4.c linux-2.6.16-rc1/
 +#include <asm/apic.h>
 +
 +MODULE_AUTHOR("Bryan Wilkerson <bryan.p.wilkerson@intel.com>");
-+MODULE_DESCRIPTION("32-bit P4/Xeon PMU description table");
++MODULE_DESCRIPTION("Intel EM64T PMU description table");
 +MODULE_LICENSE("GPL");
-+
 +/*
 + * CCCR default value:
 + * 	- OVF_PMI_T0=1 (bit 26)
@@ -1384,7 +1493,9 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4.c linux-2.6.16-rc1/
 + *
 + * OVF_PMI is force to zero if PFM_REGFL_NO_EMUL64 is set on CCCR
 + */
-+#define PFM_CCCR_DFL	(1ULL<<26)
++#define PFM_CCCR_DFL	(PFM_ONE_64<<26)
++
++#define PFM_EM64T_NO64	(3ULL<<26) /* use 3 even in non HT */
 +
 +/*
 + * CCCR reserved fields:
@@ -1392,8 +1503,6 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4.c linux-2.6.16-rc1/
 + * 	- OVF_PMI (26-27), override with REGFL_NO_EMUL64
 + */
 +#define PFM_CCCR_RSVD  0x0000000041fff000
-+
-+#define PFM_P4_NO64	(3ULL<<26) /* use 3 even in non HT mode */
 +
 +/*
 + * With HyperThreading enabled:
@@ -1407,7 +1516,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4.c linux-2.6.16-rc1/
 + *  	- MSR_PEBS_MATRIX_VERT is shared between the threads
 + *      - IA32_PEBS_ENABLE is shared between the threads
 + *
-+ * With HyperThreading disabled:
++ * With Hyperthreading disabled:
 + *
 + * The full set of PMU resources is exposed to applications.
 + *
@@ -1420,7 +1529,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4.c linux-2.6.16-rc1/
 +#define PFM_REGT_NHTPEBS (PFM_REGT_PEBS|PFM_REGT_NOHT)
 +#define PFM_REGT_NHTCTR  (PFM_REGT_CTR|PFM_REGT_NOHT)
 +
-+static struct pfm_arch_pmu_info pfm_p4_pmu_info={
++static struct pfm_arch_pmu_info pfm_em64t_pmu_info={
 +	.pmc_addrs = {
 +	/*pmc 0 */    {{0x3b2, 0x3b3}, 0, PFM_REGT_ESCR}, /*   BPU_ESCR0,1 */
 +	/*pmc 1 */    {{0x3b4, 0x3b5}, 0, PFM_REGT_ESCR}, /*    IS_ESCR0,1 */
@@ -1515,11 +1624,11 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4.c linux-2.6.16-rc1/
 +	/*pmd 17*/    {{0x311,     0}, 0, PFM_REGT_NHTCTR},  /*    IQ_CRT5    */
 +	},
 +	.pebs_ctr_idx = 8, /* thread0: IQ_CTR4, thread1: IQ_CTR5 */
-+	.pmu_style  = PFM_I386_PMU_P4,
++	.pmu_style  = PFM_X86_64_PMU_P4,
 +	.lps_per_core = 1
 +};
 +
-+static struct pfm_reg_desc pfm_p4_pmc_desc[PFM_MAX_PMCS+1]={
++static struct pfm_reg_desc pfm_em64t_pmc_desc[PFM_MAX_PMCS+1]={
 +/* pmc0  */ { PFM_REG_W, "BPU_ESCR0"  , 0x0, PFM_ESCR_RSVD},
 +/* pmc1  */ { PFM_REG_W, "IS_ESCR0"   , 0x0, PFM_ESCR_RSVD},
 +/* pmc2  */ { PFM_REG_W, "MOB_ESCR0"  , 0x0, PFM_ESCR_RSVD},
@@ -1543,15 +1652,15 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4.c linux-2.6.16-rc1/
 +/* pmc20 */ { PFM_REG_W, "CRU_ESCR0"  , 0x0, PFM_ESCR_RSVD},
 +/* pmc21 */ { PFM_REG_W, "CRU_ESCR2"  , 0x0, PFM_ESCR_RSVD},
 +/* pmc22 */ { PFM_REG_W, "CRU_ESCR4"  , 0x0, PFM_ESCR_RSVD},
-+/* pmc23 */ { PFM_REG_W64, "BPU_CCCR0"  , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc24 */ { PFM_REG_W64, "BPU_CCCR2"  , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc25 */ { PFM_REG_W64, "MS_CCCR0"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc26 */ { PFM_REG_W64, "MS_CCCR2"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc27 */ { PFM_REG_W64, "FLAME_CCCR0", PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc28 */ { PFM_REG_W64, "FLAME_CCCR2", PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc29 */ { PFM_REG_W64, "IQ_CCCR0"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc30 */ { PFM_REG_W64, "IQ_CCCR2"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc31 */ { PFM_REG_W64, "IQ_CCCR4"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
++/* pmc23 */ { PFM_REG_W64, "BPU_CCCR0"  , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc24 */ { PFM_REG_W64, "BPU_CCCR2"  , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc25 */ { PFM_REG_W64, "MS_CCCR0"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc26 */ { PFM_REG_W64, "MS_CCCR2"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc27 */ { PFM_REG_W64, "FLAME_CCCR0", PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc28 */ { PFM_REG_W64, "FLAME_CCCR2", PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc29 */ { PFM_REG_W64, "IQ_CCCR0"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc30 */ { PFM_REG_W64, "IQ_CCCR2"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc31 */ { PFM_REG_W64, "IQ_CCCR4"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
 +		/* No HT extension */
 +/* pmc32 */ { PFM_REG_W, "BPU_ESCR1"  , 0x0, PFM_ESCR_RSVD},
 +/* pmc33 */ { PFM_REG_W, "IS_ESCR1"   , 0x0, PFM_ESCR_RSVD},
@@ -1575,15 +1684,15 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4.c linux-2.6.16-rc1/
 +/* pmc51 */ { PFM_REG_W, "CRU_ESCR1"  , 0x0, PFM_ESCR_RSVD},
 +/* pmc52 */ { PFM_REG_W, "CRU_ESCR3"  , 0x0, PFM_ESCR_RSVD},
 +/* pmc53 */ { PFM_REG_W, "CRU_ESCR5"  , 0x0, PFM_ESCR_RSVD},
-+/* pmc54 */ { PFM_REG_W64, "BPU_CCCR1"  , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc55 */ { PFM_REG_W64, "BPU_CCCR3"  , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc56 */ { PFM_REG_W64, "MS_CCCR1"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc57 */ { PFM_REG_W64, "MS_CCCR3"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc58 */ { PFM_REG_W64, "FLAME_CCCR1", PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc59 */ { PFM_REG_W64, "FLAME_CCCR3", PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc60 */ { PFM_REG_W64, "IQ_CCCR1"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc61 */ { PFM_REG_W64, "IQ_CCCR3"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
-+/* pmc62 */ { PFM_REG_W64, "IQ_CCCR5"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_P4_NO64},
++/* pmc54 */ { PFM_REG_W64, "BPU_CCCR1"  , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc55 */ { PFM_REG_W64, "BPU_CCCR3"  , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc56 */ { PFM_REG_W64, "MS_CCCR1"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc57 */ { PFM_REG_W64, "MS_CCCR3"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc58 */ { PFM_REG_W64, "FLAME_CCCR1", PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc59 */ { PFM_REG_W64, "FLAME_CCCR3", PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc60 */ { PFM_REG_W64, "IQ_CCCR1"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc61 */ { PFM_REG_W64, "IQ_CCCR3"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
++/* pmc62 */ { PFM_REG_W64, "IQ_CCCR5"   , PFM_CCCR_DFL, PFM_CCCR_RSVD, PFM_EM64T_NO64},
 +/* pmc63 */ { PFM_REG_W, "PEBS_MATRIX_VERT", 0, 0x13},
 +/* pmc64 */ { PFM_REG_W, "PEBS_ENABLE", 0, 0x3000fff},
 +	    { PFM_REG_END} /* end marker */
@@ -1592,7 +1701,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4.c linux-2.6.16-rc1/
 +/*
 + * See section 15.10.6.6 for details about the IQ block
 + */
-+static struct pfm_reg_desc pfm_p4_pmd_desc[PFM_MAX_PMDS+1]={
++static struct pfm_reg_desc pfm_em64t_pmd_desc[PFM_MAX_PMDS+1]={
 +/* pmd0  */ { PFM_REG_C, "BPU_CTR0"   , 0x0, -1},
 +/* pmd1  */ { PFM_REG_C, "BPU_CTR2"   , 0x0, -1},
 +/* pmd2  */ { PFM_REG_C, "MS_CTR0"    , 0x0, -1},
@@ -1617,22 +1726,22 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4.c linux-2.6.16-rc1/
 +
 +#define MSR_IA32_MISC_ENABLE_PEBS_UNAVAIL (1<<12) /* PEBS unavailable */
 +#define cpu_has_dts boot_cpu_has(X86_FEATURE_DTES)
-+#define IS_LAST_PMC(i) (pfm_p4_pmc_desc[i].type & PFM_REG_END)
-+#define IS_LAST_PMD(i) (pfm_p4_pmd_desc[i].type & PFM_REG_END)
++#define IS_LAST_PMC(i) (pfm_em64t_pmc_desc[i].type & PFM_REG_END)
++#define IS_LAST_PMD(i) (pfm_em64t_pmd_desc[i].type & PFM_REG_END)
 +
-+static int pfm_p4_probe_pmu(void)
++static int pfm_em64t_probe_pmu(void)
 +{
 +	int high, low;
 +	unsigned int i;
-+	
-+	printk(KERN_INFO"perfmon_p4: family=%d x86_model=%d\n",
++
++	printk(KERN_INFO"perfmon_em64t: family=%d x86_model=%d\n",
 +		cpu_data->x86,
 +		cpu_data->x86_model);
 +	/*
 +	 * must be family 15
 +	 */
 +	if (cpu_data->x86 != 15) {
-+		printk(KERN_INFO"perfmon_p4: unsupported family=%d\n", cpu_data->x86);
++		printk(KERN_INFO"perfmon_em64t: unsupported family=%d\n", cpu_data->x86);
 +		return -1;
 +	}
 +
@@ -1640,28 +1749,27 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4.c linux-2.6.16-rc1/
 +	 * only works on Intel processors
 +	 */
 +	if (cpu_data->x86_vendor != X86_VENDOR_INTEL) {
-+		printk(KERN_INFO"perfmon_p4: not running on Intel processor\n");
++		printk(KERN_INFO"perfmon_em64t: not running on Intel processor\n");
 +		return -1;
 +	}
 +
 +	switch(cpu_data->x86_model) {
-+		case 2:
-+			printk(KERN_INFO"perfmon_p4: Northwood P4 detected\n");
++		case 4:
 +			break;
 +		default:
 +			/*
 +			 * do not know if they all work the same, so reject for now
 +			 */
-+			printk(KERN_INFO"perfmon_p4: unknown model %d\n", cpu_data->x86_model);
++			printk(KERN_INFO"perfmon_em64t: unknown model %d\n", cpu_data->x86_model);
 +			return -1;
 +	}
 +
 +	/*
-+	 * does not work with EM64T processors
++	 * does not work with non EM64T processors
 +	 */
 +	if (cpuid_eax(0x80000000) < 0x80000001
-+	    || (cpuid_edx(0x80000001) & (1<<29))) {
-+		printk(KERN_INFO"perfmon_p4: does not support EM64T mode\n");
++	    || (cpuid_edx(0x80000001) & (1<<29)) == 0) {
++		printk(KERN_INFO"perfmon_em64t: does not support non EM64T mode\n");
 +		return -1;
 +	}
 +
@@ -1669,98 +1777,100 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4.c linux-2.6.16-rc1/
 +	 * check for local APIC (required)
 +	 */
 +	if (!cpu_has_apic) {
-+		printk(KERN_INFO"perfmon_p4: no local APIC, unsupported\n");
++		printk(KERN_INFO"perfmon_em64t: no local APIC, unsupported\n");
 +		return -1;
 +	}
++
 +	rdmsr(MSR_IA32_APICBASE, low, high);
 +	if ((low & MSR_IA32_APICBASE_ENABLE) == 0)
 +		printk(KERN_INFO"Local APIC in 3-wire mode\n");
 +	
 +#ifdef CONFIG_SMP
-+	pfm_p4_pmu_info.lps_per_core = cpus_weight(cpu_sibling_map[0]);
++	pfm_em64t_pmu_info.lps_per_core = cpus_weight(cpu_sibling_map[0]);
 +#endif
 +
-+	printk(KERN_INFO"perfmon_p4: cores/package=%d threads/core=%d\n",
++	printk(KERN_INFO"perfmon_em64t: cores/package=%d threads/core=%d\n",
 +		cpu_data->x86_max_cores,
-+		pfm_p4_pmu_info.lps_per_core);
++		pfm_em64t_pmu_info.lps_per_core);
++
 +
 +	if (cpu_has_ht) {
-+
 +		printk(KERN_INFO"HyperThreading supported: %s\n",
-+			 pfm_p4_pmu_info.lps_per_core > 1 ? "on": "off");
++			pfm_em64t_pmu_info.lps_per_core > 1 ? "on": "off");
++		
 +		/*
 +		 * disable registers not supporting HT
 +		 */
-+		if (pfm_p4_pmu_info.lps_per_core > 1) {
++		if (pfm_em64t_pmu_info.lps_per_core > 1) {
 +			for (i = 0; !IS_LAST_PMC(i);  i++) {
-+				if( pfm_p4_pmu_info.pmc_addrs[(i)].reg_type & PFM_REGT_NOHT )
-+					pfm_p4_pmc_desc[i].type = PFM_REG_NA;
++				if( pfm_em64t_pmu_info.pmc_addrs[(i)].reg_type & PFM_REGT_NOHT )
++					pfm_em64t_pmc_desc[i].type = PFM_REG_NA;
 +			}
 +			for (i = 0; !IS_LAST_PMD(i);  i++) {
-+				if( pfm_p4_pmu_info.pmd_addrs[(i)].reg_type & PFM_REGT_NOHT )
-+					pfm_p4_pmd_desc[i].type = PFM_REG_NA;
++				if( pfm_em64t_pmu_info.pmd_addrs[(i)].reg_type & PFM_REGT_NOHT )
++					pfm_em64t_pmd_desc[i].type = PFM_REG_NA;
 +			}
 +		}
 +	}
-+
++	
 +	if (cpu_has_dts) {
 +		printk("Data Save Area (DS) supported\n");
-+		pfm_p4_pmu_info.flags = PFM_I386_PMU_DS;
++		pfm_em64t_pmu_info.flags = PFM_X86_64_PMU_DS;
 +		rdmsr(MSR_IA32_MISC_ENABLE, low, high);
 +		if ((low & MSR_IA32_MISC_ENABLE_PEBS_UNAVAIL)==0) {
 +			printk(KERN_INFO"PEBS supported\n");
-+			pfm_p4_pmu_info.flags |= PFM_I386_PMU_PEBS;
++			pfm_em64t_pmu_info.flags |= PFM_X86_64_PMU_PEBS;
 +		}
 +	}
 +	return 0;
 +}
 +
-+static struct pfm_pmu_config pfm_p4_pmu_conf={
-+	.pmu_name = "Intel 32-bit P4/Xeon",
++static struct pfm_pmu_config pfm_em64t_pmu_conf={
++	.pmu_name = "Intel EM64T",
 +	.counter_width = 40,
-+	.pmd_desc = pfm_p4_pmd_desc,
-+	.pmc_desc = pfm_p4_pmc_desc,
-+	.probe_pmu = pfm_p4_probe_pmu,
++	.pmd_desc = pfm_em64t_pmd_desc,
++	.pmc_desc = pfm_em64t_pmc_desc,
++	.probe_pmu = pfm_em64t_probe_pmu,
 +	.version = "1.0",
 +	.flags = PFM_PMU_BUILTIN_FLAG,
 +	.owner = THIS_MODULE,
-+	.arch_info = &pfm_p4_pmu_info
++	.arch_info = &pfm_em64t_pmu_info
 +};
 +	
-+static int __init pfm_p4_pmu_init_module(void)
++static int __init pfm_em64t_pmu_init_module(void)
 +{
 +	unsigned int i;
 +
 +	/*
 +	 * compute enable bitmask
 +	 */
-+	bitmap_zero(pfm_p4_pmu_info.enable_mask, PFM_MAX_HW_PMCS);
++	bitmap_zero(pfm_em64t_pmu_info.enable_mask, PFM_MAX_HW_PMCS);
 +	for(i=0; i < PFM_MAX_HW_PMCS; i++) {
-+		if (pfm_p4_pmu_info.pmc_addrs[i].reg_type & PFM_REGT_CCCR) {
-+			pfm_bv_set(pfm_p4_pmu_info.enable_mask, i);
++		if (pfm_em64t_pmu_info.pmc_addrs[i].reg_type & PFM_REGT_CCCR) {
++			pfm_bv_set(pfm_em64t_pmu_info.enable_mask, i);
 +		}
 +	}
-+	return pfm_register_pmu_config(&pfm_p4_pmu_conf);
++	return pfm_register_pmu_config(&pfm_em64t_pmu_conf);
 +}
 +
-+static void __exit pfm_p4_pmu_cleanup_module(void)
++static void __exit pfm_em64t_pmu_cleanup_module(void)
 +{
-+	pfm_unregister_pmu_config(&pfm_p4_pmu_conf);
++	pfm_unregister_pmu_config(&pfm_em64t_pmu_conf);
 +}
 +
-+module_init(pfm_p4_pmu_init_module);
-+module_exit(pfm_p4_pmu_cleanup_module);
-diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4_pebs_smpl.c linux-2.6.16-rc1/arch/i386/perfmon/perfmon_p4_pebs_smpl.c
---- linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4_pebs_smpl.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.16-rc1/arch/i386/perfmon/perfmon_p4_pebs_smpl.c	2006-01-18 08:50:31.000000000 -0800
++module_init(pfm_em64t_pmu_init_module);
++module_exit(pfm_em64t_pmu_cleanup_module);
+diff -urN linux-2.6.16-rc1.orig/arch/x86_64/perfmon/perfmon_em64t_pebs_smpl.c linux-2.6.16-rc1/arch/x86_64/perfmon/perfmon_em64t_pebs_smpl.c
+--- linux-2.6.16-rc1.orig/arch/x86_64/perfmon/perfmon_em64t_pebs_smpl.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.16-rc1/arch/x86_64/perfmon/perfmon_em64t_pebs_smpl.c	2006-01-18 08:50:44.000000000 -0800
 @@ -0,0 +1,224 @@
 +/*
 + * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
 + * Contributed by Stephane Eranian <eranian@hpl.hp.com>
 + *
-+ * This file implements the PEBS sampling format for 32-bit
-+ * Pentium 4/Xeon processors. it does not work with Intel EM64T
-+ * processors.
++ * This file implements the PEBS sampling format for Intel
++ * EM64T Intel Pentium 4/Xeon processors. It does not work
++ * with Intel 32-bit P4/Xeon processors.
 + */
 +#include <linux/kernel.h>
 +#include <linux/types.h>
@@ -1778,26 +1888,26 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4_pebs_smpl.c linux-2
 +#endif
 +
 +#include <linux/perfmon.h>
-+#include <asm/perfmon_p4_pebs_smpl.h>
++#include <asm/perfmon_em64t_pebs_smpl.h>
 +
-+#ifndef __i386__
-+#error "this module is for the 32-bit Pentium 4 processors"
++#ifndef __x86_64__
++#error "this module is for the Intel EM64T processors"
 +#endif
 +
 +MODULE_AUTHOR("Stephane Eranian <eranian@hpl.hp.com>");
-+MODULE_DESCRIPTION("Intel 32-bit P4/Xeon PEBS sampling");
++MODULE_DESCRIPTION("Intel 64-bit P4/Xeon PEBS sampling");
 +MODULE_LICENSE("GPL");
 +
 +static int pfm_pebs_fmt_validate(u32 flags, u16 npmds, void *data)
 +{
 +	struct pfm_arch_pmu_info *arch_info = pfm_pmu_conf->arch_info;
-+	pfm_p4_pebs_smpl_arg_t *arg = data;
++	pfm_em64t_pebs_smpl_arg_t *arg = data;
 +	size_t min_buf_size;
 +
 +	/*
 +	 * host CPU does not have PEBS support
 +	 */
-+	if ((arch_info->flags & PFM_I386_PMU_PEBS) == 0) {
++	if ((arch_info->flags & PFM_X86_64_PMU_PEBS) == 0) {
 +		DPRINT(("host PMU does not support PEBS sampling\n"));
 +		return -EINVAL;
 +	}
@@ -1814,7 +1924,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4_pebs_smpl.c linux-2
 +	 * compute min buf size. npmds is the maximum number
 +	 * of implemented PMD registers.
 +	 */
-+	min_buf_size = sizeof(pfm_p4_pebs_smpl_hdr_t) + sizeof(pfm_p4_pebs_smpl_entry_t);
++	min_buf_size = sizeof(pfm_em64t_pebs_smpl_hdr_t) + sizeof(pfm_em64t_pebs_smpl_entry_t);
 +
 +	DPRINT(("validate flags=0x%x min_buf_size=%zu buf_size=%zu\n",
 +		flags,
@@ -1832,7 +1942,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4_pebs_smpl.c linux-2
 +
 +static int pfm_pebs_fmt_get_size(unsigned int flags, void *data, size_t *size)
 +{
-+	pfm_p4_pebs_smpl_arg_t *arg = data;
++	pfm_em64t_pebs_smpl_arg_t *arg = data;
 +
 +	/*
 +	 * size has been validated in pebs_fmt_validate()
@@ -1846,17 +1956,17 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4_pebs_smpl.c linux-2
 +			     u32 flags, u16 npmds, void *data)
 +{
 +	struct pfm_arch_context *ctx_arch;
-+	pfm_p4_pebs_smpl_hdr_t *hdr;
-+	pfm_p4_pebs_smpl_arg_t *arg = data;
++	pfm_em64t_pebs_smpl_hdr_t *hdr;
++	pfm_em64t_pebs_smpl_arg_t *arg = data;
 +	unsigned long base;
-+	pfm_p4_ds_area_t *ds;
++	pfm_em64t_ds_area_t *ds;
 +
 +	ctx_arch = pfm_ctx_arch(ctx);
 +
 +	hdr = buf;
 +	ds = &hdr->hdr_ds;
 +
-+	hdr->hdr_version = PFM_P4_PEBS_SMPL_VERSION;
++	hdr->hdr_version = PFM_EM64T_PEBS_SMPL_VERSION;
 +	hdr->hdr_buf_size = arg->buf_size;
 +	hdr->hdr_overflows = 0;
 +
@@ -1867,7 +1977,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4_pebs_smpl.c linux-2
 +	hdr->hdr_start_offs = base - (unsigned long)(hdr+1);
 +	ds->pebs_buf_base = base;
 +	ds->pebs_abs_max = base + arg->buf_size + 1;
-+	ds->pebs_intr_thres = base + arg->intr_thres*sizeof(pfm_p4_pebs_smpl_entry_t);
++	ds->pebs_intr_thres = base + arg->intr_thres*sizeof(pfm_em64t_pebs_smpl_entry_t);
 +	ds->pebs_index = base;
 +
 +	/*
@@ -1878,18 +1988,18 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4_pebs_smpl.c linux-2
 +	/*
 +	 * ensure proper PEBS handling in arch/.../perfmon/perfmon.c
 +	 */
-+	ctx_arch->flags |= PFM_I386_FL_USE_PEBS;
++	ctx_arch->flags |= PFM_X86_64_FL_USE_PEBS;
 +	ctx_arch->ds_area = ds;
 +
 +	DPRINT(("buffer=%p buf_size=%zu  ctx_flags=0x%x"
-+		"pebs_base=0x%x pebs_max=0x%x pebs_thres=0x%x cnt_reset=0x%llx\n",
++		"pebs_base=0x%llx pebs_max=0x%llx pebs_thres=0x%llx cnt_reset=0x%llx\n",
 +		buf,
 +		hdr->hdr_buf_size,
 +		ctx_arch->flags,
 +		ds->pebs_buf_base,
 +		ds->pebs_abs_max,
 +		ds->pebs_intr_thres,
-+		(unsigned long long)ds->pebs_cnt_reset));
++		ds->pebs_cnt_reset));
 +
 +	return 0;
 +}
@@ -1897,7 +2007,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4_pebs_smpl.c linux-2
 +static int pfm_pebs_fmt_handler(void *buf, struct pfm_ovfl_arg *arg,
 +			       unsigned long ip, u64 tstamp, void *data)
 +{
-+	pfm_p4_pebs_smpl_hdr_t *hdr;
++	pfm_em64t_pebs_smpl_hdr_t *hdr;
 +
 +	hdr = buf;
 +
@@ -1920,7 +2030,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4_pebs_smpl.c linux-2
 +
 +static int pfm_pebs_fmt_restart(int is_active, u32 *ovfl_ctrl, void *buf)
 +{
-+	pfm_p4_pebs_smpl_hdr_t *hdr = buf;
++	pfm_em64t_pebs_smpl_hdr_t *hdr = buf;
 +
 +	/*
 +	 * reset index to base of buffer
@@ -1938,9 +2048,9 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4_pebs_smpl.c linux-2
 +}
 +
 +static struct pfm_smpl_fmt pebs_fmt={
-+ 	.fmt_name = "32-bit P4/Xeon PEBS",
-+ 	.fmt_uuid = PFM_P4_PEBS_SMPL_UUID,
-+ 	.fmt_arg_size = sizeof(pfm_p4_pebs_smpl_arg_t),
++ 	.fmt_name = "EM64T P4/Xeon PEBS",
++ 	.fmt_uuid = PFM_EM64T_PEBS_SMPL_UUID,
++ 	.fmt_arg_size = sizeof(pfm_em64t_pebs_smpl_arg_t),
 + 	.fmt_validate = pfm_pebs_fmt_validate,
 + 	.fmt_getsize = pfm_pebs_fmt_get_size,
 + 	.fmt_init = pfm_pebs_fmt_init,
@@ -1948,7 +2058,7 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4_pebs_smpl.c linux-2
 + 	.fmt_restart = pfm_pebs_fmt_restart,
 + 	.fmt_exit = pfm_pebs_fmt_exit,
 +	.fmt_flags = FMT_FLAGS,
-+	.owner = THIS_MODULE,
++	.owner = THIS_MODULE
 +};
 +
 +#define MSR_IA32_MISC_ENABLE_PEBS_UNAVAIL (1<<12) /* PEBS unavailable */
@@ -1978,315 +2088,10 @@ diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p4_pebs_smpl.c linux-2
 +
 +module_init(pfm_pebs_fmt_init_module);
 +module_exit(pfm_pebs_fmt_cleanup_module);
-diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p6.c linux-2.6.16-rc1/arch/i386/perfmon/perfmon_p6.c
---- linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_p6.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.16-rc1/arch/i386/perfmon/perfmon_p6.c	2006-01-18 08:50:31.000000000 -0800
-@@ -0,0 +1,147 @@
-+/*
-+ * This file contains the P6 family processor PMU register description tables
-+ * and pmc checker used by perfmon.c. Pentium M processors must use the
-+ * perfmon_pm.ko module.
-+ *
-+ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
-+ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ */
-+#include <linux/module.h>
-+#include <linux/perfmon.h>
-+#include <asm/msr.h>
-+#include <asm/apic.h>
-+
-+MODULE_AUTHOR("Stephane Eranian <eranian@hpl.hp.com>");
-+MODULE_DESCRIPTION("P6 PMU description table");
-+MODULE_LICENSE("GPL");
-+
-+/*
-+ * - upper 32 bits are reserved
-+ * - INT: APIC enable bit is reserved (forced to 1)
-+ * - bit 21 is reserved
-+ */
-+#define PFM_P6_PMC_RSVD	~((0xffffffffULL<<32) \
-+		  	| (PFM_ONE_64<<20)    \
-+			| (PFM_ONE_64<<21))
-+
-+/*
-+ * force Local APIC interrupt on overflow
-+ * disable with NO_EMUL64
-+ */
-+#define PFM_P6_PMC_VAL  (PFM_ONE_64<<20)
-+#define PFM_P6_NO64	(PFM_ONE_64<<20)
-+
-+/*
-+ * physical addresses of MSR control the perfsel and perfctr registers
-+ */
-+struct pfm_arch_pmu_info pfm_p6_pmu_info={
-+	.pmc_addrs = {
-+		{{MSR_P6_EVNTSEL0, 0}, 0, PFM_REGT_PERFSEL},
-+		{{MSR_P6_EVNTSEL1, 0}, 1, PFM_REGT_PERFSEL}
-+	},
-+	.pmd_addrs = {
-+		{{MSR_P6_PERFCTR0, 0}, 0, PFM_REGT_CTR},
-+		{{MSR_P6_PERFCTR1, 0}, 0, PFM_REGT_CTR}
-+	},
-+	.pmu_style = PFM_I386_PMU_P6,
-+	.lps_per_core = 1
-+};
-+
-+static struct pfm_reg_desc pfm_p6_pmc_desc[PFM_MAX_PMCS+1]={
-+/* pmc0  */ { PFM_REG_W64, "PERFSEL0", PFM_P6_PMC_VAL, PFM_P6_PMC_RSVD, PFM_P6_NO64},
-+/* pmc1  */ { PFM_REG_W64, "PERFSEL1", PFM_P6_PMC_VAL, PFM_P6_PMC_RSVD, PFM_P6_NO64},
-+	    { PFM_REG_END} /* end marker */
-+};
-+
-+static struct pfm_reg_desc pfm_p6_pmd_desc[PFM_MAX_PMDS+1]={
-+/* pmd0  */ { PFM_REG_C  , "PERFCTR0", 0x0, -1},
-+/* pmd1  */ { PFM_REG_C  , "PERFCTR1", 0x0, -1},
-+	    { PFM_REG_END} /* end marker */
-+};
-+
-+#define MSR_IA32_MISC_ENABLE_PERF_AVAIL (1<<7)	  /* read-only status bit */
-+
-+static int pfm_p6_probe_pmu(void)
-+{
-+	int high, low;
-+
-+	printk(KERN_INFO"perfmon_p6: family=%d x86_model=%d\n",
-+		cpu_data->x86,
-+		cpu_data->x86_model);
-+	/*
-+	 * check for P6 processor family
-+	 */
-+	if (cpu_data->x86 != 6) {
-+		printk(KERN_INFO"perfmon_p6: unsupported family=%d\n", cpu_data->x86);
-+		return -1;
-+	}
-+
-+	switch(cpu_data->x86_model) {
-+		case 8:
-+			printk(KERN_INFO"P6 core PMU detected\n");
-+			break;
-+		case 13:
-+			printk(KERN_INFO"Pentium M provided by module perfmon_pm.ko\n");
-+			break;
-+		default:
-+			printk(KERN_INFO"unsupported CPU model %d\n",
-+				cpu_data->x86_model);
-+			return -1;
-+
-+	}
-+
-+	if (!cpu_has_apic) {
-+		printk(KERN_INFO"perfmon_p6: no Local APIC, unsupported\n");
-+		return -1;
-+	}
-+
-+	rdmsr(MSR_IA32_APICBASE, low, high);
-+	if ((low & MSR_IA32_APICBASE_ENABLE) == 0) {
-+		printk(KERN_INFO"perfmon_p6: local APIC disabled, you must enable with lapic kernel command line option\n");
-+		return -1;
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * Counters have 40 bits implemented. However they are designed such
-+ * that bits [32-39] are sign extensions of bit 31. As such the
-+ * effective width of a counter for P6-like PMU is 31 bits only.
-+ *
-+ * See IA-32 Intel Architecture Software developer manual Vol 3:
-+ * system programming and section 15.14.2 in particular.
-+ */
-+static struct pfm_pmu_config pfm_p6_pmu_conf={
-+	.pmu_name = "Intel P6 Family",
-+	.counter_width = 31,
-+	.pmd_desc = pfm_p6_pmd_desc,
-+	.pmc_desc = pfm_p6_pmc_desc,
-+	.probe_pmu = pfm_p6_probe_pmu,
-+	.version = "1.0",
-+	.flags = PFM_PMU_BUILTIN_FLAG,
-+	.owner = THIS_MODULE,
-+	.arch_info = &pfm_p6_pmu_info
-+};
-+	
-+static int __init pfm_p6_pmu_init_module(void)
-+{
-+	unsigned int i;
-+	/*
-+	 * XXX: could be hardcoded for this PMU model
-+	 */
-+	bitmap_zero(pfm_p6_pmu_info.enable_mask, PFM_MAX_HW_PMCS);
-+	for(i=0; i < PFM_MAX_HW_PMCS; i++) {
-+		if (pfm_p6_pmu_info.pmc_addrs[i].reg_type & PFM_REGT_PERFSEL) {
-+			pfm_bv_set(pfm_p6_pmu_info.enable_mask, i);
-+		}
-+	}
-+	return pfm_register_pmu_config(&pfm_p6_pmu_conf);
-+}
-+
-+static void __exit pfm_p6_pmu_cleanup_module(void)
-+{
-+	pfm_unregister_pmu_config(&pfm_p6_pmu_conf);
-+}
-+
-+module_init(pfm_p6_pmu_init_module);
-+module_exit(pfm_p6_pmu_cleanup_module);
-diff -urN linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_pm.c linux-2.6.16-rc1/arch/i386/perfmon/perfmon_pm.c
---- linux-2.6.16-rc1.orig/arch/i386/perfmon/perfmon_pm.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.16-rc1/arch/i386/perfmon/perfmon_pm.c	2006-01-18 08:50:31.000000000 -0800
-@@ -0,0 +1,150 @@
-+/*
-+ * This file contains the Pentium M processor PMU register description tables
-+ * and pmc checker used by perfmon.c. Older P6 core processors must use the
-+ * perfmon_p6.ko module.
-+ *
-+ * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
-+ * Contributed by Stephane Eranian <eranian@hpl.hp.com>
-+ */
-+#include <linux/module.h>
-+#include <linux/perfmon.h>
-+#include <asm/msr.h>
-+#include <asm/apic.h>
-+
-+MODULE_AUTHOR("Stephane Eranian <eranian@hpl.hp.com>");
-+MODULE_DESCRIPTION("Pentium M PMU description table");
-+MODULE_LICENSE("GPL");
-+
-+/*
-+ * - upper 32 bits are reserved
-+ * - INT: APIC enable bit is reserved (forced to 1)
-+ * - bit 21 is reserved
-+ */
-+#define PFM_PM_PMC_RSVD	~((0xffffffffULL<<32) \
-+		  	| (PFM_ONE_64<<20)    \
-+			| (PFM_ONE_64<<21))
-+
-+#define PFM_PM_NO64	(PFM_ONE_64<<20)
-+
-+/*
-+ * force Local APIC interrupt on overflow
-+ */
-+#define PFM_PM_PMC_VAL  (PFM_ONE_64<<20)
-+
-+/*
-+ * physical addresses of MSR control the perfsel and perfctr registers
-+ */
-+struct pfm_arch_pmu_info pfm_pm_pmu_info={
-+	.pmc_addrs = {
-+		{{MSR_P6_EVNTSEL0, 0}, 0, PFM_REGT_PERFSEL},
-+		{{MSR_P6_EVNTSEL1, 0}, 1, PFM_REGT_PERFSEL}
-+	},
-+	.pmd_addrs = {
-+		{{MSR_P6_PERFCTR0, 0}, 0, PFM_REGT_CTR},
-+		{{MSR_P6_PERFCTR1, 0}, 0, PFM_REGT_CTR}
-+	},
-+	.pmu_style = PFM_I386_PMU_P6,
-+	.lps_per_core = 1
-+};
-+
-+static struct pfm_reg_desc pfm_pm_pmc_desc[PFM_MAX_PMCS+1]={
-+/* pmc0  */ { PFM_REG_W64, "PERFSEL0", PFM_PM_PMC_VAL, PFM_PM_PMC_RSVD, PFM_PM_NO64},
-+/* pmc1  */ { PFM_REG_W64, "PERFSEL1", PFM_PM_PMC_VAL, PFM_PM_PMC_RSVD, PFM_PM_NO64},
-+	    { PFM_REG_END} /* end marker */
-+};
-+
-+static struct pfm_reg_desc pfm_pm_pmd_desc[PFM_MAX_PMDS+1]={
-+/* pmd0  */ { PFM_REG_C  , "PERFCTR0", 0x0, -1},
-+/* pmd1  */ { PFM_REG_C  , "PERFCTR1", 0x0, -1},
-+	    { PFM_REG_END} /* end marker */
-+};
-+
-+#define MSR_IA32_MISC_ENABLE_PERF_AVAIL (1<<7)	  /* read-only status bit */
-+
-+static int pfm_pm_probe_pmu(void)
-+{
-+	int high, low;
-+
-+	printk(KERN_INFO"perfmon_pm: family=%d x86_model=%d\n",
-+		cpu_data->x86,
-+		cpu_data->x86_model);
-+	/*
-+	 * Only valid for Pentium M
-+	 */
-+	if (cpu_data->x86 != 6) {
-+		printk(KERN_INFO"perfmon_pm: unsupported family=%d\n", cpu_data->x86);
-+		return -1;
-+	}
-+
-+	switch(cpu_data->x86_model) {
-+		case  9:
-+		case 13:
-+			rdmsr(MSR_IA32_MISC_ENABLE, low, high);
-+			if ((low & MSR_IA32_MISC_ENABLE_PERF_AVAIL) == 0) {
-+				printk(KERN_INFO"Pentium M without PMU\n");
-+				return -1;
-+			}
-+			printk(KERN_INFO"Pentium M PMU detected\n");
-+			break;
-+		default:
-+			printk(KERN_INFO"unsupported CPU model %d\n",
-+				cpu_data->x86_model);
-+			return -1;
-+
-+	}
-+
-+	if (!cpu_has_apic) {
-+		printk(KERN_INFO"perfmon_pm: no Local APIC, unsupported\n");
-+		return -1;
-+	}
-+
-+	rdmsr(MSR_IA32_APICBASE, low, high);
-+	if ((low & MSR_IA32_APICBASE_ENABLE) == 0) {
-+		printk(KERN_INFO"perfmon_pm: local APIC disabled, you must enable with lapic kernel command line option\n");
-+		return -1;
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * Counters have 40 bits implemented. However they are designed such
-+ * that bits [32-39] are sign extensions of bit 31. As such the
-+ * effective width of a counter for PM-like PMU is 31 bits only.
-+ *
-+ * See IA-32 Intel Architecture Software developer manual Vol 3:
-+ * system programming and section 15.14.2 in particular.
-+ */
-+static struct pfm_pmu_config pfm_pm_pmu_conf={
-+	.pmu_name = "Intel Pentium M",
-+	.counter_width = 31,
-+	.pmd_desc = pfm_pm_pmd_desc,
-+	.pmc_desc = pfm_pm_pmc_desc,
-+	.probe_pmu = pfm_pm_probe_pmu,
-+	.version = "1.0",
-+	.flags = PFM_PMU_BUILTIN_FLAG,
-+	.owner = THIS_MODULE,
-+	.arch_info = &pfm_pm_pmu_info
-+};
-+	
-+static int __init pfm_pm_pmu_init_module(void)
-+{
-+	unsigned int i;
-+	/*
-+	 * XXX: could be hardcoded for this PMU model
-+	 */
-+	bitmap_zero(pfm_pm_pmu_info.enable_mask, PFM_MAX_HW_PMCS);
-+	for(i=0; i < PFM_MAX_HW_PMCS; i++) {
-+		if (pfm_pm_pmu_info.pmc_addrs[i].reg_type & PFM_REGT_PERFSEL) {
-+			pfm_bv_set(pfm_pm_pmu_info.enable_mask, i);
-+		}
-+	}
-+	return pfm_register_pmu_config(&pfm_pm_pmu_conf);
-+}
-+
-+static void __exit pfm_pm_pmu_cleanup_module(void)
-+{
-+	pfm_unregister_pmu_config(&pfm_pm_pmu_conf);
-+}
-+
-+module_init(pfm_pm_pmu_init_module);
-+module_exit(pfm_pm_pmu_cleanup_module);
-diff -urN linux-2.6.16-rc1.orig/include/asm-i386/mach-default/irq_vectors.h linux-2.6.16-rc1/include/asm-i386/mach-default/irq_vectors.h
---- linux-2.6.16-rc1.orig/include/asm-i386/mach-default/irq_vectors.h	2006-01-02 19:21:10.000000000 -0800
-+++ linux-2.6.16-rc1/include/asm-i386/mach-default/irq_vectors.h	2006-01-18 08:50:31.000000000 -0800
-@@ -56,6 +56,7 @@
+diff -urN linux-2.6.16-rc1.orig/include/asm-x86_64/hw_irq.h linux-2.6.16-rc1/include/asm-x86_64/hw_irq.h
+--- linux-2.6.16-rc1.orig/include/asm-x86_64/hw_irq.h	2006-01-18 08:48:17.000000000 -0800
++++ linux-2.6.16-rc1/include/asm-x86_64/hw_irq.h	2006-01-18 08:50:44.000000000 -0800
+@@ -67,6 +67,7 @@
   * sources per level' errata.
   */
  #define LOCAL_TIMER_VECTOR	0xef
@@ -2294,43 +2099,55 @@ diff -urN linux-2.6.16-rc1.orig/include/asm-i386/mach-default/irq_vectors.h linu
  
  /*
   * First APIC vector available to drivers: (vectors 0x30-0xee)
-@@ -63,7 +64,7 @@
+@@ -74,7 +75,7 @@
   * levels. (0x80 is the syscall vector)
   */
  #define FIRST_DEVICE_VECTOR	0x31
--#define FIRST_SYSTEM_VECTOR	0xef
-+#define FIRST_SYSTEM_VECTOR	0xee
+-#define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in irq.h */
++#define FIRST_SYSTEM_VECTOR	0xee   /* duplicated in irq.h */
  
- #define TIMER_IRQ 0
  
-diff -urN linux-2.6.16-rc1.orig/include/asm-i386/perfmon.h linux-2.6.16-rc1/include/asm-i386/perfmon.h
---- linux-2.6.16-rc1.orig/include/asm-i386/perfmon.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.16-rc1/include/asm-i386/perfmon.h	2006-01-18 08:50:31.000000000 -0800
-@@ -0,0 +1,262 @@
+ #ifndef __ASSEMBLY__
+diff -urN linux-2.6.16-rc1.orig/include/asm-x86_64/irq.h linux-2.6.16-rc1/include/asm-x86_64/irq.h
+--- linux-2.6.16-rc1.orig/include/asm-x86_64/irq.h	2006-01-18 08:48:17.000000000 -0800
++++ linux-2.6.16-rc1/include/asm-x86_64/irq.h	2006-01-18 08:50:44.000000000 -0800
+@@ -29,7 +29,7 @@
+  */
+ #define NR_VECTORS 256
+ 
+-#define FIRST_SYSTEM_VECTOR	0xef   /* duplicated in hw_irq.h */
++#define FIRST_SYSTEM_VECTOR	0xee   /* duplicated in hw_irq.h */
+ 
+ #ifdef CONFIG_PCI_MSI
+ #define NR_IRQS FIRST_SYSTEM_VECTOR
+diff -urN linux-2.6.16-rc1.orig/include/asm-x86_64/perfmon.h linux-2.6.16-rc1/include/asm-x86_64/perfmon.h
+--- linux-2.6.16-rc1.orig/include/asm-x86_64/perfmon.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.16-rc1/include/asm-x86_64/perfmon.h	2006-01-18 08:50:44.000000000 -0800
+@@ -0,0 +1,270 @@
 +/*
 + * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
 + * Contributed by Stephane Eranian <eranian@hpl.hp.com>
 + *
-+ * This file contains i386 Processor Family specific definitions
++ * This file contains X86-64 Processor Family specific definitions
 + * for the perfmon interface.
 + *
 + * This file MUST never be included directly. Use linux/perfmon.h.
 + */
-+#ifndef _ASM_I386_PERFMON_H_
-+#define _ASM_I386_PERFMON_H_
++#ifndef _ASM_X86_64_PERFMON_H_
++#define _ASM_X86_64_PERFMON_H_
 +
 +/*
-+ * I386 specific context flags
++ * X86-64 specific context flags
 + */
-+#define PFM_I386_FL_INSECURE 0x10000 /* allow rdpmc at user level */
++#define PFM_X86_64_FL_INSECURE	0x10000	/* allow rdpmc at user level */
 +
 +#ifdef __KERNEL__
 +
 +#include <asm/desc.h>
 +#include <asm/apic.h>
 +
-+/*
-+ * - bits 31 - 63 reserved
++/* 
++ * For EM64T only: - bits 31 - 63 reserved
 + * - T1_OS and T1_USR bits are reserved - set depending on logical proc
 + *      user mode application should use T0_OS and T0_USR to indicate
 + */
@@ -2342,7 +2159,7 @@ diff -urN linux-2.6.16-rc1.orig/include/asm-i386/perfmon.h linux-2.6.16-rc1/incl
 + * bit 00-15: reg_type (1 bit set)
 + * bit 16-31: attribute (can be ORed with bit 0-15)
 + */
-+#define PFM_REGT_PERFSEL 0x01 /* P6: PERFSEL cannot be zero due to ext_reg init */
++#define PFM_REGT_PERFSEL 0x01 /* AMD: PERFSEL cannot be zero due to ext_reg init */
 +#define PFM_REGT_ESCR    0x02 /* P4: ESCR */
 +#define PFM_REGT_CCCR    0x04 /* P4: CCCR (has enable bit) */
 +#define PFM_REGT_CTR     0x08 /* P4/P6: is a counter */
@@ -2357,6 +2174,7 @@ diff -urN linux-2.6.16-rc1.orig/include/asm-i386/perfmon.h linux-2.6.16-rc1/incl
 + * and CCCRs per group.
 + */
 +#define MAX_SMT_ID 1
++
 +/*
 + * For extended register information in addition to address that is used
 + * at runtime to figure out the mapping of reg addresses to logical procs
@@ -2366,10 +2184,10 @@ diff -urN linux-2.6.16-rc1.orig/include/asm-i386/perfmon.h linux-2.6.16-rc1/incl
 +	/*
 +	 * one each for the logical CPUs.  Index 0 corresponds to T0 and
 +	 * index 1 corresponds to T1.  Index 1 can be zero if no T1
-+	 * complement reg exists.
++	 * complement reg exists (example SSU_ESCR0 or as in all AMD64)
 +	 */
 +	unsigned long addrs[MAX_SMT_ID+1];
-+	unsigned int ctr;	/* for CCCR/PERFSEL, associated counter */
++	unsigned int ctr; /* for CCCR/PERFSEL, associated counter */
 +	unsigned int reg_type;
 +};
 +
@@ -2384,17 +2202,16 @@ diff -urN linux-2.6.16-rc1.orig/include/asm-i386/perfmon.h linux-2.6.16-rc1/incl
 +	u16 flags;	   /* PMU feature flags */
 +};
 +/*
-+ * I386 PMU style
++ * X86-64/EM64T PMU style
 + */
-+
-+#define PFM_I386_PMU_P4		1	/* Intel: P4/Xeon processor PMU */
-+#define PFM_I386_PMU_P6		2	/* Intel: P6 processor PMU */
++#define PFM_X86_64_PMU_AMD	1	/* AMD X86-64 (architected) */
++#define PFM_X86_64_PMU_P4	2	/* Intel EM64T P4/Xeon style */
 +
 +/*
 + * PMU feature flags
 + */
-+#define PFM_I386_PMU_DS		0x1	/* Intel: support for Data Save Area (DS) */
-+#define PFM_I386_PMU_PEBS	0x2	/* Intel: support PEBS (implies DS) */
++#define PFM_X86_64_PMU_DS	0x1	/* Intel: support for Data Save Area (DS) */
++#define PFM_X86_64_PMU_PEBS	0x2	/* Intel: support PEBS (implies DS) */
 +
 +extern void __pfm_read_reg(const struct pfm_arch_ext_reg *xreg, u64 *val);
 +extern void __pfm_write_reg(const struct pfm_arch_ext_reg *xreg, u64 val);
@@ -2402,6 +2219,7 @@ diff -urN linux-2.6.16-rc1.orig/include/asm-i386/perfmon.h linux-2.6.16-rc1/incl
 +static inline void pfm_arch_resend_irq(void)
 +{
 +	unsigned long val, dest;
++	
 +	/*
 +	 * we cannot use hw_resend_irq() because it goes to
 +	 * the I/O APIC. We need to go to the Local Apic.
@@ -2419,7 +2237,6 @@ diff -urN linux-2.6.16-rc1.orig/include/asm-i386/perfmon.h linux-2.6.16-rc1/incl
 +	dest = apic_read(APIC_ID);
 +	apic_write(APIC_ICR2, dest);
 +	apic_write(APIC_ICR, val);
-+
 +}
 +
 +#define pfm_arch_serialize()	/* nothing */
@@ -2430,6 +2247,9 @@ diff -urN linux-2.6.16-rc1.orig/include/asm-i386/perfmon.h linux-2.6.16-rc1/incl
 +	rdtscll(tmp);
 +	return tmp;
 +}
++
++extern void __pfm_read_reg(const struct pfm_arch_ext_reg *xreg, u64 *val);
++extern void __pfm_write_reg(const struct pfm_arch_ext_reg *xreg, u64 val);
 +
 +static inline void pfm_arch_write_pmc(struct pfm_context *ctx, unsigned int cnum, u64 value)
 +{
@@ -2471,6 +2291,7 @@ diff -urN linux-2.6.16-rc1.orig/include/asm-i386/perfmon.h linux-2.6.16-rc1/incl
 +	__pfm_read_reg(&arch_info->pmc_addrs[cnum], &tmp);
 +	return tmp;
 +}
++
 +/*
 + * At certain points, perfmon needs to know if monitoring has been
 + * explicitely started/stopped by user via pfm_start/pfm_stop. The
@@ -2487,45 +2308,49 @@ diff -urN linux-2.6.16-rc1.orig/include/asm-i386/perfmon.h linux-2.6.16-rc1/incl
 +	return 0;
 +}
 +
-+
 +extern void pfm_arch_init_percpu(void);
 +extern void pfm_arch_ctxswout(struct task_struct *task,
-+			struct pfm_context *ctx, struct pfm_event_set *set);
++		struct pfm_context *ctx, struct pfm_event_set *set);
 +extern void pfm_arch_ctxswin(struct task_struct *task,
-+			struct pfm_context *ctx, struct pfm_event_set *set);
++		struct pfm_context *ctx, struct pfm_event_set *set);
 +extern void pfm_arch_stop(struct task_struct *task,
-+			struct pfm_context *ctx, struct pfm_event_set *set);
++		struct pfm_context *ctx, struct pfm_event_set *set);
 +extern void pfm_arch_start(struct task_struct *task,
-+			struct pfm_context *ctx, struct pfm_event_set *set);
++		struct pfm_context *ctx, struct pfm_event_set *set);
 +extern void pfm_arch_restore_pmds(struct pfm_context *ctx, struct pfm_event_set *set);
 +extern void pfm_arch_save_pmds(struct pfm_context *ctx, struct pfm_event_set *set);
 +extern void pfm_arch_restore_pmcs(struct pfm_context *ctx, struct pfm_event_set *set);
++extern int  pfm_arch_get_ovfl_pmds(struct pfm_context *ctx,
++		struct pfm_event_set *set);
 +extern void pfm_arch_intr_freeze_pmu(struct pfm_context *ctx);
 +extern void pfm_arch_intr_unfreeze_pmu(struct pfm_context *ctx);
-+extern int  pfm_arch_pmu_config_check(struct pfm_pmu_config *cfg);
-+extern void pfm_arch_pmu_config_init(struct pfm_pmu_config *cfg);
 +extern int  pfm_arch_initialize(void);
 +extern void pfm_arch_mask_monitoring(struct pfm_context *ctx);
 +extern void pfm_arch_unmask_monitoring(struct pfm_context *ctx);
++extern int  pfm_arch_pmu_config_check(struct pfm_pmu_config *cfg);
++extern void pfm_arch_pmu_config_init(struct pfm_pmu_config *cfg);
 +extern void pfm_arch_context_initialize(struct pfm_context *ctx, u32 ctx_flags);
 +extern void pfm_arch_unload_context(struct pfm_context *ctx,
 +		struct task_struct *task);
-+extern int pfm_arch_load_context(struct pfm_context *ctx,
++extern int  pfm_arch_load_context(struct pfm_context *ctx,
 +		struct task_struct *task);
-+
-+extern int pfm_arch_reserve_session(struct pfm_sessions *session,
-+				    struct pfm_context *ctx,
-+				    u32 cpu);
 +
 +extern void pfm_arch_release_session(struct pfm_sessions *session,
 +				     struct pfm_context *ctx,
 +				     u32 cpu);
 +
++extern int pfm_arch_reserve_session(struct pfm_sessions *session,
++				    struct pfm_context *ctx,
++	                            u32 cpu);
++
++//void pfm_arch_unfreeze_pmu(void)
++#define pfm_arch_unfreeze_pmu()
++
++
 +/*
 + * function called from pfm_setfl_sane(). Context is locked
-+ * and interrupts are masked.
-+ * The value of flags is the value of ctx_flags as passed by
-+ * user.
++ * and interrupts are masked. The value of flags is the value
++ * of ctx_flags as passed by user.
 + *
 + * function must check arch-specific set flags.
 + * Return:
@@ -2541,10 +2366,10 @@ diff -urN linux-2.6.16-rc1.orig/include/asm-i386/perfmon.h linux-2.6.16-rc1/incl
 +#define pfm_arch_show_session(m) /* nothing */
 +
 +/*
-+ * on P6, P4, the upper bits of a counter must be set in order
-+ * for the overflow interrupt to happen. On overflow, the counter
-+ * has wrapped around, and the upper bits are now cleared. This
-+ * function set them back.
++ * on AMD X86-64, Intel EM64T P4/Xeon the upper bits of a counter
++ * must be set in order for the overflow interrupt to happen. On
++ * overflow, the counter has wrapped around, and the upper bits
++ * are now cleared. This function set them back.
 + *
 + * The current version loses whatever is remaining in the counter,
 + * which is usually not zero but has a small count. In order not
@@ -2559,34 +2384,34 @@ diff -urN linux-2.6.16-rc1.orig/include/asm-i386/perfmon.h linux-2.6.16-rc1/incl
 +	pfm_arch_write_pmd(ctx, cnum, val);
 +}
 +
-+#define PFM_I386_FL_USE_PEBS	0x20000	/* Intel: context uses PEBS */
++#define PFM_X86_64_FL_USE_PEBS	0x20000	/* Intel: context uses PEBS */
 +struct pfm_arch_context {
-+	void	*ds_area;	/* pointer to DS management area */
++	void	*ds_area;	/* Intel: pointer to DS management area */
 +	u32	flags;		/* arch-specific flags */
 +};
 +
-+#define PFM_ARCH_CTX_SIZE	(sizeof(struct pfm_arch_context))
++#define PFM_ARCH_CTX_SIZE	sizeof(struct pfm_arch_context)
 +
 +#endif /* __KERNEL__ */
-+#endif /* _ASM_I386_PERFMON_H_ */
-diff -urN linux-2.6.16-rc1.orig/include/asm-i386/perfmon_p4_pebs_smpl.h linux-2.6.16-rc1/include/asm-i386/perfmon_p4_pebs_smpl.h
---- linux-2.6.16-rc1.orig/include/asm-i386/perfmon_p4_pebs_smpl.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.16-rc1/include/asm-i386/perfmon_p4_pebs_smpl.h	2006-01-18 08:50:31.000000000 -0800
-@@ -0,0 +1,96 @@
++#endif /* _ASM_X86_64_PERFMON_H_ */
+diff -urN linux-2.6.16-rc1.orig/include/asm-x86_64/perfmon_em64t_pebs_smpl.h linux-2.6.16-rc1/include/asm-x86_64/perfmon_em64t_pebs_smpl.h
+--- linux-2.6.16-rc1.orig/include/asm-x86_64/perfmon_em64t_pebs_smpl.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.16-rc1/include/asm-x86_64/perfmon_em64t_pebs_smpl.h	2006-01-18 08:50:44.000000000 -0800
+@@ -0,0 +1,106 @@
 +/*
 + * Copyright (c) 2005-2006 Hewlett-Packard Development Company, L.P.
 + * Contributed by Stephane Eranian <eranian@hpl.hp.com>
 + *
-+ * This file implements the PEBS sampling format for 32-bit
-+ * Intel Pentium 4/Xeon processors. Not to be used with Intel EM64T
-+ * processors.
++ * This file implements the PEBS sampling format for 64-bit
++ * Intel EM64T Pentium 4/Xeon processors. Not to be used with
++ * 32-bit Intel processors.
 + */
-+#ifndef __PERFMON_P4_PEBS_SMPL_H__
-+#define __PERFMON_P4_PEBS_SMPL_H__ 1
++#ifndef __PERFMON_EM64T_PEBS_SMPL_H__
++#define __PERFMON_EM64T_PEBS_SMPL_H__ 1
 +
-+#define PFM_P4_PEBS_SMPL_UUID { \
-+	0x0d, 0x85, 0x91, 0xe7, 0x49, 0x3f, 0x49, 0xae,\
-+	0x8c, 0xfc, 0xe8, 0xb9, 0x33, 0xe4, 0xeb, 0x8b}
++#define PFM_EM64T_PEBS_SMPL_UUID { \
++	0x36, 0xbe, 0x97, 0x94, 0x1f, 0xbf, 0x41, 0xdf,\
++	0xb4, 0x63, 0x10, 0x62, 0xeb, 0x72, 0x9b, 0xad}
 +
 +/*
 + * format specific parameters (passed at context creation)
@@ -2602,31 +2427,32 @@ diff -urN linux-2.6.16-rc1.orig/include/asm-i386/perfmon_p4_pebs_smpl.h linux-2.
 +	u64	cnt_reset;	/* counter reset value */
 +	u32	res1;		/* for future use */
 +	u64	reserved[2];	/* for future use */
-+} pfm_p4_pebs_smpl_arg_t;
++} pfm_em64t_pebs_smpl_arg_t;
 +
 +/*
 + * combined context+format specific structure. Can be passed
 + * to pfm_context_create()
 + */
 +typedef struct {
-+	pfarg_ctx_t		ctx_arg;
-+	pfm_p4_pebs_smpl_arg_t	buf_arg;
-+} pfm_p4_pebs_smpl_ctx_arg_t;
++	pfarg_ctx_t			ctx_arg;
++	pfm_em64t_pebs_smpl_arg_t	buf_arg;
++} pfm_em64t_pebs_smpl_ctx_arg_t;
 +
 +/*
-+ * DS save area as described in section 15.10.5
++ * DS Save Area as described in section 15.10.5 for
++ * 32-bit but extended to 64-bit
 + */
 +typedef struct {
-+	u32	bts_buf_base;
-+	u32	bts_index;
-+	u32	bts_abs_max;
-+	u32	bts_intr_thres;
-+	u32	pebs_buf_base;
-+	u32	pebs_index;
-+	u32	pebs_abs_max;
-+	u32	pebs_intr_thres;
++	u64	bts_buf_base;
++	u64	bts_index;
++	u64	bts_abs_max;
++	u64	bts_intr_thres;
++	u64	pebs_buf_base;
++	u64	pebs_index;
++	u64	pebs_abs_max;
++	u64	pebs_intr_thres;
 +	u64     pebs_cnt_reset;
-+} pfm_p4_ds_area_t;
++} pfm_em64t_ds_area_t;
 +
 +/*
 + * This header is at the beginning of the sampling buffer returned to the user.
@@ -2644,83 +2470,97 @@ diff -urN linux-2.6.16-rc1.orig/include/asm-i386/perfmon_p4_pebs_smpl.h linux-2.
 +	size_t			hdr_start_offs; /* actual buffer start offset */
 +	u32			hdr_version;	/* smpl format version */
 +	u64			hdr_res[3];	/* for future use */
-+	pfm_p4_ds_area_t	hdr_ds;		/* DS management Area */
-+} pfm_p4_pebs_smpl_hdr_t;
++	pfm_em64t_ds_area_t	hdr_ds;		/* DS management Area */
++} pfm_em64t_pebs_smpl_hdr_t;
 +
 +/*
-+ * PEBS record format as described in section 15.10.6
++ * EM64T PEBS record format as described in
++ * http://www.intel.com/technology/64bitextensions/30083502.pdf
 + */
 +typedef struct {
-+	u32	eflags;
-+	u32	ip;
-+	u32	eax;
-+	u32	ebx;
-+	u32	ecx;
-+	u32	edx;
-+	u32	esi;
-+	u32	edi;
-+	u32	ebp;
-+	u32	esp;
-+} pfm_p4_pebs_smpl_entry_t;
++	u64	eflags;
++	u64	ip;
++	u64	eax;
++	u64	ebx;
++	u64	ecx;
++	u64	edx;
++	u64	esi;
++	u64	edi;
++	u64	ebp;
++	u64	esp;
++	u64	r8;
++	u64	r9;
++	u64	r10;
++	u64	r11;
++	u64	r12;
++	u64	r13;
++	u64	r14;
++	u64	r15;
++} pfm_em64t_pebs_smpl_entry_t;
 +
-+#define PFM_P4_PEBS_SMPL_VERSION_MAJ 1U
-+#define PFM_P4_PEBS_SMPL_VERSION_MIN 0U
-+#define PFM_P4_PEBS_SMPL_VERSION (((PFM_P4_PEBS_SMPL_VERSION_MAJ&0xffff)<<16)|\
-+				   (PFM_P4_PEBS_SMPL_VERSION_MIN & 0xffff))
++#define PFM_EM64T_PEBS_SMPL_VERSION_MAJ 1U
++#define PFM_EM64T_PEBS_SMPL_VERSION_MIN 0U
++#define PFM_EM64T_PEBS_SMPL_VERSION (((PFM_EM64T_PEBS_SMPL_VERSION_MAJ&0xffff)<<16)|\
++				   (PFM_EM64T_PEBS_SMPL_VERSION_MIN & 0xffff))
 +
-+#endif /* __PERFMON_P4_PEBS_SMPL_H__ */
-diff -urN linux-2.6.16-rc1.orig/include/asm-i386/processor.h linux-2.6.16-rc1/include/asm-i386/processor.h
---- linux-2.6.16-rc1.orig/include/asm-i386/processor.h	2006-01-18 08:48:17.000000000 -0800
-+++ linux-2.6.16-rc1/include/asm-i386/processor.h	2006-01-18 08:50:31.000000000 -0800
-@@ -427,6 +427,7 @@
- 	 */
- 	unsigned long io_bitmap_max;
- 	struct thread_struct *io_bitmap_owner;
-+
- 	/*
- 	 * pads the TSS to be cacheline-aligned (size is 0x100)
- 	 */
-@@ -464,6 +465,7 @@
-  	unsigned long	iopl;
- /* max allowed port in the bitmap, in bytes: */
- 	unsigned long	io_bitmap_max;
-+ 	void *pfm_context;
- };
++#endif /* __PERFMON_EM64T_PEBS_SMPL_H__ */
+diff -urN linux-2.6.16-rc1.orig/include/asm-x86_64/processor.h linux-2.6.16-rc1/include/asm-x86_64/processor.h
+--- linux-2.6.16-rc1.orig/include/asm-x86_64/processor.h	2006-01-18 08:48:17.000000000 -0800
++++ linux-2.6.16-rc1/include/asm-x86_64/processor.h	2006-01-18 08:50:44.000000000 -0800
+@@ -258,6 +258,7 @@
+ 	int		ioperm;
+ 	unsigned long	*io_bitmap_ptr;
+ 	unsigned io_bitmap_max;
++	void *pfm_context;
+ /* cached TLS descriptors. */
+ 	u64 tls_array[GDT_ENTRY_TLS_ENTRIES];
+ } __attribute__((aligned(16)));
+diff -urN linux-2.6.16-rc1.orig/include/asm-x86_64/system.h linux-2.6.16-rc1/include/asm-x86_64/system.h
+--- linux-2.6.16-rc1.orig/include/asm-x86_64/system.h	2006-01-18 08:48:17.000000000 -0800
++++ linux-2.6.16-rc1/include/asm-x86_64/system.h	2006-01-18 08:50:44.000000000 -0800
+@@ -27,6 +27,7 @@
+ 	,"rcx","rbx","rdx","r8","r9","r10","r11","r12","r13","r14","r15"
  
- #define INIT_THREAD  {							\
-diff -urN linux-2.6.16-rc1.orig/include/asm-i386/system.h linux-2.6.16-rc1/include/asm-i386/system.h
---- linux-2.6.16-rc1.orig/include/asm-i386/system.h	2006-01-18 08:48:17.000000000 -0800
-+++ linux-2.6.16-rc1/include/asm-i386/system.h	2006-01-18 08:50:31.000000000 -0800
-@@ -14,6 +14,7 @@
- 
- #define switch_to(prev,next,last) do {					\
- 	unsigned long esi,edi;						\
-+	pfm_ctxswout(prev);						\
- 	asm volatile("pushl %%ebp\n\t"					\
- 		     "movl %%esp,%0\n\t"	/* save ESP */		\
- 		     "movl %5,%%esp\n\t"	/* restore ESP */	\
-diff -urN linux-2.6.16-rc1.orig/include/asm-i386/unistd.h linux-2.6.16-rc1/include/asm-i386/unistd.h
---- linux-2.6.16-rc1.orig/include/asm-i386/unistd.h	2006-01-18 08:48:17.000000000 -0800
-+++ linux-2.6.16-rc1/include/asm-i386/unistd.h	2006-01-18 08:50:31.000000000 -0800
-@@ -300,8 +300,20 @@
- #define __NR_inotify_add_watch	292
- #define __NR_inotify_rm_watch	293
- #define __NR_migrate_pages	294
-+#define __NR_pfm_create_context	295
+ #define switch_to(prev,next,last) \
++	pfm_ctxswout(prev);							  \
+ 	asm volatile(SAVE_CONTEXT						    \
+ 		     "movq %%rsp,%P[threadrsp](%[prev])\n\t" /* save RSP */	  \
+ 		     "movq %P[threadrsp](%[next]),%%rsp\n\t" /* restore RSP */	  \
+diff -urN linux-2.6.16-rc1.orig/include/asm-x86_64/unistd.h linux-2.6.16-rc1/include/asm-x86_64/unistd.h
+--- linux-2.6.16-rc1.orig/include/asm-x86_64/unistd.h	2006-01-18 08:48:17.000000000 -0800
++++ linux-2.6.16-rc1/include/asm-x86_64/unistd.h	2006-01-18 08:50:44.000000000 -0800
+@@ -573,8 +573,32 @@
+ __SYSCALL(__NR_inotify_rm_watch, sys_inotify_rm_watch)
+ #define __NR_migrate_pages	256
+ __SYSCALL(__NR_migrate_pages, sys_migrate_pages)
+-
+-#define __NR_syscall_max __NR_migrate_pages
++#define __NR_pfm_create_context	257
++__SYSCALL(__NR_pfm_create_context, sys_pfm_create_context)
 +#define __NR_pfm_write_pmcs	(__NR_pfm_create_context+1)
++__SYSCALL(__NR_pfm_write_pmcs, sys_pfm_write_pmcs)
 +#define __NR_pfm_write_pmds	(__NR_pfm_create_context+2)
++__SYSCALL(__NR_pfm_write_pmds, sys_pfm_write_pmds)
 +#define __NR_pfm_read_pmds	(__NR_pfm_create_context+3)
++__SYSCALL(__NR_pfm_read_pmds, sys_pfm_read_pmds)
 +#define __NR_pfm_load_context	(__NR_pfm_create_context+4)
++__SYSCALL(__NR_pfm_load_context, sys_pfm_load_context)
 +#define __NR_pfm_start		(__NR_pfm_create_context+5)
++__SYSCALL(__NR_pfm_start, sys_pfm_start)
 +#define __NR_pfm_stop		(__NR_pfm_create_context+6)
++__SYSCALL(__NR_pfm_stop, sys_pfm_stop)
 +#define __NR_pfm_restart	(__NR_pfm_create_context+7)
++__SYSCALL(__NR_pfm_restart, sys_pfm_restart)
 +#define __NR_pfm_create_evtsets	(__NR_pfm_create_context+8)
++__SYSCALL(__NR_pfm_create_evtsets, sys_pfm_create_evtsets)
 +#define __NR_pfm_getinfo_evtsets (__NR_pfm_create_context+9)
++__SYSCALL(__NR_pfm_getinfo_evtsets, sys_pfm_getinfo_evtsets)
 +#define __NR_pfm_delete_evtsets (__NR_pfm_create_context+10)
++__SYSCALL(__NR_pfm_delete_evtsets, sys_pfm_delete_evtsets)
 +#define __NR_pfm_unload_context	(__NR_pfm_create_context+11)
++__SYSCALL(__NR_pfm_unload_context, sys_pfm_unload_context)
++ 
++#define __NR_syscall_max __NR_pfm_unload_context
+ #ifndef __NO_STUBS
  
--#define NR_syscalls 295
-+#define NR_syscalls 306
- 
- /*
-  * user-visible error numbers are in the range -1 - -128: see
+ /* user-visible error numbers are in the range -1 - -4095 */

@@ -1,115 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161186AbWATFyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030311AbWATF6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161186AbWATFyq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 00:54:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030314AbWATFyq
+	id S1030311AbWATF6l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 00:58:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030314AbWATF6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 00:54:46 -0500
-Received: from xenotime.net ([66.160.160.81]:37079 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030311AbWATFyp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 00:54:45 -0500
-Date: Thu, 19 Jan 2006 21:54:46 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Greg KH <greg@kroah.com>
-Cc: akpm@osdl.org, kjhall@us.ibm.com, serue@us.ibm.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: + tpm_bios-needs-more-securityfs_-functions.patch added to -mm
- tree
-Message-Id: <20060119215446.0f75cc15.rdunlap@xenotime.net>
-In-Reply-To: <20060120045115.GA9027@kroah.com>
-References: <200601200440.k0K4ecFH014619@shell0.pdx.osdl.net>
-	<20060120045115.GA9027@kroah.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 20 Jan 2006 00:58:41 -0500
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:65155 "EHLO
+	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1030311AbWATF6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 00:58:40 -0500
+X-Sasl-enc: dZmK8eJWDGQPwTCujUpTcd8XKlOopwxTWKukz2SWQx5q 1137736719
+Message-ID: <43D07C08.5000903@fastmail.co.uk>
+Date: Fri, 20 Jan 2006 13:58:32 +0800
+From: Max Waterman <davidmaxwaterman+kernel@fastmail.co.uk>
+User-Agent: Thunderbird 1.6a1 (Macintosh/20060117)
+MIME-Version: 1.0
+To: Phillip Susi <psusi@cfl.rr.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: io performance...
+References: <43CB4CC3.4030904@fastmail.co.uk> <43CD2405.4070902@cfl.rr.com> <43CDED23.5060701@fastmail.co.uk> <43CE5C7A.5060608@cfl.rr.com>
+In-Reply-To: <43CE5C7A.5060608@cfl.rr.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Jan 2006 20:51:15 -0800 Greg KH wrote:
+Phillip Susi wrote:
+> Right, the kernel does not know how many disks are in the array, so it 
+> can't automatically increase the readahead.  I'd say increasing the 
+> readahead manually should solve your throughput issues.
 
-> On Thu, Jan 19, 2006 at 08:40:23PM -0800, akpm@osdl.org wrote:
-> > 
-> > The patch titled
-> > 
-> >      tpm_bios: needs more securityfs_ functions
-> > 
-> > has been added to the -mm tree.  Its filename is
-> > 
-> >      tpm_bios-needs-more-securityfs_-functions.patch
-> > 
-> > See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
-> > out what to do about this
-> > 
-> > 
-> > From: Randy Dunlap <rdunlap@xenotime.net>
-> > 
-> > tpm_bios.c needs securityfs_xyz() functions.
-> > 
-> > Does include/linux/security.h need stubs for these, or should
-> > char/tpm/Makefile just be modified to say:
-> > 
-> > ifdef CONFIG_ACPI
-> > ifdef CONFIG_SECURITY
-> > 	obj-$(CONFIG_TCG_TPM) += tpm_bios.o
-> > endif
-> > endif
-> > 
-> > drivers/char/tpm/tpm_bios.c:494: warning: implicit declaration of function 'securityfs_create_dir'
-> > drivers/char/tpm/tpm_bios.c:494: warning: assignment makes pointer from integer without a cast
-> > drivers/char/tpm/tpm_bios.c:499: warning: implicit declaration of function 'securityfs_create_file'
-> > drivers/char/tpm/tpm_bios.c:501: warning: assignment makes pointer from integer without a cast
-> > drivers/char/tpm/tpm_bios.c:508: warning: assignment makes pointer from integer without a cast
-> > drivers/char/tpm/tpm_bios.c:523: warning: implicit declaration of function 'securityfs_remove'
-> > *** Warning: "securityfs_create_file" [drivers/char/tpm/tpm_bios.ko] undefined!
-> > *** Warning: "securityfs_create_dir" [drivers/char/tpm/tpm_bios.ko] undefined!
-> > *** Warning: "securityfs_remove" [drivers/char/tpm/tpm_bios.ko] undefined!
-> > 
-> > There are also some gcc and sparse warnings that could be fixed.
-> > (see http://www.xenotime.net/linux/doc/build-tpm.out)
-> > 
-> > Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-> > Cc: Serge Hallyn <serue@us.ibm.com>
-> > Cc: Greg KH <greg@kroah.com>
-> > Cc: Kylene Jo Hall <kjhall@us.ibm.com>
-> > Signed-off-by: Andrew Morton <akpm@osdl.org>
-> > ---
-> > 
-> >  include/linux/security.h |   19 +++++++++++++++++++
-> >  1 files changed, 19 insertions(+)
-> > 
-> > diff -puN include/linux/security.h~tpm_bios-needs-more-securityfs_-functions include/linux/security.h
-> > --- devel/include/linux/security.h~tpm_bios-needs-more-securityfs_-functions	2006-01-19 20:38:50.000000000 -0800
-> > +++ devel-akpm/include/linux/security.h	2006-01-19 20:38:50.000000000 -0800
-> > @@ -2617,6 +2617,25 @@ static inline int security_netlink_recv 
-> >  	return cap_netlink_recv (skb);
-> >  }
-> >  
-> > +static inline struct dentry *securityfs_create_dir(const char *name,
-> > +					struct dentry *parent)
-> > +{
-> > +	return NULL;
-> > +}
-> > +
-> > +static inline struct dentry *securityfs_create_file(const char *name,
-> > +						mode_t mode,
-> > +						struct dentry *parent,
-> > +						void *data,
-> > +						struct file_operations *fops)
-> > +{
-> > +	return NULL;
-> > +}
+Any guesses for a good number?
+
+We're in RAID10 (2+2) at the moment on 2.6.8-smp. These are the block 
+numbers I'm getting using bonnie++ :
+
+ra	wr	rd
+256	68K	46K
+512	67K	59K
+640	67K	64K
+1024	66K	73K
+2048	67K	88K
+3072	67K	91K
+8192	71K	96K
+9216	67K	92K
+16384	67K	90K
+
+I think we might end up going for 8192.
+
+We're still wondering why rd performance is so low - seems to be the 
+same as a single drive. RAID10 should be the same performance as RAID0 
+over two drives, shouldn't it?
+
+Max.
+
 > 
-> No, these should return ERR_PTR(-ENODEV) so that you can actually test
-> for a real error in the code, and not have to #ifdef if SECURITY is
-> enabled or not (meaning that you can check for NULL for a real error.)
+> Max Waterman wrote:
+>>
+>> I left the stripe size at the default, which, I believe, is 64K bytes; 
+>> same as your fakeraid below.
+>>
+>> I did play with 'blockdev --setra' too.
+>>
+>> I noticed it was 256 with a single disk, and, with s/w raid, it 
+>> increased by 256 for each extra disk in the array. IE for the raid 0 
+>> array with 4 drives, it was 1024.
+>>
+>> With h/w raid, however, it did not increase when I added disks. Should 
+>> I use 'blockdev --setra 320' (ie 64 x 5 = 320, since we're now running 
+>> RAID5 on 5 drives)?
+>>
+> 
 
-Now that Andrew has changed that (thanks!), the callers in
-tpm_bios.c look incorrect.  They only check for 0/non-zero.
-
-Too late for me to fix that tonight.  Maybe *@us.ibm.com can do that.
-
----
-~Randy

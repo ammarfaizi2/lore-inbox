@@ -1,40 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWATPlA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWATP6e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWATPlA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 10:41:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWATPk7
+	id S1750849AbWATP6e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 10:58:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbWATP6e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 10:40:59 -0500
-Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:39396 "HELO
-	briare1.heliogroup.fr") by vger.kernel.org with SMTP
-	id S1750798AbWATPk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 10:40:59 -0500
-From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Cc: neilb@cse.unsw.edu.au
-Subject: RE: [PATCH 000 of 5] md: Introduction
-Date: Fri, 20 Jan 2006 17:01:06 GMT
-Message-ID: <0610HXV12@briare1.heliogroup.fr>
-X-Mailer: Pliant 94
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 20 Jan 2006 10:58:34 -0500
+Received: from webbox4.loswebos.de ([213.187.93.205]:14743 "EHLO
+	webbox4.loswebos.de") by vger.kernel.org with ESMTP
+	id S1750834AbWATP6e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 10:58:34 -0500
+Date: Fri, 20 Jan 2006 16:59:19 +0100
+From: Marc Koschewski <marc@osknowledge.org>
+To: Michael Loftis <mloftis@wgops.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE?
+Message-ID: <20060120155919.GA5873@stiffy.osknowledge.org>
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.16-rc1-marc-g18a41440-dirty
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
->
-> These can be mixed together quite effectively:
-> You can have dm/lvm over md/raid1 over dm/multipath
-> with no problems.
->
-> If there is functionality missing from any of these recommended
-> components, then make a noise about it, preferably but not necessarily
-> with code, and it will quite possibly be fixed.
+* Michael Loftis <mloftis@wgops.com> [2006-01-20 08:17:40 -0700]:
 
-Also it's not Neil direct problem, since we are at it, the weakest point
-about Linux MD is currently that ...
-there is no production quality U320 SCSI driver for Linux to run MD over !
+> OK, I don't know abotu others, but I'm starting to get sick of this 
+> unstable stable kernel.  Either change the statements allover that were 
+> made that even-numbered kernels were going to be stable or open 2.7. 
+> Removing devfs has profound effects on userland.  It's one thing to screw 
+> with all of the embedded developers, nearly all kernel module developers, 
+> etc, by changing internal APIs but this is completely out of hand.
+> 
+> Normally I wouldn't care, and I'd just stay away from 'stable' until 
+> someone finally figured out that a dev tree really is needed, but I can't 
+> stay quiet anymore.  2.6.x is anything but stable right now.  It might be 
+> stable in the sense that most any development kernel is stable in that it 
+> runs without crashing, but it's not at all stable in the sense that 
+> everything is changing as if it were an odd numbered dev tree.
+> 
+> Yes, I'm venting some frustrations here, but I can't be the only one.  I 
+> know now I'm going to be called a troll or a naysayer but whatever.  The 
+> fact is it needs saying.  I shouldn't have to do major changes to 
+> accomodate sysfs in a *STABLE* kernel when going between point revs.  This 
+> is just not how it's been done in the past.
+> 
+> I can sympathize with the need to push code out to users faster, and to 
+> simplify maintenance as LK is a huge project, but at the expense of how 
+> many developers?
 
-In the U160 category, the symbios driver passed all possible stress tests
-(partly bad drives that require the driver to properly reset and restart),
-but in the U320 category, neither the Fusion not the AIC79xx did.
+For my daily work I use the -git kernels on my production machines. And I didn't
+have probs for a long time due to stuff being tested in -mm. -mm is mostly
+broken for me (psmouse, now reiserfs, ...) but I tend to say that 2.6 is
+rock-stable.
+
+When it comes to API stability people are encouraged to stay up-to-date when
+when developing stuff out of the kernel tree, ain't they? A more convenient way
+would be to create a new in-kernel-tree wrapper module that wraps some functions
+no longer available anymore and which are possible to be wrapped in the meaning
+of all needed data is provided to the 'old' method and can be easyily wrapped
+into the new function.
+
+It could a Kconfig option so that the 'wrapper module' is only activated on
+demand. Thus, having the option to port driver directly to the new API or just
+silenty use the 'wrapper module' to translate the call while being noisy at
+compile time.
+
+You're free to write the module... ;)
+
+Marc

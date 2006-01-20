@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbWATVLf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWATVNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932198AbWATVLf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 16:11:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbWATVLf
+	id S932194AbWATVNS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 16:13:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWATVNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 16:11:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:24027 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932198AbWATVLe (ORCPT
+	Fri, 20 Jan 2006 16:13:18 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:25052 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932194AbWATVNS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 16:11:34 -0500
-Date: Fri, 20 Jan 2006 21:11:16 +0000
+	Fri, 20 Jan 2006 16:13:18 -0500
+Date: Fri, 20 Jan 2006 21:13:00 +0000
 From: Alasdair G Kergon <agk@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/9] device-mapper snapshot: load metadata on creation
-Message-ID: <20060120211116.GB4724@agk.surrey.redhat.com>
+Subject: [PATCH 2/9] device-mapper log bitset: fix endian
+Message-ID: <20060120211300.GC4724@agk.surrey.redhat.com>
 Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
 	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -24,110 +24,145 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move snapshot metadata loading to happen when the table is created 
-instead of when the device is resumed.  Writes to the origin device
-don't trigger exceptions until each snapshot table becomes active 
-when resume() is called on each snapshot.
+From: Patrick Caulfield <pcaulfie@redhat.com>
 
-If you're using lvm2, for this patch to work properly you should update 
-to lvm2 version 2.02.01 or later and device-mapper version 1.02.02 or later.
+Clean up the code responsible for the on-disk mirror logs by using the
+set_le_bit test_le_bit functions of ext2.  That makes the BE machines
+keep the bitmap internally in LE order - it does mean you can't use
+any other type of operations on the bitmap words but that looks to be
+OK in this instance. The efficiency tradeoff is very minimal as you
+would expect for something that ext2 uses.
 
+This allows us to remove bits_to_core(), bits_to_disk() and log->disk_bits.
+
+Also increment the mirror log disk version transparently to avoid
+sharing with older kernels that suffered from the 64-bit BE bug.
+
+Signed-Off-By: Patrick Caulfield <pcaulfie@redhat.com>
 Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
 
-Index: linux-2.6.16-rc1/drivers/md/dm-snap.c
+Index: linux-2.6.16-rc1/drivers/md/dm-log.c
 ===================================================================
---- linux-2.6.16-rc1.orig/drivers/md/dm-snap.c
-+++ linux-2.6.16-rc1/drivers/md/dm-snap.c
-@@ -373,16 +373,11 @@ static inline ulong round_up(ulong n, ul
+--- linux-2.6.16-rc1.orig/drivers/md/dm-log.c	2006-01-20 20:06:00.000000000 +0000
++++ linux-2.6.16-rc1/drivers/md/dm-log.c	2006-01-20 20:07:01.000000000 +0000
+@@ -112,7 +112,7 @@ void dm_destroy_dirty_log(struct dirty_l
+ /*
+  * The on-disk version of the metadata.
+  */
+-#define MIRROR_DISK_VERSION 1
++#define MIRROR_DISK_VERSION 2
+ #define LOG_OFFSET 2
  
- static void read_snapshot_metadata(struct dm_snapshot *s)
- {
--	if (s->have_metadata)
--		return;
--
- 	if (s->store.read_metadata(&s->store)) {
- 		down_write(&s->lock);
- 		s->valid = 0;
- 		up_write(&s->lock);
- 	}
--
--	s->have_metadata = 1;
- }
+ struct log_header {
+@@ -157,7 +157,6 @@ struct log_c {
+ 	struct log_header *disk_header;
+ 
+ 	struct io_region bits_location;
+-	uint32_t *disk_bits;
+ };
  
  /*
-@@ -471,7 +466,7 @@ static int snapshot_ctr(struct dm_target
- 	s->chunk_shift = ffs(chunk_size) - 1;
- 
- 	s->valid = 1;
--	s->have_metadata = 0;
-+	s->active = 0;
- 	s->last_percent = 0;
- 	init_rwsem(&s->lock);
- 	s->table = ti->table;
-@@ -506,7 +501,11 @@ static int snapshot_ctr(struct dm_target
- 		goto bad5;
- 	}
- 
-+	/* Metadata must only be loaded into one table at once */
-+	read_snapshot_metadata(s);
-+
- 	/* Add snapshot to the list of snapshots for this origin */
-+	/* Exceptions aren't triggered till snapshot_resume() is called */
- 	if (register_snapshot(s)) {
- 		r = -EINVAL;
- 		ti->error = "Cannot register snapshot origin";
-@@ -862,7 +861,9 @@ static void snapshot_resume(struct dm_ta
+@@ -166,20 +165,20 @@ struct log_c {
+  */
+ static  inline int log_test_bit(uint32_t *bs, unsigned bit)
  {
- 	struct dm_snapshot *s = (struct dm_snapshot *) ti->private;
- 
--	read_snapshot_metadata(s);
-+	down_write(&s->lock);
-+	s->active = 1;
-+	up_write(&s->lock);
+-	return test_bit(bit, (unsigned long *) bs) ? 1 : 0;
++	return ext2_test_bit(bit, (unsigned long *) bs) ? 1 : 0;
  }
  
- static int snapshot_status(struct dm_target *ti, status_type_t type,
-@@ -932,8 +933,8 @@ static int __origin_write(struct list_he
- 	/* Do all the snapshots on this origin */
- 	list_for_each_entry (snap, snapshots, list) {
+ static inline void log_set_bit(struct log_c *l,
+ 			       uint32_t *bs, unsigned bit)
+ {
+-	set_bit(bit, (unsigned long *) bs);
++	ext2_set_bit(bit, (unsigned long *) bs);
+ 	l->touched = 1;
+ }
  
--		/* Only deal with valid snapshots */
--		if (!snap->valid)
-+		/* Only deal with valid and active snapshots */
-+		if (!snap->valid || !snap->active)
- 			continue;
+ static inline void log_clear_bit(struct log_c *l,
+ 				 uint32_t *bs, unsigned bit)
+ {
+-	clear_bit(bit, (unsigned long *) bs);
++	ext2_clear_bit(bit, (unsigned long *) bs);
+ 	l->touched = 1;
+ }
  
- 		/* Nothing to do if writing beyond end of snapshot */
-@@ -1104,7 +1105,7 @@ static int origin_status(struct dm_targe
+@@ -219,6 +218,11 @@ static int read_header(struct log_c *log
+ 		log->header.nr_regions = 0;
+ 	}
  
- static struct target_type origin_target = {
- 	.name    = "snapshot-origin",
--	.version = {1, 0, 1},
-+	.version = {1, 1, 0},
- 	.module  = THIS_MODULE,
- 	.ctr     = origin_ctr,
- 	.dtr     = origin_dtr,
-@@ -1115,7 +1116,7 @@ static struct target_type origin_target 
- 
- static struct target_type snapshot_target = {
- 	.name    = "snapshot",
--	.version = {1, 0, 1},
-+	.version = {1, 1, 0},
- 	.module  = THIS_MODULE,
- 	.ctr     = snapshot_ctr,
- 	.dtr     = snapshot_dtr,
-Index: linux-2.6.16-rc1/drivers/md/dm-snap.h
-===================================================================
---- linux-2.6.16-rc1.orig/drivers/md/dm-snap.h
-+++ linux-2.6.16-rc1/drivers/md/dm-snap.h
-@@ -99,7 +99,9 @@ struct dm_snapshot {
- 
- 	/* You can't use a snapshot if this is 0 (e.g. if full) */
- 	int valid;
--	int have_metadata;
++#ifdef __LITTLE_ENDIAN
++	if (log->header.version == 1)
++		log->header.version = 2;
++#endif
 +
-+	/* Origin writes don't trigger exceptions until this is set */
-+	int active;
+ 	if (log->header.version != MIRROR_DISK_VERSION) {
+ 		DMWARN("incompatible disk log version");
+ 		return -EINVAL;
+@@ -239,45 +243,24 @@ static inline int write_header(struct lo
+ /*----------------------------------------------------------------
+  * Bits IO
+  *--------------------------------------------------------------*/
+-static inline void bits_to_core(uint32_t *core, uint32_t *disk, unsigned count)
+-{
+-	unsigned i;
+-
+-	for (i = 0; i < count; i++)
+-		core[i] = le32_to_cpu(disk[i]);
+-}
+-
+-static inline void bits_to_disk(uint32_t *core, uint32_t *disk, unsigned count)
+-{
+-	unsigned i;
+-
+-	/* copy across the clean/dirty bitset */
+-	for (i = 0; i < count; i++)
+-		disk[i] = cpu_to_le32(core[i]);
+-}
+-
+ static int read_bits(struct log_c *log)
+ {
+ 	int r;
+ 	unsigned long ebits;
  
- 	/* Used for display of table */
- 	char type;
+ 	r = dm_io_sync_vm(1, &log->bits_location, READ,
+-			  log->disk_bits, &ebits);
++			  log->clean_bits, &ebits);
+ 	if (r)
+ 		return r;
+ 
+-	bits_to_core(log->clean_bits, log->disk_bits,
+-		     log->bitset_uint32_count);
+ 	return 0;
+ }
+ 
+ static int write_bits(struct log_c *log)
+ {
+ 	unsigned long ebits;
+-	bits_to_disk(log->clean_bits, log->disk_bits,
+-		     log->bitset_uint32_count);
+ 	return dm_io_sync_vm(1, &log->bits_location, WRITE,
+-			     log->disk_bits, &ebits);
++			     log->clean_bits, &ebits);
+ }
+ 
+ /*----------------------------------------------------------------
+@@ -433,11 +416,6 @@ static int disk_ctr(struct dirty_log *lo
+ 	size = dm_round_up(lc->bitset_uint32_count * sizeof(uint32_t),
+ 			   1 << SECTOR_SHIFT);
+ 	lc->bits_location.count = size >> SECTOR_SHIFT;
+-	lc->disk_bits = vmalloc(size);
+-	if (!lc->disk_bits) {
+-		vfree(lc->disk_header);
+-		goto bad;
+-	}
+ 	return 0;
+ 
+  bad:
+@@ -451,7 +429,6 @@ static void disk_dtr(struct dirty_log *l
+ 	struct log_c *lc = (struct log_c *) log->context;
+ 	dm_put_device(lc->ti, lc->log_dev);
+ 	vfree(lc->disk_header);
+-	vfree(lc->disk_bits);
+ 	core_dtr(log);
+ }
+ 

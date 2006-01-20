@@ -1,89 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWATWiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWATWm2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbWATWiU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 17:38:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbWATWiU
+	id S932250AbWATWm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 17:42:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWATWm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 17:38:20 -0500
-Received: from web50210.mail.yahoo.com ([206.190.38.51]:30899 "HELO
-	web50210.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932099AbWATWiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 17:38:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=wlzPQdMuNdQPyG/qAMnsJo4DqixJ8RpGYBsPlq69eBZwdw+xhakf4JiuO3n/Hn7cWedauP9d4TMG87C6V/4qKCC95bpDMvIMEc1LqQWzx8tJsfbzn3nf5hKO1Ld4dEF3Tagqdrx6i/qj481p/daAL1arDsd+2dLRCzC/PEj/cTs=  ;
-Message-ID: <20060120223819.29415.qmail@web50210.mail.yahoo.com>
-Date: Fri, 20 Jan 2006 14:38:19 -0800 (PST)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: [BUG] DVD assigned wrong SCSI level when using SCSI emulation
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Fri, 20 Jan 2006 17:42:28 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:7328 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932250AbWATWm1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 17:42:27 -0500
+Date: Fri, 20 Jan 2006 14:41:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: nicoya@ubb.ca, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_MK6 = lsof hangs unkillable
+Message-Id: <20060120144114.08f0c340.akpm@osdl.org>
+In-Reply-To: <20060120203104.GA31803@stusta.de>
+References: <6951EFDF-9499-40D5-AD09-2AE217A0A579@ubb.ca>
+	<20060120044407.432eae02.akpm@osdl.org>
+	<20060120203104.GA31803@stusta.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've noticed that since I upgraded to 2.6.15, my IDE DVD ROM
-is assigned a bogus SCSI level. Here is output from /proc/scsi/scsi:
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> On Fri, Jan 20, 2006 at 04:44:07AM -0800, Andrew Morton wrote:
+> > Tony Mantler <nicoya@ubb.ca> wrote:
+> > >
+> > > I'm having trouble running lsof on 2.6.15.1 when the kernel is  
+> > > compiled with CONFIG_MK6. When run as root, lsof will segfault, and  
+> > > when run as a user lsof will hang unkillable.
+> > > 
+> > > The same kernel, same machine, but compiled with CONFIG_MK7 runs just  
+> > > lsof just fine.
+> > 
+> > That's creepy.  CONFIG_MK6 hardly does anything.  The main thing it does is
+> > feed `-march=k6' into the compiler.  MK7 uses `-march=athlon'.
+> >...
+> 
+> CONFIG_MK7 results in a bigger L1_CACHE_SHIFT than CONFIG_MK6.
+> 
+> AFAIR it wouldn't be the first time that changing L1_CACHE_SHIFT would 
+> hide a real bug visible with a different L1_CACHE_SHIFT.
+> 
 
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: HL-DT-ST Model: DVD-ROM GDR8082N Rev: 0106
-  Type:   CD-ROM                           ANSI SCSI revision: 0xffffffff
+hm, OK.  Well that's something we can ask Tony to eliminate, by patching
+his Kconfig.cpu to make CONFIG_MK6 have the larger L1_CACHE_SHIFT (and/or
+vice versa).
 
-
-Here's what I get with 2.6.8.1:
-
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: HL-DT-ST Model: DVD-ROM GDR8082N Rev: 0106
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-
-
-
-I did a little digging, and it seems that in drivers/scsi/sr.c,
-function get_capabilities(), the call to scsi_mode_sense() is failing (it's returning 134217730). 
-
-On a side note, I can't watch DVDs on 2.6.15.
-
-I have ide-scsi and sr-mod loaded as modules.
-gcc version is 3.3.6
-
-Here is the config for 2.6.8.1 : http://linux.ace-technologies.biz/config-2.6.8.1
-
-Here is the config for 2.6.15: http://linux.ace-technologies.biz/config-2.6.15
-
-I've tried booting with hdc=scsi; makes no difference.
-
-Here's an excerpt from /var/log/messages:
-
-Jan 19 20:46:29 boss kernel: [    1.662575] hdc: HL-DT-STDVD-ROM GDR8082N, ATAPI CD/DVD-ROM drive
-Jan 19 20:46:29 boss kernel: [    1.969598] ide1 at 0x170-0x177,0x376 on irq 15
-Jan 19 20:46:29 boss kernel: [    2.039442] IP route cache hash table entries: 65536 (order: 6,
-262144 bytes)
-Jan 19 20:46:29 boss kernel: [    2.039716] TCP established hash table entries: 262144 (order: 9,
-2097152 bytes)
-Jan 19 20:46:29 boss kernel: [    2.040901] TCP bind hash table entries: 65536 (order: 7, 524288
-bytes)
-Jan 19 20:46:29 boss kernel: [    2.042093] Using IPI Shortcut mode
-Jan 19 20:46:29 boss kernel: [    2.052961] VFS: Mounted root (ext2 filesystem) readonly.
-Jan 19 20:46:29 boss kernel: [    4.801179] ide-scsi is deprecated for cd burning! Use ide-cd and
-give dev=/dev/hdX as device
-Jan 19 20:46:29 boss kernel: [    4.954103] sr0: scsi-1 drive
-
-
-I've seen this same phenomena in the dmesg output of another posting on this list.
-
-
-I can test patches if needed. 
-
-Additional info will be provided upon request.
-
--Alex
-
-
-I code, therefore I am
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

@@ -1,42 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750931AbWATMfl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWATMkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750931AbWATMfl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 07:35:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbWATMfl
+	id S1750884AbWATMkF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 07:40:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWATMkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 07:35:41 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:25298 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750885AbWATMfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 07:35:40 -0500
-Subject: Re: License oddity in some m68k files
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ric Wheeler <ric@emc.com>
-Cc: Greg KH <greg@kroah.com>, Roman Zippel <zippel@linux-m68k.org>,
-       linux-m68k@vger.kernel.org, geert@linux-m68k.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <43D0D5AC.2010604@emc.com>
-References: <20060119180947.GA25001@kroah.com>
-	 <Pine.LNX.4.61.0601192014010.30994@scrub.home>
-	 <20060119220431.GA4739@kroah.com>
-	 <1137708896.8471.71.camel@localhost.localdomain>
-	 <20060119223251.GB27106@kroah.com>  <43D0D5AC.2010604@emc.com>
-Content-Type: text/plain
+	Fri, 20 Jan 2006 07:40:04 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:4053 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750884AbWATMkD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 07:40:03 -0500
+Message-ID: <43D0D998.4090605@redhat.com>
+Date: Fri, 20 Jan 2006 07:37:44 -0500
+From: Larry Woodman <lwoodman@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andy Chittenden <AChittenden@bluearc.com>
+CC: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Out of Memory: Killed process 16498 (java).
+References: <89E85E0168AD994693B574C80EDB9C27035560E4@uk-email.terastack.bluearc.com>
+In-Reply-To: <89E85E0168AD994693B574C80EDB9C27035560E4@uk-email.terastack.bluearc.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Fri, 20 Jan 2006 12:34:59 +0000
-Message-Id: <1137760499.24161.0.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2006-01-20 at 07:21 -0500, Ric Wheeler wrote:
-> The language in the source files is pretty strong and this looks like
-> Motorola should be asked to rerelease the files with a normal
-> copyright notice in place of the current language...
+Andy Chittenden wrote:
 
-Its standard boilerplate from the period. Its a perfectly normal and
-clear copyright notice.
+>>Andy, what are
+>>you running that uses SG_IO - cd ripping, burning, something else?
+>>    
+>>
+>
+>I'm sorry but I haven't a clue what uses SG_IO! All I did was boot up a
+>debian unstable machine on my amd64 machine that uses 2.6.15. I log in
+>via gdm and get a gnome session so I guess that's using nautilus (I've
+>seen that killed in the past). I use the sawfish window manager and
+>start up 7 rxvt windows and that java app I mentioned (terminator) (I
+>suspect that's a red herring as other processes have been killed).
+>
+>  
+>
+for starters you should probably change build_zonelists so that the DMA 
+zone is
+not included in any of the zone lists except the DMA.  This will prevent 
+__alloc_pages()
+from exhausting the hignmem/normal zones then falling into the DMA zone 
+and exhausting
+that with non-reclamable memory like the slabcache.
 
-Alan
+--- linux-2.6.9/mm/page_alloc.c.orig
++++ linux-2.6.9/mm/page_alloc.c
+@@ -1170,6 +1170,9 @@ static int __init build_zonelists_node(p
+                zone = pgdat->node_zones + ZONE_NORMAL;
+                if (zone->present_pages)
+                        zonelist->zones[j++] = zone;
++#if defined(CONFIG_HIGHMEM64G) || defined(CONFIG_X86_64)
++               break;
++#endif
+        case ZONE_DMA:
+                zone = pgdat->node_zones + ZONE_DMA;
+                if (zone->present_pages)
+~
+
+
 

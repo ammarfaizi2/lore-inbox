@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161472AbWATC4K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161469AbWATC6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161472AbWATC4K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 21:56:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161452AbWATCzm
+	id S1161469AbWATC6k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 21:58:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161475AbWATC6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 21:55:42 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:41965
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1161472AbWATCzP
+	Thu, 19 Jan 2006 21:58:40 -0500
+Received: from cable-212.76.255.90.static.coditel.net ([212.76.255.90]:20365
+	"EHLO jekyll.org") by vger.kernel.org with ESMTP id S1161469AbWATC6j
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 21:55:15 -0500
-Message-Id: <20060120021343.296071000@tglx.tec.linutronix.de>
-References: <20060120021336.134802000@tglx.tec.linutronix.de>
-Date: Fri, 20 Jan 2006 02:55:52 -0000
-From: Thomas Gleixner <tglx@linutronix.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       George Anzinger <george@wildturkeyranch.net>,
-       Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 7/7] [hrtimers] Set correct initial expiry time for relative
-	SIGEV_NONE timers
-Content-Disposition: inline;
-	filename=0007-hrtimers-Set-correct-initial-expiry-time-for-relative-SIGEV_NONE-timers.txt
+	Thu, 19 Jan 2006 21:58:39 -0500
+Message-ID: <43D051CE.8060609@jekyll.org>
+Date: Fri, 20 Jan 2006 03:58:22 +0100
+From: Gilles May <gilles@jekyll.org>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: SMP trouble
+References: <43CAFF80.2020707@jekyll.org> <Pine.LNX.4.64.0601181817410.20777@montezuma.fsmlabs.com> <43CFD877.4090503@jekyll.org> <Pine.LNX.4.64.0601191132010.1579@montezuma.fsmlabs.com> <43CFEC68.4070704@jekyll.org> <Pine.LNX.4.64.0601191826520.1579@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.64.0601191826520.1579@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Zwane Mwaikambo wrote:
 
-The expiry time for relative timers with SIGEV_NONE set was never
-updated to the correct value.
+>On Thu, 19 Jan 2006, Gilles May wrote:
+>
+>  
+>
+>>I don't think it has something to do with the USB card, nor the HDD oder the
+>>DVD writer connected to it..
+>>Just to be sure I bought a new USB card with a different chip even, hangs with
+>>both controllers..
+>>Besides it freezes aswell if I do the ping and IDE to IDE copies and listening
+>>music.. Looks like high
+>>IO loads brings it down, no matter where it comes from..
+>>The wierd part is that it's only with Linux SMP, not with UP, and no problems
+>>like that on WindowsXP SP2..
+>>
+>>This starts giving me serious headaches.. ;)
+>>    
+>>
+>
+>Trying to isolate things here, do you need the ping/network load to 
+>trigger it? How about only network load?
+>  
+>
+Hmm good question, I'll do further tests, but from my past experiences I 
+got the feeling that it's rather the sound that is needed to trigger the 
+freeze, not the network load.
 
-Pointed out by George Anzinger.
+A few lines from dmesg puzzle me too, like:
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+spurious 8259A interrupt: IRQ7. -> What is that, and why?
 
----
+mtrr: your CPUs had inconsistent fixed MTRR settings
+mtrr: probably your BIOS does not setup all CPUs.
+mtrr: corrected configuration. -> Maybe not corrected correctly?
 
- kernel/posix-timers.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletions(-)
+BIOS failed to enable PCI standards compliance, fixing this error. -> 
+Maybe not really fixed?
 
-a1f15939b7af18c5abcd4810ccd512467c77a6b1
-diff --git a/kernel/posix-timers.c b/kernel/posix-timers.c
-index 28e72fd..e2fa4c0 100644
---- a/kernel/posix-timers.c
-+++ b/kernel/posix-timers.c
-@@ -724,8 +724,13 @@ common_timer_set(struct k_itimer *timr, 
- 	timr->it.real.interval = timespec_to_ktime(new_setting->it_interval);
- 
- 	/* SIGEV_NONE timers are not queued ! See common_timer_get */
--	if (((timr->it_sigev_notify & ~SIGEV_THREAD_ID) == SIGEV_NONE))
-+	if (((timr->it_sigev_notify & ~SIGEV_THREAD_ID) == SIGEV_NONE)) {
-+		/* Setup correct expiry time for relative timers */
-+		if (mode == HRTIMER_REL)
-+			timer->expires = ktime_add(timer-expires,
-+						   timer->base->get_time());
- 		return 0;
-+	}
- 
- 	hrtimer_start(timer, timer->expires, mode);
- 	return 0;
--- 
-1.0.8
+Thanks for your effort,
+Gilles May
 
---
-
+PS: Am I the only one with a K7D Master-L and problems like that?

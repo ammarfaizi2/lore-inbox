@@ -1,100 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbWATQYD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbWATQXL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751051AbWATQYD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 11:24:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWATQYD
+	id S1751050AbWATQXL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 11:23:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWATQXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 11:24:03 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:7098 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751051AbWATQYC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 11:24:02 -0500
-From: "Jiri Slaby" <xslaby@fi.muni.cz>
-Date: Fri, 20 Jan 2006 17:23:18 +0100
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, "David S.Miller" <davem@davemloft.net>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Iptables error [Was: 2.6.16-rc1-mm2]
-In-reply-to: <20060120031555.7b6d65b7.akpm@osdl.org>
-Message-Id: <20060120162317.5F70722B383@anxur.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Fri, 20 Jan 2006 11:23:11 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:8578 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751031AbWATQXK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 11:23:10 -0500
+Subject: Re: [PATCH 2/6] 2.6.16-rc1 perfmon2 patch for review
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Stephane Eranian <eranian@frankl.hpl.hp.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200601201520.k0KFKDG8023120@frankl.hpl.hp.com>
+References: <200601201520.k0KFKDG8023120@frankl.hpl.hp.com>
+Content-Type: text/plain
+Date: Fri, 20 Jan 2006 08:23:09 -0800
+Message-Id: <1137774189.28944.47.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->Changes since 2.6.16-rc1-mm1:
->
->
-> linus.patch
-Hello,
+On Fri, 2006-01-20 at 07:20 -0800, Stephane Eranian wrote:
 
-Commit 4f2d7680cb1ac5c5a70f3ba2447d5aa5c0a1643a (Linus' 2.6 git tree) breaks my
-iptables (1.3.4):
-# iptables -L
-execve("/sbin/iptables", ["iptables", "-L"], [/* 24 vars */]) = 0
-brk(0)                                  = 0x8056000
-old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb7fdb000
-access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
-open("/etc/ld.so.cache", O_RDONLY)      = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=71332, ...}) = 0
-old_mmap(NULL, 71332, PROT_READ, MAP_PRIVATE, 3, 0) = 0xb7fc9000
-close(3)                                = 0
-open("/lib/libdl.so.2", O_RDONLY)       = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0\364\273"..., 512) = 512
-fstat64(3, {st_mode=S_IFREG|0755, st_size=16164, ...}) = 0
-old_mmap(0x4103b000, 12408, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x4103b000
-old_mmap(0x4103d000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1000) = 0x4103d000
-close(3)                                = 0
-open("/lib/libc.so.6", O_RDONLY)        = 3
-read(3, "\177ELF\1\1\1\0\0\0\0\0\0\0\0\0\3\0\3\0\1\0\0\0|\236\360"..., 512) = 512
-fstat64(3, {st_mode=S_IFREG|0755, st_size=1432592, ...}) = 0
-old_mmap(0x4fef5000, 1162204, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x4fef5000
-old_mmap(0x5000b000, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x116000) = 0x5000b000
-old_mmap(0x5000f000, 7132, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x5000f000
-close(3)                                = 0
-old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb7fc8000
-set_thread_area({entry_number:-1 -> 6, base_addr:0xb7fc86c0, limit:1048575, seg_32bit:1, contents:0, read_exec_only:0, limit_in_pages:1, seg_not_present:0, useable:1}) = 0
-mprotect(0x4103d000, 4096, PROT_READ)   = 0
-mprotect(0x5000b000, 8192, PROT_READ)   = 0
-mprotect(0x4fef1000, 4096, PROT_READ)   = 0
-munmap(0xb7fc9000, 71332)               = 0
-socket(PF_INET, SOCK_RAW, IPPROTO_RAW)  = 3
-getsockopt(3, SOL_IP, 0x40 /* IP_??? */, "filter\0\0\0\0\0\0l\216\4\10\364\317\0PL!\0\0\330\320\0"..., [84]) = 0
-brk(0)                                  = 0x8056000
-brk(0x8077000)                          = 0x8077000
-getsockopt(3, SOL_IP, 0x41 /* IP_??? */, "filter\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., [656]) = 0
-write(2, "ERROR: 0 not a valid target)\n", 29ERROR: 0 not a valid target)
-) = 29
-rt_sigprocmask(SIG_UNBLOCK, [ABRT], NULL, 8) = 0
-gettid()                                = 3468
-tgkill(3468, 3468, SIGABRT)             = 0
---- SIGABRT (Aborted) @ 0 (0) ---
-+++ killed by SIGABRT +++
+> This a split version of the perfmon. Each chunk was split to fit
+> the constraints of lkml on message size. the patch is relative
+> to 2.6.16-rc1.
 
-This is it:
-[NETFILTER] x_tables: Make XT_ALIGN align as strictly as necessary.
+Please keep the generic boilerplate in a [PATCH 0/6] message, and have a
+descriptive body before each individual message that describes it, not
+the entire patch series.
 
-Or else we break on ppc32 and other 32-bit platforms.
+Also, perfmon.c is a big source file.  It might help reviewers if it got
+split into several source files that had different logical functions.
 
-Based upon a patch from Harald Welte.
+> +#if 0
+> +static void pfm_map_show(struct pfm_context *ctx)
+> +{
 
-Signed-off-by: David S. Miller <davem@davemloft.net>
---- include/linux/netfilter/x_tables.h
-+++ include/linux/netfilter/x_tables.h
-@@ -19,7 +19,7 @@ struct xt_get_revision
-/* For standard target */
-#define XT_RETURN (-NF_REPEAT - 1)
--#define XT_ALIGN(s) (((s) + (__alignof__(void *)-1)) & ~(__alignof__(void *)-1))
-+#define XT_ALIGN(s) (((s) + (__alignof__(u_int64_t)-1)) & ~(__alignof__(u_int64_t)-1))
-/* Standard return verdict, or do jump. */
-#define XT_STANDARD_TARGET ""
+> +}
+> +#endif
 
-Is there more info needed? Did I miss something?
+Why submit dead code?
 
-regards,
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+> +	if (ctx->ctx_cpu != smp_processor_id()) {
+> +#ifdef __i386__
+> +	/* On IA64 we use smp_call_function_single(), so we
+> +	 * should never be called on the wrong CPU.  On other
+> +	 * archs, that doesn't exist and we use
+> +	 * smp_call_function instead, so silently ignore all
+> +	 * CPUs except the one we care about.
+> +	 */
+
+This looks grotty.  Can't you add the necessary arch support, instead of
+an i386-specific hack with a misleading comment?  The block should at
+least be "#ifndef __ia64__" to match the comment.
+
+> +#ifndef __i386__
+> +	ret = smp_call_function_single(ctx->ctx_cpu, pfm_syswide_force_stop,
+> +				       ctx, 0, 1);
+> +#else
+> +	ret = smp_call_function(pfm_syswide_force_stop, ctx, 0, 1);
+> +#endif
+> +	DPRINT(("called CPU%u for cleanup ret=%d\n", ctx->ctx_cpu, ret));
+> +}
+> +#endif /* CONFIG_SMP */
+
+Same "yeugh" response.
+
+> +#ifdef CONFIG_IA64_PERFMON_COMPAT
+> +/*
+> + * function providing some help for backward compatiblity with old IA-64
+> + * applications.
+
+This should be in a separate source file, whose compilation is
+conditional on CONFIG_IA64_PERFMON_COMPAT.
+
+> +	BUG_ON(ctx->ctx_fl_system == 0 && ctx->ctx_task != current);
+
+What's this intended to catch?
+
+> +		DPRINT(("set_id=%u not found\n", set_id));
+> +error:
+> +		pfm_retflag_set(req->set_flags, PFM_REG_RETFL_EINVAL);
+> +		return -EINVAL;
+> +found:
+> +		if (is_loaded && set == ctx->ctx_active_set)
+> +			goto error;
+
+I've seen this style of goto usage in the code a few times, and it's
+bizarre.  Why are you jumping backwards to the error exit?  There's
+nothing wrong with using a goto to exit, it's just more usual to have a
+single section at the end of the function that has both the error and
+normal exit paths.
+
+In fact, I see that sometimes you use a backwards goto in the middle to
+exit, sometimes there's a single hunk at the end with forwards gotos,
+and sometimes routines just return wherever they feel like it.  Please
+pick one style and stick with it throughout.
+
+	<b
+

@@ -1,75 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWATIgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWATIml@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750741AbWATIgf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 03:36:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWATIgf
+	id S1750742AbWATIml (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 03:42:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWATIml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 03:36:35 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:41165 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750733AbWATIge (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 03:36:34 -0500
-Date: Fri, 20 Jan 2006 09:36:51 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Brent Casavant <bcasavan@sgi.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, jes@sgi.com,
-       tony.luck@intel.com
-Subject: Re: [PATCH] SN2 user-MMIO CPU migration
-Message-ID: <20060120083651.GA3970@elte.hu>
-References: <20060118163305.Y42462@chenjesu.americas.sgi.com>
-Mime-Version: 1.0
+	Fri, 20 Jan 2006 03:42:41 -0500
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:22681 "EHLO
+	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S1750734AbWATImk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 03:42:40 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: [ANNOUNCE] GIT 1.1.4
+cc: linux-kernel@vger.kernel.org
+Date: Fri, 20 Jan 2006 00:42:38 -0800
+Message-ID: <7v1wz31e9t.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060118163305.Y42462@chenjesu.americas.sgi.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The latest maintenance release GIT 1.1.4 is available at the
+usual places:
 
-* Brent Casavant <bcasavan@sgi.com> wrote:
+	http://www.kernel.org/pub/software/scm/git/
 
-> --- a/kernel/sched.c
-> +++ b/kernel/sched.c
-> @@ -291,6 +291,9 @@ for (domain = rcu_dereference(cpu_rq(cpu
->  #ifndef finish_arch_switch
->  # define finish_arch_switch(prev)	do { } while (0)
->  #endif
-> +#ifndef arch_task_migrate
-> +# define arch_task_migrate(task)	do { } while (0)
-> +#endif
+	git-1.1.4.tar.{gz,bz2}			(tarball)
+	RPMS/$arch/git-*-1.1.4-1.$arch.rpm	(RPM)
 
->  	if (!p->array && !task_running(rq, p)) {
-> +		arch_task_migrate(p);
->  		set_task_cpu(p, dest_cpu);
+This contains one minor fix and one performance fix.
 
->  	if (new_cpu != cpu) {
-> +		arch_task_migrate(p);
->  		set_task_cpu(p, new_cpu);
+----------------------------------------------------------------
 
->  	dec_nr_running(p, src_rq);
-> +	arch_task_migrate(p);
->  	set_task_cpu(p, this_cpu);
+Changes since v1.1.3 are as follows:
 
-> +	arch_task_migrate(p);
->  	set_task_cpu(p, dest_cpu);
+Johannes Schindelin:
+      git-fetch-pack: really do not ask for funny refs
 
-hm, why isnt the synchronization done in switch_to()? Your arch-level 
-switch_to() could have something like thread->last_cpu_sync, and if 
-thread->last_cpu_sync != this_cpu, do the flush. This would not only 
-keep this stuff out of the generic scheduler, but it would also optimize 
-things a bit more: the moment we do a set_task_cpu() it does not mean 
-that CPU _will_ run the task. Another CPU could grab that task later on.  
-So we should delay such IO-synchronization to the last possible moment: 
-when we know that we've hit a new CPU on which we havent done a flush 
-yet. For same-CPU context switches there wouldnt be any extra 
-synchronization, because thread->last_cpu_sync == this_cpu.
+      * This fixes a case where "git-fetch-pack" is asked to
+        fetch all the refs; git barebone Porcelain never
+        triggers it and that is one reason why it was never
+        noticed so far.
 
-	Ingo
+Junio C Hamano:
+      Revert "check_packed_git_idx(): check integrity of the idx file itself."
+
+      * This was causing significant performance degradation
+        compared to 0.99.9x.  First noticed and complained by
+        Andrew, and the bisect tool by Linus helped to pinpoint
+        it.  I just took credit for what the two kernel titans
+        did to help us ;-).
+

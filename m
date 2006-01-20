@@ -1,57 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbWATNUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbWATNXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750943AbWATNUK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 08:20:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750950AbWATNUK
+	id S1750955AbWATNXU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 08:23:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750957AbWATNXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 08:20:10 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:5827 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750943AbWATNUI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 08:20:08 -0500
-Date: Fri, 20 Jan 2006 08:20:06 -0500
+	Fri, 20 Jan 2006 08:23:19 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:16278 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750954AbWATNXT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 08:23:19 -0500
+Date: Fri, 20 Jan 2006 08:23:18 -0500
 From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>
-Cc: linux-kernel@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>,
-       ak@suse.de, fastboot@lists.osdl.org
-Subject: Re: [PATCH 0/5] stack overflow safe kdump (2.6.15-i386)
-Message-ID: <20060120132006.GF4695@in.ibm.com>
+To: Morton Andrew Morton <akpm@osdl.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, ak@suse.de, vgoyal@in.ibm.com,
+       linux-kernel@vger.kernel.org, fastboot@lists.osdl.org,
+       Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>
+Subject: Re: [PATCH 1/5] stack overflow safe kdump (2.6.15-i386) - safe_smp_processor_id
+Message-ID: <20060120132318.GI4695@in.ibm.com>
 Reply-To: vgoyal@in.ibm.com
-References: <1137417795.2256.83.camel@localhost.localdomain> <20060118015649.GE23143@in.ibm.com> <1137650875.2985.39.camel@localhost.localdomain>
+References: <1137417824.2256.85.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1137650875.2985.39.camel@localhost.localdomain>
+In-Reply-To: <1137417824.2256.85.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 03:07:55PM +0900, Fernando Luis Vazquez Cao wrote:
-> > >    -> Regarding the implementation, I have some doubts:
-> > >       - Should the NMI vector replaced atomically?
-> > >       - Should the NMI watchdog be stopped? Should NMIs be disabled in the crash
-> > >         path of each CPU?
-> > >       This is important because after replacing the nmi handler the NMI
-> > >       watchdog will continue generating interrupts that need to be handled
-> > >       properly. If we can avoid this a kdump-specific nmi vector handler
-> > >       (ENTRY(crash_nmi)) could be safely used.
-> > 
-> > Can we have something like per cpu flag which will be set if NMI is received
-> > after crash (after replacing the trap vector). If another NMI occurs on 
-> > the same cpu and if flag is set, return and don't process it further.
-> The problem is that when one CPU crashes in a SMP system and the NMI
-> watchdog is enabled, the others will continue receiving NMI from the
-> watchdog and will eventually also receive the NMI from the crashing CPU.
-> The NMI handler has to be able to process both adequately if we cannot
-> stop the NMI watchdog atomically. Even if we used such a flag we would
-> need to figure out the originator of the NMI.
+On Mon, Jan 16, 2006 at 10:23:44PM +0900, Fernando Luis Vazquez Cao wrote:
+> On the event of a stack overflow critical data that usually resides at
+> the bottom of the stack is likely to be stomped and, consequently, its
+> use should be avoided.
+> 
+> In particular, in the i386 and IA64 architectures the macro
+> smp_processor_id ultimately makes use of the "cpu" member of struct
+> thread_info which resides at the bottom of the stack. x86_64, on the
+> other hand, is not affected by this problem because it benefits from
+> the use of the PDA infrastructure.
+> 
+> To circumvent this problem I suggest implementing
+> "safe_smp_processor_id()" (it already exists in x86_64) for i386 and
+> IA64 and use it as a replacement for smp_processor_id in the reboot path
+> to the dump capture kernel. This is a possible implementation for i386.
 > 
 
-Well, once system has crashed we have replaced the NMI callback with
-crash_nmi_callback(), I would tend to think that there might not be 
-any need to differentiate between various NMIs.
+Acked-by: Vivek Goyal <vgoyal@in.ibm.com>
 
-Though disabling other NMIs is the right way to handle it, but if there is
-no straight easy way to do that then, even if I executed the
-crash_nmi_callback() due to NMI originating from other source than NMI IPI
-from crashing cpu, probably should be ok.
+> ---
+> diff -urNp linux-2.6.15/arch/i386/kernel/smp.c
+> linux-2.6.15-sov/arch/i386/kernel/smp.c
+> --- linux-2.6.15/arch/i386/kernel/smp.c	2006-01-03 12:21:10.000000000
+> +0900
+> +++ linux-2.6.15-sov/arch/i386/kernel/smp.c	2006-01-16
+> 20:25:50.000000000 +0900
+> @@ -628,3 +628,28 @@ fastcall void smp_call_function_interrup
+>  	}
+>  }
+>  
+> +static int convert_apicid_to_cpu(int apic_id)
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < NR_CPUS; i++) {
+> +		if (x86_cpu_to_apicid[i] == apic_id)
+> +		return i;
+> +	}
+> +	return -1;
+> +}
+> +
+> +int safe_smp_processor_id(void) {
+> +	int apicid, cpuid;
+> +
+> +	if (!boot_cpu_has(X86_FEATURE_APIC))
+> +		return 0;
+> +
+> +	apicid = hard_smp_processor_id();
+> +	if (apicid == BAD_APICID)
+> +		return 0;
+> +
+> +	cpuid = convert_apicid_to_cpu(apicid);
+> +
+> +	return cpuid >= 0 ? cpuid : 0;
+> +}
+> diff -urNp linux-2.6.15/include/asm-i386/smp.h
+> linux-2.6.15-sov/include/asm-i386/smp.h
+> --- linux-2.6.15/include/asm-i386/smp.h	2006-01-03 12:21:10.000000000
+> +0900
+> +++ linux-2.6.15-sov/include/asm-i386/smp.h	2006-01-16
+> 20:25:50.000000000 +0900
+> @@ -90,12 +90,14 @@ static __inline int logical_smp_processo
+>  
+>  #endif
+>  
+> +extern int safe_smp_processor_id(void);
+>  extern int __cpu_disable(void);
+>  extern void __cpu_die(unsigned int cpu);
+>  #endif /* !__ASSEMBLY__ */
+>  
+>  #else /* CONFIG_SMP */
+>  
+> +#define safe_smp_processor_id() 0
+>  #define cpu_physical_id(cpu)		boot_cpu_physical_apicid
+>  
+>  #define NO_PROC_ID		0xFF		/* No processor magic marker */
+> 
+> 

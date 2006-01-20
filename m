@@ -1,93 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbWATRDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbWATRE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751097AbWATRDl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 12:03:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWATRDl
+	id S1751103AbWATRE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 12:04:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWATRE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 12:03:41 -0500
-Received: from xenotime.net ([66.160.160.81]:43911 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751097AbWATRDk (ORCPT
+	Fri, 20 Jan 2006 12:04:27 -0500
+Received: from free.wgops.com ([69.51.116.66]:25348 "EHLO shell.wgops.com")
+	by vger.kernel.org with ESMTP id S1751103AbWATRE1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 12:03:40 -0500
-Date: Fri, 20 Jan 2006 09:03:37 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Joe George <joeg@clearcore.com>
-cc: Michael Loftis <mloftis@wgops.com>,
-       James Courtier-Dutton <James@superbug.co.uk>,
-       linux-kernel@vger.kernel.org
+	Fri, 20 Jan 2006 12:04:27 -0500
+Date: Fri, 20 Jan 2006 10:04:19 -0700
+From: Michael Loftis <mloftis@wgops.com>
+To: Marc Koschewski <marc@osknowledge.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Development tree, PLEASE?
-In-Reply-To: <43D1159A.1070904@clearcore.com>
-Message-ID: <Pine.LNX.4.58.0601200858010.19264@shark.he.net>
+Message-ID: <67530D832C57FA520C952690@d216-220-25-20.dynip.modwest.com>
+In-Reply-To: <20060120163433.GB5873@stiffy.osknowledge.org>
 References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
- <43D10FF8.8090805@superbug.co.uk> <6769FDC09295B7E6078A5089@d216-220-25-20.dynip.modwest.com>
- <43D1159A.1070904@clearcore.com>
+ <20060120155919.GA5873@stiffy.osknowledge.org>
+ <B6DE6A4FC14860A23FE95FF3@d216-220-25-20.dynip.modwest.com>
+ <20060120163433.GB5873@stiffy.osknowledge.org>
+X-Mailer: Mulberry/4.0.4 (Mac OS X)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-MailScanner-Information: Please contact support@wgops.com
+X-MailScanner: WGOPS clean
+X-MailScanner-From: mloftis@wgops.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jan 2006, Joe George wrote:
 
-> Michael Loftis wrote:
-> >
-> >
-> > --On January 20, 2006 4:29:44 PM +0000 James Courtier-Dutton
-> > <James@superbug.co.uk> wrote:
-> >
-> >> It is unclear what you are really ranting about here. The "stable" kernel
-> >> is stable or at least as stable as it is going to be. It is left to
-> >> distros to make it even more stable. The interface to user land has not
-> >> changed.
-> >> If all you are ranting about is the move from devfs to udevd, then all
-> >> the user land tools dealing with them have been updated already.
-> >
-> > That's the nail on the head exactly.  Why is this being done in an even
-> > numbered kernel?  This represents an API change that has knock on well
-> > outside of the kernel, and should be done in development releases.  Why
-> > is it LK is the only major project (that I know of) that does this?
-> > This is akin to apache changing the format of httpd.conf and saying in
-> > say 1.3.38 and saying 'well we made the userland tools too.'
-> >
-> >>
-> >> What is the real specific problem you are having?
-> >
-> > Well there's a whole grab bag of them that I'll be getting to over the
-> > next few months, but the most immediate is the fact that I've gotten new
-> > hardware from a venduh that requires me to build a new Debian installer
-> > and new debian kernels.  I also have custom packages that depend on
-> > devfs being there and now it's not.
-> >
-> > Yes I realise this change isn't out of the blue or anything, but it's in
-> > a 'stable' kernel.  Why bother calling 2.6 stable?  We may as well have
-> > stayed at 2.5 if this sort of thing is going to continue to be pulled.
-> >
+
+--On January 20, 2006 5:34:33 PM +0100 Marc Koschewski 
+<marc@osknowledge.org> wrote:
+
+> I know. But you we're the one who started this off. The 'beast' should be
+> maintained by people that need it. And it was just a brainstorm, moreover.
+
+Understood.  However these sorts of changes are still more appropriate in a 
+development kernel/tree, not in what's generally supposed to be accepted as 
+a stable code base.
+
+>> Lots of things still out there depend on devfs.  So now if I want to
+>> develop my kmod on recent kernels I have to be in the business of
+>> maintaining a lot more userland stuff, like mkinitrd, installers, etc.
+>> that  have come to rely on devfs.
 >
-> I don't think that kernel developers are calling 2.6 a stable kernel
-> series.  There was an evolution into another development model without
-> a corresponding change in the kernel numbering.  I think the main
-> reason the numbering wasn't changed was that it would break thousands
-> of scripts people are using all over the world.
+> What exactly relies on _devfs_?
+
+devfs=mount/nomount for one in kernel params, mount commands for another 
+(mount -t devfs ....), modprobe devfs, these are at the lowest level. 
+Scripts are written, as are bits of code, with the assumption that they'll 
+get their /dev tree/dependency satisfied in a certain way.
+
 >
-> What would be nice is to go, for example, from 2.6.17 to 3.1, 3.2,
-> 3.3, ...  And have what is currently called the stable series start at
-> 3.1.1.  This would make it clear that the 2.4/2.5 way of doing business
-> is over.  Someone would have to decide whether it is worth it to break
-> all the scripts, however.
+>>
+>> The point is this is happening in what is being called a stable kernel.
+>> Stable it isn't.  The whole devfs thing is likely to cause me a lot of
+>> work, I'd stay with 2.4 in the worst affected things, but I can't.
+>> devfs  is newish for and already been deprecated and killed before a
+>> major release  even, that just seems not right.
+>
+> As far as I remember the devfs maintainer didn't do just a one-liner of
+> changes plus he was not to be reached by mail. No reply, no list
+> acitivity, ... nothing. Just out of the town.
+>
+>>
+>> Anyway hopefully this thread wills tart some constructive thought on
+>> this  rather than being pointless, but I had to get it out there.  I
+>> know I have  a habit of showing up every other year or so. :)
+>
+> This thread will start something, yes. But I don't think we will have a
+> decision in the end. The kernel grows. In size, in features, in just
+> about anything. And from a developers point of view it's always wise to
+> re-write a subsystem with a new API and the freedom to do _whatever_ one
+> thinks she could do than re-write a subsystem due to maintaining the
+> interface for compatibility.
 
-The problems AFAICT are:
+Which is fine in a development tree.  The problem here is making these 
+changes, blowing away APIs, especially userland ones, in a stable tree. 
+For various reasons embedded systems will often need to stay current with 
+the 'stable' kernel.  You try developing modules against a 'stable' kernel 
+for embedded purposes when things are changing under you.  Yes that's a 
+partially commercial argument, but it's also a general argument.  The even 
+numbered releases are/were supposed to be atleast mostly stable.  And in my 
+mind atleast that means that APIs don't come and go on a whim.
 
-1.  We did (for 2.5/2.4) or would (for 3.3/3.2) spend tons of time
-in backporting new features or drivers from the development tree
-to the stable tree.  The current model saves that duplication
-(or even worse if multiple distros do that same work).
+> The two cases exactly are:
+>
+> 	* _new_ code with all new features planned
+>
+> 	or
+>
+> 	* _partly new_ code with some new features due to API incompatibility a
+> la 	  'what we have to do is to get the best we can from what we have'
+>
+> And the latter is definitely the wrong way to go. Just my 2 cents...
 
-2.  If we did have a separate development tree, we would need
-to clone Andrew. 8:)  IMO there aren't a lot of choices for qualified
-tree maintainers, although I'm sure we could find someone if we
-had to.
+Which is why everyone else seperates development from maintenance.  AIX, 
+HP-UX, even Windows does (ok...so maybe not Windows).
 
-Anyway, to summarize, it's about manpower and efficient use of it.
+The problem is these sorts of changes are 'normally' reserved for 
+development trees because they can break (and will) break things and they 
+obviously change things.
 
--- 
-~Randy
+What do you think would happen if OpenSSL changed it's API incompatibly in 
+say (arbitrarily) six months for a point release doing away with something 
+in a stable release?
+
+I guess I'm just the net.kook and the only one spending time and effort to 
+clean up a mess created simply because he needed to go up a point rev, and 
+atleast one otherwise working feature.
+
+No devfs was not, is not perfect, and I agree something better was needed, 
+but in a stable kernel?  I'm arguing against userland API changes 
+specifically in stable kernels, and in a more broad sense even internal API 
+changes in a stable kernel, atleast where they most certainly affect 
+development of code, or maintenance releases of code requiring upgrades of 
+the kernel in general.
+
+If 2.6 were stable I should be able to write a module for the '2.6' API, 
+like PHP, like Apache, like Zend, like OpenSSL, and be reasonably certain 
+that atleast the API wasn't going to drastically change or go away when I 
+rebuild the binaries for a security update or 'minor' update of say needing 
+support for the new PCI IDs of the latest e1000 variants.

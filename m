@@ -1,117 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWATR2S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWATR3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750962AbWATR2S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 12:28:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWATR2S
+	id S1751095AbWATR3e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 12:29:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWATR3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 12:28:18 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:28832 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1750962AbWATR2S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 12:28:18 -0500
-Date: Fri, 20 Jan 2006 18:28:11 +0100
-From: Harald Welte <laforge@netfilter.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: netfilter-devel@lists.netfilter.org, mikpe@user.it.uu.se,
-       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Jiri Slaby <xslaby@fi.muni.cz>
-Subject: Re: [PATCH] x_tables: fix alignment on [at least] ppc32
-Message-ID: <20060120172811.GO4603@sunbeam.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	netfilter-devel@lists.netfilter.org, mikpe@user.it.uu.se,
-	linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-	Jiri Slaby <xslaby@fi.muni.cz>
-References: <17358.19458.555996.684819@alkaid.it.uu.se> <20060118150158.GL4603@sunbeam.de.gnumonks.org> <20060120004512.GT4603@sunbeam.de.gnumonks.org> <20060119.165635.104653932.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KOBxLkMFRQI9H+bc"
+	Fri, 20 Jan 2006 12:29:33 -0500
+Received: from jose.lug.udel.edu ([128.175.60.112]:55245 "EHLO
+	jose.lug.udel.edu") by vger.kernel.org with ESMTP id S1750993AbWATR3d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 12:29:33 -0500
+Date: Fri, 20 Jan 2006 12:29:32 -0500
+To: Neil Brown <neilb@suse.de>
+Cc: Phillip Susi <psusi@cfl.rr.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       "Lincoln Dale (ltd)" <ltd@cisco.com>, Michael Tokarev <mjt@tls.msk.ru>,
+       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+Subject: Re: [PATCH 000 of 5] md: Introduction
+Message-ID: <20060120172932.GC27141@lug.udel.edu>
+References: <26A66BC731DAB741837AF6B2E29C1017D47EA0@xmb-hkg-413.apac.cisco.com> <Pine.LNX.4.61.0601181427090.19392@yvahk01.tjqt.qr> <17358.52476.290687.858954@cse.unsw.edu.au> <43D00FFA.1040401@cfl.rr.com> <17360.5011.975665.371008@cse.unsw.edu.au> <43D02033.4070008@cfl.rr.com> <17360.9233.215291.380922@cse.unsw.edu.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060119.165635.104653932.davem@davemloft.net>
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.0 (/)
+In-Reply-To: <17360.9233.215291.380922@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.11
+From: ross@jose.lug.udel.edu (Ross Vandegrift)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 20, 2006 at 10:43:13AM +1100, Neil Brown wrote:
+> dm and md are just two different interface styles to various bits of
+> this.  Neither is clearly better than the other, partly because
+> different people have different tastes.
 
---KOBxLkMFRQI9H+bc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Here's why it's great to have both: they have different toolkits.  I'm
+really familiar with md's toolkit.  I can do most anything I need.
+But I'll bet that I've never gotten a pvmove to finish sucessfully
+because I am doing something wrong and I don't know it.
 
-On Thu, Jan 19, 2006 at 04:56:35PM -0800, David S. Miller wrote:
-> > [NETFILTER] x_tables: Fix XT_ALIGN() macro on [at least] ppc32
-> > [...]
-> > The fix is an ugly kludge, but it has been tested to solve the problem.=
- Yet
-> > another reason to move away from the current {ip,ip6,arp,eb}tables like
-> > data structures.
-> >=20
-> > Signed-off-by: Harald Welte <laforge@netfilter.org>
->=20
-> Harald, I'm going to modify this to just use u_int64_t as that
-> should be totally sufficient.
->
-> It is the largest type, and will produce the desired results without
-> the silly structure.
+Becuase we're talking about data integrity, the toolkit issue alone
+makes it worth keeping both code paths.  md does 90% of what I need,
+so why should I spend the time to learn a new system that doesn't
+offer any advantages?
 
-Sorry dave, as I just learned, it isn't.   As reported by Jiri Slaby
-<xslaby@fi.muni.cz>, Linus' tree now breaks on i386 :(
+[1] I'm intentionally neglecting the 4k stack issue
 
-Interestingly, on i386:
+-- 
+Ross Vandegrift
+ross@lug.udel.edu
 
-__alignof__(struct _xt_align)	4
-__alignof__(u_int64_t)		8
-__alignof__(void *)		4
-
-whereas on ppc:
-
-__alignof__(struct _xt_align)	8
-__alignof__(u_int64_t)		8
-__alignof__(void *)		4
-
-So your assumption that __alignof__(u_int64_t) =3D=3D __alignof__(struct xt=
-_align)
-doesn't hold true for all archs.
-
-I would therefore recommend applying my unmodified patch, and hope that
-it then works on all archs simultaneously.
-
-> Some malloc() implementations use "long double" to figure out the
-> largest type size and alignment requirements any C type might have
-> on the machine.  But there is no reason to use that here.
-
-Our main problem is that we have to stay compatible with old userspace
-programs that had a different definition for what has now become
-XT_ALIGN().  So independent what might be the best solution from an
-alignment point of view, we must match what old userspace thinks.
-
-Yes, this all sucks.  And yes, we will see a new interface this year.
-Promised.
-
-Cheers,
-	Harald.
-
---=20
-- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
-
---KOBxLkMFRQI9H+bc
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD0R2rXaXGVTD0i/8RAmlFAKCvc74CiV6R/7Dz4X+Ak3/eLE0zbQCghxGa
-jefK0vhDAk9RS0WIS9dxw8o=
-=wKFS
------END PGP SIGNATURE-----
-
---KOBxLkMFRQI9H+bc--
+"The good Christian should beware of mathematicians, and all those who
+make empty prophecies. The danger already exists that the mathematicians
+have made a covenant with the devil to darken the spirit and to confine
+man in the bonds of Hell."
+	--St. Augustine, De Genesi ad Litteram, Book II, xviii, 37

@@ -1,34 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWATSZW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWATS3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbWATSZW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 13:25:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWATSZW
+	id S1751141AbWATS3T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 13:29:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWATS3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 13:25:22 -0500
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:49633 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S1751136AbWATSZV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 13:25:21 -0500
-Subject: 2.6.15-rt6: network driver disabled interrupts: skge_xmit_frame
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Cc: nando@ccrma.Stanford.EDU
-Content-Type: text/plain
-Date: Fri, 20 Jan 2006 10:25:10 -0800
-Message-Id: <1137781510.18253.3.camel@cmn3.stanford.edu>
+	Fri, 20 Jan 2006 13:29:19 -0500
+Received: from tux06.ltc.ic.unicamp.br ([143.106.24.50]:2505 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1751138AbWATS3S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 13:29:18 -0500
+Date: Fri, 20 Jan 2006 18:37:21 +0000
+To: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, adilger@clusterfs.com, akpm@osdl.org
+Subject: [PATCH] ext3: Properly report backup blocks present in a group
+Message-ID: <20060120183721.GB25386@br.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: glommer@br.ibm.com (Glauber de Oliveira Costa)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tons of these messages when I try out the skge network driver under
-2.6.15-rt6 (instead of the sk98lin driver):
+In filesystems with the meta block group flag on, ext3_bg_num_gdb()
+fails to report the correct number of blocks used to store the group
+descriptor backups in a given group. It happens because meta_bg
+follows a different logic from the original ext3 backup placement
+in groups multiples of 3, 5 and 7.
 
-  network driver disabled interrupts: skge_xmit_frame+0x0/0x330 [skge]
+Signed-off-by: Glauber de Oliveira Costa <glommer@br.ibm.com>
 
-Any fixes I could try?
-Thanks...
--- Fernando
+---
 
+ fs/ext3/balloc.c |   33 +++++++++++++++++++++++++++++----
+ 1 files changed, 29 insertions(+), 4 deletions(-)
 
+1164cfd9b1b413f6c4b86bac11006ba2b933ccb1
+diff --git a/fs/ext3/balloc.c b/fs/ext3/balloc.c
+index 6250fcd..8bf87b0 100644
+--- a/fs/ext3/balloc.c
++++ b/fs/ext3/balloc.c
+@@ -1499,6 +1499,25 @@ int ext3_bg_has_super(struct super_block
+ 	return 1;
+ }
+ 
++static unsigned long ext3_bg_num_gdb_meta(struct super_block *sb, int group)
++{
++	unsigned long metagroup = group / EXT3_DESC_PER_BLOCK(sb);
++	unsigned long first = metagroup * EXT3_DESC_PER_BLOCK(sb);
++	unsigned long last = first + EXT3_DESC_PER_BLOCK(sb) - 1;
++
++	if (group == first || group == first + 1 || group == last)
++		return 1;
++	return 0;
++}
++
++static unsigned long ext3_bg_num_gdb_nometa(struct super_block *sb, int group)
++{
++	if (EXT3_HAS_RO_COMPAT_FEATURE(sb,EXT3_FEATURE_RO_COMPAT_SPARSE_SUPER)&&
++	    !ext3_group_sparse(group))
++		return 0;
++	return EXT3_SB(sb)->s_gdb_count;
++}
++
+ /**
+  *	ext3_bg_num_gdb - number of blocks used by the group table in group
+  *	@sb: superblock for filesystem
+@@ -1510,9 +1529,15 @@ int ext3_bg_has_super(struct super_block
+  */
+ unsigned long ext3_bg_num_gdb(struct super_block *sb, int group)
+ {
+-	if (EXT3_HAS_RO_COMPAT_FEATURE(sb,EXT3_FEATURE_RO_COMPAT_SPARSE_SUPER)&&
+-	    !ext3_group_sparse(group))
+-		return 0;
+-	return EXT3_SB(sb)->s_gdb_count;
++	unsigned long first_meta_bg = 
++		cpu_to_le32(EXT3_SB(sb)->s_es->s_first_meta_bg);
++	unsigned long metagroup = group / EXT3_DESC_PER_BLOCK(sb);
++
++	if (!EXT3_HAS_INCOMPAT_FEATURE(sb,EXT3_FEATURE_INCOMPAT_META_BG)
++			|| metagroup < first_meta_bg)
++		return ext3_bg_num_gdb_nometa(sb,group);
++	
++	return ext3_bg_num_gdb_meta(sb,group);
++
+ }
+ 
+-- 
+1.0.4

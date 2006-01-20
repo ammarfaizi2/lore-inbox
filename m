@@ -1,72 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWATMXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbWATM0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750892AbWATMXE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 07:23:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbWATMXE
+	id S1750918AbWATM0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 07:26:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWATM0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 07:23:04 -0500
-Received: from mexforward.lss.emc.com ([168.159.213.200]:37522 "EHLO
-	mexforward.lss.emc.com") by vger.kernel.org with ESMTP
-	id S1750883AbWATMXC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 07:23:02 -0500
-Message-ID: <43D0D5AC.2010604@emc.com>
-Date: Fri, 20 Jan 2006 07:21:00 -0500
-From: Ric Wheeler <ric@emc.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
+	Fri, 20 Jan 2006 07:26:16 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:44935 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1750912AbWATM0P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 07:26:15 -0500
+Date: Fri, 20 Jan 2006 12:25:04 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Yasunori Goto <y-goto@jp.fujitsu.com>
+Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+       Joel Schopp <jschopp@austin.ibm.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
+Subject: Re: [Lhms-devel] Re: [PATCH 0/5] Reducing fragmentation using zones
+In-Reply-To: <20060120210353.1269.Y-GOTO@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.58.0601201216280.14292@skynet>
+References: <43D03C24.5080409@jp.fujitsu.com> <Pine.LNX.4.58.0601200934300.10920@skynet>
+ <20060120210353.1269.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
-       linux-m68k@vger.kernel.org, geert@linux-m68k.org, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: License oddity in some m68k files
-References: <20060119180947.GA25001@kroah.com> <Pine.LNX.4.61.0601192014010.30994@scrub.home> <20060119220431.GA4739@kroah.com> <1137708896.8471.71.camel@localhost.localdomain> <20060119223251.GB27106@kroah.com>
-In-Reply-To: <20060119223251.GB27106@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2006.01.20.033120
-X-PerlMx-Spam: Gauge=, SPAM=1%, Reasons='EMC_FROM_00+ -3, __CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0, __USER_AGENT 0'
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Fri, 20 Jan 2006, Yasunori Goto wrote:
 
->On Thu, Jan 19, 2006 at 10:14:56PM +0000, Alan Cox wrote:
->  
+> > What sort of tests would you suggest? The tests I have been running to
+> > date are
+> >
+> > "kbuild + aim9" for regression testing
+> >
+> > "updatedb + 7 -j1 kernel compiles + highorder allocation" for seeing how
+> > easy it was to reclaim contiguous blocks
 >
->>On Iau, 2006-01-19 at 14:04 -0800, Greg KH wrote:
->>    
->>
->>>Ah, ok, thanks, that makes sense.  How about a simple pointer to the
->>>license info from the .S files to the README file so that people (like
->>>me), don't get confused again?  I've attached a patch below if you wish
->>>to apply it.
->>>
->>>      
->>>
->>They specifically ask as is their right within the GPL that you note if
->>you modify the files. Otherwise seems fine.
->>    
->>
+> BTW, is "highorder allocation test" your original test code?
+> If so, just my curious, I would like to see it too. ;-).
 >
->Hm, any idea on how to note that I modified the file in such a way that
->would be acceptable?  How about this?
->
->+|
->+|      For details on the license for this file, please see the
->+|      file, README, in this same directory.  Note, this paragraph in
->+|	this comment has been added from the original version of this
->+|	file from the author.
->
->thanks,
->
->greg k-h
->  
->
-The language in the source files is pretty strong and this looks like Motorola should be asked to rerelease the files with a normal copyright notice in place of the current language...
 
+1. Download http://www.csn.ul.ie/~mel/projects/vmregress/vmregress-0.20.tar.gz
+2. Extract it to /usr/src/vmregress (i.e. there should be a
+   /usr/src/vmregress/bin directory)
+3. Download linux-2.6.11.tar.gz to /usr/src
+4. Make a directory /usr/src/bench-stresshighalloc-test
+5. cd to /usr/src/vmregress and run 3. cd to the directory and run
+   ./configure --with-linux=/path/to/running/kernel
+   make
 
-ric
+5. Run the test
+   bench-stresshighalloc.sh -z -k 6 --oprofile
 
+   -z Will test using high memory
+   -k 6 will build 1 kernel + 6 additional ones
+   By default, it will try and allocate 275 order-10 pages. Specify the
+   number of pages with -c and the order with -s
 
+The paths above are default paths. They can all be overridden with command
+line parameters like -t to specify a different kernel to use and -b to
+specify a different path to build all the kernels in.
 
+By default, the results will be logged to a directory whose name is based
+on the kernel being tested. For example, one result directory is
+~/vmregressbench-2.6.16-rc1-mm1-clean/highalloc-heavy/log.txt
+
+Comparisions between different runs can be analysed by using
+diff-highalloc.sh. e.g.
+
+diff-highalloc.sh vmregressbench-2.6.16-rc1-mm1-clean vmregressbench-2.6.16-rc1-mm1-mbuddy-v22
+
+If you want to test just high-order allocations while some other workload
+is running, use bench-plainhighalloc.sh. See --help for a list of
+available options.
+
+If you want to use bench-aim9.sh, download and build aim9 in /usr/src/aim9
+and edit the s9workfile to specify the tests you are interested in. Use
+diff-aim9.sh to compare different runs of aim9.
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

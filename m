@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750942AbWATTCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbWATTD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750942AbWATTCe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 14:02:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWATTCe
+	id S1751116AbWATTD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 14:03:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWATTD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 14:02:34 -0500
-Received: from [63.81.120.158] ([63.81.120.158]:57332 "EHLO hermes.mvista.com")
-	by vger.kernel.org with ESMTP id S1750942AbWATTCd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 14:02:33 -0500
-Subject: Re: BUG in check_monotonic_clock()
-From: Daniel Walker <dwalker@mvista.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, tglx@linutronix.de
-In-Reply-To: <1137783149.27699.256.camel@cog.beaverton.ibm.com>
-References: <1137779515.3202.3.camel@localhost.localdomain>
-	 <1137782296.27699.253.camel@cog.beaverton.ibm.com>
-	 <1137782896.3202.9.camel@localhost.localdomain>
-	 <1137783149.27699.256.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Fri, 20 Jan 2006 11:02:30 -0800
-Message-Id: <1137783751.3202.11.camel@localhost.localdomain>
+	Fri, 20 Jan 2006 14:03:56 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:55258 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751116AbWATTD4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 14:03:56 -0500
+Message-Id: <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Michael Loftis <mloftis@wgops.com>
+Cc: dtor_core@ameritech.net, James Courtier-Dutton <James@superbug.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE? 
+In-Reply-To: Your message of "Fri, 20 Jan 2006 10:31:12 MST."
+             <30D11C032F1FC0FE9CA1CDFD@d216-220-25-20.dynip.modwest.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com> <43D10FF8.8090805@superbug.co.uk> <6769FDC09295B7E6078A5089@d216-220-25-20.dynip.modwest.com> <d120d5000601200850w611e8af8v41a0786b7dc973d9@mail.gmail.com>
+            <30D11C032F1FC0FE9CA1CDFD@d216-220-25-20.dynip.modwest.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: multipart/signed; boundary="==_Exmh_1137783832_3397P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Fri, 20 Jan 2006 14:03:52 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-20 at 10:52 -0800, john stultz wrote:
-> On Fri, 2006-01-20 at 10:48 -0800, Daniel Walker wrote:
-> > On Fri, 2006-01-20 at 10:38 -0800, john stultz wrote:
-> > 
-> > > Hey Daniel,
-> > > 	Thanks for the bug report. Could you tell me what clocksource was being
-> > > used at the time? I'm guessing its the TSC, but usually we'll see
-> > > separate TSC inconsistency messages in the log.
-> > > 
-> > > thanks
-> > > -john
-> > > 
-> > 
-> > I had CONFIG_HPET_TIMER turned on. Also X86_TSC was on. 
-> 
-> So, booting up the box, what is the last message that looks like:
-> 
-> 	Time: xyz clocksource has been installed.
+--==_Exmh_1137783832_3397P
+Content-Type: text/plain; charset=us-ascii
 
-Last one is,
-kernel: Time: tsc clocksource has been installed.
+On Fri, 20 Jan 2006 10:31:12 MST, Michael Loftis said:
 
-Isn't there a handy proc entry for this? 
+> It's horrificly expensive to maintain large numbers of machines (even if 
+> it's automated) as it is.  If you're doing embedded development too or 
+> instead, it gets even harder when you need certain bugfixes or minor 
+> changes, but end up having to redevelop things or start maintaining your 
+> own kernel fork.
 
-Like /proc/sys/kernel/clocksource ?
+But you're perfectly happy to make the kernel developers do the equivalent thing
+when they have to maintain 2 forks (a stable and devel).  Go back and look at
+the status of the 2.5 tree - there were *large* chunks of time when 2.4 or 2.5
+would get an important bugfix, but the other tree wouldn't get it for *weeks*
+because of the hassle of cross-porting the patch.
 
-Daniel
+--==_Exmh_1137783832_3397P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFD0TQYcC3lWbTT17ARAlIIAJ9DhuqSaiX9tCMFpsgyFo2wiCM9UQCfTWBY
+BElZslMqHyB9i0Fa6+dt/ug=
+=Mzhw
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1137783832_3397P--

@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWATUOA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWATUQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932151AbWATUOA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 15:14:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWATUOA
+	id S932148AbWATUQa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 15:16:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWATUQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 15:14:00 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:16304 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932151AbWATUN7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 15:13:59 -0500
-Date: Fri, 20 Jan 2006 14:13:53 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org,
-       "Alan Cox <alan@lxorguk.ukuu.org.uk> Dave Hansen" 
-	<haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Serge Hallyn <serue@us.ibm.com>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: RFC: Multiple instances of kernel namespaces.
-Message-ID: <20060120201353.GA13265@sergelap.austin.ibm.com>
-References: <43CD18FF.4070006@FreeBSD.org> <1137517698.8091.29.camel@localhost.localdomain> <43CD32F0.9010506@FreeBSD.org> <1137521557.5526.18.camel@localhost.localdomain> <1137522550.14135.76.camel@localhost.localdomain> <1137610912.24321.50.camel@localhost.localdomain> <1137612537.3005.116.camel@laptopd505.fenrus.org> <1137613088.24321.60.camel@localhost.localdomain> <1137624867.1760.1.camel@localhost.localdomain> <m1bqy6oevn.fsf_-_@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1bqy6oevn.fsf_-_@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.5.11
+	Fri, 20 Jan 2006 15:16:30 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:57531 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S932148AbWATUQa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 15:16:30 -0500
+Message-ID: <43D12C28.1000003@wolfmountaingroup.com>
+Date: Fri, 20 Jan 2006 11:30:00 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: Patrick McLean <pmclean@cs.ubishops.ca>,
+       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux
+References: <43D114A8.4030900@wolfmountaingroup.com> <20060120111103.2ee5b531@dxpl.pdx.osdl.net> <43D13B2A.6020504@cs.ubishops.ca> <43D12A49.7040509@wolfmountaingroup.com>
+In-Reply-To: <43D12A49.7040509@wolfmountaingroup.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Eric W. Biederman (ebiederm@xmission.com):
-> 
-> At this point I have to confess I have been working on something
-> similar, to IBM's pid virtualization work.  But I have what is at
-> least for me a unifying concept, that makes things easier to think
-> about.
-> 
-> The idea is to think about things in terms of namespaces.  Currently
-> in the kernel we have the fs/mount namespace already implemented.
-> 
-> Partly this helps on what the interface for creating a new namespace
-> instance should be.  'clone(CLONE_NEW<NAMESPACE_TYPE>)', and how
-> it should be managed from the kernel data structures.
-> 
-> Partly thinking of things as namespaces helps me scope the problem.
-> 
-> Does this sound like a sane approach?
 
-And a bonus of this is that for security and vserver-type applications,
-the CLONE_NEWPID and CLONE_NEWFS will often happen at the same time.
+>>
+>> Also, given that several of the copyright holders in the kernel are 
+>> dead, I don't think we will be able to obtain permission.
+>
+>
+>
+> I can do a ceremony and call them with an eagle bone whistle and a 
+> Califonia Condor Feather.  We can then ask them directly.
+> GPL2 is fine if the kernel stays that way for my projects.  moving 
+> forward, the patent retaliation clause is a great idea.
+> Jeff
 
-How do you (or do you?) address naming namespaces?  This would be
-necessary for transitioning into an existing namespace, performing
-actions on existing namespaces (i.e. checkpoint, migrate to another
-machine, enter the namespace and kill pid 521), and would just be
-useful for accounting purposes, i.e. how else do you have a
-"ps --all-namespaces" specify a process' namespace?
 
-Doubt we want to add an argument to clone(), so do we just add a new
-proc, sysfs, or syscall for setting a pid-namespace name?
+I called them at the sacred fire in my ceremony room with music from the 
+bones of an eagle.  They said whatever concensus is reached
+by the majority if fine with them.     One of them said something about 
+a woman wearing a crazy hat with a white ostrich feather in it
+he did not care for, but that was it.
 
-Do we need a new syscall for transitioning into an existing namespace?
 
-thanks,
--serge
+Jeff
+
+>
+>>
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe 
+>> linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+

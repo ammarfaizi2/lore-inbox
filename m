@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWATSwd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWATTBc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWATSwd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 13:52:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWATSwd
+	id S1751053AbWATTBc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 14:01:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWATTBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 13:52:33 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:7552 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750705AbWATSwd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 13:52:33 -0500
-Subject: Re: BUG in check_monotonic_clock()
-From: john stultz <johnstul@us.ibm.com>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, tglx@linutronix.de
-In-Reply-To: <1137782896.3202.9.camel@localhost.localdomain>
-References: <1137779515.3202.3.camel@localhost.localdomain>
-	 <1137782296.27699.253.camel@cog.beaverton.ibm.com>
-	 <1137782896.3202.9.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 20 Jan 2006 10:52:28 -0800
-Message-Id: <1137783149.27699.256.camel@cog.beaverton.ibm.com>
+	Fri, 20 Jan 2006 14:01:32 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:54723 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750941AbWATTBc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 14:01:32 -0500
+Date: Fri, 20 Jan 2006 13:00:59 -0600
+From: Jack Steiner <steiner@sgi.com>
+To: Jesse Barnes <jbarnes@virtuousgeek.org>
+Cc: Brent Casavant <bcasavan@sgi.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, jes@sgi.com, tony.luck@intel.com
+Subject: Re: [PATCH] SN2 user-MMIO CPU migration
+Message-ID: <20060120190059.GB6788@sgi.com>
+References: <20060118163305.Y42462@chenjesu.americas.sgi.com> <200601191818.43157.jbarnes@virtuousgeek.org> <20060120132650.GA4272@sgi.com> <200601200931.58281.jbarnes@virtuousgeek.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601200931.58281.jbarnes@virtuousgeek.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-20 at 10:48 -0800, Daniel Walker wrote:
-> On Fri, 2006-01-20 at 10:38 -0800, john stultz wrote:
+> > A second reason for an arch_task_migrate() instead of a specific
+> > mmiob() is to provide a hook for a future platform that require
+> > additional work to be done when a task migrates.
 > 
-> > Hey Daniel,
-> > 	Thanks for the bug report. Could you tell me what clocksource was being
-> > used at the time? I'm guessing its the TSC, but usually we'll see
-> > separate TSC inconsistency messages in the log.
-> > 
-> > thanks
-> > -john
-> > 
+> What does the new platform require (just curious)?
 > 
-> I had CONFIG_HPET_TIMER turned on. Also X86_TSC was on. 
+> Jesse
 
-So, booting up the box, what is the last message that looks like:
+Sorry, can't say. Rejoin SGI & I'll tell you :-)
 
-	Time: xyz clocksource has been installed.
+---
+Jack 
 
-
-thanks
--john
 

@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWATW6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWATXCl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932288AbWATW6X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 17:58:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWATW6X
+	id S932270AbWATXCl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 18:02:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWATXCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 17:58:23 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:43916 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S932284AbWATW6W (ORCPT
+	Fri, 20 Jan 2006 18:02:41 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:8645 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932270AbWATXCl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 17:58:22 -0500
-Date: Fri, 20 Jan 2006 23:57:24 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Heinz Mauelshagen <mauelshagen@redhat.com>, Neil Brown <neilb@suse.de>
-Cc: Phillip Susi <psusi@cfl.rr.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       "Lincoln Dale (ltd)" <ltd@cisco.com>, Michael Tokarev <mjt@tls.msk.ru>,
-       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Subject: Re: [PATCH 000 of 5] md: Introduction
-Message-ID: <20060120225724.GW22163@marowsky-bree.de>
-References: <26A66BC731DAB741837AF6B2E29C1017D47EA0@xmb-hkg-413.apac.cisco.com> <Pine.LNX.4.61.0601181427090.19392@yvahk01.tjqt.qr> <17358.52476.290687.858954@cse.unsw.edu.au> <43D00FFA.1040401@cfl.rr.com> <17360.5011.975665.371008@cse.unsw.edu.au> <43D02033.4070008@cfl.rr.com> <17360.9233.215291.380922@cse.unsw.edu.au> <20060120183621.GA2799@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060120183621.GA2799@redhat.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.9i
+	Fri, 20 Jan 2006 18:02:41 -0500
+Message-Id: <200601202300.k0KN0VDQ011246@laptop11.inf.utfsm.cl>
+To: Michael Loftis <mloftis@wgops.com>
+cc: Greg KH <greg@kroah.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Marc Koschewski <marc@osknowledge.org>, linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE? 
+In-Reply-To: Message from Michael Loftis <mloftis@wgops.com> 
+   of "Fri, 20 Jan 2006 13:56:12 PDT." <1C4B548965AFD4F5918E838D@d216-220-25-20.dynip.modwest.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
+Date: Fri, 20 Jan 2006 20:00:31 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 20 Jan 2006 20:01:16 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-01-20T19:36:21, Heinz Mauelshagen <mauelshagen@redhat.com> wrote:
+Michael Loftis <mloftis@wgops.com> wrote:
+> --On January 20, 2006 11:43:31 AM -0800 Greg KH <greg@kroah.com> wrote:
+> > On Fri, Jan 20, 2006 at 10:14:15AM -0700, Michael Loftis wrote:
+> >> The problem here is I'm spending a lot of my time lately fixing things
+> >> that  shouldn't need fixing.  Things that are/were developed against
+> >> what was  supposed to be a stable major version and has been turned into
+> >> a  development version.
 
-> > Then 'dmraid' (or a similar tool) can use 'dm' interfaces for some
-> > raid levels and 'md' interfaces for others.
-> Yes, that's possible but there's recommendations to have a native target
-> for dm to do RAID5, so I started to implement it.
+> > What specifically are you "fixing"?
 
-Can you answer me what the recommendations are based on?
+> At this point I'm looking at bugs in the aic7xxx driver, it mostly
+> works in 2.6.8, occasionally locking up my tape subsystem, it's
+> apparently fixed in 2.6.15 or 2.6.15.1, I need to look closer into
+> that, and backport it because of the devfs issue I don't think I can
+> take 2.6.15/2.6.15.1 whole hog.  A decent amount of ARM stuff moving
+> around between even just 2.6.11 and 2.6.13 (admittedly that's a gripe
+> for ARM) making development for that port very painful (there's talk
+> of switching to something else because of all of this for those
+> projects) -- no specifics on the ARM stuff as I'm not the developer
+> directly involved with most that, I'm just doing some PHY code, which
+> will eventually be submitted back to the mainstream ARM (still in
+> product development) and he's indisposed today/at the moment, I'll try
+> to get him to summarize those issues so I can relay them to the list.
 
-I understand wanting to manage both via the same framework, but
-duplicating the code is just ... wrong.
+You do realize that doing all that is much more work than just fixing
+whatever you are doing wrong with the configuration of your machines, do
+you? And that that job /will/ get increasingly harder as time goes by?
 
-What's gained by it? Why not provide a dm-md wrapper which could then
-load/interface to all md personalities?
-
-
-Sincerely,
-    Lars Marowsky-Brée
-
+Better install anew, it looks like the current situation is beyond hope.
 -- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
-
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWATMkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbWATMlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750884AbWATMkF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 07:40:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWATMkE
+	id S1750935AbWATMlj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 07:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750939AbWATMlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 07:40:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:4053 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750884AbWATMkD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 07:40:03 -0500
-Message-ID: <43D0D998.4090605@redhat.com>
-Date: Fri, 20 Jan 2006 07:37:44 -0500
-From: Larry Woodman <lwoodman@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030922
-X-Accept-Language: en-us, en
+	Fri, 20 Jan 2006 07:41:39 -0500
+Received: from audible.transient.net ([216.254.12.79]:10633 "HELO
+	audible.transient.net") by vger.kernel.org with SMTP
+	id S1750929AbWATMli (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 07:41:38 -0500
+Date: Fri, 20 Jan 2006 04:41:36 -0800
+From: Jamie Heilman <jamie@audible.transient.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: RFC: OSS driver removal, a slightly different approach
+Message-ID: <20060120124136.GB8967@fifty-fifty.audible.transient.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060119174600.GT19398@stusta.de> <m3ek34vucz.fsf@defiant.localdomain>
 MIME-Version: 1.0
-To: Andy Chittenden <AChittenden@bluearc.com>
-CC: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Out of Memory: Killed process 16498 (java).
-References: <89E85E0168AD994693B574C80EDB9C27035560E4@uk-email.terastack.bluearc.com>
-In-Reply-To: <89E85E0168AD994693B574C80EDB9C27035560E4@uk-email.terastack.bluearc.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3ek34vucz.fsf@defiant.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Chittenden wrote:
+Krzysztof Halasa wrote:
+> Adrian Bunk <bunk@stusta.de> writes:
+> > SOUND_MSNDCLAS
+> > SOUND_MSNDPIN
+> 
+> Turtle Beach, I think it's newer than (at least the original) GUS.
 
->>Andy, what are
->>you running that uses SG_IO - cd ripping, burning, something else?
->>    
->>
->
->I'm sorry but I haven't a clue what uses SG_IO! All I did was boot up a
->debian unstable machine on my amd64 machine that uses 2.6.15. I log in
->via gdm and get a gnome session so I guess that's using nautilus (I've
->seen that killed in the past). I use the sawfish window manager and
->start up 7 rxvt windows and that java app I mentioned (terminator) (I
->suspect that's a red herring as other processes have been killed).
->
->  
->
-for starters you should probably change build_zonelists so that the DMA 
-zone is
-not included in any of the zone lists except the DMA.  This will prevent 
-__alloc_pages()
-from exhausting the hignmem/normal zones then falling into the DMA zone 
-and exhausting
-that with non-reclamable memory like the slabcache.
-
---- linux-2.6.9/mm/page_alloc.c.orig
-+++ linux-2.6.9/mm/page_alloc.c
-@@ -1170,6 +1170,9 @@ static int __init build_zonelists_node(p
-                zone = pgdat->node_zones + ZONE_NORMAL;
-                if (zone->present_pages)
-                        zonelist->zones[j++] = zone;
-+#if defined(CONFIG_HIGHMEM64G) || defined(CONFIG_X86_64)
-+               break;
-+#endif
-        case ZONE_DMA:
-                zone = pgdat->node_zones + ZONE_DMA;
-                if (zone->present_pages)
-~
-
-
-
+Makes me sad to see this one get so stale.  The Fiji and Pinnacle
+cards sounded really good and had excellent noise characteristics for
+their period of manufacture.  The ALSA driver (not in the kernel tree)
+has never worked for me; xruns like crazy during playback, apparently
+due to a different buffering approach (aimed at lower latency) from
+the OSS driver.  But support has suffered ever since 2.6 landed.  I
+opened a bug on the OSS driver (http://bugme.osdl.org/show_bug.cgi?id=1709)
+ages ago and it never really went anywhere.  Last time I tried the OSS
+driver (even with the fixes mentioned in bug 1709) it didn't work at
+all, and so I gave up on using my Fiji with newer kernels.  I have a
+friend who even wrote his own pndsperm firmware to handle AC3 digital
+output from his Multisound card (though he was never happy with the audio
+quality).  Anyway, if some attention is given to the ALSA msnd driver
+again I'd be happy to test.

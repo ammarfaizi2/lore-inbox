@@ -1,100 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWATU5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbWATU4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWATU5n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 15:57:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWATU5n
+	id S932172AbWATU4T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 15:56:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWATU4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 15:57:43 -0500
-Received: from smtprelay04.ispgateway.de ([80.67.18.16]:47757 "EHLO
-	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
-	id S932183AbWATU5m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 15:57:42 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [robust-futex-4] futex: robust futex support
-Date: Fri, 20 Jan 2006 18:41:18 +0100
-User-Agent: KMail/1.7.2
-Cc: Andrew Morton <akpm@osdl.org>, david singleton <dsingleton@mvista.com>,
-       drepper@gmail.com, mingo@elte.hu
-References: <43C84D4B.70407@mvista.com> <F3EB614C-8892-11DA-AF83-000A959BB91E@mvista.com> <20060118212256.1553b0ec.akpm@osdl.org>
-In-Reply-To: <20060118212256.1553b0ec.akpm@osdl.org>
+	Fri, 20 Jan 2006 15:56:19 -0500
+Received: from free.wgops.com ([69.51.116.66]:35857 "EHLO shell.wgops.com")
+	by vger.kernel.org with ESMTP id S932172AbWATU4S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 15:56:18 -0500
+Date: Fri, 20 Jan 2006 13:56:12 -0700
+From: Michael Loftis <mloftis@wgops.com>
+To: Greg KH <greg@kroah.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Marc Koschewski <marc@osknowledge.org>, linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE?
+Message-ID: <1C4B548965AFD4F5918E838D@d216-220-25-20.dynip.modwest.com>
+In-Reply-To: <20060120194331.GA8704@kroah.com>
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
+ <20060120155919.GA5873@stiffy.osknowledge.org>
+ <B6DE6A4FC14860A23FE95FF3@d216-220-25-20.dynip.modwest.com>
+ <Pine.LNX.4.61.0601201738570.10065@yvahk01.tjqt.qr>
+ <5F952B75937998C1721ACBA8@d216-220-25-20.dynip.modwest.com>
+ <20060120194331.GA8704@kroah.com>
+X-Mailer: Mulberry/4.0.4 (Mac OS X)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart10552536.nZsdINY3zO";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200601201841.24565.ioe-lkml@rameria.de>
+Content-Disposition: inline
+X-MailScanner-Information: Please contact support@wgops.com
+X-MailScanner: WGOPS clean
+X-MailScanner-From: mloftis@wgops.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart10552536.nZsdINY3zO
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-On Thursday 19 January 2006 06:22, Andrew Morton wrote:
-> david singleton <dsingleton@mvista.com> wrote:
-> > +	if (mapping->robust_head =3D=3D NULL)
-> > +		return;
-> > +
-> > +	if (list_empty(&mapping->robust_head->robust_list))
-> > +		return;
-> > +
-> > +	mutex_lock(&mapping->robust_head->robust_mutex);
-> > +
-> > +	head =3D &mapping->robust_head->robust_list;
-> > +	futex_head =3D mapping->robust_head;
-> > +
-> > +	list_for_each_entry_safe(this, next, head, list) {
-> > +		list_del(&this->list);
-> > +		kmem_cache_free(robust_futex_cachep, this);
-> > +	}
->=20
-> If we're throwing away the entire contents of the list, there's no need to
-> detach items as we go.
-=20
-Couldn't even detach the list elements first by
-
-list_splice_init(&mapping->robust_head->robust_list, head);
-
-and free the list from "head" after releasing the mutex?=20
-This would reduce lock contention, no?
-
-> > +#ifdef CONFIG_ROBUST_FUTEX
-> > +	robust_futex_cachep =3D kmem_cache_create("robust_futex", sizeof(stru=
-ct futex_robust), 0, 0, NULL, NULL);
-> > +	file_futex_cachep =3D kmem_cache_create("file_futex", sizeof(struct f=
-utex_head), 0, 0, NULL, NULL);
-> > +#endif
->=20
-> A bit of 80-column wrapping needed there please.
->=20
-> Are futex_heads likely to be allocated in sufficient volume to justify
-> their own slab cache, rather than using kmalloc()?  The speed is the same=
- -
-> if anything, kmalloc() will be faster because its text and data are more
-> likely to be in CPU cache.
-=20
-The goal here was to do cheap futex accounting, as described in the=20
-documentation to this patch.
 
 
-Regards
+--On January 20, 2006 11:43:31 AM -0800 Greg KH <greg@kroah.com> wrote:
 
-Ingo Oeser
+> On Fri, Jan 20, 2006 at 10:14:15AM -0700, Michael Loftis wrote:
+>> The problem here is I'm spending a lot of my time lately fixing things
+>> that  shouldn't need fixing.  Things that are/were developed against
+>> what was  supposed to be a stable major version and has been turned into
+>> a  development version.
+>
+> What specifically are you "fixing"?
+
+At this point I'm looking at bugs in the aic7xxx driver, it mostly works in 
+2.6.8, occasionally locking up my tape subsystem, it's apparently fixed in 
+2.6.15 or 2.6.15.1, I need to look closer into that, and backport it 
+because of the devfs issue I don't think I can take 2.6.15/2.6.15.1 whole 
+hog.  A decent amount of ARM stuff moving around between even just 2.6.11 
+and 2.6.13 (admittedly that's a gripe for ARM) making development for that 
+port very painful (there's talk of switching to something else because of 
+all of this for those projects) -- no specifics on the ARM stuff as I'm not 
+the developer directly involved with most that, I'm just doing some PHY 
+code, which will eventually be submitted back to the mainstream ARM (still 
+in product development) and he's indisposed today/at the moment, I'll try 
+to get him to summarize those issues so I can relay them to the list.
+
+As far as fixing there are modules that have been developped to run various 
+embedded peripherals that must be reworked to use the newer kernel 
+versions, which wouldn't be a problem if there weren't various other fixes 
+that were needed which means moving up point revs.  Most of these other 
+bugs are external to my work, but they affect my work.  The modules are 
+completely isolated from the rest of the kernel though and they're for very 
+particular hardware for different clients.
+
+I'm having really weird serial console issues with 2.6.8, occasionally it 
+just seems to 'hang' until one or more software flow control start/stops is 
+sent.  This though *might* have something also to do with the blade 
+chassis' virtual serial stuff, but however it's been totally fine in 2.4, 
+and is fine once getty gets ahold of it, it's just during the initial 
+bootup phases where it's being used as the console either by the rc scripts 
+or by the kernel that seems to go wonky.  It goes out during the initial 
+printk output, or sometimes later...exactly when seems to be a bit of a 
+random thing.  Also it either causes, or is inputting NULL's or some other 
+(consistent) garbage (CRLF? instead of CR?) on these same blades.  So you 
+type root<ENTER> and get something like root<NULL><ENTER> or 
+root<ENTER><NULL>  For those interested the interaction is with RLX (now 
+bought by HP and no longer manufactured new as of a couple months ago) HPC 
+Blade Chassis.  I'm guessing that maybe it's fixed somewhere in between 
+2.6.8 and 15 (hoping it is) but until I find and backport fixes to 
+something with devfs I won't be able to find out.  Part of the problem here 
+is yes I'm running and using distros, and in house things, that are built 
+on and using devfs.  A big problem I'm having is (yes an issue for Debian 
+maintainers but caused by what by all rights looks/should be maintenance 
+release of the kernel) the fact that Deb. Sarge's mkinitrd fails because it 
+can't find devfs.  That might be because the current system is using devfs 
+and mkinitrd just wants to replicate whats loaded/used now, I have to dig a 
+lot deeper into that, yes I agree it's a debian-with-2.6.15.1 bug but the 
+lack of bugfixes into/with 2.6.8 (or anywhere apparently now :/ ....).
 
 
---nextPart10552536.nZsdINY3zO
-Content-Type: application/pgp-signature
+I think I have more kernel bugs and can go on, but I'll just be told 
+'upgrade to 2.6.15' which is not an option in many cases if these are 
+indeed development releases, if only 'politically', but there are often 
+real costs involved.  And with nowhere to put patches that end up in 
+maintenance releases we're forced to maintain our own private forks, and 
+likely, because of the GPL, also publish these forks and incur all the 
+costs associated with that directly, and hope they don't become 
+popular/wanted outside of the customer base they're intended for, or skirt 
+the GPL, and only allow customers access to this stuff.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+> What version are you finding things that work, and then later, not work?
+>
+> Are you properly looking at the required version of things in the README
+> file?
+>
+> Again, specifics please, otherwise nothing can have a chance of getting
+> better.
 
-iD8DBQBD0SDEU56oYWuOrkARAtXcAKC3W5b84Lv/Z0V9T15gDskilWb57gCgsjw4
-GlemIowOqSCDn80g5XKbsMA=
-=mE5B
------END PGP SIGNATURE-----
+The bugs are only the small part of what I see as a larger issue though.  I 
+know I can get the bugs fixed, atleast in the latest development releases, 
+whatever their version numbers are.  I'm in an odd position of working for 
+a web hosting company, *and* doing my own Linux consulting as well, and 
+maintaining some 'embedded distros' used in these specific niche 
+applications.
 
---nextPart10552536.nZsdINY3zO--
+But pass that along to the customer/client I hear you say.  At that point 
+it quickly starts to become cheaper to use VxWorks or something else and 
+abandon Linux altogether.  I don't want to do that because ultimately it's 
+the strength of the community that makes Linux the better choice.  There's 
+also obviously significant time invested in existing work.  I think that 
+also Linux is ultimately a much more well featured, and generally stable 
+(operating wise as far as I know we can compile and run it on X platform 
+and it runs for 6 months without problems) kernel.
+
+I'm not trying to attack any of the developers here at all.
+
+
+> thanks,
+>
+> greg k-h
+>
+
+
+
+--
+"Genius might be described as a supreme capacity for getting its possessors
+into trouble of all kinds."
+-- Samuel Butler

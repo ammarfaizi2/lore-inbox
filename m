@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030483AbWATGrQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161230AbWATGr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030483AbWATGrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 01:47:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030478AbWATGrQ
+	id S1161230AbWATGr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 01:47:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161233AbWATGr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 01:47:16 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:62948 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030410AbWATGrP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 01:47:15 -0500
-Date: Fri, 20 Jan 2006 00:47:03 -0600 (CST)
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, jes@sgi.com,
-       tony.luck@intel.com
-Subject: Re: [PATCH] SN2 user-MMIO CPU migration
-In-Reply-To: <200601191818.43157.jbarnes@virtuousgeek.org>
-Message-ID: <20060120003303.O81637@chenjesu.americas.sgi.com>
-References: <20060118163305.Y42462@chenjesu.americas.sgi.com>
- <200601191818.43157.jbarnes@virtuousgeek.org>
-Organization: "Silicon Graphics, Inc."
+	Fri, 20 Jan 2006 01:47:29 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:37863 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1161230AbWATGr2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 01:47:28 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: 2.6.16-rc1-git1 -- Build error "make: *** [include/linux/version.h] Error 2"
+Date: Fri, 20 Jan 2006 16:43:29 +1000
+User-Agent: KMail/1.9.1
+Cc: Miles Lane <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>
+References: <a44ae5cd0601182247h1b173289ncbc6dc405cbb0bb4@mail.gmail.com> <a44ae5cd0601190115y6f6e93a1y6b6b6284280259fd@mail.gmail.com> <20060119092320.GA8588@mars.ravnborg.org>
+In-Reply-To: <20060119092320.GA8588@mars.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601201643.29207.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Jan 2006, Jesse Barnes wrote:
+Hi.
 
-> Maybe you could just turn the above into mmiowb() calls instead?  That 
-> would cover altix, origin, and ppc as well I think.  On other platforms 
-> it would be a complete no-op.
+On Thursday 19 January 2006 19:23, Sam Ravnborg wrote:
+> This can also be a side-effect of /dev/null being damaged.
 
-As you obviously noted, the core of the code was lifted from mmiowb().
-But no, an mmiowb() as such isn't correct.  At the time this code is
-executing, it's on a CPU remote from the one which issued any PIO writes
-to the device.  So in this case we need to poll the Shub register for
-a remote node, but mmiowb() only polls for the Shub corresponding to
-the current CPU.
+I had precisely this problem last night. No idea what caused it, but that was 
+the issue. Wish I'd seen your email before I wasted time finding the 
+cause! :)
 
-My first incarnation of this patch (never publicly presented) did
-implement a new mmiowb_remote(cpu) machvec instead, and this was
-placed in the context-switch (in) path instead of the task migration
-path.  However, since this behavior is only needed for the task
-migration case, Jack Steiner pointed out that this was a more
-appropriate way to implement it.  As migration is much less frequent
-than context switching, this is a better-performing method to solve
-the problem.
-
-Thanks,
-Brent
-
--- 
-Brent Casavant                          All music is folk music.  I ain't
-bcasavan@sgi.com                        never heard a horse sing a song.
-Silicon Graphics, Inc.                    -- Louis Armstrong
+Nigel

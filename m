@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbWATLdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWATLgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750845AbWATLdG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 06:33:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbWATLdG
+	id S1750863AbWATLgr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 06:36:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWATLgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 06:33:06 -0500
-Received: from uproxy.gmail.com ([66.249.92.202]:983 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750845AbWATLdE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 06:33:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kZeZX/2QS3aZbxGF3ZRoU1BlejeqcwOF0Il0ITx4C4qG48K86ztGi6uA6FKeFM0bt1eMDfF1j+sQHjhFSZs1IfU40vqCMVbOwE9c0cbaWrNEMBV0WKETeUJoOdzO1lFVyZatOjvggUWuOr9Si0ET0hkn46zIZ5HM2c19lo4Cl4U=
-Message-ID: <84144f020601200333y2d2c994av96d855e300411006@mail.gmail.com>
-Date: Fri, 20 Jan 2006 13:33:03 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.16-rc1-mm2
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060120031555.7b6d65b7.akpm@osdl.org>
+	Fri, 20 Jan 2006 06:36:47 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:53974 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750731AbWATLgq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 06:36:46 -0500
+Date: Fri, 20 Jan 2006 12:36:26 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>,
+       George Anzinger <george@wildturkeyranch.net>,
+       Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 4/7] [hrtimers] Fix posix-timer requeue race
+In-Reply-To: <20060120021342.813743000@tglx.tec.linutronix.de>
+Message-ID: <Pine.LNX.4.61.0601201218530.11765@scrub.home>
+References: <20060120021336.134802000@tglx.tec.linutronix.de>
+ <20060120021342.813743000@tglx.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060120031555.7b6d65b7.akpm@osdl.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+Hi,
 
-On 1/20/06, Andrew Morton <akpm@osdl.org> wrote:
-+produce-useful-info-for-kzalloc-with-debug_slab.patch
->
->  Make kzalloc() play properly with slab debugging
+On Fri, 20 Jan 2006, Thomas Gleixner wrote:
 
-Hmm. This still leaves kstrdup() broken which is why I would prefer
-the following patch to be applied:
+> CPU0 expires a posix-timer and runs the callback function.
+> The signal is queued.
+> After releasing the posix-timer lock and before returning to
+> hrtimer_run_queue CPU0 gets interrupted.
+> CPU1 delivers the queued signal and rearms the timer.
+> CPU0 comes back to hrtimer_run_queue and sets the timer state to expired.
+> The next modification of the timer can result in an oops, because the state
+> information is wrong.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=113767657400334&w=2
+Thomas, this is exactly what I meant with overloaded state machines,
+enumerated states are very hard to get right with concurrent processes.
+Please get rid of the state field and at least use a flag field instead.
 
-                                            Pekka
+bye, Roman

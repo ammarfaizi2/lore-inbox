@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWATPbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWATPlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbWATPbI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 10:31:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWATPbI
+	id S1750798AbWATPlA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 10:41:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWATPk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 10:31:08 -0500
-Received: from free.wgops.com ([69.51.116.66]:38671 "EHLO shell.wgops.com")
-	by vger.kernel.org with ESMTP id S1750795AbWATPbH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 10:31:07 -0500
-Date: Fri, 20 Jan 2006 08:31:03 -0700
-From: Michael Loftis <mloftis@wgops.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE?
-Message-ID: <5D41B008D6D2032747CFFF46@dhcp-2-206.wgops.com>
-In-Reply-To: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
-References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
-X-Mailer: Mulberry/4.0.4 (Mac OS X)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-MailScanner-Information: Please contact support@wgops.com
-X-MailScanner: WGOPS clean
-X-MailScanner-From: mloftis@wgops.com
+	Fri, 20 Jan 2006 10:40:59 -0500
+Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:39396 "HELO
+	briare1.heliogroup.fr") by vger.kernel.org with SMTP
+	id S1750798AbWATPk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 10:40:59 -0500
+From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
+To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Cc: neilb@cse.unsw.edu.au
+Subject: RE: [PATCH 000 of 5] md: Introduction
+Date: Fri, 20 Jan 2006 17:01:06 GMT
+Message-ID: <0610HXV12@briare1.heliogroup.fr>
+X-Mailer: Pliant 94
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Neil Brown wrote:
+>
+> These can be mixed together quite effectively:
+> You can have dm/lvm over md/raid1 over dm/multipath
+> with no problems.
+>
+> If there is functionality missing from any of these recommended
+> components, then make a noise about it, preferably but not necessarily
+> with code, and it will quite possibly be fixed.
 
+Also it's not Neil direct problem, since we are at it, the weakest point
+about Linux MD is currently that ...
+there is no production quality U320 SCSI driver for Linux to run MD over !
 
---On January 20, 2006 8:17:40 AM -0700 Michael Loftis <mloftis@wgops.com> 
-wrote:
-
-> I can sympathize with the need to push code out to users faster, and to
-> simplify maintenance as LK is a huge project, but at the expense of how
-> many developers?
-
-
-I'll just quickly clarify that last statement, I meant userland developers 
-and distro developers.
+In the U160 category, the symbios driver passed all possible stress tests
+(partly bad drives that require the driver to properly reset and restart),
+but in the U320 category, neither the Fusion not the AIC79xx did.

@@ -1,57 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWATQrf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbWATQra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751085AbWATQrf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 11:47:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbWATQrf
+	id S1751081AbWATQra (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 11:47:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWATQra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 11:47:35 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:33435 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP
-	id S1751086AbWATQre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 11:47:34 -0500
-Date: Fri, 20 Jan 2006 17:48:27 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: dtor_core@ameritech.net
-Cc: Marc Koschewski <marc@osknowledge.org>, Michael Loftis <mloftis@wgops.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE?
-Message-ID: <20060120164827.GD5873@stiffy.osknowledge.org>
-References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com> <20060120155919.GA5873@stiffy.osknowledge.org> <d120d5000601200840o704af2e5h6d9087b62594bbe1@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000601200840o704af2e5h6d9087b62594bbe1@mail.gmail.com>
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.16-rc1-marc-g18a41440-dirty
-User-Agent: Mutt/1.5.11
+	Fri, 20 Jan 2006 11:47:30 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:17540 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751081AbWATQr3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 11:47:29 -0500
+Subject: Re: [PATCH 3/6] 2.6.16-rc1 perfmon2 patch for review
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Stephane Eranian <eranian@frankl.hpl.hp.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200601201520.k0KFKEm2023128@frankl.hpl.hp.com>
+References: <200601201520.k0KFKEm2023128@frankl.hpl.hp.com>
+Content-Type: text/plain
+Date: Fri, 20 Jan 2006 08:47:24 -0800
+Message-Id: <1137775645.28944.61.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Dmitry Torokhov <dmitry.torokhov@gmail.com> [2006-01-20 11:40:42 -0500]:
+On Fri, 2006-01-20 at 07:20 -0800, Stephane Eranian wrote:
 
-> On 1/20/06, Marc Koschewski <marc@osknowledge.org> wrote:
-> >
-> > For my daily work I use the -git kernels on my production machines. And I didn't
-> > have probs for a long time due to stuff being tested in -mm. -mm is mostly
-> > broken for me (psmouse, now reiserfs, ...) but I tend to say that 2.6 is
-> > rock-stable.
-> >
-> 
-> [Trying to steal the thread somewhat...]
-> 
-> Marc, have you tried 2.6.16-rc1 yet? Does it also give you problems
-> with psmouse?
-> 
+> +static struct pfm_smpl_fmt dfl_fmt={
+> + 	.fmt_name = "default_format2",
+> + 	.fmt_uuid = PFM_DFL_SMPL_UUID,
 
-Not yet, Dmitry. I just managed to get today's -git compiled and running. I'll
-give it a try tonite.
+What's the point of using a UUID here?
 
-Moreover, I put a
+> +static struct file_system_type pfm_fs_type = {
+> +	.name     = "pfmfs",
+> +	.get_sb   = pfmfs_get_sb,
+> +	.kill_sb  = kill_anon_super,
+> +};
 
-	echo -n 0 > /sys/bus/serio/devices/serio0/resync_time
+A comment that describes what pfmfs is for would be useful here, and
+perhaps a warning to hold one's nose, if the code that follows is
+anything to go by :-)
 
-in my initscripts. Since then I didn't see any problem. I'll report later how it
-went with that line removed and stock 2.6.16-rc1.
+> +#if 0
+> +irqreturn_t pfm_interrupt_handler(int irq, void *arg, struct pt_regs *regs)
 
-Marc
+Why a dead interrupt handler here?
+
+> +static ctl_table pfm_ctl_table[]={
+
+Why are you using sysctls, and not sysfs?  Why is this in a file that
+claims to be procfs-related?
+
+Also, it looks like much of the procfs goo is actually not related to
+individual processes, really doesn't belong in /proc at all, and should
+move to some place in sysfs somewhere.
+
+> +/*
+> + * invoked by writing to /proc/sys/kernel/perfmon/reset_stats
+> + */
+
+Yep, this shouldn't be in /proc, unless I'm massively misunderstanding
+the current state of the world.
+
+> +int pfm_get_smpl_arg(pfm_uuid_t uuid, void *uaddr, size_t usize, void **arg,
+> +		     struct pfm_smpl_fmt **fmt)
+
+That should be void __user *uaddr.  Please run the code through sparse.
+
+> +	if (addr)
+> +		kfree(addr);
+
+kfree ignores a NULL argument.
+
+	<b
+

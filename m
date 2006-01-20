@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWATQ7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWATRBq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbWATQ7x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 11:59:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWATQ7x
+	id S1751093AbWATRBq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 12:01:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWATRBq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 11:59:53 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:13475 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751092AbWATQ7w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 11:59:52 -0500
-From: "Jiri Slaby" <xslaby@fi.muni.cz>
-Date: Fri, 20 Jan 2006 17:59:02 +0100
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Benoit Boissinot <bboissin@gmail.com>,
-       Harald Welte <laforge@netfilter.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, "David S.Miller" <davem@davemloft.net>
-Subject: Re: Iptables error [Was: 2.6.16-rc1-mm2]
-In-reply-to: <Pine.LNX.4.64.0601201148220.3672@evo.osdl.org>
-References: <20060120031555.7b6d65b7.akpm@osdl.org> 
- <20060120162317.5F70722B383@anxur.fi.muni.cz>  <20060120163619.GK4603@sunbeam.de.gnumonks.org>
- <40f323d00601200843m32e8f5cbv5733209ce82b8a13@mail.gmail.com>
-Message-Id: <20060120165901.0793E22AEFA@anxur.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Fri, 20 Jan 2006 12:01:46 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44234 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751093AbWATRBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 12:01:45 -0500
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+References: <20060117143258.150807000@sergelap>
+	<20060117143326.283450000@sergelap>
+	<1137511972.3005.33.camel@laptopd505.fenrus.org>
+	<20060117155600.GF20632@sergelap.austin.ibm.com>
+	<1137513818.14135.23.camel@localhost.localdomain>
+	<1137518714.5526.8.camel@localhost.localdomain>
+	<20060118045518.GB7292@kroah.com>
+	<1137601395.7850.9.camel@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 20 Jan 2006 10:00:13 -0700
+In-Reply-To: <1137601395.7850.9.camel@localhost.localdomain> (Dave Hansen's
+ message of "Wed, 18 Jan 2006 08:23:15 -0800")
+Message-ID: <m1fyniomw2.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
->On Fri, 20 Jan 2006, Benoit Boissinot wrote:
+Dave Hansen <haveblue@us.ibm.com> writes:
+
+> On Tue, 2006-01-17 at 20:55 -0800, Greg KH wrote:
+>> On Tue, Jan 17, 2006 at 09:25:14AM -0800, Dave Hansen wrote:
+>> > 
+>> > Arjan had a very good point last time we posted these: we should
+>> > consider getting rid of as many places in the kernel where pids are used
+>> > to uniquely identify tasks, and just stick with task_struct pointers.  
 >> 
->> On x86 (32bits), i have the same i think:
+>> That's a very good idea, why didn't you do that?
 >
->Interestingly, __alignof__(unsigned long long) is 8 these days, even 
->though I think historically on x86 it was 4. Is this perhaps different in 
->gcc-3 and gcc-4?
->
->Or do I just remember wrong?
+> Because we were being stupid and shoudn't have posted this massive set
+> of patches to LKML again before addressing the comments we got last
+> time, or doing _anything_ new with them.
 
-$ cat c.c
-#include <stdio.h>
+Actually a little progress has been made.  I think the patch set
+continues to the point of usability this time or at least is close.
 
-int main()
-{
-	printf("%d\n", __alignof__(unsigned long long));
+Although it feels like there are still some gaps when I read through
+it.
 
-	return 0;
-}
-$ gcc --version
-gcc (GCC) 4.0.2 20051125 (Red Hat 4.0.2-8)
-$ gcc32 --version
-gcc32 (GCC) 3.2.3 20030502 (Red Hat Linux 3.2.3-47.fc4)
-$ gcc c.c -occ -Wall && ./cc
-8
-$ gcc32 c.c -occ -Wall && ./cc
-8
-
-If it helps...
-
-regards,
---
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+Eric

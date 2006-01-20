@@ -1,51 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422739AbWATCXB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422743AbWATC1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422739AbWATCXB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 21:23:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422740AbWATCXB
+	id S1422743AbWATC1k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 21:27:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422740AbWATC1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 21:23:01 -0500
-Received: from fsmlabs.com ([168.103.115.128]:50838 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1422739AbWATCXA (ORCPT
+	Thu, 19 Jan 2006 21:27:40 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:54987 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422743AbWATC1j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 21:23:00 -0500
-X-ASG-Debug-ID: 1137723769-2366-31-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Thu, 19 Jan 2006 18:27:38 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Gilles May <gilles@jekyll.org>
-cc: linux-kernel@vger.kernel.org
-X-ASG-Orig-Subj: Re: SMP trouble
-Subject: Re: SMP trouble
-In-Reply-To: <43CFEC68.4070704@jekyll.org>
-Message-ID: <Pine.LNX.4.64.0601191826520.1579@montezuma.fsmlabs.com>
-References: <43CAFF80.2020707@jekyll.org> <Pine.LNX.4.64.0601181817410.20777@montezuma.fsmlabs.com>
- <43CFD877.4090503@jekyll.org> <Pine.LNX.4.64.0601191132010.1579@montezuma.fsmlabs.com>
- <43CFEC68.4070704@jekyll.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.7578
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+	Thu, 19 Jan 2006 21:27:39 -0500
+Date: Thu, 19 Jan 2006 18:27:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] shrink_list: Use of && instead || leads to unintended
+ writing of pages
+Message-Id: <20060119182718.575bd08a.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0601191744390.13937@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0601191602260.13428@schroedinger.engr.sgi.com>
+	<20060119164341.0fb9c7e3.akpm@osdl.org>
+	<Pine.LNX.4.62.0601191648440.13602@schroedinger.engr.sgi.com>
+	<20060119172032.04bad017.akpm@osdl.org>
+	<Pine.LNX.4.62.0601191744390.13937@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Jan 2006, Gilles May wrote:
-
-> I don't think it has something to do with the USB card, nor the HDD oder the
-> DVD writer connected to it..
-> Just to be sure I bought a new USB card with a different chip even, hangs with
-> both controllers..
-> Besides it freezes aswell if I do the ping and IDE to IDE copies and listening
-> music.. Looks like high
-> IO loads brings it down, no matter where it comes from..
-> The wierd part is that it's only with Linux SMP, not with UP, and no problems
-> like that on WindowsXP SP2..
+Christoph Lameter <clameter@engr.sgi.com> wrote:
+>
+> [PATCH] Implement sane function of sc->may_writepage
 > 
-> This starts giving me serious headaches.. ;)
+>  Make sc->may_writepage control the writeout behavior of shrink_list.
+> 
+>  Remove the laptop_mode trick from shrink_list and instead set may_writepage in
+>  try_to_free_pages properly.
+> 
+>  Signed-off-by: Christoph Lameter <clameter@sgi.com>
+> 
+>  Index: linux-2.6.16-rc1-mm1/mm/vmscan.c
+>  ===================================================================
+>  --- linux-2.6.16-rc1-mm1.orig/mm/vmscan.c	2006-01-19 15:50:19.000000000 -0800
+>  +++ linux-2.6.16-rc1-mm1/mm/vmscan.c	2006-01-19 17:42:07.000000000 -0800
+>  @@ -491,7 +491,7 @@ static int shrink_list(struct list_head 
+>   				goto keep_locked;
+>   			if (!may_enter_fs)
+>   				goto keep_locked;
+>  -			if (laptop_mode && !sc->may_writepage)
+>  +			if (!sc->may_writepage)
+>   				goto keep_locked;
+>   
+>   			/* Page is dirty, try to write it out here */
+>  @@ -1409,7 +1409,7 @@ int try_to_free_pages(struct zone **zone
+>   	int i;
+>   
+>   	sc.gfp_mask = gfp_mask;
+>  -	sc.may_writepage = 0;
+>  +	sc.may_writepage = !laptop_mode;
+>   	sc.may_swap = 1;
+>   
+>   	inc_page_state(allocstall);
+>  @@ -1512,7 +1512,7 @@ loop_again:
+>   	total_scanned = 0;
+>   	total_reclaimed = 0;
+>   	sc.gfp_mask = GFP_KERNEL;
+>  -	sc.may_writepage = 0;
+>  +	sc.may_writepage = 1;
+>   	sc.may_swap = 1;
+>   	sc.nr_mapped = read_page_state(nr_mapped);
 
-Trying to isolate things here, do you need the ping/network load to 
-trigger it? How about only network load?
-
+The balance_pgdat() change is wrong, surely?  We want !laptop_mode.

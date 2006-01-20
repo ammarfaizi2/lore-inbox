@@ -1,59 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWATUnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWATU5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWATUnp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 15:43:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWATUnp
+	id S932183AbWATU5n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 15:57:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWATU5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 15:43:45 -0500
-Received: from smtpout.mac.com ([17.250.248.71]:46572 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932176AbWATUnp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 15:43:45 -0500
-In-Reply-To: <0B1B67D811A178FB3BE70C96@d216-220-25-20.dynip.modwest.com>
-References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com> <20060120155919.GA5873@stiffy.osknowledge.org> <B6DE6A4FC14860A23FE95FF3@d216-220-25-20.dynip.modwest.com> <20060120163551.GC5873@stiffy.osknowledge.org> <0B1B67D811A178FB3BE70C96@d216-220-25-20.dynip.modwest.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <07159468-E454-426D-AA8C-7A1CE1E2B22E@mac.com>
-Cc: Marc Koschewski <marc@osknowledge.org>, linux-kernel@vger.kernel.org
+	Fri, 20 Jan 2006 15:57:43 -0500
+Received: from smtprelay04.ispgateway.de ([80.67.18.16]:47757 "EHLO
+	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932183AbWATU5m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 15:57:42 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [robust-futex-4] futex: robust futex support
+Date: Fri, 20 Jan 2006 18:41:18 +0100
+User-Agent: KMail/1.7.2
+Cc: Andrew Morton <akpm@osdl.org>, david singleton <dsingleton@mvista.com>,
+       drepper@gmail.com, mingo@elte.hu
+References: <43C84D4B.70407@mvista.com> <F3EB614C-8892-11DA-AF83-000A959BB91E@mvista.com> <20060118212256.1553b0ec.akpm@osdl.org>
+In-Reply-To: <20060118212256.1553b0ec.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart10552536.nZsdINY3zO";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Development tree, PLEASE?
-Date: Fri, 20 Jan 2006 15:43:33 -0500
-To: Michael Loftis <mloftis@wgops.com>
-X-Mailer: Apple Mail (2.746.2)
+Message-Id: <200601201841.24565.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 20, 2006, at 12:06, Michael Loftis wrote:
-> --On January 20, 2006 5:35:51 PM +0100 Marc Koschewski  
-> <marc@osknowledge.org> wrote:
->> Moreover, as far as I remember... my devfsd -> udev transsition  
->> went as smooth as a reboot.
->
-> The one machine I've got running 2.6+devfs under debian chokes in  
-> initrd with an inability to find devfs during boot so I had to go  
-> back to static /dev entries for it since atleast in sarge right now  
-> I'm not seeing a quick-and-easy way to get devfs like support  
-> bundled via mkinitrd, but I haven't looked, and I shouldn't have to.
+--nextPart10552536.nZsdINY3zO
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Guess what, you _don't_ have to.  I have no less than 4 different 2.6  
-debian boxes here, all booting the fully modular stock Debian kernels  
-from software RAID on SATA or PATA (depends on the box).  Not only  
-that, but I can shut down and rearrange those drives to different IDE/ 
-SATA ports, then boot and it all still works with consistent /dev  
-names (With the exception that I have to bump yaboot into booting  
-from a different OpenFirmware path).  If you've customized and  
-hardcoded a lot of the boot scripts, I can understand why things  
-might be breaking, but the default initrds that the Debian tools  
-generate work just fine for me.
+On Thursday 19 January 2006 06:22, Andrew Morton wrote:
+> david singleton <dsingleton@mvista.com> wrote:
+> > +	if (mapping->robust_head =3D=3D NULL)
+> > +		return;
+> > +
+> > +	if (list_empty(&mapping->robust_head->robust_list))
+> > +		return;
+> > +
+> > +	mutex_lock(&mapping->robust_head->robust_mutex);
+> > +
+> > +	head =3D &mapping->robust_head->robust_list;
+> > +	futex_head =3D mapping->robust_head;
+> > +
+> > +	list_for_each_entry_safe(this, next, head, list) {
+> > +		list_del(&this->list);
+> > +		kmem_cache_free(robust_futex_cachep, this);
+> > +	}
+>=20
+> If we're throwing away the entire contents of the list, there's no need to
+> detach items as we go.
+=20
+Couldn't even detach the list elements first by
 
-Cheers,
-Kyle Moffett
+list_splice_init(&mapping->robust_head->robust_list, head);
 
---
-There is no way to make Linux robust with unreliable memory  
-subsystems, sorry.  It would be like trying to make a human more  
-robust with an unreliable O2 supply. Memory just has to work.
-   -- Andi Kleen
+and free the list from "head" after releasing the mutex?=20
+This would reduce lock contention, no?
+
+> > +#ifdef CONFIG_ROBUST_FUTEX
+> > +	robust_futex_cachep =3D kmem_cache_create("robust_futex", sizeof(stru=
+ct futex_robust), 0, 0, NULL, NULL);
+> > +	file_futex_cachep =3D kmem_cache_create("file_futex", sizeof(struct f=
+utex_head), 0, 0, NULL, NULL);
+> > +#endif
+>=20
+> A bit of 80-column wrapping needed there please.
+>=20
+> Are futex_heads likely to be allocated in sufficient volume to justify
+> their own slab cache, rather than using kmalloc()?  The speed is the same=
+ -
+> if anything, kmalloc() will be faster because its text and data are more
+> likely to be in CPU cache.
+=20
+The goal here was to do cheap futex accounting, as described in the=20
+documentation to this patch.
 
 
+Regards
+
+Ingo Oeser
+
+
+--nextPart10552536.nZsdINY3zO
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBD0SDEU56oYWuOrkARAtXcAKC3W5b84Lv/Z0V9T15gDskilWb57gCgsjw4
+GlemIowOqSCDn80g5XKbsMA=
+=mE5B
+-----END PGP SIGNATURE-----
+
+--nextPart10552536.nZsdINY3zO--

@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWATWYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWATW3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbWATWYF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 17:24:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWATWYE
+	id S932087AbWATW3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 17:29:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWATW3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 17:24:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:59290 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932082AbWATWYD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 17:24:03 -0500
-Date: Fri, 20 Jan 2006 14:22:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Truong, Dan" <dan.truong@hp.com>
-Cc: stephane.eranian@hp.com, perfmon@napali.hpl.hp.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       perfctr-devel@lists.sourceforge.net
-Subject: Re: [perfmon] Re: quick overview of the perfmon2 interface
-Message-Id: <20060120142247.28153379.akpm@osdl.org>
-In-Reply-To: <3C87FFF91369A242B9C9147F8BD0908A02C6955C@cacexc04.americas.cpqcorp.net>
-References: <3C87FFF91369A242B9C9147F8BD0908A02C6955C@cacexc04.americas.cpqcorp.net>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jan 2006 17:29:16 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21778 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932087AbWATW3Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 17:29:16 -0500
+Date: Fri, 20 Jan 2006 23:29:15 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: perex@suse.cz
+Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org,
+       Lukasz Stemach <stelmacl@ee.pw.edu.pl>
+Subject: [2.6 patch] sound/isa/cs423x/cs4236.c: PnP ids for Netfinity 3000
+Message-ID: <20060120222914.GD31803@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Truong, Dan" <dan.truong@hp.com> wrote:
->
-> Would you want Stephane to guard the extended
-> functionalities with tunables or something to
-> Disable their regular use and herd enterprise
-> Tools into a standard mold... yet allow R&D to
-> Move on by enabling the extentions?
+From: Lukasz Stemach <stelmacl@ee.pw.edu.pl>
 
-argh.  I'd prefer to avoid one-month gaps in the conversation, so we don't
-all forget what we were talking about.
 
-Look, we just need to get these patches on the wire so we can all look at
-them, see what they do, understand what decisions were taken and why.
+PnP ids for Netfinity 3000 builtin soundcard.
 
-The conciseness and completeness of those patches' covering descriptions
-will be key to helping this process along.
+This one works for me.
+
+
+This patch was submitted through kernel Bugzilla #4214.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- l/sound/isa/cs423x/cs4236.c.orig	2004-10-23 10:54:33.000000000 +0200
++++ l/sound/isa/cs423x/cs4236.c	2004-12-27 01:01:31.000000000 +0100
+@@ -174,6 +173,8 @@
+ 	{ .id = "CSC7632", .devs = { { "CSC0000" }, { "CSC0010" }, { "PNPb006" } } },
+ 	/* SIC CrystalWave 32 (CS4232) */
+ 	{ .id = "CSCf032", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" } } },
++	/* Netfinity 3000 on-board soundcard */
++	{ .id = "CSCe825", .devs = { { "CSC0100" }, { "CSC0110" }, { "CSC010f" } } },
+ 	/* --- */
+ 	{ .id = "" }	/* end */
+ };
+

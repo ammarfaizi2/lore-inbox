@@ -1,113 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWATTEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751176AbWATTFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbWATTEN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 14:04:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWATTEN
+	id S1751176AbWATTFF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 14:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWATTFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 14:04:13 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:1712 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S1751147AbWATTEL
+	Fri, 20 Jan 2006 14:05:03 -0500
+Received: from mail.kroah.org ([69.55.234.183]:28112 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751163AbWATTE7 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 14:04:11 -0500
-Date: Fri, 20 Jan 2006 11:04:00 -0800
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: [GIT PATCH] PCI patches for 2.6.16-rc1
-Message-ID: <20060120190400.GA12894@kroah.com>
+	Fri, 20 Jan 2006 14:04:59 -0500
+Cc: linas@austin.ibm.com
+Subject: [PATCH] powerpc/PCI hotplug: remove rpaphp_find_bus()
+In-Reply-To: <1137783879871@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 20 Jan 2006 11:04:39 -0800
+Message-Id: <11377838793011@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some small PCI patches against your latest git tree.  They have
-all been in the -mm tree for a while with no problems.
+[PATCH] powerpc/PCI hotplug: remove rpaphp_find_bus()
 
-They do the following:
-	- document some feature-removal things for the future
-	- add support for amd pci hotplug devices to the shpchp driver.
-	- fix bugs and update the ppc64 rpaphp pci hotplug driver.
-	- add some new and remove some duplicate pci ids.
-	- make it more obvious that some msi functions are really being
-	  used.
+The function rpaphp_find_pci_bus() has been migrated to
+pcibios_find_pci_bus() in arch/powerpc/platforms/pseries/pci_dlpar.c
+This patch removes the old version.
 
-Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
-or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+Acked-by: John Rose <johnrose@austin.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-The full patches will be sent to the linux-pci mailing list, if anyone
-wants to see them.
+---
+commit 42ce64544f4cfbafcf8a0fbe779414d2bf81e607
+tree 9863ef9598e83536182d6b509f7a5f2708bcb57c
+parent 74fe8a7679336ce8229401b13f7af364694818b1
+author linas@austin.ibm.com <linas@austin.ibm.com> Thu, 12 Jan 2006 18:18:26 -0600
+committer Greg Kroah-Hartman <gregkh@suse.de> Fri, 20 Jan 2006 10:29:35 -0800
 
-thanks,
+ drivers/pci/hotplug/rpadlpar_core.c |    6 +++---
+ drivers/pci/hotplug/rpaphp.h        |    3 ---
+ drivers/pci/hotplug/rpaphp_pci.c    |   34 ++--------------------------------
+ 3 files changed, 5 insertions(+), 38 deletions(-)
 
-greg k-h
-
- Documentation/feature-removal-schedule.txt |   14 +
- arch/i386/pci/irq.c                        |    5 
- drivers/pci/hotplug/Kconfig                |    3 
- drivers/pci/hotplug/acpiphp_ibm.c          |   21 --
- drivers/pci/hotplug/ibmphp_core.c          |    4 
- drivers/pci/hotplug/rpadlpar_core.c        |   64 +++---
- drivers/pci/hotplug/rpaphp.h               |   14 -
- drivers/pci/hotplug/rpaphp_core.c          |  114 ++++++-----
- drivers/pci/hotplug/rpaphp_pci.c           |  277 +----------------------------
- drivers/pci/hotplug/rpaphp_slot.c          |   16 -
- drivers/pci/hotplug/shpchp.h               |   94 +++++++++
- drivers/pci/hotplug/shpchp_ctrl.c          |   12 +
- drivers/pci/msi.c                          |    8 
- drivers/pci/msi.h                          |    6 
- drivers/pci/pci.c                          |    2 
- drivers/pci/setup-res.c                    |    1 
- drivers/video/cyblafb.c                    |    1 
- include/linux/pci.h                        |    2 
- include/linux/pci_ids.h                    |   16 -
- 19 files changed, 272 insertions(+), 402 deletions(-)
-
-
-Adrian Bunk:
-      PCI: schedule PCI_LEGACY_PROC for removal
-      PCI: drivers/pci/pci.c: #if 0 pci_find_ext_capability()
-
-Arthur Othieno:
-      PCI: cyblafb: remove pci_module_init() return, really.
-
-Grant Coady:
-      PCI: pci_ids: remove duplicates gathered during merge period
-
-Grant Grundler:
-      PCI: make it easier to see that set_msi_affinity() is used
-
-Jason Gaston:
-      PCI: irq and pci_ids: patch for Intel ICH8
-
-Keck, David:
-      PCI Hotplug: shpchp: AMD POGO errata fix
-
-linas:
-      PCI Hotplug: PCI panic on dlpar add (add pci slot to running partition)
-      PCI Hotplug/powerpc: module build break
-
-linas@austin.ibm.com:
-      powerpc/PCI hotplug: cleanup: add prefix
-      powerpc/PCI hotplug: remove rpaphp_fixup_new_pci_devices()
-      powerpc/PCI hotplug: merge rpaphp_enable_pci_slot()
-      powerpc/PCI hotplug: merge config_pci_adapter
-      powerpc/PCI hotplug: minor cleanup forward decls
-      powerpc/PCI hotplug: remove rpaphp_find_bus()
-      powerpc/PCI hotplug: remove remove_bus_device()
-      powerpc/PCI hotplug: de-convolute rpaphp_unconfig_pci_adap
-      powerpc/PCI hotplug: shuffle error checking to better location.
-
-Mark Rustad:
-      PCI: restore 2 missing pci ids
-
-Pavel Machek:
-      PCI Hotplug: fix up coding style issues
-      PCI Hotplug: fix up Kconfig help text
-
-Richard Knutsson:
-      pci: Schedule removal of pci_module_init
+diff --git a/drivers/pci/hotplug/rpadlpar_core.c b/drivers/pci/hotplug/rpadlpar_core.c
+index 7f504b3..bc17a13 100644
+--- a/drivers/pci/hotplug/rpadlpar_core.c
++++ b/drivers/pci/hotplug/rpadlpar_core.c
+@@ -174,7 +174,7 @@ static int dlpar_add_pci_slot(char *drc_
+ {
+ 	struct pci_dev *dev;
+ 
+-	if (rpaphp_find_pci_bus(dn))
++	if (pcibios_find_pci_bus(dn))
+ 		return -EINVAL;
+ 
+ 	/* Add pci bus */
+@@ -221,7 +221,7 @@ static int dlpar_remove_phb(char *drc_na
+ 	struct pci_dn *pdn;
+ 	int rc = 0;
+ 
+-	if (!rpaphp_find_pci_bus(dn))
++	if (!pcibios_find_pci_bus(dn))
+ 		return -EINVAL;
+ 
+ 	slot = find_slot(dn);
+@@ -366,7 +366,7 @@ int dlpar_remove_pci_slot(char *drc_name
+ 	struct pci_bus *bus;
+ 	struct slot *slot;
+ 
+-	bus = rpaphp_find_pci_bus(dn);
++	bus = pcibios_find_pci_bus(dn);
+ 	if (!bus)
+ 		return -EINVAL;
+ 
+diff --git a/drivers/pci/hotplug/rpaphp.h b/drivers/pci/hotplug/rpaphp.h
+index 57ea71a..b333a35 100644
+--- a/drivers/pci/hotplug/rpaphp.h
++++ b/drivers/pci/hotplug/rpaphp.h
+@@ -88,13 +88,10 @@ extern int num_slots;
+ /* function prototypes */
+ 
+ /* rpaphp_pci.c */
+-extern struct pci_bus *rpaphp_find_pci_bus(struct device_node *dn);
+-extern int rpaphp_claim_resource(struct pci_dev *dev, int resource);
+ extern int rpaphp_enable_pci_slot(struct slot *slot);
+ extern int register_pci_slot(struct slot *slot);
+ extern int rpaphp_get_pci_adapter_status(struct slot *slot, int is_init, u8 * value);
+ extern void rpaphp_init_new_devs(struct pci_bus *bus);
+-extern void rpaphp_eeh_init_nodes(struct device_node *dn);
+ 
+ extern int rpaphp_config_pci_adapter(struct pci_bus *bus);
+ extern int rpaphp_unconfig_pci_adapter(struct pci_bus *bus);
+diff --git a/drivers/pci/hotplug/rpaphp_pci.c b/drivers/pci/hotplug/rpaphp_pci.c
+index 396b54b..f16d0f9 100644
+--- a/drivers/pci/hotplug/rpaphp_pci.c
++++ b/drivers/pci/hotplug/rpaphp_pci.c
+@@ -32,36 +32,6 @@
+ #include "../pci.h"		/* for pci_add_new_bus */
+ #include "rpaphp.h"
+ 
+-static struct pci_bus *find_bus_among_children(struct pci_bus *bus,
+-					struct device_node *dn)
+-{
+-	struct pci_bus *child = NULL;
+-	struct list_head *tmp;
+-	struct device_node *busdn;
+-
+-	busdn = pci_bus_to_OF_node(bus);
+-	if (busdn == dn)
+-		return bus;
+-
+-	list_for_each(tmp, &bus->children) {
+-		child = find_bus_among_children(pci_bus_b(tmp), dn);
+-		if (child)
+-			break;
+-	}
+-	return child;
+-}
+-
+-struct pci_bus *rpaphp_find_pci_bus(struct device_node *dn)
+-{
+-	struct pci_dn *pdn = dn->data;
+-
+-	if (!pdn  || !pdn->phb || !pdn->phb->bus)
+-		return NULL;
+-
+-	return find_bus_among_children(pdn->phb->bus, dn);
+-}
+-EXPORT_SYMBOL_GPL(rpaphp_find_pci_bus);
+-
+ static int rpaphp_get_sensor_state(struct slot *slot, int *state)
+ {
+ 	int rc;
+@@ -120,7 +90,7 @@ int rpaphp_get_pci_adapter_status(struct
+ 			/* config/unconfig adapter */
+ 			*value = slot->state;
+ 		} else {
+-			bus = rpaphp_find_pci_bus(slot->dn);
++			bus = pcibios_find_pci_bus(slot->dn);
+ 			if (bus && !list_empty(&bus->devices))
+ 				*value = CONFIGURED;
+ 			else
+@@ -370,7 +340,7 @@ static int setup_pci_slot(struct slot *s
+ 	struct pci_bus *bus;
+ 
+ 	BUG_ON(!dn);
+-	bus = rpaphp_find_pci_bus(dn);
++	bus = pcibios_find_pci_bus(dn);
+ 	if (!bus) {
+ 		err("%s: no pci_bus for dn %s\n", __FUNCTION__, dn->full_name);
+ 		goto exit_rc;
 

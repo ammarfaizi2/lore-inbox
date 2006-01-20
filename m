@@ -1,112 +1,254 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWATVVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWATVW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932209AbWATVVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 16:21:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWATVVZ
+	id S932207AbWATVW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 16:22:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWATVW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 16:21:25 -0500
-Received: from free.wgops.com ([69.51.116.66]:10254 "EHLO shell.wgops.com")
-	by vger.kernel.org with ESMTP id S932209AbWATVVY (ORCPT
+	Fri, 20 Jan 2006 16:22:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43748 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932207AbWATVW0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 16:21:24 -0500
-Date: Fri, 20 Jan 2006 14:21:06 -0700
-From: Michael Loftis <mloftis@wgops.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Valdis.Kletnieks@vt.edu, dtor_core@ameritech.net,
-       James Courtier-Dutton <James@superbug.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE?
-Message-ID: <5793EB6F192350088E0AC4CE@d216-220-25-20.dynip.modwest.com>
-In-Reply-To: <20060120200051.GA12610@flint.arm.linux.org.uk>
-References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
- <43D10FF8.8090805@superbug.co.uk>
- <6769FDC09295B7E6078A5089@d216-220-25-20.dynip.modwest.com>
- <d120d5000601200850w611e8af8v41a0786b7dc973d9@mail.gmail.com>
- <30D11C032F1FC0FE9CA1CDFD@d216-220-25-20.dynip.modwest.com>
- <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu>
- <E27F809F04C1C673D283E84F@d216-220-25-20.dynip.modwest.com>
- <20060120200051.GA12610@flint.arm.linux.org.uk>
-X-Mailer: Mulberry/4.0.4 (Mac OS X)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jan 2006 16:22:26 -0500
+Date: Fri, 20 Jan 2006 21:22:10 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 8/9] device-mapper snapshot: replace sibling list
+Message-ID: <20060120212210.GI4724@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-MailScanner-Information: Please contact support@wgops.com
-X-MailScanner: WGOPS clean
-X-MailScanner-From: mloftis@wgops.com
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The siblings "list" is used unsafely at the moment.
+
+Firstly, only the element on the list being changed gets locked (via the 
+snapshot lock), not the next and previous elements which have pointers
+that are also being changed.
+
+Secondly, if you have two or more snapshots and write to the same chunk
+a second time before every snapshot has finished making its private
+copy of the data, if you're unlucky, _origin_write() could attempt its 
+list_merge() and dereference a 'last' pointer to a pending_exception 
+structure that has just been freed.
 
 
---On January 20, 2006 8:00:52 PM +0000 Russell King 
-<rmk+lkml@arm.linux.org.uk> wrote:
-
-> On Fri, Jan 20, 2006 at 12:21:40PM -0700, Michael Loftis wrote:
->> I think that it's fine to push the maintenance effort away from the
->> mainline developers, probably even desireable, but then the
->> bugfixing/etc  tends to happen in a disparate manner, off on lots of
->> forks at different  places without them making their way back to some
->> central place.
->
-> The responsibility for ensuring that those bugfixes get back to "some
-> central place" is with the folk who created the bugfixes.
->
-> I've seen this _far_ too many times - it's what I call "the CVS disease"
-> and it happens _a_ _lot_ in certain areas.
->
-> Developer X uses a CVS tree for his work and has write access to that
-> tree.  He finds a bug, and fixes it.  Maybe he writes a good explaination
-> of the bug and puts it in the CVS commit comments.  He commits the fix.
-> When he's done with development, he walks away and the fix never gets
-> submitted.  (Not everyone operates this way, but I know some do.)
->
->
-> As a mainline guy myself, I'll say we're all welcome to whatever bug
-> fixes come our way.  We just need someone to send them to us with an
-> adequate explaination of the bug.
-
-OK, my question though related to that is, where would they be included? 
-For most of my cases, latest development doesn't really help.  I'd still 
-have to maintain a completely forked kernel.  Would they be included or 
-eligible for the 4th digit releases you're talking about?  But then that 
-seems that efforts might get really spread out across the many 3rd digit 
-releases, making that situation just as bad, or worse, as the previous 
-odd/even issues.
-
->
->> And that seems where we're going with this conversation.  A fork/forks
->> at  various versions to maintain bugfixes and support updates that's
->> (more?)  open to submitters writing patches.  Maintained by a separate
->> group or  party, but with the 'blessing' from mainline to do so.  A
->> place for those  sorts of efforts to be focused, without necessarily
->> involving the primary  developers.
->
-> Do you know about the bugfix-only kernel series, which have 4-digit
-> versions - 2.6.x.y - which is the compromise to satisfy folk with the
-> issue you're bringing up in this paragraph?
-
-I don't see any maintenance releases on 2.6.8 edxcept one which addresses a 
-separate issue I ran into I don't see an updated e1000 in 2.6.8 (I'm not 
-sure where exactly this particlar e1000 gets supported Manuf ID is intel, 
-0x0108 is the device id...IIRC) but I'm pretty sure it's supported in 
-2.6.15, can't go much earlier than that because 2.6.9 and later seem to 
-have bugs with aic7xxx up until 2.6.14 or 15 (not clear here, I haven't 
-done enough testing, so basing that on input from others) as mentioned 
-though 2.6.8 also has buglets.  I think 2.6.8.1 actually has a fix for the 
-NFS problem I forgot about in my slightly earlier reply to a separate part 
-of this thread, though I don't know if Debian has included that in their 
-2.6.8 kernels or not.  Not even totally sure that's the issue I was seeing, 
-I'm still investigating that too.
-
-I think the four digit bugfix only stuff is an excellent step, and 
-necessary.  But the thing that I need more is stable APIs (both userland 
-and kernel, and at the kernel<->userland interface) *with* bugfixes and 
-(hopefully with) trivial hardware support update backports, like the 
-replacement e1000 driver.  And I guess I shouldn't say 'I' need, but 
-colleagues need.  And it's not just one company or one project or one 
-client/customer.  And not all the issues are the same, but they come back 
-to needing somewhere that's kept 'dusted off' but not rearranged (too?) 
-regularly.
+Analysis reveals that the list is actually only there for reference
+counting.  If 5 pending_exceptions are needed in origin_write, then the 5
+are joined together into a 5-element list - without a separate list head
+because there's nowhere suitable to store it.
+As the pending_exceptions complete, they are removed from the list 
+one-by-one and any contents of origin_bios get moved across to one of
+the remaining pending_exceptions on the list.  Whichever one is last 
+is detected because list_empty() is then true and the origin_bios get
+submitted.
 
 
+The fix proposed here uses an alternative reference counting mechanism
+by choosing one of the pending_exceptions as primary and maintaining an 
+atomic counter there.
+
+
+Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
+
+
+Index: linux-2.6.16-rc1/drivers/md/dm-snap.c
+===================================================================
+--- linux-2.6.16-rc1.orig/drivers/md/dm-snap.c
++++ linux-2.6.16-rc1/drivers/md/dm-snap.c
+@@ -54,11 +54,21 @@ struct pending_exception {
+ 	struct list_head list;
+ 
+ 	/*
+-	 * Other pending_exceptions that are processing this
+-	 * chunk.  When this list is empty, we know we can
+-	 * complete the origins.
++	 * The primary pending_exception is the one that holds
++	 * the sibling_count and the list of origin_bios for a
++	 * group of pending_exceptions.  It is always last to get freed.
++	 * These fields get set up when writing to the origin.
+ 	 */
+-	struct list_head siblings;
++	struct pending_exception *primary_pe;
++
++	/*
++	 * Number of pending_exceptions processing this chunk.
++	 * When this drops to zero we must complete the origin bios.
++	 * If incrementing or decrementing this, hold pe->snap->lock for
++	 * the sibling concerned and not pe->primary_pe->snap->lock unless
++	 * they are the same.
++	 */
++	atomic_t sibling_count;
+ 
+ 	/* Pointer back to snapshot context */
+ 	struct dm_snapshot *snap;
+@@ -593,20 +603,15 @@ static void error_bios(struct bio *bio)
+ 
+ static struct bio *__flush_bios(struct pending_exception *pe)
+ {
+-	struct pending_exception *sibling;
+-
+-	if (list_empty(&pe->siblings))
+-		return bio_list_get(&pe->origin_bios);
+-
+-	sibling = list_entry(pe->siblings.next,
+-			     struct pending_exception, siblings);
+-
+-	list_del(&pe->siblings);
+-
+-	/* This is fine as long as kcopyd is single-threaded. If kcopyd
+-	 * becomes multi-threaded, we'll need some locking here.
++	/*
++	 * If this pe is involved in a write to the origin and
++	 * it is the last sibling to complete then release
++	 * the bios for the original write to the origin.
+ 	 */
+-	bio_list_merge(&sibling->origin_bios, &pe->origin_bios);
++
++	if (pe->primary_pe &&
++	    atomic_dec_and_test(&pe->primary_pe->sibling_count))
++		return bio_list_get(&pe->primary_pe->origin_bios);
+ 
+ 	return NULL;
+ }
+@@ -662,7 +667,18 @@ static void pending_complete(struct pend
+ 	}
+ 
+  out:
+-	free_pending_exception(pe);
++	/*
++	 * Free the pe if it's not linked to an origin write or if
++	 * it's not itself a primary pe.
++	 */
++	if (!pe->primary_pe || pe->primary_pe != pe)
++		free_pending_exception(pe);
++
++	/*
++	 * Free the primary pe if nothing references it.
++	 */
++	if (pe->primary_pe && !atomic_read(&pe->primary_pe->sibling_count))
++		free_pending_exception(pe->primary_pe);
+ 
+ 	if (flush)
+ 		flush_bios(flush);
+@@ -757,7 +773,8 @@ __find_pending_exception(struct dm_snaps
+ 			pe->e.old_chunk = chunk;
+ 			bio_list_init(&pe->origin_bios);
+ 			bio_list_init(&pe->snapshot_bios);
+-			INIT_LIST_HEAD(&pe->siblings);
++			pe->primary_pe = NULL;
++			atomic_set(&pe->sibling_count, 1);
+ 			pe->snap = s;
+ 			pe->started = 0;
+ 
+@@ -916,26 +933,12 @@ static int snapshot_status(struct dm_tar
+ /*-----------------------------------------------------------------
+  * Origin methods
+  *---------------------------------------------------------------*/
+-static void list_merge(struct list_head *l1, struct list_head *l2)
+-{
+-	struct list_head *l1_n, *l2_p;
+-
+-	l1_n = l1->next;
+-	l2_p = l2->prev;
+-
+-	l1->next = l2;
+-	l2->prev = l1;
+-
+-	l2_p->next = l1_n;
+-	l1_n->prev = l2_p;
+-}
+-
+ static int __origin_write(struct list_head *snapshots, struct bio *bio)
+ {
+-	int r = 1, first = 1;
++	int r = 1, first = 0;
+ 	struct dm_snapshot *snap;
+ 	struct exception *e;
+-	struct pending_exception *pe, *next_pe, *last = NULL;
++	struct pending_exception *pe, *next_pe, *primary_pe = NULL;
+ 	chunk_t chunk;
+ 	LIST_HEAD(pe_queue);
+ 
+@@ -962,6 +965,9 @@ static int __origin_write(struct list_he
+ 		 * Check exception table to see if block
+ 		 * is already remapped in this snapshot
+ 		 * and trigger an exception if not.
++		 *
++		 * sibling_count is initialised to 1 so pending_complete()
++		 * won't destroy the primary_pe while we're inside this loop.
+ 		 */
+ 		e = lookup_exception(&snap->complete, chunk);
+ 		if (!e) {
+@@ -971,31 +977,60 @@ static int __origin_write(struct list_he
+ 				snap->valid = 0;
+ 
+ 			} else {
+-				if (first) {
+-					bio_list_add(&pe->origin_bios, bio);
++				if (!primary_pe) {
++					/*
++					 * Either every pe here has same
++					 * primary_pe or none has one yet.
++					 */
++					if (pe->primary_pe)
++						primary_pe = pe->primary_pe;
++					else {
++						primary_pe = pe;
++						first = 1;
++					}
++
++					bio_list_add(&primary_pe->origin_bios,
++						     bio);
+ 					r = 0;
+-					first = 0;
+ 				}
+-				if (last && list_empty(&pe->siblings))
+-					list_merge(&pe->siblings,
+-						   &last->siblings);
++				if (!pe->primary_pe) {
++					atomic_inc(&primary_pe->sibling_count);
++					pe->primary_pe = primary_pe;
++				}
+ 				if (!pe->started) {
+ 					pe->started = 1;
+ 					list_add_tail(&pe->list, &pe_queue);
+ 				}
+-				last = pe;
+ 			}
+ 		}
+ 
+ 		up_write(&snap->lock);
+ 	}
+ 
++	if (!primary_pe)
++		goto out;
++
++	/*
++	 * If this is the first time we're processing this chunk and
++	 * sibling_count is now 1 it means all the pending exceptions
++	 * got completed while we were in the loop above, so it falls to
++	 * us here to remove the primary_pe and submit any origin_bios.
++	 */
++
++	if (first && atomic_dec_and_test(&primary_pe->sibling_count)) {
++		flush_bios(bio_list_get(&primary_pe->origin_bios));
++		free_pending_exception(primary_pe);
++		/* If we got here, pe_queue is necessarily empty. */
++		goto out;
++	}
++
+ 	/*
+ 	 * Now that we have a complete pe list we can start the copying.
+ 	 */
+ 	list_for_each_entry_safe(pe, next_pe, &pe_queue, list)
+ 		start_copy(pe);
+ 
++ out:
+ 	return r;
+ }
+ 

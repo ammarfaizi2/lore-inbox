@@ -1,73 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbWATSM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWATSOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750982AbWATSM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 13:12:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWATSM0
+	id S1751132AbWATSOR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 13:14:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWATSOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 13:12:26 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:7114 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750982AbWATSMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 13:12:25 -0500
-Message-ID: <43D127A3.1010200@jp.fujitsu.com>
-Date: Sat, 21 Jan 2006 03:10:43 +0900
-From: Kamezawa Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: Mel Gorman <mel@csn.ul.ie>
-CC: Joel Schopp <jschopp@austin.ibm.com>,
-       Linux Memory Management List <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [Lhms-devel] Re: [PATCH 0/5] Reducing fragmentation using zones
-References: <20060119190846.16909.14133.sendpatchset@skynet.csn.ul.ie> <43CFE77B.3090708@austin.ibm.com> <43D02B3E.5030603@jp.fujitsu.com> <Pine.LNX.4.58.0601200102040.15823@skynet> <43D03C24.5080409@jp.fujitsu.com> <Pine.LNX.4.58.0601200934300.10920@skynet> <43D0BE27.5000807@jp.fujitsu.com> <Pine.LNX.4.58.0601201204100.14292@skynet>
-In-Reply-To: <Pine.LNX.4.58.0601201204100.14292@skynet>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 20 Jan 2006 13:14:17 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:45765 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751132AbWATSOQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 13:14:16 -0500
+Message-Id: <200601201813.k0KIDa6B003760@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Jiri Slaby <xslaby@fi.muni.cz>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "David S.Miller" <davem@davemloft.net>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Iptables error [Was: 2.6.16-rc1-mm2] 
+In-Reply-To: Your message of "Fri, 20 Jan 2006 17:23:18 +0100."
+             <20060120162317.5F70722B383@anxur.fi.muni.cz> 
+From: Valdis.Kletnieks@vt.edu
+References: <20060120162317.5F70722B383@anxur.fi.muni.cz>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1137780816_3397P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Fri, 20 Jan 2006 13:13:36 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel Gorman wrote:
-> On Fri, 20 Jan 2006, KAMEZAWA Hiroyuki wrote:
->>1. Using 1000+ processes(threads) at once
-> 
-> 
-> Would tiobench --threads be suitable or would the IO skew what you are
-> looking for? If the IO is a problem, what would you recommend instead?
-> 
-What I'm looking for is slab usage coming with threads/procs.
+--==_Exmh_1137780816_3397P
+Content-Type: text/plain; charset=us-ascii
 
+On Fri, 20 Jan 2006 17:23:18 +0100, Jiri Slaby said:
+> Andrew Morton wrote:
+> >Changes since 2.6.16-rc1-mm1:
+> >
+> >
+> > linus.patch
+> Hello,
 > 
->>2. heavy network load.
+> Commit 4f2d7680cb1ac5c5a70f3ba2447d5aa5c0a1643a (Linus' 2.6 git tree) breaks my
+> iptables (1.3.4):
+
+> This is it:
+> [NETFILTER] x_tables: Make XT_ALIGN align as strictly as necessary.
 > 
+> Or else we break on ppc32 and other 32-bit platforms.
 > 
-> Would iperf be suitable?
+> Based upon a patch from Harald Welte.
 > 
-maybe
-> 
->>3. running NFS
-> 
-> 
-> Is running a kernel build over NFS reasonable? Should it be a remote NFS
-> server or could I setup a NFS share and mount it locally? If a kernel
-> build is not suitable, would tiobench over NFS be a better plan?
-> 
-I considered doing kernel build on  NFS which is mounted localy.
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> --- include/linux/netfilter/x_tables.h
+> +++ include/linux/netfilter/x_tables.h
+> @@ -19,7 +19,7 @@ struct xt_get_revision
+> /* For standard target */
+> #define XT_RETURN (-NF_REPEAT - 1)
+> -#define XT_ALIGN(s) (((s) + (__alignof__(void *)-1)) & ~(__alignof__(void *)-1))
+> +#define XT_ALIGN(s) (((s) + (__alignof__(u_int64_t)-1)) & ~(__alignof__(u_int64_t)-1))
+> /* Standard return verdict, or do jump. */
+> #define XT_STANDARD_TARGET ""
+
+Confirmed here.  Backing out this one-liner makes iptables work for me.
+i686 on a Pentium-4, gcc 4.1.0 from Fedora -devel tree.
 
 
-> The scenario people really care about (someone correct me if I'm wrong
-> here) for hot-remove is giving virtual machines more or less memory as
-> demand requires. In this case, the "big"  area of memory required is the
-> same size as a sparsemem section - 16MiB on the ppc64 and 64MiB on the x86
-> (I think). Also, for hot-remove, it does not really matter where in the
-> zone the chunk is, as long as it is free. For ppc64, 16MiB of contiguous
-> memory is reasonably easy to get with the list-based approach and the case
-> would likely be the same for x86 if the value of MAX_ORDER was increased.
-> 
-What I' want is just node-hotplug on NUMA, removing physical range of mem.
-So I'll need and push dividing memory into removable zones or pgdat, anyway.
-For people who just want resizing, what you say is main reason for hotplug.
 
--- Kame
+--==_Exmh_1137780816_3397P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFD0ShQcC3lWbTT17ARAnKuAKCs5EHguSIMkw8ftiPDIc9O6dFq/ACeNfC2
+Etku4gBUpJJ0GTpNSUWRJ3Y=
+=lECb
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1137780816_3397P--

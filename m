@@ -1,22 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbWATMLh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbWATMSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750887AbWATMLh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 07:11:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWATMLh
+	id S1750889AbWATMSA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 07:18:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWATMR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 07:11:37 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:24021 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750871AbWATMLg (ORCPT
+	Fri, 20 Jan 2006 07:17:59 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:65494 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750883AbWATMR7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 07:11:36 -0500
-Date: Fri, 20 Jan 2006 04:11:14 -0800
+	Fri, 20 Jan 2006 07:17:59 -0500
+Date: Fri, 20 Jan 2006 04:17:27 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Anton Titov <a.titov@host.bg>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOM Killer killing whole system
-Message-Id: <20060120041114.7f06ecd8.akpm@osdl.org>
-In-Reply-To: <1137337516.11767.50.camel@localhost>
-References: <1137337516.11767.50.camel@localhost>
+To: Jens Axboe <axboe@suse.de>
+Cc: davej@redhat.com, AChittenden@bluearc.com, linux-kernel@vger.kernel.org,
+       lwoodman@redhat.com
+Subject: Re: Out of Memory: Killed process 16498 (java).
+Message-Id: <20060120041727.5329f299.akpm@osdl.org>
+In-Reply-To: <20060120120844.GG13429@suse.de>
+References: <89E85E0168AD994693B574C80EDB9C270355601F@uk-email.terastack.bluearc.com>
+	<20060119194836.GM21663@redhat.com>
+	<20060119141515.5f779b8d.akpm@osdl.org>
+	<20060120081231.GE4213@suse.de>
+	<20060120002307.76bcbc27.akpm@osdl.org>
+	<20060120120844.GG13429@suse.de>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,38 +30,70 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Titov <a.titov@host.bg> wrote:
+Jens Axboe <axboe@suse.de> wrote:
 >
-> Yesterday I accidently noticed few OOM killer messages in the system log
->  and leaved a console tailing the log for the night. In 6 in the morning
->  OOM killer got mad generating 500 lines in the log and 5 minutes later
->  system closed the ssh connection and became inresponsive. The guy in the
->  datacenter told me that when he attached keyboard even caps lock was not
->  working. Inspite of this the system still was responsive (only to) ping.
+> On Fri, Jan 20 2006, Andrew Morton wrote:
+> > Jens Axboe <axboe@suse.de> wrote:
+> > >
+> > > On Thu, Jan 19 2006, Andrew Morton wrote:
+> > > > Dave Jones <davej@redhat.com> wrote:
+> > > > >
+> > > > > On Thu, Jan 19, 2006 at 03:11:45PM -0000, Andy Chittenden wrote:
+> > > > >  > DMA free:20kB min:24kB low:28kB high:36kB active:0kB inactive:0kB
+> > > > >  > present:12740kB pages_scanned:4 all_unreclaimable? yes
+> > > > > 
+> > > > > Note we only scanned 4 pages before we gave up.
+> > > > > Larry Woodman came up with this patch below that clears all_unreclaimable
+> > > > > when in two places where we've made progress at freeing up some pages
+> > > > > which has helped oom situations for some of our users.
+> > > > 
+> > > > That won't help - there are exactly zero pages on ZONE_DMA's LRU.
+> > > > 
+> > > > The problem appears to be that all of the DMA zone has been gobbled up by
+> > > > the BIO layer.  It seems quite inappropriate that a modern 64-bit machine
+> > > > is allocating tons of disk I/O pages from the teeny ZONE_DMA.  I'm
+> > > > suspecting that someone has gone and set a queue's ->bounce_gfp to the wrong
+> > > > thing.
+> > > > 
+> > > > Jens, would you have time to investigate please?
+> > > 
+> > > Certainly, I'll get this tested and fixed this afternoon.
+> > 
+> > Wow ;)
+> >
+> > You may find it's an x86_64 glitch - setting max_[low_]pfn wrong down in
+> > the bowels of the arch mm init code, something like that.
+> > 
+> > I thought it might have been a regression which came in when we added
+> > ZONE_DMA32 but the RH reporter is based on 2.6.14-<redhat stuff>, and he
+> > didn't have ZONE_DMA32.
 > 
->  The strange thing is this machine is relatively light loaded - now after
->  6 hours being up free shows:
->               total       used       free     shared    buffers    cached
->  Mem:       2075468    1148564     926904          0     123472    314516
->  -/+ buffers/cache:     710576    1364892
->  Swap:      1004020          0    1004020
+> Sorry, spoke too soon, I thought this was the 'bio/scsi leaks' which
+> most likely is a scsi leak that also results in the bios not getting
+> freed.
 > 
->  Load average stays under 0.5 most of the time. In 6 in the morning it
->  should be almost no load (there is no crons scheduled at that time).
-> 
->  I'm attaching messages from the log and my .config.
+> This DMA32 zone shortage looks like a vm short coming, you're likely the
+> better candidate to fix that :-)
 
-What kernel version?  <looks in config.gz>.   2.6.15.
+It's not ZONE_DMA32.  It's the 12MB ZONE_DMA which is being exhausted on
+this 4GB 64-bit machine.
+
+Andy put a dump_stack() into the oom code and it pointed at 
 
 
-> Jan 15 06:05:09 vip Normal free:3700kB min:3756kB low:4692kB high:5632kB active:9964kB inactive:8532kB present:901120kB pages_scanned:19628 
-
-Pretty much all of the ZONE_NORMAL memory is AWOL.
-
-> Jan 15 06:05:09 vip 216477 pages slab
-
-It's all in slab.  800MB.
-
-I'd be suspecting a slab memory leak.  If it happens again, please take a
-copy of /proc/slabinfo, send it.
-
+ Call Trace:<ffffffff8014d7bc>{out_of_memory+48}
+ <ffffffff8014f4b0>{__alloc_pages+536}
+        <ffffffff80169788>{bio_alloc_bioset+232}
+ <ffffffff80169d03>{bio_copy_user+218}
+        <ffffffff801bd657>{blk_rq_map_user+136}
+ <ffffffff801c0008>{sg_io+328}
+        <ffffffff801c047c>{scsi_cmd_ioctl+491}
+ <ffffffff88005e22>{:ide_core:generic_ide_ioctl+631}
+        <ffffffff88202d0c>{:sd_mod:sd_ioctl+371}
+ <ffffffff802a6db6>{schedule_timeout+158}
+        <ffffffff801bf165>{blkdev_ioctl+1365}
+ <ffffffff80243cb2>{sys_sendto+251}
+        <ffffffff801751e5>{__pollwait+0}
+ <ffffffff8016b16a>{block_ioctl+25}
+        <ffffffff801749f4>{do_ioctl+24} <ffffffff80174c46>{vfs_ioctl+541}
+        <ffffffff80174cb4>{sys_ioctl+89}

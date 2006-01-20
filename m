@@ -1,84 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbWATM0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWATM1F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750918AbWATM0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 07:26:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWATM0Q
+	id S1750911AbWATM1F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 07:27:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbWATM1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 07:26:16 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:44935 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750912AbWATM0P (ORCPT
+	Fri, 20 Jan 2006 07:27:05 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:56102 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750920AbWATM1E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 07:26:15 -0500
-Date: Fri, 20 Jan 2006 12:25:04 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Joel Schopp <jschopp@austin.ibm.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
-Subject: Re: [Lhms-devel] Re: [PATCH 0/5] Reducing fragmentation using zones
-In-Reply-To: <20060120210353.1269.Y-GOTO@jp.fujitsu.com>
-Message-ID: <Pine.LNX.4.58.0601201216280.14292@skynet>
-References: <43D03C24.5080409@jp.fujitsu.com> <Pine.LNX.4.58.0601200934300.10920@skynet>
- <20060120210353.1269.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Jan 2006 07:27:04 -0500
+Date: Fri, 20 Jan 2006 13:28:59 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: davej@redhat.com, AChittenden@bluearc.com, linux-kernel@vger.kernel.org,
+       lwoodman@redhat.com
+Subject: Re: Out of Memory: Killed process 16498 (java).
+Message-ID: <20060120122859.GH13429@suse.de>
+References: <89E85E0168AD994693B574C80EDB9C270355601F@uk-email.terastack.bluearc.com> <20060119194836.GM21663@redhat.com> <20060119141515.5f779b8d.akpm@osdl.org> <20060120081231.GE4213@suse.de> <20060120002307.76bcbc27.akpm@osdl.org> <20060120120844.GG13429@suse.de> <20060120041727.5329f299.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060120041727.5329f299.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jan 2006, Yasunori Goto wrote:
-
-> > What sort of tests would you suggest? The tests I have been running to
-> > date are
+On Fri, Jan 20 2006, Andrew Morton wrote:
+> Jens Axboe <axboe@suse.de> wrote:
 > >
-> > "kbuild + aim9" for regression testing
-> >
-> > "updatedb + 7 -j1 kernel compiles + highorder allocation" for seeing how
-> > easy it was to reclaim contiguous blocks
->
-> BTW, is "highorder allocation test" your original test code?
-> If so, just my curious, I would like to see it too. ;-).
->
+> > On Fri, Jan 20 2006, Andrew Morton wrote:
+> > > Jens Axboe <axboe@suse.de> wrote:
+> > > >
+> > > > On Thu, Jan 19 2006, Andrew Morton wrote:
+> > > > > Dave Jones <davej@redhat.com> wrote:
+> > > > > >
+> > > > > > On Thu, Jan 19, 2006 at 03:11:45PM -0000, Andy Chittenden wrote:
+> > > > > >  > DMA free:20kB min:24kB low:28kB high:36kB active:0kB inactive:0kB
+> > > > > >  > present:12740kB pages_scanned:4 all_unreclaimable? yes
+> > > > > > 
+> > > > > > Note we only scanned 4 pages before we gave up.
+> > > > > > Larry Woodman came up with this patch below that clears all_unreclaimable
+> > > > > > when in two places where we've made progress at freeing up some pages
+> > > > > > which has helped oom situations for some of our users.
+> > > > > 
+> > > > > That won't help - there are exactly zero pages on ZONE_DMA's LRU.
+> > > > > 
+> > > > > The problem appears to be that all of the DMA zone has been gobbled up by
+> > > > > the BIO layer.  It seems quite inappropriate that a modern 64-bit machine
+> > > > > is allocating tons of disk I/O pages from the teeny ZONE_DMA.  I'm
+> > > > > suspecting that someone has gone and set a queue's ->bounce_gfp to the wrong
+> > > > > thing.
+> > > > > 
+> > > > > Jens, would you have time to investigate please?
+> > > > 
+> > > > Certainly, I'll get this tested and fixed this afternoon.
+> > > 
+> > > Wow ;)
+> > >
+> > > You may find it's an x86_64 glitch - setting max_[low_]pfn wrong down in
+> > > the bowels of the arch mm init code, something like that.
+> > > 
+> > > I thought it might have been a regression which came in when we added
+> > > ZONE_DMA32 but the RH reporter is based on 2.6.14-<redhat stuff>, and he
+> > > didn't have ZONE_DMA32.
+> > 
+> > Sorry, spoke too soon, I thought this was the 'bio/scsi leaks' which
+> > most likely is a scsi leak that also results in the bios not getting
+> > freed.
+> > 
+> > This DMA32 zone shortage looks like a vm short coming, you're likely the
+> > better candidate to fix that :-)
+> 
+> It's not ZONE_DMA32.  It's the 12MB ZONE_DMA which is being exhausted on
+> this 4GB 64-bit machine.
+> 
+> Andy put a dump_stack() into the oom code and it pointed at 
+> 
+> 
+>  Call Trace:<ffffffff8014d7bc>{out_of_memory+48}
+>  <ffffffff8014f4b0>{__alloc_pages+536}
+>         <ffffffff80169788>{bio_alloc_bioset+232}
+>  <ffffffff80169d03>{bio_copy_user+218}
+>         <ffffffff801bd657>{blk_rq_map_user+136}
+>  <ffffffff801c0008>{sg_io+328}
+>         <ffffffff801c047c>{scsi_cmd_ioctl+491}
+>  <ffffffff88005e22>{:ide_core:generic_ide_ioctl+631}
+>         <ffffffff88202d0c>{:sd_mod:sd_ioctl+371}
+>  <ffffffff802a6db6>{schedule_timeout+158}
+>         <ffffffff801bf165>{blkdev_ioctl+1365}
+>  <ffffffff80243cb2>{sys_sendto+251}
+>         <ffffffff801751e5>{__pollwait+0}
+>  <ffffffff8016b16a>{block_ioctl+25}
+>         <ffffffff801749f4>{do_ioctl+24} <ffffffff80174c46>{vfs_ioctl+541}
+>         <ffffffff80174cb4>{sys_ioctl+89}
 
-1. Download http://www.csn.ul.ie/~mel/projects/vmregress/vmregress-0.20.tar.gz
-2. Extract it to /usr/src/vmregress (i.e. there should be a
-   /usr/src/vmregress/bin directory)
-3. Download linux-2.6.11.tar.gz to /usr/src
-4. Make a directory /usr/src/bench-stresshighalloc-test
-5. cd to /usr/src/vmregress and run 3. cd to the directory and run
-   ./configure --with-linux=/path/to/running/kernel
-   make
+Hmm strange, what kind of device is this? I'm guessing it's not ISA.
+Andy, can you try and boot with this applied?
 
-5. Run the test
-   bench-stresshighalloc.sh -z -k 6 --oprofile
+Did the blk_max_low_pfn stuff get a different meaning with the addition
+of the DMA32 zone?
 
-   -z Will test using high memory
-   -k 6 will build 1 kernel + 6 additional ones
-   By default, it will try and allocate 275 order-10 pages. Specify the
-   number of pages with -c and the order with -s
-
-The paths above are default paths. They can all be overridden with command
-line parameters like -t to specify a different kernel to use and -b to
-specify a different path to build all the kernels in.
-
-By default, the results will be logged to a directory whose name is based
-on the kernel being tested. For example, one result directory is
-~/vmregressbench-2.6.16-rc1-mm1-clean/highalloc-heavy/log.txt
-
-Comparisions between different runs can be analysed by using
-diff-highalloc.sh. e.g.
-
-diff-highalloc.sh vmregressbench-2.6.16-rc1-mm1-clean vmregressbench-2.6.16-rc1-mm1-mbuddy-v22
-
-If you want to test just high-order allocations while some other workload
-is running, use bench-plainhighalloc.sh. See --help for a list of
-available options.
-
-If you want to use bench-aim9.sh, download and build aim9 in /usr/src/aim9
-and edit the s9workfile to specify the tests you are interested in. Use
-diff-aim9.sh to compare different runs of aim9.
+diff --git a/block/ll_rw_blk.c b/block/ll_rw_blk.c
+index 8e27d0a..ab897de 100644
+--- a/block/ll_rw_blk.c
++++ b/block/ll_rw_blk.c
+@@ -636,6 +636,8 @@ void blk_queue_bounce_limit(request_queu
+ {
+ 	unsigned long bounce_pfn = dma_addr >> PAGE_SHIFT;
+ 
++	printk("bounce: queue %p, setting pfn %lu, max_low %lu\n", q, bounce_pfn, blk_max_low_pfn);
++
+ 	/*
+ 	 * set appropriate bounce gfp mask -- unfortunately we don't have a
+ 	 * full 4GB zone, so we have to resort to low memory for any bounces.
 
 -- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+Jens Axboe
+

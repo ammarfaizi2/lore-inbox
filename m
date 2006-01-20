@@ -1,78 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWATKr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWATKva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWATKr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 05:47:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWATKrZ
+	id S1750818AbWATKva (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 05:51:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbWATKva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 05:47:25 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:20420 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750809AbWATKrY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 05:47:24 -0500
-Date: Fri, 20 Jan 2006 02:47:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <npiggin@suse.de>
-Cc: npiggin@suse.de, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, dougg@torque.net
-Subject: Re: [patch] sg: simplify page_count manipulations
-Message-Id: <20060120024702.6f894a13.akpm@osdl.org>
-In-Reply-To: <20060120101815.GD1756@wotan.suse.de>
-References: <20060118155242.GB28418@wotan.suse.de>
-	<20060118195937.3586c94f.akpm@osdl.org>
-	<20060119144548.GF958@wotan.suse.de>
-	<20060119140525.223a8ebf.akpm@osdl.org>
-	<20060120101815.GD1756@wotan.suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jan 2006 05:51:30 -0500
+Received: from general.keba.co.at ([193.154.24.243]:16030 "EHLO
+	helga.keba.co.at") by vger.kernel.org with ESMTP id S1750811AbWATKv3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 05:51:29 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: My vote against eepro* removal
+Date: Fri, 20 Jan 2006 11:51:23 +0100
+Message-ID: <AAD6DA242BC63C488511C611BD51F367323326@MAILIT.keba.co.at>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: My vote against eepro* removal
+Thread-Index: AcYdp8DxqCun3HYgSmiAwfGXsfGs7AABq5ug
+From: "kus Kusche Klaus" <kus@keba.com>
+To: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>
+Cc: "John Ronciak" <john.ronciak@gmail.com>, "Adrian Bunk" <bunk@stusta.de>,
+       "Lee Revell" <rlrevell@joe-job.com>, <linux-kernel@vger.kernel.org>,
+       <john.ronciak@intel.com>, <ganesh.venkatesan@intel.com>,
+       <jesse.brandeburg@intel.com>, <netdev@vger.kernel.org>,
+       "Steven Rostedt" <rostedt@goodmis.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <npiggin@suse.de> wrote:
->
-> On Thu, Jan 19, 2006 at 02:05:25PM -0800, Andrew Morton wrote:
-> > Nick Piggin <npiggin@suse.de> wrote:
-> > >
-> > > On Wed, Jan 18, 2006 at 07:59:37PM -0800, Andrew Morton wrote:
-> > > > Nick Piggin <npiggin@suse.de> wrote:
-> > > > > -	/* N.B. correction _not_ applied to base page of each allocation */
-> > > > > -	for (k = 0; k < rsv_schp->k_use_sg; ++k, ++sg) {
-> > > > > -		for (m = PAGE_SIZE; m < sg->length; m += PAGE_SIZE) {
-> > > > > -			page = sg->page;
-> > > > > -			if (startFinish)
-> > > > > -				get_page(page);
-> > > > > -			else {
-> > > > > -				if (page_count(page) > 0)
-> > > > > -					__put_page(page);
-> > > > > -			}
-> > > > > -		}
-> > > > > -	}
-> > > > > -}
-> > > > 
-> > > > What on earth is the above trying to do?  The inner loop is a rather
-> > > > complex way of doing atomic_add(&page->count, sg->length/PAGE_SIZE).  One
-> > > > suspects there's a missing "[m]" in there.
-> > > > 
-> > > 
-> > > It does this on the first mmap of the device, in the hope that subsequent
-> > > nopage, unmaps would not free the constituent pages in the scatterlist.
-> > > 
-> > 
-> > But it's doing it wrongly, isn't it?  Or am I completely nuts?
-> 
-> No I think you're right. I'm not sure why this doesn't oops but I
-> thought it was the (main) reason others wanted to get rid of this
-> convoluted code earlier on. I see nobody else is planning to do anything
-> about it though, so I figure I must have missed the reason why it isn't
-> a problem.
-> 
-> But either way I don't think the code actually _does_ anything, even if
-> its bugginess doesn't actually lead to a bug.
-> 
+From: Evgeniy Polyakov [mailto:johnpol@2ka.mipt.ru] 
+> Each MDIO read can take upto 2 msecs (!) and at least 20 
+> usecs in e100,
+> and this runs in timer handler.
+> Concider attaching (only compile tested) patch which moves 
+> e100 watchdog
+> into workqueue.
 
-I suspect nobody tried to munmap pages beyond the first one.
+Tested the patch. Works and has the expected effects:
 
-Yes, let's use a compound page in there and I expect Doug will be able to
-test it for us sometime.
+Fully preemptible kernel: 
+No change: 500 us delay at rtprio 1, no delay at higher rtprio.
+(you just moved the 500 us piece of code from one rtprio 1 kernel 
+thread to another rtprio 1 kernel thread).
 
+Kernel with desktop preemption:
+Originally: Threads at any rtprio suffered from 500 us delay.
+With your patch: Only rtprio 1 threads suffer from 500 us delay,
+no delay at higher rtprio.
+
+-- 
+Klaus Kusche                 (Software Development - Control Systems)
+KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
+Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
+E-Mail: kus@keba.com                                WWW: www.keba.com
+ 

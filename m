@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWATRBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWATRC5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbWATRBq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 12:01:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWATRBq
+	id S1751098AbWATRC5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 12:02:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWATRC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 12:01:46 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44234 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751093AbWATRBp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 12:01:45 -0500
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-References: <20060117143258.150807000@sergelap>
-	<20060117143326.283450000@sergelap>
-	<1137511972.3005.33.camel@laptopd505.fenrus.org>
-	<20060117155600.GF20632@sergelap.austin.ibm.com>
-	<1137513818.14135.23.camel@localhost.localdomain>
-	<1137518714.5526.8.camel@localhost.localdomain>
-	<20060118045518.GB7292@kroah.com>
-	<1137601395.7850.9.camel@localhost.localdomain>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 20 Jan 2006 10:00:13 -0700
-In-Reply-To: <1137601395.7850.9.camel@localhost.localdomain> (Dave Hansen's
- message of "Wed, 18 Jan 2006 08:23:15 -0800")
-Message-ID: <m1fyniomw2.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 20 Jan 2006 12:02:57 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:2223 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751098AbWATRC4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 12:02:56 -0500
+From: "Jiri Slaby" <xslaby@fi.muni.cz>
+Date: Fri, 20 Jan 2006 18:02:06 +0100
+To: Jiri Slaby <xslaby@fi.muni.cz>
+Cc: Benoit Boissinot <bboissin@gmail.com>,
+       Harald Welte <laforge@netfilter.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, "David S.Miller" <davem@davemloft.net>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Iptables error [Was: 2.6.16-rc1-mm2]
+In-reply-to: <20060120165901.0793E22AEFA@anxur.fi.muni.cz>
+References: <20060120031555.7b6d65b7.akpm@osdl.org> 
+ <20060120162317.5F70722B383@anxur.fi.muni.cz>  <20060120163619.GK4603@sunbeam.de.gnumonks.org>
+ <40f323d00601200843m32e8f5cbv5733209ce82b8a13@mail.gmail.com>
+Message-Id: <20060120170205.3720822AEAC@anxur.fi.muni.cz>
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
+Jiri Slaby wrote:
+>$ gcc --version
+>gcc (GCC) 4.0.2 20051125 (Red Hat 4.0.2-8)
+btw. I use this one.
 
-> On Tue, 2006-01-17 at 20:55 -0800, Greg KH wrote:
->> On Tue, Jan 17, 2006 at 09:25:14AM -0800, Dave Hansen wrote:
->> > 
->> > Arjan had a very good point last time we posted these: we should
->> > consider getting rid of as many places in the kernel where pids are used
->> > to uniquely identify tasks, and just stick with task_struct pointers.  
->> 
->> That's a very good idea, why didn't you do that?
->
-> Because we were being stupid and shoudn't have posted this massive set
-> of patches to LKML again before addressing the comments we got last
-> time, or doing _anything_ new with them.
-
-Actually a little progress has been made.  I think the patch set
-continues to the point of usability this time or at least is close.
-
-Although it feels like there are still some gaps when I read through
-it.
-
-Eric
+regards,
+--
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

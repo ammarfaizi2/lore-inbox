@@ -1,73 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422726AbWATBqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422728AbWATBrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422726AbWATBqk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 20:46:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422727AbWATBqk
+	id S1422728AbWATBrn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 20:47:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422731AbWATBrm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 20:46:40 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:34785 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1422726AbWATBqj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 20:46:39 -0500
-Date: Thu, 19 Jan 2006 17:46:29 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] shrink_list: Use of && instead || leads to unintended
- writing of pages
-In-Reply-To: <20060119172032.04bad017.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0601191744390.13937@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0601191602260.13428@schroedinger.engr.sgi.com>
- <20060119164341.0fb9c7e3.akpm@osdl.org> <Pine.LNX.4.62.0601191648440.13602@schroedinger.engr.sgi.com>
- <20060119172032.04bad017.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Jan 2006 20:47:42 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:62144 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422727AbWATBrl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 20:47:41 -0500
+Date: Thu, 19 Jan 2006 17:49:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: AChittenden@bluearc.com, linux-kernel@vger.kernel.org, lwoodman@redhat.com,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: Out of Memory: Killed process 16498 (java).
+Message-Id: <20060119174920.4a842f03.akpm@osdl.org>
+In-Reply-To: <20060120012844.GE3798@redhat.com>
+References: <89E85E0168AD994693B574C80EDB9C270355601F@uk-email.terastack.bluearc.com>
+	<20060119194836.GM21663@redhat.com>
+	<20060119170305.2e8ae353.akpm@osdl.org>
+	<20060120012844.GE3798@redhat.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is all crap. may_writepage needs to do as it says and control 
-write behavior .... We can set the  proper writemode in try_to_free_pages 
-based on the laptop mode. Then everything falls into the proper place.
+Dave Jones <davej@redhat.com> wrote:
+>
+> The Fedora user in the bug report
+> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=175173
+> who on x86-64 with 5GB saw zone_dma exhausted saw a similar result,
+> delays the kill, but it does still happen.
 
+Again, that person's ZONE_DMA has *zero* pages on the LRU.  Something has
+consumed all of the piddling little zone for kernel data structures.  It is
+a true oom.
 
+We need to work out who is using all this ZONE_DMA memory and make them
+stop it.
 
-[PATCH] Implement sane function of sc->may_writepage
-
-Make sc->may_writepage control the writeout behavior of shrink_list.
-
-Remove the laptop_mode trick from shrink_list and instead set may_writepage in
-try_to_free_pages properly.
-
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.16-rc1-mm1/mm/vmscan.c
-===================================================================
---- linux-2.6.16-rc1-mm1.orig/mm/vmscan.c	2006-01-19 15:50:19.000000000 -0800
-+++ linux-2.6.16-rc1-mm1/mm/vmscan.c	2006-01-19 17:42:07.000000000 -0800
-@@ -491,7 +491,7 @@ static int shrink_list(struct list_head 
- 				goto keep_locked;
- 			if (!may_enter_fs)
- 				goto keep_locked;
--			if (laptop_mode && !sc->may_writepage)
-+			if (!sc->may_writepage)
- 				goto keep_locked;
- 
- 			/* Page is dirty, try to write it out here */
-@@ -1409,7 +1409,7 @@ int try_to_free_pages(struct zone **zone
- 	int i;
- 
- 	sc.gfp_mask = gfp_mask;
--	sc.may_writepage = 0;
-+	sc.may_writepage = !laptop_mode;
- 	sc.may_swap = 1;
- 
- 	inc_page_state(allocstall);
-@@ -1512,7 +1512,7 @@ loop_again:
- 	total_scanned = 0;
- 	total_reclaimed = 0;
- 	sc.gfp_mask = GFP_KERNEL;
--	sc.may_writepage = 0;
-+	sc.may_writepage = 1;
- 	sc.may_swap = 1;
- 	sc.nr_mapped = read_page_state(nr_mapped);
- 

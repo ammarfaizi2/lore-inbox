@@ -1,76 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWATQ20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWATQaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbWATQ20 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 11:28:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbWATQ20
+	id S1751039AbWATQaF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 11:30:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbWATQaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 11:28:26 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:35202 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751053AbWATQ2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 11:28:25 -0500
-Date: Fri, 20 Jan 2006 08:28:16 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andy Whitcroft <apw@shadowen.org>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zone_reclaim cpus_empty needs a real variable
-In-Reply-To: <20060120135845.GA8040@shadowen.org>
-Message-ID: <Pine.LNX.4.62.0601200826150.17531@schroedinger.engr.sgi.com>
-References: <20060120031555.7b6d65b7.akpm@osdl.org> <20060120135845.GA8040@shadowen.org>
+	Fri, 20 Jan 2006 11:30:05 -0500
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:23309 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1751039AbWATQaD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 11:30:03 -0500
+Message-ID: <43D10FF8.8090805@superbug.co.uk>
+Date: Fri, 20 Jan 2006 16:29:44 +0000
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Michael Loftis <mloftis@wgops.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE?
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
+In-Reply-To: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jan 2006, Andy Whitcroft wrote:
+Michael Loftis wrote:
 
-> zone_reclaim cpus_empty needs a real variable
+> OK, I don't know abotu others, but I'm starting to get sick of this 
+> unstable stable kernel.  Either change the statements allover that 
+> were made that even-numbered kernels were going to be stable or open 
+> 2.7. Removing devfs has profound effects on userland.  It's one thing 
+> to screw with all of the embedded developers, nearly all kernel module 
+> developers, etc, by changing internal APIs but this is completely out 
+> of hand.
+>
+> Normally I wouldn't care, and I'd just stay away from 'stable' until 
+> someone finally figured out that a dev tree really is needed, but I 
+> can't stay quiet anymore.  2.6.x is anything but stable right now.  It 
+> might be stable in the sense that most any development kernel is 
+> stable in that it runs without crashing, but it's not at all stable in 
+> the sense that everything is changing as if it were an odd numbered 
+> dev tree.
+>
+> Yes, I'm venting some frustrations here, but I can't be the only one.  
+> I know now I'm going to be called a troll or a naysayer but whatever.  
+> The fact is it needs saying.  I shouldn't have to do major changes to 
+> accomodate sysfs in a *STABLE* kernel when going between point revs.  
+> This is just not how it's been done in the past.
+>
+> I can sympathize with the need to push code out to users faster, and 
+> to simplify maintenance as LK is a huge project, but at the expense of 
+> how many developers?
 
-Maybe we also need to add a new variable for
 
-zone->zone_pgdat->node_id 
+It is unclear what you are really ranting about here. The "stable" 
+kernel is stable or at least as stable as it is going to be. It is left 
+to distros to make it even more stable. The interface to user land has 
+not changed.
+If all you are ranting about is the move from devfs to udevd, then all 
+the user land tools dealing with them have been updated already.
 
-Its used multiple times 
+What is the real specific problem you are having?
 
-> 
-> On some architectures cpus_empty() attempts to take the address
-> of the mask.  Consequently we must store the result of the
-> node_to_cpumask() before applying it.
-> 
-> Signed-off-by: Andy Whitcroft <apw@shadowen.org>
-> ---
->  vmscan.c |    7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
-> diff -upN reference/mm/vmscan.c current/mm/vmscan.c
-> --- reference/mm/vmscan.c
-> +++ current/mm/vmscan.c
-> @@ -1836,18 +1836,21 @@ int zone_reclaim(struct zone *zone, gfp_
->  	struct task_struct *p = current;
->  	struct reclaim_state reclaim_state;
->  	struct scan_control sc;
-> +	cpumask_t mask;
->  
->  	if (time_before(jiffies,
->  		zone->last_unsuccessful_zone_reclaim + ZONE_RECLAIM_INTERVAL))
->  			return 0;
->  
->  	if (!(gfp_mask & __GFP_WAIT) ||
-> -		(!cpus_empty(node_to_cpumask(zone->zone_pgdat->node_id)) &&
-> -			 zone->zone_pgdat->node_id != numa_node_id()) ||
->  		zone->all_unreclaimable ||
->  		atomic_read(&zone->reclaim_in_progress) > 0)
->  			return 0;
->  
-> +	mask = node_to_cpumask(zone->zone_pgdat->node_id);
-> +	if (!cpus_empty(mask) && zone->zone_pgdat->node_id != numa_node_id())
-> +		return 0;
-> +
->  	sc.may_writepage = 0;
->  	sc.may_swap = 0;
->  	sc.nr_scanned = 0;
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+James
+

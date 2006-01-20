@@ -1,322 +1,222 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWATL4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWATL4y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbWATL4R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 06:56:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWATL4H
+	id S1750869AbWATL4y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 06:56:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWATL4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 06:56:07 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:32388 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750859AbWATL4D (ORCPT
+	Fri, 20 Jan 2006 06:56:43 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:37508 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1750860AbWATL4X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 06:56:03 -0500
+	Fri, 20 Jan 2006 06:56:23 -0500
 From: Mel Gorman <mel@csn.ul.ie>
 To: linux-mm@kvack.org
 Cc: jschopp@austin.ibm.com, Mel Gorman <mel@csn.ul.ie>,
        linux-kernel@vger.kernel.org, kamezawa.hiroyu@jp.fujitsu.com,
        lhms-devel@lists.sourceforge.net
-Message-Id: <20060120115455.16475.93688.sendpatchset@skynet.csn.ul.ie>
+Message-Id: <20060120115515.16475.84525.sendpatchset@skynet.csn.ul.ie>
 In-Reply-To: <20060120115415.16475.8529.sendpatchset@skynet.csn.ul.ie>
 References: <20060120115415.16475.8529.sendpatchset@skynet.csn.ul.ie>
-Subject: [PATCH 2/4] Split the free lists into kernel and user parts
-Date: Fri, 20 Jan 2006 11:54:55 +0000 (GMT)
+Subject: [PATCH 3/4] Split the per-cpu lists into kernel and user parts
+Date: Fri, 20 Jan 2006 11:55:15 +0000 (GMT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch adds the core of the anti-fragmentation strategy. It works by
-grouping related allocation types together. The idea is that large groups of
-pages that may be reclaimed are placed near each other. The zone->free_area
-list is broken into RCLM_TYPES number of lists.
+The freelists for each allocation type can slowly become corrupted due to
+the per-cpu list. Consider what happens when the following happens
+
+1. A 2^(MAX_ORDER-1) list is reserved for __GFP_EASYRCLM pages
+2. An order-0 page is allocated from the newly reserved block
+3. The page is freed and placed on the per-cpu list
+4. alloc_page() is called with GFP_KERNEL as the gfp_mask
+5. The per-cpu list is used to satisfy the allocation
+
+This results in a kernel page is in the middle of a RCLM_EASY region. This
+means that over long periods of the time, the anti-fragmentation scheme
+slowly degrades to the standard allocator.
+
+This patch divides the per-cpu lists into RCLM_TYPES number of lists.
 
 Signed-off-by: Mel Gorman <mel@csn.ul.ie>
 Signed-off-by: Joel Schopp <jschopp@austin.ibm.com>
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/mmzone.h linux-2.6.16-rc1-mm1-002_fragcore/include/linux/mmzone.h
---- linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/mmzone.h	2006-01-19 11:21:59.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-002_fragcore/include/linux/mmzone.h	2006-01-19 21:51:05.000000000 +0000
-@@ -22,8 +22,16 @@
- #define MAX_ORDER CONFIG_FORCE_MAX_ZONEORDER
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-002_fragcore/include/linux/mmzone.h linux-2.6.16-rc1-mm1-003_percpu/include/linux/mmzone.h
+--- linux-2.6.16-rc1-mm1-002_fragcore/include/linux/mmzone.h	2006-01-19 21:51:05.000000000 +0000
++++ linux-2.6.16-rc1-mm1-003_percpu/include/linux/mmzone.h	2006-01-19 22:15:16.000000000 +0000
+@@ -26,6 +26,8 @@
+ #define RCLM_EASY   1
+ #define RCLM_TYPES  2
+ 
++#define for_each_rclmtype(type) \
++	for (type = 0; type < RCLM_TYPES; type++)
+ #define for_each_rclmtype_order(type, order) \
+ 	for (order = 0; order < MAX_ORDER; order++) \
+ 		for (type = 0; type < RCLM_TYPES; type++)
+@@ -53,10 +55,10 @@ struct zone_padding {
  #endif
  
-+#define RCLM_NORCLM 0
-+#define RCLM_EASY   1
-+#define RCLM_TYPES  2
-+
-+#define for_each_rclmtype_order(type, order) \
-+	for (order = 0; order < MAX_ORDER; order++) \
-+		for (type = 0; type < RCLM_TYPES; type++)
-+
- struct free_area {
--	struct list_head	free_list;
-+	struct list_head	free_list[RCLM_TYPES];
- 	unsigned long		nr_free;
+ struct per_cpu_pages {
+-	int count;		/* number of pages in the list */
++	int count[RCLM_TYPES];	/* number of pages in the list */
+ 	int high;		/* high watermark, emptying needed */
+ 	int batch;		/* chunk size for buddy add/remove */
+-	struct list_head list;	/* the list of pages */
++	struct list_head list[RCLM_TYPES];	/* the list of pages */
  };
  
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/page-flags.h linux-2.6.16-rc1-mm1-002_fragcore/include/linux/page-flags.h
---- linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/page-flags.h	2006-01-19 11:21:59.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-002_fragcore/include/linux/page-flags.h	2006-01-19 21:51:05.000000000 +0000
-@@ -76,6 +76,7 @@
- #define PG_reclaim		17	/* To be reclaimed asap */
- #define PG_nosave_free		18	/* Free, should not be written */
- #define PG_uncached		19	/* Page has been mapped as uncached */
-+#define PG_easyrclm		20	/* Page is in an easy reclaim block */
+ struct per_cpu_pageset {
+@@ -71,6 +73,11 @@ struct per_cpu_pageset {
+ #endif
+ } ____cacheline_aligned_in_smp;
  
- /*
-  * Global page accounting.  One instance per CPU.  Only unsigned longs are
-@@ -345,6 +346,12 @@ extern void __mod_page_state_offset(unsi
- #define SetPageUncached(page)	set_bit(PG_uncached, &(page)->flags)
- #define ClearPageUncached(page)	clear_bit(PG_uncached, &(page)->flags)
- 
-+#define PageEasyRclm(page)	test_bit(PG_easyrclm, &(page)->flags)
-+#define SetPageEasyRclm(page)	set_bit(PG_easyrclm, &(page)->flags)
-+#define ClearPageEasyRclm(page)	clear_bit(PG_easyrclm, &(page)->flags)
-+#define __SetPageEasyRclm(page)	__set_bit(PG_easyrclm, &(page)->flags)
-+#define __ClearPageEasyRclm(page) __clear_bit(PG_easyrclm, &(page)->flags)
-+
- struct page;	/* forward declaration */
- 
- int test_clear_page_dirty(struct page *page);
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-001_antifrag_flags/mm/page_alloc.c linux-2.6.16-rc1-mm1-002_fragcore/mm/page_alloc.c
---- linux-2.6.16-rc1-mm1-001_antifrag_flags/mm/page_alloc.c	2006-01-19 11:21:59.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-002_fragcore/mm/page_alloc.c	2006-01-19 22:12:09.000000000 +0000
-@@ -72,6 +72,16 @@ int sysctl_lowmem_reserve_ratio[MAX_NR_Z
- 
- EXPORT_SYMBOL(totalram_pages);
- 
-+static inline int get_pageblock_type(struct page *page)
++static inline int pcp_count(struct per_cpu_pages *pcp)
 +{
-+	return (PageEasyRclm(page) != 0);
++	return pcp->count[RCLM_NORCLM] + pcp->count[RCLM_EASY];
 +}
 +
-+static inline int gfpflags_to_alloctype(unsigned long gfp_flags)
-+{
-+	return ((gfp_flags & __GFP_EASYRCLM) != 0);
-+}
-+
- /*
-  * Used by page_zone() to look up the address of the struct zone whose
-  * id is encoded in the upper bits of page->flags
-@@ -328,11 +338,13 @@ static inline void __free_one_page(struc
+ #ifdef CONFIG_NUMA
+ #define zone_pcp(__z, __cpu) ((__z)->pageset[(__cpu)])
+ #else
+diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-002_fragcore/mm/page_alloc.c linux-2.6.16-rc1-mm1-003_percpu/mm/page_alloc.c
+--- linux-2.6.16-rc1-mm1-002_fragcore/mm/page_alloc.c	2006-01-19 22:12:09.000000000 +0000
++++ linux-2.6.16-rc1-mm1-003_percpu/mm/page_alloc.c	2006-01-19 22:26:45.000000000 +0000
+@@ -663,7 +663,7 @@ static int rmqueue_bulk(struct zone *zon
+ void drain_remote_pages(void)
  {
- 	unsigned long page_idx;
- 	int order_size = 1 << order;
-+	int alloctype = get_pageblock_type(page);
- 
- 	if (unlikely(PageCompound(page)))
- 		destroy_compound_page(page, order);
- 
- 	page_idx = page_to_pfn(page) & ((1 << MAX_ORDER) - 1);
-+	__SetPageEasyRclm(page);
- 
- 	BUG_ON(page_idx & (order_size - 1));
- 	BUG_ON(bad_range(zone, page));
-@@ -340,7 +352,6 @@ static inline void __free_one_page(struc
- 	zone->free_pages += order_size;
- 	while (order < MAX_ORDER-1) {
- 		unsigned long combined_idx;
--		struct free_area *area;
- 		struct page *buddy;
- 
- 		buddy = __page_find_buddy(page, page_idx, order);
-@@ -348,8 +359,7 @@ static inline void __free_one_page(struc
- 			break;		/* Move the buddy up one level. */
- 
- 		list_del(&buddy->lru);
--		area = zone->free_area + order;
--		area->nr_free--;
-+		zone->free_area[order].nr_free--;
- 		rmv_page_order(buddy);
- 		combined_idx = __find_combined_index(page_idx, order);
- 		page = page + (combined_idx - page_idx);
-@@ -357,7 +367,7 @@ static inline void __free_one_page(struc
- 		order++;
- 	}
- 	set_page_order(page, order);
--	list_add(&page->lru, &zone->free_area[order].free_list);
-+	list_add(&page->lru, &zone->free_area[order].free_list[alloctype]);
- 	zone->free_area[order].nr_free++;
- }
- 
-@@ -500,7 +510,8 @@ void fastcall __init __free_pages_bootme
-  * -- wli
-  */
- static inline void expand(struct zone *zone, struct page *page,
-- 	int low, int high, struct free_area *area)
-+ 	int low, int high, struct free_area *area,
-+	int alloctype)
- {
- 	unsigned long size = 1 << high;
- 
-@@ -509,7 +520,7 @@ static inline void expand(struct zone *z
- 		high--;
- 		size >>= 1;
- 		BUG_ON(bad_range(zone, &page[size]));
--		list_add(&page[size].lru, &area->free_list);
-+		list_add(&page[size].lru, &area->free_list[alloctype]);
- 		area->nr_free++;
- 		set_page_order(&page[size], high);
- 	}
-@@ -552,31 +563,77 @@ static int prep_new_page(struct page *pa
- 	return 0;
- }
- 
-+/* Remove an element from the buddy allocator from the fallback list */
-+ static struct page *__rmqueue_fallback(struct zone *zone, int order,
-+							int alloctype)
-+{
-+	struct free_area * area;
-+	int current_order;
-+	struct page *page;
-+
-+	/* Find the largest possible block of pages in the other list */
-+	alloctype = !alloctype;
-+	for (current_order = MAX_ORDER-1; current_order >= order;
-+						--current_order) {
-+		area = &(zone->free_area[current_order]);
-+ 		if (list_empty(&area->free_list[alloctype]))
-+ 			continue;
-+
-+		page = list_entry(area->free_list[alloctype].next,
-+					struct page, lru);
-+		area->nr_free--;
-+
-+		/*
-+		 * If breaking a large block of pages, place the buddies
-+		 * on the preferred allocation list
-+		 */
-+		if (unlikely(current_order >= MAX_ORDER / 2))
-+			alloctype = !alloctype;
-+
-+		list_del(&page->lru);
-+		rmv_page_order(page);
-+		zone->free_pages -= 1UL << order;
-+		expand(zone, page, order, current_order, area, alloctype);
-+		return page;
-+	}
-+
-+	return NULL;
-+}
-+
- /* 
-  * Do the hard work of removing an element from the buddy allocator.
-  * Call me with the zone->lock already held.
-  */
--static struct page *__rmqueue(struct zone *zone, unsigned int order)
-+static struct page *__rmqueue(struct zone *zone, unsigned int order,
-+		int alloctype)
- {
- 	struct free_area * area;
- 	unsigned int current_order;
- 	struct page *page;
- 
-+	/* Find a page of the appropriate size in the preferred list */
- 	for (current_order = order; current_order < MAX_ORDER; ++current_order) {
--		area = zone->free_area + current_order;
--		if (list_empty(&area->free_list))
-+		area = &(zone->free_area[current_order]);
-+		if (list_empty(&area->free_list[alloctype]))
- 			continue;
- 
--		page = list_entry(area->free_list.next, struct page, lru);
-+		page = list_entry(area->free_list[alloctype].next,
-+					struct page, lru);
- 		list_del(&page->lru);
- 		rmv_page_order(page);
- 		area->nr_free--;
- 		zone->free_pages -= 1UL << order;
--		expand(zone, page, order, current_order, area);
--		return page;
-+		expand(zone, page, order, current_order, area, alloctype);
-+		goto got_page;
- 	}
- 
--	return NULL;
-+	page = __rmqueue_fallback(zone, order, alloctype);
-+
-+got_page:
-+	if (unlikely(alloctype == RCLM_NORCLM) && page)
-+		__ClearPageEasyRclm(page);
-+
-+	return page;
- }
- 
- /* 
-@@ -585,13 +642,14 @@ static struct page *__rmqueue(struct zon
-  * Returns the number of new pages which were placed at *list.
-  */
- static int rmqueue_bulk(struct zone *zone, unsigned int order, 
--			unsigned long count, struct list_head *list)
-+			unsigned long count, struct list_head *list,
-+			int alloctype)
- {
- 	int i;
- 	
- 	spin_lock(&zone->lock);
- 	for (i = 0; i < count; ++i) {
--		struct page *page = __rmqueue(zone, order);
-+		struct page *page = __rmqueue(zone, order, alloctype);
- 		if (unlikely(page == NULL))
- 			break;
- 		list_add_tail(&page->lru, list);
-@@ -658,7 +716,7 @@ static void __drain_pages(unsigned int c
- void mark_free_pages(struct zone *zone)
- {
- 	unsigned long zone_pfn, flags;
--	int order;
-+	int order, t;
- 	struct list_head *curr;
- 
- 	if (!zone->spanned_pages)
-@@ -669,13 +727,15 @@ void mark_free_pages(struct zone *zone)
- 		ClearPageNosaveFree(pfn_to_page(zone_pfn + zone->zone_start_pfn));
- 
- 	for (order = MAX_ORDER - 1; order >= 0; --order)
--		list_for_each(curr, &zone->free_area[order].free_list) {
-+	for_each_rclmtype_order(t, order) {
-+		list_for_each(curr, &zone->free_area[order].free_list[t]) {
- 			unsigned long start_pfn, i;
- 
- 			start_pfn = page_to_pfn(list_entry(curr, struct page, lru));
- 
- 			for (i=0; i < (1<<order); i++)
- 				SetPageNosaveFree(pfn_to_page(start_pfn+i));
-+		}
- 	}
- 	spin_unlock_irqrestore(&zone->lock, flags);
- }
-@@ -775,6 +835,7 @@ static struct page *buffered_rmqueue(str
+ 	struct zone *zone;
+-	int i;
++	int i, pindex;
  	unsigned long flags;
- 	struct page *page;
- 	int cold = !!(gfp_flags & __GFP_COLD);
-+	int alloctype = gfpflags_to_alloctype(gfp_flags);
- 	int cpu;
  
- again:
-@@ -786,7 +847,8 @@ again:
+ 	local_irq_save(flags);
+@@ -679,8 +679,12 @@ void drain_remote_pages(void)
+ 			struct per_cpu_pages *pcp;
+ 
+ 			pcp = &pset->pcp[i];
+-			free_pages_bulk(zone, pcp->count, &pcp->list, 0);
+-			pcp->count = 0;
++			for_each_rclmtype(pindex) {
++				free_pages_bulk(zone,
++						pcp->count[pindex],
++						&pcp->list[pindex], 0);
++				pcp->count[pindex] = 0;
++			}
+ 		}
+ 	}
+ 	local_irq_restore(flags);
+@@ -692,7 +696,7 @@ static void __drain_pages(unsigned int c
+ {
+ 	unsigned long flags;
+ 	struct zone *zone;
+-	int i;
++	int i, pindex;
+ 
+ 	for_each_zone(zone) {
+ 		struct per_cpu_pageset *pset;
+@@ -703,8 +707,13 @@ static void __drain_pages(unsigned int c
+ 
+ 			pcp = &pset->pcp[i];
+ 			local_irq_save(flags);
+-			free_pages_bulk(zone, pcp->count, &pcp->list, 0);
+-			pcp->count = 0;
++			for_each_rclmtype(pindex) {
++				free_pages_bulk(zone,
++						pcp->count[pindex],
++						&pcp->list[pindex], 0);
++
++				pcp->count[pindex] = 0;
++			}
+ 			local_irq_restore(flags);
+ 		}
+ 	}
+@@ -780,6 +789,7 @@ static void zone_statistics(struct zonel
+ static void fastcall free_hot_cold_page(struct page *page, int cold)
+ {
+ 	struct zone *zone = page_zone(page);
++	int pindex = get_pageblock_type(page);
+ 	struct per_cpu_pages *pcp;
+ 	unsigned long flags;
+ 
+@@ -795,11 +805,11 @@ static void fastcall free_hot_cold_page(
+ 	pcp = &zone_pcp(zone, get_cpu())->pcp[cold];
+ 	local_irq_save(flags);
+ 	__inc_page_state(pgfree);
+-	list_add(&page->lru, &pcp->list);
+-	pcp->count++;
+-	if (pcp->count >= pcp->high) {
+-		free_pages_bulk(zone, pcp->batch, &pcp->list, 0);
+-		pcp->count -= pcp->batch;
++	list_add(&page->lru, &pcp->list[pindex]);
++	pcp->count[pindex]++;
++	if (pcp->count[pindex] >= pcp->high) {
++		free_pages_bulk(zone, pcp->batch, &pcp->list[pindex], 0);
++		pcp->count[pindex] -= pcp->batch;
+ 	}
+ 	local_irq_restore(flags);
+ 	put_cpu();
+@@ -845,16 +855,17 @@ again:
+ 
+ 		pcp = &zone_pcp(zone, cpu)->pcp[cold];
  		local_irq_save(flags);
- 		if (!pcp->count) {
- 			pcp->count += rmqueue_bulk(zone, 0,
--						pcp->batch, &pcp->list);
-+						pcp->batch, &pcp->list,
-+						alloctype);
+-		if (!pcp->count) {
+-			pcp->count += rmqueue_bulk(zone, 0,
+-						pcp->batch, &pcp->list,
++		if (!pcp->count[alloctype]) {
++			pcp->count[alloctype] += rmqueue_bulk(zone, 0,
++						pcp->batch,
++						&pcp->list[alloctype],
+ 						alloctype);
  			if (unlikely(!pcp->count))
  				goto failed;
  		}
-@@ -795,7 +857,7 @@ again:
- 		pcp->count--;
+-		page = list_entry(pcp->list.next, struct page, lru);
++		page = list_entry(pcp->list[alloctype].next, struct page, lru);
+ 		list_del(&page->lru);
+-		pcp->count--;
++		pcp->count[alloctype]--;
  	} else {
  		spin_lock_irqsave(&zone->lock, flags);
--		page = __rmqueue(zone, order);
-+		page = __rmqueue(zone, order, alloctype);
- 		spin_unlock(&zone->lock);
- 		if (!page)
- 			goto failed;
-@@ -1852,7 +1914,8 @@ void zone_init_free_lists(struct pglist_
- {
- 	int order;
- 	for (order = 0; order < MAX_ORDER ; order++) {
--		INIT_LIST_HEAD(&zone->free_area[order].free_list);
-+		INIT_LIST_HEAD(&zone->free_area[order].free_list[RCLM_NORCLM]);
-+		INIT_LIST_HEAD(&zone->free_area[order].free_list[RCLM_EASY]);
- 		zone->free_area[order].nr_free = 0;
+ 		page = __rmqueue(zone, order, alloctype);
+@@ -1534,7 +1545,7 @@ void show_free_areas(void)
+ 					temperature ? "cold" : "hot",
+ 					pageset->pcp[temperature].high,
+ 					pageset->pcp[temperature].batch,
+-					pageset->pcp[temperature].count);
++					pcp_count(&pageset->pcp[temperature]));
+ 		}
  	}
+ 
+@@ -1978,16 +1989,20 @@ inline void setup_pageset(struct per_cpu
+ 	memset(p, 0, sizeof(*p));
+ 
+ 	pcp = &p->pcp[0];		/* hot */
+-	pcp->count = 0;
++	pcp->count[RCLM_NORCLM] = 0;
++	pcp->count[RCLM_EASY] = 0;
+ 	pcp->high = 6 * batch;
+ 	pcp->batch = max(1UL, 1 * batch);
+-	INIT_LIST_HEAD(&pcp->list);
++	INIT_LIST_HEAD(&pcp->list[RCLM_NORCLM]);
++	INIT_LIST_HEAD(&pcp->list[RCLM_EASY]);
+ 
+ 	pcp = &p->pcp[1];		/* cold*/
+-	pcp->count = 0;
++	pcp->count[RCLM_NORCLM] = 0;
++	pcp->count[RCLM_EASY] = 0;
+ 	pcp->high = 2 * batch;
+ 	pcp->batch = max(1UL, batch/2);
+-	INIT_LIST_HEAD(&pcp->list);
++	INIT_LIST_HEAD(&pcp->list[RCLM_NORCLM]);
++	INIT_LIST_HEAD(&pcp->list[RCLM_EASY]);
  }
+ 
+ /*
+@@ -2403,7 +2418,7 @@ static int zoneinfo_show(struct seq_file
+ 					   "\n              high:  %i"
+ 					   "\n              batch: %i",
+ 					   i, j,
+-					   pageset->pcp[j].count,
++					   pcp_count(&pageset->pcp[j]),
+ 					   pageset->pcp[j].high,
+ 					   pageset->pcp[j].batch);
+ 			}

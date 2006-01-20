@@ -1,85 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422735AbWATCRe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422736AbWATCRj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422735AbWATCRe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jan 2006 21:17:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161404AbWATCRe
+	id S1422736AbWATCRj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jan 2006 21:17:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422737AbWATCRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jan 2006 21:17:34 -0500
-Received: from ms-smtp-05-smtplb.tampabay.rr.com ([65.32.5.135]:31624 "EHLO
-	ms-smtp-05.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id S1161176AbWATCRd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jan 2006 21:17:33 -0500
-Message-ID: <43D04828.8010107@cfl.rr.com>
-Date: Thu, 19 Jan 2006 21:17:12 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051010)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Neil Brown <neilb@suse.de>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       "Lincoln Dale (ltd)" <ltd@cisco.com>, Michael Tokarev <mjt@tls.msk.ru>,
-       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Subject: Re: [PATCH 000 of 5] md: Introduction
-References: <26A66BC731DAB741837AF6B2E29C1017D47EA0@xmb-hkg-413.apac.cisco.com> <Pine.LNX.4.61.0601181427090.19392@yvahk01.tjqt.qr> <17358.52476.290687.858954@cse.unsw.edu.au> <43D00FFA.1040401@cfl.rr.com> <17360.5011.975665.371008@cse.unsw.edu.au> <43D02033.4070008@cfl.rr.com> <17360.9233.215291.380922@cse.unsw.edu.au>
-In-Reply-To: <17360.9233.215291.380922@cse.unsw.edu.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 19 Jan 2006 21:17:39 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:9093 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1422736AbWATCRh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jan 2006 21:17:37 -0500
+Date: Fri, 20 Jan 2006 13:17:04 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: dwmw2@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: - add-pselect-ppoll-system-call-implementation-tidy.patch
+ removed from -mm tree
+Message-Id: <20060120131704.51995386.sfr@canb.auug.org.au>
+In-Reply-To: <20060118.223629.100108404.davem@davemloft.net>
+References: <200601190052.k0J0qmKC009977@shell0.pdx.osdl.net>
+	<1137648119.30084.94.camel@localhost.localdomain>
+	<20060119171708.7f856b42.sfr@canb.auug.org.au>
+	<20060118.223629.100108404.davem@davemloft.net>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__20_Jan_2006_13_17_04_+1100_OmVUNvBAGR=Ptl=0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
+--Signature=_Fri__20_Jan_2006_13_17_04_+1100_OmVUNvBAGR=Ptl=0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->Maybe the problem here is thinking of md and dm as different things.
->Try just not thinking of them at all.  
->Think about it like this:
->  The linux kernel support lvm
->  The linux kernel support multipath
->  The linux kernel support snapshots
->  The linux kernel support raid0
->  The linux kernel support raid1
->  The linux kernel support raid5
+On Wed, 18 Jan 2006 22:36:29 -0800 (PST) "David S. Miller" <davem@davemloft=
+.net> wrote:
 >
->Use the bits that you want, and not the bits that you don't.
->
->dm and md are just two different interface styles to various bits of
->this.  Neither is clearly better than the other, partly because
->different people have different tastes.
->
->Maybe what you really want is for all of these functions to be managed
->under the one umbrella application.  I think that is was EVMS tried to
->do. 
->
->  
->
+> Hmmm, what args does function X take?  Let's try this:
+>=20
+> bash$ git grep X
+>=20
+> Oops, the args went past 80 columns and was split up, so I only
+> get the first few in the grep output.
 
-I am under the impression that dm is simpler/cleaner than md.  That 
-impression very well may be wrong, but if it is simpler, then that's a 
-good thing. 
+git grep -A2 X
 
+:-)  (now I am just being silly :-))
 
->One big selling point that 'dm' has is 'dmraid' - a tool that allows
->you to use a lot of 'fakeraid' cards.  People would like dmraid to
->work with raid5 as well, and that is a good goal.
->  
->
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-AFAIK, the hardware fakeraid solutions on the market don't support raid5 
-anyhow ( at least mine doesn't ), so dmraid won't either. 
+--Signature=_Fri__20_Jan_2006_13_17_04_+1100_OmVUNvBAGR=Ptl=0
+Content-Type: application/pgp-signature
 
->However it doesn't mean that dm needs to get it's own raid5
->implementation or that md/raid5 needs to be merged with dm.
->It can be achieved by giving md/raid5 the right interfaces so that
->metadata can be managed from userspace (and I am nearly there).
->Then 'dmraid' (or a similar tool) can use 'dm' interfaces for some
->raid levels and 'md' interfaces for others.
->
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-Having two sets of interfaces and retrofiting a new interface onto a 
-system that wasn't designed for it seems likely to bloat the kernel with 
-complex code.  I don't really know if that is the case because I have 
-not studied the code, but that's the impression I get, and if it's 
-right, then I'd say it is better to stick with dm rather than retrofit 
-md.  In either case, it seems overly complex to have to deal with both. 
+iD8DBQFD0EgmFdBgD/zoJvwRAo9eAJ9TFdB+5YILXUVoUmhlS8GGGJlfdACdEtgk
+EizrHft132s91m+fCG5A+xU=
+=YUJk
+-----END PGP SIGNATURE-----
 
-
+--Signature=_Fri__20_Jan_2006_13_17_04_+1100_OmVUNvBAGR=Ptl=0--

@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbWATQcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbWATQbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751056AbWATQcF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 11:32:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWATQcF
+	id S1751046AbWATQbw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 11:31:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbWATQbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 11:32:05 -0500
-Received: from silver.veritas.com ([143.127.12.111]:50957 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1751053AbWATQcB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 11:32:01 -0500
-Date: Fri, 20 Jan 2006 16:32:00 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Nick Piggin <npiggin@suse.de>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       dougg@torque.net
-Subject: Re: [patch] sg: simplify page_count manipulations
-In-Reply-To: <20060120024702.6f894a13.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0601201623480.6415@goblin.wat.veritas.com>
-References: <20060118155242.GB28418@wotan.suse.de> <20060118195937.3586c94f.akpm@osdl.org>
- <20060119144548.GF958@wotan.suse.de> <20060119140525.223a8ebf.akpm@osdl.org>
- <20060120101815.GD1756@wotan.suse.de> <20060120024702.6f894a13.akpm@osdl.org>
+	Fri, 20 Jan 2006 11:31:52 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:32474 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751046AbWATQbv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 11:31:51 -0500
+Date: Fri, 20 Jan 2006 17:30:40 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Takashi Iwai <tiwai@suse.de>
+cc: Peter Zubaj <pzad@pobox.sk>, alsa-devel@lists.sourceforge.net,
+       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org, perex@suse.cz
+Subject: Re: [Alsa-devel] RFC: OSS driver removal, a slightly different
+ approach
+In-Reply-To: <s5hmzhr7xsr.wl%tiwai@suse.de>
+Message-ID: <Pine.LNX.4.61.0601201729370.10065@yvahk01.tjqt.qr>
+References: <20060119174600.GT19398@stusta.de> <200601191947.20748.pzad@pobox.sk>
+ <Pine.LNX.4.61.0601201524080.22940@yvahk01.tjqt.qr> <s5hmzhr7xsr.wl%tiwai@suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 20 Jan 2006 16:31:26.0321 (UTC) FILETIME=[F55EBE10:01C61DDE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jan 2006, Andrew Morton wrote:
-> Nick Piggin <npiggin@suse.de> wrote:
-> > On Thu, Jan 19, 2006 at 02:05:25PM -0800, Andrew Morton wrote:
-> > > Nick Piggin <npiggin@suse.de> wrote:
-> > > >
-> > > > On Wed, Jan 18, 2006 at 07:59:37PM -0800, Andrew Morton wrote:
-> > > > > Nick Piggin <npiggin@suse.de> wrote:
-> > > > > > -	/* N.B. correction _not_ applied to base page of each allocation */
-> > > > > > -	for (k = 0; k < rsv_schp->k_use_sg; ++k, ++sg) {
-> > > > > > -		for (m = PAGE_SIZE; m < sg->length; m += PAGE_SIZE) {
-> > > > > > -			page = sg->page;
-> > > > > > -			if (startFinish)
-> > > > > > -				get_page(page);
-> > > > > > -			else {
-> > > > > > -				if (page_count(page) > 0)
-> > > > > > -					__put_page(page);
-> > > > > > -			}
-> > > > > > -		}
-> > > > > > -	}
-> > > > > > -}
-> > > > > 
-> > > > > What on earth is the above trying to do?  The inner loop is a rather
-> > > > > complex way of doing atomic_add(&page->count, sg->length/PAGE_SIZE).  One
-> > > > > suspects there's a missing "[m]" in there.
-> > > > > 
-> > > > 
-> > > > It does this on the first mmap of the device, in the hope that subsequent
-> > > > nopage, unmaps would not free the constituent pages in the scatterlist.
-> > > > 
-> > > 
-> > > But it's doing it wrongly, isn't it?  Or am I completely nuts?
-> > 
-> > No I think you're right. I'm not sure why this doesn't oops but I
-> > thought it was the (main) reason others wanted to get rid of this
-> > convoluted code earlier on. I see nobody else is planning to do anything
-> > about it though, so I figure I must have missed the reason why it isn't
-> > a problem.
-> > 
-> > But either way I don't think the code actually _does_ anything, even if
-> > its bugginess doesn't actually lead to a bug.
-> > 
-> 
-> I suspect nobody tried to munmap pages beyond the first one.
-> 
-> Yes, let's use a compound page in there and I expect Doug will be able to
-> test it for us sometime.
+>> >If I understand alsa - oss emulation correctly, I think, this will be not 
+>> >fixed soon (my opinion - never). This is too much work for too little gain.
+>> 
+>> On that way, I'd like to inquiry something:
+>> I have a card that works with the snd-cs46xx module.
+>> With the OSS emulation (/dev/dsp), I can only output 2 channels, and the 
+>> other two must be sent to /dev/adsp. Is this intended? Would not it be 
+>> easier to make /dev/dsp allow receiving an ioctl setting 4 channels?
+>
+>This is exactly like the case of emu10k1.  The chip supports only
+>2-channel stereo streams.  If you need a 4-channel interleaved stream,
+>you have to merge the data in two individual streams to a single
+>4-channel stream on software.  Currently, this isn't handled in ALSA
+>kernel-space OSS emulation.
 
-That function did move page along in 2.6.15, but has got screwed up since:
-good reason, I think, to speed Nick's patch through to clean it all away.
+Ah, so http://alphagate.hopto.org/quad_dsp/ which I had created
+is The Right Thing?
 
-Hugh
+
+Jan Engelhardt
+-- 

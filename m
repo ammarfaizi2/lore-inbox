@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbWATRLq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWATRME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750910AbWATRLq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 12:11:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750930AbWATRLq
+	id S1750966AbWATRME (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 12:12:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750939AbWATRME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 12:11:46 -0500
-Received: from uproxy.gmail.com ([66.249.92.201]:580 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750901AbWATRLp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 12:11:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=JtLRWD21AeaiMQskHUooW8s3O46qMXzb441lXq1m8lcnTJ1PjQRNQj2sCicMx9cB0SXoxxkmb5VUsd2zT/qBEps1ihh5AamcHRU+IgNRjJrDPiVrB/WbBlv0EXwD7JoenPw+hSVFFuF5BsTjNTBiYvOwMbbX6UTQ6S0z6xlnxTg=
-Date: Fri, 20 Jan 2006 18:11:24 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Michael Loftis <mloftis@wgops.com>
-Cc: James@superbug.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE?
-Message-Id: <20060120181124.847b44bc.diegocg@gmail.com>
-In-Reply-To: <6769FDC09295B7E6078A5089@d216-220-25-20.dynip.modwest.com>
-References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
-	<43D10FF8.8090805@superbug.co.uk>
-	<6769FDC09295B7E6078A5089@d216-220-25-20.dynip.modwest.com>
-X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Fri, 20 Jan 2006 12:12:04 -0500
+Received: from ns2.lanforge.com ([66.165.47.211]:222 "EHLO ns2.lanforge.com")
+	by vger.kernel.org with ESMTP id S1750930AbWATRL7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 12:11:59 -0500
+Message-ID: <43D119CF.9040805@candelatech.com>
+Date: Fri, 20 Jan 2006 09:11:43 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Peter Staubach <staubach@redhat.com>
+CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Can you specify a local IP or Interface to be used on a per NFS
+ mount basis?
+References: <43CECB00.40405@candelatech.com>	 <1137631728.13076.1.camel@lade.trondhjem.org>	 <43CEF7A6.30802@candelatech.com>	 <1137641084.8864.3.camel@lade.trondhjem.org>	 <43CF0768.60703@candelatech.com> <1137644698.8864.8.camel@lade.trondhjem.org> <43D06687.2050108@candelatech.com> <43D0EB32.5050909@redhat.com>
+In-Reply-To: <43D0EB32.5050909@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Fri, 20 Jan 2006 09:36:35 -0700,
-Michael Loftis <mloftis@wgops.com> escribió:
+Peter Staubach wrote:
 
+> These changes are very IPv4 specific.  Perhaps they could be constructed 
+> in a
+> bit more IP version agnostic fashion?  IPv6 is coming as well as other 
+> transport
+> choices, not all of whose addresses will fit into 32 bits.
 
-> That's the nail on the head exactly.  Why is this being done in an even 
-> numbered kernel?  This represents an API change that has knock on well 
-> outside of the kernel, and should be done in development releases.  Why is 
-> it LK is the only major project (that I know of) that does this?  This is 
-> akin to apache changing the format of httpd.conf and saying in say 1.3.38 
-> and saying 'well we made the userland tools too.'
+Sure..it'd be best to pass in a generic structure that can hold
+ipv4 or v6 address and port.  But, I have no setup to test ipv6,
+don't need to specify the port, and this patch can't go in anyway
+because Trond doesn't want to change the binary structure....
 
-There's a Documentation/feature-removal-schedule.txt file. Is not that devfs
-and other features were removed suddenly from one day to another. If external
-developers don't care about maintaining code in (say) a 6 month timeframe
-kernel developers can't do nothing. External developers are encouraged to
-merge their code in the main tree anyway.
+If we go to a text base API, could just pass it in as "IP:port"
+and let the kernel parsing logic decide if it's IPv4, v6 or something
+else...  Of course, it sure is nice to leave all the parsing logic
+in user-space, but then you're back to a binary API...
 
-It's strange that you mention the devfs case. People wanted to remove 
-devfs one or maybe two years ago, and Linus and/or akpm decided to kept
-it to give people time to migrate. 
+Thanks,
+Ben
 
-Please see the archives to understand why the people who maintains the
-kernel and gets their ass kicked when a stable released has a bug decided 
-to set up this development model.
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+

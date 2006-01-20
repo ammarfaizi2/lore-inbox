@@ -1,83 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWATUWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWATUXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbWATUWr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 15:22:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbWATUWr
+	id S932171AbWATUXm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 15:23:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbWATUXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 15:22:47 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:1723 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932164AbWATUWq (ORCPT
+	Fri, 20 Jan 2006 15:23:42 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:50384 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932166AbWATUXl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 15:22:46 -0500
-Message-ID: <43D14695.3000102@watson.ibm.com>
-Date: Fri, 20 Jan 2006 15:22:45 -0500
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Serge E. Hallyn" <serue@us.ibm.com>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
-       "Alan Cox <alan@lxorguk.ukuu.org.uk> Dave Hansen" 
-	<haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
+	Fri, 20 Jan 2006 15:23:41 -0500
+Date: Fri, 20 Jan 2006 14:23:39 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
        Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Serge Hallyn <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Hubertus Franke <frankeh@watson.ibm.com>,
        Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: RFC: Multiple instances of kernel namespaces.
-References: <43CD18FF.4070006@FreeBSD.org> <1137517698.8091.29.camel@localhost.localdomain> <43CD32F0.9010506@FreeBSD.org> <1137521557.5526.18.camel@localhost.localdomain> <1137522550.14135.76.camel@localhost.localdomain> <1137610912.24321.50.camel@localhost.localdomain> <1137612537.3005.116.camel@laptopd505.fenrus.org> <1137613088.24321.60.camel@localhost.localdomain> <1137624867.1760.1.camel@localhost.localdomain> <m1bqy6oevn.fsf_-_@ebiederm.dsl.xmission.com> <20060120201353.GA13265@sergelap.austin.ibm.com>
-In-Reply-To: <20060120201353.GA13265@sergelap.austin.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: RFC [patch 00/34] PID Virtualization Overview
+Message-ID: <20060120202339.GB13265@sergelap.austin.ibm.com>
+References: <1137517698.8091.29.camel@localhost.localdomain> <43CD32F0.9010506@FreeBSD.org> <1137521557.5526.18.camel@localhost.localdomain> <1137522550.14135.76.camel@localhost.localdomain> <1137610912.24321.50.camel@localhost.localdomain> <1137612537.3005.116.camel@laptopd505.fenrus.org> <1137613088.24321.60.camel@localhost.localdomain> <1137624867.1760.1.camel@localhost.localdomain> <1137654906.2993.10.camel@laptopd505.fenrus.org> <m1k6cvo555.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1k6cvo555.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge E. Hallyn wrote:
-> Quoting Eric W. Biederman (ebiederm@xmission.com):
+Quoting Eric W. Biederman (ebiederm@xmission.com):
+> Arjan van de Ven <arjan@infradead.org> writes:
 > 
->>At this point I have to confess I have been working on something
->>similar, to IBM's pid virtualization work.  But I have what is at
->>least for me a unifying concept, that makes things easier to think
->>about.
->>
->>The idea is to think about things in terms of namespaces.  Currently
->>in the kernel we have the fs/mount namespace already implemented.
->>
->>Partly this helps on what the interface for creating a new namespace
->>instance should be.  'clone(CLONE_NEW<NAMESPACE_TYPE>)', and how
->>it should be managed from the kernel data structures.
->>
->>Partly thinking of things as namespaces helps me scope the problem.
->>
->>Does this sound like a sane approach?
+> > On Wed, 2006-01-18 at 22:54 +0000, Alan Cox wrote:
+> >> On Mer, 2006-01-18 at 11:38 -0800, Dave Hansen wrote:
+> >> > But, it seems that many drivers like to print out pids as a unique
+> >> > identifier for the task.  Should we just let them print those
+> >> > potentially non-unique identifiers, deprecate and kill them, or provide
+> >> > a replacement with something else which is truly unique?
+> >> 
+> >> Pick a format for container number + pid and document/stick with it -
+> >> something like container::pid (eg 0::114) or 114[0] whatever so long as
+> >> it is consistent
+> >
+> > having a pid_to_string(<task struct>) or maybe task_to_string() thing
+> > for convenient printing of pids/tasks.. I'm all for that. Means you can
+> > even configure how verbose you want it to be (include ->comm or not,
+> > ->state maybe etc)
 > 
-> 
-> And a bonus of this is that for security and vserver-type applications,
-> the CLONE_NEWPID and CLONE_NEWFS will often happen at the same time.
-> 
-> How do you (or do you?) address naming namespaces?  This would be
-> necessary for transitioning into an existing namespace, performing
-> actions on existing namespaces (i.e. checkpoint, migrate to another
-> machine, enter the namespace and kill pid 521), and would just be
-> useful for accounting purposes, i.e. how else do you have a
-> "ps --all-namespaces" specify a process' namespace?
-> 
-> Doubt we want to add an argument to clone(), so do we just add a new
-> proc, sysfs, or syscall for setting a pid-namespace name?
-> 
-> Do we need a new syscall for transitioning into an existing namespace?
-> 
-> thanks,
-> -serge
-> 
+> The only way I can see to sanely do this is to pass it the temporary
+> buffer it writes it's contents into.
+> Something like:
+> printk(KERN_XXX "%s\n", task_to_string(buf, tsk)); ?
 
+That's kind of neat :)
 
-Just addressed a few of this in my previous reply to the other thread.
+The only other thing I can think of is to do something like
 
-However, question here is whether the container (as we used it) provides
-the "binding" object for these clones. One question for me then is
-whether cloning of namespaces is always done in tandem.
-As you are bringing the migration up, we can only clone fully contained
-namespaces ! One could make that a condition of the migration or build
-it right into the initial structure. Any thoughts on that ?
+#define task_str(tsk) tsk->container_id, tsk->pid
+or
+#define task_str(tsk) tsk->container_id, ":", tsk->pid
 
--- Hubertus
+and have it be used as
 
+printk(KERN_XXX "%s::%s\n", task_str(tsk));
+or
+printk(KERN_XXX "%s%s%s\n", task_str(tsk));
+
+The only reason I point it out is that we don't risk memory corruption
+if the printk caller forgets to give the extra '%s's, like we do if
+the caller forgets they need char buf[PID_CONTAINER_MAXLENGTH] instead
+of 'char *buf;' or 'char buf;'.
+
+-serge

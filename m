@@ -1,182 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWATLzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWATL4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbWATLzy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 06:55:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWATLzx
+	id S1750774AbWATL4F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 06:56:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbWATL4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 06:55:53 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:28804 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1750767AbWATLzv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 06:55:51 -0500
-From: Mel Gorman <mel@csn.ul.ie>
-To: linux-mm@kvack.org
-Cc: jschopp@austin.ibm.com, Mel Gorman <mel@csn.ul.ie>,
-       linux-kernel@vger.kernel.org, kamezawa.hiroyu@jp.fujitsu.com,
-       lhms-devel@lists.sourceforge.net
-Message-Id: <20060120115435.16475.50499.sendpatchset@skynet.csn.ul.ie>
-In-Reply-To: <20060120115415.16475.8529.sendpatchset@skynet.csn.ul.ie>
-References: <20060120115415.16475.8529.sendpatchset@skynet.csn.ul.ie>
-Subject: [PATCH 1/4] Add __GFP_EASYRCLM flag and update callers
-Date: Fri, 20 Jan 2006 11:54:35 +0000 (GMT)
+	Fri, 20 Jan 2006 06:56:05 -0500
+Received: from outmx028.isp.belgacom.be ([195.238.5.49]:12254 "EHLO
+	outmx028.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S1750774AbWATL4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 06:56:03 -0500
+Date: Fri, 20 Jan 2006 12:55:43 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Kumar Gala <galak@gate.crashing.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
+Subject: Re: [PATCH] powerpc: remove useless spinlock from mpc83xx watchdog
+Message-ID: <20060120115543.GA6174@infomag.infomag.iguana.be>
+References: <Pine.LNX.4.44.0601190057130.8484-100000@gate.crashing.org> <1137664156.8471.16.camel@localhost.localdomain> <20060119164811.GB4418@dmt.cnet> <1137708739.8471.69.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1137708739.8471.69.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+All,
 
-This patch adds a flag __GFP_EASYRCLM.  Allocations using the __GFP_EASYRCLM
-flag are expected to be easily reclaimed by syncing with backing storage (be
-it a file or swap) or cleaning the buffers and discarding.
+> On Iau, 2006-01-19 at 14:48 -0200, Marcelo Tosatti wrote:
+> > On Thu, Jan 19, 2006 at 09:49:16AM +0000, Alan Cox wrote:
+> > > 
+> > > 	f = open("/dev/watchdog", O_RDWR);
+> > > 	fork();
+> > > 	while(1) {
+> > > 		write(f, "Boing", 5);
+> > > 	}
+> > 
+> > Oops.
+> > 
+> > At least 50% of the watchdog drivers rely solely on the "wdt_is_open"
+> > atomic variable and are broken with respect to synchronization.
+> 
+> What an excellent janitors project
 
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/fs/buffer.c linux-2.6.16-rc1-mm1-001_antifrag_flags/fs/buffer.c
---- linux-2.6.16-rc1-mm1-clean/fs/buffer.c	2006-01-19 11:21:58.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-001_antifrag_flags/fs/buffer.c	2006-01-19 21:49:49.000000000 +0000
-@@ -1115,7 +1115,8 @@ grow_dev_page(struct block_device *bdev,
- 	struct page *page;
- 	struct buffer_head *bh;
- 
--	page = find_or_create_page(inode->i_mapping, index, GFP_NOFS);
-+	page = find_or_create_page(inode->i_mapping, index,
-+				   GFP_NOFS|__GFP_EASYRCLM);
- 	if (!page)
- 		return NULL;
- 
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/fs/compat.c linux-2.6.16-rc1-mm1-001_antifrag_flags/fs/compat.c
---- linux-2.6.16-rc1-mm1-clean/fs/compat.c	2006-01-19 11:21:58.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-001_antifrag_flags/fs/compat.c	2006-01-19 21:49:49.000000000 +0000
-@@ -1397,7 +1397,7 @@ static int compat_copy_strings(int argc,
- 			page = bprm->page[i];
- 			new = 0;
- 			if (!page) {
--				page = alloc_page(GFP_HIGHUSER);
-+				page = alloc_page(GFP_HIGHUSER|__GFP_EASYRCLM);
- 				bprm->page[i] = page;
- 				if (!page) {
- 					ret = -ENOMEM;
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/fs/exec.c linux-2.6.16-rc1-mm1-001_antifrag_flags/fs/exec.c
---- linux-2.6.16-rc1-mm1-clean/fs/exec.c	2006-01-19 11:21:58.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-001_antifrag_flags/fs/exec.c	2006-01-19 21:49:49.000000000 +0000
-@@ -238,7 +238,7 @@ static int copy_strings(int argc, char _
- 			page = bprm->page[i];
- 			new = 0;
- 			if (!page) {
--				page = alloc_page(GFP_HIGHUSER);
-+				page = alloc_page(GFP_HIGHUSER|__GFP_EASYRCLM);
- 				bprm->page[i] = page;
- 				if (!page) {
- 					ret = -ENOMEM;
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/fs/inode.c linux-2.6.16-rc1-mm1-001_antifrag_flags/fs/inode.c
---- linux-2.6.16-rc1-mm1-clean/fs/inode.c	2006-01-19 11:21:58.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-001_antifrag_flags/fs/inode.c	2006-01-19 21:49:49.000000000 +0000
-@@ -147,7 +147,7 @@ static struct inode *alloc_inode(struct 
- 		mapping->a_ops = &empty_aops;
-  		mapping->host = inode;
- 		mapping->flags = 0;
--		mapping_set_gfp_mask(mapping, GFP_HIGHUSER);
-+		mapping_set_gfp_mask(mapping, GFP_HIGHUSER|__GFP_EASYRCLM);
- 		mapping->assoc_mapping = NULL;
- 		mapping->backing_dev_info = &default_backing_dev_info;
- 
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/include/asm-i386/page.h linux-2.6.16-rc1-mm1-001_antifrag_flags/include/asm-i386/page.h
---- linux-2.6.16-rc1-mm1-clean/include/asm-i386/page.h	2006-01-19 11:21:59.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-001_antifrag_flags/include/asm-i386/page.h	2006-01-19 21:49:49.000000000 +0000
-@@ -36,7 +36,8 @@
- #define clear_user_page(page, vaddr, pg)	clear_page(page)
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
- 
--#define alloc_zeroed_user_highpage(vma, vaddr) alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO, vma, vaddr)
-+#define alloc_zeroed_user_highpage(vma, vaddr) \
-+	alloc_page_vma(GFP_HIGHUSER | __GFP_ZERO | __GFP_EASYRCLM, vma, vaddr)
- #define __HAVE_ARCH_ALLOC_ZEROED_USER_HIGHPAGE
- 
- /*
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/include/linux/gfp.h linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/gfp.h
---- linux-2.6.16-rc1-mm1-clean/include/linux/gfp.h	2006-01-17 07:44:47.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/gfp.h	2006-01-19 21:49:49.000000000 +0000
-@@ -47,6 +47,7 @@ struct vm_area_struct;
- #define __GFP_ZERO	((__force gfp_t)0x8000u)/* Return zeroed page on success */
- #define __GFP_NOMEMALLOC ((__force gfp_t)0x10000u) /* Don't use emergency reserves */
- #define __GFP_HARDWALL   ((__force gfp_t)0x20000u) /* Enforce hardwall cpuset memory allocs */
-+#define __GFP_EASYRCLM   ((__force gfp_t)0x40000u) /* Easily reclaimed page */
- 
- #define __GFP_BITS_SHIFT 20	/* Room for 20 __GFP_FOO bits */
- #define __GFP_BITS_MASK ((__force gfp_t)((1 << __GFP_BITS_SHIFT) - 1))
-@@ -55,7 +56,7 @@ struct vm_area_struct;
- #define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
- 			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
- 			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP| \
--			__GFP_NOMEMALLOC|__GFP_HARDWALL)
-+			__GFP_NOMEMALLOC|__GFP_HARDWALL|__GFP_EASYRCLM)
- 
- /* GFP_ATOMIC means both !wait (__GFP_WAIT not set) and use emergency pool */
- #define GFP_ATOMIC	(__GFP_HIGH)
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/include/linux/highmem.h linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/highmem.h
---- linux-2.6.16-rc1-mm1-clean/include/linux/highmem.h	2006-01-17 07:44:47.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/highmem.h	2006-01-19 21:49:49.000000000 +0000
-@@ -47,7 +47,8 @@ static inline void clear_user_highpage(s
- static inline struct page *
- alloc_zeroed_user_highpage(struct vm_area_struct *vma, unsigned long vaddr)
- {
--	struct page *page = alloc_page_vma(GFP_HIGHUSER, vma, vaddr);
-+	struct page *page = alloc_page_vma(GFP_HIGHUSER|__GFP_EASYRCLM,
-+							vma, vaddr);
- 
- 	if (page)
- 		clear_user_highpage(page, vaddr);
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/mm/memory.c linux-2.6.16-rc1-mm1-001_antifrag_flags/mm/memory.c
---- linux-2.6.16-rc1-mm1-clean/mm/memory.c	2006-01-19 11:21:59.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-001_antifrag_flags/mm/memory.c	2006-01-19 21:50:24.000000000 +0000
-@@ -1472,7 +1472,8 @@ gotten:
- 		if (!new_page)
- 			goto oom;
- 	} else {
--		new_page = alloc_page_vma(GFP_HIGHUSER, vma, address);
-+		new_page = alloc_page_vma(GFP_HIGHUSER|__GFP_EASYRCLM,
-+							vma, address);
- 		if (!new_page)
- 			goto oom;
- 		cow_user_page(new_page, old_page, address);
-@@ -2071,7 +2072,8 @@ retry:
- 
- 		if (unlikely(anon_vma_prepare(vma)))
- 			goto oom;
--		page = alloc_page_vma(GFP_HIGHUSER, vma, address);
-+		page = alloc_page_vma(GFP_HIGHUSER|__GFP_EASYRCLM,
-+						vma, address);
- 		if (!page)
- 			goto oom;
- 		copy_user_highpage(page, new_page, address);
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/mm/shmem.c linux-2.6.16-rc1-mm1-001_antifrag_flags/mm/shmem.c
---- linux-2.6.16-rc1-mm1-clean/mm/shmem.c	2006-01-19 11:21:59.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-001_antifrag_flags/mm/shmem.c	2006-01-19 21:49:49.000000000 +0000
-@@ -921,7 +921,7 @@ shmem_alloc_page(gfp_t gfp, struct shmem
- 	pvma.vm_policy = mpol_shared_policy_lookup(&info->policy, idx);
- 	pvma.vm_pgoff = idx;
- 	pvma.vm_end = PAGE_SIZE;
--	page = alloc_page_vma(gfp | __GFP_ZERO, &pvma, 0);
-+	page = alloc_page_vma(gfp | __GFP_ZERO | __GFP_EASYRCLM, &pvma, 0);
- 	mpol_free(pvma.vm_policy);
- 	return page;
- }
-@@ -936,7 +936,7 @@ shmem_swapin(struct shmem_inode_info *in
- static inline struct page *
- shmem_alloc_page(gfp_t gfp,struct shmem_inode_info *info, unsigned long idx)
- {
--	return alloc_page(gfp | __GFP_ZERO);
-+	return alloc_page(gfp | __GFP_ZERO | __GFP_EASYRCLM);
- }
- #endif
- 
-diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-clean/mm/swap_state.c linux-2.6.16-rc1-mm1-001_antifrag_flags/mm/swap_state.c
---- linux-2.6.16-rc1-mm1-clean/mm/swap_state.c	2006-01-19 11:21:59.000000000 +0000
-+++ linux-2.6.16-rc1-mm1-001_antifrag_flags/mm/swap_state.c	2006-01-19 21:49:49.000000000 +0000
-@@ -334,7 +334,8 @@ struct page *read_swap_cache_async(swp_e
- 		 * Get a new page to read into from swap.
- 		 */
- 		if (!new_page) {
--			new_page = alloc_page_vma(GFP_HIGHUSER, vma, addr);
-+			new_page = alloc_page_vma(GFP_HIGHUSER|__GFP_EASYRCLM,
-+							vma, addr);
- 			if (!new_page)
- 				break;		/* Out of memory */
- 		}
+I'll have a look at it from a global point of view.
+
+Greetings,
+Wim.
+

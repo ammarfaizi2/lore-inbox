@@ -1,65 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWATIXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWATIZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWATIXk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 03:23:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWATIXk
+	id S1750729AbWATIZw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 03:25:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWATIZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 03:23:40 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:41126 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750716AbWATIXj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 03:23:39 -0500
-Date: Fri, 20 Jan 2006 00:23:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: davej@redhat.com, AChittenden@bluearc.com, linux-kernel@vger.kernel.org,
-       lwoodman@redhat.com
-Subject: Re: Out of Memory: Killed process 16498 (java).
-Message-Id: <20060120002307.76bcbc27.akpm@osdl.org>
-In-Reply-To: <20060120081231.GE4213@suse.de>
-References: <89E85E0168AD994693B574C80EDB9C270355601F@uk-email.terastack.bluearc.com>
-	<20060119194836.GM21663@redhat.com>
-	<20060119141515.5f779b8d.akpm@osdl.org>
-	<20060120081231.GE4213@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 20 Jan 2006 03:25:52 -0500
+Received: from smtprelay01.ispgateway.de ([80.67.18.13]:35245 "EHLO
+	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
+	id S1750729AbWATIZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 03:25:51 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: [SARCASM] Re: [2.6 patch] the scheduled removal of the obsolete raw driver
+Date: Fri, 20 Jan 2006 09:24:50 +0100
+User-Agent: KMail/1.7.2
+Cc: Adrian Bunk <bunk@stusta.de>, Badari Pulavarty <pbadari@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+References: <20060119030251.GG19398@stusta.de> <1137689071.4966.190.camel@dyn9047017102.beaverton.ibm.com> <20060119165832.GS19398@stusta.de>
+In-Reply-To: <20060119165832.GS19398@stusta.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1736195.naqfpKYS10";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200601200924.56608.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
->
-> On Thu, Jan 19 2006, Andrew Morton wrote:
-> > Dave Jones <davej@redhat.com> wrote:
-> > >
-> > > On Thu, Jan 19, 2006 at 03:11:45PM -0000, Andy Chittenden wrote:
-> > >  > DMA free:20kB min:24kB low:28kB high:36kB active:0kB inactive:0kB
-> > >  > present:12740kB pages_scanned:4 all_unreclaimable? yes
-> > > 
-> > > Note we only scanned 4 pages before we gave up.
-> > > Larry Woodman came up with this patch below that clears all_unreclaimable
-> > > when in two places where we've made progress at freeing up some pages
-> > > which has helped oom situations for some of our users.
-> > 
-> > That won't help - there are exactly zero pages on ZONE_DMA's LRU.
-> > 
-> > The problem appears to be that all of the DMA zone has been gobbled up by
-> > the BIO layer.  It seems quite inappropriate that a modern 64-bit machine
-> > is allocating tons of disk I/O pages from the teeny ZONE_DMA.  I'm
-> > suspecting that someone has gone and set a queue's ->bounce_gfp to the wrong
-> > thing.
-> > 
-> > Jens, would you have time to investigate please?
-> 
-> Certainly, I'll get this tested and fixed this afternoon.
+--nextPart1736195.naqfpKYS10
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Wow ;)
+On Thursday 19 January 2006 17:58, Adrian Bunk wrote:
+> On Thu, Jan 19, 2006 at 08:44:31AM -0800, Badari Pulavarty wrote:
+> >...
+> > But again, its really useful to have raw driver to do simple "dd" tests
+> > to test raw performance for disks (for comparing with filesystems, block
+> > devices etc..). Without that, we need to add option to "dd" for
+> > O_DIRECT.
+>=20
+> The oflag=3Ddirect option was added to GNU coreutils in version 5.3.0.
 
-You may find it's an x86_64 glitch - setting max_[low_]pfn wrong down in
-the bowels of the arch mm init code, something like that.
+And Debian Sarge is still at 5.2.1.=20
+(Not to obsolete iproute and ipsec-tools versions)
 
-I thought it might have been a regression which came in when we added
-ZONE_DMA32 but the RH reporter is based on 2.6.14-<redhat stuff>, and he
-didn't have ZONE_DMA32.
+Ok, Debian Sarge is scheduled for removal from my
+system.
 
+What:   Debian Sarge
+When:   2006-02-04
+=46iles:  ssh root@bertha -c "find /bin /sbin /usr /lib"
+       =20
+Why:    Its maintained to slow for a number of years
+        and can be replaced by Kubuntu or Ubuntu.
+	Having a recent kernel (with more bugs fixed)
+	and trying to use it, becomes harder and harder.
+
+Who:    $FROM
+
+
+--nextPart1736195.naqfpKYS10
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBD0J5YU56oYWuOrkARAs/2AJ9hOEXJy+FhmWYPC4JwJv2O+AvO2wCdE1nO
+K8oK9EmxOrbruMyjxzNh40M=
+=smt4
+-----END PGP SIGNATURE-----
+
+--nextPart1736195.naqfpKYS10--

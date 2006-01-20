@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWATTWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWATTXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751178AbWATTWF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 14:22:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWATTWF
+	id S1751156AbWATTXK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 14:23:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbWATTXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 14:22:05 -0500
-Received: from free.wgops.com ([69.51.116.66]:6927 "EHLO shell.wgops.com")
-	by vger.kernel.org with ESMTP id S1751178AbWATTWD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 14:22:03 -0500
-Date: Fri, 20 Jan 2006 12:21:40 -0700
-From: Michael Loftis <mloftis@wgops.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: dtor_core@ameritech.net, James Courtier-Dutton <James@superbug.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE?
-Message-ID: <E27F809F04C1C673D283E84F@d216-220-25-20.dynip.modwest.com>
-In-Reply-To: <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu>
-References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
- <43D10FF8.8090805@superbug.co.uk>
- <6769FDC09295B7E6078A5089@d216-220-25-20.dynip.modwest.com>
- <d120d5000601200850w611e8af8v41a0786b7dc973d9@mail.gmail.com>           
- <30D11C032F1FC0FE9CA1CDFD@d216-220-25-20.dynip.modwest.com>
- <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu>
-X-Mailer: Mulberry/4.0.4 (Mac OS X)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jan 2006 14:23:09 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:11241
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1750807AbWATTXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 14:23:08 -0500
+Date: Fri, 20 Jan 2006 11:23:08 -0800
+From: Greg KH <greg@kroah.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [GIT PATCH] PCI patches for 2.6.16-rc1
+Message-ID: <20060120192307.GA7831@kroah.com>
+References: <20060120190400.GA12894@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-MailScanner-Information: Please contact support@wgops.com
-X-MailScanner: WGOPS clean
-X-MailScanner-From: mloftis@wgops.com
+In-Reply-To: <20060120190400.GA12894@kroah.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 20, 2006 at 11:04:00AM -0800, Greg KH wrote:
+> Here are some small PCI patches against your latest git tree.  They have
+> all been in the -mm tree for a while with no problems.
+> 
+> They do the following:
+> 	- document some feature-removal things for the future
+> 	- add support for amd pci hotplug devices to the shpchp driver.
+> 	- fix bugs and update the ppc64 rpaphp pci hotplug driver.
+> 	- add some new and remove some duplicate pci ids.
+> 	- make it more obvious that some msi functions are really being
+> 	  used.
+> 
+> Please pull from:
+> 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+> or if master.kernel.org hasn't synced up yet:
+> 	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+> 
+> The full patches will be sent to the linux-pci mailing list, if anyone
+> wants to see them.
 
+Oops, also sent them to the linux-kernel mailing list too, sorry about
+that.
 
---On January 20, 2006 2:03:52 PM -0500 Valdis.Kletnieks@vt.edu wrote:
-
-> But you're perfectly happy to make the kernel developers do the
-> equivalent thing when they have to maintain 2 forks (a stable and devel).
-> Go back and look at the status of the 2.5 tree - there were *large*
-> chunks of time when 2.4 or 2.5 would get an important bugfix, but the
-> other tree wouldn't get it for *weeks* because of the hassle of
-> cross-porting the patch.
-
-To more fully respond though....
-
-Weeks is fine, and better than never.  And there may be cases in which the 
-decision has to be made to 'abandon' a particular stable release in favor 
-of a newer version because of the difficulty or inability to backport fixes.
-
-I think that it's fine to push the maintenance effort away from the 
-mainline developers, probably even desireable, but then the bugfixing/etc 
-tends to happen in a disparate manner, off on lots of forks at different 
-places without them making their way back to some central place.
-
-And that seems where we're going with this conversation.  A fork/forks at 
-various versions to maintain bugfixes and support updates that's (more?) 
-open to submitters writing patches.  Maintained by a separate group or 
-party, but with the 'blessing' from mainline to do so.  A place for those 
-sorts of efforts to be focused, without necessarily involving the primary 
-developers.
-
-
+/me hits his patchbomb script with a big stick...

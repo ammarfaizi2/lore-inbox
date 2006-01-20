@@ -1,169 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030406AbWATGqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161250AbWATGtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030406AbWATGqV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 01:46:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030450AbWATGqV
+	id S1161250AbWATGtz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 01:49:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161253AbWATGty
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 01:46:21 -0500
-Received: from rwcrmhc13.comcast.net ([216.148.227.153]:64953 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1030406AbWATGqV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 01:46:21 -0500
-Message-ID: <43D0873C.7010300@namesys.com>
-Date: Thu, 19 Jan 2006 22:46:20 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 20 Jan 2006 01:49:54 -0500
+Received: from mail.suse.de ([195.135.220.2]:7566 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161250AbWATGty (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 01:49:54 -0500
+From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-CC: LKML <linux-kernel@vger.kernel.org>, vitaly@thebsh.namesys.com
-Subject: [PATCH] someone broke reiserfs V3 mount options, this fixes it
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------040609040507040604010202"
+Date: Fri, 20 Jan 2006 17:49:36 +1100
+Message-Id: <1060120064936.9440@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Cc: Andreas Gruenbacher <agruen@suse.de>
+Subject: [PATCH] knfsd: Restore recently broken ACL functionality to NFS server
+References: <20060120174858.9422.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040609040507040604010202
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-questions to vitaly.....
+From: Andreas Gruenbacher <agruen@suse.de>
 
---------------040609040507040604010202
-Content-Type: message/rfc822;
- name="Re: reiserfs tails and disk space"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Re: reiserfs tails and disk space"
+A recent patch to 
+   Allow run-time selection of NFS versions to export  
 
-Return-Path: <vitaly@namesys.com>
-Delivered-To: reiser@namesys.com
-Received: (qmail 16334 invoked by uid 85); 18 Jan 2006 18:37:24 -0000
-Received: from vitaly@namesys.com by thebsh.namesys.com by uid 82 with qmail-scanner-1.15 
- (spamassassin: 2.43-cvs.  Clear:SA:0(0.0/2.0 tests=none autolearn=no version=2.60):. 
- Processed in 1.108234 secs); 18 Jan 2006 18:37:24 -0000
-Received: from relay.wplus.net (195.131.52.142)
-  by thebsh.namesys.com with SMTP; 18 Jan 2006 18:37:23 -0000
-Received: from ip64.124.adsl.wplus.ru (ip64.124.adsl.wplus.ru [195.131.124.64])
-	by relay.wplus.net (8.13.1/8.13.1/RELAY-DVD) with ESMTP id k0IIb4vJ057303;
-	Wed, 18 Jan 2006 21:37:08 +0300 (MSK)
-From: Vitaly Fertman <vitaly@namesys.com>
-To: Bruce Guenter <lists-reiserfs-list@bruce-guenter.dyndns.org>
-Subject: Re: reiserfs tails and disk space
-Date: Wed, 18 Jan 2006 21:34:49 +0300
-User-Agent: KMail/1.7.1
-Cc: Hans Reiser <reiser@namesys.com>, reiserfs-list@namesys.com
-References: <20060117181548.GB11010@untroubled.org> <43CD3E45.6080304@namesys.com>
-In-Reply-To: <43CD3E45.6080304@namesys.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_JpozD1gHRiJ8MHw"
-Message-Id: <200601182134.49888.vitaly@namesys.com>
-X-Spam-Checker-Version: SpamAssassin 2.60 (1.212-2003-09-23-exp) on 
-	thebsh.namesys.com
-X-Spam-DCC: : 
-X-Spam-Status: No, hits=0.0 required=2.0 tests=none autolearn=no version=2.60
+meant that NO nfsacl service versions were exported.
+This patch restored that functionality.
 
---Boundary-00=_JpozD1gHRiJ8MHw
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-On Tuesday 17 January 2006 21:58, Hans Reiser wrote:
-> The result is not expected, Vitaly please look into it.
-> 
-> Hans
-> 
-> Bruce Guenter wrote:
-> 
-> >Hi.
-> >
-> >I've been running a few tests with reiserfs and tails, and have been
-> >unable to create a setup where the use (or lack) of tails results in a
-> >significant difference in the amount of disk space used.
+### Diffstat output
+ ./fs/nfsd/nfssvc.c |   76 ++++++++++++++++++++++++++++++++++-------------------
+ 1 file changed, 49 insertions(+), 27 deletions(-)
 
-thank you for the report, the attached patch should fix 
-the broken mount options. please try it.
-
-> >Here's what I've done:
-> >
-> >1. Create a fresh 1GB filesystem (in a file on loopback), using reiserfs
-> >with no options.
-> >
-> >2. Mount the filesystem with either no options, "notail", "tails=off",
-> >"tails=on", or "tails=small".
-> >
-> >3. Unpack a sources tarball onto the filesystem, consisting of two fully
-> >compiled versions of the linux kernel.  The tarball contains 47996 files
-> >and 3321 directories totalling about 660MB of space.
-> >
-> >4. Measure the free disk space using df.
-> >
-> >5. Use dd to fill up the free disk space and count how many 1kB blocks
-> >it could write.
-> >
-> >In all of the tests, the result was within 12kB of each other.  In fact,
-> >the tests with "notail" or "tails=off" options had more usable disk
-> >space than when using tails.
-> >
-> >Results:
-> >
-> >Options    1K-blocks    Used Available
-> >default      1023964  645988  377976
-> >notail       1023964  645988  377976
-> >tails=off    1023964  645996  377968
-> >tails=on     1023964  646000  377964
-> >tails=small  1023964  645996  377968
-> >
-> >default      377600+0 records out
-> >notail       377600+0 records out
-> >tails=off    377592+0 records out
-> >tails=on     377588+0 records out
-> >tails=small  377592+0 records out
-> >
-> >I've put the log files and scripts up for review at
-> >	http://untroubled.org/reiserfsdf/
-> >I'm using Gentoo Linux, kernel 2.6.14-gentoo-r5
-> >
-> >Am I missing something, is this an expected result, or is something
-> >broken?
-> >
-> >Thanks.
-> >  
-> >
-> 
-> 
-> 
-
--- 
-Vitaly
-
---Boundary-00=_JpozD1gHRiJ8MHw
-Content-Type: text/x-diff;
-  charset="koi8-r";
-  name="linux-2.6.14-reiserfs-mount-options-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="linux-2.6.14-reiserfs-mount-options-fix.patch"
-
---- linux-2.6.15-rc5-mm3-clean/fs/reiserfs/super.c	2005-12-21 23:57:54.000000000 +0300
-+++ linux-2.6.15-rc5-mm3/fs/reiserfs/super.c	2006-01-18 21:28:25.206460792 +0300
-@@ -1131,7 +1131,7 @@
- 			REISERFS_SB(s)->s_mount_opt &= ~(1 << REISERFS_ATTRS);
- 		}
- 	} else if (le32_to_cpu(rs->s_flags) & reiserfs_attrs_cleared) {
--		REISERFS_SB(s)->s_mount_opt |= REISERFS_ATTRS;
-+		REISERFS_SB(s)->s_mount_opt |= (1 << REISERFS_ATTRS);
- 	}
- }
+diff ./fs/nfsd/nfssvc.c~current~ ./fs/nfsd/nfssvc.c
+--- ./fs/nfsd/nfssvc.c~current~	2006-01-20 17:41:12.000000000 +1100
++++ ./fs/nfsd/nfssvc.c	2006-01-20 17:46:24.000000000 +1100
+@@ -64,6 +64,32 @@ struct nfsd_list {
+ };
+ static struct list_head nfsd_list = LIST_HEAD_INIT(nfsd_list);
  
-
---Boundary-00=_JpozD1gHRiJ8MHw--
-
-
-
---------------040609040507040604010202--
++#if defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL)
++static struct svc_stat	nfsd_acl_svcstats;
++static struct svc_version *	nfsd_acl_version[] = {
++	[2] = &nfsd_acl_version2,
++	[3] = &nfsd_acl_version3,
++};
++
++#define NFSD_ACL_MINVERS            2
++#define NFSD_ACL_NRVERS		(sizeof(nfsd_acl_version)/sizeof(nfsd_acl_version[0]))
++static struct svc_version *nfsd_acl_versions[NFSD_ACL_NRVERS];
++
++static struct svc_program	nfsd_acl_program = {
++	.pg_prog		= NFS_ACL_PROGRAM,
++	.pg_nvers		= NFSD_ACL_NRVERS,
++	.pg_vers		= nfsd_acl_versions,
++	.pg_name		= "nfsd",
++	.pg_class		= "nfsd",
++	.pg_stats		= &nfsd_acl_svcstats,
++	.pg_authenticate	= &svc_set_client,
++};
++
++static struct svc_stat	nfsd_acl_svcstats = {
++	.program	= &nfsd_acl_program,
++};
++#endif /* defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL) */
++
+ static struct svc_version *	nfsd_version[] = {
+ 	[2] = &nfsd_version2,
+ #if defined(CONFIG_NFSD_V3)
+@@ -79,6 +105,9 @@ static struct svc_version *	nfsd_version
+ static struct svc_version *nfsd_versions[NFSD_NRVERS];
+ 
+ struct svc_program		nfsd_program = {
++#if defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL)
++	.pg_next		= &nfsd_acl_program,
++#endif
+ 	.pg_prog		= NFS_PROGRAM,		/* program number */
+ 	.pg_nvers		= NFSD_NRVERS,		/* nr of entries in nfsd_version */
+ 	.pg_vers		= nfsd_versions,	/* version table */
+@@ -147,6 +176,26 @@ nfsd_svc(unsigned short port, int nrserv
+ 				nfsd_program.pg_vers[i] = nfsd_version[i];
+ 		}
+ 
++
++#if defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL)
++		found_one = 0;
++
++		for (i = NFSD_ACL_MINVERS; i < NFSD_ACL_NRVERS; i++) {
++			if (NFSCTL_VERISSET(nfsd_versbits, i)) {
++				nfsd_acl_program.pg_vers[i] =
++					nfsd_acl_version[i];
++				found_one = 1;
++			} else
++				nfsd_acl_program.pg_vers[i] = NULL;
++		}
++
++		if (!found_one) {
++			for (i = NFSD_ACL_MINVERS; i < NFSD_ACL_NRVERS; i++)
++				nfsd_acl_program.pg_vers[i] =
++					nfsd_acl_version[i];
++		}
++#endif
++
+ 		atomic_set(&nfsd_busy, 0);
+ 		error = -ENOMEM;
+ 		nfsd_serv = svc_create(&nfsd_program, NFSD_BUFSIZE);
+@@ -411,30 +460,3 @@ nfsd_dispatch(struct svc_rqst *rqstp, u3
+ 	nfsd_cache_update(rqstp, proc->pc_cachetype, statp + 1);
+ 	return 1;
+ }
+-
+-#if defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL)
+-static struct svc_stat	nfsd_acl_svcstats;
+-static struct svc_version *	nfsd_acl_version[] = {
+-	[2] = &nfsd_acl_version2,
+-	[3] = &nfsd_acl_version3,
+-};
+-
+-#define NFSD_ACL_NRVERS		(sizeof(nfsd_acl_version)/sizeof(nfsd_acl_version[0]))
+-static struct svc_program	nfsd_acl_program = {
+-	.pg_prog		= NFS_ACL_PROGRAM,
+-	.pg_nvers		= NFSD_ACL_NRVERS,
+-	.pg_vers		= nfsd_acl_version,
+-	.pg_name		= "nfsd",
+-	.pg_class		= "nfsd",
+-	.pg_stats		= &nfsd_acl_svcstats,
+-	.pg_authenticate	= &svc_set_client,
+-};
+-
+-static struct svc_stat	nfsd_acl_svcstats = {
+-	.program	= &nfsd_acl_program,
+-};
+-
+-#define nfsd_acl_program_p	&nfsd_acl_program
+-#else
+-#define nfsd_acl_program_p	NULL
+-#endif /* defined(CONFIG_NFSD_V2_ACL) || defined(CONFIG_NFSD_V3_ACL) */

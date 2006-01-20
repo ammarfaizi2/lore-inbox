@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWATUll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWATUnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbWATUll (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 15:41:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWATUll
+	id S932176AbWATUnp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 15:43:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWATUnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 15:41:41 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:42257 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932113AbWATUlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 15:41:40 -0500
-Date: Fri, 20 Jan 2006 21:41:40 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Greg KH <greg@kroah.com>
-Cc: thomas@winischhofer.net, gregkh@suse.de,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/usb/misc/sisusbvga/: possible cleanups
-Message-ID: <20060120204140.GB31803@stusta.de>
-References: <20060119011854.GV19398@stusta.de> <20060120011132.GA28981@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060120011132.GA28981@kroah.com>
-User-Agent: Mutt/1.5.11
+	Fri, 20 Jan 2006 15:43:45 -0500
+Received: from smtpout.mac.com ([17.250.248.71]:46572 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932176AbWATUnp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 15:43:45 -0500
+In-Reply-To: <0B1B67D811A178FB3BE70C96@d216-220-25-20.dynip.modwest.com>
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com> <20060120155919.GA5873@stiffy.osknowledge.org> <B6DE6A4FC14860A23FE95FF3@d216-220-25-20.dynip.modwest.com> <20060120163551.GC5873@stiffy.osknowledge.org> <0B1B67D811A178FB3BE70C96@d216-220-25-20.dynip.modwest.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <07159468-E454-426D-AA8C-7A1CE1E2B22E@mac.com>
+Cc: Marc Koschewski <marc@osknowledge.org>, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Development tree, PLEASE?
+Date: Fri, 20 Jan 2006 15:43:33 -0500
+To: Michael Loftis <mloftis@wgops.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 05:11:32PM -0800, Greg KH wrote:
-> On Thu, Jan 19, 2006 at 02:18:54AM +0100, Adrian Bunk wrote:
-> > This patch contains the following possible cleanups:
-> > - make needlessly global functions static
-> > - function and struct declarations belong into header files
-> > - make SiS_VCLKData const
-> > - #if 0 the following unused global functions:
-> >   - sisusb.c: sisusb_writew()
-> >   - sisusb.c: sisusb_readw()
-> >   - sisusb_init.c: SiSUSB_GetModeID()
-> > 
-> > 
-> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> For some reason, this doesn't apply.  Care to rediff it?
+On Jan 20, 2006, at 12:06, Michael Loftis wrote:
+> --On January 20, 2006 5:35:51 PM +0100 Marc Koschewski  
+> <marc@osknowledge.org> wrote:
+>> Moreover, as far as I remember... my devfsd -> udev transsition  
+>> went as smooth as a reboot.
+>
+> The one machine I've got running 2.6+devfs under debian chokes in  
+> initrd with an inability to find devfs during boot so I had to go  
+> back to static /dev entries for it since atleast in sarge right now  
+> I'm not seeing a quick-and-easy way to get devfs like support  
+> bundled via mkinitrd, but I haven't looked, and I shouldn't have to.
 
-My patch was made against -mm which contains 
-convert-the-semaphores-in-the-sisusb-driver-to-mutexes.patch.
+Guess what, you _don't_ have to.  I have no less than 4 different 2.6  
+debian boxes here, all booting the fully modular stock Debian kernels  
+from software RAID on SATA or PATA (depends on the box).  Not only  
+that, but I can shut down and rearrange those drives to different IDE/ 
+SATA ports, then boot and it all still works with consistent /dev  
+names (With the exception that I have to bump yaboot into booting  
+from a different OpenFirmware path).  If you've customized and  
+hardcoded a lot of the boot scripts, I can understand why things  
+might be breaking, but the default initrds that the Debian tools  
+generate work just fine for me.
 
-Should I rediff or should I wait until you've merged this patch?
+Cheers,
+Kyle Moffett
 
-> thanks,
-> 
-> greg k-h
+--
+There is no way to make Linux robust with unreliable memory  
+subsystems, sorry.  It would be like trying to make a human more  
+robust with an unreliable O2 supply. Memory just has to work.
+   -- Andi Kleen
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

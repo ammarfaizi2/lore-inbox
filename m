@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWATXLG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWATXOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751181AbWATXLG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 18:11:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWATXLG
+	id S1751182AbWATXOV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 18:14:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWATXOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 18:11:06 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:15288 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751181AbWATXLF (ORCPT
+	Fri, 20 Jan 2006 18:14:21 -0500
+Received: from uproxy.gmail.com ([66.249.92.204]:56899 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751182AbWATXOU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 18:11:05 -0500
-Date: Fri, 20 Jan 2006 15:10:30 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Guennadi Liakhovetski <gl@dsa-ac.de>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       marcelo.tosatti@cyclades.com, zaitcev@redhat.com
-Subject: Re: [PATCH 2.4.32] usb-uhci.c failing "-"
-Message-Id: <20060120151030.433abdf6.zaitcev@redhat.com>
-In-Reply-To: <Pine.LNX.4.63.0601200928480.1049@pcgl.dsa-ac.de>
-References: <Pine.LNX.4.63.0601200928480.1049@pcgl.dsa-ac.de>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
+	Fri, 20 Jan 2006 18:14:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=CVlGBQ7EWVZlLSFN1+GD5f/0/nRyXUxWdUDKHq6L/fQ1RMEGMAbgmdnNb5+dX3fWWsGHD8qwLDJZ1sIaq0v+SxaRsPvw1ApkDxqP2DdnJD2ngXis5iKq5sHD1oQic4fDFCcIxj4iAPmuy4yCZUEjd5jzLv3dKFRavsqNCPEg5pY=
+Date: Sat, 21 Jan 2006 02:31:18 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linuxsh-shmedia-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH] arch/sh64/kernel/time.c: add module.h
+Message-ID: <20060120233118.GB3511@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jan 2006 09:33:26 +0100 (CET), Guennadi Liakhovetski <gl@dsa-ac.de> wrote:
+It uses EXPORT_SYMBOL.
 
-> Looks like a bug?
+arch/sh64/kernel/time.c:254: warning: type defaults to `int' in declaration of `EXPORT_SYMBOL'
+arch/sh64/kernel/time.c:254: warning: parameter names (without types) in function declaration
+arch/sh64/kernel/time.c:254: warning: data definition has no type or storage class
 
-> --- a/drivers/usb/host/usb-uhci.c	Fri Jan 20 09:27:50 2006
-> +++ b/drivers/usb/host/usb-uhci.c	Fri Jan 20 09:28:05 2006
-> @@ -2505,7 +2505,7 @@
->   			((urb_priv_t*)urb->hcpriv)->flags=0;
->   		}
-> 
-> -		if ((urb->status != -ECONNABORTED) && (urb->status != ECONNRESET) &&
-> +		if ((urb->status != -ECONNABORTED) && (urb->status != -ECONNRESET) &&
->   			    (urb->status != -ENOENT)) {
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-This is not what the author intended, obviously. But I am not quite sure
-what happens because of it. Seems like we unlink some things which are
-about to return anyway... and then return -104 instead of -84. This
-may be relatively harmless. At worst, the driver resubmits and gets
-its -84 that way.
+ arch/sh64/kernel/time.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-I vote to apply this and see what happens. We are early in 2.4.33 cycle,
-so it should be safe.
+--- a/arch/sh64/kernel/time.c
++++ b/arch/sh64/kernel/time.c
+@@ -29,6 +29,7 @@
+ #include <linux/init.h>
+ #include <linux/profile.h>
+ #include <linux/smp.h>
++#include <linux/module.h>
+ 
+ #include <asm/registers.h>	 /* required by inline __asm__ stmt. */
+ 
 
--- Pete

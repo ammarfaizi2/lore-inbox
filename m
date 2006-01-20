@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWATR3e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWATRby@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbWATR3e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 12:29:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWATR3d
+	id S1751110AbWATRby (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 12:31:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWATRby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 12:29:33 -0500
-Received: from jose.lug.udel.edu ([128.175.60.112]:55245 "EHLO
-	jose.lug.udel.edu") by vger.kernel.org with ESMTP id S1750993AbWATR3d
+	Fri, 20 Jan 2006 12:31:54 -0500
+Received: from uproxy.gmail.com ([66.249.92.207]:49348 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751108AbWATRbx convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 12:29:33 -0500
-Date: Fri, 20 Jan 2006 12:29:32 -0500
-To: Neil Brown <neilb@suse.de>
-Cc: Phillip Susi <psusi@cfl.rr.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       "Lincoln Dale (ltd)" <ltd@cisco.com>, Michael Tokarev <mjt@tls.msk.ru>,
-       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Subject: Re: [PATCH 000 of 5] md: Introduction
-Message-ID: <20060120172932.GC27141@lug.udel.edu>
-References: <26A66BC731DAB741837AF6B2E29C1017D47EA0@xmb-hkg-413.apac.cisco.com> <Pine.LNX.4.61.0601181427090.19392@yvahk01.tjqt.qr> <17358.52476.290687.858954@cse.unsw.edu.au> <43D00FFA.1040401@cfl.rr.com> <17360.5011.975665.371008@cse.unsw.edu.au> <43D02033.4070008@cfl.rr.com> <17360.9233.215291.380922@cse.unsw.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17360.9233.215291.380922@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.11
-From: ross@jose.lug.udel.edu (Ross Vandegrift)
+	Fri, 20 Jan 2006 12:31:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=MVFf2TBa+qI7srJw3ckjGhnAWFkIci3MMdUWHd+DClmyjYys3lMQP3SaW0YWLW9FyfmlmXp/ZPH902PGrYfZ9F9uSQoAp6Cvi53azWQoBQZIemGKWI12QwKKQFDo3U8EVXM8Ge8/uQKvKrwi0hXBwLyPGhi3WhtLk7XHWE0H7ek=
+Date: Fri, 20 Jan 2006 18:31:31 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Michael Loftis <mloftis@wgops.com>
+Cc: marc@osknowledge.org, linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE?
+Message-Id: <20060120183131.848bfb2a.diegocg@gmail.com>
+In-Reply-To: <0B1B67D811A178FB3BE70C96@d216-220-25-20.dynip.modwest.com>
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
+	<20060120155919.GA5873@stiffy.osknowledge.org>
+	<B6DE6A4FC14860A23FE95FF3@d216-220-25-20.dynip.modwest.com>
+	<20060120163551.GC5873@stiffy.osknowledge.org>
+	<0B1B67D811A178FB3BE70C96@d216-220-25-20.dynip.modwest.com>
+X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 20, 2006 at 10:43:13AM +1100, Neil Brown wrote:
-> dm and md are just two different interface styles to various bits of
-> this.  Neither is clearly better than the other, partly because
-> different people have different tastes.
+El Fri, 20 Jan 2006 10:06:50 -0700,
+Michael Loftis <mloftis@wgops.com> escribió:
 
-Here's why it's great to have both: they have different toolkits.  I'm
-really familiar with md's toolkit.  I can do most anything I need.
-But I'll bet that I've never gotten a pvmove to finish sucessfully
-because I am doing something wrong and I don't know it.
+> The one machine I've got running 2.6+devfs under debian chokes in initrd 
+> with an inability to find devfs during boot so I had to go back to static 
+> /dev entries for it since atleast in sarge right now I'm not seeing a 
 
-Becuase we're talking about data integrity, the toolkit issue alone
-makes it worth keeping both code paths.  md does 90% of what I need,
-so why should I spend the time to learn a new system that doesn't
-offer any advantages?
+Were you using a debian-provided kernel? 
 
-[1] I'm intentionally neglecting the 4k stack issue
+> quick-and-easy way to get devfs like support bundled via mkinitrd, but I 
+> haven't looked, and I shouldn't have to.  It shouldn't have gone away in a 
 
--- 
-Ross Vandegrift
-ross@lug.udel.edu
+Have you updated other packages in your system? If you update the kernel, 
+you should update the rest of the kernel-related userspace tools (mkinitrd 
+is hardly "yet another userspace application"). Debian default kernel
+is 2.4 and only provides a 2.6.8-based kernel (2.6.8 was released in august
+2004, 17 months ago) as an alternative, and the debian guys put this
+in the release notes:
 
-"The good Christian should beware of mathematicians, and all those who
-make empty prophecies. The danger already exists that the mathematicians
-have made a covenant with the devil to darken the spirit and to confine
-man in the bonds of Hell."
-	--St. Augustine, De Genesi ad Litteram, Book II, xviii, 37
+http://www.debian.org/releases/stable/i386/release-notes/ch-information.en.html#s-upgrade-to-2.6
+
+"[...] Upgrading to a 2.6 kernel from an earlier version is therefore
+not a process to be undertaken lightly" and "5.2.4 Switching to 2.6 may
+activate udev"

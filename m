@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWAUAsx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWAUAuH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbWAUAsx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 19:48:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWAUAsw
+	id S932082AbWAUAuH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 19:50:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWAUAuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 19:48:52 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23059 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932268AbWAUAsu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 19:48:50 -0500
-Date: Sat, 21 Jan 2006 01:48:48 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] schedule SHAPER for removal
-Message-ID: <20060121004848.GM31803@stusta.de>
-References: <20060119021150.GC19398@stusta.de> <20060119215722.GO16285@kvack.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060119215722.GO16285@kvack.org>
-User-Agent: Mutt/1.5.11
+	Fri, 20 Jan 2006 19:50:06 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:60044 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932221AbWAUAuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 19:50:05 -0500
+Subject: Re: [PATCH] driver core: remove unneeded klist methods
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg KH <greg@kroah.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.0601201043540.4788-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0601201043540.4788-100000@iolanthe.rowland.org>
+Content-Type: text/plain
+Date: Fri, 20 Jan 2006 13:19:47 -0600
+Message-Id: <1137784787.3442.7.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2006 at 04:57:22PM -0500, Benjamin LaHaise wrote:
-> On Thu, Jan 19, 2006 at 03:11:50AM +0100, Adrian Bunk wrote:
-> > +What:   Traffic Shaper (CONFIG_SHAPER)
-> > +When:   July 2006
-> > +Why:    obsoleted by the code in net/sched/
-> > +Who:    Adrian Bunk <bunk@stusta.de
+On Fri, 2006-01-20 at 11:39 -0500, Alan Stern wrote:
+> This patch (as641) removes unneeded klist methods from the driver core and
+> changes a klist_del call to klist_remove in device_del.
 > 
-> This length of obsolete cycles is way too short -- it's not even enough 
-> time for a single release of a distro to ship with the feature marked as 
-> obsolete.
+> The _get and _put methods have no effect, because the klist nodes are
+> deleted by calling klist_remove, which waits until they are unreferenced
+> by any klist iterators.  Furthermore, the _puts cause problems because
+> they occur while the iterator is holding a spinlock.
 
-Do we really have to wait the three years between stable Debian releases 
-for removing an obsolete driver that has always been marked as 
-EXPERIMENTAL?
+Could you just elaborate on the actual problem that you're trying to
+solve here?
 
-Please be serious.
+Iterators of volatile lists are ipso facto just "best guess", so moving
+the location of the iterator piece is OK.  However, your assumption that
+only the routine called by the iterator is always going to do the final
+put on the object is fundamentally flawed.  The list is volatile because
+references to the object are being acquired and released all the time.
+Additionally, the list nodes are embedded in the object, so by removing
+the object get and put calls, you remove the ability for the object
+refcounting to see the fact that the list is using the object.  This
+will lead to the situation where the object could be freed while the
+iterator is acting on it.  You cannot remove the object get/put calls
+from the klist references otherwise the list refcounting will be totally
+divorced from the object refcounting.
 
-> 		-ben
+James
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

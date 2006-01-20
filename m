@@ -1,55 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWATRME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWATRNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750966AbWATRME (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 12:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750939AbWATRME
+	id S1751101AbWATRNU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 12:13:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWATRNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 12:12:04 -0500
-Received: from ns2.lanforge.com ([66.165.47.211]:222 "EHLO ns2.lanforge.com")
-	by vger.kernel.org with ESMTP id S1750930AbWATRL7 (ORCPT
+	Fri, 20 Jan 2006 12:13:20 -0500
+Received: from [80.251.174.142] ([80.251.174.142]:39082 "EHLO FAP-MSP.emfa.pt")
+	by vger.kernel.org with ESMTP id S1751101AbWATRNT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 12:11:59 -0500
-Message-ID: <43D119CF.9040805@candelatech.com>
-Date: Fri, 20 Jan 2006 09:11:43 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Peter Staubach <staubach@redhat.com>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Can you specify a local IP or Interface to be used on a per NFS
- mount basis?
-References: <43CECB00.40405@candelatech.com>	 <1137631728.13076.1.camel@lade.trondhjem.org>	 <43CEF7A6.30802@candelatech.com>	 <1137641084.8864.3.camel@lade.trondhjem.org>	 <43CF0768.60703@candelatech.com> <1137644698.8864.8.camel@lade.trondhjem.org> <43D06687.2050108@candelatech.com> <43D0EB32.5050909@redhat.com>
-In-Reply-To: <43D0EB32.5050909@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jan 2006 12:13:19 -0500
+Subject: Re: Iptables error [Was: 2.6.16-rc1-mm2]
+From: Carlos Silva <r3pek@r3pek.homelinux.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Benoit Boissinot <bboissin@gmail.com>,
+       Harald Welte <laforge@netfilter.org>, Jiri Slaby <xslaby@fi.muni.cz>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "David S.Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.64.0601201148220.3672@evo.osdl.org>
+References: <20060120031555.7b6d65b7.akpm@osdl.org>
+	 <20060120162317.5F70722B383@anxur.fi.muni.cz>
+	 <20060120163619.GK4603@sunbeam.de.gnumonks.org>
+	 <40f323d00601200843m32e8f5cbv5733209ce82b8a13@mail.gmail.com>
+	 <Pine.LNX.4.64.0601201148220.3672@evo.osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-W+IrRiaASK2/CQMwf1r0"
+Date: Fri, 20 Jan 2006 17:11:28 +0000
+Message-Id: <1137777088.24723.33.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
+X-FAP-MailScanner-Information: Please contact the ISP for more information
+X-FAP-MailScanner: Found to be clean
+X-FAP-MailScanner-MCPCheck: MCP-Clean, MCP-Checker (score=0, required 4)
+X-FAP-MailScanner-SpamCheck: not spam, SpamAssassin (score=0, required 4,
+	autolearn=not spam)
+X-FAP-MailScanner-From: r3pek@r3pek.homelinux.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Staubach wrote:
 
-> These changes are very IPv4 specific.  Perhaps they could be constructed 
-> in a
-> bit more IP version agnostic fashion?  IPv6 is coming as well as other 
-> transport
-> choices, not all of whose addresses will fit into 32 bits.
+--=-W+IrRiaASK2/CQMwf1r0
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Sure..it'd be best to pass in a generic structure that can hold
-ipv4 or v6 address and port.  But, I have no setup to test ipv6,
-don't need to specify the port, and this patch can't go in anyway
-because Trond doesn't want to change the binary structure....
+On Fri, 2006-01-20 at 11:49 -0500, Linus Torvalds wrote:
+>=20
+> On Fri, 20 Jan 2006, Benoit Boissinot wrote:
+> >=20
+> > On x86 (32bits), i have the same i think:
+>=20
+> Interestingly, __alignof__(unsigned long long) is 8 these days, even=20
+> though I think historically on x86 it was 4. Is this perhaps different in=
+=20
+> gcc-3 and gcc-4?
+>=20
+> Or do I just remember wrong?
+>=20
 
-If we go to a text base API, could just pass it in as "IP:port"
-and let the kernel parsing logic decide if it's IPv4, v6 or something
-else...  Of course, it sure is nice to leave all the parsing logic
-in user-space, but then you're back to a binary API...
+I don't know what __alignof__ does but afaik, unsigned long long has
+been 8 bytes at least since gcc 3.3.X. I don't know the size of it in
+4.X.X.
 
-Thanks,
-Ben
+--=-W+IrRiaASK2/CQMwf1r0
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2-ecc0.1.6 (GNU/Linux)
+
+iD8DBQBD0RnAttk+BQds59QRAjWVAKCJYO8R+h7j5QHwMfHBgJj9v2t+bgCfVHhu
+mB/e9doHitoX7v+cn0o08TY=
+=Wqir
+-----END PGP SIGNATURE-----
+
+--=-W+IrRiaASK2/CQMwf1r0--
 

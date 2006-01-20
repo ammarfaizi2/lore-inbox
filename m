@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWATTne@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWATTp0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWATTne (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 14:43:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWATTnd
+	id S932111AbWATTp0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 14:45:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWATTp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 14:43:33 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:63946
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932090AbWATTnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 14:43:33 -0500
-Date: Fri, 20 Jan 2006 11:43:31 -0800
-From: Greg KH <greg@kroah.com>
-To: Michael Loftis <mloftis@wgops.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Marc Koschewski <marc@osknowledge.org>, linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE?
-Message-ID: <20060120194331.GA8704@kroah.com>
-References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com> <20060120155919.GA5873@stiffy.osknowledge.org> <B6DE6A4FC14860A23FE95FF3@d216-220-25-20.dynip.modwest.com> <Pine.LNX.4.61.0601201738570.10065@yvahk01.tjqt.qr> <5F952B75937998C1721ACBA8@d216-220-25-20.dynip.modwest.com>
+	Fri, 20 Jan 2006 14:45:26 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:11432 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932111AbWATTpZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 14:45:25 -0500
+Subject: Re: GPL V3 and Linux
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Patrick McLean <pmclean@cs.ubishops.ca>
+Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <43D13B2A.6020504@cs.ubishops.ca>
+References: <43D114A8.4030900@wolfmountaingroup.com>
+	 <20060120111103.2ee5b531@dxpl.pdx.osdl.net>
+	 <43D13B2A.6020504@cs.ubishops.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 20 Jan 2006 19:45:10 +0000
+Message-Id: <1137786311.24161.48.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5F952B75937998C1721ACBA8@d216-220-25-20.dynip.modwest.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 20, 2006 at 10:14:15AM -0700, Michael Loftis wrote:
-> The problem here is I'm spending a lot of my time lately fixing things that 
-> shouldn't need fixing.  Things that are/were developed against what was 
-> supposed to be a stable major version and has been turned into a 
-> development version.
+On Gwe, 2006-01-20 at 14:34 -0500, Patrick McLean wrote:
+> I don't think the kernel is going to move to v3, it's licensed 
+> specifically as v2, this is from the top of COPYING:
 
-What specifically are you "fixing"?
+It may well do, or bits of it may well do but it is rather early to
+speculate.
 
-What version are you finding things that work, and then later, not work?
+>  >  Also note that the only valid version of the GPL as far as the kernel
+>  >  is concerned is _this_ particular version of the license (ie v2, not
+>  >  v2.2 or v3.x or whatever), unless explicitly otherwise stated.
+> 
+> Also, given that several of the copyright holders in the kernel are 
+> dead, I don't think we will be able to obtain permission.
 
-Are you properly looking at the required version of things in the README
-file?
+It isn't clear that this will be a problem. Very few people specifically
+put their code v2 only, and Linus edit of the top copying file was not
+done with permission of other copyright holders anyway so really only
+affects his code if it is valid at all.
 
-Again, specifics please, otherwise nothing can have a chance of getting
-better.
+What finally happens is going to depend almost entirely on whether the
+GPL v3 is a sane license or not and on consensus, and it is *way* too
+early to figure that out.
 
-thanks,
-
-greg k-h

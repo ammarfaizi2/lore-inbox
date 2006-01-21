@@ -1,64 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWAUBZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWAUB22@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbWAUBZK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 20:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbWAUBZK
+	id S932381AbWAUB22 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 20:28:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWAUB22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 20:25:10 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:16781 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932377AbWAUBZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 20:25:09 -0500
-Date: Fri, 20 Jan 2006 20:26:40 -0500
-From: Latchesar Ionkov <lucho@ionkov.net>
+	Fri, 20 Jan 2006 20:28:28 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:48869 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S932381AbWAUB21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 20:28:27 -0500
+Date: Fri, 20 Jan 2006 17:27:09 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: v9fs-developer@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] v9fs: symlink support fixes
-Message-ID: <20060121012640.GA2084@ionkov.net>
+Cc: linux-kernel@vger.kernel.org, matthew.e.tolentino@intel.com, ak@suse.de,
+       shai@scalex86.org
+Subject: Re: [bug] __meminit breaks cpu hotplug
+Message-ID: <20060121012709.GC3573@localhost.localdomain>
+References: <20060121004023.GB3573@localhost.localdomain> <20060120165521.3c71542b.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060120165521.3c71542b.akpm@osdl.org>
 User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-two symlink fixes, v9fs_readlink didn't copy the last character of the
-symlink name, v9fs_vfs_follow_link incorrectly called strlen of newly
-allocated buffer instead of PATH_MAX.
+On Fri, Jan 20, 2006 at 04:55:21PM -0800, Andrew Morton wrote:
+> Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+> > -#define __meminitdata __initdata
+> > -#define __memexit __exit
+> > -#define __memexitdata	__exitdata
+> > +#define __meminit	__cpuinit
+> > +#define __meminitdata __cpuinitdata
+> > +#define __memexit __cpuexit
+> > +#define __memexitdata	__cpuexitdata
+> 
+> This looks wrong.  The __meminit and __cpuinit definitions we have now are
+> OK, aren't they?  Surely the problem is that some functions/variables are
+> incorrectly tagged?
 
-Signed-off-by: Latchesar Ionkov <lucho@ionkov.net>
+I hit the bug on pageset_cpuup_callback, which is obviously __cpuinit, but
+has been marked __meminit.  Yeah .. bad patch duh! 
 
----
-commit 80543589e5ab35e0fda3e97f93108f136eb4e623
-tree 78150d708f7d815a3aa64967741f1aa9df60be9f
-parent 3ee68c4af3fd7228c1be63254b9f884614f9ebb2
-author Latchesar Ionkov <lucho@ionkov.net> Fri, 20 Jan 2006 20:20:38 -0500
-committer Latchesar Ionkov <lucho@ionkov.net> Fri, 20 Jan 2006 20:20:38 -0500
+For some reason I thought all other functions marked with __meminit looked 
+like __cpuinit candidates....while just pageset_cpuup_callback should be
+changed to __cpuinit 
 
- fs/9p/vfs_inode.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/9p/vfs_inode.c b/fs/9p/vfs_inode.c
-index 91f5524..63e5b03 100644
---- a/fs/9p/vfs_inode.c
-+++ b/fs/9p/vfs_inode.c
-@@ -886,8 +886,8 @@ static int v9fs_readlink(struct dentry *
+Index: linux-2.6.16-rc1/mm/page_alloc.c
+===================================================================
+--- linux-2.6.16-rc1.orig/mm/page_alloc.c	2006-01-17 14:12:17.000000000 -0800
++++ linux-2.6.16-rc1/mm/page_alloc.c	2006-01-20 17:21:03.000000000 -0800
+@@ -1923,7 +1923,7 @@ static inline void free_zone_pagesets(in
  	}
+ }
  
- 	/* copy extension buffer into buffer */
--	if (fcall->params.rstat.stat.extension.len < buflen)
--		buflen = fcall->params.rstat.stat.extension.len;
-+	if (fcall->params.rstat.stat.extension.len+1 < buflen)
-+		buflen = fcall->params.rstat.stat.extension.len + 1;
- 
- 	memcpy(buffer, fcall->params.rstat.stat.extension.str, buflen - 1);
- 	buffer[buflen-1] = 0;
-@@ -951,7 +951,7 @@ static void *v9fs_vfs_follow_link(struct
- 	if (!link)
- 		link = ERR_PTR(-ENOMEM);
- 	else {
--		len = v9fs_readlink(dentry, link, strlen(link));
-+		len = v9fs_readlink(dentry, link, PATH_MAX);
- 
- 		if (len < 0) {
- 			__putname(link);
+-static int __meminit pageset_cpuup_callback(struct notifier_block *nfb,
++static int __cpuinit pageset_cpuup_callback(struct notifier_block *nfb,
+ 		unsigned long action,
+ 		void *hcpu)
+ {

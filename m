@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWAUHs0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbWAUHxD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbWAUHs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 02:48:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWAUHs0
+	id S1751119AbWAUHxD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 02:53:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWAUHxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 02:48:26 -0500
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:37842 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751109AbWAUHsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 02:48:25 -0500
-Date: Sat, 21 Jan 2006 02:43:25 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: set_bit() is broken on i386?
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, mingo@redhat.com, ak@suse.de,
-       linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no,
-       Andreas Schwab <schwab@suse.de>
-Message-ID: <200601210245_MC3-1-B656-5DCD@compuserve.com>
-MIME-Version: 1.0
+	Sat, 21 Jan 2006 02:53:03 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:51333 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751124AbWAUHxC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 02:53:02 -0500
+Date: Fri, 20 Jan 2006 23:52:40 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Don Dupuis <dondster@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: Can't mlock hugetlb in 2.6.15
+Message-Id: <20060120235240.39d34279.akpm@osdl.org>
+In-Reply-To: <632b79000601181149o67f1c013jfecc5e32ee17fe7e@mail.gmail.com>
+References: <632b79000601181149o67f1c013jfecc5e32ee17fe7e@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060120183857.188ef516.akpm@osdl.org>
+Don Dupuis <dondster@gmail.com> wrote:
+>
+> I have an app that mlocks hugepages. The same app works just fine in 2.6.14.
+> This app has 128MB or more of shared memory that is using hugepages via
+> mmap. When I try this, I get the error "can't allocate memory".  Is this a
+> kernel bug or is this not supported anymore.  I want to guarantee that
+> this memory doesn't get swapped out to a swap device.
 
-On Fri, 20 Jan 2006, Andrew Morton wrote:
+hugetlb areas are not pageable and it's very unlikely that they will become
+so in the forseeable future.  So you don't need to do this.
 
-> We need to somehow tell the compiler "this assembly statement altered
-> memory and you can't cache memory contents across it".  That's what
-> "memory" (ie: barrier()) does.  I don't think there's a way of telling gcc
-> _what_ memory was clobbered - just "all of memory".
+That being said, we shouldn't have broken your application.
 
-I think you can do that by specifying an output operand that you
-never use in your assembler code, e.g. changing this:
+I guess a suitable back-compatibility fix would be to check for a hugetlb
+vma early on and return "success" for that vma section without actually
+doing anything.
 
-|       __asm__ __volatile__( "lock ; "
-|               "btsl %1,%0"
-|               :"=m" (ADDR)
-|               :"Ir" (nr));
+But we need to understand why this happened.
 
-to this:
+> I made the same
+> modifications to include/linux/resource.h that was in 2.6.14, which
+> set MLOCK_LIMIT to 2GB.
+> 
 
-| #define LONGBITS (8 * sizeof(unsigned long))
-|
-|       __asm__ __volatile__( "lock ; "
-|               "btsl %2,%1"
-|               :"=m"(*(&ADDR + nr/LONGBITS))
-|               :"m" (ADDR), "Ir" (nr));
+That's rather naughty of you ;) You're supposed to use setrlimit() in a
+parent process for this...
 
-fixes my example program by telling the compiler what memory location
-is altered.  (Note that %0 is never used inside the asm code.)
-So iff 'nr' is a constant you can clobber specific memory locations.
--- 
-Chuck
-Currently reading: _Sun Of Suns_ by Karl Schroeder

@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbWAUCgy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWAUCjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750793AbWAUCgy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 21:36:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWAUCgy
+	id S1750797AbWAUCjh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 21:39:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWAUCjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 21:36:54 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:7926 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750793AbWAUCgy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 21:36:54 -0500
-Subject: [PATCH RT] don't let printk unconditionally turn on interrupts
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: john stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Fri, 20 Jan 2006 21:36:41 -0500
-Message-Id: <1137811001.6762.179.camel@localhost.localdomain>
+	Fri, 20 Jan 2006 21:39:37 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:12745 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750797AbWAUCjg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 21:39:36 -0500
+Date: Fri, 20 Jan 2006 18:38:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andreas Schwab <schwab@suse.de>
+Cc: trond.myklebust@fys.uio.no, 76306.1226@compuserve.com,
+       linux-kernel@vger.kernel.org, ak@suse.de, mingo@redhat.com,
+       torvalds@osdl.org
+Subject: Re: set_bit() is broken on i386?
+Message-Id: <20060120183857.188ef516.akpm@osdl.org>
+In-Reply-To: <jek6cu73jy.fsf@sykes.suse.de>
+References: <200601201955_MC3-1-B649-DCF5@compuserve.com>
+	<1137806107.8691.25.camel@lade.trondhjem.org>
+	<jek6cu73jy.fsf@sykes.suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo,
+Andreas Schwab <schwab@suse.de> wrote:
+>
+> Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+> 
+> > On Fri, 2006-01-20 at 19:53 -0500, Chuck Ebbert wrote:
+> >
+> >> #define ADDR (*(volatile long *) addr)
+> >> static inline void set_bit(int nr, volatile unsigned long * addr)
+> >> {
+> >> 	__asm__ __volatile__( "lock ; "
+> >> 		"btsl %1,%0"
+> >> 		:"=m" (ADDR)
+> >> 		:"Ir" (nr));
+> >> }
+> >
+> > The asm needs a memory clobber in order to avoid reordering with the
+> > assignment to b[1]:
+> 
+> Check out 2.6.16-rc1, this has already been fixed.
+> 
 
-My first try at booting -rt8 on my machine crashed immediately.  No nmi,
-no nothing. Just a lockup at the registration of the ACPI_PM timer.
-This would happen every time, and after struggling for a while, I
-finally found out why!
+No, that doesn't fix this testcase.
 
-The printk in timeofday_periodic_hook that is called holding the
-write_lock of system_time_lock (a raw_seq_lock) was causing lots of
-havoc.  The printk would turn on interrupts, and then I would get a
-deadlock when the interrupt would do a read on system_time_lock.
-
-So here's the patch:
-
--- Steve
-
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-
-Index: linux-2.6.15-rt8/kernel/printk.c
-===================================================================
---- linux-2.6.15-rt8.orig/kernel/printk.c	2006-01-20 14:12:07.000000000 -0500
-+++ linux-2.6.15-rt8/kernel/printk.c	2006-01-20 21:23:46.000000000 -0500
-@@ -772,7 +772,7 @@
- 		 */
- #if defined(CONFIG_PREEMPT_RT) && !defined(CONFIG_PRINTK_IGNORE_LOGLEVEL) && !defined(CONFIG_PPC) \
-     && !defined(CONFIG_PARANOID_GENERIC_TIME)
--		spin_unlock_irq(&logbuf_lock);
-+		spin_unlock_irqrestore(&logbuf_lock, flags);
- #else
- 		spin_unlock(&logbuf_lock);
- #endif
-
-
+We need to somehow tell the compiler "this assembly statement altered
+memory and you can't cache memory contents across it".  That's what
+"memory" (ie: barrier()) does.  I don't think there's a way of telling gcc
+_what_ memory was clobbered - just "all of memory".

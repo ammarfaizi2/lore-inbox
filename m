@@ -1,59 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWAUVVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbWAUVZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932317AbWAUVVk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 16:21:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbWAUVVk
+	id S932363AbWAUVZE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 16:25:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWAUVZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 16:21:40 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:34454 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932317AbWAUVVj (ORCPT
+	Sat, 21 Jan 2006 16:25:04 -0500
+Received: from smtp5-g19.free.fr ([212.27.42.35]:64682 "EHLO smtp5-g19.free.fr")
+	by vger.kernel.org with ESMTP id S932363AbWAUVZD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 16:21:39 -0500
-Date: Sat, 21 Jan 2006 13:17:18 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Dave Jones <davej@redhat.com>
-Cc: arjan@infradead.org, bunk@stusta.de, linux-kernel@vger.kernel.org,
-       pbadari@us.ibm.com, kenneth.w.chen@intel.com
-Subject: Re: [2.6 patch] the scheduled removal of the obsolete raw driver
-Message-Id: <20060121131718.1b6bbcdc.akpm@osdl.org>
-In-Reply-To: <20060121194102.GB28051@redhat.com>
-References: <20060119030251.GG19398@stusta.de>
-	<20060118194103.5c569040.akpm@osdl.org>
-	<1137833547.2978.7.camel@laptopd505.fenrus.org>
-	<20060121194102.GB28051@redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 21 Jan 2006 16:25:03 -0500
+To: philb@gnu.org, tim@cyberelk.net, campbell@torque.net, andrea@suse.de
+Cc: linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org,
+       trivial@kernel.org
+Subject: [PATCH] parport: fix documentation
+From: Arnaud Giersch <arnaud.giersch@free.fr>
+Date: Sat, 21 Jan 2006 22:24:59 +0100
+Message-ID: <87mzhpe0k4.fsf@groumpf.homeip.net>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> wrote:
->
-> On Sat, Jan 21, 2006 at 09:52:27AM +0100, Arjan van de Ven wrote:
->  > On Wed, 2006-01-18 at 19:41 -0800, Andrew Morton wrote:
->  > > Adrian Bunk <bunk@stusta.de> wrote:
->  > > >
->  > > > Let's do the scheduled removal of the obsolete raw driver in 2.6.17.
->  > > > 
->  > > 
->  > > heh.  I was just thinking that I hadn't heard from Badari and Ken in a while.
->  > > 
->  > > I doubt if this'll fly.  We're stuck with it.
->  > 
->  > One thing we can do is ask the distributions to stop shipping raw first,
->  > to see what the fallout is (and to give it as a sign that it's an
->  > obsolete interface). Then a  year or two after that....
-> 
-> It's been off in Fedora since FC4.
-> RHEL4 had it enabled after several vendors complained a lot about its
-> absense breaking an installed userbase, though they were told it would be
-> enabled with the proviso that it would go away in the future.
-> RHEL5 isn't even in beta yet, but I can already hear the voices asking
-> for it be reenabled..
-> 
+From: Arnaud Giersch <arnaud.giersch@free.fr>
 
-Thanks for trying though ;) It's good that RH is helping to push things
-along like this - the easiest path would be to turn the thing on and
-complain when anyone made noises about taking it out.
+Fix documentation to actually match the code.
 
+Signed-off-by: Arnaud Giersch <arnaud.giersch@free.fr>
+---
+
+ Documentation/parport-lowlevel.txt |    8 ++++----
+ drivers/parport/ieee1284.c         |   10 +++++-----
+ 2 files changed, 9 insertions(+), 9 deletions(-)
+
+--- linux-2.6.16-rc1.orig/Documentation/parport-lowlevel.txt	2006-01-17 08:44:47.000000000 +0100
++++ linux-2.6.16-rc1/Documentation/parport-lowlevel.txt	2006-01-21 21:39:08.501249608 +0100
+@@ -1068,7 +1068,7 @@ SYNOPSIS
+ 
+ struct parport_operations {
+ 	...
+-	void (*write_status) (struct parport *port, unsigned char s);
++	void (*write_control) (struct parport *port, unsigned char s);
+ 	...
+ };
+ 
+@@ -1097,9 +1097,9 @@ SYNOPSIS
+ 
+ struct parport_operations {
+ 	...
+-	void (*frob_control) (struct parport *port,
+-	                      unsigned char mask,
+-			      unsigned char val);
++	unsigned char (*frob_control) (struct parport *port,
++				       unsigned char mask,
++				       unsigned char val);
+ 	...
+ };
+ 
+--- linux-2.6.16-rc1.orig/drivers/parport/ieee1284.c	2006-01-17 08:44:47.000000000 +0100
++++ linux-2.6.16-rc1/drivers/parport/ieee1284.c	2006-01-21 21:39:08.504248053 +0100
+@@ -61,10 +61,10 @@ static void timeout_waiting_on_port (uns
+  *	set to zero, it returns immediately.
+  *
+  *	If an interrupt occurs before the timeout period elapses, this
+- *	function returns one immediately.  If it times out, it returns
+- *	a value greater than zero.  An error code less than zero
+- *	indicates an error (most likely a pending signal), and the
+- *	calling code should finish what it's doing as soon as it can.
++ *	function returns zero immediately.  If it times out, it returns
++ *	one.  An error code less than zero indicates an error (most
++ *	likely a pending signal), and the calling code should finish
++ *	what it's doing as soon as it can.
+  */
+ 
+ int parport_wait_event (struct parport *port, signed long timeout)
+@@ -110,7 +110,7 @@ int parport_wait_event (struct parport *
+  *
+  *	If the status lines take on the desired values before the
+  *	timeout period elapses, parport_poll_peripheral() returns zero
+- *	immediately.  A zero return value greater than zero indicates
++ *	immediately.  A return value greater than zero indicates
+  *	a timeout.  An error code (less than zero) indicates an error,
+  *	most likely a signal that arrived, and the caller should
+  *	finish what it is doing as soon as possible.

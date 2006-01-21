@@ -1,70 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbWAUB22@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbWAUBaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932381AbWAUB22 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 20:28:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWAUB22
+	id S964776AbWAUBaw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 20:30:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964828AbWAUBav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 20:28:28 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:48869 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S932381AbWAUB21 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 20:28:27 -0500
-Date: Fri, 20 Jan 2006 17:27:09 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, matthew.e.tolentino@intel.com, ak@suse.de,
-       shai@scalex86.org
-Subject: Re: [bug] __meminit breaks cpu hotplug
-Message-ID: <20060121012709.GC3573@localhost.localdomain>
-References: <20060121004023.GB3573@localhost.localdomain> <20060120165521.3c71542b.akpm@osdl.org>
+	Fri, 20 Jan 2006 20:30:51 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:30671 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964776AbWAUBau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 20:30:50 -0500
+Subject: Re: My vote against eepro* removal
+From: Lee Revell <rlrevell@joe-job.com>
+To: John Ronciak <john.ronciak@gmail.com>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, kus Kusche Klaus <kus@keba.com>,
+       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       john.ronciak@intel.com, ganesh.venkatesan@intel.com,
+       jesse.brandeburg@intel.com, netdev@vger.kernel.org,
+       Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <56a8daef0601201719t448a6177lfebabe3ca38a00c7@mail.gmail.com>
+References: <AAD6DA242BC63C488511C611BD51F367323324@MAILIT.keba.co.at>
+	 <20060120095548.GA16000@2ka.mipt.ru> <1137804050.3241.32.camel@mindpipe>
+	 <56a8daef0601201719t448a6177lfebabe3ca38a00c7@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 20 Jan 2006 20:30:48 -0500
+Message-Id: <1137807048.3241.58.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060120165521.3c71542b.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 20, 2006 at 04:55:21PM -0800, Andrew Morton wrote:
-> Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
-> > -#define __meminitdata __initdata
-> > -#define __memexit __exit
-> > -#define __memexitdata	__exitdata
-> > +#define __meminit	__cpuinit
-> > +#define __meminitdata __cpuinitdata
-> > +#define __memexit __cpuexit
-> > +#define __memexitdata	__cpuexitdata
-> 
-> This looks wrong.  The __meminit and __cpuinit definitions we have now are
-> OK, aren't they?  Surely the problem is that some functions/variables are
-> incorrectly tagged?
+On Fri, 2006-01-20 at 17:19 -0800, John Ronciak wrote:
+> On 1/20/06, Lee Revell <rlrevell@joe-job.com> wrote:
+> > Seems like the important question is, why does e100 need a watchdog if
+> > eepro100 works fine without one?  Isn't the point of a watchdog in this
+> > context to work around other bugs in the driver (or the hardware)?
+> There are a number of things that the watchdog in e100 does.  It
+> checks link (up, down), reads the hardware stats, adjusts the adaptive
+> IFS and checks to 3 known hang conditions based on certain types of
+> the hardware.  You might be able to get around without doing the
+> work-arounds (as long as you don't' see hangs happening with the
+> hardware being used) but the checking of the link and the stats are
+> probably needed.
 
-I hit the bug on pageset_cpuup_callback, which is obviously __cpuinit, but
-has been marked __meminit.  Yeah .. bad patch duh! 
+Why don't these cause excessive scheduling delays in eepro100 then?
+Can't we just copy the eepro100 behavior?
 
-For some reason I thought all other functions marked with __meminit looked 
-like __cpuinit candidates....while just pageset_cpuup_callback should be
-changed to __cpuinit 
+Lee
 
-
-Index: linux-2.6.16-rc1/mm/page_alloc.c
-===================================================================
---- linux-2.6.16-rc1.orig/mm/page_alloc.c	2006-01-17 14:12:17.000000000 -0800
-+++ linux-2.6.16-rc1/mm/page_alloc.c	2006-01-20 17:21:03.000000000 -0800
-@@ -1923,7 +1923,7 @@ static inline void free_zone_pagesets(in
- 	}
- }
- 
--static int __meminit pageset_cpuup_callback(struct notifier_block *nfb,
-+static int __cpuinit pageset_cpuup_callback(struct notifier_block *nfb,
- 		unsigned long action,
- 		void *hcpu)
- {

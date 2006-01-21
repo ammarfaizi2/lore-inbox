@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161257AbWAUEkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbWAUFVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161257AbWAUEkr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 23:40:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161264AbWAUEkr
+	id S1422636AbWAUFVu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 00:21:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161286AbWAUFVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 23:40:47 -0500
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:39288 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S1161257AbWAUEkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 23:40:46 -0500
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: "Bryan O'Sullivan" <bos@pathscale.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Greg Kroah-Hartman <greg@kroah.com>,
-       openib-general@openib.org, "David S. Miller" <davem@davemloft.net>
-Subject: Re: RFC: ipath ioctls and their replacements
-X-Message-Flag: Warning: May contain useful information
-References: <1137631411.4757.218.camel@serpentine.pathscale.com>
-	<m1y81cpqt8.fsf@ebiederm.dsl.xmission.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Fri, 20 Jan 2006 20:40:40 -0800
-In-Reply-To: <m1y81cpqt8.fsf@ebiederm.dsl.xmission.com> (Eric W. Biederman's
- message of "Thu, 19 Jan 2006 01:25:39 -0700")
-Message-ID: <adaek32ry5z.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Sat, 21 Jan 2006 00:21:50 -0500
+Received: from tornado.reub.net ([202.89.145.182]:46013 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1161273AbWAUFVt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 00:21:49 -0500
+Message-ID: <43D1C4E9.7030901@reub.net>
+Date: Sat, 21 Jan 2006 18:21:45 +1300
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 1.6a1 (Windows/20060119)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 21 Jan 2006 04:40:43.0501 (UTC) FILETIME=[D6AE89D0:01C61E44]
+To: Alan Stern <stern@rowland.harvard.edu>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, Greg KH <greg@kroah.com>,
+       linux-usb-devel@lists.sourceforge.net,
+       Neil Brown <neilb@cse.unsw.edu.au>, linux-acpi@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: 2.6.15-mm3 [USB lost interrupt bug]
+References: <Pine.LNX.4.44L0.0601152243330.1929-100000@netrider.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0601152243330.1929-100000@netrider.rowland.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Eric> Roland you know the RDMA model best, are things so tied to
-    Eric> the current crop of infiniband protocols that what the ipath
-    Eric> code wants to do is not covered?
 
-    Eric> They clearly need subsystem support and what they are trying
-    Eric> to do either isn't covered or they don't see how to use what
-    Eric> is there.  Do the infiniband verbs not allow dealing with a
-    Eric> unreliable datagram protocol?
 
-I think this has been answered already but the issue is really that
-the PathScale hardware does not implement RDMA or even any of the
-other connection-oriented abstractions that the RDMA layer is designed
-for.  The hardware has only much lower level capabilities, which
-basically can send and receive packets on an IB link.
+On 16/01/2006 4:46 p.m., Alan Stern wrote:
+> On Mon, 16 Jan 2006, Reuben Farrelly wrote:
+> 
+>>> From the information presented here, it looks like -mm1 correctly routes
+>>> the 1d.1 controller to IRQ 193 and the 1d.3 controller to IRQ 169, whereas
+>>> -mm3 incorrectly routes the 1d.3 controller to IRQ 193.  That would make 
+>>> it an ACPI problem.
+>> Is this likely to be the same or similar issue to the IRQ 0 problem I see quite 
+>> frequently on the SATA ports on later -mm releases?
+>> (see http://www.ussg.iu.edu/hypermail/linux/kernel/0601.1/1851.html)
+> 
+> I doubt they are at all related.  In the USB problem the resource is there 
+> but ACPI is routing it wrongly.  In the SATA problem the resource isn't 
+> there to begin with.
+> 
+> But then I know almost nothing about ACPI, so I could be wrong...
+> 
+> Alan Stern
 
-With those capabilites it is possible to implement IB transports in
-software -- so for example RDMA read operations are simulated by
-having the CPU on the receiver copy data to send the response.
-However that implementation is not going to make good use of the IB
-midlayer, which really operates at the abstraction level above the IB
-transport.
+Some good news.  I think it's fixed in 2.6.16-rc1-mm2.  In fact a whole boatload 
+of problems I was having are fixed in this -mm release, including a nasty libata 
+oops that seemed to have a few people scratching their heads.
 
-It's also possible to use the PathScale hardware to directly implement
-MPI on top of a protocol optimized specifically for MPI, without using
-IB verbs semantics or an IB transport on the wire.  But clearly the
-userspace interface needed for doing this is not going to match up
-very well with a userspace interface for IB verbs (which is at a
-different abstraction level).
+I've now done in excess of 20 reboots with this code and haven't had either 
+problem show up at all.
 
- - R.
+So for now I'll keep a record of things for a bit longer, but I guess I've 
+reason to be fairly confident that both this USB/IRQ problem and my ATA/IRQ 
+problem are now fixed.
+
+It does make me wonder if the ACPI update in rc1-mm2 fixed it, and was actually 
+the cause of most of my problems......it would be nice to know for sure.
+
+Thanks,
+Reuben
+

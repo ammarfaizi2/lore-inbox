@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWAUToS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWAUTrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbWAUToS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 14:44:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWAUToS
+	id S932282AbWAUTrX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 14:47:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWAUTrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 14:44:18 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57353 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932294AbWAUToR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 14:44:17 -0500
-Date: Sat, 21 Jan 2006 20:44:16 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: sju@lsil.com, James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: drivers/scsi/megaraid.c: add a dummy mega_create_proc_entry() for PROC_FS=y
-Message-ID: <20060121194416.GV31803@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 21 Jan 2006 14:47:22 -0500
+Received: from mx3.mail.ru ([194.67.23.149]:42567 "EHLO mx3.mail.ru")
+	by vger.kernel.org with ESMTP id S932282AbWAUTrW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 14:47:22 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Olaf Hering <olh@suse.de>
+Subject: Re: cc-version not available to change EXTRA_CFLAGS
+Date: Sat, 21 Jan 2006 22:47:12 +0300
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <200601212207.49483.arvidjaar@mail.ru> <20060121191140.GA17661@suse.de>
+In-Reply-To: <20060121191140.GA17661@suse.de>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200601212247.14101.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a dummy mega_create_proc_entry() for CONFIG_PROC_FS=n.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Saturday 21 January 2006 22:11, Olaf Hering wrote:
+>  On Sat, Jan 21, Andrey Borzenkov wrote:
+> > does chmod +x scripts/gcc-version.sh help?
+>
+> no, cc-version is not expanded in this context.
+
+well it does in this trivial test:
+
+cc-version = $(shell foo/baz 2234)
+
+FOO = $(shell set -x; if [ $(cc-version) -lt 2000 ] ; then echo y; else echo 
+n; fi)
+
+bar:
+	echo $(FOO)
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I get exactly the same result if foo/baz is not executable or returns empty 
+string (in the former case I also get error message from make but may be it 
+is supressed, I never fully groked kernel Makefiles).
 
----
+So again - does scripts/gcc-version.sh returns any usable value? Is it 
+executable?
 
-This patch was already sent on:
-- 8 Jan 2006
+- -andrey
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
---- linux-2.6.15-mm2-full/drivers/scsi/megaraid.c.old	2006-01-08 11:31:28.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/scsi/megaraid.c	2006-01-08 11:33:43.000000000 +0100
-@@ -3179,6 +3179,10 @@
- 
- 	return len;
- }
-+#else  /*  CONFIG_PROC_FS  */
-+
-+static inline void
-+mega_create_proc_entry(int index, struct proc_dir_entry *parent) {}
- 
- #endif
- 
-
+iD4DBQFD0o/CR6LMutpd94wRAjuFAJj2Ov4Z2iVxamYY/IxkLzOGRb1fAJwIBOxt
+aH91icTk8dTKzO/VzLjlLA==
+=DNXC
+-----END PGP SIGNATURE-----

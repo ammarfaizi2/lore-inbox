@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWAUPkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWAUPsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750811AbWAUPkO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 10:40:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWAUPkO
+	id S1750828AbWAUPsH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 10:48:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWAUPsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 10:40:14 -0500
-Received: from web50210.mail.yahoo.com ([206.190.38.51]:52100 "HELO
-	web50210.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1750811AbWAUPkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 10:40:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=fTb0JBx6Owe36b0JhXqWp28uGO4XfkihUufqKxCiKKt12XqfO5VjI6JDkOLm9IkZ8gIBd3deeYvo2VdjrUfcuCj3v3Ot0QXCAQ6eLrySnRfsuV8SATaSzfbgJJGbidFBALZ6l6yQcchWeox6PIdMWdv8TfRMpx09n7gw5H+ZTy0=  ;
-Message-ID: <20060121154012.66687.qmail@web50210.mail.yahoo.com>
-Date: Sat, 21 Jan 2006 07:40:12 -0800 (PST)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: [BUG] DVD assigned wrong SCSI level when using SCSI emulation
+	Sat, 21 Jan 2006 10:48:07 -0500
+Received: from gherkin.frus.com ([192.158.254.49]:39645 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id S1750828AbWAUPsG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 10:48:06 -0500
+Subject: PNP vs. sound/isa/cs423x/cs4236.c in 2.6.16-rc1
 To: linux-kernel@vger.kernel.org
+Date: Sat, 21 Jan 2006 09:48:05 -0600 (CST)
+CC: alsa-devel@alsa-project.org, perex@suse.cz
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Message-Id: <20060121154805.4D3DADBA1@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob Tracy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>I've noticed that since I upgraded to 2.6.15, my IDE DVD ROM
->>is assigned a bogus SCSI level. Here is output from /proc/scsi/scsi:
->
->You are not using ide-scsi, are you?
-Yes, I am. as a module. I stated that in the original post.
+The rework of various ALSA drivers between 2.6.15 and 2.6.16-rc1 has
+apparently introduced a dependency on CONFIG_PNP.  Unfortunately, PNP
+has been problematic on my old Toshiba notebook (Tecra 730XCDT), so I
+have CONFIG_PNP undefined in my kernel configuration.  This is the
+result, because the define for CS423X_DRIVER doesn't happen without
+CONFIG_PNP:
 
+  CC [M]  sound/isa/cs423x/cs4232.o
+  In file included from sound/isa/cs423x/cs4232.c:2:
+  sound/isa/cs423x/cs4236.c:612: error: `CS423X_DRIVER' undeclared here (not in a function)
+  sound/isa/cs423x/cs4236.c:612: error: initializer element is not constant
+  sound/isa/cs423x/cs4236.c:612: error: (near initialization for `cs423x_nonpnp_driver.driver.name')
+  sound/isa/cs423x/cs4236.c:612: error: initializer element is not constant
+  sound/isa/cs423x/cs4236.c:612: error: (near initialization for `cs423x_nonpnp_driver.driver')
+  sound/isa/cs423x/cs4236.c: In function `snd_cs423x_unregister_all':
+  sound/isa/cs423x/cs4236.c:751: error: `cs423x_pnpc_driver' undeclared (first use in this function)
+  sound/isa/cs423x/cs4236.c:751: error: (Each undeclared identifier is reported only once
+  sound/isa/cs423x/cs4236.c:751: error: for each function it appears in.)
+  sound/isa/cs423x/cs4236.c:754: error: `cs4232_pnp_driver' undeclared (first use in this function)
+  sound/isa/cs423x/cs4236.c: In function `alsa_card_cs423x_init':
+  sound/isa/cs423x/cs4236.c:772: error: `CS423X_DRIVER' undeclared (first use in this function)
+  sound/isa/cs423x/cs4236.c:782: error: `cs4232_pnp_driver' undeclared (first use in this function)
+  sound/isa/cs423x/cs4236.c:788: error: `cs423x_pnpc_driver' undeclared (first use in this function)
+  make[3]: *** [sound/isa/cs423x/cs4232.o] Error 1
+  make[2]: *** [sound/isa/cs423x] Error 2
+  make[1]: *** [sound/isa] Error 2
+  make: *** [sound] Error 2
 
-
-I code, therefore I am
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+-- 
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------

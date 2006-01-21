@@ -1,61 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWAUT0n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWAUT34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932265AbWAUT0n (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 14:26:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWAUT0n
+	id S932269AbWAUT34 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 14:29:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWAUT34
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 14:26:43 -0500
-Received: from pat.uio.no ([129.240.130.16]:29437 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932265AbWAUT0m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 14:26:42 -0500
-Subject: Re: set_bit() is broken on i386?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+	Sat, 21 Jan 2006 14:29:56 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:49929 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932269AbWAUT34 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 14:29:56 -0500
+Date: Sat, 21 Jan 2006 20:29:55 +0100
+From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Andreas Schwab <schwab@suse.de>, 76306.1226@compuserve.com,
-       linux-kernel@vger.kernel.org, ak@suse.de, mingo@redhat.com,
-       torvalds@osdl.org
-In-Reply-To: <20060120183857.188ef516.akpm@osdl.org>
-References: <200601201955_MC3-1-B649-DCF5@compuserve.com>
-	 <1137806107.8691.25.camel@lade.trondhjem.org>
-	 <jek6cu73jy.fsf@sykes.suse.de>  <20060120183857.188ef516.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 21 Jan 2006 14:26:22 -0500
-Message-Id: <1137871582.8715.31.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.727, required 12,
-	autolearn=disabled, AWL 1.09, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: [2.6 patch] make CONFIG_SECCOMP default to n
+Message-ID: <20060121192955.GU31803@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-20 at 18:38 -0800, Andrew Morton wrote:
-> We need to somehow tell the compiler "this assembly statement altered
-> memory and you can't cache memory contents across it".  That's what
-> "memory" (ie: barrier()) does.  I don't think there's a way of telling gcc
-> _what_ memory was clobbered - just "all of memory".
+From: Ingo Molnar <mingo@elte.hu>
 
-We _can_  (and do) tell gcc that the unsigned long at address "addr"
-will be clobbered. The problem here is that we're actually applying
-set_bit() to a bit array that is larger than the single long, so we are
-not necessarily clobbering "addr", but rather the long at addr + X.
+i was profiling the scheduler on x86 and noticed some overhead related 
+to SECCOMP, and indeed, SECCOMP runs disable_tsc() at _every_ 
+context-switch:
 
-Most non-386 architectures don't actually have this compiler reordering
-problem since they tend to convert the index into the bit array into an
-offset for addr + a remainder:
+        if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr))
+                handle_io_bitmap(next, tss);
 
-  unsigned long *offset = addr + (nr / 8*sizeof(unsigned long));
-  unsigned long bit = (nr % 8*sizeof(unsigned long));
+        disable_tsc(prev_p, next_p);
 
-and then tell the compiler that the long at "offset" will be clobbered.
-The remaining architectures appear to already have the general memory
-clobber set in their asms (as far as I can see).
+        return prev_p;
 
-IOW: the 386 and x86_64 appear to be the problem cases here, and then
-only when applied to large bit arrays.
+these are a couple of instructions in the hottest scheduler codepath!
 
-Cheers
-  Trond
+x86_64 already removed disable_tsc() from switch_to(), but i think the 
+right solution is to turn SECCOMP off by default.
 
+besides the runtime overhead, there are a couple of other reasons as 
+well why this should be done:
+
+ - CONFIG_SECCOMP=y adds 836 bytes of bloat to the kernel:
+
+       text    data     bss     dec     hex filename
+    4185360  867112  391012 5443484  530f9c vmlinux-noseccomp
+    4185992  867316  391012 5444320  5312e0 vmlinux-seccomp
+
+ - virtually nobody seems to be using it (but cpushare.com, which seems
+   pretty inactive)
+
+ - users/distributions can still turn it on if they want it
+
+ - http://www.cpushare.com/legal seems to suggest that it is pursuing a
+   software patent to utilize the seccomp concept in a distributed 
+   environment, and seems to give a promise that 'end users' will not be
+   affected by that patent. How about non-end-users [i.e. server-side]?
+   Has the Linux kernel become a vehicle for a propriety server-side
+   feature, with every Linux user paying the price of it?
+
+so the patch below just does the minimal common-sense change: turn it 
+off by default.
+
+
+Adrian Bunk:
+I've removed the superfluous "default n"'s the original patch introduced.
+
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+----
+
+This patch was sent by Ingo Molnar on:
+- 9 Jan 2006
+
+Index: linux/arch/i386/Kconfig
+===================================================================
+--- linux.orig/arch/i386/Kconfig
++++ linux/arch/i386/Kconfig
+@@ -637,7 +637,6 @@ config REGPARM
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
+Index: linux/arch/mips/Kconfig
+===================================================================
+--- linux.orig/arch/mips/Kconfig
++++ linux/arch/mips/Kconfig
+@@ -1787,7 +1787,6 @@ config BINFMT_ELF32
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS && BROKEN
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
+Index: linux/arch/powerpc/Kconfig
+===================================================================
+--- linux.orig/arch/powerpc/Kconfig
++++ linux/arch/powerpc/Kconfig
+@@ -666,7 +666,6 @@ endif
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
+Index: linux/arch/ppc/Kconfig
+===================================================================
+--- linux.orig/arch/ppc/Kconfig
++++ linux/arch/ppc/Kconfig
+@@ -1127,7 +1127,6 @@ endif
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
+Index: linux/arch/sparc64/Kconfig
+===================================================================
+--- linux.orig/arch/sparc64/Kconfig
++++ linux/arch/sparc64/Kconfig
+@@ -64,7 +64,6 @@ endchoice
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
+Index: linux/arch/x86_64/Kconfig
+===================================================================
+--- linux.orig/arch/x86_64/Kconfig
++++ linux/arch/x86_64/Kconfig
+@@ -466,7 +466,6 @@ config PHYSICAL_START
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their

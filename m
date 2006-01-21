@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWAUXZz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWAUX0G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbWAUXZz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 18:25:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWAUXZz
+	id S1751222AbWAUX0G (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 18:26:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWAUX0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 18:25:55 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:23306 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1751221AbWAUXZy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 18:25:54 -0500
-Date: Sun, 22 Jan 2006 00:25:42 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Olaf Hering <olh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cc-version not available to change EXTRA_CFLAGS
-Message-ID: <20060121232542.GA19480@mars.ravnborg.org>
-References: <20060121180805.GA15761@suse.de> <20060121225728.GA13756@mars.ravnborg.org> <20060121231539.GA23789@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060121231539.GA23789@suse.de>
-User-Agent: Mutt/1.5.11
+	Sat, 21 Jan 2006 18:26:06 -0500
+Received: from vms046pub.verizon.net ([206.46.252.46]:56125 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751222AbWAUX0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 18:26:03 -0500
+Date: Sat, 21 Jan 2006 18:26:02 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [2.6 patch] the scheduled removal of the obsolete raw driver
+In-reply-to: <20060119030251.GG19398@stusta.de>
+To: linux-kernel@vger.kernel.org
+Reply-to: gene.heskett@verizon.net
+Message-id: <200601211826.02159.gene.heskett@verizon.net>
+Organization: Absolutely none - usually detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20060119030251.GG19398@stusta.de>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 22, 2006 at 12:15:39AM +0100, Olaf Hering wrote:
-> Will you include the reiserfs change with a check for earlier then 4.0
-> or 4.1 or should I send a separate patch?
+On Wednesday 18 January 2006 22:02, Adrian Bunk wrote:
+>Let's do the scheduled removal of the obsolete raw driver in 2.6.17.
 
-Please submit as a separate patch. I try to keep non-kbuild stuff out of
-the kbuild tree. This make is less confusing.
+This thread has run on for a bit longer it seems, and it prompts me to 
+back up to the original post and ask if the raw driver you are removing 
+is the raw driver used when cups tells a device (a printer) to do this 
+file using the -o raw format?
 
-I will not commit this until sometime tomorrow - I have to set up
-something so I can track bugfixes and enhancements in parallel.
-This is 2.6.17 material IMO in kbuild land except if we want this in for
-reiserfs before 2.6.17.
+If this is the case, then a rather large amount of printing 
+functionality will be removed as a side effect.  I hope I'm 
+miss-understanding the intent here.
 
-I try to be rather strict about bug-fixes versus enhancements in kbuild.
-The latest unexpected breakage shows how easy it is to introduce
-unexpected errors in someones build :-(
+[huge snippage]
 
-	Sam
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

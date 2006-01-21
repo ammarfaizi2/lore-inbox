@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161253AbWAUEkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161257AbWAUEkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161253AbWAUEkR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 23:40:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161257AbWAUEkQ
+	id S1161257AbWAUEkr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 23:40:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161264AbWAUEkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 23:40:16 -0500
-Received: from a34-mta01.direcpc.com ([66.82.4.90]:33223 "EHLO
-	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
-	id S1161253AbWAUEkP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 23:40:15 -0500
-Date: Fri, 20 Jan 2006 18:22:10 -0500
-From: Ben Collins <bcollins@ubuntu.com>
-Subject: Re: [Alsa-devel] RFC: OSS driver removal, a slightly different	approach
-In-reply-to: <1137799001.12998.59.camel@localhost.localdomain>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Olaf Hering <olh@suse.de>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
-       linuxppc-dev@ozlabs.org, Ben Collins <ben.collins@ubuntu.com>
-Message-id: <1137799330.13530.30.camel@grayson>
-Organization: Ubuntu Linux
-MIME-version: 1.0
-X-Mailer: Evolution 2.5.5
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <20060119174600.GT19398@stusta.de>
- <20060120115443.GA16582@palantir8> <20060120190415.GM19398@stusta.de>
- <20060120212917.GA14405@suse.de>
- <1137799001.12998.59.camel@localhost.localdomain>
+	Fri, 20 Jan 2006 23:40:47 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:39288 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S1161257AbWAUEkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 23:40:46 -0500
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: "Bryan O'Sullivan" <bos@pathscale.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Greg Kroah-Hartman <greg@kroah.com>,
+       openib-general@openib.org, "David S. Miller" <davem@davemloft.net>
+Subject: Re: RFC: ipath ioctls and their replacements
+X-Message-Flag: Warning: May contain useful information
+References: <1137631411.4757.218.camel@serpentine.pathscale.com>
+	<m1y81cpqt8.fsf@ebiederm.dsl.xmission.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Fri, 20 Jan 2006 20:40:40 -0800
+In-Reply-To: <m1y81cpqt8.fsf@ebiederm.dsl.xmission.com> (Eric W. Biederman's
+ message of "Thu, 19 Jan 2006 01:25:39 -0700")
+Message-ID: <adaek32ry5z.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 21 Jan 2006 04:40:43.0501 (UTC) FILETIME=[D6AE89D0:01C61E44]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-21 at 10:16 +1100, Benjamin Herrenschmidt wrote:
-> On Fri, 2006-01-20 at 22:29 +0100, Olaf Hering wrote:
-> >  On Fri, Jan 20, Adrian Bunk wrote:
-> > 
-> >  
-> > > Can someone from the ppc developers drop me a small note whether 
-> > > SND_POWERMAC completely replaces DMASOUND_PMAC?
-> > 
-> > It doesnt. Some tumbler models work only after one plug/unplug cycle of
-> > the headphone. early powerbooks report/handle the mute settings
-> > incorrectly. there are likely more bugs.
-> 
-> Interesting... Ben Collins hacked something to have Toonie work as a
-> "default" driver for non supported machine and saw that problem too, I
-> think he fixes it, I'll check with him what's up there and if his fix
-> applied to tumbler.c as well.
+    Eric> Roland you know the RDMA model best, are things so tied to
+    Eric> the current crop of infiniband protocols that what the ipath
+    Eric> code wants to do is not covered?
 
-My "fix" was basically the result of converting to the platform
-functions. It's hit or miss whether this works with tumbler too.
+    Eric> They clearly need subsystem support and what they are trying
+    Eric> to do either isn't covered or they don't see how to use what
+    Eric> is there.  Do the infiniband verbs not allow dealing with a
+    Eric> unreliable datagram protocol?
 
-You can try the Ubuntu kernel packages (they can be unpacked and used on
-non Ubuntu systems pretty easily) to see if it works for you. Tumbler
-platform function conversion isn't even tested, so I'd be happy to hear
-any feedback.
+I think this has been answered already but the issue is really that
+the PathScale hardware does not implement RDMA or even any of the
+other connection-oriented abstractions that the RDMA layer is designed
+for.  The hardware has only much lower level capabilities, which
+basically can send and receive packets on an IB link.
 
--- 
-Ben Collins
-Kernel Developer - Ubuntu Linux
+With those capabilites it is possible to implement IB transports in
+software -- so for example RDMA read operations are simulated by
+having the CPU on the receiver copy data to send the response.
+However that implementation is not going to make good use of the IB
+midlayer, which really operates at the abstraction level above the IB
+transport.
 
+It's also possible to use the PathScale hardware to directly implement
+MPI on top of a protocol optimized specifically for MPI, without using
+IB verbs semantics or an IB transport on the wire.  But clearly the
+userspace interface needed for doing this is not going to match up
+very well with a userspace interface for IB verbs (which is at a
+different abstraction level).
+
+ - R.

@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWAUTo2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWAUToS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbWAUTo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 14:44:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWAUTo2
+	id S932302AbWAUToS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 14:44:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWAUToS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 14:44:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:26721 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751201AbWAUTo1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 14:44:27 -0500
-Date: Sat, 21 Jan 2006 20:46:34 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Tejun Heo <htejun@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] BLOCK: use disk_stat_add instead of __disk_stat_add in __end_that_request_first
-Message-ID: <20060121194632.GU13429@suse.de>
-References: <20060121172233.GA18239@htj.dyndns.org>
-Mime-Version: 1.0
+	Sat, 21 Jan 2006 14:44:18 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57353 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932294AbWAUToR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 14:44:17 -0500
+Date: Sat, 21 Jan 2006 20:44:16 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: sju@lsil.com, James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: drivers/scsi/megaraid.c: add a dummy mega_create_proc_entry() for PROC_FS=y
+Message-ID: <20060121194416.GV31803@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060121172233.GA18239@htj.dyndns.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 22 2006, Tejun Heo wrote:
-> Unlike end_that_request_last, caller is supposed to own the request
-> when it calls __end_that_request_first and thus allowed to call from
-> any context without any locking.  When SCSI EH completes requests, it
-> calls __end_that_request_first from kernel thread context without
-> holding any lock and none of preemption/bh/irq disabled.  This results
-> in the following warning.
-> 
-> BUG: using smp_processor_id() in preemptible [00000001] code: scsi_eh_6/927
-> caller is __end_that_request_first+0xbf/0x500
->  [<c01046e3>] show_trace+0x13/0x20
->  [<c010470e>] dump_stack+0x1e/0x20
->  [<c02231c8>] debug_smp_processor_id+0xa8/0xb0
->  [<c021167f>] __end_that_request_first+0xbf/0x500
->  [<c0211ad1>] end_that_request_chunk+0x11/0x20
->  [<c03360b2>] scsi_end_request+0x32/0x110
-> -- snip --
-> 
-> This patch makes __end_that_request_first() use undashed
-> disk_stat_add() which doesn't assume preemption is disabled.
+This patch adds a dummy mega_create_proc_entry() for CONFIG_PROC_FS=n.
 
-Patch is good, however I already added this identical patch to the block
-git repo last week :-)
 
--- 
-Jens Axboe
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was already sent on:
+- 8 Jan 2006
+
+--- linux-2.6.15-mm2-full/drivers/scsi/megaraid.c.old	2006-01-08 11:31:28.000000000 +0100
++++ linux-2.6.15-mm2-full/drivers/scsi/megaraid.c	2006-01-08 11:33:43.000000000 +0100
+@@ -3179,6 +3179,10 @@
+ 
+ 	return len;
+ }
++#else  /*  CONFIG_PROC_FS  */
++
++static inline void
++mega_create_proc_entry(int index, struct proc_dir_entry *parent) {}
+ 
+ #endif
+ 
 

@@ -1,804 +1,740 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWAUAUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWAUAYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbWAUAUH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 19:20:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWAUAUH
+	id S932297AbWAUAYu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 19:24:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWAUAYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 19:20:07 -0500
-Received: from relay02.pair.com ([209.68.5.16]:57613 "HELO relay02.pair.com")
-	by vger.kernel.org with SMTP id S932293AbWAUAUE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 19:20:04 -0500
-X-pair-Authenticated: 67.163.102.102
-From: Chase Venters <chase.venters@clientec.com>
-Organization: Clientec, Inc.
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: OOM Killer killing whole system
-Date: Fri, 20 Jan 2006 18:19:35 -0600
-User-Agent: KMail/1.9
-Cc: Anton Titov <a.titov@host.bg>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-References: <1137337516.11767.50.camel@localhost> <1137793685.11771.58.camel@localhost> <20060120145006.0a773262.akpm@osdl.org>
-In-Reply-To: <20060120145006.0a773262.akpm@osdl.org>
+	Fri, 20 Jan 2006 19:24:50 -0500
+Received: from az33egw02.freescale.net ([192.88.158.103]:62958 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S932297AbWAUAYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 19:24:49 -0500
+Message-ID: <43D17F4D.2010003@freescale.com>
+Date: Fri, 20 Jan 2006 17:24:45 -0700
+From: Matt Waddel <Matt.Waddel@freescale.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_E5X0D+U2UprzUHi"
-Message-Id: <200601201819.58366.chase.venters@clientec.com>
+To: linux-m68k@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: License oddity in some m68k files
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_E5X0D+U2UprzUHi
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+ >> Alan Cox wrote:
+ >>
+ >>> On Gwe, 2006-01-20 at 07:21 -0500, Ric Wheeler wrote:
+ >>>
+ >>>> The language in the source files is pretty strong and this looks
+ >>>> like
+ >>>> Motorola should be asked to rerelease the files with a normal
+ >>>> copyright notice in place of the current language...
+ >>>>
+ >>>
+ >>> Its standard boilerplate from the period. Its a perfectly normal and
+ >>> clear copyright notice.
+ >>>
+ >>> Alan
+ >>>
+ >> Actually, that is the exact language our lawyers still give us to
+ >> use today when we have not settled on license terms when we want to
+ >> share code in a severely limited fashion.
+ >>
+ >> I still think it best that they (Freescale) modify their language
+ >> to reference the actual license grant in the README.
+ >
+ >Good luck finding anyone in Freescale that would have any idea about
+ >this.
+ >
+ >- kumar
+ >-
 
-On Friday 20 January 2006 16:49, Andrew Morton wrote:
-> This is 2.6.15 and we have a deadly bug in scsi.
->
-> Next time you reboot 2.6.15 on that machine can you please send the output
-> of `dmesg -s 1000000'?  You might have to set CONFIG_LOG_BUF_SHIFT=17 to
-> prevent it from being truncated.
+I have been given permission to fix the "UNPUBLISHED PROPRIETARY
+SOURCE CODE OF MOTOROLA ..." section in the source files of fpsp040/
+directory.
 
-Here's mine (attached). Curious - the -s... were you expecting the ring buffer 
-to exceed 16384? I don't think my (boot time) buffer does.
+One suggestion, so we don't have to revisit this topic in 16 years
+from now again, shouldn't we just remove the UNPUBLISHED ... comment
+altogether and replace it with Greg Kroah-Hartman's suggested verbiage
+as in the patch below?
 
-Thanks,
-Chase
+--Matt
 
---Boundary-00=_E5X0D+U2UprzUHi
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="dmesg"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="dmesg"
+--------------------------------------------------------------------
+Subject: Re: [PATCH] Add wording to m68k .S files to help clarify license info.
 
-Linux version 2.6.15-ck1 (root@turbotaz) (gcc version 3.3.6 (Gentoo 3.3.6, =
-ssp-3.3.6-1.0, pie-8.7.8)) #1 SMP PREEMPT Tue Jan 10 12:42:28 CST 2006
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e4000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000003ffb0000 (usable)
- BIOS-e820: 000000003ffb0000 - 000000003ffbe000 (ACPI data)
- BIOS-e820: 000000003ffbe000 - 000000003fff0000 (ACPI NVS)
- BIOS-e820: 000000003fff0000 - 0000000040000000 (reserved)
- BIOS-e820: 00000000ffb80000 - 0000000100000000 (reserved)
-1023MB LOWMEM available.
-found SMP MP-table at 000ff780
-On node 0 totalpages: 262064
-  DMA zone: 4096 pages, LIFO batch:0
-  DMA32 zone: 0 pages, LIFO batch:0
-  Normal zone: 257968 pages, LIFO batch:31
-  HighMem zone: 0 pages, LIFO batch:0
-DMI 2.3 present.
-Intel MultiProcessor Specification v1.4
-    Virtual Wire compatibility mode.
-OEM ID: INTEL    Product ID: DELUXE       APIC at: 0xFEE00000
-Processor #0 15:4 APIC version 20
-I/O APIC #2 Version 32 at 0xFEC00000.
-Enabling APIC mode:  Flat.  Using 1 I/O APICs
-Processors: 1
-Allocating PCI resources starting at 50000000 (gap: 40000000:bfb80000)
-Built 1 zonelists
-Kernel command line: root=3D/dev/md1 noapic acpi=3Doff console=3DttyS0,3840=
-0n8 console=3Dtty0
-mapped APIC to ffffd000 (fee00000)
-mapped IOAPIC to ffffc000 (fec00000)
-Initializing CPU#0
-CPU 0 irqstacks, hard=3Db0791000 soft=3Db078f000
-PID hash table entries: 4096 (order: 12, 65536 bytes)
-Detected 3212.427 MHz processor.
-Using tsc for high-res timesource
-Console: colour VGA+ 80x25
-Dentry cache hash table entries: 262144 (order: 8, 1048576 bytes)
-Inode-cache hash table entries: 131072 (order: 7, 524288 bytes)
-Memory: 1030612k/1048256k available (4837k kernel code, 17088k reserved, 15=
-97k data, 256k init, 0k highmem)
-Checking if this processor honours the WP bit even in supervisor mode... Ok.
-Calibrating delay using timer specific routine.. 6429.43 BogoMIPS (lpj=3D32=
-14717)
-Mount-cache hash table entries: 512
-CPU: After generic identify, caps: bfebfbff 00000000 00000000 00000000 0000=
-441d 00000000 00000000
-CPU: After vendor identify, caps: bfebfbff 00000000 00000000 00000000 00004=
-41d 00000000 00000000
-monitor/mwait feature present.
-using mwait in idle threads.
-CPU: Trace cache: 12K uops, L1 D cache: 16K
-CPU: L2 cache: 1024K
-CPU: Physical Processor ID: 0
-CPU: After all inits, caps: bfebfbff 00000000 00000000 00000080 0000441d 00=
-000000 00000000
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU0: Intel P4/Xeon Extended MCE MSRs (12) available
-CPU0: Thermal monitoring enabled
-mtrr: v2.0 (20020519)
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-CPU0: Intel(R) Pentium(R) 4 CPU 3.20GHz stepping 01
-Total of 1 processors activated (6429.43 BogoMIPS).
-Brought up 1 CPUs
-NET: Registered protocol family 16
-PCI: PCI BIOS revision 2.10 entry at 0xf0031, last bus=3D4
-PCI: Using configuration type 1
-ACPI: Subsystem revision 20050902
-ACPI: Interpreter disabled.
-Linux Plug and Play Support v0.97 (c) Adam Belay
-pnp: PnP ACPI: disabled
-Generic PHY: Registered new driver
-SCSI subsystem initialized
-usbcore: registered new driver usbfs
-usbcore: registered new driver hub
-PCI: Probing PCI hardware
-PCI: Probing PCI hardware (bus 00)
-PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
-Boot video device is 0000:04:00.0
-PCI: Transparent bridge - 0000:00:1e.0
-PCI: Discovered primary peer bus ff [IRQ]
-PCI: Using IRQ router PIIX/ICH [8086/2640] at 0000:00:1f.0
-PCI: IRQ 0 for device 0000:00:01.0 doesn't match PIRQ mask - try pci=3Dusep=
-irqmask
-PCI: Found IRQ 10 for device 0000:00:01.0
-PCI: Sharing IRQ 10 with 0000:00:1b.0
-PCI: Sharing IRQ 10 with 0000:00:1c.0
-PCI: Sharing IRQ 10 with 0000:00:1d.3
-PCI: Sharing IRQ 10 with 0000:04:00.0
-PCI: IRQ 0 for device 0000:00:1c.1 doesn't match PIRQ mask - try pci=3Dusep=
-irqmask
-PCI: Found IRQ 5 for device 0000:00:1c.1
-PCI: Sharing IRQ 5 with 0000:02:00.0
-PCI: Sharing IRQ 5 with 0000:01:09.0
-PCI: IRQ 0 for device 0000:00:1f.1 doesn't match PIRQ mask - try pci=3Dusep=
-irqmask
-PCI: Found IRQ 5 for device 0000:00:1f.1
-PCI: Sharing IRQ 5 with 0000:00:1d.2
-PCI: Sharing IRQ 5 with 0000:01:09.2
-PCI: IRQ 0 for device 0000:00:1f.3 doesn't match PIRQ mask - try pci=3Dusep=
-irqmask
-PCI: Found IRQ 3 for device 0000:00:1f.3
-PCI: Sharing IRQ 3 with 0000:00:1d.1
-PCI: Sharing IRQ 3 with 0000:00:1f.2
-PCI: Bridge: 0000:00:01.0
-  IO window: e000-efff
-  MEM window: cdf00000-cfffffff
-  PREFETCH window: d0000000-dfffffff
-PCI: Bridge: 0000:00:1c.0
-  IO window: d000-dfff
-  MEM window: disabled.
-  PREFETCH window: disabled.
-PCI: Bridge: 0000:00:1c.1
-  IO window: c000-cfff
-  MEM window: cde00000-cdefffff
-  PREFETCH window: disabled.
-PCI: Bridge: 0000:00:1e.0
-  IO window: a000-bfff
-  MEM window: cdd00000-cddfffff
-  PREFETCH window: 50000000-500fffff
-PCI: Found IRQ 10 for device 0000:00:01.0
-PCI: Sharing IRQ 10 with 0000:00:1b.0
-PCI: Sharing IRQ 10 with 0000:00:1c.0
-PCI: Sharing IRQ 10 with 0000:00:1d.3
-PCI: Sharing IRQ 10 with 0000:04:00.0
-PCI: Setting latency timer of device 0000:00:01.0 to 64
-PCI: Found IRQ 10 for device 0000:00:1c.0
-PCI: Sharing IRQ 10 with 0000:00:01.0
-PCI: Sharing IRQ 10 with 0000:00:1b.0
-PCI: Sharing IRQ 10 with 0000:00:1d.3
-PCI: Sharing IRQ 10 with 0000:04:00.0
-PCI: Setting latency timer of device 0000:00:1c.0 to 64
-PCI: Found IRQ 5 for device 0000:00:1c.1
-PCI: Sharing IRQ 5 with 0000:02:00.0
-PCI: Sharing IRQ 5 with 0000:01:09.0
-PCI: Setting latency timer of device 0000:00:1c.1 to 64
-PCI: Setting latency timer of device 0000:00:1e.0 to 64
-Machine check exception polling timer started.
-IA-32 Microcode Update Driver: v1.14 <tigran@veritas.com>
-audit: initializing netlink socket (disabled)
-audit(1137716093.984:1): initialized
-Total HugeTLB memory allocated, 0
-VFS: Disk quotas dquot_6.5.1
-Dquot-cache hash table entries: 1024 (order 0, 4096 bytes)
-Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-fuse init (API version 7.3)
-JFS: nTxBlock =3D 8052, nTxLock =3D 64423
-SGI XFS with ACLs, security attributes, large block numbers, no debug enabl=
-ed
-SGI XFS Quota Management subsystem
-Initializing Cryptographic API
-io scheduler noop registered
-io scheduler anticipatory registered
-io scheduler deadline registered
-io scheduler cfq registered
- 0000:00:1d.0: uhci_check_and_reset_hc: legsup =3D 0x0f30
- 0000:00:1d.0: Performing full reset
- 0000:00:1d.1: uhci_check_and_reset_hc: legsup =3D 0x0030
- 0000:00:1d.1: Performing full reset
- 0000:00:1d.2: uhci_check_and_reset_hc: legsup =3D 0x0030
- 0000:00:1d.2: Performing full reset
- 0000:00:1d.3: uhci_check_and_reset_hc: legsup =3D 0x0030
- 0000:00:1d.3: Performing full reset
-0000:00:1d.7 EHCI: early BIOS handoff failed (BIOS bug ?)
-PCI: Found IRQ 10 for device 0000:00:01.0
-PCI: Sharing IRQ 10 with 0000:00:1b.0
-PCI: Sharing IRQ 10 with 0000:00:1c.0
-PCI: Sharing IRQ 10 with 0000:00:1d.3
-PCI: Sharing IRQ 10 with 0000:04:00.0
-PCI: Setting latency timer of device 0000:00:01.0 to 64
-assign_interrupt_mode Found MSI capability
-Allocate Port Service[pcie00]
-PCI: Found IRQ 10 for device 0000:00:1c.0
-PCI: Sharing IRQ 10 with 0000:00:1b.0
-PCI: Sharing IRQ 10 with 0000:00:1d.3
-PCI: Sharing IRQ 10 with 0000:04:00.0
-PCI: Setting latency timer of device 0000:00:1c.0 to 64
-assign_interrupt_mode Found MSI capability
-Allocate Port Service[pcie00]
-Allocate Port Service[pcie02]
-PCI: Found IRQ 5 for device 0000:00:1c.1
-PCI: Sharing IRQ 5 with 0000:02:00.0
-PCI: Sharing IRQ 5 with 0000:01:09.0
-PCI: Setting latency timer of device 0000:00:1c.1 to 64
-assign_interrupt_mode Found MSI capability
-Allocate Port Service[pcie00]
-Allocate Port Service[pcie02]
-Real Time Clock Driver v1.12
-Non-volatile memory driver v1.2
-hw_random: RNG not detected
-[drm] Initialized drm 1.0.0 20040925
-PNP: No PS/2 controller found. Probing ports directly.
-serio: i8042 AUX port at 0x60,0x64 irq 12
-serio: i8042 KBD port at 0x60,0x64 irq 1
-Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
-serial8250: ttyS0 at I/O 0x3f8 (irq =3D 4) is a 16550A
-=46loppy drive(s): fd0 is 1.44M
-=46DC 0 is a post-1991 82077
-pktcdvd: v0.2.0a 2004-07-14 Jens Axboe (axboe@suse.de) and petero2@telia.com
-Marvell 88E1101: Registered new driver
-Davicom DM9161E: Registered new driver
-Davicom DM9131: Registered new driver
-Cicada Cis8204: Registered new driver
-LXT970: Registered new driver
-LXT971: Registered new driver
-QS6612: Registered new driver
-Linux video capture interface: v1.00
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=3D=
-xx
-ICH6: IDE controller at PCI slot 0000:00:1f.1
-PCI: Found IRQ 5 for device 0000:00:1f.1
-PCI: Sharing IRQ 5 with 0000:00:1d.2
-PCI: Sharing IRQ 5 with 0000:01:09.2
-ICH6: chipset revision 3
-ICH6: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:pio, hdd:pio
-Probing IDE interface ide0...
-hda: PLEXTOR DVDR PX-716A, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-IT8212: IDE controller at PCI slot 0000:01:04.0
-PCI: Found IRQ 11 for device 0000:01:04.0
-PCI: Sharing IRQ 11 with 0000:00:1d.0
-PCI: Sharing IRQ 11 with 0000:00:1d.7
-IT8212: chipset revision 19
-it821x: controller in pass through mode.
-IT8212: 100% native mode on irq 11
-    ide2: BM-DMA at 0xa880-0xa887, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0xa888-0xa88f, BIOS settings: hdg:pio, hdh:pio
-Probing IDE interface ide2...
-Probing IDE interface ide3...
-Probing IDE interface ide1...
-Probing IDE interface ide2...
-Probing IDE interface ide3...
-hda: ATAPI 40X DVD-ROM DVD-R CD-R/RW drive, 8192kB Cache, UDMA(66)
-Uniform CD-ROM driver Revision: 3.20
-PCI: Found IRQ 11 for device 0000:01:0a.0
-PCI: Sharing IRQ 11 with 0000:01:03.0
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
-        <Adaptec 2902/04/10/15/20C/30C SCSI adapter>
-        aic7850: Ultra Single Channel A, SCSI Id=3D7, 3/253 SCBs
+Signed-off-by: Matt Waddel <matt.waddel@freescale.com>
 
-  Vendor: PLEXTOR   Model: CD-R   PX-W124TS  Rev: 1.07
-  Type:   CD-ROM                             ANSI SCSI revision: 02
- target0:0:4: Beginning Domain Validation
- target0:0:4: FAST-20 SCSI 20.0 MB/s ST (50 ns, offset 8)
- target0:0:4: Domain Validation skipping write tests
- target0:0:4: Ending Domain Validation
-libata version 1.20 loaded.
-ata_piix 0000:00:1f.2: version 1.05
-PCI: Found IRQ 3 for device 0000:00:1f.2
-PCI: Sharing IRQ 3 with 0000:00:1d.1
-PCI: Sharing IRQ 3 with 0000:00:1f.3
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-ata1: SATA max UDMA/133 cmd 0x9C00 ctl 0x9882 bmdma 0x9400 irq 3
-ata2: SATA max UDMA/133 cmd 0x9800 ctl 0x9482 bmdma 0x9408 irq 3
-ata1: dev 0 cfg 49:2f00 82:346b 83:7f01 84:4003 85:3469 86:3e01 87:4003 88:=
-203f
-ata1: dev 0 ATA-6, max UDMA/100, 625142448 sectors: LBA48
-ata1: dev 1 cfg 49:2f00 82:306b 83:7e01 84:4003 85:3069 86:3c01 87:4003 88:=
-203f
-ata1: dev 1 ATA-6, max UDMA/100, 625142448 sectors: LBA48
-ata1: dev 0 configured for UDMA/100
-ata1: dev 1 configured for UDMA/100
-scsi1 : ata_piix
-ata2: dev 0 cfg 49:2f00 82:306b 83:7e01 84:4003 85:3069 86:3c01 87:4003 88:=
-203f
-ata2: dev 0 ATA-6, max UDMA/100, 625142448 sectors: LBA48
-ata2: dev 1 cfg 49:2f00 82:346b 83:7f01 84:4003 85:3469 86:3c01 87:4003 88:=
-203f
-ata2: dev 1 ATA-6, max UDMA/100, 625142448 sectors: LBA48
-ata2: dev 0 configured for UDMA/100
-ata2: dev 1 configured for UDMA/100
-scsi2 : ata_piix
-  Vendor: ATA       Model: WDC WD3200JD-98K  Rev: 08.0
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-  Vendor: ATA       Model: WDC WD3200JD-60K  Rev: 08.0
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-  Vendor: ATA       Model: WDC WD3200JD-60K  Rev: 08.0
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-  Vendor: ATA       Model: WDC WD3200JD-00K  Rev: 08.0
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 625142448 512-byte hdwr sectors (320073 MB)
-SCSI device sda: drive cache: write back
-SCSI device sda: 625142448 512-byte hdwr sectors (320073 MB)
-SCSI device sda: drive cache: write back
- sda: sda1 sda2 sda3
-sd 1:0:0:0: Attached scsi disk sda
-SCSI device sdb: 625142448 512-byte hdwr sectors (320073 MB)
-SCSI device sdb: drive cache: write back
-SCSI device sdb: 625142448 512-byte hdwr sectors (320073 MB)
-SCSI device sdb: drive cache: write back
- sdb: sdb1 sdb2 sdb3
-sd 1:0:1:0: Attached scsi disk sdb
-SCSI device sdc: 625142448 512-byte hdwr sectors (320073 MB)
-SCSI device sdc: drive cache: write back
-SCSI device sdc: 625142448 512-byte hdwr sectors (320073 MB)
-SCSI device sdc: drive cache: write back
- sdc: sdc1 sdc2 sdc3
-sd 2:0:0:0: Attached scsi disk sdc
-SCSI device sdd: 625142448 512-byte hdwr sectors (320073 MB)
-SCSI device sdd: drive cache: write back
-SCSI device sdd: 625142448 512-byte hdwr sectors (320073 MB)
-SCSI device sdd: drive cache: write back
- sdd: sdd1 sdd2 sdd3
-sd 2:0:1:0: Attached scsi disk sdd
-sr0: scsi3-mmc drive: 32x/32x writer cd/rw xa/form2 cdda tray
-sr 0:0:4:0: Attached scsi CD-ROM sr0
-sr 0:0:4:0: Attached scsi generic sg0 type 5
-sd 1:0:0:0: Attached scsi generic sg1 type 0
-sd 1:0:1:0: Attached scsi generic sg2 type 0
-sd 2:0:0:0: Attached scsi generic sg3 type 0
-sd 2:0:1:0: Attached scsi generic sg4 type 0
-ehci_hcd: block sizes: qh 128 qtd 96 itd 192 sitd 96
-PCI: Found IRQ 11 for device 0000:00:1d.7
-PCI: Sharing IRQ 11 with 0000:00:1d.0
-PCI: Sharing IRQ 11 with 0000:01:04.0
-PCI: Setting latency timer of device 0000:00:1d.7 to 64
-ehci_hcd 0000:00:1d.7: EHCI Host Controller
-ehci_hcd 0000:00:1d.7: reset hcs_params 0x104208 dbg=3D1 cc=3D4 pcc=3D2 ord=
-ered !ppc ports=3D8
-ehci_hcd 0000:00:1d.7: reset hcc_params 6871 thresh 7 uframes 1024 64 bit a=
-ddr
-ehci_hcd 0000:00:1d.7: debug port 1
-ehci_hcd 0000:00:1d.7: capability 1000001 at 68
-PCI: cache line size of 128 is not supported by device 0000:00:1d.7
-drivers/usb/core/inode.c: creating file 'devices'
-drivers/usb/core/inode.c: creating file '001'
-ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
-ehci_hcd 0000:00:1d.7: irq 11, io mem 0xcdcff800
-ehci_hcd 0000:00:1d.7: reset command 080012 (park)=3D0 ithresh=3D8 Periodic=
- period=3D1024 Reset HALT
-ehci_hcd 0000:00:1d.7: init command 010001 (park)=3D0 ithresh=3D1 period=3D=
-1024 RUN
-ehci_hcd 0000:00:1d.7: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
-usb usb1: default language 0x0409
-usb usb1: new device strings: Mfr=3D3, Product=3D2, SerialNumber=3D1
-usb usb1: Product: EHCI Host Controller
-usb usb1: Manufacturer: Linux 2.6.15-ck1 ehci_hcd
-usb usb1: SerialNumber: 0000:00:1d.7
-usb usb1: hotplug
-usb usb1: adding 1-0:1.0 (config #1, interface 0)
-usb 1-0:1.0: hotplug
-hub 1-0:1.0: usb_probe_interface
-hub 1-0:1.0: usb_probe_interface - got id
-hub 1-0:1.0: USB hub found
-hub 1-0:1.0: 8 ports detected
-hub 1-0:1.0: standalone hub
-hub 1-0:1.0: no power switching (usb 1.0)
-hub 1-0:1.0: individual port over-current protection
-hub 1-0:1.0: Single TT
-hub 1-0:1.0: TT requires at most 8 FS bit times (666 ns)
-hub 1-0:1.0: power on to power good time: 20ms
-hub 1-0:1.0: local power source is good
-hub 1-0:1.0: state 5 ports 8 chg 0000 evt 0000
-drivers/usb/core/inode.c: creating file '001'
-ehci_hcd 0000:00:1d.7: GetStatus port 2 status 001803 POWER sig=3Dj CSC CON=
-NECT
-hub 1-0:1.0: port 2, status 0501, change 0001, 480 Mb/s
-USB Universal Host Controller Interface driver v2.3
-PCI: Found IRQ 11 for device 0000:00:1d.0
-PCI: Sharing IRQ 11 with 0000:00:1d.7
-PCI: Sharing IRQ 11 with 0000:01:04.0
-PCI: Setting latency timer of device 0000:00:1d.0 to 64
-uhci_hcd 0000:00:1d.0: UHCI Host Controller
-uhci_hcd 0000:00:1d.0: detected 2 ports
-uhci_hcd 0000:00:1d.0: uhci_check_and_reset_hc: cmd =3D 0x0000
-uhci_hcd 0000:00:1d.0: Performing full reset
-drivers/usb/core/inode.c: creating file '002'
-uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 2
-uhci_hcd 0000:00:1d.0: irq 11, io base 0x00008880
-usb usb2: default language 0x0409
-usb usb2: new device strings: Mfr=3D3, Product=3D2, SerialNumber=3D1
-usb usb2: Product: UHCI Host Controller
-hub 1-0:1.0: debounce: port 2: total 100ms stable 100ms status 0x501
-usb usb2: Manufacturer: Linux 2.6.15-ck1 uhci_hcd
-usb usb2: SerialNumber: 0000:00:1d.0
-usb usb2: hotplug
-usb usb2: adding 2-0:1.0 (config #1, interface 0)
-usb 2-0:1.0: hotplug
-hub 2-0:1.0: usb_probe_interface
-hub 2-0:1.0: usb_probe_interface - got id
-hub 2-0:1.0: USB hub found
-hub 2-0:1.0: 2 ports detected
-hub 2-0:1.0: standalone hub
-hub 2-0:1.0: no power switching (usb 1.0)
-hub 2-0:1.0: individual port over-current protection
-hub 2-0:1.0: power on to power good time: 2ms
-hub 2-0:1.0: local power source is good
-ehci_hcd 0000:00:1d.7: port 2 high speed
-ehci_hcd 0000:00:1d.7: GetStatus port 2 status 001005 POWER sig=3Dse0 PE CO=
-NNECT
-usb 1-2: new high speed USB device using ehci_hcd and address 2
-drivers/usb/core/inode.c: creating file '001'
-PCI: Found IRQ 3 for device 0000:00:1d.1
-PCI: Sharing IRQ 3 with 0000:00:1f.2
-PCI: Sharing IRQ 3 with 0000:00:1f.3
-ehci_hcd 0000:00:1d.7: port 2 high speed
-ehci_hcd 0000:00:1d.7: GetStatus port 2 status 001005 POWER sig=3Dse0 PE CO=
-NNECT
-PCI: Setting latency timer of device 0000:00:1d.1 to 64
-uhci_hcd 0000:00:1d.1: UHCI Host Controller
-uhci_hcd 0000:00:1d.1: detected 2 ports
-uhci_hcd 0000:00:1d.1: uhci_check_and_reset_hc: cmd =3D 0x0000
-uhci_hcd 0000:00:1d.1: Performing full reset
-drivers/usb/core/inode.c: creating file '003'
-uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 3
-uhci_hcd 0000:00:1d.1: irq 3, io base 0x00008c00
-usb usb3: default language 0x0409
-usb usb3: new device strings: Mfr=3D3, Product=3D2, SerialNumber=3D1
-usb usb3: Product: UHCI Host Controller
-usb usb3: Manufacturer: Linux 2.6.15-ck1 uhci_hcd
-usb usb3: SerialNumber: 0000:00:1d.1
-usb usb3: hotplug
-usb usb3: adding 3-0:1.0 (config #1, interface 0)
-usb 3-0:1.0: hotplug
-hub 3-0:1.0: usb_probe_interface
-hub 3-0:1.0: usb_probe_interface - got id
-hub 3-0:1.0: USB hub found
-hub 3-0:1.0: 2 ports detected
-hub 3-0:1.0: standalone hub
-hub 3-0:1.0: no power switching (usb 1.0)
-hub 3-0:1.0: individual port over-current protection
-hub 3-0:1.0: power on to power good time: 2ms
-hub 3-0:1.0: local power source is good
-usb 1-2: default language 0x0409
-usb 1-2: new device strings: Mfr=3D0, Product=3D1, SerialNumber=3D0
-usb 1-2: Product: USB2.0 Hub
-usb 1-2: hotplug
-usb 1-2: adding 1-2:1.0 (config #1, interface 0)
-usb 1-2:1.0: hotplug
-hub 1-2:1.0: usb_probe_interface
-hub 1-2:1.0: usb_probe_interface - got id
-hub 1-2:1.0: USB hub found
-hub 1-2:1.0: 4 ports detected
-hub 1-2:1.0: standalone hub
-hub 1-2:1.0: individual port power switching
-hub 1-2:1.0: individual port over-current protection
-hub 1-2:1.0: Single TT
-hub 1-2:1.0: TT requires at most 32 FS bit times (2664 ns)
-hub 1-2:1.0: Port indicators are supported
-hub 1-2:1.0: power on to power good time: 100ms
-hub 1-2:1.0: local power source is good
-hub 1-2:1.0: enabling power on all ports
-drivers/usb/core/inode.c: creating file '001'
-PCI: Found IRQ 5 for device 0000:00:1d.2
-PCI: Sharing IRQ 5 with 0000:00:1f.1
-PCI: Sharing IRQ 5 with 0000:01:09.2
-usb 1-2: link qh256-0001/efad5100 start 255 [1/0 us]
-drivers/usb/core/inode.c: creating file '002'
-ehci_hcd 0000:00:1d.7: GetStatus port 5 status 001403 POWER sig=3Dk CSC CON=
-NECT
-hub 1-0:1.0: port 5, status 0501, change 0001, 480 Mb/s
-PCI: Setting latency timer of device 0000:00:1d.2 to 64
-uhci_hcd 0000:00:1d.2: UHCI Host Controller
-uhci_hcd 0000:00:1d.2: detected 2 ports
-uhci_hcd 0000:00:1d.2: uhci_check_and_reset_hc: cmd =3D 0x0000
-uhci_hcd 0000:00:1d.2: Performing full reset
-drivers/usb/core/inode.c: creating file '004'
-uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 4
-uhci_hcd 0000:00:1d.2: irq 5, io base 0x00009000
-usb usb4: default language 0x0409
-usb usb4: new device strings: Mfr=3D3, Product=3D2, SerialNumber=3D1
-usb usb4: Product: UHCI Host Controller
-usb usb4: Manufacturer: Linux 2.6.15-ck1 uhci_hcd
-usb usb4: SerialNumber: 0000:00:1d.2
-usb usb4: hotplug
-usb usb4: adding 4-0:1.0 (config #1, interface 0)
-usb 4-0:1.0: hotplug
-hub 4-0:1.0: usb_probe_interface
-hub 4-0:1.0: usb_probe_interface - got id
-hub 4-0:1.0: USB hub found
-hub 4-0:1.0: 2 ports detected
-hub 4-0:1.0: standalone hub
-hub 4-0:1.0: no power switching (usb 1.0)
-hub 4-0:1.0: individual port over-current protection
-hub 4-0:1.0: power on to power good time: 2ms
-hub 4-0:1.0: local power source is good
-hub 1-0:1.0: debounce: port 5: total 100ms stable 100ms status 0x501
-ehci_hcd 0000:00:1d.7: port 5 low speed --> companion
-ehci_hcd 0000:00:1d.7: GetStatus port 5 status 003002 POWER OWNER sig=3Dse0=
- CSC
-hub 1-0:1.0: state 5 ports 8 chg 0000 evt 0000
-hub 2-0:1.0: state 5 ports 2 chg 0000 evt 0004
-uhci_hcd 0000:00:1d.0: port 2 portsc 0082,00
-hub 2-0:1.0: port 2, status 0100, change 0001, 12 Mb/s
-drivers/usb/core/inode.c: creating file '001'
-PCI: Found IRQ 10 for device 0000:00:1d.3
-PCI: Sharing IRQ 10 with 0000:00:1b.0
-PCI: Sharing IRQ 10 with 0000:04:00.0
-PCI: Setting latency timer of device 0000:00:1d.3 to 64
-uhci_hcd 0000:00:1d.3: UHCI Host Controller
-uhci_hcd 0000:00:1d.3: detected 2 ports
-uhci_hcd 0000:00:1d.3: uhci_check_and_reset_hc: cmd =3D 0x0000
-uhci_hcd 0000:00:1d.3: Performing full reset
-drivers/usb/core/inode.c: creating file '005'
-uhci_hcd 0000:00:1d.3: new USB bus registered, assigned bus number 5
-uhci_hcd 0000:00:1d.3: irq 10, io base 0x00009080
-hub 2-0:1.0: debounce: port 2: total 100ms stable 100ms status 0x100
-hub 3-0:1.0: state 5 ports 2 chg 0000 evt 0000
-hub 1-2:1.0: state 5 ports 4 chg 0000 evt 0018
-usb usb5: default language 0x0409
-usb usb5: new device strings: Mfr=3D3, Product=3D2, SerialNumber=3D1
-usb usb5: Product: UHCI Host Controller
-usb usb5: Manufacturer: Linux 2.6.15-ck1 uhci_hcd
-usb usb5: SerialNumber: 0000:00:1d.3
-usb usb5: hotplug
-usb usb5: adding 5-0:1.0 (config #1, interface 0)
-usb 5-0:1.0: hotplug
-hub 5-0:1.0: usb_probe_interface
-hub 5-0:1.0: usb_probe_interface - got id
-hub 5-0:1.0: USB hub found
-hub 5-0:1.0: 2 ports detected
-hub 1-2:1.0: port 3, status 0301, change 0001, 1.5 Mb/s
-hub 5-0:1.0: standalone hub
-hub 5-0:1.0: no power switching (usb 1.0)
-hub 5-0:1.0: individual port over-current protection
-hub 5-0:1.0: power on to power good time: 2ms
-hub 5-0:1.0: local power source is good
-drivers/usb/core/inode.c: creating file '001'
-hub 1-2:1.0: debounce: port 3: total 100ms stable 100ms status 0x301
-usb 1-2.3: new low speed USB device using ehci_hcd and address 4
-usb 1-2.3: skipped 1 descriptor after interface
-usb 1-2.3: default language 0x0409
-usb 1-2.3: new device strings: Mfr=3D4, Product=3D26, SerialNumber=3D0
-usb 1-2.3: Product: Keytronic USB Keyboard
-usb 1-2.3: Manufacturer: Key Tronic
-usb 1-2.3: hotplug
-usb 1-2.3: adding 1-2.3:1.0 (config #1, interface 0)
-usb 1-2.3:1.0: hotplug
-usb 1-2.3: wrong descriptor type 00 for string 20 ("ic?Keytronic USB Keyboa=
-rd?1234???????????????????????=A9")
-drivers/usb/core/inode.c: creating file '004'
-hub 1-2:1.0: port 4, status 0301, change 0001, 1.5 Mb/s
-hub 1-2:1.0: debounce: port 4: total 100ms stable 100ms status 0x301
-usb 1-2.4: new low speed USB device using ehci_hcd and address 5
-usb 1-2.4: skipped 1 descriptor after interface
-usb 1-2.4: default language 0x0409
-usb 1-2.4: new device strings: Mfr=3D0, Product=3D1, SerialNumber=3D0
-usb 1-2.4: Product: USB Mouse
-usb 1-2.4: hotplug
-usb 1-2.4: adding 1-2.4:1.0 (config #1, interface 0)
-usb 1-2.4:1.0: hotplug
-drivers/usb/core/inode.c: creating file '005'
-hub 4-0:1.0: state 5 ports 2 chg 0000 evt 0002
-uhci_hcd 0000:00:1d.2: port 1 portsc 01a3,00
-hub 4-0:1.0: port 1, status 0301, change 0001, 1.5 Mb/s
-usbcore: registered new driver usblp
-drivers/usb/class/usblp.c: v0.13: USB Printer Device Class driver
-uhci_hcd 0000:00:1d.1: suspend_rh (auto-stop)
-Initializing USB Mass Storage driver...
-hub 4-0:1.0: debounce: port 1: total 100ms stable 100ms status 0x301
-usb 4-1: new low speed USB device using uhci_hcd and address 2
-uhci_hcd 0000:00:1d.0: suspend_rh (auto-stop)
-usb 4-1: skipped 1 descriptor after interface
-usb 4-1: default language 0x0409
-usb 4-1: new device strings: Mfr=3D3, Product=3D1, SerialNumber=3D2
-usb 4-1: Product: Back-UPS RS 1000 FW:7.g8 .D USB FW:g8=20
-uhci_hcd 0000:00:1d.3: suspend_rh (auto-stop)
-usb 4-1: Manufacturer: American Power Conversion
-usb 4-1: SerialNumber: QB0507149462 =20
-usb 4-1: hotplug
-usb 4-1: adding 4-1:1.0 (config #1, interface 0)
-usb 4-1:1.0: hotplug
-drivers/usb/core/inode.c: creating file '002'
-hub 5-0:1.0: state 5 ports 2 chg 0000 evt 0000
-hub 1-2:1.0: state 5 ports 4 chg 0000 evt 0010
-usbcore: registered new driver usb-storage
-hub 4-0:1.0: state 5 ports 2 chg 0000 evt 0002
-USB Mass Storage support registered.
-usbcore: registered new driver ati_remote
-drivers/usb/input/ati_remote.c: Registered USB driver ATI/X10 RF USB Remote=
- Control v. 2.2.1
-usbcore: registered new driver hiddev
-usbhid 1-2.3:1.0: usb_probe_interface
-usbhid 1-2.3:1.0: usb_probe_interface - got id
-input: Key Tronic Keytronic USB Keyboard as /class/input/input0
-usb 1-2.3: link qh8-0601/efad5280 start 7 [1/2 us]
-input: USB HID v1.10 Keyboard [Key Tronic Keytronic USB Keyboard] on usb-00=
-00:00:1d.7-2.3
-usbhid 1-2.4:1.0: usb_probe_interface
-usbhid 1-2.4:1.0: usb_probe_interface - got id
-input: USB Mouse as /class/input/input1
-input: USB HID v1.00 Mouse [USB Mouse] on usb-0000:00:1d.7-2.4
-usbhid 4-1:1.0: usb_probe_interface
-usbhid 4-1:1.0: usb_probe_interface - got id
-drivers/usb/core/file.c: looking for a minor, starting at 0
-hiddev0: USB HID v1.10 Device [American Power Conversion Back-UPS RS 1000 F=
-W:7.g8 .D USB FW:g8 ] on usb-0000:00:1d.2-1
-usbcore: registered new driver usbhid
-drivers/usb/input/hid-core.c: v2.6:USB HID core driver
-usbcore: registered new driver usbserial
-drivers/usb/serial/usb-serial.c: USB Serial support registered for generic
-usbcore: registered new driver usbserial_generic
-drivers/usb/serial/usb-serial.c: USB Serial Driver core
-gameport: EMU10K1 is pci0000:01:09.1/gameport0, io 0xbc00, speed 932kHz
-mice: PS/2 mouse device common for all mice
-input: PC Speaker as /class/input/input2
-I2O subsystem v1.288
-i2o: max drivers =3D 8
-I2O Configuration OSM v1.248
-I2O Bus Adapter OSM v$Rev$
-I2O Block Device OSM v1.287
-I2O SCSI Peripheral OSM v1.282
-I2O ProcFS OSM v1.145
-i2c /dev entries driver
-md: linear personality registered as nr 1
-md: raid0 personality registered as nr 2
-md: raid1 personality registered as nr 3
-md: raid10 personality registered as nr 9
-md: raid5 personality registered as nr 4
-raid5: automatically using best checksumming function: pIII_sse
-   pIII_sse  :  4744.000 MB/sec
-raid5: using function: pIII_sse (4744.000 MB/sec)
-raid6: int32x1    921 MB/s
-raid6: int32x2    992 MB/s
-raid6: int32x4    726 MB/s
-raid6: int32x8    609 MB/s
-raid6: mmxx1     1964 MB/s
-raid6: mmxx2     2269 MB/s
-raid6: sse1x1    1164 MB/s
-raid6: sse1x2    1250 MB/s
-raid6: sse2x1    2226 MB/s
-raid6: sse2x2    2402 MB/s
-raid6: using algorithm sse2x2 (2402 MB/s)
-md: raid6 personality registered as nr 8
-md: multipath personality registered as nr 7
-md: md driver 0.90.3 MAX_MD_DEVS=3D256, MD_SB_DISKS=3D27
-md: bitmap version 4.39
-device-mapper: 4.4.0-ioctl (2005-01-12) initialised: dm-devel@redhat.com
-device-mapper: dm-multipath version 1.0.4 loaded
-device-mapper: dm-round-robin version 1.0.0 loaded
-device-mapper: dm-emc version 0.0.3 loaded
-wbsd: Winbond W83L51xD SD/MMC card interface driver, 1.5
-wbsd: Copyright(c) Pierre Ossman
-padlock: VIA PadLock not detected.
-oprofile: using NMI interrupt.
-NET: Registered protocol family 2
-IP route cache hash table entries: 65536 (order: 6, 262144 bytes)
-TCP established hash table entries: 262144 (order: 9, 3145728 bytes)
-TCP bind hash table entries: 65536 (order: 7, 786432 bytes)
-TCP: Hash tables configured (established 262144 bind 65536)
-TCP reno registered
-IPv4 over IPv4 tunneling driver
-GRE over IPv4 tunneling driver
-TCP bic registered
-Initializing IPsec netlink socket
-NET: Registered protocol family 1
-NET: Registered protocol family 10
-lo: Disabled Privacy Extensions
-IPv6 over IPv4 tunneling driver
-NET: Registered protocol family 17
-NET: Registered protocol family 15
-Bridge firewalling registered
-802.1Q VLAN Support v1.8 Ben Greear <greearb@candelatech.com>
-All bugs added by David S. Miller <davem@redhat.com>
-CCID: Registered CCID 3 (ccid3)
-Using IPI Shortcut mode
-md: Autodetecting RAID arrays.
-spurious 8259A interrupt: IRQ7.
-md: autorun ...
-md: considering sdd3 ...
-md:  adding sdd3 ...
-md: sdd1 has different UUID to sdd3
-md:  adding sdc3 ...
-md: sdc1 has different UUID to sdd3
-md:  adding sdb3 ...
-md: sdb1 has different UUID to sdd3
-md:  adding sda3 ...
-md: sda1 has different UUID to sdd3
-md: created md1
-md: bind<sda3>
-md: bind<sdb3>
-md: bind<sdc3>
-md: bind<sdd3>
-md: running: <sdd3><sdc3><sdb3><sda3>
-raid10: raid set md1 active with 4 out of 4 devices
-md: considering sdd1 ...
-md:  adding sdd1 ...
-md:  adding sdc1 ...
-md:  adding sdb1 ...
-md:  adding sda1 ...
-md: created md0
-md: bind<sda1>
-md: bind<sdb1>
-md: bind<sdc1>
-md: bind<sdd1>
-md: running: <sdd1><sdc1><sdb1><sda1>
-raid1: raid set md0 active with 4 out of 4 mirrors
-md: ... autorun DONE.
-ReiserFS: md1: found reiserfs format "3.6" with standard journal
-ReiserFS: md1: using ordered data mode
-ReiserFS: md1: journal params: device md1, size 8192, journal first block 1=
-8, max trans len 1024, max batch 900, max commit age 30, max trans age 30
-ReiserFS: md1: checking transaction log (md1)
-ReiserFS: md1: Using r5 hash to sort names
-VFS: Mounted root (reiserfs filesystem) readonly.
-=46reeing unused kernel memory: 256k freed
-Adding 1004052k swap on /dev/sda2.  Priority:-1 extents:1 across:1004052k
-Adding 1004052k swap on /dev/sdb2.  Priority:-2 extents:1 across:1004052k
-PCI: Found IRQ 5 for device 0000:02:00.0
-PCI: Sharing IRQ 5 with 0000:01:09.0
-sk98lin: Network Device Driver v8.23.1.3
-(C)Copyright 1999-2005 Marvell(R).
-PCI: Found IRQ 5 for device 0000:02:00.0
-PCI: Sharing IRQ 5 with 0000:01:09.0
-PCI: Setting latency timer of device 0000:02:00.0 to 64
-eth0: Yukon Gigabit Ethernet 10/100/1000Base-T Adapter
-      PrefPort:A  RlmtMode:Check Link State
-PCI: Found IRQ 10 for device 0000:00:1b.0
-PCI: Sharing IRQ 10 with 0000:00:1d.3
-PCI: Sharing IRQ 10 with 0000:04:00.0
-PCI: Setting latency timer of device 0000:00:1b.0 to 64
-nvidia: no version for "struct_module" found: kernel tainted.
-nvidia: module license 'NVIDIA' taints kernel.
-PCI: Found IRQ 10 for device 0000:04:00.0
-PCI: Sharing IRQ 10 with 0000:00:1b.0
-PCI: Sharing IRQ 10 with 0000:00:1d.3
-PCI: Setting latency timer of device 0000:04:00.0 to 64
-NVRM: loading NVIDIA Linux x86 NVIDIA Kernel Module  1.0-7676  Fri Jul 29 1=
-2:58:54 PDT 2005
-ADDRCONF(NETDEV_UP): eth0: link is not ready
-eth0: network connection up using port A
-    speed:           100
-    autonegotiation: yes
-    duplex mode:     full
-    flowctrl:        none
-    irq moderation:  disabled
-    tcp offload:     enabled
-    scatter-gather:  enabled
-    tx-checksum:     enabled
-    rx-checksum:     enabled
-    rx-polling:      enabled
-ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
-cdrom: open failed.
-eth0: no IPv6 routers present
-usb 1-2.4: link qh8-3008/efad5300 start 7 [1/2 us]
-usb 1-2.4: unlink qh8-3008/efad5300 start 7 [1/2 us]
-ehci_hcd 0000:00:1d.7: reused qh efad5300 schedule
-usb 1-2.4: link qh8-3008/efad5300 start 7 [1/2 us]
+diff --git a/arch/m68k/fpsp040/bindec.S b/arch/m68k/fpsp040/bindec.S
+index 3ba446a..72f1159 100644
+--- a/arch/m68k/fpsp040/bindec.S
++++ b/arch/m68k/fpsp040/bindec.S
+@@ -131,9 +131,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
 
---Boundary-00=_E5X0D+U2UprzUHi--
+  |BINDEC    idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/binstr.S b/arch/m68k/fpsp040/binstr.S
+index d53555c..8a05ba9 100644
+--- a/arch/m68k/fpsp040/binstr.S
++++ b/arch/m68k/fpsp040/binstr.S
+@@ -60,9 +60,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |BINSTR    idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/bugfix.S b/arch/m68k/fpsp040/bugfix.S
+index 942c4f6..3bb9c84 100644
+--- a/arch/m68k/fpsp040/bugfix.S
++++ b/arch/m68k/fpsp040/bugfix.S
+@@ -152,9 +152,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |BUGFIX    idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/decbin.S b/arch/m68k/fpsp040/decbin.S
+index 2160609..16ed796 100644
+--- a/arch/m68k/fpsp040/decbin.S
++++ b/arch/m68k/fpsp040/decbin.S
+@@ -69,9 +69,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |DECBIN    idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/do_func.S b/arch/m68k/fpsp040/do_func.S
+index 81f6a98..3eff99a 100644
+--- a/arch/m68k/fpsp040/do_func.S
++++ b/arch/m68k/fpsp040/do_func.S
+@@ -22,9 +22,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  DO_FUNC:       |idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/fpsp.h b/arch/m68k/fpsp040/fpsp.h
+index 984a4eb..5df4cd7 100644
+--- a/arch/m68k/fpsp040/fpsp.h
++++ b/arch/m68k/fpsp040/fpsp.h
+@@ -5,9 +5,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |      fpsp.h --- stack frame offsets during FPSP exception handling
+  |
+diff --git a/arch/m68k/fpsp040/gen_except.S b/arch/m68k/fpsp040/gen_except.S
+index 401d06f..3642cb7 100644
+--- a/arch/m68k/fpsp040/gen_except.S
++++ b/arch/m68k/fpsp040/gen_except.S
+@@ -29,9 +29,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  GEN_EXCEPT:    |idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/get_op.S b/arch/m68k/fpsp040/get_op.S
+index c7c2f37..64c36d7 100644
+--- a/arch/m68k/fpsp040/get_op.S
++++ b/arch/m68k/fpsp040/get_op.S
+@@ -54,9 +54,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  GET_OP:    |idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/kernel_ex.S b/arch/m68k/fpsp040/kernel_ex.S
+index 476b711..45bcf34 100644
+--- a/arch/m68k/fpsp040/kernel_ex.S
++++ b/arch/m68k/fpsp040/kernel_ex.S
+@@ -12,9 +12,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  KERNEL_EX:    |idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/res_func.S b/arch/m68k/fpsp040/res_func.S
+index 8f6b952..d9cdf43 100644
+--- a/arch/m68k/fpsp040/res_func.S
++++ b/arch/m68k/fpsp040/res_func.S
+@@ -16,9 +16,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  RES_FUNC:    |idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/round.S b/arch/m68k/fpsp040/round.S
+index 00f9806..f84ae0d 100644
+--- a/arch/m68k/fpsp040/round.S
++++ b/arch/m68k/fpsp040/round.S
+@@ -8,9 +8,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |ROUND idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/sacos.S b/arch/m68k/fpsp040/sacos.S
+index 83b00ab..513c7cc 100644
+--- a/arch/m68k/fpsp040/sacos.S
++++ b/arch/m68k/fpsp040/sacos.S
+@@ -38,9 +38,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |SACOS idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/sasin.S b/arch/m68k/fpsp040/sasin.S
+index 5647a60..2a269a5 100644
+--- a/arch/m68k/fpsp040/sasin.S
++++ b/arch/m68k/fpsp040/sasin.S
+@@ -38,9 +38,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |SASIN idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/satan.S b/arch/m68k/fpsp040/satan.S
+index 20dae22..c8a6649 100644
+--- a/arch/m68k/fpsp040/satan.S
++++ b/arch/m68k/fpsp040/satan.S
+@@ -43,9 +43,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |satan idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/satanh.S b/arch/m68k/fpsp040/satanh.S
+index 20f0781..ba91f77 100644
+--- a/arch/m68k/fpsp040/satanh.S
++++ b/arch/m68k/fpsp040/satanh.S
+@@ -45,9 +45,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |satanh        idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/scale.S b/arch/m68k/fpsp040/scale.S
+index 5c9b805..04829dd 100644
+--- a/arch/m68k/fpsp040/scale.S
++++ b/arch/m68k/fpsp040/scale.S
+@@ -21,9 +21,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |SCALE    idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/scosh.S b/arch/m68k/fpsp040/scosh.S
+index e81edbb..07d3a4d 100644
+--- a/arch/m68k/fpsp040/scosh.S
++++ b/arch/m68k/fpsp040/scosh.S
+@@ -49,9 +49,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |SCOSH idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/setox.S b/arch/m68k/fpsp040/setox.S
+index 0aa75f9..145af54 100644
+--- a/arch/m68k/fpsp040/setox.S
++++ b/arch/m68k/fpsp040/setox.S
+@@ -331,9 +331,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |setox idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/sgetem.S b/arch/m68k/fpsp040/sgetem.S
+index 0fcbd04..d9234f4 100644
+--- a/arch/m68k/fpsp040/sgetem.S
++++ b/arch/m68k/fpsp040/sgetem.S
+@@ -24,9 +24,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |SGETEM        idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/sint.S b/arch/m68k/fpsp040/sint.S
+index 0f9bd28..0e92d4e 100644
+--- a/arch/m68k/fpsp040/sint.S
++++ b/arch/m68k/fpsp040/sint.S
+@@ -51,9 +51,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |SINT    idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/skeleton.S b/arch/m68k/fpsp040/skeleton.S
+index a162919..a8f4161 100644
+--- a/arch/m68k/fpsp040/skeleton.S
++++ b/arch/m68k/fpsp040/skeleton.S
+@@ -30,9 +30,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |
+  |      Modified for Linux-1.3.x by Jes Sorensen (jds@kom.auc.dk)
+diff --git a/arch/m68k/fpsp040/slog2.S b/arch/m68k/fpsp040/slog2.S
+index 517fa45..fac2c73 100644
+--- a/arch/m68k/fpsp040/slog2.S
++++ b/arch/m68k/fpsp040/slog2.S
+@@ -96,9 +96,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |SLOG2    idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/slogn.S b/arch/m68k/fpsp040/slogn.S
+index 2aaa072..d98eaf6 100644
+--- a/arch/m68k/fpsp040/slogn.S
++++ b/arch/m68k/fpsp040/slogn.S
+@@ -63,9 +63,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |slogn idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/smovecr.S b/arch/m68k/fpsp040/smovecr.S
+index a0127fa..73c3651 100644
+--- a/arch/m68k/fpsp040/smovecr.S
++++ b/arch/m68k/fpsp040/smovecr.S
+@@ -15,9 +15,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |SMOVECR       idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/srem_mod.S b/arch/m68k/fpsp040/srem_mod.S
+index 8c8d7f5..a27e70c 100644
+--- a/arch/m68k/fpsp040/srem_mod.S
++++ b/arch/m68k/fpsp040/srem_mod.S
+@@ -66,9 +66,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  SREM_MOD:    |idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/ssin.S b/arch/m68k/fpsp040/ssin.S
+index 043c91c..a1ef8e0 100644
+--- a/arch/m68k/fpsp040/ssin.S
++++ b/arch/m68k/fpsp040/ssin.S
+@@ -83,9 +83,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |SSIN  idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/ssinh.S b/arch/m68k/fpsp040/ssinh.S
+index c8b3308..8a560ed 100644
+--- a/arch/m68k/fpsp040/ssinh.S
++++ b/arch/m68k/fpsp040/ssinh.S
+@@ -49,9 +49,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |SSINH idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/stan.S b/arch/m68k/fpsp040/stan.S
+index b5c2a19..f8553aa 100644
+--- a/arch/m68k/fpsp040/stan.S
++++ b/arch/m68k/fpsp040/stan.S
+@@ -50,9 +50,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |STAN  idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/stanh.S b/arch/m68k/fpsp040/stanh.S
+index 33b0098..7e12e59 100644
+--- a/arch/m68k/fpsp040/stanh.S
++++ b/arch/m68k/fpsp040/stanh.S
+@@ -49,9 +49,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |STANH idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/sto_res.S b/arch/m68k/fpsp040/sto_res.S
+index 0cdca3b..484b47d 100644
+--- a/arch/m68k/fpsp040/sto_res.S
++++ b/arch/m68k/fpsp040/sto_res.S
+@@ -19,9 +19,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  STO_RES:       |idnt   2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/stwotox.S b/arch/m68k/fpsp040/stwotox.S
+index 4e3c140..0d5e6a1 100644
+--- a/arch/m68k/fpsp040/stwotox.S
++++ b/arch/m68k/fpsp040/stwotox.S
+@@ -76,9 +76,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |STWOTOX       idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/tbldo.S b/arch/m68k/fpsp040/tbldo.S
+index fe60cf4..fd5c37a 100644
+--- a/arch/m68k/fpsp040/tbldo.S
++++ b/arch/m68k/fpsp040/tbldo.S
+@@ -17,9 +17,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |TBLDO idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/util.S b/arch/m68k/fpsp040/util.S
+index 452f3d6..65b26fa 100644
+--- a/arch/m68k/fpsp040/util.S
++++ b/arch/m68k/fpsp040/util.S
+@@ -16,9 +16,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  |UTIL  idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/x_bsun.S b/arch/m68k/fpsp040/x_bsun.S
+index 039247b..d5a576b 100644
+--- a/arch/m68k/fpsp040/x_bsun.S
++++ b/arch/m68k/fpsp040/x_bsun.S
+@@ -13,9 +13,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  X_BSUN:        |idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/x_fline.S b/arch/m68k/fpsp040/x_fline.S
+index 3917710..264e126 100644
+--- a/arch/m68k/fpsp040/x_fline.S
++++ b/arch/m68k/fpsp040/x_fline.S
+@@ -13,9 +13,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  X_FLINE:       |idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/x_operr.S b/arch/m68k/fpsp040/x_operr.S
+index b0f54bc..e2c371c 100644
+--- a/arch/m68k/fpsp040/x_operr.S
++++ b/arch/m68k/fpsp040/x_operr.S
+@@ -43,9 +43,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  X_OPERR:       |idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/x_ovfl.S b/arch/m68k/fpsp040/x_ovfl.S
+index 22cb8b4..6fe4989 100644
+--- a/arch/m68k/fpsp040/x_ovfl.S
++++ b/arch/m68k/fpsp040/x_ovfl.S
+@@ -35,9 +35,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  X_OVFL:        |idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/x_snan.S b/arch/m68k/fpsp040/x_snan.S
+index 039af57..4ed7664 100644
+--- a/arch/m68k/fpsp040/x_snan.S
++++ b/arch/m68k/fpsp040/x_snan.S
+@@ -22,9 +22,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  X_SNAN:        |idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/x_store.S b/arch/m68k/fpsp040/x_store.S
+index 4282fa6..402dc0c 100644
+--- a/arch/m68k/fpsp040/x_store.S
++++ b/arch/m68k/fpsp040/x_store.S
+@@ -11,9 +11,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  X_STORE:       |idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/x_unfl.S b/arch/m68k/fpsp040/x_unfl.S
+index 077fcc2..eb772ff 100644
+--- a/arch/m68k/fpsp040/x_unfl.S
++++ b/arch/m68k/fpsp040/x_unfl.S
+@@ -21,9 +21,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  X_UNFL:        |idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/x_unimp.S b/arch/m68k/fpsp040/x_unimp.S
+index 920cb94..6f382b2 100644
+--- a/arch/m68k/fpsp040/x_unimp.S
++++ b/arch/m68k/fpsp040/x_unimp.S
+@@ -22,9 +22,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  X_UNIMP:       |idnt    2,1 | Motorola 040 Floating Point Software Package
+
+diff --git a/arch/m68k/fpsp040/x_unsupp.S b/arch/m68k/fpsp040/x_unsupp.S
+index 4ec5728..d7cf462 100644
+--- a/arch/m68k/fpsp040/x_unsupp.S
++++ b/arch/m68k/fpsp040/x_unsupp.S
+@@ -23,9 +23,8 @@
+  |              Copyright (C) Motorola, Inc. 1990
+  |                      All Rights Reserved
+  |
+-|      THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF MOTOROLA
+-|      The copyright notice above does not evidence any
+-|      actual or intended publication of such source code.
++|       For details on the license for this file, please see the
++|       file, README, in this same directory.
+
+  X_UNSUPP:      |idnt    2,1 | Motorola 040 Floating Point Software Package

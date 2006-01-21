@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWAUAfm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWAUAfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbWAUAfm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 19:35:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWAUAfl
+	id S932308AbWAUAfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 19:35:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932310AbWAUAfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 19:35:41 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14867 "HELO
+	Fri, 20 Jan 2006 19:35:09 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:13843 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932319AbWAUAfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 19:35:18 -0500
-Date: Sat, 21 Jan 2006 01:35:17 +0100
+	id S932308AbWAUAfI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 19:35:08 -0500
+Date: Sat, 21 Jan 2006 01:35:08 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: jaharkes@cs.cmu.edu, coda@cs.cmu.edu
-Cc: codalist@TELEMANN.coda.cs.cmu.edu, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/coda/: proper prototypes
-Message-ID: <20060121003517.GJ31803@stusta.de>
+To: ext2-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fs/ext2/: proper ext2_get_parent() prototype
+Message-ID: <20060121003508.GH31803@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,102 +22,37 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch introduces a file fs/coda/coda_int.h with proper prototypes 
-for some code.
+This patch adds a proper prototype for ext2_get_parent().
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- fs/coda/coda_int.h |   13 +++++++++++++
- fs/coda/dir.c      |    3 ++-
- fs/coda/file.c     |    2 ++
- fs/coda/inode.c    |    2 ++
- fs/coda/psdev.c    |    9 ++-------
- 5 files changed, 21 insertions(+), 8 deletions(-)
+ fs/ext2/ext2.h  |    3 +++
+ fs/ext2/super.c |    1 -
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
---- /dev/null	2005-11-08 19:07:57.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/coda/coda_int.h	2006-01-21 01:06:23.000000000 +0100
-@@ -0,0 +1,13 @@
-+#ifndef _CODA_INT_
-+#define _CODA_INT_
-+
-+extern struct file_system_type coda_fs_type;
-+
-+void coda_destroy_inodecache(void);
-+int coda_init_inodecache(void);
-+int coda_fsync(struct file *coda_file, struct dentry *coda_dentry,
-+	       int datasync);
-+
-+#endif  /*  _CODA_INT_  */
-+
-+
---- linux-2.6.16-rc1-mm2-full/fs/coda/file.c.old	2006-01-21 01:02:36.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/coda/file.c	2006-01-21 01:02:51.000000000 +0100
-@@ -24,6 +24,8 @@
- #include <linux/coda_psdev.h>
- #include <linux/coda_proc.h>
+--- linux-2.6.16-rc1-mm2-full/fs/ext2/ext2.h.old	2006-01-21 01:11:51.000000000 +0100
++++ linux-2.6.16-rc1-mm2-full/fs/ext2/ext2.h	2006-01-21 01:12:26.000000000 +0100
+@@ -138,6 +138,9 @@
+ extern int ext2_ioctl (struct inode *, struct file *, unsigned int,
+ 		       unsigned long);
  
-+#include "coda_int.h"
++/* namei.c */
++struct dentry *ext2_get_parent(struct dentry *child);
 +
- /* if CODA_STORE fails with EOPNOTSUPP, venus clearly doesn't support
-  * CODA_STORE/CODA_RELEASE and we fall back on using the CODA_CLOSE upcall */
- static int use_coda_close;
---- linux-2.6.16-rc1-mm2-full/fs/coda/dir.c.old	2006-01-21 01:03:33.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/coda/dir.c	2006-01-21 01:03:57.000000000 +0100
-@@ -27,6 +27,8 @@
- #include <linux/coda_cache.h>
- #include <linux/coda_proc.h>
- 
-+#include "coda_int.h"
-+
- /* dir inode-ops */
- static int coda_create(struct inode *dir, struct dentry *new, int mode, struct nameidata *nd);
- static struct dentry *coda_lookup(struct inode *dir, struct dentry *target, struct nameidata *nd);
-@@ -50,7 +52,6 @@
- /* support routines */
- static int coda_venus_readdir(struct file *filp, filldir_t filldir,
- 			      void *dirent, struct dentry *dir);
--int coda_fsync(struct file *, struct dentry *dentry, int datasync);
- 
- /* same as fs/bad_inode.c */
- static int coda_return_EIO(void)
---- linux-2.6.16-rc1-mm2-full/fs/coda/inode.c.old	2006-01-21 01:04:12.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/coda/inode.c	2006-01-21 01:04:28.000000000 +0100
-@@ -31,6 +31,8 @@
- #include <linux/coda_fs_i.h>
- #include <linux/coda_cache.h>
- 
-+#include "coda_int.h"
-+
- /* VFS super_block ops */
- static void coda_clear_inode(struct inode *);
- static void coda_put_super(struct super_block *);
---- linux-2.6.16-rc1-mm2-full/fs/coda/psdev.c.old	2006-01-21 01:04:36.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/coda/psdev.c	2006-01-21 01:06:07.000000000 +0100
-@@ -48,12 +48,9 @@
- #include <linux/coda_psdev.h>
- #include <linux/coda_proc.h>
- 
--#define upc_free(r) kfree(r)
-+#include "coda_int.h"
- 
--/* 
-- * Coda stuff
-- */
--extern struct file_system_type coda_fs_type;
-+#define upc_free(r) kfree(r)
- 
- /* statistics */
- int           coda_hard;         /* allows signals during upcalls */
-@@ -394,8 +391,6 @@
- MODULE_AUTHOR("Peter J. Braam <braam@cs.cmu.edu>");
- MODULE_LICENSE("GPL");
- 
--extern int coda_init_inodecache(void);
--extern void coda_destroy_inodecache(void);
- static int __init init_coda(void)
- {
- 	int status;
+ /* super.c */
+ extern void ext2_error (struct super_block *, const char *, const char *, ...)
+ 	__attribute__ ((format (printf, 3, 4)));
+--- linux-2.6.16-rc1-mm2-full/fs/ext2/super.c.old	2006-01-21 01:12:36.000000000 +0100
++++ linux-2.6.16-rc1-mm2-full/fs/ext2/super.c	2006-01-21 01:12:48.000000000 +0100
+@@ -253,7 +253,6 @@
+  * systems, but can be improved upon.
+  * Currently only get_parent is required.
+  */
+-struct dentry *ext2_get_parent(struct dentry *child);
+ static struct export_operations ext2_export_ops = {
+ 	.get_parent = ext2_get_parent,
+ };
 

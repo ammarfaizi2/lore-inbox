@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWAUBBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWAUBCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWAUBBU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 20:01:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWAUBBU
+	id S932285AbWAUBCa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 20:02:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWAUBCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 20:01:20 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:30665 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932286AbWAUBBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 20:01:20 -0500
-Subject: Re: [Alsa-devel] Re: RFC: OSS driver removal, a slightly different
-	approach
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@redhat.com>, Krzysztof Halasa <khc@pm.waw.pl>,
-       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org, perex@suse.cz
-In-Reply-To: <1137719627.8471.89.camel@localhost.localdomain>
-References: <20060119174600.GT19398@stusta.de>
-	 <m3ek34vucz.fsf@defiant.localdomain> <1137703413.32195.23.camel@mindpipe>
-	 <1137709135.8471.73.camel@localhost.localdomain>
-	 <20060119224222.GW21663@redhat.com>  <1137711088.3241.9.camel@mindpipe>
-	 <1137719627.8471.89.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 20 Jan 2006 20:01:17 -0500
-Message-Id: <1137805277.3241.53.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jan 2006 20:02:30 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29971 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932285AbWAUBCa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 20:02:30 -0500
+Date: Sat, 21 Jan 2006 02:02:29 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Badari Pulavarty <pbadari@us.ibm.com>
+Subject: Re: [2.6 patch] the scheduled removal of the obsolete raw driver
+Message-ID: <20060121010229.GP31803@stusta.de>
+References: <20060118194103.5c569040.akpm@osdl.org> <200601190543.k0J5hBg06542@unix-os.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601190543.k0J5hBg06542@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-20 at 01:13 +0000, Alan Cox wrote:
-> On Iau, 2006-01-19 at 17:51 -0500, Lee Revell wrote:
-> > The status is we need someone who has the hardware who can add printk's
-> > to the driver to identify what triggers the hang.  It should not be
-> > hard, the OSS driver reportedly works.
+On Wed, Jan 18, 2006 at 09:43:12PM -0800, Chen, Kenneth W wrote:
+> Andrew Morton wrote on Wednesday, January 18, 2006 7:41 PM
+> > Adrian Bunk <bunk@stusta.de> wrote:
+> > >
+> > > Let's do the scheduled removal of the obsolete raw driver in 2.6.17.
+> > > 
 > > 
-> > https://bugtrack.alsa-project.org/alsa-bug/view.php?id=328
+> > heh.  I was just thinking that I hadn't heard from Badari and Ken in a while.
 > > 
-> > The bug has been in FEEDBACK state for a long time.
+> > I doubt if this'll fly.  We're stuck with it.
 > 
-> 99.9% of users don't ever look in ALSA bugzilla. 
 > 
-> A dig shows
-> 
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=157371
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=171221
-> 
+> Could we please, leave the raw device driver alone.  ISV is doing
+> their diligent work converting new code to O_DIRECT, but large amount
+> of field customers are still using raw device in their setup.
 
-I know, we don't expect users to look in it.  But you can't expect a
-handful of developers, only two of whom are paid to work on ALSA, to
-track every distro's bugzilla either.  It's hard enough to keep up with
-the ALSA bug tracker.
+Why did noone tell me anythong about such issues although I'm the one 
+listed as having this driver deprecated?
+Is our feature removal process completely busted?
 
-The best solution is for the distros to make sure to refer users with
-ALSA problems to the ALSA bug tracker, and for the maintainers of the
-distro bugzillas to properly forward bugs upstream, like Debian does.
+And WTF is ISV?
 
-Lee
+> - Ken
 
+cu
+Adrian
 
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

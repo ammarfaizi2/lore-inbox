@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWAUSpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWAUSqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbWAUSpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 13:45:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWAUSpJ
+	id S932248AbWAUSqj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 13:46:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWAUSqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 13:45:09 -0500
-Received: from xproxy.gmail.com ([66.249.82.200]:16251 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932233AbWAUSpH convert rfc822-to-8bit
+	Sat, 21 Jan 2006 13:46:39 -0500
+Received: from gateway.argo.co.il ([194.90.79.130]:17156 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S932240AbWAUSqi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 13:45:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tKOK3Ocr43wRbD0apkQlkXLBkLK6tlFboIjRSgehBHUA7uq+p2cjL5GjRWJ7u4bYBPgrFwa25LDuweX7e/DXC29w3+vvja0v4/W4NcvvpWiMD4QkvjGo1tZ8puZ/9T9HVRXg1M9o1U2ti4x5nsSVwyhDNvU68zVfM3IMz8rZEi0=
-Message-ID: <986ed62e0601211045p4a61a7c2v91d401af86f50d6@mail.gmail.com>
-Date: Sat, 21 Jan 2006 10:45:06 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Ed Tomlinson <edt@aei.ca>
-Subject: Re: 2.6.16-rc1-mm2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com, jgarzik@pobox.com, linux-scsi@vger.kernel.org
-In-Reply-To: <200601211139.29019.edt@aei.ca>
+	Sat, 21 Jan 2006 13:46:38 -0500
+Message-ID: <43D28189.3080407@argo.co.il>
+Date: Sat, 21 Jan 2006 20:46:33 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060120031555.7b6d65b7.akpm@osdl.org> <43D170CB.8080802@reub.net>
-	 <200601211014.44041.edt@aei.ca> <200601211139.29019.edt@aei.ca>
+To: Al Boldi <a1426z@gawab.com>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] VM: I have a dream...
+References: <200601212108.41269.a1426z@gawab.com>
+In-Reply-To: <200601212108.41269.a1426z@gawab.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Jan 2006 18:46:37.0118 (UTC) FILETIME=[0231E5E0:01C61EBB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/21/06, Ed Tomlinson <edt@aei.ca> wrote:
-> grover:/var/log# smartctl -i -d ata /dev/sda
-[snip]
-> grover:/var/log# smartctl -H -d ata /dev/sda
-> smartctl version 5.34 [x86_64-unknown-linux-gnu] Copyright (C) 2002-5 Bruce Allen
-> Home page is http://smartmontools.sourceforge.net/
->
-> === START OF READ SMART DATA SECTION ===
-> SMART overall-health self-assessment test result: PASSED
->
-> ---
->
-> Hope this helps and that I found the correct places to copy the info.
+Al Boldi wrote:
 
-How about:
-smartctl -a -d ata /dev/sda
-or, if that produces too much output, then at least the following two:
-smartctl -A -d ata /dev/sda
-smartctl -l error -d ata /dev/sda
+>A long time ago, when i was a kid, I had dream. It went like this:
+>
+>I am waking up in the twenty-first century and start my computer.
+>After completing the boot sequence, I start top to find that my memory is 
+>equal to total disk-capacity.  What's more, there is no more swap.
+>Apps are executed inplace, as if already loaded.
+>Physical RAM is used to cache slower storage RAM, much the same as the CPU 
+>cache RAM caches slower physical RAM.
+>
+>  
+>
+I'm sure you can find a 4GB disk on ebay.
 
-That way we might be able to figure out whether the disk
-coincidentally started going bad after you updated the kernel.
---
--Barry K. Nathan <barryn@pobox.com>
+>When I woke up, I was really looking forward for the new century.
+>
+>Sadly, the current way of dealing with memory can at best only be described 
+>as schizophrenic.  Again the reason being, that we are still running in the 
+>last-century mode.
+>
+>Wouldn't it be nice to take advantage of todays 64bit archs and TB drives, 
+>and run a more modern way of life w/o this memory/storage split personality?
+>  
+>
+Perhaps you'd be interested in single-level store architectures, where 
+no distinction is made between memory and storage. IBM uses it in one 
+(or maybe more) of their systems. A particularly interesting example is 
+http://www.eros-os.org.
+
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+

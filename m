@@ -1,92 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWAUCJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWAUC1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932391AbWAUCJY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 21:09:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWAUCJY
+	id S1750785AbWAUC1O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 21:27:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWAUC1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 21:09:24 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:28248 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932391AbWAUCJX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 21:09:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=p/5hSdoOzmgX4b3Y6GJgIQl13oI9WcYn45MRopQ9oyUShqQY1JhWLuPvUz7TF1lBQoX/rjkTpcdhdYyFiRS5Gtn00JuzlYzLeg9NmroQ8r5V4nXhgBAaPBbnH361X8vsqqq1w5TE9TSIhUXP8Iwub/FCJlcnY8FXyaB7E2Kz2pw=
-Message-ID: <43D197C9.7050507@gmail.com>
-Date: Sat, 21 Jan 2006 11:09:13 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Luyer <david@luyer.net>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ASUS A7V-E SE + Linux Kernel 2.6.15.1 = SATA Issues
-References: <200601181512.k0IFCsfU021937@typhaon.pacific.net.au>
-In-Reply-To: <200601181512.k0IFCsfU021937@typhaon.pacific.net.au>
-Content-Type: text/plain; charset=EUC-KR
+	Fri, 20 Jan 2006 21:27:14 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:27865 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750785AbWAUC1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 21:27:13 -0500
+Subject: Re: [Alsa-devel] RFC: OSS driver removal, a slightly different
+	approach
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Peter Zubaj <pzad@pobox.sk>, alsa-devel@lists.sourceforge.net,
+       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org, perex@suse.cz
+In-Reply-To: <Pine.LNX.4.61.0601201524080.22940@yvahk01.tjqt.qr>
+References: <20060119174600.GT19398@stusta.de>
+	 <200601191947.20748.pzad@pobox.sk>
+	 <Pine.LNX.4.61.0601201524080.22940@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Date: Fri, 20 Jan 2006 21:27:10 -0500
+Message-Id: <1137810430.3241.97.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Luyer wrote:
-> I have a system which was working perfectly with A7V motherboard and
-> kernel 2.6.13.2.  After a motherboard upgrade to A7V-E SE (only other
-> changes being graphics card and power supply), kernel 2.6.13.2 hung
-> during initial ATA detection, so I am now attempting to get 2.6.15.1
-> working (as the latest stable kernel).
+On Fri, 2006-01-20 at 15:25 +0100, Jan Engelhardt wrote:
+> >Hi,
+> >
+> >On Thursday 19 January 2006 18:46, Adrian Bunk wrote:
+> >> SOUND_EMU10K1
+> >> - ALSA #1735 (OSS emulation 4-channel mode rear channels not working)
+> >
+> >If I understand alsa - oss emulation correctly, I think, this will be not 
+> >fixed soon (my opinion - never). This is too much work for too little gain.
 > 
-> 2.6.15.1 can read the hard disks, just very slowly (with many timeouts,
-> I am now leaving the system overnight to boot up - so far, it has
-> autorun the MD arrays and detected the ReiserFS format).
+> On that way, I'd like to inquiry something:
+> I have a card that works with the snd-cs46xx module.
+> With the OSS emulation (/dev/dsp), I can only output 2 channels, and the 
+> other two must be sent to /dev/adsp. Is this intended? Would not it be 
+> easier to make /dev/dsp allow receiving an ioctl setting 4 channels?
 > 
-> System summary:
->         Motherboard: ASUS A7V-E SE
->         BIOS: 1007; set to IDE in "SATA Mode" (IDE or RAID)
->         Kernel: 2.6.15.1 with CONFIG_SCSI_SATA_VIA
->         Hard disks: 2 x WDC WD2500KS-00M Rev 02.0; Linux MD RAID1
-> 
-> Hangs are experienced followed by the following lines on the console:
->         ata1: slow completion (cmd ef)
->         ata2: slow completion (cmd ef)
->                 -- above messages occur once each per boot
->         ata1: command 0x25 timeout, stat 0x50 host_stat 24
->         ata2: command 0x25 timeout, stat 0x50 host_stat 24
->                 -- above messages occur numerous times,
->                    perhaps even every block read
-> 
-> Other interesting bootup messages include numerous PCI: Via IRQ fixup
-> messages (presumably one per device, definitely including the SATA
-> controller).
-> 
-> dmesg and lspci -vvx will be sent through if the boot completes,
-> assuming the kernel log buffer is long enough to perform a dmesg
-> with information other than all the timeouts once the boot
-> completes.  Or, if the boot doesn't complete by tomorrow, I'll
-> look into building a kernel with significantly reduced SATA
-> command timeouts (and a larger kernel log buffer if required),
-> to try and get this information.
-> 
-> Any initial suggestions in the interim?  I need PCI Express
-> for a graphics card to support a Dell 3007FPW, avoided nForce4
-> due to excessive random corruption with the nForce4 and WD2500KS
-> drives under Windows in another system, and would really prefer
-> not to buy yet another motherboard, so I would really like
-> to get this working.
 
-It seems like IRQ routing problem.  The driver never receives the
-completion interrupts.  When it times out, it finds out that the command
-is actually complete, so the slow completion messages.  Turning off ACPI
-seems to be a popular solution.
+Why can't you just use aoss?
 
-> 
-> Random irrelevant evil thoughts: could Intel VT make BIOS hard
-> disk access viable for Linux by proxying disk accesses through
-> a second virtual machine?  Or even Windows SATA driver support
-> through SAMBA to a disk image on a Windows machine on a second
-> virtual machine?
+Lee
 
-Oh well, it would be much easier/better to just fix the original problem.
-
--- 
-tejun

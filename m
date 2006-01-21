@@ -1,127 +1,201 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWAUAgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbWAUAjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWAUAgf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 19:36:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbWAUAgf
+	id S932322AbWAUAjo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 19:39:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWAUAjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 19:36:35 -0500
-Received: from free.wgops.com ([69.51.116.66]:45833 "EHLO shell.wgops.com")
-	by vger.kernel.org with ESMTP id S932319AbWAUAge convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 19:36:34 -0500
-Date: Fri, 20 Jan 2006 17:36:21 -0700
-From: Michael Loftis <mloftis@wgops.com>
-To: lgb@lgb.hu, linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE?
-Message-ID: <DA31AE528A022A540AF35840@d216-220-25-20.dynip.modwest.com>
-In-Reply-To: <20060120170851.GA11489@lgb.hu>
-References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com>
- <20060120170851.GA11489@lgb.hu>
-X-Mailer: Mulberry/4.0.4 (Mac OS X)
+	Fri, 20 Jan 2006 19:39:44 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19475 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932322AbWAUAjn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 19:39:43 -0500
+Date: Sat, 21 Jan 2006 01:39:42 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: yi.zhu@intel.com, jketreno@linux.intel.com
+Cc: linville@tuxdriver.com, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/net/wireless/ipw2200: possible cleanups
+Message-ID: <20060121003942.GL31803@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-MailScanner-Information: Please contact support@wgops.com
-X-MailScanner: WGOPS clean
-X-MailScanner-From: mloftis@wgops.com
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch contains the following possible cleanups:
+- make needlessly global functions static
+- "extern inline" -> "static inline"
+- #if 0 the unused global function ipw_led_activity_on()
 
 
---On January 20, 2006 6:08:52 PM +0100 Gábor Lénárt <lgb@lgb.hu> wrote:
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> Though I'm not a kernel developer let me allow to comment this based on
-> my experiences as well.
->
-> On Fri, Jan 20, 2006 at 08:17:40AM -0700, Michael Loftis wrote:
->> OK, I don't know abotu others, but I'm starting to get sick of this
->> unstable stable kernel.  Either change the statements allover that were
->
-> What kind of instability have you got? I haven't had any instability since
-> at least a year or so, or if there was it was some kind of hardware fault.
-> In fact, many machines (like an Armada E500 notebook and some servers as
-> well) seems to be stable which was NOT in case of 2.4 kernels! So for our
-> experience at our workplace, 2.6 seems to be much more usable than 2.4.x
-> kernels (ok, it may be caused by "newer" hardwares, on quite old machines
-> I can't show major difference in stability between 2.4 and 2.6)
+---
 
-There's two parts of stable in most of the development world, runs on my 
-hardware reliably/runs on most hardware reliably is one part, the other 
-part is limited change, usually limited to bugfixes and minor feature fixes 
-or updates.  This means that instead of having to take how ever many 
-(probably thousands on thousands) of lines of difference, and any of those 
-potential new bugs etc, to a much reduced set that just deals with specific 
-subsections in order to close specific bugs.  Be it a minor change to fix 
-support for a new PCI ID, or a a buffer overflow.  API changes or 
-relocation of headers and such would be kept out of a stable branch.  It's 
-that second part I hear see and have objections about with 2.6 as it sits. 
-There's no 'place' for bugfixes to centralize.  I know that a number of my 
-problems are fixed in later kernels, but there's a LOT of fairly large 
-change between where I am, and where current is.  Far more than would be in 
-a normal stable piece of software.
+ drivers/net/wireless/ipw2200.c |   33 ++++++++++++++++++---------------
+ drivers/net/wireless/ipw2200.h |    4 ++--
+ 2 files changed, 20 insertions(+), 17 deletions(-)
 
-<...>
-
-> Ah, I see your point. But is it really a BIG problem? I mean please
-> mention some *real* issue/story confirm your opinion. Sure, you can find,
-> but also compare it with the advantages of new development model, since
-> there is nothing in the world which is only have advantages neither
-> something which only has disadvantages ... The would is not black or
-> white, but a great spectrum of gray shades.
-
-Yup, from 2.6.8 sometime after 2.6.8 aic7xxx is pretty clearly broken from 
-many reports I've seen, it was finally fixed in 2.6.15 (I do not know hte 
-bug exactly, sorry, I'm using others reports).  In 2.6.8 it's a little 
-broken, but mostly working.  If there had been a major bug between there 
-and .15 that required me to upgrade to close a security hole I'd have been 
-stuck, unable and impossible to upgrade, for that one reason alone.  Worse 
-than that because there is so much major change now I have to stress test 
-basically every kernel before we can actually start to use it at my day 
-job.  We host well over 10k busy mostly dynamic (PHP, Perl, Miva, other 
-stuff) web sites on a cluster of Linux based servers.  If there's subtle 
-problems they show up in a big way usually, and having them in production 
-is not acceptable.
-
-If there was a stable branch with a low change rate then it's easy to track 
-the changes even just 'visually' without necessarily having to go through a 
-whole stress testing procedure.
-
-I'm not saying an increased/rapid development pace is a bad thing.  I'm 
-just wondering where the refuge from that is for systems that don't need, 
-don't want, or really can't have that level of change happening, without 
-resorting to maintaining ones own kernel fork.  It's one thing to 
-compile/package ones own custom packages for a distro when you're already 
-using custom kernels or not using their kernel, or even if you're just 
-using your own, it's another to actually really maintain your own tree by 
-oneself.
-
-Yes I agree with what others have said, it gets to be more and more work. 
-Perhaps something along the lines of 3 6 or 9 months with 1 or 2 'community 
-supported stable releases'  -- in my day job i'd personally like to see 
-longer terms, but ~6 months would be manageable atleast as to major change 
-bumps.
-
->
->> Yes, I'm venting some frustrations here, but I can't be the only one.  I
->> know now I'm going to be called a troll or a naysayer but whatever.  The
->> fact is it needs saying.  I shouldn't have to do major changes to
->> accomodate sysfs in a *STABLE* kernel when going between point revs.
->> This  is just not how it's been done in the past.
->
-> sysfs should not used by an average application, I guess, so it's not a
-> major point
-
-No not in itself.  I'm looking at a LOT bigger issue.  Everyone seems to 
-want to look at and work with a tiny little piece, but there's the bigger 
-issue of what is stable.  What does it mean to be stable.  In the minds of 
-the people I've worked with directly it's always meant the two things 
-outlined earlier.  Runs reliably, and is in a maintenance mode (yes, 
-synonymous maybe with stagnant).  That means that it is necessarily a fork, 
-away from the main line(s) of development and work.  But it serves a 
-purpose in many environments.  It's utility is lost in the average desktop, 
-but in the corporate desktop, in servers, embedded devices, commercial 
-products, etc. it's a big win.
-
+--- linux-2.6.16-rc1-mm2-full/drivers/net/wireless/ipw2200.h.old	2006-01-21 01:15:58.000000000 +0100
++++ linux-2.6.16-rc1-mm2-full/drivers/net/wireless/ipw2200.h	2006-01-21 01:16:30.000000000 +0100
+@@ -853,7 +853,7 @@
+ 	u16 dwell_time[IPW_SCAN_TYPES];
+ } __attribute__ ((packed));
+ 
+-extern inline u8 ipw_get_scan_type(struct ipw_scan_request_ext *scan, u8 index)
++static inline u8 ipw_get_scan_type(struct ipw_scan_request_ext *scan, u8 index)
+ {
+ 	if (index % 2)
+ 		return scan->scan_type[index / 2] & 0x0F;
+@@ -861,7 +861,7 @@
+ 		return (scan->scan_type[index / 2] & 0xF0) >> 4;
+ }
+ 
+-extern inline void ipw_set_scan_type(struct ipw_scan_request_ext *scan,
++static inline void ipw_set_scan_type(struct ipw_scan_request_ext *scan,
+ 				     u8 index, u8 scan_type)
+ {
+ 	if (index % 2)
+--- linux-2.6.16-rc1-mm2-full/drivers/net/wireless/ipw2200.c.old	2006-01-21 00:54:24.000000000 +0100
++++ linux-2.6.16-rc1-mm2-full/drivers/net/wireless/ipw2200.c	2006-01-21 01:17:04.000000000 +0100
+@@ -701,7 +701,7 @@
+ 
+ }
+ 
+-u32 ipw_register_toggle(u32 reg)
++static u32 ipw_register_toggle(u32 reg)
+ {
+ 	reg &= ~IPW_START_STANDBY;
+ 	if (reg & IPW_GATE_ODMA)
+@@ -726,7 +726,7 @@
+ #define LD_TIME_LINK_OFF 2700
+ #define LD_TIME_ACT_ON 250
+ 
+-void ipw_led_link_on(struct ipw_priv *priv)
++static void ipw_led_link_on(struct ipw_priv *priv)
+ {
+ 	unsigned long flags;
+ 	u32 led;
+@@ -769,7 +769,7 @@
+ 	mutex_unlock(&priv->mutex);
+ }
+ 
+-void ipw_led_link_off(struct ipw_priv *priv)
++static void ipw_led_link_off(struct ipw_priv *priv)
+ {
+ 	unsigned long flags;
+ 	u32 led;
+@@ -847,6 +847,7 @@
+ 	}
+ }
+ 
++#if 0
+ void ipw_led_activity_on(struct ipw_priv *priv)
+ {
+ 	unsigned long flags;
+@@ -854,8 +855,9 @@
+ 	__ipw_led_activity_on(priv);
+ 	spin_unlock_irqrestore(&priv->lock, flags);
+ }
++#endif  /*  0  */
+ 
+-void ipw_led_activity_off(struct ipw_priv *priv)
++static void ipw_led_activity_off(struct ipw_priv *priv)
+ {
+ 	unsigned long flags;
+ 	u32 led;
+@@ -890,7 +892,7 @@
+ 	mutex_unlock(&priv->mutex);
+ }
+ 
+-void ipw_led_band_on(struct ipw_priv *priv)
++static void ipw_led_band_on(struct ipw_priv *priv)
+ {
+ 	unsigned long flags;
+ 	u32 led;
+@@ -925,7 +927,7 @@
+ 	spin_unlock_irqrestore(&priv->lock, flags);
+ }
+ 
+-void ipw_led_band_off(struct ipw_priv *priv)
++static void ipw_led_band_off(struct ipw_priv *priv)
+ {
+ 	unsigned long flags;
+ 	u32 led;
+@@ -948,24 +950,24 @@
+ 	spin_unlock_irqrestore(&priv->lock, flags);
+ }
+ 
+-void ipw_led_radio_on(struct ipw_priv *priv)
++static void ipw_led_radio_on(struct ipw_priv *priv)
+ {
+ 	ipw_led_link_on(priv);
+ }
+ 
+-void ipw_led_radio_off(struct ipw_priv *priv)
++static void ipw_led_radio_off(struct ipw_priv *priv)
+ {
+ 	ipw_led_activity_off(priv);
+ 	ipw_led_link_off(priv);
+ }
+ 
+-void ipw_led_link_up(struct ipw_priv *priv)
++static void ipw_led_link_up(struct ipw_priv *priv)
+ {
+ 	/* Set the Link Led on for all nic types */
+ 	ipw_led_link_on(priv);
+ }
+ 
+-void ipw_led_link_down(struct ipw_priv *priv)
++static void ipw_led_link_down(struct ipw_priv *priv)
+ {
+ 	ipw_led_activity_off(priv);
+ 	ipw_led_link_off(priv);
+@@ -974,7 +976,7 @@
+ 		ipw_led_radio_off(priv);
+ }
+ 
+-void ipw_led_init(struct ipw_priv *priv)
++static void ipw_led_init(struct ipw_priv *priv)
+ {
+ 	priv->nic_type = priv->eeprom[EEPROM_NIC_TYPE];
+ 
+@@ -1025,7 +1027,7 @@
+ 	}
+ }
+ 
+-void ipw_led_shutdown(struct ipw_priv *priv)
++static void ipw_led_shutdown(struct ipw_priv *priv)
+ {
+ 	ipw_led_activity_off(priv);
+ 	ipw_led_link_off(priv);
+@@ -6146,7 +6148,8 @@
+ 	return ret;
+ }
+ 
+-void ipw_wpa_assoc_frame(struct ipw_priv *priv, char *wpa_ie, int wpa_ie_len)
++static void ipw_wpa_assoc_frame(struct ipw_priv *priv, char *wpa_ie,
++				int wpa_ie_len)
+ {
+ 	/* make sure WPA is enabled */
+ 	ipw_wpa_enable(priv, 1);
+@@ -9977,7 +9980,7 @@
+ 	mutex_unlock(&priv->mutex);
+ }
+ 
+-void ipw_link_up(struct ipw_priv *priv)
++static void ipw_link_up(struct ipw_priv *priv)
+ {
+ 	priv->last_seq_num = -1;
+ 	priv->last_frag_num = -1;
+@@ -10012,7 +10015,7 @@
+ 	mutex_unlock(&priv->mutex);
+ }
+ 
+-void ipw_link_down(struct ipw_priv *priv)
++static void ipw_link_down(struct ipw_priv *priv)
+ {
+ 	ipw_led_link_down(priv);
+ 	netif_carrier_off(priv->net_dev);
 

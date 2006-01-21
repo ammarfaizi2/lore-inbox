@@ -1,115 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWAUL2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWAUL3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWAUL2L (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 06:28:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWAUL2K
+	id S932144AbWAUL3r (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 06:29:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbWAUL3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 06:28:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:65080 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932136AbWAUL2J convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 06:28:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NkBqWtf78rmFejUl2e42Q8hGMp28AEZWLeQOfH+Wnr3b2FYmQBCPVrSwlGwJtQJp5heNH93lrp4LvjnQzvUdjAaZvewyDbSBjgAdYl976wGcFZtC0VF37q7ZJS53wgCs4de/VYF9DGUk4BYTHOHHxBgLAMtvoy2wFwRWa1YZ/tg=
-Message-ID: <9a8748490601210328x4d318894rd47df0482a498b07@mail.gmail.com>
-Date: Sat, 21 Jan 2006 12:28:08 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Michael Loftis <mloftis@wgops.com>
-Subject: Re: Development tree, PLEASE?
-Cc: Matthew Frost <artusemrys@sbcglobal.net>, linux-kernel@vger.kernel.org,
-       James Courtier-Dutton <James@superbug.co.uk>
-In-Reply-To: <1FA093EB58B02DE48E424157@dhcp-2-206.wgops.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 21 Jan 2006 06:29:46 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:6340 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932144AbWAUL3p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 06:29:45 -0500
+Date: Sat, 21 Jan 2006 12:29:33 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
+       pcihpd-discuss@lists.sourceforge.net, len.brown@intel.com,
+       linux-acpi@vger.kernel.org
+Subject: Re: [PATCH] acpiphp: treat dck separate from dock bridge
+Message-ID: <20060121112933.GB1555@elf.ucw.cz>
+References: <20060116200218.275371000@whizzy> <1137545819.19858.47.camel@whizzy> <1137808506.16192.69.camel@whizzy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060121031958.98570.qmail@web81905.mail.mud.yahoo.com>
-	 <1FA093EB58B02DE48E424157@dhcp-2-206.wgops.com>
+In-Reply-To: <1137808506.16192.69.camel@whizzy>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/21/06, Michael Loftis <mloftis@wgops.com> wrote:
->
-> --On January 20, 2006 7:19:58 PM -0800 Matthew Frost
-> <artusemrys@sbcglobal.net> wrote:
->
-> > --- Matthew Frost <artusemrys@sbcglobal.net> wrote:
-> >
-> >> No.  Wrong.  If there're a whole grab bag, as you say, then you should
-> >> post each, as a separate issue, possibly with consistent proposals for
-> >> fixing them.  Follow protocol.  Posting a "The Kernel Is Falling" email
-> >> gets people riled up, makes you look foolish, and gets nothing fixed.
-> >> Noise.  Send signal.  We'll wait.
-> >
-> > Be it noted that you have clarified, and that the issue involves ARM and
-> > trying to juggle solutions that have simpler alternatives; I just didn't
-> > look low enough in the thread first.  My comments are superfluous at this
-> > point.
->
-> The thread in part diverged into three separate discussions more or less.
-> I still have a big problem with how the development of the kernel is being
-> done now, with a total lack of a stable branch.  Stable in my mind also
-> means not a moving target for developers, nor maintainers.  Try maintaining
-> a lot of very demanding applications that must run right so changes must
-> always be fully tested before rolling out.  It makes it nearly impossible
-> to do that when the kernel has no stable branch that's mostly bug fixes,
-> instead any time a bug is discovered a full process must be started to make
-> sure no new bugs in all the new code features, etc, that became present
-> during the interim are not found.  It makes maintenance a real nightmare
-> for atleast one environment in which I maintain production systems, and
-> also makes it rather a bit more difficult in others too since changes must
-> be vetted.  Not necessarily *all* of them, but when there's lots of changes
-> it's hard to track whats 'interesting' and what doesn't affect one.  If
-> there was/is a stable tree then when bugfixes come they are applied there,
-> and one can upgrade along that tree with much less concern about things
-> changing underfoot.
->
-> That's my root problem.  The devfs stuff is just ancillary and came about
-> as examples of where I've been backed into a no win situation.  Yes, I know
-> it was and is deprecated, fact is I didn't write all of the code that is
-> the problem, and some of it I don't even have access to either.  Yes some
-> of it is maintained by the distro, some by third parties, some by me.  But
-> they're all being broken because we either throw out or try to return
-> systems with these newer chipsets, or start forking and maintaining
-> separate kernel trees.
->
-> Don't get me wrong, I understand the reasons, and I apologize for being so
-> late to the party.
->
-> Over on my end I have to make a decision as to if I have the time to try
-> to...promote/lead some sort of effort along these lines so that we can all
-> benefit instead of just those willing to use and install RedHat or SuSE or
-> Debian or Ubuntu or whatever distro.
->
+Hi!
 
-How about something along these lines :
+> So, this is likely a wrong assumption, so I will be thinking some more
+> about how to tell which acpi device is the dock bridge.  But meanwhile,
+> this patch could be tested/reviewed to see if it gets us a step further
+> in the right direction.
+> 
+> I patched against 2.6.16-rc1-mm2 because I wasn't sure if it was safe to
+> just drop my other patch (since actually trying to just revert the
+> broken out patch didn't actually work).  So this patches the file with
+> my original patch applied.
 
-What you want is a kernel that adheres to the rules set forth in
-Documentation/stable_kernel_rules.txt , but you want it maintained for
-longer than to the point where the next 2.6.x release happens - right?
+Oops, there were preceding warnings before that oops...:
 
-So how about you pick, for example, the upcomming 2.6.16 kernel as
-your stable target.
-The first thing you do is join the -stable team to help review patches
-going into 2.6.16.y and help find patches in the 2.6.17-rc kernels
-that should go into -stable.
-Then when 2.6.17 comes out the -stable team will normally abandon
-2.6.16.y and move to 2.6.17 as the new -stable base, so now you have
-to make a choice - you can either a) deside that 2.6.17 is an OK
-upgrade for you and then the thing just reeats or b) you can deside
-that you need to still stay with 2.6.16 for a bit longer.  In the case
-of 'b' I'm sure noone would object to you keeing the 2.6.16.y -stable
-tree going, so you keep backporting fixes to that (possibly some other
-people will even help you with this) and continue to release 2.6.16.y
-kernels.
-At some point in time you deside to rebase on the latest 2.6.x kernel
-and the whole thing repeats itself.
+								Pavel
 
-Help out the -stable team :)
+acpiphp: ACPI Hot Plug PCI Controller Driver version: 0.5
+acpiphp_glue: get_slot_from_id: no object for id 0
+BUG: warning at drivers/pci/hotplug/acpiphp_glue.c:1757/get_slot_from_id()
+ [<f9990ec3>] get_slot_from_id+0x83/0x90 [acpiphp]
+ [<f887e12c>] acpiphp_init+0x12c/0x290 [acpiphp]
+ [<c0135636>] sys_init_module+0x146/0x1630
+ [<c010f1b0>] acpi_register_ioapic+0x0/0x10
+ [<c013fd87>] generic_file_aio_read+0x47/0x70
+ [<c0168b93>] open_namei+0x83/0x560
+ [<c012e930>] autoremove_wake_function+0x0/0x50
+ [<c014d544>] do_brk+0x204/0x210
+ [<c016f4fa>] dput_recursive+0x2a/0x1d0
+ [<c015a891>] __fput+0xe1/0x140
+ [<c017304b>] mntput_no_expire+0x1b/0x70
+ [<c0102d1d>] syscall_call+0x7/0xb
+BUG: unable to handle kernel NULL pointer dereference at virtual address 00000044
+ printing eip:
+f9990d20
+*pde = 00000000
+Oops: 0000 [#1]
+last sysfs file: /devices/system/cpu/cpu0/cpufreq/scaling_governor
+Modules linked in: acpiphp
+CPU:    0
+EIP:    0060:[<f9990d20>]    Not tainted VLI
+EFLAGS: 00010286   (2.6.16-rc1-mm2 #2)
+EIP is at acpiphp_get_power_status+0x0/0x10 [acpiphp]
+eax: 00000000   ebx: f796bbe0   ecx: f9995384   edx: f7edc2c0
+esi: f796bca0   edi: 00000014   ebp: f9992c35   esp: f7b35e14
+ds: 007b   es: 007b   ss: 0068
+Process insmod (pid: 1520, threadinfo=f7b34000 task=c1f36a50)
+Stack: <0>f887e13a f9992e5c f9992c18 00000246 22222222 fffffff4 00000000 f784e000
+       f784e4ac f784e4d0 f9995380 c0135636 f99953c8 c05be852 f999538c 00000008
+       00000000 f999538c 0000001c 00000018 0000001c 00000018 f998bba8 f998ba90
+Call Trace:
+ [<f887e13a>] acpiphp_init+0x13a/0x290 [acpiphp]
+ [<c0135636>] sys_init_module+0x146/0x1630
+ [<c010f1b0>] acpi_register_ioapic+0x0/0x10
+ [<c013fd87>] generic_file_aio_read+0x47/0x70
+ [<c0168b93>] open_namei+0x83/0x560
+ [<c012e930>] autoremove_wake_function+0x0/0x50
+ [<c014d544>] do_brk+0x204/0x210
+ [<c016f4fa>] dput_recursive+0x2a/0x1d0
+ [<c015a891>] __fput+0xe1/0x140
+ [<c017304b>] mntput_no_expire+0x1b/0x70
+ [<c0102d1d>] syscall_call+0x7/0xb
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+-- 
+Thanks, Sharp!

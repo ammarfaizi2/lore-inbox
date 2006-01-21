@@ -1,54 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWAUA06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWAUA3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932300AbWAUA06 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 19:26:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWAUA06
+	id S932299AbWAUA3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 19:29:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWAUA3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 19:26:58 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:42895 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S932300AbWAUA06 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 19:26:58 -0500
-Date: Sat, 21 Jan 2006 01:26:13 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE?
-Message-ID: <20060121002613.GB22163@marowsky-bree.de>
-References: <20060120155919.GA5873@stiffy.osknowledge.org> <B6DE6A4FC14860A23FE95FF3@d216-220-25-20.dynip.modwest.com> <Pine.LNX.4.61.0601201738570.10065@yvahk01.tjqt.qr> <5F952B75937998C1721ACBA8@d216-220-25-20.dynip.modwest.com> <20060120194331.GA8704@kroah.com> <1C4B548965AFD4F5918E838D@d216-220-25-20.dynip.modwest.com> <20060120231757.GB20148@flint.arm.linux.org.uk> <8ADF978F40BCF69BF8BEC36F@d216-220-25-20.dynip.modwest.com> <20060120235520.GC20148@flint.arm.linux.org.uk> <D0E00DB2198D1C78C97244A7@d216-220-25-20.dynip.modwest.com>
+	Fri, 20 Jan 2006 19:29:15 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:60354 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932299AbWAUA3O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 19:29:14 -0500
+Subject: Re: [Alsa-devel] Re: RFC: OSS driver removal, a slightly different
+	approach
+From: Lee Revell <rlrevell@joe-job.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Krzysztof Halasa <khc@pm.waw.pl>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
+       perex@suse.cz
+In-Reply-To: <s5hacdr9mdi.wl%tiwai@suse.de>
+References: <20060119174600.GT19398@stusta.de>
+	 <m3ek34vucz.fsf@defiant.localdomain> <1137703413.32195.23.camel@mindpipe>
+	 <1137709135.8471.73.camel@localhost.localdomain>
+	 <20060119224222.GW21663@redhat.com> <1137711088.3241.9.camel@mindpipe>
+	 <1137719627.8471.89.camel@localhost.localdomain>
+	 <20060120013402.GF3798@redhat.com>  <s5hacdr9mdi.wl%tiwai@suse.de>
+Content-Type: text/plain
+Date: Fri, 20 Jan 2006 19:29:09 -0500
+Message-Id: <1137803349.3241.21.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <D0E00DB2198D1C78C97244A7@d216-220-25-20.dynip.modwest.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-01-20T17:05:02, Michael Loftis <mloftis@wgops.com> wrote:
+On Fri, 2006-01-20 at 12:20 +0100, Takashi Iwai wrote:
+> At Thu, 19 Jan 2006 20:34:02 -0500,
+> Dave Jones wrote:
+> > 
+> > On Fri, Jan 20, 2006 at 01:13:47AM +0000, Alan Cox wrote:
+> >  > On Iau, 2006-01-19 at 17:51 -0500, Lee Revell wrote:
+> >  > > The status is we need someone who has the hardware who can add printk's
+> >  > > to the driver to identify what triggers the hang.  It should not be
+> >  > > hard, the OSS driver reportedly works.
+> >  > > 
+> >  > > https://bugtrack.alsa-project.org/alsa-bug/view.php?id=328
+> >  > > 
+> >  > > The bug has been in FEEDBACK state for a long time.
+> >  > 
+> >  > 99.9% of users don't ever look in ALSA bugzilla. 
+> >  > 
+> >  > A dig shows
+> >  > 
+> >  > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=157371
+> >  > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=171221
+> > 
+> > Lee, if you can point me at a patch with debugging printk's I'm
+> > happy to throw that into the next Fedora test update for the
+> > users in the latter bug to test. (The first one seemed to go AWOL)
+> 
+> The bug for Latitude CSx should have been fixed by the following
+> commit:
+> 
+> 	commit 47530cf44cb5f3945ed04a5ae65d06bf423cd97b
+> 	Author: John W. Linville <linville@tuxdriver.com>
+> 	Date:   Wed Oct 19 16:03:10 2005 +0200
+> 
+> 	    [ALSA] nm256: reset workaround for Latitude CSx
+> 
+> This might not conver all Dell models.  In such a case, try
+> reset_workaround2=1.  See the section of nm256 in
+> ALSA-Configuration.txt for details.
 
-> Right now as it sits, you have to bleed, or you don't get anything.  I 
-> think some more middle ground can be found...I'm just not totally sure it's 
-> wanted now after this line of discussion.
+OK I will update the ALSA bug report with this info.  IIRC at least one
+user already reported that the above commit does not fix the hangs.
 
-The usual suggestion: feel free to pick a kernel of your choice, and
-keep maintaining it and backporting fixes to it, and make your tree
-available for others.
-
-You see, _nobody_ stops you (or someone else, for that matter) from
-doing so. And if the need really exists, the users will come, and the
-help with maintaining it will appear.
-
-So far, people keep complaining that noone does it for them. Right. That
-won't happen. If you want it, step up.
-
-
-Sincerely,
-    Lars Marowsky-Brée
-
--- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
+Lee
 

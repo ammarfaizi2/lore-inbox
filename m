@@ -1,57 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWAUNUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWAUNZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWAUNUT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 08:20:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWAUNUT
+	id S932182AbWAUNZc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 08:25:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWAUNZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 08:20:19 -0500
-Received: from mail.gmx.net ([213.165.64.21]:50080 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932181AbWAUNUT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 08:20:19 -0500
-X-Authenticated: #7258287
-Subject: Re: [BUG] at mm/slab.c:1235! (Version 2.6.15)
-From: Sven Lauritzen <the-pulse@gmx.net>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0601181547580.20218@sbz-30.cs.Helsinki.FI>
-References: <1137582956.1774.15.camel@berlin.slsd>
-	 <84144f020601180422q78ecdf37mb8b8e9d1f40039d1@mail.gmail.com>
-	 <1137591682.1774.35.camel@berlin.slsd>
-	 <Pine.LNX.4.58.0601181547580.20218@sbz-30.cs.Helsinki.FI>
-Content-Type: text/plain
-Date: Sat, 21 Jan 2006 14:20:15 +0100
-Message-Id: <1137849615.1764.8.camel@berlin.slsd>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Sat, 21 Jan 2006 08:25:32 -0500
+Received: from mail.gmx.de ([213.165.64.21]:28548 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932182AbWAUNZc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 08:25:32 -0500
+X-Authenticated: #6864226
+Content-Disposition: inline
+From: Gerrit =?iso-8859-1?q?Bruchh=E4user?= <gbruchhaeuser@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: (SOLVED!) AHA-7850 doesn't detect scanner anymore
+Date: Sat, 21 Jan 2006 14:25:29 +0100
+User-Agent: KMail/1.8.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200601211425.29291.gbruchhaeuser@gmx.de>
 X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+One pin on the connector didn't have proper contact. 
+Thx,
+Gerrit
 
-On Wed, 2006-01-18 at 15:54 +0200, Pekka J Enberg wrote:
-> Indeed that's because the kernel starts reclaiming memory and attempts to 
-> shrink the slabs. It's just that the page we're freeing is being managed 
-> by the slab allocator and I don't see how anyone else could be messing 
-> around with it. The fact that it's one bit error makes me think it could 
-> be due to faulty memory.
+----------  Weitergeleitete Nachricht  ----------
 
-I have run memtest for 15 hours now, - no errors. Im running the kernel
-with CONFIG_DEBUG_SLAB and CONFIG_DEBUG_PAGEALLOC enabled. Until now, no
-more Bugs or Oopses occured.
+Subject: AHA-7850 doesn't detect scanner anymore
+Date: Samstag, 21. Januar 2006 13:46
+From: Gerrit Bruchhäuser <gbruchhaeuser@gmx.de>
+To: linux-kernel@vger.kernel.org
 
-I don't know if there's any way to reproduce the problem, but at least
-I'll keep my eyes open.
+Hello,
+my old "HP ScanJet IIc" used to work so perfectly but now the kernel can only
+see something at SCSI-ID 1, but is not able to detect the device properly :-(
 
-Sven
--- 
-Sven Lauritzen
---------------------------------------------------------------------
-mailto:the-pulse@gmx.net
+These are the 'kernel.log' entries after I switched on 'options aic7xxx
 
-pub 1024D/95C9A892                  sub 1024g/D30E490F ABCDEFGHIJKLM
-Fp  2FA9 FC9B 078C 5BC7 87DC  0B0D 2329 94F6 95C9 A892 NOPQRSTUVWXYZ
---------------------------------------------------------------------
+aic7xxx=verbose,periodic_otag' in modules.conf file :
+| Jan 21 13:17:18 gbpc PCI: Enabling device 0000:00:0d.0 (0116 -> 0117)
+| Jan 21 13:17:18 gbpc ACPI: PCI Interrupt 0000:00:0d.0[A] -> GSI 17 (level,
 
+low) -> IRQ 185
+
+| Jan 21 13:17:18 gbpc ahc_pci:0:13:0: hardware scb 64 bytes; kernel scb 52
+
+bytes; ahc_dma 8 bytes
+
+| Jan 21 13:17:18 gbpc ahc_pci:0:13:0: Host Adapter Bios disabled.  Using
+
+default SCSI device parameters
+
+| Jan 21 13:17:18 gbpc scsi12 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER,
+
+Rev 7.0
+
+| Jan 21 13:17:18 gbpc <Adaptec 2902/04/10/15/20C/30C SCSI adapter>
+| Jan 21 13:17:18 gbpc aic7850: Single Channel A, SCSI Id=7, 3/253 SCBs
+| Jan 21 13:17:18 gbpc
+| Jan 21 13:17:33 gbpc (scsi12:A:0:0): Saw Selection Timeout for SCB 0x3
+| Jan 21 13:17:34 gbpc (scsi12:A:1:0): SCB 2: requests Check Status
+| Jan 21 13:17:34 gbpc (scsi12:A:1:0): Handled Residual of 36 bytes
+| Jan 21 13:17:34 gbpc (scsi12:A:1:0): Sending Sense
+| Jan 21 13:17:34 gbpc (scsi12:A:1:0): Handled Residual of 36 bytes
+| Jan 21 13:17:34 gbpc (scsi12:A:1:0): SCB 3: requests Check Status
+| Jan 21 13:17:34 gbpc (scsi12:A:1:0): Handled Residual of 36 bytes
+| Jan 21 13:17:34 gbpc (scsi12:A:1:0): Sending Sense
+| Jan 21 13:17:34 gbpc (scsi12:A:1:0): Handled Residual of 36 bytes
+| Jan 21 13:17:35 gbpc (scsi12:A:1:0): SCB 2: requests Check Status
+| Jan 21 13:17:35 gbpc (scsi12:A:1:0): Handled Residual of 36 bytes
+| Jan 21 13:17:35 gbpc (scsi12:A:1:0): Sending Sense
+| Jan 21 13:17:35 gbpc (scsi12:A:1:0): Handled Residual of 36 bytes
+| Jan 21 13:17:35 gbpc (scsi12:A:2:0): Saw Selection Timeout for SCB 0x3
+| Jan 21 13:17:35 gbpc (scsi12:A:3:0): Saw Selection Timeout for SCB 0x2
+| Jan 21 13:17:36 gbpc (scsi12:A:4:0): Saw Selection Timeout for SCB 0x3
+| Jan 21 13:17:36 gbpc (scsi12:A:5:0): Saw Selection Timeout for SCB 0x2
+| Jan 21 13:17:36 gbpc (scsi12:A:6:0): Saw Selection Timeout for SCB 0x3
+
+The SCSI-terminator is properly attached to the scanner and the wires are
+ okay as well. Is there a way to find-out more what actually causes the
+ problem?
+
+As I am not subscribed to the list, please when you answer, put my mail
+address to CC
+
+Many thanks in advance,
+Gerrit
+
+-------------------------------------------------------

@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbWAUVuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWAUV4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932393AbWAUVuz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 16:50:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWAUVuz
+	id S932398AbWAUV4k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 16:56:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWAUV4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 16:50:55 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:60636 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932393AbWAUVuy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 16:50:54 -0500
-Subject: Re: [2.6 patch] the scheduled removal of the obsolete raw driver
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: davej@redhat.com, bunk@stusta.de, linux-kernel@vger.kernel.org,
-       pbadari@us.ibm.com, kenneth.w.chen@intel.com
-In-Reply-To: <20060121133503.353ad1be.akpm@osdl.org>
-References: <20060119030251.GG19398@stusta.de>
-	 <20060118194103.5c569040.akpm@osdl.org>
-	 <1137833547.2978.7.camel@laptopd505.fenrus.org>
-	 <20060121194102.GB28051@redhat.com> <20060121131718.1b6bbcdc.akpm@osdl.org>
-	 <1137878739.23974.23.camel@laptopd505.fenrus.org>
-	 <20060121133503.353ad1be.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 21 Jan 2006 22:50:50 +0100
-Message-Id: <1137880250.23974.27.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 21 Jan 2006 16:56:40 -0500
+Received: from mercury.sdinet.de ([193.103.161.30]:34184 "EHLO
+	mercury.sdinet.de") by vger.kernel.org with ESMTP id S932398AbWAUV4k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 16:56:40 -0500
+Date: Sat, 21 Jan 2006 22:56:38 +0100 (CET)
+From: Sven-Haegar Koch <haegar@sdinet.de>
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Michael Loftis <mloftis@wgops.com>,
+       Matthew Frost <artusemrys@sbcglobal.net>, linux-kernel@vger.kernel.org,
+       James Courtier-Dutton <James@superbug.co.uk>
+Subject: Re: Development tree, PLEASE?
+In-Reply-To: <1137829140.3241.141.camel@mindpipe>
+Message-ID: <Pine.LNX.4.64.0601212250020.31384@mercury.sdinet.de>
+References: <20060121031958.98570.qmail@web81905.mail.mud.yahoo.com> 
+ <1FA093EB58B02DE48E424157@dhcp-2-206.wgops.com> <1137829140.3241.141.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-21 at 13:35 -0800, Andrew Morton wrote:
-> Arjan van de Ven <arjan@infradead.org> wrote:
-> >
-> > another thing we really should do is making such "obsolete to be phased
-> >  out" things printk (at least once per boot ;) so that people see it in
-> >  their logs, not just in the kernel source.
-> 
-> Like sys_bdflush() has been doing for 3-4 years.  That still comes out on
-> a few of my test boxes, but I'm a distro recidivist.
+On Sat, 21 Jan 2006, Lee Revell wrote:
 
-so it works ;)
+> On Sat, 2006-01-21 at 00:22 -0700, Michael Loftis wrote:
+>> It makes maintenance a real nightmare
+>> for atleast one environment in which I maintain production systems
+>
+> Why do you keep having to upgrade the kernel on production systems, if
+> the old kernel does what you need?
 
-if you were a distro maker or a userland software developer you'd notice
-and change (just like non-paleontic distro makers did ;)..
+But it is missing all security updates.
 
+What I am currently doing to workaround this problem:
 
+- using Debian Sarge on my production servers as a base
+   (good packages, but kernel is just too old)
+- Kernel 2.6.12 from Ubuntu Breezy (taken as source, not binary packages)
+
+This way I have at least a working kernel (2.6.8 does not work on my newer 
+boxes) and the security updates from Ubuntu, getting kernel updates with 
+only little changes and low update-risks.
+
+Mainstream kernel is just unusable when you don't have the time to verify
+the lots of changes in production environments.
+
+c'ya
+sven
+
+-- 
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)

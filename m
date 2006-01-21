@@ -1,94 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbWAUGs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWAUGyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750915AbWAUGs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 01:48:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWAUGs0
+	id S1750981AbWAUGyU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 01:54:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbWAUGyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 01:48:26 -0500
-Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:23652 "EHLO
-	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1750750AbWAUGs0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 01:48:26 -0500
-Message-ID: <43D1D933.3@bigpond.net.au>
-Date: Sat, 21 Jan 2006 17:48:19 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+	Sat, 21 Jan 2006 01:54:20 -0500
+Received: from thing.hostingexpert.com ([67.15.235.34]:17350 "EHLO
+	thing.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S1750976AbWAUGyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 01:54:19 -0500
+Message-ID: <43D1DA98.1080704@linuxtv.org>
+Date: Sat, 21 Jan 2006 01:54:16 -0500
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>,
-       Paolo Ornati <ornati@fastwebnet.it>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.2 for  2.6.16-rc1 and 2.6.16-rc1-mm1
-References: <43D00887.6010409@bigpond.net.au>
-In-Reply-To: <43D00887.6010409@bigpond.net.au>
+To: Bob Gill <gillb4@telusplanet.net>
+CC: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Linux kernel Mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: BTTV broken on recent kernels
+References: <43CAFF82.4030500@telusplanet.net> <200601160418.44549.s0348365@sms.ed.ac.uk> <43CC51FE.7090907@telusplanet.net>
+In-Reply-To: <43CC51FE.7090907@telusplanet.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 21 Jan 2006 06:48:19 +0000
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - linuxtv.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> This version continues the major gutting of the SPA based schedulers to
-> reduce overhead.  The inclusion of the mechanisms for gathering and
-> displaying accrued scheduling statistics have been remove as they are 
-> not an integral part of the scheduler and were mainly there to help with 
-> tuning.  Sorry Jake, if you still need these for your genetic algorithm 
-> work I can provide a patch to add them to all schedulers?
-> 
-> Additionally, the mechanism for auto detection and preferential
-> treatment of media streamers in the spa_ws scheduler has been removed. 
-> The reason for this is that my testing shows that the performance of 
-> media streamers on spa_ws is adequate without it.
-> 
-> Modifications have been made to spa_ws to (hopefully) address the issues 
-> raised by Paolo Ornati recently and a new entitlement based 
-> interpretation of "nice" scheduler, spa_ebs, which is a cut down version 
-> of the Zaphod schedulers "eb" mode has been added as this mode of Zaphod 
-> performed will for Paolo's problem when he tried it at my request. 
-> Paolo, could you please give these a test drive on your problem?
-> 
-> A patch for 2.6.16-rc1 is available at:
-> 
-> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.2-for-2.6.16-rc1.patch?download> 
-> 
-> 
-> and a patch for 2.6.16-rc1-mm1 is available at:
-> 
-> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.2-for-2.6.16-rc1-mm1.patch?download> 
-> 
+Bob Gill wrote:
 
-Applies cleanly to 2.6.16-rc1-mm2.
+> Alistair John Strachan wrote:
+>
+>> On Monday 16 January 2006 02:05, Bob Gill wrote:
+>>  
+>>
+>>> Hi.  The last several kernel versions have led to broken bttv (up to 4
+>>> or 5 kernel versions ago, I could watch tv on either mplayer or xawtv),
+>>> but lately bttv is broken.  My card is an 'bt878 compatible built by 
+>>> ATI
+>>> (ATI TV Wonder VE).  I'm pretty certain it worked as late as
+>>> 2.6.14-git7.  I've peeked around /Changes and didn't see anything.   
+>>> I'm
+>>> using the same build script as before, and a piece of lsmod shows
+>>> serial_core            14848  1 8250
+>>> rtc                     9524  0
+>>> tuner                  36908  0
+>>> bttv                  148564  0
+>>> video_buf              15748  1 bttv
+>>> compat_ioctl32          1152  1 bttv
+>>> i2c_algo_bit            7432  1 bttv
+>>> v4l2_common             6528  2 tuner,bttv
+>>> btcx_risc               3720  1 bttv
+>>> ir_common               7812  1 bttv
+>>> tveeprom               12304  1 bttv
+>>> i2c_core               14864  4 tuner,bttv,i2c_algo_bit,tveeprom
+>>> videodev                6912  1 bttv
+>>> snd_emu10k1            94628  2 snd_emu10k1_synth
+>>> ..........also, a chunk of lspci shows:
+>>> 0000:00:09.1 Input device controller: Creative Labs SB Live! MIDI/Game
+>>> Port (rev 07)
+>>> 0000:00:0b.0 Multimedia video controller: Brooktree Corporation Bt878
+>>> Video Capture (rev 02)
+>>> 0000:00:0b.1 Multimedia controller: Brooktree Corporation Bt878 Audio
+>>> Capture (rev 02)
+>>> ....it's just that I get a blank (screen blanking due to no signal)
+>>> screen when I start a tv application.  I can try to change 
+>>> channels/tune
+>>> frequencies, and it looks like the applications are trying, but nothing
+>>> gets tuned in.   To be fair, I must mention that I *ahem* taint the
+>>> kernel with Nvidia stuff, and recently upgraded gcc (although it has
+>>> always worked well with tainted kernel, and it broke before I upgraded
+>>> gcc (to gcc version 4.0.2) on Debian Sarge.   
+>>
+>>
+>> This problem sounds suspiciously like an overlay bug, known in the 
+>> binary NVIDIA driver. Please try changing it to "nv" in XF86Config, 
+>> then restarting your TV application..
+>>
+>>  
+>>
+>>> If you *really* want, I can revert XF86Config to use non-nvidia 
+>>> drivers (and revert back to the old
+>>> version of gcc) and give a bug report from that, but I suspect things
+>>> will remain broken.  Mplayer compiles very well with the new version of
+>>> gcc, and the new kernel (buit with the new version of gcc) does
+>>> everything else (sound, firewire, cd/dvd/networking, disk I/O etc.)
+>>> without problems.
+>>> Thanks in advance,
+>>> Bob
+>>>   
+>>
+>>
+>>  
+>>
+> Alistair, Lee: thank you for your replies.  Sadly the bug is in the 
+> Nvidia binary.  Changing the driver to nv from nvidia did resolve the 
+> issue.  Now I have to decide whether I like accelerated 3d more, or 
+> using the tv tuner more (till Nvidia fixes the driver).  Thank you for 
+> your time.  I won't waste any more LKML bandwidth on this (Nvidia 
+> bug).  Thanks again.
+> Bob 
 
-> 
-> Very Brief Documentation:
-> 
-> You can select a default scheduler at kernel build time.  If you wish to
-> boot with a scheduler other than the default it can be selected at boot
-> time by adding:
-> 
-> cpusched=<scheduler>
-> 
-> to the boot command line where <scheduler> is one of: ingosched,
-> nicksched, staircase, spa_no_frills, spa_ws, spa_svr, spa_ebs or zaphod. 
->  If you don't change the default when you build the kernel the default 
-> scheduler will be ingosched (which is the normal scheduler).
-> 
-> The scheduler in force on a running system can be determined by the
-> contents of:
-> 
-> /proc/scheduler
-> 
-> Control parameters for the scheduler can be read/set via files in:
-> 
-> /sys/cpusched/<scheduler>/
-> 
-> Peter
+Not that I would recommend the binary nvidia driver, but:
 
+You can probably get bttv to work despite this overlay bug by using 
+"grabdisplay" mode instead.  There is an option for it in xawtv.  The 
+difference is, in overlay mode, the capture card is writing directly to 
+videoram.  Using grabdisplay mode eliminates this optimization, and 
+would be a decent workaround for you.
+
+Hope this helps,
+
+Michael
 
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Michael Krufky
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce

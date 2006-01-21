@@ -1,51 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWAUUSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWAUUj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932315AbWAUUSv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 15:18:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWAUUSv
+	id S932326AbWAUUj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 15:39:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWAUUj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 15:18:51 -0500
-Received: from mail.suse.de ([195.135.220.2]:14491 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932315AbWAUUSv (ORCPT
+	Sat, 21 Jan 2006 15:39:56 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:3839 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S932326AbWAUUjz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 15:18:51 -0500
-Date: Sat, 21 Jan 2006 21:18:48 +0100
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org, Manuel Estrada Sainz <ranty@debian.org>
-Subject: [PATCH] IPW2100 fails to load firmware when booting on battery
-Message-ID: <20060121201848.GA19221@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Sat, 21 Jan 2006 15:39:55 -0500
+Date: Sat, 21 Jan 2006 21:39:48 +0100 (MET)
+Message-Id: <200601212039.k0LKdmsE005272@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: [PATCH 2.6.16-rc1] ide-scsi: fix for IDE probe/remove ops changes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kernel 2.6.16-rc1 broke the ide-scsi driver: ide-scsi loads but
+fails to find any devices to bind to. It also triggers a message
+"Driver 'ide-scsi' needs updating - please use bus_type methods"
+from the driver core.
 
-We carry this patch around since a while. Is it safe to increase the
-timeout also in mainline?
+The IDE core in 2.6.16-rc1 changed the location of an IDE driver's
+->probe()/->remove()/->shutdown() methods: they are now in the
+ide_driver_t struct not in the gen_driver sub-struct. drivers/ide/
+was updated for this change but ide-scsi.c wasn't. Hence the breakage.
 
-References: https://bugzilla.novell.com/show_bug.cgi?id=74526
+This patch repairs ide-scsi and also eliminates the driver core warning.
+Please apply before 2.6.16 final.
 
-IPW2100 fails to load firmware when booting on battery; increasing the
-timeout solves the problem.
+Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
 
+ drivers/scsi/ide-scsi.c |   14 +++++---------
+ 1 files changed, 5 insertions(+), 9 deletions(-)
 
-diff -urNp linux-2.6.12/drivers/base/firmware_class.c linux-2.6.12.SUSE/drivers/base/firmware_class.c
---- linux-2.6.12/drivers/base/firmware_class.c	2005-08-05 11:36:43.908851520 +0200
-+++ linux-2.6.12.SUSE/drivers/base/firmware_class.c	2005-08-05 11:41:23.737311128 +0200
-@@ -30,7 +30,7 @@ enum {
- 	FW_STATUS_READY,
+diff -rupN linux-2.6.16-rc1/drivers/scsi/ide-scsi.c linux-2.6.16-rc1.ide-scsi-probe-fix/drivers/scsi/ide-scsi.c
+--- linux-2.6.16-rc1/drivers/scsi/ide-scsi.c	2006-01-21 20:27:04.000000000 +0100
++++ linux-2.6.16-rc1.ide-scsi-probe-fix/drivers/scsi/ide-scsi.c	2006-01-21 21:04:53.000000000 +0100
+@@ -751,9 +751,8 @@ static void idescsi_setup (ide_drive_t *
+ 	idescsi_add_settings(drive);
+ }
+ 
+-static int ide_scsi_remove(struct device *dev)
++static void ide_scsi_remove(ide_drive_t *drive)
+ {
+-	ide_drive_t *drive = to_ide_device(dev);
+ 	struct Scsi_Host *scsihost = drive->driver_data;
+ 	struct ide_scsi_obj *scsi = scsihost_to_idescsi(scsihost);
+ 	struct gendisk *g = scsi->disk;
+@@ -768,11 +767,9 @@ static int ide_scsi_remove(struct device
+ 
+ 	scsi_remove_host(scsihost);
+ 	ide_scsi_put(scsi);
+-
+-	return 0;
+ }
+ 
+-static int ide_scsi_probe(struct device *);
++static int ide_scsi_probe(ide_drive_t *);
+ 
+ #ifdef CONFIG_PROC_FS
+ static ide_proc_entry_t idescsi_proc[] = {
+@@ -788,9 +785,9 @@ static ide_driver_t idescsi_driver = {
+ 		.owner		= THIS_MODULE,
+ 		.name		= "ide-scsi",
+ 		.bus		= &ide_bus_type,
+-		.probe		= ide_scsi_probe,
+-		.remove		= ide_scsi_remove,
+ 	},
++	.probe			= ide_scsi_probe,
++	.remove			= ide_scsi_remove,
+ 	.version		= IDESCSI_VERSION,
+ 	.media			= ide_scsi,
+ 	.supports_dsc_overlap	= 0,
+@@ -1119,9 +1116,8 @@ static struct scsi_host_template idescsi
+ 	.proc_name		= "ide-scsi",
  };
  
--static int loading_timeout = 10;	/* In seconds */
-+static int loading_timeout = 30;	/* In seconds */
- 
- /* fw_lock could be moved to 'struct firmware_priv' but since it is just
-  * guarding for corner cases a global lock should be OK */
-
--- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+-static int ide_scsi_probe(struct device *dev)
++static int ide_scsi_probe(ide_drive_t *drive)
+ {
+-	ide_drive_t *drive = to_ide_device(dev);
+ 	idescsi_scsi_t *idescsi;
+ 	struct Scsi_Host *host;
+ 	struct gendisk *g;

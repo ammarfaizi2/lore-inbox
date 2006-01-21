@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWAUH6k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbWAUIZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbWAUH6k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 02:58:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWAUH6k
+	id S1751157AbWAUIZE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 03:25:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWAUIZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 02:58:40 -0500
-Received: from tornado.reub.net ([202.89.145.182]:56999 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S1751094AbWAUH6j (ORCPT
+	Sat, 21 Jan 2006 03:25:04 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:17544 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751157AbWAUIZB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 02:58:39 -0500
-Message-ID: <43D1E9A4.8090504@reub.net>
-Date: Sat, 21 Jan 2006 20:58:28 +1300
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 1.6a1 (Windows/20060119)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: stern@rowland.harvard.edu, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       greg@kroah.com, linux-usb-devel@lists.sourceforge.net,
-       neilb@cse.unsw.edu.au, linux-acpi@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: 2.6.15-mm3 [USB lost interrupt bug]
-References: <Pine.LNX.4.44L0.0601152243330.1929-100000@netrider.rowland.org>	<43D1C4E9.7030901@reub.net> <20060120214723.79111715.akpm@osdl.org>
-In-Reply-To: <20060120214723.79111715.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 21 Jan 2006 03:25:01 -0500
+Date: Sat, 21 Jan 2006 13:54:39 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Ed Swierk <eswierk@cs.stanford.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VFS: file-max limit reached when running on a virtual machine
+Message-ID: <20060121082439.GA7277@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <loom.20060119T045624-92@post.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <loom.20060119T045624-92@post.gmane.org>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 19, 2006 at 04:19:24AM +0000, Ed Swierk wrote:
+> I'm getting the error "VFS: file-max limit 50905 reached" on kernels 2.6.14 and
+> 2.6.15, running on a qemu virtual machine configured with 512 MB of memory.  The
+> I understand that changes have been made recently to the way the kernel manages
+> file descriptors in order to improve real-time performance.
 
+The file descriptor changes were done to make lookup in the fd table
+lock-free there by improving thread scalability.
 
-On 21/01/2006 6:47 p.m., Andrew Morton wrote:
-
->> I've now done in excess of 20 reboots with this code and haven't had either 
->> problem show up at all.
->>
->> So for now I'll keep a record of things for a bit longer, but I guess I've 
->> reason to be fairly confident that both this USB/IRQ problem and my ATA/IRQ 
->> problem are now fixed.
->>
->> It does make me wonder if the ACPI update in rc1-mm2 fixed it, and was actually 
->> the cause of most of my problems......it would be nice to know for sure.
+> Is there some other way to make the kernel less sensitive to ill-behaved
+> hardware timers, as it was pre-2.6.14, assuming that I am willing to sacrifice
+> real-time performance?
 > 
-> We probably won't know.  Did you ever test 2.6.16-rc1 plus 2.6.16-rc1-mm1's
-> acpi.patch?  If that plays up we'd have confirmation.
+> Any help would be appreciated.
 
-It has been OK over 15x reboots (just tested now).  2.6.16-rc1-mm1 wasn't the 
-usual standard award winning release for me because of the reiserfs problems so 
-I only booted into it once and ran it for a couple of hours before retreating to 
-2.6.15-rc1.
+Can you try this patch I posted a while ago -
 
-Last *known* problematic release on that box was 2.6.15-mm4.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113657112726596&w=2
 
+Thanks
+Dipankar

@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbWAUK14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWAUK10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932101AbWAUK14 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 05:27:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbWAUK14
+	id S932096AbWAUK10 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 05:27:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWAUK1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 05:27:56 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:51095 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932101AbWAUK1z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 05:27:55 -0500
-Date: Sat, 21 Jan 2006 11:28:08 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: john stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH RT] don't let printk unconditionally turn on interrupts
-Message-ID: <20060121102808.GB991@elte.hu>
-References: <1137811001.6762.179.camel@localhost.localdomain>
+	Sat, 21 Jan 2006 05:27:25 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:32144
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932096AbWAUK1Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 05:27:25 -0500
+Subject: Re: divide error at sample_to_timespec
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Aleksander Salwa <A.Salwa@osmosys.tv>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <43CE44F1.6020107@osmosys.tv>
+References: <43CE44F1.6020107@osmosys.tv>
+Content-Type: text/plain
+Date: Sat, 21 Jan 2006 11:28:07 +0100
+Message-Id: <1137839287.28034.57.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1137811001.6762.179.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> Ingo,
+On Wed, 2006-01-18 at 14:38 +0100, Aleksander Salwa wrote:
+> Hi all,
 > 
-> My first try at booting -rt8 on my machine crashed immediately.  No 
-> nmi, no nothing. Just a lockup at the registration of the ACPI_PM 
-> timer. This would happen every time, and after struggling for a while, 
-> I finally found out why!
-> 
-> The printk in timeofday_periodic_hook that is called holding the 
-> write_lock of system_time_lock (a raw_seq_lock) was causing lots of 
-> havoc.  The printk would turn on interrupts, and then I would get a 
-> deadlock when the interrupt would do a read on system_time_lock.
+> I got a "divide error" message from the kernel in my system log file 
+> (x86, P4 HT, kernel 2.6.14-1.1653_FC4smp). System is still alive, but 
+> probably something bad happened with thread that made a syscall which 
+> caused that divide error. Should it be considered a kernel bug ?
+> It looks like there is an overflow (too big value in edx:aex divided by 
+> relatively small value in ebx).
 
-argh. This piece of code has caused so many problems already. Some 
-people want console drivers to be preemptible, but i guess being able to 
-boot trumps things ;)
+Actually the value is negative: 0xffffffffffc2f700
+This is -4000000 ns == -4ms
 
-could you check out the variant in 2.6.15-rt11 - i tweaked it slightly 
-over yours, hopefully making the behavior more consistent.
+So the accounting is off by one jiffie.
 
-	Ingo
+Does this happen with current kernels too ?
+
+	tglx
+
+

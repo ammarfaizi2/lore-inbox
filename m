@@ -1,125 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWAUG7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbWAUHKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750978AbWAUG7S (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 01:59:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbWAUG7S
+	id S1751006AbWAUHKm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 02:10:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWAUHKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 01:59:18 -0500
-Received: from free.wgops.com ([69.51.116.66]:26379 "EHLO shell.wgops.com")
-	by vger.kernel.org with ESMTP id S1750974AbWAUG7R (ORCPT
+	Sat, 21 Jan 2006 02:10:42 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:14721 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751004AbWAUHKl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 01:59:17 -0500
-Date: Fri, 20 Jan 2006 23:58:53 -0700
-From: Michael Loftis <mloftis@wgops.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <greg@kroah.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Marc Koschewski <marc@osknowledge.org>, linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE?
-Message-ID: <68C3222B770D473165308229@dhcp-2-206.wgops.com>
-X-Mailer: Mulberry/4.0.4 (Mac OS X)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 21 Jan 2006 02:10:41 -0500
+Date: Fri, 20 Jan 2006 23:10:16 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: sho@tnes.nec.co.jp, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [PATCH] ext3: Extends blocksize up to pagesize
+Message-Id: <20060120231016.40b40fd7.akpm@osdl.org>
+In-Reply-To: <20060118185249.GN4124@schatzie.adilger.int>
+References: <000001c61c30$00814e80$4168010a@bsd.tnes.nec.co.jp>
+	<20060118185249.GN4124@schatzie.adilger.int>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-X-MailScanner-Information: Please contact support@wgops.com
-X-MailScanner: WGOPS clean
-X-MailScanner-From: mloftis@wgops.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---On January 21, 2006 1:38:46 AM +0000 Alan Cox <alan@lxorguk.ukuu.org.uk> 
-wrote:
-
-> On Gwe, 2006-01-20 at 13:56 -0700, Michael Loftis wrote:
->> and is fine once getty gets ahold of it, it's just during the initial
->> bootup phases where it's being used as the console either by the rc
->> scripts  or by the kernel that seems to go wonky.  It goes out during
->> the initial
+Andreas Dilger <adilger@clusterfs.com> wrote:
 >
-> A bug where the serial console could get stuck on SMP IFF a kernel and a
-> non kernel message were output at the same time did get fixed
-> (yesterday) other than that I'm not aware of any problems in this area
-> but the maintainer may have more ideas.
->
-> Diff is tiny if you want to see if that is what you hit, although it
-> would be remarkable co-incidence and luck if it was ;)
+> On Jan 18, 2006  22:06 +0900, Takashi Sato wrote:
+> > As a disk tends to get large, a disk storage has had a capacity to
+> > supply multi-TB.  But now, ext3 can't support more than 8TB filesystem
+> > when blocksize is 4KB.  That's why I think ext3 needs to be
+> > more than 8TB.
+> > 
+> > Therefore I think filesystem size can increase on architectures
+> > which has more than 4KB pagesize by extending blocksize to pagesize on
+> > ext3.  For example, the following is in case of ia64.  (Blocksize have
+> > already been supported up to pagesize on ext2. Why is the max blocksize
+> > restricted to 4KB on ext3?)
+> > 
+> > Max filesystem size on ia64:
+> > Original                                   :4096(blocksize) * 2^31 =  8TB
+> > After modification [pagesize=16KB(default)]:16384(blocksize) * 2^31 = 32TB
+> > After modification [pagesize=64KB(max)]    :65536(blocksize) * 2^31 = 128TB
+> 
+> Just for others' info - the fill_super change has been tested in the past
+> by Sonny Rao at IBM also.  e2fsprogs has supported this for a long time
+> already.
 
-Coincidence I'm full of, and (bad) luck this week as well it seems.  I want 
-to know who's black cat has been crossing my path.  This gives me a better 
-direction to test it in.  The machines I have the problem with are all 
-running SMP preemptible 2.6.8 on an HT machine with a single physical core, 
-I'll try putting or booting them into a non-SMP kernel...if it's suddenly 
-good, well....we found our rat.  That would though explain it pretty well 
-since thinking about it, it doesn't happen in the debian installer nor... i 
-think it's one of the gentoo installers or something...and those are 386 
-non-SMP kernels.
+I have a vague memory that there's some piece of metadata (per-block-group
+info, I think) which will overflow at 8kb blocksize.  I say this in the
+hope that you'll remmeber what it was ;)
 
-Might've found some sort of wacky edge-case that can reproduce that bug 
-reliably.  I'd be much appreciative if you pass a link or the diff itself 
-along to me (or a specific bit to look for in archives/etc).  It might, or 
-might not, be my little gremlin.  In the meantime I just leave off 
-console=ttyS1,38400 and hold my breath while they boot.
 
->
->> printk output, or sometimes later...exactly when seems to be a bit of a
->> random thing.  Also it either causes, or is inputting NULL's or some
->> other  (consistent) garbage (CRLF? instead of CR?) on these same blades.
->> So you
->
-> Never seen CR, nul reported. Would the blades happen to use rlogin to
-> manage this remote serial do you know ?
+> > - ext3_readdir
+> >   Currently read-ahead 16 sectors when reading a directory, but not
+> >   if blocksize is more than 8KB.  Then I modified to read-ahead
+> >   one fs-block if blocksize is more than 8KB.
 
-No...telnet...though...I just realised I haven't verified that on anything 
-but the BSD based telnet program on Mac OS X, and FreeBSD 4.11(ish), so 
-really, it might be something there too, but again, 2.4 never sees these 
-issues, and I'm really not sure what's getting into the stream, I think nul 
-because I get a '^@' translated back at me, which IIRC is the 
-representation for nul but lord knows if that's from the telnet client 
-after it echos or what, I haven't done a packet dump of this gremlin, yet.
+I've rewritten ext3 directory readahead to use the generic pagecache
+functions, so changes here shouldn't be needed.
 
->
->> I think I have more kernel bugs and can go on, but I'll just be told
->> 'upgrade to 2.6.15' which is not an option in many cases if these are
->> indeed development releases, if only 'politically', but there are often
->> real costs involved.  And with nowhere to put patches that end up in
->
-> Its hard to maintain an old release and just merge all the fixes into it
-> backporting when neccessary. At the kernel summit before 2.6 this was
-> discussed a lot. There are a small number of groups of people who wanted
-> this for the long term. Said groups either maintain such trees and sell
-> support/services for money, or rebuild the output of the former as a
-> community project.
->
-> It therefore seemed reasonable that those who want it should bear the
-> cost, or figure out how to maintain such backports between themselves.
+But I haven't yet got around to performance-testing it.
 
-OK atleast I'm not total net.kook here.
-
->> maintenance releases we're forced to maintain our own private forks, and
->> likely, because of the GPL, also publish these forks and incur all the
->> costs associated with that directly, and hope they don't become
->> popular/wanted outside of the customer base they're intended for, or
->> skirt  the GPL, and only allow customers access to this stuff.
->
-> The GPL is very careful about this. If you ship the sources to your
-> customers then you have done your duty. If your customers choose to give
-> it to others so be it. If the others ask you for changes then I believe
-> the phrase is "business opportunity".
->
->> whatever their version numbers are.  I'm in an odd position of working
->> for  a web hosting company, *and* doing my own Linux consulting as well,
->> and  maintaining some 'embedded distros' used in these specific niche
->> applications.
->
-> Embedded can be more problematic because it is harder to spread the
-> load, but there are communities of people who looked at things like Red
-> Hat Enterprise Linux and decided that they could use the code but didn't
-> currently need/want the training, support and services that are what
-> really makes it. One obvious example is Centos which is a community tree
-> derived from the RHEL work, rebuilt, rebranded without
-> support/services/etc and downloadable for free.
-
-Yeah, embedded certainly is its own special little corner of heaven or hell 
-depending on your view, or whims.
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm2/broken-out/ext3_readdir-use-generic-readahead.patch

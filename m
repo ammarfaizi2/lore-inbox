@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWAUV4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWAUWDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932398AbWAUV4k (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 16:56:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbWAUV4k
+	id S932400AbWAUWDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 17:03:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbWAUWDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 16:56:40 -0500
-Received: from mercury.sdinet.de ([193.103.161.30]:34184 "EHLO
-	mercury.sdinet.de") by vger.kernel.org with ESMTP id S932398AbWAUV4k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 16:56:40 -0500
-Date: Sat, 21 Jan 2006 22:56:38 +0100 (CET)
-From: Sven-Haegar Koch <haegar@sdinet.de>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Michael Loftis <mloftis@wgops.com>,
-       Matthew Frost <artusemrys@sbcglobal.net>, linux-kernel@vger.kernel.org,
-       James Courtier-Dutton <James@superbug.co.uk>
-Subject: Re: Development tree, PLEASE?
-In-Reply-To: <1137829140.3241.141.camel@mindpipe>
-Message-ID: <Pine.LNX.4.64.0601212250020.31384@mercury.sdinet.de>
-References: <20060121031958.98570.qmail@web81905.mail.mud.yahoo.com> 
- <1FA093EB58B02DE48E424157@dhcp-2-206.wgops.com> <1137829140.3241.141.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 21 Jan 2006 17:03:16 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:32526 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S932400AbWAUWDP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 17:03:15 -0500
+Subject: [git patch review 2/5] IB/uverbs: Flush scheduled work before
+	unloading module
+From: Roland Dreier <rolandd@cisco.com>
+Date: Sat, 21 Jan 2006 22:03:10 +0000
+To: linux-kernel@vger.kernel.org, openib-general@openib.org
+X-Mailer: IB-patch-reviewer
+Content-Transfer-Encoding: 8bit
+Message-ID: <1137880990999-7ca1217bcd8a8383@cisco.com>
+In-Reply-To: <1137880990999-28a2de7670074e8b@cisco.com>
+X-OriginalArrivalTime: 21 Jan 2006 22:03:14.0808 (UTC) FILETIME=[7A2A8780:01C61ED6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Jan 2006, Lee Revell wrote:
+uverbs might schedule work to clean up when a file is closed.  Make
+sure that this work runs before allowing module text to go away.
 
-> On Sat, 2006-01-21 at 00:22 -0700, Michael Loftis wrote:
->> It makes maintenance a real nightmare
->> for atleast one environment in which I maintain production systems
->
-> Why do you keep having to upgrade the kernel on production systems, if
-> the old kernel does what you need?
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
-But it is missing all security updates.
+---
 
-What I am currently doing to workaround this problem:
+ drivers/infiniband/core/uverbs_main.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-- using Debian Sarge on my production servers as a base
-   (good packages, but kernel is just too old)
-- Kernel 2.6.12 from Ubuntu Breezy (taken as source, not binary packages)
-
-This way I have at least a working kernel (2.6.8 does not work on my newer 
-boxes) and the security updates from Ubuntu, getting kernel updates with 
-only little changes and low update-risks.
-
-Mainstream kernel is just unusable when you don't have the time to verify
-the lots of changes in production environments.
-
-c'ya
-sven
-
+cc76e33ec98ee2acab2d10828d31588d1b10f274
+diff --git a/drivers/infiniband/core/uverbs_main.c b/drivers/infiniband/core/uverbs_main.c
+index 96ea79b..903f85a 100644
+--- a/drivers/infiniband/core/uverbs_main.c
++++ b/drivers/infiniband/core/uverbs_main.c
+@@ -902,6 +902,7 @@ static void __exit ib_uverbs_cleanup(voi
+ 	unregister_filesystem(&uverbs_event_fs);
+ 	class_destroy(uverbs_class);
+ 	unregister_chrdev_region(IB_UVERBS_BASE_DEV, IB_UVERBS_MAX_DEVICES);
++	flush_scheduled_work();
+ 	idr_destroy(&ib_uverbs_pd_idr);
+ 	idr_destroy(&ib_uverbs_mr_idr);
+ 	idr_destroy(&ib_uverbs_mw_idr);
 -- 
-
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
+1.1.3

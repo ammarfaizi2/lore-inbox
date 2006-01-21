@@ -1,63 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWAUD3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWAUDhf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbWAUD3r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 22:29:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWAUD3r
+	id S1750968AbWAUDhf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 22:37:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbWAUDhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 22:29:47 -0500
-Received: from mail.host.bg ([85.196.174.5]:55476 "EHLO mail.host.bg")
-	by vger.kernel.org with ESMTP id S1750831AbWAUD3q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 22:29:46 -0500
-Subject: Re: OOM Killer killing whole system
-From: Anton Titov <a.titov@host.bg>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Andrew Morton <akpm@osdl.org>, Chase Venters <chase.venters@clientec.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <1137806248.4122.11.camel@mulgrave>
-References: <1137337516.11767.50.camel@localhost>
-	 <1137793685.11771.58.camel@localhost>
-	 <20060120145006.0a773262.akpm@osdl.org>
-	 <200601201819.58366.chase.venters@clientec.com>
-	 <20060120165031.7773d9c4.akpm@osdl.org> <1137806248.4122.11.camel@mulgrave>
-Content-Type: text/plain
-Organization: Host.bg
-Date: Sat, 21 Jan 2006 05:29:41 +0200
-Message-Id: <1137814181.11771.70.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Fri, 20 Jan 2006 22:37:35 -0500
+Received: from mxsf14.cluster1.charter.net ([209.225.28.214]:56557 "EHLO
+	mxsf14.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S1750886AbWAUDhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 22:37:34 -0500
+X-IronPort-AV: i="4.01,207,1136178000"; 
+   d="scan'208"; a="2043120325:sNHT55168796"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17361.44149.200493.916170@smtp.charter.net>
+Date: Fri, 20 Jan 2006 22:37:25 -0500
+From: "John Stoffel" <john@stoffel.org>
+To: Neil Brown <neilb@suse.de>
+Cc: "John Stoffel" <john@stoffel.org>, linux-raid@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+Subject: Re: [PATCH 001 of 5] md: Split disks array out of raid5 conf structure so it is easier to grow.
+In-Reply-To: <17358.56490.127364.327688@cse.unsw.edu.au>
+References: <20060117174531.27739.patches@notabene>
+	<1060117065614.27831@suse.de>
+	<17357.271.619918.45917@smtp.charter.net>
+	<17358.56490.127364.327688@cse.unsw.edu.au>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-20 at 19:17 -0600, James Bottomley wrote:
-> On Fri, 2006-01-20 at 16:50 -0800, Andrew Morton wrote:
-> > For linux-scsi reference, Chase's /proc/slabinfo says:
-> > 
-> > scsi_cmd_cache    1547440 1547440    384   10    1 : tunables   54   27    8 : 
-> > slabdata 154744 154744      0
-> 
-> There's another curiosity about this: the linux command stack is pretty
-> well counted per scsi device (it's how we control queue depth), so if a
-> driver leaks commands we see it not by this type of behaviour, but by
-> the system hanging (waiting for all the commands the mid-layer thinks
-> are outstanding to return).  So, the only way we could leak commands
-> like this is in the mid-layer command return logic ... and I can't find
-> anywhere this might happen.
-> 
+>>>>> "Neil" == Neil Brown <neilb@suse.de> writes:
 
-Just to mention, that 2.6.14.2 does not have this problem:
+Neil> On Tuesday January 17, john@stoffel.org wrote:
+>> >>>>> "NeilBrown" == NeilBrown  <neilb@suse.de> writes:
+>> 
+NeilBrown> Previously the array of disk information was included in
+NeilBrown> the raid5 'conf' structure which was allocated to an
+NeilBrown> appropriate size.  This makes it awkward to change the size
+NeilBrown> of that array.  So we split it off into a separate
+NeilBrown> kmalloced array which will require a little extra indexing,
+NeilBrown> but is much easier to grow.
 
-vip ~ # cat /proc/slabinfo | grep scsi
-scsi_cmd_cache        60     60    384   10    1 : tunables   54   27
-8 : slabdata      6      6     27
+>> Instead of setting mddev->private = NULL, should you be doing a kfree
+>> on it as well when you are in an abort state?
 
-but my guess is that the problem may be not in SCSI, as not /and
-previosly actually/ I have this:
+Neil> The only times I set 
+mddev-> private = NULL
+Neil> it is immediately after
+Neil>    kfree(conf)
+Neil> and as conf is the thing that is assigned to mddev->private, this
+Neil> should be doing exactly what you suggest.
 
-vip ~ # cat /proc/slabinfo | grep reiser
-reiser_inode_cache 556594 556614    408    9    1 : tunables   54   27
-8 : slabdata  61846  61846      0
+Neil> Does that make sense?
 
-which seems too high too
+Now that I've had some time to actually apply your patches to
+2.6.16-rc1 and look them over more carefully, I see my mistake.  I
+overlooked the assignment of 
 
+	conf = mddev->private 
+
+In the lines just below there, and I see how you do clean it up.  I
+guess I would have just done it the other way around:
+
+	conf = kzalloc()
+	if (!conf) 
+		goto abort:
+	.
+	.	
+	.
+	mddev->private = conf;
+
+Though now that I look at it, don't we have a circular reference
+here?  Let me quote the code section, which starts of with where I was
+confused: 
+
+        mddev->private = kzalloc(sizeof (raid5_conf_t), GFP_KERNEL);
+        if ((conf = mddev->private) == NULL)
+                goto abort;
+        conf->disks = kzalloc(mddev->raid_disks * sizeof(struct disk_info),
+                              GFP_KERNEL);
+        if (!conf->disks)
+                goto abort;
+
+        conf->mddev = mddev;
+
+        if ((conf->stripe_hashtbl = kzalloc(PAGE_SIZE, GFP_KERNEL)) == NULL)
+                goto abort;
+
+
+Now we seem to end up with:
+
+	mddev->private = conf;
+	conf->mddev = mddev;
+
+which looks a little strange to me, and possibly something that could
+lead to endless loops.  But I need to find the time to sit down and
+try to understand the code, so don't waste much time educating me
+here.
+
+Thanks for all your work on this Neil, I for one really appreciate it!
+
+John

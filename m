@@ -1,127 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWAUXmZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWAUXx6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbWAUXmZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 18:42:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWAUXmZ
+	id S1751225AbWAUXx6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 18:53:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbWAUXx6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 18:42:25 -0500
-Received: from smtp04.auna.com ([62.81.186.14]:64647 "EHLO smtp04.retemail.es")
-	by vger.kernel.org with ESMTP id S1751229AbWAUXmY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 18:42:24 -0500
-Date: Sun, 22 Jan 2006 00:46:36 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Andrew Morton <akpm@osdl.org>,
-       "Linux-Kernel, " <linux-kernel@vger.kernel.org>
-Subject: Re: SMP+nosmp=hang [was: Re: 2.6.15-rc5-mm2]
-Message-ID: <20060122004636.0837de67@werewolf.auna.net>
-In-Reply-To: <20060120192259.4460af42.akpm@osdl.org>
-References: <20051211041308.7bb19454.akpm@osdl.org>
-	<20051214095459.3912d59e@werewolf.auna.net>
-	<20060120192259.4460af42.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 1.9.100cvs178 (GTK+ 2.8.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary=Sig_1B8Axqxod3uKhRKiQVVanSp;
- protocol="application/pgp-signature"; micalg=PGP-SHA1
-X-Auth-Info: Auth:LOGIN IP:[83.138.216.29] Login:jamagallon@able.es Fecha:Sun, 22 Jan 2006 00:42:20 +0100
+	Sat, 21 Jan 2006 18:53:58 -0500
+Received: from vms044pub.verizon.net ([206.46.252.44]:36522 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751225AbWAUXx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 18:53:58 -0500
+Date: Sat, 21 Jan 2006 18:53:56 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [2.6 patch] the scheduled removal of the obsolete raw driver
+In-reply-to: <1137886206.11722.1.camel@mindpipe>
+To: linux-kernel@vger.kernel.org
+Reply-to: gene.heskett@verizon.net
+Message-id: <200601211853.56339.gene.heskett@verizon.net>
+Organization: Absolutely none - usually detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20060119030251.GG19398@stusta.de>
+ <200601211826.02159.gene.heskett@verizon.net>
+ <1137886206.11722.1.camel@mindpipe>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Sig_1B8Axqxod3uKhRKiQVVanSp
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Saturday 21 January 2006 18:30, Lee Revell wrote:
+>On Sat, 2006-01-21 at 18:26 -0500, Gene Heskett wrote:
+>> On Wednesday 18 January 2006 22:02, Adrian Bunk wrote:
+>> >Let's do the scheduled removal of the obsolete raw driver in
+>> > 2.6.17.
+>>
+>> This thread has run on for a bit longer it seems, and it prompts me
+>> to back up to the original post and ask if the raw driver you are
+>> removing is the raw driver used when cups tells a device (a printer)
+>> to do this file using the -o raw format?
+>>
+>> If this is the case, then a rather large amount of printing
+>> functionality will be removed as a side effect.  I hope I'm
+>> miss-understanding the intent here.
+>
+>No, it's a different raw driver, for big databases that basically want
+>their own custom filesystem on a disk.
 
-On Fri, 20 Jan 2006 19:22:59 -0800, Andrew Morton <akpm@osdl.org> wrote:
+With the attendent possibility of rendering the whole thing 
+unrecoverably moot?
 
-> "J.A. Magallon" <jamagallon@able.es> wrote:
-> >
-> > On Sun, 11 Dec 2005 04:13:08 -0800, Andrew Morton <akpm@osdl.org> wrote:
-> >=20
-> > >=20
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-=
-rc5/2.6.15-rc5-mm2/
-> > >=20
-> >=20
-> > Booting a SMP built kernel with 'nosmp' just hangs at the VFS layer, wi=
-th
-> > the message about 'not being able to find root device sda1'.
-> > sda is a SATA drive on an Intel ICH5 controller:
-> >=20
-> > libata version 1.20 loaded.
-> > ata_piix 0000:00:1f.2: version 1.05
-> > ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
-> > PCI: Setting latency timer of device 0000:00:1f.2 to 64
-> > ata1: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
-> > ata2: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
-> > ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003=
- 88:407f
-> > ata1: dev 0 ATA-6, max UDMA/133, 390721968 sectors: LBA48
-> > ata1: dev 0 configured for UDMA/133
-> > scsi0 : ata_piix
-> > ATA: abnormal status 0x7F on port 0xC807
-> > scsi1 : ata_piix
-> >   Vendor: ATA       Model: ST3200822AS       Rev: 3.01
-> >   Type:   Direct-Access                      ANSI SCSI revision: 05
-> > SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
-> > SCSI device sda: drive cache: write back
-> > SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
-> > SCSI device sda: drive cache: write back
-> >  sda: sda1 sda2 sda3
-> > sd 0:0:0:0: Attached scsi disk sda
-> >=20
-> > I would have to double check, but I think it even missed the USB keyboa=
-rd.
-> >=20
->=20
-> Is this still happening?
+OTOH, if this database actually does have a better way, and its mature 
+and proven, then I see no reason to cripple the database people just to 
+remove what is viewed as a potentially dangerous path to the media 
+surface for the unwashed to abuse.
 
-Yes. I have just tried with 2.6.16-rc1-mm2, and the result is the same.
-No root device.
+While I'm infinitely familiar with walking around and editing bits and 
+bytes in a much older filesystem than ext3 (microwares os-9), there's 
+no way in hell I'd try that where 200GB of data could go byby.  A 720k 
+floppy can always be re-written, but not a truely huge filesystem, nuh 
+uh unless you have bare metal backups.
 
-The nosmp-booted kernel looks much much slow than the SMP one, it takes
-ages to detect devices like usb ones, and even spent about 20 seconds here:
+But thats just me being a cautious old fart, but some of the database 
+folks have decades of such experience and shouldn't be penalized for 
+using what to them is the fastest way to do it, after all, speed is the 
+very essence of a databases performance.  Its what they sell as the 
+sizzle.  Methinks then that rather than give up that advantage, maybe a 
+newer filesystem might be forthcoming from the db folks, one that 
+preserves that perceived advantage, but only if that advantage can be 
+protected from other db vendors being able to use it too.  Which would 
+being up licenseing issues I'm sure, but thats another argument on 
+another day.  Thats why this looks a bit like a lose-lose situation as 
+it will hurt, rather than enhance, the overall linux performance.
 
-[    0.431601] libata version 1.20 loaded.
-[    0.431652] ata_piix 0000:00:1f.2: version 1.05
-[    0.431670] ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -=
-> IRQ 16
-[    0.431792] PCI: Setting latency timer of device 0000:00:1f.2 to 64
-[    0.431852] ata1: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 i=
-rq 16
-[    0.431950] ata2: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 i=
-rq 16
-   >>>>>>>>>>>>> here <<<<<<<<<<<<<<<<<<
-[    0.690451] ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3=
-c01 87:4003 88:407f
-[    0.690456] ata1: dev 0 ATA-6, max UDMA/133, 390721968 sectors: LBA48
-[    0.696278] ata1: dev 0 configured for UDMA/133
-[    0.701627] scsi0 : ata_piix
-[    1.937443] scsi1 : ata_piix
+My $0.02, adjust for inflation since 1934. :-)
 
-and it did not detect any drive, so the no-root-device error. This one can =
-be
-a detection timeout, but as I say also the USB detection is dog slooow.
+>Lee
 
-Need some info ? .config, or the like ?
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandriva Linux release 2006.1 (Cooker) for i586
-Linux 2.6.15-jam5 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
-
---Sig_1B8Axqxod3uKhRKiQVVanSp
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD0sfcRlIHNEGnKMMRAr1uAJ9zRuVw+pW+xQvUiu5nBCR5H+sQVQCbBf+C
-nIMdtOY2kXe5iGmATCi3dE8=
-=JY+B
------END PGP SIGNATURE-----
-
---Sig_1B8Axqxod3uKhRKiQVVanSp--
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

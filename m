@@ -1,82 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWAUAAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWAUACN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWAUAAa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 19:00:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWAUAAa
+	id S1750825AbWAUACN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 19:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbWAUACN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 19:00:30 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:22697 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750747AbWAUAA3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 19:00:29 -0500
-Subject: [PATCHSET] Time: Generic Timeofday Subsystem (v B17)
-From: john stultz <johnstul@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       George Anzinger <george@mvista.com>, Ingo Molnar <mingo@elte.hu>
-Content-Type: text/plain
-Date: Fri, 20 Jan 2006 16:00:26 -0800
-Message-Id: <1137801626.27699.279.camel@cog.beaverton.ibm.com>
+	Fri, 20 Jan 2006 19:02:13 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:43729 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750804AbWAUACL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 19:02:11 -0500
+Date: Sat, 21 Jan 2006 01:01:42 +0100
+From: Heinz Mauelshagen <mauelshagen@redhat.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Heinz Mauelshagen <mauelshagen@redhat.com>, Neil Brown <neilb@suse.de>,
+       Phillip Susi <psusi@cfl.rr.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       "Lincoln Dale (ltd)" <ltd@cisco.com>, Michael Tokarev <mjt@tls.msk.ru>,
+       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+Subject: Re: [PATCH 000 of 5] md: Introduction
+Message-ID: <20060121000142.GR2801@redhat.com>
+Reply-To: mauelshagen@redhat.com
+References: <26A66BC731DAB741837AF6B2E29C1017D47EA0@xmb-hkg-413.apac.cisco.com> <Pine.LNX.4.61.0601181427090.19392@yvahk01.tjqt.qr> <17358.52476.290687.858954@cse.unsw.edu.au> <43D00FFA.1040401@cfl.rr.com> <17360.5011.975665.371008@cse.unsw.edu.au> <43D02033.4070008@cfl.rr.com> <17360.9233.215291.380922@cse.unsw.edu.au> <20060120183621.GA2799@redhat.com> <20060120225724.GW22163@marowsky-bree.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060120225724.GW22163@marowsky-bree.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
-	Yes, B17 already. I didn't bother to announce the B16 release, since it
-was just a sync w/ the patches included into -mm. This announcement is
-mainly for upstream users of my patch (-kthrt and -rt trees), or anyone
-who wants to play with the patches outside of -mm. Anyway here it is:
+On Fri, Jan 20, 2006 at 11:57:24PM +0100, Lars Marowsky-Bree wrote:
+> On 2006-01-20T19:36:21, Heinz Mauelshagen <mauelshagen@redhat.com> wrote:
+> 
+> > > Then 'dmraid' (or a similar tool) can use 'dm' interfaces for some
+> > > raid levels and 'md' interfaces for others.
+> > Yes, that's possible but there's recommendations to have a native target
+> > for dm to do RAID5, so I started to implement it.
+> 
+> Can you answer me what the recommendations are based on?
 
-	This patchset provides a generic timekeeping subsystem that is
-independent of the timer interrupt. This allows for robust and correct
-behavior in cases of late or lost ticks, avoids interpolation errors,
-reduces duplication in arch specific code, and allows or assists future
-changes such as high-res timers, dynamic ticks, or realtime preemption.
-Additionally, it provides finer nanosecond resolution values to the
-clock_gettime functions.
+Partner requests.
 
-	The patch set provides the minimal NTP changes, the clocksource
-abstraction, the core timekeeping code as well as the code to convert
-i386. I have started on converting more arches, but for now I'm focusing
-on code for i386 and x86-64.
+> 
+> I understand wanting to manage both via the same framework, but
+> duplicating the code is just ... wrong.
+> 
+> What's gained by it?
+>
+> Why not provide a dm-md wrapper which could then
+> load/interface to all md personalities?
+> 
 
-Changes since the B16 release:
-o Avoids clocksource churn
-o Blacklist silent cpufreq changing thinkpad
-o Sync up w/ patches in 2.6.16-rc1-mm2
+As we want to enrich the mapping flexibility (ie, multi-segment fine grained
+mappings) of dm by adding targets as we go, a certain degree and transitional
+existence of duplicate code is the price to gain that flexibility.
 
-Outstanding issues:
-o TSC cpufreq caused stalls at bootup (working on this one)
+> 
+> Sincerely,
+>     Lars Marowsky-Brée
+> 
+> -- 
+> High Availability & Clustering
+> SUSE Labs, Research and Development
+> SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
+> "Ignorance more frequently begets confidence than does knowledge"
 
-Still on my TODO list:
-o Squish any bugs that pop up from testing in -mm and -rt
-o Finer grained ntp adjustment accounting (Suggested by Roman)
-o A few spots could use some optimization (Again, suggested by Roman)
-o Clean and split up x86-64 patch
-o powerpc/ppc, s390, arm, ia64, alpha, sparc, sparc64 work
+Warm regards,
+Heinz    -- The LVM Guy --
 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-The patchset applies against the current 2.6.16-rc1-git.
-
-The complete patchset can be found here:
-	http://sr71.net/~jstultz/tod/
-
-
-I'd like to thank the following people who have contributed ideas,
-criticism, testing and code that has helped shape this work: 
-	George Anzinger, Nish Aravamudan, Max Asbock, Serge Belyshev, Dominik
-Brodowski, Thomas Gleixner, Darren Hart, Christoph Lameter, Matt Mackal,
-Keith Mannthey, Ingo Molnar, Martin Schwidefsky, Frank Sorenson, Ulrich
-Windl, Jonathan Woithe, Darrick Wong, Roman Zippel and any others whom
-I've accidentally left off this list.
-
-As always, feedback, suggestions and bug-reports are always appreciated.
-
-thanks 
--john
-
-
+Heinz Mauelshagen                                 Red Hat GmbH
+Consulting Development Engineer                   Am Sonnenhang 11
+Cluster and Storage Development                   56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@RedHat.com                            +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

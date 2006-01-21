@@ -1,95 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWAUNZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWAUN1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbWAUNZc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 08:25:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWAUNZc
+	id S932187AbWAUN1l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 08:27:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWAUN1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 08:25:32 -0500
-Received: from mail.gmx.de ([213.165.64.21]:28548 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932182AbWAUNZc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 08:25:32 -0500
-X-Authenticated: #6864226
-Content-Disposition: inline
-From: Gerrit =?iso-8859-1?q?Bruchh=E4user?= <gbruchhaeuser@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: (SOLVED!) AHA-7850 doesn't detect scanner anymore
-Date: Sat, 21 Jan 2006 14:25:29 +0100
-User-Agent: KMail/1.8.3
+	Sat, 21 Jan 2006 08:27:41 -0500
+Received: from mail.tmr.com ([64.65.253.246]:38356 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S932187AbWAUN1k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 08:27:40 -0500
+Message-ID: <43D23895.7080801@tmr.com>
+Date: Sat, 21 Jan 2006 08:35:17 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200601211425.29291.gbruchhaeuser@gmx.de>
-X-Y-GMX-Trusted: 0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Willy Tarreau <willy@w.ods.org>, Rumi Szabolcs <rumi_ml@rtfm.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x kernel uptime counter problem
+References: <20060119110834.bb048266.rumi_ml@rtfm.hu> <7c3341450601190129r64a97880q22d576734214b6ac@mail.gmail.com> <20060119201857.GQ7142@w.ods.org> <200601192022.42087.nick@linicks.net> <Pine.LNX.4.61.0601201513360.22940@yvahk01.tjqt.qr> <43D0FF40.9060305@tmr.com> <Pine.LNX.4.61.0601201731130.10065@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0601201731130.10065@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One pin on the connector didn't have proper contact. 
-Thx,
-Gerrit
+Jan Engelhardt wrote:
 
-----------  Weitergeleitete Nachricht  ----------
+>>>Or use some dedicated programs, IIRC there is a "uprecords" program
+>>>(http://podgorny.cz/moin/Uptimed). Does require no reboot and should work
+>>>right away.
+>>>      
+>>>
+>>I never understood uptime anyway, the boot time, to the second, is available in
+>>/proc/stat (btime), and it isn't that hard to turn it into whatever format you
+>>find human readable. I have a perl script which presents uptime as fractional
+>>days, days, hours, min, sec, and/or boot time. Took me about two minutes to
+>>write.
+>>    
+>>
+>
+>uptime or uptimed/uprecords? (That's two different things.)
+>The "uptime" commands is the same as "w | head -n1" (which reads 
+>/proc/uptime) and therefore suffers from jiffies wrap.
+>
 
-Subject: AHA-7850 doesn't detect scanner anymore
-Date: Samstag, 21. Januar 2006 13:46
-From: Gerrit Bruchhäuser <gbruchhaeuser@gmx.de>
-To: linux-kernel@vger.kernel.org
+I understand why it has this limitation, the question is why it was 
+written to have it, when correct function is easily possible. I 
+understand extra effort to get it right, but not to get it wrong...
 
-Hello,
-my old "HP ScanJet IIc" used to work so perfectly but now the kernel can only
-see something at SCSI-ID 1, but is not able to detect the device properly :-(
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+  Doing interesting things with small computers since 1979
 
-These are the 'kernel.log' entries after I switched on 'options aic7xxx
-
-aic7xxx=verbose,periodic_otag' in modules.conf file :
-| Jan 21 13:17:18 gbpc PCI: Enabling device 0000:00:0d.0 (0116 -> 0117)
-| Jan 21 13:17:18 gbpc ACPI: PCI Interrupt 0000:00:0d.0[A] -> GSI 17 (level,
-
-low) -> IRQ 185
-
-| Jan 21 13:17:18 gbpc ahc_pci:0:13:0: hardware scb 64 bytes; kernel scb 52
-
-bytes; ahc_dma 8 bytes
-
-| Jan 21 13:17:18 gbpc ahc_pci:0:13:0: Host Adapter Bios disabled.  Using
-
-default SCSI device parameters
-
-| Jan 21 13:17:18 gbpc scsi12 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER,
-
-Rev 7.0
-
-| Jan 21 13:17:18 gbpc <Adaptec 2902/04/10/15/20C/30C SCSI adapter>
-| Jan 21 13:17:18 gbpc aic7850: Single Channel A, SCSI Id=7, 3/253 SCBs
-| Jan 21 13:17:18 gbpc
-| Jan 21 13:17:33 gbpc (scsi12:A:0:0): Saw Selection Timeout for SCB 0x3
-| Jan 21 13:17:34 gbpc (scsi12:A:1:0): SCB 2: requests Check Status
-| Jan 21 13:17:34 gbpc (scsi12:A:1:0): Handled Residual of 36 bytes
-| Jan 21 13:17:34 gbpc (scsi12:A:1:0): Sending Sense
-| Jan 21 13:17:34 gbpc (scsi12:A:1:0): Handled Residual of 36 bytes
-| Jan 21 13:17:34 gbpc (scsi12:A:1:0): SCB 3: requests Check Status
-| Jan 21 13:17:34 gbpc (scsi12:A:1:0): Handled Residual of 36 bytes
-| Jan 21 13:17:34 gbpc (scsi12:A:1:0): Sending Sense
-| Jan 21 13:17:34 gbpc (scsi12:A:1:0): Handled Residual of 36 bytes
-| Jan 21 13:17:35 gbpc (scsi12:A:1:0): SCB 2: requests Check Status
-| Jan 21 13:17:35 gbpc (scsi12:A:1:0): Handled Residual of 36 bytes
-| Jan 21 13:17:35 gbpc (scsi12:A:1:0): Sending Sense
-| Jan 21 13:17:35 gbpc (scsi12:A:1:0): Handled Residual of 36 bytes
-| Jan 21 13:17:35 gbpc (scsi12:A:2:0): Saw Selection Timeout for SCB 0x3
-| Jan 21 13:17:35 gbpc (scsi12:A:3:0): Saw Selection Timeout for SCB 0x2
-| Jan 21 13:17:36 gbpc (scsi12:A:4:0): Saw Selection Timeout for SCB 0x3
-| Jan 21 13:17:36 gbpc (scsi12:A:5:0): Saw Selection Timeout for SCB 0x2
-| Jan 21 13:17:36 gbpc (scsi12:A:6:0): Saw Selection Timeout for SCB 0x3
-
-The SCSI-terminator is properly attached to the scanner and the wires are
- okay as well. Is there a way to find-out more what actually causes the
- problem?
-
-As I am not subscribed to the list, please when you answer, put my mail
-address to CC
-
-Many thanks in advance,
-Gerrit
-
--------------------------------------------------------

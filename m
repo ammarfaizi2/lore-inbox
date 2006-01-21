@@ -1,155 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWAUDnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWAUDpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWAUDnq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 22:43:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWAUDnq
+	id S932267AbWAUDpF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 22:45:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbWAUDpE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 22:43:46 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:62934 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932263AbWAUDnp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 22:43:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=G90T4TFpNt5iqOrg4od52P0O9i8bJ0T7osXJfdIINU7xWVM5fx78j9eH9Erasiv0xsT9bFLq6bmdpRpvhuRPcFS9TYRd9bpdDiGdZMAKLV1Wnc9dT8ka54SyKbzpAVzZaZWNYVhCYA9awTtEzL22GloVoLW6XPtueqLSqQAt8Gs=
-Message-ID: <9e4733910601201943y77fb9a1fgf2a5f0d48eca1344@mail.gmail.com>
-Date: Fri, 20 Jan 2006 22:43:44 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Subject: Re: sendfile() with 100 simultaneous 100MB files
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060121022237.GW3927@mea-ext.zmailer.org>
-MIME-Version: 1.0
+	Fri, 20 Jan 2006 22:45:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:51666 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932267AbWAUDpB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 22:45:01 -0500
+Date: Fri, 20 Jan 2006 19:44:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Anton Titov <a.titov@host.bg>
+Cc: James.Bottomley@SteelEye.com, chase.venters@clientec.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: OOM Killer killing whole system
+Message-Id: <20060120194438.53a15d85.akpm@osdl.org>
+In-Reply-To: <1137814181.11771.70.camel@localhost>
+References: <1137337516.11767.50.camel@localhost>
+	<1137793685.11771.58.camel@localhost>
+	<20060120145006.0a773262.akpm@osdl.org>
+	<200601201819.58366.chase.venters@clientec.com>
+	<20060120165031.7773d9c4.akpm@osdl.org>
+	<1137806248.4122.11.camel@mulgrave>
+	<1137814181.11771.70.camel@localhost>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9e4733910601201353g36284133xf68c4f6eae1344b4@mail.gmail.com>
-	 <20060121022237.GW3927@mea-ext.zmailer.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/20/06, Matti Aarnio <matti.aarnio@zmailer.org> wrote:
-> On Fri, Jan 20, 2006 at 04:53:44PM -0500, Jon Smirl wrote:
-> > I was reading this blog post about the lighttpd web server.
-> > http://blog.lighttpd.net/articles/2005/11/11/optimizing-lighty-for-high-concurrent-large-file-downloads
-> > It describes problems they are having downloading 100 simultaneous 100MB files.
+Anton Titov <a.titov@host.bg> wrote:
 >
->     "more than 100 files of each more than 100 MB"
->
-> > In this post they complain about sendfile() getting into seek storms and
-> > ending up in 72% IO wait. As a result they built a user space
-> > mechanism to work around the problems.
-> >
-> > I tried looking at how the kernel implements sendfile(), I have
-> > minimal understanding of how the fs code works but it looks to me like
-> > sendfile() is working a page at a time. I was looking for code that
-> > does something like this...
-> >
-> > 1) Compute an adaptive window size and read ahead the appropriate
-> > number of pages.  A larger window would minimize disk seeks.
->
-> Or maybe not..   larger main memory would help more.  But there is
-> another issue...
->
-> > 2) Something along the lines of as soon as a page is sent age the page
-> > down in to the middle of page ages. That would allow for files that
-> > are repeatedly sent, but also reduce thrashing from files that are not
-> > sent frequently and shouldn't stay in the page cache.
-> >
-> > Any other ideas why sendfile() would get into a seek storm?
->
->
+> On Fri, 2006-01-20 at 19:17 -0600, James Bottomley wrote:
+> > On Fri, 2006-01-20 at 16:50 -0800, Andrew Morton wrote:
+> > > For linux-scsi reference, Chase's /proc/slabinfo says:
+> > > 
+> > > scsi_cmd_cache    1547440 1547440    384   10    1 : tunables   54   27    8 : 
+> > > slabdata 154744 154744      0
+> > 
+> > There's another curiosity about this: the linux command stack is pretty
+> > well counted per scsi device (it's how we control queue depth), so if a
+> > driver leaks commands we see it not by this type of behaviour, but by
+> > the system hanging (waiting for all the commands the mid-layer thinks
+> > are outstanding to return).  So, the only way we could leak commands
+> > like this is in the mid-layer command return logic ... and I can't find
+> > anywhere this might happen.
+> > 
+> 
+> Just to mention, that 2.6.14.2 does not have this problem:
+> 
+> vip ~ # cat /proc/slabinfo | grep scsi
+> scsi_cmd_cache        60     60    384   10    1 : tunables   54   27
+> 8 : slabdata      6      6     27
+> 
+> but my guess is that the problem may be not in SCSI, as not /and
+> previosly actually/ I have this:
+> 
+> vip ~ # cat /proc/slabinfo | grep reiser
+> reiser_inode_cache 556594 556614    408    9    1 : tunables   54   27
+> 8 : slabdata  61846  61846      0
+> 
+> which seems too high too
 
-Thanks for pointing me in the right direction in the source.
-Is there a write up anywhere on how sendfile() works?
+Having large numbers of cached inodes is fairly common.  Try running
+something which uses lots of memory: memset(malloc(gigabytes)), or usemem
+from http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz or
+read a multi-gigabyte file from disk and you shuld see the inode count wind
+down.
 
 
-> Deep inside the  do_generic_mapping_read() there is a loop that
-> reads the source file with read-ahead processing, processes it
-> one page at the time, calls actor (which sends the file) and
-> releases the page cache of that page.  -- with convoluted things
-> done when page isn't in page cache, etc..
->
->
->                 /*
->                  * Ok, we have the page, and it's up-to-date, so
->                  * now we can copy it to user space...
->                  *
->                  * The actor routine returns how many bytes were actually used..
->                  * NOTE! This may not be the same as how much of a user buffer
->                  * we filled up (we may be padding etc), so we can only update
->                  * "pos" here (the actor routine has to update the user buffer
->                  * pointers and the remaining count).
->                  */
->                 ret = actor(desc, page, offset, nr);
->                 offset += ret;
->                 index += offset >> PAGE_CACHE_SHIFT;
->                 offset &= ~PAGE_CACHE_MASK;
->
->                 page_cache_release(page);
->                 if (ret == nr && desc->count)
->                         continue;
->
->
-> That is, if machine memory is so limited (file pages + network
-> tcp buffers!) that source file pages gets constantly purged out,
-> there is not much that one can do.
->
-> That described workaround is essentially to read the file to server
-> process memory with half an MB sliding window, and then  writev()
-> from there to socket.  Most importantly it does the reading in _large_
-> chunks.
-
-100 users at 500K each is 50MB of read ahead, that's not a huge amount of memory
-
->
-> The read-ahead in sendfile is done by  page_cache_readahead(), and
-> via fairly complicated circumstances it ends up using
->
->         bdi = mapping->backing_dev_info;
->
->         switch (advice) {
->         case POSIX_FADV_NORMAL:
->                 file->f_ra.ra_pages = bdi->ra_pages;
->                 break;
->         case POSIX_FADV_RANDOM:
->                 file->f_ra.ra_pages = 0;
->                 break;
->         case POSIX_FADV_SEQUENTIAL:
->                 file->f_ra.ra_pages = bdi->ra_pages * 2;
->                 break;
->         ....
->
->
-> Default value for ra_pages is equivalent of  128 kB, which
-> should be enough...
-
-Does using sendfile() set MADV_SEQUENTIAL and MADV_DONTNEED implicitly?
-If not would setting these help?
-
-> Why it goes to seek trashing ?   Because read-ahead buffer memory
-> space is being processed in very small fragments, and the sendpage
-> to socket writing logic pauses frequently, during which read-ahead
-> buffers become recycled...
-
-I was following with you until this part. I thought sendfile() worked
-using mmap'd files and that readahead was done into the global page
-cache.
-
-But this makes me think that read ahead is instead going into another
-pool. How large is this pool? The user space scheme is using 50MB of
-readahead cache, will the kernel do that much readahead if needed?
-
-> In  writev()  solution the pausing in socket sending side does
-> not appear so heavily in source file reading side, as things
-> get buffered in non-discardable memory space of userspace process.
-
-Does this scenario illustrate a problem with the current sendfile()
-implementation? I thought the goal of sendfile() was to always be the
-best way to send complete files. This is a case where user space is
-clearly beating sendfile().
-
---
-Jon Smirl
-jonsmirl@gmail.com

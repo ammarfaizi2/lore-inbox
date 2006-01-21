@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWAUV3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWAUVew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbWAUV3U (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 16:29:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWAUV3U
+	id S932367AbWAUVew (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 16:34:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWAUVew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 16:29:20 -0500
-Received: from natfrord.rzone.de ([81.169.145.161]:57513 "EHLO
-	natfrord.rzone.de") by vger.kernel.org with ESMTP id S932365AbWAUV3T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 16:29:19 -0500
-Subject: Re: ATI RS480-based motherboard: stuck while booting with kernel
-	>= 2.6.15 rc1
-From: Erwin Rol <mailinglists@erwinrol.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Carlo E. Prelz" <fluido@fluido.as>, linux-kernel@vger.kernel.org,
-       Dave Jones <davej@redhat.com>
-In-Reply-To: <20060121125822.570b0d99.akpm@osdl.org>
-References: <20060120123202.GA1138@epio.fluido.as>
-	 <20060121010932.5d731f90.akpm@osdl.org>
-	 <20060121125741.GA13470@epio.fluido.as>
-	 <20060121125822.570b0d99.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 21 Jan 2006 22:28:46 +0100
-Message-Id: <1137878926.2976.28.camel@xpc.home.erwinrol.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 (2.5.4-10) 
-Content-Transfer-Encoding: 7bit
+	Sat, 21 Jan 2006 16:34:52 -0500
+Received: from smtp1-g19.free.fr ([212.27.42.27]:6030 "EHLO smtp1-g19.free.fr")
+	by vger.kernel.org with ESMTP id S932367AbWAUVew (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 16:34:52 -0500
+To: philb@gnu.org, tim@cyberelk.net, campbell@torque.net, andrea@suse.de
+Cc: linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org,
+       trivial@kernel.org
+Subject: [PATCH] parport: remove dead address in MAINTAINERS
+From: Arnaud Giersch <arnaud.giersch@free.fr>
+Date: Sat, 21 Jan 2006 22:34:50 +0100
+Message-ID: <87irsde03p.fsf@groumpf.homeip.net>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had also had the problem that my Shuttle ST20G5 (a RS480 IGP based
-system) hung in pci_init. This was with one of the Fedora Rawhide
-kernels, after reporting it  Dave Jones fixed it cause the next rawhide
-kernel worked again, maybe he could explain what it was, and where the
-fix is (if it is the same thing, but it really looks like it).
+From: Arnaud Giersch <arnaud.giersch@free.fr>
 
-- Erwin
+Remove dead address for David Campbell in MAINTAINERS.
 
+Signed-off-by: Arnaud Giersch <arnaud.giersch@free.fr>
+---
 
+  I got the following error message for all mails sent to
+  <campbell@torque.net> since January 9, 2006:
+ 
+  <campbell@torque.net>: host torque.net.inbound10.mxlogic.net[216.183.119.118]
+    said: 550 <campbell@torque.net>: User unknown in virtual alias table (in
+    reply to RCPT TO command)
 
+--- linux-2.6.16-rc1.orig/MAINTAINERS	2006-01-17 08:44:47.000000000 +0100
++++ linux-2.6.16-rc1/MAINTAINERS	2006-01-21 21:39:08.503248571 +0100
+@@ -1966,7 +1966,6 @@ M:	philb@gnu.org
+ P:	Tim Waugh
+ M:	tim@cyberelk.net
+ P:	David Campbell
+-M:	campbell@torque.net
+ P:	Andrea Arcangeli
+ M:	andrea@suse.de
+ L:	linux-parport@lists.infradead.org

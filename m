@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWAUWrV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWAUWtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWAUWrV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 17:47:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWAUWrV
+	id S1751214AbWAUWtP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 17:49:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWAUWtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 17:47:21 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:22945 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751213AbWAUWrU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 17:47:20 -0500
-Subject: Re: Development tree, PLEASE?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Michael Loftis <mloftis@wgops.com>
-Cc: Sven-Haegar Koch <haegar@sdinet.de>,
-       Matthew Frost <artusemrys@sbcglobal.net>, linux-kernel@vger.kernel.org,
-       James Courtier-Dutton <James@superbug.co.uk>
-In-Reply-To: <3B0BEE012630B9B11D1209E5@dhcp-2-206.wgops.com>
-References: <20060121031958.98570.qmail@web81905.mail.mud.yahoo.com>
-	 <1FA093EB58B02DE48E424157@dhcp-2-206.wgops.com>
-	 <1137829140.3241.141.camel@mindpipe>
-	 <Pine.LNX.4.64.0601212250020.31384@mercury.sdinet.de>
-	 <1137881882.411.23.camel@mindpipe>
-	 <3B0BEE012630B9B11D1209E5@dhcp-2-206.wgops.com>
-Content-Type: text/plain
-Date: Sat, 21 Jan 2006 17:47:18 -0500
-Message-Id: <1137883638.411.38.camel@mindpipe>
+	Sat, 21 Jan 2006 17:49:15 -0500
+Received: from main.gmane.org ([80.91.229.2]:33002 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751214AbWAUWtO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 17:49:14 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Carlo J. Calica" <ccalica@gmail.com>
+Subject: Re: Strange interrupt errors on ASUS A8N-SLI Premium
+Date: Sat, 21 Jan 2006 14:54:43 -0800
+Message-ID: <dqudos$4fg$1@sea.gmane.org>
+References: <43D24D4A.2080301@scientia.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 67-42-159-46.ptld.qwest.net
+User-Agent: KNode/0.9.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-21 at 15:40 -0700, Michael Loftis wrote:
-> I don't feel that statement is true in all cases.  It's true in a lot
-> of cases yes, but sometimes 'support' is really simply a matter of
-> techinga module one more PCI ID.  
+Christoph Anton Mitterer wrote:
 
-That might be true for server class hardware where the vendors care
-about the stability of the hardware platform, but for modern desktop
-stuff like sound cards it's never that simple.  Desktop class hardware
-is getting dumber and dumber all the time as more features are pushed
-into software which makes adding support for new devices tricky, and new
-devices are introduced constantly.  Sometimes they'll even ship 2 models
-with the same PCI IDs but a different chipset, so you have to use some
-other kludge to know what to do.  Etc.
+> Hi.
+> 
+> Yesterday I've assebled the new PC of a friend and when we finished we
+> tried to adapt his kernelconfiguration to the new hardware,...
+> But when we were finished we had some strange errors.
+> 
+> Perhaps you can help us.... the hardwareconfiguration is the following:
+> - AMD Athlon64 X2 4400 +
+> - ASUS A8N-SLI Premium
+> - Kingston ECC RAM 2 GB
+> - PATA Samsung HDD connected via hard drive mobile rack
+> 
 
-Lee
+I have a similar setup.  (Using SATA instead).  I boot with ACPI=off and
+(irqfixup if using the onboard nv SATA controller).  Make sure your BIOS is
+set to a non-pnp OS.  
+
+In addition, I'm having some sort of race between X and keyboard driver
+(seem to interact with SATA too).  I solved that by setting CPU affinity to
+the same processor for X and the keyboard IRQ handler.
+
+Booting with apic=verbose might give some useful output as well.
+
+Good luck, I've beating my head against the MB since I got it.
 

@@ -1,89 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWAUKsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWAULGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbWAUKsP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 05:48:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWAUKsP
+	id S932121AbWAULGH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 06:06:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWAULGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 05:48:15 -0500
-Received: from 213-140-2-72.ip.fastwebnet.it ([213.140.2.72]:19843 "EHLO
-	aa005msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S932128AbWAUKsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 05:48:14 -0500
-Date: Sat, 21 Jan 2006 11:46:16 +0100
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.2 for  2.6.16-rc1 and
- 2.6.16-rc1-mm1
-Message-ID: <20060121114616.4a906b4f@localhost>
-In-Reply-To: <43D00887.6010409@bigpond.net.au>
-References: <43D00887.6010409@bigpond.net.au>
-X-Mailer: Sylpheed-Claws 2.0.0-rc1 (GTK+ 2.6.10; x86_64-pc-linux-gnu)
+	Sat, 21 Jan 2006 06:06:06 -0500
+Received: from ganesha.gnumonks.org ([213.95.27.120]:57830 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S932121AbWAULGF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 06:06:05 -0500
+Date: Sat, 21 Jan 2006 12:05:53 +0100
+From: Harald Welte <laforge@netfilter.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: torvalds@osdl.org, bboissin@gmail.com, xslaby@fi.muni.cz, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Iptables error
+Message-ID: <20060121110553.GS4603@sunbeam.de.gnumonks.org>
+References: <40f323d00601200843m32e8f5cbv5733209ce82b8a13@mail.gmail.com> <Pine.LNX.4.64.0601201148220.3672@evo.osdl.org> <20060120193201.GP4603@sunbeam.de.gnumonks.org> <20060120.114613.54096131.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="b1CVx77D595wdcW8"
+Content-Disposition: inline
+In-Reply-To: <20060120.114613.54096131.davem@davemloft.net>
+User-Agent: mutt-ng devel-20050619 (Debian)
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jan 2006 08:45:43 +1100
-Peter Williams <pwil3058@bigpond.net.au> wrote:
 
-> Modifications have been made to spa_ws to (hopefully) address the issues 
-> raised by Paolo Ornati recently and a new entitlement based 
-> interpretation of "nice" scheduler, spa_ebs, which is a cut down version 
-> of the Zaphod schedulers "eb" mode has been added as this mode of Zaphod 
-> performed will for Paolo's problem when he tried it at my request. 
-> Paolo, could you please give these a test drive on your problem?
+--b1CVx77D595wdcW8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
----- spa_ws: the problem is still here
+On Fri, Jan 20, 2006 at 11:46:13AM -0800, David S. Miller wrote:
 
-(sched_fooler)
-./a.out 3000 & ./a.out 4307 &
+> Your struct won't be 8-byte aligned either as far as I can tell on
+> x86_64.
 
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 5573 paolo     34   0  2396  292  228 R 59.0  0.1   0:24.51 a.out
- 5572 paolo     34   0  2392  288  228 R 40.7  0.1   0:16.94 a.out
- 5580 paolo     35   0  4948 1468  372 R  0.3  0.3   0:00.04 dd
+According to my tests, the struct is 8-byte-aligned on x86_64, and
+that's how I'd like it to be.=20
 
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 5573 paolo     34   0  2396  292  228 R 59.3  0.1   0:59.65 a.out
- 5572 paolo     33   0  2392  288  228 R 40.3  0.1   0:41.32 a.out
- 5440 paolo     28   0 86652  21m  15m S  0.3  4.4   0:03.34 konsole
- 5580 paolo     37   0  4948 1468  372 R  0.3  0.3   0:00.10 dd
+Please don't ask me why it happens, I know that the alignment constraint
+of a u64 on x86_64 is only 4.  But at least gcc-3.3.6 and gcc-4.0.3
+(debian) result in __alignof__ of that test structure (and a 'u_int64_t
+alone') to 8 bytes. =20
 
+When it comes to these things, I can only do trial+error.
 
-(real life - transcode)
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 5585 paolo     33   0  115m  18m 2432 S 90.0  3.7   0:38.04 transcode
- 5599 paolo     37   0 50996 4472 1872 R  9.1  0.9   0:04.03 tcdecode
- 5610 paolo     37   0  4948 1468  372 R  0.6  0.3   0:00.19 dd
+Maybe it's because __alignof__ returns the recommended alignment, not
+the required alignment.
 
+> We need to use the aligned_u64 thing if you want that.
 
-DD test takes ages in both cases.
+That should make sure that we always get what we want, yes. =20
 
-What exactly have you done to spa_ws?
+--=20
+- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
 
+--b1CVx77D595wdcW8
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
----- spa_ebs: great! (as expected)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-(sched_fooler)
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 5418 paolo     34   0  2392  288  228 R 51.4  0.1   1:06.47 a.out
- 5419 paolo     34   0  2392  288  228 R 43.7  0.1   0:54.60 a.out
- 5448 paolo     11   0  4952 1468  372 D  3.0  0.3   0:00.12 dd
+iD8DBQFD0hWRXaXGVTD0i/8RAsODAJ43oFRZxLfQ2ejgWxAvmajU9jWmBQCfQNFP
+XWqJGy4ukEfWAbDQn6lezbU=
+=EJNo
+-----END PGP SIGNATURE-----
 
-(transcode)
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 5456 paolo     34   0  115m  18m 2432 R 51.9  3.7   0:23.34 transcode
- 5470 paolo     12   0 51000 4472 1872 S  5.7  0.9   0:02.38 tcdecode
- 5480 paolo     11   0  4948 1468  372 D  3.5  0.3   0:00.33 dd
-
-Very good DD test performance in both cases.
-
-
--- 
-	Paolo Ornati
-	Linux 2.6.16-rc1-plugsched on x86_64
+--b1CVx77D595wdcW8--

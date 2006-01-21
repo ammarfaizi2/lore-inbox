@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWAUAuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWAUAyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbWAUAuH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 19:50:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWAUAuG
+	id S932221AbWAUAyj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 19:54:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWAUAyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 19:50:06 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:60044 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932221AbWAUAuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 19:50:05 -0500
-Subject: Re: [PATCH] driver core: remove unneeded klist methods
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Greg KH <greg@kroah.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0601201043540.4788-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.0601201043540.4788-100000@iolanthe.rowland.org>
-Content-Type: text/plain
-Date: Fri, 20 Jan 2006 13:19:47 -0600
-Message-Id: <1137784787.3442.7.camel@mulgrave>
+	Fri, 20 Jan 2006 19:54:39 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:61881 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932221AbWAUAyi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 19:54:38 -0500
+Date: Fri, 20 Jan 2006 16:55:21 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: linux-kernel@vger.kernel.org, matthew.e.tolentino@intel.com, ak@suse.de,
+       shai@scalex86.org
+Subject: Re: [bug] __meminit breaks cpu hotplug
+Message-Id: <20060120165521.3c71542b.akpm@osdl.org>
+In-Reply-To: <20060121004023.GB3573@localhost.localdomain>
+References: <20060121004023.GB3573@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-20 at 11:39 -0500, Alan Stern wrote:
-> This patch (as641) removes unneeded klist methods from the driver core and
-> changes a klist_del call to klist_remove in device_del.
+Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+>
+> Recent __meminit additions broke cpu hotplug when the kernel is configured 
+> with  HOTPLUG_CPU but not HOTPLUG_MEMORY.   
+> Although __meminit replaced __devinit functions many places, all those functions
+> looked like they should have been marked with __cpuinit to begin with.  That
+> is the reason I have changed the below to __cpuinit.  I leave it to Matt if he
+> wants to use __devinit here instead. (Depending on where he sees __meminit
+> would be used.)
 > 
-> The _get and _put methods have no effect, because the klist nodes are
-> deleted by calling klist_remove, which waits until they are unreferenced
-> by any klist iterators.  Furthermore, the _puts cause problems because
-> they occur while the iterator is holding a spinlock.
+> Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
+> Signed-off-by: Shai Fultheim <shai@scalex86.org>
+> 
+> Index: linux-2.6.16-rc1/include/linux/init.h
+> ===================================================================
+> --- linux-2.6.16-rc1.orig/include/linux/init.h	2006-01-17 14:12:16.000000000 -0800
+> +++ linux-2.6.16-rc1/include/linux/init.h	2006-01-20 12:24:44.000000000 -0800
+> @@ -247,10 +247,10 @@ void __init parse_early_param(void);
+>  #define __memexit
+>  #define __memexitdata
+>  #else
+> -#define __meminit	__init
+> -#define __meminitdata __initdata
+> -#define __memexit __exit
+> -#define __memexitdata	__exitdata
+> +#define __meminit	__cpuinit
+> +#define __meminitdata __cpuinitdata
+> +#define __memexit __cpuexit
+> +#define __memexitdata	__cpuexitdata
 
-Could you just elaborate on the actual problem that you're trying to
-solve here?
+This looks wrong.  The __meminit and __cpuinit definitions we have now are
+OK, aren't they?  Surely the problem is that some functions/variables are
+incorrectly tagged?
 
-Iterators of volatile lists are ipso facto just "best guess", so moving
-the location of the iterator piece is OK.  However, your assumption that
-only the routine called by the iterator is always going to do the final
-put on the object is fundamentally flawed.  The list is volatile because
-references to the object are being acquired and released all the time.
-Additionally, the list nodes are embedded in the object, so by removing
-the object get and put calls, you remove the ability for the object
-refcounting to see the fact that the list is using the object.  This
-will lead to the situation where the object could be freed while the
-iterator is acting on it.  You cannot remove the object get/put calls
-from the klist references otherwise the list refcounting will be totally
-divorced from the object refcounting.
-
-James
-
+If some function is needed by both HOTPLUG_CPU and HOTPLUG_MEMORY then
+we're rather messed up - I guess it'll need to be put inside #if
+defined(..) || defined(..) and put into plain old .text.
 

@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWAUPO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWAUPkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750769AbWAUPO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 10:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWAUPO5
+	id S1750811AbWAUPkO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 10:40:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWAUPkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 10:14:57 -0500
-Received: from aeimail.aei.ca ([206.123.6.84]:2777 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S1750769AbWAUPO4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 10:14:56 -0500
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.16-rc1-mm2
-Date: Sat, 21 Jan 2006 10:14:43 -0500
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <20060120031555.7b6d65b7.akpm@osdl.org> <43D170CB.8080802@reub.net>
-In-Reply-To: <43D170CB.8080802@reub.net>
+	Sat, 21 Jan 2006 10:40:14 -0500
+Received: from web50210.mail.yahoo.com ([206.190.38.51]:52100 "HELO
+	web50210.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1750811AbWAUPkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 10:40:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=fTb0JBx6Owe36b0JhXqWp28uGO4XfkihUufqKxCiKKt12XqfO5VjI6JDkOLm9IkZ8gIBd3deeYvo2VdjrUfcuCj3v3Ot0QXCAQ6eLrySnRfsuV8SATaSzfbgJJGbidFBALZ6l6yQcchWeox6PIdMWdv8TfRMpx09n7gw5H+ZTy0=  ;
+Message-ID: <20060121154012.66687.qmail@web50210.mail.yahoo.com>
+Date: Sat, 21 Jan 2006 07:40:12 -0800 (PST)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: [BUG] DVD assigned wrong SCSI level when using SCSI emulation
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200601211014.44041.edt@aei.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jan Engelhardt wrote:
+>>I've noticed that since I upgraded to 2.6.15, my IDE DVD ROM
+>>is assigned a bogus SCSI level. Here is output from /proc/scsi/scsi:
+>
+>You are not using ide-scsi, are you?
+Yes, I am. as a module. I stated that in the original post.
 
->From my perspective 2.6.16-rc1-mm2 still needs work.  I did not try 15-mm1 or mm2.  Both
-mm3 and mm4 had X problems in that the system would lock but the keyboard was still
-active for Sysrq.  The lockups took days to occur on both mm3 and mm4.  The reiser3 problem
-made it impossible to test rc1-mm1, rc2-mm2 locked hard sometime in the first 4 hours of 
-use - this time sysrq was dead too.  
 
-The system is a amd64 using x86_64 from the unofficial debian build.  The box is stable using
-15-rc5-mm3 which has had uptimes of over two weeks.
 
-If anyone has ideas on what to backout let me know.  Failing that I will boot with a serial console
-active and see that it reports.
+I code, therefore I am
 
-Ideas,
-Ed Tomlinson
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

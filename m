@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWAUBxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbWAUBxO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932266AbWAUBxA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 20:53:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWAUBxA
+	id S932296AbWAUBxO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 20:53:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWAUBxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 20:53:00 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49852 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932266AbWAUBw7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 20:52:59 -0500
-Subject: Re: [2.6 patch] the scheduled removal of the obsolete raw driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Andrew Morton'" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Badari Pulavarty <pbadari@us.ibm.com>
-In-Reply-To: <20060121010229.GP31803@stusta.de>
-References: <20060118194103.5c569040.akpm@osdl.org>
-	 <200601190543.k0J5hBg06542@unix-os.sc.intel.com>
-	 <20060121010229.GP31803@stusta.de>
+	Fri, 20 Jan 2006 20:53:13 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:23763 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932296AbWAUBxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 20:53:12 -0500
+Subject: Re: [Alsa-devel] Re: RFC: OSS driver removal, a slightly different
+	approach
+From: Lee Revell <rlrevell@joe-job.com>
+To: andersen@codepoet.org
+Cc: Adrian Bunk <bunk@stusta.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Krzysztof Halasa <khc@pm.waw.pl>, linux-kernel@vger.kernel.org,
+       alsa-devel@alsa-project.org, perex@suse.cz
+In-Reply-To: <20060120025513.GA2438@codepoet.org>
+References: <20060119174600.GT19398@stusta.de>
+	 <m3ek34vucz.fsf@defiant.localdomain>
+	 <1137709308.8471.77.camel@localhost.localdomain>
+	 <20060119224501.GC19398@stusta.de>  <20060120025513.GA2438@codepoet.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 21 Jan 2006 01:49:17 +0000
-Message-Id: <1137808158.24161.64.camel@localhost.localdomain>
+Date: Fri, 20 Jan 2006 20:53:02 -0500
+Message-Id: <1137808385.3241.78.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2006-01-21 at 02:02 +0100, Adrian Bunk wrote:
-> Why did noone tell me anythong about such issues although I'm the one 
-> listed as having this driver deprecated?
+On Thu, 2006-01-19 at 19:55 -0700, Erik Andersen wrote:
+> On Thu Jan 19, 2006 at 11:45:01PM +0100, Adrian Bunk wrote:
+> > config SOUND_WAVEARTIST
+> >         tristate "Netwinder WaveArtist"
+> >         depends on ARM && SOUND_OSS && ARCH_NETWINDER
+> >         help
+> >           Say Y here to include support for the Rockwell WaveArtist sound
+> >           system.  This driver is mainly for the NetWinder.
+> 
+> I own two netwinders (strongArm SA110) and I would be glad to
+> fire them up to test things if someone feels like writing a
+> driver....
 
-Because they don't spend their lives tracking the base kernel, they
-expect sanity to prevail and their idea of an obsolescence cycle is
-about five years.
+I guess you are not volunteering to do it yourself...?
 
-ISV = "Independant software vendor"
+If you feel like tackling this google "Writing an ALSA driver", it
+basically walks you through the process, you could do it in a weekend
+with the source to the OSS driver in hand.
 
-Obsoleting stuff which is distribution internal configuration type stuff
-(eg devfs->udev) is one thing but core syscall related stuff has to
-undergo a much much longer cycle, or in many cases you just have to look
-at it and treat it as a lesson for the future and a thing to tackle in
-whatever OS obsoletes Linux.
-
-Thats why 0.98.5 libc 2.2 and rogue still work on 2.6.
-
-Alan
+Lee
 

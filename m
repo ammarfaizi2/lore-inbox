@@ -1,63 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030330AbWAUCBz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWAUCHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030330AbWAUCBz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 21:01:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030410AbWAUCBz
+	id S932162AbWAUCHE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 21:07:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWAUCHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 21:01:55 -0500
-Received: from zproxy.gmail.com ([64.233.162.194]:35058 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030330AbWAUCBy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 21:01:54 -0500
+	Fri, 20 Jan 2006 21:07:04 -0500
+Received: from web34106.mail.mud.yahoo.com ([66.163.178.104]:57019 "HELO
+	web34106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932162AbWAUCHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 21:07:03 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sFsJmcA5Z7qYIhyZwZ47EUEv6YqiyIlQ3TAWhqgcijMkmuTuarYQ4yEGkOysZ5RfJwEgSvMxrG6qumh22biV8Tm7wCS8e48kwQiCDqVv9oLPaY5c9ZRnpYNvnLd9qab0PDbEJK+q9/HrLU8bUfA8Bx2Q2QSuP1LWQ7ZaQbXtSN8=
-Message-ID: <56a8daef0601201801s6f8c3b79xcc06aaacc430309d@mail.gmail.com>
-Date: Fri, 20 Jan 2006 18:01:53 -0800
-From: John Ronciak <john.ronciak@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: My vote against eepro* removal
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, kus Kusche Klaus <kus@keba.com>,
-       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       john.ronciak@intel.com, ganesh.venkatesan@intel.com,
-       jesse.brandeburg@intel.com, netdev@vger.kernel.org,
-       Steven Rostedt <rostedt@goodmis.org>
-In-Reply-To: <1137807048.3241.58.camel@mindpipe>
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=Fn7jkHquUuq66OA65UooAAYmkzENhZKnP0APmuSq80GIvL341t6vHHIFw03lVBfVAuYobGvCjVYUj0zT78eyaXOJfjTdOmTRcH+laDEkTwdsCIFexRkJeF4Zgr+Yxe6qyU0Lm0heWviGx1RV6X5rFlwiBNabzLUcqRl+uqTJmR4=  ;
+Message-ID: <20060121020702.76078.qmail@web34106.mail.mud.yahoo.com>
+Date: Fri, 20 Jan 2006 18:07:02 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: Re: set_bit() is broken on i386?
+To: linux kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <AAD6DA242BC63C488511C611BD51F367323324@MAILIT.keba.co.at>
-	 <20060120095548.GA16000@2ka.mipt.ru>
-	 <1137804050.3241.32.camel@mindpipe>
-	 <56a8daef0601201719t448a6177lfebabe3ca38a00c7@mail.gmail.com>
-	 <1137807048.3241.58.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/20/06, Lee Revell <rlrevell@joe-job.com> wrote:
->
-> Why don't these cause excessive scheduling delays in eepro100 then?
-> Can't we just copy the eepro100 behavior?
-Reports still float around from time to time about hangs with the
-eepro100 which go away when the e100 driver is used.  We don't
-maintain the eepro100 driver so I can't tell you much about it other
-than the reports we get sometimes.
+Some day I'll learn to wait a few minutes before posting...
 
-There is a timer routine in the eepro100 driver which does the check
-for link as well as a check for on of the hang conditions (with
-work-around).  It does the check for link in a different way than
-e100.  e100 uses mii call where eepro100 does it manually.  Another
-difference is that eepro100 doesn't get stats unless called by the
-system.  It's not in the timer routine at all.
+Is the issue here because btsl can touch many different bytes in the array, and there is no easy
+way to tell gcc that an array is in-out, so "memory" is the best we can do?
 
-Can we try a couple of things? 1) just comment out all the check for
-link code in the e100 driver and give that a try and 2) just comment
-out the update stats call and see if that works.  These seem to be the
-differences and we need to know which one is causing the problem.
+-Kenny
 
 
---
-Cheers,
-John
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

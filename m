@@ -1,74 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWAUGOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750928AbWAUGwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbWAUGOU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 01:14:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWAUGOT
+	id S1750928AbWAUGwg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 01:52:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWAUGwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 01:14:19 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:41663 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750744AbWAUGOT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 01:14:19 -0500
+	Sat, 21 Jan 2006 01:52:36 -0500
+Received: from xproxy.gmail.com ([66.249.82.198]:30852 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750913AbWAUGwf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 01:52:35 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=q1M9EIZrDZVfP6JRB+vM8q55EFPLehgybz8MH2wQa7RkEwa6TGXCjbBOomYHVGtX6y25qlQBN6xe+kS4vh+dr7Zc+MFyXPZjIN7grZDqRLedw5PmCLUK5Fqt5ENKSnf8C49mE8Duss4Wk4YAazc487DnSt+8Hhqv5H3f2cz3S94=
-Message-ID: <43D1D134.5070401@gmail.com>
-Date: Sat, 21 Jan 2006 15:14:12 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nC8gV4PlYEKl3CQVaHkxLdruq83gNm36Xc0isXZgMLjG/atmZb6tHJDf/xRGWcc17BDW+CSkfoLCNZ3S3/0BMJ6w6jwOJ+ERtqREoEacKI0W4Ga0PzHmA6BSpv2mOr43Gd9nUzJdUXyT/cXxQ6S9ncgVO7hZFRLXOFZXWho3fFA=
+Message-ID: <4807377b0601202252p5fde62dbx194006441e94666a@mail.gmail.com>
+Date: Fri, 20 Jan 2006 22:52:35 -0800
+From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
 To: Jens Axboe <axboe@suse.de>
-CC: Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mingming Cao <cmm@us.ibm.com>
-Subject: Re: Fall back io scheduler for 2.6.15?
-References: <200601141113_MC3-1-B5DA-F6EC@compuserve.com> <20060116084336.GO3945@suse.de>
-In-Reply-To: <20060116084336.GO3945@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] e1000 C style badness
+Cc: Jeff Garzik <jgarzik@pobox.com>, Jon Smirl <jonsmirl@gmail.com>,
+       jeffrey.t.kirsher@intel.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20060119080200.GA4349@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060118080738.GD3945@suse.de> <20060118083721.GA4222@suse.de>
+	 <9e4733910601180953i11963df9n232cd8980c4bf7f2@mail.gmail.com>
+	 <43CE8567.5040205@pobox.com> <20060118182012.GR4222@suse.de>
+	 <4807377b0601181110y72e1e4f2w8337c559713f2da4@mail.gmail.com>
+	 <20060119080200.GA4349@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Sat, Jan 14 2006, Chuck Ebbert wrote:
-> 
->>In-Reply-To: <20060113174914.7907bf2c.akpm@osdl.org>
->>
->>On Fri, 13 Jan 2006, Andrew Morton wrote:
->>
->>
->>>OK.  And I assume that AS wasn't compiled, so that's why it fell back?
->>
->>As of 2.6.15 you need to use "anticipatory" instead of "as".
->>
->>Maybe this patch would help?
->>
->>Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
->>
->>--- 2.6.15a.orig/block/elevator.c
->>+++ 2.6.15a/block/elevator.c
->>@@ -150,6 +150,13 @@ static void elevator_setup_default(void)
->> 	if (!chosen_elevator[0])
->> 		strcpy(chosen_elevator, CONFIG_DEFAULT_IOSCHED);
->> 
->>+	/*
->>+	 * Be backwards-compatible with previous kernels, so users
->>+	 * won't get the wrong elevator.
->>+	 */
->>+	if (!strcmp(chosen_elevator, "as"))
->>+		strcpy(chosen_elevator, "anticipatory");
->>+
->>  	/*
->>  	 * If the given scheduler is not available, fall back to no-op.
->>  	 */
-> 
-> 
-> We probably should apply this, since it used to be 'as'.
-> 
+On 1/19/06, Jens Axboe <axboe@suse.de> wrote:
+> On Wed, Jan 18 2006, Jesse Brandeburg wrote:
+> > just FYI, I have a patch for the e1000 breakage which will be out as
+> > soon as I can generate it.
+>
+> Newest -git works for me. Well sort of, I get a lot of these:
+>
+> e1000: eth0: e1000_watchdog_task: NIC Link is Up 1000 Mbps Full Duplex
+> e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
+>   Tx Queue             <0>
+>   TDH                  <72>
+>   TDT                  <e5>
+>   next_to_use          <e5>
+>   next_to_clean        <6f>
+> buffer_info[next_to_clean]
+>   time_stamp           <10000160a>
+>   next_to_watch        <72>
+>   jiffies              <100001e09>
+>   next_to_watch.status <0>
+> e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
+>   Tx Queue             <0>
+>   TDH                  <72>
+>   TDT                  <e5>
+>   next_to_use          <e5>
+>   next_to_clean        <6f>
+> buffer_info[next_to_clean]
+>   time_stamp           <10000160a>
+>   next_to_watch        <72>
+>   jiffies              <1000025da>
+>   next_to_watch.status <0>
+> e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
+>   Tx Queue             <0>
+>   TDH                  <72>
+>   TDT                  <e5>
+>   next_to_use          <e5>
+>   next_to_clean        <6f>
+> buffer_info[next_to_clean]
+>   time_stamp           <10000160a>
+>   next_to_watch        <72>
+>   jiffies              <10000357b>
+>   next_to_watch.status <0>
+> NETDEV WATCHDOG: eth0: transmit timed out
+> e1000: eth0: e1000_watchdog_task: NIC Link is Up 1000 Mbps Full Duplex
 
-Just out of curiousity, why did 'as' get renamed to 'anticipatory'?
+where it didn't happen with the previous driver?  I guess thats a good
+thing, kinda as we made the problem more frequent, hopefully we can
+help fix it?
 
--- 
-tejun
+you don't happen to have TSO enabled do you?
+
+please reply over at netdev at vger.kernel.org with the standard set
+of information, lspci, dmesg, etc etc.
+
+Thanks,
+  Jesse

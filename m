@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWAUApu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWAUAqw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbWAUApu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 19:45:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWAUApu
+	id S932153AbWAUAqw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 19:46:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbWAUAqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 19:45:50 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:64965 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932350AbWAUAps (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 19:45:48 -0500
-Subject: RE: My vote against eepro* removal
-From: Lee Revell <rlrevell@joe-job.com>
-To: kus Kusche Klaus <kus@keba.com>
-Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       John Ronciak <john.ronciak@gmail.com>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, john.ronciak@intel.com,
-       ganesh.venkatesan@intel.com, jesse.brandeburg@intel.com,
-       netdev@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>
-In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323325@MAILIT.keba.co.at>
-References: <AAD6DA242BC63C488511C611BD51F367323325@MAILIT.keba.co.at>
-Content-Type: text/plain
-Date: Fri, 20 Jan 2006 19:45:45 -0500
-Message-Id: <1137804346.3241.38.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
+	Fri, 20 Jan 2006 19:46:52 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:34496 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932153AbWAUAqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 19:46:51 -0500
+Message-ID: <43D18472.1080906@ichips.intel.com>
+Date: Fri, 20 Jan 2006 16:46:42 -0800
+From: Sean Hefty <mshefty@ichips.intel.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: rolandd@cisco.com, Kay Sievers <kay.sievers@vrfy.org>,
+       openib-general@openib.org, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: [PATCH] fix IB with latest versions of udev
+References: <20060121000819.GA26967@kroah.com> <43D18037.9040503@ichips.intel.com> <20060121004524.GA26233@kroah.com>
+In-Reply-To: <20060121004524.GA26233@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-20 at 11:19 +0100, kus Kusche Klaus wrote:
-> For a non-full preemption kernel, your patch moves the 500 us 
-> piece of code from kernel to thread context, so it really 
-> improves things. But is 500 us something to worry about in a
-> non-full preemption kernel? 
+Greg KH wrote:
+> Care to give me an "Acked-by:" line to add to it?
 
-Yes, absolutely.  Once exit_mmap (a latency regression which was
-introduced in 2.6.14) and rt_run_flush/rt_garbage_collect (which have
-always been problematic) are fixed, 500usecs will stick out like a sore
-thumb even on a regular PREEMPT kernel.
+Please apply.
 
-Also, you should be able to capture this latency in /proc/latency trace
-by configuring an -rt kernel with PREEMPT_DESKTOP and hard/softirq
-preemption disabled.
-
-Lee
-
+Acked-by: Sean Hefty <sean.hefty@intel.com>

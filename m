@@ -1,62 +1,206 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWAUWzo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWAUW5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbWAUWzo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 17:55:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWAUWzo
+	id S1751208AbWAUW5n (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 17:57:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWAUW5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 17:55:44 -0500
-Received: from ns.firmix.at ([62.141.48.66]:34541 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1751217AbWAUWzo (ORCPT
+	Sat, 21 Jan 2006 17:57:43 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:34064 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1751208AbWAUW5n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 17:55:44 -0500
-Subject: Re: Development tree, PLEASE?
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Michael Loftis <mloftis@wgops.com>, Sven-Haegar Koch <haegar@sdinet.de>,
-       Matthew Frost <artusemrys@sbcglobal.net>, linux-kernel@vger.kernel.org,
-       James Courtier-Dutton <James@superbug.co.uk>
-In-Reply-To: <1137883638.411.38.camel@mindpipe>
-References: <20060121031958.98570.qmail@web81905.mail.mud.yahoo.com>
-	 <1FA093EB58B02DE48E424157@dhcp-2-206.wgops.com>
-	 <1137829140.3241.141.camel@mindpipe>
-	 <Pine.LNX.4.64.0601212250020.31384@mercury.sdinet.de>
-	 <1137881882.411.23.camel@mindpipe>
-	 <3B0BEE012630B9B11D1209E5@dhcp-2-206.wgops.com>
-	 <1137883638.411.38.camel@mindpipe>
-Content-Type: text/plain
-Organization: http://www.firmix.at/
-Date: Sat, 21 Jan 2006 23:51:28 +0100
-Message-Id: <1137883888.3291.53.camel@gimli.at.home>
+	Sat, 21 Jan 2006 17:57:43 -0500
+Date: Sat, 21 Jan 2006 23:57:28 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Olaf Hering <olh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cc-version not available to change EXTRA_CFLAGS
+Message-ID: <20060121225728.GA13756@mars.ravnborg.org>
+References: <20060121180805.GA15761@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060121180805.GA15761@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-21 at 17:47 -0500, Lee Revell wrote:
-> On Sat, 2006-01-21 at 15:40 -0700, Michael Loftis wrote:
-> > I don't feel that statement is true in all cases.  It's true in a lot
-> > of cases yes, but sometimes 'support' is really simply a matter of
-> > techinga module one more PCI ID.  
+On Sat, Jan 21, 2006 at 07:08:05PM +0100, Olaf Hering wrote:
 > 
-> That might be true for server class hardware where the vendors care
-> about the stability of the hardware platform, but for modern desktop
-> stuff like sound cards it's never that simple.  Desktop class hardware
-> is getting dumber and dumber all the time as more features are pushed
-> into software which makes adding support for new devices tricky, and new
-> devices are introduced constantly.  Sometimes they'll even ship 2 models
-> with the same PCI IDs but a different chipset, so you have to use some
-> other kludge to know what to do.  Etc.
+> I want to add a gcc version check for reiserfs, on akpms request.
+> This one doesnt work with 2.6.16rc1, havent checked if it ever worked.
 
-And the more the development head proceeds from the "stable" one, the
-more work is it to "backport" some hardware driver IMHO. Especially if
-"stability" is a primary concern.
+I did the following:
+- Moved definitions from Makefile to scripts/Kbuild.include
+- Moved include of Kbuild.include up before include of kbuild file
+- Documented the 'new' as-option
+- Added new macro: cc-ifversion
+- Added documentation for cc-ifversion
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+Let me know if this works for you.
 
+>  ifeq ($(CONFIG_PPC32),y)
+> -EXTRA_CFLAGS := -O1
+> +EXTRA_CFLAGS := $(shell set -x ; if [ $(call cc-version) -lt 0402 ] ; then echo $(call cc-option,-O1); fi ;)
 
+For -O1 I do not see the point in using $(call cc-option ...).
+I assume all gcc version does support -O1 - or?
 
+	Sam
+
+diff --git a/Documentation/kbuild/makefiles.txt b/Documentation/kbuild/makefiles.txt
+index 443230b..14f925a 100644
+--- a/Documentation/kbuild/makefiles.txt
++++ b/Documentation/kbuild/makefiles.txt
+@@ -981,6 +981,20 @@ When kbuild executes the following steps
+ 	$(CC) is useally the gcc compiler, but other alternatives are
+ 	available.
+ 
++    as-option
++    	as-option is used to check if $(CC) when used to compile
++	assembler (*.S) files supports the given option. An optional
++	second option may be specified if first option are not supported.
++
++	Example:
++		#arch/sh/Makefile
++		cflags-y += $(call as-option,-Wa$(comma)-isa=$(isa-y),)
++
++	In the above example cflags-y will be assinged the the option
++	-Wa$(comma)-isa=$(isa-y) if it is supported by $(CC).
++	The second argument is optional, and if supplied will be used
++	if first argument is not supported.
++
+     cc-option
+ 	cc-option is used to check if $(CC) support a given option, and not
+ 	supported to use an optional second option.
+@@ -1039,7 +1053,21 @@ When kbuild executes the following steps
+ 
+ 	In the above example -mregparm=3 is only used for gcc version greater
+ 	than or equal to gcc 3.0.
+-	
++
++    cc-ifversion
++	cc-ifversion test the version of $(CC) and equals last argument if
++	version expression is true.
++
++	Example:
++		#fs/reiserfs/Makefile
++		EXTRA_CFLAGS := $(call cc-ifversion, -lt, 0402, -O1)
++
++	In this example EXTRA_CFLAGS will be assigned the value -O1 if the
++	$(CC) version is less than 4.2.
++	cc-ifversion takes all the shell operators: 
++	-eq, -ne, -lt, -le, -gt, and -ge
++	The third parameter may be a text as in this example, but it may also
++	be an expanded variable or a macro.
+ 
+ === 7 Kbuild Variables
+ 
+diff --git a/Makefile b/Makefile
+index 31bbc6a..da3c528 100644
+--- a/Makefile
++++ b/Makefile
+@@ -259,38 +259,6 @@ endif
+ 
+ export quiet Q KBUILD_VERBOSE
+ 
+-######
+-# cc support functions to be used (only) in arch/$(ARCH)/Makefile
+-# See documentation in Documentation/kbuild/makefiles.txt
+-
+-# as-option
+-# Usage: cflags-y += $(call as-option, -Wa$(comma)-isa=foo,)
+-
+-as-option = $(shell if $(CC) $(CFLAGS) $(1) -Wa,-Z -c -o /dev/null \
+-	     -xassembler /dev/null > /dev/null 2>&1; then echo "$(1)"; \
+-	     else echo "$(2)"; fi ;)
+-
+-# cc-option
+-# Usage: cflags-y += $(call cc-option, -march=winchip-c6, -march=i586)
+-
+-cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
+-             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+-
+-# cc-option-yn
+-# Usage: flag := $(call cc-option-yn, -march=winchip-c6)
+-cc-option-yn = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
+-                > /dev/null 2>&1; then echo "y"; else echo "n"; fi;)
+-
+-# cc-option-align
+-# Prefix align with either -falign or -malign
+-cc-option-align = $(subst -functions=0,,\
+-	$(call cc-option,-falign-functions=0,-malign-functions=0))
+-
+-# cc-version
+-# Usage gcc-ver := $(call cc-version $(CC))
+-cc-version = $(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-version.sh \
+-              $(if $(1), $(1), $(CC)))
+-
+ 
+ # Look for make include files relative to root of kernel src
+ MAKEFLAGS += --include-dir=$(srctree)
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+index 0168d6c..92ce94b 100644
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -44,6 +44,43 @@ define filechk
+ 	fi
+ endef
+ 
++######
++# cc support functions to be used (only) in arch/$(ARCH)/Makefile
++# See documentation in Documentation/kbuild/makefiles.txt
++
++# as-option
++# Usage: cflags-y += $(call as-option, -Wa$(comma)-isa=foo,)
++
++as-option = $(shell if $(CC) $(CFLAGS) $(1) -Wa,-Z -c -o /dev/null \
++	     -xassembler /dev/null > /dev/null 2>&1; then echo "$(1)"; \
++	     else echo "$(2)"; fi ;)
++
++# cc-option
++# Usage: cflags-y += $(call cc-option, -march=winchip-c6, -march=i586)
++
++cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
++             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
++
++# cc-option-yn
++# Usage: flag := $(call cc-option-yn, -march=winchip-c6)
++cc-option-yn = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
++                > /dev/null 2>&1; then echo "y"; else echo "n"; fi;)
++
++# cc-option-align
++# Prefix align with either -falign or -malign
++cc-option-align = $(subst -functions=0,,\
++	$(call cc-option,-falign-functions=0,-malign-functions=0))
++
++# cc-version
++# Usage gcc-ver := $(call cc-version, $(CC))
++cc-version = $(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-version.sh \
++              $(if $(1), $(1), $(CC)))
++
++# cc-ifversion
++# Usage:  EXTRA_CFLAGS += $(call cc-ifversion, -lt, 0402, -O1)
++cc-ifversion = $(shell if [ $(call cc-version, $(CC)) $(1) $(2) ]; then \
++                       echo $(3); fi;)
++
+ ###
+ # Shorthand for $(Q)$(MAKE) -f scripts/Makefile.build obj=
+ # Usage:
+diff --git a/scripts/Makefile.build b/scripts/Makefile.build
+index c33e62b..2737765 100644
+--- a/scripts/Makefile.build
++++ b/scripts/Makefile.build
+@@ -10,11 +10,12 @@ __build:
+ # Read .config if it exist, otherwise ignore
+ -include .config
+ 
++include scripts/Kbuild.include
++
+ # The filename Kbuild has precedence over Makefile
+ kbuild-dir := $(if $(filter /%,$(src)),$(src),$(srctree)/$(src))
+ include $(if $(wildcard $(kbuild-dir)/Kbuild), $(kbuild-dir)/Kbuild, $(kbuild-dir)/Makefile)
+ 
+-include scripts/Kbuild.include
+ include scripts/Makefile.lib
+ 
+ ifdef host-progs

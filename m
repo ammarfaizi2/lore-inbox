@@ -1,131 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030269AbWAUCBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030330AbWAUCBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030269AbWAUCBU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 21:01:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030314AbWAUCBU
+	id S1030330AbWAUCBz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 21:01:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030410AbWAUCBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 21:01:20 -0500
-Received: from alpha.polcom.net ([83.143.162.52]:57990 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S1030269AbWAUCBT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 21:01:19 -0500
-Date: Sat, 21 Jan 2006 03:01:10 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Valdis.Kletnieks@vt.edu
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: set_bit() is broken on i386?
-In-Reply-To: <200601210132.k0L1WbIP006348@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.63.0601210245280.8060@alpha.polcom.net>
-References: <200601201955_MC3-1-B649-DCF5@compuserve.com>
- <200601210132.k0L1WbIP006348@turing-police.cc.vt.edu>
+	Fri, 20 Jan 2006 21:01:55 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:35058 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030330AbWAUCBy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 21:01:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sFsJmcA5Z7qYIhyZwZ47EUEv6YqiyIlQ3TAWhqgcijMkmuTuarYQ4yEGkOysZ5RfJwEgSvMxrG6qumh22biV8Tm7wCS8e48kwQiCDqVv9oLPaY5c9ZRnpYNvnLd9qab0PDbEJK+q9/HrLU8bUfA8Bx2Q2QSuP1LWQ7ZaQbXtSN8=
+Message-ID: <56a8daef0601201801s6f8c3b79xcc06aaacc430309d@mail.gmail.com>
+Date: Fri, 20 Jan 2006 18:01:53 -0800
+From: John Ronciak <john.ronciak@gmail.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: My vote against eepro* removal
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, kus Kusche Klaus <kus@keba.com>,
+       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       john.ronciak@intel.com, ganesh.venkatesan@intel.com,
+       jesse.brandeburg@intel.com, netdev@vger.kernel.org,
+       Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <1137807048.3241.58.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <AAD6DA242BC63C488511C611BD51F367323324@MAILIT.keba.co.at>
+	 <20060120095548.GA16000@2ka.mipt.ru>
+	 <1137804050.3241.32.camel@mindpipe>
+	 <56a8daef0601201719t448a6177lfebabe3ca38a00c7@mail.gmail.com>
+	 <1137807048.3241.58.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jan 2006, Valdis.Kletnieks@vt.edu wrote:
-
-> On Fri, 20 Jan 2006 19:53:14 EST, Chuck Ebbert said:
->> /*
->>  * setbit.c -- test the Linux set_bit() function
->>  *
->>  * Compare the output of this program with and without the
->>  * -finline-functions option to GCC.
->>  *
->>  * If they are not the same, set_bit is broken.
->>  *
->>  * Result on i386 with gcc 3.3.2 (Fedora Core 2):
->>  *
->>  * [me@d2 t]$ gcc -O2 -o setbit.ex setbit.c ; ./setbit.ex
->>  * 00010001
->>  * [me@d2 t]$ gcc -O2 -o setbit.ex -finline-functions setbit.c ; ./setbit.ex
->>  * 00000001
+On 1/20/06, Lee Revell <rlrevell@joe-job.com> wrote:
 >
-> It certainly seems to be gcc version dependent (and I'd not be surprised if the
-> exact combo of -O2, -Os, and -mfoo and -fwhatever flags as well).  Trond is
-> probably right that a memory clobber will force gcc to DTIT (Do The Intended
-> Thing, which may be different from a DTRT) regardless of what gcc's code generator
-> decides to do....
->
-> % gcc -v
-> Using built-in specs.
-> Target: i386-redhat-linux
-> Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-libgcj-multifile --enable-languages=c,c++,objc,obj-c++,java,fortran,ada --enable-java-awt=gtk --disable-dssi --with-java-home=/usr/lib/jvm/java-1.4.2-gcj-1.4.2.0/jre --host=i386-redhat-linux
-> Thread model: posix
-> gcc version 4.1.0 20060117 (Red Hat 4.1.0-0.15)
-> % gcc -O2 -o setbit.ex setbit.c ; ./setbit.ex
-> 00000001
-> % gcc -O2 -o setbit.ex -finline-functions setbit.c ; ./setbit.ex
-> 00000001
->
-> Fedora Core -devel tree as of this morning (so sort-of FC5 test2).
+> Why don't these cause excessive scheduling delays in eepro100 then?
+> Can't we just copy the eepro100 behavior?
+Reports still float around from time to time about hangs with the
+eepro100 which go away when the e100 driver is used.  We don't
+maintain the eepro100 driver so I can't tell you much about it other
+than the reports we get sometimes.
 
-This is what I am getting under Gentoo with different gcc's:
+There is a timer routine in the eepro100 driver which does the check
+for link as well as a check for on of the hang conditions (with
+work-around).  It does the check for link in a different way than
+e100.  e100 uses mii call where eepro100 does it manually.  Another
+difference is that eepro100 doesn't get stats unless called by the
+system.  It's not in the timer routine at all.
 
-$ export CC=gcc-3.4.5; $CC --version; rm ./setbit.ex; $CC -O2 -o setbit.ex 
-setbit.c ; ./setbit.ex; rm ./setbit.ex; $CC -O2 -o setbit.ex 
--finline-functions setbit.c ; ./setbit.ex
-gcc-3.4.5 (GCC) 3.4.5 (Gentoo 3.4.5, ssp-3.4.5-1.0, pie-8.7.9)
-Copyright (C) 2004 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-PURPOSE.
-
-00000001
-00000001
+Can we try a couple of things? 1) just comment out all the check for
+link code in the e100 driver and give that a try and 2) just comment
+out the update stats call and see if that works.  These seem to be the
+differences and we need to know which one is causing the problem.
 
 
-$ export CC=gcc-4.0.2; $CC --version; rm ./setbit.ex; $CC -O2 -o setbit.ex 
-setbit.c ; ./setbit.ex; rm ./setbit.ex; $CC -O2 -o setbit.ex 
--finline-functions setbit.c ; ./setbit.ex
-gcc-4.0.2 (GCC) 4.0.2 (Gentoo 4.0.2-r3, pie-8.7.8)
-Copyright (C) 2005 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-PURPOSE.
-
-00000001
-00000001
-
-
-$ export CC=gcc-4.1.0-beta20060113; $CC --version; rm ./setbit.ex; $CC -O2 
--o setbit.ex setbit.c ; ./setbit.ex; rm ./setbit.ex; $CC -O2 -o setbit.ex 
--finline-functions setbit.c ; ./setbit.ex
-gcc-4.1.0-beta20060113 (GCC) 4.1.0-beta20060113  (prerelease)
-Copyright (C) 2005 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-PURPOSE.
-
-00000001
-00000001
-
-
-And on some really old and not upgraded server (with Gentoo too of 
-course):
-
-$ export CC=gcc32; $CC --version; rm ./setbit.ex; $CC -O2 -o setbit.ex 
-setbit.c ; ./setbit.ex; rm ./setbit.ex; $CC -O2 -o setbit.ex 
--finline-functions setbit.c ; ./setbit.ex
-gcc (GCC) 3.3.5-20050130 (Gentoo 3.3.5.20050130-r1, ssp-3.3.5.20050130-1, 
-pie-8.7.7.1)
-Copyright (C) 2003 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-PURPOSE.
-
-00010001
-00000001
-
-
-So either this problem is present only on gcc < 3.4 or Gentoo patched it 
-somehow in newer versions...
-
-
-Thanks,
-
-Grzegorz Kulewski
-
+--
+Cheers,
+John

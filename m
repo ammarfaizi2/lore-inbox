@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWAUVkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWAUVll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbWAUVkO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 16:40:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWAUVkO
+	id S932368AbWAUVll (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 16:41:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWAUVll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 16:40:14 -0500
-Received: from admingilde.org ([213.95.32.146]:13030 "EHLO mail.admingilde.org")
-	by vger.kernel.org with ESMTP id S932388AbWAUVkM (ORCPT
+	Sat, 21 Jan 2006 16:41:41 -0500
+Received: from admingilde.org ([213.95.32.146]:16358 "EHLO mail.admingilde.org")
+	by vger.kernel.org with ESMTP id S932368AbWAUVlk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 16:40:12 -0500
-Date: Sat, 21 Jan 2006 22:40:11 +0100
+	Sat, 21 Jan 2006 16:41:40 -0500
+Date: Sat, 21 Jan 2006 22:41:37 +0100
 From: Martin Waitz <tali@admingilde.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] DocBook: fix some comments in drivers/scsi
-Message-ID: <20060121214011.GD30777@admingilde.org>
+Subject: [PATCH] DocBook: fix some kernel-doc comments in net/sunrpc
+Message-ID: <20060121214137.GE30777@admingilde.org>
 Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
 	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
@@ -25,109 +25,43 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update some kernel-doc comments to match the code
+Fix the syntax of some kernel-doc comments
 
 Signed-off-by: Martin Waitz <tali@admingilde.org>
 
 ---
 
- drivers/scsi/ata_piix.c    |    1 +
- drivers/scsi/libata-core.c |   31 +++++++++++++++++--------------
- drivers/scsi/libata-scsi.c |    2 ++
- 3 files changed, 20 insertions(+), 14 deletions(-)
+ net/sunrpc/sched.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
 
-9ef1bc69154d1f4c7376b4bc676f3370aa79b303
-diff --git a/drivers/scsi/ata_piix.c b/drivers/scsi/ata_piix.c
-index fc3ca05..1dac098 100644
---- a/drivers/scsi/ata_piix.c
-+++ b/drivers/scsi/ata_piix.c
-@@ -627,6 +627,7 @@ static int piix_disable_ahci(struct pci_
+d0eff4080c346e7f81172c0bbe81f16c9ba2e85d
+diff --git a/net/sunrpc/sched.c b/net/sunrpc/sched.c
+index 7415406..802d4fe 100644
+--- a/net/sunrpc/sched.c
++++ b/net/sunrpc/sched.c
+@@ -908,10 +908,10 @@ void rpc_release_task(struct rpc_task *t
  
  /**
-  *	piix_check_450nx_errata	-	Check for problem 450NX setup
-+ *	@ata_dev: the PCI device to check
-  *	
-  *	Check for the present of 450NX errata #19 and errata #25. If
-  *	they are found return an error code so we can turn off DMA
-diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
-index 46c4cdb..a1b4d84 100644
---- a/drivers/scsi/libata-core.c
-+++ b/drivers/scsi/libata-core.c
-@@ -4212,19 +4212,6 @@ err_out:
- }
- 
- 
--/**
-- *	ata_port_start - Set port up for dma.
-- *	@ap: Port to initialize
-- *
-- *	Called just after data structures for each port are
-- *	initialized.  Allocates space for PRD table.
-- *
-- *	May be used as the port_start() entry in ata_port_operations.
-- *
-- *	LOCKING:
-- *	Inherited from caller.
-- */
--
- /*
-  * Execute a 'simple' command, that only consists of the opcode 'cmd' itself,
-  * without filling any other registers
-@@ -4276,6 +4263,8 @@ static int ata_start_drive(struct ata_po
- 
- /**
-  *	ata_device_resume - wakeup a previously suspended devices
-+ *	@ap: port the device is connected to
-+ *	@dev: the device to resume
-  *
-  *	Kick the drive back into action, by sending it an idle immediate
-  *	command and making sure its transfer mode matches between drive
-@@ -4298,10 +4287,11 @@ int ata_device_resume(struct ata_port *a
- 
- /**
-  *	ata_device_suspend - prepare a device for suspend
-+ *	@ap: port the device is connected to
-+ *	@dev: the device to suspend
-  *
-  *	Flush the cache on the drive, if appropriate, then issue a
-  *	standbynow command.
-- *
+  * rpc_run_task - Allocate a new RPC task, then run rpc_execute against it
+- * @clnt - pointer to RPC client
+- * @flags - RPC flags
+- * @ops - RPC call ops
+- * @data - user call data
++ * @clnt: pointer to RPC client
++ * @flags: RPC flags
++ * @ops: RPC call ops
++ * @data: user call data
   */
- int ata_device_suspend(struct ata_port *ap, struct ata_device *dev)
- {
-@@ -4315,6 +4305,19 @@ int ata_device_suspend(struct ata_port *
- 	return 0;
- }
- 
-+/**
-+ *	ata_port_start - Set port up for dma.
-+ *	@ap: Port to initialize
-+ *
-+ *	Called just after data structures for each port are
-+ *	initialized.  Allocates space for PRD table.
-+ *
-+ *	May be used as the port_start() entry in ata_port_operations.
-+ *
-+ *	LOCKING:
-+ *	Inherited from caller.
-+ */
-+
- int ata_port_start (struct ata_port *ap)
- {
- 	struct device *dev = ap->host_set->dev;
-diff --git a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
-index cfbceb5..b94c991 100644
---- a/drivers/scsi/libata-scsi.c
-+++ b/drivers/scsi/libata-scsi.c
-@@ -2492,6 +2492,8 @@ out_unlock:
- 
+ struct rpc_task *rpc_run_task(struct rpc_clnt *clnt, int flags,
+ 					const struct rpc_call_ops *ops,
+@@ -930,6 +930,7 @@ EXPORT_SYMBOL(rpc_run_task);
  /**
-  *	ata_scsi_simulate - simulate SCSI command on ATA device
-+ *	@ap: port the device is connected to
-+ *	@dev: the target device
-  *	@id: current IDENTIFY data for target device.
-  *	@cmd: SCSI command being sent to device.
-  *	@done: SCSI command completion function.
+  * rpc_find_parent - find the parent of a child task.
+  * @child: child task
++ * @parent: parent task
+  *
+  * Checks that the parent task is still sleeping on the
+  * queue 'childq'. If so returns a pointer to the parent.
 -- 
 0.99.9.GIT
 

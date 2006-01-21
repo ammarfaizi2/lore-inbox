@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbWAUAp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWAUApu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932338AbWAUAp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 19:45:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbWAUAp1
+	id S932350AbWAUApu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 19:45:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWAUApu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 19:45:27 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:9962 "EHLO
-	aria.kroah.org") by vger.kernel.org with ESMTP id S932338AbWAUAp1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 19:45:27 -0500
-Date: Fri, 20 Jan 2006 16:45:24 -0800
-From: Greg KH <greg@kroah.com>
-To: Sean Hefty <mshefty@ichips.intel.com>
-Cc: rolandd@cisco.com, Kay Sievers <kay.sievers@vrfy.org>,
-       openib-general@openib.org, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: [PATCH] fix IB with latest versions of udev
-Message-ID: <20060121004524.GA26233@kroah.com>
-References: <20060121000819.GA26967@kroah.com> <43D18037.9040503@ichips.intel.com>
+	Fri, 20 Jan 2006 19:45:50 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:64965 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932350AbWAUAps (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 19:45:48 -0500
+Subject: RE: My vote against eepro* removal
+From: Lee Revell <rlrevell@joe-job.com>
+To: kus Kusche Klaus <kus@keba.com>
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       John Ronciak <john.ronciak@gmail.com>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org, john.ronciak@intel.com,
+       ganesh.venkatesan@intel.com, jesse.brandeburg@intel.com,
+       netdev@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323325@MAILIT.keba.co.at>
+References: <AAD6DA242BC63C488511C611BD51F367323325@MAILIT.keba.co.at>
+Content-Type: text/plain
+Date: Fri, 20 Jan 2006 19:45:45 -0500
+Message-Id: <1137804346.3241.38.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43D18037.9040503@ichips.intel.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 20, 2006 at 04:28:39PM -0800, Sean Hefty wrote:
-> Greg KH wrote:
-> >If you want, I can forward this on to Linus in my driver tree, or you
-> >can send it yourselves.
-> 
-> Thanks, Greg.  Please go ahead and forward this patch.
+On Fri, 2006-01-20 at 11:19 +0100, kus Kusche Klaus wrote:
+> For a non-full preemption kernel, your patch moves the 500 us 
+> piece of code from kernel to thread context, so it really 
+> improves things. But is 500 us something to worry about in a
+> non-full preemption kernel? 
 
-Great, will do, thanks.
+Yes, absolutely.  Once exit_mmap (a latency regression which was
+introduced in 2.6.14) and rt_run_flush/rt_garbage_collect (which have
+always been problematic) are fixed, 500usecs will stick out like a sore
+thumb even on a regular PREEMPT kernel.
 
-Care to give me an "Acked-by:" line to add to it?
+Also, you should be able to capture this latency in /proc/latency trace
+by configuring an -rt kernel with PREEMPT_DESKTOP and hard/softirq
+preemption disabled.
 
-greg k-h
+Lee
+

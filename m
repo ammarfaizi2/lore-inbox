@@ -1,74 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWAUBRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWAUBTi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932375AbWAUBRp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 20:17:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbWAUBRp
+	id S932373AbWAUBTi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 20:19:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbWAUBTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 20:17:45 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:39565 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932364AbWAUBRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 20:17:44 -0500
-Subject: Re: OOM Killer killing whole system
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chase Venters <chase.venters@clientec.com>, a.titov@host.bg,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <20060120165031.7773d9c4.akpm@osdl.org>
-References: <1137337516.11767.50.camel@localhost>
-	 <1137793685.11771.58.camel@localhost>
-	 <20060120145006.0a773262.akpm@osdl.org>
-	 <200601201819.58366.chase.venters@clientec.com>
-	 <20060120165031.7773d9c4.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 20 Jan 2006 19:17:27 -0600
-Message-Id: <1137806248.4122.11.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jan 2006 20:19:38 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:5164 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932377AbWAUBTg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 20:19:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UbLW/XoMSG9LbIVlsBHySDgpGXiZPgBv4Dynlsbwa5ZLCl/aJujP7un+pYXtRpyJsMeJtLltEoapmvP0Dsy9WMwIzcC+lQLTgA/V8F221O1CyOgd0F1WHlDu3tKUuNuwu2cxiSNmasgD9GFUP+hd2pIWuhkKvcJRBnicMN01k8A=
+Message-ID: <56a8daef0601201719t448a6177lfebabe3ca38a00c7@mail.gmail.com>
+Date: Fri, 20 Jan 2006 17:19:33 -0800
+From: John Ronciak <john.ronciak@gmail.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: My vote against eepro* removal
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, kus Kusche Klaus <kus@keba.com>,
+       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       john.ronciak@intel.com, ganesh.venkatesan@intel.com,
+       jesse.brandeburg@intel.com, netdev@vger.kernel.org,
+       Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <1137804050.3241.32.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <AAD6DA242BC63C488511C611BD51F367323324@MAILIT.keba.co.at>
+	 <20060120095548.GA16000@2ka.mipt.ru>
+	 <1137804050.3241.32.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-20 at 16:50 -0800, Andrew Morton wrote:
-> For linux-scsi reference, Chase's /proc/slabinfo says:
-> 
-> scsi_cmd_cache    1547440 1547440    384   10    1 : tunables   54   27    8 : 
-> slabdata 154744 154744      0
-
-There's another curiosity about this: the linux command stack is pretty
-well counted per scsi device (it's how we control queue depth), so if a
-driver leaks commands we see it not by this type of behaviour, but by
-the system hanging (waiting for all the commands the mid-layer thinks
-are outstanding to return).  So, the only way we could leak commands
-like this is in the mid-layer command return logic ... and I can't find
-anywhere this might happen.
-
-The sequence is:
-
-driver -> cmd->scsi_done() -> blk softirq -> scsi_softirq_done() ->
-scsi_finish_cmd() (where the queue counts are decremented, so anything
-after here could leak commands if the rest of the chain is broken) ->
-cmd->done() (which is the ULD completion callback) ->
-scsi_io_completion() (frees the sg table, so if the sgpool slabs aren't
-out of whack we must be past here) -> scsi_end_request() ->
-scsi_next_command() -> scsi_put_command() (which is where the command
-goes back to the slab).
-
-James
+On 1/20/06, Lee Revell <rlrevell@joe-job.com> wrote:
+> Seems like the important question is, why does e100 need a watchdog if
+> eepro100 works fine without one?  Isn't the point of a watchdog in this
+> context to work around other bugs in the driver (or the hardware)?
+There are a number of things that the watchdog in e100 does.  It
+checks link (up, down), reads the hardware stats, adjusts the adaptive
+IFS and checks to 3 known hang conditions based on certain types of
+the hardware.  You might be able to get around without doing the
+work-arounds (as long as you don't' see hangs happening with the
+hardware being used) but the checking of the link and the stats are
+probably needed.
 
 
-> > Curious - the -s... were you expecting the ring buffer 
-> > to exceed 16384?
-> 
-> It can sometimes be quite large.  I always say -s 1000000 to make sure
-> everything got there.
-> 
-> > I don't think my (boot time) buffer does.
-> 
-> It's compile-time configurable with CONFIG_LOG_BUF_SHIFT and boot-time
-> configurable with log_buf_len=n.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
+--
+Cheers,
+John

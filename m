@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWAUSmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWAUSpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932242AbWAUSmX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 13:42:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWAUSmX
+	id S932233AbWAUSpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 13:45:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWAUSpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 13:42:23 -0500
-Received: from mail.shareable.org ([81.29.64.88]:43964 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S932238AbWAUSmX
+	Sat, 21 Jan 2006 13:45:09 -0500
+Received: from xproxy.gmail.com ([66.249.82.200]:16251 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932233AbWAUSpH convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 13:42:23 -0500
-Date: Sat, 21 Jan 2006 18:42:19 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Al Boldi <a1426z@gawab.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC] VM: I have a dream...
-Message-ID: <20060121184219.GA1306@mail.shareable.org>
-References: <200601212108.41269.a1426z@gawab.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 21 Jan 2006 13:45:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tKOK3Ocr43wRbD0apkQlkXLBkLK6tlFboIjRSgehBHUA7uq+p2cjL5GjRWJ7u4bYBPgrFwa25LDuweX7e/DXC29w3+vvja0v4/W4NcvvpWiMD4QkvjGo1tZ8puZ/9T9HVRXg1M9o1U2ti4x5nsSVwyhDNvU68zVfM3IMz8rZEi0=
+Message-ID: <986ed62e0601211045p4a61a7c2v91d401af86f50d6@mail.gmail.com>
+Date: Sat, 21 Jan 2006 10:45:06 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Ed Tomlinson <edt@aei.ca>
+Subject: Re: 2.6.16-rc1-mm2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com, jgarzik@pobox.com, linux-scsi@vger.kernel.org
+In-Reply-To: <200601211139.29019.edt@aei.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200601212108.41269.a1426z@gawab.com>
-User-Agent: Mutt/1.4.1i
+References: <20060120031555.7b6d65b7.akpm@osdl.org> <43D170CB.8080802@reub.net>
+	 <200601211014.44041.edt@aei.ca> <200601211139.29019.edt@aei.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
-> Apps are executed inplace, as if already loaded.
-> Physical RAM is used to cache slower storage RAM, much the same as the CPU 
-> cache RAM caches slower physical RAM.
-
-Linux and most other OSes have done that since.. oh, 20 years at least?
-
-It's called "demand paging".  The RAM is simply a cache of the
-executable file on disk.  The complicated-looking page fault mechanism
-that you see is simply the cache management logic.  In what way is
-your vision different from demand paging?
-
-> my memory is equal to total disk-capacity.  What's more, there is no
-> more swap.  [...]  Physical RAM is used to cache slower storage RAM,
-> much the same as the CPU cache RAM caches slower physical RAM.
-
-Windows has had that since, oh, Windows 95?
-
-It's called "on-demand swap space", or making all the disk's free
-space be usable for paging.  The physical RAM is simply a cache of the
-virtual "storage RAM".  In what way is your vision different from
-on-demand swap?
-
-> Sadly, the current way of dealing with memory can at best only be described 
-> as schizophrenic.  Again the reason being, that we are still running in the 
-> last-century mode.
+On 1/21/06, Ed Tomlinson <edt@aei.ca> wrote:
+> grover:/var/log# smartctl -i -d ata /dev/sda
+[snip]
+> grover:/var/log# smartctl -H -d ata /dev/sda
+> smartctl version 5.34 [x86_64-unknown-linux-gnu] Copyright (C) 2002-5 Bruce Allen
+> Home page is http://smartmontools.sourceforge.net/
 >
-> Wouldn't it be nice to take advantage of todays 64bit archs and TB drives, 
-> and run a more modern way of life w/o this memory/storage split personality?
+> === START OF READ SMART DATA SECTION ===
+> SMART overall-health self-assessment test result: PASSED
+>
+> ---
+>
+> Hope this helps and that I found the correct places to copy the info.
 
-In what way does your vision _behave_ any differently than what we have?
+How about:
+smartctl -a -d ata /dev/sda
+or, if that produces too much output, then at least the following two:
+smartctl -A -d ata /dev/sda
+smartctl -l error -d ata /dev/sda
 
-In my mind, "physical RAM is used to cache slower storage RAM" behaves
-the same as demand paging, even if the terminology is different.  The
-code I guess you're referring to in the kernel, to handle paging to
-storage, is simply one kernel's method of implementing that kind of cache.
-
-It's not clear from anything you said how the computer in your dream
-would behave any differently to the ones we've got now.
-
-Can you describe that difference, if there is one?
-
-Is it just an implementation idea, where the kernel does less of the
-page caching logic and some bit of hardware does more of it
-automatically?  Given how little time is taken in kernel to do that,
-and how complex the logic has to be for efficient caching decisions
-between RAM and storage, it seems likely that any simple hardware
-solution would behave the same, but slower.
-
--- Jamie
+That way we might be able to figure out whether the disk
+coincidentally started going bad after you updated the kernel.
+--
+-Barry K. Nathan <barryn@pobox.com>

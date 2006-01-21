@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWAUWKW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbWAUWND@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932403AbWAUWKW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 17:10:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWAUWKW
+	id S1750907AbWAUWND (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 17:13:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWAUWND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 17:10:22 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:48145 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S932403AbWAUWKV (ORCPT
+	Sat, 21 Jan 2006 17:13:03 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:27922 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S1750907AbWAUWNB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 17:10:21 -0500
-Date: Sat, 21 Jan 2006 23:10:06 +0100
+	Sat, 21 Jan 2006 17:13:01 -0500
+Date: Sat, 21 Jan 2006 23:12:49 +0100
 From: Sam Ravnborg <sam@ravnborg.org>
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Cc: linux-crypto@nl.linux.org, linux-kernel@vger.kernel.org
-Subject: Re: Announce loop-AES-v3.1c file/swap crypto package
-Message-ID: <20060121221006.GA7711@mars.ravnborg.org>
-References: <43CE6384.284B823C@users.sourceforge.net> <20060120195035.GA9685@mars.ravnborg.org> <43D260F8.B82BCB9A@users.sourceforge.net>
+To: Olaf Hering <olh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cc-version not available to change EXTRA_CFLAGS
+Message-ID: <20060121221249.GB7711@mars.ravnborg.org>
+References: <20060121180805.GA15761@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43D260F8.B82BCB9A@users.sourceforge.net>
+In-Reply-To: <20060121180805.GA15761@suse.de>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 21, 2006 at 06:27:36PM +0200, Jari Ruusu wrote:
-> Sam Ravnborg wrote:
-> > Either something is missing in the support for external modules in the
-> > kernel or you are overdoing some stuff. If there is something missing in
-> > the kernel to support external modules then please say so, so it can be
-> > fixed.
+On Sat, Jan 21, 2006 at 07:08:05PM +0100, Olaf Hering wrote:
 > 
-> Missing functionality:
-> 1) "make M=/path/to/dir modules_install" does not run depmod. Pulling
->    correct depmod info from kernel Makefile needs ugly hacks.
-OK, I will try to take a look at this.
-The correct fix though is to upgrade module-utils to no rely on depmod.
-Rusty mentioned this long time ago but no-one did it so far.
+> I want to add a gcc version check for reiserfs, on akpms request.
+> This one doesnt work with 2.6.16rc1, havent checked if it ever worked.
+...
+> Index: linux-2.6.16-rc1-olh/fs/reiserfs/Makefile
+> ===================================================================
+> --- linux-2.6.16-rc1-olh.orig/fs/reiserfs/Makefile
+> +++ linux-2.6.16-rc1-olh/fs/reiserfs/Makefile
+> @@ -28,7 +28,7 @@ endif
+>  # will work around it. If any other architecture displays this behavior,
+>  # add it here.
+>  ifeq ($(CONFIG_PPC32),y)
+> -EXTRA_CFLAGS := -O1
+> +EXTRA_CFLAGS := $(shell set -x ; if [ $(call cc-version) -lt 0402 ] ; then echo $(call cc-option,-O1); fi ;)
+>  endif
 
-> 2) Try building external module A that exports some function, and then build
->    another external module B (separate package, only knows function
->    prototype) that uses said exported function. And I mean build it cleanly
->    without puking error messages on me. 2.4 and older kernel got that right,
->    but 2.6 is still FUBAR. Serious regression here.
-OK, but I have yet to find a clean solution for it.
+cc-option is only available from main Makefile as of today.
+I can try to move them to Kbuild.include - that should fix this usecase.
 
-> Both above cases can be (and need to be) worked around using ugly hacks.
-> 
-> Sam,
-> Please understand that loop-AES needs to work with 2.0, 2.2, 2.4 and 2.6
-> kernels. Not just latest mainline, but all of them, including ones that you
-> cannot retroactively change.
-Fully aware ot that - my only issue was that you had to workaround some
-2.6 functionality.
-The objective is to provide full support for external modules in 2.6.
-And you raised two valid points.
-
-Thanks,
 	Sam

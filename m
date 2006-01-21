@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWAUAsh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWAUAsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbWAUAsh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jan 2006 19:48:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbWAUAsh
+	id S932360AbWAUAsx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jan 2006 19:48:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWAUAsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jan 2006 19:48:37 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:46520 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750746AbWAUAsf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jan 2006 19:48:35 -0500
-Date: Fri, 20 Jan 2006 16:50:31 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Chase Venters <chase.venters@clientec.com>
-Cc: a.titov@host.bg, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: OOM Killer killing whole system
-Message-Id: <20060120165031.7773d9c4.akpm@osdl.org>
-In-Reply-To: <200601201819.58366.chase.venters@clientec.com>
-References: <1137337516.11767.50.camel@localhost>
-	<1137793685.11771.58.camel@localhost>
-	<20060120145006.0a773262.akpm@osdl.org>
-	<200601201819.58366.chase.venters@clientec.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Jan 2006 19:48:52 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23059 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932268AbWAUAsu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jan 2006 19:48:50 -0500
+Date: Sat, 21 Jan 2006 01:48:48 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] schedule SHAPER for removal
+Message-ID: <20060121004848.GM31803@stusta.de>
+References: <20060119021150.GC19398@stusta.de> <20060119215722.GO16285@kvack.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060119215722.GO16285@kvack.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chase Venters <chase.venters@clientec.com> wrote:
->
-> > Next time you reboot 2.6.15 on that machine can you please send the output
-> > of `dmesg -s 1000000'?  You might have to set CONFIG_LOG_BUF_SHIFT=17 to
-> > prevent it from being truncated.
+On Thu, Jan 19, 2006 at 04:57:22PM -0500, Benjamin LaHaise wrote:
+> On Thu, Jan 19, 2006 at 03:11:50AM +0100, Adrian Bunk wrote:
+> > +What:   Traffic Shaper (CONFIG_SHAPER)
+> > +When:   July 2006
+> > +Why:    obsoleted by the code in net/sched/
+> > +Who:    Adrian Bunk <bunk@stusta.de
 > 
-> Here's mine (attached).
+> This length of obsolete cycles is way too short -- it's not even enough 
+> time for a single release of a distro to ship with the feature marked as 
+> obsolete.
 
-Great, thanks.  That tells us all sorts of stuff about your setup.
+Do we really have to wait the three years between stable Debian releases 
+for removing an obsolete driver that has always been marked as 
+EXPERIMENTAL?
 
-For linux-scsi reference, Chase's /proc/slabinfo says:
+Please be serious.
 
-scsi_cmd_cache    1547440 1547440    384   10    1 : tunables   54   27    8 : 
-slabdata 154744 154744      0
+> 		-ben
 
-> Curious - the -s... were you expecting the ring buffer 
-> to exceed 16384?
+cu
+Adrian
 
-It can sometimes be quite large.  I always say -s 1000000 to make sure
-everything got there.
+-- 
 
-> I don't think my (boot time) buffer does.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-It's compile-time configurable with CONFIG_LOG_BUF_SHIFT and boot-time
-configurable with log_buf_len=n.

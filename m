@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWAWV0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWAWV0c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbWAWV0f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 16:26:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbWAWV0f
+	id S964856AbWAWV0c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 16:26:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWAWV0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 16:26:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:159 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964867AbWAWV0e (ORCPT
+	Mon, 23 Jan 2006 16:26:31 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:3554 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S964856AbWAWV0b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 16:26:34 -0500
-Date: Mon, 23 Jan 2006 13:25:54 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Greg KH <gregkh@suse.de>
-Cc: david-b@pacbell.net, ak@suse.de, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com
-Subject: Re: EHCI + APIC errors = no usb goodness
-Message-Id: <20060123132554.13411a1d.zaitcev@redhat.com>
-In-Reply-To: <20060123210443.GA20944@suse.de>
-References: <20060123210443.GA20944@suse.de>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Jan 2006 16:26:31 -0500
+Message-Id: <200601212043.k0LKhG4w003290@laptop11.inf.utfsm.cl>
+To: Alexander Shishckin <alexander.shishckin@gmail.com>
+cc: Chase Venters <chase.venters@clientec.com>,
+       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: GPL V3 and Linux 
+In-Reply-To: Message from Alexander Shishckin <alexander.shishckin@gmail.com> 
+   of "Sat, 21 Jan 2006 08:56:53 +0300." <71a0d6ff0601202156r7e1b067br5ad87abb59d7f2cb@mail.gmail.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
+Date: Sat, 21 Jan 2006 17:43:16 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 23 Jan 2006 18:26:19 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Jan 2006 13:04:43 -0800, Greg KH <gregkh@suse.de> wrote:
+Alexander Shishckin <alexander.shishckin@gmail.com> wrote:
 
-> Now I'm down to the last problem, USB doesn't work, which is a bit of a
-> pain for me :)
+[...]
 
-> [   87.406180] APIC error on CPU0: 00(40)
-> [   87.426282] drivers/usb/core/inode.c: creating file '001'
-> [   87.426333] hub 1-0:1.0: state 5 ports 8 chg 0000 evt 0000
-> [   87.712002] APIC error on CPU0: 40(40)
-> [   87.774743] irq 16: nobody cared (try booting with the "irqpoll" option)
+> Ain't that obvoius? Every second word that you read in GPLs is either
+> 'freedom' or 'share' and the rest of the document has absolutely nothing
+> to do with both, just restricting our *freedom* to *share*.
 
-Why do you even enable APIC on an old laptop? We tried it a few times,
-it's just not possible. I'd say, about one in ten to one in five of 2002
-vintage laptops will not even boot, let alone work when APIC is enabled.
-Some of them are well known, like Dell Lattitude 610. I expect this to
-change with dual-core laptops, but for now the rule is: UP kernel,
-No APIC, for distro kernels at least.
-
--- Pete
+How so? The existence of GNU doesn't restrict *my* right to share as *I*
+wish. If I, freely, place my stuff under GPL it /does/ restrict other
+people in just "sharing" (i.e., taking without giving in return). And that
+is fine with me. Not with them, I presume...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

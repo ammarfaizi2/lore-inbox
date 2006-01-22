@@ -1,80 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWAVWoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbWAVWrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbWAVWoR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 17:44:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbWAVWoR
+	id S932311AbWAVWrx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 17:47:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932312AbWAVWrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 17:44:17 -0500
-Received: from smtpout.mac.com ([17.250.248.86]:11994 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932311AbWAVWoQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 17:44:16 -0500
-In-Reply-To: <20060122210238.GA28980@thunk.org>
-References: <43D3295E.8040702@comcast.net> <20060122093144.GA7127@thunk.org> <43D3D4DF.2000503@comcast.net> <20060122210238.GA28980@thunk.org>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <4D75B95E-2595-4B60-91B3-28AD469C3D39@mac.com>
-Cc: John Richard Moser <nigelenki@comcast.net>, linux-kernel@vger.kernel.org
+	Sun, 22 Jan 2006 17:47:53 -0500
+Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:64646 "EHLO
+	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932311AbWAVWrw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 17:47:52 -0500
+Message-ID: <43D40B96.3060705@bigpond.net.au>
+Date: Mon, 23 Jan 2006 09:47:50 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paolo Ornati <ornati@fastwebnet.it>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.2 for  2.6.16-rc1 and 2.6.16-rc1-mm1
+References: <43D00887.6010409@bigpond.net.au> <20060121114616.4a906b4f@localhost> <43D2BE83.1020200@bigpond.net.au>
+In-Reply-To: <43D2BE83.1020200@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: soft update vs journaling?
-Date: Sun, 22 Jan 2006 17:44:08 -0500
-To: "Theodore Ts'o" <tytso@mit.edu>
-X-Mailer: Apple Mail (2.746.2)
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sun, 22 Jan 2006 22:47:50 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 22, 2006, at 16:02, Theodore Ts'o wrote:
->> Online resizing is ever safe?  I mean, with on-disk filesystem  
->> layout support I could somewhat believe it for growing; for  
->> shrinking you'd need a way to move files around without damaging  
->> them (possible).  I guess it would be.
+Peter Williams wrote:
+> Paolo Ornati wrote:
+> 
+>> On Fri, 20 Jan 2006 08:45:43 +1100
+>> Peter Williams <pwil3058@bigpond.net.au> wrote:
 >>
->> So how does this work?  Move files -> alter file system superblocks?
->
-> The online resizing support in ext3 only grows the filesystems; it  
-> doesn't shrink it.  What is currently supported in 2.6 requires you  
-> to reserve space in advance.  There is also a slight modification  
-> to the ext2/3 filesystem format which is only supported by Linux  
-> 2.6 which allows you to grow the filesystem without needing to move  
-> filesystem data structures around; the kernel patches for  
-> actualling doing this new style of online resizing aren't yet in  
-> mainline yet, although they have been posted to ext2-devel for  
-> evaluation.
+>>
+>>> Modifications have been made to spa_ws to (hopefully) address the 
+>>> issues raised by Paolo Ornati recently and a new entitlement based 
+>>> interpretation of "nice" scheduler, spa_ebs, which is a cut down 
+>>> version of the Zaphod schedulers "eb" mode has been added as this 
+>>> mode of Zaphod performed will for Paolo's problem when he tried it at 
+>>> my request. Paolo, could you please give these a test drive on your 
+>>> problem?
+>>
+>>
+>>
+>> ---- spa_ws: the problem is still here
+>>
+>> (sched_fooler)
+>> ./a.out 3000 & ./a.out 4307 &
+>>
+>>   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+>>  5573 paolo     34   0  2396  292  228 R 59.0  0.1   0:24.51 a.out
+>>  5572 paolo     34   0  2392  288  228 R 40.7  0.1   0:16.94 a.out
+>>  5580 paolo     35   0  4948 1468  372 R  0.3  0.3   0:00.04 dd
+>>
+>>   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+>>  5573 paolo     34   0  2396  292  228 R 59.3  0.1   0:59.65 a.out
+>>  5572 paolo     33   0  2392  288  228 R 40.3  0.1   0:41.32 a.out
+>>  5440 paolo     28   0 86652  21m  15m S  0.3  4.4   0:03.34 konsole
+>>  5580 paolo     37   0  4948 1468  372 R  0.3  0.3   0:00.10 dd
+>>
+>>
+>> (real life - transcode)
+>>   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+>>  5585 paolo     33   0  115m  18m 2432 S 90.0  3.7   0:38.04 transcode
+>>  5599 paolo     37   0 50996 4472 1872 R  9.1  0.9   0:04.03 tcdecode
+>>  5610 paolo     37   0  4948 1468  372 R  0.6  0.3   0:00.19 dd
+>>
+>>
+>> DD test takes ages in both cases.
+>>
+>> What exactly have you done to spa_ws?
+> 
+> 
+> I added a "nice aware" version of the throughput bonuses from spa_svr 
+> and renamed them fairness bonus.  They don't appear to be working :-(
+> 
+> 34 is the priority value that ordinary tasks should end up with i.e. if 
+> they don't look like interactive tasks or CPU hogs.  If they look like 
+> interactive tasks they should get a lower one via the interactive bonus 
+> mechanism and if they look like CPU hogs they should get a higher one 
+> via the same mechanism.  In addition to this tasks will get bonuses if 
+> they seem to be being treated unfairly i.e. spending too much time on 
+> run queues waiting for CPU access.
+> 
+> Looking at your numbers the transcode task has the priority that I'd 
+> expect it to have but tcdecode and dd seem to have had their priorities 
+> adjusted in the wrong direction.   It's almost like they'd been 
+> (incorrectly, obviously) identified as CPU hogs :-(.  I'll look into this.
 
- From my understanding of HFS+/HFSX, this is actually one of the  
-nicer bits of that filesystem architecture.  It stores the data- 
-structures on-disk using extents in such a way that you probably  
-could hot-resize the disk without significant RAM overhead (both grow  
-and shrink) as long as there's enough free space.  Essentially, every  
-block on the disk is represented by an allocation block, and all data  
-structures refer to allocation block offsets.  The allocation file  
-bitmap itself is comprised of allocation blocks and mapped by a set  
-of extent descriptors.  The result is that it is possible to fragment  
-the allocation file, catalog file, and any other on-disk structures  
-(with the sole exception of the 1K boot block and the 512-byte volume  
-headers at the very start and end of the volume).
+I forgot that I'd also made changes to the "CPU hog" component of the 
+interactive response as the one I had was useless on heavily loaded 
+systems.  It appears that I made a mistake (I used interactive 
+sleepiness instead of ordinary sleepiness for detecting CPU hogs) during 
+these changes which means that tasks that do no interactive sleeping 
+(such as your dd) get classified as CPU hogs.  The transcode task 
+escapes this because, although its sleeps aren't really interactive, 
+they're classified as such.  More widespread us of TASK_NONINTERACTIVE 
+would fix this but would need to be done carefully as it would risk 
+breaking the normal scheduler.
 
-At the moment I'm educating myself on the operation of MFS/HFS/HFS+/ 
-HFSX and the linux kernel VFS by writing a completely new combined  
-hfsx driver, which I eventually plan to add online-resizing support  
-and a variety of other features to.
+However, in spite of the above, the fairness mechanism should have been 
+able to generate enough bonus points to get dd's priority back to less 
+than 34.  I'm still investigating why this didn't happen.
 
-One question though: Does anyone have any good recent references to  
-"How to write a blockdev-based Linux Filesystem" docs?  I've searched  
-the various crufty corners of the web, Documentation/, etc, and found  
-enough to get started, but (for example), I had a hard time  
-determining from the various sources what a struct file_system_type  
-was supposed to have in it, and what the available default  
-address_space/superblock ops are.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Cheers,
-Kyle Moffett
-
---
-They _will_ find opposing experts to say it isn't, if you push hard  
-enough the wrong way.  Idiots with a PhD aren't hard to buy.
-   -- Rob Landley
-
-
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

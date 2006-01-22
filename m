@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWAVEhE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWAVFKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751253AbWAVEhE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 23:37:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWAVEhE
+	id S1751151AbWAVFKi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 00:10:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWAVFKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 23:37:04 -0500
-Received: from xenotime.net ([66.160.160.81]:43231 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751257AbWAVEhC (ORCPT
+	Sun, 22 Jan 2006 00:10:38 -0500
+Received: from liaag2ab.mx.compuserve.com ([149.174.40.153]:61837 "EHLO
+	liaag2ab.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751151AbWAVFKi convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 23:37:02 -0500
-Date: Sat, 21 Jan 2006 20:37:09 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: tali@admingilde.org, akpm <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] mm/slab: add kernel-doc for one function
-Message-Id: <20060121203709.76613d31.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 22 Jan 2006 00:10:38 -0500
+Date: Sun, 22 Jan 2006 00:08:29 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: 2.6.16-rc1-mm2
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Greg KH <greg@kroah.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>
+Message-ID: <200601220010_MC3-1-B666-7037@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	 charset=ISO-8859-1
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+gregkh-pci-msi-vector-targeting-abstractions.patch breaks msi on x86_64:
 
-Fix kernel-doc for calculate_slab_order().
+In file included from include/asm/msi.h:11,
+                 from drivers/pci/msi.h:9,
+                 from drivers/pci/msi-apic.c:15:
+include/asm/smp.h:103: error: syntax error before ‘->’ token
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- mm/slab.c |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
 
---- linux-2616-rc1-secur.orig/mm/slab.c
-+++ linux-2616-rc1-secur/mm/slab.c
-@@ -1490,8 +1490,13 @@ static inline void set_up_list3s(kmem_ca
- }
+include/asm-x86_64/msi.h:#include <asm/mach_apic.h>
+
+include/asm-x86_64/mach_apic.h:#define cpu_mask_to_apicid (genapic->cpu_mask_to_apicid)
+
+include/asm-x86_64/smp.h:103:static inline unsigned int cpu_mask_to_apicid(cpumask_t cpumask)
+
+
+drivers/pci/msi.c does not have this problem because it includes <asm/smp.h>
+_before_ "msi.h" so the #define overrides the inline function.
+
+Ugly patch to fix this follows... at least it compiles now...
+
+
+Fix msi on x86_64, broken due to include-ordering problems.
+
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+
+ drivers/pci/msi-apic.c |    2 ++
+ 1 files changed, 2 insertions(+)
+
+--- 2.6.16-rc1-mm2.orig/drivers/pci/msi-apic.c
++++ 2.6.16-rc1-mm2/drivers/pci/msi-apic.c
+@@ -11,6 +11,8 @@
+ #include <linux/pci.h>
+ #include <linux/irq.h>
  
- /**
-- * calculate_slab_order - calculate size (page order) of slabs and the number
-- *                        of objects per slab.
-+ * calculate_slab_order - calculate size (page order) of slabs
-+ * @cachep: pointer to the cache that is being created
-+ * @size: size of objects to be created in this cache.
-+ * @align: required alignment for the objects.
-+ * @flags: slab allocation flags
-+ *
-+ * Also calculates the number of objects per slab.
-  *
-  * This could be made much more intelligent.  For now, try to avoid using
-  * high order pages for slabs.  When the gfp() functions are more friendly
-
-
----
++#include <asm/smp.h>
++
+ #include "pci.h"
+ #include "msi.h"
+ 
+-- 
+Chuck

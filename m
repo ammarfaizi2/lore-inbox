@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWAVUcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWAVUeC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWAVUcm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 15:32:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbWAVUcm
+	id S1751321AbWAVUeC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 15:34:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbWAVUeB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 15:32:42 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:46827 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751322AbWAVUcl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 15:32:41 -0500
-Date: Sun, 22 Jan 2006 12:31:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Olaf Hering <olh@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       "Luck, Tony" <tony.luck@intel.com>
-Subject: Re: [PATCH] disable per cpu intr in /proc/stat
-Message-Id: <20060122123150.3a289ac3.akpm@osdl.org>
-In-Reply-To: <20060122202204.GA26295@suse.de>
-References: <20060122202204.GA26295@suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 22 Jan 2006 15:34:01 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:25555 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751321AbWAVUeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 15:34:00 -0500
+Subject: Re: [2.6 patch] the scheduled removal of the obsolete raw driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Doug McNaught <doug@mcnaught.org>
+Cc: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
+In-Reply-To: <87bqy5m8u3.fsf@asmodeus.mcnaught.org>
+References: <20060119030251.GG19398@stusta.de>
+	 <200601211826.02159.gene.heskett@verizon.net>
+	 <1137886206.11722.1.camel@mindpipe>
+	 <200601211853.56339.gene.heskett@verizon.net>
+	 <87bqy5m8u3.fsf@asmodeus.mcnaught.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Sun, 22 Jan 2006 20:33:57 +0000
+Message-Id: <1137962037.19393.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering <olh@suse.de> wrote:
->
-> (No bugzilla or benchmark)
+On Sad, 2006-01-21 at 18:59 -0500, Doug McNaught wrote:
+> > OTOH, if this database actually does have a better way, and its mature 
+> > and proven, then I see no reason to cripple the database people just to 
+> > remove what is viewed as a potentially dangerous path to the media 
+> > surface for the unwashed to abuse.
 > 
-> From: schwab@suse.de
-> Subject: Reading /proc/stat is slooow
-> 
-> Don't compute and display the per-irq sums on ia64 either, too much
-> overhead for mostly useless figures.
-> 
-> --- linux-2.6.14/fs/proc/proc_misc.c.~1~	2005-12-06 18:12:28.840059961 +0100
-> +++ linux-2.6.14/fs/proc/proc_misc.c	2005-12-06 18:13:51.211896515 +0100
-> @@ -498,7 +498,7 @@ static int show_stat(struct seq_file *p,
->  	}
->  	seq_printf(p, "intr %llu", (unsigned long long)sum);
->  
-> -#if !defined(CONFIG_PPC64) && !defined(CONFIG_ALPHA)
-> +#if !defined(CONFIG_PPC64) && !defined(CONFIG_ALPHA) && !defined(CONFIG_IA64)
->  	for (i = 0; i < NR_IRQS; i++)
->  		seq_printf(p, " %u", kstat_irqs(i));
->  #endif
+> The database people have a newer and supported way to do that, via the
+> O_DIRECT flag to open().  They aren't losing any functionality.
 
-We'd need a big ack from the ia64 team for this, please.
+And they'll no doubt update to use it on their cycles of development.
+Which for some large vendor systems means five years.
+
+Alan
+

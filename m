@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWAVKGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWAVKjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbWAVKGT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 05:06:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWAVKGT
+	id S1751269AbWAVKjG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 05:39:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWAVKjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 05:06:19 -0500
-Received: from elvis.mu.org ([192.203.228.196]:10459 "EHLO elvis.mu.org")
-	by vger.kernel.org with ESMTP id S1751237AbWAVKGS (ORCPT
+	Sun, 22 Jan 2006 05:39:06 -0500
+Received: from smtpout.mac.com ([17.250.248.97]:1275 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751269AbWAVKjF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 05:06:18 -0500
-Message-ID: <43D3590A.2050803@FreeBSD.org>
-Date: Sun, 22 Jan 2006 02:06:02 -0800
-From: Suleiman Souhlal <ssouhlal@FreeBSD.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051204)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>, Al Viro <viro@ftp.linux.org.uk>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/6] vfs: propagate mnt_flags into do_loopback/vfsmount
-References: <20060121083843.GA10044@MAIL.13thfloor.at> <20060121084055.GC10044@MAIL.13thfloor.at>
-In-Reply-To: <20060121084055.GC10044@MAIL.13thfloor.at>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 22 Jan 2006 05:39:05 -0500
+In-Reply-To: <1137924193.3328.8.camel@laptopd505.fenrus.org>
+References: <787b0d920601220150n2e34e376i856cc583a372e1f2@mail.gmail.com> <1137924193.3328.8.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <DEBDB4DD-F138-4E58-B3A5-46C94E43C9DF@mac.com>
+Cc: Albert Cahalan <acahalan@gmail.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] add /proc/*/pmap files
+Date: Sun, 22 Jan 2006 05:38:52 -0500
+To: Arjan van de Ven <arjan@infradead.org>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl wrote:
-> @@ -1312,7 +1315,7 @@ long do_mount(char *dev_name, char *dir_
->  		retval = do_remount(&nd, flags & ~MS_REMOUNT, mnt_flags,
->  				    data_page);
->  	else if (flags & MS_BIND)
-> -		retval = do_loopback(&nd, dev_name, flags & MS_REC);
-> +		retval = do_loopback(&nd, dev_name, flags, mnt_flags);
+On Jan 22, 2006, at 05:03, Arjan van de Ven wrote:
+>> This applies to -git4, grabbed Saturday night.
+>
+> with this much wrapping... no it doesn't ;-)
 
-Shouldn't it be retval = do_loopback(&nd, dev_name, recurse, mnt_flags); ?
+Err, the patch looks fine to me.  I just checked and I can't find any  
+wrapped lines.  Mail client confusion of some sort?
 
--- Suleiman
+Cheers,
+Kyle Moffett
+
+--
+Q: Why do programmers confuse Halloween and Christmas?
+A: Because OCT 31 == DEC 25.
+
+
+

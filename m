@@ -1,39 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWAVTzl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbWAVT7W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbWAVTzl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 14:55:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWAVTzl
+	id S1751328AbWAVT7W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 14:59:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWAVT7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 14:55:41 -0500
-Received: from xproxy.gmail.com ([66.249.82.192]:62658 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751305AbWAVTzk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 14:55:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LiTZCXJ79d6N8v+/eW4OczGpKWzRgL0OtBH9m6Bt4Tkmpp2O+IDJw1RQykj+zUDm3v6LfXMotvMH2Iqd98QTyuof8qYgCWmvvUqUsoO75a8htBJQDvSR9au+0pCd9dSsK8luNyilqMK8gVXk+enr+jmCmLIWjhcNfGF1/Nu20Qc=
-Message-ID: <986ed62e0601221155x6a57e353vf14db02cc219c09@mail.gmail.com>
-Date: Sun, 22 Jan 2006 11:55:37 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Al Boldi <a1426z@gawab.com>
-Subject: Re: [RFC] VM: I have a dream...
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <200601212108.41269.a1426z@gawab.com>
-MIME-Version: 1.0
+	Sun, 22 Jan 2006 14:59:22 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:32742 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751328AbWAVT7W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 14:59:22 -0500
+Date: Sun, 22 Jan 2006 11:58:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: acahalan@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add /proc/*/pmap files
+Message-Id: <20060122115856.42231368.akpm@osdl.org>
+In-Reply-To: <1137959059.3328.45.camel@laptopd505.fenrus.org>
+References: <787b0d920601220150n2e34e376i856cc583a372e1f2@mail.gmail.com>
+	<1137940577.3328.14.camel@laptopd505.fenrus.org>
+	<787b0d920601221117l78a92fd1udc8601068dbde42c@mail.gmail.com>
+	<1137959059.3328.45.camel@laptopd505.fenrus.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200601212108.41269.a1426z@gawab.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/21/06, Al Boldi <a1426z@gawab.com> wrote:
-> A long time ago, when i was a kid, I had dream. It went like this:
-[snip]
+Arjan van de Ven <arjan@infradead.org> wrote:
+>
+>  you're making a NEW file
 
-FWIW, Mac OS X is one step closer to your vision than the typical
-Linux distribution: It has a directory for swapfiles -- /var/vm -- and
-it creates new swapfiles there as needed. (It used to be that each
-swapfile would be 80MB, but the iMac next to me just has a single 64MB
-swapfile, so maybe Mac OS 10.4 does something different now.)
+One which, afaict, contains the same thing as /proc/pid/smaps only in a
+different format.  If there's a point to this patch, we weren't told what
+it is.
+

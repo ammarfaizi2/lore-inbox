@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWAVNyW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWAVOYH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbWAVNyW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 08:54:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWAVNyW
+	id S1751258AbWAVOYH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 09:24:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWAVOYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 08:54:22 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:11790 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751254AbWAVNyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 08:54:21 -0500
-Date: Sun, 22 Jan 2006 14:54:20 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dipankar Sarma <dipankar@in.ibm.com>,
-       Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] kernel/rcupdate.c: make two structs static
-Message-ID: <20060122135420.GW31803@stusta.de>
-MIME-Version: 1.0
+	Sun, 22 Jan 2006 09:24:06 -0500
+Received: from mx.freeshell.ORG ([192.94.73.21]:16086 "EHLO sdf.lonestar.org")
+	by vger.kernel.org with ESMTP id S1751258AbWAVOYF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 09:24:05 -0500
+From: Jim Nance <jlnance@sdf.lonestar.org>
+Date: Sun, 22 Jan 2006 14:24:01 +0000
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: sendfile() with 100 simultaneous 100MB files
+Message-ID: <20060122142401.GA24738@SDF.LONESTAR.ORG>
+References: <9e4733910601201353g36284133xf68c4f6eae1344b4@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <9e4733910601201353g36284133xf68c4f6eae1344b4@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes two needlessly global structs static.
+On Fri, Jan 20, 2006 at 04:53:44PM -0500, Jon Smirl wrote:
 
+> Any other ideas why sendfile() would get into a seek storm?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I can't really comment on the quality of the linux sendfile() implementation,
+I've never looked at the code.  However, a couple of general observations.
 
----
+The seek storm happens because linux is trying to be "fair," where fair
+means no one process get to starve another for I/O bandwidth.
 
-This patch was already sent on:
-- 12 Jan 2006
+The fastest way to transfer 100 100M files would be to send them one at a
+time.  The 99th person in line of course would percieve this as a very poor
+implementation.  The current sendfile implementation seems to live at the
+other end of the extream.
 
- include/linux/rcupdate.h |    2 --
- kernel/rcupdate.c        |    4 ++--
- 2 files changed, 2 insertions(+), 4 deletions(-)
+It is possible to come up with a compromise behavior by limiting the
+number of concurrent sendfiles running, and the maximum size they are
+allowed to send in one squirt.
 
---- linux-2.6.15-mm3-full/include/linux/rcupdate.h.old	2006-01-12 02:23:35.000000000 +0100
-+++ linux-2.6.15-mm3-full/include/linux/rcupdate.h	2006-01-12 01:06:47.000000000 +0100
-@@ -109,8 +109,6 @@
- 
- DECLARE_PER_CPU(struct rcu_data, rcu_data);
- DECLARE_PER_CPU(struct rcu_data, rcu_bh_data);
--extern struct rcu_ctrlblk rcu_ctrlblk;
--extern struct rcu_ctrlblk rcu_bh_ctrlblk;
- 
- /*
-  * Increment the quiescent state counter.
---- linux-2.6.15-mm3-full/kernel/rcupdate.c.old	2006-01-12 01:06:54.000000000 +0100
-+++ linux-2.6.15-mm3-full/kernel/rcupdate.c	2006-01-12 01:07:07.000000000 +0100
-@@ -49,13 +49,13 @@
- #include <linux/cpu.h>
- 
- /* Definition for rcupdate control block. */
--struct rcu_ctrlblk rcu_ctrlblk = {
-+static struct rcu_ctrlblk rcu_ctrlblk = {
- 	.cur = -300,
- 	.completed = -300,
- 	.lock = SPIN_LOCK_UNLOCKED,
- 	.cpumask = CPU_MASK_NONE,
- };
--struct rcu_ctrlblk rcu_bh_ctrlblk = {
-+static struct rcu_ctrlblk rcu_bh_ctrlblk = {
- 	.cur = -300,
- 	.completed = -300,
- 	.lock = SPIN_LOCK_UNLOCKED,
+Thanks,
 
+Jim
+
+-- 
+jlnance@sdf.lonestar.org
+SDF Public Access UNIX System - http://sdf.lonestar.org

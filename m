@@ -1,87 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWAVAO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWAVAPs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932353AbWAVAO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 19:14:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWAVAO5
+	id S964772AbWAVAPs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 19:15:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWAVAPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 19:14:57 -0500
-Received: from mail.gmx.net ([213.165.64.21]:48280 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751240AbWAVAO5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 19:14:57 -0500
-X-Authenticated: #20450766
-Date: Sun, 22 Jan 2006 01:15:23 +0100 (CET)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: Guennadi Liakhovetski <gl@dsa-ac.de>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH 2.4.32] usb-uhci.c failing "-"
-In-Reply-To: <20060120151030.433abdf6.zaitcev@redhat.com>
-Message-ID: <Pine.LNX.4.60.0601212230210.9393@poirot.grange>
-References: <Pine.LNX.4.63.0601200928480.1049@pcgl.dsa-ac.de>
- <20060120151030.433abdf6.zaitcev@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Y-GMX-Trusted: 0
+	Sat, 21 Jan 2006 19:15:48 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:57511 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964772AbWAVAPr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 19:15:47 -0500
+Subject: Re: [2.6 patch] the scheduled removal of the obsolete raw driver
+From: Lee Revell <rlrevell@joe-job.com>
+To: gene.heskett@verizon.net
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200601211909.15559.gene.heskett@verizon.net>
+References: <20060119030251.GG19398@stusta.de>
+	 <200601211853.56339.gene.heskett@verizon.net>
+	 <87bqy5m8u3.fsf@asmodeus.mcnaught.org>
+	 <200601211909.15559.gene.heskett@verizon.net>
+Content-Type: text/plain
+Date: Sat, 21 Jan 2006 19:15:45 -0500
+Message-Id: <1137888945.11722.5.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jan 2006, Pete Zaitcev wrote:
+On Sat, 2006-01-21 at 19:09 -0500, Gene Heskett wrote:
+> On Saturday 21 January 2006 18:59, Doug McNaught wrote:
+> >Gene Heskett <gene.heskett@verizon.net> writes:
+> >>>No, it's a different raw driver, for big databases that basically
+> >>> want their own custom filesystem on a disk.
+> >>
+> >> With the attendent possibility of rendering the whole thing
+> >> unrecoverably moot?
+> >>
+> >> OTOH, if this database actually does have a better way, and its
+> >> mature and proven, then I see no reason to cripple the database
+> >> people just to remove what is viewed as a potentially dangerous path
+> >> to the media surface for the unwashed to abuse.
+> >
+> >The database people have a newer and supported way to do that, via the
+> >O_DIRECT flag to open().  They aren't losing any functionality.
+> >
+> Good, but what about speed, is that impacted in any way they can 
+> measure, or is this flag/method actually faster than the raw driver is?
 
-> On Fri, 20 Jan 2006 09:33:26 +0100 (CET), Guennadi Liakhovetski <gl@dsa-ac.de> wrote:
-> 
-> > Looks like a bug?
-> 
-> > --- a/drivers/usb/host/usb-uhci.c	Fri Jan 20 09:27:50 2006
-> > +++ b/drivers/usb/host/usb-uhci.c	Fri Jan 20 09:28:05 2006
-> > @@ -2505,7 +2505,7 @@
-> >   			((urb_priv_t*)urb->hcpriv)->flags=0;
-> >   		}
-> > 
-> > -		if ((urb->status != -ECONNABORTED) && (urb->status != ECONNRESET) &&
-> > +		if ((urb->status != -ECONNABORTED) && (urb->status != -ECONNRESET) &&
-> >   			    (urb->status != -ENOENT)) {
-> 
-> This is not what the author intended, obviously. But I am not quite sure
-> what happens because of it. Seems like we unlink some things which are
+A loss of speed is a loss of functionality, and would not be accepted.
 
-This is my concirn too. The current behaviour is in fact just
+Lee
 
-> > -		if ((urb->status != -ECONNABORTED) && (urb->status != ECONNRESET) &&
-> > +           if ((urb->status != -ECONNABORTED) &&
-> >                         (urb->status != -ENOENT)) {
-
-and nobody complains...:-) So, maybe this would be the right fix? At least 
-safe in that it cannot break anything:-) But I don't understand that code 
-very well. E.g., I don't understand why about 15 lines above the code in 
-question
-
-		if (urb->complete) {
-			//dbg("process_interrupt: calling completion, status %i",status);
-			urb->status = status;
-
-i.e., if (!urb->completion) urb->status is not set, so, depending on 
-whether the urb has ->completion either the old or the new status will be 
-tested. Is this really correct? And a couple lines above that "goto 
-recycle;" is superfluous...
-
-Thanks
-Guennadi
-
-> about to return anyway... and then return -104 instead of -84. This
-> may be relatively harmless. At worst, the driver resubmits and gets
-> its -84 that way.
-> 
-> I vote to apply this and see what happens. We are early in 2.4.33 cycle,
-> so it should be safe.
-> 
-> -- Pete
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
----
-Guennadi Liakhovetski

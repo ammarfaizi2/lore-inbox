@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWAVIA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWAVIR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbWAVIA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 03:00:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbWAVIAZ
+	id S932240AbWAVIR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 03:17:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWAVIR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 03:00:25 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34827 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932143AbWAVIAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 03:00:25 -0500
-Date: Sun, 22 Jan 2006 08:00:15 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Atsushi Nemoto <anemo@mba.ocn.ne.jp>, linux-kernel@vger.kernel.org,
-       ralf@linux-mips.org
-Subject: Re: [PATCH] serial: serial_txx9 driver update
-Message-ID: <20060122080015.GA10398@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Atsushi Nemoto <anemo@mba.ocn.ne.jp>, linux-kernel@vger.kernel.org,
-	ralf@linux-mips.org
-References: <20060118.021901.71085469.anemo@mba.ocn.ne.jp> <20060121233649.51211403.akpm@osdl.org>
+	Sun, 22 Jan 2006 03:17:28 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39377 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932226AbWAVIR0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 03:17:26 -0500
+Date: Sun, 22 Jan 2006 09:16:38 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Al Boldi <a1426z@gawab.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] VM: I have a dream...
+Message-ID: <20060122081637.GA1543@elf.ucw.cz>
+References: <200601212108.41269.a1426z@gawab.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060121233649.51211403.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200601212108.41269.a1426z@gawab.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 21, 2006 at 11:36:49PM -0800, Andrew Morton wrote:
-> Atsushi Nemoto <anemo@mba.ocn.ne.jp> wrote:
-> >
-> >  serial_txx9_verify_port(struct uart_port *port, struct serial_struct *ser)
-> >   {
-> >  -	if (ser->irq < 0 ||
-> >  -	    ser->baud_base < 9600 || ser->type != PORT_TXX9)
-> >  +	unsigned long new_port = (unsigned long)ser->port +
-> >  +		((unsigned long)ser->port_high << ((sizeof(long) - sizeof(int)) * 8));
+On So 21-01-06 21:08:41, Al Boldi wrote:
+> A long time ago, when i was a kid, I had dream. It went like this:
 > 
-> Are you sure about this part?  Shifting something left by sizeof(something)
-> seems very strange.  It'll give different results on 64-bit machines for
-> the same hardware.  Are you sure it wasn't supposed to be an addition?
+> I am waking up in the twenty-first century and start my computer.
+> After completing the boot sequence, I start top to find that my memory is 
+> equal to total disk-capacity.  What's more, there is no more swap.
+> Apps are executed inplace, as if already loaded.
+> Physical RAM is used to cache slower storage RAM, much the same as the CPU 
+> cache RAM caches slower physical RAM.
 
-There is a definition for that constant - it's called HIGH_BITS_OFFSET.
-No need to try to buggily recreate it.
+...and then you try to execute mozilla in place, and your dream slowly
+turns into nightmare, as letters start to appear, pixel by pixel...
+
+[swap is backing store for anonymous memory. Think about it. You need
+swap as long as you support malloc. You could always provide filename
+with malloc, but hey, that starts to look like IBM mainframe. Plus
+ability to powercycle the machine and *have* it boot (not continue
+where it left) is lifesaver.]
+								Pavel
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Thanks, Sharp!

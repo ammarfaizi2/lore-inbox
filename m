@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWAVTYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWAVTZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750933AbWAVTYt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 14:24:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWAVTYs
+	id S1751091AbWAVTZH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 14:25:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbWAVTZH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 14:24:48 -0500
-Received: from wproxy.gmail.com ([64.233.184.207]:16059 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750914AbWAVTYs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 14:24:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Lreat+RydjD8cbl0FWaZhAVttpkX45lhFB8il8EQ6rTMSK9Bkcr8IxypWSUiU9ByUYcsU9gYSnFRTHzLIFobpWt5R5aqiC5iSE7hBtePIECG93EBKg8UahyvzadZVSFjjwbY5fpByZdr6cDylgPsZ4k4td33FvnESE81WgYKahg=
-Message-ID: <787b0d920601221117l78a92fd1udc8601068dbde42c@mail.gmail.com>
-Date: Sun, 22 Jan 2006 14:17:44 -0500
-From: Albert Cahalan <acahalan@gmail.com>
+	Sun, 22 Jan 2006 14:25:07 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:55312 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751027AbWAVTZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 14:25:01 -0500
+Date: Sun, 22 Jan 2006 20:25:01 +0100
+From: Adrian Bunk <bunk@stusta.de>
 To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH] add /proc/*/pmap files
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <1137940577.3328.14.camel@laptopd505.fenrus.org>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       John Richard Moser <nigelenki@comcast.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: soft update vs journaling?
+Message-ID: <20060122192501.GI10003@stusta.de>
+References: <43D3295E.8040702@comcast.net> <Pine.LNX.4.61.0601220945160.5126@yvahk01.tjqt.qr> <20060122190533.GH10003@stusta.de> <1137956898.3328.38.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <787b0d920601220150n2e34e376i856cc583a372e1f2@mail.gmail.com>
-	 <1137940577.3328.14.camel@laptopd505.fenrus.org>
+In-Reply-To: <1137956898.3328.38.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/22/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Sun, 2006-01-22 at 04:50 -0500, Albert Cahalan wrote:
-> > This adds a few things needed by the pmap command.
-> > They show up in /proc/*/pmap files.
->
->
-> also since this shows filenames and such, could you make the permissions
-> of the pmap file be 0400 ? (yes I know some others in the same dir
-> aren't 0400 yet, but I hope that that can be changed in the future,
-> adding more of these should be avoided for information-leak/exposure
-> reasons)
+On Sun, Jan 22, 2006 at 08:08:17PM +0100, Arjan van de Ven wrote:
+> On Sun, 2006-01-22 at 20:05 +0100, Adrian Bunk wrote:
+> > On Sun, Jan 22, 2006 at 09:51:10AM +0100, Jan Engelhardt wrote:
+> > >...
+> > >  - I would not use a journalling filesystem at all on media that degrades
+> > >    faster as harddisks (flash drives, CD-RWs/DVD-RWs/RAMs).
+> > >    There are specially-crafted filesystems for that, mostly jffs and udf.
+> > >...
+> > 
+> > [ ] you know what the "j" in "jffs" stands for
+> 
+> it stands for "logging" since jffs2 at least is NOT a journalling
+> filesystem.... but a logging one. I assume jffs is too.
 
-I thought it was the addresses you'd object to.
+Ah, sorry.
 
-I was thinking I'd follow up with a patch to make things
-a bit more logical as far as info exposure goes. It makes
-no sense to have the /proc/*/exe link fail a readlink()
-when one can reliably guess that data from elsewhere.
+It seems I confused this with Reiser4 and it's wandering logs.
 
-I notice that Fedora Core 4 shipped with /proc/*/smaps
-files that were readable, but /proc/*/maps files that were
-not readable. (at least, a recent kernel update did)
+cu
+Adrian
 
-As of now, I'm keeping mainstream kernel policy as is.
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

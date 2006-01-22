@@ -1,202 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbWAVVil@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWAVVri@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750914AbWAVVil (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 16:38:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWAVVil
+	id S1750862AbWAVVri (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 16:47:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWAVVri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 16:38:41 -0500
-Received: from xproxy.gmail.com ([66.249.82.207]:38595 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750773AbWAVVik (ORCPT
+	Sun, 22 Jan 2006 16:47:38 -0500
+Received: from fmr13.intel.com ([192.55.52.67]:4015 "EHLO
+	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1750862AbWAVVrh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 16:38:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=q8aWtBwK4jRdy5Akq66I2B8Cv+r1/IQlBer6idpg8axZ523eVQi/8o/dolO80B6mw+zwqlXJ2awaKovI/cZtYoBaxsl5rA8pZZfhX4e/Qp2KP12M5kDk1y14b1WAp8sGL05mjOxswH7rM57Z1ybCnGG6Y7QWh5IM5y9x8Nnsz6w=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ide-tape: attempt to handle copy_*_user() failures
-Date: Sun, 22 Jan 2006 22:38:41 +0100
-User-Agent: KMail/1.9
-Cc: Gadi Oxman <gadio@netvision.net.il>
+	Sun, 22 Jan 2006 16:47:37 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601222238.41707.jesper.juhl@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: SMP+nosmp=hang [was: Re: 2.6.15-rc5-mm2]
+Date: Sun, 22 Jan 2006 16:47:24 -0500
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3005CA25F3@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: SMP+nosmp=hang [was: Re: 2.6.15-rc5-mm2]
+Thread-Index: AcYe6j1Xk7DQvf1qSZeQye3YikTWMQAstYiw
+From: "Brown, Len" <len.brown@intel.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "J.A. Magallon" <jamagallon@able.es>
+Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 22 Jan 2006 21:47:27.0482 (UTC) FILETIME=[6FEDCDA0:01C61F9D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I think nosmp has been broken for a long time:
 
-Attempt to handle copy_*_user() failures in 
-drivers/ide/ide-tape.c::idetape_copy_stage_*_user
+http://bugzilla.kernel.org/show_bug.cgi?id=1641
 
-drivers/ide/ide-tape.c:2663: warning: ignoring return value of `copy_from_user', declared with attribute warn_unused_result
-drivers/ide/ide-tape.c:2690: warning: ignoring return value of `copy_to_user', declared with attribute warn_unused_result
+try maxcpus=1 instead of nosmp.
 
-Due to lack of hardware I'm unfortunately not able to test this patch 
-beyond making sure it compiles.
-
-
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- drivers/ide/ide-tape.c |   48 ++++++++++++++++++++++++++++++++----------------
- 1 files changed, 32 insertions(+), 16 deletions(-)
-
---- linux-2.6.16-rc1-mm2-orig/drivers/ide/ide-tape.c	2006-01-20 21:50:44.000000000 +0100
-+++ linux-2.6.16-rc1-mm2/drivers/ide/ide-tape.c	2006-01-22 22:34:59.000000000 +0100
-@@ -2646,21 +2646,23 @@ static idetape_stage_t *idetape_kmalloc_
- 	return __idetape_kmalloc_stage(tape, 0, 0);
- }
- 
--static void idetape_copy_stage_from_user (idetape_tape_t *tape, idetape_stage_t *stage, const char __user *buf, int n)
-+static unsigned long idetape_copy_stage_from_user (idetape_tape_t *tape, idetape_stage_t *stage, const char __user *buf, int n)
- {
- 	struct idetape_bh *bh = tape->bh;
- 	int count;
-+	unsigned long not_copied;
- 
- 	while (n) {
- #if IDETAPE_DEBUG_BUGS
- 		if (bh == NULL) {
- 			printk(KERN_ERR "ide-tape: bh == NULL in "
- 				"idetape_copy_stage_from_user\n");
--			return;
-+			return 0;
- 		}
- #endif /* IDETAPE_DEBUG_BUGS */
- 		count = min((unsigned int)(bh->b_size - atomic_read(&bh->b_count)), (unsigned int)n);
--		copy_from_user(bh->b_data + atomic_read(&bh->b_count), buf, count);
-+		not_copied = copy_from_user(bh->b_data + atomic_read(&bh->b_count), buf, count);
-+		count -= not_copied;
- 		n -= count;
- 		atomic_add(count, &bh->b_count);
- 		buf += count;
-@@ -2669,26 +2671,30 @@ static void idetape_copy_stage_from_user
- 			if (bh)
- 				atomic_set(&bh->b_count, 0);
- 		}
-+		if (not_copied)
-+			return not_copied;
- 	}
- 	tape->bh = bh;
-+	return 0;
- }
- 
--static void idetape_copy_stage_to_user (idetape_tape_t *tape, char __user *buf, idetape_stage_t *stage, int n)
-+static unsigned long idetape_copy_stage_to_user (idetape_tape_t *tape, char __user *buf, idetape_stage_t *stage, int n)
- {
- 	struct idetape_bh *bh = tape->bh;
- 	int count;
-+	unsigned long not_copied;
- 
- 	while (n) {
- #if IDETAPE_DEBUG_BUGS
- 		if (bh == NULL) {
- 			printk(KERN_ERR "ide-tape: bh == NULL in "
- 				"idetape_copy_stage_to_user\n");
--			return;
-+			return 0;
- 		}
- #endif /* IDETAPE_DEBUG_BUGS */
- 		count = min(tape->b_count, n);
--		copy_to_user(buf, tape->b_data, count);
--		n -= count;
-+		not_copied = copy_to_user(buf, tape->b_data, count);
-+		n -= count - not_copied;
- 		tape->b_data += count;
- 		tape->b_count -= count;
- 		buf += count;
-@@ -2699,7 +2705,10 @@ static void idetape_copy_stage_to_user (
- 				tape->b_count = atomic_read(&bh->b_count);
- 			}
- 		}
-+		if (not_copied)
-+			return not_copied;
- 	}
-+	return 0;
- }
- 
- static void idetape_init_merge_stage (idetape_tape_t *tape)
-@@ -3719,6 +3728,7 @@ static ssize_t idetape_chrdev_read (stru
- 	struct ide_tape_obj *tape = ide_tape_f(file);
- 	ide_drive_t *drive = tape->drive;
- 	ssize_t bytes_read,temp, actually_read = 0, rc;
-+	unsigned long not_copied;
- 
- #if IDETAPE_DEBUG_LOG
- 	if (tape->debug_level >= 3)
-@@ -3737,7 +3747,8 @@ static ssize_t idetape_chrdev_read (stru
- 		return (0);
- 	if (tape->merge_stage_size) {
- 		actually_read = min((unsigned int)(tape->merge_stage_size), (unsigned int)count);
--		idetape_copy_stage_to_user(tape, buf, tape->merge_stage, actually_read);
-+		not_copied = idetape_copy_stage_to_user(tape, buf, tape->merge_stage, actually_read);
-+		actually_read -= not_copied;
- 		buf += actually_read;
- 		tape->merge_stage_size -= actually_read;
- 		count -= actually_read;
-@@ -3746,7 +3757,8 @@ static ssize_t idetape_chrdev_read (stru
- 		bytes_read = idetape_add_chrdev_read_request(drive, tape->capabilities.ctl);
- 		if (bytes_read <= 0)
- 			goto finish;
--		idetape_copy_stage_to_user(tape, buf, tape->merge_stage, bytes_read);
-+		not_copied = idetape_copy_stage_to_user(tape, buf, tape->merge_stage, bytes_read);
-+		bytes_read -= not_copied;
- 		buf += bytes_read;
- 		count -= bytes_read;
- 		actually_read += bytes_read;
-@@ -3756,7 +3768,8 @@ static ssize_t idetape_chrdev_read (stru
- 		if (bytes_read <= 0)
- 			goto finish;
- 		temp = min((unsigned long)count, (unsigned long)bytes_read);
--		idetape_copy_stage_to_user(tape, buf, tape->merge_stage, temp);
-+		not_copied = idetape_copy_stage_to_user(tape, buf, tape->merge_stage, temp);
-+		temp -= not_copied;
- 		actually_read += temp;
- 		tape->merge_stage_size = bytes_read-temp;
- 	}
-@@ -3778,6 +3791,7 @@ static ssize_t idetape_chrdev_write (str
- 	struct ide_tape_obj *tape = ide_tape_f(file);
- 	ide_drive_t *drive = tape->drive;
- 	ssize_t retval, actually_written = 0;
-+	unsigned long not_copied;
- 
- 	/* The drive is write protected. */
- 	if (tape->write_prot)
-@@ -3834,7 +3848,8 @@ static ssize_t idetape_chrdev_write (str
- 		}
- #endif /* IDETAPE_DEBUG_BUGS */
- 		actually_written = min((unsigned int)(tape->stage_size - tape->merge_stage_size), (unsigned int)count);
--		idetape_copy_stage_from_user(tape, tape->merge_stage, buf, actually_written);
-+		not_copied = idetape_copy_stage_from_user(tape, tape->merge_stage, buf, actually_written);
-+		actually_written -= not_copied;
- 		buf += actually_written;
- 		tape->merge_stage_size += actually_written;
- 		count -= actually_written;
-@@ -3847,17 +3862,18 @@ static ssize_t idetape_chrdev_write (str
- 		}
- 	}
- 	while (count >= tape->stage_size) {
--		idetape_copy_stage_from_user(tape, tape->merge_stage, buf, tape->stage_size);
--		buf += tape->stage_size;
--		count -= tape->stage_size;
-+		not_copied = idetape_copy_stage_from_user(tape, tape->merge_stage, buf, tape->stage_size);
-+		buf += tape->stage_size - not_copied;
-+		count -= tape->stage_size - not_copied;
- 		retval = idetape_add_chrdev_write_request(drive, tape->capabilities.ctl);
--		actually_written += tape->stage_size;
-+		actually_written += tape->stage_size - not_copied;
- 		if (retval <= 0)
- 			return (retval);
- 	}
- 	if (count) {
- 		actually_written += count;
--		idetape_copy_stage_from_user(tape, tape->merge_stage, buf, count);
-+		not_copied = idetape_copy_stage_from_user(tape, tape->merge_stage, buf, count);
-+		count -= not_copied;
- 		tape->merge_stage_size += count;
- 	}
- 	return (actually_written);
+-Len

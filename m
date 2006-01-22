@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWAVTiT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWAVToW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751166AbWAVTiT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 14:38:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWAVTiT
+	id S1750801AbWAVToW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 14:44:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWAVToW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 14:38:19 -0500
-Received: from uproxy.gmail.com ([66.249.92.192]:30899 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751166AbWAVTiS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 14:38:18 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=pKvk566tUGIkJvZVPgJuXg4CYyWGKiPiPL3AQ3g6ILCMtJoYO3dNsxmPC0ds8cNzmv+lPNvxMHEVFxu0+egeG9FQOqG4bmri6bt2VS2xUDd3MXCo+lWx5kQHxbPPcNAx880PANa9B3msltn4jniFCOoBfHIPTniW5or87/tQahs=
-Date: Sun, 22 Jan 2006 22:55:50 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Marek Va?ut <marek.vasut@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Guillemot joystick not working since 2.6.14
-Message-ID: <20060122195550.GA19983@mipter.zuzino.mipt.ru>
-References: <200601221250.26792.marek.vasut@gmail.com>
+	Sun, 22 Jan 2006 14:44:22 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:61647 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750801AbWAVToW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 14:44:22 -0500
+Subject: Re: [PATCH] add /proc/*/pmap files
+From: Arjan van de Ven <arjan@infradead.org>
+To: Albert Cahalan <acahalan@gmail.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <787b0d920601221117l78a92fd1udc8601068dbde42c@mail.gmail.com>
+References: <787b0d920601220150n2e34e376i856cc583a372e1f2@mail.gmail.com>
+	 <1137940577.3328.14.camel@laptopd505.fenrus.org>
+	 <787b0d920601221117l78a92fd1udc8601068dbde42c@mail.gmail.com>
+Content-Type: text/plain
+Date: Sun, 22 Jan 2006 20:44:19 +0100
+Message-Id: <1137959059.3328.45.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601221250.26792.marek.vasut@gmail.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 22, 2006 at 12:50:26PM +0100, Marek Va?ut wrote:
-> I found a problem with guillemot "force feedback joystick". It?s not working
-> since 2.6.13.2-mm3. 2.6.14.2 wasn?t working too. 2.6.15-mm2 is the same. When
-> I plug it in, it prints "configuration #1 chosen from 1 choice" "registered
-> new driver iforce" and >"iforce: probe of 4-2:1.0 failed with error -12"<
-> It was working well on 2.6.13.1, but now it doesnt. I am not able to debug the 
-> kernel. Could you please fix this or tell me what am I doing wrong? Thanks.
+On Sun, 2006-01-22 at 14:17 -0500, Albert Cahalan wrote:
+> On 1/22/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> > On Sun, 2006-01-22 at 04:50 -0500, Albert Cahalan wrote:
+> > > This adds a few things needed by the pmap command.
+> > > They show up in /proc/*/pmap files.
+> >
+> >
+> > also since this shows filenames and such, could you make the permissions
+> > of the pmap file be 0400 ? (yes I know some others in the same dir
+> > aren't 0400 yet, but I hope that that can be changed in the future,
+> > adding more of these should be avoided for information-leak/exposure
+> > reasons)
+> 
+> I thought it was the addresses you'd object to.
 
-Please try this patch
+well both ;)
 
---- a/drivers/input/joystick/iforce/iforce-main.c
-+++ b/drivers/input/joystick/iforce/iforce-main.c
-@@ -345,7 +345,7 @@ int iforce_init_device(struct iforce *if
- 	int i;
- 
- 	input_dev = input_allocate_device();
--	if (input_dev)
-+	if (!input_dev)
- 		return -ENOMEM;
- 
- 	init_waitqueue_head(&iforce->wait);
+knowing that you're listening to Mrs Stefani's music rather than
+watching her music clips is something you might not want to spread to
+other users of your system. Or in other words, open files already
+disclose "private" stuff. 
+
+> I notice that Fedora Core 4 shipped with /proc/*/smaps
+> files that were readable, but /proc/*/maps files that were
+> not readable. (at least, a recent kernel update did)
+
+that'd be a mistake
+
+
+> As of now, I'm keeping mainstream kernel policy as is.
+
+you're making a NEW file, so there is no "mainstream policy" yet. Please
+do it right the first time so that it doesn't have to change later...
+
 

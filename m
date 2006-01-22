@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWAVEIU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWAVER5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932341AbWAVEIU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 23:08:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWAVEIU
+	id S932371AbWAVER5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 23:17:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWAVER5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 23:08:20 -0500
-Received: from spooner.celestial.com ([192.136.111.35]:44479 "EHLO
-	spooner.celestial.com") by vger.kernel.org with ESMTP
-	id S932341AbWAVEIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 23:08:20 -0500
-Date: Sat, 21 Jan 2006 23:14:27 -0500
-From: Kurt Wall <kwall@kurtwerks.com>
-To: Dave Jones <davej@redhat.com>, Erwin Rol <mailinglists@erwinrol.com>,
-       Andrew Morton <akpm@osdl.org>, "Carlo E. Prelz" <fluido@fluido.as>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ATI RS480-based motherboard: stuck while booting with kernel >= 2.6.15 rc1
-Message-ID: <20060122041427.GA6183@kurtwerks.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Erwin Rol <mailinglists@erwinrol.com>, Andrew Morton <akpm@osdl.org>,
-	"Carlo E. Prelz" <fluido@fluido.as>, linux-kernel@vger.kernel.org
-References: <20060120123202.GA1138@epio.fluido.as> <20060121010932.5d731f90.akpm@osdl.org> <20060121125741.GA13470@epio.fluido.as> <20060121125822.570b0d99.akpm@osdl.org> <1137878926.2976.28.camel@xpc.home.erwinrol.com> <20060121220402.GC28051@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060121220402.GC28051@redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.16-rc1krw
-X-Woot: Woot!
+	Sat, 21 Jan 2006 23:17:57 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:13795 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932371AbWAVER5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 23:17:57 -0500
+Message-ID: <43D30760.4090400@pobox.com>
+Date: Sat, 21 Jan 2006 23:17:36 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martin Waitz <tali@admingilde.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] DocBook: fix some comments in drivers/scsi
+References: <20060121214011.GD30777@admingilde.org>
+In-Reply-To: <20060121214011.GD30777@admingilde.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Martin Waitz wrote: > Update some kernel-doc comments
+	to match the code > > Signed-off-by: Martin Waitz <tali@admingilde.org>
+	> > --- > > drivers/scsi/ata_piix.c | 1 + > drivers/scsi/libata-core.c
+	| 31 +++++++++++++++++ > drivers/scsi/libata-scsi.c | 2 ++ [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 21, 2006 at 05:04:02PM -0500, Dave Jones took 21 lines to write:
-> On Sat, Jan 21, 2006 at 10:28:46PM +0100, Erwin Rol wrote:
->  > I had also had the problem that my Shuttle ST20G5 (a RS480 IGP based
->  > system) hung in pci_init. This was with one of the Fedora Rawhide
->  > kernels, after reporting it  Dave Jones fixed it cause the next rawhide
->  > kernel worked again, maybe he could explain what it was, and where the
->  > fix is (if it is the same thing, but it really looks like it).
+Martin Waitz wrote:
+> Update some kernel-doc comments to match the code
 > 
-> That was due to us carrying one of the 'make the clock not tick
-> at twice the speed on ati chipsets' patches. Matthew Garrett's variant iirc.
-> It worked fine in .14, but caused havoc in .15+
+> Signed-off-by: Martin Waitz <tali@admingilde.org>
 > 
-> I put it down to the problem being fixed in other ways upstream.
+> ---
+> 
+>  drivers/scsi/ata_piix.c    |    1 +
+>  drivers/scsi/libata-core.c |   31 +++++++++++++++++--------------
+>  drivers/scsi/libata-scsi.c |    2 ++
 
-Heh. I think you mean s/fixed/worked around/.
+Please copy the maintainer (me and linux-ide), particularly since there 
+are other patches in this area...
 
-The bugme tracking this, 3927, is a joyous muddle of patches, 
-patches to patches, workarounds, and dueling command line options. 
-I ported this patch,
-http://www.ussg.iu.edu/hypermail/linux/kernel/0504.0/1625.html,
-to 2.6.16-rc1 to fix my pain, but 1) it didn't work without the
-disable_timer_pin_1 kernel option and, 2) I don't think it's a fix 
-so much as a workaround.
+	Jeff
 
-Kurt
--- 
-I can read your mind, and you should be ashamed of yourself.
+
+

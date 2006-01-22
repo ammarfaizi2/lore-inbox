@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWAVTvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWAVTzl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbWAVTvG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 14:51:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWAVTvG
+	id S1751305AbWAVTzl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 14:55:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWAVTzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 14:51:06 -0500
-Received: from uproxy.gmail.com ([66.249.92.193]:56143 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751326AbWAVTvF convert rfc822-to-8bit
+	Sun, 22 Jan 2006 14:55:41 -0500
+Received: from xproxy.gmail.com ([66.249.82.192]:62658 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751305AbWAVTzk convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 14:51:05 -0500
+	Sun, 22 Jan 2006 14:55:40 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=LNMxht1L0dJ1K7cCsiWGx+5qHSdQf+3vQ7BYHvfyO2DSGiACMW4PLO3kp+ByiLm4I6h+voAhSE31VG1aTb/IFbvzoAmFc/F6sBa8HhnrJh9KI9j/8X5qXlOQz63j+xtgMSVgVDJi32vLZC0MUIcNTil+3lZ0FKfChDv5xRvMxxg=
-Date: Sun, 22 Jan 2006 20:50:39 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: nigelenki@comcast.net, linux-kernel@vger.kernel.org
-Subject: Re: soft update vs journaling?
-Message-Id: <20060122205039.e8842bae.diegocg@gmail.com>
-In-Reply-To: <20060122093144.GA7127@thunk.org>
-References: <43D3295E.8040702@comcast.net>
-	<20060122093144.GA7127@thunk.org>
-X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LiTZCXJ79d6N8v+/eW4OczGpKWzRgL0OtBH9m6Bt4Tkmpp2O+IDJw1RQykj+zUDm3v6LfXMotvMH2Iqd98QTyuof8qYgCWmvvUqUsoO75a8htBJQDvSR9au+0pCd9dSsK8luNyilqMK8gVXk+enr+jmCmLIWjhcNfGF1/Nu20Qc=
+Message-ID: <986ed62e0601221155x6a57e353vf14db02cc219c09@mail.gmail.com>
+Date: Sun, 22 Jan 2006 11:55:37 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Al Boldi <a1426z@gawab.com>
+Subject: Re: [RFC] VM: I have a dream...
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <200601212108.41269.a1426z@gawab.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200601212108.41269.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Sun, 22 Jan 2006 04:31:44 -0500,
-Theodore Ts'o <tytso@mit.edu> escribió:
+On 1/21/06, Al Boldi <a1426z@gawab.com> wrote:
+> A long time ago, when i was a kid, I had dream. It went like this:
+[snip]
 
-
-> One major downside with Soft Updates that you haven't mentioned in
-> your note, is that the amount of complexity it adds to the filesystem
-> is tremendous; the filesystem has to keep track of a very complex
-> state machinery, with knowledge of about the ordering constraints of
-> each change to the filesystem and how to "back out" parts of the
-> change when that becomes necessary.
-
-
-And FreeBSD is implementing journaling for UFS and getting rid of 
-softupdates [1]. While this not proves that softupdates is "a bad idea",
-i think this proves why the added sofupdates complexity doesn't seem
-to pay off in the real world. 
-
-[1]: http://lists.freebsd.org/pipermail/freebsd-hackers/2004-December/009261.html
-
-"4.  Journaled filesystem.  While we can debate the merits of speed and
-data integrety of journalling vs. softupdates, the simple fact remains
-that softupdates still requires a fsck run on recovery, and the
-multi-terabyte filesystems that are possible these days make fsck a very
-long and unpleasant experience, even with bg-fsck.  There was work at
-some point at RPI to add journaling to UFS, but there hasn't been much
-status on that in a long time.  There have also been proposals and
-works-in-progress to port JFS, ReiserFS, and XFS.  Some of these efforts
-are still alive, but they need to be seen through to completion"
+FWIW, Mac OS X is one step closer to your vision than the typical
+Linux distribution: It has a directory for swapfiles -- /var/vm -- and
+it creates new swapfiles there as needed. (It used to be that each
+swapfile would be 80MB, but the iMac next to me just has a single 64MB
+swapfile, so maybe Mac OS 10.4 does something different now.)

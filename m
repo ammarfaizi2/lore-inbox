@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWAVW5g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbWAVXAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbWAVW5g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 17:57:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWAVW5g
+	id S932347AbWAVXAM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 18:00:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWAVXAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 17:57:36 -0500
-Received: from iabervon.org ([66.92.72.58]:62476 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S932330AbWAVW5f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 17:57:35 -0500
-Date: Sun, 22 Jan 2006 17:59:36 -0500 (EST)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: Michael Loftis <mloftis@wgops.com>
-cc: Bernd Petrovitsch <bernd@firmix.at>, Lee Revell <rlrevell@joe-job.com>,
-       Sven-Haegar Koch <haegar@sdinet.de>,
-       Matthew Frost <artusemrys@sbcglobal.net>, linux-kernel@vger.kernel.org,
-       James Courtier-Dutton <James@superbug.co.uk>
-Subject: Re: Development tree, PLEASE?
-In-Reply-To: <4BC1BE8FDDB41AAA7205E258@dhcp-2-206.wgops.com>
-Message-ID: <Pine.LNX.4.64.0601221723360.25300@iabervon.org>
-References: <20060121031958.98570.qmail@web81905.mail.mud.yahoo.com> 
- <1FA093EB58B02DE48E424157@dhcp-2-206.wgops.com>  <1137829140.3241.141.camel@mindpipe>
-  <Pine.LNX.4.64.0601212250020.31384@mercury.sdinet.de>  <1137881882.411.23.camel@mindpipe>
-  <3B0BEE012630B9B11D1209E5@dhcp-2-206.wgops.com>  <1137883638.411.38.camel@mindpipe>
- <1137883888.3291.53.camel@gimli.at.home> <4BC1BE8FDDB41AAA7205E258@dhcp-2-206.wgops.com>
+	Sun, 22 Jan 2006 18:00:12 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:41026 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932347AbWAVXAK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 18:00:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=to6GcXmZ6iuYNHgi4bMUwA39Oa0vSIA3Aln56UJ8cwdaKXyLL5qD4tpKNwVPlMtv3vDEdJgnydJe9h/iBBZLZfaeQqP/g7wVSIbbyWzktHaVkxQCHKiVP/4pM59ZS9eD2Ib0ZMYXsyHWZy8n/YI3C12z4h84tygZcDvyX5XZs3s=
+Message-ID: <9a8748490601221452j41491984j6da14fa53ba9af55@mail.gmail.com>
+Date: Sun, 22 Jan 2006 23:52:52 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Subject: Re: [PATCH 0/4] pmap
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, arjan@infradead.org
+In-Reply-To: <200601222215.k0MMFOYD213932@saturn.cs.uml.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200601222215.k0MMFOYD213932@saturn.cs.uml.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Jan 2006, Michael Loftis wrote:
+On 1/22/06, Albert D. Cahalan <acahalan@cs.uml.edu> wrote:
+>
+[snip]
+>
+> I found an old email account that still supports adding raw binay data
+> to an email message body. I really wish we could get away from this,
 
-> Yes, I realise all of this.  But everyone seems to get this damned 
-> territorial attitude that I want to see kernel development stopped, 
-> quite the opposite.  All I want to see is a stable target for certain 
-> windows of time.  So that way when bugs are fixed that are trivial 
-> there's a place to go without upgrading scads of userland stuff or 
-> worrying about lots of unrelated change.
+1. having patches inline in messages instead of as attachments make
+initial viewing of the patches much easier - no need to open a
+sepperate attachment just to review a patch.
+2. Commenting on patches is a lot easier when you can just reply to
+the message and have the patch quoted inline and then add your
+comments.
+3. saving patches for application is easy when you can just save the
+email message with the patch inline - then you have the explanation of
+the patch and the patch itself nicely contained in a single file (and
+patch will conveniently strip the extra text before the patch-proper
+when you apply it).
+4. You don't need an account that's able to add 'binary data' -
+patches should preferable be in 7-bit ASCII text form, not 8-bit.
 
-I believe that, if you want to maintain a 2.6.13.y (for example) tree 
-after the -stable team has moved on, you'd be perfectly welcome, and could 
-probably even do it on kernel.org. It might not even be that hard to get 
-the necessary patches, given that -stable sees all of the long-standing 
-stability/security bugs (so you can watch that list for ones you should 
-include patches for), and the regressions will probably mostly be fixed 
-before you get the series.
+And if your current MUA doesn't allow you to add text files inline,
+then there are several that do - mutt, pine & kmail come to mind and
+there are several others.
 
-I think that the reason that nobody's done this already isn't that it 
-would be very difficult, but that distributions don't actually see a value 
-in using old kernel series and are happy with -stable. If you have a 
-reason to stick with a series longer, it might be worth the trouble to 
-you.
+> because it makes contributions damn near impossible for some people.
+> Other people are far worse off than I am.
+>
+I'm currious - in what situations are you prevented from sending
+patches inline in emails??
 
-	-Daniel
-*This .sig left intentionally blank*
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

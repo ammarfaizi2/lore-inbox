@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWAVRKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWAVRKt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751287AbWAVRKY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 12:10:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbWAVRKY
+	id S1751290AbWAVRKt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 12:10:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWAVRKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 12:10:24 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35855 "HELO
+	Sun, 22 Jan 2006 12:10:49 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36623 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751287AbWAVRKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 12:10:23 -0500
-Date: Sun, 22 Jan 2006 18:10:22 +0100
+	id S1751290AbWAVRKs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 12:10:48 -0500
+Date: Sun, 22 Jan 2006 18:10:47 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-Cc: Michael Krufky <mkrufky@gmail.com>, linux-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org
-Subject: [RFC: 2.6 patch] drivers/media/dvb/: possible cleanups
-Message-ID: <20060122171022.GA10003@stusta.de>
+To: acme@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [2.6 patch] move some code to net/ipx/af_ipx.c
+Message-ID: <20060122171047.GB10003@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,15 +22,7 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This patch contains the following possible cleanups:
-- make needlessly global code static
-- #if 0 the following unused global functions:
-  - b2c2/flexcop-dma.c: flexcop_dma_control_packet_irq()
-  - b2c2/flexcop-dma.c: flexcop_dma_config_packet_count()
-
-Please review which of these changes do make sense and which conflict 
-with pending patches.
+This patch moves some code only used in this file to net/ipx/af_ipx.c .
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
@@ -41,257 +32,375 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 This patch was already sent on:
 - 14 Jan 2006
 
- drivers/media/dvb/b2c2/flexcop-common.h      |    2 -
- drivers/media/dvb/b2c2/flexcop-dma.c         |    4 ++
- drivers/media/dvb/b2c2/flexcop-misc.c        |    6 ++--
- drivers/media/dvb/b2c2/flexcop-reg.h         |    4 --
- drivers/media/dvb/dvb-usb/cxusb.c            |    8 ++---
- drivers/media/dvb/dvb-usb/dvb-usb-firmware.c |    8 +++--
- drivers/media/dvb/dvb-usb/dvb-usb.h          |    1 
- drivers/media/dvb/dvb-usb/vp702x.c           |    6 ++--
- drivers/media/dvb/dvb-usb/vp702x.h           |    2 -
- drivers/media/dvb/ttpci/av7110.h             |    2 -
- drivers/media/dvb/ttpci/av7110_ir.c          |   26 +++++++++----------
- 11 files changed, 33 insertions(+), 36 deletions(-)
+ include/net/p8022.h   |   13 -----
+ net/802/Makefile      |   14 ++---
+ net/802/p8022.c       |   66 ---------------------------
+ net/802/p8023.c       |   61 -------------------------
+ net/8021q/vlan.c      |    1 
+ net/8021q/vlan_dev.c  |    1 
+ net/ethernet/Makefile |    2 
+ net/ethernet/pe2.c    |   39 ----------------
+ net/ipx/af_ipx.c      |  102 ++++++++++++++++++++++++++++++++++++++++--
+ 9 files changed, 106 insertions(+), 193 deletions(-)
 
---- linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-common.h.old	2006-01-07 16:49:18.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-common.h	2006-01-07 16:49:28.000000000 +0100
-@@ -116,11 +116,9 @@
+--- linux-2.6.15-rc1-mm1-full/net/ethernet/Makefile.old	2005-11-18 02:15:17.000000000 +0100
++++ linux-2.6.15-rc1-mm1-full/net/ethernet/Makefile	2005-11-18 02:15:22.000000000 +0100
+@@ -4,5 +4,3 @@
  
- int flexcop_dma_control_timer_irq(struct flexcop_device *fc, flexcop_dma_index_t no, int onoff);
- int flexcop_dma_control_size_irq(struct flexcop_device *fc, flexcop_dma_index_t no, int onoff);
--int flexcop_dma_control_packet_irq(struct flexcop_device *fc, flexcop_dma_index_t no, int onoff);
- int flexcop_dma_config(struct flexcop_device *fc, struct flexcop_dma *dma, flexcop_dma_index_t dma_idx);
- int flexcop_dma_xfer_control(struct flexcop_device *fc, flexcop_dma_index_t dma_idx, flexcop_dma_addr_index_t index, int onoff);
- int flexcop_dma_config_timer(struct flexcop_device *fc, flexcop_dma_index_t dma_idx, u8 cycles);
--int flexcop_dma_config_packet_count(struct flexcop_device *fc, flexcop_dma_index_t dma_idx, u8 packets);
+ obj-y					+= eth.o
+ obj-$(CONFIG_SYSCTL)			+= sysctl_net_ether.o
+-obj-$(subst m,y,$(CONFIG_IPX))		+= pe2.o
+-obj-$(subst m,y,$(CONFIG_ATALK))	+= pe2.o
+--- linux-2.6.15-rc1-mm1-full/net/8021q/vlan.c.old	2005-11-18 02:19:40.000000000 +0100
++++ linux-2.6.15-rc1-mm1-full/net/8021q/vlan.c	2005-11-18 02:19:46.000000000 +0100
+@@ -26,7 +26,6 @@
+ #include <linux/mm.h>
+ #include <linux/in.h>
+ #include <linux/init.h>
+-#include <net/p8022.h>
+ #include <net/arp.h>
+ #include <linux/rtnetlink.h>
+ #include <linux/notifier.h>
+--- linux-2.6.15-rc1-mm1-full/net/8021q/vlan_dev.c.old	2005-11-18 02:19:55.000000000 +0100
++++ linux-2.6.15-rc1-mm1-full/net/8021q/vlan_dev.c	2005-11-18 02:19:58.000000000 +0100
+@@ -29,7 +29,6 @@
+ #include <linux/netdevice.h>
+ #include <linux/etherdevice.h>
+ #include <net/datalink.h>
+-#include <net/p8022.h>
+ #include <net/arp.h>
  
- /* from flexcop-eeprom.c */
- /* the PCI part uses this call to get the MAC address, the USB part has its own */
---- linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-dma.c.old	2006-01-07 16:49:37.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-dma.c	2006-01-07 16:50:25.000000000 +0100
-@@ -169,6 +169,8 @@
- }
- EXPORT_SYMBOL(flexcop_dma_config_timer);
+ #include "vlan.h"
+--- linux-2.6.15-rc1-mm1-full/net/ipx/af_ipx.c.old	2005-11-18 02:17:00.000000000 +0100
++++ linux-2.6.15-rc1-mm1-full/net/ipx/af_ipx.c	2005-11-18 02:26:01.000000000 +0100
+@@ -48,10 +48,10 @@
+ #include <linux/termios.h>
  
-+#if 0
-+
- /* packet IRQ does not exist in FCII or FCIIb - according to data book and tests */
- int flexcop_dma_control_packet_irq(struct flexcop_device *fc,
- 		flexcop_dma_index_t no,
-@@ -204,3 +206,5 @@
- 	return 0;
- }
- EXPORT_SYMBOL(flexcop_dma_config_packet_count);
-+
-+#endif  /*  0  */
---- linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-reg.h.old	2006-01-07 16:51:05.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-reg.h	2006-01-07 16:51:38.000000000 +0100
-@@ -16,8 +16,6 @@
- 	FLEXCOP_III,
- } flexcop_revision_t;
+ #include <net/ipx.h>
+-#include <net/p8022.h>
+ #include <net/psnap.h>
+ #include <net/sock.h>
+ #include <net/tcp_states.h>
++#include <net/llc.h>
  
--extern const char *flexcop_revision_names[];
--
- typedef enum {
- 	FC_UNK = 0,
- 	FC_AIR_DVB,
-@@ -34,8 +32,6 @@
- 	FC_PCI,
- } flexcop_bus_t;
+ #include <asm/uaccess.h>
  
--extern const char *flexcop_device_names[];
--
- /* FlexCop IBI Registers */
- #if defined(__LITTLE_ENDIAN)
- 	#include "flexcop_ibi_value_le.h"
---- linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-misc.c.old	2006-01-07 16:48:00.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-misc.c	2006-01-07 16:51:27.000000000 +0100
-@@ -36,14 +36,14 @@
- 	/* bus parts have to decide if hw pid filtering is used or not. */
- }
- 
--const char *flexcop_revision_names[] = {
-+static const char *flexcop_revision_names[] = {
- 	"Unkown chip",
- 	"FlexCopII",
- 	"FlexCopIIb",
- 	"FlexCopIII",
+@@ -1939,8 +1939,104 @@
+ 	.notifier_call	= ipxitf_device_event,
  };
  
--const char *flexcop_device_names[] = {
-+static const char *flexcop_device_names[] = {
- 	"Unkown device",
- 	"Air2PC/AirStar 2 DVB-T",
- 	"Air2PC/AirStar 2 ATSC 1st generation",
-@@ -54,7 +54,7 @@
- 	"Air2PC/AirStar 2 ATSC 3rd generation (HD5000)",
- };
- 
--const char *flexcop_bus_names[] = {
-+static const char *flexcop_bus_names[] = {
- 	"USB",
- 	"PCI",
- };
---- linux-2.6.15-mm2-full/drivers/media/dvb/dvb-usb/dvb-usb-firmware.c.old	2006-01-07 16:56:27.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/media/dvb/dvb-usb/dvb-usb-firmware.c	2006-01-07 16:57:06.000000000 +0100
-@@ -24,6 +24,9 @@
- 	{ .id = CYPRESS_FX2,     .name = "Cypress FX2",     .cpu_cs_register = 0xe600 },
- };
- 
-+static int dvb_usb_get_hexline(const struct firmware *fw, struct hexline *hx,
-+			       int *pos);
-+
- /*
-  * load a firmware packet to the device
-  */
-@@ -111,7 +114,8 @@
- 	return ret;
- }
- 
--int dvb_usb_get_hexline(const struct firmware *fw, struct hexline *hx, int *pos)
-+static int dvb_usb_get_hexline(const struct firmware *fw, struct hexline *hx,
-+			       int *pos)
- {
- 	u8 *b = (u8 *) &fw->data[*pos];
- 	int data_offs = 4;
-@@ -141,5 +145,3 @@
- 
- 	return *pos;
- }
--EXPORT_SYMBOL(dvb_usb_get_hexline);
--
---- linux-2.6.15-mm2-full/drivers/media/dvb/dvb-usb/vp702x.h.old	2006-01-07 16:57:23.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/media/dvb/dvb-usb/vp702x.h	2006-01-07 16:58:15.000000000 +0100
-@@ -102,8 +102,6 @@
- extern struct dvb_frontend * vp702x_fe_attach(struct dvb_usb_device *d);
- 
- extern int vp702x_usb_inout_op(struct dvb_usb_device *d, u8 *o, int olen, u8 *i, int ilen, int msec);
--extern int vp702x_usb_inout_cmd(struct dvb_usb_device *d, u8 cmd, u8 *o, int olen, u8 *i, int ilen, int msec);
- extern int vp702x_usb_in_op(struct dvb_usb_device *d, u8 req, u16 value, u16 index, u8 *b, int blen);
--extern int vp702x_usb_out_op(struct dvb_usb_device *d, u8 req, u16 value, u16 index, u8 *b, int blen);
- 
- #endif
---- linux-2.6.15-mm2-full/drivers/media/dvb/dvb-usb/vp702x.c.old	2006-01-07 16:57:37.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/media/dvb/dvb-usb/vp702x.c	2006-01-07 16:58:27.000000000 +0100
-@@ -53,7 +53,8 @@
- 	return ret;
- }
- 
--int vp702x_usb_out_op(struct dvb_usb_device *d, u8 req, u16 value, u16 index, u8 *b, int blen)
-+static int vp702x_usb_out_op(struct dvb_usb_device *d, u8 req, u16 value,
-+			     u16 index, u8 *b, int blen)
- {
- 	deb_xfer("out: req. %x, val: %x, ind: %x, buffer: ",req,value,index);
- 	debug_dump(b,blen,deb_xfer);
-@@ -88,7 +89,8 @@
- 	return ret;
- }
- 
--int vp702x_usb_inout_cmd(struct dvb_usb_device *d, u8 cmd, u8 *o, int olen, u8 *i, int ilen, int msec)
-+static int vp702x_usb_inout_cmd(struct dvb_usb_device *d, u8 cmd, u8 *o,
-+				int olen, u8 *i, int ilen, int msec)
- {
- 	u8 bout[olen+2];
- 	u8 bin[ilen+1];
---- linux-2.6.15-mm2-full/drivers/media/dvb/ttpci/av7110.h.old	2006-01-07 16:59:33.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/media/dvb/ttpci/av7110.h	2006-01-07 16:59:39.000000000 +0100
-@@ -261,8 +261,6 @@
- extern int ChangePIDs(struct av7110 *av7110, u16 vpid, u16 apid, u16 ttpid,
- 		       u16 subpid, u16 pcrpid);
- 
--extern int av7110_setup_irc_config (struct av7110 *av7110, u32 ir_config);
--
- extern int av7110_ir_init(struct av7110 *av7110);
- extern void av7110_ir_exit(struct av7110 *av7110);
- 
---- linux-2.6.15-mm2-full/drivers/media/dvb/ttpci/av7110_ir.c.old	2006-01-07 16:59:47.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/media/dvb/ttpci/av7110_ir.c	2006-01-07 17:00:21.000000000 +0100
-@@ -155,6 +155,19 @@
- }
- 
- 
-+static int av7110_setup_irc_config(struct av7110 *av7110, u32 ir_config)
+-extern struct datalink_proto *make_EII_client(void);
+-extern void destroy_EII_client(struct datalink_proto *);
++static int p8022_request(struct datalink_proto *dl, struct sk_buff *skb,
++			 unsigned char *dest)
 +{
-+	int ret = 0;
-+
-+	dprintk(4, "%p\n", av7110);
-+	if (av7110) {
-+		ret = av7110_fw_cmd(av7110, COMTYPE_PIDFILTER, SetIR, 1, ir_config);
-+		av7110->ir_config = ir_config;
-+	}
-+	return ret;
++	llc_build_and_send_ui_pkt(dl->sap, skb, dest, dl->sap->laddr.lsap);
++	return 0;
 +}
 +
++static struct datalink_proto *register_8022_client(unsigned char type,
++					    int (*func)(struct sk_buff *skb,
++							struct net_device *dev,
++							struct packet_type *pt,
++							struct net_device *orig_dev))
++{
++	struct datalink_proto *proto;
 +
- static int av7110_ir_write_proc(struct file *file, const char __user *buffer,
- 				unsigned long count, void *data)
- {
-@@ -187,19 +200,6 @@
- }
++	proto = kmalloc(sizeof(*proto), GFP_ATOMIC);
++	if (proto) {
++		proto->type[0]		= type;
++		proto->header_length	= 3;
++		proto->request		= p8022_request;
++		proto->sap = llc_sap_open(type, func);
++		if (!proto->sap) {
++			kfree(proto);
++			proto = NULL;
++		}
++	}
++	return proto;
++}
++
++static void unregister_8022_client(struct datalink_proto *proto)
++{
++	llc_sap_put(proto->sap);
++	kfree(proto);
++}
++
++/*
++ *	Place an 802.3 header on a packet. The driver will do the mac
++ *	addresses, we just need to give it the buffer length.
++ */
++static int p8023_request(struct datalink_proto *dl,
++			 struct sk_buff *skb, unsigned char *dest_node)
++{
++	struct net_device *dev = skb->dev;
++
++	dev->hard_header(skb, dev, ETH_P_802_3, dest_node, NULL, skb->len);
++	return dev_queue_xmit(skb);
++}
++
++/*
++ *	Create an 802.3 client. Note there can be only one 802.3 client
++ */
++static struct datalink_proto *make_8023_client(void)
++{
++	struct datalink_proto *proto = kmalloc(sizeof(*proto), GFP_ATOMIC);
++
++	if (proto) {
++		proto->header_length = 0;
++		proto->request	     = p8023_request;
++	}
++	return proto;
++}
++
++/*
++ *	Destroy the 802.3 client.
++ */
++static void destroy_8023_client(struct datalink_proto *dl)
++{
++	kfree(dl);
++}
++
++static int pEII_request(struct datalink_proto *dl,
++			struct sk_buff *skb, unsigned char *dest_node)
++{
++	struct net_device *dev = skb->dev;
++
++	skb->protocol = htons(ETH_P_IPX);
++	if (dev->hard_header)
++		dev->hard_header(skb, dev, ETH_P_IPX,
++				 dest_node, NULL, skb->len);
++	return dev_queue_xmit(skb);
++}
++
++static struct datalink_proto *make_EII_client(void)
++{
++	struct datalink_proto *proto = kmalloc(sizeof(*proto), GFP_ATOMIC);
++
++	if (proto) {
++		proto->header_length = 0;
++		proto->request = pEII_request;
++	}
++
++	return proto;
++}
++
++static void destroy_EII_client(struct datalink_proto *dl)
++{
++	kfree(dl);
++}
  
- 
--int av7110_setup_irc_config(struct av7110 *av7110, u32 ir_config)
--{
--	int ret = 0;
+ static unsigned char ipx_8022_type = 0xE0;
+ static unsigned char ipx_snap_id[5] = { 0x0, 0x0, 0x0, 0x81, 0x37 };
+--- linux-2.6.15-rc1-mm1-full/include/net/p8022.h	2005-10-28 02:02:08.000000000 +0200
++++ /dev/null	2005-11-08 19:07:57.000000000 +0100
+@@ -1,13 +0,0 @@
+-#ifndef _NET_P8022_H
+-#define _NET_P8022_H
+-extern struct datalink_proto *
+-	register_8022_client(unsigned char type,
+-			     int (*func)(struct sk_buff *skb,
+-					 struct net_device *dev,
+-					 struct packet_type *pt,
+-					 struct net_device *orig_dev));
+-extern void unregister_8022_client(struct datalink_proto *proto);
 -
--	dprintk(4, "%p\n", av7110);
--	if (av7110) {
--		ret = av7110_fw_cmd(av7110, COMTYPE_PIDFILTER, SetIR, 1, ir_config);
--		av7110->ir_config = ir_config;
--	}
--	return ret;
+-extern struct datalink_proto *make_8023_client(void);
+-extern void destroy_8023_client(struct datalink_proto *dl);
+-#endif
+--- linux-2.6.15-rc1-mm1-full/net/ethernet/pe2.c	2005-11-17 21:30:56.000000000 +0100
++++ /dev/null	2005-11-08 19:07:57.000000000 +0100
+@@ -1,39 +0,0 @@
+-#include <linux/in.h>
+-#include <linux/mm.h>
+-#include <linux/module.h>
+-#include <linux/netdevice.h>
+-#include <linux/skbuff.h>
+-
+-#include <net/datalink.h>
+-
+-static int pEII_request(struct datalink_proto *dl,
+-			struct sk_buff *skb, unsigned char *dest_node)
+-{
+-	struct net_device *dev = skb->dev;
+-
+-	skb->protocol = htons(ETH_P_IPX);
+-	if (dev->hard_header)
+-		dev->hard_header(skb, dev, ETH_P_IPX,
+-				 dest_node, NULL, skb->len);
+-	return dev_queue_xmit(skb);
 -}
 -
+-struct datalink_proto *make_EII_client(void)
+-{
+-	struct datalink_proto *proto = kmalloc(sizeof(*proto), GFP_ATOMIC);
 -
- static void ir_handler(struct av7110 *av7110, u32 ircom)
- {
- 	dprintk(4, "ircommand = %08x\n", ircom);
+-	if (proto) {
+-		proto->header_length = 0;
+-		proto->request = pEII_request;
+-	}
+-
+-	return proto;
+-}
+-
+-void destroy_EII_client(struct datalink_proto *dl)
+-{
+-	kfree(dl);
+-}
+-
+-EXPORT_SYMBOL(destroy_EII_client);
+-EXPORT_SYMBOL(make_EII_client);
+--- linux-2.6.15-rc1-mm1-full/net/802/p8022.c	2005-10-28 02:02:08.000000000 +0200
++++ /dev/null	2005-11-08 19:07:57.000000000 +0100
+@@ -1,66 +0,0 @@
+-/*
+- *	NET3:	Support for 802.2 demultiplexing off Ethernet (Token ring
+- *		is kept separate see p8022tr.c)
+- *		This program is free software; you can redistribute it and/or
+- *		modify it under the terms of the GNU General Public License
+- *		as published by the Free Software Foundation; either version
+- *		2 of the License, or (at your option) any later version.
+- *
+- *		Demultiplex 802.2 encoded protocols. We match the entry by the
+- *		SSAP/DSAP pair and then deliver to the registered datalink that
+- *		matches. The control byte is ignored and handling of such items
+- *		is up to the routine passed the frame.
+- *
+- *		Unlike the 802.3 datalink we have a list of 802.2 entries as
+- *		there are multiple protocols to demux. The list is currently
+- *		short (3 or 4 entries at most). The current demux assumes this.
+- */
+-#include <linux/module.h>
+-#include <linux/netdevice.h>
+-#include <linux/skbuff.h>
+-#include <net/datalink.h>
+-#include <linux/mm.h>
+-#include <linux/in.h>
+-#include <linux/init.h>
+-#include <net/llc.h>
+-#include <net/p8022.h>
+-
+-static int p8022_request(struct datalink_proto *dl, struct sk_buff *skb,
+-			 unsigned char *dest)
+-{
+-	llc_build_and_send_ui_pkt(dl->sap, skb, dest, dl->sap->laddr.lsap);
+-	return 0;
+-}
+-
+-struct datalink_proto *register_8022_client(unsigned char type,
+-					    int (*func)(struct sk_buff *skb,
+-							struct net_device *dev,
+-							struct packet_type *pt,
+-							struct net_device *orig_dev))
+-{
+-	struct datalink_proto *proto;
+-
+-	proto = kmalloc(sizeof(*proto), GFP_ATOMIC);
+-	if (proto) {
+-		proto->type[0]		= type;
+-		proto->header_length	= 3;
+-		proto->request		= p8022_request;
+-		proto->sap = llc_sap_open(type, func);
+-		if (!proto->sap) {
+-			kfree(proto);
+-			proto = NULL;
+-		}
+-	}
+-	return proto;
+-}
+-
+-void unregister_8022_client(struct datalink_proto *proto)
+-{
+-	llc_sap_put(proto->sap);
+-	kfree(proto);
+-}
+-
+-EXPORT_SYMBOL(register_8022_client);
+-EXPORT_SYMBOL(unregister_8022_client);
+-
+-MODULE_LICENSE("GPL");
+--- linux-2.6.15-rc1-mm1-full/net/802/p8023.c	2005-11-17 21:30:55.000000000 +0100
++++ /dev/null	2005-11-08 19:07:57.000000000 +0100
+@@ -1,61 +0,0 @@
+-/*
+- *	NET3:	802.3 data link hooks used for IPX 802.3
+- *
+- *	This program is free software; you can redistribute it and/or
+- *	modify it under the terms of the GNU General Public License
+- *	as published by the Free Software Foundation; either version
+- *	2 of the License, or (at your option) any later version.
+- *
+- *	802.3 isn't really a protocol data link layer. Some old IPX stuff
+- *	uses it however. Note that there is only one 802.3 protocol layer
+- *	in the system. We don't currently support different protocols
+- *	running raw 802.3 on different devices. Thankfully nobody else
+- *	has done anything like the old IPX.
+- */
+-
+-#include <linux/in.h>
+-#include <linux/mm.h>
+-#include <linux/module.h>
+-#include <linux/netdevice.h>
+-#include <linux/skbuff.h>
+-
+-#include <net/datalink.h>
+-#include <net/p8022.h>
+-
+-/*
+- *	Place an 802.3 header on a packet. The driver will do the mac
+- *	addresses, we just need to give it the buffer length.
+- */
+-static int p8023_request(struct datalink_proto *dl,
+-			 struct sk_buff *skb, unsigned char *dest_node)
+-{
+-	struct net_device *dev = skb->dev;
+-
+-	dev->hard_header(skb, dev, ETH_P_802_3, dest_node, NULL, skb->len);
+-	return dev_queue_xmit(skb);
+-}
+-
+-/*
+- *	Create an 802.3 client. Note there can be only one 802.3 client
+- */
+-struct datalink_proto *make_8023_client(void)
+-{
+-	struct datalink_proto *proto = kmalloc(sizeof(*proto), GFP_ATOMIC);
+-
+-	if (proto) {
+-		proto->header_length = 0;
+-		proto->request	     = p8023_request;
+-	}
+-	return proto;
+-}
+-
+-/*
+- *	Destroy the 802.3 client.
+- */
+-void destroy_8023_client(struct datalink_proto *dl)
+-{
+-	kfree(dl);
+-}
+-
+-EXPORT_SYMBOL(destroy_8023_client);
+-EXPORT_SYMBOL(make_8023_client);
 
---- linux-2.6.15-mm3-full/drivers/media/dvb/dvb-usb/dvb-usb.h.old	2006-01-14 01:04:34.000000000 +0100
-+++ linux-2.6.15-mm3-full/drivers/media/dvb/dvb-usb/dvb-usb.h	2006-01-14 01:04:50.000000000 +0100
-@@ -341,7 +341,6 @@
- 	u8 data[255];
- 	u8 chk;
- };
--extern int dvb_usb_get_hexline(const struct firmware *, struct hexline *, int *);
- extern int usb_cypress_load_firmware(struct usb_device *udev, const struct firmware *fw, int type);
+--- linux-2.6.15-mm3-full/net/802/Makefile.old	2006-01-14 02:55:28.000000000 +0100
++++ linux-2.6.15-mm3-full/net/802/Makefile	2006-01-14 02:55:50.000000000 +0100
+@@ -4,10 +4,10 @@
  
- #endif
---- linux-2.6.15-mm3-full/drivers/media/dvb/dvb-usb/cxusb.c.old	2006-01-14 01:02:27.000000000 +0100
-+++ linux-2.6.15-mm3-full/drivers/media/dvb/dvb-usb/cxusb.c	2006-01-14 01:03:28.000000000 +0100
-@@ -184,7 +184,7 @@
- 	return 0;
- }
- 
--struct dvb_usb_rc_key dvico_mce_rc_keys[] = {
-+static struct dvb_usb_rc_key dvico_mce_rc_keys[] = {
- 	{ 0xfe, 0x02, KEY_TV },
- 	{ 0xfe, 0x0e, KEY_MP3 },
- 	{ 0xfe, 0x1a, KEY_DVD },
-@@ -253,7 +253,7 @@
- 	return 0;
- }
- 
--struct cx22702_config cxusb_cx22702_config = {
-+static struct cx22702_config cxusb_cx22702_config = {
- 	.demod_address = 0x63,
- 
- 	.output_mode = CX22702_PARALLEL_OUTPUT,
-@@ -262,13 +262,13 @@
- 	.pll_set  = dvb_usb_pll_set_i2c,
- };
- 
--struct lgdt330x_config cxusb_lgdt330x_config = {
-+static struct lgdt330x_config cxusb_lgdt330x_config = {
- 	.demod_address = 0x0e,
- 	.demod_chip    = LGDT3303,
- 	.pll_set       = dvb_usb_pll_set_i2c,
- };
- 
--struct mt352_config cxusb_dee1601_config = {
-+static struct mt352_config cxusb_dee1601_config = {
- 	.demod_address = 0x0f,
- 	.demod_init    = cxusb_dee1601_demod_init,
- 	.pll_set       = dvb_usb_pll_set,
-
+ # Check the p8022 selections against net/core/Makefile.
+ obj-$(CONFIG_SYSCTL)	+= sysctl_net_802.o
+-obj-$(CONFIG_LLC)	+= p8022.o psnap.o
+-obj-$(CONFIG_TR)	+= p8022.o psnap.o tr.o sysctl_net_802.o
+-obj-$(CONFIG_NET_FC)	+=                 fc.o
+-obj-$(CONFIG_FDDI)	+=                 fddi.o
+-obj-$(CONFIG_HIPPI)	+=                 hippi.o
+-obj-$(CONFIG_IPX)	+= p8022.o psnap.o p8023.o
+-obj-$(CONFIG_ATALK)	+= p8022.o psnap.o
++obj-$(CONFIG_LLC)	+= psnap.o
++obj-$(CONFIG_TR)	+= psnap.o tr.o sysctl_net_802.o
++obj-$(CONFIG_NET_FC)	+=         fc.o
++obj-$(CONFIG_FDDI)	+=         fddi.o
++obj-$(CONFIG_HIPPI)	+=         hippi.o
++obj-$(CONFIG_IPX)	+= psnap.o
++obj-$(CONFIG_ATALK)	+= psnap.o

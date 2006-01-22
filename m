@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWAVH15@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWAVHhR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751227AbWAVH15 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 02:27:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWAVH15
+	id S1751226AbWAVHhR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 02:37:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWAVHhR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 02:27:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:62341 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751227AbWAVH14 (ORCPT
+	Sun, 22 Jan 2006 02:37:17 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:15594 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751226AbWAVHhQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 02:27:56 -0500
-Date: Sat, 21 Jan 2006 23:27:21 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: gl@dsa-ac.de, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, marcelo.tosatti@cyclades.com,
-       zaitcev@redhat.com
-Subject: Re: [PATCH 2.4.32] usb-uhci.c failing "-"
-Message-Id: <20060121232721.60c09eed.zaitcev@redhat.com>
-In-Reply-To: <Pine.LNX.4.60.0601212230210.9393@poirot.grange>
-References: <Pine.LNX.4.63.0601200928480.1049@pcgl.dsa-ac.de>
-	<20060120151030.433abdf6.zaitcev@redhat.com>
-	<Pine.LNX.4.60.0601212230210.9393@poirot.grange>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
+	Sun, 22 Jan 2006 02:37:16 -0500
+Date: Sat, 21 Jan 2006 23:36:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Cc: rmk+serial@arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       ralf@linux-mips.org
+Subject: Re: [PATCH] serial: serial_txx9 driver update
+Message-Id: <20060121233649.51211403.akpm@osdl.org>
+In-Reply-To: <20060118.021901.71085469.anemo@mba.ocn.ne.jp>
+References: <20060118.021901.71085469.anemo@mba.ocn.ne.jp>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Jan 2006 01:15:23 +0100 (CET), Guennadi Liakhovetski <g.liakhovetski@gmx.de> wrote:
+Atsushi Nemoto <anemo@mba.ocn.ne.jp> wrote:
+>
+>  serial_txx9_verify_port(struct uart_port *port, struct serial_struct *ser)
+>   {
+>  -	if (ser->irq < 0 ||
+>  -	    ser->baud_base < 9600 || ser->type != PORT_TXX9)
+>  +	unsigned long new_port = (unsigned long)ser->port +
+>  +		((unsigned long)ser->port_high << ((sizeof(long) - sizeof(int)) * 8));
 
-> i.e., if (!urb->completion) urb->status is not set, so, depending on 
-> whether the urb has ->completion either the old or the new status will be 
-> tested. Is this really correct? And a couple lines above that "goto 
-> recycle;" is superfluous...
+Are you sure about this part?  Shifting something left by sizeof(something)
+seems very strange.  It'll give different results on 64-bit machines for
+the same hardware.  Are you sure it wasn't supposed to be an addition?
 
-I would not recommend to get too excercised over uhci-hcd in 2.4.32.
-I do not with to touch it, because it mostly works, and the risk of
-regressions is too great.
+If this was indeed intended then can you please explain why?
 
--- Pete
+If it was supposed to be an addition, wouldn't this be more clearly
+expressed by defining a suitable structure and using sizeof(that structure)
+to work out the address range?

@@ -1,130 +1,529 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWAVUJS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWAVUK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751335AbWAVUJS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 15:09:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWAVUJS
+	id S1751336AbWAVUK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 15:10:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbWAVUK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 15:09:18 -0500
-Received: from wproxy.gmail.com ([64.233.184.197]:13032 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751334AbWAVUJR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 15:09:17 -0500
+	Sun, 22 Jan 2006 15:10:58 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:21054 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751336AbWAVUK5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 15:10:57 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=I6/ZjiNFFK8lsDXSCFnZtItxyNmwRDnKkX9HOmDhPveU5W5pcppsSMYrlF8iqMGBN/w0lMtmAXCxyI+E9/lNXZqfFJdOMBb88hDpqHkW4ZUJGtCLFgZBYxHN1OZ5lEzfLd9oumUUHI/Qf58ZJiE6FgGHIttrXl5kpCKtyUiopeM=
-Message-ID: <787b0d920601221202q6e4e95ccrab1cf009468e10f1@mail.gmail.com>
-Date: Sun, 22 Jan 2006 15:02:20 -0500
-From: Albert Cahalan <acahalan@gmail.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: [PATCH] add /proc/*/pmap files
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <Pine.LNX.4.61.0601221532270.16919@yvahk01.tjqt.qr>
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type;
+        b=hfVBXEEQJOzDjY0VSSpRJ3djaa52PkMPnhsD8kygAnK1sRisKxl4SEUrEL15rlYc0LNGp9w1NNgWia4zcw7CJshJ14StXZnRTdqU6ZynVBQDNYcN/nerYWF8jDZ5/86x9LSDt6SKwJvWQFhnBOnNt7W5Gej4rDCvPUG0aj0R0CQ=
+Message-ID: <43D3E08B.9020301@gmail.com>
+Date: Sun, 22 Jan 2006 20:44:11 +0100
+From: =?ISO-8859-1?Q?Daniel_Aragon=E9s?= <danarag@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: es-ar, es, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <787b0d920601220150n2e34e376i856cc583a372e1f2@mail.gmail.com>
-	 <Pine.LNX.4.61.0601221532270.16919@yvahk01.tjqt.qr>
+To: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+Subject: [PATCH/RFC] minix filesystem: V3 update for kernels 2.4.x
+Content-Type: multipart/mixed;
+ boundary="------------080302040803080808010209"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/22/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
->
-> >This adds a few things needed by the pmap command.
-> >They show up in /proc/*/pmap files.
->
-> But my pmap command works without the /proc/$$/pmap file?
+This is a multi-part message in MIME format.
+--------------080302040803080808010209
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The -x option doesn't show locked memory, etc.
+Answering the suggestion from Pekka, here comes the separated version for 2.4.x
 
-I'll still be missing a few things, but perhaps they just
-don't make sense for Linux today. Solaris has them.
 
-For example, Solaris can report how much swap space
-each mapping has reserved and how much it has used.
-I don't think we remember per-mapping reservations yet
-AFAIK, Linux can't tell which mapping to blame if we run
-out of memory.
 
-If mlock() might work on only part of a mapping, then
-a mere flag won't do. Adding this later is now easy,
-though the flag would need to remain.
+--------------080302040803080808010209
+Content-Type: text/plain;
+ name="V3_2dot4_patch.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="V3_2dot4_patch.txt"
 
-> >If the patch doesn't make it to the list intact, somebody
-> >please give me a hand. Non-mangling email systems are
-> >getting to be kind of exotic these days.  :-(
->
-> Send it as MIME attachment then :o)
+diff -ur orig.linux-2.4.32/fs/minix/bitmap.c updated.linux-2.4.32/fs/minix/bitmap.c
+--- orig.linux-2.4.32/fs/minix/bitmap.c	2002-02-25 20:38:09.000000000 +0100
++++ updated.linux-2.4.32/fs/minix/bitmap.c	2006-01-14 20:57:54.000000000 +0100
+@@ -27,14 +27,14 @@
+ 	for (i=0; i<numblocks-1; i++) {
+ 		if (!(bh=map[i])) 
+ 			return(0);
+-		for (j=0; j<BLOCK_SIZE; j++)
++		for (j=0; j<bh->b_size; j++)
+ 			sum += nibblemap[bh->b_data[j] & 0xf]
+ 				+ nibblemap[(bh->b_data[j]>>4) & 0xf];
+ 	}
+ 
+ 	if (numblocks==0 || !(bh=map[numblocks-1]))
+ 		return(0);
+-	i = ((numbits-(numblocks-1)*BLOCK_SIZE*8)/16)*2;
++	i = ((numbits-(numblocks-1)*bh->b_size*8)/16)*2;
+ 	for (j=0; j<i; j++) {
+ 		sum += nibblemap[bh->b_data[j] & 0xf]
+ 			+ nibblemap[(bh->b_data[j]>>4) & 0xf];
+@@ -157,14 +157,14 @@
+ 	}
+ 	ino--;
+ 	block = 2 + sbi->s_imap_blocks + sbi->s_zmap_blocks +
+-		 ino / MINIX2_INODES_PER_BLOCK;
++		 ino / MINIX2_INODES_PER_BLOCK(sb->s_blocksize);
+ 	*bh = sb_bread(sb, block);
+ 	if (!*bh) {
+ 		printk("unable to read i-node block\n");
+ 		return NULL;
+ 	}
+ 	p = (void *)(*bh)->b_data;
+-	return p + ino % MINIX2_INODES_PER_BLOCK;
++	return p + ino % MINIX2_INODES_PER_BLOCK(sb->s_blocksize);
+ }
+ 
+ /* Clear the link count and mode of a deleted inode on disk. */
+diff -ur orig.linux-2.4.32/fs/minix/dir.c updated.linux-2.4.32/fs/minix/dir.c
+--- orig.linux-2.4.32/fs/minix/dir.c	2002-02-25 20:38:09.000000000 +0100
++++ updated.linux-2.4.32/fs/minix/dir.c	2006-01-14 20:57:54.000000000 +0100
+@@ -4,6 +4,9 @@
+  *  Copyright (C) 1991, 1992 Linus Torvalds
+  *
+  *  minix directory handling functions
++ *
++ *  Updated to filesystem version 3 by Daniel Aragones
++ *
+  */
+ 
+ #include <linux/fs.h>
+@@ -11,6 +14,7 @@
+ #include <linux/pagemap.h>
+ 
+ typedef struct minix_dir_entry minix_dirent;
++typedef struct minix3_dir_entry minix3_dirent;
+ 
+ static int minix_readdir(struct file *, void *, filldir_t);
+ 
+@@ -95,14 +99,22 @@
+ 		limit = kaddr + PAGE_CACHE_SIZE - chunk_size;
+ 		for ( ; p <= limit ; p = minix_next_entry(p, sbi)) {
+ 			minix_dirent *de = (minix_dirent *)p;
++			minix3_dirent *de3 = (minix3_dirent *)p;
+ 			if (de->inode) {
+ 				int over;
+-				unsigned l = strnlen(de->name,sbi->s_namelen);
+-
+-				offset = p - kaddr;
+-				over = filldir(dirent, de->name, l,
+-						(n<<PAGE_CACHE_SHIFT) | offset,
+-						de->inode, DT_UNKNOWN);
++				if (!(sbi->s_version == MINIX_V3)) {
++					unsigned l = strnlen(de->name,sbi->s_namelen);
++					offset = p - kaddr;
++					over = filldir(dirent, de->name, l,
++					(n<<PAGE_CACHE_SHIFT) | offset,
++					de->inode, DT_UNKNOWN);
++				} else {
++					unsigned l = strnlen(de3->name,sbi->s_namelen);
++					offset = p - kaddr;
++					over = filldir(dirent, de3->name, l,
++					(n<<PAGE_CACHE_SHIFT) | offset,
++					de3->inode, DT_UNKNOWN);
++				}
+ 				if (over) {
+ 					dir_put_page(page);
+ 					goto done;
+@@ -145,7 +157,7 @@
+ 	unsigned long npages = dir_pages(dir);
+ 	struct page *page = NULL;
+ 	struct minix_dir_entry *de;
+-
++	struct minix3_dir_entry *de3;
+ 	*res_page = NULL;
+ 
+ 	for (n = 0; n < npages; n++) {
+@@ -156,12 +168,22 @@
+ 
+ 		kaddr = (char*)page_address(page);
+ 		de = (struct minix_dir_entry *) kaddr;
++		de3 = (struct minix3_dir_entry *) kaddr;
+ 		kaddr += PAGE_CACHE_SIZE - sbi->s_dirsize;
+-		for ( ; (char *) de <= kaddr ; de = minix_next_entry(de,sbi)) {
+-			if (!de->inode)
+-				continue;
+-			if (namecompare(namelen,sbi->s_namelen,name,de->name))
+-				goto found;
++		for ( ; (char *) de <= kaddr ;
++					de = minix_next_entry(de,sbi),
++					de3 = minix_next_entry(de3,sbi)) {
++			if (!(sbi->s_version == MINIX_V3)) {
++				if (!de->inode)
++					continue;
++				if (namecompare(namelen,sbi->s_namelen,name,de->name))
++					goto found; 		
++			} else {
++				if (!de3->inode)
++					continue;
++				if (namecompare(namelen,sbi->s_namelen,name,de3->name))
++					goto found;
++			}
+ 		}
+ 		dir_put_page(page);
+ 	}
+@@ -181,6 +203,7 @@
+ 	struct minix_sb_info * sbi = &sb->u.minix_sb;
+ 	struct page *page = NULL;
+ 	struct minix_dir_entry * de;
++	struct minix3_dir_entry * de3;
+ 	unsigned long npages = dir_pages(dir);
+ 	unsigned long n;
+ 	char *kaddr;
+@@ -195,14 +218,22 @@
+ 			goto out;
+ 		kaddr = (char*)page_address(page);
+ 		de = (minix_dirent *)kaddr;
++		de3 = (minix3_dirent *)kaddr;
+ 		kaddr += PAGE_CACHE_SIZE - sbi->s_dirsize;
+ 		while ((char *)de <= kaddr) {
+ 			if (!de->inode)
+ 				goto got_it;
+ 			err = -EEXIST;
+-			if (namecompare(namelen,sbi->s_namelen,name,de->name))
+-				goto out_page;
+-			de = minix_next_entry(de, sbi);
++			if (!(sbi->s_version == MINIX_V3)) {
++				if (namecompare(namelen,sbi->s_namelen,name,de->name)) 		
++					goto out_page;
++ 				de = minix_next_entry(de, sbi);
++			} else {
++				if (namecompare(namelen,sbi->s_namelen,name,de3->name))
++					goto out_unlock;
++				de = minix_next_entry(de, sbi);
++				de3 = minix_next_entry(de3, sbi);
++			}
+ 		}
+ 		dir_put_page(page);
+ 	}
+@@ -216,9 +247,15 @@
+ 	err = page->mapping->a_ops->prepare_write(NULL, page, from, to);
+ 	if (err)
+ 		goto out_unlock;
+-	memcpy (de->name, name, namelen);
+-	memset (de->name + namelen, 0, sbi->s_dirsize - namelen - 2);
+-	de->inode = inode->i_ino;
++		if (!(sbi->s_version == MINIX_V3)) {
++		memcpy (de->name, name, namelen);
++		memset (de->name + namelen, 0, sbi->s_dirsize - namelen - 2);
++		de->inode = inode->i_ino;
++		} else {
++		memcpy (de3->name, name, namelen);
++		memset (de3->name + namelen, 0, sbi->s_dirsize - namelen - 4);
++		de3->inode = inode->i_ino;
++		}
+ 	err = dir_commit_chunk(page, from, to);
+ 	dir->i_mtime = dir->i_ctime = CURRENT_TIME;
+ 	mark_inode_dirty(dir);
+@@ -258,6 +295,7 @@
+ 	struct page *page = grab_cache_page(mapping, 0);
+ 	struct minix_sb_info * sbi = &inode->i_sb->u.minix_sb;
+ 	struct minix_dir_entry * de;
++	struct minix3_dir_entry * de3;
+ 	char *base;
+ 	int err;
+ 
+@@ -269,13 +307,14 @@
+ 
+ 	base = (char*)page_address(page);
+ 	memset(base, 0, PAGE_CACHE_SIZE);
+-
+-	de = (struct minix_dir_entry *) base;
+-	de->inode = inode->i_ino;
+-	strcpy(de->name,".");
++	de = (struct minix_dir_entry *)base;
++	de3 = (struct minix3_dir_entry *)base;
++	de->inode = de3->inode = inode->i_ino;
++	(sbi->s_version == MINIX_V3) ? strcpy(de3->name,".") : strcpy(de->name,".");
+ 	de = minix_next_entry(de, sbi);
+-	de->inode = dir->i_ino;
+-	strcpy(de->name,"..");
++	de3 = minix_next_entry(de3, sbi);
++	de->inode = de3->inode = dir->i_ino;
++	(sbi->s_version == MINIX_V3) ? strcpy(de3->name,"..") : strcpy(de->name,"..");
+ 
+ 	err = dir_commit_chunk(page, 0, 2 * sbi->s_dirsize);
+ fail:
+@@ -296,27 +335,42 @@
+ 	for (i = 0; i < npages; i++) {
+ 		char *kaddr;
+ 		minix_dirent * de;
++		minix3_dirent * de3 = NULL;
+ 		page = dir_get_page(inode, i);
+ 
+ 		if (IS_ERR(page))
+ 			continue;
+ 
+ 		kaddr = (char *)page_address(page);
++		if (sbi->s_version == MINIX_V3)
++			de3 = (minix3_dirent *)kaddr;
+ 		de = (minix_dirent *)kaddr;
+ 		kaddr += PAGE_CACHE_SIZE - sbi->s_dirsize;
+ 
+ 		while ((char *)de <= kaddr) {
+ 			if (de->inode != 0) {
+ 				/* check for . and .. */
+-				if (de->name[0] != '.')
+-					goto not_empty;
+-				if (!de->name[1]) {
+-					if (de->inode != inode->i_ino)
++				if (!(sbi->s_version == MINIX_V3)) {
++					if (de->name[0] != '.')
++						goto not_empty;
++					if (!de->name[1]) {
++						if (de->inode != inode->i_ino)
++							goto not_empty;
++					} else if (de->name[1] != '.')
++						goto not_empty;
++					else if (de->name[2])
+ 						goto not_empty;
+-				} else if (de->name[1] != '.')
+-					goto not_empty;
+-				else if (de->name[2])
+-					goto not_empty;
++				} else {
++					if (de3->name[0] != '.')
++						goto not_empty;
++					if (!de3->name[1]) {
++						if (de3->inode != inode->i_ino)
++							goto not_empty;
++					} else if (de3->name[1] != '.')
++						goto not_empty;
++					else if (de3->name[2])
++						goto not_empty;
++				}
+ 			}
+ 			de = minix_next_entry(de, sbi);
+ 		}
+diff -ur orig.linux-2.4.32/fs/minix/inode.c updated.linux-2.4.32/fs/minix/inode.c
+--- orig.linux-2.4.32/fs/minix/inode.c	2003-11-28 19:26:21.000000000 +0100
++++ updated.linux-2.4.32/fs/minix/inode.c	2006-01-14 20:57:55.000000000 +0100
+@@ -7,6 +7,7 @@
+  *	Minix V2 fs support.
+  *
+  *  Modified for 680x0 by Andreas Schwab
++ *  Updated to filesystem version 3 by Daniel Aragones
+  */
+ 
+ #include <linux/module.h>
+@@ -28,7 +29,7 @@
+ static void minix_delete_inode(struct inode *inode)
+ {
+ 	lock_kernel();
+-
++	truncate_inode_pages(&inode->i_data, 0);
+ 	inode->i_size = 0;
+ 	minix_truncate(inode);
+ 	minix_free_inode(inode);
+@@ -45,23 +46,24 @@
+ static void minix_write_super(struct super_block * sb)
+ {
+ 	struct minix_super_block * ms;
++	struct minix_sb_info *sbi = &sb->u.minix_sb;
+ 
+ 	if (!(sb->s_flags & MS_RDONLY)) {
+ 		ms = sb->u.minix_sb.s_ms;
+-
+-		if (ms->s_state & MINIX_VALID_FS)
+-			ms->s_state &= ~MINIX_VALID_FS;
+-		minix_commit_super(sb);
++		if (sbi->s_version != MINIX_V3) { /* s_state is out from V3 sb */
++			if (ms->s_state & MINIX_VALID_FS)
++				ms->s_state &= ~MINIX_VALID_FS;
++			minix_commit_super(sb);
++		}
+ 	}
+ 	sb->s_dirt = 0;
+ }
+ 
+-
+ static void minix_put_super(struct super_block *sb)
+ {
+ 	int i;
+-
+-	if (!(sb->s_flags & MS_RDONLY)) {
++	struct minix_sb_info *sbi = &sb->u.minix_sb;
++	if (!(sb->s_flags & MS_RDONLY) && (sbi->s_version != MINIX_V3)) {
+ 		sb->u.minix_sb.s_ms->s_state = sb->u.minix_sb.s_mount_state;
+ 		mark_buffer_dirty(sb->u.minix_sb.s_sbh);
+ 	}
+@@ -88,11 +90,12 @@
+ static int minix_remount (struct super_block * sb, int * flags, char * data)
+ {
+ 	struct minix_super_block * ms;
++	struct minix_sb_info *sbi = &sb->u.minix_sb;
+ 
+ 	ms = sb->u.minix_sb.s_ms;
+ 	if ((*flags & MS_RDONLY) == (sb->s_flags & MS_RDONLY))
+ 		return 0;
+-	if (*flags & MS_RDONLY) {
++	if ((*flags & MS_RDONLY) && (sbi->s_version != MINIX_V3)){
+ 		if (ms->s_state & MINIX_VALID_FS ||
+ 		    !(sb->u.minix_sb.s_mount_state & MINIX_VALID_FS))
+ 			return 0;
+@@ -102,20 +105,21 @@
+ 		sb->s_dirt = 1;
+ 		minix_commit_super(sb);
+ 	}
+-	else {
++	else if (sbi->s_version != MINIX_V3){
+ 	  	/* Mount a partition which is read-only, read-write. */
+ 		sb->u.minix_sb.s_mount_state = ms->s_state;
+ 		ms->s_state &= ~MINIX_VALID_FS;
+ 		mark_buffer_dirty(sb->u.minix_sb.s_sbh);
+ 		sb->s_dirt = 1;
++		}
++
++		if (!(sb->u.minix_sb.s_mount_state & MINIX_VALID_FS) && (sbi->s_version != MINIX_V3))
++			printk ("MINIX-fs warning: remounting unchecked Minix filesystem V%i, "
++				"running fsck is recommended.\n", sbi->s_version);
++		else if ((sb->u.minix_sb.s_mount_state & MINIX_ERROR_FS) && (sbi->s_version != MINIX_V3))
++			printk ("MINIX-fs warning: remounting Minix filesystem V%i with errors, "
++				"running fsck is recommended.\n", sbi->s_version);
+ 
+-		if (!(sb->u.minix_sb.s_mount_state & MINIX_VALID_FS))
+-			printk ("MINIX-fs warning: remounting unchecked fs, "
+-				"running fsck is recommended.\n");
+-		else if ((sb->u.minix_sb.s_mount_state & MINIX_ERROR_FS))
+-			printk ("MINIX-fs warning: remounting fs with errors, "
+-				"running fsck is recommended.\n");
+-	}
+ 	return 0;
+ }
+ 
+@@ -182,6 +186,23 @@
+ 		sbi->s_dirsize = 32;
+ 		sbi->s_namelen = 30;
+ 		sbi->s_link_max = MINIX2_LINK_MAX;
++	} else if ( *(__u16 *)(bh->b_data + 24) == MINIX3_SUPER_MAGIC) {
++
++		s->s_magic = MINIX3_SUPER_MAGIC;
++		sbi->s_imap_blocks = *(__u16 *)(bh->b_data + 6);
++		sbi->s_zmap_blocks = *(__u16 *)(bh->b_data + 8);
++		sbi->s_firstdatazone = *(__u16 *)(bh->b_data + 10);
++		sbi->s_log_zone_size = *(__u16 *)(bh->b_data + 12);
++		sbi->s_max_size = *(__u32 *)(bh->b_data + 16);
++		sbi->s_nzones = *(__u32 *)(bh->b_data + 20);
++		sbi->s_dirsize = 64;
++		sbi->s_namelen = 60;
++		sbi->s_version = MINIX_V3;
++		sbi->s_link_max = MINIX2_LINK_MAX;
++			if ( *(__u16 *)(bh->b_data + 28) != 1024) {
++				if (!sb_set_blocksize(s,( *(__u16 *)(bh->b_data + 28))))
++ 				goto out_bad_hblock;
++		}
+ 	} else
+ 		goto out_no_fs;
+ 
+@@ -224,17 +245,17 @@
+ 	if (!NO_TRUNCATE)
+ 		s->s_root->d_op = &minix_dentry_operations;
+ 
+-	if (!(s->s_flags & MS_RDONLY)) {
+-		ms->s_state &= ~MINIX_VALID_FS;
++	if (!(s->s_flags & MS_RDONLY) && (sbi->s_version != MINIX_V3)) {
++		ms->s_state &= ~MINIX_VALID_FS; /* s_state is out from V3 sb */
+ 		mark_buffer_dirty(bh);
+ 		s->s_dirt = 1;
+ 	}
+-	if (!(sbi->s_mount_state & MINIX_VALID_FS))
+-		printk ("MINIX-fs: mounting unchecked file system, "
+-			"running fsck is recommended.\n");
+- 	else if (sbi->s_mount_state & MINIX_ERROR_FS)
+-		printk ("MINIX-fs: mounting file system with errors, "
+-			"running fsck is recommended.\n");
++	if (!(sbi->s_mount_state & MINIX_VALID_FS) && (sbi->s_version != MINIX_V3))
++		printk ("MINIX-fs: mounting unchecked Minix filesystem V%i, "
++			"running fsck is recommended.\n", sbi->s_version);
++ 	else if ((sbi->s_mount_state & MINIX_ERROR_FS) && (sbi->s_version != MINIX_V3))
++		printk ("MINIX-fs: mounting Minix filesystem V%i with errors, "
++			"running fsck is recommended.\n", sbi->s_version);
+ 	return s;
+ 
+ out_iput:
+@@ -263,7 +284,7 @@
+ 
+ out_no_fs:
+ 	if (!silent)
+-		printk("VFS: Can't find a Minix or Minix V2 filesystem on device "
++		printk("VFS: Can't find a Minix filesystem V1 | V2 | V3 on device "
+ 		       "%s.\n", kdevname(dev));
+     out_release:
+ 	brelse(bh);
+diff -ur orig.linux-2.4.32/fs/minix/itree_common.c updated.linux-2.4.32/fs/minix/itree_common.c
+--- orig.linux-2.4.32/fs/minix/itree_common.c	2002-02-25 20:38:09.000000000 +0100
++++ updated.linux-2.4.32/fs/minix/itree_common.c	2006-01-14 20:57:54.000000000 +0100
+@@ -21,7 +21,7 @@
+ 
+ static inline block_t *block_end(struct buffer_head *bh)
+ {
+-	return (block_t *)((char*)bh->b_data + BLOCK_SIZE);
++	return (block_t *)((char*)bh->b_data + bh->b_size);
+ }
+ 
+ static inline Indirect *get_branch(struct inode *inode,
+@@ -81,7 +81,7 @@
+ 		branch[n].key = cpu_to_block(nr);
+ 		bh = sb_getblk(inode->i_sb, parent);
+ 		lock_buffer(bh);
+-		memset(bh->b_data, 0, BLOCK_SIZE);
++		memset(bh->b_data, 0, bh->b_size);
+ 		branch[n].bh = bh;
+ 		branch[n].p = (block_t*) bh->b_data + offsets[n];
+ 		*branch[n].p = branch[n].key;
+@@ -292,6 +292,7 @@
+ 
+ static inline void truncate (struct inode * inode)
+ {
++	struct super_block * sb = inode->i_sb;
+ 	block_t *idata = i_data(inode);
+ 	int offsets[DEPTH];
+ 	Indirect chain[DEPTH];
+@@ -301,7 +302,7 @@
+ 	int first_whole;
+ 	long iblock;
+ 
+-	iblock = (inode->i_size + BLOCK_SIZE-1) >> 10;
++	iblock = (inode->i_size + sb->s_blocksize -1) >> 10;
+ 	block_truncate_page(inode->i_mapping, inode->i_size, get_block);
+ 
+ 	n = block_to_path(inode, iblock, offsets);
+diff -ur orig.linux-2.4.32/include/linux/minix_fs.h updated.linux-2.4.32/include/linux/minix_fs.h
+--- orig.linux-2.4.32/include/linux/minix_fs.h	2001-09-07 18:45:51.000000000 +0200
++++ updated.linux-2.4.32/include/linux/minix_fs.h	2006-01-14 20:57:55.000000000 +0100
+@@ -23,14 +23,16 @@
+ #define MINIX_SUPER_MAGIC2	0x138F		/* minix fs, 30 char names */
+ #define MINIX2_SUPER_MAGIC	0x2468		/* minix V2 fs */
+ #define MINIX2_SUPER_MAGIC2	0x2478		/* minix V2 fs, 30 char names */
++#define MINIX3_SUPER_MAGIC	0x4d5a		/* minix V3 fs */ 
+ #define MINIX_VALID_FS		0x0001		/* Clean fs. */
+ #define MINIX_ERROR_FS		0x0002		/* fs has errors. */
+ 
+ #define MINIX_INODES_PER_BLOCK ((BLOCK_SIZE)/(sizeof (struct minix_inode)))
+-#define MINIX2_INODES_PER_BLOCK ((BLOCK_SIZE)/(sizeof (struct minix2_inode)))
++#define MINIX2_INODES_PER_BLOCK(b) ((b)/(sizeof (struct minix2_inode)))
+ 
+ #define MINIX_V1		0x0001		/* original minix fs */
+ #define MINIX_V2		0x0002		/* minix V2 fs */
++#define MINIX_V3		0x0003		/* minix V3 fs */
+ 
+ #define INODE_VERSION(inode)	inode->i_sb->u.minix_sb.s_version
+ 
+@@ -87,6 +89,12 @@
+ 	char name[0];
+ };
+ 
++struct minix3_dir_entry {
++	__u32 inode;
++	char name[0];
++};
++
+ #ifdef __KERNEL__
+ 
+ /*
 
-Doesn't the mailing list trash posts with MIME?
-I still remember how to use uuencode though:
-
-begin 644 diff.gz
-M'XL("/%&TT,"`V1I9F8`K5GY5^-&$O[9_BLZDY?!Q@>VN0(L9!S&`^QP/0P[
-MF;>3YR=++5L/75%+9LCN_._[5;5.8P))EAELJ5557?75V<)R;%MT+HTDLD3@
-M6AOO`S/QI!\;L1/X&[;C2O6H8NFIC3`*S(W0,T+ARX?7T-4[G<YK9=;Z>SM[
-MG?Z@L]D7_;W]7@__N[WL1W1ZV[U>O=5JO7;OVJ#7V^GT^IW!0/0V][<&^]M[
-M3^2]>X>+=D^T^NWMGGCWKMZ:25]&ABMFD>%Y1B0"6QA"2UW7MM-N]=;AJW[J
-MK7KK=BZ91YB!KQP5*Y(9^%*X#CYP'<NOL;"#2,B%C!Z%)[V`OHPP=/Q9M]X:
-M&>9<$Y<E***&HJ$1Q:HM+.DZGA-+2SA^+"/?<-U'8?A6O65'@2<DR0CBN8S$
-M]%'@6ZSA7V-\/3P>-84Y-R+#!)N07TT9QL)0$*C,R)E*2&"^!T?)KOA`PEQI
-MQR(.1.3,YC$+8R4T5JRH$<E]LKW?%1F@MB-="XJJ)`Q=!WJ6+-:FUEN#+@3$
-MCZ&$$99C&C%(F*_>VNSR@XX*I>G8CIG*J[>VB(?P]0U/TIZ7075/\>"X+AN&
-M30>]PEC5%<NT]183`^?8<'RQ-EEKB[4O7^AS`Q]0YV$.D%5HF`#CTUSZPD[B
-M),+&D?PM<2))40GP'!.Q"1PLRZ$0I8!:P@&P/6K5IN`&(;0#IH2F]"W1F,KX
-M04(^+;B&BF$!7`^8EJQC'Q/1*MR:W2P"5SW5VZL8SL-E/-=Q,5DK(.IJ9I@%
-M.!`>J;X`R`L#!8WA<E?&!"8I(OS$F^*Z+:9)G&+I!W%Y"R.EZ0H2#*_-L)@3
-MIE[ZL5UO.;[I)A;9RPA(@Z^AG39I12P48C+_%<XJ'$CNA(@[WW7NY6JO>,9C
-M.00X3"K!AZ1Z*;*>5;#>6AB(>8B>(J^0[89/AA7H"<,T@TA;KN.AZCOMDTBR
-MFO#%[S(*5N9&MUQ]*#N$HQ!;9D"AQLX@+$3CY^'QQ_'Y<'S:9"W6OOA8O!Q]
-M.C^['#7K+=0!(P0':H*CP_$8`>G/$F,F"6VNP2*A:""U\ETYM6TG0NAJM*C4
-MS=.R!TV<6$G7!GPQXMV8HD"B,E'"4"4HH"PE!<4,,2IV,BI<\*"39N$$+J5;
-MG(<4BE94*FM<&Q67'*/J\Z[@\HIHYD057@)]Y\:"<E(DOO-;(DMR#*4"TS'B
-M#$`G;C-FS&4Y*G3A$P`5SXVX9`3%':\BO3H`]_3S]>GHLE1W4\O8)$755,%R
-MI#5JK$0=AU[2X>*=ZUDQ;V&XB0;^+&8G?T4DD)*D1R:.XH6+LM&%5,-:BGWJ
-M&P&,@='H=K'F'_0ZTT<`.TUL6T;UUK0K$`TH>M0&R)RIG#D^!S!AF]4/"+(D
-M%//(U12:P.(5G!O,:2/2^;XHZM8KF"EJR]R2ZJ)\GC%1]*GBR)Q'C2;AJ1`D
-MK@$K[8R+PW;ZJ"_0NNX=;E2`Z-X/'OR\!\VZ&N14[2+DP5MX*?-=O35_#;U"
-MBY=^W?I3XUDWQBSQ\H1$9*\<SHBTF*4PFVW1+-7?_(NS654<CV:#W?W>]LK1
-MK+^YU=[!<(:O79K.!'62.%%"7$.45"J[1V&:)QY<1H'-M01QX8G\!YP/`-;'
-MY9DMCJ\N/YR=3#X.S\_'GR_&E#%*4B:+,)(=2Z85DAAH2XPGJB9&5*<4I=[4
-MX,[GT]R"E@$>!7.S3A615L[O4L\W5%MHO*%YA^=&P3,D?N@Q7Z.70G/K@-PM
-M7C-4B^[_]:<.=#Z0KE\-+W31*6,:BO1<E\-+<.I"ST->J.%O4\42CT'"%9/3
-M/@":3V+63M4GY+HF1TEU*8_%ZO+3N!ML/QMW?\"ZM[^UO;\Y6!UCO1V.,7SI
-M&*M=WUP=3VY/SMY/+J[N+F_'[<K:I^/3X266OG=L2^:Q='%Q5V^5J*XOAM=5
-MOC%62-3W*$R.O<P_/CX=O1_?#F_'6JDMK=36;E6I%3J]2J4G&OU9A0:]`2DT
-MZ&696!LU"MM&OXS::::]D5_E&WTSGIQ].+_\^%]\WWSZY>[DJME>XDMM83XO
-M2#`Y$ROQW8Q.F"_E6F5961`;ERI`.<(:K)!38=(`:"9.\N>XGD%H='QW<W;[
-M6>.SQ95J4#@LVZD*S^OQJ<+S-_"IPE/"YP\!JN+S]P':V>D30#L[V^V!1NC;
-M0<%8;ZVP@";#R*<6G9@X0\C?)D&(@86JD.(*-`D=:T+FX,%!O47%"L,OYAB1
-M+DJ_D7([/FJZ6.>O=B:23^7K](DQ]S^`+%V/#74_2:_7Z48<ZOWHNL$RFMBO
-M1CM%J)2'F7)^@X2UQ=ME[32Y+1K?@;XI:*]:R2ZMB`=!=-4Y"B-G@2%S8AFQ
-M09PU+U\##6E!J]_P"W%)1&TOQLHWFNY2%$HF/H4M12=;/&2%NF1`K798@->F
-M5>JHM$IZTC4ONBZ:U7VVS#<I,0YJ2N;D?(<G\'4K]76K+O[0L3K.V:,9!2NM
-MUZ&I>(*<=Z"+YNYFCZOF[O9VNS_0:5BKL;\Z1\[$#D*8JGW#X5S:]H!)IS#P
-MO@C+54%9JYDP2512:W]I^:2\OGK_)1>PD[/M6R^DDUC687A[>[-?M16G6Y_"
-M=G#P;#/F*/>\9*DA%\M/FG+QZ"\UYE7L/`#V=_:W^RN;\V!/EU5\[?6T0].(
-M5_/@84(@9J^[&EY;+)!ZGE+(-O&-BLK&NO@TO+D\NSS9Q\S.!W[]#HP5XN3@
-M,S\&0'HA-\<9S1`/TG4Q!.(@0>^^Q'K^*A#C#2;`))+Z6*5?_-"\[L^DHLF'
-M7ST8.`GG1ZXX8`FVX;A=,99ZX'_-"U:.:QH1<8X",YWEQ?I&I<8Q`D3<>%I)
-M`$7@6&)]\7)A*TK+04&X\"8&@C&G77@&2!<E"L_+'WI4N$#1.0*;YY6(B@);
-MHJ#;K'K:KC%3Y6=T3P\3C-HS.$"X`>9JA#6(>O3`DHL)CMIRD2UD^D@HA+%[
-M0@BABB@60X<IWH24Q83^[]U?*]+5W+&I?E\/3T:3\>G9A]L#JJ$U2,.)H$'!
-MU!:]-@_T&'QU;.E*7AC<Y&K.!26<69.(XH$>MW.S^/U7<8OTS@.UE8KC+E1I
-M#.66M01?Y\B>6(B@Z+%S9$V8@BN(AB4O`FK:.5(@9+_5-(CY0URD302?98AZ
-MOU(?8L>\%?^ZF-R,AN_3V>$GL1:MB7UZB7&PQ-5?XOJ$4C7*N1Z>X1HL<6%2
-M.B[V^OH,U^82U\7P\_AT>#/27.H9KJTEKO.KXX^C]]E>Y\]P;2]QG5WEATIP
-M.<]PI?%26A(=P1"M?>FML=?3XGY:A!Y'0J.TU^G=R>CV_&<=7VFDGE9"->^I
-MR`-D/Q+9C^T&3PS4CVMO?E#B!S<I?O5_M_A:^GW#;"6]^;X:Q^45"N7R?3@+
-M;)M7+H;_O+II(/B:^O;LLGR+Z&OG9O$5T@'C@W(HKO,%A?R5UL3$'.$O+UI.
-M%#_FB]G(5"7-!RFBQ>(S"4?0);&B%O)&E]`WG.?ZB1'/Z4F6>`M;>5!15!,1
-MG%]\S?5-2$Q$6C3MA`JA;RIU0[\3_P<*,"HPWTRFT;UX^[9<)L21?HXGF8PE
-M;><2T[Q6MK+QBYOATWQNNQ)%ONW2OOPPVWAIYR52;KD%J5:5/BM<59Z%I8*4
-MY5M>I5(2DTCH?5_)FU#:I`%1_(,:&J5?4PBT?VI<Z.YF$-*?G%1BTFL+.Z$_
-MCE$[Y<EZ@4Y-;S8.&2_QW2&]_IC,*&YPWZ`^V6S^5"WF^[KYI,-(+QV^1=J>
-M=?--25>V9Q=I@CZV'@:J62\/M2^U:)J*-G_<HZEH:W>SW=_44U&7I@$:NVDH
-M4/R6B,Y7-#"\YO24'0%888@II7K7Q[C.2W31UE1!F!(%H5XI[<[OJ'CB7YY@
-;+^\NAOGTGX\P?N(9DY?&&++E?XQ&+`*I'@``
-`
-end
+--------------080302040803080808010209--

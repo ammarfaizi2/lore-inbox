@@ -1,48 +1,511 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWAVTq2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWAVTqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbWAVTq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 14:46:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWAVTq2
+	id S1750774AbWAVTqM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 14:46:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWAVTqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 14:46:28 -0500
-Received: from relay03.pair.com ([209.68.5.17]:37124 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S1751320AbWAVTq1 (ORCPT
+	Sun, 22 Jan 2006 14:46:11 -0500
+Received: from zproxy.gmail.com ([64.233.162.198]:23792 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750774AbWAVTqK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 14:46:27 -0500
-X-pair-Authenticated: 67.163.102.102
-From: Chase Venters <chase.venters@clientec.com>
-Organization: Clientec, Inc.
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: memory leak in scsi_cmd_cache 2.6.15
-Date: Sun, 22 Jan 2006 13:46:02 -0600
-User-Agent: KMail/1.9
-Cc: Ariel <askernel2615@dsgml.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.62.0601212105590.22868@pureeloreel.qftzy.pbz> <200601221317.17124.chase.venters@clientec.com> <1137957890.3328.41.camel@laptopd505.fenrus.org>
-In-Reply-To: <1137957890.3328.41.camel@laptopd505.fenrus.org>
+	Sun, 22 Jan 2006 14:46:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type;
+        b=hoDQ7jTlOQuEMWRHrp5jnd7nH6iX5h8mzHWqWVHOUoqPasK/DZfGaNl3BmcE9hurq+MF8uz+c/V/X1/eOR6S+R9R8HbleGv7RZ48yPIux7Q3ES9wY80PaDO5dP5RnNGQXNc3Axa306rnSBMT5yZipqiK+BKEkikhYzJ4PI0Vi/w=
+Message-ID: <43D3E007.3020207@gmail.com>
+Date: Sun, 22 Jan 2006 20:41:59 +0100
+From: =?ISO-8859-1?Q?Daniel_Aragon=E9s?= <danarag@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: es-ar, es, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-6"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601221346.25154.chase.venters@clientec.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+Subject: [PATCH/RFC] minix filesystem: V3 update for kernels 2.6.x.y
+Content-Type: multipart/mixed;
+ boundary="------------000300070401000902090704"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 22 January 2006 13:24, Arjan van de Ven wrote:
-> and you're not using nvidia either? can you see if you have
-> modules/drivers in common with this reporter to see if there maybe are
-> common suspects?
+This is a multi-part message in MIME format.
+--------------000300070401000902090704
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-No - I am tainting with NVIDIA unfortunately. I was trying to find the time to 
-diagnose sans NVIDIA when Anton reported the same leak (turns out he has the 
-same Asus P5GDC-V Deluxe board), only in his dmesg he is not tainting at all.
+Answering the suggestion from Pekka, here comes the separated version for 2.6.x.y
 
-We did determine that Anton and I both use the Marvell sk98lin patch for our 
-Yukon2s. However, Anton reported other servers using this patch with no leak. 
+--------------000300070401000902090704
+Content-Type: text/plain;
+ name="V3_2dot6_patch.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="V3_2dot6_patch.txt"
 
-Ariel - are you using sk98lin? The only other modules I'm using are the ALSA 
-modules for snd-hda-intel as of ALSA version 1.0.11-rc2.
+diff -ur orig.linux-2.6.14.5/fs/minix/bitmap.c updated.linux-2.6.14.5/fs/minix/bitmap.c
+--- orig.linux-2.6.14.5/fs/minix/bitmap.c	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/fs/minix/bitmap.c	2006-01-11 19:41:41.000000000 +0100
+@@ -26,14 +26,14 @@
+ 	for (i=0; i<numblocks-1; i++) {
+ 		if (!(bh=map[i])) 
+ 			return(0);
+-		for (j=0; j<BLOCK_SIZE; j++)
++		for (j=0; j<bh->b_size; j++)
+ 			sum += nibblemap[bh->b_data[j] & 0xf]
+ 				+ nibblemap[(bh->b_data[j]>>4) & 0xf];
+ 	}
+ 
+ 	if (numblocks==0 || !(bh=map[numblocks-1]))
+ 		return(0);
+-	i = ((numbits-(numblocks-1)*BLOCK_SIZE*8)/16)*2;
++	i = ((numbits-(numblocks-1)*bh->b_size*8)/16)*2;
+ 	for (j=0; j<i; j++) {
+ 		sum += nibblemap[bh->b_data[j] & 0xf]
+ 			+ nibblemap[(bh->b_data[j]>>4) & 0xf];
+@@ -145,15 +145,15 @@
+ 		return NULL;
+ 	}
+ 	ino--;
+-	block = 2 + sbi->s_imap_blocks + sbi->s_zmap_blocks +
+-		 ino / MINIX2_INODES_PER_BLOCK;
++	block = 2 + sbi->s_imap_blocks + sbi->s_zmap_blocks + 
++		ino / MINIX2_INODES_PER_BLOCK(sb->s_blocksize);
+ 	*bh = sb_bread(sb, block);
+ 	if (!*bh) {
+ 		printk("unable to read i-node block\n");
+ 		return NULL;
+ 	}
+ 	p = (void *)(*bh)->b_data;
+-	return p + ino % MINIX2_INODES_PER_BLOCK;
++	return p + ino % MINIX2_INODES_PER_BLOCK(sb->s_blocksize);
+ }
+ 
+ /* Clear the link count and mode of a deleted inode on disk. */
+diff -ur orig.linux-2.6.14.5/fs/minix/dir.c updated.linux-2.6.14.5/fs/minix/dir.c
+--- orig.linux-2.6.14.5/fs/minix/dir.c	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/fs/minix/dir.c	2006-01-11 19:41:41.000000000 +0100
+@@ -4,6 +4,8 @@
+  *  Copyright (C) 1991, 1992 Linus Torvalds
+  *
+  *  minix directory handling functions
++ *
++ *  Updated to filesystem version 3 by Daniel Aragones
+  */
+ 
+ #include "minix.h"
+@@ -11,6 +13,7 @@
+ #include <linux/smp_lock.h>
+ 
+ typedef struct minix_dir_entry minix_dirent;
++typedef struct minix3_dir_entry minix3_dirent;
+ 
+ static int minix_readdir(struct file *, void *, filldir_t);
+ 
+@@ -108,14 +111,22 @@
+ 		limit = kaddr + minix_last_byte(inode, n) - chunk_size;
+ 		for ( ; p <= limit ; p = minix_next_entry(p, sbi)) {
+ 			minix_dirent *de = (minix_dirent *)p;
++			minix3_dirent *de3 = (minix3_dirent *)p;
+ 			if (de->inode) {
+ 				int over;
+-				unsigned l = strnlen(de->name,sbi->s_namelen);
+-
+-				offset = p - kaddr;
+-				over = filldir(dirent, de->name, l,
+-						(n<<PAGE_CACHE_SHIFT) | offset,
+-						de->inode, DT_UNKNOWN);
++				if (!(sbi->s_version == MINIX_V3)) {
++					unsigned l = strnlen(de->name,sbi->s_namelen);
++					offset = p - kaddr;
++					over = filldir(dirent, de->name, l,
++					(n<<PAGE_CACHE_SHIFT) | offset,
++					de->inode, DT_UNKNOWN);
++				} else {
++					unsigned l = strnlen(de3->name,sbi->s_namelen);
++					offset = p - kaddr;
++					over = filldir(dirent, de3->name, l,
++					(n<<PAGE_CACHE_SHIFT) | offset,
++					de3->inode, DT_UNKNOWN);
++				}
+ 				if (over) {
+ 					dir_put_page(page);
+ 					goto done;
+@@ -158,7 +169,7 @@
+ 	unsigned long npages = dir_pages(dir);
+ 	struct page *page = NULL;
+ 	struct minix_dir_entry *de;
+-
++	struct minix3_dir_entry *de3;
+ 	*res_page = NULL;
+ 
+ 	for (n = 0; n < npages; n++) {
+@@ -169,17 +180,26 @@
+ 
+ 		kaddr = (char*)page_address(page);
+ 		de = (struct minix_dir_entry *) kaddr;
++		de3 = (struct minix3_dir_entry *) kaddr;
+ 		kaddr += minix_last_byte(dir, n) - sbi->s_dirsize;
+-		for ( ; (char *) de <= kaddr ; de = minix_next_entry(de,sbi)) {
+-			if (!de->inode)
+-				continue;
+-			if (namecompare(namelen,sbi->s_namelen,name,de->name))
+-				goto found;
++		for ( ; (char *) de <= kaddr ;
++					de = minix_next_entry(de,sbi),
++					de3 = minix_next_entry(de3,sbi)) {
++			if (!(sbi->s_version == MINIX_V3)) {
++				if (!de->inode)
++					continue;
++				if (namecompare(namelen,sbi->s_namelen,name,de->name))
++					goto found;
++			} else {
++				if (!de3->inode)
++					continue;
++				if (namecompare(namelen,sbi->s_namelen,name,de3->name))
++					goto found;
++			}
+ 		}
+ 		dir_put_page(page);
+ 	}
+ 	return NULL;
+-
+ found:
+ 	*res_page = page;
+ 	return de;
+@@ -194,6 +214,7 @@
+ 	struct minix_sb_info * sbi = minix_sb(sb);
+ 	struct page *page = NULL;
+ 	struct minix_dir_entry * de;
++	struct minix3_dir_entry * de3;
+ 	unsigned long npages = dir_pages(dir);
+ 	unsigned long n;
+ 	char *kaddr;
+@@ -216,6 +237,7 @@
+ 		kaddr = (char*)page_address(page);
+ 		dir_end = kaddr + minix_last_byte(dir, n);
+ 		de = (minix_dirent *)kaddr;
++		de3 = (minix3_dirent *)kaddr;
+ 		kaddr += PAGE_CACHE_SIZE - sbi->s_dirsize;
+ 		while ((char *)de <= kaddr) {
+ 			if ((char *)de == dir_end) {
+@@ -226,9 +248,16 @@
+ 			if (!de->inode)
+ 				goto got_it;
+ 			err = -EEXIST;
+-			if (namecompare(namelen,sbi->s_namelen,name,de->name))
+-				goto out_unlock;
+-			de = minix_next_entry(de, sbi);
++			if (!(sbi->s_version == MINIX_V3)) {
++				if (namecompare(namelen,sbi->s_namelen,name,de->name))
++					goto out_unlock;
++				de = minix_next_entry(de, sbi);
++			} else {
++				if (namecompare(namelen,sbi->s_namelen,name,de3->name))
++					goto out_unlock;
++				de = minix_next_entry(de, sbi);
++				de3 = minix_next_entry(de3, sbi);
++			}
+ 		}
+ 		unlock_page(page);
+ 		dir_put_page(page);
+@@ -242,9 +271,15 @@
+ 	err = page->mapping->a_ops->prepare_write(NULL, page, from, to);
+ 	if (err)
+ 		goto out_unlock;
+-	memcpy (de->name, name, namelen);
+-	memset (de->name + namelen, 0, sbi->s_dirsize - namelen - 2);
+-	de->inode = inode->i_ino;
++		if (!(sbi->s_version == MINIX_V3)) {
++		memcpy (de->name, name, namelen);
++		memset (de->name + namelen, 0, sbi->s_dirsize - namelen - 2);
++		de->inode = inode->i_ino;
++		} else {
++		memcpy (de3->name, name, namelen);
++		memset (de3->name + namelen, 0, sbi->s_dirsize - namelen - 4);
++		de3->inode = inode->i_ino;
++		}
+ 	err = dir_commit_chunk(page, from, to);
+ 	dir->i_mtime = dir->i_ctime = CURRENT_TIME_SEC;
+ 	mark_inode_dirty(dir);
+@@ -286,6 +321,7 @@
+ 	struct page *page = grab_cache_page(mapping, 0);
+ 	struct minix_sb_info * sbi = minix_sb(inode->i_sb);
+ 	struct minix_dir_entry * de;
++	struct minix3_dir_entry * de3;
+ 	char *kaddr;
+ 	int err;
+ 
+@@ -301,11 +337,13 @@
+ 	memset(kaddr, 0, PAGE_CACHE_SIZE);
+ 
+ 	de = (struct minix_dir_entry *)kaddr;
+-	de->inode = inode->i_ino;
+-	strcpy(de->name,".");
++	de3 = (struct minix3_dir_entry *)kaddr;
++	de->inode = de3->inode = inode->i_ino;
++	(sbi->s_version == MINIX_V3) ? strcpy(de3->name,".") : strcpy(de->name,".");
+ 	de = minix_next_entry(de, sbi);
+-	de->inode = dir->i_ino;
+-	strcpy(de->name,"..");
++	de3 = minix_next_entry(de3, sbi);
++	de->inode = de3->inode = dir->i_ino;
++	(sbi->s_version == MINIX_V3) ? strcpy(de3->name,"..") : strcpy(de->name,"..");
+ 	kunmap_atomic(kaddr, KM_USER0);
+ 
+ 	err = dir_commit_chunk(page, 0, 2 * sbi->s_dirsize);
+@@ -326,27 +364,42 @@
+ 	for (i = 0; i < npages; i++) {
+ 		char *kaddr;
+ 		minix_dirent * de;
++		minix3_dirent * de3 = NULL;
+ 		page = dir_get_page(inode, i);
+ 
+ 		if (IS_ERR(page))
+ 			continue;
+ 
+ 		kaddr = (char *)page_address(page);
++		if (sbi->s_version == MINIX_V3)
++			de3 = (minix3_dirent *)kaddr;
+ 		de = (minix_dirent *)kaddr;
+ 		kaddr += minix_last_byte(inode, i) - sbi->s_dirsize;
+ 
+ 		while ((char *)de <= kaddr) {
+ 			if (de->inode != 0) {
+ 				/* check for . and .. */
+-				if (de->name[0] != '.')
+-					goto not_empty;
+-				if (!de->name[1]) {
+-					if (de->inode != inode->i_ino)
++				if (!(sbi->s_version == MINIX_V3)) {
++					if (de->name[0] != '.')
++						goto not_empty;
++					if (!de->name[1]) {
++						if (de->inode != inode->i_ino)
++						goto not_empty;
++					} else if (de->name[1] != '.')
++						goto not_empty;
++					else if (de->name[2])
++						goto not_empty;
++				} else {
++					if (de3->name[0] != '.')
+ 						goto not_empty;
+-				} else if (de->name[1] != '.')
+-					goto not_empty;
+-				else if (de->name[2])
+-					goto not_empty;
++					if (!de3->name[1]) {
++						if (de3->inode != inode->i_ino)
++						goto not_empty;
++					} else if (de3->name[1] != '.')
++						goto not_empty;
++					else if (de3->name[2])
++						goto not_empty;
++				}
+ 			}
+ 			de = minix_next_entry(de, sbi);
+ 		}
+diff -ur orig.linux-2.6.14.5/fs/minix/inode.c updated.linux-2.6.14.5/fs/minix/inode.c
+--- orig.linux-2.6.14.5/fs/minix/inode.c	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/fs/minix/inode.c	2006-01-11 19:41:41.000000000 +0100
+@@ -7,6 +7,7 @@
+  *	Minix V2 fs support.
+  *
+  *  Modified for 680x0 by Andreas Schwab
++ *  Updated to filesystem version 3 by Daniel Aragones
+  */
+ 
+ #include <linux/module.h>
+@@ -36,7 +37,8 @@
+ 	struct minix_sb_info *sbi = minix_sb(sb);
+ 
+ 	if (!(sb->s_flags & MS_RDONLY)) {
+-		sbi->s_ms->s_state = sbi->s_mount_state;
++		if (sbi->s_version != MINIX_V3)	 /* s_state is now out from V3 sb */
++			sbi->s_ms->s_state = sbi->s_mount_state;
+ 		mark_buffer_dirty(sbi->s_sbh);
+ 	}
+ 	for (i = 0; i < sbi->s_imap_blocks; i++)
+@@ -117,21 +119,23 @@
+ 		    !(sbi->s_mount_state & MINIX_VALID_FS))
+ 			return 0;
+ 		/* Mounting a rw partition read-only. */
+-		ms->s_state = sbi->s_mount_state;
++		if (sbi->s_version != MINIX_V3)
++			ms->s_state = sbi->s_mount_state;
+ 		mark_buffer_dirty(sbi->s_sbh);
+ 	} else {
+ 	  	/* Mount a partition which is read-only, read-write. */
+ 		sbi->s_mount_state = ms->s_state;
+-		ms->s_state &= ~MINIX_VALID_FS;
++		if (sbi->s_version != MINIX_V3)
++			ms->s_state &= ~MINIX_VALID_FS;
+ 		mark_buffer_dirty(sbi->s_sbh);
+ 
+-		if (!(sbi->s_mount_state & MINIX_VALID_FS))
+-			printk ("MINIX-fs warning: remounting unchecked fs, "
+-				"running fsck is recommended.\n");
+-		else if ((sbi->s_mount_state & MINIX_ERROR_FS))
+-			printk ("MINIX-fs warning: remounting fs with errors, "
+-				"running fsck is recommended.\n");
+-	}
++		if (!(sbi->s_mount_state & MINIX_VALID_FS) && (sbi->s_version != MINIX_V3))
++			printk ("MINIX-fs warning: remounting unchecked Minix filesystem V%i, "
++				"running fsck is recommended.\n", sbi->s_version);
++		else if ((sbi->s_mount_state & MINIX_ERROR_FS) && (sbi->s_version != MINIX_V3))
++			printk ("MINIX-fs warning: remounting Minix filesystem V%i with errors, "
++				"running fsck is recommended.\n", sbi->s_version);
++ 	}
+ 	return 0;
+ }
+ 
+@@ -197,6 +201,23 @@
+ 		sbi->s_dirsize = 32;
+ 		sbi->s_namelen = 30;
+ 		sbi->s_link_max = MINIX2_LINK_MAX;
++	} else if ( *(__u16 *)(bh->b_data + 24) == MINIX3_SUPER_MAGIC) {
++
++		s->s_magic = MINIX3_SUPER_MAGIC;
++		sbi->s_imap_blocks = *(__u16 *)(bh->b_data + 6);
++		sbi->s_zmap_blocks = *(__u16 *)(bh->b_data + 8);
++		sbi->s_firstdatazone = *(__u16 *)(bh->b_data + 10);
++		sbi->s_log_zone_size = *(__u16 *)(bh->b_data + 12);
++		sbi->s_max_size = *(__u32 *)(bh->b_data + 16);
++		sbi->s_nzones = *(__u32 *)(bh->b_data + 20);
++		sbi->s_dirsize = 64;
++		sbi->s_namelen = 60;
++		sbi->s_version = MINIX_V3;
++		sbi->s_link_max = MINIX2_LINK_MAX;
++			if ( *(__u16 *)(bh->b_data + 28) != 1024) {
++				if (!sb_set_blocksize(s,( *(__u16 *)(bh->b_data + 28))))
++ 				goto out_bad_hblock;
++		}
+ 	} else
+ 		goto out_no_fs;
+ 
+@@ -240,15 +261,16 @@
+ 		s->s_root->d_op = &minix_dentry_operations;
+ 
+ 	if (!(s->s_flags & MS_RDONLY)) {
+-		ms->s_state &= ~MINIX_VALID_FS;
++		if(sbi->s_version != MINIX_V3) /* s_state is now out from V3 sb */
++			ms->s_state &= ~MINIX_VALID_FS;
+ 		mark_buffer_dirty(bh);
+ 	}
+-	if (!(sbi->s_mount_state & MINIX_VALID_FS))
+-		printk ("MINIX-fs: mounting unchecked file system, "
+-			"running fsck is recommended.\n");
+- 	else if (sbi->s_mount_state & MINIX_ERROR_FS)
+-		printk ("MINIX-fs: mounting file system with errors, "
+-			"running fsck is recommended.\n");
++	if (!(sbi->s_mount_state & MINIX_VALID_FS) && (sbi->s_version != MINIX_V3))
++		printk ("MINIX-fs: mounting unchecked Minix filesystem V%i, "
++			"running fsck is recommended.\n", sbi->s_version);
++ 	else if ((sbi->s_mount_state & MINIX_ERROR_FS) && (sbi->s_version != MINIX_V3))
++		printk ("MINIX-fs: mounting Minix filesystem V%i with errors, "
++			"running fsck is recommended.\n", sbi->s_version);
+ 	return 0;
+ 
+ out_iput:
+@@ -277,8 +299,8 @@
+ 
+ out_no_fs:
+ 	if (!silent)
+-		printk("VFS: Can't find a Minix or Minix V2 filesystem on device "
+-		       "%s.\n", s->s_id);
++		printk("VFS: Can't find a Minix filesystem V1 | V2 | V3 on device "
++ 		       "%s.\n", s->s_id);
+     out_release:
+ 	brelse(bh);
+ 	goto out;
+@@ -536,12 +558,14 @@
+ 
+ int minix_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
+ {
++	struct inode * dir = dentry->d_parent->d_inode;
++	struct super_block * sb = dir->i_sb;
+ 	generic_fillattr(dentry->d_inode, stat);
+ 	if (INODE_VERSION(dentry->d_inode) == MINIX_V1)
+ 		stat->blocks = (BLOCK_SIZE / 512) * V1_minix_blocks(stat->size);
+ 	else
+-		stat->blocks = (BLOCK_SIZE / 512) * V2_minix_blocks(stat->size);
+-	stat->blksize = BLOCK_SIZE;
++		stat->blocks = (sb->s_blocksize / 512) * V2_minix_blocks(stat->size);
++	stat->blksize = sb->s_blocksize;
+ 	return 0;
+ }
+ 
+diff -ur orig.linux-2.6.14.5/fs/minix/itree_common.c updated.linux-2.6.14.5/fs/minix/itree_common.c
+--- orig.linux-2.6.14.5/fs/minix/itree_common.c	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/fs/minix/itree_common.c	2006-01-11 19:41:41.000000000 +0100
+@@ -23,7 +23,7 @@
+ 
+ static inline block_t *block_end(struct buffer_head *bh)
+ {
+-	return (block_t *)((char*)bh->b_data + BLOCK_SIZE);
++	return (block_t *)((char*)bh->b_data + bh->b_size);
+ }
+ 
+ static inline Indirect *get_branch(struct inode *inode,
+@@ -85,7 +85,7 @@
+ 		branch[n].key = cpu_to_block(nr);
+ 		bh = sb_getblk(inode->i_sb, parent);
+ 		lock_buffer(bh);
+-		memset(bh->b_data, 0, BLOCK_SIZE);
++		memset(bh->b_data, 0, bh->b_size);
+ 		branch[n].bh = bh;
+ 		branch[n].p = (block_t*) bh->b_data + offsets[n];
+ 		*branch[n].p = branch[n].key;
+@@ -292,6 +292,7 @@
+ 
+ static inline void truncate (struct inode * inode)
+ {
++	struct super_block * sb = inode->i_sb;
+ 	block_t *idata = i_data(inode);
+ 	int offsets[DEPTH];
+ 	Indirect chain[DEPTH];
+@@ -301,7 +302,7 @@
+ 	int first_whole;
+ 	long iblock;
+ 
+-	iblock = (inode->i_size + BLOCK_SIZE-1) >> 10;
++	iblock = (inode->i_size + sb->s_blocksize -1) >> 10;
+ 	block_truncate_page(inode->i_mapping, inode->i_size, get_block);
+ 
+ 	n = block_to_path(inode, iblock, offsets);
+diff -ur orig.linux-2.6.14.5/fs/minix/minix.h updated.linux-2.6.14.5/fs/minix/minix.h
+--- orig.linux-2.6.14.5/fs/minix/minix.h	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/fs/minix/minix.h	2006-01-11 19:41:41.000000000 +0100
+@@ -12,6 +12,7 @@
+ 
+ #define MINIX_V1		0x0001		/* original minix fs */
+ #define MINIX_V2		0x0002		/* minix V2 fs */
++#define MINIX_V3		0x0003		/* minix V3 fs */
+ 
+ /*
+  * minix fs inode data in memory
+diff -ur orig.linux-2.6.14.5/include/linux/minix_fs.h updated.linux-2.6.14.5/include/linux/minix_fs.h
+--- orig.linux-2.6.14.5/include/linux/minix_fs.h	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/include/linux/minix_fs.h	2006-01-11 19:41:41.000000000 +0100
+@@ -23,11 +23,12 @@
+ #define MINIX_SUPER_MAGIC2	0x138F		/* minix fs, 30 char names */
+ #define MINIX2_SUPER_MAGIC	0x2468		/* minix V2 fs */
+ #define MINIX2_SUPER_MAGIC2	0x2478		/* minix V2 fs, 30 char names */
++#define MINIX3_SUPER_MAGIC	0x4d5a		/* minix V3 fs */ 
+ #define MINIX_VALID_FS		0x0001		/* Clean fs. */
+ #define MINIX_ERROR_FS		0x0002		/* fs has errors. */
+ 
+ #define MINIX_INODES_PER_BLOCK ((BLOCK_SIZE)/(sizeof (struct minix_inode)))
+-#define MINIX2_INODES_PER_BLOCK ((BLOCK_SIZE)/(sizeof (struct minix2_inode)))
++#define MINIX2_INODES_PER_BLOCK(b) ((b)/(sizeof (struct minix2_inode)))
+ 
+ /*
+  * This is the original minix inode layout on disk.
+@@ -82,4 +83,9 @@
+ 	char name[0];
+ };
+ 
++struct minix3_dir_entry {
++	__u32 inode;
++	char name[0];
++};
+ #endif
 
-Cheers,
-Chase
+--------------000300070401000902090704--

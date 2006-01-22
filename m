@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbWAVNfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWAVNyW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751223AbWAVNfP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 08:35:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWAVNfP
+	id S1751254AbWAVNyW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 08:54:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWAVNyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 08:35:15 -0500
-Received: from smile.2scale.net ([212.12.33.142]:5274 "EHLO smile.2scale.net")
-	by vger.kernel.org with ESMTP id S1751223AbWAVNfO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 08:35:14 -0500
-Subject: Re: 2.6.16_rc1 psmouse hangs without KVM
-From: Michael Stiller <ms@2scale.net>
-To: dtor_core@ameritech.net
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <d120d5000601200838s702db8c6p4bbc6924dcebe6c1@mail.gmail.com>
-References: <43D10CA9.4030307@inode.at>
-	 <d120d5000601200838s702db8c6p4bbc6924dcebe6c1@mail.gmail.com>
-Content-Type: text/plain
-Date: Sun, 22 Jan 2006 14:35:15 +0100
-Message-Id: <1137936915.5572.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Sun, 22 Jan 2006 08:54:22 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:11790 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751254AbWAVNyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 08:54:21 -0500
+Date: Sun, 22 Jan 2006 14:54:20 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>,
+       Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] kernel/rcupdate.c: make two structs static
+Message-ID: <20060122135420.GW31803@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-O>
-> > Since the change from 2.6.14 to 2.6.16_rc1, I got mouse hangs using a
-> > first-generation MS IntelliEye Explorer with USB->PS2 converter, no KVM,
-> > which ran smoothly on the official 2.6.14.
-> >
-> >
-> > The syslog message is ...
-> >
-> >   psmouse.c: resync failed, issuing reconnect request
-> >
-> > and I have the exact symptoms - hang after about 10 sec mouse
-> > inactivity, then after 2 secs it's back to normal - as described in the
-> > thread ...
+This patch makes two needlessly global structs static.
 
-I guess i may have related symptoms on 2.6.13-2.6.15.1.
 
-During disk io (eg sorting you inbox with evolution) i get :
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-psmouse.c: TrackPoint at isa0060/serio1/input0 lost synchronization,
-throwing 2 bytes away.
+---
 
-The system reacts very sluggish, in fact it is completly unusable.
+This patch was already sent on:
+- 12 Jan 2006
 
-There are also issues with the keyboard subsystem at that times.
+ include/linux/rcupdate.h |    2 --
+ kernel/rcupdate.c        |    4 ++--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
--Michael
+--- linux-2.6.15-mm3-full/include/linux/rcupdate.h.old	2006-01-12 02:23:35.000000000 +0100
++++ linux-2.6.15-mm3-full/include/linux/rcupdate.h	2006-01-12 01:06:47.000000000 +0100
+@@ -109,8 +109,6 @@
+ 
+ DECLARE_PER_CPU(struct rcu_data, rcu_data);
+ DECLARE_PER_CPU(struct rcu_data, rcu_bh_data);
+-extern struct rcu_ctrlblk rcu_ctrlblk;
+-extern struct rcu_ctrlblk rcu_bh_ctrlblk;
+ 
+ /*
+  * Increment the quiescent state counter.
+--- linux-2.6.15-mm3-full/kernel/rcupdate.c.old	2006-01-12 01:06:54.000000000 +0100
++++ linux-2.6.15-mm3-full/kernel/rcupdate.c	2006-01-12 01:07:07.000000000 +0100
+@@ -49,13 +49,13 @@
+ #include <linux/cpu.h>
+ 
+ /* Definition for rcupdate control block. */
+-struct rcu_ctrlblk rcu_ctrlblk = {
++static struct rcu_ctrlblk rcu_ctrlblk = {
+ 	.cur = -300,
+ 	.completed = -300,
+ 	.lock = SPIN_LOCK_UNLOCKED,
+ 	.cpumask = CPU_MASK_NONE,
+ };
+-struct rcu_ctrlblk rcu_bh_ctrlblk = {
++static struct rcu_ctrlblk rcu_bh_ctrlblk = {
+ 	.cur = -300,
+ 	.completed = -300,
+ 	.lock = SPIN_LOCK_UNLOCKED,
 

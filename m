@@ -1,47 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWAVROn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWAVRTL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbWAVROn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 12:14:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbWAVROn
+	id S932271AbWAVRTL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 12:19:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWAVRTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 12:14:43 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:19605 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932251AbWAVROm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 12:14:42 -0500
-Subject: Re: Development tree, PLEASE?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Michael Loftis <mloftis@wgops.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, Sven-Haegar Koch <haegar@sdinet.de>,
-       Matthew Frost <artusemrys@sbcglobal.net>, linux-kernel@vger.kernel.org,
-       James Courtier-Dutton <James@superbug.co.uk>
-In-Reply-To: <F2CD9CC3F050829D8C8DC767@dhcp-2-206.wgops.com>
-References: <20060121031958.98570.qmail@web81905.mail.mud.yahoo.com>
-	 <1FA093EB58B02DE48E424157@dhcp-2-206.wgops.com>
-	 <1137829140.3241.141.camel@mindpipe>
-	 <Pine.LNX.4.64.0601212250020.31384@mercury.sdinet.de>
-	 <1137881882.411.23.camel@mindpipe>
-	 <3B0BEE012630B9B11D1209E5@dhcp-2-206.wgops.com>
-	 <1137884582.411.47.camel@mindpipe>
-	 <F2CD9CC3F050829D8C8DC767@dhcp-2-206.wgops.com>
-Content-Type: text/plain
-Date: Sun, 22 Jan 2006 18:14:30 +0100
-Message-Id: <1137950070.3328.26.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 22 Jan 2006 12:19:11 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:44729 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932271AbWAVRTK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 12:19:10 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH -mm] swsusp: fix possible lockup in user interface
+Date: Sun, 22 Jan 2006 18:20:15 +0100
+User-Agent: KMail/1.9
+Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200601221820.15694.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> And I'm not seeing/saying this sort of thing would stick forever, but a '6 
-> month cycle' or something of that nature.  
+The appended patch fixes possible system lockup that may result from
+calling pm_prepare_console() after processes has been frozen.
 
-Guess how long the current -stable tree is maintained... yes that is
-right, just about 6 months give or take a week or two.
+Please apply.
 
-Ergo, your point is moot.
+Greetings,
+Rafael
 
 
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+
+ kernel/power/user.c |   10 +++++++---
+ 1 files changed, 7 insertions(+), 3 deletions(-)
+
+Index: linux-2.6.16-rc1-mm2/kernel/power/user.c
+===================================================================
+--- linux-2.6.16-rc1-mm2.orig/kernel/power/user.c	2006-01-21 23:42:32.000000000 +0100
++++ linux-2.6.16-rc1-mm2/kernel/power/user.c	2006-01-22 17:49:07.000000000 +0100
+@@ -141,9 +141,14 @@ static int snapshot_ioctl(struct inode *
+ 			break;
+ 		sys_sync();
+ 		down(&pm_sem);
++		pm_prepare_console();
+ 		disable_nonboot_cpus();
+-		if (freeze_processes())
++		if (freeze_processes()) {
++			thaw_processes();
++			enable_nonboot_cpus();
++			pm_restore_console();
+ 			error = -EBUSY;
++		}
+ 		up(&pm_sem);
+ 		if (!error)
+ 			data->frozen = 1;
+@@ -155,6 +160,7 @@ static int snapshot_ioctl(struct inode *
+ 		down(&pm_sem);
+ 		thaw_processes();
+ 		enable_nonboot_cpus();
++		pm_restore_console();
+ 		up(&pm_sem);
+ 		data->frozen = 0;
+ 		break;
+@@ -165,7 +171,6 @@ static int snapshot_ioctl(struct inode *
+ 			break;
+ 		}
+ 		down(&pm_sem);
+-		pm_prepare_console();
+ 		/* Free memory before shutting down devices. */
+ 		error = swsusp_shrink_memory();
+ 		if (!error) {
+@@ -176,7 +181,6 @@ static int snapshot_ioctl(struct inode *
+ 				device_resume();
+ 			}
+ 		}
+-		pm_restore_console();
+ 		up(&pm_sem);
+ 		if (!error)
+ 			error = put_user(in_suspend, (unsigned int __user *)arg);

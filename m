@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWAVToW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWAVTq2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbWAVToW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 14:44:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWAVToW
+	id S1751323AbWAVTq2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 14:46:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751325AbWAVTq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 14:44:22 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:61647 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750801AbWAVToW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 14:44:22 -0500
-Subject: Re: [PATCH] add /proc/*/pmap files
-From: Arjan van de Ven <arjan@infradead.org>
-To: Albert Cahalan <acahalan@gmail.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <787b0d920601221117l78a92fd1udc8601068dbde42c@mail.gmail.com>
-References: <787b0d920601220150n2e34e376i856cc583a372e1f2@mail.gmail.com>
-	 <1137940577.3328.14.camel@laptopd505.fenrus.org>
-	 <787b0d920601221117l78a92fd1udc8601068dbde42c@mail.gmail.com>
-Content-Type: text/plain
-Date: Sun, 22 Jan 2006 20:44:19 +0100
-Message-Id: <1137959059.3328.45.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 22 Jan 2006 14:46:28 -0500
+Received: from relay03.pair.com ([209.68.5.17]:37124 "HELO relay03.pair.com")
+	by vger.kernel.org with SMTP id S1751320AbWAVTq1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 14:46:27 -0500
+X-pair-Authenticated: 67.163.102.102
+From: Chase Venters <chase.venters@clientec.com>
+Organization: Clientec, Inc.
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: memory leak in scsi_cmd_cache 2.6.15
+Date: Sun, 22 Jan 2006 13:46:02 -0600
+User-Agent: KMail/1.9
+Cc: Ariel <askernel2615@dsgml.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.62.0601212105590.22868@pureeloreel.qftzy.pbz> <200601221317.17124.chase.venters@clientec.com> <1137957890.3328.41.camel@laptopd505.fenrus.org>
+In-Reply-To: <1137957890.3328.41.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-6"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200601221346.25154.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-22 at 14:17 -0500, Albert Cahalan wrote:
-> On 1/22/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> > On Sun, 2006-01-22 at 04:50 -0500, Albert Cahalan wrote:
-> > > This adds a few things needed by the pmap command.
-> > > They show up in /proc/*/pmap files.
-> >
-> >
-> > also since this shows filenames and such, could you make the permissions
-> > of the pmap file be 0400 ? (yes I know some others in the same dir
-> > aren't 0400 yet, but I hope that that can be changed in the future,
-> > adding more of these should be avoided for information-leak/exposure
-> > reasons)
-> 
-> I thought it was the addresses you'd object to.
+On Sunday 22 January 2006 13:24, Arjan van de Ven wrote:
+> and you're not using nvidia either? can you see if you have
+> modules/drivers in common with this reporter to see if there maybe are
+> common suspects?
 
-well both ;)
+No - I am tainting with NVIDIA unfortunately. I was trying to find the time to 
+diagnose sans NVIDIA when Anton reported the same leak (turns out he has the 
+same Asus P5GDC-V Deluxe board), only in his dmesg he is not tainting at all.
 
-knowing that you're listening to Mrs Stefani's music rather than
-watching her music clips is something you might not want to spread to
-other users of your system. Or in other words, open files already
-disclose "private" stuff. 
+We did determine that Anton and I both use the Marvell sk98lin patch for our 
+Yukon2s. However, Anton reported other servers using this patch with no leak. 
 
-> I notice that Fedora Core 4 shipped with /proc/*/smaps
-> files that were readable, but /proc/*/maps files that were
-> not readable. (at least, a recent kernel update did)
+Ariel - are you using sk98lin? The only other modules I'm using are the ALSA 
+modules for snd-hda-intel as of ALSA version 1.0.11-rc2.
 
-that'd be a mistake
-
-
-> As of now, I'm keeping mainstream kernel policy as is.
-
-you're making a NEW file, so there is no "mainstream policy" yet. Please
-do it right the first time so that it doesn't have to change later...
-
-
+Cheers,
+Chase

@@ -1,107 +1,266 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWAVDyX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbWAVEAT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWAVDyX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 22:54:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWAVDyX
+	id S932408AbWAVEAT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 23:00:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbWAVEAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 22:54:23 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:39334 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751248AbWAVDyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 22:54:22 -0500
-Date: Sat, 21 Jan 2006 23:42:34 -0500
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: NeilBrown <neilb@suse.de>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Subject: Re: [PATCH 000 of 5] md: Introduction
-Message-ID: <20060121234234.A32306@mail.kroptech.com>
+	Sat, 21 Jan 2006 23:00:19 -0500
+Received: from xenotime.net ([66.160.160.81]:34488 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932408AbWAVEAS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 23:00:18 -0500
+Date: Sat, 21 Jan 2006 20:00:23 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: tali@admingilde.org, akpm <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2/2] kernel-doc: clean up the script (whitespace)
+Message-Id: <20060121200023.4077669b.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060117174531.27739.patches@notabene>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NeilBrown <neilb@suse.de> wrote:
-> In line with the principle of "release early", following are 5 patches
-> against md in 2.6.latest which implement reshaping of a raid5 array.
-> By this I mean adding 1 or more drives to the array and then re-laying
-> out all of the data.
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-I've been looking forward to a feature like this, so I took the
-opportunity to set up a vmware session and give the patches a try. I
-encountered both success and failure, and here are the details of both.
+Remove lots of trailing whitespace.  Nothing else.
 
-On the first try I neglected to read the directions and increased the
-number of devices first (which worked) and then attempted to add the
-physical device (which didn't work; at least not the way I intended).
-The result was an array of size 4, operating in degraded mode, with 
-three active drives and one spare. I was unable to find a way to coax
-mdadm into adding the 4th drive as an active device instead of a 
-spare. I'm not an mdadm guru, so there may be a method I overlooked.
-Here's what I did, interspersed with trimmed /proc/mdstat output:
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ scripts/kernel-doc |   68 ++++++++++++++++++++++++++---------------------------
+ 1 files changed, 34 insertions(+), 34 deletions(-)
 
-  mdadm --create -l5 -n3 /dev/md0 /dev/sda /dev/sdb /dev/sdc
+--- linux-2616-rc1-secur.orig/scripts/kernel-doc
++++ linux-2616-rc1-secur/scripts/kernel-doc
+@@ -90,28 +90,28 @@ use strict;
+ #  * my_function - does my stuff
+ #  * @my_arg: its mine damnit
+ #  *
+-#  * Does my stuff explained. 
++#  * Does my stuff explained.
+ #  */
+ #
+ #  or, could also use:
+ # /**
+ #  * my_function - does my stuff
+ #  * @my_arg: its mine damnit
+-#  * Description: Does my stuff explained. 
++#  * Description: Does my stuff explained.
+ #  */
+ # etc.
+ #
+-# Beside functions you can also write documentation for structs, unions, 
+-# enums and typedefs. Instead of the function name you must write the name 
+-# of the declaration;  the struct/union/enum/typedef must always precede 
+-# the name. Nesting of declarations is not supported. 
++# Beside functions you can also write documentation for structs, unions,
++# enums and typedefs. Instead of the function name you must write the name
++# of the declaration;  the struct/union/enum/typedef must always precede
++# the name. Nesting of declarations is not supported.
+ # Use the argument mechanism to document members or constants.
+ # e.g.
+ # /**
+ #  * struct my_struct - short description
+ #  * @a: first member
+ #  * @b: second member
+-#  * 
++#  *
+ #  * Longer description
+ #  */
+ # struct my_struct {
+@@ -122,12 +122,12 @@ use strict;
+ # };
+ #
+ # All descriptions can be multiline, except the short function description.
+-# 
+-# You can also add additional sections. When documenting kernel functions you 
+-# should document the "Context:" of the function, e.g. whether the functions 
++#
++# You can also add additional sections. When documenting kernel functions you
++# should document the "Context:" of the function, e.g. whether the functions
+ # can be called form interrupts. Unlike other sections you can end it with an
+-# empty line. 
+-# Example-sections should contain the string EXAMPLE so that they are marked 
++# empty line.
++# Example-sections should contain the string EXAMPLE so that they are marked
+ # appropriately in DocBook.
+ #
+ # Example:
+@@ -135,7 +135,7 @@ use strict;
+ #  * user_function - function that can only be called in user context
+ #  * @a: some argument
+ #  * Context: !in_interrupt()
+-#  * 
++#  *
+ #  * Some description
+ #  * Example:
+ #  *    user_function(22);
+@@ -223,9 +223,9 @@ my %highlights = %highlights_man;
+ my $blankline = $blankline_man;
+ my $modulename = "Kernel API";
+ my $function_only = 0;
+-my $man_date = ('January', 'February', 'March', 'April', 'May', 'June', 
+-		'July', 'August', 'September', 'October', 
+-		'November', 'December')[(localtime)[4]] . 
++my $man_date = ('January', 'February', 'March', 'April', 'May', 'June',
++		'July', 'August', 'September', 'October',
++		'November', 'December')[(localtime)[4]] .
+   " " . ((localtime)[5]+1900);
+ 
+ # Essentially these are globals
+@@ -236,7 +236,7 @@ my ($function, %function_table,%paramete
+ my ($type,$declaration_name,$return_type);
+ my ($newsection,$newcontents,$prototype,$filelist, $brcount, %source_map);
+ 
+-# Generated docbook code is inserted in a template at a point where 
++# Generated docbook code is inserted in a template at a point where
+ # docbook v3.1 requires a non-zero sequence of RefEntry's; see:
+ # http://www.oasis-open.org/docbook/documentation/reference/html/refentry.html
+ # We keep track of number of generated entries and generate a dummy
+@@ -365,7 +365,7 @@ sub dump_section {
+ #  parameterdescs => %parameter descriptions
+ #  sectionlist => @list of sections
+ #  sections => %descriont descriptions
+-#  
++#
+ 
+ sub output_highlight {
+     my $contents = join "\n",@_;
+@@ -400,7 +400,7 @@ sub output_section_html(%) {
+ 	print "<blockquote>\n";
+ 	output_highlight($args{'sections'}{$section});
+ 	print "</blockquote>\n";
+-    }  
++    }
+ }
+ 
+ # output enum in html
+@@ -551,7 +551,7 @@ sub output_intro_html(%) {
+ 
+ sub output_section_xml(%) {
+     my %args = %{$_[0]};
+-    my $section;    
++    my $section;
+     # print out each section
+     $lineprefix="   ";
+     foreach $section (@{$args{'sectionlist'}}) {
+@@ -778,7 +778,7 @@ sub output_enum_xml(%) {
+     print "</refsynopsisdiv>\n";
+ 
+     print "<refsect1>\n";
+-    print " <title>Constants</title>\n";    
++    print " <title>Constants</title>\n";
+     print "  <variablelist>\n";
+     foreach $parameter (@{$args{'parameterlist'}}) {
+       my $parameter_name = $parameter;
+@@ -1157,7 +1157,7 @@ sub output_section_text(%) {
+     foreach $section (@{$args{'sectionlist'}}) {
+ 	print "$section:\n\n";
+ 	output_highlight($args{'sections'}{$section});
+-    }  
++    }
+     print "\n\n";
+ }
+ 
+@@ -1262,8 +1262,8 @@ sub output_declaration {
+     my $name = shift;
+     my $functype = shift;
+     my $func = "output_${functype}_$output_mode";
+-    if (($function_only==0) || 
+-	( $function_only == 1 && defined($function_table{$name})) || 
++    if (($function_only==0) ||
++	( $function_only == 1 && defined($function_table{$name})) ||
+ 	( $function_only == 2 && !defined($function_table{$name})))
+     {
+         &$func(@_);
+@@ -1282,7 +1282,7 @@ sub output_intro {
+ }
+ 
+ ##
+-# takes a declaration (struct, union, enum, typedef) and 
++# takes a declaration (struct, union, enum, typedef) and
+ # invokes the right handler. NOT called for functions.
+ sub dump_declaration($$) {
+     no strict 'refs';
+@@ -1352,7 +1352,7 @@ sub dump_enum($$) {
+ 	    }
+ 
+ 	}
+-	
++
+ 	output_declaration($declaration_name,
+ 			   'enum',
+ 			   {'enum' => $declaration_name,
+@@ -1409,7 +1409,7 @@ sub create_parameterlist($$$) {
+     while ($args =~ /(\([^\),]+),/) {
+         $args =~ s/(\([^\),]+),/$1#/g;
+     }
+-    
++
+     foreach my $arg (split($splitter, $args)) {
+ 	# strip comments
+ 	$arg =~ s/\/\*.*\*\///;
+@@ -1556,7 +1556,7 @@ sub dump_function($$) {
+ 	return;
+     }
+ 
+-    output_declaration($declaration_name, 
++    output_declaration($declaration_name,
+ 		       'function',
+ 		       {'function' => $declaration_name,
+ 			'module' => $modulename,
+@@ -1615,11 +1615,11 @@ sub reset_state {
+     %sections = ();
+     @sectionlist = ();
+     $prototype = "";
+-    
++
+     $state = 0;
+ }
+ 
+-sub process_state3_function($$) { 
++sub process_state3_function($$) {
+     my $x = shift;
+     my $file = shift;
+ 
+@@ -1638,7 +1638,7 @@ sub process_state3_function($$) { 
+     }
+ }
+ 
+-sub process_state3_type($$) { 
++sub process_state3_type($$) {
+     my $x = shift;
+     my $file = shift;
+ 
+@@ -1778,7 +1778,7 @@ sub process_file($) {
+ 	    } elsif (/$doc_content/) {
+ 		# miguel-style comment kludge, look for blank lines after
+ 		# @parameter line to signify start of description
+-		if ($1 eq "" && 
++		if ($1 eq "" &&
+ 			($section =~ m/^@/ || $section eq $section_context)) {
+ 		    dump_section($section, xml_escape($contents));
+ 		    $section = $section_default;
+@@ -1788,7 +1788,7 @@ sub process_file($) {
+ 		}
+ 	    } else {
+ 		# i dont know - bad line?  ignore.
+-		print STDERR "Warning(${file}:$.): bad line: $_"; 
++		print STDERR "Warning(${file}:$.): bad line: $_";
+ 		++$warnings;
+ 	    }
+ 	} elsif ($state == 3) {	# scanning for function { (end of prototype)
+@@ -1843,7 +1843,7 @@ sub process_file($) {
+ 			else
+ 			{
+ 				$contents .= $1 . "\n";
+-			}	
++			}
+         	}
+           }
+     }
 
-    md0 : active raid5 sda[0] sdc[2] sdb[1]
-          2097024 blocks level 5, 64k chunk, algorithm 2 [3/3] [UUU]
 
-  mdadm --grow -n4 /dev/md0
-
-    md0 : active raid5 sda[0] sdc[2] sdb[1]
-          3145536 blocks level 5, 64k chunk, algorithm 2 [4/3] [UUU_]
-
-  mdadm --manage --add /dev/md0 /dev/sdd
-
-    md0 : active raid5 sdd[3](S) sda[0] sdc[2] sdb[1]
-          3145536 blocks level 5, 64k chunk, algorithm 2 [4/3] [UUU_]
-
-  mdadm --misc --stop /dev/md0
-  mdadm --assemble /dev/md0 /dev/sda /dev/sdb /dev/sdc /dev/sdd
-
-    md0 : active raid5 sdd[3](S) sda[0] sdc[2] sdb[1]
-          3145536 blocks level 5, 64k chunk, algorithm 2 [4/3] [UUU_]
-
-For my second try I actually read the directions and things went much
-better, aside from a possible /proc/mdstat glitch shown below.
-
-  mdadm --create -l5 -n3 /dev/md0 /dev/sda /dev/sdb /dev/sdc
-
-    md0 : active raid5 sda[0] sdc[2] sdb[1]
-          2097024 blocks level 5, 64k chunk, algorithm 2 [3/3] [UUU]
-
-  mdadm --manage --add /dev/md0 /dev/sdd
-
-    md0 : active raid5 sdd[3](S) sdc[2] sdb[1] sda[0]
-          2097024 blocks level 5, 64k chunk, algorithm 2 [3/3] [UUU]
-
-  mdadm --grow -n4 /dev/md0
-
-    md0 : active raid5 sdd[3] sdc[2] sdb[1] sda[0]
-          2097024 blocks level 5, 64k chunk, algorithm 2 [4/4] [UUUU]
-                                ...should this be... --> [4/3] [UUU_] perhaps?
-          [>....................]  recovery =  0.4% (5636/1048512) finish=9.1min speed=1878K/sec
-
-    [...time passes...]
-
-    md0 : active raid5 sdd[3] sdc[2] sdb[1] sda[0]
-          3145536 blocks level 5, 64k chunk, algorithm 2 [4/4] [UUUU]
-
-My final test was a repeat of #2, but with data actively being written
-to the array during the reshape (the previous tests were on an idle,
-unmounted array). This one failed pretty hard, with several processes
-ending up in the D state. I repeated it twice and sysrq-t dumps can be
-found at <http://www.kroptech.com/~adk0212/md-raid5-reshape-wedge.txt>.
-The writeout load was a kernel tree untar started shortly before the
-'mdadm --grow' command was given. mdadm hung, as did tar. Any process
-which subsequently attmpted to access the array hung as well. A second
-attempt at the same thing hung similarly, although only pdflush shows up
-hung in that trace. mdadm and tar are missing for some reason.
-
-I'm happy to do more tests. It's easy to conjur up virtual disks and
-load them with irrelevant data (like kernel trees ;)
-
---Adam
-
+---

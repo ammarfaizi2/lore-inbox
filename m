@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWAVIUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWAVIYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbWAVIUq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 03:20:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWAVIUq
+	id S932218AbWAVIYV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 03:24:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbWAVIYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 03:20:46 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:54243 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932197AbWAVIUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 03:20:45 -0500
-Subject: Re: memory leak in scsi_cmd_cache 2.6.15
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ariel <askernel2615@dsgml.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1137917798.3328.2.camel@laptopd505.fenrus.org>
-References: <Pine.LNX.4.62.0601212105590.22868@pureeloreel.qftzy.pbz>
-	 <1137917798.3328.2.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Sun, 22 Jan 2006 09:20:44 +0100
-Message-Id: <1137918044.3328.6.camel@laptopd505.fenrus.org>
+	Sun, 22 Jan 2006 03:24:21 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35806 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932218AbWAVIYU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 03:24:20 -0500
+Date: Sun, 22 Jan 2006 09:24:03 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: rmk+serial@arm.linux.org.uk, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] backup timer for UARTs that lose interrupts (updated spinlocking)
+Message-ID: <20060122082402.GB1543@elf.ucw.cz>
+References: <1137869586.16056.146.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1137869586.16056.146.camel@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-22 at 09:16 +0100, Arjan van de Ven wrote:
-> On Sat, 2006-01-21 at 21:13 -0500, Ariel wrote:
-> > I have a memory leak in scsi_cmd_cache.
-> > 
-> > Attached is a pretty graph made by munin, and you can see slab_cache 
-> > growing constantly since last reboot. Also attached is /proc/config.gz
-> > 
-> > And here is a copy of /proc/meminfo and /proc/slabinfo
-> > 
-> > I'm rebooting now since my system is all but unusable (so the mem stats 
-> > will reset), but if you need any more info let me know.
+On So 21-01-06 11:53:06, Alex Williamson wrote:
 > 
+>    This is an update to the following patch current found in the -mm
+> tree:
 > 
-> does this happen without the binary nvidia driver too? (it appears
-> you're using that). That's a good datapoint to have if so...
+> backup-timer-for-uarts-that-lose-interrupts-take-3.patch
+> 
+> The only change is that the spinlocks around 8250_handle_port() have
+> been removed to be consistent with changes to upstream.  Original submit
+> message below.  Thanks
 
+is this going to cause increased timer activity on non-buggy systems?
 
-btw please post an lsmod, so that we can find "common" things with the
-other reporters of this issue, and thus maybe are able to get closer to
-the issue by reducing the candidates...
+> +	if (is_real_interrupt(up->port.irq))
+> +		serial_out(up, UART_IER, ier);
+> +
+> +	timeout = timeout > 6 ? (timeout / 2 - 2) : 1;
 
+Eh? What units is timeout in, anyway?
+
+> +	mod_timer(&up->timer, jiffies + (timeout * 100));
+
+Does this work in HZ!=100 situations?
+
+> +	/* Wait up to 1s for flow control if necessary */
+> +	if (up->port.flags & UPF_CONS_FLOW) {
+> +		tmout = 1000000;
+> +		while (--tmout &&
+> +		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0))
+> +			udelay(1);
+
+Could you s/tmout/timeout/ while you are modifying this?
+
+> +		if (iir & UART_IIR_NO_INT) {
+> +			unsigned int timeout = up->port.timeout;
+> +
+> +			pr_debug("ttyS%d - using backup timer\n", port->line);
+> +			timeout = timeout > 6 ? (timeout / 2 - 2) : 1;
+
+Same strange computation, again. Inline function?
+							Pavel
+-- 
+Thanks, Sharp!

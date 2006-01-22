@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWAVW5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWAVW5g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWAVW5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 17:57:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbWAVW5Q
+	id S932330AbWAVW5g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 17:57:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWAVW5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 17:57:16 -0500
-Received: from mail.suse.de ([195.135.220.2]:35761 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932313AbWAVW5P (ORCPT
+	Sun, 22 Jan 2006 17:57:36 -0500
+Received: from iabervon.org ([66.92.72.58]:62476 "EHLO iabervon.org")
+	by vger.kernel.org with ESMTP id S932330AbWAVW5f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 17:57:15 -0500
-From: Neil Brown <neilb@suse.de>
-To: "John Stoffel" <john@stoffel.org>
-Date: Mon, 23 Jan 2006 09:57:05 +1100
+	Sun, 22 Jan 2006 17:57:35 -0500
+Date: Sun, 22 Jan 2006 17:59:36 -0500 (EST)
+From: Daniel Barkalow <barkalow@iabervon.org>
+To: Michael Loftis <mloftis@wgops.com>
+cc: Bernd Petrovitsch <bernd@firmix.at>, Lee Revell <rlrevell@joe-job.com>,
+       Sven-Haegar Koch <haegar@sdinet.de>,
+       Matthew Frost <artusemrys@sbcglobal.net>, linux-kernel@vger.kernel.org,
+       James Courtier-Dutton <James@superbug.co.uk>
+Subject: Re: Development tree, PLEASE?
+In-Reply-To: <4BC1BE8FDDB41AAA7205E258@dhcp-2-206.wgops.com>
+Message-ID: <Pine.LNX.4.64.0601221723360.25300@iabervon.org>
+References: <20060121031958.98570.qmail@web81905.mail.mud.yahoo.com> 
+ <1FA093EB58B02DE48E424157@dhcp-2-206.wgops.com>  <1137829140.3241.141.camel@mindpipe>
+  <Pine.LNX.4.64.0601212250020.31384@mercury.sdinet.de>  <1137881882.411.23.camel@mindpipe>
+  <3B0BEE012630B9B11D1209E5@dhcp-2-206.wgops.com>  <1137883638.411.38.camel@mindpipe>
+ <1137883888.3291.53.camel@gimli.at.home> <4BC1BE8FDDB41AAA7205E258@dhcp-2-206.wgops.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17364.3521.662774.431030@cse.unsw.edu.au>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Subject: Re: [PATCH 001 of 5] md: Split disks array out of raid5 conf structure so it is easier to grow.
-In-Reply-To: message from John Stoffel on Friday January 20
-References: <20060117174531.27739.patches@notabene>
-	<1060117065614.27831@suse.de>
-	<17357.271.619918.45917@smtp.charter.net>
-	<17358.56490.127364.327688@cse.unsw.edu.au>
-	<17361.44149.200493.916170@smtp.charter.net>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday January 20, john@stoffel.org wrote:
-> Though now that I look at it, don't we have a circular reference
-> here?  Let me quote the code section, which starts of with where I was
-> confused: 
-..
-> 
-> Now we seem to end up with:
-> 
-> 	mddev->private = conf;
-> 	conf->mddev = mddev;
-> 
+On Sun, 22 Jan 2006, Michael Loftis wrote:
 
-This is simply to related structures each holding a reference to the
-other.  It's like the child pointing to the parent, and the parent
-pointing to the child, which you get all the time.
+> Yes, I realise all of this.  But everyone seems to get this damned 
+> territorial attitude that I want to see kernel development stopped, 
+> quite the opposite.  All I want to see is a stable target for certain 
+> windows of time.  So that way when bugs are fixed that are trivial 
+> there's a place to go without upgrading scads of userland stuff or 
+> worrying about lots of unrelated change.
 
-NeilBrown
+I believe that, if you want to maintain a 2.6.13.y (for example) tree 
+after the -stable team has moved on, you'd be perfectly welcome, and could 
+probably even do it on kernel.org. It might not even be that hard to get 
+the necessary patches, given that -stable sees all of the long-standing 
+stability/security bugs (so you can watch that list for ones you should 
+include patches for), and the regressions will probably mostly be fixed 
+before you get the series.
+
+I think that the reason that nobody's done this already isn't that it 
+would be very difficult, but that distributions don't actually see a value 
+in using old kernel series and are happy with -stable. If you have a 
+reason to stick with a series longer, it might be worth the trouble to 
+you.
+
+	-Daniel
+*This .sig left intentionally blank*

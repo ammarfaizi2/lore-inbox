@@ -1,32 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWAVWSI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWAVWT3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbWAVWSI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 17:18:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWAVWSI
+	id S932197AbWAVWT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 17:19:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbWAVWT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 17:18:08 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:9997 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id S932154AbWAVWSH (ORCPT
+	Sun, 22 Jan 2006 17:19:28 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:12301 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id S932197AbWAVWT2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 17:18:07 -0500
-Date: Sun, 22 Jan 2006 17:17:58 -0500 (EST)
-Message-Id: <200601222217.k0MMHw1D216186@saturn.cs.uml.edu>
+	Sun, 22 Jan 2006 17:19:28 -0500
+Date: Sun, 22 Jan 2006 17:19:03 -0500 (EST)
+Message-Id: <200601222219.k0MMJ3Qg209555@saturn.cs.uml.edu>
 From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
 To: linux-kernel@vger.kernel.org, akpm@osdl.org, arjan@infradead.org
-Subject: [PATCH 3/4] pmap: fix integer overflow
+Subject: [PATCH 4/4] pmap: reduced permissions
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This fixes an integer overflow in the /proc/*/maps files.
-The size of a file may exceed the limit of unsigned long
-on a 32-bit platform.
+This patch changes all 3 remaining maps files to be readable
+only for the file owner. There have been privacy concerns.
 
-Some parsers will break if they encounter a mapping of a
-file that has an offset which doesn't fit into unsigned long.
-Parsers which need the offset to be correct will break
-without this change though. Parsers which can not handle
-large numbers are likely to get LONG_MAX from strtol().
+Fedora Core 4 has been shipping with such permissions on
+the /proc/*/maps file already. General system monitoring
+tools seldom use these files.
 
 Signed-off-by: Albert Cahalan <acahalan@gmail.com>
 
@@ -35,23 +32,27 @@ Signed-off-by: Albert Cahalan <acahalan@gmail.com>
 This applies to -git4, grabbed Saturday night.
 
 
-diff -Naurd 2/fs/proc/task_mmu.c 3/fs/proc/task_mmu.c
---- 2/fs/proc/task_mmu.c	2006-01-22 15:20:24.000000000 -0500
-+++ 3/fs/proc/task_mmu.c	2006-01-22 15:26:54.000000000 -0500
-@@ -135,14 +135,14 @@
- 		ino = inode->i_ino;
- 	}
- 
--	seq_printf(m, "%08lx-%08lx %c%c%c%c %08lx %02x:%02x %lu %n",
-+	seq_printf(m, "%08lx-%08lx %c%c%c%c %08llx %02x:%02x %lu %n",
- 			vma->vm_start,
- 			vma->vm_end,
- 			flags & VM_READ ? 'r' : '-',
- 			flags & VM_WRITE ? 'w' : '-',
- 			flags & VM_EXEC ? 'x' : '-',
- 			flags & VM_MAYSHARE ? 's' : 'p',
--			vma->vm_pgoff << PAGE_SHIFT,
-+			(unsigned long long)vma->vm_pgoff << PAGE_SHIFT,
- 			MAJOR(dev), MINOR(dev), ino, &len);
- 
- 	/*
+diff -Naurd 3/fs/proc/base.c 4/fs/proc/base.c
+--- 3/fs/proc/base.c	2006-01-22 15:23:13.000000000 -0500
++++ 4/fs/proc/base.c	2006-01-22 15:44:16.000000000 -0500
+@@ -202,7 +202,7 @@
+ 	E(PROC_TGID_EXE,       "exe",     S_IFLNK|S_IRWXUGO),
+ 	E(PROC_TGID_MOUNTS,    "mounts",  S_IFREG|S_IRUGO),
+ #ifdef CONFIG_MMU
+-	E(PROC_TGID_PMAP,      "pmap",   S_IFREG|S_IRUGO),
++	E(PROC_TGID_PMAP,      "pmap",   S_IFREG|S_IRUSR),
+ #endif
+ #ifdef CONFIG_SECURITY
+ 	E(PROC_TGID_ATTR,      "attr",    S_IFDIR|S_IRUGO|S_IXUGO),
+@@ -231,9 +231,9 @@
+ 	E(PROC_TID_CMDLINE,    "cmdline", S_IFREG|S_IRUGO),
+ 	E(PROC_TID_STAT,       "stat",    S_IFREG|S_IRUGO),
+ 	E(PROC_TID_STATM,      "statm",   S_IFREG|S_IRUGO),
+-	E(PROC_TID_MAPS,       "maps",    S_IFREG|S_IRUGO),
++	E(PROC_TID_MAPS,       "maps",    S_IFREG|S_IRUSR),
+ #ifdef CONFIG_NUMA
+-	E(PROC_TID_NUMA_MAPS,  "numa_maps",    S_IFREG|S_IRUGO),
++	E(PROC_TID_NUMA_MAPS,  "numa_maps",    S_IFREG|S_IRUSR),
+ #endif
+ 	E(PROC_TID_MEM,        "mem",     S_IFREG|S_IRUSR|S_IWUSR),
+ #ifdef CONFIG_SECCOMP

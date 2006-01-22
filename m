@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWAVVDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWAVVDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751366AbWAVVDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 16:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWAVVDZ
+	id S1751364AbWAVVDx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 16:03:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWAVVDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 16:03:25 -0500
-Received: from thunk.org ([69.25.196.29]:39118 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1751366AbWAVVDO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 16:03:14 -0500
-Date: Sun, 22 Jan 2006 13:28:01 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: John Stoffel <john@stoffel.org>
-Cc: Takashi Sato <sho@tnes.nec.co.jp>, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ext3: Extends blocksize up to pagesize
-Message-ID: <20060122182801.GA7082@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	John Stoffel <john@stoffel.org>, Takashi Sato <sho@tnes.nec.co.jp>,
-	ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <000001c61c30$00814e80$4168010a@bsd.tnes.nec.co.jp> <17358.25398.943860.755559@smtp.charter.net>
+	Sun, 22 Jan 2006 16:03:53 -0500
+Received: from thing.hostingexpert.com ([67.15.235.34]:33991 "EHLO
+	thing.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S1751364AbWAVVDv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 16:03:51 -0500
+Message-ID: <43D3F338.8010608@linuxtv.org>
+Date: Sun, 22 Jan 2006 16:03:52 -0500
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17358.25398.943860.755559@smtp.charter.net>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       linux-dvb-maintainer@linuxtv.org, mchehab@brturbo.com.br
+Subject: Re: [PATCH] dvb: fix printk format warning
+References: <20060117211426.573066bb.rdunlap@xenotime.net>
+In-Reply-To: <20060117211426.573066bb.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - linuxtv.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 18, 2006 at 10:48:06AM -0500, John Stoffel wrote:
+Randy.Dunlap wrote:
+> From: Randy Dunlap <rdunlap@xenotime.net>
 > 
-> Takashi> As a disk tends to get large, a disk storage has had a
-> Takashi> capacity to supply multi-TB.  But now, ext3 can't support
-> Takashi> more than 8TB filesystem when blocksize is 4KB.  That's why I
-> Takashi> think ext3 needs to be more than 8TB.
+> Fix printk type warning:
+> drivers/media/dvb/b2c2/flexcop-pci.c:164: warning: format '%08x' expects type 'unsigned int', but argument 4 has type 'dma_addr_t'
 > 
-> Man, I don't want to even think about doing an FSCK on an 8TB
-> filesystem running ext[23] at all.  
-> 
-> In that size range, you really need a filesystem which doesn't need an
-> FSCK at all.  Not sure what the real answer is though...
+> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 
-Ext3 doesn't require a fsck under normal circumstances.  The only
-reason why it still requires a periodic fsck after some number of
-mounts is sheer paranoia about the reliability of PC class hardware.
-All filesystems need some kind of filesystem consistency checker to
-deal with filesystem corruptions caused by OS bugs or hardware
-corruption bugs.  The only question is whether or not the filesystem
-assumes at a fundamental level whether or not the hardware can be
-trusted to be reliable or not.  (People have claimed that XFS is much
-less robust in the face of hardware errors when compared to ext[23]; I
-haven't seen a definitive study on the issue, although that tends to
-correspond with my experience.  Other people would say it doesn't
-matter because that's why you pay $$$$$ for am EMC Symmetrix box or an
-IBM shark/DS6000/DS8000, or some other Really Expensive Storage
-Hardware.)
+I've applied this to our cvs tree.  Thanks, Randy.
 
-But if you're willing to assume that your hardware is reliable and
-never fails, hey, feel free to disable the periodic FSCK checking
-using the command: "tune2fs -c 0 -i 0 /dev/sdXXX".
+Mauro, please apply this to v4l-dvb.git with your next push.
 
-						- Ted
+Regards,
 
+Michael

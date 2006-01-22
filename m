@@ -1,87 +1,335 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbWAVRbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWAVRkh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964771AbWAVRbM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 12:31:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWAVRbM
+	id S964778AbWAVRkh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 12:40:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWAVRkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 12:31:12 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:41165 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964771AbWAVRbL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 12:31:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qjVrcR+qAMloGPgiO0JxEpHxVHqaS5jdaudmbHoqAaVJQGQUNf+uArkW5O7KfIXFlG9RLL4eQf3ebEkcdEmVd311FvyfYK1NsYts3lyGUIom1/rBYIeqhn8r0ipRKhtFGJzHXrdrbtG8JPt+L+1+2zGVQ0Xm61s+hduJflN7pGQ=
-Message-ID: <9e4733910601220931x3a21e47dj7dbf834e2f36d31c@mail.gmail.com>
-Date: Sun, 22 Jan 2006 12:31:10 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-To: Jim Nance <jlnance@sdf.lonestar.org>
-Subject: Re: sendfile() with 100 simultaneous 100MB files
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060122142401.GA24738@SDF.LONESTAR.ORG>
+	Sun, 22 Jan 2006 12:40:37 -0500
+Received: from thing.hostingexpert.com ([67.15.235.34]:26301 "EHLO
+	thing.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S964778AbWAVRkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 12:40:36 -0500
+Message-ID: <43D3C38C.3060100@gmail.com>
+Date: Sun, 22 Jan 2006 12:40:28 -0500
+From: Michael Krufky <mkrufky@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9e4733910601201353g36284133xf68c4f6eae1344b4@mail.gmail.com>
-	 <20060122142401.GA24738@SDF.LONESTAR.ORG>
+To: Adrian Bunk <bunk@stusta.de>
+CC: Mauro Carvalho Chehab <mchehab@infradead.org>,
+       linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org,
+       Patrick Boettcher <patrick.boettcher@desy.de>,
+       johannes Stezenbach <js@linuxtv.org>
+Subject: Re: [RFC: 2.6 patch] drivers/media/dvb/: possible cleanups
+References: <20060122171022.GA10003@stusta.de>
+In-Reply-To: <20060122171022.GA10003@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - gmail.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/22/06, Jim Nance <jlnance@sdf.lonestar.org> wrote:
-> On Fri, Jan 20, 2006 at 04:53:44PM -0500, Jon Smirl wrote:
->
-> > Any other ideas why sendfile() would get into a seek storm?
->
-> I can't really comment on the quality of the linux sendfile() implementation,
-> I've never looked at the code.  However, a couple of general observations.
->
-> The seek storm happens because linux is trying to be "fair," where fair
-> means no one process get to starve another for I/O bandwidth.
+Adrian Bunk wrote:
 
-I think there is something more going on. The user space processes
-submitted requests for the same IO in 500K chunks and didn't get into
-a seek storm. If it was a disk fairness problem the user space
-implementation would have gotten in trouble too.
-
-There seems to be some difference in the way sendfile() submits the
-requests to the disk system and how the 500K requests from user space
-are handled. I believe both tests were using the same disk scheduler
-algorithm so the data points to differences in how the requests are
-submitted to the disk system. The sendfile() submission pattern
-triggers a storm and the user space one doesn't.
-
-I've asked the lighttpd people for more data but I haven't gotten
-anything back yet. Things like RAM, network speed, disk scheduler
-algorithm, etc.
-
+>This patch contains the following possible cleanups:
+>- make needlessly global code static
+>- #if 0 the following unused global functions:
+>  - b2c2/flexcop-dma.c: flexcop_dma_control_packet_irq()
+>  - b2c2/flexcop-dma.c: flexcop_dma_config_packet_count()
 >
-> The fastest way to transfer 100 100M files would be to send them one at a
-> time.  The 99th person in line of course would percieve this as a very poor
-> implementation.  The current sendfile implementation seems to live at the
-> other end of the extream.
+>Please review which of these changes do make sense and which conflict 
+>with pending patches.
+>
+>
+>Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>  
+>
+Adrian-
 
-One at a time may not be the fastest. When the network transmission
-window is full you will stop transmitting on that socket but you can
-probably still transmit on the others. Packet loss is another reason
-for sockets blocking.
+I apologize for the delay in our response to this patch, and I thank you 
+for holding it back from merging, as there were some conflicts with our 
+previous patches, although I believe that those have been resolved by now.
 
+I spoke to Patrick Boettcher briefly about this, and we agree that your 
+patch can be applied, for the most part, but he explained to me that 
+there is a conflict in your patch with some of the code that he is 
+currently working on, but then he disappeared, without telling me where 
+the problem was, specifically.
+
+I havent been able to contact Patrick since then, but I've cc'd him on 
+this email, and hopefully he can share his comments with us.
+
+Patrick, please let us know where you stand on this.   Can we apply this 
+now?
+
+-Michael
+
+>---
 >
-> It is possible to come up with a compromise behavior by limiting the
-> number of concurrent sendfiles running, and the maximum size they are
-> allowed to send in one squirt.
+>This patch was already sent on:
+>- 14 Jan 2006
 >
-> Thanks,
+> drivers/media/dvb/b2c2/flexcop-common.h      |    2 -
+> drivers/media/dvb/b2c2/flexcop-dma.c         |    4 ++
+> drivers/media/dvb/b2c2/flexcop-misc.c        |    6 ++--
+> drivers/media/dvb/b2c2/flexcop-reg.h         |    4 --
+> drivers/media/dvb/dvb-usb/cxusb.c            |    8 ++---
+> drivers/media/dvb/dvb-usb/dvb-usb-firmware.c |    8 +++--
+> drivers/media/dvb/dvb-usb/dvb-usb.h          |    1 
+> drivers/media/dvb/dvb-usb/vp702x.c           |    6 ++--
+> drivers/media/dvb/dvb-usb/vp702x.h           |    2 -
+> drivers/media/dvb/ttpci/av7110.h             |    2 -
+> drivers/media/dvb/ttpci/av7110_ir.c          |   26 +++++++++----------
+> 11 files changed, 33 insertions(+), 36 deletions(-)
 >
-> Jim
+>--- linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-common.h.old	2006-01-07 16:49:18.000000000 +0100
+>+++ linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-common.h	2006-01-07 16:49:28.000000000 +0100
+>@@ -116,11 +116,9 @@
+> 
+> int flexcop_dma_control_timer_irq(struct flexcop_device *fc, flexcop_dma_index_t no, int onoff);
+> int flexcop_dma_control_size_irq(struct flexcop_device *fc, flexcop_dma_index_t no, int onoff);
+>-int flexcop_dma_control_packet_irq(struct flexcop_device *fc, flexcop_dma_index_t no, int onoff);
+> int flexcop_dma_config(struct flexcop_device *fc, struct flexcop_dma *dma, flexcop_dma_index_t dma_idx);
+> int flexcop_dma_xfer_control(struct flexcop_device *fc, flexcop_dma_index_t dma_idx, flexcop_dma_addr_index_t index, int onoff);
+> int flexcop_dma_config_timer(struct flexcop_device *fc, flexcop_dma_index_t dma_idx, u8 cycles);
+>-int flexcop_dma_config_packet_count(struct flexcop_device *fc, flexcop_dma_index_t dma_idx, u8 packets);
+> 
+> /* from flexcop-eeprom.c */
+> /* the PCI part uses this call to get the MAC address, the USB part has its own */
+>--- linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-dma.c.old	2006-01-07 16:49:37.000000000 +0100
+>+++ linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-dma.c	2006-01-07 16:50:25.000000000 +0100
+>@@ -169,6 +169,8 @@
+> }
+> EXPORT_SYMBOL(flexcop_dma_config_timer);
+> 
+>+#if 0
+>+
+> /* packet IRQ does not exist in FCII or FCIIb - according to data book and tests */
+> int flexcop_dma_control_packet_irq(struct flexcop_device *fc,
+> 		flexcop_dma_index_t no,
+>@@ -204,3 +206,5 @@
+> 	return 0;
+> }
+> EXPORT_SYMBOL(flexcop_dma_config_packet_count);
+>+
+>+#endif  /*  0  */
+>--- linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-reg.h.old	2006-01-07 16:51:05.000000000 +0100
+>+++ linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-reg.h	2006-01-07 16:51:38.000000000 +0100
+>@@ -16,8 +16,6 @@
+> 	FLEXCOP_III,
+> } flexcop_revision_t;
+> 
+>-extern const char *flexcop_revision_names[];
+>-
+> typedef enum {
+> 	FC_UNK = 0,
+> 	FC_AIR_DVB,
+>@@ -34,8 +32,6 @@
+> 	FC_PCI,
+> } flexcop_bus_t;
+> 
+>-extern const char *flexcop_device_names[];
+>-
+> /* FlexCop IBI Registers */
+> #if defined(__LITTLE_ENDIAN)
+> 	#include "flexcop_ibi_value_le.h"
+>--- linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-misc.c.old	2006-01-07 16:48:00.000000000 +0100
+>+++ linux-2.6.15-mm2-full/drivers/media/dvb/b2c2/flexcop-misc.c	2006-01-07 16:51:27.000000000 +0100
+>@@ -36,14 +36,14 @@
+> 	/* bus parts have to decide if hw pid filtering is used or not. */
+> }
+> 
+>-const char *flexcop_revision_names[] = {
+>+static const char *flexcop_revision_names[] = {
+> 	"Unkown chip",
+> 	"FlexCopII",
+> 	"FlexCopIIb",
+> 	"FlexCopIII",
+> };
+> 
+>-const char *flexcop_device_names[] = {
+>+static const char *flexcop_device_names[] = {
+> 	"Unkown device",
+> 	"Air2PC/AirStar 2 DVB-T",
+> 	"Air2PC/AirStar 2 ATSC 1st generation",
+>@@ -54,7 +54,7 @@
+> 	"Air2PC/AirStar 2 ATSC 3rd generation (HD5000)",
+> };
+> 
+>-const char *flexcop_bus_names[] = {
+>+static const char *flexcop_bus_names[] = {
+> 	"USB",
+> 	"PCI",
+> };
+>--- linux-2.6.15-mm2-full/drivers/media/dvb/dvb-usb/dvb-usb-firmware.c.old	2006-01-07 16:56:27.000000000 +0100
+>+++ linux-2.6.15-mm2-full/drivers/media/dvb/dvb-usb/dvb-usb-firmware.c	2006-01-07 16:57:06.000000000 +0100
+>@@ -24,6 +24,9 @@
+> 	{ .id = CYPRESS_FX2,     .name = "Cypress FX2",     .cpu_cs_register = 0xe600 },
+> };
+> 
+>+static int dvb_usb_get_hexline(const struct firmware *fw, struct hexline *hx,
+>+			       int *pos);
+>+
+> /*
+>  * load a firmware packet to the device
+>  */
+>@@ -111,7 +114,8 @@
+> 	return ret;
+> }
+> 
+>-int dvb_usb_get_hexline(const struct firmware *fw, struct hexline *hx, int *pos)
+>+static int dvb_usb_get_hexline(const struct firmware *fw, struct hexline *hx,
+>+			       int *pos)
+> {
+> 	u8 *b = (u8 *) &fw->data[*pos];
+> 	int data_offs = 4;
+>@@ -141,5 +145,3 @@
+> 
+> 	return *pos;
+> }
+>-EXPORT_SYMBOL(dvb_usb_get_hexline);
+>-
+>--- linux-2.6.15-mm2-full/drivers/media/dvb/dvb-usb/vp702x.h.old	2006-01-07 16:57:23.000000000 +0100
+>+++ linux-2.6.15-mm2-full/drivers/media/dvb/dvb-usb/vp702x.h	2006-01-07 16:58:15.000000000 +0100
+>@@ -102,8 +102,6 @@
+> extern struct dvb_frontend * vp702x_fe_attach(struct dvb_usb_device *d);
+> 
+> extern int vp702x_usb_inout_op(struct dvb_usb_device *d, u8 *o, int olen, u8 *i, int ilen, int msec);
+>-extern int vp702x_usb_inout_cmd(struct dvb_usb_device *d, u8 cmd, u8 *o, int olen, u8 *i, int ilen, int msec);
+> extern int vp702x_usb_in_op(struct dvb_usb_device *d, u8 req, u16 value, u16 index, u8 *b, int blen);
+>-extern int vp702x_usb_out_op(struct dvb_usb_device *d, u8 req, u16 value, u16 index, u8 *b, int blen);
+> 
+> #endif
+>--- linux-2.6.15-mm2-full/drivers/media/dvb/dvb-usb/vp702x.c.old	2006-01-07 16:57:37.000000000 +0100
+>+++ linux-2.6.15-mm2-full/drivers/media/dvb/dvb-usb/vp702x.c	2006-01-07 16:58:27.000000000 +0100
+>@@ -53,7 +53,8 @@
+> 	return ret;
+> }
+> 
+>-int vp702x_usb_out_op(struct dvb_usb_device *d, u8 req, u16 value, u16 index, u8 *b, int blen)
+>+static int vp702x_usb_out_op(struct dvb_usb_device *d, u8 req, u16 value,
+>+			     u16 index, u8 *b, int blen)
+> {
+> 	deb_xfer("out: req. %x, val: %x, ind: %x, buffer: ",req,value,index);
+> 	debug_dump(b,blen,deb_xfer);
+>@@ -88,7 +89,8 @@
+> 	return ret;
+> }
+> 
+>-int vp702x_usb_inout_cmd(struct dvb_usb_device *d, u8 cmd, u8 *o, int olen, u8 *i, int ilen, int msec)
+>+static int vp702x_usb_inout_cmd(struct dvb_usb_device *d, u8 cmd, u8 *o,
+>+				int olen, u8 *i, int ilen, int msec)
+> {
+> 	u8 bout[olen+2];
+> 	u8 bin[ilen+1];
+>--- linux-2.6.15-mm2-full/drivers/media/dvb/ttpci/av7110.h.old	2006-01-07 16:59:33.000000000 +0100
+>+++ linux-2.6.15-mm2-full/drivers/media/dvb/ttpci/av7110.h	2006-01-07 16:59:39.000000000 +0100
+>@@ -261,8 +261,6 @@
+> extern int ChangePIDs(struct av7110 *av7110, u16 vpid, u16 apid, u16 ttpid,
+> 		       u16 subpid, u16 pcrpid);
+> 
+>-extern int av7110_setup_irc_config (struct av7110 *av7110, u32 ir_config);
+>-
+> extern int av7110_ir_init(struct av7110 *av7110);
+> extern void av7110_ir_exit(struct av7110 *av7110);
+> 
+>--- linux-2.6.15-mm2-full/drivers/media/dvb/ttpci/av7110_ir.c.old	2006-01-07 16:59:47.000000000 +0100
+>+++ linux-2.6.15-mm2-full/drivers/media/dvb/ttpci/av7110_ir.c	2006-01-07 17:00:21.000000000 +0100
+>@@ -155,6 +155,19 @@
+> }
+> 
+> 
+>+static int av7110_setup_irc_config(struct av7110 *av7110, u32 ir_config)
+>+{
+>+	int ret = 0;
+>+
+>+	dprintk(4, "%p\n", av7110);
+>+	if (av7110) {
+>+		ret = av7110_fw_cmd(av7110, COMTYPE_PIDFILTER, SetIR, 1, ir_config);
+>+		av7110->ir_config = ir_config;
+>+	}
+>+	return ret;
+>+}
+>+
+>+
+> static int av7110_ir_write_proc(struct file *file, const char __user *buffer,
+> 				unsigned long count, void *data)
+> {
+>@@ -187,19 +200,6 @@
+> }
+> 
+> 
+>-int av7110_setup_irc_config(struct av7110 *av7110, u32 ir_config)
+>-{
+>-	int ret = 0;
+>-
+>-	dprintk(4, "%p\n", av7110);
+>-	if (av7110) {
+>-		ret = av7110_fw_cmd(av7110, COMTYPE_PIDFILTER, SetIR, 1, ir_config);
+>-		av7110->ir_config = ir_config;
+>-	}
+>-	return ret;
+>-}
+>-
+>-
+> static void ir_handler(struct av7110 *av7110, u32 ircom)
+> {
+> 	dprintk(4, "ircommand = %08x\n", ircom);
 >
-> --
-> jlnance@sdf.lonestar.org
-> SDF Public Access UNIX System - http://sdf.lonestar.org
+>--- linux-2.6.15-mm3-full/drivers/media/dvb/dvb-usb/dvb-usb.h.old	2006-01-14 01:04:34.000000000 +0100
+>+++ linux-2.6.15-mm3-full/drivers/media/dvb/dvb-usb/dvb-usb.h	2006-01-14 01:04:50.000000000 +0100
+>@@ -341,7 +341,6 @@
+> 	u8 data[255];
+> 	u8 chk;
+> };
+>-extern int dvb_usb_get_hexline(const struct firmware *, struct hexline *, int *);
+> extern int usb_cypress_load_firmware(struct usb_device *udev, const struct firmware *fw, int type);
+> 
+> #endif
+>--- linux-2.6.15-mm3-full/drivers/media/dvb/dvb-usb/cxusb.c.old	2006-01-14 01:02:27.000000000 +0100
+>+++ linux-2.6.15-mm3-full/drivers/media/dvb/dvb-usb/cxusb.c	2006-01-14 01:03:28.000000000 +0100
+>@@ -184,7 +184,7 @@
+> 	return 0;
+> }
+> 
+>-struct dvb_usb_rc_key dvico_mce_rc_keys[] = {
+>+static struct dvb_usb_rc_key dvico_mce_rc_keys[] = {
+> 	{ 0xfe, 0x02, KEY_TV },
+> 	{ 0xfe, 0x0e, KEY_MP3 },
+> 	{ 0xfe, 0x1a, KEY_DVD },
+>@@ -253,7 +253,7 @@
+> 	return 0;
+> }
+> 
+>-struct cx22702_config cxusb_cx22702_config = {
+>+static struct cx22702_config cxusb_cx22702_config = {
+> 	.demod_address = 0x63,
+> 
+> 	.output_mode = CX22702_PARALLEL_OUTPUT,
+>@@ -262,13 +262,13 @@
+> 	.pll_set  = dvb_usb_pll_set_i2c,
+> };
+> 
+>-struct lgdt330x_config cxusb_lgdt330x_config = {
+>+static struct lgdt330x_config cxusb_lgdt330x_config = {
+> 	.demod_address = 0x0e,
+> 	.demod_chip    = LGDT3303,
+> 	.pll_set       = dvb_usb_pll_set_i2c,
+> };
+> 
+>-struct mt352_config cxusb_dee1601_config = {
+>+static struct mt352_config cxusb_dee1601_config = {
+> 	.demod_address = 0x0f,
+> 	.demod_init    = cxusb_dee1601_demod_init,
+> 	.pll_set       = dvb_usb_pll_set,
+>
+>  
 >
 
-
---
-Jon Smirl
-jonsmirl@gmail.com

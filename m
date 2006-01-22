@@ -1,140 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbWAVMFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWAVMJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbWAVMFR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 07:05:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964771AbWAVMFR
+	id S964774AbWAVMJO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 07:09:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbWAVMJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 07:05:17 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:25765 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S964775AbWAVMFP
+	Sun, 22 Jan 2006 07:09:14 -0500
+Received: from uproxy.gmail.com ([66.249.92.196]:20171 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964774AbWAVMJN convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 07:05:15 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: "John W. Linville" <linville@tuxdriver.com>
-Subject: [PATCH] ieee80211_rx_any: filter out packets, call ieee80211_rx or ieee80211_rx_mgt
-Date: Sun, 22 Jan 2006 14:04:52 +0200
-User-Agent: KMail/1.8.2
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, jbenc@suse.cz,
-       softmac-dev@sipsolutions.net, bcm43xx-dev@lists.berlios.de
-References: <20060118200616.GC6583@tuxdriver.com>
-In-Reply-To: <20060118200616.GC6583@tuxdriver.com>
+	Sun, 22 Jan 2006 07:09:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=nSYQJjomGFd0Hvcz8b7OBNQqlB2XVG3SGnsMAzUZG+CU7YYqWwVe9d0/xL5T3UMJnvECI5CPkCYE5QpzjkjehpPnTC4tZzGlOClbKA9r8w0QZ6PcxzhwEf5eBgJflMyGLI7DHVgCJ5b3KiM6KnXbmXG3obpVI3TTHzvjG7JxRIM=
+Message-ID: <6f0f8ee70601220409t63a80180p2a1bdae057f5a7d4@mail.gmail.com>
+Date: Sun, 22 Jan 2006 17:39:11 +0530
+From: Deepak Madhusudan <deepak.katagade@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Problem in kernel stack size (please help me).
+Cc: Suleiman Souhlal <ssouhlal@freebsd.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Al Viro <viro@ftp.linux.org.uk>, Christoph Hellwig <hch@infradead.org>,
+       Herbert Poetzl <herbert@13thfloor.at>
 MIME-Version: 1.0
-Message-Id: <200601221404.52757.vda@ilport.com.ua>
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_kT30DlqSWcE16+R"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_kT30DlqSWcE16+R
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi All,
+   I am writing a serialdriver in FED 3 (2.6.9 kernel) which acts as a
+serial interface between the codec and the application. We have
+written an Interrupt Service Routine to handle the interrupts of the
+hardware.The problem what I am facing is: by default FED3(2.6.9) comes
+with the following option enabled in its kernel configuration.
 
-bcm43xx_rx() contains code to filter out packets from
-foreign BSSes and decide whether to call ieee80211_rx
-or ieee80211_rx_mgt. This is not bcm specific.
+Processor  type and features ------------>
+[* ] 4GB kernel-space and 4GB user-space virtual memory support.
 
-Patch adapts that code and adds it to 80211
-as ieee80211_rx_any() function.
+If this option is enabled my driver will  get hanged and again I have
+to reboot my system.when I checked the flow of my diver it isgoing up
+to ISR and when the interrupt occurs it is hanging. When I disabled
+the above option and  I recompiled the kernel my driver was able to
+work without any problem.
 
-Diffed against wireless-2.6.git
 
-Signed-off-by: Denis Vlasenko <vda@ilport.com.ua>
---
-vda
+The above same driver In FED4 (2.6.11 kernel) will hang with the
+following dump messages.
 
---Boundary-00=_kT30DlqSWcE16+R
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="rx.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="rx.patch"
+Unable to handle kernel paging request at virtual address 5452415d
 
-diff -urp softmac-snapshot/net/ieee80211/ieee80211_rx.c softmac-snapshot.1/net/ieee80211/ieee80211_rx.c
---- softmac-snapshot/net/ieee80211/ieee80211_rx.c	Wed Jan 18 07:27:03 2006
-+++ softmac-snapshot.1/net/ieee80211/ieee80211_rx.c	Sun Jan 22 14:01:43 2006
-@@ -758,6 +758,80 @@ int ieee80211_rx(struct ieee80211_device
- 	/* Returning 0 indicates to caller that we have not handled the SKB--
- 	 * so it is still allocated and can be used again by underlying
- 	 * hardware as a DMA target */
-+	return 0;
-+}
-+
-+/* Kernel doesn't have it, why? */
-+static inline int is_mcast_or_bcast_ether_addr(const u8 *addr)
-+{
-+        return (0x01 & addr[0]);
-+}
-+
-+/* Filter out unrelated packets, call ieee80211_rx[_mgt] */
-+int ieee80211_rx_any(struct ieee80211_device *ieee,
-+		     struct sk_buff *skb, struct ieee80211_rx_stats *stats)
-+{
-+	struct ieee80211_hdr_4addr *hdr;
-+	int is_packet_for_us;
-+	u16 fc;
-+
-+	if (ieee->iw_mode == IW_MODE_MONITOR)
-+		return ieee80211_rx(ieee, skb, stats) ? 0 : -EINVAL;
-+
-+	hdr = (struct ieee80211_hdr_4addr *)skb->data;
-+	fc = le16_to_cpu(hdr->frame_ctl);
-+
-+	switch (fc & IEEE80211_FCTL_FTYPE) {
-+	case IEEE80211_FTYPE_MGMT:
-+		ieee80211_rx_mgt(ieee, hdr, stats);
-+		return 0;
-+	case IEEE80211_FTYPE_DATA:
-+		break;
-+	case IEEE80211_FTYPE_CTL:
-+		return 0;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	is_packet_for_us = 0;
-+	switch (ieee->iw_mode) {
-+	case IW_MODE_ADHOC:
-+		/* promisc: get all */
-+		if (ieee->dev->flags & IFF_PROMISC)
-+			is_packet_for_us = 1;
-+		/* our BSS */
-+		else if (memcmp(hdr->addr3, ieee->bssid, ETH_ALEN) == 0) {
-+			/* to us */
-+			if (memcmp(hdr->addr1, ieee->dev->dev_addr, ETH_ALEN) == 0)
-+				is_packet_for_us = 1;
-+			/* mcast */
-+			else if (is_mcast_or_bcast_ether_addr(hdr->addr1))
-+				is_packet_for_us = 1;
-+		}
-+		break;
-+	case IW_MODE_INFRA:
-+		/* promisc: get all */
-+		if (ieee->dev->flags & IFF_PROMISC)
-+			is_packet_for_us = 1;
-+		/* our BSS (== from our AP) */
-+		else if (memcmp(hdr->addr2, ieee->bssid, ETH_ALEN) == 0) {
-+			/* to us */
-+			if (memcmp(hdr->addr1, ieee->dev->dev_addr, ETH_ALEN) == 0)
-+				is_packet_for_us = 1;
-+			/* mcast */
-+			else if (is_mcast_or_bcast_ether_addr(hdr->addr1))
-+				/* not our own packet bcasted from AP */
-+				if (memcmp(hdr->addr3, ieee->dev->dev_addr, ETH_ALEN))
-+					is_packet_for_us = 1;
-+		}
-+		break;
-+	default:
-+		/* ? */
-+		break;
-+	}
-+
-+	if (is_packet_for_us)
-+		return (ieee80211_rx(ieee, skb, stats) ? 0 : -EINVAL);
- 	return 0;
- }
- 
+ printing eip:
 
---Boundary-00=_kT30DlqSWcE16+R--
+c011d0ad
+
+*pde = 00000000
+
+Oops: 0002 [#1]
+
+Modules linked in: md5 ipv6 parport_pc lp parport rfcomm l2cap
+bluetooth sunrpc pcmcia ipt_REJECT ipt_state ip_conntrack
+iptable_filter ip_tables dm_mod i82365 rsrc_nonstatic pcmcia_core
+uhci_hcd snd_cs46xx snd_rawmidi snd_ac97_codec snd_seq_oss
+snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss
+snd_pcm snd_timer snd soundcore snd_page_alloc gameport floppy
+
+CPU:    0
+
+EIP:    0060:[<c011d0ad>]    Tainted: P      VLI
+
+EFLAGS: 00210007   (2.6.11)
+
+EIP is at scheduler_tick+0x3d/0x3e0
+
+eax: 54524155   ebx: ccda6121   ecx: b62f5f4a   edx: 000005f3
+
+esi: 00000000   edi: c5cd19b4   ebp: c04a1f7c   esp: c04a1f48
+
+ds: 007b   es: 007b   ss: 0068
+
+Process mrVia CancelPMState=%d
+
+ (pid: 1381123423, threadinfo=c04a1000 task=ccda6121)
+
+Stack: 00000082 c0432d80 00000031 c8e25850 00490490 00000000 00000009 00000008
+
+       00000000 00000000 c5cd19b4 00000000 c5cd19b4 00000000 c0108e85 c046af98
+
+       00000000 c046af98 c046af98 00000001 00200096 cb7bdfa0 c040f760 00000000
+
+Call Trace:
+
+ [<c0108e85>] timer_interrupt+0xa5/0x270
+
+ [<c014d9c3>] handle_IRQ_event+0x33/0x70
+
+ [<c014daee>] __do_IRQ+0xee/0x380
+
+ [<c0105883>] do_IRQ+0x53/0xa0
+
+ =======================
+
+ [<c0103c9e>] common_interrupt+0x1a/0x20
+
+ [<c012301c>] release_console_sem+0xac/0x280
+
+ [<c0122d79>] vprintk+0x1b9/0x320
+
+ [<c0122bbb>] printk+0x1b/0x20
+
+ [<ccd6f0f7>] CodecModemOpen+0x13f/0x13c4.
+
+If the following option is enabled in kernel configuration.
+
+Kernel hacking:
+Use 4k kernel stack instead of 8k. (CONFIG_4KSTACKS).
+
+Since by default in FED3 and FED4 the specified options will come
+enabled I cannot ask the user of my driver to disable the above option
+and to recompile the kernel to use my driver.Please can you help me in
+this regard. I think the problem may be with the kernel stack size.
+please give me the suggestions. waiting for the reply.
+Thanks in advance
+deepak

@@ -1,129 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWAVEAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWAVEIU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbWAVEAF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 23:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWAVEAF
+	id S932341AbWAVEIU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 23:08:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWAVEIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 23:00:05 -0500
-Received: from xenotime.net ([66.160.160.81]:6328 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932321AbWAVEAD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 23:00:03 -0500
-Date: Sat, 21 Jan 2006 20:00:09 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: tali@admingilde.org, akpm <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/2] Doc/kernel-doc: add more usage info
-Message-Id: <20060121200009.53ce97c6.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Sat, 21 Jan 2006 23:08:20 -0500
+Received: from spooner.celestial.com ([192.136.111.35]:44479 "EHLO
+	spooner.celestial.com") by vger.kernel.org with ESMTP
+	id S932341AbWAVEIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jan 2006 23:08:20 -0500
+Date: Sat, 21 Jan 2006 23:14:27 -0500
+From: Kurt Wall <kwall@kurtwerks.com>
+To: Dave Jones <davej@redhat.com>, Erwin Rol <mailinglists@erwinrol.com>,
+       Andrew Morton <akpm@osdl.org>, "Carlo E. Prelz" <fluido@fluido.as>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ATI RS480-based motherboard: stuck while booting with kernel >= 2.6.15 rc1
+Message-ID: <20060122041427.GA6183@kurtwerks.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Erwin Rol <mailinglists@erwinrol.com>, Andrew Morton <akpm@osdl.org>,
+	"Carlo E. Prelz" <fluido@fluido.as>, linux-kernel@vger.kernel.org
+References: <20060120123202.GA1138@epio.fluido.as> <20060121010932.5d731f90.akpm@osdl.org> <20060121125741.GA13470@epio.fluido.as> <20060121125822.570b0d99.akpm@osdl.org> <1137878926.2976.28.camel@xpc.home.erwinrol.com> <20060121220402.GC28051@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060121220402.GC28051@redhat.com>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.16-rc1krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+On Sat, Jan 21, 2006 at 05:04:02PM -0500, Dave Jones took 21 lines to write:
+> On Sat, Jan 21, 2006 at 10:28:46PM +0100, Erwin Rol wrote:
+>  > I had also had the problem that my Shuttle ST20G5 (a RS480 IGP based
+>  > system) hung in pci_init. This was with one of the Fedora Rawhide
+>  > kernels, after reporting it  Dave Jones fixed it cause the next rawhide
+>  > kernel worked again, maybe he could explain what it was, and where the
+>  > fix is (if it is the same thing, but it really looks like it).
+> 
+> That was due to us carrying one of the 'make the clock not tick
+> at twice the speed on ati chipsets' patches. Matthew Garrett's variant iirc.
+> It worked fine in .14, but caused havoc in .15+
+> 
+> I put it down to the problem being fixed in other ways upstream.
 
-Add info that structs, unions, enums, and typedefs are supported.
-Add doc about "private:" and "public:" tags for struct fields.
-Fix some typos.
-Remove some trailing whitespace.
+Heh. I think you mean s/fixed/worked around/.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- Documentation/kernel-doc-nano-HOWTO.txt |   39 +++++++++++++++++++++++++++-----
- scripts/kernel-doc                      |    6 ++--
- 2 files changed, 37 insertions(+), 8 deletions(-)
+The bugme tracking this, 3927, is a joyous muddle of patches, 
+patches to patches, workarounds, and dueling command line options. 
+I ported this patch,
+http://www.ussg.iu.edu/hypermail/linux/kernel/0504.0/1625.html,
+to 2.6.16-rc1 to fix my pain, but 1) it didn't work without the
+disable_timer_pin_1 kernel option and, 2) I don't think it's a fix 
+so much as a workaround.
 
---- linux-2616-rc1-secur.orig/scripts/kernel-doc
-+++ linux-2616-rc1-secur/scripts/kernel-doc
-@@ -45,7 +45,7 @@ use strict;
- # Note: This only supports 'c'.
- 
- # usage:
--# kerneldoc [ -docbook | -html | -text | -man ]
-+# kernel-doc [ -docbook | -html | -text | -man ]
- #           [ -function funcname [ -function funcname ...] ] c file(s)s > outputfile
- # or
- #           [ -nofunction funcname [ -function funcname ...] ] c file(s)s > outputfile
-@@ -59,7 +59,7 @@ use strict;
- #  -nofunction funcname
- #	If set, then only generate documentation for the other function(s).  All
- #	other functions are ignored. Cannot be used with -function together
--#	(yes thats a bug - perl hackers can fix it 8))
-+#	(yes, that's a bug -- perl hackers can fix it 8))
- #
- #  c files - list of 'c' files to process
- #
-@@ -434,7 +434,7 @@ sub output_enum_html(%) {
-     print "<hr>\n";
- }
- 
--# output tyepdef in html
-+# output typedef in html
- sub output_typedef_html(%) {
-     my %args = %{$_[0]};
-     my ($parameter);
---- linux-2616-rc1-secur.orig/Documentation/kernel-doc-nano-HOWTO.txt
-+++ linux-2616-rc1-secur/Documentation/kernel-doc-nano-HOWTO.txt
-@@ -45,10 +45,10 @@ How to extract the documentation
- 
- If you just want to read the ready-made books on the various
- subsystems (see Documentation/DocBook/*.tmpl), just type 'make
--psdocs', or 'make pdfdocs', or 'make htmldocs', depending on your 
--preference.  If you would rather read a different format, you can type 
--'make sgmldocs' and then use DocBook tools to convert 
--Documentation/DocBook/*.sgml to a format of your choice (for example, 
-+psdocs', or 'make pdfdocs', or 'make htmldocs', depending on your
-+preference.  If you would rather read a different format, you can type
-+'make sgmldocs' and then use DocBook tools to convert
-+Documentation/DocBook/*.sgml to a format of your choice (for example,
- 'db2html ...' if 'make htmldocs' was not defined).
- 
- If you want to see man pages instead, you can do this:
-@@ -124,6 +124,36 @@ patterns, which are highlighted appropri
- Take a look around the source tree for examples.
- 
- 
-+kernel-doc for structs, unions, enums, and typedefs
-+---------------------------------------------------
-+
-+Beside functions you can also write documentation for structs, unions,
-+enums and typedefs. Instead of the function name you must write the name
-+of the declaration;  the struct/union/enum/typedef must always precede
-+the name. Nesting of declarations is not supported.
-+Use the argument mechanism to document members or constants.
-+
-+Inside a struct description, you can use the "private:" and "public:"
-+comment tags.  Structure fields that are inside a "private:" area
-+are not listed in the generated output documentation.
-+
-+Example:
-+
-+/**
-+ * struct my_struct - short description
-+ * @a: first member
-+ * @b: second member
-+ *
-+ * Longer description
-+ */
-+struct my_struct {
-+    int a;
-+    int b;
-+/* private: */
-+    int c;
-+};
-+
-+
- How to make new SGML template files
- -----------------------------------
- 
-@@ -147,4 +177,3 @@ documentation, in <filename>, for the fu
- 
- Tim.
- */ <twaugh@redhat.com>
--
-
-
----
+Kurt
+-- 
+I can read your mind, and you should be ashamed of yourself.

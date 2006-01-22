@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWAVUvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbWAVVDN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbWAVUvn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 15:51:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750851AbWAVUvn
+	id S1751359AbWAVVDN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 16:03:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWAVVDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 15:51:43 -0500
-Received: from uproxy.gmail.com ([66.249.92.205]:59238 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750823AbWAVUvm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 15:51:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=IpZcu4cGd1YXmdgBZtfj1Y1OijFxf3NzMNgNPszDn9NXTj5ooG73teazrYE5Y7NHzzthh0Mw1wcKnnD8qqXa0pCodsp9i/N5uKI2Fex7jHLOGwXknYA36/bohk69ZiWzRNq6JVVcfzhvUXom8KLS01dAyisXoznqRsA8cb1L3Hw=
-Date: Sun, 22 Jan 2006 21:50:32 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Suleiman Souhlal <ssouhlal@FreeBSD.org>
-Cc: tytso@mit.edu, nigelenki@comcast.net, linux-kernel@vger.kernel.org
-Subject: Re: soft update vs journaling?
-Message-Id: <20060122215032.c9e4197e.diegocg@gmail.com>
-In-Reply-To: <43D3ED8A.3070606@FreeBSD.org>
-References: <43D3295E.8040702@comcast.net>
-	<20060122093144.GA7127@thunk.org>
-	<20060122205039.e8842bae.diegocg@gmail.com>
-	<43D3ED8A.3070606@FreeBSD.org>
-X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Sun, 22 Jan 2006 16:03:13 -0500
+Received: from thunk.org ([69.25.196.29]:37838 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1751359AbWAVVDM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 16:03:12 -0500
+Date: Sun, 22 Jan 2006 13:31:28 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andreas Dilger <adilger@clusterfs.com>, sho@tnes.nec.co.jp,
+       ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] [PATCH] ext3: Extends blocksize up to pagesize
+Message-ID: <20060122183128.GB7082@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Andrew Morton <akpm@osdl.org>,
+	Andreas Dilger <adilger@clusterfs.com>, sho@tnes.nec.co.jp,
+	ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <000001c61c30$00814e80$4168010a@bsd.tnes.nec.co.jp> <20060118185249.GN4124@schatzie.adilger.int> <20060120231016.40b40fd7.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060120231016.40b40fd7.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Sun, 22 Jan 2006 12:39:38 -0800,
-Suleiman Souhlal <ssouhlal@FreeBSD.org> escribió:
-
-> Diego Calleja wrote:
-> > And FreeBSD is implementing journaling for UFS and getting rid of 
-> > softupdates [1]. While this not proves that softupdates is "a bad idea",
-> > i think this proves why the added sofupdates complexity doesn't seem
-> > to pay off in the real world. 
+On Fri, Jan 20, 2006 at 11:10:16PM -0800, Andrew Morton wrote:
+> Andreas Dilger <adilger@clusterfs.com> wrote:
+> > Just for others' info - the fill_super change has been tested in the past
+> > by Sonny Rao at IBM also.  e2fsprogs has supported this for a long time
+> > already.
 > 
-> You read the message wrong: We're not getting rid of softupdates.
-> -- Suleiman
+> I have a vague memory that there's some piece of metadata (per-block-group
+> info, I think) which will overflow at 8kb blocksize.  I say this in the
+> hope that you'll remmeber what it was ;)
 
+The limiting factor is bg_free_blocks_count (and to some extent,
+possibly bg_free_inodes_dir), which is a 16 bit field.  At 8kb, the
+default block group size is 8kb * 8 bits/byte == 65536.  At 16kb, a
+block group size of 131072 would overflow bg_free_blocks_count.  You
+could of course artificially limit the block group size to 65536 for
+block sizes > 16kb.  The better thing to do would be to use the extra
+space in the per-block group metadata to extend those fields to 32
+bits.
 
-Oh, both systems will be available at the same time? That will be
-certainyl a good place to compare both approachs.
+						- Ted

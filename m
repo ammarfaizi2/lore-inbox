@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWAVER5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWAVEhE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbWAVER5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jan 2006 23:17:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWAVER5
+	id S1751253AbWAVEhE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jan 2006 23:37:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWAVEhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jan 2006 23:17:57 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:13795 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932371AbWAVER5 (ORCPT
+	Sat, 21 Jan 2006 23:37:04 -0500
+Received: from xenotime.net ([66.160.160.81]:43231 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751257AbWAVEhC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jan 2006 23:17:57 -0500
-Message-ID: <43D30760.4090400@pobox.com>
-Date: Sat, 21 Jan 2006 23:17:36 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Martin Waitz <tali@admingilde.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DocBook: fix some comments in drivers/scsi
-References: <20060121214011.GD30777@admingilde.org>
-In-Reply-To: <20060121214011.GD30777@admingilde.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 21 Jan 2006 23:37:02 -0500
+Date: Sat, 21 Jan 2006 20:37:09 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: tali@admingilde.org, akpm <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] mm/slab: add kernel-doc for one function
+Message-Id: <20060121203709.76613d31.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Martin Waitz wrote: > Update some kernel-doc comments
-	to match the code > > Signed-off-by: Martin Waitz <tali@admingilde.org>
-	> > --- > > drivers/scsi/ata_piix.c | 1 + > drivers/scsi/libata-core.c
-	| 31 +++++++++++++++++ > drivers/scsi/libata-scsi.c | 2 ++ [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Waitz wrote:
-> Update some kernel-doc comments to match the code
-> 
-> Signed-off-by: Martin Waitz <tali@admingilde.org>
-> 
-> ---
-> 
->  drivers/scsi/ata_piix.c    |    1 +
->  drivers/scsi/libata-core.c |   31 +++++++++++++++++--------------
->  drivers/scsi/libata-scsi.c |    2 ++
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Please copy the maintainer (me and linux-ide), particularly since there 
-are other patches in this area...
+Fix kernel-doc for calculate_slab_order().
 
-	Jeff
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ mm/slab.c |    9 +++++++--
+ 1 files changed, 7 insertions(+), 2 deletions(-)
+
+--- linux-2616-rc1-secur.orig/mm/slab.c
++++ linux-2616-rc1-secur/mm/slab.c
+@@ -1490,8 +1490,13 @@ static inline void set_up_list3s(kmem_ca
+ }
+ 
+ /**
+- * calculate_slab_order - calculate size (page order) of slabs and the number
+- *                        of objects per slab.
++ * calculate_slab_order - calculate size (page order) of slabs
++ * @cachep: pointer to the cache that is being created
++ * @size: size of objects to be created in this cache.
++ * @align: required alignment for the objects.
++ * @flags: slab allocation flags
++ *
++ * Also calculates the number of objects per slab.
+  *
+  * This could be made much more intelligent.  For now, try to avoid using
+  * high order pages for slabs.  When the gfp() functions are more friendly
 
 
-
+---

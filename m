@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWAVQaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWAVRHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbWAVQaR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 11:30:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWAVQaR
+	id S1751284AbWAVRHk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 12:07:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWAVRHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 11:30:17 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:46540 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751275AbWAVQaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 11:30:16 -0500
-Subject: Re: [PATCH] driver core: remove unneeded klist methods
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Greg KH <greg@kroah.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0601202321430.14739-100000@netrider.rowland.org>
-References: <Pine.LNX.4.44L0.0601202321430.14739-100000@netrider.rowland.org>
+	Sun, 22 Jan 2006 12:07:40 -0500
+Received: from ns.firmix.at ([62.141.48.66]:5102 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1751284AbWAVRHk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 12:07:40 -0500
+Subject: Re: Development tree, PLEASE?
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Michael Loftis <mloftis@wgops.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Sven-Haegar Koch <haegar@sdinet.de>,
+       Matthew Frost <artusemrys@sbcglobal.net>, linux-kernel@vger.kernel.org,
+       James Courtier-Dutton <James@superbug.co.uk>
+In-Reply-To: <F2CD9CC3F050829D8C8DC767@dhcp-2-206.wgops.com>
+References: <20060121031958.98570.qmail@web81905.mail.mud.yahoo.com>
+	 <1FA093EB58B02DE48E424157@dhcp-2-206.wgops.com>
+	 <1137829140.3241.141.camel@mindpipe>
+	 <Pine.LNX.4.64.0601212250020.31384@mercury.sdinet.de>
+	 <1137881882.411.23.camel@mindpipe>
+	 <3B0BEE012630B9B11D1209E5@dhcp-2-206.wgops.com>
+	 <1137884582.411.47.camel@mindpipe>
+	 <F2CD9CC3F050829D8C8DC767@dhcp-2-206.wgops.com>
 Content-Type: text/plain
-Date: Sun, 22 Jan 2006 10:30:05 -0600
-Message-Id: <1137947405.4058.10.camel@mulgrave>
+Organization: http://www.firmix.at/
+Date: Sun, 22 Jan 2006 18:03:20 +0100
+Message-Id: <1137949400.3298.59.camel@gimli.at.home>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-20 at 23:37 -0500, Alan Stern wrote:
-> The problem is that put_device must not be called while holding a
-> spinlock.  This has always been true, but we only started noticing it
-> recently when Greg added a might_sleep.  Your klist method would call
-> put_device while holding the klist's spinlock.
+On Sun, 2006-01-22 at 02:03 -0700, Michael Loftis wrote:
+[...]
+> A *lot* of us are using Linux for servers or other things that don't change 
+> every month.
+> 
+> And I'm not seeing/saying this sort of thing would stick forever, but a '6 
+> month cycle' or something of that nature.  Partly because of this I don't 
 
-Right, but we currently have this problem everywhere throughout the
-code.  Avoiding it by not taking references doesn't look to be the right
-way to go because then we have to dismantle the whole refcounting
-infrastructure.
+You are welcome to start such a thing.
 
-> Not so.  A device structure can't be freed before device_del returns, and
-> the patch makes device_del call klist_remove instead of klist_del.  The
-> difference between the two is that klist_remove blocks until all iterators
-> have finished using the klist node.  New iterators can't start using it
-> because the routine removes the node from the klist.
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-Sorry ... forgot to mention that part ... the change from _del to
-_remove ties us up with a wait for the list to actually remove.  This is
-potentially dangerous because you're waiting on events you don't
-control.  Additionally, next_child isn't refcounted, so it could
-potentially disappear out from under you.
-
-James
 
 

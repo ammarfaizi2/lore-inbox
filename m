@@ -1,107 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbWAVGno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWAVGoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbWAVGno (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 01:43:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbWAVGno
+	id S1750995AbWAVGoN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 01:44:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWAVGoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 01:43:44 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:20460 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1750831AbWAVGno (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 01:43:44 -0500
-Message-ID: <43D3295E.8040702@comcast.net>
-Date: Sun, 22 Jan 2006 01:42:38 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: soft update vs journaling?
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=UTF-8
+	Sun, 22 Jan 2006 01:44:12 -0500
+Received: from smtpout.mac.com ([17.250.248.88]:42450 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1750760AbWAVGoM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 01:44:12 -0500
+In-Reply-To: <m1hd7xmylo.fsf@ebiederm.dsl.xmission.com>
+References: <20060117143258.150807000@sergelap> <20060117143326.283450000@sergelap> <1137511972.3005.33.camel@laptopd505.fenrus.org> <20060117155600.GF20632@sergelap.austin.ibm.com> <1137513818.14135.23.camel@localhost.localdomain> <1137518714.5526.8.camel@localhost.localdomain> <20060118045518.GB7292@kroah.com> <1137601395.7850.9.camel@localhost.localdomain> <m1fyniomw2.fsf@ebiederm.dsl.xmission.com> <43D14578.6060801@watson.ibm.com> <m1hd7xmylo.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <CC5052ED-FEC1-4B0C-A8A7-3CD190ADF0D3@mac.com>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Cedric Le Goater <clg@fr.ibm.com>
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+Date: Sun, 22 Jan 2006 01:43:41 -0500
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Jan 21, 2006, at 09:42, Eric W. Biederman wrote:
+> Hubertus Franke <frankeh@watson.ibm.com> writes:
+>
+>> Actions: The vpid_to_pid will disappear and the check for whether  
+>> we are in the same container needs to be pushed down into the task  
+>> lookup. question remains to  figure out  whether the context of  
+>> the task lookup (will always remain the caller ?).
+>
+> Any place the kernel saves a pid and then proceeds to signal it  
+> later. At that later point in time it is possibly you will be in  
+> the wrong context.
+>
+> This probably justifies having a kpid_t that has both the process
+> space id and the pid in it.  For when the kernel is storing pids to
+> use as weak references, for signal purposes etc.
 
-So I've been researching, because I thought this "Soft Update" thing
-that BSD uses was some weird freak-ass way to totally corrupt a file
-system if the power drops.  Seems I was wrong; it's actually just the
-opposite, an alternate solution to journaling.  So let's compare notes.
+The kernel should not be saving a PID.  The kernel should be sticking  
+a pointer to a struct task_struct somewhere (with appropriate  
+refcounting) and using that.
 
-I'm not quite clear on what the benefits versus costs of Soft Update
-versus Journaling are, so I'll run down what I got, and anyone who wants
-to give input can run down on what they got, and we can compare.  Maybe
-someone will write a Soft Update system into Linux one day, far, far
-into the future; but I doubt it.  It might, however, be interesting to
-compare ext2 + SU to ext3; and giving the chance to solve problems such
-as delayed delete (i.e. file system fills up while soft update has not
-yet executed a delete; try reacting by looking for a delete to suddenly
-actually execute) might also be cool.
+> The only way I know to make this change safely is to make  
+> compilation of all functions that manipulate pids in possibly  
+> dangerous ways fail. And then to manually and slowly fix them up.
+>
+> That way if something is missed.  You get a compile error instead  
+> of incorrect execution.
+
+I agree.  This is one of the things I really liked about the recent  
+mutex patch; it added a lot of checks to various codepaths to verify  
+at both compile time and run time that the code was correct.
+
+My personal opinion is that we need to add a new race-free API, say  
+open("/proc/fork"); that forks a process and returns an open "process  
+handle", essentially a filehandle that references a particular  
+process.  (Also, an open("/proc/self/handle") or something to return  
+a current-process handle)   Through some method of signaling the  
+kernel (syscall, ioctl, some other?) a process can send a signal to  
+the process referenced by the handle, check its status, etc.  A  
+process handle might be passed to other processes using a UNIX-domain  
+socket.  You would be able to dup() a process handle and then  
+restrict the set of valid operations on the new process handle, so  
+that it could be passed to another process  without giving that  
+process access to the full set of operations (check status only, not  
+able to send a signal, for example).
+
+Obviously we would need to maintain support for the old interface for  
+some period of time, but I think the new one would make it much  
+easier to write simple race-free programs.
+
+Cheers,
+Kyle Moffett
+
+--
+Simple things should be simple and complex things should be possible
+   -- Alan Kay
 
 
-Soft Update appears to buffer and order meta-data writes in a dependency
-scheme that makes certain that inconsistencies can't happen.  Apparently
-this means writing up directory entries before inodes, or something to
-that effect.  I can't see how this would help in the middle of a buffer
-flush (half a dentry written?  Partially deleted inode?  Inode "deleted"
-but not freed from disk?), so maybe someone can fill me in.
 
-Journaling apparently means writing out meta-data to a log before
-transferring it to the file system.  No matter what happens, a proper
-journal (for fun I've designed a transaction log format for low level
-filesystems; it's entirely possible to have interrupt at any bit
-recoverable) can always be checked over and either rolled back or rolled
-forward.  This is easy to design.
-
-Soft Update appears to have the advantage of not needing multiple
-writes.  There's no need for journal flushing and then disk flushing;
-you just flush the meta-data.  Also, soft update systems mount
-instantly, because there's no journal to play back, and the file system
-is always consistent.  It may be technically feasible to impliment soft
-update on any old file system; I'm unclear as to how exactly to make any
-soft-update work, so I can't say if this is absolutely possible (think
-for vfat, consistent at all times and still Win32 compatible; great for
-flash drives).
-
-Unfortunately, soft update can leave retarded situations where areas of
-disk are allocated still after a system failure during an inode delete.
- This won't cause inconsistencies in the on-disk structure, however; you
-can freely use the disk without causing even more damage.  The system
-just has to sanity check stuff while running and clean up such damage as
-it sees it.
-
-Journaling appears to have the advantage that the data gets to disk
-faster.  It also seems easier a concept to grasp (i.e. I understand it
-fully).  It's old, tried, trusted, and durable.  You also don't have to
-worry about having odd meta-data writes that leave deleted files around
-in certain circumstances, eating up space.
-
-Unfortunately, journaling uses a chunk of space.  Imagine a journal on a
-USB flash stick of 128M; a typical ReiserFS journal is 32 megabytes!
-Sure it could be done in 8 or 4 or so; or (in one of my file system
-designs) a static 16KiB block could reference dynamicly allocated
-journal space, allowing the system to sacrifice performance and shrink
-the journal when more space is needed.  Either way, slow media like
-floppies will suffer, HARD; and flash devices will see a lot of
-write/erase all over the journal area, causing wear on that spot.
-
-So, that's my understanding.  Any comments?  Enlighten me.
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFD0yldhDd4aOud5P8RAhzBAJwOvWpAYb+m3Zg8ugnvuY10K74jZgCeL69s
-y0172JATNX+q8jzrYGAJ/xc=
-=7Dcn
------END PGP SIGNATURE-----

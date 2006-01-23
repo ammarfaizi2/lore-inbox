@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbWAWTcI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbWAWTcY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964909AbWAWTcI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 14:32:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWAWTcI
+	id S964912AbWAWTcY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 14:32:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964914AbWAWTcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 14:32:08 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:1222 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964912AbWAWTcG (ORCPT
+	Mon, 23 Jan 2006 14:32:24 -0500
+Received: from mail.gmx.net ([213.165.64.21]:5297 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964912AbWAWTcW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 14:32:06 -0500
-Date: Mon, 23 Jan 2006 13:32:04 -0600
-From: "Serge E. Hallyn" <serue@us.ibm.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1-mm2
-Message-ID: <20060123193204.GB13532@sergelap.austin.ibm.com>
-References: <20060120031555.7b6d65b7.akpm@osdl.org> <20060123184157.GA11148@sergelap.austin.ibm.com> <Pine.LNX.4.62.0601231046590.31765@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
+	Mon, 23 Jan 2006 14:32:22 -0500
+X-Authenticated: #428038
+Date: Mon, 23 Jan 2006 20:32:17 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: Michael Loftis <mloftis@wgops.com>, linux-kernel@vger.kernel.org
+Subject: Re: soft update vs journaling?
+Message-ID: <20060123193217.GA21783@merlin.emma.line.org>
+Mail-Followup-To: John Richard Moser <nigelenki@comcast.net>,
+	Michael Loftis <mloftis@wgops.com>, linux-kernel@vger.kernel.org
+References: <43D3295E.8040702@comcast.net> <B78EFD916FFE8034EC546F38@dhcp-2-206.wgops.com> <43D525D8.8080501@comcast.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0601231046590.31765@schroedinger.engr.sgi.com>
+In-Reply-To: <43D525D8.8080501@comcast.net>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
 User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Christoph Lameter (clameter@engr.sgi.com):
-> On Mon, 23 Jan 2006, Serge E. Hallyn wrote:
-> 
-> > I don't understand why this wouldn't die on every architecture,
-> > since node_to_cpumask is an inline function.
-> 
-> Its an array lookup on ia64.
+On Mon, 23 Jan 2006, John Richard Moser wrote:
 
-Oh I see, sorry, I was looking at only partial lxr ouput.
+> The idea of Soft Update was to make sure that while you may lose
+> something, when you come back up the FS is in a safely usable state.
 
-Is the following patch an ok fix?
+Soft Updates are *extremely* sensitive to reordered writes, and more
+likely to be reordered at the same time than streaming to a linear
+journal is. Don't even THINK of using softupdates without enforcing
+write order. ext3fs, particularly with data=ordered or data=journal, is
+much more forgiving in my experience. Not that I'd endorse dangerous use
+of file system, but the average user just doesn't know.
 
-thanks
--serge
+FreeBSD (stable@ Cc:d) has no notion of write barriers as of yet as it
+seems, wedging the SCSI bus in the middle of a write sequence causes
+major devastations with WCE=1, and took me two runs of fsck to repair
+(unfortunately I needed the (test) machine back up at once, so no time
+to snapshot the b0rked partition for later scrutiny), and found myself
+with two hundred files relocated to the lost+found office^Wdirectory.
 
-On alpha, powerpc, and i386, node_to_cpumask is an inline function
-rather than a #define to an array lookup.
+Of course, it's the "Doctor, doctor, it always hurts my right eye if I'm
+drinking coffee" -- "well, remove the spoon from your mug before
+drinking then" (don't do that) category of "bug", but it hosts practical
+relevance...
 
---
-Signed-off-by: Serge Hallyn <serue@us.ibm.com>
-
-Index: linux-2.6.15/mm/vmscan.c
-===================================================================
---- linux-2.6.15.orig/mm/vmscan.c	2006-01-23 07:14:48.000000000 -0600
-+++ linux-2.6.15/mm/vmscan.c	2006-01-23 07:26:51.000000000 -0600
-@@ -1836,13 +1836,15 @@ int zone_reclaim(struct zone *zone, gfp_
- 	struct task_struct *p = current;
- 	struct reclaim_state reclaim_state;
- 	struct scan_control sc;
-+	cpumask_t mask;
- 
- 	if (time_before(jiffies,
- 		zone->last_unsuccessful_zone_reclaim + ZONE_RECLAIM_INTERVAL))
- 			return 0;
- 
-+	mask = node_to_cpumask(zone->zone_pgdat->node_id);
- 	if (!(gfp_mask & __GFP_WAIT) ||
--		(!cpus_empty(node_to_cpumask(zone->zone_pgdat->node_id)) &&
-+		(!cpus_empty(mask) &&
- 			 zone->zone_pgdat->node_id != numa_node_id()) ||
- 		zone->all_unreclaimable ||
- 		atomic_read(&zone->reclaim_in_progress) > 0)
+-- 
+Matthias Andree

@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbWAWWbb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030209AbWAWWm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030202AbWAWWbb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 17:31:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbWAWWbb
+	id S1030209AbWAWWm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 17:42:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbWAWWm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 17:31:31 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:12559 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S964965AbWAWWbb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 17:31:31 -0500
-Date: Mon, 23 Jan 2006 23:31:25 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Syed Ahemed <kingkhan@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch for CVE-2004-1334 ???
-Message-ID: <20060123223125.GU7142@w.ods.org>
-References: <3d53b7120601230939p6e8906fbtb196ab49b9b028c5@mail.gmail.com>
-Mime-Version: 1.0
+	Mon, 23 Jan 2006 17:42:27 -0500
+Received: from moraine.clusterfs.com ([66.96.26.190]:32207 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S1030200AbWAWWm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 17:42:26 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3d53b7120601230939p6e8906fbtb196ab49b9b028c5@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17365.23510.525066.57628@gargle.gargle.HOWL>
+Date: Tue, 24 Jan 2006 01:42:30 +0300
+To: Michael Loftis <mloftis@wgops.com>
+Cc: "Barry K. Nathan" <barryn@pobox.com>, Al Boldi <a1426z@gawab.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] VM: I have a dream...
+Newsgroups: gmane.linux.file-systems,gmane.linux.kernel
+In-Reply-To: <280A351A008C409CEF43A734@dhcp-2-206.wgops.com>
+References: <200601212108.41269.a1426z@gawab.com>
+	<986ed62e0601221155x6a57e353vf14db02cc219c09@mail.gmail.com>
+	<E3C35184F807ADEC2AD9E182@dhcp-2-206.wgops.com>
+	<728201270601230705k25e6890ejd716dbfc393208b8@mail.gmail.com>
+	<280A351A008C409CEF43A734@dhcp-2-206.wgops.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Michael Loftis writes:
+ > 
+ > 
+ > --On January 23, 2006 9:05:41 AM -0600 Ram Gupta <ram.gupta5@gmail.com> 
+ > wrote:
+ > 
+ > >
+ > > Linux also supports multiple swap files . But these are more
+ > > beneficial if there are more than one disk in the system so that i/o
+ > > can be done in parallel. These swap files may be activated at run time
+ > > based on some criteria.
+ > 
+ > You missed the point.  The kernel in OS X maintains creation and use of 
+ > these files automatically.  The point wasn't oh wow multiple files' it was 
+ > that it creates them on the fly.  I just posted back with the apparent new 
 
-On Mon, Jan 23, 2006 at 11:09:49PM +0530, Syed Ahemed wrote:
-> Hi
-> I do know this community is busy with more important things , but i am
-> out of ideas/search  on this one.
-> How do i get the patch for the CVE-2004-1334 ? I have an opensource
-> linux 2.4.28 on my production server.
+This can be done in Linux from user-space: write a script that monitors
+free swap space (grep SwapFree /proc/meminfo), and adds/removes new swap
+files err... on-the-fly, or --even better-- just-in-time.
 
-I'm afraid 2.4-hf does not go that far backwards, it started at 2.4.29.
-Git started even later. I've searched through http://linux.bkbits.net/
-and I think that what you're looking for is here :
+The unique feature that Mac OS X VM does have, on the other hand, is
+that it keeps profiles of access patterns of applications, and stores
+then in files, associated with executables. This allows to quickly
+pre-fault necessary pages during application startup (and this makes OSX
+boot so fast).
 
-http://linux.bkbits.net:8080/linux-2.4/gnupatch@41b76e94BsJKm8jhVtyDat9ZM1dXXg
-
-> If you think this question is stupid enough , then i would eventually
-> write a patch for this .The trouble i have is on applying the patch
-> cos my understanding of GPL is pretty confusing.
-
-You don't have to worry, unless explicitly stated otherwise, patches
-follow the same licence as the code they're for. So basically you can
-apply a kernel patch from any other version to your kernel, and if you
-know how to fix the bug by yourself (dangerous), that's fine too.
-
-> Please point me to the patch for the above .
-
-Please check above.
-
-> Regards
-> King khan
-
-Regards,
-Willy
-
+Nikita.

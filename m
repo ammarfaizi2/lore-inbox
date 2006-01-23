@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWAWTaa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbWAWTcI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbWAWTaa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 14:30:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWAWTaa
+	id S964909AbWAWTcI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 14:32:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbWAWTcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 14:30:30 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:50826 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S932110AbWAWTa3 (ORCPT
+	Mon, 23 Jan 2006 14:32:08 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:1222 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964912AbWAWTcG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 14:30:29 -0500
-Date: Mon, 23 Jan 2006 14:26:06 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: Al Boldi <a1426z@gawab.com>, Robin Holt <holt@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC] VM: I have a dream...
-Message-ID: <20060123192606.GH1008@kvack.org>
-References: <200601212108.41269.a1426z@gawab.com> <20060122123335.GB26683@lnx-holt.americas.sgi.com> <200601232103.07007.a1426z@gawab.com> <200601231840.k0NIelbp017964@turing-police.cc.vt.edu>
+	Mon, 23 Jan 2006 14:32:06 -0500
+Date: Mon, 23 Jan 2006 13:32:04 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1-mm2
+Message-ID: <20060123193204.GB13532@sergelap.austin.ibm.com>
+References: <20060120031555.7b6d65b7.akpm@osdl.org> <20060123184157.GA11148@sergelap.austin.ibm.com> <Pine.LNX.4.62.0601231046590.31765@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200601231840.k0NIelbp017964@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.62.0601231046590.31765@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 23, 2006 at 01:40:46PM -0500, Valdis.Kletnieks@vt.edu wrote:
-> A process does a "read(foo, &buffer, 65536);".  buffer is declared as 16
-> contiguous 4K pages, none of which are currently in memory.  How many pages do
-> you have to read in, and at what point do you issue the I/O? (hint - work this
-> problem for a device that's likely to return 64K of data, and again for a
-> device that has a high chance of only returning 2K of data.....)
+Quoting Christoph Lameter (clameter@engr.sgi.com):
+> On Mon, 23 Jan 2006, Serge E. Hallyn wrote:
+> 
+> > I don't understand why this wouldn't die on every architecture,
+> > since node_to_cpumask is an inline function.
+> 
+> Its an array lookup on ia64.
 
-Actually, that is something that the vm could optimize out of the picture 
-entirely -- it is a question of whether it is worth the added complexity 
-to handle such a case.  copy_to_user already takes a slow path when it hits 
-the page fault (we do a lookup on the exception handler already) and could 
-test if an entire page is being overwritten, and if so proceed to destroy 
-the old mapping and use a fresh page from ram.
+Oh I see, sorry, I was looking at only partial lxr ouput.
 
-That said, for the swap case, it probably happens so rarely that the extra 
-code isn't worth it.  glibc is already using mmap() in place of read() for 
-quite a few apps, so I'm not sure how much low hanging fruit there is left.  
-If someone has an app that's read() heavy, it is probably easier to convert 
-it to mmap() -- the exception being pipes and sockets which can't.  We need 
-numbers. =-)
+Is the following patch an ok fix?
 
-		-ben
--- 
-"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
-and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.
+thanks
+-serge
+
+On alpha, powerpc, and i386, node_to_cpumask is an inline function
+rather than a #define to an array lookup.
+
+--
+Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+
+Index: linux-2.6.15/mm/vmscan.c
+===================================================================
+--- linux-2.6.15.orig/mm/vmscan.c	2006-01-23 07:14:48.000000000 -0600
++++ linux-2.6.15/mm/vmscan.c	2006-01-23 07:26:51.000000000 -0600
+@@ -1836,13 +1836,15 @@ int zone_reclaim(struct zone *zone, gfp_
+ 	struct task_struct *p = current;
+ 	struct reclaim_state reclaim_state;
+ 	struct scan_control sc;
++	cpumask_t mask;
+ 
+ 	if (time_before(jiffies,
+ 		zone->last_unsuccessful_zone_reclaim + ZONE_RECLAIM_INTERVAL))
+ 			return 0;
+ 
++	mask = node_to_cpumask(zone->zone_pgdat->node_id);
+ 	if (!(gfp_mask & __GFP_WAIT) ||
+-		(!cpus_empty(node_to_cpumask(zone->zone_pgdat->node_id)) &&
++		(!cpus_empty(mask) &&
+ 			 zone->zone_pgdat->node_id != numa_node_id()) ||
+ 		zone->all_unreclaimable ||
+ 		atomic_read(&zone->reclaim_in_progress) > 0)

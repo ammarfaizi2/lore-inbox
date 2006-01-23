@@ -1,98 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWAWGZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWAWG3L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbWAWGZP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 01:25:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWAWGZP
+	id S1751317AbWAWG3L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 01:29:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWAWG3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 01:25:15 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:52203 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751027AbWAWGZN (ORCPT
+	Mon, 23 Jan 2006 01:29:11 -0500
+Received: from main.gmane.org ([80.91.229.2]:17334 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751317AbWAWG3L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 01:25:13 -0500
-Date: Sun, 22 Jan 2006 22:24:25 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Arnaud Giersch <arnaud.giersch@free.fr>
-Cc: philb@gnu.org, tim@cyberelk.net, campbell@torque.net, andrea@suse.de,
-       linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCHv2] parport: add parallel port support for SGI O2
-Message-Id: <20060122222425.6907656f.akpm@osdl.org>
-In-Reply-To: <87mzhqfq5y.fsf@groumpf.homeip.net>
-References: <87mzhqfq5y.fsf@groumpf.homeip.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 23 Jan 2006 01:29:11 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: CONFIG_X86_PM_TIMER broken in 2.6.15.1 (since before 2.6.14?)
+Date: Mon, 23 Jan 2006 15:28:57 +0900
+Message-ID: <dr1t39$qod$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s185160.ppp.asahi-net.or.jp
+User-Agent: Mail/News 1.5 (X11/20060119)
+X-Enigmail-Version: 0.94.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnaud Giersch <arnaud.giersch@free.fr> wrote:
->
-> From: Arnaud Giersch <arnaud.giersch@free.fr>
-> 
-> Add support for the built-in parallel port on SGI O2 (a.k.a. IP32).
-> Define a new configuration option: PARPORT_IP32.  The module is named
-> parport_ip32.
-> 
-> Hardware support for SPP, EPP and ECP modes along with DMA support
-> when available are currently implemented.
+Hi all.
 
-Nice looking driver.  Big.
+Now I have a repeatable confirmation that selecting CONFIG_X86_PM_TIMER=y
+does "break" printk on a few systems.
 
-It does rather a lot of
+With CONFIG_X86_PM_TIMER=y pmtmr is preferred to tsc and as a result, printk
+time is not reset on CPU init.
 
-	if (foo)	do_something();
+The difference (hand diff) between the dmesg in the two configs is:
 
-whereas we prefer
+normal( # CONFIG_X86_PM_TIMER is not set ):
+...
 
-	if (foo)
-		do_something();
+...
+[17179569.184000] PID hash table entries: 4096 (order: 12, 65536 bytes)
+          [    0.000000] Detected 3011.142 MHz processor.
+                    [   25.672059] Using tsc for high-res timesource
+                              [   25.673931] Console: colour VGA+ 80x25
 
-but if that was a blocker, we wouldn't have any drivers.
 
-> +static void parport_ip32_dma_setup_context(unsigned int limit)
-> +{
-> +	unsigned long flags;
-> +
-> +	spin_lock_irqsave(&parport_ip32_dma.lock, flags);
-> +	if (parport_ip32_dma.left > 0) {
-> +		volatile u64 __iomem *ctxreg = (parport_ip32_dma.ctx == 0) ?
-> +			&mace->perif.ctrl.parport.context_a :
-> +			&mace->perif.ctrl.parport.context_b;
 
-Does this need to be volatile?   writeq() should do the right thing.
+broken ( CONFIG_X86_PM_TIMER=y ):
+...
+[17179569.184000] ACPI: PM-Timer IO Port: 0x808
+...
+[17179569.184000] PID hash table entries: 4096 (order: 12, 65536 bytes)
 
-> +static size_t parport_ip32_epp_read(void __iomem *eppreg,
-> +				    struct parport *p, void *buf,
-> +				    size_t len, int flags)
-> +{
-> +	struct parport_ip32_private * const priv = p->physport->private_data;
-> +	size_t got;
-> +	parport_ip32_set_mode(p, ECR_MODE_EPP);
-> +	parport_ip32_data_reverse(p);
-> +	parport_ip32_write_control(p, DCR_nINIT);
-> +	if ((flags & PARPORT_EPP_FAST) && (len > 1)) {
-> +		readsb(eppreg, buf, len);
+[17179569.184000] Detected 3011.098 MHz processor.
 
-readsb() is a mips thing, and doesn't seem to be documented.  What does it
-do, and why does the driver use it (only) here?
+[17179569.184000] Using pmtmr for high-res timesource
 
-> +		writesb(eppreg, buf, len);
+[17179569.184000] Console: colour VGA+ 80x25
 
-> +static unsigned int parport_ip32_fifo_wait_break(struct parport *p,
-> +						 unsigned long expire)
-> +{
-> +	cond_resched();
-> +	if (time_after(jiffies, expire)) {
-> +		printk(KERN_DEBUG PPIP32
-> +		       "%s: FIFO write timed out\n", p->name);
-> +		return 1;
-> +	}
-> +	if (signal_pending(current)) {
-> +		printk(KERN_DEBUG PPIP32
-> +		       "%s: Signal pending\n", p->name);
-> +		return 1;
-> +	}
 
-This printk could be a bit noisy, if someone hoses a signal stream at a
-printing program.
+Apart from that everything is the same (apart from the prink time).
+
+Any clues as to why might this be broken?
+
+I tired to look under arch/i386/kernel/timers but it was too much for me,
+got buried under too many jiffies :-)
+
+
+Kalin.
+
+-- 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
 

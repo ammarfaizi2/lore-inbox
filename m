@@ -1,57 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbWAWTcY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWAWTdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964912AbWAWTcY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 14:32:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964914AbWAWTcY
+	id S964913AbWAWTdG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 14:33:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964919AbWAWTdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 14:32:24 -0500
-Received: from mail.gmx.net ([213.165.64.21]:5297 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964912AbWAWTcW (ORCPT
+	Mon, 23 Jan 2006 14:33:05 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:35060 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964913AbWAWTdD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 14:32:22 -0500
-X-Authenticated: #428038
-Date: Mon, 23 Jan 2006 20:32:17 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: Michael Loftis <mloftis@wgops.com>, linux-kernel@vger.kernel.org
-Subject: Re: soft update vs journaling?
-Message-ID: <20060123193217.GA21783@merlin.emma.line.org>
-Mail-Followup-To: John Richard Moser <nigelenki@comcast.net>,
-	Michael Loftis <mloftis@wgops.com>, linux-kernel@vger.kernel.org
-References: <43D3295E.8040702@comcast.net> <B78EFD916FFE8034EC546F38@dhcp-2-206.wgops.com> <43D525D8.8080501@comcast.net>
+	Mon, 23 Jan 2006 14:33:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
+        b=jcZGvEvfk7gy1KRywbAfvLIE0oQVuMv7F2kQchIaf+3+nDMGr+I9b9EA31tlDD1zpS4W6wsUj0Nf4h02VmWYu2Fp3hT1mypmP3F5ovZr4h5nA9YjlGIAOWtF00JstIifJWeYFLrkeSEyn49UCo/1RLX3mxNAPeB+x/QDGjxwaq4=
+Message-ID: <c293dd340601231133m16bebe9doe0ce357d25188892@mail.gmail.com>
+Date: Tue, 24 Jan 2006 01:03:03 +0530
+From: Toufeeq Hussain <toufeeqh@gmail.com>
+To: kgdb-bugreport@lists.sourceforge.net
+Subject: [PATCH] Compile error for KGDB 2.3 on arm(2.6.13-ep93xx)
+Cc: linux-cirrus@freelists.org, linux-arm@lists.arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43D525D8.8080501@comcast.net>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_11459_13638672.1138044783164"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Jan 2006, John Richard Moser wrote:
+------=_Part_11459_13638672.1138044783164
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> The idea of Soft Update was to make sure that while you may lose
-> something, when you come back up the FS is in a safely usable state.
+Hi,
 
-Soft Updates are *extremely* sensitive to reordered writes, and more
-likely to be reordered at the same time than streaming to a linear
-journal is. Don't even THINK of using softupdates without enforcing
-write order. ext3fs, particularly with data=ordered or data=journal, is
-much more forgiving in my experience. Not that I'd endorse dangerous use
-of file system, but the average user just doesn't know.
+While trying to get kgdb 2.3 (for linux-2.6.13) working with the
+ep93xx board I got the following compile error.
 
-FreeBSD (stable@ Cc:d) has no notion of write barriers as of yet as it
-seems, wedging the SCSI bus in the middle of a write sequence causes
-major devastations with WCE=1, and took me two runs of fsck to repair
-(unfortunately I needed the (test) machine back up at once, so no time
-to snapshot the b0rked partition for later scrutiny), and found myself
-with two hundred files relocated to the lost+found office^Wdirectory.
+<snip>
+ GZIP    kernel/config_data.gz
+ IKCFG   kernel/config_data.h
+ CC      kernel/configs.o
+ CC      kernel/kgdb.o
+kernel/kgdb.c:130: error: `NUMCRITREGBYTES' undeclared here (not in a funct=
+ion)
+kernel/kgdb.c:131: error: storage size of `kgdb_fault_jmp_regs' isn't known
+make[1]: *** [kernel/kgdb.o] Error 1
+make: *** [kernel] Error 2
 
-Of course, it's the "Doctor, doctor, it always hurts my right eye if I'm
-drinking coffee" -- "well, remove the spoon from your mug before
-drinking then" (don't do that) category of "bug", but it hosts practical
-relevance...
+I've attached a patch which fixes this problem.
 
--- 
-Matthias Andree
+Regards,
+Toufeeq
+--
+blog @ http://toufeeq.blogspot.com
+
+------=_Part_11459_13638672.1138044783164
+Content-Type: text/x-patch; name=kgdb-arm-2.3.patch; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="kgdb-arm-2.3.patch"
+
+--- linux-2.6.13/include/asm-arm/kgdb.h	2006-01-24 06:21:57.644718496 +0530
++++ linux-2.6.13.orig/include/asm-arm/kgdb.h	2006-01-24 04:41:21.000000000 +0530
+@@ -65,6 +65,7 @@
+ #define	KGDB_MAX_NO_CPUS	1
+ #define	BUFMAX			400
+ #define	NUMREGBYTES		(GDB_MAX_REGS << 2)
++#define	NUMCRITREGBYTES		(32 << 2)
+ 
+ #define	_R0		0
+ #define	_R1		1
+
+
+------=_Part_11459_13638672.1138044783164--

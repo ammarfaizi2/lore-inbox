@@ -1,52 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbWAWQqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWAWQrf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbWAWQqt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 11:46:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWAWQqt
+	id S932446AbWAWQrf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 11:47:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWAWQre
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 11:46:49 -0500
-Received: from ns2.suse.de ([195.135.220.15]:39143 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932442AbWAWQqs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 11:46:48 -0500
-Message-ID: <43D50875.7070101@suse.de>
-Date: Mon, 23 Jan 2006 17:46:45 +0100
-From: Gerd Hoffmann <kraxel@suse.de>
-User-Agent: Thunderbird 1.5 (X11/20060111)
+	Mon, 23 Jan 2006 11:47:34 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:45962 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932446AbWAWQre
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 11:47:34 -0500
+Message-ID: <43D50880.605@cosmosbay.com>
+Date: Mon, 23 Jan 2006 17:46:56 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Kalin KOZHUHAROV <kalin@thinrope.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild: problems with separate src/obj trees
-References: <43D4D708.2050802@suse.de> <dr2rtq$c4$1@sea.gmane.org>
-In-Reply-To: <dr2rtq$c4$1@sea.gmane.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: Eric Dumazet <dada1@cosmosbay.com>
+CC: Andi Kleen <ak@suse.de>, pravin shelar <pravins@calsoftinc.com>,
+       Ravikiran G Thirumalai <kiran@scalex86.org>,
+       Shai Fultheim <shai@scalex86.org>, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] garbage values in file /proc/net/sockstat
+References: <Pine.LNX.4.63.0601231206270.2192@pravin.s> <200601231224.16196.ak@suse.de> <43D4DA15.4010009@cosmosbay.com> <200601231611.51326.ak@suse.de> <43D50445.1080208@cosmosbay.com>
+In-Reply-To: <43D50445.1080208@cosmosbay.com>
+Content-Type: multipart/mixed;
+ boundary="------------090109060508080803030802"
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Mon, 23 Jan 2006 17:46:57 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> master-xen kraxel ~/objtree/vanilla-2.6.16-pre-um# make ARCH=um
->> gmake -C /home/kraxel/scratch/vanilla-2.6.16-pre
->> O=/home/kraxel/objtree/vanilla-2.6.16-pre-um
->>   SYMLINK arch/um/include/kern_constants.h
->> ln: creating symbolic link `arch/um/include/kern_constants.h' to
->> `../../../include/asm-um/asm-offsets.h': No such file or directory
->> gmake[2]: *** [arch/um/include/kern_constants.h] Error 1
->> gmake[1]: *** [cdbuilddir] Error 2
->> gmake: *** [all] Error 2
+This is a multi-part message in MIME format.
+--------------090109060508080803030802
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> There was a recen thread about these... let me see:
-> Look for "[PATCH 2/2] kbuild: fix make -jN with multiple targets with make
-> O=..." from Sam Ravnborg on 2006-01-16
 
-Ok, the .kernelrelease issue is fixed meanwhile, I still see the UML
-build failure though.  That triggers also without "make -j", so it is
-probably a different bug ...
+Sorry for the first version of he patch. I did one change, in order to do the 
+initialization only for !possible cpu
 
-cheers,
+[PATCH] x86_64 : Use a special CPUDATA_RED_ZONE to catch accesses to 
+per_cpu(some_object, some_not_possible_cpu)
 
-  Gerd
+Because cpu_data(cpu)->data_offset may contain garbage, some buggy code may do 
+random things without notice. If we initialize data_offset so that the 
+per_cpu() data sits in an unmapped memory area, we should get page faults and 
+stack traces should help us find the bugs.
 
--- 
-Gerd 'just married' Hoffmann <kraxel@suse.de>
-I'm the hacker formerly known as Gerd Knorr.
-http://www.suse.de/~kraxel/just-married.jpeg
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+
+
+
+--------------090109060508080803030802
+Content-Type: text/plain;
+ name="cpudata_red_zone.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cpudata_red_zone.patch"
+
+--- linux-2.6.16-rc1/Documentation/x86_64/mm.txt	2006-01-17 08:44:47.000000000 +0100
++++ linux-2.6.16-rc1-mm2-ed/Documentation/x86_64/mm.txt	2006-01-23 16:54:46.000000000 +0100
+@@ -5,7 +5,8 @@
+ 
+ 0000000000000000 - 00007fffffffffff (=47bits) user space, different per mm
+ hole caused by [48:63] sign extension
+-ffff800000000000 - ffff80ffffffffff (=40bits) guard hole
++ffff800000000000 - ffff807fffffffff (=39bits) guard hole
++ffff808000000000 - ffff80ffffffffff (=39bits) not possible cpus percpudata hole
+ ffff810000000000 - ffffc0ffffffffff (=46bits) direct mapping of all phys. memory
+ ffffc10000000000 - ffffc1ffffffffff (=40bits) hole
+ ffffc20000000000 - ffffe1ffffffffff (=45bits) vmalloc/ioremap space
+--- linux-2.6.16-rc1/include/asm-x86_64/pgtable.h	2006-01-17 08:44:47.000000000 +0100
++++ linux-2.6.16-rc1-mm2-ed/include/asm-x86_64/pgtable.h	2006-01-23 16:54:46.000000000 +0100
+@@ -136,6 +136,7 @@
+ 
+ #ifndef __ASSEMBLY__
+ #define MAXMEM		 0x3fffffffffffUL
++#define CPUDATA_RED_ZONE 0xffff808000000000UL
+ #define VMALLOC_START    0xffffc20000000000UL
+ #define VMALLOC_END      0xffffe1ffffffffffUL
+ #define MODULES_VADDR    0xffffffff88000000UL
+--- linux-2.6.16-rc1/arch/x86_64/kernel/setup64.c	2006-01-23 16:36:38.000000000 +0100
++++ linux-2.6.16-rc1-mm2-ed/arch/x86_64/kernel/setup64.c	2006-01-23 17:40:54.000000000 +0100
+@@ -99,9 +99,14 @@
+ 		size = PERCPU_ENOUGH_ROOM;
+ #endif
+ 
+-	for_each_cpu_mask (i, cpu_possible_map) {
++	for (i = 0 ; i < NR_CPUS ; i++) {
+ 		char *ptr;
+ 
++		if (!cpu_possible(i)) {
++			cpu_pda(i)->data_offset = (char *)CPUDATA_RED_ZONE - __per_cpu_start;
++			continue;
++		}
++
+ 		if (!NODE_DATA(cpu_to_node(i))) {
+ 			printk("cpu with no node %d, num_online_nodes %d\n",
+ 			       i, num_online_nodes());
+
+--------------090109060508080803030802--

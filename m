@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWAWRBW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWAWRCD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbWAWRBW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 12:01:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWAWRBW
+	id S964838AbWAWRCD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 12:02:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWAWRCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 12:01:22 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:61847 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S964827AbWAWRBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 12:01:20 -0500
-Date: Mon, 23 Jan 2006 15:01:27 -0200
-From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: arjan@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] slab: Adds two missing kmalloc() checks.
-Message-Id: <20060123150128.eb12603f.lcapitulino@mandriva.com.br>
-In-Reply-To: <1138035122.10527.10.camel@localhost>
-References: <20060123133121.70f2cbcb.lcapitulino@mandriva.com.br>
-	<1138034316.10527.2.camel@localhost>
-	<1138034695.2977.48.camel@laptopd505.fenrus.org>
-	<1138035122.10527.10.camel@localhost>
-Organization: Mandriva
-X-Mailer: Sylpheed version 2.2.0beta4 (GTK+ 2.8.10; i586-mandriva-linux-gnu)
+	Mon, 23 Jan 2006 12:02:03 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:27603 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964816AbWAWRCA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 12:02:00 -0500
+Date: Mon, 23 Jan 2006 17:01:47 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6/9] device-mapper snapshot: barriers not supported
+Message-ID: <20060123170147.GJ4280@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060120211759.GG4724@agk.surrey.redhat.com> <20060122214111.11170cdc.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060122214111.11170cdc.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 22, 2006 at 09:41:11PM -0800, Andrew Morton wrote:
+> Alasdair G Kergon <agk@redhat.com> wrote:
+> > The snapshot and origin targets are incapable of handling barriers and 
+> >  need to indicate this.
 
- Hi Pekka, Arjan,
+> And what was happening if people _were_ sending such BIOs down?  Did it all
+> appear to work correctly?  
 
-On Mon, 23 Jan 2006 18:52:02 +0200
-Pekka Enberg <penberg@cs.helsinki.fi> wrote:
+The snapshot target ignores the barrier and in some circumstances I/O can be
+reordered in ways that are meant to be prevented by the barrier.
 
-| On Mon, 2006-01-23 at 18:38 +0200, Pekka Enberg wrote:
-| > > Looks good to me. Arjan, you had some objections last time around. Are
-| > > you okay with the change?
-| 
-| On Mon, 2006-01-23 at 17:44 +0100, Arjan van de Ven wrote:
-| > I still fail to see the point. Has anyone EVER seen these trigger????
-| 
-| Yeah, we probably won't. They seem useful for people who hunt unchecked
-| kmalloc() calls, though.
+> If so, will this change cause
+> currently-apparently-working setups to stop working?
 
- It really looks useful to me. You don't check for fail because someone has
-seen the fail happen. You check for fail in order to have a robust program.
+As Lars pointed out, filesystems should already cope with -EOPNOTSUPP 
+transparently, and it would be sensible for any out-of-tree users to 
+do likewise.
 
- There are zilions of checks in the kernel and in programs out there which I
-think they will never fail. But they are there.
-
- On the other hand, I'm not going to make too much noise for a such trivial
-patch. If you think it's not useful, let's drop it. No problem.
-
+Alasdair
 -- 
-Luiz Fernando N. Capitulino
+agk@redhat.com

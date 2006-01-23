@@ -1,75 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbWAWWQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbWAWWQO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964962AbWAWWQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 17:16:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbWAWWQQ
+	id S964954AbWAWWQO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 17:16:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964963AbWAWWQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 17:16:16 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5645 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964963AbWAWWQP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 17:16:15 -0500
-Date: Mon, 23 Jan 2006 23:16:04 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: mchehab@infradead.org
-Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
-       video4linux-list@redhat.com, akpm@osdl.org,
-       Michael Krufky <mkrufky@m1k.net>
-Subject: Re: [PATCH 10/16] make VP-3054 Secondary I2C Bus Support a Kconfig option.
-Message-ID: <20060123221604.GA3590@stusta.de>
-References: <20060123202404.PS66974000000@infradead.org> <20060123202444.PS83596100010@infradead.org>
+	Mon, 23 Jan 2006 17:16:14 -0500
+Received: from gate.crashing.org ([63.228.1.57]:35749 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964954AbWAWWQN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 17:16:13 -0500
+Date: Mon, 23 Jan 2006 16:08:49 -0600 (CST)
+From: Kumar Gala <galak@gate.crashing.org>
+To: dbrownell@users.sourceforge.net
+cc: Randy Vinson <rvinson@mvista.com>, <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>
+Subject: [PATCH] USB: Disable clock for MPH ports not in use on Freescale
+ EHCI
+Message-ID: <Pine.LNX.4.44.0601231607080.19842-100000@gate.crashing.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060123202444.PS83596100010@infradead.org>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 23, 2006 at 06:24:44PM -0200, mchehab@infradead.org wrote:
-> From: Michael Krufky <mkrufky@m1k.net>
-> 
-> - make VP-3054 Secondary I2C Bus Support a Kconfig option.
-> 
-> Signed-off-by: Michael Krufky <mkrufky@m1k.net>
-> Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
-> ---
-> 
->  drivers/media/video/cx88/Kconfig  |   11 +++++++++++
->  drivers/media/video/cx88/Makefile |    2 +-
->  2 files changed, 12 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/media/video/cx88/Kconfig b/drivers/media/video/cx88/Kconfig
-> index fdf45f7..e99dfbb 100644
-> --- a/drivers/media/video/cx88/Kconfig
-> +++ b/drivers/media/video/cx88/Kconfig
-> @@ -49,6 +49,7 @@ config VIDEO_CX88_DVB_ALL_FRONTENDS
->  	default y
->  	depends on VIDEO_CX88_DVB
->  	select DVB_MT352
-> +	select VIDEO_CX88_VP3054
->  	select DVB_OR51132
->  	select DVB_CX22702
->  	select DVB_LGDT330X
-> @@ -70,6 +71,16 @@ config VIDEO_CX88_DVB_MT352
->  	  This adds DVB-T support for cards based on the
->  	  Connexant 2388x chip and the MT352 demodulator.
->  
-> +config VIDEO_CX88_VP3054
-> +	tristate "VP-3054 Secondary I2C Bus Support"
-> +	default m
->...
+In some systems using the Freescale EHCI controller if only one port
+of the multiport host (MPH) is being used the other port must be
+disabled if there is no clock signal.  Since we dont know how someone
+will wire a board, we disable the clock if the port is not enabled.
 
-This option should be a bool since "m" doesn't make much sense (it's 
-anyways interpreted the same as "y").
+Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
 
-cu
-Adrian
+---
+commit 984d42232fd47ddbeef7c825ec2bafbca9aed5a0
+tree 166532f0cd229b1a6f090c43b3617fd49ff3068a
+parent 2497a5e4242d500178d6d0f0ce4ee9249a38f5dc
+author Kumar Gala <galak@kernel.crashing.org> Mon, 23 Jan 2006 16:13:21 -0600
+committer Kumar Gala <galak@kernel.crashing.org> Mon, 23 Jan 2006 16:13:21 -0600
 
--- 
+ drivers/usb/host/ehci-fsl.c |    7 +++++++
+ drivers/usb/host/ehci-fsl.h |    1 +
+ 2 files changed, 8 insertions(+), 0 deletions(-)
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+diff --git a/drivers/usb/host/ehci-fsl.c b/drivers/usb/host/ehci-fsl.c
+index f40ee41..032fa6b 100644
+--- a/drivers/usb/host/ehci-fsl.c
++++ b/drivers/usb/host/ehci-fsl.c
+@@ -161,6 +161,7 @@ static void mpc83xx_setup_phy(struct ehc
+ 			      unsigned int port_offset)
+ {
+ 	u32 portsc = 0;
++
+ 	switch (phy_mode) {
+ 	case FSL_USB2_PHY_ULPI:
+ 		portsc |= PORT_PTS_ULPI;
+@@ -175,6 +176,7 @@ static void mpc83xx_setup_phy(struct ehc
+ 		portsc |= PORT_PTS_UTMI;
+ 		break;
+ 	case FSL_USB2_PHY_NONE:
++		portsc |= PORT_PHCD;
+ 		break;
+ 	}
+ 	writel(portsc, &ehci->regs->port_status[port_offset]);
+@@ -209,8 +211,13 @@ static void mpc83xx_usb_setup(struct usb
+ 
+ 		if (pdata->port_enables & FSL_USB2_PORT0_ENABLED)
+ 			mpc83xx_setup_phy(ehci, pdata->phy_mode, 0);
++		else
++			mpc83xx_setup_phy(ehci, FSL_USB2_PHY_NONE, 0);
++
+ 		if (pdata->port_enables & FSL_USB2_PORT1_ENABLED)
+ 			mpc83xx_setup_phy(ehci, pdata->phy_mode, 1);
++		else
++			mpc83xx_setup_phy(ehci, FSL_USB2_PHY_NONE, 1);
+ 	}
+ 
+ 	/* put controller in host mode. */
+diff --git a/drivers/usb/host/ehci-fsl.h b/drivers/usb/host/ehci-fsl.h
+index caac0d1..f579254 100644
+--- a/drivers/usb/host/ehci-fsl.h
++++ b/drivers/usb/host/ehci-fsl.h
+@@ -26,6 +26,7 @@
+ #define PORT_PTS_ULPI		(2<<30)
+ #define	PORT_PTS_SERIAL		(3<<30)
+ #define PORT_PTS_PTW		(1<<28)
++#define PORT_PHCD		(1<<23)
+ #define FSL_SOC_USB_PORTSC2	0x188
+ #define FSL_SOC_USB_USBMODE	0x1a8
+ #define FSL_SOC_USB_SNOOP1	0x400	/* NOTE: big-endian */
 

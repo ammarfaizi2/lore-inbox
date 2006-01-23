@@ -1,113 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbWAWXjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWAWXw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030214AbWAWXjD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 18:39:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWAWXjC
+	id S932423AbWAWXw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 18:52:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWAWXw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 18:39:02 -0500
-Received: from smtp6-g19.free.fr ([212.27.42.36]:4992 "EHLO smtp6-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1030214AbWAWXjA (ORCPT
+	Mon, 23 Jan 2006 18:52:57 -0500
+Received: from holomorphy.com ([66.93.40.71]:44013 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S932423AbWAWXw4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 18:39:00 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: philb@gnu.org, tim@cyberelk.net, andrea@suse.de,
-       linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCHv2] parport: add parallel port support for SGI O2
-References: <87mzhqfq5y.fsf@groumpf.homeip.net>
-	<20060122222425.6907656f.akpm@osdl.org>
-From: Arnaud Giersch <arnaud.giersch@free.fr>
-X-Face: &yL?ZRfSIk3zaRm*dlb3R4f.8RM"~b/h|\wI]>pL)}]l$H>.Q3Qd3[<h!`K6mI=+cWpg-El
- B(FEm\EEdLdS{2l7,8\!RQ5aL0ZXlzzPKLxV/OQfrg/<t!FG>i.K[5isyT&2oBNdnvk`~y}vwPYL;R
- y)NYo"]T8NlX{nmIUEi\a$hozWm#0GCT'e'{5f@Rl"[g|I8<{By=R8R>bDe>W7)S0-8:b;ZKo~9K?'
- wq!G,MQ\eSt8g`)jeITEuig89NGmN^%1j>!*F8~kW(yfF7W[:bl>RT[`w3x-C
-Date: Tue, 24 Jan 2006 00:38:57 +0100
-In-Reply-To: <20060122222425.6907656f.akpm@osdl.org> (Andrew Morton's
- message of "Sun, 22 Jan 2006 22:24:25 -0800")
-Message-ID: <87ek2ycy5q.fsf@groumpf.homeip.net>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 23 Jan 2006 18:52:56 -0500
+Date: Mon, 23 Jan 2006 15:52:34 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Don Dupuis <dondster@gmail.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andrew Morton <akpm@osdl.org>, Adam Litke <agl@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Can't mlock hugetlb in 2.6.15
+Message-ID: <20060123235234.GB7655@holomorphy.com>
+References: <632b79000601181149o67f1c013jfecc5e32ee17fe7e@mail.gmail.com> <20060120235240.39d34279.akpm@osdl.org> <43D24167.1010007@yahoo.com.au> <632b79000601221832w4cb44582y823ee7dc80e9a34f@mail.gmail.com> <Pine.LNX.4.61.0601231917210.5915@goblin.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0601231917210.5915@goblin.wat.veritas.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lundi 23 janvier 2006, vers 07:24:25 (+0100), Andrew Morton a écrit:
+On Mon, Jan 23, 2006 at 07:51:51PM +0000, Hugh Dickins wrote:
+> This has nothing to do with mlock or MAP_LOCKED - which by the way do
+> make more sense in 2.6.15, since they provide a way of prefaulting the
+> hugepage area like in earlier releases (now hugepages are being faulted
+> in on demand, though never paged out, as Andrew said).
+> Please try the patch below, and let us know if it works for you - thanks.
+> Looks like we'll need this in 2.6.16-rc-git and 2.6.15-stable.
+> 2.6.15's hugepage faulting introduced huge_pages_needed accounting into
+> hugetlbfs: to count how many pages are already in cache, for spot check
+> on how far a new mapping may be allowed to extend the file.  But it's
+> muddled: each hugepage found covers HPAGE_SIZE, not PAGE_SIZE.  Once
+> pages were already in cache, it would overshoot, wrap its hugepages
+> count backwards, and so fail a harmless repeat mapping with -ENOMEM.
+> Fixes the problem found by Don Dupuis.
+> Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
->> From: Arnaud Giersch <arnaud.giersch@free.fr>
->> 
->> Add support for the built-in parallel port on SGI O2 (a.k.a. IP32).
->> Define a new configuration option: PARPORT_IP32.  The module is named
->> parport_ip32.
->
-> Nice looking driver.  Big.
+Acked-by: William Irwin <wli@holomorphy.com>
 
-Thanks.
+A unit conversion error, as usual. It's difficult to understand why
+such a natural decision as to use only one radix tree entry per
+hugepage is so difficult to cope with. If only my eyes had been sharp
+enough to catch it on its way in.
 
-> It does rather a lot of
->
-> 	if (foo)	do_something();
->
-> whereas we prefer
->
-> 	if (foo)
-> 		do_something();
-
-Those are limited to the parport_ip32_dump_state() function.  The
-rationale is that this function is only here for debugging purpose,
-and I did not want to make it longer than it already is. 
-
-I will correct the style.
+Excellent detective work as always. Thanks again, Hugh.
 
 
->> +static void parport_ip32_dma_setup_context(unsigned int limit)
-[...]
->> +		volatile u64 __iomem *ctxreg = (parport_ip32_dma.ctx == 0) ?
->> +			&mace->perif.ctrl.parport.context_a :
->> +			&mace->perif.ctrl.parport.context_b;
->
-> Does this need to be volatile?   writeq() should do the right thing.
-
-The "volatile" is here for type consistency.  Both variables
-"mace->perif.ctrl.parport.context_a" and "context_b" (defined in
-include/asm-mips/ip32/mace.h) are from type "volatile u64".  Omitting
-the "volatile" qualifier for "ctxreg" would make gcc and sparse
-complain.
-
-I will add a comment to explain it in the code.
-
-
->> +static size_t parport_ip32_epp_read(void __iomem *eppreg,
-[...]
->> +	if ((flags & PARPORT_EPP_FAST) && (len > 1)) {
->> +		readsb(eppreg, buf, len);
->
-> readsb() is a mips thing, and doesn't seem to be documented.  What does it
-> do, and why does the driver use it (only) here?
->
->> +		writesb(eppreg, buf, len);
-
-readsb() and writesb() are like ioread8_rep() and iowrite8_rep().  The
-io{read,write} family functions are however not available in the
-linux-mips.org tree.
-
-The usage of readsb() here is similar to that of insb() in the
-corresponding code of the parport_pc driver.
-
-
->> +static unsigned int parport_ip32_fifo_wait_break(struct parport *p,
-[...]
->> +	if (signal_pending(current)) {
->> +		printk(KERN_DEBUG PPIP32
->> +		       "%s: Signal pending\n", p->name);
->> +		return 1;
->> +	}
->
-> This printk could be a bit noisy, if someone hoses a signal stream at a
-> printing program.
-
-I did not realized that.  I will try to correct the problem.
-
-
-Thank you for your attention.
-
-        Arnaud
+-- wli

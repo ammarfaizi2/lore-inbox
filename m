@@ -1,97 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWAWSwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWAWSz7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbWAWSwO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 13:52:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbWAWSwO
+	id S964890AbWAWSz7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 13:55:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbWAWSz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 13:52:14 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:39842 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S964889AbWAWSwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 13:52:13 -0500
-Message-ID: <43D525D8.8080501@comcast.net>
-Date: Mon, 23 Jan 2006 13:52:08 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Mon, 23 Jan 2006 13:55:59 -0500
+Received: from mail.gmx.de ([213.165.64.21]:30876 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964890AbWAWSz7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 13:55:59 -0500
+X-Authenticated: #428038
+Date: Mon, 23 Jan 2006 19:55:49 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Rationale for RLIMIT_MEMLOCK?
+Message-ID: <20060123185549.GA15985@merlin.emma.line.org>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20060123105634.GA17439@merlin.emma.line.org> <1138014312.2977.37.camel@laptopd505.fenrus.org> <20060123165415.GA32178@merlin.emma.line.org> <1138035602.2977.54.camel@laptopd505.fenrus.org> <20060123180106.GA4879@merlin.emma.line.org> <1138039993.2977.62.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: Michael Loftis <mloftis@wgops.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: soft update vs journaling?
-References: <43D3295E.8040702@comcast.net> <B78EFD916FFE8034EC546F38@dhcp-2-206.wgops.com>
-In-Reply-To: <B78EFD916FFE8034EC546F38@dhcp-2-206.wgops.com>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1138039993.2977.62.camel@laptopd505.fenrus.org>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 23 Jan 2006, Arjan van de Ven wrote:
 
+> hmm... curious that mlockall() succeeds with only a 32kb rlimit....
 
+It's quite obvious with the seteuid() shuffling behind the scenes of the
+app, for the mlockall() runs with euid==0, and the later mmap() with euid!=0.
 
-Michael Loftis wrote:
-> 
-> 
-> --On January 22, 2006 1:42:38 AM -0500 John Richard Moser
-> <nigelenki@comcast.net> wrote:
-> 
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> So I've been researching, because I thought this "Soft Update" thing
->> that BSD uses was some weird freak-ass way to totally corrupt a file
->> system if the power drops.  Seems I was wrong; it's actually just the
->> opposite, an alternate solution to journaling.  So let's compare notes.
-> 
-> 
-> I hate to say it...but in my experience, this has been exactly the case
-> with soft updates and FreeBSD 4 up to 4.11 pre releases.
-> 
-> Whenever something untoward would happen, the filesystem almost always
-> lost files and/or data, usually just files though.  In practice it's
-> never really worked too well for me.  It also still requires a full fsck
-> on boot, which means long boot times for recovery on large filesystems.
+Clearly the application should do both with the same privilege or raise
+the RLIMIT_MEMLOCK while running with privileges.
 
-You lost files in use, or random files?
+The question that's open is one for the libc guys: malloc(), valloc()
+and others seem to use mmap() on some occasions (for some allocation
+sizes) - at least malloc/malloc.c comments as of 2.3.4 suggest so -, and
+if this isn't orthogonal to mlockall() and set[e]uid() calls, the glibc
+is pretty deeply in trouble if the code calls mlockall(MLC_FUTURE) and
+then drops privileges.
 
-Soft Update was designed to assure file system consistency.  In typical
-usage, when you drop power on something like FAT, you create a 'hole' in
-the filesystem.  This hole could be something like files pointing to
-allocated blocks belonging to other files; or crossed dentries; etc.  As
-you use the file system, it simply accepts the information it gets,
-because it doesn't look bad until you look at EVERYTHING.  The effect is
-akin to repeatedly sodomizing the file system in this newly created
-hole; you just cause more and more damage until the system gives out.
-The system makes allocations and decisions based on faulty data and
-really, really screws things up.
+The function in question appears to be valloc() with glibc 2.3.5.
 
-The idea of Soft Update was to make sure that while you may lose
-something, when you come back up the FS is in a safely usable state.
-The fsck only colors in a view of the FS and frees up blocks that don't
-seem to be allocated by any particular file, an annoying but mostly
-harmless side effect of losing power in this scheme.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+In this light, mlockall(MCL_FUTURE) is pretty useless, since there is no
+way to undo MCL_FUTURE without unlocking all pages at the same time.
+Particularly so for setuid apps...
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+I'm asking the Bcc'd gentleman to reconsider mlockall() and perhaps use
+explicit mlock() instead.
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFD1SXXhDd4aOud5P8RAj9PAJ9G5CF6gfPx470/Ak+OlaKogZhMSwCeKORg
-Q7AZegZunZ3S2hTSNVnXFlc=
-=7Rme
------END PGP SIGNATURE-----
+-- 
+Matthias Andree

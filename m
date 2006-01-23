@@ -1,72 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWAWQu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbWAWQuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWAWQu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 11:50:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWAWQu1
+	id S964801AbWAWQuS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 11:50:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWAWQuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 11:50:27 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:6555 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964791AbWAWQu0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 11:50:26 -0500
-Date: Mon, 23 Jan 2006 08:50:11 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: John Richard Moser <nigelenki@comcast.net>
-cc: linux-kernel@vger.kernel.org,
-       Ubuntu Users List <ubuntu-users@lists.ubuntu.com>,
-       ubuntu-devel <ubuntu-devel@lists.ubuntu.com>,
-       autopackage-dev@sunsite.dk
-Subject: Re: Need insight on designing a package manager
-In-Reply-To: <43D4B358.7050604@comcast.net>
-Message-ID: <Pine.LNX.4.62.0601230842420.31110@schroedinger.engr.sgi.com>
-References: <43D4B358.7050604@comcast.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 23 Jan 2006 11:50:18 -0500
+Received: from mail.shareable.org ([81.29.64.88]:29072 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S964773AbWAWQuQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 11:50:16 -0500
+Date: Mon, 23 Jan 2006 16:50:02 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Diego Calleja <diegocg@gmail.com>, Ram Gupta <ram.gupta5@gmail.com>,
+       mloftis@wgops.com, barryn@pobox.com, a1426z@gawab.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] VM: I have a dream...
+Message-ID: <20060123165002.GA6140@mail.shareable.org>
+References: <20060123162624.5c5a1b94.diegocg@gmail.com> <Pine.LNX.4.61.0601231058200.11299@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0601231058200.11299@chaos.analogic.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Jan 2006, John Richard Moser wrote:
-
-> install Sun Java on Debian, I found that clicking "no" on the license
-> permenantly alters the system in ways dpkg can't track and roll back,
-> assuring you can never try to install the package again.
-
-That is a problem with Sun Java destroying Debians package tracking 
-database?
-
-> well; policy plug-ins for SELinux are planned, and "meta-native"
-> policies will allow a policy file to have chunks modified based on user
-> query.
-
-Replacing scripts with meta information that is interpreted has been 
-discussed a few times and I most people involved think this is a good 
-thing.
-
-> Plug-ins will also allow for policy extensions, to understand SELinux
-> and GrSecurity policy files and how to activate them in the system.
-> These policy plug-ins will also translate policies written in a built-in
-> meta-policy language to the native format of the target backend.
-
-Something like the triggers in UPM? http://uos.graphe.net/upm.html
-
-> going to handle things is not a good idea.  SQLite was, of course,
-> chosen for performance.  Running a full RDBMS like MySQL or PostGreSQL
-> is out of the question; embedded MySQL is out because it's not object
-> oriented (SQLite lets me sqlite3_open() a database and get a handle to
-> use; I can work on 100 db's if I want, all at once).  Evidently the
-> MySQL folk don't understand that C can be used for object oriented
-> programming; it just doesn't do it in the language, as in C++ or Obj-C.
+linux-os (Dick Johnson) wrote:
+> On Mon, 23 Jan 2006, Diego Calleja wrote:
+> > However, I doubt the approach is really useful. If you need that much
+> > swap space, you're going well beyond the capabilities of the machine.
+> > In fact, I bet that most of the cases of machines needing too much
+> > memory will be because of bugs in the programs and OOM'ing would be
+> > a better solution.
 > 
-> This is one dilema point; I don't know all the information to store in
-> the database.  I'm working on this; could use some help.
+> You have roughly 2 GB of dynamic address-space avaliable to each
+> task (stuff that's not the kernel and not the runtime libraries).
+> You can easily have 500 tasks, even RedHat out-of-the-box creates
+> about 60 tasks. That's 1,000 GB of potential swap-space required
+> to support this.
 
-SQLite may still be overkill. Look into the Berkeley DB libraries.
+And how many machines is it useful to use that much swap-space on?
 
-> My current largest dilema is dependency checking.  I want a
-> file-interface dependency model, handled by the install module.  This
-> means looking for either a program /bin/foo or /usr/bin/foo or "InPath
-> foo" (a la autopackage IIRC) and comparing its command line interface;
-> or finding a library in the same way and comparing its API.
+> This is not beyond the capabilites of a 32-bit
+> machine with a fast front-side bus and fast I/O (like wide SCSI).
 
-Uhh. That is going to make this whole thing pretty unclean and puts it on 
-the same level of hopelessly unfixable like rpm.
+Anything but the most expensively RAM-equipped machine would be stuck
+in a useless swap-storm, if it's got 1000GB of GB of active swap space
+and only a relatively tiny amount of physical RAM (e.g. 16GB).  The
+same is true if only, say, 10% of the swap space is in active use.
+
+Wide SCSI isn't fast enough to make that useful.
+
+I think that was the point Diego was making: you can use that much
+swap space, but by the time you do, whatever task you hoped to
+accomplish won't get anywhere due to the swap-storm.
+
+> Some persons tend to forget that 32-bit address space is available
+> to every user, some is shared, some is not. A reasonable rule-of-
+> thumb is to provide enough swap-space to duplicate the address-
+> space of every potential task.
+
+I think that's a ridiculous rule of thumb.  Not least because (a) even
+the biggest drive available (e.g. 1TB) doesn't provide that much
+swap-space, and (b) if you're actively using only a tiny fraction of
+that, your machine has already become uselessly slow - even root
+logins and command prompts don't work under those conditions.
+
+-- Jamie

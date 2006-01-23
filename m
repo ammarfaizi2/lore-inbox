@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWAWQhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbWAWQiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbWAWQhu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 11:37:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932441AbWAWQhu
+	id S932441AbWAWQiI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 11:38:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbWAWQiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 11:37:50 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:30163 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932433AbWAWQht
+	Mon, 23 Jan 2006 11:38:07 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:38845 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932276AbWAWQiG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 11:37:49 -0500
-Subject: [PATCH] tpm: tpm_bios fix sparse warnings
+	Mon, 23 Jan 2006 11:38:06 -0500
+Subject: [PATCH] tpm: tpm_bios remove unused variable
 From: Kylene Jo Hall <kjhall@us.ibm.com>
 To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Mon, 23 Jan 2006 10:38:57 -0600
-Message-Id: <1138034337.5076.21.camel@localhost.localdomain>
+Date: Mon, 23 Jan 2006 10:39:14 -0600
+Message-Id: <1138034354.5076.22.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixing the sparse warnings on the acpi_os_map_memory calls pointed out
-by Randy.
+Removing event_data_size since it was pointed out in tpm_bios-indexing-
+fix.patch that is was ugly and it wasn't actually being used.
 
 Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
 --- 
 diff -uprN --exclude-from=linux_excludes linux-2.6.16-rc1/drivers/char/tpm/tpm_bios.c linux-2.6.16-rc1-tpm/drivers/char/tpm/tpm_bios.c
 --- linux-2.6.16-rc1/drivers/char/tpm/tpm_bios.c	2006-01-20 14:21:13.000000000 -0600
 +++ linux-2.6.16-rc1-tpm/drivers/char/tpm/tpm_bios.c	2006-01-20 14:05:41.000000000 -0600
-@@ -376,7 +375,7 @@ static int read_log(struct tpm_bios_log 
- {
- 	struct acpi_tcpa *buff;
- 	acpi_status status;
--	void *virt;
-+	struct acpi_table_header *virt;
+@@ -191,7 +191,7 @@ static int get_event_name(char *dest, st
+ 	const char *name = "";
+ 	char data[40] = "";
+ 	int i, n_len = 0, d_len = 0;
+-	u32 event_id, event_data_size;
++	u32 event_id;
  
- 	if (log->bios_event_log != NULL) {
- 		printk(KERN_ERR
-@@ -413,7 +412,7 @@ static int read_log(struct tpm_bios_log 
+ 	switch(event->event_type) {
+ 	case PREBOOT:
+@@ -221,7 +221,6 @@ static int get_event_name(char *dest, st
+ 		break;
+ 	case EVENT_TAG:
+ 		event_id = be32_to_cpu(*((u32 *)event_entry));
+-		event_data_size = be32_to_cpu(((u32 *)event_entry)[1]);
  
- 	log->bios_event_log_end = log->bios_event_log + buff->log_max_len;
+ 		/* ToDo Row data -> Base64 */
  
--	acpi_os_map_memory(buff->log_start_addr, buff->log_max_len, &virt);
-+	acpi_os_map_memory(buff->log_start_addr, buff->log_max_len, (void *) &virt);
- 
- 	memcpy(log->bios_event_log, virt, buff->log_max_len);
- 
-
 
 

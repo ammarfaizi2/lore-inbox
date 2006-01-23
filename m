@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbWAWU7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbWAWVAt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964873AbWAWU7n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 15:59:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbWAWU7n
+	id S1030185AbWAWVAt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 16:00:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030184AbWAWVAt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 15:59:43 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:5034 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964873AbWAWU7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 15:59:42 -0500
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.2 for  2.6.16-rc1 and
-	2.6.16-rc1-mm1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Cc: Peter Williams <pwil3058@bigpond.net.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>
-In-Reply-To: <20060123215231.04b38886@localhost>
-References: <43D00887.6010409@bigpond.net.au>
-	 <20060121114616.4a906b4f@localhost> <43D2BE83.1020200@bigpond.net.au>
-	 <20060123210918.54d4fc75@localhost> <1138047938.21481.11.camel@mindpipe>
-	 <20060123215231.04b38886@localhost>
-Content-Type: text/plain
-Date: Mon, 23 Jan 2006 15:59:38 -0500
-Message-Id: <1138049979.21481.25.camel@mindpipe>
+	Mon, 23 Jan 2006 16:00:49 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:60682 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1030185AbWAWVAs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 16:00:48 -0500
+Date: Mon, 23 Jan 2006 22:02:22 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Nate Diller <nate.diller@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com, seelam@cs.utep.edu,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH 1/2][RESEND] Default iosched fixes (was: Fall back io scheduler for 2.6.15?)
+Message-ID: <20060123210221.GY12773@suse.de>
+References: <5c49b0ed0601191604p4fa53404r783b3a703e922b13@mail.gmail.com> <20060120081145.GD4213@suse.de> <5c49b0ed0601201517h3126ac8dp931bab93a85bf9c5@mail.gmail.com> <20060121114841.GT13429@suse.de> <5c49b0ed0601231150i39e678f3s9dd99c308ffb5157@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5c49b0ed0601231150i39e678f3s9dd99c308ffb5157@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-23 at 21:52 +0100, Paolo Ornati wrote:
-> On Mon, 23 Jan 2006 15:25:37 -0500
-> Lee Revell <rlrevell@joe-job.com> wrote:
+On Mon, Jan 23 2006, Nate Diller wrote:
+> On 1/21/06, Jens Axboe <axboe@suse.de> wrote:
+> > On Fri, Jan 20 2006, Nate Diller wrote:
+> > > My previous default iosched patch did a poor job dealing with the
+> > > 'elevator=' boot-time option.  The old behavior falls back to the
+> > > compiled-in default if the requested one is not registered at boot
+> > > time.  This patch dynamically evaluates which default
+> > > to use, and emits a suitable error message when the requested scheduler
+> > > is not available.  It also does the 'as' -> 'anticipatory' conversion
+> > > before elevator registration, which along with a modified registration
+> > > function, allows it to correctly indicate which default scheduler is
+> > > in use.
+> >
+> > I'm a little confused by your description - what problem does this patch
+> > actually solve? We already fall back to the default, and we already do
+> > the "as" conversion. It does seem to cleanup the code, just curious
+> > since your description seems to promise a little more than what it
+> > actually adds.
 > 
-> > This seems right to me, how do you expect X to be treated by the
-> > scheduler?
+> It makes the ' (default)' printk that happens at elevator registration
+> time behave (more) correctly.  My original patch rather ignored that
+> segment of code.  The current behavior is to only print ' (default)'
+> when one was specified at boot time, and not if 'as' was requested
+> either, since it doesn't understand the 'as -> anticipatory'
+> conversion.  Now, it will display correctly the one selected at
+> compile-time, if none was specified at boot, and when the boot-time
+> option was 'as'.
 > 
-> Why moving the mouse a little (that causes a microscopic % of CPU
-> being used) makes X priority jump up to 29 from 6/7 ???
+> It also handles modular defaults better; although they cannot be
+> specified in kconfig, a default requested at boot-time will now still
+> work, even if it's a module.  When the boot-time requested scheduler
+> is not loaded, it will fall back to the compiled-in default; when it
+> is, it gets used.
 
-> And why this doesn't happen when glxgears (for example) is running?
-> (under cpu load this is different, with X never getting "good"
-> priority -- if I remember correctly)
-> 
-> Maybe this is normal and depends on the way X sleeps or something...
-> 
+Ok, thanks for the (better) explanation. I'll add your patch for
+inclusion, thanks.
 
-Because the scheduler favors interactive tasks (aka those which spend a
-large % of time waiting on external events) and X is only considered
-interactive when the mouse is being moved.  When glxgears is running
-it's CPU bound and is therefore penalized.
-
-> I don't know much about schedulers but if I'm able to make the cursor
-> going in jerks with just a bit of CPU load (linux$ make -j16, for
-> example) I wonder why X cannot get a better priority...
-> 
-
-Personally I don't see how we can expect to deliver OSX-caliber
-multimedia performance using only generalized heuristics in the
-scheduler (other OSes use hooks into the scheduler for multimedia).  At
-the very least it seems you need isochronous scheduling and a
-multi-threaded X server.
-
-Lee
+-- 
+Jens Axboe
 

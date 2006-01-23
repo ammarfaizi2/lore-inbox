@@ -1,23 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964946AbWAWU25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbWAWU25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964946AbWAWU25 (ORCPT <rfc822;willy@w.ods.org>);
+	id S964938AbWAWU25 (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 23 Jan 2006 15:28:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbWAWU24
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbWAWU2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 15:28:56 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:47301 "EHLO
+	Mon, 23 Jan 2006 15:28:21 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:34757 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964944AbWAWU2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 15:28:34 -0500
+	id S964936AbWAWU1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 15:27:50 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
 Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-       akpm@osdl.org, Ian Pickworth <ian@pickworth.me.uk>,
-       Michael Krufky <mkrufky@m1k.net>,
+       akpm@osdl.org, Markus Rechberger <mrechberger@gmail.com>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 09/16] Recognise Hauppauge card #34519
-Date: Mon, 23 Jan 2006 18:24:44 -0200
-Message-id: <20060123202444.PS67002100009@infradead.org>
+Subject: [PATCH 13/16] Missing break statement on tuner-core
+Date: Mon, 23 Jan 2006 18:24:45 -0200
+Message-id: <20060123202445.PS35254700013@infradead.org>
 In-Reply-To: <20060123202404.PS66974000000@infradead.org>
 References: <20060123202404.PS66974000000@infradead.org>
 Mime-Version: 1.0
@@ -29,28 +28,28 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ian Pickworth <ian@pickworth.me.uk>
+From: Markus Rechberger <mrechberger@gmail.com>
 
-- Recognise Hauppauge card #34519
+- default_tuner_init was called twice due to a missing break statement.
 
-Signed-off-by: Ian Pickworth <ian@pickworth.me.uk>
-Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+Signed-off-by: Markus Rechberger <mrechberger@gmail.com>
+Acked-by: Michael Krufky <mkrufky@m1k.net>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/video/cx88/cx88-cards.c |    1 +
+ drivers/media/video/tuner-core.c |    1 +
  1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/media/video/cx88/cx88-cards.c b/drivers/media/video/cx88/cx88-cards.c
-index 517257b..1bc9992 100644
---- a/drivers/media/video/cx88/cx88-cards.c
-+++ b/drivers/media/video/cx88/cx88-cards.c
-@@ -1298,6 +1298,7 @@ static void hauppauge_eeprom(struct cx88
- 	switch (tv.model)
- 	{
- 	case 28552: /* WinTV-PVR 'Roslyn' (No IR) */
-+	case 34519: /* WinTV-PCI-FM */
- 	case 90002: /* Nova-T-PCI (9002) */
- 	case 92001: /* Nova-S-Plus (Video and IR) */
- 	case 92002: /* Nova-S-Plus (Video and IR) */
+diff --git a/drivers/media/video/tuner-core.c b/drivers/media/video/tuner-core.c
+index 2995b22..e6bcd4b 100644
+--- a/drivers/media/video/tuner-core.c
++++ b/drivers/media/video/tuner-core.c
+@@ -216,6 +216,7 @@ static void set_type(struct i2c_client *
+ 		buffer[3] = 0xa4;
+ 		i2c_master_send(c,buffer,4);
+ 		default_tuner_init(c);
++		break;
+ 	default:
+ 		default_tuner_init(c);
+ 		break;
 

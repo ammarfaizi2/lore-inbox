@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbWAWPKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWAWPL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751464AbWAWPKE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 10:10:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWAWPKE
+	id S1751466AbWAWPL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 10:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWAWPL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 10:10:04 -0500
-Received: from amdext3.amd.com ([139.95.251.6]:1239 "EHLO amdext3.amd.com")
-	by vger.kernel.org with ESMTP id S1751464AbWAWPKB (ORCPT
+	Mon, 23 Jan 2006 10:11:57 -0500
+Received: from mail.suse.de ([195.135.220.2]:3247 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751466AbWAWPL4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 10:10:01 -0500
-X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
-Date: Mon, 23 Jan 2006 08:06:21 -0700
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: "Dan Malek" <dan@embeddedalley.com>
-cc: "Ralf Baechle" <ralf@linux-mips.org>, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org, "Adrian Bunk" <bunk@stusta.de>,
-       perex@suse.cz, linux-mips@linux-mips.org
-Subject: Re: RFC: OSS driver removal, a slightly different approach
-Message-ID: <20060123150621.GE4371@cosmic.amd.com>
-References: <20060119174600.GT19398@stusta.de>
- <20060121210511.GD3456@linux-mips.org>
- <2edd3641fe1cb18d25e35abe40de5d4e@embeddedalley.com>
+	Mon, 23 Jan 2006 10:11:56 -0500
+From: Andi Kleen <ak@suse.de>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: [PATCH] garbage values in file /proc/net/sockstat
+Date: Mon, 23 Jan 2006 16:11:51 +0100
+User-Agent: KMail/1.8
+Cc: pravin shelar <pravins@calsoftinc.com>,
+       Ravikiran G Thirumalai <kiran@scalex86.org>,
+       Shai Fultheim <shai@scalex86.org>, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>
+References: <Pine.LNX.4.63.0601231206270.2192@pravin.s> <200601231224.16196.ak@suse.de> <43D4DA15.4010009@cosmosbay.com>
+In-Reply-To: <43D4DA15.4010009@cosmosbay.com>
 MIME-Version: 1.0
-In-Reply-To: <2edd3641fe1cb18d25e35abe40de5d4e@embeddedalley.com>
-User-Agent: Mutt/1.5.11
-X-WSS-ID: 6FCA2F3A1HW274478-01-01
 Content-Type: text/plain;
- charset=us-ascii
-Content-Disposition: inline
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601231611.51326.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23/01/06 09:11 -0500, Dan Malek wrote:
-> 
-> On Jan 21, 2006, at 4:05 PM, Ralf Baechle wrote:
-> 
-> >On Thu, Jan 19, 2006 at 06:46:00PM +0100, Adrian Bunk wrote:
-> >
-> >>3. no ALSA drivers for the same hardware
-> >[...]
-> >>SOUND_AU1550_AC97
-> 
-> The Au1550 should have an ALSA driver.  It was done
-> some time ago.  Perhaps we just didn't submit it to the
-> proper maintainer.  I'll track that down.
+On Monday 23 January 2006 14:28, Eric Dumazet wrote:
 
-My official position is that I would prefer an ALSA driver if exists.
+> Shouldnt we force a page fault for not possible cpus in cpu_data
+> to catch all access to per_cpu(some_object, some_not_possible_cpu) ?
+>
+> We can use a red zone big enough to hold the whole per_cpu data.
 
-Jordan
+Good idea. Can you please send me a tested patch?
 
--- 
-Jordan Crouse
-Senior Linux Engineer
-AMD - Personal Connectivity Solutions Group
-<www.amd.com/embeddedprocessors>
-
+-Andi

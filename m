@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWAWB0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWAWByR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751353AbWAWB0I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 20:26:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWAWB0I
+	id S1751382AbWAWByR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 20:54:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWAWByR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 20:26:08 -0500
-Received: from mx1.suse.de ([195.135.220.2]:31932 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751155AbWAWB0G (ORCPT
+	Sun, 22 Jan 2006 20:54:17 -0500
+Received: from smtpout.mac.com ([17.250.248.46]:15316 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751382AbWAWByQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 20:26:06 -0500
-From: Neil Brown <neilb@suse.de>
-To: John Hendrikx <hjohn@xs4all.nl>
-Date: Mon, 23 Jan 2006 12:25:58 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17364.12454.643875.626906@cse.unsw.edu.au>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Sun, 22 Jan 2006 20:54:16 -0500
+In-Reply-To: <17364.12454.643875.626906@cse.unsw.edu.au>
+References: <20060117174531.27739.patches@notabene> <43D42CA8.6060507@xs4all.nl> <17364.12454.643875.626906@cse.unsw.edu.au>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <E47F8910-F8E6-4F64-90F0-3A13DF01F6AE@mac.com>
+Cc: John Hendrikx <hjohn@xs4all.nl>, linux-raid@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
        "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
 Subject: Re: [PATCH 000 of 5] md: Introduction
-In-Reply-To: message from John Hendrikx on Monday January 23
-References: <20060117174531.27739.patches@notabene>
-	<43D42CA8.6060507@xs4all.nl>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Date: Sun, 22 Jan 2006 20:54:04 -0500
+To: Neil Brown <neilb@suse.de>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday January 23, hjohn@xs4all.nl wrote:
-> NeilBrown wrote:
-> > In line with the principle of "release early", following are 5 patches
-> > against md in 2.6.latest which implement reshaping of a raid5 array.
-> > By this I mean adding 1 or more drives to the array and then re-laying
-> > out all of the data.
-> >   
-> I think my question is already answered by this, but...
-> 
-> Would this also allow changing the size of each raid device?  Let's say 
-> I currently have 160 GB x 6, could I change that to 300 GB x 6 or am I 
-> only allowed to add more 160 GB devices?
+On Jan 22, 2006, at 20:25, Neil Brown wrote:
+> Changing the size of the devices is a separate operation that has  
+> been supported for a while. For each device in turn, you fail it  
+> and replace it with a larger device. (This means the array runs  
+> degraded for a while, which isn't ideal and might be fixed one day).
+>
+> Once all the devices in the array are of the desired size, you run
+>   mdadm --grow /dev/mdX --size=max
+> and the array (raid1, raid5, raid6) will use up all available space  
+> on the devices, and a resync will start to make sure that extra  
+> space is in-sync.
 
-Changing the size of the devices is a separate operation that has been
-supported for a while.
-For each device in turn, you fail it and replace it with a larger
-device. (This means the array runs degraded for a while, which isn't
-ideal and might be fixed one day).
+One option I can think of that would make it much safer would be to  
+originally set up your RAID like this:
 
-Once all the devices in the array are of the desired size, you run
-  mdadm --grow /dev/mdX --size=max
-and the array (raid1, raid5, raid6) will use up all available space on
-the devices, and a resync will start to make sure that extra space is
-in-sync.
+                md3 (RAID-5)
+        __________/   |   \__________
+       /              |              \
+md0 (RAID-1)   md1 (RAID-1)   md2 (RAID-1)
 
-NeilBrown
+Each of md0-2 would only have a single drive, and therefore provide  
+no redundancy.  When you wanted to grow the RAID-5, you would first  
+add a new larger disk to each of md0-md2 and trigger each resync.   
+Once that is complete, remove the old drives from md0-2 and run:
+   mdadm --grow /dev/md0 --size=max
+   mdadm --grow /dev/md1 --size=max
+   mdadm --grow /dev/md2 --size=max
+
+Then once all that has completed, run:
+   mdadm --grow /dev/md3 --size=max
+
+This will enlarge the top-level array.  If you have LVM on the top- 
+level, you can allocate new LVs, resize existing ones, etc.
+
+With the newly added code, you could also add new drives dynamically  
+by creating a /dev/md4 out of the single drive, and adding that as a  
+new member of /dev/md3.
+
+Cheers,
+Kyle Moffett
+
+--
+I lost interest in "blade servers" when I found they didn't throw  
+knives at people who weren't supposed to be in your machine room.
+   -- Anthony de Boer
+
+

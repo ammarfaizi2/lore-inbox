@@ -1,50 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWAWMwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWAWMyZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbWAWMwW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 07:52:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751398AbWAWMwW
+	id S1751398AbWAWMyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 07:54:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWAWMyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 07:52:22 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:31428 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751351AbWAWMwW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 07:52:22 -0500
-From: Andi Kleen <ak@suse.de>
-To: Martin Waitz <tali@admingilde.org>
-Subject: Re: Fixing make mandocs
-Date: Mon, 23 Jan 2006 13:52:23 +0100
-User-Agent: KMail/1.8
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, kernel-janitors@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-References: <200601230531.27609.ak@suse.de> <20060122205349.0ec46cbe.rdunlap@xenotime.net> <20060123122831.GC11002@admingilde.org>
-In-Reply-To: <20060123122831.GC11002@admingilde.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Jan 2006 07:54:25 -0500
+Received: from herkules.vianova.fi ([194.100.28.129]:41621 "HELO
+	mail.vianova.fi") by vger.kernel.org with SMTP id S1751437AbWAWMyY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 07:54:24 -0500
+Date: Mon, 23 Jan 2006 14:54:20 +0200
+From: Ville Herva <vherva@vianova.fi>
+To: Heinz Mauelshagen <mauelshagen@redhat.com>
+Cc: Lars Marowsky-Bree <lmb@suse.de>, Neil Brown <neilb@suse.de>,
+       Phillip Susi <psusi@cfl.rr.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       "Lincoln Dale \(ltd\)" <ltd@cisco.com>,
+       Michael Tokarev <mjt@tls.msk.ru>, linux-raid@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+Subject: Re: [PATCH 000 of 5] md: Introduction
+Message-ID: <20060123125420.GE1686@vianova.fi>
+Reply-To: vherva@vianova.fi
+References: <17360.5011.975665.371008@cse.unsw.edu.au> <43D02033.4070008@cfl.rr.com> <17360.9233.215291.380922@cse.unsw.edu.au> <20060120183621.GA2799@redhat.com> <20060120225724.GW22163@marowsky-bree.de> <20060121000142.GR2801@redhat.com> <20060121000344.GY22163@marowsky-bree.de> <20060121000806.GT2801@redhat.com> <20060121001311.GA22163@marowsky-bree.de> <20060123094418.GX2801@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601231352.24068.ak@suse.de>
+In-Reply-To: <20060123094418.GX2801@redhat.com>
+X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 January 2006 13:28, Martin Waitz wrote:
-> hoi :)
->
-> On Sun, Jan 22, 2006 at 08:53:49PM -0800, Randy.Dunlap wrote:
-> > > > > Here would be a good janitor task for 2.6.16. make mandocs
-> > > > > currently doesn't build because a number of descriptions are
-> > > > > missing parameters etc.  It would be good if someone could fix
-> > > > > that and submit patches for 2.6.16.
->
-> the thing that really breaks the build is the new __copy_to_user
-> prototype which kernel-doc could not understand.
-> This is fixed in my tree.
->
-> > > Ok good. Are they going into 2.6.16?
->
-> I'll try to get at least the one kernel-doc fix into 2.6.16.
+On Mon, Jan 23, 2006 at 10:44:18AM +0100, you [Heinz Mauelshagen] wrote:
+> > 
+> > I use the regularly to play with md and other stuff...
+> 
+> Me too but for production, I want to avoid the
+> additional stacking overhead and complexity.
+> 
+> > So I remain unconvinced that code duplication is worth it for more than
+> > "hark we want it so!" ;-)
+> 
+> Shall I remove you from the list of potential testers of dm-raid45 then ;-)
 
-I would just send all that fix build failures.
+Heinz, 
 
--Andi
+If you really want the rest of us to convert from md to lvm, you should
+perhaps give some attention to thee brittle userland (scripts and and
+binaries).
 
+It is very tedious to have to debug a production system for a few hours in
+order to get the rootfs mounted after each kernel update. 
+
+The lvm error messages give almost no clue on the problem. 
+
+Worse yet, problem reports on these issues are completely ignored on the lvm
+mailing list, even when a patch is attached.
+
+(See
+ http://marc.theaimsgroup.com/?l=linux-lvm&m=113775502821403&w=2
+ http://linux.msede.com/lvm_mlist/archive/2001/06/0205.html
+ http://linux.msede.com/lvm_mlist/archive/2001/06/0271.html
+ for reference.)
+
+Such experience gives an impression lvm is not yet ready for serious
+production use.
+
+No offense intended, lvm kernel (lvm1 nor lvm2) code has never given me
+trouble, and is probably as solid as anything. 
+
+
+-- v -- 
+
+v@iki.fi
+
+PS: Speaking of debugging failing initrd init scripts; it would be nice if
+the kernel gave an error message on wrong initrd format rather than silently
+failing... Yes, I forgot to make the cpio with the "-H newc" option :-/.

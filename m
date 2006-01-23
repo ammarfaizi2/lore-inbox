@@ -1,94 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWAWFXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWAWFYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932155AbWAWFXp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 00:23:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWAWFXp
+	id S964798AbWAWFYA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 00:24:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWAWFYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 00:23:45 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:51936 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932155AbWAWFXo (ORCPT
+	Mon, 23 Jan 2006 00:24:00 -0500
+Received: from free.wgops.com ([69.51.116.66]:32271 "EHLO shell.wgops.com")
+	by vger.kernel.org with ESMTP id S932411AbWAWFX7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 00:23:44 -0500
-Date: Sun, 22 Jan 2006 21:22:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jan Blunck <jblunck@suse.de>
-Cc: viro@zeniv.linux.org.uk, dev@sw.ru, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] shrink_dcache_parent() races against
- shrink_dcache_memory()
-Message-Id: <20060122212243.20ce26c5.akpm@osdl.org>
-In-Reply-To: <20060120203645.GF24401@hasse.suse.de>
-References: <20060120203645.GF24401@hasse.suse.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 23 Jan 2006 00:23:59 -0500
+Date: Sun, 22 Jan 2006 22:23:43 -0700
+From: Michael Loftis <mloftis@wgops.com>
+To: "Barry K. Nathan" <barryn@pobox.com>, Al Boldi <a1426z@gawab.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] VM: I have a dream...
+Message-ID: <E3C35184F807ADEC2AD9E182@dhcp-2-206.wgops.com>
+In-Reply-To: <986ed62e0601221155x6a57e353vf14db02cc219c09@mail.gmail.com>
+References: <200601212108.41269.a1426z@gawab.com>
+ <986ed62e0601221155x6a57e353vf14db02cc219c09@mail.gmail.com>
+X-Mailer: Mulberry/4.0.4 (Mac OS X)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+X-MailScanner-Information: Please contact support@wgops.com
+X-MailScanner: WGOPS clean
+X-MailScanner-From: mloftis@wgops.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Blunck <jblunck@suse.de> wrote:
->
-> Kirill Korotaev <dev@sw.ru> discovered a race between shrink_dcache_parent()
-> and shrink_dcache_memory(). That one is based on dput() is calling
-> dentry_iput() too early and therefore is giving up the dcache_lock. This leads
-> to the situation that the parent dentry might be still referenced although all
-> childs are already dead. This parent is ignore by a concurrent select_parent()
-> call which might be the reason for busy inode after umount failures.
-> 
-> This is from Kirill's original patch:
-> 
-> CPU 1                    CPU 2
-> ~~~~~                    ~~~~~
-> umount /dev/sda1
-> generic_shutdown_super   shrink_dcache_memory
-> shrink_dcache_parent     prune_one_dentry
-> select_parent            dput     <<<< child is dead, locks are released,
->                                        but parent is still referenced!!! >>>>
-> skip dentry->parent,
-> since it's d_count > 0
-> 
-> message: BUSY inodes after umount...
->                                   <<< parent is left on dentry_unused list,
->                                       referencing freed super block >>>
-> 
-> This patch is introducing dput_locked() which is doing all the dput work
-> except of freeing up the dentry's inode and memory itself. Therefore, when the
-> dcache_lock is given up, all the reference counts of the parents are correct.
-> prune_one_dentry() must also use the dput_locked version and free up the
-> inodes and the memory of the parents later. Otherwise we have an incorrect
-> reference count on the parents of the dentry to prune.
-> 
-> ...
 
-> -void dput(struct dentry *dentry)
-> +static void dput_locked(struct dentry *dentry, struct list_head *list)
->  {
->  	if (!dentry)
->  		return;
->  
-> -repeat:
-> -	if (atomic_read(&dentry->d_count) == 1)
-> -		might_sleep();
-> -	if (!atomic_dec_and_lock(&dentry->d_count, &dcache_lock))
-> +	if (!atomic_dec_and_test(&dentry->d_count))
->  		return;
->  
-> +
->
-> ...
->
-> +void dput(struct dentry *dentry)
-> +{
-> +	LIST_HEAD(free_list);
-> +
-> +	if (!dentry)
-> +		return;
-> +
-> +	if (atomic_add_unless(&dentry->d_count, -1, 1))
-> +		return;
-> +
-> +	spin_lock(&dcache_lock);
-> +	dput_locked(dentry, &free_list);
-> +	spin_unlock(&dcache_lock);
 
-This seems to be an open-coded copy of atomic_dec_and_lock()?
+--On January 22, 2006 11:55:37 AM -0800 "Barry K. Nathan" 
+<barryn@pobox.com> wrote:
 
+> On 1/21/06, Al Boldi <a1426z@gawab.com> wrote:
+>> A long time ago, when i was a kid, I had dream. It went like this:
+> [snip]
+>
+> FWIW, Mac OS X is one step closer to your vision than the typical
+> Linux distribution: It has a directory for swapfiles -- /var/vm -- and
+> it creates new swapfiles there as needed. (It used to be that each
+> swapfile would be 80MB, but the iMac next to me just has a single 64MB
+> swapfile, so maybe Mac OS 10.4 does something different now.)
+/var/vm/swap*
+ 64M    swapfile0
+ 64M    swapfile1
+128M    swapfile2
+256M    swapfile3
+512M    swapfile4
+512M    swapfile5
+1.5G    total
+
+However only the first 5 are in use.  the 6th just represents the peak swap 
+usage on this machine.  This is on 10.4.

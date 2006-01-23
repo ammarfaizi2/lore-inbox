@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbWAWUVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbWAWUWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932468AbWAWUVO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 15:21:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWAWUVO
+	id S964924AbWAWUWj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 15:22:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWAWUWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 15:21:14 -0500
-Received: from 213-140-2-72.ip.fastwebnet.it ([213.140.2.72]:6531 "EHLO
-	aa005msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S932468AbWAWUVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 15:21:14 -0500
-Date: Mon, 23 Jan 2006 21:21:58 +0100
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.2 for  2.6.16-rc1 and
- 2.6.16-rc1-mm1
-Message-ID: <20060123212158.3fba71d5@localhost>
-In-Reply-To: <43D4281D.10009@bigpond.net.au>
-References: <43D00887.6010409@bigpond.net.au>
-	<20060121114616.4a906b4f@localhost>
-	<43D2BE83.1020200@bigpond.net.au>
-	<43D40B96.3060705@bigpond.net.au>
-	<43D4281D.10009@bigpond.net.au>
-X-Mailer: Sylpheed-Claws 2.0.0-rc3 (GTK+ 2.8.8; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 23 Jan 2006 15:22:39 -0500
+Received: from mail15.syd.optusnet.com.au ([211.29.132.196]:40629 "EHLO
+	mail15.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S932466AbWAWUWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 15:22:37 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17365.15058.133950.726063@wombat.chubb.wattle.id.au>
+Date: Tue, 24 Jan 2006 07:21:38 +1100
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Chase Venters <chase.venters@clientec.com>,
+       Michael Loftis <mloftis@wgops.com>,
+       "Barry K. Nathan" <barryn@pobox.com>, Al Boldi <a1426z@gawab.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] VM: I have a dream...
+In-Reply-To: <20060123131707.GA20163@mail.shareable.org>
+References: <200601212108.41269.a1426z@gawab.com>
+	<986ed62e0601221155x6a57e353vf14db02cc219c09@mail.gmail.com>
+	<E3C35184F807ADEC2AD9E182@dhcp-2-206.wgops.com>
+	<200601222346.24781.chase.venters@clientec.com>
+	<20060123131707.GA20163@mail.shareable.org>
+X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Jan 2006 11:49:33 +1100
-Peter Williams <pwil3058@bigpond.net.au> wrote:
+>>>>> "Jamie" == Jamie Lokier <jamie@shareable.org> writes:
 
-> > 
-> > However, in spite of the above, the fairness mechanism should have been 
-> > able to generate enough bonus points to get dd's priority back to less 
-> > than 34.  I'm still investigating why this didn't happen.
-> 
-> Problem solved.  It was a scaling issue during the calculation of 
-> expected delay.  The attached patch should fix both the CPU hog problem 
-> and the fairness problem.  Could you give it a try?
-> 
+Jamie> Chase Venters wrote:
+>> Just as a curiosity... does anyone have any guesses as to the
+>> runtime performance cost of hosting one or more swap files (which
+>> thanks to on demand creation and growth are presumably built of
+>> blocks scattered around the disk) versus having one or more simple
+>> contiguous swap partitions?
 
-Mmmm... it doesn't work:
+>> I think it's probably a given that swap partitions are better; I'm
+>> just curious how much better they might actually be.
 
- PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 5516 paolo     34   0  115m  18m 2432 S 87.5  3.7   0:23.72 transcode
- 5530 paolo     34   0 51000 4472 1872 S  8.0  0.9   0:02.29 tcdecode
- 5523 paolo     34   0 19840 1088  880 R  2.0  0.2   0:00.21 tcdemux
- 5522 paolo     34   0 22156 1204  972 R  0.7  0.2   0:00.02 tccat
- 5539 paolo     34   0  4952 1468  372 D  0.7  0.3   0:00.04 dd
- 5350 root      28   0  167m  16m 3228 S  0.3  3.4   0:03.64 X
+Jamie> When programs must access files in addition to swapping, and
+Jamie> that includes demand-paged executable files, swap files have
+Jamie> the _potential_ to be faster because they provide opportunities
+Jamie> to use the disk nearer the files which are being accessed.
 
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 5456 paolo     34   0  115m  18m 2432 D 63.9  3.7   0:48.21 transcode
- 5470 paolo     37   0 50996 4472 1872 R  6.2  0.9   0:05.20 tcdecode
- 5493 paolo     34   0  4952 1472  372 R  1.5  0.3   0:00.22 dd
- 5441 paolo     28   0 86656  21m  15m S  0.2  4.4   0:00.77 konsole
- 5468 paolo     34   0 19840 1088  880 S  0.2  0.2   0:00.23 tcdemux
+If you can, put your swap on a different spindle...
 
+
+Actually, the original poster's `dream' looked a lot like a
+single-address-space operating system, such as Mungi (
+http://www.cse.unsw.edu.au/~disy/Mungi/ )
 -- 
-	Paolo Ornati
-	Linux 2.6.16-rc1-plugsched on x86_64
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+http://www.ertos.nicta.com.au           ERTOS within National ICT Australia

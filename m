@@ -1,40 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbWAWFlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWAWFpS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964802AbWAWFlg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 00:41:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWAWFlg
+	id S964806AbWAWFpS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 00:45:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbWAWFpS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 00:41:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:9188 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964802AbWAWFlf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 00:41:35 -0500
-Date: Sun, 22 Jan 2006 21:41:11 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alasdair G Kergon <agk@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/9] device-mapper snapshot: barriers not supported
-Message-Id: <20060122214111.11170cdc.akpm@osdl.org>
-In-Reply-To: <20060120211759.GG4724@agk.surrey.redhat.com>
-References: <20060120211759.GG4724@agk.surrey.redhat.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 23 Jan 2006 00:45:18 -0500
+Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:11401 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S964806AbWAWFpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 00:45:16 -0500
+Date: Sun, 22 Jan 2006 22:43:27 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, John Stoffel <john@stoffel.org>,
+       Takashi Sato <sho@tnes.nec.co.jp>, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] Re: [PATCH] ext3: Extends blocksize up to pagesize
+Message-ID: <20060123054327.GN4124@schatzie.adilger.int>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	John Stoffel <john@stoffel.org>, Takashi Sato <sho@tnes.nec.co.jp>,
+	ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <000001c61c30$00814e80$4168010a@bsd.tnes.nec.co.jp> <17358.25398.943860.755559@smtp.charter.net> <20060122182801.GA7082@thunk.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060122182801.GA7082@thunk.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alasdair G Kergon <agk@redhat.com> wrote:
->
-> The snapshot and origin targets are incapable of handling barriers and 
->  need to indicate this.
+On Jan 22, 2006  13:28 -0500, Theodore Ts'o wrote:
+> On Wed, Jan 18, 2006 at 10:48:06AM -0500, John Stoffel wrote:
+> > In that size range, you really need a filesystem which doesn't need an
+> > FSCK at all.  Not sure what the real answer is though...
 > 
-> ...
->   
->  +	if (unlikely(bio_barrier(bio)))
->  +		return -EOPNOTSUPP;
->  +
+> Ext3 doesn't require a fsck under normal circumstances.  The only
+> reason why it still requires a periodic fsck after some number of
+> mounts is sheer paranoia about the reliability of PC class hardware.
+> All filesystems need some kind of filesystem consistency checker to
+> deal with filesystem corruptions caused by OS bugs or hardware
+> corruption bugs.  The only question is whether or not the filesystem
+> assumes at a fundamental level whether or not the hardware can be
+> trusted to be reliable or not.  (People have claimed that XFS is much
+> less robust in the face of hardware errors when compared to ext[23]; I
+> haven't seen a definitive study on the issue, although that tends to
+> correspond with my experience.  Other people would say it doesn't
+> matter because that's why you pay $$$$$ for am EMC Symmetrix box or an
+> IBM shark/DS6000/DS8000, or some other Really Expensive Storage
+> Hardware.)
 
-And what was happening if people _were_ sending such BIOs down?  Did it all
-appear to work correctly?  If so, will this change cause
-currently-apparently-working setups to stop working?
+I think the work done by the U. Wisconsin group for IRON ext3 is the
+way to go (namely checksumming of filesystem metadata, and possibly
+some level of redundancy).  This gives us concrete checks on what metadata
+is valid and the filesystem can avoid any (or further) corruption when
+the hardware goes bad.  The existing ext3 code already has these checks,
+but as filesystems get larger the validity of a block number of an inode
+is harder to check because any value may be correct.  Given that CPU
+speed is growing orders of magnitude faster than disk IO the overhead of
+checksumming is a reasonable thing to do these days (optionally, of course).
+
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
+

@@ -1,80 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWAWMyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWAWM4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751398AbWAWMyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 07:54:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWAWMyZ
+	id S932136AbWAWM4t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 07:56:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWAWM4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 07:54:25 -0500
-Received: from herkules.vianova.fi ([194.100.28.129]:41621 "HELO
-	mail.vianova.fi") by vger.kernel.org with SMTP id S1751437AbWAWMyY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 07:54:24 -0500
-Date: Mon, 23 Jan 2006 14:54:20 +0200
-From: Ville Herva <vherva@vianova.fi>
-To: Heinz Mauelshagen <mauelshagen@redhat.com>
-Cc: Lars Marowsky-Bree <lmb@suse.de>, Neil Brown <neilb@suse.de>,
-       Phillip Susi <psusi@cfl.rr.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       "Lincoln Dale \(ltd\)" <ltd@cisco.com>,
-       Michael Tokarev <mjt@tls.msk.ru>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Subject: Re: [PATCH 000 of 5] md: Introduction
-Message-ID: <20060123125420.GE1686@vianova.fi>
-Reply-To: vherva@vianova.fi
-References: <17360.5011.975665.371008@cse.unsw.edu.au> <43D02033.4070008@cfl.rr.com> <17360.9233.215291.380922@cse.unsw.edu.au> <20060120183621.GA2799@redhat.com> <20060120225724.GW22163@marowsky-bree.de> <20060121000142.GR2801@redhat.com> <20060121000344.GY22163@marowsky-bree.de> <20060121000806.GT2801@redhat.com> <20060121001311.GA22163@marowsky-bree.de> <20060123094418.GX2801@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060123094418.GX2801@redhat.com>
-X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
-User-Agent: Mutt/1.5.10i
+	Mon, 23 Jan 2006 07:56:49 -0500
+Received: from mx.laposte.net ([81.255.54.11]:36478 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S932136AbWAWM4s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 07:56:48 -0500
+Message-ID: <4432.192.54.193.25.1138020919.squirrel@rousalka.dyndns.org>
+Date: Mon, 23 Jan 2006 13:55:19 +0100 (CET)
+Subject: Re: OOM Killer killing whole system
+From: "Nicolas Mailhot" <nicolas.mailhot@laposte.net>
+To: linux-kernel@vger.kernel.org
+Cc: kalin@thinrope.net, chase.venters@clientec.com, axboe@suse.de,
+       arjan@infradead.org, akpm@osdl.org, James.Bottomley@SteelEye.com,
+       a.titov@host.bg, davej@redhat.com, jgarzik@pobox.com
+User-Agent: SquirrelMail/1.4.6 [CVS]-0.cvs20060118.1.fc5.1.nim
+MIME-Version: 1.0
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 23, 2006 at 10:44:18AM +0100, you [Heinz Mauelshagen] wrote:
-> > 
-> > I use the regularly to play with md and other stuff...
-> 
-> Me too but for production, I want to avoid the
-> additional stacking overhead and complexity.
-> 
-> > So I remain unconvinced that code duplication is worth it for more than
-> > "hark we want it so!" ;-)
-> 
-> Shall I remove you from the list of potential testers of dm-raid45 then ;-)
+Chase Venters wrote :
+> Just a shot in the dark, but in the last few kernel revisions have you
+> experienced any SATA problems with DMA timeouts, in some versions
+leading to
+> a hang?
 
-Heinz, 
+Like this for example ?
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=177951
+http://bugzilla.kernel.org/show_bug.cgi?id=5914
 
-If you really want the rest of us to convert from md to lvm, you should
-perhaps give some attention to thee brittle userland (scripts and and
-binaries).
+Jens Axboe wrote :
+> Just a note - you seem to have the raid1 in common with the rest of the
+> reporters so far.
 
-It is very tedious to have to debug a production system for a few hours in
-order to get the rootfs mounted after each kernel update. 
+This is a sata x86-64 raid1 system too.
+With recent git kernels raid goes half-dead at boot, with FS corruption.
 
-The lvm error messages give almost no clue on the problem. 
+I think I also managed to have it OOM a few weeks ago (2.6.15 or
+pre-2.6.15) which is quite a feat for a 2-GiB desktop (didn't report it at
+the time, possible culprits where either ivtv of massive IO - I
+shuffled/processed ~10 GiB of picture data from SATA CDs and then all
+around the FS). The memory was unreclaimable, didn't know to check for
+slab at the time. (also when I did use ivtv it generated some fat mpeg2
+files)
+The new corrupting problem is whith kernels without ivtv (I only build it
+for kernels which boot fine)
 
-Worse yet, problem reports on these issues are completely ignored on the lvm
-mailing list, even when a patch is attached.
+All the kernels are un-tainted (only patches are davej ones and in one
+case v4l+ivtv)
 
-(See
- http://marc.theaimsgroup.com/?l=linux-lvm&m=113775502821403&w=2
- http://linux.msede.com/lvm_mlist/archive/2001/06/0205.html
- http://linux.msede.com/lvm_mlist/archive/2001/06/0271.html
- for reference.)
+Regards,
 
-Such experience gives an impression lvm is not yet ready for serious
-production use.
+-- 
+Nicolas Mailhot
 
-No offense intended, lvm kernel (lvm1 nor lvm2) code has never given me
-trouble, and is probably as solid as anything. 
-
-
--- v -- 
-
-v@iki.fi
-
-PS: Speaking of debugging failing initrd init scripts; it would be nice if
-the kernel gave an error message on wrong initrd format rather than silently
-failing... Yes, I forgot to make the cpio with the "-H newc" option :-/.

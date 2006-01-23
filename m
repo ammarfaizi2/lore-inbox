@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWAWBB3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbWAWBDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbWAWBB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 20:01:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbWAWBB2
+	id S932409AbWAWBDj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 20:03:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWAWBDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 20:01:28 -0500
-Received: from rwcrmhc13.comcast.net ([216.148.227.153]:42486 "EHLO
+	Sun, 22 Jan 2006 20:03:38 -0500
+Received: from rwcrmhc14.comcast.net ([216.148.227.154]:16595 "EHLO
 	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932114AbWAWBB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 20:01:28 -0500
-Message-ID: <43D42AA2.6040106@comcast.net>
-Date: Sun, 22 Jan 2006 20:00:18 -0500
+	id S932409AbWAWBDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 20:03:38 -0500
+Message-ID: <43D42B25.3010706@comcast.net>
+Date: Sun, 22 Jan 2006 20:02:29 -0500
 From: John Richard Moser <nigelenki@comcast.net>
 User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Diego Calleja <diegocg@gmail.com>
-CC: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+To: "Theodore Ts'o" <tytso@mit.edu>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: soft update vs journaling?
-References: <43D3295E.8040702@comcast.net>	<20060122093144.GA7127@thunk.org> <20060122205039.e8842bae.diegocg@gmail.com>
-In-Reply-To: <20060122205039.e8842bae.diegocg@gmail.com>
+References: <43D3295E.8040702@comcast.net> <20060122093144.GA7127@thunk.org> <43D3D4DF.2000503@comcast.net> <20060122210238.GA28980@thunk.org>
+In-Reply-To: <20060122210238.GA28980@thunk.org>
 X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -31,45 +31,53 @@ Hash: SHA1
 
 
 
-Diego Calleja wrote:
-> El Sun, 22 Jan 2006 04:31:44 -0500,
-> Theodore Ts'o <tytso@mit.edu> escribió:
+Theodore Ts'o wrote:
+> On Sun, Jan 22, 2006 at 01:54:23PM -0500, John Richard Moser wrote:
+> 
+>>>Whenever you want to extend a filesystem to add some new feature, such
+>>>as online resizing, for example, it's not enough to just add that
+>>
+>>Online resizing is ever safe?  I mean, with on-disk filesystem layout
+>>support I could somewhat believe it for growing; for shrinking you'd
+>>need a way to move files around without damaging them (possible).  I
+>>guess it would be.
+>>
+>>So how does this work?  Move files -> alter file system superblocks?
 > 
 > 
+> The online resizing support in ext3 only grows the filesystems; it
+> doesn't shrink it.  What is currently supported in 2.6 requires you to
+> reserve space in advance.  There is also a slight modification to the
+> ext2/3 filesystem format which is only supported by Linux 2.6 which
+> allows you to grow the filesystem without needing to move filesystem
+> data structures around; the kernel patches for actualling doing this
+> new style of online resizing aren't yet in mainline yet, although they
+> have been posted to ext2-devel for evaluation.
 > 
->>One major downside with Soft Updates that you haven't mentioned in
->>your note, is that the amount of complexity it adds to the filesystem
->>is tremendous; the filesystem has to keep track of a very complex
->>state machinery, with knowledge of about the ordering constraints of
->>each change to the filesystem and how to "back out" parts of the
->>change when that becomes necessary.
+> 
+>>A passive-active approach could passively generate a list of inodes from
+>>dentries as they're accessed; and actively walk the directory tree when
+>>the disk is idle.  Then a quick allocation check between inodes and
+>>whatever allocation lists or trees there are could be done.
 > 
 > 
-> 
-> And FreeBSD is implementing journaling for UFS and getting rid of 
-> softupdates [1]. While this not proves that softupdates is "a bad idea",
-> i think this proves why the added sofupdates complexity doesn't seem
-> to pay off in the real world. 
+> That doesn't really help, because in order to release the unused disk
+> blocks, you have to walk every single inode and keep track of the
+> block allocation bitmaps for the entire filesystem.  If you have a
+> really big filesystem, it may require hundreds of megabytes of
+> non-swappable kernel memory.  And if you try to do this in userspace,
+> it becomes an unholy mess trying to keep the userspace and in-kernel
+> mounted filesystem data structures in sync.
 > 
 
-Yeah, the huge TB fsck thing became a problem.  I wonder still if it'd
-be useful for small vfat file systems (floppies, usb drives); nobody has
-led me to believe it's definitely feasible to not corrupt meta-data in
-this way.
+Yeah I figured that you couldn't take action until everything was seen;
+I can see how you could have problems with all that kernel memory ;)
+FUSE driver, anyone?  :>
 
-I guess journaling is looking a lot better. :)
-
-> [1]: http://lists.freebsd.org/pipermail/freebsd-hackers/2004-December/009261.html
-> 
-> "4.  Journaled filesystem.  While we can debate the merits of speed and
-> data integrety of journalling vs. softupdates, the simple fact remains
-> that softupdates still requires a fsck run on recovery, and the
-> multi-terabyte filesystems that are possible these days make fsck a very
-> long and unpleasant experience, even with bg-fsck.  There was work at
-> some point at RPI to add journaling to UFS, but there hasn't been much
-> status on that in a long time.  There have also been proposals and
-> works-in-progress to port JFS, ReiserFS, and XFS.  Some of these efforts
-> are still alive, but they need to be seen through to completion"
+(I've actually looked into FUSE for the rootfs, via loading a fuser
+driver from an init.d and then replacing bash with init on the rootfs;
+haven't found an ext2 or xfs fuse driver to test with)
+> 						- Ted
 > 
 
 - --
@@ -84,7 +92,7 @@ Public Domain, unless otherwise explicitly stated.
 Version: GnuPG v1.4.2 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFD1CqhhDd4aOud5P8RAjvDAJ0W9pcNQ31v0RWSSIGVitnSpfvReQCdHBah
-usgY72whnDcCwgshpVFW02o=
-=Px/i
+iD8DBQFD1CskhDd4aOud5P8RArmJAJ9mgLjkxUcg5GW1o4q88Cb6ESmdCACZAS00
+M1R+7biZpmOCCCBkEXVQL7w=
+=060w
 -----END PGP SIGNATURE-----

@@ -1,80 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWAWPN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751465AbWAWPOJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751467AbWAWPN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 10:13:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbWAWPN1
+	id S1751465AbWAWPOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 10:14:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751470AbWAWPOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 10:13:27 -0500
-Received: from mx2.suse.de ([195.135.220.15]:20696 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751467AbWAWPN1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 10:13:27 -0500
-Date: Mon, 23 Jan 2006 16:13:26 +0100
-From: Jan Blunck <jblunck@suse.de>
+	Mon, 23 Jan 2006 10:14:09 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:60893 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751465AbWAWPOH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 10:14:07 -0500
+Date: Mon, 23 Jan 2006 10:14:04 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
 To: Andrew Morton <akpm@osdl.org>
-Cc: viro@zeniv.linux.org.uk, dev@sw.ru, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] shrink_dcache_parent() races against shrink_dcache_memory()
-Message-ID: <20060123151326.GB26653@hasse.suse.de>
-References: <20060120203645.GF24401@hasse.suse.de> <20060122212243.20ce26c5.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060122212243.20ce26c5.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+cc: Arjan van de Ven <arjan@infradead.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Export new notifier chain routines as GPL
+In-Reply-To: <1137833163.2978.5.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.44L0.0601231010090.5418-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 22, Andrew Morton wrote:
+Arjan asked to have the notifier-chain API routines exported with 
+EXPORT_SYMBOL_GPL, as they are new parts of the Linux infrastructure.
 
-> > -void dput(struct dentry *dentry)
-> > +static void dput_locked(struct dentry *dentry, struct list_head *list)
-> >  {
-> >  	if (!dentry)
-> >  		return;
-> >  
-> > -repeat:
-> > -	if (atomic_read(&dentry->d_count) == 1)
-> > -		might_sleep();
-> > -	if (!atomic_dec_and_lock(&dentry->d_count, &dcache_lock))
-> > +	if (!atomic_dec_and_test(&dentry->d_count))
-> >  		return;
-> >  
-> > +
-> >
-> > ...
-> >
-> > +void dput(struct dentry *dentry)
-> > +{
-> > +	LIST_HEAD(free_list);
-> > +
-> > +	if (!dentry)
-> > +		return;
-> > +
-> > +	if (atomic_add_unless(&dentry->d_count, -1, 1))
-> > +		return;
-> > +
-> > +	spin_lock(&dcache_lock);
-> > +	dput_locked(dentry, &free_list);
-> > +	spin_unlock(&dcache_lock);
-> 
-> This seems to be an open-coded copy of atomic_dec_and_lock()?
-> 
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 
-Yes, it is. Otherwise the reference counting would be like
+---
 
- if(!atomic_dec_and_lock())
-	return;
- atomic_inc();
- dput_locked();
+Obviously this patch is meant to apply on top of the 8-part patch set 
+adding the new notifier-chain API.
 
-or something similar stupid/racy.
+Alan Stern
 
-Regards,
-	Jan
 
--- 
-Jan Blunck                                               jblunck@suse.de
-SuSE LINUX AG - A Novell company
-Maxfeldstr. 5                                          +49-911-74053-608
-D-90409 Nürnberg                                      http://www.suse.de
+Index: l2616/kernel/sys.c
+===================================================================
+--- l2616.orig/kernel/sys.c
++++ l2616/kernel/sys.c
+@@ -171,7 +171,7 @@ int atomic_notifier_chain_register(struc
+ 	return ret;
+ }
+ 
+-EXPORT_SYMBOL(atomic_notifier_chain_register);
++EXPORT_SYMBOL_GPL(atomic_notifier_chain_register);
+ 
+ /**
+  *	atomic_notifier_chain_unregister - Remove notifier from an atomic notifier chain
+@@ -195,7 +195,7 @@ int atomic_notifier_chain_unregister(str
+ 	return ret;
+ }
+ 
+-EXPORT_SYMBOL(atomic_notifier_chain_unregister);
++EXPORT_SYMBOL_GPL(atomic_notifier_chain_unregister);
+ 
+ /**
+  *	atomic_notifier_call_chain - Call functions in an atomic notifier chain
+@@ -226,7 +226,7 @@ int atomic_notifier_call_chain(struct at
+ 	return ret;
+ }
+ 
+-EXPORT_SYMBOL(atomic_notifier_call_chain);
++EXPORT_SYMBOL_GPL(atomic_notifier_call_chain);
+ 
+ /*
+  *	Blocking notifier chain routines.  All access to the chain is
+@@ -255,7 +255,7 @@ int blocking_notifier_chain_register(str
+ 	return ret;
+ }
+ 
+-EXPORT_SYMBOL(blocking_notifier_chain_register);
++EXPORT_SYMBOL_GPL(blocking_notifier_chain_register);
+ 
+ /**
+  *	blocking_notifier_chain_unregister - Remove notifier from a blocking notifier chain
+@@ -278,7 +278,7 @@ int blocking_notifier_chain_unregister(s
+ 	return ret;
+ }
+ 
+-EXPORT_SYMBOL(blocking_notifier_chain_unregister);
++EXPORT_SYMBOL_GPL(blocking_notifier_chain_unregister);
+ 
+ /**
+  *	blocking_notifier_call_chain - Call functions in a blocking notifier chain
+@@ -308,7 +308,7 @@ int blocking_notifier_call_chain(struct 
+ 	return ret;
+ }
+ 
+-EXPORT_SYMBOL(blocking_notifier_call_chain);
++EXPORT_SYMBOL_GPL(blocking_notifier_call_chain);
+ 
+ /*
+  *	Raw notifier chain routines.  There is no protection;
+@@ -332,7 +332,7 @@ int raw_notifier_chain_register(struct r
+ 	return notifier_chain_register(&nh->head, n);
+ }
+ 
+-EXPORT_SYMBOL(raw_notifier_chain_register);
++EXPORT_SYMBOL_GPL(raw_notifier_chain_register);
+ 
+ /**
+  *	raw_notifier_chain_unregister - Remove notifier from a raw notifier chain
+@@ -350,7 +350,7 @@ int raw_notifier_chain_unregister(struct
+ 	return notifier_chain_unregister(&nh->head, n);
+ }
+ 
+-EXPORT_SYMBOL(raw_notifier_chain_unregister);
++EXPORT_SYMBOL_GPL(raw_notifier_chain_unregister);
+ 
+ /**
+  *	raw_notifier_call_chain - Call functions in a raw notifier chain
+@@ -376,7 +376,7 @@ int raw_notifier_call_chain(struct raw_n
+ 	return notifier_call_chain(&nh->head, val, v);
+ }
+ 
+-EXPORT_SYMBOL(raw_notifier_call_chain);
++EXPORT_SYMBOL_GPL(raw_notifier_call_chain);
+ 
+ /**
+  *	register_reboot_notifier - Register function to be called at reboot time
+
+

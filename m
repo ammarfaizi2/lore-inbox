@@ -1,94 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbWAWXC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbWAWXIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbWAWXC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 18:02:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbWAWXC0
+	id S964980AbWAWXIK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 18:08:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWAWXIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 18:02:26 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:59814 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964978AbWAWXCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 18:02:25 -0500
-Message-ID: <0ad101c62071$261ebde0$03c8a8c0@kroptech.com>
-From: "Adam Kropelin" <akropel1@rochester.rr.com>
-To: "Neil Brown" <neilb@suse.de>
-Cc: <linux-raid@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-References: <20060117174531.27739.patches@notabene> <20060121234234.A32306@mail.kroptech.com> <17364.3266.29943.914861@cse.unsw.edu.au>
-Subject: Re: [PATCH 000 of 5] md: Introduction
-Date: Mon, 23 Jan 2006 18:02:56 -0500
+	Mon, 23 Jan 2006 18:08:09 -0500
+Received: from kirby.webscope.com ([204.141.84.57]:53410 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S964980AbWAWXII
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 18:08:08 -0500
+Message-ID: <43D56174.7000700@linuxtv.org>
+Date: Mon, 23 Jan 2006 18:06:28 -0500
+From: Mike Krufky <mkrufky@linuxtv.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+To: Linux and Kernel Video <video4linux-list@redhat.com>
+CC: mchehab@infradead.org, linux-dvb-maintainer@linuxtv.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Michael Krufky <mkrufky@m1k.net>
+Subject: Re: [PATCH 10/16] make VP-3054 Secondary I2C Bus Support a Kconfig
+ option.
+References: <20060123202404.PS66974000000@infradead.org>	<20060123202444.PS83596100010@infradead.org> <20060123221604.GA3590@stusta.de>
+In-Reply-To: <20060123221604.GA3590@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> On Saturday January 21, akropel1@rochester.rr.com wrote:
->> On the first try I neglected to read the directions and increased the
->> number of devices first (which worked) and then attempted to add the
->> physical device (which didn't work; at least not the way I intended).
+Adrian Bunk wrote:
+
+>On Mon, Jan 23, 2006 at 06:24:44PM -0200, mchehab@infradead.org wrote:
+>  
 >
-> Thanks, this is exactly the sort of feedback I was hoping for - people
-> testing thing that I didn't think to...
->
->>   mdadm --create -l5 -n3 /dev/md0 /dev/sda /dev/sdb /dev/sdc
+>>From: Michael Krufky <mkrufky@m1k.net>
 >>
->>     md0 : active raid5 sda[0] sdc[2] sdb[1]
->>           2097024 blocks level 5, 64k chunk, algorithm 2 [3/3] [UUU]
+>>- make VP-3054 Secondary I2C Bus Support a Kconfig option.
 >>
->>   mdadm --grow -n4 /dev/md0
+>>Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+>>Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
+>>---
 >>
->>     md0 : active raid5 sda[0] sdc[2] sdb[1]
->>           3145536 blocks level 5, 64k chunk, algorithm 2 [4/3] [UUU_]
+>> drivers/media/video/cx88/Kconfig  |   11 +++++++++++
+>> drivers/media/video/cx88/Makefile |    2 +-
+>> 2 files changed, 12 insertions(+), 1 deletions(-)
+>>
+>>diff --git a/drivers/media/video/cx88/Kconfig b/drivers/media/video/cx88/Kconfig
+>>index fdf45f7..e99dfbb 100644
+>>--- a/drivers/media/video/cx88/Kconfig
+>>+++ b/drivers/media/video/cx88/Kconfig
+>>@@ -49,6 +49,7 @@ config VIDEO_CX88_DVB_ALL_FRONTENDS
+>> 	default y
+>> 	depends on VIDEO_CX88_DVB
+>> 	select DVB_MT352
+>>+	select VIDEO_CX88_VP3054
+>> 	select DVB_OR51132
+>> 	select DVB_CX22702
+>> 	select DVB_LGDT330X
+>>@@ -70,6 +71,16 @@ config VIDEO_CX88_DVB_MT352
+>> 	  This adds DVB-T support for cards based on the
+>> 	  Connexant 2388x chip and the MT352 demodulator.
+>> 
+>>+config VIDEO_CX88_VP3054
+>>+	tristate "VP-3054 Secondary I2C Bus Support"
+>>+	default m
+>>...
+>>    
+>>
+>This option should be a bool since "m" doesn't make much sense (it's 
+>anyways interpreted the same as "y").
+>  
 >
-> I assume that no "resync" started at this point?  It should have done.
+Adrian,
 
-Actually, it did start a resync. Sorry, I should have mentioned that. I 
-waited until the resync completed before I issued the 'mdadm --add' 
-command.
+You have a point - it is a boolean choice yes/no, about whether or not 
+to compile support for this module, ... but it is in fact a module, and 
+when M is chosen, cx88-vp3054-i2c.ko will build as a module.  When Y is 
+chosen, it will be built in-kernel, just as all other tri-states..... 
+The difference is that this module depends on DVB_MT352 ... if DVB_MT352 
+is M, then this should be M/N ... if  VIDEO_CX88_DVB is Y, then this 
+should be Y/N...
 
->>     md0 : active raid5 sdd[3] sdc[2] sdb[1] sda[0]
->>           2097024 blocks level 5, 64k chunk, algorithm 2 [4/4] [UUUU]
->>                                 ...should this be... --> [4/3]
->> [UUU_] perhaps?
->
-> Well, part of the array is "4/4 UUUU" and part is "3/3 UUU".  How do
-> you represent that?  I think "4/4 UUUU" is best.
+This particular menu item is NOT the same as the other submenu items of 
+the VIDEO_CX88_DVB_FRONTEND_FOO
 
-I see your point. I was expecting some indication that that my array was 
-vulnerable and that the new disk was not fully utilized yet. I guess the 
-resync in progress indicator is sufficient.
+This may be why you thought this should be changed to a boolean, but it 
+really should remain as a tristate....  Thank you though.
 
->> My final test was a repeat of #2, but with data actively being
->> written
->> to the array during the reshape (the previous tests were on an idle,
->> unmounted array). This one failed pretty hard, with several processes
->> ending up in the D state.
->
-> Hmmm... I tried similar things but didn't get this deadlock.  Somehow
-> the fact that mdadm is holding the reconfig_sem semaphore means that
-> some IO cannot proceed and so mdadm cannot grab and resize all the
-> stripe heads... I'll have to look more deeply into this.
+:-)
 
-For what it's worth, I'm using the Buslogic SCSI driver for the disks in 
-the array.
+Regards,
 
->> I'm happy to do more tests. It's easy to conjur up virtual disks and
->> load them with irrelevant data (like kernel trees ;)
->
-> Great.  I'll probably be putting out a new patch set  late this week
-> or early next.  Hopefully it will fix the issues you can found and you
-> can try it again..
+-- 
+Michael Krufky
 
-Looking forward to it...
-
---Adam
 

@@ -1,77 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWAWLCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWAWLCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWAWLCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 06:02:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWAWLCI
+	id S1751365AbWAWLCq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 06:02:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWAWLCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 06:02:08 -0500
-Received: from general.keba.co.at ([193.154.24.243]:2372 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S1751393AbWAWLCG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 06:02:06 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: My vote against eepro* removal
-Date: Mon, 23 Jan 2006 12:01:47 +0100
-Message-ID: <AAD6DA242BC63C488511C611BD51F367323329@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: My vote against eepro* removal
-Thread-Index: AcYeLqkHBblLwtTiQ3CKkCEtDnEXSgB2B8+g
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "John Ronciak" <john.ronciak@gmail.com>,
-       "Lee Revell" <rlrevell@joe-job.com>
-Cc: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>, "Adrian Bunk" <bunk@stusta.de>,
-       <linux-kernel@vger.kernel.org>, <john.ronciak@intel.com>,
-       <ganesh.venkatesan@intel.com>, <jesse.brandeburg@intel.com>,
-       <netdev@vger.kernel.org>, "Steven Rostedt" <rostedt@goodmis.org>
+	Mon, 23 Jan 2006 06:02:46 -0500
+Received: from ns2.suse.de ([195.135.220.15]:63923 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751365AbWAWLCq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 06:02:46 -0500
+Date: Mon, 23 Jan 2006 12:02:43 +0100
+From: Olaf Hering <olh@suse.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cc-version not available to change EXTRA_CFLAGS
+Message-ID: <20060123110243.GA17201@suse.de>
+References: <20060121180805.GA15761@suse.de> <20060121225728.GA13756@mars.ravnborg.org> <20060121231539.GA23789@suse.de> <20060121232542.GA19480@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060121232542.GA19480@mars.ravnborg.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: John Ronciak
-> Can we try a couple of things? 1) just comment out all the check for
-> link code in the e100 driver and give that a try and 2) just comment
-> out the update stats call and see if that works.  These seem to be the
-> differences and we need to know which one is causing the problem.
+ On Sun, Jan 22, Sam Ravnborg wrote:
 
-First of all, I am still unable to get any traces of this in the
-latency tracer. Moreover, as I told before, removing parts of the 
-watchdog usually made my eth0 nonfunctional (which is bad - this
-is an embedded system with ssh access).
+> This is 2.6.17 material IMO in kbuild land except if we want this in for
+> reiserfs before 2.6.17.
 
-Hence, I explicitely instrumented the watchdog function with tsc.
-Output of the timings is done by a background thread, so the
-timings should not increase the runtime of the watchdog.
-
-Here are my results:
-
-If the watchdog doesn't get interrupted, preempted, or whatever,
-it spends 340 us in its body:
-* 303 us in the mii code
-*  36 us in the following code up to e100_adjust_adaptive_ifs
-*   1 us in the remaining code (I think my chip doesn't need any
-of those chip-specific fixups)
-
-The 303 us in the mii code are divided in the following way:
-* 101 us in mii_ethtool_gset
-* 135 us in the whole if
-*  67 us in mii_check_link
-
-This is with the udelay(2) instead of udelay(20) hack applied.
-With udelay(20), the mii times are 128 + 170 + 85 us,
-i.e. 383 us instead of 303 us, or >= 420 us for the whole watchdog.
-
-As the RTC runs with 8192 Hz during my tests, the watchdog is hit
-by 2-3 interrupts, which adds another 75 - 110 us to its total
-execution time, i.e. the time it blocks other rtprio 1 threads.
+Yes, thats ok.
 
 -- 
-Klaus Kusche                 (Software Development - Control Systems)
-KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
-Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
-E-Mail: kus@keba.com                                WWW: www.keba.com
- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

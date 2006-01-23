@@ -1,43 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbWAWCTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWAWCZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751385AbWAWCTt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 21:19:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751390AbWAWCTt
+	id S1751384AbWAWCZH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 21:25:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751389AbWAWCZH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 21:19:49 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.154]:49611 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751385AbWAWCTs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 21:19:48 -0500
-Date: Sun, 22 Jan 2006 21:19:40 -0500 (EST)
-From: Ariel <askernel2615@dsgml.com>
-To: Chase Venters <chase.venters@clientec.com>
-cc: Arjan van de Ven <arjan@infradead.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: memory leak in scsi_cmd_cache 2.6.15
-In-Reply-To: <200601221346.25154.chase.venters@clientec.com>
-Message-ID: <Pine.LNX.4.62.0601222115440.12815@pureeloreel.qftzy.pbz>
-References: <Pine.LNX.4.62.0601212105590.22868@pureeloreel.qftzy.pbz>
- <200601221317.17124.chase.venters@clientec.com> <1137957890.3328.41.camel@laptopd505.fenrus.org>
- <200601221346.25154.chase.venters@clientec.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sun, 22 Jan 2006 21:25:07 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:55507 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751384AbWAWCZG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 21:25:06 -0500
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@ocs.com.au>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+cc: torvalds@osdl.org (Linus Torvalds), bboissin@gmail.com,
+       laforge@netfilter.org, xslaby@fi.muni.cz, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, davem@davemloft.net
+Subject: Re: Iptables error [Was: 2.6.16-rc1-mm2] 
+In-reply-to: Your message of "Mon, 23 Jan 2006 13:03:20 +1100."
+             <E1F0r3A-0006m2-00@gondolin.me.apana.org.au> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 23 Jan 2006 13:23:12 +1100
+Message-ID: <7380.1137982992@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 22 Jan 2006, Chase Venters wrote:
-
-> We did determine that Anton and I both use the Marvell sk98lin patch for our
-> Yukon2s. However, Anton reported other servers using this patch with no leak.
+Herbert Xu (on Mon, 23 Jan 2006 13:03:20 +1100) wrote:
+>Linus Torvalds <torvalds@osdl.org> wrote:
+>> 
+>> Interestingly, __alignof__(unsigned long long) is 8 these days, even 
+>> though I think historically on x86 it was 4. Is this perhaps different in 
+>> gcc-3 and gcc-4?
 >
-> Ariel - are you using sk98lin? The only other modules I'm using are the ALSA
-> modules for snd-hda-intel as of ALSA version 1.0.11-rc2.
+>gcc 2.95 says 4 while gcc 3.2 says 8.
 
-Not that I know of. I'm using the kernel from debian unstable, so it's 
-whatever patches they use: 
-http://svn.debian.org/wsvn/kernel/releases/linux-2.6/2.6.15-2/debian/patches/?rev=0&sc=0
+Has somebody turned on -malign-double in gcc?
 
-Are you using SATA?
-
- 	-Ariel

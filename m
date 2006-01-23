@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbWAWPWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751472AbWAWPW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751470AbWAWPWU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 10:22:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWAWPWT
+	id S1751472AbWAWPW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 10:22:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWAWPW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 10:22:19 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:36736 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751470AbWAWPWT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 10:22:19 -0500
+	Mon, 23 Jan 2006 10:22:58 -0500
+Received: from web26906.mail.ukl.yahoo.com ([217.146.176.95]:19027 "HELO
+	web26906.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1751472AbWAWPW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 10:22:57 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SiPTVml2zS9hh5lC9uwhBpax8GJePua7GF/bVuCMKWaP1WyDrWUU8Bc9x0tHl5LhXZpYLmGewsOZkze/xMXPwl/crbsMuHZAA8TT65x8v48/TTTmtFx60Btwd2KgsqNPtBmbkmhUTX+42WIeD7p7BIHb0GLh/5mYLhyRg/T0N4E=
-Message-ID: <9e4733910601230722k125f0391w74946b7401be85ce@mail.gmail.com>
-Date: Mon, 23 Jan 2006 10:22:15 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: sendfile() with 100 simultaneous 100MB files
-In-Reply-To: <9e4733910601220931x3a21e47dj7dbf834e2f36d31c@mail.gmail.com>
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=gA4CPH1D97YF00B6z+i+/6Uzswj8AEmYcMiK+IbDsAy8Gs9Be4oUo7OhHvtwQ/8AdoOKP2pI/KUZoNxYZbk/g+/I/61l3vdk5fB70kBlrUOnfw7AcuOxyyKo/3eabrULP6Xb742kYYeC+H83ArU6AQYwb4QtmnzTuo9Kyz2IKzc=  ;
+Message-ID: <20060123152251.85092.qmail@web26906.mail.ukl.yahoo.com>
+Date: Mon, 23 Jan 2006 16:22:51 +0100 (CET)
+From: Etienne Lorrain <etienne_lorrain@yahoo.fr>
+Subject: [ANNOUNCE] Gujin PC graphic bootloader version 1.3
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9e4733910601201353g36284133xf68c4f6eae1344b4@mail.gmail.com>
-	 <20060122142401.GA24738@SDF.LONESTAR.ORG>
-	 <9e4733910601220931x3a21e47dj7dbf834e2f36d31c@mail.gmail.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/22/06, Jon Smirl <jonsmirl@gmail.com> wrote:
-> I've asked the lighttpd people for more data but I haven't gotten
-> anything back yet. Things like RAM, network speed, disk scheduler
-> algorithm, etc.
+ For people following the bootloading process.
 
-The developer is using this hardware:
-82541GI/PI Gigabit  ethernet
-1.3Ghz Duron
-7200RPM IDE disk
-768MB RAM
+ Gujin v1.3 mainly fixes two bugs, one about bad logic loading
+ a compressed initrd (data pattern dependant), one about reading
+ files on FAT32 (for nearly full filesystems).
+ Some other improvement are not completely related to Linux,
+ but for instance there are tools to create contigous files
+ on E2/3FS (with a hole at beginning) so that floppy simulation
+ can work also on this filesystem, execution speed improvement
+ for slow PCs, parameter passing for the TINY.EXE loader, and
+ some more general improvements.
 
-Kernel:
-2.6.13-1.1526_FC4
-CFQ disk scheduler
+ Home page and screenshoots of Gujin at:
+http://gujin.org
 
-Customer is getting same problem on highend hardware.
+ More information for Gujin on Wikipedia:
+http://en.wikipedia.org/wiki/Gujin
 
---
-Jon Smirl
-jonsmirl@gmail.com
+ Downloads at Sourceforge:
+http://sourceforge.net/projects/gujin
+
+ FAQ/HOWTO at sourceforge:
+http://sourceforge.net/docman/display_doc.php?docid=1989&group_id=15465
+
+  Have fun,
+  Etienne.
+
+
+	
+
+	
+		
+___________________________________________________________________________ 
+Nouveau : téléphonez moins cher avec Yahoo! Messenger ! Découvez les tarifs exceptionnels pour appeler la France et l'international.
+Téléchargez sur http://fr.messenger.yahoo.com

@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWAWVHG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbWAWVJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbWAWVHG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 16:07:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbWAWVHG
+	id S964941AbWAWVJO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 16:09:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964954AbWAWVJO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 16:07:06 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:51161 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1030187AbWAWVHF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 16:07:05 -0500
-Date: Mon, 23 Jan 2006 16:07:03 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Greg KH <greg@kroah.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] driver core: remove unneeded klist methods
-In-Reply-To: <1137947405.4058.10.camel@mulgrave>
-Message-ID: <Pine.LNX.4.44L0.0601231557160.4874-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 23 Jan 2006 16:09:14 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:44181 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964941AbWAWVJN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 16:09:13 -0500
+Date: Mon, 23 Jan 2006 21:09:01 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, dm-devel@redhat.com
+Subject: Re: [PATCH 2/9] device-mapper log bitset: fix endian
+Message-ID: <20060123210901.GL4280@agk.surrey.redhat.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, dm-devel@redhat.com
+References: <20060120211300.GC4724@agk.surrey.redhat.com> <20060122213741.7d2ed8ef.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060122213741.7d2ed8ef.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Jan 2006, James Bottomley wrote:
+On Sun, Jan 22, 2006 at 09:37:41PM -0800, Andrew Morton wrote:
+> Alasdair G Kergon <agk@redhat.com> wrote:
+> >
+> >  -	set_bit(bit, (unsigned long *) bs);
+> >  +	ext2_set_bit(bit, (unsigned long *) bs);
+ 
+> ext2_set_bit() is non-atomic, so the above code must provide its own
+> locking against other CPUs (and threads, if preempt) performing
+> modification of this memory.
+> 
+> Is such locking present?  If not, we should use ext2_set_bit_atomic(). 
+> (And if so, the old code could have used __set_bit)
 
-> Sorry ... forgot to mention that part ... the change from _del to
-> _remove ties us up with a wait for the list to actually remove.  This is
-> potentially dangerous because you're waiting on events you don't
-> control.
+As far as I can tell, all the sets and clears happen from the same 
+single-threaded workqueue, but one mirror_map() could run alongside:
 
-I forgot to mention in my earlier reply...
+        r = ms->rh.log->type->in_sync(ms->rh.log,
+                                      bio_to_region(&ms->rh, bio), 0);
 
-If you don't do something like klist_remove, then you have a dangerous
-race: removing a device while a driver is being added.  It's possible that
-the driver_attach routine could iterate up to the device and then bind it
-to the driver after the device had been unregistered.  The device 
-structure would be deallocated when the iterator moved on, without ever 
-getting unbound from the driver.
+which uses:
+        ext2_test_bit(bit, (unsigned long *) bs) ? 1 : 0;
 
-This problem could be avoided if driver_probe_device had some way to
-recognize that the driver under consideration had been unregistered, but
-right now there is no way for it to tell.  The driver_is_registered inline
-routine merely tests the embedded klist_node to see if it is still on the
-bus's klist -- which it would be, because removal from that klist is
-precisely what you are trying to avoid waiting for.
+So far I haven't found any races here that would cause problems.
+(And if there are any, they're probably wider than just making
+those operations atomic.)
 
-Alan Stern
+And it also looks like this code doesn't handle barriers correctly...
 
+Alasdair
+-- 
+agk@redhat.com

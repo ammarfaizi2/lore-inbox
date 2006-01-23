@@ -1,48 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWAWNp0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWAWNrm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbWAWNp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 08:45:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWAWNp0
+	id S932205AbWAWNrm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 08:47:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWAWNrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 08:45:26 -0500
-Received: from darwin.snarc.org ([81.56.210.228]:25264 "EHLO darwin.snarc.org")
-	by vger.kernel.org with ESMTP id S1751395AbWAWNp0 (ORCPT
+	Mon, 23 Jan 2006 08:47:41 -0500
+Received: from smtp3.pp.htv.fi ([213.243.153.36]:64236 "EHLO smtp3.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S1751457AbWAWNrl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 08:45:26 -0500
-Date: Mon, 23 Jan 2006 14:45:24 +0100
-To: Johan Kullstam <kullstj-ml@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE?
-Message-ID: <20060123134523.GA31752@snarc.org>
-References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com> <1137785271.13530.10.camel@grayson> <20060120220440.GA22061@snarc.org> <8764odbfjb.fsf@sophia.axel.nom>
+	Mon, 23 Jan 2006 08:47:41 -0500
+Date: Mon, 23 Jan 2006 15:47:39 +0200
+From: Paul Mundt <lethal@linux-sh.org>
+To: David Brownell <david-b@pacbell.net>, Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] spi: Get rid of SPI_BUTTERFLY duplication.
+Message-ID: <20060123134739.GA4172@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	David Brownell <david-b@pacbell.net>, Greg KH <greg@kroah.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5mCyUwZo2JvN/JJP"
 Content-Disposition: inline
-In-Reply-To: <8764odbfjb.fsf@sophia.axel.nom>
-X-Warning: Email may contain unsmilyfied humor and/or satire.
-User-Agent: Mutt/1.5.9i
-From: tab@snarc.org (Vincent Hanquez)
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 21, 2006 at 01:29:44PM -0500, Johan Kullstam wrote:
-> Why not just drop the "2"?  It's not like the "2" is going anywhere
-> with current or even with the past development models.  2.X.Y has
-> already been used (for X = 0-6 and modest Y), so 6.16.1 could be used
-> instead of 2.6.16-rc1.
 
-Just want to make clear, I wasn't taking about reusing 2.0, 2.1 ..
-but just continue from 2.6 as the following example:
-   
-   2.6.16   => 2.7.0
-   2.6.16.1 => 2.7.1
-   2.6.16.2 => 2.7.2
-   2.6.17   => 2.8.0
-   2.6.18   => 2.9.0
-   ...
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The development model stays exactly the same:
-i.e. 2.X.0 kernels are released every ~N weeks by Linus.
+CONFIG_SPI_BUTTERFLY is listed twice in drivers/spi/Kconfig, one will do
+fine..
 
--- 
-Vincent Hanquez
+Signed-off-by: Paul Mundt <lethal@linux-sh.org>
+
+---
+
+ drivers/spi/Kconfig |   10 ----------
+ 1 file changed, 10 deletions(-)
+
+diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
+index b77dbd6..7a75fae 100644
+--- a/drivers/spi/Kconfig
++++ b/drivers/spi/Kconfig
+@@ -75,16 +75,6 @@ config SPI_BUTTERFLY
+ 	  inexpensive battery powered microcontroller evaluation board.
+ 	  This same cable can be used to flash new firmware.
+=20
+-config SPI_BUTTERFLY
+-	tristate "Parallel port adapter for AVR Butterfly (DEVELOPMENT)"
+-	depends on SPI_MASTER && PARPORT && EXPERIMENTAL
+-	select SPI_BITBANG
+-	help
+-	  This uses a custom parallel port cable to connect to an AVR
+-	  Butterfly <http://www.atmel.com/products/avr/butterfly>, an
+-	  inexpensive battery powered microcontroller evaluation board.
+-	  This same cable can be used to flash new firmware.
+-
+ #
+ # Add new SPI master controllers in alphabetical order above this line
+ #
+
+--5mCyUwZo2JvN/JJP
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFD1N571K+teJFxZ9wRAiaeAJ9C/gKDZ49YlyX33JrPYZU5ZXhnbACeJcui
+h0jaAhGR+wyGFmr09FJwoVE=
+=XS7e
+-----END PGP SIGNATURE-----
+
+--5mCyUwZo2JvN/JJP--

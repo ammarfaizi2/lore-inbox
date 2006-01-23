@@ -1,68 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWAWOYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbWAWOX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751421AbWAWOYA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 09:24:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWAWOYA
+	id S1751440AbWAWOX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 09:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWAWOX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 09:24:00 -0500
-Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:33623 "HELO
-	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751421AbWAWOX7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 09:23:59 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH] spi: Get rid of SPI_BUTTERFLY duplication.
-Date: Mon, 23 Jan 2006 06:23:57 -0800
-User-Agent: KMail/1.7.1
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20060123134739.GA4172@linux-sh.org>
-In-Reply-To: <20060123134739.GA4172@linux-sh.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 23 Jan 2006 09:23:56 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:41863 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751440AbWAWOX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 09:23:56 -0500
+Subject: Re: RT Mutex patch and tester [PREEMPT_RT]
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Bill Huey <billh@gnuppy.monkey.org>, Ingo Molnar <mingo@elte.hu>,
+       david singleton <dsingleton@mvista.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44L0.0601231029090.5144-100000@lifa01.phys.au.dk>
+References: <Pine.LNX.4.44L0.0601231029090.5144-100000@lifa01.phys.au.dk>
+Content-Type: text/plain
+Date: Mon, 23 Jan 2006 09:23:34 -0500
+Message-Id: <1138026214.6762.204.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601230623.57691.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 January 2006 5:47 am, Paul Mundt wrote:
-> CONFIG_SPI_BUTTERFLY is listed twice in drivers/spi/Kconfig, one will do
-> fine..
-
-Patch already sent to Linus, but thanks.  (Basically, a patch got
-dropped, and this was one of the more visible symptoms.)
-
-- dave
-
-
-> Signed-off-by: Paul Mundt <lethal@linux-sh.org>
+On Mon, 2006-01-23 at 10:33 +0100, Esben Nielsen wrote:
+> On Sun, 22 Jan 2006, Bill Huey wrote:
 > 
-> ---
+> > On Mon, Jan 23, 2006 at 01:20:12AM +0100, Esben Nielsen wrote:
+> > > Here is the problem:
+> > >
+> > > Task B (non-RT) takes BKL. It then takes mutex 1. Then B
+> > > tries to lock mutex 2, which is owned by task C. B goes blocks and releases the
+> > > BKL. Our RT task A comes along and tries to get 1. It boosts task B
+> > > which boosts task C which releases mutex 2. Now B can continue? No, it has
+> > > to reaquire BKL! The netto effect is that our RT task A waits for BKL to
+> > > be released without ever calling into a module using BKL. But just because
+> > > somebody in some non-RT code called into a module otherwise considered
+> > > safe for RT usage with BKL held, A must wait on BKL!
+> >
+> > True, that's major suckage, but I can't name a single place in the kernel that
+> > does that.
 > 
->  drivers/spi/Kconfig |   10 ----------
->  1 file changed, 10 deletions(-)
+> Sounds good. But someone might put it in...
+
+Hmm, I wouldn't be surprised if this is done somewhere in the VFS layer.
+
 > 
-> diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
-> index b77dbd6..7a75fae 100644
-> --- a/drivers/spi/Kconfig
-> +++ b/drivers/spi/Kconfig
-> @@ -75,16 +75,6 @@ config SPI_BUTTERFLY
->  	  inexpensive battery powered microcontroller evaluation board.
->  	  This same cable can be used to flash new firmware.
->  
-> -config SPI_BUTTERFLY
-> -	tristate "Parallel port adapter for AVR Butterfly (DEVELOPMENT)"
-> -	depends on SPI_MASTER && PARPORT && EXPERIMENTAL
-> -	select SPI_BITBANG
-> -	help
-> -	  This uses a custom parallel port cable to connect to an AVR
-> -	  Butterfly <http://www.atmel.com/products/avr/butterfly>, an
-> -	  inexpensive battery powered microcontroller evaluation board.
-> -	  This same cable can be used to flash new firmware.
-> -
->  #
->  # Add new SPI master controllers in alphabetical order above this line
->  #
+> > Remember, BKL is now preemptible so the place that it might sleep
+> > similar
+> > to the above would be in spinlock_t definitions.
+> I can't see that from how it works. It is explicitly made such that you
+> are allowed to use semaphores with BKL held - and such that the BKL is
+> released if you do.
+
+Correct.  I hope you didn't remove my comment in the rt.c about BKL
+being a PITA :) (Ingo was nice enough to change my original patch to use
+the acronym.) 
+
 > 
+> > But BKL is held across schedules()s
+> > so that the BKL semantics are preserved.
+> Only for spinlock_t now rt_mutex operation, not for semaphore/mutex
+> operations.
+> > Contending under a priority inheritance
+> > operation isn't too much of a problem anyways since the use of it already
+> > makes that
+> > path indeterminant.
+> The problem is that you might hit BKL because of what some other low
+> priority  task does, thus making your RT code indeterministic.
+
+I disagree here.  The fact that you grab a semaphore that may also be
+grabbed by a path while holding the BKL means that grabbing that
+semaphore may be blocked on the BKL too.  So the length of grabbing a
+semaphore that can be grabbed while also holding the BKL is the length
+of the critical section of the semaphore + the length of the longest BKL
+hold.
+
+Just don't let your RT tasks grab semaphores that can be grabbed while
+also holding the BKL :)
+
+But the main point is that it is still deterministic.  Just that it may
+be longer than one thinks.
+
+> 
+> > Even under contention, a higher priority task above A can still
+> > run since the kernel is preemptive now even when manipulating BKL.
+> 
+> No, A waits for BKL because it waits for B which waits for the BKL.
+
+Right.
+
+-- Steve
+
+PS. I might actually get around to testing your patch today :)  That is,
+if -rt12 passes all my tests.
+
+

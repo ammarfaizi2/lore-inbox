@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWAWLYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWAWL5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751402AbWAWLYe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 06:24:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWAWLYe
+	id S1751424AbWAWL5e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 06:57:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751429AbWAWL5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 06:24:34 -0500
-Received: from cantor.suse.de ([195.135.220.2]:56968 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751402AbWAWLYe (ORCPT
+	Mon, 23 Jan 2006 06:57:34 -0500
+Received: from mail.sf-mail.de ([62.27.20.61]:170 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1751424AbWAWL5d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 06:24:34 -0500
-From: Andi Kleen <ak@suse.de>
-To: pravin shelar <pravins@calsoftinc.com>
-Subject: Re: [PATCH] garbage values in file /proc/net/sockstat
-Date: Mon, 23 Jan 2006 12:24:15 +0100
-User-Agent: KMail/1.8.2
-Cc: Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Shai Fultheim <shai@scalex86.org>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-References: <Pine.LNX.4.63.0601231206270.2192@pravin.s>
-In-Reply-To: <Pine.LNX.4.63.0601231206270.2192@pravin.s>
+	Mon, 23 Jan 2006 06:57:33 -0500
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Subject: Re: [PATCH] 2.6.15: access permission filesystem 0.17
+Date: Mon, 23 Jan 2006 12:57:17 +0100
+User-Agent: KMail/1.9.1
+References: <87ek3a8qpy.fsf@goat.bogus.local>
+In-Reply-To: <87ek3a8qpy.fsf@goat.bogus.local>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: multipart/signed;
+  boundary="nextPart1639992.A0KNYaN72i";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601231224.16196.ak@suse.de>
+Message-Id: <200601231257.28796@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 January 2006 12:21, pravin shelar wrote:
-> 	In 2.6.16-rc1-mm1, (for x86_64 arch) cpu_possible_map is not same 
-> as NR_CPUS (prefill_possible_map()). Therefore per cpu areas are allocated 
-> for cpu_possible cpus only (setup_per_cpu_areas()). This causes sockstat 
-> to return garbage value on x84_64 arch.
-> 
-> So these per_cpu accesses are geting relocated (RELOC_HIDE) using
-> boot_cpu_pda[]->data_offset which is not initialized.
-> 
-> There are other instances of same bug where per_cpu() macro is used
-> without cpu_possible() check. e.g. net/core/utils.c :: 
-> net_random_reseed(), net/core/dev.c :: net_dev_init(), etc.
-> 
-> This patch fixes these bugs.
+--nextPart1639992.A0KNYaN72i
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Thanks. Patches Look good.  Dave, can you push them for 2.6.16 still please?
+Olaf Dietsche wrote:
+>This patch adds a new permission managing file system. Furthermore,
+>it adds two modules, which make use of this file system.
+>
+>One module allows granting capabilities based on user-/groupid. The
+>second module allows to grant access to lower numbered ports based on
+>user-/groupid, too.
 
--Andi
+Any chance you will push this to Andrew and Linus in near future so we'll s=
+ee=20
+it in mainline?
+
+Eike
+
+--nextPart1639992.A0KNYaN72i
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQBD1MSoXKSJPmm5/E4RAtRrAJ9+YF+xcgIU6sSHabAaqaz6IHFUvgCeO8iP
+8QJhlnUCyYPPzKSZMbgaWHY=
+=LhbJ
+-----END PGP SIGNATURE-----
+
+--nextPart1639992.A0KNYaN72i--

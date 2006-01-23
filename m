@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964945AbWAWUaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbWAWUbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964945AbWAWUaY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 15:30:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbWAWU2R
+	id S964931AbWAWUbI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 15:31:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964941AbWAWU1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 15:28:17 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37573 "EHLO
+	Mon, 23 Jan 2006 15:27:47 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:31429 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964938AbWAWU14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 15:27:56 -0500
+	id S964939AbWAWU1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 15:27:41 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
 Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-       akpm@osdl.org, Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 01/16] Added credits for em28xx-video.c
-Date: Mon, 23 Jan 2006 18:24:43 -0200
-Message-id: <20060123202443.PS32222400001@infradead.org>
+       akpm@osdl.org, Michael Krufky <mkrufky@m1k.net>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: [PATCH 14/16] fixed spelling error, exectuted --> executed.
+Date: Mon, 23 Jan 2006 18:24:45 -0200
+Message-id: <20060123202445.PS52002200014@infradead.org>
 In-Reply-To: <20060123202404.PS66974000000@infradead.org>
 References: <20060123202404.PS66974000000@infradead.org>
 Mime-Version: 1.0
@@ -27,33 +28,28 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
+From: Michael Krufky <mkrufky@m1k.net>
 
-- Added credits for sn9c102 kernel module and his author as
-some parts of em28xx-video were based.
+- fixed spelling error, exectuted --> executed.
 
-Acked-by: Luca Risolia <luca.risolia@studio.unibo.it>
-Acked-by: Markus Rechberger <mrechberger@gmail.com>
-Acked-by: Ludovico Cavedon <cavedon@sssup.it>
-Acked-by: Sascha Sommer <saschasommer@freenet.de>
+Signed-off-by: Michael Krufky <mkrufky@m1k.net>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/video/em28xx/em28xx-video.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+ drivers/media/video/em28xx/em28xx-core.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/media/video/em28xx/em28xx-video.c b/drivers/media/video/em28xx/em28xx-video.c
-index eea304f..94a14a2 100644
---- a/drivers/media/video/em28xx/em28xx-video.c
-+++ b/drivers/media/video/em28xx/em28xx-video.c
-@@ -6,6 +6,9 @@
- 		      Mauro Carvalho Chehab <mchehab@brturbo.com.br>
- 		      Sascha Sommer <saschasommer@freenet.de>
- 
-+	Some parts based on SN9C10x PC Camera Controllers GPL driver made
-+		by Luca Risolia <luca.risolia@studio.unibo.it>
-+
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
+diff --git a/drivers/media/video/em28xx/em28xx-core.c b/drivers/media/video/em28xx/em28xx-core.c
+index dff3893..82f0c5f 100644
+--- a/drivers/media/video/em28xx/em28xx-core.c
++++ b/drivers/media/video/em28xx/em28xx-core.c
+@@ -253,7 +253,7 @@ int em28xx_write_ac97(struct em28xx *dev
+ 	if ((ret = em28xx_read_reg(dev, AC97BUSY_REG)) < 0)
+ 		return ret;
+ 	else if (((u8) ret) & 0x01) {
+-		em28xx_warn ("AC97 command still being exectuted: not handled properly!\n");
++		em28xx_warn ("AC97 command still being executed: not handled properly!\n");
+ 	}
+ 	return 0;
+ }
 

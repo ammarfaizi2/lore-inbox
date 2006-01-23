@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWAWRAO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWAWRBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbWAWRAO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 12:00:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964816AbWAWRAO
+	id S964827AbWAWRBW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 12:01:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWAWRBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 12:00:14 -0500
-Received: from uproxy.gmail.com ([66.249.92.205]:58647 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964814AbWAWRAM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 12:00:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VD42iZn0SynzUWH8jkPvcIw+zzegYRuRNVrJlMRU/dy/BfTQrRet6V1Dajh+OzQy7mTHsbDD2I1JchNn341vzp+VhOA32kcGnBB26V46rgzpIwMYath5rg/DobBwgTXtVUY7XWg2rFqiizovtQWvOlPhYKJJPM26QT4YnPoNK+0=
-Message-ID: <84144f020601230900x477dd21am8d94f382e37c5072@mail.gmail.com>
-Date: Mon, 23 Jan 2006 19:00:09 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Linux VFS architecture questions
-Cc: Antonio Vargas <windenntw@gmail.com>, "Theodore Ts'o" <tytso@mit.edu>,
-       John Richard Moser <nigelenki@comcast.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <CEED5F58-EF3D-44D9-9C54-FE1720640E11@mac.com>
-MIME-Version: 1.0
+	Mon, 23 Jan 2006 12:01:22 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:61847 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S964827AbWAWRBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 12:01:20 -0500
+Date: Mon, 23 Jan 2006 15:01:27 -0200
+From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: arjan@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] slab: Adds two missing kmalloc() checks.
+Message-Id: <20060123150128.eb12603f.lcapitulino@mandriva.com.br>
+In-Reply-To: <1138035122.10527.10.camel@localhost>
+References: <20060123133121.70f2cbcb.lcapitulino@mandriva.com.br>
+	<1138034316.10527.2.camel@localhost>
+	<1138034695.2977.48.camel@laptopd505.fenrus.org>
+	<1138035122.10527.10.camel@localhost>
+Organization: Mandriva
+X-Mailer: Sylpheed version 2.2.0beta4 (GTK+ 2.8.10; i586-mandriva-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43D3295E.8040702@comcast.net> <20060122093144.GA7127@thunk.org>
-	 <43D3D4DF.2000503@comcast.net> <20060122210238.GA28980@thunk.org>
-	 <4D75B95E-2595-4B60-91B3-28AD469C3D39@mac.com>
-	 <20060123072447.GA8785@thunk.org>
-	 <536E71BF-44FF-430C-8C19-F06526F0C78D@mac.com>
-	 <69304d110601230552n4c7656cal9c6901e180e82504@mail.gmail.com>
-	 <CEED5F58-EF3D-44D9-9C54-FE1720640E11@mac.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kyle,
 
-On 1/23/06, Kyle Moffett <mrmacman_g4@mac.com> wrote:
-> Great!  I'm trying to learn about filesystem design and
-> implementation, which is why I started writing my own hfsplus
-> filesystem (otherwise I would have just used the in-kernel one).  Do
-> you have any recommended reading (either online or otherwise) for
-> someone trying to understand the kernel's VFS and blockdev
-> interfaces?  I _think_ I understand the basics of buffer_head,
-> super_block, and have some idea of how to use aops, but it's tough
-> going trying to find out what functions to call to manage cached disk
-> blocks, or under what conditions the various VFS functions are
-> called.  I'm trying to write up a "Linux Disk-Based Filesystem
-> Developers Guide" based on what I learn, but it's remarkably sparse
-> so far.
+ Hi Pekka, Arjan,
 
-Did you read Documentation/filesystems/vfs.txt? Also, books Linux
-Kernel Development and Understanding the Linux Kernel have fairly good
-information on VFS (and related) stuff.
+On Mon, 23 Jan 2006 18:52:02 +0200
+Pekka Enberg <penberg@cs.helsinki.fi> wrote:
 
-                      Pekka
+| On Mon, 2006-01-23 at 18:38 +0200, Pekka Enberg wrote:
+| > > Looks good to me. Arjan, you had some objections last time around. Are
+| > > you okay with the change?
+| 
+| On Mon, 2006-01-23 at 17:44 +0100, Arjan van de Ven wrote:
+| > I still fail to see the point. Has anyone EVER seen these trigger????
+| 
+| Yeah, we probably won't. They seem useful for people who hunt unchecked
+| kmalloc() calls, though.
+
+ It really looks useful to me. You don't check for fail because someone has
+seen the fail happen. You check for fail in order to have a robust program.
+
+ There are zilions of checks in the kernel and in programs out there which I
+think they will never fail. But they are there.
+
+ On the other hand, I'm not going to make too much noise for a such trivial
+patch. If you think it's not useful, let's drop it. No problem.
+
+-- 
+Luiz Fernando N. Capitulino

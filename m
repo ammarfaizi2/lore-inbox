@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWAWLCq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751274AbWAWLFS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbWAWLCq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 06:02:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWAWLCq
+	id S1751274AbWAWLFS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 06:05:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWAWLFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 06:02:46 -0500
-Received: from ns2.suse.de ([195.135.220.15]:63923 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751365AbWAWLCq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 06:02:46 -0500
-Date: Mon, 23 Jan 2006 12:02:43 +0100
-From: Olaf Hering <olh@suse.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cc-version not available to change EXTRA_CFLAGS
-Message-ID: <20060123110243.GA17201@suse.de>
-References: <20060121180805.GA15761@suse.de> <20060121225728.GA13756@mars.ravnborg.org> <20060121231539.GA23789@suse.de> <20060121232542.GA19480@mars.ravnborg.org>
+	Mon, 23 Jan 2006 06:05:17 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:15851 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751274AbWAWLFP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 06:05:15 -0500
+Subject: Re: Rationale for RLIMIT_MEMLOCK?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060123105634.GA17439@merlin.emma.line.org>
+References: <20060123105634.GA17439@merlin.emma.line.org>
+Content-Type: text/plain
+Date: Mon, 23 Jan 2006 12:05:12 +0100
+Message-Id: <1138014312.2977.37.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060121232542.GA19480@mars.ravnborg.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Sun, Jan 22, Sam Ravnborg wrote:
+`
+> 
+> 1. What is the reason we're having special treatment
+>    for the super-user here?
 
-> This is 2.6.17 material IMO in kbuild land except if we want this in for
-> reiserfs before 2.6.17.
+it's quite common to allow root (or more specific, the right capability)
+to override rlimits. Many such security check behave that way so it's
+only "just" to treat this one like that as well.
 
-Yes, thats ok.
 
--- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+> 2. Why is it the opposite of what 2.6.8.1 and earlier did?
+
+the earlier behavior didn't really make sense, and gave cause to
+multimedia apps running as root only to be able to mlock etc etc. Now
+this can be dynamically controlled instead.
+
+
+> 4. Is the default hard limit of 32 kB initialized by the kernel or
+
+the kernel has a relatively low default. The reason is simple: allow too
+much mlock and the user can DoS the machine too easy. The kernel default
+should be safe, the admin / distro can very easily override anyway.
+
+You may ask: why is it not zero?
+It is very useful for many things to have a "small" mlock area. gpg, ssh
+and basically anything that works with keys and passwords. Small
+relative to the other resources such a process takes (eg kernel stacks
+etc).
+
+

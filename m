@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751442AbWAWImJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751441AbWAWIsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751442AbWAWImJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 03:42:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWAWImI
+	id S1751441AbWAWIsb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 03:48:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751443AbWAWIsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 03:42:08 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:51077 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751438AbWAWImH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 03:42:07 -0500
-Subject: Re: OOM Killer killing whole system
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: Chase Venters <chase.venters@clientec.com>, Andrew Morton <akpm@osdl.org>,
-       Anton Titov <a.titov@host.bg>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <20060123083939.GB12773@suse.de>
-References: <1137337516.11767.50.camel@localhost>
-	 <1137793685.11771.58.camel@localhost>
-	 <20060120145006.0a773262.akpm@osdl.org>
-	 <200601201819.58366.chase.venters@clientec.com>
-	 <20060123083939.GB12773@suse.de>
-Content-Type: text/plain
-Date: Mon, 23 Jan 2006 09:41:58 +0100
-Message-Id: <1138005718.2977.22.camel@laptopd505.fenrus.org>
+	Mon, 23 Jan 2006 03:48:31 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:6644 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751441AbWAWIsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 03:48:30 -0500
+Date: Mon, 23 Jan 2006 09:47:15 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Nick Piggin <npiggin@suse.de>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+Subject: Re: [rfc] split_page function to split higher order pages?
+Message-ID: <20060123084715.GA9241@osiris.boeblingen.de.ibm.com>
+References: <20060121124053.GA911@wotan.suse.de> <1137853024.23974.0.camel@laptopd505.fenrus.org> <20060123054927.GA9960@wotan.suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060123054927.GA9960@wotan.suse.de>
+User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-23 at 09:39 +0100, Jens Axboe wrote:
-> On Fri, Jan 20 2006, Chase Venters wrote:
-> > On Friday 20 January 2006 16:49, Andrew Morton wrote:
-> > > This is 2.6.15 and we have a deadly bug in scsi.
-> > >
-> > > Next time you reboot 2.6.15 on that machine can you please send the output
-> > > of `dmesg -s 1000000'?  You might have to set CONFIG_LOG_BUF_SHIFT=17 to
-> > > prevent it from being truncated.
+> > > Just wondering what people think of the idea of using a helper
+> > > function to split higher order pages instead of doing it manually?
 > > 
-> > Here's mine (attached). Curious - the -s... were you expecting the
-> > ring buffer to exceed 16384? I don't think my (boot time) buffer does.
+> > Maybe it's worth documenting that this is for kernel (or even
+> > architecture) internal use only and that drivers really shouldn't be
+> > doing this..
 > 
-> Just a note - you seem to have the raid1 in common with the rest of the
-> reporters so far.
+> I guess it doesn't seem like something drivers would need to use
+> (and none appear to do anything like it).
 
-time to get out some of the obvious heavy hitters.. and enable slab
-debug and CONFIG_DEBUG_PAGEALLOC just with the chance to catch a random
-scribble of sorts
+And I thought this could/should be used together with vm_insert_page() that
+drivers are supposed to use nowadays instead of remap_pfn_range().
+Why shouldn't drivers use this?
 
+Thanks,
+Heiko

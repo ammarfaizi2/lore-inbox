@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWAWQs0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWAWQu1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932456AbWAWQs0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 11:48:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWAWQsZ
+	id S964791AbWAWQu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 11:50:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbWAWQu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 11:48:25 -0500
-Received: from smtpout.mac.com ([17.250.248.85]:47095 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932456AbWAWQsZ (ORCPT
+	Mon, 23 Jan 2006 11:50:27 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:6555 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964791AbWAWQu0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 11:48:25 -0500
-In-Reply-To: <69304d110601230552n4c7656cal9c6901e180e82504@mail.gmail.com>
-References: <43D3295E.8040702@comcast.net> <20060122093144.GA7127@thunk.org> <43D3D4DF.2000503@comcast.net> <20060122210238.GA28980@thunk.org> <4D75B95E-2595-4B60-91B3-28AD469C3D39@mac.com> <20060123072447.GA8785@thunk.org> <536E71BF-44FF-430C-8C19-F06526F0C78D@mac.com> <69304d110601230552n4c7656cal9c6901e180e82504@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <CEED5F58-EF3D-44D9-9C54-FE1720640E11@mac.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>,
-       John Richard Moser <nigelenki@comcast.net>,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Linux VFS architecture questions
-Date: Mon, 23 Jan 2006 11:48:21 -0500
-To: Antonio Vargas <windenntw@gmail.com>
-X-Mailer: Apple Mail (2.746.2)
+	Mon, 23 Jan 2006 11:50:26 -0500
+Date: Mon, 23 Jan 2006 08:50:11 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: John Richard Moser <nigelenki@comcast.net>
+cc: linux-kernel@vger.kernel.org,
+       Ubuntu Users List <ubuntu-users@lists.ubuntu.com>,
+       ubuntu-devel <ubuntu-devel@lists.ubuntu.com>,
+       autopackage-dev@sunsite.dk
+Subject: Re: Need insight on designing a package manager
+In-Reply-To: <43D4B358.7050604@comcast.net>
+Message-ID: <Pine.LNX.4.62.0601230842420.31110@schroedinger.engr.sgi.com>
+References: <43D4B358.7050604@comcast.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 23, 2006, at 08:52:51, Antonio Vargas wrote:
-> On 1/23/06, Kyle Moffett <mrmacman_g4@mac.com> wrote:
->> The way that I'm considering implementing this is by intentionally  
->> fragmenting the allocation bitmap, catalog file, etc, such that  
->> each 1/8 or so of the disk contains its own allocation bitmap  
->> describing its contents, its own set of files or directories,  
->> etc.  The allocator would largely try to keep individual btree  
->> fragments cohesive, such that one of the 1/8th divisions of the  
->> disk would only have pertinent data for itself.  The idea would be  
->> that when trying to look up an allocation block, in the common  
->> case you need only parse a much smaller subsection of the disk  
->> structures.
->
-> this sounds exactly the same as ext2/ext3 allocation groups :)
+On Mon, 23 Jan 2006, John Richard Moser wrote:
 
-Great!  I'm trying to learn about filesystem design and  
-implementation, which is why I started writing my own hfsplus  
-filesystem (otherwise I would have just used the in-kernel one).  Do  
-you have any recommended reading (either online or otherwise) for  
-someone trying to understand the kernel's VFS and blockdev  
-interfaces?  I _think_ I understand the basics of buffer_head,  
-super_block, and have some idea of how to use aops, but it's tough  
-going trying to find out what functions to call to manage cached disk  
-blocks, or under what conditions the various VFS functions are  
-called.  I'm trying to write up a "Linux Disk-Based Filesystem  
-Developers Guide" based on what I learn, but it's remarkably sparse  
-so far.
+> install Sun Java on Debian, I found that clicking "no" on the license
+> permenantly alters the system in ways dpkg can't track and roll back,
+> assuring you can never try to install the package again.
 
-One big question I have:  HFS/HFS+ have an "extents overflow" btree  
-that contains extents beyond the first 3 (for HFS) or 8 (for HFS+).   
-I would like to speculatively cache parts of that btree when the  
-files are accessed, but not if memory is short, and I would like to  
-allow the filesystem to free up parts of the btree under the same  
-circumstances.  I have a preliminary understanding of how to trigger  
-the filesystem to read various blocks of metadata (using  
-buffer_heads) or file data for programs (by returning a block number  
-from the appropriate aops function), but how do I allocate data  
-structures as "easily reclaimable" and indicate to the kernel that it  
-can ask me to reclaim that memory?
+That is a problem with Sun Java destroying Debians package tracking 
+database?
 
-Thanks for the help!
+> well; policy plug-ins for SELinux are planned, and "meta-native"
+> policies will allow a policy file to have chunks modified based on user
+> query.
 
-Cheers,
-Kyle Moffett
+Replacing scripts with meta information that is interpreted has been 
+discussed a few times and I most people involved think this is a good 
+thing.
+
+> Plug-ins will also allow for policy extensions, to understand SELinux
+> and GrSecurity policy files and how to activate them in the system.
+> These policy plug-ins will also translate policies written in a built-in
+> meta-policy language to the native format of the target backend.
+
+Something like the triggers in UPM? http://uos.graphe.net/upm.html
+
+> going to handle things is not a good idea.  SQLite was, of course,
+> chosen for performance.  Running a full RDBMS like MySQL or PostGreSQL
+> is out of the question; embedded MySQL is out because it's not object
+> oriented (SQLite lets me sqlite3_open() a database and get a handle to
+> use; I can work on 100 db's if I want, all at once).  Evidently the
+> MySQL folk don't understand that C can be used for object oriented
+> programming; it just doesn't do it in the language, as in C++ or Obj-C.
+> 
+> This is one dilema point; I don't know all the information to store in
+> the database.  I'm working on this; could use some help.
+
+SQLite may still be overkill. Look into the Berkeley DB libraries.
+
+> My current largest dilema is dependency checking.  I want a
+> file-interface dependency model, handled by the install module.  This
+> means looking for either a program /bin/foo or /usr/bin/foo or "InPath
+> foo" (a la autopackage IIRC) and comparing its command line interface;
+> or finding a library in the same way and comparing its API.
+
+Uhh. That is going to make this whole thing pretty unclean and puts it on 
+the same level of hopelessly unfixable like rpm.

@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbWAWVqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbWAWVrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964894AbWAWVqa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 16:46:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWAWVqa
+	id S964903AbWAWVrn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 16:47:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWAWVrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 16:46:30 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:16055 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S964894AbWAWVq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 16:46:29 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 23 Jan 2006 22:45:37 +0100
-To: rlrevell@joe-job.com, matthias.andree@gmx.de
-Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest) (was: 
- Rationale for RLIMIT_MEMLOCK?)
-Message-ID: <43D54E81.nailC6M5ZIPCH@burner>
-References: <20060123105634.GA17439@merlin.emma.line.org>
- <1138014312.2977.37.camel@laptopd505.fenrus.org>
- <20060123165415.GA32178@merlin.emma.line.org>
- <1138035602.2977.54.camel@laptopd505.fenrus.org>
- <20060123180106.GA4879@merlin.emma.line.org>
- <1138039993.2977.62.camel@laptopd505.fenrus.org>
- <20060123185549.GA15985@merlin.emma.line.org>
- <43D530CC.nailC4Y11KE7A@burner> <1138048255.21481.15.camel@mindpipe>
- <20060123212119.GI1820@merlin.emma.line.org>
- <1138051613.21481.37.camel@mindpipe>
-In-Reply-To: <1138051613.21481.37.camel@mindpipe>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 23 Jan 2006 16:47:43 -0500
+Received: from fluido.speedxs.nl ([83.98.238.192]:18191 "EHLO fluido.as")
+	by vger.kernel.org with ESMTP id S964903AbWAWVrn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 16:47:43 -0500
+Date: Mon, 23 Jan 2006 22:47:24 +0100
+From: "Carlo E. Prelz" <fluido@fluido.as>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: ATI RS480-based motherboard: stuck while booting with kernel >= 2.6.15 rc1
+Message-ID: <20060123214724.GA17760@epio.fluido.as>
+References: <20060120123202.GA1138@epio.fluido.as> <20060122074034.GA1315@epio.fluido.as> <20060121235546.68f50bd5.akpm@osdl.org> <200601231101.25268.david-b@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200601231101.25268.david-b@pacbell.net>
+X-operating-system: Linux epio 2.6.14
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> wrote:
+	Subject: Re: [linux-usb-devel] Re: ATI RS480-based motherboard: stuck while booting with kernel >= 2.6.15 rc1
+	Date: lun 23 gen 06 11:01:25 -0800
 
-> On Mon, 2006-01-23 at 22:21 +0100, Matthias Andree wrote:
-> > Sounds really good. Can you give a pointer as to the detailed rlimit
-> > requirements? 
->
-> I don't want to touch the rest of the thread, but the best info on the
-> above can be found in the linux-audio-user list archives.  It's still a
-> little unclear exactly which packages are required, but IIRC PAM 0.80
-> supports it already.  I believe this requires glibc changes eventually,
-> but programs like PAM and bash that deal with rlimits can work around it
-> if glibc is not aware of the new rlimit.
+Quoting David Brownell (david-b@pacbell.net):
 
-Could you explain this more in depth?
+> Maybe this time it'd help to tell your BIOS "yes, DO use USB".
 
-What you describe looks like you propose to add a line:
+That I am doing. And I now have the appropriate OHCI module
+loaded. USB 1.1 works apparently quite OK. 
 
-joerg::::defaultpriv=file_dac_read,sys_devices,proc_lock_memory,proc_priocntl,net_privaddr
+> Or, the attached patch might help.  
 
-to /etc/user_attr which would be honored by PAM during login.
+I applied the patch. The three changes to the second file applied with
+an offset of 6 lines (to 2.6.15 vanilla). Nothing changed: the booting
+process hung at the same place, generating the same printout as
+before. I have now booted the new kernel with EHCI disabled, and saved
+the dmesg oputput to http://www.fluido.as/files/dmesg2.txt (here,
+USB1.1 is active).
 
-This is not what I like to see.
+It is time for sleep for me. I will perform any new test tomorrow
+morning.
 
-What I like to see is that only specific programs like cdrecord
-would get the permissions to do more than joe user.
+Carlo
 
-Jörg
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+  *         Se la Strada e la sua Virtu' non fossero state messe da parte,
+* K * Carlo E. Prelz - fluido@fluido.as             che bisogno ci sarebbe
+  *               di parlare tanto di amore e di rettitudine? (Chuang-Tzu)

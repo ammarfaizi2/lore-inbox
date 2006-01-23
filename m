@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWAWK0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbWAWK1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932447AbWAWK0u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 05:26:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbWAWK0u
+	id S932420AbWAWK1h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 05:27:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWAWK1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 05:26:50 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:16518 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S932443AbWAWK0t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 05:26:49 -0500
-Date: Mon, 23 Jan 2006 11:26:01 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Heinz Mauelshagen <mauelshagen@redhat.com>
-Cc: Neil Brown <neilb@suse.de>, Phillip Susi <psusi@cfl.rr.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       "Lincoln Dale (ltd)" <ltd@cisco.com>, Michael Tokarev <mjt@tls.msk.ru>,
-       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Subject: Re: [PATCH 000 of 5] md: Introduction
-Message-ID: <20060123102601.GD2366@marowsky-bree.de>
-References: <17360.5011.975665.371008@cse.unsw.edu.au> <43D02033.4070008@cfl.rr.com> <17360.9233.215291.380922@cse.unsw.edu.au> <20060120183621.GA2799@redhat.com> <20060120225724.GW22163@marowsky-bree.de> <20060121000142.GR2801@redhat.com> <20060121000344.GY22163@marowsky-bree.de> <20060121000806.GT2801@redhat.com> <20060121001311.GA22163@marowsky-bree.de> <20060123094418.GX2801@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 23 Jan 2006 05:27:37 -0500
+Received: from wproxy.gmail.com ([64.233.184.204]:13618 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932420AbWAWK1g convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 05:27:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=d0ylmR4qK409aV5HXQ4382PiN1QUqlQTAn7uWxxLNgwYqzDWmxy3E89TrmduiIxhFx1ZXYbTvr4PtGOa8uBN39r3fr10foaMlwPaKJ0dhxZNq3EP69BUW/8bdQSVf7wVFkJ6t14d/YBhHA1Z4ewvjdwEm4bwtdGUo8EoXZAom8s=
+Message-ID: <787b0d920601230220r5c7df60dk142d1d637ab4ed48@mail.gmail.com>
+Date: Mon, 23 Jan 2006 05:20:18 -0500
+From: Albert Cahalan <acahalan@gmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH 4/4] pmap: reduced permissions
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, Al Viro <viro@ftp.linux.org.uk>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <1138009305.2977.28.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060123094418.GX2801@redhat.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.9i
+References: <200601222219.k0MMJ3Qg209555@saturn.cs.uml.edu>
+	 <1137996654.2977.0.camel@laptopd505.fenrus.org>
+	 <787b0d920601230128o5a12513fjae3708e3fb552dca@mail.gmail.com>
+	 <1138009305.2977.28.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-01-23T10:44:18, Heinz Mauelshagen <mauelshagen@redhat.com> wrote:
+On 1/23/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Mon, 2006-01-23 at 04:28 -0500, Albert Cahalan wrote:
 
-> > Besides, stacking between dm devices so far (ie, if I look how kpartx
-> > does it, or LVM2 on top of MPIO etc, which works just fine) is via the
-> > block device layer anyway - and nothing stops you from putting md on top
-> > of LVM2 LVs either.
-> > 
-> > I use the regularly to play with md and other stuff...
-> 
-> Me too but for production, I want to avoid the
-> additional stacking overhead and complexity.
+> > I tend to think that glibc should not be reading this file.
+> > What excuse is there?
+>
+> glibc needs to be able to find out if a certain address is writable. (eg
+> mapped "w"). The only way available for that is... reading the maps
+> file.
 
-Ok, I still didn't get that. I must be slow.
+What the heck for? That's gross.
 
-Did you implement some DM-internal stacking now to avoid the above
-mentioned complexity? 
+If glibc is just providing this info for apps, there should be a
+system call for it. Otherwise, being the C library, glibc can
+damn well remember what it did.
 
-Otherwise, even DM-on-DM is still stacked via the block device
-abstraction...
+> > In any case, the many existing statically linked executables
+> > do cause trouble. Setuid apps are the ones you'd most want
+> > to protect.
+>
+> for this 0400 isn't enough;
 
+because you might fool the app into reading it
 
-Sincerely,
-    Lars Marowsky-Brée
+> because you can open this file, send the fd
+> over a unix socket, and then exec. The process you sent the fd to can
+> then read the setuid's program maps file.
 
--- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
+You exec what, the setuid executable? For other reasons,
+that needs to sever all file descriptors to the /proc files.
+They should be returning EBADF for all operations.
 
+Oh dear. I think I see why /proc/*/mem reads are far too
+restricted. The file descripters are NOT getting severed???
+Hmmm, I'm not finding code to sever them.
+
+Well, that's part of a general problem then, including lack
+of the revoke() system call that BSD introduced. This hits
+hard with device files. Memory mappings get interesting,
+though /dev/zero might make a nice substitute mapping.

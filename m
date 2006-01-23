@@ -1,140 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbWAWXcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbWAWXjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030211AbWAWXcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 18:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbWAWXcJ
+	id S1030214AbWAWXjD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 18:39:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWAWXjC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 18:32:09 -0500
-Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:36340 "EHLO
-	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1030211AbWAWXcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 18:32:08 -0500
-Message-ID: <43D56774.1030406@bigpond.net.au>
-Date: Tue, 24 Jan 2006 10:32:04 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 23 Jan 2006 18:39:02 -0500
+Received: from smtp6-g19.free.fr ([212.27.42.36]:4992 "EHLO smtp6-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1030214AbWAWXjA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 18:39:00 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: philb@gnu.org, tim@cyberelk.net, andrea@suse.de,
+       linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCHv2] parport: add parallel port support for SGI O2
+References: <87mzhqfq5y.fsf@groumpf.homeip.net>
+	<20060122222425.6907656f.akpm@osdl.org>
+From: Arnaud Giersch <arnaud.giersch@free.fr>
+X-Face: &yL?ZRfSIk3zaRm*dlb3R4f.8RM"~b/h|\wI]>pL)}]l$H>.Q3Qd3[<h!`K6mI=+cWpg-El
+ B(FEm\EEdLdS{2l7,8\!RQ5aL0ZXlzzPKLxV/OQfrg/<t!FG>i.K[5isyT&2oBNdnvk`~y}vwPYL;R
+ y)NYo"]T8NlX{nmIUEi\a$hozWm#0GCT'e'{5f@Rl"[g|I8<{By=R8R>bDe>W7)S0-8:b;ZKo~9K?'
+ wq!G,MQ\eSt8g`)jeITEuig89NGmN^%1j>!*F8~kW(yfF7W[:bl>RT[`w3x-C
+Date: Tue, 24 Jan 2006 00:38:57 +0100
+In-Reply-To: <20060122222425.6907656f.akpm@osdl.org> (Andrew Morton's
+ message of "Sun, 22 Jan 2006 22:24:25 -0800")
+Message-ID: <87ek2ycy5q.fsf@groumpf.homeip.net>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-To: Paolo Ornati <ornati@fastwebnet.it>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.2 for  2.6.16-rc1 and 2.6.16-rc1-mm1
-References: <43D00887.6010409@bigpond.net.au>	<20060121114616.4a906b4f@localhost>	<43D2BE83.1020200@bigpond.net.au> <20060123210918.54d4fc75@localhost>
-In-Reply-To: <20060123210918.54d4fc75@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 23 Jan 2006 23:32:05 +0000
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paolo Ornati wrote:
-> On Sun, 22 Jan 2006 10:06:43 +1100
-> Peter Williams <pwil3058@bigpond.net.au> wrote:
-> 
-> 
->>>---- spa_ebs: great! (as expected)
->>>
->>>(sched_fooler)
->>>  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
->>> 5418 paolo     34   0  2392  288  228 R 51.4  0.1   1:06.47 a.out
->>> 5419 paolo     34   0  2392  288  228 R 43.7  0.1   0:54.60 a.out
->>> 5448 paolo     11   0  4952 1468  372 D  3.0  0.3   0:00.12 dd
->>>
->>>(transcode)
->>>  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
->>> 5456 paolo     34   0  115m  18m 2432 R 51.9  3.7   0:23.34 transcode
->>> 5470 paolo     12   0 51000 4472 1872 S  5.7  0.9   0:02.38 tcdecode
->>> 5480 paolo     11   0  4948 1468  372 D  3.5  0.3   0:00.33 dd
->>>
->>>Very good DD test performance in both cases.
->>
->>Good.  How do you find the interactive responsiveness with this one?
-> 
-> 
-> It seems geneally good.
-> 
-> However I've noticed that priority of X fluctuate a lot for unknown
-> reasons...
-> 
-> When doing almost nothing it gets prio 6/7 but if I only move the
-> cursor a bit it jumps up to ~29. 
-> 
-> If I'm running glxgears (with diret rendering ON) the priority stay to
-> 6/7 and moving the cursor I'm only able to get priority 8.
+Lundi 23 janvier 2006, vers 07:24:25 (+0100), Andrew Morton a écrit:
 
-This is a function of the "entitlement based" fairness part of the 
-scheduler.  Conceptually, it allocates each SCHED_NORMAL task "shares" 
-based on its nice value (19->1, 0->20, -20->420) and calculates an 
-entitlement based on the ratio of a tasks shares and the total shares in 
-play.  It then compares the task's recent average cpu usage rate with 
-its entitlement and sets the dynamic priority so as to try and match the 
-cpu usage rate to the entitlement.
+>> From: Arnaud Giersch <arnaud.giersch@free.fr>
+>> 
+>> Add support for the built-in parallel port on SGI O2 (a.k.a. IP32).
+>> Define a new configuration option: PARPORT_IP32.  The module is named
+>> parport_ip32.
+>
+> Nice looking driver.  Big.
 
-To implement this concept efficiently (i.e. avoiding maths especially 
-divides as much as possible) a slightly different approach is taken in 
-practice.  For each run queue, a recent maximum average cpu usage rate 
-per share for tasks on that queue (a yardstick) is kept and each tasks 
-usage per share is compared to that.  If it is greater then it becomes 
-the new yardstick and the task is given a base dynamic priority of 34 
-and otherwise it is given a priority between 11 and 34 based in 
-proportion to the ratio of its usage per share to the yardstick.
+Thanks.
 
-Tasks are also awarded an interactive bonus based on the amount of 
-interactive sleeping that they've been doing recently and this is 
-subtracted from the base priority.  The 11 point offset in the base 
-priority is there to allow the bonus to be applied without encroaching 
-on the RT priority range.
+> It does rather a lot of
+>
+> 	if (foo)	do_something();
+>
+> whereas we prefer
+>
+> 	if (foo)
+> 		do_something();
 
-To cater for periods of inactivity the yardstick is decayed towards zero 
-each tick.
+Those are limited to the parport_ip32_dump_state() function.  The
+rationale is that this function is only here for debugging purpose,
+and I did not want to make it longer than it already is. 
 
-In general, this means that the busiest task on the system (in terms of 
-cpu usage per share) at any particular time will have a priority of (34 
-- interactivity bonus) but when the system is idle this may not be the 
-case if the yardstick had been quite high and hasn't yet decayed enough.
+I will correct the style.
 
-This is why when the system is idle the X priority jumps to 29 when you 
-move the mouse as it is now the new yardstick even with a relatively low 
-usage rate.  But when glxgears is running it becomes the yardstick with 
-quite high cpu usage rate per share and when you move the mouse the X 
-servers usage per share is still small compared to the yardstick so it 
-retains a small priority value.
 
-> 
-> Under load X priority goes up and it suffers (cursor jumps a bit).
-> 
-> IOW: strangeness!
-> 
+>> +static void parport_ip32_dma_setup_context(unsigned int limit)
+[...]
+>> +		volatile u64 __iomem *ctxreg = (parport_ip32_dma.ctx == 0) ?
+>> +			&mace->perif.ctrl.parport.context_a :
+>> +			&mace->perif.ctrl.parport.context_b;
+>
+> Does this need to be volatile?   writeq() should do the right thing.
 
-I hope I've explained the strangeness :-) but I'm still concerned that 
-the cursor is jumping a bit.  In general, the entitlement based 
-mechanism is quite good for interactive response as most interactive 
-tasks have very low CPU usage rates but under heavy load their usage 
-rate per share can approach the yardstick (mainly because the yardstick 
-tends to get smaller under load) so some help is required in the form of 
-interactive bonuses.  It looks like this component still needs a little 
-work.
+The "volatile" is here for type consistency.  Both variables
+"mace->perif.ctrl.parport.context_a" and "context_b" (defined in
+include/asm-mips/ip32/mace.h) are from type "volatile u64".  Omitting
+the "volatile" qualifier for "ctxreg" would make gcc and sparse
+complain.
 
-One area that I'm looking at is reducing the time slice size for the 
-first CPU run after a task is forked.  From the above it should be 
-apparent that a task with recent average CPU usage rate of zero (such as 
-a newly forked process) will get a priority of (11 - bonus).  This is 
-usually a good thing as it means that these tasks have good latency but 
-if they are CPU bound tasks they will block out most other runnable 
-tasks for a full time slice which is quite long (120 msecs).  (The 
-occasions where this effect would be most noticeable is when doing 
-something like a kernel build where lots of CPU intensive tasks are 
-being forked.)  Shortening this first time slice won't have much effect 
-on non CPU intensive tasks as they would generally have voluntarily 
-surrendered the CPU within in a few msecs anyway and it will allow the 
-scheduler to give the CPU intensive tasks an appropriate priority early 
-in their life.
+I will add a comment to explain it in the code.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+>> +static size_t parport_ip32_epp_read(void __iomem *eppreg,
+[...]
+>> +	if ((flags & PARPORT_EPP_FAST) && (len > 1)) {
+>> +		readsb(eppreg, buf, len);
+>
+> readsb() is a mips thing, and doesn't seem to be documented.  What does it
+> do, and why does the driver use it (only) here?
+>
+>> +		writesb(eppreg, buf, len);
+
+readsb() and writesb() are like ioread8_rep() and iowrite8_rep().  The
+io{read,write} family functions are however not available in the
+linux-mips.org tree.
+
+The usage of readsb() here is similar to that of insb() in the
+corresponding code of the parport_pc driver.
+
+
+>> +static unsigned int parport_ip32_fifo_wait_break(struct parport *p,
+[...]
+>> +	if (signal_pending(current)) {
+>> +		printk(KERN_DEBUG PPIP32
+>> +		       "%s: Signal pending\n", p->name);
+>> +		return 1;
+>> +	}
+>
+> This printk could be a bit noisy, if someone hoses a signal stream at a
+> printing program.
+
+I did not realized that.  I will try to correct the problem.
+
+
+Thank you for your attention.
+
+        Arnaud

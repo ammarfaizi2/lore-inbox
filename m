@@ -1,77 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWAWJdq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWAWJfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWAWJdq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 04:33:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWAWJdq
+	id S932215AbWAWJfU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 04:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWAWJfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 04:33:46 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:15266 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S932133AbWAWJdp
+	Mon, 23 Jan 2006 04:35:20 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:23076 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932136AbWAWJfS convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 04:33:45 -0500
-Date: Mon, 23 Jan 2006 10:33:15 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Bill Huey <billh@gnuppy.monkey.org>
-cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
-       david singleton <dsingleton@mvista.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: RT Mutex patch and tester [PREEMPT_RT]
-In-Reply-To: <20060123020421.GA21208@gnuppy.monkey.org>
-Message-ID: <Pine.LNX.4.44L0.0601231029090.5144-100000@lifa01.phys.au.dk>
+	Mon, 23 Jan 2006 04:35:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TmoD+QlmKn56sKmUyzMj0X+HpRGz5hGx/UEhhL3ZDuPdPXw3dtztoYHXbieBiinWwYi8N0+18dWqYb+YV0y2/8Au1QQOTWMj8WQ8JkF32wGKnNoP1oVJEnzz8jhmgSzt+XuqpcB0tKDDLj1hrnFzzkHX78TU8BXpg0YGsFgOBaU=
+Message-ID: <787b0d920601230128o5a12513fjae3708e3fb552dca@mail.gmail.com>
+Date: Mon, 23 Jan 2006 04:28:33 -0500
+From: Albert Cahalan <acahalan@gmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH 4/4] pmap: reduced permissions
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, Al Viro <viro@ftp.linux.org.uk>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <1137996654.2977.0.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200601222219.k0MMJ3Qg209555@saturn.cs.uml.edu>
+	 <1137996654.2977.0.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Jan 2006, Bill Huey wrote:
-
-> On Mon, Jan 23, 2006 at 01:20:12AM +0100, Esben Nielsen wrote:
-> > Here is the problem:
+On 1/23/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Sun, 2006-01-22 at 17:19 -0500, Albert D. Cahalan wrote:
+> > This patch changes all 3 remaining maps files to be readable
+> > only for the file owner. There have been privacy concerns.
 > >
-> > Task B (non-RT) takes BKL. It then takes mutex 1. Then B
-> > tries to lock mutex 2, which is owned by task C. B goes blocks and releases the
-> > BKL. Our RT task A comes along and tries to get 1. It boosts task B
-> > which boosts task C which releases mutex 2. Now B can continue? No, it has
-> > to reaquire BKL! The netto effect is that our RT task A waits for BKL to
-> > be released without ever calling into a module using BKL. But just because
-> > somebody in some non-RT code called into a module otherwise considered
-> > safe for RT usage with BKL held, A must wait on BKL!
+> > Fedora Core 4 has been shipping with such permissions on
+> > the /proc/*/maps file already. General system monitoring
+> > tools seldom use these files.
 >
-> True, that's major suckage, but I can't name a single place in the kernel that
-> does that.
+> changing /maps to 0400 breaks glibc; there are cases where this would
+> lead to /proc/self/maps to be not readable (setuid like apps) so this
+> needs a more elaborate fix.
 
-Sounds good. But someone might put it in...
+Wow. Well, that's why I put the patch last in the series.
+The other 3 don't depend on it at all.
 
-> Remember, BKL is now preemptible so the place that it might sleep
-> similar
-> to the above would be in spinlock_t definitions.
-I can't see that from how it works. It is explicitly made such that you
-are allowed to use semaphores with BKL held - and such that the BKL is
-released if you do.
+I tend to think that glibc should not be reading this file.
+What excuse is there?
 
-> But BKL is held across schedules()s
-> so that the BKL semantics are preserved.
-Only for spinlock_t now rt_mutex operation, not for semaphore/mutex
-operations.
-> Contending under a priority inheritance
-> operation isn't too much of a problem anyways since the use of it already
-> makes that
-> path indeterminant.
-The problem is that you might hit BKL because of what some other low
-priority  task does, thus making your RT code indeterministic.
+In any case, the many existing statically linked executables
+do cause trouble. Setuid apps are the ones you'd most want
+to protect. Allowing them to read their own files can cause
+plenty of trouble; perhaps you remember the XFree86 config
+file bug that exposed the content of files that were not meant
+to be readable.
 
-> Even under contention, a higher priority task above A can still
-> run since the kernel is preemptive now even when manipulating BKL.
+On the other hand, these apps are the ones you'd most want
+to recompile with modern tools. (PIE executable, stack canary,
+no-execute stack flag, etc.)
 
-No, A waits for BKL because it waits for B which waits for the BKL.
-
-Esben
->
-> bill
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+I'm actually surprised that processes don't always get to read
+their own files. If somebody hacks this up, be sure to base it
+on the tgid. (or, better, on the struct mm)

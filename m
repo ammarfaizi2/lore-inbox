@@ -1,57 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWAWUvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932474AbWAWUxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932472AbWAWUvs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 15:51:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbWAWUvs
+	id S932474AbWAWUxa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 15:53:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWAWUx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 15:51:48 -0500
-Received: from 213-140-2-71.ip.fastwebnet.it ([213.140.2.71]:34533 "EHLO
-	aa004msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S932472AbWAWUvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 15:51:47 -0500
-Date: Mon, 23 Jan 2006 21:52:31 +0100
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Peter Williams <pwil3058@bigpond.net.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.2 for  2.6.16-rc1 and
- 2.6.16-rc1-mm1
-Message-ID: <20060123215231.04b38886@localhost>
-In-Reply-To: <1138047938.21481.11.camel@mindpipe>
-References: <43D00887.6010409@bigpond.net.au>
-	<20060121114616.4a906b4f@localhost>
-	<43D2BE83.1020200@bigpond.net.au>
-	<20060123210918.54d4fc75@localhost>
-	<1138047938.21481.11.camel@mindpipe>
-X-Mailer: Sylpheed-Claws 2.0.0-rc3 (GTK+ 2.8.8; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
+	Mon, 23 Jan 2006 15:53:29 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:62013 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932474AbWAWUx2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 15:53:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dRmU9bMFDHpYKPhyAqdCavRYGRv0hfCjJmm8MOKW1kyi3XmBOmaEX2FLds2/iE6xPKiqr7YJLnoXlvo/Mcu8pUtXhd/LDY1a5xE2agESYLFPOflQmhhNep/86J+6TXmT8qC6zKEbSzi1DDjwDSUUeK6W9vj9KhXSJm5twUO3caw=
+Message-ID: <632b79000601231253q397ebc31odd5bb8ddc9f5bf3c@mail.gmail.com>
+Date: Mon, 23 Jan 2006 14:53:28 -0600
+From: Don Dupuis <dondster@gmail.com>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: Can't mlock hugetlb in 2.6.15
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Adam Litke <agl@us.ibm.com>, William Irwin <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0601231917210.5915@goblin.wat.veritas.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <632b79000601181149o67f1c013jfecc5e32ee17fe7e@mail.gmail.com>
+	 <20060120235240.39d34279.akpm@osdl.org>
+	 <43D24167.1010007@yahoo.com.au>
+	 <632b79000601221832w4cb44582y823ee7dc80e9a34f@mail.gmail.com>
+	 <Pine.LNX.4.61.0601231917210.5915@goblin.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Jan 2006 15:25:37 -0500
-Lee Revell <rlrevell@joe-job.com> wrote:
+On 1/23/06, Hugh Dickins <hugh@veritas.com> wrote:
+> On Sun, 22 Jan 2006, Don Dupuis wrote:
+> > On 1/21/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> > > Andrew Morton wrote:
+> > > > Don Dupuis <dondster@gmail.com> wrote:
+> > > >>I have an app that mlocks hugepages. The same app works just fine in 2.6.14.
+> > > > That being said, we shouldn't have broken your application.
+> > > Don, an strace log of the failing sequence of syscalls could be helpful.
+> >
+> > sducstart:
+> > open("/pivot3/mem/sduc", O_RDWR|O_CREAT, 0666) = 3
+> > mmap2(NULL, 1761607680, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_LOCKED,
+> > 3, 0) = 0x4e000000
+> >
+> > This is the strace output of sductest that is a test program to access
+> > the shared memory that was setup by sducstart:
+> > open("/pivot3/mem/sduc", O_RDWR)        = 3
+> > mmap2(NULL, 4194304, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_LOCKED, 3,
+> > 0) = -1 ENOMEM (Cannot allocate memory)
+>
+> Thanks a lot for the strace, that indeed helped to track it down.
+>
+> This has nothing to do with mlock or MAP_LOCKED - which by the way do
+> make more sense in 2.6.15, since they provide a way of prefaulting the
+> hugepage area like in earlier releases (now hugepages are being faulted
+> in on demand, though never paged out, as Andrew said).
+>
+> Please try the patch below, and let us know if it works for you - thanks.
+> Looks like we'll need this in 2.6.16-rc-git and 2.6.15-stable.
+>
+>
+> 2.6.15's hugepage faulting introduced huge_pages_needed accounting into
+> hugetlbfs: to count how many pages are already in cache, for spot check
+> on how far a new mapping may be allowed to extend the file.  But it's
+> muddled: each hugepage found covers HPAGE_SIZE, not PAGE_SIZE.  Once
+> pages were already in cache, it would overshoot, wrap its hugepages
+> count backwards, and so fail a harmless repeat mapping with -ENOMEM.
+> Fixes the problem found by Don Dupuis.
+>
+> Signed-off-by: Hugh Dickins <hugh@veritas.com>
+> ---
+>
+>  fs/hugetlbfs/inode.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+>
+> --- 2.6.15/fs/hugetlbfs/inode.c 2006-01-03 03:21:10.000000000 +0000
+> +++ linux/fs/hugetlbfs/inode.c  2006-01-23 18:39:47.000000000 +0000
+> @@ -71,8 +71,8 @@ huge_pages_needed(struct address_space *
+>         unsigned long start = vma->vm_start;
+>         unsigned long end = vma->vm_end;
+>         unsigned long hugepages = (end - start) >> HPAGE_SHIFT;
+> -       pgoff_t next = vma->vm_pgoff;
+> -       pgoff_t endpg = next + ((end - start) >> PAGE_SHIFT);
+> +       pgoff_t next = vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT);
+> +       pgoff_t endpg = next + hugepages;
+>
+>         pagevec_init(&pvec, 0);
+>         while (next < endpg) {
+>
 
-> This seems right to me, how do you expect X to be treated by the
-> scheduler?
+This patch fixed my problem.
 
-Why moving the mouse a little (that causes a microscopic % of CPU
-being used) makes X priority jump up to 29 from 6/7 ???
+Thanks very much
 
-And why this doesn't happen when glxgears (for example) is running?
-(under cpu load this is different, with X never getting "good"
-priority -- if I remember correctly)
-
-Maybe this is normal and depends on the way X sleeps or something...
-
-I don't know much about schedulers but if I'm able to make the cursor
-going in jerks with just a bit of CPU load (linux$ make -j16, for
-example) I wonder why X cannot get a better priority...
-
--- 
-	Paolo Ornati
-	Linux 2.6.16-rc1-plugsched on x86_64
+Don

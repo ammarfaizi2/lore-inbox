@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbWAWTti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbWAWTuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932445AbWAWTti (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 14:49:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWAWTti
+	id S964914AbWAWTuo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 14:50:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbWAWTuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 14:49:38 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9226 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932445AbWAWTth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 14:49:37 -0500
-Date: Mon, 23 Jan 2006 19:49:30 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, ralf@linux-mips.org
-Subject: Re: [PATCH] serial: serial_txx9 driver update
-Message-ID: <20060123194930.GA32110@flint.arm.linux.org.uk>
-Mail-Followup-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, ralf@linux-mips.org
-References: <20060122230209.GB5511@flint.arm.linux.org.uk> <20060123.150502.89066381.nemoto@toshiba-tops.co.jp> <20060123095700.GB4104@flint.arm.linux.org.uk> <20060123.223943.104642974.anemo@mba.ocn.ne.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 23 Jan 2006 14:50:44 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:34382 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932463AbWAWTun convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 14:50:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=hKUVh0ELqks5+Wm9WMLn/CQDHlRyUhGKzYhoeXuf21BiFXy7gSo17D7TedZzap/YC5fxjoYlu4aGVsWgZGxqKDb2wuIIgLQh8kxOAgkEdLpb271m0tu34OAQI56FgtrOvIzYO6qr+eX+3ZdN+ZFYFyZdBVe4vV7XdcL27gv35uI=
+Message-ID: <5c49b0ed0601231150i39e678f3s9dd99c308ffb5157@mail.gmail.com>
+Date: Mon, 23 Jan 2006 11:50:41 -0800
+From: Nate Diller <nate.diller@gmail.com>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH 1/2][RESEND] Default iosched fixes (was: Fall back io scheduler for 2.6.15?)
+Cc: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com, seelam@cs.utep.edu,
+       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+In-Reply-To: <20060121114841.GT13429@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060123.223943.104642974.anemo@mba.ocn.ne.jp>
-User-Agent: Mutt/1.4.1i
+References: <5c49b0ed0601191604p4fa53404r783b3a703e922b13@mail.gmail.com>
+	 <20060120081145.GD4213@suse.de>
+	 <5c49b0ed0601201517h3126ac8dp931bab93a85bf9c5@mail.gmail.com>
+	 <20060121114841.GT13429@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 23, 2006 at 10:39:43PM +0900, Atsushi Nemoto wrote:
-> rmk> If we successfully received the string ABCDEFGH, and the next character
-> rmk> to be received (I) causes an overrun condition, what happens in the
-> rmk> case that overruns are not ignored?
-> 
-> In this case, I will read ABCDEFG without errors, and then I with an overrun 
+On 1/21/06, Jens Axboe <axboe@suse.de> wrote:
+> On Fri, Jan 20 2006, Nate Diller wrote:
+> > My previous default iosched patch did a poor job dealing with the
+> > 'elevator=' boot-time option.  The old behavior falls back to the
+> > compiled-in default if the requested one is not registered at boot
+> > time.  This patch dynamically evaluates which default
+> > to use, and emits a suitable error message when the requested scheduler
+> > is not available.  It also does the 'as' -> 'anticipatory' conversion
+> > before elevator registration, which along with a modified registration
+> > function, allows it to correctly indicate which default scheduler is
+> > in use.
+>
+> I'm a little confused by your description - what problem does this patch
+> actually solve? We already fall back to the default, and we already do
+> the "as" conversion. It does seem to cleanup the code, just curious
+> since your description seems to promise a little more than what it
+> actually adds.
 
-Duely ignored.
+It makes the ' (default)' printk that happens at elevator registration
+time behave (more) correctly.  My original patch rather ignored that
+segment of code.  The current behavior is to only print ' (default)'
+when one was specified at boot time, and not if 'as' was requested
+either, since it doesn't understand the 'as -> anticipatory'
+conversion.  Now, it will display correctly the one selected at
+compile-time, if none was specified at boot, and when the boot-time
+option was 'as'.
 
-> rmk> Will you read ABCDEFG without any errors from the UART, and then H with
-> rmk> an overrun error?  If so, you should pass to the TTY layer ABCDEFGH and
-> rmk> then a NUL character with TTY_OVERRUN set.  Note that uart_insert_char()
-> rmk> does this for you.
-> 
-> Yes, in this case I will read ABCDEFG without error, and then H with
-> an overrun error.  But the UART still hold "I" in its "read buffer".
-> The "read buffer" is exist outside the receiver FIFO.  So if 'J' comes
-> in later, I will read "IJ".  There is no way to clear the "read
-> buffer" except resetting the UART.
+It also handles modular defaults better; although they cannot be
+specified in kconfig, a default requested at boot-time will now still
+work, even if it's a module.  When the boot-time requested scheduler
+is not loaded, it will fall back to the compiled-in default; when it
+is, it gets used.
 
-Ok, so if someone sent you ABCDEFGHIJ, all before you could read anything
-from the UART, where I causes an overrun, you'll read ABCDEFGHJ, but the
-status associated with H will indicate an overrun condition?
-
-However, either way the behaviour after the overrun condition has no
-bearing on what follows.
-
-Your overrun behaviour is near enough to typical 8250 behaviour that you
-can use the helper provided - uart_insert_char().  This eliminates the
-special flag handling you seem to have created.
-
-IOW, you want to do:
-
-	ch = read_uart_fifo_data_register();
-	status = read_uart_status_register();
-
-	/*
-	... error processing ... to set flag but omitting overrun.
-	... don't do ignore processing here - uart_insert_char does
-	... that for you ...
-	*/
-
-	uart_insert_char(port, status, STATUS_OVERRUN_BIT, ch, flag);
-
-For an example, see receive_chars() in 8250.c.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+NATE

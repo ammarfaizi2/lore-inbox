@@ -1,100 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWAWK5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWAWLBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751355AbWAWK5X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 05:57:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWAWK5X
+	id S1751233AbWAWLBY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 06:01:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWAWLBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 05:57:23 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:56753 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751355AbWAWK5X (ORCPT
+	Mon, 23 Jan 2006 06:01:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:34249 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751124AbWAWLBX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 05:57:23 -0500
-Date: Mon, 23 Jan 2006 02:57:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Jan Beulich" <JBeulich@novell.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] tvec_bases too large for per-cpu data
-Message-Id: <20060123025702.1f116e70.akpm@osdl.org>
-In-Reply-To: <43D4BE7F.76F0.0078.0@novell.com>
-References: <43CE4C98.76F0.0078.0@novell.com>
-	<20060120232500.07f0803a.akpm@osdl.org>
-	<43D4BE7F.76F0.0078.0@novell.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 23 Jan 2006 06:01:23 -0500
+Date: Mon, 23 Jan 2006 12:00:06 +0100
+From: Heinz Mauelshagen <mauelshagen@redhat.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Heinz Mauelshagen <mauelshagen@redhat.com>, Neil Brown <neilb@suse.de>,
+       Phillip Susi <psusi@cfl.rr.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       "Lincoln Dale (ltd)" <ltd@cisco.com>, Michael Tokarev <mjt@tls.msk.ru>,
+       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+Subject: Re: [PATCH 000 of 5] md: Introduction
+Message-ID: <20060123110006.GZ2801@redhat.com>
+Reply-To: mauelshagen@redhat.com
+References: <20060120183621.GA2799@redhat.com> <20060120225724.GW22163@marowsky-bree.de> <20060121000142.GR2801@redhat.com> <20060121000344.GY22163@marowsky-bree.de> <20060121000806.GT2801@redhat.com> <20060121001311.GA22163@marowsky-bree.de> <20060123094418.GX2801@redhat.com> <20060123102601.GD2366@marowsky-bree.de> <20060123103851.GY2801@redhat.com> <20060123104522.GE2366@marowsky-bree.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060123104522.GE2366@marowsky-bree.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jan Beulich" <JBeulich@novell.com> wrote:
->
-> >>> Andrew Morton <akpm@osdl.org> 21.01.06 08:25:00 >>>
-> >"Jan Beulich" <JBeulich@novell.com> wrote:
-> >>
-> >> The biggest arch-independent consumer is tvec_bases (over 4k on 32-bit
-> >>  archs,
-> >>  over 8k on 64-bit ones), which now gets converted to use dynamically
-> >>  allocated
-> >>  memory instead.
-> >
-> >ho hum, another pointer hop.
-> >
-> >Did you consider using alloc_percpu()?
+On Mon, Jan 23, 2006 at 11:45:22AM +0100, Lars Marowsky-Bree wrote:
+> On 2006-01-23T11:38:51, Heinz Mauelshagen <mauelshagen@redhat.com> wrote:
 > 
-> I did, but I saw drawbacks with that (most notably the fact that all instances are allocated at
-> once, possibly wasting a lot of memory).
-
-It's 4k for each cpu which is in the possible_map but which will never be
-brought online.  I don't think that'll be a lot of memory - are there
-machines which have a lot of possible-but-not-really-there CPUs?
-
-> >The patch does trickery in init_timers_cpu() which, from my reading, defers
-> >the actual per-cpu allocation until the second CPU comes online. 
-> >Presumably because of some ordering issue which you discovered.  Readers of
-> >the code need to know what that issue was.
+> > > Ok, I still didn't get that. I must be slow.
+> > > 
+> > > Did you implement some DM-internal stacking now to avoid the above
+> > > mentioned complexity? 
+> > > 
+> > > Otherwise, even DM-on-DM is still stacked via the block device
+> > > abstraction...
+> > 
+> > No, not necessary because a single-level raid4/5 mapping will do it.
+> > Ie. it supports <offset> parameters in the constructor as other targets
+> > do as well (eg. mirror or linear).
 > 
-> No, I don't see any trickery there (on demand allocation in CPU_UP_PREPARE is being done
-> elsewhere in very similar ways), and I also didn't see any ordering issues. Hence I also didn't
-> see any need to explain this in detail.
-
-There _must_ be ordering issues.  Otherwise we'd just dynamically allocate
-all the structs up-front and be done with it.
-
-Presumably the ordering issue is that init_timers() is called before
-kmem_cache_init().  That's non-obvious and should be commented.
-
-> >And boot_tvec_bases will always be used for the BP, and hence one slot in
-> >the per-cpu array will forever be unused.  Until the BP is taken down and
-> >brought back up, in which case it will suddenly start to use a dynamically
-> >allocated structure.
+> An dm-md wrapper would not support such a basic feature (which is easily
+> added to md too) how?
 > 
-> Why? Each slot is allocated at most once, the BP's is never allocated (it will continue to use the
-> static one even when brought down and back up).
+> I mean, "I'm rewriting it because I want to and because I understand and
+> own the code then" is a perfectly legitimate reason
 
-OK, I missed the `if (likely(!base))' test in there.  Patch seems OK from
-that POV and we now seem to know what the ordering problem is.
+Sure :-)
 
-- The `#ifdef CONFIG_NUMA' in init_timers_cpu() seems to be unnecessary -
-  kmalloc_node() will use kmalloc() if !NUMA.
+>, but let's please
+> not pretend there's really sound and good technical reasons ;-)
 
-- The likely()s in init_timers_cpu() seems fairly pointless - it's not a
-  fastpath.
+Mind you that there's no need to argue about that:
+this is based on requests to do it.
 
-- We prefer to do this:
+> 
+> 
+> Sincerely,
+>     Lars Marowsky-Brée
+> 
+> -- 
+> High Availability & Clustering
+> SUSE Labs, Research and Development
+> SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
+> "Ignorance more frequently begets confidence than does knowledge"
 
-	if (expr) {
-		...
-	} else {
-		...
-	}
+-- 
 
-  and not
+Regards,
+Heinz    -- The LVM Guy --
 
-	if (expr) {
-		...
-	}
-	else {
-		...
-	}
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-
+Heinz Mauelshagen                                 Red Hat GmbH
+Consulting Development Engineer                   Am Sonnenhang 11
+Cluster and Storage Development                   56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@RedHat.com                            +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

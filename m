@@ -1,70 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWAWNNR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWAWNRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751423AbWAWNNR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 08:13:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbWAWNNR
+	id S1751438AbWAWNRP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 08:17:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751446AbWAWNRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 08:13:17 -0500
-Received: from a34-mta02.direcpc.com ([66.82.4.91]:4345 "EHLO
-	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
-	id S1751423AbWAWNNQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 08:13:16 -0500
-Date: Mon, 23 Jan 2006 08:12:51 -0500
-From: Ben Collins <bcollins@ubuntu.com>
-Subject: Re: [Alsa-devel] RFC: OSS driver removal, a slightly	different	approach
-In-reply-to: <s5hd5ijyw2q.wl%tiwai@suse.de>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Olaf Hering <olh@suse.de>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
-       linuxppc-dev@ozlabs.org
-Message-id: <1138021971.22672.65.camel@grayson>
-Organization: Ubuntu Linux
-MIME-version: 1.0
-X-Mailer: Evolution 2.5.5
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <20060119174600.GT19398@stusta.de>
- <20060120115443.GA16582@palantir8> <20060120190415.GM19398@stusta.de>
- <20060120212917.GA14405@suse.de>
- <1137799001.12998.59.camel@localhost.localdomain>
- <1137799330.13530.30.camel@grayson> <s5hd5ijyw2q.wl%tiwai@suse.de>
+	Mon, 23 Jan 2006 08:17:15 -0500
+Received: from mail.shareable.org ([81.29.64.88]:50824 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S1751438AbWAWNRO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 08:17:14 -0500
+Date: Mon, 23 Jan 2006 13:17:07 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Chase Venters <chase.venters@clientec.com>
+Cc: Michael Loftis <mloftis@wgops.com>, "Barry K. Nathan" <barryn@pobox.com>,
+       Al Boldi <a1426z@gawab.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] VM: I have a dream...
+Message-ID: <20060123131707.GA20163@mail.shareable.org>
+References: <200601212108.41269.a1426z@gawab.com> <986ed62e0601221155x6a57e353vf14db02cc219c09@mail.gmail.com> <E3C35184F807ADEC2AD9E182@dhcp-2-206.wgops.com> <200601222346.24781.chase.venters@clientec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601222346.24781.chase.venters@clientec.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-23 at 13:20 +0100, Takashi Iwai wrote:
-> > > > > Can someone from the ppc developers drop me a small note whether 
-> > > > > SND_POWERMAC completely replaces DMASOUND_PMAC?
-> > > > 
-> > > > It doesnt. Some tumbler models work only after one plug/unplug cycle of
-> > > > the headphone. early powerbooks report/handle the mute settings
-> > > > incorrectly. there are likely more bugs.
-> > > 
-> > > Interesting... Ben Collins hacked something to have Toonie work as a
-> > > "default" driver for non supported machine and saw that problem too, I
-> > > think he fixes it, I'll check with him what's up there and if his fix
-> > > applied to tumbler.c as well.
-> > 
-> > My "fix" was basically the result of converting to the platform
-> > functions. It's hit or miss whether this works with tumbler too.
-> > 
-> > You can try the Ubuntu kernel packages (they can be unpacked and used on
-> > non Ubuntu systems pretty easily) to see if it works for you. Tumbler
-> > platform function conversion isn't even tested, so I'd be happy to hear
-> > any feedback.
-> 
-> Don't forget to forward your patches to alsa-devel or me ;)
+Chase Venters wrote:
+> Just as a curiosity... does anyone have any guesses as to the
+> runtime performance cost of hosting one or more swap files (which
+> thanks to on demand creation and growth are presumably built of
+> blocks scattered around the disk) versus having one or more simple
+> contiguous swap partitions?
 
-I'm passing everything through to BenH, especially since it's all using
-functions new in his ppc tree.
+> I think it's probably a given that swap partitions are better; I'm just 
+> curious how much better they might actually be.
 
-Update on this "fix", it worked only because platform function
-interrupts weren't enabled. Now that they are, it's back to the same old
-thing.
+When programs must access files in addition to swapping, and that
+includes demand-paged executable files, swap files have the
+_potential_ to be faster because they provide opportunities to use the
+disk nearer the files which are being accessed.  This is more so is
+all the filesystem's free space is available for swapping.  A swap
+partition in this scenario forces the disk head to move back and forth
+between the swap partition and the filesystem.
 
-At least that's a clue, though.
-
--- 
-Ben Collins
-Kernel Developer - Ubuntu Linux
-
+-- Jamie

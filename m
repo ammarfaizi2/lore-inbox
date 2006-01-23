@@ -1,100 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWAWQrf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWAWQs0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932446AbWAWQrf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 11:47:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWAWQre
+	id S932456AbWAWQs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 11:48:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWAWQsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 11:47:34 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:45962 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932446AbWAWQre
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 11:47:34 -0500
-Message-ID: <43D50880.605@cosmosbay.com>
-Date: Mon, 23 Jan 2006 17:46:56 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: Andi Kleen <ak@suse.de>, pravin shelar <pravins@calsoftinc.com>,
-       Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Shai Fultheim <shai@scalex86.org>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] garbage values in file /proc/net/sockstat
-References: <Pine.LNX.4.63.0601231206270.2192@pravin.s> <200601231224.16196.ak@suse.de> <43D4DA15.4010009@cosmosbay.com> <200601231611.51326.ak@suse.de> <43D50445.1080208@cosmosbay.com>
-In-Reply-To: <43D50445.1080208@cosmosbay.com>
-Content-Type: multipart/mixed;
- boundary="------------090109060508080803030802"
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Mon, 23 Jan 2006 17:46:57 +0100 (CET)
+	Mon, 23 Jan 2006 11:48:25 -0500
+Received: from smtpout.mac.com ([17.250.248.85]:47095 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932456AbWAWQsZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 11:48:25 -0500
+In-Reply-To: <69304d110601230552n4c7656cal9c6901e180e82504@mail.gmail.com>
+References: <43D3295E.8040702@comcast.net> <20060122093144.GA7127@thunk.org> <43D3D4DF.2000503@comcast.net> <20060122210238.GA28980@thunk.org> <4D75B95E-2595-4B60-91B3-28AD469C3D39@mac.com> <20060123072447.GA8785@thunk.org> <536E71BF-44FF-430C-8C19-F06526F0C78D@mac.com> <69304d110601230552n4c7656cal9c6901e180e82504@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <CEED5F58-EF3D-44D9-9C54-FE1720640E11@mac.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>,
+       John Richard Moser <nigelenki@comcast.net>,
+       linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Linux VFS architecture questions
+Date: Mon, 23 Jan 2006 11:48:21 -0500
+To: Antonio Vargas <windenntw@gmail.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090109060508080803030802
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Jan 23, 2006, at 08:52:51, Antonio Vargas wrote:
+> On 1/23/06, Kyle Moffett <mrmacman_g4@mac.com> wrote:
+>> The way that I'm considering implementing this is by intentionally  
+>> fragmenting the allocation bitmap, catalog file, etc, such that  
+>> each 1/8 or so of the disk contains its own allocation bitmap  
+>> describing its contents, its own set of files or directories,  
+>> etc.  The allocator would largely try to keep individual btree  
+>> fragments cohesive, such that one of the 1/8th divisions of the  
+>> disk would only have pertinent data for itself.  The idea would be  
+>> that when trying to look up an allocation block, in the common  
+>> case you need only parse a much smaller subsection of the disk  
+>> structures.
+>
+> this sounds exactly the same as ext2/ext3 allocation groups :)
 
+Great!  I'm trying to learn about filesystem design and  
+implementation, which is why I started writing my own hfsplus  
+filesystem (otherwise I would have just used the in-kernel one).  Do  
+you have any recommended reading (either online or otherwise) for  
+someone trying to understand the kernel's VFS and blockdev  
+interfaces?  I _think_ I understand the basics of buffer_head,  
+super_block, and have some idea of how to use aops, but it's tough  
+going trying to find out what functions to call to manage cached disk  
+blocks, or under what conditions the various VFS functions are  
+called.  I'm trying to write up a "Linux Disk-Based Filesystem  
+Developers Guide" based on what I learn, but it's remarkably sparse  
+so far.
 
-Sorry for the first version of he patch. I did one change, in order to do the 
-initialization only for !possible cpu
+One big question I have:  HFS/HFS+ have an "extents overflow" btree  
+that contains extents beyond the first 3 (for HFS) or 8 (for HFS+).   
+I would like to speculatively cache parts of that btree when the  
+files are accessed, but not if memory is short, and I would like to  
+allow the filesystem to free up parts of the btree under the same  
+circumstances.  I have a preliminary understanding of how to trigger  
+the filesystem to read various blocks of metadata (using  
+buffer_heads) or file data for programs (by returning a block number  
+from the appropriate aops function), but how do I allocate data  
+structures as "easily reclaimable" and indicate to the kernel that it  
+can ask me to reclaim that memory?
 
-[PATCH] x86_64 : Use a special CPUDATA_RED_ZONE to catch accesses to 
-per_cpu(some_object, some_not_possible_cpu)
+Thanks for the help!
 
-Because cpu_data(cpu)->data_offset may contain garbage, some buggy code may do 
-random things without notice. If we initialize data_offset so that the 
-per_cpu() data sits in an unmapped memory area, we should get page faults and 
-stack traces should help us find the bugs.
-
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
-
-
-
---------------090109060508080803030802
-Content-Type: text/plain;
- name="cpudata_red_zone.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cpudata_red_zone.patch"
-
---- linux-2.6.16-rc1/Documentation/x86_64/mm.txt	2006-01-17 08:44:47.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-ed/Documentation/x86_64/mm.txt	2006-01-23 16:54:46.000000000 +0100
-@@ -5,7 +5,8 @@
- 
- 0000000000000000 - 00007fffffffffff (=47bits) user space, different per mm
- hole caused by [48:63] sign extension
--ffff800000000000 - ffff80ffffffffff (=40bits) guard hole
-+ffff800000000000 - ffff807fffffffff (=39bits) guard hole
-+ffff808000000000 - ffff80ffffffffff (=39bits) not possible cpus percpudata hole
- ffff810000000000 - ffffc0ffffffffff (=46bits) direct mapping of all phys. memory
- ffffc10000000000 - ffffc1ffffffffff (=40bits) hole
- ffffc20000000000 - ffffe1ffffffffff (=45bits) vmalloc/ioremap space
---- linux-2.6.16-rc1/include/asm-x86_64/pgtable.h	2006-01-17 08:44:47.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-ed/include/asm-x86_64/pgtable.h	2006-01-23 16:54:46.000000000 +0100
-@@ -136,6 +136,7 @@
- 
- #ifndef __ASSEMBLY__
- #define MAXMEM		 0x3fffffffffffUL
-+#define CPUDATA_RED_ZONE 0xffff808000000000UL
- #define VMALLOC_START    0xffffc20000000000UL
- #define VMALLOC_END      0xffffe1ffffffffffUL
- #define MODULES_VADDR    0xffffffff88000000UL
---- linux-2.6.16-rc1/arch/x86_64/kernel/setup64.c	2006-01-23 16:36:38.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-ed/arch/x86_64/kernel/setup64.c	2006-01-23 17:40:54.000000000 +0100
-@@ -99,9 +99,14 @@
- 		size = PERCPU_ENOUGH_ROOM;
- #endif
- 
--	for_each_cpu_mask (i, cpu_possible_map) {
-+	for (i = 0 ; i < NR_CPUS ; i++) {
- 		char *ptr;
- 
-+		if (!cpu_possible(i)) {
-+			cpu_pda(i)->data_offset = (char *)CPUDATA_RED_ZONE - __per_cpu_start;
-+			continue;
-+		}
-+
- 		if (!NODE_DATA(cpu_to_node(i))) {
- 			printk("cpu with no node %d, num_online_nodes %d\n",
- 			       i, num_online_nodes());
-
---------------090109060508080803030802--
+Cheers,
+Kyle Moffett

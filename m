@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751474AbWAWPP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbWAWPWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751474AbWAWPP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 10:15:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbWAWPP6
+	id S1751470AbWAWPWU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 10:22:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751472AbWAWPWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 10:15:58 -0500
-Received: from main.gmane.org ([80.91.229.2]:64927 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751472AbWAWPP5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 10:15:57 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: kbuild: problems with separate src/obj trees
-Date: Tue, 24 Jan 2006 00:15:04 +0900
-Message-ID: <dr2rtq$c4$1@sea.gmane.org>
-References: <43D4D708.2050802@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mail/News 1.5 (X11/20060115)
-In-Reply-To: <43D4D708.2050802@suse.de>
-X-Enigmail-Version: 0.94.0.0
+	Mon, 23 Jan 2006 10:22:19 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:36736 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751470AbWAWPWT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 10:22:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SiPTVml2zS9hh5lC9uwhBpax8GJePua7GF/bVuCMKWaP1WyDrWUU8Bc9x0tHl5LhXZpYLmGewsOZkze/xMXPwl/crbsMuHZAA8TT65x8v48/TTTmtFx60Btwd2KgsqNPtBmbkmhUTX+42WIeD7p7BIHb0GLh/5mYLhyRg/T0N4E=
+Message-ID: <9e4733910601230722k125f0391w74946b7401be85ce@mail.gmail.com>
+Date: Mon, 23 Jan 2006 10:22:15 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: sendfile() with 100 simultaneous 100MB files
+In-Reply-To: <9e4733910601220931x3a21e47dj7dbf834e2f36d31c@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <9e4733910601201353g36284133xf68c4f6eae1344b4@mail.gmail.com>
+	 <20060122142401.GA24738@SDF.LONESTAR.ORG>
+	 <9e4733910601220931x3a21e47dj7dbf834e2f36d31c@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Hoffmann wrote:
->   Hi,
-> 
-> Trapped into two problems with 2.6.16-rc1:
-> 
->   (1) Building kernels with the source tree on a r/o filesystem
->       doesn't work any more because kbuild tries to create
->       $(srctree)/.kernelrelease and fails to do so.
-> 
->   (2) UML kernels don't build at all with a separate obj tree:
-> 
-> master-xen kraxel ~/objtree/vanilla-2.6.16-pre-um# make ARCH=um
-> gmake -C /home/kraxel/scratch/vanilla-2.6.16-pre
-> O=/home/kraxel/objtree/vanilla-2.6.16-pre-um
->   SYMLINK arch/um/include/kern_constants.h
-> ln: creating symbolic link `arch/um/include/kern_constants.h' to
-> `../../../include/asm-um/asm-offsets.h': No such file or directory
-> gmake[2]: *** [arch/um/include/kern_constants.h] Error 1
-> gmake[1]: *** [cdbuilddir] Error 2
-> gmake: *** [all] Error 2
-> 
-> Ideas/Patches anyone?
+On 1/22/06, Jon Smirl <jonsmirl@gmail.com> wrote:
+> I've asked the lighttpd people for more data but I haven't gotten
+> anything back yet. Things like RAM, network speed, disk scheduler
+> algorithm, etc.
 
-There was a recen thread about these... let me see:
-Look for "[PATCH 2/2] kbuild: fix make -jN with multiple targets with make
-O=..." from Sam Ravnborg on 2006-01-16
+The developer is using this hardware:
+82541GI/PI Gigabit  ethernet
+1.3Ghz Duron
+7200RPM IDE disk
+768MB RAM
 
-[It is pushed out at:
-git://git.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git]
+Kernel:
+2.6.13-1.1526_FC4
+CFQ disk scheduler
 
-Kalin.
+Customer is getting same problem on highend hardware.
 
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
-
+--
+Jon Smirl
+jonsmirl@gmail.com

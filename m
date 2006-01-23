@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWAWSEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWAWSPs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbWAWSEF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 13:04:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWAWSEE
+	id S964832AbWAWSPs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 13:15:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWAWSPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 13:04:04 -0500
-Received: from [212.76.86.174] ([212.76.86.174]:3343 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S964856AbWAWSED (ORCPT
+	Mon, 23 Jan 2006 13:15:47 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:51626 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751243AbWAWSPq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 13:04:03 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: Robin Holt <holt@sgi.com>
-Subject: Re: [RFC] VM: I have a dream...
-Date: Mon, 23 Jan 2006 21:03:06 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-References: <200601212108.41269.a1426z@gawab.com> <20060122123335.GB26683@lnx-holt.americas.sgi.com>
-In-Reply-To: <20060122123335.GB26683@lnx-holt.americas.sgi.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 23 Jan 2006 13:15:46 -0500
+Date: Mon, 23 Jan 2006 10:15:38 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Knut Petersen <Knut_Petersen@t-online.de>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [BUG] sky2 broken for Yukon PCI-E Gigabit Ethernet Controller
+ 11ab:4362 (rev 19)
+Message-ID: <20060123101538.14d21bf4@dxpl.pdx.osdl.net>
+In-Reply-To: <43D1C99E.2000506@t-online.de>
+References: <43D1C99E.2000506@t-online.de>
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200601232103.07007.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin Holt wrote:
-> On Sat, Jan 21, 2006 at 09:08:41PM +0300, Al Boldi wrote:
-> >
-> > Wouldn't it be nice to take advantage of todays 64bit archs and TB
-> > drives, and run a more modern way of life w/o this memory/storage split
-> > personality?
->
-> Your simple world introduces a level of complexity to the kernel which
-> is nearly unmanageable.  Basically, you are asking the system to intuit
-> your desires.  The swap device/file scheme allows an administrator to
-> control some aspects of their system while giving the kernel developer
-> a reasonable number of variables to work with.  That, at least to me,
-> does not sound schizophrenic, but rather very reasonable.
->
-> Sorry for raining on your parade,
+O
+> 
+> It seems that the SuSE Firewall locked something ....
+> 
+> I started with kernel 2.6.15-git7, tried 2.6.15.1 and 2.6.16-rc1*.
+> At the moment I do use a kernel 2.6.15-git7 patched with an updated sky2 
+> (v.013).
+> I could not find a single working sky2 configuration.
+> 
 
-Thanks for your detailed response, it rather felt like a fresh breeze.
+Are you using the full kernel.org kernel, or are you putting sky2 driver into
+the SUSE kernel? There are a number of bug fixes related to hardware checksumming
+that are in the kernel.org kernel (2.6.15 or later).  There was one in ICMP.
+These fixes relate to places in the code where a protocol decides to trim a
+packet by removing bytes. I am not familiar with the SuSE Firewall. Is it just
+standard netfilter modules or additional code?
 
-Really, I was more thinking about a step by step rather than an all or none 
-approach.  Something that would involve tmpfs merged with swap mapped into 
-linear address space limited by arch bits, and everything else connected as 
-archive.
-
-The idea here is to run inside swap instead of using it as an addon.
-In effect running inside memory cached by physical RAM.
-
-Wouldn't something like this at least represent a simple starting point?
-
-Thanks!
-
---
-Al
-
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger

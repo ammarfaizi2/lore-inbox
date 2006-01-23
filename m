@@ -1,131 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbWAWUZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbWAWU0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932473AbWAWUZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 15:25:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964926AbWAWUZP
+	id S964926AbWAWU0n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 15:26:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbWAWU0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 15:25:15 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:51372 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932466AbWAWUZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 15:25:13 -0500
-Date: Mon, 23 Jan 2006 12:23:26 -0800 (PST)
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
-X-X-Sender: jbrandeb@lindenhurst-2.jf.intel.com
-To: kus Kusche Klaus <kus@keba.com>
-cc: Lee Revell <rlrevell@joe-job.com>, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       "Ronciak, John" <john.ronciak@intel.com>,
-       "Brandeburg, Jesse" <jesse.brandeburg@intel.com>,
-       netdev@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>
-Subject: RE: My vote against eepro* removal
-In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323329@MAILIT.keba.co.at>
-Message-ID: <Pine.LNX.4.64.0601231202530.3847@lindenhurst-2.jf.intel.com>
-References: <AAD6DA242BC63C488511C611BD51F367323329@MAILIT.keba.co.at>
-ReplyTo: "Jesse Brandeburg" <jesse.brandeburg@intel.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-2038021199-1704791452-1138047576=:3847"
-Content-ID: <Pine.LNX.4.64.0601231220450.4263@lindenhurst-2.jf.intel.com>
+	Mon, 23 Jan 2006 15:26:43 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:16069 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932477AbWAWU0m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 15:26:42 -0500
+From: mchehab@infradead.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
+       akpm@osdl.org, Michael Krufky <mkrufky@m1k.net>,
+       Mauro Carvalho Chehab <mchehab@infradead.org>
+Subject: [PATCH 08/16] rename dvb_pll_tbmv30111in to dvb_pll_samsung_tbmv
+Date: Mon, 23 Jan 2006 18:24:44 -0200
+Message-id: <20060123202444.PS50233700008@infradead.org>
+In-Reply-To: <20060123202404.PS66974000000@infradead.org>
+References: <20060123202404.PS66974000000@infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1-1mdk 
+Content-Transfer-Encoding: 7bit
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+From: Michael Krufky <mkrufky@m1k.net>
 
----2038021199-1704791452-1138047576=:3847
-Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-ID: <Pine.LNX.4.64.0601231220451.4263@lindenhurst-2.jf.intel.com>
+- rename dvb_pll_tbmv30111in to dvb_pll_samsung_tbmv
 
-On Mon, 23 Jan 2006, kus Kusche Klaus wrote:
-> From: John Ronciak
-> > Can we try a couple of things? 1) just comment out all the check for
-> > link code in the e100 driver and give that a try and 2) just comment
-> > out the update stats call and see if that works.  These seem to be the
-> > differences and we need to know which one is causing the problem.
-> 
-> First of all, I am still unable to get any traces of this in the
-> latency tracer. Moreover, as I told before, removing parts of the
-> watchdog usually made my eth0 nonfunctional (which is bad - this
-> is an embedded system with ssh access).
-> 
-> Hence, I explicitely instrumented the watchdog function with tsc.
-> Output of the timings is done by a background thread, so the
-> timings should not increase the runtime of the watchdog.
-> 
-> Here are my results:
-> 
-> If the watchdog doesn't get interrupted, preempted, or whatever,
-> it spends 340 us in its body:
-> * 303 us in the mii code
-> *  36 us in the following code up to e100_adjust_adaptive_ifs
-> *   1 us in the remaining code (I think my chip doesn't need any
-> of those chip-specific fixups)
-> 
-> The 303 us in the mii code are divided in the following way:
-> * 101 us in mii_ethtool_gset
-> * 135 us in the whole if
-> *  67 us in mii_check_link
-> 
-> This is with the udelay(2) instead of udelay(20) hack applied.
-> With udelay(20), the mii times are 128 + 170 + 85 us,
-> i.e. 383 us instead of 303 us, or >= 420 us for the whole watchdog.
-> 
-> As the RTC runs with 8192 Hz during my tests, the watchdog is hit
-> by 2-3 interrupts, which adds another 75 - 110 us to its total
-> execution time, i.e. the time it blocks other rtprio 1 threads.
-
-Thank you very much for that detailed analysis!  okay, so calls to mii.c 
-take too long, but those depend on mmio_read in e100 to do the work, so 
-this patch attempts to minimize the latency.
-
-This patch is against linus-2.6.git, I compile and ssh/ping tested it. 
-Would you be willing to send your instrumentation patches?  I could then 
-test any fixes easier.
-
-e100: attempt a shorter delay for mdio reads
-
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-
-Simply reorder our write/read sequence for mdio reads to minimize latency
-as well as delay a shorter interval for each loop.
+Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
-  drivers/net/e100.c |   12 +++++++-----
-  1 files changed, 7 insertions(+), 5 deletions(-)
+ drivers/media/dvb/b2c2/flexcop-fe-tuner.c |    2 +-
+ drivers/media/dvb/frontends/dvb-pll.c     |    6 +++---
+ drivers/media/dvb/frontends/dvb-pll.h     |    2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/e100.c b/drivers/net/e100.c
---- a/drivers/net/e100.c
-+++ b/drivers/net/e100.c
-@@ -891,23 +891,25 @@ static u16 mdio_ctrl(struct nic *nic, u3
-  	 * procedure it should be done under lock.
-  	 */
-  	spin_lock_irqsave(&nic->mdio_lock, flags);
--	for (i = 100; i; --i) {
-+	for (i = 1000; i; --i) {
-  		if (readl(&nic->csr->mdi_ctrl) & mdi_ready)
-  			break;
--		udelay(20);
-+		udelay(2);
-  	}
-  	if (unlikely(!i)) {
--		printk("e100.mdio_ctrl(%s) won't go Ready\n",
-+		DPRINTK(PROBE, ERR, "e100.mdio_ctrl(%s) won't go Ready\n",
-  			nic->netdev->name );
-  		spin_unlock_irqrestore(&nic->mdio_lock, flags);
-  		return 0;		/* No way to indicate timeout error */
-  	}
-  	writel((reg << 16) | (addr << 21) | dir | data, &nic->csr->mdi_ctrl);
+diff --git a/drivers/media/dvb/b2c2/flexcop-fe-tuner.c b/drivers/media/dvb/b2c2/flexcop-fe-tuner.c
+index dbe6f6b..390cc3a 100644
+--- a/drivers/media/dvb/b2c2/flexcop-fe-tuner.c
++++ b/drivers/media/dvb/b2c2/flexcop-fe-tuner.c
+@@ -346,7 +346,7 @@ static struct lgdt330x_config air2pc_ats
+ static struct nxt200x_config samsung_tbmv_config = {
+ 	.demod_address    = 0x0a,
+ 	.pll_address      = 0xc2,
+-	.pll_desc         = &dvb_pll_tbmv30111in,
++	.pll_desc         = &dvb_pll_samsung_tbmv,
+ };
+ 
+ static struct bcm3510_config air2pc_atsc_first_gen_config = {
+diff --git a/drivers/media/dvb/frontends/dvb-pll.c b/drivers/media/dvb/frontends/dvb-pll.c
+index 9c9c12a..4dcb605 100644
+--- a/drivers/media/dvb/frontends/dvb-pll.c
++++ b/drivers/media/dvb/frontends/dvb-pll.c
+@@ -329,8 +329,8 @@ EXPORT_SYMBOL(dvb_pll_tuv1236d);
+ /* Samsung TBMV30111IN / TBMV30712IN1
+  * used in Air2PC ATSC - 2nd generation (nxt2002)
+  */
+-struct dvb_pll_desc dvb_pll_tbmv30111in = {
+-	.name = "Samsung TBMV30111IN",
++struct dvb_pll_desc dvb_pll_samsung_tbmv = {
++	.name = "Samsung TBMV30111IN / TBMV30712IN1",
+ 	.min = 54000000,
+ 	.max = 860000000,
+ 	.count = 6,
+@@ -343,7 +343,7 @@ struct dvb_pll_desc dvb_pll_tbmv30111in 
+ 		{ 999999999, 44000000, 166666, 0xfc, 0x02 },
+ 	}
+ };
+-EXPORT_SYMBOL(dvb_pll_tbmv30111in);
++EXPORT_SYMBOL(dvb_pll_samsung_tbmv);
+ 
+ /*
+  * Philips SD1878 Tuner.
+diff --git a/drivers/media/dvb/frontends/dvb-pll.h b/drivers/media/dvb/frontends/dvb-pll.h
+index f682c09..bb8d4b4 100644
+--- a/drivers/media/dvb/frontends/dvb-pll.h
++++ b/drivers/media/dvb/frontends/dvb-pll.h
+@@ -38,7 +38,7 @@ extern struct dvb_pll_desc dvb_pll_tded4
+ 
+ extern struct dvb_pll_desc dvb_pll_tuv1236d;
+ extern struct dvb_pll_desc dvb_pll_tdhu2;
+-extern struct dvb_pll_desc dvb_pll_tbmv30111in;
++extern struct dvb_pll_desc dvb_pll_samsung_tbmv;
+ extern struct dvb_pll_desc dvb_pll_philips_sd1878_tda8261;
+ 
+ int dvb_pll_configure(struct dvb_pll_desc *desc, u8 *buf,
 
--	for (i = 0; i < 100; i++) {
--		udelay(20);
-+	/* to avoid latency, read to flush the write, then delay, and only
-+	 * delay 2us per loop, manual says read should complete in < 64us */
-+	for (i = 0; i < 1000; i++) {
-  		if ((data_out = readl(&nic->csr->mdi_ctrl)) & mdi_ready)
-  			break;
-+		udelay(2);
-  	}
-  	spin_unlock_irqrestore(&nic->mdio_lock, flags);
-  	DPRINTK(HW, DEBUG,
----2038021199-1704791452-1138047576=:3847--

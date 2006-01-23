@@ -1,87 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWAWLBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWAWLCJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751233AbWAWLBY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 06:01:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWAWLBY
+	id S1751393AbWAWLCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 06:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWAWLCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 06:01:24 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:34249 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751124AbWAWLBX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 06:01:23 -0500
-Date: Mon, 23 Jan 2006 12:00:06 +0100
-From: Heinz Mauelshagen <mauelshagen@redhat.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Heinz Mauelshagen <mauelshagen@redhat.com>, Neil Brown <neilb@suse.de>,
-       Phillip Susi <psusi@cfl.rr.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       "Lincoln Dale (ltd)" <ltd@cisco.com>, Michael Tokarev <mjt@tls.msk.ru>,
-       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Subject: Re: [PATCH 000 of 5] md: Introduction
-Message-ID: <20060123110006.GZ2801@redhat.com>
-Reply-To: mauelshagen@redhat.com
-References: <20060120183621.GA2799@redhat.com> <20060120225724.GW22163@marowsky-bree.de> <20060121000142.GR2801@redhat.com> <20060121000344.GY22163@marowsky-bree.de> <20060121000806.GT2801@redhat.com> <20060121001311.GA22163@marowsky-bree.de> <20060123094418.GX2801@redhat.com> <20060123102601.GD2366@marowsky-bree.de> <20060123103851.GY2801@redhat.com> <20060123104522.GE2366@marowsky-bree.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060123104522.GE2366@marowsky-bree.de>
-User-Agent: Mutt/1.4.1i
+	Mon, 23 Jan 2006 06:02:08 -0500
+Received: from general.keba.co.at ([193.154.24.243]:2372 "EHLO
+	helga.keba.co.at") by vger.kernel.org with ESMTP id S1751393AbWAWLCG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 06:02:06 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: My vote against eepro* removal
+Date: Mon, 23 Jan 2006 12:01:47 +0100
+Message-ID: <AAD6DA242BC63C488511C611BD51F367323329@MAILIT.keba.co.at>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: My vote against eepro* removal
+Thread-Index: AcYeLqkHBblLwtTiQ3CKkCEtDnEXSgB2B8+g
+From: "kus Kusche Klaus" <kus@keba.com>
+To: "John Ronciak" <john.ronciak@gmail.com>,
+       "Lee Revell" <rlrevell@joe-job.com>
+Cc: "Evgeniy Polyakov" <johnpol@2ka.mipt.ru>, "Adrian Bunk" <bunk@stusta.de>,
+       <linux-kernel@vger.kernel.org>, <john.ronciak@intel.com>,
+       <ganesh.venkatesan@intel.com>, <jesse.brandeburg@intel.com>,
+       <netdev@vger.kernel.org>, "Steven Rostedt" <rostedt@goodmis.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 23, 2006 at 11:45:22AM +0100, Lars Marowsky-Bree wrote:
-> On 2006-01-23T11:38:51, Heinz Mauelshagen <mauelshagen@redhat.com> wrote:
-> 
-> > > Ok, I still didn't get that. I must be slow.
-> > > 
-> > > Did you implement some DM-internal stacking now to avoid the above
-> > > mentioned complexity? 
-> > > 
-> > > Otherwise, even DM-on-DM is still stacked via the block device
-> > > abstraction...
-> > 
-> > No, not necessary because a single-level raid4/5 mapping will do it.
-> > Ie. it supports <offset> parameters in the constructor as other targets
-> > do as well (eg. mirror or linear).
-> 
-> An dm-md wrapper would not support such a basic feature (which is easily
-> added to md too) how?
-> 
-> I mean, "I'm rewriting it because I want to and because I understand and
-> own the code then" is a perfectly legitimate reason
+From: John Ronciak
+> Can we try a couple of things? 1) just comment out all the check for
+> link code in the e100 driver and give that a try and 2) just comment
+> out the update stats call and see if that works.  These seem to be the
+> differences and we need to know which one is causing the problem.
 
-Sure :-)
+First of all, I am still unable to get any traces of this in the
+latency tracer. Moreover, as I told before, removing parts of the 
+watchdog usually made my eth0 nonfunctional (which is bad - this
+is an embedded system with ssh access).
 
->, but let's please
-> not pretend there's really sound and good technical reasons ;-)
+Hence, I explicitely instrumented the watchdog function with tsc.
+Output of the timings is done by a background thread, so the
+timings should not increase the runtime of the watchdog.
 
-Mind you that there's no need to argue about that:
-this is based on requests to do it.
+Here are my results:
 
-> 
-> 
-> Sincerely,
->     Lars Marowsky-Brée
-> 
-> -- 
-> High Availability & Clustering
-> SUSE Labs, Research and Development
-> SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-> "Ignorance more frequently begets confidence than does knowledge"
+If the watchdog doesn't get interrupted, preempted, or whatever,
+it spends 340 us in its body:
+* 303 us in the mii code
+*  36 us in the following code up to e100_adjust_adaptive_ifs
+*   1 us in the remaining code (I think my chip doesn't need any
+of those chip-specific fixups)
+
+The 303 us in the mii code are divided in the following way:
+* 101 us in mii_ethtool_gset
+* 135 us in the whole if
+*  67 us in mii_check_link
+
+This is with the udelay(2) instead of udelay(20) hack applied.
+With udelay(20), the mii times are 128 + 170 + 85 us,
+i.e. 383 us instead of 303 us, or >= 420 us for the whole watchdog.
+
+As the RTC runs with 8192 Hz during my tests, the watchdog is hit
+by 2-3 interrupts, which adds another 75 - 110 us to its total
+execution time, i.e. the time it blocks other rtprio 1 threads.
 
 -- 
-
-Regards,
-Heinz    -- The LVM Guy --
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-Heinz Mauelshagen                                 Red Hat GmbH
-Consulting Development Engineer                   Am Sonnenhang 11
-Cluster and Storage Development                   56242 Marienrachdorf
-                                                  Germany
-Mauelshagen@RedHat.com                            +49 2626 141200
-                                                       FAX 924446
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Klaus Kusche                 (Software Development - Control Systems)
+KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
+Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
+E-Mail: kus@keba.com                                WWW: www.keba.com
+ 

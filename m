@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWAWUbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964964AbWAWUae@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964936AbWAWUbI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 15:31:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWAWU1e
+	id S964964AbWAWUae (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 15:30:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbWAWUa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 15:27:34 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:27333 "EHLO
+	Mon, 23 Jan 2006 15:30:29 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:33989 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964934AbWAWU12 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 15:27:28 -0500
+	id S964931AbWAWU1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 15:27:49 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
 Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-       akpm@osdl.org, Randy Dunlap <rdunlap@xenotime.net>,
-       Michael Krufky <mkrufky@m1k.net>,
+       akpm@osdl.org, Michael Krufky <mkrufky@m1k.net>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 15/16] Fix printk type warning
-Date: Mon, 23 Jan 2006 18:24:45 -0200
-Message-id: <20060123202445.PS68913400015@infradead.org>
+Subject: [PATCH 02/16] Add PCI ID for DigitalNow DVB-T Dual, rebranded
+	DViCO FusionHDTV DVB-T Dual.
+Date: Mon, 23 Jan 2006 18:24:43 -0200
+Message-id: <20060123202443.PS48837800002@infradead.org>
 In-Reply-To: <20060123202404.PS66974000000@infradead.org>
 References: <20060123202404.PS66974000000@infradead.org>
 Mime-Version: 1.0
@@ -29,35 +29,43 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+From: Michael Krufky <mkrufky@m1k.net>
 
-- Fix printk type warning:
-drivers/media/dvb/b2c2/flexcop-pci.c:164: warning:
-format '%08x' expects type 'unsigned int', but argument 4 has type 'dma_addr_t'
+- Add PCI ID for DigitalNow DVB-T Dual,
+rebranded DViCO FusionHDTV DVB-T Dual.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 Signed-off-by: Michael Krufky <mkrufky@m1k.net>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/dvb/b2c2/flexcop-pci.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
+ Documentation/video4linux/CARDLIST.cx88 |    2 +-
+ drivers/media/video/cx88/cx88-cards.c   |    5 +++++
+ 2 files changed, 6 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/media/dvb/b2c2/flexcop-pci.c b/drivers/media/dvb/b2c2/flexcop-pci.c
-index 2f76eb3..9bc40bd 100644
---- a/drivers/media/dvb/b2c2/flexcop-pci.c
-+++ b/drivers/media/dvb/b2c2/flexcop-pci.c
-@@ -161,8 +161,10 @@ static irqreturn_t flexcop_pci_isr(int i
- 			fc->read_ibi_reg(fc,dma1_008).dma_0x8.dma_cur_addr << 2;
- 		u32 cur_pos = cur_addr - fc_pci->dma[0].dma_addr0;
- 
--		deb_irq("%u irq: %08x cur_addr: %08x: cur_pos: %08x, last_cur_pos: %08x ",
--				jiffies_to_usecs(jiffies - fc_pci->last_irq),v.raw,cur_addr,cur_pos,fc_pci->last_dma1_cur_pos);
-+		deb_irq("%u irq: %08x cur_addr: %llx: cur_pos: %08x, last_cur_pos: %08x ",
-+				jiffies_to_usecs(jiffies - fc_pci->last_irq),
-+				v.raw, (unsigned long long)cur_addr, cur_pos,
-+				fc_pci->last_dma1_cur_pos);
- 		fc_pci->last_irq = jiffies;
- 
- 		/* buffer end was reached, restarted from the beginning
+diff --git a/Documentation/video4linux/CARDLIST.cx88 b/Documentation/video4linux/CARDLIST.cx88
+index 56e194f..8bea3fb 100644
+--- a/Documentation/video4linux/CARDLIST.cx88
++++ b/Documentation/video4linux/CARDLIST.cx88
+@@ -42,4 +42,4 @@
+  41 -> Hauppauge WinTV-HVR1100 DVB-T/Hybrid (Low Profile)  [0070:9800,0070:9802]
+  42 -> digitalnow DNTV Live! DVB-T Pro                     [1822:0025]
+  43 -> KWorld/VStream XPert DVB-T with cx22702             [17de:08a1]
+- 44 -> DViCO FusionHDTV DVB-T Dual Digital                 [18ac:db50]
++ 44 -> DViCO FusionHDTV DVB-T Dual Digital                 [18ac:db50,18ac:db54]
+diff --git a/drivers/media/video/cx88/cx88-cards.c b/drivers/media/video/cx88/cx88-cards.c
+index ad2f565..517257b 100644
+--- a/drivers/media/video/cx88/cx88-cards.c
++++ b/drivers/media/video/cx88/cx88-cards.c
+@@ -1246,6 +1246,11 @@ struct cx88_subid cx88_subids[] = {
+ 		.card      = CX88_BOARD_DVICO_FUSIONHDTV_DVB_T_DUAL,
+ 	},{
+ 		.subvendor = 0x18ac,
++		.subdevice = 0xdb54,
++		.card      = CX88_BOARD_DVICO_FUSIONHDTV_DVB_T_DUAL,
++		/* Re-branded DViCO: DigitalNow DVB-T Dual */
++	},{
++		.subvendor = 0x18ac,
+ 		.subdevice = 0xdb11,
+ 		.card      = CX88_BOARD_DVICO_FUSIONHDTV_DVB_T_PLUS,
+ 		/* Re-branded DViCO: UltraView DVB-T Plus */
 

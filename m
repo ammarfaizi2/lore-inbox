@@ -1,65 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030182AbWAWUsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbWAWUsa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030182AbWAWUsr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 15:48:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbWAWUsq
+	id S964952AbWAWUsa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 15:48:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbWAWUsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 15:48:46 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:57507 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S932472AbWAWUsc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 15:48:32 -0500
-Date: Mon, 23 Jan 2006 21:48:30 +0100
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, Kyle Moffett <mrmacman_g4@mac.com>,
-       John Richard Moser <nigelenki@comcast.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: soft update vs journaling?
-Message-ID: <20060123204830.GF10077@vanheusden.com>
-References: <43D3295E.8040702@comcast.net> <20060122093144.GA7127@thunk.org>
-	<43D3D4DF.2000503@comcast.net> <20060122210238.GA28980@thunk.org>
-	<4D75B95E-2595-4B60-91B3-28AD469C3D39@mac.com>
-	<20060123072447.GA8785@thunk.org>
+	Mon, 23 Jan 2006 15:48:30 -0500
+Received: from uproxy.gmail.com ([66.249.92.203]:30633 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932472AbWAWUs3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 15:48:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=R0/bFMX+u1UgVbEGTXJ5DaQ8tJ02AqGdtSs1b9j9FH1aexM8zzXjiBueSeGScvWaXwR+bhaRCz7dPKO72idXG0sHX2FG+0VwP+R31B45bof7XjuL5ydDkkAHjhwHHzCu7iC6Z5nPsA/gt4vSAaMoQb2bTGZSfH6VeMKYpDbf7NY=
+Date: Tue, 24 Jan 2006 00:05:52 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] include/asm-*/bitops.h: fix masking in find_next_zero_bit()
+Message-ID: <20060123210552.GA12531@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060123072447.GA8785@thunk.org>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Tue Jan 24 20:23:13 CET 2006
-X-Message-Flag: PGP key-id: 0x1f28d8ae - consider encrypting your e-mail to me
-	with PGP!
-User-Agent: Mutt/1.5.10i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You could of course design a filesystem which maintained a reverse map
-> data structure, but it would slow the filesystem down since it would
-> be a separate data structure that would have to be updated each time
-> you allocated or freed a disk block.  And the only use for such a data
-> structure would be to make shrinking a filesystem more efficient.
-> Given that this is generally not a common operation, it seems unlikely
-> that a filesystem designer would choose to make this particular
-> tradeoff.
+Commit 3960f2faaf0a67ad352bd5d4085e43f19f33ab91 says:
 
-Or you could set if switched off by default. E.g. reserve the space for
-it and activate it as soon as some magic switch is set in the kernel.
-Then some background processs should update it while als keeping track
-of current changes. Then when everything is finished, update some flag
-to let the resizer know it can do its job.
+    [PATCH] m68knommu: fix find_next_zero_bit in bitops.h
 
+    We're starting a number of big applications (memory footprint app.
+    1MByte) on our Arcturus uC5272.  Therefore memory fragmentation is a
+    real pain for us.  We've switched to uClinux-2.4.27-uc1 and found that
+    page_alloc2 fragments the memory heavily.
 
-Folkert van Heusden
+    Digging into it we found a bug in the find_next_zero_bit function in the
+    m68knommu/bitops.h file.  if the size isn't a multiple of 32 than the
+    upper bits of the last word to be searched should be masked.  But the
+    functions masks the lower bits of the last word because it uses a right
+    shift instead of a left shift operator.
 
--- 
-www.vanheusden.com/recoverdm/ - got an unreadable cd with scratches?
-                            recoverdm might help you recovering data
---------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+Fix same typos.
+
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
+
+ include/asm-cris/bitops.h  |    2 +-
+ include/asm-frv/bitops.h   |    2 +-
+ include/asm-h8300/bitops.h |    2 +-
+ include/asm-v850/bitops.h  |    2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+--- a/include/asm-cris/bitops.h
++++ b/include/asm-cris/bitops.h
+@@ -290,7 +290,7 @@ static inline int find_next_zero_bit (co
+ 	tmp = *p;
+ 	
+  found_first:
+-	tmp |= ~0UL >> size;
++	tmp |= ~0UL << size;
+  found_middle:
+ 	return result + ffz(tmp);
+ }
+--- a/include/asm-frv/bitops.h
++++ b/include/asm-frv/bitops.h
+@@ -209,7 +209,7 @@ static inline int find_next_zero_bit(con
+ 	tmp = *p;
+ 
+ found_first:
+-	tmp |= ~0UL >> size;
++	tmp |= ~0UL << size;
+ found_middle:
+ 	return result + ffz(tmp);
+ }
+--- a/include/asm-h8300/bitops.h
++++ b/include/asm-h8300/bitops.h
+@@ -227,7 +227,7 @@ static __inline__ int find_next_zero_bit
+ 	tmp = *p;
+ 
+ found_first:
+-	tmp |= ~0UL >> size;
++	tmp |= ~0UL << size;
+ found_middle:
+ 	return result + ffz(tmp);
+ }
+--- a/include/asm-v850/bitops.h
++++ b/include/asm-v850/bitops.h
+@@ -188,7 +188,7 @@ static inline int find_next_zero_bit(con
+ 	tmp = *p;
+ 
+  found_first:
+-	tmp |= ~0UL >> size;
++	tmp |= ~0UL << size;
+  found_middle:
+ 	return result + ffz (tmp);
+ }
+

@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWAWQO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbWAWQ2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932459AbWAWQO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 11:14:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWAWQO0
+	id S1751478AbWAWQ2z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 11:28:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWAWQ2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 11:14:26 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:39303 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S932348AbWAWQMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 11:12:24 -0500
-Date: Mon, 23 Jan 2006 13:41:40 -0200
-From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-To: davem <davem@davemloft.net>
-Cc: lkml <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       robert.olsson@its.uu.se
-Subject: [PATCH 00/00] pktgen: refinements and small fixes.
-Message-Id: <20060123134140.b04ad994.lcapitulino@mandriva.com.br>
-Organization: Mandriva
-X-Mailer: Sylpheed version 2.2.0beta4 (GTK+ 2.8.10; i586-mandriva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Jan 2006 11:28:55 -0500
+Received: from gate.crashing.org ([63.228.1.57]:22944 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751478AbWAWQ2y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 11:28:54 -0500
+Date: Mon, 23 Jan 2006 10:21:43 -0600 (CST)
+From: Kumar Gala <galak@gate.crashing.org>
+To: netdev@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
+Subject: proper way to deal with a sparse warning (fwd)
+Message-ID: <Pine.LNX.4.44.0601231021010.11937-100000@gate.crashing.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I wasn't getting much of a response on lkml to this, so maybe netdev will 
+be more helpful :)
 
- Hi!
+thanks
 
- I have the following patches for pktgen:
+- kumar
 
- [PATCH 00/01] pktgen: Lindent run.
- [PATCH 00/02] pktgen: Ports thread list to Kernel list implementation.
- [PATCH 00/03] pktgen: Fix kernel_thread() fail leak.
- [PATCH 00/04] pktgen: Fix Initialization fail leak. 
+---------- Forwarded message ----------
+Date: Thu, 19 Jan 2006 00:19:47 -0600
+From: Kumar Gala <galak@kernel.crashing.org>
+To: LKML List <linux-kernel@vger.kernel.org>
+Subject: proper way to deal with a sparse warning
 
- All the patches were tested with QEMU, emulating a machine with 4 CPUs
-and 4 ethernet cards.
+I'm getting the following sparse warning:
 
- There is more work I'd like to do for pktgen, it includes:
+drivers/net/gianfar_mii.c:165:16: warning: incorrect type in  
+assignment (different address spaces)
+drivers/net/gianfar_mii.c:165:16:    expected void *priv
+drivers/net/gianfar_mii.c:165:16:    got struct gfar_mii [noderef] * 
+[assigned] regs<asn:2>
 
- 1. pg_cleanup() should freed the memory of the tasks it just terminated
- (there's a leak there I think)
- 2. Port the interface list to the kernel linked list implementation
- 3. Review pktgen's debug printk()s
+This is line 165 of gianfar_mii.c:
 
- But I'm sending these patches first, just to know if I'm doing something
-wrong.
+         new_bus->priv = regs;
 
- Thank you
+new_bus->priv is of type void *.  regs is of type struct gfar_mii  
+__iomem *.
 
--- 
-Luiz Fernando N. Capitulino
+Is it acceptable to do the following:
+
+	new_bus->priv = (void __force *)regs;
+
+- kumar
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

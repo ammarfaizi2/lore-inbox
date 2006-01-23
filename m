@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbWAWVLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbWAWVPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030184AbWAWVLM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 16:11:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbWAWVLM
+	id S1030197AbWAWVPV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 16:15:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbWAWVPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 16:11:12 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:34219 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030184AbWAWVLL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 16:11:11 -0500
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.2 for  2.6.16-rc1 and
-	2.6.16-rc1-mm1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Cc: Peter Williams <pwil3058@bigpond.net.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>
-In-Reply-To: <20060123221017.2d393c83@localhost>
-References: <43D00887.6010409@bigpond.net.au>
-	 <20060121114616.4a906b4f@localhost> <43D2BE83.1020200@bigpond.net.au>
-	 <20060123210918.54d4fc75@localhost> <1138047938.21481.11.camel@mindpipe>
-	 <20060123215231.04b38886@localhost> <1138049979.21481.25.camel@mindpipe>
-	 <20060123221017.2d393c83@localhost>
-Content-Type: text/plain
-Date: Mon, 23 Jan 2006 16:11:07 -0500
-Message-Id: <1138050668.21481.30.camel@mindpipe>
+	Mon, 23 Jan 2006 16:15:21 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:37347 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030194AbWAWVPU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 16:15:20 -0500
+Date: Mon, 23 Jan 2006 13:14:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: agk@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6/9] device-mapper snapshot: barriers not supported
+Message-Id: <20060123131446.3cfc0c1e.akpm@osdl.org>
+In-Reply-To: <20060123155605.GP2366@marowsky-bree.de>
+References: <20060120211759.GG4724@agk.surrey.redhat.com>
+	<20060122214111.11170cdc.akpm@osdl.org>
+	<20060123155605.GP2366@marowsky-bree.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-23 at 22:10 +0100, Paolo Ornati wrote:
-> On Mon, 23 Jan 2006 15:59:38 -0500
-> Lee Revell <rlrevell@joe-job.com> wrote:
+Lars Marowsky-Bree <lmb@suse.de> wrote:
+>
+> On 2006-01-22T21:41:11, Andrew Morton <akpm@osdl.org> wrote:
 > 
-> > > Maybe this is normal and depends on the way X sleeps or something...
+> > Alasdair G Kergon <agk@redhat.com> wrote:
+> > >
+> > > The snapshot and origin targets are incapable of handling barriers and 
+> > >  need to indicate this.
 > > > 
+> > > ...
+> > >   
+> > >  +	if (unlikely(bio_barrier(bio)))
+> > >  +		return -EOPNOTSUPP;
+> > >  +
 > > 
-> > Because the scheduler favors interactive tasks (aka those which spend a
-> > large % of time waiting on external events) and X is only considered
-> > interactive when the mouse is being moved.  When glxgears is running
-> > it's CPU bound and is therefore penalized.
+> > And what was happening if people _were_ sending such BIOs down?  Did it all
+> > appear to work correctly?  If so, will this change cause
+> > currently-apparently-working setups to stop working?
 > 
-> ??
+> Filesystems basically disable using barriers on a device which doesn't
+> support them, which is indicated by -EOPNOTSUPP. Barriers are allowed to
+> fail in such fashion.
 > 
-> The reverse... lower priority number means BETTER priority. So Actually
-> X is penalized when I'm moving the mouse.
-> 
-> And running "glxgears" doesn't make X CPU bounded if direct rendering
-> is enabled -- it is GPU bounded...
-> 
-> In fact I can run "glxgears" and still have 97% of IDLE CPU time.
+> Now the interesting question is what happens when barriers are suddenly
+> verboten on a stack which used to support them - because the new mapping
+> doesn't support it _anymore_. Hrm. _Should_ work, but probably not
+> tested much ;-)
 > 
 
-Ah, never mind, I misread your report then, I was thinking in terms of
-RT priorities...
+I don't understand that, sorry.
 
-Lee
+My concern is: has the above change any potential to cause
+currently-working setups to stop working?
 

@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWAWFpS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWAWFqa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964806AbWAWFpS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 00:45:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbWAWFpS
+	id S964807AbWAWFqa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 00:46:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWAWFqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 00:45:18 -0500
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:11401 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S964806AbWAWFpQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 00:45:16 -0500
-Date: Sun, 22 Jan 2006 22:43:27 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, John Stoffel <john@stoffel.org>,
-       Takashi Sato <sho@tnes.nec.co.jp>, ext2-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Ext2-devel] Re: [PATCH] ext3: Extends blocksize up to pagesize
-Message-ID: <20060123054327.GN4124@schatzie.adilger.int>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	John Stoffel <john@stoffel.org>, Takashi Sato <sho@tnes.nec.co.jp>,
-	ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <000001c61c30$00814e80$4168010a@bsd.tnes.nec.co.jp> <17358.25398.943860.755559@smtp.charter.net> <20060122182801.GA7082@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 23 Jan 2006 00:46:30 -0500
+Received: from relay01.pair.com ([209.68.5.15]:45071 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S964807AbWAWFq3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 00:46:29 -0500
+X-pair-Authenticated: 67.163.102.102
+From: Chase Venters <chase.venters@clientec.com>
+To: Michael Loftis <mloftis@wgops.com>
+Subject: Re: [RFC] VM: I have a dream...
+Date: Sun, 22 Jan 2006 23:46:02 -0600
+User-Agent: KMail/1.9
+Cc: "Barry K. Nathan" <barryn@pobox.com>, Al Boldi <a1426z@gawab.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <200601212108.41269.a1426z@gawab.com> <986ed62e0601221155x6a57e353vf14db02cc219c09@mail.gmail.com> <E3C35184F807ADEC2AD9E182@dhcp-2-206.wgops.com>
+In-Reply-To: <E3C35184F807ADEC2AD9E182@dhcp-2-206.wgops.com>
+Organization: Clientec, Inc.
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060122182801.GA7082@thunk.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Message-Id: <200601222346.24781.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 22, 2006  13:28 -0500, Theodore Ts'o wrote:
-> On Wed, Jan 18, 2006 at 10:48:06AM -0500, John Stoffel wrote:
-> > In that size range, you really need a filesystem which doesn't need an
-> > FSCK at all.  Not sure what the real answer is though...
-> 
-> Ext3 doesn't require a fsck under normal circumstances.  The only
-> reason why it still requires a periodic fsck after some number of
-> mounts is sheer paranoia about the reliability of PC class hardware.
-> All filesystems need some kind of filesystem consistency checker to
-> deal with filesystem corruptions caused by OS bugs or hardware
-> corruption bugs.  The only question is whether or not the filesystem
-> assumes at a fundamental level whether or not the hardware can be
-> trusted to be reliable or not.  (People have claimed that XFS is much
-> less robust in the face of hardware errors when compared to ext[23]; I
-> haven't seen a definitive study on the issue, although that tends to
-> correspond with my experience.  Other people would say it doesn't
-> matter because that's why you pay $$$$$ for am EMC Symmetrix box or an
-> IBM shark/DS6000/DS8000, or some other Really Expensive Storage
-> Hardware.)
+On Sunday 22 January 2006 23:23, Michael Loftis wrote:
+> --On January 22, 2006 11:55:37 AM -0800 "Barry K. Nathan"
+>
+> <barryn@pobox.com> wrote:
+> > On 1/21/06, Al Boldi <a1426z@gawab.com> wrote:
+> >> A long time ago, when i was a kid, I had dream. It went like this:
+> >
+> > [snip]
+> >
+> > FWIW, Mac OS X is one step closer to your vision than the typical
+> > Linux distribution: It has a directory for swapfiles -- /var/vm -- and
+> > it creates new swapfiles there as needed. (It used to be that each
+> > swapfile would be 80MB, but the iMac next to me just has a single 64MB
+> > swapfile, so maybe Mac OS 10.4 does something different now.)
 
-I think the work done by the U. Wisconsin group for IRON ext3 is the
-way to go (namely checksumming of filesystem metadata, and possibly
-some level of redundancy).  This gives us concrete checks on what metadata
-is valid and the filesystem can avoid any (or further) corruption when
-the hardware goes bad.  The existing ext3 code already has these checks,
-but as filesystems get larger the validity of a block number of an inode
-is harder to check because any value may be correct.  Given that CPU
-speed is growing orders of magnitude faster than disk IO the overhead of
-checksumming is a reasonable thing to do these days (optionally, of course).
+Just as a curiosity... does anyone have any guesses as to the runtime 
+performance cost of hosting one or more swap files (which thanks to on demand 
+creation and growth are presumably built of blocks scattered around the disk) 
+versus having one or more simple contiguous swap partitions?
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+I think it's probably a given that swap partitions are better; I'm just 
+curious how much better they might actually be.
 
+Cheers,
+Chase

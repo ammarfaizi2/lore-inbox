@@ -1,69 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbWAWUKt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbWAWUVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964918AbWAWUKt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 15:10:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbWAWUKt
+	id S932468AbWAWUVO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 15:21:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWAWUVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 15:10:49 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:2008 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964917AbWAWUKs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 15:10:48 -0500
-Subject: Re: [PATCHSET] Time: Generic Timeofday Subsystem (v B17)
-From: john stultz <johnstul@us.ibm.com>
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       George Anzinger <george@mvista.com>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20060122233938.GA31392@linux-sh.org>
-References: <1137801626.27699.279.camel@cog.beaverton.ibm.com>
-	 <20060122233938.GA31392@linux-sh.org>
-Content-Type: text/plain
-Date: Mon, 23 Jan 2006 12:10:36 -0800
-Message-Id: <1138047036.15682.10.camel@cog.beaverton.ibm.com>
+	Mon, 23 Jan 2006 15:21:14 -0500
+Received: from 213-140-2-72.ip.fastwebnet.it ([213.140.2.72]:6531 "EHLO
+	aa005msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S932468AbWAWUVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 15:21:14 -0500
+Date: Mon, 23 Jan 2006 21:21:58 +0100
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.2 for  2.6.16-rc1 and
+ 2.6.16-rc1-mm1
+Message-ID: <20060123212158.3fba71d5@localhost>
+In-Reply-To: <43D4281D.10009@bigpond.net.au>
+References: <43D00887.6010409@bigpond.net.au>
+	<20060121114616.4a906b4f@localhost>
+	<43D2BE83.1020200@bigpond.net.au>
+	<43D40B96.3060705@bigpond.net.au>
+	<43D4281D.10009@bigpond.net.au>
+X-Mailer: Sylpheed-Claws 2.0.0-rc3 (GTK+ 2.8.8; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-23 at 01:39 +0200, Paul Mundt wrote:
-> On Fri, Jan 20, 2006 at 04:00:26PM -0800, john stultz wrote:
-> > The patchset applies against the current 2.6.16-rc1-git.
+On Mon, 23 Jan 2006 11:49:33 +1100
+Peter Williams <pwil3058@bigpond.net.au> wrote:
+
 > > 
-> > The complete patchset can be found here:
-> > 	http://sr71.net/~jstultz/tod/
-> > 
-> > As always, feedback, suggestions and bug-reports are always appreciated.
-> > 
-> Patches weren't explicitly mentioned, but I'm assuming they're also
-> welcome ;-)
+> > However, in spite of the above, the fairness mechanism should have been 
+> > able to generate enough bonus points to get dd's priority back to less 
+> > than 34.  I'm still investigating why this didn't happen.
 > 
-> At first glance the register/unregister interface is a bit
-> unconventional, but I have a few trivial patches to get those fixed up,
-> which I'll send to you separately.
+> Problem solved.  It was a scaling issue during the calculation of 
+> expected delay.  The attached patch should fix both the CPU hog problem 
+> and the fairness problem.  Could you give it a try?
+> 
 
-Very Cool!
+Mmmm... it doesn't work:
 
-> It looks like struct clocksource will also need suspend/resume ops,
-> since it's defining its own sysclass (so there's no overlap with the
-> timer sysclass that several other architectures setup to deal with this).
-> I haven't done that yet, but if there's interest, I'll hack something up.
+ PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+ 5516 paolo     34   0  115m  18m 2432 S 87.5  3.7   0:23.72 transcode
+ 5530 paolo     34   0 51000 4472 1872 S  8.0  0.9   0:02.29 tcdecode
+ 5523 paolo     34   0 19840 1088  880 R  2.0  0.2   0:00.21 tcdemux
+ 5522 paolo     34   0 22156 1204  972 R  0.7  0.2   0:00.02 tccat
+ 5539 paolo     34   0  4952 1468  372 D  0.7  0.3   0:00.04 dd
+ 5350 root      28   0  167m  16m 3228 S  0.3  3.4   0:03.64 X
 
-Hmmm. While we do have suspend and resume functions for the timekeeping
-core, I'm not sure if suspend and resume are necessary for each struct
-clocksource since state changes are only allowed inside the callback
-hook.  That probably should be better documented. :)
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+ 5456 paolo     34   0  115m  18m 2432 D 63.9  3.7   0:48.21 transcode
+ 5470 paolo     37   0 50996 4472 1872 R  6.2  0.9   0:05.20 tcdecode
+ 5493 paolo     34   0  4952 1472  372 R  1.5  0.3   0:00.22 dd
+ 5441 paolo     28   0 86656  21m  15m S  0.2  4.4   0:00.77 konsole
+ 5468 paolo     34   0 19840 1088  880 S  0.2  0.2   0:00.23 tcdemux
 
-Some specific hardware that might provide a clocksource interface may
-need suspend/resume hooks (like the PIT, for example), but in my mind
-that would be done independently from the clocksource code.
-
-But maybe I'm not quite grasping what you're suggesting, so feel free to
-clarify with maybe an example of its use and I'll re-think it.
-
-Thanks for the code review and patches! I really appreciate it!
--john
-
+-- 
+	Paolo Ornati
+	Linux 2.6.16-rc1-plugsched on x86_64

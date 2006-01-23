@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWAXAZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWAXA3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030226AbWAXAZH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 19:25:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWAXAZH
+	id S1030228AbWAXA3m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 19:29:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWAXA3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 19:25:07 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:44799 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030226AbWAXAZG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 19:25:06 -0500
-Subject: Re: 2.6.15-rt12 bugs
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <6bffcb0e0601230521l59b8360et@mail.gmail.com>
-References: <6bffcb0e0601230521l59b8360et@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 23 Jan 2006 19:24:57 -0500
-Message-Id: <1138062297.6695.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Mon, 23 Jan 2006 19:29:42 -0500
+Received: from smtp102.sbc.mail.mud.yahoo.com ([68.142.198.201]:45422 "HELO
+	smtp102.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030228AbWAXA3m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 19:29:42 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Greg KH <gregkh@suse.de>
+Subject: Re: EHCI + APIC errors = no usb goodness
+Date: Mon, 23 Jan 2006 15:53:38 -0800
+User-Agent: KMail/1.7.1
+Cc: ak@suse.de, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+References: <20060123210443.GA20944@suse.de>
+In-Reply-To: <20060123210443.GA20944@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601231553.38995.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-23 at 14:21 +0100, Michal Piotrowski wrote:
-> Hi,
-> 
-> I have noticed some bugs in latest 2.6.15-rt12, here are some of them:
-> http://www.stardust.webpages.pl/files/rt/2.6.15-rt12/rt-dmesg
+On Monday 23 January 2006 1:04 pm, Greg KH wrote:
 
-The only bug I see in this is:
+> Any thoughts?
 
-BUG: kstopmachine:338 task might have lost a preemption check!
- [<c0103b1b>] dump_stack+0x1b/0x1f (20)
- [<c0118736>] preempt_enable_no_resched+0x4a/0x50 (20)
- [<c014224d>] restart_machine+0x1a/0x1d (12)
- [<c0142274>] do_stop+0x24/0x65 (20)
- [<c012d6de>] kthread+0x7b/0xa9 (36)
- [<c01010c5>] kernel_thread_helper+0x5/0xb (135438364)
+Not particularly; clearly the EHCI driver enabled IRQs, since that's
+not done until after the "USB 2.0 started, EHCI 1.00, driver 10 Dec 2004"
+message prints.  And it shouldn't be an SMI issue, as might be improved
+by that patch I sent this AM.
 
+According to arch/i386/kernel/apic.c that "0x40" APIC error bit means
+it got an illegal vector ... sounds to me like IRQ setup issues, since
+USB code doesn't know about such things (they're not even exposed from
+the arch irq handling code).
 
-Which I'll go and take a look at.  I need to turn on
-CONFIG_DEBUG_PREEMPT on my SMP machine.
+Try sticking a message where ehci_irq() returns IRQ_NONE and see what
+IRQ status is being reported to EHCI.
 
-
-> Here is my config:
-> http://www.stardust.webpages.pl/files/rt/2.6.15-rt12/rt-config
-
-You might want to turn off:
-
-CONFIG_DEBUG_STACKOVERFLOW
-
-This dumps out the biggest stack usage.  Those dumps are caused by this,
-and are not bugs.  It just shows you what's using the most stack, that's
-all.  I find it quite annoying, and just turn it off.
-
--- Steve
-
+- Dave

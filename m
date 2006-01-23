@@ -1,101 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbWAWX3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWAWXbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030207AbWAWX3c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 18:29:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbWAWX3c
+	id S1030212AbWAWXbU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 18:31:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbWAWXbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 18:29:32 -0500
-Received: from s0003.shadowconnect.net ([213.239.201.226]:64643 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S1030207AbWAWX3c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 18:29:32 -0500
-Message-ID: <43D566E0.50504@shadowconnect.com>
-Date: Tue, 24 Jan 2006 00:29:36 +0100
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
+	Mon, 23 Jan 2006 18:31:19 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:42689 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1030213AbWAWXbT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 18:31:19 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2/2] I2O: fix and workaround for Motorola/Freescale controller
-Content-Type: multipart/mixed;
- boundary="------------090502010600030905030309"
+Subject: [PATCH] swsusp: use bytes as image size units
+Date: Tue, 24 Jan 2006 00:32:26 +0100
+User-Agent: KMail/1.9
+Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601240032.26735.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090502010600030905030309
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
 
-Changes:
---------
-- This controller violates the I2O spec for the I/O registers. The patch
-   contains a workaround which moves the registers to the proper location.
-   (originally author: Matthew Starzewski)
-- If a message frame is beyond the mapped address range a error is
-   returned.
+This patch makes swsusp use bytes as the image size units, which is needed
+for future compatibility.
 
-Signed-off-by: Markus Lidel <Markus.Lidel@shadowconnect.com>
+The patch changes the behavior of the /sys/power/image_size attribute already
+present in 2.6.16-rc1, so it is against this kernel.
 
---------------090502010600030905030309
-Content-Type: text/x-patch;
- name="i2o-pci-motorola-freescale-workaround.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i2o-pci-motorola-freescale-workaround.patch"
+Please apply (Pavel, please ack).
 
---- a/drivers/message/i2o/pci.c	2006-01-23 23:41:42.031509195 +0100
-+++ b/drivers/message/i2o/pci.c	2006-01-23 01:03:51.236440918 +0100
-@@ -163,6 +168,24 @@
- 	c->in_port = c->base.virt + I2O_IN_PORT;
- 	c->out_port = c->base.virt + I2O_OUT_PORT;
+Greetings,
+Rafael
+
+
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+
+ Documentation/power/interface.txt |    2 +-
+ Documentation/power/swsusp.txt    |    2 +-
+ kernel/power/disk.c               |    6 +++---
+ kernel/power/power.h              |    4 ++--
+ kernel/power/swsusp.c             |    8 ++++----
+ 5 files changed, 11 insertions(+), 11 deletions(-)
+
+Index: linux-2.6.16-rc1/kernel/power/power.h
+===================================================================
+--- linux-2.6.16-rc1.orig/kernel/power/power.h	2006-01-23 15:33:46.000000000 +0100
++++ linux-2.6.16-rc1/kernel/power/power.h	2006-01-23 15:43:40.000000000 +0100
+@@ -51,8 +51,8 @@
+ extern unsigned int nr_copy_pages;
+ extern struct pbe *pagedir_nosave;
  
-+	/* Motorola/Freescale chip does not follow spec */
-+	if (pdev->vendor == PCI_VENDOR_ID_MOTOROLA && pdev->device == 0x18c0) {
-+		/* Check if CPU is enabled */
-+		if (be32_to_cpu(readl(c->base.virt + 0x10000)) & 0x10000000) {
-+			printk(KERN_INFO "%s: MPC82XX needs CPU running to "
-+			       "service I2O.\n", c->name);
-+			i2o_pci_free(c);
-+			return -ENODEV;
-+		} else {
-+			c->irq_status += I2O_MOTOROLA_PORT_OFFSET;
-+			c->irq_mask += I2O_MOTOROLA_PORT_OFFSET;
-+			c->in_port += I2O_MOTOROLA_PORT_OFFSET;
-+			c->out_port += I2O_MOTOROLA_PORT_OFFSET;
-+			printk(KERN_INFO "%s: MPC82XX workarounds activated.\n",
-+			       c->name);
-+		}
-+	}
-+
- 	if (i2o_dma_alloc(dev, &c->status, 8, GFP_KERNEL)) {
- 		i2o_pci_free(c);
- 		return -ENOMEM;
---- a/include/linux/i2o.h	2006-01-23 23:42:06.360729954 +0100
-+++ b/include/linux/i2o.h	2006-01-23 00:58:44.288144650 +0100
-@@ -1115,9 +1115,11 @@
- 		return ERR_PTR(-ENOMEM);
+-/* Preferred image size in MB (default 500) */
+-extern unsigned int image_size;
++/* Preferred image size in bytes (default 500 MB) */
++extern unsigned long image_size;
  
- 	mmsg->mfa = readl(c->in_port);
--	if (mmsg->mfa == I2O_QUEUE_EMPTY) {
-+	if (unlikely(mmsg->mfa >= c->in_queue.len)) {
- 		mempool_free(mmsg, c->in_msg.mempool);
--		return ERR_PTR(-EBUSY);
-+		if(mmsg->mfa == I2O_QUEUE_EMPTY)
-+			return ERR_PTR(-EBUSY);
-+		return ERR_PTR(-EFAULT);
+ extern asmlinkage int swsusp_arch_suspend(void);
+ extern asmlinkage int swsusp_arch_resume(void);
+Index: linux-2.6.16-rc1/kernel/power/swsusp.c
+===================================================================
+--- linux-2.6.16-rc1.orig/kernel/power/swsusp.c	2006-01-23 15:33:46.000000000 +0100
++++ linux-2.6.16-rc1/kernel/power/swsusp.c	2006-01-23 15:43:40.000000000 +0100
+@@ -70,12 +70,12 @@
+ #include "power.h"
+ 
+ /*
+- * Preferred image size in MB (tunable via /sys/power/image_size).
++ * Preferred image size in bytes (tunable via /sys/power/image_size).
+  * When it is set to N, swsusp will do its best to ensure the image
+- * size will not exceed N MB, but if that is impossible, it will
++ * size will not exceed N bytes, but if that is impossible, it will
+  * try to create the smallest image possible.
+  */
+-unsigned int image_size = 500;
++unsigned long image_size = 500 * 1024 * 1024;
+ 
+ #ifdef CONFIG_HIGHMEM
+ unsigned int count_highmem_pages(void);
+@@ -590,7 +590,7 @@
+ 			if (!tmp)
+ 				return -ENOMEM;
+ 			pages += tmp;
+-		} else if (size > (image_size * 1024 * 1024) / PAGE_SIZE) {
++		} else if (size > image_size / PAGE_SIZE) {
+ 			tmp = shrink_all_memory(SHRINK_BITE);
+ 			pages += tmp;
+ 		}
+Index: linux-2.6.16-rc1/Documentation/power/swsusp.txt
+===================================================================
+--- linux-2.6.16-rc1.orig/Documentation/power/swsusp.txt	2006-01-23 15:33:15.000000000 +0100
++++ linux-2.6.16-rc1/Documentation/power/swsusp.txt	2006-01-23 15:43:40.000000000 +0100
+@@ -27,7 +27,7 @@
+ 
+ echo platform > /sys/power/disk; echo disk > /sys/power/state
+ 
+-If you want to limit the suspend image size to N megabytes, do
++If you want to limit the suspend image size to N bytes, do
+ 
+ echo N > /sys/power/image_size
+ 
+Index: linux-2.6.16-rc1/Documentation/power/interface.txt
+===================================================================
+--- linux-2.6.16-rc1.orig/Documentation/power/interface.txt	2006-01-23 15:33:15.000000000 +0100
++++ linux-2.6.16-rc1/Documentation/power/interface.txt	2006-01-23 15:43:40.000000000 +0100
+@@ -44,7 +44,7 @@
+ /sys/power/image_size controls the size of the image created by
+ the suspend-to-disk mechanism.  It can be written a string
+ representing a non-negative integer that will be used as an upper
+-limit of the image size, in megabytes.  The suspend-to-disk mechanism will
++limit of the image size, in bytes.  The suspend-to-disk mechanism will
+ do its best to ensure the image size will not exceed that number.  However,
+ if this turns out to be impossible, it will try to suspend anyway using the
+ smallest image possible.  In particular, if "0" is written to this file, the
+Index: linux-2.6.16-rc1/kernel/power/disk.c
+===================================================================
+--- linux-2.6.16-rc1.orig/kernel/power/disk.c	2006-01-23 15:33:46.000000000 +0100
++++ linux-2.6.16-rc1/kernel/power/disk.c	2006-01-23 15:43:40.000000000 +0100
+@@ -367,14 +367,14 @@
+ 
+ static ssize_t image_size_show(struct subsystem * subsys, char *buf)
+ {
+-	return sprintf(buf, "%u\n", image_size);
++	return sprintf(buf, "%lu\n", image_size);
+ }
+ 
+ static ssize_t image_size_store(struct subsystem * subsys, const char * buf, size_t n)
+ {
+-	unsigned int size;
++	unsigned long size;
+ 
+-	if (sscanf(buf, "%u", &size) == 1) {
++	if (sscanf(buf, "%lu", &size) == 1) {
+ 		image_size = size;
+ 		return n;
  	}
- 
- 	return &mmsg->msg;
---- a/drivers/message/i2o/core.h	2006-01-23 23:41:41.995507388 +0100
-+++ b/drivers/message/i2o/core.h	2006-01-23 01:04:57.811975471 +0100
-@@ -60,4 +60,7 @@
- #define I2O_IN_PORT	0x40
- #define I2O_OUT_PORT	0x44
- 
-+/* Motorola/Freescale specific register offset */
-+#define I2O_MOTOROLA_PORT_OFFSET	0x10400
-+
- #define I2O_IRQ_OUTBOUND_POST	0x00000008
-
---------------090502010600030905030309--

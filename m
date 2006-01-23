@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWAWTj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbWAWTkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932240AbWAWTj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 14:39:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWAWTj2
+	id S932460AbWAWTkR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 14:40:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWAWTkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 14:39:28 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:42987 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932240AbWAWTj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 14:39:27 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 23 Jan 2006 20:38:52 +0100
-To: matthias.andree@gmx.de, arjan@infradead.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Rationale for RLIMIT_MEMLOCK?
-Message-ID: <43D530CC.nailC4Y11KE7A@burner>
-References: <20060123105634.GA17439@merlin.emma.line.org>
- <1138014312.2977.37.camel@laptopd505.fenrus.org>
- <20060123165415.GA32178@merlin.emma.line.org>
- <1138035602.2977.54.camel@laptopd505.fenrus.org>
- <20060123180106.GA4879@merlin.emma.line.org>
- <1138039993.2977.62.camel@laptopd505.fenrus.org>
- <20060123185549.GA15985@merlin.emma.line.org>
-In-Reply-To: <20060123185549.GA15985@merlin.emma.line.org>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 23 Jan 2006 14:40:17 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:62629 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932460AbWAWTkO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 14:40:14 -0500
+Message-Id: <200601231940.k0NJe8Zo020787@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Al Boldi <a1426z@gawab.com>, Robin Holt <holt@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] VM: I have a dream... 
+In-Reply-To: Your message of "Mon, 23 Jan 2006 14:26:06 EST."
+             <20060123192606.GH1008@kvack.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <200601212108.41269.a1426z@gawab.com> <20060122123335.GB26683@lnx-holt.americas.sgi.com> <200601232103.07007.a1426z@gawab.com> <200601231840.k0NIelbp017964@turing-police.cc.vt.edu>
+            <20060123192606.GH1008@kvack.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1138045208_2962P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 23 Jan 2006 14:40:08 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@gmx.de> wrote:
+--==_Exmh_1138045208_2962P
+Content-Type: text/plain; charset=us-ascii
 
-> On Mon, 23 Jan 2006, Arjan van de Ven wrote:
->
-> > hmm... curious that mlockall() succeeds with only a 32kb rlimit....
->
-> It's quite obvious with the seteuid() shuffling behind the scenes of the
-> app, for the mlockall() runs with euid==0, and the later mmap() with euid!=0.
->
-> Clearly the application should do both with the same privilege or raise
-> the RLIMIT_MEMLOCK while running with privileges.
->
-> The question that's open is one for the libc guys: malloc(), valloc()
-> and others seem to use mmap() on some occasions (for some allocation
-> sizes) - at least malloc/malloc.c comments as of 2.3.4 suggest so -, and
-> if this isn't orthogonal to mlockall() and set[e]uid() calls, the glibc
-> is pretty deeply in trouble if the code calls mlockall(MLC_FUTURE) and
-> then drops privileges.
+On Mon, 23 Jan 2006 14:26:06 EST, Benjamin LaHaise said:
+> Actually, that is something that the vm could optimize out of the picture 
+> entirely -- it is a question of whether it is worth the added complexity 
+> to handle such a case.  copy_to_user already takes a slow path when it hits 
+> the page fault (we do a lookup on the exception handler already) and could 
+> test if an entire page is being overwritten, and if so proceed to destroy 
+> the old mapping and use a fresh page from ram.
 
-If the behavior described by Matthias is true for current Linuc kernels,
-then there is a clean bug that needs fixing.
+That was my point - it's easy till you start trying to get actual performance
+out of it by optimizing stuff like that. ;)
 
-If the Linux kernel is not willing to accept the contract by 
-mlockall(MLC_FUTURE), then it should now accept the call at all.
+--==_Exmh_1138045208_2962P
+Content-Type: application/pgp-signature
 
-In our case, the kernel did accept the call to mlockall(MLC_FUTURE), but later 
-ignores this contract. This bug should be fixed.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Jörg
+iD8DBQFD1TEYcC3lWbTT17ARApVEAJ993+ZWK5X5r9TQy3jjiSlhksf99ACg9Kwa
+J5/K8dzfy1nBQArW/h0HXdI=
+=OilI
+-----END PGP SIGNATURE-----
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+--==_Exmh_1138045208_2962P--

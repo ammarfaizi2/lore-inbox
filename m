@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWAWOL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751279AbWAWOTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWAWOL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 09:11:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWAWOL7
+	id S1751279AbWAWOTE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 09:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbWAWOTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 09:11:59 -0500
-Received: from smtp104.biz.mail.re2.yahoo.com ([206.190.52.173]:55942 "HELO
-	smtp104.biz.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932106AbWAWOL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 09:11:58 -0500
-In-Reply-To: <20060121210511.GD3456@linux-mips.org>
-References: <20060119174600.GT19398@stusta.de> <20060121210511.GD3456@linux-mips.org>
-Mime-Version: 1.0 (Apple Message framework v623)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <2edd3641fe1cb18d25e35abe40de5d4e@embeddedalley.com>
+	Mon, 23 Jan 2006 09:19:04 -0500
+Received: from mx1.suse.de ([195.135.220.2]:21670 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751279AbWAWOTD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 09:19:03 -0500
+From: Andi Kleen <ak@suse.de>
+To: Dan Aloni <da-x@monatomic.org>
+Subject: Re: [PATCH] x86_64: Remove useless KDB vector
+Date: Mon, 23 Jan 2006 15:18:52 +0100
+User-Agent: KMail/1.8.2
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Keith Owens <kaos@sgi.com>
+References: <20060123135551.GA14271@localdomain>
+In-Reply-To: <20060123135551.GA14271@localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org,
-       Adrian Bunk <bunk@stusta.de>, perex@suse.cz, linux-mips@linux-mips.org
-From: Dan Malek <dan@embeddedalley.com>
-Subject: Re: RFC: OSS driver removal, a slightly different approach
-Date: Mon, 23 Jan 2006 09:11:50 -0500
-To: Ralf Baechle <ralf@linux-mips.org>
-X-Mailer: Apple Mail (2.623)
+Content-Disposition: inline
+Message-Id: <200601231518.53190.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 23 January 2006 14:55, Dan Aloni wrote:
+> > It was set as an NMI, but the NMI bit always forces an interrupt
+> > to end up at vector 2. So it was never used. Remove.
+> 
+> So with this function removed, what is the proper fix for using 
+> the kdb x86_64 patch (forward-ported from 2.6.14) on 2.6.16-rc1?
+> Can I expect it to work properly if I just remove the function 
+> call?
 
-On Jan 21, 2006, at 4:05 PM, Ralf Baechle wrote:
+Add this code snippet to arch/x86_64/kdb/kdbasupport.c
 
-> On Thu, Jan 19, 2006 at 06:46:00PM +0100, Adrian Bunk wrote:
->
->> 3. no ALSA drivers for the same hardware
-> [...]
->> SOUND_AU1550_AC97
+#include <asm/mach_apic.h>
+#include <asm/hw_irq.h>
+void smp_kdb_stop(void)
+{
+       send_IPI_allbutself(NMI_VECTOR);
+}
 
-The Au1550 should have an ALSA driver.  It was done
-some time ago.  Perhaps we just didn't submit it to the
-proper maintainer.  I'll track that down.
 
-	-- Dan
-
+-Andi

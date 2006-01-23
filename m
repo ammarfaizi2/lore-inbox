@@ -1,60 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWAWGS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWAWGZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964840AbWAWGS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 01:18:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWAWGS1
+	id S1751027AbWAWGZP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 01:25:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWAWGZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 01:18:27 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:51625 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964836AbWAWGS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 01:18:26 -0500
-Subject: Re: memory leak in scsi_cmd_cache 2.6.15
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ariel <askernel2615@dsgml.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.62.0601222045180.12815@pureeloreel.qftzy.pbz>
-References: <Pine.LNX.4.62.0601212105590.22868@pureeloreel.qftzy.pbz>
-	 <1137917798.3328.2.camel@laptopd505.fenrus.org>
-	 <1137918044.3328.6.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.62.0601221251340.30208@pureeloreel.qftzy.pbz>
-	 <1137956841.3328.36.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.62.0601222045180.12815@pureeloreel.qftzy.pbz>
-Content-Type: text/plain
-Date: Mon, 23 Jan 2006 07:18:18 +0100
-Message-Id: <1137997104.2977.7.camel@laptopd505.fenrus.org>
+	Mon, 23 Jan 2006 01:25:15 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:52203 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751027AbWAWGZN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 01:25:13 -0500
+Date: Sun, 22 Jan 2006 22:24:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Arnaud Giersch <arnaud.giersch@free.fr>
+Cc: philb@gnu.org, tim@cyberelk.net, campbell@torque.net, andrea@suse.de,
+       linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCHv2] parport: add parallel port support for SGI O2
+Message-Id: <20060122222425.6907656f.akpm@osdl.org>
+In-Reply-To: <87mzhqfq5y.fsf@groumpf.homeip.net>
+References: <87mzhqfq5y.fsf@groumpf.homeip.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-22 at 21:14 -0500, Ariel wrote:
-> On Sun, 22 Jan 2006, Arjan van de Ven wrote:
-> >>> On Sun, 2006-01-22 at 09:16 +0100, Arjan van de Ven wrote:
-> >>>> On Sat, 2006-01-21 at 21:13 -0500, Ariel wrote:
+Arnaud Giersch <arnaud.giersch@free.fr> wrote:
+>
+> From: Arnaud Giersch <arnaud.giersch@free.fr>
 > 
-> >>>>> I have a memory leak in scsi_cmd_cache.
+> Add support for the built-in parallel port on SGI O2 (a.k.a. IP32).
+> Define a new configuration option: PARPORT_IP32.  The module is named
+> parport_ip32.
 > 
-> >>>> does this happen without the binary nvidia driver too? (it appears
-> >>>> you're using that). That's a good datapoint to have if so...
-> 
-> > please repeat this without nvidia ever being loaded. Just having a
-> > module loaded before can already cause corruption that ripples through
-> > later, so just unloading is not enough to get a clean result.
-> 
-> I rebooted without nvidia or vmware ever being loaded and got a 
-> leak of 1.12KB/s. So I think we can rule that out.
+> Hardware support for SPP, EPP and ECP modes along with DMA support
+> when available are currently implemented.
 
-great
+Nice looking driver.  Big.
 
-> 
-> A commonality I'm noticing is SATA. SATA had a big update in this 
-> version, so perhaps that's where to start looking.
+It does rather a lot of
 
-I wonder if it can be narrowed even more, like to the exact chipset
-driver?
+	if (foo)	do_something();
+
+whereas we prefer
+
+	if (foo)
+		do_something();
+
+but if that was a blocker, we wouldn't have any drivers.
+
+> +static void parport_ip32_dma_setup_context(unsigned int limit)
+> +{
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&parport_ip32_dma.lock, flags);
+> +	if (parport_ip32_dma.left > 0) {
+> +		volatile u64 __iomem *ctxreg = (parport_ip32_dma.ctx == 0) ?
+> +			&mace->perif.ctrl.parport.context_a :
+> +			&mace->perif.ctrl.parport.context_b;
+
+Does this need to be volatile?   writeq() should do the right thing.
+
+> +static size_t parport_ip32_epp_read(void __iomem *eppreg,
+> +				    struct parport *p, void *buf,
+> +				    size_t len, int flags)
+> +{
+> +	struct parport_ip32_private * const priv = p->physport->private_data;
+> +	size_t got;
+> +	parport_ip32_set_mode(p, ECR_MODE_EPP);
+> +	parport_ip32_data_reverse(p);
+> +	parport_ip32_write_control(p, DCR_nINIT);
+> +	if ((flags & PARPORT_EPP_FAST) && (len > 1)) {
+> +		readsb(eppreg, buf, len);
+
+readsb() is a mips thing, and doesn't seem to be documented.  What does it
+do, and why does the driver use it (only) here?
+
+> +		writesb(eppreg, buf, len);
+
+> +static unsigned int parport_ip32_fifo_wait_break(struct parport *p,
+> +						 unsigned long expire)
+> +{
+> +	cond_resched();
+> +	if (time_after(jiffies, expire)) {
+> +		printk(KERN_DEBUG PPIP32
+> +		       "%s: FIFO write timed out\n", p->name);
+> +		return 1;
+> +	}
+> +	if (signal_pending(current)) {
+> +		printk(KERN_DEBUG PPIP32
+> +		       "%s: Signal pending\n", p->name);
+> +		return 1;
+> +	}
+
+This printk could be a bit noisy, if someone hoses a signal stream at a
+printing program.
 

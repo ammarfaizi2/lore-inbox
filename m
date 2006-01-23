@@ -1,112 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWAWX32@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbWAWX3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbWAWX32 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 18:29:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbWAWX32
+	id S1030207AbWAWX3c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 18:29:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbWAWX3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 18:29:28 -0500
-Received: from s0003.shadowconnect.net ([213.239.201.226]:63363 "EHLO
+	Mon, 23 Jan 2006 18:29:32 -0500
+Received: from s0003.shadowconnect.net ([213.239.201.226]:64643 "EHLO
 	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S964845AbWAWX32 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 18:29:28 -0500
-Message-ID: <43D566DB.2010103@shadowconnect.com>
-Date: Tue, 24 Jan 2006 00:29:31 +0100
+	id S1030207AbWAWX3c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 18:29:32 -0500
+Message-ID: <43D566E0.50504@shadowconnect.com>
+Date: Tue, 24 Jan 2006 00:29:36 +0100
 From: Markus Lidel <Markus.Lidel@shadowconnect.com>
 User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
 CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/2] I2O: don't disable PCI device if it is enabled before
- probing
+Subject: [PATCH 2/2] I2O: fix and workaround for Motorola/Freescale controller
 Content-Type: multipart/mixed;
- boundary="------------080300060106070602080505"
+ boundary="------------090502010600030905030309"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------080300060106070602080505
+--------------090502010600030905030309
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 Changes:
 --------
-- If PCI device is enabled before probing, it will not be disabled at
-   exit.
+- This controller violates the I2O spec for the I/O registers. The patch
+   contains a workaround which moves the registers to the proper location.
+   (originally author: Matthew Starzewski)
+- If a message frame is beyond the mapped address range a error is
+   returned.
 
 Signed-off-by: Markus Lidel <Markus.Lidel@shadowconnect.com>
 
---------------080300060106070602080505
+--------------090502010600030905030309
 Content-Type: text/x-patch;
- name="i2o-pci-fix-disable-device.patch"
+ name="i2o-pci-motorola-freescale-workaround.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="i2o-pci-fix-disable-device.patch"
+ filename="i2o-pci-motorola-freescale-workaround.patch"
 
 --- a/drivers/message/i2o/pci.c	2006-01-23 23:41:42.031509195 +0100
 +++ b/drivers/message/i2o/pci.c	2006-01-23 01:03:51.236440918 +0100
-@@ -88,6 +88,11 @@
- 	struct device *dev = &pdev->dev;
- 	int i;
+@@ -163,6 +168,24 @@
+ 	c->in_port = c->base.virt + I2O_IN_PORT;
+ 	c->out_port = c->base.virt + I2O_OUT_PORT;
  
-+	if (pci_request_regions(pdev, OSM_DESCRIPTION)) {
-+		printk(KERN_ERR "%s: device already claimed\n", c->name);
-+		return -ENODEV;
++	/* Motorola/Freescale chip does not follow spec */
++	if (pdev->vendor == PCI_VENDOR_ID_MOTOROLA && pdev->device == 0x18c0) {
++		/* Check if CPU is enabled */
++		if (be32_to_cpu(readl(c->base.virt + 0x10000)) & 0x10000000) {
++			printk(KERN_INFO "%s: MPC82XX needs CPU running to "
++			       "service I2O.\n", c->name);
++			i2o_pci_free(c);
++			return -ENODEV;
++		} else {
++			c->irq_status += I2O_MOTOROLA_PORT_OFFSET;
++			c->irq_mask += I2O_MOTOROLA_PORT_OFFSET;
++			c->in_port += I2O_MOTOROLA_PORT_OFFSET;
++			c->out_port += I2O_MOTOROLA_PORT_OFFSET;
++			printk(KERN_INFO "%s: MPC82XX workarounds activated.\n",
++			       c->name);
++		}
 +	}
 +
- 	for (i = 0; i < 6; i++) {
- 		/* Skip I/O spaces */
- 		if (!(pci_resource_flags(pdev, i) & IORESOURCE_IO)) {
-@@ -298,7 +321,7 @@
- 	struct i2o_controller *c;
- 	int rc;
- 	struct pci_dev *i960 = NULL;
--	int pci_dev_busy = 0;
-+	int enabled = pdev->is_enabled;
+ 	if (i2o_dma_alloc(dev, &c->status, 8, GFP_KERNEL)) {
+ 		i2o_pci_free(c);
+ 		return -ENOMEM;
+--- a/include/linux/i2o.h	2006-01-23 23:42:06.360729954 +0100
++++ b/include/linux/i2o.h	2006-01-23 00:58:44.288144650 +0100
+@@ -1115,9 +1115,11 @@
+ 		return ERR_PTR(-ENOMEM);
  
- 	printk(KERN_INFO "i2o: Checking for PCI I2O controllers...\n");
- 
-@@ -308,16 +331,12 @@
- 		return -ENODEV;
+ 	mmsg->mfa = readl(c->in_port);
+-	if (mmsg->mfa == I2O_QUEUE_EMPTY) {
++	if (unlikely(mmsg->mfa >= c->in_queue.len)) {
+ 		mempool_free(mmsg, c->in_msg.mempool);
+-		return ERR_PTR(-EBUSY);
++		if(mmsg->mfa == I2O_QUEUE_EMPTY)
++			return ERR_PTR(-EBUSY);
++		return ERR_PTR(-EFAULT);
  	}
  
--	if ((rc = pci_enable_device(pdev))) {
--		printk(KERN_WARNING "i2o: couldn't enable device %s\n",
--		       pci_name(pdev));
--		return rc;
--	}
--
--	if (pci_request_regions(pdev, OSM_DESCRIPTION)) {
--		printk(KERN_ERR "i2o: device already claimed\n");
--		return -ENODEV;
--	}
-+	if (!enabled)
-+		if ((rc = pci_enable_device(pdev))) {
-+			printk(KERN_WARNING "i2o: couldn't enable device %s\n",
-+			       pci_name(pdev));
-+			return rc;
-+		}
+ 	return &mmsg->msg;
+--- a/drivers/message/i2o/core.h	2006-01-23 23:41:41.995507388 +0100
++++ b/drivers/message/i2o/core.h	2006-01-23 01:04:57.811975471 +0100
+@@ -60,4 +60,7 @@
+ #define I2O_IN_PORT	0x40
+ #define I2O_OUT_PORT	0x44
  
- 	if (pci_set_dma_mask(pdev, DMA_32BIT_MASK)) {
- 		printk(KERN_WARNING "i2o: no suitable DMA found for %s\n",
-@@ -395,9 +414,7 @@
- 
- 	if ((rc = i2o_pci_alloc(c))) {
- 		printk(KERN_ERR "%s: DMA / IO allocation for I2O controller "
--		       " failed\n", c->name);
--		if (rc == -ENODEV)
--			pci_dev_busy = 1;
-+		       "failed\n", c->name);
- 		goto free_controller;
- 	}
- 
-@@ -425,7 +442,7 @@
- 	i2o_iop_free(c);
- 
-       disable:
--	if (!pci_dev_busy)
-+	if (!enabled)
- 		pci_disable_device(pdev);
- 
- 	return rc;
++/* Motorola/Freescale specific register offset */
++#define I2O_MOTOROLA_PORT_OFFSET	0x10400
++
+ #define I2O_IRQ_OUTBOUND_POST	0x00000008
 
---------------080300060106070602080505--
+--------------090502010600030905030309--

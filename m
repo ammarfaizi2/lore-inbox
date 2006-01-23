@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751451AbWAWOka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751460AbWAWOqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751451AbWAWOka (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 09:40:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWAWOka
+	id S1751460AbWAWOqN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 09:46:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWAWOqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 09:40:30 -0500
-Received: from uproxy.gmail.com ([66.249.92.200]:26304 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751451AbWAWOka (ORCPT
+	Mon, 23 Jan 2006 09:46:13 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:41537 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751460AbWAWOqM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 09:40:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
-        b=O0qwc7jNeDwzZu+8cFoOtRji7fyerDM90zOxGlM75zbLpI1xQNUfTh4SZW8cbaEDzV21rVTU+mSHKpTUdg/jnHJatFUrq5Smu60KpEQKIXTJZdyGJsrLYxEDlkCWtjxfowIX9gxvxwwQ0IgHbZyNerj+D0bAD0mlCqT/tLvo5eQ=
-Message-ID: <8e8498350601230640x49d8f866q@mail.gmail.com>
-Date: Mon, 23 Jan 2006 23:40:28 +0900
-From: Tetsuo Takata <takatan.linux@gmail.com>
-To: akpm@osdl.org
-Subject: [PATCH] enable XFS write barrier
-Cc: linux-kernel@vger.kernel.org, doubt@developer.osdl.jp
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_332_8088272.1138027228273"
+	Mon, 23 Jan 2006 09:46:12 -0500
+Date: Mon, 23 Jan 2006 15:48:04 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Tetsuo Takata <takatan.linux@gmail.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, doubt@developer.osdl.jp
+Subject: Re: [PATCH] enable XFS write barrier
+Message-ID: <20060123144803.GJ12773@suse.de>
+References: <8e8498350601230640x49d8f866q@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8e8498350601230640x49d8f866q@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_332_8088272.1138027228273
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
+On Mon, Jan 23 2006, Tetsuo Takata wrote:
+> I found out that the q->ordered is not being set properly on XFS.
+> 
+> 
+> I'm testing the write barrier support of XFS.
+> I run the test on kernel 2.6.16-rc1-git4.
+> but I found out that the "-o barrier" option is automatically disabled
+> in my environment.
+> For this reason I could not test the write barrier's execution path.
+> 
+> The error message in "/var/log/messages" is:
+> Filesystem "sdb1": Disabling barriers, not supported by the underlying device
+> 
+> 
+> This patch fixes these bugs.
 
-SSBmb3VuZCBvdXQgdGhhdCB0aGUgcS0+b3JkZXJlZCBpcyBub3QgYmVpbmcgc2V0IHByb3Blcmx5
-IG9uIFhGUy4KCgpJJ20gdGVzdGluZyB0aGUgd3JpdGUgYmFycmllciBzdXBwb3J0IG9mIFhGUy4K
-SSBydW4gdGhlIHRlc3Qgb24ga2VybmVsIDIuNi4xNi1yYzEtZ2l0NC4KYnV0IEkgZm91bmQgb3V0
-IHRoYXQgdGhlICItbyBiYXJyaWVyIiBvcHRpb24gaXMgYXV0b21hdGljYWxseSBkaXNhYmxlZApp
-biBteSBlbnZpcm9ubWVudC4KRm9yIHRoaXMgcmVhc29uIEkgY291bGQgbm90IHRlc3QgdGhlIHdy
-aXRlIGJhcnJpZXIncyBleGVjdXRpb24gcGF0aC4KClRoZSBlcnJvciBtZXNzYWdlIGluICIvdmFy
-L2xvZy9tZXNzYWdlcyIgaXM6CkZpbGVzeXN0ZW0gInNkYjEiOiBEaXNhYmxpbmcgYmFycmllcnMs
-IG5vdCBzdXBwb3J0ZWQgYnkgdGhlIHVuZGVybHlpbmcgZGV2aWNlCgoKVGhpcyBwYXRjaCBmaXhl
-cyB0aGVzZSBidWdzLgoKCkJlc3QgcmVnYXJkcywKClRldHN1byBUYWthdGEK
-------=_Part_332_8088272.1138027228273
-Content-Type: application/octet-stream; name=2.6.16-rc1-git4-sd.patch
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="2.6.16-rc1-git4-sd.patch"
+Woops, thanks!
 
-The patch below fixes the aforementioned problem.
+-- 
+Jens Axboe
 
-Signed-off-by: Tetsuo Takata <takatatt@intellilink.co.jp>
----
-
-diff -urpN linux-2.6.16-rc1-git4/block/ll_rw_blk.c linux-2.6.16-rc1-git4-fixed/block/ll_rw_blk.c
---- linux-2.6.16-rc1-git4/block/ll_rw_blk.c	2006-01-23 21:29:12.000000000 +0900
-+++ linux-2.6.16-rc1-git4-fixed/block/ll_rw_blk.c	2006-01-23 22:05:11.000000000 +0900
-@@ -332,6 +332,7 @@ int blk_queue_ordered(request_queue_t *q
- 		return -EINVAL;
- 	}
- 
-+	q->ordered = ordered;
- 	q->next_ordered = ordered;
- 	q->prepare_flush_fn = prepare_flush_fn;
-
-
-------=_Part_332_8088272.1138027228273--

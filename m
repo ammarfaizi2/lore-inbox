@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWAWU1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWAWUgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbWAWU1c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 15:27:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964938AbWAWU1c
+	id S964774AbWAWUgG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 15:36:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWAWUgF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 15:27:32 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:28613 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964933AbWAWU1a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 15:27:30 -0500
-From: mchehab@infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-       akpm@osdl.org, Hans Verkuil <hverkuil@xs4all.nl>,
-       Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 03/16] Add probe check for the tda9840.
-Date: Mon, 23 Jan 2006 18:24:43 -0200
-Message-id: <20060123202443.PS65514700003@infradead.org>
-In-Reply-To: <20060123202404.PS66974000000@infradead.org>
-References: <20060123202404.PS66974000000@infradead.org>
+	Mon, 23 Jan 2006 15:36:05 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:49285 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S932383AbWAWUgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 15:36:04 -0500
+Date: Mon, 23 Jan 2006 21:36:02 +0100
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, John Stoffel <john@stoffel.org>,
+       Takashi Sato <sho@tnes.nec.co.jp>, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] Re: [PATCH] ext3: Extends blocksize up to pagesize
+Message-ID: <20060123203602.GE10077@vanheusden.com>
+References: <000001c61c30$00814e80$4168010a@bsd.tnes.nec.co.jp>
+	<17358.25398.943860.755559@smtp.charter.net>
+	<20060122182801.GA7082@thunk.org>
+	<20060123054327.GN4124@schatzie.adilger.int>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-1mdk 
-Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060123054327.GN4124@schatzie.adilger.int>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Tue Jan 24 20:23:13 CET 2006
+X-Message-Flag: www.unixexpert.nl
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Hans Verkuil <hverkuil@xs4all.nl>
+> I think the work done by the U. Wisconsin group for IRON ext3 is the
+> way to go (namely checksumming of filesystem metadata, and possibly
+> some level of redundancy).  This gives us concrete checks on what metadata
+> is valid and the filesystem can avoid any (or further) corruption when
+> the hardware goes bad.  The existing ext3 code already has these checks,
+> but as filesystems get larger the validity of a block number of an inode
+> is harder to check because any value may be correct.  Given that CPU
+> speed is growing orders of magnitude faster than disk IO the overhead of
+> checksumming is a reasonable thing to do these days (optionally, of course).
 
-- Add probe check for the tda9840 to prevent misdetection of a Micronas
-  dpl3518a as a tda9840.
+Then please make it optionally per mount-point.
+E.g.: I don't care if the filesystem of the filestore of my Squid setup
+goes bad (mke2fs will fix it just nicely) but I would get upset if its
+OS filesystem would get corrupted.
 
-Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
----
 
- drivers/media/video/tvaudio.c |    9 +++++++++
- 1 files changed, 9 insertions(+), 0 deletions(-)
+Folkert van Heusden
 
-diff --git a/drivers/media/video/tvaudio.c b/drivers/media/video/tvaudio.c
-index 6d03b9b..c8e5ad0 100644
---- a/drivers/media/video/tvaudio.c
-+++ b/drivers/media/video/tvaudio.c
-@@ -390,6 +390,14 @@ static void tda9840_setmode(struct CHIPS
- 		chip_write(chip, TDA9840_SW, t);
- }
- 
-+static int tda9840_checkit(struct CHIPSTATE *chip)
-+{
-+	int rc;
-+	rc = chip_read(chip);
-+	/* lower 5 bits should be 0 */
-+	return ((rc & 0x1f) == 0) ? 1 : 0;
-+}
-+
- /* ---------------------------------------------------------------------- */
- /* audio chip descriptions - defines+functions for tda985x                */
- 
-@@ -1264,6 +1272,7 @@ static struct CHIPDESC chiplist[] = {
- 		.addr_hi    = I2C_TDA9840 >> 1,
- 		.registers  = 5,
- 
-+		.checkit    = tda9840_checkit,
- 		.getmode    = tda9840_getmode,
- 		.setmode    = tda9840_setmode,
- 		.checkmode  = generic_checkmode,
-
+-- 
+Ever wonder what is out there? Any alien races? Then please support
+the seti@home project: setiathome.ssl.berkeley.edu
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

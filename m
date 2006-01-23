@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbWAWSPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbWAWSNT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750900AbWAWSPL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 13:15:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbWAWSPL
+	id S964858AbWAWSNT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 13:13:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWAWSNT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 13:15:11 -0500
-Received: from uproxy.gmail.com ([66.249.92.201]:20919 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750900AbWAWSPJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 13:15:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=OkF9ELrKfy7WJn4tK9CObvhqwG+qkyfmqatbUIwFdDDiAH1fD7cAnQB6PZbwhX6crOqAbwPF8Xz7fOBDCNcdW7wKvGPWWUrPN7qK4fCMtnv/Qi/Xhm46j9xXhs0Zl8FbFQU93APdjxQ4wjyFF4zbGIzim85skMAlHMB3DqeXjL4=
-Date: Mon, 23 Jan 2006 19:14:39 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Syed Ahemed <kingkhan@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch for CVE-2004-1334 ???
-Message-Id: <20060123191439.cfe5d61c.diegocg@gmail.com>
-In-Reply-To: <3d53b7120601230939p6e8906fbtb196ab49b9b028c5@mail.gmail.com>
-References: <3d53b7120601230939p6e8906fbtb196ab49b9b028c5@mail.gmail.com>
-X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
+	Mon, 23 Jan 2006 13:13:19 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:47832 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964858AbWAWSNS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 13:13:18 -0500
+Subject: Re: Rationale for RLIMIT_MEMLOCK?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060123180106.GA4879@merlin.emma.line.org>
+References: <20060123105634.GA17439@merlin.emma.line.org>
+	 <1138014312.2977.37.camel@laptopd505.fenrus.org>
+	 <20060123165415.GA32178@merlin.emma.line.org>
+	 <1138035602.2977.54.camel@laptopd505.fenrus.org>
+	 <20060123180106.GA4879@merlin.emma.line.org>
+Content-Type: text/plain
+Date: Mon, 23 Jan 2006 19:13:13 +0100
+Message-Id: <1138039993.2977.62.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Mon, 23 Jan 2006 23:09:49 +0530,
-Syed Ahemed <kingkhan@gmail.com> escribió:
+On Mon, 2006-01-23 at 19:01 +0100, Matthias Andree wrote:
+> On Mon, 23 Jan 2006, Arjan van de Ven wrote:
+> 
+> > yes the behavior is like this
+> > 
+> >                  root                non-root
+> > before        about half of ram      nothing
+> > after         all of ram             by default small, increasable
+> > [...]
+> > What application do you have in mind that broke by this relaxing of
+> > rules?
+> 
+> This is not something I'd like to disclose here yet.
+> 
+> It is an application that calls mlockall(MCL_CURRENT|MCL_FUTURE) and
+> apparently copes with mlockall() returning EPERM 
 
-> Hi
-> I do know this community is busy with more important things , but i am
-> out of ideas/search  on this one.
-> How do i get the patch for the CVE-2004-1334 ? I have an opensource
+hmm... curious that mlockall() succeeds with only a 32kb rlimit....
 
-Well, 2.4.32 fixes that bug and many others security. Any reason why you 
-aren't using the latest version.
 
-You can find links to the changesets in the original security advisory
-from guninski (easy to find in google)
+

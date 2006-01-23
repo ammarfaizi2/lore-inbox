@@ -1,37 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWAWNnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWAWNp0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbWAWNnM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 08:43:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWAWNnM
+	id S1751395AbWAWNp0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 08:45:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWAWNp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 08:43:12 -0500
-Received: from mba.ocn.ne.jp ([210.190.142.172]:46029 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S932196AbWAWNnL (ORCPT
+	Mon, 23 Jan 2006 08:45:26 -0500
+Received: from darwin.snarc.org ([81.56.210.228]:25264 "EHLO darwin.snarc.org")
+	by vger.kernel.org with ESMTP id S1751395AbWAWNp0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 08:43:11 -0500
-Date: Mon, 23 Jan 2006 22:42:44 +0900 (JST)
-Message-Id: <20060123.224244.70477067.anemo@mba.ocn.ne.jp>
-To: rmk+lkml@arm.linux.org.uk
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, ralf@linux-mips.org
-Subject: Re: [PATCH] serial: serial_txx9 driver update
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-In-Reply-To: <20060123.223943.104642974.anemo@mba.ocn.ne.jp>
-References: <20060123.150502.89066381.nemoto@toshiba-tops.co.jp>
-	<20060123095700.GB4104@flint.arm.linux.org.uk>
-	<20060123.223943.104642974.anemo@mba.ocn.ne.jp>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 23 Jan 2006 08:45:26 -0500
+Date: Mon, 23 Jan 2006 14:45:24 +0100
+To: Johan Kullstam <kullstj-ml@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE?
+Message-ID: <20060123134523.GA31752@snarc.org>
+References: <D1A7010C56BB90C4FA73E6DD@dhcp-2-206.wgops.com> <1137785271.13530.10.camel@grayson> <20060120220440.GA22061@snarc.org> <8764odbfjb.fsf@sophia.axel.nom>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8764odbfjb.fsf@sophia.axel.nom>
+X-Warning: Email may contain unsmilyfied humor and/or satire.
+User-Agent: Mutt/1.5.9i
+From: tab@snarc.org (Vincent Hanquez)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 23 Jan 2006 22:39:43 +0900 (JST), Atsushi Nemoto <anemo@mba.ocn.ne.jp> said:
+On Sat, Jan 21, 2006 at 01:29:44PM -0500, Johan Kullstam wrote:
+> Why not just drop the "2"?  It's not like the "2" is going anywhere
+> with current or even with the past development models.  2.X.Y has
+> already been used (for X = 0-6 and modest Y), so 6.16.1 could be used
+> instead of 2.6.16-rc1.
 
-anemo> In this case, I will read ABCDEFG without errors, and then I with an overrun 
+Just want to make clear, I wasn't taking about reusing 2.0, 2.1 ..
+but just continue from 2.6 as the following example:
+   
+   2.6.16   => 2.7.0
+   2.6.16.1 => 2.7.1
+   2.6.16.2 => 2.7.2
+   2.6.17   => 2.8.0
+   2.6.18   => 2.9.0
+   ...
 
-Excuse me, please ignore this broken line.
----
-Atsushi Nemoto
+The development model stays exactly the same:
+i.e. 2.X.0 kernels are released every ~N weeks by Linus.
+
+-- 
+Vincent Hanquez

@@ -1,141 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWAWXbU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbWAWXcJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030212AbWAWXbU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 18:31:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbWAWXbT
+	id S1030211AbWAWXcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 18:32:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbWAWXcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 18:31:19 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:42689 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1030213AbWAWXbT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 18:31:19 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] swsusp: use bytes as image size units
-Date: Tue, 24 Jan 2006 00:32:26 +0100
-User-Agent: KMail/1.9
-Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>
+	Mon, 23 Jan 2006 18:32:09 -0500
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:36340 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1030211AbWAWXcI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 18:32:08 -0500
+Message-ID: <43D56774.1030406@bigpond.net.au>
+Date: Tue, 24 Jan 2006 10:32:04 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Paolo Ornati <ornati@fastwebnet.it>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.2 for  2.6.16-rc1 and 2.6.16-rc1-mm1
+References: <43D00887.6010409@bigpond.net.au>	<20060121114616.4a906b4f@localhost>	<43D2BE83.1020200@bigpond.net.au> <20060123210918.54d4fc75@localhost>
+In-Reply-To: <20060123210918.54d4fc75@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601240032.26735.rjw@sisk.pl>
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Mon, 23 Jan 2006 23:32:05 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Paolo Ornati wrote:
+> On Sun, 22 Jan 2006 10:06:43 +1100
+> Peter Williams <pwil3058@bigpond.net.au> wrote:
+> 
+> 
+>>>---- spa_ebs: great! (as expected)
+>>>
+>>>(sched_fooler)
+>>>  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+>>> 5418 paolo     34   0  2392  288  228 R 51.4  0.1   1:06.47 a.out
+>>> 5419 paolo     34   0  2392  288  228 R 43.7  0.1   0:54.60 a.out
+>>> 5448 paolo     11   0  4952 1468  372 D  3.0  0.3   0:00.12 dd
+>>>
+>>>(transcode)
+>>>  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+>>> 5456 paolo     34   0  115m  18m 2432 R 51.9  3.7   0:23.34 transcode
+>>> 5470 paolo     12   0 51000 4472 1872 S  5.7  0.9   0:02.38 tcdecode
+>>> 5480 paolo     11   0  4948 1468  372 D  3.5  0.3   0:00.33 dd
+>>>
+>>>Very good DD test performance in both cases.
+>>
+>>Good.  How do you find the interactive responsiveness with this one?
+> 
+> 
+> It seems geneally good.
+> 
+> However I've noticed that priority of X fluctuate a lot for unknown
+> reasons...
+> 
+> When doing almost nothing it gets prio 6/7 but if I only move the
+> cursor a bit it jumps up to ~29. 
+> 
+> If I'm running glxgears (with diret rendering ON) the priority stay to
+> 6/7 and moving the cursor I'm only able to get priority 8.
 
-This patch makes swsusp use bytes as the image size units, which is needed
-for future compatibility.
+This is a function of the "entitlement based" fairness part of the 
+scheduler.  Conceptually, it allocates each SCHED_NORMAL task "shares" 
+based on its nice value (19->1, 0->20, -20->420) and calculates an 
+entitlement based on the ratio of a tasks shares and the total shares in 
+play.  It then compares the task's recent average cpu usage rate with 
+its entitlement and sets the dynamic priority so as to try and match the 
+cpu usage rate to the entitlement.
 
-The patch changes the behavior of the /sys/power/image_size attribute already
-present in 2.6.16-rc1, so it is against this kernel.
+To implement this concept efficiently (i.e. avoiding maths especially 
+divides as much as possible) a slightly different approach is taken in 
+practice.  For each run queue, a recent maximum average cpu usage rate 
+per share for tasks on that queue (a yardstick) is kept and each tasks 
+usage per share is compared to that.  If it is greater then it becomes 
+the new yardstick and the task is given a base dynamic priority of 34 
+and otherwise it is given a priority between 11 and 34 based in 
+proportion to the ratio of its usage per share to the yardstick.
 
-Please apply (Pavel, please ack).
+Tasks are also awarded an interactive bonus based on the amount of 
+interactive sleeping that they've been doing recently and this is 
+subtracted from the base priority.  The 11 point offset in the base 
+priority is there to allow the bonus to be applied without encroaching 
+on the RT priority range.
 
-Greetings,
-Rafael
+To cater for periods of inactivity the yardstick is decayed towards zero 
+each tick.
 
+In general, this means that the busiest task on the system (in terms of 
+cpu usage per share) at any particular time will have a priority of (34 
+- interactivity bonus) but when the system is idle this may not be the 
+case if the yardstick had been quite high and hasn't yet decayed enough.
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+This is why when the system is idle the X priority jumps to 29 when you 
+move the mouse as it is now the new yardstick even with a relatively low 
+usage rate.  But when glxgears is running it becomes the yardstick with 
+quite high cpu usage rate per share and when you move the mouse the X 
+servers usage per share is still small compared to the yardstick so it 
+retains a small priority value.
 
- Documentation/power/interface.txt |    2 +-
- Documentation/power/swsusp.txt    |    2 +-
- kernel/power/disk.c               |    6 +++---
- kernel/power/power.h              |    4 ++--
- kernel/power/swsusp.c             |    8 ++++----
- 5 files changed, 11 insertions(+), 11 deletions(-)
+> 
+> Under load X priority goes up and it suffers (cursor jumps a bit).
+> 
+> IOW: strangeness!
+> 
 
-Index: linux-2.6.16-rc1/kernel/power/power.h
-===================================================================
---- linux-2.6.16-rc1.orig/kernel/power/power.h	2006-01-23 15:33:46.000000000 +0100
-+++ linux-2.6.16-rc1/kernel/power/power.h	2006-01-23 15:43:40.000000000 +0100
-@@ -51,8 +51,8 @@
- extern unsigned int nr_copy_pages;
- extern struct pbe *pagedir_nosave;
- 
--/* Preferred image size in MB (default 500) */
--extern unsigned int image_size;
-+/* Preferred image size in bytes (default 500 MB) */
-+extern unsigned long image_size;
- 
- extern asmlinkage int swsusp_arch_suspend(void);
- extern asmlinkage int swsusp_arch_resume(void);
-Index: linux-2.6.16-rc1/kernel/power/swsusp.c
-===================================================================
---- linux-2.6.16-rc1.orig/kernel/power/swsusp.c	2006-01-23 15:33:46.000000000 +0100
-+++ linux-2.6.16-rc1/kernel/power/swsusp.c	2006-01-23 15:43:40.000000000 +0100
-@@ -70,12 +70,12 @@
- #include "power.h"
- 
- /*
-- * Preferred image size in MB (tunable via /sys/power/image_size).
-+ * Preferred image size in bytes (tunable via /sys/power/image_size).
-  * When it is set to N, swsusp will do its best to ensure the image
-- * size will not exceed N MB, but if that is impossible, it will
-+ * size will not exceed N bytes, but if that is impossible, it will
-  * try to create the smallest image possible.
-  */
--unsigned int image_size = 500;
-+unsigned long image_size = 500 * 1024 * 1024;
- 
- #ifdef CONFIG_HIGHMEM
- unsigned int count_highmem_pages(void);
-@@ -590,7 +590,7 @@
- 			if (!tmp)
- 				return -ENOMEM;
- 			pages += tmp;
--		} else if (size > (image_size * 1024 * 1024) / PAGE_SIZE) {
-+		} else if (size > image_size / PAGE_SIZE) {
- 			tmp = shrink_all_memory(SHRINK_BITE);
- 			pages += tmp;
- 		}
-Index: linux-2.6.16-rc1/Documentation/power/swsusp.txt
-===================================================================
---- linux-2.6.16-rc1.orig/Documentation/power/swsusp.txt	2006-01-23 15:33:15.000000000 +0100
-+++ linux-2.6.16-rc1/Documentation/power/swsusp.txt	2006-01-23 15:43:40.000000000 +0100
-@@ -27,7 +27,7 @@
- 
- echo platform > /sys/power/disk; echo disk > /sys/power/state
- 
--If you want to limit the suspend image size to N megabytes, do
-+If you want to limit the suspend image size to N bytes, do
- 
- echo N > /sys/power/image_size
- 
-Index: linux-2.6.16-rc1/Documentation/power/interface.txt
-===================================================================
---- linux-2.6.16-rc1.orig/Documentation/power/interface.txt	2006-01-23 15:33:15.000000000 +0100
-+++ linux-2.6.16-rc1/Documentation/power/interface.txt	2006-01-23 15:43:40.000000000 +0100
-@@ -44,7 +44,7 @@
- /sys/power/image_size controls the size of the image created by
- the suspend-to-disk mechanism.  It can be written a string
- representing a non-negative integer that will be used as an upper
--limit of the image size, in megabytes.  The suspend-to-disk mechanism will
-+limit of the image size, in bytes.  The suspend-to-disk mechanism will
- do its best to ensure the image size will not exceed that number.  However,
- if this turns out to be impossible, it will try to suspend anyway using the
- smallest image possible.  In particular, if "0" is written to this file, the
-Index: linux-2.6.16-rc1/kernel/power/disk.c
-===================================================================
---- linux-2.6.16-rc1.orig/kernel/power/disk.c	2006-01-23 15:33:46.000000000 +0100
-+++ linux-2.6.16-rc1/kernel/power/disk.c	2006-01-23 15:43:40.000000000 +0100
-@@ -367,14 +367,14 @@
- 
- static ssize_t image_size_show(struct subsystem * subsys, char *buf)
- {
--	return sprintf(buf, "%u\n", image_size);
-+	return sprintf(buf, "%lu\n", image_size);
- }
- 
- static ssize_t image_size_store(struct subsystem * subsys, const char * buf, size_t n)
- {
--	unsigned int size;
-+	unsigned long size;
- 
--	if (sscanf(buf, "%u", &size) == 1) {
-+	if (sscanf(buf, "%lu", &size) == 1) {
- 		image_size = size;
- 		return n;
- 	}
+I hope I've explained the strangeness :-) but I'm still concerned that 
+the cursor is jumping a bit.  In general, the entitlement based 
+mechanism is quite good for interactive response as most interactive 
+tasks have very low CPU usage rates but under heavy load their usage 
+rate per share can approach the yardstick (mainly because the yardstick 
+tends to get smaller under load) so some help is required in the form of 
+interactive bonuses.  It looks like this component still needs a little 
+work.
+
+One area that I'm looking at is reducing the time slice size for the 
+first CPU run after a task is forked.  From the above it should be 
+apparent that a task with recent average CPU usage rate of zero (such as 
+a newly forked process) will get a priority of (11 - bonus).  This is 
+usually a good thing as it means that these tasks have good latency but 
+if they are CPU bound tasks they will block out most other runnable 
+tasks for a full time slice which is quite long (120 msecs).  (The 
+occasions where this effect would be most noticeable is when doing 
+something like a kernel build where lots of CPU intensive tasks are 
+being forked.)  Shortening this first time slice won't have much effect 
+on non CPU intensive tasks as they would generally have voluntarily 
+surrendered the CPU within in a few msecs anyway and it will allow the 
+scheduler to give the CPU intensive tasks an appropriate priority early 
+in their life.
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

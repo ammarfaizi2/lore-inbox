@@ -1,56 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbWAWXw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbWAWXyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbWAWXw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 18:52:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWAWXw5
+	id S964863AbWAWXyj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 18:54:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbWAWXyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 18:52:57 -0500
-Received: from holomorphy.com ([66.93.40.71]:44013 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S932423AbWAWXw4 (ORCPT
+	Mon, 23 Jan 2006 18:54:39 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:52126 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964863AbWAWXyi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 18:52:56 -0500
-Date: Mon, 23 Jan 2006 15:52:34 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Don Dupuis <dondster@gmail.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andrew Morton <akpm@osdl.org>, Adam Litke <agl@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Can't mlock hugetlb in 2.6.15
-Message-ID: <20060123235234.GB7655@holomorphy.com>
-References: <632b79000601181149o67f1c013jfecc5e32ee17fe7e@mail.gmail.com> <20060120235240.39d34279.akpm@osdl.org> <43D24167.1010007@yahoo.com.au> <632b79000601221832w4cb44582y823ee7dc80e9a34f@mail.gmail.com> <Pine.LNX.4.61.0601231917210.5915@goblin.wat.veritas.com>
+	Mon, 23 Jan 2006 18:54:38 -0500
+Date: Mon, 23 Jan 2006 15:54:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: jmoyer@redhat.com
+Cc: linux-kernel@vger.kernel.org, Badari Pulavarty <pbadari@us.ibm.com>
+Subject: Re: [patch] fix O_DIRECT read of last block in a sparse file
+Message-Id: <20060123155401.62f7b756.akpm@osdl.org>
+In-Reply-To: <17365.11127.860256.702246@segfault.boston.redhat.com>
+References: <17365.11127.860256.702246@segfault.boston.redhat.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601231917210.5915@goblin.wat.veritas.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 23, 2006 at 07:51:51PM +0000, Hugh Dickins wrote:
-> This has nothing to do with mlock or MAP_LOCKED - which by the way do
-> make more sense in 2.6.15, since they provide a way of prefaulting the
-> hugepage area like in earlier releases (now hugepages are being faulted
-> in on demand, though never paged out, as Andrew said).
-> Please try the patch below, and let us know if it works for you - thanks.
-> Looks like we'll need this in 2.6.16-rc-git and 2.6.15-stable.
-> 2.6.15's hugepage faulting introduced huge_pages_needed accounting into
-> hugetlbfs: to count how many pages are already in cache, for spot check
-> on how far a new mapping may be allowed to extend the file.  But it's
-> muddled: each hugepage found covers HPAGE_SIZE, not PAGE_SIZE.  Once
-> pages were already in cache, it would overshoot, wrap its hugepages
-> count backwards, and so fail a harmless repeat mapping with -ENOMEM.
-> Fixes the problem found by Don Dupuis.
-> Signed-off-by: Hugh Dickins <hugh@veritas.com>
+Jeff Moyer <jmoyer@redhat.com> wrote:
+>
+> Currently, if you open a file O_DIRECT, truncate it to a size that is not a
+>  multiple of the disk block size, and then try to read the last block in the
+>  file, the read will return 0.  The problem is in do_direct_IO, here:
+> 
+>          /* Handle holes */
+>          if (!buffer_mapped(map_bh)) {
+>                  char *kaddr;
+> 
+>  		...
+> 
+>                  if (dio->block_in_file >=
+>                          i_size_read(dio->inode)>>blkbits) {
+>                          /* We hit eof */
+>                          page_cache_release(page);
+>                          goto out;
+>                  }
+> 
+>  We shift off any remaining bytes in the final block of the I/O, resulting
+>  in a 0-sized read.  I've attached a patch that fixes this.  I'm not happy
+>  about how ugly the math is getting, so suggestions are more than welcome.
+> 
+>  I've tested this with a simple program that performs the steps outlined for
+>  reproducing the problem above.  Without the patch, we get a 0-sized result
+>  from read.  With the patch, we get the correct return value from the short
+>  read.
 
-Acked-by: William Irwin <wli@holomorphy.com>
+OK.  We do have some helper functions to make the math a little clearer. 
+How does this look?
 
-A unit conversion error, as usual. It's difficult to understand why
-such a natural decision as to use only one radix tree entry per
-hugepage is so difficult to cope with. If only my eyes had been sharp
-enough to catch it on its way in.
+--- devel/fs/direct-io.c~fix-o_direct-read-of-last-block-in-a-sparse-file	2006-01-23 15:42:31.000000000 -0800
++++ devel-akpm/fs/direct-io.c	2006-01-23 15:51:14.000000000 -0800
+@@ -857,6 +857,7 @@ do_holes:
+ 			/* Handle holes */
+ 			if (!buffer_mapped(map_bh)) {
+ 				char *kaddr;
++				loff_t i_size_aligned;
+ 
+ 				/* AKPM: eargh, -ENOTBLK is a hack */
+ 				if (dio->rw == WRITE) {
+@@ -864,8 +865,14 @@ do_holes:
+ 					return -ENOTBLK;
+ 				}
+ 
++				/*
++				 * Be sure to account for a partial block as the
++				 * last block in the file
++				 */
++				i_size_aligned = ALIGN(i_size_read(dio->inode),
++							1 << blkbits);
+ 				if (dio->block_in_file >=
+-					i_size_read(dio->inode)>>blkbits) {
++						i_size_aligned >> blkbits) {
+ 					/* We hit eof */
+ 					page_cache_release(page);
+ 					goto out;
+_
 
-Excellent detective work as always. Thanks again, Hugh.
-
-
--- wli

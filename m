@@ -1,78 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWAWBS3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWAWBYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932387AbWAWBS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jan 2006 20:18:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWAWBS3
+	id S1750885AbWAWBYE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jan 2006 20:24:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWAWBYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jan 2006 20:18:29 -0500
-Received: from xenotime.net ([66.160.160.81]:26308 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932387AbWAWBS2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jan 2006 20:18:28 -0500
-Date: Sun, 22 Jan 2006 17:18:30 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: dwmw2@infradead.org, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] jffs2: fix printk warnings
-Message-Id: <20060122171830.306e1af9.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
+	Sun, 22 Jan 2006 20:24:04 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:64659 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750885AbWAWBYD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jan 2006 20:24:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=AoHsp4bdzJdvLBh60t2WLJ1Co+FYqsuNc1r2taPylrYdsi4U2C4qHG00kA3t32ISVxdseKBcALx4ndBzFQOygscG49KhSTLKVm6AK74BX/B/c8C/Zr/G9NkGgalRK+MGXElOTdFwUAhyfjimfIcDfOct/Mn+1ZXqgiNaBCQfnDo=
+Message-ID: <787b0d920601221717v460283eclc72380ae541d7fef@mail.gmail.com>
+Date: Sun, 22 Jan 2006 20:17:21 -0500
+From: Albert Cahalan <acahalan@gmail.com>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: anon unions are cool
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5AB1D65D-8F03-4CDF-9847-D75143EC0A9C@mac.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <787b0d920601221636h7acbb891wd52b88e0aea75aaf@mail.gmail.com>
+	 <5AB1D65D-8F03-4CDF-9847-D75143EC0A9C@mac.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+On 1/22/06, Kyle Moffett <mrmacman_g4@mac.com> wrote:
+> On Jan 22, 2006, at 19:36, Albert Cahalan wrote:
+> > For example, suppose we wanted to rename a badly-named struct
+> > member. If the struct is used all over the kernel, this becomes a
+> > giant project with huge potential for patch conflicts.
+>
+> Actually, pure struct-member renames are not that common, however it
+> _is_ common to add an accessor method due to upcoming locking/
+> virtualization changes or similar.  For that case (Using a random
+> recent example from the list.  This was decided to not be the best
+> route for pid virtualization, but it's just an example):
+>
+> struct task_struct {
+>         [...]
+>
+>         pid_t pid;
+>
+>         [...]
+> };
 
-Fix printk format warnings in jffs2.
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- fs/jffs2/readinode.c |    6 +++---
- fs/jffs2/summary.c   |    2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
-
---- linux-2616-rc1g4.orig/fs/jffs2/readinode.c
-+++ linux-2616-rc1g4/fs/jffs2/readinode.c
-@@ -204,7 +204,7 @@ static inline int read_dnode(struct jffs
- 
- 	tn = jffs2_alloc_tmp_dnode_info();
- 	if (!tn) {
--		JFFS2_ERROR("failed to allocate tn (%d bytes).\n", sizeof(*tn));
-+		JFFS2_ERROR("failed to allocate tn (%zu bytes).\n", sizeof(*tn));
- 		return -ENOMEM;
- 	}
- 
-@@ -434,7 +434,7 @@ static int read_more(struct jffs2_sb_inf
- 	}
- 
- 	if (retlen < len) {
--		JFFS2_ERROR("short read at %#08x: %d instead of %d.\n",
-+		JFFS2_ERROR("short read at %#08x: %zu instead of %d.\n",
- 				offs, retlen, len);
- 		return -EIO;
- 	}
-@@ -542,7 +542,7 @@ static int jffs2_get_inode_nodes(struct 
- 		}
- 
- 		if (retlen < len) {
--			JFFS2_ERROR("short read at %#08x: %d instead of %d.\n", ref_offset(ref), retlen, len);
-+			JFFS2_ERROR("short read at %#08x: %zu instead of %d.\n", ref_offset(ref), retlen, len);
- 			err = -EIO;
- 			goto free_out;
- 		}
---- linux-2616-rc1g4.orig/fs/jffs2/summary.c
-+++ linux-2616-rc1g4/fs/jffs2/summary.c
-@@ -655,7 +655,7 @@ static int jffs2_sum_write_data(struct j
- 
- 
- 	if (ret || (retlen != infosize)) {
--		JFFS2_WARNING("Write of %zd bytes at 0x%08x failed. returned %d, retlen %zd\n",
-+		JFFS2_WARNING("Write of %d bytes at 0x%08x failed. returned %d, retlen %zu\n",
- 			infosize, jeb->offset + c->sector_size - jeb->free_size, ret, retlen);
- 
- 		c->summary->sum_size = JFFS2_SUMMARY_NOSUM_SIZE;
-
-
----
+This case is rather interesting. At more than one place I've worked,
+I found people assuming that the kernel's "pid" was a pid, when in
+fact it is a tid. (a "task ID" or "thread ID") The confusion probably
+leads to kernel bugs. I've seen many bugs related to this, though I
+can't be 100% sure that they don't all involve code that existed prior
+to the tgid concept.

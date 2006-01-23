@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWAWV4m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWAWV57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbWAWV4m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 16:56:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbWAWV4m
+	id S932226AbWAWV57 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 16:57:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbWAWV57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 16:56:42 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:45743
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932226AbWAWV4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 16:56:42 -0500
-Date: Mon, 23 Jan 2006 13:56:30 -0800
-From: Greg KH <gregkh@suse.de>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: david-b@pacbell.net, ak@suse.de, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: EHCI + APIC errors = no usb goodness
-Message-ID: <20060123215630.GA27615@suse.de>
-References: <20060123210443.GA20944@suse.de> <20060123132554.13411a1d.zaitcev@redhat.com> <20060123214115.GA15338@suse.de> <20060123135018.4d074a73.zaitcev@redhat.com>
+	Mon, 23 Jan 2006 16:57:59 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:9135 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932226AbWAWV56 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 16:57:58 -0500
+Subject: Re: RFC: [PATCH] pids as weak references.
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Cedric Le Goater <clg@fr.ibm.com>,
+       Vserver <vserver@list.linux-vserver.org>
+In-Reply-To: <m1k6cqlmfe.fsf_-_@ebiederm.dsl.xmission.com>
+References: <20060117143258.150807000@sergelap>
+	 <20060117143326.283450000@sergelap>
+	 <1137511972.3005.33.camel@laptopd505.fenrus.org>
+	 <20060117155600.GF20632@sergelap.austin.ibm.com>
+	 <1137513818.14135.23.camel@localhost.localdomain>
+	 <1137518714.5526.8.camel@localhost.localdomain>
+	 <20060118045518.GB7292@kroah.com>
+	 <1137601395.7850.9.camel@localhost.localdomain>
+	 <m1fyniomw2.fsf@ebiederm.dsl.xmission.com>
+	 <43D14578.6060801@watson.ibm.com>
+	 <m1hd7xmylo.fsf@ebiederm.dsl.xmission.com>
+	 <43D52592.8080709@watson.ibm.com>
+	 <m1k6cqlmfe.fsf_-_@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Date: Mon, 23 Jan 2006 13:57:54 -0800
+Message-Id: <1138053474.12259.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060123135018.4d074a73.zaitcev@redhat.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 23, 2006 at 01:50:18PM -0800, Pete Zaitcev wrote:
-> On Mon, 23 Jan 2006 13:41:15 -0800, Greg KH <gregkh@suse.de> wrote:
-> 
-> > Hm, it's a brand-new laptop [...]
-> > oh, and 2.6.13 seems to work just fine, with ioapic enabled...
-> 
-> Sorry, I didn't catch that. You wrote "a real old 2.6 kernel worked" and
-> I thought you hark back to 2.6.5 or something. Never mind then.
+On Mon, 2006-01-23 at 13:27 -0700, Eric W. Biederman wrote:
+> So currently I can see to justifications for introducing
+> a separation between kpid_t pid_t.
+> 1) pid virtualization
+> 2) In kernel pids that act as weak references, and avoid
+>    the problems of pid wrap-around.
 
-Sorry, I think 2.6.12 is "real old" sometimes, and that is what I was
-thinking of :)
+It is an interesting approach.  But, in its current state, it is very,
+very hard to review.  For starters, could you break it up so that the
+meat of the patch is separate from the easy
+s/foo->pid/pid_nr(foo->pid)/ stuff?
 
-> Oh and by the way, the traceback you posted was 32-bit.
+-- Dave
 
-Yeah, I'm running in 32bit mode, haven't gotten around to trying 64bit
-mode out on this box yet...
-
-thanks,
-
-greg k-h

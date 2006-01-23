@@ -1,136 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWAXVL5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWAXVLK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWAXVL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 16:11:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbWAXVL5
+	id S1750715AbWAXVLK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 16:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWAXVLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 16:11:57 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:13989 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750719AbWAXVLz (ORCPT
+	Tue, 24 Jan 2006 16:11:10 -0500
+Received: from hera.kernel.org ([140.211.167.34]:44009 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1750715AbWAXVLH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 16:11:55 -0500
-Date: Tue, 24 Jan 2006 13:13:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: pavel@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] swsusp: userland interface (rev 2)
-Message-Id: <20060124131312.0545262d.akpm@osdl.org>
-In-Reply-To: <200601240929.37676.rjw@sisk.pl>
-References: <200601240929.37676.rjw@sisk.pl>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 24 Jan 2006 16:11:07 -0500
+Date: Mon, 23 Jan 2006 13:13:41 -0600
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Mel Gorman <mel@csn.ul.ie>
+Cc: linux-mm@kvack.org, jschopp@austin.ibm.com, linux-kernel@vger.kernel.org,
+       kamezawa.hiroyu@jp.fujitsu.com, lhms-devel@lists.sourceforge.net
+Subject: Re: [PATCH 2/4] Split the free lists into kernel and user parts
+Message-ID: <20060123191341.GA4892@dmt.cnet>
+References: <20060120115415.16475.8529.sendpatchset@skynet.csn.ul.ie> <20060120115455.16475.93688.sendpatchset@skynet.csn.ul.ie> <20060122133147.GA4186@dmt.cnet> <Pine.LNX.4.58.0601230937200.11319@skynet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0601230937200.11319@skynet>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
->
-> Hi,
+On Mon, Jan 23, 2006 at 09:39:16AM +0000, Mel Gorman wrote:
+> On Sun, 22 Jan 2006, Marcelo Tosatti wrote:
 > 
-> This patch introduces a user space interface for swsusp.
+> > Hi Mel,
+> >
+> > On Fri, Jan 20, 2006 at 11:54:55AM +0000, Mel Gorman wrote:
+> > >
+> > > This patch adds the core of the anti-fragmentation strategy. It works by
+> > > grouping related allocation types together. The idea is that large groups of
+> > > pages that may be reclaimed are placed near each other. The zone->free_area
+> > > list is broken into RCLM_TYPES number of lists.
+> > >
+> > > Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+> > > Signed-off-by: Joel Schopp <jschopp@austin.ibm.com>
+> > > diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/mmzone.h linux-2.6.16-rc1-mm1-002_fragcore/include/linux/mmzone.h
+> > > --- linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/mmzone.h	2006-01-19 11:21:59.000000000 +0000
+> > > +++ linux-2.6.16-rc1-mm1-002_fragcore/include/linux/mmzone.h	2006-01-19 21:51:05.000000000 +0000
+> > > @@ -22,8 +22,16 @@
+> > >  #define MAX_ORDER CONFIG_FORCE_MAX_ZONEORDER
+> > >  #endif
+> > >
+> > > +#define RCLM_NORCLM 0
+> > > +#define RCLM_EASY   1
+> > > +#define RCLM_TYPES  2
+> > > +
+> > > +#define for_each_rclmtype_order(type, order) \
+> > > +	for (order = 0; order < MAX_ORDER; order++) \
+> > > +		for (type = 0; type < RCLM_TYPES; type++)
+> > > +
+> > >  struct free_area {
+> > > -	struct list_head	free_list;
+> > > +	struct list_head	free_list[RCLM_TYPES];
+> > >  	unsigned long		nr_free;
+> > >  };
+> > >
+> > > diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/page-flags.h linux-2.6.16-rc1-mm1-002_fragcore/include/linux/page-flags.h
+> > > --- linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/page-flags.h	2006-01-19 11:21:59.000000000 +0000
+> > > +++ linux-2.6.16-rc1-mm1-002_fragcore/include/linux/page-flags.h	2006-01-19 21:51:05.000000000 +0000
+> > > @@ -76,6 +76,7 @@
+> > >  #define PG_reclaim		17	/* To be reclaimed asap */
+> > >  #define PG_nosave_free		18	/* Free, should not be written */
+> > >  #define PG_uncached		19	/* Page has been mapped as uncached */
+> > > +#define PG_easyrclm		20	/* Page is in an easy reclaim block */
+> > >
+> > >  /*
+> > >   * Global page accounting.  One instance per CPU.  Only unsigned longs are
+> > > @@ -345,6 +346,12 @@ extern void __mod_page_state_offset(unsi
+> > >  #define SetPageUncached(page)	set_bit(PG_uncached, &(page)->flags)
+> > >  #define ClearPageUncached(page)	clear_bit(PG_uncached, &(page)->flags)
+> > >
+> > > +#define PageEasyRclm(page)	test_bit(PG_easyrclm, &(page)->flags)
+> > > +#define SetPageEasyRclm(page)	set_bit(PG_easyrclm, &(page)->flags)
+> > > +#define ClearPageEasyRclm(page)	clear_bit(PG_easyrclm, &(page)->flags)
+> > > +#define __SetPageEasyRclm(page)	__set_bit(PG_easyrclm, &(page)->flags)
+> > > +#define __ClearPageEasyRclm(page) __clear_bit(PG_easyrclm, &(page)->flags)
+> > > +
+> >
+> > You can't read/write to page->flags non-atomically, except when you
+> > guarantee that the page is not visible to other CPU's (eg at the very
+> > end of the page freeing code).
+> >
+> 
+> The helper PageEasyRclm is only used when either the spinlock is held or a
+> per-cpu page is being released so it should be safe. The Set and Clear
+> helpers are only used with a spinlock held.
 
-How will we know if/when this feature is ready for mainline?  What criteria
-can we use to judge that?
+Mel,
 
-Will you be developing and long-term maintaining the userspace tools?  Is
-it your expectation/hope that distros will migrate onto using them?  etc.
-
-> +
-> +static int snapshot_open(struct inode *inode, struct file *filp)
-> +{
-> +	struct snapshot_data *data;
-> +
-> +	if (!atomic_dec_and_test(&device_available)) {
-> +		atomic_inc(&device_available);
-
-You may find that atomic_add_unless(..., -1, ...) is neater here, and
-closes the tiny race.
-
-> +		return -EBUSY;
-> +	}
-> +
-> +	if ((filp->f_flags & O_ACCMODE) == O_RDWR)
-> +		return -ENOSYS;
-> +
-> +	nonseekable_open(inode, filp);
-> +	data = &snapshot_state;
-> +	filp->private_data = data;
-> +	memset(&data->handle, 0, sizeof(struct snapshot_handle));
-
-<goes off hunting elsewhere for the defn of data->handle.  grr>
-
-> +static ssize_t snapshot_read(struct file *filp, char __user *buf,
-> +                             size_t count, loff_t *offp)
-> +{
-> +	struct snapshot_data *data;
-> +	ssize_t res;
-> +
-> +	data = filp->private_data;
-> +	res = snapshot_read_next(&data->handle, count);
-> +	if (res > 0) {
-> +		if (copy_to_user(buf, data_of(data->handle), res))
-> +			res = -EFAULT;
-> +		else
-> +			*offp = data->handle.offset;
-> +	}
-> +	return res;
-> +}
-
-It's more conventional for a read() to return less-than-was-asked-for when
-it hits a fault.  Doesn't matter though - lots of drivers do it this way.
-
-> +static ssize_t snapshot_write(struct file *filp, const char __user *buf,
-> +                              size_t count, loff_t *offp)
-> +{
-> +	struct snapshot_data *data;
-> +	ssize_t res;
-> +
-> +	data = filp->private_data;
-> +	res = snapshot_write_next(&data->handle, count);
-> +	if (res > 0) {
-> +		if (copy_from_user(data_of(data->handle), buf, res))
-> +			res = -EFAULT;
-> +		else
-> +			*offp = data->handle.offset;
-> +	}
-> +	return res;
-> +}
-
-Ditto.
-
-> +static int snapshot_ioctl(struct inode *inode, struct file *filp,
-> +                          unsigned int cmd, unsigned long arg)
-> +{
->
-> ...
->
-> +	case SNAPSHOT_ATOMIC_RESTORE:
-> +		if (data->mode != O_WRONLY || !data->frozen ||
-> +		    !snapshot_image_loaded(&data->handle)) {
-> +			error = -EPERM;
-> +			break;
-> +		}
-> +		down(&pm_sem);
-> +		pm_prepare_console();
-> +		error = device_suspend(PMSG_FREEZE);
-> +		if (!error) {
-> +			mb();
-> +			error = swsusp_resume();
-> +			device_resume();
-> +		}
-
-whee, what does the mystery barrier do?  It'd be nice to comment this
-(please always comment open-coded barriers).
-
-> +	case SNAPSHOT_GET_SWAP_PAGE:
-> +		if (!access_ok(VERIFY_WRITE, (unsigned long __user *)arg, _IOC_SIZE(cmd))) {
-> +			error = -EINVAL;
-> +			break;
-> +		}
-
-Why do we need an access_ok() here?
-
-Should it return -EFAULT?
+Other codepaths which touch page->flags do not hold any lock, so you
+really must use atomic operations, except when you've guarantee that the
+page is being freed and won't be reused.
 
 

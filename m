@@ -1,113 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWAWSit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWAWSkx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964870AbWAWSit (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 13:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbWAWSit
+	id S964882AbWAWSkx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 13:40:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964881AbWAWSkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 13:38:49 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:8940 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964870AbWAWSit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 13:38:49 -0500
-Message-ID: <43D522B2.5060308@watson.ibm.com>
-Date: Mon, 23 Jan 2006 13:38:42 -0500
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-References: <20060117143258.150807000@sergelap>	<20060117143326.283450000@sergelap>	<1137511972.3005.33.camel@laptopd505.fenrus.org>	<20060117155600.GF20632@sergelap.austin.ibm.com>	<1137513818.14135.23.camel@localhost.localdomain>	<1137518714.5526.8.camel@localhost.localdomain>	<20060118045518.GB7292@kroah.com>	<1137601395.7850.9.camel@localhost.localdomain>	<m1fyniomw2.fsf@ebiederm.dsl.xmission.com>	<43D14578.6060801@watson.ibm.com> <m1y819naio.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1y819naio.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 23 Jan 2006 13:40:53 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:17307 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S964876AbWAWSkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 13:40:52 -0500
+Message-Id: <200601231840.k0NIelbp017964@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Al Boldi <a1426z@gawab.com>
+Cc: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] VM: I have a dream... 
+In-Reply-To: Your message of "Mon, 23 Jan 2006 21:03:06 +0300."
+             <200601232103.07007.a1426z@gawab.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200601212108.41269.a1426z@gawab.com> <20060122123335.GB26683@lnx-holt.americas.sgi.com>
+            <200601232103.07007.a1426z@gawab.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1138041646_2962P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 23 Jan 2006 13:40:46 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> Hubertus Franke <frankeh@watson.ibm.com> writes:
-> 
+--==_Exmh_1138041646_2962P
+Content-Type: text/plain; charset=us-ascii
 
-> ...
-> 
->>Actions: The vpid_to_pid will disappear and the check for whether we are in the
->>same
->>container needs to be pushed down into the task lookup. question remains to
->>figure out
->>whether the context of the task lookup (will always remain the caller ?).
-> 
-> 
-> You don't need a same container check.  If something is in another container
-> it becomes invisible to you.
-> 
+On Mon, 23 Jan 2006 21:03:06 +0300, Al Boldi said:
 
-Eric, agreed.... that was implied by me (but poorly worded). What I meant (lets try this
-again) is that the context defines/provides the namespace in which the lookup
-is performed, hence as you say state.. naturally things in different containers
-(namespaces) are invisible to you..
+> The idea here is to run inside swap instead of using it as an addon.
+> In effect running inside memory cached by physical RAM.
+> 
+> Wouldn't something like this at least represent a simple starting point?
 
-> 
->>Doing so has an implication, namely that we are moving over to "system
->>containers".
->>The current implementation requires the vpid/pid only for the boundary condition
->>at the
->>top of the container (to rewrite pid=1) and its parent and the fact that we
->>wanted
->>a global look through container=0.
->>If said boundary would be eliminated and we simply make a container a child of
->>the
->>initproc (pid=1), this would be unnecessary.
->>
->>all together this would provide private namespaces (as just suggested by Eric).
->>
->>The feeling would be that large parts of patch could be reduce by this.
-> 
-> 
-> I concur.  Except I think the initial impact could still be large.
-> It may be worth breaking all users of pids just so we audit them.
-> 
-> But that will certainly result in no long term cost, or runtime overhead.
-> 
-> 
->>What we need is a new system calls (similar to vserver) or maybe we can continue
->>the /proc approach for now...
->>
->>sys_exec_container(const *char container_name, pid_t pid, unsigned int flags,
->>const *char argv, const *char envp);
->>
->>exec_container creates a new container (if indicated in flags) and a new task in
->>it that reports to parent initproc.
->>if a non-zero pid is specified we use that pid, otherwise the system will
->>allocate it. Finally
->>it create new session id ; chroot and exec's the specified program.
->>
->>What we loose with this is the session and the tty, which Cedric described as
->>application
->>container...
->>
->>The sys_exec_container(...)  seems to be similar to what Eric just called
->>clone_namespace()
-> 
-> 
-> Similar. But I was actually talking about just adding another flag to
-> sys_clone the syscall underlying fork().  Basically it is just another
-> resource not share or not-share.
-> 
-> Eric
-> 
+We *already* treat RAM as a cache for the swap space and other backing store
+(for instance, paging in executable code from a file), if you're looking at
+it from the 30,000 foot fly-over...
 
-That's a good idea .. right now we simply did this through a flag left by the call
-to the /proc/container fs ... (awkward at best, but didn't break the API).
-I have a concern wrt doing it in during fork namely the sharing of resources.
-Whe obviously are looking at some constraints here wrt to sharing. We need to
-ensure that this ain't a thread etc that will share resources
-across "containers" (which then later aren't migratable due to that sharing).
-So doing the fork_exec() atomically would avoid that problem.
+However, it quickly digresses from a "simple starting point" when you try to
+get decent performance out of it, even when people are doing things that tend
+to make your algorithm fold up.  A machine with a gigabyte of memory has on the
+order of a quarter million 4K pages - which page are you going to move out to
+swap to make room?  And if you guess wrong, multiple processes will stall as
+the system starts to thrash. (In fact, "thrashing" is just a short way of
+saying "consistently guessing wrong as to which pages will be needed soon"....)
+
+But hey, if you got a new page replacement algorithm that performs better,
+feel free to post the code.. ;)
+
+Example of why it's a pain in the butt:
+
+A process does a "read(foo, &buffer, 65536);".  buffer is declared as 16
+contiguous 4K pages, none of which are currently in memory.  How many pages do
+you have to read in, and at what point do you issue the I/O? (hint - work this
+problem for a device that's likely to return 64K of data, and again for a
+device that has a high chance of only returning 2K of data.....)
+
+But yeah, other than all the cruft like that, it's simple. :)
 
 
+--==_Exmh_1138041646_2962P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFD1SMucC3lWbTT17ARAp4qAJ9LnWxo50kFa+ga5IcCh45hssp0XQCg8EIY
+KUmT5K0gG1TMQY1L3zkXuVo=
+=uKb6
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1138041646_2962P--

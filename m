@@ -1,23 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbWAWU1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbWAWU1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964940AbWAWU1q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 15:27:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbWAWU1g
+	id S964929AbWAWU1J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 15:27:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWAWU1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 15:27:36 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:25029 "EHLO
+	Mon, 23 Jan 2006 15:27:09 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:22469 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964931AbWAWU1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 15:27:18 -0500
+	id S932472AbWAWU1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 15:27:04 -0500
 From: mchehab@infradead.org
 To: linux-kernel@vger.kernel.org
 Cc: linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com,
-       akpm@osdl.org, Adrian Bunk <bunk@stusta.de>,
-       Michael Krufky <mkrufky@m1k.net>,
+       akpm@osdl.org, Markus Rechberger <mrechberger@gmail.com>,
        Mauro Carvalho Chehab <mchehab@infradead.org>
-Subject: [PATCH 04/16] VIDEO_CX88_ALSA must select SND_PCM
-Date: Mon, 23 Jan 2006 18:24:43 -0200
-Message-id: <20060123202443.PS82191400004@infradead.org>
+Subject: [PATCH 16/16] changed comment in tuner-core.c
+Date: Mon, 23 Jan 2006 18:24:45 -0200
+Message-id: <20060123202445.PS85612500016@infradead.org>
 In-Reply-To: <20060123202404.PS66974000000@infradead.org>
 References: <20060123202404.PS66974000000@infradead.org>
 Mime-Version: 1.0
@@ -29,28 +28,28 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by penta
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk <bunk@stusta.de>
+From: Markus Rechberger <mrechberger@gmail.com>
 
-- VIDEO_CX88_ALSA must select SND_PCM
+- changed comment in tuner-core.c
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+Signed-off-by: Markus Rechberger <mrechberger@gmail.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@infradead.org>
 ---
 
- drivers/media/video/cx88/Kconfig |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ drivers/media/video/tuner-core.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/media/video/cx88/Kconfig b/drivers/media/video/cx88/Kconfig
-index 5330891..fdf45f7 100644
---- a/drivers/media/video/cx88/Kconfig
-+++ b/drivers/media/video/cx88/Kconfig
-@@ -32,6 +32,7 @@ config VIDEO_CX88_DVB
- config VIDEO_CX88_ALSA
- 	tristate "ALSA DMA audio support"
- 	depends on VIDEO_CX88 && SND && EXPERIMENTAL
-+	select SND_PCM
- 	---help---
- 	  This is a video4linux driver for direct (DMA) audio on
- 	  Conexant 2388x based TV cards.
+diff --git a/drivers/media/video/tuner-core.c b/drivers/media/video/tuner-core.c
+index e6bcd4b..873bf3d 100644
+--- a/drivers/media/video/tuner-core.c
++++ b/drivers/media/video/tuner-core.c
+@@ -449,7 +449,7 @@ static int tuner_attach(struct i2c_adapt
+ 			printk("%02x ",buffer[i]);
+ 		printk("\n");
+ 	}
+-	/* TEA5767 autodetection code - only for addr = 0xc0 */
++	/* autodetection code based on the i2c addr */
+ 	if (!no_autodetect) {
+ 		switch (addr) {
+ 		case 0x42:
 

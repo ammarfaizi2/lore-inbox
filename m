@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbWAWKqP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWAWK4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932451AbWAWKqP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 05:46:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWAWKqP
+	id S1750755AbWAWK4k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 05:56:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbWAWK4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 05:46:15 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:60806 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S932451AbWAWKqO (ORCPT
+	Mon, 23 Jan 2006 05:56:40 -0500
+Received: from mail.gmx.net ([213.165.64.21]:6791 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750755AbWAWK4j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 05:46:14 -0500
-Date: Mon, 23 Jan 2006 11:45:22 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Heinz Mauelshagen <mauelshagen@redhat.com>
-Cc: Neil Brown <neilb@suse.de>, Phillip Susi <psusi@cfl.rr.com>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       "Lincoln Dale (ltd)" <ltd@cisco.com>, Michael Tokarev <mjt@tls.msk.ru>,
-       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
-Subject: Re: [PATCH 000 of 5] md: Introduction
-Message-ID: <20060123104522.GE2366@marowsky-bree.de>
-References: <17360.9233.215291.380922@cse.unsw.edu.au> <20060120183621.GA2799@redhat.com> <20060120225724.GW22163@marowsky-bree.de> <20060121000142.GR2801@redhat.com> <20060121000344.GY22163@marowsky-bree.de> <20060121000806.GT2801@redhat.com> <20060121001311.GA22163@marowsky-bree.de> <20060123094418.GX2801@redhat.com> <20060123102601.GD2366@marowsky-bree.de> <20060123103851.GY2801@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 23 Jan 2006 05:56:39 -0500
+X-Authenticated: #428038
+Date: Mon, 23 Jan 2006 11:56:34 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Rationale for RLIMIT_MEMLOCK?
+Message-ID: <20060123105634.GA17439@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060123103851.GY2801@redhat.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.9i
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006-01-23T11:38:51, Heinz Mauelshagen <mauelshagen@redhat.com> wrote:
+Greetings,
 
-> > Ok, I still didn't get that. I must be slow.
-> > 
-> > Did you implement some DM-internal stacking now to avoid the above
-> > mentioned complexity? 
-> > 
-> > Otherwise, even DM-on-DM is still stacked via the block device
-> > abstraction...
-> 
-> No, not necessary because a single-level raid4/5 mapping will do it.
-> Ie. it supports <offset> parameters in the constructor as other targets
-> do as well (eg. mirror or linear).
+debugging an application problem that used to mlockall(...FUTURE) and
+failed with a subsequent mmap(), I came across the manual page for
+setrlimit (see below for the relevant excerpt). I have several questions
+concerning the rationale:
 
-An dm-md wrapper would not support such a basic feature (which is easily
-added to md too) how?
+1. What is the reason we're having special treatment
+   for the super-user here?
 
-I mean, "I'm rewriting it because I want to and because I understand and
-own the code then" is a perfectly legitimate reason, but let's please
-not pretend there's really sound and good technical reasons ;-)
+2. Why is it the opposite of what 2.6.8.1 and earlier did?
 
+3. Why is this inconsistent with all other RLIMIT_*?
+   Neither of which cares if a process is privileged or not.
 
-Sincerely,
-    Lars Marowsky-Brée
+4. Is the default hard limit of 32 kB initialized by the kernel or
+   by some script in SUSE 10.0? If it's the kernel: why is the limit so
+   low, and why isn't just the soft limit set?
+
+   "[...]
+    RLIMIT_MEMLOCK
+      The maximum number of bytes of memory that may  be  locked  into
+      RAM.  In effect this limit is rounded down to the nearest multi-
+      ple of the system page size.  This limit  affects  mlock(2)  and
+      mlockall(2)  and  the mmap(2) MAP_LOCKED operation.  Since Linux
+      2.6.9 it also affects the shmctl(2) SHM_LOCK operation, where it
+      sets a maximum on the total bytes in shared memory segments (see
+      shmget(2)) that may be locked by the real user ID of the calling
+      process.   The  shmctl(2) SHM_LOCK locks are accounted for sepa-
+      rately  from  the  per-process  memory  locks   established   by
+      mlock(2),  mlockall(2),  and  mmap(2)  MAP_LOCKED; a process can
+      lock bytes up to this limit in each of these two categories.  In
+      Linux  kernels before 2.6.9, this limit controlled the amount of
+      memory that could be locked  by  a  privileged  process.   Since
+      Linux 2.6.9, no limits are placed on the amount of memory that a
+      privileged process may lock, and this limit instead governs  the
+      amount of memory that an unprivileged process may lock. [...]"
+   (getrlimit(2), man-pages-2.07)
 
 -- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
-
+Matthias Andree

@@ -1,363 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbWAWS0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWAWSit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751427AbWAWS0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 13:26:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWAWS0X
+	id S964870AbWAWSit (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 13:38:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbWAWSit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 13:26:23 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:964 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751427AbWAWS0W (ORCPT
+	Mon, 23 Jan 2006 13:38:49 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:8940 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964870AbWAWSit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 13:26:22 -0500
-Message-ID: <43D52023.4090607@us.ibm.com>
-Date: Mon, 23 Jan 2006 12:27:47 -0600
-From: "V. Ananda Krishnan" <mansarov@us.ibm.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Mon, 23 Jan 2006 13:38:49 -0500
+Message-ID: <43D522B2.5060308@watson.ibm.com>
+Date: Mon, 23 Jan 2006 13:38:42 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk, akpm@osdl.org,
-       gregkh@suse.de
-Subject: Re: [PATCH]-jsm driver fix for linux-2.6.16-rc1
-References: <43D1099E.3050509@us.ibm.com> <1137781399.24161.30.camel@localhost.localdomain>
-In-Reply-To: <1137781399.24161.30.camel@localhost.localdomain>
-Content-Type: multipart/mixed;
- boundary="------------010807040408060109030507"
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+References: <20060117143258.150807000@sergelap>	<20060117143326.283450000@sergelap>	<1137511972.3005.33.camel@laptopd505.fenrus.org>	<20060117155600.GF20632@sergelap.austin.ibm.com>	<1137513818.14135.23.camel@localhost.localdomain>	<1137518714.5526.8.camel@localhost.localdomain>	<20060118045518.GB7292@kroah.com>	<1137601395.7850.9.camel@localhost.localdomain>	<m1fyniomw2.fsf@ebiederm.dsl.xmission.com>	<43D14578.6060801@watson.ibm.com> <m1y819naio.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1y819naio.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010807040408060109030507
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Eric W. Biederman wrote:
+> Hubertus Franke <frankeh@watson.ibm.com> writes:
+> 
 
-I am submitting the revised patch. We removed the use of jsm-rawreadok 
-feature. Greg's suggestions are also taken care of.  Let me have the 
-feed-back.
+> ...
+> 
+>>Actions: The vpid_to_pid will disappear and the check for whether we are in the
+>>same
+>>container needs to be pushed down into the task lookup. question remains to
+>>figure out
+>>whether the context of the task lookup (will always remain the caller ?).
+> 
+> 
+> You don't need a same container check.  If something is in another container
+> it becomes invisible to you.
+> 
 
+Eric, agreed.... that was implied by me (but poorly worded). What I meant (lets try this
+again) is that the context defines/provides the namespace in which the lookup
+is performed, hence as you say state.. naturally things in different containers
+(namespaces) are invisible to you..
 
-Thanks,
-V. Ananda Krishnan
-
-
-
-Alan Cox wrote:
-> On Gwe, 2006-01-20 at 10:02 -0600, V. Ananda Krishnan wrote:
->> Hi,
+> 
+>>Doing so has an implication, namely that we are moving over to "system
+>>containers".
+>>The current implementation requires the vpid/pid only for the boundary condition
+>>at the
+>>top of the container (to rewrite pid=1) and its parent and the fact that we
+>>wanted
+>>a global look through container=0.
+>>If said boundary would be eliminated and we simply make a container a child of
+>>the
+>>initproc (pid=1), this would be unnecessary.
 >>
->>    The following patch takes into account the dynamically allocated 
->> tty_buf changes and hence fixes the jsm driver.  Please let me have the 
->> feed-back.
+>>all together this would provide private namespaces (as just suggested by Eric).
+>>
+>>The feeling would be that large parts of patch could be reduce by this.
 > 
-> - Do you still need the shortcut stuff with your own private buffer ?
 > 
-> I'd like to move to a model where ldiscs free up the tty buffers to both
-> improve the locking and kill the horrible DONT_FLIP hacks in n_tty. If
-> you do it isn't a problem but I need to ensure there is a way to
-> directly allocate a buffer for this use.
+> I concur.  Except I think the initial impact could still be large.
+> It may be worth breaking all users of pids just so we audit them.
 > 
-> Alan
+> But that will certainly result in no long term cost, or runtime overhead.
 > 
+> 
+>>What we need is a new system calls (similar to vserver) or maybe we can continue
+>>the /proc approach for now...
+>>
+>>sys_exec_container(const *char container_name, pid_t pid, unsigned int flags,
+>>const *char argv, const *char envp);
+>>
+>>exec_container creates a new container (if indicated in flags) and a new task in
+>>it that reports to parent initproc.
+>>if a non-zero pid is specified we use that pid, otherwise the system will
+>>allocate it. Finally
+>>it create new session id ; chroot and exec's the specified program.
+>>
+>>What we loose with this is the session and the tty, which Cedric described as
+>>application
+>>container...
+>>
+>>The sys_exec_container(...)  seems to be similar to what Eric just called
+>>clone_namespace()
+> 
+> 
+> Similar. But I was actually talking about just adding another flag to
+> sys_clone the syscall underlying fork().  Basically it is just another
+> resource not share or not-share.
+> 
+> Eric
 > 
 
+That's a good idea .. right now we simply did this through a flag left by the call
+to the /proc/container fs ... (awkward at best, but didn't break the API).
+I have a concern wrt doing it in during fork namely the sharing of resources.
+Whe obviously are looking at some constraints here wrt to sharing. We need to
+ensure that this ain't a thread etc that will share resources
+across "containers" (which then later aren't migratable due to that sharing).
+So doing the fork_exec() atomically would avoid that problem.
 
---------------010807040408060109030507
-Content-Type: text/plain;
- name="patch_jsm_012306.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch_jsm_012306.txt"
 
-diff -Naur linux-2.6.16-rc1/drivers/serial/Kconfig linux-2.6.16-rc1-mod/drivers/serial/Kconfig
---- linux-2.6.16-rc1/drivers/serial/Kconfig	2006-01-23 11:08:19.000000000 -0600
-+++ linux-2.6.16-rc1-mod/drivers/serial/Kconfig	2006-01-23 11:06:41.000000000 -0600
-@@ -893,7 +893,7 @@
- 
- config SERIAL_JSM
-         tristate "Digi International NEO PCI Support"
--	depends on PCI && BROKEN
-+	depends on PCI 
-         select SERIAL_CORE
-         help
-           This is a driver for Digi International's Neo series
-diff -Naur linux-2.6.16-rc1/drivers/serial/jsm/jsm_tty.c linux-2.6.16-rc1-mod/drivers/serial/jsm/jsm_tty.c
---- linux-2.6.16-rc1/drivers/serial/jsm/jsm_tty.c	2006-01-23 11:03:24.000000000 -0600
-+++ linux-2.6.16-rc1-mod/drivers/serial/jsm/jsm_tty.c	2006-01-23 11:25:42.000000000 -0600
-@@ -20,8 +20,10 @@
-  *
-  * Contact Information:
-  * Scott H Kilau <Scott_Kilau@digi.com>
-- * Wendy Xiong   <wendyx@us.ltcfwd.linux.ibm.com>
-- *
-+ * Ananda Venkatarman <mansarov@us.ibm.com>
-+ * Modifications:
-+ * 01/19/06:	changed jsm_input routine to use the dynamically allocated
-+ *		tty_buffer changes. Contributors: Scott Kilau and Ananda V.
-  ***********************************************************************/
- #include <linux/tty.h>
- #include <linux/tty_flip.h>
-@@ -497,16 +499,16 @@
- {
- 	struct jsm_board *bd;
- 	struct tty_struct *tp;
-+	struct tty_ldisc *ld;
- 	u32 rmask;
- 	u16 head;
- 	u16 tail;
- 	int data_len;
- 	unsigned long lock_flags;
--	int flip_len;
-+	int flip_len = 0;
- 	int len = 0;
- 	int n = 0;
- 	char *buf = NULL;
--	char *buf2 = NULL;
- 	int s = 0;
- 	int i = 0;
- 
-@@ -574,59 +576,54 @@
- 
- 	/*
- 	 * If the rxbuf is empty and we are not throttled, put as much
--	 * as we can directly into the linux TTY flip buffer.
--	 * The jsm_rawreadok case takes advantage of carnal knowledge that
--	 * the char_buf and the flag_buf are next to each other and
--	 * are each of (2 * TTY_FLIPBUF_SIZE) size.
-+	 * as we can directly into the linux TTY buffer.
- 	 *
--	 * NOTE: if(!tty->real_raw), the call to ldisc.receive_buf
--	 *actually still uses the flag buffer, so you can't
--	 *use it for input data
--	 */
--	if (jsm_rawreadok) {
--		if (tp->real_raw)
--			flip_len = MYFLIPLEN;
--		else
--			flip_len = 2 * TTY_FLIPBUF_SIZE;
--	} else
--		flip_len = TTY_FLIPBUF_SIZE - tp->flip.count;
-+	 */
-+	flip_len = TTY_FLIPBUF_SIZE;
- 
- 	len = min(data_len, flip_len);
- 	len = min(len, (N_TTY_BUF_SIZE - 1) - tp->read_cnt);
-+	ld = tty_ldisc_ref(tp);
-+
-+        /*
-+         * If the DONT_FLIP flag is on, don't flush our buffer, and act
-+         * like the ld doesn't have any space to put the data right now.
-+         */
-+        if (test_bit(TTY_DONT_FLIP, &tp->flags))
-+		len = 0;
-+
-+	/*
-+	 * If we were unable to get a reference to the ld,
-+	 * don't flush our buffer, and act like the ld doesn't
-+	 * have any space to put the data right now.
-+	 */
-+	if (!ld) {
-+		len = 0;
-+	} else {
-+		/*
-+		 * If ld doesn't have a pointer to a receive_buf function,
-+		 * flush the data, then act like the ld doesn't have any
-+		 * space to put the data right now.
-+		 */
-+			if (!ld->receive_buf) {
-+				ch->ch_r_head = ch->ch_r_tail;
-+				len = 0;
-+		}
-+	}
-+
- 
- 	if (len <= 0) {
- 		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
- 		jsm_printk(READ, INFO, &ch->ch_bd->pci_dev, "jsm_input 1\n");
-+		if (ld)
-+			tty_ldisc_deref(ld);
- 		return;
- 	}
- 
--	/*
--	 * If we're bypassing flip buffers on rx, we can blast it
--	 * right into the beginning of the buffer.
--	 */
--	if (jsm_rawreadok) {
--		if (tp->real_raw) {
--			if (ch->ch_flags & CH_FLIPBUF_IN_USE) {
--				jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
--					"JSM - FLIPBUF in use. delaying input\n");
--				spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
--				return;
--			}
--			ch->ch_flags |= CH_FLIPBUF_IN_USE;
--			buf = ch->ch_bd->flipbuf;
--			buf2 = NULL;
--		} else {
--			buf = tp->flip.char_buf;
--			buf2 = tp->flip.flag_buf;
--		}
--	} else {
--		buf = tp->flip.char_buf_ptr;
--		buf2 = tp->flip.flag_buf_ptr;
--	}
--
-+	len = tty_buffer_request_room(tp, len);
- 	n = len;
- 
--	/*
-+        /*
- 	 * n now contains the most amount of data we can copy,
- 	 * bounded either by the flip buffer size or the amount
- 	 * of data the card actually has pending...
-@@ -638,121 +635,47 @@
- 		if (s <= 0)
- 			break;
- 
--		memcpy(buf, ch->ch_rqueue + tail, s);
--
--		/* buf2 is only set when port isn't raw */
--		if (buf2)
--			memcpy(buf2, ch->ch_equeue + tail, s);
--
--		tail += s;
--		buf += s;
--		if (buf2)
--			buf2 += s;
--		n -= s;
--		/* Flip queue if needed */
--		tail &= rmask;
--	}
-+			/*
-+			 * If conditions are such that ld needs to see all
-+			 * UART errors, we will have to walk each character
-+			 * and error byte and send them to the buffer one at
-+			 * a time.
-+			 */
- 
--	/*
--	 * In high performance mode, we don't have to update
--	 * flag_buf or any of the counts or pointers into flip buf.
--	 */
--	if (!jsm_rawreadok) {
- 		if (I_PARMRK(tp) || I_BRKINT(tp) || I_INPCK(tp)) {
--			for (i = 0; i < len; i++) {
-+			for (i = 0; i < s; i++) {
- 				/*
- 				 * Give the Linux ld the flags in the
- 				 * format it likes.
- 				 */
--				if (tp->flip.flag_buf_ptr[i] & UART_LSR_BI)
--					tp->flip.flag_buf_ptr[i] = TTY_BREAK;
--				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_PE)
--					tp->flip.flag_buf_ptr[i] = TTY_PARITY;
--				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_FE)
--					tp->flip.flag_buf_ptr[i] = TTY_FRAME;
-+				if (*(ch->ch_equeue +tail +i) & UART_LSR_BI)
-+					tty_insert_flip_char(tp, *(ch->ch_rqueue +tail +i),  TTY_BREAK);
-+				else if (*(ch->ch_equeue +tail +i) & UART_LSR_PE)
-+					tty_insert_flip_char(tp, *(ch->ch_rqueue +tail +i), TTY_PARITY);
-+				else if (*(ch->ch_equeue +tail +i) & UART_LSR_FE)
-+					tty_insert_flip_char(tp, *(ch->ch_rqueue +tail +i), TTY_FRAME);
- 				else
--					tp->flip.flag_buf_ptr[i] = TTY_NORMAL;
--			}
-+				tty_insert_flip_char(tp, *(ch->ch_rqueue +tail +i), TTY_NORMAL);
-+			} 
- 		} else {
--			memset(tp->flip.flag_buf_ptr, 0, len);
-+			tty_insert_flip_string(tp, ch->ch_rqueue + tail, s) ;
- 		}
--
--		tp->flip.char_buf_ptr += len;
--		tp->flip.flag_buf_ptr += len;
--		tp->flip.count += len;
--	}
--	else if (!tp->real_raw) {
--		if (I_PARMRK(tp) || I_BRKINT(tp) || I_INPCK(tp)) {
--			for (i = 0; i < len; i++) {
--				/*
--				 * Give the Linux ld the flags in the
--				 * format it likes.
--				 */
--				if (tp->flip.flag_buf_ptr[i] & UART_LSR_BI)
--					tp->flip.flag_buf_ptr[i] = TTY_BREAK;
--				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_PE)
--					tp->flip.flag_buf_ptr[i] = TTY_PARITY;
--				else if (tp->flip.flag_buf_ptr[i] & UART_LSR_FE)
--					tp->flip.flag_buf_ptr[i] = TTY_FRAME;
--				else
--					tp->flip.flag_buf_ptr[i] = TTY_NORMAL;
--			}
--		} else
--			memset(tp->flip.flag_buf, 0, len);
-+		tail += s;
-+		n -= s;
-+		/* Flip queue if needed */
-+                tail &= rmask;
- 	}
- 
--	/*
--	 * If we're doing raw reads, jam it right into the
--	 * line disc bypassing the flip buffers.
--	 */
--	if (jsm_rawreadok) {
--		if (tp->real_raw) {
--			ch->ch_r_tail = tail & rmask;
--			ch->ch_e_tail = tail & rmask;
--
--			jsm_check_queue_flow_control(ch);
--
--			/* !!! WE *MUST* LET GO OF ALL LOCKS BEFORE CALLING RECEIVE BUF !!! */
-+	ch->ch_r_tail = tail & rmask;
-+	ch->ch_e_tail = tail & rmask;
-+	jsm_check_queue_flow_control(ch);
-+	spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
- 
--			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
-+	/* Tell the tty layer its okay to "eat" the data now */
-+	tty_flip_buffer_push(tp);
- 
--			jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
--				"jsm_input. %d real_raw len:%d calling receive_buf for board %d\n",
--				__LINE__, len, ch->ch_bd->boardnum);
--			tp->ldisc.receive_buf(tp, ch->ch_bd->flipbuf, NULL, len);
--
--			/* Allow use of channel flip buffer again */
--			spin_lock_irqsave(&ch->ch_lock, lock_flags);
--			ch->ch_flags &= ~CH_FLIPBUF_IN_USE;
--			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
--
--		} else {
--			ch->ch_r_tail = tail & rmask;
--			ch->ch_e_tail = tail & rmask;
--
--			jsm_check_queue_flow_control(ch);
--
--			/* !!! WE *MUST* LET GO OF ALL LOCKS BEFORE CALLING RECEIVE BUF !!! */
--			spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
--
--			jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
--				"jsm_input. %d not real_raw len:%d calling receive_buf for board %d\n",
--				__LINE__, len, ch->ch_bd->boardnum);
--
--			tp->ldisc.receive_buf(tp, tp->flip.char_buf, tp->flip.flag_buf, len);
--		}
--	} else {
--		ch->ch_r_tail = tail & rmask;
--		ch->ch_e_tail = tail & rmask;
--
--		jsm_check_queue_flow_control(ch);
--
--		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
--
--		jsm_printk(READ, INFO, &ch->ch_bd->pci_dev,
--			"jsm_input. %d not jsm_read raw okay scheduling flip\n", __LINE__);
--		tty_schedule_flip(tp);
--	}
-+	if (ld)
-+		tty_ldisc_deref(ld);
- 
- 	jsm_printk(IOCTL, INFO, &ch->ch_bd->pci_dev, "finish\n");
- }
 
---------------010807040408060109030507--

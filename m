@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbWAWU4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWAWU7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964868AbWAWU4M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 15:56:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964954AbWAWU4L
+	id S964857AbWAWU7P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 15:59:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964873AbWAWU7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 15:56:11 -0500
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:27784 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S1030188AbWAWU4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 15:56:09 -0500
-Date: Mon, 23 Jan 2006 21:56:08 +0100
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/04] Add DSA key type
-Message-ID: <20060123205608.GA9751@hardeman.nu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20060123173208.GA23964@2gen.com> <11380489522362@2gen.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <11380489522362@2gen.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 23 Jan 2006 15:59:15 -0500
+Received: from silver.veritas.com ([143.127.12.111]:26001 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S964857AbWAWU7O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 15:59:14 -0500
+Date: Mon, 23 Jan 2006 20:59:53 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Christoph Lameter <clameter@sgi.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: VM_ZONE_RECLAIM_MODE warning in kernel/sysctl.c
+Message-ID: <Pine.LNX.4.61.0601232035450.6596@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 23 Jan 2006 20:59:14.0299 (UTC) FILETIME=[DDDEDCB0:01C6205F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 23, 2006 at 09:42:32PM +0100, David Härdeman wrote:
->The following four patches add support for DSA keys to the in-kernel key 
->management system. 
-[...]
->1) Adds the multi-precision-integer maths library which was originally taken
->   from GnuPG and ported to the kernel by David Howells in 2004
->   (http://people.redhat.com/~dhowells/modsign/modsign-269rc4mm1-2.diff.bz2)
+Hi Christoph,
 
-And in case that patch is caught by any size restrictions, it's also 
-available at:
-http://www.hardeman.nu/~david/lkml/01-add-mpilib.patch
+I'm puzzled why I who only pretend to have NUMA get this compiler warning
+kernel/sysctl.c:881: warning: initialization from incompatible pointer type
+but people who really have NUMA don't.  Specifying the address of an int
+instead of a function looks unhealthy to me: could you please test this
+plausible but possibly nonsense patch below, correct it where necessary,
+and send it in?  Thanks.
 
-Re,
-David
+
+Heed NUMA VM_ZONE_RECLAIM_MODE compiler warning in kernel/sysctl.c.
+
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+
+--- 2.6.16-rc1-git4/kernel/sysctl.c	2006-01-22 09:22:41.000000000 +0000
++++ linux/kernel/sysctl.c	2006-01-23 13:25:22.000000000 +0000
+@@ -878,7 +878,8 @@ static ctl_table vm_table[] = {
+ 		.maxlen		= sizeof(zone_reclaim_mode),
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_dointvec,
+-		.strategy	= &zero,
++		.strategy	= &sysctl_intvec,
++		.extra1		= &zero,
+ 	},
+ #endif
+ 	{ .ctl_name = 0 }

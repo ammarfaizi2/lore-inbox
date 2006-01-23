@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbWAWTzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWAWT5l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932469AbWAWTzs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 14:55:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbWAWTzs
+	id S932464AbWAWT5l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 14:57:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWAWT5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 14:55:48 -0500
-Received: from gate.crashing.org ([63.228.1.57]:9891 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932466AbWAWTzr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 14:55:47 -0500
-Date: Mon, 23 Jan 2006 13:48:21 -0600 (CST)
-From: Kumar Gala <galak@gate.crashing.org>
-To: dbrownell@users.sourceforge.net
-cc: Randy Vinson <rvinson@mvista.com>, <linux-kernel@vger.kernel.org>,
-       <linux-usb-devel@lists.sourceforge.net>
-Subject: [PATCH] USB: Fix masking bug initialization of Freescale EHCI
- controller  
-Message-ID: <Pine.LNX.4.44.0601231346470.16800-100000@gate.crashing.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 23 Jan 2006 14:57:41 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:31651 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932464AbWAWT5k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 14:57:40 -0500
+Subject: Re: Rationale for RLIMIT_MEMLOCK?
+From: Lee Revell <rlrevell@joe-job.com>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060123185549.GA15985@merlin.emma.line.org>
+References: <20060123105634.GA17439@merlin.emma.line.org>
+	 <1138014312.2977.37.camel@laptopd505.fenrus.org>
+	 <20060123165415.GA32178@merlin.emma.line.org>
+	 <1138035602.2977.54.camel@laptopd505.fenrus.org>
+	 <20060123180106.GA4879@merlin.emma.line.org>
+	 <1138039993.2977.62.camel@laptopd505.fenrus.org>
+	 <20060123185549.GA15985@merlin.emma.line.org>
+Content-Type: text/plain
+Date: Mon, 23 Jan 2006 14:57:34 -0500
+Message-Id: <1138046255.21481.6.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In setting up the of PHY we masked off too many bits, instead just
-initialize PORTSC for the type of PHY we are using.
+On Mon, 2006-01-23 at 19:55 +0100, Matthias Andree wrote:
+> I'm asking the Bcc'd gentleman to reconsider mlockall() and perhaps
+> use explicit mlock() instead. 
 
-Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+Probably good advice, I have found mlockall() to be especially
+problematic with multithreaded programs and NPTL, as glibc eats
+RLIMIT_STACK of unswappable memory for each thread stack which defaults
+to 8MB here - you go OOM really quick like this.  Most people don't seem
+to realize the need to set a sane value with pthread_attr_setstack().
 
----
-commit 2497a5e4242d500178d6d0f0ce4ee9249a38f5dc
-tree 71f036ecd23dffb224963b4aabe4f857ba99845b
-parent fe49a3f53c2572bf26a9dfd77e54fda1aa853887
-author Kumar Gala <galak@kernel.crashing.org> Mon, 23 Jan 2006 13:53:09 -0600
-committer Kumar Gala <galak@kernel.crashing.org> Mon, 23 Jan 2006 13:53:09 -0600
+(Even when not mlock'ed, insanely huge thread stack defaults seem to
+account for a lot of the visible bloat on the desktop - decreasing
+RLIMIT_STACK to 512KB reduces the footprint of Gnome 2.12 by 100+ MB.)
 
- drivers/usb/host/ehci-fsl.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/usb/host/ehci-fsl.c b/drivers/usb/host/ehci-fsl.c
-index 6d82054..f40ee41 100644
---- a/drivers/usb/host/ehci-fsl.c
-+++ b/drivers/usb/host/ehci-fsl.c
-@@ -160,8 +160,7 @@ static void mpc83xx_setup_phy(struct ehc
- 			      enum fsl_usb2_phy_modes phy_mode,
- 			      unsigned int port_offset)
- {
--	u32 portsc = readl(&ehci->regs->port_status[port_offset]);
--	portsc &= ~PORT_PTS_MSK;
-+	u32 portsc = 0;
- 	switch (phy_mode) {
- 	case FSL_USB2_PHY_ULPI:
- 		portsc |= PORT_PTS_ULPI;
+Lee
 

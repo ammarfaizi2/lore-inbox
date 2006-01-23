@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWAWV0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWAWVab@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964856AbWAWV0c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 16:26:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWAWV0b
+	id S964866AbWAWVab (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 16:30:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964876AbWAWVab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 16:26:31 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:3554 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S964856AbWAWV0b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 16:26:31 -0500
-Message-Id: <200601212043.k0LKhG4w003290@laptop11.inf.utfsm.cl>
-To: Alexander Shishckin <alexander.shishckin@gmail.com>
-cc: Chase Venters <chase.venters@clientec.com>,
-       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GPL V3 and Linux 
-In-Reply-To: Message from Alexander Shishckin <alexander.shishckin@gmail.com> 
-   of "Sat, 21 Jan 2006 08:56:53 +0300." <71a0d6ff0601202156r7e1b067br5ad87abb59d7f2cb@mail.gmail.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
-Date: Sat, 21 Jan 2006 17:43:16 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 23 Jan 2006 18:26:19 -0300 (CLST)
+	Mon, 23 Jan 2006 16:30:31 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:12717 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964866AbWAWVaa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 16:30:30 -0500
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest) (was:
+	Rationale for RLIMIT_MEMLOCK?)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060123212119.GI1820@merlin.emma.line.org>
+References: <20060123105634.GA17439@merlin.emma.line.org>
+	 <1138014312.2977.37.camel@laptopd505.fenrus.org>
+	 <20060123165415.GA32178@merlin.emma.line.org>
+	 <1138035602.2977.54.camel@laptopd505.fenrus.org>
+	 <20060123180106.GA4879@merlin.emma.line.org>
+	 <1138039993.2977.62.camel@laptopd505.fenrus.org>
+	 <20060123185549.GA15985@merlin.emma.line.org>
+	 <43D530CC.nailC4Y11KE7A@burner> <1138048255.21481.15.camel@mindpipe>
+	 <20060123212119.GI1820@merlin.emma.line.org>
+Content-Type: text/plain
+Date: Mon, 23 Jan 2006 16:30:28 -0500
+Message-Id: <1138051828.21481.41.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Shishckin <alexander.shishckin@gmail.com> wrote:
+On Mon, 2006-01-23 at 22:21 +0100, Matthias Andree wrote:
+> On Mon, 23 Jan 2006, Lee Revell wrote:
+> 
+> > You will be happy to know that in future Linux distros, cdrecord will
+> > not require setuid to mlock() and get SCHED_FIFO - both are now
+> > controlled by rlimits, so if the distro ships with a sane PAM/group
+> > configuration, all you will need to do is add cdrecord users to the
+> > "realtime" or "cdrecord" or "audio" group.
+> 
+> Sounds really good. Can you give a pointer as to the detailed rlimit
+> requirements?
 
-[...]
+One thing I believe is still unresolved is that despite the new rlimits,
+sched_get_priority_max(SCHED_FIFO) always returns 99 rather than
+RLIMIT_RTPRIO.
 
-> Ain't that obvoius? Every second word that you read in GPLs is either
-> 'freedom' or 'share' and the rest of the document has absolutely nothing
-> to do with both, just restricting our *freedom* to *share*.
+Lee 
 
-How so? The existence of GNU doesn't restrict *my* right to share as *I*
-wish. If I, freely, place my stuff under GPL it /does/ restrict other
-people in just "sharing" (i.e., taking without giving in return). And that
-is fine with me. Not with them, I presume...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

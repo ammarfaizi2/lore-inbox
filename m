@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030312AbWAXDwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbWAXD6y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030312AbWAXDwN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 22:52:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbWAXDwN
+	id S1030319AbWAXD6y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 22:58:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbWAXD6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 22:52:13 -0500
-Received: from ns2.suse.de ([195.135.220.15]:57525 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030292AbWAXDwL (ORCPT
+	Mon, 23 Jan 2006 22:58:51 -0500
+Received: from ns2.suse.de ([195.135.220.15]:18870 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964990AbWAXD6s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 22:52:11 -0500
-From: Neil Brown <neilb@suse.de>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Date: Tue, 24 Jan 2006 14:51:56 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17365.42076.633018.163881@cse.unsw.edu.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1-mm2
-In-Reply-To: message from Reuben Farrelly on Saturday January 21
-References: <20060120031555.7b6d65b7.akpm@osdl.org>
-	<43D170CB.8080802@reub.net>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	Mon, 23 Jan 2006 22:58:48 -0500
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Tue, 24 Jan 2006 14:58:42 +1100
+Message-Id: <1060124035842.28869@suse.de>
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 005 of 5] md: Make sure QUEUE_FLAG_CLUSTER is set properly for md.
+References: <20060124145516.28734.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday January 21, reuben-lkml@reub.net wrote:
-> md: stopping all md devices.
-> md: md1 switched to read-only mode.
-> BUG: unable to handle kernel NULL pointer dereference<6>md: md2 switched to 
-> read-only mode.
->   at virtual address 0000001c
->   printing eip:
-> b02a6951
-> *pde = 00000000
-> Oops: 0000 [#1]
-> SMP
-> last sysfs file: /devices/pci0000:00/0000:00:1f.3/i2c-0/0-002e/vrm
-> Modules linked in: iptable_mangle iptable_nat ip_nat ip_conntrack nfnetlink 
-> iptable_filter ip_tables nfsd exportfs lockd sunrpc ipv6 ip_gre binfmt_misc 
-> serio_raw piix hw_random
-> CPU:    0
-> EIP:    0060:[<b02a6951>]    Not tainted VLI
-> EFLAGS: 00010002   (2.6.16-rc1-mm2 #1)
-> EIP is at bitmap_daemon_work+0x144/0x391
 
-Hmmmm.... yep. I see the problem.  We shouldn't be tearing down the
-bitmap when switching to read-only.  Patch to follow.
+This flag should be set for a virtual device iff it is set
+for all underlying devices.
 
-Thanks,
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-NeilBrown
+### Diffstat output
+ ./block/ll_rw_blk.c |    2 ++
+ ./drivers/md/md.c   |    1 +
+ 2 files changed, 3 insertions(+)
+
+diff ./block/ll_rw_blk.c~current~ ./block/ll_rw_blk.c
+--- ./block/ll_rw_blk.c~current~	2006-01-24 14:54:19.000000000 +1100
++++ ./block/ll_rw_blk.c	2006-01-24 14:54:19.000000000 +1100
+@@ -778,6 +778,8 @@ void blk_queue_stack_limits(request_queu
+ 	t->max_hw_segments = min(t->max_hw_segments,b->max_hw_segments);
+ 	t->max_segment_size = min(t->max_segment_size,b->max_segment_size);
+ 	t->hardsect_size = max(t->hardsect_size,b->hardsect_size);
++	if (!test_bit(QUEUE_FLAG_CLUSTER, &b->queue_flags))
++		clear_bit(QUEUE_FLAG_CLUSTER, &t->queue_flags);
+ }
+ 
+ EXPORT_SYMBOL(blk_queue_stack_limits);
+
+diff ./drivers/md/md.c~current~ ./drivers/md/md.c
+--- ./drivers/md/md.c~current~	2006-01-24 14:47:17.000000000 +1100
++++ ./drivers/md/md.c	2006-01-24 14:54:19.000000000 +1100
+@@ -264,6 +264,7 @@ static mddev_t * mddev_find(dev_t unit)
+ 		kfree(new);
+ 		return NULL;
+ 	}
++	set_bit(QUEUE_FLAG_CLUSTER, &new->queue->queue_flags);
+ 
+ 	blk_queue_make_request(new->queue, md_fail_request);
+ 

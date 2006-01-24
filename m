@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWAXXvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWAXXuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750869AbWAXXvH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 18:51:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbWAXXvG
+	id S1750867AbWAXXuo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 18:50:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWAXXun
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 18:51:06 -0500
-Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:49875 "EHLO
-	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S1750869AbWAXXvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 18:51:05 -0500
-Date: Tue, 24 Jan 2006 17:50:07 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Ray Bryant <raybry@mpdtxmail.amd.com>
-cc: Robin Holt <holt@sgi.com>, Hugh Dickins <hugh@veritas.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH/RFC] Shared page tables
-Message-ID: <07A9BE6C2CADACD27B259191@[10.1.1.4]>
-In-Reply-To: <200601241743.28889.raybry@mpdtxmail.amd.com>
-References: <A6D73CCDC544257F3D97F143@[10.1.1.4]>
- <200601231758.08397.raybry@mpdtxmail.amd.com>
- <6BC41571790505903C7D3CD6@[10.1.1.4]>
- <200601241743.28889.raybry@mpdtxmail.amd.com>
-X-Mailer: Mulberry/4.0.0b4 (Linux/x86)
+	Tue, 24 Jan 2006 18:50:43 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:54538 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750867AbWAXXun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 18:50:43 -0500
+Date: Wed, 25 Jan 2006 00:50:38 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: dwmw2@infradead.org
+Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] Kconfig help: MTD_JEDECPROBE already supports Intel chips
+Message-ID: <20060124235038.GL3590@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Unless I'm misunderstanding the code in jedec_probe.c, Intel chips are 
+already supported.
 
-Those are interesting numbers.  That's pretty much the showcase for
-sharing, yeah.
 
---On Tuesday, January 24, 2006 17:43:28 -0600 Ray Bryant
-<raybry@mpdtxmail.amd.com> wrote:
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-> Of course, it would be more dramatic with a real DB application, but that
-> is  going to take a bit longer to get running, perhaps a couple of months
-> by the  time all is said and done.
+---
 
-I must mention here that I think most DB performance suites do their forks
-up front, then never fork during the test, so fork performance doesn't
-really factor in as much.  There are other reasons shared page tables helps
-there, though.
+ drivers/mtd/chips/Kconfig |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-> Now I am off to figure out how Andi's mmap() randomization patch
-> interacts  with all of this stuff.
-
-mmap() randomization doesn't affect fork at all, since by definition all
-regions are at the same address in the child as the parent (ie good for
-sharing).  The trickier case is where processes independently mmap() a
-region.
-
-Dave
+--- linux-2.6.16-rc1-mm2-full/drivers/mtd/chips/Kconfig.old	2006-01-25 00:42:51.000000000 +0100
++++ linux-2.6.16-rc1-mm2-full/drivers/mtd/chips/Kconfig	2006-01-25 00:43:20.000000000 +0100
+@@ -19,21 +19,20 @@
+ config MTD_JEDECPROBE
+ 	tristate "Detect non-CFI AMD/JEDEC-compatible flash chips"
+ 	depends on MTD
+ 	select MTD_GEN_PROBE
+ 	help
+ 	  This option enables JEDEC-style probing of flash chips which are not
+ 	  compatible with the Common Flash Interface, but will use the common
+ 	  CFI-targetted flash drivers for any chips which are identified which
+ 	  are in fact compatible in all but the probe method. This actually
+-	  covers most AMD/Fujitsu-compatible chips, and will shortly cover also
+-	  non-CFI Intel chips (that code is in MTD CVS and should shortly be sent
+-	  for inclusion in Linus' tree)
++	  covers most AMD/Fujitsu-compatible chips and also non-CFI
++	  Intel chips.
+ 
+ config MTD_GEN_PROBE
+ 	tristate
+ 	select OBSOLETE_INTERMODULE
+ 
+ config MTD_CFI_ADV_OPTIONS
+ 	bool "Flash chip driver advanced configuration options"
+ 	depends on MTD_GEN_PROBE
+ 	help
 

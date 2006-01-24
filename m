@@ -1,54 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030355AbWAXPWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWAXP3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030355AbWAXPWt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 10:22:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030356AbWAXPWt
+	id S964842AbWAXP3g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 10:29:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964992AbWAXP3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 10:22:49 -0500
-Received: from uproxy.gmail.com ([66.249.92.194]:24813 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030355AbWAXPWs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 10:22:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=dYAhbWMOIrHUcDv2OjiUOu4O6e0wfEhuDWN6UTjFw1S9tKdOhaWA0lGZ0/AN4jIUWrTviVxL6pnbMtMtp32c612FeslO82tE6ae5jrGrhc6EQ1Ui61m8UXWqlOFZh9h83pzMaktOjHUVZ+i5CQXtLbKdwktXOOryZjpvM6C3dRc=
-Date: Tue, 24 Jan 2006 18:40:29 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] alpha: dma-mapping.h: add "struct scatterlist;"
-Message-ID: <20060124154029.GA9472@mipter.zuzino.mipt.ru>
+	Tue, 24 Jan 2006 10:29:36 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:19108 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964842AbWAXP3g
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 10:29:36 -0500
+Subject: Re: 2.6.16-rc1-mm2 pata driver confusion
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ed Sweetman <safemode@comcast.net>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <43D5CC88.9080207@comcast.net>
+References: <43D5CC88.9080207@comcast.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 24 Jan 2006 15:29:38 +0000
+Message-Id: <1138116579.14675.22.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On alpha-jensen:
+On Maw, 2006-01-24 at 01:43 -0500, Ed Sweetman wrote:
+> problem.  The problem is that there appears to be two nvidia/amd ata 
+> drivers and I'm unsure which I should try using, if i compile both in, 
+> which get loaded first (i assume scsi is second to ide) and if i want my 
+> pata disks loaded under the new libata drivers, will my cdrom work under 
+> them too, or do i still need some sort of regular ide drivers loaded 
+> just for cdrom (to use native ata mode for recording access).  
 
-  CC      drivers/base/platform.o
-In file included from include/linux/dma-mapping.h:24,
-                 from drivers/base/platform.c:16:
-include/asm/dma-mapping.h:36: warning: "struct scatterlist" declared inside parameter list
-include/asm/dma-mapping.h:36: warning: its scope is only this definition or declaration, which is probably not what you want
+The goal of the drivers/scsi/pata_* drivers is to replace drivers/ide in
+its entirity with code using the newer and cleaner libata logic. There
+is still much to do but my SIL680, SiS, Intel MPIIX, AMD and VIA boxes
+are using libata and the additional patch patches still queued.
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+> 1.  Atapi is most definitely not supported by libata, right now.
 
- include/asm-alpha/dma-mapping.h |    1 +
- 1 file changed, 1 insertion(+)
+It works in the -mm tree.
 
---- a/include/asm-alpha/dma-mapping.h
-+++ b/include/asm-alpha/dma-mapping.h
-@@ -30,6 +30,7 @@
- 
- #else	/* no PCI - no IOMMU. */
- 
-+struct scatterlist;
- void *dma_alloc_coherent(struct device *dev, size_t size,
- 			 dma_addr_t *dma_handle, gfp_t gfp);
- int dma_map_sg(struct device *dev, struct scatterlist *sg, int nents,
+> 4.  moving to pata libata drivers _will_ change the enumeration of your 
+> sata devices, it seems that pata is initialized first, so when setting 
+> up your fstab entries and grub, you'll have to take into account how 
+> many pata devices you have and offset your current sata device names by 
+> that amount.
 
+Or use labels. As you move into the world of hot pluggable hardware it
+becomes more and more impractical to guarantee drive ordering by name.
+
+You can mix and match the drivers providing you don't try and load both
+libata and old ide drives for the same chip. Even then it should fail
+correctly with one of them reporting resources unavailable.
+
+In fact I do this all the time when debugging so I've got a stable disk
+for debug work and a devel disk.
+
+Alan
 

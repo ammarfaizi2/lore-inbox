@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWAXVeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWAXVeg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbWAXVeo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 16:34:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWAXVeo
+	id S1750742AbWAXVeg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 16:34:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWAXVeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 16:34:44 -0500
-Received: from devrace.com ([198.63.210.113]:54536 "EHLO devrace.com")
-	by vger.kernel.org with ESMTP id S1750743AbWAXVen (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 16:34:43 -0500
-Date: Tue, 24 Jan 2006 22:33:54 +0100
-From: Alex Riesen <fork0@users.sourceforge.net>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       Diego Calleja <diegocg@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: How to discover new Linux features (was: Re: Linux 2.6.16-rc1)
-Message-ID: <20060124213354.GA2466@steel.home>
-Reply-To: Alex Riesen <fork0@users.sourceforge.net>
-Mail-Followup-To: Alex Riesen <fork0@users.sourceforge.net>,
-	"Randy.Dunlap" <rdunlap@xenotime.net>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	Diego Calleja <diegocg@gmail.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <200601182323_MC3-1-B627-7710@compuserve.com> <81b0412b0601232316h6a26b083oab0b6d8de15e4c95@mail.gmail.com> <Pine.LNX.4.58.0601240712300.5978@shark.he.net>
+	Tue, 24 Jan 2006 16:34:36 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:51401 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750742AbWAXVef
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 16:34:35 -0500
+Subject: Re: [patch 2.6.15-mm4] sem2mutex: JFS
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060114152901.GA27921@elte.hu>
+References: <20060114152901.GA27921@elte.hu>
+Content-Type: text/plain
+Date: Tue, 24 Jan 2006 15:34:27 -0600
+Message-Id: <1138138468.13654.26.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0601240712300.5978@shark.he.net>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap, Tue, Jan 24, 2006 16:13:37 +0100:
-> > >  Say you are comparing kernels 2.6.14 and 2.6.15, trying to see what
-> > > is new.  Just do this:
-> > >
-> > >  1.  Copy a .config file into your 2.6.14 directory.
-> > >
-> > >  2.  Run "make oldconfig" there.  It doesn't really matter what
-> > >      answers you give so long as it runs to completion.
-> >
-> > make it "make allconfig"
-> 
-> Are you suggesting a new make target?  'make help' lists
-> allyesconfig, allnoconfig, or allmodconfig (in the all* group).
-> 
+Ingo,
+Sorry for letting this sit so long.  I've put it in the jfs tree, so
+Andrew can pull it from there now.  I'll push it to Linus when the next
+window opens.
 
-...! allyesconfig, of course.
+Thanks,
+Shaggy
+
+On Sat, 2006-01-14 at 16:29 +0100, Ingo Molnar wrote:
+> From: Ingo Molnar <mingo@elte.hu>
+> 
+> semaphore to mutex conversion.
+> 
+> the conversion was generated via scripts, and the result was validated
+> automatically via a script as well.
+> 
+> build and boot tested.
+> 
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> ----
+> 
+>  fs/jfs/acl.c        |    4 +-
+>  fs/jfs/inode.c      |   14 +++----
+>  fs/jfs/jfs_dmap.c   |    6 +--
+>  fs/jfs/jfs_dmap.h   |    2 -
+>  fs/jfs/jfs_extent.c |   20 +++++-----
+>  fs/jfs/jfs_imap.c   |   22 +++++------
+>  fs/jfs/jfs_imap.h   |    4 +-
+>  fs/jfs/jfs_incore.h |    5 +-
+>  fs/jfs/jfs_lock.h   |    1 
+>  fs/jfs/jfs_logmgr.c |    6 +--
+>  fs/jfs/jfs_logmgr.h |    2 -
+>  fs/jfs/jfs_txnmgr.c |   10 ++---
+>  fs/jfs/namei.c      |   98 ++++++++++++++++++++++++++--------------------------
+>  fs/jfs/super.c      |    2 -
+>  fs/jfs/xattr.c      |    8 ++--
+>  15 files changed, 103 insertions(+), 101 deletions(-)
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

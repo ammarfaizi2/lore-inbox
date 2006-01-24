@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWAXA3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030235AbWAXAcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030228AbWAXA3m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 19:29:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWAXA3m
+	id S1030235AbWAXAcM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 19:32:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030236AbWAXAcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 19:29:42 -0500
-Received: from smtp102.sbc.mail.mud.yahoo.com ([68.142.198.201]:45422 "HELO
-	smtp102.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030228AbWAXA3m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 19:29:42 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Greg KH <gregkh@suse.de>
-Subject: Re: EHCI + APIC errors = no usb goodness
-Date: Mon, 23 Jan 2006 15:53:38 -0800
-User-Agent: KMail/1.7.1
-Cc: ak@suse.de, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-References: <20060123210443.GA20944@suse.de>
-In-Reply-To: <20060123210443.GA20944@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 23 Jan 2006 19:32:12 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:29413
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030235AbWAXAcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 19:32:10 -0500
+Date: Mon, 23 Jan 2006 16:30:37 -0800 (PST)
+Message-Id: <20060123.163037.52587086.davem@davemloft.net>
+To: benh@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sungem: Make PM of PHYs more reliable (#2)
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <1137899170.24244.1.camel@localhost.localdomain>
+References: <1137899170.24244.1.camel@localhost.localdomain>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601231553.38995.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 January 2006 1:04 pm, Greg KH wrote:
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Date: Sun, 22 Jan 2006 14:06:10 +1100
 
-> Any thoughts?
+> On my latest laptop, I've had occasional PHY dead on wakeup from
+> sleep... the PHY would be totally unresponsive even to toggling the hard
+> reset line until the machine is powered down... Looking closely at the
+> code, I found some possible issues in the way we setup the MDIO lines
+> during suspend along with slight divergences from what Darwin does when
+> resetting it that may explain the problem. That patch change these and
+> the problem appear to be gone for me at least... I also fixed an mdelay
+> -> msleep while I was at it to the pmac feature code that is called
+> when toggling the PHY reset line since sungem doesn't call it in an
+> atomic context anymore.
+> 
+> Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-Not particularly; clearly the EHCI driver enabled IRQs, since that's
-not done until after the "USB 2.0 started, EHCI 1.00, driver 10 Dec 2004"
-message prints.  And it shouldn't be an SMI issue, as might be improved
-by that patch I sent this AM.
-
-According to arch/i386/kernel/apic.c that "0x40" APIC error bit means
-it got an illegal vector ... sounds to me like IRQ setup issues, since
-USB code doesn't know about such things (they're not even exposed from
-the arch irq handling code).
-
-Try sticking a message where ehci_irq() returns IRQ_NONE and see what
-IRQ status is being reported to EHCI.
-
-- Dave
+Applied, thanks Ben.

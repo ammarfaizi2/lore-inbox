@@ -1,76 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbWAXAAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbWAXAMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbWAXAAi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 19:00:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWAXAAi
+	id S1030200AbWAXAMv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 19:12:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWAXAMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 19:00:38 -0500
-Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:40801 "EHLO
-	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932430AbWAXAAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 19:00:37 -0500
-Message-ID: <43D56E22.80500@bigpond.net.au>
-Date: Tue, 24 Jan 2006 11:00:34 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 23 Jan 2006 19:12:51 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2574 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932454AbWAXAMu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 19:12:50 -0500
+Date: Tue, 24 Jan 2006 01:12:48 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Mike Krufky <mkrufky@linuxtv.org>
+Cc: Linux and Kernel Video <video4linux-list@redhat.com>,
+       mchehab@infradead.org, linux-dvb-maintainer@linuxtv.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Michael Krufky <mkrufky@m1k.net>
+Subject: Re: [PATCH 10/16] make VP-3054 Secondary I2C Bus Support a Kconfig option.
+Message-ID: <20060124001248.GF3590@stusta.de>
+References: <20060123202404.PS66974000000@infradead.org> <20060123202444.PS83596100010@infradead.org> <20060123221604.GA3590@stusta.de> <43D56174.7000700@linuxtv.org>
 MIME-Version: 1.0
-To: Paolo Ornati <ornati@fastwebnet.it>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jake Moilanen <moilanen@austin.ibm.com>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-6.2 for  2.6.16-rc1 and 2.6.16-rc1-mm1
-References: <43D00887.6010409@bigpond.net.au>	<20060121114616.4a906b4f@localhost>	<43D2BE83.1020200@bigpond.net.au>	<43D40B96.3060705@bigpond.net.au>	<43D4281D.10009@bigpond.net.au> <20060123212158.3fba71d5@localhost>
-In-Reply-To: <20060123212158.3fba71d5@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 24 Jan 2006 00:00:34 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43D56174.7000700@linuxtv.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paolo Ornati wrote:
-> On Mon, 23 Jan 2006 11:49:33 +1100
-> Peter Williams <pwil3058@bigpond.net.au> wrote:
+On Mon, Jan 23, 2006 at 06:06:28PM -0500, Mike Krufky wrote:
+> Adrian Bunk wrote:
 > 
+> >On Mon, Jan 23, 2006 at 06:24:44PM -0200, mchehab@infradead.org wrote:
+> >...
+> >>@@ -70,6 +71,16 @@ config VIDEO_CX88_DVB_MT352
+> >>	  This adds DVB-T support for cards based on the
+> >>	  Connexant 2388x chip and the MT352 demodulator.
+> >>
+> >>+config VIDEO_CX88_VP3054
+> >>+	tristate "VP-3054 Secondary I2C Bus Support"
+> >>+	default m
+> >>...
+> >>   
+> >>
+> >This option should be a bool since "m" doesn't make much sense (it's 
+> >anyways interpreted the same as "y").
+> > 
+> >
+> Adrian,
 > 
->>>However, in spite of the above, the fairness mechanism should have been 
->>>able to generate enough bonus points to get dd's priority back to less 
->>>than 34.  I'm still investigating why this didn't happen.
->>
->>Problem solved.  It was a scaling issue during the calculation of 
->>expected delay.  The attached patch should fix both the CPU hog problem 
->>and the fairness problem.  Could you give it a try?
->>
-> 
-> 
-> Mmmm... it doesn't work:
-> 
->  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
->  5516 paolo     34   0  115m  18m 2432 S 87.5  3.7   0:23.72 transcode
->  5530 paolo     34   0 51000 4472 1872 S  8.0  0.9   0:02.29 tcdecode
->  5523 paolo     34   0 19840 1088  880 R  2.0  0.2   0:00.21 tcdemux
->  5522 paolo     34   0 22156 1204  972 R  0.7  0.2   0:00.02 tccat
->  5539 paolo     34   0  4952 1468  372 D  0.7  0.3   0:00.04 dd
->  5350 root      28   0  167m  16m 3228 S  0.3  3.4   0:03.64 X
-> 
->   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
->  5456 paolo     34   0  115m  18m 2432 D 63.9  3.7   0:48.21 transcode
->  5470 paolo     37   0 50996 4472 1872 R  6.2  0.9   0:05.20 tcdecode
->  5493 paolo     34   0  4952 1472  372 R  1.5  0.3   0:00.22 dd
->  5441 paolo     28   0 86656  21m  15m S  0.2  4.4   0:00.77 konsole
->  5468 paolo     34   0 19840 1088  880 S  0.2  0.2   0:00.23 tcdemux
-> 
+> You have a point - it is a boolean choice yes/no, about whether or not 
+> to compile support for this module, ... but it is in fact a module, and 
+> when M is chosen, cx88-vp3054-i2c.ko will build as a module.  When Y is 
 
-Bummer.  At least it didn't classify dd as CPU intensive but the 
-fairness bonus doesn't seem to have kicked in.  It's currently awarded 
-as a "one of" bonus each time a delay is too long and I think that it 
-needs to be a bit more persistent over time.
+I don't see this in your patches.
 
-Thanks for testing
-Peter
+All your patches do is to define -DHAVE_VP3054_I2C=1 depending on 
+CONFIG_VIDEO_CX88_VP3054.
+
+> chosen, it will be built in-kernel, just as all other tri-states..... 
+> The difference is that this module depends on DVB_MT352 ... if DVB_MT352 
+> is M, then this should be M/N ... if  VIDEO_CX88_DVB is Y, then this 
+> should be Y/N...
+>...
+
+
+If VIDEO_CX88_DVB (and modules support enabled in the kernel) this 
+will be Y/M/N...
+
+
+A more general question:
+Why are you using the indirection through the defines in the Makefile?
+You could diectly use the (boolean) CONFIG_* options in the drivers.
+
+
+> :-)
+> 
+> Regards,
+> Michael Krufky
+
+cu
+Adrian
+
 -- 
-Peter Williams                                   pwil3058@bigpond.net.au
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

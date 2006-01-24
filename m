@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030335AbWAXE7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWAXFDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030335AbWAXE7E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 23:59:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030336AbWAXE7D
+	id S964861AbWAXFDy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 00:03:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbWAXFDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 23:59:03 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:48064
+	Tue, 24 Jan 2006 00:03:54 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:27295
 	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1030335AbWAXE7C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 23:59:02 -0500
-Date: Mon, 23 Jan 2006 20:58:49 -0800
+	id S964861AbWAXFDy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 00:03:54 -0500
+Date: Mon, 23 Jan 2006 21:03:46 -0800
 From: Greg KH <greg@kroah.com>
-To: Dave Airlie <airlied@gmail.com>
-Cc: airlied@linux.ie, Kay Sievers <kay.sievers@vrfy.org>,
-       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: [PATCH] cleanup of the drm sysfs code.
-Message-ID: <20060124045849.GB22434@kroah.com>
-References: <20060120233337.GA22848@kroah.com> <21d7e9970601211403g44ce4845yd03f12f64142ef36@mail.gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: uevent buffer overflow in input layer
+Message-ID: <20060124050346.GC22848@kroah.com>
+References: <1137973421.4907.14.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <21d7e9970601211403g44ce4845yd03f12f64142ef36@mail.gmail.com>
+In-Reply-To: <1137973421.4907.14.camel@localhost.localdomain>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 22, 2006 at 11:03:16AM +1300, Dave Airlie wrote:
-> > Kay pointed out today that the drm code creates a "dev" file in sysfs,
-> > yet doesn't tell the driver core about it.  Normally this would be just
-> > fine, as you are exporting the value in the proper style, but now there
-> > are programs that are only watching the hotplug/uevent netlink messages
-> > and not reading directly from sysfs to get this kind of information.
-> > The patch below is a cleanup of the drm sysfs code, as much of the same
-> > functionality that you want is already present in the driver core, so it
-> > is not good to duplicate it.
+On Mon, Jan 23, 2006 at 10:43:41AM +1100, Benjamin Herrenschmidt wrote:
+> Current -git as of today does this on an x86 box with a logitech USB
+> keyboard:
 > 
-> Greg it looks fine to me, I'm LCA'ing at the moment, so if you can
-> push it via your tree I'm fine with it, if you can let it sit in an
-> -mm picked up tree for a bit I'd appreciate it, but we don't do much
-> with sysfs anyways other than create the dev..
+> (the $$$ is debug stuff I added to print_modalias(), size is the size
+> passed in and "Total len" is the value of "len" before returning). We
+> end up overflowing, thus we pass a negative size to snprintf which
+> causes the WARN_ON. Bumping the uevent buffer size in lib/kobject_uevent.c
+> from 1024 to 2048 seems to fix the oops and /dev/input/mice is now properly
+> created and works (it doesn't without the fix, X fails and we end up back
+> in console with a dead keyboard).
+> 
+> I'm not sure it's the correct solution as I'm not too familiar with the
+> uevent code though, so I'll let you guys decide on the proper approach.
 
-Ok, thanks.  I'll get it into the next few -mm releases, and as Linus is
-also with you at linux.conf.au, I don't really worry about getting the
-patch to him until he returns.
+Yes, input has some big strings, I'd recommend bumping it up like you
+suggest.
 
-> I'm going to hopefully get around to the drm/fb merge layer in the
-> next month so I'd prefer to start from a clean state..
-
-Sounds good to me, I'll probably have the time to help out with this if
-you want...
+Care to make up a patch as you found the problem and should get the
+credit?  :)
 
 thanks,
 

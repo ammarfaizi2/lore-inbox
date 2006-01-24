@@ -1,77 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWAYAMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWAYALn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWAYAMV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 19:12:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWAYAMV
+	id S1750870AbWAYALn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 19:11:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWAYALn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 19:12:21 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:31872 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750872AbWAYAMU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 19:12:20 -0500
-Subject: Re: first bisection results in -mm3 [was: Re: 2.6.15-mm2: reiser3
-	oops on suspend and more (bonus oops shot!)]
-From: john stultz <johnstul@us.ibm.com>
-To: Mattia Dongili <malattia@linux.it>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1138146498.15682.99.camel@cog.beaverton.ibm.com>
-References: <1137108362.2890.141.camel@cog.beaverton.ibm.com>
-	 <20060114120816.GA3554@inferi.kami.home>
-	 <1137442582.27699.12.camel@cog.beaverton.ibm.com>
-	 <20060116204057.GC3639@inferi.kami.home>
-	 <1137458964.27699.65.camel@cog.beaverton.ibm.com>
-	 <20060117174953.GA3529@inferi.kami.home>
-	 <1137525090.27699.92.camel@cog.beaverton.ibm.com>
-	 <20060117224951.GA3320@inferi.kami.home>
-	 <16839.83.103.117.254.1137581235.squirrel@picard.linux.it>
-	 <1138141635.15682.92.camel@cog.beaverton.ibm.com>
-	 <20060124230453.GA6174@inferi.kami.home>
-	 <1138146498.15682.99.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Tue, 24 Jan 2006 16:12:09 -0800
-Message-Id: <1138147929.15682.114.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 24 Jan 2006 19:11:43 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:201 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750863AbWAYALm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 19:11:42 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH -mm] swsusp: userland interface (rev 2)
+Date: Wed, 25 Jan 2006 00:35:38 +0100
+User-Agent: KMail/1.9
+Cc: pavel@suse.cz, linux-kernel@vger.kernel.org
+References: <200601240929.37676.rjw@sisk.pl> <20060124131312.0545262d.akpm@osdl.org>
+In-Reply-To: <20060124131312.0545262d.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601250035.39383.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-24 at 15:48 -0800, john stultz wrote:
-> On Wed, 2006-01-25 at 00:04 +0100, Mattia Dongili wrote:
-> > On Tue, Jan 24, 2006 at 02:27:14PM -0800, john stultz wrote:
-> > > difficult spot is that if the cpufreq notification driver is a module,
-> > > then there will always be a window between the point at which we start
-> > > using the TSC to the point where we find out that the TSC is changing
-> > > frequency. Not sure what to do here just yet.
+Hi,
+
+On Tuesday, 24 January 2006 22:13, Andrew Morton wrote:
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> >
+> > Hi,
 > > 
-> > I was wondering if you could force an do_gettimeofday call quite early
-> > in order to lower tsc priority as soon as possible, but maybe I'm not
-> > entirely into that code :)
+> > This patch introduces a user space interface for swsusp.
 > 
-> Well, it isn't do_gettimeofday that needs to be called, but we need a
-> way to decide if we should call tsc_mark_unstable(). Currently we do
-> that when we get a cpufreq transition notification if the cpu's TSC is
-> not constant.  The problem being: on your system, that notification
-> isn't called until after the cpufreq driver module loads. This is of
-> course, after we've started to use the TSC.
+> How will we know if/when this feature is ready for mainline?  What criteria
+> can we use to judge that?
+
+I think when we are able to demonstrate that it allows us to do more than
+the current built-in swsusp in terms of performance, security etc.  Of course
+we'll need some userland utilities for this purpose.
+
+> Will you be developing and long-term maintaining the userspace tools?
+
+Yes.
+
+> Is it your expectation/hope that distros will migrate onto using them?  etc.
+
+I think they'll find the interface useful.  I've been using it for a couple of
+weeks now and it really allowed me to do some tricks that are just impossible
+with the current implementation.
+
+> > +
+> > +static int snapshot_open(struct inode *inode, struct file *filp)
+> > +{
+> > +	struct snapshot_data *data;
+> > +
+> > +	if (!atomic_dec_and_test(&device_available)) {
+> > +		atomic_inc(&device_available);
 > 
-> If the cpufreq driver loaded earlier, or we had some other way of
-> checking if the TSC was not constant, we could call tsc_mark_unstable()
-> then.
+> You may find that atomic_add_unless(..., -1, ...) is neater here, and
+> closes the tiny race.
+
+Well, actually I've taken this stuff verbatim from LDD3.
+
+> > +		return -EBUSY;
+> > +	}
+> > +
+> > +	if ((filp->f_flags & O_ACCMODE) == O_RDWR)
+> > +		return -ENOSYS;
+> > +
+> > +	nonseekable_open(inode, filp);
+> > +	data = &snapshot_state;
+> > +	filp->private_data = data;
+> > +	memset(&data->handle, 0, sizeof(struct snapshot_handle));
 > 
-> We'll probably have to do a manual check like what the cpufreq driver
-> does early on so we can have this info before we install the TSC
-> clocksource. I'll let you know when I have a patch to try.
+> <goes off hunting elsewhere for the defn of data->handle.  grr>
+> 
+> > +static ssize_t snapshot_read(struct file *filp, char __user *buf,
+> > +                             size_t count, loff_t *offp)
+> > +{
+> > +	struct snapshot_data *data;
+> > +	ssize_t res;
+> > +
+> > +	data = filp->private_data;
+> > +	res = snapshot_read_next(&data->handle, count);
+> > +	if (res > 0) {
+> > +		if (copy_to_user(buf, data_of(data->handle), res))
+> > +			res = -EFAULT;
+> > +		else
+> > +			*offp = data->handle.offset;
+> > +	}
+> > +	return res;
+> > +}
+> 
+> It's more conventional for a read() to return less-than-was-asked-for when
+> it hits a fault.  Doesn't matter though - lots of drivers do it this way.
 
-Mattia,
-	Just to verify I'm not barking up the wrong tree here, could you try
-building w/ CONFIG_X86_SPEEDSTEP_ICH=y instead of as a module?
+I thought about it, but this would increase the complexity of
+snapshot_read_next() by two orders of magnitude, and this function is also
+called by the built-in code which doesn't use the read-less-than-one-page-at-a-time
+functionality anyway, so I decided against it.
 
-This should force the cpufreq driver to load earlier, and hopefully
-we'll get a notification earlier as well.
+> > +static ssize_t snapshot_write(struct file *filp, const char __user *buf,
+> > +                              size_t count, loff_t *offp)
+> > +{
+> > +	struct snapshot_data *data;
+> > +	ssize_t res;
+> > +
+> > +	data = filp->private_data;
+> > +	res = snapshot_write_next(&data->handle, count);
+> > +	if (res > 0) {
+> > +		if (copy_from_user(data_of(data->handle), buf, res))
+> > +			res = -EFAULT;
+> > +		else
+> > +			*offp = data->handle.offset;
+> > +	}
+> > +	return res;
+> > +}
+> 
+> Ditto.
+> 
+> > +static int snapshot_ioctl(struct inode *inode, struct file *filp,
+> > +                          unsigned int cmd, unsigned long arg)
+> > +{
+> >
+> > ...
+> >
+> > +	case SNAPSHOT_ATOMIC_RESTORE:
+> > +		if (data->mode != O_WRONLY || !data->frozen ||
+> > +		    !snapshot_image_loaded(&data->handle)) {
+> > +			error = -EPERM;
+> > +			break;
+> > +		}
+> > +		down(&pm_sem);
+> > +		pm_prepare_console();
+> > +		error = device_suspend(PMSG_FREEZE);
+> > +		if (!error) {
+> > +			mb();
+> > +			error = swsusp_resume();
+> > +			device_resume();
+> > +		}
+> 
+> whee, what does the mystery barrier do?  It'd be nice to comment this
+> (please always comment open-coded barriers).
 
-thanks
--john
+Pavel should know. ;-)
+ 
+> > +	case SNAPSHOT_GET_SWAP_PAGE:
+> > +		if (!access_ok(VERIFY_WRITE, (unsigned long __user *)arg, _IOC_SIZE(cmd))) {
+> > +			error = -EINVAL;
+> > +			break;
+> > +		}
+> 
+> Why do we need an access_ok() here?
 
+Because we use __put_user() down the road?
 
+The problem is if the address is wrong we should not try to call
+alloc_swap_page() at all.  If we did, we wouldn't be able to return the result
+and we would leak a swap page.
+
+> Should it return -EFAULT?
+
+Yes, it should.
+
+I'll post a small fix on top of this patch if you don't mind.
 

@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030471AbWAXSLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030490AbWAXSKP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030471AbWAXSLN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 13:11:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030491AbWAXSLN
+	id S1030490AbWAXSKP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 13:10:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030471AbWAXSKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 13:11:13 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:16865 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030471AbWAXSLL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 13:11:11 -0500
-Subject: Re: [PATCH RT] kstopmachine has legit preempt_enable_no_resched
-	(was: 2.6.15-rt12 bugs)
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <6bffcb0e0601240737u3e77245g@mail.gmail.com>
-References: <6bffcb0e0601230521l59b8360et@mail.gmail.com>
-	 <1138065822.6695.6.camel@localhost.localdomain>
-	 <6bffcb0e0601240533h3ba1a01ci@mail.gmail.com>
-	 <1138112388.6695.26.camel@localhost.localdomain>
-	 <6bffcb0e0601240737u3e77245g@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 24 Jan 2006 13:11:02 -0500
-Message-Id: <1138126262.6695.29.camel@localhost.localdomain>
+	Tue, 24 Jan 2006 13:10:14 -0500
+Received: from users.ccur.com ([66.10.65.2]:28577 "EHLO gamx.iccur.com")
+	by vger.kernel.org with ESMTP id S1030431AbWAXSKM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 13:10:12 -0500
+Date: Tue, 24 Jan 2006 13:09:54 -0500
+From: Joe Korty <joe.korty@ccur.com>
+To: mingo@elte.hu
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Define __raw_read_lock etc for uniprocessor builds
+Message-ID: <20060124180954.GA14506@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-24 at 16:37 +0100, Michal Piotrowski wrote:
-> Hi,
-> 
-> On 24/01/06, Steven Rostedt <rostedt@goodmis.org> wrote:
-> > On Tue, 2006-01-24 at 14:33 +0100, Michal Piotrowski wrote:
-> [snip]
-> > > And problems while loading ipv6 module
-> > > Running ntpdate to synchronize clockCould not allocate 4 bytes percpu data
-> > > modprobe: FATAL: Error inserting ipv6
-> > > (/lib/modules/2.6.15-rt14/kernel/net/ipv6/ipv6.ko): Cannot allocate
-> > > memory
-> > >
-> > > Could not allocate 4 bytes percpu data
-> > > modprobe: FATAL: Error inserting ipv6
-> > > (/lib/modules/2.6.15-rt14/kernel/net/ipv6/ipv6.ko): Cannot allocate
-> > > memory
-> >
-> > Is this new with the -rt14? or has this happened before. If it has
-> > happened before, then could you tell us when it started.
-> 
-> It's very hard to track down, because earlier versions of -rt ware too
-> buggy for me and most of them doesn't compile/boot.
 
-The 2.6.14-rtX series was pretty stable. How early did you go back?
+Make NOPed versions of __raw_read_lock and family available
+under uniprocessor kernels.
 
--- Steve
+Discovered when compiling a uniprocessor kernel with the
+fusyn patch applied.
+
+The standard kernel does not use __raw_read_lock etc
+outside of spinlock.c, which may account for this bug
+being undiscovered until now.
 
 
+ 2.6.16-rc1-git4-jak/include/linux/spinlock_up.h |   20 ++++++++++----------
+ 1 files changed, 10 insertions(+), 10 deletions(-)
+
+diff -puNa include/linux/spinlock_up.h~define.__raw_read_lock.and.family.for.uniproc-nodebug.combo include/linux/spinlock_up.h
+--- 2.6.16-rc1-git4/include/linux/spinlock_up.h~define.__raw_read_lock.and.family.for.uniproc-nodebug.combo	2006-01-24 12:57:15.000000000 -0500
++++ 2.6.16-rc1-git4-jak/include/linux/spinlock_up.h	2006-01-24 12:58:51.000000000 -0500
+@@ -47,16 +47,6 @@ static inline void __raw_spin_unlock(raw
+ 	lock->slock = 1;
+ }
+ 
+-/*
+- * Read-write spinlocks. No debug version.
+- */
+-#define __raw_read_lock(lock)		do { (void)(lock); } while (0)
+-#define __raw_write_lock(lock)		do { (void)(lock); } while (0)
+-#define __raw_read_trylock(lock)	({ (void)(lock); 1; })
+-#define __raw_write_trylock(lock)	({ (void)(lock); 1; })
+-#define __raw_read_unlock(lock)		do { (void)(lock); } while (0)
+-#define __raw_write_unlock(lock)	do { (void)(lock); } while (0)
+-
+ #else /* DEBUG_SPINLOCK */
+ #define __raw_spin_is_locked(lock)	((void)(lock), 0)
+ /* for sched.c and kernel_lock.c: */
+@@ -71,4 +61,14 @@ static inline void __raw_spin_unlock(raw
+ #define __raw_spin_unlock_wait(lock) \
+ 		do { cpu_relax(); } while (__raw_spin_is_locked(lock))
+ 
++/*
++ * Read-write spinlocks. Only non-debug versions available.
++ */
++#define __raw_read_lock(lock)		do { (void)(lock); } while (0)
++#define __raw_write_lock(lock)		do { (void)(lock); } while (0)
++#define __raw_read_trylock(lock)	({ (void)(lock); 1; })
++#define __raw_write_trylock(lock)	({ (void)(lock); 1; })
++#define __raw_read_unlock(lock)		do { (void)(lock); } while (0)
++#define __raw_write_unlock(lock)	do { (void)(lock); } while (0)
++
+ #endif /* __LINUX_SPINLOCK_UP_H */
+
+_

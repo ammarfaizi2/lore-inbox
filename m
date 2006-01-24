@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030449AbWAXLGH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030437AbWAXLIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030449AbWAXLGH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 06:06:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030454AbWAXLGH
+	id S1030437AbWAXLIq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 06:08:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030451AbWAXLIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 06:06:07 -0500
-Received: from mail.gmx.net ([213.165.64.21]:49296 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030449AbWAXLGG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 06:06:06 -0500
-X-Authenticated: #428038
-Date: Tue, 24 Jan 2006 12:06:01 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: "Theodore Ts'o" <tytso@mit.edu>, Arjan van de Ven <arjan@infradead.org>,
-       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Rationale for RLIMIT_MEMLOCK?
-Message-ID: <20060124110601.GC26042@merlin.emma.line.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20060123105634.GA17439@merlin.emma.line.org> <1138014312.2977.37.camel@laptopd505.fenrus.org> <20060123165415.GA32178@merlin.emma.line.org> <1138035602.2977.54.camel@laptopd505.fenrus.org> <20060123180106.GA4879@merlin.emma.line.org> <1138039993.2977.62.camel@laptopd505.fenrus.org> <20060123185549.GA15985@merlin.emma.line.org> <20060123213400.GC14409@thunk.org>
+	Tue, 24 Jan 2006 06:08:46 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:35752 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030437AbWAXLIp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 06:08:45 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <11380489522073@2gen.com> 
+References: <11380489522073@2gen.com> 
+To: David =?us-ascii?Q?=3D=3Fiso-8859-1=3FQ=3FH=3DE4rdeman=3F=3D?= 
+	<david@2gen.com>
+Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com
+Subject: Re: [PATCH 04/04] Add dsa key type 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060123213400.GC14409@thunk.org>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Tue, 24 Jan 2006 11:08:45 +0000
+Message-ID: <17755.1138100925@hades.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Jan 2006, Theodore Ts'o wrote:
+David Härdeman <david@2gen.com> wrote:
 
-> On Mon, Jan 23, 2006 at 07:55:49PM +0100, Matthias Andree wrote:
-> > The question that's open is one for the libc guys: malloc(), valloc()
-> > and others seem to use mmap() on some occasions (for some allocation
-> > sizes) - at least malloc/malloc.c comments as of 2.3.4 suggest so -, and
-> > if this isn't orthogonal to mlockall() and set[e]uid() calls, the glibc
-> > is pretty deeply in trouble if the code calls mlockall(MLC_FUTURE) and
-> > then drops privileges.
-> 
-> Maybe mlockall(MLC_FUTURE) when run with privileges should
-> automatically adjust the RLIMIT_MEMLOCK resource limit?
+> Adds the dsa in-kernel key type.
 
-Adding special cases to no end.
-Is this really sensible?
+Please add a header file in include/keys/ to provide access to the key type
+definition and any special payload structures you use.
 
-How about leaving RLIMIT_MEMLOCK alone (and at RLIM_INFINITY) for root
-processes altogether? At least that wouldn't add a new special case but
-just change the existing one to remove an inconsistency, and the effect
-will be the same, only that it is inherited across seteuid().
+> +static char *
+> +sign(const struct key_payload_dsa *skey, 
 
-I doubt that the kernel is the right place to implement policies that
-belong into user space.  As long as the kernel is meant to be universal,
-any default will collide with an application's requirement sooner or
-later.
+Please be consistent about sticking prefixes on the names of your
+functions. This ought to be called something like dsa_sign.
 
--- 
-Matthias Andree
+> +		printk("dsa: crypto_digest_setkey failed with error %i\n", i);
+
+Should involve KERN_ERR or something like.
+
+David

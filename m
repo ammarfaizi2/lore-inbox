@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030430AbWAXKXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030440AbWAXKiT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030430AbWAXKXm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 05:23:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030435AbWAXKXm
+	id S1030440AbWAXKiT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 05:38:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030442AbWAXKiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 05:23:42 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:3078 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1030430AbWAXKXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 05:23:41 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+	Tue, 24 Jan 2006 05:38:19 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:39820 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1030440AbWAXKiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 05:38:18 -0500
 Subject: RE: GPL V3 and Linux
-Date: Tue, 24 Jan 2006 02:23:17 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKIEOMJJAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+From: Lee Revell <rlrevell@joe-job.com>
+To: davids@webmaster.com
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEOMJJAB.davids@webmaster.com>
+References: <MDEHLPKNGKAHNMBLJOLKIEOMJJAB.davids@webmaster.com>
+Content-Type: text/plain
+Date: Tue, 24 Jan 2006 05:38:15 -0500
+Message-Id: <1138099096.2771.116.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.61.0601231703170.13590@chaos.analogic.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Tue, 24 Jan 2006 02:20:06 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Tue, 24 Jan 2006 02:20:07 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-01-24 at 02:23 -0800, David Schwartz wrote:
+> > Sometimes the restrictions are necessary. For instance,
+> > except in very special circumstances, governments usually
+> > take away the inherent rights to kill, etc.
+> 
+> 	I guess I can't figure out what you could possibly mean by the word "right"
+> such that the phrase "inherent rights to kill" is meaningful. Perhaps you
+> could clarify.
 
-> Sometimes the restrictions are necessary. For instance,
-> except in very special circumstances, governments usually
-> take away the inherent rights to kill, etc.
+This discussion could not have less to do with kernel development,
+PLEASE take it elsewhere.
 
-	I guess I can't figure out what you could possibly mean by the word "right"
-such that the phrase "inherent rights to kill" is meaningful. Perhaps you
-could clarify.
-
-	DS
-
+Lee
 

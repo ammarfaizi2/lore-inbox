@@ -1,53 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWAXWOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWAXWRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWAXWOg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 17:14:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWAXWOg
+	id S1750776AbWAXWRU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 17:17:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWAXWRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 17:14:36 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11927 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750772AbWAXWOg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 17:14:36 -0500
-Date: Tue, 24 Jan 2006 23:14:26 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rjw@sisk.pl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] swsusp: userland interface (rev 2)
-Message-ID: <20060124221426.GB1602@elf.ucw.cz>
-References: <200601240929.37676.rjw@sisk.pl> <20060124131312.0545262d.akpm@osdl.org> <20060124213010.GA1602@elf.ucw.cz> <20060124135843.739481e7.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060124135843.739481e7.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Tue, 24 Jan 2006 17:17:20 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:53446 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1750776AbWAXWRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 17:17:19 -0500
+Message-ID: <43D6A76D.2000502@comcast.net>
+Date: Tue, 24 Jan 2006 17:17:17 -0500
+From: Ed Sweetman <safemode@comcast.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: 2.6.16-rc1-mm2 pata driver confusion
+References: <43D5CC88.9080207@comcast.net> <1138116579.14675.22.camel@localhost.localdomain>
+In-Reply-To: <1138116579.14675.22.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Alan Cox wrote:
 
-> > > > This patch introduces a user space interface for swsusp.
-> > > 
-> > > How will we know if/when this feature is ready for mainline?  What criteria
-> > > can we use to judge that?
-> > 
-> > It was stable for me last time I tested. I do not think it needs
-> > longer -mm testing than usual patches.
-> 
-> One we've shipped the interface we're kinda stuck with it for ever, so it
-> does want to be pretty mature.
+>On Maw, 2006-01-24 at 01:43 -0500, Ed Sweetman wrote:
+>  
+>
+>>problem.  The problem is that there appears to be two nvidia/amd ata 
+>>drivers and I'm unsure which I should try using, if i compile both in, 
+>>which get loaded first (i assume scsi is second to ide) and if i want my 
+>>pata disks loaded under the new libata drivers, will my cdrom work under 
+>>them too, or do i still need some sort of regular ide drivers loaded 
+>>just for cdrom (to use native ata mode for recording access).  
+>>    
+>>
+>
+>The goal of the drivers/scsi/pata_* drivers is to replace drivers/ide in
+>its entirity with code using the newer and cleaner libata logic. There
+>is still much to do but my SIL680, SiS, Intel MPIIX, AMD and VIA boxes
+>are using libata and the additional patch patches still queued
+>  
+>
 
-Well, I think we got the interface pretty much right -- and it is
-really pretty simple. It survived pretty nasty stress testing at one
-point.
+>>1.  Atapi is most definitely not supported by libata, right now.
+>>    
+>>
+>
+>It works in the -mm tree.
+>  
+>
+Intriguing, when I had no ide chipset compiled in kernel, only libata 
+drivers, I got no mention at all about my dvd writer.  I even had the 
+scsi cd driver installed and generic devices, still nothing seemed to 
+initialize the dvd drive.  It detected the second pata bus but no 
+devices attached to it. 
 
-Of course, bad things happen. Having it merged but disabled in
-Makefile would certainly be preferred than not merged at
-all. Plus... stable kernel or not, it is new feature, and userland
-suspending programs are quite closely tied to the kernel. I think it
-is reasonable to expect users to have matching version of kernel and
-userland-swsusp tools, at least before dust settles.
-								Pavel
--- 
-Thanks, Sharp!
+this is using the kernel mentioned in the subject header.  
+2.6.16-rc1-mm2.  using the amd/nvidia drivers for pata and sata.
+
+Is there anything i can do to give more info to the list to figure out 
+why my atapi writer is being ignored by pata even when there are no ide 
+drivers loaded?
+
+>>4.  moving to pata libata drivers _will_ change the enumeration of your 
+>>sata devices, it seems that pata is initialized first, so when setting 
+>>up your fstab entries and grub, you'll have to take into account how 
+>>many pata devices you have and offset your current sata device names by 
+>>that amount.
+>>    
+>>
+>
+>Or use labels. As you move into the world of hot pluggable hardware it
+>becomes more and more impractical to guarantee drive ordering by name.
+>
+>You can mix and match the drivers providing you don't try and load both
+>libata and old ide drives for the same chip. Even then it should fail
+>correctly with one of them reporting resources unavailable.
+>
+>In fact I do this all the time when debugging so I've got a stable disk
+>for debug work and a devel disk.
+>
+>Alan
+>  
+>
+
+I'm not familiar with labeling ...will have to look into it, since 
+borking a kernel after changing the drivers can result in a non-bootable 
+system depending on how the partitions are setup across the devices. 
+(since you'd have to change them in fstab and such before a reboot).  A 
+way around that would be very useful.
+
+

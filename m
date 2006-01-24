@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWAXOFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932104AbWAXONK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbWAXOFl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 09:05:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbWAXOFl
+	id S932104AbWAXONK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 09:13:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWAXONK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 09:05:41 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:27522 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030229AbWAXOFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 09:05:41 -0500
-Subject: [PATCH RT] add set_curr_timer to high_res run_queue
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 24 Jan 2006 09:05:26 -0500
-Message-Id: <1138111527.6695.21.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Tue, 24 Jan 2006 09:13:10 -0500
+Received: from mxsf09.cluster1.charter.net ([209.225.28.209]:3784 "EHLO
+	mxsf09.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S932104AbWAXONJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 09:13:09 -0500
+X-IronPort-AV: i="4.01,214,1136178000"; 
+   d="scan'208"; a="681993725:sNHT15654122"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17366.13811.386903.438419@smtp.charter.net>
+Date: Tue, 24 Jan 2006 09:13:07 -0500
+From: "John Stoffel" <john@stoffel.org>
+To: Andy Spiegl <kernelbug.Andy@spiegl.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.15 crashes X Server after running OpenGL programs
+In-Reply-To: <20060124121542.GB13646@spiegl.de>
+References: <20060124121542.GB13646@spiegl.de>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo,
 
-Here's the cause of my crash.
+Andy>  - on my Intel Pentium 4 CPU 2.60GHz CPU I upgraded to kernel
+Andy>  2.6.15 (from kernel.org, compiled with Debian's make-kpkg),
+Andy>  .config attached
 
--- Steve
+Andy>  - I own an ATI Radeon 9000 card and am using the closed source
+Andy>  driver fglrx 8.20.8-i386 together with XFree86 (Debian
+Andy>  4.3.0.dfsg.1-14sarge1) to be able to use OpenGL.
 
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Sorry, but unless you can reproduce this error WITHOUT the closed
+source module, we cannot help you at all.  Talk to ATI, it's their
+code doing something wrong.
 
-Index: linux-2.6.15-rt12/kernel/hrtimer.c
-===================================================================
---- linux-2.6.15-rt12.orig/kernel/hrtimer.c	2006-01-23 14:00:27.000000000 -0500
-+++ linux-2.6.15-rt12/kernel/hrtimer.c	2006-01-24 08:53:44.000000000 -0500
-@@ -877,6 +877,7 @@
- 		timer = list_entry(base->expired.next, struct hrtimer, list);
- 		fn = timer->function;
- 		data = timer->data;
-+		set_curr_timer(base, timer);
- 		timer->state = HRTIMER_RUNNING;
- 		list_del(&timer->list);
- 		spin_unlock_irq(&base->lock);
-@@ -902,6 +903,7 @@
- 		else
- 			timer->state = HRTIMER_EXPIRED;
- 	}
-+	set_curr_timer(base, NULL);
- 	spin_unlock_irq(&base->lock);
- 
- 	wake_up_timer_waiters(base);
-
-
+John

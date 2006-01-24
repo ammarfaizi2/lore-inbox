@@ -1,98 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbWAXCBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbWAXCCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030297AbWAXCBj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 21:01:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWAXCBj
+	id S1030303AbWAXCCu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 21:02:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbWAXCCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 21:01:39 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:37368 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1030297AbWAXCBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 21:01:38 -0500
-Date: Mon, 23 Jan 2006 21:03:47 -0500
-From: Latchesar Ionkov <lucho@ionkov.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: v9fs-developer@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] v9fs: fix corner cases when flushing request
-Message-ID: <20060124020347.GB26367@ionkov.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Mon, 23 Jan 2006 21:02:50 -0500
+Received: from ms-smtp-04-smtplb.tampabay.rr.com ([65.32.5.134]:1729 "EHLO
+	ms-smtp-04.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S1030298AbWAXCCt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 21:02:49 -0500
+Message-ID: <43D58AA8.2090903@cfl.rr.com>
+Date: Mon, 23 Jan 2006 21:02:16 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Mail/News 1.5 (X11/20060119)
+MIME-Version: 1.0
+To: vherva@vianova.fi
+CC: Heinz Mauelshagen <mauelshagen@redhat.com>,
+       Lars Marowsky-Bree <lmb@suse.de>, Neil Brown <neilb@suse.de>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       "Lincoln Dale (ltd)" <ltd@cisco.com>, Michael Tokarev <mjt@tls.msk.ru>,
+       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "Steinar H. Gunderson" <sgunderson@bigfoot.com>
+Subject: Re: [PATCH 000 of 5] md: Introduction
+References: <17360.5011.975665.371008@cse.unsw.edu.au> <43D02033.4070008@cfl.rr.com> <17360.9233.215291.380922@cse.unsw.edu.au> <20060120183621.GA2799@redhat.com> <20060120225724.GW22163@marowsky-bree.de> <20060121000142.GR2801@redhat.com> <20060121000344.GY22163@marowsky-bree.de> <20060121000806.GT2801@redhat.com> <20060121001311.GA22163@marowsky-bree.de> <20060123094418.GX2801@redhat.com> <20060123125420.GE1686@vianova.fi>
+In-Reply-To: <20060123125420.GE1686@vianova.fi>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When v9fs_mux_rpc sends a 9P message, it may be put in the queue of unsent
-request. If the user process receives a signal, v9fs_mux_rpc sets the
-request error to ERREQFLUSH and assigns NULL to request's send message. If
-the message was still in the unsent queue, v9fs_write_work would produce an
-oops while processing it.
+Ville Herva wrote:
+> PS: Speaking of debugging failing initrd init scripts; it would be nice if
+> the kernel gave an error message on wrong initrd format rather than silently
+> failing... Yes, I forgot to make the cpio with the "-H newc" option :-/.
+>   
 
-The patch makes sure that requests that are being flushed are moved to the
-pending requests queue safely.
+LOL, yea, that one got me too when I was first getting back into linux a 
+few months ago and had to customize my initramfs to include dmraid to 
+recognize my hardware fakeraid raid0.  Then I discovered the mkinitramfs 
+utility which makes things much nicer ;)
 
-If a request is being flushed, don't remove it from the list of pending
-requests even if it receives a reply before the flush is acknoledged. The
-request will be removed during from the Rflush handler (v9fs_mux_flush_cb).
 
-Signed-off-by: Latchesar Ionkov <lucho@ionkov.net>
-
----
-commit 8e60a35994c30c4440e45be756123dbeff309ad5
-tree e92fb9d7758402a98d3914f52dddbc2430762f5c
-parent 7d47de04b78b23c3d516cb9510681e740c476dba
-author Latchesar Ionkov <lucho@ionkov.net> Mon, 23 Jan 2006 20:54:57 -0500
-committer Latchesar Ionkov <lucho@ionkov.net> Mon, 23 Jan 2006 20:54:57 -0500
-
- fs/9p/mux.c |   15 +++++++++++----
- 1 files changed, 11 insertions(+), 4 deletions(-)
-
-diff --git a/fs/9p/mux.c b/fs/9p/mux.c
-index 945cb36..ea1134e 100644
---- a/fs/9p/mux.c
-+++ b/fs/9p/mux.c
-@@ -471,10 +471,13 @@ static void v9fs_write_work(void *a)
- 		}
- 
- 		spin_lock(&m->lock);
--		req =
--		    list_entry(m->unsent_req_list.next, struct v9fs_req,
-+again:
-+		req = list_entry(m->unsent_req_list.next, struct v9fs_req,
- 			       req_list);
- 		list_move_tail(&req->req_list, &m->req_list);
-+		if (req->err == ERREQFLUSH)
-+			goto again;
-+
- 		m->wbuf = req->tcall->sdata;
- 		m->wsize = req->tcall->size;
- 		m->wpos = 0;
-@@ -525,7 +528,7 @@ static void process_request(struct v9fs_
- 	struct v9fs_str *ename;
- 
- 	tag = req->tag;
--	if (req->rcall->id == RERROR && !req->err) {
-+	if (!req->err && req->rcall->id == RERROR) {
- 		ecode = req->rcall->params.rerror.errno;
- 		ename = &req->rcall->params.rerror.error;
- 
-@@ -551,7 +554,10 @@ static void process_request(struct v9fs_
- 			req->err = -EIO;
- 	}
- 
--	if (req->cb && req->err != ERREQFLUSH) {
-+	if (req->err == ERREQFLUSH)
-+		return;
-+
-+	if (req->cb) {
- 		dprintk(DEBUG_MUX, "calling callback tcall %p rcall %p\n",
- 			req->tcall, req->rcall);
- 
-@@ -812,6 +818,7 @@ v9fs_mux_rpc_cb(void *a, struct v9fs_fca
- 	struct v9fs_mux_rpc *r;
- 
- 	if (err == ERREQFLUSH) {
-+		kfree(rc);
- 		dprintk(DEBUG_MUX, "err req flush\n");
- 		return;
- 	}

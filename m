@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWAXOWO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWAXOg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbWAXOWO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 09:22:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWAXOWO
+	id S932318AbWAXOg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 09:36:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbWAXOg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 09:22:14 -0500
-Received: from lila.akte.de ([213.239.211.75]:60879 "EHLO lila.akte.de")
-	by vger.kernel.org with ESMTP id S932318AbWAXOWN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 09:22:13 -0500
-KRecCount: 1
-KInfo: virscan ok
-KInfo: !spam auth
-Date: Tue, 24 Jan 2006 15:21:51 +0100
-From: Andy Spiegl <kernelbug.Andy@spiegl.de>
-To: John Stoffel <john@stoffel.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.15 crashes X Server after running OpenGL programs
-Message-ID: <20060124142151.GA3538@spiegl.de>
-Mail-Followup-To: Andy Spiegl <kernelbug.Andy@spiegl.de>,
-	John Stoffel <john@stoffel.org>, linux-kernel@vger.kernel.org
-References: <20060124121542.GB13646@spiegl.de> <17366.13811.386903.438419@smtp.charter.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 24 Jan 2006 09:36:57 -0500
+Received: from uproxy.gmail.com ([66.249.92.192]:48222 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932318AbWAXOgy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 09:36:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=k6dlIgHLH5EAiOx8jIiqbSECdbI+Z2cV0qg614dcxbw7p/JA8wx/ilJpS6AvC4HUVPpB8QW8HbR1l+NmkfDlYYmucJ8ceaRK3TFNC/7MGlhuc9VVl/s4axqslIjfcWJ9VewOWOO7AlnVOud5pCvo31aMt50v8bepuTAvneBxusk=
+Message-ID: <728201270601240636p58fead78m781fb104c3d73da9@mail.gmail.com>
+Date: Tue, 24 Jan 2006 08:36:50 -0600
+From: Ram Gupta <ram.gupta5@gmail.com>
+To: Nikita Danilov <nikita@clusterfs.com>
+Subject: Re: [RFC] VM: I have a dream...
+Cc: Michael Loftis <mloftis@wgops.com>, "Barry K. Nathan" <barryn@pobox.com>,
+       Al Boldi <a1426z@gawab.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <17365.23510.525066.57628@gargle.gargle.HOWL>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <17366.13811.386903.438419@smtp.charter.net>
-X-PGP-GPG-Keys: mail -s "send pgp" auto@spiegl.de
-X-Accepted-File-Formats: ASCII OpenOffice .rtf .pdf - *NO* Microsoft files please.
-X-why-you-shouldnt-use-MS-LookOut: http://www.jensbenecke.de/l-oe-en.php
-X-warum-man-MS-Outlook-vermeiden-sollte: http://www.jensbenecke.de/l-oe-de.php
-X-Message-Flag: LookOut! You are using an insecure mail reader which can be used to spread viruses.
-X-how-to-quote: http://learn.to/quote/
-X-how-to-ask-questions: http://www.catb.org/~esr/faqs/smart-questions.html
-X-stupid-disclaimers: http://goldmark.org/jeff/stupid-disclaimers/
-User-Agent: Mutt/1.5.9i
+References: <200601212108.41269.a1426z@gawab.com>
+	 <986ed62e0601221155x6a57e353vf14db02cc219c09@mail.gmail.com>
+	 <E3C35184F807ADEC2AD9E182@dhcp-2-206.wgops.com>
+	 <728201270601230705k25e6890ejd716dbfc393208b8@mail.gmail.com>
+	 <280A351A008C409CEF43A734@dhcp-2-206.wgops.com>
+	 <17365.23510.525066.57628@gargle.gargle.HOWL>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Talk to ATI, it's their code doing something wrong.
-Okay, knowing that for sure already helped me.
+On 1/23/06, Nikita Danilov <nikita@clusterfs.com> wrote:
 
-I thought that it's a bug in the kernel source because syslog says
-"kernel BUG at mm/swap.c" and swap.c isn't part of fglrx.
+>
+> The unique feature that Mac OS X VM does have, on the other hand, is
+> that it keeps profiles of access patterns of applications, and stores
+> then in files, associated with executables. This allows to quickly
+> pre-fault necessary pages during application startup (and this makes OSX
+> boot so fast).
 
-Too bad there is no free OpenGL driver - I hate to use closed source stuff.
+This feature is interesting though I am not sure about the fast boot
+part of OSX.
+as at boot time these applications are all started first time. So
+there were no access pattern as yet. They still have to be demand
+paged. But yes later accesses may be faster.
 
-Thanks,
- Andy.
-
--- 
- Fotos: francisco.spiegl.de            o      _     _         _              
- Infos: peru.spiegl.de       __o      /\_   _ \\o  (_)\__/o  (_)         -o) 
- Andy, Heidi, Francisco    _`\<,_    _>(_) (_)/<_    \_| \   _|/' \/      /\\
- heidi.und.andy@spiegl.de (_)/ (_)  (_)        (_)   (_)    (_)'  _\o_   _\_v
- ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
- I stand by all the misstatements that I've made.  (Dan Quayle)
+Thanks
+Ram gupta

@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030405AbWAXKIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030430AbWAXKXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030405AbWAXKIh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 05:08:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030430AbWAXKIh
+	id S1030430AbWAXKXm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 05:23:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030435AbWAXKXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 05:08:37 -0500
-Received: from tartu.cyber.ee ([193.40.6.68]:51728 "EHLO tartu.cyber.ee")
-	by vger.kernel.org with ESMTP id S1030405AbWAXKIh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 05:08:37 -0500
-From: Meelis Roos <mroos@linux.ee>
-To: mloftis@wgops.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] VM: I have a dream...
-In-Reply-To: <280A351A008C409CEF43A734@dhcp-2-206.wgops.com>
-User-Agent: tin/1.8.0-20051224 ("Ronay") (UNIX) (Linux/2.6.16-rc1-g3ee68c4a-dirty (i686))
-Message-Id: <20060124100834.7B10913EBF@rhn.tartu-labor>
-Date: Tue, 24 Jan 2006 12:08:34 +0200 (EET)
+	Tue, 24 Jan 2006 05:23:42 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:3078 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1030430AbWAXKXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 05:23:41 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: GPL V3 and Linux
+Date: Tue, 24 Jan 2006 02:23:17 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKIEOMJJAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.61.0601231703170.13590@chaos.analogic.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Tue, 24 Jan 2006 02:20:06 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Tue, 24 Jan 2006 02:20:07 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ML> You missed the point.  The kernel in OS X maintains creation and use of 
-ML> these files automatically.  The point wasn't oh wow multiple files' it was 
-ML> that it creates them on the fly.  I just posted back with the apparent new 
-ML> method that's being used.  I'm not sure if the 512MB number continues or if 
-ML> the next file will be 1Gb or another 512M.  Or of memory size affects it or 
-ML> not.
 
-Not in kernel but userspace, seems like Linux:
+> Sometimes the restrictions are necessary. For instance,
+> except in very special circumstances, governments usually
+> take away the inherent rights to kill, etc.
 
-http://developer.apple.com/documentation/Darwin/Reference/ManPages/man8/dynamic_pager.8.html
+	I guess I can't figure out what you could possibly mean by the word "right"
+such that the phrase "inherent rights to kill" is meaningful. Perhaps you
+could clarify.
 
-     The dynamic_pager daemon manages a pool of external swap files which the
-     kernel uses to support demand paging.  This pool is expanded with new
-     swap files as load on the system increases, and contracted when the swap-swapping
-     ping resources are no longer needed.  The dynamic_pager daemon also pro-provides
-     vides a notification service for those applications which wish to receive
-     notices when the external paging pool expands or contracts.
+	DS
 
--- 
-Meelis Roos
+

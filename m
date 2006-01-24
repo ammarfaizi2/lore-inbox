@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbWAXPNk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030352AbWAXPNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030233AbWAXPNk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 10:13:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030351AbWAXPNk
+	id S1030352AbWAXPNd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 10:13:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbWAXPNd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 10:13:40 -0500
-Received: from xenotime.net ([66.160.160.81]:34744 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030233AbWAXPNj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 10:13:39 -0500
-Date: Tue, 24 Jan 2006 07:13:37 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Alex Riesen <raa.lkml@gmail.com>
-cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       Diego Calleja <diegocg@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: How to discover new Linux features (was: Re: Linux 2.6.16-rc1)
-In-Reply-To: <81b0412b0601232316h6a26b083oab0b6d8de15e4c95@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0601240712300.5978@shark.he.net>
-References: <200601182323_MC3-1-B627-7710@compuserve.com>
- <81b0412b0601232316h6a26b083oab0b6d8de15e4c95@mail.gmail.com>
+	Tue, 24 Jan 2006 10:13:33 -0500
+Received: from uproxy.gmail.com ([66.249.92.202]:4009 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030352AbWAXPNc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 10:13:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pYOsFtcsnQbMhoEyVl2r74oQO5OMY3iD7U2r3fuSmw7q87b2jrPjlohHWGKFIekgku76BLMW1PJdK2JnttJHdjzJV8UnT+qzNfC+AuJjiXf+pG2emX/HbE0QUOvxGZPGNT6yjb/Xv71suvaKfI9VtNvvgGhGvvYZxa6q/6J0E5Y=
+Message-ID: <40f323d00601240713x26c3a04cra46e1cd9639b12f2@mail.gmail.com>
+Date: Tue, 24 Jan 2006 16:13:30 +0100
+From: Benoit Boissinot <bboissin@gmail.com>
+To: Andy Spiegl <kernelbug.Andy@spiegl.de>, John Stoffel <john@stoffel.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.15 crashes X Server after running OpenGL programs
+In-Reply-To: <20060124142151.GA3538@spiegl.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060124121542.GB13646@spiegl.de>
+	 <17366.13811.386903.438419@smtp.charter.net>
+	 <20060124142151.GA3538@spiegl.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Jan 2006, Alex Riesen wrote:
+On 1/24/06, Andy Spiegl <kernelbug.Andy@spiegl.de> wrote:
+> Too bad there is no free OpenGL driver - I hate to use closed source stuff.
 
-> On 1/19/06, Chuck Ebbert <76306.1226@compuserve.com> wrote:
-> >  Say you are comparing kernels 2.6.14 and 2.6.15, trying to see what
-> > is new.  Just do this:
-> >
-> >  1.  Copy a .config file into your 2.6.14 directory.
-> >
-> >  2.  Run "make oldconfig" there.  It doesn't really matter what
-> >      answers you give so long as it runs to completion.
->
-> make it "make allconfig"
+Radeon 9000 is supported in Xorg and as far as i know was already supported
+in Xfree86. The open-source driver works fine for me (Radeon 9200SE).
 
-Are you suggesting a new make target?  'make help' lists
-allyesconfig, allnoconfig, or allmodconfig (in the all* group).
+regards,
 
--- 
-~Randy
+Benoit

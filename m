@@ -1,59 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWAXU14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965008AbWAXUdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965006AbWAXU14 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 15:27:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbWAXU14
+	id S965008AbWAXUdE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 15:33:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965002AbWAXUdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 15:27:56 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:18372 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965006AbWAXU1z convert rfc822-to-8bit
+	Tue, 24 Jan 2006 15:33:04 -0500
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:13068 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S964849AbWAXUdD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 15:27:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=jBph9z56Zc56KlD0HGTYwBZ2GaAM4MZmkYnrHyW7oPzAAKlC+ckcJy4jYBL0IwLusjjDQ6cKFplt6naJFNpn4BNnuPWrJaXSE+vqYKQ/5XjsAwcLBNbaNzruLoT4DIW/1/bak8s4QSA3hvyEYIgJ1mVcu7XBaQemm5WIyvTZprY=
-Message-ID: <6c8c9b030601241227u281662f6va99ebabad31d12f2@mail.gmail.com>
-Date: Tue, 24 Jan 2006 14:27:54 -0600
-From: Dave Yeats <dave.yeats@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Open source usability survey
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Tue, 24 Jan 2006 15:33:03 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: Knut_Petersen@t-online.de (Knut Petersen)
+Subject: Re: [BUG] sky2 broken for Yukon PCI-E Gigabit Ethernet Controller 11ab:4362 (rev 19)
+Cc: shemminger@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <43D5F6DD.70702@t-online.de>
+X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1F1UqC-0002XE-00@gondolin.me.apana.org.au>
+Date: Wed, 25 Jan 2006 07:32:36 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All:
+Knut Petersen <Knut_Petersen@t-online.de> wrote:
+>
+> "ethtool -K eth0 rx off" does cure my problem with sky2.
+> 
+> Anybody is invited to send patches as the problem is 100% reproducible here.
 
-Hi, I'm a PhD student at Texas Tech University studying usability
-practices in open source software communities.  I worked with a few
-open source developers to tailor this survey for the open source
-development community, and about 13 developers participated in a pilot
-test last year.
+Does the problem go away if you disable conntrack by unloading its module?
 
-I am now looking for responses from a larger number of developers.  It
-will take no longer than 15 or 20 minutes, and your responses will
-help me (and others) understand how open source developers approach
-the problem of usability in software.
+Please try to capture the offending ICMP packet with tcpdump and show us
+what it looks like.
 
-If you would like to complete the survey, please go to:
-http://english.ttu.edu/survey/TakeSurvey.asp?SurveyID=30Lm53M3757KG
-
-You are invited to post this URL on any additional email list or blog.
-
-Thanks in advance for your participation.  Please feel free to contact
-me if you have any questions or concerns.
-
-thanks,
--Dave
-
-Cross-posted to foundation-list@gnome.org and kde-announce@kde.org.
-
-Dave Yeats
-Department of English
-Texas Tech University
-English and Philosophy Building
-Office 401
-dave.yeats@ttu.edu
+Thanks,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

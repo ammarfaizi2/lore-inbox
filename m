@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030421AbWAXJXC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030428AbWAXJXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030421AbWAXJXC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 04:23:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030424AbWAXJXC
+	id S1030428AbWAXJXw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 04:23:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030422AbWAXJXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 04:23:02 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:21640 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030422AbWAXJXA (ORCPT
+	Tue, 24 Jan 2006 04:23:51 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:31198 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S1030427AbWAXJXu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 04:23:00 -0500
-Date: Tue, 24 Jan 2006 10:23:30 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: RCU latency regression in 2.6.16-rc1
-Message-ID: <20060124092330.GA7060@elte.hu>
-References: <1138089139.2771.78.camel@mindpipe> <20060124075640.GA24806@elte.hu> <1138089483.2771.81.camel@mindpipe> <20060124080157.GA25855@elte.hu> <1138090078.2771.88.camel@mindpipe> <20060124081301.GC25855@elte.hu> <1138090527.2771.91.camel@mindpipe> <20060124091730.GA31204@us.ibm.com>
+	Tue, 24 Jan 2006 04:23:50 -0500
+Date: Tue, 24 Jan 2006 10:23:03 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: NeilBrown <neilb@suse.de>, linux-raid@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 000 of 7] md: Introduction - raid5 reshape mark-2
+Message-ID: <20060124092303.GD22870@marowsky-bree.de>
+References: <20060124112626.4447.patches@notabene>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060124091730.GA31204@us.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060124112626.4447.patches@notabene>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2006-01-24T11:40:47, NeilBrown <neilb@suse.de> wrote:
 
-* Paul E. McKenney <paulmck@us.ibm.com> wrote:
+> I am expecting that I will ultimately support online conversion of
+> raid5 to raid6 with only one extra device.  This process is not
+> (efficiently) checkpointable and so will be at-your-risk.
 
-> > Have not tested yet but it appears that will reduce it substantially:
-> > 
-> > $ grep "dst_destroy (dst_rcu_free)" /proc/latency_trace | wc -l
-> > 3027
-> > 
-> > This implies the latency would be reduced to ~4ms, still not great but
-> > it will be overshadowed by rt_run_flush/rt_garbage_collect.
-> 
-> The other patch to try would be Dipankar Sarma's patch at:
-> 
-> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=113657112726596&w=2
-> 
-> This patch was primarily designed to reduce memory overhead, but given 
-> that it tends to reduce batch size, it should also reduce latency.
+So the best way to go about that, if one wants to keep that option open
+w/o that risk, would be to not create a raid5 in the first place, but a
+raid6 with one disk missing?
 
-if this solves Lee's problem, i think we should apply this as a fix, and 
-get it into v2.6.16. The patch looks straightforward and correct to me.
+Maybe even have mdadm default to that - as long as just one parity disk
+is missing, no slowdown should happen, right?
 
-	Ingo
+
+Sincerely,
+    Lars Marowsky-Brée
+
+-- 
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
+"Ignorance more frequently begets confidence than does knowledge"
+

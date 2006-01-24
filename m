@@ -1,100 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWAXVLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWAXVNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWAXVLK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 16:11:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWAXVLK
+	id S1750719AbWAXVNg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 16:13:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWAXVNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 16:11:10 -0500
-Received: from hera.kernel.org ([140.211.167.34]:44009 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1750715AbWAXVLH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 16:11:07 -0500
-Date: Mon, 23 Jan 2006 13:13:41 -0600
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: linux-mm@kvack.org, jschopp@austin.ibm.com, linux-kernel@vger.kernel.org,
-       kamezawa.hiroyu@jp.fujitsu.com, lhms-devel@lists.sourceforge.net
-Subject: Re: [PATCH 2/4] Split the free lists into kernel and user parts
-Message-ID: <20060123191341.GA4892@dmt.cnet>
-References: <20060120115415.16475.8529.sendpatchset@skynet.csn.ul.ie> <20060120115455.16475.93688.sendpatchset@skynet.csn.ul.ie> <20060122133147.GA4186@dmt.cnet> <Pine.LNX.4.58.0601230937200.11319@skynet>
+	Tue, 24 Jan 2006 16:13:36 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:26063 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750719AbWAXVNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 16:13:35 -0500
+Subject: Re: 2.6.16-rc1-mm2 pata driver confusion
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Ed Sweetman <safemode@comcast.net>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.58.0601240907200.26036@shark.he.net>
+References: <43D5CC88.9080207@comcast.net>
+	 <1138116579.14675.22.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0601240904110.26036@shark.he.net>
+	 <Pine.LNX.4.58.0601240907200.26036@shark.he.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 24 Jan 2006 21:13:53 +0000
+Message-Id: <1138137233.14675.76.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0601230937200.11319@skynet>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 23, 2006 at 09:39:16AM +0000, Mel Gorman wrote:
-> On Sun, 22 Jan 2006, Marcelo Tosatti wrote:
+On Maw, 2006-01-24 at 09:08 -0800, Randy.Dunlap wrote:
+> > and while I'm looking at the config menu, why do both
+> > Compaq Triflex and Intel PATA MPIIX say (Raving Lunatic)?
 > 
-> > Hi Mel,
-> >
-> > On Fri, Jan 20, 2006 at 11:54:55AM +0000, Mel Gorman wrote:
-> > >
-> > > This patch adds the core of the anti-fragmentation strategy. It works by
-> > > grouping related allocation types together. The idea is that large groups of
-> > > pages that may be reclaimed are placed near each other. The zone->free_area
-> > > list is broken into RCLM_TYPES number of lists.
-> > >
-> > > Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-> > > Signed-off-by: Joel Schopp <jschopp@austin.ibm.com>
-> > > diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/mmzone.h linux-2.6.16-rc1-mm1-002_fragcore/include/linux/mmzone.h
-> > > --- linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/mmzone.h	2006-01-19 11:21:59.000000000 +0000
-> > > +++ linux-2.6.16-rc1-mm1-002_fragcore/include/linux/mmzone.h	2006-01-19 21:51:05.000000000 +0000
-> > > @@ -22,8 +22,16 @@
-> > >  #define MAX_ORDER CONFIG_FORCE_MAX_ZONEORDER
-> > >  #endif
-> > >
-> > > +#define RCLM_NORCLM 0
-> > > +#define RCLM_EASY   1
-> > > +#define RCLM_TYPES  2
-> > > +
-> > > +#define for_each_rclmtype_order(type, order) \
-> > > +	for (order = 0; order < MAX_ORDER; order++) \
-> > > +		for (type = 0; type < RCLM_TYPES; type++)
-> > > +
-> > >  struct free_area {
-> > > -	struct list_head	free_list;
-> > > +	struct list_head	free_list[RCLM_TYPES];
-> > >  	unsigned long		nr_free;
-> > >  };
-> > >
-> > > diff -rup -X /usr/src/patchset-0.5/bin//dontdiff linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/page-flags.h linux-2.6.16-rc1-mm1-002_fragcore/include/linux/page-flags.h
-> > > --- linux-2.6.16-rc1-mm1-001_antifrag_flags/include/linux/page-flags.h	2006-01-19 11:21:59.000000000 +0000
-> > > +++ linux-2.6.16-rc1-mm1-002_fragcore/include/linux/page-flags.h	2006-01-19 21:51:05.000000000 +0000
-> > > @@ -76,6 +76,7 @@
-> > >  #define PG_reclaim		17	/* To be reclaimed asap */
-> > >  #define PG_nosave_free		18	/* Free, should not be written */
-> > >  #define PG_uncached		19	/* Page has been mapped as uncached */
-> > > +#define PG_easyrclm		20	/* Page is in an easy reclaim block */
-> > >
-> > >  /*
-> > >   * Global page accounting.  One instance per CPU.  Only unsigned longs are
-> > > @@ -345,6 +346,12 @@ extern void __mod_page_state_offset(unsi
-> > >  #define SetPageUncached(page)	set_bit(PG_uncached, &(page)->flags)
-> > >  #define ClearPageUncached(page)	clear_bit(PG_uncached, &(page)->flags)
-> > >
-> > > +#define PageEasyRclm(page)	test_bit(PG_easyrclm, &(page)->flags)
-> > > +#define SetPageEasyRclm(page)	set_bit(PG_easyrclm, &(page)->flags)
-> > > +#define ClearPageEasyRclm(page)	clear_bit(PG_easyrclm, &(page)->flags)
-> > > +#define __SetPageEasyRclm(page)	__set_bit(PG_easyrclm, &(page)->flags)
-> > > +#define __ClearPageEasyRclm(page) __clear_bit(PG_easyrclm, &(page)->flags)
-> > > +
-> >
-> > You can't read/write to page->flags non-atomically, except when you
-> > guarantee that the page is not visible to other CPU's (eg at the very
-> > end of the page freeing code).
-> >
-> 
-> The helper PageEasyRclm is only used when either the spinlock is held or a
-> per-cpu page is being released so it should be safe. The Set and Clear
-> helpers are only used with a spinlock held.
+> Lots of them say Raving Lunatic.  Are all of these Alan's libata
+> patches?
 
-Mel,
+They are a subset of them. The full patch now covers all the PCI devices
+that are not platform specific except CMD640B if I counted right. It
+also supports generic ISA, ISAPnP, PCMCIA and some VLB devices. 
 
-Other codepaths which touch page->flags do not hold any lock, so you
-really must use atomic operations, except when you've guarantee that the
-page is being freed and won't be reused.
+Needless to say not all of this works and less of it has been heavily
+tested yet.
 
 

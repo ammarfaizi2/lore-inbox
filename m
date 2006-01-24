@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbWAXSRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWAXSQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030245AbWAXSRS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 13:17:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbWAXSRS
+	id S932276AbWAXSQz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 13:16:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWAXSQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 13:17:18 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:63704 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932478AbWAXSRR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 13:17:17 -0500
-Date: Tue, 24 Jan 2006 18:17:12 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: mingo@elte.hu, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Define __raw_read_lock etc for uniprocessor builds
-Message-ID: <20060124181712.GA13277@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Joe Korty <joe.korty@ccur.com>, mingo@elte.hu, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20060124180954.GA14506@tsunami.ccur.com>
+	Tue, 24 Jan 2006 13:16:55 -0500
+Received: from uproxy.gmail.com ([66.249.92.203]:22327 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932276AbWAXSQz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 13:16:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=ieb3vVy6TVbZ9zF2lzMmmHxoID7w1q9OnnPzr/pQeN475BGfbD2xyvjpoFQYrx7tvRhN5sH2mWyZx3o0DKFxh0aWeJMfhONRtiOgJbzEtXyM4GyOXUULn1hNUoapimuZcfu3r62NV7E1U1HAbwZOGoElM2fByegizCeF6dsbCRE=
+Date: Tue, 24 Jan 2006 19:16:28 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Marc Koschewski <marc@osknowledge.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why is /sound not in /drivers/media?
+Message-Id: <20060124191628.ea45e543.diegocg@gmail.com>
+In-Reply-To: <20060124171249.GA8406@stiffy.osknowledge.org>
+References: <20060124171249.GA8406@stiffy.osknowledge.org>
+X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060124180954.GA14506@tsunami.ccur.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 24, 2006 at 01:09:54PM -0500, Joe Korty wrote:
-> 
-> Make NOPed versions of __raw_read_lock and family available
-> under uniprocessor kernels.
-> 
-> Discovered when compiling a uniprocessor kernel with the
-> fusyn patch applied.
-> 
-> The standard kernel does not use __raw_read_lock etc
-> outside of spinlock.c, which may account for this bug
-> being undiscovered until now.
+El Tue, 24 Jan 2006 18:12:49 +0100,
+Marc Koschewski <marc@osknowledge.org> escribió:
 
-No one should call these directly.   Please fix your odd patch instead.
+> Hi everybody,
+> 
+> I just asked myself why the /sound tree is not within /drivers/media right
+> besides /drivers/media/video. Wouldn't that make sense? Could the movement be
 
+
+IIRC, because ALSA maintainers though that sound/ are not just drivers, but
+also a subsystem just like net/. Network drivers are in drivers/net however.

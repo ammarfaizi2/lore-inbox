@@ -1,77 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161010AbWAXRtf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161011AbWAXRtl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161010AbWAXRtf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 12:49:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWAXRtf
+	id S1161011AbWAXRtl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 12:49:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932478AbWAXRtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 12:49:35 -0500
-Received: from wumpus.mythic-beasts.com ([212.69.37.9]:63151 "EHLO
-	wumpus.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id S932465AbWAXRte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 12:49:34 -0500
-Date: Tue, 24 Jan 2006 17:49:28 +0000
-From: Chris Lightfoot <chris@ex-parrot.com>
-To: linux-kernel@vger.kernel.org
-Subject: kernel freeze on 2.4.32, apparently in cached_lookup
-Message-ID: <tQjo3cDibk0S.MeaWngl+j1QiYR1U5+Ih3w@sphinx.mythic-beasts.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Mail-Author: me
-X-Face: "kUA_=&I|(by86eXgYc|U}5`O%<xlo,~+JN9uk"Z`A.UCf2\1KKZ{FY-IIOqH/IS"=5=cb` U,mDyyf8a6BzVgYT~pRtqze]%s#\(J{/um"(r,Ol^4J*Y%aWe-9`ZKGEYjG}d?#u2jzP,x37.%A~Qa ;Yy6Fz`i/vu{}?y8%cI)RJpLnW=$yTs=TDM'MGjX`/LDw%p;EK;[ww;9_;UnRa+JZYO}[-j]O08X\N m/K>M(P#,)y`g7N}Boz4b^JTFYHPz:s%idl@t$\Vv$3OL6:>GEGwFHrV$/bfnL=6uO/ggqZfet:&D3 Q=9c
-X-Face-Plug: http://www.mythic-beasts.com/tools-toys/xface/
-X-Sigs-Plug: vote on my signature quotes at http://ex-parrot.com/~chris/scripts/amisigornot
+	Tue, 24 Jan 2006 12:49:41 -0500
+Received: from silver.veritas.com ([143.127.12.111]:44710 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932465AbWAXRtk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 12:49:40 -0500
+Date: Tue, 24 Jan 2006 17:50:17 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Dave McCracken <dmccr@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH/RFC] Shared page tables
+In-Reply-To: <6F40FCDC9FFDE7B6ACD294F5@[10.1.1.4]>
+Message-ID: <Pine.LNX.4.61.0601241604550.4262@goblin.wat.veritas.com>
+References: <A6D73CCDC544257F3D97F143@[10.1.1.4]>
+ <Pine.LNX.4.61.0601202020001.8821@goblin.wat.veritas.com>
+ <6F40FCDC9FFDE7B6ACD294F5@[10.1.1.4]>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 24 Jan 2006 17:49:39.0444 (UTC) FILETIME=[8C577B40:01C6210E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Pentium 4 machine running stock kernel 2.4.32
-with ext3 on LVM on software RAID-1. HIMEM is enabled and
-the machine has 3GB of RAM. Various details of the machine
-and kernel as here:
+On Mon, 23 Jan 2006, Dave McCracken wrote:
+> --On Friday, January 20, 2006 21:24:08 +0000 Hugh Dickins
+> <hugh@veritas.com> wrote:
+> 
+> I'll look into getting some profiles.
 
-http://ex-parrot.com/~chris/tmp/20060124/caesious-.config
-http://ex-parrot.com/~chris/tmp/20060124/caesious-cpuinfo
-http://ex-parrot.com/~chris/tmp/20060124/caesious-lsmod
-http://ex-parrot.com/~chris/tmp/20060124/caesious-lspci
+Thanks, that will help everyone to judge the performance/complexity better.
 
-Occasionally -- often when running updatedb or another
-disk-heavy cron job, but sometimes during normal use of
-the machine -- the machine freezes up almost entirely
-(mouse pointer stops working, ditto VC switching, no
-console output if on the text console, SSH sessions
-freeze, but network packet forwarding and NAT still work).
-There's no output on the VGA console and the machine
-doesn't respond to Ctrl-Alt-Sysrq, but does respond to
-break+... on the serial console. That gives sysrq-p output
-like this, from the most recent freeze:
+> The pmd level is important for ppc because it works in segments, which are
+> 256M in size and consist of a full pmd page.  The current implementation of
+> the way ppc loads its tlb doesn't allow sharing at smaller than segment
+> size.
 
-SysRq : Show Regs
-Pid: 30641, comm:             updatedb
-EIP: 0010:d_lookup+63/110 CPU: 0 EFLAGS: 00000287    Tainted: P
-EAX: c8632710 EBX: c8632700 ECX: 00000012 EDX: 13fe1842
-ESI: d373b000 EDI: 0003ffff EBP: ea93bedc DS: 0018 ES: 0018
-CR0: 8005003b CR2: 080a4094 CR3: 2965b000 CR4: 000006d0
-Call Trace: cached_lookup+11/50 link_path_walk+63b/900 vfs_permission+79/120 path_lookup+1e/30 __user_walk+2b/50 sys_lstat64+17/70 system_call+33/38
+Does that make pmd page sharing strictly necessary?  The way you describe
+it, it sounds like it's merely that you "might as well" share pmd page,
+because otherwise would always just waste memory on PPC.  But if it's
+significantly less complex not to go to that level, it may be worth that
+waste of memory (which would be a small fraction of what's now wasted at
+the pte level, wouldn't it?).  Sorry for belabouring this point, which
+may just be a figment of my ignorance, but you've not convinced me yet.
 
--- repeating sysrq+p suggests that the kernel is stuck in 
-d_lookup:
+And maybe I'm exaggerating the additional complexity: you have, after
+all, been resolute in treating the levels in the same way.  It's more
+a matter of offputting patch size than complexity: imagine splitting
+the patch into two, one to implement it at the pte level first, then
+a second to take it up to pmd level, that would be better.
 
-http://ex-parrot.com/~chris/tmp/20060124/caesious-regs-symbols
+> I needed a function that returns a struct page for pgd and pud, defined in
+> each architecture.  I decided the simplest way was to redefine pgd_page and
+> pud_page to match pmd_page and pte_page.  Both functions are pretty much
+> used one place per architecture, so the change is trivial.  I could come up
+> with new functions instead if you think it's an issue.  I do have a bit of
+> a fetish about symmetry across levels :)
 
-There's no oops or other message logged.
+Sounds to me like you made the right decision.
 
-(I'm running a uniprocessor kernel -- the SMP kernel also
-freezes under similar circumstances, and I wanted to
-eliminate the SMP code as a source of problems.)
+> >> +#define	pt_decrement_share(page)
+> >> +#define pt_shareable_vma(vma)	(0)
+> >> +#define	pt_unshare_range(vma, address, end)
+> >> +#endif /* CONFIG_PTSHARE */
+> > 
+> > Please keep to "#define<space>MACRO<tab(s)definition" throughout:
+> > easiest thing would be to edit the patch itself.
+> 
+> Sorry.  Done.  I thought the standard was "#define<TAB>" like all the other
+> C code I've ever seen.  I didn't realize Linux does it different.
 
-Does this look like a known problem? If not, what should I
-do next to track down the problem? In particular, what
-other information should I try to collect next time it
-freezes?
+No, I can't claim "#define<space>" is a Linux standard: I happen to
+prefer it myself, and it seems to predominate in the header files I've
+most often added to; but I was only trying to remove the distracting
+inconsistency from your patch, whichever way round.
 
-(Please cc replies to me if possible....)
+> >>  static inline int copy_pmd_range(struct mm_struct *dst_mm, struct
+> >>  mm_struct *src_mm, pud_t *dst_pud, pud_t *src_pud, struct
+> >>  		vm_area_struct *vma,
+> >> -		unsigned long addr, unsigned long end)
+> >> +		unsigned long addr, unsigned long end, int shareable)
+> >>  {
+> > 
+> > I'd have preferred not to add the shareable argument at each level,
+> > and work it out here; or is that significantly less efficient?
+> 
+> My gut feeling is that the vma-level tests for shareability are significant
+> enough that we only want to do them once, then pass the result down the
+> call  stack.  I could change it if you disagree about the relative cost.
 
--- 
-Q. Can I make copies of the copyright form?
-(US Copyright Office FAQ)
+I now think cut out completely your mods from copy_page_range and its
+subfunctions.  Given Nick's "Don't copy ptes..." optimization there,
+what shareable areas will reach the lower levels?  Only the VM_PFNMAP
+and VM_INSERTPAGE ones: which do exist, and may be large enough to
+qualify; but they're not the areas you're interested in targetting,
+so I'd say keep it simple and forget about shareability here.  The
+simpler you keep your patch, the likelier it is to convince people.
+
+And that leads on to another issue which occurred to me today, in
+reading through your overnight replies.  Notice the check on anon_vma
+in that optimization?  None of your "shareable" tests check anon_vma:
+the vm_flags shared/write check may be enough in some contexts, but
+not in all.  VM_WRITE can come and go, and even a VM_SHARED vma may
+have anon pages in it (through Linus' strange ptrace case): you must
+keep away from sharing pagetables once you've got anonymous pages in
+your vma (well, you could share those pagetables not yet anonymized,
+but that's just silly complexity).  And in particular, the prio_tree
+loop next_shareable_vma needs to skip any vma with its anon_vma set:
+at present you're (unlikely but) liable to offer entirely unsuitable
+pagetables for sharing there.
+
+(In the course of writing this, I've discovered that 2.6.16-rc
+supports COWed hugepages: anonymous pages without any anon_vma.
+I'd better get up to speed on those: maybe we'll want to allocate
+an anon_vma just for the appropriate tests, maybe we'll want to
+set another VM_flag, don't know yet... for the moment you ignore
+them, and assume anon_vma is the thing to test for, as in 2.6.15.)
+
+One other thing I forgot to comment on your patch: too many largish
+inline functions - our latest fashion is only to say "inline" on the
+one-or-two liners.
+
+Hugh

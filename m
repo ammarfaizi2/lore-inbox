@@ -1,583 +1,1084 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbWAXHwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbWAXH4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030216AbWAXHwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 02:52:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030218AbWAXHwZ
+	id S1030222AbWAXH4S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 02:56:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbWAXH4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 02:52:25 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:17897 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030216AbWAXHwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 02:52:24 -0500
-Subject: RCU latency regression in 2.6.16-rc1
-From: Lee Revell <rlrevell@joe-job.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Content-Type: text/plain
-Date: Tue, 24 Jan 2006 02:52:18 -0500
-Message-Id: <1138089139.2771.78.camel@mindpipe>
+	Tue, 24 Jan 2006 02:56:18 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:42959 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030222AbWAXH4R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 02:56:17 -0500
+Date: Tue, 24 Jan 2006 08:56:40 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: Re: RCU latency regression in 2.6.16-rc1
+Message-ID: <20060124075640.GA24806@elte.hu>
+References: <1138089139.2771.78.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1138089139.2771.78.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I ported the latency tracer to 2.6.16 and got this 13ms latency within a
-few hours.  This is a regression from 2.6.15.
 
-It appears that RCU can invoke ipv4_dst_destroy thousands of times in a
-single batch.
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-preemption latency trace v1.1.5 on 2.6.16-rc1
---------------------------------------------------------------------
- latency: 13805 us, #14352/14352, CPU#0 | (M:rt VP:0, KP:0, SP:0 HP:0)
-    -----------------
-    | task: gtk-gnutella-3116 (uid:1000 nice:0 policy:0 rt_prio:0)
-    -----------------
+> I ported the latency tracer to 2.6.16 and got this 13ms latency within 
+> a few hours.  This is a regression from 2.6.15.
+> 
+> It appears that RCU can invoke ipv4_dst_destroy thousands of times in 
+> a single batch.
 
-                 _------=> CPU#            
-                / _-----=> irqs-off        
-               | / _----=> need-resched    
-               || / _---=> hardirq/softirq 
-               ||| / _--=> preempt-depth   
-               |||| /                      
-               |||||     delay             
-   cmd     pid ||||| time  |   caller      
-      \   /    |||||   \   |   /           
-  <idle>-0     0d.s2    1us : __trace_start_sched_wakeup (try_to_wake_up)
-  <idle>-0     0d.s2    2us : __trace_start_sched_wakeup <<...>-3116> (73 0)
-  <idle>-0     0d.s.    3us : wake_up_process (process_timeout)
-  <idle>-0     0d.s.    4us : net_rx_action (__do_softirq)
-  <idle>-0     0d.s.    5us : process_backlog (net_rx_action)
-  <idle>-0     0d.s.    6us : netif_receive_skb (process_backlog)
-  <idle>-0     0d.s1    7us : packet_rcv_spkt (netif_receive_skb)
-  <idle>-0     0d.s1    7us : skb_clone (packet_rcv_spkt)
-  <idle>-0     0d.s1    8us : kmem_cache_alloc (skb_clone)
-  <idle>-0     0d.s1    9us : strlcpy (packet_rcv_spkt)
-  <idle>-0     0d.s2   10us : sk_run_filter (packet_rcv_spkt)
-  <idle>-0     0d.s1   12us : __kfree_skb (packet_rcv_spkt)
-  <idle>-0     0d.s1   12us : kfree_skbmem (__kfree_skb)
-  <idle>-0     0d.s1   13us : skb_release_data (kfree_skbmem)
-  <idle>-0     0d.s1   14us : kmem_cache_free (kfree_skbmem)
-  <idle>-0     0d.s1   14us : ip_rcv (netif_receive_skb)
-  <idle>-0     0d.s1   15us : ip_route_input (ip_rcv)
-  <idle>-0     0d.s1   16us : rt_hash_code (ip_route_input)
-  <idle>-0     0d.s1   17us : memset (ip_route_input)
-  <idle>-0     0d.s1   18us : fn_hash_lookup (ip_route_input)
-  <idle>-0     0d.s2   19us : fib_semantic_match (fn_hash_lookup)
-  <idle>-0     0d.s1   20us : fib_validate_source (ip_route_input)
-  <idle>-0     0d.s1   21us : memset (fib_validate_source)
-  <idle>-0     0d.s1   22us : fn_hash_lookup (fib_validate_source)
-  <idle>-0     0d.s1   23us : fn_hash_lookup (fib_validate_source)
-  <idle>-0     0d.s2   24us : fib_semantic_match (fn_hash_lookup)
-  <idle>-0     0d.s1   25us : __fib_res_prefsrc (fib_validate_source)
-  <idle>-0     0d.s1   26us : inet_select_addr (__fib_res_prefsrc)
-  <idle>-0     0d.s1   27us : dst_alloc (ip_route_input)
-  <idle>-0     0d.s1   28us : rt_garbage_collect (dst_alloc)
-  <idle>-0     0d.s1   28us+: kmem_cache_alloc (dst_alloc)
-  <idle>-0     0d.s1   31us : rt_hash_code (ip_route_input)
-  <idle>-0     0d.s1   32us : rt_intern_hash (ip_route_input)
-  <idle>-0     0d.s1   32us : local_bh_enable (rt_intern_hash)
-  <idle>-0     0d.s1   33us : ip_local_deliver (ip_rcv)
-  <idle>-0     0d.s2   34us : tcp_v4_rcv (ip_local_deliver)
-  <idle>-0     0d.s2   35us : __skb_checksum_complete (tcp_v4_rcv)
-  <idle>-0     0d.s2   36us+: skb_checksum (__skb_checksum_complete)
-  <idle>-0     0d.s3   39us : tcp_v4_do_rcv (tcp_v4_rcv)
-  <idle>-0     0d.s3   39us : tcp_rcv_state_process (tcp_v4_do_rcv)
-  <idle>-0     0d.s3   40us+: tcp_parse_options (tcp_rcv_state_process)
-  <idle>-0     0d.s3   44us : tcp_ack (tcp_rcv_state_process)
-  <idle>-0     0d.s3   46us+: tcp_sync_mss (tcp_ack)
-  <idle>-0     0d.s3   49us : __kfree_skb (tcp_ack)
-  <idle>-0     0d.s3   50us : kfree_skbmem (__kfree_skb)
-  <idle>-0     0d.s3   50us : skb_release_data (kfree_skbmem)
-  <idle>-0     0d.s3   51us : kfree (skb_release_data)
-  <idle>-0     0d.s3   52us : kmem_cache_free (kfree_skbmem)
-  <idle>-0     0d.s3   54us : tcp_ack_saw_tstamp (tcp_ack)
-  <idle>-0     0d.s3   54us+: tcp_rtt_estimator (tcp_ack_saw_tstamp)
-  <idle>-0     0d.s3   58us : tcp_sync_mss (tcp_rcv_state_process)
-  <idle>-0     0d.s3   59us : tcp_initialize_rcv_mss (tcp_rcv_state_process)
-  <idle>-0     0d.s3   60us : inet_sk_rebuild_header (tcp_rcv_state_process)
-  <idle>-0     0d.s3   61us : tcp_init_metrics (tcp_rcv_state_process)
-  <idle>-0     0d.s3   63us : tcp_init_cwnd (tcp_init_metrics)
-  <idle>-0     0d.s3   64us : tcp_init_congestion_control (tcp_rcv_state_process)
-  <idle>-0     0d.s3   65us : bictcp_init (tcp_init_congestion_control)
-  <idle>-0     0d.s3   66us+: tcp_init_buffer_space (tcp_rcv_state_process)
-  <idle>-0     0d.s3   69us : sock_def_wakeup (tcp_rcv_state_process)
-  <idle>-0     0d.s4   70us : __wake_up (sock_def_wakeup)
-  <idle>-0     0d.s5   71us : __wake_up_common (__wake_up)
-  <idle>-0     0d.s5   72us : default_wake_function (__wake_up_common)
-  <idle>-0     0d.s5   73us : try_to_wake_up (default_wake_function)
-  <idle>-0     0d.s6   74us : sched_clock (try_to_wake_up)
-  <idle>-0     0d.s6   75us : recalc_task_prio (try_to_wake_up)
-  <idle>-0     0d.s6   76us : effective_prio (recalc_task_prio)
-  <idle>-0     0d.s6   77us : try_to_wake_up <<...>-2854> (73 1)
-  <idle>-0     0d.s6   78us : enqueue_task (try_to_wake_up)
-  <idle>-0     0d.s6   78us : __trace_start_sched_wakeup (try_to_wake_up)
-  <idle>-0     0d.s3   80us : tcp_send_ack (tcp_rcv_state_process)
-  <idle>-0     0d.s3   81us : __alloc_skb (tcp_send_ack)
-  <idle>-0     0d.s3   82us : kmem_cache_alloc (__alloc_skb)
-  <idle>-0     0d.s3   82us : __kmalloc (__alloc_skb)
-  <idle>-0     0d.s3   84us : tcp_transmit_skb (tcp_send_ack)
-  <idle>-0     0d.s3   85us : __tcp_select_window (tcp_transmit_skb)
-  <idle>-0     0d.s3   86us : tcp_v4_send_check (tcp_transmit_skb)
-  <idle>-0     0d.s3   87us : ip_queue_xmit (tcp_transmit_skb)
-  <idle>-0     0d.s3   88us : ip_output (ip_queue_xmit)
-  <idle>-0     0d.s3   90us : local_bh_enable (ip_output)
-  <idle>-0     0d.s3   91us : dev_queue_xmit (ip_output)
-  <idle>-0     0d.s4   91us : pfifo_fast_enqueue (dev_queue_xmit)
-  <idle>-0     0d.s4   92us : qdisc_restart (dev_queue_xmit)
-  <idle>-0     0d.s4   93us : pfifo_fast_dequeue (qdisc_restart)
-  <idle>-0     0d.s4   94us : dev_queue_xmit_nit (qdisc_restart)
-  <idle>-0     0d.s5   95us : skb_clone (dev_queue_xmit_nit)
-  <idle>-0     0d.s5   95us : kmem_cache_alloc (skb_clone)
-  <idle>-0     0d.s5   97us : packet_rcv_spkt (dev_queue_xmit_nit)
-  <idle>-0     0d.s5   98us : strlcpy (packet_rcv_spkt)
-  <idle>-0     0d.s6   99us : sk_run_filter (packet_rcv_spkt)
-  <idle>-0     0d.s5  100us : __kfree_skb (packet_rcv_spkt)
-  <idle>-0     0d.s5  101us : kfree_skbmem (__kfree_skb)
-  <idle>-0     0d.s5  101us : skb_release_data (kfree_skbmem)
-  <idle>-0     0d.s5  102us : kmem_cache_free (kfree_skbmem)
-  <idle>-0     0d.s4  103us : rhine_start_tx (qdisc_restart)
-  <idle>-0     0d.s5  104us : ioread8 (rhine_start_tx)
-  <idle>-0     0d.s5  105us : iowrite8 (rhine_start_tx)
-  <idle>-0     0d.s5  106us : ioread8 (rhine_start_tx)
-  <idle>-0     0d.s4  108us : qdisc_restart (dev_queue_xmit)
-  <idle>-0     0d.s4  108us : pfifo_fast_dequeue (qdisc_restart)
-  <idle>-0     0d.s3  109us : local_bh_enable (dev_queue_xmit)
-  <idle>-0     0d.s3  110us : tcp_urg (tcp_rcv_state_process)
-  <idle>-0     0d.s3  111us : __kfree_skb (tcp_rcv_state_process)
-  <idle>-0     0d.s3  111us : kfree_skbmem (__kfree_skb)
-  <idle>-0     0d.s3  112us : skb_release_data (kfree_skbmem)
-  <idle>-0     0d.s3  113us : kfree (skb_release_data)
-  <idle>-0     0d.s3  114us : kmem_cache_free (kfree_skbmem)
-  <idle>-0     0d.H3  116us : do_IRQ (c012ae3b b 0)
-  <idle>-0     0d.h.  117us : __do_IRQ (do_IRQ)
-  <idle>-0     0d.h1  117us+: mask_and_ack_8259A (__do_IRQ)
-  <idle>-0     0d.h.  122us : handle_IRQ_event (__do_IRQ)
-  <idle>-0     0d.h.  123us : usb_hcd_irq (handle_IRQ_event)
-  <idle>-0     0d.h.  124us : uhci_irq (usb_hcd_irq)
-  <idle>-0     0d.h.  125us : rhine_interrupt (handle_IRQ_event)
-  <idle>-0     0d.h.  125us : ioread16 (rhine_interrupt)
-  <idle>-0     0d.h.  127us : ioread8 (rhine_interrupt)
-  <idle>-0     0d.h.  128us : iowrite16 (rhine_interrupt)
-  <idle>-0     0d.h.  128us : ioread8 (rhine_interrupt)
-  <idle>-0     0d.h1  130us : raise_softirq_irqoff (rhine_interrupt)
-  <idle>-0     0d.h.  131us : ioread16 (rhine_interrupt)
-  <idle>-0     0d.h.  132us : ioread8 (rhine_interrupt)
-  <idle>-0     0d.h.  133us : via_driver_irq_handler (handle_IRQ_event)
-  <idle>-0     0d.h1  135us : note_interrupt (__do_IRQ)
-  <idle>-0     0d.h1  135us : end_8259A_irq (__do_IRQ)
-  <idle>-0     0d.h1  136us+: enable_8259A_irq (end_8259A_irq)
-  <idle>-0     0d.H3  138us : irq_exit (do_IRQ)
-  <idle>-0     0d.s3  139us < (2097760)
-  <idle>-0     0d.s3  139us : tcp_current_mss (tcp_rcv_state_process)
-  <idle>-0     0d.s3  140us : __tcp_push_pending_frames (tcp_rcv_state_process)
-  <idle>-0     0d.s3  141us : tcp_check_space (tcp_rcv_state_process)
-  <idle>-0     0d.s.  143us : tasklet_action (__do_softirq)
-  <idle>-0     0d.s.  143us : rcu_process_callbacks (tasklet_action)
-  <idle>-0     0d.s.  144us : __rcu_process_callbacks (rcu_process_callbacks)
-  <idle>-0     0d.s.  145us : __rcu_process_callbacks (rcu_process_callbacks)
-  <idle>-0     0d.s.  146us : dst_rcu_free (__rcu_process_callbacks)
-  <idle>-0     0d.s.  147us : dst_destroy (dst_rcu_free)
-  <idle>-0     0d.s.  148us : ipv4_dst_destroy (dst_destroy)
-  <idle>-0     0d.s.  149us : kmem_cache_free (dst_destroy)
-  <idle>-0     0d.s.  150us : dst_rcu_free (__rcu_process_callbacks)
-  <idle>-0     0d.s.  151us : dst_destroy (dst_rcu_free)
-  <idle>-0     0d.s.  151us : ipv4_dst_destroy (dst_destroy)
-  <idle>-0     0d.s.  152us : kmem_cache_free (dst_destroy)
-  <idle>-0     0d.s.  153us : dst_rcu_free (__rcu_process_callbacks)
-  <idle>-0     0d.s.  154us : dst_destroy (dst_rcu_free)
-  <idle>-0     0d.s.  154us : ipv4_dst_destroy (dst_destroy)
-  <idle>-0     0d.s.  155us : kmem_cache_free (dst_destroy)
-  <idle>-0     0d.s.  156us : dst_rcu_free (__rcu_process_callbacks)
-  <idle>-0     0d.s.  157us : dst_destroy (dst_rcu_free)
-  <idle>-0     0d.s.  158us : ipv4_dst_destroy (dst_destroy)
-  <idle>-0     0d.s.  158us : kmem_cache_free (dst_destroy)
-  <idle>-0     0d.s.  159us : dst_rcu_free (__rcu_process_callbacks)
-  <idle>-0     0d.s.  160us : dst_destroy (dst_rcu_free)
-  <idle>-0     0d.s.  161us : ipv4_dst_destroy (dst_destroy)
-  <idle>-0     0d.s.  162us : kmem_cache_free (dst_destroy)
-  <idle>-0     0d.s.  163us : dst_rcu_free (__rcu_process_callbacks)
-  <idle>-0     0d.s.  163us : dst_destroy (dst_rcu_free)
-  <idle>-0     0d.s.  164us : ipv4_dst_destroy (dst_destroy)
-  <idle>-0     0d.s.  165us : kmem_cache_free (dst_destroy)
-  <idle>-0     0d.s.  166us : dst_rcu_free (__rcu_process_callbacks)
-  <idle>-0     0d.s.  166us : dst_destroy (dst_rcu_free)
-  <idle>-0     0d.s.  167us : ipv4_dst_destroy (dst_destroy)
-  <idle>-0     0d.s.  168us : kmem_cache_free (dst_destroy)
-  <idle>-0     0d.s.  169us : dst_rcu_free (__rcu_process_callbacks)
-  <idle>-0     0d.s.  170us : dst_destroy (dst_rcu_free)
-  <idle>-0     0d.s.  170us : ipv4_dst_destroy (dst_destroy)
-  <idle>-0     0d.s.  171us : kmem_cache_free (dst_destroy)
-  <idle>-0     0d.s.  172us : dst_rcu_free (__rcu_process_callbacks)
-  <idle>-0     0d.s.  173us : dst_destroy (dst_rcu_free)
-  <idle>-0     0d.s.  174us : ipv4_dst_destroy (dst_destroy)
-  <idle>-0     0d.s.  174us : kmem_cache_free (dst_destroy)
-  <idle>-0     0d.s.  175us : dst_rcu_free (__rcu_process_callbacks)
-  <idle>-0     0d.s.  176us : dst_destroy (dst_rcu_free)
-  <idle>-0     0d.s.  177us : ipv4_dst_destroy (dst_destroy)
-  <idle>-0     0d.s.  178us : kmem_cache_free (dst_destroy)
-  <idle>-0     0d.s.  179us : dst_rcu_free (__rcu_process_callbacks)
-  <idle>-0     0d.s.  179us : dst_destroy (dst_rcu_free)
-  <idle>-0     0d.s.  180us : ipv4_dst_destroy (dst_destroy)
-  <idle>-0     0d.s.  181us : kmem_cache_free (dst_destroy)
-  <idle>-0     0d.s.  182us : dst_rcu_free (__rcu_process_callbacks)
-  <idle>-0     0d.s.  182us : dst_destroy (dst_rcu_free)
-  <idle>-0     0d.s.  183us : ipv4_dst_destroy (dst_destroy)
+could you try the PREEMPT_RCU patch below?
 
-[ etc - zillions of dst_rcu_free()s deleted ]
+	Ingo
 
-  <idle>-0     0d.s. 13403us : dst_rcu_free (__rcu_process_callbacks)
-  <idle>-0     0d.s. 13403us : dst_destroy (dst_rcu_free)
-  <idle>-0     0d.s. 13404us : ipv4_dst_destroy (dst_destroy)
-  <idle>-0     0d.s. 13405us : kmem_cache_free (dst_destroy)
-  <idle>-0     0d.s. 13406us : run_timer_softirq (__do_softirq)
-  <idle>-0     0d.s. 13407us : hrtimer_run_queues (run_timer_softirq)
-  <idle>-0     0d.s. 13408us : ktime_get_real (hrtimer_run_queues)
-  <idle>-0     0d.s. 13409us : getnstimeofday (ktime_get_real)
-  <idle>-0     0d.s. 13410us : do_gettimeofday (getnstimeofday)
-  <idle>-0     0d.s. 13410us+: get_offset_tsc (do_gettimeofday)
-  <idle>-0     0d.s. 13413us : ktime_get (hrtimer_run_queues)
-  <idle>-0     0d.s. 13413us : ktime_get_ts (ktime_get)
-  <idle>-0     0d.s. 13414us : getnstimeofday (ktime_get_ts)
-  <idle>-0     0d.s. 13414us : do_gettimeofday (getnstimeofday)
-  <idle>-0     0d.s. 13415us : get_offset_tsc (do_gettimeofday)
-  <idle>-0     0d.s. 13416us+: set_normalized_timespec (ktime_get_ts)
-  <idle>-0     0d.s. 13419us : net_tx_action (__do_softirq)
-  <idle>-0     0d.s. 13420us : __kfree_skb (net_tx_action)
-  <idle>-0     0d.s. 13421us : sock_wfree (__kfree_skb)
-  <idle>-0     0d.s. 13422us : kfree_skbmem (__kfree_skb)
-  <idle>-0     0d.s. 13423us : skb_release_data (kfree_skbmem)
-  <idle>-0     0d.s. 13424us : kfree (skb_release_data)
-  <idle>-0     0d.s. 13425us : kmem_cache_free (kfree_skbmem)
-  <idle>-0     0d.s. 13427us : __kfree_skb (net_tx_action)
-  <idle>-0     0d.s. 13428us : sock_wfree (__kfree_skb)
-  <idle>-0     0d.s. 13429us : kfree_skbmem (__kfree_skb)
-  <idle>-0     0d.s. 13430us : skb_release_data (kfree_skbmem)
-  <idle>-0     0d.s. 13431us : kfree (skb_release_data)
-  <idle>-0     0d.s. 13432us : kmem_cache_free (kfree_skbmem)
-  <idle>-0     0d.s. 13433us : net_rx_action (__do_softirq)
-  <idle>-0     0d.s. 13434us : process_backlog (net_rx_action)
-  <idle>-0     0d.s. 13435us+: netif_receive_skb (process_backlog)
-  <idle>-0     0d.s1 13437us : packet_rcv_spkt (netif_receive_skb)
-  <idle>-0     0d.s1 13438us : skb_clone (packet_rcv_spkt)
-  <idle>-0     0d.s1 13439us : kmem_cache_alloc (skb_clone)
-  <idle>-0     0d.s1 13440us : strlcpy (packet_rcv_spkt)
-  <idle>-0     0d.s2 13442us : sk_run_filter (packet_rcv_spkt)
-  <idle>-0     0d.s1 13444us : __kfree_skb (packet_rcv_spkt)
-  <idle>-0     0d.s1 13444us : kfree_skbmem (__kfree_skb)
-  <idle>-0     0d.s1 13445us : skb_release_data (kfree_skbmem)
-  <idle>-0     0d.s1 13446us : kmem_cache_free (kfree_skbmem)
-  <idle>-0     0d.s1 13446us : ip_rcv (netif_receive_skb)
-  <idle>-0     0d.s1 13448us : ip_route_input (ip_rcv)
-  <idle>-0     0d.s1 13449us+: rt_hash_code (ip_route_input)
-  <idle>-0     0d.s1 13451us : memset (ip_route_input)
-  <idle>-0     0d.s1 13452us+: fn_hash_lookup (ip_route_input)
-  <idle>-0     0d.s2 13454us+: fib_semantic_match (fn_hash_lookup)
-  <idle>-0     0d.s1 13457us : fib_validate_source (ip_route_input)
-  <idle>-0     0d.s1 13458us : memset (fib_validate_source)
-  <idle>-0     0d.s1 13459us+: fn_hash_lookup (fib_validate_source)
-  <idle>-0     0d.s1 13461us : fn_hash_lookup (fib_validate_source)
-  <idle>-0     0d.s2 13463us : fib_semantic_match (fn_hash_lookup)
-  <idle>-0     0d.s1 13464us : __fib_res_prefsrc (fib_validate_source)
-  <idle>-0     0d.s1 13465us : inet_select_addr (__fib_res_prefsrc)
-  <idle>-0     0d.s1 13466us : dst_alloc (ip_route_input)
-  <idle>-0     0d.s1 13467us+: kmem_cache_alloc (dst_alloc)
-  <idle>-0     0d.s1 13469us : rt_hash_code (ip_route_input)
-  <idle>-0     0d.s1 13470us : rt_intern_hash (ip_route_input)
-  <idle>-0     0d.s1 13471us : local_bh_enable (rt_intern_hash)
-  <idle>-0     0d.s1 13472us : ip_local_deliver (ip_rcv)
-  <idle>-0     0d.s2 13473us+: tcp_v4_rcv (ip_local_deliver)
-  <idle>-0     0d.s3 13477us : tcp_v4_do_rcv (tcp_v4_rcv)
-  <idle>-0     0d.s3 13477us : tcp_rcv_established (tcp_v4_do_rcv)
-  <idle>-0     0d.s3 13479us : __tcp_checksum_complete_user (tcp_rcv_established)
-  <idle>-0     0d.s3 13479us : __skb_checksum_complete (__tcp_checksum_complete_user)
-  <idle>-0     0d.s3 13480us+: skb_checksum (__skb_checksum_complete)
-  <idle>-0     0d.s3 13489us : tcp_event_data_recv (tcp_rcv_established)
-  <idle>-0     0d.s3 13491us : tcp_incr_quickack (tcp_event_data_recv)
-  <idle>-0     0d.s3 13492us : __tcp_ack_snd_check (tcp_rcv_established)
-  <idle>-0     0d.s3 13493us : tcp_send_ack (__tcp_ack_snd_check)
-  <idle>-0     0d.s3 13494us : __alloc_skb (tcp_send_ack)
-  <idle>-0     0d.s3 13494us : kmem_cache_alloc (__alloc_skb)
-  <idle>-0     0d.s3 13495us : __kmalloc (__alloc_skb)
-  <idle>-0     0d.s3 13496us : tcp_transmit_skb (tcp_send_ack)
-  <idle>-0     0d.s3 13498us : __tcp_select_window (tcp_transmit_skb)
-  <idle>-0     0d.s3 13499us : tcp_v4_send_check (tcp_transmit_skb)
-  <idle>-0     0d.s3 13500us : ip_queue_xmit (tcp_transmit_skb)
-  <idle>-0     0d.s3 13501us : ipv4_dst_check (ip_queue_xmit)
-  <idle>-0     0d.s3 13502us : memset (ip_queue_xmit)
-  <idle>-0     0d.s3 13504us : ip_route_output_flow (ip_queue_xmit)
-  <idle>-0     0d.s3 13505us : __ip_route_output_key (ip_route_output_flow)
-  <idle>-0     0d.s3 13506us : rt_hash_code (__ip_route_output_key)
-  <idle>-0     0d.s3 13507us : local_bh_enable (__ip_route_output_key)
-  <idle>-0     0d.s3 13508us : memset (__ip_route_output_key)
-  <idle>-0     0d.s3 13509us : ip_dev_find (__ip_route_output_key)
-  <idle>-0     0d.s3 13510us : memset (ip_dev_find)
-  <idle>-0     0d.s3 13511us : fn_hash_lookup (ip_dev_find)
-  <idle>-0     0d.s4 13512us : fib_semantic_match (fn_hash_lookup)
-  <idle>-0     0d.s3 13514us : fn_hash_lookup (__ip_route_output_key)
-  <idle>-0     0d.s3 13515us : fn_hash_lookup (__ip_route_output_key)
-  <idle>-0     0d.s4 13516us : fib_semantic_match (fn_hash_lookup)
-  <idle>-0     0d.s3 13518us+: fn_hash_select_default (__ip_route_output_key)
-  <idle>-0     0d.s3 13520us : dst_alloc (__ip_route_output_key)
-  <idle>-0     0d.s3 13521us+: kmem_cache_alloc (dst_alloc)
-  <idle>-0     0d.s3 13524us+: rt_set_nexthop (__ip_route_output_key)
-  <idle>-0     0d.s3 13526us : rt_hash_code (__ip_route_output_key)
-  <idle>-0     0d.s3 13527us : rt_intern_hash (__ip_route_output_key)
-  <idle>-0     0d.s4 13528us : arp_bind_neighbour (rt_intern_hash)
-  <idle>-0     0d.s4 13529us : neigh_lookup (arp_bind_neighbour)
-  <idle>-0     0d.s4 13530us+: arp_hash (neigh_lookup)
-  <idle>-0     0d.s5 13532us : memcmp (neigh_lookup)
-  <idle>-0     0d.s4 13534us : local_bh_enable (neigh_lookup)
-  <idle>-0     0d.s3 13535us+: local_bh_enable (rt_intern_hash)
-  <idle>-0     0d.s3 13537us : ip_output (ip_queue_xmit)
-  <idle>-0     0d.s3 13538us : neigh_resolve_output (ip_output)
-  <idle>-0     0d.s4 13540us+: eth_header (neigh_resolve_output)
-  <idle>-0     0d.H4 13543us : do_IRQ (c01f6117 0 0)
-  <idle>-0     0d.h. 13544us : __do_IRQ (do_IRQ)
-  <idle>-0     0d.h1 13545us+: mask_and_ack_8259A (__do_IRQ)
-  <idle>-0     0d.h. 13549us : handle_IRQ_event (__do_IRQ)
-  <idle>-0     0d.h. 13550us : timer_interrupt (handle_IRQ_event)
-  <idle>-0     0d.h1 13551us+: mark_offset_tsc (timer_interrupt)
-  <idle>-0     0d.h1 13557us : do_timer (timer_interrupt)
-  <idle>-0     0d.h1 13558us : update_process_times (timer_interrupt)
-  <idle>-0     0d.h1 13558us : account_system_time (update_process_times)
-  <idle>-0     0d.h1 13559us : acct_update_integrals (account_system_time)
-  <idle>-0     0d.h1 13560us : run_local_timers (update_process_times)
-  <idle>-0     0d.h1 13561us : raise_softirq (run_local_timers)
-  <idle>-0     0d.h1 13561us : rcu_pending (update_process_times)
-  <idle>-0     0d.h1 13562us : __rcu_pending (rcu_pending)
-  <idle>-0     0d.h1 13563us : __rcu_pending (rcu_pending)
-  <idle>-0     0d.h1 13563us : scheduler_tick (update_process_times)
-  <idle>-0     0d.h1 13564us : sched_clock (scheduler_tick)
-  <idle>-0     0d.h1 13565us : run_posix_cpu_timers (update_process_times)
-  <idle>-0     0d.h1 13566us : smp_local_timer_interrupt (timer_interrupt)
-  <idle>-0     0d.h1 13566us : profile_tick (smp_local_timer_interrupt)
-  <idle>-0     0d.h1 13567us : profile_hit (profile_tick)
-  <idle>-0     0d.h1 13568us : note_interrupt (__do_IRQ)
-  <idle>-0     0d.h1 13569us : end_8259A_irq (__do_IRQ)
-  <idle>-0     0d.h1 13569us : enable_8259A_irq (end_8259A_irq)
-  <idle>-0     0d.H4 13571us : irq_exit (do_IRQ)
-  <idle>-0     0d.s4 13572us < (2097760)
-  <idle>-0     0d.s3 13573us : local_bh_enable (neigh_resolve_output)
-  <idle>-0     0d.s3 13574us : dev_queue_xmit (neigh_resolve_output)
-  <idle>-0     0d.s4 13576us : pfifo_fast_enqueue (dev_queue_xmit)
-  <idle>-0     0d.s4 13577us : qdisc_restart (dev_queue_xmit)
-  <idle>-0     0d.s4 13578us : pfifo_fast_dequeue (qdisc_restart)
-  <idle>-0     0d.s4 13579us : dev_queue_xmit_nit (qdisc_restart)
-  <idle>-0     0d.s5 13579us : skb_clone (dev_queue_xmit_nit)
-  <idle>-0     0d.s5 13580us : kmem_cache_alloc (skb_clone)
-  <idle>-0     0d.s5 13581us : packet_rcv_spkt (dev_queue_xmit_nit)
-  <idle>-0     0d.s5 13582us : strlcpy (packet_rcv_spkt)
-  <idle>-0     0d.s6 13583us : sk_run_filter (packet_rcv_spkt)
-  <idle>-0     0d.s5 13584us : __kfree_skb (packet_rcv_spkt)
-  <idle>-0     0d.s5 13585us : kfree_skbmem (__kfree_skb)
-  <idle>-0     0d.s5 13585us : skb_release_data (kfree_skbmem)
-  <idle>-0     0d.s5 13586us : kmem_cache_free (kfree_skbmem)
-  <idle>-0     0d.s4 13587us : rhine_start_tx (qdisc_restart)
-  <idle>-0     0d.s5 13589us : ioread8 (rhine_start_tx)
-  <idle>-0     0d.s5 13590us : iowrite8 (rhine_start_tx)
-  <idle>-0     0d.s5 13591us+: ioread8 (rhine_start_tx)
-  <idle>-0     0d.s4 13593us : qdisc_restart (dev_queue_xmit)
-  <idle>-0     0d.s4 13594us : pfifo_fast_dequeue (qdisc_restart)
-  <idle>-0     0d.s3 13594us : local_bh_enable (dev_queue_xmit)
-  <idle>-0     0d.s3 13596us : sock_def_readable (tcp_rcv_established)
-  <idle>-0     0d.s4 13597us : __wake_up (sock_def_readable)
-  <idle>-0     0d.s5 13598us : __wake_up_common (__wake_up)
-  <idle>-0     0d.s5 13599us : ep_poll_callback (__wake_up_common)
-  <idle>-0     0d.s5 13601us : ep_poll_safewake (ep_poll_callback)
-  <idle>-0     0d.s5 13602us : __wake_up (ep_poll_safewake)
-  <idle>-0     0d.s6 13603us : __wake_up_common (__wake_up)
-  <idle>-0     0d.s6 13604us : default_wake_function (__wake_up_common)
-  <idle>-0     0d.s6 13605us+: try_to_wake_up (default_wake_function)
-  <idle>-0     0d.H5 13607us : do_IRQ (c0111d1e b 0)
-  <idle>-0     0d.h. 13608us : __do_IRQ (do_IRQ)
-  <idle>-0     0d.h1 13609us+: mask_and_ack_8259A (__do_IRQ)
-  <idle>-0     0d.h. 13614us : handle_IRQ_event (__do_IRQ)
-  <idle>-0     0d.h. 13615us : usb_hcd_irq (handle_IRQ_event)
-  <idle>-0     0d.h. 13616us : uhci_irq (usb_hcd_irq)
-  <idle>-0     0d.h. 13617us : rhine_interrupt (handle_IRQ_event)
-  <idle>-0     0d.h. 13618us : ioread16 (rhine_interrupt)
-  <idle>-0     0d.h. 13619us : ioread8 (rhine_interrupt)
-  <idle>-0     0d.h. 13621us : iowrite16 (rhine_interrupt)
-  <idle>-0     0d.h. 13621us : ioread8 (rhine_interrupt)
-  <idle>-0     0d.h1 13623us : raise_softirq_irqoff (rhine_interrupt)
-  <idle>-0     0d.h. 13624us : ioread16 (rhine_interrupt)
-  <idle>-0     0d.h. 13625us : ioread8 (rhine_interrupt)
-  <idle>-0     0d.h. 13627us+: via_driver_irq_handler (handle_IRQ_event)
-  <idle>-0     0d.h1 13629us : note_interrupt (__do_IRQ)
-  <idle>-0     0d.h1 13630us : end_8259A_irq (__do_IRQ)
-  <idle>-0     0d.h1 13631us : enable_8259A_irq (end_8259A_irq)
-  <idle>-0     0d.H5 13633us : irq_exit (do_IRQ)
-  <idle>-0     0d.s5 13633us+< (2097760)
-  <idle>-0     0d.s. 13635us : netif_receive_skb (process_backlog)
-  <idle>-0     0d.s1 13637us : packet_rcv_spkt (netif_receive_skb)
-  <idle>-0     0d.s1 13637us : skb_clone (packet_rcv_spkt)
-  <idle>-0     0d.s1 13638us : kmem_cache_alloc (skb_clone)
-  <idle>-0     0d.s1 13640us : strlcpy (packet_rcv_spkt)
-  <idle>-0     0d.s2 13640us : sk_run_filter (packet_rcv_spkt)
-  <idle>-0     0d.s1 13642us : __kfree_skb (packet_rcv_spkt)
-  <idle>-0     0d.s1 13642us : kfree_skbmem (__kfree_skb)
-  <idle>-0     0d.s1 13643us : skb_release_data (kfree_skbmem)
-  <idle>-0     0d.s1 13644us : kmem_cache_free (kfree_skbmem)
-  <idle>-0     0d.s1 13644us : ip_rcv (netif_receive_skb)
-  <idle>-0     0d.s1 13645us : ip_route_input (ip_rcv)
-  <idle>-0     0d.s1 13646us : rt_hash_code (ip_route_input)
-  <idle>-0     0d.s1 13647us : memset (ip_route_input)
-  <idle>-0     0d.s1 13648us : fn_hash_lookup (ip_route_input)
-  <idle>-0     0d.s2 13649us : fib_semantic_match (fn_hash_lookup)
-  <idle>-0     0d.s1 13650us : fib_validate_source (ip_route_input)
-  <idle>-0     0d.s1 13651us : memset (fib_validate_source)
-  <idle>-0     0d.s1 13652us : fn_hash_lookup (fib_validate_source)
-  <idle>-0     0d.s1 13653us : fn_hash_lookup (fib_validate_source)
-  <idle>-0     0d.s2 13654us : fib_semantic_match (fn_hash_lookup)
-  <idle>-0     0d.s1 13655us : __fib_res_prefsrc (fib_validate_source)
-  <idle>-0     0d.s1 13656us : inet_select_addr (__fib_res_prefsrc)
-  <idle>-0     0d.s1 13657us : dst_alloc (ip_route_input)
-  <idle>-0     0d.s1 13657us : kmem_cache_alloc (dst_alloc)
-  <idle>-0     0d.s1 13659us : rt_hash_code (ip_route_input)
-  <idle>-0     0d.s1 13660us : rt_intern_hash (ip_route_input)
-  <idle>-0     0d.s1 13661us : local_bh_enable (rt_intern_hash)
-  <idle>-0     0d.s1 13662us : ip_local_deliver (ip_rcv)
-  <idle>-0     0d.s2 13663us+: tcp_v4_rcv (ip_local_deliver)
-  <idle>-0     0d.s3 13665us : tcp_v4_do_rcv (tcp_v4_rcv)
-  <idle>-0     0d.s3 13666us : tcp_rcv_established (tcp_v4_do_rcv)
-  <idle>-0     0d.s3 13667us : __tcp_checksum_complete_user (tcp_rcv_established)
-  <idle>-0     0d.s3 13667us : __skb_checksum_complete (__tcp_checksum_complete_user)
-  <idle>-0     0d.s3 13668us : skb_checksum (__skb_checksum_complete)
-  <idle>-0     0d.s3 13670us : tcp_event_data_recv (tcp_rcv_established)
-  <idle>-0     0d.s3 13671us : __tcp_ack_snd_check (tcp_rcv_established)
-  <idle>-0     0d.s3 13672us : tcp_send_ack (__tcp_ack_snd_check)
-  <idle>-0     0d.s3 13672us : __alloc_skb (tcp_send_ack)
-  <idle>-0     0d.s3 13673us : kmem_cache_alloc (__alloc_skb)
-  <idle>-0     0d.s3 13674us : __kmalloc (__alloc_skb)
-  <idle>-0     0d.s3 13675us : tcp_transmit_skb (tcp_send_ack)
-  <idle>-0     0d.s3 13676us : __tcp_select_window (tcp_transmit_skb)
-  <idle>-0     0d.s3 13677us : tcp_v4_send_check (tcp_transmit_skb)
-  <idle>-0     0d.s3 13678us : ip_queue_xmit (tcp_transmit_skb)
-  <idle>-0     0d.s3 13679us : ipv4_dst_check (ip_queue_xmit)
-  <idle>-0     0d.s3 13680us : memset (ip_queue_xmit)
-  <idle>-0     0d.s3 13681us : ip_route_output_flow (ip_queue_xmit)
-  <idle>-0     0d.s3 13682us : __ip_route_output_key (ip_route_output_flow)
-  <idle>-0     0d.s3 13682us : rt_hash_code (__ip_route_output_key)
-  <idle>-0     0d.s3 13683us : local_bh_enable (__ip_route_output_key)
-  <idle>-0     0d.s3 13684us : memset (__ip_route_output_key)
-  <idle>-0     0d.s3 13685us : ip_dev_find (__ip_route_output_key)
-  <idle>-0     0d.s3 13686us : memset (ip_dev_find)
-  <idle>-0     0d.s3 13687us : fn_hash_lookup (ip_dev_find)
-  <idle>-0     0d.s4 13688us : fib_semantic_match (fn_hash_lookup)
-  <idle>-0     0d.s3 13689us : fn_hash_lookup (__ip_route_output_key)
-  <idle>-0     0d.s3 13690us : fn_hash_lookup (__ip_route_output_key)
-  <idle>-0     0d.s4 13691us : fib_semantic_match (fn_hash_lookup)
-  <idle>-0     0d.s3 13692us : fn_hash_select_default (__ip_route_output_key)
-  <idle>-0     0d.s3 13693us : dst_alloc (__ip_route_output_key)
-  <idle>-0     0d.s3 13694us+: kmem_cache_alloc (dst_alloc)
-  <idle>-0     0d.s3 13696us : rt_set_nexthop (__ip_route_output_key)
-  <idle>-0     0d.s3 13697us : rt_hash_code (__ip_route_output_key)
-  <idle>-0     0d.s3 13698us : rt_intern_hash (__ip_route_output_key)
-  <idle>-0     0d.s4 13698us : arp_bind_neighbour (rt_intern_hash)
-  <idle>-0     0d.s4 13699us : neigh_lookup (arp_bind_neighbour)
-  <idle>-0     0d.s4 13700us : arp_hash (neigh_lookup)
-  <idle>-0     0d.s5 13701us : memcmp (neigh_lookup)
-  <idle>-0     0d.s4 13702us : local_bh_enable (neigh_lookup)
-  <idle>-0     0d.s3 13703us : local_bh_enable (rt_intern_hash)
-  <idle>-0     0d.s3 13704us : ip_output (ip_queue_xmit)
-  <idle>-0     0d.s3 13705us : neigh_resolve_output (ip_output)
-  <idle>-0     0d.s4 13706us : eth_header (neigh_resolve_output)
-  <idle>-0     0d.s3 13707us : local_bh_enable (neigh_resolve_output)
-  <idle>-0     0d.s3 13708us : dev_queue_xmit (neigh_resolve_output)
-  <idle>-0     0d.s4 13709us : pfifo_fast_enqueue (dev_queue_xmit)
-  <idle>-0     0d.s4 13710us : qdisc_restart (dev_queue_xmit)
-  <idle>-0     0d.s4 13710us : pfifo_fast_dequeue (qdisc_restart)
-  <idle>-0     0d.s4 13711us : dev_queue_xmit_nit (qdisc_restart)
-  <idle>-0     0d.s5 13712us : skb_clone (dev_queue_xmit_nit)
-  <idle>-0     0d.s5 13713us : kmem_cache_alloc (skb_clone)
-  <idle>-0     0d.s5 13714us : packet_rcv_spkt (dev_queue_xmit_nit)
-  <idle>-0     0d.s5 13715us : strlcpy (packet_rcv_spkt)
-  <idle>-0     0d.s6 13716us : sk_run_filter (packet_rcv_spkt)
-  <idle>-0     0d.s5 13717us : __kfree_skb (packet_rcv_spkt)
-  <idle>-0     0d.s5 13718us : kfree_skbmem (__kfree_skb)
-  <idle>-0     0d.s5 13718us : skb_release_data (kfree_skbmem)
-  <idle>-0     0d.s5 13719us : kmem_cache_free (kfree_skbmem)
-  <idle>-0     0d.s4 13720us : rhine_start_tx (qdisc_restart)
-  <idle>-0     0d.s5 13721us : ioread8 (rhine_start_tx)
-  <idle>-0     0d.s5 13722us : iowrite8 (rhine_start_tx)
-  <idle>-0     0d.s5 13723us : ioread8 (rhine_start_tx)
-  <idle>-0     0d.s4 13725us : qdisc_restart (dev_queue_xmit)
-  <idle>-0     0d.s4 13725us : pfifo_fast_dequeue (qdisc_restart)
-  <idle>-0     0d.s3 13726us : local_bh_enable (dev_queue_xmit)
-  <idle>-0     0d.s3 13727us : sock_def_readable (tcp_rcv_established)
-  <idle>-0     0d.s4 13728us : __wake_up (sock_def_readable)
-  <idle>-0     0d.s5 13729us : __wake_up_common (__wake_up)
-  <idle>-0     0d.s5 13730us : ep_poll_callback (__wake_up_common)
-  <idle>-0     0d.s5 13732us : ep_poll_safewake (ep_poll_callback)
-  <idle>-0     0d.s5 13733us : __wake_up (ep_poll_safewake)
-  <idle>-0     0d.s6 13733us : __wake_up_common (__wake_up)
-  <idle>-0     0d.s6 13734us : default_wake_function (__wake_up_common)
-  <idle>-0     0d.s6 13735us+: try_to_wake_up (default_wake_function)
-  <idle>-0     0d.H5 13737us : do_IRQ (c0111d1e b 0)
-  <idle>-0     0d.h. 13738us : __do_IRQ (do_IRQ)
-  <idle>-0     0d.h1 13739us+: mask_and_ack_8259A (__do_IRQ)
-  <idle>-0     0d.h. 13743us : handle_IRQ_event (__do_IRQ)
-  <idle>-0     0d.h. 13744us : usb_hcd_irq (handle_IRQ_event)
-  <idle>-0     0d.h. 13745us : uhci_irq (usb_hcd_irq)
-  <idle>-0     0d.h. 13746us : rhine_interrupt (handle_IRQ_event)
-  <idle>-0     0d.h. 13746us : ioread16 (rhine_interrupt)
-  <idle>-0     0d.h. 13748us : ioread8 (rhine_interrupt)
-  <idle>-0     0d.h. 13749us : iowrite16 (rhine_interrupt)
-  <idle>-0     0d.h. 13750us : ioread8 (rhine_interrupt)
-  <idle>-0     0d.h1 13751us : raise_softirq_irqoff (rhine_interrupt)
-  <idle>-0     0d.h. 13752us : ioread16 (rhine_interrupt)
-  <idle>-0     0d.h. 13753us : ioread8 (rhine_interrupt)
-  <idle>-0     0d.h. 13754us : via_driver_irq_handler (handle_IRQ_event)
-  <idle>-0     0d.h1 13756us : note_interrupt (__do_IRQ)
-  <idle>-0     0d.h1 13756us : end_8259A_irq (__do_IRQ)
-  <idle>-0     0d.h1 13757us : enable_8259A_irq (end_8259A_irq)
-  <idle>-0     0d.H5 13759us : irq_exit (do_IRQ)
-  <idle>-0     0d.s5 13760us+< (2097760)
-  <idle>-0     0d.s. 13762us : tasklet_action (__do_softirq)
-  <idle>-0     0d.s. 13763us : rcu_process_callbacks (tasklet_action)
-  <idle>-0     0d.s. 13764us : __rcu_process_callbacks (rcu_process_callbacks)
-  <idle>-0     0d.s. 13765us : __rcu_process_callbacks (rcu_process_callbacks)
-  <idle>-0     0d.s. 13766us : run_timer_softirq (__do_softirq)
-  <idle>-0     0d.s. 13766us : hrtimer_run_queues (run_timer_softirq)
-  <idle>-0     0d.s. 13767us : ktime_get_real (hrtimer_run_queues)
-  <idle>-0     0d.s. 13768us : getnstimeofday (ktime_get_real)
-  <idle>-0     0d.s. 13768us : do_gettimeofday (getnstimeofday)
-  <idle>-0     0d.s. 13769us : get_offset_tsc (do_gettimeofday)
-  <idle>-0     0d.s. 13770us : ktime_get (hrtimer_run_queues)
-  <idle>-0     0d.s. 13771us : ktime_get_ts (ktime_get)
-  <idle>-0     0d.s. 13771us : getnstimeofday (ktime_get_ts)
-  <idle>-0     0d.s. 13772us : do_gettimeofday (getnstimeofday)
-  <idle>-0     0d.s. 13773us : get_offset_tsc (do_gettimeofday)
-  <idle>-0     0d.s. 13773us : set_normalized_timespec (ktime_get_ts)
-  <idle>-0     0d.s. 13775us : net_tx_action (__do_softirq)
-  <idle>-0     0d.s. 13775us : __kfree_skb (net_tx_action)
-  <idle>-0     0d.s. 13776us : sock_wfree (__kfree_skb)
-  <idle>-0     0d.s. 13777us : kfree_skbmem (__kfree_skb)
-  <idle>-0     0d.s. 13778us : skb_release_data (kfree_skbmem)
-  <idle>-0     0d.s. 13778us : kfree (skb_release_data)
-  <idle>-0     0d.s. 13779us : kmem_cache_free (kfree_skbmem)
-  <idle>-0     0d.s. 13780us : __kfree_skb (net_tx_action)
-  <idle>-0     0d.s. 13780us : sock_wfree (__kfree_skb)
-  <idle>-0     0d.s. 13781us : kfree_skbmem (__kfree_skb)
-  <idle>-0     0d.s. 13782us : skb_release_data (kfree_skbmem)
-  <idle>-0     0d.s. 13782us : kfree (skb_release_data)
-  <idle>-0     0d.s. 13783us+: kmem_cache_free (kfree_skbmem)
-  <idle>-0     0dn.1 13785us < (2097760)
-  <idle>-0     0dn.. 13787us : schedule (cpu_idle)
-  <idle>-0     0dn.. 13788us : stop_trace (schedule)
-  <idle>-0     0dn.. 13789us : profile_hit (schedule)
-  <idle>-0     0dn.1 13789us+: sched_clock (schedule)
-  <idle>-0     0dn.2 13791us : recalc_task_prio (schedule)
-  <idle>-0     0dn.2 13793us : effective_prio (recalc_task_prio)
-  <idle>-0     0dn.2 13794us : requeue_task (schedule)
-   <...>-3116  0d..2 13797us+: __switch_to (schedule)
-   <...>-3116  0d..2 13801us : schedule <<idle>-0> (8c 73)
-   <...>-3116  0d..1 13802us : trace_stop_sched_switched (schedule)
-   <...>-3116  0d..2 13802us : trace_stop_sched_switched <<...>-3116> (73 0)
-   <...>-3116  0d..2 13804us : schedule (schedule)
+--------
+The resulting patch compiles in the following configurations, and has
+been tested on x86 and ppc64:
 
-Lee
+o	CONFIG_RCU_TORTURE_TEST:
 
+	o	CONFIG_RCU_STATS & CONFIG_PREEMPT & CONFIG_PREEMPT_RCU
 
+	o	!CONFIG_RCU_STATS & CONFIG_PREEMPT & CONFIG_PREEMPT_RCU
+
+	o	!CONFIG_RCU_STATS & CONFIG_PREEMPT & !CONFIG_PREEMPT_RCU
+
+	o	!CONFIG_RCU_STATS & !CONFIG_PREEMPT & !CONFIG_PREEMPT_RCU
+
+And ditto with !CONFIG_RCU_TORTURE_TEST.  Note that one cannot do
+CONFIG_RCU_STATS with !CONFIG_PREEMPT_RCU, since CONFIG_RCU_STATS is
+currently only capable of working with CONFIG_PREEMPT_RCU's internal
+data structures.  One for the todo list.  In principle, one could do
+CONFIG_PREEMPT_RCU & !CONFIG_PREEMPT, but there is little point in having
+preemptible RCU read-side critical sections in a non-preemptible kernel.
+I will make this work later (but only for performance comparison purposes)
+when I have the heavyweight instructions cleaned out of rcu_read_lock()
+and rcu_read_unlock().
+
+And yes, "classic RCU" does pass the torture test.  Though I got a bit
+of a scare with a broken version of CONFIG_RCU_TORTURE_TEST.  ;-)
+
+							Thanx, Paul
+
+Signed-off-by: <paulmck@us.ibm.com>
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+ Documentation/RCU/proc.txt |  207 +++++++++++++++++
+ fs/proc/proc_misc.c        |   48 ++++
+ include/linux/rcupdate.h   |   29 ++
+ include/linux/sched.h      |    5 
+ kernel/Kconfig.preempt     |   24 ++
+ kernel/rcupdate.c          |  533 +++++++++++++++++++++++++++++++++++++++++----
+ 6 files changed, 799 insertions(+), 47 deletions(-)
+
+Index: linux-rt.q/Documentation/RCU/proc.txt
+===================================================================
+--- /dev/null
++++ linux-rt.q/Documentation/RCU/proc.txt
+@@ -0,0 +1,207 @@
++/proc Filesystem Entries for RCU
++
++
++CONFIG_RCU_STATS
++
++The CONFIG_RCU_STATS config option is available only in conjunction with
++CONFIG_PREEMPT_RCU.  It makes four /proc entries available, namely: rcuctrs,
++rcuptrs, rcugp, and rcustats.
++
++/proc/rcuctrs
++
++	CPU last cur
++	  0    1   1
++	  1    1   1
++	  2    1   1
++	  3    0   2
++	ggp = 230725
++
++This displays the number of processes that started RCU read-side critical
++sections on each CPU.  In absence of preemption, the "last" and "cur"
++counts for a given CPU will always sum to one.  Therefore, in the example
++output above, each CPU has started one RCU read-side critical section
++that was later preempted.  The "last" column counts RCU read-side critical
++sections that started prior to the last counter flip, while the "cur"
++column counts critical sections that started after the last counter flip.
++
++The "ggp" count is a count of the number of counter flips since boot.
++Since this is shown as an odd number, the "cur" counts are stored in
++the zero-th element of each of the per-CPU arrays, and the "last" counts
++are stored in the first element of each of the per-CPU arrays.
++
++
++/proc/rcuptrs
++
++	nl=c04c7160/c04c7960 nt=c04c72d0
++	 wl=c04c7168/c04c794c wt=c04c72bc dl=c04c7170/00000000 dt=c04c7170
++
++This displays the head and tail of each of CONFIG_PREEMPT_RCU's three
++callback lists.  This will soon change to display this on a per-CPU
++basis, since each CPU will soon have its own set of callback lists.
++In the example above, the "next" list header is located at hex address
++0xc04c7160, the first element on the list at hex address 0xc04c7960,
++and the last element on the list at hex address 0xc04c72d0.  The "wl="
++and "wt=" output is similar for the "wait" list, and the "dl=" and "dt="
++output for the "done" list.  The "done" list is normally emptied very
++quickly after being filled, so will usually be empty as shown above.
++Note that the tail pointer points into the list header in this case.
++
++Callbacks are placed in the "next" list by call_rcu(), moved to the
++"wait" list after the next counter flip, and moved to the "done" list
++on the counter flip after that.  Once on the "done" list, the callbacks
++are invoked.
++
++
++/proc/rcugp
++
++	oldggp=241419  newggp=241421
++
++This entry invokes synchronize_rcu() and prints out the number of counter
++flips since boot before and after the synchronize_rcu().  These two
++numbers will always differ by at least two.  Unless RCU is broken.  ;-)
++
++
++/proc/rcustats
++
++	ggp=242416 lgp=242416 sr=0 rcc=396233
++	na=2090938 nl=9 wa=2090929 wl=9 dl=0 dr=2090920 di=2090920
++	rtf1=22230730 rtf2=20139162 rtf3=242416 rtfe1=2085911 rtfe2=5657 rtfe3=19896746
++
++The quantities printed are as follows:
++
++o	"ggp=": The number of flips since boot.
++
++o	"lgp=": The number of flips sensed by the local structure since
++	boot.  This will soon be per-CPU.
++
++o	"sr=": The number of explicit call to synchronize_rcu().
++	Except that this is currently broken, so always reads as zero.
++	It is likely to be removed...
++
++o	"rcc=": The number of calls to rcu_check_callbacks().
++
++o	"na=": The number of callbacks that call_rcu() has registered
++	since boot.
++
++o	"nl=": The number of callbacks currently on the "next" list.
++
++o	"wa=": The number of callbacks that have moved to the "wait"
++	list since boot.
++
++o	"wl=": The number of callbacks currently on the "wait" list.
++
++o	"da=": The number of callbacks that have been moved to the
++	"done" list since boot.
++
++o	"dl=": The number of callbacks currently on the "done" list.
++
++o	"dr=": The number of callbacks that have been removed from the
++	"done" list since boot.
++
++o	"di=": The number of callbacks that have been invoked after being
++	removed from the "done" list.
++
++o	"rtf1=": The number of attempts to flip the counters.
++
++o	"rtf2=": The number of attempts to flip the counters that successfully
++	acquired the fliplock.
++
++o	"rtf3=": The number of successful counter flips.
++
++o	"rtfe1=": The number of attempts to flip the counters that failed
++	due to the lock being held by someone else.
++
++o	"rtfe2=": The number of attempts to flip the counters that were
++	abandoned due to someone else doing the job for us.
++
++o	"rtfe3=": The number of attempts to flip the counters that failed
++	due to some task still being in an RCU read-side critical section
++	starting from before the last successful counter flip.
++
++
++CONFIG_RCU_TORTURE_TEST
++
++The CONFIG_RCU_TORTURE_TEST config option is available for all RCU
++implementations.  It makes three /proc entries available, namely: rcutw,
++rcutr, and rcuts.
++
++
++/proc/rcutw
++
++Reading this entry starts a new torture test, or ends an earlier one
++if one is already in progress (in other words, there can be only one
++writer at a time).  This sleeps uninterruptibly, so be sure to run
++it in the background.  One could argue that it would be good to have
++multiple writers, but Linux uses RCU heavily enough that you will get
++write-side contention whether you want it or not.  If you want additional
++write-side contention, repeatedly create and destroy several large file
++trees in parallel.  Or use some other RCU-protected update.
++
++
++/proc/rcutr
++
++Reading this entry starts a new torture reader, which runs until sent
++a signal (e.g., control-C).  If testing an RCU implementation with
++preemptible read-side critical sections, make sure to spawn at least
++two /proc/rcutr instances for each CPU.
++
++
++/proc/rcuts
++
++Displays the current state of the torture test:
++
++	ggp = 20961
++	rtc: c04496f4 ver: 8734 tfle: 0 rta: 8734 rtaf: 0 rtf: 8715
++	Reader Pipe:  88024120 63914 0 0 0 0 0 0 0 0 0
++	Reader Batch:  88024097 63937 0 0 0 0 0 0 0 0
++	Free-Block Circulation:  8733 8731 8729 8727 8725 8723 8721 8719 8717 8715 0
++
++The entries are as follows:
++
++o	"ggp": The number of counter flips (or batches) since boot.
++
++o	"rtc": The hexadecimal address of the structure currently visible
++	to readers.
++
++o	"ver": The number of times since boot that the rcutw writer task
++	has changed the structure visible to readers.
++
++o	"tfle": If non-zero, indicates that the "torture freelist"
++	containing structure to be placed into the "rtc" area is empty.
++	This condition is important, since it can fool you into thinking
++	that RCU is working when it is not.  :-/
++
++o	"rta": Number of structures allocated from the torture freelist.
++
++o	"rtaf": Number of allocations from the torture freelist that have
++	failed due to the list being empty.
++
++o	"rtf": Number of frees into the torture freelist.
++
++o	"Reader Pipe": Histogram of "ages" of structures seen by readers.
++	If any entries past the first two are non-zero, RCU is broken.
++	And /proc/rcuts prints "!!!" to make sure you notice.  The age
++	of a newly allocated structure is zero, it becomes one when
++	removed from reader visibility, and is incremented once per
++	grace period subsequently -- and is freed after passing through
++	(RCU_TORTURE_PIPE_LEN-2) grace periods.
++
++	The output displayed above was taken from a correctly working
++	RCU.  If you want to see what it looks like when broken, break
++	it yourself.  ;-)
++
++o	"Reader Batch": Another histogram of "ages" of structures seen
++	by readers, but in terms of counter flips (or batches) rather
++	than in terms of grace periods.  The legal number of non-zero
++	entries is again two.  The reason for this separate view is
++	that it is easier to get the third entry to show up in the
++	"Reader Batch" list than in the "Reader Pipe" list.
++
++o	"Free-Block Circulation": Shows the number of torture structures
++	that have reached a given point in the pipeline.  The first element
++	should closely correspond to the number of structures allocated,
++	the second to the number that have been removed from reader view,
++	and all but the last remaining to the corresponding number of
++	passes through a grace period.  The last entry should be zero,
++	as it is only incremented if a torture structure's counter
++	somehow gets incremented farther than it should.
+Index: linux-rt.q/fs/proc/proc_misc.c
+===================================================================
+--- linux-rt.q.orig/fs/proc/proc_misc.c
++++ linux-rt.q/fs/proc/proc_misc.c
+@@ -563,6 +563,48 @@ void create_seq_entry(char *name, mode_t
+ 		entry->proc_fops = f;
+ }
+ 
++#ifdef CONFIG_RCU_STATS
++int rcu_read_proc(char *page, char **start, off_t off,
++		  int count, int *eof, void *data)
++{
++	int len;
++	extern int rcu_read_proc_data(char *page);
++
++	len = rcu_read_proc_data(page);
++	return proc_calc_metrics(page, start, off, count, eof, len);
++}
++
++int rcu_read_proc_gp(char *page, char **start, off_t off,
++		     int count, int *eof, void *data)
++{
++	int len;
++	extern int rcu_read_proc_gp_data(char *page);
++
++	len = rcu_read_proc_gp_data(page);
++	return proc_calc_metrics(page, start, off, count, eof, len);
++}
++
++int rcu_read_proc_ptrs(char *page, char **start, off_t off,
++		       int count, int *eof, void *data)
++{
++	int len;
++	extern int rcu_read_proc_ptrs_data(char *page);
++
++	len = rcu_read_proc_ptrs_data(page);
++	return proc_calc_metrics(page, start, off, count, eof, len);
++}
++
++int rcu_read_proc_ctrs(char *page, char **start, off_t off,
++		       int count, int *eof, void *data)
++{
++	int len;
++	extern int rcu_read_proc_ctrs_data(char *page);
++
++	len = rcu_read_proc_ctrs_data(page);
++	return proc_calc_metrics(page, start, off, count, eof, len);
++}
++#endif /* #ifdef CONFIG_RCU_STATS */
++
+ void __init proc_misc_init(void)
+ {
+ 	struct proc_dir_entry *entry;
+@@ -585,6 +627,12 @@ void __init proc_misc_init(void)
+ 		{"cmdline",	cmdline_read_proc},
+ 		{"locks",	locks_read_proc},
+ 		{"execdomains",	execdomains_read_proc},
++#ifdef CONFIG_RCU_STATS
++		{"rcustats",	rcu_read_proc},
++		{"rcugp",	rcu_read_proc_gp},
++		{"rcuptrs",	rcu_read_proc_ptrs},
++		{"rcuctrs",	rcu_read_proc_ctrs},
++#endif /* #ifdef CONFIG_RCU_STATS */
+ 		{NULL,}
+ 	};
+ 	for (p = simple_ones; p->name; p++)
+Index: linux-rt.q/include/linux/rcupdate.h
+===================================================================
+--- linux-rt.q.orig/include/linux/rcupdate.h
++++ linux-rt.q/include/linux/rcupdate.h
+@@ -59,6 +59,7 @@ struct rcu_head {
+ } while (0)
+ 
+ 
++#ifndef CONFIG_PREEMPT_RCU
+ 
+ /* Global control variables for rcupdate callback mechanism. */
+ struct rcu_ctrlblk {
+@@ -185,14 +186,26 @@ static inline int rcu_pending(int cpu)
+  *
+  * It is illegal to block while in an RCU read-side critical section.
+  */
+-#define rcu_read_lock()		preempt_disable()
++#define rcu_read_lock preempt_disable
+ 
+ /**
+  * rcu_read_unlock - marks the end of an RCU read-side critical section.
+  *
+  * See rcu_read_lock() for more information.
+  */
+-#define rcu_read_unlock()	preempt_enable()
++#define rcu_read_unlock preempt_enable
++
++#else /* #ifndef CONFIG_PREEMPT_RCU */
++
++#define rcu_qsctr_inc(cpu)
++#define rcu_bh_qsctr_inc(cpu)
++#define call_rcu_bh(head, rcu) call_rcu(head, rcu)
++
++extern void rcu_read_lock(void);
++extern void rcu_read_unlock(void);
++extern int rcu_pending(int cpu);
++
++#endif /* #else #ifndef CONFIG_PREEMPT_RCU */
+ 
+ /*
+  * So where is rcu_write_lock()?  It does not exist, as there is no
+@@ -215,14 +228,22 @@ static inline int rcu_pending(int cpu)
+  * can use just rcu_read_lock().
+  *
+  */
++#ifndef CONFIG_PREEMPT_RCU
+ #define rcu_read_lock_bh()	local_bh_disable()
++#else /* #ifndef CONFIG_PREEMPT_RCU */
++#define rcu_read_lock_bh()	{ rcu_read_lock(); local_bh_disable(); }
++#endif /* #else #ifndef CONFIG_PREEMPT_RCU */
+ 
+ /*
+  * rcu_read_unlock_bh - marks the end of a softirq-only RCU critical section
+  *
+  * See rcu_read_lock_bh() for more information.
+  */
++#ifndef CONFIG_PREEMPT_RCU
+ #define rcu_read_unlock_bh()	local_bh_enable()
++#else /* #ifndef CONFIG_PREEMPT_RCU */
++#define rcu_read_unlock_bh()	{ local_bh_enable(); rcu_read_unlock(); }
++#endif /* #else #ifndef CONFIG_PREEMPT_RCU */
+ 
+ /**
+  * rcu_dereference - fetch an RCU-protected pointer in an
+@@ -271,7 +292,11 @@ static inline int rcu_pending(int cpu)
+  * synchronize_kernel() API.  In contrast, synchronize_rcu() only
+  * guarantees that rcu_read_lock() sections will have completed.
+  */
++#ifndef CONFIG_PREEMPT_RCU
+ #define synchronize_sched() synchronize_rcu()
++#else /* #ifndef CONFIG_PREEMPT_RCU */
++extern void synchronize_sched(void);
++#endif /* #else #ifndef CONFIG_PREEMPT_RCU */
+ 
+ extern void rcu_init(void);
+ extern void rcu_check_callbacks(int cpu, int user);
+Index: linux-rt.q/include/linux/sched.h
+===================================================================
+--- linux-rt.q.orig/include/linux/sched.h
++++ linux-rt.q/include/linux/sched.h
+@@ -711,6 +711,11 @@ struct task_struct {
+ 	cpumask_t cpus_allowed;
+ 	unsigned int time_slice, first_time_slice;
+ 
++#ifdef CONFIG_PREEMPT_RCU
++	int rcu_read_lock_nesting;
++	atomic_t *rcu_flipctr1;
++	atomic_t *rcu_flipctr2;
++#endif
+ #ifdef CONFIG_SCHEDSTATS
+ 	struct sched_info sched_info;
+ #endif
+Index: linux-rt.q/kernel/Kconfig.preempt
+===================================================================
+--- linux-rt.q.orig/kernel/Kconfig.preempt
++++ linux-rt.q/kernel/Kconfig.preempt
+@@ -63,3 +63,27 @@ config PREEMPT_BKL
+ 	  Say Y here if you are building a kernel for a desktop system.
+ 	  Say N if you are unsure.
+ 
++config PREEMPT_RCU
++	bool "Preemptible RCU"
++	default n
++	depends on PREEMPT
++	help
++	  This option reduces the latency of the kernel by making certain
++	  RCU sections preemptible. Normally RCU code is non-preemptible, if
++	  this option is selected then read-only RCU sections become
++	  preemptible. This helps latency, but may expose bugs due to
++	  now-naive assumptions about each RCU read-side critical section
++	  remaining on a given CPU through its execution.
++
++	  Say N if you are unsure.
++
++config RCU_STATS
++	bool "/proc stats for preemptible RCU read-side critical sections"
++	depends on PREEMPT_RCU
++	default y
++	help
++	  This option provides /proc stats to provide debugging info for
++	  the preemptible realtime RCU implementation.
++
++	  Say Y here if you want to see RCU stats in /proc
++	  Say N if you are unsure.
+Index: linux-rt.q/kernel/rcupdate.c
+===================================================================
+--- linux-rt.q.orig/kernel/rcupdate.c
++++ linux-rt.q/kernel/rcupdate.c
+@@ -19,15 +19,15 @@
+  *
+  * Authors: Dipankar Sarma <dipankar@in.ibm.com>
+  *	    Manfred Spraul <manfred@colorfullife.com>
++ *	    Paul E. McKenney <paulmck@us.ibm.com> (PREEMPT_RCU)
+  * 
+  * Based on the original work by Paul McKenney <paulmck@us.ibm.com>
+  * and inputs from Rusty Russell, Andrea Arcangeli and Andi Kleen.
+- * Papers:
+- * http://www.rdrop.com/users/paulmck/paper/rclockpdcsproof.pdf
+- * http://lse.sourceforge.net/locking/rclock_OLS.2001.05.01c.sc.pdf (OLS2001)
++ *
++ * Papers:  http://www.rdrop.com/users/paulmck/RCU
+  *
+  * For detailed explanation of Read-Copy Update mechanism see -
+- * 		http://lse.sourceforge.net/locking/rcupdate.html
++ * 		Documentation/RCU/ *.txt
+  *
+  */
+ #include <linux/types.h>
+@@ -47,6 +47,69 @@
+ #include <linux/rcupdate.h>
+ #include <linux/rcuref.h>
+ #include <linux/cpu.h>
++#include <linux/random.h>
++#include <linux/delay.h>
++#include <linux/byteorder/swabb.h>
++
++struct rcu_synchronize {
++	struct rcu_head head;
++	struct completion completion;
++};
++
++/* Because of FASTCALL declaration of complete, we use this wrapper */
++static void wakeme_after_rcu(struct rcu_head  *head)
++{
++	struct rcu_synchronize *rcu;
++
++	rcu = container_of(head, struct rcu_synchronize, head);
++	complete(&rcu->completion);
++}
++
++/**
++ * synchronize_rcu - wait until a grace period has elapsed.
++ *
++ * Control will return to the caller some time after a full grace
++ * period has elapsed, in other words after all currently executing RCU
++ * read-side critical sections have completed.  RCU read-side critical
++ * sections are delimited by rcu_read_lock() and rcu_read_unlock(),
++ * and may be nested.
++ *
++ * If your read-side code is not protected by rcu_read_lock(), do -not-
++ * use synchronize_rcu().
++ */
++void synchronize_rcu(void)
++{
++	struct rcu_synchronize rcu;
++
++	init_completion(&rcu.completion);
++	/* Will wake me after RCU finished */
++	call_rcu(&rcu.head, wakeme_after_rcu);
++
++	/* Wait for it */
++	wait_for_completion(&rcu.completion);
++}
++
++#ifndef __HAVE_ARCH_CMPXCHG
++/*
++ * We use an array of spinlocks for the rcurefs -- similar to ones in sparc
++ * 32 bit atomic_t implementations, and a hash function similar to that
++ * for our refcounting needs.
++ * Can't help multiprocessors which donot have cmpxchg :(
++ */
++spinlock_t __rcuref_hash[RCUREF_HASH_SIZE];
++
++static inline void init_rcurefs(void)
++{
++	int i;
++
++	for (i = 0; i < RCUREF_HASH_SIZE; i++)
++		spin_lock_init(&__rcuref_hash[i]);
++}
++#else
++#define init_rcurefs()	do { } while (0)
++#endif
++
++#ifndef CONFIG_PREEMPT_RCU
+ 
+ /* Definition for rcupdate control block. */
+ struct rcu_ctrlblk rcu_ctrlblk = 
+@@ -73,18 +136,6 @@ DEFINE_PER_CPU(struct rcu_data, rcu_bh_d
+ static DEFINE_PER_CPU(struct tasklet_struct, rcu_tasklet) = {NULL};
+ static int maxbatch = 10000;
+ 
+-#ifndef __HAVE_ARCH_CMPXCHG
+-/*
+- * We use an array of spinlocks for the rcurefs -- similar to ones in sparc
+- * 32 bit atomic_t implementations, and a hash function similar to that
+- * for our refcounting needs.
+- * Can't help multiprocessors which donot have cmpxchg :(
+- */
+-
+-spinlock_t __rcuref_hash[RCUREF_HASH_SIZE] = {
+-	[0 ... (RCUREF_HASH_SIZE-1)] = SPIN_LOCK_UNLOCKED
+-};
+-#endif
+ 
+ /**
+  * call_rcu - Queue an RCU callback for invocation after a grace period.
+@@ -506,48 +557,370 @@ static struct notifier_block __devinitda
+ void __init rcu_init(void)
+ {
+ 	sema_init(&rcu_barrier_sema, 1);
++	init_rcurefs();
+ 	rcu_cpu_notify(&rcu_nb, CPU_UP_PREPARE,
+ 			(void *)(long)smp_processor_id());
+ 	/* Register notifier for non-boot CPUs */
+ 	register_cpu_notifier(&rcu_nb);
+ }
+ 
+-struct rcu_synchronize {
+-	struct rcu_head head;
+-	struct completion completion;
++/*
++ * Deprecated, use synchronize_rcu() or synchronize_sched() instead.
++ */
++void synchronize_kernel(void)
++{
++	synchronize_rcu();
++}
++
++module_param(maxbatch, int, 0);
++EXPORT_SYMBOL(call_rcu);  /* WARNING: GPL-only in April 2006. */
++EXPORT_SYMBOL(call_rcu_bh);  /* WARNING: GPL-only in April 2006. */
++EXPORT_SYMBOL_GPL(synchronize_rcu);
++EXPORT_SYMBOL(synchronize_kernel);  /* WARNING: GPL-only in April 2006. */
++
++#else /* #ifndef CONFIG_PREEMPT_RCU */
++
++#ifndef CONFIG_PREEMPT_RT
++# define raw_spinlock_t spinlock_t
++# define RAW_SPIN_LOCK_UNLOCKED SPIN_LOCK_UNLOCKED
++# define raw_local_irq_save local_irq_save
++# define raw_local_irq_restore local_irq_restore
++#endif /* #ifndef CONFIG_PREEMPT_RT */
++
++struct rcu_data {
++	raw_spinlock_t	lock;
++	long		completed;	/* Number of last completed batch. */
++	struct tasklet_struct rcu_tasklet;
++	struct rcu_head *nextlist;
++	struct rcu_head **nexttail;
++	struct rcu_head *waitlist;
++	struct rcu_head **waittail;
++	struct rcu_head *donelist;
++	struct rcu_head **donetail;
++#ifdef CONFIG_RCU_STATS
++	long		n_next_length;
++	long		n_next_add;
++	long		n_wait_length;
++	long		n_wait_add;
++	long		n_done_length;
++	long		n_done_add;
++	long		n_done_remove;
++	atomic_t	n_done_invoked;
++	long		n_rcu_check_callbacks;
++	atomic_t	n_rcu_try_flip1;
++	long		n_rcu_try_flip2;
++	long		n_rcu_try_flip3;
++	atomic_t	n_rcu_try_flip_e1;
++	long		n_rcu_try_flip_e2;
++	long		n_rcu_try_flip_e3;
++#endif /* #ifdef CONFIG_RCU_STATS */
++};
++struct rcu_ctrlblk {
++	raw_spinlock_t	fliplock;
++	long		completed;	/* Number of last completed batch. */
+ };
++static struct rcu_data rcu_data;
++static struct rcu_ctrlblk rcu_ctrlblk = {
++	.fliplock = RAW_SPIN_LOCK_UNLOCKED,
++	.completed = 0,
++};
++static DEFINE_PER_CPU(atomic_t [2], rcu_flipctr) =
++	{ ATOMIC_INIT(0), ATOMIC_INIT(0) };
+ 
+-/* Because of FASTCALL declaration of complete, we use this wrapper */
+-static void wakeme_after_rcu(struct rcu_head  *head)
++/*
++ * Return the number of RCU batches processed thus far.  Useful
++ * for debug and statistics.
++ */
++long rcu_batches_completed(void)
+ {
+-	struct rcu_synchronize *rcu;
++	return rcu_ctrlblk.completed;
++}
+ 
+-	rcu = container_of(head, struct rcu_synchronize, head);
+-	complete(&rcu->completion);
++void
++rcu_read_lock(void)
++{
++	int flipctr;
++	unsigned long oldirq;
++
++	raw_local_irq_save(oldirq);
++	if (current->rcu_read_lock_nesting++ == 0) {
++
++		/*
++		 * Outermost nesting of rcu_read_lock(), so atomically
++		 * increment the current counter for the current CPU.
++		 */
++
++		flipctr = rcu_ctrlblk.completed & 0x1;
++		smp_read_barrier_depends();
++		current->rcu_flipctr1 = &(__get_cpu_var(rcu_flipctr)[flipctr]);
++		/* Can optimize to non-atomic on fastpath, but start simple. */
++		atomic_inc(current->rcu_flipctr1);
++		smp_mb__after_atomic_inc();  /* might optimize out... */
++		if (unlikely(flipctr != (rcu_ctrlblk.completed & 0x1))) {
++
++			/*
++			 * We raced with grace-period processing (flip).
++			 * Although we cannot be preempted here, there
++			 * could be interrupts, ECC errors and the like,
++			 * so just nail down both sides of the rcu_flipctr
++			 * array for the duration of our RCU read-side
++			 * critical section, preventing a second flip
++			 * from racing with us.  At some point, it would
++			 * be safe to decrement one of the counters, but
++			 * we have no way of knowing when that would be.
++			 * So just decrement them both in rcu_read_unlock().
++			 */
++
++			current->rcu_flipctr2 =
++				&(__get_cpu_var(rcu_flipctr)[!flipctr]);
++			/* Can again optimize to non-atomic on fastpath. */
++			atomic_inc(current->rcu_flipctr2);
++			smp_mb__after_atomic_inc();  /* might optimize out... */
++		}
++	}
++	raw_local_irq_restore(oldirq);
+ }
+ 
+-/**
+- * synchronize_rcu - wait until a grace period has elapsed.
+- *
+- * Control will return to the caller some time after a full grace
+- * period has elapsed, in other words after all currently executing RCU
+- * read-side critical sections have completed.  RCU read-side critical
+- * sections are delimited by rcu_read_lock() and rcu_read_unlock(),
+- * and may be nested.
++void
++rcu_read_unlock(void)
++{
++	unsigned long oldirq;
++
++	raw_local_irq_save(oldirq);
++	if (--current->rcu_read_lock_nesting == 0) {
++
++		/*
++		 * Just atomically decrement whatever we incremented.
++		 * Might later want to awaken some task waiting for the
++		 * grace period to complete, but keep it simple for the
++		 * moment.
++		 */
++
++		smp_mb__before_atomic_dec();
++		atomic_dec(current->rcu_flipctr1);
++		current->rcu_flipctr1 = NULL;
++		if (unlikely(current->rcu_flipctr2 != NULL)) {
++			atomic_dec(current->rcu_flipctr2);
++			current->rcu_flipctr2 = NULL;
++		}
++	}
++	raw_local_irq_restore(oldirq);
++}
++
++static void
++__rcu_advance_callbacks(void)
++{
++
++	if (rcu_data.completed != rcu_ctrlblk.completed) {
++		if (rcu_data.waitlist != NULL) {
++			*rcu_data.donetail = rcu_data.waitlist;
++			rcu_data.donetail = rcu_data.waittail;
++#ifdef CONFIG_RCU_STATS
++			rcu_data.n_done_length += rcu_data.n_wait_length;
++			rcu_data.n_done_add += rcu_data.n_wait_length;
++			rcu_data.n_wait_length = 0;
++#endif /* #ifdef CONFIG_RCU_STATS */
++		}
++		if (rcu_data.nextlist != NULL) {
++			rcu_data.waitlist = rcu_data.nextlist;
++			rcu_data.waittail = rcu_data.nexttail;
++			rcu_data.nextlist = NULL;
++			rcu_data.nexttail = &rcu_data.nextlist;
++#ifdef CONFIG_RCU_STATS
++			rcu_data.n_wait_length += rcu_data.n_next_length;
++			rcu_data.n_wait_add += rcu_data.n_next_length;
++			rcu_data.n_next_length = 0;
++#endif /* #ifdef CONFIG_RCU_STATS */
++		} else {
++			rcu_data.waitlist = NULL;
++			rcu_data.waittail = &rcu_data.waitlist;
++		}
++		rcu_data.completed = rcu_ctrlblk.completed;
++	}
++}
++
++/*
++ * Attempt a single flip of the counters.  Remember, a single flip does
++ * -not- constitute a grace period.  Instead, the interval between
++ * a pair of consecutive flips is a grace period.
+  *
+- * If your read-side code is not protected by rcu_read_lock(), do -not-
+- * use synchronize_rcu().
++ * If anyone is nuts enough to run this CONFIG_PREEMPT_RCU implementation
++ * on a large SMP, they might want to use a hierarchical organization of
++ * the per-CPU-counter pairs.
++ */
++static void
++rcu_try_flip(void)
++{
++	int cpu;
++	long flipctr;
++	unsigned long oldirq;
++
++	flipctr = rcu_ctrlblk.completed;
++#ifdef CONFIG_RCU_STATS
++	atomic_inc(&rcu_data.n_rcu_try_flip1);
++#endif /* #ifdef CONFIG_RCU_STATS */
++	if (unlikely(!spin_trylock_irqsave(&rcu_ctrlblk.fliplock, oldirq))) {
++#ifdef CONFIG_RCU_STATS
++		atomic_inc(&rcu_data.n_rcu_try_flip_e1);
++#endif /* #ifdef CONFIG_RCU_STATS */
++		return;
++	}
++	if (unlikely(flipctr != rcu_ctrlblk.completed)) {
++
++		/* Our work is done!  ;-) */
++
++#ifdef CONFIG_RCU_STATS
++		rcu_data.n_rcu_try_flip_e2++;
++#endif /* #ifdef CONFIG_RCU_STATS */
++		spin_unlock_irqrestore(&rcu_ctrlblk.fliplock, oldirq);
++		return;
++	}
++	flipctr &= 0x1;
++
++	/*
++	 * Check for completion of all RCU read-side critical sections
++	 * that started prior to the previous flip.
++	 */
++
++#ifdef CONFIG_RCU_STATS
++	rcu_data.n_rcu_try_flip2++;
++#endif /* #ifdef CONFIG_RCU_STATS */
++	for_each_cpu(cpu) {
++		if (atomic_read(&per_cpu(rcu_flipctr, cpu)[!flipctr]) != 0) {
++#ifdef CONFIG_RCU_STATS
++			rcu_data.n_rcu_try_flip_e3++;
++#endif /* #ifdef CONFIG_RCU_STATS */
++			spin_unlock_irqrestore(&rcu_ctrlblk.fliplock, oldirq);
++			return;
++		}
++	}
++
++	/* Do the flip. */
++
++	smp_mb();
++	rcu_ctrlblk.completed++;
++
++#ifdef CONFIG_RCU_STATS
++	rcu_data.n_rcu_try_flip3++;
++#endif /* #ifdef CONFIG_RCU_STATS */
++	spin_unlock_irqrestore(&rcu_ctrlblk.fliplock, oldirq);
++}
++
++void
++rcu_check_callbacks(int cpu, int user)
++{
++	unsigned long oldirq;
++
++	if (rcu_ctrlblk.completed == rcu_data.completed) {
++		rcu_try_flip();
++		if (rcu_ctrlblk.completed == rcu_data.completed) {
++			return;
++		}
++	}
++	spin_lock_irqsave(&rcu_data.lock, oldirq);
++#ifdef CONFIG_RCU_STATS
++	rcu_data.n_rcu_check_callbacks++;
++#endif /* #ifdef CONFIG_RCU_STATS */
++	__rcu_advance_callbacks();
++	if (rcu_data.donelist == NULL) {
++		spin_unlock_irqrestore(&rcu_data.lock, oldirq);
++	} else {
++		spin_unlock_irqrestore(&rcu_data.lock, oldirq);
++		tasklet_schedule(&rcu_data.rcu_tasklet);
++	}
++}
++
++static
++void rcu_process_callbacks(unsigned long data)
++{
++	unsigned long flags;
++	struct rcu_head *next, *list;
++
++	spin_lock_irqsave(&rcu_data.lock, flags);
++	list = rcu_data.donelist;
++	if (list == NULL) {
++		spin_unlock_irqrestore(&rcu_data.lock, flags);
++		return;
++	}
++	rcu_data.donelist = NULL;
++	rcu_data.donetail = &rcu_data.donelist;
++#ifdef CONFIG_RCU_STATS
++	rcu_data.n_done_remove += rcu_data.n_done_length;
++	rcu_data.n_done_length = 0;
++#endif /* #ifdef CONFIG_RCU_STATS */
++	spin_unlock_irqrestore(&rcu_data.lock, flags);
++	while (list) {
++		next = list->next;
++		list->func(list);
++		list = next;
++#ifdef CONFIG_RCU_STATS
++		atomic_inc(&rcu_data.n_done_invoked);
++#endif /* #ifdef CONFIG_RCU_STATS */
++	}
++}
++
++void fastcall
++call_rcu(struct rcu_head *head,
++	 void (*func)(struct rcu_head *rcu))
++{
++	unsigned long flags;
++
++	head->func = func;
++	head->next = NULL;
++	spin_lock_irqsave(&rcu_data.lock, flags);
++	__rcu_advance_callbacks();
++	*rcu_data.nexttail = head;
++	rcu_data.nexttail = &head->next;
++#ifdef CONFIG_RCU_STATS
++	rcu_data.n_next_add++;
++	rcu_data.n_next_length++;
++#endif /* #ifdef CONFIG_RCU_STATS */
++	spin_unlock_irqrestore(&rcu_data.lock, flags);
++}
++
++/*
++ * Crude hack, reduces but does not eliminate possibility of failure.
++ * Needs to wait for all CPUs to pass through a -voluntary- context
++ * switch to eliminate possibility of failure.  (Maybe just crank
++ * priority down...)
+  */
+-void synchronize_rcu(void)
++void
++synchronize_sched(void)
+ {
+-	struct rcu_synchronize rcu;
++	cpumask_t oldmask;
++	int cpu;
+ 
+-	init_completion(&rcu.completion);
+-	/* Will wake me after RCU finished */
+-	call_rcu(&rcu.head, wakeme_after_rcu);
++	if (sched_getaffinity(0, &oldmask) < 0) {
++		oldmask = cpu_possible_map;
++	}
++	for_each_cpu(cpu) {
++		sched_setaffinity(0, cpumask_of_cpu(cpu));
++		schedule();
++	}
++	sched_setaffinity(0, oldmask);
++}
+ 
+-	/* Wait for it */
+-	wait_for_completion(&rcu.completion);
++int
++rcu_pending(int cpu)
++{
++	return (rcu_data.donelist != NULL ||
++		rcu_data.waitlist != NULL ||
++		rcu_data.nextlist != NULL);
++}
++
++void __init rcu_init(void)
++{
++	init_rcurefs();
++/*&&&&*/printk("WARNING: experimental RCU implementation.\n");
++	rcu_data.lock = RAW_SPIN_LOCK_UNLOCKED;
++	rcu_data.completed = 0;
++	rcu_data.nextlist = NULL;
++	rcu_data.nexttail = &rcu_data.nextlist;
++	rcu_data.waitlist = NULL;
++	rcu_data.waittail = &rcu_data.waitlist;
++	rcu_data.donelist = NULL;
++	rcu_data.donetail = &rcu_data.donelist;
++	tasklet_init(&rcu_data.rcu_tasklet, rcu_process_callbacks, 0UL);
+ }
+ 
+ /*
+@@ -558,9 +931,79 @@ void synchronize_kernel(void)
+ 	synchronize_rcu();
+ }
+ 
+-module_param(maxbatch, int, 0);
++#ifdef CONFIG_RCU_STATS
++int rcu_read_proc_data(char *page)
++{
++	return sprintf(page,
++		       "ggp=%ld lgp=%ld rcc=%ld\n"
++		       "na=%ld nl=%ld wa=%ld wl=%ld da=%ld dl=%ld dr=%ld di=%d\n"
++		       "rtf1=%d rtf2=%ld rtf3=%ld rtfe1=%d rtfe2=%ld rtfe3=%ld\n",
++
++		       rcu_ctrlblk.completed,
++		       rcu_data.completed,
++		       rcu_data.n_rcu_check_callbacks,
++
++		       rcu_data.n_next_add,
++		       rcu_data.n_next_length,
++		       rcu_data.n_wait_add,
++		       rcu_data.n_wait_length,
++		       rcu_data.n_done_add,
++		       rcu_data.n_done_length,
++		       rcu_data.n_done_remove,
++		       atomic_read(&rcu_data.n_done_invoked),
++
++		       atomic_read(&rcu_data.n_rcu_try_flip1),
++		       rcu_data.n_rcu_try_flip2,
++		       rcu_data.n_rcu_try_flip3,
++		       atomic_read(&rcu_data.n_rcu_try_flip_e1),
++		       rcu_data.n_rcu_try_flip_e2,
++		       rcu_data.n_rcu_try_flip_e3);
++}
++
++int rcu_read_proc_gp_data(char *page)
++{
++	long oldgp = rcu_ctrlblk.completed;
++
++	synchronize_rcu();
++	return sprintf(page, "oldggp=%ld  newggp=%ld\n",
++		       oldgp, rcu_ctrlblk.completed);
++}
++
++int rcu_read_proc_ptrs_data(char *page)
++{
++	return sprintf(page,
++		       "nl=%p/%p nt=%p\n wl=%p/%p wt=%p dl=%p/%p dt=%p\n",
++		       &rcu_data.nextlist, rcu_data.nextlist, rcu_data.nexttail,
++		       &rcu_data.waitlist, rcu_data.waitlist, rcu_data.waittail,
++		       &rcu_data.donelist, rcu_data.donelist, rcu_data.donetail
++		      );
++}
++
++int rcu_read_proc_ctrs_data(char *page)
++{
++	int cnt = 0;
++	int cpu;
++	int f = rcu_data.completed & 0x1;
++
++	cnt += sprintf(&page[cnt], "CPU last cur\n");
++	for_each_cpu(cpu) {
++		cnt += sprintf(&page[cnt], "%3d %4d %3d\n",
++			       cpu,
++			       atomic_read(&per_cpu(rcu_flipctr, cpu)[!f]),
++			       atomic_read(&per_cpu(rcu_flipctr, cpu)[f]));
++	}
++	cnt += sprintf(&page[cnt], "ggp = %ld\n", rcu_data.completed);
++	return (cnt);
++}
++
++#endif /* #ifdef CONFIG_RCU_STATS */
++
++EXPORT_SYMBOL(call_rcu); /* WARNING: GPL-only in April 2006. */
+ EXPORT_SYMBOL_GPL(rcu_batches_completed);
+-EXPORT_SYMBOL(call_rcu);  /* WARNING: GPL-only in April 2006. */
+-EXPORT_SYMBOL(call_rcu_bh);  /* WARNING: GPL-only in April 2006. */
+ EXPORT_SYMBOL_GPL(synchronize_rcu);
+-EXPORT_SYMBOL(synchronize_kernel);  /* WARNING: GPL-only in April 2006. */
++EXPORT_SYMBOL_GPL(synchronize_sched);
++EXPORT_SYMBOL(rcu_read_lock);  /* WARNING: GPL-only in April 2006. */
++EXPORT_SYMBOL(rcu_read_unlock);  /* WARNING: GPL-only in April 2006. */
++EXPORT_SYMBOL(synchronize_kernel);  /* WARNING: Removal in April 2006. */
++
++#endif /* #else #ifndef CONFIG_PREEMPT_RCU */

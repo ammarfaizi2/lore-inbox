@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWAXWeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWAXWfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750792AbWAXWeM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 17:34:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWAXWeM
+	id S1750791AbWAXWfi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 17:35:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWAXWfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 17:34:12 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:64402 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1750792AbWAXWeJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 17:34:09 -0500
-Message-Id: <200601242326.k0ONQ1kT008903@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 1/2] UML - Add a build dependency
+	Tue, 24 Jan 2006 17:35:38 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:20684
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1750791AbWAXWfh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 17:35:37 -0500
+Date: Tue, 24 Jan 2006 14:35:27 -0800
+From: Greg KH <greg@kroah.com>
+To: Vasil Kolev <vasil@ludost.net>
+Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org, frankt@promise.com
+Subject: Re: kobject_register failed for Promise_Old_IDE (-17)
+Message-ID: <20060124223527.GA26337@kroah.com>
+References: <1138093728.5828.8.camel@lyra.home.ludost.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 24 Jan 2006 18:26:01 -0500
-From: Jeff Dike <jdike@addtoit.com>
+Content-Disposition: inline
+In-Reply-To: <1138093728.5828.8.camel@lyra.home.ludost.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kern_constants.h now depends on arch/um/include to make sure it exists
-before we try to create symlinks in it.
+On Tue, Jan 24, 2006 at 11:08:47AM +0200, Vasil Kolev wrote:
+> Hello,
+> I have a machine that's currently running 2.4.28 with the promise_old
+> driver, which runs ok. I tried upgrading it last night to 2.6.15, and
+> the following error occured, and no drives were detected/made available:
+> 
+>  [17179598.940000] kobject_register failed for Promise_Old_IDE (-17)
+>  [17179598.940000]  [dump_stack+21/23] dump_stack+0x15/0x17
+>  [17179598.940000]  [kobject_register+52/64] kobject_register+0x34/0x40
+>  [17179598.940000]  [bus_add_driver+69/163] bus_add_driver+0x45/0xa3
+>  [17179598.940000]  [driver_register+57/60] driver_register+0x39/0x3c
+>  [17179598.940000]  [__pci_register_driver+125/132] __pci_register_driver+0x7d/0x84
+>  [17179598.940000]  [__ide_pci_register_driver+19/53] __ide_pci_register_driver+0x13/0x35
+>  [17179598.940000]  [pg0+945449588/1069855744] pdc202xx_ide_init+0x12/0x16 [pdc202xx_old]
+>  [17179598.940000]  [sys_init_module+193/430] sys_init_module+0xc1/0x1ae
+>  [17179598.940000]  [syscall_call+7/11] syscall_call+0x7/0xb
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+This means that some other driver tried to register with the same exact
+name for the same bus.  As it looks like this is the ide bus, I suggest
+asking on the linux ide mailing list.
 
-Index: linux-2.6.15-mm/arch/um/Makefile
-===================================================================
---- linux-2.6.15-mm.orig/arch/um/Makefile	2006-01-24 17:04:35.000000000 -0500
-+++ linux-2.6.15-mm/arch/um/Makefile	2006-01-24 17:05:13.000000000 -0500
-@@ -172,10 +172,13 @@ else
- 	$(Q)cd $(TOPDIR)/include/asm-um && ln -sf ../asm-$(SUBARCH) arch
- endif
- 
--$(ARCH_DIR)/include/sysdep:
-+$(objtree)/$(ARCH_DIR)/include:
-+	@echo '  MKDIR $@'
-+	$(Q)mkdir -p $@
-+
-+$(ARCH_DIR)/include/sysdep: $(objtree)/$(ARCH_DIR)/include
- 	@echo '  SYMLINK $@'
- ifneq ($(KBUILD_SRC),)
--	$(Q)mkdir -p $(ARCH_DIR)/include
- 	$(Q)ln -fsn $(srctree)/$(ARCH_DIR)/include/sysdep-$(SUBARCH) $(ARCH_DIR)/include/sysdep
- else
- 	$(Q)cd $(ARCH_DIR)/include && ln -sf sysdep-$(SUBARCH) sysdep
-@@ -218,7 +221,7 @@ $(ARCH_DIR)/include/user_constants.h: $(
- 
- CLEAN_FILES += $(ARCH_DIR)/user-offsets.s
- 
--$(ARCH_DIR)/include/kern_constants.h:
-+$(ARCH_DIR)/include/kern_constants.h: $(objtree)/$(ARCH_DIR)/include
- 	@echo '  SYMLINK $@'
- 	$(Q) ln -sf ../../../include/asm-um/asm-offsets.h $@
- 
+thanks,
 
+greg k-h

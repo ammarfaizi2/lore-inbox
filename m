@@ -1,51 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWAXFDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbWAXFy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964861AbWAXFDy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 00:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbWAXFDy
+	id S1030289AbWAXFy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 00:54:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWAXFy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 00:03:54 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:27295
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S964861AbWAXFDy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 00:03:54 -0500
-Date: Mon, 23 Jan 2006 21:03:46 -0800
-From: Greg KH <greg@kroah.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: uevent buffer overflow in input layer
-Message-ID: <20060124050346.GC22848@kroah.com>
-References: <1137973421.4907.14.camel@localhost.localdomain>
+	Tue, 24 Jan 2006 00:54:29 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:14020 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932435AbWAXFy2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 00:54:28 -0500
+Date: Tue, 24 Jan 2006 11:24:25 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+To: Jan Blunck <jblunck@suse.de>
+Cc: Kirill Korotaev <dev@sw.ru>, viro@zeniv.linux.org.uk,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       olh@suse.de
+Subject: Re: [PATCH] shrink_dcache_parent() races against shrink_dcache_memory()
+Message-ID: <20060124055425.GA30609@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+References: <20060120203645.GF24401@hasse.suse.de> <43D48ED4.3010306@sw.ru> <20060123155728.GC26653@hasse.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1137973421.4907.14.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060123155728.GC26653@hasse.suse.de>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 23, 2006 at 10:43:41AM +1100, Benjamin Herrenschmidt wrote:
-> Current -git as of today does this on an x86 box with a logitech USB
-> keyboard:
+On Mon, Jan 23, 2006 at 04:57:28PM +0100, Jan Blunck wrote:
+> On Mon, Jan 23, Kirill Korotaev wrote:
+>
+> [snip] 
+>
+> Hmm, will think about that one again. shrink_dcache_parent() and
+> shrink_dcache_memory()/dput() are not racing against each other now since the
+> reference counting is done before giving up dcache_lock and the select_parent
+> could start.
 > 
-> (the $$$ is debug stuff I added to print_modalias(), size is the size
-> passed in and "Total len" is the value of "len" before returning). We
-> end up overflowing, thus we pass a negative size to snprintf which
-> causes the WARN_ON. Bumping the uevent buffer size in lib/kobject_uevent.c
-> from 1024 to 2048 seems to fix the oops and /dev/input/mice is now properly
-> created and works (it doesn't without the fix, X fails and we end up back
-> in console with a dead keyboard).
-> 
-> I'm not sure it's the correct solution as I'm not too familiar with the
-> uevent code though, so I'll let you guys decide on the proper approach.
+> Regards,
+> 	Jan
+>
 
-Yes, input has some big strings, I'd recommend bumping it up like you
-suggest.
+I have been playing around with a possible solution to the problem.
+I have not been able to reproduce this issue, hence I am unable to verify
+if the patch below fixes the problem. I have run the system with this
+patch and verified that no obvious badness is observed.
 
-Care to make up a patch as you found the problem and should get the
-credit?  :)
+Kirill, Jan if you can easily reproduce the problem, could you
+try this patch and review it as well for correctness of the solution?
 
-thanks,
+All callers that try to free memory set the PF_MEMALLOC flag, we check
+if the super block is going away due to an unmount, if so we ask the
+allocator to return.
 
-greg k-h
+The patch adds additional cost of holding the sb_lock for each dentry
+being pruned. It holds sb_lock under dentry->d_lock and dcache_lock,
+I am not sure about the locking order of these locks.
+
+Signed-off-by: Balbir Singh <balbir@in.ibm.com>
+---
+
+ fs/dcache.c |   23 +++++++++++++++++++++++
+ 1 files changed, 23 insertions(+)
+
+diff -puN fs/dcache.c~dcache_race_fix2 fs/dcache.c
+--- linux-2.6/fs/dcache.c~dcache_race_fix2	2006-01-24 11:05:46.000000000 +0530
++++ linux-2.6-balbir/fs/dcache.c	2006-01-24 11:05:46.000000000 +0530
+@@ -425,6 +425,29 @@ static void prune_dcache(int count)
+  			spin_unlock(&dentry->d_lock);
+ 			continue;
+ 		}
++
++		/*
++		 * Note to reviewers: our current lock order is dcache_lock,
++		 * dentry->d_lock & sb_lock. Could this create a deadlock?
++		 */
++		spin_lock(&sb_lock);
++		if (!atomic_read(&dentry->d_sb->s_active)) {
++			/*
++			 * Race condition, umount and other pruning is happening
++			 * in parallel.
++			 */
++			if (current->flags & PF_MEMALLOC) {
++				/*
++				 * let the allocator leave this dentry alone
++				 */
++				spin_unlock(&sb_lock);
++				spin_unlock(&dentry->d_lock);
++				spin_unlock(&dcache_lock);
++				return;
++			}
++		}
++		spin_unlock(&sb_lock);
++
+ 		prune_one_dentry(dentry);
+ 	}
+ 	spin_unlock(&dcache_lock);
+
+Thanks,
+Balbir
+_

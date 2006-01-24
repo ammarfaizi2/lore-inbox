@@ -1,80 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030347AbWAXTgg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030373AbWAXTkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030347AbWAXTgg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 14:36:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbWAXTgg
+	id S1030373AbWAXTkA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 14:40:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030232AbWAXTkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 14:36:36 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39323 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964895AbWAXTgg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 14:36:36 -0500
-To: Hubertus Franke <frankeh@watson.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Greg KH <greg@kroah.com>, "Serge E. Hallyn" <serue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-References: <20060117143258.150807000@sergelap>
-	<20060117143326.283450000@sergelap>
-	<1137511972.3005.33.camel@laptopd505.fenrus.org>
-	<20060117155600.GF20632@sergelap.austin.ibm.com>
-	<1137513818.14135.23.camel@localhost.localdomain>
-	<1137518714.5526.8.camel@localhost.localdomain>
-	<20060118045518.GB7292@kroah.com>
-	<1137601395.7850.9.camel@localhost.localdomain>
-	<m1fyniomw2.fsf@ebiederm.dsl.xmission.com>
-	<43D14578.6060801@watson.ibm.com>
-	<m1hd7xmylo.fsf@ebiederm.dsl.xmission.com>
-	<43D52592.8080709@watson.ibm.com>
-	<m1oe22lp69.fsf@ebiederm.dsl.xmission.com>
-	<1138050684.24808.29.camel@localhost.localdomain>
-	<m1bqy2ljho.fsf@ebiederm.dsl.xmission.com>
-	<43D5557F.9060006@watson.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 24 Jan 2006 12:34:58 -0700
-In-Reply-To: <43D5557F.9060006@watson.ibm.com> (Hubertus Franke's message of
- "Mon, 23 Jan 2006 17:15:27 -0500")
-Message-ID: <m13bjdl8rh.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 24 Jan 2006 14:40:00 -0500
+Received: from hera.kernel.org ([140.211.167.34]:5089 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1030373AbWAXTj7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 14:39:59 -0500
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [RFC] Controller Area Network (CAN) infrastructure
+Date: Tue, 24 Jan 2006 11:39:54 -0800
+Organization: OSDL
+Message-ID: <20060124113954.0782cb59@dxpl.pdx.osdl.net>
+References: <43D61374.8010208@arcom.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1138131595 21947 10.8.0.74 (24 Jan 2006 19:39:55 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Tue, 24 Jan 2006 19:39:55 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hubertus Franke <frankeh@watson.ibm.com> writes:
+On Tue, 24 Jan 2006 11:45:56 +0000
+David Vrabel <dvrabel@arcom.com> wrote:
 
-> In that case, I think we do require the current vpid_to_pid(translations)
-> in order to transfer the external user pid ( relative to the namespace )
-> into one that combines namespace (aka container_id) with the external pid.
-> Exactly how it is done today.
-> What will slightly change is the low level implementations of the
->
-> inline pid_t pid_to_vpid_ctx(pid_t pid, const struct task_struct *ctx);
-> pid_t __pid_to_vpid_ctx_excp(pid_t pid, int pidspace_id,const struct task_struct
-> *ctx);
->
-> and reverse.
-> The VPID_2_PID and PID_2_VPID still remain at same locations.
->
-> Did I get your comments correctly, Eric ?..
+> 
+> This is a basic Controller Area Network (CAN) infrastructure.
+> 
+> CAN is a serial bus network commonly used in automotive and industrial
+> control applications.  CAN is exclusively a broadcast network.  Frames
+> do not have destination addresses and instead have an ID which
+> identifies the frame (generally the ID identifies the type of data in
+> the payload of the frame).  Nodes can selectively receive frames based
+> on their ID (using mask and match bits).
+> 
+> Since CAN is a network, CAN controller drivers are implemented as
+> network devices with a few extras provided by a CAN class device.  CAN
+> frame aren't a whole number of octets so the user recv()'s and send()'s
+> 'struct can_frame's which include all the header bits and the 8 octets
+> of payload.
+> 
+> This infrastructure provides the bare minimum required to test CAN
+> controllers and is likely missing stuff necessary to actually use it in
+> an application.  In particular, the requirement that frames are sent via
+> a packet(7) socket could do with being removed but I'm unclear on a
+> method that would allow this but wouldn't be a security risk (e.g., a
+> mechanism needs to be provided so you can't send/receive raw CAN frames
+> on, say, an ethernet device).
+> 
+> David Vrabel
 
-Well we may need that.   For the moment let's consider putting both
-a kpid and upid and the task_struct, and elsewhere. Basically I don't think
-translation is necessary in the common case.
 
-However let's look at a single practical case to see how it would need
-to be implemnted.
+This implementation looks racey if sysfs files are held open
+and device module is removed.
+Network device's can not be embedded in other structures.
 
-struct fown_struct.  Every file has one and you can modify it both on
-a socket with ioctls FIOSETOWN,SIOCSPGRP,FIOGETOWN,SIOCPGRP.  And on
-a normal file handle with fcntl with FSETOWN, and FGETOWN.
+Also network devices can be renamed, but your code can't handle that.
 
-Since a struct file can be passed between processes in different
-pid spaces using unix domain sockets we cannot count on the context
-of the signaler to be the same as the context of the setter.
+Read Documentation/networking/netdevices.txt
 
-So we need to look at how to handle this case cleanly, and safely.
-
-Eric
-
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger

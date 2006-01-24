@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030356AbWAXPht@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbWAXPlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030356AbWAXPht (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 10:37:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030359AbWAXPht
+	id S1030384AbWAXPlj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 10:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030359AbWAXPlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 10:37:49 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:2688 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030356AbWAXPhs convert rfc822-to-8bit
+	Tue, 24 Jan 2006 10:41:39 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:33541 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030384AbWAXPli convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 10:37:48 -0500
+	Tue, 24 Jan 2006 10:41:38 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dqJEcUtNd0wvZe+LH77cHMTw4JW8pZ+01J6nEV8yTHdpBYoBE6qpAeasa2CyvBttbAvUAwymVK4JkYDupF2XWiY0TYmhTntol1xFtbEOKnL6ie8g0m6/kf2BFKCqpQktEh6aQmNVkUiz1xQ9vIAThI6Fghak5MMc4DSx8zCTDVY=
-Message-ID: <6bffcb0e0601240737u3e77245g@mail.gmail.com>
-Date: Tue, 24 Jan 2006 16:37:47 +0100
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH RT] kstopmachine has legit preempt_enable_no_resched (was: 2.6.15-rt12 bugs)
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1138112388.6695.26.camel@localhost.localdomain>
+        b=TtYUDmtJ9h0OTK9f6mk02A6kI+juBHKCaTs3zwBL+k1YlHPyfDLS2rVp2Ln3cN3rMobI60IkQbMHPRgMZX8UJ5cdAxOJ6XOlQeGlm+Jmf+MaHovUyDEdSP2si7PC5xaNJcXCxGeDeO9B79G1tpthHWGFTKOF8JJQbdRHnh7GQys=
+Message-ID: <9a8748490601240741x5a54db53o37dcf46cf25d5420@mail.gmail.com>
+Date: Tue, 24 Jan 2006 16:41:34 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+Subject: Re: [PATCH] Megaraid cleanup
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       "Kolli, Neela" <Neela.Kolli@engenio.com>, linux-scsi@vger.kernel.org
+In-Reply-To: <9738BCBE884FDB42801FAD8A7769C265142031@NAMAIL1.ad.lsil.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <6bffcb0e0601230521l59b8360et@mail.gmail.com>
-	 <1138065822.6695.6.camel@localhost.localdomain>
-	 <6bffcb0e0601240533h3ba1a01ci@mail.gmail.com>
-	 <1138112388.6695.26.camel@localhost.localdomain>
+References: <9738BCBE884FDB42801FAD8A7769C265142031@NAMAIL1.ad.lsil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On 24/01/06, Steven Rostedt <rostedt@goodmis.org> wrote:
-> On Tue, 2006-01-24 at 14:33 +0100, Michal Piotrowski wrote:
-[snip]
-> > And problems while loading ipv6 module
-> > Running ntpdate to synchronize clockCould not allocate 4 bytes percpu data
-> > modprobe: FATAL: Error inserting ipv6
-> > (/lib/modules/2.6.15-rt14/kernel/net/ipv6/ipv6.ko): Cannot allocate
-> > memory
-> >
-> > Could not allocate 4 bytes percpu data
-> > modprobe: FATAL: Error inserting ipv6
-> > (/lib/modules/2.6.15-rt14/kernel/net/ipv6/ipv6.ko): Cannot allocate
-> > memory
+On 1/24/06, Ju, Seokmann <Seokmann.Ju@lsil.com> wrote:
+> Hi,
 >
-> Is this new with the -rt14? or has this happened before. If it has
-> happened before, then could you tell us when it started.
+> The patch has been verified and accepted.
+>
+> Thank you,
+>
 
-It's very hard to track down, because earlier versions of -rt ware too
-buggy for me and most of them doesn't compile/boot.
+Great, thanks.
+I assume you'll take care of pushing it forward or should I do that?
 
-Regards,
-Michal Piotrowski
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

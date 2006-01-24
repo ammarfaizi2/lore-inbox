@@ -1,57 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWAXVao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWAXVa1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbWAXVao (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 16:30:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWAXVan
+	id S1750725AbWAXVa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 16:30:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWAXVa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 16:30:43 -0500
-Received: from natnoddy.rzone.de ([81.169.145.166]:57999 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S1750736AbWAXVan
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 16:30:43 -0500
-From: Stefan Rompf <stefan@loplof.de>
-To: Neil Brown <neilb@suse.de>
-Subject: Re: [Patch 2.6] dm-crypt: zero key before freeing it
-Date: Tue, 24 Jan 2006 22:29:06 +0100
-User-Agent: KMail/1.8
-Cc: Clemens Fruhwirth <clemens@endorphin.org>, linux-kernel@vger.kernel.org
-References: <200601042108.04544.stefan@loplof.de> <17365.45558.820747.408425@cse.unsw.edu.au>
-In-Reply-To: <17365.45558.820747.408425@cse.unsw.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Jan 2006 16:30:27 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15238 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750725AbWAXVa0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 16:30:26 -0500
+Date: Tue, 24 Jan 2006 22:30:10 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] swsusp: userland interface (rev 2)
+Message-ID: <20060124213010.GA1602@elf.ucw.cz>
+References: <200601240929.37676.rjw@sisk.pl> <20060124131312.0545262d.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601242229.06995.stefan@loplof.de>
+In-Reply-To: <20060124131312.0545262d.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag 24 Januar 2006 05:49 schrieb Neil Brown:
+Hi!
 
-> >--- linux-2.6.14.4/drivers/md/dm-crypt.c.old	2005-12-16 18:27:05.000000000
-> > +0100 +++ linux-2.6.14.4/drivers/md/dm-crypt.c	2005-12-28
-> > 12:49:13.000000000 +0100 @@ -694,6 +694,7 @@ bad3:
-> > bad2:
-> > 	crypto_free_tfm(tfm);
-> > bad1:
-> >+	memset(cc, 0, sizeof(*cc) + cc->key_size * sizeof(u8));
-> > 	kfree(cc);
-> > 	return -EINVAL;
-> > }
->
-> There is a small problem with this patch.
-> If the 'goto bad1' branch is taken, then 'cc->key_size' will not be
-> defined.
-> I think you need the following patch on top.
+> > This patch introduces a user space interface for swsusp.
+> 
+> How will we know if/when this feature is ready for mainline?  What criteria
+> can we use to judge that?
 
-Why? This is from today's git, just before the first goto bad1
+It was stable for me last time I tested. I do not think it needs
+longer -mm testing than usual patches.
 
- 559         cc->key_size = key_size;
- 560         if ((!key_size && strcmp(argv[1], "-") != 0) ||
- 561             (key_size && crypt_decode_key(cc->key, argv[1], key_size) < 
-0)) {
- 562                 ti->error = PFX "Error decoding key";
- 563                 goto bad1;
- 564         }
+> Will you be developing and long-term maintaining the userspace tools?  Is
+> it your expectation/hope that distros will migrate onto using them?
+> etc.
 
-Stefan
+It looks like I'll do it, or Rafael can have it as an original
+author. They are currently hosted at sf.net/projects/suspend. SuSE is
+very likely to use them for 10.2 or so -- we want to provide nice
+splashscreen so that users are not scared :-), we would like to do
+encryption/compression too, etc.
+
+> > +static int snapshot_ioctl(struct inode *inode, struct file *filp,
+> > +                          unsigned int cmd, unsigned long arg)
+> > +{
+> >
+> > ...
+> >
+> > +	case SNAPSHOT_ATOMIC_RESTORE:
+> > +		if (data->mode != O_WRONLY || !data->frozen ||
+> > +		    !snapshot_image_loaded(&data->handle)) {
+> > +			error = -EPERM;
+> > +			break;
+> > +		}
+> > +		down(&pm_sem);
+> > +		pm_prepare_console();
+> > +		error = device_suspend(PMSG_FREEZE);
+> > +		if (!error) {
+> > +			mb();
+> > +			error = swsusp_resume();
+> > +			device_resume();
+> > +		}
+> 
+> whee, what does the mystery barrier do?  It'd be nice to comment this
+> (please always comment open-coded barriers).
+
+It is probably relic from very early code, should not be needed, but
+everyone is scared of removing it.
+								Pavel
+-- 
+Thanks, Sharp!

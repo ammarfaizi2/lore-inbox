@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWAXVAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWAXVAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWAXVAd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 16:00:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWAXVAd
+	id S1750705AbWAXVAF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 16:00:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWAXVAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 16:00:33 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:53679 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750707AbWAXVAb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 16:00:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cSflhgkRaocG9ai05KjjYFcpQL36xpa0gLHCmnB8f3HkD22Ty8C3rVH1vBbupKjEq0gUF1myboFGtNJugJ3WDln9bLpi7j54JY0eMvXYpyRGc6LUeWJj1hm5Xlwp9U3t+tDxRHLy/xIh7NwVaw1ZZwIzPRRfBIkXNSRCqkbgr5c=
-Message-ID: <6bffcb0e0601241300xd0b8d8dt@mail.gmail.com>
-Date: Tue, 24 Jan 2006 22:00:26 +0100
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH RT] kstopmachine has legit preempt_enable_no_resched (was: 2.6.15-rt12 bugs)
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1138126262.6695.29.camel@localhost.localdomain>
+	Tue, 24 Jan 2006 16:00:04 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:6045 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750704AbWAXVAA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 16:00:00 -0500
+In-Reply-To: <20060124160427.1ed68461.diegocg@gmail.com>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: a1426z@gawab.com, barryn@pobox.com, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, mloftis@wgops.com, nikita@clusterfs.com,
+       Ram Gupta <ram.gupta5@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <6bffcb0e0601230521l59b8360et@mail.gmail.com>
-	 <1138065822.6695.6.camel@localhost.localdomain>
-	 <6bffcb0e0601240533h3ba1a01ci@mail.gmail.com>
-	 <1138112388.6695.26.camel@localhost.localdomain>
-	 <6bffcb0e0601240737u3e77245g@mail.gmail.com>
-	 <1138126262.6695.29.camel@localhost.localdomain>
+Subject: Re: [RFC] VM: I have a dream...
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OFB608064A.42CC9F1C-ON88257100.0072D92E-88257100.007356F8@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Tue, 24 Jan 2006 12:59:48 -0800
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0HF124 | January 12, 2006) at
+ 01/24/2006 15:59:58,
+	Serialize complete at 01/24/2006 15:59:58
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24/01/06, Steven Rostedt <rostedt@goodmis.org> wrote:
-> On Tue, 2006-01-24 at 16:37 +0100, Michal Piotrowski wrote:
-[snip]
-> > It's very hard to track down, because earlier versions of -rt ware too
-> > buggy for me and most of them doesn't compile/boot.
->
-> The 2.6.14-rtX series was pretty stable. How early did you go back?
+>Linux is the one desktop lacking something like this, both windows
+>and max os x have things like this. I've wondered for long time if
+>it's worth of it and if it could improve things in linux. The
+>prefault part is easy once you get the data. The hard part is to get
+>the statistics:
 
-To 2.6.15-rt1 - it doesn't compile (ipv6 module). 2.6.15-rt2 gives me
-wonderful series of oops/warnings/badness on boot ;).
+If you focus on the system startup speed problem, the stats are quite a 
+bit simpler.  If you can take a snapshot of every mmap page in memory 
+shortly after startup (and verify that no page frames were stolen during 
+startup) and save that, you could just prefault all those pages in, in a 
+single sweep, at the next boot.
 
-I will try 2.6.14-rtX.
+--
+Bryan Henderson                     IBM Almaden Research Center
+San Jose CA                         Filesystems
 
-Regards,
-Michal Piotrowski
+

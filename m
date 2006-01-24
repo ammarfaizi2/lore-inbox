@@ -1,64 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWAXW1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWAXW1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbWAXW1T (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 17:27:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWAXW1T
+	id S1750786AbWAXW1u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 17:27:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWAXW1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 17:27:19 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:64487 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750784AbWAXW1S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 17:27:18 -0500
-Subject: Re: first bisection results in -mm3 [was: Re: 2.6.15-mm2: reiser3 
-	oops on suspend and more (bonus oops shot!)]
-From: john stultz <johnstul@us.ibm.com>
-To: Mattia Dongili <malattia@linux.it>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <16839.83.103.117.254.1137581235.squirrel@picard.linux.it>
-References: <20060110170037.4a614245.akpm@osdl.org>
-	 <20060111184027.GB4735@inferi.kami.home>
-	 <20060112220825.GA3490@inferi.kami.home>
-	 <1137108362.2890.141.camel@cog.beaverton.ibm.com>
-	 <20060114120816.GA3554@inferi.kami.home>
-	 <1137442582.27699.12.camel@cog.beaverton.ibm.com>
-	 <20060116204057.GC3639@inferi.kami.home>
-	 <1137458964.27699.65.camel@cog.beaverton.ibm.com>
-	 <20060117174953.GA3529@inferi.kami.home>
-	 <1137525090.27699.92.camel@cog.beaverton.ibm.com>
-	 <20060117224951.GA3320@inferi.kami.home>
-	 <16839.83.103.117.254.1137581235.squirrel@picard.linux.it>
-Content-Type: text/plain
-Date: Tue, 24 Jan 2006 14:27:14 -0800
-Message-Id: <1138141635.15682.92.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Jan 2006 17:27:50 -0500
+Received: from xenotime.net ([66.160.160.81]:39589 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750786AbWAXW1t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 17:27:49 -0500
+Date: Tue, 24 Jan 2006 14:27:48 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Ed Sweetman <safemode@comcast.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: 2.6.16-rc1-mm2 pata driver confusion
+In-Reply-To: <43D6A76D.2000502@comcast.net>
+Message-ID: <Pine.LNX.4.58.0601241426180.26036@shark.he.net>
+References: <43D5CC88.9080207@comcast.net> <1138116579.14675.22.camel@localhost.localdomain>
+ <43D6A76D.2000502@comcast.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-18 at 11:47 +0100, Mattia Dongili wrote:
-> On Tue, January 17, 2006 11:49 pm, Mattia Dongili said:
-> [...]
-> > the stall is still there, tomorrow I'll reapply your debug-patch and
-> > report the full dmesg (with the finished_booting-hack enabled).
-> 
-> Full dmesg attached.
-> Stalls happened between in the 16.39-16.55 interval, in 16.70-16.96 and
-> 17.89-18.64. They were all much longer than stated in the log timestamp
-> (I'd say ~10:1 ratio).	
-> 
-> Sorry again for my previous false notice about the bug being solved...
+On Tue, 24 Jan 2006, Ed Sweetman wrote:
 
-Hey Mattia, 
-	Sorry I've been so quiet recently, I'm still working on this one.  The
-difficult spot is that if the cpufreq notification driver is a module,
-then there will always be a window between the point at which we start
-using the TSC to the point where we find out that the TSC is changing
-frequency. Not sure what to do here just yet.
+> Alan Cox wrote:
+>
+> >On Maw, 2006-01-24 at 01:43 -0500, Ed Sweetman wrote:
+> >
+> >
+> >>problem.  The problem is that there appears to be two nvidia/amd ata
+> >>drivers and I'm unsure which I should try using, if i compile both in,
+> >>which get loaded first (i assume scsi is second to ide) and if i want my
+> >>pata disks loaded under the new libata drivers, will my cdrom work under
+> >>them too, or do i still need some sort of regular ide drivers loaded
+> >>just for cdrom (to use native ata mode for recording access).
+> >>
+> >>
+> >
+> >The goal of the drivers/scsi/pata_* drivers is to replace drivers/ide in
+> >its entirity with code using the newer and cleaner libata logic. There
+> >is still much to do but my SIL680, SiS, Intel MPIIX, AMD and VIA boxes
+> >are using libata and the additional patch patches still queued
+> >
+> >
+>
+> >>1.  Atapi is most definitely not supported by libata, right now.
+> >>
+> >>
+> >
+> >It works in the -mm tree.
+> >
+> >
+> Intriguing, when I had no ide chipset compiled in kernel, only libata
+> drivers, I got no mention at all about my dvd writer.  I even had the
+> scsi cd driver installed and generic devices, still nothing seemed to
+> initialize the dvd drive.  It detected the second pata bus but no
+> devices attached to it.
+>
+> this is using the kernel mentioned in the subject header.
+> 2.6.16-rc1-mm2.  using the amd/nvidia drivers for pata and sata.
+>
+> Is there anything i can do to give more info to the list to figure out
+> why my atapi writer is being ignored by pata even when there are no ide
+> drivers loaded?
 
-Although I'm curious: Did the recent changes in 2.6.16-rc1-mm2 had any
-effect on this issue?
+Currently you need to use libata.atapi_enabled=1
+(assuming that libata is in the kernel image, not a loadable module).
 
-thanks
--john
+I just built/tested this also, working for me as well.
+(hard drives, not ATAPI)
 
+> >>4.  moving to pata libata drivers _will_ change the enumeration of your
+> >>sata devices, it seems that pata is initialized first, so when setting
+> >>up your fstab entries and grub, you'll have to take into account how
+> >>many pata devices you have and offset your current sata device names by
+> >>that amount.
+> >>
+> >>
+> >
+> >Or use labels. As you move into the world of hot pluggable hardware it
+> >becomes more and more impractical to guarantee drive ordering by name.
+> >
+> >You can mix and match the drivers providing you don't try and load both
+> >libata and old ide drives for the same chip. Even then it should fail
+> >correctly with one of them reporting resources unavailable.
+> >
+> >In fact I do this all the time when debugging so I've got a stable disk
+> >for debug work and a devel disk.
+> >
+> >Alan
+> >
+> >
+>
+> I'm not familiar with labeling ...will have to look into it, since
+> borking a kernel after changing the drivers can result in a non-bootable
+> system depending on how the partitions are setup across the devices.
+> (since you'd have to change them in fstab and such before a reboot).  A
+> way around that would be very useful.
+
+-- 
+~Randy

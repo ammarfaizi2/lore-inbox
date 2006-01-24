@@ -1,62 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030466AbWAXRIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030485AbWAXRKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030466AbWAXRIj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 12:08:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030441AbWAXRIj
+	id S1030485AbWAXRKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 12:10:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030471AbWAXRKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 12:08:39 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:52964 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1030447AbWAXRIi (ORCPT
+	Tue, 24 Jan 2006 12:10:09 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49300 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030485AbWAXRKH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 12:08:38 -0500
-Message-Id: <200601240211.k0O28rnn003165@laptop11.inf.utfsm.cl>
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-cc: "Diego Calleja" <diegocg@gmail.com>, "Ram Gupta" <ram.gupta5@gmail.com>,
-       mloftis@wgops.com, barryn@pobox.com, a1426z@gawab.com,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC] VM: I have a dream... 
-In-Reply-To: Message from "linux-os \(Dick Johnson\)" <linux-os@analogic.com> 
-   of "Mon, 23 Jan 2006 11:11:29 CDT." <Pine.LNX.4.61.0601231058200.11299@chaos.analogic.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
-Date: Mon, 23 Jan 2006 23:08:53 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 24 Jan 2006 14:08:07 -0300 (CLST)
+	Tue, 24 Jan 2006 12:10:07 -0500
+Date: Tue, 24 Jan 2006 18:08:45 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [patch] swsusp: documentation updates
+Message-ID: <20060124170845.GA1800@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os \(Dick Johnson\) <linux-os@analogic.com> wrote:
-> On Mon, 23 Jan 2006, Diego Calleja wrote:
+This updates suspend-to-RAM documentation with new machines, and makes
+message when processes can't be stopped little clearer. (In one case,
+waiting longer actually did help).
 
-[...]
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-> > However, I doubt the approach is really useful. If you need that much
-> > swap space, you're going well beyond the capabilities of the machine.
-> > In fact, I bet that most of the cases of machines needing too much
-> > memory will be because of bugs in the programs and OOM'ing would be
-> > a better solution.
+--- a/Documentation/power/video.txt
++++ b/Documentation/power/video.txt
+@@ -104,6 +104,7 @@ HP NX7000			??? (*)
+ HP Pavilion ZD7000		vbetool post needed, need open-source nv driver for X
+ HP Omnibook XE3	athlon version	none (1)
+ HP Omnibook XE3GC		none (1), video is S3 Savage/IX-MV
++HP Omnibook 5150		none (1), (S1 also works OK)
+ IBM TP T20, model 2647-44G	none (1), video is S3 Inc. 86C270-294 Savage/IX-MV, vesafb gets "interesting" but X work.
+ IBM TP A31 / Type 2652-M5G      s3_mode (3) [works ok with BIOS 1.04 2002-08-23, but not at all with BIOS 1.11 2004-11-05 :-(]
+ IBM TP R32 / Type 2658-MMG      none (1)
+@@ -120,18 +121,24 @@ IBM ThinkPad T42p (2373-GTG)	s3_bios (2)
+ IBM TP X20			??? (*)
+ IBM TP X30			s3_bios (2)
+ IBM TP X31 / Type 2672-XXH      none (1), use radeontool (http://fdd.com/software/radeon/) to turn off backlight.
+-IBM TP X32			none (1), but backlight is on and video is trashed after long suspend
++IBM TP X32			none (1), but backlight is on and video is trashed after long suspend. s3_bios,s3_mode (4) works too. Perhaps that gets better results?
+ IBM Thinkpad X40 Type 2371-7JG  s3_bios,s3_mode (4)
++IBM TP 600e			none(1), but a switch to console and back to X is needed
+ Medion MD4220			??? (*)
+ Samsung P35			vbetool needed (6)
+-Sharp PC-AR10 (ATI rage)	none (1)
++Sharp PC-AR10 (ATI rage)	none (1), backlight does not switch off
+ Sony Vaio PCG-C1VRX/K		s3_bios (2)
+ Sony Vaio PCG-F403		??? (*)
++Sony Vaio PCG-GRT995MP		none (1), works with 'nv' X driver
++Sony Vaio PCG-GR7/K		none (1), but needs radeonfb, use radeontool (http://fdd.com/software/radeon/) to turn off backlight.
+ Sony Vaio PCG-N505SN		??? (*)
+ Sony Vaio vgn-s260		X or boot-radeon can init it (5)
++Sony Vaio vgn-S580BH		vga=normal, but suspend from X. Console will be blank unless you return to X. 
++Sony Vaio vgn-FS115B		s3_bios (2),s3_mode (4)
+ Toshiba Libretto L5		none (1)
+-Toshiba Satellite 4030CDT	s3_mode (3)
+-Toshiba Satellite 4080XCDT      s3_mode (3)
++Toshiba Portege 3020CT		s3_mode (3)
++Toshiba Satellite 4030CDT	s3_mode (3) (S1 also works OK)
++Toshiba Satellite 4080XCDT      s3_mode (3) (S1 also works OK)
+ Toshiba Satellite 4090XCDT      ??? (*)
+ Toshiba Satellite P10-554       s3_bios,s3_mode (4)(****)
+ Toshiba M30                     (2) xor X with nvidia driver using internal AGP
+diff --git a/kernel/power/process.c b/kernel/power/process.c
+index 28de118..02a1b3a 100644
+--- a/kernel/power/process.c
++++ b/kernel/power/process.c
+@@ -83,7 +83,7 @@ int freeze_processes(void)
+ 		yield();			/* Yield is okay here */
+ 		if (todo && time_after(jiffies, start_time + TIMEOUT)) {
+ 			printk( "\n" );
+-			printk(KERN_ERR " stopping tasks failed (%d tasks remaining)\n", todo );
++			printk(KERN_ERR " stopping tasks timed out (%d tasks remaining)\n", todo );
+ 			break;
+ 		}
+ 	} while(todo);
+ 
 
-Good rule of thumb: If you run into swap, add RAM. Swap is /extremely/ slow
-memory, however fast you make it go. RAM is not expensive anymore...
-
-> You have roughly 2 GB of dynamic address-space avaliable to each
-> task (stuff that's not the kernel and not the runtime libraries).
-
-Right. But your average task is far from that size, and most of it resides
-in shared libraries and (perhaps shared) executables, and is perhaps even
-COW shared with other tasks.
-
-> You can easily have 500 tasks,
-
-Even thousands.
-
->                                even RedHat out-of-the-box creates
-> about 60 tasks. That's 1,000 GB of potential swap-space required
-> to support this.
-
-But you really never do. That is the point.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
-
+Thanks, Sharp!

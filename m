@@ -1,79 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbWAXIc7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030390AbWAXIwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030370AbWAXIc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 03:32:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030371AbWAXIc7
+	id S1030390AbWAXIwo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 03:52:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030391AbWAXIwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 03:32:59 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:18838
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1030370AbWAXIc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 03:32:59 -0500
-Message-Id: <43D5F44C.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Tue, 24 Jan 2006 09:33:00 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] tvec_bases too large for per-cpu data
-References: <43CE4C98.76F0.0078.0@novell.com> <20060120232500.07f0803a.akpm@osdl.org> <43D4BE7F.76F0.0078.0@novell.com> <20060123025702.1f116e70.akpm@osdl.org>
-In-Reply-To: <20060123025702.1f116e70.akpm@osdl.org>
+	Tue, 24 Jan 2006 03:52:44 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:22229 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030390AbWAXIwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 03:52:43 -0500
+Subject: Re: Rationale for RLIMIT_MEMLOCK?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060123203010.GB1820@merlin.emma.line.org>
+References: <20060123105634.GA17439@merlin.emma.line.org>
+	 <1138014312.2977.37.camel@laptopd505.fenrus.org>
+	 <20060123165415.GA32178@merlin.emma.line.org>
+	 <1138035602.2977.54.camel@laptopd505.fenrus.org>
+	 <20060123180106.GA4879@merlin.emma.line.org>
+	 <1138039993.2977.62.camel@laptopd505.fenrus.org>
+	 <20060123185549.GA15985@merlin.emma.line.org>
+	 <43D530CC.nailC4Y11KE7A@burner>
+	 <20060123203010.GB1820@merlin.emma.line.org>
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 24 Jan 2006 09:52:41 +0100
+Message-Id: <1138092761.2977.32.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >Did you consider using alloc_percpu()?
->> 
->> I did, but I saw drawbacks with that (most notably the fact that all instances are allocated at
->> once, possibly wasting a lot of memory).
->
->It's 4k for each cpu which is in the possible_map but which will never be
->brought online.  I don't think that'll be a lot of memory - are there
->machines which have a lot of possible-but-not-really-there CPUs?
+> c() was the function in question.
+> 
+> Jörg, if we're talking about valloc(), this hasn't much to do with the
+> kernel, but is a library issue.
+> 
+> There is _no_ documentation that says valloc() or memalign() or
+> posix_memalign() is required to use mmap(). It works on some systems and
+> for some allocation sizes as a side effect of the valloc()
+> implementation.
 
-I would suppose so. Why wouldn't a machine supporting CPU hotplug not reasonably be able to double,
-triple, etc the number of CPUs originally present?
+it doesn't matter. Regardless of the method, the memory has to be locked
+due to the FUTURE requirement.
 
->There _must_ be ordering issues.  Otherwise we'd just dynamically allocate
->all the structs up-front and be done with it.
->
->Presumably the ordering issue is that init_timers() is called before
->kmem_cache_init().  That's non-obvious and should be commented.
 
-That I can easily do, sure.
 
->- The `#ifdef CONFIG_NUMA' in init_timers_cpu() seems to be unnecessary -
->  kmalloc_node() will use kmalloc() if !NUMA.
+> And because this requirement is not specified in the relevant standards,
+> it is wrong to assume valloc() returns locked pages. 
 
-That is correct, but I wanted the fallback if kmalloc_node() fails (from briefly looking at that code it didn't
-seem like it would do such fallback itself). And calling kmalloc() twice if !NUMA seemed pointless.
+is it? I sort of doubt that (but I'm not a standards expert, but I'd
+expect that "lock all in the future" applies to all memory, not just
+mmap'd memory
 
->- The likely()s in init_timers_cpu() seems fairly pointless - it's not a
->  fastpath.
+> You cannot rely on
+> mmap() returning locked pages after mlockall() either, because you might
+> be exceeding resource limits.
 
-OK, will change that.
+this is true and fully correct
 
->- We prefer to do this:
->
->	if (expr) {
->		...
->	} else {
->		...
->	}
->
->  and not
->
->	if (expr) {
->		...
->	}
->	else {
->		...
->	}
 
-I can change that, too, but I don't see why this gets pointed out again and again when there really
-is no consistency across the entire kernel...
 
-Jan
+the situation is messy; I can see some value in the hack Ted proposed to
+just bump the rlimit automatically at an mlockall-done-by-root.. but to
+be fair it's a hack :(
+
+

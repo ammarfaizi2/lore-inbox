@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWAXPLl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030233AbWAXPNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964817AbWAXPLl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 10:11:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbWAXPLl
+	id S1030233AbWAXPNk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 10:13:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030351AbWAXPNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 10:11:41 -0500
-Received: from moraine.clusterfs.com ([66.96.26.190]:63374 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S964817AbWAXPLk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 10:11:40 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
+	Tue, 24 Jan 2006 10:13:40 -0500
+Received: from xenotime.net ([66.160.160.81]:34744 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030233AbWAXPNj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 10:13:39 -0500
+Date: Tue, 24 Jan 2006 07:13:37 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Alex Riesen <raa.lkml@gmail.com>
+cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Diego Calleja <diegocg@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: How to discover new Linux features (was: Re: Linux 2.6.16-rc1)
+In-Reply-To: <81b0412b0601232316h6a26b083oab0b6d8de15e4c95@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0601240712300.5978@shark.he.net>
+References: <200601182323_MC3-1-B627-7710@compuserve.com>
+ <81b0412b0601232316h6a26b083oab0b6d8de15e4c95@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17366.17322.923958.838500@gargle.gargle.HOWL>
-Date: Tue, 24 Jan 2006 18:11:38 +0300
-To: Ram Gupta <ram.gupta5@gmail.com>
-Cc: Michael Loftis <mloftis@wgops.com>, "Barry K. Nathan" <barryn@pobox.com>,
-       Al Boldi <a1426z@gawab.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC] VM: I have a dream...
-In-Reply-To: <728201270601240636p58fead78m781fb104c3d73da9@mail.gmail.com>
-References: <200601212108.41269.a1426z@gawab.com>
-	<986ed62e0601221155x6a57e353vf14db02cc219c09@mail.gmail.com>
-	<E3C35184F807ADEC2AD9E182@dhcp-2-206.wgops.com>
-	<728201270601230705k25e6890ejd716dbfc393208b8@mail.gmail.com>
-	<280A351A008C409CEF43A734@dhcp-2-206.wgops.com>
-	<17365.23510.525066.57628@gargle.gargle.HOWL>
-	<728201270601240636p58fead78m781fb104c3d73da9@mail.gmail.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ram Gupta writes:
- > On 1/23/06, Nikita Danilov <nikita@clusterfs.com> wrote:
- > 
- > >
- > > The unique feature that Mac OS X VM does have, on the other hand, is
- > > that it keeps profiles of access patterns of applications, and stores
- > > then in files, associated with executables. This allows to quickly
- > > pre-fault necessary pages during application startup (and this makes OSX
- > > boot so fast).
- > 
- > This feature is interesting though I am not sure about the fast boot
- > part of OSX.
- > as at boot time these applications are all started first time. So
- > there were no access pattern as yet. They still have to be demand
+On Tue, 24 Jan 2006, Alex Riesen wrote:
 
-That's the point: information about access patterns is stored in the
-file. So next time when application is started (e.g., during boot)
-kernel reads that file and pre-faults pages.
+> On 1/19/06, Chuck Ebbert <76306.1226@compuserve.com> wrote:
+> >  Say you are comparing kernels 2.6.14 and 2.6.15, trying to see what
+> > is new.  Just do this:
+> >
+> >  1.  Copy a .config file into your 2.6.14 directory.
+> >
+> >  2.  Run "make oldconfig" there.  It doesn't really matter what
+> >      answers you give so long as it runs to completion.
+>
+> make it "make allconfig"
 
- > paged. But yes later accesses may be faster.
- > 
- > Thanks
- > Ram gupta
+Are you suggesting a new make target?  'make help' lists
+allyesconfig, allnoconfig, or allmodconfig (in the all* group).
 
-Nikita.
+-- 
+~Randy

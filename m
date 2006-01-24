@@ -1,103 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWAXXHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbWAXXI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbWAXXHX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 18:07:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWAXXHX
+	id S1750820AbWAXXI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 18:08:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbWAXXI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 18:07:23 -0500
-Received: from xenotime.net ([66.160.160.81]:48863 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750818AbWAXXHW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 18:07:22 -0500
-Date: Tue, 24 Jan 2006 15:07:21 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Ed Sweetman <safemode@comcast.net>
-cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: 2.6.16-rc1-mm2 pata driver confusion
-In-Reply-To: <43D6B1B2.4080400@comcast.net>
-Message-ID: <Pine.LNX.4.58.0601241503110.26036@shark.he.net>
-References: <43D5CC88.9080207@comcast.net> <1138116579.14675.22.camel@localhost.localdomain>
- <43D6A76D.2000502@comcast.net> <Pine.LNX.4.58.0601241426180.26036@shark.he.net>
- <43D6B1B2.4080400@comcast.net>
+	Tue, 24 Jan 2006 18:08:56 -0500
+Received: from zproxy.gmail.com ([64.233.162.198]:50418 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750820AbWAXXIz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 18:08:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Uq3B/B3nkk8AJ4YG7XJW4t+y4kSx1fF89mHZYUAKk051MmHYrUac74Bng14+XQn/xmfd7WnpRhwzf8YMpByMetfeu0jEAV5Odyu3t77bV3lHTP44RS/WVu+cH3TzOpUP9jgaIJPhL1yQ1fapjv0fU4HPh6qTehJkTCdeBdYWL9s=
+Message-ID: <d120d5000601241508l1a93aae7ubdf8206209be405c@mail.gmail.com>
+Date: Tue, 24 Jan 2006 18:08:54 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [PATCH] Export symbols so CONFIG_INPUT works as a module
+Cc: Dave Jones <davej@redhat.com>, Martin Michlmayr <tbm@cyrius.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060124184114.GS27946@ftp.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060124181945.GA21955@deprecation.cyrius.com>
+	 <20060124183432.GA27917@redhat.com>
+	 <20060124184114.GS27946@ftp.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Jan 2006, Ed Sweetman wrote:
-
-> Randy.Dunlap wrote:
+On 1/24/06, Al Viro <viro@ftp.linux.org.uk> wrote:
+> On Tue, Jan 24, 2006 at 01:34:32PM -0500, Dave Jones wrote:
+> > On Tue, Jan 24, 2006 at 06:19:45PM +0000, Martin Michlmayr wrote:
+> >  > Currently, modular input support fails to load with the following error:
+> >  >
+> >  > qube:# modprobe input
+> >  > input: Unknown symbol kobject_get_path
+> >  > input: Unknown symbol add_input_randomness
+> >  >
+> >  > In the short run, this can be solved by exporting these two symbols.
+> >  > There have been discussions about fixing this in a different manner,
+> >  > see http://www.ussg.iu.edu/hypermail/linux/kernel/0505.2/1068.html
+> >  > Since this was in the days of 2.6.12-rc4 and modular input support is
+> >  > still broken, I suggest these symbols to be exported for now.
+> >
+> > Is there actually any practical reason why you would want to
+> > make the input layer modular ?
 >
-> >On Tue, 24 Jan 2006, Ed Sweetman wrote:
-> >
-> >>Alan Cox wrote:
-> >>
-> >>>On Maw, 2006-01-24 at 01:43 -0500, Ed Sweetman wrote:
-> >>>
-> >>>
-> >>>>problem.  The problem is that there appears to be two nvidia/amd ata
-> >>>>drivers and I'm unsure which I should try using, if i compile both in,
-> >>>>which get loaded first (i assume scsi is second to ide) and if i want my
-> >>>>pata disks loaded under the new libata drivers, will my cdrom work under
-> >>>>them too, or do i still need some sort of regular ide drivers loaded
-> >>>>just for cdrom (to use native ata mode for recording access).
-> >>>>
-> >>>>
-> >>>The goal of the drivers/scsi/pata_* drivers is to replace drivers/ide in
-> >>>its entirity with code using the newer and cleaner libata logic. There
-> >>>is still much to do but my SIL680, SiS, Intel MPIIX, AMD and VIA boxes
-> >>>are using libata and the additional patch patches still queued
-> >>>
-> >>>
-> >>>>1.  Atapi is most definitely not supported by libata, right now.
-> >>>>
-> >>>>
-> >>>It works in the -mm tree.
-> >>>
-> >>>
-> >>Intriguing, when I had no ide chipset compiled in kernel, only libata
-> >>drivers, I got no mention at all about my dvd writer.  I even had the
-> >>scsi cd driver installed and generic devices, still nothing seemed to
-> >>initialize the dvd drive.  It detected the second pata bus but no
-> >>devices attached to it.
-> >>
-> >>this is using the kernel mentioned in the subject header.
-> >>2.6.16-rc1-mm2.  using the amd/nvidia drivers for pata and sata.
-> >>
-> >>Is there anything i can do to give more info to the list to figure out
-> >>why my atapi writer is being ignored by pata even when there are no ide
-> >>drivers loaded?
-> >>
-> >
-> >Currently you need to use libata.atapi_enabled=1
-> >(assuming that libata is in the kernel image, not a loadable module).
-> >
-> >I just built/tested this also, working for me as well.
-> >(hard drives, not ATAPI)
-> >
-> >
-> I assume libata.atapi_enabled=1 is a boot arg, not some structure member
-> in the source for the pata driver that i need to set to 1, correct?
+> More interesting question: is pis^H^H^Hsysfs interaction in there safe for
+> modular code?
 
-Yes, it's a kernel boot option if libata is in the kernel image.
-If libata is a loadable module, just use something like
-	modprobe libata atapi_enabled=1
+The core should be safe, at least I was trying to make it this way, so
+if you see something wrong - shout. Locking is another question
+though...
 
-> And you just built and tested it, how did you test if the atapi argument
-> worked when you then say "not ATAPI" as something you tested?
-
-Sorry, I mean that I built and booted a kernel with libata/PATA
-hard drive (vs. legacy drivers/ide/ PATA support).  I have not
-tested ATAPI at all and didn't mean to imply that I had.
-
-I reported on libata.atapi_enabled=1 based on documentation
-and other emails that I have read.
-
-> In any case, i'll try out libata.atapi_enabled=1 and see if it detects
-> the dvd drive.
-
-HTH.  Please continue to post any questions or problems.
--- 
-~Randy
+--
+Dmitry

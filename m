@@ -1,69 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWAXXES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWAXXHX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWAXXES (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 18:04:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWAXXES
+	id S1750818AbWAXXHX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 18:07:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWAXXHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 18:04:18 -0500
-Received: from 213-140-2-73.ip.fastwebnet.it ([213.140.2.73]:65484 "EHLO
-	aa006msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1750817AbWAXXER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 18:04:17 -0500
-Date: Wed, 25 Jan 2006 00:04:54 +0100
-From: Mattia Dongili <malattia@linux.it>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: first bisection results in -mm3 [was: Re: 2.6.15-mm2: reiser3 oops on suspend and more (bonus oops shot!)]
-Message-ID: <20060124230453.GA6174@inferi.kami.home>
-Mail-Followup-To: john stultz <johnstul@us.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <1137108362.2890.141.camel@cog.beaverton.ibm.com> <20060114120816.GA3554@inferi.kami.home> <1137442582.27699.12.camel@cog.beaverton.ibm.com> <20060116204057.GC3639@inferi.kami.home> <1137458964.27699.65.camel@cog.beaverton.ibm.com> <20060117174953.GA3529@inferi.kami.home> <1137525090.27699.92.camel@cog.beaverton.ibm.com> <20060117224951.GA3320@inferi.kami.home> <16839.83.103.117.254.1137581235.squirrel@picard.linux.it> <1138141635.15682.92.camel@cog.beaverton.ibm.com>
+	Tue, 24 Jan 2006 18:07:23 -0500
+Received: from xenotime.net ([66.160.160.81]:48863 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750818AbWAXXHW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 18:07:22 -0500
+Date: Tue, 24 Jan 2006 15:07:21 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Ed Sweetman <safemode@comcast.net>
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: 2.6.16-rc1-mm2 pata driver confusion
+In-Reply-To: <43D6B1B2.4080400@comcast.net>
+Message-ID: <Pine.LNX.4.58.0601241503110.26036@shark.he.net>
+References: <43D5CC88.9080207@comcast.net> <1138116579.14675.22.camel@localhost.localdomain>
+ <43D6A76D.2000502@comcast.net> <Pine.LNX.4.58.0601241426180.26036@shark.he.net>
+ <43D6B1B2.4080400@comcast.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1138141635.15682.92.camel@cog.beaverton.ibm.com>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.16-rc1-mm2-3 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 24, 2006 at 02:27:14PM -0800, john stultz wrote:
-> On Wed, 2006-01-18 at 11:47 +0100, Mattia Dongili wrote:
-> > On Tue, January 17, 2006 11:49 pm, Mattia Dongili said:
-> > [...]
-> > > the stall is still there, tomorrow I'll reapply your debug-patch and
-> > > report the full dmesg (with the finished_booting-hack enabled).
-> > 
-> > Full dmesg attached.
-> > Stalls happened between in the 16.39-16.55 interval, in 16.70-16.96 and
-> > 17.89-18.64. They were all much longer than stated in the log timestamp
-> > (I'd say ~10:1 ratio).	
-> > 
-> > Sorry again for my previous false notice about the bug being solved...
-> 
-> Hey Mattia, 
-> 	Sorry I've been so quiet recently, I'm still working on this one.  The
+On Tue, 24 Jan 2006, Ed Sweetman wrote:
 
-No problem.
+> Randy.Dunlap wrote:
+>
+> >On Tue, 24 Jan 2006, Ed Sweetman wrote:
+> >
+> >>Alan Cox wrote:
+> >>
+> >>>On Maw, 2006-01-24 at 01:43 -0500, Ed Sweetman wrote:
+> >>>
+> >>>
+> >>>>problem.  The problem is that there appears to be two nvidia/amd ata
+> >>>>drivers and I'm unsure which I should try using, if i compile both in,
+> >>>>which get loaded first (i assume scsi is second to ide) and if i want my
+> >>>>pata disks loaded under the new libata drivers, will my cdrom work under
+> >>>>them too, or do i still need some sort of regular ide drivers loaded
+> >>>>just for cdrom (to use native ata mode for recording access).
+> >>>>
+> >>>>
+> >>>The goal of the drivers/scsi/pata_* drivers is to replace drivers/ide in
+> >>>its entirity with code using the newer and cleaner libata logic. There
+> >>>is still much to do but my SIL680, SiS, Intel MPIIX, AMD and VIA boxes
+> >>>are using libata and the additional patch patches still queued
+> >>>
+> >>>
+> >>>>1.  Atapi is most definitely not supported by libata, right now.
+> >>>>
+> >>>>
+> >>>It works in the -mm tree.
+> >>>
+> >>>
+> >>Intriguing, when I had no ide chipset compiled in kernel, only libata
+> >>drivers, I got no mention at all about my dvd writer.  I even had the
+> >>scsi cd driver installed and generic devices, still nothing seemed to
+> >>initialize the dvd drive.  It detected the second pata bus but no
+> >>devices attached to it.
+> >>
+> >>this is using the kernel mentioned in the subject header.
+> >>2.6.16-rc1-mm2.  using the amd/nvidia drivers for pata and sata.
+> >>
+> >>Is there anything i can do to give more info to the list to figure out
+> >>why my atapi writer is being ignored by pata even when there are no ide
+> >>drivers loaded?
+> >>
+> >
+> >Currently you need to use libata.atapi_enabled=1
+> >(assuming that libata is in the kernel image, not a loadable module).
+> >
+> >I just built/tested this also, working for me as well.
+> >(hard drives, not ATAPI)
+> >
+> >
+> I assume libata.atapi_enabled=1 is a boot arg, not some structure member
+> in the source for the pata driver that i need to set to 1, correct?
 
-> difficult spot is that if the cpufreq notification driver is a module,
-> then there will always be a window between the point at which we start
-> using the TSC to the point where we find out that the TSC is changing
-> frequency. Not sure what to do here just yet.
+Yes, it's a kernel boot option if libata is in the kernel image.
+If libata is a loadable module, just use something like
+	modprobe libata atapi_enabled=1
 
-I was wondering if you could force an do_gettimeofday call quite early
-in order to lower tsc priority as soon as possible, but maybe I'm not
-entirely into that code :)
+> And you just built and tested it, how did you test if the atapi argument
+> worked when you then say "not ATAPI" as something you tested?
 
-> Although I'm curious: Did the recent changes in 2.6.16-rc1-mm2 had any
-> effect on this issue?
+Sorry, I mean that I built and booted a kernel with libata/PATA
+hard drive (vs. legacy drivers/ide/ PATA support).  I have not
+tested ATAPI at all and didn't mean to imply that I had.
 
-no, I'm currently running it and the same behaviour still applies.
+I reported on libata.atapi_enabled=1 based on documentation
+and other emails that I have read.
 
-ciao
+> In any case, i'll try out libata.atapi_enabled=1 and see if it detects
+> the dvd drive.
+
+HTH.  Please continue to post any questions or problems.
 -- 
-mattia
-:wq!
+~Randy

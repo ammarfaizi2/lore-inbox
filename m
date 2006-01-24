@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030440AbWAXKiT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030436AbWAXKh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030440AbWAXKiT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 05:38:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030442AbWAXKiT
+	id S1030436AbWAXKh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 05:37:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030440AbWAXKh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 05:38:19 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:39820 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030440AbWAXKiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 05:38:18 -0500
-Subject: RE: GPL V3 and Linux
-From: Lee Revell <rlrevell@joe-job.com>
-To: davids@webmaster.com
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEOMJJAB.davids@webmaster.com>
-References: <MDEHLPKNGKAHNMBLJOLKIEOMJJAB.davids@webmaster.com>
-Content-Type: text/plain
-Date: Tue, 24 Jan 2006 05:38:15 -0500
-Message-Id: <1138099096.2771.116.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Jan 2006 05:37:56 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56200 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030436AbWAXKh4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 05:37:56 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <11380489522552@2gen.com> 
+References: <11380489522552@2gen.com> 
+To: David =?us-ascii?Q?=3D=3Fiso-8859-1=3FQ=3FH=3DE4rdeman=3F=3D?= 
+	<david@2gen.com>
+Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com
+Subject: Re: [PATCH 01/04] Add multi-precision-integer maths library 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Tue, 24 Jan 2006 10:37:47 +0000
+Message-ID: <16978.1138099067@hades.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-24 at 02:23 -0800, David Schwartz wrote:
-> > Sometimes the restrictions are necessary. For instance,
-> > except in very special circumstances, governments usually
-> > take away the inherent rights to kill, etc.
-> 
-> 	I guess I can't figure out what you could possibly mean by the word "right"
-> such that the phrase "inherent rights to kill" is meaningful. Perhaps you
-> could clarify.
+David Härdeman <david@2gen.com> wrote:
 
-This discussion could not have less to do with kernel development,
-PLEASE take it elsewhere.
+> Adds the multi-precision-integer maths library which was originally taken
+> from GnuPG and ported to the kernel by David Howells in 2004
+> (http://people.redhat.com/~dhowells/modsign/modsign-269rc4mm1-2.diff.bz2)
 
-Lee
+You should update these files from a latest Fedora, Rawhide or RHEL kernel to
+pick up the bug fixes that have been made.
 
+David

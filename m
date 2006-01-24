@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWAXVa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWAXVeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750725AbWAXVa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 16:30:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWAXVa1
+	id S1750743AbWAXVeo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 16:34:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWAXVeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 16:30:27 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15238 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750725AbWAXVa0 (ORCPT
+	Tue, 24 Jan 2006 16:34:44 -0500
+Received: from devrace.com ([198.63.210.113]:54536 "EHLO devrace.com")
+	by vger.kernel.org with ESMTP id S1750743AbWAXVen (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 16:30:26 -0500
-Date: Tue, 24 Jan 2006 22:30:10 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] swsusp: userland interface (rev 2)
-Message-ID: <20060124213010.GA1602@elf.ucw.cz>
-References: <200601240929.37676.rjw@sisk.pl> <20060124131312.0545262d.akpm@osdl.org>
+	Tue, 24 Jan 2006 16:34:43 -0500
+Date: Tue, 24 Jan 2006 22:33:54 +0100
+From: Alex Riesen <fork0@users.sourceforge.net>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       Diego Calleja <diegocg@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: How to discover new Linux features (was: Re: Linux 2.6.16-rc1)
+Message-ID: <20060124213354.GA2466@steel.home>
+Reply-To: Alex Riesen <fork0@users.sourceforge.net>
+Mail-Followup-To: Alex Riesen <fork0@users.sourceforge.net>,
+	"Randy.Dunlap" <rdunlap@xenotime.net>,
+	Chuck Ebbert <76306.1226@compuserve.com>,
+	Diego Calleja <diegocg@gmail.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>
+References: <200601182323_MC3-1-B627-7710@compuserve.com> <81b0412b0601232316h6a26b083oab0b6d8de15e4c95@mail.gmail.com> <Pine.LNX.4.58.0601240712300.5978@shark.he.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060124131312.0545262d.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.58.0601240712300.5978@shark.he.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > This patch introduces a user space interface for swsusp.
-> 
-> How will we know if/when this feature is ready for mainline?  What criteria
-> can we use to judge that?
-
-It was stable for me last time I tested. I do not think it needs
-longer -mm testing than usual patches.
-
-> Will you be developing and long-term maintaining the userspace tools?  Is
-> it your expectation/hope that distros will migrate onto using them?
-> etc.
-
-It looks like I'll do it, or Rafael can have it as an original
-author. They are currently hosted at sf.net/projects/suspend. SuSE is
-very likely to use them for 10.2 or so -- we want to provide nice
-splashscreen so that users are not scared :-), we would like to do
-encryption/compression too, etc.
-
-> > +static int snapshot_ioctl(struct inode *inode, struct file *filp,
-> > +                          unsigned int cmd, unsigned long arg)
-> > +{
+Randy.Dunlap, Tue, Jan 24, 2006 16:13:37 +0100:
+> > >  Say you are comparing kernels 2.6.14 and 2.6.15, trying to see what
+> > > is new.  Just do this:
+> > >
+> > >  1.  Copy a .config file into your 2.6.14 directory.
+> > >
+> > >  2.  Run "make oldconfig" there.  It doesn't really matter what
+> > >      answers you give so long as it runs to completion.
 > >
-> > ...
-> >
-> > +	case SNAPSHOT_ATOMIC_RESTORE:
-> > +		if (data->mode != O_WRONLY || !data->frozen ||
-> > +		    !snapshot_image_loaded(&data->handle)) {
-> > +			error = -EPERM;
-> > +			break;
-> > +		}
-> > +		down(&pm_sem);
-> > +		pm_prepare_console();
-> > +		error = device_suspend(PMSG_FREEZE);
-> > +		if (!error) {
-> > +			mb();
-> > +			error = swsusp_resume();
-> > +			device_resume();
-> > +		}
+> > make it "make allconfig"
 > 
-> whee, what does the mystery barrier do?  It'd be nice to comment this
-> (please always comment open-coded barriers).
+> Are you suggesting a new make target?  'make help' lists
+> allyesconfig, allnoconfig, or allmodconfig (in the all* group).
+> 
 
-It is probably relic from very early code, should not be needed, but
-everyone is scared of removing it.
-								Pavel
--- 
-Thanks, Sharp!
+...! allyesconfig, of course.
+

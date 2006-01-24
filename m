@@ -1,68 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWAXHXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWAXH0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030192AbWAXHXL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 02:23:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030193AbWAXHXK
+	id S1030199AbWAXH0M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 02:26:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030198AbWAXH0M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 02:23:10 -0500
-Received: from ns1.suse.de ([195.135.220.2]:28594 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030192AbWAXHXJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 02:23:09 -0500
-From: Andi Kleen <ak@suse.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH/RFC] Shared page tables
-Date: Tue, 24 Jan 2006 08:18:27 +0100
-User-Agent: KMail/1.8.2
-Cc: Ray Bryant <raybry@mpdtxmail.amd.com>, Dave McCracken <dmccr@us.ibm.com>,
-       Robin Holt <holt@sgi.com>, Hugh Dickins <hugh@veritas.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-References: <A6D73CCDC544257F3D97F143@[10.1.1.4]> <200601240210.04337.ak@suse.de> <1138086398.2977.19.camel@laptopd505.fenrus.org>
-In-Reply-To: <1138086398.2977.19.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Jan 2006 02:26:12 -0500
+Received: from herkules.vianova.fi ([194.100.28.129]:3760 "HELO
+	mail.vianova.fi") by vger.kernel.org with SMTP id S932466AbWAXH0L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 02:26:11 -0500
+Date: Tue, 24 Jan 2006 09:26:09 +0200
+From: Ville Herva <vherva@vianova.fi>
+To: Phillip Susi <psusi@cfl.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Error message for invalid initramfs cpio format?
+Message-ID: <20060124072608.GG1686@vianova.fi>
+Reply-To: vherva@vianova.fi
+References: <17360.9233.215291.380922@cse.unsw.edu.au> <20060120183621.GA2799@redhat.com> <20060120225724.GW22163@marowsky-bree.de> <20060121000142.GR2801@redhat.com> <20060121000344.GY22163@marowsky-bree.de> <20060121000806.GT2801@redhat.com> <20060121001311.GA22163@marowsky-bree.de> <20060123094418.GX2801@redhat.com> <20060123125420.GE1686@vianova.fi> <43D58AA8.2090903@cfl.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601240818.28696.ak@suse.de>
+In-Reply-To: <43D58AA8.2090903@cfl.rr.com>
+X-Operating-System: Linux herkules.vianova.fi 2.4.32-rc1
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 January 2006 08:06, Arjan van de Ven wrote:
+On Mon, Jan 23, 2006 at 09:02:16PM -0500, you [Phillip Susi] wrote:
+> Ville Herva wrote:
+> >PS: Speaking of debugging failing initrd init scripts; it would be nice if
+> >the kernel gave an error message on wrong initrd format rather than 
+> >silently
+> >failing... Yes, I forgot to make the cpio with the "-H newc" option :-/.
+> >  
 > 
-> > The randomization is not for cache coloring, but for security purposes
-> > (except for the old very small stack randomization that was used
-> > to avoid conflicts on HyperThreaded CPUs). I would be surprised if the
-> > mmap made much difference because it's page aligned and at least
-> > on x86 the L2 and larger caches are usually PI.
-> 
-> randomization to a large degree is more important between machines than
-> within the same machine (except for setuid stuff but lets call that a
-> special category for now). Imo prelink is one of the better bets to get
-> "all code for a binary/lib on the same 2 mb page",
+> LOL, yea, that one got me too when I was first getting back into linux a 
+> few months ago and had to customize my initramfs to include dmraid to 
+> recognize my hardware fakeraid raid0.  Then I discovered the mkinitramfs 
+> utility which makes things much nicer ;)
 
-Probably yes.
+Sure does, that's what I first used, too. But then I had to hack with the
+init script and it seemed quicker to 
 
-> all distros ship 
-> prelink nowadays anyway 
+  gzip -d < /boot/initrd-2.6.15.1.img | cpio --extract --verbose --make-directories --no-absolute-filenames
+  vi init 
+  ...
+  find . | cpio -H newc --create --verbose | gzip -9 > /boot/initrd-2.6.15.1.img
 
-SUSE doesn't use it.
+It seems do_header() in init/initramfs.c checks for the "070701" magic (that
+is specific to the newc format [1]), and populate_rootfs() should then
+panic() with "no cpio magic" error message, but I'm fairly sure I didn't see
+an error about wrong initramfs format when booting with an initrd made with
+cpio without the -H newc option. 
 
-> (it's too much of a win that nobody can afford 
-> to not ship it ;) 
+This is what I see:
 
-KDE and some other people disagree on that. 
+ RAMDISK: Couldn't find valid RAM disk starting at 0.
+ VFS: Cannot open root device "LABEL=/" or unknown-block(0,0)
+ Please append correct "root=" boot option
+ Kernel panic - not syncing: VFS: Unable to mount root fs on
+ unknown-block(0,0)
 
-> and within prelink the balance between randomization 
-> for security and 2Mb sharing can be struck best. In fact it needs know
-> about the 2Mb thing anyway to place it there properly and for all
-> binaries... the kernel just can't do that.
+seems the "no cpio magic" message is somehow lost. It would be useful.
 
-Well, we first have to figure out if the shared page tables
-are really worth all the ugly code, nasty locking and other problems 
-(inefficient TLB flush etc.) I personally would prefer
-to make large pages work better before going down that path.
 
--Andi
- 
+-- v -- 
+
+v@iki.fi
+
+
+
+[1] "The new (SVR4) portable format, which supports file systems having more
+     than 65536 i-nodes."

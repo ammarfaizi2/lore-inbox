@@ -1,86 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWAXXZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbWAXXdT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750833AbWAXXZN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 18:25:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbWAXXZN
+	id S1750842AbWAXXdT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 18:33:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750844AbWAXXdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 18:25:13 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:51414 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1750833AbWAXXZL (ORCPT
+	Tue, 24 Jan 2006 18:33:19 -0500
+Received: from smtp2-g19.free.fr ([212.27.42.28]:5315 "EHLO smtp2-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1750842AbWAXXdS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 18:25:11 -0500
-Subject: Re: pppd oopses current linu's git tree on disconnect
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Diego Calleja <diegocg@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1138140391.3223.15.camel@amdx2.microgate.com>
-References: <20060119010601.f259bb32.diegocg@gmail.com>
-	 <1137692039.3279.1.camel@amdx2.microgate.com>
-	 <20060119230746.ea78fcf4.diegocg@gmail.com> <43D01537.40705@microgate.com>
-	 <20060123034243.22ba0a8f.diegocg@gmail.com>
-	 <20060124044846.de6508eb.diegocg@gmail.com>
-	 <1138140391.3223.15.camel@amdx2.microgate.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 24 Jan 2006 23:25:29 +0000
-Message-Id: <1138145129.21284.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 24 Jan 2006 18:33:18 -0500
+To: linux-parport@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCHv2] parport: add parallel port support for SGI O2
+References: <87mzhqfq5y.fsf@groumpf.homeip.net>
+	<20060122222425.6907656f.akpm@osdl.org>
+	<87ek2ycy5q.fsf@groumpf.homeip.net>
+From: Arnaud Giersch <arnaud.giersch@free.fr>
+Date: Wed, 25 Jan 2006 00:33:16 +0100
+In-Reply-To: <87ek2ycy5q.fsf@groumpf.homeip.net> (Arnaud Giersch's message
+ of "Tue, 24 Jan 2006 00:38:57 +0100")
+Message-ID: <87hd7t5hhf.fsf@groumpf.homeip.net>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-01-24 at 16:06 -0600, Paul Fulghum wrote:
-> I reasonably sure that your problem is lack
-> of locking for the new tty buffering scheme.
-> There is a question of how to best fix it
-> with minimal code change and impact on performance.
+Mardi 24 janvier 2006, vers 00:38:57 (+0100), j'ai écrit:
 
-Yeah the new tty code assumed the same locking rules as the old tty code
-and nobody on the planet followed them since 2.2.
+> I will correct the style.
 
-> I've done some initial testing with success.
-> Let me know what you think.
+[...]
 
-I think you've been reading my mind, only you've actually come up with a
-slightly neater variant than I have half coded here.
+> I will add a comment to explain it in the code.
 
->  int tty_prepare_flip_string(struct tty_struct *tty, unsigned char **chars, size_t size)
->  {
->  	int space = tty_buffer_request_room(tty, size);
-> -	struct tty_buffer *tb = tty->buf.tail;
-> -	*chars = tb->char_buf_ptr + tb->used;
-> -	memset(tb->flag_buf_ptr + tb->used, TTY_NORMAL, space);
-> -	tb->used += space;
-> +	if (space) {
-> +		struct tty_buffer *tb = tty->buf.tail;
-> +		*chars = tb->char_buf_ptr + tb->used;
-> +		memset(tb->flag_buf_ptr + tb->used, TTY_NORMAL, space);
-> +		tb->used += space;
-> +	}
+[...]
 
-This seems unrelated and also not useful. 0 space is such a special case
-that it isn't worth the check - and it works fine anyway with 0.
+> I did not realized that.  I will try to correct the problem.
 
-> +	if (space) {
-> +		struct tty_buffer *tb = tty->buf.tail;
-> +		*chars = tb->char_buf_ptr + tb->used;
-> +		*flags = tb->flag_buf_ptr + tb->used;
-> +		tb->used += space;
-> +	}
+An updated version is available at
+     http://arnaud.giersch.free.fr/parport_ip32/parport_ip32-0.6.patch.gz
 
-Ditto
+Since all changes are non-functional ones, I did not want to flood the
+lists again with the full patch.
 
+Changes are:
 
-> --- linux-2.6.16-rc1/include/linux/kbd_kern.h	2006-01-17 09:31:29.000000000 -0600
-> +++ linux-2.6.16-rc1-mg/include/linux/kbd_kern.h	2006-01-24 15:38:19.000000000 -0600
-> @@ -151,6 +151,11 @@ extern unsigned int keymap_count;
->  
->  static inline void con_schedule_flip(struct tty_struct *t)
+  * Address comments from Andrew Morton <akpm_at_osdl.org>:
+    - Style: avoid single line "if" and "case" statements.
+    - Turn some printk() into pr_debug1(), so that they only exist
+      in debugging mode.
+    - Add a comment about "volatile".
+    - Add a comment about readsb() and writesb().
+  * Only define DEBUG_PARPORT_IP32 if it is not already defined.
+  * Remove the CVS $Id$ line.
 
-Should die as a duplicate by the look of it, and the tty one probably
-should cease to be inline.
-
-Looks good to me.
-
-Alan
-
+        Arnaud

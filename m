@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030327AbWAXEmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030331AbWAXEn2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030327AbWAXEmk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 23:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030331AbWAXEmk
+	id S1030331AbWAXEn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 23:43:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030316AbWAXEn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 23:42:40 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:11716
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1030327AbWAXEmj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 23:42:39 -0500
-Date: Mon, 23 Jan 2006 20:42:13 -0800
-From: Greg KH <greg@kroah.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       "Carlo E. Prelz" <fluido@fluido.as>, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: ATI RS480-based motherboard: stuck while booting with kernel >= 2.6.15 rc1
-Message-ID: <20060124044213.GA22270@kroah.com>
-References: <20060120123202.GA1138@epio.fluido.as> <20060122074034.GA1315@epio.fluido.as> <20060121235546.68f50bd5.akpm@osdl.org> <200601231101.25268.david-b@pacbell.net>
+	Mon, 23 Jan 2006 23:43:28 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:36561 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1030331AbWAXEn1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 23:43:27 -0500
+Date: Tue, 24 Jan 2006 05:43:26 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Cc: Jan Kara <jack@suse.cz>
+Subject: [Patch] quota: remove unused sync_dquots_dev()
+Message-ID: <20060124044326.GB27513@MAIL.13thfloor.at>
+Mail-Followup-To: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+	Jan Kara <jack@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200601231101.25268.david-b@pacbell.net>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 23, 2006 at 11:01:25AM -0800, David Brownell wrote:
-> This moves the previously widely-used ehci-pci.c BIOS handoff
-> code into the pci-quirks.c file, replacing the less widely used
-> "early handoff" version that seems to cause problems lately.
-> 
-> One notable change:  the "early handoff" version always enabled
-> an SMI IRQ ... and did so even if the pre-Linux code said it was
-> not using EHCI (and not expecting EHCI SMIs).  Looks like a goof
-> in a workaround for some unknown BIOS version.
-> 
-> This merged version only forcibly enables those IRQs when pre-Linux
-> code says it's using EHCI.  And now it always forces them off "just
-> in case".
 
-Thanks for posting this, it fixes my EHCI + APIC error, and makes my
-laptop work just fine.
+browsing through the quota code, I found that the
+already removed sync_dquots_dev(dev,type) is still
+defined in the no-quota case, so here is a patch
+to remove this unused define ...
 
-Turns out that 2.6.14 worked for it, but 2.6.15 didn't.  git bisect a
-zillion times later narrowed it down to the usb early handoff stuff but
-due to merge issues, it was tough to track down the exact patch.
+best,
+Herbert
 
-For fun I tried this one on top of the latest -mm, and it works!
+Signed-off-by: Herbert Pötzl <herbert@13thfloor.at>
 
-So, care to clean it up to make it feel better to you and send it to me
-again so I can add it to my tree?  I know the next SuSE kernel will need
-it :)
+--- ./include/linux/quotaops.h.orig	2006-01-03 17:30:10 +0100
++++ ./include/linux/quotaops.h	2006-01-24 05:36:57 +0100
+@@ -190,7 +190,6 @@ static __inline__ int DQUOT_OFF(struct s
+  */
+ #define sb_dquot_ops				(NULL)
+ #define sb_quotactl_ops				(NULL)
+-#define sync_dquots_dev(dev,type)		(NULL)
+ #define DQUOT_INIT(inode)			do { } while(0)
+ #define DQUOT_DROP(inode)			do { } while(0)
+ #define DQUOT_ALLOC_INODE(inode)		(0)
 
-thanks,
-
-greg k-h

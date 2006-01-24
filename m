@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161027AbWAXSsF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161026AbWAXSrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161027AbWAXSsF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 13:48:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161028AbWAXSsE
+	id S1161026AbWAXSrY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 13:47:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161027AbWAXSrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 13:48:04 -0500
-Received: from zproxy.gmail.com ([64.233.162.207]:54721 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161027AbWAXSsB (ORCPT
+	Tue, 24 Jan 2006 13:47:24 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:33184 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161026AbWAXSrX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 13:48:01 -0500
+	Tue, 24 Jan 2006 13:47:23 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type;
-        b=nwhOyGMhgwCNxJYsViSypI0yY1oSi3Y93OFgdWCGZinSuJes/ixGknC3Lt+lej3dmYrqiS9ZCMebvc1fcxRuWg3d3R9roItyA0O0xIeAknCDCxSA27J6fu+sBowR4kLcfn+YZ4Rth0EOV/Z+e4MGL4y/pf5DlhtJrA2Qcr33ePQ=
-Message-ID: <43D676D7.6020409@gmail.com>
-Date: Tue, 24 Jan 2006 19:49:59 +0100
+        b=F00qtrfPV6XC9R4kGgpPiL+5Kkk0AfImu4AM6MHql5buUdeKnx5QHd2rooKD4FWl67yAaljAprxAo/u+dtplo/Epw43ev/lQei6tDnn/oVkNGWrJuRJ5a+NyvGqWqy/lbYZ9+xAcQiK5OTus12gcbQgi0MAN/8J9OeygigNqVlQ=
+Message-ID: <43D676A9.5030304@gmail.com>
+Date: Tue, 24 Jan 2006 19:49:13 +0100
 From: =?ISO-8859-1?Q?Daniel_Aragon=E9s?= <danarag@gmail.com>
 User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 X-Accept-Language: es-ar, es, en-us, en
 MIME-Version: 1.0
 To: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-Subject: [PATH/RFC] minix filesystem Update to V3 for 2.4.x revised
+Subject: [PATH/RFC] minix filesystem Update to V3 for 2.6.x.y revised
 Content-Type: multipart/mixed;
- boundary="------------010407070207020203070102"
+ boundary="------------070201000603090809050707"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------010407070207020203070102
+--------------070201000603090809050707
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 Hi Pekka !
 
-And here comes the revised version for 2.4.x as text attachement V3_2dot4_patch3.txt. Tests are going on well too.
+According to your suggestions, I have modified the patch for better formatting and other. Testing is going on fine. Here comes the patch attached as textfile V3_2dot6_patch3.txt
 
 
---------------010407070207020203070102
+--------------070201000603090809050707
 Content-Type: text/plain;
- name="V3_2dot4_patch3.txt"
+ name="V3_2dot6_patch3.txt"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="V3_2dot4_patch3.txt"
+ filename="V3_2dot6_patch3.txt"
 
-diff -ur orig.linux-2.4.32/fs/minix/bitmap.c updated.linux-2.4.32/fs/minix/bitmap.c
---- orig.linux-2.4.32/fs/minix/bitmap.c	2002-02-25 20:38:09.000000000 +0100
-+++ updated.linux-2.4.32/fs/minix/bitmap.c	2006-01-24 19:19:56.000000000 +0100
-@@ -27,14 +27,14 @@
+diff -ur orig.linux-2.6.14.5/fs/minix/bitmap.c updated.linux-2.6.14.5/fs/minix/bitmap.c
+--- orig.linux-2.6.14.5/fs/minix/bitmap.c	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/fs/minix/bitmap.c	2006-01-24 17:16:32.000000000 +0100
+@@ -26,14 +26,14 @@
  	for (i=0; i<numblocks-1; i++) {
  		if (!(bh=map[i])) 
  			return(0);
@@ -63,15 +63,15 @@ diff -ur orig.linux-2.4.32/fs/minix/bitmap.c updated.linux-2.4.32/fs/minix/bitma
  	for (j=0; j<i; j++) {
  		sum += nibblemap[bh->b_data[j] & 0xf]
  			+ nibblemap[(bh->b_data[j]>>4) & 0xf];
-@@ -124,6 +124,7 @@
+@@ -113,6 +113,7 @@
  	int block;
- 	struct minix_sb_info *sbi = &sb->u.minix_sb;
+ 	struct minix_sb_info *sbi = minix_sb(sb);
  	struct minix_inode *p;
 +	int minix_inodes_per_block = BLOCK_SIZE/sizeof(struct minix_inode);
  
  	if (!ino || ino > sbi->s_ninodes) {
  		printk("Bad inode number on dev %s: %ld is out of range\n",
-@@ -132,14 +133,14 @@
+@@ -121,14 +122,14 @@
  	}
  	ino--;
  	block = 2 + sbi->s_imap_blocks + sbi->s_zmap_blocks +
@@ -88,20 +88,22 @@ diff -ur orig.linux-2.4.32/fs/minix/bitmap.c updated.linux-2.4.32/fs/minix/bitma
  }
  
  struct minix2_inode *
-@@ -148,6 +149,7 @@
+@@ -137,6 +138,7 @@
  	int block;
- 	struct minix_sb_info *sbi = &sb->u.minix_sb;
+ 	struct minix_sb_info *sbi = minix_sb(sb);
  	struct minix2_inode *p;
 +	int minix2_inodes_per_block = sb->s_blocksize/sizeof(struct minix2_inode);
  
  	*bh = NULL;
  	if (!ino || ino > sbi->s_ninodes) {
-@@ -157,14 +159,14 @@
+@@ -145,15 +147,15 @@
+ 		return NULL;
  	}
  	ino--;
- 	block = 2 + sbi->s_imap_blocks + sbi->s_zmap_blocks +
+-	block = 2 + sbi->s_imap_blocks + sbi->s_zmap_blocks +
 -		 ino / MINIX2_INODES_PER_BLOCK;
-+		 ino / minix2_inodes_per_block;
++	block = 2 + sbi->s_imap_blocks + sbi->s_zmap_blocks + 
++		ino / minix2_inodes_per_block;
  	*bh = sb_bread(sb, block);
  	if (!*bh) {
  		printk("unable to read i-node block\n");
@@ -113,43 +115,41 @@ diff -ur orig.linux-2.4.32/fs/minix/bitmap.c updated.linux-2.4.32/fs/minix/bitma
  }
  
  /* Clear the link count and mode of a deleted inode on disk. */
-diff -ur orig.linux-2.4.32/fs/minix/dir.c updated.linux-2.4.32/fs/minix/dir.c
---- orig.linux-2.4.32/fs/minix/dir.c	2002-02-25 20:38:09.000000000 +0100
-+++ updated.linux-2.4.32/fs/minix/dir.c	2006-01-24 19:19:56.000000000 +0100
-@@ -4,6 +4,9 @@
+diff -ur orig.linux-2.6.14.5/fs/minix/dir.c updated.linux-2.6.14.5/fs/minix/dir.c
+--- orig.linux-2.6.14.5/fs/minix/dir.c	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/fs/minix/dir.c	2006-01-24 17:16:32.000000000 +0100
+@@ -4,12 +4,15 @@
   *  Copyright (C) 1991, 1992 Linus Torvalds
   *
   *  minix directory handling functions
 + *
 + *  Updated to filesystem version 3 by Daniel Aragones
-+ *
   */
  
- #include <linux/fs.h>
-@@ -11,6 +14,7 @@
- #include <linux/pagemap.h>
+ #include "minix.h"
+ #include <linux/highmem.h>
+ #include <linux/smp_lock.h>
  
- typedef struct minix_dir_entry minix_dirent;
 +typedef struct minix3_dir_entry minix3_dirent;
+ typedef struct minix_dir_entry minix_dirent;
  
  static int minix_readdir(struct file *, void *, filldir_t);
- 
-@@ -79,7 +83,8 @@
+@@ -90,6 +93,8 @@
  	unsigned long npages = dir_pages(inode);
- 	struct minix_sb_info *sbi = &sb->u.minix_sb;
+ 	struct minix_sb_info *sbi = minix_sb(sb);
  	unsigned chunk_size = sbi->s_dirsize;
--
 +	char *name_ptr;
 +	__u32 inode_ptr;
- 	pos = (pos + chunk_size-1) & ~(chunk_size-1);
- 	if (pos >= inode->i_size)
- 		goto done;
-@@ -95,14 +100,22 @@
- 		limit = kaddr + PAGE_CACHE_SIZE - chunk_size;
+ 
+ 	lock_kernel();
+ 
+@@ -107,15 +112,23 @@
+ 		p = kaddr+offset;
+ 		limit = kaddr + minix_last_byte(inode, n) - chunk_size;
  		for ( ; p <= limit ; p = minix_next_entry(p, sbi)) {
++			minix3_dirent *de3 = (minix3_dirent *)p;
  			minix_dirent *de = (minix_dirent *)p;
 -			if (de->inode) {
-+			minix3_dirent *de3 = (minix3_dirent *)p;
 +			if (sbi->s_version == MINIX_V3) {
 +				name_ptr = de3->name;
 +				inode_ptr = de3->inode;
@@ -172,29 +172,31 @@ diff -ur orig.linux-2.4.32/fs/minix/dir.c updated.linux-2.4.32/fs/minix/dir.c
  				if (over) {
  					dir_put_page(page);
  					goto done;
-@@ -145,8 +158,10 @@
+@@ -157,9 +170,11 @@
+ 	unsigned long n;
  	unsigned long npages = dir_pages(dir);
  	struct page *page = NULL;
++	struct minix3_dir_entry *de3;
  	struct minix_dir_entry *de;
 -
-+	struct minix3_dir_entry *de3;
  	*res_page = NULL;
 +	char *name_ptr;
 +	__u32 inode_ptr;
  
  	for (n = 0; n < npages; n++) {
  		char *kaddr;
-@@ -156,11 +171,21 @@
+@@ -168,18 +183,27 @@
+ 			continue;
  
  		kaddr = (char*)page_address(page);
- 		de = (struct minix_dir_entry *) kaddr;
 +		de3 = (struct minix3_dir_entry *) kaddr;
- 		kaddr += PAGE_CACHE_SIZE - sbi->s_dirsize;
+ 		de = (struct minix_dir_entry *) kaddr;
+ 		kaddr += minix_last_byte(dir, n) - sbi->s_dirsize;
 -		for ( ; (char *) de <= kaddr ; de = minix_next_entry(de,sbi)) {
 -			if (!de->inode)
 +		for ( ; (char *) de <= kaddr ;
-+					de = minix_next_entry(de,sbi),
-+					de3 = minix_next_entry(de3,sbi)) {
++					de3 = minix_next_entry(de3,sbi),
++					de = minix_next_entry(de,sbi)) {
 +			if (sbi->s_version == MINIX_V3) {
 +				name_ptr = de3->name;
 +				inode_ptr = de3->inode;
@@ -209,11 +211,18 @@ diff -ur orig.linux-2.4.32/fs/minix/dir.c updated.linux-2.4.32/fs/minix/dir.c
  				goto found;
  		}
  		dir_put_page(page);
-@@ -181,11 +206,14 @@
- 	struct minix_sb_info * sbi = &sb->u.minix_sb;
+ 	}
+ 	return NULL;
+-
+ found:
+ 	*res_page = page;
+ 	return de;
+@@ -193,12 +217,15 @@
+ 	struct super_block * sb = dir->i_sb;
+ 	struct minix_sb_info * sbi = minix_sb(sb);
  	struct page *page = NULL;
- 	struct minix_dir_entry * de;
 +	struct minix3_dir_entry * de3;
+ 	struct minix_dir_entry * de;
  	unsigned long npages = dir_pages(dir);
  	unsigned long n;
  	char *kaddr;
@@ -222,16 +231,16 @@ diff -ur orig.linux-2.4.32/fs/minix/dir.c updated.linux-2.4.32/fs/minix/dir.c
 +	char *name_ptr = NULL;
 +	__u32 inode_ptr;
  
- 	/* We take care of directory expansion in the same loop */
- 	for (n = 0; n <= npages; n++) {
-@@ -195,15 +223,31 @@
- 			goto out;
+ 	/*
+ 	 * We take care of directory expansion in the same loop
+@@ -215,19 +242,33 @@
+ 		lock_page(page);
  		kaddr = (char*)page_address(page);
- 		de = (minix_dirent *)kaddr;
+ 		dir_end = kaddr + minix_last_byte(dir, n);
 +		de3 = (minix3_dirent *)kaddr;
+ 		de = (minix_dirent *)kaddr;
  		kaddr += PAGE_CACHE_SIZE - sbi->s_dirsize;
  		while ((char *)de <= kaddr) {
--			if (!de->inode)
 +			if (sbi->s_version == MINIX_V3) {
 +				name_ptr = de3->name;
 +				inode_ptr = de3->inode; 	
@@ -239,28 +248,29 @@ diff -ur orig.linux-2.4.32/fs/minix/dir.c updated.linux-2.4.32/fs/minix/dir.c
 +  				name_ptr = de->name;
 +				inode_ptr = de->inode;
 +			}
+ 			if ((char *)de == dir_end) {
+ 				/* We hit i_size */
+-				de->inode = 0;
++				if (sbi->s_version == MINIX_V3) {
++					de3->inode = 0;
++		 		} else {
++					de->inode = 0;
++				}
+ 				goto got_it;
+ 			}
+-			if (!de->inode)
 +			if (!inode_ptr)
  				goto got_it;
  			err = -EEXIST;
 -			if (namecompare(namelen,sbi->s_namelen,name,de->name))
--				goto out_page;
--			de = minix_next_entry(de, sbi);
-+			if (!(sbi->s_version == MINIX_V3)) {
-+				if (namecompare(namelen,sbi->s_namelen,name,de->name)) 		
-+					goto out_page;
-+ 				de = minix_next_entry(de, sbi);
-+			} else {
-+				if (namecompare(namelen,sbi->s_namelen,name,de3->name))
-+					goto out_unlock;
-+				de = minix_next_entry(de, sbi);
-+				de3 = minix_next_entry(de3, sbi);
-+			}
++
++			if (namecompare(namelen,sbi->s_namelen,name,name_ptr))
+ 				goto out_unlock;
++			de3 = minix_next_entry(de3, sbi);
+ 			de = minix_next_entry(de, sbi);
  		}
-+		unlock_page(page);
- 		dir_put_page(page);
- 	}
- 	BUG();
-@@ -216,9 +260,14 @@
+ 		unlock_page(page);
+@@ -242,9 +283,14 @@
  	err = page->mapping->a_ops->prepare_write(NULL, page, from, to);
  	if (err)
  		goto out_unlock;
@@ -276,24 +286,21 @@ diff -ur orig.linux-2.4.32/fs/minix/dir.c updated.linux-2.4.32/fs/minix/dir.c
 +		de->inode = inode->i_ino;
 +	}
  	err = dir_commit_chunk(page, from, to);
- 	dir->i_mtime = dir->i_ctime = CURRENT_TIME;
+ 	dir->i_mtime = dir->i_ctime = CURRENT_TIME_SEC;
  	mark_inode_dirty(dir);
-@@ -258,6 +307,7 @@
+@@ -286,6 +332,7 @@
  	struct page *page = grab_cache_page(mapping, 0);
- 	struct minix_sb_info * sbi = &inode->i_sb->u.minix_sb;
+ 	struct minix_sb_info * sbi = minix_sb(inode->i_sb);
  	struct minix_dir_entry * de;
 +	struct minix3_dir_entry * de3;
- 	char *base;
+ 	char *kaddr;
  	int err;
  
-@@ -269,13 +319,16 @@
+@@ -301,11 +348,15 @@
+ 	memset(kaddr, 0, PAGE_CACHE_SIZE);
  
- 	base = (char*)page_address(page);
- 	memset(base, 0, PAGE_CACHE_SIZE);
--
--	de = (struct minix_dir_entry *) base;
-+	de = (struct minix_dir_entry *)base;
-+	de3 = (struct minix3_dir_entry *)base;
+ 	de = (struct minix_dir_entry *)kaddr;
++	de3 = (struct minix3_dir_entry *)kaddr;
  	de->inode = inode->i_ino;
 -	strcpy(de->name,".");
 +	de3->inode = inode->i_ino;
@@ -304,30 +311,30 @@ diff -ur orig.linux-2.4.32/fs/minix/dir.c updated.linux-2.4.32/fs/minix/dir.c
 -	strcpy(de->name,"..");
 +	de3->inode = dir->i_ino;
 +	(sbi->s_version == MINIX_V3) ? strcpy(de3->name,"..") : strcpy(de->name,"..");
+ 	kunmap_atomic(kaddr, KM_USER0);
  
  	err = dir_commit_chunk(page, 0, 2 * sbi->s_dirsize);
- fail:
-@@ -292,30 +345,41 @@
+@@ -322,9 +373,12 @@
  	struct page *page = NULL;
  	unsigned long i, npages = dir_pages(inode);
- 	struct minix_sb_info *sbi = &inode->i_sb->u.minix_sb;
+ 	struct minix_sb_info *sbi = minix_sb(inode->i_sb);
 +	char *name_ptr;
 +	__u32 inode_ptr;
  
  	for (i = 0; i < npages; i++) {
  		char *kaddr;
- 		minix_dirent * de;
 +		minix3_dirent * de3 = NULL;
+ 		minix_dirent * de;
  		page = dir_get_page(inode, i);
  
- 		if (IS_ERR(page))
+@@ -332,20 +386,28 @@
  			continue;
  
  		kaddr = (char *)page_address(page);
 +		if (sbi->s_version == MINIX_V3)
 +			de3 = (minix3_dirent *)kaddr;
  		de = (minix_dirent *)kaddr;
- 		kaddr += PAGE_CACHE_SIZE - sbi->s_dirsize;
+ 		kaddr += minix_last_byte(inode, i) - sbi->s_dirsize;
 -
 +		if (sbi->s_version == MINIX_V3) {
 +			name_ptr = de3->name;
@@ -356,9 +363,9 @@ diff -ur orig.linux-2.4.32/fs/minix/dir.c updated.linux-2.4.32/fs/minix/dir.c
  					goto not_empty;
  			}
  			de = minix_next_entry(de, sbi);
-diff -ur orig.linux-2.4.32/fs/minix/inode.c updated.linux-2.4.32/fs/minix/inode.c
---- orig.linux-2.4.32/fs/minix/inode.c	2003-11-28 19:26:21.000000000 +0100
-+++ updated.linux-2.4.32/fs/minix/inode.c	2006-01-24 19:19:56.000000000 +0100
+diff -ur orig.linux-2.6.14.5/fs/minix/inode.c updated.linux-2.6.14.5/fs/minix/inode.c
+--- orig.linux-2.6.14.5/fs/minix/inode.c	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/fs/minix/inode.c	2006-01-24 17:16:32.000000000 +0100
 @@ -7,6 +7,7 @@
   *	Minix V2 fs support.
   *
@@ -367,103 +374,62 @@ diff -ur orig.linux-2.4.32/fs/minix/inode.c updated.linux-2.4.32/fs/minix/inode.
   */
  
  #include <linux/module.h>
-@@ -28,7 +29,7 @@
- static void minix_delete_inode(struct inode *inode)
- {
- 	lock_kernel();
--
-+	truncate_inode_pages(&inode->i_data, 0);
- 	inode->i_size = 0;
- 	minix_truncate(inode);
- 	minix_free_inode(inode);
-@@ -45,23 +46,24 @@
- static void minix_write_super(struct super_block * sb)
- {
- 	struct minix_super_block * ms;
-+	struct minix_sb_info *sbi = &sb->u.minix_sb;
+@@ -36,7 +37,8 @@
+ 	struct minix_sb_info *sbi = minix_sb(sb);
  
  	if (!(sb->s_flags & MS_RDONLY)) {
- 		ms = sb->u.minix_sb.s_ms;
--
--		if (ms->s_state & MINIX_VALID_FS)
--			ms->s_state &= ~MINIX_VALID_FS;
--		minix_commit_super(sb);
-+		if (sbi->s_version != MINIX_V3) { /* s_state is out from V3 sb */
-+			if (ms->s_state & MINIX_VALID_FS)
-+				ms->s_state &= ~MINIX_VALID_FS;
-+			minix_commit_super(sb);
-+		}
+-		sbi->s_ms->s_state = sbi->s_mount_state;
++		if (sbi->s_version != MINIX_V3)	 /* s_state is now out from V3 sb */
++			sbi->s_ms->s_state = sbi->s_mount_state;
+ 		mark_buffer_dirty(sbi->s_sbh);
  	}
- 	sb->s_dirt = 0;
- }
- 
--
- static void minix_put_super(struct super_block *sb)
- {
- 	int i;
--
--	if (!(sb->s_flags & MS_RDONLY)) {
-+	struct minix_sb_info *sbi = &sb->u.minix_sb;
-+	if (!(sb->s_flags & MS_RDONLY) && (sbi->s_version != MINIX_V3)) {
- 		sb->u.minix_sb.s_ms->s_state = sb->u.minix_sb.s_mount_state;
- 		mark_buffer_dirty(sb->u.minix_sb.s_sbh);
- 	}
-@@ -88,11 +90,12 @@
- static int minix_remount (struct super_block * sb, int * flags, char * data)
- {
- 	struct minix_super_block * ms;
-+	struct minix_sb_info *sbi = &sb->u.minix_sb;
- 
- 	ms = sb->u.minix_sb.s_ms;
- 	if ((*flags & MS_RDONLY) == (sb->s_flags & MS_RDONLY))
- 		return 0;
--	if (*flags & MS_RDONLY) {
-+	if ((*flags & MS_RDONLY) && (sbi->s_version != MINIX_V3)){
- 		if (ms->s_state & MINIX_VALID_FS ||
- 		    !(sb->u.minix_sb.s_mount_state & MINIX_VALID_FS))
+ 	for (i = 0; i < sbi->s_imap_blocks; i++)
+@@ -117,21 +119,23 @@
+ 		    !(sbi->s_mount_state & MINIX_VALID_FS))
  			return 0;
-@@ -102,20 +105,21 @@
- 		sb->s_dirt = 1;
- 		minix_commit_super(sb);
- 	}
--	else {
-+	else if (sbi->s_version != MINIX_V3){
+ 		/* Mounting a rw partition read-only. */
+-		ms->s_state = sbi->s_mount_state;
++		if (sbi->s_version != MINIX_V3)
++			ms->s_state = sbi->s_mount_state;
+ 		mark_buffer_dirty(sbi->s_sbh);
+ 	} else {
  	  	/* Mount a partition which is read-only, read-write. */
- 		sb->u.minix_sb.s_mount_state = ms->s_state;
- 		ms->s_state &= ~MINIX_VALID_FS;
- 		mark_buffer_dirty(sb->u.minix_sb.s_sbh);
- 		sb->s_dirt = 1;
-+		}
-+
-+		if (!(sb->u.minix_sb.s_mount_state & MINIX_VALID_FS) && (sbi->s_version != MINIX_V3))
-+			printk ("MINIX-fs warning: remounting unchecked Minix filesystem V%i, "
-+				"running fsck is recommended.\n", sbi->s_version);
-+		else if ((sb->u.minix_sb.s_mount_state & MINIX_ERROR_FS) && (sbi->s_version != MINIX_V3))
-+			printk ("MINIX-fs warning: remounting Minix filesystem V%i with errors, "
-+				"running fsck is recommended.\n", sbi->s_version);
+ 		sbi->s_mount_state = ms->s_state;
+-		ms->s_state &= ~MINIX_VALID_FS;
++		if (sbi->s_version != MINIX_V3)
++			ms->s_state &= ~MINIX_VALID_FS;
+ 		mark_buffer_dirty(sbi->s_sbh);
  
--		if (!(sb->u.minix_sb.s_mount_state & MINIX_VALID_FS))
+-		if (!(sbi->s_mount_state & MINIX_VALID_FS))
 -			printk ("MINIX-fs warning: remounting unchecked fs, "
 -				"running fsck is recommended.\n");
--		else if ((sb->u.minix_sb.s_mount_state & MINIX_ERROR_FS))
+-		else if ((sbi->s_mount_state & MINIX_ERROR_FS))
 -			printk ("MINIX-fs warning: remounting fs with errors, "
 -				"running fsck is recommended.\n");
 -	}
++		if (!(sbi->s_mount_state & MINIX_VALID_FS) && (sbi->s_version != MINIX_V3))
++			printk ("MINIX-fs warning: remounting unchecked Minix filesystem V%i, "
++				"running fsck is recommended.\n", sbi->s_version);
++		else if ((sbi->s_mount_state & MINIX_ERROR_FS) && (sbi->s_version != MINIX_V3))
++			printk ("MINIX-fs warning: remounting Minix filesystem V%i with errors, "
++				"running fsck is recommended.\n", sbi->s_version);
++ 	}
  	return 0;
  }
  
-@@ -125,6 +129,7 @@
+@@ -140,6 +144,7 @@
  	struct buffer_head *bh;
  	struct buffer_head **map;
  	struct minix_super_block *ms;
 +	struct minix3_super_block *m3s = NULL;
  	int i, block;
- 	kdev_t dev = s->s_dev;
  	struct inode *root_inode;
-@@ -182,6 +187,20 @@
+ 	struct minix_sb_info *sbi;
+@@ -197,7 +202,21 @@
  		sbi->s_dirsize = 32;
  		sbi->s_namelen = 30;
  		sbi->s_link_max = MINIX2_LINK_MAX;
+-	} else
 +	} else if ( *(__u16 *)(bh->b_data + 24) == MINIX3_SUPER_MAGIC) {
 +		m3s = (struct minix3_super_block *) bh->b_data;
 +		s->s_magic = m3s->s_magic;
@@ -478,19 +444,18 @@ diff -ur orig.linux-2.4.32/fs/minix/inode.c updated.linux-2.4.32/fs/minix/inode.
 +		sbi->s_version = MINIX_V3;
 +		sbi->s_link_max = MINIX2_LINK_MAX;
 +		sb_set_blocksize(s, m3s->s_blocksize);
- 	} else
++	} else 
  		goto out_no_fs;
  
-@@ -224,17 +243,17 @@
- 	if (!NO_TRUNCATE)
+ 	/*
+@@ -240,15 +259,16 @@
  		s->s_root->d_op = &minix_dentry_operations;
  
--	if (!(s->s_flags & MS_RDONLY)) {
+ 	if (!(s->s_flags & MS_RDONLY)) {
 -		ms->s_state &= ~MINIX_VALID_FS;
-+	if (!(s->s_flags & MS_RDONLY) && (sbi->s_version != MINIX_V3)) {
-+		ms->s_state &= ~MINIX_VALID_FS; /* s_state is out from V3 sb */
++		if(sbi->s_version != MINIX_V3) /* s_state is now out from V3 sb */
++			ms->s_state &= ~MINIX_VALID_FS;
  		mark_buffer_dirty(bh);
- 		s->s_dirt = 1;
  	}
 -	if (!(sbi->s_mount_state & MINIX_VALID_FS))
 -		printk ("MINIX-fs: mounting unchecked file system, "
@@ -504,22 +469,41 @@ diff -ur orig.linux-2.4.32/fs/minix/inode.c updated.linux-2.4.32/fs/minix/inode.
 + 	else if ((sbi->s_mount_state & MINIX_ERROR_FS) && (sbi->s_version != MINIX_V3))
 +		printk ("MINIX-fs: mounting Minix filesystem V%i with errors, "
 +			"running fsck is recommended.\n", sbi->s_version);
- 	return s;
+ 	return 0;
  
  out_iput:
-@@ -263,7 +282,7 @@
+@@ -277,8 +297,8 @@
  
  out_no_fs:
  	if (!silent)
 -		printk("VFS: Can't find a Minix or Minix V2 filesystem on device "
+-		       "%s.\n", s->s_id);
 +		printk("VFS: Can't find a Minix filesystem V1 | V2 | V3 on device "
- 		       "%s.\n", kdevname(dev));
++ 		       "%s.\n", s->s_id);
      out_release:
  	brelse(bh);
-diff -ur orig.linux-2.4.32/fs/minix/itree_common.c updated.linux-2.4.32/fs/minix/itree_common.c
---- orig.linux-2.4.32/fs/minix/itree_common.c	2002-02-25 20:38:09.000000000 +0100
-+++ updated.linux-2.4.32/fs/minix/itree_common.c	2006-01-24 19:19:56.000000000 +0100
-@@ -21,7 +21,7 @@
+ 	goto out;
+@@ -536,12 +556,14 @@
+ 
+ int minix_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
+ {
++	struct inode * dir = dentry->d_parent->d_inode;
++	struct super_block * sb = dir->i_sb;
+ 	generic_fillattr(dentry->d_inode, stat);
+ 	if (INODE_VERSION(dentry->d_inode) == MINIX_V1)
+ 		stat->blocks = (BLOCK_SIZE / 512) * V1_minix_blocks(stat->size);
+ 	else
+-		stat->blocks = (BLOCK_SIZE / 512) * V2_minix_blocks(stat->size);
+-	stat->blksize = BLOCK_SIZE;
++		stat->blocks = (sb->s_blocksize / 512) * V2_minix_blocks(stat->size);
++	stat->blksize = sb->s_blocksize;
+ 	return 0;
+ }
+ 
+diff -ur orig.linux-2.6.14.5/fs/minix/itree_common.c updated.linux-2.6.14.5/fs/minix/itree_common.c
+--- orig.linux-2.6.14.5/fs/minix/itree_common.c	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/fs/minix/itree_common.c	2006-01-24 17:16:32.000000000 +0100
+@@ -23,7 +23,7 @@
  
  static inline block_t *block_end(struct buffer_head *bh)
  {
@@ -528,7 +512,7 @@ diff -ur orig.linux-2.4.32/fs/minix/itree_common.c updated.linux-2.4.32/fs/minix
  }
  
  static inline Indirect *get_branch(struct inode *inode,
-@@ -81,7 +81,7 @@
+@@ -85,7 +85,7 @@
  		branch[n].key = cpu_to_block(nr);
  		bh = sb_getblk(inode->i_sb, parent);
  		lock_buffer(bh);
@@ -554,10 +538,21 @@ diff -ur orig.linux-2.4.32/fs/minix/itree_common.c updated.linux-2.4.32/fs/minix
  	block_truncate_page(inode->i_mapping, inode->i_size, get_block);
  
  	n = block_to_path(inode, iblock, offsets);
-diff -ur orig.linux-2.4.32/include/linux/minix_fs.h updated.linux-2.4.32/include/linux/minix_fs.h
---- orig.linux-2.4.32/include/linux/minix_fs.h	2001-09-07 18:45:51.000000000 +0200
-+++ updated.linux-2.4.32/include/linux/minix_fs.h	2006-01-24 19:19:56.000000000 +0100
-@@ -23,14 +23,13 @@
+diff -ur orig.linux-2.6.14.5/fs/minix/minix.h updated.linux-2.6.14.5/fs/minix/minix.h
+--- orig.linux-2.6.14.5/fs/minix/minix.h	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/fs/minix/minix.h	2006-01-24 17:16:32.000000000 +0100
+@@ -12,6 +12,7 @@
+ 
+ #define MINIX_V1		0x0001		/* original minix fs */
+ #define MINIX_V2		0x0002		/* minix V2 fs */
++#define MINIX_V3		0x0003		/* minix V3 fs */
+ 
+ /*
+  * minix fs inode data in memory
+diff -ur orig.linux-2.6.14.5/include/linux/minix_fs.h updated.linux-2.6.14.5/include/linux/minix_fs.h
+--- orig.linux-2.6.14.5/include/linux/minix_fs.h	2005-12-27 01:26:33.000000000 +0100
++++ updated.linux-2.6.14.5/include/linux/minix_fs.h	2006-01-24 17:16:32.000000000 +0100
+@@ -23,12 +23,10 @@
  #define MINIX_SUPER_MAGIC2	0x138F		/* minix fs, 30 char names */
  #define MINIX2_SUPER_MAGIC	0x2468		/* minix V2 fs */
  #define MINIX2_SUPER_MAGIC2	0x2478		/* minix V2 fs, 30 char names */
@@ -568,13 +563,10 @@ diff -ur orig.linux-2.4.32/include/linux/minix_fs.h updated.linux-2.4.32/include
 -#define MINIX_INODES_PER_BLOCK ((BLOCK_SIZE)/(sizeof (struct minix_inode)))
 -#define MINIX2_INODES_PER_BLOCK ((BLOCK_SIZE)/(sizeof (struct minix2_inode)))
 -
- #define MINIX_V1		0x0001		/* original minix fs */
- #define MINIX_V2		0x0002		/* minix V2 fs */
-+#define MINIX_V3		0x0003		/* minix V3 fs */
- 
- #define INODE_VERSION(inode)	inode->i_sb->u.minix_sb.s_version
- 
-@@ -82,11 +81,36 @@
+ /*
+  * This is the original minix inode layout on disk.
+  * Note the 8-bit gid and atime and ctime.
+@@ -77,9 +75,33 @@
  	__u32 s_zones;
  };
  
@@ -607,10 +599,7 @@ diff -ur orig.linux-2.4.32/include/linux/minix_fs.h updated.linux-2.4.32/include
 +	__u32 inode;
 +	char name[0];
 +};
-+
- #ifdef __KERNEL__
- 
- /*
+ #endif
 
 
---------------010407070207020203070102--
+--------------070201000603090809050707--

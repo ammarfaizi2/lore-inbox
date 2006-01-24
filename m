@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWAXWTj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWAXWVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750778AbWAXWTj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 17:19:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbWAXWTi
+	id S1750779AbWAXWVL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 17:21:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWAXWVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 17:19:38 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:59657 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750778AbWAXWTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 17:19:38 -0500
-Date: Tue, 24 Jan 2006 23:19:28 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jody McIntyre <scjody@modernduck.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] update the i386 defconfig
-Message-ID: <20060124221928.GI3590@stusta.de>
-References: <20060119201046.GY19398@stusta.de> <20060120040326.GF13178@conscoop.ottawa.on.ca> <20060123235416.GD3590@stusta.de> <20060124022423.GR13178@conscoop.ottawa.on.ca>
-MIME-Version: 1.0
+	Tue, 24 Jan 2006 17:21:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63654 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750779AbWAXWVJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 17:21:09 -0500
+Date: Tue, 24 Jan 2006 17:20:44 -0500
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, rjw@sisk.pl, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm] swsusp: userland interface (rev 2)
+Message-ID: <20060124222044.GG2449@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+	rjw@sisk.pl, linux-kernel@vger.kernel.org
+References: <200601240929.37676.rjw@sisk.pl> <20060124131312.0545262d.akpm@osdl.org> <20060124213010.GA1602@elf.ucw.cz> <20060124135843.739481e7.akpm@osdl.org> <20060124221426.GB1602@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060124022423.GR13178@conscoop.ottawa.on.ca>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060124221426.GB1602@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 23, 2006 at 09:24:23PM -0500, Jody McIntyre wrote:
-> On Tue, Jan 24, 2006 at 12:54:16AM +0100, Adrian Bunk wrote:
-> > 
-> > As the patch description said, the i386 defconfig hasn't been updated 
-> > for some time, and I'm therefore updating it with the semantics "the 
-> > kernel that successfully runs on my computer".
-> 
-> If 1394 doesn't successfully run on your computer, I'd like to know
-> the details.
+On Tue, Jan 24, 2006 at 11:14:26PM +0100, Pavel Machek wrote:
 
-No 1394 ports on the motherboard...  ;-)
+ > suspending programs are quite closely tied to the kernel. I think it
+ > is reasonable to expect users to have matching version of kernel and
+ > userland-swsusp tools
 
-> Cheers,
-> Jody
+    _        _    ____  ____   ____  ____ _   _ _   _ _   _ _   _
+   / \      / \  |  _ \|  _ \ / ___|/ ___| | | | | | | | | | | | |
+  / _ \    / _ \ | |_) | |_) | |  _| |  _| |_| | |_| | |_| | |_| |
+ / ___ \  / ___ \|  _ <|  _ <| |_| | |_| |  _  |  _  |  _  |  _  |
+/_/   \_\/_/   \_\_| \_\_| \_\\____|\____|_| |_|_| |_|_| |_|_| |_|
 
-cu
-Adrian
+Someone please stop this madness..
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+		Dave
 

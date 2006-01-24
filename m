@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWAWX63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbWAXAAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964986AbWAWX63 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 18:58:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWAWX63
+	id S964923AbWAXAAi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 19:00:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWAXAAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 18:58:29 -0500
-Received: from amdext4.amd.com ([163.181.251.6]:49879 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S964986AbWAWX62 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 18:58:28 -0500
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-From: "Ray Bryant" <raybry@mpdtxmail.amd.com>
-To: "Dave McCracken" <dmccr@us.ibm.com>
-Subject: Re: [PATCH/RFC] Shared page tables
-Date: Mon, 23 Jan 2006 17:58:08 -0600
-User-Agent: KMail/1.8
-cc: "Robin Holt" <holt@sgi.com>, "Hugh Dickins" <hugh@veritas.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Linux Memory Management" <linux-mm@kvack.org>
-References: <A6D73CCDC544257F3D97F143@[10.1.1.4]>
- <20060117235302.GA22451@lnx-holt.americas.sgi.com>
-In-Reply-To: <20060117235302.GA22451@lnx-holt.americas.sgi.com>
+	Mon, 23 Jan 2006 19:00:38 -0500
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:40801 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S932430AbWAXAAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 19:00:37 -0500
+Message-ID: <43D56E22.80500@bigpond.net.au>
+Date: Tue, 24 Jan 2006 11:00:34 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Message-ID: <200601231758.08397.raybry@mpdtxmail.amd.com>
-X-OriginalArrivalTime: 23 Jan 2006 23:58:09.0637 (UTC)
- FILETIME=[DCA17150:01C62078]
-X-WSS-ID: 6FCBB21B0BO266540-01-01
-Content-Type: text/plain;
- charset=iso-8859-1
+To: Paolo Ornati <ornati@fastwebnet.it>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.2 for  2.6.16-rc1 and 2.6.16-rc1-mm1
+References: <43D00887.6010409@bigpond.net.au>	<20060121114616.4a906b4f@localhost>	<43D2BE83.1020200@bigpond.net.au>	<43D40B96.3060705@bigpond.net.au>	<43D4281D.10009@bigpond.net.au> <20060123212158.3fba71d5@localhost>
+In-Reply-To: <20060123212158.3fba71d5@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 24 Jan 2006 00:00:34 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 January 2006 17:53, Robin Holt wrote:
-> Dave,
->
-> This appears to work on ia64 with the attached patch.  Could you
-> send me any test application you think would be helpful for me
-> to verify it is operating correctly?  
-<snip>
+Paolo Ornati wrote:
+> On Mon, 23 Jan 2006 11:49:33 +1100
+> Peter Williams <pwil3058@bigpond.net.au> wrote:
+> 
+> 
+>>>However, in spite of the above, the fairness mechanism should have been 
+>>>able to generate enough bonus points to get dd's priority back to less 
+>>>than 34.  I'm still investigating why this didn't happen.
+>>
+>>Problem solved.  It was a scaling issue during the calculation of 
+>>expected delay.  The attached patch should fix both the CPU hog problem 
+>>and the fairness problem.  Could you give it a try?
+>>
+> 
+> 
+> Mmmm... it doesn't work:
+> 
+>  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+>  5516 paolo     34   0  115m  18m 2432 S 87.5  3.7   0:23.72 transcode
+>  5530 paolo     34   0 51000 4472 1872 S  8.0  0.9   0:02.29 tcdecode
+>  5523 paolo     34   0 19840 1088  880 R  2.0  0.2   0:00.21 tcdemux
+>  5522 paolo     34   0 22156 1204  972 R  0.7  0.2   0:00.02 tccat
+>  5539 paolo     34   0  4952 1468  372 D  0.7  0.3   0:00.04 dd
+>  5350 root      28   0  167m  16m 3228 S  0.3  3.4   0:03.64 X
+> 
+>   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+>  5456 paolo     34   0  115m  18m 2432 D 63.9  3.7   0:48.21 transcode
+>  5470 paolo     37   0 50996 4472 1872 R  6.2  0.9   0:05.20 tcdecode
+>  5493 paolo     34   0  4952 1472  372 R  1.5  0.3   0:00.22 dd
+>  5441 paolo     28   0 86656  21m  15m S  0.2  4.4   0:00.77 konsole
+>  5468 paolo     34   0 19840 1088  880 S  0.2  0.2   0:00.23 tcdemux
+> 
 
-Dave,
+Bummer.  At least it didn't classify dd as CPU intensive but the 
+fairness bonus doesn't seem to have kicked in.  It's currently awarded 
+as a "one of" bonus each time a delay is too long and I think that it 
+needs to be a bit more persistent over time.
 
-Like Robin, I would appreciate a test application, or at least a description 
-of how to write one, or some other trick to figure out if this is working.
-
-I scanned through this thread looking for a test application, and didn't see 
-one.   Is it sufficient just to create a large shared read-only mmap'd file 
-and share it across a bunch of process to get this code invoked?   How large 
-of a file is needed (on x86_64), assuming that we just turn on the pte level 
-of sharing?   And what kind of alignment constraints do we end up under in 
-order to make the sharing happen?   (My guess would be that there aren't any 
-such constraints (well, page alignment.. :-)  if we are just sharing pte's.)
-
-I turned on the PT_DEBUG stuff, but thus far have found no evidence of pte 
-sharing actually occurring in a normal system boot.  I'm surprised by that as 
-I (naively?) would have expected shared libraries to use shared ptes.
-
-Best Regards,
+Thanks for testing
+Peter
 -- 
-Ray Bryant
-AMD Performance Labs                   Austin, Tx
-512-602-0038 (o)                 512-507-7807 (c)
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

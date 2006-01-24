@@ -1,75 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030474AbWAXNWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030476AbWAXNW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030474AbWAXNWX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 08:22:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbWAXNWX
+	id S1030476AbWAXNW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 08:22:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030480AbWAXNW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 08:22:23 -0500
-Received: from mail.gmx.net ([213.165.64.21]:31381 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030474AbWAXNWW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 08:22:22 -0500
-X-Authenticated: #31060655
-Message-ID: <43D6297C.8000900@gmx.net>
-Date: Tue, 24 Jan 2006 14:19:56 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.12) Gecko/20050921
-X-Accept-Language: de, en
+	Tue, 24 Jan 2006 08:22:57 -0500
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:34318 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1030477AbWAXNW4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 08:22:56 -0500
+Message-ID: <43D62A2E.10500@superbug.co.uk>
+Date: Tue, 24 Jan 2006 13:22:54 +0000
+From: James Courtier-Dutton <James@superbug.co.uk>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org
-Subject: [PATCH] sky2: fix hang on Yukon-EC (0xb6) rev 1
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+To: Harish K Harshan <harish@arl.amrita.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: DMA Transfer problem
+References: <43D5B473.3060006@arl.amrita.edu> <43D624B4.5070300@superbug.co.uk> <43D62989.3070108@arl.amrita.edu>
+In-Reply-To: <43D62989.3070108@arl.amrita.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch for sky2 fixes a hang on Yukon-EC (0xb6) rev 1
-where suddenly no more interrupts were delivered.
+Harish K Harshan wrote:
+> Thank You, James,
+>
+>   But the problem with sound card drivers are that they dont have a 
+> configurable clock on them, do they??? and as far as i know, this ADC 
+> card involves a lot of register writings for the counter ICs that help 
+> configuring the clock speed for the DMA transfer.... 
+It depends which clock you are referring to. Sound cards can set the 
+sample rate. Sound cards also set "period" sizes, so that once enough 
+samples have been captured by the sound card hardware, the hardware 
+initiates a DMA transfer. Could this "period" be the "clock speed" 
+setting you are talking about?
 
-I don't know the real cause of the hang due to lack of docs,
-but the patch has been running stable for a few hours
-whereas the unmodified driver will hang after less than
-2 minutes.
+> First we set the control properties, which involves the IRQ, start 
+> channel, stop channel, etc (the card is an 8-channel ADC), (the jumper 
+> settings configure the DMA channels that should be used, 1 or 3). Now 
+> we initialize the DMA controller, so that it throws an interrupt once 
+> the transfer of DMA_COUNT samples of data. The interrupt service 
+> routine for this interrupt can handle the data transfer to the user 
+> program. Roughly thats how the driver works... Now, the problem is 
+> that, when running on the Chino-Laxsons board PCs, the DMA transfers 
+> take varying time to complete (say, if one transfer takes one second, 
+> the next might take one and a half), but this is not supposed to (and 
+> doesnt) happen on any other machines we tested on. Its absolutely 
+> synchronous with the clock, and theres the minimal drift. Can anyone 
+> suggest why this could be happening on this particular board??? And 
+> another interesting thing is that, this card seems to work fine with 
+> the Windows driver available to it (provided by the company.). I need 
+> help on this very urgently. If anybody has had any such experience, 
+> and solved it, please let me know.
+>
+So, the "DMA_COUNT" sounds like what ALSA refers to as the period.
+All the rest, IRQ, start/stop are handled but the current ALSA sound 
+card drivers. The DMA channel to use would have to be a kernel module 
+option if they use jumpers.
 
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
 
-Signed-off-by: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-
---- linux-2.6.15/drivers/net/sky2.c	2006-01-23 23:41:35.000000000 +0100
-+++ linux-2.6.15/drivers/net/sky2.c	2006-01-24 14:12:12.000000000 +0100
-@@ -1913,8 +1913,26 @@
- 	}
- 
- exit_loop:
-+	/* Is this really a good idea?
-+	 * We clear all IRQs although there may be pending work due to
-+	 * - packets arrived since start of this function
-+	 * - the (++work_done >= to_do) abort
-+	 */
- 	sky2_write32(hw, STAT_CTRL, SC_STAT_CLR_IRQ);
- 
-+	/* Pending resolution of the comment above, at least kick the
-+	 * STAT_LEV_TIMER_CTRL timer.
-+	 * This fixes my hangs on Yukon-EC (0xb6) rev 1.
-+	 * The if clause is there to start the timer only if it has been
-+	 * configured correctly and not been disabled via ethtool.
-+	 * Maybe it would be sufficient to only restart the timer if
-+	 * there is pending work. Without docs, that is hard to say.
-+	 */
-+	if (sky2_read8(hw, STAT_LEV_TIMER_CTRL) == TIM_START) {
-+		sky2_write8(hw, STAT_LEV_TIMER_CTRL, TIM_STOP);
-+		sky2_write8(hw, STAT_LEV_TIMER_CTRL, TIM_START);
-+	}
-+
- 	sky2_tx_check(hw, 0, tx_done[0]);
- 	sky2_tx_check(hw, 1, tx_done[1]);
- 
+James
 

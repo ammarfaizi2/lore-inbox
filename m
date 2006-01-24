@@ -1,40 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWAXQam@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbWAXQbW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030362AbWAXQam (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 11:30:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbWAXQal
+	id S1030368AbWAXQbW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 11:31:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbWAXQbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 11:30:41 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:56000 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030368AbWAXQal convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 11:30:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BAvNACBW4RM6vtBT6XArOEgRF7BdHvtluPbxvcDLU1xx/2VQbFaFePtQJoxjjCnXxg/vTY/mDpvpb6MMr9v07Hq85CBOI8LZx2SxhjF1Os7SVnFu+qSo6koqaCZ0Bkj97CC26glbpkAZDTTAIsNS2dhGWSZ4GMV9CS/3KFJ6FTg=
-Message-ID: <9e4733910601240830u4e242be9w73797e6b6d5fa367@mail.gmail.com>
-Date: Tue, 24 Jan 2006 11:30:40 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: sendfile() with 100 simultaneous 100MB files
-In-Reply-To: <9e4733910601230722k125f0391w74946b7401be85ce@mail.gmail.com>
+	Tue, 24 Jan 2006 11:31:21 -0500
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:22742 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S1030368AbWAXQbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 11:31:21 -0500
+Message-ID: <43D6565D.5050709@t-online.de>
+Date: Tue, 24 Jan 2006 17:31:25 +0100
+From: Knut Petersen <Knut_Petersen@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.10) Gecko/20050726
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9e4733910601201353g36284133xf68c4f6eae1344b4@mail.gmail.com>
-	 <20060122142401.GA24738@SDF.LONESTAR.ORG>
-	 <9e4733910601220931x3a21e47dj7dbf834e2f36d31c@mail.gmail.com>
-	 <9e4733910601230722k125f0391w74946b7401be85ce@mail.gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: sun v20z / v40z lspci request
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ID: ZGkxJUZYoeyll8m1OjeRLE87xFLzPP1hfCb4g5fuTw3-EWc3AF+Mg-@t-dialin.net
+X-TOI-MSGID: c1dcdfcf-8890-47a8-b9da-a5c69710d3b4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've filed a kernel bug summarizing the issue:
-http://bugzilla.kernel.org/show_bug.cgi?id=5949
+Hi,
 
-The lighttpd author is willing to provide more info if anyone is interested.
+could someone send a lspci -vvn of those machines?
 
---
-Jon Smirl
-jonsmirl@gmail.com
+Thanks in advance
+
+cu,
+ Knut

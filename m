@@ -1,63 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbWAXPGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbWAXPLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030291AbWAXPGF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 10:06:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964992AbWAXPGF
+	id S964987AbWAXPLr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 10:11:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbWAXPLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 10:06:05 -0500
-Received: from uproxy.gmail.com ([66.249.92.207]:49177 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964987AbWAXPGC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 10:06:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=dkQH4z+d86cX4N8BqPESvz18tF/Jn98Uggv6hW7MYez51BbxgZNBgWm4rPXM2yE7goxFar9GjL17XgdTC5R2O82jhqhSCeFHwsLjosGa4cBDCTKmm0fFkb2ocr7Ooq1wX4YRRhfyYY57bCannf/9BAmDEFm/E7rtz5TjaROy2o0=
-Date: Tue, 24 Jan 2006 16:04:27 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Ram Gupta <ram.gupta5@gmail.com>
-Cc: nikita@clusterfs.com, mloftis@wgops.com, barryn@pobox.com,
-       a1426z@gawab.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC] VM: I have a dream...
-Message-Id: <20060124160427.1ed68461.diegocg@gmail.com>
-In-Reply-To: <728201270601240636p58fead78m781fb104c3d73da9@mail.gmail.com>
-References: <200601212108.41269.a1426z@gawab.com>
-	<986ed62e0601221155x6a57e353vf14db02cc219c09@mail.gmail.com>
-	<E3C35184F807ADEC2AD9E182@dhcp-2-206.wgops.com>
-	<728201270601230705k25e6890ejd716dbfc393208b8@mail.gmail.com>
-	<280A351A008C409CEF43A734@dhcp-2-206.wgops.com>
-	<17365.23510.525066.57628@gargle.gargle.HOWL>
-	<728201270601240636p58fead78m781fb104c3d73da9@mail.gmail.com>
-X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
+	Tue, 24 Jan 2006 10:11:47 -0500
+Received: from tayrelbas03.tay.hp.com ([161.114.80.246]:58496 "EHLO
+	tayrelbas03.tay.hp.com") by vger.kernel.org with ESMTP
+	id S964987AbWAXPLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 10:11:46 -0500
+Date: Tue, 24 Jan 2006 07:09:12 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/6] 2.6.16-rc1 perfmon2 patch for review
+Message-ID: <20060124150912.GB7130@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <200601201520.k0KFKEm2023128@frankl.hpl.hp.com> <1137775645.28944.61.camel@serpentine.pathscale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1137775645.28944.61.camel@serpentine.pathscale.com>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Tue, 24 Jan 2006 08:36:50 -0600,
-Ram Gupta <ram.gupta5@gmail.com> escribió:
+Bryan,
 
-> This feature is interesting though I am not sure about the fast boot
-> part of OSX.
-> as at boot time these applications are all started first time. So
-> there were no access pattern as yet. They still have to be demand
-> paged. But yes later accesses may be faster.
+On Fri, Jan 20, 2006 at 08:47:24AM -0800, Bryan O'Sullivan wrote:
+> On Fri, 2006-01-20 at 07:20 -0800, Stephane Eranian wrote:
+> 
+> > +static struct pfm_smpl_fmt dfl_fmt={
+> > + 	.fmt_name = "default_format2",
+> > + 	.fmt_uuid = PFM_DFL_SMPL_UUID,
+> 
+> What's the point of using a UUID here?
+> 
+
+Every sampling buffer format, even the default, needs a name. 
+Not all measurements need a kernel level sampling buffer. In that
+case they pass the NULL uuid (uuid = all zeroes).
+
+> > +static struct file_system_type pfm_fs_type = {
+> > +	.name     = "pfmfs",
+> > +	.get_sb   = pfmfs_get_sb,
+> > +	.kill_sb  = kill_anon_super,
+> > +};
+> 
+> A comment that describes what pfmfs is for would be useful here, and
+> perhaps a warning to hold one's nose, if the code that follows is
+> anything to go by :-)
+> 
+Yes, this is sort of obscure. But any file descriptor must be associated
+with a filesystem (and super block). This creates the minimum skeleton
+for such filesystem. The same technique is used for pipes, tmpfs,...
 
 
-The stats are saved on disk (at least on windows). You don't really
-care about "later accesses" when everything is already in cache,
-this is supposed to speed up cold-cache startup. I don't know
-if mac os x does it for every app, the darwin code I saw was
-only for the startup of the system not for every app, but maybe that
-part was in another module
+> > +static ctl_table pfm_ctl_table[]={
+> 
+> Why are you using sysctls, and not sysfs?  Why is this in a file that
+> claims to be procfs-related?
+> 
+Because I tried regrouping all the /proc AND related interface into a single
+C file.
 
-Linux is the one desktop lacking something like this, both windows
-and max os x have things like this. I've wondered for long time if
-it's worth of it and if it could improve things in linux. The
-prefault part is easy once you get the data. The hard part is to get
-the statistics: I wonder if mincore(), /proc/$PID/maps 
-and the recently posted /proc/$PID/pmap and all the statistics
-the kernel can provide today are enought, or it's neccesary
-something more complex.
+> Also, it looks like much of the procfs goo is actually not related to
+> individual processes, really doesn't belong in /proc at all, and should
+> move to some place in sysfs somewhere.
+> 
+Well, it is not clear to me what criteria is used for /sys vs /proc. Yours
+is based on whether the information is process or system-wide based. That 
+looks reasonable, yet I can see evidence of just the opposite in /proc
+today, such as /proc/meminfo. Is this maintained because of backward compatibility?
+
+-- 
+
+-Stephane

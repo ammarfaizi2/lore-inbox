@@ -1,86 +1,184 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbWAXOjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbWAXOq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964921AbWAXOjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 09:39:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbWAXOjP
+	id S964982AbWAXOq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 09:46:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWAXOq5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 09:39:15 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:23680 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S964921AbWAXOjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 09:39:15 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 24 Jan 2006 15:38:16 +0100
-To: schilling@fokus.fraunhofer.de, rlrevell@joe-job.com,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org, 7eggert@gmx.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest) (was:   
- Rationale for RLIMIT_MEMLOCK?)
-Message-ID: <43D63BD8.nailCPI11XBZ8@burner>
-References: <5y7B5-1dw-15@gated-at.bofh.it>
- <5y7KL-1DZ-31@gated-at.bofh.it> <5yddh-1pA-47@gated-at.bofh.it>
- <5ydni-1Qq-3@gated-at.bofh.it> <5yek1-3iP-53@gated-at.bofh.it>
- <5yeth-3us-33@gated-at.bofh.it> <5yf5O-4iF-19@gated-at.bofh.it>
- <5yfI4-5kU-11@gated-at.bofh.it> <5ygE4-6LK-35@gated-at.bofh.it>
- <5yhqg-7ZR-5@gated-at.bofh.it> <5yi2X-zm-7@gated-at.bofh.it>
- <E1F1KG8-0000v7-3Q@be1.lrz>
-In-Reply-To: <E1F1KG8-0000v7-3Q@be1.lrz>
-User-Agent: nail 11.2 8/15/04
+	Tue, 24 Jan 2006 09:46:57 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:48358 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S964982AbWAXOq4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 09:46:56 -0500
+Message-ID: <43D63DB5.3010601@cosmosbay.com>
+Date: Tue, 24 Jan 2006 15:46:13 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Andrew Morton <akpm@osdl.org>
+CC: Jan Beulich <JBeulich@novell.com>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>, shai@scalex86.org, kiran@scalex86.org,
+       pravins@calsoftinc.com
+Subject: [PATCH] [SMP] reduce size of percpudata, and make sure per_cpu(object,
+ not_possible_cpu) cause an invalid memory reference
+References: <43CE4C98.76F0.0078.0@novell.com>	<20060120232500.07f0803a.akpm@osdl.org>	<43D4BE7F.76F0.0078.0@novell.com>	<20060123025702.1f116e70.akpm@osdl.org>	<43D5F44C.76F0.0078.0@novell.com> <20060124005806.7e9ab02e.akpm@osdl.org>
+In-Reply-To: <20060124005806.7e9ab02e.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------040605090304060803060001"
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Tue, 24 Jan 2006 15:46:15 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org> wrote:
+This is a multi-part message in MIME format.
+--------------040605090304060803060001
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
->
-> [...]
-> > On Solaris, you (currently) use a profile enabled shell (pfsh, pfksh or pfcsh)
-> > that calls getexecuser() in order to find whether there is a specific
-> > treatment needed. If this specific treatment is needed, then the shell calls
-> > execve(/usr/bin/pfexec cmd <args>)
-> > else it calls  execve(cmd <args>)
-> > 
-> > I did recently voted to require all shells to be profile enabled by default.
->
-> Why? I asume there will only be few programs requiring to be run by a
-> wrapper, and mv /usr/bin/foo to /usr/pfexec-bin/foo;
-> echo $'#!/bin/sh\n/usr/sbin/pfexec /usr/pfexec-bin/foo "$@"' > /usr/bin/foo;
-> chmod 755 /usr/bin/foo
-> should be easier than patching e.g. all callers of cdrecord, and it won't
-> slow down starting non-profiled applications.
+percpu_data blindly allocates bootmem memory to store NR_CPUS instances of 
+cpudata, instead of allocating memory only for possible cpus.
 
-Because the architecture review commitee decided this would be the right way.
+This patch saves ram, allocating num_possible_cpus() (instead of NR_CPUS) 
+instances.
 
-Note that we are on a migration from the classical root/non-root UNIX to a fine 
-grained privileges handling. The current documentation says that you need to 
-have a profile enabled shell as your SHELL in order to be able to use a 
-root-less Solaris.
+This patch also makes sure a reference to  per_cpu(object, not_possible_cpu) 
+does a reference to invalid memory (NULL+small_offset).
 
-> Possibly the pfexec can tell the application to be run by the basename (like
-> su1), in this case you'd add something like
-> "alias cdrecord /opt/schily/bin/cdrecord" to it's configuration and link it
-> to /usr/bin/cdrecord.
+As some architectures (x86_64) are now allocating cpudata only on possible 
+cpus, we (kernel developers on x86 machines) should make sure that x86 does a 
+similar thing to find bugs. This is important that this patch has some 
+exposure in -mm for some time, some places must now use :
 
-But you are right that another way would be to use something like "isaexec"
+for_each_cpu(i) {
+	... per_cpu(xxx,i) ...
 
-> > The final priv would allow even vendor specific commands: this is what
-> > cdrecord needs.
->
-> That sounds reasonable, but I wonder how you can get access to a device
-> file descriptor in order to do unprivileged access.
+instead of the traditional
 
-This is something that needs to be discussed. Last night, I found that there 
-should be a way to run cdrecord without the need to have the "file_dac_read"
-provilege. I'll discuss this with the security group.
+for (i = 0 ; i < NR_CPUS ; i++)
 
 
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
 
-Jörg
+--------------040605090304060803060001
+Content-Type: text/plain;
+ name="setup_per_cpu_areas.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="setup_per_cpu_areas.patch"
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+--- linux-2.6.16-rc1-mm2/init/main.c	2006-01-24 15:45:28.000000000 +0100
++++ linux-2.6.16-rc1-mm2-ed/init/main.c	2006-01-24 16:31:53.000000000 +0100
+@@ -334,6 +334,7 @@
+ {
+ 	unsigned long size, i;
+ 	char *ptr;
++	unsigned long nr_possible_cpus = num_possible_cpus();
+ 
+ 	/* Copy section for each CPU (we discard the original) */
+ 	size = ALIGN(__per_cpu_end - __per_cpu_start, SMP_CACHE_BYTES);
+@@ -341,12 +342,16 @@
+ 	if (size < PERCPU_ENOUGH_ROOM)
+ 		size = PERCPU_ENOUGH_ROOM;
+ #endif
++	ptr = alloc_bootmem(size * nr_possible_cpus);
+ 
+-	ptr = alloc_bootmem(size * NR_CPUS);
+-
+-	for (i = 0; i < NR_CPUS; i++, ptr += size) {
++	for (i = 0; i < NR_CPUS; i++) {
++		if (!cpu_possible(i)) {
++			__per_cpu_offset[i] = (char*)0 - __per_cpu_start;
++			continue;
++		}
+ 		__per_cpu_offset[i] = ptr - __per_cpu_start;
+ 		memcpy(ptr, __per_cpu_start, __per_cpu_end - __per_cpu_start);
++		ptr += size;
+ 	}
+ }
+ #endif /* !__GENERIC_PER_CPU */
+--- linux-2.6.16-rc1-mm2/block/ll_rw_blk.c	2006-01-24 15:57:29.000000000 +0100
++++ linux-2.6.16-rc1-mm2-ed/block/ll_rw_blk.c	2006-01-24 15:57:40.000000000 +0100
+@@ -3536,7 +3536,7 @@
+ 	iocontext_cachep = kmem_cache_create("blkdev_ioc",
+ 			sizeof(struct io_context), 0, SLAB_PANIC, NULL, NULL);
+ 
+-	for (i = 0; i < NR_CPUS; i++)
++	for_each_cpu(i)
+ 		INIT_LIST_HEAD(&per_cpu(blk_cpu_done, i));
+ 
+ 	open_softirq(BLOCK_SOFTIRQ, blk_done_softirq, NULL);
+--- linux-2.6.16-rc1-mm2/drivers/scsi/scsi.c	2006-01-24 16:04:28.000000000 +0100
++++ linux-2.6.16-rc1-mm2-ed/drivers/scsi/scsi.c	2006-01-24 16:04:40.000000000 +0100
+@@ -1245,7 +1245,7 @@
+ 	if (error)
+ 		goto cleanup_sysctl;
+ 
+-	for (i = 0; i < NR_CPUS; i++)
++	for_each_cpu(i)
+ 		INIT_LIST_HEAD(&per_cpu(scsi_done_q, i));
+ 
+ 	devfs_mk_dir("scsi");
+--- linux-2.6.16-rc1-mm2/net/core/utils.c	2006-01-24 16:14:40.000000000 +0100
++++ linux-2.6.16-rc1-mm2-ed/net/core/utils.c	2006-01-24 16:16:37.000000000 +0100
+@@ -121,7 +121,7 @@
+ {
+ 	int i;
+ 
+-	for (i = 0; i < NR_CPUS; i++) {
++	for_each_cpu(i) {
+ 		struct nrnd_state *state = &per_cpu(net_rand_state,i);
+ 		__net_srandom(state, i+jiffies);
+ 	}
+@@ -133,7 +133,7 @@
+ 	unsigned long seed[NR_CPUS];
+ 
+ 	get_random_bytes(seed, sizeof(seed));
+-	for (i = 0; i < NR_CPUS; i++) {
++	for_each_cpu(i) {
+ 		struct nrnd_state *state = &per_cpu(net_rand_state,i);
+ 		__net_srandom(state, seed[i]);
+ 	}
+--- linux-2.6.16-rc1-mm2/net/core/dev.c	2006-01-24 16:24:24.000000000 +0100
++++ linux-2.6.16-rc1-mm2-ed/net/core/dev.c	2006-01-24 16:24:46.000000000 +0100
+@@ -3240,7 +3240,7 @@
+ 	 *	Initialise the packet receive queues.
+ 	 */
+ 
+-	for (i = 0; i < NR_CPUS; i++) {
++	for_each_cpu(i) {
+ 		struct softnet_data *queue;
+ 
+ 		queue = &per_cpu(softnet_data, i);
+--- linux-2.6.16-rc1-mm2/net/ipv4/proc.c	2006-01-24 16:18:13.000000000 +0100
++++ linux-2.6.16-rc1-mm2-ed/net/ipv4/proc.c	2006-01-24 16:19:10.000000000 +0100
+@@ -49,7 +49,7 @@
+ 	int res = 0;
+ 	int cpu;
+ 
+-	for (cpu = 0; cpu < NR_CPUS; cpu++)
++	for_each_cpu(cpu)
+ 		res += proto->stats[cpu].inuse;
+ 
+ 	return res;
+--- linux-2.6.16-rc1-mm2/net/ipv6/proc.c	2006-01-24 16:18:40.000000000 +0100
++++ linux-2.6.16-rc1-mm2-ed/net/ipv6/proc.c	2006-01-24 16:19:10.000000000 +0100
+@@ -38,7 +38,7 @@
+ 	int res = 0;
+ 	int cpu;
+ 
+-	for (cpu=0; cpu<NR_CPUS; cpu++)
++	for_each_cpu(cpu)
+ 		res += proto->stats[cpu].inuse;
+ 
+ 	return res;
+--- linux-2.6.16-rc1-mm2/net/socket.c	2006-01-24 16:19:01.000000000 +0100
++++ linux-2.6.16-rc1-mm2-ed/net/socket.c	2006-01-24 16:19:10.000000000 +0100
+@@ -2079,7 +2079,7 @@
+ 	int cpu;
+ 	int counter = 0;
+ 
+-	for (cpu = 0; cpu < NR_CPUS; cpu++)
++	for_each_cpu(cpu)
+ 		counter += per_cpu(sockets_in_use, cpu);
+ 
+ 	/* It can be negative, by the way. 8) */
+
+--------------040605090304060803060001--

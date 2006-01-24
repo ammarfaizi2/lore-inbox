@@ -1,106 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWAXW1u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWAXW2Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbWAXW1u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 17:27:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWAXW1u
+	id S1750785AbWAXW2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 17:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWAXW2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 17:27:50 -0500
-Received: from xenotime.net ([66.160.160.81]:39589 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750786AbWAXW1t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 17:27:49 -0500
-Date: Tue, 24 Jan 2006 14:27:48 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Ed Sweetman <safemode@comcast.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: 2.6.16-rc1-mm2 pata driver confusion
-In-Reply-To: <43D6A76D.2000502@comcast.net>
-Message-ID: <Pine.LNX.4.58.0601241426180.26036@shark.he.net>
-References: <43D5CC88.9080207@comcast.net> <1138116579.14675.22.camel@localhost.localdomain>
- <43D6A76D.2000502@comcast.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 Jan 2006 17:28:16 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:39103
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1750785AbWAXW2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 17:28:15 -0500
+Date: Tue, 24 Jan 2006 14:28:01 -0800
+From: Greg KH <gregkh@suse.de>
+To: "V. Ananda Krishnan" <mansarov@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       rmk@arm.linux.org.uk, akpm@osdl.org
+Subject: Re: [PATCH]-jsm driver fix for linux-2.6.16-rc1
+Message-ID: <20060124222801.GA26181@suse.de>
+References: <43D1099E.3050509@us.ibm.com> <1137781399.24161.30.camel@localhost.localdomain> <43D52023.4090607@us.ibm.com> <20060123184621.GA6744@suse.de> <43D5484A.8040502@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43D5484A.8040502@us.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Jan 2006, Ed Sweetman wrote:
 
-> Alan Cox wrote:
->
-> >On Maw, 2006-01-24 at 01:43 -0500, Ed Sweetman wrote:
-> >
-> >
-> >>problem.  The problem is that there appears to be two nvidia/amd ata
-> >>drivers and I'm unsure which I should try using, if i compile both in,
-> >>which get loaded first (i assume scsi is second to ide) and if i want my
-> >>pata disks loaded under the new libata drivers, will my cdrom work under
-> >>them too, or do i still need some sort of regular ide drivers loaded
-> >>just for cdrom (to use native ata mode for recording access).
-> >>
-> >>
-> >
-> >The goal of the drivers/scsi/pata_* drivers is to replace drivers/ide in
-> >its entirity with code using the newer and cleaner libata logic. There
-> >is still much to do but my SIL680, SiS, Intel MPIIX, AMD and VIA boxes
-> >are using libata and the additional patch patches still queued
-> >
-> >
->
-> >>1.  Atapi is most definitely not supported by libata, right now.
-> >>
-> >>
-> >
-> >It works in the -mm tree.
-> >
-> >
-> Intriguing, when I had no ide chipset compiled in kernel, only libata
-> drivers, I got no mention at all about my dvd writer.  I even had the
-> scsi cd driver installed and generic devices, still nothing seemed to
-> initialize the dvd drive.  It detected the second pata bus but no
-> devices attached to it.
->
-> this is using the kernel mentioned in the subject header.
-> 2.6.16-rc1-mm2.  using the amd/nvidia drivers for pata and sata.
->
-> Is there anything i can do to give more info to the list to figure out
-> why my atapi writer is being ignored by pata even when there are no ide
-> drivers loaded?
+A: http://en.wikipedia.org/wiki/Top_post
+Q: Were do I find info about this thing called top-posting?
+A: Because it messes up the order in which people normally read text.
+Q: Why is top-posting such a bad thing?
+A: Top-posting.
+Q: What is the most annoying thing in e-mail?
 
-Currently you need to use libata.atapi_enabled=1
-(assuming that libata is in the kernel image, not a loadable module).
+A: No.
+Q: Should I include quotations after my reply?
 
-I just built/tested this also, working for me as well.
-(hard drives, not ATAPI)
 
-> >>4.  moving to pata libata drivers _will_ change the enumeration of your
-> >>sata devices, it seems that pata is initialized first, so when setting
-> >>up your fstab entries and grub, you'll have to take into account how
-> >>many pata devices you have and offset your current sata device names by
-> >>that amount.
-> >>
-> >>
-> >
-> >Or use labels. As you move into the world of hot pluggable hardware it
-> >becomes more and more impractical to guarantee drive ordering by name.
-> >
-> >You can mix and match the drivers providing you don't try and load both
-> >libata and old ide drives for the same chip. Even then it should fail
-> >correctly with one of them reporting resources unavailable.
-> >
-> >In fact I do this all the time when debugging so I've got a stable disk
-> >for debug work and a devel disk.
-> >
-> >Alan
-> >
-> >
->
-> I'm not familiar with labeling ...will have to look into it, since
-> borking a kernel after changing the drivers can result in a non-bootable
-> system depending on how the partitions are setup across the devices.
-> (since you'd have to change them in fstab and such before a reboot).  A
-> way around that would be very useful.
+On Mon, Jan 23, 2006 at 03:19:06PM -0600, V. Ananda Krishnan wrote:
+> Greg, Thanks for the white space info.  Cleaned up version is attached 
+> below.
 
--- 
-~Randy
+No, it still is not :(
+
+thanks,
+
+greg k-h

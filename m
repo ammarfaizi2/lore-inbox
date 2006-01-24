@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWAXVAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWAXVBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWAXVAF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 16:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbWAXVAE
+	id S1750706AbWAXVBt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 16:01:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWAXVBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 16:00:04 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:6045 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750704AbWAXVAA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 16:00:00 -0500
-In-Reply-To: <20060124160427.1ed68461.diegocg@gmail.com>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: a1426z@gawab.com, barryn@pobox.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, mloftis@wgops.com, nikita@clusterfs.com,
-       Ram Gupta <ram.gupta5@gmail.com>
-MIME-Version: 1.0
-Subject: Re: [RFC] VM: I have a dream...
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFB608064A.42CC9F1C-ON88257100.0072D92E-88257100.007356F8@us.ibm.com>
-From: Bryan Henderson <hbryan@us.ibm.com>
-Date: Tue, 24 Jan 2006 12:59:48 -0800
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0HF124 | January 12, 2006) at
- 01/24/2006 15:59:58,
-	Serialize complete at 01/24/2006 15:59:58
-Content-Type: text/plain; charset="US-ASCII"
+	Tue, 24 Jan 2006 16:01:49 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2827 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750706AbWAXVBs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 16:01:48 -0500
+Date: Tue, 24 Jan 2006 21:01:41 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SIIG 8-port serial boards support
+Message-ID: <20060124210140.GB23513@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20060124082538.GB4855@pazke>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060124082538.GB4855@pazke>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Linux is the one desktop lacking something like this, both windows
->and max os x have things like this. I've wondered for long time if
->it's worth of it and if it could improve things in linux. The
->prefault part is easy once you get the data. The hard part is to get
->the statistics:
+On Tue, Jan 24, 2006 at 11:25:38AM +0300, Andrey Panin wrote:
+> This patch (against 2.6.16-rc1) adds support for SIIG 8 port serial boards.
+> Please consider applying.
 
-If you focus on the system startup speed problem, the stats are quite a 
-bit simpler.  If you can take a snapshot of every mmap page in memory 
-shortly after startup (and verify that no page frames were stolen during 
-startup) and save that, you could just prefault all those pages in, in a 
-single sweep, at the next boot.
+Could you supply a sign-off (and a description) for this patch please -
+see Documentation/SubmittingPatches for more information.
 
---
-Bryan Henderson                     IBM Almaden Research Center
-San Jose CA                         Filesystems
+Thanks.
 
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

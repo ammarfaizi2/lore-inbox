@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030395AbWAXJiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030425AbWAXJoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030395AbWAXJiA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 04:38:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030397AbWAXJh7
+	id S1030425AbWAXJoF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 04:44:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030429AbWAXJoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 04:37:59 -0500
-Received: from wproxy.gmail.com ([64.233.184.207]:21533 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030395AbWAXJh7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 04:37:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=REAn8+Wy79SWw7n95uQ289ZuF6d9vE5IdgYLUhXMZMni4Os8AmK0fgPeTiN+PfuBEWPGKkBtSLY2sDsGIoxKiMbcOivkOsGjfESN0aRuagVlcqGDVFPmMbVLUrHAiPAqX1fCYjEuZMEm6nwlEdtsif99bYJI7QgRB5B9556qon8=
-Message-ID: <4aaa2e1c0601240137o5637bf39w21afa3aaba516db8@mail.gmail.com>
-Date: Tue, 24 Jan 2006 12:37:58 +0300
-From: Wartan Hachaturow <wartan.hachaturow@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GPL V3 and Linux
-In-Reply-To: <87ek2y8n1f.fsf@basilikum.skogtun.org>
+	Tue, 24 Jan 2006 04:44:05 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:38288 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S1030425AbWAXJoD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 04:44:03 -0500
+Message-ID: <43D5F6DD.70702@t-online.de>
+Date: Tue, 24 Jan 2006 10:43:57 +0100
+From: Knut Petersen <Knut_Petersen@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.10) Gecko/20050726
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200601212043.k0LKhG4w003290@laptop11.inf.utfsm.cl>
-	 <Pine.LNX.4.61.0601231703170.13590@chaos.analogic.com>
-	 <87ek2y8n1f.fsf@basilikum.skogtun.org>
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] sky2 broken for Yukon PCI-E Gigabit Ethernet Controller
+ 11ab:4362 (rev 19)
+References: <43D1C99E.2000506@t-online.de>	<20060123101538.14d21bf4@dxpl.pdx.osdl.net>	<43D52C69.5090707@t-online.de> <20060123112751.2e3f1b15@dxpl.pdx.osdl.net>
+In-Reply-To: <20060123112751.2e3f1b15@dxpl.pdx.osdl.net>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ID: XRH06EZfoezuaBnTeXDSc3A36MK+GVFjqxyO8NFyvvOePhA7tJg24d@t-dialin.net
+X-TOI-MSGID: b33ac746-ea41-4e96-a9bf-26a16aa9f745
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/24/06, Harald Arnesen <harald@skogtun.org> wrote:
+Stephen Hemminger schrieb:
 
-> There (probably) wouldn't be a GNU/Linux without the man who developed
-> the worlds best word-processor (and the worlds best programming editor,
-> and the framework for the worlds best e-mail client).
+>Could you try turning off rx checksumming (with ethtool).
+>	ethtool -K eth0 rx off
+>
+>There probably still are (generic) bugs in the netfilter code for CHECKSUM_HW
+>socket buffers.
+>
+>  
+>
+"ethtool -K eth0 rx off" does cure my problem with sky2.
 
-Last I checked, vim and mutt were not written by RMS.
+Anybody is invited to send patches as the problem is 100% reproducible here.
 
---
-Regards, Wartan.
+cu,
+ Knut
+

@@ -1,87 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030461AbWAXRMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161002AbWAXRNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030461AbWAXRMr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 12:12:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030447AbWAXRMr
+	id S1161002AbWAXRNg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 12:13:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161003AbWAXRNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 12:12:47 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62100 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030461AbWAXRMr (ORCPT
+	Tue, 24 Jan 2006 12:13:36 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:37824 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1161004AbWAXRNe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 12:12:47 -0500
-Date: Tue, 24 Jan 2006 18:11:41 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: [patch] suspend-to-ram: allow video options to be set at runtime
-Message-ID: <20060124171140.GA1949@elf.ucw.cz>
+	Tue, 24 Jan 2006 12:13:34 -0500
+Subject: Re: 2.6.16-rc1-mm2 pata driver confusion
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Ed Sweetman <safemode@comcast.net>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.58.0601240904110.26036@shark.he.net>
+References: <43D5CC88.9080207@comcast.net>
+	 <1138116579.14675.22.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0601240904110.26036@shark.he.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 24 Jan 2006 17:13:48 +0000
+Message-Id: <1138122829.14675.59.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, acpi video options can only be set on kernel command
-line. That's little inflexible; I'd like userland s2ram application
-that just works, and modifying kernel command line according to
-whitelist is not fun. It is better to just allow s2ram application to
-set video options juts before suspend (according to the
-whitelist). This implements sysctl to allow setting suspend video
-options without reboot.
+On Maw, 2006-01-24 at 09:05 -0800, Randy.Dunlap wrote:
+> What is "MPIIX" anyway?
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+MPIIX was an early intel mobile chip. Its a PCI bridge, glue and the
+like for pentium laptops with a built in PIO ATA controller.
 
-diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-index 7f47212..164e096 100644
---- a/include/linux/sysctl.h
-+++ b/include/linux/sysctl.h
-@@ -146,6 +146,7 @@ enum
- 	KERN_RANDOMIZE=68, /* int: randomize virtual address space */
- 	KERN_SETUID_DUMPABLE=69, /* int: behaviour of dumps for setuid core */
- 	KERN_SPIN_RETRY=70,	/* int: number of spinlock retries */
-+	KERN_ACPI_VIDEO_FLAGS=71, /* int: flags for setting up video after ACPI sleep */
- };
- 
- 
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index f5d69b6..692b56c 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -44,14 +44,12 @@
- #include <linux/limits.h>
- #include <linux/dcache.h>
- #include <linux/syscalls.h>
-+#include <linux/nfs_fs.h>
-+#include <linux/acpi.h>
- 
- #include <asm/uaccess.h>
- #include <asm/processor.h>
- 
--#ifdef CONFIG_ROOT_NFS
--#include <linux/nfs_fs.h>
--#endif
--
- #if defined(CONFIG_SYSCTL)
- 
- /* External variables not in a header file. */
-@@ -658,6 +656,16 @@ static ctl_table kern_table[] = {
- 		.proc_handler	= &proc_dointvec,
- 	},
- #endif
-+#ifdef CONFIG_ACPI_SLEEP
-+	{
-+		.ctl_name	= KERN_ACPI_VIDEO_FLAGS,
-+		.procname	= "acpi_video_flags",
-+		.data		= &acpi_video_flags,
-+		.maxlen		= sizeof (unsigned long),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+	},
-+#endif
- 	{ .ctl_name = 0 }
- };
- 
+> and while I'm looking at the config menu, why do both
+> Compaq Triflex and Intel PATA MPIIX say (Raving Lunatic)?
 
--- 
-Thanks, Sharp!
+So people don't casually select them. The current MPIIX driver will
+remove the raving lunatic once it gets upstream.
+
+

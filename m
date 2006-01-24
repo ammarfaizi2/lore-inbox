@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWAXAWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWAXAZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030223AbWAXAWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 19:22:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbWAXAWQ
+	id S1030226AbWAXAZH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 19:25:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWAXAZH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 19:22:16 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:14472 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030223AbWAXAWP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 19:22:15 -0500
-Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Hubertus Franke <frankeh@watson.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       Cedric Le Goater <clg@fr.ibm.com>
-In-Reply-To: <m1bqy2ljho.fsf@ebiederm.dsl.xmission.com>
-References: <20060117143258.150807000@sergelap>
-	 <20060117143326.283450000@sergelap>
-	 <1137511972.3005.33.camel@laptopd505.fenrus.org>
-	 <20060117155600.GF20632@sergelap.austin.ibm.com>
-	 <1137513818.14135.23.camel@localhost.localdomain>
-	 <1137518714.5526.8.camel@localhost.localdomain>
-	 <20060118045518.GB7292@kroah.com>
-	 <1137601395.7850.9.camel@localhost.localdomain>
-	 <m1fyniomw2.fsf@ebiederm.dsl.xmission.com>
-	 <43D14578.6060801@watson.ibm.com>
-	 <m1hd7xmylo.fsf@ebiederm.dsl.xmission.com>
-	 <43D52592.8080709@watson.ibm.com>
-	 <m1oe22lp69.fsf@ebiederm.dsl.xmission.com>
-	 <1138050684.24808.29.camel@localhost.localdomain>
-	 <m1bqy2ljho.fsf@ebiederm.dsl.xmission.com>
+	Mon, 23 Jan 2006 19:25:07 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:44799 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1030226AbWAXAZG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 19:25:06 -0500
+Subject: Re: 2.6.15-rt12 bugs
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <6bffcb0e0601230521l59b8360et@mail.gmail.com>
+References: <6bffcb0e0601230521l59b8360et@mail.gmail.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 24 Jan 2006 00:22:05 +0000
-Message-Id: <1138062125.24808.47.camel@localhost.localdomain>
+Date: Mon, 23 Jan 2006 19:24:57 -0500
+Message-Id: <1138062297.6695.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-01-23 at 14:30 -0700, Eric W. Biederman wrote:
-> The short observation is currently we use at most 22bits of the pid
-> space, and we don't need a huge number of containers so combining them
-> into one integer makes sense for an efficient implementation, and it
-> is cheaper than comparing pointers.
+On Mon, 2006-01-23 at 14:21 +0100, Michal Piotrowski wrote:
+> Hi,
+> 
+> I have noticed some bugs in latest 2.6.15-rt12, here are some of them:
+> http://www.stardust.webpages.pl/files/rt/2.6.15-rt12/rt-dmesg
 
-Currently. In addition it becomes more costly the moment you have to
-start masking them. Remember the point of this was to virtualise the
-pid, so you are going to add a ton of masking versus a cheap extra
-comparison from the same cache line. And you lose pid space you may well
-need in the future for the sake of a quick hack.
+The only bug I see in this is:
 
-> And there will be at least one processes id assigned to the pid space
-> from the outside pid space unless we choose to break waitpid, and friends.
+BUG: kstopmachine:338 task might have lost a preemption check!
+ [<c0103b1b>] dump_stack+0x1b/0x1f (20)
+ [<c0118736>] preempt_enable_no_resched+0x4a/0x50 (20)
+ [<c014224d>] restart_machine+0x1a/0x1d (12)
+ [<c0142274>] do_stop+0x24/0x65 (20)
+ [<c012d6de>] kthread+0x7b/0xa9 (36)
+ [<c01010c5>] kernel_thread_helper+0x5/0xb (135438364)
 
-That comes out in the wash because it is already done by process tree
-pointers anyway. It has to be because using ->ppid would be racy.
 
-Alan
+Which I'll go and take a look at.  I need to turn on
+CONFIG_DEBUG_PREEMPT on my SMP machine.
+
+
+> Here is my config:
+> http://www.stardust.webpages.pl/files/rt/2.6.15-rt12/rt-config
+
+You might want to turn off:
+
+CONFIG_DEBUG_STACKOVERFLOW
+
+This dumps out the biggest stack usage.  Those dumps are caused by this,
+and are not bugs.  It just shows you what's using the most stack, that's
+all.  I find it quite annoying, and just turn it off.
+
+-- Steve
 

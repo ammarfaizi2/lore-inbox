@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWAXJcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030395AbWAXJiA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030221AbWAXJcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 04:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030424AbWAXJcJ
+	id S1030395AbWAXJiA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 04:38:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030397AbWAXJh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 04:32:09 -0500
-Received: from cantor.suse.de ([195.135.220.2]:48830 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030221AbWAXJcI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 04:32:08 -0500
-From: Neil Brown <neilb@suse.de>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Date: Tue, 24 Jan 2006 20:32:02 +1100
+	Tue, 24 Jan 2006 04:37:59 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:21533 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030395AbWAXJh7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 04:37:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=REAn8+Wy79SWw7n95uQ289ZuF6d9vE5IdgYLUhXMZMni4Os8AmK0fgPeTiN+PfuBEWPGKkBtSLY2sDsGIoxKiMbcOivkOsGjfESN0aRuagVlcqGDVFPmMbVLUrHAiPAqX1fCYjEuZMEm6nwlEdtsif99bYJI7QgRB5B9556qon8=
+Message-ID: <4aaa2e1c0601240137o5637bf39w21afa3aaba516db8@mail.gmail.com>
+Date: Tue, 24 Jan 2006 12:37:58 +0300
+From: Wartan Hachaturow <wartan.hachaturow@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: GPL V3 and Linux
+In-Reply-To: <87ek2y8n1f.fsf@basilikum.skogtun.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17365.62482.462589.875480@cse.unsw.edu.au>
-Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 000 of 7] md: Introduction - raid5 reshape mark-2
-In-Reply-To: message from Lars Marowsky-Bree on Tuesday January 24
-References: <20060124112626.4447.patches@notabene>
-	<20060124092303.GD22870@marowsky-bree.de>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200601212043.k0LKhG4w003290@laptop11.inf.utfsm.cl>
+	 <Pine.LNX.4.61.0601231703170.13590@chaos.analogic.com>
+	 <87ek2y8n1f.fsf@basilikum.skogtun.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday January 24, lmb@suse.de wrote:
-> On 2006-01-24T11:40:47, NeilBrown <neilb@suse.de> wrote:
-> 
-> > I am expecting that I will ultimately support online conversion of
-> > raid5 to raid6 with only one extra device.  This process is not
-> > (efficiently) checkpointable and so will be at-your-risk.
-> 
-> So the best way to go about that, if one wants to keep that option open
-> w/o that risk, would be to not create a raid5 in the first place, but a
-> raid6 with one disk missing?
-> 
-> Maybe even have mdadm default to that - as long as just one parity disk
-> is missing, no slowdown should happen, right?
+On 1/24/06, Harald Arnesen <harald@skogtun.org> wrote:
 
-Not exactly....
+> There (probably) wouldn't be a GNU/Linux without the man who developed
+> the worlds best word-processor (and the worlds best programming editor,
+> and the framework for the worlds best e-mail client).
 
-raid6 has rotating parity drives, for both P and Q (the two different
-'parity' blocks).
-With one missing device, some Ps, some Qs, and some data would be
-missing, and you would definitely get a slowdown trying to generate
-some of it.
+Last I checked, vim and mutt were not written by RMS.
 
-We could define a raid6 layout that didn't rotate Q.  Then you would
-be able to do what you suggest.
-However it would then be no different from creating a normal raid5 and
-supporting online conversion from raid5 to raid6-with-non-rotating-Q.
-This conversion doesn't need an reshaping pass, just a recovery of the
-now-missing device.
-
-raid6-with-non-rotating-Q would have similar issues to raid4 - one
-drive becomes a hot-spot for writes.  I don't know how much of an
-issue this really is though.
-
-NeilBrown
+--
+Regards, Wartan.

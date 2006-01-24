@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWAXBSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbWAXBRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030267AbWAXBSS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 20:18:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030250AbWAXBSA
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 20:18:00 -0500
-Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:40393 "EHLO
-	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1030270AbWAXBRw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1030251AbWAXBRw (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 23 Jan 2006 20:17:52 -0500
-Date: Mon, 23 Jan 2006 20:16:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbWAXBRw
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 23 Jan 2006 20:17:52 -0500
+Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:39113 "EHLO
+	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1030251AbWAXBRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 20:17:51 -0500
+Date: Mon, 23 Jan 2006 20:16:13 -0500
 From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch 8/9] ia32 syscalls: remove old i386 syscall table
+Subject: [patch 3/9] ia32 syscalls: add new table
 To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>,
        "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>,
-       Jeff Dike <jdike@addtoit.com>
-Message-ID: <200601232017_MC3-1-B683-9F40@compuserve.com>
+       Jeff Dike <jdike@addtoit.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200601232017_MC3-1-B683-9F3A@compuserve.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
@@ -29,327 +30,345 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 References: <200601231938_MC3-1-B687-7C42@compuserve.com>
 In-Reply-To: <200601231938_MC3-1-B687-7C42@compuserve.com>
 
-Shared ia32 syscall table 8/9:
+Shared ia32 syscall table 3/9:
 
-Remove old i386 syscall table.
+Add new shared syscall table for ia32.  This is
+a new file; a later patch will remove the old one.
 
 Signed-Off-By: Chuck Ebbert <76306.1226@compuserve.com>
 
---- 2.6.16-rc1-mm2.orig/arch/i386/kernel/syscall_table.S
-+++ /dev/null
-@@ -1,313 +0,0 @@
--ENTRY(sys_call_table)
--	.long sys_restart_syscall	/* 0 - old "setup()" system call, used for restarting */
--	.long sys_exit
--	.long sys_fork
--	.long sys_read
--	.long sys_write
--	.long sys_open		/* 5 */
--	.long sys_close
--	.long sys_waitpid
--	.long sys_creat
--	.long sys_link
--	.long sys_unlink	/* 10 */
--	.long sys_execve
--	.long sys_chdir
--	.long sys_time
--	.long sys_mknod
--	.long sys_chmod		/* 15 */
--	.long sys_lchown16
--	.long sys_ni_syscall	/* old break syscall holder */
--	.long sys_stat
--	.long sys_lseek
--	.long sys_getpid	/* 20 */
--	.long sys_mount
--	.long sys_oldumount
--	.long sys_setuid16
--	.long sys_getuid16
--	.long sys_stime		/* 25 */
--	.long sys_ptrace
--	.long sys_alarm
--	.long sys_fstat
--	.long sys_pause
--	.long sys_utime		/* 30 */
--	.long sys_ni_syscall	/* old stty syscall holder */
--	.long sys_ni_syscall	/* old gtty syscall holder */
--	.long sys_access
--	.long sys_nice
--	.long sys_ni_syscall	/* 35 - old ftime syscall holder */
--	.long sys_sync
--	.long sys_kill
--	.long sys_rename
--	.long sys_mkdir
--	.long sys_rmdir		/* 40 */
--	.long sys_dup
--	.long sys_pipe
--	.long sys_times
--	.long sys_ni_syscall	/* old prof syscall holder */
--	.long sys_brk		/* 45 */
--	.long sys_setgid16
--	.long sys_getgid16
--	.long sys_signal
--	.long sys_geteuid16
--	.long sys_getegid16	/* 50 */
--	.long sys_acct
--	.long sys_umount	/* recycled never used phys() */
--	.long sys_ni_syscall	/* old lock syscall holder */
--	.long sys_ioctl
--	.long sys_fcntl		/* 55 */
--	.long sys_ni_syscall	/* old mpx syscall holder */
--	.long sys_setpgid
--	.long sys_ni_syscall	/* old ulimit syscall holder */
--	.long sys_olduname
--	.long sys_umask		/* 60 */
--	.long sys_chroot
--	.long sys_ustat
--	.long sys_dup2
--	.long sys_getppid
--	.long sys_getpgrp	/* 65 */
--	.long sys_setsid
--	.long sys_sigaction
--	.long sys_sgetmask
--	.long sys_ssetmask
--	.long sys_setreuid16	/* 70 */
--	.long sys_setregid16
--	.long sys_sigsuspend
--	.long sys_sigpending
--	.long sys_sethostname
--	.long sys_setrlimit	/* 75 */
--	.long sys_old_getrlimit
--	.long sys_getrusage
--	.long sys_gettimeofday
--	.long sys_settimeofday
--	.long sys_getgroups16	/* 80 */
--	.long sys_setgroups16
--	.long sys_old_select
--	.long sys_symlink
--	.long sys_lstat
--	.long sys_readlink	/* 85 */
--	.long sys_uselib
--	.long sys_swapon
--	.long sys_reboot
--	.long old_readdir
--	.long sys_old_mmap	/* 90 */
--	.long sys_munmap
--	.long sys_truncate
--	.long sys_ftruncate
--	.long sys_fchmod
--	.long sys_fchown16	/* 95 */
--	.long sys_getpriority
--	.long sys_setpriority
--	.long sys_ni_syscall	/* old profil syscall holder */
--	.long sys_statfs
--	.long sys_fstatfs	/* 100 */
--	.long sys_ioperm
--	.long sys_socketcall
--	.long sys_syslog
--	.long sys_setitimer
--	.long sys_getitimer	/* 105 */
--	.long sys_newstat
--	.long sys_newlstat
--	.long sys_newfstat
--	.long sys_uname
--	.long sys_iopl		/* 110 */
--	.long sys_vhangup
--	.long sys_ni_syscall	/* old "idle" system call */
--	.long sys_vm86old
--	.long sys_wait4
--	.long sys_swapoff	/* 115 */
--	.long sys_sysinfo
--	.long sys_ipc
--	.long sys_fsync
--	.long sys_sigreturn
--	.long sys_clone		/* 120 */
--	.long sys_setdomainname
--	.long sys_newuname
--	.long sys_modify_ldt
--	.long sys_adjtimex
--	.long sys_mprotect	/* 125 */
--	.long sys_sigprocmask
--	.long sys_ni_syscall	/* old "create_module" */
--	.long sys_init_module
--	.long sys_delete_module
--	.long sys_ni_syscall	/* 130:	old "get_kernel_syms" */
--	.long sys_quotactl
--	.long sys_getpgid
--	.long sys_fchdir
--	.long sys_bdflush
--	.long sys_sysfs		/* 135 */
--	.long sys_personality
--	.long sys_ni_syscall	/* reserved for afs_syscall */
--	.long sys_setfsuid16
--	.long sys_setfsgid16
--	.long sys_llseek	/* 140 */
--	.long sys_getdents
--	.long sys_select
--	.long sys_flock
--	.long sys_msync
--	.long sys_readv		/* 145 */
--	.long sys_writev
--	.long sys_getsid
--	.long sys_fdatasync
--	.long sys_sysctl
--	.long sys_mlock		/* 150 */
--	.long sys_munlock
--	.long sys_mlockall
--	.long sys_munlockall
--	.long sys_sched_setparam
--	.long sys_sched_getparam   /* 155 */
--	.long sys_sched_setscheduler
--	.long sys_sched_getscheduler
--	.long sys_sched_yield
--	.long sys_sched_get_priority_max
--	.long sys_sched_get_priority_min  /* 160 */
--	.long sys_sched_rr_get_interval
--	.long sys_nanosleep
--	.long sys_mremap
--	.long sys_setresuid16
--	.long sys_getresuid16	/* 165 */
--	.long sys_vm86
--	.long sys_ni_syscall	/* Old sys_query_module */
--	.long sys_poll
--	.long sys_nfsservctl
--	.long sys_setresgid16	/* 170 */
--	.long sys_getresgid16
--	.long sys_prctl
--	.long sys_rt_sigreturn
--	.long sys_rt_sigaction
--	.long sys_rt_sigprocmask	/* 175 */
--	.long sys_rt_sigpending
--	.long sys_rt_sigtimedwait
--	.long sys_rt_sigqueueinfo
--	.long sys_rt_sigsuspend
--	.long sys_pread64	/* 180 */
--	.long sys_pwrite64
--	.long sys_chown16
--	.long sys_getcwd
--	.long sys_capget
--	.long sys_capset	/* 185 */
--	.long sys_sigaltstack
--	.long sys_sendfile
--	.long sys_ni_syscall	/* reserved for streams1 */
--	.long sys_ni_syscall	/* reserved for streams2 */
--	.long sys_vfork		/* 190 */
--	.long sys_getrlimit
--	.long sys_mmap2
--	.long sys_truncate64
--	.long sys_ftruncate64
--	.long sys_stat64	/* 195 */
--	.long sys_lstat64
--	.long sys_fstat64
--	.long sys_lchown
--	.long sys_getuid
--	.long sys_getgid	/* 200 */
--	.long sys_geteuid
--	.long sys_getegid
--	.long sys_setreuid
--	.long sys_setregid
--	.long sys_getgroups	/* 205 */
--	.long sys_setgroups
--	.long sys_fchown
--	.long sys_setresuid
--	.long sys_getresuid
--	.long sys_setresgid	/* 210 */
--	.long sys_getresgid
--	.long sys_chown
--	.long sys_setuid
--	.long sys_setgid
--	.long sys_setfsuid	/* 215 */
--	.long sys_setfsgid
--	.long sys_pivot_root
--	.long sys_mincore
--	.long sys_madvise
--	.long sys_getdents64	/* 220 */
--	.long sys_fcntl64
--	.long sys_ni_syscall	/* reserved for TUX */
--	.long sys_ni_syscall
--	.long sys_gettid
--	.long sys_readahead	/* 225 */
--	.long sys_setxattr
--	.long sys_lsetxattr
--	.long sys_fsetxattr
--	.long sys_getxattr
--	.long sys_lgetxattr	/* 230 */
--	.long sys_fgetxattr
--	.long sys_listxattr
--	.long sys_llistxattr
--	.long sys_flistxattr
--	.long sys_removexattr	/* 235 */
--	.long sys_lremovexattr
--	.long sys_fremovexattr
--	.long sys_tkill
--	.long sys_sendfile64
--	.long sys_futex		/* 240 */
--	.long sys_sched_setaffinity
--	.long sys_sched_getaffinity
--	.long sys_set_thread_area
--	.long sys_get_thread_area
--	.long sys_io_setup	/* 245 */
--	.long sys_io_destroy
--	.long sys_io_getevents
--	.long sys_io_submit
--	.long sys_io_cancel
--	.long sys_fadvise64	/* 250 */
--	.long sys_ni_syscall
--	.long sys_exit_group
--	.long sys_lookup_dcookie
--	.long sys_epoll_create
--	.long sys_epoll_ctl	/* 255 */
--	.long sys_epoll_wait
-- 	.long sys_remap_file_pages
-- 	.long sys_set_tid_address
-- 	.long sys_timer_create
-- 	.long sys_timer_settime		/* 260 */
-- 	.long sys_timer_gettime
-- 	.long sys_timer_getoverrun
-- 	.long sys_timer_delete
-- 	.long sys_clock_settime
-- 	.long sys_clock_gettime		/* 265 */
-- 	.long sys_clock_getres
-- 	.long sys_clock_nanosleep
--	.long sys_statfs64
--	.long sys_fstatfs64
--	.long sys_tgkill	/* 270 */
--	.long sys_utimes
-- 	.long sys_fadvise64_64
--	.long sys_ni_syscall	/* sys_vserver */
--	.long sys_mbind
--	.long sys_get_mempolicy
--	.long sys_set_mempolicy
--	.long sys_mq_open
--	.long sys_mq_unlink
--	.long sys_mq_timedsend
--	.long sys_mq_timedreceive	/* 280 */
--	.long sys_mq_notify
--	.long sys_mq_getsetattr
--	.long sys_kexec_load
--	.long sys_waitid
--	.long sys_ni_syscall		/* 285 */ /* available */
--	.long sys_add_key
--	.long sys_request_key
--	.long sys_keyctl
--	.long sys_ioprio_set
--	.long sys_ioprio_get		/* 290 */
--	.long sys_inotify_init
--	.long sys_inotify_add_watch
--	.long sys_inotify_rm_watch
--	.long sys_migrate_pages
--	.long sys_openat		/* 295 */
--	.long sys_mkdirat
--	.long sys_mknodat
--	.long sys_fchownat
--	.long sys_futimesat
--	.long sys_newfstatat		/* 300 */
--	.long sys_unlinkat
--	.long sys_renameat
--	.long sys_linkat
--	.long sys_symlinkat
--	.long sys_readlinkat		/* 305 */
--	.long sys_fchmodat
--	.long sys_faccessat
--	.long sys_pselect6
--	.long sys_ppoll
--	.long sys_unshare		/* 310 */
--	.long sys_epoll_pwait
+--- /dev/null
++++ 2.6.16-rc1-mm2/arch/i386/kernel/syscall_tbl.S
+@@ -0,0 +1,330 @@
++/*
++ * Common ia32 syscall table for i386, UML/i386 and x86_64.
++ *
++ * UML and x86_64 override some of these pointers.
++ *
++ * If syscall pointer type is undefined, assume native 32-bit
++ * environment and 'traditional' cpp.
++ */
++#ifndef syscall_ptr_type
++#  define syscall_ptr_type	.long
++#  define SYSCALL(func)	RAWSYSCALL(sys_/**/func)
++#  define SYS32CALL		SYSCALL
++#  define STUB32CALL		SYSCALL
++#  define COMPATCALL		SYSCALL
++#endif
++
++#define RAWSYSCALL(func)	syscall_ptr_type func
++
++	SYSCALL(restart_syscall)	/* 0 - old "setup()", used for restarting */
++	SYSCALL(exit)
++	STUB32CALL(fork)
++	SYSCALL(read)
++	SYSCALL(write)
++	COMPATCALL(open)		/* 5 */
++	SYSCALL(close)
++	SYS32CALL(waitpid)
++	SYSCALL(creat)
++	SYSCALL(link)
++	SYSCALL(unlink)			/* 10 */
++	STUB32CALL(execve)
++	SYSCALL(chdir)
++	COMPATCALL(time)
++	SYSCALL(mknod)
++	SYSCALL(chmod)			/* 15 */
++	SYSCALL(lchown16)
++	SYS32CALL(ni_syscall)		/* old break syscall holder */
++	SYSCALL(stat)
++	SYS32CALL(lseek)
++	SYSCALL(getpid)			/* 20 */
++	COMPATCALL(mount)
++	SYSCALL(oldumount)
++	SYSCALL(setuid16)
++	SYSCALL(getuid16)
++	COMPATCALL(stime)		/* 25 */
++	SYS32CALL(ptrace)
++	SYSCALL(alarm)
++	SYSCALL(fstat)
++	SYSCALL(pause)
++	COMPATCALL(utime)		/* 30 */
++	SYS32CALL(ni_syscall)		/* old stty syscall holder */
++	SYS32CALL(ni_syscall)		/* old gtty syscall holder */
++	SYSCALL(access)
++	SYSCALL(nice)
++	SYS32CALL(ni_syscall)		/* 35 - old ftime syscall holder */
++	SYSCALL(sync)
++	SYS32CALL(kill)
++	SYSCALL(rename)
++	SYSCALL(mkdir)
++	SYSCALL(rmdir)			/* 40 */
++	SYSCALL(dup)
++	SYS32CALL(pipe)
++	COMPATCALL(times)
++	SYS32CALL(ni_syscall)		/* old prof syscall holder */
++	SYSCALL(brk)			/* 45 */
++	SYSCALL(setgid16)
++	SYSCALL(getgid16)
++	SYSCALL(signal)
++	SYSCALL(geteuid16)
++	SYSCALL(getegid16)		/* 50 */
++	SYSCALL(acct)
++	SYSCALL(umount)			/* recycled never used phys() */
++	SYS32CALL(ni_syscall)		/* old lock syscall holder */
++	COMPATCALL(ioctl)
++	COMPATCALL(fcntl)		/* 55 */
++	SYS32CALL(ni_syscall)		/* old mpx syscall holder */
++	SYSCALL(setpgid)
++	SYS32CALL(ni_syscall)		/* old ulimit syscall holder */
++	SYS32CALL(olduname)
++	SYSCALL(umask)			/* 60 */
++	SYSCALL(chroot)
++	SYS32CALL(ustat)
++	SYSCALL(dup2)
++	SYSCALL(getppid)
++	SYSCALL(getpgrp)		/* 65 */
++	SYSCALL(setsid)
++	SYS32CALL(sigaction)
++	SYSCALL(sgetmask)
++	SYSCALL(ssetmask)
++	SYSCALL(setreuid16)		/* 70 */
++	SYSCALL(setregid16)
++	STUB32CALL(sigsuspend)
++	COMPATCALL(sigpending)
++	SYSCALL(sethostname)
++	COMPATCALL(setrlimit)		/* 75 */
++	COMPATCALL(old_getrlimit)
++	COMPATCALL(getrusage)
++	SYS32CALL(gettimeofday)
++	SYS32CALL(settimeofday)
++	SYSCALL(getgroups16)		/* 80 */
++	SYSCALL(setgroups16)
++	SYS32CALL(old_select)
++	SYSCALL(symlink)
++	SYSCALL(lstat)
++	SYSCALL(readlink)		/* 85 */
++	SYSCALL(uselib)
++	SYSCALL(swapon)
++	SYSCALL(reboot)
++	RAWSYSCALL(old_readdir)		/* RAWSYSCALL */
++	SYS32CALL(old_mmap)		/* 90 */
++	SYSCALL(munmap)
++	SYSCALL(truncate)
++	SYSCALL(ftruncate)
++	SYSCALL(fchmod)
++	SYSCALL(fchown16)		/* 95 */
++	SYSCALL(getpriority)
++	SYSCALL(setpriority)
++	SYS32CALL(ni_syscall)		/* old profil syscall holder */
++	COMPATCALL(statfs)
++	COMPATCALL(fstatfs)		/* 100 */
++	SYSCALL(ioperm)
++	COMPATCALL(socketcall)
++	SYSCALL(syslog)
++	COMPATCALL(setitimer)
++	COMPATCALL(getitimer)		/* 105 */
++	COMPATCALL(newstat)
++	COMPATCALL(newlstat)
++	COMPATCALL(newfstat)
++	SYS32CALL(uname)
++	STUB32CALL(iopl)		/* 110 */
++	SYSCALL(vhangup)
++	SYS32CALL(ni_syscall)		/* old "idle" system call */
++	SYS32CALL(vm86old)
++	COMPATCALL(wait4)
++	SYSCALL(swapoff)		/* 115 */
++	SYS32CALL(sysinfo)
++	SYS32CALL(ipc)
++	SYSCALL(fsync)
++	STUB32CALL(sigreturn)
++	STUB32CALL(clone)		/* 120 */
++	SYSCALL(setdomainname)
++	SYSCALL(newuname)
++	SYSCALL(modify_ldt)
++	SYS32CALL(adjtimex)
++	SYS32CALL(mprotect)		/* 125 */
++	COMPATCALL(sigprocmask)
++	SYS32CALL(ni_syscall)		/* old "create_module" */
++	SYSCALL(init_module)
++	SYSCALL(delete_module)
++	SYS32CALL(ni_syscall)		/* 130:	old "get_kernel_syms" */
++	SYSCALL(quotactl)
++	SYSCALL(getpgid)
++	SYSCALL(fchdir)
++	SYSCALL(bdflush)
++	SYSCALL(sysfs)			/* 135 */
++	SYSCALL(personality)
++	SYS32CALL(ni_syscall)		/* reserved for afs_syscall */
++	SYSCALL(setfsuid16)
++	SYSCALL(setfsgid16)
++	SYSCALL(llseek)			/* 140 */
++	COMPATCALL(getdents)
++	COMPATCALL(select)
++	SYSCALL(flock)
++	SYSCALL(msync)
++	COMPATCALL(readv)		/* 145 */
++	COMPATCALL(writev)
++	SYSCALL(getsid)
++	SYSCALL(fdatasync)
++	SYS32CALL(sysctl)
++	SYSCALL(mlock)			/* 150 */
++	SYSCALL(munlock)
++	SYSCALL(mlockall)
++	SYSCALL(munlockall)
++	SYSCALL(sched_setparam)
++	SYSCALL(sched_getparam)   	/* 155 */
++	SYSCALL(sched_setscheduler)
++	SYSCALL(sched_getscheduler)
++	SYSCALL(sched_yield)
++	SYSCALL(sched_get_priority_max)
++	SYSCALL(sched_get_priority_min)	/* 160 */
++	SYSCALL(sched_rr_get_interval)
++	COMPATCALL(nanosleep)
++	SYSCALL(mremap)
++	SYSCALL(setresuid16)
++	SYSCALL(getresuid16)		/* 165 */
++	SYS32CALL(vm86)
++	SYS32CALL(ni_syscall)		/* Old sys_query_module */
++	SYSCALL(poll)
++	COMPATCALL(nfsservctl)
++	SYSCALL(setresgid16)		/* 170 */
++	SYSCALL(getresgid16)
++	SYSCALL(prctl)
++	STUB32CALL(rt_sigreturn)
++	SYS32CALL(rt_sigaction)
++	SYS32CALL(rt_sigprocmask)	/* 175 */
++	SYS32CALL(rt_sigpending)
++	COMPATCALL(rt_sigtimedwait)
++	SYS32CALL(rt_sigqueueinfo)
++	STUB32CALL(rt_sigsuspend)
++	SYS32CALL(pread64)		/* 180 */
++	SYS32CALL(pwrite64)
++	SYSCALL(chown16)
++	SYSCALL(getcwd)
++	SYSCALL(capget)
++	SYSCALL(capset)			/* 185 */
++	STUB32CALL(sigaltstack)
++	SYS32CALL(sendfile)
++	SYS32CALL(ni_syscall)		/* reserved for streams1 */
++	SYS32CALL(ni_syscall)		/* reserved for streams2 */
++	STUB32CALL(vfork)		/* 190 */
++	COMPATCALL(getrlimit)
++	SYS32CALL(mmap2)
++	SYS32CALL(truncate64)
++	SYS32CALL(ftruncate64)
++	SYS32CALL(stat64)		/* 195 */
++	SYS32CALL(lstat64)
++	SYS32CALL(fstat64)
++	SYSCALL(lchown)
++	SYSCALL(getuid)
++	SYSCALL(getgid)			/* 200 */
++	SYSCALL(geteuid)
++	SYSCALL(getegid)
++	SYSCALL(setreuid)
++	SYSCALL(setregid)
++	SYSCALL(getgroups)		/* 205 */
++	SYSCALL(setgroups)
++	SYSCALL(fchown)
++	SYSCALL(setresuid)
++	SYSCALL(getresuid)
++	SYSCALL(setresgid)		/* 210 */
++	SYSCALL(getresgid)
++	SYSCALL(chown)
++	SYSCALL(setuid)
++	SYSCALL(setgid)
++	SYSCALL(setfsuid)		/* 215 */
++	SYSCALL(setfsgid)
++	SYSCALL(pivot_root)
++	SYSCALL(mincore)
++	SYSCALL(madvise)
++	COMPATCALL(getdents64)		/* 220 */
++	COMPATCALL(fcntl64)
++	SYS32CALL(ni_syscall)		/* TUX */
++	SYS32CALL(ni_syscall)		/* security */
++	SYSCALL(gettid)
++	SYSCALL(readahead)		/* 225 */
++	SYSCALL(setxattr)
++	SYSCALL(lsetxattr)
++	SYSCALL(fsetxattr)
++	SYSCALL(getxattr)
++	SYSCALL(lgetxattr)		/* 230 */
++	SYSCALL(fgetxattr)
++	SYSCALL(listxattr)
++	SYSCALL(llistxattr)
++	SYSCALL(flistxattr)
++	SYSCALL(removexattr)		/* 235 */
++	SYSCALL(lremovexattr)
++	SYSCALL(fremovexattr)
++	SYSCALL(tkill)
++	SYSCALL(sendfile64)
++	COMPATCALL(futex)		/* 240 */
++	COMPATCALL(sched_setaffinity)
++	COMPATCALL(sched_getaffinity)
++	SYS32CALL(set_thread_area)
++	SYS32CALL(get_thread_area)
++	COMPATCALL(io_setup)		/* 245 */
++	SYSCALL(io_destroy)
++	COMPATCALL(io_getevents)
++	COMPATCALL(io_submit)
++	SYSCALL(io_cancel)
++	SYSCALL(fadvise64)		/* 250 */
++	SYS32CALL(ni_syscall)		/* free_huge_pages */
++	SYSCALL(exit_group)
++	SYS32CALL(lookup_dcookie)
++	SYSCALL(epoll_create)
++	SYSCALL(epoll_ctl)		/* 255 */
++	SYSCALL(epoll_wait)
++ 	SYSCALL(remap_file_pages)
++ 	SYSCALL(set_tid_address)
++ 	COMPATCALL(timer_create)
++ 	COMPATCALL(timer_settime) 	/* 260 */
++ 	COMPATCALL(timer_gettime)
++ 	SYSCALL(timer_getoverrun)
++ 	SYSCALL(timer_delete)
++ 	COMPATCALL(clock_settime)
++ 	COMPATCALL(clock_gettime)	/* 265 */
++ 	COMPATCALL(clock_getres)
++ 	COMPATCALL(clock_nanosleep)
++	COMPATCALL(statfs64)
++	COMPATCALL(fstatfs64)
++	SYSCALL(tgkill)			/* 270 */
++	COMPATCALL(utimes)
++ 	SYS32CALL(fadvise64_64)
++	SYS32CALL(ni_syscall)		/* vserver */
++	SYSCALL(mbind)
++	COMPATCALL(get_mempolicy)	/* 275 */
++	SYSCALL(set_mempolicy)
++	COMPATCALL(mq_open)
++	SYSCALL(mq_unlink)
++	COMPATCALL(mq_timedsend)
++	COMPATCALL(mq_timedreceive)	/* 280 */
++	COMPATCALL(mq_notify)
++	COMPATCALL(mq_getsetattr)
++	COMPATCALL(kexec_load)
++	COMPATCALL(waitid)
++	SYS32CALL(ni_syscall)		/* 285 - altroot */
++	SYSCALL(add_key)
++	SYSCALL(request_key)
++	SYSCALL(keyctl)
++	SYSCALL(ioprio_set)
++	SYSCALL(ioprio_get)		/* 290 */
++	SYSCALL(inotify_init)
++	SYSCALL(inotify_add_watch)
++	SYSCALL(inotify_rm_watch)
++	SYSCALL(migrate_pages)
++	COMPATCALL(openat)		/* 295 */
++	SYSCALL(mkdirat)
++	SYSCALL(mknodat)
++	SYSCALL(fchownat)
++	COMPATCALL(futimesat)
++	COMPATCALL(newfstatat)		/* 300 */
++	SYSCALL(unlinkat)
++	SYSCALL(renameat)
++	SYSCALL(linkat)
++	SYSCALL(symlinkat)
++	SYSCALL(readlinkat)		/* 305 */
++	SYSCALL(fchmodat)
++	SYSCALL(faccessat)
++	SYSCALL(pselect6)
++	SYSCALL(ppoll)
++	SYSCALL(unshare)		/* 310 */
++	SYSCALL(epoll_pwait)
 -- 
 Chuck

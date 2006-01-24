@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030359AbWAXQ3S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbWAXQam@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030359AbWAXQ3S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 11:29:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbWAXQ3S
+	id S1030362AbWAXQam (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 11:30:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbWAXQal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 11:29:18 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:27552 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030359AbWAXQ3R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 11:29:17 -0500
-Date: Tue, 24 Jan 2006 21:58:46 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: RCU latency regression in 2.6.16-rc1
-Message-ID: <20060124162846.GA7139@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <1138089139.2771.78.camel@mindpipe> <20060124075640.GA24806@elte.hu> <1138089483.2771.81.camel@mindpipe> <20060124080157.GA25855@elte.hu> <1138090078.2771.88.camel@mindpipe> <20060124081301.GC25855@elte.hu> <1138090527.2771.91.camel@mindpipe> <20060124091730.GA31204@us.ibm.com> <20060124092330.GA7060@elte.hu> <1138095856.2771.103.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 24 Jan 2006 11:30:41 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:56000 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030368AbWAXQal convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 11:30:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BAvNACBW4RM6vtBT6XArOEgRF7BdHvtluPbxvcDLU1xx/2VQbFaFePtQJoxjjCnXxg/vTY/mDpvpb6MMr9v07Hq85CBOI8LZx2SxhjF1Os7SVnFu+qSo6koqaCZ0Bkj97CC26glbpkAZDTTAIsNS2dhGWSZ4GMV9CS/3KFJ6FTg=
+Message-ID: <9e4733910601240830u4e242be9w73797e6b6d5fa367@mail.gmail.com>
+Date: Tue, 24 Jan 2006 11:30:40 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: sendfile() with 100 simultaneous 100MB files
+In-Reply-To: <9e4733910601230722k125f0391w74946b7401be85ce@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1138095856.2771.103.camel@mindpipe>
-User-Agent: Mutt/1.5.10i
+References: <9e4733910601201353g36284133xf68c4f6eae1344b4@mail.gmail.com>
+	 <20060122142401.GA24738@SDF.LONESTAR.ORG>
+	 <9e4733910601220931x3a21e47dj7dbf834e2f36d31c@mail.gmail.com>
+	 <9e4733910601230722k125f0391w74946b7401be85ce@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 24, 2006 at 04:44:15AM -0500, Lee Revell wrote:
-> On Tue, 2006-01-24 at 10:23 +0100, Ingo Molnar wrote:
-> > * Paul E. McKenney <paulmck@us.ibm.com> wrote:
-> > 
-> > > The other patch to try would be Dipankar Sarma's patch at:
-> > > 
-> > > 	http://marc.theaimsgroup.com/?l=linux-kernel&m=113657112726596&w=2
-> > > 
-> > > This patch was primarily designed to reduce memory overhead, but given 
-> > > that it tends to reduce batch size, it should also reduce latency.
-> > 
-> > if this solves Lee's problem, i think we should apply this as a fix, and 
-> > get it into v2.6.16. The patch looks straightforward and correct to me.
-> > 
-> 
-> Does not compile:
-> 
->  CC      kernel/rcupdate.o
-> kernel/rcupdate.c:76: warning: 'struct rcu_state' declared inside parameter list
+I've filed a kernel bug summarizing the issue:
+http://bugzilla.kernel.org/show_bug.cgi?id=5949
 
-My original patch was against a much older kernel.
-I will send out a more uptodate patch as soon as I am done with some
-testing.
+The lighttpd author is willing to provide more info if anyone is interested.
 
-Thanks
-Dipankar
+--
+Jon Smirl
+jonsmirl@gmail.com

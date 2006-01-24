@@ -1,68 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbWAXOui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbWAXOvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964974AbWAXOui (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 09:50:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbWAXOui
+	id S964984AbWAXOvM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 09:51:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964988AbWAXOvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 09:50:38 -0500
-Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:16805 "EHLO
-	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S964974AbWAXOui (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 09:50:38 -0500
-Date: Tue, 24 Jan 2006 08:48:14 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Arjan van de Ven <arjan@infradead.org>, Andi Kleen <ak@suse.de>
-cc: Ray Bryant <raybry@mpdtxmail.amd.com>, Robin Holt <holt@sgi.com>,
-       Hugh Dickins <hugh@veritas.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH/RFC] Shared page tables
-Message-ID: <E3ED10A5FEE08AEEA9094F49@[10.1.1.4]>
-In-Reply-To: <1138086398.2977.19.camel@laptopd505.fenrus.org>
-References: <A6D73CCDC544257F3D97F143@[10.1.1.4]>	
- <200601240139.46751.ak@suse.de>	
- <200601231853.54948.raybry@mpdtxmail.amd.com>	
- <200601240210.04337.ak@suse.de>
- <1138086398.2977.19.camel@laptopd505.fenrus.org>
-X-Mailer: Mulberry/4.0.0b4 (Linux/x86)
-MIME-Version: 1.0
+	Tue, 24 Jan 2006 09:51:12 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:24210 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S964984AbWAXOvK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 09:51:10 -0500
+Date: Tue, 24 Jan 2006 09:51:09 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Ed Sweetman <safemode@comcast.net>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: 2.6.16-rc1-mm2 pata driver confusion
+Message-ID: <20060124145109.GC23269@havoc.gtf.org>
+References: <43D5CC88.9080207@comcast.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <43D5CC88.9080207@comcast.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---On Tuesday, January 24, 2006 08:06:37 +0100 Arjan van de Ven
-<arjan@infradead.org> wrote:
-
->> The randomization is not for cache coloring, but for security purposes
->> (except for the old very small stack randomization that was used
->> to avoid conflicts on HyperThreaded CPUs). I would be surprised if the
->> mmap made much difference because it's page aligned and at least
->> on x86 the L2 and larger caches are usually PI.
+On Tue, Jan 24, 2006 at 01:43:20AM -0500, Ed Sweetman wrote:
+> I have an nforce4 based motherboard.  Currently i'm using the amd/nvidia 
+> driver under the normal ide,ata driver section (2.6.14). 
 > 
-> randomization to a large degree is more important between machines than
-> within the same machine (except for setuid stuff but lets call that a
-> special category for now). Imo prelink is one of the better bets to get
-> "all code for a binary/lib on the same 2 mb page", all distros ship
-> prelink nowadays anyway (it's too much of a win that nobody can afford
-> to not ship it ;) and within prelink the balance between randomization
-> for security and 2Mb sharing can be struck best. In fact it needs know
-> about the 2Mb thing anyway to place it there properly and for all
-> binaries... the kernel just can't do that.
+> It appears that the new ata code is hiding under scsi/sata drivers, 
+> including apparently pata code.  This alone reads confusing, pata 
 
-Currently libc and most other system libraries have text segments smaller
-than 2MB, so they won't share anyway.  We can't even coalesce adjacent
-libraries since the linker puts unshareable data space after each library.
+libata PATA support is under development.  Use only if you feel lucky.
+Really lucky.  I mean, really really lucky.
 
-The main win for text sharing is applications with large text in the
-program itself.  As long as that's loaded at the same address we'll share
-page tables for it.
 
-I thought the main security benefit for randomization of mapped regions was
-for writeable data space anyway.  Isn't text space protected by not being
-writeable?
+> 1.  Atapi is most definitely not supported by libata, right now.
 
-Dave McCracken
+Not true.
+
+
+> 2. whether libata sets the controller up better or not, ide cdroms MUST 
+> be loaded before libata is or the ide controller will be detected as 
+> "already in use" and the cdrom drivers wont have any device to attach 
+> to, since unlike scsi drivers, ide drivers dont probe the hardware on 
+> controllers to see if any driver has claimed them.
+
+Either use drivers/ide or libata for PATA, not both.
+
+
+> 3. For hdd's alone, the pata libata + sata drivers are a "complete" 
+> replacement for the ide drivers and thus, if you dont have atapi 
+> devices, you dont need to compile in ide support.
+
+Again, ATAPI works just fine.
+
+
+> 4.  moving to pata libata drivers _will_ change the enumeration of your 
+> sata devices, it seems that pata is initialized first, so when setting 
+> up your fstab entries and grub, you'll have to take into account how 
+> many pata devices you have and offset your current sata device names by 
+> that amount.
+
+Enumeration of devices depends on which driver is loaded first.
+Check your /etc/modprobe.conf.
+
+	Jeff
+
 

@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030286AbWAXBi5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030293AbWAXBzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030286AbWAXBi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 20:38:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030289AbWAXBi5
+	id S1030293AbWAXBzH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 20:55:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbWAXBzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 20:38:57 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:41901 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030286AbWAXBi5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 20:38:57 -0500
-From: Andi Kleen <ak@suse.de>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Subject: Re: [PATCH/RFC] Shared page tables
-Date: Tue, 24 Jan 2006 02:38:29 +0100
-User-Agent: KMail/1.8.2
-Cc: Ray Bryant <raybry@mpdtxmail.amd.com>, Dave McCracken <dmccr@us.ibm.com>,
-       Robin Holt <holt@sgi.com>, Hugh Dickins <hugh@veritas.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-References: <A6D73CCDC544257F3D97F143@[10.1.1.4]> <200601240210.04337.ak@suse.de> <20060124012331.GK1008@kvack.org>
-In-Reply-To: <20060124012331.GK1008@kvack.org>
+	Mon, 23 Jan 2006 20:55:06 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:27967 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030293AbWAXBzF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 20:55:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GTgSYIBC9d3QHReHzJmI10R4lB5v+QwwEJCrl1H7Q7Z8hvT3wAB93c//2df3uRqAs5yo9cO/yrY9RrEsEtI8dUdhhr9lVcUFwFSmSsNaDOSyhLoHazCnqScknhgPZcxTIA9tm6fW0I7/wk7P5NcejWpc7hyNVSHoXq6xB+L0y38=
+Message-ID: <441e43c90601231755qaddb557r7f102d9c1f79ad5@mail.gmail.com>
+Date: Mon, 23 Jan 2006 19:55:03 -0600
+From: Ian Kester-Haney <ikesterhaney@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux
+In-Reply-To: <87ek2y8n1f.fsf@basilikum.skogtun.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200601240238.29781.ak@suse.de>
+References: <200601212043.k0LKhG4w003290@laptop11.inf.utfsm.cl>
+	 <Pine.LNX.4.61.0601231703170.13590@chaos.analogic.com>
+	 <87ek2y8n1f.fsf@basilikum.skogtun.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 January 2006 02:23, Benjamin LaHaise wrote:
-> On Tue, Jan 24, 2006 at 02:10:03AM +0100, Andi Kleen wrote:
-> > The randomization is not for cache coloring, but for security purposes
-> > (except for the old very small stack randomization that was used
-> > to avoid conflicts on HyperThreaded CPUs). I would be surprised if the
-> > mmap made much difference because it's page aligned and at least
-> > on x86 the L2 and larger caches are usually PI.
-> 
-> Actually, does this even affect executable segments?  Iirc, prelinking 
-> already results in executables being mapped at the same physical offset 
-> across binaries in a given system.  An strace seems to confirm that.
+Linux shouldn;t move to the GPL3 for the very reason that the DRM
+restrictions would make linux incompatible with soon to be released
+displays.  Also Nvidia and such would not be  able to make binary
+drivers available.
+Copyright for one work is set forward in law.  My view is that Artists
+and their sponsors deserve
+the right to prevent piracy.  In my view the Open Source Community
+have an incompatible attitude.  In my mind the buying of a DVD means
+that I watch it on DVD players be it on my computer or on the TV. 
+while I beleive that I should be able to watch my DVDs on a linux
+based system, it behooves the open source community to support it in a
+legal way.  Cracking Access Control Sytems might be fun, but it only
+generates huge controversy in concerned industries.  An Open Source
+Access Control System that is respected by the FOSS community would be
+a great diplomatic way to allow for more access to content.  My
+personal view is that copying for my own personal use is ok, however
+the converting of such material in a way not granted to me by the
+Creator is not ethical.  Richard Stallman is painting himself into a
+corner in this way.
 
-Shared libraries should be affected. And prelink is not always used.
+Hence:
+     The GNU/Linux community needs to work with the MPAA, RIAA and
+other DRM players and work to support basic restrictions on copying
+content while preserving the Creator/Companies right to sustain their
+works.
 
--Andi
+Thankyou

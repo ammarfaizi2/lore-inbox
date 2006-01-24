@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030287AbWAXDtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030312AbWAXDwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030287AbWAXDtO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jan 2006 22:49:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030292AbWAXDtO
+	id S1030312AbWAXDwN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jan 2006 22:52:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbWAXDwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jan 2006 22:49:14 -0500
-Received: from uproxy.gmail.com ([66.249.92.205]:42983 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030287AbWAXDtO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jan 2006 22:49:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=McrceeV8q+DjlI01QQV9hG6m7Yy1vo/nUDzW0R2PpFrCXpwhHyXkx7kh9GcN5bRacqrLFh4wJOEFxCxblQeRYqX45WFvMzWsonMWyQ2gfo3Gz9ErQCGNBNth1X73wf0yGC6jSMtC0FN9AY/6CZ70otdhF80EIxZiwpO560QWn8Q=
-Date: Tue, 24 Jan 2006 04:48:46 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: paulkf@microgate.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: pppd oopses current linu's git tree on disconnect
-Message-Id: <20060124044846.de6508eb.diegocg@gmail.com>
-In-Reply-To: <20060123034243.22ba0a8f.diegocg@gmail.com>
-References: <20060119010601.f259bb32.diegocg@gmail.com>
-	<1137692039.3279.1.camel@amdx2.microgate.com>
-	<20060119230746.ea78fcf4.diegocg@gmail.com>
-	<43D01537.40705@microgate.com>
-	<20060123034243.22ba0a8f.diegocg@gmail.com>
-X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Mon, 23 Jan 2006 22:52:13 -0500
+Received: from ns2.suse.de ([195.135.220.15]:57525 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030292AbWAXDwL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jan 2006 22:52:11 -0500
+From: Neil Brown <neilb@suse.de>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Date: Tue, 24 Jan 2006 14:51:56 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17365.42076.633018.163881@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1-mm2
+In-Reply-To: message from Reuben Farrelly on Saturday January 21
+References: <20060120031555.7b6d65b7.akpm@osdl.org>
+	<43D170CB.8080802@reub.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Mon, 23 Jan 2006 03:42:43 +0100,
-Diego Calleja <diegocg@gmail.com> escribió:
+On Saturday January 21, reuben-lkml@reub.net wrote:
+> md: stopping all md devices.
+> md: md1 switched to read-only mode.
+> BUG: unable to handle kernel NULL pointer dereference<6>md: md2 switched to 
+> read-only mode.
+>   at virtual address 0000001c
+>   printing eip:
+> b02a6951
+> *pde = 00000000
+> Oops: 0000 [#1]
+> SMP
+> last sysfs file: /devices/pci0000:00/0000:00:1f.3/i2c-0/0-002e/vrm
+> Modules linked in: iptable_mangle iptable_nat ip_nat ip_conntrack nfnetlink 
+> iptable_filter ip_tables nfsd exportfs lockd sunrpc ipv6 ip_gre binfmt_misc 
+> serio_raw piix hw_random
+> CPU:    0
+> EIP:    0060:[<b02a6951>]    Not tainted VLI
+> EFLAGS: 00010002   (2.6.16-rc1-mm2 #1)
+> EIP is at bitmap_daemon_work+0x144/0x391
 
-> Ok - I seem to be able to reproduce it in a unpatched kernel using
-> a lengthy session. I will try your patch and report back.
+Hmmmm.... yep. I see the problem.  We shouldn't be tearing down the
+bitmap when switching to read-only.  Patch to follow.
 
-It doesn't seems to happen today at least, after a lentghty session
-similar to the one which triggered the bug.
+Thanks,
+
+NeilBrown

@@ -1,139 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWAYNbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWAYNsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750929AbWAYNbw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 08:31:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbWAYNbw
+	id S1751165AbWAYNsc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 08:48:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWAYNsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 08:31:52 -0500
-Received: from ns1.suse.de ([195.135.220.2]:1442 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750929AbWAYNbw (ORCPT
+	Wed, 25 Jan 2006 08:48:32 -0500
+Received: from hs-grafik.net ([80.237.205.72]:29452 "EHLO hs-grafik.net")
+	by vger.kernel.org with ESMTP id S1751166AbWAYNsb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 08:31:52 -0500
-From: Andi Kleen <ak@suse.de>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [PATCH] garbage values in file /proc/net/sockstat
-Date: Wed, 25 Jan 2006 14:31:15 +0100
-User-Agent: KMail/1.8.2
-Cc: pravin shelar <pravins@calsoftinc.com>,
-       Ravikiran G Thirumalai <kiran@scalex86.org>,
-       Shai Fultheim <shai@scalex86.org>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-References: <Pine.LNX.4.63.0601231206270.2192@pravin.s> <43D50445.1080208@cosmosbay.com> <43D50880.605@cosmosbay.com>
-In-Reply-To: <43D50880.605@cosmosbay.com>
+	Wed, 25 Jan 2006 08:48:31 -0500
+From: Alexander Gran <alex@zodiac.dnsalias.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1-mm3
+Date: Wed, 25 Jan 2006 14:48:10 +0100
+User-Agent: KMail/1.9.1
+X-Face: ){635DT*1Z+Z}$~Bf[[i"X:f2i+:Za[:Q0<UzyJPoAm(;y"@=?iso-8859-15?q?LwMhWM4=5D=60x1bDaQDpet=3B=3Be=0A=09N=5CBIb8o=5BF!fdHrI-?=
+ =?iso-8859-15?q?=7E=24ctS=3F!?=,U+0}](xD}_b]awZrK=>753Wk;RwhCU`Bt(I^/Jxl~5zIH<
+ =?iso-8859-15?q?=0A=09XplI=3A9GKEcr/JPqzW=3BR=5FqDQe*=23CE=7E70=3Bj=25Hg8?=
+ =?iso-8859-15?q?CNh*4?=<
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_k231D2GDh1JFmkA"
-Message-Id: <200601251431.16513.ak@suse.de>
+Content-Type: multipart/signed;
+  boundary="nextPart1212836.G55SLmaOyc";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200601251448.20664@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_k231D2GDh1JFmkA
+--nextPart1212836.G55SLmaOyc
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-On Monday 23 January 2006 17:46, Eric Dumazet wrote:
-> 
-> Sorry for the first version of he patch. I did one change, in order to do the 
-> initialization only for !possible cpu
-> 
-> [PATCH] x86_64 : Use a special CPUDATA_RED_ZONE to catch accesses to 
-> per_cpu(some_object, some_not_possible_cpu)
-> 
-> Because cpu_data(cpu)->data_offset may contain garbage, some buggy code may do 
-> random things without notice. If we initialize data_offset so that the 
-> per_cpu() data sits in an unmapped memory area, we should get page faults and 
-> stack traces should help us find the bugs.
-> 
-> Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+Hi,
 
-With that patch sched_init gives an early exception. I don't think
-we can fix up all cases before 2.6.16, but it's dangerous
-to let it reference freed memory.
+mm3 is basically running ok, however it has one problem (that ocurs in mm2,=
+=20
+too):
+My Netbeans (java-ide) debugger is to slow. It takes some ms (up to 1000 I'=
+d=20
+think) to step over one line, in 13-rc2-mm1 I cannot realize a delay at all.
+Any Idea how to profile the kernel/my system to get an Idea. Everything els=
+e=20
+(C, C++, java apps..) are running fine.
 
-I think the best course of action for this now for 2.6.16 is:
+regards
+Alex
+=2D-=20
+Encrypted Mails welcome.
+PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
 
-- mark percpu init data not __init
-(this way it will still reference valid memory, although shared between
-all impossible CPUs)
-- keep the impossible CPUs per cpu data to point to the original reference  
-version (== offset 0)
+--nextPart1212836.G55SLmaOyc
+Content-Type: application/pgp-signature
 
-For 2.6.17 all the occurrences of NR_CPUS should be audited
-and fixed up like you started in your earlier patch.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-Like the attached patch.
+iD8DBQBD14Gk/aHb+2190pERAoQIAJoCUWcrl9rsfBYMJaxUIeECCORDdgCfWrpm
+V7MDyjYJdH5f5xRIOrm8CKU=
+=oNdA
+-----END PGP SIGNATURE-----
 
--Andi
-
-
---Boundary-00=_k231D2GDh1JFmkA
-Content-Type: text/x-diff;
-  charset="utf-8";
-  name="impossible-per-cpu-data-workaround"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="impossible-per-cpu-data-workaround"
-
-Let impossible CPUs point to reference per cpu data
-
-Hack for 2.6.16. In 2.6.17 all code that uses NR_CPUs should
-be audited and changed to only touch possible CPUs.
-
-Don't mark the reference per cpu data init data (so it stays
-around after boot) and point all impossible CPUs to it. This way
-they reference some valid - although shared memory. Usually
-this is only initialization like INIT_LIST_HEADs and there
-won't be races because these CPUs never run. Still somewhat hackish.
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-
-Index: linux/arch/x86_64/kernel/setup64.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/setup64.c
-+++ linux/arch/x86_64/kernel/setup64.c
-@@ -99,8 +99,15 @@ void __init setup_per_cpu_areas(void)
- 		size = PERCPU_ENOUGH_ROOM;
- #endif
- 
--	for_each_cpu_mask (i, cpu_possible_map) {
-+	for (i = 0; i < NR_CPUS; i++) { 
- 		char *ptr;
-+		
-+		/* Later set this to a unmapped area, but first 
-+		   need to clean up NR_CPUS usage everywhere */
-+		if (!cpu_possible(i)) {	
-+			/* Point the the original reference data */
-+			cpu_pda(i)->data_offset = 0;
-+		}
- 
- 		if (!NODE_DATA(cpu_to_node(i))) {
- 			printk("cpu with no node %d, num_online_nodes %d\n",
-Index: linux/arch/x86_64/kernel/vmlinux.lds.S
-===================================================================
---- linux.orig/arch/x86_64/kernel/vmlinux.lds.S
-+++ linux/arch/x86_64/kernel/vmlinux.lds.S
-@@ -172,13 +172,16 @@ SECTIONS
-   . = ALIGN(4096);
-   __initramfs_start = .;
-   .init.ramfs : AT(ADDR(.init.ramfs) - LOAD_OFFSET) { *(.init.ramfs) }
--  __initramfs_end = .;	
-+ /* temporary here to work around NR_CPUS. If you see this comment in 2.6.17+
-+   complain */ 
-+ __initramfs_end = .;	
-+  . = ALIGN(4096);
-+  __init_end = .;	
-   . = ALIGN(32);
-   __per_cpu_start = .;
-   .data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) { *(.data.percpu) }
-   __per_cpu_end = .;
--  . = ALIGN(4096);
--  __init_end = .;
-+  /* __init_end / ALIGN(4096) should be here */
- 
-   . = ALIGN(4096);
-   __nosave_begin = .;
-
---Boundary-00=_k231D2GDh1JFmkA--
+--nextPart1212836.G55SLmaOyc--

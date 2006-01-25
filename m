@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWAYIHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWAYIh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750841AbWAYIHa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 03:07:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWAYIHa
+	id S1750934AbWAYIh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 03:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbWAYIh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 03:07:30 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:7049 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750768AbWAYIH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 03:07:29 -0500
-Subject: Re: [PATCH 1/5] stack overflow safe kdump (2.6.16-rc1-i386) -
-	safe_smp_processor_id
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, fernando@intellilink.co.jp, ebiederm@xmission.com,
-       vgoyal@in.ibm.com, linux-kernel@vger.kernel.org,
-       fastboot@lists.osdl.org
-In-Reply-To: <20060124235901.719aa375.akpm@osdl.org>
-References: <1138171868.2370.62.camel@localhost.localdomain>
-	 <20060124231052.7c9fcbec.akpm@osdl.org> <200601250853.48193.ak@suse.de>
-	 <20060124235901.719aa375.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 25 Jan 2006 09:07:18 +0100
-Message-Id: <1138176439.3001.26.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 25 Jan 2006 03:37:27 -0500
+Received: from [218.25.172.144] ([218.25.172.144]:58629 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S1750932AbWAYIh0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 03:37:26 -0500
+Date: Wed, 25 Jan 2006 16:37:28 +0800
+From: Coywolf Qi Hunt <qiyong@fc-cn.com>
+To: Fawad Lateef <fawadlateef@gmail.com>
+Cc: Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Block device API
+Message-ID: <20060125083728.GA16593@localhost.localdomain>
+References: <bda6d13a0601241858g260b915bs5370d34ac90321de@mail.gmail.com> <1e62d1370601241917l4c53cf3fud34835c4dc5c1526@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1e62d1370601241917l4c53cf3fud34835c4dc5c1526@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-24 at 23:59 -0800, Andrew Morton wrote:
-> Andi Kleen <ak@suse.de> wrote:
+On Wed, Jan 25, 2006 at 08:17:02AM +0500, Fawad Lateef wrote:
+> On 1/25/06, Joshua Hudson <joshudson@gmail.com> wrote:
+> > I am working on a kernel filesystem driver. I have found plenty of
+> > documentation on
+> > how to communicate between the VFS and the filesystem driver, but nothing
+> > on how to communicate between the block device and the filesystem driver.
 > >
-> > On Wednesday 25 January 2006 08:10, Andrew Morton wrote:
-> > 
-> > > It assumes that all x86 SMP machines have APICs.  That's untrue of Voyager.
-> > > I think we can probably live with this assumption - others would know
-> > > better than I.
-> > 
-> > Early x86s didn't have APICs and they are still often disabled on not so 
-> > old mobile CPUs.  I don't think it's a good assumption to make for i386.
-> > 
 > 
-> But how many of those do SMP?
+> AFAIK there isn't any documentation/article for block and filesystem
+> layer interaction (or till now me also not able to find any) :)
+> 
+> > I found sb_bread() but there is no corrisponding sb_bwrite().
+> > I presume that if ((struct superblock *)s) -> bdev is the block
+> > device handle, but I cannot find the read/write pair of functions.
+> > -
+> 
+> sb_bread is the function used for reading a block (especially
+> superblock) from the storage. For reading/writing do look at
 
-even on SMP boxes you regularly need to (runtime) disable apics. Several
-boards out there just have busted apics, or at least when used with
-linux. "noapic" is one of the more frequent things distro support people
-tell customers over the phone....
+Does __bread() contribute to page cache? I think not. And we don't
+care the work done by __bread().
 
-
+> generic_file_read/write functions found in mm/filemap.c and when going
+> through the code you will see its ends up in calling
+> mappings->a_ops->readpage(s)/writepage(s) of filesystem in which
+> normal filesystems (like ext2) just call function
+> mpage_readpages/writepages found in fs/mpage.c which performs actual
+> read/write on the block device.
+-- 
+Coywolf Qi Hunt

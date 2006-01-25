@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWAYRPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWAYRSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbWAYRPT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 12:15:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWAYRPS
+	id S1750799AbWAYRSj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 12:18:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWAYRSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 12:15:18 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:5587 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1750703AbWAYRPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 12:15:16 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Wed, 25 Jan 2006 18:14:15 +0100
-To: schilling@fokus.fraunhofer.de, mrmacman_g4@mac.com
-Cc: rlrevell@joe-job.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43D7B1E7.nailDFJ9MUZ5G@burner>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
- <43D7A7F4.nailDE92K7TJI@burner>
- <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
-In-Reply-To: <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 25 Jan 2006 12:18:39 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:26443 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750799AbWAYRSi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 12:18:38 -0500
+Date: Wed, 25 Jan 2006 18:20:14 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: jengelh@linux01.gwdg.de, rlrevell@joe-job.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest) (was: Rationale for RLIMIT_MEMLOCK?)
+Message-ID: <20060125172014.GK4212@suse.de>
+References: <1138039993.2977.62.camel@laptopd505.fenrus.org> <20060123185549.GA15985@merlin.emma.line.org> <43D530CC.nailC4Y11KE7A@burner> <1138048255.21481.15.camel@mindpipe> <20060123212119.GI1820@merlin.emma.line.org> <Pine.LNX.4.61.0601241823390.28682@yvahk01.tjqt.qr> <43D78585.nailD7855YVBX@burner> <20060125142155.GW4212@suse.de> <Pine.LNX.4.61.0601251544400.31234@yvahk01.tjqt.qr> <43D7AE00.nailDFJ61L10Z@burner>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43D7AE00.nailDFJ61L10Z@burner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett <mrmacman_g4@mac.com> wrote:
+On Wed, Jan 25 2006, Joerg Schilling wrote:
+> Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> 
+> >
+> > >> And if you check the amount of completely unneeded code Linux currently has 
+> > >> just to implement e.g. SG_IO in /dev/hd*, it could even _save_ space in the 
+> > >> kernel when converting to a clean SCSI based design.
+> > >
+> > >Please point me at that huge amount of code. Hint: there is none.
+> >
+> > I'm getting a grin:
+> >
+> > 15:46 takeshi:../drivers/ide > find . -type f -print0 | xargs -0 grep SG_IO
+> > (no results)
+> >
+> > Looks like it's already non-redundant :)
+> 
+> everything in drivers/block/scsi_ioctl.c  is duplicate code and I am sure I 
+> would find more if I take some time....
 
-> > [irrelevant discussion of other platforms]
+axboe@nelson:[.]r/src/linux-2.6-block.git $ size block/scsi_ioctl.o
+   text    data     bss     dec     hex filename
+   2844     256       0    3100     c1c block/scsi_ioctl.o
 
-Incorrect, sorry. Do you really make Linux incompatible to the rest of the 
-world?
-
-
-> > 17 Platforms _need_ the addressing scheme libscg offers
-> > 5  Platforms _may_ use a different access method too.
->
-> Wrong again:
-> 17 platforms need libscg's addressing
-> 4 platforms offer /dev/* access
-> 1 platform (Linux) _requires_ /dev/* access
-
-Your last line is wrong 
-
-> You are perfectly free to adjust your compatibility layer accordingly.
-
-The Linux Kernel fols unfortunately artificially hides information for the 
-/dev/hd* interface making exactly this compatibility impossible.
-
-
-> Personal attacks are offtopic, irrelevant, and rude.  Please refrain  
-> from doing so.  If you don't plan to respond to somebody's email,  
-> just don't, no reason to shout about it to a world who doesn't care.
-
-If you are against personal attacks, why didn't you intercede for the
-postings from Jens Axboe and Albert Cahalan?
-
-I am against personal attacks and this is the first time where it tooks
-more than a day before LKML people started with personal attacks against me.
-So in principle this is some sort of progress compared to former times.
-If you like to continue this discussion, I would like you to stay reasonable 
-and help to keep the discussion stay based on technical based arguments.
-
-Jörg
+And it's not everything that's duplicated, basically only the ioctl
+parsing is. So either admit that there isn't a a lot of duplicated code,
+or "take some time" and point me at it. Otherwise refrain from making
+obviously false statements in the future.
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Jens Axboe
+

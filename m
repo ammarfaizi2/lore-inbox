@@ -1,78 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWAYM2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWAYMcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751142AbWAYM2i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 07:28:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbWAYM2i
+	id S1751145AbWAYMcl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 07:32:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWAYMcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 07:28:38 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:32204 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751142AbWAYM2h (ORCPT
+	Wed, 25 Jan 2006 07:32:41 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:45244 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1751145AbWAYMcj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 07:28:37 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH -mm] swsusp: userland interface (rev 2)
-Date: Wed, 25 Jan 2006 13:29:55 +0100
-User-Agent: KMail/1.9
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200601240929.37676.rjw@sisk.pl> <200601250035.39383.rjw@sisk.pl> <20060125121848.GA1900@elf.ucw.cz>
-In-Reply-To: <20060125121848.GA1900@elf.ucw.cz>
+	Wed, 25 Jan 2006 07:32:39 -0500
+Date: Wed, 25 Jan 2006 13:28:51 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Akinobu Mita <mita@miraclelinux.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Richard Henderson <rth@twiddle.net>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
+       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
+       Greg Ungerer <gerg@uclinux.org>,
+       Linux/MIPS Development <linux-mips@linux-mips.org>,
+       parisc-linux@parisc-linux.org,
+       Linux/PPC Development <linuxppc-dev@ozlabs.org>, linux390@de.ibm.com,
+       linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>
+Subject: Re: [PATCH 5/6] fix warning on test_ti_thread_flag()
+In-Reply-To: <20060125113446.GF18584@miraclelinux.com>
+Message-ID: <Pine.LNX.4.62.0601251323420.19174@pademelon.sonytel.be>
+References: <20060125112625.GA18584@miraclelinux.com> <20060125113446.GF18584@miraclelinux.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601251329.55366.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wednesday, 25 January 2006 13:18, Pavel Machek wrote:
-> > > > +	case SNAPSHOT_ATOMIC_RESTORE:
-> > > > +		if (data->mode != O_WRONLY || !data->frozen ||
-> > > > +		    !snapshot_image_loaded(&data->handle)) {
-> > > > +			error = -EPERM;
-> > > > +			break;
-> > > > +		}
-> > > > +		down(&pm_sem);
-> > > > +		pm_prepare_console();
-> > > > +		error = device_suspend(PMSG_FREEZE);
-> > > > +		if (!error) {
-> > > > +			mb();
-> > > > +			error = swsusp_resume();
-> > > > +			device_resume();
-> > > > +		}
-> > > 
-> > > whee, what does the mystery barrier do?  It'd be nice to comment this
-> > > (please always comment open-coded barriers).
-> > 
-> > Pavel should know. ;-)
+On Wed, 25 Jan 2006, Akinobu Mita wrote:
+> If the arechitecture is
+> - BITS_PER_LONG == 64
+> - struct thread_info.flag 32 is bits
+> - second argument of test_bit() was void *
 > 
-> Pavel does not known. That memory barrier should be part of assembly
-> parts, anyway, and AFAIK it is. Should be safe to kill.
-
-OK
-
-> > > > +	case SNAPSHOT_GET_SWAP_PAGE:
-> > > > +		if (!access_ok(VERIFY_WRITE, (unsigned long __user *)arg, _IOC_SIZE(cmd))) {
-> > > > +			error = -EINVAL;
-> > > > +			break;
-> > > > +		}
-> > > 
-> > > Why do we need an access_ok() here?
-> > 
-> > Because we use __put_user() down the road?
-> > 
-> > The problem is if the address is wrong we should not try to call
-> > alloc_swap_page() at all.  If we did, we wouldn't be able to return the result
-> > and we would leak a swap page.
+> Then compiler print error message on test_ti_thread_flags()
+> in include/linux/thread_info.h
 > 
-> I think you need to watch for failing put_user and free the page at
-> that point. Anything else is racy as __put_user() may fail.
+> Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+> ---
+>  thread_info.h |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> Index: 2.6-git/include/linux/thread_info.h
+> ===================================================================
+> --- 2.6-git.orig/include/linux/thread_info.h	2006-01-25 19:07:12.000000000 +0900
+> +++ 2.6-git/include/linux/thread_info.h	2006-01-25 19:14:26.000000000 +0900
+> @@ -49,7 +49,7 @@
+>  
+>  static inline int test_ti_thread_flag(struct thread_info *ti, int flag)
+>  {
+> -	return test_bit(flag,&ti->flags);
+> +	return test_bit(flag, (void *)&ti->flags);
+>  }
 
-The page will be freed anyway when the device is closed (I was wrong
-saying it would be "leaked"), so I think I'll just use put_user().
+This is not safe. The bitops are defined to work on unsigned long only, so
+flags should be changed to unsigned long instead, or you should use a
+temporary.
 
-Greetings,
-Rafael
+Affected platforms:
+  - alpha: flags is unsigned int
+  - ia64, sh, x86_64: flags is __u32
+
+The only affected 64-platforms are little endian, so it will silently work
+after your change, though...
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

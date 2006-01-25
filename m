@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbWAYVso@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWAYVxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbWAYVso (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 16:48:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbWAYVso
+	id S932108AbWAYVxH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 16:53:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWAYVxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 16:48:44 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:12998 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932153AbWAYVsn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 16:48:43 -0500
-Date: Wed, 25 Jan 2006 13:48:03 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ashok Raj <ashok.raj@intel.com>, ak@muc.de, linux-kernel@vger.kernel.org,
-       kaos@sgi.com, randy.d.dunlap@intel.com
-Subject: Re: wrongly marked __init/__initdata for CPU hotplug
-Message-ID: <20060125134802.A32505@unix-os.sc.intel.com>
-References: <20060125120253.A30999@unix-os.sc.intel.com> <20060125121317.478462fc.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060125121317.478462fc.akpm@osdl.org>; from akpm@osdl.org on Wed, Jan 25, 2006 at 12:13:17PM -0800
+	Wed, 25 Jan 2006 16:53:07 -0500
+Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:53788 "EHLO
+	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S932108AbWAYVxG convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 16:53:06 -0500
+Date: Wed, 25 Jan 2006 22:48:52 +0100 (CET)
+From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+To: Roger Heflin <rheflin@atipa.com>
+cc: linux-kernel@vger.kernel.org, linux-netdev@vger.kernel.org
+Subject: RE: e1000_watchdog_task: NIC Link is Up/Down on kernels 2.4.15 2.4.14
+In-Reply-To: <EXCHG2003KvPEkGhAj500000a0f@EXCHG2003.microtech-ks.com>
+Message-ID: <Pine.LNX.4.64.0601252241060.25727@lt.wsisiz.edu.pl>
+References: <EXCHG2003KvPEkGhAj500000a0f@EXCHG2003.microtech-ks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (portraits.wsisiz.edu.pl [127.0.0.1]); Wed, 25 Jan 2006 22:52:59 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25, 2006 at 12:13:17PM -0800, Andrew Morton wrote:
-> Ashok Raj <ashok.raj@intel.com> wrote:
-> >
-> >  void __cpuinit mcheck_init(struct cpuinfo_x86 *c)
-> >   {
-> >  -	static cpumask_t mce_cpus __initdata = CPU_MASK_NONE;
-> >  +	static cpumask_t mce_cpus = CPU_MASK_NONE;
-> 
-> Should that be __cpuinitdata?
+On Mon, 9 Jan 2006, Roger Heflin wrote:
 
-Yes.. i sent an updated one to Andrew, but missed replying to group.
+about:
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=177043
+
+> We have fixed a number of machines with this issue by adding a heatsink/fan
+> near the ethernet chip, and we have got at least one MB manufacturer to
+> duplicate
+> the issue, and add a heat sink on their motherboads to correct the issue.
+
+Thank You for sugestions. I will try to move this machine to another rack,
+because i have find information about high temperature on
+CPU in logs files.
+
+Jan  1 04:03:21 w3cache kernel: CPU2: Running in modulated clock mode
+Jan  1 04:03:21 w3cache kernel: CPU3: Running in modulated clock mode
+Jan  1 04:03:26 w3cache kernel: CPU3: Temperature above threshold
+Jan  1 04:03:26 w3cache kernel: CPU2: Temperature above threshold
+
+
 
 -- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+£T

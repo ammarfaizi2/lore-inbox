@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWAYSQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWAYSWb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbWAYSQk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 13:16:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbWAYSQk
+	id S1750964AbWAYSWb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 13:22:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbWAYSWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 13:16:40 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:52996 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932086AbWAYSQ3 (ORCPT
+	Wed, 25 Jan 2006 13:22:31 -0500
+Received: from mail.gmx.net ([213.165.64.21]:17614 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750823AbWAYSWa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 13:16:29 -0500
-Date: Wed, 25 Jan 2006 19:17:36 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, rlrevell@joe-job.com,
+	Wed, 25 Jan 2006 13:22:30 -0500
+X-Authenticated: #428038
+Message-ID: <43D7C1DF.1070606@gmx.de>
+Date: Wed, 25 Jan 2006 19:22:23 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: grundig@teleline.es, Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       jengelh@linux01.gwdg.de, rlrevell@joe-job.com,
        linux-kernel@vger.kernel.org, acahalan@gmail.com
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060125181736.GX4212@suse.de>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43D7A7F4.nailDE92K7TJI@burner> <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com> <43D7B075.6000602@gmx.de> <43D7B2DF.nailDFJA51SL1@burner>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43D7B2DF.nailDFJA51SL1@burner>
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner> <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de>
+In-Reply-To: <20060125173127.GR4212@suse.de>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25 2006, Joerg Schilling wrote:
-> > So I'll repeat my question: is there anything that SG_IO to /dev/hd* (via
-> > ide-cd) cannot do that it can do via /dev/sg*? Device enumeration doesn't count.
-> 
-> But device enumeration is the central point when implementing
-> -scanbus.
+Jens Axboe wrote:
 
-And that's why I state it's useless on Linux.
+> In fact it would be a _lot_ easier to just scan sysfs and do an inquiry
+> on potentially useful devices.
 
-> Note that all OS that I am aware of internally use a device
-> enumeration scheme that is close to what libscg uses. This ie even
-> true for Linux. If Linux did not hide this information for /dev/hd*
-> based fd's, I could implement an abstraction layer.....
-
-Not true, Linux has nothing of the sort internally for eg ATAPI devices.
-I don't know why you think that, but it's simply not true at all.
-
--- 
-Jens Axboe
-
+Hm. sysfs, procfs, udev, hotplug, netlink (for IPv6) - this all looks rather
+complicated and non-portable. I understand that applications that can just
+open every device and send SCSI INQUIRY might want to do that on Linux, too.

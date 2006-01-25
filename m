@@ -1,74 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWAYXsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWAYXvB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751215AbWAYXsP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 18:48:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWAYXsO
+	id S1751218AbWAYXvB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 18:51:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWAYXvB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 18:48:14 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:62733 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751215AbWAYXsO
+	Wed, 25 Jan 2006 18:51:01 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:57779 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751218AbWAYXvA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 18:48:14 -0500
-To: Albert Cahalan <acahalan@gmail.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-       "Jakub Jelinek <jakub@redhat.com> Al Viro" <viro@ftp.linux.org.uk>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 4/4] pmap: reduced permissions
-References: <200601222219.k0MMJ3Qg209555@saturn.cs.uml.edu>
-	<1137996654.2977.0.camel@laptopd505.fenrus.org>
-	<787b0d920601230128o5a12513fjae3708e3fb552dca@mail.gmail.com>
-	<1138009305.2977.28.camel@laptopd505.fenrus.org>
-	<787b0d920601230220r5c7df60dk142d1d637ab4ed48@mail.gmail.com>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: resistance is futile; you will be assimilated and byte-compiled.
-Date: Wed, 25 Jan 2006 23:47:56 +0000
-In-Reply-To: <787b0d920601230220r5c7df60dk142d1d637ab4ed48@mail.gmail.com> (Albert
- Cahalan's message of "23 Jan 2006 10:28:34 -0000")
-Message-ID: <87r76vrhsj.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 25 Jan 2006 18:51:00 -0500
+Subject: Re: [patch, validator] fix clocksource_lock deadlock
+From: john stultz <johnstul@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
+In-Reply-To: <20060125180032.GA11734@elte.hu>
+References: <20060125180032.GA11734@elte.hu>
+Content-Type: text/plain
+Date: Wed, 25 Jan 2006 15:50:57 -0800
+Message-Id: <1138233057.14289.54.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Jan 2006, Albert Cahalan said:
-> On 1/23/06, Arjan van de Ven <arjan@infradead.org> wrote:
->> On Mon, 2006-01-23 at 04:28 -0500, Albert Cahalan wrote:
+On Wed, 2006-01-25 at 19:00 +0100, Ingo Molnar wrote:
+> clocksource_lock is used in softirq-context via e.g.  
+> timeofday_periodic_hook() -> get_next_clocksource(), but the lock is not 
+> acquired in a softirq-safe manner - which could lead to deadlocks.
+
+Nice catch. Andrew also noticed this issue just a few hours before you
+sent this. Great minds...
+
+
+> this bug was found via the lock validator i'm working on:
 > 
->> > I tend to think that glibc should not be reading this file.
->> > What excuse is there?
->>
->> glibc needs to be able to find out if a certain address is writable. (eg
->> mapped "w"). The only way available for that is... reading the maps
->> file.
+>   ============================
+>   [ BUG: illegal lock usage! ]
+>   ----------------------------
+>   illegal {used-in-softirq} -> {enabled-softirqs} usage.
+>   swapper/1 [HC0[0]:SC0[0]:HE1:SE1] takes {clocksource_lock [u:21]}, at:
+>    [<c013f526>] register_clocksource+0x16/0xf0
+>   {used-in-softirq} state was registered at:
+>    [<c013f22d>] get_next_clocksource+0xd/0x40
+>   hardirqs last enabled at: [<c011d31a>] vprintk+0x28a/0x3e0
+>   softirqs last enabled at: [<c0122999>] irq_exit+0x39/0x50
+>   
+>   other info that might help in debugging this:
+>   ------------------------------
+>   | showing all locks held by: |  (swapper/1 [c30d7790, 125]): <none>
+>   ------------------------------
+>   
+>    [<c010432d>] show_trace+0xd/0x10
+>    [<c0104347>] dump_stack+0x17/0x20
+>    [<c01379b2>] print_usage_bug+0x1e2/0x200
+>    [<c013817d>] mark_lock+0x28d/0x2a0
+>    [<c0138835>] debug_lock_chain+0x6a5/0x10d0
+>    [<c013929d>] debug_lock_chain_spin+0x3d/0x60
+>    [<c026570d>] _raw_spin_lock+0x2d/0x90
+>    [<c04d88d8>] _spin_lock+0x8/0x10
+>    [<c013f526>] register_clocksource+0x16/0xf0
+>    [<c0681137>] init_pit_clocksource+0x57/0x90
+>    [<c01003fa>] init+0xfa/0x3e0
+>    [<c0100ef5>] kernel_thread_helper+0x5/0x10
 > 
-> What the heck for? That's gross.
+> the fix is to lock clocksource_lock in a softirq-safe way.
+> 
+> (with this patch applied, the timeofday code validates fine.)
 
-Ironically enough, it's security. :)
+I'm getting lots of local_bh_disable warnings with this patch on my
+timeofday tree (interrupts are disabled in timefoday_periodic_hook which
+calls get_next_clocksource). Wouldn't using spin_lock_irqsave/restore be
+better here (seems to work for me)?
 
-> If glibc is just providing this info for apps, there should be a
-> system call for it. Otherwise, being the C library, glibc can
-> damn well remember what it did.
+thanks
+-john
 
-Nah, it's used for vfprintf() argument-area checking.
-
-Specifically, it's the Linux implementation of __readonly_area(),
-located in sysdeps/unix/sysv/linux/readonly-area.c in glibc-3.4-to-be,
-and used by vfprintf() on behalf of __vfprintf_chk(). Calls to this
-function (and the other __*_chk() functions) are expanded by glibc's
-string headers and generated by GCC 4.1+ automatically when possible
-(and by GCCs out there in the field: this patch is shipped by RH
-already, known as FORTIFY_SOURCE).
-
-FORTIFY_SOURCE zaps a whole class of security vulnerabilities stone
-dead. Breaking it would be a bad idea. Therefore, /proc/self/maps has to
-remain readable, even in setuid programs, because setuid programs are
-one class of programs for which FORTIFY_SOURCE is crucial.
-
-[Jakub added to Cc:, he can defend his own code much better than I can]
-
--- 
-`Everyone has skeletons in the closet.  The US has the skeletons
- driving living folks into the closet.' --- Rebecca Ore

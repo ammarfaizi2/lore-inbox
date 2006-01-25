@@ -1,58 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWAYJ7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbWAYJ7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbWAYJ7l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 04:59:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWAYJ7l
+	id S1751097AbWAYJ7g (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 04:59:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWAYJ7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 04:59:41 -0500
-Received: from uproxy.gmail.com ([66.249.92.206]:21022 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751099AbWAYJ7l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 04:59:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
-        b=V0wVLIGqBXca+OjFlHtdmmHFVgRb8Zx+bN/N223OvCkpqkTjHdDnknr6jLgd2lP/cgpcSgdc+Q4nvmTSCosZAb5GZu0YNM2w273pbITC0puD06c+ik25iXBdnNfN0Qu0M75Vg6HqPiCGLkrPeVAuBm7Cor45vg3Q+N/bK7MMtN4=
-Message-ID: <8e8498350601250159w126f0f37k@mail.gmail.com>
-Date: Wed, 25 Jan 2006 18:59:39 +0900
-From: Tetsuo Takata <takatan.linux@gmail.com>
-To: akpm@osdl.org, axboe@suse.de
-Subject: [PATCH]scsi:removal of the variable "ordered_flush"
-Cc: linux-kernel@vger.kernel.org
+	Wed, 25 Jan 2006 04:59:36 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52643 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751097AbWAYJ7f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 04:59:35 -0500
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+References: <20060117143258.150807000@sergelap>
+	<20060117143326.283450000@sergelap>
+	<1137511972.3005.33.camel@laptopd505.fenrus.org>
+	<20060117155600.GF20632@sergelap.austin.ibm.com>
+	<1137513818.14135.23.camel@localhost.localdomain>
+	<1137518714.5526.8.camel@localhost.localdomain>
+	<20060118045518.GB7292@kroah.com>
+	<1137601395.7850.9.camel@localhost.localdomain>
+	<m1fyniomw2.fsf@ebiederm.dsl.xmission.com>
+	<43D14578.6060801@watson.ibm.com>
+	<m1hd7xmylo.fsf@ebiederm.dsl.xmission.com>
+	<43D52592.8080709@watson.ibm.com>
+	<m1oe22lp69.fsf@ebiederm.dsl.xmission.com>
+	<1138050684.24808.29.camel@localhost.localdomain>
+	<m1bqy2ljho.fsf@ebiederm.dsl.xmission.com>
+	<1138062125.24808.47.camel@localhost.localdomain>
+	<m17j8pl95v.fsf@ebiederm.dsl.xmission.com>
+	<1138137060.14675.73.camel@localhost.localdomain>
+	<1138137305.2977.92.camel@laptopd505.fenrus.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 25 Jan 2006 02:58:51 -0700
+In-Reply-To: <1138137305.2977.92.camel@laptopd505.fenrus.org> (Arjan van de
+ Ven's message of "Tue, 24 Jan 2006 22:15:05 +0100")
+Message-ID: <m1ek2wk4ro.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_30341_7039302.1138183179826"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_30341_7039302.1138183179826
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
+Arjan van de Ven <arjan@infradead.org> writes:
 
-SGksCgoKQWZ0ZXIgdGhlIHJlY2VudCBvdmVyaGF1bCBvZiB0aGUgYmxvY2sgbGF5ZXIgdGhlIHZh
-cmlhYmxlCiJvcmRlcmVkX2ZsdXNoIiBpcyBubyBsb25nZXIgdXNlZC4KCgpSZWdhcmRzLAoKVGV0
-c3VvIFRha2F0YQo=
-------=_Part_30341_7039302.1138183179826
-Content-Type: application/octet-stream; name=remove_ordered_flush.patch
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="remove_ordered_flush.patch"
+> On Tue, 2006-01-24 at 21:11 +0000, Alan Cox wrote:
+>> On Maw, 2006-01-24 at 12:26 -0700, Eric W. Biederman wrote:
+>> > There is at least NFS lockd that appreciates having a single integer
+>> > per process unique identifier.  So there is a practical basis for
+>> > wanting such a thing.
+>> 
+>> Which gets us back to refcounting.
+>> 
+>> > At least for this first round I think talking about a kpid
+>> > as a container, pid pair makes a lot of sense for the moment, as
+>> > the other implementations just confuse things.
+>> 
+>> As an abstract object a kpid to me means a single identifier which
+>> uniquely identifies the process and which in its component parts be they
+>> pointers or not uniquely identifies the process in the container and the
+>> container in the system, both correctly refcounted against re-use.
+>
+> they why not just straight use the task struct pointer for this? It's
+> guaranteed unique.. ;)
 
-The patch below removes dead code.
+Actually I think that is a very sensible solution to this problem.
+It does double or triple the length of the string passed to lockd
+and is an information leak about which kernel addresses you are
+running out of which may be undesirable from a security perspective
+but I think that will fix the practical problem.
 
-Signed-off-by: Tetsuo Takata <takatatt@intellilink.co.jp>
----
+Reference counting in this case is not an issue, as these are
+per process locks and should be freed up when everything goes.
 
-diff -urNp linux-2.6.16-rc1-git4/include/scsi/scsi_host.h linux-2.6.16-rc1-git4-fixed/include/scsi/scsi_host.h
---- linux-2.6.16-rc1-git4/include/scsi/scsi_host.h	2006-01-23 21:29:17.000000000 +0900
-+++ linux-2.6.16-rc1-git4-fixed/include/scsi/scsi_host.h	2006-01-25 18:11:59.000000000 +0900
-@@ -554,7 +554,6 @@ struct Scsi_Host {
- 	/*
- 	 * ordered write support
- 	 */
--	unsigned ordered_flush:1;
- 	unsigned ordered_tag:1;
- 
- 	/*
+I have a weird memory that simply making the string long and using
+%p (current) didn't work as well as of %d (current->kpid) but that is something
+very hard to test, as usually even with multiple pid spaces you don't
+get pid reuse and the errors from NFS are not at all clear that pid
+reuse is what is causing problems.  So I don't have good data on
+that situation.
 
-------=_Part_30341_7039302.1138183179826--
+Eric

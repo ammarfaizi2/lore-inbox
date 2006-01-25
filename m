@@ -1,143 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWAYP7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWAYQJi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbWAYP7O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 10:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWAYP7O
+	id S1750804AbWAYQJi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 11:09:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWAYQJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 10:59:14 -0500
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:52316 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750745AbWAYP7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 10:59:13 -0500
+	Wed, 25 Jan 2006 11:09:38 -0500
+Received: from uproxy.gmail.com ([66.249.92.202]:3492 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750804AbWAYQJh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 11:09:37 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
-  b=ZZ6sD+q/leyu0yITDL1iAJXV24uTtV3o9FOqebaWruxKpUC4hsYqyhzrd5dOeR34k1yaewYM2aVlR9l0DjPjlg1p1W7Ps4G70kuMqMCFwxu9BMYT8SHuI51H3uMlMhvJhpOl+SNLz1hjzXqf/dmiKLiCQNe0lvNXWRFuNxNb6OA=  ;
-Message-ID: <43D7A047.3070004@yahoo.com.au>
-Date: Thu, 26 Jan 2006 02:59:03 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1-mm3
-References: <20060124232406.50abccd1.akpm@osdl.org> <6bffcb0e0601250340x6ca48af0w@mail.gmail.com>
-In-Reply-To: <6bffcb0e0601250340x6ca48af0w@mail.gmail.com>
-Content-Type: multipart/mixed;
- boundary="------------070305060406010003010105"
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=jen8CasjAvyc2Bp/dHbDUkT0o7zh2DGAe/RBg1vk0x3CmfbpsxfFOzomVMxtB1HaVihELzdgxfvSez6Eaj+RoTqASANLve7nQFxYFWS49cLCa/C2DdUeZa8+J99nXz3gBR0t94kdWB8xU3riF6xiKgvfHPrmbblSZhPx8lw1Xrs=
+Date: Wed, 25 Jan 2006 17:09:04 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: bernd@firmix.at, vonbrand@inf.utfsm.cl, linux-os@analogic.com,
+       ram.gupta5@gmail.com, mloftis@wgops.com, barryn@pobox.com,
+       a1426z@gawab.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] VM: I have a dream...
+Message-Id: <20060125170904.5e31e1e2.diegocg@gmail.com>
+In-Reply-To: <20060125150516.GB8490@mail.shareable.org>
+References: <200601240211.k0O28rnn003165@laptop11.inf.utfsm.cl>
+	<1138181033.4800.4.camel@tara.firmix.at>
+	<20060125150516.GB8490@mail.shareable.org>
+X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070305060406010003010105
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+El Wed, 25 Jan 2006 15:05:16 +0000,
+Jamie Lokier <jamie@shareable.org> escribió:
 
-Hi,
+> Mozilla / Firefox / Opera in particular.  300MB is not funny on a
+> laptop which cannot be expanded beyond 192MB.  Are there any usable
+> graphical _small_ web browsers around?  Usable meaning actually works
+> on real web sites with fancy features.
 
-Michal Piotrowski wrote:
-> ------------[ cut here ]------------
-> kernel BUG at /usr/src/linux-mm/include/linux/mm.h:302!
-> invalid opcode: 0000 [#1]
-> PREEMPT SMP DEBUG_PAGEALLOC
-> last sysfs file: /class/vc/vcsa7/dev
-> Modules linked in: binfmt_misc thermal fan processor ipv6 w83627hf
-> hwmon_vid hwmon i2c_isa snd_intel8x0 snd_ac97_codec snd_ac97_bus
-> sk98lin snd_pcm_oss snd_mixer_oss skge intel_agp snd_pcm snd_timer snd
-> soundcore i2c_i801 parport_pc parport snd_page_alloc 8250_pnp 8250
-> serial_core agpgart rtc ide_cd cdrom hw_random unix
-> CPU:    0
-> EIP:    0060:[<b013fe81>]    Not tainted VLI
-> EFLAGS: 00210246   (2.6.16-rc1-mm3 #1)
-> EIP is at release_pages+0x33/0x15e
+Opera is probably the best browser when it comes to "features per byte
+of memory used", so if that isn't useful....there's a minimo web browser
+(http://www.mozilla.org/projects/minimo/) It's supposed to be designed
+for mobile devices, but it may be usable on normal
+computers.
 
-Is it repeatable?
+The X server itself doesn't eat too many memory. In my box (radeon
+9200SE graphic card) the X server only eats 11 MB of RAM - not too
+much in my opinion for a 20-years-old code project which according
+to the X developers it has many areas where it could be cleaned up.
 
-If so, I'd imagine it must be a specific driver page which is not properly
-refcounted somewhere. A bug in generic code would have shown up elsewhere
-by now.
-
-Can you try something like the attached patch and see what it gives you?
-
-Thanks,
-Nick
-
--- 
-SUSE Labs, Novell Inc.
+The X server will grow its size because applications store the
+images in the X server. And the X server is supposed to be
+network-transparent, so apps send to the x server the data, not
+a "reference to the data" (ie: a path to a file), so (i think) the
+file cannot be mmap'ed to share the file in memory: there're still
+some apps (or so I've heard) which send a image to the server
+and keep a private copy in their own address space so the memory 
+needed to store those images is *doubled* (gnome used to keep
+*three* copies of the background image, one in nautilus, other
+in gnome-settings-daemon and another in the X server, and
+gnome-terminal keeps another copy when transparency is enabled)
 
 
---------------070305060406010003010105
-Content-Type: text/plain;
- name="mm-debug-refcount.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mm-debug-refcount.patch"
-
-Index: linux-2.6/include/linux/mm.h
-===================================================================
---- linux-2.6.orig/include/linux/mm.h
-+++ linux-2.6/include/linux/mm.h
-@@ -15,6 +15,7 @@
- #include <linux/prio_tree.h>
- #include <linux/fs.h>
- #include <linux/mutex.h>
-+#include <linux/kallsyms.h>
- 
- struct mempolicy;
- struct anon_vma;
-@@ -264,6 +265,8 @@ struct page {
- 	void *virtual;			/* Kernel virtual address (NULL if
- 					   not kmapped, ie. highmem) */
- #endif /* WANT_PAGE_VIRTUAL */
-+
-+	void *debug;
- };
- 
- #define page_private(page)		((page)->private)
-@@ -294,8 +297,14 @@ struct page {
-  */
- static inline int put_page_testzero(struct page *page)
- {
--	BUG_ON(atomic_read(&page->_count) == 0);
--	return atomic_dec_and_test(&page->_count);
-+	if (unlikely(atomic_read(&page->_count) == 0)) {
-+		printk(KERN_WARNING "put_page_testzero found free page (flags = %lx)\n", page->flags);
-+		if (page->debug)
-+			print_symbol(KERN_WARNING "nopage is %s\n", (unsigned long)page->debug);
-+		WARN_ON(1);
-+		return 0;
-+	} else
-+		return atomic_dec_and_test(&page->_count);
- }
- 
- /*
-Index: linux-2.6/mm/memory.c
-===================================================================
---- linux-2.6.orig/mm/memory.c
-+++ linux-2.6/mm/memory.c
-@@ -2056,6 +2056,8 @@ retry:
- 	if (new_page == NOPAGE_OOM)
- 		return VM_FAULT_OOM;
- 
-+	new_page->debug = (struct address_space *)vma->vm_ops->nopage;
-+
- 	/*
- 	 * Should we do an early C-O-W break?
- 	 */
-Index: linux-2.6/mm/page_alloc.c
-===================================================================
---- linux-2.6.orig/mm/page_alloc.c
-+++ linux-2.6/mm/page_alloc.c
-@@ -521,6 +521,8 @@ static int prep_new_page(struct page *pa
- 	if (PageReserved(page))
- 		return 1;
- 
-+	page->debug = NULL;
-+
- 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
- 			1 << PG_referenced | 1 << PG_arch_1 |
- 			1 << PG_checked | 1 << PG_mappedtodisk);
-
---------------070305060406010003010105--
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Also, fontconfig allocates ~100 KB of memory per program launched.
+There're patches to fix that by creating a mmap'able cache which is
+shared between all the applications which has been merged in the
+development version. I think there're many low-hanging fruits at
+all levels, the problem is not just mozilla & friends

@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWAYNsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbWAYNtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751165AbWAYNsc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 08:48:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWAYNsc
+	id S1751157AbWAYNtS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 08:49:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWAYNtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 08:48:32 -0500
-Received: from hs-grafik.net ([80.237.205.72]:29452 "EHLO hs-grafik.net")
-	by vger.kernel.org with ESMTP id S1751166AbWAYNsb (ORCPT
+	Wed, 25 Jan 2006 08:49:18 -0500
+Received: from darwin.snarc.org ([81.56.210.228]:59032 "EHLO darwin.snarc.org")
+	by vger.kernel.org with ESMTP id S1751157AbWAYNtS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 08:48:31 -0500
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1-mm3
-Date: Wed, 25 Jan 2006 14:48:10 +0100
-User-Agent: KMail/1.9.1
-X-Face: ){635DT*1Z+Z}$~Bf[[i"X:f2i+:Za[:Q0<UzyJPoAm(;y"@=?iso-8859-15?q?LwMhWM4=5D=60x1bDaQDpet=3B=3Be=0A=09N=5CBIb8o=5BF!fdHrI-?=
- =?iso-8859-15?q?=7E=24ctS=3F!?=,U+0}](xD}_b]awZrK=>753Wk;RwhCU`Bt(I^/Jxl~5zIH<
- =?iso-8859-15?q?=0A=09XplI=3A9GKEcr/JPqzW=3BR=5FqDQe*=23CE=7E70=3Bj=25Hg8?=
- =?iso-8859-15?q?CNh*4?=<
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1212836.G55SLmaOyc";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601251448.20664@zodiac.zodiac.dnsalias.org>
+	Wed, 25 Jan 2006 08:49:18 -0500
+Date: Wed, 25 Jan 2006 14:49:13 +0100
+From: Vincent Hanquez <vincent@snarc.org>
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <greg@kroah.com>
+Subject: [PATCH] debugfs: trivial comment fix
+Message-ID: <20060125134913.GA8594@snarc.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Email may contain unsmilyfied humor and/or satire.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1212836.G55SLmaOyc
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+	Hi Greg & list,
 
-Hi,
+please apply the following patch:
 
-mm3 is basically running ok, however it has one problem (that ocurs in mm2,=
-=20
-too):
-My Netbeans (java-ide) debugger is to slow. It takes some ms (up to 1000 I'=
-d=20
-think) to step over one line, in 13-rc2-mm1 I cannot realize a delay at all.
-Any Idea how to profile the kernel/my system to get an Idea. Everything els=
-e=20
-(C, C++, java apps..) are running fine.
+Fix trivial type mixup in the debugfs function comments.
 
-regards
-Alex
-=2D-=20
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+Signed-off-by: Vincent Hanquez <vincent@snarc.org>
 
---nextPart1212836.G55SLmaOyc
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBD14Gk/aHb+2190pERAoQIAJoCUWcrl9rsfBYMJaxUIeECCORDdgCfWrpm
-V7MDyjYJdH5f5xRIOrm8CKU=
-=oNdA
------END PGP SIGNATURE-----
-
---nextPart1212836.G55SLmaOyc--
+--- a/fs/debugfs/file.c	2006-01-25 13:45:04.000000000 +0000
++++ b/fs/debugfs/file.c	2006-01-25 13:46:47.000000000 +0000
+@@ -56,7 +56,7 @@
+ DEFINE_SIMPLE_ATTRIBUTE(fops_u8, debugfs_u8_get, debugfs_u8_set, "%llu\n");
+ 
+ /**
+- * debugfs_create_u8 - create a file in the debugfs filesystem that is used to read and write a unsigned 8 bit value.
++ * debugfs_create_u8 - create a file in the debugfs filesystem that is used to read and write an unsigned 8 bit value.
+  *
+  * @name: a pointer to a string containing the name of the file to create.
+  * @mode: the permission that the file should have
+@@ -98,7 +98,7 @@
+ DEFINE_SIMPLE_ATTRIBUTE(fops_u16, debugfs_u16_get, debugfs_u16_set, "%llu\n");
+ 
+ /**
+- * debugfs_create_u16 - create a file in the debugfs filesystem that is used to read and write a unsigned 8 bit value.
++ * debugfs_create_u16 - create a file in the debugfs filesystem that is used to read and write an unsigned 16 bit value.
+  *
+  * @name: a pointer to a string containing the name of the file to create.
+  * @mode: the permission that the file should have
+@@ -140,7 +140,7 @@
+ DEFINE_SIMPLE_ATTRIBUTE(fops_u32, debugfs_u32_get, debugfs_u32_set, "%llu\n");
+ 
+ /**
+- * debugfs_create_u32 - create a file in the debugfs filesystem that is used to read and write a unsigned 8 bit value.
++ * debugfs_create_u32 - create a file in the debugfs filesystem that is used to read and write an unsigned 32 bit value.
+  *
+  * @name: a pointer to a string containing the name of the file to create.
+  * @mode: the permission that the file should have

@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbWAYQeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWAYQrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750930AbWAYQeo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 11:34:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWAYQeo
+	id S1750775AbWAYQrj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 11:47:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbWAYQrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 11:34:44 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:39344 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S1750899AbWAYQen convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 11:34:43 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Wed, 25 Jan 2006 11:47:39 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:40978 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1750775AbWAYQri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 11:47:38 -0500
+Message-ID: <43D7AB49.2010709@shadowen.org>
+Date: Wed, 25 Jan 2006 16:46:01 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [2.6 patch] drivers/message/fusion/mptfc.c: make 2 functions static
-Date: Wed, 25 Jan 2006 09:26:48 -0700
-Message-ID: <F331B95B72AFFB4B87467BE1C8E9CF5F1FE9E0@NAMAIL2.ad.lsil.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [2.6 patch] drivers/message/fusion/mptfc.c: make 2 functions static
-Thread-Index: AcYhS1gw8FamJrRBRxKQEzLCV20kfwAgKGIg
-From: "Moore, Eric" <Eric.Moore@lsil.com>
-To: "Adrian Bunk" <bunk@stusta.de>, "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 25 Jan 2006 16:26:49.0186 (UTC) FILETIME=[24400C20:01C621CC]
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1-mm3
+References: <20060124232406.50abccd1.akpm@osdl.org>	 <43D785E1.4020708@shadowen.org> <84144f020601250644h6ca4e407q2e15aa53b50ef509@mail.gmail.com>
+In-Reply-To: <84144f020601250644h6ca4e407q2e15aa53b50ef509@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, January 24, 2006 6:01 PM, Adrian Bunk wrote:
+Pekka Enberg wrote:
+> Does reverting the following patch make the panic go away?
+> 
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm3/broken-out/slab-cache_estimate-cleanup.patch
 
-> This patch makes two needlessly global functions static.
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
-> This patch was already sent on:
-> - 19 Jan 2006
-> 
->  drivers/message/fusion/mptfc.c |    6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
+No luck with that one ... I'll try the others you suggested.
 
+Cheers.
 
-ACK
-
-Signed-off-by: Eric Moore <Eric.Moore@lsil.com>
+-apw

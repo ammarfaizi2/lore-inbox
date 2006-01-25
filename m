@@ -1,128 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbWAYXvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWAYXwm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbWAYXvn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 18:51:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWAYXvn
+	id S932222AbWAYXwm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 18:52:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWAYXwm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 18:51:43 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:27090 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751242AbWAYXvm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 18:51:42 -0500
-Subject: [patch 7/9] mempool - Update other mempool users
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: linux-kernel@vger.kernel.org
-Cc: sri@us.ibm.com, andrea@suse.de, pavel@suse.cz, linux-mm@kvack.org
-References: <20060125161321.647368000@localhost.localdomain>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Wed, 25 Jan 2006 15:51:39 -0800
-Message-Id: <1138233099.27293.2.camel@localhost.localdomain>
+	Wed, 25 Jan 2006 18:52:42 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:64699
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751241AbWAYXwl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 18:52:41 -0500
+Date: Wed, 25 Jan 2006 15:52:04 -0800
+From: Greg KH <greg@kroah.com>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: eranian@hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/6] 2.6.16-rc1 perfmon2 patch for review
+Message-ID: <20060125235204.GB21195@kroah.com>
+References: <200601201520.k0KFKEm2023128@frankl.hpl.hp.com> <1137775645.28944.61.camel@serpentine.pathscale.com> <20060124150912.GB7130@frankl.hpl.hp.com> <1138219693.15295.13.camel@serpentine.pathscale.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1138219693.15295.13.camel@serpentine.pathscale.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-plain text document attachment (critical_mempools)
-Fixup existing mempool users to use the new mempool API, part 4.
+On Wed, Jan 25, 2006 at 12:08:13PM -0800, Bryan O'Sullivan wrote:
+> On Tue, 2006-01-24 at 07:09 -0800, Stephane Eranian wrote:
+> 
+> > Because I tried regrouping all the /proc AND related interface into a single
+> > C file.
+> 
+> sysctls seem to be every bit as deprecated as /proc for what you are
+> tring to do.
+> 
+> > Well, it is not clear to me what criteria is used for /sys vs /proc.
+> 
+> My understanding is that only process-related stuff belongs in /proc
+> now.  Other random cruft that has accumulated over the years is left
+> there for backwards compatibility, but /sys interfaces are the way
+> forward now.
 
-This patch papers over the three remaining mempool users that are non-trivial
-to change over to the new API.  We simply add an UNUSED_NID argument to their
-mempool_alloc functions to match the new API.  None of these mempools appear to
-support NUMA in any way, so this should not cause any problems.
+Yes, that is exactly right.
 
-If anyone familiar with the code involved would like to send proper fixes,
-that would be greatly appreciated.
+thanks,
 
-Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
-
- md/raid1.c                  |    8 ++++----
- md/raid10.c                 |    7 ++++---
- scsi/scsi_transport_iscsi.c |    4 ++--
- 3 files changed, 10 insertions(+), 9 deletions(-)
-
-Index: linux-2.6.16-rc1+critical_mempools/drivers/md/raid10.c
-===================================================================
---- linux-2.6.16-rc1+critical_mempools.orig/drivers/md/raid10.c
-+++ linux-2.6.16-rc1+critical_mempools/drivers/md/raid10.c
-@@ -84,7 +84,7 @@ static void r10bio_pool_free(void *r10_b
-  * one for write (we recover only one drive per r10buf)
-  *
-  */
--static void * r10buf_pool_alloc(gfp_t gfp_flags, void *data)
-+static void *r10buf_pool_alloc(gfp_t gfp_flags, int UNUSED_NID, void *data)
- {
- 	conf_t *conf = data;
- 	struct page *page;
-@@ -93,7 +93,7 @@ static void * r10buf_pool_alloc(gfp_t gf
- 	int i, j;
- 	int nalloc;
- 
--	r10_bio = r10bio_pool_alloc(gfp_flags, -1, conf);
-+	r10_bio = r10bio_pool_alloc(gfp_flags, UNUSED_NID, conf);
- 	if (!r10_bio) {
- 		unplug_slaves(conf->mddev);
- 		return NULL;
-@@ -1518,7 +1518,8 @@ static int init_resync(conf_t *conf)
- 	buffs = RESYNC_WINDOW / RESYNC_BLOCK_SIZE;
- 	if (conf->r10buf_pool)
- 		BUG();
--	conf->r10buf_pool = mempool_create(buffs, r10buf_pool_alloc, r10buf_pool_free, conf);
-+	conf->r10buf_pool = mempool_create(buffs, r10buf_pool_alloc,
-+					   r10buf_pool_free, conf);
- 	if (!conf->r10buf_pool)
- 		return -ENOMEM;
- 	conf->next_resync = 0;
-Index: linux-2.6.16-rc1+critical_mempools/drivers/md/raid1.c
-===================================================================
---- linux-2.6.16-rc1+critical_mempools.orig/drivers/md/raid1.c
-+++ linux-2.6.16-rc1+critical_mempools/drivers/md/raid1.c
-@@ -78,7 +78,7 @@ static void r1bio_pool_free(void *r1_bio
- #define RESYNC_PAGES ((RESYNC_BLOCK_SIZE + PAGE_SIZE-1) / PAGE_SIZE)
- #define RESYNC_WINDOW (2048*1024)
- 
--static void * r1buf_pool_alloc(gfp_t gfp_flags, void *data)
-+static void *r1buf_pool_alloc(gfp_t gfp_flags, int UNUSED_NID, void *data)
- {
- 	struct pool_info *pi = data;
- 	struct page *page;
-@@ -86,7 +86,7 @@ static void * r1buf_pool_alloc(gfp_t gfp
- 	struct bio *bio;
- 	int i, j;
- 
--	r1_bio = r1bio_pool_alloc(gfp_flags, -1, pi);
-+	r1_bio = r1bio_pool_alloc(gfp_flags, UNUSED_NID, pi);
- 	if (!r1_bio) {
- 		unplug_slaves(pi->mddev);
- 		return NULL;
-@@ -1543,8 +1543,8 @@ static int init_resync(conf_t *conf)
- 	buffs = RESYNC_WINDOW / RESYNC_BLOCK_SIZE;
- 	if (conf->r1buf_pool)
- 		BUG();
--	conf->r1buf_pool = mempool_create(buffs, r1buf_pool_alloc, r1buf_pool_free,
--					  conf->poolinfo);
-+	conf->r1buf_pool = mempool_create(buffs, r1buf_pool_alloc,
-+					  r1buf_pool_free, conf->poolinfo);
- 	if (!conf->r1buf_pool)
- 		return -ENOMEM;
- 	conf->next_resync = 0;
-Index: linux-2.6.16-rc1+critical_mempools/drivers/scsi/scsi_transport_iscsi.c
-===================================================================
---- linux-2.6.16-rc1+critical_mempools.orig/drivers/scsi/scsi_transport_iscsi.c
-+++ linux-2.6.16-rc1+critical_mempools/drivers/scsi/scsi_transport_iscsi.c
-@@ -462,8 +462,8 @@ static inline struct list_head *skb_to_l
- 	return (struct list_head *)&skb->cb;
- }
- 
--static void*
--mempool_zone_alloc_skb(unsigned int gfp_mask, void *pool_data)
-+static void *
-+mempool_zone_alloc_skb(unsigned int gfp_mask, int UNUSED_NID, void *pool_data)
- {
- 	struct mempool_zone *zone = pool_data;
- 
-
---
-
+greg k-h

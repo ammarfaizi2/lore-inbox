@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbWAYTsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWAYTvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbWAYTsd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 14:48:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWAYTsd
+	id S1751139AbWAYTvV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 14:51:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbWAYTvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 14:48:33 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:54453 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750805AbWAYTsc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 14:48:32 -0500
-Subject: [patch 0/9] Critical Mempools
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: linux-kernel@vger.kernel.org
-Cc: sri@us.ibm.com, andrea@suse.de, pavel@suse.cz, linux-mm@kvack.org
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Wed, 25 Jan 2006 11:39:52 -0800
-Message-Id: <1138217992.2092.0.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Wed, 25 Jan 2006 14:51:21 -0500
+Received: from smtpout.mac.com ([17.250.248.73]:60915 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751139AbWAYTvU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 14:51:20 -0500
+In-Reply-To: <43D7D05D.7030101@perkel.com>
+References: <43D114A8.4030900@wolfmountaingroup.com> <20060120111103.2ee5b531@dxpl.pdx.osdl.net> <43D13B2A.6020504@cs.ubishops.ca> <43D7C780.6080000@perkel.com> <43D7B20D.7040203@wolfmountaingroup.com> <43D7B5C4.5040601@wolfmountaingroup.com> <43D7D05D.7030101@perkel.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>
+Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       Patrick McLean <pmclean@cs.ubishops.ca>,
+       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+Date: Wed, 25 Jan 2006 14:50:43 -0500
+To: Marc Perkel <marc@perkel.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---
-The following is a new patch series designed to solve the same problems as the
-"Critical Page Pool" patches that were sent out in December.  I've tried to
-incorporate as much of the feedback that I received as possible into this new,
-redesigned version.
+On Jan 25, 2006, at 14:24:13, Marc Perkel wrote:
+> Is it possible to have Linux be mostly GPL3 with parts of it GPL2?  
+> Or is that just too insane to deal with?
 
-Rather than inserting hooks directly into the page allocator, I've tried to
-piggyback on the existing mempools infrastructure.  What I've done is created
-a new "common" mempool allocator for whole pages.  I've also made some changes
-to the mempool code to add more NUMA awareness.  Lastly, I've made some
-changes to the slab allocator to allow a single mempool to act as the critical
-pool for an entire subsystem.  All of these changes should be completely
-transparent to existing users of mempools and the slab allocator.
+Well given that parts of the kernel are GPLv2-only, other parts are  
+GPLv2+, other parts are GPL/BSD, etc, I can't see how somebody using  
+a GPLv3-only or GPLv3+ license for some other part would be  
+problematic.  If anything, the multiple licensing provides additional  
+code protection; we get the advantages of all the licenses, but if  
+any one license is found to be invalid, it does not break the  
+protection of the body of code itself.
 
-Using this new approach, a subsystem can create a mempool and then pass a
-pointer to this mempool on to all its slab allocations.  Anytime one of its
-slab allocations needs to allocate memory that memory will be allocated
-through the specified mempool, rather than through alloc_pages_node() directly.
-
-Feedback on these patches (against 2.6.16-rc1) would be greatly appreciated.
-
-Thanks!
-
--Matt
+Cheers,
+Kyle Moffett
 

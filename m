@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWAYLSb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWAYLTn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbWAYLSb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 06:18:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWAYLSb
+	id S1751121AbWAYLTn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 06:19:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWAYLTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 06:18:31 -0500
-Received: from mail.suse.de ([195.135.220.2]:64650 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751120AbWAYLSa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 06:18:30 -0500
-Date: Wed, 25 Jan 2006 12:18:29 +0100
-From: Nick Piggin <npiggin@suse.de>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Nick Piggin <npiggin@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
+	Wed, 25 Jan 2006 06:19:43 -0500
+Received: from uproxy.gmail.com ([66.249.92.195]:44400 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751121AbWAYLTm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 06:19:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=l2AN95bLgHTuoxzSAlFCTxaaanlurDm3xHguzrfzXFKzGQP2avGWQ+XcPqqIc47c+mn+hhv8k2s3M0oCv34XLkveu3k8IAq1e6WFtQWN21OB1UkZdvxLI79FjFpOlRx1snqGp4lRP8gQY7vXkwSpbdTqpOjCldoBsi0Z8tTUXuA=
+Message-ID: <84144f020601250319o71e34376hcd7a964f2eb21961@mail.gmail.com>
+Date: Wed, 25 Jan 2006 13:19:36 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Nick Piggin <npiggin@suse.de>
 Subject: Re: [RFC] non-refcounted pages, application to slab?
-Message-ID: <20060125111829.GD30421@wotan.suse.de>
-References: <20060125093909.GE32653@wotan.suse.de> <43D75239.90907@cosmosbay.com> <20060125105737.GB30421@wotan.suse.de> <43D75CB8.9090101@cosmosbay.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management List <linux-mm@kvack.org>
+In-Reply-To: <20060125110031.GC30421@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43D75CB8.9090101@cosmosbay.com>
-User-Agent: Mutt/1.5.6i
+References: <20060125093909.GE32653@wotan.suse.de>
+	 <84144f020601250230s2d5da5d9jf11f754f184d495b@mail.gmail.com>
+	 <20060125110031.GC30421@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25, 2006 at 12:10:48PM +0100, Eric Dumazet wrote:
-> 
-> So we cannot change atomic_dec_and_test(atomic_t *v) but introduce a new 
-> function like :
-> 
-> int atomic_dec_refcount(atomic_t *v)
-> {
-> #ifdef CONFIG_SMP
->        /* avoid an atomic op if we are the last user of this refcount */
->        if (atomic_read(v) == 1) {
->                atomic_set(v, 0); /* not a real atomic op on most machines */
->                return 1;
->        }
-> #endif
-> 	return atomic_dec_and_test(v);
-> }
-> 
-> The cost of the extra conditional branch is worth, if it can avoid an 
-> atomic op.
-> 
+On Wed, Jan 25, 2006 at 12:30:03PM +0200, Pekka Enberg wrote:
+> > we want to keep the reference counting for slab pages so that we can
+> > use kmalloc'd memory in the block layer.
 
-If it can always avoid an atomic op then the conditional branch is
-useless, and if it can avoid the atomic op in 20% of cases then it
-might still be useless (especially considering the extra icache).
+On 1/25/06, Nick Piggin <npiggin@suse.de> wrote:
+> Does that happen now? Where is it needed (nbd or something I guess?)
 
-Actual measurements would be required I think.
+See the following thread:
+http://thread.gmane.org/gmane.comp.file-systems.ext2.devel/2981. I
+think we're using them in quite a few places.
 
+                             Pekka

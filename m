@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWAYXI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWAYXOA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbWAYXI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 18:08:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWAYXI5
+	id S932209AbWAYXOA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 18:14:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWAYXOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 18:08:57 -0500
-Received: from mail.gmx.net ([213.165.64.21]:5350 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932214AbWAYXI4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 18:08:56 -0500
-X-Authenticated: #428038
-Date: Thu, 26 Jan 2006 00:08:51 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: mrmacman_g4@mac.com, linux-kernel@vger.kernel.org, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060125230850.GA2137@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	mrmacman_g4@mac.com, linux-kernel@vger.kernel.org,
-	acahalan@gmail.com
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43D7A7F4.nailDE92K7TJI@burner> <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com> <43D7B1E7.nailDFJ9MUZ5G@burner>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43D7B1E7.nailDFJ9MUZ5G@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+	Wed, 25 Jan 2006 18:14:00 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:62857 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932209AbWAYXN7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 18:13:59 -0500
+Subject: Re: RCU latency regression in 2.6.16-rc1
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: dipankar@in.ibm.com, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, NetDev <netdev@vger.kernel.org>
+In-Reply-To: <20060125225639.GA1382@elte.hu>
+References: <20060124080157.GA25855@elte.hu>
+	 <1138090078.2771.88.camel@mindpipe> <20060124081301.GC25855@elte.hu>
+	 <1138090527.2771.91.camel@mindpipe> <20060124091730.GA31204@us.ibm.com>
+	 <20060124092330.GA7060@elte.hu> <1138095856.2771.103.camel@mindpipe>
+	 <20060124162846.GA7139@in.ibm.com> <20060124213802.GC7139@in.ibm.com>
+	 <1138224506.3087.22.camel@mindpipe>  <20060125225639.GA1382@elte.hu>
+Content-Type: text/plain
+Date: Wed, 25 Jan 2006 18:13:57 -0500
+Message-Id: <1138230838.3087.54.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-01-25:
-
-> > You are perfectly free to adjust your compatibility layer accordingly.
+On Wed, 2006-01-25 at 23:56 +0100, Ingo Molnar wrote:
 > 
-> The Linux Kernel fols unfortunately artificially hides information for the 
-> /dev/hd* interface making exactly this compatibility impossible.
+> yes, that would be a nice test. (I'm busy now with mutex stuff to be 
+> able to do a working softirq-preemption patch, but i sent you my
+> current patches off-list - if you want to give it a shot. Be warned
+> though, there will likely be quite some merging work to do, so it's
+> definitely not for the faint hearted.)
+> 
 
-What information is actually missing? You keep talking about phantoms,
-without naming them. Again: device enumeration doesn't count, libscg
-already does that.
+OK, I probably won't have time to test it this week either.
 
-> If you are against personal attacks, why didn't you intercede for the
-> postings from Jens Axboe and Albert Cahalan?
+In the meantime can anyone explain briefly why such a heavy fix is
+needed?  It seems like it would be simpler to make the route cache
+flushing operate in batches of 100 routes, rather than invalidating the
+whole thing in one shot.  This does seem to be the only softirq that
+regularly runs for much more than 1ms.
 
-Because ignoring attacks is more efficient.
+Would this require major surgery on the networking subsystem?
 
--- 
-Matthias Andree
+Lee
+

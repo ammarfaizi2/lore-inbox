@@ -1,51 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWAYXfB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWAYXsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751181AbWAYXfB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 18:35:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWAYXfB
+	id S1751215AbWAYXsP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 18:48:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWAYXsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 18:35:01 -0500
-Received: from xproxy.gmail.com ([66.249.82.196]:38199 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751181AbWAYXfB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 18:35:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=szclRJheRhB57zcIm2h3XcHVhyHEqMRz0MkkQBTT4db/zxfHAdm8+pL5GaTBnfo8yHULE5x8kbBJikLXbaBL/b5qx4U0r3rE8HqFKBnXrY+/WR84CcFw7/WexlKBEDZ2+G3MgOynaHEJFxkdgw2fTqEa/Gi4HUFoWXdhjf7Ilro=
-Message-ID: <43D80B36.7040307@gmail.com>
-Date: Thu, 26 Jan 2006 07:35:18 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Wed, 25 Jan 2006 18:48:14 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:62733 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751215AbWAYXsO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 18:48:14 -0500
+To: Albert Cahalan <acahalan@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+       "Jakub Jelinek <jakub@redhat.com> Al Viro" <viro@ftp.linux.org.uk>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 4/4] pmap: reduced permissions
+References: <200601222219.k0MMJ3Qg209555@saturn.cs.uml.edu>
+	<1137996654.2977.0.camel@laptopd505.fenrus.org>
+	<787b0d920601230128o5a12513fjae3708e3fb552dca@mail.gmail.com>
+	<1138009305.2977.28.camel@laptopd505.fenrus.org>
+	<787b0d920601230220r5c7df60dk142d1d637ab4ed48@mail.gmail.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: resistance is futile; you will be assimilated and byte-compiled.
+Date: Wed, 25 Jan 2006 23:47:56 +0000
+In-Reply-To: <787b0d920601230220r5c7df60dk142d1d637ab4ed48@mail.gmail.com> (Albert
+ Cahalan's message of "23 Jan 2006 10:28:34 -0000")
+Message-ID: <87r76vrhsj.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] vgacon: Add support for soft scrollback
-References: <43D492C4.3000801@gmail.com> <Pine.LNX.4.61.0601251451310.26305@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0601251451310.26305@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->> This patch adds this feature.  The feature and the size of the buffer
->> are made as a kernel config option.  Besides consuming kernel memory,
->> this feature will slow down the console by approximately 20%.
+On 23 Jan 2006, Albert Cahalan said:
+> On 1/23/06, Arjan van de Ven <arjan@infradead.org> wrote:
+>> On Mon, 2006-01-23 at 04:28 -0500, Albert Cahalan wrote:
 > 
-> Slower?
+>> > I tend to think that glibc should not be reading this file.
+>> > What excuse is there?
+>>
+>> glibc needs to be able to find out if a certain address is writable. (eg
+>> mapped "w"). The only way available for that is... reading the maps
+>> file.
+> 
+> What the heck for? That's gross.
 
-Yes, I mentioned this before. The slowdown is unavoidable because the
-contents of the scrollback is read from the VGA RAM.  It can be speeded
-up but it will require an overhaul of vgacon to use buffers in system
-RAM for the entire screen contents, visible and not visible.
+Ironically enough, it's security. :)
 
-Hard scrollback is still the default for vgacon, and soft scrollback
-has to be selected during kernel config.
+> If glibc is just providing this info for apps, there should be a
+> system call for it. Otherwise, being the C library, glibc can
+> damn well remember what it did.
 
-> Then I would rather prefer compact oopses.
+Nah, it's used for vfprintf() argument-area checking.
 
-Of course.
+Specifically, it's the Linux implementation of __readonly_area(),
+located in sysdeps/unix/sysv/linux/readonly-area.c in glibc-3.4-to-be,
+and used by vfprintf() on behalf of __vfprintf_chk(). Calls to this
+function (and the other __*_chk() functions) are expanded by glibc's
+string headers and generated by GCC 4.1+ automatically when possible
+(and by GCCs out there in the field: this patch is shipped by RH
+already, known as FORTIFY_SOURCE).
 
-Tony
+FORTIFY_SOURCE zaps a whole class of security vulnerabilities stone
+dead. Breaking it would be a bad idea. Therefore, /proc/self/maps has to
+remain readable, even in setuid programs, because setuid programs are
+one class of programs for which FORTIFY_SOURCE is crucial.
+
+[Jakub added to Cc:, he can defend his own code much better than I can]
+
+-- 
+`Everyone has skeletons in the closet.  The US has the skeletons
+ driving living folks into the closet.' --- Rebecca Ore

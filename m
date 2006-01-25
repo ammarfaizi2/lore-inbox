@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbWAYPeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWAYPjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751234AbWAYPeN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 10:34:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWAYPeM
+	id S1751222AbWAYPjP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 10:39:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWAYPjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 10:34:12 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:12783 "EHLO
+	Wed, 25 Jan 2006 10:39:15 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:30713 "EHLO
 	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1751234AbWAYPeL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 10:34:11 -0500
+	id S1751222AbWAYPjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 10:39:14 -0500
 From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Wed, 25 Jan 2006 16:33:06 +0100
-To: tytso@mit.edu, arjan@infradead.org
+Date: Wed, 25 Jan 2006 16:38:13 +0100
+To: tytso@mit.edu, froese@gmx.de
 Cc: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org
+       linux-kernel@vger.kernel.org, arjan@infradead.org
 Subject: Re: Rationale for RLIMIT_MEMLOCK?
-Message-ID: <43D79A32.nailD78B9E1B5@burner>
+Message-ID: <43D79B65.nailD78D400YY@burner>
 References: <20060123165415.GA32178@merlin.emma.line.org>
  <1138035602.2977.54.camel@laptopd505.fenrus.org>
  <20060123180106.GA4879@merlin.emma.line.org>
@@ -27,7 +27,8 @@ References: <20060123165415.GA32178@merlin.emma.line.org>
  <43D5EEA2.nailCE7111GPO@burner>
  <1138094141.2977.34.camel@laptopd505.fenrus.org>
  <20060124212843.GA15543@thunk.org>
-In-Reply-To: <20060124212843.GA15543@thunk.org>
+ <20060125001955.3d11ff36.froese@gmx.de>
+In-Reply-To: <20060125001955.3d11ff36.froese@gmx.de>
 User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -35,44 +36,25 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Theodore Ts'o" <tytso@mit.edu> wrote:
+Edgar Toernig <froese@gmx.de> wrote:
 
-> I thought in the case we were talking about, the problem is that we
-> have a setuid program which calls mlockall() but then later drops its
-> privileges.  So when it tries to allocate memories, RLIMIT_MEMLOCK
-> applies again, and so all future memory allocations would fail.  
+> Theodore Ts'o wrote:
+> >
+> > ... proposed a hack where mlockall() would adjust RLIMIT_MEMLOCK.
+> > Yes, no question it's a hack and a special case; the question is
+> > whether cure or the disease is worse.
 >
-> What I proposed is a hack, but strictly speaking not necessary
-> according to the POSIX standards, but the problem is that a portable
-> program can't be expected to know that Linux has a RLIMIT_MEMLOCK
-> resource limit, such that a program which calls mlockall() and then
-> drops privileges will work under Solaris and fail under Linux.  Hence
-> I why proposed a hack where mlockall() would adjust RLIMIT_MEMLOCK.
-> Yes, no question it's a hack and a special case; the question is
-> whether cure or the disease is worse.
+> What about exec?  The memory locks are removed on exec but with that
+> hack the raised limit would stay.  Looks like a security bug.
 
-Maybe, I should give some hints...
+The RLIMIT_MEMLOCK feature itself may be a security bug implemented the way it 
+currentlyy is.
 
-RLIMIT_MEMLOCK did first apear in BSD-4.4 around 1994.
-The iplementation is incomplete since then and partially disabled (size check 
-for mmap() in the kernel) on FreeBSD as it has been 1994 on BSD-4.4
+For me it would make sense to be able to lock everything in core and then
+be able to tell the system that at most 1MB of additional memory may be locked.
 
-FreeBSD currently uses a default value of RLIMIT_INFINITY for users.
-
-I could add this piece of code to the euid == 0 part of cdrecord:
-
-LOCAL void 
-raise_memlock() 
-{ 
-#ifdef  RLIMIT_MEMLOCK 
-        struct rlimit rlim; 
- 
-        rlim.rlim_cur = rlim.rlim_max = RLIM_INFINITY; 
- 
-        if (setrlimit(RLIMIT_MEMLOCK, &rlim) < 0) 
-                errmsg("Warning: Cannot raise RLIMIT_MEMLOCK limits."); 
-#endif  /* RLIMIT_NOFILE */ 
-} 
+In this case, there should be no general failure but the possibility to
+verify that the value is sufficient for usual cases.
 
 Jörg
 

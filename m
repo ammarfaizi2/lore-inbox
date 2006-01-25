@@ -1,50 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWAYVxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWAYWAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbWAYVxH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 16:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932155AbWAYVxH
+	id S932158AbWAYWAz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 17:00:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWAYWAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 16:53:07 -0500
-Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:53788 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S932108AbWAYVxG convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 16:53:06 -0500
-Date: Wed, 25 Jan 2006 22:48:52 +0100 (CET)
-From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
-To: Roger Heflin <rheflin@atipa.com>
-cc: linux-kernel@vger.kernel.org, linux-netdev@vger.kernel.org
-Subject: RE: e1000_watchdog_task: NIC Link is Up/Down on kernels 2.4.15 2.4.14
-In-Reply-To: <EXCHG2003KvPEkGhAj500000a0f@EXCHG2003.microtech-ks.com>
-Message-ID: <Pine.LNX.4.64.0601252241060.25727@lt.wsisiz.edu.pl>
-References: <EXCHG2003KvPEkGhAj500000a0f@EXCHG2003.microtech-ks.com>
+	Wed, 25 Jan 2006 17:00:55 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46763 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751177AbWAYWAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 17:00:54 -0500
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+References: <20060117143258.150807000@sergelap>
+	<20060117155600.GF20632@sergelap.austin.ibm.com>
+	<1137513818.14135.23.camel@localhost.localdomain>
+	<1137518714.5526.8.camel@localhost.localdomain>
+	<20060118045518.GB7292@kroah.com>
+	<1137601395.7850.9.camel@localhost.localdomain>
+	<m1fyniomw2.fsf@ebiederm.dsl.xmission.com>
+	<43D14578.6060801@watson.ibm.com>
+	<m1hd7xmylo.fsf@ebiederm.dsl.xmission.com>
+	<43D52592.8080709@watson.ibm.com>
+	<m1oe22lp69.fsf@ebiederm.dsl.xmission.com>
+	<1138050684.24808.29.camel@localhost.localdomain>
+	<m1bqy2ljho.fsf@ebiederm.dsl.xmission.com>
+	<1138062125.24808.47.camel@localhost.localdomain>
+	<m17j8pl95v.fsf@ebiederm.dsl.xmission.com>
+	<1138137060.14675.73.camel@localhost.localdomain>
+	<1138137305.2977.92.camel@laptopd505.fenrus.org>
+	<m1ek2wk4ro.fsf@ebiederm.dsl.xmission.com>
+	<1138201811.8720.9.camel@lade.trondhjem.org>
+	<m1zmlki3up.fsf@ebiederm.dsl.xmission.com>
+	<1138217416.8718.10.camel@lade.trondhjem.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 25 Jan 2006 14:59:50 -0700
+In-Reply-To: <1138217416.8718.10.camel@lade.trondhjem.org> (Trond
+ Myklebust's message of "Wed, 25 Jan 2006 14:30:16 -0500")
+Message-ID: <m13bjchstl.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (portraits.wsisiz.edu.pl [127.0.0.1]); Wed, 25 Jan 2006 22:52:59 +0100 (CET)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 9 Jan 2006, Roger Heflin wrote:
+Trond Myklebust <trond.myklebust@fys.uio.no> writes:
 
-about:
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=177043
+> On Wed, 2006-01-25 at 11:01 -0700, Eric W. Biederman wrote:
+>> fs/nfs/nfs3proc.c:nfs3_proc_create()
+>> For O_EXCL we have arg.verifier = current->pid.
+>
+> Yes, but that does not result in any permanent state that would be tied
+> to the pid on the server. The verifier here is used only to ensure
+> idempotency of the exclusive create RPC call.
+>
+>> fs/lockd/clntproc.c:nlmclnt_setlockargs()
+>> We have:	lock->oh.len  = sprintf(req->a_owner, "%d@%s",
+>> 					current->pid, system_utsname.nodename);
+>> 
+>> I think this is the fcntl() case.
+>> I would suggest fl_pid might have something to do with it 
+>> but that is part flock based locking.
+>
+> That name is not interpreted by the NLM server. It is, AFAIK, only used
+> for debugging purposes.
 
-> We have fixed a number of machines with this issue by adding a heatsink/fan
-> near the ethernet chip, and we have got at least one MB manufacturer to
-> duplicate
-> the issue, and add a heat sink on their motherboads to correct the issue.
+Ok I though it might have been compared to equality someplace.
 
-Thank You for sugestions. I will try to move this machine to another rack,
-because i have find information about high temperature on
-CPU in logs files.
+> nlm_find_lockowner() is used to define a unique identifier that is
+> supposed to be sent to the server as the 'pid'.
 
-Jan  1 04:03:21 w3cache kernel: CPU2: Running in modulated clock mode
-Jan  1 04:03:21 w3cache kernel: CPU3: Running in modulated clock mode
-Jan  1 04:03:26 w3cache kernel: CPU3: Temperature above threshold
-Jan  1 04:03:26 w3cache kernel: CPU2: Temperature above threshold
+Ok interesting.
+
+All I know for certain was that with 2 pidspaces using the
+same nfs mount I was confusing something, with regards to locking.
 
 
-
--- 
-£T
+Eric

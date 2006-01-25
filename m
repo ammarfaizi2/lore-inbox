@@ -1,197 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWAYSAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWAYSDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbWAYSAT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 13:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbWAYSAT
+	id S1751092AbWAYSDY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 13:03:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbWAYSDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 13:00:19 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:53194 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751091AbWAYSAS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 13:00:18 -0500
-Date: Wed, 25 Jan 2006 19:00:32 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: John Stultz <johnstul@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
-       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
-Subject: [patch, validator] fix clocksource_lock deadlock
-Message-ID: <20060125180032.GA11734@elte.hu>
-Mime-Version: 1.0
+	Wed, 25 Jan 2006 13:03:24 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:51880 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751092AbWAYSDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 13:03:23 -0500
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+References: <20060117143258.150807000@sergelap>
+	<20060117143326.283450000@sergelap>
+	<1137511972.3005.33.camel@laptopd505.fenrus.org>
+	<20060117155600.GF20632@sergelap.austin.ibm.com>
+	<1137513818.14135.23.camel@localhost.localdomain>
+	<1137518714.5526.8.camel@localhost.localdomain>
+	<20060118045518.GB7292@kroah.com>
+	<1137601395.7850.9.camel@localhost.localdomain>
+	<m1fyniomw2.fsf@ebiederm.dsl.xmission.com>
+	<43D14578.6060801@watson.ibm.com>
+	<m1hd7xmylo.fsf@ebiederm.dsl.xmission.com>
+	<43D52592.8080709@watson.ibm.com>
+	<m1oe22lp69.fsf@ebiederm.dsl.xmission.com>
+	<1138050684.24808.29.camel@localhost.localdomain>
+	<m1bqy2ljho.fsf@ebiederm.dsl.xmission.com>
+	<1138062125.24808.47.camel@localhost.localdomain>
+	<m17j8pl95v.fsf@ebiederm.dsl.xmission.com>
+	<1138137060.14675.73.camel@localhost.localdomain>
+	<1138137305.2977.92.camel@laptopd505.fenrus.org>
+	<m1ek2wk4ro.fsf@ebiederm.dsl.xmission.com>
+	<1138201811.8720.9.camel@lade.trondhjem.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 25 Jan 2006 11:01:34 -0700
+In-Reply-To: <1138201811.8720.9.camel@lade.trondhjem.org> (Trond Myklebust's
+ message of "Wed, 25 Jan 2006 10:10:11 -0500")
+Message-ID: <m1zmlki3up.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-clocksource_lock is used in softirq-context via e.g.  
-timeofday_periodic_hook() -> get_next_clocksource(), but the lock is not 
-acquired in a softirq-safe manner - which could lead to deadlocks.
+Trond Myklebust <trond.myklebust@fys.uio.no> writes:
 
-this bug was found via the lock validator i'm working on:
+> On Wed, 2006-01-25 at 02:58 -0700, Eric W. Biederman wrote:
+>> >> On Maw, 2006-01-24 at 12:26 -0700, Eric W. Biederman wrote:
+>> >> > There is at least NFS lockd that appreciates having a single integer
+>> >> > per process unique identifier.  So there is a practical basis for
+>> >> > wanting such a thing.
+>
+> The NFS lock manager mainly wants a unique 32-bit identifier that can
+> follow clone(CLONE_FILES). The reason is that the Linux VFS is forced to
+> use the pointer to the file table as the "process identifier" for posix
+> locks (i.e. fcntl() locks).
 
-  ============================
-  [ BUG: illegal lock usage! ]
-  ----------------------------
-  illegal {used-in-softirq} -> {enabled-softirqs} usage.
-  swapper/1 [HC0[0]:SC0[0]:HE1:SE1] takes {clocksource_lock [u:21]}, at:
-   [<c013f526>] register_clocksource+0x16/0xf0
-  {used-in-softirq} state was registered at:
-   [<c013f22d>] get_next_clocksource+0xd/0x40
-  hardirqs last enabled at: [<c011d31a>] vprintk+0x28a/0x3e0
-  softirqs last enabled at: [<c0122999>] irq_exit+0x39/0x50
-  
-  other info that might help in debugging this:
-  ------------------------------
-  | showing all locks held by: |  (swapper/1 [c30d7790, 125]): <none>
-  ------------------------------
-  
-   [<c010432d>] show_trace+0xd/0x10
-   [<c0104347>] dump_stack+0x17/0x20
-   [<c01379b2>] print_usage_bug+0x1e2/0x200
-   [<c013817d>] mark_lock+0x28d/0x2a0
-   [<c0138835>] debug_lock_chain+0x6a5/0x10d0
-   [<c013929d>] debug_lock_chain_spin+0x3d/0x60
-   [<c026570d>] _raw_spin_lock+0x2d/0x90
-   [<c04d88d8>] _spin_lock+0x8/0x10
-   [<c013f526>] register_clocksource+0x16/0xf0
-   [<c0681137>] init_pit_clocksource+0x57/0x90
-   [<c01003fa>] init+0xfa/0x3e0
-   [<c0100ef5>] kernel_thread_helper+0x5/0x10
+Ok.  I think I was thinking of a different case, but if I missed one
+this could explain the weirdness I was seeing.
 
-the fix is to lock clocksource_lock in a softirq-safe way.
+Let me list the cases I know of and see if I hit what
+you are thinking of.
 
-(with this patch applied, the timeofday code validates fine.)
+fs/nfs/nfs3proc.c:nfs3_proc_create()
+For O_EXCL we have arg.verifier = current->pid.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-----
+fs/lockd/clntproc.c:nlmclnt_setlockargs()
+We have:	lock->oh.len  = sprintf(req->a_owner, "%d@%s",
+					current->pid, system_utsname.nodename);
 
- kernel/time/clocksource.c |   31 +++++++++++++++++--------------
- 1 files changed, 17 insertions(+), 14 deletions(-)
+I think this is the fcntl() case.
+I would suggest fl_pid might have something to do with it 
+but that is part flock based locking.
 
-Index: linux/kernel/time/clocksource.c
-===================================================================
---- linux.orig/kernel/time/clocksource.c
-+++ linux/kernel/time/clocksource.c
-@@ -48,6 +48,9 @@ extern struct clocksource clocksource_ji
- static struct clocksource *curr_clocksource = &clocksource_jiffies;
- static struct clocksource *next_clocksource;
- static LIST_HEAD(clocksource_list);
-+/*
-+ * May be used in softirq context too:
-+ */
- static DEFINE_SPINLOCK(clocksource_lock);
- static char override_name[32];
- 
-@@ -70,12 +73,12 @@ late_initcall(clocksource_done_booting);
-  */
- struct clocksource *get_next_clocksource(void)
- {
--	spin_lock(&clocksource_lock);
-+	spin_lock_bh(&clocksource_lock);
- 	if (next_clocksource && finished_booting) {
- 		curr_clocksource = next_clocksource;
- 		next_clocksource = NULL;
- 	}
--	spin_unlock(&clocksource_lock);
-+	spin_unlock_bh(&clocksource_lock);
- 
- 	return curr_clocksource;
- }
-@@ -141,7 +144,7 @@ static int is_registered_source(struct c
-  */
- void register_clocksource(struct clocksource *c)
- {
--	spin_lock(&clocksource_lock);
-+	spin_lock_bh(&clocksource_lock);
- 
- 	/* check if clocksource is already registered */
- 	if (is_registered_source(c)) {
-@@ -152,7 +155,7 @@ void register_clocksource(struct clockso
- 		/* select next clocksource */
- 		next_clocksource = select_clocksource();
- 	}
--	spin_unlock(&clocksource_lock);
-+	spin_unlock_bh(&clocksource_lock);
- }
- 
- EXPORT_SYMBOL(register_clocksource);
-@@ -166,9 +169,9 @@ EXPORT_SYMBOL(register_clocksource);
-  */
- void reselect_clocksource(void)
- {
--	spin_lock(&clocksource_lock);
-+	spin_lock_bh(&clocksource_lock);
- 	next_clocksource = select_clocksource();
--	spin_unlock(&clocksource_lock);
-+	spin_unlock_bh(&clocksource_lock);
- }
- 
- /**
-@@ -183,9 +186,9 @@ sysfs_show_current_clocksources(struct s
- {
- 	char *curr = buf;
- 
--	spin_lock(&clocksource_lock);
-+	spin_lock_bh(&clocksource_lock);
- 	curr += sprintf(curr, "%s ", curr_clocksource->name);
--	spin_unlock(&clocksource_lock);
-+	spin_unlock_bh(&clocksource_lock);
- 
- 	curr += sprintf(curr, "\n");
- 
-@@ -214,7 +217,7 @@ static ssize_t sysfs_override_clocksourc
- 	if (count < 1)
- 		return -EINVAL;
- 
--	spin_lock(&clocksource_lock);
-+	spin_lock_bh(&clocksource_lock);
- 
- 	/* copy the name given: */
- 	memcpy(override_name, buf, count);
-@@ -223,7 +226,7 @@ static ssize_t sysfs_override_clocksourc
- 	/* try to select it: */
- 	next_clocksource = select_clocksource();
- 
--	spin_unlock(&clocksource_lock);
-+	spin_unlock_bh(&clocksource_lock);
- 
- 	return count;
- }
-@@ -241,14 +244,14 @@ sysfs_show_available_clocksources(struct
- 	struct list_head *tmp;
- 	char *curr = buf;
- 
--	spin_lock(&clocksource_lock);
-+	spin_lock_bh(&clocksource_lock);
- 	list_for_each(tmp, &clocksource_list) {
- 		struct clocksource *src;
- 
- 		src = list_entry(tmp, struct clocksource, list);
- 		curr += sprintf(curr, "%s ", src->name);
- 	}
--	spin_unlock(&clocksource_lock);
-+	spin_unlock_bh(&clocksource_lock);
- 
- 	curr += sprintf(curr, "\n");
- 
-@@ -301,10 +304,10 @@ device_initcall(init_clocksource_sysfs);
-  */
- static int __init boot_override_clocksource(char* str)
- {
--	spin_lock(&clocksource_lock);
-+	spin_lock_bh(&clocksource_lock);
- 	if (str)
- 		strlcpy(override_name, str, sizeof(override_name));
--	spin_unlock(&clocksource_lock);
-+	spin_unlock_bh(&clocksource_lock);
- 	return 1;
- }
- 
+So I'm not certain I see the part of NFS you are refering to.
+
+Eric

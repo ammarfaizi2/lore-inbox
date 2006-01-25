@@ -1,95 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWAYQ0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWAYQco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbWAYQ0L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 11:26:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbWAYQ0L
+	id S1750975AbWAYQco (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 11:32:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbWAYQco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 11:26:11 -0500
-Received: from uproxy.gmail.com ([66.249.92.197]:39268 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750852AbWAYQ0J convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 11:26:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tq1KCd8pbmWdUoV5pb1x1cpRREcOZgO9qRQ6PZhi0QVe9zwQciQW+nuKUO1ItofLeN6duujJUJOh4i7FdRv/QkV1CmJGJQBhHePP2GugBHUUHhahHtIFkb8DpSE8ue5Fld/iqQQkIMJsk5JoMiW4gHiegZyfvuwdkyTEYiV/Irw=
-Message-ID: <58cb370e0601250826m330984g576839345ed908de@mail.gmail.com>
-Date: Wed, 25 Jan 2006 17:26:07 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] sata_sil: combined irq + LBT DMA patch for testing
-Cc: Thomas Backlund <tmb@mandriva.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <43CD8E62.7060301@pobox.com>
+	Wed, 25 Jan 2006 11:32:44 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:13238 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1750972AbWAYQco (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 11:32:44 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Wed, 25 Jan 2006 17:31:48 +0100
+To: schilling@fokus.fraunhofer.de, rlrevell@joe-job.com,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43D7A7F4.nailDE92K7TJI@burner>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+In-Reply-To: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051204011953.GA16381@havoc.gtf.org>
-	 <7744a2840512061147i5c101455g9ed99624aca344dd@mail.gmail.com>
-	 <43987A28.8070509@mandriva.org> <439899B6.2000302@pobox.com>
-	 <43B16B06.3000401@mandriva.org> <43CD8E62.7060301@pobox.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Albert Cahalan <acahalan@gmail.com> wrote:
 
-On 1/18/06, Jeff Garzik <jgarzik@pobox.com> wrote:
-> Thomas Backlund wrote:
-> > Jeff Garzik wrote:
-> >
-> >> Thomas Backlund wrote:
-> >>
-> >>> Richard Bollinger wrote:
-> >>>
-> >>>>> ata1: BUG: SG size underflow
-> >>>>> ata1: status=0x50 { DriveReady SeekComplete }
-> >>>
-> >>>
-> >>>
-> >>> and onde by one the raid devices got deactivated until the full
-> >>> freeze...
-> >>
-> >>
-> >>
-> >> I think I know what's going on with the 'SG size underflow' thingy,
-> >> give me a few days to come up with a fix.
-> >>
-> >>     Jeff
-> >>
-> >>
-> >>
-> > Any news on this?
-> > or is it already fixed ?
->
-> Back-burner for the moment :(
+> We Linux users will forever patch your software to work the
 
-I think I have finally found the bug
-after auditing the patch for x times...
+Looks like you are not a native English speaker. "We" is incorrect here, as you 
+only speak for yourself.
 
-+       /* Stop DMA, if doing DMA */
-+       switch (qc->tf.protocol) {
-+       case ATA_PROT_DMA:
-+       case ATA_PROT_ATAPI_DMA:
-+               ata_bmdma_stop(qc);
 
-It should be sil_bmdma_stop()...
+> BTW, before Joerg mentions portability, I'd like to remind
+> everyone that all modern OSes support the use of normal device
+> names for SCSI. The most awkward is FreeBSD, where you have
+> to do a syscall or two to translate the name to Joerg's very
+> non-hotplug non-iSCSI way of thinking. Windows, MacOS X, and
+> even Solaris all manage to handle device names just fine. In
+> numerous cases, not just Linux, cdrecord is inventing crap out
+> of thin air to satisfy a pre-hotplug worldview.
 
-By accident ata_bmdma_stop() is OK for sil3112 so that would
-explain why only people with sil3114 reported problems.
+Looks like you are badly informed, so I encourage you to get yourself informed 
+properly before sending your next postig....
 
-My theory is that using ata_bmdma_stop() for sil3114 results
-in IRQs for port 2 and 3 not being delivered (because
-SIL_INTR_STEERING bit is cleared) and we end up with
-dma_stat_mask == 0.
+libscg includes 22 different SCSI low level transport implementations.
 
-Rest of the patch looks perfectly fine for me.  Could somebody
-reporting problems with this patch retest with the above change?
+-	Only 5 of them allow a /dev/hd* device name related access.
 
-+               break;
-+       default:
-+               /* do nothing */
-+               break;
-+       }
+-	11 of them use file descriptors as handles for sending SCSI 
+	commands but do not have a name <-> fs relation and thus
+	_need_ a SCSI device naming scheme as libscg offers.
+	This is because there is no 1:1 relation between SCSI addressing
+	and a fd retrieved from a /dev/* entry.
 
-Bartlomiej
+-	6 of them not even allow to get a file descriptors as handles for 
+	sending SCSI commands. These platforms of course need the SCSI device 
+	naming scheme as libscg offers.
+
+Conclusion:
+
+17 Platforms _need_ the addressing scheme libscg offers
+
+5  Platforms _may_ use a different access method too.
+
+NOTE: Amongst the 6 plaforms that do not allow to even get a file descriptor 
+there is a modern OS like MacOS X
+
+
+BTW: the wording of your posting did give you a negative score.
+If you continue the same way, it may be that your next posting will 
+remain unanswered even though it may be wring and needs a correction like this 
+one.
+
+
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

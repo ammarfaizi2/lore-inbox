@@ -1,78 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWAYK0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWAYKY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751102AbWAYK0L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 05:26:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbWAYK0L
+	id S1751087AbWAYKY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 05:24:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWAYKY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 05:26:11 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:51655 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1751102AbWAYK0J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 05:26:09 -0500
-Message-ID: <43D75239.90907@cosmosbay.com>
-Date: Wed, 25 Jan 2006 11:26:01 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Wed, 25 Jan 2006 05:24:58 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26276 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751087AbWAYKY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 05:24:57 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>, ak@suse.de,
+       vgoyal@in.ibm.com, linux-kernel@vger.kernel.org,
+       fastboot@lists.osdl.org
+Subject: Re: [PATCH 1/5] stack overflow safe kdump (2.6.16-rc1-i386) -
+ safe_smp_processor_id
+References: <1138171868.2370.62.camel@localhost.localdomain>
+	<20060124231052.7c9fcbec.akpm@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 25 Jan 2006 03:23:40 -0700
+In-Reply-To: <20060124231052.7c9fcbec.akpm@osdl.org> (Andrew Morton's
+ message of "Tue, 24 Jan 2006 23:10:52 -0800")
+Message-ID: <m1acdkk3mb.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Nick Piggin <npiggin@suse.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: [RFC] non-refcounted pages, application to slab?
-References: <20060125093909.GE32653@wotan.suse.de>
-In-Reply-To: <20060125093909.GE32653@wotan.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Wed, 25 Jan 2006 11:26:00 +0100 (CET)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin a écrit :
-> If an allocator knows exactly the lifetime of its page, then there is no
-> need to do refcounting or the final put_page_zestzero (atomic op + mem
-> barriers).
-> 
-> This is probably not worthwhile for most cases, but slab did strike me
-> as a potential candidate (however the complication here is that some
-> code I think uses the refcount of underlying pages of slab allocations
-> eg nommu code). So it is not a complete patch, but I wonder if anyone
-> thinks the savings might be worth the complexity?
-> 
-> Is there any particular code that is really heavy on slab allocations?
-> That isn't mostly handled by the slab's internal freelists?
+Andrew Morton <akpm@osdl.org> writes:
 
-Hi Nick
+> It assumes that all x86 SMP machines have APICs.  That's untrue of Voyager.
+> I think we can probably live with this assumption - others would know
+> better than I.
 
-After reading your patch, I have some crazy idea.
+So looking at the code hard_smp_processor_id is fine.  Voyager
+also implements that.
 
-The atomic op + mem barrier you want to avoid could be avoided more generally 
-just by changing atomic_dec_and_test(atomic_t *v).
+If we are running UP with an SMP kernel we are fine.
 
-If the current thread is the last referer (refcnt = 1), then it can safely set 
-the value to 0 because no other CPU can be touching the value (or else there 
-must be a bug somewhere, as the 'other cpu' could touch the value just after 
-us and we could free an object still in use by 'other cpu'
+But I think x86_cpu_to_apicid will get us into trouble
+on Voyager, because I don't think we should compile smpboot.c
+as it has conflicting simples with voyager_smp.c
 
-Something like :
+Although reading the makefile I don't see how we can avoid
+compiling them both in SMP mode.
 
-
---- include/asm-i386/atomic.h.orig      2006-01-25 12:11:46.000000000 +0100
-+++ include/asm-i386/atomic.h   2006-01-25 12:13:07.000000000 +0100
-@@ -130,6 +130,13 @@
-                 printk("BUG: atomic counter underflow at:\n");
-                 dump_stack();
-         }
-+#ifdef CONFIG_SMP
-+       /* avoid an atomic op if we are the last user of this atomic */
-+       if (atomic_read(v) == 1) {
-+               atomic_set(v, 0); /* not a real atomic op on most machines */
-+               return 1;
-+       }
-+#endif
-         __asm__ __volatile__(
-                 LOCK_PREFIX "decl %0; sete %1"
-                 :"=m" (v->counter), "=qm" (c)
-
-
-Thank you
+Everything else has a local apic when running SMP so we should
+be good there.
 
 Eric
+
+
+

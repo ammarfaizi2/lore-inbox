@@ -1,68 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750864AbWAYALo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWAYAH4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750864AbWAYALo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 19:11:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWAYALo
+	id S1750860AbWAYAH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 19:07:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWAYAH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 19:11:44 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:713 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750864AbWAYALn (ORCPT
+	Tue, 24 Jan 2006 19:07:56 -0500
+Received: from smtp06.auna.com ([62.81.186.16]:8076 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S1750838AbWAYAHz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 19:11:43 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH -mm] swsusp: userland interface (rev 2)
-Date: Wed, 25 Jan 2006 00:53:26 +0100
-User-Agent: KMail/1.9
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200601240929.37676.rjw@sisk.pl> <20060124135843.739481e7.akpm@osdl.org> <20060124221426.GB1602@elf.ucw.cz>
-In-Reply-To: <20060124221426.GB1602@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601250053.27394.rjw@sisk.pl>
+	Tue, 24 Jan 2006 19:07:55 -0500
+Date: Wed, 25 Jan 2006 01:12:11 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Ed Sweetman <safemode@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: poor raid0 performance in 2.6.16-rc1-mm2?
+Message-ID: <20060125011211.337169ac@werewolf.auna.net>
+In-Reply-To: <43D6B7F9.3020407@comcast.net>
+References: <43D6B7F9.3020407@comcast.net>
+X-Mailer: Sylpheed-Claws 1.9.100cvs183 (GTK+ 2.8.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary=Sig_PJmHzDuyPCX2qpziUIgn96E;
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
+X-Auth-Info: Auth:LOGIN IP:[83.138.216.29] Login:jamagallon@able.es Fecha:Wed, 25 Jan 2006 01:07:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--Sig_PJmHzDuyPCX2qpziUIgn96E
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-On Tuesday, 24 January 2006 23:14, Pavel Machek wrote:
-> > > > > This patch introduces a user space interface for swsusp.
-> > > > 
-> > > > How will we know if/when this feature is ready for mainline?  What criteria
-> > > > can we use to judge that?
-> > > 
-> > > It was stable for me last time I tested. I do not think it needs
-> > > longer -mm testing than usual patches.
-> > 
-> > One we've shipped the interface we're kinda stuck with it for ever, so it
-> > does want to be pretty mature.
-> 
-> Well, I think we got the interface pretty much right -- and it is
-> really pretty simple. It survived pretty nasty stress testing at one
-> point.
+On Tue, 24 Jan 2006 18:27:53 -0500, Ed Sweetman <safemode@comcast.net> wrot=
+e:
 
-I think the ioctls defined so far won't change.  However, it's possible we'll
-need some more (for example the suspend console handling is not
-optimal now, so to speak).
+> I'll have to reboot to double check that this is specific to the above=20
+> kernel version, but It seems something is either wrong with my=20
+> particular kernel config for raid0, or my raid0 is setup wrong.
+>=20
+> my raid0 uses 64k chunk sizes on an ext3 fs that's 367GB large, (across=20
+> two identical sata disks on nforce4 chipset)
+>=20
+> I have partitions on both drives of equal size (2 altogether) that are=20
+> outside of the raid0.  I dbenched those partitions, the raid0 device,=20
+> and libata pata devices i also have (same rpm, less cache, same company).=
+ =20
+>=20
+> pata disk : 403MB/sec
+> sata disk 1: 446MB/sec
+> raid0 : between 336MB/sec and 386MB/sec
+>=20
 
-IMHO the current version is sufficient to start with, but now we should
-start working on userland tools seriously.  Then it'll turn out what else
-is necessary.
+Uh ? I want some of those disks....
+How are you measuring that ?
 
-> Of course, bad things happen. Having it merged but disabled in
-> Makefile would certainly be preferred than not merged at
-> all. Plus... stable kernel or not, it is new feature, and userland
-> suspending programs are quite closely tied to the kernel. I think it
-> is reasonable to expect users to have matching version of kernel and
-> userland-swsusp tools, at least before dust settles.
+Some more real numbers.
 
-I'm afraid that would be a nightmare for distributors who decide to use it.
+A SATA raid5:
+nada:~# lsscsi
+[1:0:0:0]    disk    ATA      Maxtor 7Y250M0   YAR5  -      =20
+[2:0:0:0]    disk    ATA      Maxtor 7Y250M0   YAR5  -      =20
+[3:0:0:0]    disk    ATA      Maxtor 7Y250M0   YAR5  -      =20
+[4:0:0:0]    disk    ATA      Maxtor 7Y250M0   YAR5  -      =20
+[5:0:0:0]    disk    ATA      Maxtor 7Y250M0   YAR5  -      =20
+[6:0:0:0]    disk    ATA      Maxtor 7Y250M0   YAR5  -      =20
+[7:0:0:0]    disk    ATA      Maxtor 7Y250M0   YAR5  -
+nada:~# hdparm -t /dev/sdb /dev/sdc
 
-IMHO after it gets into mainline every next version of the interface should
-be backwards compatible with the previous one.
+/dev/sdb:
+ Timing buffered disk reads:  156 MB in  3.02 seconds =3D  51.70 MB/sec
 
-Greetings,
-Rafael
+/dev/sdc:
+ Timing buffered disk reads:  154 MB in  3.02 seconds =3D  50.96 MB/sec
+
+nada:~# hdparm -t /dev/md0
+
+/dev/md0:
+ Timing buffered disk reads:  148 MB in  3.01 seconds =3D  49.20 MB/sec
+
+An SCSI raid0 one (160 and 320 mixed...)
+
+annwn:~# hdparm -t /dev/sdc /dev/sdb
+
+/dev/sdc:
+ Timing buffered disk reads:  226 MB in  3.02 seconds =3D  74.72 MB/sec
+
+/dev/sdb:
+ Timing buffered disk reads:  122 MB in  3.00 seconds =3D  40.64 MB/sec
+
+annwn:~# hdparm -t /dev/md0
+
+/dev/md0:
+ Timing buffered disk reads:  242 MB in  3.00 seconds =3D  80.62 MB/sec
+
+
+> now the sata disks alone, get 446MB/sec, but the raid device that's=20
+> comprised of them is getting >60MB/sec less throughput.=20
+>=20
+> This difference is much more drastic when say only 1 process is used=20
+> with dbench,
+>=20
+> sata disk 1: 230MB/sec
+> raid0 : 96MB/sec
+>=20
+>=20
+> Something definitely feels wrong with these numbers.=20
+>=20
+> All filesystems are ext3, on an athlon 64 x2 system, during each test no=
+=20
+> other io was performed, there is no swap and no other cpu intensive=20
+> operations were going on.=20
+>=20
+> the filesystems were all created the same way, and all have the same=20
+> blocksizes and such.  All are mounted with default options too.=20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandriva Linux release 2006.1 (Cooker) for i586
+Linux 2.6.15-jam5 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
+
+--Sig_PJmHzDuyPCX2qpziUIgn96E
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFD1sJbRlIHNEGnKMMRAtpHAJ4zej6En0vmci1awG0ukYK+Yg9X/ACfdhA8
+5e0rE0vkBaGS3BgTlGUrBss=
+=6Jx7
+-----END PGP SIGNATURE-----
+
+--Sig_PJmHzDuyPCX2qpziUIgn96E--

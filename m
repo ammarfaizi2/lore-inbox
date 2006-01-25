@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWAYXOA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWAYXO3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932209AbWAYXOA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 18:14:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWAYXOA
+	id S932211AbWAYXO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 18:14:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWAYXO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 18:14:00 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:62857 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932209AbWAYXN7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 18:13:59 -0500
-Subject: Re: RCU latency regression in 2.6.16-rc1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: dipankar@in.ibm.com, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, NetDev <netdev@vger.kernel.org>
-In-Reply-To: <20060125225639.GA1382@elte.hu>
-References: <20060124080157.GA25855@elte.hu>
-	 <1138090078.2771.88.camel@mindpipe> <20060124081301.GC25855@elte.hu>
-	 <1138090527.2771.91.camel@mindpipe> <20060124091730.GA31204@us.ibm.com>
-	 <20060124092330.GA7060@elte.hu> <1138095856.2771.103.camel@mindpipe>
-	 <20060124162846.GA7139@in.ibm.com> <20060124213802.GC7139@in.ibm.com>
-	 <1138224506.3087.22.camel@mindpipe>  <20060125225639.GA1382@elte.hu>
-Content-Type: text/plain
-Date: Wed, 25 Jan 2006 18:13:57 -0500
-Message-Id: <1138230838.3087.54.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Jan 2006 18:14:28 -0500
+Received: from mail.gmx.net ([213.165.64.21]:56721 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932211AbWAYXO1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 18:14:27 -0500
+X-Authenticated: #428038
+Date: Thu, 26 Jan 2006 00:14:22 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Matthias Andree <matthias.andree@gmx.de>, grundig@teleline.es,
+       Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       jengelh@linux01.gwdg.de, linux-kernel@vger.kernel.org,
+       acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060125231422.GB2137@merlin.emma.line.org>
+Mail-Followup-To: Jens Axboe <axboe@suse.de>, grundig@teleline.es,
+	Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	jengelh@linux01.gwdg.de, linux-kernel@vger.kernel.org,
+	acahalan@gmail.com
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner> <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <20060125182552.GB4212@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060125182552.GB4212@suse.de>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-25 at 23:56 +0100, Ingo Molnar wrote:
+(stripped Lee from the Cc: list)
+
+Jens Axboe schrieb am 2006-01-25:
+
+> > Hm. sysfs, procfs, udev, hotplug, netlink (for IPv6) - this all looks rather
+> > complicated and non-portable. I understand that applications that can just
+> > open every device and send SCSI INQUIRY might want to do that on Linux, too.
 > 
-> yes, that would be a nice test. (I'm busy now with mutex stuff to be 
-> able to do a working softirq-preemption patch, but i sent you my
-> current patches off-list - if you want to give it a shot. Be warned
-> though, there will likely be quite some merging work to do, so it's
-> definitely not for the faint hearted.)
-> 
+> Certainly, I'm just suggesting a better way to do it on Linux.
 
-OK, I probably won't have time to test it this week either.
+Great. There's a better way, but it is not necessary. Let Linux-specific
+applications use it for their benefit, but a portable application isn't
+going that way because it's too much effort. If a simpler interface that
+can be shared with half a dozen other system exists, the portable
+application will use that and ignore better interfaces.
 
-In the meantime can anyone explain briefly why such a heavy fix is
-needed?  It seems like it would be simpler to make the route cache
-flushing operate in batches of 100 routes, rather than invalidating the
-whole thing in one shot.  This does seem to be the only softirq that
-regularly runs for much more than 1ms.
-
-Would this require major surgery on the networking subsystem?
-
-Lee
-
+-- 
+Matthias Andree

@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWAYPTD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWAYP13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751227AbWAYPTD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 10:19:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWAYPTC
+	id S1751209AbWAYP13 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 10:27:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWAYP13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 10:19:02 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:30887 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751227AbWAYPTB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 10:19:01 -0500
-Date: Wed, 25 Jan 2006 16:13:46 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Jens Axboe <axboe@suse.de>
-cc: Albert Cahalan <acahalan@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       rlrevell@joe-job.com, schilling@fokus.fraunhofer.de,
-       matthias.andree@gmx.de
+	Wed, 25 Jan 2006 10:27:29 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:5609 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1751209AbWAYP13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 10:27:29 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Wed, 25 Jan 2006 16:26:23 +0100
+To: matthias.andree@gmx.de, jengelh@linux01.gwdg.de
+Cc: schilling@fokus.fraunhofer.de, rlrevell@joe-job.com,
+       linux-kernel@vger.kernel.org
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-In-Reply-To: <20060125144543.GY4212@suse.de>
-Message-ID: <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
- <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de>
+Message-ID: <43D7989F.nailD789192N3@burner>
+References: <1138014312.2977.37.camel@laptopd505.fenrus.org>
+ <20060123165415.GA32178@merlin.emma.line.org>
+ <1138035602.2977.54.camel@laptopd505.fenrus.org>
+ <20060123180106.GA4879@merlin.emma.line.org>
+ <1138039993.2977.62.camel@laptopd505.fenrus.org>
+ <20060123185549.GA15985@merlin.emma.line.org>
+ <43D530CC.nailC4Y11KE7A@burner> <1138048255.21481.15.camel@mindpipe>
+ <20060123212119.GI1820@merlin.emma.line.org>
+ <Pine.LNX.4.61.0601241823390.28682@yvahk01.tjqt.qr>
+ <20060124181813.GA30863@merlin.emma.line.org>
+ <Pine.LNX.4.61.0601242151520.17164@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0601242151520.17164@yvahk01.tjqt.qr>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
 
->
->- you don't need -scanbus. If
->users think they do, it's either because Joerg brain washed them or
->because they have been used to that bad interface since years ago when
->it was unfortunately needed.
+> Where is the difference between SG_IO-on-hdx and sg0?
 
-Now you're unfair.
--scanbus does a nice output of what cdwriters (and other capable devices) 
-are present. For me, that lists the cd writer and a CF slot from the 
-multitype usb flash reader.
+-	Accessing _all_ SCSI devices from a unique name space.
 
-There's one kind of not-so-advanced linux newbies that just go to walmart, 
-buy a computer and whack a linux system on it for fun, and they still don't 
-know if their cdrom is at /dev/hdb or /dev/hdc. Looking for dmesg is 
-usually a nightmare for them, and apart that -scanbus lists scsi 
-host,id,lun instead of /dev/hd* (don't comment on this kthx), it is 
-convenient for this sort of users to find out what's available.
+-	Using a driver that if located at the right layering level
+	(just above the transport) but not at the block level where 
+	SCSI transport does not belong.
 
-So, and what about that compactflash reader? It is subject to dynamic 
-usb->scsi device association (depending on when you connect it, it may 
-either become sda, or sdb, or sdc, etc.), and -scanbus yet again provides 
-some way (albeit not useful, because it lists scsi,id,lun rather than 
-/dev/sd* - don't comment either) to see where it actually is.
+-	Cutting down kernel size by avoiding multiple implemenations
+	of code for the same purpose.
+
+There are of course more....
 
 
 
-Jan Engelhardt
+Jörg
+
 -- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

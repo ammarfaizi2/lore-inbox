@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWAYLKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWAYLLM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbWAYLKq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 06:10:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbWAYLKq
+	id S1751118AbWAYLLM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 06:11:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWAYLLL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 06:10:46 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:22468 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1751115AbWAYLKq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 06:10:46 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
-From: Keith Owens <kaos@sgi.com>
-To: eranian@hpl.hp.com
-cc: "Bryan O'Sullivan" <bos@serpentine.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/6] 2.6.16-rc1 perfmon2 patch for review 
-In-reply-to: Your message of "Tue, 24 Jan 2006 07:13:25 -0800."
-             <20060124151325.GC7130@frankl.hpl.hp.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 25 Jan 2006 22:10:44 +1100
-Message-ID: <23407.1138187444@ocs3.ocs.com.au>
+	Wed, 25 Jan 2006 06:11:11 -0500
+Received: from terra.ane.cmc.osaka-u.ac.jp ([133.1.74.3]:63706 "EHLO
+	terra.ane.cmc.osaka-u.ac.jp") by vger.kernel.org with ESMTP
+	id S1751118AbWAYLKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 06:10:52 -0500
+Message-ID: <43D75CBC.9040805@ist.osaka-u.ac.jp>
+Date: Wed, 25 Jan 2006 20:10:52 +0900
+From: Zongsheng Zhang <zhang@ist.osaka-u.ac.jp>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: TCP fast retransmit/recovery
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephane Eranian (on Tue, 24 Jan 2006 07:13:25 -0800) wrote:
->Well, I am not sure why the smp_call_function_single() is not already
->implemented for i386. I can see that the underlying function send_IPI_mask()
->is there. It also looks like flush_tlb_others() is also selecting CPUs a subset
->of CPUs. I am not a big enough expert on x86 to understand if there are gotchas
->to watch for. Yet it would surprise me if this is radically different than on
->x86_64 (em64t) which already has the call. Maybe someone can clarify this?
+Hi,
 
-There is no hardware reason why smp_call_function_single() cannot be
-implemented on i386.  The only reason it has not been implemented on
-i386 is that nobody has had a need for it yet.
+About TCP fast retransmit/recovery, it is described in RFC 2581:
 
+1) When the third duplicate ACK is received, set ssthresh to no more
+than the value max(FlightSize/2, 2*SMSS).
+
+2) Retransmit the lost segment and set cwnd to ssthresh plus 3*SMSS.
+
+However, in kernel 2.4.31 (or 2.6.15), cwnd is always set to 1 (in
+tcp_enter_loss()), even there is only one packet is drop.
+
+Does anyone know the reason?
+
+Regards,
+
+-- 
+Zongsheng Zhang
+zhang@ist.osaka-u.ac.jp

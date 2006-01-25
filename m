@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWAYWcy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWAYWkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbWAYWcy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 17:32:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbWAYWcy
+	id S932190AbWAYWkO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 17:40:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWAYWkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 17:32:54 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:62091 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932185AbWAYWcx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 17:32:53 -0500
-Subject: Re: RFC: ipath ioctls and their replacements
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Greg Kroah-Hartman <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, Roland Dreier <rdreier@cisco.com>,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <1137631411.4757.218.camel@serpentine.pathscale.com>
-References: <1137631411.4757.218.camel@serpentine.pathscale.com>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Wed, 25 Jan 2006 14:32:41 -0800
-Message-Id: <1138228361.15295.55.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Jan 2006 17:40:14 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:47368 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932190AbWAYWkM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 17:40:12 -0500
+To: Diego Calleja <diegocg@gmail.com>
+Cc: Ram Gupta <ram.gupta5@gmail.com>, mloftis@wgops.com, barryn@pobox.com,
+       a1426z@gawab.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] VM: I have a dream...
+References: <200601212108.41269.a1426z@gawab.com>
+	<986ed62e0601221155x6a57e353vf14db02cc219c09@mail.gmail.com>
+	<E3C35184F807ADEC2AD9E182@dhcp-2-206.wgops.com>
+	<728201270601230705k25e6890ejd716dbfc393208b8@mail.gmail.com>
+	<20060123162624.5c5a1b94.diegocg@gmail.com>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: where editing text is like playing Paganini on a glass harmonica.
+Date: Wed, 25 Jan 2006 22:27:11 +0000
+In-Reply-To: <20060123162624.5c5a1b94.diegocg@gmail.com> (Diego Calleja's
+ message of "23 Jan 2006 15:27:21 -0000")
+Message-ID: <87zmlkq6yo.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been flailing away at the ioctls in our driver, with a good degree
-of success.  However, one in particular is proving tricky:
+On 23 Jan 2006, Diego Calleja wrote:
+> El Mon, 23 Jan 2006 09:05:41 -0600,
+> Ram Gupta <ram.gupta5@gmail.com> escribió:
+> 
+>> Linux also supports multiple swap files . But these are more
+> 
+> There're in fact a "dynamic swap" tool which apparently
+> does what mac os x do: http://dynswapd.sourceforge.net/
+> 
+> However, I doubt the approach is really useful. If you need that much
+> swap space, you're going well beyond the capabilities of the machine.
 
->         Opening the /dev/ipath special file assigns an appropriate free
->         unit (chip) and port (context on a chip) to a user process.
->         Think of it as similar to /dev/ptmx for ttys, except there isn't
->         a devpts-like filesystem behind it.  Once a process has
->         opened /dev/ipath, it needs to find out which unit and port it
->         has opened, so that it can access other attributes in /sys.  To
->         do this, we provide a GETPORT ioctl.
+Well, to some extent it depends on your access patterns. The backup
+program I use (`dar') is an enormous memory hog: it happily eats 5Gb on
+my main fileserver (an UltraSPARC, so compiling it 64-bit does away with
+address space sizing problems). That machine has only 512Mb RAM, so
+you'd expect the thing would be swapping to death; but the backup
+program's locality of reference is sufficiently good that it doesn't
+swap much at all (and that in one tight lump at the end).
 
-I still don't see how to replace this with anything else without
-performing unnatural acts.
-
-We use struct file's private_data to keep a pointer to the device in
-use, which works fine for ioctl.
-
-However, if I'm coming into the kernel over a netlink socket, I have no
-obvious way of going from my table of devices to the processes that have
-each one open, and I see no evidence that any other device driver tries
-to do anything like this either.
-
-Short of keeping a reference to the task_struct in the device, or
-walking the sending process's file table if we receive a netlink message
-(both of which are disgusting), I see no way to make this ioctl go away.
-
-Am I missing something?
-
-	<b
-
+-- 
+`Everyone has skeletons in the closet.  The US has the skeletons
+ driving living folks into the closet.' --- Rebecca Ore

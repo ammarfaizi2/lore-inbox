@@ -1,75 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWAYNyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbWAYOGI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbWAYNyY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 08:54:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWAYNyY
+	id S1751169AbWAYOGI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 09:06:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWAYOGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 08:54:24 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:2490 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751167AbWAYNyY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 08:54:24 -0500
-Date: Wed, 25 Jan 2006 14:54:22 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: menuconfig elements unaligned
-In-Reply-To: <20060122210524.2f25d0e5.rdunlap@xenotime.net>
-Message-ID: <Pine.LNX.4.61.0601251453130.26305@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0601182118001.29502@yvahk01.tjqt.qr>
- <20060122210524.2f25d0e5.rdunlap@xenotime.net>
+	Wed, 25 Jan 2006 09:06:07 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:26276 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1751169AbWAYOGG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 09:06:06 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Wed, 25 Jan 2006 15:04:53 +0100
+To: matthias.andree@gmx.de, jengelh@linux01.gwdg.de
+Cc: schilling@fokus.fraunhofer.de, rlrevell@joe-job.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest) (was: 
+ Rationale for RLIMIT_MEMLOCK?)
+Message-ID: <43D78585.nailD7855YVBX@burner>
+References: <20060123105634.GA17439@merlin.emma.line.org>
+ <1138014312.2977.37.camel@laptopd505.fenrus.org>
+ <20060123165415.GA32178@merlin.emma.line.org>
+ <1138035602.2977.54.camel@laptopd505.fenrus.org>
+ <20060123180106.GA4879@merlin.emma.line.org>
+ <1138039993.2977.62.camel@laptopd505.fenrus.org>
+ <20060123185549.GA15985@merlin.emma.line.org>
+ <43D530CC.nailC4Y11KE7A@burner> <1138048255.21481.15.camel@mindpipe>
+ <20060123212119.GI1820@merlin.emma.line.org>
+ <Pine.LNX.4.61.0601241823390.28682@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0601241823390.28682@yvahk01.tjqt.qr>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> in Drivers > Network > 10 or 100Mbit, this shows up:
->> 
->>  [*] EISA, VLB, PCI and on board controllers
->>  < >   AMD PCnet32 PCI support
->>  < >   AMD 8111 (new PCI lance) support
->>  < >   Adaptec Starfire/DuraLAN support
->>  < >   Broadcom 4400 ethernet support (EXPERIMENTAL)
->>  < >   Reverse Engineered nForce Ethernet support (EXPERIMENTAL)
->>  < > Digi Intl. RightSwitch SE-X support
->>  < > EtherExpressPro/100 support (eepro100, original Becker driver)
->>  < > Intel(R) PRO/100+ support
->> 
->> Deactivating EISA would suggest that Digi Intl. and everything below would
->> remain visible, but they do not. If someone got the time to, please fix it.
->> Thanks.
+Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+
+> >1. compile a list of their requirements,
 >
->Like Sam replied, I don't see a problem.  But the indentation shown
->above isn't how I see it on-screen.  The Digi, EtherExpressPro/100,
->and Intel(R) PRO/100+ are all indented under EISA/VLB/PCI for me.
+> Have as few code duplicated (e.g. ATAPI and SCSI may share some - after 
+> all, ATAPI is (to me) some sort of SCSI tunneled in ATA.)
 
-Shrug. Ok, this time, a vanilla 2.6.15 pulled fresh from <mirror 
-of> kernel.org rather than a suse mod...
+Thank you! This is a vote _pro_ a unified SCSI generic implementation for all
+types of devices. The current implementation unneccssarily duplicates a lot 
+of code.
 
-  +----------------------- Ethernet (10 or 100Mbit) ------------------------+
-  |  Arrow keys navigate the menu.  <Enter> selects submenus --->.          |
-  |  Highlighted letters are hotkeys.  Pressing <Y> includes, <N> excludes, |
-  |  <M> modularizes features.  Press <Esc><Esc> to exit, <?> for Help, </> |
-  |  for Search.  Legend: [*] built-in  [ ] excluded  <M> module  < >       |
-  | +^(-)-----------------------------------------------------------------+ |
-  | |[*] EISA, VLB, PCI and on board controllers                          | |
-  | |< >   AMD PCnet32 PCI support                                        | |
-  | |< >   AMD 8111 (new PCI lance) support                               | |
-  | |< >   Adaptec Starfire/DuraLAN support                               | |
-  | |< >   Ansel Communications EISA 3200 support (EXPERIMENTAL)          | |
-  | |< >   Apricot Xen-II on board Ethernet                               | |
-  | |< >   Broadcom 4400 ethernet support (EXPERIMENTAL)                  | |
-  | |< >   Reverse Engineered nForce Ethernet support (EXPERIMENTAL)      | |
-  | |< > CS89x0 support                                                   | |
-  | |< > Digi Intl. RightSwitch SE-X support                              | |
-  | |< > EtherExpressPro/100 support (eepro100, original Becker driver)   | |
-  | +v(+)-----------------------------------------------------------------+ |
-  +-------------------------------------------------------------------------+
-  |                    <Select>    < Exit >    < Help >                     |
-  +-------------------------------------------------------------------------+
+> Make it, in accordance with the above, possible to have as few kernel 
+> modules loaded as possible and therefore reducing footprint - if I had not 
+> to load sd_mod for usb_storage fun, I would get an itch to load a 78564 
+> byte scsi_mod module just to be able to use ATAPI. (MINOR one, though.)
+
+On Solaris, the SCSI glue code (between hostadaptor drivers and target drivers) is 
+really small:
+
+/usr/ccs/bin/size /kernel/misc/scsi 
+28482 + 27042 + 2036 = 57560
+
+And if you check the amount of completely unneeded code Linux currently has 
+just to implement e.g. SG_IO in /dev/hd*, it could even _save_ space in the 
+kernel when converting to a clean SCSI based design.
 
 
-Jan Engelhardt
+> Want to write CDs and DVDs "as usual" (see below).
+
+Be careful: libscg is a _generic_ SCSI transport library.
+Closing the eyes for anything but CD writing is not the right way.
+
+
+> De-forest the SCSI subsystem for privilege checking (see below).
+
+Sorry, I see nothing related below.
+
+
+> >2. find out the current state of affairs,
+>
+> I am currently able to properly write all sorts of CD-R/RW and DVDÂ±R/RW, 
+> DVD-DL with no problems using
+>     cdrecord -dev=/dev/hdb
+
+Maybe I should enforce the official libscg device syntax in order to prevent 
+this from working in the future.
+
+Anyway: the fact that it may work is no proof for correctness.
+
+
+> I can write DVDs at 8x speed (approx 10816 KB/sec) - which looks like DMA 
+> is working through the current mechanism, although I can't confirm it.
+
+In case you don't knw the story:
+
+	Linus Torvalds once claimed that introducing SG_IO support for
+	/dev/hd* would be acompanied with cleaning up DMA support in the kernel.
+
+	At that moment it turned out that it did not help at all as /dev/hd*
+	did not give DMA. Later this bug was fixed, but I am still waiting
+	to see the proposed DMA fix for ide-scsi.
+
+
+> There have been reports that cdrecord does not work when setuid, but only 
+> when you are "truly root". Not sure where this comes from,
+> (current->euid==0&&current->uid!=0 maybe?) scsi layer somewhere?
+
+Depends on what you talk about. 
+
+Since about a year, there is a workaround for the incompatible interface change 
+introduced with Linux-2.6.8.1
+
+On a recent RedHat system, cdrecord works installed suid root.
+
+On a system running a kernel.org based Linux it has been reported to fail
+because it does not get a SCSI transfer buffer.
+
+
+
+> >write a CD anyways". I find this wrong, JÃ¶rg finds it correct and argues
+> >"if you can access /dev/hdc as unprivileged user, that's a security
+> >problem".
+>
+> If you can access a _harddisk_ as a normal user, you _do have_ a security 
+> problem. If you can access a cdrom as normal user, well, the opinions 
+> differ here. I think you _should not either_, because it might happen that 
+> you just left your presentation cd in a cdrom device in a public box. You 
+> would certainly not want to have everyone read that out.
+
+Do you  want everybody to be able to read or format a floppy disk?
+Ignoring usual security rules sometimes _seem_ to make life easier but usually 
+does not. Just look in what kind of jungle Microsoft is just because that 
+started to allow insanely things for the sake of "user convenience".
+
+
+> SUSE currently does it in A Nice Way: setfacl'ing the devices to include 
+> read access for currently logged-in users. (Well, if someone logs on tty1 
+> after you, you're screwed anyway - he could have just ejected the cd when 
+> he's physically at the box.)
+
+It may make sense to do something like this for the user logged into the 
+console. In general it is a security problem.
+
+Jörg
+
 -- 
-| Alphagate Systems, http://alphagate.hopto.org/
-| jengelh's site, http://jengelh.hopto.org/
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWAYXWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWAYXYJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbWAYXWv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 18:22:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWAYXWv
+	id S932221AbWAYXYJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 18:24:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWAYXYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 18:22:51 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:37898 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932216AbWAYXWu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 18:22:50 -0500
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, arjan@infradead.org
-Subject: Re: [PATCH 2/4] pmap: remove smaps files
-References: <200601222217.k0MMHDR9215012@saturn.cs.uml.edu>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: the road to Hell is paved with extensibility.
-Date: Wed, 25 Jan 2006 23:22:26 +0000
-In-Reply-To: <200601222217.k0MMHDR9215012@saturn.cs.uml.edu> (Albert D.
- Cahalan's message of "22 Jan 2006 22:18:00 -0000")
-Message-ID: <87vew7riz1.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 25 Jan 2006 18:24:08 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:2187 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932219AbWAYXYH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 18:24:07 -0500
+Subject: Re: [RFC] VM: I have a dream...
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Bernd Petrovitsch <bernd@firmix.at>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Diego Calleja <diegocg@gmail.com>, Ram Gupta <ram.gupta5@gmail.com>,
+       mloftis@wgops.com, barryn@pobox.com, a1426z@gawab.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <20060125150243.GA8490@mail.shareable.org>
+References: <200601240211.k0O28rnn003165@laptop11.inf.utfsm.cl>
+	 <1138181033.4800.4.camel@tara.firmix.at> <1138182179.3087.1.camel@mindpipe>
+	 <20060125150243.GA8490@mail.shareable.org>
+Content-Type: text/plain
+Date: Wed, 25 Jan 2006 18:24:05 -0500
+Message-Id: <1138231446.3087.61.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Jan 2006, Albert D. Cahalan moaned:
-> This patch removes the /proc/*/smaps files, which are obsolete
-> and very awkward to parse. It's best to do this now, so that apps
-> don't come to depend on the files. (not that app developers are
-> likely to use the files at all, given the awful format)
+On Wed, 2006-01-25 at 15:02 +0000, Jamie Lokier wrote:
+> Lee Revell wrote:
+> > On Wed, 2006-01-25 at 10:23 +0100, Bernd Petrovitsch wrote:
+> > > 
+> > > ACK. X, evolution and Mozilla family (to name standard apps) are the
+> > > exceptions to this rule. 
+> > 
+> > If you decrease RLIMIT_STACK from the default 8MB to 256KB or 512KB you
+> > will reduce the footprint of multithreaded apps like evolution by tens
+> > or hundreds of MB, as glibc sets the thread stack size to RLIMIT_STACK
+> > by default.
+> 
+> That should make no difference to the real memory usage.  Stack pages
+> which aren't used don't take up RAM, and don't count in RSS.
 
-Seconded. The *contents* are useful; the layout is not.
+It still seems like not allocating memory that the application will
+never use could enable the VM to make better decisions.  Also not
+wasting 7.5MB per thread for the stack should make tracking down actual
+bloat in the libraries easier.
 
-(I wrote a parser for smaps, it was horrible, moving to pmap
-looks like it will be a joy)
+Lee
 
-> diff -Naurd 1/Documentation/filesystems/proc/pmap 2/Documentation/filesystems/proc/pmap
-> --- 1/Documentation/filesystems/proc/pmap	2006-01-22 03:42:59.000000000 -0500
-> +++ 2/Documentation/filesystems/proc/pmap	2006-01-22 03:24:43.000000000 -0500
-
-Is this hunk really meant to be here? It doesn't look related to smaps
-removal...
-
--- 
-`Everyone has skeletons in the closet.  The US has the skeletons
- driving living folks into the closet.' --- Rebecca Ore

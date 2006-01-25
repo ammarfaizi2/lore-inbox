@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWAYRTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWAYRTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750858AbWAYRTY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 12:19:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWAYRTY
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 12:19:24 -0500
-Received: from webmail.terra.es ([213.4.149.12]:33673 "EHLO
-	csmtpout3.frontal.correo") by vger.kernel.org with ESMTP
-	id S1750858AbWAYRTX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S1750891AbWAYRTX (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 25 Jan 2006 12:19:23 -0500
-Date: Wed, 25 Jan 2006 18:18:00 +0100 (added by postmaster@terra.es)
-From: <grundig@teleline.es>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: jengelh@linux01.gwdg.de, axboe@suse.de, schilling@fokus.fraunhofer.de,
-       rlrevell@joe-job.com, matthias.andree@gmx.de,
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWAYRTX
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 25 Jan 2006 12:19:23 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:29141 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1750861AbWAYRTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 12:19:22 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Wed, 25 Jan 2006 18:18:23 +0100
+To: mrmacman_g4@mac.com, matthias.andree@gmx.de
+Cc: schilling@fokus.fraunhofer.de, rlrevell@joe-job.com,
        linux-kernel@vger.kernel.org, acahalan@gmail.com
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-Id: <20060125181847.b8ca4ceb.grundig@teleline.es>
-In-Reply-To: <43D7AF56.nailDFJ882IWI@burner>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
-	<Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
-	<20060125144543.GY4212@suse.de>
-	<Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
-	<20060125153057.GG4212@suse.de>
-	<43D7AF56.nailDFJ882IWI@burner>
-X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Message-ID: <43D7B2DF.nailDFJA51SL1@burner>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+ <43D7A7F4.nailDE92K7TJI@burner>
+ <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
+ <43D7B075.6000602@gmx.de>
+In-Reply-To: <43D7B075.6000602@gmx.de>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Wed, 25 Jan 2006 18:03:18 +0100,
-Joerg Schilling <schilling@fokus.fraunhofer.de> escribió:
+Matthias Andree <matthias.andree@gmx.de> wrote:
 
-> Guess why cdrecord -scanbus is needed.
-> 
-> It serves the need of GUI programs for cdrercord and allows them to retrieve 
-> and list possible drives of interest in a platform independent way.
+> > Irrelevant to the discussion at hand, we are talking only about linux 
+> > and what should be done on linux.
+>
+> Well, cdrecord relies on libscg, so in effect most of the portability code
+> that is affected is in libscg; some of the real-time code however is
+> specific to cdrecord.
 
-But this is not neccesary at all, since linux platform already provides ways to
-retrieve and list possible drives....
+This is correct, as (looking at other programs from cdrtools) cdrecord is the 
+only program that needs realtime scheduling.
+
+
+> So I'll repeat my question: is there anything that SG_IO to /dev/hd* (via
+> ide-cd) cannot do that it can do via /dev/sg*? Device enumeration doesn't count.
+
+But device enumeration is the central point when implementing -scanbus.
+
+Note that all OS that I am aware of internally use a device enumeration scheme 
+that is close to what libscg uses. This ie even true for Linux. If Linux did not
+hide this information for /dev/hd* based fd's, I could implement an abstraction
+layer.....
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWAYOru@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbWAYOsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbWAYOru (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 09:47:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbWAYOru
+	id S1751184AbWAYOsG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 09:48:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWAYOsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 09:47:50 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:44332 "EHLO
-	pd5mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751183AbWAYOrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 09:47:49 -0500
-Date: Wed, 25 Jan 2006 08:43:40 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Patch for CVE-2004-1334 ???
-In-reply-to: <5yOFI-5CN-19@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43D78E9C.1000804@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5ydZz-2G1-7@gated-at.bofh.it> <5yetg-3us-31@gated-at.bofh.it>
- <5yOFI-5CN-19@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Wed, 25 Jan 2006 09:48:05 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:56543 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751184AbWAYOsB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 09:48:01 -0500
+Date: Wed, 25 Jan 2006 15:47:56 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jens Axboe <axboe@suse.de>
+cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, matthias.andree@gmx.de,
+       rlrevell@joe-job.com, linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest) (was:
+ Rationale for RLIMIT_MEMLOCK?)
+In-Reply-To: <20060125142155.GW4212@suse.de>
+Message-ID: <Pine.LNX.4.61.0601251544400.31234@yvahk01.tjqt.qr>
+References: <20060123165415.GA32178@merlin.emma.line.org>
+ <1138035602.2977.54.camel@laptopd505.fenrus.org> <20060123180106.GA4879@merlin.emma.line.org>
+ <1138039993.2977.62.camel@laptopd505.fenrus.org> <20060123185549.GA15985@merlin.emma.line.org>
+ <43D530CC.nailC4Y11KE7A@burner> <1138048255.21481.15.camel@mindpipe>
+ <20060123212119.GI1820@merlin.emma.line.org> <Pine.LNX.4.61.0601241823390.28682@yvahk01.tjqt.qr>
+ <43D78585.nailD7855YVBX@burner> <20060125142155.GW4212@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Syed Ahemed wrote:
-> The simple reason we do not intend to use the latest version is we run
-> some third party software which cant be front ported (pardon the slang
-> ) to 2.4.29 and above.
-> As for the changeset by  guninski , i wish to ask about a one point
-> source of applying all the patches for 2.4.28 .I mean shouldn't all
-> the kernel security patches ( atleast the ones that have become CVE's)
-> be a part of kernel.org .Since there isn't any what is the reason ?
 
-It is "part of kernel.org", it's called 2.4.32. The kernel developers 
-can hardly be expected to release a patch for every vulnerability 
-against every possible kernel version ever released..
+>> And if you check the amount of completely unneeded code Linux currently has 
+>> just to implement e.g. SG_IO in /dev/hd*, it could even _save_ space in the 
+>> kernel when converting to a clean SCSI based design.
+>
+>Please point me at that huge amount of code. Hint: there is none.
 
-If you need guaranteed security patches against a specific version of 
-the kernel you should likely be using a distribution kernel and not a 
-vanilla kernel.
+I'm getting a grin:
 
+15:46 takeshi:../drivers/ide > find . -type f -print0 | xargs -0 grep SG_IO
+(no results)
+
+Looks like it's already non-redundant :)
+
+
+
+Jan Engelhardt
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-

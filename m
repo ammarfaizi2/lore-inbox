@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWAYW4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWAYW4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbWAYW4X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 17:56:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWAYW4X
+	id S932204AbWAYW4D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 17:56:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWAYW4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 17:56:23 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:16850 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932205AbWAYW4W (ORCPT
+	Wed, 25 Jan 2006 17:56:03 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:64397 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932204AbWAYW4B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 17:56:22 -0500
-Date: Wed, 25 Jan 2006 23:56:39 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: dipankar@in.ibm.com, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: RCU latency regression in 2.6.16-rc1
-Message-ID: <20060125225639.GA1382@elte.hu>
-References: <20060124080157.GA25855@elte.hu> <1138090078.2771.88.camel@mindpipe> <20060124081301.GC25855@elte.hu> <1138090527.2771.91.camel@mindpipe> <20060124091730.GA31204@us.ibm.com> <20060124092330.GA7060@elte.hu> <1138095856.2771.103.camel@mindpipe> <20060124162846.GA7139@in.ibm.com> <20060124213802.GC7139@in.ibm.com> <1138224506.3087.22.camel@mindpipe>
+	Wed, 25 Jan 2006 17:56:01 -0500
+Subject: Re: [openib-general] Re: RFC: ipath ioctls and their replacements
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Cc: Greg Kroah-Hartman <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <20060125224311.GG27845@granada.merseine.nu>
+References: <1137631411.4757.218.camel@serpentine.pathscale.com>
+	 <1138228361.15295.55.camel@serpentine.pathscale.com>
+	 <20060125224311.GG27845@granada.merseine.nu>
+Content-Type: text/plain
+Organization: PathScale, Inc.
+Date: Wed, 25 Jan 2006 14:55:55 -0800
+Message-Id: <1138229756.15295.75.camel@serpentine.pathscale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1138224506.3087.22.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-01-26 at 00:43 +0200, Muli Ben-Yehuda wrote:
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+> If this is all it does, why not keep it as a device file, where open()
+> assigns the resources, read() returns them, and close() frees them? no
+> ioctl necessary.
 
-> > Here is an updated version of that patch against 2.6.16-rc1. I have
-> > sanity-tested it on ppc64 and x86_64 using dbench and kernbench.
-> > I have also tested this for OOM situations - open()/close() in
-> > a tight loop in my x86_64 which earlier used to reach file limit
-> > if I set batch limit to 10 and found no problem. This patch does set 
-> > default RCU batch limit to 10 and changes it only when there is an RCU
-> > flood.
-> 
-> OK this seems to work, I can't tell yet whether it help the latency I 
-> reported, but rt_run_flush still produces terrible latencies.
-> 
-> Ingo, should I try the softirq preemption patch + Dipankar's patch + 
-> latency tracing patch?
+Since the char special file doesn't currently implement a read() method,
+I can go that way, but the result will either end up being a function
+that does a copy_to_user of two bytes, or (if we ever find we need
+another ioctl-like thing) it will become an ioctl in all but name.
 
-yes, that would be a nice test. (I'm busy now with mutex stuff to be 
-able to do a working softirq-preemption patch, but i sent you my current 
-patches off-list - if you want to give it a shot. Be warned though, 
-there will likely be quite some merging work to do, so it's definitely 
-not for the faint hearted.)
+This is the position the current infiniband code is in.  There are
+special files with read methods defined that are exactly and precisely
+ioctl and nothing else, as far as I can tell, presumably because the
+resistance to using ioctl was so high.  I'd rather call a spade a spade.
 
-	Ingo
+	<b
+

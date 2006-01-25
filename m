@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWAYO4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWAYPDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWAYO4o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 09:56:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWAYO4o
+	id S1751193AbWAYPDM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 10:03:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWAYPDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 09:56:44 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:46138 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751188AbWAYO4o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 09:56:44 -0500
-Date: Wed, 25 Jan 2006 15:58:52 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, matthias.andree@gmx.de,
-       rlrevell@joe-job.com, linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest) (was: Rationale for RLIMIT_MEMLOCK?)
-Message-ID: <20060125145852.GC4212@suse.de>
-References: <1138039993.2977.62.camel@laptopd505.fenrus.org> <20060123185549.GA15985@merlin.emma.line.org> <43D530CC.nailC4Y11KE7A@burner> <1138048255.21481.15.camel@mindpipe> <20060123212119.GI1820@merlin.emma.line.org> <Pine.LNX.4.61.0601241823390.28682@yvahk01.tjqt.qr> <43D78585.nailD7855YVBX@burner> <20060125142155.GW4212@suse.de> <Pine.LNX.4.61.0601251544400.31234@yvahk01.tjqt.qr> <20060125145544.GA4212@suse.de>
+	Wed, 25 Jan 2006 10:03:12 -0500
+Received: from mail.shareable.org ([81.29.64.88]:21453 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S1751189AbWAYPDL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 10:03:11 -0500
+Date: Wed, 25 Jan 2006 15:02:43 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Bernd Petrovitsch <bernd@firmix.at>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Diego Calleja <diegocg@gmail.com>, Ram Gupta <ram.gupta5@gmail.com>,
+       mloftis@wgops.com, barryn@pobox.com, a1426z@gawab.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] VM: I have a dream...
+Message-ID: <20060125150243.GA8490@mail.shareable.org>
+References: <200601240211.k0O28rnn003165@laptop11.inf.utfsm.cl> <1138181033.4800.4.camel@tara.firmix.at> <1138182179.3087.1.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060125145544.GA4212@suse.de>
+In-Reply-To: <1138182179.3087.1.camel@mindpipe>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25 2006, Jens Axboe wrote:
-> On Wed, Jan 25 2006, Jan Engelhardt wrote:
+Lee Revell wrote:
+> On Wed, 2006-01-25 at 10:23 +0100, Bernd Petrovitsch wrote:
 > > 
-> > >> And if you check the amount of completely unneeded code Linux currently has 
-> > >> just to implement e.g. SG_IO in /dev/hd*, it could even _save_ space in the 
-> > >> kernel when converting to a clean SCSI based design.
-> > >
-> > >Please point me at that huge amount of code. Hint: there is none.
-> > 
-> > I'm getting a grin:
-> > 
-> > 15:46 takeshi:../drivers/ide > find . -type f -print0 | xargs -0 grep SG_IO
-> > (no results)
-> > 
-> > Looks like it's already non-redundant :)
+> > ACK. X, evolution and Mozilla family (to name standard apps) are the
+> > exceptions to this rule. 
 > 
-> SG_IO turns requests into REQ_BLOCK_PC (or blk_pc_request()) types, so
-> you should probably check for that as well. But it's truly a miniscule
-> amount of code, and if I got off my ass and folded cdrom_newpc_intr()
-> and cdrom_pc_intr() into one (that was the intention), it would be even
-> less.
+> If you decrease RLIMIT_STACK from the default 8MB to 256KB or 512KB you
+> will reduce the footprint of multithreaded apps like evolution by tens
+> or hundreds of MB, as glibc sets the thread stack size to RLIMIT_STACK
+> by default.
 
-BTW, I should point out that the fact that references to REQ_BLOCK_PC
-and blk_pc_request() exists doesn't indicate duplicated code. Each low
-level driver or layer (like SCSI, not the SCSI low level drivers) need
-to transform REQ_BLOCK_PC requests into their command types.
+That should make no difference to the real memory usage.  Stack pages
+which aren't used don't take up RAM, and don't count in RSS.
 
--- 
-Jens Axboe
-
+-- Jamie

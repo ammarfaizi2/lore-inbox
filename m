@@ -1,45 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWAYVGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWAYVUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbWAYVGx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 16:06:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbWAYVGx
+	id S932091AbWAYVUy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 16:20:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWAYVUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 16:06:53 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:8428 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751212AbWAYVGw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 16:06:52 -0500
-Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP
-	slow)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Howard Chu <hyc@symas.com>
-Cc: Christopher Friesen <cfriesen@nortel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hancockr@shaw.ca
-In-Reply-To: <43D7C2F0.5020108@symas.com>
-References: <20060124225919.GC12566@suse.de>
-	 <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de>
-	 <20060125121125.GH5465@suse.de> <43D78262.2050809@symas.com>
-	 <43D7BA0F.5010907@nortel.com>  <43D7C2F0.5020108@symas.com>
-Content-Type: text/plain
-Date: Wed, 25 Jan 2006 16:06:51 -0500
-Message-Id: <1138223212.3087.16.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Jan 2006 16:20:54 -0500
+Received: from relay00.pair.com ([209.68.5.9]:24836 "HELO relay00.pair.com")
+	by vger.kernel.org with SMTP id S932091AbWAYVUx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 16:20:53 -0500
+X-pair-Authenticated: 67.163.102.102
+Date: Wed, 25 Jan 2006 15:20:49 -0600 (CST)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>
+cc: Kyle Moffett <mrmacman_g4@mac.com>, Marc Perkel <marc@perkel.com>,
+       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       Patrick McLean <pmclean@cs.ubishops.ca>,
+       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+In-Reply-To: <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>
+References: <43D114A8.4030900@wolfmountaingroup.com> <20060120111103.2ee5b531@dxpl.pdx.osdl.net>
+ <43D13B2A.6020504@cs.ubishops.ca> <43D7C780.6080000@perkel.com>
+ <43D7B20D.7040203@wolfmountaingroup.com> <43D7B5C4.5040601@wolfmountaingroup.com>
+ <43D7D05D.7030101@perkel.com> <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>
+ <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-25 at 10:26 -0800, Howard Chu wrote:
-> The SUSv3 text seems pretty clear. It says "WHEN
-> pthread_mutex_unlock() 
-> is called, ... the scheduling policy SHALL decide ..." It doesn't say 
-> MAY, and it doesn't say "some undefined time after the call."  
+On Wed, 25 Jan 2006, linux-os \(Dick Johnson\) wrote:
+>
+> The original GPL said something about:
+> "You may not impose any further restrictions on the recipients'
+> exercise of the rights granted herein." (Section 6).
+> Then, that __exact__ code was redistributed under Version 2
+> which further restricted rights, then additional versions
+> which further restricted rights. Now you are planning to
+> add additional restrictions? I don't think the present
+> so-called license would pass muster in any sane court in
+> the United States after the original licensed code was
+> plagiarized into a new binding license.
+>
 
-This does NOT require pthread_mutex_unlock() to cause the scheduler to
-immediately pick a new runnable process.  It only says it's up the the
-scheduling POLICY what to do.  The policy could be "let the unlocking
-thread finish its timeslice then reschedule".
+Try doing your homework. GPL v1 says:
 
-Lee
+> Each version is given a distinguishing version number.  If the Program
+> specifies a version number of the license which applies to it and "any
+> later version", you have the option of following the terms and conditions
+> either of that version or of any later version published by the Free
+> Software Foundation.  If the Program does not specify a version number
+> of the license, you may choose any version ever published by the Free
+> Software Foundation.
 
+This means that when the code went GPL v1 -> GPL v2, the transition was 
+permissible. Linux v1.0 shipped with the GPL v2. It did not ship with a
+separate clause specifying that "You may only use *this* version of the GPL"
+as it now does. (I haven't done any research to find out when this clause 
+was added, but it was after the transition to v2).
+
+I'm not sure what you're trying to imply about "conversion" or FSF 
+"owning" Linux. Choosing to release your software under the GPL, even when 
+the GPL is authored by a third party, does not make said third party the 
+copyright owner of your work.
+
+If a migration to v3 were to occur, the only potential hairball I see is 
+if someone objected on the grounds that they contributed code to a version 
+of the kernel Linus had marked as "GPLv2 Only". IANAL.
+
+- Chase

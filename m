@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWAYR0o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWAYRaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbWAYR0o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 12:26:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbWAYR0o
+	id S1750981AbWAYRaq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 12:30:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWAYRaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 12:26:44 -0500
-Received: from mail.shareable.org ([81.29.64.88]:31954 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S932080AbWAYR0n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 12:26:43 -0500
-Date: Wed, 25 Jan 2006 17:26:07 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: bernd@firmix.at, vonbrand@inf.utfsm.cl, linux-os@analogic.com,
-       ram.gupta5@gmail.com, mloftis@wgops.com, barryn@pobox.com,
-       a1426z@gawab.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC] VM: I have a dream...
-Message-ID: <20060125172607.GA14864@mail.shareable.org>
-References: <200601240211.k0O28rnn003165@laptop11.inf.utfsm.cl> <1138181033.4800.4.camel@tara.firmix.at> <20060125150516.GB8490@mail.shareable.org> <20060125170904.5e31e1e2.diegocg@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060125170904.5e31e1e2.diegocg@gmail.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 25 Jan 2006 12:30:46 -0500
+Received: from mail.gmx.de ([213.165.64.21]:16533 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750789AbWAYRap (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 12:30:45 -0500
+X-Authenticated: #428038
+Message-ID: <43D7B5BE.60304@gmx.de>
+Date: Wed, 25 Jan 2006 18:30:38 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+CC: mrmacman_g4@mac.com, rlrevell@joe-job.com, linux-kernel@vger.kernel.org,
+       acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43D7A7F4.nailDE92K7TJI@burner> <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com> <43D7B075.6000602@gmx.de> <43D7B2DF.nailDFJA51SL1@burner>
+In-Reply-To: <43D7B2DF.nailDFJA51SL1@burner>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja wrote:
-> Opera is probably the best browser when it comes to "features per byte
-> of memory used"
+Joerg Schilling wrote:
 
-Really?  If I'm making use it, maybe visiting a few hundred pages a
-day, and opening 20 tabs, I find I have to kill it every few days, to
-reclaim the memory it's hogging, when its resident size exceeds my RAM
-size and it starts chugging.
+>> So I'll repeat my question: is there anything that SG_IO to /dev/hd* (via
+>> ide-cd) cannot do that it can do via /dev/sg*? Device enumeration doesn't count.
+> 
+> But device enumeration is the central point when implementing -scanbus.
 
-> Also, fontconfig allocates ~100 KB of memory per program launched.
-> There're patches to fix that by creating a mmap'able cache which is
-> shared between all the applications which has been merged in the
-> development version. I think there're many low-hanging fruits at
-> all levels, the problem is not just mozilla & friends
-
-100kB per program, even for 100 programs, is nothing compared a
-browser's 300MB footprint.  Now, some of that 300MB is permanently
-swapped out for the first few days of running.  Libraries and such.
-Which is relevant to this thread: swap is useful, just so you can swap
-out completely unused parts of programs.  (The parts which could be
-optimised away in principle).
-
--- Jamie
+Again: Is there anything *besides* (<German>: auﬂer) device enumeration that
+does not work with the current /dev/hd* SG_IO interface?

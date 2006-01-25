@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWAYJIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWAYJJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750849AbWAYJIu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 04:08:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbWAYJIu
+	id S1750875AbWAYJJE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 04:09:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbWAYJJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 04:08:50 -0500
-Received: from uproxy.gmail.com ([66.249.92.192]:469 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750849AbWAYJIt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 04:08:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=TnwT9Rj6kYz3Wue/uAfUc63rojw/QkbfFArIsA0STIGPxKCqmqvNhWUgMA2pyYqHNMzic+0e5blNn7ySd1hIFAaDJrtCGMi8FFa3O/Bu6vQwUcGdFIUjZsTRkx6vjNYXDEpuU8kTZoGL3NcD1QYX+EItH1Khz76u9orTjaJzDe4=
-Date: Wed, 25 Jan 2006 12:26:19 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH -mm] Mark ppc_htab_operations as const
-Message-ID: <20060125092619.GB15301@mipter.zuzino.mipt.ru>
-References: <20060124232406.50abccd1.akpm@osdl.org>
+	Wed, 25 Jan 2006 04:09:04 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:57996 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1750875AbWAYJJC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 04:09:02 -0500
+Date: Wed, 25 Jan 2006 11:08:27 +0200 (EET)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Blaisorblade <blaisorblade@yahoo.it>
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       jdike@karaya.com
+Subject: [PATCH] um: fix compliation error when CONFIG_SKAS is disabled
+Message-ID: <Pine.LNX.4.58.0601251105120.23552@sbz-30.cs.Helsinki.FI>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060124232406.50abccd1.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/ppc/kernel/ppc_htab.c:55: error conflicting types for 'ppc_htab_operations'
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+This patch fixes the following compilation error when CONFIG_SKAS is disabled:
+
+  CC      arch/um/sys-i386/ldt.o
+arch/um/sys-i386/ldt.c:19:21: proc_mm.h: No such file or directory
+make[1]: *** [arch/um/sys-i386/ldt.o] Error 1
+
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 ---
 
- Moving ppc event horizon on l4x.org/k/ further.
-
- arch/ppc/kernel/ppc_htab.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/arch/ppc/kernel/ppc_htab.c
-+++ b/arch/ppc/kernel/ppc_htab.c
-@@ -52,7 +52,7 @@ static int ppc_htab_open(struct inode *i
- 	return single_open(file, ppc_htab_show, NULL);
- }
+Index: 2.6/arch/um/sys-i386/ldt.c
+===================================================================
+--- 2.6.orig/arch/um/sys-i386/ldt.c
++++ 2.6/arch/um/sys-i386/ldt.c
+@@ -16,7 +16,6 @@
+ #include "choose-mode.h"
+ #include "kern.h"
+ #include "mode_kern.h"
+-#include "proc_mm.h"
+ #include "os.h"
  
--struct file_operations ppc_htab_operations = {
-+const struct file_operations ppc_htab_operations = {
- 	.open		= ppc_htab_open,
- 	.read		= seq_read,
- 	.llseek		= seq_lseek,
-
+ extern int modify_ldt(int func, void *ptr, unsigned long bytecount);
+@@ -90,6 +89,7 @@ out:
+ #include "skas.h"
+ #include "skas_ptrace.h"
+ #include "asm/mmu_context.h"
++#include "proc_mm.h"
+ 
+ long write_ldt_entry(struct mm_id * mm_idp, int func, struct user_desc * desc,
+ 		     void **addr, int done)

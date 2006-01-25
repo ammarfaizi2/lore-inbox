@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbWAYUdi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWAYUlf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751221AbWAYUdi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 15:33:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWAYUdi
+	id S1750828AbWAYUlf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 15:41:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWAYUlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 15:33:38 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:12526 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751215AbWAYUdh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 15:33:37 -0500
-Subject: RE: [perfmon] Re: quick overview of the perfmon2 interface
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: "Truong, Dan" <dan.truong@hp.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Eranian, Stephane" <stephane.eranian@hp.com>,
-       perfmon@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, perfctr-devel@lists.sourceforge.net
-In-Reply-To: <3C87FFF91369A242B9C9147F8BD0908A02C6955C@cacexc04.americas.cpqcorp.net>
-References: <3C87FFF91369A242B9C9147F8BD0908A02C6955C@cacexc04.americas.cpqcorp.net>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Wed, 25 Jan 2006 12:33:32 -0800
-Message-Id: <1138221212.15295.35.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Jan 2006 15:41:35 -0500
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:54461 "EHLO
+	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
+	id S1750828AbWAYUlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 15:41:35 -0500
+Date: Wed, 25 Jan 2006 21:40:38 +0100
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
+To: David Howells <dhowells@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 03/04] Add encryption ops to the keyctl syscall
+Message-ID: <20060125204038.GC12039@hardeman.nu>
+Mail-Followup-To: David Howells <dhowells@redhat.com>,
+	linux-kernel@vger.kernel.org
+References: <1138048952965@2gen.com> <17515.1138100304@hades.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <17515.1138100304@hades.cambridge.redhat.com>
+User-Agent: Mutt/1.5.11
+X-SA-Score: -2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-20 at 10:37 -0800, Truong, Dan wrote:
-> Would you want Stephane to guard the extended
-> functionalities with tunables or something to
-> Disable their regular use and herd enterprise
-> Tools into a standard mold... yet allow R&D to
-> Move on by enabling the extentions?
+On Tue, Jan 24, 2006 at 10:58:24AM +0000, David Howells wrote:
+>> +	key = key_ref_to_ptr(key_ref);
+>> +
+>> +	/* see if we can read it directly */
+>> +	ret = key_permission(key_ref, KEY_READ);
+>
+>You don't actually need to calculate key until after you've done all those
+>checks, so I'd move it further down the file. You can use the function to
+>release key references in the error handling or have a separate error handling
+>return path.
 
-I'd prefer to see all of the extended stuff left out entirely for now.
-The mainline kernel has no PMU support for any popular architecture,
-even though external patches have existed in stable form for years.
-Filling that gap ought to be the priority; the interface can be extended
-when actual users of new features show up and ask for them.
+Do you mean that I should move the key_ref_to_ptr call to right after 
+the can_read_key label? If that is the case, shouldn't the same thing be 
+done for keyctl_read_key?
 
-> It would restrict the R&D mindset, and new ideas.
-> The field hasn't grown yet to a stable mature form.
+>> +			down_read(&key->sem);
+>> +			ret = key->type->encrypt(key, data, dlen, result, rlen);
+>> +			up_read(&key->sem);
+>
+>Do we really want to restrict the key type implementor to using the r/w
+>semaphore. Would it be better to let the type decide whether it wants to use
+>the semaphore or let it use RCU if it so desires?
 
-The place for flailing around with uncooked ideas is arguably not the
-mainline kernel.
+Ok, I'll move the semaphore into the dsa key type instead and change the 
+appropriate comments.
 
-> Flexibility is/was needed because:
-> - Tools need to port to Perfmon with min cost.
-> - Ability to support novel R&D ideas.
-> - Ability to support growth beyond just PMU data
-> - Allows early data aggregation
-> - Allow OS data correlated to PMU
-
-Speculatively adding complicated and unused interfaces to the kernel in
-the hope that some wild-eyed visionary might eventually up and use them
-helps nobody.
-
-	<b
-
+Re,
+David

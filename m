@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWAYR0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWAYR0o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbWAYR0e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 12:26:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbWAYR0d
+	id S932080AbWAYR0o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 12:26:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbWAYR0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 12:26:33 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:19795 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932077AbWAYR0d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 12:26:33 -0500
-Date: Wed, 25 Jan 2006 18:27:01 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: matthias.andree@gmx.de, rlrevell@joe-job.com, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060125172700.GN4212@suse.de>
-References: <1138048255.21481.15.camel@mindpipe> <20060123212119.GI1820@merlin.emma.line.org> <Pine.LNX.4.61.0601241823390.28682@yvahk01.tjqt.qr> <43D78585.nailD7855YVBX@burner> <20060125142155.GW4212@suse.de> <Pine.LNX.4.61.0601251544400.31234@yvahk01.tjqt.qr> <20060125145544.GA4212@suse.de> <43D7AEBF.nailDFJ7263OE@burner> <43D7B100.7040706@gmx.de> <43D7B345.nailDFJB1WWYF@burner>
+	Wed, 25 Jan 2006 12:26:44 -0500
+Received: from mail.shareable.org ([81.29.64.88]:31954 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S932080AbWAYR0n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 12:26:43 -0500
+Date: Wed, 25 Jan 2006 17:26:07 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: bernd@firmix.at, vonbrand@inf.utfsm.cl, linux-os@analogic.com,
+       ram.gupta5@gmail.com, mloftis@wgops.com, barryn@pobox.com,
+       a1426z@gawab.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] VM: I have a dream...
+Message-ID: <20060125172607.GA14864@mail.shareable.org>
+References: <200601240211.k0O28rnn003165@laptop11.inf.utfsm.cl> <1138181033.4800.4.camel@tara.firmix.at> <20060125150516.GB8490@mail.shareable.org> <20060125170904.5e31e1e2.diegocg@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43D7B345.nailDFJB1WWYF@burner>
+In-Reply-To: <20060125170904.5e31e1e2.diegocg@gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25 2006, Joerg Schilling wrote:
-> Matthias Andree <matthias.andree@gmx.de> wrote:
-> 
-> > I think we'd better call the whole discussion off.
-> 
-> We could continue as long as people like Jens Axboe stay reasonable.
+Diego Calleja wrote:
+> Opera is probably the best browser when it comes to "features per byte
+> of memory used"
 
-I would have no problems if you weren't spreading your misguided
-information disguised as real info. I've had thousands of useful
-conversations on lkml in the past many years, but I fail to remember
-just one with you involved (whether I participated or not).
+Really?  If I'm making use it, maybe visiting a few hundred pages a
+day, and opening 20 tabs, I find I have to kill it every few days, to
+reclaim the memory it's hogging, when its resident size exceeds my RAM
+size and it starts chugging.
 
-I'll refrain from writing further mails in this thread, unless you
-actually "find some time" to back up your claims with real data.
+> Also, fontconfig allocates ~100 KB of memory per program launched.
+> There're patches to fix that by creating a mmap'able cache which is
+> shared between all the applications which has been merged in the
+> development version. I think there're many low-hanging fruits at
+> all levels, the problem is not just mozilla & friends
 
--- 
-Jens Axboe
+100kB per program, even for 100 programs, is nothing compared a
+browser's 300MB footprint.  Now, some of that 300MB is permanently
+swapped out for the first few days of running.  Libraries and such.
+Which is relevant to this thread: swap is useful, just so you can swap
+out completely unused parts of programs.  (The parts which could be
+optimised away in principle).
 
+-- Jamie

@@ -1,97 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbWAYKYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWAYK20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbWAYKYe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 05:24:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWAYKYe
+	id S1751107AbWAYK20 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 05:28:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWAYK20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 05:24:34 -0500
-Received: from smtp3-g19.free.fr ([212.27.42.29]:27273 "EHLO smtp3-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1751061AbWAYKYd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 05:24:33 -0500
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: mchehab@brturbo.com.br
-Subject: [PATCH] bttv: correct bttv_risc_packed buffer size
-Date: Wed, 25 Jan 2006 11:24:27 +0100
-User-Agent: KMail/1.9.1
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+	Wed, 25 Jan 2006 05:28:26 -0500
+Received: from moutng.kundenserver.de ([212.227.126.187]:30711 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751107AbWAYK2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 05:28:25 -0500
+Message-ID: <43D752C1.40205@sirrix.de>
+Date: Wed, 25 Jan 2006 11:28:17 +0100
+From: Oskar Senft <osk-lkml@sirrix.de>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_cH11D22lqYSaiQl"
-Message-Id: <200601251124.28392.duncan.sands@math.u-psud.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Use of "high_memory" in iounmap
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:701b7ca108cfd083b467aa547eda228f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_cH11D22lqYSaiQl
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi!
 
-This patch fixes the strange crashes I was seeing after using
-my bttv card to watch television.  They were caused by a
-buffer overflow in bttv_risc_packed.
+While using Linux in a virtualization environment (L4), I found a
+strange inconsistency in "iounmap" regarding the use of the
+"high_memory" variable.
 
-The instruction buffer size calculation contains two errors:
-(a) a non-zero padding value can push the start of the next bpl
-section to just before a page border, leading to more scanline
-splits and thus additional instructions.
-(b) the first DMA region can be smaller than one page, so there can
-be a scanline split even if bpl*lines is smaller than PAGE_SIZE.
+According to [1]: "high_memory is the virtual address where high memory
+begins", so high_memory contains the first address in high memory.
 
-For example, consider the case where offset is 0, bpl is 2, padding
-is 4094, lines is smaller than 2048, the first DMA region has size 1
-and all others have size PAGE_SIZE, assumed to equal 4096.  Then
-all bpl regions cross page borders and the number of instructions
-written is 2*lines+2, rather than lines+2 (the current estimate).
-With this patch the number of instructions for this example is
-estimated to be 2*lines+3.
+Accordingly, also linux-source/mm/memory.c, ca. line 72 says:
+"A number of key systems in x86 including ioremap() rely on the
+assumption that high_memory defines the upper bound on direct map
+memory, then end of ZONE_NORMAL. Under CONFIG_DISCONTIG this means that
+max_low_pfn and highstart_pfn must be the same; there must be no gap
+between ZONE_NORMAL and ZONE_HIGHMEM."
 
-Also, the BUG_ON that was supposed to catch buffer overflows contained
-a thinko causing it fire only if the buffer was overrun by a factor of
-16 or more.
+(BTW: CONFIG_DISCONTIG is no longer existent / has been renamed).
 
-I didn't check whether similar mistakes exist elsewhere in the bttv
-code.
+Obviously, this is applied correctly, for example in
+linux-source/arch/i386/mm/ioremap.c in function "__ioremap":
+  /*
+   * Don't allow anybody to remap normal RAM that we're using..
+   */
+  if (phys_addr <= virt_to_phys(high_memory - 1))
 
-Signed-off-by: Duncan Sands <baldrick@free.fr>
+However, in linux-source/arch/i386/mm/ioremap.c in "iounmap" oviously
+the meaning of "high_memory" is understood differently:
+  if ((void __force *)addr <= high_memory) return;
 
-PS: I'm sending the patch as an attachment because for some reason my
-mailer crashes if I try to insert it into the email.
 
---Boundary-00=_cH11D22lqYSaiQl
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="bttv"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="bttv"
+In that case (by means of <=) we could not unmap again the "first"
+mapping in high memory: the first mapping usually is being mapped to the
+start of the high memory and thus is addr == high_memory in the iounmap
+call. (This was the case in which we found the inconsistency).
 
-Index: Linux/drivers/media/video/bttv-risc.c
-===================================================================
---- Linux.orig/drivers/media/video/bttv-risc.c	2006-01-24 10:09:21.000000000 +0100
-+++ Linux/drivers/media/video/bttv-risc.c	2006-01-24 10:16:06.000000000 +0100
-@@ -51,8 +51,10 @@
- 	int rc;
- 
- 	/* estimate risc mem: worst case is one write per page border +
--	   one write per scan line + sync + jump (all 2 dwords) */
--	instructions  = (bpl * lines) / PAGE_SIZE + lines;
-+	   one write per scan line + sync + jump (all 2 dwords).  padding
-+	   can cause next bpl to start close to a page border.  First DMA
-+	   region may be smaller than PAGE_SIZE */
-+	instructions  = 1 + ((bpl + padding) * lines) / PAGE_SIZE + lines;
- 	instructions += 2;
- 	if ((rc = btcx_riscmem_alloc(btv->c.pci,risc,instructions*8)) < 0)
- 		return rc;
-@@ -104,7 +106,7 @@
- 
- 	/* save pointer to jmp instruction address */
- 	risc->jmp = rp;
--	BUG_ON((risc->jmp - risc->cpu + 2) / 4 > risc->size);
-+	BUG_ON(4 * (risc->jmp - risc->cpu + 2) > risc->size);
- 	return 0;
- }
- 
+For this reason in my opinion it rather should be:
+  if ((void __force *)addr < high_memory) return;
 
---Boundary-00=_cH11D22lqYSaiQl--
+What do you think?
+
+Regards,
+Oskar.
+
+[1] Mel Gorman, Code Commentary On The Linux Virtual Memory Manager
+    p. 24, http://www.csn.ul.ie/~mel/projects/vm/guide/pdf/code.pdf
+

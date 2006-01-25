@@ -1,215 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750944AbWAYBAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWAYBVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750944AbWAYBAw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 20:00:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbWAYBAw
+	id S1750721AbWAYBVM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 20:21:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWAYBVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 20:00:52 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:16907 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750766AbWAYBAw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 20:00:52 -0500
-Date: Wed, 25 Jan 2006 02:00:49 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: airlied@linux.ie, dri-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/char/drm/: make some functions static
-Message-ID: <20060125010049.GN3590@stusta.de>
+	Tue, 24 Jan 2006 20:21:12 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:52631 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750834AbWAYBVK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 20:21:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NRqDS81zgBTXcl8lXhTD/WTJw/SvbX66MTHWelA5wenvCYN3sw33US2Ng9I9My6TQwb+0NVj24kpD3abcWo7nfI5f8g/RgOFBBcm72ilNDL9bf1gdEElOtocCwEPuCoRtnY0qAUk0zqW/9oCaNx1gb4SBrqsC/euhTFbC44XD3k=
+Message-ID: <441e43c90601241721o8b4a9e5rd3a237f70aa46dbb@mail.gmail.com>
+Date: Tue, 24 Jan 2006 19:21:07 -0600
+From: Ian Kester-Haney <ikesterhaney@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux
+In-Reply-To: <43D65211.20006@wolfmountaingroup.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+References: <MDEHLPKNGKAHNMBLJOLKIEOMJJAB.davids@webmaster.com>
+	 <Pine.LNX.4.61.0601240839380.17175@chaos.analogic.com>
+	 <43D65211.20006@wolfmountaingroup.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global functions static.
+Allowing for the playing of DRM protected content is accepted.  While
+it is sad to see big business rule the day, it is still copyrighted
+works we are talking about.  GPL v3 says that the use of DRM in or
+around the GPLv3 software would be a direct violation and therfore
+illegal under the GPL liscense.  Respecting the limits setup by the
+DRM or ACS would be a proactive step in making linux more corporate
+friendly.  Should the individuals producing, directing and starring in
+movies and music be penalized for the abuses of the recording
+industry.  Piracy does exist and supporting the real creative works of
+others is important.
 
+According to the Managed Copy Protection in upcoming HD-DVD and
+Blu-Ray discs, if the channel between digital display devices is not
+authenticated as direct to display, the resolution would be cut to
+prevent electronic copies from being easily made.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I seruiosly doubt that anyone commited to the Open Source community
+would condone piracy, just as I am sure that Protection schemes always
+break down in the end.  It is sometimes irresponsible to circumvent
+methods designed to protect peoples copyright.  The viral liscensing
+in the GPL v 2 allows for the best integration with 3rd party
+applications.
+The GPLv3 would not allow any copyrighted materials under DRM to be
+viewed, one could even argue that protected PDF files might constitute
+DRM and not be allowed under the new GPL.  I think that subverting the
+efforts of companies and artists to protect their works is
+unnaceptable.  Public crap about hacking iTunes to get unprotected
+files is detrimental to the Open Source Community.  It should be noted
+that DRM is not inherently bad, implementations are currently pretty
+crappy, but surely an open source DRM could be presented, and a step
+to make that happen would be to keep the Kernel under GPLv2.
 
----
-
-This patch was already sent on:
-- 19 Jan 2006
-
- drivers/char/drm/i810_dma.c    |    2 +-
- drivers/char/drm/i810_drv.h    |    2 --
- drivers/char/drm/i830_dma.c    |    2 +-
- drivers/char/drm/i830_drv.h    |    3 ---
- drivers/char/drm/savage_bci.c  |    4 +++-
- drivers/char/drm/savage_drv.h  |    1 -
- drivers/char/drm/via_dma.c     |   10 +++++-----
- drivers/char/drm/via_dmablit.c |    2 +-
- drivers/char/drm/via_drv.h     |    7 -------
- drivers/char/drm/via_irq.c     |    2 +-
- 10 files changed, 12 insertions(+), 23 deletions(-)
-
---- linux-2.6.16-rc1-mm1-full/drivers/char/drm/i810_drv.h.old	2006-01-19 00:15:28.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/char/drm/i810_drv.h	2006-01-19 00:15:36.000000000 +0100
-@@ -113,8 +113,6 @@
- } drm_i810_private_t;
- 
- 				/* i810_dma.c */
--extern void i810_reclaim_buffers(drm_device_t * dev, struct file *filp);
--
- extern int i810_driver_dma_quiescent(drm_device_t * dev);
- extern void i810_driver_reclaim_buffers_locked(drm_device_t * dev,
- 					       struct file *filp);
---- linux-2.6.16-rc1-mm1-full/drivers/char/drm/i810_dma.c.old	2006-01-19 00:15:44.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/char/drm/i810_dma.c	2006-01-19 00:15:49.000000000 +0100
-@@ -958,7 +958,7 @@
- }
- 
- /* Must be called with the lock held */
--void i810_reclaim_buffers(drm_device_t * dev, struct file *filp)
-+static void i810_reclaim_buffers(drm_device_t * dev, struct file *filp)
- {
- 	drm_device_dma_t *dma = dev->dma;
- 	int i;
---- linux-2.6.16-rc1-mm1-full/drivers/char/drm/i830_drv.h.old	2006-01-19 00:17:38.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/char/drm/i830_drv.h	2006-01-19 00:17:47.000000000 +0100
-@@ -123,9 +123,6 @@
- extern drm_ioctl_desc_t i830_ioctls[];
- extern int i830_max_ioctl;
- 
--/* i830_dma.c */
--extern void i830_reclaim_buffers(drm_device_t * dev, struct file *filp);
--
- /* i830_irq.c */
- extern int i830_irq_emit(struct inode *inode, struct file *filp,
- 			 unsigned int cmd, unsigned long arg);
---- linux-2.6.16-rc1-mm1-full/drivers/char/drm/i830_dma.c.old	2006-01-19 00:18:33.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/char/drm/i830_dma.c	2006-01-19 00:18:41.000000000 +0100
-@@ -1239,7 +1239,7 @@
- }
- 
- /* Must be called with the lock held */
--void i830_reclaim_buffers(drm_device_t * dev, struct file *filp)
-+static void i830_reclaim_buffers(drm_device_t * dev, struct file *filp)
- {
- 	drm_device_dma_t *dma = dev->dma;
- 	int i;
---- linux-2.6.16-rc1-mm1-full/drivers/char/drm/savage_drv.h.old	2006-01-19 00:19:48.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/char/drm/savage_drv.h	2006-01-19 00:19:55.000000000 +0100
-@@ -212,7 +212,6 @@
- extern int savage_driver_firstopen(drm_device_t *dev);
- extern void savage_driver_lastclose(drm_device_t *dev);
- extern int savage_driver_unload(drm_device_t *dev);
--extern int savage_do_cleanup_bci(drm_device_t * dev);
- extern void savage_reclaim_buffers(drm_device_t * dev, DRMFILE filp);
- 
- /* state functions */
---- linux-2.6.16-rc1-mm1-full/drivers/char/drm/savage_bci.c.old	2006-01-19 00:20:02.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/char/drm/savage_bci.c	2006-01-19 00:20:24.000000000 +0100
-@@ -32,6 +32,8 @@
- #define SAVAGE_EVENT_USEC_TIMEOUT	5000000	/* 5s */
- #define SAVAGE_FREELIST_DEBUG		0
- 
-+static int savage_do_cleanup_bci(drm_device_t * dev);
-+
- static int
- savage_bci_wait_fifo_shadow(drm_savage_private_t * dev_priv, unsigned int n)
- {
-@@ -895,7 +897,7 @@
- 	return 0;
- }
- 
--int savage_do_cleanup_bci(drm_device_t * dev)
-+static int savage_do_cleanup_bci(drm_device_t * dev)
- {
- 	drm_savage_private_t *dev_priv = dev->dev_private;
- 
---- linux-2.6.16-rc1-mm1-full/drivers/char/drm/via_drv.h.old	2006-01-19 00:21:25.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/char/drm/via_drv.h	2006-01-19 01:07:36.000000000 +0100
-@@ -110,11 +110,6 @@
- extern int via_agp_init(DRM_IOCTL_ARGS);
- extern int via_map_init(DRM_IOCTL_ARGS);
- extern int via_decoder_futex(DRM_IOCTL_ARGS);
--extern int via_dma_init(DRM_IOCTL_ARGS);
--extern int via_cmdbuffer(DRM_IOCTL_ARGS);
--extern int via_flush_ioctl(DRM_IOCTL_ARGS);
--extern int via_pci_cmdbuffer(DRM_IOCTL_ARGS);
--extern int via_cmdbuf_size(DRM_IOCTL_ARGS);
- extern int via_wait_irq(DRM_IOCTL_ARGS);
- extern int via_dma_blit_sync( DRM_IOCTL_ARGS );
- extern int via_dma_blit( DRM_IOCTL_ARGS );
-@@ -139,8 +134,6 @@
- extern void via_init_futex(drm_via_private_t * dev_priv);
- extern void via_cleanup_futex(drm_via_private_t * dev_priv);
- extern void via_release_futex(drm_via_private_t * dev_priv, int context);
--extern int via_driver_irq_wait(drm_device_t * dev, unsigned int irq,
--			       int force_sequence, unsigned int *sequence);
- 
- extern void via_dmablit_handler(drm_device_t *dev, int engine, int from_irq);
- extern void via_init_dmablit(drm_device_t *dev);
---- linux-2.6.16-rc1-mm1-full/drivers/char/drm/via_dma.c.old	2006-01-19 00:21:41.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/char/drm/via_dma.c	2006-01-19 01:07:47.000000000 +0100
-@@ -222,7 +222,7 @@
- 	return 0;
- }
- 
--int via_dma_init(DRM_IOCTL_ARGS)
-+static int via_dma_init(DRM_IOCTL_ARGS)
- {
- 	DRM_DEVICE;
- 	drm_via_private_t *dev_priv = (drm_via_private_t *) dev->dev_private;
-@@ -321,7 +321,7 @@
- 	return 0;
- }
- 
--int via_flush_ioctl(DRM_IOCTL_ARGS)
-+static int via_flush_ioctl(DRM_IOCTL_ARGS)
- {
- 	DRM_DEVICE;
- 
-@@ -330,7 +330,7 @@
- 	return via_driver_dma_quiescent(dev);
- }
- 
--int via_cmdbuffer(DRM_IOCTL_ARGS)
-+static int via_cmdbuffer(DRM_IOCTL_ARGS)
- {
- 	DRM_DEVICE;
- 	drm_via_cmdbuffer_t cmdbuf;
-@@ -375,7 +375,7 @@
- 	return ret;
- }
- 
--int via_pci_cmdbuffer(DRM_IOCTL_ARGS)
-+static int via_pci_cmdbuffer(DRM_IOCTL_ARGS)
- {
- 	DRM_DEVICE;
- 	drm_via_cmdbuffer_t cmdbuf;
-@@ -665,7 +665,7 @@
-  * User interface to the space and lag functions.
-  */
- 
--int via_cmdbuf_size(DRM_IOCTL_ARGS)
-+static int via_cmdbuf_size(DRM_IOCTL_ARGS)
- {
- 	DRM_DEVICE;
- 	drm_via_cmdbuf_size_t d_siz;
---- linux-2.6.16-rc1-mm1-full/drivers/char/drm/via_dmablit.c.old	2006-01-19 00:35:21.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/char/drm/via_dmablit.c	2006-01-19 00:35:38.000000000 +0100
-@@ -167,7 +167,7 @@
-  */
- 
- 
--void
-+static void
- via_free_sg_info(struct pci_dev *pdev, drm_via_sg_info_t *vsg) 
- {
- 	struct page *page;
---- linux-2.6.16-rc1-mm1-full/drivers/char/drm/via_irq.c.old	2006-01-19 00:36:22.000000000 +0100
-+++ linux-2.6.16-rc1-mm1-full/drivers/char/drm/via_irq.c	2006-01-19 00:36:27.000000000 +0100
-@@ -190,7 +190,7 @@
- 	return ret;
- }
- 
--int
-+static int
- via_driver_irq_wait(drm_device_t * dev, unsigned int irq, int force_sequence,
- 		    unsigned int *sequence)
- {
-
+On 1/24/06, Jeff V. Merkey <jmerkey@wolfmountaingroup.com> wrote:
+> linux-os (Dick Johnson) wrote:
+>
+> >On Tue, 24 Jan 2006, David Schwartz wrote:
+> >
+> >
+> >
+> >>>Sometimes the restrictions are necessary. For instance,
+> >>>except in very special circumstances, governments usually
+> >>>take away the inherent rights to kill, etc.
+> >>>
+> >>>
+> >>      I guess I can't figure out what you could possibly mean by the word "right"
+> >>such that the phrase "inherent rights to kill" is meaningful. Perhaps you
+> >>could clarify.
+> >>
+> >>      DS
+> >>
+> >>
+> >
+> >Simple, from Government 101. Suppose you start a new country unencumbered
+> >with rules and laws. You have "total" freedom, therefore all rights.
+> >Because you believe that everybody is "good" (you decide what that means)
+> >and would, therefore, never do anything "bad", you don't need any
+> >laws.
+> >
+> >Sooner or later somebody does something "bad" (like kills somebody).
+> >So, you make a law against killing. As you make that first law, you
+> >have restricted rights. That's what laws do, they restrict rights.
+> >
+> >
+>
+> Say rather than restrict rights they define where your rights end and
+> the rights
+> of another person begin. Rather they "balance" rights by drawing a line
+> between
+> the rights of individuals and the rights of the state. The complex case
+> is something
+> called a "compelling interest". i.e. The government has a compelling
+> interest to
+> protect citizens from killing each other.
+>
+> >Unfortunately, it never stops with the "obviously necessary"
+> >laws. Eventually, every time somebody believes he or she has been
+> >harmed somehow, the cry goes out; "There ought to be a law....".
+> >Some  goody-twoshoes in the government makes a new law. Eventually,
+> >there are so many laws that there is no freedom whatsoever.
+> >
+> >
+> >
+> There are so many laws, you need to have courts in order to perform
+> "balancing tests" between the rights of individuals (courts of equity)
+> and the rights of the governement (compelling interests vs. the rights
+> of Individuals)
+>
+> >Most laws, designed to protect, have far-reaching consequences that
+> >actually cause more problems than they are supposed to solve. That's
+> >the nature of Law and Government in general. That's why it's important
+> >to control (reduce) the number of laws that exist and control the
+> >size of government. Of course, once the government controls the schools
+> >all is lost.
+> >
+> >
+> >
+> Why Dick, we have something in common -- we are both libertarians (political
+> party that believes less laws and governemtn control is a very good thing).
+>
+> Jeff
+>
+> >Cheers,
+> >Dick Johnson
+> >Penguin : Linux version 2.6.13.4 on an i686 machine (5589.54 BogoMips).
+> >Warning : 98.36% of all statistics are fiction.
+> >.
+> >
+> >****************************************************************
+> >The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+> >
+> >Thank you.
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >
+> >
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

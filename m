@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWAYDRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWAYDXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750992AbWAYDRF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 22:17:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWAYDRF
+	id S1750995AbWAYDXE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 22:23:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWAYDXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 22:17:05 -0500
-Received: from uproxy.gmail.com ([66.249.92.206]:22103 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750992AbWAYDRE convert rfc822-to-8bit
+	Tue, 24 Jan 2006 22:23:04 -0500
+Received: from zproxy.gmail.com ([64.233.162.192]:56068 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750995AbWAYDXC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 22:17:04 -0500
+	Tue, 24 Jan 2006 22:23:02 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ehc9TnxNsFcWwzwr8CKOhRvLwGj2tow/JwNlsULOaqIMakc55YmKEjADV1Y6GniGasET8PipnWMJGn5gwdkh3hUkN/2v7W5O33zKzyz46eqSQV5WGQ+S8dHxzjFqkKOHlIBngCUMilbWLw9aKSzrSgM+9JVdoaf6xZYD6ah4rDs=
-Message-ID: <1e62d1370601241917l4c53cf3fud34835c4dc5c1526@mail.gmail.com>
-Date: Wed, 25 Jan 2006 08:17:02 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-To: Joshua Hudson <joshudson@gmail.com>
-Subject: Re: Block device API
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <bda6d13a0601241858g260b915bs5370d34ac90321de@mail.gmail.com>
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=L5C7Lwo4gPL4kS/5eER4jDvz+24pQdIvbHLvjpBQpBzKAX2VMag40tC/+ZoLckK/SdqRkZ9xEInqNm6GL/Kq/mdGbOIWhRMWoda55reTA7ga/M+bMG9VvSJJUw1FDGVs7kElCvr2TUWlU1/79E8FZSpO71LglquaXBh827L6StI=
+Message-ID: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
+Date: Tue, 24 Jan 2006 22:23:00 -0500
+From: Albert Cahalan <acahalan@gmail.com>
+To: linux-kernel@vger.kernel.org, rlrevell@joe-job.com,
+       schilling@fokus.fraunhofer.de, matthias.andree@gmx.de,
+       jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <bda6d13a0601241858g260b915bs5370d34ac90321de@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/25/06, Joshua Hudson <joshudson@gmail.com> wrote:
-> I am working on a kernel filesystem driver. I have found plenty of
-> documentation on
-> how to communicate between the VFS and the filesystem driver, but nothing
-> on how to communicate between the block device and the filesystem driver.
->
+Jan Engelhardt writes:
 
-AFAIK there isn't any documentation/article for block and filesystem
-layer interaction (or till now me also not able to find any) :)
+> Where is the difference between SG_IO-on-hdx and sg0?
 
-> I found sb_bread() but there is no corrisponding sb_bwrite().
-> I presume that if ((struct superblock *)s) -> bdev is the block
-> device handle, but I cannot find the read/write pair of functions.
-> -
+It's like the /dev/ttyS* and /dev/cua* situation, where
+we also ended up with multiple device files. This is bad.
 
-sb_bread is the function used for reading a block (especially
-superblock) from the storage. For reading/writing do look at
-generic_file_read/write functions found in mm/filemap.c and when going
-through the code you will see its ends up in calling
-mappings->a_ops->readpage(s)/writepage(s) of filesystem in which
-normal filesystems (like ext2) just call function
-mpage_readpages/writepages found in fs/mpage.c which performs actual
-read/write on the block device.
+SG_IO-on-hdx is modern. It properly associates everything
+with one device, which you may name as desired.
 
-I hope this helps !
-
---
-Fawad Lateef
+sg0 is useful for devices that are not disk, tape, or CD.
+A decade ago, it was also the proper way to send raw SCSI
+commands to other devices. For nasty compatibility reasons,
+Linux still assigns /dev/sg* devices for disk, tape, and CD.

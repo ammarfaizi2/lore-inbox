@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWAYMuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWAYMtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbWAYMuY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 07:50:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWAYMuY
+	id S1751161AbWAYMtI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 07:49:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWAYMtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 07:50:24 -0500
-Received: from soohrt.org ([85.131.246.150]:41442 "EHLO quickstop.soohrt.org")
-	by vger.kernel.org with ESMTP id S1751141AbWAYMuY convert rfc822-to-8bit
+	Wed, 25 Jan 2006 07:49:08 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:6635 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751161AbWAYMtG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 07:50:24 -0500
-Date: Wed, 25 Jan 2006 13:50:17 +0100
-From: Horst Schirmeier <horst@schirmeier.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: udev/hotplug and automatic /dev node creation
-Message-ID: <20060125125017.GD10068@quickstop.soohrt.org>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20060118024710.GB26895@quickstop.soohrt.org> <20060118040718.GA6579@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20060118040718.GA6579@kroah.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 25 Jan 2006 07:49:06 -0500
+From: "Jiri Slaby" <xslaby@fi.muni.cz>
+Date: Wed, 25 Jan 2006 13:46:58 +0100
+In-reply-to: <20060101183832.2BE0222AEE7@anxur.fi.muni.cz>
+To: Mark v Wolher <trilight@ns666.com>
+Cc: Sami Farin <7atbggg02@sneakemail.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, arjan@infradead.org,
+       jesper.juhl@gmail.com, s0348365@sms.ed.ac.uk, rlrevell@joe-job.com,
+       mchehab@brturbo.com.br, video4linux-list@redhat.com,
+       duncan.sands@math.u-psud.fr
+Subject: Re: system keeps freezing once every 24 hours / random apps crashing
+References: <200512310027.47757.s0348365@sms.ed.ac.uk> <43B5D3ED.3080504@ns666.com> <200512310051.03603.s0348365@sms.ed.ac.uk> <43B5D6D0.9050601@ns666.com> <43B65DEE.906@ns666.com> <9a8748490512310308g1f529495ic7eab4bd3efec9e4@mail.gmail.com> <43B66E3D.2010900@ns666.com> <9a8748490512310349g10d004c7i856cf3e70be5974@mail.gmail.com> <43B67DB6.2070201@ns666.com> <43B6A14E.1020703@ns666.com> <20051231163414.GE3214@m.safari.iki.fi> <20051231163414.GE3214@m.safari.iki.fi> <43B6B669.6020500@ns666.com> <43B73DEB.4070604@ns666.com> <43B7D3BE.60003@ns666.com> <43B7EB99.8010604@ns666.com> <43B7EB99.8010604@ns666.com>
+Message-Id: <20060125124657.EB3F922AEFB@anxur.fi.muni.cz>
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Jan 2006, Greg KH wrote:
-> On Wed, Jan 18, 2006 at 03:47:10AM +0100, Horst Schirmeier wrote:
-> > Hi,
-> > 
-> > I'm looking for documentation regarding how to write a Linux kernel
-> > module that creates its own /dev node via udev/hotplug.
-> > register_chrdev() and a simple udev/rules.d/ entry don't seem to be
-> > sufficient...
-> 
-> Yes, register_chrdev() will do nothing for udev.
-> 
-> Take a look at the book, Linux Device Drivers, third edition (free
-> online).  In the chapter about the driver model, there is a section
-> about what udev needs.  The functions it says to use are no longer in
-> the kernel, but it should point you in the right direction (hint, use
-> class_device_create().)
-> 
-> If you have a pointer to your code, I can probably knock out a patch for
-> you very quickly.
+Jiri Slaby wrote:
+>Mark v Wolher wrote:
+>>> Still no crashes or irregular things happened ! Will let it go for a few
+>>> more hours. This test is being done with the binary nvidia module loaded
+>>> and bttv disabled. The next test will be nv for X instead of the binary
+>>> module with bttv enabled, if crashes and such start to occur then it's
+>>> very likely that the problem sits in the bttv code.
+>>
+>>
+>>Okay, here are the test results:
+>>
+>>
+>>- heavy load + nvidia (binary module) + bttv with grabdisplay = crash
+>>- heavy load + nv (not tainted kernel) + bttv with grabdisplay = crash
+>>
+>>- heavy load + nvidia (binary module) + bttv with overlay = OK
+>>- heavy load + nv (not tainted kernel) + bttv with overlay = OK
+>>
+>>Adding vmware on top of it will cause the system sooner to freeze/crash
+>>(using grabdisplay)
+>>
+>>So what you think guys ?
+>Hi,
+>we still think that there is a problem in bttv_risc_packed in computing
+>estimated size. My patch was bad, I see it now, but still don't understand, how
+>it is computed and how it should be:
+>        instructions  = (bpl * lines) / PAGE_SIZE + lines;
+>        instructions += 2;
+>and here it crashes (the first line, the (*rp)) -- actually after while loop.
+>	*(rp++)=cpu_to_le32(BT848_RISC_WRITE|BT848_RISC_EOL|todo);
+>	*(rp++)=cpu_to_le32(sg_dma_address(sg));
+>So, Mauro (or somebody from list), have you any idea, what could be wrong?  
+Mark, could you try the Duncan's patch, it seems, that's it:
+http://lkml.org/lkml/diff/2006/1/25/59/1
 
-Now I'm using class_create() and class_device_create() (together with
-class_device_destroy() and class_destroy()), which works fine on
-2.6.15 and 2.6.16-rc1, and with some hackish LINUX_VERSION_CODE-checking
-#define wrapper around class_device_create() also on 2.6.13 and
-2.6.14...
-
-But: Is there a common way to get this working on 2.6.12 or earlier?
-
-Kind regards,
- Horst
-
+regards,
 -- 
-PGP-Key 0xD40E0E7A
+Jiri Slaby         www.fi.muni.cz/~xslaby
+\_.-^-._   jirislaby@gmail.com   _.-^-._/
+B67499670407CE62ACC8 22A032CC55C339D47A7E

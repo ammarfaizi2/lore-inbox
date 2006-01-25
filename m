@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWAYJ4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWAYJ7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbWAYJ4o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 04:56:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWAYJ4o
+	id S1751099AbWAYJ7l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 04:59:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWAYJ7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 04:56:44 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:40930 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751095AbWAYJ4n (ORCPT
+	Wed, 25 Jan 2006 04:59:41 -0500
+Received: from uproxy.gmail.com ([66.249.92.206]:21022 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751099AbWAYJ7l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 04:56:43 -0500
-Date: Wed, 25 Jan 2006 10:56:42 +0100
-From: Nick Piggin <npiggin@suse.de>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Nick Piggin <npiggin@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
-Subject: Re: [RFC] non-refcounted pages, application to slab?
-Message-ID: <20060125095642.GB32578@wotan.suse.de>
-References: <20060125093909.GE32653@wotan.suse.de> <43D74AC0.9020002@cosmosbay.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43D74AC0.9020002@cosmosbay.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 25 Jan 2006 04:59:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
+        b=V0wVLIGqBXca+OjFlHtdmmHFVgRb8Zx+bN/N223OvCkpqkTjHdDnknr6jLgd2lP/cgpcSgdc+Q4nvmTSCosZAb5GZu0YNM2w273pbITC0puD06c+ik25iXBdnNfN0Qu0M75Vg6HqPiCGLkrPeVAuBm7Cor45vg3Q+N/bK7MMtN4=
+Message-ID: <8e8498350601250159w126f0f37k@mail.gmail.com>
+Date: Wed, 25 Jan 2006 18:59:39 +0900
+From: Tetsuo Takata <takatan.linux@gmail.com>
+To: akpm@osdl.org, axboe@suse.de
+Subject: [PATCH]scsi:removal of the variable "ordered_flush"
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_30341_7039302.1138183179826"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25, 2006 at 10:54:08AM +0100, Eric Dumazet wrote:
-> Nick Piggin a écrit :
-> 
-> >@@ -2604,10 +2604,10 @@ static inline void *__cache_alloc(kmem_c
-> > 
-> > 	local_irq_save(save_flags);
-> > 	objp = ____cache_alloc(cachep, flags);
-> >+	prefetchw(objp);
-> > 	local_irq_restore(save_flags);
-> > 	objp = cache_alloc_debugcheck_after(cachep, flags, objp,
-> > 					    __builtin_return_address(0));
-> >-	prefetchw(objp);
-> > 	return objp;
-> > }
-> 
-> I'm not sure why you moved this prefetchw(obj) : This is not related to 
-> your 'non-refcounting' part, is it ?
-> 
+------=_Part_30341_7039302.1138183179826
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
 
-Stray hunk. Thanks.
+SGksCgoKQWZ0ZXIgdGhlIHJlY2VudCBvdmVyaGF1bCBvZiB0aGUgYmxvY2sgbGF5ZXIgdGhlIHZh
+cmlhYmxlCiJvcmRlcmVkX2ZsdXNoIiBpcyBubyBsb25nZXIgdXNlZC4KCgpSZWdhcmRzLAoKVGV0
+c3VvIFRha2F0YQo=
+------=_Part_30341_7039302.1138183179826
+Content-Type: application/octet-stream; name=remove_ordered_flush.patch
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="remove_ordered_flush.patch"
 
-Nick
+The patch below removes dead code.
 
-> When I added this prefetchw in slab code, I did place it *after* the 
-> local_irq_restore(save_flags); because I was not sure if the 
-> serialization/barrier (popf) would force the cpu (x86/x86_64 in mind) to 
-> either :
-> - finish all the loads (even if they are speculative/hints) (so giving a 
-> bad latency)
-> - cancel the speculative loads (so prefetchw() *before* the 
-> local_irq_restore() would be useless.
-> 
-Makes sense.
+Signed-off-by: Tetsuo Takata <takatatt@intellilink.co.jp>
+---
 
+diff -urNp linux-2.6.16-rc1-git4/include/scsi/scsi_host.h linux-2.6.16-rc1-git4-fixed/include/scsi/scsi_host.h
+--- linux-2.6.16-rc1-git4/include/scsi/scsi_host.h	2006-01-23 21:29:17.000000000 +0900
++++ linux-2.6.16-rc1-git4-fixed/include/scsi/scsi_host.h	2006-01-25 18:11:59.000000000 +0900
+@@ -554,7 +554,6 @@ struct Scsi_Host {
+ 	/*
+ 	 * ordered write support
+ 	 */
+-	unsigned ordered_flush:1;
+ 	unsigned ordered_tag:1;
+ 
+ 	/*
+
+------=_Part_30341_7039302.1138183179826--

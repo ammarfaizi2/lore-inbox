@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWAYJJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWAYJOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbWAYJJE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 04:09:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751064AbWAYJJE
+	id S1751067AbWAYJOx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 04:14:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751068AbWAYJOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 04:09:04 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:57996 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1750875AbWAYJJC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 04:09:02 -0500
-Date: Wed, 25 Jan 2006 11:08:27 +0200 (EET)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Blaisorblade <blaisorblade@yahoo.it>
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
-       jdike@karaya.com
-Subject: [PATCH] um: fix compliation error when CONFIG_SKAS is disabled
-Message-ID: <Pine.LNX.4.58.0601251105120.23552@sbz-30.cs.Helsinki.FI>
+	Wed, 25 Jan 2006 04:14:53 -0500
+Received: from uproxy.gmail.com ([66.249.92.197]:45157 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751066AbWAYJOw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 04:14:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=QOyauS3rmdIsPi1N43qV9QbaN0VDeCcmQciRxtskgtZBemfqoNhQA0BZjXJy0s2Rgou2z/Q3dDauk/Jdvvi/nee7MU1H/VstihmuTx3SvIYEU3M29XY3PXNVdzbqRKBxIct6ic3tCMCtq6vNatkveTDKEtxnfTeY9wFPnXwBat4=
+Date: Wed, 25 Jan 2006 12:32:24 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH -mm] s390: dasd_eckd: add missing }
+Message-ID: <20060125093224.GC15301@mipter.zuzino.mipt.ru>
+References: <20060124232406.50abccd1.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060124232406.50abccd1.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-
-This patch fixes the following compilation error when CONFIG_SKAS is disabled:
-
-  CC      arch/um/sys-i386/ldt.o
-arch/um/sys-i386/ldt.c:19:21: proc_mm.h: No such file or directory
-make[1]: *** [arch/um/sys-i386/ldt.o] Error 1
-
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 ---
 
-Index: 2.6/arch/um/sys-i386/ldt.c
-===================================================================
---- 2.6.orig/arch/um/sys-i386/ldt.c
-+++ 2.6/arch/um/sys-i386/ldt.c
-@@ -16,7 +16,6 @@
- #include "choose-mode.h"
- #include "kern.h"
- #include "mode_kern.h"
--#include "proc_mm.h"
- #include "os.h"
+ drivers/s390/block/dasd_eckd.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -1502,6 +1502,7 @@ dasd_eckd_ioctl(struct block_device *bde
+ 		return dasd_eckd_steal_lock(bdev, cmd, arg);
+ 	default:
+ 		return dasd_generic_ioctl(bdev, cmd, arg);
++	}
+ }
  
- extern int modify_ldt(int func, void *ptr, unsigned long bytecount);
-@@ -90,6 +89,7 @@ out:
- #include "skas.h"
- #include "skas_ptrace.h"
- #include "asm/mmu_context.h"
-+#include "proc_mm.h"
- 
- long write_ldt_entry(struct mm_id * mm_idp, int func, struct user_desc * desc,
- 		     void **addr, int done)
+ /*
+

@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWAYKoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbWAYKsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbWAYKoo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 05:44:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWAYKoo
+	id S1751110AbWAYKsg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 05:48:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWAYKsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 05:44:44 -0500
-Received: from tornado.reub.net ([202.89.145.182]:35287 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S1751108AbWAYKon (ORCPT
+	Wed, 25 Jan 2006 05:48:36 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:23499 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751110AbWAYKsg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 05:44:43 -0500
-Message-ID: <43D7567E.60003@reub.net>
-Date: Wed, 25 Jan 2006 23:44:14 +1300
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 1.6a1 (Windows/20060124)
+	Wed, 25 Jan 2006 05:48:36 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Subject: Re: [PATCH -mm] swsusp: userland interface (rev 2)
+Date: Wed, 25 Jan 2006 11:50:00 +0100
+User-Agent: KMail/1.9
+Cc: Andrew Morton <akpm@osdl.org>, pavel@suse.cz, linux-kernel@vger.kernel.org
+References: <200601240929.37676.rjw@sisk.pl> <200601250035.39383.rjw@sisk.pl> <20060125024607.GA10409@kvack.org>
+In-Reply-To: <20060125024607.GA10409@kvack.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: 2.6.16-rc1-mm3
-References: <20060124232406.50abccd1.akpm@osdl.org>
-In-Reply-To: <20060124232406.50abccd1.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601251150.01545.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On 25/01/2006 8:24 p.m., Andrew Morton wrote:
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm3/
+On Wednesday, 25 January 2006 03:46, Benjamin LaHaise wrote:
+> On Wed, Jan 25, 2006 at 12:35:38AM +0100, Rafael J. Wysocki wrote:
+> > > > +		if (!access_ok(VERIFY_WRITE, (unsigned long __user *)arg, _IOC_SIZE(cmd))) {
+> > > > +			error = -EINVAL;
+> > > > +			break;
+> > > > +		}
+> > > 
+> > > Why do we need an access_ok() here?
+> > 
+> > Because we use __put_user() down the road?
+> > 
+> > The problem is if the address is wrong we should not try to call
+> > alloc_swap_page() at all.  If we did, we wouldn't be able to return the result
+> > and we would leak a swap page.
 > 
-> - Dropped the timekeeping patch series due to a complex timesource selection
->   bug.
-> 
-> - Various fixes and updates.
+> Then access_ok() is not the droid you are looking for... since it won't 
+> catch several cases (out of memory being the most obvious).
 
-Generally quite good again :)
+Thanks, I haven't thought about it.
 
-I'm seeing this USB "handoff" warning message logged when booting up:
+> Doing an early put_user() wouldn't hurt and reduces the chance of later failure 
+> even further.  __put_user() should never be used outside of a select few 
+> performance critical code paths.
 
-0000:00:1d.7 EHCI: BIOS handoff failed (BIOS bug ?)
+Do you mean to use a fake put_user() instead of access_ok()?  And then
+put_user() once again or is it reasonable to call __put_user() with the same
+arg?
 
-This is not new to this -mm release, looking back over my bootlogs I note that 
-2.6-15-rc5-mm1 was OK, but 2.6.15-mm4 was showing this message.  I'll narrow it 
-down if it doesn't appear obvious what the problem is.
-
-When it was working OK in earlier releases it was showing this at the same place 
-in the boot as the message above is appearing (ie at the top near the scheduler 
-registration stuff)
-
-ACPI: PCI Interrupt 0000:00:1d.7[A] -> GSI 23 (level, low) -> IRQ 20
-PCI: Setting latency timer of device 0000:00:1d.7 to 64
-ehci_hcd 0000:00:1d.7: EHCI Host Controller
-ehci_hcd 0000:00:1d.7: debug port 1
-ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
-ehci_hcd 0000:00:1d.7: irq 20, io mem 0xff2ff800
-PCI: cache line size of 128 is not supported by device 0000:00:1d.7
-ehci_hcd 0000:00:1d.7: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
-
-On newer kernels this is appearing later on in the boot sequence instead, with 
-the early and only message at the top being the single line failure message.
-
-The box has the latest bios available, and it's an Intel D925XCV.  USB is 
-working on the box (at least, a USB keyboard is...)
-
-reuben
-
-
+Rafael

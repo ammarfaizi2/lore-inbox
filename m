@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWAYLTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWAYL0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbWAYLTn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 06:19:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWAYLTn
+	id S1751131AbWAYL0X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 06:26:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbWAYL0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 06:19:43 -0500
-Received: from uproxy.gmail.com ([66.249.92.195]:44400 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751121AbWAYLTm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 06:19:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=l2AN95bLgHTuoxzSAlFCTxaaanlurDm3xHguzrfzXFKzGQP2avGWQ+XcPqqIc47c+mn+hhv8k2s3M0oCv34XLkveu3k8IAq1e6WFtQWN21OB1UkZdvxLI79FjFpOlRx1snqGp4lRP8gQY7vXkwSpbdTqpOjCldoBsi0Z8tTUXuA=
-Message-ID: <84144f020601250319o71e34376hcd7a964f2eb21961@mail.gmail.com>
-Date: Wed, 25 Jan 2006 13:19:36 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Nick Piggin <npiggin@suse.de>
-Subject: Re: [RFC] non-refcounted pages, application to slab?
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management List <linux-mm@kvack.org>
-In-Reply-To: <20060125110031.GC30421@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 25 Jan 2006 06:26:23 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:46489 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1751122AbWAYL0V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 06:26:21 -0500
+Date: Wed, 25 Jan 2006 20:26:25 +0900
+To: linux-kernel@vger.kernel.org
+Cc: Richard Henderson <rth@twiddle.net>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
+       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>
+Subject: [PATCH 0/6] RFC: use include/asm-generic/bitops.h
+Message-ID: <20060125112625.GA18584@miraclelinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060125093909.GE32653@wotan.suse.de>
-	 <84144f020601250230s2d5da5d9jf11f754f184d495b@mail.gmail.com>
-	 <20060125110031.GC30421@wotan.suse.de>
+User-Agent: Mutt/1.5.9i
+From: mita@miraclelinux.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25, 2006 at 12:30:03PM +0200, Pekka Enberg wrote:
-> > we want to keep the reference counting for slab pages so that we can
-> > use kmalloc'd memory in the block layer.
+Large number of boilerplate bit operations written in C-language
+are scattered around include/asm-*/bitops.h.
+These patch series gather them into include/asm-generic/bitops.h. And
 
-On 1/25/06, Nick Piggin <npiggin@suse.de> wrote:
-> Does that happen now? Where is it needed (nbd or something I guess?)
+- kill duplicated code and comment (about 4000lines)
+- use better C-language equivalents
+- help porting new architecture (now include/asm-generic/bitops.h is not
+  referenced from anywhere)
 
-See the following thread:
-http://thread.gmane.org/gmane.comp.file-systems.ext2.devel/2981. I
-think we're using them in quite a few places.
-
-                             Pekka

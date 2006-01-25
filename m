@@ -1,56 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWAYGlB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWAYGv2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751054AbWAYGlB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 01:41:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbWAYGlB
+	id S1750700AbWAYGv2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 01:51:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWAYGv2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 01:41:01 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:46554 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1751052AbWAYGlA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 01:41:00 -0500
-Date: Wed, 25 Jan 2006 07:40:59 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Jan Kara <jack@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: [Patch] quota: fix error code for ext2_new_inode()
-Message-ID: <20060125064059.GA3778@MAIL.13thfloor.at>
-Mail-Followup-To: Jan Kara <jack@suse.cz>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Linux Kernel ML <linux-kernel@vger.kernel.org>
+	Wed, 25 Jan 2006 01:51:28 -0500
+Received: from ns.intellilink.co.jp ([61.115.5.249]:32159 "EHLO
+	mail.intellilink.co.jp") by vger.kernel.org with ESMTP
+	id S1750700AbWAYGv1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 01:51:27 -0500
+Subject: [PATCH 1/5] stack overflow safe kdump (2.6.16-rc1-i386) -
+	safe_smp_processor_id
+From: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: ak@suse.de, vgoyal@in.ibm.com, linux-kernel@vger.kernel.org,
+       fastboot@lists.osdl.org
+Content-Type: text/plain
+Organization: =?UTF-8?Q?NTT=E3=83=87=E3=83=BC=E3=82=BF=E5=85=88=E7=AB=AF=E6=8A=80?=
+	=?UTF-8?Q?=E8=A1=93=E6=A0=AA=E5=BC=8F=E4=BC=9A=E7=A4=BE?=
+Date: Wed, 25 Jan 2006 15:51:08 +0900
+Message-Id: <1138171868.2370.62.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.4.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On the event of a stack overflow critical data that usually resides at
+the bottom of the stack is likely to be stomped and, consequently, its
+use should be avoided.
 
-Hi Honza!
+In particular, in the i386 and IA64 architectures the macro
+smp_processor_id ultimately makes use of the "cpu" member of struct
+thread_info which resides at the bottom of the stack. x86_64, on the
+other hand, is not affected by this problem because it benefits from
+the use of the PDA infrastructure.
 
-the quota check in ext2_new_inode() returns ENOSPC where
-IMHO it should return EDQUOT instead. here is a trivial
-patch to fix that ...
+To circumvent this problem I suggest implementing
+"safe_smp_processor_id()" (it already exists in x86_64) for i386 and
+IA64 and use it as a replacement for smp_processor_id in the reboot path
+to the dump capture kernel. This is a possible implementation for i386.
 
-rationale: ext3, reiser, udf and ufs do similar checks
-and already return EDQUOT
+Signed-off-by: Fernando Vazquez <fernando@intellilink.co.jp>
+---
 
-best,
-Herbert
-
-Signed-off-by: Herbert Pötzl <herbert@13thfloor.at>
-
---- ./fs/ext2/ialloc.c.orig	2006-01-03 17:29:56 +0100
-+++ ./fs/ext2/ialloc.c	2006-01-25 07:26:42 +0100
-@@ -605,7 +605,7 @@ got:
- 	insert_inode_hash(inode);
- 
- 	if (DQUOT_ALLOC_INODE(inode)) {
--		err = -ENOSPC;
-+		err = -EDQUOT;
- 		goto fail_drop;
+diff -urNp linux-2.6.16-rc1/arch/i386/kernel/smp.c linux-2.6.16-rc1-sov/arch/i386/kernel/smp.c
+--- linux-2.6.16-rc1/arch/i386/kernel/smp.c	2006-01-03 12:21:10.000000000 +0900
++++ linux-2.6.16-rc1-sov/arch/i386/kernel/smp.c	2006-01-25 14:31:35.000000000 +0900
+@@ -628,3 +628,28 @@ fastcall void smp_call_function_interrup
  	}
+ }
  
++static int convert_apicid_to_cpu(int apic_id)
++{
++	int i;
++
++	for (i = 0; i < NR_CPUS; i++) {
++		if (x86_cpu_to_apicid[i] == apic_id)
++		return i;
++	}
++	return -1;
++}
++
++int safe_smp_processor_id(void) {
++	int apicid, cpuid;
++
++	if (!boot_cpu_has(X86_FEATURE_APIC))
++		return 0;
++
++	apicid = hard_smp_processor_id();
++	if (apicid == BAD_APICID)
++		return 0;
++
++	cpuid = convert_apicid_to_cpu(apicid);
++
++	return cpuid >= 0 ? cpuid : 0;
++}
+diff -urNp linux-2.6.16-rc1/include/asm-i386/smp.h linux-2.6.16-rc1-sov/include/asm-i386/smp.h
+--- linux-2.6.16-rc1/include/asm-i386/smp.h	2006-01-03 12:21:10.000000000 +0900
++++ linux-2.6.16-rc1-sov/include/asm-i386/smp.h	2006-01-25 14:31:35.000000000 +0900
+@@ -90,12 +90,14 @@ static __inline int logical_smp_processo
+ 
+ #endif
+ 
++extern int safe_smp_processor_id(void);
+ extern int __cpu_disable(void);
+ extern void __cpu_die(unsigned int cpu);
+ #endif /* !__ASSEMBLY__ */
+ 
+ #else /* CONFIG_SMP */
+ 
++#define safe_smp_processor_id() 0
+ #define cpu_physical_id(cpu)		boot_cpu_physical_apicid
+ 
+ #define NO_PROC_ID		0xFF		/* No processor magic marker */
+
 

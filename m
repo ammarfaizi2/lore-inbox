@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWAYWw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWAYW4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbWAYWw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 17:52:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWAYWw7
+	id S932205AbWAYW4X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 17:56:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWAYW4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 17:52:59 -0500
-Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:36021 "EHLO
-	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S932203AbWAYWw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 17:52:58 -0500
-Date: Wed, 25 Jan 2006 16:52:36 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Ray Bryant <raybry@mpdtxmail.amd.com>
-cc: Robin Holt <holt@sgi.com>, Hugh Dickins <hugh@veritas.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH/RFC] Shared page tables
-Message-ID: <F6EF7D7093D441B7655A8755@[10.1.1.4]>
-In-Reply-To: <200601251648.58670.raybry@mpdtxmail.amd.com>
-References: <A6D73CCDC544257F3D97F143@[10.1.1.4]>
- <200601241743.28889.raybry@mpdtxmail.amd.com>
- <07A9BE6C2CADACD27B259191@[10.1.1.4]>
- <200601251648.58670.raybry@mpdtxmail.amd.com>
-X-Mailer: Mulberry/4.0.0b4 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 25 Jan 2006 17:56:23 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:16850 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932205AbWAYW4W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 17:56:22 -0500
+Date: Wed, 25 Jan 2006 23:56:39 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: dipankar@in.ibm.com, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: RCU latency regression in 2.6.16-rc1
+Message-ID: <20060125225639.GA1382@elte.hu>
+References: <20060124080157.GA25855@elte.hu> <1138090078.2771.88.camel@mindpipe> <20060124081301.GC25855@elte.hu> <1138090527.2771.91.camel@mindpipe> <20060124091730.GA31204@us.ibm.com> <20060124092330.GA7060@elte.hu> <1138095856.2771.103.camel@mindpipe> <20060124162846.GA7139@in.ibm.com> <20060124213802.GC7139@in.ibm.com> <1138224506.3087.22.camel@mindpipe>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <1138224506.3087.22.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---On Wednesday, January 25, 2006 16:48:58 -0600 Ray Bryant
-<raybry@mpdtxmail.amd.com> wrote:
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-> Empirically, at least on Opteron, it looks like the first page of pte's
-> is  never shared, even if the alignment of the mapped region is correct
-> (i. e. a  2MB boundary for X86_64).    Is that what you expected?
+> > Here is an updated version of that patch against 2.6.16-rc1. I have
+> > sanity-tested it on ppc64 and x86_64 using dbench and kernbench.
+> > I have also tested this for OOM situations - open()/close() in
+> > a tight loop in my x86_64 which earlier used to reach file limit
+> > if I set batch limit to 10 and found no problem. This patch does set 
+> > default RCU batch limit to 10 and changes it only when there is an RCU
+> > flood.
+> 
+> OK this seems to work, I can't tell yet whether it help the latency I 
+> reported, but rt_run_flush still produces terrible latencies.
+> 
+> Ingo, should I try the softirq preemption patch + Dipankar's patch + 
+> latency tracing patch?
 
-If the region is aligned it should be shared.  I'll investigate.
+yes, that would be a nice test. (I'm busy now with mutex stuff to be 
+able to do a working softirq-preemption patch, but i sent you my current 
+patches off-list - if you want to give it a shot. Be warned though, 
+there will likely be quite some merging work to do, so it's definitely 
+not for the faint hearted.)
 
-Thanks,
-Dave
-
+	Ingo

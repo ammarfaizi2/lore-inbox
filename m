@@ -1,93 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWAYLst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWAYLys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbWAYLst (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 06:48:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751156AbWAYLst
+	id S1751163AbWAYLys (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 06:54:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWAYLyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 06:48:49 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:21223 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751126AbWAYLss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 06:48:48 -0500
-Subject: Re: [PATCH 06/16] Mark Typhoon cards as Lifeview OEM's
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Peter Missel <peter.missel@onlinehome.de>
-Cc: "Nickolay V. Shmyrev" <nshmyrev@yandex.ru>, video4linux-list@redhat.com,
-       Ricardo Cerqueira <v4l@cerqueira.org>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200601242159.24747.peter.missel@onlinehome.de>
-References: <20060123202404.PS66974000000@infradead.org>
-	 <200601232155.44036.peter.missel@onlinehome.de>
-	 <1138135687.16005.6.camel@localhost.localdomain>
-	 <200601242159.24747.peter.missel@onlinehome.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Wed, 25 Jan 2006 09:15:32 -0200
-Message-Id: <1138187732.5727.45.camel@localhost>
+	Wed, 25 Jan 2006 06:54:47 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:48580 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1751141AbWAYLyq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 06:54:46 -0500
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1-RC1
+From: Keith Owens <kaos@sgi.com>
+To: mita@miraclelinux.com (Akinobu Mita)
+cc: linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
+       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>
+Subject: Re: [PATCH 3/6] C-language equivalents of include/asm-*/bitops.h 
+In-reply-to: Your message of "Wed, 25 Jan 2006 20:32:06 +0900."
+             <20060125113206.GD18584@miraclelinux.com> 
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-1mdk 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 25 Jan 2006 22:54:43 +1100
+Message-ID: <24086.1138190083@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter,
+Akinobu Mita (on Wed, 25 Jan 2006 20:32:06 +0900) wrote:
+>o generic {,test_and_}{set,clear,change}_bit() (atomic bitops)
+...
+>+static __inline__ void set_bit(int nr, volatile unsigned long *addr)
+>+{
+>+	unsigned long mask = BITOP_MASK(nr);
+>+	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
+>+	unsigned long flags;
+>+
+>+	_atomic_spin_lock_irqsave(p, flags);
+>+	*p  |= mask;
+>+	_atomic_spin_unlock_irqrestore(p, flags);
+>+}
 
-	This patch stayed for some time at CVS, the way it was commited to
--git. The changes did by nshm are trivial and generally we fold this
-kind of change with the original patch, since:
-	1) it is trivial;
-	2) doesn't change technically;
-	3) helps to keep Linux logs cleaner;
-	4) it is susbystem maintainers task to make sure that patches are
-correct and follows v4l and Linux CodingStyle.
-	I think  the subject could be better. In fact, this patch subject
-should be to add other Lifeview OEM PCI IDs. To use current naming
-convention is a consequence of the patch.
+Be very, very careful about using these generic *_bit() routines if the
+architecture supports non-maskable interrupts.
 
-Em Ter, 2006-01-24 às 21:59 +0100, Peter Missel escreveu:
-> Hi Nickolay!
-> 
-> > 1. User should be able to find if his card is supported (no matter OEM
-> > it or not) by searching his card name in CARDLIST
-> 
-> From my example, you should have a taster of where that would take us with the 
-> popular OEM cards like LifeView's.
-> You wouldn't believe just how many "brand" cards are actually made by them. 
-> How many "brands" of LR50 cards does the BT878 driver record?
-	We need to have just one convention. All patches should bound the
-convention whatever it is. Of course, we can discuss the better
-convention for board names at v4l mailing list, but, once defined, we
-won't accept (or we should fix) newer patches that will not follow it.
-> 
-> > 2. We haven't invented better way to mark OEM cards yet.
-> 
-> I have made a suggestion on how to solve the naming problem - put the names 
-> where they logically belong, into the PCI ID structure, not the card data 
-> structure. That way, we get a 1:1 relation between each card incarnation 
-> (original or OEM) and its name.
-	This doesn't solve. There are several boards that don't have its own
-PCI ID (They shares the original OEM vendor ID or chipset vendor ID).
-Also, CARDLIST.foo are generated based on .name field at cards struct.
-> 
-> > But I understand your point, we can just remove that patch for now if
-> > you are really against this change.
-> 
-> We need the patch I made because it solves an actual technical problem, and 
-> I'd prefer to see it included the way I made it. Thank you.
-	We have two options:
+NMI events can occur at any time, including when interrupts have been
+disabled by *_irqsave().  So you can get NMI events occurring while a
+*_bit fucntion is holding a spin lock.  If the NMI handler also wants
+to do bit manipulation (and they do) then you can get a deadlock
+between the original caller of *_bit() and the NMI handler.
 
-	1) Revert the patch from -git and start a discussion at V4L mailing
-list about name convention. After archieving an agreement with this, you
-can resubmit the patch, with the decided name;
-
-	2) Keep this patch as is and start that discussion. After we archieve
-an agreement, you can submit a patch just renaming it.
-
-	As you said this patch solves a problem, I would prefer (2).
-> 
-> regards,
-> Peter
-Cheers, 
-Mauro.
+Doing any work that requires spinlocks in an NMI handler is just asking
+for deadlock problems.  The generic *_bit() routines add a hidden
+spinlock behind what was previously a safe operation.  I would even say
+that any arch that supports any type of NMI event _must_ define its own
+bit routines that do not rely on your _atomic_spin_lock_irqsave() and
+its hash of spinlocks.
 

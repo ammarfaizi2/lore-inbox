@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbWAYEnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbWAYFEN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbWAYEnj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 23:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWAYEnj
+	id S1751014AbWAYFEN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 00:04:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751007AbWAYFEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 23:43:39 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:25287
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751004AbWAYEni (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 23:43:38 -0500
-Date: Tue, 24 Jan 2006 20:43:31 -0800
-From: Greg KH <gregkh@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: EHCI + APIC errors = no usb goodness
-Message-ID: <20060125044331.GA4994@suse.de>
-References: <20060123210443.GA20944@suse.de> <200601240722.21108.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 25 Jan 2006 00:04:13 -0500
+Received: from smtp108.sbc.mail.re2.yahoo.com ([68.142.229.97]:6767 "HELO
+	smtp108.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750795AbWAYFEM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 00:04:12 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Martin Michlmayr <tbm@cyrius.com>
+Subject: Re: [PATCH] Export symbols so CONFIG_INPUT works as a module
+Date: Wed, 25 Jan 2006 00:04:06 -0500
+User-Agent: KMail/1.9.1
+Cc: Al Viro <viro@ftp.linux.org.uk>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+References: <20060124181945.GA21955@deprecation.cyrius.com> <d120d5000601241508l1a93aae7ubdf8206209be405c@mail.gmail.com> <20060124231409.GA29982@deprecation.cyrius.com>
+In-Reply-To: <20060124231409.GA29982@deprecation.cyrius.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200601240722.21108.ak@suse.de>
-User-Agent: Mutt/1.5.11
+Message-Id: <200601250004.06543.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 24, 2006 at 07:22:20AM +0100, Andi Kleen wrote:
-> On Monday 23 January 2006 22:04, Greg KH wrote:
-> > I've had a laptop here that has had some "issues" in the past (time
-> > running double speed, XFree doesn't work, etc.)
+On Tuesday 24 January 2006 18:14, Martin Michlmayr wrote:
+> * Dmitry Torokhov <dmitry.torokhov@gmail.com> [2006-01-24 18:08]:
+> > > More interesting question: is pis^H^H^Hsysfs interaction in there safe for
+> > > modular code?
 > > 
-> > Now I'm down to the last problem, USB doesn't work, which is a bit of a
-> > pain for me :)
-> > 
-> > Anyway, below is the kernel log from 2.6.16-rc1-mm2 (contains the latest
-> > acpi tree, which I thought might help out.)  This log is when I modprobe
-> > ehci-hcd.  The interesting thing is the APIC error, 
+> > The core should be safe, at least I was trying to make it this way, so
+> > if you see something wrong - shout. Locking is another question
+> > though...
 > 
-> That was the laptop with ATI chipset right? Most of them have routing
-> troubles with the timer interrupt. I finally gave up trying to fix
-> them and just switched over to using the APIC timer which is run
-> by the CPU and not dependent on chipsets. Use the latest
-> patch from my x86-64 queue ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/
+> So do you want an updated patch using _GPL to export the symbols or to
+> change CONFIG_INPUT to boolean?
 
-Yes, this is the same laptop.
+I guess having input core as a module does not make much sense, so
+we should change CONFIG_INPUT to be boolean _and_ clean up the core
+code removing module unloading support.
 
-Turns out this was a bug in the USB EHCI bios handoff logic, a newer
-patch from David fixed it.  The APIC stuff was just a false alarm, and
-for now, I've just turned it off, thanks to Pete reminding me about it.
-
-When I get this laptop converted to 64bit, I'll try out your patches.
-
-thanks,
-
-greg k-h
+-- 
+Dmitry

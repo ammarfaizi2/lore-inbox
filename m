@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWAYGzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWAYGzs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750731AbWAYGzN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 01:55:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWAYGzM
+	id S1750733AbWAYGzs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 01:55:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWAYGzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 01:55:12 -0500
-Received: from ns.intellilink.co.jp ([61.115.5.249]:8097 "EHLO
+	Wed, 25 Jan 2006 01:55:47 -0500
+Received: from ns.intellilink.co.jp ([61.115.5.249]:18849 "EHLO
 	mail.intellilink.co.jp") by vger.kernel.org with ESMTP
-	id S1750731AbWAYGzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 01:55:10 -0500
-Subject: [PATCH 4/5] stack overflow safe kdump (2.6.16-rc1-i386) - nmi
-	handler and trap vector replacement
+	id S1750733AbWAYGzq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 01:55:46 -0500
+Subject: [PATCH 5/5] stack overflow safe kdump (2.6.16-rc1-i386) - private
+	nmi stack
 From: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>
 To: "Eric W. Biederman" <ebiederm@xmission.com>
 Cc: akpm@osdl.org, ak@suse.de, vgoyal@in.ibm.com, linux-kernel@vger.kernel.org,
@@ -18,195 +18,177 @@ Cc: akpm@osdl.org, ak@suse.de, vgoyal@in.ibm.com, linux-kernel@vger.kernel.org,
 Content-Type: text/plain
 Organization: =?UTF-8?Q?NTT=E3=83=87=E3=83=BC=E3=82=BF=E5=85=88=E7=AB=AF=E6=8A=80?=
 	=?UTF-8?Q?=E8=A1=93=E6=A0=AA=E5=BC=8F=E4=BC=9A=E7=A4=BE?=
-Date: Wed, 25 Jan 2006 15:54:49 +0900
-Message-Id: <1138172089.2370.71.camel@localhost.localdomain>
+Date: Wed, 25 Jan 2006 15:55:44 +0900
+Message-Id: <1138172144.2370.73.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the nmi path, we have the problem that both nmi_enter and nmi_exit in
-do_nmi (see code below) make extensive use of "current" (which might be
-invalid) indirectly (specially through the kernel preemption code).
-Create a new nmi trap handler robust against stack overflows and use it
-on the crash dump path.
+Use a private NMI stack.
 
 Signed-off-by: Fernando Vazquez <fernando@intellilink.co.jp>
 --- 
 
-diff -urNp linux-2.6.16-rc1/arch/i386/kernel/crash.c linux-2.6.16-rc1-sov/arch/i386/kernel/crash.c
---- linux-2.6.16-rc1/arch/i386/kernel/crash.c	2006-01-25 14:42:43.000000000 +0900
-+++ linux-2.6.16-rc1-sov/arch/i386/kernel/crash.c	2006-01-25 15:16:36.000000000 +0900
-@@ -22,6 +22,7 @@
- #include <asm/nmi.h>
- #include <asm/hw_irq.h>
- #include <asm/apic.h>
-+#include <mach_traps.h>
- #include <mach_ipi.h>
+diff -urNp linux-2.6.16-rc1/arch/i386/kernel/irq.c linux-2.6.16-rc1-sov/arch/i386/kernel/irq.c
+--- linux-2.6.16-rc1/arch/i386/kernel/irq.c	2006-01-25 14:28:30.000000000 +0900
++++ linux-2.6.16-rc1-sov/arch/i386/kernel/irq.c	2006-01-25 15:18:08.000000000 +0900
+@@ -37,11 +37,6 @@ void ack_bad_irq(unsigned int irq)
+ /*
+  * per-CPU IRQ handling contexts (thread information and stack)
+  */
+-union irq_ctx {
+-	struct thread_info      tinfo;
+-	u32                     stack[THREAD_SIZE/sizeof(u32)];
+-};
+-
+ static union irq_ctx *hardirq_ctx[NR_CPUS];
+ static union irq_ctx *softirq_ctx[NR_CPUS];
+ #endif
+@@ -154,6 +149,8 @@ void irq_ctx_init(int cpu)
  
- 
-@@ -104,6 +105,7 @@ static int crash_nmi_callback(struct pt_
- 	if (cpu == crashing_cpu)
- 		return 1;
- 	local_irq_disable();
-+	disable_nmi();
- 
- 	if (!user_mode(regs)) {
- 		crash_fixup_ss_esp(&fixed_regs, regs);
-@@ -134,8 +136,8 @@ static void nmi_shootdown_cpus(void)
- 	unsigned long msecs;
- 
- 	atomic_set(&waiting_for_crash_ipi, num_online_cpus() - 1);
--	/* Would it be better to replace the trap vector here? */
--	set_nmi_callback(crash_nmi_callback);
-+	/* Set the nmi handler appropriately for the crash case */
-+	set_crash_nmi_callback(crash_nmi_callback);
- 	/* Ensure the new callback function is set before sending
- 	 * out the NMI
- 	 */
-diff -urNp linux-2.6.16-rc1/arch/i386/kernel/entry.S linux-2.6.16-rc1-sov/arch/i386/kernel/entry.S
---- linux-2.6.16-rc1/arch/i386/kernel/entry.S	2006-01-25 14:28:30.000000000 +0900
-+++ linux-2.6.16-rc1-sov/arch/i386/kernel/entry.S	2006-01-25 14:44:41.000000000 +0900
-@@ -592,6 +592,41 @@ nmi_16bit_stack:
- 	.long 1b,iret_exc
- .previous
- 
-+ENTRY(crash_nmi)
-+	pushl %eax
-+	movl %ss, %eax
-+	cmpw $__ESPFIX_SS, %ax
-+	popl %eax
-+	je crash_nmi_16bit_stack
-+	pushl %eax
-+	SAVE_ALL
-+	xorl %edx,%edx		# zero error code
-+	movl %esp,%eax		# pt_regs pointer
-+	call do_crash_nmi
-+	jmp restore_all
-+crash_nmi_16bit_stack:
-+	/* create the pointer to lss back */
-+	pushl %ss
-+	pushl %esp
-+	movzwl %sp, %esp
-+	addw $4, (%esp)
-+	/* copy the iret frame of 12 bytes */
-+        .rept 3
-+	pushl 16(%esp)
-+	.endr
-+	pushl %eax
-+	SAVE_ALL
-+	FIXUP_ESPFIX_STACK              # %eax == %esp
-+	xorl %edx,%edx                  # zero error code
-+	call do_crash_nmi
-+	RESTORE_REGS
-+	lss 12+4(%esp), %esp            # back to 16bit stack
-+1:      iret
-+.section __ex_table,"a"
-+	.align 4
-+	.long 1b,iret_exc
-+.previous
+ 	printk("CPU %u irqstacks, hard=%p soft=%p\n",
+ 		cpu,hardirq_ctx[cpu],softirq_ctx[cpu]);
 +
- KPROBE_ENTRY(int3)
- 	pushl $-1			# mark this as an int
- 	SAVE_ALL
-diff -urNp linux-2.6.16-rc1/arch/i386/kernel/traps.c linux-2.6.16-rc1-sov/arch/i386/kernel/traps.c
---- linux-2.6.16-rc1/arch/i386/kernel/traps.c	2006-01-25 14:28:31.000000000 +0900
-+++ linux-2.6.16-rc1-sov/arch/i386/kernel/traps.c	2006-01-25 14:44:41.000000000 +0900
-@@ -74,6 +74,7 @@ struct desc_struct idt_table[256] __attr
- asmlinkage void divide_error(void);
- asmlinkage void debug(void);
- asmlinkage void nmi(void);
-+asmlinkage void crash_nmi(void);
- asmlinkage void int3(void);
- asmlinkage void overflow(void);
- asmlinkage void bounds(void);
-@@ -672,23 +673,37 @@ static int dummy_nmi_callback(struct pt_
++	nmi_ctx_init(cpu);
  }
+ 
+ void irq_ctx_exit(int cpu)
+diff -urNp linux-2.6.16-rc1/arch/i386/kernel/traps.c linux-2.6.16-rc1-sov/arch/i386/kernel/traps.c
+--- linux-2.6.16-rc1/arch/i386/kernel/traps.c	2006-01-25 15:17:51.000000000 +0900
++++ linux-2.6.16-rc1-sov/arch/i386/kernel/traps.c	2006-01-25 15:18:08.000000000 +0900
+@@ -674,6 +674,13 @@ static int dummy_nmi_callback(struct pt_
   
  static nmi_callback_t nmi_callback = dummy_nmi_callback;
-- 
--fastcall void do_nmi(struct pt_regs * regs, long error_code)
+ 
++#ifdef CONFIG_4KSTACKS
++/*
++ * per-CPU NMI handling contexts (thread information and stack)
++ */
++static union irq_ctx *nmi_ctx[NR_CPUS];
++#endif /* CONFIG_4KSTACKS */
 +
-+static fastcall unsigned int __do_nmi(struct pt_regs * regs, long error_code)
+ static fastcall unsigned int __do_nmi(struct pt_regs * regs, long error_code)
  {
  	int cpu;
- 
--	nmi_enter();
--
--	cpu = smp_processor_id();
-+	cpu = safe_smp_processor_id();
- 
- 	++nmi_count(cpu);
- 
- 	if (!rcu_dereference(nmi_callback)(regs, cpu))
- 		default_do_nmi(regs);
- 
-+	return 0;
-+}
-+
-+#define _do_nmi(regs, error_code, nmih) nmih(regs, error_code);
-+
-+fastcall void do_nmi(struct pt_regs * regs, long error_code)
-+{
-+	nmi_enter();
-+
-+	_do_nmi(regs, error_code, __do_nmi);
-+
- 	nmi_exit();
+@@ -688,7 +695,43 @@ static fastcall unsigned int __do_nmi(st
+ 	return 0;
  }
  
-+fastcall void do_crash_nmi(struct pt_regs * regs, long error_code)
-+{
-+	_do_nmi(regs, error_code, __do_nmi);
++#ifdef CONFIG_4KSTACKS
++#define _do_nmi(regs, error_code, nmih)					\
++{									\
++	union irq_ctx *curctx, *nmictx;					\
++	u32 *isp;							\
++									\
++	curctx = (union irq_ctx *) current_thread_info();		\
++	nmictx = nmi_ctx[safe_smp_processor_id()];			\
++									\
++	/*								\
++	 * This is where we switch to the NMI stack.			\
++	 */								\
++	if (curctx != nmictx) {						\
++		int arg1, arg2, ebx;					\
++									\
++		/* build the stack frame on the IRQ stack */		\
++		isp = (u32*) ((char *)nmictx + sizeof(*nmictx)); 	\
++		if (!virt_addr_valid(curctx))				\
++			nmictx->tinfo.task = NULL;			\
++		else							\
++			nmictx->tinfo.task = curctx->tinfo.task;	\
++		nmictx->tinfo.previous_esp = current_stack_pointer;	\
++									\
++		asm volatile (						\
++			"	xchgl	%%ebx,%%esp	\n"		\
++			"	call	"#nmih"		\n"		\
++			"	movl	%%ebx,%%esp	\n"		\
++			: "=a" (arg1), "=d" (arg2), "=b" (ebx)		\
++			:  "0" (regs),  "1" (error_code), "2" (isp)	\
++			: "memory", "cc", "ecx"				\
++		);							\
++	} else								\
++		nmih(regs, error_code);					\
 +}
-+
- void set_nmi_callback(nmi_callback_t callback)
++#else /* CONFIG_4KSTACKS */
+ #define _do_nmi(regs, error_code, nmih) nmih(regs, error_code);
++#endif /* CONFIG_4KSTACKS */
+ 
+ fastcall void do_nmi(struct pt_regs * regs, long error_code)
  {
- 	rcu_assign_pointer(nmi_callback, callback);
-@@ -701,6 +716,17 @@ void unset_nmi_callback(void)
+@@ -727,6 +770,46 @@ void set_crash_nmi_callback(nmi_callback
  }
- EXPORT_SYMBOL_GPL(unset_nmi_callback);
+ EXPORT_SYMBOL_GPL(set_crash_nmi_callback);
  
-+void set_crash_nmi_callback(nmi_callback_t callback)
++#ifdef CONFIG_4KSTACKS
++
++/*
++ * These should really be __section__(".bss.page_aligned") as well, but
++ * gcc's 3.0 and earlier don't handle that correctly.
++ * NOTE: support for gcc 3.0 and earlier will eventually be dropped
++ */
++
++static char nmi_stack[NR_CPUS * THREAD_SIZE]
++		__attribute__((__aligned__(THREAD_SIZE)));
++
++/*
++ * Allocate per-cpu stacks for NMI processing
++ */
++void nmi_ctx_init(int cpu)
 +{
-+	/* XXX Do we need to do this atomically? */
-+	disable_nmi();
-+	unset_nmi_callback();
-+	/* Replace the trap vector */
-+	set_intr_gate(2,&crash_nmi);
-+	rcu_assign_pointer(nmi_callback, callback);
++	union irq_ctx *irqctx;
++
++	if (nmi_ctx[cpu])
++		return;
++
++	irqctx = (union irq_ctx*) &nmi_stack[cpu*THREAD_SIZE];
++	irqctx->tinfo.task		= NULL;
++	irqctx->tinfo.exec_domain	= NULL;
++	irqctx->tinfo.cpu		= cpu;
++	irqctx->tinfo.preempt_count	= HARDIRQ_OFFSET;
++	irqctx->tinfo.addr_limit	= MAKE_MM_SEG(0);
++
++	nmi_ctx[cpu] = irqctx;
++
++	printk("CPU %u nmistack=%p\n", cpu, nmi_ctx[cpu]);
 +}
-+EXPORT_SYMBOL_GPL(set_crash_nmi_callback);
++
++void nmi_ctx_exit(int cpu)
++{
++	nmi_ctx[cpu] = NULL;
++}
++
++#endif /* CONFIG_4KSTACKS */
 +
  #ifdef CONFIG_KPROBES
  fastcall void __kprobes do_int3(struct pt_regs *regs, long error_code)
  {
-diff -urNp linux-2.6.16-rc1/include/asm-i386/mach-default/mach_traps.h linux-2.6.16-rc1-sov/include/asm-i386/mach-default/mach_traps.h
---- linux-2.6.16-rc1/include/asm-i386/mach-default/mach_traps.h	2006-01-03 12:21:10.000000000 +0900
-+++ linux-2.6.16-rc1-sov/include/asm-i386/mach-default/mach_traps.h	2006-01-25 14:44:41.000000000 +0900
-@@ -20,6 +20,11 @@ static inline unsigned char get_nmi_reas
- 	return inb(0x61);
- }
+diff -urNp linux-2.6.16-rc1/include/asm-i386/irq.h linux-2.6.16-rc1-sov/include/asm-i386/irq.h
+--- linux-2.6.16-rc1/include/asm-i386/irq.h	2006-01-25 14:28:34.000000000 +0900
++++ linux-2.6.16-rc1-sov/include/asm-i386/irq.h	2006-01-25 15:18:08.000000000 +0900
+@@ -26,12 +26,21 @@ static __inline__ int irq_canonicalize(i
+ #endif
  
-+static inline void disable_nmi(void)
-+{
-+	outb(0x8f, 0x70);
-+}
+ #ifdef CONFIG_4KSTACKS
+-  extern void irq_ctx_init(int cpu);
+-  extern void irq_ctx_exit(int cpu);
++union irq_ctx {
++	struct thread_info	tinfo;
++	u32			stack[THREAD_SIZE/sizeof(u32)];
++};
 +
- static inline void reassert_nmi(void)
- {
- 	int old_reg = -1;
-diff -urNp linux-2.6.16-rc1/include/asm-i386/nmi.h linux-2.6.16-rc1-sov/include/asm-i386/nmi.h
---- linux-2.6.16-rc1/include/asm-i386/nmi.h	2006-01-03 12:21:10.000000000 +0900
-+++ linux-2.6.16-rc1-sov/include/asm-i386/nmi.h	2006-01-25 14:44:41.000000000 +0900
-@@ -17,6 +17,7 @@ typedef int (*nmi_callback_t)(struct pt_
-  * set. Return 1 if the NMI was handled.
-  */
- void set_nmi_callback(nmi_callback_t callback);
-+void set_crash_nmi_callback(nmi_callback_t callback);
-  
- /** 
-  * unset_nmi_callback
++extern void irq_ctx_init(int cpu);
++extern void irq_ctx_exit(int cpu);
++extern void nmi_ctx_init(int cpu);
++extern void nmi_ctx_exit(int cpu);
+ # define __ARCH_HAS_DO_SOFTIRQ
+ #else
+ # define irq_ctx_init(cpu) do { } while (0)
+ # define irq_ctx_exit(cpu) do { } while (0)
++# define nmi_ctx_init(cpu) do { } while (0)
++# define nmi_ctx_exit(cpu) do { } while (0)
+ #endif
+ 
+ #ifdef CONFIG_IRQBALANCE
 
 

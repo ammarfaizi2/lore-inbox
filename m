@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbWAYJUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbWAYJY7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751071AbWAYJUh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 04:20:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751073AbWAYJUh
+	id S1751065AbWAYJY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 04:24:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWAYJY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 04:20:37 -0500
-Received: from mail.suse.de ([195.135.220.2]:56806 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751068AbWAYJUg (ORCPT
+	Wed, 25 Jan 2006 04:24:59 -0500
+Received: from ns.firmix.at ([62.141.48.66]:54146 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1751065AbWAYJY6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 04:20:36 -0500
-Message-ID: <43D742E2.1070701@suse.de>
-Date: Wed, 25 Jan 2006 10:20:34 +0100
-From: Gerd Hoffmann <kraxel@suse.de>
-User-Agent: Thunderbird 1.5 (X11/20060111)
-MIME-Version: 1.0
-To: Ben Collins <bcollins@ubuntu.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SMP alternatives
-References: <43D648CC.4090101@suse.de> <1138119764.4207.7.camel@grayson>
-In-Reply-To: <1138119764.4207.7.camel@grayson>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 25 Jan 2006 04:24:58 -0500
+Subject: Re: [RFC] VM: I have a dream...
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Diego Calleja <diegocg@gmail.com>, Ram Gupta <ram.gupta5@gmail.com>,
+       mloftis@wgops.com, barryn@pobox.com, a1426z@gawab.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <200601240211.k0O28rnn003165@laptop11.inf.utfsm.cl>
+References: <200601240211.k0O28rnn003165@laptop11.inf.utfsm.cl>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Wed, 25 Jan 2006 10:23:53 +0100
+Message-Id: <1138181033.4800.4.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Collins wrote:
-> FYI, I have this being used in Ubuntu's kernel right now. It's pretty
-> stable. I have it implemented for x86_64 aswell. I can send you that
-> patch when I get a chance to pull it from the repo cleanly. I did enable
-> a kconfig option and command line option so it can be enabled/disabled
-> by default and also at boot.
+On Mon, 2006-01-23 at 23:08 -0300, Horst von Brand wrote:
+[...]
+> Good rule of thumb: If you run into swap, add RAM. Swap is /extremely/ slow
+> memory, however fast you make it go. RAM is not expensive anymore...
 
-The x86_64 bits would be very nice.  Linus' didn't like the idea to make
-that a config option, commented "either it works or it doesn't", so I
-left it out.  The code is small anyway, and the data tables can be
-freed, so making it an option doesn't make much sense.  IMHO there are
-way to many config options anyway ...
+- Except on laptops where you usually can't add *any* RAM. And if you
+  can, it is *much much* more expensive than on "normal" PCs.
+- Except if you - for whatever reason - have to throw out smaller RAMs
+  to get larger (and much more expensive) RAMs into it.
+- Except (as someone else mentioned) you have already equipped your main
+  board to the max.
 
-cheers,
+> > You have roughly 2 GB of dynamic address-space avaliable to each
+> > task (stuff that's not the kernel and not the runtime libraries).
+> 
+> Right. But your average task is far from that size, and most of it resides
+> in shared libraries and (perhaps shared) executables, and is perhaps even
+> COW shared with other tasks.
+> 
+> > You can easily have 500 tasks,
+> 
+> Even thousands.
+> 
+> >                                even RedHat out-of-the-box creates
+> > about 60 tasks. That's 1,000 GB of potential swap-space required
+> > to support this.
 
-  Gerd
+And after login (on XFCE + a few standard tools in my case) > 200.
 
+> But you really never do. That is the point.
+
+ACK. X, evolution and Mozilla family (to name standard apps) are the
+exceptions to this rule.
+
+	Bermd
 -- 
-Gerd 'just married' Hoffmann <kraxel@suse.de>
-I'm the hacker formerly known as Gerd Knorr.
-http://www.suse.de/~kraxel/just-married.jpeg
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+
+

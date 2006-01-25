@@ -1,69 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWAYMtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWAYNKA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbWAYMtI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 07:49:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWAYMtI
+	id S1751143AbWAYNKA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 08:10:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWAYNKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 07:49:08 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:6635 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751161AbWAYMtG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 07:49:06 -0500
-From: "Jiri Slaby" <xslaby@fi.muni.cz>
-Date: Wed, 25 Jan 2006 13:46:58 +0100
-In-reply-to: <20060101183832.2BE0222AEE7@anxur.fi.muni.cz>
-To: Mark v Wolher <trilight@ns666.com>
-Cc: Sami Farin <7atbggg02@sneakemail.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, arjan@infradead.org,
-       jesper.juhl@gmail.com, s0348365@sms.ed.ac.uk, rlrevell@joe-job.com,
-       mchehab@brturbo.com.br, video4linux-list@redhat.com,
-       duncan.sands@math.u-psud.fr
-Subject: Re: system keeps freezing once every 24 hours / random apps crashing
-References: <200512310027.47757.s0348365@sms.ed.ac.uk> <43B5D3ED.3080504@ns666.com> <200512310051.03603.s0348365@sms.ed.ac.uk> <43B5D6D0.9050601@ns666.com> <43B65DEE.906@ns666.com> <9a8748490512310308g1f529495ic7eab4bd3efec9e4@mail.gmail.com> <43B66E3D.2010900@ns666.com> <9a8748490512310349g10d004c7i856cf3e70be5974@mail.gmail.com> <43B67DB6.2070201@ns666.com> <43B6A14E.1020703@ns666.com> <20051231163414.GE3214@m.safari.iki.fi> <20051231163414.GE3214@m.safari.iki.fi> <43B6B669.6020500@ns666.com> <43B73DEB.4070604@ns666.com> <43B7D3BE.60003@ns666.com> <43B7EB99.8010604@ns666.com> <43B7EB99.8010604@ns666.com>
-Message-Id: <20060125124657.EB3F922AEFB@anxur.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Wed, 25 Jan 2006 08:10:00 -0500
+Received: from quechua.inka.de ([193.197.184.2]:8588 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S1751143AbWAYNKA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 08:10:00 -0500
+From: be-news06@lina.inka.de (Bernd Eckenfels)
+To: linux-kernel@vger.kernel.org
+Subject: Re: io performance...
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <9cfek33vwvo.fsf@nist.gov>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1F1kPO-0001dz-00@calista.inka.de>
+Date: Wed, 25 Jan 2006 14:09:58 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
->Mark v Wolher wrote:
->>> Still no crashes or irregular things happened ! Will let it go for a few
->>> more hours. This test is being done with the binary nvidia module loaded
->>> and bttv disabled. The next test will be nv for X instead of the binary
->>> module with bttv enabled, if crashes and such start to occur then it's
->>> very likely that the problem sits in the bttv code.
->>
->>
->>Okay, here are the test results:
->>
->>
->>- heavy load + nvidia (binary module) + bttv with grabdisplay = crash
->>- heavy load + nv (not tainted kernel) + bttv with grabdisplay = crash
->>
->>- heavy load + nvidia (binary module) + bttv with overlay = OK
->>- heavy load + nv (not tainted kernel) + bttv with overlay = OK
->>
->>Adding vmware on top of it will cause the system sooner to freeze/crash
->>(using grabdisplay)
->>
->>So what you think guys ?
->Hi,
->we still think that there is a problem in bttv_risc_packed in computing
->estimated size. My patch was bad, I see it now, but still don't understand, how
->it is computed and how it should be:
->        instructions  = (bpl * lines) / PAGE_SIZE + lines;
->        instructions += 2;
->and here it crashes (the first line, the (*rp)) -- actually after while loop.
->	*(rp++)=cpu_to_le32(BT848_RISC_WRITE|BT848_RISC_EOL|todo);
->	*(rp++)=cpu_to_le32(sg_dma_address(sg));
->So, Mauro (or somebody from list), have you any idea, what could be wrong?  
-Mark, could you try the Duncan's patch, it seems, that's it:
-http://lkml.org/lkml/diff/2006/1/25/59/1
+Ian Soboroff <isoboroff@acm.org> wrote:
+> simulation) and database accesses.  These are random accesses, which
+> is the worst access pattern for RAID.  Seek time in a RAID equals the
+> longest of all the drives in the RAID, rather than the average.
 
-regards,
--- 
-Jiri Slaby         www.fi.muni.cz/~xslaby
-\_.-^-._   jirislaby@gmail.com   _.-^-._/
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+Well, actually it equals to the shortest seek time and it distributes the
+seeks to multiple spindles (at least for raid1).
+
+Gruss
+Bernd

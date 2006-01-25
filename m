@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWAYGzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWAYG7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWAYGzm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 01:55:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWAYGzm
+	id S1750739AbWAYG7V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 01:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbWAYG7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 01:55:42 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:41407
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1750732AbWAYGzl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 01:55:41 -0500
-Subject: Re: [PATCH 3/7] [hrtimers] Fix oldvalue return in setitimer
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Orion Poplawski <orion@cora.nwra.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <dr67pj$uom$1@sea.gmane.org>
-References: <20060120021336.134802000@tglx.tec.linutronix.de>
-	 <20060120021342.498532000@tglx.tec.linutronix.de>
-	 <dr67pj$uom$1@sea.gmane.org>
-Content-Type: text/plain
-Date: Wed, 25 Jan 2006 07:56:37 +0100
-Message-Id: <1138172197.26132.2.camel@localhost.localdomain>
+	Wed, 25 Jan 2006 01:59:21 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:1004 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750739AbWAYG7U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 01:59:20 -0500
+Date: Tue, 24 Jan 2006 22:59:00 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, kaos@sgi.com, shemminger@osdl.org, dipankar@in.ibm.com
+Subject: [PATCH] Fix comment to synchronize_sched()
+Message-ID: <20060125065900.GA993@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-24 at 14:56 -0700, Orion Poplawski wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Thomas Gleixner wrote:
-> > This resolves bugzilla bug#5617. The oldvalue of the
-> > timer was read after the timer was cancelled, so the
-> > remaining time was always zero.
-> > 
-> 
-> I'm seeing this problem on recent Fedore development kernels.
-> Interestingly, it causes the IDL 7 minute timed demo to exit immediately
-> upon trying to plot since it resets the timer and expects the old value
-> to be returned.
+Hello!
 
-Thats the same problem.
+Fix to broken comment to synchronize_rcu() noted by Keith Owens.
+Also add sentence noting that synchronize_sched() and synchronize_rcu()
+are not necessarily identical.
 
-	tglx
+Signed-off-by: Paul E. McKenney <paulmck@us.ibm.com>
+CC: Keith Owens <kaos@sgi.com>
+CC: Stephen Hemminger <shemminger@osdl.org>
 
+---
 
+diff -urpNa -X dontdiff linux-2.6.15/include/linux/rcupdate.h linux-2.6.15-RCUcomment/include/linux/rcupdate.h
+--- linux-2.6.15/include/linux/rcupdate.h	2006-01-02 19:21:10.000000000 -0800
++++ linux-2.6.15-RCUcomment/include/linux/rcupdate.h	2006-01-17 18:48:33.000000000 -0800
+@@ -265,11 +265,14 @@ static inline int rcu_pending(int cpu)
+  * This means that all preempt_disable code sequences, including NMI and
+  * hardware-interrupt handlers, in progress on entry will have completed
+  * before this primitive returns.  However, this does not guarantee that
+- * softirq handlers will have completed, since in some kernels
++ * softirq handlers will have completed, since in some kernels, these
++ * handlers can run in process context, and can block.
+  *
+  * This primitive provides the guarantees made by the (deprecated)
+  * synchronize_kernel() API.  In contrast, synchronize_rcu() only
+  * guarantees that rcu_read_lock() sections will have completed.
++ * In "classic RCU", these two guarantees happen to be one and
++ * the same, but can differ in realtime RCU implementations.
+  */
+ #define synchronize_sched() synchronize_rcu()
+ 

@@ -1,43 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWAYDXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWAYEOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750995AbWAYDXE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 22:23:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWAYDXE
+	id S1750788AbWAYEOX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 23:14:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWAYEOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 22:23:04 -0500
-Received: from zproxy.gmail.com ([64.233.162.192]:56068 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750995AbWAYDXC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 22:23:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=L5C7Lwo4gPL4kS/5eER4jDvz+24pQdIvbHLvjpBQpBzKAX2VMag40tC/+ZoLckK/SdqRkZ9xEInqNm6GL/Kq/mdGbOIWhRMWoda55reTA7ga/M+bMG9VvSJJUw1FDGVs7kElCvr2TUWlU1/79E8FZSpO71LglquaXBh827L6StI=
-Message-ID: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
-Date: Tue, 24 Jan 2006 22:23:00 -0500
-From: Albert Cahalan <acahalan@gmail.com>
-To: linux-kernel@vger.kernel.org, rlrevell@joe-job.com,
-       schilling@fokus.fraunhofer.de, matthias.andree@gmx.de,
-       jengelh@linux01.gwdg.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+	Tue, 24 Jan 2006 23:14:23 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:30395 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750788AbWAYEOW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 23:14:22 -0500
+Message-ID: <43D6FB12.9080805@us.ibm.com>
+Date: Tue, 24 Jan 2006 22:14:10 -0600
+From: Brian Twichell <tbrian@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Dave McCracken <dmccr@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Hugh Dickens <hugh@veritas.com>, slpratt@us.ibm.com
+Subject: Re: [PATCH/RFC] Shared page tables
+References: <A6D73CCDC544257F3D97F143@[10.1.1.4]> <43C73767.5060506@us.ibm.com>
+In-Reply-To: <43C73767.5060506@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt writes:
+Brian Twichell wrote:
 
-> Where is the difference between SG_IO-on-hdx and sg0?
+>
+> We evaluated page table sharing on x86_64 and ppc64 setups, using a 
+> database
+> OLTP workload.  In both cases, 4-way systems with 64 GB of memory were 
+> used.
+>
+> On the x86_64 setup, page table sharing provided a 25% increase in 
+> performance,
+> when the database buffers were in small (4 KB) pages.  In this case, 
+> over 14 GB
+> of memory was freed, that had previously been taken up by page 
+> tables.  In the
+> case that the database buffers were in huge (2 MB) pages, page table 
+> sharing
+> provided a 4% increase in performance.
+>
+> Our ppc64 experiments used an earlier version of Dave's patch, along with
+> ppc64-specific code for sharing of ppc64 segments.  On this setup, page
+> table sharing provided a 49% increase in performance, when the database
+> buffers were in small (4 KB) pages.  Over 10 GB of memory was freed, that
+> had previously been taken up by page tables.  In the case that the 
+> database
+> buffers were in huge (16 MB) pages, page table sharing provided a 3% 
+> increase
+> in performance.
+>
+Hi,
 
-It's like the /dev/ttyS* and /dev/cua* situation, where
-we also ended up with multiple device files. This is bad.
+Just wanted to dispel any notion that may be out there that
+the improvements we've seen are peculiar to an IBM product
+stack.
 
-SG_IO-on-hdx is modern. It properly associates everything
-with one device, which you may name as desired.
+The 49% improvement observed using small pages on ppc64 used
+Oracle as the DBMS.  The other results used DB2 as the DBMS.
 
-sg0 is useful for devices that are not disk, tape, or CD.
-A decade ago, it was also the proper way to send raw SCSI
-commands to other devices. For nasty compatibility reasons,
-Linux still assigns /dev/sg* devices for disk, tape, and CD.
+So, the improvements not peculiar to an IBM product stack,
+and moreover the largest improvement was seen with a non-IBM
+DBMS.
+
+Note, the relative improvement observed on each platform/pagesize
+combination cannot be used to infer relative performance between
+DBMS's or platforms.
+
+Cheers,
+Brian
+

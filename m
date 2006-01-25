@@ -1,49 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWAYRLp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWAYRNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWAYRLp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 12:11:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWAYRLp
+	id S1750727AbWAYRNd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 12:13:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWAYRNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 12:11:45 -0500
-Received: from mail.gmx.net ([213.165.64.21]:21683 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932076AbWAYRLo (ORCPT
+	Wed, 25 Jan 2006 12:13:32 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:22169 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1750708AbWAYRN3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 12:11:44 -0500
-X-Authenticated: #428038
-Message-ID: <43D7B14D.7040802@gmx.de>
-Date: Wed, 25 Jan 2006 18:11:41 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Wed, 25 Jan 2006 12:13:29 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-CC: jengelh@linux01.gwdg.de, axboe@suse.de, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
-In-Reply-To: <43D7AF56.nailDFJ882IWI@burner>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 5/6] fix warning on test_ti_thread_flag()
+Date: Wed, 25 Jan 2006 09:08:15 -0800
+Message-ID: <B05667366EE6204181EABE9C1B1C0EB509780224@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 5/6] fix warning on test_ti_thread_flag()
+Thread-Index: AcYhq35Htc/JS4DwRnqnPZSDMQONvAAJYsOQ
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "Geert Uytterhoeven" <geert@linux-m68k.org>,
+       "Akinobu Mita" <mita@miraclelinux.com>
+Cc: "Linux Kernel Development" <linux-kernel@vger.kernel.org>,
+       "Richard Henderson" <rth@twiddle.net>,
+       "Ivan Kokshaysky" <ink@jurassic.park.msu.ru>,
+       "Russell King" <rmk@arm.linux.org.uk>, "Ian Molton" <spyro@f2s.com>,
+       <dev-etrax@axis.com>, "David Howells" <dhowells@redhat.com>,
+       "Yoshinori Sato" <ysato@users.sourceforge.jp>,
+       "Linus Torvalds" <torvalds@osdl.org>, <linux-ia64@vger.kernel.org>,
+       "Hirokazu Takata" <takata@linux-m32r.org>, <linux-m68k@vger.kernel.org>,
+       "Greg Ungerer" <gerg@uclinux.org>,
+       "Linux/MIPS Development" <linux-mips@linux-mips.org>,
+       <parisc-linux@parisc-linux.org>,
+       "Linux/PPC Development" <linuxppc-dev@ozlabs.org>,
+       <linux390@de.ibm.com>, <linuxsh-dev@lists.sourceforge.net>,
+       <linuxsh-shmedia-dev@lists.sourceforge.net>,
+       <sparclinux@vger.kernel.org>, <ultralinux@vger.kernel.org>,
+       "Miles Bader" <uclinux-v850@lsi.nec.co.jp>, "Andi Kleen" <ak@suse.de>,
+       "Chris Zankel" <chris@zankel.net>
+X-OriginalArrivalTime: 25 Jan 2006 17:08:41.0899 (UTC) FILETIME=[FDF19FB0:01C621D1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
-> Jens Axboe <axboe@suse.de> wrote:
+Geert Uytterhoeven wrote on Wednesday, January 25, 2006 4:29 AM
+> On Wed, 25 Jan 2006, Akinobu Mita wrote:
+> > If the arechitecture is
+> > - BITS_PER_LONG == 64
+> > - struct thread_info.flag 32 is bits
+> > - second argument of test_bit() was void *
+> > 
+> > Then compiler print error message on test_ti_thread_flags()
+> > in include/linux/thread_info.h
+> > 
+> > Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+> > ---
+> >  thread_info.h |    2 +-
+> >  1 files changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > Index: 2.6-git/include/linux/thread_info.h
+> > ===================================================================
+> > --- 2.6-git.orig/include/linux/thread_info.h	2006-01-25
+19:07:12.000000000 +0900
+> > +++ 2.6-git/include/linux/thread_info.h	2006-01-25
+19:14:26.000000000 +0900
+> > @@ -49,7 +49,7 @@
+> >  
+> >  static inline int test_ti_thread_flag(struct thread_info *ti, int
+flag)
+> >  {
+> > -	return test_bit(flag,&ti->flags);
+> > +	return test_bit(flag, (void *)&ti->flags);
+> >  }
 > 
->> You just want the device naming to reflect that. The user should not
->> need to use /dev/hda, but /dev/cdrecorder or whatever. A real user would
->> likely be using k3b or something graphical though, and just click on his
->> Hitachi/Plextor/whatever burner. Perhaps some fancy udev rules could
->> help do this dynamically even.
+> This is not safe. The bitops are defined to work on unsigned long
+only, so
+> flags should be changed to unsigned long instead, or you should use a
+> temporary.
 > 
-> Guess why cdrecord -scanbus is needed.
+> Affected platforms:
+>   - alpha: flags is unsigned int
+>   - ia64, sh, x86_64: flags is __u32
 > 
-> It serves the need of GUI programs for cdrercord and allows them to retrieve 
-> and list possible drives of interest in a platform independent way.
+> The only affected 64-platforms are little endian, so it will silently
+work
+> after your change, though...
 
-There are bugs in the implementation that prevent -scanbus from working
-properly, and they are not Linux bugs. Once -scanbus really scans all
-devices and skips those it cannot access (rather than quitting), you might
-have a point.
+I thought test_bit can operate on array beyond unsigned long.
+It's perfectly legitimate to do: test_bit(999, bit_array) as
+long as bit_array is indeed big enough to hold 999 bits.  It
+is the responsibility of the caller to make sure that the
+underlying array is big enough for the bit that is being tested.
+
+I don't think you need to change the flags size.
+
+- Ken

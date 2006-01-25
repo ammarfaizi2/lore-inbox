@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWAYI4y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWAYI7X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750948AbWAYI4y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 03:56:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbWAYI4y
+	id S1750953AbWAYI7X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 03:59:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbWAYI7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 03:56:54 -0500
-Received: from xproxy.gmail.com ([66.249.82.203]:39074 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750926AbWAYI4x convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 03:56:53 -0500
+	Wed, 25 Jan 2006 03:59:23 -0500
+Received: from uproxy.gmail.com ([66.249.92.203]:13702 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750926AbWAYI7W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 03:59:22 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=L+1ryxfL8eoY6Df0EHasadJeBVQHQ3SZjq62l3y1kQE1phHSOpatZRS6zjVvh8VEEuu/9U3DgAwqQQgI/6etMeu1xaKsul57s9YJVKY+6OLMkAreoV1ureECysF8EYdghUQ9M57twQle0r/3RoMW1Ym8EvBCWFhMeWMx1a6uhcc=
-Message-ID: <3d53b7120601250056s77e876b6l2ac6781b8a9c9f00@mail.gmail.com>
-Date: Wed, 25 Jan 2006 14:26:51 +0530
-From: Syed Ahemed <kingkhan@gmail.com>
-To: Diego Calleja <diegocg@gmail.com>
-Subject: Re: Patch for CVE-2004-1334 ???
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=ow5T0aQYZ7PQHioFNeRjxVTnbNHeD7UdUntDS0yhT780elGHd45gSRBnvAWjnI/6npUgTqtJ1s2YG96jiw9C+ESZbw7+A6xPOMst2kinU762b5jQwsaODEdidvIvzO7gYDh1hRsaIGW0brRyo59xVbNqoh23F2bGXLUyjRIJWjA=
+Date: Wed, 25 Jan 2006 12:16:47 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060123191439.cfe5d61c.diegocg@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Subject: 2.6.16-rc1-mm3: mips, sparc64 split_page breakage
+Message-ID: <20060125091647.GA15301@mipter.zuzino.mipt.ru>
+References: <20060124232406.50abccd1.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <3d53b7120601230939p6e8906fbtb196ab49b9b028c5@mail.gmail.com>
-	 <20060123191439.cfe5d61c.diegocg@gmail.com>
+In-Reply-To: <20060124232406.50abccd1.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The simple reason we do not intend to use the latest version is we run
-some third party software which cant be front ported (pardon the slang
-) to 2.4.29 and above.
-As for the changeset by  guninski , i wish to ask about a one point
-source of applying all the patches for 2.4.28 .I mean shouldn't all
-the kernel security patches ( atleast the ones that have become CVE's)
-be a part of kernel.org .Since there isn't any what is the reason ?
-I dont want to go to Gentoo for one patch , red hat for another
-....and GOD knows how many sites .
-Torvalds is the GOD of open source , but am i asking for too much :-)
+mm/page_alloc.c:762: * split_page takes a non-compound higher-order page, and splits it into
+mm/page_alloc.c:769:void split_page(struct page *page, unsigned int order)
+mm/memory.c:1213: * (see split_page()).
+arch/sh/mm/consistent.c:26:	split_page(page, order);
+arch/arm/mm/consistent.c:226:		split_page(page, order);
+arch/frv/mm/dma-alloc.c:118:		split_page(rpage, order);
+arch/ppc/kernel/dma-mapping.c:226:		split_page(page, order);
 
+arch/mips/mm/init.c:69:	split_page(page);			<===
+arch/sparc64/mm/init.c:1079:		split_page(page);	<===
 
+arch/xtensa/mm/pgtable.c:24:		split_page(virt_to_page(p), COLOR_ORDER);
+arch/xtensa/mm/pgtable.c:54:		split_page(p, COLOR_ORDER);
+include/linux/mm.h:337:void split_page(struct page *page, unsigned int order);
+include/linux/mm.h:339:static inline void split_page(struct page *page, unsigned int order) {}
 
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 
+--- linux-2.6.16-rc1-mm3/arch/mips/mm/init.c
++++ linux-1/arch/mips/mm/init.c
+@@ -53,8 +53,9 @@ unsigned long empty_zero_page, zero_page
+  */
+ unsigned long setup_zero_pages(void)
+ {
+-	unsigned long order, size;
++	unsigned long size;
+ 	struct page *page;
++	int order;
+ 
+ 	if (cpu_has_vce)
+ 		order = 3;
+@@ -66,7 +67,7 @@ unsigned long setup_zero_pages(void)
+ 		panic("Oh boy, that early out of memory?");
+ 
+ 	page = virt_to_page(empty_zero_page);
+-	split_page(page);
++	split_page(page, order);
+ 	while (page < virt_to_page(empty_zero_page + (PAGE_SIZE << order))) {
+ 		SetPageReserved(page);
+ 		page++;
 
-On 1/23/06, Diego Calleja <diegocg@gmail.com> wrote:
-> El Mon, 23 Jan 2006 23:09:49 +0530,
-> Syed Ahemed <kingkhan@gmail.com> escribió:
->
-> > Hi
-> > I do know this community is busy with more important things , but i am
-> > out of ideas/search  on this one.
-> > How do i get the patch for the CVE-2004-1334 ? I have an opensource
->
-> Well, 2.4.32 fixes that bug and many others security. Any reason why you
-> aren't using the latest version.
->
-> You can find links to the changesets in the original security advisory
-> from guninski (easy to find in google)
->

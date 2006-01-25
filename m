@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWAYWu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWAYWw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWAYWu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 17:50:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWAYWu7
+	id S932203AbWAYWw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 17:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWAYWw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 17:50:59 -0500
-Received: from zcars04e.nortel.com ([47.129.242.56]:52909 "EHLO
-	zcars04e.nortel.com") by vger.kernel.org with ESMTP id S932202AbWAYWu6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 17:50:58 -0500
-Message-ID: <43D800CC.4090901@nortel.com>
-Date: Wed, 25 Jan 2006 16:50:52 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Wed, 25 Jan 2006 17:52:59 -0500
+Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:36021 "EHLO
+	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S932203AbWAYWw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 17:52:58 -0500
+Date: Wed, 25 Jan 2006 16:52:36 -0600
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Ray Bryant <raybry@mpdtxmail.amd.com>
+cc: Robin Holt <holt@sgi.com>, Hugh Dickins <hugh@veritas.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH/RFC] Shared page tables
+Message-ID: <F6EF7D7093D441B7655A8755@[10.1.1.4]>
+In-Reply-To: <200601251648.58670.raybry@mpdtxmail.amd.com>
+References: <A6D73CCDC544257F3D97F143@[10.1.1.4]>
+ <200601241743.28889.raybry@mpdtxmail.amd.com>
+ <07A9BE6C2CADACD27B259191@[10.1.1.4]>
+ <200601251648.58670.raybry@mpdtxmail.amd.com>
+X-Mailer: Mulberry/4.0.0b4 (Linux/x86)
 MIME-Version: 1.0
-To: jerome lacoste <jerome.lacoste@gmail.com>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] make it easy to test new kernels
-References: <5a2cf1f60601251430k5823e7dald12c9b5f8bc297be@mail.gmail.com>
-In-Reply-To: <5a2cf1f60601251430k5823e7dald12c9b5f8bc297be@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Jan 2006 22:50:54.0215 (UTC) FILETIME=[CC286970:01C62201]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jerome lacoste wrote:
 
-> Now, will all these talks about virtualization, I wonder if it will be
-> possible one day to just download a new virtualized test OS and test
-> it without rebooting the main one. I could always allocate 10 G to a
-> test system on my disk. As long as I don't have to reboot.
+--On Wednesday, January 25, 2006 16:48:58 -0600 Ray Bryant
+<raybry@mpdtxmail.amd.com> wrote:
 
-A large portion of kernel issues are found in the hardware support, 
-which is difficult to test in a virtualized environment.
+> Empirically, at least on Opteron, it looks like the first page of pte's
+> is  never shared, even if the alignment of the mapped region is correct
+> (i. e. a  2MB boundary for X86_64).    Is that what you expected?
 
-However, something like this could ensure that the APIs handle random 
-garbage, that POSIX works properly, etc...
+If the region is aligned it should be shared.  I'll investigate.
 
-Chris
+Thanks,
+Dave
+

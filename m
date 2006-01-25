@@ -1,98 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWAYGv2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWAYGvb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbWAYGv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 01:51:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750714AbWAYGv2
+	id S1750714AbWAYGvb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 01:51:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWAYGvb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 01:51:28 -0500
-Received: from ns.intellilink.co.jp ([61.115.5.249]:32159 "EHLO
+	Wed, 25 Jan 2006 01:51:31 -0500
+Received: from ns.intellilink.co.jp ([61.115.5.249]:36511 "EHLO
 	mail.intellilink.co.jp") by vger.kernel.org with ESMTP
-	id S1750700AbWAYGv1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 01:51:27 -0500
-Subject: [PATCH 1/5] stack overflow safe kdump (2.6.16-rc1-i386) -
-	safe_smp_processor_id
+	id S1750714AbWAYGva (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 01:51:30 -0500
+Subject: [PATCH 0/5] stack overflow safe kdump (2.6.16-rc1-i386)
 From: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>
 To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: ak@suse.de, vgoyal@in.ibm.com, linux-kernel@vger.kernel.org,
+Cc: akpm@osdl.org, ak@suse.de, vgoyal@in.ibm.com, linux-kernel@vger.kernel.org,
        fastboot@lists.osdl.org
 Content-Type: text/plain
 Organization: =?UTF-8?Q?NTT=E3=83=87=E3=83=BC=E3=82=BF=E5=85=88=E7=AB=AF=E6=8A=80?=
 	=?UTF-8?Q?=E8=A1=93=E6=A0=AA=E5=BC=8F=E4=BC=9A=E7=A4=BE?=
-Date: Wed, 25 Jan 2006 15:51:08 +0900
-Message-Id: <1138171868.2370.62.camel@localhost.localdomain>
+Date: Wed, 25 Jan 2006 15:50:31 +0900
+Message-Id: <1138171831.2370.61.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On the event of a stack overflow critical data that usually resides at
-the bottom of the stack is likely to be stomped and, consequently, its
-use should be avoided.
+Hi,
 
-In particular, in the i386 and IA64 architectures the macro
-smp_processor_id ultimately makes use of the "cpu" member of struct
-thread_info which resides at the bottom of the stack. x86_64, on the
-other hand, is not affected by this problem because it benefits from
-the use of the PDA infrastructure.
+This is a new posting of the patch-set aiming at making kdump
+more robust against stack overflows. This time I have signed off all
+the patches and checked that they are not word-wrapped ().
 
-To circumvent this problem I suggest implementing
-"safe_smp_processor_id()" (it already exists in x86_64) for i386 and
-IA64 and use it as a replacement for smp_processor_id in the reboot path
-to the dump capture kernel. This is a possible implementation for i386.
+I tried to incorporate all the ideas received after
+a previous post. However, there is still room for further improvements
+some of which I point out below (see "->"). I would appreciate your
+comments before I start working on them.
 
-Signed-off-by: Fernando Vazquez <fernando@intellilink.co.jp>
----
+This patch set does the following:
 
-diff -urNp linux-2.6.16-rc1/arch/i386/kernel/smp.c linux-2.6.16-rc1-sov/arch/i386/kernel/smp.c
---- linux-2.6.16-rc1/arch/i386/kernel/smp.c	2006-01-03 12:21:10.000000000 +0900
-+++ linux-2.6.16-rc1-sov/arch/i386/kernel/smp.c	2006-01-25 14:31:35.000000000 +0900
-@@ -628,3 +628,28 @@ fastcall void smp_call_function_interrup
- 	}
- }
- 
-+static int convert_apicid_to_cpu(int apic_id)
-+{
-+	int i;
-+
-+	for (i = 0; i < NR_CPUS; i++) {
-+		if (x86_cpu_to_apicid[i] == apic_id)
-+		return i;
-+	}
-+	return -1;
-+}
-+
-+int safe_smp_processor_id(void) {
-+	int apicid, cpuid;
-+
-+	if (!boot_cpu_has(X86_FEATURE_APIC))
-+		return 0;
-+
-+	apicid = hard_smp_processor_id();
-+	if (apicid == BAD_APICID)
-+		return 0;
-+
-+	cpuid = convert_apicid_to_cpu(apicid);
-+
-+	return cpuid >= 0 ? cpuid : 0;
-+}
-diff -urNp linux-2.6.16-rc1/include/asm-i386/smp.h linux-2.6.16-rc1-sov/include/asm-i386/smp.h
---- linux-2.6.16-rc1/include/asm-i386/smp.h	2006-01-03 12:21:10.000000000 +0900
-+++ linux-2.6.16-rc1-sov/include/asm-i386/smp.h	2006-01-25 14:31:35.000000000 +0900
-@@ -90,12 +90,14 @@ static __inline int logical_smp_processo
- 
- #endif
- 
-+extern int safe_smp_processor_id(void);
- extern int __cpu_disable(void);
- extern void __cpu_die(unsigned int cpu);
- #endif /* !__ASSEMBLY__ */
- 
- #else /* CONFIG_SMP */
- 
-+#define safe_smp_processor_id() 0
- #define cpu_physical_id(cpu)		boot_cpu_physical_apicid
- 
- #define NO_PROC_ID		0xFF		/* No processor magic marker */
+* Substitute "smp_processor_id" with the stack overflow-safe
+"safe_smp_processor_id" in the reboot path to the second kernel.
 
+* Use a private 4K stack for the NMI handler (if CONFIG_4KSTACKS
+enabled).
+
+* On the event of a system crash:
+   - Replace NMI trap vector with "crash_nmi".
+   - Replace NMI handler with "do_crash_nmi".
+
+List of patches (the last two should be applied in the order of
+appearance):
+
+[1/5] safe_smp_processor_id: Stack overflow safe implementation of
+smp_processor_id.
+
+[2/5] use_safe_smp_processor_id: Replace smp_processor_id with
+safe_smp_processor_id in arch/i386/kernel/crash.c.
+
+[3/5] fault: Take stack overflows into account in do_page_fault.
+
+[4/5] nmi_vector: In the nmi path, we have the problem that both nmi_enter and
+nmi_exit in do_nmi (see code below) make heavy use of "current" indirectly
+(specially through the kernel preemption code). To avoid this execution path the
+nmi trap handler is substituted with a stack overflow safe replacement.
+
+   -> Regarding the implementation, I have some doubts:
+      - Should the NMI vector replaced atomically?
+      - Should the NMI watchdog be stopped? Should NMIs be disabled in the crash
+        path of each CPU?
+      This is important because after replacing the nmi handler the NMI
+      watchdog will continue generating interrupts that need to be handled
+      properly. If we can avoid this a kdump-specific nmi vector handler
+      (ENTRY(crash_nmi)) could be safely used.
+      - In ENTRY(crash_nmi) we should only do the checks strictly necessary. That
+        is why I got rid of the sysentry and debug stack checks. Is there any case
+        in which these checks would be desirable in a crash scenario?
+
+[5/5] nmi_stack: When 4KSTACKS is set use a private 4K stack for the nmi handler so
+that we do not have to worry about stack overflows. Besides, replace
+smp_processor_id with safe_smp_processor_id.
+
+   -> If we want to be really robust we should also:
+      - [crashing CPU] Switch to a new stack as soon the system crash is detected
+      - [other CPUs] and do not use the stack at all in ENTRY(crash_nmi).
+
+I am looking forward to your comments and suggestions.
+
+Regards,
+
+Fernando
 

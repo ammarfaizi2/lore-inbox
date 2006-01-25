@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbWAYOUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750994AbWAYOTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750998AbWAYOUX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 09:20:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWAYOUX
+	id S1750994AbWAYOTv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 09:19:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWAYOTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 09:20:23 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:22554 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750998AbWAYOUV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 09:20:21 -0500
-Date: Wed, 25 Jan 2006 15:21:55 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: matthias.andree@gmx.de, jengelh@linux01.gwdg.de, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest) (was: Rationale for RLIMIT_MEMLOCK?)
-Message-ID: <20060125142155.GW4212@suse.de>
-References: <20060123165415.GA32178@merlin.emma.line.org> <1138035602.2977.54.camel@laptopd505.fenrus.org> <20060123180106.GA4879@merlin.emma.line.org> <1138039993.2977.62.camel@laptopd505.fenrus.org> <20060123185549.GA15985@merlin.emma.line.org> <43D530CC.nailC4Y11KE7A@burner> <1138048255.21481.15.camel@mindpipe> <20060123212119.GI1820@merlin.emma.line.org> <Pine.LNX.4.61.0601241823390.28682@yvahk01.tjqt.qr> <43D78585.nailD7855YVBX@burner>
-Mime-Version: 1.0
+	Wed, 25 Jan 2006 09:19:50 -0500
+Received: from rogue.ncsl.nist.gov ([129.6.101.41]:17126 "EHLO
+	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP
+	id S1750994AbWAYOTu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 09:19:50 -0500
+From: Ian Soboroff <isoboroff@acm.org>
+To: Max Waterman <davidmaxwaterman@fastmail.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: io performance...
+References: <43CB4CC3.4030904@fastmail.co.uk> <43CD2405.4070902@cfl.rr.com>
+	<43CDED23.5060701@fastmail.co.uk> <43CE5C7A.5060608@cfl.rr.com>
+	<43D07C08.5000903@fastmail.co.uk> <9cfek33vwvo.fsf@nist.gov>
+	<43D71C75.2050807@fastmail.co.uk>
+Date: Wed, 25 Jan 2006 09:19:39 -0500
+In-Reply-To: <43D71C75.2050807@fastmail.co.uk> (Max Waterman's message of
+	"Wed, 25 Jan 2006 14:36:37 +0800")
+Message-ID: <9cfek2wz8xw.fsf@rogue.ncsl.nist.gov>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43D78585.nailD7855YVBX@burner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25 2006, Joerg Schilling wrote:
-> Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-> 
-> > >1. compile a list of their requirements,
-> >
-> > Have as few code duplicated (e.g. ATAPI and SCSI may share some - after 
-> > all, ATAPI is (to me) some sort of SCSI tunneled in ATA.)
-> 
-> Thank you! This is a vote _pro_ a unified SCSI generic implementation for all
-> types of devices. The current implementation unneccssarily duplicates a lot 
-> of code.
+Max Waterman <davidmaxwaterman@fastmail.co.uk> writes:
 
-The block layer SG_IO is just that, it's completely transport agnostic.
-There's not a lot of duplicated code. In the future, perhaps sg will
-disappear and be replaced by bsg which is just the full block layer
-implementation of that (SG_IO can currently be considered a subset of
-that support).
+>>> We're still wondering why rd performance is so low - seems to be the
+>>> same as a single drive. RAID10 should be the same performance as RAID0
+>>> over two drives, shouldn't it?
+>>>
+>> I think bonnie++ measures accesses to many small files (INN-like
+>> simulation) and database accesses.  These are random accesses, which
+>> is the worst access pattern for RAID.  Seek time in a RAID equals the
+>> longest of all the drives in the RAID, rather than the average.  So
+>> bonnie++ is domninated by your seek time.
+>
+> You think so? I had assumed when bonnie++'s output said 'sequential
+> access' that it was the opposite of random, for example (raid0 on 5
+> drives) :
+>
 
-> > Make it, in accordance with the above, possible to have as few kernel 
-> > modules loaded as possible and therefore reducing footprint - if I had not 
-> > to load sd_mod for usb_storage fun, I would get an itch to load a 78564 
-> > byte scsi_mod module just to be able to use ATAPI. (MINOR one, though.)
-> 
-> On Solaris, the SCSI glue code (between hostadaptor drivers and target drivers) is 
-> really small:
-> 
-> /usr/ccs/bin/size /kernel/misc/scsi 
-> 28482 + 27042 + 2036 = 57560
-> 
-> And if you check the amount of completely unneeded code Linux currently has 
-> just to implement e.g. SG_IO in /dev/hd*, it could even _save_ space in the 
-> kernel when converting to a clean SCSI based design.
+I could be wrong, I was just reading the information from the bonnie++
+website... 
 
-Please point me at that huge amount of code. Hint: there is none.
-
-Deja vu, anyone?
-
--- 
-Jens Axboe
+Ian
 

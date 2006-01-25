@@ -1,18 +1,18 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbWAYPEe (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 25 Jan 2006 10:04:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWAYPEd
+	id S1751219AbWAYPF2 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Wed, 25 Jan 2006 10:05:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWAYPF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 10:04:33 -0500
-Received: from [148.227.224.9] ([148.227.224.9]:21177 "EHLO cu.maz.uasnet.mx")
-	by vger.kernel.org with ESMTP id S1751195AbWAYPEc (ORCPT
-	<rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 10:04:32 -0500
+	Wed, 25 Jan 2006 10:05:26 -0500
+Received: from [148.227.224.9] ([148.227.224.9]:44985 "EHLO cu.maz.uasnet.mx")
+	by vger.kernel.org with ESMTP id S1751191AbWAYPFZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 10:05:25 -0500
 From: "Bryan Lucas" <bryanlucas@cu.maz.uasnet.mx>
 Reply-To: bryanans1965@satellite-email.com
 Subject: Yukos oil company in Russia
-Date: Wed, 25 Jan 2006 02:16:50 -0700
-Message-Id: <20060125091558.M30020@cu.maz.uasnet.mx>
+Date: Wed, 25 Jan 2006 02:18:34 -0700
+Message-Id: <20060125091750.M13067@cu.maz.uasnet.mx>
 X-Mailer: Open WebMail 2.50 20050106
 X-OriginatingIP: 82.128.5.88 (bryanlucas)
 MIME-Version: 1.0
@@ -21,13 +21,9 @@ Content-Type: text/plain;
 To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751197AbWAYPEe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751219AbWAYPF2@vger.kernel.org>
 
-
-
---
-Correo UAS - Campus Mazatlán
-Servidor: usuario@cu.maz.uasnet.mxMr. Brian Bacon Evans  (Agent)
+Mr. Brian Bacon Evans  (Agent)
 Representing Mr. Mikhail Khordokovsky 
 Yukos Oil Company in Russia. 
 
@@ -63,7 +59,6 @@ Wishing   you a prosperous New Year,
 Best Regards
 Mr. Brian Bacon Evans 
 Reply To:bryanans1965@satellite-email.com
-
 
 Universidad Autónoma de Sinaloa - Campus Mazatlán
 Visítenos en: http://www.maz.uasnet.mx

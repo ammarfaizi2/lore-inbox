@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWAYOnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWAYOoi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbWAYOnp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 09:43:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWAYOnp
+	id S1751186AbWAYOoi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 09:44:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751183AbWAYOoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 09:43:45 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:1327 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751180AbWAYOnp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 09:43:45 -0500
-Date: Wed, 25 Jan 2006 15:45:44 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Albert Cahalan <acahalan@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       rlrevell@joe-job.com, schilling@fokus.fraunhofer.de,
-       matthias.andree@gmx.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060125144543.GY4212@suse.de>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 25 Jan 2006 09:44:38 -0500
+Received: from uproxy.gmail.com ([66.249.92.203]:2585 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751186AbWAYOoh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 09:44:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iQ3JJw55qUXzkNI5sw23hJLiX1gvWTTZ/Hx2rvVBzJ/pDQ1rhFN4h5qPaGG6H1zTbUBfAElkJBn9BRhdCZDUNqfQi/F4ACI0YRElj08Ir73zWZNvf8ysIiNELtKvvd8clQsxHsd/jq+uXRZuMZhlv8T/QTdVdA4tjvjtCUrxK/s=
+Message-ID: <84144f020601250644h6ca4e407q2e15aa53b50ef509@mail.gmail.com>
+Date: Wed, 25 Jan 2006 16:44:36 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Andy Whitcroft <apw@shadowen.org>
+Subject: Re: 2.6.16-rc1-mm3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <43D785E1.4020708@shadowen.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
+References: <20060124232406.50abccd1.akpm@osdl.org>
+	 <43D785E1.4020708@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25 2006, Jan Engelhardt wrote:
-> 
-> >> Where is the difference between SG_IO-on-hdx and sg0?
-> >
-> >It's like the /dev/ttyS* and /dev/cua* situation, where
-> >we also ended up with multiple device files. This is bad.
-> >
-> >SG_IO-on-hdx is modern. It properly associates everything
-> >with one device, which you may name as desired.
-> 
-> Let's analyze a case:
-> if /dev/sg0 would always be associated with /dev/hda,
-> /dev/sg1 always with /dev/hdb, no matter if there was actually a
-> hda/sg0 device present in the system - would that simplify
-> the problem?
+Hi Andy,
 
-Forget /dev/sg0, it's meaningless and confusing to try and bind two
-unrelated names to each other. You want to talk to /dev/hda, use
-/dev/hda. Don't try and create a pseudo mapping between the two. That's
-also where cdrecord gets it wrong on Linux - you don't need -scanbus. If
-users think they do, it's either because Joerg brain washed them or
-because they have been used to that bad interface since years ago when
-it was unfortunately needed.
+On 1/25/06, Andy Whitcroft <apw@shadowen.org> wrote:
+> It seems that something is causing panic's on some of our test beds.  At
+> first sight it appears to be something slab related (alloc_slabmgmt).  I
+> had a quick look at what had been added in -mm3 (as -mm2 is ok) but the
+> only things that jumped out really didn't want to be backed out.
+>
+> Any suggestions as to what I should try?
 
--- 
-Jens Axboe
+Does reverting the following patch make the panic go away?
 
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm3/broken-out/slab-cache_estimate-cleanup.patch
+
+If not, you can safely revert the following patches one by one in reverse order:
+
+slab-distinguish-between-object-and-buffer-size.patch
+slab-minor-cleanup-to-kmem_cache_alloc_node.patch
+slab-have-index_of-bug-at-compile-time.patch
+slab-cache_estimate-cleanup.patch
+slab-extract-slab_destroy_objs.patch
+slab-extract-slab_putget_obj.patch
+slab-reduce-inlining.patch
+slab-extract-virt_to_cacheslab.patch
+slab-rename-ac_data-to-cpu_cache_get.patch
+slab-replace-kmem_cache_t-with-struct-kmem_cache.patch
+slab-fix-kzalloc-and-kstrdup-caller-report-for-config_debug_slab.patch
+mm-slab-add-kernel-doc-for-one-function.patch
+slab-fix-sparse-warning.patch
+
+                         Pekka

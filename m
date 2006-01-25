@@ -1,66 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWA2Hhg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWA2HlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751135AbWA2Hhg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 02:37:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWA2Hhg
+	id S1751079AbWA2HlN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 02:41:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751076AbWA2HlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 02:37:36 -0500
-Received: from tachyon.quantumlinux.com ([64.113.1.99]:24508 "EHLO
-	tachyon.quantumlinux.com") by vger.kernel.org with ESMTP
-	id S1751164AbWA2Hfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 02:35:47 -0500
-Date: Sat, 28 Jan 2006 23:36:25 -0800 (PST)
-From: Chuck Wolber <chuckw@quantumlinux.com>
-X-X-Sender: chuckw@localhost.localdomain
-To: Willy Tarreau <willy@w.ods.org>
-cc: Greg KH <gregkh@suse.de>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       jmforbes@linuxtx.org, linux-kernel@vger.kernel.org, stable@kernel.org,
-       zwane@arm.linux.org.uk, tytso@mit.edu, davej@redhat.com,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [patch 0/6] 2.6.14.7 -stable review
-In-Reply-To: <20060129060946.GX7142@w.ods.org>
-Message-ID: <Pine.LNX.4.63.0601282326250.7205@localhost.localdomain>
-References: <20060128021749.GA10362@kroah.com> <Pine.LNX.4.63.0601282028210.7205@localhost.localdomain>
- <20060129044307.GA23553@linuxtx.org> <Pine.LNX.4.63.0601282048380.7205@localhost.localdomain>
- <20060128205701.5b84922e.rdunlap@xenotime.net> <20060129053458.GA9293@suse.de>
- <20060129060946.GX7142@w.ods.org>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 29 Jan 2006 02:41:13 -0500
+Received: from fmr15.intel.com ([192.55.52.69]:27092 "EHLO
+	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751112AbWA2Hh2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 02:37:28 -0500
+X-RoutingDetailMGA: None determined and $ACCEPTED applied by InboundMail on OuterRail
+X-IronPort-AV: i="4.01,231,1136188800"; 
+   d="scan'208"; a="5623544:sNHT141098013"
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAA==
+X-IronPort-AV: i="4.01,231,1136188800"; 
+   d="scan'208"; a="19591323:sNHT16335326"
+Subject: [patch 1/9] mempool - Add page allocator
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: sri@us.ibm.com, andrea@suse.de, pavel@suse.cz, linux-mm@kvack.org
+References: <20060125161321.647368000@localhost.localdomain>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Wed, 25 Jan 2006 11:39:55 -0800
+Message-Id: <1138217995.2092.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-Bogosity: Ham, tests=bogofilter, spamicity=0.000000, version=0.93.5
+X-Loop: owner-majordomo@kvack.org
+X-OriginalArrivalTime: 29 Jan 2006 02:05:39.0714 (UTC) FILETIME=[807F4E20:01C62478]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Jan 2006, Willy Tarreau wrote:
+plain text document attachment (critical_mempools)
+Add another allocator to the common mempool code: a simple page allocator
 
-> Greg, there will always be stupid people who don't understand the work 
-> of others.
+This will be used by the next patch in the series to replace duplicate
+mempool-backed page allocators in 2 places in the kernel.  It is also very
+likely that there will be more users in the future.
 
-Hmmm, true, but I wouldn't call them stupid, just a bit ignorant. It's 
-incumbent upon us to manage and maintain expectations to fix that problem.
+Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
 
+ include/linux/mempool.h |    6 ++++++
+ mm/mempool.c            |   17 +++++++++++++++++
+ 2 files changed, 23 insertions(+)
 
-> I'm very glad that you take care of people who cannot easily upgrade to 
-> latest version, and I'm sure that a lot of users are too.
+Index: linux-2.6.16-rc1+critical_mempools/mm/mempool.c
+===================================================================
+--- linux-2.6.16-rc1+critical_mempools.orig/mm/mempool.c
++++ linux-2.6.16-rc1+critical_mempools/mm/mempool.c
+@@ -289,3 +289,20 @@ void mempool_free_slab(void *element, vo
+ 	kmem_cache_free(mem, element);
+ }
+ EXPORT_SYMBOL(mempool_free_slab);
++
++/*
++ * A simple mempool-backed page allocator
++ */
++void *mempool_alloc_pages(gfp_t gfp_mask, void *pool_data)
++{
++	int order = (int)pool_data;
++	return alloc_pages(gfp_mask, order);
++}
++EXPORT_SYMBOL(mempool_alloc_pages);
++
++void mempool_free_pages(void *element, void *pool_data)
++{
++	int order = (int)pool_data;
++	__free_pages(element, order);
++}
++EXPORT_SYMBOL(mempool_free_pages);
+Index: linux-2.6.16-rc1+critical_mempools/include/linux/mempool.h
+===================================================================
+--- linux-2.6.16-rc1+critical_mempools.orig/include/linux/mempool.h
++++ linux-2.6.16-rc1+critical_mempools/include/linux/mempool.h
+@@ -38,4 +38,10 @@ extern void mempool_free(void *element, 
+ void *mempool_alloc_slab(gfp_t gfp_mask, void *pool_data);
+ void mempool_free_slab(void *element, void *pool_data);
+ 
++/*
++ * A mempool_alloc_t and mempool_free_t for a simple page allocator
++ */
++void *mempool_alloc_pages(gfp_t gfp_mask, void *pool_data);
++void mempool_free_pages(void *element, void *pool_data);
++
+ #endif /* _LINUX_MEMPOOL_H */
 
-Me too. I'd never dream of criticizing Greg's efforts. He's done an 
-incredible job. I think better defining -stable will make life easier for 
-him and help us be more productive.
+--
 
-..Chuck..
-
-
--- 
-http://www.quantumlinux.com
- Quantum Linux Laboratories, LLC.
- ACCELERATING Business with Open Technology
-
- "The measure of the restoration lies in the extent to which we apply
-  social values more noble than mere monetary profit." - FDR
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/ .
+Don't email: <a href=mailto:"dont@kvack.org"> email@kvack.org </a>

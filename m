@@ -1,84 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWAYWAz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbWAYWBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932158AbWAYWAz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 17:00:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWAYWAz
+	id S932159AbWAYWBF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 17:01:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWAYWBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 17:00:55 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:46763 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751177AbWAYWAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 17:00:54 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-References: <20060117143258.150807000@sergelap>
-	<20060117155600.GF20632@sergelap.austin.ibm.com>
-	<1137513818.14135.23.camel@localhost.localdomain>
-	<1137518714.5526.8.camel@localhost.localdomain>
-	<20060118045518.GB7292@kroah.com>
-	<1137601395.7850.9.camel@localhost.localdomain>
-	<m1fyniomw2.fsf@ebiederm.dsl.xmission.com>
-	<43D14578.6060801@watson.ibm.com>
-	<m1hd7xmylo.fsf@ebiederm.dsl.xmission.com>
-	<43D52592.8080709@watson.ibm.com>
-	<m1oe22lp69.fsf@ebiederm.dsl.xmission.com>
-	<1138050684.24808.29.camel@localhost.localdomain>
-	<m1bqy2ljho.fsf@ebiederm.dsl.xmission.com>
-	<1138062125.24808.47.camel@localhost.localdomain>
-	<m17j8pl95v.fsf@ebiederm.dsl.xmission.com>
-	<1138137060.14675.73.camel@localhost.localdomain>
-	<1138137305.2977.92.camel@laptopd505.fenrus.org>
-	<m1ek2wk4ro.fsf@ebiederm.dsl.xmission.com>
-	<1138201811.8720.9.camel@lade.trondhjem.org>
-	<m1zmlki3up.fsf@ebiederm.dsl.xmission.com>
-	<1138217416.8718.10.camel@lade.trondhjem.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 25 Jan 2006 14:59:50 -0700
-In-Reply-To: <1138217416.8718.10.camel@lade.trondhjem.org> (Trond
- Myklebust's message of "Wed, 25 Jan 2006 14:30:16 -0500")
-Message-ID: <m13bjchstl.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Wed, 25 Jan 2006 17:01:05 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:11367 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751123AbWAYWBD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 17:01:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=SbbXFzg8QwUNSobaLREqA6VrXhqKHsKZg1aNhcOkkeB5oGLoOsQmPADEv464bC+ngr6POyRvqTK8HTuAZRkNDhWl4ARYN0TyqCj9z4ERzhYX/yxnRrWhg1t4vsOcb7qRzc9fgbtwsUfZyUZPLHynevAtECllKY+dznmO7GJ7Y9I=
+Message-ID: <5a2cf1f60601251401h2cced00ele307636e748b9a7b@mail.gmail.com>
+Date: Wed, 25 Jan 2006 23:01:02 +0100
+From: jerome lacoste <jerome.lacoste@gmail.com>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Albert Cahalan <acahalan@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, schilling@fokus.fraunhofer.de,
+       matthias.andree@gmx.de
+In-Reply-To: <20060125153057.GG4212@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
+	 <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
+	 <20060125144543.GY4212@suse.de>
+	 <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
+	 <20060125153057.GG4212@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> writes:
-
-> On Wed, 2006-01-25 at 11:01 -0700, Eric W. Biederman wrote:
->> fs/nfs/nfs3proc.c:nfs3_proc_create()
->> For O_EXCL we have arg.verifier = current->pid.
+On 1/25/06, Jens Axboe <axboe@suse.de> wrote:
+> On Wed, Jan 25 2006, Jan Engelhardt wrote:
+> >
+> > >
+> > >- you don't need -scanbus. If
+> > >users think they do, it's either because Joerg brain washed them or
+> > >because they have been used to that bad interface since years ago when
+> > >it was unfortunately needed.
+> >
+> > Now you're unfair.
+> > -scanbus does a nice output of what cdwriters (and other capable devices)
+> > are present. For me, that lists the cd writer and a CF slot from the
+> > multitype usb flash reader.
+> >
+> > There's one kind of not-so-advanced linux newbies that just go to walmart,
+> > buy a computer and whack a linux system on it for fun, and they still don't
+> > know if their cdrom is at /dev/hdb or /dev/hdc. Looking for dmesg is
+> > usually a nightmare for them, and apart that -scanbus lists scsi
+> > host,id,lun instead of /dev/hd* (don't comment on this kthx), it is
+> > convenient for this sort of users to find out what's available.
+> >
+> > So, and what about that compactflash reader? It is subject to dynamic
+> > usb->scsi device association (depending on when you connect it, it may
+> > either become sda, or sdb, or sdc, etc.), and -scanbus yet again provides
+> > some way (albeit not useful, because it lists scsi,id,lun rather than
+> > /dev/sd* - don't comment either) to see where it actually is.
 >
-> Yes, but that does not result in any permanent state that would be tied
-> to the pid on the server. The verifier here is used only to ensure
-> idempotency of the exclusive create RPC call.
+> You just want the device naming to reflect that. The user should not
+> need to use /dev/hda, but /dev/cdrecorder or whatever. A real user would
+> likely be using k3b or something graphical though, and just click on his
+> Hitachi/Plextor/whatever burner. Perhaps some fancy udev rules could
+> help do this dynamically even.
 >
->> fs/lockd/clntproc.c:nlmclnt_setlockargs()
->> We have:	lock->oh.len  = sprintf(req->a_owner, "%d@%s",
->> 					current->pid, system_utsname.nodename);
->> 
->> I think this is the fcntl() case.
->> I would suggest fl_pid might have something to do with it 
->> but that is part flock based locking.
+> If you are using cdrecord on the command line, you are by definition an
+> advanced user and know how to find out where that writer is.
 >
-> That name is not interpreted by the NLM server. It is, AFAIK, only used
-> for debugging purposes.
+> --
+> Jens Axboe
 
-Ok I though it might have been compared to equality someplace.
-
-> nlm_find_lockowner() is used to define a unique identifier that is
-> supposed to be sent to the server as the 'pid'.
-
-Ok interesting.
-
-All I know for certain was that with 2 pidspaces using the
-same nfs mount I was confusing something, with regards to locking.
+As an non expert who just wants his boxes to work out of the box, I
+feel that the above message best represents the issue at end.
 
 
-Eric
+
+Joerg seems to be concerned by 2 things:
+- the portability of his application accross various platforms
+- provide an end-to-end application for writing CDs from both the
+command line and to various 3rd party front ends.
+
+Providing a cross platform way to reference the devices seems to help
+him achieve that goal.
+
+
+Linux developers seem to see the world in a different way. Their main
+requirements:
+- compliance with the linux way of doing things
+- ultimately a front end should hide all the dirty details. That
+doesn't mean a command line version has to hide them as well, nor that
+cdrecord should be the interface to ask things the operating system
+can provide
+
+So it looks like:
+- from a cdrecord point ov view, Linux is broken.
+- from a Linux developers point of view, cdrecord is doing too much
+and forces things up.
+
+
+
+<very naively>
+
+As a developper with absolutely no competence in this area, I wonder
+something: I don't see why the way to refer to a device affects the
+ability to perform the functionality (write to it).
+
+Isn't it possible to reorganize the code in such a way that the
+burning part can be independent of the way the devices are referred
+to?
+
+I downloaded the code and quickly looked at it. If I am looking at the
+right version, it seems that the cdrecord code that relates to both cd
+burning + the Linux specific part is not that big (and very readable,
+thanks Joerg). So I really don't understand why this issue doesn't get
+fixed.
+
+</very naively>
+
+
+
+As with the communication problems between Joerg and the Linux
+developers, if someone was stepping up to be the bridge betweem the 2
+parties, couldn't that minimize the risk of flame wars?
+
+cdrecord, how important is Linux to you?
+Linux, how important is cdrecord to you?
+
+If you 2 can't get along, just divorce! It's 2006 after all. And the
+code is open.
+Otherwise, talk together or use a counsellor and make this relationship work.
+
+Jerome

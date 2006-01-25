@@ -1,74 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWAYTBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbWAYTEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWAYTBo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 14:01:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWAYTBo
+	id S1750759AbWAYTEX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 14:04:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWAYTEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 14:01:44 -0500
-Received: from master.soleranetworks.com ([67.137.28.188]:13003 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S932120AbWAYTBn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 14:01:43 -0500
-Message-ID: <43D7B20D.7040203@wolfmountaingroup.com>
-Date: Wed, 25 Jan 2006 10:14:53 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc Perkel <marc@perkel.com>
-Cc: Patrick McLean <pmclean@cs.ubishops.ca>,
-       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <43D114A8.4030900@wolfmountaingroup.com> <20060120111103.2ee5b531@dxpl.pdx.osdl.net> <43D13B2A.6020504@cs.ubishops.ca> <43D7C780.6080000@perkel.com>
-In-Reply-To: <43D7C780.6080000@perkel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Jan 2006 14:04:23 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:53516 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1750759AbWAYTEW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 14:04:22 -0500
+Date: Wed, 25 Jan 2006 20:04:21 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060125190421.GA97803@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner> <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060125173127.GR4212@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Perkel wrote:
+On Wed, Jan 25, 2006 at 06:31:27PM +0100, Jens Axboe wrote:
+> In fact it would be a _lot_ easier to just scan sysfs and do an inquiry
+> on potentially useful devices.
 
->
->
-> Patrick McLean wrote:
->
->> Stephen Hemminger wrote:
->>
->>
->> Also, given that several of the copyright holders in the kernel are 
->> dead, I don't think we will be able to obtain permission.
->>
->>
->
-> Makes me wonder if something should be done to address the issue of 
-> dead copyright holders. Not sure what but maybe there should be a 
-> clause in GPL3 addressing that?
+Serious question, what and how?  If I scan /sys/block for example for
+potential candidates, that won't give me the devices or tell me the
+name udev decided to use for it in /dev.
 
+And I'm not sure how to know if something is cdrom-ish and SG_IO able
+from sysfs.  Should I filter on driver name?  But then, I don't know
+which names are acceptable (*cdrom* ?)...
 
-Their heirs would have two years to bring a cause of action if they 
-object.  Proper notice could be served by posting a notice on the 
-internet at kernel.org
-that their code is being redistributed under GPL3.  I note that the 
-general notice in the code states "GPL2 or any later version of the 
-license".  Given this
-language, it is highly likely the remaining code can proceed under a new 
-license without incident since it can be assumed they already agreed by
-having this general notice posted at kernel.org for many years.   I 
-think the point is moot.  Legally, there is exposure if their successors 
-or owners
-of their estates bring action.  Those outside the US would of course be 
-subject to the laws of their jurisdiction.  An attorney at FSF needs to 
-review their
-code and render an opinion, but I think it will not be a problem.
+Or maybe I should go through the fad-of-the-day, hal/dbus?
 
-Jeff
-
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+  OG.

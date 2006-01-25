@@ -1,55 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWAYKY6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbWAYKYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751087AbWAYKY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 05:24:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWAYKY6
+	id S1751061AbWAYKYe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 05:24:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWAYKYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 05:24:58 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26276 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751087AbWAYKY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 05:24:57 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Fernando Luis Vazquez Cao <fernando@intellilink.co.jp>, ak@suse.de,
-       vgoyal@in.ibm.com, linux-kernel@vger.kernel.org,
-       fastboot@lists.osdl.org
-Subject: Re: [PATCH 1/5] stack overflow safe kdump (2.6.16-rc1-i386) -
- safe_smp_processor_id
-References: <1138171868.2370.62.camel@localhost.localdomain>
-	<20060124231052.7c9fcbec.akpm@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 25 Jan 2006 03:23:40 -0700
-In-Reply-To: <20060124231052.7c9fcbec.akpm@osdl.org> (Andrew Morton's
- message of "Tue, 24 Jan 2006 23:10:52 -0800")
-Message-ID: <m1acdkk3mb.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Wed, 25 Jan 2006 05:24:34 -0500
+Received: from smtp3-g19.free.fr ([212.27.42.29]:27273 "EHLO smtp3-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751061AbWAYKYd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 05:24:33 -0500
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: mchehab@brturbo.com.br
+Subject: [PATCH] bttv: correct bttv_risc_packed buffer size
+Date: Wed, 25 Jan 2006 11:24:27 +0100
+User-Agent: KMail/1.9.1
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_cH11D22lqYSaiQl"
+Message-Id: <200601251124.28392.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+--Boundary-00=_cH11D22lqYSaiQl
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> It assumes that all x86 SMP machines have APICs.  That's untrue of Voyager.
-> I think we can probably live with this assumption - others would know
-> better than I.
+This patch fixes the strange crashes I was seeing after using
+my bttv card to watch television.  They were caused by a
+buffer overflow in bttv_risc_packed.
 
-So looking at the code hard_smp_processor_id is fine.  Voyager
-also implements that.
+The instruction buffer size calculation contains two errors:
+(a) a non-zero padding value can push the start of the next bpl
+section to just before a page border, leading to more scanline
+splits and thus additional instructions.
+(b) the first DMA region can be smaller than one page, so there can
+be a scanline split even if bpl*lines is smaller than PAGE_SIZE.
 
-If we are running UP with an SMP kernel we are fine.
+For example, consider the case where offset is 0, bpl is 2, padding
+is 4094, lines is smaller than 2048, the first DMA region has size 1
+and all others have size PAGE_SIZE, assumed to equal 4096.  Then
+all bpl regions cross page borders and the number of instructions
+written is 2*lines+2, rather than lines+2 (the current estimate).
+With this patch the number of instructions for this example is
+estimated to be 2*lines+3.
 
-But I think x86_cpu_to_apicid will get us into trouble
-on Voyager, because I don't think we should compile smpboot.c
-as it has conflicting simples with voyager_smp.c
+Also, the BUG_ON that was supposed to catch buffer overflows contained
+a thinko causing it fire only if the buffer was overrun by a factor of
+16 or more.
 
-Although reading the makefile I don't see how we can avoid
-compiling them both in SMP mode.
+I didn't check whether similar mistakes exist elsewhere in the bttv
+code.
 
-Everything else has a local apic when running SMP so we should
-be good there.
+Signed-off-by: Duncan Sands <baldrick@free.fr>
 
-Eric
+PS: I'm sending the patch as an attachment because for some reason my
+mailer crashes if I try to insert it into the email.
 
+--Boundary-00=_cH11D22lqYSaiQl
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="bttv"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="bttv"
 
+Index: Linux/drivers/media/video/bttv-risc.c
+===================================================================
+--- Linux.orig/drivers/media/video/bttv-risc.c	2006-01-24 10:09:21.000000000 +0100
++++ Linux/drivers/media/video/bttv-risc.c	2006-01-24 10:16:06.000000000 +0100
+@@ -51,8 +51,10 @@
+ 	int rc;
+ 
+ 	/* estimate risc mem: worst case is one write per page border +
+-	   one write per scan line + sync + jump (all 2 dwords) */
+-	instructions  = (bpl * lines) / PAGE_SIZE + lines;
++	   one write per scan line + sync + jump (all 2 dwords).  padding
++	   can cause next bpl to start close to a page border.  First DMA
++	   region may be smaller than PAGE_SIZE */
++	instructions  = 1 + ((bpl + padding) * lines) / PAGE_SIZE + lines;
+ 	instructions += 2;
+ 	if ((rc = btcx_riscmem_alloc(btv->c.pci,risc,instructions*8)) < 0)
+ 		return rc;
+@@ -104,7 +106,7 @@
+ 
+ 	/* save pointer to jmp instruction address */
+ 	risc->jmp = rp;
+-	BUG_ON((risc->jmp - risc->cpu + 2) / 4 > risc->size);
++	BUG_ON(4 * (risc->jmp - risc->cpu + 2) > risc->size);
+ 	return 0;
+ }
+ 
 
+--Boundary-00=_cH11D22lqYSaiQl--

@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWAYREO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWAYRIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbWAYREO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 12:04:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWAYREO
+	id S932073AbWAYRIK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 12:08:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbWAYRIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 12:04:14 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:47305 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932072AbWAYREN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 12:04:13 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Wed, 25 Jan 2006 18:03:18 +0100
-To: jengelh@linux01.gwdg.de, axboe@suse.de
-Cc: schilling@fokus.fraunhofer.de, rlrevell@joe-job.com,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43D7AF56.nailDFJ882IWI@burner>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
- <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
- <20060125144543.GY4212@suse.de>
- <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
- <20060125153057.GG4212@suse.de>
-In-Reply-To: <20060125153057.GG4212@suse.de>
-User-Agent: nail 11.2 8/15/04
+	Wed, 25 Jan 2006 12:08:09 -0500
+Received: from mail.gmx.net ([213.165.64.21]:39130 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932073AbWAYRII (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 12:08:08 -0500
+X-Authenticated: #428038
+Message-ID: <43D7B075.6000602@gmx.de>
+Date: Wed, 25 Jan 2006 18:08:05 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: Kyle Moffett <mrmacman_g4@mac.com>
+CC: Joerg Schilling <schilling@fokus.fraunhofer.de>, rlrevell@joe-job.com,
+       linux-kernel@vger.kernel.org, acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43D7A7F4.nailDE92K7TJI@burner> <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
+In-Reply-To: <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
+Kyle Moffett wrote:
+> On Jan 25, 2006, at 11:31, Joerg Schilling wrote:
+>> Albert Cahalan <acahalan@gmail.com> wrote:
+>>> We Linux users will forever patch your software to work the
+>>
+>> Looks like you are not a native English speaker. "We" is incorrect 
+>> here, as you only speak for yourself.
+> 
+> I agree completely with his statements, therefore he speaks for at 
+> least two people and "we" is proper usage.  I suspect given the posts 
+> on this list the last time this flamewar came up that there are more  as
+> well, but 2 is enough.
+> 
+>> libscg includes...
+> 
+> Irrelevant to the discussion at hand, we are talking only about linux 
+> and what should be done on linux.
 
-> You just want the device naming to reflect that. The user should not
-> need to use /dev/hda, but /dev/cdrecorder or whatever. A real user would
-> likely be using k3b or something graphical though, and just click on his
-> Hitachi/Plextor/whatever burner. Perhaps some fancy udev rules could
-> help do this dynamically even.
+Well, cdrecord relies on libscg, so in effect most of the portability code
+that is affected is in libscg; some of the real-time code however is
+specific to cdrecord.
 
-Guess why cdrecord -scanbus is needed.
+>> - Only 5 of them allow a /dev/hd* device name related access.
+> 
+> No, you have this wrong:
+> 
+> - One of them (IE: Linux) requires a /dev/[hs]d* device-name related 
+> access
 
-It serves the need of GUI programs for cdrercord and allows them to retrieve 
-and list possible drives of interest in a platform independent way.
+/dev/sd* for CD writing? I think you're off track here. AFAICS cdrecord uses
+/dev/sg* to access the writer.
 
-Jörg
+> - Only 4 others allow /dev/hd*
+> 
+> However, the later is _completely_ _irrelevant_ to the discussion, as 
+> we are talking about Linux *only*.
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+This, and if the code can then be used on other platforms, then there is
+little point in calling the Linux /dev/hd* device "badly designed", unless
+there were problems with it that prevented cdrecord (or libscg, for pxupdate
+or something like that) from working properly.
+
+So I'll repeat my question: is there anything that SG_IO to /dev/hd* (via
+ide-cd) cannot do that it can do via /dev/sg*? Device enumeration doesn't count.
+
+The numbers we get from ide-scsi for ATAPI writers are skewed anyhow, I'm
+getting 1,0,0 for a SATA hard disk, 2,0,0 for secondary master
+DVD-RAM/±R[W], 3,0,0 for secondary slave CD-RW... I wonder why these could
+be desirable, and if they are really as static as they pretend to be. I
+doubt that, their numbers depend on the order of driver loading.

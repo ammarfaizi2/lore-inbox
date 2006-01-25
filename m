@@ -1,148 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbWAYQxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbWAYQ4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750923AbWAYQxc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 11:53:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750919AbWAYQxc
+	id S1750925AbWAYQ4S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 11:56:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750955AbWAYQ4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 11:53:32 -0500
-Received: from xenotime.net ([66.160.160.81]:30095 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750821AbWAYQxb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 11:53:31 -0500
-Date: Wed, 25 Jan 2006 08:53:28 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Ed Sweetman <safemode@comcast.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: 2.6.16-rc1-mm2 pata driver confusion
-Message-ID: <Pine.LNX.4.58.0601250846210.29859@shark.he.net>
+	Wed, 25 Jan 2006 11:56:18 -0500
+Received: from wproxy.gmail.com ([64.233.184.201]:56864 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750925AbWAYQ4S convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 11:56:18 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=WAhUcrL9ziUoFkRmZuqyyr1wDijZdFVIdz/MchCS6rL8M5+v4TGeb/XDdZVWr7Inm/Bstx1LWR6ysXkyd8DRImkzeSmPhL1d9GFeH6wUSuv1F9cee5OAqAH/vncIFMurLRR15HAOhi6cGNHGPlvSDKdzpkn9gawl6mL7u+qtCdI=
+Message-ID: <7f45d9390601250856n4adbdf1dvb967545155f0e341@mail.gmail.com>
+Date: Wed, 25 Jan 2006 09:56:16 -0700
+From: Shaun Jackman <sjackman@gmail.com>
+Reply-To: Shaun Jackman <sjackman@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Replaying a list of blocks into the cache (BootCache)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm attempting to speed up the boot of an embedded system. I've found
+that forcing certain key shared libraries to cache early by copying
+them from the file system to a tmpfs early in the boot made a big
+difference -- on the order of twenty seconds. I'm not even accessing
+these shared libraries from the tmpfs; I'm just using this trick to
+make sure the libraries stay in memory. Seeing what a big difference
+this simple trick made, I wanted to see what else I could accomplish
+by making use of the file system cache.
 
-(sorry about breaking the threading)
+This made me think of the OS X BootCache feature, which saves the list
+of disk  blocks accessed during the boot sequence and replays that
+list on the next boot. Is there anything like this in Linux?
 
-On 1/24/06, Ed Sweetman <safemode@comcast.net> wrote:
-> Randy.Dunlap wrote:
->
-> >On Tue, 24 Jan 2006, Ed Sweetman wrote:
-> >
-> >
-> >>Randy.Dunlap wrote:
-> >>
-> >>
-> >>>On Tue, 24 Jan 2006, Ed Sweetman wrote:
-> >>>
-> >>>
-> >>>>Alan Cox wrote:
-> >>>>
-> >>>>
-> >>>>>On Maw, 2006-01-24 at 01:43 -0500, Ed Sweetman wrote:
-> >>>>>
-> >>>>>
-> >>>>>>problem.  The problem is that there appears to be two nvidia/amd ata
-> >>>>>>drivers and I'm unsure which I should try using, if i compile both in,
-> >>>>>>which get loaded first (i assume scsi is second to ide) and if i want my
-> >>>>>>pata disks loaded under the new libata drivers, will my cdrom work under
-> >>>>>>them too, or do i still need some sort of regular ide drivers loaded
-> >>>>>>just for cdrom (to use native ata mode for recording access).
-> >>>>>>
-> >>>>>>
-> >>>>>The goal of the drivers/scsi/pata_* drivers is to replace drivers/ide in
-> >>>>>its entirity with code using the newer and cleaner libata logic. There
-> >>>>>is still much to do but my SIL680, SiS, Intel MPIIX, AMD and VIA boxes
-> >>>>>are using libata and the additional patch patches still queued
-> >>>>>
-> >>>>>
-> >>>>>>1.  Atapi is most definitely not supported by libata, right now.
-> >>>>>>
-> >>>>>>
-> >>>>>It works in the -mm tree.
-> >>>>>
-> >>>>>
-> >>>>Intriguing, when I had no ide chipset compiled in kernel, only libata
-> >>>>drivers, I got no mention at all about my dvd writer.  I even had the
-> >>>>scsi cd driver installed and generic devices, still nothing seemed to
-> >>>>initialize the dvd drive.  It detected the second pata bus but no
-> >>>>devices attached to it.
-> >>>>
-> >>>>this is using the kernel mentioned in the subject header.
-> >>>>2.6.16-rc1-mm2.  using the amd/nvidia drivers for pata and sata.
-> >>>>
-> >>>>Is there anything i can do to give more info to the list to figure out
-> >>>>why my atapi writer is being ignored by pata even when there are no ide
-> >>>>drivers loaded?
-> >>>>
-> >>>>
-> >>>Currently you need to use libata.atapi_enabled=1
-> >>>(assuming that libata is in the kernel image, not a loadable module).
-> >>>
-> >>>I just built/tested this also, working for me as well.
-> >>>(hard drives, not ATAPI)
-> >>>
-> >>>
-> >>I assume libata.atapi_enabled=1 is a boot arg, not some structure member
-> >>in the source for the pata driver that i need to set to 1, correct?
-> >>
-> >
-> >Yes, it's a kernel boot option if libata is in the kernel image.
-> >If libata is a loadable module, just use something like
-> >       modprobe libata atapi_enabled=1
-> >
-> >
-> >>And you just built and tested it, how did you test if the atapi argument
-> >>worked when you then say "not ATAPI" as something you tested?
-> >>
-> >
-> >Sorry, I mean that I built and booted a kernel with libata/PATA
-> >hard drive (vs. legacy drivers/ide/ PATA support).  I have not
-> >tested ATAPI at all and didn't mean to imply that I had.
-> >
-> >I reported on libata.atapi_enabled=1 based on documentation
-> >and other emails that I have read.
-> >
-> >
-> >>In any case, i'll try out libata.atapi_enabled=1 and see if it detects
-> >>the dvd drive.
-> >>
-> >
-> >HTH.  Please continue to post any questions or problems.
-> >
->
-> I Rebooted several times, both setting the option in the kernel boot
-> args and editing the source to have it set by default.  No atapi devices
-> are found/mentioned or even described as not found in dmesg/bootup.   So
-> apparently, on my chipset, the amd/nvidia pata driver is not detecting
-> atapi devices.
->
-> 0000:00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2)
-> 0000:00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA
-> Controller (rev f3)
-> 0000:00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA
-> Controller (rev f3)
->
-> 0000:00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2)
-> (prog-if 8a [Master SecP PriP])
->         Subsystem: Unknown device f043:815a
->         Flags: bus master, 66MHz, fast devsel, latency 0
->         I/O ports at f000 [size=16]
->         Capabilities: [44] Power Management version 2
->
->
-> the atapi device in question is a plextor px-712A, it's the only device
-> on the secondary channel.
-
-And this is with using only ATA (libata) drivers in drivers/scsi/
-and not ATA drivers in drivers/ide/, right?
-
-Hm.  I guess we treat this as a bug report for NV ATA/ATAPI then.
-
-I just tested my system with a Plextor PX-712SA drive plus
-booting with libata.atapi_enabled=1 and the driver (not nv)
-sees the ATAPI drive and can read it.
-
--- 
-~Randy
+Please cc me in your reply. Thanks!
+Shaun

@@ -1,54 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWAYXO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWAYXQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbWAYXO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 18:14:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWAYXO2
+	id S932212AbWAYXQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 18:16:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWAYXQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 18:14:28 -0500
-Received: from mail.gmx.net ([213.165.64.21]:56721 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932211AbWAYXO1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 18:14:27 -0500
-X-Authenticated: #428038
-Date: Thu, 26 Jan 2006 00:14:22 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Matthias Andree <matthias.andree@gmx.de>, grundig@teleline.es,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       jengelh@linux01.gwdg.de, linux-kernel@vger.kernel.org,
-       acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060125231422.GB2137@merlin.emma.line.org>
-Mail-Followup-To: Jens Axboe <axboe@suse.de>, grundig@teleline.es,
-	Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	jengelh@linux01.gwdg.de, linux-kernel@vger.kernel.org,
-	acahalan@gmail.com
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner> <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <20060125182552.GB4212@suse.de>
-MIME-Version: 1.0
+	Wed, 25 Jan 2006 18:16:58 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:36019 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S932212AbWAYXQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 18:16:57 -0500
+Date: Wed, 25 Jan 2006 15:16:54 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [patch] Avoid use of spinlock for percpu_counter
+Message-ID: <20060125231654.GB3658@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060125182552.GB4212@suse.de>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(stripped Lee from the Cc: list)
+The spinlock in struct percpu_counter protects just one counter.  It's
+not obvious why it was done this way (I am guessing it was because earlier,
+atomic_t was guaranteed 24 bits only on some arches).  Since we have
+atomic_long_t now, I don't see why this cannot be replaced with an atomic_t.
 
-Jens Axboe schrieb am 2006-01-25:
+Comments?
 
-> > Hm. sysfs, procfs, udev, hotplug, netlink (for IPv6) - this all looks rather
-> > complicated and non-portable. I understand that applications that can just
-> > open every device and send SCSI INQUIRY might want to do that on Linux, too.
-> 
-> Certainly, I'm just suggesting a better way to do it on Linux.
-
-Great. There's a better way, but it is not necessary. Let Linux-specific
-applications use it for their benefit, but a portable application isn't
-going that way because it's too much effort. If a simpler interface that
-can be shared with half a dozen other system exists, the portable
-application will use that and ignore better interfaces.
-
--- 
-Matthias Andree
+Index: linux-2.6.16-rc1/include/linux/percpu_counter.h
+===================================================================
+--- linux-2.6.16-rc1.orig/include/linux/percpu_counter.h	2006-01-24 13:52:24.000000000 -0800
++++ linux-2.6.16-rc1/include/linux/percpu_counter.h	2006-01-24 14:10:26.000000000 -0800
+@@ -15,8 +15,7 @@
+ #ifdef CONFIG_SMP
+ 
+ struct percpu_counter {
+-	spinlock_t lock;
+-	long count;
++	atomic_long_t count;
+ 	long *counters;
+ };
+ 
+@@ -28,8 +27,7 @@ struct percpu_counter {
+ 
+ static inline void percpu_counter_init(struct percpu_counter *fbc)
+ {
+-	spin_lock_init(&fbc->lock);
+-	fbc->count = 0;
++	atomic_long_set(&fbc->count, 0);
+ 	fbc->counters = alloc_percpu(long);
+ }
+ 
+@@ -42,7 +40,7 @@ void percpu_counter_mod(struct percpu_co
+ 
+ static inline long percpu_counter_read(struct percpu_counter *fbc)
+ {
+-	return fbc->count;
++	return atomic_long_read(&fbc->count);
+ }
+ 
+ /*
+@@ -51,7 +49,7 @@ static inline long percpu_counter_read(s
+  */
+ static inline long percpu_counter_read_positive(struct percpu_counter *fbc)
+ {
+-	long ret = fbc->count;
++	long ret = atomic_long_read(&fbc->count);
+ 
+ 	barrier();		/* Prevent reloads of fbc->count */
+ 	if (ret > 0)
+Index: linux-2.6.16-rc1/mm/swap.c
+===================================================================
+--- linux-2.6.16-rc1.orig/mm/swap.c	2006-01-17 14:12:17.000000000 -0800
++++ linux-2.6.16-rc1/mm/swap.c	2006-01-24 14:23:20.000000000 -0800
+@@ -449,9 +449,7 @@ void percpu_counter_mod(struct percpu_co
+ 	pcount = per_cpu_ptr(fbc->counters, cpu);
+ 	count = *pcount + amount;
+ 	if (count >= FBC_BATCH || count <= -FBC_BATCH) {
+-		spin_lock(&fbc->lock);
+-		fbc->count += count;
+-		spin_unlock(&fbc->lock);
++		atomic_long_add(count, &fbc->count);
+ 		count = 0;
+ 	}
+ 	*pcount = count;

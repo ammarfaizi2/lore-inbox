@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWAYSQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWAYSQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbWAYSQY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 13:16:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbWAYSQY
+	id S932089AbWAYSQT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 13:16:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWAYSQS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 13:16:24 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:22686 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932088AbWAYSQX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 13:16:23 -0500
-Subject: Re: 2.6.16-rc1-mm3
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <43D7AB49.2010709@shadowen.org>
-References: <20060124232406.50abccd1.akpm@osdl.org>
-	 <43D785E1.4020708@shadowen.org>
-	 <84144f020601250644h6ca4e407q2e15aa53b50ef509@mail.gmail.com>
-	 <43D7AB49.2010709@shadowen.org>
-Date: Wed, 25 Jan 2006 20:16:21 +0200
-Message-Id: <1138212981.8595.6.camel@localhost>
+	Wed, 25 Jan 2006 13:16:18 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:43524 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932079AbWAYSQS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 13:16:18 -0500
+Date: Wed, 25 Jan 2006 19:18:30 +0100
+From: Jens Axboe <axboe@suse.de>
+To: linux-ide@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ANN: SiI opens more SATA chipsets
+Message-ID: <20060125181830.GY4212@suse.de>
+References: <20060125154920.GE14225@havoc.gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.2.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060125154920.GE14225@havoc.gtf.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-25 at 16:46 +0000, Andy Whitcroft wrote:
-> Pekka Enberg wrote:
-> > Does reverting the following patch make the panic go away?
-> > 
-> > http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm3/broken-out/slab-cache_estimate-cleanup.patch
+On Wed, Jan 25 2006, Jeff Garzik wrote:
 > 
-> No luck with that one ... I'll try the others you suggested.
+> Silicon Image has kindly granted permission to me, to post hardware
+> documentation for the 3114 and 3124 chipsets:
+> 
+> http://gkernel.sourceforge.net/specs/sii/DS-0103A_3114.pdf.bz2
+> http://gkernel.sourceforge.net/specs/sii/SiI-DS-0113_3124-1_full.pdf.bz2
+> 
+> I'll update the SATA web pages, to add to the list of open chipsets,
+> when I return from my current biz trip.
 
-Does vanilla 2.6.16-rc1 work for you? The oops definitely makes me think
-it's slab related but the other patches don't seem likely suspects.
+Great news! That opens the door for sil ncq support as well.
 
-			Pekka
+-- 
+Jens Axboe
 

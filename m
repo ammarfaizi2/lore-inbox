@@ -1,39 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWAYDO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbWAYDRF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbWAYDO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 22:14:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbWAYDO6
+	id S1750992AbWAYDRF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 22:17:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbWAYDRF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 22:14:58 -0500
-Received: from teetot.devrandom.net ([66.35.250.243]:64645 "EHLO
-	teetot.devrandom.net") by vger.kernel.org with ESMTP
-	id S1750990AbWAYDO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 22:14:58 -0500
-Date: Tue, 24 Jan 2006 19:17:38 -0800
-From: thockin@hockin.org
-To: Prakash Punnoor <prakash@punnoor.de>
+	Tue, 24 Jan 2006 22:17:05 -0500
+Received: from uproxy.gmail.com ([66.249.92.206]:22103 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750992AbWAYDRE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jan 2006 22:17:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Ehc9TnxNsFcWwzwr8CKOhRvLwGj2tow/JwNlsULOaqIMakc55YmKEjADV1Y6GniGasET8PipnWMJGn5gwdkh3hUkN/2v7W5O33zKzyz46eqSQV5WGQ+S8dHxzjFqkKOHlIBngCUMilbWLw9aKSzrSgM+9JVdoaf6xZYD6ah4rDs=
+Message-ID: <1e62d1370601241917l4c53cf3fud34835c4dc5c1526@mail.gmail.com>
+Date: Wed, 25 Jan 2006 08:17:02 +0500
+From: Fawad Lateef <fawadlateef@gmail.com>
+To: Joshua Hudson <joshudson@gmail.com>
+Subject: Re: Block device API
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: AMD64, 4GB, mttr questions
-Message-ID: <20060125031738.GA8656@hockin.org>
-References: <200601241433.50625.prakash@punnoor.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <bda6d13a0601241858g260b915bs5370d34ac90321de@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200601241433.50625.prakash@punnoor.de>
-User-Agent: Mutt/1.4.1i
+References: <bda6d13a0601241858g260b915bs5370d34ac90321de@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 24, 2006 at 02:33:46PM +0100, Prakash Punnoor wrote:
-> I have a machine with 4GB RAM, an Athlon64 X2 and following mttr entries:
-> 
-> reg00: base=0x00000000 (   0MB), size=4096MB: write-back, count=1
-> reg01: base=0x100000000 (4096MB), size=2048MB: write-back, count=1
-> reg02: base=0x80000000 (2048MB), size=2048MB: uncachable, count=1
-> 
-> First of all, why is there an uncachable region? Is it the upper half of 
-> memory? Or is this just a hole and the remaining 2GB are seated at 
-> 0x100000000 ?
+On 1/25/06, Joshua Hudson <joshudson@gmail.com> wrote:
+> I am working on a kernel filesystem driver. I have found plenty of
+> documentation on
+> how to communicate between the VFS and the filesystem driver, but nothing
+> on how to communicate between the block device and the filesystem driver.
+>
 
-That's the IO hole between 2 and 4 GB.  Your setup looks fine to me.  It's
-perfectly valid to have an uncacheable region overlap a write-back region.
+AFAIK there isn't any documentation/article for block and filesystem
+layer interaction (or till now me also not able to find any) :)
+
+> I found sb_bread() but there is no corrisponding sb_bwrite().
+> I presume that if ((struct superblock *)s) -> bdev is the block
+> device handle, but I cannot find the read/write pair of functions.
+> -
+
+sb_bread is the function used for reading a block (especially
+superblock) from the storage. For reading/writing do look at
+generic_file_read/write functions found in mm/filemap.c and when going
+through the code you will see its ends up in calling
+mappings->a_ops->readpage(s)/writepage(s) of filesystem in which
+normal filesystems (like ext2) just call function
+mpage_readpages/writepages found in fs/mpage.c which performs actual
+read/write on the block device.
+
+I hope this helps !
+
+--
+Fawad Lateef

@@ -1,67 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWAYPLO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWAYPOD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbWAYPLO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 10:11:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWAYPLO
+	id S1751225AbWAYPOD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 10:14:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbWAYPOD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 10:11:14 -0500
-Received: from pat.uio.no ([129.240.130.16]:23270 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751214AbWAYPLN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 10:11:13 -0500
-Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
-       "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Cedric Le Goater <clg@fr.ibm.com>
-In-Reply-To: <m1ek2wk4ro.fsf@ebiederm.dsl.xmission.com>
-References: <20060117143258.150807000@sergelap>
-	 <20060117143326.283450000@sergelap>
-	 <1137511972.3005.33.camel@laptopd505.fenrus.org>
-	 <20060117155600.GF20632@sergelap.austin.ibm.com>
-	 <1137513818.14135.23.camel@localhost.localdomain>
-	 <1137518714.5526.8.camel@localhost.localdomain>
-	 <20060118045518.GB7292@kroah.com>
-	 <1137601395.7850.9.camel@localhost.localdomain>
-	 <m1fyniomw2.fsf@ebiederm.dsl.xmission.com>
-	 <43D14578.6060801@watson.ibm.com>
-	 <m1hd7xmylo.fsf@ebiederm.dsl.xmission.com>
-	 <43D52592.8080709@watson.ibm.com>
-	 <m1oe22lp69.fsf@ebiederm.dsl.xmission.com>
-	 <1138050684.24808.29.camel@localhost.localdomain>
-	 <m1bqy2ljho.fsf@ebiederm.dsl.xmission.com>
-	 <1138062125.24808.47.camel@localhost.localdomain>
-	 <m17j8pl95v.fsf@ebiederm.dsl.xmission.com>
-	 <1138137060.14675.73.camel@localhost.localdomain>
-	 <1138137305.2977.92.camel@laptopd505.fenrus.org>
-	 <m1ek2wk4ro.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Wed, 25 Jan 2006 10:10:11 -0500
-Message-Id: <1138201811.8720.9.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.028, required 12,
-	autolearn=disabled, AWL 1.78, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+	Wed, 25 Jan 2006 10:14:03 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:30683 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1751225AbWAYPOB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 10:14:01 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Wed, 25 Jan 2006 16:13:00 +0100
+To: matthias.andree@gmx.de, jengelh@linux01.gwdg.de
+Cc: schilling@fokus.fraunhofer.de, rlrevell@joe-job.com,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43D7957C.nailD7861G8B8@burner>
+References: <1138014312.2977.37.camel@laptopd505.fenrus.org>
+ <20060123165415.GA32178@merlin.emma.line.org>
+ <1138035602.2977.54.camel@laptopd505.fenrus.org>
+ <20060123180106.GA4879@merlin.emma.line.org>
+ <1138039993.2977.62.camel@laptopd505.fenrus.org>
+ <20060123185549.GA15985@merlin.emma.line.org>
+ <43D530CC.nailC4Y11KE7A@burner> <1138048255.21481.15.camel@mindpipe>
+ <20060123212119.GI1820@merlin.emma.line.org>
+ <Pine.LNX.4.61.0601241823390.28682@yvahk01.tjqt.qr>
+ <20060124181813.GA30863@merlin.emma.line.org>
+In-Reply-To: <20060124181813.GA30863@merlin.emma.line.org>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-01-25 at 02:58 -0700, Eric W. Biederman wrote:
-> >> On Maw, 2006-01-24 at 12:26 -0700, Eric W. Biederman wrote:
-> >> > There is at least NFS lockd that appreciates having a single integer
-> >> > per process unique identifier.  So there is a practical basis for
-> >> > wanting such a thing.
+Matthias Andree <matthias.andree@gmx.de> wrote:
 
-The NFS lock manager mainly wants a unique 32-bit identifier that can
-follow clone(CLONE_FILES). The reason is that the Linux VFS is forced to
-use the pointer to the file table as the "process identifier" for posix
-locks (i.e. fcntl() locks).
+> cdrecord simply assumes that if you don't have access to /dev/hda,
+> scanning the other devices is pointless, on the assumption it were a
+> security risk. How this fits into user profiles that might allow access
+> to /dev/hdc, is unclear to me.
 
-Cheers,
-  Trond
+Wrong: cdrecord asumes nothing. It is the SCSI Generic transport library libscg.
 
+Note that libscg does not offer access to a block layer device like /dev/hd* 
+but rather to the transport layer _below_ /dev/hd*. If you ignore this fact you 
+will have problems to understand the rules.
+
+> > If you can access a _harddisk_ as a normal user, you _do have_ a security 
+> > problem. If you can access a cdrom as normal user, well, the opinions 
+> > differ here. I think you _should not either_, because it might happen that 
+> > you just left your presentation cd in a cdrom device in a public box. You 
+> > would certainly not want to have everyone read that out.
+>
+> That's less of a problem than sending vendor-specific commands - one
+> might be "update firmware", which would allow the user to destroy the
+> drive.
+
+I am not sure whether you understood the problem here. Cdrtools need to deal 
+with a lot of vendor specific commands. 
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

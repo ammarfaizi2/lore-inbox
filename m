@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWAYIh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbWAYIi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750934AbWAYIh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 03:37:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbWAYIh1
+	id S1750939AbWAYIi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 03:38:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWAYIi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 03:37:27 -0500
-Received: from [218.25.172.144] ([218.25.172.144]:58629 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S1750932AbWAYIh0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 03:37:26 -0500
-Date: Wed, 25 Jan 2006 16:37:28 +0800
-From: Coywolf Qi Hunt <qiyong@fc-cn.com>
-To: Fawad Lateef <fawadlateef@gmail.com>
-Cc: Joshua Hudson <joshudson@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Block device API
-Message-ID: <20060125083728.GA16593@localhost.localdomain>
-References: <bda6d13a0601241858g260b915bs5370d34ac90321de@mail.gmail.com> <1e62d1370601241917l4c53cf3fud34835c4dc5c1526@mail.gmail.com>
+	Wed, 25 Jan 2006 03:38:58 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:57993 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1750937AbWAYIi6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 03:38:58 -0500
+Message-ID: <43D73913.9070200@cosmosbay.com>
+Date: Wed, 25 Jan 2006 09:38:43 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1e62d1370601241917l4c53cf3fud34835c4dc5c1526@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] convert a for (i = 0 ; i < NR_CPUS ; i++) to for_each_cpu(i)
+  in sched_init()
+References: <20060124232406.50abccd1.akpm@osdl.org>
+In-Reply-To: <20060124232406.50abccd1.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------060106030706000109090705"
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Wed, 25 Jan 2006 09:38:43 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25, 2006 at 08:17:02AM +0500, Fawad Lateef wrote:
-> On 1/25/06, Joshua Hudson <joshudson@gmail.com> wrote:
-> > I am working on a kernel filesystem driver. I have found plenty of
-> > documentation on
-> > how to communicate between the VFS and the filesystem driver, but nothing
-> > on how to communicate between the block device and the filesystem driver.
-> >
-> 
-> AFAIK there isn't any documentation/article for block and filesystem
-> layer interaction (or till now me also not able to find any) :)
-> 
-> > I found sb_bread() but there is no corrisponding sb_bwrite().
-> > I presume that if ((struct superblock *)s) -> bdev is the block
-> > device handle, but I cannot find the read/write pair of functions.
-> > -
-> 
-> sb_bread is the function used for reading a block (especially
-> superblock) from the storage. For reading/writing do look at
+This is a multi-part message in MIME format.
+--------------060106030706000109090705
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Does __bread() contribute to page cache? I think not. And we don't
-care the work done by __bread().
+This one was not triggered by yesterday patch : My test machine doesnt crash 
+when dereferencing (runqueue_t *)0x3420, I wonder why ?
 
-> generic_file_read/write functions found in mm/filemap.c and when going
-> through the code you will see its ends up in calling
-> mappings->a_ops->readpage(s)/writepage(s) of filesystem in which
-> normal filesystems (like ext2) just call function
-> mpage_readpages/writepages found in fs/mpage.c which performs actual
-> read/write on the block device.
--- 
-Coywolf Qi Hunt
+[PATCH] converts a for (i = 0 ; i < NR_CPUS ; i++) to for_each_cpu(i)  in 
+sched_init().
+
+
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+
+
+--------------060106030706000109090705
+Content-Type: text/plain;
+ name="sched_init.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sched_init.patch"
+
+--- kernel/sched.c.orig	2006-01-25 10:28:15.000000000 +0100
++++ kernel/sched.c	2006-01-25 10:28:32.000000000 +0100
+@@ -6258,7 +6258,7 @@
+ 	runqueue_t *rq;
+ 	int i, j, k;
+ 
+-	for (i = 0; i < NR_CPUS; i++) {
++	for_each_cpu(i) {
+ 		prio_array_t *array;
+ 
+ 		rq = cpu_rq(i);
+
+--------------060106030706000109090705--

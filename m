@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWAYAWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbWAYAZy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750880AbWAYAWw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jan 2006 19:22:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbWAYAWw
+	id S1750896AbWAYAZy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jan 2006 19:25:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbWAYAZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jan 2006 19:22:52 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:60397 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1750880AbWAYAWv (ORCPT
+	Tue, 24 Jan 2006 19:25:54 -0500
+Received: from uproxy.gmail.com ([66.249.92.192]:5866 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750895AbWAYAZx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jan 2006 19:22:51 -0500
-Subject: Re: pppd oopses current linu's git tree on disconnect
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Diego Calleja <diegocg@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <43D6BBCF.7090403@microgate.com>
-References: <20060119010601.f259bb32.diegocg@gmail.com>
-	 <1137692039.3279.1.camel@amdx2.microgate.com>
-	 <20060119230746.ea78fcf4.diegocg@gmail.com> <43D01537.40705@microgate.com>
-	 <20060123034243.22ba0a8f.diegocg@gmail.com>
-	 <20060124044846.de6508eb.diegocg@gmail.com>
-	 <1138140391.3223.15.camel@amdx2.microgate.com>
-	 <1138145129.21284.12.camel@localhost.localdomain>
-	 <43D6BBCF.7090403@microgate.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 25 Jan 2006 00:22:53 +0000
-Message-Id: <1138148573.21723.3.camel@localhost.localdomain>
+	Tue, 24 Jan 2006 19:25:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=Ig/bb+ElsMIXzszm/+Tw/5CeOPvLEC3LOoq3CH+IGdOMeZIwPZ+miD5fV8yk1chbNu4of+Nc+rWmuhjAlfjnMRsE6Q7OXlbZSxSZY9zCNJ7Z23/QWBcVZ44Q0aswnB86SLUcEwTngplCEQ+Y8OGCLDgd0O57/kcvOLbo4wwaYA4=
+Date: Wed, 25 Jan 2006 03:43:32 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] gusclassic: fix adding second dma channel
+Message-ID: <20060125004332.GD3234@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-01-24 at 17:44 -0600, Paul Fulghum wrote:
-> But if space == 0 then tty->buf.tail could be NULL
-> Touching tb could oops. I think you already do a similar
-> check in tty_insert_flip_string() etc.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-Might be worth using unlikely() hints there. I'd not considered the NULL
-case.
+ sound/isa/gus/gusclassic.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/sound/isa/gus/gusclassic.c
++++ b/sound/isa/gus/gusclassic.c
+@@ -195,7 +195,7 @@ static int __init snd_gusclassic_probe(s
+ 			goto _err;
+ 	}
+ 	sprintf(card->longname + strlen(card->longname), " at 0x%lx, irq %d, dma %d", gus->gf1.port, xirq, xdma1);
+-	if (dma2 >= 0)
++	if (xdma2 >= 0)
+ 		sprintf(card->longname + strlen(card->longname), "&%d", xdma2);
+ 
+ 	snd_card_set_dev(card, &pdev->dev);
 

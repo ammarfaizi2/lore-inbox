@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWAZK1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWAZK2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWAZK1g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 05:27:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWAZK1g
+	id S932281AbWAZK2v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 05:28:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbWAZK2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 05:27:36 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:3829 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932278AbWAZK1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 05:27:35 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Thu, 26 Jan 2006 11:25:49 +0100
-To: zdzichu@irc.pl, schilling@fokus.fraunhofer.de
-Cc: rlrevell@joe-job.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de, axboe@suse.de, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43D8A3AD.nailDTH8Y1A3Z@burner>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
- <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
- <20060125144543.GY4212@suse.de>
- <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
- <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
- <20060125190013.GA6135@irc.pl>
-In-Reply-To: <20060125190013.GA6135@irc.pl>
-User-Agent: nail 11.2 8/15/04
+	Thu, 26 Jan 2006 05:28:51 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:65477 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S932281AbWAZK2u
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 05:28:50 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Stuffed Crust <pizza@shaftnet.org>
+Subject: Re: [softmac-dev] [PATCH] ieee80211_rx_any: filter out packets, call ieee80211_rx or ieee80211_rx_mgt
+Date: Thu, 26 Jan 2006 12:25:10 +0200
+User-Agent: KMail/1.8.2
+Cc: Johannes Berg <johannes@sipsolutions.net>,
+       "John W. Linville" <linville@tuxdriver.com>, jbenc@suse.cz,
+       netdev@vger.kernel.org, softmac-dev@sipsolutions.net,
+       linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de
+References: <20060118200616.GC6583@tuxdriver.com> <1138026752.3957.98.camel@localhost> <20060125154402.GB9224@shaftnet.org>
+In-Reply-To: <20060125154402.GB9224@shaftnet.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601261225.10506.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomasz Torcz <zdzichu@irc.pl> wrote:
+On Wednesday 25 January 2006 17:44, Stuffed Crust wrote:
+> On Mon, Jan 23, 2006 at 03:32:32PM +0100, Johannes Berg wrote:
+> > Shouldn't you BSS-filter management packets too?
+> 
+> Filtering on BSSID is necessary for management frames, especially when 
+> multicast management frames are thrown into the mix.  
 
-> > > need to use /dev/hda, but /dev/cdrecorder or whatever. A real user would
-> > > likely be using k3b or something graphical though, and just click on his
-> > > Hitachi/Plextor/whatever burner. Perhaps some fancy udev rules could
-> > > help do this dynamically even.
-> > 
-> > Guess why cdrecord -scanbus is needed.
-> > 
-> > It serves the need of GUI programs for cdrercord and allows them to retrieve 
-> > and list possible drives of interest in a platform independent way.
->
->   GUI programs tend to retrieve this kind of info form HAL
-> (http://freedesktop.org/wiki/Software_2fhal)
+ieee80211_rx_mgt can do any filtering necessary.
 
-I am not sure what you like to tell with this.
+Foreign mgmt packets, if properly used, can provide us with constantly
+updated info about local wireless neighborhood: available Ad-hoc
+networks and BSSes, signal quality of APs etc. Something resembling
+constantly running scan. For example, acx driver does exactly this.
 
-Programs that depend on specific Linux behavior tend to be non-portable (see 
-e.g. nautilus on GNOME). Nautilus tries to get e.g. the drive write speeds
-by reading /prov/scsi/******. Besides the fact that this is not available 
-elsewhere, it gives incorrect results because there are a lot of DVD writers 
-with broken firmware.
+Note that typically mgmt traffic is rather low and processing it
+(instead of dropping) won't add much overhead.
+ 
+> For example, STAs are supposed to respect broadcast disassoc/deauth
+> messages, but of course should ignore them if they're not destined for
+> the local BSSID. 
 
-Cdrecord implements workarounds for this kind of problems and for this reason, 
-the most portable solution for a GUI is to use cdrecord to retrieve the 
-information.
+This filtering can (should) be done in ieee80211_rx_mgt.
 
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+> The only extra-BSS management frames that should not be dropped are are
+> beacons and probe responses.  That said, probe responses are directed so
+> our A1 (RA) filter will probably drop the frame if it is not destined
+> for us.
+--
+vda

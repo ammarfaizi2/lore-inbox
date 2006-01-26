@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbWAZQGb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751008AbWAZQFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932353AbWAZQGb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 11:06:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWAZQGb
+	id S1751008AbWAZQFK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 11:05:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWAZQFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 11:06:31 -0500
-Received: from zproxy.gmail.com ([64.233.162.200]:50310 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932353AbWAZQGa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 11:06:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AdB+KVRJltf8B7b4GKPmmielLkJ9VDTsEq65iNRUFghOM5e4eoXdyX8wbBW7QyrfjY5ghgQGMXa6roKFnMN2f5WpU4HLo3Wc35EwJLbjkT3m4O+bCxVAjV9/E0vr23e0vJsFJoW3+Q5J2zj0NmvJ3BnrLoGqnIoveH/z+xx4Qr0=
-Message-ID: <cfb54190601260806h7199d7aej79139140d145d592@mail.gmail.com>
-Date: Thu, 26 Jan 2006 18:06:29 +0200
-From: Hai Zaar <haizaar@gmail.com>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: Re: vesa fb is slow on 2.6.15.1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43D8E1EE.3040302@gmail.com>
+	Thu, 26 Jan 2006 11:05:10 -0500
+Received: from mail.gmx.de ([213.165.64.21]:57489 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751008AbWAZQFI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 11:05:08 -0500
+X-Authenticated: #428038
+Message-ID: <43D8F327.6060800@gmx.de>
+Date: Thu, 26 Jan 2006 17:04:55 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <cfb54190601260620l5848ba3ai9d7e06c41d98c362@mail.gmail.com>
-	 <43D8E1EE.3040302@gmail.com>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+CC: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       jengelh@linux01.gwdg.de, grundig@teleline.es, acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner> <20060125181847.b8ca4ceb.grundig@teleline.es> <43D8988F.nailDTH21LS0G@burner> <1138268759.3087.138.camel@mindpipe> <43D8D5A0.nailE2X71H31H@burner> <43D8D80B.9080203@yahoo.com.au> <43D8DD7B.nailE2XL1KRWJ@burner>
+In-Reply-To: <43D8DD7B.nailE2XL1KRWJ@burner>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/26/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
->
-> mtrr now defaults to off in vesafb because of conflicts with xorg/
-> xfree86.  You have to explicitly enable it with a boot option.  Try
-> this:
->
-> video=vesafb:mtrr:3,ypan
->
-> Tony
->
-I've replaced 'vga=795' with 'video=vesafb:mtrr:3,ypan' and rebooted.
-Now framebuffer is not activated at all - I get plain old 80x25
-console. Are you sure that old vesafb (not vesafb-tng) driver
-understands 'video=...' parameters style?
+Joerg Schilling wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+>> Joerg Schilling wrote:
+>>> Lee Revell <rlrevell@joe-job.com> wrote:
+>>>
+>>>
+>>>>> Interesting: You claim that the Linux platform provides ways to retrieve 
+>>>>> the needed information on FreeBSD, MS-WIN, ....?
+>>>>>
+>>>> What do FreeBSD and MS-WIN have to do with Linux?
+>>>
+>>> What is the relevence of /dev/hd* for a device independent library like libscg?
+>>>
+>> Isn't it good practice to adhere to the naming conventions
+>> of the system to which a program is ported to? (even if 100
+>> of them do it one way and 1 does it another)
+> 
+> Well, the problem is that (in special if you include the ATAPI tape drives)
+> Linux likes to enforce inapropriate naming conventions.
 
---
-Zaar
+Nope. Naming conventions are not subject here.
+
+What OTHER libscg operations do not work for a particular ATAPI tape drive?
+-scanbus does NOT count, don't mention it.
+What is the drive manufacturer and type?
+What is the failing or inaccessible operation?
+
+Please remember to remove Jens Axboe and Lee Revell from the Cc: list!

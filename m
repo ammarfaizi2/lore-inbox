@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWAZKIX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbWAZKKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932272AbWAZKIX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 05:08:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWAZKIX
+	id S932274AbWAZKKi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 05:10:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWAZKKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 05:08:23 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:43487 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932272AbWAZKIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 05:08:22 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Thu, 26 Jan 2006 11:06:27 +0100
-To: schilling@fokus.fraunhofer.de, mrmacman_g4@mac.com
-Cc: rlrevell@joe-job.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       acahalan@gmail.com
+	Thu, 26 Jan 2006 05:10:38 -0500
+Received: from mail.gmx.net ([213.165.64.21]:14533 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932274AbWAZKKh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 05:10:37 -0500
+X-Authenticated: #428038
+Date: Thu, 26 Jan 2006 11:10:26 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43D89F23.nailDTH5ZT0IY@burner>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
- <43D7A7F4.nailDE92K7TJI@burner>
- <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
- <43D7B1E7.nailDFJ9MUZ5G@burner>
- <C3FAC4ED-D7B6-45FE-BCC8-DDCE1E8EEC65@mac.com>
-In-Reply-To: <C3FAC4ED-D7B6-45FE-BCC8-DDCE1E8EEC65@mac.com>
-User-Agent: nail 11.2 8/15/04
+Message-ID: <20060126101026.GA27752@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de
+References: <20060123212119.GI1820@merlin.emma.line.org> <Pine.LNX.4.61.0601241823390.28682@yvahk01.tjqt.qr> <43D78585.nailD7855YVBX@burner> <20060125142155.GW4212@suse.de> <Pine.LNX.4.61.0601251544400.31234@yvahk01.tjqt.qr> <20060125145544.GA4212@suse.de> <43D7AEBF.nailDFJ7263OE@burner> <43D7B100.7040706@gmx.de> <43D897F4.nailDTH1UTLO4@burner> <20060126094839.GQ4212@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060126094839.GQ4212@suse.de>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett <mrmacman_g4@mac.com> wrote:
+Jens Axboe schrieb am 2006-01-26:
 
-> On Jan 25, 2006, at 12:14:15, Joerg Schilling wrote:
-> > Incorrect, sorry. Do you really make Linux incompatible to the rest  
-> > of the world?
-..
-> >> 1 platform (Linux) _requires_ /dev/* access
-> > Your last line is wrong
->
-> No, it is correct.  We require /dev/* access.  The fact that we  
-> included /dev/sg* devices for /dev/[sh]d* was a mistake, and should  
-> be fixed, but those are still /dev/* access.
+> What is this, kindergarten? What false claims have I made? I pointed out
+> several you made, to which you had no rebuttal. Then you start playing
+> "Jens made obviously false claims", huh?? I've had more mature
+> conversations with my 1 year old son.
+> 
+> I'm sorry if you feel that me refuting your false statements are
+> personal attacks. Clearly not a problem that can be fixed at my end.
+> Ignoring facts and continuing to write the same wrong claims over and
+> over again doesn't make them true in the end.
 
-Looks like you missunderstood /dev/* here.
+The problem appears to be that Jörg hasn't really looked at Linux in
+some time, and he's used to systems that don't change architecture in
+patchlevel releases, while Linux 2.6.N.M should actually have been
+numbered 2.(6+2*N).M...
 
-Even with /dev/scg* on Solaris or with CAM on FreeBSD, you open a device.
-But this is not a /dev/ entry for a high level device like a disk, it is 
-a SCSI nexus device that allows you to send SCSI commands on any SCSI transport.
-
-
-
-
-Jörg
+Jörg, any chance you might be arguing on basis of really old 2.6.X
+kernels?
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Matthias Andree

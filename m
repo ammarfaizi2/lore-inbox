@@ -1,44 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWAZKGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWAZKH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbWAZKGz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 05:06:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWAZKGx
+	id S932275AbWAZKH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 05:07:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWAZKH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 05:06:53 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:27075 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S932260AbWAZKGw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 05:06:52 -0500
-To: balamurugan@sahasrasolutions.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: reg: proble i am facing
-References: <62509.203.101.38.164.1138199699.squirrel@66.98.166.28>
-From: Jes Sorensen <jes@sgi.com>
-Date: 26 Jan 2006 05:06:50 -0500
-In-Reply-To: <62509.203.101.38.164.1138199699.squirrel@66.98.166.28>
-Message-ID: <yq0y8135mmd.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 26 Jan 2006 05:07:27 -0500
+Received: from quechua.inka.de ([193.197.184.2]:12673 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S932272AbWAZKHZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 05:07:25 -0500
+From: be-news06@lina.inka.de (Bernd Eckenfels)
+To: linux-kernel@vger.kernel.org
+Subject: Re: Red zones
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <43D85DF4.9020703@cosmosbay.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1F242F-000160-00@calista.inka.de>
+Date: Thu, 26 Jan 2006 11:07:23 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "balamurugan" == balamurugan  <balamurugan@sahasrasolutions.com> writes:
+Eric Dumazet <dada1@cosmosbay.com> wrote:
+> On x86_64, available virtual space is huge, so having different red zones can 
+> spot the fault more easily : If the target of the fault is in the PER_CPU 
+> redzone given range, we can instantly knows there is still a per_cpu() user 
+> accessing a non possible cpu area. As the red zone is not mapped at all, no 
+> page table is setup.
 
-balamurugan> hai all, i am trying to compile svinit in my system , the
-balamurugan> following error message will be displayed, please give
-balamurugan> the clarifiaction for the issue.
+Ok, however you can also tell from the stack trace who accessed the red zone, right?
 
-balamurugan> cc -g svinit.o -o svinit svinit.o(.text+0x509): In
-
-Balamurugan,
-
-You seem to have found the wrong list. Please be advised that
-linux-kernel is not intended for discussing compilation problems with
-random userland applications.
-
-When you have a kernel related question you are very welcome to post
-that.
-
-Sincerly,
-Jes
+Gruss
+Bernd

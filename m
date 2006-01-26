@@ -1,79 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWAZDuN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbWAZDuM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbWAZDuN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 22:50:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWAZDts
+	id S932267AbWAZDuM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 22:50:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWAZDtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 22:49:48 -0500
-Received: from [202.53.187.9] ([202.53.187.9]:25835 "EHLO
+	Wed, 25 Jan 2006 22:49:47 -0500
+Received: from [202.53.187.9] ([202.53.187.9]:21739 "EHLO
 	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932260AbWAZDto (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 22:49:44 -0500
+	id S932251AbWAZDt3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 22:49:29 -0500
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [ 22/23] [Suspend2] Modify swsusp to thaw kernel threads while eating memory.
-Date: Thu, 26 Jan 2006 13:46:11 +1000
+Subject: [ 14/23] [Suspend2] Helper for counting freezeable threads of a type.
+Date: Thu, 26 Jan 2006 13:45:55 +1000
 To: linux-kernel@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060126034610.3178.98553.stgit@localhost.localdomain>
+Message-Id: <20060126034554.3178.53848.stgit@localhost.localdomain>
 In-Reply-To: <20060126034518.3178.55397.stgit@localhost.localdomain>
 References: <20060126034518.3178.55397.stgit@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Modify swsusp so that while trying to eat memory, it allows kernel threads
-to run. This avoids a deadlock that could otherwise occur if access to a
-filesystem is needed while freeing the memory.
+Add a helper, which returns the number of threads of the given type
+(userspace only or all) that are still to be frozen.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/main.c   |    4 ++++
- kernel/power/swsusp.c |    3 +++
- 2 files changed, 7 insertions(+), 0 deletions(-)
+ kernel/power/process.c |   23 +++++++++++++++++++++++
+ 1 files changed, 23 insertions(+), 0 deletions(-)
 
-diff --git a/kernel/power/main.c b/kernel/power/main.c
-index 6f854e4..2fed3dc 100644
---- a/kernel/power/main.c
-+++ b/kernel/power/main.c
-@@ -72,6 +72,8 @@ static int suspend_prepare(suspend_state
- 		goto Thaw;
+diff --git a/kernel/power/process.c b/kernel/power/process.c
+index dffe645..d5d052a 100644
+--- a/kernel/power/process.c
++++ b/kernel/power/process.c
+@@ -204,6 +204,29 @@ void thaw_processes(int do_all_threads)
  	}
- 
-+	thaw_processes(FREEZER_KERNEL_THREADS);
-+
- 	if ((free_pages = nr_free_pages()) < FREE_PAGE_NUMBER) {
- 		pr_debug("PM: free some memory\n");
- 		shrink_all_memory(FREE_PAGE_NUMBER - free_pages);
-@@ -82,6 +84,8 @@ static int suspend_prepare(suspend_state
- 		}
- 	}
- 
-+	freeze_processes();
-+
- 	if (pm_ops->prepare) {
- 		if ((error = pm_ops->prepare(state)))
- 			goto Thaw;
-diff --git a/kernel/power/swsusp.c b/kernel/power/swsusp.c
-index 55a18d2..3bc835a 100644
---- a/kernel/power/swsusp.c
-+++ b/kernel/power/swsusp.c
-@@ -575,6 +575,8 @@ int swsusp_shrink_memory(void)
- 	unsigned int i = 0;
- 	char *p = "-\\|/";
- 
-+	thaw_processes(FREEZER_KERNEL_THREADS);
-+
- 	printk("Shrinking memory...  ");
- 	do {
- 		size = 2 * count_highmem_pages();
-@@ -598,6 +600,7 @@ int swsusp_shrink_memory(void)
- 	} while (tmp > 0);
- 	printk("\bdone (%lu pages freed)\n", pages);
- 
-+	freeze_processes();
- 	return 0;
  }
  
++/*
++ * num_freezeable
++ *
++ * Description:	Determine how many processes of our type are still to be
++ * 		frozen. As a side effect, update the progress bar too.
++ * Parameters:	int	Which type we are trying to freeze.
++ * 		int	Whether we are displaying our progress.
++ */
++static int num_freezeable(int do_all_threads)
++{
++	struct task_struct *g, *p;
++	int todo_this_type = 0;
++
++	read_lock(&tasklist_lock);
++	do_each_thread(g, p) {
++		if (freezeable(p, do_all_threads))
++			todo_this_type++;
++	} while_each_thread(g, p);
++	read_unlock(&tasklist_lock);
++
++	return todo_this_type;
++}
++
+ static inline void freeze(struct task_struct *p)
+ {
+ 	unsigned long flags;
 
 --
 Nigel Cunningham		nigel at suspend2 dot net

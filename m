@@ -1,96 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWAZDuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWAZDuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbWAZDuM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 22:50:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWAZDtq
+	id S932261AbWAZDuV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 22:50:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWAZDuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 22:49:46 -0500
-Received: from [202.53.187.9] ([202.53.187.9]:19435 "EHLO
+	Wed, 25 Jan 2006 22:50:15 -0500
+Received: from [202.53.187.9] ([202.53.187.9]:26347 "EHLO
 	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932236AbWAZDtU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 22:49:20 -0500
+	id S932235AbWAZDtq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 22:49:46 -0500
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [ 10/23] [Suspend2] Add support for freezing filesystem bdevs.
-Date: Thu, 26 Jan 2006 13:45:48 +1000
+Subject: [ 23/23] [Suspend2] Don't scan LRU while freezer is on.
+Date: Thu, 26 Jan 2006 13:46:12 +1000
 To: linux-kernel@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060126034547.3178.57751.stgit@localhost.localdomain>
+Message-Id: <20060126034612.3178.23890.stgit@localhost.localdomain>
 In-Reply-To: <20060126034518.3178.55397.stgit@localhost.localdomain>
 References: <20060126034518.3178.55397.stgit@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Add support for freezing and thawing bdevs of filesystems. Filesystems
-are frozen in reverse order so that nested filesystems don't cause
-deadlocks.
+Stop processes from initiating scanning of the LRU while the freezer is on.
+This is primarily for the benefit of Suspend2, which could conceivably
+trigger LRU scanning through this path while writing the image, and would
+thus generate an inconsistent image and through it all sorts of trouble.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/process.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 50 insertions(+), 0 deletions(-)
+ mm/page_alloc.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/power/process.c b/kernel/power/process.c
-index 09fc9ca..0e377ed 100644
---- a/kernel/power/process.c
-+++ b/kernel/power/process.c
-@@ -48,6 +48,56 @@
- DECLARE_COMPLETION(thaw);
- static atomic_t nr_frozen;
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index f9151b9..713d773 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -25,6 +25,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/suspend.h>
++#include <linux/freezer.h>
+ #include <linux/pagevec.h>
+ #include <linux/blkdev.h>
+ #include <linux/slab.h>
+@@ -957,8 +958,8 @@ restart:
  
-+struct frozen_fs
-+{
-+	struct list_head fsb_list;
-+	struct super_block *sb;
-+};
-+
-+LIST_HEAD(frozen_fs_list);
-+
-+void freezer_make_fses_rw(void)
-+{
-+	struct frozen_fs *fs, *next_fs;
-+
-+	list_for_each_entry_safe(fs, next_fs, &frozen_fs_list, fsb_list) {
-+		thaw_bdev(fs->sb->s_bdev, fs->sb);
-+
-+		list_del(&fs->fsb_list);
-+		kfree(fs);
-+	}
-+}
-+
-+/* 
-+ * Done after userspace is frozen, so there should be no danger of
-+ * fses being unmounted while we're in here.
-+ */
-+int freezer_make_fses_ro(void)
-+{
-+	struct frozen_fs *fs;
-+	struct super_block *sb;
-+
-+	/* Generate the list */
-+	list_for_each_entry(sb, &super_blocks, s_list) {
-+		if (!sb->s_root || !sb->s_bdev ||
-+		    (sb->s_frozen == SB_FREEZE_TRANS) ||
-+		    (sb->s_flags & MS_RDONLY))
-+			continue;
-+
-+		fs = kmalloc(sizeof(struct frozen_fs), GFP_ATOMIC);
-+		fs->sb = sb;
-+		list_add_tail(&fs->fsb_list, &frozen_fs_list);
-+	};
-+
-+	/* Do the freezing in reverse order so filesystems dependant
-+	 * upon others are frozen in the right order. (Eg loopback
-+	 * on ext3). */
-+	list_for_each_entry_reverse(fs, &frozen_fs_list, fsb_list)
-+		freeze_bdev(fs->sb->s_bdev);
-+
-+	return 0;
-+}
-+
- static inline int freezeable(struct task_struct * p)
- {
- 	if ((p == current) || 
+ 	/* This allocation should allow future memory freeing. */
+ 
+-	if (((p->flags & PF_MEMALLOC) || unlikely(test_thread_flag(TIF_MEMDIE)))
+-			&& !in_interrupt()) {
++	if ((((p->flags & PF_MEMALLOC) || unlikely(test_thread_flag(TIF_MEMDIE))) && 
++				!in_interrupt()) || (test_freezer_state(FREEZER_ON))) {
+ 		if (!(gfp_mask & __GFP_NOMEMALLOC)) {
+ nofail_alloc:
+ 			/* go through the zonelist yet again, ignoring mins */
 
 --
 Nigel Cunningham		nigel at suspend2 dot net

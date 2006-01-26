@@ -1,30 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWAZKMn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWAZK1g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbWAZKMn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 05:12:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWAZKMn
+	id S932278AbWAZK1g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 05:27:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbWAZK1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 05:12:43 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:7909 "EHLO
+	Thu, 26 Jan 2006 05:27:36 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:3829 "EHLO
 	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932277AbWAZKMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 05:12:42 -0500
+	id S932278AbWAZK1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 05:27:35 -0500
 From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Thu, 26 Jan 2006 11:11:16 +0100
-To: matthias.andree@gmx.de, axboe@suse.de
-Cc: schilling@fokus.fraunhofer.de, rlrevell@joe-job.com,
-       linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de,
-       grundig@teleline.es, acahalan@gmail.com
+Date: Thu, 26 Jan 2006 11:25:49 +0100
+To: zdzichu@irc.pl, schilling@fokus.fraunhofer.de
+Cc: rlrevell@joe-job.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jengelh@linux01.gwdg.de, axboe@suse.de, acahalan@gmail.com
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43D8A044.nailDTH61O3NY@burner>
+Message-ID: <43D8A3AD.nailDTH8Y1A3Z@burner>
 References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
  <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
  <20060125144543.GY4212@suse.de>
  <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
  <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
- <20060125181847.b8ca4ceb.grundig@teleline.es>
- <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de>
-In-Reply-To: <43D7C1DF.1070606@gmx.de>
+ <20060125190013.GA6135@irc.pl>
+In-Reply-To: <20060125190013.GA6135@irc.pl>
 User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -32,24 +30,32 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@gmx.de> wrote:
+Tomasz Torcz <zdzichu@irc.pl> wrote:
 
-> Jens Axboe wrote:
+> > > need to use /dev/hda, but /dev/cdrecorder or whatever. A real user would
+> > > likely be using k3b or something graphical though, and just click on his
+> > > Hitachi/Plextor/whatever burner. Perhaps some fancy udev rules could
+> > > help do this dynamically even.
+> > 
+> > Guess why cdrecord -scanbus is needed.
+> > 
+> > It serves the need of GUI programs for cdrercord and allows them to retrieve 
+> > and list possible drives of interest in a platform independent way.
 >
-> > In fact it would be a _lot_ easier to just scan sysfs and do an inquiry
-> > on potentially useful devices.
->
-> Hm. sysfs, procfs, udev, hotplug, netlink (for IPv6) - this all looks rather
-> complicated and non-portable. I understand that applications that can just
-> open every device and send SCSI INQUIRY might want to do that on Linux, too.
+>   GUI programs tend to retrieve this kind of info form HAL
+> (http://freedesktop.org/wiki/Software_2fhal)
 
-Another problem is that it is hard to find whether a new feature in Linux will 
-still be present some time later.
+I am not sure what you like to tell with this.
 
-If I would try to immediately add support for every new feature, I would have a 
-lot of dead code in my sources and would need to put a lot of effort in this 
-kind of coding. It seems that it makes sense to wait untill all major Linux 
-distributions made a new feature their default for some time.....
+Programs that depend on specific Linux behavior tend to be non-portable (see 
+e.g. nautilus on GNOME). Nautilus tries to get e.g. the drive write speeds
+by reading /prov/scsi/******. Besides the fact that this is not available 
+elsewhere, it gives incorrect results because there are a lot of DVD writers 
+with broken firmware.
+
+Cdrecord implements workarounds for this kind of problems and for this reason, 
+the most portable solution for a GUI is to use cdrecord to retrieve the 
+information.
 
 Jörg
 

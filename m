@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbWAZALL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWAZALj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751259AbWAZALL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 19:11:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWAZALL
+	id S1751260AbWAZALj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 19:11:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWAZALj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 19:11:11 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:25506 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751259AbWAZALK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 19:11:10 -0500
-Date: Thu, 26 Jan 2006 01:11:41 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rostedt@goodmis.org, linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
-Subject: Re: [patch, lock validator] fix proc_inum_lock related deadlock
-Message-ID: <20060126001141.GA18181@elte.hu>
-References: <20060125170331.GA29339@elte.hu> <1138209283.6695.55.camel@localhost.localdomain> <20060125180811.GA12762@elte.hu> <20060125102351.28cd52b8.akpm@osdl.org> <20060126000200.GA12809@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060126000200.GA12809@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 25 Jan 2006 19:11:39 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:11136 "EHLO
+	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751260AbWAZALi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 19:11:38 -0500
+Date: Wed, 25 Jan 2006 18:08:16 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
+In-reply-to: <43D7C2F0.5020108@symas.com>
+To: Howard Chu <hyc@symas.com>
+Cc: Christopher Friesen <cfriesen@nortel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <43D812F0.1070003@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <20060124225919.GC12566@suse.de>
+ <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de>
+ <20060125121125.GH5465@suse.de> <43D78262.2050809@symas.com>
+ <43D7BA0F.5010907@nortel.com> <43D7C2F0.5020108@symas.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Howard Chu wrote:
+> The SUSv3 text seems pretty clear. It says "WHEN pthread_mutex_unlock() 
+> is called, ... the scheduling policy SHALL decide ..." It doesn't say 
+> MAY, and it doesn't say "some undefined time after the call." There is 
+> nothing optional or implementation-defined here. The only thing that is 
+> not explicitly stated is what happens when there are no waiting threads; 
+> in that case obviously the running thread can continue running.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+It says the scheduling policy will decide who gets the mutex. It does 
+not say that such a decision must be made immediately. That seems rather 
+implementation defined to me.
 
-> there's another VFS lock that just popped up, hopefully the last one.  
-> Fix below. (All this is still related to proc_subdir_lock, and the 
-> original BKL bug it fixed.)
+> 
+> re: forcing the mutex to ping-pong between different threads - if that 
+> is inefficient, then the thread scheduler needs to be tuned differently. 
+> Threads and thread context switches are supposed to be cheap, otherwise 
+> you might as well just program with fork() instead. (And of course, back 
+> when Unix was first developed, *processes* were lightweight, compared to 
+> other extant OSs.)
 
-bah. proc_num_idr.lock nests too ...
+This is nothing to do with the thread scheduler being inefficient. It is 
+inherently inefficient to context-switch repeatedly no matter how good 
+the kernel is. It trashes the CPU pipeline, at the very least, can cause 
+thrashing of the CPU caches, and can cause cache lines to be pushed back 
+and forth across the bus on SMP machines which really kills performance.
 
-i guess we should stick this into free_irq():
-
-	WARN_ON(in_interrupt());
-
-and be done with it. If all such places are fixed then Steve's fix 
-becomes complete.
-
-	Ingo
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/

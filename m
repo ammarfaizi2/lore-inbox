@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbWAZKiq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWAZKkY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbWAZKiq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 05:38:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbWAZKiq
+	id S932286AbWAZKkY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 05:40:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWAZKkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 05:38:46 -0500
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:46297 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S932285AbWAZKiq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 05:38:46 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
+	Thu, 26 Jan 2006 05:40:24 -0500
+Received: from mail.gmx.de ([213.165.64.21]:34536 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932286AbWAZKkX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 05:40:23 -0500
+X-Authenticated: #428038
+Date: Thu, 26 Jan 2006 11:40:12 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: mrmacman_g4@mac.com, rlrevell@joe-job.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060126104012.GA32206@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	mrmacman_g4@mac.com, rlrevell@joe-job.com,
+	linux-kernel@vger.kernel.org, acahalan@gmail.com
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43D7A7F4.nailDE92K7TJI@burner> <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com> <43D7B1E7.nailDFJ9MUZ5G@burner> <C3FAC4ED-D7B6-45FE-BCC8-DDCE1E8EEC65@mac.com> <43D89F23.nailDTH5ZT0IY@burner>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17368.42664.299094.987071@gargle.gargle.HOWL>
-Date: Thu, 26 Jan 2006 13:38:32 +0300
-To: Howard Chu <hyc@symas.com>
-Cc: Christopher Friesen <cfriesen@nortel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hancockr@shaw.ca
-Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
-Newsgroups: gmane.linux.kernel
-In-Reply-To: <43D7D234.6060005@symas.com>
-References: <20060124225919.GC12566@suse.de>
-	<20060124232142.GB6174@inferi.kami.home>
-	<20060125090240.GA12651@suse.de>
-	<20060125121125.GH5465@suse.de>
-	<43D78262.2050809@symas.com>
-	<43D7BA0F.5010907@nortel.com>
-	<43D7C2F0.5020108@symas.com>
-	<43D7CAAB.9070008@yahoo.com.au>
-	<43D7D234.6060005@symas.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Content-Disposition: inline
+In-Reply-To: <43D89F23.nailDTH5ZT0IY@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howard Chu writes:
+Joerg Schilling schrieb am 2006-01-26:
 
-[...]
+> Even with /dev/scg* on Solaris or with CAM on FreeBSD, you open a device.
+> But this is not a /dev/ entry for a high level device like a disk, it is 
+> a SCSI nexus device that allows you to send SCSI commands on any SCSI
+> transport.
 
- > 
- > A straightforward reading of the language here says the decision happens 
- > "when pthread_mutex_unlock() is called" and not at any later time. There 
- > is nothing here to support your interpretation.
- > >
- > > I think the intention of the wording is that for deterministic policies,
- > > it is clear that the waiting threads are actually worken and reevaluated
- > > for scheduling. In the case of SCHED_OTHER, it means basically nothing,
- > > considering the scheduling policy is arbitrary.
- > >
- > Clearly the point is that one of the waiting threads is waken and gets 
- > the mutex, and it doesn't matter which thread is chosen. I.e., whatever 
+As long as the device you open allows you to send SCSI commands on any
+suitable (not just SCSI) transport, why bother?
 
-Note that this behavior directly leads to "convoy formation": if that
-woken thread T0 does not immediately run (e.g., because there are higher
-priority threads) but still already owns the mutex, then other running
-threads contending for this mutex will block waiting for T0, forming a
-convoy.
-
- > thread the scheduling policy chooses. The fact that SCHED_OTHER can 
- > choose arbitrarily is immaterial, it still can only choose one of the 
- > waiting threads.
-
-Looks like a good time to submit Defect Report to the Open Group.
-
- > 
- > The fact that SCHED_OTHER's scheduling behavior is undefined is not free 
- > license to implement whatever you want. Scheduling policies are an 
- > optional feature; the basic thread behavior must still be consistent 
- > even on systems that don't implement scheduling policies.
- > 
- > -- 
- >   -- Howard Chu
-
-Nikita.
-
+-- 
+Matthias Andree

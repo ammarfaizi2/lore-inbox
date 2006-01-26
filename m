@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWAZRrU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWAZRvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWAZRrU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 12:47:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWAZRrU
+	id S932370AbWAZRvu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 12:51:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWAZRvu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 12:47:20 -0500
-Received: from zproxy.gmail.com ([64.233.162.203]:16627 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751344AbWAZRrT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 12:47:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VBBrmpi5XggCWICWqDz3lbQW2BnJe3HwAf/BhpLevKn74YCWOGNYGkC+ZqN/n3x151laMH+uw06SKMV1ehv4M+da2OZNzaLhbUrAkGEx94vWda/ceUdUzAmZcNorWuz3m28rWXzi17C15XiTV4VJTHEjSKpzrHlu8nXAXPGy7v0=
-Message-ID: <6bffcb0e0601260947g76dec61cu@mail.gmail.com>
-Date: Thu, 26 Jan 2006 18:47:18 +0100
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH RT] kstopmachine has legit preempt_enable_no_resched (was: 2.6.15-rt12 bugs)
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1138137450.6695.34.camel@localhost.localdomain>
-MIME-Version: 1.0
+	Thu, 26 Jan 2006 12:51:50 -0500
+Received: from hera.kernel.org ([140.211.167.34]:22506 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751349AbWAZRvt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 12:51:49 -0500
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [RFT] sky2: pci express error fix
+Date: Thu, 26 Jan 2006 09:51:45 -0800
+Organization: OSDL
+Message-ID: <20060126095145.7d6fc4e4@dxpl.pdx.osdl.net>
+References: <200601190930.k0J9US4P009504@typhaon.pacific.net.au>
+	<20060124220533.5fade501@localhost.localdomain>
+	<drasb9$5jj$1@sea.gmane.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <6bffcb0e0601230521l59b8360et@mail.gmail.com>
-	 <1138065822.6695.6.camel@localhost.localdomain>
-	 <6bffcb0e0601240533h3ba1a01ci@mail.gmail.com>
-	 <1138112388.6695.26.camel@localhost.localdomain>
-	 <6bffcb0e0601240737u3e77245g@mail.gmail.com>
-	 <1138126262.6695.29.camel@localhost.localdomain>
-	 <6bffcb0e0601241300xd0b8d8dt@mail.gmail.com>
-	 <1138137450.6695.34.camel@localhost.localdomain>
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1138297906 20866 10.8.0.74 (26 Jan 2006 17:51:46 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Thu, 26 Jan 2006 17:51:46 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 27 Jan 2006 01:11:20 +0900
+Kalin KOZHUHAROV <kalin@thinrope.net> wrote:
 
-On 24/01/06, Steven Rostedt <rostedt@goodmis.org> wrote:
-> On Tue, 2006-01-24 at 22:00 +0100, Michal Piotrowski wrote:
-> > To 2.6.15-rt1 - it doesn't compile (ipv6 module). 2.6.15-rt2 gives me
-> > wonderful series of oops/warnings/badness on boot ;).
->
-> Ingo was busy at the time getting true mutexes into the kernel.  So he
-> was pushing the -rt stuff out before testing.  So I created a tree to
-> handle this:
->
-> These are patches against Ingo's -rt patches, that should help make some
-> of your problems work.
->
-> http://home.stny.rr.com/rostedt/patches/archive/patch-2.6.15-rt1-sr2
-> http://home.stny.rr.com/rostedt/patches/archive/patch-2.6.15-rt2-sr3
-> http://home.stny.rr.com/rostedt/patches/archive/patch-2.6.15-rt3-sr1
-> http://home.stny.rr.com/rostedt/patches/patch-2.6.15-rt4-sr2
->
-> -- Steve
->
->
+> Stephen Hemminger wrote:
+> > For all those people suffering with pci express errors
+> > on the sky2 driver.  The problem is the PCI subsystem sometimes
+> > won't let the sky2 driver write to PCI express registers. It depends
+> > on the phase of the moon (actually ACPI) and number of devices.
+> > 
+> > Anyway, this should fix it. Please tell me if it solves it for you.
+> 
+> Can you describe the bug a bit more? What happens?
+> 
+> I had a few times something like this:
+> 
+> [   24.145040] sky2 eth0: phy interrupt status 0x1c40 0xbc0c
+
+> 
+> [ 3647.341757] sky2 eth0: phy interrupt status 0x1c40 0xbc4c
 >
 
-Sorry for late answer, but I have exams.
+Looks like a noisy crappy cable causing PHY link status changes.
 
-Unfortunately these patches doesn't solve my problems. I have tried
-many rt-patches, but everything below 2.6.15-rt8 doesn't work
-(compilation or boot problems). Is there any other way to track down
-this bug? (any magic ipv6 debugging option? :)
 
-Regards,
-Michal Piotrowski
+> after which all network was dead. (and it wasn't a module so had to
+> restart). As you can see from the above two logs, sometimes it failed on
+> boot, sometimes after an hour. Sourry, I didn't remember the phase of the
+> moon, but I can check :-)
+> 
+> I have two Asus P5GDC-V Deluxe boards, with these chips. One of them is
+> happily working with sk98lin (the binary one), the other is dying miserably,
+> so now I use r8169 card to be able to isolate the problem (separate mail).
+> 
+>

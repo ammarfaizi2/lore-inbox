@@ -1,85 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWAZDtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932218AbWAZDtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbWAZDtE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 22:49:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWAZDtE
+	id S932218AbWAZDtK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 22:49:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbWAZDtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 22:49:04 -0500
-Received: from uproxy.gmail.com ([66.249.92.199]:27406 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932195AbWAZDtC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 22:49:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PPbLqW7KS4fZaltTCYLwPhbXAgNwZspDDQ+NP99gCI8YN5DJeeWzR1Os/AJgnuAEQpZejC6NSpWqQuGzsiqUNSxOEj54NbSrFmuA+xVRw/clHlZSMgNTfyK5KL0VSNl2Cq5M8ZRhDHp2BOzjY7bZ+d/q0seKhNH62cB0L+bCRgE=
-Message-ID: <93564eb70601251949r1fb4c209t@mail.gmail.com>
-Date: Thu, 26 Jan 2006 12:49:00 +0900
-From: Samuel Masham <samuel.masham@gmail.com>
-To: davids@webmaster.com
-Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
-Cc: lkml@rtr.ca, Lee Revell <rlrevell@joe-job.com>,
-       Christopher Friesen <cfriesen@nortel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hancockr@shaw.ca
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGEJPJKAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43D8386B.6000204@rtr.ca>
-	 <MDEHLPKNGKAHNMBLJOLKGEJPJKAB.davids@webmaster.com>
+	Wed, 25 Jan 2006 22:49:10 -0500
+Received: from [202.53.187.9] ([202.53.187.9]:15339 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S932218AbWAZDtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 22:49:09 -0500
+From: Nigel Cunningham <nigel@suspend2.net>
+Subject: [ 00/23] [Suspend2] Freezer Upgrade Patches
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060126034518.3178.55397.stgit@localhost.localdomain>
+Date: Thu, 26 Jan 2006 13:45:26 +1000 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26/01/06, David Schwartz <davids@webmaster.com> wrote:
->
-> > >     So you cannot write an application that can tell the difference.
->
-> > Not true.  The code for the relinquishing thread could indeed
-> > tell the difference.
-> >
-> > -ml
->
->         It can tell the difference between the other thread getting the mutex first
-> and it getting the mutex first. But it cannot tell the difference between an
-> implementation that puts random sleeps before calls to 'pthread_mutex_lock'
-> and an implementation that has the allegedly non-compliant behavior. That
-> makes the behavior compliant under the 'as-if' rule.
->
->         If you don't believe me, try to write a program that prints 'non-compliant'
-> on a system that has the alleged non-compliance but is guaranteed not to do
-> so on any compliant system. It cannot be done.
+Hi everyone.
 
-Just putting priority inheritance on then in the running thread check
-your priority, if it goes up then the waiting thread in really
-waiting.
+This set of patches represents the freezer upgrade patches from Suspend2.
 
-Then if you can release + get the lock again its non compliant.... no?
+The key features of this changeset are:
 
-ie    pthread_mutexattr_setprotocol(pthread_mutexattr_t *attr, int
-protocol); with PTHREAD_PRIO_INHERIT
+- Use of Christoph Lameter's todo list notifiers, which help with SMP
+  cleanness.
+- Splitting the freezing of kernel and userspace processes. Freezing
+  currently suffers from a race because userspace processes can be
+  submitting work for kernel threads, thereby stopping them from
+  responding to freeze messages in a timely manner. The freezer can
+  thus give up when it doesn't really need to. (This is not normally
+  a problem only because load is not usually high).
+- The use of bdev freezing to ensure filesystems are properly frozen,
+  thereby increasing the integrity of on-disk data in the case where
+  a resume doesn't occur. This is also helpful in the case of Suspend2,
+  where we don't atomically copy all memory, instead writing LRU pages
+  separately.
 
-comment:
-As a rt person I don't like the idea of scheduler bounce so the way
-round seems to be have the mutex lock acquiring work on a FIFO like
-basis.
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
-
->         In order to claim the alleged compliance, you would have to know that a
-> thread waiting for a mutex did not get it. But there is no possible way you
-> can know that another thread is waiting for the mutex (as opposed to being
-> about to wait for it). So you can never detect the claimed non-compliance,
-> so it's not non-compliance.
->
->         This is definitive, really. It 100% refutes the claim.
->
->         DS
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+--
+Nigel Cunningham   nigel at suspend2 dot net   http://suspend2.net

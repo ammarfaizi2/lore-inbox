@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751367AbWAZSqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWAZSrP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751367AbWAZSqn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 13:46:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWAZSqU
+	id S932401AbWAZSrP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 13:47:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWAZSq6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 13:46:20 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:16295 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S932365AbWAZSqL (ORCPT
+	Thu, 26 Jan 2006 13:46:58 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:23975 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S932384AbWAZSqv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 13:46:11 -0500
+	Thu, 26 Jan 2006 13:46:51 -0500
 From: Mel Gorman <mel@csn.ul.ie>
 To: linux-mm@kvack.org
 Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org,
        lhms-devel@lists.sourceforge.net
-Message-Id: <20060126184505.8550.28231.sendpatchset@skynet.csn.ul.ie>
+Message-Id: <20060126184545.8550.7404.sendpatchset@skynet.csn.ul.ie>
 In-Reply-To: <20060126184305.8550.94358.sendpatchset@skynet.csn.ul.ie>
 References: <20060126184305.8550.94358.sendpatchset@skynet.csn.ul.ie>
-Subject: [PATCH 6/9] Allow HugeTLB allocations to use ZONE_EASYRCLM
-Date: Thu, 26 Jan 2006 18:45:05 +0000 (GMT)
+Subject: [PATCH 8/9] ForTesting - Prevent OOM killer firing for high-order allocations
+Date: Thu, 26 Jan 2006 18:45:45 +0000 (GMT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On ppc64 at least, a HugeTLB is the same size as a memory section. Hence,
-it causes no fragmentation that is worth caring about because a section can
-still be offlined.
+Stop going OOM for high-order allocations. During testing of high order
+allocations, we do not want the OOM killing everything in sight.
 
-Once HugeTLB is allowed to use ZONE_EASYRCLM, the size of the zone becomes a
-"soft" area where HugeTLB allocations may be satisified. For example, take
-a situation where a system administrator is not willing to reserve HugeTLB
-pages at boot time. In this case, he can use kernelcore to size the EasyRclm
-zone which is still usable by normal processes. If a job starts that need
-HugeTLB pages, one could dd a file the size of physical memory, delete it
-and have a good chance of getting a number of HugeTLB pages. To get all of
-EasyRclm as HugeTLB pages, the ability to drain per-cpu pages is required.
+For comparison between kernels during the high order allocatioon stress
+test, this patch is applied to both the stock -mm kernel and the kernel
+using ZONE_EASYRCLM.
 
 Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.16-rc1-mm3-106_zonechoose/mm/hugetlb.c linux-2.6.16-rc1-mm3-107_hugetlb_use_easyrclm/mm/hugetlb.c
---- linux-2.6.16-rc1-mm3-106_zonechoose/mm/hugetlb.c	2006-01-17 07:44:47.000000000 +0000
-+++ linux-2.6.16-rc1-mm3-107_hugetlb_use_easyrclm/mm/hugetlb.c	2006-01-26 18:13:43.000000000 +0000
-@@ -49,7 +49,7 @@ static struct page *dequeue_huge_page(st
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.16-rc1-mm3-108_docs/mm/page_alloc.c linux-2.6.16-rc1-mm3-902_highorderoom/mm/page_alloc.c
+--- linux-2.6.16-rc1-mm3-108_docs/mm/page_alloc.c	2006-01-26 18:10:29.000000000 +0000
++++ linux-2.6.16-rc1-mm3-902_highorderoom/mm/page_alloc.c	2006-01-26 18:15:07.000000000 +0000
+@@ -1095,8 +1095,11 @@ rebalance:
+ 		if (page)
+ 			goto got_pg;
  
- 	for (z = zonelist->zones; *z; z++) {
- 		nid = (*z)->zone_pgdat->node_id;
--		if (cpuset_zone_allowed(*z, GFP_HIGHUSER) &&
-+		if (cpuset_zone_allowed(*z, GFP_RCLMUSER) &&
- 		    !list_empty(&hugepage_freelists[nid]))
- 			break;
+-		out_of_memory(gfp_mask, order);
+-		goto restart;
++		/* Only go OOM for low-order allocations */
++		if (order <= 3) {
++			out_of_memory(gfp_mask, order);
++			goto restart;
++		}
  	}
-@@ -68,7 +68,7 @@ static struct page *alloc_fresh_huge_pag
- {
- 	static int nid = 0;
- 	struct page *page;
--	page = alloc_pages_node(nid, GFP_HIGHUSER|__GFP_COMP|__GFP_NOWARN,
-+	page = alloc_pages_node(nid, GFP_RCLMUSER|__GFP_COMP|__GFP_NOWARN,
- 					HUGETLB_PAGE_ORDER);
- 	nid = (nid + 1) % num_online_nodes();
- 	if (page) {
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.16-rc1-mm3-106_zonechoose/mm/mempolicy.c linux-2.6.16-rc1-mm3-107_hugetlb_use_easyrclm/mm/mempolicy.c
---- linux-2.6.16-rc1-mm3-106_zonechoose/mm/mempolicy.c	2006-01-25 13:42:46.000000000 +0000
-+++ linux-2.6.16-rc1-mm3-107_hugetlb_use_easyrclm/mm/mempolicy.c	2006-01-26 18:13:43.000000000 +0000
-@@ -1169,7 +1169,7 @@ struct zonelist *huge_zonelist(struct vm
- 		unsigned nid;
  
- 		nid = interleave_nid(pol, vma, addr, HPAGE_SHIFT);
--		return NODE_DATA(nid)->node_zonelists + gfp_zone(GFP_HIGHUSER);
-+		return NODE_DATA(nid)->node_zonelists + gfp_zone(GFP_RCLMUSER);
- 	}
- 	return zonelist_policy(GFP_HIGHUSER, pol);
- }
+ 	/*

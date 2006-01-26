@@ -1,57 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWAZTsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbWAZTuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751383AbWAZTsT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 14:48:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWAZTsS
+	id S1751385AbWAZTuT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 14:50:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWAZTuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 14:48:18 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:48842 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751382AbWAZTsP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 14:48:15 -0500
-In-Reply-To: <9e4733910601251603n543dbe3ej93286743b01eef6e@mail.gmail.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+	Thu, 26 Jan 2006 14:50:19 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:33706 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751385AbWAZTuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 14:50:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
+  b=B+mbuY8G0YzAcs2+eH3/k49iDt4I9d6YKBG76sLxrExmraRFmcnZfuuOO2mgQruaOoxM3qvSnd+iW5lx3yGVMLzzOClCu4lbmMiIJvXMU7XDrb50PH34BLTJgevHvZNrBIkT2p1XkRYtdXpNYFLgQKzHXopfa9KCEhSZzAHM35M=  ;
+Message-ID: <43D927F6.9080807@yahoo.com.au>
+Date: Fri, 27 Jan 2006 06:50:14 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Subject: Re: [RFC] VM: I have a dream...
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF71C72623.C3A3C598-ON88257102.006A1BB5-88257102.006CC98C@us.ibm.com>
-From: Bryan Henderson <hbryan@us.ibm.com>
-Date: Thu, 26 Jan 2006 11:48:14 -0800
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0HF124 | January 12, 2006) at
- 01/26/2006 14:48:13,
-	Serialize complete at 01/26/2006 14:48:13
-Content-Type: text/plain; charset="US-ASCII"
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1-mm3
+References: <20060124232406.50abccd1.akpm@osdl.org>	 <6bffcb0e0601250340x6ca48af0w@mail.gmail.com>	 <43D7A047.3070004@yahoo.com.au> <6bffcb0e0601261102j7e0a5d5av@mail.gmail.com> <43D92754.4090007@yahoo.com.au>
+In-Reply-To: <43D92754.4090007@yahoo.com.au>
+Content-Type: multipart/mixed;
+ boundary="------------040404090104000801030407"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Are there any Linux file systems that work by mmapping the entire
->drive and using the paging system to do the read/writes? With 64 bits
->there's enough address space to do that now. How does this perform
->compared to a traditional block based scheme?
+This is a multi-part message in MIME format.
+--------------040404090104000801030407
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-They pretty much all do that.  A filesystem driver doesn't actually map 
-the whole drive into memory addresses all at once and generate page faults 
-by referencing memory -- instead, it generates the page faults explicitly, 
-which it can do more efficiently, and sets up the mappings in smaller 
-pieces as needed (also more efficient).  But the code that reads the pages 
-into the file cache and cleans dirty file cache pages out to the disk is 
-the same paging code that responds to page faults on malloc'ed pages and 
-writes such pages out to swap space when their page frames are needed for 
-other things.
+Nick Piggin wrote:
 
->With the IBM 128b address space aren't the devices vulnerable to an
->errant program spraying garbage into the address space? Is it better
->to map each device into it's own address space?
+> Thanks, it confirms my suspicions.
+> 
+> Can you try the following patch, please?
+> It appears the warnings were brought out by my improvement to
+> the put_page_testzero debugging code (which previously did not
+> check that we might be attempting to free a constituent compound
+> page).
+> 
+> Can you test the following patch please?
+> 
 
-Partitioning your storage space along device lines and making someone who 
-wants to store something identify a device for it is a pretty primitive 
-way of limiting errant programs.  Something like Linux disk quota and 
-rlimit (ulimit) is more appropriate to the task, and systems that gather 
-all their disk storage (even if separate from main memory) into a single 
-automated pool do have such quota systems.
+Sorry, wrong patch.
 
---
-Bryan Henderson                     IBM Almaden Research Center
-San Jose CA                         Filesystems
+Note the warnings you are seeing should not result in memory
+corruption, but will result in the given hugepage leaking.
 
+-- 
+SUSE Labs, Novell Inc.
+
+--------------040404090104000801030407
+Content-Type: text/plain;
+ name="mm-fix-release.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mm-fix-release.patch"
+
+Index: linux-2.6/include/linux/mm.h
+===================================================================
+--- linux-2.6.orig/include/linux/mm.h
++++ linux-2.6/include/linux/mm.h
+@@ -294,6 +294,8 @@ struct page {
+  */
+ static inline int put_page_testzero(struct page *page)
+ {
++	if (unlikely(PageCompound(page)))
++		page = (struct page *)page_private(page);
+ 	BUG_ON(atomic_read(&page->_count) == 0);
+ 	return atomic_dec_and_test(&page->_count);
+ }
+
+--------------040404090104000801030407--
+Send instant messages to your online friends http://au.messenger.yahoo.com 

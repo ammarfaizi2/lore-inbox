@@ -1,79 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWAZBGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWAZBJD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWAZBGz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 20:06:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWAZBGz
+	id S1751140AbWAZBJD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 20:09:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWAZBJC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 20:06:55 -0500
-Received: from highlandsun.propagation.net ([66.221.212.168]:43268 "EHLO
-	highlandsun.propagation.net") by vger.kernel.org with ESMTP
-	id S932095AbWAZBGy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 20:06:54 -0500
-Message-ID: <43D81C8D.5000106@symas.com>
-Date: Wed, 25 Jan 2006 16:49:17 -0800
-From: Howard Chu <hyc@symas.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20060115 SeaMonkey/1.5a Mnenhy/0.7.3.0
+	Wed, 25 Jan 2006 20:09:02 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:13068 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1751140AbWAZBJA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 20:09:00 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Cc: <hancockr@shaw.ca>
+Subject: RE: sched_yield() makes OpenLDAP slow
+Date: Wed, 25 Jan 2006 17:07:36 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKAEJBJKAB.davids@webmaster.com>
 MIME-Version: 1.0
-To: Robert Hancock <hancockr@shaw.ca>
-CC: Lee Revell <rlrevell@joe-job.com>,
-       Christopher Friesen <cfriesen@nortel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
-References: <20060124225919.GC12566@suse.de> <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de> <20060125121125.GH5465@suse.de> <43D78262.2050809@symas.com> <43D7BA0F.5010907@nortel.com> <43D7C2F0.5020108@symas.com> <1138223212.3087.16.camel@mindpipe> <43D7F863.3080207@symas.com> <43D814E1.7030600@shaw.ca>
-In-Reply-To: <43D814E1.7030600@shaw.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <43D78262.2050809@symas.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Wed, 25 Jan 2006 17:04:22 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Wed, 25 Jan 2006 17:04:42 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote:
-> Howard Chu wrote:
->> Kaz's post clearly interprets the POSIX spec differently from you. 
->> The policy can decide *which of the waiting threads* gets the mutex, 
->> but the releasing thread is totally out of the picture. For good or 
->> bad, the current pthread_mutex_unlock() is not POSIX-compliant. Now 
->> then, if we're forced to live with that, for efficiency's sake, 
->> that's OK, assuming that valid workarounds exist, such as inserting a 
->> sched_yield() after the unlock.
->>
->> http://groups.google.com/group/comp.programming.threads/msg/16c01eac398a1139?hl=en& 
->
->
-> Did you read the rest of this post?
->
-> "In any event, all the mutex fairness in the world won't solve the
-> problem. Consider if this lock/unlock cycle is inside a larger
-> lock/unlock cycle. Yielding at the unlock or blocking at the lock will
-> increase the dreadlock over the larger mutex.
 
-Basic "fairness" isn't the issue. Fairness is concerned with which of 
-*multiple waiting threads* gets the mutex, and that is certainly 
-irrelevant here. The issue is that the releasing thread should not be a 
-candidate.
+> Robert Hancock wrote:
 
-The mutex functions are a core part of the thread specification; they 
-have a fundamental behavior, and the definition says if there are 
-blocked threads waiting on a mutex when it gets unlocked, one of the 
-waiting threads gets the mutex. Which of the waiting threads gets it is 
-unspecified in the core spec. On a system that implements the scheduling 
-option, the scheduling policy specifies which thread. The scheduling 
-policy is an optional feature, it serves only to refine the core 
-functionality. A program written to the basic core specification should 
-not break when run in an environment that implements optional features.
+>  > "If there are threads blocked on the mutex object referenced by mutex
+>  > when pthread_mutex_unlock() is called, resulting in the mutex becoming
+>  > available, the scheduling policy shall determine which thread shall
+>  > acquire the mutex."
+>  >
+>  > This says nothing about requiring a reschedule. The "scheduling policy"
+>  > can well decide that the thread which just released the mutex can
+>  > re-acquire it.
 
-The spec may be mandating a non-optimal behavior, but that's a 
-side-issue - someone should file an objection with the Open Group to get 
-it redefined if it's such a bad idea. But for now, the NPTL 
-implementation is non-conformant.
+> No, because the thread that just released the mutex is obviously not one
+> of  the threads blocked on the mutex.
 
-Standards aren't just academic exercises. They're meant to be useful. If 
-the standard is too thinly specified, is ambiguous, or allows 
-nonsensical behavior, it's not useful and should be fixed at the source, 
-not just ignored and papered over in implementations.
+	So what?
 
--- 
-  -- Howard Chu
-  Chief Architect, Symas Corp.  http://www.symas.com
-  Director, Highland Sun        http://highlandsun.com/hyc
-  OpenLDAP Core Team            http://www.openldap.org/project/
+> When a mutex is unlocked, one of
+> the *waiting* threads at the time of the unlock must acquire it, and the
+> scheduling policy can determine that.
+
+	This is false and is nowhere found in the standard.
+
+> But the thread the released the
+> mutex is not one of the waiting threads, and is not eligible for
+> consideration.
+
+	Where are you getting this from? Nothing requires the scheduler to schedule
+any threads when the mutex is released.
+
+	All that must happen is that the mutex must be unlocked. The scheduler is
+permitted to allow any thread it wants to run at that point, or no thread.
+Nothing says the thread that released the mutex can't continue running and
+nothing says that it can't call pthread_mutex_lock and re-acquire the mutex
+before any other thread gets around to getting it.
+
+	In general, it is very bad karma for the scheduler to stop a thread before
+its timeslice is up if it doesn't have to. Consider one CPU and two threads,
+each needing to do 100 quick lock/unlock cycles. Why force 200 context
+switches?
+
+	DS
+
 

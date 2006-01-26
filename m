@@ -1,70 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbWAZXB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbWAZXER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030196AbWAZXB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 18:01:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbWAZXB4
+	id S1030201AbWAZXER (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 18:04:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbWAZXEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 18:01:56 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:12295 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030197AbWAZXBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 18:01:55 -0500
-Date: Fri, 27 Jan 2006 00:01:52 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Vasil Kolev <vasil@ludost.net>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, andre@linux-ide.org, frankt@promise.com,
-       linux-ide@vger.kernel.org
-Subject: Re: kobject_register failed for Promise_Old_IDE (-17)
-Message-ID: <20060126230152.GP3668@stusta.de>
-References: <1138093728.5828.8.camel@lyra.home.ludost.net> <20060124223527.GA26337@kroah.com> <58cb370e0601241458y6cdf702ey9caa261702a7948a@mail.gmail.com> <1138175680.5857.4.camel@lyra.home.ludost.net>
-MIME-Version: 1.0
+	Thu, 26 Jan 2006 18:04:16 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33804 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030201AbWAZXEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 18:04:15 -0500
+Date: Thu, 26 Jan 2006 23:03:54 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Grant Grundler <grundler@parisc-linux.org>
+Cc: Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Ian Molton <spyro@f2s.com>,
+       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>
+Subject: Re: [parisc-linux] Re: [PATCH 3/6] C-language equivalents of include/asm-*/bitops.h
+Message-ID: <20060126230353.GC27222@flint.arm.linux.org.uk>
+Mail-Followup-To: Grant Grundler <grundler@parisc-linux.org>,
+	Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Ian Molton <spyro@f2s.com>, dev-etrax@axis.com,
+	David Howells <dhowells@redhat.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
+	Hirokazu Takata <takata@linux-m32r.org>,
+	linux-m68k@lists.linux-m68k.org, Greg Ungerer <gerg@uclinux.org>,
+	linux-mips@linux-mips.org, parisc-linux@parisc-linux.org,
+	linuxppc-dev@ozlabs.org, linux390@de.ibm.com,
+	linuxsh-dev@lists.sourceforge.net,
+	linuxsh-shmedia-dev@lists.sourceforge.net,
+	sparclinux@vger.kernel.org, ultralinux@vger.kernel.org,
+	Miles Bader <uclinux-v850@lsi.nec.co.jp>, Andi Kleen <ak@suse.de>,
+	Chris Zankel <chris@zankel.net>
+References: <20060125112625.GA18584@miraclelinux.com> <20060125113206.GD18584@miraclelinux.com> <20060125200250.GA26443@flint.arm.linux.org.uk> <20060126000618.GA5592@twiddle.net> <20060126085540.GA15377@flint.arm.linux.org.uk> <20060126161849.GA13632@colo.lackof.org> <20060126164020.GA27222@flint.arm.linux.org.uk> <20060126230443.GC13632@colo.lackof.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1138175680.5857.4.camel@lyra.home.ludost.net>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060126230443.GC13632@colo.lackof.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25, 2006 at 09:54:40AM +0200, Vasil Kolev wrote:
-> ?? ????, 2006-01-24 ?? 23:58 +0100, Bartlomiej Zolnierkiewicz ????????????:
-> > On 1/24/06, Greg KH <greg@kroah.com> wrote:
-> > > On Tue, Jan 24, 2006 at 11:08:47AM +0200, Vasil Kolev wrote:
-> > > > Hello,
-> > > > I have a machine that's currently running 2.4.28 with the promise_old
-> > > > driver, which runs ok. I tried upgrading it last night to 2.6.15, and
-> > > > the following error occured, and no drives were detected/made available:
-> > > >
-> > > >  [17179598.940000] kobject_register failed for Promise_Old_IDE (-17)
-> > > >  [17179598.940000]  [dump_stack+21/23] dump_stack+0x15/0x17
-> > > >  [17179598.940000]  [kobject_register+52/64] kobject_register+0x34/0x40
-> > > >  [17179598.940000]  [bus_add_driver+69/163] bus_add_driver+0x45/0xa3
-> > > >  [17179598.940000]  [driver_register+57/60] driver_register+0x39/0x3c
-> > > >  [17179598.940000]  [__pci_register_driver+125/132] __pci_register_driver+0x7d/0x84
-> > > >  [17179598.940000]  [__ide_pci_register_driver+19/53] __ide_pci_register_driver+0x13/0x35
-> > > >  [17179598.940000]  [pg0+945449588/1069855744] pdc202xx_ide_init+0x12/0x16 [pdc202xx_old]
-> > > >  [17179598.940000]  [sys_init_module+193/430] sys_init_module+0xc1/0x1ae
-> > > >  [17179598.940000]  [syscall_call+7/11] syscall_call+0x7/0xb
-> > >
-> > > This means that some other driver tried to register with the same exact
-> > > name for the same bus.  As it looks like this is the ide bus, I suggest
-> > > asking on the linux ide mailing list.
-> > 
+On Thu, Jan 26, 2006 at 04:04:43PM -0700, Grant Grundler wrote:
+> On Thu, Jan 26, 2006 at 04:40:21PM +0000, Russell King wrote:
+> > Ok, I can see I'm going to lose this, but what the hell.
 > 
-> Well, now I remember that in /sys in the proper place there were two
-> directories called Promise_Old_IDE, maybe the driver tried to register
-> twice?
->...
+> Well, we agree. As Richard Henderson just pointed out, parisc
+> is among those that can't load large immediate values either.
+> 
+> > Let's compare the implementations, which are:
+> ...
+> > int arm_ffs(unsigned long word)
+> > {
+> >      int k = 31;
+> >      if (word & 0x0000ffff) { k -= 16; word <<= 16; }
+> >      if (word & 0x00ff0000) { k -= 8;  word <<= 8;  }
+> >      if (word & 0x0f000000) { k -= 4;  word <<= 4;  }
+> >      if (word & 0x30000000) { k -= 2;  word <<= 2;  }
+> >      if (word & 0x40000000) { k -= 1; }
+> >      return k;
+> > }
+> 
+> Of those suggested, arm_ffs() is closest to what parisc
+> currently has in assembly (see include/asm-parisc/bitops.h:__ffs()).
+> But given how unobvious the parisc instruction nullification works,
+> the rough equivalent in "C" (untested!) would look something like:
+> 
+> 	unsigned int k = 31;
+> 	if (word & 0x0000ffff) { k -= 16;} else { word >>= 16; }
+> 	if (word & 0x000000ff) { k -=  8;} else { word >>= 8; }
+> 	if (word & 0x0000000f) { k -=  4;} else { word >>= 4; }
+> 	if (word & 0x00000003) { k -=  2;} else { word >>= 2; }
+> 	if (word & 0x00000001) { k -=  1;}
+> 	return k;
+> 
+> I doubt that's better for arm but am curious how it compares.
+> You have time to try it?
 
-Greg, IIRC, weren't there plans to turn this case into a BUG()?
+This is essentially the same as arm_ffs():
 
-cu
-Adrian
+grundler_ffs:
+        mov     r3, r0, asl #16
+        mov     r3, r3, lsr #16
+        cmp     r3, #0
+        moveq   r0, r0, lsr #16
+        mov     r3, #31
+        movne   r3, #15
+        tst     r0, #255
+        moveq   r0, r0, lsr #8
+        subne   r3, r3, #8
+        tst     r0, #15
+        moveq   r0, r0, lsr #4
+        subne   r3, r3, #4
+        tst     r0, #3
+        moveq   r0, r0, lsr #2
+        subne   r3, r3, #2
+        tst     r0, #1
+        subne   r3, r3, #1
+        mov     r0, r3
+        mov     pc, lr
+
+only that the shifts, immediate values and the sense of some of the
+conditional instructions have changed.  Therefore, the parisc rough
+equivalent looks like it would be suitable for ARM as well.
+
+> > Clearly the smallest of the lot with the smallest register pressure,
+> > being the best candidate out of the lot, whether we inline it or not.
+> 
+> Agreed. But I expect parisc will have to continue using it's asm
+> sequence and ignore the generic version. AFAIK, the compiler isn't that
+> good with instruction nullification and I have other issues I'd
+> rather work on.
+
+Me too - already solved this problem once.  However, I'd rather not
+needlessly take a step backwards in the name of generic bitops.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

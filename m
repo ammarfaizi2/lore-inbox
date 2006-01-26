@@ -1,135 +1,237 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbWAZUhw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWAZUjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964862AbWAZUhw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 15:37:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWAZUhw
+	id S964867AbWAZUjP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 15:39:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbWAZUjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 15:37:52 -0500
-Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:32916 "EHLO
-	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
-	id S964862AbWAZUhv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 15:37:51 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Problems with MSI-X on ia64
-Date: Thu, 26 Jan 2006 14:37:14 -0600
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF10B8481F1@cceexc23.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Problems with MSI-X on ia64
-Thread-Index: AcYitoZu26X9m6x5RNaCpMic/Hi5zQAAJwRA
-From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-To: "Grundler, Grant G" <grant.grundler@hp.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 26 Jan 2006 20:37:16.0040 (UTC) FILETIME=[4B5DC080:01C622B8]
+	Thu, 26 Jan 2006 15:39:14 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:47801 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964867AbWAZUjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 15:39:14 -0500
+Date: Thu, 26 Jan 2006 14:38:58 -0600
+From: Dimitri Sivanich <sivanich@sgi.com>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Subject: [PATCH] Enable remote RCU callback processing on SMP systems
+Message-ID: <20060126203858.GA28308@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Grundler, Grant G 
-> > We're using a 2.6.9 variant and a cciss driver with 
-> MSI/MSI-X support.
-> > The kernel has MSI enabled. On ia64 the MSI-X table is all zeroes.
-> 
-> Could you post the debug output you've collected so far?
+The purpose of the patch I'm proposing is to reduce unexpected rcu
+callback latencies on selected cpus.  Latencies caused by processing
+certain rcu callbacks can be quite substantial, such as those
+concerning file_free_rcu() for example.  This was previously mentioned
+in the following posts:
 
-There are 2 MSI-X capable controllers in the system. On IPF this is what
-the tables look like:
+	lkml/2005/10/20/62
+	lkml/2005/12/20/93
 
-cciss: offset = 0xfe000 table offset = 0xfe000 BIR = 0x0
-cciss: 0: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-cciss: 1: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-cciss: 2: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-cciss: 3: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-cciss: using DAC cycles
-ACPI: PCI interrupt 0000:88:00.0[A] -> GSI 71 (level, low) -> IRQ 61
-cciss: MSI-X enabled
-cciss: offset = 0xfe000 table offset = 0xfe000 BIR = 0x0
-cciss: 0: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-cciss: 1: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-cciss: 2: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-cciss: 3: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-cciss: using DAC cycles
-blocks= 143305920 block_size= 512
-heads= 255, sectors= 32, cylinders= 17562
+
+This patch enables specified cpus to be setup for remote rcu callback
+processing.  This can be done either at boot time or dynamically.
+
+The cpus setup for remote callback processing do not process their own
+rcu callbacks, but do go through the normal quiescent state processing.
+There is no locking being added for the remote callback cpus.  The cpus
+not setup as remote callback cpus pull the donelists of callbacks from
+the next remote callback cpu and process the list.
+
+Signed-off-by: Dimitri Sivanich <sivanich@sgi.com>
+
+Index: linux/kernel/rcupdate.c
+===================================================================
+--- linux.orig/kernel/rcupdate.c	2006-01-26 11:42:39.057950013 -0600
++++ linux/kernel/rcupdate.c	2006-01-26 11:42:55.847318916 -0600
+@@ -103,6 +103,91 @@ static atomic_t rcu_barrier_cpu_count;
+ static struct semaphore rcu_barrier_sema;
+ static struct completion rcu_barrier_completion;
  
-blocks= 142130880 block_size= 512
-heads= 255, sectors= 32, cylinders= 17418
++/*
++ * Routines for setting up cpus for remote callback processing.
++ * This is done to improve determinism on specified cpus.
++ */
++#define rcu_remote_online_cpus(_m_) \
++	cpus_and((_m_), cpu_remotercu_map, cpu_online_map)
++
++static int cpu_remotercu_next = -1;
++static cpumask_t cpu_remotercu_map = CPU_MASK_NONE;
++static spinlock_t cpu_remotercu_lock = SPIN_LOCK_UNLOCKED;
++
++static inline int is_remote_rcu(void) {
++	cpumask_t mask;
++
++	rcu_remote_online_cpus(mask);
++	return cpu_isset(smp_processor_id(), mask);
++}
++
++static inline int rcu_remote_rcus(void)
++{
++	cpumask_t mask;
++
++	rcu_remote_online_cpus(mask);
++	return !cpus_empty(mask);
++}
++
++/* Get the next cpu to do remote callback processing on */
++static inline int rcu_next_remotercu(void)
++{
++	cpumask_t mask;
++	unsigned long flags;
++	int cpu;
++
++	rcu_remote_online_cpus(mask);
++	if (cpus_empty(mask))
++		return -1;
++	spin_lock_irqsave(&cpu_remotercu_lock, flags);
++	cpu_remotercu_next=next_cpu(cpu_remotercu_next, mask);
++	if (cpu_remotercu_next >= NR_CPUS) {
++		cpu_remotercu_next = first_cpu(mask);
++	}
++	cpu = cpu_remotercu_next;
++	spin_unlock_irqrestore(&cpu_remotercu_lock, flags);
++
++	return cpu;
++}
++
++int rcu_set_remote_rcu(int cpu) {
++	unsigned long flags;
++
++	if (cpu < NR_CPUS) {
++		spin_lock_irqsave(&cpu_remotercu_lock, flags);
++		cpu_set(cpu, cpu_remotercu_map);
++		spin_unlock_irqrestore(&cpu_remotercu_lock, flags);
++		return 0;
++	} else
++		return 1;
++}
++EXPORT_SYMBOL(rcu_set_remote_rcu);
++
++void rcu_clear_remote_rcu(int cpu) {
++	unsigned long flags;
++
++	if (cpu < NR_CPUS) {
++		spin_lock_irqsave(&cpu_remotercu_lock, flags);
++		cpu_clear(cpu, cpu_remotercu_map);
++		spin_unlock_irqrestore(&cpu_remotercu_lock, flags);
++	}
++}
++EXPORT_SYMBOL(rcu_clear_remote_rcu);
++
++/* Setup the mask of cpus configured for remote callback processing */
++static int __init rcu_remotercu_cpu_setup(char *str)
++{
++	int cpus[NR_CPUS], i;
++
++	str = get_options(str, ARRAY_SIZE(cpus), cpus);
++	cpus_clear(cpu_remotercu_map);
++	for (i = 1; i <= cpus[0]; i++)
++		rcu_set_remote_rcu(cpus[i]);
++	cpu_remotercu_next = first_cpu(cpu_remotercu_map);
++	return 1;
++}
++
++__setup ("remotercu=", rcu_remotercu_cpu_setup);
+ /**
+  * call_rcu_bh - Queue an RCU for invocation after a quicker grace period.
+  * @head: structure to be used for queueing the RCU updates.
+@@ -351,6 +436,8 @@ static void rcu_offline_cpu(int cpu)
+ 	struct rcu_data *this_rdp = &get_cpu_var(rcu_data);
+ 	struct rcu_data *this_bh_rdp = &get_cpu_var(rcu_bh_data);
  
-cciss/c2d0:
-
-And this is where we hang, when enabling interrupts in the driver.
-
-The table on x86_64 looks like this:
-
-cciss: Device 0x3230 has been found at bus 11 dev 0 func 0
-ACPI: PCI Interrupt 0000:0b:00.0[A] -> GSI 16 (level, low) -> IRQ 169
-cciss: offset = 0xfe000 table offset = 0xfe000 BIR = 0x0
-cciss: 0: vector = 0,msg data = 40d1, msg upper addr = 0,msg addr =
-fee00000
-cciss: 1: vector = 0,msg data = 40d9, msg upper addr = 0,msg addr =
-fee00000
-cciss: 2: vector = 0,msg data = 40e1, msg upper addr = 0,msg addr =
-fee00000
-cciss: 3: vector = 0,msg data = 40e9, msg upper addr = 0,msg addr =
-fee00000
-cciss: using DAC cycles
-
-mikem
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-> 
-> > On Intel x86_64 platforms the table contains valid data and 
-> everything 
-> > works as expected.
-> 
-> It should look similar for ia64 since both use 0xfeeXXXXX 
-> Processor Interrupt Block address and similar intr vectors.
-> 
-> > If I understand how this works the Linux kernel is supposed 
-> to program 
-> > up the table based on the HW platform. I can't find anything in the 
-> > ia64 code that does this. For x86_64 and i386 it looks like 
-> the magic 
-> > address is
-> > 
-> > 	#define APIC_DEFAULT_BASE	0xfee00000
-> > 
-> > Anybody know why this isn't defined for ia64? Any answers, 
-> input, or 
-> > flames are appreciated.
-> 
-> APIC_DEAFULT_BASE isn't used.  See 
-> 
-> fgrep MSI_ADDRESS_HEADER drivers/pci/*
-> drivers/pci/msi.c:      dest_id = (MSI_ADDRESS_HEADER << 
-> MSI_ADDRESS_HEADER_SHIFT);
-> drivers/pci/msi.h:#define MSI_ADDRESS_HEADER            0xfee
-> drivers/pci/msi.h:#define MSI_ADDRESS_HEADER_SHIFT      12
-> drivers/pci/msi.h:#define MSI_ADDRESS_HEADER_MASK       0xfff000
-> 
-> This is one of the things that Mark Maule/SGI needs to change 
-> to support MSI on SN2.
-> 
-> grant
-> 
++	rcu_clear_remote_rcu(cpu);
++
+ 	__rcu_offline_cpu(this_rdp, &rcu_ctrlblk,
+ 					&per_cpu(rcu_data, cpu));
+ 	__rcu_offline_cpu(this_bh_rdp, &rcu_bh_ctrlblk,
+@@ -411,14 +498,62 @@ static void __rcu_process_callbacks(stru
+ 		local_irq_enable();
+ 	}
+ 	rcu_check_quiescent_state(rcp, rdp);
+-	if (rdp->donelist)
++	/* Prevent remote cpu's from accessing donelist */
++	if (likely(!is_remote_rcu()))
++		rdp->doneself = 0;
++	if (rdp->donelist && !is_remote_rcu()) {
+ 		rcu_do_batch(rdp);
++	}
++	if (unlikely(is_remote_rcu()))
++		rdp->doneself = 1;
++}
++
++static inline void __rcu_process_remote_callbacks(void)
++{
++	struct rcu_data *rdp;
++	struct rcu_head * list = NULL;
++	struct rcu_head * list_bh = NULL;
++	int cpu;
++
++
++	if (likely(!rcu_remote_rcus() || is_remote_rcu())) {
++		return;
++	}
++	cpu = rcu_next_remotercu();
++	/* Just in case.. */
++	if (unlikely(cpu == -1)) {
++		return;
++	}
++	rdp = &per_cpu(rcu_data, cpu);
++	/*
++	 * The xchg prevents multiple cpus from processing the same
++	 * list simulataneously.
++	 */
++	if (rdp->doneself && (list = xchg(&rdp->donelist, NULL))!=NULL) {
++		rdp->count = 0;
++		rdp->donetail = &rdp->donelist;
++	}
++	rdp = &per_cpu(rcu_bh_data, cpu);
++	if (rdp->doneself && (list_bh = xchg(&rdp->donelist, NULL))!=NULL) {
++		rdp->count = 0;
++		rdp->donetail = &rdp->donelist;
++	}
++
++	while (list) {
++		list->func(list);
++		list = list->next;
++	}
++	while (list_bh) {
++		list_bh->func(list_bh);
++		list_bh = list_bh->next;
++	}
+ }
+ 
+ static void rcu_process_callbacks(unsigned long unused)
+ {
+ 	__rcu_process_callbacks(&rcu_ctrlblk, &__get_cpu_var(rcu_data));
+ 	__rcu_process_callbacks(&rcu_bh_ctrlblk, &__get_cpu_var(rcu_bh_data));
++	__rcu_process_remote_callbacks();
+ }
+ 
+ static int __rcu_pending(struct rcu_ctrlblk *rcp, struct rcu_data *rdp)
+@@ -447,6 +582,9 @@ static int __rcu_pending(struct rcu_ctrl
+ 
+ int rcu_pending(int cpu)
+ {
++	/* If any cpus setup for remote callbacks, schedule tasklet anyway. */
++	if (unlikely(rcu_remote_rcus()) && !is_remote_rcu())
++		tasklet_schedule(&per_cpu(rcu_tasklet, cpu));
+ 	return __rcu_pending(&rcu_ctrlblk, &per_cpu(rcu_data, cpu)) ||
+ 		__rcu_pending(&rcu_bh_ctrlblk, &per_cpu(rcu_bh_data, cpu));
+ }
+Index: linux/include/linux/rcupdate.h
+===================================================================
+--- linux.orig/include/linux/rcupdate.h	2006-01-26 11:42:39.065761747 -0600
++++ linux/include/linux/rcupdate.h	2006-01-26 11:42:55.863918850 -0600
+@@ -103,6 +103,7 @@ struct rcu_data {
+ 	struct rcu_head **curtail;
+ 	struct rcu_head *donelist;
+ 	struct rcu_head **donetail;
++	int doneself;
+ 	int cpu;
+ 	struct rcu_head barrier;
+ };

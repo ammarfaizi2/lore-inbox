@@ -1,47 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWAZICd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751021AbWAZIKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWAZICd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 03:02:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWAZICd
+	id S1751021AbWAZIKm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 03:10:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWAZIKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 03:02:33 -0500
-Received: from smtp3-g19.free.fr ([212.27.42.29]:13995 "EHLO smtp3-g19.free.fr")
-	by vger.kernel.org with ESMTP id S932106AbWAZICd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 03:02:33 -0500
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: 7eggert@gmx.de
-Subject: Re: [PATCH] bttv: correct bttv_risc_packed buffer size
-Date: Thu, 26 Jan 2006 09:02:29 +0100
-User-Agent: KMail/1.9.1
-Cc: mchehab@brturbo.com.br, Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <5yQ4M-7PJ-11@gated-at.bofh.it> <E1F1pWq-0001d1-JH@be1.lrz>
-In-Reply-To: <E1F1pWq-0001d1-JH@be1.lrz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 26 Jan 2006 03:10:42 -0500
+Received: from 213-140-2-72.ip.fastwebnet.it ([213.140.2.72]:65436 "EHLO
+	aa005msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1751020AbWAZIKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 03:10:42 -0500
+Date: Thu, 26 Jan 2006 09:11:29 +0100
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.2 for  2.6.16-rc1 and
+ 2.6.16-rc1-mm1
+Message-ID: <20060126091129.53de58fa@localhost>
+In-Reply-To: <43D82161.6000809@bigpond.net.au>
+References: <43D00887.6010409@bigpond.net.au>
+	<20060121114616.4a906b4f@localhost>
+	<43D2BE83.1020200@bigpond.net.au>
+	<43D40B96.3060705@bigpond.net.au>
+	<43D4281D.10009@bigpond.net.au>
+	<20060123212158.3fba71d5@localhost>
+	<43D82161.6000809@bigpond.net.au>
+X-Mailer: Sylpheed-Claws 2.0.0-rc3 (GTK+ 2.8.8; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601260902.30382.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bodo,
+On Thu, 26 Jan 2006 12:09:53 +1100
+Peter Williams <pwil3058@bigpond.net.au> wrote:
 
-> > This patch fixes the strange crashes I was seeing after using
-> > my bttv card to watch television.  They were caused by a
-> > buffer overflow in bttv_risc_packed.
+> I know that I've said this before but I've found the problem. 
+> Embarrassingly, it was a basic book keeping error (recently introduced 
+> and equivalent to getting nr_running wrong for each CPU) in the 
+> gathering of the statistics that I use. :-(
 > 
-> <snip>
-> 
-> Would these errors e.g. cause a corruption of exactly four bytes at the start
-> of random pages?
+> The attached patch (applied on top of the PlugSched patch) should fix 
+> things.  Could you test it please?
 
-I don't think so.  It should cause either no corruption or at least 8 bytes worth
-(it does pairs of 4 byte writes).  What you might see is an Oops when it tries to
-write the first 4 bytes at the start of a page, because of a page fault, but then
-the write doesn't happen and there is no corruption...
+Ok, this one make a difference:
 
-Best wishes,
+(transcode)
 
-Duncan.
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+ 5774 paolo     34   0  116m  18m 2432 R 86.2  3.7   0:11.65 transcode
+ 5788 paolo     32   0 51000 4472 1872 S  7.5  0.9   0:01.13 tcdecode
+ 5797 paolo     29   0  4948 1468  372 D  3.2  0.3   0:00.30 dd
+ 5781 paolo     33   0 19844 1092  880 S  1.0  0.2   0:00.10 tcdemux
+ 5783 paolo     31   0 47964 2496 1956 S  0.7  0.5   0:00.08 tcdecode
+ 5786 paolo     34   0 19840 1088  880 R  0.5  0.2   0:00.06 tcdemux
+
+(sched_fooler)
+
+ PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+ 5804 paolo     34   0  2396  292  228 R 35.7  0.1   0:12.84 a.out
+ 5803 paolo     34   0  2392  288  228 R 30.5  0.1   0:11.49 a.out
+ 5805 paolo     34   0  2392  288  228 R 30.2  0.1   0:10.70 a.out
+ 5815 paolo     29   0  4948 1468  372 D  3.7  0.3   0:00.29 dd
+ 5458 paolo     28   0 86656  21m  15m S  0.2  4.4   0:02.18 konsole
+
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+ 5804 paolo     34   0  2396  292  228 R 36.5  0.1   0:38.19 a.out
+ 5803 paolo     34   0  2392  288  228 R 30.5  0.1   0:34.27 a.out
+ 5805 paolo     34   0  2392  288  228 R 29.2  0.1   0:32.39 a.out
+ 5829 paolo     34   0  4952 1472  372 R  3.2  0.3   0:00.35 dd
+
+DD_TEST + sched_fooler: 512 MB --- ~20s instead of 16.6s
+
+This is a clear improvement... however I wonder why DD priority
+fluctuate going up even to 34 (the range is something like 29 <--->
+34).
+
+-- 
+	Paolo Ornati
+	Linux 2.6.16-rc1-plugsched on x86_64

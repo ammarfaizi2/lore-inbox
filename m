@@ -1,104 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWAZDri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWAZDt3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWAZDri (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 22:47:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbWAZDri
+	id S932253AbWAZDt3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 22:49:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWAZDt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 22:47:38 -0500
-Received: from liaag2ad.mx.compuserve.com ([149.174.40.155]:22750 "EHLO
-	liaag2ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932189AbWAZDri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 22:47:38 -0500
-Date: Wed, 25 Jan 2006 22:43:49 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH] i386 - sys_clone from vsyscall
-To: erg0t <ergot86@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>
-Message-ID: <200601252247_MC3-1-B6BF-F209@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	Wed, 25 Jan 2006 22:49:28 -0500
+Received: from [202.53.187.9] ([202.53.187.9]:21227 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S932250AbWAZDt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 22:49:27 -0500
+From: Nigel Cunningham <nigel@suspend2.net>
+Subject: [ 13/23] [Suspend2] Add support for thawing just kernel threads or all threads.
+Date: Thu, 26 Jan 2006 13:45:53 +1000
+To: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Message-Id: <20060126034552.3178.99871.stgit@localhost.localdomain>
+In-Reply-To: <20060126034518.3178.55397.stgit@localhost.localdomain>
+References: <20060126034518.3178.55397.stgit@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <401b11ae0601110953h2389f118t3d4d11c33eece4f8@mail.gmail.com>
 
-On Wed, 11 Jan 2006 at 17:53:10 +0000, erg0t wrote:
+Modify the thaw_processes routine so that it takes and implements a
+parameter saying whether to thaw all processes, or just kernel space.
 
-> This patch fixes a little problem when sys_clone is called from
-> a vsyscall and a new stack for the child is specifed.
-> Some regs, and return address are pushed in the stack before sysenter,
-> so when the syscall returns, pop the regs and return, if we made
-> a new stack for the thread we need to copy that to the new stack
-> or the thread will segfault.
+Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
-glibc works around this bug by hardcoding "int 0x80" at
-glibc-2.3.5/sysdeps/unix/sysv/linux/i386/clone.S line 99.
+ kernel/power/process.c |   25 +++++++++++++++++++------
+ 1 files changed, 19 insertions(+), 6 deletions(-)
 
-> Sorry for use the 0xffffe410 constant I didn't find another way
-> to reference it.
-
-It's SYSENTER_RETURN.
-
-> Signed-off-by: Daniel F <ergot86@gmail.com>
-
-Your patch almost works but it copies the stack into the parent's address space.
-Using access_process_vm() fixes it.  However, that still leaves unfixed the case
-where vsyscall-int80 is used.
-
-
-[patch] i386: fix sys_clone when using vsyscall-sysenter
-
-Fix a problem when sys_clone is called from sysenter vsyscall and a new stack
-for the child is specified.  Some data needs to be copied from the parent
-to the child stack or the child will segfault.
-
-Bug report and initial patch from Daniel F <ergot86@gmail.com>
-
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-
---- 2.6.15a.orig/arch/i386/kernel/process.c
-+++ 2.6.15a/arch/i386/kernel/process.c
-@@ -429,12 +429,15 @@ void prepare_to_copy(struct task_struct 
- 	unlazy_fpu(tsk);
+diff --git a/kernel/power/process.c b/kernel/power/process.c
+index a3aca9a..dffe645 100644
+--- a/kernel/power/process.c
++++ b/kernel/power/process.c
+@@ -182,13 +182,26 @@ static int freeze_process(struct notifie
+ 	return 0;
  }
  
-+void SYSENTER_RETURN(void);
-+
- int copy_thread(int nr, unsigned long clone_flags, unsigned long esp,
- 	unsigned long unused,
- 	struct task_struct * p, struct pt_regs * regs)
+-void thaw_processes(void)
++void thaw_processes(int do_all_threads)
  {
- 	struct pt_regs * childregs;
- 	struct task_struct *tsk;
-+	unsigned long vsyscall_stack[4];
- 	int err;
- 
- 	childregs = ((struct pt_regs *) (THREAD_SIZE + (unsigned long) p->thread_info)) - 1;
-@@ -451,6 +454,19 @@ int copy_thread(int nr, unsigned long cl
- 	childregs = (struct pt_regs *) ((unsigned long) childregs - 8);
- 	*childregs = *regs;
- 	childregs->eax = 0;
-+	/*
-+	 * When we were called from a vsyscall some things are pushed on the stack;
-+	 * we need to copy the stuff to the new stack.
-+	 */
-+	if (regs->esp != esp && (void *)regs->eip == SYSENTER_RETURN) {
-+		int size = sizeof(vsyscall_stack);
-+
-+		if (copy_from_user(vsyscall_stack, (void *)regs->esp, size))
-+			return -EFAULT;
-+		if (access_process_vm(p, esp - size, vsyscall_stack, size, 1) != size)
-+			return -EFAULT;
-+		esp -= size;
+-	freezer_message("Restarting tasks..");
+-	complete_all(&thaw);
+-	while (atomic_read(&nr_frozen) > 0)
+-		schedule();
+-	freezer_message("done\n");
++	if (do_all_threads) {
++		clear_freezer_state(FREEZER_ON);
++		clear_freezer_state(ABORT_FREEZING);
 +	}
- 	childregs->esp = esp;
++
++	complete_all(&kernelspace_thaw);
++	while (atomic_read(&nr_kernelspace_frozen) > 0)
++		yield();
++
++	init_completion(&kernelspace_thaw);
++	freezer_make_fses_rw();
++
++	if (do_all_threads) {
++		complete_all(&userspace_thaw);
++		while (atomic_read(&nr_userspace_frozen) > 0)
++			yield();
++		init_completion(&userspace_thaw);
++	}
+ }
  
- 	p->thread.esp = (unsigned long) childregs;
--- 
-Chuck
+ static inline void freeze(struct task_struct *p)
+
+--
+Nigel Cunningham		nigel at suspend2 dot net

@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWAZVgZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWAZVey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751375AbWAZVgZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 16:36:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWAZVgY
+	id S1751213AbWAZVey (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 16:34:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751394AbWAZVey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 16:36:24 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2736 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751413AbWAZVgY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 16:36:24 -0500
-Date: Thu, 26 Jan 2006 22:36:12 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: seife@suse.de, kernel list <linux-kernel@vger.kernel.org>
-Subject: Suspend to RAM: help with whitelist wanted
-Message-ID: <20060126213611.GA1668@elf.ucw.cz>
+	Thu, 26 Jan 2006 16:34:54 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:25558
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751213AbWAZVex
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 16:34:53 -0500
+Subject: Re: [2.6 patch] kernel/posix-timers.c: remove
+	do_posix_clock_notimer_create()
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, george@mvista.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060126095002.GX3590@stusta.de>
+References: <20060126095002.GX3590@stusta.de>
+Content-Type: text/plain
+Date: Thu, 26 Jan 2006 22:36:01 +0100
+Message-Id: <1138311361.15232.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.5.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, 2006-01-26 at 10:50 +0100, Adrian Bunk wrote:
+> This function is neither used nor has any real contents.
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-On www.sf.net/projects/suspend , there's s2ram.c program for
-suspending machines. It contains whitelist of known machines, along
-with methods to get their video working (similar to
-Doc*/power/video.txt). Unfortunately, video.txt does not allow me to
-fill in whitelist automatically, so I need your help.
+Ack
+	tglx
 
-I do not yet have solution for machines that need vbetool; fortunately
-my machines do not need that :-), and it is pretty complex (includes
-x86 emulator).
 
-Routine I'd like you to modify looks like:
-
-        if (!strcmp(sys_vendor, "IBM")) {
-                if (!strcmp(sys_version, "ThinkPad X32")) {
-                        machine_known();
-                        set_acpi_video_mode(3);
-                        radeon_backlight_off();
-                        return;
-                }
-        }
-
-... so it is pretty easy (but any patches are welcome).
-
-								Pavel
--- 
-Thanks, Sharp!

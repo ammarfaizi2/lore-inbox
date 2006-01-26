@@ -1,114 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbWAZHML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbWAZHOa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750984AbWAZHML (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 02:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750958AbWAZHML
+	id S1750965AbWAZHOa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 02:14:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750958AbWAZHO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 02:12:11 -0500
-Received: from xproxy.gmail.com ([66.249.82.194]:13141 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750813AbWAZHMJ convert rfc822-to-8bit
+	Thu, 26 Jan 2006 02:14:29 -0500
+Received: from nproxy.gmail.com ([64.233.182.196]:12269 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750796AbWAZHO3 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 02:12:09 -0500
+	Thu, 26 Jan 2006 02:14:29 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fW1zdXXaCbHc6WjVgeerVc//2i1jYwd41O8e4bgu2j1LcVVEcILzB0CMCFbw3mFU1fEjU1cOzxbHQ2nM8lhUek8KJHpk7+BhZp/W6d3klV2KOlVkpb149sk/aqv7c8HyxmjbvDvjtZovLBd+F1oO1RVs6YpPygJ2jcBn97Lm2Xw=
-Message-ID: <661de9470601252312m1f9c9256peb79451e49fc8662@mail.gmail.com>
-Date: Thu, 26 Jan 2006 12:42:09 +0530
-From: Balbir Singh <bsingharora@gmail.com>
-To: Akinobu Mita <mita@miraclelinux.com>
-Subject: Re: [PATCH 8/12] generic hweight{32,16,8}()
-Cc: Grant Grundler <iod00d@hp.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-In-Reply-To: <20060126033613.GG11138@miraclelinux.com>
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NQgapaInLmiSNxYkcHQqqm8cp/KGabNbBanQ09/kl1vxS9kezHBO23lhApgmOXbQsUNCOxigluOU9es2En/bSz5/nqO82ySn2cwrsbDJsCIzKhJtf10hj0f4j2o7MGFzWG+s90jtU6SVJ9/YowJXk30QNT7M3khHPUYBau/nEAc=
+Message-ID: <84144f020601252303x7e2a75c6rdfe789d3477d9317@mail.gmail.com>
+Date: Thu, 26 Jan 2006 09:03:55 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Andy Whitcroft <apw@shadowen.org>
+Subject: Re: 2.6.16-rc1-mm3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <43D7E83D.7040603@shadowen.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <20060125112625.GA18584@miraclelinux.com>
-	 <20060125113206.GD18584@miraclelinux.com>
-	 <20060125200250.GA26443@flint.arm.linux.org.uk>
-	 <20060125205907.GF9995@esmail.cup.hp.com>
-	 <20060126032713.GA9984@miraclelinux.com>
-	 <20060126033613.GG11138@miraclelinux.com>
+References: <20060124232406.50abccd1.akpm@osdl.org>
+	 <43D785E1.4020708@shadowen.org>
+	 <84144f020601250644h6ca4e407q2e15aa53b50ef509@mail.gmail.com>
+	 <43D7AB49.2010709@shadowen.org> <1138212981.8595.6.camel@localhost>
+	 <43D7E83D.7040603@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/26/06, Akinobu Mita <mita@miraclelinux.com> wrote:
-> This patch introduces the C-language equivalents of the functions below:
-> unsigned int hweight32(unsigned int w);
-> unsigned int hweight16(unsigned int w);
-> unsigned int hweight8(unsigned int w);
->
-> HAVE_ARCH_HWEIGHT_BITOPS is defined when the architecture has its own
-> version of these functions.
->
-> This code largely copied from:
-> include/linux/bitops.h
->
-> Index: 2.6-git/include/asm-generic/bitops.h
-> ===================================================================
-> --- 2.6-git.orig/include/asm-generic/bitops.h   2006-01-25 19:14:10.000000000 +0900
-> +++ 2.6-git/include/asm-generic/bitops.h        2006-01-25 19:14:11.000000000 +0900
-> @@ -458,14 +458,38 @@
->  #endif /* HAVE_ARCH_FFS_BITOPS */
->
->
-> +#ifndef HAVE_ARCH_HWEIGHT_BITOPS
-> +
->  /*
->   * hweightN: returns the hamming weight (i.e. the number
->   * of bits set) of a N-bit word
->   */
->
-> -#define hweight32(x) generic_hweight32(x)
-> -#define hweight16(x) generic_hweight16(x)
-> -#define hweight8(x) generic_hweight8(x)
-> +static inline unsigned int hweight32(unsigned int w)
-> +{
-> +        unsigned int res = (w & 0x55555555) + ((w >> 1) & 0x55555555);
-> +        res = (res & 0x33333333) + ((res >> 2) & 0x33333333);
-> +        res = (res & 0x0F0F0F0F) + ((res >> 4) & 0x0F0F0F0F);
-> +        res = (res & 0x00FF00FF) + ((res >> 8) & 0x00FF00FF);
-> +        return (res & 0x0000FFFF) + ((res >> 16) & 0x0000FFFF);
-> +}
-> +
+Hi Andy,
 
-This can be replaced with
+Pekka Enberg wrote:
+> > Does vanilla 2.6.16-rc1 work for you? The oops definitely makes me think
+> > it's slab related but the other patches don't seem likely suspects.
 
-  register int res=w;
-  res=res-((res>>1)&0x55555555);
-  res=(res&0x33333333)+((res>>2)&0x33333333);
-  res=(res+(res>>4))&0x0f0f0f0f;
-  res=res+(res>>8);
-  return (res+(res>>16)) & 0xff;
+On 1/25/06, Andy Whitcroft <apw@shadowen.org> wrote:
+> None of the other patches you suggested seem to be it either :/.  Yes
+> 2.6.16-rc1 was ok on the boxs in question.
 
-Similar optimizations can be applied to the routines below. Please see
-http://www-cs-faculty.stanford.edu/~knuth/mmixware.html errata and the code
-in mmix-arith.w for the complete set of optimizations and credits.
+Then I dont see how it could be slab related. At this point, the only
+suggestion I have is bisecting akpm-style:
 
-http://www.jjj.de/fxt/fxtbook.pdf is another inspirational source for
-such algorithms.
+http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
 
-> +static inline unsigned int hweight16(unsigned int w)
-> +{
-> +        unsigned int res = (w & 0x5555) + ((w >> 1) & 0x5555);
-> +        res = (res & 0x3333) + ((res >> 2) & 0x3333);
-> +        res = (res & 0x0F0F) + ((res >> 4) & 0x0F0F);
-> +        return (res & 0x00FF) + ((res >> 8) & 0x00FF);
-> +}
-> +
-> +static inline unsigned int hweight8(unsigned int w)
-> +{
-> +        unsigned int res = (w & 0x55) + ((w >> 1) & 0x55);
-> +        res = (res & 0x33) + ((res >> 2) & 0x33);
-> +        return (res & 0x0F) + ((res >> 4) & 0x0F);
-> +}
-> +
-> +#endif /* HAVE_ARCH_HWEIGHT_BITOPS */
->
->  #endif /* __KERNEL__ */
+Thanks!
 
-Regards,
-Balbir
+                                     Pekka

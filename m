@@ -1,52 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWAZOQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWAZORo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbWAZOQR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 09:16:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWAZOQQ
+	id S932329AbWAZORo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 09:17:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWAZORo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 09:16:16 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:11252 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932330AbWAZOQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 09:16:16 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Thu, 26 Jan 2006 15:14:58 +0100
-To: schilling@fokus.fraunhofer.de, mj@ucw.cz
-Cc: rlrevell@joe-job.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jerome.lacoste@gmail.com, jengelh@linux01.gwdg.de, axboe@suse.de,
-       acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43D8D962.nailE2XE6V7X6@burner>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
- <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
- <20060125144543.GY4212@suse.de>
- <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
- <20060125153057.GG4212@suse.de>
- <5a2cf1f60601251401h2cced00ele307636e748b9a7b@mail.gmail.com>
- <43D8BCFE.nailE1C116RR9@burner>
- <mj+md-20060126.122723.14374.atrey@ucw.cz>
-In-Reply-To: <mj+md-20060126.122723.14374.atrey@ucw.cz>
-User-Agent: nail 11.2 8/15/04
+	Thu, 26 Jan 2006 09:17:44 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:12733 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932329AbWAZORn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 09:17:43 -0500
+Message-ID: <43D8D9FF.1050409@cosmosbay.com>
+Date: Thu, 26 Jan 2006 15:17:35 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Avoid use of spinlock for percpu_counter
+References: <20060125231654.GB3658@localhost.localdomain>
+In-Reply-To: <20060125231654.GB3658@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 26 Jan 2006 15:17:35 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares <mj@ucw.cz> wrote:
+Ravikiran G Thirumalai a écrit :
+> The spinlock in struct percpu_counter protects just one counter.  It's
+> not obvious why it was done this way (I am guessing it was because earlier,
+> atomic_t was guaranteed 24 bits only on some arches).  Since we have
+> atomic_long_t now, I don't see why this cannot be replaced with an atomic_t.
+> 
+> Comments?
 
-> > On Linux-2.4, cdrecord's abstraction is the only way to hide the security 
-> > relevent non-stable /dev/sg* <-> device relation.
->
-> OK. So welcome to year 2006. And to Linux 2.6.
+Yes this makes sense.
 
-When will Linux arrive in 2006 and support ATAPI and SCSI in general, not just 
-ATAPI for hard disk drives and CD-ROMS?
+Furthermore, we could try to fix 'struct percpu_counter' management (if SMP) 
+if alloc_percpu(long) call done in percpu_counter_init() fails. This is 
+currently ignored and can crash.
 
-Jörg
+Something like (hybrid patch, to get the idea) :
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+--- a/mm/swap.c 2006-01-26 15:58:42.000000000 +0100
++++ b/mm/swap.c 2006-01-26 16:00:54.000000000 +0100
+@@ -472,9 +472,12 @@
+  {
+         long count;
+         long *pcount;
+-       int cpu = get_cpu();
+
+-       pcount = per_cpu_ptr(fbc->counters, cpu);
++       if (unlikely(fbc->counters == NULL)) {
++               atomic_long_add(amount, &fbc->count);
++               return;
++       }
++       pcount = per_cpu_ptr(fbc->counters, get_cpu());
+         count = *pcount + amount;
+         if (count >= FBC_BATCH || count <= -FBC_BATCH) {
+                 atomic_long_add(count, &fbc->count);
+--- a/include/linux/percpu_counter.h    2006-01-26 16:02:31.000000000 +0100
++++ b/include/linux/percpu_counter.h    2006-01-26 16:02:53.000000000 +0100
+@@ -35,7 +35,8 @@
+
+  static inline void percpu_counter_destroy(struct percpu_counter *fbc)
+  {
+-       free_percpu(fbc->counters);
++       if (fbc->counters)
++               free_percpu(fbc->counters);
+  }
+
+  void percpu_counter_mod(struct percpu_counter *fbc, long amount);
+
+
+Eric

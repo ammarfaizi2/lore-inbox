@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWAZOfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWAZOoe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbWAZOfM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 09:35:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWAZOfL
+	id S1751348AbWAZOoe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 09:44:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751349AbWAZOoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 09:35:11 -0500
-Received: from cantor.suse.de ([195.135.220.2]:22408 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932340AbWAZOfK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 09:35:10 -0500
-From: Andi Kleen <ak@suse.de>
-To: Ashok Raj <ashok.raj@intel.com>
-Subject: Re: Dont record local apic ids when they are disabled in MADT
-Date: Thu, 26 Jan 2006 15:34:54 +0100
-User-Agent: KMail/1.8.2
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, ak@muc.de,
-       ronald@hummelink.net, DiegoCG@teleline.es,
-       venkatesh.pallipadi@intel.com, anil.s.keshavamurthy@intel.com
-References: <20060126054842.A11917@unix-os.sc.intel.com> <200601261455.11981.ak@suse.de> <20060126061034.A12261@unix-os.sc.intel.com>
-In-Reply-To: <20060126061034.A12261@unix-os.sc.intel.com>
+	Thu, 26 Jan 2006 09:44:34 -0500
+Received: from highlandsun.propagation.net ([66.221.212.168]:24583 "EHLO
+	highlandsun.propagation.net") by vger.kernel.org with ESMTP
+	id S1751348AbWAZOoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 09:44:34 -0500
+Message-ID: <43D8E023.8080504@symas.com>
+Date: Thu, 26 Jan 2006 06:43:47 -0800
+From: Howard Chu <hyc@symas.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20060115 SeaMonkey/1.5a Mnenhy/0.7.3.0
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200601261534.55620.ak@suse.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Kyle Moffett <mrmacman_g4@mac.com>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Christopher Friesen <cfriesen@nortel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hancockr@shaw.ca
+Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
+References: <20060124225919.GC12566@suse.de> <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de> <20060125121125.GH5465@suse.de> <43D78262.2050809@symas.com> <43D7BA0F.5010907@nortel.com> <43D7C2F0.5020108@symas.com> <43D7CAAB.9070008@yahoo.com.au> <43D7D234.6060005@symas.com> <43D88D7B.1030204@yahoo.com.au> <E47694FE-571C-40BC-B247-2AC3EEBDA63C@mac.com>
+In-Reply-To: <E47694FE-571C-40BC-B247-2AC3EEBDA63C@mac.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 January 2006 15:10, Ashok Raj wrote:
-> On Thu, Jan 26, 2006 at 02:55:11PM +0100, Andi Kleen wrote:
-> > On Thursday 26 January 2006 14:48, Ashok Raj wrote:
-> > > Hi Andrew,
-> > > 
-> > > We had added additional_cpus=xx for x86_64, but apparently there were some
-> > > BIOSs that had duplicate apic ids when they were reported disabled.
-> > > 
-> > > It seems fair not to record them, this was causing some bad behaviour due to
-> > > the duplicate apic id. More details in the bugzilla recorded in the log.
-> > 
-> > This means CPU hotplug will require additional non existing code again - or who
-> > will set up the APIC IDs etc. for the new CPUs then?
-> 
-> 
-> The ACPI hotplug code already would refresh this apic id when the notify
-> for CPU hotplug is processed. 
+Kyle Moffett wrote:
+> Haven't you OpenLDAP guys realized that the pthread model you're 
+> actually looking for is this?  POSIX mutexes are not designed to 
+> mandate scheduling requirements *precisely* because this achieves your 
+> scheduling goals by explicitly stating what they are.
 
-How? All the code who could do this is __init.
+This isn't about OpenLDAP. Yes, we had a lot of yield() calls scattered 
+through the code, leftovers from when we only supported non-preemptive 
+threading. Those calls have been removed. There are a few remaining, 
+that are only in code paths for unusual errors, so what they do has no 
+real performance impact.
 
-> (although i would say we tested this only on ia64 so far, the code is 
-> generic to x86_64 as well, but i havent gone around testing physical hotplug
-> via emulation patches we have internally)
+The point of this discussion is that the POSIX spec says one thing and 
+you guys say another; one way or another that should be resolved. The 
+2.6 kernel behavior is a noticable departure from previous releases. The 
+2.4/LinuxThreads guys believed their implementation was correct. If you 
+believe the 2.6 implementation is correct, then you should get the spec 
+amended or state up front that the "P" in "NPTL" doesn't really mean 
+anything.
 
-I doubt it will work on x86-64.
+-- 
+  -- Howard Chu
+  Chief Architect, Symas Corp.  http://www.symas.com
+  Director, Highland Sun        http://highlandsun.com/hyc
+  OpenLDAP Core Team            http://www.openldap.org/project/
 
-And you're breaking the CPU hotplug spec in Documentation/x86-64/cpu-hotplug-spec.
-I think the BIOS bugs need to be workarounded without breaking that.
-
-
--Andi

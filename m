@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWAZSVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbWAZSXu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932391AbWAZSVq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 13:21:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWAZSVq
+	id S932394AbWAZSXu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 13:23:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbWAZSXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 13:21:46 -0500
-Received: from zproxy.gmail.com ([64.233.162.203]:11430 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932391AbWAZSVp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 13:21:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=qr3DScwjmhDrhyfGqcaajiVXKpa7g0KL09teXxsH0BGd/SelUWY7+uUe0x6tSE5r+1jnCcD0wHWqsU+HZh2j4F6eDdLwmT931OmLSv9LAYpgQVJJySbhRyoZdLL2hStc5FfPcT8q9wUny+uXYax0VhBQKBVV5Hjxa65T/heG/RU=
-Message-ID: <aa4c40ff0601261021m1fe746feq172f0a34b6afd9ad@mail.gmail.com>
-Date: Thu, 26 Jan 2006 10:21:44 -0800
-From: James Lamanna <jlamanna@gmail.com>
+	Thu, 26 Jan 2006 13:23:50 -0500
+Received: from vms040pub.verizon.net ([206.46.252.40]:56188 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932394AbWAZSXt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 13:23:49 -0500
+Date: Thu, 26 Jan 2006 13:23:47 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+In-reply-to: <43D8D69F.nailE2XAJ2XIA@burner>
 To: linux-kernel@vger.kernel.org
-Subject: I/O errors while dding between 2 SATA drives
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Reply-to: gene.heskett@verizon.net
+Message-id: <200601261323.47903.gene.heskett@verizon.net>
+Organization: Absolutely none - usually detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
+Content-disposition: inline
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+ <5a2cf1f60601260234r4c5cde3fu3e8d79e816b9f3fd@mail.gmail.com>
+ <43D8D69F.nailE2XAJ2XIA@burner>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I received the following errors while executing a
-dd if=/dev/sdb of=/dev/sda bs=1M
-between 2 500GB SATA Seagate Barracuda drives on 2.6.12 (Gentoo 2005.1
-"Live" CD)
+On Thursday 26 January 2006 09:03, Joerg Schilling wrote:
+>jerome lacoste <jerome.lacoste@gmail.com> wrote:
+>> As a Linux user, the only reason I do cdrecord -scanbus is to comply
+>> to the cdrecord way of doing likes. I don't personally like it.
+>>
+>> I'd rather use /dev/cdrw, in a machine independent way, as in:
+>>
+>>   ssh user@host cdrecord dev=/dev/cdrw /path/to/file.iso
+>
+>On the vast majority of OS this does not work.
+>
+>Jörg
 
-ata1: command 0x35 timeout stat 0xd1 host_stat 0x21
-ata1: status=0xd1 { Busy }
-end request: I/O Error dev sda, sector 51188392
-Buffer I/O Error on device sda, logical block 6398549
-lost page write due to I/O Error on sda
-ATA: abnormal status 0xD1 on port 0x9F7
-ATA: abnormal status 0xD1 on port 0x9F7
-ATA: abnormal status 0xD1 on port 0x9F7
+But from the Joe SixPack user standpoint, he should be able to click to 
+launch the program, and click on the file he wants to put on the cd.  
+The leds on the face of the drive should come on and the cd should come 
+out.
 
-The message repeats every so often with the sector count increasing by
-8 and logical block count increasing by 1.
+All he knows is its that thing with the coffee holder sticking out of 
+the front of the box that he had to remove his beer from to put in the 
+blank cd & he doesn't care, *as long as it works*.
 
-Is it bad hardware? (sda is brand new)
-And is the copy hosed?
+You have been offered a way to simplify your interface by many many 
+lines of code, yet you resist, insisting that all other platforms do it 
+your way, when in fact they don't either according to several lengthy 
+threads I've now read on this subject.  There are far more winderz 
+users than linux so far, and the winderz interface, except for the 
+actual names used (drive F, what a strange moniker that is) is no more 
+nor less complex, and both _just work_ if properly used.  A simple 
+case: statement should handle it all.  So whats the problem?
 
-Thanks.
-
--- James
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

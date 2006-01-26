@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964956AbWAZWqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbWAZWsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964956AbWAZWqm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 17:46:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbWAZWql
+	id S964965AbWAZWsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 17:48:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbWAZWsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 17:46:41 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56838 "HELO
+	Thu, 26 Jan 2006 17:48:09 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:58886 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964955AbWAZWqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 17:46:40 -0500
-Date: Thu, 26 Jan 2006 23:46:38 +0100
+	id S964957AbWAZWsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 17:48:07 -0500
+Date: Thu, 26 Jan 2006 23:48:05 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, netdev@vger.kernel.org
-Subject: [2/10] remove ISA legacy functions: drivers/net/arcnet/
-Message-ID: <20060126224638.GF3668@stusta.de>
+       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
+Subject: [3/10] remove ISA legacy functions: drivers/scsi/g_NCR5380.c
+Message-ID: <20060126224805.GG3668@stusta.de>
 References: <20060126223126.GD3668@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,406 +27,164 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
 
-sanitized probing code, made sure we claim regions before poking into
-them (original tried that to some extent, but hadn't got it right),
-switched to ioremap() use in probing.
+switched CONFIG_SCSI_G_NCR5380_MEM code in g_NCR5380 to ioremap(); massaged
+g_NCR5380.h accordingly.
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- drivers/net/arcnet/arc-rimi.c |   68 +++++++++++++++------
- drivers/net/arcnet/com90xx.c  |  132 +++++++++++++++++++++++++++++------------
- 2 files changed, 143 insertions(+), 57 deletions(-)
+ drivers/scsi/g_NCR5380.c |   28 +++++++++++++++++++++-------
+ drivers/scsi/g_NCR5380.h |   23 +++++++++++++++++------
+ 2 files changed, 38 insertions(+), 13 deletions(-)
 
-6a0100f551bbd751fba9d68575dcb15e5554e130
-diff --git a/drivers/net/arcnet/arc-rimi.c b/drivers/net/arcnet/arc-rimi.c
---- a/drivers/net/arcnet/arc-rimi.c
-+++ b/drivers/net/arcnet/arc-rimi.c
-@@ -97,25 +97,44 @@ static int __init arcrimi_probe(struct n
- 		       "must specify the shmem and irq!\n");
- 		return -ENODEV;
- 	}
-+	if (dev->dev_addr[0] == 0) {
-+		BUGMSG(D_NORMAL, "You need to specify your card's station "
-+		       "ID!\n");
-+		return -ENODEV;
-+	}
- 	/*
--	 * Grab the memory region at mem_start for BUFFER_SIZE bytes.
-+	 * Grab the memory region at mem_start for MIRROR_SIZE bytes.
- 	 * Later in arcrimi_found() the real size will be determined
- 	 * and this reserve will be released and the correct size
- 	 * will be taken.
- 	 */
--	if (!request_mem_region(dev->mem_start, BUFFER_SIZE, "arcnet (90xx)")) {
-+	if (!request_mem_region(dev->mem_start, MIRROR_SIZE, "arcnet (90xx)")) {
- 		BUGMSG(D_NORMAL, "Card memory already allocated\n");
- 		return -ENODEV;
- 	}
--	if (dev->dev_addr[0] == 0) {
--		release_mem_region(dev->mem_start, BUFFER_SIZE);
--		BUGMSG(D_NORMAL, "You need to specify your card's station "
--		       "ID!\n");
--		return -ENODEV;
--	}
- 	return arcrimi_found(dev);
- }
+6432444077b99d420f973ce8f1e748792f50a161
+diff --git a/drivers/scsi/g_NCR5380.c b/drivers/scsi/g_NCR5380.c
+--- a/drivers/scsi/g_NCR5380.c
++++ b/drivers/scsi/g_NCR5380.c
+@@ -127,7 +127,7 @@ static int ncr_53c400a = NCR_NOT_SET;
+ static int dtc_3181e = NCR_NOT_SET;
  
-+static int check_mirror(unsigned long addr, size_t size)
-+{
-+	void __iomem *p;
-+	int res = -1;
-+
-+	if (!request_mem_region(addr, size, "arcnet (90xx)"))
-+		return -1;
-+
-+	p = ioremap(addr, size);
-+	if (p) {
-+		if (readb(p) == TESTvalue)
-+			res = 1;
-+		else
-+			res = 0;
-+		iounmap(p);
-+	}
-+
-+	release_mem_region(addr, size);
-+	return res;
-+}
+ static struct override {
+-	NCR5380_implementation_fields;
++	NCR5380_map_type NCR5380_map_name;
+ 	int irq;
+ 	int dma;
+ 	int board;		/* Use NCR53c400, Ricoh, etc. extensions ? */
+@@ -299,6 +299,10 @@ int __init generic_NCR5380_detect(struct
+ 	};
+ 	int flags = 0;
+ 	struct Scsi_Host *instance;
++#ifdef CONFIG_SCSI_G_NCR5380_MEM
++	unsigned long base;
++	void __iomem *iomem;
++#endif
  
- /*
-  * Set up the struct net_device associated with this card.  Called after
-@@ -125,19 +144,28 @@ static int __init arcrimi_found(struct n
- {
- 	struct arcnet_local *lp;
- 	unsigned long first_mirror, last_mirror, shmem;
-+	void __iomem *p;
- 	int mirror_size;
- 	int err;
- 
-+	p = ioremap(dev->mem_start, MIRROR_SIZE);
-+	if (!p) {
-+		release_mem_region(dev->mem_start, MIRROR_SIZE);
-+		BUGMSG(D_NORMAL, "Can't ioremap\n");
-+		return -ENODEV;
-+	}
-+
- 	/* reserve the irq */
- 	if (request_irq(dev->irq, &arcnet_interrupt, 0, "arcnet (RIM I)", dev)) {
--		release_mem_region(dev->mem_start, BUFFER_SIZE);
-+		iounmap(p);
-+		release_mem_region(dev->mem_start, MIRROR_SIZE);
- 		BUGMSG(D_NORMAL, "Can't get IRQ %d!\n", dev->irq);
- 		return -ENODEV;
- 	}
- 
- 	shmem = dev->mem_start;
--	isa_writeb(TESTvalue, shmem);
--	isa_writeb(dev->dev_addr[0], shmem + 1);	/* actually the node ID */
-+	writeb(TESTvalue, p);
-+	writeb(dev->dev_addr[0], p + 1);	/* actually the node ID */
- 
- 	/* find the real shared memory start/end points, including mirrors */
- 
-@@ -146,17 +174,18 @@ static int __init arcrimi_found(struct n
- 	 * 2k (or there are no mirrors at all) but on some, it's 4k.
- 	 */
- 	mirror_size = MIRROR_SIZE;
--	if (isa_readb(shmem) == TESTvalue
--	    && isa_readb(shmem - mirror_size) != TESTvalue
--	    && isa_readb(shmem - 2 * mirror_size) == TESTvalue)
--		mirror_size *= 2;
-+	if (readb(p) == TESTvalue
-+	    && check_mirror(shmem - MIRROR_SIZE, MIRROR_SIZE) == 0
-+	    && check_mirror(shmem - 2 * MIRROR_SIZE, MIRROR_SIZE) == 1)
-+		mirror_size = 2 * MIRROR_SIZE;
- 
--	first_mirror = last_mirror = shmem;
--	while (isa_readb(first_mirror) == TESTvalue)
-+	first_mirror = shmem - mirror_size;
-+	while (check_mirror(first_mirror, mirror_size) == 1)
- 		first_mirror -= mirror_size;
- 	first_mirror += mirror_size;
- 
--	while (isa_readb(last_mirror) == TESTvalue)
-+	last_mirror = shmem + mirror_size;
-+	while (check_mirror(last_mirror, mirror_size) == 1)
- 		last_mirror += mirror_size;
- 	last_mirror -= mirror_size;
- 
-@@ -181,7 +210,8 @@ static int __init arcrimi_found(struct n
- 	 * with the correct size.  There is a VERY slim chance this could
- 	 * fail.
- 	 */
--	release_mem_region(shmem, BUFFER_SIZE);
-+	iounmap(p);
-+	release_mem_region(shmem, MIRROR_SIZE);
- 	if (!request_mem_region(dev->mem_start,
- 				dev->mem_end - dev->mem_start + 1,
- 				"arcnet (90xx)")) {
-diff --git a/drivers/net/arcnet/com90xx.c b/drivers/net/arcnet/com90xx.c
---- a/drivers/net/arcnet/com90xx.c
-+++ b/drivers/net/arcnet/com90xx.c
-@@ -53,7 +53,7 @@
- 
- 
- /* Internal function declarations */
--static int com90xx_found(int ioaddr, int airq, u_long shmem);
-+static int com90xx_found(int ioaddr, int airq, u_long shmem, void __iomem *);
- static void com90xx_command(struct net_device *dev, int command);
- static int com90xx_status(struct net_device *dev);
- static void com90xx_setmask(struct net_device *dev, int mask);
-@@ -116,14 +116,26 @@ static void __init com90xx_probe(void)
- 	unsigned long airqmask;
- 	int ports[(0x3f0 - 0x200) / 16 + 1] =
- 	{0};
--	u_long shmems[(0xFF800 - 0xA0000) / 2048 + 1] =
--	{0};
-+	unsigned long *shmems;
-+	void __iomem **iomem;
- 	int numports, numshmems, *port;
- 	u_long *p;
-+	int index;
- 
- 	if (!io && !irq && !shmem && !*device && com90xx_skip_probe)
- 		return;
- 
-+	shmems = kzalloc(((0x10000-0xa0000) / 0x800) * sizeof(unsigned long),
-+			 GFP_KERNEL);
-+	if (!shmems)
-+		return;
-+	iomem = kzalloc(((0x10000-0xa0000) / 0x800) * sizeof(void __iomem *),
-+			 GFP_KERNEL);
-+	if (!iomem) {
-+		kfree(shmems);
-+		return;
-+	}
-+
- 	BUGLVL(D_NORMAL) printk(VERSION);
- 
- 	/* set up the arrays where we'll store the possible probe addresses */
-@@ -179,6 +191,8 @@ static void __init com90xx_probe(void)
- 
- 	if (!numports) {
- 		BUGMSG2(D_NORMAL, "S1: No ARCnet cards found.\n");
-+		kfree(shmems);
-+		kfree(iomem);
- 		return;
- 	}
- 	/* Stage 2: we have now reset any possible ARCnet cards, so we can't
-@@ -202,8 +216,8 @@ static void __init com90xx_probe(void)
- 	 * 0xD1 byte in the right place, or are read-only.
- 	 */
- 	numprint = -1;
--	for (p = &shmems[0]; p < shmems + numshmems; p++) {
--		u_long ptr = *p;
-+	for (index = 0, p = &shmems[0]; index < numshmems; p++, index++) {
-+		void __iomem *base;
- 
- 		numprint++;
- 		numprint %= 8;
-@@ -213,38 +227,49 @@ static void __init com90xx_probe(void)
- 		}
- 		BUGMSG2(D_INIT, "%lXh ", *p);
- 
--		if (!request_mem_region(*p, BUFFER_SIZE, "arcnet (90xx)")) {
-+		if (!request_mem_region(*p, MIRROR_SIZE, "arcnet (90xx)")) {
- 			BUGMSG2(D_INIT_REASONS, "(request_mem_region)\n");
- 			BUGMSG2(D_INIT_REASONS, "Stage 3: ");
- 			BUGLVL(D_INIT_REASONS) numprint = 0;
--			*p-- = shmems[--numshmems];
--			continue;
-+			goto out;
-+		}
-+		base = ioremap(*p, MIRROR_SIZE);
-+		if (!base) {
-+			BUGMSG2(D_INIT_REASONS, "(ioremap)\n");
-+			BUGMSG2(D_INIT_REASONS, "Stage 3: ");
-+			BUGLVL(D_INIT_REASONS) numprint = 0;
-+			goto out1;
- 		}
--		if (isa_readb(ptr) != TESTvalue) {
-+		if (readb(base) != TESTvalue) {
- 			BUGMSG2(D_INIT_REASONS, "(%02Xh != %02Xh)\n",
--				isa_readb(ptr), TESTvalue);
-+				readb(base), TESTvalue);
- 			BUGMSG2(D_INIT_REASONS, "S3: ");
- 			BUGLVL(D_INIT_REASONS) numprint = 0;
--			release_mem_region(*p, BUFFER_SIZE);
--			*p-- = shmems[--numshmems];
--			continue;
-+			goto out2;
- 		}
- 		/* By writing 0x42 to the TESTvalue location, we also make
- 		 * sure no "mirror" shmem areas show up - if they occur
- 		 * in another pass through this loop, they will be discarded
- 		 * because *cptr != TESTvalue.
- 		 */
--		isa_writeb(0x42, ptr);
--		if (isa_readb(ptr) != 0x42) {
-+		writeb(0x42, base);
-+		if (readb(base) != 0x42) {
- 			BUGMSG2(D_INIT_REASONS, "(read only)\n");
- 			BUGMSG2(D_INIT_REASONS, "S3: ");
--			release_mem_region(*p, BUFFER_SIZE);
--			*p-- = shmems[--numshmems];
--			continue;
-+			goto out2;
- 		}
- 		BUGMSG2(D_INIT_REASONS, "\n");
- 		BUGMSG2(D_INIT_REASONS, "S3: ");
- 		BUGLVL(D_INIT_REASONS) numprint = 0;
-+		iomem[index] = base;
-+		continue;
-+	out2:
-+		iounmap(base);
-+	out1:
-+		release_mem_region(*p, MIRROR_SIZE);
-+	out:
-+		*p-- = shmems[--numshmems];
-+		index--;
- 	}
- 	BUGMSG2(D_INIT, "\n");
- 
-@@ -252,6 +277,8 @@ static void __init com90xx_probe(void)
- 		BUGMSG2(D_NORMAL, "S3: No ARCnet cards found.\n");
- 		for (port = &ports[0]; port < ports + numports; port++)
- 			release_region(*port, ARCNET_TOTAL_SIZE);
-+		kfree(shmems);
-+		kfree(iomem);
- 		return;
- 	}
- 	/* Stage 4: something of a dummy, to report the shmems that are
-@@ -351,30 +378,32 @@ static void __init com90xx_probe(void)
- 			mdelay(RESETtime);
- 		} else {
- 			/* just one shmem and port, assume they match */
--			isa_writeb(TESTvalue, shmems[0]);
-+			writeb(TESTvalue, iomem[0]);
+ 	if (ncr_irq != NCR_NOT_SET)
+ 		overrides[0].irq = ncr_irq;
+@@ -424,15 +428,22 @@ int __init generic_NCR5380_detect(struct
+ 			region_size = NCR5380_region_size;
  		}
  #else
- 		inb(_RESET);
- 		mdelay(RESETtime);
+-		if(!request_mem_region(overrides[current_override].NCR5380_map_name, NCR5380_region_size, "ncr5380"))
++		base = overrides[current_override].NCR5380_map_name;
++		if (!request_mem_region(base, NCR5380_region_size, "ncr5380"))
++			continue;
++		iomem = ioremap(base, NCR5380_region_size);
++		if (!iomem) {
++			release_mem_region(base, NCR5380_region_size);
+ 			continue;
++		}
+ #endif
+ 		instance = scsi_register(tpnt, sizeof(struct NCR5380_hostdata));
+ 		if (instance == NULL) {
+ #ifndef CONFIG_SCSI_G_NCR5380_MEM
+ 			release_region(overrides[current_override].NCR5380_map_name, region_size);
+ #else
+-			release_mem_region(overrides[current_override].NCR5380_map_name, NCR5380_region_size);
++			iounmap(iomem);
++			release_mem_region(base, NCR5380_region_size);
+ #endif
+ 			continue;
+ 		}
+@@ -440,6 +451,8 @@ int __init generic_NCR5380_detect(struct
+ 		instance->NCR5380_instance_name = overrides[current_override].NCR5380_map_name;
+ #ifndef CONFIG_SCSI_G_NCR5380_MEM
+ 		instance->n_io_port = region_size;
++#else
++		((struct NCR5380_hostdata *)instance->hostdata).iomem = iomem;
  #endif
  
--		for (p = &shmems[0]; p < shmems + numshmems; p++) {
--			u_long ptr = *p;
-+		for (index = 0; index < numshmems; index++) {
-+			u_long ptr = shmems[index];
-+			void __iomem *base = iomem[index];
+ 		NCR5380_init(instance, flags);
+@@ -509,6 +522,7 @@ int generic_NCR5380_release_resources(st
+ #ifndef CONFIG_SCSI_G_NCR5380_MEM
+ 	release_region(instance->NCR5380_instance_name, instance->n_io_port);
+ #else
++	iounmap(((struct NCR5380_hostdata *)instance->hostdata).iomem);
+ 	release_mem_region(instance->NCR5380_instance_name, NCR5380_region_size);
+ #endif
  
--			if (isa_readb(ptr) == TESTvalue) {	/* found one */
-+			if (readb(base) == TESTvalue) {	/* found one */
- 				BUGMSG2(D_INIT, "%lXh)\n", *p);
- 				openparen = 0;
- 
- 				/* register the card */
--				if (com90xx_found(*port, airq, *p) == 0)
-+				if (com90xx_found(*port, airq, ptr, base) == 0)
- 					found = 1;
- 				numprint = -1;
- 
- 				/* remove shmem from the list */
--				*p = shmems[--numshmems];
-+				shmems[index] = shmems[--numshmems];
-+				iomem[index] = iomem[numshmems];
- 				break;	/* go to the next I/O port */
- 			} else {
--				BUGMSG2(D_INIT_REASONS, "%Xh-", isa_readb(ptr));
-+				BUGMSG2(D_INIT_REASONS, "%Xh-", readb(base));
- 			}
+@@ -586,7 +600,7 @@ static inline int NCR5380_pread(struct S
  		}
+ #else
+ 		/* implies CONFIG_SCSI_G_NCR5380_MEM */
+-		isa_memcpy_fromio(dst + start, NCR53C400_host_buffer + NCR5380_map_name, 128);
++		memcpy_fromio(dst + start, iomem + NCR53C400_host_buffer, 128);
+ #endif
+ 		start += 128;
+ 		blocks--;
+@@ -606,7 +620,7 @@ static inline int NCR5380_pread(struct S
+ 		}
+ #else
+ 		/* implies CONFIG_SCSI_G_NCR5380_MEM */
+-		isa_memcpy_fromio(dst + start, NCR53C400_host_buffer + NCR5380_map_name, 128);
++		memcpy_fromio(dst + start, iomem + NCR53C400_host_buffer, 128);
+ #endif
+ 		start += 128;
+ 		blocks--;
+@@ -671,7 +685,7 @@ static inline int NCR5380_pwrite(struct 
+ 		}
+ #else
+ 		/* implies CONFIG_SCSI_G_NCR5380_MEM */
+-		isa_memcpy_toio(NCR53C400_host_buffer + NCR5380_map_name, src + start, 128);
++		memcpy_toio(iomem + NCR53C400_host_buffer, src + start, 128);
+ #endif
+ 		start += 128;
+ 		blocks--;
+@@ -687,7 +701,7 @@ static inline int NCR5380_pwrite(struct 
+ 		}
+ #else
+ 		/* implies CONFIG_SCSI_G_NCR5380_MEM */
+-		isa_memcpy_toio(NCR53C400_host_buffer + NCR5380_map_name, src + start, 128);
++		memcpy_toio(iomem + NCR53C400_host_buffer, src + start, 128);
+ #endif
+ 		start += 128;
+ 		blocks--;
+diff --git a/drivers/scsi/g_NCR5380.h b/drivers/scsi/g_NCR5380.h
+--- a/drivers/scsi/g_NCR5380.h
++++ b/drivers/scsi/g_NCR5380.h
+@@ -82,6 +82,15 @@ static const char* generic_NCR5380_info(
+ #define NCR5380_read(reg) (inb(NCR5380_map_name + (reg)))
+ #define NCR5380_write(reg, value) (outb((value), (NCR5380_map_name + (reg))))
  
-@@ -391,17 +420,40 @@ static void __init com90xx_probe(void)
- 	BUGLVL(D_INIT_REASONS) printk("\n");
- 
- 	/* Now put back TESTvalue on all leftover shmems. */
--	for (p = &shmems[0]; p < shmems + numshmems; p++) {
--		isa_writeb(TESTvalue, *p);
--		release_mem_region(*p, BUFFER_SIZE);
-+	for (index = 0; index < numshmems; index++) {
-+		writeb(TESTvalue, iomem[index]);
-+		iounmap(iomem[index]);
-+		release_mem_region(shmems[index], MIRROR_SIZE);
- 	}
-+	kfree(shmems);
-+	kfree(iomem);
- }
- 
-+static int check_mirror(unsigned long addr, size_t size)
-+{
-+	void __iomem *p;
-+	int res = -1;
++#define NCR5380_implementation_fields \
++    NCR5380_map_type NCR5380_map_name
 +
-+	if (!request_mem_region(addr, size, "arcnet (90xx)"))
-+		return -1;
++#define NCR5380_local_declare() \
++    register NCR5380_implementation_fields
 +
-+	p = ioremap(addr, size);
-+	if (p) {
-+		if (readb(p) == TESTvalue)
-+			res = 1;
-+		else
-+			res = 0;
-+		iounmap(p);
-+	}
++#define NCR5380_setup(instance) \
++    NCR5380_map_name = (NCR5380_map_type)((instance)->NCR5380_instance_name)
 +
-+	release_mem_region(addr, size);
-+	return res;
-+}
+ #else 
+ /* therefore CONFIG_SCSI_G_NCR5380_MEM */
  
- /* Set up the struct net_device associated with this card.  Called after
-  * probing succeeds.
-  */
--static int __init com90xx_found(int ioaddr, int airq, u_long shmem)
-+static int __init com90xx_found(int ioaddr, int airq, u_long shmem, void __iomem *p)
- {
- 	struct net_device *dev = NULL;
- 	struct arcnet_local *lp;
-@@ -412,7 +464,8 @@ static int __init com90xx_found(int ioad
- 	dev = alloc_arcdev(device);
- 	if (!dev) {
- 		BUGMSG2(D_NORMAL, "com90xx: Can't allocate device!\n");
--		release_mem_region(shmem, BUFFER_SIZE);
-+		iounmap(p);
-+		release_mem_region(shmem, MIRROR_SIZE);
- 		return -ENOMEM;
- 	}
- 	lp = dev->priv;
-@@ -423,24 +476,27 @@ static int __init com90xx_found(int ioad
- 	 * 2k (or there are no mirrors at all) but on some, it's 4k.
- 	 */
- 	mirror_size = MIRROR_SIZE;
--	if (isa_readb(shmem) == TESTvalue
--	    && isa_readb(shmem - mirror_size) != TESTvalue
--	    && isa_readb(shmem - 2 * mirror_size) == TESTvalue)
--		mirror_size *= 2;
-+	if (readb(p) == TESTvalue &&
-+	    check_mirror(shmem - MIRROR_SIZE, MIRROR_SIZE) == 0 &&
-+	    check_mirror(shmem - 2 * MIRROR_SIZE, MIRROR_SIZE) == 1)
-+		mirror_size = 2 * MIRROR_SIZE;
+@@ -95,18 +104,20 @@ static const char* generic_NCR5380_info(
+ #define NCR53C400_host_buffer 0x3900
+ #define NCR5380_region_size 0x3a00
  
--	first_mirror = last_mirror = shmem;
--	while (isa_readb(first_mirror) == TESTvalue)
-+	first_mirror = shmem - mirror_size;
-+	while (check_mirror(first_mirror, mirror_size) == 1)
- 		first_mirror -= mirror_size;
- 	first_mirror += mirror_size;
+-#define NCR5380_read(reg) isa_readb(NCR5380_map_name + NCR53C400_mem_base + (reg))
+-#define NCR5380_write(reg, value) isa_writeb(value, NCR5380_map_name + NCR53C400_mem_base + (reg))
+-#endif
++#define NCR5380_read(reg) readb(iomem + NCR53C400_mem_base + (reg))
++#define NCR5380_write(reg, value) writeb(value, iomem + NCR53C400_mem_base + (reg))
  
--	while (isa_readb(last_mirror) == TESTvalue)
-+	last_mirror = shmem + mirror_size;
-+	while (check_mirror(last_mirror, mirror_size) == 1)
- 		last_mirror += mirror_size;
- 	last_mirror -= mirror_size;
+ #define NCR5380_implementation_fields \
+-    NCR5380_map_type NCR5380_map_name
++    NCR5380_map_type NCR5380_map_name; \
++    void __iomem *iomem;
  
- 	dev->mem_start = first_mirror;
- 	dev->mem_end = last_mirror + MIRROR_SIZE - 1;
+ #define NCR5380_local_declare() \
+-    register NCR5380_implementation_fields
++    register void __iomem *iomem
  
--	release_mem_region(shmem, BUFFER_SIZE);
-+	iounmap(p);
-+	release_mem_region(shmem, MIRROR_SIZE);
+ #define NCR5380_setup(instance) \
+-    NCR5380_map_name = (NCR5380_map_type)((instance)->NCR5380_instance_name)
++    iomem = (((struct NCR5380_hostdata *)(instance)->hostdata).iomem)
 +
- 	if (!request_mem_region(dev->mem_start, dev->mem_end - dev->mem_start + 1, "arcnet (90xx)"))
- 		goto err_free_dev;
++#endif
  
+ #define NCR5380_intr generic_NCR5380_intr
+ #define NCR5380_queue_command generic_NCR5380_queue_command
 

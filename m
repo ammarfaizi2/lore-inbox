@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbWAZAMV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbWAZAQf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751261AbWAZAMV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 19:12:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWAZAMU
+	id S1751267AbWAZAQf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 19:16:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWAZAQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 19:12:20 -0500
-Received: from mail-in-04.arcor-online.net ([151.189.21.44]:34786 "EHLO
-	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751261AbWAZAMT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 19:12:19 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: Rationale for RLIMIT_MEMLOCK?
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       schilling@fokus.fraunhofer.de, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, tytso@mit.edu, arjan@infradead.org
-Reply-To: 7eggert@gmx.de
-Date: Thu, 26 Jan 2006 01:12:15 +0100
-References: <5yddh-1pA-47@gated-at.bofh.it> <5ydni-1Qq-3@gated-at.bofh.it> <5yek1-3iP-53@gated-at.bofh.it> <5yeth-3us-33@gated-at.bofh.it> <5yf5O-4iF-19@gated-at.bofh.it> <5yfI4-5kU-11@gated-at.bofh.it> <5ygDT-6LK-3@gated-at.bofh.it> <5yscc-68j-5@gated-at.bofh.it> <5ysvk-6JI-5@gated-at.bofh.it> <5ysvk-6JI-3@gated-at.bofh.it> <5yEn7-7Or-21@gated-at.bofh.it> <5yUUI-6JR-15@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Wed, 25 Jan 2006 19:16:35 -0500
+Received: from amdext4.amd.com ([163.181.251.6]:12265 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S1751267AbWAZAQd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 19:16:33 -0500
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+From: "Ray Bryant" <raybry@mpdtxmail.amd.com>
+To: "Dave McCracken" <dmccr@us.ibm.com>
+Subject: Re: [PATCH/RFC] Shared page tables
+Date: Wed, 25 Jan 2006 18:16:14 -0600
+User-Agent: KMail/1.8
+cc: "Robin Holt" <holt@sgi.com>, "Hugh Dickins" <hugh@veritas.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Linux Memory Management" <linux-mm@kvack.org>
+References: <A6D73CCDC544257F3D97F143@[10.1.1.4]>
+ <200601251648.58670.raybry@mpdtxmail.amd.com>
+ <F6EF7D7093D441B7655A8755@[10.1.1.4]>
+In-Reply-To: <F6EF7D7093D441B7655A8755@[10.1.1.4]>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1F1ukJ-0002DA-LK@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+Message-ID: <200601251816.15037.raybry@mpdtxmail.amd.com>
+X-OriginalArrivalTime: 26 Jan 2006 00:16:17.0348 (UTC)
+ FILETIME=[B9C87840:01C6220D]
+X-WSS-ID: 6FC6CB5B0MS652803-01-01
+Content-Type: text/plain;
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+Dave,
 
-> I could add this piece of code to the euid == 0 part of cdrecord:
-> 
-> LOCAL void
-> raise_memlock()
-> { 
-> #ifdef  RLIMIT_MEMLOCK
->         struct rlimit rlim;
->  
->         rlim.rlim_cur = rlim.rlim_max = RLIM_INFINITY;
+Here's another one to keep you awake at night:
 
-I think you should rather use the size you're going to mlock, or at least
-the upper bound.
+mmap a shared, anonymous region of 8MB (2MB aligned), and fork off some 
+children (4 is good enough for me).    In each child, munmap() a 2 MB portion 
+of the shared region (starting at offset 2MB in the shared region) and then 
+mmap() a private, anonymous region in its place.   Have each child store some 
+unique data in that region, sleep for a bit and then go look to see if its 
+data is still there.
+
+Under 2.6.15, this works just fine.   Under 2.6.15 + shpt patch, each child 
+still points at the shared region and steps on the data of the other 
+children.
+
+I imagine the above gets even more interesting if the offset or length of the 
+unmapped region is not a multiple of the 2MB alignment.
+
+All of these test cases are for Opteron.   Your alignment may vary.
+
+(Sorry about this... )
+
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Ray Bryant
+AMD Performance Labs                   Austin, Tx
+512-602-0038 (o)                 512-507-7807 (c)
+

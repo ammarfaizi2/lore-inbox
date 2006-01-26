@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbWAZVGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbWAZVIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964894AbWAZVGO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 16:06:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbWAZVGO
+	id S964886AbWAZVIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 16:08:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWAZVIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 16:06:14 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:17616 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S964894AbWAZVGN (ORCPT
+	Thu, 26 Jan 2006 16:08:25 -0500
+Received: from DSL022.labridge.com ([206.117.136.22]:4875 "EHLO Perches.com")
+	by vger.kernel.org with ESMTP id S964886AbWAZVIY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 16:06:13 -0500
-Date: Thu, 26 Jan 2006 22:06:12 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-cc: matthias.andree@gmx.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest) (was:
-  Rationale for RLIMIT_MEMLOCK?)
-In-Reply-To: <43D7AE00.nailDFJ61L10Z@burner>
-Message-ID: <Pine.LNX.4.61.0601262204370.27891@yvahk01.tjqt.qr>
-References: <20060123165415.GA32178@merlin.emma.line.org>
- <1138035602.2977.54.camel@laptopd505.fenrus.org> <20060123180106.GA4879@merlin.emma.line.org>
- <1138039993.2977.62.camel@laptopd505.fenrus.org> <20060123185549.GA15985@merlin.emma.line.org>
- <43D530CC.nailC4Y11KE7A@burner> <1138048255.21481.15.camel@mindpipe>
- <20060123212119.GI1820@merlin.emma.line.org> <Pine.LNX.4.61.0601241823390.28682@yvahk01.tjqt.qr>
- <43D78585.nailD7855YVBX@burner> <20060125142155.GW4212@suse.de>
- <Pine.LNX.4.61.0601251544400.31234@yvahk01.tjqt.qr> <43D7AE00.nailDFJ61L10Z@burner>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 Jan 2006 16:08:24 -0500
+Subject: Re: arch/i386/kernel/nmi.c: fix compiler warning
+From: Joe Perches <joe@perches.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1138307625.30814.13.camel@mindpipe>
+References: <1138307625.30814.13.camel@mindpipe>
+Content-Type: text/plain
+Date: Thu, 26 Jan 2006 13:08:21 -0800
+Message-Id: <1138309701.27471.12.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4-3.1.102mdk 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-01-26 at 15:33 -0500, Lee Revell wrote:
+> arch/i386/kernel/nmi.c: In function 'check_nmi_watchdog':
+> arch/i386/kernel/nmi.c:139: warning: statement with no effect
 
-(removing Jens and Lee, as previous posts made that quite clear)
+A more generic solution:
 
->> I'm getting a grin:
->>
->> 15:46 takeshi:../drivers/ide > find . -type f -print0 | xargs -0 grep SG_IO
->> (no results)
->>
->> Looks like it's already non-redundant :)
->
->everything in drivers/block/scsi_ioctl.c  is duplicate code and I am sure I 
->would find more if I take some time....
+diff --git a/include/linux/smp.h b/include/linux/smp.h
+index 9dfa3ee..be4e598 100644
+--- a/include/linux/smp.h
++++ b/include/linux/smp.h
+@@ -90,12 +90,25 @@ void smp_prepare_boot_cpu(void);
+ #else /* !SMP */
+ 
+ /*
+- *	These macros fold the SMP functionality into a single CPU system
++ *	These macros and inlines fold the SMP functionality
++ *	for single CPU systems
+  */
+ #define raw_smp_processor_id()			0
+ #define hard_smp_processor_id()			0
+-#define smp_call_function(func,info,retry,wait)	({ 0; })
+-#define on_each_cpu(func,info,retry,wait)	({ func(info); 0; })
++
++static inline int smp_call_function(void (*func) (void *info), void *info,
++			      int retry, int wait)
++{
++	return 0;
++}
++
++static inline int on_each_cpu(void (*func) (void *info), void *info,
++			      int retry, int wait)
++{
++	func(info);
++	return 0;
++}
++
+ static inline void smp_send_reschedule(int cpu) { }
+ #define num_booting_cpus()			1
+ #define smp_prepare_boot_cpu()			do {} while (0)
 
-In what linux kernel version have you found that file?
 
-
-
-Jan Engelhardt
--- 

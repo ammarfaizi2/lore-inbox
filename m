@@ -1,66 +1,34 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751219AbWAYPF2 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 25 Jan 2006 10:05:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWAYPF0
+	id S932192AbWAZMQP (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 26 Jan 2006 07:16:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWAZMQO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 10:05:26 -0500
-Received: from [148.227.224.9] ([148.227.224.9]:44985 "EHLO cu.maz.uasnet.mx")
-	by vger.kernel.org with ESMTP id S1751191AbWAYPFZ (ORCPT
+	Thu, 26 Jan 2006 07:16:14 -0500
+Received: from pcp05047936pcs.ivylnd01.pa.comcast.net ([68.84.45.222]:50187
+	"HELO pcp05047936pcs.ivylnd01.pa.comcast.net") by vger.kernel.org
+	with SMTP id S1751337AbWAZMQO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 10:05:25 -0500
-From: "Bryan Lucas" <bryanlucas@cu.maz.uasnet.mx>
-Reply-To: bryanans1965@satellite-email.com
-Subject: Yukos oil company in Russia
-Date: Wed, 25 Jan 2006 02:18:34 -0700
-Message-Id: <20060125091750.M13067@cu.maz.uasnet.mx>
-X-Mailer: Open WebMail 2.50 20050106
-X-OriginatingIP: 82.128.5.88 (bryanlucas)
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 26 Jan 2006 07:16:14 -0500
+Date: Thu, 26 Jan 2006 07:23:26 -0500
+From: Conrad Brunson <bellghzu@belldesign.com>
+Reply-To: Conrad Brunson <bellghzu@belldesign.com>
+Message-ID: <473711661010.997974939480@belldesign.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: goal self AETEA Information Technology Inc.	
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751219AbWAYPF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932192AbWAZMQP@vger.kernel.org>
 
-Mr. Brian Bacon Evans  (Agent)
-Representing Mr. Mikhail Khordokovsky 
-Yukos Oil Company in Russia. 
-
-Dear Friend,
-
-I am Mr. Brian Bacon Evans and I represent Mr. Mikhail Khordokovsky the 
-former C.E.O of Yukos Oil Company and Mentap bank (Russia).
-
-I have a very sensitive and confidential brief from him to ask for your 
-partnership in liquidating funds in Gibraltar.
-
-I will give the details, but in summary, the funds are coming via private 
-security investment in Gibraltar. This is a legitimate transaction. You will 
-be paid 30% of the portfolio investment value as your "management fees". If 
-you are interested, please write back to me via my private E-
-mail.bryanans1965@satellite-email.com.
-
-Kindly, provide me with your confidential telephone number, fax number and 
-email address and I will provide further details and if you are satisfied I 
-can proceed with the instructions.
-
-Please we cannot afford any political problems because of recent events in 
-Russia. So I will advice you keep this to your self.
-
-Finally, please note that this must be concluded within reasonable time 
-frame therefore your prompt reply is essential.
-
-Write me back. I look forward to it.
-
-Wishing   you a prosperous New Year,
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
 
-Best Regards
-Mr. Brian Bacon Evans 
-Reply To:bryanans1965@satellite-email.com
+18yo Oriental Teen Jerking Cock On Bed
+http://rokikanysetea.com/mm/
+Cute Babe Gives Blowjob & Wants Facial Hardcore
 
-Universidad Autónoma de Sinaloa - Campus Mazatlán
-Visítenos en: http://www.maz.uasnet.mx
+Fanaticism soberly defined, is the false fire of an over heated mind.
+What is good? All that heightens the feeling of power, the will to power, power itself in man.
 
- 
+

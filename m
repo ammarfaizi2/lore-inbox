@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030232AbWAZX0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbWAZXaG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030232AbWAZX0E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 18:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030234AbWAZX0E
+	id S1030234AbWAZXaG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 18:30:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbWAZXaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 18:26:04 -0500
-Received: from mail.kroah.org ([69.55.234.183]:55012 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030232AbWAZX0C (ORCPT
+	Thu, 26 Jan 2006 18:30:05 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:49844 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030234AbWAZXaE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 18:26:02 -0500
-Date: Thu, 26 Jan 2006 15:21:40 -0800
-From: Greg KH <greg@kroah.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Vasil Kolev <vasil@ludost.net>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org, andre@linux-ide.org, frankt@promise.com,
-       linux-ide@vger.kernel.org
-Subject: Re: kobject_register failed for Promise_Old_IDE (-17)
-Message-ID: <20060126232140.GA15742@kroah.com>
-References: <1138093728.5828.8.camel@lyra.home.ludost.net> <20060124223527.GA26337@kroah.com> <58cb370e0601241458y6cdf702ey9caa261702a7948a@mail.gmail.com> <1138175680.5857.4.camel@lyra.home.ludost.net> <20060126230152.GP3668@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060126230152.GP3668@stusta.de>
-User-Agent: Mutt/1.5.11
+	Thu, 26 Jan 2006 18:30:04 -0500
+Date: Thu, 26 Jan 2006 15:29:55 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Matthew Dobson <colpatch@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, sri@us.ibm.com, andrea@suse.de,
+       pavel@suse.cz, linux-mm@kvack.org
+Subject: Re: [patch 3/9] mempool - Make mempools NUMA aware
+In-Reply-To: <43D95A2E.4020002@us.ibm.com>
+Message-ID: <Pine.LNX.4.62.0601261525570.18810@schroedinger.engr.sgi.com>
+References: <20060125161321.647368000@localhost.localdomain>
+ <1138233093.27293.1.camel@localhost.localdomain>
+ <Pine.LNX.4.62.0601260953200.15128@schroedinger.engr.sgi.com>
+ <43D953C4.5020205@us.ibm.com> <Pine.LNX.4.62.0601261511520.18716@schroedinger.engr.sgi.com>
+ <43D95A2E.4020002@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2006 at 12:01:52AM +0100, Adrian Bunk wrote:
-> On Wed, Jan 25, 2006 at 09:54:40AM +0200, Vasil Kolev wrote:
-> > ?? ????, 2006-01-24 ?? 23:58 +0100, Bartlomiej Zolnierkiewicz ????????????:
-> > > On 1/24/06, Greg KH <greg@kroah.com> wrote:
-> > > > On Tue, Jan 24, 2006 at 11:08:47AM +0200, Vasil Kolev wrote:
-> > > > > Hello,
-> > > > > I have a machine that's currently running 2.4.28 with the promise_old
-> > > > > driver, which runs ok. I tried upgrading it last night to 2.6.15, and
-> > > > > the following error occured, and no drives were detected/made available:
-> > > > >
-> > > > >  [17179598.940000] kobject_register failed for Promise_Old_IDE (-17)
-> > > > >  [17179598.940000]  [dump_stack+21/23] dump_stack+0x15/0x17
-> > > > >  [17179598.940000]  [kobject_register+52/64] kobject_register+0x34/0x40
-> > > > >  [17179598.940000]  [bus_add_driver+69/163] bus_add_driver+0x45/0xa3
-> > > > >  [17179598.940000]  [driver_register+57/60] driver_register+0x39/0x3c
-> > > > >  [17179598.940000]  [__pci_register_driver+125/132] __pci_register_driver+0x7d/0x84
-> > > > >  [17179598.940000]  [__ide_pci_register_driver+19/53] __ide_pci_register_driver+0x13/0x35
-> > > > >  [17179598.940000]  [pg0+945449588/1069855744] pdc202xx_ide_init+0x12/0x16 [pdc202xx_old]
-> > > > >  [17179598.940000]  [sys_init_module+193/430] sys_init_module+0xc1/0x1ae
-> > > > >  [17179598.940000]  [syscall_call+7/11] syscall_call+0x7/0xb
-> > > >
-> > > > This means that some other driver tried to register with the same exact
-> > > > name for the same bus.  As it looks like this is the ide bus, I suggest
-> > > > asking on the linux ide mailing list.
-> > > 
-> > 
-> > Well, now I remember that in /sys in the proper place there were two
-> > directories called Promise_Old_IDE, maybe the driver tried to register
-> > twice?
-> >...
+On Thu, 26 Jan 2006, Matthew Dobson wrote:
+
+> alloc_pages_node() does not guarantee allocation on a specific node, but
+> calling __alloc_pages() with a specific nodelist would.
+
+True but you have emergency *_node function that do not take nodelists.
+
+> > There is no way that you would need this patch.
 > 
-> Greg, IIRC, weren't there plans to turn this case into a BUG()?
+> My goal was to not change the behavior of the slab allocator when inserting
+> a mempool-backed allocator "under" it.  Without support for at least
+> *requesting* allocations from a specific node when allocating from a
+> mempool, this would change how the slab allocator works.  That would be
+> bad.  The slab allocator now does not guarantee that, for example, a
+> kmalloc_node() request is satisfied by memory from the requested node, but
+> it does at least TRY.  Without adding mempool_alloc_node() then I would
+> never be able to even TRY to satisfy a mempool-backed kmalloc_node()
+> request from the correct node.  I believe that would constitute an
+> unacceptable breakage from normal, documented behavior.  So, I *do* need
+> this patch.
 
-No, we dump the stack trace so that people can see what is happening,
-but if the caller has done their error handling correctly, the kernel
-will not crash.
+If you get to the emergency lists then you are already in a tight memory 
+situation. In that situation it does not make sense to worry about the 
+node number the memory is coming from. kmalloc_node is just a kmalloc with 
+an indication of a preference of where the memory should be coming from. 
+The node locality only influences performance and not correctness.
 
-I don't like adding BUG() calls for stuff that it should not be needed
-for (like this.)
-
-thanks,
-
-greg k-h
+There is no change to the way the slab allocator works. Just drop the 
+*_node variants.

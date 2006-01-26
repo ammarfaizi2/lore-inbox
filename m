@@ -1,190 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbWAZWsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbWAZWsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964965AbWAZWsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 17:48:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbWAZWsJ
+	id S964966AbWAZWsl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 17:48:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbWAZWsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 17:48:09 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:58886 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964957AbWAZWsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 17:48:07 -0500
-Date: Thu, 26 Jan 2006 23:48:05 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org,
-       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
-Subject: [3/10] remove ISA legacy functions: drivers/scsi/g_NCR5380.c
-Message-ID: <20060126224805.GG3668@stusta.de>
-References: <20060126223126.GD3668@stusta.de>
+	Thu, 26 Jan 2006 17:48:41 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:9618 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964966AbWAZWsk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 17:48:40 -0500
+Message-ID: <43D951C4.8050503@us.ibm.com>
+Date: Thu, 26 Jan 2006 14:48:36 -0800
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060126223126.GD3668@stusta.de>
-User-Agent: Mutt/1.5.11
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+CC: linux-kernel@vger.kernel.org, sri@us.ibm.com, andrea@suse.de,
+       pavel@suse.cz, linux-mm@kvack.org
+Subject: Re: [patch 9/9] slab - Implement single mempool backing for slab
+ allocator
+References: <20060125161321.647368000@localhost.localdomain>	 <1138218024.2092.9.camel@localhost.localdomain> <84144f020601260011p1e2f883fp8058eb0e2edee99f@mail.gmail.com>
+In-Reply-To: <84144f020601260011p1e2f883fp8058eb0e2edee99f@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+Pekka Enberg wrote:
+> Hi,
+> 
+> On 1/25/06, Matthew Dobson <colpatch@us.ibm.com> wrote:
+> 
+>>-static void *kmem_getpages(kmem_cache_t *cachep, gfp_t flags, int nodeid)
+>>+static void *kmem_getpages(kmem_cache_t *cachep, gfp_t flags, int nodeid,
+>>+                          mempool_t *pool)
+>> {
+>>        struct page *page;
+>>        void *addr;
+>>        int i;
+>>
+>>        flags |= cachep->gfpflags;
+>>-       page = alloc_pages_node(nodeid, flags, cachep->gfporder);
+>>+       /*
+>>+        * If this allocation request isn't backed by a memory pool, or if that
+>>+        * memory pool's gfporder is not the same as the cache's gfporder, fall
+>>+        * back to alloc_pages_node().
+>>+        */
+>>+       if (!pool || cachep->gfporder != (int)pool->pool_data)
+>>+               page = alloc_pages_node(nodeid, flags, cachep->gfporder);
+>>+       else
+>>+               page = mempool_alloc_node(pool, flags, nodeid);
+> 
+> 
+> You're not returning any pages to the pool, so the it will run out
+> pages at some point, no? Also, there's no guarantee the slab allocator
+> will give back the critical page any time soon either because it will
+> use it for non-critical allocations as well as soon as it becomes part
+> of the object cache slab lists.
 
-switched CONFIG_SCSI_G_NCR5380_MEM code in g_NCR5380 to ioremap(); massaged
-g_NCR5380.h accordingly.
+As this is not a full implementation, just a partly fleshed-out RFC, the
+kfree() hooks aren't there yet.  Essentially, the plan would be to add a
+mempool_t pointer to struct slab, and if that pointer is non-NULL when
+we're freeing an unused slab, return it to the mempool it came from.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+As you mention, there is no guarantee as to how long the critical page will
+be in use for.  One idea to tackle that problem would be to use the new
+mempool_t pointer in struct slab to provide exclusivity of critical slab
+pages, ie: if a non-critical slab request comes in and the only free page
+in the slab is a 'critical' page (it came from a mempool) then attempt to
+grow the slab or fail the non-critical request.  Both of these concepts
+were (more or less) implemented in my other attempt at solving the critical
+pool problem, so moving them to fit into this approach should not be difficult.
 
----
+Thanks!
 
- drivers/scsi/g_NCR5380.c |   28 +++++++++++++++++++++-------
- drivers/scsi/g_NCR5380.h |   23 +++++++++++++++++------
- 2 files changed, 38 insertions(+), 13 deletions(-)
-
-6432444077b99d420f973ce8f1e748792f50a161
-diff --git a/drivers/scsi/g_NCR5380.c b/drivers/scsi/g_NCR5380.c
---- a/drivers/scsi/g_NCR5380.c
-+++ b/drivers/scsi/g_NCR5380.c
-@@ -127,7 +127,7 @@ static int ncr_53c400a = NCR_NOT_SET;
- static int dtc_3181e = NCR_NOT_SET;
- 
- static struct override {
--	NCR5380_implementation_fields;
-+	NCR5380_map_type NCR5380_map_name;
- 	int irq;
- 	int dma;
- 	int board;		/* Use NCR53c400, Ricoh, etc. extensions ? */
-@@ -299,6 +299,10 @@ int __init generic_NCR5380_detect(struct
- 	};
- 	int flags = 0;
- 	struct Scsi_Host *instance;
-+#ifdef CONFIG_SCSI_G_NCR5380_MEM
-+	unsigned long base;
-+	void __iomem *iomem;
-+#endif
- 
- 	if (ncr_irq != NCR_NOT_SET)
- 		overrides[0].irq = ncr_irq;
-@@ -424,15 +428,22 @@ int __init generic_NCR5380_detect(struct
- 			region_size = NCR5380_region_size;
- 		}
- #else
--		if(!request_mem_region(overrides[current_override].NCR5380_map_name, NCR5380_region_size, "ncr5380"))
-+		base = overrides[current_override].NCR5380_map_name;
-+		if (!request_mem_region(base, NCR5380_region_size, "ncr5380"))
-+			continue;
-+		iomem = ioremap(base, NCR5380_region_size);
-+		if (!iomem) {
-+			release_mem_region(base, NCR5380_region_size);
- 			continue;
-+		}
- #endif
- 		instance = scsi_register(tpnt, sizeof(struct NCR5380_hostdata));
- 		if (instance == NULL) {
- #ifndef CONFIG_SCSI_G_NCR5380_MEM
- 			release_region(overrides[current_override].NCR5380_map_name, region_size);
- #else
--			release_mem_region(overrides[current_override].NCR5380_map_name, NCR5380_region_size);
-+			iounmap(iomem);
-+			release_mem_region(base, NCR5380_region_size);
- #endif
- 			continue;
- 		}
-@@ -440,6 +451,8 @@ int __init generic_NCR5380_detect(struct
- 		instance->NCR5380_instance_name = overrides[current_override].NCR5380_map_name;
- #ifndef CONFIG_SCSI_G_NCR5380_MEM
- 		instance->n_io_port = region_size;
-+#else
-+		((struct NCR5380_hostdata *)instance->hostdata).iomem = iomem;
- #endif
- 
- 		NCR5380_init(instance, flags);
-@@ -509,6 +522,7 @@ int generic_NCR5380_release_resources(st
- #ifndef CONFIG_SCSI_G_NCR5380_MEM
- 	release_region(instance->NCR5380_instance_name, instance->n_io_port);
- #else
-+	iounmap(((struct NCR5380_hostdata *)instance->hostdata).iomem);
- 	release_mem_region(instance->NCR5380_instance_name, NCR5380_region_size);
- #endif
- 
-@@ -586,7 +600,7 @@ static inline int NCR5380_pread(struct S
- 		}
- #else
- 		/* implies CONFIG_SCSI_G_NCR5380_MEM */
--		isa_memcpy_fromio(dst + start, NCR53C400_host_buffer + NCR5380_map_name, 128);
-+		memcpy_fromio(dst + start, iomem + NCR53C400_host_buffer, 128);
- #endif
- 		start += 128;
- 		blocks--;
-@@ -606,7 +620,7 @@ static inline int NCR5380_pread(struct S
- 		}
- #else
- 		/* implies CONFIG_SCSI_G_NCR5380_MEM */
--		isa_memcpy_fromio(dst + start, NCR53C400_host_buffer + NCR5380_map_name, 128);
-+		memcpy_fromio(dst + start, iomem + NCR53C400_host_buffer, 128);
- #endif
- 		start += 128;
- 		blocks--;
-@@ -671,7 +685,7 @@ static inline int NCR5380_pwrite(struct 
- 		}
- #else
- 		/* implies CONFIG_SCSI_G_NCR5380_MEM */
--		isa_memcpy_toio(NCR53C400_host_buffer + NCR5380_map_name, src + start, 128);
-+		memcpy_toio(iomem + NCR53C400_host_buffer, src + start, 128);
- #endif
- 		start += 128;
- 		blocks--;
-@@ -687,7 +701,7 @@ static inline int NCR5380_pwrite(struct 
- 		}
- #else
- 		/* implies CONFIG_SCSI_G_NCR5380_MEM */
--		isa_memcpy_toio(NCR53C400_host_buffer + NCR5380_map_name, src + start, 128);
-+		memcpy_toio(iomem + NCR53C400_host_buffer, src + start, 128);
- #endif
- 		start += 128;
- 		blocks--;
-diff --git a/drivers/scsi/g_NCR5380.h b/drivers/scsi/g_NCR5380.h
---- a/drivers/scsi/g_NCR5380.h
-+++ b/drivers/scsi/g_NCR5380.h
-@@ -82,6 +82,15 @@ static const char* generic_NCR5380_info(
- #define NCR5380_read(reg) (inb(NCR5380_map_name + (reg)))
- #define NCR5380_write(reg, value) (outb((value), (NCR5380_map_name + (reg))))
- 
-+#define NCR5380_implementation_fields \
-+    NCR5380_map_type NCR5380_map_name
-+
-+#define NCR5380_local_declare() \
-+    register NCR5380_implementation_fields
-+
-+#define NCR5380_setup(instance) \
-+    NCR5380_map_name = (NCR5380_map_type)((instance)->NCR5380_instance_name)
-+
- #else 
- /* therefore CONFIG_SCSI_G_NCR5380_MEM */
- 
-@@ -95,18 +104,20 @@ static const char* generic_NCR5380_info(
- #define NCR53C400_host_buffer 0x3900
- #define NCR5380_region_size 0x3a00
- 
--#define NCR5380_read(reg) isa_readb(NCR5380_map_name + NCR53C400_mem_base + (reg))
--#define NCR5380_write(reg, value) isa_writeb(value, NCR5380_map_name + NCR53C400_mem_base + (reg))
--#endif
-+#define NCR5380_read(reg) readb(iomem + NCR53C400_mem_base + (reg))
-+#define NCR5380_write(reg, value) writeb(value, iomem + NCR53C400_mem_base + (reg))
- 
- #define NCR5380_implementation_fields \
--    NCR5380_map_type NCR5380_map_name
-+    NCR5380_map_type NCR5380_map_name; \
-+    void __iomem *iomem;
- 
- #define NCR5380_local_declare() \
--    register NCR5380_implementation_fields
-+    register void __iomem *iomem
- 
- #define NCR5380_setup(instance) \
--    NCR5380_map_name = (NCR5380_map_type)((instance)->NCR5380_instance_name)
-+    iomem = (((struct NCR5380_hostdata *)(instance)->hostdata).iomem)
-+
-+#endif
- 
- #define NCR5380_intr generic_NCR5380_intr
- #define NCR5380_queue_command generic_NCR5380_queue_command
-
+-Matt

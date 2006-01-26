@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWAZPML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932346AbWAZPO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbWAZPML (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 10:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWAZPML
+	id S932346AbWAZPO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 10:14:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWAZPO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 10:12:11 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:37166 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932345AbWAZPMJ convert rfc822-to-8bit
+	Thu, 26 Jan 2006 10:14:27 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:3717 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S932346AbWAZPO0 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 10:12:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nF1cxe+dJMnaA02fB3bmemCRtDyqUnM9ZoyTZOg/mFFj7Efqv3fNZfI3I5nBu1Zu2NJwu8LyB5WR2larnnhl2GAOXJYunHaLjRnlxmLnkaHWrt76+UEbDqxmNCc7bB48+b7ubDQd1SocCPjf+BuWIeQsJgg6wf2Rl/xEoegoCLg=
-Message-ID: <401b11ae0601260712w7cfe88abm638dc7a459b3bb3a@mail.gmail.com>
-Date: Thu, 26 Jan 2006 15:12:08 +0000
-From: Daniel fernandez <ergot86@gmail.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH] i386 - sys_clone from vsyscall
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <200601252247_MC3-1-B6BF-F209@compuserve.com>
+	Thu, 26 Jan 2006 10:14:26 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Nix <nix@esperi.org.uk>
+Subject: Re: [RFC] VM: I have a dream...
+Date: Thu, 26 Jan 2006 17:13:03 +0200
+User-Agent: KMail/1.8.2
+Cc: Diego Calleja <diegocg@gmail.com>, Ram Gupta <ram.gupta5@gmail.com>,
+       mloftis@wgops.com, barryn@pobox.com, a1426z@gawab.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <200601212108.41269.a1426z@gawab.com> <20060123162624.5c5a1b94.diegocg@gmail.com> <87zmlkq6yo.fsf@amaterasu.srvr.nix>
+In-Reply-To: <87zmlkq6yo.fsf@amaterasu.srvr.nix>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-References: <200601252247_MC3-1-B6BF-F209@compuserve.com>
+Message-Id: <200601261713.03834.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your work on the patch
+On Thursday 26 January 2006 00:27, Nix wrote:
+> On 23 Jan 2006, Diego Calleja wrote:
+> > El Mon, 23 Jan 2006 09:05:41 -0600,
+> > Ram Gupta <ram.gupta5@gmail.com> escribió:
+> > 
+> >> Linux also supports multiple swap files . But these are more
+> > 
+> > There're in fact a "dynamic swap" tool which apparently
+> > does what mac os x do: http://dynswapd.sourceforge.net/
+> > 
+> > However, I doubt the approach is really useful. If you need that much
+> > swap space, you're going well beyond the capabilities of the machine.
+> 
+> Well, to some extent it depends on your access patterns. The backup
+> program I use (`dar') is an enormous memory hog: it happily eats 5Gb on
+> my main fileserver (an UltraSPARC, so compiling it 64-bit does away with
+> address space sizing problems). That machine has only 512Mb RAM, so
+> you'd expect the thing would be swapping to death; but the backup
+> program's locality of reference is sufficiently good that it doesn't
+> swap much at all (and that in one tight lump at the end).
 
-> Your patch almost works but it copies the stack into the parent's address space.
-> Using access_process_vm() fixes it.  However, that still leaves unfixed the case
-> where vsyscall-int80 is used.
-
-I copy the stack into the parent's address space becuase in this case
-the memory is shared, but  access_process_vm() is more elegant :).
-About vsyscall-int80, I don't know how to test that case in my
-computer but I think a solution could be:
-
-add a INT80H_RETURN symbol:
-
- .LSTART_vsyscall:
-          int $0x80
- .globl INT80H_RETURN
- INT80H_RETURN:
-          ret
-  .LEND_vsyscall:
-
-and then in process.c:
-
-  int size = 0 ;
-  childregs->eax = 0;
-
-    if ((void *)regs->eip == SYSENTER_RETURN)
-                size = sizeof(vsyscall_stack) ;
-    if ((void *)regs->eip == INT80H_RETURN)
-                size = sizeof(unsigned long) ;
-
-       if (regs->esp != esp && size) {
-               if (copy_from_user(vsyscall_stack, (void *)regs->esp, size))
-                       return -EFAULT;
-               if (access_process_vm(p, esp - size, vsyscall_stack,
-size, 1) != size)
-                       return -EFAULT;
-               esp -= size;
-       }
-       childregs->esp = esp;
-
-I hope somebody can test if it works that way.
-Regards
+Totally insane proggie.
+--
+vda

@@ -1,82 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWAZBJD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWAZBKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbWAZBJD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 20:09:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWAZBJC
+	id S1751250AbWAZBKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 20:10:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbWAZBKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 20:09:02 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:13068 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1751140AbWAZBJA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 20:09:00 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Cc: <hancockr@shaw.ca>
-Subject: RE: sched_yield() makes OpenLDAP slow
-Date: Wed, 25 Jan 2006 17:07:36 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAEJBJKAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <43D78262.2050809@symas.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Wed, 25 Jan 2006 17:04:22 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Wed, 25 Jan 2006 17:04:42 -0800
+	Wed, 25 Jan 2006 20:10:25 -0500
+Received: from webmail.terra.es ([213.4.149.12]:26956 "EHLO
+	csmtpout1.frontal.correo") by vger.kernel.org with ESMTP
+	id S1751250AbWAZBKX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 20:10:23 -0500
+Date: Thu, 26 Jan 2006 02:13:51 +0100 (added by postmaster@terra.es)
+From: <grundig@teleline.es>
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: axboe@suse.de, matthias.andree@gmx.de, schilling@fokus.fraunhofer.de,
+       jengelh@linux01.gwdg.de, linux-kernel@vger.kernel.org,
+       acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-Id: <20060126020951.14ebc188.grundig@teleline.es>
+In-Reply-To: <20060125231422.GB2137@merlin.emma.line.org>
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
+	<Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
+	<20060125144543.GY4212@suse.de>
+	<Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
+	<20060125153057.GG4212@suse.de>
+	<43D7AF56.nailDFJ882IWI@burner>
+	<20060125181847.b8ca4ceb.grundig@teleline.es>
+	<20060125173127.GR4212@suse.de>
+	<43D7C1DF.1070606@gmx.de>
+	<20060125182552.GB4212@suse.de>
+	<20060125231422.GB2137@merlin.emma.line.org>
+X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+El Thu, 26 Jan 2006 00:14:22 +0100,
+Matthias Andree <matthias.andree@gmx.de> escribió:
 
-> Robert Hancock wrote:
+> Great. There's a better way, but it is not necessary. Let Linux-specific
+> applications use it for their benefit, but a portable application isn't
+> going that way because it's too much effort. If a simpler interface that
+> can be shared with half a dozen other system exists, the portable
+> application will use that and ignore better interfaces.
 
->  > "If there are threads blocked on the mutex object referenced by mutex
->  > when pthread_mutex_unlock() is called, resulting in the mutex becoming
->  > available, the scheduling policy shall determine which thread shall
->  > acquire the mutex."
->  >
->  > This says nothing about requiring a reschedule. The "scheduling policy"
->  > can well decide that the thread which just released the mutex can
->  > re-acquire it.
+It's too "much effort"? Basically, what linux is asking is that cdrecord
+stop wasting efforts trying to implement its own solution. Linux is 
+asking cdrecord to use SG_IO and leave device discovery and data transport
+issues to the platform.
 
-> No, because the thread that just released the mutex is obviously not one
-> of  the threads blocked on the mutex.
-
-	So what?
-
-> When a mutex is unlocked, one of
-> the *waiting* threads at the time of the unlock must acquire it, and the
-> scheduling policy can determine that.
-
-	This is false and is nowhere found in the standard.
-
-> But the thread the released the
-> mutex is not one of the waiting threads, and is not eligible for
-> consideration.
-
-	Where are you getting this from? Nothing requires the scheduler to schedule
-any threads when the mutex is released.
-
-	All that must happen is that the mutex must be unlocked. The scheduler is
-permitted to allow any thread it wants to run at that point, or no thread.
-Nothing says the thread that released the mutex can't continue running and
-nothing says that it can't call pthread_mutex_lock and re-acquire the mutex
-before any other thread gets around to getting it.
-
-	In general, it is very bad karma for the scheduler to stop a thread before
-its timeslice is up if it doesn't have to. Consider one CPU and two threads,
-each needing to do 100 quick lock/unlock cycles. Why force 200 context
-switches?
-
-	DS
-
-
+Linux doesn't even need -scanbus for example. You could compile out that
+code. Device discovery is done by the platform - I find _scary_ that other
+"modern" operative systems don't have a way of providing device discovery
+services in 2006 and that a external app is needed but hey, people is free
+to design their operative system as they like. Linux provides it and leaves
+Schilling time to focus in other things. In my book, that's not "too much
+effort", is "less effort". If someone bugs you because SG_IO doesn't work
+just tell him to report the problem here - in fact cdrecord already has a
+"friendly" warning about "linux-2.5 and newer". The cdrecord low level
+scsi driver for SG_IO should be much simpler than all the others...

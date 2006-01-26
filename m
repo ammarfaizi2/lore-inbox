@@ -1,88 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWAZOyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWAZPML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbWAZOyU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 09:54:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbWAZOyU
+	id S932345AbWAZPML (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 10:12:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932347AbWAZPML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 09:54:20 -0500
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:41087 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932201AbWAZOyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 09:54:19 -0500
+	Thu, 26 Jan 2006 10:12:11 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:37166 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932345AbWAZPMJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 10:12:09 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=d0aklalnm24Zdyk+IEiaGCIGjzekBbJVTJ0m9WfWX09Of5Z1X9FXRsrlKgtWfYYp4GX6Q5mvFJAIdVZkuHVlCwGfVkfxSAFV1WDNZHc7U8uSphuVQXcnkajW9E3MWN2N/KLNqXYoHtaMO+qwWZJWAGbLgDIgC9dElfsJXk77i34=  ;
-Message-ID: <43D8E298.3020402@yahoo.com.au>
-Date: Fri, 27 Jan 2006 01:54:16 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nF1cxe+dJMnaA02fB3bmemCRtDyqUnM9ZoyTZOg/mFFj7Efqv3fNZfI3I5nBu1Zu2NJwu8LyB5WR2larnnhl2GAOXJYunHaLjRnlxmLnkaHWrt76+UEbDqxmNCc7bB48+b7ubDQd1SocCPjf+BuWIeQsJgg6wf2Rl/xEoegoCLg=
+Message-ID: <401b11ae0601260712w7cfe88abm638dc7a459b3bb3a@mail.gmail.com>
+Date: Thu, 26 Jan 2006 15:12:08 +0000
+From: Daniel fernandez <ergot86@gmail.com>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH] i386 - sys_clone from vsyscall
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <200601252247_MC3-1-B6BF-F209@compuserve.com>
 MIME-Version: 1.0
-To: Howard Chu <hyc@symas.com>
-CC: Lee Revell <rlrevell@joe-job.com>,
-       Christopher Friesen <cfriesen@nortel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hancockr@shaw.ca
-Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
-References: <20060124225919.GC12566@suse.de>	 <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de>	 <20060125121125.GH5465@suse.de> <43D78262.2050809@symas.com>	 <43D7BA0F.5010907@nortel.com>  <43D7C2F0.5020108@symas.com> <1138223212.3087.16.camel@mindpipe> <43D7F863.3080207@symas.com> <43D88E55.7010506@yahoo.com.au> <43D8DB90.7070601@symas.com>
-In-Reply-To: <43D8DB90.7070601@symas.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200601252247_MC3-1-B6BF-F209@compuserve.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howard Chu wrote:
-> Nick Piggin wrote:
+Thanks for your work on the patch
 
->> They obviously don't need to redefine exactly what sched_yield may do
->> under each scheduling policy, do they?
->>
-> As Dave Butenhof says so often, threading is a cooperative programming 
-> model, not a competitive one. The sched_yield function exists for a 
-> specific purpose, to let one thread decide to allow some other thread to 
-> run. No matter what the scheduling policy, or even if there is no 
+> Your patch almost works but it copies the stack into the parent's address space.
+> Using access_process_vm() fixes it.  However, that still leaves unfixed the case
+> where vsyscall-int80 is used.
 
-Yes, and even SCHED_OTHER in Linux attempts to do this as part of
-the principle of least surprise. That it doesn't _exactly_ match
-what you want it to do just means you need to be using something
-else.
+I copy the stack into the parent's address space becuase in this case
+the memory is shared, but  access_process_vm() is more elegant :).
+About vsyscall-int80, I don't know how to test that case in my
+computer but I think a solution could be:
 
-> scheduling policy at all, the expectation is that the current thread 
-> will not continue to run unless there are no other runnable threads in 
-> the same process. The other important point here is that the yielding 
-> thread is only cooperating with other threads in its process. The 2.6 
+add a INT80H_RETURN symbol:
 
-No I don't think so. POSIX 1.b where sched_yield is defined are the
-realtime extensions, are they not?
+ .LSTART_vsyscall:
+          int $0x80
+ .globl INT80H_RETURN
+ INT80H_RETURN:
+          ret
+  .LEND_vsyscall:
 
-sched_yield explicitly makes reference to the realtime priority system
-of thread lists does it not? It is pretty clear that it is used for
-realtime processes to deterministically give up their timeslices to
-others of the same priority level.
+and then in process.c:
 
-Linux's SCHED_OTHER behaviour is arguably the best interpretation,
-considering SCHED_OTHER is defined to have a single priority level.
+  int size = 0 ;
+  childregs->eax = 0;
 
-> kernel behavior effectively causes the entire process to give up its 
-> time slice, since the yielding thread has to wait for other processes in 
-> the system before it can run again. Again, if folks wanted process 
+    if ((void *)regs->eip == SYSENTER_RETURN)
+                size = sizeof(vsyscall_stack) ;
+    if ((void *)regs->eip == INT80H_RETURN)
+                size = sizeof(unsigned long) ;
 
-It yields to all other SCHED_OTHER processes (which are all on the
-same thread priority list) and not to any other processes of higher
-realtime priority.
+       if (regs->esp != esp && size) {
+               if (copy_from_user(vsyscall_stack, (void *)regs->esp, size))
+                       return -EFAULT;
+               if (access_process_vm(p, esp - size, vsyscall_stack,
+size, 1) != size)
+                       return -EFAULT;
+               esp -= size;
+       }
+       childregs->esp = esp;
 
-> scheduling behavior they would have used fork().
-> 
-
-It so happens that processes and threads use the same scheduling
-policy in Linux. Is that forbidden somewhere?
-
-> By the way, I've already raised an objection with the Open Group asking 
-> for more clarification here.
-> http://www.opengroup.org/austin/aardvark/latest/xshbug2.txt   request 
-> number 120.
-> 
-
--- 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+I hope somebody can test if it works that way.
+Regards

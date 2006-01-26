@@ -1,67 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbWAZVIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbWAZVIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964886AbWAZVIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 16:08:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWAZVIZ
+	id S964896AbWAZVIz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 16:08:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbWAZVIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 16:08:25 -0500
-Received: from DSL022.labridge.com ([206.117.136.22]:4875 "EHLO Perches.com")
-	by vger.kernel.org with ESMTP id S964886AbWAZVIY (ORCPT
+	Thu, 26 Jan 2006 16:08:55 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:46474 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S964896AbWAZVIy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 16:08:24 -0500
-Subject: Re: arch/i386/kernel/nmi.c: fix compiler warning
-From: Joe Perches <joe@perches.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1138307625.30814.13.camel@mindpipe>
-References: <1138307625.30814.13.camel@mindpipe>
-Content-Type: text/plain
-Date: Thu, 26 Jan 2006 13:08:21 -0800
-Message-Id: <1138309701.27471.12.camel@localhost>
+	Thu, 26 Jan 2006 16:08:54 -0500
+Date: Thu, 26 Jan 2006 22:08:53 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linu-fsdevel@vger.kernel.org
+Subject: Re: [PATCH 0/6] vfs: extend loopback (bind) mounts by mnt_flags
+Message-ID: <20060126210853.GB22020@MAIL.13thfloor.at>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Al Viro <viro@ftp.linux.org.uk>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>,
+	linu-fsdevel@vger.kernel.org
+References: <20060121083843.GA10044@MAIL.13thfloor.at> <20060124190632.GB14201@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4-3.1.102mdk 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060124190632.GB14201@infradead.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-26 at 15:33 -0500, Lee Revell wrote:
-> arch/i386/kernel/nmi.c: In function 'check_nmi_watchdog':
-> arch/i386/kernel/nmi.c:139: warning: statement with no effect
+On Tue, Jan 24, 2006 at 07:06:32PM +0000, Christoph Hellwig wrote:
+> On Sat, Jan 21, 2006 at 09:38:43AM +0100, Herbert Poetzl wrote:
+> > 
+> > The following set of patches extends the per device 
+> > 'noatime', 'nodiratime' and last but not least the 
+> > 'ro' (read only) mount option to the vfs --bind mounts, 
+> > allowing them to behave like any other mount, by 
+> > honoring those mount flags (which are silently ignored 
+> > by the current implementation in 2.4.x and 2.6.x)   	
+> > 
+> > the patch makes the following syscall variations behave 
+> > as expected:
+> > 
+> >  - open (read/write/trunc), create
+> >  - link, symlink, unlink
+> >  - mknod (reg/block/char/fifo)
+> >  - mkfifo, mkdir, rmdir, rename
+> >  - (f,l)chown, (f)chmod, utime
+> >  - access, truncate, mmap
+> >  - ioctl (gen/ext2/ext3/reiser)
+> >  - (f,l)setxattr, (f,l)removexattr
+> > 
+> > an older version of this patch was included in 
+> > 2.6.0-test6-mm2, and v2.6.4-wolk2.0, the patches are
+> > in use by several people, without any issues ...
+> > 
+> > please consider inclusion (in -mm ?) and/or let me know
+> > what needs to be changed to get this functionality into
+> > mainline ...
+> 
+> Please see the original mail from Al on this subject. We need to
+> split the "am I allowed to write to the fs" part out of permission().
+> Once we're at it we can pair it with the "don't need to write to fs
+> anymore" even and get saner unmount/remount semantics.
 
-A more generic solution:
+could you point me to this thread/email, so that I can
+(re)read it?
 
-diff --git a/include/linux/smp.h b/include/linux/smp.h
-index 9dfa3ee..be4e598 100644
---- a/include/linux/smp.h
-+++ b/include/linux/smp.h
-@@ -90,12 +90,25 @@ void smp_prepare_boot_cpu(void);
- #else /* !SMP */
- 
- /*
-- *	These macros fold the SMP functionality into a single CPU system
-+ *	These macros and inlines fold the SMP functionality
-+ *	for single CPU systems
-  */
- #define raw_smp_processor_id()			0
- #define hard_smp_processor_id()			0
--#define smp_call_function(func,info,retry,wait)	({ 0; })
--#define on_each_cpu(func,info,retry,wait)	({ func(info); 0; })
-+
-+static inline int smp_call_function(void (*func) (void *info), void *info,
-+			      int retry, int wait)
-+{
-+	return 0;
-+}
-+
-+static inline int on_each_cpu(void (*func) (void *info), void *info,
-+			      int retry, int wait)
-+{
-+	func(info);
-+	return 0;
-+}
-+
- static inline void smp_send_reschedule(int cpu) { }
- #define num_booting_cpus()			1
- #define smp_prepare_boot_cpu()			do {} while (0)
+> To get there we will still need the vfsmount propagatios, so these
+> should come first in the series. Then the get/release write access
+> helpers and last the actual per-mount ro bit. Your mnt_flags
+> propagation fix is fine on it's own and should go in asap.
+>
+> And please send the patches to -fsdevel and in the proper patch
 
+will do so, once I figure out what was improper ...
+(as I tried to follow Andrew's tpp document in the first palce)
 
+> format. I have planned to look at this again in February, tell me if
+> you want to finish it before or at the same time, then I won't spend
+> time on it.
+
+once I figured out what is desired/wanted/acceptable, I'm
+willing to do it ...
+
+best,
+Herbert
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

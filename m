@@ -1,89 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWAZMnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWAZM6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751334AbWAZMnR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 07:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWAZMnR
+	id S1751182AbWAZM6c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 07:58:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWAZM6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 07:43:17 -0500
-Received: from ip-svs-1.Informatik.Uni-Oldenburg.DE ([134.106.12.126]:24300
-	"EHLO aechz.svs.informatik.uni-oldenburg.de") by vger.kernel.org
-	with ESMTP id S1751334AbWAZMnR (ORCPT
+	Thu, 26 Jan 2006 07:58:32 -0500
+Received: from mail.gmx.de ([213.165.64.21]:1238 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751182AbWAZM6c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 07:43:17 -0500
-Date: Thu, 26 Jan 2006 13:42:50 +0100
-From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-To: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [RT] kgameportd/633 changed soft IRQ-flags.
-Message-ID: <20060126124250.GA11512@titan.lahn.de>
-Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Thu, 26 Jan 2006 07:58:32 -0500
+X-Authenticated: #428038
+Date: Thu, 26 Jan 2006 13:58:25 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060126125825.GB14256@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de
+References: <Pine.LNX.4.61.0601241823390.28682@yvahk01.tjqt.qr> <43D78585.nailD7855YVBX@burner> <20060125142155.GW4212@suse.de> <Pine.LNX.4.61.0601251544400.31234@yvahk01.tjqt.qr> <20060125145544.GA4212@suse.de> <43D7AEBF.nailDFJ7263OE@burner> <43D7B100.7040706@gmx.de> <43D7B345.nailDFJB1WWYF@burner> <20060125231957.GC2137@merlin.emma.line.org> <43D8C0E9.nailE1C31558S@burner>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: UUCP-Freunde Lahn e.V.
+In-Reply-To: <43D8C0E9.nailE1C31558S@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
 User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Ingo,Thomas!
+Joerg Schilling schrieb am 2006-01-26:
 
-While trying 2.6.15-rt15 I got the following warning, which you might be
-interested in. If you need more information, please feel free to contact
-me,
+> Matthias Andree <matthias.andree@gmx.de> wrote:
+> 
+> > Joerg Schilling schrieb am 2006-01-25:
+> >
+> > > Matthias Andree <matthias.andree@gmx.de> wrote:
+> > > 
+> > > > I think we'd better call the whole discussion off.
+> > > 
+> > > We could continue as long as people like Jens Axboe stay reasonable.
+> >
+> > No. The deal was people stating their requirements, not mounting
+> > personal attacks against others. I posted the same question (what's
+> 
+> This is why we needed to omit Jens Axboe from this discusion.
 
-Linux version 2.6.15.1-rt15 (root@titan) (gcc version 4.0.3 20060115 (prerelease) (Debian 4.0.2-7)) #1 SMP PREEMPT Tue Jan 24 23:26:28 CET 2006
-...
-CPU0: Intel Pentium III (Katmai) stepping 03
-CPU1: Intel Pentium III (Katmai) stepping 03
-...
-isapnp: Scanning for PnP cards...
-pnp: SB audio device quirk - increasing port range
-pnp: AWE32 quirk - adding two ports
-isapnp: Card 'Creative SB32 PnP'
-isapnp: 1 Plug & Play card detected total
-...
-pnp: Device 01:01.03 activated.
-gameport: NS558 PnP Gameport is pnp01:01.03/gameport0, io 0x200, speed 727kHz
-WARNING: kgameportd/633 changed soft IRQ-flags.
- [<c010388e>] dump_stack+0x15/0x17 (12)
- [<c01321a4>] illegal_API_call+0x3c/0x41 (20)
- [<c013224b>] __local_irq_save+0x2b/0x2d (8)
- [<e08d8735>] analog_calibrate_timer+0x19/0x192 [analog] (40)
- [<e08d8f8b>] analog_init_port+0x31/0x224 [analog] (40)
- [<e08d91b6>] analog_connect+0x38/0xfd [analog] (36)
- [<e08d1c56>] gameport_driver_probe+0x1a/0x2b [gameport] (12)
- [<c022c87d>] driver_probe_device+0x35/0x82 (20)
- [<c022c94f>] __driver_attach+0x29/0x37 (20)
- [<c022c16e>] bus_for_each_dev+0x36/0x5b (32)
- [<c022c971>] driver_attach+0x14/0x17 (12)
- [<c022c4e6>] bus_add_driver+0x66/0xb0 (24)
- [<c022cc44>] driver_register+0x49/0x50 (20)
- [<e08d15db>] gameport_handle_event+0x5f/0x7a [gameport] (12)
- [<e08d16b5>] gameport_thread+0xc/0xc6 [gameport] (32)
- [<c012ad91>] kthread+0x77/0xa4 (32)
- [<c0100fe5>] kernel_thread_helper+0x5/0xb (560652316)
----------------------------
-| preempt count: 00000000 ]
-| 0-level deep critical section nesting:
-----------------------------------------
+Hold it! Who is acquainted with Linux 2.6.15-rc*, Jens or you?
 
-------------------------------
-| showing all locks held by: |  (kgameportd/633 [df0847e0, 111]):
-------------------------------
+This childish discussion who started bitching isn't going to take you anywhere.
 
-#001:             [e08d3764] {gameport_sem.lock}
-... acquired at:               gameport_handle_event+0xe/0x7a [gameport]
+> Tell me how to access a ATAPI tape drive via libscg.
 
-#002:             [defc12f8] {(struct semaphore *)(&dev->sem)}
-... acquired at:               __driver_attach+0x17/0x37
+It is *your* library, I have no interest in it as long as CD writing
+works at the moment. Either do your research or ask the public, I'm not
+going to answer or research this for you.
 
-input: Analog 3-axis 4-button joystick as /class/input/input2
+It is not helpful that you are (1) talking about ATAPI tapes under the
+CD subject and (2) claim you know better than Linux (or Jens, for that
+matter) if you haven't researched this.
 
-BYtE
-Philipp
+If you want to talk about libscg's access methods to all kinds of
+devices besides CD/DVD, start a new discussion please.
+
+And it is about time that you stopped spamming people who explicitly
+stated "No Cc:" such as Jens Axboe and Lee Revell.
+Not minding these requests is rude.
+
 -- 
-  / /  (_)__  __ ____  __ Philipp Hahn
- / /__/ / _ \/ // /\ \/ /
-/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
+Matthias Andree

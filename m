@@ -1,208 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWAZTdq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbWAZTeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbWAZTdq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 14:33:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWAZTdq
+	id S1751368AbWAZTeW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 14:34:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751374AbWAZTeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 14:33:46 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:47571 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751196AbWAZTdp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 14:33:45 -0500
-Date: Thu, 26 Jan 2006 11:33:17 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/2] rcu batch tuning
-Message-ID: <20060126193317.GD6182@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060126184010.GD4166@in.ibm.com> <20060126184127.GE4166@in.ibm.com>
+	Thu, 26 Jan 2006 14:34:21 -0500
+Received: from uproxy.gmail.com ([66.249.92.195]:16392 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751368AbWAZTeU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 14:34:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=Cp5TEiZP3vgbfTOut1BtuqrE6G87bSu3A4+nW4J3udzJQHLwIUh9VzvxL8e68sIrlGllF75vWzgfVOzVOJwWkRjcp/r7Mqyzui6HbJUyjsqqXgxbTGGYUmVvfzztdzWPcmwMKE5h0yMOifdwIJNSppWWla31y6iAVwhRT4j+rZY=
+Date: Thu, 26 Jan 2006 20:33:36 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Chase Venters <chase.venters@clientec.com>
+Cc: paul@clubi.ie, torvalds@osdl.org, chase.venters@clientec.com,
+       linux-os@analogic.com, mrmacman_g4@mac.com, marc@perkel.com,
+       jmerkey@wolfmountaingroup.com, pmclean@cs.ubishops.ca,
+       shemminger@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+Message-Id: <20060126203336.abd85065.diegocg@gmail.com>
+In-Reply-To: <Pine.LNX.4.64.0601261255430.17225@turbotaz.ourhouse>
+References: <43D114A8.4030900@wolfmountaingroup.com>
+	<20060120111103.2ee5b531@dxpl.pdx.osdl.net>
+	<43D13B2A.6020504@cs.ubishops.ca>
+	<43D7C780.6080000@perkel.com>
+	<43D7B20D.7040203@wolfmountaingroup.com>
+	<43D7B5C4.5040601@wolfmountaingroup.com>
+	<43D7D05D.7030101@perkel.com>
+	<D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>
+	<Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>
+	<Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>
+	<Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>
+	<Pine.LNX.4.64.0601261757320.3920@sheen.jakma.org>
+	<20060126195323.d553a4b8.diegocg@gmail.com>
+	<Pine.LNX.4.64.0601261255430.17225@turbotaz.ourhouse>
+X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060126184127.GE4166@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2006 at 12:11:27AM +0530, Dipankar Sarma wrote:
-> 
-> This patch adds new tunables for RCU queue and finished batches.
-> There are two types of controls - number of completed RCU updates
-> invoked in a batch (blimit) and monitoring for high rate of
-> incoming RCUs on a cpu (qhimark, qlowmark). By default,
-> the per-cpu batch limit is set to a small value. If
-> the input RCU rate exceeds the high watermark, we do two things -
-> force quiescent state on all cpus and set the batch limit
-> of the CPU to INTMAX. Setting batch limit to INTMAX forces all
-> finished RCUs to be processed in one shot. If we have more than
-> INTMAX RCUs queued up, then we have bigger problems anyway.
-> Once the incoming queued RCUs fall below the low watermark, the batch limit
-> is set to the default.
+El Thu, 26 Jan 2006 12:57:27 -0600 (CST),
+Chase Venters <chase.venters@clientec.com> escribió:
 
-Looks good to me!  We might have to have more sophisticated adjustment
-of blimit, but starting simple is definitely the right way to go.
+> So the question is - why would the GPL need a clause that says "You can 
+> use any version of the GPL if the Program does not specify a version" when 
+> every official version of the GPL includes a version number? Are they 
+> expecting authors to strip the version number header in order to somehow 
+> take advantage of section 9?
 
-						Thanx, Paul
-
-Acked-by: <paulmck@us.ibm.com>
-> Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
-> ---
-> 
-> 
->  include/linux/rcupdate.h |    6 +++
->  kernel/rcupdate.c        |   76 +++++++++++++++++++++++++++++++++++------------
->  2 files changed, 63 insertions(+), 19 deletions(-)
-> 
-> diff -puN include/linux/rcupdate.h~rcu-batch-tuning include/linux/rcupdate.h
-> --- linux-2.6.16-rc1-rcu/include/linux/rcupdate.h~rcu-batch-tuning	2006-01-25 00:09:54.000000000 +0530
-> +++ linux-2.6.16-rc1-rcu-dipankar/include/linux/rcupdate.h	2006-01-25 01:07:39.000000000 +0530
-> @@ -98,13 +98,17 @@ struct rcu_data {
->  	long  	       	batch;           /* Batch # for current RCU batch */
->  	struct rcu_head *nxtlist;
->  	struct rcu_head **nxttail;
-> -	long            count; /* # of queued items */
-> +	long            qlen; 	 	 /* # of queued callbacks */
->  	struct rcu_head *curlist;
->  	struct rcu_head **curtail;
->  	struct rcu_head *donelist;
->  	struct rcu_head **donetail;
-> +	long		blimit;		 /* Upper limit on a processed batch */
->  	int cpu;
->  	struct rcu_head barrier;
-> +#ifdef CONFIG_SMP
-> +	long		last_rs_qlen;	 /* qlen during the last resched */
-> +#endif
->  };
->  
->  DECLARE_PER_CPU(struct rcu_data, rcu_data);
-> diff -puN kernel/rcupdate.c~rcu-batch-tuning kernel/rcupdate.c
-> --- linux-2.6.16-rc1-rcu/kernel/rcupdate.c~rcu-batch-tuning	2006-01-25 00:09:54.000000000 +0530
-> +++ linux-2.6.16-rc1-rcu-dipankar/kernel/rcupdate.c	2006-01-25 23:08:03.000000000 +0530
-> @@ -67,7 +67,43 @@ DEFINE_PER_CPU(struct rcu_data, rcu_bh_d
->  
->  /* Fake initialization required by compiler */
->  static DEFINE_PER_CPU(struct tasklet_struct, rcu_tasklet) = {NULL};
-> -static int maxbatch = 10000;
-> +static int blimit = 10;
-> +static int qhimark = 10000;
-> +static int qlowmark = 100;
-> +#ifdef CONFIG_SMP
-> +static int rsinterval = 1000;
-> +#endif
-> +
-> +static atomic_t rcu_barrier_cpu_count;
-> +static struct semaphore rcu_barrier_sema;
-> +static struct completion rcu_barrier_completion;
-> +
-> +#ifdef CONFIG_SMP
-> +static void force_quiescent_state(struct rcu_data *rdp,
-> +			struct rcu_ctrlblk *rcp)
-> +{
-> +	int cpu;
-> +	cpumask_t cpumask;
-> +	set_need_resched();
-> +	if (unlikely(rdp->qlen - rdp->last_rs_qlen > rsinterval)) {
-> +		rdp->last_rs_qlen = rdp->qlen;
-> +		/*
-> +		 * Don't send IPI to itself. With irqs disabled,
-> +		 * rdp->cpu is the current cpu.
-> +		 */
-> +		cpumask = rcp->cpumask;
-> +		cpu_clear(rdp->cpu, cpumask);
-> +		for_each_cpu_mask(cpu, cpumask)
-> +			smp_send_reschedule(cpu);
-> +	}
-> +}
-> +#else 
-> +static inline void force_quiescent_state(struct rcu_data *rdp,
-> +			struct rcu_ctrlblk *rcp)
-> +{
-> +	set_need_resched();
-> +}
-> +#endif
->  
->  /**
->   * call_rcu - Queue an RCU callback for invocation after a grace period.
-> @@ -92,17 +128,13 @@ void fastcall call_rcu(struct rcu_head *
->  	rdp = &__get_cpu_var(rcu_data);
->  	*rdp->nxttail = head;
->  	rdp->nxttail = &head->next;
-> -
-> -	if (unlikely(++rdp->count > 10000))
-> -		set_need_resched();
-> -
-> +	if (unlikely(++rdp->qlen > qhimark)) {
-> +		rdp->blimit = INT_MAX;
-> +		force_quiescent_state(rdp, &rcu_ctrlblk);
-> +	}
->  	local_irq_restore(flags);
->  }
->  
-> -static atomic_t rcu_barrier_cpu_count;
-> -static struct semaphore rcu_barrier_sema;
-> -static struct completion rcu_barrier_completion;
-> -
->  /**
->   * call_rcu_bh - Queue an RCU for invocation after a quicker grace period.
->   * @head: structure to be used for queueing the RCU updates.
-> @@ -131,12 +163,12 @@ void fastcall call_rcu_bh(struct rcu_hea
->  	rdp = &__get_cpu_var(rcu_bh_data);
->  	*rdp->nxttail = head;
->  	rdp->nxttail = &head->next;
-> -	rdp->count++;
-> -/*
-> - *  Should we directly call rcu_do_batch() here ?
-> - *  if (unlikely(rdp->count > 10000))
-> - *      rcu_do_batch(rdp);
-> - */
-> +
-> +	if (unlikely(++rdp->qlen > qhimark)) {
-> +		rdp->blimit = INT_MAX;
-> +		force_quiescent_state(rdp, &rcu_bh_ctrlblk);
-> +	}
-> +
->  	local_irq_restore(flags);
->  }
->  
-> @@ -199,10 +231,12 @@ static void rcu_do_batch(struct rcu_data
->  		next = rdp->donelist = list->next;
->  		list->func(list);
->  		list = next;
-> -		rdp->count--;
-> -		if (++count >= maxbatch)
-> +		rdp->qlen--;
-> +		if (++count >= rdp->blimit)
->  			break;
->  	}
-> +	if (rdp->blimit == INT_MAX && rdp->qlen <= qlowmark)
-> +		rdp->blimit = blimit;
->  	if (!rdp->donelist)
->  		rdp->donetail = &rdp->donelist;
->  	else
-> @@ -473,6 +507,7 @@ static void rcu_init_percpu_data(int cpu
->  	rdp->quiescbatch = rcp->completed;
->  	rdp->qs_pending = 0;
->  	rdp->cpu = cpu;
-> +	rdp->blimit = blimit;
->  }
->  
->  static void __devinit rcu_online_cpu(int cpu)
-> @@ -567,7 +602,12 @@ void synchronize_kernel(void)
->  	synchronize_rcu();
->  }
->  
-> -module_param(maxbatch, int, 0);
-> +module_param(blimit, int, 0);
-> +module_param(qhimark, int, 0);
-> +module_param(qlowmark, int, 0);
-> +#ifdef CONFIG_SMP
-> +module_param(rsinterval, int, 0);
-> +#endif
->  EXPORT_SYMBOL_GPL(rcu_batches_completed);
->  EXPORT_SYMBOL(call_rcu);  /* WARNING: GPL-only in April 2006. */
->  EXPORT_SYMBOL(call_rcu_bh);  /* WARNING: GPL-only in April 2006. */
-> 
-> _
-> 
+That's what I though. The only sane reason I can find is that many
+projects don't even include a copy of the GPL and just say "this
+is licensed under the GNU Public License"

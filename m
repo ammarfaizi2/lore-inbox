@@ -1,73 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbWAZWRi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbWAZWXx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964920AbWAZWRi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 17:17:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964925AbWAZWRi
+	id S932359AbWAZWXx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 17:23:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWAZWXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 17:17:38 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:15110 "HELO
+	Thu, 26 Jan 2006 17:23:53 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:28422 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964920AbWAZWRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 17:17:37 -0500
-Date: Thu, 26 Jan 2006 23:17:35 +0100
+	id S932359AbWAZWXw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 17:23:52 -0500
+Date: Thu, 26 Jan 2006 23:23:45 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Martin Michlmayr <tbm@cyrius.com>, Al Viro <viro@ftp.linux.org.uk>,
-       Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Export symbols so CONFIG_INPUT works as a module
-Message-ID: <20060126221735.GA3668@stusta.de>
-References: <20060124181945.GA21955@deprecation.cyrius.com> <d120d5000601241508l1a93aae7ubdf8206209be405c@mail.gmail.com> <20060124231409.GA29982@deprecation.cyrius.com> <200601250004.06543.dtor_core@ameritech.net> <20060125075159.GC23800@suse.cz>
+To: Andrew Morton <akpm@osdl.org>, "V. Ananda Krishnan" <mansarov@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [RFC: -mm patch] drivers/serial/jsm/: cleanups
+Message-ID: <20060126222345.GB3668@stusta.de>
+References: <20060124232406.50abccd1.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060125075159.GC23800@suse.cz>
+In-Reply-To: <20060124232406.50abccd1.akpm@osdl.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25, 2006 at 08:51:59AM +0100, Vojtech Pavlik wrote:
-> On Wed, Jan 25, 2006 at 12:04:06AM -0500, Dmitry Torokhov wrote:
-> > On Tuesday 24 January 2006 18:14, Martin Michlmayr wrote:
-> > > * Dmitry Torokhov <dmitry.torokhov@gmail.com> [2006-01-24 18:08]:
-> > > > > More interesting question: is pis^H^H^Hsysfs interaction in there safe for
-> > > > > modular code?
-> > > > 
-> > > > The core should be safe, at least I was trying to make it this way, so
-> > > > if you see something wrong - shout. Locking is another question
-> > > > though...
-> > > 
-> > > So do you want an updated patch using _GPL to export the symbols or to
-> > > change CONFIG_INPUT to boolean?
-> > 
-> > I guess having input core as a module does not make much sense, so
-> > we should change CONFIG_INPUT to be boolean _and_ clean up the core
-> > code removing module unloading support.
->  
-> Well, USB or SCSI cores are also modules, so I think there is some point
-> in having that functionality.
+On Tue, Jan 24, 2006 at 11:24:06PM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.16-rc1-mm2:
+>...
+> +jsm-update-for-tty-buffering-revamp.patch
+>...
+>  Misc.
 >...
 
-The difference is that USB and SCSI are not that essential, and 
-therefore not always enabled if CONFIG_EMBEDDED=n. It's therefore e.g. 
-not uncommon that distributions offer modular USB and SCSI cores.
 
-Are there really people building kernels for that much space limited 
-environments that they set CONFIG_EMBEDDED=y, and at the same time want 
-CONFIG_INPUT=m?
+This patch contains the following cleanups:
+- jsm_driver.c: remove the now unused jsm_rawreadok module_param
+- jsm_tty.c: remove a now unused variable
 
-I'd have expected people using CONFIG_EMBEDDED=y to usually also set 
-CONFIG_MODULES=n for getting a smaller kernel.
+Is there any problem with removing the now useless jsm_rawreadok 
+module_param?
 
-> Vojtech Pavlik
 
-cu
-Adrian
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
+---
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+ drivers/serial/jsm/jsm.h        |    1 -
+ drivers/serial/jsm/jsm_driver.c |    3 ---
+ drivers/serial/jsm/jsm_tty.c    |    1 -
+ 3 files changed, 5 deletions(-)
+
+--- linux-2.6.16-rc1-mm3-full/drivers/serial/jsm/jsm.h.old	2006-01-25 23:15:38.000000000 +0100
++++ linux-2.6.16-rc1-mm3-full/drivers/serial/jsm/jsm.h	2006-01-25 23:15:43.000000000 +0100
+@@ -380,7 +380,6 @@
+ extern struct	uart_driver jsm_uart_driver;
+ extern struct	board_ops jsm_neo_ops;
+ extern int	jsm_debug;
+-extern int	jsm_rawreadok;
+ 
+ /*************************************************************************
+  *
+--- linux-2.6.16-rc1-mm3-full/drivers/serial/jsm/jsm_driver.c.old	2006-01-25 23:15:51.000000000 +0100
++++ linux-2.6.16-rc1-mm3-full/drivers/serial/jsm/jsm_driver.c	2006-01-25 23:15:57.000000000 +0100
+@@ -49,11 +49,8 @@
+ };
+ 
+ int jsm_debug;
+-int jsm_rawreadok;
+ module_param(jsm_debug, int, 0);
+-module_param(jsm_rawreadok, int, 0);
+ MODULE_PARM_DESC(jsm_debug, "Driver debugging level");
+-MODULE_PARM_DESC(jsm_rawreadok, "Bypass flip buffers on input");
+ 
+ static int jsm_probe_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ {
+--- linux-2.6.16-rc1-mm3-full/drivers/serial/jsm/jsm_tty.c.old	2006-01-25 23:19:13.000000000 +0100
++++ linux-2.6.16-rc1-mm3-full/drivers/serial/jsm/jsm_tty.c	2006-01-25 23:19:35.000000000 +0100
+@@ -512,7 +512,6 @@
+ 	int flip_len = 0;
+ 	int len = 0;
+ 	int n = 0;
+-	char *buf = NULL;
+ 	int s = 0;
+ 	int i = 0;
+ 
 

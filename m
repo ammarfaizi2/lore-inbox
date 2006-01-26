@@ -1,62 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWAZDyO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWAZDye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbWAZDyO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 22:54:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWAZDxN
+	id S1751330AbWAZDye (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 22:54:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWAZDyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 22:53:13 -0500
-Received: from [202.53.187.9] ([202.53.187.9]:24811 "EHLO
+	Wed, 25 Jan 2006 22:54:16 -0500
+Received: from [202.53.187.9] ([202.53.187.9]:23787 "EHLO
 	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932224AbWAZDtk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 22:49:40 -0500
+	id S932254AbWAZDtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 22:49:36 -0500
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [ 20/23] [Suspend2] Modify process.c includes and export freezer state.
-Date: Thu, 26 Jan 2006 13:46:07 +1000
+Subject: [ 18/23] [Suspend2] Helper: Did we fail to freeze all threads of a type?
+Date: Thu, 26 Jan 2006 13:46:03 +1000
 To: linux-kernel@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060126034606.3178.13356.stgit@localhost.localdomain>
+Message-Id: <20060126034602.3178.17565.stgit@localhost.localdomain>
 In-Reply-To: <20060126034518.3178.55397.stgit@localhost.localdomain>
 References: <20060126034518.3178.55397.stgit@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Modify kernel/power/process #includes and add the exported freezer_state
-variable. (The symbol is exported so that modules can use the
-freezer_is_on() macro).
+Add a helper which checks whether we failed to freeze all the processes
+of a given type (ignoring uninterruptible threads). If such processes
+are found, we notify the user.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/process.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
+ kernel/power/process.c |   40 ++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 40 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/process.c b/kernel/power/process.c
-index 711ac1a..aad2aa5 100644
+index b2a9147..4322155 100644
 --- a/kernel/power/process.c
 +++ b/kernel/power/process.c
-@@ -28,10 +28,15 @@
- 
- #undef DEBUG
- 
--#include <linux/smp_lock.h>
--#include <linux/interrupt.h>
- #include <linux/suspend.h>
-+#include <linux/freezer.h>
- #include <linux/module.h>
-+#include <linux/mount.h>
-+#include <linux/namespace.h>
-+#include <linux/buffer_head.h>
-+#include <asm/tlbflush.h>
-+
-+unsigned long freezer_state = 0;
- 
- #if 0
- //#ifdef CONFIG_PM_DEBUG
-@@ -420,3 +425,4 @@ int freeze_processes(void)
- 	return 0;
+@@ -298,6 +298,46 @@ static void prod_processes(int do_all_th
+ 	read_unlock(&tasklist_lock);
  }
  
-+EXPORT_SYMBOL(freezer_state);
++/*
++ * Freezer failure.
++ *
++ * Check whether we failed to freeze all the processes that
++ * should be frozen. If we find a task that failed to freeze,
++ * we give useful information on what failed and how.
++ */
++static int freezer_failure(int do_all_threads)
++{
++	int result = 0;
++	struct task_struct *g, *p;
++
++	read_lock(&tasklist_lock);
++	do_each_thread(g, p) {
++		if (!freezeable(p, do_all_threads) || 
++				p->state == TASK_UNINTERRUPTIBLE) 
++			continue;
++
++		if (!result) {
++			printk(KERN_ERR	"Stopping tasks failed.\n");
++			printk(KERN_ERR "Tasks that refused to be "
++			 "refrigerated and haven't since exited:\n");
++			set_freezer_state(ABORT_FREEZING);
++			result = 1;
++		}
++
++		if ((freezing(p))) {
++			printk(" - %s (#%d) signalled but "
++				"didn't enter refrigerator.\n",
++				p->comm, p->pid);
++		} else
++			printk(" - %s (#%d) signalled "
++				"and todo list empty.\n",
++				p->comm, p->pid);
++	} while_each_thread(g, p);
++	read_unlock(&tasklist_lock);
++
++	return result;
++}
++
+ static inline void freeze(struct task_struct *p)
+ {
+ 	unsigned long flags;
 
 --
 Nigel Cunningham		nigel at suspend2 dot net

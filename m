@@ -1,79 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWAZTDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWAZTDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbWAZTDA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 14:03:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWAZTDA
+	id S964811AbWAZTDm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 14:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWAZTDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 14:03:00 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:63006 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964810AbWAZTC7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 14:02:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iNY3ChACJq4NaJALH/oWmhAOMxuBb/tITfJfcpp1HfQ3DUk5KQxigSvzlG9oE42mAV7FelQ/4RicgQ/Rnvzfa9nDxVzxBJbTQbfxWp71Xy9PDKq1NvSW2hS8iy6P+PZ1SQKY5a6MKbRNrUWHIrfSxjvzxxai7qFgE/Ji8RNdoBs=
-Message-ID: <6bffcb0e0601261102j7e0a5d5av@mail.gmail.com>
-Date: Thu, 26 Jan 2006 20:02:56 +0100
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: 2.6.16-rc1-mm3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <43D7A047.3070004@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 26 Jan 2006 14:03:41 -0500
+Received: from mx2.suse.de ([195.135.220.15]:45286 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964811AbWAZTDk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 14:03:40 -0500
+Date: Thu, 26 Jan 2006 20:02:37 +0100
+From: Stefan Seyfried <seife@suse.de>
+To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
+Cc: Olaf Kirch <okir@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+Subject: Re: e100 oops on resume
+Message-ID: <20060126190236.GA12481@suse.de>
+References: <20060124225919.GC12566@suse.de> <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de> <20060125121125.GH5465@suse.de> <4807377b0601251137r7621216byc47b03a3c634557c@mail.gmail.com> <4807377b0601251628k4227dad0ld731f2c25c211b91@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <20060124232406.50abccd1.akpm@osdl.org>
-	 <6bffcb0e0601250340x6ca48af0w@mail.gmail.com>
-	 <43D7A047.3070004@yahoo.com.au>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <4807377b0601251628k4227dad0ld731f2c25c211b91@mail.gmail.com>
+X-Operating-System: SUSE LINUX 10.0.42 (i586) Beta2, Kernel 2.6.16-rc1-git3-20060124230005-default
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jan 25, 2006 at 04:28:48PM -0800, Jesse Brandeburg wrote:
+ 
+> Okay I reproduced the issue on 2.6.15.1 (with S1 sleep) and was able
+> to show that my patch that just removes e100_init_hw works okay for
+> me.  Let me know how it goes for you, I think this is a good fix.
 
-On 25/01/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> Hi,
->
-> Michal Piotrowski wrote:
-> > ------------[ cut here ]------------
-> > kernel BUG at /usr/src/linux-mm/include/linux/mm.h:302!
-> > invalid opcode: 0000 [#1]
-> > PREEMPT SMP DEBUG_PAGEALLOC
-> > last sysfs file: /class/vc/vcsa7/dev
-> > Modules linked in: binfmt_misc thermal fan processor ipv6 w83627hf
-> > hwmon_vid hwmon i2c_isa snd_intel8x0 snd_ac97_codec snd_ac97_bus
-> > sk98lin snd_pcm_oss snd_mixer_oss skge intel_agp snd_pcm snd_timer snd
-> > soundcore i2c_i801 parport_pc parport snd_page_alloc 8250_pnp 8250
-> > serial_core agpgart rtc ide_cd cdrom hw_random unix
-> > CPU:    0
-> > EIP:    0060:[<b013fe81>]    Not tainted VLI
-> > EFLAGS: 00210246   (2.6.16-rc1-mm3 #1)
-> > EIP is at release_pages+0x33/0x15e
->
-> Is it repeatable?
->
-> If so, I'd imagine it must be a specific driver page which is not properly
-> refcounted somewhere. A bug in generic code would have shown up elsewhere
-> by now.
->
-> Can you try something like the attached patch and see what it gives you?
->
-> Thanks,
-> Nick
->
-> --
-> SUSE Labs, Novell Inc.
+worked for me in the Compaq Armada e500 and reportedly also fixed the
+SONY that originally uncovered it.
 
-[snip]
+Will be in the next SUSE betas, so if anything breaks, we'll notice
+it.
 
-
-Here is dmesg:
-http://www.stardust.webpages.pl/files/mm/2.6.16-rc1-mm3/mm-dmesg
-Here is config:
-http://www.stardust.webpages.pl/files/mm/2.6.16-rc1-mm3/mm-config
-
-I hope it helps.
-
-Regards,
-Michal Piotrowski
+Thanks.
+-- 
+Stefan Seyfried                  \ "I didn't want to write for pay. I
+QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
+SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen

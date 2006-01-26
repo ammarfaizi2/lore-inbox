@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWAZA2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWAZAfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751269AbWAZA2x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 19:28:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbWAZA2x
+	id S1751275AbWAZAfa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 19:35:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWAZAfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 19:28:53 -0500
-Received: from xproxy.gmail.com ([66.249.82.202]:47939 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751253AbWAZA2w convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 19:28:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PLfkjxeXJm/VEqEOCfSrNC9RbFVC/l7s9A2KaAT4gokJ0iDh4BYVRpSRoMJgRIyGXC4yhbg+tasRj5elIk2kqC3hAYSOJ4xh6RtPBmhFTpi1ZUnfMdfXcHcJbpPeiYjx/PTFlOSYmmjhXWM8uckj7KjrGkWS+H8U8qrcY8xIqa4=
-Message-ID: <4807377b0601251628k4227dad0ld731f2c25c211b91@mail.gmail.com>
-Date: Wed, 25 Jan 2006 16:28:48 -0800
-From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-To: Olaf Kirch <okir@suse.de>
-Subject: Re: e100 oops on resume
-Cc: Stefan Seyfried <seife@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@vger.kernel.org
-In-Reply-To: <4807377b0601251137r7621216byc47b03a3c634557c@mail.gmail.com>
+	Wed, 25 Jan 2006 19:35:30 -0500
+Received: from mx2.suse.de ([195.135.220.15]:28641 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751275AbWAZAfa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 19:35:30 -0500
+From: Andi Kleen <ak@suse.de>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Subject: Re: [PATCH] garbage values in file /proc/net/sockstat
+Date: Thu, 26 Jan 2006 01:32:11 +0100
+User-Agent: KMail/1.8.2
+Cc: Eric Dumazet <dada1@cosmosbay.com>, pravin shelar <pravins@calsoftinc.com>,
+       Shai Fultheim <shai@scalex86.org>, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>
+References: <Pine.LNX.4.63.0601231206270.2192@pravin.s> <200601251431.16513.ak@suse.de> <20060125195946.GC3573@localhost.localdomain>
+In-Reply-To: <20060125195946.GC3573@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060124225919.GC12566@suse.de>
-	 <20060124232142.GB6174@inferi.kami.home>
-	 <20060125090240.GA12651@suse.de> <20060125121125.GH5465@suse.de>
-	 <4807377b0601251137r7621216byc47b03a3c634557c@mail.gmail.com>
+Message-Id: <200601260132.12611.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/25/06, Jesse Brandeburg <jesse.brandeburg@gmail.com> wrote:
-> On 1/25/06, Olaf Kirch <okir@suse.de> wrote:
-> > On Wed, Jan 25, 2006 at 10:02:40AM +0100, Olaf Kirch wrote:
-> > > I'm not sure what the right fix would be. e100_resume would probably
-> > > have to call e100_alloc_cbs early on, while e100_up should avoid
-> > > calling it a second time if nic->cbs_avail != 0. A tentative patch
-> > > for testing is attached.
-> >
-> > Reportedly, the patch fixes the crash on resume.
->
-> Cool, thanks for the research, I have a concern about this however.
->
-> its an interesting patch, but it raises the question why does
-> e100_init_hw need to be called at all in resume?  I looked back
-> through our history and that init_hw call has always been there.  I
-> think its incorrect, but its taking me a while to set up a system with
-> the ability to resume.
->
-> everywhere else in the driver alloc_cbs is called before init_hw so it
-> just seems like a long standing bug.
->
-> comments?  anyone want to test? i compile tested this, but it is untested.
+On Wednesday 25 January 2006 20:59, Ravikiran G Thirumalai wrote:
+> On Wed, Jan 25, 2006 at 02:31:15PM +0100, Andi Kleen wrote:
+> > On Monday 23 January 2006 17:46, Eric Dumazet wrote:
+> > 
+> > I think the best course of action for this now for 2.6.16 is:
+> > 
+> > - mark percpu init data not __init
+> > (this way it will still reference valid memory, although shared between
+> > all impossible CPUs)
+> > - keep the impossible CPUs per cpu data to point to the original reference  
+> > version (== offset 0)
+> > 
+> 
+> How about doing the above using a debug config option? So that when the
+> config option is turned on, all per-cpu area references to not possible 
+> cpus crash? and leave that option default on on -mm :)
 
-Okay I reproduced the issue on 2.6.15.1 (with S1 sleep) and was able
-to show that my patch that just removes e100_init_hw works okay for
-me.  Let me know how it goes for you, I think this is a good fix.
+In -mm* we could just apply Eric's patch and then someone should just
+grep the tree for NR_CPUS and audit all users - that should
+catch basically all occurrences. I can put it onto my todo list,
+but I don't know when I'll get to it so it would be nice if someone
+else could do this.
 
-Jesse
+For 2.6.16 I think it's best to go forward with my hack.
+
+> .  That way we can  
+> quickly catch all references.  We can probably change the arch independent 
+> setup_per_cpu_areas also to do allocations for cpu_possible cpus only while 
+> we are at it?
+
+Eric did that already.
+
+-Andi
+

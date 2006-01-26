@@ -1,74 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWAZGOt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWAZGXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWAZGOt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 01:14:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWAZGOt
+	id S932084AbWAZGXn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 01:23:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWAZGXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 01:14:49 -0500
-Received: from uproxy.gmail.com ([66.249.92.196]:32021 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932083AbWAZGOt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 01:14:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XJqv3tQVsPQQ0N8WDOr1DKCJem24f3t7CKIkM6QKP1KrAQjMuDIEkc8estAkT1pUf88fmOmPdBZYRGD0V4jKYdrmzRQ8JZD8Iha3KdOCOyUlgpKptxSQHTU8m4siyKMVxwsWzRbnuMLMrZz5z9Z5h6s1KFraCwqbMta9vy7cOVY=
-Message-ID: <93564eb70601252214reae7db6j@mail.gmail.com>
-Date: Thu, 26 Jan 2006 15:14:46 +0900
-From: Samuel Masham <samuel.masham@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
-Cc: davids@webmaster.com, lkml@rtr.ca,
-       Christopher Friesen <cfriesen@nortel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hancockr@shaw.ca
-In-Reply-To: <1138251234.3087.107.camel@mindpipe>
+	Thu, 26 Jan 2006 01:23:43 -0500
+Received: from liaag2ag.mx.compuserve.com ([149.174.40.158]:53164 "EHLO
+	liaag2ag.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932084AbWAZGXm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 01:23:42 -0500
+Date: Thu, 26 Jan 2006 01:19:35 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Test program demonstrating sys_clone() is broken on i386
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200601260123_MC3-1-B6C2-1154@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-References: <43D8386B.6000204@rtr.ca>
-	 <MDEHLPKNGKAHNMBLJOLKGEJPJKAB.davids@webmaster.com>
-	 <93564eb70601251949r1fb4c209t@mail.gmail.com>
-	 <93564eb70601252002x5949b65fs@mail.gmail.com>
-	 <1138251234.3087.107.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26/01/06, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Thu, 2006-01-26 at 13:02 +0900, Samuel Masham wrote:
-> > On 26/01/06, Samuel Masham <samuel.masham@gmail.com> wrote:
-> > > comment:
-> > > As a rt person I don't like the idea of scheduler bounce so the way
-> > > round seems to be have the mutex lock acquiring work on a FIFO like
-> > > basis.
-> >
-> > which is obviously wrong...
-> >
-> > Howeve my basic point stands but needs to be clarified a bit:
-> >
-> > I think I can print non-compliant if the mutex acquisition doesn't
-> > respect the higher priority of the waiter over the current process
-> > even if the mutex is "available".
-> >
-> > OK?
->
-> I don't think using an optional feature (PI) counts...
->
-> Lee
+This program demonstrates sys_clone() is broken on i386 when
+using vsyscall to enter the kernel.
 
-So when acquiring a mutex with pi enabled must involve scheduler...
+Stock 2.6.15:
 
-... and you can skip that bit with it disabled as one can argue that
-the user can't tell if the time slice hit between the call to acquire
-the mutex and the actual mutex wait itself?
+        $ gcc -o test_clone2.ex test_clone2.c ; ./test_clone2.ex
+        SIGSEGV accessing 0x00000000 from EIP 0x00000000
+        cloned; ret = 772
 
-sounds a bit of a fudge to me....
+After applying kernel patch:
 
-I assume that mutexes will must never support a the wchan (proc)
-interface or the like?
+        $ gcc -o test_clone2.ex test_clone2.c ; ./test_clone2.ex
+        cloned; ret = 0
+        cloned; ret = 676
 
-On the other hand the basic point about high contention around mutexes
-and relying on this being a bad idea is fine by me.
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
 
-Samuel
+#ifdef INT80
+#  define SYSCALL_STR "int $0x80\n\t"
+#else
+#  define SYSCALL_STR "call 0xffffe400\n\t"
+#endif
+
+#define CLONE	120
+#define FLAGS	0
+
+unsigned long child_stack[4096] __attribute__((__aligned__(4096)));
+unsigned long *child_stack_ptr = &child_stack[2047];
+struct sigaction sa;
+int ret;
+
+static void handler(int nr, siginfo_t *si, void *vuc)
+{
+	struct ucontext *uc = (struct ucontext *)vuc;
+	struct sigcontext *sc = (struct sigcontext *)&uc->uc_mcontext;
+
+	printf("SIGSEGV accessing 0x%08x from EIP 0x%08x\n",
+	       (unsigned long)si->si_addr, sc->eip);
+
+	sa.sa_handler = SIG_DFL;
+	sa.sa_flags = 0;
+	sigaction(SIGSEGV, &sa, NULL);
+}
+
+int main(int argc, char * const argv[])
+{
+	sa.sa_sigaction = handler;
+	sa.sa_flags = SA_SIGINFO;
+	sigaction(SIGSEGV, &sa, NULL);
+
+	asm volatile(
+		SYSCALL_STR
+		: "=a"(ret)
+		: "a"(CLONE), "b"(FLAGS), "c"(child_stack_ptr)
+		: "memory"
+	);
+
+	printf("cloned; ret = %d\n", ret);
+	_exit(0);
+}
+-- 
+Chuck
+Currently reading: _The Atrocity Archives_ by Charles Stross

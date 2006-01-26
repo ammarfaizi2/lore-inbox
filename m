@@ -1,75 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWAZORo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbWAZOVA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932329AbWAZORo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 09:17:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWAZORo
+	id S932333AbWAZOVA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 09:21:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWAZOVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 09:17:44 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:12733 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932329AbWAZORn
+	Thu, 26 Jan 2006 09:21:00 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:22181 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932333AbWAZOU7 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 09:17:43 -0500
-Message-ID: <43D8D9FF.1050409@cosmosbay.com>
-Date: Thu, 26 Jan 2006 15:17:35 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 26 Jan 2006 09:20:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=PWZNxawlQet8MY315cN57UEGy8a3d3L5bCfje7gZXoQ/QnGRgouY8DHlL3e/DHE0Tgd2yi73OMsYr9QaDt/KpqZaXEyi6neUPvEhm+YviA/U+ilfu/dKz2OO828mvA+Y8ggQ7160DRvtU4EGNarO5TI9JJFZHbXqnd7fpw0DPqc=
+Message-ID: <cfb54190601260620l5848ba3ai9d7e06c41d98c362@mail.gmail.com>
+Date: Thu, 26 Jan 2006 16:20:58 +0200
+From: Hai Zaar <haizaar@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: vesa fb is slow on 2.6.15.1
 MIME-Version: 1.0
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Avoid use of spinlock for percpu_counter
-References: <20060125231654.GB3658@localhost.localdomain>
-In-Reply-To: <20060125231654.GB3658@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Thu, 26 Jan 2006 15:17:35 +0100 (CET)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai a écrit :
-> The spinlock in struct percpu_counter protects just one counter.  It's
-> not obvious why it was done this way (I am guessing it was because earlier,
-> atomic_t was guaranteed 24 bits only on some arches).  Since we have
-> atomic_long_t now, I don't see why this cannot be replaced with an atomic_t.
-> 
-> Comments?
+Dear list,
+I have framebuffer problems with vanilla 2.6.15.1 - its very slow.
+I'm using vesafb and booting with 'vga=795'.
+I've used 2.6.11.12 before, and running 'cat
+/usr/share/man/man1/bash.1' on tty1 took
+12 seconds. Now, with 2.6.15.1 it takes 3 minutes.
 
-Yes this makes sense.
+Now the details of 2.6.15.1 system:
 
-Furthermore, we could try to fix 'struct percpu_counter' management (if SMP) 
-if alloc_percpu(long) call done in percpu_counter_init() fails. This is 
-currently ignored and can crash.
+During boot I have:
+PCI: Failed to allocate mem resource #6:20000@f8000000 for 0000:40:00.0
 
-Something like (hybrid patch, to get the idea) :
+relevant snip of the .config
+#
+# Graphics support
+#
+CONFIG_FB=y
+CONFIG_FB_CFB_FILLRECT=y
+CONFIG_FB_CFB_COPYAREA=y
+CONFIG_FB_CFB_IMAGEBLIT=y
+CONFIG_FB_MODE_HELPERS=y
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
 
---- a/mm/swap.c 2006-01-26 15:58:42.000000000 +0100
-+++ b/mm/swap.c 2006-01-26 16:00:54.000000000 +0100
-@@ -472,9 +472,12 @@
-  {
-         long count;
-         long *pcount;
--       int cpu = get_cpu();
+And as I've said, I boot with 'vga=795'. Graphics card is Nvidia
+Quadro FX1500 (PCIE).
 
--       pcount = per_cpu_ptr(fbc->counters, cpu);
-+       if (unlikely(fbc->counters == NULL)) {
-+               atomic_long_add(amount, &fbc->count);
-+               return;
-+       }
-+       pcount = per_cpu_ptr(fbc->counters, get_cpu());
-         count = *pcount + amount;
-         if (count >= FBC_BATCH || count <= -FBC_BATCH) {
-                 atomic_long_add(count, &fbc->count);
---- a/include/linux/percpu_counter.h    2006-01-26 16:02:31.000000000 +0100
-+++ b/include/linux/percpu_counter.h    2006-01-26 16:02:53.000000000 +0100
-@@ -35,7 +35,8 @@
+# lspci  -vv -s 40:00.0
+40:00.0 VGA compatible controller: nVidia Corporation: Unknown device
+00ce (rev a2) (prog-if 00 [VGA])
+	Subsystem: nVidia Corporation: Unknown device 0243
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Interrupt: pin A routed to IRQ 169
+	Region 0: Memory at f8000000 (32-bit, non-prefetchable) [size=16M]
+	Region 1: Memory at f0000000 (64-bit, prefetchable) [size=128M]
+	Region 3: Memory at f9000000 (64-bit, non-prefetchable) [size=16M]
+	Capabilities: [60] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [68] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
+		Address: 0000000000000000  Data: 0000
+	Capabilities: [78] #10 [0001]
 
-  static inline void percpu_counter_destroy(struct percpu_counter *fbc)
-  {
--       free_percpu(fbc->counters);
-+       if (fbc->counters)
-+               free_percpu(fbc->counters);
-  }
+# cat /proc/mtrr
+reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
+reg01: base=0x80000000 (2048MB), size=1024MB: write-back, count=1
+reg02: base=0xc0000000 (3072MB), size= 512MB: write-back, count=1
+reg03: base=0x100000000 (4096MB), size= 512MB: write-back, count=1
+reg04: base=0xfeda0000 (4077MB), size= 128KB: uncachable, count=1
 
-  void percpu_counter_mod(struct percpu_counter *fbc, long amount);
+No 'write-combining' entry! But with 2.6.11.12 I do have one:
+<2.6.11.12 system> cat /proc/mtrr
+reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
+reg01: base=0x80000000 (2048MB), size=1024MB: write-back, count=1
+reg02: base=0xc0000000 (3072MB), size= 512MB: write-back, count=1
+reg03: base=0x100000000 (4096MB), size= 512MB: write-back, count=1
+reg04: base=0xfeda0000 (4077MB), size= 128KB: uncachable, count=1
+reg05: base=0xf0000000 (3840MB), size= 128MB: write-combining, count=1
 
 
-Eric
+Where to continue to?
+P.S. I'm not on the list, so please CC me.
+--
+Zaar

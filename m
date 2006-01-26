@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWAZXQj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbWAZXQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030223AbWAZXQj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 18:16:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030228AbWAZXQj
+	id S1030220AbWAZXQK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 18:16:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbWAZXQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 18:16:39 -0500
-Received: from scl-ims.phoenix.com ([216.148.212.222]:20812 "EHLO
-	scl-exch2k.phoenix.com") by vger.kernel.org with ESMTP
-	id S1030225AbWAZXQh convert rfc822-to-8bit (ORCPT
+	Thu, 26 Jan 2006 18:16:10 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:43735 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1030220AbWAZXQH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 18:16:37 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 26 Jan 2006 18:16:07 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: [ 01/23] [Suspend2] Make workqueues freezeable.
+Date: Fri, 27 Jan 2006 00:17:18 +0100
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>
+References: <20060126034518.3178.55397.stgit@localhost.localdomain> <20060126034527.3178.99591.stgit@localhost.localdomain>
+In-Reply-To: <20060126034527.3178.99591.stgit@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: USB host pci-quirks
-Date: Thu, 26 Jan 2006 15:16:35 -0800
-Message-ID: <0EF82802ABAA22479BC1CE8E2F60E8C3AA368B@scl-exch2k3.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: USB host pci-quirks
-Thread-Index: AcYiyUHp0H4muZUSRziE96QAQ4E8+QABHMpA
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: "Oskar Senft" <osk-lkml@sirrix.de>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Jan 2006 23:16:37.0392 (UTC) FILETIME=[8E604900:01C622CE]
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601270017.18773.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->-----Original Message-----
->From: Oskar Senft [mailto:osk-lkml@sirrix.de] 
->Sent: Thursday, January 26, 2006 2:38 PM
->To: Aleksey Gorelov; linux-kernel@vger.kernel.org
->Subject: Re: USB host pci-quirks
->
->Dear Aleksey,
->
->thank you for your e-mail!
->
->>>Is there a special need, that the "drivers/usb/host/pci-quirks.c" is
->>>compiled into the kernel even if USB support is disabled?
->> 
->>   Yes, there is. USB handoff is necessary even if USB support is
->> disabled completely in kernel. In fact, initially early usb 
->handoff code
->> was under pci, but since USB drivers do handoff anyway, it 
->was decided
->> to move everything into usb with a goal of merging them together. 
->>   Just search for USB handoff in kernel archives.
->
->I see ... but as David Brownell already stated on Thu Sep 02 2004 -
->20:07:57 EST:
->For backwards compatibility, the early reset should not be the
->default. There aren't many systems where it's a problem.
->
->What happened to that argument?
+Hi,
 
-There's been a lot of reports since then for hardware which does require
-handoff. Hence it's been made default. I did not see any compatibility
-issues, but that does not mean they do not exist.
+On Thursday, 26 January 2006 04:45, Nigel Cunningham wrote:
+> 
+> Prior to this patch, kernel threads and workqueues are unconditionally
+> unfreezeable. This patch reverses that behaviour, making the default
+> for kernel processes to be frozen. New variations of the routines for
+> starting kernel threads and workqueues (containing _nofreeze_) allow
+> threads that need to run during suspend to be made nofreeze again.
 
-Aleks.
+This looks like "let's make everything freezable and hunt for things that
+must not be frozen" kind of approach, but isn't it error-prone?  I mean,
+for example, if someone creates a kernel thread that in fact must not
+be frozen, but forgets to use the _nofreeze_ call, things will break for
+some people and the problem will be worse than the current one,
+it seems.
 
->
->Regards,
->Oskar.
->
+Greetings,
+Rafael

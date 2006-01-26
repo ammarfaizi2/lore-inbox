@@ -1,200 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWAZSmA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWAZSmm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbWAZSmA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 13:42:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWAZSmA
+	id S932342AbWAZSmm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 13:42:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWAZSmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 13:42:00 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:13768 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751357AbWAZSl7 (ORCPT
+	Thu, 26 Jan 2006 13:42:42 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:36560 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751360AbWAZSml (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 13:41:59 -0500
-Date: Fri, 27 Jan 2006 00:11:27 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, "Paul E.McKenney" <paulmck@us.ibm.com>,
+	Thu, 26 Jan 2006 13:42:41 -0500
+Date: Thu, 26 Jan 2006 19:42:36 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+cc: acahalan@gmail.com, rlrevell@joe-job.com, matthias.andree@gmx.de,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/2] rcu batch tuning
-Message-ID: <20060126184127.GE4166@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060126184010.GD4166@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060126184010.GD4166@in.ibm.com>
-User-Agent: Mutt/1.5.10i
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+In-Reply-To: <43D8D396.nailE2X31OHFU@burner>
+Message-ID: <Pine.LNX.4.61.0601261941410.14581@yvahk01.tjqt.qr>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+ <43D7A7F4.nailDE92K7TJI@burner> <787b0d920601251826l6a2491ccy48d22d33d1e2d3e7@mail.gmail.com>
+ <43D8D396.nailE2X31OHFU@burner>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch adds new tunables for RCU queue and finished batches.
-There are two types of controls - number of completed RCU updates
-invoked in a batch (blimit) and monitoring for high rate of
-incoming RCUs on a cpu (qhimark, qlowmark). By default,
-the per-cpu batch limit is set to a small value. If
-the input RCU rate exceeds the high watermark, we do two things -
-force quiescent state on all cpus and set the batch limit
-of the CPU to INTMAX. Setting batch limit to INTMAX forces all
-finished RCUs to be processed in one shot. If we have more than
-INTMAX RCUs queued up, then we have bigger problems anyway.
-Once the incoming queued RCUs fall below the low watermark, the batch limit
-is set to the default.
+>IRIX is not on this list because it uses the same kind of interface as
+>e.g. HP-UX does
+>
+>	snprintf(devname, sizeof (devname),
+>			"/dev/scsi/sc%dd%dl%d", busno, tgt, tlun);
 
-Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
----
+So, would you want something like (free format string imagination)
+   "/dev/sg-%d-%d-%d", busno, tgt, lun
+on Linux?
 
 
- include/linux/rcupdate.h |    6 +++
- kernel/rcupdate.c        |   76 +++++++++++++++++++++++++++++++++++------------
- 2 files changed, 63 insertions(+), 19 deletions(-)
-
-diff -puN include/linux/rcupdate.h~rcu-batch-tuning include/linux/rcupdate.h
---- linux-2.6.16-rc1-rcu/include/linux/rcupdate.h~rcu-batch-tuning	2006-01-25 00:09:54.000000000 +0530
-+++ linux-2.6.16-rc1-rcu-dipankar/include/linux/rcupdate.h	2006-01-25 01:07:39.000000000 +0530
-@@ -98,13 +98,17 @@ struct rcu_data {
- 	long  	       	batch;           /* Batch # for current RCU batch */
- 	struct rcu_head *nxtlist;
- 	struct rcu_head **nxttail;
--	long            count; /* # of queued items */
-+	long            qlen; 	 	 /* # of queued callbacks */
- 	struct rcu_head *curlist;
- 	struct rcu_head **curtail;
- 	struct rcu_head *donelist;
- 	struct rcu_head **donetail;
-+	long		blimit;		 /* Upper limit on a processed batch */
- 	int cpu;
- 	struct rcu_head barrier;
-+#ifdef CONFIG_SMP
-+	long		last_rs_qlen;	 /* qlen during the last resched */
-+#endif
- };
- 
- DECLARE_PER_CPU(struct rcu_data, rcu_data);
-diff -puN kernel/rcupdate.c~rcu-batch-tuning kernel/rcupdate.c
---- linux-2.6.16-rc1-rcu/kernel/rcupdate.c~rcu-batch-tuning	2006-01-25 00:09:54.000000000 +0530
-+++ linux-2.6.16-rc1-rcu-dipankar/kernel/rcupdate.c	2006-01-25 23:08:03.000000000 +0530
-@@ -67,7 +67,43 @@ DEFINE_PER_CPU(struct rcu_data, rcu_bh_d
- 
- /* Fake initialization required by compiler */
- static DEFINE_PER_CPU(struct tasklet_struct, rcu_tasklet) = {NULL};
--static int maxbatch = 10000;
-+static int blimit = 10;
-+static int qhimark = 10000;
-+static int qlowmark = 100;
-+#ifdef CONFIG_SMP
-+static int rsinterval = 1000;
-+#endif
-+
-+static atomic_t rcu_barrier_cpu_count;
-+static struct semaphore rcu_barrier_sema;
-+static struct completion rcu_barrier_completion;
-+
-+#ifdef CONFIG_SMP
-+static void force_quiescent_state(struct rcu_data *rdp,
-+			struct rcu_ctrlblk *rcp)
-+{
-+	int cpu;
-+	cpumask_t cpumask;
-+	set_need_resched();
-+	if (unlikely(rdp->qlen - rdp->last_rs_qlen > rsinterval)) {
-+		rdp->last_rs_qlen = rdp->qlen;
-+		/*
-+		 * Don't send IPI to itself. With irqs disabled,
-+		 * rdp->cpu is the current cpu.
-+		 */
-+		cpumask = rcp->cpumask;
-+		cpu_clear(rdp->cpu, cpumask);
-+		for_each_cpu_mask(cpu, cpumask)
-+			smp_send_reschedule(cpu);
-+	}
-+}
-+#else 
-+static inline void force_quiescent_state(struct rcu_data *rdp,
-+			struct rcu_ctrlblk *rcp)
-+{
-+	set_need_resched();
-+}
-+#endif
- 
- /**
-  * call_rcu - Queue an RCU callback for invocation after a grace period.
-@@ -92,17 +128,13 @@ void fastcall call_rcu(struct rcu_head *
- 	rdp = &__get_cpu_var(rcu_data);
- 	*rdp->nxttail = head;
- 	rdp->nxttail = &head->next;
--
--	if (unlikely(++rdp->count > 10000))
--		set_need_resched();
--
-+	if (unlikely(++rdp->qlen > qhimark)) {
-+		rdp->blimit = INT_MAX;
-+		force_quiescent_state(rdp, &rcu_ctrlblk);
-+	}
- 	local_irq_restore(flags);
- }
- 
--static atomic_t rcu_barrier_cpu_count;
--static struct semaphore rcu_barrier_sema;
--static struct completion rcu_barrier_completion;
--
- /**
-  * call_rcu_bh - Queue an RCU for invocation after a quicker grace period.
-  * @head: structure to be used for queueing the RCU updates.
-@@ -131,12 +163,12 @@ void fastcall call_rcu_bh(struct rcu_hea
- 	rdp = &__get_cpu_var(rcu_bh_data);
- 	*rdp->nxttail = head;
- 	rdp->nxttail = &head->next;
--	rdp->count++;
--/*
-- *  Should we directly call rcu_do_batch() here ?
-- *  if (unlikely(rdp->count > 10000))
-- *      rcu_do_batch(rdp);
-- */
-+
-+	if (unlikely(++rdp->qlen > qhimark)) {
-+		rdp->blimit = INT_MAX;
-+		force_quiescent_state(rdp, &rcu_bh_ctrlblk);
-+	}
-+
- 	local_irq_restore(flags);
- }
- 
-@@ -199,10 +231,12 @@ static void rcu_do_batch(struct rcu_data
- 		next = rdp->donelist = list->next;
- 		list->func(list);
- 		list = next;
--		rdp->count--;
--		if (++count >= maxbatch)
-+		rdp->qlen--;
-+		if (++count >= rdp->blimit)
- 			break;
- 	}
-+	if (rdp->blimit == INT_MAX && rdp->qlen <= qlowmark)
-+		rdp->blimit = blimit;
- 	if (!rdp->donelist)
- 		rdp->donetail = &rdp->donelist;
- 	else
-@@ -473,6 +507,7 @@ static void rcu_init_percpu_data(int cpu
- 	rdp->quiescbatch = rcp->completed;
- 	rdp->qs_pending = 0;
- 	rdp->cpu = cpu;
-+	rdp->blimit = blimit;
- }
- 
- static void __devinit rcu_online_cpu(int cpu)
-@@ -567,7 +602,12 @@ void synchronize_kernel(void)
- 	synchronize_rcu();
- }
- 
--module_param(maxbatch, int, 0);
-+module_param(blimit, int, 0);
-+module_param(qhimark, int, 0);
-+module_param(qlowmark, int, 0);
-+#ifdef CONFIG_SMP
-+module_param(rsinterval, int, 0);
-+#endif
- EXPORT_SYMBOL_GPL(rcu_batches_completed);
- EXPORT_SYMBOL(call_rcu);  /* WARNING: GPL-only in April 2006. */
- EXPORT_SYMBOL(call_rcu_bh);  /* WARNING: GPL-only in April 2006. */
-
-_
+Jan Engelhardt
+-- 

@@ -1,69 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbWAZDzM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWAZD4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932200AbWAZDzM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 22:55:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbWAZDte
+	id S932231AbWAZD4D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 22:56:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbWAZDzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 22:49:34 -0500
-Received: from [202.53.187.9] ([202.53.187.9]:16363 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932208AbWAZDtL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 22:49:11 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [ 02/23] [Suspend2] Add new include/linux/freezer.h header.
-Date: Thu, 26 Jan 2006 13:45:31 +1000
+	Wed, 25 Jan 2006 22:55:51 -0500
+Received: from soohrt.org ([85.131.246.150]:39066 "EHLO quickstop.soohrt.org")
+	by vger.kernel.org with ESMTP id S932231AbWAZDzf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 22:55:35 -0500
+Date: Thu, 26 Jan 2006 04:55:33 +0100
+From: Horst Schirmeier <horst@schirmeier.com>
 To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060126034530.3178.91517.stgit@localhost.localdomain>
-In-Reply-To: <20060126034518.3178.55397.stgit@localhost.localdomain>
-References: <20060126034518.3178.55397.stgit@localhost.localdomain>
+Subject: maintenance releases in GIT tree
+Message-ID: <20060126035533.GA22994@quickstop.soohrt.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-This patch implements a new freezer header file, separated from
-suspend.h and sched.h so that 95 percent of the kernel doesn't need
-to be recompiled if/when we modify the freezer implementation.
+why are the maintenance releases (2.6.x.y -- those with a .y in their
+version number) not stored in the git tree accessible via
+rsync://rsync1.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/?
+(Or -- are they, and I'm just not seeing them because I'm looking at the
+wrong corner in the .git/ subdirectory?)
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+Shouldn't these minor changes be maintained in a branch for each
+sublevel release? Or, if there's a reason not to do so, where is the
+place they're being maintained at besides the main download locations
+for patches?
 
- include/linux/freezer.h |   28 ++++++++++++++++++++++++++++
- 1 files changed, 28 insertions(+), 0 deletions(-)
+Kind regards,
+ Horst
 
-diff --git a/include/linux/freezer.h b/include/linux/freezer.h
-new file mode 100644
-index 0000000..5663f24
---- /dev/null
-+++ b/include/linux/freezer.h
-@@ -0,0 +1,28 @@
-+/* Freezer declarations */
-+
-+#define FREEZER_ON 0
-+#define ABORT_FREEZING 1
-+
-+#define FREEZER_KERNEL_THREADS 0
-+#define FREEZER_ALL_THREADS 1
-+
-+#ifdef CONFIG_PM
-+extern unsigned long freezer_state;
-+
-+#define test_freezer_state(bit) test_bit(bit, &freezer_state)
-+#define set_freezer_state(bit) set_bit(bit, &freezer_state)
-+#define clear_freezer_state(bit) clear_bit(bit, &freezer_state)
-+
-+#define freezer_is_on() (test_freezer_state(FREEZER_ON))
-+
-+extern void do_freeze_process(struct notifier_block *nl);
-+
-+#else
-+
-+#define test_freezer_state(bit) (0)
-+#define set_freezer_state(bit) do { } while(0)
-+#define clear_freezer_state(bit) do { } while(0)
-+
-+#define freezer_is_on() (0)
-+
-+#endif
-
---
-Nigel Cunningham		nigel at suspend2 dot net
+-- 
+PGP-Key 0xD40E0E7A

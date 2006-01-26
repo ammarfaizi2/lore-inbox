@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWAZS72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWAZTAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964805AbWAZS72 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 13:59:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWAZS72
+	id S964803AbWAZTAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 14:00:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWAZTAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 13:59:28 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:57482 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S964799AbWAZS70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 13:59:26 -0500
-Date: Thu, 26 Jan 2006 10:59:30 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: davem@davemloft.net, linux-kernel@vger.kernel.org, shai@scalex86.org,
-       netdev@vger.kernel.org, pravins@calsoftinc.com
-Subject: [patch 1/4] net: Percpufy frequently used variables -- add percpu_counter_mod_bh
-Message-ID: <20060126185930.GC3651@localhost.localdomain>
-References: <20060126185649.GB3651@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060126185649.GB3651@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Thu, 26 Jan 2006 14:00:08 -0500
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:5750 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S964803AbWAZTAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 14:00:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Tf1f7c2fo08YPC0DF2HZ9vI6PFPkZ/bqsDsbQSPxX7BmT3/JPCcbHnae6T3gC3BiG1CnyRAUK4thObV31UvPMWnMFyOQf4LwpMC+DUJklwNRntejJuhQYw5juapfuZPjxW93jqgE84UTzkJsaX3bs0wIGTbAjoogBJbrJ1lIgyY=  ;
+Message-ID: <43D91C33.7050401@yahoo.com.au>
+Date: Fri, 27 Jan 2006 06:00:03 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: Howard Chu <hyc@symas.com>, Lee Revell <rlrevell@joe-job.com>,
+       Christopher Friesen <cfriesen@nortel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hancockr@shaw.ca
+Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
+References: <20060124225919.GC12566@suse.de>  <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de>  <20060125121125.GH5465@suse.de> <43D78262.2050809@symas.com>  <43D7BA0F.5010907@nortel.com>  <43D7C2F0.5020108@symas.com> <1138223212.3087.16.camel@mindpipe> <43D7F863.3080207@symas.com> <43D88E55.7010506@yahoo.com.au> <43D8DB90.7070601@symas.com> <43D8E298.3020402@yahoo.com.au> <43D8E96B.3070606@symas.com> <43D8EFF7.3070203@yahoo.com.au> <43D8FC76.2050906@symas.com> <Pine.LNX.4.61.0601261231460.9298@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0601261231460.9298@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add percpu_counter_mod_bh for using these counters safely from
-both softirq and process context.
+linux-os (Dick Johnson) wrote:
+> 
+> To fix the current problem, you can substitute usleep(0); It will
+> give the CPU to somebody if it's computable, then give it back to
+> you. It seems to work in every case that sched_yield() has
+> mucked up (perhaps 20 to 30 here).
+> 
 
-Signed-off by: Pravin B. Shelar <pravins@calsoftinc.com>
-Signed-off by: Ravikiran G Thirumalai <kiran@scalex86.org>
-Signed-off by: Shai Fultheim <shai@scalex86.org>
+That sounds like a terrible hack.
 
-Index: linux-2.6.16-rc1/include/linux/percpu_counter.h
-===================================================================
---- linux-2.6.16-rc1.orig/include/linux/percpu_counter.h	2006-01-25 11:53:56.000000000 -0800
-+++ linux-2.6.16-rc1/include/linux/percpu_counter.h	2006-01-25 12:09:41.000000000 -0800
-@@ -11,6 +11,7 @@
- #include <linux/smp.h>
- #include <linux/threads.h>
- #include <linux/percpu.h>
-+#include <linux/interrupt.h>
- 
- #ifdef CONFIG_SMP
- 
-@@ -102,4 +103,11 @@ static inline void percpu_counter_dec(st
- 	percpu_counter_mod(fbc, -1);
- }
- 
-+static inline void percpu_counter_mod_bh(struct percpu_counter *fbc, long amount)
-+{
-+	local_bh_disable();
-+	percpu_counter_mod(fbc, amount);
-+	local_bh_enable();
-+}
-+
- #endif /* _LINUX_PERCPU_COUNTER_H */
+What cases has sched_yield mucked up for you, and why do you
+think the problem is sched_yield mucking up? Can you solve it
+using mutexes?
+
+Thanks,
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,84 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWAZU2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbWAZU2B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbWAZU2X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 15:28:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWAZU2X
+	id S964850AbWAZU2B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 15:28:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbWAZU2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 15:28:23 -0500
-Received: from highlandsun.propagation.net ([66.221.212.168]:6153 "EHLO
-	highlandsun.propagation.net") by vger.kernel.org with ESMTP
-	id S932388AbWAZU2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 15:28:22 -0500
-Message-ID: <43D930C6.40201@symas.com>
-Date: Thu, 26 Jan 2006 12:27:50 -0800
-From: Howard Chu <hyc@symas.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20060115 SeaMonkey/1.5a Mnenhy/0.7.3.0
-MIME-Version: 1.0
-To: davids@webmaster.com
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
-References: <MDEHLPKNGKAHNMBLJOLKGENPJKAB.davids@webmaster.com>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGENPJKAB.davids@webmaster.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Jan 2006 15:28:00 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:24458 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S932242AbWAZU2A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 15:28:00 -0500
+Date: Thu, 26 Jan 2006 21:27:59 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       "Alan Cox <alan@lxorguk.ukuu.org.uk> Dave Hansen" 
+	<haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: RFC: Multiple instances of kernel namespaces.
+Message-ID: <20060126202758.GD20473@MAIL.13thfloor.at>
+Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
+	"Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+	"Alan Cox <alan@lxorguk.ukuu.org.uk> Dave Hansen" <haveblue@us.ibm.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+	Hubertus Franke <frankeh@watson.ibm.com>,
+	Cedric Le Goater <clg@fr.ibm.com>
+References: <1137522550.14135.76.camel@localhost.localdomain> <1137610912.24321.50.camel@localhost.localdomain> <1137612537.3005.116.camel@laptopd505.fenrus.org> <1137613088.24321.60.camel@localhost.localdomain> <1137624867.1760.1.camel@localhost.localdomain> <m1bqy6oevn.fsf_-_@ebiederm.dsl.xmission.com> <20060120201353.GA13265@sergelap.austin.ibm.com> <m13bjhoq1r.fsf@ebiederm.dsl.xmission.com> <20060126194755.GA20473@MAIL.13thfloor.at> <m1psmehhmu.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1psmehhmu.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz wrote:
->> The point of this discussion is that the POSIX spec says one thing and
->> you guys say another; one way or another that should be resolved. The
->> 2.6 kernel behavior is a noticable departure from previous releases. The
->> 2.4/LinuxThreads guys believed their implementation was correct. If you
->> believe the 2.6 implementation is correct, then you should get the spec
->> amended or state up front that the "P" in "NPTL" doesn't really mean
->> anything.
->>     
->
-> 	There is disagreement over what the POSIX specification says. You have
-> already seen three arguments against your interpretation, any one of which
-> is, IMO, sufficient to demolish it.
->   
+On Thu, Jan 26, 2006 at 01:13:45PM -0700, Eric W. Biederman wrote:
+> Herbert Poetzl <herbert@13thfloor.at> writes:
+> 
+> > On Sat, Jan 21, 2006 at 03:04:16AM -0700, Eric W. Biederman wrote:
+> >> So in the simple case I have names like:
+> >> 1178/1632
+> >
+> > which is a new namespace in itself, but it doesn't matter
+> > as long as it uniquely and persistently identifies the
+> > namespace for the time it exists ... just leaves the
+> > question how to retrieve a list of all namespaces :)
+> 
+> Yes but the name of the namespace is still in the original pid namespace.
+> And more importantly to me it isn't a new kind of namespace.
+> 
+> >> If I want a guest that can keep secrets from the host sysadmin I don't
+> >> want transitioning into a guest namespace to come too easily.
+> >
+> > which can easily be achieved by 'marking' the namespace
+> > as private and/or applying certain rules/checks to the
+> > 'enter' procedure ...
+> 
+> Right.  The trick here is that you must be able to deny
+> transitioning into a namespace from the inside the namespace.
+> Or else a guest could never trust it.  Something one of my
+> coworkers pointed out to me.
 
-> 	First, there's the as-if issue. You cannot write a program that can print
-> "non-compliant" with the behavior you claim is non-compliant that is
-> guaranteed not to do so by the standard because there is no way to know that
-> another thread is blocked on the mutex (except for PI mutexes).
->   
+not necessarily, for example have a 'private' flag, which
+can only be set once (usually from outside), ensuring that
+the namespace will not be entered. this flag could be
+checked from inside ...
 
-The exception here demolishes this argument, IMO. Moreover, if the 
-unlocker was a lower priority thread and there are higher priority 
-threads blocked on the mutex, you really want the higher priority thread 
-to run.
+best,
+Herbert
 
-> 	Second, there's the plain langauge of the standard. It says "If X is so at
-> time T, then Y". This does not require Y to happen at time T. It is X
-> happening at time T that requires Y, but the time for Y is not specified.
->
-> 	If a law says, for example, "if there are two or more bids with the same
-> price lower than all other bids at the close of bidding, the first such bid
-> to be received shall be accepted". The phrase "at the close of bidding"
-> refers to the time the rule is deteremined to apply to the situation, not
-> the time at which the decision as to which bid to accept is made.
->   
-
-The time at which the decision takes effect is immaterial; the point is 
-that the decision can only be made from the set of options available at 
-time T.
-
-Per your analogy, if a new bid comes in at time T+1, it can't have any 
-effect on which of the bids shall be accepted.
-
-> 	Third, there's the ambiguity of the standard. It says the "sceduling
-> policy" shall decide, not that the scheduler shall decide. If the policy is
-> to make a conditional or delayed decision, that is still perfectly valid
-> policy. "Whichever thread requests it first" is a valid scheduler policy.
-
-I am not debating what the policy can decide. Merely the set of choices 
-from which it may decide.
-
--- 
-  -- Howard Chu
-  Chief Architect, Symas Corp.  http://www.symas.com
-  Director, Highland Sun        http://highlandsun.com/hyc
-  OpenLDAP Core Team            http://www.openldap.org/project/
-
+> Eric
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,34 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWAZAjd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWAZAll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932229AbWAZAjd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 19:39:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWAZAjd
+	id S1751278AbWAZAll (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 19:41:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbWAZAll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 19:39:33 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:14236 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751277AbWAZAjc (ORCPT
+	Wed, 25 Jan 2006 19:41:41 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:6060 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751278AbWAZAlk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 19:39:32 -0500
-Date: Thu, 26 Jan 2006 01:40:05 +0100
+	Wed, 25 Jan 2006 19:41:40 -0500
+Date: Thu, 26 Jan 2006 01:42:11 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>,
        linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
-Subject: [patch, lock validator] fix deadlock in drivers/pci/msi.c
-Message-ID: <20060126004005.GA25940@elte.hu>
+Subject: Re: [patch, lock validator] fix deadlock in drivers/pci/msi.c
+Message-ID: <20060126004211.GA26443@elte.hu>
+References: <20060126004005.GA25940@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060126004005.GA25940@elte.hu>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -2.2
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+
+[corrected patch below.]
 
 the lock validator caught another one: drivers/pci/msi.c is accessing 
 &irq_desc[i].lock with interrupts enabled (!).
@@ -92,7 +98,7 @@ Index: linux/drivers/pci/msi.c
 -	spin_lock(&irq_desc[pos].lock);
 +	unsigned long flags;
 +
-+	spin_lock_irqsave(&irq_desc[pos].lock);
++	spin_lock_irqsave(&irq_desc[pos].lock, flags);
  	if (cap_id == PCI_CAP_ID_MSIX)
  		irq_desc[pos].handler = &msix_irq_type;
  	else {
@@ -101,7 +107,7 @@ Index: linux/drivers/pci/msi.c
  			irq_desc[pos].handler = &msi_irq_w_maskbit_type;
  	}
 -	spin_unlock(&irq_desc[pos].lock);
-+	spin_unlock_irqrestore(&irq_desc[pos].lock);
++	spin_unlock_irqrestore(&irq_desc[pos].lock, flags);
  }
  
  static void enable_msi_mode(struct pci_dev *dev, int pos, int type)

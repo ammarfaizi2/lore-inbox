@@ -1,203 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWAZLJG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWAZLJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932288AbWAZLJG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 06:09:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbWAZLJF
+	id S932252AbWAZLJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 06:09:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWAZLJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 06:09:05 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:27367 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S932288AbWAZLJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 06:09:04 -0500
-Message-ID: <43D8ADCF.7070809@comcast.net>
-Date: Thu, 26 Jan 2006 06:09:03 -0500
-From: Ed Sweetman <safemode@comcast.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
+	Thu, 26 Jan 2006 06:09:58 -0500
+Received: from mail.gmx.de ([213.165.64.21]:3518 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932289AbWAZLJ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 06:09:57 -0500
+X-Authenticated: #428038
+Date: Thu, 26 Jan 2006 12:09:51 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: matthias.andree@gmx.de, mrmacman_g4@mac.com, linux-kernel@vger.kernel.org,
+       acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060126110951.GA2824@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	mrmacman_g4@mac.com, linux-kernel@vger.kernel.org,
+	acahalan@gmail.com
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43D7A7F4.nailDE92K7TJI@burner> <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com> <43D7B075.6000602@gmx.de> <43D7B2DF.nailDFJA51SL1@burner> <43D7B5BE.60304@gmx.de> <43D89B7C.nailDTH38QZBU@burner>
 MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: 2.6.16-rc1-mm2 pata driver confusion
-References: <Pine.LNX.4.58.0601250846210.29859@shark.he.net>
-In-Reply-To: <Pine.LNX.4.58.0601250846210.29859@shark.he.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43D89B7C.nailDTH38QZBU@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
+Joerg Schilling schrieb am 2006-01-26:
 
->(sorry about breaking the threading)
->
->On 1/24/06, Ed Sweetman <safemode@comcast.net> wrote:
->  
->
->>Randy.Dunlap wrote:
->>
->>    
->>
->>>On Tue, 24 Jan 2006, Ed Sweetman wrote:
->>>
->>>
->>>      
->>>
->>>>Randy.Dunlap wrote:
->>>>
->>>>
->>>>        
->>>>
->>>>>On Tue, 24 Jan 2006, Ed Sweetman wrote:
->>>>>
->>>>>
->>>>>          
->>>>>
->>>>>>Alan Cox wrote:
->>>>>>
->>>>>>
->>>>>>            
->>>>>>
->>>>>>>On Maw, 2006-01-24 at 01:43 -0500, Ed Sweetman wrote:
->>>>>>>
->>>>>>>
->>>>>>>              
->>>>>>>
->>>>>>>>problem.  The problem is that there appears to be two nvidia/amd ata
->>>>>>>>drivers and I'm unsure which I should try using, if i compile both in,
->>>>>>>>which get loaded first (i assume scsi is second to ide) and if i want my
->>>>>>>>pata disks loaded under the new libata drivers, will my cdrom work under
->>>>>>>>them too, or do i still need some sort of regular ide drivers loaded
->>>>>>>>just for cdrom (to use native ata mode for recording access).
->>>>>>>>
->>>>>>>>
->>>>>>>>                
->>>>>>>>
->>>>>>>The goal of the drivers/scsi/pata_* drivers is to replace drivers/ide in
->>>>>>>its entirity with code using the newer and cleaner libata logic. There
->>>>>>>is still much to do but my SIL680, SiS, Intel MPIIX, AMD and VIA boxes
->>>>>>>are using libata and the additional patch patches still queued
->>>>>>>
->>>>>>>
->>>>>>>              
->>>>>>>
->>>>>>>>1.  Atapi is most definitely not supported by libata, right now.
->>>>>>>>
->>>>>>>>
->>>>>>>>                
->>>>>>>>
->>>>>>>It works in the -mm tree.
->>>>>>>
->>>>>>>
->>>>>>>              
->>>>>>>
->>>>>>Intriguing, when I had no ide chipset compiled in kernel, only libata
->>>>>>drivers, I got no mention at all about my dvd writer.  I even had the
->>>>>>scsi cd driver installed and generic devices, still nothing seemed to
->>>>>>initialize the dvd drive.  It detected the second pata bus but no
->>>>>>devices attached to it.
->>>>>>
->>>>>>this is using the kernel mentioned in the subject header.
->>>>>>2.6.16-rc1-mm2.  using the amd/nvidia drivers for pata and sata.
->>>>>>
->>>>>>Is there anything i can do to give more info to the list to figure out
->>>>>>why my atapi writer is being ignored by pata even when there are no ide
->>>>>>drivers loaded?
->>>>>>
->>>>>>
->>>>>>            
->>>>>>
->>>>>Currently you need to use libata.atapi_enabled=1
->>>>>(assuming that libata is in the kernel image, not a loadable module).
->>>>>
->>>>>I just built/tested this also, working for me as well.
->>>>>(hard drives, not ATAPI)
->>>>>
->>>>>
->>>>>          
->>>>>
->>>>I assume libata.atapi_enabled=1 is a boot arg, not some structure member
->>>>in the source for the pata driver that i need to set to 1, correct?
->>>>
->>>>        
->>>>
->>>Yes, it's a kernel boot option if libata is in the kernel image.
->>>If libata is a loadable module, just use something like
->>>      modprobe libata atapi_enabled=1
->>>
->>>
->>>      
->>>
->>>>And you just built and tested it, how did you test if the atapi argument
->>>>worked when you then say "not ATAPI" as something you tested?
->>>>
->>>>        
->>>>
->>>Sorry, I mean that I built and booted a kernel with libata/PATA
->>>hard drive (vs. legacy drivers/ide/ PATA support).  I have not
->>>tested ATAPI at all and didn't mean to imply that I had.
->>>
->>>I reported on libata.atapi_enabled=1 based on documentation
->>>and other emails that I have read.
->>>
->>>
->>>      
->>>
->>>>In any case, i'll try out libata.atapi_enabled=1 and see if it detects
->>>>the dvd drive.
->>>>
->>>>        
->>>>
->>>HTH.  Please continue to post any questions or problems.
->>>
->>>      
->>>
->>I Rebooted several times, both setting the option in the kernel boot
->>args and editing the source to have it set by default.  No atapi devices
->>are found/mentioned or even described as not found in dmesg/bootup.   So
->>apparently, on my chipset, the amd/nvidia pata driver is not detecting
->>atapi devices.
->>
->>0000:00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2)
->>0000:00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA
->>Controller (rev f3)
->>0000:00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA
->>Controller (rev f3)
->>
->>0000:00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2)
->>(prog-if 8a [Master SecP PriP])
->>        Subsystem: Unknown device f043:815a
->>        Flags: bus master, 66MHz, fast devsel, latency 0
->>        I/O ports at f000 [size=16]
->>        Capabilities: [44] Power Management version 2
->>
->>
->>the atapi device in question is a plextor px-712A, it's the only device
->>on the secondary channel.
->>    
->>
->
->And this is with using only ATA (libata) drivers in drivers/scsi/
->and not ATA drivers in drivers/ide/, right?
->
->Hm.  I guess we treat this as a bug report for NV ATA/ATAPI then.
->
->I just tested my system with a Plextor PX-712SA drive plus
->booting with libata.atapi_enabled=1 and the driver (not nv)
->sees the ATAPI drive and can read it.
->
->  
->
-Indeed, this is with only libata.  I had scsi disk driver and cdrom 
-driver compiled in as well, because i assumed that the "low level" 
-libata drivers required those scsi interfaces to access the disks and 
-atapi devices that are found by libata.  ide isn't even compiled in.
+> Matthias Andree <matthias.andree@gmx.de> wrote:
+> 
+> > Joerg Schilling wrote:
+> >
+> > >> So I'll repeat my question: is there anything that SG_IO to /dev/hd* (via
+> > >> ide-cd) cannot do that it can do via /dev/sg*? Device enumeration doesn't count.
+> > > 
+> > > But device enumeration is the central point when implementing -scanbus.
+> >
+> > Again: Is there anything *besides* (<German>: außer) device enumeration that
+> > does not work with the current /dev/hd* SG_IO interface?
+> 
+> This is the main point.
 
-Like i said, i booted with libata.atapi_enabled=1 and that produced 
-nothing about cdroms/atapi devices and then I simply set the variable to 
-1 in source and recompiled and booted and same problem.
+So there is no real reason.
 
-my board is an Asus A8N-E and my plextor is on the PATA controller, not 
-the SATA like yours.  Perhaps mine would work too if it was sata, but it 
-appears that the pata driver has no provisions for atapi devices yet.
+> People like to run cdrecord -scanbus in order to find a list of usable devices.
+> People like to see all SCSI devices in a single name space as they are all 
+> using the same protocol for communication.
 
+I find -scanbus rather annoying, particularly since it doesn't scan all
+buses, I need to query cdrecord for the implemented transports, run
+-scanbus for each of them again, and everything.
 
+I know what device my writer has, SG_IO is sufficiently capable to write
+CDs, is the declared standard for Linux parallel ATA-PI devices and I
+want cdrecord to stop pissing at my leg for knowing the device up front.
+
+> A sane way to send SCSI commands to _any_ type of devices would be to have a 
+> SCSI generic transport layer that is independent from the high-level features 
+> of the OS and that is independent from whether there is a high-level driver for 
+> this device at all.
+
+It appears as though the high-level driver gave you exactly that
+generic mid-level access. If Linux violates design principles, is none
+of your business as long as your application works.
+
+> This is what I designed the scg driver interface for in 1986 and this is what
+
+Yes, 20 years ago. How relevant is this for OSes that needed to be
+updated in 2005 to support cdrecord again?
+
+And what has this got to do with libscg's bogus assumptions ("If I
+cannot have /dev/hda, I don't need to probe /dev/hdc anyways") after
+you've agreed that resmgr and similar to allow console users access to
+ONLY the writer were no major security risk?
+
+> Adaptec did in 1988 with ASPI. This is of course also why the SCSI standard 
+> commitee made a proposal for the CAM SCSI interface. 
+
+We don't have ASPI on Linux, you're digressing.
+
+-- 
+Matthias Andree

@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbWAZS5y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWAZS6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964801AbWAZS5y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 13:57:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWAZS5y
+	id S964786AbWAZS6b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 13:58:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWAZS6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 13:57:54 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:15596 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S964797AbWAZS5w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 13:57:52 -0500
-Subject: Re: [PATCH 8/12] generic hweight{32,16,8}()
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: Akinobu Mita <mita@miraclelinux.com>
-Cc: Grant Grundler <iod00d@hp.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-In-Reply-To: <20060126033613.GG11138@miraclelinux.com>
-References: <20060125112625.GA18584@miraclelinux.com>
-	 <20060125113206.GD18584@miraclelinux.com>
-	 <20060125200250.GA26443@flint.arm.linux.org.uk>
-	 <20060125205907.GF9995@esmail.cup.hp.com>
-	 <20060126032713.GA9984@miraclelinux.com>
-	 <20060126033613.GG11138@miraclelinux.com>
-Content-Type: text/plain
-Date: Thu, 26 Jan 2006 10:57:47 -0800
-Message-Id: <1138301867.12632.71.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Jan 2006 13:58:31 -0500
+Received: from hibernia.jakma.org ([212.17.55.49]:25758 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S964786AbWAZS63
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 13:58:29 -0500
+Date: Thu, 26 Jan 2006 18:57:41 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@sheen.jakma.org
+To: Diego Calleja <diegocg@gmail.com>
+cc: torvalds@osdl.org, chase.venters@clientec.com, linux-os@analogic.com,
+       mrmacman_g4@mac.com, marc@perkel.com, jmerkey@wolfmountaingroup.com,
+       pmclean@cs.ubishops.ca, shemminger@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+In-Reply-To: <20060126195323.d553a4b8.diegocg@gmail.com>
+Message-ID: <Pine.LNX.4.64.0601261855080.3920@sheen.jakma.org>
+References: <43D114A8.4030900@wolfmountaingroup.com> <20060120111103.2ee5b531@dxpl.pdx.osdl.net>
+ <43D13B2A.6020504@cs.ubishops.ca> <43D7C780.6080000@perkel.com>
+ <43D7B20D.7040203@wolfmountaingroup.com> <43D7B5C4.5040601@wolfmountaingroup.com>
+ <43D7D05D.7030101@perkel.com> <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>
+ <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>
+ <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>
+ <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org> <Pine.LNX.4.64.0601261757320.3920@sheen.jakma.org>
+ <20060126195323.d553a4b8.diegocg@gmail.com>
+Mail-Copies-To: paul@hibernia.jakma.org
+Mail-Followup-To: paul@hibernia.jakma.org
+X-NSA: al aqsar fluffy jihad cute musharef kittens jet-A1 ear avgas wax ammonium bad qran dog inshallah allah al-akbar martyr iraq hammas hisballah rabin ayatollah korea revolt pelvix mustard gas x-ray british airways washington peroxide cool
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-26 at 12:36 +0900, Akinobu Mita wrote:
+On Thu, 26 Jan 2006, Diego Calleja wrote:
 
-> HAVE_ARCH_HWEIGHT_BITOPS is defined when the architecture has its own
-> version of these functions.
+> The real text is (emphasis mine): "_IF_ the Program does not 
+> specify a version number of this License, you may choose any 
+> version ever published by the Free Software Foundation."
 
-All of this HAVE_ARCH_xxx stuff gave Linus heartburn a few weeks ago,
-and you're massively increasing its proliferation.
+> Before that it says: "Each version is given a distinguishing 
+> version number.  If the Program specifies a version number of this 
+> License which applies to it and "any later version", you have the 
+> option of following the terms and conditions either of that version 
+> or of any later version published by the Free Software Foundation"
 
-How about putting each class of bitop into its own header file in
-asm-generic, and getting the arches that need each one to include the
-specific files it needs in its own bitops.h header?
+> IOW, such rules will aply if no version has been specified or if 
+> has the "any later version" addon. Which is not the case: I can 
+> read "GNU GENERAL PUBLIC LICENSE, Version 2, June 1991".
 
-For example, the hweight stuff would go into
-asm-generic/bitops-hweight.h, and then asm-foo/bitops.h would just use
+That refers to the version of the GPL licence. That is specific to 
+the licence document and distinct from any text where "the Program 
+specifies a version number of this License which applies to it ..." 
+(one suggestion for doing so is given: include a Preamble).
 
-#include <asm-generic/bitops-hweight.h>
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+"And I want a bike and a monkey and a friend for the monkey."
 
-or else define its own if it didn't need the generic versions.
-
-	<b
-
+ 	--Ralph Wiggum
+ 	  Brother's Little Helper (Episode AABF22)

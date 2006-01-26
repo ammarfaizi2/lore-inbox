@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbWAZV7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbWAZV66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751430AbWAZV7j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 16:59:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964919AbWAZV7B
+	id S964914AbWAZV66 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 16:58:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbWAZV65
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 16:59:01 -0500
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:18865 "EHLO
+	Thu, 26 Jan 2006 16:58:57 -0500
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:18609 "EHLO
 	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S1751427AbWAZV6h convert rfc822-to-8bit (ORCPT
+	id S1751429AbWAZV6h convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 26 Jan 2006 16:58:37 -0500
 Cc: dhowells@redhat.com, keyrings@linux-nfs.org, david@2gen.com
-Subject: [PATCH 04/04] Add dsa key type
+Subject: [PATCH 03/04] Add encryption ops to the keyctl syscall
 In-Reply-To: <1138312694656@2gen.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 26 Jan 2006 22:58:16 +0100
-Message-Id: <1138312696814@2gen.com>
+Date: Thu, 26 Jan 2006 22:58:15 +0100
+Message-Id: <11383126952461@2gen.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Reply-To: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
@@ -27,419 +27,299 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Adds the dsa in-kernel key type.
+Adds encryption as one of the supported ops for in-kernel keys.
 
 Signed-off-by: David Härdeman <david@2gen.com>
 
 --
-Index: dsa-kernel/security/Kconfig
+Index: dsa-kernel/include/linux/compat.h
 ===================================================================
---- dsa-kernel.orig/security/Kconfig	2006-01-25 23:39:10.000000000 +0100
-+++ dsa-kernel/security/Kconfig	2006-01-25 23:42:31.000000000 +0100
-@@ -21,6 +21,14 @@
+--- dsa-kernel.orig/include/linux/compat.h	2006-01-25 23:26:43.000000000 +0100
++++ dsa-kernel/include/linux/compat.h	2006-01-25 23:26:51.000000000 +0100
+@@ -132,8 +132,8 @@
+ long compat_sys_shmctl(int first, int second, void __user *uptr);
+ long compat_sys_semtimedop(int semid, struct sembuf __user *tsems,
+ 		unsigned nsems, const struct compat_timespec __user *timeout);
+-asmlinkage long compat_sys_keyctl(u32 option,
+-			      u32 arg2, u32 arg3, u32 arg4, u32 arg5);
++asmlinkage long compat_sys_keyctl(u32 option, u32 arg2, u32 arg3,
++                                  u32 arg4, u32 arg5, u32 arg6);
  
- 	  If you are unsure as to whether this is required, answer N.
+ asmlinkage ssize_t compat_sys_readv(unsigned long fd,
+ 		const struct compat_iovec __user *vec, unsigned long vlen);
+Index: dsa-kernel/include/linux/key.h
+===================================================================
+--- dsa-kernel.orig/include/linux/key.h	2006-01-25 23:26:43.000000000 +0100
++++ dsa-kernel/include/linux/key.h	2006-01-25 23:40:12.000000000 +0100
+@@ -220,6 +220,16 @@
+ 	 */
+ 	long (*read)(const struct key *key, char __user *buffer, size_t buflen);
  
-+config KEYS_DSA_KEYS
-+	tristate "Support DSA keys (EXPERIMENTAL)"
-+	depends on KEYS && EXPERIMENTAL
-+	select CRYPTO_MPILIB
-+	select CRYPTO_DSA
-+	help
-+	  This option provides support for retaining DSA keys in the kernel.
++	/* encrypt/sign/etc data using a key (optional)
++	 * - permission checks will be done by the caller
++	 * - the key must be readlocked while encryption is performed
++	 * - should return the amount of data that would be returned from the
++	 *   encryption even if the buffer is too small or NULL
++	 */
++	long (*encrypt)(struct key *key,
++                        const char __user *inbuffer, size_t inbuflen,
++                        char __user *outbuffer, size_t outbuflen);
 +
- config KEYS_DEBUG_PROC_KEYS
- 	bool "Enable the /proc/keys file by which all keys may be viewed"
- 	depends on KEYS
-Index: dsa-kernel/security/keys/Makefile
+ 	/* handle request_key() for this type instead of invoking
+ 	 * /sbin/request-key (optional)
+ 	 * - key is the key to instantiate
+Index: dsa-kernel/include/linux/keyctl.h
 ===================================================================
---- dsa-kernel.orig/security/keys/Makefile	2006-01-25 23:39:10.000000000 +0100
-+++ dsa-kernel/security/keys/Makefile	2006-01-25 23:42:31.000000000 +0100
-@@ -13,4 +13,5 @@
- 	user_defined.o
+--- dsa-kernel.orig/include/linux/keyctl.h	2006-01-25 23:26:43.000000000 +0100
++++ dsa-kernel/include/linux/keyctl.h	2006-01-25 23:26:51.000000000 +0100
+@@ -49,5 +49,6 @@
+ #define KEYCTL_SET_REQKEY_KEYRING	14	/* set default request-key keyring */
+ #define KEYCTL_SET_TIMEOUT		15	/* set key timeout */
+ #define KEYCTL_ASSUME_AUTHORITY		16	/* assume request_key() authorisation */
++#define KEYCTL_ENCRYPT			17	/* encrypt a chunk of data using key */
  
- obj-$(CONFIG_KEYS_COMPAT) += compat.o
-+obj-$(CONFIG_KEYS_DSA_KEYS) += dsa_key.o
- obj-$(CONFIG_PROC_FS) += proc.o
-Index: dsa-kernel/security/keys/dsa_key.c
+ #endif /*  _LINUX_KEYCTL_H */
+Index: dsa-kernel/include/linux/syscalls.h
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ dsa-kernel/security/keys/dsa_key.c	2006-01-25 23:49:20.000000000 +0100
-@@ -0,0 +1,376 @@
-+/* dsa_key.c: DSA key
-+ *
-+ * Copyright (C) 2005 David Härdeman (david@2gen.com). All Rights Reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
+--- dsa-kernel.orig/include/linux/syscalls.h	2006-01-25 23:26:43.000000000 +0100
++++ dsa-kernel/include/linux/syscalls.h	2006-01-25 23:26:51.000000000 +0100
+@@ -504,8 +504,9 @@
+ 				const char __user *_callout_info,
+ 				key_serial_t destringid);
+ 
+-asmlinkage long sys_keyctl(int cmd, unsigned long arg2, unsigned long arg3,
+-			   unsigned long arg4, unsigned long arg5);
++asmlinkage long sys_keyctl(int cmd, unsigned long arg2,
++                           unsigned long arg3, unsigned long arg4,
++                           unsigned long arg5, unsigned long arg6);
+ 
+ asmlinkage long sys_ioprio_set(int which, int who, int ioprio);
+ asmlinkage long sys_ioprio_get(int which, int who);
+Index: dsa-kernel/security/keys/compat.c
+===================================================================
+--- dsa-kernel.orig/security/keys/compat.c	2006-01-25 23:26:43.000000000 +0100
++++ dsa-kernel/security/keys/compat.c	2006-01-25 23:26:51.000000000 +0100
+@@ -23,8 +23,8 @@
+  *   registers on taking a 32-bit syscall are zero
+  * - if you can, you should call sys_keyctl directly
+  */
+-asmlinkage long compat_sys_keyctl(u32 option,
+-				  u32 arg2, u32 arg3, u32 arg4, u32 arg5)
++asmlinkage long compat_sys_keyctl(u32 option, u32 arg2, u32 arg3,
++				  u32 arg4, u32 arg5, u32 arg6)
+ {
+ 	switch (option) {
+ 	case KEYCTL_GET_KEYRING_ID:
+@@ -80,6 +80,11 @@
+ 	case KEYCTL_ASSUME_AUTHORITY:
+ 		return keyctl_assume_authority(arg2);
+ 
++	case KEYCTL_ENCRYPT:
++		return keyctl_encrypt_with_key(arg2,
++					       compat_ptr(arg3), arg4,
++					       compat_ptr(arg5), arg6);
++
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
+Index: dsa-kernel/security/keys/keyctl.c
+===================================================================
+--- dsa-kernel.orig/security/keys/keyctl.c	2006-01-25 23:26:43.000000000 +0100
++++ dsa-kernel/security/keys/keyctl.c	2006-01-25 23:42:11.000000000 +0100
+@@ -1066,10 +1066,66 @@
+ 
+ /*****************************************************************************/
+ /*
++ * encrypt a chunk of data using a specified key
++ * - implements keyctl(KEYCTL_ENCRYPT)
 + */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/seq_file.h>
-+#include <linux/err.h>
-+#include <asm/uaccess.h>
-+#include <linux/mpi.h>
-+#include <linux/dsa.h>
-+#include <linux/random.h>
-+#include <linux/mm.h>
-+#include <asm/scatterlist.h>
-+#include <linux/scatterlist.h>
-+#include <linux/crypto.h>
-+#include <keys/user-type.h>
-+#include "internal.h"
-+
-+static int dsa_instantiate(struct key *key, const void *data, size_t datalen);
-+static int dsa_update(struct key *key, const void *data, size_t datalen);
-+static void dsa_destroy(struct key *key);
-+static long dsa_read(const struct key *key,
-+		     char __user *buffer, size_t buflen);
-+static long dsa_encrypt(struct key *key,
-+			const char __user *data, size_t dlen,
-+			char __user *result, size_t rlen);
-+
-+static struct key_type key_type_dsa = {
-+	.name		= "dsa",
-+	.instantiate	= dsa_instantiate,
-+	.update		= dsa_update,
-+	.destroy	= dsa_destroy,
-+	.read		= dsa_read,
-+	.encrypt	= dsa_encrypt,
-+	.match		= user_match,
-+	.describe	= user_describe,
-+};
-+
-+/*****************************************************************************/
-+/*
-+ * Signs a chunk of data using key.
-+ * Returns: signature.
-+ */
-+static char *
-+dsa_sign(const struct key_payload_dsa *skey,
-+	 const void *data, size_t datalen, unsigned int *rlen)
++long keyctl_encrypt_with_key(key_serial_t keyid,
++			     const void __user *data,
++			     size_t dlen,
++			     void __user *result,
++			     size_t rlen)
 +{
-+	struct crypto_tfm *tfm;
-+	char *ret = NULL;
-+	u8 *sig;
-+	unsigned int sigsize;
-+	int i;
-+	struct scatterlist sg[1];
++	struct key *key;
++	key_ref_t key_ref;
++	long ret;
 +
-+	kenter("%p, %p, %zu", skey, data, datalen);
-+	tfm = crypto_alloc_tfm("dsa", 0);
-+	if (!tfm)
-+		goto out;
-+
-+	sigsize = crypto_tfm_alg_digestsize(tfm);
-+	sig = kmalloc(sigsize, GFP_KERNEL);
-+	if (!sig)
-+		goto out_tfm;
-+
-+	crypto_digest_init(tfm);
-+	i = crypto_digest_setkey(tfm, (const u8 *)skey, sizeof(skey));
-+	if (i) {
-+		printk(KERN_ERR "dsa-key: crypto_digest_setkey failed with error %i\n", i);
-+		goto out_sig;
++	/* find the key first */
++	key_ref = lookup_user_key(NULL, keyid, 0, 0, 0);
++	if (IS_ERR(key_ref)) {
++		ret = -ENOKEY;
++		goto error;
 +	}
 +
-+	sg_init_one(sg, (u8 *)data, datalen);
-+	crypto_digest_update(tfm, sg, 1);
-+	crypto_digest_final(tfm, sig);
-+	ret = sig;
-+	*rlen = sigsize;
-+	goto out_tfm;
++	key = key_ref_to_ptr(key_ref);
 +
-+out_sig:
-+	kfree(sig);
-+out_tfm:
-+	crypto_free_tfm(tfm);
-+out:
-+	return ret;
-+} /* end dsa_sign() */
-+
-+/*****************************************************************************/
-+/*
-+ * Test whether the secret key is valid.
-+ * Returns: if this is a valid key.
-+ */
-+static int dsa_check_secret_key(struct key_payload_dsa *skey)
-+{
-+	int rc;
-+	MPI y;
-+
-+	/* y = g^x mod p */
-+	kenter("%p", skey);
-+	y = mpi_alloc(mpi_get_nlimbs(skey->part[DSA_PART_Y]));
-+	rc = mpi_powm(y, skey->part[DSA_PART_G], skey->part[DSA_PART_X], skey->part[DSA_PART_P]);
-+	rc = !mpi_cmp(y, skey->part[DSA_PART_Y]);
-+
-+	mpi_free(y);
-+	return rc;
-+} /* end dsa_check_secret_key() */
-+
-+/*****************************************************************************/
-+/*
-+ * create a dsa key payload
-+ */
-+static int dsa_create_payload(struct key_payload_dsa **payload, struct key *key,
-+			      const void *data, size_t datalen)
-+{
-+	int ret, i;
-+	unsigned int remain, read;
-+	const unsigned char *ptr;
-+
-+	kenter("%p, %p, %p, %zu", *payload, key, data, datalen);
-+	ret = -EINVAL;
-+	if (datalen <= 0 || datalen > 32767 || !data)
-+		goto out1;
-+
-+	ret = -ENOMEM;
-+	*payload = kmalloc(sizeof(struct key_payload_dsa), GFP_KERNEL);
-+	if (!(*payload))
-+		goto out1;
-+
-+	ret = key_payload_reserve(key, datalen);
-+	if (ret < 0)
-+		goto out2;
-+
-+	/* read each mpi number from buffer */
-+	remain = read = (unsigned int)datalen;
-+	ptr = data;
-+	ret = 0;
-+	for (i = 0; i < DSA_PARTS; i++) {
-+		kdebug("dsa-key: in loop %i, remain is %u\n", i, remain);
-+		(*payload)->part[i] = mpi_read_from_buffer(ptr, &read);
-+		if (!((*payload)->part[i]))
-+			ret = -EINVAL;
-+		ptr += read;
-+		remain -= read;
-+		read = remain;
-+		kdebug("dsa-key: end loop\n");
-+	}
-+
-+	if (ret < 0)
-+		goto out3;
-+
-+	/* check validity */
-+	ret = -EINVAL;
-+	if(dsa_check_secret_key(*payload)) {
-+		ret = 0;
-+		kdebug("dsa-key: valid\n");
-+		goto out1;
-+	}
-+
-+out3:
-+	printk(KERN_ERR "dsa-key: attempt to add invalid key\n");
-+	for (i = 0; i < DSA_PARTS; i++)
-+		mpi_free((*payload)->part[i]);
-+out2:
-+	kfree(*payload);
-+out1:
-+	return ret;
-+
-+} /* end dsa_instantiate() */
-+
-+/*****************************************************************************/
-+/*
-+ * instantiate a dsa key
-+ */
-+static int dsa_instantiate(struct key *key, const void *data, size_t datalen)
-+{
-+	struct key_payload_dsa *dsa_key;
-+	int ret;
-+
-+	kenter("%p, %p, %zu", key, data, datalen);
-+	ret = dsa_create_payload(&dsa_key, key, data, datalen);
++	/* see if we can read it directly */
++	ret = key_permission(key_ref, KEY_READ);
 +	if (ret == 0)
-+		key->payload.data = dsa_key;
++		goto can_read_key;
++	if (ret != -EACCES)
++		goto error;
 +
-+	return ret;
++	/* we can't; see if it's searchable from this process's keyrings
++	 * - we automatically take account of the fact that it may be
++	 *   dangling off an instantiation key
++	 */
++	if (!is_key_possessed(key_ref)) {
++		ret = -EACCES;
++		goto error2;
++	}
 +
-+} /* end dsa_instantiate() */
-+
-+/*****************************************************************************/
-+/*
-+ * update a user defined key
-+ */
-+static int dsa_update(struct key *key, const void *data, size_t datalen)
-+{
-+	struct key_payload_dsa *new_payload;
-+	int ret;
-+
-+	kenter("%p, %p, %zu", key, data, datalen);
-+	ret = dsa_create_payload(&new_payload, key, data, datalen);
++	/* the key is probably readable - now try to read it */
++ can_read_key:
++	ret = key_validate(key);
 +	if (ret == 0) {
-+		kdebug("dsa: dsa_create_payload success\n");
-+		down_write(&key->sem);
-+		/* this destroys the old payload, not the entire key */
-+		dsa_destroy(key);
-+		key->payload.data = new_payload;
-+		key->expiry = 0;
-+		up_write(&key->sem);
++		ret = -EOPNOTSUPP;
++		if (key->type->encrypt)
++			ret = key->type->encrypt(key, data, dlen, result, rlen);
 +	}
 +
++ error2:
++	key_put(key);
++ error:
 +	return ret;
-+
-+} /* end dsa_update() */
++} /* end keyctl_encrypt_with_key() */
 +
 +/*****************************************************************************/
 +/*
-+ * dispose of the key payload
-+ */
-+static void dsa_destroy(struct key *key)
-+{
-+	struct key_payload_dsa *dsa_key;
-+	int i;
+  * the key control system call
+  */
+-asmlinkage long sys_keyctl(int option, unsigned long arg2, unsigned long arg3,
+-			   unsigned long arg4, unsigned long arg5)
++asmlinkage long sys_keyctl(int option, unsigned long arg2,
++			   unsigned long arg3, unsigned long arg4,
++			   unsigned long arg5, unsigned long arg6)
+ {
+ 	switch (option) {
+ 	case KEYCTL_GET_KEYRING_ID:
+@@ -1144,6 +1200,13 @@
+ 	case KEYCTL_ASSUME_AUTHORITY:
+ 		return keyctl_assume_authority((key_serial_t) arg2);
+ 
++	case KEYCTL_ENCRYPT:
++		return keyctl_encrypt_with_key((key_serial_t) arg2,
++					       (const char __user *) arg3,
++					       (size_t) arg4,
++					       (char __user *) arg5,
++					       (size_t) arg6);
 +
-+	kenter("%p", key);
-+	dsa_key = key->payload.data;
-+	if (dsa_key) {
-+		for (i = 0; i < DSA_PARTS; i++)
-+			mpi_free(dsa_key->part[i]);
-+		kfree(dsa_key);
-+	}
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
+Index: dsa-kernel/Documentation/keys.txt
+===================================================================
+--- dsa-kernel.orig/Documentation/keys.txt	2006-01-25 23:26:43.000000000 +0100
++++ dsa-kernel/Documentation/keys.txt	2006-01-25 23:26:51.000000000 +0100
+@@ -90,6 +90,9 @@
+      permitted, another key type operation will be called to convert the key's
+      attached payload back into a blob of data.
+ 
++     Additionally, if supported by the key type, an arbitrary blob of data can
++     be encrypted/signed using the key payload.
 +
-+} /* end dsa_destroy() */
+  (*) Each key can be in one of a number of basic states:
+ 
+      (*) Uninstantiated. The key exists, but does not have any data attached.
+@@ -206,7 +209,8 @@
+  (*) Read
+ 
+      This permits a key's payload to be viewed or a keyring's list of linked
+-     keys.
++     keys. It also allows a blob of data to be encrypted/signed using the key's
++     payload if implemented for the given key type.
+ 
+  (*) Write
+ 
+@@ -669,6 +673,27 @@
+      The assumed authorititive key is inherited across fork and exec.
+ 
+ 
++ (*) Encrypt/sign some arbitrary data using a key:
 +
-+/*****************************************************************************/
-+/*
-+ * read the key data
-+ */
-+static long dsa_read(const struct key *key, char __user *buffer, size_t buflen)
-+{
-+	unsigned char *xbuffer[DSA_PUBLIC_PARTS];
-+	unsigned nbytes[DSA_PUBLIC_PARTS];
-+	unsigned nbits[DSA_PUBLIC_PARTS];
-+	struct key_payload_dsa *dsa_key;
-+	int i;
-+	char *result, *tmp;
-+	size_t reslen;
-+	long ret;
++	long keyctl(KEYCTL_READ, key_serial_t key,
++				 char *inputbuf, size_t inputbuflen,
++				 char *outputbuf, size_t outputbuflen);
 +
-+	kenter("%p, %p, %zu", key, buffer, buflen);
-+	ret = -EINVAL;
-+	dsa_key = (struct key_payload_dsa *)key->payload.data;
-+	if (!dsa_key)
-+		goto out1;
++     This function attempts to read the data in inputbuf from userspace
++     and then performs a key-type specific operation on that data using
++     the payload from the specified key. Normally the operation would be
++     to encrypt or sign the data and to return the result in outputbuf.
 +
-+	/* 4 x 2 bytes to store mpi sizes */
-+	reslen = 8;
-+	memset(xbuffer, 0, sizeof(xbuffer));
-+	ret = -ENOMEM;
++     If a key type does not implement this function, error EOPNOTSUPP
++     will result.
 +
-+	for (i = 0; i < DSA_PUBLIC_PARTS; i++) {
-+		xbuffer[i] = mpi_get_buffer(dsa_key->part[i], &nbytes[i], NULL);
-+		if (!xbuffer[i]) {
-+			printk(KERN_ERR "dsa-key: failed to get mpi from buffer\n");
-+			goto out2;
-+		}
-+		reslen += nbytes[i];
-+		nbits[i] = mpi_get_nbits(dsa_key->part[i]);
-+	}
++     As much of the data as can be fitted into the buffer will be copied to
++     userspace if the buffer pointer is not NULL.
 +
-+	result = kmalloc(reslen, GFP_KERNEL);
-+	if (!result)
-+		goto out2;
++     On a successful return, the function will always return the amount of data
++     available rather than the amount copied to outputbuf.
 +
-+	tmp = result;
-+	for (i = 0; i < DSA_PUBLIC_PARTS; i++) {
-+		kdebug("dsa-key: checking part %i\n", i);
-+		kdebug("dsa-key: nbytes is %i, nbits is %i, topbyte is %2hx, botbyte is %2hx\n",
-+			nbytes[i], nbits[i], ((nbits[i] >> 8) & 0xff), ((nbits[i]) & 0xff));
-+		MPI_WSIZE(tmp, nbits[i]);
-+		memcpy(tmp, xbuffer[i], nbytes[i]);
-+		tmp += nbytes[i];
-+	}
 +
-+	ret = -EFAULT;
-+	if (copy_to_user(buffer, result, min(reslen, buflen)) == 0)
-+		ret = reslen;
+ ===============
+ KERNEL SERVICES
+ ===============
+@@ -979,6 +1004,20 @@
+      as might happen when the userspace buffer is accessed.
+ 
+ 
++ (*) long (*encrypt)(const struct key *key,
++		     char __user *inbuffer, size_t inbuflen,
++		     char __user *outbuffer, size_t outbuflen);
 +
-+	memset(result, 0, reslen);
-+	kfree(result);
++     This method is optional. It is called by KEYCTL_ENCRYPT to perform some
++     kind of cryptographic operation (usually encrypt or sign) on the data
++     in inbuffer using the key's payload. The result is returned to outbuffer.
 +
-+out2:
-+	for (i = 0; i < DSA_PUBLIC_PARTS; i++) {
-+		memset(xbuffer[i], 0, nbytes[i]);
-+		kfree(xbuffer[i]);
-+	}
-+out1:
-+	return ret;
++     If successful, the blob size that could be produced should be returned
++     rather than the size copied.
 +
-+} /* end dsa_read() */
++     It is safe to sleep in this method.
 +
-+/*****************************************************************************/
-+/*
-+ * encrypt data using a key
-+ */
-+static long dsa_encrypt(struct key *key,
-+			const char __user *data, size_t dlen,
-+			char __user *result, size_t rlen)
-+{
-+	char *signature;
-+	char *inbuf;
-+	long ret;
-+	size_t siglen = 0;
 +
-+	kenter("%p, %p, %zu, %p, %zu", key, data, dlen, result, rlen);
-+	down_read(&key->sem);
-+	ret = -ENOMEM;
-+	inbuf = kmalloc(dlen, GFP_KERNEL);
-+	if (!inbuf)
-+		goto out1;
+ ============================
+ REQUEST-KEY CALLBACK SERVICE
+ ============================
+@@ -1027,3 +1066,39 @@
+ 
+ In this case, the program isn't required to actually attach the key to a ring;
+ the rings are provided for reference.
 +
-+	ret = -EFAULT;
-+	/* pull the data to sign into kernel space */
-+	if (copy_from_user(inbuf, data, dlen))
-+		goto out2;
++=============================
++KEY-TYPE SPECIFIC INFORMATION
++=============================
 +
-+	/* sign it */
-+	signature = dsa_sign((struct key_payload_dsa *)key->payload.data,
-+			 inbuf, dlen, &siglen);
-+	if (!signature)
-+		goto out2;
++ (*) DSA keys
 +
-+	/* push the result to userspace */
-+	if(copy_to_user(result, signature, min(rlen, siglen)) == 0)
-+		ret = siglen;
++     The blob used to instantiate a DSA key is expected to be in a certain
++     format:
 +
-+	memset(signature, 0, siglen);
-+	kfree(signature);
-+out2:
-+	memset(inbuf, 0, dlen);
-+	kfree(inbuf);
-+out1:
-+	up_read(&key->sem);
-+	return ret;
-+} /* end dsa_encrypt() */
++     Each multi-precision integer (MPI) is preceeded by a 2-byte,
++     most-significant-byte-first, integer which defines the number of bits
++     (nbits) of the MPI which follows. The MPI is then written, also in msb
++     order, with the lowest number of bytes which can contain the entire number
++     (i.e, the MPI is coded in the following (nbits + 7) / 8 bytes).
 +
-+static int __init dsa_init(void)
-+{
-+	int ret;
++     For example, the integer 0xf865349f would be coded as
++     char buf[] = {'0x00', '0x20', '0xf8', '0x65', '0x34', '0x9f'};
 +
-+	ret = register_key_type(&key_type_dsa);
-+	if (ret < 0)
-+		printk(KERN_ERR "dsa-key: failed to register key type\n");
-+	else
-+		printk(KERN_INFO "dsa-key: new key type registered\n");
++     This is the same encoding used by the MPI library in GnuPG for passing
++     large integers via buffers.
 +
-+	return ret;
-+}
++     When a key is instantiated, the DSA key type expects to find five MPI's
++     coded according to the above scheme in the buffer. These must be in the
++     order: P,Q,G,Y,X (see the DSA specification, FIPS-186, for details).
 +
-+static void __exit dsa_exit (void)
-+{
-+	printk(KERN_INFO "dsa-key: unregistering key type\n");
-+	unregister_key_type(&key_type_dsa);
-+}
++     When a key is read, only the public part of the key is written to the buf
++     i.e: P,Q,G,Y.
 +
-+module_init(dsa_init);
-+module_exit(dsa_exit);
++     When some data is signed using a key (via the encrypt method), the two
++     160-bit integers r and s (the two integers which make up the signature
++     in FIPS-186 terms) are written to the output buffer using the above
++     encoding yielding 44 bytes of data.
 +
-+MODULE_AUTHOR("David Härdeman");
-+MODULE_DESCRIPTION("DSA key support");
-+MODULE_LICENSE("GPL");
++     (2 * 20 bytes + 2 * 2 bytes of header data = 44 byte)
++
 

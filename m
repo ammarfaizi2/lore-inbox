@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbWAZWQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbWAZWR4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964924AbWAZWQq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 17:16:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964925AbWAZWQq
+	id S964933AbWAZWR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 17:17:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964930AbWAZWR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 17:16:46 -0500
-Received: from 8.ctyme.com ([69.50.231.8]:52878 "EHLO darwin.ctyme.com")
-	by vger.kernel.org with ESMTP id S964924AbWAZWQp (ORCPT
+	Thu, 26 Jan 2006 17:17:56 -0500
+Received: from scl-ims.phoenix.com ([216.148.212.222]:5380 "EHLO
+	scl-exch2k.phoenix.com") by vger.kernel.org with ESMTP
+	id S964926AbWAZWRz convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 17:16:45 -0500
-Message-ID: <43D94A4B.8060902@perkel.com>
-Date: Thu, 26 Jan 2006 14:16:43 -0800
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 26 Jan 2006 17:17:55 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Chase Venters <chase.venters@clientec.com>,
-       "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Patrick McLean <pmclean@cs.ubishops.ca>,
-       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <43D114A8.4030900@wolfmountaingroup.com> <20060120111103.2ee5b531@dxpl.pdx.osdl.net> <43D13B2A.6020504@cs.ubishops.ca> <43D7C780.6080000@perkel.com> <43D7B20D.7040203@wolfmountaingroup.com> <43D7B5C4.5040601@wolfmountaingroup.com> <43D7D05D.7030101@perkel.com> <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com> <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com> <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse> <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: USB host pci-quirks
+Date: Thu, 26 Jan 2006 14:17:53 -0800
+Message-ID: <0EF82802ABAA22479BC1CE8E2F60E8C3AA3641@scl-exch2k3.phoenix.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: USB host pci-quirks
+Thread-Index: AcYiaGIx2ODV0o78SSyoNnDIU6/jqAAXSVIQ
+From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+To: "Oskar Senft" <osk-lkml@sirrix.de>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 26 Jan 2006 22:17:55.0209 (UTC) FILETIME=[5AFDCF90:01C622C6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
 
-
-Linus Torvalds wrote:
-> No. You think "v2 or later" is the default. It's not. The _default_ is to 
-> not allow conversion.
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Oskar Senft
+>Sent: Thursday, January 26, 2006 3:03 AM
+>To: linux-kernel@vger.kernel.org
+>Subject: USB host pci-quirks
 >
-> Conversion isn't going to happen.
+>Hi all!
 >
-> 		Linus
+>I'm currently working with Linux in a hardware virtualization
+>environment (L4 microkernel). During tests, we discovered, 
+>that there is
+>some incosistency in the kernel configuration dependencies:
 >
->   
-Just for clarification. What you are saying is that anyone who insists 
-on contributing to the kernel under GPLv3 - that code would be 
-prohibited from being included in the kernel? That to contribute to the 
-kernel you must contribute under the terms presently in place?
+>the file "drivers/usb/host/pci-quirks.c" is added to the kernel as soon
+>as PCI support is activated, even if USB support is completely 
+>disabled.
+>
+>We discovered this issue while trying to run multiple Linux instances
+>simultaneously.
+>
+>Is there a special need, that the "drivers/usb/host/pci-quirks.c" is
+>compiled into the kernel even if USB support is disabled?
 
-I'm just asking for clarification.
+  Yes, there is. USB handoff is necessary even if USB support is
+disabled completely in kernel. In fact, initially early usb handoff code
+was under pci, but since USB drivers do handoff anyway, it was decided
+to move everything into usb with a goal of merging them together. 
+  Just search for USB handoff in kernel archives.
 
-I don't have a GPLv3 opinion yet since it's a changing document. But I 
-do see a need for a consistent licensing of the components of Linux to 
-avoid confusion and I'm worried that if any GPLv3 gets in then it will 
-be all GPLv3 so you would have to prohibity that if you are going to 
-stop Linux from becoming GPLv3 by default.
+Thanks,
+Aleks.
+
+>
+>I suggest the attached patch to resolve that problem. The file then is
+>only included if PCI and USB support is enabled.
+>
+>Best regards,
+>Oskar.
 

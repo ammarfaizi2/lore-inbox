@@ -1,45 +1,249 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbWAZW2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWAZW2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964941AbWAZW2u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 17:28:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932390AbWAZW2u
+	id S964930AbWAZW2T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 17:28:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWAZW2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 17:28:50 -0500
-Received: from 8.ctyme.com ([69.50.231.8]:59534 "EHLO darwin.ctyme.com")
-	by vger.kernel.org with ESMTP id S932365AbWAZW2s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 17:28:48 -0500
-Message-ID: <43D94D1D.8070300@perkel.com>
-Date: Thu, 26 Jan 2006 14:28:45 -0800
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 26 Jan 2006 17:28:19 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:38918 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932366AbWAZW2S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 17:28:18 -0500
+Date: Thu, 26 Jan 2006 23:28:16 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: per.liden@ericsson.com, jon.maloy@ericsson.com,
+       allan.stephens@windriver.com
+Cc: tipc-discussion@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: [2.6 patch] net/tipc/: possible cleanups
+Message-ID: <20060126222816.GC3668@stusta.de>
 MIME-Version: 1.0
-To: Chase Venters <chase.venters@clientec.com>
-CC: Diego Calleja <diegocg@gmail.com>, Paul Jakma <paul@clubi.ie>,
-       torvalds@osdl.org, linux-os@analogic.com, mrmacman_g4@mac.com,
-       jmerkey@wolfmountaingroup.com, pmclean@cs.ubishops.ca,
-       shemminger@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - V3 adds new restrictions
-References: <43D114A8.4030900@wolfmountaingroup.com> <20060120111103.2ee5b531@dxpl.pdx.osdl.net> <43D13B2A.6020504@cs.ubishops.ca> <43D7C780.6080000@perkel.com> <43D7B20D.7040203@wolfmountaingroup.com> <43D7B5C4.5040601@wolfmountaingroup.com> <43D7D05D.7030101@perkel.com> <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com> <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com> <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse> <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org> <Pine.LNX.4.64.0601261757320.3920@sheen.jakma.org> <20060126195323.d553a4b8.diegocg@gmail.com> <Pine.LNX.4.64.0601261255430.17225@turbotaz.ourhouse> <43D92175.6010804@perkel.com> <Pine.LNX.4.64.0601261344220.17514@turbotaz.ourhouse> <43D92B45.1030601@perkel.com> <Pine.LNX.4.64.0601261416090.17514@turbotaz.ourhouse>
-In-Reply-To: <Pine.LNX.4.64.0601261416090.17514@turbotaz.ourhouse>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to look at this from a legal point of view. GPLv3 might actually 
-contradict GPLv2.
+This patch contains the following possible cleanups:
+- make needlessly global code static
+- #if 0 the following unused global functions:
+  - name_table.c: tipc_nametbl_print()
+  - name_table.c: tipc_nametbl_dump()
+  - net.c: tipc_net_next_node()
 
-GPLv3 is more RESTRICTIVE than v2. With v2 you didn't have the new 
-anti-DRM and anti-patent restrictions. The original license says 
-somewhere that you can't change the license to be more restrictive.
 
-None of us like patents and DRM but language that places new 
-restrictions on software might not be GPLv2 compatible. Stallman might 
-need to call his new license something else than GPL if he's going to 
-add language that adds restrictions.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I can see an argument where GPLv2 prohibits GPLv3.
+---
 
+ net/tipc/bcast.c      |    9 +++++----
+ net/tipc/cluster.c    |   11 +++++------
+ net/tipc/discover.c   |    8 ++++----
+ net/tipc/name_table.c |   27 ++++++++++++++++++---------
+ net/tipc/net.c        |    3 ++-
+ net/tipc/node.c       |    2 +-
+ 6 files changed, 35 insertions(+), 25 deletions(-)
+
+--- linux-2.6.16-rc1-mm3-full/net/tipc/bcast.c.old	2006-01-26 06:56:41.000000000 +0100
++++ linux-2.6.16-rc1-mm3-full/net/tipc/bcast.c	2006-01-26 06:57:33.000000000 +0100
+@@ -314,7 +314,8 @@
+  * Only tipc_net_lock set.
+  */
+ 
+-void tipc_bclink_peek_nack(u32 dest, u32 sender_tag, u32 gap_after, u32 gap_to)
++static void tipc_bclink_peek_nack(u32 dest, u32 sender_tag, u32 gap_after,
++				  u32 gap_to)
+ {
+ 	struct node *n_ptr = tipc_node_find(dest);
+ 	u32 my_after, my_to;
+@@ -525,9 +526,9 @@
+  * Returns 0 if packet sent successfully, non-zero if not
+  */
+ 
+-int tipc_bcbearer_send(struct sk_buff *buf,
+-		       struct tipc_bearer *unused1,
+-		       struct tipc_media_addr *unused2)
++static int tipc_bcbearer_send(struct sk_buff *buf,
++			      struct tipc_bearer *unused1,
++			      struct tipc_media_addr *unused2)
+ {
+ 	static int send_count = 0;
+ 
+--- linux-2.6.16-rc1-mm3-full/net/tipc/cluster.c.old	2006-01-26 06:57:51.000000000 +0100
++++ linux-2.6.16-rc1-mm3-full/net/tipc/cluster.c	2006-01-26 06:58:31.000000000 +0100
+@@ -44,9 +44,8 @@
+ #include "msg.h"
+ #include "bearer.h"
+ 
+-void tipc_cltr_multicast(struct cluster *c_ptr, struct sk_buff *buf, 
+-			 u32 lower, u32 upper);
+-struct sk_buff *tipc_cltr_prepare_routing_msg(u32 data_size, u32 dest);
++static void tipc_cltr_multicast(struct cluster *c_ptr, struct sk_buff *buf, 
++				u32 lower, u32 upper);
+ 
+ struct node **tipc_local_nodes = 0;
+ struct node_map tipc_cltr_bcast_nodes = {0,{0,}};
+@@ -229,7 +228,7 @@
+  *    Routing table management: See description in node.c
+  */
+ 
+-struct sk_buff *tipc_cltr_prepare_routing_msg(u32 data_size, u32 dest)
++static struct sk_buff *tipc_cltr_prepare_routing_msg(u32 data_size, u32 dest)
+ {
+ 	u32 size = INT_H_SIZE + data_size;
+ 	struct sk_buff *buf = buf_acquire(size);
+@@ -495,8 +494,8 @@
+  * tipc_cltr_multicast - multicast message to local nodes 
+  */
+ 
+-void tipc_cltr_multicast(struct cluster *c_ptr, struct sk_buff *buf, 
+-			 u32 lower, u32 upper)
++static void tipc_cltr_multicast(struct cluster *c_ptr, struct sk_buff *buf, 
++				u32 lower, u32 upper)
+ {
+ 	struct sk_buff *buf_copy;
+ 	struct node *n_ptr;
+--- linux-2.6.16-rc1-mm3-full/net/tipc/discover.c.old	2006-01-26 06:59:53.000000000 +0100
++++ linux-2.6.16-rc1-mm3-full/net/tipc/discover.c	2006-01-26 07:00:05.000000000 +0100
+@@ -110,10 +110,10 @@
+  * @b_ptr: ptr to bearer issuing message
+  */
+ 
+-struct sk_buff *tipc_disc_init_msg(u32 type,
+-				   u32 req_links,
+-				   u32 dest_domain,
+-				   struct bearer *b_ptr)
++static struct sk_buff *tipc_disc_init_msg(u32 type,
++					  u32 req_links,
++					  u32 dest_domain,
++					  struct bearer *b_ptr)
+ {
+ 	struct sk_buff *buf = buf_acquire(DSC_H_SIZE);
+ 	struct tipc_msg *msg;
+--- linux-2.6.16-rc1-mm3-full/net/tipc/name_table.c.old	2006-01-26 07:00:49.000000000 +0100
++++ linux-2.6.16-rc1-mm3-full/net/tipc/name_table.c	2006-01-26 07:03:54.000000000 +0100
+@@ -46,7 +46,7 @@
+ #include "cluster.h"
+ #include "bcast.h"
+ 
+-int tipc_nametbl_size = 1024;		/* must be a power of 2 */
++static int tipc_nametbl_size = 1024;	/* must be a power of 2 */
+ 
+ /**
+  * struct sub_seq - container for all published instances of a name sequence
+@@ -142,7 +142,7 @@
+  * tipc_subseq_alloc - allocate a specified number of sub-sequence structures
+  */
+ 
+-struct sub_seq *tipc_subseq_alloc(u32 cnt)
++static struct sub_seq *tipc_subseq_alloc(u32 cnt)
+ {
+ 	u32 sz = cnt * sizeof(struct sub_seq);
+ 	struct sub_seq *sseq = (struct sub_seq *)kmalloc(sz, GFP_ATOMIC);
+@@ -158,7 +158,8 @@
+  * Allocates a single sub-sequence structure and sets it to all 0's.
+  */
+ 
+-struct name_seq *tipc_nameseq_create(u32 type, struct hlist_head *seq_head)
++static struct name_seq *tipc_nameseq_create(u32 type,
++					    struct hlist_head *seq_head)
+ {
+ 	struct name_seq *nseq = 
+ 		(struct name_seq *)kmalloc(sizeof(*nseq), GFP_ATOMIC);
+@@ -243,9 +244,11 @@
+  * tipc_nameseq_insert_publ - 
+  */
+ 
+-struct publication *tipc_nameseq_insert_publ(struct name_seq *nseq,
+-					u32 type, u32 lower, u32 upper,
+-					u32 scope, u32 node, u32 port, u32 key)
++static struct publication *tipc_nameseq_insert_publ(struct name_seq *nseq,
++						    u32 type, u32 lower,
++						    u32 upper,
++						    u32 scope, u32 node,
++						    u32 port, u32 key)
+ {
+ 	struct subscription *s;
+ 	struct subscription *st;
+@@ -369,8 +372,9 @@
+  * tipc_nameseq_remove_publ -
+  */
+ 
+-struct publication *tipc_nameseq_remove_publ(struct name_seq *nseq, u32 inst,
+-					     u32 node, u32 ref, u32 key)
++static struct publication *tipc_nameseq_remove_publ(struct name_seq *nseq,
++						    u32 inst, u32 node,
++						    u32 ref, u32 key)
+ {
+ 	struct publication *publ;
+ 	struct publication *prev;
+@@ -487,7 +491,8 @@
+  * sequence overlapping with the requested sequence
+  */
+ 
+-void tipc_nameseq_subscribe(struct name_seq *nseq, struct subscription *s)
++static void tipc_nameseq_subscribe(struct name_seq *nseq,
++				   struct subscription *s)
+ {
+ 	struct sub_seq *sseq = nseq->sseqs;
+ 
+@@ -983,6 +988,7 @@
+ 	}
+ }
+ 
++#if 0
+ void tipc_nametbl_print(struct print_buf *buf, const char *str)
+ {
+ 	tipc_printf(buf, str);
+@@ -990,6 +996,7 @@
+ 	nametbl_list(buf, 0, 0, 0, 0);
+ 	read_unlock_bh(&tipc_nametbl_lock);
+ }
++#endif  /*  0  */
+ 
+ #define MAX_NAME_TBL_QUERY 32768
+ 
+@@ -1023,10 +1030,12 @@
+ 	return buf;
+ }
+ 
++#if 0
+ void tipc_nametbl_dump(void)
+ {
+ 	nametbl_list(TIPC_CONS, 0, 0, 0, 0);
+ }
++#endif  /*  0  */
+ 
+ int tipc_nametbl_init(void)
+ {
+--- linux-2.6.16-rc1-mm3-full/net/tipc/net.c.old	2006-01-26 07:04:18.000000000 +0100
++++ linux-2.6.16-rc1-mm3-full/net/tipc/net.c	2006-01-26 07:04:39.000000000 +0100
+@@ -128,13 +128,14 @@
+ 	return tipc_zone_select_router(tipc_net.zones[tipc_zone(addr)], addr, ref);
+ }
+ 
+-
++#if 0
+ u32 tipc_net_next_node(u32 a)
+ {
+ 	if (tipc_net.zones[tipc_zone(a)])
+ 		return tipc_zone_next_node(a);
+ 	return 0;
+ }
++#endif  /*  0  */
+ 
+ void tipc_net_remove_as_router(u32 router)
+ {
+--- linux-2.6.16-rc1-mm3-full/net/tipc/node.c.old	2006-01-26 07:05:03.000000000 +0100
++++ linux-2.6.16-rc1-mm3-full/net/tipc/node.c	2006-01-26 07:10:36.000000000 +0100
+@@ -214,7 +214,7 @@
+ 		(n_ptr->active_links[0] != n_ptr->active_links[1]));
+ }
+ 
+-int tipc_node_has_active_routes(struct node *n_ptr)
++static int tipc_node_has_active_routes(struct node *n_ptr)
+ {
+ 	return (n_ptr && (n_ptr->last_router >= 0));
+ }
 
 

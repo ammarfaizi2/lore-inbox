@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWAZEec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWAZEx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbWAZEec (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 23:34:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbWAZEec
+	id S1751154AbWAZEx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 23:53:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWAZEx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 23:34:32 -0500
-Received: from mail.gmx.de ([213.165.64.21]:55210 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750784AbWAZEea (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 23:34:30 -0500
-X-Authenticated: #271361
-Date: Thu, 26 Jan 2006 05:34:12 +0100
-From: Edgar Toernig <froese@gmx.de>
-To: Richard Henderson <rth@twiddle.net>
-Cc: Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Ian Molton <spyro@f2s.com>,
-       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
-       Yoshinori Sato <ysato@users.sourceforge.jp>,
-       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
-       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
-       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
-       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
-       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
-       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
-       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
-       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>
-Subject: Re: [PATCH 3/6] C-language equivalents of include/asm-*/bitops.h
-Message-Id: <20060126053412.0da7f505.froese@gmx.de>
-In-Reply-To: <20060126000618.GA5592@twiddle.net>
-References: <20060125112625.GA18584@miraclelinux.com>
-	<20060125113206.GD18584@miraclelinux.com>
-	<20060125200250.GA26443@flint.arm.linux.org.uk>
-	<20060126000618.GA5592@twiddle.net>
+	Wed, 25 Jan 2006 23:53:56 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:52139 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751154AbWAZExz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 23:53:55 -0500
+Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP
+	slow)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Samuel Masham <samuel.masham@gmail.com>
+Cc: davids@webmaster.com, lkml@rtr.ca,
+       Christopher Friesen <cfriesen@nortel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hancockr@shaw.ca
+In-Reply-To: <93564eb70601252002x5949b65fs@mail.gmail.com>
+References: <43D8386B.6000204@rtr.ca>
+	 <MDEHLPKNGKAHNMBLJOLKGEJPJKAB.davids@webmaster.com>
+	 <93564eb70601251949r1fb4c209t@mail.gmail.com>
+	 <93564eb70601252002x5949b65fs@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 25 Jan 2006 23:53:53 -0500
+Message-Id: <1138251234.3087.107.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Henderson wrote:
->
-> On Wed, Jan 25, 2006 at 08:02:50PM +0000, Russell King wrote:
-> > > +	s = 16; if (word << 16 != 0) s = 0; b += s; word >>= s;
-> > > +	s =  8; if (word << 24 != 0) s = 0; b += s; word >>= s;
-> > > +	s =  4; if (word << 28 != 0) s = 0; b += s; word >>= s;
-> ...
-> > Basically, shifts which depend on a variable are more expensive than
-> > constant-based shifts.
+On Thu, 2006-01-26 at 13:02 +0900, Samuel Masham wrote:
+> On 26/01/06, Samuel Masham <samuel.masham@gmail.com> wrote:
+> > comment:
+> > As a rt person I don't like the idea of scheduler bounce so the way
+> > round seems to be have the mutex lock acquiring work on a FIFO like
+> > basis.
 > 
-> Actually, they're all constant shifts.  Just written stupidly.
+> which is obviously wrong...
+> 
+> Howeve my basic point stands but needs to be clarified a bit:
+> 
+> I think I can print non-compliant if the mutex acquisition doesn't
+> respect the higher priority of the waiter over the current process
+> even if the mutex is "available".
+> 
+> OK?
 
-Why shift at all?
+I don't think using an optional feature (PI) counts...
 
-int ffs(u32 word)
-{
-    int bit = 0;
+Lee
 
-    word &= -word; // only keep the lsb.
-
-    if (word & 0xffff0000) bit |= 16;
-    if (word & 0xff00ff00) bit |=  8;
-    if (word & 0xf0f0f0f0) bit |=  4;
-    if (word & 0xcccccccc) bit |=  2;
-    if (word & 0xaaaaaaaa) bit |=  1;
-
-    return bit;
-}
-
-Ciao, ET.

@@ -1,102 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbWAZDuN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWAZDvr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932236AbWAZDuN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 22:50:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWAZDtp
+	id S932251AbWAZDvr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 22:51:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWAZDuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 22:49:45 -0500
-Received: from [202.53.187.9] ([202.53.187.9]:19435 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932235AbWAZDtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 22:49:19 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [ 09/23] [Suspend2] Quieten the freezer for normal operation.
-Date: Thu, 26 Jan 2006 13:45:46 +1000
-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060126034545.3178.72508.stgit@localhost.localdomain>
-In-Reply-To: <20060126034518.3178.55397.stgit@localhost.localdomain>
-References: <20060126034518.3178.55397.stgit@localhost.localdomain>
+	Wed, 25 Jan 2006 22:50:12 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:10471 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S932234AbWAZDt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 22:49:59 -0500
+Date: Thu, 26 Jan 2006 12:50:04 +0900
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Geert Uytterhoeven'" <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, linux-m68k@vger.kernel.org,
+       parisc-linux@parisc-linux.org,
+       Linux/PPC Development <linuxppc-dev@ozlabs.org>, linux390@de.ibm.com,
+       linuxsh-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 5/6] fix warning on test_ti_thread_flag()
+Message-ID: <20060126035004.GA11543@miraclelinux.com>
+References: <Pine.LNX.4.62.0601251814350.19174@pademelon.sonytel.be> <200601252002.k0PK2Mg31276@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601252002.k0PK2Mg31276@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.9i
+From: mita@miraclelinux.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 25, 2006 at 12:02:21PM -0800, Chen, Kenneth W wrote:
+> Geert Uytterhoeven wrote on Wednesday, January 25, 2006 9:19 AM
+> > > I don't think you need to change the flags size.
+> > 
+> > Passing a pointer to a 32-bit entity to a function that takes a
+> > pointer to a 64-bit entity is a classical endianness bug. So it's
+> > better to change it, before people copy the code to a big endian
+> > platform.
+> 
+> Well, x86-64 and linux-ia64 both use little endian.  I don't
+> understand why you are barking at us with big endian issue.
+> 
 
-Quieten the freezer by replacing printks with a local #define
-that can be enabled if and when debugging is needed.
+I can fix this without changing the flags size for those architectures.
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+1. Introduce *_le_bit() bit operations which takes void *addr
+   (already I have these functions in the scope of
+    HAVE_ARCH_EXT2_NON_ATOMIC_BITOPS in my patch)
 
- kernel/power/process.c |   19 +++++++++++++------
- 1 files changed, 13 insertions(+), 6 deletions(-)
+2. Change flags to __u8 flags[4] or __u8 flags[8] for each architectures.
 
-diff --git a/kernel/power/process.c b/kernel/power/process.c
-index 6da0445..09fc9ca 100644
---- a/kernel/power/process.c
-+++ b/kernel/power/process.c
-@@ -33,6 +33,13 @@
- #include <linux/suspend.h>
- #include <linux/module.h>
- 
-+#if 0
-+//#ifdef CONFIG_PM_DEBUG
-+#define freezer_message(msg, a...) do { printk(msg, ##a); } while(0)
-+#else
-+#define freezer_message(msg, a...) do { } while(0)
-+#endif
-+
- /* 
-  * Timeout for stopping processes
-  */
-@@ -67,7 +74,7 @@ static int freeze_process(struct notifie
- 	current->flags |= PF_FROZEN;
- 	notifier_chain_unregister(&current->todo, nl);
- 	kfree(nl);
--	printk("=");
-+	freezer_message("=");
- 
- 	spin_lock_irq(&current->sighand->siglock);
- 	recalc_sigpending(); /* We sent fake signal, clean it up */
-@@ -84,11 +91,11 @@ static int freeze_process(struct notifie
- 
- void thaw_processes(void)
- {
--	printk("Restarting tasks..");
-+	freezer_message("Restarting tasks..");
- 	complete_all(&thaw);
- 	while (atomic_read(&nr_frozen) > 0)
- 		schedule();
--	printk("done\n");
-+	freezer_message("done\n");
- }
- 
- static inline void freeze(struct task_struct *p)
-@@ -127,7 +134,7 @@ int freeze_processes(void)
- 	atomic_set(&nr_frozen, 0);
- 	INIT_COMPLETION(thaw);
- 
--	printk("Stopping tasks: ");
-+	freezer_message("Stopping tasks: ");
- 	start_time = jiffies;
- 	do {
- 		todo = 0;
-@@ -142,7 +149,7 @@ int freeze_processes(void)
- 		read_unlock(&tasklist_lock);
- 		yield();			/* Yield is okay here */
- 		if (todo && time_after(jiffies, start_time + TIMEOUT)) {
--			printk("\n");
-+			freezer_message("\n");
- 			printk(KERN_ERR " stopping tasks failed"
- 					"(%d tasks remaining)\n",
- 					todo - atomic_read(&nr_frozen));
-@@ -151,7 +158,7 @@ int freeze_processes(void)
- 		}
- 	} while (atomic_read(&nr_frozen) < todo);
- 
--	printk("|\n");
-+	freezer_message("|\n");
- 	BUG_ON(in_atomic());
- 	return 0;
- }
+3. Use *_le_bit() in include/linux/thread_info.h
 
---
-Nigel Cunningham		nigel at suspend2 dot net

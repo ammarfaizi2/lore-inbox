@@ -1,51 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751413AbWAZVkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751419AbWAZVlU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751413AbWAZVkf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 16:40:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWAZVke
+	id S1751419AbWAZVlU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 16:41:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWAZVlU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 16:40:34 -0500
-Received: from mail.gmx.net ([213.165.64.21]:26802 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751413AbWAZVke (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 16:40:34 -0500
-X-Authenticated: #428038
-Date: Thu, 26 Jan 2006 22:40:29 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Matthias Andree <matthias.andree@gmx.de>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060126214029.GB26319@merlin.emma.line.org>
-Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	linux-kernel@vger.kernel.org
-References: <20060125142155.GW4212@suse.de> <Pine.LNX.4.61.0601251544400.31234@yvahk01.tjqt.qr> <20060125145544.GA4212@suse.de> <43D7AEBF.nailDFJ7263OE@burner> <43D7B100.7040706@gmx.de> <43D7B345.nailDFJB1WWYF@burner> <20060125231957.GC2137@merlin.emma.line.org> <43D8C0E9.nailE1C31558S@burner> <20060126125825.GB14256@merlin.emma.line.org> <Pine.LNX.4.61.0601262146480.27891@yvahk01.tjqt.qr>
+	Thu, 26 Jan 2006 16:41:20 -0500
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:14683 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1751419AbWAZVlT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 16:41:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=DJlnfq0ZBhCTkYdqPgm/i9YHAhHzgs/ZrsjdM71/dENc8SmrS6LOWs2oV/Y3B+Ov1PAxc8rQ6Tw0qls3KGugqLT0qstO+unbFTmBO8ZjunBovaGObj5f3HNLXySPjS2zbs96FY6ZP+tjLMFqnQ27TyyuOKu1LmJnx26QOY1LbJA=  ;
+Message-ID: <43D941FD.9050705@yahoo.com.au>
+Date: Fri, 27 Jan 2006 08:41:17 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601262146480.27891@yvahk01.tjqt.qr>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+To: Howard Chu <hyc@symas.com>
+CC: davids@webmaster.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
+References: <MDEHLPKNGKAHNMBLJOLKGENPJKAB.davids@webmaster.com> <43D930C6.40201@symas.com> <43D93542.9000809@yahoo.com.au> <43D93FEA.3070305@symas.com>
+In-Reply-To: <43D93FEA.3070305@symas.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt schrieb am 2006-01-26:
+Howard Chu wrote:
+> Nick Piggin wrote:
+> 
+>> OK, you believe that the mutex *must* be granted to a blocking thread
+>> at the time of the unlock. I don't think this is unreasonable from the
+>> wording (because it does not seem to be completely unambiguous english),
+>> however think about this -
+>>
+>> A realtime system with tasks A and B, A has an RT scheduling priority of
+>> 1, and B is 2. A and B are both runnable, so A is running. A takes a 
+>> mutex
+>> then sleeps, B runs and ends up blocked on the mutex. A wakes up and at
+>> some point it drops the mutex and then tries to take it again.
+>>
+>> What happens?
+>>
+>> I haven't programmed realtime systems of any complexity, but I'd think it
+>> would be undesirable if A were to block and allow B to run at this point.
+> 
+> 
+> But why does A take the mutex in the first place? Presumably because it 
+> is about to execute a critical section. And also presumably, A will not 
+> release the mutex until it no longer has anything critical to do; 
+> certainly it could hold it longer if it needed to.
+> 
+> If A still needed the mutex, why release it and reacquire it, why not 
+> just hold onto it? The fact that it is being released is significant.
+> 
 
-> I think you (Matthias) get it slightly skewed here. As far as I am able to 
-> slip through the flames, libscg is used by cdrecord just as libc is used by 
-> all apps to have "some sort" of OS abstraction (pick some function, like 
-> fork()). Therefore, libscg seems +not only+ about cd writing. However, if 
-> you want to have a working cdrecord, you need a working libscg, just like 
-> you need a working libc or your system is going bye-bye.
+Regardless of why, that is just the simplest scenario I could think
+of that would give us a test case. However...
 
-I couldn't care less if libscg works for ATAPI tapes. No-one provided
-input for ATAPI tapes that do verify-while-write (call it read after
-write if you want, Hinterbandkontrolle in German) yet, and potential
-libscg-can't-get-a-hold-of-ATAPI-tapes problems can be discussed in a
-separate thread if you don't mind.
+Why not hold onto it? We sometimes do this in the kernel if we need
+to take a lock that is incompatible with the lock already being held,
+or if we discover we need to take a mutex which nests outside our
+currently held lock in other paths. Ie to prevent deadlock.
+
+Another reason might be because we will be running for a very long
+time without requiring the lock. Or we might like to release it because
+we expect a higher priority process to take it.
+
+>> Now this has nothing to do with PI or SCHED_OTHER, so behaviour is 
+>> exactly
+>> determined by our respective interpretations of what it means for "the
+>> scheduling policy to decide which task gets the mutex".
+>>
+>> What have I proven? Nothing ;) but perhaps my question could be answered
+>> by someone who knows a lot more about RT systems than I.
+> 
+> 
+> In the last RT work I did 12-13 years ago, there was only one high 
+> priority producer task and it was never allowed to block. The consumers 
+> just kept up as best they could (multi-proc machine of course). I've 
+> seldom seen a need for many priority levels. Probably not much you can 
+> generalzie from this though.
+> 
 
 -- 
-Matthias Andree
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

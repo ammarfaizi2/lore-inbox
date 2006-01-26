@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbWAZSxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbWAZSyD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbWAZSxo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 13:53:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWAZSxo
+	id S932402AbWAZSyD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 13:54:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbWAZSyC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 13:53:44 -0500
-Received: from hibernia.jakma.org ([212.17.55.49]:33154 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S932399AbWAZSxn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 13:53:43 -0500
-Date: Thu, 26 Jan 2006 18:52:41 +0000 (GMT)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@sheen.jakma.org
-To: Filip Brcic <brcha@users.sourceforge.net>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Chase Venters <chase.venters@clientec.com>,
-       "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Marc Perkel <marc@perkel.com>,
-       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Patrick McLean <pmclean@cs.ubishops.ca>,
-       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-In-Reply-To: <200601261925.49433.brcha@users.sourceforge.net>
-Message-ID: <Pine.LNX.4.64.0601261850400.3920@sheen.jakma.org>
-References: <43D114A8.4030900@wolfmountaingroup.com>
- <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org> <Pine.LNX.4.64.0601261757320.3920@sheen.jakma.org>
- <200601261925.49433.brcha@users.sourceforge.net>
-Mail-Copies-To: paul@hibernia.jakma.org
-Mail-Followup-To: paul@hibernia.jakma.org
-X-NSA: al aqsar fluffy jihad cute musharef kittens jet-A1 ear avgas wax ammonium bad qran dog inshallah allah al-akbar martyr iraq hammas hisballah rabin ayatollah korea revolt pelvix mustard gas x-ray british airways washington peroxide cool
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 26 Jan 2006 13:54:02 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:27676 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932402AbWAZSyA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 13:54:00 -0500
+Date: Thu, 26 Jan 2006 19:56:13 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Edward Shishkin <edward@namesys.com>
+Cc: Hans Reiser <reiser@namesys.com>, LKML <linux-kernel@vger.kernel.org>,
+       Reiserfs mail-list <Reiserfs-List@namesys.com>
+Subject: Re: random minor benchmark: Re: Copy 20 tarfiles: ext2 vs (reiser4, unixfile) vs (reiser4,cryptcompress)
+Message-ID: <20060126185612.GM4311@suse.de>
+References: <43D7C6BE.1010804@namesys.com> <43D7CA7F.4010502@namesys.com> <20060126153343.GH4311@suse.de> <43D91225.3030605@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43D91225.3030605@namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Jan 2006, Filip Brcic wrote:
+On Thu, Jan 26 2006, Edward Shishkin wrote:
+> Jens Axboe wrote:
+> 
+> >On Wed, Jan 25 2006, Hans Reiser wrote:
+> > 
+> >
+> >>Notice how CPU speed (and number of cpus) completely determines
+> >>compression performance.
+> >>
+> >>cryptcompress refers to the reiser4 compression plugin, (unix file)
+> >>refers to the reiser4 non-compressing plugin.
+> >>
+> >>Edward Shishkin wrote:
+> >>
+> >>   
+> >>
+> >>>Here are the tests that vs asked for:
+> >>>Creation (dd) of 20 tarfiles (the original 200M file is in ramfs)
+> >>>Kernel: 2.6.15-mm4 + current git snapshot of reiser4
+> >>>
+> >>>------------------------------------------
+> >>>
+> >>>Laputa workstation
+> >>>Uni Intel Pentium 4 (2.26 GHz) 512M RAM
+> >>>
+> >>>ext2:
+> >>>real 2m, 15s
+> >>>sys 0m, 14s
+> >>>
+> >>>reiser4(unix file)
+> >>>real 2m, 7s
+> >>>sys  0m, 23s
+> >>>
+> >>>reiser4(cryptcompress, lzo1, 64K)
+> >>>real 2m, 13s
+> >>>sys 0m, 11s
+> >>>     
+> >>>
+> >
+> >Just curious - does your crypt plugin reside in user space?
+> >
+> > 
+> >
+> 
+> Nop.
+> This is just wrappers for linux crypto api, zlib, etc..
+> so user time is zero and not interesting.
 
-> Linux specifies version GPLv2 and only v2. Therefore, for Linux the 
-> GPLv2 is the default.
+Then why is the sys time lower than the "plain" writes on ext2 and
+reiser4? Surely compressing isn't for free, yet the sys time is lower on
+the compression write than the others.
 
-Note that I didn't say otherwise. I was merely commenting on Linus' 
-interpretation of the GPL generally.
-
-Btw, with respect to the Linux kernel "v2 only" preamble, Alan Cox's 
-email earlier in this thread is worth reading.
-
-regards,
 -- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-Man's horizons are bounded by his vision.
+Jens Axboe
+

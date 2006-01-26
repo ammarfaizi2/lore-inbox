@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbWAZIex@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbWAZIrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751083AbWAZIex (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 03:34:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbWAZIex
+	id S1751293AbWAZIrx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 03:47:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWAZIrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 03:34:53 -0500
-Received: from dsl092-035-012.lax1.dsl.speakeasy.net ([66.92.35.12]:32950 "EHLO
-	arrau.morison.org") by vger.kernel.org with ESMTP id S1750770AbWAZIew
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 03:34:52 -0500
-Message-ID: <20060126003451.8iqpklyyv6as88cg@webmail.morison.biz>
-Date: Thu, 26 Jan 2006 00:34:51 -0800
-From: Rod Morison <rod@morison.biz>
-To: linux-kernel@vger.kernel.org
-Subject: mptable irq info wrong on Tyan S5112, need advice
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	DelSp="Yes";
-	format="flowed"
-Content-Disposition: inline
+	Thu, 26 Jan 2006 03:47:53 -0500
+Received: from ns.firmix.at ([62.141.48.66]:51843 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1751293AbWAZIrx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 03:47:53 -0500
+Subject: Re: Development tree, PLEASE?
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Nix <nix@esperi.org.uk>
+Cc: Lee Revell <rlrevell@joe-job.com>, Michael Loftis <mloftis@wgops.com>,
+       Sven-Haegar Koch <haegar@sdinet.de>,
+       Matthew Frost <artusemrys@sbcglobal.net>, linux-kernel@vger.kernel.org,
+       James Courtier-Dutton <James@superbug.co.uk>
+In-Reply-To: <877j8orm6x.fsf@amaterasu.srvr.nix>
+References: <20060121031958.98570.qmail@web81905.mail.mud.yahoo.com>
+	 <1FA093EB58B02DE48E424157@dhcp-2-206.wgops.com>
+	 <1137829140.3241.141.camel@mindpipe>
+	 <Pine.LNX.4.64.0601212250020.31384@mercury.sdinet.de>
+	 <1137881882.411.23.camel@mindpipe>
+	 <3B0BEE012630B9B11D1209E5@dhcp-2-206.wgops.com>
+	 <1137884582.411.47.camel@mindpipe>
+	 <F2CD9CC3F050829D8C8DC767@dhcp-2-206.wgops.com>
+	 <1137949400.3298.59.camel@gimli.at.home>
+	 <87bqy0ro5c.fsf@amaterasu.srvr.nix> <1138225011.3087.29.camel@mindpipe>
+	 <877j8orm6x.fsf@amaterasu.srvr.nix>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Thu, 26 Jan 2006 09:44:11 +0100
+Message-Id: <1138265051.22912.54.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) H3 (4.2-cvs)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm diagnosing a PCI IRQ problem on a Tyan S5112 motherboard. I pushed  
-it back to where the kernel builds it's IRQ maps in  
-arch/i386/kernel/mpparse.c (2.4.32 kernel). (The Tyan S5112 has a  
-seperate IO APIC for it's PCI-X bus.)
+On Wed, 2006-01-25 at 22:12 +0000, Nix wrote:
+[...]
+> Indeed. I'm not sure if any distros actually *do* release every three
 
-What I found was for a board on the PCI-X bus the MP data read in  
-mpparse.c says that the board has IRQ 16 on APIC #2. By trial and  
-error I've determined that in fact the board is on IRQ 3 on APIC #3.  
-(APIC IDs are the physical IDs reported from the APIC registers: #2 ==  
-first APIC, #3 == second APIC.)
+Gentoo would probably qualify for that.
+Debian, FC, SusE not.
+Others I don't know enough ....
 
-Questions/advice:
-
-1. I infer that the motherboard bios has a bug in it's irq map build.  
-Is this a reasonable conclusion?
-
-2. I see various hacks in pci-irq.c to patch up erroneous IRQ  
-assignments. However, it's not clear to me that the code in  
-pci-irq.c:pcibios_lookup_irq() will work with IO APICs enabled. What's  
-the best way to write a patch for this motherboard, to do the IRQ  
-remapping discovered above? A pointer to an example in the kernel  
-source would be helpful; I haven't stumble on such yet.
-
-3. The board I'm debugging has several distinct functions and  
-associated drivers and IRQ service routines. The interrupts for the  
-different functions are asserted on different PCI pins: A, B & C. Yet,  
-all the interrupts come in on the same IRQ I discovered above, namely  
-IRQ 3 on APIC #3. Is this board just or-ing all the interrupt pins  
-together, or do IO APICs handle this situation differently? (I've not  
-found any good docs or refs on PCI pin mapping for IO APIC based  
-boards.)
-
-Any help/advice/links are appreciated.
-
-Rod
-rod@morison.biz
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 

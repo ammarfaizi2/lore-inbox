@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWAZFud@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWAZF7X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbWAZFud (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 00:50:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbWAZFud
+	id S1750807AbWAZF7X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 00:59:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbWAZF7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 00:50:33 -0500
-Received: from mail.kroah.org ([69.55.234.183]:35280 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750710AbWAZFuc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 00:50:32 -0500
-Date: Wed, 25 Jan 2006 21:39:41 -0800
-From: Greg KH <greg@kroah.com>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: 2.6.16-rc1-mm3
-Message-ID: <20060126053941.GA13361@kroah.com>
-References: <20060124232406.50abccd1.akpm@osdl.org> <43D7567E.60003@reub.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43D7567E.60003@reub.net>
-User-Agent: Mutt/1.5.11
+	Thu, 26 Jan 2006 00:59:22 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:62342 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1750807AbWAZF7W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 00:59:22 -0500
+Message-ID: <43D86531.1080708@cosmosbay.com>
+Date: Thu, 26 Jan 2006 06:59:13 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Wei Yongjun <weiyj@soft.fujitsu.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]ip_options_fragment() has no effect on fragmentation
+References: <0a3101c6229a$3cc7c1b0$cfa0220a@WeiYJ>
+In-Reply-To: <0a3101c6229a$3cc7c1b0$cfa0220a@WeiYJ>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [62.23.185.226]); Thu, 26 Jan 2006 06:59:18 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25, 2006 at 11:44:14PM +1300, Reuben Farrelly wrote:
+Wei Yongjun a écrit :
+> [1]Summary of the problem:
+> ip_options_fragment() has no effect on fragmentation
 > 
+> [2]Full description of the problem:
+> When I send IPv4 packet(contain Record Route Option) which need to be 
+> fragmented to the router, the router can not fragment it correctly.
+> After fragmented by router, the second fragmentation still contain 
+> Record Route Option. Refer to RFC791, Record Route Option must Not be 
+> copied on fragmentation, goes in first fragment only.
+> ip_options_fragment() is the implemental function, but there are some 
+> BUGs in it:
 > 
-> On 25/01/2006 8:24 p.m., Andrew Morton wrote:
-> >http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm3/
-> >
-> >- Dropped the timekeeping patch series due to a complex timesource 
-> >selection
-> >  bug.
-> >
-> >- Various fixes and updates.
-> 
-> Generally quite good again :)
-> 
-> I'm seeing this USB "handoff" warning message logged when booting up:
-> 
-> 0000:00:1d.7 EHCI: BIOS handoff failed (BIOS bug ?)
-> 
-> This is not new to this -mm release, looking back over my bootlogs I note 
-> that 2.6-15-rc5-mm1 was OK, but 2.6.15-mm4 was showing this message.  I'll 
-> narrow it down if it doesn't appear obvious what the problem is.
 
-When this happens, does your usb-ehci driver still work properly
-(meaning do usb 2.0 devices connect and go at the proper high speeds)?
+Hello Wei
 
-And if you change the USB setting in your bios, does this error message
-go away?
+This is the third time I receive this patch (and I am not able to comment it), 
+and still you didnt send it to the right list.
 
-thanks,
+Please use netdev@vger.kernel.org for any linux kernel networking stuff.
 
-greg k-h
+If you dont receive an acknowledge from this netdev list, please wait at least 
+two weeks before resending it.
+
+Thank you
+Eric
+

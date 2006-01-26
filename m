@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWAZAIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbWAZALL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbWAZAIV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 19:08:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWAZAIU
+	id S1751259AbWAZALL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 19:11:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWAZALL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 19:08:20 -0500
-Received: from are.twiddle.net ([64.81.246.98]:56980 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id S1751208AbWAZAIS (ORCPT
+	Wed, 25 Jan 2006 19:11:11 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:25506 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751259AbWAZALK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 19:08:18 -0500
-Date: Wed, 25 Jan 2006 16:06:18 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Ian Molton <spyro@f2s.com>,
-       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
-       Yoshinori Sato <ysato@users.sourceforge.jp>,
-       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
-       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
-       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
-       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
-       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
-       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
-       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
-       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>
-Subject: Re: [PATCH 3/6] C-language equivalents of include/asm-*/bitops.h
-Message-ID: <20060126000618.GA5592@twiddle.net>
-Mail-Followup-To: Akinobu Mita <mita@miraclelinux.com>,
-	linux-kernel@vger.kernel.org,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	Ian Molton <spyro@f2s.com>, dev-etrax@axis.com,
-	David Howells <dhowells@redhat.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
-	Hirokazu Takata <takata@linux-m32r.org>,
-	linux-m68k@lists.linux-m68k.org, Greg Ungerer <gerg@uclinux.org>,
-	linux-mips@linux-mips.org, parisc-linux@parisc-linux.org,
-	linuxppc-dev@ozlabs.org, linux390@de.ibm.com,
-	linuxsh-dev@lists.sourceforge.net,
-	linuxsh-shmedia-dev@lists.sourceforge.net,
-	sparclinux@vger.kernel.org, ultralinux@vger.kernel.org,
-	Miles Bader <uclinux-v850@lsi.nec.co.jp>, Andi Kleen <ak@suse.de>,
-	Chris Zankel <chris@zankel.net>
-References: <20060125112625.GA18584@miraclelinux.com> <20060125113206.GD18584@miraclelinux.com> <20060125200250.GA26443@flint.arm.linux.org.uk>
+	Wed, 25 Jan 2006 19:11:10 -0500
+Date: Thu, 26 Jan 2006 01:11:41 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: rostedt@goodmis.org, linux-kernel@vger.kernel.org, viro@ftp.linux.org.uk
+Subject: Re: [patch, lock validator] fix proc_inum_lock related deadlock
+Message-ID: <20060126001141.GA18181@elte.hu>
+References: <20060125170331.GA29339@elte.hu> <1138209283.6695.55.camel@localhost.localdomain> <20060125180811.GA12762@elte.hu> <20060125102351.28cd52b8.akpm@osdl.org> <20060126000200.GA12809@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060125200250.GA26443@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060126000200.GA12809@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25, 2006 at 08:02:50PM +0000, Russell King wrote:
-> > +	s = 16; if (word << 16 != 0) s = 0; b += s; word >>= s;
-> > +	s =  8; if (word << 24 != 0) s = 0; b += s; word >>= s;
-> > +	s =  4; if (word << 28 != 0) s = 0; b += s; word >>= s;
-...
-> Basically, shifts which depend on a variable are more expensive than
-> constant-based shifts.
 
-Actually, they're all constant shifts.  Just written stupidly.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
+> there's another VFS lock that just popped up, hopefully the last one.  
+> Fix below. (All this is still related to proc_subdir_lock, and the 
+> original BKL bug it fixed.)
 
-r~
+bah. proc_num_idr.lock nests too ...
+
+i guess we should stick this into free_irq():
+
+	WARN_ON(in_interrupt());
+
+and be done with it. If all such places are fixed then Steve's fix 
+becomes complete.
+
+	Ingo

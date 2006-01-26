@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWAZAEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWAZAGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbWAZAEF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 19:04:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWAZAEE
+	id S1751254AbWAZAGP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 19:06:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWAZAGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 19:04:04 -0500
-Received: from wproxy.gmail.com ([64.233.184.197]:40566 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751247AbWAZAEC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 19:04:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HQWq2ileImPsoV3as0z6GigW44VdrTINuIZT+YVFYHsLlswbTl1s1FCInCAIdCqzovPED4iCgc/BDSpmE1UZAfH2Em44Nrzacb6LTrFCyhZjohtqmk3+Q/7HaAVD425zSJR7FZ/5Xul9imi0ciJgMJ5mLAzmW13Zki45lGfGZx4=
-Message-ID: <9e4733910601251603n543dbe3ej93286743b01eef6e@mail.gmail.com>
-Date: Wed, 25 Jan 2006 19:03:58 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-To: Bryan Henderson <hbryan@us.ibm.com>
-Subject: Re: [RFC] VM: I have a dream...
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <OF9B696195.5A30AEF3-ON882570FF.006879C2-882570FF.006D26D2@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43D28189.3080407@argo.co.il>
-	 <OF9B696195.5A30AEF3-ON882570FF.006879C2-882570FF.006D26D2@us.ibm.com>
+	Wed, 25 Jan 2006 19:06:14 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:40853
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751140AbWAZAGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 19:06:12 -0500
+Date: Wed, 25 Jan 2006 16:04:30 -0800 (PST)
+Message-Id: <20060125.160430.94334986.davem@davemloft.net>
+To: paulus@samba.org
+Cc: mita@miraclelinux.com, linux-kernel@vger.kernel.org,
+       linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, spyro@f2s.com,
+       dhowells@redhat.com, linuxppc-dev@ozlabs.org, gerg@uclinux.org,
+       sparclinux@vger.kernel.org, uclinux-v850@lsi.nec.co.jp,
+       torvalds@osdl.org, ysato@users.sourceforge.jp, takata@linux-m32r.org,
+       linuxsh-shmedia-dev@lists.sourceforge.net, linux-m68k@vger.kernel.org,
+       ink@jurassic.park.msu.ru, rth@twiddle.net, chris@zankel.net,
+       dev-etrax@axis.com, ultralinux@vger.kernel.org, ak@suse.de,
+       linuxsh-dev@lists.sourceforge.net, linux390@de.ibm.com,
+       rmk@arm.linux.org.uk, parisc-linux@parisc-linux.org
+Subject: Re: [PATCH 5/6] fix warning on test_ti_thread_flag()
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <17367.64370.844350.972910@cargo.ozlabs.ibm.com>
+References: <20060125112625.GA18584@miraclelinux.com>
+	<20060125113446.GF18584@miraclelinux.com>
+	<17367.64370.844350.972910@cargo.ozlabs.ibm.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/23/06, Bryan Henderson <hbryan@us.ibm.com> wrote:
-> >Perhaps you'd be interested in single-level store architectures, where
-> >no distinction is made between memory and storage. IBM uses it in one
-> >(or maybe more) of their systems.
+From: Paul Mackerras <paulus@samba.org>
+Date: Thu, 26 Jan 2006 09:28:02 +1100
 
-Are there any Linux file systems that work by mmapping the entire
-drive and using the paging system to do the read/writes? With 64 bits
-there's enough address space to do that now. How does this perform
-compared to a traditional block based scheme?
+> Akinobu Mita writes:
+> 
+> > If the arechitecture is
+> > - BITS_PER_LONG == 64
+> > - struct thread_info.flag 32 is bits
+> > - second argument of test_bit() was void *
+> > 
+> > Then compiler print error message on test_ti_thread_flags()
+> > in include/linux/thread_info.h
+> 
+> And correctly so.  The correct fix is to make thread_info.flag an
+> unsigned long.  This patch is NAKed.
 
-With the IBM 128b address space aren't the devices vulnerable to an
-errant program spraying garbage into the address space? Is it better
-to map each device into it's own address space?
-
---
-Jon Smirl
-jonsmirl@gmail.com
+I agree.

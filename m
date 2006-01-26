@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751008AbWAZQFK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbWAZQJU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751008AbWAZQFK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 11:05:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWAZQFK
+	id S964780AbWAZQJU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 11:09:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964774AbWAZQJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 11:05:10 -0500
-Received: from mail.gmx.de ([213.165.64.21]:57489 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751008AbWAZQFI (ORCPT
+	Thu, 26 Jan 2006 11:09:20 -0500
+Received: from colo.lackof.org ([198.49.126.79]:5775 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S932359AbWAZQJS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 11:05:08 -0500
-X-Authenticated: #428038
-Message-ID: <43D8F327.6060800@gmx.de>
-Date: Thu, 26 Jan 2006 17:04:55 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-CC: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de, grundig@teleline.es, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner> <20060125181847.b8ca4ceb.grundig@teleline.es> <43D8988F.nailDTH21LS0G@burner> <1138268759.3087.138.camel@mindpipe> <43D8D5A0.nailE2X71H31H@burner> <43D8D80B.9080203@yahoo.com.au> <43D8DD7B.nailE2XL1KRWJ@burner>
-In-Reply-To: <43D8DD7B.nailE2XL1KRWJ@burner>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Thu, 26 Jan 2006 11:09:18 -0500
+Date: Thu, 26 Jan 2006 09:18:49 -0700
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Ian Molton <spyro@f2s.com>,
+       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>
+Subject: Re: [parisc-linux] Re: [PATCH 3/6] C-language equivalents of include/asm-*/bitops.h
+Message-ID: <20060126161849.GA13632@colo.lackof.org>
+References: <20060125112625.GA18584@miraclelinux.com> <20060125113206.GD18584@miraclelinux.com> <20060125200250.GA26443@flint.arm.linux.org.uk> <20060126000618.GA5592@twiddle.net> <20060126085540.GA15377@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060126085540.GA15377@flint.arm.linux.org.uk>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
->> Joerg Schilling wrote:
->>> Lee Revell <rlrevell@joe-job.com> wrote:
->>>
->>>
->>>>> Interesting: You claim that the Linux platform provides ways to retrieve 
->>>>> the needed information on FreeBSD, MS-WIN, ....?
->>>>>
->>>> What do FreeBSD and MS-WIN have to do with Linux?
->>>
->>> What is the relevence of /dev/hd* for a device independent library like libscg?
->>>
->> Isn't it good practice to adhere to the naming conventions
->> of the system to which a program is ported to? (even if 100
->> of them do it one way and 1 does it another)
-> 
-> Well, the problem is that (in special if you include the ATAPI tape drives)
-> Linux likes to enforce inapropriate naming conventions.
+On Thu, Jan 26, 2006 at 08:55:41AM +0000, Russell King wrote:
+> Unfortunately that's not correct.  You do not appear to have checked
+> the compiler output like I did - this code does _not_ generate
+> constant shifts.
 
-Nope. Naming conventions are not subject here.
+Russell,
+By "written stupidly", I thought Richard meant they could have
+used constants instead of "s".  e.g.:
+	if (word << 16 == 0) { b += 16; word >>= 16); }
+	if (word << 24 == 0) { b +=  8; word >>=  8); }
+	if (word << 28 == 0) { b +=  4; word >>=  4); }
 
-What OTHER libscg operations do not work for a particular ATAPI tape drive?
--scanbus does NOT count, don't mention it.
-What is the drive manufacturer and type?
-What is the failing or inaccessible operation?
+But I prefer what Edgar Toernig suggested.
 
-Please remember to remove Jens Axboe and Lee Revell from the Cc: list!
+grant

@@ -1,76 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbWAZWkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbWAZWmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964951AbWAZWkK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 17:40:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbWAZWkK
+	id S964952AbWAZWmj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 17:42:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964954AbWAZWmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 17:40:10 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:23532 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S964951AbWAZWkI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 17:40:08 -0500
-Message-ID: <43D94FC1.4050708@us.ibm.com>
-Date: Thu, 26 Jan 2006 14:40:01 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-CC: linux-kernel@vger.kernel.org, sri@us.ibm.com, andrea@suse.de,
-       pavel@suse.cz, linux-mm@kvack.org
-Subject: Re: [patch 8/9] slab - Add *_mempool slab variants
-References: <20060125161321.647368000@localhost.localdomain>	 <1138218020.2092.8.camel@localhost.localdomain> <84144f020601252341k62c0c6fck57f3baa290f4430@mail.gmail.com>
-In-Reply-To: <84144f020601252341k62c0c6fck57f3baa290f4430@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Jan 2006 17:42:39 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:55244 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964952AbWAZWmi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 17:42:38 -0500
+Date: Thu, 26 Jan 2006 23:43:12 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Jeff Garzik <jgarzik@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       "David S. Miller" <davem@redhat.com>
+Subject: [lock validator] drivers/net/8139too.c: deadlock?
+Message-ID: <20060126224312.GA2779@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
-> Hi Matthew,
-> 
-> On 1/25/06, Matthew Dobson <colpatch@us.ibm.com> wrote:
-> 
->>+extern void *__kmalloc(size_t, gfp_t, mempool_t *);
-> 
-> 
-> If you really need to do this, please ntoe that you're adding an extra
-> parameter push for the nominal case where mempool is not required. The
-> compiler is unable to optimize it away. It's better that you create a
-> new entry point for the mempool case in mm/slab.c rather than
-> overloading __kmalloc() et al. See the following patch that does that
-> sort of thing:
-> 
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm3/broken-out/slab-fix-kzalloc-and-kstrdup-caller-report-for-config_debug_slab.patch
+the lock validator i'm working on found the following scenario in the 
+rtl8139 driver, which it flagged as a deadlock:
 
-At some level non-mempool users are going to have to use the same functions
-as mempool users.  As you can see in patch 9/9, all we really need is to
-get the mempool_t pointer down to cache_grow() where the *actual* cache
-growth happens.  Unfortunately, between the external callers (kmalloc(),
-kmem_cache_alloc(), etc) and cache_grow() there are several functions.  I
-will try to follow an approach similar to the patch you linked to above for
-this patch (modifying the externally callable functions), but I don't think
-the follow-on patch can change much.  The overhead of passing along a NULL
-pointer should not be too onerous.
+  ---------------------------------------->
+  NETDEV WATCHDOG: eth0: transmit timed out
+  eth0: Transmit timeout, status 0d 0000 c07f media 80.
+  eth0: Tx queue start entry 164281  dirty entry 164277.
+  eth0:  Tx descriptor 0 is 000805ea.
+  eth0:  Tx descriptor 1 is 00080042. (queue head)
+  eth0:  Tx descriptor 2 is 00080042.
+  eth0:  Tx descriptor 3 is 000805ea.
+  
+  ============================================
+  [ BUG: circular locking deadlock detected! ]
+  --------------------------------------------
+  hackbench/9560 [2] is trying to acquire lock {&tp->rx_lock} at:
+   [<c033e460>] rtl8139_tx_timeout+0x110/0x1f0
+  but task is already holding lock {&dev->xmit_lock}, acquired at:
+   [<c045294b>] dev_watchdog+0x1b/0xc0
+  which lock already depends on the new lock,
+  which could lead to circular deadlocks!
+  
+  the dependency chain (in reverse order) is:
+  -> #4 {&dev->xmit_lock}: [<c045294b>] dev_watchdog+0x1b/0xc0
+  -> #3 {&dev->queue_lock}: [<c0447154>] dev_queue_xmit+0x64/0x290
+  -> #2 {&((sk)->sk_lock.slock)}: [<c043eb66>] sk_clone+0x66/0x200
+  -> #1 {&((sk)->sk_lock.slock)}: [<c047a116>] tcp_v4_rcv+0x726/0x9d0
+  -> #0 {&tp->rx_lock}: [<c033e460>] rtl8139_tx_timeout+0x110/0x1f0
+  
+  other info that might help us debug this:
+  
+  locks held by hackbench/9560:
+   #0:  {net/unix/af_unix.c:&u->readlock} [<c0490e6f>] unix_stream_recvmsg+0xbf/0x4f0
+   #1:  {&dev->xmit_lock} [<c045294b>] dev_watchdog+0x1b/0xc0
+  
+  stack backtrace:
+   [<c010432d>] show_trace+0xd/0x10
+   [<c0104347>] dump_stack+0x17/0x20
+   [<c0137d60>] print_circular_bug_tail+0x40/0x50
+   [<c013922f>] debug_lock_chain+0x74f/0xd40
+   [<c013985d>] debug_lock_chain_spin+0x3d/0x60
+   [<c0266add>] _raw_spin_lock+0x2d/0x90
+   [<c04d9d18>] _spin_lock+0x8/0x10
+   [<c033e460>] rtl8139_tx_timeout+0x110/0x1f0
+   [<c04529e8>] dev_watchdog+0xb8/0xc0
+   [<c0127615>] run_timer_softirq+0xf5/0x1f0
+   [<c0122f67>] __do_softirq+0x97/0x130
+   [<c0105519>] do_softirq+0x69/0x100
+   =======================
+   [<c0122c19>] irq_exit+0x39/0x50
+   [<c010f4cc>] smp_apic_timer_interrupt+0x4c/0x50
+   [<c010393b>] apic_timer_interrupt+0x27/0x2c
+   [<c0441829>] skb_release_data+0x59/0xa0
+   [<c0441b43>] kfree_skbmem+0x13/0xe0
+   [<c0441c58>] __kfree_skb+0x48/0xc0
+   [<c0490f7c>] unix_stream_recvmsg+0x1cc/0x4f0
+   [<c043d2d5>] do_sock_read+0x95/0xd0
+   [<c043d475>] sock_aio_read+0x75/0x80
+   [<c016499b>] do_sync_read+0xbb/0x110
+   [<c0164e88>] vfs_read+0x148/0x150
+   [<c01658bd>] sys_read+0x3d/0x70
+   [<c0102df7>] sysenter_past_esp+0x54/0x8d
+  eth0: link up, 100Mbps, full-duplex, lpa 0xC5E1
+  <----------------------------------------------
 
+i'm wondering, is this a genuine deadlock, or a false positive? The 
+dependency chain is quite complex, but looks realistic:
 
-> Now as for the rest of the patch, are you sure you want to reserve
-> whole pages for each critical allocation that cannot be satisfied by
-> the slab allocator? Wouldn't it be better to use something like the
-> slob allocator to allocate from the mempool pages? That way you
-> wouldn't have to make the slab allocator mempool aware at all, simply
-> make your kmalloc_mempool first try the slab allocator and if it
-> returns NULL, go for the critical pool. All this in preferably
-> separate file so you don't make mm/slab.c any more complex than it is
-> now.
+  -> #4 {&dev->xmit_lock}: [<c045294b>] dev_watchdog+0x1b/0xc0
+  -> #3 {&dev->queue_lock}: [<c0447154>] dev_queue_xmit+0x64/0x290
+  -> #2 {&((sk)->sk_lock.slock)}: [<c043eb66>] sk_clone+0x66/0x200
+  -> #1 {&((sk)->sk_lock.slock)}: [<c047a116>] tcp_v4_rcv+0x726/0x9d0
+  -> #0 {&tp->rx_lock}: [<c033e460>] rtl8139_tx_timeout+0x110/0x1f0
 
-I decided that using a whole page allocator would be the easiest way to
-cover the most common uses of slab/kmalloc, but your idea is very
-interesting.  My immediate concern would be trying to determine, at kfree()
-time, what was allocated by the slab allocator and what was allocated by
-the critical pool.  I will give this approach more thought, as the idea of
-completely separating the critical pool and slab allocator is attractive.
+and rtl8139_tx_timeout() is rare enough to not cause real lockups in 
+practice all that often.
 
-Thanks!
+explanation of the validator output: the above dependency chain does not 
+mean it actually occured in one single call sequence - it is a 
+comulative (and full) depdency graph the validator is maintaining, to 
+prove locking correctness. So it can easily be multiple tasks, at 
+distinct points in time, on different CPUs, which built this dependency 
+chain. The first (#0) and the last (#4) entry is the current locking 
+sequence's fingerprint - so do not understand the above to be an actual 
+locking stack - it cannot possibly occur in this order.
 
--Matt
+	Ingo

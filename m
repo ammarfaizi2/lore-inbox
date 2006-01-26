@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWAZDgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWAZDgs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751312AbWAZDgF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 22:36:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWAZDgE
+	id S932082AbWAZDgs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 22:36:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWAZDgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 22:36:04 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:52110 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751312AbWAZDgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 22:36:01 -0500
-Date: Wed, 25 Jan 2006 19:34:41 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Ashok Raj <ashok.raj@intel.com>, akpm@osdl.org, ak@muc.de,
-       linux-kernel@vger.kernel.org, randy.d.dunlap@intel.com
-Subject: Re: wrongly marked __init/__initdata for CPU hotplug
-Message-ID: <20060125193440.A4205@unix-os.sc.intel.com>
-References: <20060125120253.A30999@unix-os.sc.intel.com> <4496.1138242917@ocs3.ocs.com.au>
+	Wed, 25 Jan 2006 22:36:47 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:25573 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S932082AbWAZDgq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 22:36:46 -0500
+Date: Thu, 26 Jan 2006 12:36:52 +0900
+To: Grant Grundler <iod00d@hp.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org
+Subject: [PATCH 9/12] generic hweight64()
+Message-ID: <20060126033652.GH11138@miraclelinux.com>
+References: <20060125112625.GA18584@miraclelinux.com> <20060125113206.GD18584@miraclelinux.com> <20060125200250.GA26443@flint.arm.linux.org.uk> <20060125205907.GF9995@esmail.cup.hp.com> <20060126032713.GA9984@miraclelinux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4496.1138242917@ocs3.ocs.com.au>; from kaos@ocs.com.au on Thu, Jan 26, 2006 at 01:35:17PM +1100
+In-Reply-To: <20060126032713.GA9984@miraclelinux.com>
+User-Agent: Mutt/1.5.9i
+From: mita@miraclelinux.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 26, 2006 at 01:35:17PM +1100, Keith Owens wrote:
-> Ashok Raj (on Wed, 25 Jan 2006 12:02:53 -0800) wrote:
-> >There is 
-> >one another about init/main.c that i cant exactly zero in. (partly 
-> >because i dont know how to interpret the data thats spewed out of the tool).
-> >
-> >If there is a small example on how to co-related the data and find the culprit
-> >would be real handy. 
-> >
-> >Maybe Keith could help parse/give an example for me.
-> 
-> # reference_init.pl
-> Error: init/main.o .text refers to 00000000000001dc R_X86_64_PC32     .init.data+0x000000000000015b
-> 
+This patch introduces the C-language equivalent of the function:
+unsigned long hweight64(__u64 w);
 
-Awesome annotation... thanks very much keith... 
+HAVE_ARCH_HWEIGHT64_BITOPS is defined when the architecture has its own
+version of these functions.
+
+This code largely copied from:
+include/linux/bitops.h
+
+Index: 2.6-git/include/asm-generic/bitops.h
+===================================================================
+--- 2.6-git.orig/include/asm-generic/bitops.h	2006-01-25 19:14:11.000000000 +0900
++++ 2.6-git/include/asm-generic/bitops.h	2006-01-25 19:14:11.000000000 +0900
+@@ -491,6 +491,25 @@
+ 
+ #endif /* HAVE_ARCH_HWEIGHT_BITOPS */
+ 
++#ifndef HAVE_ARCH_HWEIGHT64_BITOPS
++
++static inline unsigned long hweight64(__u64 w)
++{
++#if BITS_PER_LONG < 64
++	return hweight32((unsigned int)(w >> 32)) + hweight32((unsigned int)w);
++#else
++	u64 res;
++	res = (w & 0x5555555555555555ul) + ((w >> 1) & 0x5555555555555555ul);
++	res = (res & 0x3333333333333333ul) + ((res >> 2) & 0x3333333333333333ul);
++	res = (res & 0x0F0F0F0F0F0F0F0Ful) + ((res >> 4) & 0x0F0F0F0F0F0F0F0Ful);
++	res = (res & 0x00FF00FF00FF00FFul) + ((res >> 8) & 0x00FF00FF00FF00FFul);
++	res = (res & 0x0000FFFF0000FFFFul) + ((res >> 16) & 0x0000FFFF0000FFFFul);
++	return (res & 0x00000000FFFFFFFFul) + ((res >> 32) & 0x00000000FFFFFFFFul);
++#endif
++}
++
++#endif /* HAVE_ARCH_HWEIGHT64_BITOPS */
++
+ #endif /* __KERNEL__ */
+ 
+ #endif /* _ASM_GENERIC_BITOPS_H */

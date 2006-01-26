@@ -1,156 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751379AbWAZTrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751381AbWAZTr5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751379AbWAZTrg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 14:47:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWAZTrg
+	id S1751381AbWAZTr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 14:47:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751382AbWAZTr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 14:47:36 -0500
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:58485 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751379AbWAZTrf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 14:47:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type;
-  b=G69CUbmMHU0Z1hAqgr5/sxWyHYjkracah5PoRQbyg93O+ONUPX1UxevcsAosjyclb7F4M2iFq3aABBlMnnIHt9f47gm7GyJpUtL3NVZ9ks01NZXyGMg15tr+oOHV9b/KDHGhUuwCc8vmrio3MUE6YOPpFcToJVTsrhrMnO/+Aiw=  ;
-Message-ID: <43D92754.4090007@yahoo.com.au>
-Date: Fri, 27 Jan 2006 06:47:32 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1-mm3
-References: <20060124232406.50abccd1.akpm@osdl.org>	 <6bffcb0e0601250340x6ca48af0w@mail.gmail.com>	 <43D7A047.3070004@yahoo.com.au> <6bffcb0e0601261102j7e0a5d5av@mail.gmail.com>
-In-Reply-To: <6bffcb0e0601261102j7e0a5d5av@mail.gmail.com>
-Content-Type: multipart/mixed;
- boundary="------------070206030602020005070205"
+	Thu, 26 Jan 2006 14:47:57 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:7050 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S1751381AbWAZTr4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 14:47:56 -0500
+Date: Thu, 26 Jan 2006 20:47:55 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       "Alan Cox <alan@lxorguk.ukuu.org.uk> Dave Hansen" 
+	<haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: RFC: Multiple instances of kernel namespaces.
+Message-ID: <20060126194755.GA20473@MAIL.13thfloor.at>
+Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
+	"Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+	"Alan Cox <alan@lxorguk.ukuu.org.uk> Dave Hansen" <haveblue@us.ibm.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+	Hubertus Franke <frankeh@watson.ibm.com>,
+	Cedric Le Goater <clg@fr.ibm.com>
+References: <43CD32F0.9010506@FreeBSD.org> <1137521557.5526.18.camel@localhost.localdomain> <1137522550.14135.76.camel@localhost.localdomain> <1137610912.24321.50.camel@localhost.localdomain> <1137612537.3005.116.camel@laptopd505.fenrus.org> <1137613088.24321.60.camel@localhost.localdomain> <1137624867.1760.1.camel@localhost.localdomain> <m1bqy6oevn.fsf_-_@ebiederm.dsl.xmission.com> <20060120201353.GA13265@sergelap.austin.ibm.com> <m13bjhoq1r.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m13bjhoq1r.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070206030602020005070205
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Michal Piotrowski wrote:
-> Hi,
+On Sat, Jan 21, 2006 at 03:04:16AM -0700, Eric W. Biederman wrote:
+> "Serge E. Hallyn" <serue@us.ibm.com> writes:
 > 
-> On 25/01/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> > Quoting Eric W. Biederman (ebiederm@xmission.com):
+> >> 
+> >> At this point I have to confess I have been working on something
+> >> similar, to IBM's pid virtualization work.  But I have what is at
+> >> least for me a unifying concept, that makes things easier to think
+> >> about.
+> >> 
+> >> The idea is to think about things in terms of namespaces.  Currently
+> >> in the kernel we have the fs/mount namespace already implemented.
+> >> 
+> >> Partly this helps on what the interface for creating a new namespace
+> >> instance should be.  'clone(CLONE_NEW<NAMESPACE_TYPE>)', and how
+> >> it should be managed from the kernel data structures.
+> >> 
+> >> Partly thinking of things as namespaces helps me scope the problem.
+> >> 
+> >> Does this sound like a sane approach?
+> >
+> > And a bonus of this is that for security and vserver-type applications,
+> > the CLONE_NEWPID and CLONE_NEWFS will often happen at the same time.
+> >
+> > How do you (or do you?) address naming namespaces?  This would be
+> > necessary for transitioning into an existing namespace, performing
+> > actions on existing namespaces (i.e. checkpoint, migrate to another
+> > machine, enter the namespace and kill pid 521), and would just be
+> > useful for accounting purposes, i.e. how else do you have a
+> > "ps --all-namespaces" specify a process' namespace?
 > 
->>Hi,
->>
->>Michal Piotrowski wrote:
->>
->>>------------[ cut here ]------------
->>>kernel BUG at /usr/src/linux-mm/include/linux/mm.h:302!
->>>invalid opcode: 0000 [#1]
->>>PREEMPT SMP DEBUG_PAGEALLOC
->>>last sysfs file: /class/vc/vcsa7/dev
->>>Modules linked in: binfmt_misc thermal fan processor ipv6 w83627hf
->>>hwmon_vid hwmon i2c_isa snd_intel8x0 snd_ac97_codec snd_ac97_bus
->>>sk98lin snd_pcm_oss snd_mixer_oss skge intel_agp snd_pcm snd_timer snd
->>>soundcore i2c_i801 parport_pc parport snd_page_alloc 8250_pnp 8250
->>>serial_core agpgart rtc ide_cd cdrom hw_random unix
->>>CPU:    0
->>>EIP:    0060:[<b013fe81>]    Not tainted VLI
->>>EFLAGS: 00210246   (2.6.16-rc1-mm3 #1)
->>>EIP is at release_pages+0x33/0x15e
->>
->>Is it repeatable?
->>
->>If so, I'd imagine it must be a specific driver page which is not properly
->>refcounted somewhere. A bug in generic code would have shown up elsewhere
->>by now.
->>
->>Can you try something like the attached patch and see what it gives you?
->>
+> So I address naming indirectly.  The last thing I want to have
+> is to add yet another namespace to the kernel for naming namespaces.
+> We have enough namespaces already.
+> 
+> In any sane context for a pid-namespace we need a pid that
+> we can call waitpid on, so we don't break the process tree.
+> Which means at least the init process has 2 pids, one
+> that it's parent sees, and another (1) that it and it's
+> children see.
+> 
+> So I name pidspaces like we do sessions of process groups
+> and sessions by the pid of the leader.
+> 
+> So in the simple case I have names like:
+> 1178/1632
 
-Thanks, it confirms my suspicions.
+which is a new namespace in itself, but it doesn't matter
+as long as it uniquely and persistently identifies the
+namespace for the time it exists ... just leaves the
+question how to retrieve a list of all namespaces :)
 
-Can you try the following patch, please?
-It appears the warnings were brought out by my improvement to
-the put_page_testzero debugging code (which previously did not
-check that we might be attempting to free a constituent compound
-page).
+> > Doubt we want to add an argument to clone(), so do we just add a new
+> > proc, sysfs, or syscall for setting a pid-namespace name?
+> 
+> That shouldn't be necessary.
+> 
+> > Do we need a new syscall for transitioning into an existing namespace?
+> 
+> That is a good question.  The FS namespaces that we already have
+> has much the same problem.  A completely different solution to
+> this problem seems to have been implemented but I don't grasp it
+> yet.
+> 
+> Inherently transitioning to an existing namespace is something
+> that is straight forward to implement, so it is worth thinking
+> about.
+> 
+> If I want a guest that can keep secrets from the host sysadmin I don't
+> want transitioning into a guest namespace to come too easily.
 
-Can you test the following patch please?
+which can easily be achieved by 'marking' the namespace
+as private and/or applying certain rules/checks to the
+'enter' procedure ...
 
--- 
-SUSE Labs, Novell Inc.
+best,
+Herbert
 
---------------070206030602020005070205
-Content-Type: text/plain;
- name="mm-debug-refcount.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mm-debug-refcount.patch"
-
-Index: linux-2.6/include/linux/mm.h
-===================================================================
---- linux-2.6.orig/include/linux/mm.h
-+++ linux-2.6/include/linux/mm.h
-@@ -15,6 +15,7 @@
- #include <linux/prio_tree.h>
- #include <linux/fs.h>
- #include <linux/mutex.h>
-+#include <linux/kallsyms.h>
- 
- struct mempolicy;
- struct anon_vma;
-@@ -264,6 +265,8 @@ struct page {
- 	void *virtual;			/* Kernel virtual address (NULL if
- 					   not kmapped, ie. highmem) */
- #endif /* WANT_PAGE_VIRTUAL */
-+
-+	void *debug;
- };
- 
- #define page_private(page)		((page)->private)
-@@ -294,8 +297,14 @@ struct page {
-  */
- static inline int put_page_testzero(struct page *page)
- {
--	BUG_ON(atomic_read(&page->_count) == 0);
--	return atomic_dec_and_test(&page->_count);
-+	if (unlikely(atomic_read(&page->_count) == 0)) {
-+		printk(KERN_WARNING "put_page_testzero found free page (flags = %lx)\n", page->flags);
-+		if (page->debug)
-+			print_symbol(KERN_WARNING "nopage is %s\n", (unsigned long)page->debug);
-+		WARN_ON(1);
-+		return 0;
-+	} else
-+		return atomic_dec_and_test(&page->_count);
- }
- 
- /*
-Index: linux-2.6/mm/memory.c
-===================================================================
---- linux-2.6.orig/mm/memory.c
-+++ linux-2.6/mm/memory.c
-@@ -2056,6 +2056,8 @@ retry:
- 	if (new_page == NOPAGE_OOM)
- 		return VM_FAULT_OOM;
- 
-+	new_page->debug = (struct address_space *)vma->vm_ops->nopage;
-+
- 	/*
- 	 * Should we do an early C-O-W break?
- 	 */
-Index: linux-2.6/mm/page_alloc.c
-===================================================================
---- linux-2.6.orig/mm/page_alloc.c
-+++ linux-2.6/mm/page_alloc.c
-@@ -521,6 +521,8 @@ static int prep_new_page(struct page *pa
- 	if (PageReserved(page))
- 		return 1;
- 
-+	page->debug = NULL;
-+
- 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
- 			1 << PG_referenced | 1 << PG_arch_1 |
- 			1 << PG_checked | 1 << PG_mappedtodisk);
-
---------------070206030602020005070205--
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> Currently I can always just create an extra child of pid 1
+> that I will be my slave.  The problem is that this is an extra
+> process laying around.
+> 
+> Eric
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

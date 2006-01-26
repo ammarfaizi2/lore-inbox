@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbWAZXQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbWAZXPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030220AbWAZXQK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 18:16:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbWAZXQK
+	id S1030203AbWAZXPw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 18:15:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030219AbWAZXPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 18:16:10 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:43735 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1030220AbWAZXQH (ORCPT
+	Thu, 26 Jan 2006 18:15:52 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:55985 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030203AbWAZXPv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 18:16:07 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [ 01/23] [Suspend2] Make workqueues freezeable.
-Date: Fri, 27 Jan 2006 00:17:18 +0100
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>
-References: <20060126034518.3178.55397.stgit@localhost.localdomain> <20060126034527.3178.99591.stgit@localhost.localdomain>
-In-Reply-To: <20060126034527.3178.99591.stgit@localhost.localdomain>
+	Thu, 26 Jan 2006 18:15:51 -0500
+Date: Thu, 26 Jan 2006 15:15:34 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Matthew Dobson <colpatch@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, sri@us.ibm.com, andrea@suse.de,
+       pavel@suse.cz, linux-mm@kvack.org
+Subject: Re: [patch 3/9] mempool - Make mempools NUMA aware
+In-Reply-To: <43D953C4.5020205@us.ibm.com>
+Message-ID: <Pine.LNX.4.62.0601261511520.18716@schroedinger.engr.sgi.com>
+References: <20060125161321.647368000@localhost.localdomain>
+ <1138233093.27293.1.camel@localhost.localdomain>
+ <Pine.LNX.4.62.0601260953200.15128@schroedinger.engr.sgi.com>
+ <43D953C4.5020205@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601270017.18773.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 26 Jan 2006, Matthew Dobson wrote:
 
-On Thursday, 26 January 2006 04:45, Nigel Cunningham wrote:
-> 
-> Prior to this patch, kernel threads and workqueues are unconditionally
-> unfreezeable. This patch reverses that behaviour, making the default
-> for kernel processes to be frozen. New variations of the routines for
-> starting kernel threads and workqueues (containing _nofreeze_) allow
-> threads that need to run during suspend to be made nofreeze again.
+> Not all requests for memory from a specific node are performance
+> enhancements, some are for correctness.  With large machines, especially as
 
-This looks like "let's make everything freezable and hunt for things that
-must not be frozen" kind of approach, but isn't it error-prone?  I mean,
-for example, if someone creates a kernel thread that in fact must not
-be frozen, but forgets to use the _nofreeze_ call, things will break for
-some people and the problem will be worse than the current one,
-it seems.
+alloc_pages_node and friends do not guarantee allocation on that specific 
+node. That argument for "correctness" is bogus.
 
-Greetings,
-Rafael
+> > You do not need this.... 
+> I do not agree...
+
+There is no way that you would need this patch.
+
+

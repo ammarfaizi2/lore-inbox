@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbWAZHOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWAZHVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750965AbWAZHOa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 02:14:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750958AbWAZHO3
+	id S1750798AbWAZHVV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 02:21:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbWAZHVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 02:14:29 -0500
-Received: from nproxy.gmail.com ([64.233.182.196]:12269 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750796AbWAZHO3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 02:14:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NQgapaInLmiSNxYkcHQqqm8cp/KGabNbBanQ09/kl1vxS9kezHBO23lhApgmOXbQsUNCOxigluOU9es2En/bSz5/nqO82ySn2cwrsbDJsCIzKhJtf10hj0f4j2o7MGFzWG+s90jtU6SVJ9/YowJXk30QNT7M3khHPUYBau/nEAc=
-Message-ID: <84144f020601252303x7e2a75c6rdfe789d3477d9317@mail.gmail.com>
-Date: Thu, 26 Jan 2006 09:03:55 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Andy Whitcroft <apw@shadowen.org>
-Subject: Re: 2.6.16-rc1-mm3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <43D7E83D.7040603@shadowen.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060124232406.50abccd1.akpm@osdl.org>
-	 <43D785E1.4020708@shadowen.org>
-	 <84144f020601250644h6ca4e407q2e15aa53b50ef509@mail.gmail.com>
-	 <43D7AB49.2010709@shadowen.org> <1138212981.8595.6.camel@localhost>
-	 <43D7E83D.7040603@shadowen.org>
+	Thu, 26 Jan 2006 02:21:21 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:10166 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750798AbWAZHVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 02:21:21 -0500
+Subject: Re: [PATCH 4/4] pmap: reduced permissions
+From: Arjan van de Ven <arjan@infradead.org>
+To: Albert Cahalan <acahalan@gmail.com>
+Cc: Nix <nix@esperi.org.uk>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+       "Jakub Jelinek <jakub@redhat.com> Al Viro" <viro@ftp.linux.org.uk>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <787b0d920601251745n72811696p129396f1279a4a82@mail.gmail.com>
+References: <200601222219.k0MMJ3Qg209555@saturn.cs.uml.edu>
+	 <1137996654.2977.0.camel@laptopd505.fenrus.org>
+	 <787b0d920601230128o5a12513fjae3708e3fb552dca@mail.gmail.com>
+	 <1138009305.2977.28.camel@laptopd505.fenrus.org>
+	 <787b0d920601230220r5c7df60dk142d1d637ab4ed48@mail.gmail.com>
+	 <87r76vrhsj.fsf@amaterasu.srvr.nix>
+	 <787b0d920601251745n72811696p129396f1279a4a82@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 26 Jan 2006 08:21:16 +0100
+Message-Id: <1138260076.2976.2.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andy,
 
-Pekka Enberg wrote:
-> > Does vanilla 2.6.16-rc1 work for you? The oops definitely makes me think
-> > it's slab related but the other patches don't seem likely suspects.
+> It's bad enough that procps has to suffer the overhead of
+> parsing all that nasty text. The thought of every app doing
+> that, automatically via gcc+glibc, is truly horrifying.
 
-On 1/25/06, Andy Whitcroft <apw@shadowen.org> wrote:
-> None of the other patches you suggested seem to be it either :/.  Yes
-> 2.6.16-rc1 was ok on the boxs in question.
+well it's rare. The %n printf argument is... almost never used. 
 
-Then I dont see how it could be slab related. At this point, the only
-suggestion I have is bisecting akpm-style:
-
-http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
-
-Thanks!
-
-                                     Pekka

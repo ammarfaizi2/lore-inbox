@@ -1,98 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWAZT3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWAZTdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751366AbWAZT3P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 14:29:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWAZT3P
+	id S1751196AbWAZTdq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 14:33:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWAZTdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 14:29:15 -0500
-Received: from uproxy.gmail.com ([66.249.92.204]:49567 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751366AbWAZT3O convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 14:29:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=hWEo/NoSEiAbUM99vS6fHWxpvIpoYCTP2/8laQtfJTzsxMCJM26yLCReocbe88tdGbpLbjg37JHnZE7eM1FEFbKMRkJjb0rKTjyshhd+WcuWEpecLVgtPYTuQ4JlLUtJLyGpjAAeVx1x/Upnv1/ijfV16KE2E913wO4QcpxzZUU=
-Date: Thu, 26 Jan 2006 20:28:32 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Olivier Galibert <galibert@pobox.com>
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-Id: <20060126202832.baa824b6.diegocg@gmail.com>
-In-Reply-To: <20060126182818.GA44822@dspnet.fr.eu.org>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
-	<43D7A7F4.nailDE92K7TJI@burner>
-	<8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
-	<43D7B1E7.nailDFJ9MUZ5G@burner>
-	<20060125230850.GA2137@merlin.emma.line.org>
-	<43D8C04F.nailE1C2X9KNC@burner>
-	<20060126161028.GA8099@suse.cz>
-	<20060126175506.GA32972@dspnet.fr.eu.org>
-	<20060126181034.GA9694@suse.cz>
-	<20060126182818.GA44822@dspnet.fr.eu.org>
-X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
+	Thu, 26 Jan 2006 14:33:46 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:47571 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751196AbWAZTdp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 14:33:45 -0500
+Date: Thu, 26 Jan 2006 11:33:17 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/2] rcu batch tuning
+Message-ID: <20060126193317.GD6182@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060126184010.GD4166@in.ibm.com> <20060126184127.GE4166@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060126184127.GE4166@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 26 Jan 2006 19:28:18 +0100,
-Olivier Galibert <galibert@pobox.com> escribió:
+On Fri, Jan 27, 2006 at 12:11:27AM +0530, Dipankar Sarma wrote:
+> 
+> This patch adds new tunables for RCU queue and finished batches.
+> There are two types of controls - number of completed RCU updates
+> invoked in a batch (blimit) and monitoring for high rate of
+> incoming RCUs on a cpu (qhimark, qlowmark). By default,
+> the per-cpu batch limit is set to a small value. If
+> the input RCU rate exceeds the high watermark, we do two things -
+> force quiescent state on all cpus and set the batch limit
+> of the CPU to INTMAX. Setting batch limit to INTMAX forces all
+> finished RCUs to be processed in one shot. If we have more than
+> INTMAX RCUs queued up, then we have bigger problems anyway.
+> Once the incoming queued RCUs fall below the low watermark, the batch limit
+> is set to the default.
 
-> - find the devices, what should I scan/filter on.  udev seems likes it
->   needs to run a program (/sbin/cdrom_id) or scan
->   /proc/sys/dev/cdrom/info just to know if a device is a cdrom...
+Looks good to me!  We might have to have more sophisticated adjustment
+of blimit, but starting simple is definitely the right way to go.
 
-Not at all - /sys/devices/pci0000:00/0000:00:0f.1/ide1/1.0/media 
-tells that in my box. cdrom_id is, AFAICS, a way to find the
-capabilities of the drive (ie, look if it's a cdrom or a dvd, etc)
+						Thanx, Paul
 
-You can get the info even with a fancy output:
-
-root@estel# systool -v -b ide
-Bus = "ide"
-
-  Device = "0.0"
-  Device path = "/sys/devices/pci0000:00/0000:00:0f.1/ide0/0.0"
-    drivename           = "hda"
-    media               = "disk"
-    modalias            = "ide:m-disk"
-    uevent              = <store method only>
-
-  Device = "1.0"
-  Device path = "/sys/devices/pci0000:00/0000:00:0f.1/ide1/1.0"
-    drivename           = "hdc"
-    media               = "cdrom"
-    modalias            = "ide:m-cdrom"
-    uevent              = <store method only>
-
-I guess the cdrom driver could in the future be taught to export
-more data (the previus cdrom drive is really a dvd drive...) to 
-the sysfs interface to know if it's a dvd so that cdrom_id is 
-unnecesary in some cases.
-
-
-
-> - find the /dev name associated to a sysfs-found device.
-
-HAL tells you that the sysfs path associated to a device.
-
-root@estel # hal-get-property --udi '/org/freedesktop/Hal/devices/block_HL-DT-ST DVDRAM GSA-4163B-K01544H0250' --key 'block.device'
-/dev/cd-rw
-root@estel #
-
-(yes, that "udi" path sucks)
-
-
-> /dev/cdrw*, /dev/dvd*, /dev/dvdrw*.  Fedora core 3 creates
-> /dev/cdrom*, /dev/cdwriter*, /dev/dvd*, /dev/dvdwriter*.  I guess from
-> your email that SuSE does /dev/cdrecorder*.  And I'm not able to
-> guess what fedora core 5, mandrake, debian, slackware and infinite
-> number of derivatives do.
-
-Although that sucks, IMO the whole point of udev/hal & friends is to
-be able to make programs work regardless of what the name of the device
-is (or at least, if I had to use a program, I would like that the program
-design is good enought that it just ask the system what cd recorders are
-connected to the system).
+Acked-by: <paulmck@us.ibm.com>
+> Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+> ---
+> 
+> 
+>  include/linux/rcupdate.h |    6 +++
+>  kernel/rcupdate.c        |   76 +++++++++++++++++++++++++++++++++++------------
+>  2 files changed, 63 insertions(+), 19 deletions(-)
+> 
+> diff -puN include/linux/rcupdate.h~rcu-batch-tuning include/linux/rcupdate.h
+> --- linux-2.6.16-rc1-rcu/include/linux/rcupdate.h~rcu-batch-tuning	2006-01-25 00:09:54.000000000 +0530
+> +++ linux-2.6.16-rc1-rcu-dipankar/include/linux/rcupdate.h	2006-01-25 01:07:39.000000000 +0530
+> @@ -98,13 +98,17 @@ struct rcu_data {
+>  	long  	       	batch;           /* Batch # for current RCU batch */
+>  	struct rcu_head *nxtlist;
+>  	struct rcu_head **nxttail;
+> -	long            count; /* # of queued items */
+> +	long            qlen; 	 	 /* # of queued callbacks */
+>  	struct rcu_head *curlist;
+>  	struct rcu_head **curtail;
+>  	struct rcu_head *donelist;
+>  	struct rcu_head **donetail;
+> +	long		blimit;		 /* Upper limit on a processed batch */
+>  	int cpu;
+>  	struct rcu_head barrier;
+> +#ifdef CONFIG_SMP
+> +	long		last_rs_qlen;	 /* qlen during the last resched */
+> +#endif
+>  };
+>  
+>  DECLARE_PER_CPU(struct rcu_data, rcu_data);
+> diff -puN kernel/rcupdate.c~rcu-batch-tuning kernel/rcupdate.c
+> --- linux-2.6.16-rc1-rcu/kernel/rcupdate.c~rcu-batch-tuning	2006-01-25 00:09:54.000000000 +0530
+> +++ linux-2.6.16-rc1-rcu-dipankar/kernel/rcupdate.c	2006-01-25 23:08:03.000000000 +0530
+> @@ -67,7 +67,43 @@ DEFINE_PER_CPU(struct rcu_data, rcu_bh_d
+>  
+>  /* Fake initialization required by compiler */
+>  static DEFINE_PER_CPU(struct tasklet_struct, rcu_tasklet) = {NULL};
+> -static int maxbatch = 10000;
+> +static int blimit = 10;
+> +static int qhimark = 10000;
+> +static int qlowmark = 100;
+> +#ifdef CONFIG_SMP
+> +static int rsinterval = 1000;
+> +#endif
+> +
+> +static atomic_t rcu_barrier_cpu_count;
+> +static struct semaphore rcu_barrier_sema;
+> +static struct completion rcu_barrier_completion;
+> +
+> +#ifdef CONFIG_SMP
+> +static void force_quiescent_state(struct rcu_data *rdp,
+> +			struct rcu_ctrlblk *rcp)
+> +{
+> +	int cpu;
+> +	cpumask_t cpumask;
+> +	set_need_resched();
+> +	if (unlikely(rdp->qlen - rdp->last_rs_qlen > rsinterval)) {
+> +		rdp->last_rs_qlen = rdp->qlen;
+> +		/*
+> +		 * Don't send IPI to itself. With irqs disabled,
+> +		 * rdp->cpu is the current cpu.
+> +		 */
+> +		cpumask = rcp->cpumask;
+> +		cpu_clear(rdp->cpu, cpumask);
+> +		for_each_cpu_mask(cpu, cpumask)
+> +			smp_send_reschedule(cpu);
+> +	}
+> +}
+> +#else 
+> +static inline void force_quiescent_state(struct rcu_data *rdp,
+> +			struct rcu_ctrlblk *rcp)
+> +{
+> +	set_need_resched();
+> +}
+> +#endif
+>  
+>  /**
+>   * call_rcu - Queue an RCU callback for invocation after a grace period.
+> @@ -92,17 +128,13 @@ void fastcall call_rcu(struct rcu_head *
+>  	rdp = &__get_cpu_var(rcu_data);
+>  	*rdp->nxttail = head;
+>  	rdp->nxttail = &head->next;
+> -
+> -	if (unlikely(++rdp->count > 10000))
+> -		set_need_resched();
+> -
+> +	if (unlikely(++rdp->qlen > qhimark)) {
+> +		rdp->blimit = INT_MAX;
+> +		force_quiescent_state(rdp, &rcu_ctrlblk);
+> +	}
+>  	local_irq_restore(flags);
+>  }
+>  
+> -static atomic_t rcu_barrier_cpu_count;
+> -static struct semaphore rcu_barrier_sema;
+> -static struct completion rcu_barrier_completion;
+> -
+>  /**
+>   * call_rcu_bh - Queue an RCU for invocation after a quicker grace period.
+>   * @head: structure to be used for queueing the RCU updates.
+> @@ -131,12 +163,12 @@ void fastcall call_rcu_bh(struct rcu_hea
+>  	rdp = &__get_cpu_var(rcu_bh_data);
+>  	*rdp->nxttail = head;
+>  	rdp->nxttail = &head->next;
+> -	rdp->count++;
+> -/*
+> - *  Should we directly call rcu_do_batch() here ?
+> - *  if (unlikely(rdp->count > 10000))
+> - *      rcu_do_batch(rdp);
+> - */
+> +
+> +	if (unlikely(++rdp->qlen > qhimark)) {
+> +		rdp->blimit = INT_MAX;
+> +		force_quiescent_state(rdp, &rcu_bh_ctrlblk);
+> +	}
+> +
+>  	local_irq_restore(flags);
+>  }
+>  
+> @@ -199,10 +231,12 @@ static void rcu_do_batch(struct rcu_data
+>  		next = rdp->donelist = list->next;
+>  		list->func(list);
+>  		list = next;
+> -		rdp->count--;
+> -		if (++count >= maxbatch)
+> +		rdp->qlen--;
+> +		if (++count >= rdp->blimit)
+>  			break;
+>  	}
+> +	if (rdp->blimit == INT_MAX && rdp->qlen <= qlowmark)
+> +		rdp->blimit = blimit;
+>  	if (!rdp->donelist)
+>  		rdp->donetail = &rdp->donelist;
+>  	else
+> @@ -473,6 +507,7 @@ static void rcu_init_percpu_data(int cpu
+>  	rdp->quiescbatch = rcp->completed;
+>  	rdp->qs_pending = 0;
+>  	rdp->cpu = cpu;
+> +	rdp->blimit = blimit;
+>  }
+>  
+>  static void __devinit rcu_online_cpu(int cpu)
+> @@ -567,7 +602,12 @@ void synchronize_kernel(void)
+>  	synchronize_rcu();
+>  }
+>  
+> -module_param(maxbatch, int, 0);
+> +module_param(blimit, int, 0);
+> +module_param(qhimark, int, 0);
+> +module_param(qlowmark, int, 0);
+> +#ifdef CONFIG_SMP
+> +module_param(rsinterval, int, 0);
+> +#endif
+>  EXPORT_SYMBOL_GPL(rcu_batches_completed);
+>  EXPORT_SYMBOL(call_rcu);  /* WARNING: GPL-only in April 2006. */
+>  EXPORT_SYMBOL(call_rcu_bh);  /* WARNING: GPL-only in April 2006. */
+> 
+> _
+> 

@@ -1,59 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWAZDuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbWAZDuN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWAZDuV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 22:50:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWAZDuP
+	id S932236AbWAZDuN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 22:50:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbWAZDtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 22:50:15 -0500
-Received: from [202.53.187.9] ([202.53.187.9]:26347 "EHLO
+	Wed, 25 Jan 2006 22:49:45 -0500
+Received: from [202.53.187.9] ([202.53.187.9]:19435 "EHLO
 	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932235AbWAZDtq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 22:49:46 -0500
+	id S932235AbWAZDtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 22:49:19 -0500
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [ 23/23] [Suspend2] Don't scan LRU while freezer is on.
-Date: Thu, 26 Jan 2006 13:46:12 +1000
+Subject: [ 09/23] [Suspend2] Quieten the freezer for normal operation.
+Date: Thu, 26 Jan 2006 13:45:46 +1000
 To: linux-kernel@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060126034612.3178.23890.stgit@localhost.localdomain>
+Message-Id: <20060126034545.3178.72508.stgit@localhost.localdomain>
 In-Reply-To: <20060126034518.3178.55397.stgit@localhost.localdomain>
 References: <20060126034518.3178.55397.stgit@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Stop processes from initiating scanning of the LRU while the freezer is on.
-This is primarily for the benefit of Suspend2, which could conceivably
-trigger LRU scanning through this path while writing the image, and would
-thus generate an inconsistent image and through it all sorts of trouble.
+Quieten the freezer by replacing printks with a local #define
+that can be enabled if and when debugging is needed.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- mm/page_alloc.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+ kernel/power/process.c |   19 +++++++++++++------
+ 1 files changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index f9151b9..713d773 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -25,6 +25,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
+diff --git a/kernel/power/process.c b/kernel/power/process.c
+index 6da0445..09fc9ca 100644
+--- a/kernel/power/process.c
++++ b/kernel/power/process.c
+@@ -33,6 +33,13 @@
  #include <linux/suspend.h>
-+#include <linux/freezer.h>
- #include <linux/pagevec.h>
- #include <linux/blkdev.h>
- #include <linux/slab.h>
-@@ -957,8 +958,8 @@ restart:
+ #include <linux/module.h>
  
- 	/* This allocation should allow future memory freeing. */
++#if 0
++//#ifdef CONFIG_PM_DEBUG
++#define freezer_message(msg, a...) do { printk(msg, ##a); } while(0)
++#else
++#define freezer_message(msg, a...) do { } while(0)
++#endif
++
+ /* 
+  * Timeout for stopping processes
+  */
+@@ -67,7 +74,7 @@ static int freeze_process(struct notifie
+ 	current->flags |= PF_FROZEN;
+ 	notifier_chain_unregister(&current->todo, nl);
+ 	kfree(nl);
+-	printk("=");
++	freezer_message("=");
  
--	if (((p->flags & PF_MEMALLOC) || unlikely(test_thread_flag(TIF_MEMDIE)))
--			&& !in_interrupt()) {
-+	if ((((p->flags & PF_MEMALLOC) || unlikely(test_thread_flag(TIF_MEMDIE))) && 
-+				!in_interrupt()) || (test_freezer_state(FREEZER_ON))) {
- 		if (!(gfp_mask & __GFP_NOMEMALLOC)) {
- nofail_alloc:
- 			/* go through the zonelist yet again, ignoring mins */
+ 	spin_lock_irq(&current->sighand->siglock);
+ 	recalc_sigpending(); /* We sent fake signal, clean it up */
+@@ -84,11 +91,11 @@ static int freeze_process(struct notifie
+ 
+ void thaw_processes(void)
+ {
+-	printk("Restarting tasks..");
++	freezer_message("Restarting tasks..");
+ 	complete_all(&thaw);
+ 	while (atomic_read(&nr_frozen) > 0)
+ 		schedule();
+-	printk("done\n");
++	freezer_message("done\n");
+ }
+ 
+ static inline void freeze(struct task_struct *p)
+@@ -127,7 +134,7 @@ int freeze_processes(void)
+ 	atomic_set(&nr_frozen, 0);
+ 	INIT_COMPLETION(thaw);
+ 
+-	printk("Stopping tasks: ");
++	freezer_message("Stopping tasks: ");
+ 	start_time = jiffies;
+ 	do {
+ 		todo = 0;
+@@ -142,7 +149,7 @@ int freeze_processes(void)
+ 		read_unlock(&tasklist_lock);
+ 		yield();			/* Yield is okay here */
+ 		if (todo && time_after(jiffies, start_time + TIMEOUT)) {
+-			printk("\n");
++			freezer_message("\n");
+ 			printk(KERN_ERR " stopping tasks failed"
+ 					"(%d tasks remaining)\n",
+ 					todo - atomic_read(&nr_frozen));
+@@ -151,7 +158,7 @@ int freeze_processes(void)
+ 		}
+ 	} while (atomic_read(&nr_frozen) < todo);
+ 
+-	printk("|\n");
++	freezer_message("|\n");
+ 	BUG_ON(in_atomic());
+ 	return 0;
+ }
 
 --
 Nigel Cunningham		nigel at suspend2 dot net

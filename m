@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWAZDeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWAZDfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbWAZDeK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 22:34:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWAZDeK
+	id S1751316AbWAZDfM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 22:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbWAZDfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 22:34:10 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:9189 "EHLO
+	Wed, 25 Jan 2006 22:35:12 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:14053 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1751308AbWAZDeJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 22:34:09 -0500
-Date: Thu, 26 Jan 2006 12:34:15 +0900
+	id S1751310AbWAZDfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 22:35:10 -0500
+Date: Thu, 26 Jan 2006 12:35:16 +0900
 To: Grant Grundler <iod00d@hp.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        linux-ia64@vger.kernel.org
-Subject: [PATCH 6/12] generic sched_find_first_bit()
-Message-ID: <20060126033415.GE11138@miraclelinux.com>
+Subject: [PATCH 7/12] generic ffs()
+Message-ID: <20060126033516.GF11138@miraclelinux.com>
 References: <20060125112625.GA18584@miraclelinux.com> <20060125113206.GD18584@miraclelinux.com> <20060125200250.GA26443@flint.arm.linux.org.uk> <20060125205907.GF9995@esmail.cup.hp.com> <20060126032713.GA9984@miraclelinux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,57 +26,63 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch introduces the C-language equivalent of the function:
-int sched_find_first_bit(const unsigned long *b);
+int ffs(int x);
 
-HAVE_ARCH_SCHED_BITOPS is defined when the architecture has its own
+HAVE_ARCH_FFS_BITOPS is defined when the architecture has its own
 version of these functions.
 
 This code largely copied from:
-include/asm-powerpc/bitops.h
+include/linux/bitops.h
+
 
 Index: 2.6-git/include/asm-generic/bitops.h
 ===================================================================
 --- 2.6-git.orig/include/asm-generic/bitops.h	2006-01-25 19:14:10.000000000 +0900
 +++ 2.6-git/include/asm-generic/bitops.h	2006-01-25 19:14:10.000000000 +0900
-@@ -383,6 +383,41 @@
+@@ -418,13 +418,45 @@
  
- #ifdef __KERNEL__
+ #endif /* HAVE_ARCH_SCHED_BITOPS */
  
-+#ifndef HAVE_ARCH_SCHED_BITOPS
-+
-+#include <linux/compiler.h>	/* unlikely() */
-+
-+/*
-+ * Every architecture must define this function. It's the fastest
-+ * way of searching a 140-bit bitmap where the first 100 bits are
-+ * unlikely to be set. It's guaranteed that at least one of the 140
-+ * bits is cleared.
-+ */
-+static inline int sched_find_first_bit(const unsigned long *b)
-+{
-+#if BITS_PER_LONG == 64
-+	if (unlikely(b[0]))
-+		return __ffs(b[0]);
-+	if (unlikely(b[1]))
-+		return __ffs(b[1]) + 64;
-+	return __ffs(b[2]) + 128;
-+#elif BITS_PER_LONG == 32
-+	if (unlikely(b[0]))
-+		return __ffs(b[0]);
-+	if (unlikely(b[1]))
-+		return __ffs(b[1]) + 32;
-+	if (unlikely(b[2]))
-+		return __ffs(b[2]) + 64;
-+	if (b[3])
-+		return __ffs(b[3]) + 96;
-+	return __ffs(b[4]) + 128;
-+#else
-+#error BITS_PER_LONG not defined
-+#endif
-+}
-+
-+#endif /* HAVE_ARCH_SCHED_BITOPS */
++#ifndef HAVE_ARCH_FFS_BITOPS
 +
  /*
   * ffs: find first bit set. This is defined the same way as
   * the libc and compiler builtin ffs routines, therefore
+  * differs in spirit from the above ffz (man ffs).
+  */
+ 
+-#define ffs(x) generic_ffs(x)
++static inline int ffs(int x)
++{
++	int r = 1;
++
++	if (!x)
++		return 0;
++	if (!(x & 0xffff)) {
++		x >>= 16;
++		r += 16;
++	}
++	if (!(x & 0xff)) {
++		x >>= 8;
++		r += 8;
++	}
++	if (!(x & 0xf)) {
++		x >>= 4;
++		r += 4;
++	}
++	if (!(x & 3)) {
++		x >>= 2;
++		r += 2;
++	}
++	if (!(x & 1)) {
++		x >>= 1;
++		r += 1;
++	}
++	return r;
++}
++
++#endif /* HAVE_ARCH_FFS_BITOPS */
++
+ 
+ /*
+  * hweightN: returns the hamming weight (i.e. the number

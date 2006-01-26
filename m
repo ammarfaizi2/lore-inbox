@@ -1,79 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWAZK4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWAZLD1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbWAZK4p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 05:56:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWAZK4o
+	id S932137AbWAZLD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 06:03:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWAZLD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 05:56:44 -0500
-Received: from nsm.pl ([62.111.143.37]:60697 "EHLO nsm.pl")
-	by vger.kernel.org with ESMTP id S932079AbWAZK4o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 05:56:44 -0500
-Date: Thu, 26 Jan 2006 11:56:40 +0100
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: rlrevell@joe-job.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de, axboe@suse.de, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060126105640.GA5608@irc.pl>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	rlrevell@joe-job.com, matthias.andree@gmx.de,
-	linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de, axboe@suse.de,
-	acahalan@gmail.com
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner> <20060125190013.GA6135@irc.pl> <43D8A3AD.nailDTH8Y1A3Z@burner>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43D8A3AD.nailDTH8Y1A3Z@burner>
-User-Agent: Mutt/1.5.4i
+	Thu, 26 Jan 2006 06:03:27 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:17089 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932137AbWAZLD1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 06:03:27 -0500
+Message-ID: <43D8AC70.70306@sirrix.de>
+Date: Thu, 26 Jan 2006 12:03:12 +0100
+From: Oskar Senft <osk-lkml@sirrix.de>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: USB host pci-quirks
+Content-Type: multipart/mixed;
+ boundary="------------050101070505020602060901"
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:701b7ca108cfd083b467aa547eda228f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 26, 2006 at 11:25:49AM +0100, Joerg Schilling wrote:
-> Tomasz Torcz <zdzichu@irc.pl> wrote:
-> 
-> > > > need to use /dev/hda, but /dev/cdrecorder or whatever. A real user would
-> > > > likely be using k3b or something graphical though, and just click on his
-> > > > Hitachi/Plextor/whatever burner. Perhaps some fancy udev rules could
-> > > > help do this dynamically even.
-> > > 
-> > > Guess why cdrecord -scanbus is needed.
-> > > 
-> > > It serves the need of GUI programs for cdrercord and allows them to retrieve 
-> > > and list possible drives of interest in a platform independent way.
-> >
-> >   GUI programs tend to retrieve this kind of info form HAL
-> > (http://freedesktop.org/wiki/Software_2fhal)
-> 
-> I am not sure what you like to tell with this.
-> 
-> Programs that depend on specific Linux behavior tend to be non-portable (see 
-> e.g. nautilus on GNOME). Nautilus tries to get e.g. the drive write speeds
-> by reading /prov/scsi/******. Besides the fact that this is not available 
-> elsewhere, it gives incorrect results because there are a lot of DVD writers 
-> with broken firmware.
+This is a multi-part message in MIME format.
+--------------050101070505020602060901
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-  This is a fallback if HAL isn't available.  Normally this is done by:
+Hi all!
 
-drive->max_speed_write = libhal_device_get_property_int
-                                (ctx, device_names [i],
-                                 "storage.cdrom.write_speed",
-                                 NULL)
-                                / CD_ROM_SPEED;
+I'm currently working with Linux in a hardware virtualization
+environment (L4 microkernel). During tests, we discovered, that there is
+some incosistency in the kernel configuration dependencies:
 
- (natilus-burn-drive.c:1368 from version 2.12.0).
+the file "drivers/usb/host/pci-quirks.c" is added to the kernel as soon
+as PCI support is activated, even if USB support is completely disabled.
 
-> Cdrecord implements workarounds for this kind of problems and for this reason, 
-> the most portable solution for a GUI is to use cdrecord to retrieve the 
-> information.
+We discovered this issue while trying to run multiple Linux instances
+simultaneously.
 
-  Yeah, sure.
-                  /* FIXME we don't have any way to guess the real device
-                   * from the info we get from CDRecord */
+Is there a special need, that the "drivers/usb/host/pci-quirks.c" is
+compiled into the kernel even if USB support is disabled?
 
- (the only FIXME in above mentioned file).
+I suggest the attached patch to resolve that problem. The file then is
+only included if PCI and USB support is enabled.
 
--- 
-Tomasz Torcz                                                       72->|   80->|
-zdzichu@irc.-nie.spam-.pl                                          72->|   80->|
+Best regards,
+Oskar.
 
+--------------050101070505020602060901
+Content-Type: text/plain;
+ name="pci_but_no_usb-2006-01-24.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pci_but_no_usb-2006-01-24.patch"
+
+--- drivers/usb/host/Makefile.orig	2006-01-24 12:28:11.000000000 +0100
++++ drivers/usb/host/Makefile	2006-01-24 12:27:38.000000000 +0100
+@@ -2,7 +2,15 @@
+ # Makefile for USB Host Controller Drivers
+ #
+ 
+-obj-$(CONFIG_PCI)		+= pci-quirks.o
++# only compile pci-quirks if PCI is enabled
++# and USB is either compiled as a module
++ifeq ($(CONFIG_USB),m)
++	obj-$(CONFIG_PCI)		+= pci-quirks.o
++endif
++# or directly into the kernel
++ifeq ($(CONFIG_USB),y)
++        obj-$(CONFIG_PCI)               += pci-quirks.o
++endif
+ 
+ obj-$(CONFIG_USB_EHCI_HCD)	+= ehci-hcd.o
+ obj-$(CONFIG_USB_ISP116X_HCD)	+= isp116x-hcd.o
+
+--------------050101070505020602060901--

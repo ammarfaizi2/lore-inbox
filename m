@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbWAZUmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWAZUm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964868AbWAZUmN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 15:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWAZUmM
+	id S964871AbWAZUm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 15:42:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964876AbWAZUm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 15:42:12 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:26250 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964868AbWAZUmL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 15:42:11 -0500
-Subject: Re: Asus P5A Reboots
-From: Arjan van de Ven <arjan@infradead.org>
-To: Simon Morgan <sjmorgan@gmail.com>
+	Thu, 26 Jan 2006 15:42:56 -0500
+Received: from soohrt.org ([85.131.246.150]:29123 "EHLO quickstop.soohrt.org")
+	by vger.kernel.org with ESMTP id S964871AbWAZUmz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 15:42:55 -0500
+Date: Thu, 26 Jan 2006 21:42:54 +0100
+From: Horst Schirmeier <horst@schirmeier.com>
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <de63970c0601261240i1770324ek@mail.gmail.com>
-References: <de63970c0601261240i1770324ek@mail.gmail.com>
-Content-Type: text/plain
-Date: Thu, 26 Jan 2006 21:42:08 +0100
-Message-Id: <1138308128.2976.109.camel@laptopd505.fenrus.org>
+Subject: Re: Badness in vsnprintf
+Message-ID: <20060126204254.GC22994@quickstop.soohrt.org>
+Mail-Followup-To: Nish Aravamudan <nish.aravamudan@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <20060126195038.GB22994@quickstop.soohrt.org> <29495f1d0601261205u62aec435xfe6f94dc998934dc@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <29495f1d0601261205u62aec435xfe6f94dc998934dc@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-26 at 20:40 +0000, Simon Morgan wrote:
+On Thu, 26 Jan 2006, Nish Aravamudan wrote:
+> On 1/26/06, Horst Schirmeier <horst@schirmeier.com> wrote:
+> > since I'm testing the 2.6.16 release candidate, I'm encountering the
+> > following problem which manifests by a reported "Badness in vsnprintf"
+> > in dmesg. The system is still usable after this event.
 > 
-> I'm having trouble running the installation for Arch 0.7.1 on an Asus
-> P5A
-> motherboard. The installation uses the 2.6.15 kernel and the problem
-> is
-> that during, or immediately after, the initrd decompression stage the
-> machine reboots.
+> I think this is also discussed here
+> http://lkml.org/lkml/2006/1/22/163. And there is a patch therein to
+> fix it (http://lkml.org/lkml/2006/1/24/237).
 
-you most likely are getting an i686 kernel, while the cpu you have is an
-AMD K6 which doesn't support the cmov instruction as used in i686
-kernels...
+Thanks, this resolves it temporarily.
 
+Kind regards,
+ Horst
+
+-- 
+PGP-Key 0xD40E0E7A

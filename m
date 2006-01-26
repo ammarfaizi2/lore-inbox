@@ -1,71 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWAZDt3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWAZDtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932253AbWAZDt3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 22:49:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWAZDt2
+	id S932195AbWAZDtE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 22:49:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWAZDtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 22:49:28 -0500
-Received: from [202.53.187.9] ([202.53.187.9]:21227 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932250AbWAZDt1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 22:49:27 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [ 13/23] [Suspend2] Add support for thawing just kernel threads or all threads.
-Date: Thu, 26 Jan 2006 13:45:53 +1000
-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Message-Id: <20060126034552.3178.99871.stgit@localhost.localdomain>
-In-Reply-To: <20060126034518.3178.55397.stgit@localhost.localdomain>
-References: <20060126034518.3178.55397.stgit@localhost.localdomain>
+	Wed, 25 Jan 2006 22:49:04 -0500
+Received: from uproxy.gmail.com ([66.249.92.199]:27406 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932195AbWAZDtC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 22:49:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PPbLqW7KS4fZaltTCYLwPhbXAgNwZspDDQ+NP99gCI8YN5DJeeWzR1Os/AJgnuAEQpZejC6NSpWqQuGzsiqUNSxOEj54NbSrFmuA+xVRw/clHlZSMgNTfyK5KL0VSNl2Cq5M8ZRhDHp2BOzjY7bZ+d/q0seKhNH62cB0L+bCRgE=
+Message-ID: <93564eb70601251949r1fb4c209t@mail.gmail.com>
+Date: Thu, 26 Jan 2006 12:49:00 +0900
+From: Samuel Masham <samuel.masham@gmail.com>
+To: davids@webmaster.com
+Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
+Cc: lkml@rtr.ca, Lee Revell <rlrevell@joe-job.com>,
+       Christopher Friesen <cfriesen@nortel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hancockr@shaw.ca
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGEJPJKAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43D8386B.6000204@rtr.ca>
+	 <MDEHLPKNGKAHNMBLJOLKGEJPJKAB.davids@webmaster.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 26/01/06, David Schwartz <davids@webmaster.com> wrote:
+>
+> > >     So you cannot write an application that can tell the difference.
+>
+> > Not true.  The code for the relinquishing thread could indeed
+> > tell the difference.
+> >
+> > -ml
+>
+>         It can tell the difference between the other thread getting the mutex first
+> and it getting the mutex first. But it cannot tell the difference between an
+> implementation that puts random sleeps before calls to 'pthread_mutex_lock'
+> and an implementation that has the allegedly non-compliant behavior. That
+> makes the behavior compliant under the 'as-if' rule.
+>
+>         If you don't believe me, try to write a program that prints 'non-compliant'
+> on a system that has the alleged non-compliance but is guaranteed not to do
+> so on any compliant system. It cannot be done.
 
-Modify the thaw_processes routine so that it takes and implements a
-parameter saying whether to thaw all processes, or just kernel space.
+Just putting priority inheritance on then in the running thread check
+your priority, if it goes up then the waiting thread in really
+waiting.
 
-Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
+Then if you can release + get the lock again its non compliant.... no?
 
- kernel/power/process.c |   25 +++++++++++++++++++------
- 1 files changed, 19 insertions(+), 6 deletions(-)
+ie    pthread_mutexattr_setprotocol(pthread_mutexattr_t *attr, int
+protocol); with PTHREAD_PRIO_INHERIT
 
-diff --git a/kernel/power/process.c b/kernel/power/process.c
-index a3aca9a..dffe645 100644
---- a/kernel/power/process.c
-+++ b/kernel/power/process.c
-@@ -182,13 +182,26 @@ static int freeze_process(struct notifie
- 	return 0;
- }
- 
--void thaw_processes(void)
-+void thaw_processes(int do_all_threads)
- {
--	freezer_message("Restarting tasks..");
--	complete_all(&thaw);
--	while (atomic_read(&nr_frozen) > 0)
--		schedule();
--	freezer_message("done\n");
-+	if (do_all_threads) {
-+		clear_freezer_state(FREEZER_ON);
-+		clear_freezer_state(ABORT_FREEZING);
-+	}
-+
-+	complete_all(&kernelspace_thaw);
-+	while (atomic_read(&nr_kernelspace_frozen) > 0)
-+		yield();
-+
-+	init_completion(&kernelspace_thaw);
-+	freezer_make_fses_rw();
-+
-+	if (do_all_threads) {
-+		complete_all(&userspace_thaw);
-+		while (atomic_read(&nr_userspace_frozen) > 0)
-+			yield();
-+		init_completion(&userspace_thaw);
-+	}
- }
- 
- static inline void freeze(struct task_struct *p)
+comment:
+As a rt person I don't like the idea of scheduler bounce so the way
+round seems to be have the mutex lock acquiring work on a FIFO like
+basis.
 
---
-Nigel Cunningham		nigel at suspend2 dot net
+
+>         In order to claim the alleged compliance, you would have to know that a
+> thread waiting for a mutex did not get it. But there is no possible way you
+> can know that another thread is waiting for the mutex (as opposed to being
+> about to wait for it). So you can never detect the claimed non-compliance,
+> so it's not non-compliance.
+>
+>         This is definitive, really. It 100% refutes the claim.
+>
+>         DS
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

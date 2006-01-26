@@ -1,63 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWAZMi3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWAZMjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbWAZMi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 07:38:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbWAZMi3
+	id S1751339AbWAZMjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 07:39:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWAZMjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 07:38:29 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:54158 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1750790AbWAZMi2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 07:38:28 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Thu, 26 Jan 2006 13:30:33 +0100
-To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de
-Cc: rlrevell@joe-job.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de, axboe@suse.de
+	Thu, 26 Jan 2006 07:39:16 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:50849 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751339AbWAZMjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 07:39:15 -0500
+Date: Thu, 26 Jan 2006 13:39:14 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: jerome.lacoste@gmail.com, axboe@suse.de, rlrevell@joe-job.com,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jengelh@linux01.gwdg.de, acahalan@gmail.com
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43D8C0E9.nailE1C31558S@burner>
-References: <1138048255.21481.15.camel@mindpipe>
- <20060123212119.GI1820@merlin.emma.line.org>
- <Pine.LNX.4.61.0601241823390.28682@yvahk01.tjqt.qr>
- <43D78585.nailD7855YVBX@burner> <20060125142155.GW4212@suse.de>
- <Pine.LNX.4.61.0601251544400.31234@yvahk01.tjqt.qr>
- <20060125145544.GA4212@suse.de> <43D7AEBF.nailDFJ7263OE@burner>
- <43D7B100.7040706@gmx.de> <43D7B345.nailDFJB1WWYF@burner>
- <20060125231957.GC2137@merlin.emma.line.org>
-In-Reply-To: <20060125231957.GC2137@merlin.emma.line.org>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Message-ID: <mj+md-20060126.122723.14374.atrey@ucw.cz>
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <5a2cf1f60601251401h2cced00ele307636e748b9a7b@mail.gmail.com> <43D8BCFE.nailE1C116RR9@burner>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43D8BCFE.nailE1C116RR9@burner>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@gmx.de> wrote:
+Hello!
 
-> Joerg Schilling schrieb am 2006-01-25:
->
-> > Matthias Andree <matthias.andree@gmx.de> wrote:
-> > 
-> > > I think we'd better call the whole discussion off.
-> > 
-> > We could continue as long as people like Jens Axboe stay reasonable.
->
-> No. The deal was people stating their requirements, not mounting
-> personal attacks against others. I posted the same question (what's
+> > Linux developers seem to see the world in a different way. Their main
+> > requirements:
+> > - compliance with the linux way of doing things
+> 
+> Which is unfortunately (in contrary to what cdrecord does) a moving target.
 
-This is why we needed to omit Jens Axboe from this discusion.
+Which is *fortunately* a moving target, because what served well 20 years
+ago is unlikely to serve equally well *now*.
 
-> lacking) several times, and your constant answer "device enumeration"
-> makes me assume that it's the only thing you believe is missing.
+Having a stable naming of devices is a good goal, but in no way restricted
+to SCSI-like devices. What you suggest works only there, what Linux currently
+uses (udev etc.) works for all devices. Guess which is better for most users.
 
-You try to go into the wrong direction by ignoring all important issues.
+> BTW: There are still many people who run Linux-2.2 and many people told me that
+> they will probably never upgrade from 2.4 to 2.6.
 
-Tell me how to access a ATAPI tape drive via libscg.
+Fine, so feel free consider Linux <2.6 and Linux 2.6 two completely
+separate operating systems. I did the same with the IP stack interface
+in the BIRD project and I consider it a very good step -- the old
+interface provided by Linux 2.0 and cluttered with BSD compatibility is
+almost unusable when compared to Netlink, but for sake of users who
+don't want to upgrade their kernel, BIRD is able to use the old one,
+though with limited functionality.
 
-Jörg
+> On Linux-2.4, cdrecord's abstraction is the only way to hide the security 
+> relevent non-stable /dev/sg* <-> device relation.
 
+OK. So welcome to year 2006. And to Linux 2.6.
+
+				Have a nice fortnight
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+How do I type 'for i in *.dvi ; do xdvi $i ; done' in a GUI?

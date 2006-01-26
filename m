@@ -1,78 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbWAZWsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbWAZWtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964966AbWAZWsl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 17:48:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964970AbWAZWsl
+	id S964972AbWAZWtP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 17:49:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbWAZWtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 17:48:41 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:9618 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964966AbWAZWsk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 17:48:40 -0500
-Message-ID: <43D951C4.8050503@us.ibm.com>
-Date: Thu, 26 Jan 2006 14:48:36 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Thu, 26 Jan 2006 17:49:14 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:60934 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964970AbWAZWtN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 17:49:13 -0500
+Date: Thu, 26 Jan 2006 23:49:11 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org,
+       James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
+Subject: [4/10] remove ISA legacy functions: drivers/scsi/in2000.c
+Message-ID: <20060126224911.GH3668@stusta.de>
+References: <20060126223126.GD3668@stusta.de>
 MIME-Version: 1.0
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-CC: linux-kernel@vger.kernel.org, sri@us.ibm.com, andrea@suse.de,
-       pavel@suse.cz, linux-mm@kvack.org
-Subject: Re: [patch 9/9] slab - Implement single mempool backing for slab
- allocator
-References: <20060125161321.647368000@localhost.localdomain>	 <1138218024.2092.9.camel@localhost.localdomain> <84144f020601260011p1e2f883fp8058eb0e2edee99f@mail.gmail.com>
-In-Reply-To: <84144f020601260011p1e2f883fp8058eb0e2edee99f@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060126223126.GD3668@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
-> Hi,
-> 
-> On 1/25/06, Matthew Dobson <colpatch@us.ibm.com> wrote:
-> 
->>-static void *kmem_getpages(kmem_cache_t *cachep, gfp_t flags, int nodeid)
->>+static void *kmem_getpages(kmem_cache_t *cachep, gfp_t flags, int nodeid,
->>+                          mempool_t *pool)
->> {
->>        struct page *page;
->>        void *addr;
->>        int i;
->>
->>        flags |= cachep->gfpflags;
->>-       page = alloc_pages_node(nodeid, flags, cachep->gfporder);
->>+       /*
->>+        * If this allocation request isn't backed by a memory pool, or if that
->>+        * memory pool's gfporder is not the same as the cache's gfporder, fall
->>+        * back to alloc_pages_node().
->>+        */
->>+       if (!pool || cachep->gfporder != (int)pool->pool_data)
->>+               page = alloc_pages_node(nodeid, flags, cachep->gfporder);
->>+       else
->>+               page = mempool_alloc_node(pool, flags, nodeid);
-> 
-> 
-> You're not returning any pages to the pool, so the it will run out
-> pages at some point, no? Also, there's no guarantee the slab allocator
-> will give back the critical page any time soon either because it will
-> use it for non-critical allocations as well as soon as it becomes part
-> of the object cache slab lists.
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-As this is not a full implementation, just a partly fleshed-out RFC, the
-kfree() hooks aren't there yet.  Essentially, the plan would be to add a
-mempool_t pointer to struct slab, and if that pointer is non-NULL when
-we're freeing an unused slab, return it to the mempool it came from.
+switched to ioremap(), cleaned the probing up a bit.
 
-As you mention, there is no guarantee as to how long the critical page will
-be in use for.  One idea to tackle that problem would be to use the new
-mempool_t pointer in struct slab to provide exclusivity of critical slab
-pages, ie: if a non-critical slab request comes in and the only free page
-in the slab is a 'critical' page (it came from a mempool) then attempt to
-grow the slab or fail the non-critical request.  Both of these concepts
-were (more or less) implemented in my other attempt at solving the critical
-pool problem, so moving them to fit into this approach should not be difficult.
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Thanks!
+---
 
--Matt
+ drivers/scsi/in2000.c |   24 ++++++++++++++++++------
+ 1 files changed, 18 insertions(+), 6 deletions(-)
+
+e44467683e39fd741741d07d49515e3b20e3e104
+diff --git a/drivers/scsi/in2000.c b/drivers/scsi/in2000.c
+--- a/drivers/scsi/in2000.c
++++ b/drivers/scsi/in2000.c
+@@ -1898,6 +1898,21 @@ static int int_tab[] in2000__INITDATA = 
+ 	10
+ };
+ 
++static int probe_bios(u32 addr, u32 *s1, uchar *switches)
++{
++	void __iomem *p = ioremap(addr, 0x34);
++	if (!p)
++		return 0;
++	*s1 = readl(p + 0x10);
++	if (*s1 == 0x41564f4e || readl(p + 0x30) == 0x61776c41) {
++		/* Read the switch image that's mapped into EPROM space */
++		*switches = ~readb(p + 0x20);
++		iounmap(p);
++		return 1;
++	}
++	iounmap(p);
++	return 0;
++}
+ 
+ static int __init in2000_detect(struct scsi_host_template * tpnt)
+ {
+@@ -1930,6 +1945,7 @@ static int __init in2000_detect(struct s
+ 
+ 	detect_count = 0;
+ 	for (bios = 0; bios_tab[bios]; bios++) {
++		u32 s1 = 0;
+ 		if (check_setup_args("ioport", &val, buf)) {
+ 			base = val;
+ 			switches = ~inb(base + IO_SWITCHES) & 0xff;
+@@ -1941,13 +1957,9 @@ static int __init in2000_detect(struct s
+  * for the obvious ID strings. We look for the 2 most common ones and
+  * hope that they cover all the cases...
+  */
+-		else if (isa_readl(bios_tab[bios] + 0x10) == 0x41564f4e || isa_readl(bios_tab[bios] + 0x30) == 0x61776c41) {
++		else if (probe_bios(bios_tab[bios], &s1, &switches)) {
+ 			printk("Found IN2000 BIOS at 0x%x ", (unsigned int) bios_tab[bios]);
+ 
+-/* Read the switch image that's mapped into EPROM space */
+-
+-			switches = ~((isa_readb(bios_tab[bios] + 0x20) & 0xff));
+-
+ /* Find out where the IO space is */
+ 
+ 			x = switches & (SW_ADDR0 | SW_ADDR1);
+@@ -2037,7 +2049,7 @@ static int __init in2000_detect(struct s
+ 
+ /* Older BIOS's had a 'sync on/off' switch - use its setting */
+ 
+-		if (isa_readl(bios_tab[bios] + 0x10) == 0x41564f4e && (switches & SW_SYNC_DOS5))
++		if (s1 == 0x41564f4e && (switches & SW_SYNC_DOS5))
+ 			hostdata->sync_off = 0x00;	/* sync defaults to on */
+ 		else
+ 			hostdata->sync_off = 0xff;	/* sync defaults to off */
+

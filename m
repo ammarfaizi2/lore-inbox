@@ -1,273 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751361AbWAZSnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWAZSoa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751361AbWAZSnO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 13:43:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWAZSnN
+	id S1751362AbWAZSoa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 13:44:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751363AbWAZSoa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 13:43:13 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:385 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751361AbWAZSnM (ORCPT
+	Thu, 26 Jan 2006 13:44:30 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:58278 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1751362AbWAZSo3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 13:43:12 -0500
-Date: Fri, 27 Jan 2006 00:12:33 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, "Paul E.McKenney" <paulmck@us.ibm.com>,
-       linux-kernel@vger.kernel.org,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: [patch 2/2] fix file counting
-Message-ID: <20060126184233.GF4166@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060126184010.GD4166@in.ibm.com> <20060126184127.GE4166@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060126184127.GE4166@in.ibm.com>
-User-Agent: Mutt/1.5.10i
+	Thu, 26 Jan 2006 13:44:29 -0500
+From: Mel Gorman <mel@csn.ul.ie>
+To: linux-mm@kvack.org
+Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Message-Id: <20060126184305.8550.94358.sendpatchset@skynet.csn.ul.ie>
+Subject: [PATCH 0/9] Reducing fragmentation using zones v4
+Date: Thu, 26 Jan 2006 18:43:05 +0000 (GMT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Changelog since v4
+  o Minor bugs
+  o ppc64 can specify kernelcore
+  o Ability to disable use of ZONE_EASYRCLM at boot time
+  o HugeTLB uses ZONE_EASYRCLM
+  o Add drain-percpu caches for testing
+  o boot-parameter documentation added
 
-The way we do file struct accounting is not very suitable for batched
-freeing. For scalability reasons, file accounting was constructor/destructor
-based. This meant that nr_files was decremented only when
-the object was removed from the slab cache. This is
-susceptible to slab fragmentation. With RCU based file structure,
-consequent batched freeing and a test program like Serge's,
-we just speed this up and end up with a very fragmented slab -
+This is a zone-based approach to anti-fragmentation. This is posted in light
+of the discussions related to the list-based (sometimes dubbed as sub-zones)
+approach where the prevailing opinion was that zones were the answer. The
+patches are based on linux-2.6.16-rc1-mm3 and has been successfully tested
+on x86 and ppc64. The patches are as follows;
 
-llm22:~ # cat /proc/sys/fs/file-nr
-587730  0       758844
+Patches 1-7: These patches are related to the adding of the zone, setting
+up the callers, configuring the kernel etc.
 
-At the same time, I see only a 2000+ objects in filp cache.
-The following patch I fixes this problem. 
+Patch 8,9: This is only for testing. The first stops the OOM killer hitting
+everything in sight while stress-testing high-order allocations. The second
+drains the per-cpu caches for large allocations to give a clearer view of
+fragmentation. To have comparable results during the high-order stress test
+allocation, this patch is applied to both the stock -mm kernel and the kernel
+using the zone-based approach to anti-fragmentation.
 
-This patch changes the file counting by removing the filp_count_lock.
-Instead we use a separate atomic_t, nr_files, for now and all
-accesses to it are through get_nr_files() api. In the sysctl
-handler for nr_files, we populate files_stat.nr_files before returning
-to user.
+For those watching carefully, this is a different test machine from V3,
+I'm far away from that test box at the moment. The usage scenario I set up
+to test out the patches is;
 
-Counting files as an when they are created and destroyed (as opposed
-to inside slab) allows us to correctly count open files with RCU.
+1. Test machine: UP x86 machine with 1.2GiB physical RAM
+2. Boot with kernelcore=512MB . This gives the kernel 512MB to work with and
+   the rest is placed in ZONE_EASYRCLM. (see patch 3 for more comments about
+   the value of kernelcore)
+3. Benchmark kbuild, aim9 and the capability to give HugeTLB pages
 
-Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
----
+An alternative scenario has been tested that produces similar figures. The
+scenario is;
 
+1. Test machine: UP x86 machine with 1.2GiB physical RAM
+2. Boot with mem=512MB
+3. Hot-add the remaining memory
+4. Benchmark kbuild, aim9 and high order allocations
 
+The alternative scenario requires two more patches related to hot-adding on
+the x86. I can post them if people want to take a look or experiment with
+hot-add instead of using kernelcore= .
 
+With zone-based anti-fragmentation, the usage of zones changes slightly on
+the x86. The HIGHMEM zone is effectively split into two, with allocations
+destined for this area split between HIGHMEM and EASYRCLM.  GFP_HIGHUSER pages
+such as PTE's are passed to HIGHMEM and the remainder (mostly user pages)
+are passed to EASYRCLM. Note that if kernelcore is less than the maximum size
+of ZONE_NORMAL, GFP_HIGHMEM allocations will use ZONE_NORMAL, not the reachable
+portion of ZONE_EASYRCLM.
 
- fs/dcache.c          |    2 -
- fs/file_table.c      |   79 ++++++++++++++++++++++++++++++---------------------
- include/linux/file.h |    2 -
- include/linux/fs.h   |    2 +
- kernel/sysctl.c      |    5 ++-
- net/unix/af_unix.c   |    2 -
- 6 files changed, 56 insertions(+), 36 deletions(-)
+I have tested with booting a kernel with no mem= or kernelcore= to make sure
+there are no normal performance regressions.  On ppc64, a 2GiB system was
+booted with kernelcore=896MB and dbench run as a regression test. It was
+confirmed that ZONE_EASYRCLM was created and was being used.
 
-diff -puN fs/dcache.c~fix-file-counting fs/dcache.c
---- linux-2.6.16-rc1-rcu/fs/dcache.c~fix-file-counting	2006-01-26 00:38:47.000000000 +0530
-+++ linux-2.6.16-rc1-rcu-dipankar/fs/dcache.c	2006-01-26 00:38:47.000000000 +0530
-@@ -1734,7 +1734,7 @@ void __init vfs_caches_init(unsigned lon
- 			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
- 
- 	filp_cachep = kmem_cache_create("filp", sizeof(struct file), 0,
--			SLAB_HWCACHE_ALIGN|SLAB_PANIC, filp_ctor, filp_dtor);
-+			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
- 
- 	dcache_init(mempages);
- 	inode_init(mempages);
-diff -puN fs/file_table.c~fix-file-counting fs/file_table.c
---- linux-2.6.16-rc1-rcu/fs/file_table.c~fix-file-counting	2006-01-26 00:38:47.000000000 +0530
-+++ linux-2.6.16-rc1-rcu-dipankar/fs/file_table.c	2006-01-26 01:23:28.000000000 +0530
-@@ -5,6 +5,7 @@
-  *  Copyright (C) 1997 David S. Miller (davem@caip.rutgers.edu)
-  */
- 
-+#include <linux/config.h>
- #include <linux/string.h>
- #include <linux/slab.h>
- #include <linux/file.h>
-@@ -19,52 +20,67 @@
- #include <linux/capability.h>
- #include <linux/cdev.h>
- #include <linux/fsnotify.h>
--
-+#include <linux/sysctl.h>
-+#include <asm/atomic.h>
-+  
- /* sysctl tunables... */
- struct files_stat_struct files_stat = {
- 	.max_files = NR_FILE
- };
- 
--EXPORT_SYMBOL(files_stat); /* Needed by unix.o */
--
- /* public. Not pretty! */
-- __cacheline_aligned_in_smp DEFINE_SPINLOCK(files_lock);
-+__cacheline_aligned_in_smp DEFINE_SPINLOCK(files_lock);
-+  
-+static atomic_t nr_files __cacheline_aligned_in_smp;
- 
--static DEFINE_SPINLOCK(filp_count_lock);
-+static inline void file_free_rcu(struct rcu_head *head)
-+{
-+	struct file *f =  container_of(head, struct file, f_u.fu_rcuhead);
-+	kmem_cache_free(filp_cachep, f);
-+}
- 
--/* slab constructors and destructors are called from arbitrary
-- * context and must be fully threaded - use a local spinlock
-- * to protect files_stat.nr_files
-+static inline void file_free(struct file *f)
-+{
-+	atomic_dec(&nr_files);
-+	call_rcu(&f->f_u.fu_rcuhead, file_free_rcu);
-+}
-+  
-+/*
-+ * Return the total number of open files in the system
-  */
--void filp_ctor(void *objp, struct kmem_cache *cachep, unsigned long cflags)
-+int get_nr_files(void)
- {
--	if ((cflags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
--	    SLAB_CTOR_CONSTRUCTOR) {
--		unsigned long flags;
--		spin_lock_irqsave(&filp_count_lock, flags);
--		files_stat.nr_files++;
--		spin_unlock_irqrestore(&filp_count_lock, flags);
--	}
-+	return atomic_read(&nr_files);
- }
- 
--void filp_dtor(void *objp, struct kmem_cache *cachep, unsigned long dflags)
-+/*
-+ * Return the maximum number of open files in the system
-+ */
-+int get_max_files(void)
- {
--	unsigned long flags;
--	spin_lock_irqsave(&filp_count_lock, flags);
--	files_stat.nr_files--;
--	spin_unlock_irqrestore(&filp_count_lock, flags);
-+	return files_stat.max_files;
- }
- 
--static inline void file_free_rcu(struct rcu_head *head)
-+EXPORT_SYMBOL(get_nr_files);
-+EXPORT_SYMBOL(get_max_files);
-+
-+/*
-+ * Handle nr_files sysctl
-+ */
-+#if defined(CONFIG_SYSCTL) && defined(CONFIG_PROC_FS)
-+int proc_nr_files(ctl_table *table, int write, struct file *filp,
-+                     void __user *buffer, size_t *lenp, loff_t *ppos)
- {
--	struct file *f =  container_of(head, struct file, f_u.fu_rcuhead);
--	kmem_cache_free(filp_cachep, f);
-+	files_stat.nr_files = get_nr_files();
-+	return proc_dointvec(table, write, filp, buffer, lenp, ppos);
- }
--
--static inline void file_free(struct file *f)
-+#else
-+int proc_nr_files(ctl_table *table, int write, struct file *filp,
-+                     void __user *buffer, size_t *lenp, loff_t *ppos)
- {
--	call_rcu(&f->f_u.fu_rcuhead, file_free_rcu);
-+	return -ENOSYS;
- }
-+#endif
- 
- /* Find an unused file structure and return a pointer to it.
-  * Returns NULL, if there are no more free file structures or
-@@ -78,7 +94,7 @@ struct file *get_empty_filp(void)
- 	/*
- 	 * Privileged users can go above max_files
- 	 */
--	if (files_stat.nr_files >= files_stat.max_files &&
-+	if (get_nr_files() >= files_stat.max_files &&
- 				!capable(CAP_SYS_ADMIN))
- 		goto over;
- 
-@@ -97,14 +113,15 @@ struct file *get_empty_filp(void)
- 	rwlock_init(&f->f_owner.lock);
- 	/* f->f_version: 0 */
- 	INIT_LIST_HEAD(&f->f_u.fu_list);
-+	atomic_inc(&nr_files);
- 	return f;
- 
- over:
- 	/* Ran out of filps - report that */
--	if (files_stat.nr_files > old_max) {
-+	if (get_nr_files() > old_max) {
- 		printk(KERN_INFO "VFS: file-max limit %d reached\n",
--					files_stat.max_files);
--		old_max = files_stat.nr_files;
-+					get_max_files());
-+		old_max = get_nr_files();
- 	}
- 	goto fail;
- 
-diff -puN include/linux/file.h~fix-file-counting include/linux/file.h
---- linux-2.6.16-rc1-rcu/include/linux/file.h~fix-file-counting	2006-01-26 00:38:47.000000000 +0530
-+++ linux-2.6.16-rc1-rcu-dipankar/include/linux/file.h	2006-01-26 01:17:36.000000000 +0530
-@@ -60,8 +60,6 @@ extern void put_filp(struct file *);
- extern int get_unused_fd(void);
- extern void FASTCALL(put_unused_fd(unsigned int fd));
- struct kmem_cache;
--extern void filp_ctor(void * objp, struct kmem_cache *cachep, unsigned long cflags);
--extern void filp_dtor(void * objp, struct kmem_cache *cachep, unsigned long dflags);
- 
- extern struct file ** alloc_fd_array(int);
- extern void free_fd_array(struct file **, int);
-diff -puN include/linux/fs.h~fix-file-counting include/linux/fs.h
---- linux-2.6.16-rc1-rcu/include/linux/fs.h~fix-file-counting	2006-01-26 00:38:47.000000000 +0530
-+++ linux-2.6.16-rc1-rcu-dipankar/include/linux/fs.h	2006-01-26 00:38:48.000000000 +0530
-@@ -35,6 +35,8 @@ struct files_stat_struct {
- 	int max_files;		/* tunable */
- };
- extern struct files_stat_struct files_stat;
-+extern int get_nr_files(void);
-+extern int get_max_files(void);
- 
- struct inodes_stat_t {
- 	int nr_inodes;
-diff -puN kernel/sysctl.c~fix-file-counting kernel/sysctl.c
---- linux-2.6.16-rc1-rcu/kernel/sysctl.c~fix-file-counting	2006-01-26 00:38:47.000000000 +0530
-+++ linux-2.6.16-rc1-rcu-dipankar/kernel/sysctl.c	2006-01-26 00:38:48.000000000 +0530
-@@ -52,6 +52,9 @@
- #include <linux/nfs_fs.h>
- #endif
- 
-+extern int proc_nr_files(ctl_table *table, int write, struct file *filp,
-+                     void __user *buffer, size_t *lenp, loff_t *ppos);
-+
- #if defined(CONFIG_SYSCTL)
- 
- /* External variables not in a header file. */
-@@ -900,7 +903,7 @@ static ctl_table fs_table[] = {
- 		.data		= &files_stat,
- 		.maxlen		= 3*sizeof(int),
- 		.mode		= 0444,
--		.proc_handler	= &proc_dointvec,
-+		.proc_handler	= &proc_nr_files,
- 	},
- 	{
- 		.ctl_name	= FS_MAXFILE,
-diff -puN net/unix/af_unix.c~fix-file-counting net/unix/af_unix.c
---- linux-2.6.16-rc1-rcu/net/unix/af_unix.c~fix-file-counting	2006-01-26 00:38:47.000000000 +0530
-+++ linux-2.6.16-rc1-rcu-dipankar/net/unix/af_unix.c	2006-01-26 00:38:48.000000000 +0530
-@@ -547,7 +547,7 @@ static struct sock * unix_create1(struct
- 	struct sock *sk = NULL;
- 	struct unix_sock *u;
- 
--	if (atomic_read(&unix_nr_socks) >= 2*files_stat.max_files)
-+	if (atomic_read(&unix_nr_socks) >= 2*get_max_files())
- 		goto out;
- 
- 	sk = sk_alloc(PF_UNIX, GFP_KERNEL, &unix_proto, 1);
+Benchmark comparison between -mm+NoOOM tree and with the new zones
 
-_
+KBuild
+                               2.6.16-rc1-mm3-clean  2.6.16-rc1-mm3-zbuddy-v4
+Time taken to extract kernel:                    15                        15
+Time taken to build kernel:                     413                       408
+
+(Performance varies depending on how you configure the kernelcore parameter)
+
+Aim9
+                 2.6.16-rc1-mm3-clean  2.6.16-rc1-mm3-zbuddy-v4
+ 1 creat-clo                 38760.21                  39736.75     976.54  2.52% File Creations and Closes/second
+ 2 page_test                295722.38                 280273.33  -15449.05 -5.22% System Allocations & Pages/second
+ 3 brk_test                1516116.67                1754948.35  238831.68 15.75% System Memory Allocations/second
+ 4 jmp_test                7905965.67                8911233.33 1005267.66 12.72% Non-local gotos/second
+ 5 signal_test              177500.00                 177653.72     153.72  0.09% Signal Traps/second
+ 6 exec_test                   119.58                    122.71       3.13  2.62% Program Loads/second
+ 7 fork_test                  2759.08                   2962.84     203.76  7.39% Task Creations/second
+ 8 link_test                 11756.85                  12163.27     406.42  3.46% Link/Unlink Pairs/second
+
+(Again, performnace depends on value of kernelcore although I am surprised
+at the difference here. My suspicion is that kernelcore gives a larger
+ZONE_EASYRCLM than the stock kernel has ZONE_HIGHMEM so it falls back less
+but I have not proved it)
+
+HugeTLB Allocation Capability under load
+                                  2.6.16-rc1-mm3-clean  2.6.16-rc1-mm3-zbuddy-v4
+During compile:                                      2                         2
+At rest before dd of large file:                     8                        80
+At rest after  dd of large file:                    27                       166
+
+This test is different from previous reports. Older reports used a kernel
+module to really try and allocate HugeTLB-sized pages which is a bit
+artifical. This test uses only the proc interface to adjust nr_hugepages. The
+test is still;
+  1. Build 7 kernels at the same time
+  2. Try and get HugeTLB pages
+  3. Stop the compiles, delete the trees and try and get HugeTLB pages
+  4. DD a file the size of physical memory, cat it to null and delete it, try 
+     and get HugeTLB pages.
+
+Under pressure, both kernels are comparable for getting huge pages via
+proc. However, when the system is at rest, the anti-frag kernel was able
+to allocate 72 more huge pages which is about 33% of physical memory. When
+dd is used to try and flush the buffer cache, there is a massive difference
+of 139 huge pages. Basically all of ZONE_EASYRCLM becomes available so the
+result here depends on kernelcore as you'd expect.
+
+In terms of performance, the kernel with the additional zone performs as
+well as the standard kernel with variances between runs typically around
++/- 2% on each test in aim9. If the zone is not sized at all, there is no
+measurable performance difference and the patches. The final diffstat for the
+core changes (i.e. excluding the two testing patches) is;
+
+ Documentation/kernel-parameters.txt |   20 +++++++++++++
+ arch/i386/kernel/setup.c            |   48 ++++++++++++++++++++++++++++++++-
+ arch/i386/mm/init.c                 |    2 -
+ arch/powerpc/mm/mem.c               |    2 -
+ arch/powerpc/mm/numa.c              |   52
++++++++++++++++++++++++++++++++++---
+ arch/x86_64/mm/init.c               |    2 -
+ fs/compat.c                         |    2 -
+ fs/exec.c                           |    2 -
+ fs/inode.c                          |    2 -
+ include/asm-i386/page.h             |    3 +-
+ include/linux/gfp.h                 |    3 ++
+ include/linux/highmem.h             |    2 -
+ include/linux/memory_hotplug.h      |    1
+ include/linux/mmzone.h              |   12 ++++----
+ mm/hugetlb.c                        |    4 +-
+ mm/memory.c                         |    4 +-
+ mm/mempolicy.c                      |    2 -
+ mm/page_alloc.c                     |   20 +++++++++----
+ mm/shmem.c                          |    4 ++
+ mm/swap_state.c                     |    2 -
+ 20 files changed, 160 insertions(+), 29 deletions(-)
+m
+
+The zone-based approach for anti-fragmentation, once configured gives two
+things. First, it is a "soft-area" for HugeTLB allocations. If an admin wants,
+he can set aside an area that can be used for either normal user pages or for
+HugeTLB pages. The huge pages can be got by having the system in a quiet state,
+dd'ing a large file, catting it to null and deleting it again. This should help
+the HPC scenario of a machine with long uptime running very different types
+of jobs. Second, it gives an area that is relatively easy to hotplug remove.
+
+Comments?
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

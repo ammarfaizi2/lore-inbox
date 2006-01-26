@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWAZF21@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWAZFaB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbWAZF21 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 00:28:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWAZF21
+	id S932176AbWAZFaB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 00:30:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWAZFaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 00:28:27 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:48354 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1751320AbWAZF20
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 00:28:26 -0500
-Message-ID: <43D85DF4.9020703@cosmosbay.com>
-Date: Thu, 26 Jan 2006 06:28:20 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Thu, 26 Jan 2006 00:30:00 -0500
+Received: from omta04ps.mx.bigpond.com ([144.140.83.156]:30134 "EHLO
+	omta04ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750763AbWAZFaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 00:30:00 -0500
+Message-ID: <43D85E56.8040201@bigpond.net.au>
+Date: Thu, 26 Jan 2006 16:29:58 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bernd Eckenfels <be-news06@lina.inka.de>
+To: Andrew Morton <akpm@osdl.org>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: Red zones
-References: <E1F1sSY-0004yP-00@calista.inka.de>
-In-Reply-To: <E1F1sSY-0004yP-00@calista.inka.de>
+Subject: [BUG]  Invalid sleeping function call in 2.6.16-rc1-mm3
+References: <20060124232406.50abccd1.akpm@osdl.org>
+In-Reply-To: <20060124232406.50abccd1.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [62.23.185.226]); Thu, 26 Jan 2006 06:28:24 +0100 (CET)
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta04ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 26 Jan 2006 05:29:58 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels a écrit :
-> Eric Dumazet <dada1@cosmosbay.com> wrote:
->> We can use a red zone big enough to hold the whole per_cpu data.
-> 
-> I am trying to learn a bit here: why is it required to have a speciel red
-> zone for this case? Wouldnt it make more sence to have a single red zone
-> which can be used by all locations in the kernel for unused structures? That
-> would reduce the number of wasted segements in the page table, or?
->
+I get the following error report early during system start up:
 
-On x86_64, available virtual space is huge, so having different red zones can 
-spot the fault more easily : If the target of the fault is in the PER_CPU 
-redzone given range, we can instantly knows there is still a per_cpu() user 
-accessing a non possible cpu area. As the red zone is not mapped at all, no 
-page table is setup.
+Jan 26 16:18:54 origma kernel: [17179569.184000] BUG: sleeping function 
+called from invalid context at 
+/mudlark/wrk/KERNELS/Linux/MM-2.6.X/kernel/mutex.c:259
+Jan 26 16:18:54 origma kernel: [17179569.184000] in_atomic():0, 
+irqs_disabled():1
+Jan 26 16:18:54 origma kernel: [17179569.184000]  [<c010648d>] 
+show_trace+0xd/0x10
+Jan 26 16:18:54 origma kernel: [17179569.184000]  [<c01064a7>] 
+dump_stack+0x17/0x20
+Jan 26 16:18:54 origma kernel: [17179569.184000]  [<c011eacc>] 
+__might_sleep+0x8c/0xa0
+Jan 26 16:18:54 origma kernel: [17179569.184000]  [<c02ce2a5>] 
+mutex_lock_interruptible+0x15/0x30
+Jan 26 16:18:54 origma kernel: [17179569.184000]  [<c01413ec>] 
+__lock_cpu_hotplug+0x4c/0x60
+Jan 26 16:18:54 origma kernel: [17179569.184000]  [<c014140d>] 
+lock_cpu_hotplug_interruptible+0xd/0x10
+Jan 26 16:18:54 origma kernel: [17179569.184000]  [<c0141504>] 
+register_cpu_notifier+0x14/0x40
+Jan 26 16:18:54 origma kernel: [17179569.184000]  [<c03f1dad>] 
+page_alloc_init+0xd/0x10
+Jan 26 16:18:54 origma kernel: [17179569.184000]  [<c03de3ac>] 
+start_kernel+0x13c/0x3f0
+Jan 26 16:18:54 origma kernel: [17179569.184000]  [<c0100210>] 0xc0100210
 
+The message appears just the once and no similar messages have been 
+seen.  It is repeatable.
 
-On 32 bits platforms, this is completely different : space is scarse (typical 
-User/Kernel split of 3GB/1GB), so we should avoid to reserve even a 32 KB 
-redzone. We could do it in DEBUG mode for example. Current interim patch in 
-2.6.16-rc1-mm3 is using NULL pointer but this is not a perfect solution since 
-the underlying current user process can perfectly map something in this 'zone'.
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-Eric
-
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

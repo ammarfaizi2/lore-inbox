@@ -1,79 +1,399 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWAZBsJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWAZBtg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751289AbWAZBsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 20:48:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWAZBsJ
+	id S1751294AbWAZBtg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 20:49:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWAZBte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 20:48:09 -0500
-Received: from hs-grafik.net ([80.237.205.72]:44561 "EHLO hs-grafik.net")
-	by vger.kernel.org with ESMTP id S1751289AbWAZBsI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 20:48:08 -0500
-From: Alexander Gran <alex@zodiac.dnsalias.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.16-rc1-mm3
-Date: Thu, 26 Jan 2006 02:48:01 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <200601251448.20664@zodiac.zodiac.dnsalias.org> <20060125092117.03c69174.akpm@osdl.org>
-In-Reply-To: <20060125092117.03c69174.akpm@osdl.org>
-X-Face: ){635DT*1Z+Z}$~Bf[[i"X:f2i+:Za[:Q0<UzyJPoAm(;y"@=?utf-8?q?LwMhWM4=5D=60x1bDaQDpet=3B=3Be=0A=09N=5CBIb8o=5BF!fdHrI-=7E=24?=
- =?utf-8?q?ctS=3F!?=,U+0}](xD}_b]awZrK=>753Wk;RwhCU`Bt(I^/Jxl~5zIH<
- =?utf-8?q?=0A=09XplI=3A9GKEcr/JPqzW=3BR=5FqDQe*=23CE=7E70=3Bj=25Hg8CNh*4?=<
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4910180.jeASFZtD0X";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601260248.01357@zodiac.zodiac.dnsalias.org>
+	Wed, 25 Jan 2006 20:49:34 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:54226 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1751288AbWAZBtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 20:49:31 -0500
+Date: Thu, 26 Jan 2006 10:49:34 +0900
+To: linux-kernel@vger.kernel.org
+Cc: Richard Henderson <rth@twiddle.net>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
+       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>
+Subject: Re: [PATCH 4/6] use include/asm-generic/bitops for each architecture
+Message-ID: <20060126014934.GA6648@miraclelinux.com>
+References: <20060125112625.GA18584@miraclelinux.com> <20060125113336.GE18584@miraclelinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060125113336.GE18584@miraclelinux.com>
+User-Agent: Mutt/1.5.9i
+From: mita@miraclelinux.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4910180.jeASFZtD0X
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, Jan 25, 2006 at 08:33:37PM +0900, mita wrote:
+> compile test on i386, x86_64, ppc, sparc, sparc64, alpha
+> boot test on i386, x86_64, ppc
+> 
 
-Am Mittwoch, 25. Januar 2006 18:21 schrieb Andrew Morton:
-> Strange.   It might be worth checking 2.6.16-rc1-git4.
+I have fogotten attaching the changes for each archtecture.
 
-Hmm. I need reiser4. I'll have to see how I get that into git-4. ok
+o alpha
 
-> If the CPU load is high (ie: 100%) during the delay, and it's mostly syst=
-em
-> time then yes, a kernel profile would be interesting.
-> Documentation/basic_profiling.txt has details.
+- remove __{,test_and_}{set,clear,change}_bit() and test_bit()
+- define HAVE_ARCH_ATOMIC_BITOPS
+- define HAVE_ARCH_FFZ_BITOPS
+- define HAVE_ARCH___FFS_BITOPS
+- define HAVE_ARCH_FFS_BITOPS
 
-No, Cpu is at 600Mhz (Centrino, would increase to 1600 if load demands), an=
-d=20
-running at ~10%.
+- if defined(__alpha_cix__) and defined(__alpha_fix__)
+  - define HAVE_ARCH_FLS_BITOPS
+  - define HAVE_ARCH_HWEIGHT_BITOPS
+  - define HAVE_ARCH_HWEIGHT64_BITOPS
+- else
+  - remove fls()
+  - remove hweight64()
+  - remove hweight{32,16,8}()
 
-The delays must have an other reason. It makes no difference at all if i hi=
-t=20
-skip-over on something like=20
-i *=3D 1;
-or=20
-doSomePrettyHeavyThing();
-which imo prooves that there is no cpu-performance bottleneck.
+- remove fls64()
+- remove find_{next,first}{,_zero}_bit()
+- define HAVE_ARCH_SCHED_BITOPS
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- define HAVE_ARCH_EXT2_ATOMIC_BITOPS
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
 
-regards
-Alex
+o arm
 
-=2D-=20
-Encrypted Mails welcome.
-PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+- remove __{,test_and_}{set,clear,change}_bit() and test_bit()
+- define HAVE_ARCH_ATOMIC_BITOPS
+- define HAVE_ARCH_FIND_BITOPS
 
---nextPart4910180.jeASFZtD0X
-Content-Type: application/pgp-signature
+- if __LINUX_ARM_ARCH__ < 5
+  - remove ffz()
+  - remove __ffs()
+  - remove fls()
+  - remove ffs()
+- else (__LINUX_ARM_ARCH__ >= 5)
+  - define HAVE_ARCH_FLS_BITOPS
+  - define HAVE_ARCH_FFS_BITOPS
+  - define HAVE_ARCH___FFS_BITOPS
+  - define HAVE_ARCH_FFZ_BITOPS
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+- remove fls64()
+- remove hweight64()
+- remove hweight{32,16,8}()
+- remove sched_find_first_bit()
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- define HAVE_ARCH_EXT2_ATOMIC_BITOPS
+- remove HAVE_ARCH_MINIX_BITOPS
 
-iD8DBQBD2CpR/aHb+2190pERAlk7AJ9pSB+FQSQ81nTbp1oRImLZ6VeVLACfS2m1
-r/E/h7TbOgjN1pfFh3nhI2E=
-=bZAH
------END PGP SIGNATURE-----
+o arm26
 
---nextPart4910180.jeASFZtD0X--
+- remove __{,test_and_}{set,clear,change}_bit() and test_bit()
+- define HAVE_ARCH_ATOMIC_BITOPS
+- define HAVE_ARCH_FIND_BITOPS
+- remove ffz()
+- remove __ffs()
+- remove fls()
+- remove fls64()
+- remove ffs()
+- remove sched_find_first_bit()
+- remove hweight{32,16,8}()
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- define HAVE_ARCH_EXT2_ATOMIC_BITOPS
+- define HAVE_MINIX_BITOPS
+
+o cris
+
+- remove __{,test_and_}{set,clear,change}_bit() and test_bit()
+- define HAVE_ARCH_ATOMIC_BITOPS
+- remove fls()
+- remove fls64()
+- remove hweight{32,16,8}()
+- remove find_{next,first}{,_zero}_bit()
+- define HAVE_ARCH_FFS_BITOPS
+- remove sched_find_first_bit()
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- define HAVE_ARCH_EXT2_ATOMIC_BITOPS
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+
+o frv
+
+- remove ffz()
+- define HAVE_ARCH_ATOMIC_BITOPS
+- define HAVE_ARCH_NON_ATOMIC_BITOPS
+- remove find_{next,first}{,_zero}_bit()
+- remove ffs()
+- remove __ffs()
+- remove fls64()
+- remove sched_find_first_bit()
+- remove hweight{32,16,8}()
+- define HAVE_ARCH_FLS_BITOPS
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- define HAVE_ARCH_EXT2_ATOMIC_BITOPS
+- define HAVE_ARCH_MINIX_BITOPS
+
+o h8300
+
+- define HAVE_ARCH_FFZ_BITOPS
+- define HAVE_ARCH_ATOMIC_BITOPS
+- define HAVE_ARCH_NON_ATOMIC_BITOPS
+- remove ffs()
+- remove find_{next,first}{,_zero}_bit()
+- remove sched_find_first_bit()
+- remove hweight{32,16,8}()
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- remove ext2_{set,clear}_bit_atomic()
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+- define HAVE_ARCH___FFS_BITOPS
+- remove fls()
+- remove fls64()
+
+o i386
+
+- define HAVE_ARCH_ATOMIC_BITOPS
+- define HAVE_ARCH_NON_ATOMIC_BITOPS
+- define HAVE_ARCH_FIND_BITOPS
+- define HAVE_ARCH___FFS_BITOPS
+- define HAVE_ARCH_FFZ_BITOPS
+- remove fls64()
+- remove sched_find_first_bit()
+- define HAVE_ARCH_FFS_BITOPS
+- remove hweight{32,16,8}()
+- define HAVE_ARCH_FLS_BITOPS
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- define HAVE_ARCH_EXT2_ATOMIC_BITOPS
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+
+o ia64
+
+- remove __{,test_and_}{set,clear,change}_bit() and test_bit()
+- define HAVE_ARCH_ATOMIC_BITOPS
+- define HAVE_ARCH_FFZ_BITOPS
+- define HAVE_ARCH___FFS_BITOPS
+- remove fls64()
+- define HAVE_ARCH_FLS_BITOPS
+- define HAVE_ARCH_FFS_BITOPS
+- define HAVE_ARCH_HWEIGHT_BITOPS
+- define HAVE_ARCH_HWEIGHT64_BITOPS
+- define HAVE_ARCH_FIND_BITOPS
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- define HAVE_ARCH_EXT2_ATOMIC_BITOPS
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+- remove sched_find_first_bit()
+
+o m32r
+
+- remove __{,test_and_}{set,clear,change}_bit() and test_bit()
+- remove ffz()
+- remove find_{next,first}{,_zero}_bit()
+- remove __ffs()
+- remove fls()
+- remove fls64()
+- remove sched_find_first_bit()
+- remove ffs()
+- remove hweight()
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- remove ext2_{set,clear}_bit_atomic()
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+- define HAVE_ARCH_ATOMIC_BITOPS
+
+o m68k
+
+- define HAVE_ARCH_ATOMIC_BITOPS
+- define HAVE_ARCH_NON_ATOMIC_BITOPS
+- define HAVE_ARCH_FIND_BITOPS
+- define HAVE_ARCH_FFZ_BITOPS
+- define HAVE_ARCH_FFS_BITOPS
+- define HAVE_ARCH___FFS_BITOPS
+- remove fls64()
+- remove sched_find_first_bit()
+- remove ffs()
+- remove hweight()
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- define HAVE_ARCH_MINIX_BITOPS
+- define HAVE_ARCH_EXT2_ATOMIC_BITOPS
+
+o m68knommu
+
+- remove ffs()
+- remove __ffs()
+- remove sched_find_first_bit()
+- remove ffz()
+- remove find_{next,first}{,_zero}_bit()
+- remove hweight()
+- define HAVE_ARCH_ATOMIC_BITOPS
+- define HAVE_ARCH_NON_ATOMIC_BITOPS
+- define HAVE_ARCH_EXT2_NON_ATOMIC_BITOPS
+- define HAVE_ARCH_EXT2_ATOMIC_BITOPS
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+- remove fls()
+- remove fls64()
+
+o mips
+
+- remove __{,test_and_}{set,clear,change}_bit() and test_bit()
+- define HAVE_ARCH_ATOMIC_BITOPS
+
+- if defined(CONFIG_CPU_MIPS32) or defined(CONFIG_CPU_MIPS64)
+  - define HAVE_ARCH___FFS_BITOPS
+  - define HAVE_ARCH_FFS_BITOPS
+  - define HAVE_ARCH_FFZ_BITOPS
+  - define HAVE_ARCH_FLS_BITOPS
+- else
+  - remove __ffs()
+  - remove ffs()
+  - remove ffz()
+  - remove fls()
+
+- remove fls64()
+- remove find_{next,first}{,_zero}_bit()
+- remove sched_find_first_bit()
+- remove hweight()
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- remove ext2_{set,clear}_bit_atomic()
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+
+o s390
+
+- define HAVE_ARCH_ATOMIC_BITOPS
+- define HAVE_ARCH_NON_ATOMIC_BITOPS
+- define HAVE_ARCH_FFZ_BITOPS
+- define HAVE_ARCH___FFS_BITOPS
+- define HAVE_ARCH_FIND_BITOPS
+- remove ffs()
+- remove fls()
+- remove fls64()
+- remove hweight()
+- remove hweight64()
+- define HAVE_ARCH_SCHED_BITOPS
+- define HAVE_ARCH_EXT2_NON_ATOMIC_BITOPS
+- define HAVE_ARCH_EXT2_ATOMIC_BITOPS
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+
+o sh
+
+- remove __{,test_and_}{set,clear,change}_bit() and test_bit()
+- define HAVE_ARCH_ATOMIC_BITOPS
+- define HAVE_ARCH_FFZ_BITOPS
+- define HAVE_ARCH___FFS_BITOPS
+- remove find_{next,first}{,_zero}_bit()
+- remove ffs()
+- remove hweight()
+- remove sched_find_first_bit()
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- remove ext2_{set,clear}_bit_atomic()
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+- remove fls()
+- remove fls64()
+
+o sh64
+
+- remove __{,test_and_}{set,clear,change}_bit() and test_bit()
+- define HAVE_ARCH_ATOMIC_BITOPS
+- define HAVE_ARCH_FFZ_BITOPS
+- remove __ffs()
+- remove find_{next,first}{,_zero}_bit()
+- remove hweight()
+- remove sched_find_first_bit()
+- remove ffs()
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- remove ext2_{set,clear}_bit_atomic()
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+- remove fls()
+- remove fls64()
+
+o sparc
+
+- remove __{,test_and_}{set,clear,change}_bit() and test_bit()
+- define HAVE_ARCH_ATOMIC_BITOPS
+- remove ffz()
+- remove __ffs()
+- remove sched_find_first_bit()
+- remove ffs()
+- remove fls()
+- remove fls64()
+- remove hweight{32,16,8}()
+- remove find_{next,first}{,_zero}_bit()
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- remove ext2_{set,clear}_bit_atomic()
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+
+o sparc64
+
+- remove __{,test_and_}{set,clear,change}_bit() and test_bit()
+- define HAVE_ARCH_ATOMIC_BITOPS
+- remove ffz()
+- remove __ffs()
+- remove fls()
+- remove fls64()
+- remove sched_find_first_bit()
+- remove ffs()
+
+- if defined(ULTRA_HAS_POPULATION_COUNT)
+  - define HAVE_ARCH_HWEIGHT64_BITOPS
+  - define HAVE_ARCH_HWEIGHT_BITOPS
+- else
+  - remove hweight64()
+  - remove hweight{32,16,8}()
+
+- define HAVE_ARCH_FIND_BITOPS
+- define HAVE_ARCH_EXT2_ATOMIC_BITOPS
+- define HAVE_ARCH_EXT2_NON_ATOMIC_BITOPS
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+
+o v850
+
+- remove ffz()
+- define HAVE_ARCH_ATOMIC_BITOPS
+- define HAVE_ARCH_NON_ATOMIC_BITOPS
+- remove find_{next,first}{,_zero}_bit()
+- remove ffs()
+- remove fls()
+- remove fls64()
+- remove __ffs()
+- remove sched_find_first_bit()
+- remove hweight{32,16,8}()
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- define HAVE_ARCH_EXT2_ATOMIC_BITOPS
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+
+o x86_64
+
+- define HAVE_ARCH_ATOMIC_BITOPS
+- define HAVE_ARCH_NON_ATOMIC_BITOPS
+- define HAVE_ARCH_FIND_BITOPS
+- define HAVE_ARCH_FFZ_BITOPS
+- define HAVE_ARCH___FFS_BITOPS
+- define HAVE_ARCH_FLS_BITOPS
+- remove sched_find_first_bit()
+- define HAVE_ARCH_FFS_BITOPS
+- define HAVE_ARCH_FLS64_BITOPS
+- remove hweight{32,16,8}()
+- define HAVE_ARCH_FLS_BITOPS
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- define HAVE_ARCH_EXT2_ATOMIC_BITOPS
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+
+o xtensa
+
+- remove {,test_and_}{set,clear,change}_bit()
+- remove __{,test_and_}{set,clear,change}_bit() and test_bit()
+- define HAVE_ARCH_FFZ_BITOPS
+- define HAVE_ARCH___FFS_BITOPS
+- define HAVE_ARCH_FFS_BITOPS
+- define HAVE_ARCH_FLS_BITOPS
+- remove fls64()
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- define HAVE_ARCH_EXT2_ATOMIC_BITOPS
+- remove hweight{32,16,8}()
+- remove sched_find_first_bit()
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+
+o remove unused generic bitops
+

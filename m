@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWAZLtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWAZLwH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbWAZLtM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 06:49:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWAZLtM
+	id S1750817AbWAZLwH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 06:52:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWAZLwH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 06:49:12 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1755 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750770AbWAZLtL (ORCPT
+	Thu, 26 Jan 2006 06:52:07 -0500
+Received: from sipsolutions.net ([66.160.135.76]:65285 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S1750817AbWAZLwG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 06:49:11 -0500
-Date: Thu, 26 Jan 2006 12:48:58 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Gerd Hoffmann <kraxel@suse.de>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SMP alternatives
-Message-ID: <20060126114858.GA1605@elf.ucw.cz>
-References: <43D648CC.4090101@suse.de> <20060126102250.GA2790@elf.ucw.cz> <43D8AFC6.4010804@suse.de>
+	Thu, 26 Jan 2006 06:52:06 -0500
+Subject: [PATCH] ieee1394: allow building with absolute SUBDIRS path
+From: Johannes Berg <johannes@sipsolutions.net>
+To: linux1394-user@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YljqWR3vK9mafHtCUYRr"
+Date: Thu, 26 Jan 2006 01:19:03 +0100
+Message-Id: <1138234743.10202.3.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43D8AFC6.4010804@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Čt 26-01-06 12:17:26, Gerd Hoffmann wrote:
-> Pavel Machek wrote:
-> > Hi!
-> > 
-> >> Can you include the patch in -mm to give it some testing?  Then merge
-> >> maybe for 2.6.17?  Posted last time in december, with nobody complaining
-> >> any more about the most recent version.  The patch is almost unmodified
-> >> since, I've only had to add a small chunk due to the mutex merge.
-> >> Description is below, the patch (against -rc1-git4 snapshot) is
-> >> attached.
-> > 
-> > Well, I'm not 100% convinced this is really good idea.. It increases
-> > complexity quite a lot.
-> 
-> Well, we have alternatives for quite some time already, this is just an
-> extension of the existing bits ...
 
-Like... during suspend we hot-unplug all but one cpu. Patching code at
-that point is quite unneccessary...
+--=-YljqWR3vK9mafHtCUYRr
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > Oh and please inline patches.
-> 
-> Whats wrong with "Content-Disposition: inline" attachments?  The risk
-> they get whitespace-mangeled is much lower then.  Also mailers display
-> them inline and also quote them on reply so you can easily comment them.
->  At least mutt and thunderbird do that.  If your mailer doesn't file a
-> bug ;)
+This patch allows building the modules with an absolute SUBDIRS path,
+especially for building them out of tree.
 
-Consensus on lkml is to inline patches. Content-disposition: inline is
-commonly accepted as not-too-evil, and my mailer (mutt) usually
-honours that, but something in your mail tripped it.
+Signed-Off-By: Johannes Berg <johannes@sipsolutions.net>
 
-								Pavel
--- 
-Thanks, Sharp!
+--- a/drivers/ieee1394/Makefile
++++ b/drivers/ieee1394/Makefile
+@@ -18,7 +19,7 @@ obj-$(CONFIG_IEEE1394_AMDTP) +=3D amdtp.o
+ obj-$(CONFIG_IEEE1394_CMP) +=3D cmp.o
+=20
+ quiet_cmd_oui2c =3D OUI2C   $@
+-      cmd_oui2c =3D $(CONFIG_SHELL) $(srctree)/$(src)/oui2c.sh < $< > $@
++      cmd_oui2c =3D $(CONFIG_SHELL) $(src)/oui2c.sh < $< > $@
+=20
+ targets :=3D oui.c
+ $(obj)/oui.o: $(obj)/oui.c
+
+
+--=-YljqWR3vK9mafHtCUYRr
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (SIP Solutions)
+
+iQIVAwUAQ9gVdaVg1VMiehFYAQIVFQ//Y8B+Y+VILsD4bz9HxfUZ4EcaZ0LLxMFW
+FFUGmhd+/PduJdk04Zxou9cTMqydAesyJxBdcuapgrr6BhMUJ+VhMg9kyr56PW68
+/LZmZnl5b1vnbSNOS39xbUKMZv1t1/n+8QIqPD3XT/mRPnuWYolJL4XTKrpSiKvl
+n+PSo7iorGHeJSo05VM+/woKucElK0kEm6alYRvgd8r8O4uD3+bxJWyrROsd2jXH
+hRXm7o38OlwL6alNh9dzPzmjCwfCczEQyC4zcMGisqPOqfB0kp9xwQiwIIWPFiIQ
+kCsbCRavlVa2xecaSjn2C0/z6fNyOMY/TzxtdH7n2ks2eB0nzyIvDPKoWEWsAKTk
+9LBKEFbO0anjszG7Z6jERRlZ9NHDlTltnhHoceySDkIvnyTrfIl6dAbybANeaqB0
+V/Kr2E7THEzA2qJ8hHTjIV2jtJ9XieXh+UkVmb7QuQbdSHcDmjX/tOxTFDG3bFZp
+eGwNlGokoKEtcjOhnKdenisdQeGv+ixXRSoxGS6xambwVbYUZzch/ejnqEeJae26
+8NySv/6jrQvev9vDl18E93+OfEHYbvhRhjsR5M1qFJqJuQ1qeROQxagBftz87Wqr
+2M8kGhCEEmVgAPy1ABaYxcwcFrj4LHE2bj24ijZy8QtWwAm4le7Na4k3y+JdLTKE
+MzcKLT7z9bg=
+=k5ng
+-----END PGP SIGNATURE-----
+
+--=-YljqWR3vK9mafHtCUYRr--
+

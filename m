@@ -1,71 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWAZOML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbWAZONQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWAZOML (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 09:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWAZOMK
+	id S932325AbWAZONQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 09:13:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbWAZONQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 09:12:10 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:55536 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932323AbWAZOMJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 09:12:09 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Thu, 26 Jan 2006 15:11:04 +0100
-To: zdzichu@irc.pl, schilling@fokus.fraunhofer.de
-Cc: rlrevell@joe-job.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de, axboe@suse.de, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43D8D878.nailE2XDSCDWK@burner>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
- <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
- <20060125144543.GY4212@suse.de>
- <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
- <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
- <20060125190013.GA6135@irc.pl> <43D8A3AD.nailDTH8Y1A3Z@burner>
- <20060126105640.GA5608@irc.pl>
-In-Reply-To: <20060126105640.GA5608@irc.pl>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 26 Jan 2006 09:13:16 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:6079 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932325AbWAZONP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 09:13:15 -0500
+Date: Thu, 26 Jan 2006 15:11:42 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
+Subject: [BUG] debugfs: hard link count wrong
+Message-ID: <20060126141142.GA11599@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomasz Torcz <zdzichu@irc.pl> wrote:
+There seems to be a bug in debugfs: it seems it doesn't get the hard link
+count right. See the output below. This happened on s390x with git tree
+of today. Any ideas?
 
->   This is a fallback if HAL isn't available.  Normally this is done by:
->
-> drive->max_speed_write = libhal_device_get_property_int
->                                 (ctx, device_names [i],
->                                  "storage.cdrom.write_speed",
->                                  NULL)
->                                 / CD_ROM_SPEED;
->
->  (natilus-burn-drive.c:1368 from version 2.12.0).
+# mount
 
-Even if this works under good conditions, it will fail in many cases 
-because the related software is not up to date with recent device formware bugs.
-Cdrecord is kept up to date as it either deals with a new drive or not.
+/dev/dasda1 on / type ext3 (rw)
+none on /proc type proc (rw)
+none on /sys type sysfs (rw)
+none on /dev/pts type devpts (rw,gid=5,mode=620)
+none on /sys/kernel/debug type debugfs (rw)
 
-Delegating things to other instances only works ar long as there are clean ans 
-stable interfaces. This unfortunately does not apply to CD/DVD/HD-DVD.
+# cd /sys/kernel/debug/
+# ls -al
+total 0
+drwxr-xr-x   2 root root 0 Jan 26 14:59 .
+drwxr-xr-x   3 root root 0 Jan 26 14:59 ..
+drwxr-xr-x  22 root root 0 Jan 26 14:59 s390dbf
 
-> > Cdrecord implements workarounds for this kind of problems and for this reason, 
-> > the most portable solution for a GUI is to use cdrecord to retrieve the 
-> > information.
->
->   Yeah, sure.
->                   /* FIXME we don't have any way to guess the real device
->                    * from the info we get from CDRecord */
->
->  (the only FIXME in above mentioned file).
+# find .
+.
+find: WARNING: Hard link count is wrong for .: this may be a bug in your
+filesystem driver.  Automatically turning on find's -noleaf option.
+Earlier results may have failed to include directories that should have
+been searched.
 
-And guess why Sun is currently working on a work around this nautilus problem.
+# stat .
 
-Jörg
+  File: `.'
+  Size: 0               Blocks: 0          IO Block: 4096   directory
+Device: 5h/5d   Inode: 22          Links: 2
+Access: (0755/drwxr-xr-x)  Uid: (    0/    root)   Gid: (    0/    root)
+Access: 2006-01-26 15:00:26.000000000 +0100
+Modify: 2006-01-26 14:59:57.000000000 +0100
+Change: 2006-01-26 14:59:57.000000000 +0100
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Thanks,
+Heiko

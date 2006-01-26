@@ -1,97 +1,200 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWAZSjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWAZSmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbWAZSjv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 13:39:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWAZSjv
+	id S1751357AbWAZSmA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 13:42:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWAZSmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 13:39:51 -0500
-Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:10729 "EHLO
-	liaag1ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751358AbWAZSju (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 13:39:50 -0500
-Date: Thu, 26 Jan 2006 13:36:18 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch 2.6.15] i386: allow disabling X86_FEATURE_SEP at boot
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Daniel fernandez <ergot86@gmail.com>
-Message-ID: <200601261339_MC3-1-B6C3-2E03@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+	Thu, 26 Jan 2006 13:42:00 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:13768 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751357AbWAZSl7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 13:41:59 -0500
+Date: Fri, 27 Jan 2006 00:11:27 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, "Paul E.McKenney" <paulmck@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/2] rcu batch tuning
+Message-ID: <20060126184127.GE4166@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060126184010.GD4166@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060126184010.GD4166@in.ibm.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allow the x86 "sep" feature to be disabled at bootup.  This
-forces use of the int80 vsyscall.
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+This patch adds new tunables for RCU queue and finished batches.
+There are two types of controls - number of completed RCU updates
+invoked in a batch (blimit) and monitoring for high rate of
+incoming RCUs on a cpu (qhimark, qlowmark). By default,
+the per-cpu batch limit is set to a small value. If
+the input RCU rate exceeds the high watermark, we do two things -
+force quiescent state on all cpus and set the batch limit
+of the CPU to INTMAX. Setting batch limit to INTMAX forces all
+finished RCUs to be processed in one shot. If we have more than
+INTMAX RCUs queued up, then we have bigger problems anyway.
+Once the incoming queued RCUs fall below the low watermark, the batch limit
+is set to the default.
 
- Documentation/kernel-parameters.txt |    6 +++++-
- arch/i386/kernel/cpu/common.c       |   13 +++++++++++++
- 2 files changed, 18 insertions(+), 1 deletion(-)
+Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+---
 
---- 2.6.15a.orig/arch/i386/kernel/cpu/common.c
-+++ 2.6.15a/arch/i386/kernel/cpu/common.c
-@@ -27,6 +27,7 @@ EXPORT_PER_CPU_SYMBOL(cpu_16bit_stack);
- static int cachesize_override __devinitdata = -1;
- static int disable_x86_fxsr __devinitdata = 0;
- static int disable_x86_serial_nr __devinitdata = 1;
-+static int disable_x86_sep __devinitdata = 0;
+
+ include/linux/rcupdate.h |    6 +++
+ kernel/rcupdate.c        |   76 +++++++++++++++++++++++++++++++++++------------
+ 2 files changed, 63 insertions(+), 19 deletions(-)
+
+diff -puN include/linux/rcupdate.h~rcu-batch-tuning include/linux/rcupdate.h
+--- linux-2.6.16-rc1-rcu/include/linux/rcupdate.h~rcu-batch-tuning	2006-01-25 00:09:54.000000000 +0530
++++ linux-2.6.16-rc1-rcu-dipankar/include/linux/rcupdate.h	2006-01-25 01:07:39.000000000 +0530
+@@ -98,13 +98,17 @@ struct rcu_data {
+ 	long  	       	batch;           /* Batch # for current RCU batch */
+ 	struct rcu_head *nxtlist;
+ 	struct rcu_head **nxttail;
+-	long            count; /* # of queued items */
++	long            qlen; 	 	 /* # of queued callbacks */
+ 	struct rcu_head *curlist;
+ 	struct rcu_head **curtail;
+ 	struct rcu_head *donelist;
+ 	struct rcu_head **donetail;
++	long		blimit;		 /* Upper limit on a processed batch */
+ 	int cpu;
+ 	struct rcu_head barrier;
++#ifdef CONFIG_SMP
++	long		last_rs_qlen;	 /* qlen during the last resched */
++#endif
+ };
  
- struct cpu_dev * cpu_devs[X86_VENDOR_NUM] = {};
+ DECLARE_PER_CPU(struct rcu_data, rcu_data);
+diff -puN kernel/rcupdate.c~rcu-batch-tuning kernel/rcupdate.c
+--- linux-2.6.16-rc1-rcu/kernel/rcupdate.c~rcu-batch-tuning	2006-01-25 00:09:54.000000000 +0530
++++ linux-2.6.16-rc1-rcu-dipankar/kernel/rcupdate.c	2006-01-25 23:08:03.000000000 +0530
+@@ -67,7 +67,43 @@ DEFINE_PER_CPU(struct rcu_data, rcu_bh_d
  
-@@ -177,6 +178,14 @@ static int __init x86_fxsr_setup(char * 
- __setup("nofxsr", x86_fxsr_setup);
- 
- 
-+static int __init x86_sep_setup(char * s)
+ /* Fake initialization required by compiler */
+ static DEFINE_PER_CPU(struct tasklet_struct, rcu_tasklet) = {NULL};
+-static int maxbatch = 10000;
++static int blimit = 10;
++static int qhimark = 10000;
++static int qlowmark = 100;
++#ifdef CONFIG_SMP
++static int rsinterval = 1000;
++#endif
++
++static atomic_t rcu_barrier_cpu_count;
++static struct semaphore rcu_barrier_sema;
++static struct completion rcu_barrier_completion;
++
++#ifdef CONFIG_SMP
++static void force_quiescent_state(struct rcu_data *rdp,
++			struct rcu_ctrlblk *rcp)
 +{
-+	disable_x86_sep = 1;
-+	return 1;
++	int cpu;
++	cpumask_t cpumask;
++	set_need_resched();
++	if (unlikely(rdp->qlen - rdp->last_rs_qlen > rsinterval)) {
++		rdp->last_rs_qlen = rdp->qlen;
++		/*
++		 * Don't send IPI to itself. With irqs disabled,
++		 * rdp->cpu is the current cpu.
++		 */
++		cpumask = rcp->cpumask;
++		cpu_clear(rdp->cpu, cpumask);
++		for_each_cpu_mask(cpu, cpumask)
++			smp_send_reschedule(cpu);
++	}
 +}
-+__setup("nosep", x86_sep_setup);
++#else 
++static inline void force_quiescent_state(struct rcu_data *rdp,
++			struct rcu_ctrlblk *rcp)
++{
++	set_need_resched();
++}
++#endif
+ 
+ /**
+  * call_rcu - Queue an RCU callback for invocation after a grace period.
+@@ -92,17 +128,13 @@ void fastcall call_rcu(struct rcu_head *
+ 	rdp = &__get_cpu_var(rcu_data);
+ 	*rdp->nxttail = head;
+ 	rdp->nxttail = &head->next;
+-
+-	if (unlikely(++rdp->count > 10000))
+-		set_need_resched();
+-
++	if (unlikely(++rdp->qlen > qhimark)) {
++		rdp->blimit = INT_MAX;
++		force_quiescent_state(rdp, &rcu_ctrlblk);
++	}
+ 	local_irq_restore(flags);
+ }
+ 
+-static atomic_t rcu_barrier_cpu_count;
+-static struct semaphore rcu_barrier_sema;
+-static struct completion rcu_barrier_completion;
+-
+ /**
+  * call_rcu_bh - Queue an RCU for invocation after a quicker grace period.
+  * @head: structure to be used for queueing the RCU updates.
+@@ -131,12 +163,12 @@ void fastcall call_rcu_bh(struct rcu_hea
+ 	rdp = &__get_cpu_var(rcu_bh_data);
+ 	*rdp->nxttail = head;
+ 	rdp->nxttail = &head->next;
+-	rdp->count++;
+-/*
+- *  Should we directly call rcu_do_batch() here ?
+- *  if (unlikely(rdp->count > 10000))
+- *      rcu_do_batch(rdp);
+- */
 +
++	if (unlikely(++rdp->qlen > qhimark)) {
++		rdp->blimit = INT_MAX;
++		force_quiescent_state(rdp, &rcu_bh_ctrlblk);
++	}
 +
- /* Standard macro to see if a specific flag is changeable */
- static inline int flag_is_changeable_p(u32 flag)
- {
-@@ -392,6 +401,10 @@ void __devinit identify_cpu(struct cpuin
- 		clear_bit(X86_FEATURE_XMM, c->x86_capability);
+ 	local_irq_restore(flags);
+ }
+ 
+@@ -199,10 +231,12 @@ static void rcu_do_batch(struct rcu_data
+ 		next = rdp->donelist = list->next;
+ 		list->func(list);
+ 		list = next;
+-		rdp->count--;
+-		if (++count >= maxbatch)
++		rdp->qlen--;
++		if (++count >= rdp->blimit)
+ 			break;
  	}
++	if (rdp->blimit == INT_MAX && rdp->qlen <= qlowmark)
++		rdp->blimit = blimit;
+ 	if (!rdp->donelist)
+ 		rdp->donetail = &rdp->donelist;
+ 	else
+@@ -473,6 +507,7 @@ static void rcu_init_percpu_data(int cpu
+ 	rdp->quiescbatch = rcp->completed;
+ 	rdp->qs_pending = 0;
+ 	rdp->cpu = cpu;
++	rdp->blimit = blimit;
+ }
  
-+	/* SEP disabled? */
-+	if (disable_x86_sep)
-+		clear_bit(X86_FEATURE_SEP, c->x86_capability);
-+
- 	if (disable_pse)
- 		clear_bit(X86_FEATURE_PSE, c->x86_capability);
+ static void __devinit rcu_online_cpu(int cpu)
+@@ -567,7 +602,12 @@ void synchronize_kernel(void)
+ 	synchronize_rcu();
+ }
  
---- 2.6.15a.orig/Documentation/kernel-parameters.txt
-+++ 2.6.15a/Documentation/kernel-parameters.txt
-@@ -929,7 +929,9 @@ running once the system is up.
- 			noexec=on: enable non-executable mappings (default)
- 			noexec=off: disable nn-executable mappings
- 
--	nofxsr		[BUGS=IA-32]
-+	nofxsr		[BUGS=IA-32] Disables x86 floating point extended
-+			register save and restore. The kernel will only save
-+			legacy floating-point registers on task switch.
- 
- 	nohlt		[BUGS=ARM]
- 
-@@ -972,6 +974,8 @@ running once the system is up.
- 
- 	nosbagart	[IA-64]
- 
-+	nosep		[BUGS=IA-32] Disables x86 SYSENTER/SYSEXIT support.
-+
- 	nosmp		[SMP] Tells an SMP kernel to act as a UP kernel.
- 
- 	nosync		[HW,M68K] Disables sync negotiation for all devices.
--- 
-Chuck
-Currently reading: _The Atrocity Archives_ by Charles Stross
+-module_param(maxbatch, int, 0);
++module_param(blimit, int, 0);
++module_param(qhimark, int, 0);
++module_param(qlowmark, int, 0);
++#ifdef CONFIG_SMP
++module_param(rsinterval, int, 0);
++#endif
+ EXPORT_SYMBOL_GPL(rcu_batches_completed);
+ EXPORT_SYMBOL(call_rcu);  /* WARNING: GPL-only in April 2006. */
+ EXPORT_SYMBOL(call_rcu_bh);  /* WARNING: GPL-only in April 2006. */
+
+_

@@ -1,76 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWAZJqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWAZJuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWAZJqg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 04:46:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWAZJqf
+	id S932210AbWAZJuE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 04:50:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbWAZJuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 04:46:35 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:37132 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932181AbWAZJqf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 04:46:35 -0500
-Date: Thu, 26 Jan 2006 10:48:40 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: matthias.andree@gmx.de, rlrevell@joe-job.com, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060126094839.GQ4212@suse.de>
-References: <1138048255.21481.15.camel@mindpipe> <20060123212119.GI1820@merlin.emma.line.org> <Pine.LNX.4.61.0601241823390.28682@yvahk01.tjqt.qr> <43D78585.nailD7855YVBX@burner> <20060125142155.GW4212@suse.de> <Pine.LNX.4.61.0601251544400.31234@yvahk01.tjqt.qr> <20060125145544.GA4212@suse.de> <43D7AEBF.nailDFJ7263OE@burner> <43D7B100.7040706@gmx.de> <43D897F4.nailDTH1UTLO4@burner>
-Mime-Version: 1.0
+	Thu, 26 Jan 2006 04:50:04 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:2830 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932210AbWAZJuD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 04:50:03 -0500
+Date: Thu, 26 Jan 2006 10:50:02 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: george@mvista.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] kernel/posix-timers.c: remove do_posix_clock_notimer_create()
+Message-ID: <20060126095002.GX3590@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43D897F4.nailDTH1UTLO4@burner>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 26 2006, Joerg Schilling wrote:
-> Matthias Andree <matthias.andree@gmx.de> wrote:
-> 
-> > I think we'd better call the whole discussion off.
-> 
-> Let me come back to this again and give an important statement...
-> 
-> 	If this mailing list is not the place where to 
-> 	make architectural design decisions, then we really better 
-> 	should stop this discussion immediately as it then would be useless.
-> 
-> 	Please inform me about this fact in case you know more as I really
-> 	don't have time to waste with useless discussions.
-> 
-> 
-> It seems also required to give some background information:
-> 
-> Without Matthias, I would already never again answered any mail from
-> LKML as all previous experiences on this list have been a desaster. It
-> did usually take less than an hour until someone from the list did
-> start personal attacks.  The last two times, the discussion has been
-> made impossible because Jens Axboe started with personal infringements
-> and his obvious false claims.
-> 
-> This time, it did look really promising until Jens Axboe again started
-> with personal infringements. I have to admit that it would have been
-> better to ignore him from the very beginning, but I was in false hope
-> that he could have changed.
-> 
-> Let me make a proposal: I try to answer mail from people who send
-> useful contributions to the discussion and I will ignore anybody who
-> starts with personal infringements. I will try to reply to mails with
-> incorrect claims if they are not obvious but I will stop replying to
-> the same person if he continues with things that are incorrect.
+This function is neither used nor has any real contents.
 
-What is this, kindergarten? What false claims have I made? I pointed out
-several you made, to which you had no rebuttal. Then you start playing
-"Jens made obviously false claims", huh?? I've had more mature
-conversations with my 1 year old son.
 
-I'm sorry if you feel that me refuting your false statements are
-personal attacks. Clearly not a problem that can be fixed at my end.
-Ignoring facts and continuing to write the same wrong claims over and
-over again doesn't make them true in the end.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Please take me off the cc list, thanks.
+---
 
--- 
-Jens Axboe
+This patch was already sent on:
+- 20 Jan 2006
+- 7 Jan 2006
+
+ include/linux/posix-timers.h |    1 -
+ kernel/posix-timers.c        |    6 ------
+ 2 files changed, 7 deletions(-)
+
+--- linux-2.6.15-mm2-full/include/linux/posix-timers.h.old	2006-01-07 23:13:08.000000000 +0100
++++ linux-2.6.15-mm2-full/include/linux/posix-timers.h	2006-01-07 23:13:17.000000000 +0100
+@@ -84,7 +84,6 @@
+ void register_posix_clock(const clockid_t clock_id, struct k_clock *new_clock);
+ 
+ /* error handlers for timer_create, nanosleep and settime */
+-int do_posix_clock_notimer_create(struct k_itimer *timer);
+ int do_posix_clock_nonanosleep(const clockid_t, int flags, struct timespec *,
+ 			       struct timespec __user *);
+ int do_posix_clock_nosettime(const clockid_t, struct timespec *tp);
+--- linux-2.6.15-mm2-full/kernel/posix-timers.c.old	2006-01-07 23:13:25.000000000 +0100
++++ linux-2.6.15-mm2-full/kernel/posix-timers.c	2006-01-07 23:13:30.000000000 +0100
+@@ -875,12 +875,6 @@
+ }
+ EXPORT_SYMBOL_GPL(do_posix_clock_nosettime);
+ 
+-int do_posix_clock_notimer_create(struct k_itimer *timer)
+-{
+-	return -EINVAL;
+-}
+-EXPORT_SYMBOL_GPL(do_posix_clock_notimer_create);
+-
+ int do_posix_clock_nonanosleep(const clockid_t clock, int flags,
+ 			       struct timespec *t, struct timespec __user *r)
+ {
 

@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWAZPQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWAZPYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932354AbWAZPQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 10:16:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWAZPQZ
+	id S932355AbWAZPYX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 10:24:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWAZPYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 10:16:25 -0500
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:56964 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932354AbWAZPQZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 10:16:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=OX7WItmsoaJ3rTGefp0XK9rQ3PYaKahe8CbxFqEC+P+Gafr8aTrcJTYAoPygdBpPwqROiwEXXR+SL+cxr87GaAYwOCJTW0TAHKaPMXpShRgoMIk/bbJfTWjtITaU9M14nnmt8S1Wrz8iT5QW1FmsJIL3PlhH/VvfrI9ps+YlouY=  ;
-Message-ID: <43D8E7C4.2070505@yahoo.com.au>
-Date: Fri, 27 Jan 2006 02:16:20 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 26 Jan 2006 10:24:22 -0500
+Received: from highlandsun.propagation.net ([66.221.212.168]:51207 "EHLO
+	highlandsun.propagation.net") by vger.kernel.org with ESMTP
+	id S932355AbWAZPYW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 10:24:22 -0500
+Message-ID: <43D8E96B.3070606@symas.com>
+Date: Thu, 26 Jan 2006 07:23:23 -0800
+From: Howard Chu <hyc@symas.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20060115 SeaMonkey/1.5a Mnenhy/0.7.3.0
 MIME-Version: 1.0
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-CC: rlrevell@joe-job.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de, grundig@teleline.es, axboe@suse.de,
-       acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner> <20060125181847.b8ca4ceb.grundig@teleline.es> <43D8988F.nailDTH21LS0G@burner> <1138268759.3087.138.camel@mindpipe> <43D8D5A0.nailE2X71H31H@burner> <43D8D80B.9080203@yahoo.com.au> <43D8DD7B.nailE2XL1KRWJ@burner>
-In-Reply-To: <43D8DD7B.nailE2XL1KRWJ@burner>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Lee Revell <rlrevell@joe-job.com>,
+       Christopher Friesen <cfriesen@nortel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hancockr@shaw.ca
+Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
+References: <20060124225919.GC12566@suse.de>	 <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de>	 <20060125121125.GH5465@suse.de> <43D78262.2050809@symas.com>	 <43D7BA0F.5010907@nortel.com>  <43D7C2F0.5020108@symas.com> <1138223212.3087.16.camel@mindpipe> <43D7F863.3080207@symas.com> <43D88E55.7010506@yahoo.com.au> <43D8DB90.7070601@symas.com> <43D8E298.3020402@yahoo.com.au>
+In-Reply-To: <43D8E298.3020402@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
+Nick Piggin wrote:
+> Howard Chu wrote:
+>> scheduling policy at all, the expectation is that the current thread 
+>> will not continue to run unless there are no other runnable threads 
+>> in the same process. The other important point here is that the 
+>> yielding thread is only cooperating with other threads in its 
+>> process. The 2.6 
+>
+> No I don't think so. POSIX 1.b where sched_yield is defined are the
+> realtime extensions, are they not?
+>
+> sched_yield explicitly makes reference to the realtime priority system
+> of thread lists does it not? It is pretty clear that it is used for
+> realtime processes to deterministically give up their timeslices to
+> others of the same priority level.
 
->>Isn't it good practice to adhere to the naming conventions
->>of the system to which a program is ported to? (even if 100
->>of them do it one way and 1 does it another)
-> 
-> 
-> Well, the problem is that (in special if you include the ATAPI tape drives)
-> Linux likes to enforce inapropriate naming conventions.
-> 
+The fact that sched_yield came originally from the realtime extensions 
+is just a historical artifact. There was a pthread_yield() function 
+specifically for threads and it was merged with sched_yield(). Today 
+sched_yield() is a core part of the basic Threads specification, 
+independent of the realtime extensions. The fact that it is defined 
+solely in the language of the realtime priorities is an obvious flaw in 
+the spec, since the function itself exists independently of realtime 
+priorities. The objection I raised with the Open Group specifically 
+addresses this flaw.
 
-But making up a new naming scheme which you happen to consider
-more appropriate doesn't sound to me like a good solution. Not
-even if you have good reasons for your likes/dislikes.
+> Linux's SCHED_OTHER behaviour is arguably the best interpretation,
+> considering SCHED_OTHER is defined to have a single priority level.
 
-If I ported some Linux program to Windows I would not ask
-the user if they wanted to save to /dev/hda5, or /mnt/c_drive
-because I consider C: bad naming.
+It appears that you just read the spec and blindly followed it without 
+thinking about what it really said and failed to say. The best 
+interpretation would come from saying "hey, this spec is only defined 
+for realtime behavior, WTF is it supposed to do for the default 
+non-realtime case?" and getting a clear definition in the spec.
 
 -- 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+  -- Howard Chu
+  Chief Architect, Symas Corp.  http://www.symas.com
+  Director, Highland Sun        http://highlandsun.com/hyc
+  OpenLDAP Core Team            http://www.openldap.org/project/
+

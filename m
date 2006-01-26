@@ -1,97 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWAZSqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWAZSq6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932368AbWAZSqT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 13:46:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWAZSqA
+	id S932396AbWAZSq6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 13:46:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWAZSqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 13:46:00 -0500
-Received: from master.soleranetworks.com ([67.137.28.188]:46030 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S1751366AbWAZSpp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 13:45:45 -0500
-Message-ID: <43D8FEF2.3080502@wolfmountaingroup.com>
-Date: Thu, 26 Jan 2006 09:55:14 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chase Venters <chase.venters@clientec.com>
-Cc: Filip Brcic <brcha@users.sourceforge.net>, Paul Jakma <paul@clubi.ie>,
-       Linus Torvalds <torvalds@osdl.org>,
-       "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Marc Perkel <marc@perkel.com>,
-       Patrick McLean <pmclean@cs.ubishops.ca>,
-       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <43D114A8.4030900@wolfmountaingroup.com> <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org> <Pine.LNX.4.64.0601261757320.3920@sheen.jakma.org> <200601261925.49433.brcha@users.sourceforge.net> <Pine.LNX.4.64.0601261233150.17225@turbotaz.ourhouse>
-In-Reply-To: <Pine.LNX.4.64.0601261233150.17225@turbotaz.ourhouse>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Jan 2006 13:46:43 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:20135 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S1751366AbWAZSqb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 13:46:31 -0500
+From: Mel Gorman <mel@csn.ul.ie>
+To: linux-mm@kvack.org
+Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Message-Id: <20060126184525.8550.50440.sendpatchset@skynet.csn.ul.ie>
+In-Reply-To: <20060126184305.8550.94358.sendpatchset@skynet.csn.ul.ie>
+References: <20060126184305.8550.94358.sendpatchset@skynet.csn.ul.ie>
+Subject: [PATCH 7/9] Add documentation for extra boot parameters
+Date: Thu, 26 Jan 2006 18:45:25 +0000 (GMT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chase Venters wrote:
 
-> On Thu, 26 Jan 2006, Filip Brcic wrote:
->
->> ???? Thursday 26 January 2006 18:59, Paul Jakma ?? ???????(??):
->>
->>> On Wed, 25 Jan 2006, Linus Torvalds wrote:
->>>
->>>> In other words: the _default_ license strategy is always just the
->>>> particular version of the GPL that accompanies a project. If you
->>>> want to license a program under _any_ later version of the GPL, you
->>>> have to state so explicitly. Linux never did.
->>>
->>>
->>> That's not what section 9 seems to say. The default is "any version
->>> you like".
->>
->>
->> That's right, but
->>
->> Also note that the only valid version of the GPL as far as the kernel
->> is concerned is _this_ particular version of the license (ie v2, not
->> v2.2 or v3.x or whatever), unless explicitly otherwise stated.
->>
->> Linux specifies version GPLv2 and only v2. Therefore, for Linux the 
->> GPLv2 is
->> the default.
->>
->
-> Well, my understanding is that this clause wasn't always in COPYING. 
-> If not for section 9 of the GPL, then the default would have always 
-> been GPLv2 only.
->
-> But since this clause was added after some time, one could argue that 
-> some code in Linux, even lacking a specific "or any later version" 
-> boilerplate, could be licensed under GPLv1, GPLv2, GPLv3, etc.
->
-> However, as I stated before -- since this clause is now present, the 
-> hairball going to GPLv3 would be copyright holders that submitted code 
-> under the GPLv2 Only heading. Since Linus added this clause, and has 
-> no doubt joined in many others submitting code since it was added, 
-> portions of the kernel *are* GPLv2 Only; hence, it would be 
-> impractical to legally migrate to GPLv3.
->
-> I'll save from weighing in on whether or not GPLv3 is a good idea -- 
-> this is just my evaluation of the facts I see before us.
->
-> Cheers,
-> Chase
+Once all patches are applied, two new command-line parameters exist -
+kernelcore and noeasyrclm. This patch adds the necessary documentation.
 
-Linus is posturing. I can go back to numerous previous versions when he 
-and stallman were "buddy buddy" and the language was open
-and said "any later version". Well, here's the gotcha. Any version 
-released before Linus said this is GPL 2, 3 or later. As of today, all new
-versions are GPLv2. That's how the law works. So 2.6.15 forward is GPLv2 
-only. Linus cannot re-release previous Linux versions after he
-already posted this NOTICE in COPYING, which he did and left the 
-language pen like this. So it's up to the recevier of the code whether
-its GPLv2 or GPLv3 or whatever, but those releases which appeared with 
-COPYING stating this language are whatever GPL license you
-want.
-
-Jeff
-
-
+Signed-off-by: Mel Gorman <mel@csn.ul.ie>
+diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.16-rc1-mm3-107_hugetlb_use_easyrclm/Documentation/kernel-parameters.txt linux-2.6.16-rc1-mm3-108_docs/Documentation/kernel-parameters.txt
+--- linux-2.6.16-rc1-mm3-107_hugetlb_use_easyrclm/Documentation/kernel-parameters.txt	2006-01-25 13:42:42.000000000 +0000
++++ linux-2.6.16-rc1-mm3-108_docs/Documentation/kernel-parameters.txt	2006-01-26 18:14:24.000000000 +0000
+@@ -702,6 +702,16 @@ running once the system is up.
+ 	js=		[HW,JOY] Analog joystick
+ 			See Documentation/input/joystick.txt.
+ 
++	kernelcore=nn[KMG]	[KNL,IA-32,PPC] On the x86 and ppc64, this
++			parameter specifies the amount of memory usable
++			by the kernel and places the rest in an EasyRclm
++			zone. The EasyRclm zone is used for the allocation
++			of pages on behalf of a process and for HugeTLB
++			pages. On ppc64, it is likely that memory sections
++			on this zone can be offlined. Note that allocations
++			like PTEs-from-HighMem still use the HighMem zone
++			if it exists, and the Normal zone if it does not.
++
+ 	keepinitrd	[HW,ARM]
+ 
+ 	kstack=N	[IA-32,X86-64] Print N words from the kernel stack
+@@ -1004,6 +1014,16 @@ running once the system is up.
+ 
+ 	nodisconnect	[HW,SCSI,M68K] Disables SCSI disconnects.
+ 
++	noeasyrclm	[IA-32,PPC] If kernelcore= is specified, the default
++			zone to add memory to for IA-32 and PPC is EasyRclm. If
++			this is undesirable, noeasyrclm can be specified to
++			force the adding of memory on IA-32 to ZONE_HIGHMEM
++			and to ZONE_DMA on PPC. This is desirable when the
++			EasyRclm zone is setup as a "soft" area for HugeTLB
++			pages to be allocated from to give the chance for
++			administrators to grow the reserved number of Huge
++			pages when the system has been running for some time.
++
+ 	noexec		[IA-64]
+ 
+ 	noexec		[IA-32,X86-64]

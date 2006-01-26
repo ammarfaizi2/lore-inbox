@@ -1,50 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWAZUkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbWAZUl2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932242AbWAZUkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 15:40:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbWAZUkQ
+	id S964858AbWAZUl2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 15:41:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbWAZUl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 15:40:16 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:62917 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932242AbWAZUkP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 15:40:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=B1FvLDqlgpN0qmxJfwFwaNpkxVndA33lkPwuIuVucIEeMzMzdASaqZyXcdDtABNlVWTtZ5ZLdR3DTI1aEjs2g8+FcJQgLJ/K17ig5ICfPU8kzj+S0pFQiapc3ZbdXJUeM0miuWa4na0hH8uH3iozeriPzhchWbb1DYxTlu7rqTQ=
-Message-ID: <de63970c0601261240i1770324ek@mail.gmail.com>
-Date: Thu, 26 Jan 2006 20:40:14 +0000
-From: Simon Morgan <sjmorgan@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Asus P5A Reboots
+	Thu, 26 Jan 2006 15:41:28 -0500
+Received: from mail.zelnet.ru ([80.92.97.13]:31172 "EHLO mail.zelnet.ru")
+	by vger.kernel.org with ESMTP id S964858AbWAZUl1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 15:41:27 -0500
+Message-ID: <43D933EB.6080009@namesys.com>
+Date: Thu, 26 Jan 2006 23:41:15 +0300
+From: Edward Shishkin <edward@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050414
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Jens Axboe <axboe@suse.de>
+CC: Hans Reiser <reiser@namesys.com>, LKML <linux-kernel@vger.kernel.org>,
+       Reiserfs mail-list <Reiserfs-List@namesys.com>
+Subject: Re: random minor benchmark: Re: Copy 20 tarfiles: ext2 vs (reiser4,
+ unixfile) vs (reiser4,cryptcompress)
+References: <43D7C6BE.1010804@namesys.com> <43D7CA7F.4010502@namesys.com> <20060126153343.GH4311@suse.de> <43D91225.3030605@namesys.com> <20060126185612.GM4311@suse.de>
+In-Reply-To: <20060126185612.GM4311@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jens Axboe wrote:
 
-I'm having trouble running the installation for Arch 0.7.1 on an Asus P5A
-motherboard. The installation uses the 2.6.15 kernel and the problem is
-that during, or immediately after, the initrd decompression stage the
-machine reboots.
+>On Thu, Jan 26 2006, Edward Shishkin wrote:
+>  
+>
+>>Jens Axboe wrote:
+>>
+>>    
+>>
+>>>On Wed, Jan 25 2006, Hans Reiser wrote:
+>>>
+>>>
+>>>      
+>>>
+>>>>Notice how CPU speed (and number of cpus) completely determines
+>>>>compression performance.
+>>>>
+>>>>cryptcompress refers to the reiser4 compression plugin, (unix file)
+>>>>refers to the reiser4 non-compressing plugin.
+>>>>
+>>>>Edward Shishkin wrote:
+>>>>
+>>>>  
+>>>>
+>>>>        
+>>>>
+>>>>>Here are the tests that vs asked for:
+>>>>>Creation (dd) of 20 tarfiles (the original 200M file is in ramfs)
+>>>>>Kernel: 2.6.15-mm4 + current git snapshot of reiser4
+>>>>>
+>>>>>------------------------------------------
+>>>>>
+>>>>>Laputa workstation
+>>>>>Uni Intel Pentium 4 (2.26 GHz) 512M RAM
+>>>>>
+>>>>>ext2:
+>>>>>real 2m, 15s
+>>>>>sys 0m, 14s
+>>>>>
+>>>>>reiser4(unix file)
+>>>>>real 2m, 7s
+>>>>>sys  0m, 23s
+>>>>>
+>>>>>reiser4(cryptcompress, lzo1, 64K)
+>>>>>real 2m, 13s
+>>>>>sys 0m, 11s
+>>>>>    
+>>>>>
+>>>>>          
+>>>>>
+>>>Just curious - does your crypt plugin reside in user space?
+>>>
+>>>
+>>>
+>>>      
+>>>
+>>Nop.
+>>This is just wrappers for linux crypto api, zlib, etc..
+>>so user time is zero and not interesting.
+>>    
+>>
+>
+>Then why is the sys time lower than the "plain" writes on ext2 and
+>reiser4? Surely compressing isn't for free, yet the sys time is lower on
+>the compression write than the others.
+>
+>  
+>
 
-I've tried running an alternative installation kernel without SCSI support
-as well as a number of kernel parameters (noacpi, noapm, acpi=off), none of
-which helped.
+I guess this is because real compression is going in background
+flush, not in sys_write->write_cryptcompress (which just copies
+user's data to page cache). So in this case we have something
+very similar to ext2. Reiser4 plain write (write_unix_file) is
+more complex, and currently we try to reduce its sys time.
 
-The hardware is good, it is currently running another operating system
-without issue and I gave the memory a thorough check with memtest86+ not
-too long ago.
+Edward.
 
-I have no idea where to even begin to find the source of this problem
-but if anybody could offer some ideas or suggestions I would appreciate it.
 
-Thanks.
-
-Simon
-
-P.S. Please CC me on any replies as I'm not subscribed to the list.

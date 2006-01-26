@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWAZPet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbWAZPfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932357AbWAZPet (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 10:34:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWAZPet
+	id S932364AbWAZPfS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 10:35:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWAZPfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 10:34:49 -0500
-Received: from webmail.terra.es ([213.4.149.12]:9068 "EHLO
-	csmtpout1.frontal.correo") by vger.kernel.org with ESMTP
-	id S932357AbWAZPet convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 10:34:49 -0500
-Date: Thu, 26 Jan 2006 16:38:16 +0100 (added by postmaster@terra.es)
-From: <grundig@teleline.es>
+	Thu, 26 Jan 2006 10:35:18 -0500
+Received: from bayc1-pasmtp10.bayc1.hotmail.com ([65.54.191.170]:56977 "EHLO
+	BAYC1-PASMTP10.BAYC1.HOTMAIL.COM") by vger.kernel.org with ESMTP
+	id S932364AbWAZPfQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 10:35:16 -0500
+Message-ID: <BAYC1-PASMTP107043337A760707075E33AE150@CEZ.ICE>
+X-Originating-IP: [69.156.6.171]
+X-Originating-Email: [seanlkml@sympatico.ca]
+Date: Thu, 26 Jan 2006 10:30:04 -0500
+From: sean <seanlkml@sympatico.ca>
 To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: schilling@fokus.fraunhofer.de, rlrevell@joe-job.com,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de, axboe@suse.de, acahalan@gmail.com
+Cc: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de,
+       rlrevell@joe-job.com, mrmacman_g4@mac.com, linux-kernel@vger.kernel.org,
+       acahalan@gmail.com
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-Id: <20060126163414.f00811e2.grundig@teleline.es>
-In-Reply-To: <43D8988F.nailDTH21LS0G@burner>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
-	<Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
-	<20060125144543.GY4212@suse.de>
-	<Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
-	<20060125153057.GG4212@suse.de>
-	<43D7AF56.nailDFJ882IWI@burner>
-	<20060125181847.b8ca4ceb.grundig@teleline.es>
-	<43D8988F.nailDTH21LS0G@burner>
-X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
+Message-Id: <20060126103004.07e02876.seanlkml@sympatico.ca>
+In-Reply-To: <43D8D736.nailE2XB11W3N@burner>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+	<43D7A7F4.nailDE92K7TJI@burner>
+	<8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
+	<43D7B1E7.nailDFJ9MUZ5G@burner>
+	<C3FAC4ED-D7B6-45FE-BCC8-DDCE1E8EEC65@mac.com>
+	<43D89F23.nailDTH5ZT0IY@burner>
+	<20060126104012.GA32206@merlin.emma.line.org>
+	<43D8D736.nailE2XB11W3N@burner>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Jan 2006 15:36:03.0390 (UTC) FILETIME=[373A35E0:01C6228E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 26 Jan 2006 10:38:23 +0100,
-Joerg Schilling <schilling@fokus.fraunhofer.de> escribió:
+On Thu, 26 Jan 2006 15:05:42 +0100
+Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
 
-> > > It serves the need of GUI programs for cdrercord and allows them to retrieve 
-> > > and list possible drives of interest in a platform independent way.
-> >
-> > But this is not neccesary at all, since linux platform already provides ways to
-> > retrieve and list possible drives....
 > 
-> Interesting: You claim that the Linux platform provides ways to retrieve 
-> the needed information on FreeBSD, MS-WIN, ....?
+> If you open e.g. /dev/cam or /dev/scg?, you open device that is not related
+> to a high level service like /dev/hd* and this unfortunately is unable to talk 
+> to other devices in the same entity (e.g. ATAPI tapes).
+> 
+> With /dev/cam or similar you get a single handle for a group of devices that 
+> than are addressed via something very similar to dev=b,t,l
+> 
 
+So what?   Why is it so important to have just a single handle in this case
+as opposed to multiple handles?
 
-No. I claim that linux does have ways of retrieving the needed information.
-
-You can keep providing your own solution on freebsd, win & friends if
-you want, but _why_ do you want to do it in linux when linux can do it
-by itself?? There's no reason why cdrecord should care about duplicating
-existing functionality when the platform can provide that functionality
-for free. Let cdrecord (name it libscg) use SG_IO and let users use
-the /dev/hd*.
-
-The case of cdrecord remembers me of X.org, which used/is poking /dev/mem
-directly to discover PCI devices and/or play with framebuffers instead of
-using the available APIs in linux. Except that the X.org people wants to
-solve (or has already solved) such problems using the native available
-APIS instead of keeping their own solutions. Well-written cross-platform
-software implements all the features when needed by all the platforms as
-a whole but only uses such features when a particular platform needs it,
-unless using one of those features is a nightmare (which is not the
-case of SG_IO IMHO)
+Sean

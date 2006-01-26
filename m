@@ -1,114 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWAZSpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWAZSqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbWAZSpf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 13:45:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbWAZSpe
+	id S932368AbWAZSqT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 13:46:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWAZSqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 13:45:34 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:7335 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1751366AbWAZSpb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 13:45:31 -0500
-From: Mel Gorman <mel@csn.ul.ie>
-To: linux-mm@kvack.org
-Cc: Mel Gorman <mel@csn.ul.ie>, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Message-Id: <20060126184425.8550.64598.sendpatchset@skynet.csn.ul.ie>
-In-Reply-To: <20060126184305.8550.94358.sendpatchset@skynet.csn.ul.ie>
-References: <20060126184305.8550.94358.sendpatchset@skynet.csn.ul.ie>
-Subject: [PATCH 4/9] ppc64 - Specify amount of kernel memory at boot time
-Date: Thu, 26 Jan 2006 18:44:25 +0000 (GMT)
+	Thu, 26 Jan 2006 13:46:00 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:46030 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1751366AbWAZSpp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 13:45:45 -0500
+Message-ID: <43D8FEF2.3080502@wolfmountaingroup.com>
+Date: Thu, 26 Jan 2006 09:55:14 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chase Venters <chase.venters@clientec.com>
+Cc: Filip Brcic <brcha@users.sourceforge.net>, Paul Jakma <paul@clubi.ie>,
+       Linus Torvalds <torvalds@osdl.org>,
+       "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Marc Perkel <marc@perkel.com>,
+       Patrick McLean <pmclean@cs.ubishops.ca>,
+       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+References: <43D114A8.4030900@wolfmountaingroup.com> <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org> <Pine.LNX.4.64.0601261757320.3920@sheen.jakma.org> <200601261925.49433.brcha@users.sourceforge.net> <Pine.LNX.4.64.0601261233150.17225@turbotaz.ourhouse>
+In-Reply-To: <Pine.LNX.4.64.0601261233150.17225@turbotaz.ourhouse>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chase Venters wrote:
 
-This patch adds the kernelcore= parameter for ppc64.
+> On Thu, 26 Jan 2006, Filip Brcic wrote:
+>
+>> ???? Thursday 26 January 2006 18:59, Paul Jakma ?? ???????(??):
+>>
+>>> On Wed, 25 Jan 2006, Linus Torvalds wrote:
+>>>
+>>>> In other words: the _default_ license strategy is always just the
+>>>> particular version of the GPL that accompanies a project. If you
+>>>> want to license a program under _any_ later version of the GPL, you
+>>>> have to state so explicitly. Linux never did.
+>>>
+>>>
+>>> That's not what section 9 seems to say. The default is "any version
+>>> you like".
+>>
+>>
+>> That's right, but
+>>
+>> Also note that the only valid version of the GPL as far as the kernel
+>> is concerned is _this_ particular version of the license (ie v2, not
+>> v2.2 or v3.x or whatever), unless explicitly otherwise stated.
+>>
+>> Linux specifies version GPLv2 and only v2. Therefore, for Linux the 
+>> GPLv2 is
+>> the default.
+>>
+>
+> Well, my understanding is that this clause wasn't always in COPYING. 
+> If not for section 9 of the GPL, then the default would have always 
+> been GPLv2 only.
+>
+> But since this clause was added after some time, one could argue that 
+> some code in Linux, even lacking a specific "or any later version" 
+> boilerplate, could be licensed under GPLv1, GPLv2, GPLv3, etc.
+>
+> However, as I stated before -- since this clause is now present, the 
+> hairball going to GPLv3 would be copyright holders that submitted code 
+> under the GPLv2 Only heading. Since Linus added this clause, and has 
+> no doubt joined in many others submitting code since it was added, 
+> portions of the kernel *are* GPLv2 Only; hence, it would be 
+> impractical to legally migrate to GPLv3.
+>
+> I'll save from weighing in on whether or not GPLv3 is a good idea -- 
+> this is just my evaluation of the facts I see before us.
+>
+> Cheers,
+> Chase
 
-The amount of memory will requested will not be reserved in all nodes. The
-first node that is found that can accomodate the requested amount of memory
-and have remaining more for ZONE_EASYRCLM is used. If a node has memory holes,
-it also will not be used.
+Linus is posturing. I can go back to numerous previous versions when he 
+and stallman were "buddy buddy" and the language was open
+and said "any later version". Well, here's the gotcha. Any version 
+released before Linus said this is GPL 2, 3 or later. As of today, all new
+versions are GPLv2. That's how the law works. So 2.6.15 forward is GPLv2 
+only. Linus cannot re-release previous Linux versions after he
+already posted this NOTICE in COPYING, which he did and left the 
+language pen like this. So it's up to the recevier of the code whether
+its GPLv2 or GPLv3 or whatever, but those releases which appeared with 
+COPYING stating this language are whatever GPL license you
+want.
 
-Signed-off-by: Mel Gorman <mel@csn.ul.ie>
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.16-rc1-mm3-103_x86coremem/arch/powerpc/mm/numa.c linux-2.6.16-rc1-mm3-104_ppc64coremem/arch/powerpc/mm/numa.c
---- linux-2.6.16-rc1-mm3-103_x86coremem/arch/powerpc/mm/numa.c	2006-01-17 07:44:47.000000000 +0000
-+++ linux-2.6.16-rc1-mm3-104_ppc64coremem/arch/powerpc/mm/numa.c	2006-01-26 18:10:29.000000000 +0000
-@@ -21,6 +21,7 @@
- #include <asm/lmb.h>
- #include <asm/system.h>
- #include <asm/smp.h>
-+#include <asm/machdep.h>
- 
- static int numa_enabled = 1;
- 
-@@ -722,20 +723,51 @@ void __init paging_init(void)
- 	unsigned long zones_size[MAX_NR_ZONES];
- 	unsigned long zholes_size[MAX_NR_ZONES];
- 	int nid;
-+	unsigned long core_mem_size = 0;
-+	unsigned long core_mem_pfn = 0;
-+	char *opt;
- 
- 	memset(zones_size, 0, sizeof(zones_size));
- 	memset(zholes_size, 0, sizeof(zholes_size));
- 
-+	/* Check if ZONE_EASYRCLM should be populated */
-+	opt = strstr(cmd_line, "kernelcore=");
-+	if (opt) {
-+		opt += 11;
-+		core_mem_size = memparse(opt, &opt);
-+		core_mem_pfn = core_mem_size >> PAGE_SHIFT;
-+	}
-+
- 	for_each_online_node(nid) {
- 		unsigned long start_pfn, end_pfn, pages_present;
- 
- 		get_region(nid, &start_pfn, &end_pfn, &pages_present);
- 
--		zones_size[ZONE_DMA] = end_pfn - start_pfn;
--		zholes_size[ZONE_DMA] = zones_size[ZONE_DMA] - pages_present;
-+		/*
-+		 * Set up a zone for EASYRCLM as long as this node is large
-+		 * enough to accomodate the requested size and that there
-+		 * are no memory holes
-+		 */
-+		if (end_pfn - start_pfn <= core_mem_pfn ||
-+				end_pfn - start_pfn != pages_present) {
-+			zones_size[ZONE_DMA] = end_pfn - start_pfn;
-+			zholes_size[ZONE_DMA] =
-+				zones_size[ZONE_DMA] - pages_present;
-+			if (core_mem_pfn > end_pfn - start_pfn)
-+				core_mem_pfn -= (end_pfn - start_pfn);
-+		} else {
-+			zones_size[ZONE_DMA] = core_mem_pfn;
-+			zones_size[ZONE_EASYRCLM] = end_pfn - core_mem_pfn;
-+			zholes_size[ZONE_DMA] = 0;
-+			zholes_size[ZONE_EASYRCLM] = 0;
-+			core_mem_pfn = 0;
-+		}
- 
--		dbg("free_area_init node %d %lx %lx (hole: %lx)\n", nid,
-+		dbg("free_area_init DMA node %d %lx %lx (hole: %lx)\n", nid,
- 		    zones_size[ZONE_DMA], start_pfn, zholes_size[ZONE_DMA]);
-+		dbg("free_area_init EASYRCLM node %d %lx %lx (hole: %lx)\n",
-+		    nid, zones_size[ZONE_EASYRCLM], start_pfn,
-+		    zholes_size[ZONE_DMA]);
- 
- 		free_area_init_node(nid, NODE_DATA(nid), zones_size, start_pfn,
- 				    zholes_size);
-diff -rup -X /usr/src/patchset-0.6/bin//dontdiff linux-2.6.16-rc1-mm3-103_x86coremem/mm/page_alloc.c linux-2.6.16-rc1-mm3-104_ppc64coremem/mm/page_alloc.c
---- linux-2.6.16-rc1-mm3-103_x86coremem/mm/page_alloc.c	2006-01-26 18:09:04.000000000 +0000
-+++ linux-2.6.16-rc1-mm3-104_ppc64coremem/mm/page_alloc.c	2006-01-26 18:10:29.000000000 +0000
-@@ -1583,7 +1583,11 @@ static int __init build_zonelists_node(p
- 		zone = pgdat->node_zones + zone_type;
- 		if (populated_zone(zone)) {
- #ifndef CONFIG_HIGHMEM
--			BUG_ON(zone_type > ZONE_NORMAL);
-+			/*
-+			 * On architectures with only ZONE_DMA, it is still
-+			 * valid to have a ZONE_EASYRCLM
-+			 */
-+			BUG_ON(zone_type == ZONE_HIGHMEM);
- #endif
- 			zonelist->zones[nr_zones++] = zone;
- 			check_highest_zone(zone_type);
+Jeff
+
+

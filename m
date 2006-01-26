@@ -1,81 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbWAZQKI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964785AbWAZQNA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbWAZQKI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 11:10:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964774AbWAZQKH
+	id S964785AbWAZQNA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 11:13:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWAZQNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 11:10:07 -0500
-Received: from styx.suse.cz ([82.119.242.94]:56193 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S964772AbWAZQKG (ORCPT
+	Thu, 26 Jan 2006 11:13:00 -0500
+Received: from main.gmane.org ([80.91.229.2]:14774 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964785AbWAZQM7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 11:10:06 -0500
-Date: Thu, 26 Jan 2006 17:10:28 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: matthias.andree@gmx.de, mrmacman_g4@mac.com, linux-kernel@vger.kernel.org,
-       acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060126161028.GA8099@suse.cz>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43D7A7F4.nailDE92K7TJI@burner> <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com> <43D7B1E7.nailDFJ9MUZ5G@burner> <20060125230850.GA2137@merlin.emma.line.org> <43D8C04F.nailE1C2X9KNC@burner>
+	Thu, 26 Jan 2006 11:12:59 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: [RFT] sky2: pci express error fix
+Date: Fri, 27 Jan 2006 01:11:20 +0900
+Message-ID: <drasb9$5jj$1@sea.gmane.org>
+References: <200601190930.k0J9US4P009504@typhaon.pacific.net.au> <20060124220533.5fade501@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43D8C04F.nailE1C2X9KNC@burner>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
+User-Agent: Mail/News 1.5 (X11/20060115)
+In-Reply-To: <20060124220533.5fade501@localhost.localdomain>
+X-Enigmail-Version: 0.94.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 26, 2006 at 01:27:59PM +0100, Joerg Schilling wrote:
-
-> Matthias Andree <matthias.andree@gmx.de> wrote:
+Stephen Hemminger wrote:
+> For all those people suffering with pci express errors
+> on the sky2 driver.  The problem is the PCI subsystem sometimes
+> won't let the sky2 driver write to PCI express registers. It depends
+> on the phase of the moon (actually ACPI) and number of devices.
 > 
-> > Joerg Schilling schrieb am 2006-01-25:
-> >
-> > > > You are perfectly free to adjust your compatibility layer accordingly.
-> > > 
-> > > The Linux Kernel fols unfortunately artificially hides information for the 
-> > > /dev/hd* interface making exactly this compatibility impossible.
-> >
-> > What information is actually missing? You keep talking about phantoms,
-> > without naming them. Again: device enumeration doesn't count, libscg
-> > already does that.
+> Anyway, this should fix it. Please tell me if it solves it for you.
+
+Can you describe the bug a bit more? What happens?
+
+I had a few times something like this:
+
+[   24.145040] sky2 eth0: phy interrupt status 0x1c40 0xbc0c
+
+[ 3647.341757] sky2 eth0: phy interrupt status 0x1c40 0xbc4c
+
+after which all network was dead. (and it wasn't a module so had to
+restart). As you can see from the above two logs, sometimes it failed on
+boot, sometimes after an hour. Sourry, I didn't remember the phase of the
+moon, but I can check :-)
+
+I have two Asus P5GDC-V Deluxe boards, with these chips. One of them is
+happily working with sk98lin (the binary one), the other is dying miserably,
+so now I use r8169 card to be able to isolate the problem (separate mail).
+
+Kalin.
+
 > 
-> I am not talking about phantoms, I am always requestung the same things.
-> It only seems that people here ignore these issues.
 > 
-> The only integrative (and this useful for libscg) interface on Linux is /dev/sg*
-> 
-> /dev/hd* may look nice if you only look skin-deep
-> 
-> How do you e.g. like send SCSI commands to ATAPI tape drives on Linux?
- 
-I see you asking this again and again, and you seem to want to hear this
-answer: "You don't." I haven't checked the code, but I guess the SG_IO
-interface isn't available there. And I don't think this is a problem,
-because a) if it was needed, it can be added trivially with minimum
-added code, b) ATAPI tapes are dead, much the way ATAPI floppies are.
+> --- sky2-2.6.orig/drivers/net/sky2.c
+> +++ sky2-2.6/drivers/net/sky2.c
+> @@ -2003,19 +2003,16 @@ static void sky2_hw_intr(struct sky2_hw 
+>  
+>  	if (status & Y2_IS_PCI_EXP) {
+>  		/* PCI-Express uncorrectable Error occurred */
+> -		u32 pex_err;
+> -
+> -		pci_read_config_dword(hw->pdev, PEX_UNC_ERR_STAT, &pex_err);
+> +		u32 pex_err = sky2_read32(hw, PCI_C(PEX_UNC_ERR_STAT));
+>  
+>  		if (net_ratelimit())
+>  			printk(KERN_ERR PFX "%s: pci express error (0x%x)\n",
+>  			       pci_name(hw->pdev), pex_err);
+>  
+>  		/* clear the interrupt */
+> -		sky2_write32(hw, B2_TST_CTRL1, TST_CFG_WRITE_ON);
+> -		pci_write_config_dword(hw->pdev, PEX_UNC_ERR_STAT,
+> -				       0xffffffffUL);
+> -		sky2_write32(hw, B2_TST_CTRL1, TST_CFG_WRITE_OFF);
+> +		sky2_write8(hw, B2_TST_CTRL1, TST_CFG_WRITE_ON);
+> +		sky2_write32(hw, PCI_CI(PEX_UNC_ERR_STAT), 0xffffffffUL);
+> +		sky2_write8(hw, B2_TST_CTRL1, TST_CFG_WRITE_OFF);
+>  
+>  		if (pex_err & PEX_FATAL_ERRORS) {
+>  			u32 hwmsk = sky2_read32(hw, B0_HWE_IMSK);
+> @@ -2181,12 +2178,8 @@ static int sky2_reset(struct sky2_hw *hw
+>  	sky2_write8(hw, B0_CTST, CS_MRST_CLR);
+>  
+>  	/* clear any PEX errors */
+> -	if (is_pciex(hw)) {
+> -		u16 lstat;
+> -		pci_write_config_dword(hw->pdev, PEX_UNC_ERR_STAT,
+> -				       0xffffffffUL);
+> -		pci_read_config_word(hw->pdev, PEX_LNK_STAT, &lstat);
+> -	}
+> +	if (pci_find_capability(hw->pdev, PCI_CAP_ID_EXP))
+> +		sky2_write32(hw, PCI_C(PEX_UNC_ERR_STAT), 0xffffffffUL);
+>  
+>  	pmd_type = sky2_read8(hw, B2_PMD_TYP);
+>  	hw->copper = !(pmd_type == 'L' || pmd_type == 'S');
+> --- sky2-2.6.orig/drivers/net/sky2.h
+> +++ sky2-2.6/drivers/net/sky2.h
+> @@ -183,6 +183,12 @@ enum csr_regs {
+>  	Y2_CFG_SPC	= 0x1c00,
+>  };
+>  
+> +/* Workaround for ACPI limitations in pci support.
+> + * Sometimes it is impossible to access registers > 256 with
+> + * pci_{read/write}_config_dword
+> + */
+> +#define PCI_C(reg)	(Y2_CFG_SPC + reg)
+> +
+>  /*	B0_CTST			16 bit	Control/Status register */
+>  enum {
+>  	Y2_VMAIN_AVAIL	= 1<<17,/* VMAIN available (YUKON-2 only) */
 
-So can you now stop repeating this question, please?
 
-It has no relevance to CD burning. 
-
-I admit I can see the elegance in your /dev/scg solution on Solaris, but
-you should accept that you're not going to get anything like that on
-Linux, because it simply doesn't fit in the Linux frame of doing things.
-
-In Linux we have devices and operate on them. They can be hotplugged and
-assigned stable names via udev. A tunnel into the transport layer, like
-your /dev/scg on Solaris, simply doesn't have place in Linux.
-
-I believe that if you added Linux 2.6 support code in libscg/cdrecord,
-that'd simply accept the device name as an argument and didn't use *any*
-scanning code at all, you'd make a lot of people happy (*). Quite possibly
-everyone minus one man. Which would be a great achievement.
-
-
-(*) It'd be impossible to burn CDs in a tape drive on Linux then, but,
-    I don't think that'll cause a lot of grief.
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
+

@@ -1,106 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWAZQp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWAZQpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbWAZQp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 11:45:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWAZQp3
+	id S1750754AbWAZQpX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 11:45:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWAZQpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 11:45:29 -0500
-Received: from liaag2ab.mx.compuserve.com ([149.174.40.153]:64974 "EHLO
-	liaag2ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750724AbWAZQp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 11:45:28 -0500
-Date: Thu, 26 Jan 2006 11:41:55 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH] i386 - sys_clone from vsyscall
-To: Daniel fernandez <ergot86@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>, Andrew Morton <akpm@osdl.org>
-Message-ID: <200601261144_MC3-1-B6C2-3A7B@compuserve.com>
+	Thu, 26 Jan 2006 11:45:23 -0500
+Received: from highlandsun.propagation.net ([66.221.212.168]:18440 "EHLO
+	highlandsun.propagation.net") by vger.kernel.org with ESMTP
+	id S1750754AbWAZQpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 11:45:22 -0500
+Message-ID: <43D8FC76.2050906@symas.com>
+Date: Thu, 26 Jan 2006 08:44:38 -0800
+From: Howard Chu <hyc@symas.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20060115 SeaMonkey/1.5a Mnenhy/0.7.3.0
 MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Lee Revell <rlrevell@joe-job.com>,
+       Christopher Friesen <cfriesen@nortel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hancockr@shaw.ca
+Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
+References: <20060124225919.GC12566@suse.de>	 <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de>	 <20060125121125.GH5465@suse.de> <43D78262.2050809@symas.com>	 <43D7BA0F.5010907@nortel.com>  <43D7C2F0.5020108@symas.com> <1138223212.3087.16.camel@mindpipe> <43D7F863.3080207@symas.com> <43D88E55.7010506@yahoo.com.au> <43D8DB90.7070601@symas.com> <43D8E298.3020402@yahoo.com.au> <43D8E96B.3070606@symas.com> <43D8EFF7.3070203@yahoo.com.au>
+In-Reply-To: <43D8EFF7.3070203@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <401b11ae0601260712w7cfe88abm638dc7a459b3bb3a@mail.gmail.com>
+Nick Piggin wrote:
+> No, a spec is something that is written unambiguously, and generally
+> the wording leads me to believe they attempted to make it so (it
+> definitely isn't perfect - your mutex unlock example is one that could
+> be interpreted either way). If they failed to say something that should
+> be there then the spec needs to be corrected -- however in this case
+> I don't think you've shown what's missing.
 
-On Thu, 26 Jan 2006 at 15:12:08 +0000, Daniel fernandez wrote:
+What is missing: sched_yield is a core threads function but it's defined 
+using language that only has meaning in the presence of an optional 
+feature (Process Scheduling.) Since the function must exist even in the 
+absence of these options, the definition must be changed to use language 
+that has meaning even in the absence of these options.
 
-> > Your patch almost works but it copies the stack into the parent's address space.
-> > Using access_process_vm() fixes it.  However, that still leaves unfixed the case
-> > where vsyscall-int80 is used.
-> 
-> I copy the stack into the parent's address space becuase in this case
-> the memory is shared, but  access_process_vm() is more elegant :).
+> And actually your reading things into the spec that "they failed to say"
+> is wrong I believe (in the above sched_yield example).
+>
+>> interpretation would come from saying "hey, this spec is only defined 
+>> for realtime behavior, WTF is it supposed to do for the default 
+>> non-realtime case?" and getting a clear definition in the spec.
+>
+> However they do not omit to say that. They quite explicitly say that
+> SCHED_OTHER is considered a single priority class in relation to its
+> interactions with other realtime classes, and is otherwise free to
+> be implemented in any way.
+>
+> I can't see how you still have a problem with that...
+>
+I may be missing the obvious, but I couldn't find this explicit 
+statement in the SUS docs. Also, it would not address the core 
+complaint, that sched_yield's definition has no meaning when the Process 
+Scheduling option doesn't exist.
 
-My test program (below) doesn't use CLONE_VM.  With your patch the stack
-data showed up only in the parent process, probably due to copy-on-write,
-and the child gets SIGSEGV trying to transfer control to address 0.
+The current Open Group response to my objection reads:
+ >>>
 
-> About vsyscall-int80, I don't know how to test that case in my
-> computer but I think a solution could be:
+Add to APPLICATION USAGE
+Since there may not be more than one thread runnable in a process
+a call to sched_yield() might not relinquish the processor at all.
+In a single threaded application this will always be case.
 
-I patched arch/i386/kernel/cpu/common.c to add a boot option "nox86sep"
-similar to "nofxsr" and sure enough the test program dies when booting
-with that option:
+<<<
+The interesting point one can draw from this response is that 
+sched_yield is only intended to yield to other runnable threads within a 
+single process. This response is also problematic, because restricting 
+it to threads within a process makes it useless for Process Scheduling. 
+E.g., the Process Scheduling language would imply that a single-threaded 
+app could yield the processor to some other process. As such, I think 
+this response is also flawed, and the definition still needs more work.
 
-        $ ./test_clone2.ex
-        SIGSEGV accessing 0x00000000 from EIP 0x00000000
-        cloned; ret = 621
-
-Your fix for this should work fine.
-
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-
-#ifdef INT80
-#  define SYSCALL_STR "int $0x80\n\t"
-#else
-#  define SYSCALL_STR "call 0xffffe400\n\t"
-#endif
-
-#define CLONE	120
-#define FLAGS	0
-
-unsigned long child_stack[4096] __attribute__((__aligned__(4096)));
-unsigned long *child_stack_ptr = &child_stack[2047];
-struct sigaction sa;
-int ret;
-
-static void handler(int nr, siginfo_t *si, void *vuc)
-{
-	struct ucontext *uc = (struct ucontext *)vuc;
-	struct sigcontext *sc = (struct sigcontext *)&uc->uc_mcontext;
-
-	printf("SIGSEGV accessing 0x%08x from EIP 0x%08x\n",
-	       (unsigned long)si->si_addr, sc->eip);
-
-	sa.sa_handler = SIG_DFL;
-	sa.sa_flags = 0;
-	sigaction(SIGSEGV, &sa, NULL);
-}
-
-int main(int argc, char * const argv[])
-{
-	sa.sa_sigaction = handler;
-	sa.sa_flags = SA_SIGINFO;
-	sigaction(SIGSEGV, &sa, NULL);
-
-	asm volatile(
-		SYSCALL_STR
-		: "=a"(ret)
-		: "a"(CLONE), "b"(FLAGS), "c"(child_stack_ptr)
-		: "memory"
-	);
-
-	printf("cloned; ret = %d\n", ret);
-	_exit(0);
-}
 -- 
-Chuck
-Currently reading: _The Atrocity Archives_ by Charles Stross
+  -- Howard Chu
+  Chief Architect, Symas Corp.  http://www.symas.com
+  Director, Highland Sun        http://highlandsun.com/hyc
+  OpenLDAP Core Team            http://www.openldap.org/project/
+

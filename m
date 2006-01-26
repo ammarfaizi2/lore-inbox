@@ -1,64 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWAZAfa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbWAZAhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbWAZAfa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 19:35:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbWAZAfa
+	id S1751276AbWAZAhU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 19:37:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbWAZAhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 19:35:30 -0500
-Received: from mx2.suse.de ([195.135.220.15]:28641 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751275AbWAZAfa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 19:35:30 -0500
-From: Andi Kleen <ak@suse.de>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Subject: Re: [PATCH] garbage values in file /proc/net/sockstat
-Date: Thu, 26 Jan 2006 01:32:11 +0100
-User-Agent: KMail/1.8.2
-Cc: Eric Dumazet <dada1@cosmosbay.com>, pravin shelar <pravins@calsoftinc.com>,
-       Shai Fultheim <shai@scalex86.org>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-References: <Pine.LNX.4.63.0601231206270.2192@pravin.s> <200601251431.16513.ak@suse.de> <20060125195946.GC3573@localhost.localdomain>
-In-Reply-To: <20060125195946.GC3573@localhost.localdomain>
+	Wed, 25 Jan 2006 19:37:19 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:57870 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751276AbWAZAhR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 19:37:17 -0500
+To: Matthias Andree <matthias.andree@gmx.de>
+Cc: Jens Axboe <axboe@suse.de>, grundig@teleline.es,
+       Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       jengelh@linux01.gwdg.de, rlrevell@joe-job.com,
+       linux-kernel@vger.kernel.org, acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
+	<Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
+	<20060125144543.GY4212@suse.de>
+	<Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
+	<20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner>
+	<20060125181847.b8ca4ceb.grundig@teleline.es>
+	<20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: (setq software-quality (/ 1 number-of-authors))
+Date: Thu, 26 Jan 2006 00:36:39 +0000
+In-Reply-To: <43D7C1DF.1070606@gmx.de> (Matthias Andree's message of "25 Jan
+ 2006 18:23:16 -0000")
+Message-ID: <878xt3rfjc.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601260132.12611.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 25 January 2006 20:59, Ravikiran G Thirumalai wrote:
-> On Wed, Jan 25, 2006 at 02:31:15PM +0100, Andi Kleen wrote:
-> > On Monday 23 January 2006 17:46, Eric Dumazet wrote:
-> > 
-> > I think the best course of action for this now for 2.6.16 is:
-> > 
-> > - mark percpu init data not __init
-> > (this way it will still reference valid memory, although shared between
-> > all impossible CPUs)
-> > - keep the impossible CPUs per cpu data to point to the original reference  
-> > version (== offset 0)
-> > 
+On 25 Jan 2006, Matthias Andree prattled cheerily:
+> Jens Axboe wrote:
 > 
-> How about doing the above using a debug config option? So that when the
-> config option is turned on, all per-cpu area references to not possible 
-> cpus crash? and leave that option default on on -mm :)
+>> In fact it would be a _lot_ easier to just scan sysfs and do an inquiry
+>> on potentially useful devices.
+> 
+> Hm. sysfs, procfs, udev, hotplug, netlink (for IPv6) - this all looks rather
+> complicated and non-portable. I understand that applications that can just
+> open every device and send SCSI INQUIRY might want to do that on Linux, too.
 
-In -mm* we could just apply Eric's patch and then someone should just
-grep the tree for NR_CPUS and audit all users - that should
-catch basically all occurrences. I can put it onto my todo list,
-but I don't know when I'll get to it so it would be nice if someone
-else could do this.
+Applications (already) do this by asking HAL, which can be informed of
+new devices in a variety of ways: the up-and-coming one is for the
+kernel to notify udevd, following which a udev rule sends a dbus message
+to HAL. Everything from the dbus message on up is cross-OS portable.
+-scanbus is *totally* unnecessary.
 
-For 2.6.16 I think it's best to go forward with my hack.
+(Furthermore, it fails to work in a quite laughable fashion in the
+presence of hotpluggable storage media. udev handles giving hotpluggable
+storage media consistent device names with extreme ease, and tells HAL
+about them so that users see the new devices appear even if they don't
+have a clue that /dev even exists.
 
-> .  That way we can  
-> quickly catch all references.  We can probably change the arch independent 
-> setup_per_cpu_areas also to do allocations for cpu_possible cpus only while 
-> we are at it?
+The change that J. Random Nontechnical User will ever run `cdrecord
+-scanbus' is *nil*, and applications don't run it either because they
+can't judge between all the devices that are listed to pick the one
+which is a CD recorder (consider the consequences should they guess
+wrong!). Instead, they invariably ask for a device name, or, in more
+recent versions get the info from HAL. HAL knows if something is a CD
+recorder because its backend, e.g. udev, told it.)
 
-Eric did that already.
-
--Andi
-
+-- 
+`Everyone has skeletons in the closet.  The US has the skeletons
+ driving living folks into the closet.' --- Rebecca Ore

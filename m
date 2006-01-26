@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWAZOPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbWAZOQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932326AbWAZOPb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 09:15:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932330AbWAZOPb
+	id S932330AbWAZOQR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 09:16:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbWAZOQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 09:15:31 -0500
-Received: from smtpout.mac.com ([17.250.248.89]:6120 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932326AbWAZOPa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 09:15:30 -0500
-In-Reply-To: <43D88D7B.1030204@yahoo.com.au>
-References: <20060124225919.GC12566@suse.de> <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de> <20060125121125.GH5465@suse.de> <43D78262.2050809@symas.com> <43D7BA0F.5010907@nortel.com> <43D7C2F0.5020108@symas.com> <43D7CAAB.9070008@yahoo.com.au> <43D7D234.6060005@symas.com> <43D88D7B.1030204@yahoo.com.au>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <E47694FE-571C-40BC-B247-2AC3EEBDA63C@mac.com>
-Cc: Howard Chu <hyc@symas.com>, Christopher Friesen <cfriesen@nortel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hancockr@shaw.ca
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
-Date: Thu, 26 Jan 2006 09:15:15 -0500
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-X-Mailer: Apple Mail (2.746.2)
+	Thu, 26 Jan 2006 09:16:16 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:11252 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S932330AbWAZOQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 09:16:16 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Thu, 26 Jan 2006 15:14:58 +0100
+To: schilling@fokus.fraunhofer.de, mj@ucw.cz
+Cc: rlrevell@joe-job.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jerome.lacoste@gmail.com, jengelh@linux01.gwdg.de, axboe@suse.de,
+       acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43D8D962.nailE2XE6V7X6@burner>
+References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com>
+ <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr>
+ <20060125144543.GY4212@suse.de>
+ <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr>
+ <20060125153057.GG4212@suse.de>
+ <5a2cf1f60601251401h2cced00ele307636e748b9a7b@mail.gmail.com>
+ <43D8BCFE.nailE1C116RR9@burner>
+ <mj+md-20060126.122723.14374.atrey@ucw.cz>
+In-Reply-To: <mj+md-20060126.122723.14374.atrey@ucw.cz>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Haven't you OpenLDAP guys realized that the pthread model you're  
-actually looking for is this?  POSIX mutexes are not designed to  
-mandate scheduling requirements *precisely* because this achieves  
-your scheduling goals by explicitly stating what they are.
+Martin Mares <mj@ucw.cz> wrote:
 
-s: pthread_mutex_lock(&mutex);
-s: pthread_cond_wait(&wake_slave, &mutex);
+> > On Linux-2.4, cdrecord's abstraction is the only way to hide the security 
+> > relevent non-stable /dev/sg* <-> device relation.
+>
+> OK. So welcome to year 2006. And to Linux 2.6.
 
-m: [do some work]
-m: pthread_cond_signal(&wake_slave);
-m: pthread_cond_wait(&wake_master, &mutex);
+When will Linux arrive in 2006 and support ATAPI and SCSI in general, not just 
+ATAPI for hard disk drives and CD-ROMS?
 
-s: [return from pthread_cond_wait]
-s: [do some work]
-s: pthread_cond_signal(&wake_master);
-s: pthread_cond_wait(&wake_slave, &mutex);
+Jörg
 
-Of course, if that's the model you're looking for, you could always  
-do this instead:
-
-void master_func() {
-	while (1) {
-		[do some work]
-		slave_func();
-	}
-}
-
-void slave_func() {
-	[do some work]
-}
-
-The semantics are effectively the same.
-
-Cheers,
-Kyle Moffett
-
---
-Premature optimization is the root of all evil in programming
-   -- C.A.R. Hoare
-
-
-
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

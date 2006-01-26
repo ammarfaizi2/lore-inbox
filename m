@@ -1,64 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWAZMjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWAZMnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751339AbWAZMjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 07:39:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWAZMjQ
+	id S1751334AbWAZMnR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 07:43:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWAZMnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 07:39:16 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:50849 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S1751339AbWAZMjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 07:39:15 -0500
-Date: Thu, 26 Jan 2006 13:39:14 +0100
-From: Martin Mares <mj@ucw.cz>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: jerome.lacoste@gmail.com, axboe@suse.de, rlrevell@joe-job.com,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <mj+md-20060126.122723.14374.atrey@ucw.cz>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <5a2cf1f60601251401h2cced00ele307636e748b9a7b@mail.gmail.com> <43D8BCFE.nailE1C116RR9@burner>
-Mime-Version: 1.0
+	Thu, 26 Jan 2006 07:43:17 -0500
+Received: from ip-svs-1.Informatik.Uni-Oldenburg.DE ([134.106.12.126]:24300
+	"EHLO aechz.svs.informatik.uni-oldenburg.de") by vger.kernel.org
+	with ESMTP id S1751334AbWAZMnR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 07:43:17 -0500
+Date: Thu, 26 Jan 2006 13:42:50 +0100
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+To: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [RT] kgameportd/633 changed soft IRQ-flags.
+Message-ID: <20060126124250.GA11512@titan.lahn.de>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43D8BCFE.nailE1C116RR9@burner>
-User-Agent: Mutt/1.5.9i
+Organization: UUCP-Freunde Lahn e.V.
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hello Ingo,Thomas!
 
-> > Linux developers seem to see the world in a different way. Their main
-> > requirements:
-> > - compliance with the linux way of doing things
-> 
-> Which is unfortunately (in contrary to what cdrecord does) a moving target.
+While trying 2.6.15-rt15 I got the following warning, which you might be
+interested in. If you need more information, please feel free to contact
+me,
 
-Which is *fortunately* a moving target, because what served well 20 years
-ago is unlikely to serve equally well *now*.
+Linux version 2.6.15.1-rt15 (root@titan) (gcc version 4.0.3 20060115 (prerelease) (Debian 4.0.2-7)) #1 SMP PREEMPT Tue Jan 24 23:26:28 CET 2006
+...
+CPU0: Intel Pentium III (Katmai) stepping 03
+CPU1: Intel Pentium III (Katmai) stepping 03
+...
+isapnp: Scanning for PnP cards...
+pnp: SB audio device quirk - increasing port range
+pnp: AWE32 quirk - adding two ports
+isapnp: Card 'Creative SB32 PnP'
+isapnp: 1 Plug & Play card detected total
+...
+pnp: Device 01:01.03 activated.
+gameport: NS558 PnP Gameport is pnp01:01.03/gameport0, io 0x200, speed 727kHz
+WARNING: kgameportd/633 changed soft IRQ-flags.
+ [<c010388e>] dump_stack+0x15/0x17 (12)
+ [<c01321a4>] illegal_API_call+0x3c/0x41 (20)
+ [<c013224b>] __local_irq_save+0x2b/0x2d (8)
+ [<e08d8735>] analog_calibrate_timer+0x19/0x192 [analog] (40)
+ [<e08d8f8b>] analog_init_port+0x31/0x224 [analog] (40)
+ [<e08d91b6>] analog_connect+0x38/0xfd [analog] (36)
+ [<e08d1c56>] gameport_driver_probe+0x1a/0x2b [gameport] (12)
+ [<c022c87d>] driver_probe_device+0x35/0x82 (20)
+ [<c022c94f>] __driver_attach+0x29/0x37 (20)
+ [<c022c16e>] bus_for_each_dev+0x36/0x5b (32)
+ [<c022c971>] driver_attach+0x14/0x17 (12)
+ [<c022c4e6>] bus_add_driver+0x66/0xb0 (24)
+ [<c022cc44>] driver_register+0x49/0x50 (20)
+ [<e08d15db>] gameport_handle_event+0x5f/0x7a [gameport] (12)
+ [<e08d16b5>] gameport_thread+0xc/0xc6 [gameport] (32)
+ [<c012ad91>] kthread+0x77/0xa4 (32)
+ [<c0100fe5>] kernel_thread_helper+0x5/0xb (560652316)
+---------------------------
+| preempt count: 00000000 ]
+| 0-level deep critical section nesting:
+----------------------------------------
 
-Having a stable naming of devices is a good goal, but in no way restricted
-to SCSI-like devices. What you suggest works only there, what Linux currently
-uses (udev etc.) works for all devices. Guess which is better for most users.
+------------------------------
+| showing all locks held by: |  (kgameportd/633 [df0847e0, 111]):
+------------------------------
 
-> BTW: There are still many people who run Linux-2.2 and many people told me that
-> they will probably never upgrade from 2.4 to 2.6.
+#001:             [e08d3764] {gameport_sem.lock}
+... acquired at:               gameport_handle_event+0xe/0x7a [gameport]
 
-Fine, so feel free consider Linux <2.6 and Linux 2.6 two completely
-separate operating systems. I did the same with the IP stack interface
-in the BIRD project and I consider it a very good step -- the old
-interface provided by Linux 2.0 and cluttered with BSD compatibility is
-almost unusable when compared to Netlink, but for sake of users who
-don't want to upgrade their kernel, BIRD is able to use the old one,
-though with limited functionality.
+#002:             [defc12f8] {(struct semaphore *)(&dev->sem)}
+... acquired at:               __driver_attach+0x17/0x37
 
-> On Linux-2.4, cdrecord's abstraction is the only way to hide the security 
-> relevent non-stable /dev/sg* <-> device relation.
+input: Analog 3-axis 4-button joystick as /class/input/input2
 
-OK. So welcome to year 2006. And to Linux 2.6.
-
-				Have a nice fortnight
+BYtE
+Philipp
 -- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-How do I type 'for i in *.dvi ; do xdvi $i ; done' in a GUI?
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de

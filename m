@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751254AbWAZAGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWAZAIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751254AbWAZAGP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 19:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWAZAGO
+	id S1751251AbWAZAIV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 19:08:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWAZAIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 19:06:14 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:40853
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751140AbWAZAGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 19:06:12 -0500
-Date: Wed, 25 Jan 2006 16:04:30 -0800 (PST)
-Message-Id: <20060125.160430.94334986.davem@davemloft.net>
-To: paulus@samba.org
-Cc: mita@miraclelinux.com, linux-kernel@vger.kernel.org,
-       linux-mips@linux-mips.org, linux-ia64@vger.kernel.org, spyro@f2s.com,
-       dhowells@redhat.com, linuxppc-dev@ozlabs.org, gerg@uclinux.org,
-       sparclinux@vger.kernel.org, uclinux-v850@lsi.nec.co.jp,
-       torvalds@osdl.org, ysato@users.sourceforge.jp, takata@linux-m32r.org,
-       linuxsh-shmedia-dev@lists.sourceforge.net, linux-m68k@vger.kernel.org,
-       ink@jurassic.park.msu.ru, rth@twiddle.net, chris@zankel.net,
-       dev-etrax@axis.com, ultralinux@vger.kernel.org, ak@suse.de,
-       linuxsh-dev@lists.sourceforge.net, linux390@de.ibm.com,
-       rmk@arm.linux.org.uk, parisc-linux@parisc-linux.org
-Subject: Re: [PATCH 5/6] fix warning on test_ti_thread_flag()
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <17367.64370.844350.972910@cargo.ozlabs.ibm.com>
-References: <20060125112625.GA18584@miraclelinux.com>
-	<20060125113446.GF18584@miraclelinux.com>
-	<17367.64370.844350.972910@cargo.ozlabs.ibm.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 25 Jan 2006 19:08:20 -0500
+Received: from are.twiddle.net ([64.81.246.98]:56980 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id S1751208AbWAZAIS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 19:08:18 -0500
+Date: Wed, 25 Jan 2006 16:06:18 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Ian Molton <spyro@f2s.com>,
+       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>
+Subject: Re: [PATCH 3/6] C-language equivalents of include/asm-*/bitops.h
+Message-ID: <20060126000618.GA5592@twiddle.net>
+Mail-Followup-To: Akinobu Mita <mita@miraclelinux.com>,
+	linux-kernel@vger.kernel.org,
+	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Ian Molton <spyro@f2s.com>, dev-etrax@axis.com,
+	David Howells <dhowells@redhat.com>,
+	Yoshinori Sato <ysato@users.sourceforge.jp>,
+	Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
+	Hirokazu Takata <takata@linux-m32r.org>,
+	linux-m68k@lists.linux-m68k.org, Greg Ungerer <gerg@uclinux.org>,
+	linux-mips@linux-mips.org, parisc-linux@parisc-linux.org,
+	linuxppc-dev@ozlabs.org, linux390@de.ibm.com,
+	linuxsh-dev@lists.sourceforge.net,
+	linuxsh-shmedia-dev@lists.sourceforge.net,
+	sparclinux@vger.kernel.org, ultralinux@vger.kernel.org,
+	Miles Bader <uclinux-v850@lsi.nec.co.jp>, Andi Kleen <ak@suse.de>,
+	Chris Zankel <chris@zankel.net>
+References: <20060125112625.GA18584@miraclelinux.com> <20060125113206.GD18584@miraclelinux.com> <20060125200250.GA26443@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060125200250.GA26443@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paul Mackerras <paulus@samba.org>
-Date: Thu, 26 Jan 2006 09:28:02 +1100
+On Wed, Jan 25, 2006 at 08:02:50PM +0000, Russell King wrote:
+> > +	s = 16; if (word << 16 != 0) s = 0; b += s; word >>= s;
+> > +	s =  8; if (word << 24 != 0) s = 0; b += s; word >>= s;
+> > +	s =  4; if (word << 28 != 0) s = 0; b += s; word >>= s;
+...
+> Basically, shifts which depend on a variable are more expensive than
+> constant-based shifts.
 
-> Akinobu Mita writes:
-> 
-> > If the arechitecture is
-> > - BITS_PER_LONG == 64
-> > - struct thread_info.flag 32 is bits
-> > - second argument of test_bit() was void *
-> > 
-> > Then compiler print error message on test_ti_thread_flags()
-> > in include/linux/thread_info.h
-> 
-> And correctly so.  The correct fix is to make thread_info.flag an
-> unsigned long.  This patch is NAKed.
+Actually, they're all constant shifts.  Just written stupidly.
 
-I agree.
+
+r~

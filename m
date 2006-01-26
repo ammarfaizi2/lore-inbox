@@ -1,71 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWAZM6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWAZNKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbWAZM6c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 07:58:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWAZM6c
+	id S1751345AbWAZNKq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 08:10:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWAZNKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 07:58:32 -0500
-Received: from mail.gmx.de ([213.165.64.21]:1238 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751182AbWAZM6c (ORCPT
+	Thu, 26 Jan 2006 08:10:46 -0500
+Received: from uproxy.gmail.com ([66.249.92.207]:2960 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751345AbWAZNKp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 07:58:32 -0500
-X-Authenticated: #428038
-Date: Thu, 26 Jan 2006 13:58:25 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060126125825.GB14256@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de
-References: <Pine.LNX.4.61.0601241823390.28682@yvahk01.tjqt.qr> <43D78585.nailD7855YVBX@burner> <20060125142155.GW4212@suse.de> <Pine.LNX.4.61.0601251544400.31234@yvahk01.tjqt.qr> <20060125145544.GA4212@suse.de> <43D7AEBF.nailDFJ7263OE@burner> <43D7B100.7040706@gmx.de> <43D7B345.nailDFJB1WWYF@burner> <20060125231957.GC2137@merlin.emma.line.org> <43D8C0E9.nailE1C31558S@burner>
-MIME-Version: 1.0
+	Thu, 26 Jan 2006 08:10:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=tAXncgfjV4G+KdH1gZL19kF15L8XrA9l++T9JEzJ7jNzO+d0pb69sucUhd7N49uWQRHG5ScrxvYwwf0zE0UOxEqCeZv2X63be+08ocx4mTmnjQRom4egb7+44gNE5cL2qKqHfIJDlj94DHp72g6YU/3HN3r57CN7rrjcKQs5zV8=
+Date: Thu, 26 Jan 2006 16:28:30 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Domen Puncer <domen@coderock.org>, linux-kernel@vger.kernel.org,
+       jffs-dev@axis.com
+Subject: [PATCH] Remove fs/jffs2/histo.h
+Message-ID: <20060126132830.GD9288@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43D8C0E9.nailE1C31558S@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
 User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-01-26:
+From: Domen Puncer <domen@coderock.org>
 
-> Matthias Andree <matthias.andree@gmx.de> wrote:
-> 
-> > Joerg Schilling schrieb am 2006-01-25:
-> >
-> > > Matthias Andree <matthias.andree@gmx.de> wrote:
-> > > 
-> > > > I think we'd better call the whole discussion off.
-> > > 
-> > > We could continue as long as people like Jens Axboe stay reasonable.
-> >
-> > No. The deal was people stating their requirements, not mounting
-> > personal attacks against others. I posted the same question (what's
-> 
-> This is why we needed to omit Jens Axboe from this discusion.
+Remove nowhere referenced file (egrep "histo\." didn't find anything).
 
-Hold it! Who is acquainted with Linux 2.6.15-rc*, Jens or you?
+Signed-off-by: Domen Puncer <domen@coderock.org>
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-This childish discussion who started bitching isn't going to take you anywhere.
+ fs/jffs2/histo.h |    3 ---
+ 1 file changed, 3 deletions(-)
 
-> Tell me how to access a ATAPI tape drive via libscg.
+--- a/fs/jffs2/histo.h
++++ b/fs/jffs2/histo.h
+@@ -1,3 +0,0 @@
+-/* This file provides the bit-probabilities for the input file */
+-#define BIT_DIVIDER 629
+-static int bits[9] = { 179,167,183,165,159,198,178,119,}; /* ia32 .so files */
 
-It is *your* library, I have no interest in it as long as CD writing
-works at the moment. Either do your research or ask the public, I'm not
-going to answer or research this for you.
-
-It is not helpful that you are (1) talking about ATAPI tapes under the
-CD subject and (2) claim you know better than Linux (or Jens, for that
-matter) if you haven't researched this.
-
-If you want to talk about libscg's access methods to all kinds of
-devices besides CD/DVD, start a new discussion please.
-
-And it is about time that you stopped spamming people who explicitly
-stated "No Cc:" such as Jens Axboe and Lee Revell.
-Not minding these requests is rude.
-
--- 
-Matthias Andree

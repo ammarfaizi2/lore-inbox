@@ -1,57 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWAZJBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWAZJ0j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932134AbWAZJBX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 04:01:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWAZJBX
+	id S932152AbWAZJ0j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 04:26:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWAZJ0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 04:01:23 -0500
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:61868 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932134AbWAZJBW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 04:01:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=Ge+eovh1zMwB3mrFNnSXn+awUh+NO9WYXnxffagaWLXiZ3thAv6mASqFuAdLH7yhir4DDBqaQlXT0eBAwtRilj7vBhwgkCpkzFfqG0Q2m4pGYk7W8SmNNdE+JkbbcTBRpew1g9poaoRVVxgiOxa5KGwal8Hx+PmBbFGct1XwfOo=  ;
-Message-ID: <43D88FDF.6040606@yahoo.com.au>
-Date: Thu, 26 Jan 2006 20:01:19 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-CC: davids@webmaster.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hancockr@shaw.ca
-Subject: Re: sched_yield() makes OpenLDAP slow
-References: <MDEHLPKNGKAHNMBLJOLKAEJBJKAB.davids@webmaster.com> <43D8889E.3020907@aitel.hist.no>
-In-Reply-To: <43D8889E.3020907@aitel.hist.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Jan 2006 04:26:39 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:19139 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932152AbWAZJ0j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 04:26:39 -0500
+Date: Thu, 26 Jan 2006 01:26:12 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [patch, lock validator] rcu_torture_lock deadlock fix
+Message-ID: <20060126092612.GA4953@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060125185012.GA24258@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060125185012.GA24258@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> David Schwartz wrote:
+On Wed, Jan 25, 2006 at 07:50:12PM +0100, Ingo Molnar wrote:
+> rcu_torture_lock is used in a softirq-unsafe manner, but it is also
+> taken by rcu_torture_cb(), which may execute in softirq-context,
+> resulting in potential deadlocks.
 
->> nothing says that it can't call pthread_mutex_lock and re-acquire the 
->> mutex
->> before any other thread gets around to getting it.
->>  
->>
-> Wrong.
-> The spec says that the mutex must be given to a waiter (if any) at the
-> moment of release.
+Good catch!!!  :-/
 
-Repeating myself here...
+							Thanx, Paul
 
-To me it says that the scheduling policy decides at the moment of release.
-What if the scheduling policy decides *right then* to give the mutex to
-the next running thread that tries to aquire it?
+Acked-by: <paulmck@us.ibm.com>
 
-That would be the logical way for a scheduling policy to decide the next
-owner of the mutex.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> this bug was found by the lock-validator:
+> 
+>   ============================
+>   [ BUG: illegal lock usage! ]
+>   ----------------------------
+>   illegal {enabled-softirqs} -> {used-in-softirq} usage.
+>   swapper/0 [HC0[0]:SC1[2]:HE1:SE0] takes {rcu_torture_lock [u:25]}, at:
+>    [<c014dab3>] rcu_torture_cb+0x49/0x7e
+>   {enabled-softirqs} state was registered at:
+>    [<c01269a0>] copy_process+0x25d/0xed5
+>   hardirqs last enabled at: [<c0137a7a>] __rcu_process_callbacks+0x5f/0x14a
+>   softirqs last enabled at: [<c012ce90>] irq_exit+0x36/0x38
+>   
+>   other info that might help in debugging this:
+>   ------------------------------
+>   | showing all locks held by: |  (swapper/0 [f7c06750, 140]): <none>
+>   ------------------------------
+>   
+>    [<c0103e82>] show_trace+0xd/0xf
+>    [<c0103e99>] dump_stack+0x15/0x17
+>    [<c013e581>] print_usage_bug+0x176/0x181
+>    [<c013ea58>] mark_lock+0x9b/0x22b
+>    [<c013efa2>] debug_lock_chain+0x3ba/0xd0c
+>    [<c013f925>] debug_lock_chain_spin+0x31/0x48
+>    [<c041076e>] _raw_spin_lock+0x34/0x7f
+>    [<c0d29435>] _spin_lock+0x8/0xa
+>    [<c014dab3>] rcu_torture_cb+0x49/0x7e
+>    [<c0137b1f>] __rcu_process_callbacks+0x104/0x14a
+>    [<c0137e33>] rcu_process_callbacks+0x26/0x3f
+>    [<c012cfc4>] tasklet_action+0x64/0xc8
+>    [<c012d174>] __do_softirq+0x84/0xff
+>    [<c0104d72>] do_softirq+0x52/0xbb
+>    =======================
+>    [<c012ce90>] irq_exit+0x36/0x38
+>    [<c0118809>] smp_apic_timer_interrupt+0x4e/0x51
+>    [<c010376b>] apic_timer_interrupt+0x27/0x2c
+>    [<c0101b4f>] cpu_idle+0x9a/0xb3
+>    [<c0117d1e>] start_secondary+0x3c3/0x3cb
+>    [<00000000>] 0x0
+>    [<f7c07fb4>] 0xf7c07fb4
+> 
+> the fix is to acquire rcu_torture_lock in a softirq-safe manner.
+> With this fix applied, the rcu-torture code passes validation.
+> 
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> 
+> ----
+> 
+>  kernel/rcutorture.c |   10 +++++-----
+>  1 files changed, 5 insertions(+), 5 deletions(-)
+> 
+> Index: linux/kernel/rcutorture.c
+> ===================================================================
+> --- linux.orig/kernel/rcutorture.c
+> +++ linux/kernel/rcutorture.c
+> @@ -114,16 +114,16 @@ rcu_torture_alloc(void)
+>  {
+>  	struct list_head *p;
+>  
+> -	spin_lock(&rcu_torture_lock);
+> +	spin_lock_bh(&rcu_torture_lock);
+>  	if (list_empty(&rcu_torture_freelist)) {
+>  		atomic_inc(&n_rcu_torture_alloc_fail);
+> -		spin_unlock(&rcu_torture_lock);
+> +		spin_unlock_bh(&rcu_torture_lock);
+>  		return NULL;
+>  	}
+>  	atomic_inc(&n_rcu_torture_alloc);
+>  	p = rcu_torture_freelist.next;
+>  	list_del_init(p);
+> -	spin_unlock(&rcu_torture_lock);
+> +	spin_unlock_bh(&rcu_torture_lock);
+>  	return container_of(p, struct rcu_torture, rtort_free);
+>  }
+>  
+> @@ -134,9 +134,9 @@ static void
+>  rcu_torture_free(struct rcu_torture *p)
+>  {
+>  	atomic_inc(&n_rcu_torture_free);
+> -	spin_lock(&rcu_torture_lock);
+> +	spin_lock_bh(&rcu_torture_lock);
+>  	list_add_tail(&p->rtort_free, &rcu_torture_freelist);
+> -	spin_unlock(&rcu_torture_lock);
+> +	spin_unlock_bh(&rcu_torture_lock);
+>  }
+>  
+>  static void
+> 

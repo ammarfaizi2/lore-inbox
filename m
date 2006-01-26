@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWAZQ4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWAZRPD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbWAZQ4s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 11:56:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbWAZQ4s
+	id S932271AbWAZRPD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 12:15:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWAZRPC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 11:56:48 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:21530 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964794AbWAZQ4r (ORCPT
+	Thu, 26 Jan 2006 12:15:02 -0500
+Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:61084 "EHLO
+	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
+	id S932271AbWAZRPA convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 11:56:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=AUs8+U8V+tYgjfd14hnPMsiUFAll1/0QVWdijr2XjjtVLu0wgVuNppw2rAgNY385sUB/3uEGh+yLfUWpzGoXZRvQvC+lqTCjLFPAQtw0zy4KWKP+POebqupMcuxJ5xXTkeD2KZmjj0Ke8KAFHFo5EFzIVGF3acq9KrqN/2vyW4k=
-Message-ID: <43D8FF43.6050907@gmail.com>
-Date: Thu, 26 Jan 2006 18:56:35 +0200
-From: Matan Peled <chaosite@gmail.com>
-Reply-To: chaosite@gmail.com
-Organization: Chaosite Destruction, inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051014 Thunderbird/1.0.7 Mnenhy/0.7.2.0
+	Thu, 26 Jan 2006 12:15:00 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-CC: acahalan@gmail.com, rlrevell@joe-job.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43D7A7F4.nailDE92K7TJI@burner> <787b0d920601251826l6a2491ccy48d22d33d1e2d3e7@mail.gmail.com> <43D8D396.nailE2X31OHFU@burner>
-In-Reply-To: <43D8D396.nailE2X31OHFU@burner>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Problems with MSI-X on ia64 
+Date: Thu, 26 Jan 2006 11:14:22 -0600
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF10B848090@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Problems with MSI-X on ia64 
+Thread-Index: AcYim/OQRI88rlKjRNKZ/xkcrKUHbw==
+From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
+To: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
+       <linux-ia64@vger.kernel.org>
+X-OriginalArrivalTime: 26 Jan 2006 17:14:25.0883 (UTC) FILETIME=[F5632AB0:01C6229B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
-> Albert Cahalan <acahalan@gmail.com> wrote:
->> Names can be handled by Windows, FreeBSD, MacOS X,
->> Linux, OpenBSD, Solaris, HP-UX, AIX, and IRIX.
->> That's everything that isn't end-of-lifed.
-> Aha, so you like to state that MS-WIN is end-of-lifed?
-> Is this secret new information from Microsoft?
+Hello,
+Has anyone tested MSI-X on ia64 based platforms? We're using a 2.6.9
+variant and a cciss driver with MSI/MSI-X support. The kernel has MSI
+enabled. On ia64 the MSI-X table is all zeroes. On Intel x86_64
+platforms the table contains valid data and everything works as
+expected.
 
-I'm not an expert in SCSI implementation quirks across varying platfroms, but 
-you made a mistake here, Joerg.
+If I understand how this works the Linux kernel is supposed to program
+up the table based on the HW platform. I can't find anything in the ia64
+code that does this. For x86_64 and i386 it looks like the magic address
+is 
 
-Albert put Windows (==MS-WIN) in that list. First one, even.
+	#define APIC_DEFAULT_BASE	0xfee00000
 
--- 
-[Name      ]   ::  [Matan I. Peled    ]
-[Location  ]   ::  [Israel            ]
-[Public Key]   ::  [0xD6F42CA5        ]
-[Keyserver ]   ::  [keyserver.kjsl.com]
-encrypted/signed  plain text  preferred
+Anybody know why this isn't defined for ia64? Any answers, input, or
+flames are appreciated.
 
+Thanks,
+mikem

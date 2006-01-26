@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWAZIz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWAZJBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751331AbWAZIz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 03:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWAZIz7
+	id S932134AbWAZJBX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 04:01:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWAZJBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 03:55:59 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30729 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751331AbWAZIz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 03:55:59 -0500
-Date: Thu, 26 Jan 2006 08:55:41 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Ian Molton <spyro@f2s.com>,
-       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
-       Yoshinori Sato <ysato@users.sourceforge.jp>,
-       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
-       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
-       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
-       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
-       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
-       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
-       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
-       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>
-Subject: Re: [PATCH 3/6] C-language equivalents of include/asm-*/bitops.h
-Message-ID: <20060126085540.GA15377@flint.arm.linux.org.uk>
-Mail-Followup-To: Akinobu Mita <mita@miraclelinux.com>,
-	linux-kernel@vger.kernel.org,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	Ian Molton <spyro@f2s.com>, dev-etrax@axis.com,
-	David Howells <dhowells@redhat.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
-	Hirokazu Takata <takata@linux-m32r.org>,
-	linux-m68k@lists.linux-m68k.org, Greg Ungerer <gerg@uclinux.org>,
-	linux-mips@linux-mips.org, parisc-linux@parisc-linux.org,
-	linuxppc-dev@ozlabs.org, linux390@de.ibm.com,
-	linuxsh-dev@lists.sourceforge.net,
-	linuxsh-shmedia-dev@lists.sourceforge.net,
-	sparclinux@vger.kernel.org, ultralinux@vger.kernel.org,
-	Miles Bader <uclinux-v850@lsi.nec.co.jp>, Andi Kleen <ak@suse.de>,
-	Chris Zankel <chris@zankel.net>
-References: <20060125112625.GA18584@miraclelinux.com> <20060125113206.GD18584@miraclelinux.com> <20060125200250.GA26443@flint.arm.linux.org.uk> <20060126000618.GA5592@twiddle.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060126000618.GA5592@twiddle.net>
-User-Agent: Mutt/1.4.1i
+	Thu, 26 Jan 2006 04:01:23 -0500
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:61868 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932134AbWAZJBW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 04:01:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Ge+eovh1zMwB3mrFNnSXn+awUh+NO9WYXnxffagaWLXiZ3thAv6mASqFuAdLH7yhir4DDBqaQlXT0eBAwtRilj7vBhwgkCpkzFfqG0Q2m4pGYk7W8SmNNdE+JkbbcTBRpew1g9poaoRVVxgiOxa5KGwal8Hx+PmBbFGct1XwfOo=  ;
+Message-ID: <43D88FDF.6040606@yahoo.com.au>
+Date: Thu, 26 Jan 2006 20:01:19 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+CC: davids@webmaster.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hancockr@shaw.ca
+Subject: Re: sched_yield() makes OpenLDAP slow
+References: <MDEHLPKNGKAHNMBLJOLKAEJBJKAB.davids@webmaster.com> <43D8889E.3020907@aitel.hist.no>
+In-Reply-To: <43D8889E.3020907@aitel.hist.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25, 2006 at 04:06:18PM -0800, Richard Henderson wrote:
-> On Wed, Jan 25, 2006 at 08:02:50PM +0000, Russell King wrote:
-> > > +	s = 16; if (word << 16 != 0) s = 0; b += s; word >>= s;
-> > > +	s =  8; if (word << 24 != 0) s = 0; b += s; word >>= s;
-> > > +	s =  4; if (word << 28 != 0) s = 0; b += s; word >>= s;
-> ...
-> > Basically, shifts which depend on a variable are more expensive than
-> > constant-based shifts.
-> 
-> Actually, they're all constant shifts.  Just written stupidly.
+Helge Hafting wrote:
+> David Schwartz wrote:
 
-Unfortunately that's not correct.  You do not appear to have checked
-the compiler output like I did - this code does _not_ generate
-constant shifts.
+>> nothing says that it can't call pthread_mutex_lock and re-acquire the 
+>> mutex
+>> before any other thread gets around to getting it.
+>>  
+>>
+> Wrong.
+> The spec says that the mutex must be given to a waiter (if any) at the
+> moment of release.
+
+Repeating myself here...
+
+To me it says that the scheduling policy decides at the moment of release.
+What if the scheduling policy decides *right then* to give the mutex to
+the next running thread that tries to aquire it?
+
+That would be the logical way for a scheduling policy to decide the next
+owner of the mutex.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

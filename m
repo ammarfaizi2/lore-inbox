@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWAZOvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWAZOus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbWAZOvN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 09:51:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWAZOvN
+	id S932348AbWAZOus (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 09:50:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWAZOus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 09:51:13 -0500
-Received: from xproxy.gmail.com ([66.249.82.197]:37588 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932351AbWAZOvL (ORCPT
+	Thu, 26 Jan 2006 09:50:48 -0500
+Received: from mail.cs.tut.fi ([130.230.4.42]:52196 "EHLO mail.cs.tut.fi")
+	by vger.kernel.org with ESMTP id S932348AbWAZOur (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 09:51:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=AeWltI1ZdfXSD5RmAkXW8wNkRl2ZaWkomgffL+qPMew/605j1Xp+tYehhS+/bO9YAQj9+qgvlrTj9axHh4wxNBlCijg1HfOurPrtL6o8AF2mpcAr7HUP7RCz0ThWgALR02GHbATR+kct+/oLXnAphMDDrXErBfS7ixyWARSyfF0=
-Message-ID: <43D8E1EE.3040302@gmail.com>
-Date: Thu, 26 Jan 2006 22:51:26 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Hai Zaar <haizaar@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: vesa fb is slow on 2.6.15.1
-References: <cfb54190601260620l5848ba3ai9d7e06c41d98c362@mail.gmail.com>
-In-Reply-To: <cfb54190601260620l5848ba3ai9d7e06c41d98c362@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Jan 2006 09:50:47 -0500
+Date: Thu, 26 Jan 2006 16:50:45 +0200
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sata_sil: combined irq + LBT DMA patch for testing
+Message-ID: <20060126145045.GR17268@jolt.modeemi.cs.tut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <5hAIO-6cQ-59@gated-at.bofh.it>
+User-Agent: Mutt/1.5.9i
+From: shd@modeemi.cs.tut.fi (Heikki Orsila)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hai Zaar wrote:
-> 
-> # cat /proc/mtrr
-> reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
-> reg01: base=0x80000000 (2048MB), size=1024MB: write-back, count=1
-> reg02: base=0xc0000000 (3072MB), size= 512MB: write-back, count=1
-> reg03: base=0x100000000 (4096MB), size= 512MB: write-back, count=1
-> reg04: base=0xfeda0000 (4077MB), size= 128KB: uncachable, count=1
-> 
-> No 'write-combining' entry! But with 2.6.11.12 I do have one:
-> <2.6.11.12 system> cat /proc/mtrr
-> reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
-> reg01: base=0x80000000 (2048MB), size=1024MB: write-back, count=1
-> reg02: base=0xc0000000 (3072MB), size= 512MB: write-back, count=1
-> reg03: base=0x100000000 (4096MB), size= 512MB: write-back, count=1
-> reg04: base=0xfeda0000 (4077MB), size= 128KB: uncachable, count=1
-> reg05: base=0xf0000000 (3840MB), size= 128MB: write-combining, count=1
+> I think I know what's going on with the 'SG size underflow' thingy, 
+> give me a few days to come up with a fix.
 
-mtrr now defaults to off in vesafb because of conflicts with xorg/
-xfree86.  You have to explicitly enable it with a boot option.  Try
-this:
+As a said issue, I'm running 2.6.15-rc7 and SiL 3114 with 3 drives 
+attached on AMD64. I might like to test your patches, but I have small 
+issues even without the patch (happens every now and then, but not every 
+day):
 
-video=vesafb:mtrr:3,ypan
+ata2: no sense translation for status: 0x51
+ata2: translated ATA stat/err 0x51/00 to SCSI SK/ASC/ASCQ 0x3/11/04
+ata2: status=0x51 { DriveReady SeekComplete Error }
 
-Tony
+How do I find out which sd disk in the system does that ata2 refer to? I 
+have: hda, hdc and sd[abc]. All sd disks are on SiL 3114.
+
+-- 
+Heikki Orsila			Barbie's law:
+heikki.orsila@iki.fi		"Math is hard, let's go shopping!"
+http://www.iki.fi/shd

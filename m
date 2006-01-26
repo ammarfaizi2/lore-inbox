@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWAZALj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbWAZAMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751260AbWAZALj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jan 2006 19:11:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWAZALj
+	id S1751261AbWAZAMV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jan 2006 19:12:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWAZAMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jan 2006 19:11:39 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:11136 "EHLO
-	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1751260AbWAZALi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jan 2006 19:11:38 -0500
-Date: Wed, 25 Jan 2006 18:08:16 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
-In-reply-to: <43D7C2F0.5020108@symas.com>
-To: Howard Chu <hyc@symas.com>
-Cc: Christopher Friesen <cfriesen@nortel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <43D812F0.1070003@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <20060124225919.GC12566@suse.de>
- <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de>
- <20060125121125.GH5465@suse.de> <43D78262.2050809@symas.com>
- <43D7BA0F.5010907@nortel.com> <43D7C2F0.5020108@symas.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Wed, 25 Jan 2006 19:12:20 -0500
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:34786 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751261AbWAZAMT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jan 2006 19:12:19 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: Rationale for RLIMIT_MEMLOCK?
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       schilling@fokus.fraunhofer.de, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, tytso@mit.edu, arjan@infradead.org
+Reply-To: 7eggert@gmx.de
+Date: Thu, 26 Jan 2006 01:12:15 +0100
+References: <5yddh-1pA-47@gated-at.bofh.it> <5ydni-1Qq-3@gated-at.bofh.it> <5yek1-3iP-53@gated-at.bofh.it> <5yeth-3us-33@gated-at.bofh.it> <5yf5O-4iF-19@gated-at.bofh.it> <5yfI4-5kU-11@gated-at.bofh.it> <5ygDT-6LK-3@gated-at.bofh.it> <5yscc-68j-5@gated-at.bofh.it> <5ysvk-6JI-5@gated-at.bofh.it> <5ysvk-6JI-3@gated-at.bofh.it> <5yEn7-7Or-21@gated-at.bofh.it> <5yUUI-6JR-15@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1F1ukJ-0002DA-LK@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howard Chu wrote:
-> The SUSv3 text seems pretty clear. It says "WHEN pthread_mutex_unlock() 
-> is called, ... the scheduling policy SHALL decide ..." It doesn't say 
-> MAY, and it doesn't say "some undefined time after the call." There is 
-> nothing optional or implementation-defined here. The only thing that is 
-> not explicitly stated is what happens when there are no waiting threads; 
-> in that case obviously the running thread can continue running.
+Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
 
-It says the scheduling policy will decide who gets the mutex. It does 
-not say that such a decision must be made immediately. That seems rather 
-implementation defined to me.
-
+> I could add this piece of code to the euid == 0 part of cdrecord:
 > 
-> re: forcing the mutex to ping-pong between different threads - if that 
-> is inefficient, then the thread scheduler needs to be tuned differently. 
-> Threads and thread context switches are supposed to be cheap, otherwise 
-> you might as well just program with fork() instead. (And of course, back 
-> when Unix was first developed, *processes* were lightweight, compared to 
-> other extant OSs.)
+> LOCAL void
+> raise_memlock()
+> { 
+> #ifdef  RLIMIT_MEMLOCK
+>         struct rlimit rlim;
+>  
+>         rlim.rlim_cur = rlim.rlim_max = RLIM_INFINITY;
 
-This is nothing to do with the thread scheduler being inefficient. It is 
-inherently inefficient to context-switch repeatedly no matter how good 
-the kernel is. It trashes the CPU pipeline, at the very least, can cause 
-thrashing of the CPU caches, and can cause cache lines to be pushed back 
-and forth across the bus on SMP machines which really kills performance.
-
+I think you should rather use the size you're going to mlock, or at least
+the upper bound.
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

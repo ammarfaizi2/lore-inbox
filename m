@@ -1,81 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751425AbWAZUYl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWAZU2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751425AbWAZUYl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 15:24:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWAZUYl
+	id S932388AbWAZU2X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 15:28:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWAZU2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 15:24:41 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:11953 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S1751417AbWAZUYk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 15:24:40 -0500
-Date: Thu, 26 Jan 2006 12:24:47 -0800
-From: Grant Grundler <iod00d@hp.com>
-To: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: Problems with MSI-X on ia64
-Message-ID: <20060126202447.GB15440@esmail.cup.hp.com>
-References: <D4CFB69C345C394284E4B78B876C1CF10B848090@cceexc23.americas.cpqcorp.net>
+	Thu, 26 Jan 2006 15:28:23 -0500
+Received: from highlandsun.propagation.net ([66.221.212.168]:6153 "EHLO
+	highlandsun.propagation.net") by vger.kernel.org with ESMTP
+	id S932388AbWAZU2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 15:28:22 -0500
+Message-ID: <43D930C6.40201@symas.com>
+Date: Thu, 26 Jan 2006 12:27:50 -0800
+From: Howard Chu <hyc@symas.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20060115 SeaMonkey/1.5a Mnenhy/0.7.3.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF10B848090@cceexc23.americas.cpqcorp.net>
-User-Agent: Mutt/1.5.11
+To: davids@webmaster.com
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
+References: <MDEHLPKNGKAHNMBLJOLKGENPJKAB.davids@webmaster.com>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGENPJKAB.davids@webmaster.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 26, 2006 at 11:14:22AM -0600, Miller, Mike (OS Dev) wrote:
-> Hello,
-> Has anyone tested MSI-X on ia64 based platforms?
+David Schwartz wrote:
+>> The point of this discussion is that the POSIX spec says one thing and
+>> you guys say another; one way or another that should be resolved. The
+>> 2.6 kernel behavior is a noticable departure from previous releases. The
+>> 2.4/LinuxThreads guys believed their implementation was correct. If you
+>> believe the 2.6 implementation is correct, then you should get the spec
+>> amended or state up front that the "P" in "NPTL" doesn't really mean
+>> anything.
+>>     
+>
+> 	There is disagreement over what the POSIX specification says. You have
+> already seen three arguments against your interpretation, any one of which
+> is, IMO, sufficient to demolish it.
+>   
 
-IIRC, Martine Silberman did some of the developement for
-ia64 support. At least she provided the original documentation
-for 2.6.4 kernel. So this is mostly not new code.
-	http://www.ussg.iu.edu/hypermail/linux/kernel/0402.2/1543.html
+> 	First, there's the as-if issue. You cannot write a program that can print
+> "non-compliant" with the behavior you claim is non-compliant that is
+> guaranteed not to do so by the standard because there is no way to know that
+> another thread is blocked on the mutex (except for PI mutexes).
+>   
 
-I've also posted 2.6.10 tg3 patch to enable MSI:
-        http://www.gelato.unsw.edu.au/archives/linux-ia64/0503/13332.html
+The exception here demolishes this argument, IMO. Moreover, if the 
+unlocker was a lower priority thread and there are higher priority 
+threads blocked on the mutex, you really want the higher priority thread 
+to run.
 
-I've been using MSI-X on ia64 with OpenIB for over a year.
-My guess is that was also starting with 2.6.10.
-Here's current output with 2.6.15:
-grundler@gsyprf3:/usr/src/linux-2.6.15$ fgrep MSI /proc/interrupts 
- 70: 1067582561          0       PCI-MSI-X  ib_mthca (comp)
- 71:         10          0       PCI-MSI-X  ib_mthca (async)
- 72:      41279          0       PCI-MSI-X  ib_mthca (cmd)
+> 	Second, there's the plain langauge of the standard. It says "If X is so at
+> time T, then Y". This does not require Y to happen at time T. It is X
+> happening at time T that requires Y, but the time for Y is not specified.
+>
+> 	If a law says, for example, "if there are two or more bids with the same
+> price lower than all other bids at the close of bidding, the first such bid
+> to be received shall be accepted". The phrase "at the close of bidding"
+> refers to the time the rule is deteremined to apply to the situation, not
+> the time at which the decision as to which bid to accept is made.
+>   
 
+The time at which the decision takes effect is immaterial; the point is 
+that the decision can only be made from the set of options available at 
+time T.
 
-> We're using a 2.6.9 variant and a cciss driver with MSI/MSI-X support.
-> The kernel has MSI enabled. On ia64 the MSI-X table is all zeroes.
+Per your analogy, if a new bid comes in at time T+1, it can't have any 
+effect on which of the bids shall be accepted.
 
-Could you post the debug output you've collected so far?
+> 	Third, there's the ambiguity of the standard. It says the "sceduling
+> policy" shall decide, not that the scheduler shall decide. If the policy is
+> to make a conditional or delayed decision, that is still perfectly valid
+> policy. "Whichever thread requests it first" is a valid scheduler policy.
 
-> On Intel x86_64 platforms the table contains valid data and
-> everything works as expected.
+I am not debating what the policy can decide. Merely the set of choices 
+from which it may decide.
 
-It should look similar for ia64 since both use 0xfeeXXXXX
-Processor Interrupt Block address and similar intr vectors.
+-- 
+  -- Howard Chu
+  Chief Architect, Symas Corp.  http://www.symas.com
+  Director, Highland Sun        http://highlandsun.com/hyc
+  OpenLDAP Core Team            http://www.openldap.org/project/
 
-> If I understand how this works the Linux kernel is supposed to program
-> up the table based on the HW platform. I can't find anything in the ia64
-> code that does this. For x86_64 and i386 it looks like the magic address
-> is 
-> 
-> 	#define APIC_DEFAULT_BASE	0xfee00000
-> 
-> Anybody know why this isn't defined for ia64? Any answers, input, or
-> flames are appreciated.
-
-APIC_DEAFULT_BASE isn't used.  See 
-
-fgrep MSI_ADDRESS_HEADER drivers/pci/*
-drivers/pci/msi.c:      dest_id = (MSI_ADDRESS_HEADER << MSI_ADDRESS_HEADER_SHIFT);
-drivers/pci/msi.h:#define MSI_ADDRESS_HEADER            0xfee
-drivers/pci/msi.h:#define MSI_ADDRESS_HEADER_SHIFT      12
-drivers/pci/msi.h:#define MSI_ADDRESS_HEADER_MASK       0xfff000
-
-This is one of the things that Mark Maule/SGI needs to change
-to support MSI on SN2.
-
-grant

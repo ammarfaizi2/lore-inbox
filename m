@@ -1,75 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030214AbWA0CQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbWA0CQM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030214AbWA0CQf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 21:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbWA0CQf
+	id S1030255AbWA0CQM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 21:16:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbWA0CQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 21:16:35 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:49933 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1030214AbWA0CQe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 21:16:34 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: GPL V3 and Linux - Dead Copyright Holders
-Date: Thu, 26 Jan 2006 18:15:54 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKEBHJLAB.davids@webmaster.com>
+	Thu, 26 Jan 2006 21:16:12 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:31929 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030207AbWA0CQL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 21:16:11 -0500
+Message-ID: <43D98259.8090406@pobox.com>
+Date: Thu, 26 Jan 2006 21:15:53 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Simon Barber <simon@devicescape.com>
+CC: Michael Buesch <mbuesch@freenet.de>, Ben Greear <greearb@candelatech.com>,
+       David Hollis <dhollis@davehollis.com>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       Samuel Ortiz <samuel.ortiz@nokia.com>, netdev@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: wireless geo stuff (was Re: wireless-2.6 status (25 January 2006))
+References: <C86180A8C204554D8A3323D8F6B0A29FEB471D@dhost002-46.dex002.intermedia.net>
+In-Reply-To: <C86180A8C204554D8A3323D8F6B0A29FEB471D@dhost002-46.dex002.intermedia.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <43D8FEF2.3080502@wolfmountaingroup.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Thu, 26 Jan 2006 18:12:52 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Thu, 26 Jan 2006 18:12:54 -0800
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Simon Barber wrote: > In order to get FCC certification
+	the manufacturer must ensure there is > no easy way for the user to
+	tune to illegal frequencies. Broadcom has > done their job - it was not
+	easy to reverse engineer their driver. Now > the cat is out of the bag.
+	The open source driver is not illegal - > although it may be illegal to
+	use it - since the chipset and driver were > likely certified together.
+	I'm no expert in FCC regulation, so take all > of this with a pinch of
+	salt. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Simon Barber wrote:
+> In order to get FCC certification the manufacturer must ensure there is
+> no easy way for the user to tune to illegal frequencies. Broadcom has
+> done their job - it was not easy to reverse engineer their driver. Now
+> the cat is out of the bag. The open source driver is not illegal -
+> although it may be illegal to use it - since the chipset and driver were
+> likely certified together. I'm no expert in FCC regulation, so take all
+> of this with a pinch of salt.
 
-> Linus is posturing. I can go back to numerous previous versions when he
-> and stallman were "buddy buddy" and the language was open
-> and said "any later version". Well, here's the gotcha. Any version
-> released before Linus said this is GPL 2, 3 or later. As of today, all new
-> versions are GPLv2. That's how the law works. So 2.6.15 forward is GPLv2
-> only. Linus cannot re-release previous Linux versions after he
-> already posted this NOTICE in COPYING, which he did and left the
-> language pen like this. So it's up to the recevier of the code whether
-> its GPLv2 or GPLv3 or whatever, but those releases which appeared with
-> COPYING stating this language are whatever GPL license you
-> want.
->
-> Jeff
+First, kernel developers should do the best they can to provide 
+facilities to limit the frequencies, including sane and safe defaults 
+for the softmac cases.  It just makes sense to do that, from a "friendly 
+neighbor" and "don't operate out of spec" perspective, if nothing else. 
+  It's damned _rude_ to use channels other than the ones selected by the 
+Responsible Authority.  Some ham radio operator -- like me -- might be 
+using that frequency to carry on a pleasant Morse code conversation with 
+someone else halfway across the world.  Linux software shalt not be 
+rude.  :)
 
-	Linus can't put additional restrictions on code he didn't write. If the
-authors licensed it under the GPL version 2 and "any later version", Linus
-can't re-release it under a more restrictive license. Read section 6
-carefully:
+Second, if someone takes steps to disable these safeguards we build in, 
+that's akin to putting illegal crystals into a radio, or tuning a 
+transmitter to police/emergency bands.
 
-  6. Each time you redistribute the Program (or any work based on the
-Program), the recipient automatically receives a license from the
-original licensor to copy, distribute or modify the Program subject to
-these terms and conditions.  You may not impose any further
-restrictions on the recipients' exercise of the rights granted herein.
-You are not responsible for enforcing compliance by third parties to
-this License.
+Finally, binary-only software is clearly _not_ a barrier to this sort of 
+circumvention.  Reverse engineering x86 software is a skill that's very 
+widespread, relative to other sorts of reverse engineering.  Reverse 
+engineering tools for the x86 are very mature these days, having had two 
+decades to grow and flourish.  If the _hardware_ can be programmed 
+maliciously, there's not a whole lot you can do about it... particularly 
+when the hardware manufacturer chooses a method of obfuscation (x86 
+code) practically designed for easy analysis.
 
-	Notice that the code is licensed to you by the "original licensor", not by
-the distributor. The inability to choose a later GPL version is definitely a
-"further restriction".
-
-	At least, that's how I read it.
-
-	DS
+	Jeff
 
 

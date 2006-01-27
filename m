@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422676AbWA0X1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422683AbWA0X2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422676AbWA0X1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 18:27:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422683AbWA0X1Y
+	id S1422683AbWA0X2J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 18:28:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422684AbWA0X2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 18:27:24 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21383 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422676AbWA0X1X (ORCPT
+	Fri, 27 Jan 2006 18:28:09 -0500
+Received: from mail.gmx.net ([213.165.64.21]:28626 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1422683AbWA0X2H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 18:27:23 -0500
-Date: Fri, 27 Jan 2006 15:28:57 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: paulmck@us.ibm.com
-Cc: dada1@cosmosbay.com, dipankar@in.ibm.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk,
-       nickpiggin@yahoo.com.au, hch@infradead.org
-Subject: Re: [patch 2/2] fix file counting
-Message-Id: <20060127152857.32066a69.akpm@osdl.org>
-In-Reply-To: <20060127231420.GA10075@us.ibm.com>
-References: <20060126184010.GD4166@in.ibm.com>
-	<20060126184127.GE4166@in.ibm.com>
-	<20060126184233.GF4166@in.ibm.com>
-	<43D92DD6.6090607@cosmosbay.com>
-	<20060127145412.7d23e004.akpm@osdl.org>
-	<20060127231420.GA10075@us.ibm.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Jan 2006 18:28:07 -0500
+X-Authenticated: #428038
+Date: Sat, 28 Jan 2006 00:28:03 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060127232803.GA4622@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <43D7A7F4.nailDE92K7TJI@burner> <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com> <43D7B075.6000602@gmx.de> <43D7B2DF.nailDFJA51SL1@burner> <43D7B5BE.60304@gmx.de> <43D89B7C.nailDTH38QZBU@burner> <5a2cf1f60601260234r4c5cde3fu3e8d79e816b9f3fd@mail.gmail.com> <43D8D69F.nailE2XAJ2XIA@burner> <200601270524.k0R5OIS8019541@turing-police.cc.vt.edu> <43DA1CD6.nailFHI6QV3LO@burner>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43DA1CD6.nailFHI6QV3LO@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Paul E. McKenney" <paulmck@us.ibm.com> wrote:
->
-> > > I am using a patch that seems sligthly better : It removes the filp_count_lock 
-> > > as yours but introduces a percpu variable, and a lazy nr_files . (Its value 
-> > > can be off with a delta of +/- 16*num_possible_cpus()
-> > 
-> > Yes, I think that is better.
+On Fri, 27 Jan 2006, Joerg Schilling wrote:
+
+> Valdis.Kletnieks@vt.edu wrote:
 > 
-> I agree that Eric's approach likely improves performance on large systems
-> due to decreased cache thrashing.  However, the real problem is getting
-> both good throughput and good latency in RCU callback processing, given
-> Lee Revell's latency testing results.  Once we get that in hand, then
-> we should consider Eric's approach.
+> > And you know what? I really don't give a flying <fornicate> in a rolling donut
+> > what FreeBSD calls the device. If I did, I'd have installed FreeBSD.  But I
+> 
+> It has been mentioned here many times, you only need to read it.
+> 
+> FreeBSD comes with a T-10 (SCSI) compliant CAM interface that uses a multiplex 
+> device and dev=b,t,l to address the devices. This is true for _all_ kind of 
+> SCSI devices and thus includes ATAPI transport.
 
-Dipankar's patch risks worsening large-SMP scalability, doesn't it? 
-Putting an atomic op into the file_free path?
+Is CAM relevant at all for ATAPI, USB, IEEE1394, parport and other
+transports? Where is the link between ATAPI's SCSI/MMC command set and
+SCSI CAM standard applying to ATAPI devices? (File name of the standard
+or latest draft and chapter is sufficient.)
 
-And afaict it fixes up the skew in the nr_files accounting but we're still
-exposed to the risk of large amounts of memory getting chewed up due to RCU
-latencies?
-
-(And it forgot to initialise the atomic_t)
-
-(And has a couple of suspicious-looking module exports.  We don't support
-CONFIG_PROC_FS=m).
-
+-- 
+Matthias Andree

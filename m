@@ -1,112 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422632AbWA0VSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422631AbWA0VVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422632AbWA0VSu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 16:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422633AbWA0VSu
+	id S1422631AbWA0VVc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 16:21:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422633AbWA0VVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 16:18:50 -0500
-Received: from master.soleranetworks.com ([67.137.28.188]:9682 "EHLO
+	Fri, 27 Jan 2006 16:21:32 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:10194 "EHLO
 	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S1422632AbWA0VSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 16:18:49 -0500
-Message-ID: <43DA7447.2010104@wolfmountaingroup.com>
-Date: Fri, 27 Jan 2006 12:28:07 -0700
+	id S1422631AbWA0VVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 16:21:31 -0500
+Message-ID: <43DA74EC.4070401@wolfmountaingroup.com>
+Date: Fri, 27 Jan 2006 12:30:52 -0700
 From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: jmerkey@ns1.utah-nac.org,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14 kernels and above copy_to_user stupidity with IRQ disabled
- check
-References: <43DA62CC.8090309@wolfmountaingroup.com> <Pine.LNX.4.61.0601271513360.15124@chaos.analogic.com> <20060127201058.GA18805@ns1.utah-nac.org> <43DA851D.6070209@cfl.rr.com>
-In-Reply-To: <43DA851D.6070209@cfl.rr.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: davids@webmaster.com
+Cc: galibert@dspnet.fr.eu.org, linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+References: <MDEHLPKNGKAHNMBLJOLKEEHLJLAB.davids@webmaster.com>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEHLJLAB.davids@webmaster.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Susi wrote:
+David Schwartz wrote:
 
-> jmerkey@ns1.utah-nac.org wrote:
->
->> OK.  Got it.  I guess I need to restructure.  And BTW, This was a 
->> code fragment
->> only, the spinlock gets released when -EFAULT is called -- was just 
->> an example.
+>>On Fri, Jan 27, 2006 at 11:50:43AM -0800, David Schwartz wrote:
+>>    
 >>
->> Jeff
 >
+>  
 >
-> Unless you have redefined EFAULT in some strange and hideous way, it 
-> is not "called" and doesn't free the spinlock.  EFAULT is defined as a 
-> literal integer, so you're just returning a number without freeing the 
-> spinlock.
+>>>Correct. However, all the GPL-based ones grant rights
+>>>*automatically* upon distribution.
+>>>      
+>>>
 >
-> If you have redefined EFAULT to a macro function call or whatever, 
-> then don't do that, it's REALLY horrible coding practice.
+>  
 >
+>>Of course not.  The license only applies if you accept it, and you
+>>don't have to.  It's not an EULA.
+>>    
+>>
 >
-No.  I posted a code fragment as an example.  Here's the actual code:
-
-int dump_regen(VIRTUAL_SETUP *s, ULONG count)
-{
-    register int i = 0;
-    VIRTUAL_SETUP *v;
-                                                                                
-
-    spin_lock_irqsave(&regen_lock, regen_flags);
-    v = regen_head;
-    while (v)
-    {
-       if (i >= count)
-       {
-          spin_unlock_irqrestore(&regen_lock, regen_flags);
-          return -EFAULT;
-       }
-                                                                                
-
-       err = copy_to_user(&s[i++], v, sizeof(VIRTUAL_SETUP));
-       if (err)
-       {         
-           spin_unlock_irqrestore(&regen_lock, regen_flags);
-           return err;
-       }
-
-       v = v->next;
-    }
-    spin_unlock_irqrestore(&regen_lock, regen_flags);
-    return 0;
-}
-
-Needless to say, this has been restructured to this:
-
-int dump_regen(VIRTUAL_SETUP *s, ULONG count)
-{
-    register int i = 0;
-    VIRTUAL_SETUP *v;
-                                                                                
-
-    spin_lock_irqsave(&regen_lock, regen_flags);
-    v = regen_head;
-    while (v)
-    {
-       if (i >= count)
-       {
-          spin_unlock_irqrestore(&regen_lock, regen_flags);
-          return 0;
-       }
-                                                                                
-
-       P_Copy(&s[i++], v, sizeof(VIRTUAL_SETUP));
-       v = v->next;
-    }
-    spin_unlock_irqrestore(&regen_lock, regen_flags);
-    return 0;
-}
-                                                                                
+>	You are correct that the license only applies if you accept it, but you are
+>incorrect if you think that you can fail to accept the GPL and thus restrict
+>the rights of those you distribute works to under some other license.
+>
+>	Perhaps you're thinking that if I take a work that's dual-licensed under
+>the GPL and some other license, then distribute it under that other license,
+>the recipients don't get the GPL rights. That is not correct. GPL section 6
+>clearly states that the license is between the original author and the
+>ultimate recipient. The distributor has no say or control over this
+>automatic grant of license.
+>
+>	Section 6 clears states that this license is:
+>
+>	1) Automatic, not subject to anyone's discretion.
+>
+>	2) From the original licensor, not the distributor.
+>
+>	3) Under these terms and conditions, that is, the GPL.
+>
+>	The case is the same if you modify the work and then distribute it. All
+>recipients still receive GPL rights from the original authors to the
+>respective contributions of those authors. You cannot stop it. It is
+>automatic, and it is from the original authors who agreed to give GPL rights
+>to all recipients when they placed their works under the GPL.
+>
+>	DS
+>  
+>
+This language constitutes conversion and violates about a dozen laws in 
+a dozen states. This whole recipricol rights
+grant language would have to be litigated, and I don't think anyone will 
+know the outcome. I think it would end up
+with the Judge saying "You guys take your stuff and go, and you GPL 
+people take your stuff and go, and neither one of
+you can distribute the others IP".
 
 Jeff
-

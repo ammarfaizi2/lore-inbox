@@ -1,39 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbWA0BVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWA0BWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964833AbWA0BVg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 20:21:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWA0BVg
+	id S964889AbWA0BWf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 20:22:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWA0BWf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 20:21:36 -0500
-Received: from zproxy.gmail.com ([64.233.162.194]:60164 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964833AbWA0BVg convert rfc822-to-8bit
+	Thu, 26 Jan 2006 20:22:35 -0500
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:44804 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S964819AbWA0BWe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 20:21:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=BUpI8TlYJpToz/SiDBlpNRDhrm+7fp+Agz7HRcKNNPhUVdxOv98pizEl9xnf4/Ii7KbczuceT2BszLu/vdDMektoxuq8sJ+Wq2mRNsmoaMzBLo417PaAebWBuK1vekuZkvLR8QRt3hM9Ln3MQV/OBPADMlvWSjT1oy9zVwLGdrM=
-Message-ID: <c57b708a0601261721q60741d8fr7697bf66732fde31@mail.gmail.com>
-Date: Thu, 26 Jan 2006 20:21:35 -0500
-From: chris m <chris95040@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: unsupported USB or network hardware?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Thu, 26 Jan 2006 20:22:34 -0500
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: David H?rdeman <david@2gen.com>
+Subject: Re: [PATCH 00/04] Add DSA key type
+Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, david@2gen.com
+Organization: Core
+In-Reply-To: <11380489522362@2gen.com>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1F2IJr-0007Gu-00@gondolin.me.apana.org.au>
+Date: Fri, 27 Jan 2006 12:22:31 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, I apologize if this is not appropriate for the list, I tried
-kernel-newbies first..
+David H?rdeman <david@2gen.com> wrote:
+>
+> 3) Changes the keyctl syscall to accept six arguments (is it valid to do so?)
+>   and adds encryption as one of the supported ops for in-kernel keys.
 
-I'm an electrical engineer looking to get into writing linux device
-drivers, for me the best place to start would be some unsupported
-network hardware (new gigabit chips perhaps?)  or USB peripherals.    
-Is there a wish list posted anywhere for hardware that is currently
-unsupported?
+The asymmetric encryption support should be done inside the crypto/
+framework rather than as an extension to the key management system.
 
-Thanks for any help,
-
--Chris
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

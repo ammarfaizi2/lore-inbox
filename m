@@ -1,54 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbWA0T3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030322AbWA0T3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030318AbWA0T3E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 14:29:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030216AbWA0T3E
+	id S1030322AbWA0T3M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 14:29:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932486AbWA0T3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 14:29:04 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:1598 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932485AbWA0T3C (ORCPT
+	Fri, 27 Jan 2006 14:29:12 -0500
+Received: from zeus1.kernel.org ([204.152.191.4]:57577 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932485AbWA0T3K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 14:29:02 -0500
-Date: Fri, 27 Jan 2006 20:29:46 +0100
-From: Jens Axboe <axboe@suse.de>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Mike Christie <michaelc@cs.wisc.edu>, Neil Brown <neilb@suse.de>,
-       Chase Venters <chase.venters@clientec.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, akpm@osdl.org,
-       a.titov@host.bg, askernel2615@dsgml.com, jamie@audible.transient.net
-Subject: Re: More information on scsi_cmd_cache leak... (bisect)
-Message-ID: <20060127192946.GF6928@suse.de>
-References: <200601270410.06762.chase.venters@clientec.com> <17369.65530.747867.844964@cse.unsw.edu.au> <20060127112352.GF4311@suse.de> <20060127112837.GG4311@suse.de> <43DA6F33.3070101@cs.wisc.edu> <1138389616.3293.13.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 27 Jan 2006 14:29:10 -0500
+From: Nigel Cunningham <nigel@suspend2.net>
+Organization: Suspend2.net
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [ 00/23] [Suspend2] Freezer Upgrade Patches
+Date: Sat, 28 Jan 2006 05:20:28 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>
+References: <20060126034518.3178.55397.stgit@localhost.localdomain> <200601271404.08680.nigel@suspend2.net> <200601271318.01985.rjw@sisk.pl>
+In-Reply-To: <200601271318.01985.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1138389616.3293.13.camel@mulgrave>
+Message-Id: <200601280520.28816.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27 2006, James Bottomley wrote:
-> On Fri, 2006-01-27 at 13:06 -0600, Mike Christie wrote:
-> > It does not have anything to do with this in scsi_io_completion does it?
-> > 
-> >          if (blk_complete_barrier_rq(q, req, good_bytes >> 9))
-> >                  return;
-> > 
-> > For that case the scsi_cmnd does not get freed. Does it come back around 
-> > again and get released from a different path?
-> 
-> It looks such a likely candidate, doesn't it.  Unfortunately, Tejun Heo
-> removed that code around 6 Jan (in [BLOCK] update SCSI to use new
-> blk_ordered for barriers), so if it is that, then the latest kernels
-> should now not be leaking.
+Hi.
 
-Ah I thought so, seems my memory wasn't totally shot (don't have the
-sources with me).
+On Friday 27 January 2006 22:18, Rafael J. Wysocki wrote:
+> Hi,
+>
+> On Friday, 27 January 2006 05:04, Nigel Cunningham wrote:
+> > On Friday 27 January 2006 09:10, Rafael J. Wysocki wrote:
+> > > On Thursday, 26 January 2006 04:45, Nigel Cunningham wrote:
+> > > > Hi everyone.
+> > > >
+> > > > This set of patches represents the freezer upgrade patches from
+> > > > Suspend2.
+> > > >
+> > > > The key features of this changeset are:
+> > > >
+> > > > - Use of Christoph Lameter's todo list notifiers, which help with SMP
+> > > >   cleanness.
+> > > > - Splitting the freezing of kernel and userspace processes. Freezing
+> > > >   currently suffers from a race because userspace processes can be
+> > > >   submitting work for kernel threads, thereby stopping them from
+> > > >   responding to freeze messages in a timely manner. The freezer can
+> > > >   thus give up when it doesn't really need to. (This is not normally
+> > > >   a problem only because load is not usually high).
+> > >
+> > > Could you please describe specific situation?
+> >
+> > The simplest example would be:
+> >
+> > dd if=/dev/hda of=/dev/null
+> > echo disk > /sys/power/state
+>
+> Well, I don't think it's a usual kind of workload. :-)
 
-> However, all the avaliable evidence does seem to point to the write
-> barrier enforcement.  I'll take another look over those code paths.
+No, but I/O alone shouldn't have such effect.
 
-The fact that it only happens with raid is very odd, though.
+> Anyway, could you please give some details?  I mean how exactly your patch
+> helps in this particular case?
 
+I thought I did :). Freezing userspace first means the dd thread gets stopped 
+first. Once the dd thread is stopped, the kernel threads processing the I/O 
+requests have a finite amount of work to do (instead of having new work being 
+submitted all the time), and can thus complete that and then be frozen in a 
+far more deterministic fashion.
+
+Regarding the stats I promised to Pavel, I'm heading home from LCA today, so I 
+probably won't get them prepared until Monday now - unless I get lazy and 
+only do 10 attempts instead of 100 :)
+
+Regards,
+
+Nigel
 -- 
-Jens Axboe
-
+See our web page for Howtos, FAQs, the Wiki and mailing list info.
+http://www.suspend2.net                IRC: #suspend2 on Freenode

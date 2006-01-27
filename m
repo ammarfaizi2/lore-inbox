@@ -1,545 +1,690 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWA0DwS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWA0D4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWA0DwS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 22:52:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWA0DwS
+	id S1750730AbWA0D4p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 22:56:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWA0D4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 22:52:18 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:54222 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1750703AbWA0DwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 22:52:17 -0500
-Date: Thu, 26 Jan 2006 19:51:56 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, nickpiggin@yahoo.com.au,
-       ak@suse.de, linux-kernel@vger.kernel.org, rohit.seth@intel.com,
-       asit.k.mallick@intel.com, Andrew Morton <akpm@osdl.org>
-Subject: Re: [Patch] sched: new sched domain for representing multi-core
-Message-ID: <20060126195156.E19789@unix-os.sc.intel.com>
-References: <20060126015132.A8521@unix-os.sc.intel.com> <20060127000854.GA16332@elte.hu>
+	Thu, 26 Jan 2006 22:56:45 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:45483 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1750730AbWA0D4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 22:56:45 -0500
+Date: Thu, 26 Jan 2006 22:57:32 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Gerd Hoffmann <kraxel@suse.de>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/2] uml: enable drivers (input, fb, vt)
+Message-ID: <20060127035732.GA12763@ccure.user-mode-linux.org>
+References: <43D64F05.90302@suse.de> <20060124213141.GA7891@ccure.user-mode-linux.org> <43D744B2.5030809@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="IS0zKkzwUGydFO0o"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060127000854.GA16332@elte.hu>; from mingo@elte.hu on Fri, Jan 27, 2006 at 01:08:54AM +0100
+In-Reply-To: <43D744B2.5030809@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2006 at 01:08:54AM +0100, Ingo Molnar wrote:
-> Otherwise, looks pretty clean to me, both the scheduler and the x86_* 
-> arch level bits! Would be nice to get this tested in -mm too.
-> 
-> Acked-by: Ingo Molnar <mingo@elte.hu>
 
-Andrew, Please apply to -mm. Thanks.
---
+--IS0zKkzwUGydFO0o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Appended patch adds a new sched domain for representing multi-core with
-shared caches between cores. Consider a dual package system, each package
-containing two cores and with last level cache shared between cores with in a
-package. If there are two runnable processes, with this appended patch
-those two processes will be scheduled on different packages.
+On Wed, Jan 25, 2006 at 10:28:18AM +0100, Gerd Hoffmann wrote:
+> Do you have "CONFIG_FRAMEBUFFER_CONSOLE=y" in .config?
 
-On such system, with this patch we have observed 8% perf improvement with 
-specJBB(2 warehouse) benchmark and 35% improvement with CFP2000 rate(with
-2 users).
+Yup, here are all the option that look relevant:
 
-This new domain will come into play only on multi-core systems with shared
-caches. On other systems, this sched domain will be removed by
-domain degeneration code. This new domain can be also used for implementing
-power savings policy (see OLS 2005 CMP kernel scheduler paper for more
-details.. I will post another patch for power savings policy soon)
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_X11_FB=y
+CONFIG_X11_FB=y
+CONFIG_FB=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
 
-Most of the arch/* file changes are for cpu_coregroup_map() implementation.
+The full .config is attached.
 
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
-Acked-by: Ingo Molnar <mingo@elte.hu>
+				Jeff
 
-diff -pNru linux-2.6.16-rc1/arch/i386/Kconfig linux-core/arch/i386/Kconfig
---- linux-2.6.16-rc1/arch/i386/Kconfig	2006-01-16 23:44:47.000000000 -0800
-+++ linux-core/arch/i386/Kconfig	2006-01-26 18:11:47.370042152 -0800
-@@ -235,6 +235,14 @@ config SCHED_SMT
- 	  cost of slightly increased overhead in some places. If unsure say
- 	  N here.
- 
-+config SCHED_MC
-+	bool "Multi-core scheduler support"
-+	depends on SMP
-+	help
-+	  Multi-core scheduler support improves the CPU scheduler's decision 
-+	  making when dealing with multi-core CPU chips at a cost of slightly 
-+	  increased overhead in some places. If unsure say N here.
-+
- source "kernel/Kconfig.preempt"
- 
- config X86_UP_APIC
-diff -pNru linux-2.6.16-rc1/arch/i386/kernel/cpu/common.c linux-core/arch/i386/kernel/cpu/common.c
---- linux-2.6.16-rc1/arch/i386/kernel/cpu/common.c	2006-01-16 23:44:47.000000000 -0800
-+++ linux-core/arch/i386/kernel/cpu/common.c	2006-01-24 13:35:49.167864480 -0800
-@@ -244,7 +244,7 @@ static void __init early_cpu_detect(void
- void __devinit generic_identify(struct cpuinfo_x86 * c)
- {
- 	u32 tfms, xlvl;
--	int junk;
-+	int ebx;
- 
- 	if (have_cpuid_p()) {
- 		/* Get vendor name */
-@@ -260,7 +260,7 @@ void __devinit generic_identify(struct c
- 		/* Intel-defined flags: level 0x00000001 */
- 		if ( c->cpuid_level >= 0x00000001 ) {
- 			u32 capability, excap;
--			cpuid(0x00000001, &tfms, &junk, &excap, &capability);
-+			cpuid(0x00000001, &tfms, &ebx, &excap, &capability);
- 			c->x86_capability[0] = capability;
- 			c->x86_capability[4] = excap;
- 			c->x86 = (tfms >> 8) & 15;
-@@ -270,6 +270,7 @@ void __devinit generic_identify(struct c
- 				c->x86_model += ((tfms >> 16) & 0xF) << 4;
- 			} 
- 			c->x86_mask = tfms & 15;
-+			c->apicid = phys_pkg_id((ebx >> 24) & 0xFF, 0);
- 		} else {
- 			/* Have CPUID level 0 only - unheard of */
- 			c->x86 = 4;
-@@ -448,7 +449,6 @@ void __devinit detect_ht(struct cpuinfo_
- 
- 	cpuid(1, &eax, &ebx, &ecx, &edx);
- 
--	c->apicid = phys_pkg_id((ebx >> 24) & 0xFF, 0);
- 
- 	if (!cpu_has(c, X86_FEATURE_HT) || cpu_has(c, X86_FEATURE_CMP_LEGACY))
- 		return;
-diff -pNru linux-2.6.16-rc1/arch/i386/kernel/cpu/intel_cacheinfo.c linux-core/arch/i386/kernel/cpu/intel_cacheinfo.c
---- linux-2.6.16-rc1/arch/i386/kernel/cpu/intel_cacheinfo.c	2006-01-16 23:44:47.000000000 -0800
-+++ linux-core/arch/i386/kernel/cpu/intel_cacheinfo.c	2006-01-24 14:38:36.361164048 -0800
-@@ -161,6 +161,10 @@ unsigned int __cpuinit init_intel_cachei
- 	unsigned int trace = 0, l1i = 0, l1d = 0, l2 = 0, l3 = 0; /* Cache sizes */
- 	unsigned int new_l1d = 0, new_l1i = 0; /* Cache sizes from cpuid(4) */
- 	unsigned int new_l2 = 0, new_l3 = 0, i; /* Cache sizes from cpuid(4) */
-+	unsigned int l2_id = 0, l3_id = 0, num_threads_sharing, index_msb;
-+#ifdef CONFIG_SMP
-+	unsigned int cpu = (c == &boot_cpu_data) ? 0 : (c - cpu_data);
-+#endif
- 
- 	if (c->cpuid_level > 4) {
- 		static int is_initialized;
-@@ -193,9 +197,15 @@ unsigned int __cpuinit init_intel_cachei
- 					break;
- 				    case 2:
- 					new_l2 = this_leaf.size/1024;
-+					num_threads_sharing = 1 + this_leaf.eax.split.num_threads_sharing;
-+					index_msb = get_count_order(num_threads_sharing);
-+					l2_id = c->apicid >> index_msb;
- 					break;
- 				    case 3:
- 					new_l3 = this_leaf.size/1024;
-+					num_threads_sharing = 1 + this_leaf.eax.split.num_threads_sharing;
-+					index_msb = get_count_order(num_threads_sharing);
-+					l3_id = c->apicid >> index_msb;
- 					break;
- 				    default:
- 					break;
-@@ -261,11 +271,19 @@ unsigned int __cpuinit init_intel_cachei
- 		if (new_l1i)
- 			l1i = new_l1i;
- 
--		if (new_l2)
-+		if (new_l2) {
- 			l2 = new_l2;
-+#ifdef CONFIG_SMP
-+			cpu_llc_id[cpu] = l2_id;
-+#endif
-+		}
- 
--		if (new_l3)
-+		if (new_l3) {
- 			l3 = new_l3;
-+#ifdef CONFIG_SMP
-+			cpu_llc_id[cpu] = l3_id;
-+#endif
-+		}
- 
- 		if ( trace )
- 			printk (KERN_INFO "CPU: Trace cache: %dK uops", trace);
-diff -pNru linux-2.6.16-rc1/arch/i386/kernel/smpboot.c linux-core/arch/i386/kernel/smpboot.c
---- linux-2.6.16-rc1/arch/i386/kernel/smpboot.c	2006-01-16 23:44:47.000000000 -0800
-+++ linux-core/arch/i386/kernel/smpboot.c	2006-01-24 14:21:30.935052512 -0800
-@@ -72,6 +72,8 @@ int phys_proc_id[NR_CPUS] __read_mostly 
- /* Core ID of each logical CPU */
- int cpu_core_id[NR_CPUS] __read_mostly = {[0 ... NR_CPUS-1] = BAD_APICID};
- 
-+int cpu_llc_id[NR_CPUS] __read_mostly = {[0 ... NR_CPUS-1] = BAD_APICID};
-+
- /* representing HT siblings of each logical CPU */
- cpumask_t cpu_sibling_map[NR_CPUS] __read_mostly;
- EXPORT_SYMBOL(cpu_sibling_map);
-@@ -84,6 +86,8 @@ EXPORT_SYMBOL(cpu_core_map);
- cpumask_t cpu_online_map __read_mostly;
- EXPORT_SYMBOL(cpu_online_map);
- 
-+cpumask_t cpu_llc_shared_map[NR_CPUS] __read_mostly;
-+
- cpumask_t cpu_callin_map;
- cpumask_t cpu_callout_map;
- EXPORT_SYMBOL(cpu_callout_map);
-@@ -444,6 +448,17 @@ static void __devinit smp_callin(void)
- 
- static int cpucount;
- 
-+/* maps the cpu to the sched domain representing multi-core */
-+cpumask_t cpu_coregroup_map(int cpu)
-+{
-+	/*
-+	 * For perf, we return last level cache shared map.
-+	 * TBD: when power saving sched policy is added, we will return
-+	 *      cpu_core_map when power saving policy is enabled
-+	 */
-+	return cpu_llc_shared_map[cpu];
-+}
-+
- /* representing cpus for which sibling maps can be computed */
- static cpumask_t cpu_sibling_setup_map;
- 
-@@ -463,12 +478,16 @@ set_cpu_sibling_map(int cpu)
- 				cpu_set(cpu, cpu_sibling_map[i]);
- 				cpu_set(i, cpu_core_map[cpu]);
- 				cpu_set(cpu, cpu_core_map[i]);
-+				cpu_set(i, cpu_llc_shared_map[cpu]);
-+				cpu_set(cpu, cpu_llc_shared_map[i]);
- 			}
- 		}
- 	} else {
- 		cpu_set(cpu, cpu_sibling_map[cpu]);
- 	}
- 
-+	cpu_set(cpu, cpu_llc_shared_map[cpu]);
-+
- 	if (current_cpu_data.x86_max_cores == 1) {
- 		cpu_core_map[cpu] = cpu_sibling_map[cpu];
- 		c[cpu].booted_cores = 1;
-@@ -476,6 +495,11 @@ set_cpu_sibling_map(int cpu)
- 	}
- 
- 	for_each_cpu_mask(i, cpu_sibling_setup_map) {
-+		if (cpu_llc_id[cpu] != BAD_APICID &&
-+		    cpu_llc_id[cpu] == cpu_llc_id[i]) {
-+			cpu_set(i, cpu_llc_shared_map[cpu]);
-+			cpu_set(cpu, cpu_llc_shared_map[i]);
-+		}
- 		if (phys_proc_id[cpu] == phys_proc_id[i]) {
- 			cpu_set(i, cpu_core_map[cpu]);
- 			cpu_set(cpu, cpu_core_map[i]);
-diff -pNru linux-2.6.16-rc1/arch/x86_64/Kconfig linux-core/arch/x86_64/Kconfig
---- linux-2.6.16-rc1/arch/x86_64/Kconfig	2006-01-16 23:44:47.000000000 -0800
-+++ linux-core/arch/x86_64/Kconfig	2006-01-26 18:21:15.432683504 -0800
-@@ -246,6 +246,14 @@ config SCHED_SMT
- 	  cost of slightly increased overhead in some places. If unsure say
- 	  N here.
- 
-+config SCHED_MC
-+	bool "Multi-core scheduler support"
-+	depends on SMP
-+	help
-+	  Multi-core scheduler support improves the CPU scheduler's decision 
-+	  making when dealing with multi-core CPU chips at a cost of slightly 
-+	  increased overhead in some places. If unsure say N here.
-+
- source "kernel/Kconfig.preempt"
- 
- config NUMA
-diff -pNru linux-2.6.16-rc1/arch/x86_64/kernel/setup.c linux-core/arch/x86_64/kernel/setup.c
---- linux-2.6.16-rc1/arch/x86_64/kernel/setup.c	2006-01-16 23:44:47.000000000 -0800
-+++ linux-core/arch/x86_64/kernel/setup.c	2006-01-24 13:35:49.181862352 -0800
-@@ -935,7 +935,6 @@ static void __cpuinit detect_ht(struct c
- 
- 	cpuid(1, &eax, &ebx, &ecx, &edx);
- 
--	c->apicid = phys_pkg_id(0);
- 
- 	if (!cpu_has(c, X86_FEATURE_HT) || cpu_has(c, X86_FEATURE_CMP_LEGACY))
- 		return;
-@@ -1144,6 +1143,8 @@ void __cpuinit identify_cpu(struct cpuin
- 			c->x86_capability[2] = cpuid_edx(0x80860001);
- 	}
- 
-+	c->apicid = phys_pkg_id(0);
-+
- 	/*
- 	 * Vendor-specific initialization.  In this section we
- 	 * canonicalize the feature flags, meaning if there are
-diff -pNru linux-2.6.16-rc1/arch/x86_64/kernel/smpboot.c linux-core/arch/x86_64/kernel/smpboot.c
---- linux-2.6.16-rc1/arch/x86_64/kernel/smpboot.c	2006-01-16 23:44:47.000000000 -0800
-+++ linux-core/arch/x86_64/kernel/smpboot.c	2006-01-25 22:33:48.297894336 -0800
-@@ -67,6 +67,8 @@ u8 phys_proc_id[NR_CPUS] __read_mostly =
- /* core ID of each logical CPU */
- u8 cpu_core_id[NR_CPUS] __read_mostly = { [0 ... NR_CPUS-1] = BAD_APICID };
- 
-+u8 cpu_llc_id[NR_CPUS] __read_mostly = {[0 ... NR_CPUS-1] = BAD_APICID};
-+
- /* Bitmask of currently online CPUs */
- cpumask_t cpu_online_map __read_mostly;
- 
-@@ -95,6 +97,8 @@ cpumask_t cpu_sibling_map[NR_CPUS] __rea
- cpumask_t cpu_core_map[NR_CPUS] __read_mostly;
- EXPORT_SYMBOL(cpu_core_map);
- 
-+cpumask_t cpu_llc_shared_map[NR_CPUS] __read_mostly;
-+
- /*
-  * Trampoline 80x86 program as an array.
-  */
-@@ -444,6 +448,17 @@ void __cpuinit smp_callin(void)
- 	cpu_set(cpuid, cpu_callin_map);
- }
- 
-+/* maps the cpu to the sched domain representing multi-core */
-+cpumask_t cpu_coregroup_map(int cpu)
-+{
-+	/*
-+	 * For perf, we return last level cache shared map.
-+	 * TBD: when power saving sched policy is added, we will return
-+	 *      cpu_core_map when power saving policy is enabled
-+	 */
-+	return cpu_llc_shared_map[cpu];
-+}
-+
- /* representing cpus for which sibling maps can be computed */
- static cpumask_t cpu_sibling_setup_map;
- 
-@@ -462,12 +477,16 @@ static inline void set_cpu_sibling_map(i
- 				cpu_set(cpu, cpu_sibling_map[i]);
- 				cpu_set(i, cpu_core_map[cpu]);
- 				cpu_set(cpu, cpu_core_map[i]);
-+				cpu_set(i, cpu_llc_shared_map[cpu]);
-+				cpu_set(cpu, cpu_llc_shared_map[i]);
- 			}
- 		}
- 	} else {
- 		cpu_set(cpu, cpu_sibling_map[cpu]);
- 	}
- 
-+	cpu_set(cpu, cpu_llc_shared_map[cpu]);
-+
- 	if (current_cpu_data.x86_max_cores == 1) {
- 		cpu_core_map[cpu] = cpu_sibling_map[cpu];
- 		c[cpu].booted_cores = 1;
-@@ -475,6 +494,11 @@ static inline void set_cpu_sibling_map(i
- 	}
- 
- 	for_each_cpu_mask(i, cpu_sibling_setup_map) {
-+		if (cpu_llc_id[cpu] != BAD_APICID &&
-+		    cpu_llc_id[cpu] == cpu_llc_id[i]) {
-+			cpu_set(i, cpu_llc_shared_map[cpu]);
-+			cpu_set(cpu, cpu_llc_shared_map[i]);
-+		}
- 		if (phys_proc_id[cpu] == phys_proc_id[i]) {
- 			cpu_set(i, cpu_core_map[cpu]);
- 			cpu_set(cpu, cpu_core_map[i]);
-diff -pNru linux-2.6.16-rc1/include/asm-i386/processor.h linux-core/include/asm-i386/processor.h
---- linux-2.6.16-rc1/include/asm-i386/processor.h	2006-01-16 23:44:47.000000000 -0800
-+++ linux-core/include/asm-i386/processor.h	2006-01-24 13:35:49.182862200 -0800
-@@ -103,6 +103,7 @@ extern struct cpuinfo_x86 cpu_data[];
- 
- extern	int phys_proc_id[NR_CPUS];
- extern	int cpu_core_id[NR_CPUS];
-+extern	int cpu_llc_id[NR_CPUS];
- extern char ignore_fpu_irq;
- 
- extern void identify_cpu(struct cpuinfo_x86 *);
-diff -pNru linux-2.6.16-rc1/include/asm-i386/smp.h linux-core/include/asm-i386/smp.h
---- linux-2.6.16-rc1/include/asm-i386/smp.h	2006-01-16 23:44:47.000000000 -0800
-+++ linux-core/include/asm-i386/smp.h	2006-01-24 13:35:49.192860680 -0800
-@@ -36,6 +36,7 @@ extern int pic_mode;
- extern int smp_num_siblings;
- extern cpumask_t cpu_sibling_map[];
- extern cpumask_t cpu_core_map[];
-+extern cpumask_t cpu_llc_shared_map[];
- 
- extern void (*mtrr_hook) (void);
- extern void zap_low_mappings (void);
-diff -pNru linux-2.6.16-rc1/include/asm-i386/topology.h linux-core/include/asm-i386/topology.h
---- linux-2.6.16-rc1/include/asm-i386/topology.h	2006-01-16 23:44:47.000000000 -0800
-+++ linux-core/include/asm-i386/topology.h	2006-01-24 13:43:46.379317312 -0800
-@@ -103,4 +103,6 @@ extern unsigned long node_remap_size[];
- 
- #endif /* CONFIG_NUMA */
- 
-+extern cpumask_t cpu_coregroup_map(int cpu);
-+
- #endif /* _ASM_I386_TOPOLOGY_H */
-diff -pNru linux-2.6.16-rc1/include/asm-x86_64/smp.h linux-core/include/asm-x86_64/smp.h
---- linux-2.6.16-rc1/include/asm-x86_64/smp.h	2006-01-16 23:44:47.000000000 -0800
-+++ linux-core/include/asm-x86_64/smp.h	2006-01-24 13:35:49.193860528 -0800
-@@ -54,8 +54,10 @@ extern int smp_call_function_single(int 
- 
- extern cpumask_t cpu_sibling_map[NR_CPUS];
- extern cpumask_t cpu_core_map[NR_CPUS];
-+extern cpumask_t cpu_llc_shared_map[NR_CPUS];
- extern u8 phys_proc_id[NR_CPUS];
- extern u8 cpu_core_id[NR_CPUS];
-+extern u8 cpu_llc_id[NR_CPUS];
- 
- #define SMP_TRAMPOLINE_BASE 0x6000
- 
-diff -pNru linux-2.6.16-rc1/include/asm-x86_64/topology.h linux-core/include/asm-x86_64/topology.h
---- linux-2.6.16-rc1/include/asm-x86_64/topology.h	2006-01-16 23:44:47.000000000 -0800
-+++ linux-core/include/asm-x86_64/topology.h	2006-01-24 13:43:57.069692128 -0800
-@@ -59,4 +59,6 @@ extern int __node_distance(int, int);
- 
- #include <asm-generic/topology.h>
- 
-+extern cpumask_t cpu_coregroup_map(int cpu);
-+
- #endif
-diff -pNru linux-2.6.16-rc1/include/linux/topology.h linux-core/include/linux/topology.h
---- linux-2.6.16-rc1/include/linux/topology.h	2006-01-16 23:44:47.000000000 -0800
-+++ linux-core/include/linux/topology.h	2006-01-25 21:10:50.380652784 -0800
-@@ -156,6 +156,15 @@
- 	.nr_balance_failed	= 0,			\
- }
- 
-+#ifdef CONFIG_SCHED_MC
-+#ifndef SD_MC_INIT
-+/* for now its same as SD_CPU_INIT.
-+ * TBD: Tune Domain parameters!
-+ */
-+#define SD_MC_INIT   SD_CPU_INIT
-+#endif
-+#endif
-+
- #ifdef CONFIG_NUMA
- #ifndef SD_NODE_INIT
- #error Please define an appropriate SD_NODE_INIT in include/asm/topology.h!!!
-diff -pNru linux-2.6.16-rc1/kernel/sched.c linux-core/kernel/sched.c
---- linux-2.6.16-rc1/kernel/sched.c	2006-01-16 23:44:47.000000000 -0800
-+++ linux-core/kernel/sched.c	2006-01-26 18:31:37.053182824 -0800
-@@ -5658,11 +5658,27 @@ static int cpu_to_cpu_group(int cpu)
- }
- #endif
- 
-+#ifdef CONFIG_SCHED_MC
-+static DEFINE_PER_CPU(struct sched_domain, core_domains);
-+static struct sched_group sched_group_core[NR_CPUS];
-+static int cpu_to_core_group(int cpu)
-+{
-+#ifdef	CONFIG_SCHED_SMT
-+	return first_cpu(cpu_sibling_map[cpu]);
-+#else
-+	return cpu;
-+#endif
-+}
-+#endif
-+
- static DEFINE_PER_CPU(struct sched_domain, phys_domains);
- static struct sched_group sched_group_phys[NR_CPUS];
- static int cpu_to_phys_group(int cpu)
- {
--#ifdef CONFIG_SCHED_SMT
-+#if defined(CONFIG_SCHED_MC)
-+	cpumask_t mask = cpu_coregroup_map(cpu);
-+	return first_cpu(mask);
-+#elif defined(CONFIG_SCHED_SMT)
- 	return first_cpu(cpu_sibling_map[cpu]);
- #else
- 	return cpu;
-@@ -5760,6 +5776,17 @@ void build_sched_domains(const cpumask_t
- 		sd->parent = p;
- 		sd->groups = &sched_group_phys[group];
- 
-+#ifdef CONFIG_SCHED_MC
-+		p = sd;
-+		sd = &per_cpu(core_domains, i);
-+		group = cpu_to_core_group(i);
-+		*sd = SD_MC_INIT;
-+		sd->span = cpu_coregroup_map(i);
-+		cpus_and(sd->span, sd->span, *cpu_map);
-+		sd->parent = p;
-+		sd->groups = &sched_group_core[group];
-+#endif
-+
- #ifdef CONFIG_SCHED_SMT
- 		p = sd;
- 		sd = &per_cpu(cpu_domains, i);
-@@ -5785,6 +5812,19 @@ void build_sched_domains(const cpumask_t
- 	}
- #endif
- 
-+#ifdef CONFIG_SCHED_MC
-+	/* Set up CMP (core) groups */
-+	for_each_online_cpu(i) {
-+		cpumask_t this_core_map = cpu_coregroup_map(i);
-+		cpus_and(this_core_map, this_core_map, *cpu_map);
-+		if (i != first_cpu(this_core_map))
-+			continue;
-+		init_sched_build_groups(sched_group_core, this_core_map,
-+					&cpu_to_core_group);
-+	}
-+#endif
-+
-+
- 	/* Set up physical groups */
- 	for (i = 0; i < MAX_NUMNODES; i++) {
- 		cpumask_t nodemask = node_to_cpumask(i);
-@@ -5881,11 +5921,31 @@ void build_sched_domains(const cpumask_t
- 		power = SCHED_LOAD_SCALE;
- 		sd->groups->cpu_power = power;
- #endif
-+#ifdef CONFIG_SCHED_MC
-+		sd = &per_cpu(core_domains, i);
-+		power = SCHED_LOAD_SCALE + (cpus_weight(sd->groups->cpumask)-1)
-+					    * SCHED_LOAD_SCALE / 10;
-+		sd->groups->cpu_power = power;
-+ 
-+		sd = &per_cpu(phys_domains, i);
- 
-+ 		/*
-+ 		 * This has to be < 2 * SCHED_LOAD_SCALE
-+ 		 * Lets keep it SCHED_LOAD_SCALE, so that
-+ 		 * while calculating NUMA group's cpu_power
-+ 		 * we can simply do
-+ 		 *  numa_group->cpu_power += phys_group->cpu_power;
-+ 		 *
-+ 		 * See "only add power once for each physical pkg"
-+ 		 * comment below
-+ 		 */
-+ 		sd->groups->cpu_power = SCHED_LOAD_SCALE;
-+#else
- 		sd = &per_cpu(phys_domains, i);
- 		power = SCHED_LOAD_SCALE + SCHED_LOAD_SCALE *
- 				(cpus_weight(sd->groups->cpumask)-1) / 10;
- 		sd->groups->cpu_power = power;
-+#endif
- 
- #ifdef CONFIG_NUMA
- 		sd = &per_cpu(allnodes_domains, i);
-@@ -5907,7 +5967,6 @@ void build_sched_domains(const cpumask_t
- next_sg:
- 		for_each_cpu_mask(j, sg->cpumask) {
- 			struct sched_domain *sd;
--			int power;
- 
- 			sd = &per_cpu(phys_domains, j);
- 			if (j != first_cpu(sd->groups->cpumask)) {
-@@ -5917,10 +5976,8 @@ next_sg:
- 				 */
- 				continue;
- 			}
--			power = SCHED_LOAD_SCALE + SCHED_LOAD_SCALE *
--				(cpus_weight(sd->groups->cpumask)-1) / 10;
- 
--			sg->cpu_power += power;
-+			sg->cpu_power += sd->groups->cpu_power;
- 		}
- 		sg = sg->next;
- 		if (sg != sched_group_nodes[i])
-@@ -5933,6 +5990,8 @@ next_sg:
- 		struct sched_domain *sd;
- #ifdef CONFIG_SCHED_SMT
- 		sd = &per_cpu(cpu_domains, i);
-+#elif defined(CONFIG_SCHED_MC)
-+		sd = &per_cpu(core_domains, i);
- #else
- 		sd = &per_cpu(phys_domains, i);
- #endif
+--IS0zKkzwUGydFO0o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=".config"
+
+#
+# Automatically generated make config: don't edit
+# Linux kernel version: 2.6.16-rc1-mm3
+# Thu Jan 26 22:50:08 2006
+#
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_UML=y
+CONFIG_MMU=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_IRQ_RELEASE_METHOD=y
+
+#
+# UML-specific options
+#
+# CONFIG_MODE_TT is not set
+# CONFIG_STATIC_LINK is not set
+CONFIG_MODE_SKAS=y
+
+#
+# Host processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+CONFIG_M686=y
+# CONFIG_MPENTIUMII is not set
+# CONFIG_MPENTIUMIII is not set
+# CONFIG_MPENTIUMM is not set
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MK8 is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MEFFICEON is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MGEODEGX1 is not set
+# CONFIG_MGEODE_LX is not set
+# CONFIG_MCYRIXIII is not set
+# CONFIG_MVIAC3_2 is not set
+# CONFIG_X86_GENERIC is not set
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_CMPXCHG64=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_TSC=y
+CONFIG_UML_X86=y
+# CONFIG_64BIT is not set
+CONFIG_SEMAPHORE_SLEEPERS=y
+CONFIG_TOP_ADDR=0xc0000000
+# CONFIG_3_LEVEL_PGTABLES is not set
+CONFIG_STUB_CODE=0xbfffe000
+CONFIG_STUB_DATA=0xbffff000
+CONFIG_STUB_START=0xbfffe000
+CONFIG_ARCH_HAS_SC_SIGNALS=y
+CONFIG_ARCH_REUSE_HOST_VSYSCALL_AREA=y
+CONFIG_SELECT_MEMORY_MODEL=y
+CONFIG_FLATMEM_MANUAL=y
+# CONFIG_DISCONTIGMEM_MANUAL is not set
+# CONFIG_SPARSEMEM_MANUAL is not set
+CONFIG_FLATMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+# CONFIG_SPARSEMEM_STATIC is not set
+CONFIG_SPLIT_PTLOCK_CPUS=4
+CONFIG_LD_SCRIPT_DYN=y
+CONFIG_NET=y
+CONFIG_X11_FB=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+# CONFIG_HOSTFS is not set
+# CONFIG_HPPFS is not set
+CONFIG_MCONSOLE=y
+# CONFIG_MAGIC_SYSRQ is not set
+CONFIG_NEST_LEVEL=0
+# CONFIG_HIGHMEM is not set
+CONFIG_KERNEL_STACK_ORDER=2
+CONFIG_UML_REAL_TIME_CLOCK=y
+
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+
+#
+# General setup
+#
+CONFIG_LOCALVERSION=""
+CONFIG_LOCALVERSION_AUTO=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_BSD_PROCESS_ACCT=y
+# CONFIG_BSD_PROCESS_ACCT_V3 is not set
+CONFIG_SYSCTL=y
+# CONFIG_AUDIT is not set
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_UID16=y
+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+# CONFIG_EMBEDDED is not set
+CONFIG_KALLSYMS=y
+# CONFIG_KALLSYMS_ALL is not set
+CONFIG_KALLSYMS_EXTRA_PASS=y
+CONFIG_HOTPLUG=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_ELF_CORE=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
+CONFIG_SLAB=y
+# CONFIG_TINY_SHMEM is not set
+CONFIG_BASE_SMALL=0
+# CONFIG_SLOB is not set
+
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+# CONFIG_MODULE_FORCE_UNLOAD is not set
+CONFIG_OBSOLETE_MODPARM=y
+# CONFIG_MODVERSIONS is not set
+# CONFIG_MODULE_SRCVERSION_ALL is not set
+CONFIG_KMOD=y
+
+#
+# Block layer
+#
+# CONFIG_LBD is not set
+# CONFIG_LSF is not set
+# CONFIG_BLK_DEV_IO_TRACE is not set
+
+#
+# IO Schedulers
+#
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_DEFAULT_AS=y
+# CONFIG_DEFAULT_DEADLINE is not set
+# CONFIG_DEFAULT_CFQ is not set
+# CONFIG_DEFAULT_NOOP is not set
+CONFIG_DEFAULT_IOSCHED="anticipatory"
+
+#
+# Block devices
+#
+CONFIG_BLK_DEV_UBD=y
+CONFIG_BLK_DEV_UBD_SYNC=y
+CONFIG_BLK_DEV_COW_COMMON=y
+# CONFIG_MMAPPER is not set
+CONFIG_BLK_DEV_LOOP=m
+# CONFIG_BLK_DEV_CRYPTOLOOP is not set
+CONFIG_BLK_DEV_NBD=m
+# CONFIG_BLK_DEV_RAM is not set
+CONFIG_BLK_DEV_RAM_COUNT=16
+# CONFIG_ATA_OVER_ETH is not set
+
+#
+# Character Devices
+#
+CONFIG_STDERR_CONSOLE=y
+CONFIG_STDIO_CONSOLE=y
+CONFIG_SSL=y
+CONFIG_NULL_CHAN=y
+CONFIG_PORT_CHAN=y
+CONFIG_PTY_CHAN=y
+CONFIG_TTY_CHAN=y
+CONFIG_XTERM_CHAN=y
+# CONFIG_NOCONFIG_CHAN is not set
+CONFIG_CON_ZERO_CHAN="fd:0,fd:1"
+CONFIG_CON_CHAN="xterm"
+CONFIG_SSL_CHAN="pty"
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+# CONFIG_WATCHDOG is not set
+CONFIG_UML_SOUND=m
+CONFIG_SOUND=m
+CONFIG_HOSTAUDIO=m
+CONFIG_UML_RANDOM=y
+
+#
+# Generic Driver Options
+#
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+# CONFIG_FW_LOADER is not set
+# CONFIG_DEBUG_DRIVER is not set
+
+#
+# Networking
+#
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+# CONFIG_NET_KEY is not set
+CONFIG_INET=y
+# CONFIG_IP_MULTICAST is not set
+# CONFIG_IP_ADVANCED_ROUTER is not set
+CONFIG_IP_FIB_HASH=y
+# CONFIG_IP_PNP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_ARPD is not set
+# CONFIG_SYN_COOKIES is not set
+# CONFIG_INET_AH is not set
+# CONFIG_INET_ESP is not set
+# CONFIG_INET_IPCOMP is not set
+# CONFIG_INET_TUNNEL is not set
+CONFIG_INET_DIAG=y
+CONFIG_INET_TCP_DIAG=y
+# CONFIG_TCP_CONG_ADVANCED is not set
+CONFIG_TCP_CONG_BIC=y
+# CONFIG_IPV6 is not set
+# CONFIG_NETFILTER is not set
+
+#
+# DCCP Configuration (EXPERIMENTAL)
+#
+# CONFIG_IP_DCCP is not set
+
+#
+# SCTP Configuration (EXPERIMENTAL)
+#
+# CONFIG_IP_SCTP is not set
+
+#
+# TIPC Configuration (EXPERIMENTAL)
+#
+# CONFIG_TIPC is not set
+# CONFIG_ATM is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_DECNET is not set
+# CONFIG_LLC2 is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Network testing
+#
+# CONFIG_NET_PKTGEN is not set
+# CONFIG_HAMRADIO is not set
+# CONFIG_IRDA is not set
+# CONFIG_BT is not set
+# CONFIG_IEEE80211 is not set
+
+#
+# UML Network Devices
+#
+CONFIG_UML_NET=y
+CONFIG_UML_NET_ETHERTAP=y
+CONFIG_UML_NET_TUNTAP=y
+CONFIG_UML_NET_SLIP=y
+CONFIG_UML_NET_DAEMON=y
+CONFIG_UML_NET_MCAST=y
+# CONFIG_UML_NET_PCAP is not set
+CONFIG_UML_NET_SLIRP=y
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+CONFIG_TUN=m
+
+#
+# PHY device support
+#
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+CONFIG_PPP=m
+# CONFIG_PPP_MULTILINK is not set
+# CONFIG_PPP_FILTER is not set
+# CONFIG_PPP_ASYNC is not set
+# CONFIG_PPP_SYNC_TTY is not set
+# CONFIG_PPP_DEFLATE is not set
+# CONFIG_PPP_BSDCOMP is not set
+# CONFIG_PPP_MPPE is not set
+# CONFIG_PPPOE is not set
+CONFIG_SLIP=m
+# CONFIG_SLIP_COMPRESSED is not set
+# CONFIG_SLIP_SMART is not set
+# CONFIG_SLIP_MODE_SLIP6 is not set
+# CONFIG_SHAPER is not set
+# CONFIG_NETCONSOLE is not set
+# CONFIG_KGDBOE is not set
+# CONFIG_NETPOLL is not set
+# CONFIG_NETPOLL_RX is not set
+# CONFIG_NETPOLL_TRAP is not set
+# CONFIG_NET_POLL_CONTROLLER is not set
+
+#
+# Connector - unified userspace <-> kernelspace linker
+#
+# CONFIG_CONNECTOR is not set
+
+#
+# Input device support
+#
+CONFIG_INPUT=y
+
+#
+# Userland interfaces
+#
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+# CONFIG_INPUT_JOYDEV is not set
+# CONFIG_INPUT_TSDEV is not set
+# CONFIG_INPUT_EVDEV is not set
+# CONFIG_INPUT_EVBUG is not set
+
+#
+# Input Device Drivers
+#
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_INPUT_MOUSE=y
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_INPUT_TOUCHSCREEN is not set
+# CONFIG_INPUT_MISC is not set
+
+#
+# Hardware I/O ports
+#
+CONFIG_SERIO=y
+CONFIG_SERIO_SERPORT=y
+# CONFIG_SERIO_RAW is not set
+# CONFIG_GAMEPORT is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+
+#
+# Serial drivers
+#
+
+#
+# Non-8250 serial port support
+#
+
+#
+# IPMI
+#
+
+#
+# Watchdog Cards
+#
+# CONFIG_R3964 is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+
+#
+# PCMCIA character devices
+#
+# CONFIG_RAW_DRIVER is not set
+
+#
+# TPM devices
+#
+# CONFIG_TELCLOCK is not set
+
+#
+# Graphics support
+#
+CONFIG_FB=y
+CONFIG_FB_CFB_FILLRECT=y
+CONFIG_FB_CFB_COPYAREA=y
+CONFIG_FB_CFB_IMAGEBLIT=y
+# CONFIG_FB_MACMODES is not set
+# CONFIG_FB_MODE_HELPERS is not set
+# CONFIG_FB_TILEBLITTING is not set
+# CONFIG_FB_VIRTUAL is not set
+
+#
+# Console display driver support
+#
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+# CONFIG_FRAMEBUFFER_CONSOLE_ROTATION is not set
+CONFIG_FONTS=y
+# CONFIG_FONT_8x8 is not set
+CONFIG_FONT_8x16=y
+# CONFIG_FONT_6x11 is not set
+# CONFIG_FONT_7x14 is not set
+# CONFIG_FONT_PEARL_8x8 is not set
+# CONFIG_FONT_ACORN_8x8 is not set
+# CONFIG_FONT_MINI_4x6 is not set
+# CONFIG_FONT_SUN8x16 is not set
+# CONFIG_FONT_SUN12x22 is not set
+# CONFIG_FONT_10x18 is not set
+
+#
+# Logo configuration
+#
+# CONFIG_LOGO is not set
+# CONFIG_BACKLIGHT_LCD_SUPPORT is not set
+
+#
+# File systems
+#
+CONFIG_EXT2_FS=y
+# CONFIG_EXT2_FS_XATTR is not set
+# CONFIG_EXT2_FS_XIP is not set
+CONFIG_EXT3_FS=y
+# CONFIG_EXT3_FS_XATTR is not set
+CONFIG_JBD=y
+# CONFIG_JBD_DEBUG is not set
+# CONFIG_REISER4_FS is not set
+CONFIG_REISERFS_FS=y
+# CONFIG_REISERFS_CHECK is not set
+# CONFIG_REISERFS_PROC_INFO is not set
+# CONFIG_REISERFS_FS_XATTR is not set
+# CONFIG_JFS_FS is not set
+# CONFIG_FS_POSIX_ACL is not set
+# CONFIG_XFS_FS is not set
+# CONFIG_OCFS2_FS is not set
+# CONFIG_MINIX_FS is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_INOTIFY=y
+CONFIG_QUOTA=y
+# CONFIG_QFMT_V1 is not set
+# CONFIG_QFMT_V2 is not set
+CONFIG_QUOTACTL=y
+CONFIG_DNOTIFY=y
+CONFIG_AUTOFS_FS=m
+CONFIG_AUTOFS4_FS=m
+# CONFIG_FUSE_FS is not set
+
+#
+# CD-ROM/DVD Filesystems
+#
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+# CONFIG_ZISOFS is not set
+# CONFIG_UDF_FS is not set
+
+#
+# DOS/FAT/NT Filesystems
+#
+# CONFIG_MSDOS_FS is not set
+# CONFIG_VFAT_FS is not set
+# CONFIG_NTFS_FS is not set
+
+#
+# Pseudo filesystems
+#
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+# CONFIG_HUGETLB_PAGE is not set
+CONFIG_RAMFS=y
+# CONFIG_RELAYFS_FS is not set
+# CONFIG_CONFIGFS_FS is not set
+
+#
+# Miscellaneous filesystems
+#
+# CONFIG_ADFS_FS is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_ASFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_HFSPLUS_FS is not set
+# CONFIG_BEFS_FS is not set
+# CONFIG_BFS_FS is not set
+# CONFIG_EFS_FS is not set
+# CONFIG_CRAMFS is not set
+# CONFIG_VXFS_FS is not set
+# CONFIG_HPFS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_SYSV_FS is not set
+# CONFIG_UFS_FS is not set
+
+#
+# Network File Systems
+#
+# CONFIG_NFS_FS is not set
+# CONFIG_NFSD is not set
+# CONFIG_SMB_FS is not set
+# CONFIG_CIFS is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_CODA_FS is not set
+# CONFIG_AFS_FS is not set
+# CONFIG_9P_FS is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+# CONFIG_NLS_CODEPAGE_437 is not set
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+# CONFIG_NLS_CODEPAGE_850 is not set
+# CONFIG_NLS_CODEPAGE_852 is not set
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_CODEPAGE_1250 is not set
+# CONFIG_NLS_CODEPAGE_1251 is not set
+# CONFIG_NLS_ASCII is not set
+# CONFIG_NLS_ISO8859_1 is not set
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_13 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+# CONFIG_NLS_ISO8859_15 is not set
+# CONFIG_NLS_KOI8_R is not set
+# CONFIG_NLS_KOI8_U is not set
+# CONFIG_NLS_UTF8 is not set
+
+#
+# Security options
+#
+# CONFIG_KEYS is not set
+# CONFIG_SECURITY is not set
+
+#
+# Cryptographic options
+#
+# CONFIG_CRYPTO is not set
+
+#
+# Hardware crypto devices
+#
+
+#
+# Library routines
+#
+# CONFIG_CRC_CCITT is not set
+# CONFIG_CRC16 is not set
+CONFIG_CRC32=y
+# CONFIG_LIBCRC32C is not set
+
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+
+#
+# Kernel hacking
+#
+# CONFIG_PRINTK_TIME is not set
+# CONFIG_DEBUG_SHIRQ is not set
+CONFIG_DEBUG_KERNEL=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_DETECT_SOFTLOCKUP=y
+# CONFIG_SCHEDSTATS is not set
+CONFIG_DEBUG_SLAB=y
+CONFIG_DEBUG_MUTEXES=y
+# CONFIG_DEBUG_SPINLOCK is not set
+# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
+# CONFIG_DEBUG_KOBJECT is not set
+CONFIG_DEBUG_INFO=y
+# CONFIG_DEBUG_FS is not set
+# CONFIG_DEBUG_VM is not set
+CONFIG_FRAME_POINTER=y
+CONFIG_FORCED_INLINING=y
+CONFIG_UNWIND_INFO=y
+# CONFIG_RCU_TORTURE_TEST is not set
+# CONFIG_DEBUG_SYNCHRO_TEST is not set
+# CONFIG_GPROF is not set
+# CONFIG_GCOV is not set
+# CONFIG_SYSCALL_DEBUG is not set
+
+--IS0zKkzwUGydFO0o--

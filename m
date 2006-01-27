@@ -1,95 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422655AbWA0WvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422652AbWA0WvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422655AbWA0WvH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 17:51:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422652AbWA0WvF
+	id S1422652AbWA0WvI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 17:51:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422651AbWA0WvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 17:51:05 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:24041 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422651AbWA0Wu4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 17:50:56 -0500
-Message-ID: <43DAA3C9.9070105@us.ibm.com>
-Date: Fri, 27 Jan 2006 16:50:49 -0600
-From: Brian Twichell <tbrian@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Dave McCracken <dmccr@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH/RFC] Shared page tables
-References: <A6D73CCDC544257F3D97F143@[10.1.1.4]> <Pine.LNX.4.61.0601202020001.8821@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0601202020001.8821@goblin.wat.veritas.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Jan 2006 17:51:07 -0500
+Received: from smtp1.pp.htv.fi ([213.243.153.37]:53899 "EHLO smtp1.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S1422650AbWA0Wuy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 17:50:54 -0500
+Date: Sat, 28 Jan 2006 00:50:53 +0200
+From: Paul Mundt <lethal@linux-sh.org>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 2/11] sh: Make peripheral clock frequency setting mandatory.
+Message-ID: <20060127225053.GC30816@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20060127224919.GA30816@linux-sh.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060127224919.GA30816@linux-sh.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
+Pretty much every subtype does this now anyways, and as we depend
+on it in a few places being set to something sensible quite early
+on, it's better for a new subtype to simply set a sensible default.
 
->On Thu, 5 Jan 2006, Dave McCracken wrote:
->  
->
->>Here's a new version of my shared page tables patch.
->>
->>The primary purpose of sharing page tables is improved performance for
->>large applications that share big memory areas between multiple processes.
->>It eliminates the redundant page tables and significantly reduces the
->>number of minor page faults.  Tests show significant performance
->>improvement for large database applications, including those using large
->>pages.  There is no measurable performance degradation for small processes.
->>
->>This version of the patch uses Hugh's new locking mechanism, extending it
->>up the page table tree as far as necessary for proper concurrency control.
->>
->>The patch also includes the proper locking for following the vma chains.
->>
->>Hugh, I believe I have all the lock points nailed down.  I'd appreciate
->>your input on any I might have missed.
->>
->>The architectures supported are i386 and x86_64.  I'm working on 64 bit
->>ppc, but there are still some issues around proper segment handling that
->>need more testing.  This will be available in a separate patch once it's
->>solid.
->>
->>Dave McCracken
->>    
->>
->
->The locking looks much better now, and I like the way i_mmap_lock seems
->to fall naturally into place where the pte lock doesn't work.  But still
->some raciness noted in comments on patch below.
->
->The main thing I dislike is the
-> 16 files changed, 937 insertions(+), 69 deletions(-)
->(with just i386 and x86_64 included): it's adding more complexity than
->I can welcome, and too many unavoidable "if (shared) ... else ..."s.
->With significant further change needed, not just adding architectures.
->
->Worthwhile additional complexity?  I'm not the one to judge that.
->Brian has posted dramatic improvments (25%, 49%) for the non-huge OLTP,
->and yes, it's sickening the amount of memory we're wasting on pagetables
->in that particular kind of workload.  Less dramatic (3%, 4%) in the
->hugetlb case: and as yet (since last summer even) no profiles to tell
->where that improvement actually comes from.
->
->  
->
-Hi,
+Signed-off-by: Paul Mundt <lethal@linux-sh.org>
 
-We collected more granular performance data for the ppc64/hugepage case.
+---
 
-CPI decreased by 3% when shared pagetables were used.  Underlying this was a
-7% decrease in the overall TLB miss rate.  The TLB miss rate for hugepages
-decreased 39%.  TLB miss rates are calculated per instruction executed.
+ arch/sh/Kconfig            |    6 ------
+ arch/sh/kernel/cpu/clock.c |   13 +------------
+ 2 files changed, 1 insertions(+), 18 deletions(-)
 
-We didn't collect a profile per se, as we would expect a CPI improvement
-of this nature to be spread over a significant number of functions,
-mostly in user-space.
-
-Cheers,
-Brian
-
-
+e3efa1355438864fd56f850604722dc62d2aaa1b
+diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
+index 01bc7d5..504d56f 100644
+--- a/arch/sh/Kconfig
++++ b/arch/sh/Kconfig
+@@ -396,14 +396,8 @@ source "arch/sh/boards/renesas/hs7751rvo
+ 
+ source "arch/sh/boards/renesas/rts7751r2d/Kconfig"
+ 
+-config SH_PCLK_FREQ_BOOL
+-	bool "Set default pclk frequency"
+-	default y if !SH_RTC
+-	default n
+-
+ config SH_PCLK_FREQ
+ 	int "Peripheral clock frequency (in Hz)"
+-	depends on SH_PCLK_FREQ_BOOL
+ 	default "50000000" if CPU_SUBTYPE_SH7750 || CPU_SUBTYPE_SH7780
+ 	default "60000000" if CPU_SUBTYPE_SH7751
+ 	default "33333333" if CPU_SUBTYPE_SH7300 || CPU_SUBTYPE_SH7770 || CPU_SUBTYPE_SH7760
+diff --git a/arch/sh/kernel/cpu/clock.c b/arch/sh/kernel/cpu/clock.c
+index 989e7fd..97fa37f 100644
+--- a/arch/sh/kernel/cpu/clock.c
++++ b/arch/sh/kernel/cpu/clock.c
+@@ -38,9 +38,7 @@ static DECLARE_MUTEX(clock_list_sem);
+ static struct clk master_clk = {
+ 	.name		= "master_clk",
+ 	.flags		= CLK_ALWAYS_ENABLED | CLK_RATE_PROPAGATES,
+-#ifdef CONFIG_SH_PCLK_FREQ_BOOL
+ 	.rate		= CONFIG_SH_PCLK_FREQ,
+-#endif
+ };
+ 
+ static struct clk module_clk = {
+@@ -227,16 +225,7 @@ int __init clk_init(void)
+ {
+ 	int i, ret = 0;
+ 
+-	if (unlikely(!master_clk.rate))
+-		/*
+-		 * NOTE: This will break if the default divisor has been
+-		 * changed.
+-		 *
+-		 * No one should be changing the default on us however,
+-		 * expect that a sane value for CONFIG_SH_PCLK_FREQ will
+-		 * be defined in the event of a different divisor.
+-		 */
+-		master_clk.rate = get_timer_frequency() * 4;
++	BUG_ON(unlikely(!master_clk.rate));
+ 
+ 	for (i = 0; i < ARRAY_SIZE(onchip_clocks); i++) {
+ 		struct clk *clk = onchip_clocks[i];

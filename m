@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWA0Bed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWA0Bgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964880AbWA0Bed (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 20:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbWA0Bed
+	id S964890AbWA0Bgj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 20:36:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWA0Bgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 20:34:33 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:41406 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S964880AbWA0Bed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 20:34:33 -0500
-Date: Thu, 26 Jan 2006 17:34:24 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       Peter Williams <pwil3058@bigpond.net.au>, mingo@elte.hu,
-       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: smp 'nice' bias support breaks scheduler behavior
-Message-ID: <20060126173423.B19789@unix-os.sc.intel.com>
-References: <20060126025220.B8521@unix-os.sc.intel.com> <43D95D04.8050802@bigpond.net.au> <20060126155623.A19789@unix-os.sc.intel.com> <200601271229.02752.kernel@kolivas.org>
+	Thu, 26 Jan 2006 20:36:39 -0500
+Received: from xenotime.net ([66.160.160.81]:50386 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932283AbWA0Bgi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 20:36:38 -0500
+Date: Thu, 26 Jan 2006 17:36:50 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Andi Kleen <ak@muc.de>
+Cc: ashok.raj@intel.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       kaos@sgi.com, randy.d.dunlap@intel.com
+Subject: Re: wrongly marked __init/__initdata for CPU hotplug
+Message-Id: <20060126173650.51496925.rdunlap@xenotime.net>
+In-Reply-To: <20060126042603.GA88680@muc.de>
+References: <20060125120253.A30999@unix-os.sc.intel.com>
+	<20060126042603.GA88680@muc.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200601271229.02752.kernel@kolivas.org>; from kernel@kolivas.org on Fri, Jan 27, 2006 at 12:29:02PM +1100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2006 at 12:29:02PM +1100, Con Kolivas wrote:
-> We planned to push it for 2.6.16 but issues showed up, which Peter has since 
-> addressed - but this means the code has not had enough testing to go into 
-> 2.6.16 - so it is likely to be in 2.6.17.
+On 26 Jan 2006 05:26:03 +0100 Andi Kleen wrote:
 
-Then for 2.6.16, I would like to see smp nice handling patch backed out.
+> On Wed, Jan 25, 2006 at 12:02:53PM -0800, Ashok Raj wrote:
+> > Hi Andrew
+> > 
+> > attached patch is 2 more cases i found via running the reference_init.pl
+> > script. These were easy to spot just knowing the file names. There is 
+> > one another about init/main.c that i cant exactly zero in. (partly 
+> > because i dont know how to interpret the data thats spewed out of the tool).
+> 
+> I think that's the reference to __initcall_start / end 
+> That one is unavoidable, but not a bug.
 
-Do you agree?
+Yes, that's the conclusion that I came to also.
 
-thanks,
-suresh
+---
+~Randy

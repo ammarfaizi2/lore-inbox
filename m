@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWA0OG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbWA0OGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbWA0OG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 09:06:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWA0OG2
+	id S1751147AbWA0OGE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 09:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWA0OGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 09:06:28 -0500
-Received: from smtp2.pp.htv.fi ([213.243.153.35]:5545 "EHLO smtp2.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S1751150AbWA0OG1 (ORCPT
+	Fri, 27 Jan 2006 09:06:04 -0500
+Received: from smtp2.pp.htv.fi ([213.243.153.35]:63144 "EHLO smtp2.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S1751147AbWA0OGB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 09:06:27 -0500
-Date: Fri, 27 Jan 2006 16:06:25 +0200
+	Fri, 27 Jan 2006 09:06:01 -0500
+Date: Fri, 27 Jan 2006 16:06:00 +0200
 From: Paul Mundt <lethal@linux-sh.org>
 To: Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
        James Bottomley <James.Bottomley@SteelEye.com>, tony@atomide.com,
        linux-kernel@vger.kernel.org
-Subject: [PATCH 3/3] bitmap: region restructuring
-Message-ID: <20060127140625.GD29632@linux-sh.org>
+Subject: [PATCH 2/3] bitmap: region multiword spanning support
+Message-ID: <20060127140600.GC29632@linux-sh.org>
 Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
 	Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
 	James Bottomley <James.Bottomley@SteelEye.com>, tony@atomide.com,
@@ -29,273 +29,168 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Paul Jackson <pj@sgi.com>
+Add support to the lib/bitmap.c bitmap_*_region() routines
 
-Restructure the bitmap_*_region() operations, to avoid code
-duplication.
+for bitmap regions larger than one word (nbits > BITS_PER_LONG).
+This removes a BUG_ON() in lib bitmap.
 
-Also reduces binary text size by about 100 bytes (ia64 arch).
-The original Bottomley bitmap_*_region patch added about 1000
-bytes of compiled kernel text (ia64).  The Mundt multiword
-extension added another 600 bytes, and this restructuring patch
-gets back about 100 bytes.
+I have an updated store queue API for SH that is currently using this
+with relative success, and at first glance, it seems like this could be
+useful for x86 (arch/i386/kernel/pci-dma.c) as well. Particularly for
+anything using dma_declare_coherent_memory() on large areas and that
+attempts to allocate large buffers from that space.
 
-But the real motivation was the reduced amount of duplicated
-code.
-
-Tested by Paul Mundt using <= BITS_PER_LONG as well as power of
-2 aligned multiword spanning allocations.
+This applies on top of the previous bitmap region cleanup work done by
+Paul Jackson, who also did some cleanup to this patch.
 
 Signed-off-by: Paul Mundt <lethal@linux-sh.org>
 
 ---
 
- lib/bitmap.c |  199 ++++++++++++++++++++++++++++++----------------------------
- 1 files changed, 102 insertions(+), 97 deletions(-)
+ lib/bitmap.c |  108 ++++++++++++++++++++++++++++++++++++++++------------------
+ 1 files changed, 75 insertions(+), 33 deletions(-)
 
-bf642287ac51459423d161ceb42c74a4606d5df6
+963100ab9721a76326a5479685e03d76dec25cf0
 diff --git a/lib/bitmap.c b/lib/bitmap.c
-index f49eabe..8acab0e 100644
+index 3fab1ce..f49eabe 100644
 --- a/lib/bitmap.c
 +++ b/lib/bitmap.c
-@@ -676,138 +676,143 @@ int bitmap_bitremap(int oldbit, const un
- }
- EXPORT_SYMBOL(bitmap_bitremap);
- 
--/**
-- * bitmap_find_free_region - find a contiguous aligned mem region
-- *	@bitmap: an array of unsigned longs corresponding to the bitmap
-- *	@bits: number of bits in the bitmap
-- *	@order: region size to find (size is actually 1<<order)
-+/*
-+ * Common code for bitmap_*_region() routines.
-+ *	bitmap: array of unsigned longs corresponding to the bitmap
-+ *	pos: the beginning of the region
-+ *	order: region size (log base 2 of number of bits)
-+ *	reg_op: operation(s) to perform on that region of bitmap
-  *
-- * Find a sequence of free (zero) bits in a bitmap and allocate
-- * them (set them to one).  Only consider sequences of length a
-- * power ('order') of two, aligned to that power of two, which
-- * makes the search algorithm much faster.
-+ * Can set, verify and/or release a region of bits in a bitmap,
-+ * depending on which combination of REG_OP_* flag bits is set.
-  *
-- * Return the bit offset in bitmap of the allocated sequence,
-- * or -errno on failure.
-+ * A region of a bitmap is a sequence of bits in the bitmap, of
-+ * some size '1 << order' (a power of two), aligned to that same
-+ * '1 << order' power of two.
-+ *
-+ * Returns 1 if REG_OP_ISFREE succeeds (region is all zero bits).
-+ * Returns 0 in all other cases and reg_ops.
+@@ -692,26 +692,44 @@ EXPORT_SYMBOL(bitmap_bitremap);
   */
--int bitmap_find_free_region(unsigned long *bitmap, int bits, int order)
-+
-+enum {
-+	REG_OP_ISFREE,		/* true if region is all zero bits */
-+	REG_OP_ALLOC,		/* set all bits in region */
-+	REG_OP_RELEASE,		/* clear all bits in region */
-+};
-+
-+static int __reg_op(unsigned long *bitmap, int pos, int order, int reg_op)
+ int bitmap_find_free_region(unsigned long *bitmap, int bits, int order)
  {
--	int nbits;		/* number of bits in region */
--	int nlongs;		/* num longs spanned by region in bitmap */
-+	int nbits_reg;		/* number of bits in region */
-+	int index;		/* index first long of region in bitmap */
-+	int offset;		/* bit offset region in bitmap[index] */
-+	int nlongs_reg;		/* num longs spanned by region in bitmap */
- 	int nbitsinlong;	/* num bits of region in each spanned long */
--	unsigned long mask;	/* bitmask of bits [0 .. nbitsinlong-1] */
-+	unsigned long mask;	/* bitmask for one long of region */
- 	int i;			/* scans bitmap by longs */
-+	int ret = 0;		/* return value */
+-	unsigned long mask;
+-	int nbits = 1 << order;
+-	int i;
+-
+-	if (nbits > BITS_PER_LONG)
+-		return -EINVAL;
++	int nbits;		/* number of bits in region */
++	int nlongs;		/* num longs spanned by region in bitmap */
++	int nbitsinlong;	/* num bits of region in each spanned long */
++	unsigned long mask;	/* bitmask of bits [0 .. nbitsinlong-1] */
++	int i;			/* scans bitmap by longs */
++
++	nbits = 1 << order;
++	nlongs = (nbits + (BITS_PER_LONG - 1)) / BITS_PER_LONG;
++	nbitsinlong = nbits;
++	if (nbitsinlong > BITS_PER_LONG)
++		nbitsinlong = BITS_PER_LONG;
  
--	nbits = 1 << order;
--	nlongs = (nbits + (BITS_PER_LONG - 1)) / BITS_PER_LONG;
--	nbitsinlong = nbits;
--	if (nbitsinlong > BITS_PER_LONG)
--		nbitsinlong = BITS_PER_LONG;
-+	/*
-+	 * Either nlongs_reg == 1 (for small orders that fit in one long)
-+	 * or (offset == 0 && mask == ~0UL) (for larger multiword orders.)
-+	 */
-+	nbits_reg = 1 << order;
-+	index = pos / BITS_PER_LONG;
-+	offset = pos - (index * BITS_PER_LONG);
-+	nlongs_reg = BITS_TO_LONGS(nbits_reg);
-+	nbitsinlong = min(nbits_reg,  BITS_PER_LONG);
- 
--	/* make a mask of the order */
-+	/*
-+	 * Can't do "mask = (1UL << nbitsinlong) - 1", as that
-+	 * overflows if nbitsinlong == BITS_PER_LONG.
-+	 */
- 	mask = (1UL << (nbitsinlong - 1));
+ 	/* make a mask of the order */
+-	mask = (1UL << (nbits - 1));
++	mask = (1UL << (nbitsinlong - 1));
  	mask += mask - 1;
-+	mask <<= offset;
  
--	/* run up the bitmap nbitsinlong at a time */
--	for (i = 0; i < bits; i += nbitsinlong) {
--		int index = i / BITS_PER_LONG;
--		int offset = i - (index * BITS_PER_LONG);
--		int j, space = 1;
--
--		/* find space in the bitmap */
--		for (j = 0; j < nlongs; j++)
--			if ((bitmap[index + j] & (mask << offset))) {
--				space = 0;
--				break;
--			}
--
--		/* keep looking */
--		if (unlikely(!space))
--			continue;
--
--		for (j = 0; j < nlongs; j++)
--			/* set region in bitmap */
--			bitmap[index + j] |= (mask << offset);
--
--		return i;
-+	switch (reg_op) {
-+	case REG_OP_ISFREE:
-+		for (i = 0; i < nlongs_reg; i++) {
-+			if (bitmap[index + i] & mask)
-+				goto done;
-+		}
-+		ret = 1;	/* all bits in region free (zero) */
-+		break;
+-	/* run up the bitmap nbits at a time */
+-	for (i = 0; i < bits; i += nbits) {
++	/* run up the bitmap nbitsinlong at a time */
++	for (i = 0; i < bits; i += nbitsinlong) {
+ 		int index = i / BITS_PER_LONG;
+ 		int offset = i - (index * BITS_PER_LONG);
+-		if ((bitmap[index] & (mask << offset)) == 0) {
++		int j, space = 1;
 +
-+	case REG_OP_ALLOC:
-+		for (i = 0; i < nlongs_reg; i++)
-+			bitmap[index + i] |= mask;
-+		break;
++		/* find space in the bitmap */
++		for (j = 0; j < nlongs; j++)
++			if ((bitmap[index + j] & (mask << offset))) {
++				space = 0;
++				break;
++			}
 +
-+	case REG_OP_RELEASE:
-+		for (i = 0; i < nlongs_reg; i++)
-+			bitmap[index + i] &= ~mask;
-+		break;
++		/* keep looking */
++		if (unlikely(!space))
++			continue;
++
++		for (j = 0; j < nlongs; j++)
+ 			/* set region in bitmap */
+-			bitmap[index] |= (mask << offset);
+-			return i;
+-		}
++			bitmap[index + j] |= (mask << offset);
++
++		return i;
  	}
--	return -ENOMEM;
-+done:
-+	return ret;
-+}
-+
-+/**
-+ * bitmap_find_free_region - find a contiguous aligned mem region
-+ *	@bitmap: array of unsigned longs corresponding to the bitmap
-+ *	@bits: number of bits in the bitmap
-+ *	@order: region size (log base 2 of number of bits) to find
-+ *
-+ * Find a region of free (zero) bits in a @bitmap of @bits bits and
-+ * allocate them (set them to one).  Only consider regions of length
-+ * a power (@order) of two, aligned to that power of two, which
-+ * makes the search algorithm much faster.
-+ *
-+ * Return the bit offset in bitmap of the allocated region,
-+ * or -errno on failure.
-+ */
-+int bitmap_find_free_region(unsigned long *bitmap, int bits, int order)
-+{
-+	int pos;		/* scans bitmap by regions of size order */
-+
-+	for (pos = 0; pos < bits; pos += (1 << order))
-+		if (__reg_op(bitmap, pos, order, REG_OP_ISFREE))
-+			break;
-+	if (pos == bits)
-+		return -ENOMEM;
-+	__reg_op(bitmap, pos, order, REG_OP_ALLOC);
-+	return pos;
+ 	return -ENOMEM;
  }
- EXPORT_SYMBOL(bitmap_find_free_region);
- 
- /**
-  * bitmap_release_region - release allocated bitmap region
-- *	@bitmap: a pointer to the bitmap
-- *	@pos: the beginning of the region
-- *	@order: the order of the bits to release (number is 1<<order)
-+ *	@bitmap: array of unsigned longs corresponding to the bitmap
-+ *	@pos: beginning of bit region to release
-+ *	@order: region size (log base 2 of number of bits) to release
-  *
-  * This is the complement to __bitmap_find_free_region and releases
-  * the found region (by clearing it in the bitmap).
-+ *
-+ * No return value.
+@@ -728,13 +746,28 @@ EXPORT_SYMBOL(bitmap_find_free_region);
   */
  void bitmap_release_region(unsigned long *bitmap, int pos, int order)
  {
--	int nbits;		/* number of bits in region */
--	int nlongs;		/* num longs spanned by region in bitmap */
--	int index;		/* index first long of region in bitmap */
--	int offset;		/* bit offset region in bitmap[index] */
--	int nbitsinlong;	/* num bits of region in each spanned long */
--	unsigned long mask;	/* bitmask of bits [0 .. nbitsinlong-1] */
--	int i;			/* scans bitmap by longs */
--
--	nbits = 1 << order;
--	nlongs = (nbits + (BITS_PER_LONG - 1)) / BITS_PER_LONG;
--	index = pos / BITS_PER_LONG;
--	offset = pos - (index * BITS_PER_LONG);
--
--	nbitsinlong = nbits;
--	if (nbitsinlong > BITS_PER_LONG)
--		nbitsinlong = BITS_PER_LONG;
--
--	mask = (1UL << (nbitsinlong - 1));
--	mask += mask - 1;
--
--	for (i = 0; i < nlongs; i++)
--		bitmap[index + i] &= ~(mask << offset);
-+	__reg_op(bitmap, pos, order, REG_OP_RELEASE);
+-	int nbits = 1 << order;
+-	unsigned long mask = (1UL << (nbits - 1));
+-	int index = pos / BITS_PER_LONG;
+-	int offset = pos - (index * BITS_PER_LONG);
++	int nbits;		/* number of bits in region */
++	int nlongs;		/* num longs spanned by region in bitmap */
++	int index;		/* index first long of region in bitmap */
++	int offset;		/* bit offset region in bitmap[index] */
++	int nbitsinlong;	/* num bits of region in each spanned long */
++	unsigned long mask;	/* bitmask of bits [0 .. nbitsinlong-1] */
++	int i;			/* scans bitmap by longs */
++
++	nbits = 1 << order;
++	nlongs = (nbits + (BITS_PER_LONG - 1)) / BITS_PER_LONG;
++	index = pos / BITS_PER_LONG;
++	offset = pos - (index * BITS_PER_LONG);
++
++	nbitsinlong = nbits;
++	if (nbitsinlong > BITS_PER_LONG)
++		nbitsinlong = BITS_PER_LONG;
+ 
++	mask = (1UL << (nbitsinlong - 1));
+ 	mask += mask - 1;
+-	bitmap[index] &= ~(mask << offset);
++
++	for (i = 0; i < nlongs; i++)
++		bitmap[index + i] &= ~(mask << offset);
  }
  EXPORT_SYMBOL(bitmap_release_region);
  
- /**
-  * bitmap_allocate_region - allocate bitmap region
-- *	@bitmap: a pointer to the bitmap
-- *	@pos: the beginning of the region
-- *	@order: the order of the bits to allocate (number is 1<<order)
-+ *	@bitmap: array of unsigned longs corresponding to the bitmap
-+ *	@pos: beginning of bit region to allocate
-+ *	@order: region size (log base 2 of number of bits) to allocate
-  *
-  * Allocate (set bits in) a specified region of a bitmap.
-+ *
-  * Return 0 on success, or -EBUSY if specified region wasn't
-  * free (not all bits were zero).
+@@ -750,22 +783,31 @@ EXPORT_SYMBOL(bitmap_release_region);
   */
  int bitmap_allocate_region(unsigned long *bitmap, int pos, int order)
  {
--	int nbits;		/* number of bits in region */
--	int nlongs;		/* num longs spanned by region in bitmap */
--	int index;		/* index first long of region in bitmap */
--	int offset;		/* bit offset region in bitmap[index] */
--	int nbitsinlong;	/* num bits of region in each spanned long */
--	unsigned long mask;	/* bitmask of bits [0 .. nbitsinlong-1] */
--	int i;			/* scans bitmap by longs */
+-	int nbits = 1 << order;
+-	unsigned long mask = (1UL << (nbits - 1));
+-	int index = pos / BITS_PER_LONG;
+-	int offset = pos - (index * BITS_PER_LONG);
 -
--	nbits = 1 << order;
--	nlongs = (nbits + (BITS_PER_LONG - 1)) / BITS_PER_LONG;
--	index = pos / BITS_PER_LONG;
--	offset = pos - (index * BITS_PER_LONG);
--
--	nbitsinlong = nbits;
--	if (nbitsinlong > BITS_PER_LONG)
--		nbitsinlong = BITS_PER_LONG;
--
--	mask = (1UL << (nbitsinlong - 1));
--	mask += mask - 1;
--
--	for (i = 0; i < nlongs; i++)
--		if (bitmap[index + i] & (mask << offset))
--			return -EBUSY;
--	for (i = 0; i < nlongs; i++)
--		bitmap[index + i] |= (mask << offset);
-+	if (!__reg_op(bitmap, pos, order, REG_OP_ISFREE))
-+		return -EBUSY;
-+	__reg_op(bitmap, pos, order, REG_OP_ALLOC);
+-	/*
+-	 * We don't do regions of nbits > BITS_PER_LONG.  The
+-	 * algorithm would be a simple look for multiple zeros in the
+-	 * array, but there's no driver today that needs this.  If you
+-	 * trip this BUG(), you get to code it...
+-	 */
+-	BUG_ON(nbits > BITS_PER_LONG);
++	int nbits;		/* number of bits in region */
++	int nlongs;		/* num longs spanned by region in bitmap */
++	int index;		/* index first long of region in bitmap */
++	int offset;		/* bit offset region in bitmap[index] */
++	int nbitsinlong;	/* num bits of region in each spanned long */
++	unsigned long mask;	/* bitmask of bits [0 .. nbitsinlong-1] */
++	int i;			/* scans bitmap by longs */
++
++	nbits = 1 << order;
++	nlongs = (nbits + (BITS_PER_LONG - 1)) / BITS_PER_LONG;
++	index = pos / BITS_PER_LONG;
++	offset = pos - (index * BITS_PER_LONG);
++
++	nbitsinlong = nbits;
++	if (nbitsinlong > BITS_PER_LONG)
++		nbitsinlong = BITS_PER_LONG;
++
++	mask = (1UL << (nbitsinlong - 1));
+ 	mask += mask - 1;
+-	if (bitmap[index] & (mask << offset))
+-		return -EBUSY;
+-	bitmap[index] |= (mask << offset);
++
++	for (i = 0; i < nlongs; i++)
++		if (bitmap[index + i] & (mask << offset))
++			return -EBUSY;
++	for (i = 0; i < nlongs; i++)
++		bitmap[index + i] |= (mask << offset);
  	return 0;
  }
  EXPORT_SYMBOL(bitmap_allocate_region);

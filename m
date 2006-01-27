@@ -1,49 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWA0N3t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWA0Ni0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750956AbWA0N3t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 08:29:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbWA0N3t
+	id S1750988AbWA0Ni0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 08:38:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbWA0Ni0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 08:29:49 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:7437 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1750956AbWA0N3t (ORCPT
+	Fri, 27 Jan 2006 08:38:26 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:2062 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1750987AbWA0Ni0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 08:29:49 -0500
-Date: Fri, 27 Jan 2006 14:29:37 +0100
+	Fri, 27 Jan 2006 08:38:26 -0500
+Date: Fri, 27 Jan 2006 14:38:25 +0100
 From: Olivier Galibert <galibert@pobox.com>
-To: Bernd Petrovitsch <bernd@firmix.at>
-Cc: Valdis.Kletnieks@vt.edu, Ian Kester-Haney <ikesterhaney@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux
-Message-ID: <20060127132937.GA65793@dspnet.fr.eu.org>
+To: David Schwartz <davids@webmaster.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+Message-ID: <20060127133823.GB65793@dspnet.fr.eu.org>
 Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Bernd Petrovitsch <bernd@firmix.at>, Valdis.Kletnieks@vt.edu,
-	Ian Kester-Haney <ikesterhaney@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <MDEHLPKNGKAHNMBLJOLKIEOMJJAB.davids@webmaster.com> <Pine.LNX.4.61.0601240839380.17175@chaos.analogic.com> <43D65211.20006@wolfmountaingroup.com> <441e43c90601241721o8b4a9e5rd3a237f70aa46dbb@mail.gmail.com> <1138182144.4800.12.camel@tara.firmix.at> <200601270310.k0R3AIrf014656@turing-police.cc.vt.edu> <1138355647.12605.21.camel@tara.firmix.at>
+	David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
+References: <43D8FEF2.3080502@wolfmountaingroup.com> <MDEHLPKNGKAHNMBLJOLKKEBHJLAB.davids@webmaster.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1138355647.12605.21.camel@tara.firmix.at>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKEBHJLAB.davids@webmaster.com>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2006 at 10:54:07AM +0100, Bernd Petrovitsch wrote:
-> > (A) No person shall circumvent a technological measure that effectively
->                                                               ^^^^^^^^^^
-> > controls access to a work protected under this title. The prohibition contained
->   ^^^^^^^^^^^^^^^
-> Actually there is similar wording here (but of course in German) used
-> for the similar purpose. The problem with this kind of law is IMHO:
-> -) "effectively controls access": If I (or someone else) can circumvent
->    it, it is obviously not "effective".
+On Thu, Jan 26, 2006 at 06:15:54PM -0800, David Schwartz wrote:
+> 	Linus can't put additional restrictions on code he didn't write. If the
+> authors licensed it under the GPL version 2 and "any later version", Linus
+> can't re-release it under a more restrictive license.
 
-Wrong definition, try again.  "Effective" has multiple meanings in
-english, one of them being "existing in fact, not theorical, real".
-Check wordnet, it's getting impressively usable nowadays.
-
-In other words, "effective"'s meaning can either move towards
-"efficient" or "actual/existing", depending on the context.
+Yes he can.  The authors licensed the code under _multiple_ licenses
+(even if some do not exist yet, which can be amusing, legally), each
+of the existing one(s) allowing redistribution if you accept it.  He
+does not have to accept _all_ of them to redistribute, _one_ of them
+is enough.  And none of them allow to put the code under a different
+license, in contrast to say the LGPL.
 
   OG.

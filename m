@@ -1,121 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWA0ARQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWA0ARa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbWA0ARQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 19:17:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbWA0ARQ
+	id S932300AbWA0ARa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 19:17:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbWA0ARa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 19:17:16 -0500
-Received: from mail.kroah.org ([69.55.234.183]:63365 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932293AbWA0ARP (ORCPT
+	Thu, 26 Jan 2006 19:17:30 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:21461 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932300AbWA0AR1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 19:17:15 -0500
-Date: Thu, 26 Jan 2006 16:14:49 -0800
-From: Greg KH <greg@kroah.com>
-To: Stephane Eranian <eranian@hpl.hp.com>
-Cc: "Bryan O'Sullivan" <bos@serpentine.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/6] 2.6.16-rc1 perfmon2 patch for review
-Message-ID: <20060127001449.GA16516@kroah.com>
-References: <200601201520.k0KFKEm2023128@frankl.hpl.hp.com> <1137775645.28944.61.camel@serpentine.pathscale.com> <20060124150912.GB7130@frankl.hpl.hp.com> <1138219693.15295.13.camel@serpentine.pathscale.com> <20060125235204.GB21195@kroah.com> <20060126045510.GA10962@frankl.hpl.hp.com> <20060126052419.GB12538@kroah.com> <20060126054345.GC10962@frankl.hpl.hp.com>
+	Thu, 26 Jan 2006 19:17:27 -0500
+Date: Fri, 27 Jan 2006 01:18:07 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [lock validator] net/ipv4/fib_hash.c: illegal {enabled-softirqs} -> {used-in-softirq} usage?
+Message-ID: <20060127001807.GA17179@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060126054345.GC10962@frankl.hpl.hp.com>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 25, 2006 at 09:43:45PM -0800, Stephane Eranian wrote:
-> > > /proc/perfmon
-> 
-> This one contains statistics about perfmon such as PMU model, number of active
-> sessions, and also a bunch of per-cpu statistics (see attached file).
-> 
-> $ cat /proc/perfmon
-> perfmon version            : 2.2
-> PMU model                  : Intel Pentium M
-> PMU description version    : 1.0
-> counter width              : 31
-> loaded per-thread sessions : 0
-> loaded sys-wide   sessions : 0
-> current smpl buffer memory : 0
+the lock validator i'm working on found another item:
 
-These can all be individual files, one value per file in sysfs.
+  ============================
+  [ BUG: illegal lock usage! ]
+  ----------------------------
+  illegal {enabled-softirqs} -> {used-in-softirq} usage.
+  hackbench/8407 [HC0[0]:SC1[2]:HE1:SE0] takes:
+   {&state[i].lock} [<c0bf7d08>] wrandom_flush+0x2a/0xb3
+  {enabled-softirqs} state was registered at:
+   [<c0befc33>] fn_hash_insert+0x565/0x5c3
+  hardirqs last enabled at: [<c0d29a36>] _spin_unlock_irq+0xd/0x10
+  softirqs last enabled at: [<c012d0a0>] irq_exit+0x36/0x38
+  
+  other info that might help us debug this:
+  locks held by hackbench/8407: <none>
+  
+  stack backtrace:
+   [<c0103e86>] show_trace+0xd/0xf
+   [<c0103e9d>] dump_stack+0x15/0x17
+   [<c013eb40>] print_usage_bug+0x16d/0x177
+   [<c013f130>] mark_lock+0xe3/0x248
+   [<c013f65d>] debug_lock_chain+0x3c8/0xb1d
+   [<c013fde3>] debug_lock_chain_spin+0x31/0x48
+   [<c0410c4e>] _raw_spin_lock+0x34/0x7f
+   [<c0d298fd>] _spin_lock+0x8/0xa
+   [<c0bf7d08>] wrandom_flush+0x2a/0xb3
+   [<c0bc3738>] rt_cache_flush+0x3f/0xd8
+   [<c0bc3843>] rt_secret_rebuild+0x11/0x26
+   [<c0131165>] run_timer_softirq+0x143/0x19e
+   [<c012d384>] __do_softirq+0x84/0xff
+   [<c0104d76>] do_softirq+0x52/0xbb
+   =======================
+   [<c012d0a0>] irq_exit+0x36/0x38
+   [<c0118809>] smp_apic_timer_interrupt+0x4e/0x51
+   [<c010376f>] apic_timer_interrupt+0x27/0x2c
+   [<c01670b2>] kmem_cache_alloc+0x28/0xa6
+   [<c0b80be6>] __alloc_skb+0x25/0xee
+   [<c0b7f144>] sock_alloc_send_skb+0x5d/0x192
+   [<c0c29bdf>] unix_stream_sendmsg+0x131/0x33f
+   [<c0b7e30a>] do_sock_write+0xbd/0xc6
+   [<c0b7e441>] sock_aio_write+0x56/0x64
+   [<c016a9a4>] do_sync_write+0xb1/0xe6
+   [<c016adf0>] vfs_write+0xbd/0x155
+   [<c016b657>] sys_write+0x3b/0x60
+   [<c0102c25>] syscall_call+0x7/0xb
 
-> format                     : d1-39-b2-9e-62-e8-40-e4-b4-02-73-07-87-92-e9-37 default_format2
+the culprit seems to be:
 
-What does this mean?
+(gdb) list *0xc0befc33
+0xc0befc33 is in fn_hash_insert (net/ipv4/fib_hash.c:527).
+522             list_add_tail(&new_fa->fa_list,
+523                      (fa ? &fa->fa_list : &f->fn_alias));
+524             fib_hash_genid++;
+525             write_unlock_bh(&fib_hash_lock);
+526
+527             if (new_f)
+528                     fz->fz_nent++;
+529             rt_cache_flush(-1);
+530
+531             rtmsg_fib(RTM_NEWROUTE, key, new_fa, z, tb->tb_id, n, req);
+(gdb)
 
-> CPU0   total ovfl intrs    : 0
-> CPU0     spurious intrs    : 0
-> CPU0     replay   intrs    : 0
-> CPU0     regular  intrs    : 0
-> CPU0   overflow cycles     : 0
-> CPU0   overflow phase1     : 0
-> CPU0   overflow phase2     : 0
-> CPU0   overflow phase3     : 0
-> CPU0   smpl handler calls  : 0
-> CPU0   smpl handler cycles : 0
-> CPU0   set switch count    : 0
-> CPU0   set switch cycles   : 0
-> CPU0   handle timeout      : 0
-> CPU0   owner task          : -1
-> CPU0   owner context       : 00000000
-> CPU0   activations         : 0
+which enabled softirqs with {&state[i].lock} still held. If the 
+rt_secret_rebuild() would hit that codepath at that point then it could 
+cause a deadlock, right?
 
-These should all be individual files, under the specific cpu in
-questions in sysfs (/sys/devices/system/cpu/cpuX)
-
-> > > /proc/perfmon_map
-> 
-> This one contains PMU register mapping information. On My laptop, it shows:
-> % cat /proc/perfmon_map
-> PMC0:0x100000:0xffcfffff:PERFSEL0
-> PMC1:0x100000:0xffcfffff:PERFSEL1
-> PMD0:0x0:0xffffffffffffffff:PERFCTR0
-> PMD1:0x0:0xffffffffffffffff:PERFCTR1
-
-Hm, can you split this up into individual files like:
-	/sys/kernel/perfmon/map_PMC0
-	/sys/kernel/perfmon/map_PMC1
-	/sys/kernel/perfmon/map_PMD0
-	/sys/kernel/perfmon/map_PMD1
-that contain a single line?
-
-"0x100000:0xffcfffff:PERFSEL0" for example for the map_PMC0 file.
-
-> > What are the contents of these files?
-> > 
-> > > These are currently sysctl():
-> > > 
-> > > /proc/sys/kernel/perfmon/arg_size_max
-> > > /proc/sys/kernel/perfmon/debug
-> > > /proc/sys/kernel/perfmon/debug_ovfl
-> > > /proc/sys/kernel/perfmon/expert_mode
-> > > /proc/sys/kernel/perfmon/reset_stats
-> > > /proc/sys/kernel/perfmon/smpl_buf_size_max
-> > > /proc/sys/kernel/perfmon/sys_group
-> > > /proc/sys/kernel/perfmon/task_group
-> > > 
-> > 
-> > What are the contents of these different files?
-> 
-> One integer value per file.
-
-Great, that maps to sysfs just fine.
-
-> > Remember that sysfs is one value per file, so sysctls translate usually
-> > very easily to sysfs files.
-> > 
-> Yes, that should be fairly easy.
-> 
-> > You can always just use /sys/kernel/perfmon/ if you like, as I don't
-> > think you are bound to anything that would be in the /sys/devices tree
-> > (you don't export per-cpu statistics, right?)
-> > 
-> Well, /proc/perfmon does expose per-cpu stats.
-
-Then it should go in the above mentioned sysfs cpu directory.
-
-thanks,
-
-greg k-h
+	Ingo

@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWA0Bgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbWA0BlO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964890AbWA0Bgj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 20:36:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbWA0Bgj
+	id S1030251AbWA0BlO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 20:41:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWA0BlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 20:36:39 -0500
-Received: from xenotime.net ([66.160.160.81]:50386 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932283AbWA0Bgi (ORCPT
+	Thu, 26 Jan 2006 20:41:14 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42199 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030251AbWA0BlN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 20:36:38 -0500
-Date: Thu, 26 Jan 2006 17:36:50 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Andi Kleen <ak@muc.de>
-Cc: ashok.raj@intel.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       kaos@sgi.com, randy.d.dunlap@intel.com
-Subject: Re: wrongly marked __init/__initdata for CPU hotplug
-Message-Id: <20060126173650.51496925.rdunlap@xenotime.net>
-In-Reply-To: <20060126042603.GA88680@muc.de>
-References: <20060125120253.A30999@unix-os.sc.intel.com>
-	<20060126042603.GA88680@muc.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Thu, 26 Jan 2006 20:41:13 -0500
+Date: Thu, 26 Jan 2006 20:41:05 -0500
+From: Dave Jones <davej@redhat.com>
+To: alan@redhat.com
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: noisy edac
+Message-ID: <20060127014105.GD16422@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, alan@redhat.com,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Jan 2006 05:26:03 +0100 Andi Kleen wrote:
+e752x_edac is very noisy on my PCIE system..
+my dmesg is filled with these...
 
-> On Wed, Jan 25, 2006 at 12:02:53PM -0800, Ashok Raj wrote:
-> > Hi Andrew
-> > 
-> > attached patch is 2 more cases i found via running the reference_init.pl
-> > script. These were easy to spot just knowing the file names. There is 
-> > one another about init/main.c that i cant exactly zero in. (partly 
-> > because i dont know how to interpret the data thats spewed out of the tool).
-> 
-> I think that's the reference to __initcall_start / end 
-> That one is unavoidable, but not a bug.
+[91671.488379] Non-Fatal Error PCI Express B
+[91671.492468] Non-Fatal Error PCI Express B
+[91901.100576] Non-Fatal Error PCI Express B
+[91901.104675] Non-Fatal Error PCI Express B
 
-Yes, that's the conclusion that I came to also.
+Something need whitelisting? 
 
----
-~Randy
+		Dave
+
+00:00.0 Host bridge: Intel Corporation E7525 Memory Controller Hub (rev 09)
+00:00.1 Class ff00: Intel Corporation E7525/E7520 Error Reporting Registers (rev 09)
+00:02.0 PCI bridge: Intel Corporation E7525/E7520/E7320 PCI Express Port A (rev 09)
+00:03.0 PCI bridge: Intel Corporation E7525/E7520/E7320 PCI Express Port A1 (rev 09)
+00:04.0 PCI bridge: Intel Corporation E7525/E7520 PCI Express Port B (rev 09)
+00:1d.0 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #1 (rev 02)
+00:1d.1 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #2 (rev 02)
+00:1d.2 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #3 (rev 02)
+00:1d.3 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #4 (rev 02)
+00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2 EHCI Controller (rev 02)
+00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev c2)
+00:1f.0 ISA bridge: Intel Corporation 82801EB/ER (ICH5/ICH5R) LPC Interface Bridge (rev 02)
+00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R) IDE Controller (rev 02)
+00:1f.2 IDE interface: Intel Corporation 82801EB (ICH5) SATA Controller (rev 02)
+00:1f.3 SMBus: Intel Corporation 82801EB/ER (ICH5/ICH5R) SMBus Controller (rev 02)
+00:1f.5 Multimedia audio controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) AC'97 Audio Controlle r (rev 02)
+01:00.0 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge A
+01:00.2 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge B
+03:0e.0 Ethernet controller: Intel Corporation 82545GM Gigabit Ethernet Controller (rev 04)
+05:00.0 VGA compatible controller: ATI Technologies Inc RV370 5B60 [Radeon X300 (PCIE)]
+05:00.1 Display controller: ATI Technologies Inc RV370 [Radeon X300SE]
+06:0d.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 04)
+06:0d.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 01)
+

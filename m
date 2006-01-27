@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWA0QoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbWA0Qzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWA0QoU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 11:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWA0QoT
+	id S1751509AbWA0Qzq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 11:55:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWA0Qzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 11:44:19 -0500
-Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:51216 "EHLO
-	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1750736AbWA0QoT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 11:44:19 -0500
-Message-ID: <43DA4DDA.7070509@superbug.co.uk>
-Date: Fri, 27 Jan 2006 16:44:10 +0000
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-CC: no To-header on input 
-	<"unlisted-recipients:; "@pop3.mail.demon.net>,
-       mrmacman_g4@mac.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43D7A7F4.nailDE92K7TJI@burner> <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com> <43D7B1E7.nailDFJ9MUZ5G@burner> <20060125230850.GA2137@merlin.emma.line.org> <43D8C04F.nailE1C2X9KNC@burner> <20060126161028.GA8099@suse.cz> <43DA2E79.nailFM911AZXH@burner>
-In-Reply-To: <43DA2E79.nailFM911AZXH@burner>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 27 Jan 2006 11:55:46 -0500
+Received: from mail.gmx.de ([213.165.64.21]:30173 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751509AbWA0Qzq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 11:55:46 -0500
+X-Authenticated: #14349625
+Message-Id: <5.2.1.1.2.20060127175530.00c3db30@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Fri, 27 Jan 2006 17:57:32 +0100
+To: Mike Galbraith <efault@gmx.de>
+From: Con Kolivas <kernel@kolivas.org> (by way of Mike Galbraith
+	<efault@gmx.de>)
+Subject: Re: [SCHED] wrong priority calc - SIMPLE test case
+Cc: Paolo Ornati <ornati@fastwebnet.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andrew Morton <akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Antivirus: avast! (VPS 0604-3, 01/26/2006), Outbound message
+X-Antivirus-Status: Clean
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
-> This are the three most important Linux kernel bugs:
->
-> -	ide-scsi does not do DMA if the DMAsize is not a multiple of 512
-> 	A person who knows internal Linux structures shoule be able
-> 	to fix this (and allow any multiple of 4) in less than one hour.
-> 	If we sum up the time spend on this discussoion, I really cannot
-> 	understand why this has not been fixed earlier.
->
-> -	/dev/hd* artificially prevents the ioctls SCSI_IOCTL_GET_IDLUN
-> 	SCSI_IOCTL_GET_BUS_NUMBER from returning useful values.
-> 	As long as this bug is present, there is no way to see SG_IO 
-> 	via /dev/hd* as integral part of the Linux SCSI transport concept.
->
-> -	If sending SCSI sia ATAPI, Linux under certain unknown conditions
-> 	bastardizes the content of SCSI commands. A possible reason may be
-> 	that it sends random data in the remainder between the actual 
-> 	SCSI cdb size and the ATAPI SCSI cdb size.
->
-> 	ATAPI drives that verify SCSI cdb's for correctness fail in this
-> 	case.
->
-> Jörg
->   
-Would you be able to add the appropriate kernel bugzilla numbers?
+On Saturday 14 January 2006 03:15, Mike Galbraith wrote:
+ > At 01:34 AM 1/14/2006 +1100, Con Kolivas wrote:
+ > >On Saturday 14 January 2006 00:01, Mike Galbraith wrote:
+ > > > At 09:51 PM 1/13/2006 +1100, Con Kolivas wrote:
+ > > > >See my followup patches that I have posted following "[PATCH 0/5]
+ > > > > sched - interactivity updates". The first 3 patches are what you
+ > > > > tested. These patches are being put up for testing hopefully in -mm.
+ > > >
+ > > > Then the (buggy) version of my simple throttling patch will need to
+ > > > come out.  (which is OK, I have a debugged potent++ version)
+ > >
+ > >Your code need not be mutually exclusive with mine. I've simply damped the
+ > >current behaviour. Your sanity throttling is a good idea.
+ >
+ > I didn't mean to imply that they're mutually exclusive, and after doing
+ > some testing, I concluded that it (or something like it) is definitely
+ > still needed.  The version that's in mm2 _is_ buggy however, so ripping it
+ > back out wouldn't hurt my delicate little feelings one bit.  In fact, it
+ > would give me some more time to instrument and test integration with your
+ > changes.
 
-I think it might also be useful to make a list of all the SCSI commands 
-that cdrecord uses. Including all the vendor specific ones. One could 
-then verify that the Linux kernel is passing them onto the device correctly.
+Ok I've communicated this to Andrew (cc'ed here too) so he should remove your
+patch pending a new version from you.
 
-James
+ > (Which I think are good btw because they remove what I considered
+ > to be warts; the pipe and uninterruptible sleep barriers.
 
+Yes I felt your abuse wrt to these in an earlier email...
+
+ > Um... try irman2
+ > now... pure evilness)
+
+Hrm I've been using staircase which is immune for so long I'd all but
+forgotten about this test case. Looking at your code I assume your changes
+should help this?
+
+Con
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

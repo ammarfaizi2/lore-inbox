@@ -1,85 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWA0S7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWA0TGo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932258AbWA0S7t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 13:59:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbWA0S7t
+	id S1030212AbWA0TGo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 14:06:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbWA0TGo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 13:59:49 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:2064 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932258AbWA0S7s convert rfc822-to-8bit
+	Fri, 27 Jan 2006 14:06:44 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:44769 "EHLO
+	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S932367AbWA0TGo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 13:59:48 -0500
+	Fri, 27 Jan 2006 14:06:44 -0500
+Message-ID: <43DA62CC.8090309@wolfmountaingroup.com>
+Date: Fri, 27 Jan 2006 11:13:32 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <000601c62370$db00cd50$1701a8c0@gerold>
-X-OriginalArrivalTime: 27 Jan 2006 18:59:47.0201 (UTC) FILETIME=[D7997F10:01C62373]
-Content-class: urn:content-classes:message
-Subject: Re: traceroute bug ?
-Date: Fri, 27 Jan 2006 13:59:46 -0500
-Message-ID: <Pine.LNX.4.61.0601271352310.14907@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: traceroute bug ?
-Thread-Index: AcYjc9e25fkH89d+RUag5S3bFFGF5Q==
-References: <000601c62370$db00cd50$1701a8c0@gerold>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Gerold van Dijk" <gerold@sicon-sr.com>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.14 kernels and above copy_to_user stupidity with IRQ disabled
+ check
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 27 Jan 2006, Gerold van Dijk wrote:
+Is there a good reason someone set a disabled_irq() check on 2.6.14 and 
+above for copy_to_user to barf out
+tons of bogus stack dump messages if the function is called from within 
+a spinlock:
 
-> Why can I NOT do a traceroute specifically within my own (sub)network
->
-> 207.253.5.64/27
->
-> with any distribution of Linux??
->
-> Gerold@sicon-sr.com
->
+i.e.
 
-Maybe you could explain? Traceroute works fine here....
+ spin_lock_irqsave(&regen_lock, regen_flags);
+    v = regen_head;
+    while (v)
+    {
+       if (i >= count)
+          return -EFAULT;
+                                                                                
 
-These are all local:
+       err = copy_to_user(&s[i++], v, sizeof(VIRTUAL_SETUP));
+       if (err)
+          return err;
+                                                                                
 
-Script started on Fri 27 Jan 2006 01:53:37 PM EST
-[root@chaos client]# traceroute quark
-traceroute to quark.analogic.com (10.112.50.12), 30 hops max, 38 byte packets
-  1  quark (10.112.50.12)  0.145 ms  0.264 ms  0.174 ms
-[root@chaos client]# traceroute boneserver
-traceroute to boneserver.analogic.com (10.112.50.10), 30 hops max, 38 byte packets
-  1  boneserver (10.112.50.10)  1.633 ms  0.135 ms  0.122 ms
-[root@chaos client]# traceroute localhost
-traceroute to localhost (127.0.0.1), 30 hops max, 38 byte packets
-  1  localhost (127.0.0.1)  0.058 ms  0.045 ms  0.024 ms
-[root@chaos client]# traceroute world.std.com
-traceroute to world.std.com (192.74.137.5), 30 hops max, 38 byte packets
-  1  def-10.112.50.1 (10.112.50.1)  0.625 ms  0.568 ms  0.549 ms
-  2  * * *
-  3  * * *
-  4  *
-[root@chaos client]# exit
-Script done on Fri 27 Jan 2006 01:55:16 PM EST
+       v = v->next;
+    }
+    spin_unlock_irqrestore(&regen_lock, regen_flags);
 
-Now, with the last one, I attempted to traceroute to something
-non-local, outside. The Net Nazis closed all the ports
-except mail, ftp, domain, and web so I can't send anything
-outside to a non-standard port (like traceroute does) so
-it fails with the "* * *"
+is now busted and worked in kernels up to this point.  The error message 
+is annoying but non-fatal.
+
+Jeff
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.66 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

@@ -1,148 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422657AbWA0Wyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422662AbWA0WzJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422657AbWA0Wyj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 17:54:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422664AbWA0Wyg
+	id S1422662AbWA0WzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 17:55:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422664AbWA0Wyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 27 Jan 2006 17:54:41 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8973 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1422660AbWA0Wyg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 27 Jan 2006 17:54:36 -0500
-Received: from smtp3.pp.htv.fi ([213.243.153.36]:37584 "EHLO smtp3.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S1422665AbWA0Wx6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 17:53:58 -0500
-Date: Sat, 28 Jan 2006 00:53:57 +0200
-From: Paul Mundt <lethal@linux-sh.org>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 10/11] sh: machine_halt()/machine_power_off() cleanups.
-Message-ID: <20060127225357.GK30816@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20060127224919.GA30816@linux-sh.org>
+Date: Fri, 27 Jan 2006 22:54:28 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: How to map high memory for block io
+Message-ID: <20060127225428.GD2767@flint.arm.linux.org.uk>
+Mail-Followup-To: Jens Axboe <axboe@suse.de>,
+	Pierre Ossman <drzeus-list@drzeus.cx>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <43D9F705.5000403@drzeus.cx> <20060127104321.GE4311@suse.de> <43DA0E97.5030504@drzeus.cx> <20060127194318.GA1433@flint.arm.linux.org.uk> <43DA7CD1.4040301@drzeus.cx> <20060127201458.GA2767@flint.arm.linux.org.uk> <20060127202206.GH9068@suse.de> <20060127202646.GC2767@flint.arm.linux.org.uk> <43DA84B2.8010501@drzeus.cx> <43DA97A3.4080408@drzeus.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060127224919.GA30816@linux-sh.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <43DA97A3.4080408@drzeus.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-machine_halt() managed to trigger the soft lockup detection
-due to not disabling interrupts before going to sleep, so
-correct that.
+On Fri, Jan 27, 2006 at 10:58:59PM +0100, Pierre Ossman wrote:
+> Test done here, few minutes ago. Added this to the wbsd driver in its
+> kmap routine:
+> 
+>     if ((host->cur_sg->offset + host->cur_sg->length) > PAGE_SIZE)
+>         printk(KERN_DEBUG "wbsd: Big sg: %d, %d\n",
+>             host->cur_sg->offset, host->cur_sg->length);
+> 
+> got:
+> 
+> [17385.425389] wbsd: Big sg: 0, 8192
+> [17385.436849] wbsd: Big sg: 0, 7168
+> [17385.436859] wbsd: Big sg: 0, 7168
+> [17385.454029] wbsd: Big sg: 2560, 5632
+> [17385.454216] wbsd: Big sg: 2560, 5632
 
-machine_power_off() should be using pm_power_off, which
-lets us drop the board-specific hacks from here.
+Jens - what's going on?  These look like invalid sg entries to me.
 
-Signed-off-by: Paul Mundt <lethal@linux-sh.org>
+If they are supposed to be like that, there will be additional problems
+for block drivers ensuring cache coherency on PIO.
 
----
-
- arch/sh/kernel/process.c |   54 ++++++++++++++++++++++------------------------
- 1 files changed, 26 insertions(+), 28 deletions(-)
-
-38550502f429e90b18c2d05cd976593b63d164f0
-diff --git a/arch/sh/kernel/process.c b/arch/sh/kernel/process.c
-index a4dc2b5..9fd1723 100644
---- a/arch/sh/kernel/process.c
-+++ b/arch/sh/kernel/process.c
-@@ -15,21 +15,18 @@
- #include <linux/unistd.h>
- #include <linux/mm.h>
- #include <linux/elfcore.h>
--#include <linux/slab.h>
- #include <linux/a.out.h>
-+#include <linux/slab.h>
-+#include <linux/pm.h>
- #include <linux/ptrace.h>
- #include <linux/platform.h>
- #include <linux/kallsyms.h>
-+#include <linux/kexec.h>
- 
- #include <asm/io.h>
- #include <asm/uaccess.h>
- #include <asm/mmu_context.h>
- #include <asm/elf.h>
--#if defined(CONFIG_SH_HS7751RVOIP)
--#include <asm/hs7751rvoip/hs7751rvoip.h>
--#elif defined(CONFIG_SH_RTS7751R2D)
--#include <asm/rts7751r2d/rts7751r2d.h>
--#endif
- 
- static int hlt_counter=0;
- 
-@@ -37,6 +34,11 @@ int ubc_usercnt = 0;
- 
- #define HARD_IDLE_TIMEOUT (HZ / 3)
- 
-+void (*pm_idle)(void);
-+
-+void (*pm_power_off)(void);
-+EXPORT_SYMBOL(pm_power_off);
-+
- void disable_hlt(void)
- {
- 	hlt_counter++;
-@@ -51,17 +53,25 @@ void enable_hlt(void)
- 
- EXPORT_SYMBOL(enable_hlt);
- 
-+void default_idle(void)
-+{
-+	if (!hlt_counter)
-+		cpu_sleep();
-+	else
-+		cpu_relax();
-+}
-+
- void cpu_idle(void)
- {
- 	/* endless idle loop with no priority at all */
- 	while (1) {
--		if (hlt_counter) {
--			while (!need_resched())
--				cpu_relax();
--		} else {
--			while (!need_resched())
--				cpu_sleep();
--		}
-+		void (*idle)(void) = pm_idle;
-+
-+		if (!idle)
-+			idle = default_idle;
-+
-+		while (!need_resched())
-+			idle();
- 
- 		preempt_enable_no_resched();
- 		schedule();
-@@ -88,28 +98,16 @@ void machine_restart(char * __unused)
- 
- void machine_halt(void)
- {
--#if defined(CONFIG_SH_HS7751RVOIP)
--	unsigned short value;
-+	local_irq_disable();
- 
--	value = ctrl_inw(PA_OUTPORTR);
--	ctrl_outw((value & 0xffdf), PA_OUTPORTR);
--#elif defined(CONFIG_SH_RTS7751R2D)
--	ctrl_outw(0x0001, PA_POWOFF);
--#endif
- 	while (1)
- 		cpu_sleep();
- }
- 
- void machine_power_off(void)
- {
--#if defined(CONFIG_SH_HS7751RVOIP)
--	unsigned short value;
--
--	value = ctrl_inw(PA_OUTPORTR);
--	ctrl_outw((value & 0xffdf), PA_OUTPORTR);
--#elif defined(CONFIG_SH_RTS7751R2D)
--	ctrl_outw(0x0001, PA_POWOFF);
--#endif
-+	if (pm_power_off)
-+		pm_power_off();
- }
- 
- void show_regs(struct pt_regs * regs)
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

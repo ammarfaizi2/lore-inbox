@@ -1,64 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWA0LxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWA0LyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932461AbWA0LxN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 06:53:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbWA0LxN
+	id S932472AbWA0LyS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 06:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbWA0LyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 06:53:13 -0500
-Received: from usmimesweeper.bluearc.com ([63.203.197.133]:63245 "EHLO
-	us-mimesweeper.terastack.bluearc.com") by vger.kernel.org with ESMTP
-	id S932461AbWA0LxN convert rfc822-to-8bit (ORCPT
+	Fri, 27 Jan 2006 06:54:18 -0500
+Received: from sipsolutions.net ([66.160.135.76]:5131 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S932457AbWA0LyR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 06:53:13 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Out of Memory: Killed process 16498 (java).
-Date: Fri, 27 Jan 2006 11:53:06 -0000
-Message-ID: <89E85E0168AD994693B574C80EDB9C2703556694@uk-email.terastack.bluearc.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Out of Memory: Killed process 16498 (java).
-Thread-Index: AcYgBSGCcA7RcwvWRWuBNfb6btGzWwDMxIOw
-From: "Andy Chittenden" <AChittenden@bluearc.com>
-To: "Jens Axboe" <axboe@suse.de>
-Cc: "Andrew Morton" <akpm@osdl.org>, <davej@redhat.com>,
-       <linux-kernel@vger.kernel.org>, <lwoodman@redhat.com>
+	Fri, 27 Jan 2006 06:54:17 -0500
+Subject: Re: [-mm patch] drivers/net/wireless/tiacx/: remove code for
+	WIRELESS_EXT < 18
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: Adrian Bunk <bunk@stusta.de>, acx100-devel@lists.sourceforge.net,
+       "John W. Linville" <linville@tuxdriver.com>, jgarzik@pobox.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200601271219.24332.vda@ilport.com.ua>
+References: <20060122171104.GC10003@stusta.de>
+	 <200601271219.24332.vda@ilport.com.ua>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-BZgCl9m4f2iAlTliCzPJ"
+Date: Fri, 27 Jan 2006 12:49:17 +0100
+Message-Id: <1138362557.5983.26.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any progress on a patch?
 
--- 
-Andy, BlueArc Engineering
- 
+--=-BZgCl9m4f2iAlTliCzPJ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> -----Original Message-----
-> From: Jens Axboe [mailto:axboe@suse.de] 
-> Sent: 23 January 2006 10:12
-> To: Andy Chittenden
-> Cc: Andrew Morton; davej@redhat.com; 
-> linux-kernel@vger.kernel.org; lwoodman@redhat.com
-> Subject: Re: Out of Memory: Killed process 16498 (java).
-> 
-> On Mon, Jan 23 2006, Andy Chittenden wrote:
-> > > There's your problem, apparently both of these queues is 
-> > > being set to a
-> > > limit lower than blk_max_low_pfn which means the block layer 
-> > > will revert
-> > > to the isa dma bounce zone for that queue... There's room for
-> > > improvement in the logic that chooses what zone to allocate 
-> > > from.
-> > 
-> > So I presume that requires a source fix. Or can it be 
-> configured out?
-> 
-> It does, I'll see if I can get some time to generate one.
-> 
-> -- 
-> Jens Axboe
-> 
-> 
+On Fri, 2006-01-27 at 12:19 +0200, Denis Vlasenko wrote:
+
+> I very much want to get rid of all remaining compat cruft, and
+> I plan to do it as soon as acx will be present in mainline kernel.
+
+I doubt you'll get it merged with the compat cruft.
+
+johannes
+
+--=-BZgCl9m4f2iAlTliCzPJ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (SIP Solutions)
+
+iQIVAwUAQ9oIvaVg1VMiehFYAQK7ww//R6MPscMPsF7OvWzO8pwiMpU0BwJDtqMF
+dHHdVIWWQ3jfvVpgPZNDbBkuKDFbTd1JcHlgHdZhAqPRux31JA6G/MJny4JsYbjW
+ZgzjzKl8rzMNGD3Y/kHRkE2VrXaT48fvgggHW94BLhQ0uunQJPayBvO+SixghstE
+bPypPoiSgz/cRJBbn9g1ofWVr78QX/Vra+B+E2sRtWSvUpDVnn4JdEshQGLmU0Rd
+deucPBHOrHfgeLPReP7D9rn4UrmEpKgIqXSI9CA2JVcoWseNqu74PEDIFW1MwAHJ
+MVxwZBXk8+25gRYTN/9ok2ryuFP3KmHpscBelnUgeoHZ0wCBd4IIlrnPlTLe/Q7F
+jsRWS9zcstb2UlDnq5j1NSXfzWzDIPD8rZGjz62TEhnCikvTeZmzXxRC3vXZ+eQP
+gQv/d0jsqqaO3bgTmnVRZQ7/Lp6s4qQ3agV4hadv2Fn78hJyOkWJ2ScQYK+AY+0H
+VVOn+z2UTA7ZCKHGlTMCjwS+R0OMKyOm2/Bhp0UbhdKigid3sTOjnqbj+m/+DJst
+653UCHzW9fkaUiMs4wIKb5+HMNDdsEdEc4n4Xi/9xnoHgqYx5F+/uSSYHgeTPABa
+RFCZMh+i73n1+k7Joez/oDTZPA5/iiB6erS+nNNvbEnGkfPDVFTTTzIr7H/ZofTd
+fVSoR+Mvjo4=
+=HRrl
+-----END PGP SIGNATURE-----
+
+--=-BZgCl9m4f2iAlTliCzPJ--
+

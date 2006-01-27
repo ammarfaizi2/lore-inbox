@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWA0Ehe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbWA0Eit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbWA0Ehe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 23:37:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWA0Ehe
+	id S932352AbWA0Eit (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 23:38:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWA0Eit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 23:37:34 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:50664
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932289AbWA0Ehd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 23:37:33 -0500
-Date: Thu, 26 Jan 2006 20:37:34 -0800
-From: Greg KH <greg@kroah.com>
-To: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-Cc: "Grundler, Grant G" <grant.grundler@hp.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Problems with MSI-X on ia64
-Message-ID: <20060127043734.GA32009@kroah.com>
-References: <D4CFB69C345C394284E4B78B876C1CF10B8481F1@cceexc23.americas.cpqcorp.net>
+	Thu, 26 Jan 2006 23:38:49 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:29847 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932352AbWA0Eis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 23:38:48 -0500
+Subject: Re: [RT] possible bug in trace_start_sched_wakeup
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1138327022.7814.8.camel@localhost.localdomain>
+References: <1138327022.7814.8.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 26 Jan 2006 23:38:38 -0500
+Message-Id: <1138336718.7814.41.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF10B8481F1@cceexc23.americas.cpqcorp.net>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 26, 2006 at 02:37:14PM -0600, Miller, Mike (OS Dev) wrote:
-> > -----Original Message-----
-> > From: Grundler, Grant G 
-> > > We're using a 2.6.9 variant and a cciss driver with 
-> > MSI/MSI-X support.
-> > > The kernel has MSI enabled. On ia64 the MSI-X table is all zeroes.
-> > 
-> > Could you post the debug output you've collected so far?
-> 
-> There are 2 MSI-X capable controllers in the system. On IPF this is what
-> the tables look like:
-> 
-> cciss: offset = 0xfe000 table offset = 0xfe000 BIR = 0x0
-> cciss: 0: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: 1: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: 2: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: 3: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: using DAC cycles
-> ACPI: PCI interrupt 0000:88:00.0[A] -> GSI 71 (level, low) -> IRQ 61
-> cciss: MSI-X enabled
-> cciss: offset = 0xfe000 table offset = 0xfe000 BIR = 0x0
-> cciss: 0: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: 1: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: 2: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: 3: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: using DAC cycles
-> blocks= 143305920 block_size= 512
-> heads= 255, sectors= 32, cylinders= 17562
->  
-> blocks= 142130880 block_size= 512
-> heads= 255, sectors= 32, cylinders= 17418
->  
-> cciss/c2d0:
-> 
-> And this is where we hang, when enabling interrupts in the driver.
+Ingo,
 
-Can you try 2.6.15, or possibly 2.6.16-rc1-mm3?
+I'm assuming that this was a bug, so I'm patching it.  I made it now
+test to see if the new process is realtime and higher priority than the
+current tracing process to continue.
 
-thanks,
+I'll analyze it more tomorrow (after a few hours of sleep) to see if
+this makes sense, as well as hope that you have a comment or two saying
+it does, or if it doesn't, to enlighten me to why.
 
-greg k-h
+Thanks,
+
+-- Steve
+
+
+Index: linux-2.6.15-rt15/kernel/latency.c
+===================================================================
+--- linux-2.6.15-rt15.orig/kernel/latency.c	2006-01-25 17:02:26.000000000 -0500
++++ linux-2.6.15-rt15/kernel/latency.c	2006-01-26 21:03:30.000000000 -0500
+@@ -1908,7 +1908,7 @@
+ 		return;
+ 
+ 	spin_lock(&sch.trace_lock);
+-	if (sch.task && (sch.task->prio >= p->prio))
++	if (sch.task && ((sch.task->prio <= p->prio) || !rt_task(p)))
+ 		goto out_unlock;
+ 
+ 	/*
+@@ -1974,7 +1974,7 @@
+ 	} else {
+ 		if (sch.task)
+ 			trace_special_pid(sch.task->pid, sch.task->prio, p->prio);
+-		if (sch.task && (sch.task->prio >= p->prio))
++		if (sch.task && ((sch.task->prio <= p->prio) || !rt_task(p)))
+ 			sch.task = NULL;
+ 		spin_unlock(&sch.trace_lock);
+ 	}
+
+

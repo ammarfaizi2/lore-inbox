@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751546AbWA0S5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751547AbWA0S6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751546AbWA0S5p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 13:57:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbWA0S5p
+	id S1751547AbWA0S6H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 13:58:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWA0S6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 13:57:45 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:36677 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751546AbWA0S5o convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 13:57:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JIPYxC8kkQGW8lLGy0yNIAnw0e9mJAri2kiPsTXuVdu0tl0+xa4+2qnBehSyUi9lxhQwCHqmvfZe16GdiwyF5MvM3VpRORi7QV0pNDEMvgYFU+IvUSVEajZ0GQaWKTv8FlfaDeyos1KZMFxC4IfI8cSDclFZqtk8mS9Jn4KbM/8=
-Message-ID: <9a8748490601271057y709d3501ob278c85b104eef57@mail.gmail.com>
-Date: Fri, 27 Jan 2006 19:57:38 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Gerold van Dijk <gerold@sicon-sr.com>
-Subject: Re: traceroute bug ?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <000601c62370$db00cd50$1701a8c0@gerold>
+	Fri, 27 Jan 2006 13:58:07 -0500
+Received: from relay02.pair.com ([209.68.5.16]:49159 "HELO relay02.pair.com")
+	by vger.kernel.org with SMTP id S1751552AbWA0S6F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 13:58:05 -0500
+X-pair-Authenticated: 67.163.102.102
+Date: Fri, 27 Jan 2006 12:58:01 -0600 (CST)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: Ariel <askernel2615@dsgml.com>
+cc: Chase Venters <chase.venters@clientec.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, akpm@osdl.org, a.titov@host.bg,
+       axboe@suse.de, jamie@audible.transient.net, neilb@suse.de,
+       arjan@infradead.org
+Subject: Re: More information on scsi_cmd_cache leak... (bisect)
+In-Reply-To: <Pine.LNX.4.62.0601271335470.8977@pureeloreel.qftzy.pbz>
+Message-ID: <Pine.LNX.4.64.0601271255530.27170@turbotaz.ourhouse>
+References: <200601270410.06762.chase.venters@clientec.com>
+ <Pine.LNX.4.62.0601271335470.8977@pureeloreel.qftzy.pbz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <000601c62370$db00cd50$1701a8c0@gerold>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/27/06, Gerold van Dijk <gerold@sicon-sr.com> wrote:
-> Why can I NOT do a traceroute specifically within my own (sub)network
+On Fri, 27 Jan 2006, Ariel wrote:
 >
-> 207.253.5.64/27
+> On Fri, 27 Jan 2006, Chase Venters wrote:
 >
-> with any distribution of Linux??
+>>  	After dealing with this leak for a while, I decided to do some
+>>  dancing around
+>>  with git bisect. I've landed on a possible point of regression:
+>>
+>>  commit: a9701a30470856408d08657eb1bd7ae29a146190
+>>  [PATCH] md: support BIO_RW_BARRIER for md/raid1
 >
+> I can confirm that it only leaks with raid!
+>
+> I rebooted with my raid5 root, read only, and it didn't leak. As soon as I 
+> remount,rw it started leaking. Go back to ro and it stopped (although it 
+> didn't clean up the old leaks). Tried my raid1 /boot and same thing - rw 
+> leaks, ro doesn't. But, it only leaks on activity.
+>
+> I then tried a regular lvm mount (with root ro), and no leaks!
+>
+> What's interesting is that the mount was ro NOT the md (which can be set ro 
+> independently). So it looks like it only leaks if you write to the md device, 
+> and that's why setting the mount ro stopped the leaks.
 
-Because you configured your machines to drop icmp packets perhaps.
-Some router on your network may be dropping icmp packets.
-You've configured the network incorrectly.
-There are several possible reasons, but I don't see what it has to do
-with the kernel at this point?
+Yeah, if the mount is ro, md won't have any reasons to write the 
+superblock any more, which means it won't be sending out bio's with 
+barriers any more.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+I'm in the middle of a crash course on block IO and SATA, but hopefully 
+some more skillful devs will beat me to the punch :)
+
+> 	-Ariel
+
+Cheers,
+Chase

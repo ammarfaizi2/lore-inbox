@@ -1,37 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWA0KKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWA0KIK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932454AbWA0KKB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 05:10:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWA0KKB
+	id S932452AbWA0KIK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 05:08:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbWA0KIK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 05:10:01 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:8144 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932454AbWA0KKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 05:10:00 -0500
-Subject: Re:
-From: Arjan van de Ven <arjan@infradead.org>
-To: sarat <saratkumar.koduri@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <aed62bae0601270205v1156f3cfi3bb4a5857956f641@mail.gmail.com>
-References: <aed62bae0601270205v1156f3cfi3bb4a5857956f641@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 27 Jan 2006 11:09:57 +0100
-Message-Id: <1138356598.3058.16.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 27 Jan 2006 05:08:10 -0500
+Received: from uproxy.gmail.com ([66.249.92.196]:38262 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932452AbWA0KIJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 05:08:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YOEbOt1ZInLkDBe/lMKRk+/5fi+MWh44/1PzvbreRDz9NEJPoJW0TjC9vyH3mNupmb89XJtmw8cWtZnCNdKc1qCukoqrw2m3TePKFgMtGlao/gKuSYSN73HgydKMBc5VDaIQY/skL3RJFCYwjKxLOY4oraimtdBxZDtWXKKsIKo=
+Message-ID: <84144f020601270208o51d11f9cu6204e965177d3ad3@mail.gmail.com>
+Date: Fri, 27 Jan 2006 12:08:06 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Karel Kulhavy <clock@twibright.com>
+Subject: Re: [KORG] Kernel sources online
+Cc: linux-kernel@vger.kernel.org, webmaster@kernel.org
+In-Reply-To: <20060127093920.GC7989@kestrel>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060127093920.GC7989@kestrel>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-27 at 15:35 +0530, sarat wrote:
-> 
-> insmod: error inserting 'firewall.ko': -1 Invalid module format
+On 1/27/06, Karel Kulhavy <clock@twibright.com> wrote:
+> I suggest a link labeled "Browsable source code" to be added into the
+> www.kernel.org webpage like
+> BRLCAD has it http://www.brlcad.org/doxygen/index.html (Using Doxygen)
+> or Ronja has it http://ronja-svn.wservices.ch/file/browser/trunk/ (Using
+> Trac).
 
-your module is not compatible with the kernel you are running. In dmesg
-or /var/log/messages is more information on the nature of the
-incompatibility.
+Something like, say, http://www.kernel.org/git ?
 
-
+                      Pekka

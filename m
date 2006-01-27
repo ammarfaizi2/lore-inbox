@@ -1,91 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbWA0MXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWA0M02@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932478AbWA0MXI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 07:23:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWA0MXH
+	id S964986AbWA0M02 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 07:26:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWA0M02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 07:23:07 -0500
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:31244 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S932478AbWA0MXG
+	Fri, 27 Jan 2006 07:26:28 -0500
+Received: from 1-1-8-31a.gmt.gbg.bostream.se ([82.182.75.118]:36586 "EHLO
+	mail.shipmail.org") by vger.kernel.org with ESMTP id S964986AbWA0M01
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 07:23:06 -0500
-Date: Fri, 27 Jan 2006 23:22:42 +1100
-To: Knut Petersen <Knut_Petersen@t-online.de>
-Cc: shemminger@osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [BUG] sky2 broken for Yukon PCI-E Gigabit Ethernet Controller 11ab:4362 (rev 19)
-Message-ID: <20060127122242.GA32128@gondor.apana.org.au>
-References: <E1F1UqC-0002XE-00@gondolin.me.apana.org.au> <43D9B8A6.5020200@t-online.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="d6Gm4EdcadzBjdND"
-Content-Disposition: inline
-In-Reply-To: <43D9B8A6.5020200@t-online.de>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Fri, 27 Jan 2006 07:26:27 -0500
+Message-ID: <43DA1166.4040700@tungstengraphics.com>
+Date: Fri, 27 Jan 2006 13:26:14 +0100
+From: =?ISO-8859-1?Q?Thomas_Hellstr=F6m?= <thomas@tungstengraphics.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12)
+ Gecko/20050920
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: mprotect() resets caching policy
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-BitDefender-Spam: No (14)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I'm working on an infrastructure to allow drm clients to flip arbitrary 
+pages in and out of the AGP aperture (or any similar device). In order 
+to avoid conflicting mappings for those pages, the caching attribute of 
+both the kernel mapping and all VMA's is changed when binding / unbinding.
 
-On Fri, Jan 27, 2006 at 07:07:34AM +0100, Knut Petersen wrote:
->
-> Well, there are no problems if SuSEfirewall2 is disabled. But have a look
-> at the loaded modules:
-> 
-> ipt_MASQUERADE          3968  1
-> pppoe                  15360  2
-> pppox                   4616  1 pppoe
+However, I noticed that mprotect() will, when run on a non-cached VMA, 
+reset the caching policy. The line in mm/mprotect.c causing this problem is
 
-OK, although we can't rule out sky2/netfilter from the enquiry, I've
-identified two bugs in ppp/pppoe that may be responsible for what you
-are seeing.  So please try the following patch and let us know if the
-problem still exists (or deteriorates/improves).
+newprot = protection_map[newflags & 0xf];
 
-[PPP]: Fixed hardware RX checksum handling
+So a user could potentially run mprotect() and create a conflicting 
+mapping which presumably is bad for stability on some architectures.
 
-When we pull the PPP protocol off the skb, we forgot to update the
-hardware RX checksum.  This may lead to messages such as
+Since mprotect() only deals with rwx protection. I figure replacing the 
+above with something like
 
-	dsl0: hw csum failure.
+newprot = (vm_page_prot & ~MPROT_MASK) | (protection_map[newflags & 0xf] 
+& MPROT_MASK)
 
-Similarly, we need to clear the hardware checksum flag when we use
-the existing packet to store the decompressed result.
+Where MPROT_MASK is a arch-dependent mask identifying the bits available 
+to mprotect().
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Alternatively, is there a way to disable mprotect() for a VMA?
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Finally, is there a chance to get protection_map[] exported to modules?
 
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=ppp-rxcsum
+Any comments would be appreciated. Please CC me since I'm not on the list.
 
-diff --git a/drivers/net/ppp_generic.c b/drivers/net/ppp_generic.c
---- a/drivers/net/ppp_generic.c
-+++ b/drivers/net/ppp_generic.c
-@@ -1610,6 +1610,8 @@ ppp_receive_nonmp_frame(struct ppp *ppp,
- 		}
- 		else if (!pskb_may_pull(skb, skb->len))
- 			goto err;
-+		else
-+			skb->ip_summed = CHECKSUM_NONE;
- 
- 		len = slhc_uncompress(ppp->vj, skb->data + 2, skb->len - 2);
- 		if (len <= 0) {
-@@ -1690,6 +1692,7 @@ ppp_receive_nonmp_frame(struct ppp *ppp,
- 			kfree_skb(skb);
- 		} else {
- 			skb_pull(skb, 2);	/* chop off protocol */
-+			skb_postpull_rcsum(skb, skb->data - 2, 2);
- 			skb->dev = ppp->dev;
- 			skb->protocol = htons(npindex_to_ethertype[npi]);
- 			skb->mac.raw = skb->data;
+Regards,
+Thomas Hellström
 
---d6Gm4EdcadzBjdND--
+
+
+

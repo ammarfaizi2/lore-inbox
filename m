@@ -1,111 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbWA0VfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932505AbWA0VoR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932502AbWA0VfA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 16:35:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932504AbWA0VfA
+	id S932505AbWA0VoR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 16:44:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWA0VoR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 16:35:00 -0500
-Received: from [217.157.19.70] ([217.157.19.70]:14554 "EHLO jehova.dsm.dk")
-	by vger.kernel.org with ESMTP id S932502AbWA0VfA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 16:35:00 -0500
-Date: Fri, 27 Jan 2006 21:33:56 +0000 (GMT)
-From: Thomas Horsten <thomas@horsten.com>
-X-X-Sender: thomas@jehova.dsm.dk
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Chase Venters <chase.venters@clientec.com>,
-       "linux-os \\\(Dick Johnson\\\)" <linux-os@analogic.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Marc Perkel <marc@perkel.com>,
-       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Patrick McLean <pmclean@cs.ubishops.ca>,
-       Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-In-Reply-To: <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>
-Message-ID: <Pine.LNX.4.40.0601272112590.29965-100000@jehova.dsm.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 27 Jan 2006 16:44:17 -0500
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:41433 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S932505AbWA0VoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 16:44:16 -0500
+Date: Fri, 27 Jan 2006 21:45:40 +0000
+From: ed <ed@ednevitible.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: OT: Re: traceroute bug ?
+Message-ID: <20060127214540.110ca18b@workstation>
+In-Reply-To: <9a8748490601271057y709d3501ob278c85b104eef57@mail.gmail.com>
+References: <000601c62370$db00cd50$1701a8c0@gerold>
+	<9a8748490601271057y709d3501ob278c85b104eef57@mail.gmail.com>
+Organization: the triads
+X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+X-Face: =\=1ht]b*gboJ:&+:3x1vGz}fCe40TZJ9s@L2~YGi}]c(fY-_7J]wUR.6MSH\oeq#@H6aAERh(<<1miWJ|x/-1g`r3EmzY3FE?VxmEih9%ETmPd7zChR1"zWC$iuK{|{R+Ss{I3w(KC"_LM%S!
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Jan 2006, Linus Torvalds wrote:
+On Fri, 27 Jan 2006 19:57:38 +0100
+Jesper Juhl <jesper.juhl@gmail.com> wrote:
 
-> And quite frankly, I don't see that changing. I think it's insane to
-> require people to make their private signing keys available, for example.
-> I wouldn't do it.
+> On 1/27/06, Gerold van Dijk <gerold@sicon-sr.com> wrote:
+> > Why can I NOT do a traceroute specifically within my own
+> > (sub)network
+> >
+> > 207.253.5.64/27
+> >
+> > with any distribution of Linux??
 
-Linus, I think you are missing the point here. I see this provision as one
-of the most important fixes in GPL v3. It might not be perfect in the way
-it is presented in the draft, but the rationale is certainly laudable.
+> Because you configured your machines to drop icmp packets perhaps.
+> Some router on your network may be dropping icmp packets.
 
-This closes a very serious loophole, that in certain situations renders
-the GPLv2 almost worthless. The problem is embedded systems, but
-especially cellphones.
+I've known some bridging devices have filter rules too.
 
-A typical smartphone has a baseband processor (running the GSM stack under
-a proprietary OS - let's call it the Baseband OS) and an application
-processor (running the PDA features and GUI, for example Symbian OS or
-Linux, let's call it the Application OS). Newer phones use a microkernel
-architecture where the two OS's each run as tasks under a microkernel so
-that a single CPU can be shared, but that's not relevant for this point.
-
-The practice for many phone manufacturers is to heavily encrypt and sign
-all ROM images that go on the phone. They do this for several reasons, but
-mostly to prevent end-users from modifying the baseband code (where things
-like SIM-locks and network locks are stored) or changing the IMEI number
-of stolen phones.
-
-However, most manufacturers extend this protectin to also encompass the
-PDA-side code. This is understandable (to an extent) where the operating
-system is proprietary or licensed (e.g. Symbian OS) and not available for
-end-users to modify in any case.
-
-But when Linux is used instead (something that most major handset
-manufacturers are working on at the moment), this whole picture changes.
-Suddenly the whole point of "Free Software" goes away. Because the handset
-manufacturer modifies, adapts and uses the Linux kernel (for free),
-without having to give anything back to the community. Yes, they have to
-make their modified source available, but there is no way a casual user
-(read: someone not a member of the phone-unlocking mafia) can update the
-kernel with a modified, recompiled version.
-
-But it goes further. The manufacturer is free to embed "trusted
-computing" technology into the kernel (e.g. digital signing of all
-executables that can run on the phone), as long as the encryption
-technology is included in the kernel (they can even embed the
-public key in the published sources, and you have no way of
-obtaining the secret key) - thereby preventing the user from running ANY
-code on the phone not pre-approved by the manufacturer.
-
-Their main motivation for doing this is basically to protect the mobile
-network operators' revenue, by preventing (or at least limiting)
-installation of things such as VoIP clients and instant messenger systems
-that could lead towards an "open TCP/IP" infrastructure that all the
-operators fear so much.
-
-The prime example of this is what is already implemented is Symbian OS. In
-Version 9, used by the latest handsets from Nokia and Sony Ericsson, it is
-impossible to install applications that are not signed by an independent
-testing house, something that effectively locks small businesses and
-independent hobby coders out of the market. There are even certain
-"capabilities", needed for example to implement networking protocols, that
-can only be signed if approved by the phone manufacturer.
-
-The only way to prevent Linux from being abused in this way is to require
-that the end-users have a method of installing the modified code on the
-device for which it was intended (such as your phone). If they don't want
-to disclose their primary signing keys, fine, but then they need to make
-another method available of replacing any free software used in the device
-with a modified (by the end-user) version. I understand the need to
-protect the non-GPL'ed "baseband" OS from tampering, but it has to be
-possible to replace the GPL'ed software. This is what this provision is
-all about (for me), and I think it is an extremely important one.
-
-Of course I have focused on cellphones, but the same is equally true for
-other embedded devices, such as digital TV boxes (e.g. PVR's). If I want
-to add a nice feature (and share the patch with my friends who bought the
-same box) I should be free to do so. Isn't that what Free Software is all
-about?
-
-Thomas
-
-
+-- 
+Regards, Ed http://www.usenix.org.uk
+:%s/Open Source/Free Software/g

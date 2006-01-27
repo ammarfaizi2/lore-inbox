@@ -1,75 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751535AbWA0RBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWA0REI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751535AbWA0RBk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 12:01:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751534AbWA0RBj
+	id S932127AbWA0REI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 12:04:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWA0REI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 12:01:39 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:40862 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751519AbWA0RBi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 12:01:38 -0500
-Date: Fri, 27 Jan 2006 18:01:01 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: James Courtier-Dutton <James@superbug.co.uk>
-cc: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       no To-header on input 
-	<"unlisted-recipients:; "@pop3.mail.demon.net>,
-       mrmacman_g4@mac.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-In-Reply-To: <43DA4DDA.7070509@superbug.co.uk>
-Message-ID: <Pine.LNX.4.61.0601271753430.11702@yvahk01.tjqt.qr>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
- <43D7A7F4.nailDE92K7TJI@burner> <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
- <43D7B1E7.nailDFJ9MUZ5G@burner> <20060125230850.GA2137@merlin.emma.line.org>
- <43D8C04F.nailE1C2X9KNC@burner> <20060126161028.GA8099@suse.cz>
- <43DA2E79.nailFM911AZXH@burner> <43DA4DDA.7070509@superbug.co.uk>
+	Fri, 27 Jan 2006 12:04:08 -0500
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:52163 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S932127AbWA0REG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 12:04:06 -0500
+Date: Fri, 27 Jan 2006 18:04:06 +0100
+From: Luca <kronos@kronoz.cjb.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Suspend to RAM: help with whitelist wanted
+Message-ID: <20060127170406.GA6164@dreamland.darkstar.lan>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060126213611.GA1668@elf.ucw.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> This are the three most important Linux kernel bugs:
->> 
->> -	ide-scsi does not do DMA if the DMAsize is not a multiple of 512
->> A person who knows internal Linux structures shoule be able
->> to fix this (and allow any multiple of 4) in less than one hour.
->> If we sum up the time spend on this discussoion, I really cannot
->> understand why this has not been fixed earlier.
+Pavel Machek <pavel@suse.cz> ha scritto:
+> Hi!
+> 
+> On www.sf.net/projects/suspend , there's s2ram.c program for
+> suspending machines. It contains whitelist of known machines, along
+> with methods to get their video working (similar to
+> Doc*/power/video.txt). Unfortunately, video.txt does not allow me to
+> fill in whitelist automatically, so I need your help.
+> 
+> I do not yet have solution for machines that need vbetool; fortunately
+> my machines do not need that :-), and it is pretty complex (includes
+> x86 emulator).
 
-Unfortunately, ide-scsi is deemed obsolete in 2.6, so it looks like no one 
-seems to be willing to do that. About 2.4 I'm just as unsure, because it's 
-in it's way to deep freeze. It might go through as a bugfix, though.
+What about adding something like:
 
->> -	/dev/hd* artificially prevents the ioctls SCSI_IOCTL_GET_IDLUN
->> SCSI_IOCTL_GET_BUS_NUMBER from returning useful values.
->> As long as this bug is present, there is no way to see SG_IO via
->> /dev/hd* as integral part of the Linux SCSI transport concept.
+void s2ram_restore(void) {
+        if (needed)
+                fork_and_exec(vbetool);
+}
 
-Now you're talking shop ;-)
+machine_table could set a global flag or something. It would be
+possibile to us an array to carry the informations about what need to be
+done on restore, i.e. something like:
 
-Hm, this ATAPI stuff makes me a headache. Well, anyway, out of 
-curiosity, what is an ATAPI drive (IDE-ATAPI) supposed to return when asked 
-for bus number, id or lun - independent of OS and/or cdrecord?
+void machine_table() {
+        if ((!strcmp(sys_vendor, "ASUS")) {
+                if (!strcmp(sys_version, "My notebook")) {
+                        machine_known();
+                        on_resume[NEED_VBETOOL] = 1;
+                        return;
+                }
+        }
+}
 
->> -	If sending SCSI sia ATAPI, Linux under certain unknown conditions
->> bastardizes the content of SCSI commands. A possible reason may be
->> that it sends random data in the remainder between the actual SCSI
->> cdb size and the ATAPI SCSI cdb size.
+void s2ram_restore(void) {
+        if (on_resume[NEED_VBETOOL])
+                fork_and_exec(vbetool);
+        if (on_resume[NEED_RADEON_STUFF])
+                radeon_stuff();
+        if (on_resume[NEED_FOOBAR])
+                black_magic();
+}
 
-Not so good (the content freakup). IMO, if one can play around with the 
-scsi tunnel (SG_IO) from userspace, commands should get through unmodified.
-If it's not cdrecord/libscg making my writer do coffee, it must be this 
-modification step.
+Ugly? Maybe, but you don't have to fiddle with a x86 emulator.
 
-> I think it might also be useful to make a list of all the SCSI commands that
-> cdrecord uses. Including all the vendor specific ones. One could then verify
-> that the Linux kernel is passing them onto the device correctly.
-
-Or not, for that matter. There is surely a reason for the OS to do 
-something to userspace-provided SG_IO packets to prevent the worst.
-
-
-Jan Engelhardt
+Luca
 -- 
+Home: http://kronoz.cjb.net
+Windows NT: Designed for the Internet. The Internet: Designed for Unix.

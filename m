@@ -1,88 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWA0PXn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWA0P23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751268AbWA0PXn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 10:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWA0PXn
+	id S1751205AbWA0P23 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 10:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWA0P22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 10:23:43 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:51462 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1751268AbWA0PXm convert rfc822-to-8bit (ORCPT
+	Fri, 27 Jan 2006 10:28:28 -0500
+Received: from stinky.trash.net ([213.144.137.162]:1457 "EHLO stinky.trash.net")
+	by vger.kernel.org with ESMTP id S1751205AbWA0P22 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 10:23:42 -0500
+	Fri, 27 Jan 2006 10:28:28 -0500
+Message-ID: <43DA3C19.2040002@trash.net>
+Date: Fri, 27 Jan 2006 16:28:25 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <20060127145013.GA6140@yggdrasil.localdomain>
-X-OriginalArrivalTime: 27 Jan 2006 15:23:39.0801 (UTC) FILETIME=[A66D4890:01C62355]
-Content-class: urn:content-classes:message
-Subject: Re: [KORG] "working Linux system"
-Date: Fri, 27 Jan 2006 10:23:39 -0500
-Message-ID: <Pine.LNX.4.61.0601271000020.13754@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [KORG] "working Linux system"
-Thread-Index: AcYjVaZ0IeApf4mDQ8Wyy3I5VwKuzw==
-References: <20060127093348.GB7989@kestrel> <20060127145013.GA6140@yggdrasil.localdomain>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Greg Norris" <haphazard@kc.rr.com>
-Cc: "Karel Kulhavy" <clock@twibright.com>, <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>, KdF <dkiba@yandex.ru>
+CC: Knut Petersen <Knut_Petersen@t-online.de>, shemminger@osdl.org,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>,
+       netfilter-devel@lists.netfilter.org
+Subject: Re: [BUG] sky2 broken for Yukon PCI-E Gigabit Ethernet Controller
+ 11ab:4362 (rev 19)
+References: <E1F1UqC-0002XE-00@gondolin.me.apana.org.au> <43D9B8A6.5020200@t-online.de> <20060127122242.GA32128@gondor.apana.org.au>
+In-Reply-To: <20060127122242.GA32128@gondor.apana.org.au>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/mixed;
+ boundary="------------040801050207010802010808"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------040801050207010802010808
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-On Fri, 27 Jan 2006, Greg Norris wrote:
+Herbert Xu wrote:
+> On Fri, Jan 27, 2006 at 07:07:34AM +0100, Knut Petersen wrote:
+> 
+>>Well, there are no problems if SuSEfirewall2 is disabled. But have a look
+>>at the loaded modules:
+>>
+>>ipt_MASQUERADE          3968  1
+>>pppoe                  15360  2
+>>pppox                   4616  1 pppoe
+> 
+> 
+> OK, although we can't rule out sky2/netfilter from the enquiry, I've
+> identified two bugs in ppp/pppoe that may be responsible for what you
+> are seeing.  So please try the following patch and let us know if the
+> problem still exists (or deteriorates/improves).
+> 
+> [PPP]: Fixed hardware RX checksum handling
+> 
+> When we pull the PPP protocol off the skb, we forgot to update the
+> hardware RX checksum.  This may lead to messages such as
+> 
+> 	dsl0: hw csum failure.
+> 
+> Similarly, we need to clear the hardware checksum flag when we use
+> the existing packet to store the decompressed result.
 
-> On Fri, Jan 27, 2006 at 10:33:48AM +0100, Karel Kulhavy wrote:
->> I suggest "Linux system" to be changed to "GNU/Linux system"
->> at http://www.kernel.org/ (3 occurences).
->
-> And the point would be what, exactly???
+We had a couple of reports of incorrect hardware checksums with
+PPPoE. KdF, can you test Herbert's patch (attached again to this
+mail) please?
 
-When I took all those BSD executables and ported them to linux-0.99
-so that we had a more complete tool chain than what was in the
-Yggdrasil 75-floppy-disk distribution that I started with, GNU
-provided the compiler tool-chain and an unbelievably-complicated
-editor called Emacs. Fortunately, there was an early version of
-vi included with the distribution. Incidentally, it was later
-learned that it __was__ vi, so a completely different editor
-with vi-like commands (vim) was eventually written.
+--------------040801050207010802010808
+Content-Type: text/plain;
+ name="ppp-rxcsum"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ppp-rxcsum"
 
-I used vi to modify all the 'C' source-files from BSD so they
-would compile with the new compiler. The resulting ported
-source was sent back using snail-mail to become part of the
-next distributions. I was not alone in this undertaking.
-There were at least 10 persons, mostly college students,
-involved in this undertaking.
+diff --git a/drivers/net/ppp_generic.c b/drivers/net/ppp_generic.c
+--- a/drivers/net/ppp_generic.c
++++ b/drivers/net/ppp_generic.c
+@@ -1610,6 +1610,8 @@ ppp_receive_nonmp_frame(struct ppp *ppp,
+ 		}
+ 		else if (!pskb_may_pull(skb, skb->len))
+ 			goto err;
++		else
++			skb->ip_summed = CHECKSUM_NONE;
+ 
+ 		len = slhc_uncompress(ppp->vj, skb->data + 2, skb->len - 2);
+ 		if (len <= 0) {
+@@ -1690,6 +1692,7 @@ ppp_receive_nonmp_frame(struct ppp *ppp,
+ 			kfree_skb(skb);
+ 		} else {
+ 			skb_pull(skb, 2);	/* chop off protocol */
++			skb_postpull_rcsum(skb, skb->data - 2, 2);
+ 			skb->dev = ppp->dev;
+ 			skb->protocol = htons(npindex_to_ethertype[npi]);
+ 			skb->mac.raw = skb->data;
 
-None of this stuff involved GNU at all. And, no, we did
-not remove the BSD license message from the source.
-
-GNU just provided some tools. Some tools were pretty good
-and some were very bad.
-
-Many years later when I first saw the text, GNU/Linux I vomited,
-literally. If you build a house, you certainly don't name it
-after the company that made the hammer. For some reason,
-somebody called Richard Stallman started to brag that he
-was the developer of the "GNU/Linux operating system". He
-got away with it! Nobody called him to task. It seems that
-nobody except me even complained. So now you are stuck.
-
-He invents some new "license" and expects his subjects to
-use it!  Tell him to go pound sand. Tell him to get off
-the developer's backs and go away. We don't need him.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.66 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+--------------040801050207010802010808--

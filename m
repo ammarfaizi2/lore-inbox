@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWA0ATW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWA0ATQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbWA0ATW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 19:19:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWA0ATW
+	id S932362AbWA0ATQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 19:19:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWA0ATQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 19:19:22 -0500
+	Thu, 26 Jan 2006 19:19:16 -0500
 Received: from zproxy.gmail.com ([64.233.162.204]:8325 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964774AbWA0ATV convert rfc822-to-8bit
+	by vger.kernel.org with ESMTP id S932362AbWA0ATP convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 19:19:21 -0500
+	Thu, 26 Jan 2006 19:19:15 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VrMrPClwfwm+RvbaaswqANgCUYAjhSUQIT017+0/D8xAQDfR8D3EEq1fT6kKd+sgrE7dayO8qoMnnEjlepmkaOlUN8hponyipdBNiW1VrA9V6pNC6r5bPPkBwYbdvPVYNrT6l5BvTZTwLEC6MXrlOA9dynD0bLP4uwvn/mpvFAA=
-Message-ID: <cfb54190601261619w3483a4earf30958139057a759@mail.gmail.com>
-Date: Fri, 27 Jan 2006 02:19:20 +0200
-From: Hai Zaar <haizaar@gmail.com>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: Re: vesa fb is slow on 2.6.15.1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <cfb54190601261610o1479b8fdsbedb0ca96b14b6@mail.gmail.com>
+        b=iXhOogQSqngiCYnUCdUVU1MUHNT+wcLGccX0Z3zRXjzkTMZ8MUShXJJxAecHulEZ1ka65PEs3FGXWtSXdoKpRbaHxqEeYYnaK+iSgHTaUSrF7Jj+EY/VxvU2qrHHobajuZaXaFE0zMsd5ERY7+Lwl0D5W/lQ9zueQ8MGXUtYzg4=
+Message-ID: <787b0d920601261619l43bb95f5k64ddd338f377e56a@mail.gmail.com>
+Date: Thu, 26 Jan 2006 19:19:14 -0500
+From: Albert Cahalan <acahalan@gmail.com>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org
+In-Reply-To: <43D8D396.nailE2X31OHFU@burner>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <cfb54190601260620l5848ba3ai9d7e06c41d98c362@mail.gmail.com>
-	 <43D8E1EE.3040302@gmail.com>
-	 <cfb54190601260806h7199d7aej79139140d145d592@mail.gmail.com>
-	 <43D94764.3040303@gmail.com>
-	 <cfb54190601261610o1479b8fdsbedb0ca96b14b6@mail.gmail.com>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+	 <43D7A7F4.nailDE92K7TJI@burner>
+	 <787b0d920601251826l6a2491ccy48d22d33d1e2d3e7@mail.gmail.com>
+	 <43D8D396.nailE2X31OHFU@burner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/27/06, Hai Zaar <haizaar@gmail.com> wrote:
-> >
-> > You need both vga= and video=vesafb
-> Thanks a lot - it did the trick - the speed is back!
-BTW, if I use 'ywrap' instead of 'ypan' its even a bit faster: 'cat
-/usr/share/man/man1/bash.1'  on tty1 take 11 seconds with ywrap,
-against 12 seconds with ypan.
+On 1/26/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+> Albert Cahalan <acahalan@gmail.com> wrote:
 
+> > You can't fool me, because I looked at the cdrecord source
+> > code and at the documented APIs for various OSes.
 >
-> But anyway, do you have a clue why do I still get this error?
-> PCI: Failed to allocate mem resource #6:20000@f8000000 for 0000:40:00.0
-> I've several workstations with _exactly_ the same hardware. I've tried
-> two of them - both give the error with 2.6.15.1 (and no errors with
-> 2.6.11.12).
-> >
-> > Tony
-> >
->
->
-> --
-> Zaar
->
+> I am sorry to see that you did not look close enough...
+...
+> > Names can be handled by Windows, FreeBSD, MacOS X,
+> > Linux, OpenBSD, Solaris, HP-UX, AIX, and IRIX.
+> > That's everything that isn't end-of-lifed.
 
+OK, this is getting silly and downright offensive. I encourage
+everyone else to look over the code to see that I am right.
 
---
-Zaar
+I may just be crazy enough to fork this project. I very nearly
+did about 18 months ago. I can't very well do this alone,
+because I don't have all the hardware. (It's either cdrecord
+or Asterisk -- I'm not sure which one pisses me off the most)
+
+Me:
+
+* was an RTOS developer
+* day job is all about secure software
+* the procps maintainer
+* running Linux 2.6.xx only
+* using FireWire, which is totally hot-plug
+
+Perhaps the first thing to do would be to find a list of all the
+apps that depend on cdrecord. Their interface to cdrecord
+needs to be documented so that a compatibility script can
+be made.
+
+Matthias, can you give me a hand with this? I'll need a way
+to sort and publish incoming patches, letting them sit for a
+while. (like what Andrew Morton does for the kernel) This
+can't work like procps because the hardware varies too much.

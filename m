@@ -1,70 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422644AbWA0WI7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422646AbWA0WLa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422644AbWA0WI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 17:08:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422645AbWA0WI7
+	id S1422646AbWA0WLa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 17:11:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422649AbWA0WLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 17:08:59 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44184 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1422644AbWA0WI6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 17:08:58 -0500
-Message-ID: <43DA99EB.6020909@sgi.com>
-Date: Fri, 27 Jan 2006 17:08:43 -0500
-From: Prarit Bhargava <prarit@sgi.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Luck, Tony" <tony.luck@intel.com>
-CC: Bjorn Helgaas <bjorn.helgaas@hp.com>, Ingo Molnar <mingo@redhat.com>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: boot-time slowdown for measure_migration_cost
-References: <B8E391BBE9FE384DAA4C5C003888BE6F058CC7A6@scsmsx401.amr.corp.intel.com>
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F058CC7A6@scsmsx401.amr.corp.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 27 Jan 2006 17:11:30 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:60814 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422646AbWA0WL3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 17:11:29 -0500
+Subject: Re: [PATCH] timer tsc ensure we allow for initial tsc and tsc sync
+From: john stultz <johnstul@us.ibm.com>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060120125342.GA7632@shadowen.org>
+References: <20060120125342.GA7632@shadowen.org>
+Content-Type: text/plain
+Date: Fri, 27 Jan 2006 14:11:26 -0800
+Message-Id: <1138399887.14289.107.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luck, Tony wrote:
->>The boot-time migration cost auto-tuning stuff seems to have
->>been merged to Linus' tree since 2.6.15.  On little one- or
->>two-processor systems, the time required to measure the
->>migration costs isn't very noticeable, but by the time we
->>get to even a four-processor ia64 box, it adds about
->>30 seconds to the boot time, which seems like a lot.
+On Fri, 2006-01-20 at 12:53 +0000, Andy Whitcroft wrote:
+> We have been seeing "BUG: soft lockup detected on CPU#0!" messages
+> from testing runs of mainline for some time.  This has only been
+> showing on a very small subset of the systems under test, as it
+> turns out the slower ones.
 > 
+> Resolving this issue is complex, not because the fix itself is
+> complex but because of the timer rework which is currently pending
+> in -mm.  As a result this patch is against 2.6.16-rc1.  So far
+> we have had no such errors from runs against -mm, but I am unsure
+> whether that system eliminates this issue, or mearly is lucky as
+> faster systems are currently with mainline.
+
+Hey Andy, Sorry for the slow reply.
+
+The timekeeping rework is not going to go into 2.6.16 and is currently
+out of -mm until I can resolve a few laptop issues. 
+
+
+> John perhaps you could comment?  Also, how experimental is the timer
+> code, is it likely to go into 2.6.16 or is it more experimental
+> than that?  If so perhaps we need to try and slip a fix like this
+> underneath it.
+
+I'd def try to push a fix in for the issue. I'll just merge my code
+around the fix.
+
+
+
+> timer tsc ensure we allow for initial tsc and tsc sync
 > 
-> I only see about 16 seconds for a 4-way tiger (not that 16 seconds
-> is good ... but it not as bad as 30).  This was with a build
-> from tiger_defconfig that sets CONFIG_NR_CPUS=4 ... so I wonder
-> what's causing the factor of two.  I measured with a printk
-> each side of build_sched_domains() and booted with the "time"
-> command line arg to get:
-
-I've noticed the delay on a 16p and 64p.  At first I thought it was a 
-system hang but have since learned to live with the delay.
-
-  What happens on a 512 cpu
-> Altix (if it's quadratic, they may be still waiting for the
-> boot to finish :-)
-
-
-Not quadratic.  This is a 64p Altix ...
-
-[    9.942253] Brought up 64 CPUs
-[    9.942904] Total of 64 processors activated (143654.91 BogoMIPS).
-[    9.943995] build_sched_domains: start
-[   32.108439] migration_cost=0,32232,39021
-[   37.894391] build_sched_domains: end
-
-P.
-
+> During early initialisation we select the timer source to use for
+> the high resolution time source.  When selecting the TSC we don't
+> take into account the initial value of the TSC, this leads to a
+> jump in the clock at the next clock tick.  We also fail to take into
+> account that the TSC synchronisation in an SMP system resets the TSC.
 > 
-> -Tony
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+> In both cases this will lead to the timer believing that 0-N TSC
+> ticks have passed since the last real timer tick.  This will lead
+> to the clock jumping ahead by nearly the maximum time represented
+> by the lower 32bits of the TSC.  For a 1GHz machine this is close to
+> 4s, on slower boxes this can exceed 10s and trip the softlock tests.
+
+
+This sounds very similar to bugme bug #5366
+http://bugzilla.kernel.org/show_bug.cgi?id=5366
+
+
+There's a test patch in there that maybe you could try?
+
+
+thanks
+-john
 

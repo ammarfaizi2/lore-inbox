@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbWA0DYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030182AbWA0DlO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030275AbWA0DYU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 22:24:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030277AbWA0DYU
+	id S1030182AbWA0DlO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 22:41:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030278AbWA0DlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 22:24:20 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:54663 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030275AbWA0DYT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 22:24:19 -0500
-Date: Thu, 26 Jan 2006 19:23:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: dada1@cosmosbay.com, penberg@cs.helsinki.fi, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1-mm3
-Message-Id: <20060126192342.7341f9b2.akpm@osdl.org>
-In-Reply-To: <43D96758.4030808@shadowen.org>
-References: <20060124232406.50abccd1.akpm@osdl.org>
-	<43D785E1.4020708@shadowen.org>
-	<84144f020601250644h6ca4e407q2e15aa53b50ef509@mail.gmail.com>
-	<43D7AB49.2010709@shadowen.org>
-	<1138212981.8595.6.camel@localhost>
-	<43D7E83D.7040603@shadowen.org>
-	<84144f020601252303x7e2a75c6rdfe789d3477d9317@mail.gmail.com>
-	<43D96758.4030808@shadowen.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 26 Jan 2006 22:41:14 -0500
+Received: from uproxy.gmail.com ([66.249.92.197]:2673 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030182AbWA0DlN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 22:41:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=QiKOpahJmO7L4/TaHhGrnHfPKzjRX/aMrcW3w5TDfTlgWxkEO7xc3WPxgpG8uPUCPzms2q/CgaFt24nzVh6ORAvEq1IWiMgJW4biOE0gFoiBd1wsC9nHITil7Y6PlR3MsaOGKn1ZA33ZKwdz1W/pw+VyzAaodKpWvQUK/7Tpyd4=
+Date: Fri, 27 Jan 2006 04:40:48 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: davids@webmaster.com
+Cc: davej@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+Message-Id: <20060127044048.60dfd04b.diegocg@gmail.com>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKMEBOJLAB.davids@webmaster.com>
+References: <20060127022353.GF16422@redhat.com>
+	<MDEHLPKNGKAHNMBLJOLKMEBOJLAB.davids@webmaster.com>
+X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.9; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Whitcroft <apw@shadowen.org> wrote:
->
-> Yes.  I think I have this one.  It appears that the patch below is the
->  trigger for all our recent panic woe's.  The last of the testing should
->  complete in the next few hours and I will be able to confirm that
->  hypothesis; results so far are all good.
-> 
->  	reduce-size-of-percpudata-and-make-sure-per_cpuobject.patch
+El Thu, 26 Jan 2006 18:37:28 -0800,
+"David Schwartz" <davids@webmaster.com> escribió:
 
-That patch did have some missed conversions, which might well explain the
-crash.
+> is offered for inclusion. He cannot, however, change the license on any code
+> he did not write. He cannot even grant a license to any code he did not
 
-Thanks for narrowing it down - I'll keep that patch in next -mm (and will
-include the known fixups).  Could you please boot test that?  If we're
-still in trouble, I'll drop it.
+And he's not doing it, the COPYING file applies for all the code which 
+doesn't specifies its own license.
 
+
+Notice that COPYING has this: "Also note that the only valid version of
+the GPL as far as the kernel  is concerned is _this_ particular version
+of the license (ie v2, not  v2.2 or v3.x or whatever),
+unless explicitly otherwise stated."
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+(IOW, people should care about their own code, but obviously people
+usually licenses their code under the same license the project uses,
+except some drivers that use a dual-license scheme etc)

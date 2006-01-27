@@ -1,60 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751459AbWA0Omk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751457AbWA0OqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751459AbWA0Omk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 09:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbWA0Omk
+	id S1751457AbWA0OqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 09:46:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751460AbWA0OqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 09:42:40 -0500
-Received: from darla.ti-wmc.nl ([217.114.97.45]:24462 "EHLO smtp.wmc")
-	by vger.kernel.org with ESMTP id S1751459AbWA0Omj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 09:42:39 -0500
-Message-ID: <43DA3155.2060902@ti-wmc.nl>
-Date: Fri, 27 Jan 2006 15:42:29 +0100
-From: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
-Organization: WMC
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Olivier Galibert <galibert@pobox.com>,
-       Simon Oosthoek <simon.oosthoek@ti-wmc.nl>, linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <43D7B20D.7040203@wolfmountaingroup.com> <43D7B5C4.5040601@wolfmountaingroup.com> <43D7D05D.7030101@perkel.com> <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com> <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com> <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse> <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org> <43D9F9F9.5060501@ti-wmc.nl> <20060127133939.GU27946@ftp.linux.org.uk> <43DA2795.707@ti-wmc.nl> <20060127141850.GC65793@dspnet.fr.eu.org>
-In-Reply-To: <20060127141850.GC65793@dspnet.fr.eu.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Jan 2006 09:46:16 -0500
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:11493 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S1751457AbWA0OqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 09:46:15 -0500
+Date: Fri, 27 Jan 2006 15:46:02 +0100
+From: Andreas Mohr <andim2@users.sourceforge.net>
+To: acx100-devel@lists.sourceforge.net
+Cc: Johannes Berg <johannes@sipsolutions.net>, Adrian Bunk <bunk@stusta.de>,
+       "John W. Linville" <linville@tuxdriver.com>, jgarzik@pobox.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [Acx100-devel] Re: [-mm patch] drivers/net/wireless/tiacx/: remove code for WIRELESS_EXT < 18
+Message-ID: <20060127144602.GA5447@rhlx01.fht-esslingen.de>
+Reply-To: andi@lisas.de
+References: <20060122171104.GC10003@stusta.de> <200601271219.24332.vda@ilport.com.ua> <1138362557.5983.26.camel@localhost> <200601271449.49226.vda@ilport.com.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601271449.49226.vda@ilport.com.ua>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olivier Galibert wrote:
-> On Fri, Jan 27, 2006 at 03:00:53PM +0100, Simon Oosthoek wrote:
->> If I'd want to contribute code to the kernel, I'd have to comply with 
->> the license of the kernel, which is v2 of the GPL. If I would actually 
->> prefer my code to be licensed under v3 or higher, I'd have to specify 
->> that my code is only licensed under v2 for the kernel to humour Linus 
->> Torvalds and respect the license of the kernel, but in all other ways 
->> the code is used, I only grant a license to copy under the conditions of 
->> the GPL v3 or higher. I don't see why that would affect the distribution 
->> of the kernel at all.
+Hi,
+
+On Fri, Jan 27, 2006 at 02:49:49PM +0200, Denis Vlasenko wrote:
+> On Friday 27 January 2006 13:49, Johannes Berg wrote:
+> > On Fri, 2006-01-27 at 12:19 +0200, Denis Vlasenko wrote:
+> > 
+> > > I very much want to get rid of all remaining compat cruft, and
+> > > I plan to do it as soon as acx will be present in mainline kernel.
+> > 
+> > I doubt you'll get it merged with the compat cruft.
 > 
-> "GPLv2 only for the kernel" is a different license than "GPLv2" and is
-> incompatible with GPLv2.
->
+> What cruft? This?
+> 
+> # grep -r WIRELESS_EXT .
+> ./pci.c:                ndev->name, WIRELESS_EXT, UTS_RELEASE);
+> ./common.c:             "Wireless extension version:\t" STRING(WIRELESS_EXT) "\n"
+> ./acx_struct.h:#ifdef WIRELESS_EXT
+> ./acx_struct.h:#if WIRELESS_EXT > 15
+> ./ioctl.c:      range->we_version_compiled = WIRELESS_EXT;
+> 
+> I consider this to be a really modest amount of compat code
+> which makes driver users happy (that fraction of it which is not
+> willing to run -mm).
+> 
+> However, I would remove even that at Jeff's or Andrew's request,
+> or without anyone's request if acx will be merged to Linus tree.
 
-hmm, so if I want to contribute to the kernel, but prefer my code to be 
-licensed under GPLv3 or higher, I would be unable to submit it to the 
-kernel unless I "lower my standards" to GPLv2 or higher?
+Indeed, I don't think there should be any discussion at all about this,
+since it helps users of our currently still external driver
+(not too much longer external, I guess and hope) a lot.
+Given that we don't have a stable driver ABI (for way too often discussed
+very valid and sane reasons) I really, really think we shouldn't shoot
+our foot into pieces by then additionally also bitching about *MINIMAL*
+amounts of compatibility code required to keep up with those speedily changing
+kernel requirements while our driver isn't included yet.
 
-If someone wants to use that code elsewhere, he can take it from the 
-kernel and re-use it in a GPLv2 project and further, which may violate 
-the terms of GPLv3 and would therefore conflict with my interests.
+In the future, I'd like to ask people to be a *bit* more tolerant of newish
+compatibility cruft. It's not like we're supporting kernel 2.2.x here still,
+our driver is at 2.6.10 at a minimum(!), yet you still want to remove even
+those few pieces!
+This is simply ridiculous (again, as long as our driver isn't merged, which it
+should be soon to improve maintenance).
 
-Of course, this may be purely theoretical, but it could block people 
-from submitting code to the kernel in order avoid the v2 GPL license.
+OK, ending this rather fruitless discussion here. I better get back to hacking,
+that's more productive.
 
- From this, I think it could be concluded that it might turn out to be 
-quite harmful if code under GPLv3+ cannot be combined with the linux 
-kernel...
-
-/Simon
-
-PS, IANAL
+Andreas Mohr

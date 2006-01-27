@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWA0OSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWA0OTq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751167AbWA0OSv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 09:18:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751203AbWA0OSv
+	id S1751203AbWA0OTq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 09:19:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWA0OTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 09:18:51 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:2058 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1751167AbWA0OSv (ORCPT
+	Fri, 27 Jan 2006 09:19:45 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:5461 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751203AbWA0OTp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 09:18:51 -0500
-Date: Fri, 27 Jan 2006 15:18:50 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-Message-ID: <20060127141850.GC65793@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Simon Oosthoek <simon.oosthoek@ti-wmc.nl>,
-	linux-kernel@vger.kernel.org
-References: <43D7B20D.7040203@wolfmountaingroup.com> <43D7B5C4.5040601@wolfmountaingroup.com> <43D7D05D.7030101@perkel.com> <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com> <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com> <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse> <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org> <43D9F9F9.5060501@ti-wmc.nl> <20060127133939.GU27946@ftp.linux.org.uk> <43DA2795.707@ti-wmc.nl>
+	Fri, 27 Jan 2006 09:19:45 -0500
+Date: Fri, 27 Jan 2006 15:21:46 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andy Chittenden <AChittenden@bluearc.com>
+Cc: Andrew Morton <akpm@osdl.org>, davej@redhat.com,
+       linux-kernel@vger.kernel.org, lwoodman@redhat.com
+Subject: Re: Out of Memory: Killed process 16498 (java).
+Message-ID: <20060127142146.GN4311@suse.de>
+References: <89E85E0168AD994693B574C80EDB9C2703556694@uk-email.terastack.bluearc.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43DA2795.707@ti-wmc.nl>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <89E85E0168AD994693B574C80EDB9C2703556694@uk-email.terastack.bluearc.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2006 at 03:00:53PM +0100, Simon Oosthoek wrote:
-> If I'd want to contribute code to the kernel, I'd have to comply with 
-> the license of the kernel, which is v2 of the GPL. If I would actually 
-> prefer my code to be licensed under v3 or higher, I'd have to specify 
-> that my code is only licensed under v2 for the kernel to humour Linus 
-> Torvalds and respect the license of the kernel, but in all other ways 
-> the code is used, I only grant a license to copy under the conditions of 
-> the GPL v3 or higher. I don't see why that would affect the distribution 
-> of the kernel at all.
+On Fri, Jan 27 2006, Andy Chittenden wrote:
+> Any progress on a patch?
 
-"GPLv2 only for the kernel" is a different license than "GPLv2" and is
-incompatible with GPLv2.
+(please don't top post)
 
-  OG.
+Not yet, sorry, been busy with more critical bugs.
+
+-- 
+Jens Axboe
 

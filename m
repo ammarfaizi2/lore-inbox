@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932459AbWA0KNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbWA0KWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932459AbWA0KNM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 05:13:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWA0KNM
+	id S1751436AbWA0KWK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 05:22:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWA0KWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 05:13:12 -0500
-Received: from wproxy.gmail.com ([64.233.184.207]:42312 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932459AbWA0KNK convert rfc822-to-8bit
+	Fri, 27 Jan 2006 05:22:10 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:3250 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1751436AbWA0KWJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 05:13:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mkWGz/yHmhA5uvjhN0FcKWOIq7Vo5nL/Lrr1coekSHYl8lW68be5DdYNqyxzeRVphfwCvM9jEUR+yqKn1baE2NYQd/go4QXB9S2eEAEZZ/OwFMAaon/zDOwa5u/XIZi/Bjl31R6H4x999w7FaGiYyAwiYepcpkOA4ZrqFofUsH4=
-Message-ID: <6880bed30601270213l5b1de3ccvf3a39e037bbafd20@mail.gmail.com>
-Date: Fri, 27 Jan 2006 11:13:09 +0100
-From: Bas Westerbaan <bas.westerbaan@gmail.com>
-To: Bernd Petrovitsch <bernd@firmix.at>
-Subject: Re: GPL V3 and Linux
-Cc: Valdis.Kletnieks@vt.edu, Ian Kester-Haney <ikesterhaney@gmail.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1138355647.12605.21.camel@tara.firmix.at>
+	Fri, 27 Jan 2006 05:22:09 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Adrian Bunk <bunk@stusta.de>, acx100-devel@lists.sourceforge.net
+Subject: Re: [-mm patch] drivers/net/wireless/tiacx/: remove code for WIRELESS_EXT < 18
+Date: Fri, 27 Jan 2006 12:19:24 +0200
+User-Agent: KMail/1.8.2
+Cc: "John W. Linville" <linville@tuxdriver.com>, jgarzik@pobox.com,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20060122171104.GC10003@stusta.de>
+In-Reply-To: <20060122171104.GC10003@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <MDEHLPKNGKAHNMBLJOLKIEOMJJAB.davids@webmaster.com>
-	 <Pine.LNX.4.61.0601240839380.17175@chaos.analogic.com>
-	 <43D65211.20006@wolfmountaingroup.com>
-	 <441e43c90601241721o8b4a9e5rd3a237f70aa46dbb@mail.gmail.com>
-	 <1138182144.4800.12.camel@tara.firmix.at>
-	 <200601270310.k0R3AIrf014656@turing-police.cc.vt.edu>
-	 <1138355647.12605.21.camel@tara.firmix.at>
+Message-Id: <200601271219.24332.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> should IMHO readable and understandable by the average citizen).
->
-> And if they can't write it down unambigously, I actually question if
-> we
-> want to accept laws/court decisions about rules and concepts
-> which
-> cannot be even written down in a simple enough and clear way.
+Hi Adrian,
 
-Ambiguous laws are compromizes. They are required sometimes. Who will
-prevail depends on who can affort the best lawyer in court.
 
-Don't get me wrong, I'd love readable laws, but with the current
-politics it isn't possible.
+On Sunday 22 January 2006 19:11, Adrian Bunk wrote:
+> WIRELESS_EXT < 18 will never be true in the kernel.
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
+Please don't do this. We are not in the kernel yet.
+
+acx currently is in -mm, not in mainline.
+
+We have quite a few users of it which aren't using -mm,
+but instead compile it out-of-kernel.
+
+We gradually removed 2.4 compat code and most of early 2.6isms.
+Even that produced a few complains. Currently out-of-tree acx
+is working for any kernel >= 2.6.10.
+
+I very much want to get rid of all remaining compat cruft, and
+I plan to do it as soon as acx will be present in mainline kernel.
 --
-Bas Westerbaan
-http://blog.w-nz.com/
-GPG Pub. Keys: http://w-nz.com/r/f
+vda

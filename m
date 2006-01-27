@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWA0AUi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWA0AWD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964779AbWA0AUi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 19:20:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWA0AUi
+	id S964798AbWA0AWD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 19:22:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbWA0AWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 19:20:38 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:27655 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S964779AbWA0AUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 19:20:37 -0500
-Message-ID: <43D96758.4030808@shadowen.org>
-Date: Fri, 27 Jan 2006 00:20:40 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Thu, 26 Jan 2006 19:22:01 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:34539 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964798AbWA0AWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 19:22:00 -0500
+Date: Thu, 26 Jan 2006 16:21:43 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Matthew Dobson <colpatch@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, sri@us.ibm.com, andrea@suse.de,
+       pavel@suse.cz, linux-mm@kvack.org
+Subject: Re: [patch 3/9] mempool - Make mempools NUMA aware
+In-Reply-To: <43D96633.4080900@us.ibm.com>
+Message-ID: <Pine.LNX.4.62.0601261619030.19029@schroedinger.engr.sgi.com>
+References: <20060125161321.647368000@localhost.localdomain>
+ <1138233093.27293.1.camel@localhost.localdomain>
+ <Pine.LNX.4.62.0601260953200.15128@schroedinger.engr.sgi.com>
+ <43D953C4.5020205@us.ibm.com> <Pine.LNX.4.62.0601261511520.18716@schroedinger.engr.sgi.com>
+ <43D95A2E.4020002@us.ibm.com> <Pine.LNX.4.62.0601261525570.18810@schroedinger.engr.sgi.com>
+ <43D96633.4080900@us.ibm.com>
 MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: Pekka Enberg <penberg@cs.helsinki.fi>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1-mm3
-References: <20060124232406.50abccd1.akpm@osdl.org>	 <43D785E1.4020708@shadowen.org>	 <84144f020601250644h6ca4e407q2e15aa53b50ef509@mail.gmail.com>	 <43D7AB49.2010709@shadowen.org> <1138212981.8595.6.camel@localhost>	 <43D7E83D.7040603@shadowen.org> <84144f020601252303x7e2a75c6rdfe789d3477d9317@mail.gmail.com>
-In-Reply-To: <84144f020601252303x7e2a75c6rdfe789d3477d9317@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka Enberg wrote:
-> Hi Andy,
-> 
-> Pekka Enberg wrote:
-> 
->>>Does vanilla 2.6.16-rc1 work for you? The oops definitely makes me think
->>>it's slab related but the other patches don't seem likely suspects.
-> 
-> 
-> On 1/25/06, Andy Whitcroft <apw@shadowen.org> wrote:
-> 
->>None of the other patches you suggested seem to be it either :/.  Yes
->>2.6.16-rc1 was ok on the boxs in question.
-> 
-> 
-> Then I dont see how it could be slab related. At this point, the only
-> suggestion I have is bisecting akpm-style:
+On Thu, 26 Jan 2006, Matthew Dobson wrote:
 
-Yes.  I think I have this one.  It appears that the patch below is the
-trigger for all our recent panic woe's.  The last of the testing should
-complete in the next few hours and I will be able to confirm that
-hypothesis; results so far are all good.
+> Allocations backed by a mempool must always be allocated via
+> mempool_alloc() (or mempool_alloc_node() in this case).  What that means
+> is, without a mempool_alloc_node() function, NO mempool backed allocations
+> will be able to request a specific node, even when the system has PLENTY of
+> memory!  This, IMO, is unacceptable.  Adding more NUMA-awareness to the
+> mempool system allows us to keep the same slab behavior as before, as well
+> as leaving us free to ignore the node requests when memory is low.
 
-	reduce-size-of-percpudata-and-make-sure-per_cpuobject.patch
+Ok. That makes sense. I thought the mempool_xxx functions were only for 
+emergencies. But nevertheless you still duplicate all memory allocation 
+functions. I already was a bit concerned when I added the _node stuff.
 
->From the nature of the patch I would guess its likely not the patch
-itself that is at issue but some errant user of percpu space.  Perhaps a
-more gentle approach is needed such that we get to the point at which
-consoles are available and we can report the issue (at least as an
-option).
+What may be better is to add some kind of "allocation policy" to an 
+allocation. That allocation policy could require the allocation on a node, 
+distribution over a series of nodes, require allocation on a particular 
+node, or allow the use of emergency pools etc.
 
-Eric can give us some help confirming whether there is an issue with the
-patch or finding the source of the errant access to it?
-
-Cheers.
-
--apw
+Maybe unify all the different page allocations to one call and do the 
+same with the slab allocator.

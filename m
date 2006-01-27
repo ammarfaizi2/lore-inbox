@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWA0Aan@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWA0AbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbWA0Aan (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 19:30:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWA0Aan
+	id S964817AbWA0AbO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 19:31:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWA0AbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 19:30:43 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:49379 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964814AbWA0Aam (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 19:30:42 -0500
-Message-ID: <43D96987.8090608@jp.fujitsu.com>
-Date: Fri, 27 Jan 2006 09:29:59 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Mel Gorman <mel@csn.ul.ie>
-CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [PATCH 0/9] Reducing fragmentation using zones v4
-References: <20060126184305.8550.94358.sendpatchset@skynet.csn.ul.ie>
-In-Reply-To: <20060126184305.8550.94358.sendpatchset@skynet.csn.ul.ie>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 26 Jan 2006 19:31:13 -0500
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:27618 "EHLO
+	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S964819AbWA0AbJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 19:31:09 -0500
+Message-Id: <1138321868.23777.252869604@webmail.messagingengine.com>
+X-Sasl-Enc: Tv25SAFJzjMW3sgrKrFOuL8b6Pbtib8AzazLvanEaiwV 1138321868
+From: "George" <genz1968@fastmail.fm>
+To: linux-kernel@vger.kernel.org
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="KOI8-R"
+MIME-Version: 1.0
+X-Mailer: MIME::Lite 5022  (F2.73; T1.15; A1.64; B3.05; Q3.03)
+Subject: SuSE 10.0 - agpgart: unable to determine aperture size
+Date: Thu, 26 Jan 2006 16:31:08 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Mel-san
+Hello,
 
-Mel Gorman wrote:
-> Changelog since v4
->   o Minor bugs
->   o ppc64 can specify kernelcore
->   o Ability to disable use of ZONE_EASYRCLM at boot time
->   o HugeTLB uses ZONE_EASYRCLM
->   o Add drain-percpu caches for testing
->   o boot-parameter documentation added
-> 
+I keep getting the messages below in my /var/log/warn file at each
+bootup.  What is it and how do I fix it?
 
-Could you add this patch to your set ?
-This was needed to boot my x86 machine without HIGHMEM.
+Jan 26 06:26:55 dns1 kernel: agpgart: unable to determine aperture size.
+Jan 26 06:26:55 dns1 kernel: agpgart-serverworks: probe of 0000:00:00.0
+failed with error -22
+Jan 26 06:26:55 dns1 kernel: agpgart: unable to determine aperture size.
+Jan 26 06:26:55 dns1 kernel: agpgart-serverworks: probe of 0000:00:00.1
+failed with error -22
 
--- Kame
+I have SuSE 10.0 installed on my IBM x330 dual PIII eserver xseries with
+a S3 Savage 4 video card.
 
-Index: linux-2.6.16-rc1-mm3/mm/highmem.c
-===================================================================
---- linux-2.6.16-rc1-mm3.orig/mm/highmem.c
-+++ linux-2.6.16-rc1-mm3/mm/highmem.c
-@@ -225,9 +225,10 @@ static __init int init_emergency_pool(vo
-  	struct sysinfo i;
-  	si_meminfo(&i);
-  	si_swapinfo(&i);
--
-+#ifdef CONFIG_HIGHMEM   /* we can add HIGHMEM after boot */
-  	if (!i.totalhigh)
-  		return 0;
-+#endif
+Thanks,
+George
+-- 
+  George
+  genz1968@fastmail.fm
 
-  	page_pool = mempool_create(POOL_SIZE, page_pool_alloc, page_pool_free, NULL);
-  	if (!page_pool)
+-- 
+http://www.fastmail.fm - IMAP accessible web-mail
 

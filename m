@@ -1,68 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbWA0Iea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWA0ImD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751391AbWA0Iea (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 03:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030289AbWA0Ie3
+	id S1751228AbWA0ImD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 03:42:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWA0ImC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 03:34:29 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:16332 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751228AbWA0Ie3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 03:34:29 -0500
-Message-ID: <43D9DB12.20706@us.ibm.com>
-Date: Fri, 27 Jan 2006 00:34:26 -0800
-From: Sridhar Samudrala <sri@us.ibm.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Fri, 27 Jan 2006 03:42:02 -0500
+Received: from rwcrmhc14.comcast.net ([216.148.227.154]:42988 "EHLO
+	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1751228AbWA0ImB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 03:42:01 -0500
+Message-ID: <43D9DCD7.3090600@namesys.com>
+Date: Fri, 27 Jan 2006 00:41:59 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@kvack.org>
-CC: Matthew Dobson <colpatch@us.ibm.com>,
-       Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org,
-       andrea@suse.de, pavel@suse.cz, linux-mm@kvack.org
-Subject: Re: [patch 0/9] Critical Mempools
-References: <1138217992.2092.0.camel@localhost.localdomain> <Pine.LNX.4.62.0601260954540.15128@schroedinger.engr.sgi.com> <43D954D8.2050305@us.ibm.com> <Pine.LNX.4.62.0601261516160.18716@schroedinger.engr.sgi.com> <43D95BFE.4010705@us.ibm.com> <20060127000304.GG10409@kvack.org>
-In-Reply-To: <20060127000304.GG10409@kvack.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Jens Axboe <axboe@suse.de>
+CC: Edward Shishkin <edward@namesys.com>, LKML <linux-kernel@vger.kernel.org>,
+       Reiserfs mail-list <Reiserfs-List@namesys.com>
+Subject: Re: random minor benchmark: Re: Copy 20 tarfiles: ext2 vs (reiser4,
+ unixfile) vs (reiser4,cryptcompress)
+References: <43D7C6BE.1010804@namesys.com> <43D7CA7F.4010502@namesys.com> <20060126153343.GH4311@suse.de> <43D91225.3030605@namesys.com> <20060126185612.GM4311@suse.de> <43D933EB.6080009@namesys.com> <20060127080625.GS4311@suse.de> <43D9D681.7020002@namesys.com> <20060127082113.GV4311@suse.de>
+In-Reply-To: <20060127082113.GV4311@suse.de>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
-> On Thu, Jan 26, 2006 at 03:32:14PM -0800, Matthew Dobson wrote:
->   
->>> I thought the earlier __GFP_CRITICAL was a good idea.
->>>       
->> Well, I certainly could have used that feedback a month ago! ;)  The
->> general response to that patchset was overwhelmingly negative.  Yours is
->> the first vote in favor of that approach, that I'm aware of.
->>     
->
-> Personally, I'm more in favour of a proper reservation system.  mempools 
-> are pretty inefficient.  Reservations have useful properties, too -- one 
-> could reserve memory for a critical process to use, but allow the system 
-> to use that memory for easy to reclaim caches or to help with memory 
-> defragmentation (more free pages really helps the buddy allocator).
->
->   
->>> Gfp flag? Better memory reclaim functionality?
->>>       
->> Well, I've got patches that implement the GFP flag approach, but as I
->> mentioned above, that was poorly received.  Better memory reclaim is a
->> broad and general approach that I agree is useful, but will not necessarily
->> solve the same set of problems (though it would likely lessen the severity
->> somewhat).
->>     
->
-> Which areas are the priorities for getting this functionality into?  
-> Networking over particular sockets?  A GFP_ flag would plug into the current 
-> network stack trivially, as sockets already have a field to store the memory 
-> allocation flags.
->   
-Yes, i have posted patches that use this exact approach last month that 
-use a critical page pool with
-GFP_CRITICAL flag.
-      http://lkml.org/lkml/2005/12/14/65
-      http://lkml.org/lkml/2005/12/14/66
+Jens Axboe wrote:
 
-Thanks
-Sridhar
+>
+>Yeah and that's ok, I was just interested in seeing some more
+>interesting compression benchmarks so I wondered if you had done that.
+>
+>  
+>
+I think "random minor benchmark" was an apt description, yes.;-)
 
+First we will debug it fully. Then we will figure out how to change
+mongo so that the files do not consist entirely of the letter a as their
+contents, and run mongo on it. Probably we will find some way to slice
+up a linux kernel tar file into files of random sizes, and assume that
+is a fair thing to let it compress during mongo. Then, just so people
+won't think mongo is slanted in our favor we will do some cp -r's of
+large numbers of linux kernel source trees and time that also.
+
+Hans

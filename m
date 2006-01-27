@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWAZX47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWA0ABc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbWAZX47 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 18:56:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWAZX47
+	id S1751280AbWA0ABc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 19:01:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWA0ABc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 18:56:59 -0500
-Received: from nproxy.gmail.com ([64.233.182.199]:39293 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751230AbWAZX44 convert rfc822-to-8bit
+	Thu, 26 Jan 2006 19:01:32 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:49110 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751233AbWA0ABc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 18:56:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LtNKDic5Al1jWLQ0BUZzYU+UUKx1e2hQZ0ktoSeNELoMpHy5qRxgSfTPUTFwkhxJPKQ1ktSkkoW28JRlYLTk9zzfCW0ceH/sxXDR4XM8LsKrwOT7k1M1NKNzxUhkh/MUpYTYqOUWa1vysNirdZn3hrYR9jfFKUdfoAMkTo0wI1g=
-Message-ID: <58cb370e0601261556h727b2828r7216e2a8cb34ea0f@mail.gmail.com>
-Date: Fri, 27 Jan 2006 00:56:54 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: kobject_register failed for Promise_Old_IDE (-17)
-Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org, frankt@promise.com,
-       linux-ide@vger.kernel.org, Vasil Kolev <vasil@ludost.net>
-In-Reply-To: <1138175680.5857.4.camel@lyra.home.ludost.net>
+	Thu, 26 Jan 2006 19:01:32 -0500
+Date: Fri, 27 Jan 2006 01:06:30 +0100
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.16-rc1 - usb printer problems
+Message-ID: <20060127000630.GA13008@aitel.hist.no>
+References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1138093728.5828.8.camel@lyra.home.ludost.net>
-	 <20060124223527.GA26337@kroah.com>
-	 <58cb370e0601241458y6cdf702ey9caa261702a7948a@mail.gmail.com>
-	 <1138175680.5857.4.camel@lyra.home.ludost.net>
+In-Reply-To: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
+User-Agent: Mutt/1.5.11
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This problem cannot be reproduced now (as reported by
-Vasil in private mail) so it seems that it is not a kernel bug.
+There seems to be a usb printer problem in 2.6.16-rc1 (amd64)
 
-Bartlomiej
+I can print a page or two of graphichs (A4 maps), and then 
+my syslog fills up with these:
+kernel: drivers/usb/class/usblp.c: usblp0: error -19 reading printer status
+
+It is then time to power-cycle the printer, restart cups and
+maybe get another page out.  Or maybe not. Going back to 2.6.15 I don't
+see such problems, the printer cranks out page after page with ease.
+
+Known issue, or is some USB debugging in place?
+
+Helge Hafting

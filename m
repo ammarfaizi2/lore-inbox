@@ -1,56 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWA0AbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWA0Aed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964865AbWA0AbM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 19:31:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWA0AbM
+	id S1030244AbWA0Aed (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 19:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030249AbWA0Aed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 19:31:12 -0500
-Received: from hiauly1.hia.nrc.ca ([132.246.100.193]:31247 "EHLO
-	hiauly1.hia.nrc.ca") by vger.kernel.org with ESMTP id S964797AbWA0AbI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 19:31:08 -0500
-Message-Id: <200601270028.k0R0STBB021468@hiauly1.hia.nrc.ca>
-Subject: Re: [parisc-linux] Re: [PATCH 3/6] C-language equivalents of
-To: grundler@parisc-linux.org (Grant Grundler)
-Date: Thu, 26 Jan 2006 19:28:29 -0500 (EST)
-From: "John David Anglin" <dave@hiauly1.hia.nrc.ca>
-Cc: grundler@parisc-linux.org, mita@miraclelinux.com,
-       linux-kernel@vger.kernel.org, ink@jurassic.park.msu.ru, spyro@f2s.com,
-       dev-etrax@axis.com, dhowells@redhat.com, ysato@users.sourceforge.jp,
-       torvalds@osdl.org, linux-ia64@vger.kernel.org, takata@linux-m32r.org,
-       linux-m68k@vger.kernel.org, gerg@uclinux.org, linux-mips@linux-mips.org,
-       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
-       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
-       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
-       ultralinux@vger.kernel.org, uclinux-v850@lsi.nec.co.jp, ak@suse.de,
-       chris@zankel.net
-In-Reply-To: <20060126230443.GC13632@colo.lackof.org> from "Grant Grundler" at Jan 26, 2006 04:04:43 pm
-X-Mailer: ELM [version 2.4 PL25]
+	Thu, 26 Jan 2006 19:34:33 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:7657 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030244AbWA0Aec (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 19:34:32 -0500
+Message-ID: <43D96A93.9000600@us.ibm.com>
+Date: Thu, 26 Jan 2006 16:34:27 -0800
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+To: Christoph Lameter <clameter@engr.sgi.com>
+CC: linux-kernel@vger.kernel.org, sri@us.ibm.com, andrea@suse.de,
+       pavel@suse.cz, linux-mm@kvack.org
+Subject: Re: [patch 3/9] mempool - Make mempools NUMA aware
+References: <20060125161321.647368000@localhost.localdomain> <1138233093.27293.1.camel@localhost.localdomain> <Pine.LNX.4.62.0601260953200.15128@schroedinger.engr.sgi.com> <43D953C4.5020205@us.ibm.com> <Pine.LNX.4.62.0601261511520.18716@schroedinger.engr.sgi.com> <43D95A2E.4020002@us.ibm.com> <Pine.LNX.4.62.0601261525570.18810@schroedinger.engr.sgi.com> <43D96633.4080900@us.ibm.com> <Pine.LNX.4.62.0601261619030.19029@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0601261619030.19029@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yeah, about the same for parisc.
+Christoph Lameter wrote:
+> On Thu, 26 Jan 2006, Matthew Dobson wrote:
 > 
-> > Clearly the smallest of the lot with the smallest register pressure,
-> > being the best candidate out of the lot, whether we inline it or not.
 > 
-> Agreed. But I expect parisc will have to continue using it's asm
-> sequence and ignore the generic version. AFAIK, the compiler isn't that
-> good with instruction nullification and I have other issues I'd
-> rather work on.
+>>Allocations backed by a mempool must always be allocated via
+>>mempool_alloc() (or mempool_alloc_node() in this case).  What that means
+>>is, without a mempool_alloc_node() function, NO mempool backed allocations
+>>will be able to request a specific node, even when the system has PLENTY of
+>>memory!  This, IMO, is unacceptable.  Adding more NUMA-awareness to the
+>>mempool system allows us to keep the same slab behavior as before, as well
+>>as leaving us free to ignore the node requests when memory is low.
+> 
+> 
+> Ok. That makes sense. I thought the mempool_xxx functions were only for 
+> emergencies. But nevertheless you still duplicate all memory allocation 
+> functions. I already was a bit concerned when I added the _node stuff.
 
-I looked at the assembler code generated on parisc with 4.1.0 (prerelease).
-The toernig code is definitely inferior.  The mita sequence is four
-instructions longer than the arm sequence, but it didn't have any branches.
-The arm sequence has four branches.  Thus, it's not clear to me which
-would perform better in the real world.  There were no nullified instructions
-generated for any of the sequences.  However, neither is as good as the
-handcraft asm sequence currently being used.
+I'm glad we're on the same page now. :)  And yes, adding four "duplicate"
+*_mempool allocators was not my first choice, but I couldn't easily see a
+better way.
 
-Dave
--- 
-J. David Anglin                                  dave.anglin@nrc-cnrc.gc.ca
-National Research Council of Canada              (613) 990-0752 (FAX: 952-6602)
+
+> What may be better is to add some kind of "allocation policy" to an 
+> allocation. That allocation policy could require the allocation on a node, 
+> distribution over a series of nodes, require allocation on a particular 
+> node, or allow the use of emergency pools etc.
+> 
+> Maybe unify all the different page allocations to one call and do the 
+> same with the slab allocator.
+
+Hmmm...  I kinda like that.  Some sort of
+
+struct allocation_policy
+{
+	enum       policy_type;
+	nodemask_t nodes;
+	mempool_t  critical_pool;
+}
+
+that could be passed to __alloc_pages()?
+
+That seems a bit beyond the scope of what I'd hoped for this patch series,
+but if an approach like this is believed to be generally useful, it's
+something I'm more than willing to work on...
+
+-Matt

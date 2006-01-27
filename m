@@ -1,70 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWA0ATQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWA0AUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932362AbWA0ATQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 19:19:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWA0ATQ
+	id S964779AbWA0AUi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 19:20:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWA0AUi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 19:19:16 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:8325 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932362AbWA0ATP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 19:19:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iXhOogQSqngiCYnUCdUVU1MUHNT+wcLGccX0Z3zRXjzkTMZ8MUShXJJxAecHulEZ1ka65PEs3FGXWtSXdoKpRbaHxqEeYYnaK+iSgHTaUSrF7Jj+EY/VxvU2qrHHobajuZaXaFE0zMsd5ERY7+Lwl0D5W/lQ9zueQ8MGXUtYzg4=
-Message-ID: <787b0d920601261619l43bb95f5k64ddd338f377e56a@mail.gmail.com>
-Date: Thu, 26 Jan 2006 19:19:14 -0500
-From: Albert Cahalan <acahalan@gmail.com>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org
-In-Reply-To: <43D8D396.nailE2X31OHFU@burner>
+	Thu, 26 Jan 2006 19:20:38 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:27655 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S964779AbWA0AUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 19:20:37 -0500
+Message-ID: <43D96758.4030808@shadowen.org>
+Date: Fri, 27 Jan 2006 00:20:40 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
-	 <43D7A7F4.nailDE92K7TJI@burner>
-	 <787b0d920601251826l6a2491ccy48d22d33d1e2d3e7@mail.gmail.com>
-	 <43D8D396.nailE2X31OHFU@burner>
+To: Eric Dumazet <dada1@cosmosbay.com>
+CC: Pekka Enberg <penberg@cs.helsinki.fi>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1-mm3
+References: <20060124232406.50abccd1.akpm@osdl.org>	 <43D785E1.4020708@shadowen.org>	 <84144f020601250644h6ca4e407q2e15aa53b50ef509@mail.gmail.com>	 <43D7AB49.2010709@shadowen.org> <1138212981.8595.6.camel@localhost>	 <43D7E83D.7040603@shadowen.org> <84144f020601252303x7e2a75c6rdfe789d3477d9317@mail.gmail.com>
+In-Reply-To: <84144f020601252303x7e2a75c6rdfe789d3477d9317@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/26/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
-> Albert Cahalan <acahalan@gmail.com> wrote:
+Pekka Enberg wrote:
+> Hi Andy,
+> 
+> Pekka Enberg wrote:
+> 
+>>>Does vanilla 2.6.16-rc1 work for you? The oops definitely makes me think
+>>>it's slab related but the other patches don't seem likely suspects.
+> 
+> 
+> On 1/25/06, Andy Whitcroft <apw@shadowen.org> wrote:
+> 
+>>None of the other patches you suggested seem to be it either :/.  Yes
+>>2.6.16-rc1 was ok on the boxs in question.
+> 
+> 
+> Then I dont see how it could be slab related. At this point, the only
+> suggestion I have is bisecting akpm-style:
 
-> > You can't fool me, because I looked at the cdrecord source
-> > code and at the documented APIs for various OSes.
->
-> I am sorry to see that you did not look close enough...
-...
-> > Names can be handled by Windows, FreeBSD, MacOS X,
-> > Linux, OpenBSD, Solaris, HP-UX, AIX, and IRIX.
-> > That's everything that isn't end-of-lifed.
+Yes.  I think I have this one.  It appears that the patch below is the
+trigger for all our recent panic woe's.  The last of the testing should
+complete in the next few hours and I will be able to confirm that
+hypothesis; results so far are all good.
 
-OK, this is getting silly and downright offensive. I encourage
-everyone else to look over the code to see that I am right.
+	reduce-size-of-percpudata-and-make-sure-per_cpuobject.patch
 
-I may just be crazy enough to fork this project. I very nearly
-did about 18 months ago. I can't very well do this alone,
-because I don't have all the hardware. (It's either cdrecord
-or Asterisk -- I'm not sure which one pisses me off the most)
+>From the nature of the patch I would guess its likely not the patch
+itself that is at issue but some errant user of percpu space.  Perhaps a
+more gentle approach is needed such that we get to the point at which
+consoles are available and we can report the issue (at least as an
+option).
 
-Me:
+Eric can give us some help confirming whether there is an issue with the
+patch or finding the source of the errant access to it?
 
-* was an RTOS developer
-* day job is all about secure software
-* the procps maintainer
-* running Linux 2.6.xx only
-* using FireWire, which is totally hot-plug
+Cheers.
 
-Perhaps the first thing to do would be to find a list of all the
-apps that depend on cdrecord. Their interface to cdrecord
-needs to be documented so that a compatibility script can
-be made.
-
-Matthias, can you give me a hand with this? I'll need a way
-to sort and publish incoming patches, letting them sit for a
-while. (like what Andrew Morton does for the kernel) This
-can't work like procps because the hardware varies too much.
+-apw

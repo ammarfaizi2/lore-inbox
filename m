@@ -1,75 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030307AbWA0LV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbWA0LWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030307AbWA0LV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 06:21:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbWA0LV4
+	id S1030308AbWA0LWp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 06:22:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWA0LWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 06:21:56 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:19300 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964995AbWA0LVz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 06:21:55 -0500
-Date: Fri, 27 Jan 2006 12:23:52 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Neil Brown <neilb@suse.de>
-Cc: Chase Venters <chase.venters@clientec.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, akpm@osdl.org, a.titov@host.bg,
-       askernel2615@dsgml.com, jamie@audible.transient.net
-Subject: Re: More information on scsi_cmd_cache leak... (bisect)
-Message-ID: <20060127112352.GF4311@suse.de>
-References: <200601270410.06762.chase.venters@clientec.com> <17369.65530.747867.844964@cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 27 Jan 2006 06:22:45 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:23514 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1030308AbWA0LWo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 06:22:44 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [PATCH -mm] swsusp: userland interface (rev 2)
+Date: Fri, 27 Jan 2006 12:24:12 +0100
+User-Agent: KMail/1.9
+Cc: Pavel Machek <pavel@ucw.cz>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <200601240929.37676.rjw@sisk.pl> <20060126020926.GR5501@mail> <20060127034248.GA27861@vrfy.org>
+In-Reply-To: <20060127034248.GA27861@vrfy.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <17369.65530.747867.844964@cse.unsw.edu.au>
+Message-Id: <200601271224.12983.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27 2006, Neil Brown wrote:
-> On Friday January 27, chase.venters@clientec.com wrote:
-> > Greetings,
-> > 	Just a quick recap - there are at least 4 reports of 2.6.15 users 
-> > experiencing severe slab leaks with scsi_cmd_cache. It seems that a few of us 
-> > have a board (Asus P5GDC-V Deluxe) in common. We seem to have raid in common. 
-> > 	After dealing with this leak for a while, I decided to do some dancing around 
-> > with git bisect. I've landed on a possible point of regression:
-> > 
-> > commit: a9701a30470856408d08657eb1bd7ae29a146190
-> > [PATCH] md: support BIO_RW_BARRIER for md/raid1
-> > 
-> > 	I spent about an hour and a half reading through the patch, trying to see if 
-> > I could make sense of what might be wrong. The result (after I dug into the 
-> > code to make a change I foolishly thought made sense) was a hung kernel.
-> > 	This is important because when I rebooted into the kernel that had been 
-> > giving me trouble, it started an md resync and I'm now watching (at least 
-> > during this resync) the slab usage for scsi_cmd_cache stay sane:
-> > 
-> > turbotaz ~ # cat /proc/slabinfo | grep scsi_cmd_cache
-> > scsi_cmd_cache        30     30    384   10    1 : tunables   54   27    8 : 
-> > slabdata      3      3      0
-> > 
-> 
-> This suggests that the problem happens when a BIO_RW_BARRIER write is
-> sent to the device.  With this patch, md flags all superblock writes
-> as BIO_RW_BARRIER However md is not so likely to update the superblock often
-> during a resync.
-> 
-> There is a (rough) count of the number of superblock writes in the
-> "Events" counter which "mdadm -D" will display.
-> You could try collecting 'Events' counter together with the
-> 'active_objs' count from /proc/slabinfo and graph the pairs - see if
-> they are linear.
-> 
-> I believe a BIO_RW_BARRIER is likely to send some sort of 'flush'
-> command to the device, and the driver for your particular device may
-> well be losing scsi_cmd_cache allocation when doing that, but I leave
-> that to someone how knows more about that code.
+Hi,
 
-I already checked up on that since I suspected barriers initially. The
-path there for scsi is sd.c:sd_issue_flush() which looks pretty straight
-forward. In the end it goes through the block layer and gets back to the
-SCSI layer as a regular REQ_BLOCK_PC request.
+On Friday, 27 January 2006 04:42, Kay Sievers wrote:
+> On Wed, Jan 25, 2006 at 09:09:27PM -0500, Jim Crilly wrote:
+> > On 01/24/06 11:44:37PM +0100, Pavel Machek wrote:
+> > > On Út 24-01-06 17:38:34, Dave Jones wrote:
+> > > >  > We'll of course try to get the interface right at the first
+> > > >  > try. OTOH... if wrong interface is in kernel for a month, I do not
+> > > >  > think it is reasonable to keep supporting that wrong interface for a
+> > > >  > year before it can be removed. One month of warning should be fair in
+> > > >  > such case...
+> > > > 
+> > > > Users want to be able to boot between different kernels.
+> > > > Tying functionality to specific versions of userspace completely
+> > > > screws them over.
+> > > 
+> > > Well, by the time we have any _users_ interface should be
+> > > stable. Actually I believe interface will be stable from day 0, but...
+> > >
+> > I'm sure gregkh thought the same thing with about sysfs and udev and we've
+> > seen how well that's worked out...
+> 
+> Well, that was just an unfortunate "bug".
+> 
+> Declaring interfaces "stable" makes as much sense as all the other
+> tries to define crazy enterprise "standards" nobody follows in real
+> world.
+> 
+> In a developing environment, interfaces _become_ stable and don't get
+> _declared_ by anybody as such. We are not talking about syscall
+> interfaces or things that are simple enough to be kept stable, if you
+> cross a certain level of complexity, you just can't apply these rules
+> anymore.
+> 
+> Interfaces mature over the time they get used. Only the _use_ of it
+> collects the needed information to form the model behind it. They get
+> improved up to the point that changing the interface causes more
+> pain than it's worth this change. Then an interface has _become_ "stable"
+> cause it makes sense at that point.
 
--- 
-Jens Axboe
+Agreed.
 
+> "by the time we have any _users_ interface should be stable", that's
+> such a nonsense. If you don't have any user, you don't know if this
+> interface works at all and only if it gets used you get the needed
+> feedback to improve it.
+
+I think Pavel meant "users who don't work on it themselves".
+
+Greetings,
+Rafael

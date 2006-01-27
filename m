@@ -1,61 +1,351 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751504AbWA0QN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbWA0QYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751504AbWA0QN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 11:13:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWA0QNz
+	id S1751505AbWA0QYV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 11:24:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWA0QYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 11:13:55 -0500
-Received: from [212.76.81.158] ([212.76.81.158]:4625 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1751495AbWA0QNx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 11:13:53 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: "Ed L. Cashin" <ecashin@coraid.com>
-Subject: Re: [PATCH 2.6.15-git9a] aoe [1/1]: do not stop retransmit timer when device goes down
-Date: Fri, 27 Jan 2006 19:12:52 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
-       netdev@vger.kernel.org
-References: <200601260104.37649.a1426z@gawab.com>
-In-Reply-To: <200601260104.37649.a1426z@gawab.com>
+	Fri, 27 Jan 2006 11:24:21 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:11536 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751492AbWA0QYT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 11:24:19 -0500
+To: Ariel <askernel2615@dsgml.com>
+Cc: Jamie Heilman <jamie@audible.transient.net>,
+       Chase Venters <chase.venters@clientec.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: memory leak in scsi_cmd_cache 2.6.15
+References: <Pine.LNX.4.62.0601212105590.22868@pureeloreel.qftzy.pbz>
+	<Pine.LNX.4.62.0601222045180.12815@pureeloreel.qftzy.pbz>
+	<1137997104.2977.7.camel@laptopd505.fenrus.org>
+	<200601230029.12674.chase.venters@clientec.com>
+	<Pine.LNX.4.62.0601230136080.22979@pureeloreel.qftzy.pbz>
+	<20060123072556.GC15490@fifty-fifty.audible.transient.net>
+	<Pine.LNX.4.62.0601261312160.1174@pureeloreel.qftzy.pbz>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: Our Lady of Perpetual Garbage Collection
+Date: Fri, 27 Jan 2006 16:23:10 +0000
+In-Reply-To: <Pine.LNX.4.62.0601261312160.1174@pureeloreel.qftzy.pbz> (Ariel's
+ message of "26 Jan 2006 18:13:31 -0000")
+Message-ID: <87ek2td4i9.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601271912.53109.a1426z@gawab.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed L. Cashin wrote:
-> On Thu, Jan 26, 2006 at 01:04:37AM +0300, Al Boldi wrote:
-> > Ed L. Cashin wrote:
-> > > This patch is a bugfix that follows and depends on the
-> > > eight aoe driver patches sent January 19th.
-> >
-> > Will they also fix this?
-> > Or is this an md bug?
->
-> No, this patch fixes a bug that would cause an AoE device to be
-> totally unusable, so I think mdadm or mkraid would get an error that
-> the device was not available before it tried to make a new md device.
->
-> > It only happens with aoe.
->
-> It looks like in setting up the raid, sysfs_create_link probably has
-> this going off:
->
->         BUG_ON(!kobj || !kobj->dentry || !name);
->
-> > Also, why is aoe slower than nbd?
->
-> It wasn't when I tried it.  The userland vblade is slow.  Maybe that's
-> affecting your results?
+On 26 Jan 2006, Ariel noted:
+> Is this good or bad? I'm guessing it means it's still leaking. So it's
+> really starting to look like ata_piix is the problem. But we need someone
+> who has the leak to remove that and see if it helps. I can't, since my
+> drives are connected to it.
 
-Why is the userland vblade server slower than the userland nbd-server?
+FWIW, a bit of negative-confirmatory evidence: I have a sym53c875
+and non-SATA IDE drive on this 2.6.15.1, and there is no leak,
+nor was there in 2.6.15:
 
-Thanks!
+    11     11 100%    0.34K      1       11         4K scsi_cmd_cache
 
---
-Al
+Loaded modules:
 
+Module                  Size  Used by
+loop                   11304  0
+
+.config attached.
+
+CONFIG_X86_32=y
+CONFIG_SEMAPHORE_SLEEPERS=y
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_ARCH_MAY_HAVE_PC_FDC=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_SYSCTL_URANDOM=y
+CONFIG_HOTPLUG=y
+CONFIG_KOBJECT_UEVENT=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_CC_OPTIMIZE_FOR_SIZE=y
+CONFIG_KALLSYMS=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
+CONFIG_BASE_SMALL=0
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_KMOD=y
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=m
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=m
+CONFIG_DEFAULT_DEADLINE=y
+CONFIG_DEFAULT_IOSCHED="deadline"
+CONFIG_X86_PC=y
+CONFIG_M586MMX=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_X86_F00F_BUG=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_CMPXCHG64=y
+CONFIG_X86_ALIGNMENT_16=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_TSC=y
+CONFIG_PREEMPT_NONE=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+CONFIG_PROC_MM=y
+CONFIG_SELECT_MEMORY_MODEL=y
+CONFIG_FLATMEM_MANUAL=y
+CONFIG_FLATMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+CONFIG_SPLIT_PTLOCK_CPUS=4
+CONFIG_REGPARM=y
+CONFIG_SECCOMP=y
+CONFIG_HZ_100=y
+CONFIG_HZ=100
+CONFIG_PHYSICAL_START=0x100000
+CONFIG_PM=y
+CONFIG_PM_LEGACY=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_ISA_DMA_API=y
+CONFIG_ISA=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_FIB_HASH=y
+CONFIG_NET_IPGRE=m
+CONFIG_INET_DIAG=y
+CONFIG_INET_TCP_DIAG=y
+CONFIG_TCP_CONG_BIC=y
+CONFIG_BRIDGE=y
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_CRYPTOLOOP=m
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_SPI_ATTRS=y
+CONFIG_SCSI_SYM53C8XX_2=y
+CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=0
+CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
+CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
+CONFIG_SCSI_QLA2XXX=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_DM=y
+CONFIG_DM_CRYPT=y
+CONFIG_DM_SNAPSHOT=y
+CONFIG_DM_MIRROR=y
+CONFIG_DM_ZERO=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_TUN=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=y
+CONFIG_NET_PCI=y
+CONFIG_EEPRO100=y
+CONFIG_NATSEMI=y
+CONFIG_PLIP=m
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_SERIO_LIBPS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_FRANDOM=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_RTC=y
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+CONFIG_I2C_ISA=y
+CONFIG_HWMON=y
+CONFIG_HWMON_VID=y
+CONFIG_SENSORS_LM78=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_SOUND=m
+CONFIG_SND=m
+CONFIG_SND_TIMER=m
+CONFIG_SND_PCM=m
+CONFIG_SND_HWDEP=m
+CONFIG_SND_RAWMIDI=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_SEQ_DUMMY=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_SEQ_RTCTIMER_DEFAULT=y
+CONFIG_SND_GENERIC_DRIVER=y
+CONFIG_SND_MPU401_UART=m
+CONFIG_SND_OPL3_LIB=m
+CONFIG_SND_MPU401=m
+CONFIG_SND_SBAWE=m
+CONFIG_SND_SB16_CSP=y
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_DYNAMIC_MINORS=y
+CONFIG_USB_UHCI_HCD=y
+CONFIG_USB_STORAGE=y
+CONFIG_USB_STORAGE_ISD200=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT3_FS=y
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISERFS_FS=y
+CONFIG_REISERFS_FS_XATTR=y
+CONFIG_REISERFS_FS_POSIX_ACL=y
+CONFIG_FS_POSIX_ACL=y
+CONFIG_MINIX_FS=m
+CONFIG_INOTIFY=y
+CONFIG_QUOTA=y
+CONFIG_QFMT_V2=y
+CONFIG_QUOTACTL=y
+CONFIG_DNOTIFY=y
+CONFIG_FUSE_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=m
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_PROC_FS=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_HUGETLBFS=y
+CONFIG_HUGETLB_PAGE=y
+CONFIG_RAMFS=y
+CONFIG_RELAYFS_FS=m
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFS_V3_ACL=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V2_ACL=y
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_V3_ACL=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_NFS_ACL_SUPPORT=y
+CONFIG_NFS_COMMON=y
+CONFIG_SUNRPC=y
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_852=m
+CONFIG_NLS_ASCII=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_HMAC=y
+CONFIG_CRYPTO_MD4=m
+CONFIG_CRYPTO_MD5=m
+CONFIG_CRYPTO_SHA1=m
+CONFIG_CRYPTO_SHA256=m
+CONFIG_CRYPTO_SHA512=m
+CONFIG_CRYPTO_DES=m
+CONFIG_CRYPTO_BLOWFISH=m
+CONFIG_CRYPTO_TWOFISH=m
+CONFIG_CRYPTO_SERPENT=m
+CONFIG_CRYPTO_CAST5=m
+CONFIG_CRYPTO_CAST6=m
+CONFIG_CRC32=y
+CONFIG_ZLIB_INFLATE=y
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_X86_BIOS_REBOOT=y
+
+-- 
+`I won't make a secret of the fact that your statement/question
+ sent a wave of shock and horror through us.' --- David Anderson

@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030281AbWA0D1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbWA0DYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030281AbWA0D1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 22:27:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030284AbWA0D1Y
+	id S1030275AbWA0DYU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 22:24:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030277AbWA0DYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 22:27:24 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:21937 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1030281AbWA0D1Y (ORCPT
+	Thu, 26 Jan 2006 22:24:20 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:54663 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030275AbWA0DYT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 22:27:24 -0500
-Date: Thu, 26 Jan 2006 22:23:10 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, sri@us.ibm.com, andrea@suse.de,
-       pavel@suse.cz, linux-mm@kvack.org
-Subject: Re: [patch 3/9] mempool - Make mempools NUMA aware
-Message-ID: <20060127032307.GI10409@kvack.org>
-References: <20060125161321.647368000@localhost.localdomain> <1138233093.27293.1.camel@localhost.localdomain> <20060127002331.GH10409@kvack.org> <43D96AEC.4030200@us.ibm.com>
+	Thu, 26 Jan 2006 22:24:19 -0500
+Date: Thu, 26 Jan 2006 19:23:42 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: dada1@cosmosbay.com, penberg@cs.helsinki.fi, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1-mm3
+Message-Id: <20060126192342.7341f9b2.akpm@osdl.org>
+In-Reply-To: <43D96758.4030808@shadowen.org>
+References: <20060124232406.50abccd1.akpm@osdl.org>
+	<43D785E1.4020708@shadowen.org>
+	<84144f020601250644h6ca4e407q2e15aa53b50ef509@mail.gmail.com>
+	<43D7AB49.2010709@shadowen.org>
+	<1138212981.8595.6.camel@localhost>
+	<43D7E83D.7040603@shadowen.org>
+	<84144f020601252303x7e2a75c6rdfe789d3477d9317@mail.gmail.com>
+	<43D96758.4030808@shadowen.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43D96AEC.4030200@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 26, 2006 at 04:35:56PM -0800, Matthew Dobson wrote:
-> Ummm...  ok?  But with only a simple flag, how do you know *which* mempool
-> you're trying to use?  What if you want to use a mempool for a non-slab
-> allocation?
+Andy Whitcroft <apw@shadowen.org> wrote:
+>
+> Yes.  I think I have this one.  It appears that the patch below is the
+>  trigger for all our recent panic woe's.  The last of the testing should
+>  complete in the next few hours and I will be able to confirm that
+>  hypothesis; results so far are all good.
+> 
+>  	reduce-size-of-percpudata-and-make-sure-per_cpuobject.patch
 
-Are there any?  A quick poke around has only found a couple of places 
-that use kzalloc(), which is still quite effectively a slab allocation.  
-There seems to be just one page user, the dm-crypt driver, which could 
-be served by a reservation scheme.
+That patch did have some missed conversions, which might well explain the
+crash.
 
-		-ben
--- 
-"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
-and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.
+Thanks for narrowing it down - I'll keep that patch in next -mm (and will
+include the known fixups).  Could you please boot test that?  If we're
+still in trouble, I'll drop it.
+

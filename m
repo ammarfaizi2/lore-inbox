@@ -1,51 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWA0AWD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWA0A1W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964798AbWA0AWD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 19:22:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbWA0AWB
+	id S1751374AbWA0A1W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 19:27:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWA0A1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 19:22:01 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:34539 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S964798AbWA0AWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 19:22:00 -0500
-Date: Thu, 26 Jan 2006 16:21:43 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Matthew Dobson <colpatch@us.ibm.com>
-cc: linux-kernel@vger.kernel.org, sri@us.ibm.com, andrea@suse.de,
-       pavel@suse.cz, linux-mm@kvack.org
-Subject: Re: [patch 3/9] mempool - Make mempools NUMA aware
-In-Reply-To: <43D96633.4080900@us.ibm.com>
-Message-ID: <Pine.LNX.4.62.0601261619030.19029@schroedinger.engr.sgi.com>
-References: <20060125161321.647368000@localhost.localdomain>
- <1138233093.27293.1.camel@localhost.localdomain>
- <Pine.LNX.4.62.0601260953200.15128@schroedinger.engr.sgi.com>
- <43D953C4.5020205@us.ibm.com> <Pine.LNX.4.62.0601261511520.18716@schroedinger.engr.sgi.com>
- <43D95A2E.4020002@us.ibm.com> <Pine.LNX.4.62.0601261525570.18810@schroedinger.engr.sgi.com>
- <43D96633.4080900@us.ibm.com>
+	Thu, 26 Jan 2006 19:27:22 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:22960 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751374AbWA0A1V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 19:27:21 -0500
+Message-ID: <43D968E4.5020300@us.ibm.com>
+Date: Thu, 26 Jan 2006 16:27:16 -0800
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Benjamin LaHaise <bcrl@kvack.org>
+CC: Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org,
+       sri@us.ibm.com, andrea@suse.de, pavel@suse.cz, linux-mm@kvack.org
+Subject: Re: [patch 0/9] Critical Mempools
+References: <1138217992.2092.0.camel@localhost.localdomain> <Pine.LNX.4.62.0601260954540.15128@schroedinger.engr.sgi.com> <43D954D8.2050305@us.ibm.com> <Pine.LNX.4.62.0601261516160.18716@schroedinger.engr.sgi.com> <43D95BFE.4010705@us.ibm.com> <20060127000304.GG10409@kvack.org>
+In-Reply-To: <20060127000304.GG10409@kvack.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Jan 2006, Matthew Dobson wrote:
+Benjamin LaHaise wrote:
+> On Thu, Jan 26, 2006 at 03:32:14PM -0800, Matthew Dobson wrote:
+> 
+>>>I thought the earlier __GFP_CRITICAL was a good idea.
+>>
+>>Well, I certainly could have used that feedback a month ago! ;)  The
+>>general response to that patchset was overwhelmingly negative.  Yours is
+>>the first vote in favor of that approach, that I'm aware of.
+> 
+> 
+> Personally, I'm more in favour of a proper reservation system.  mempools 
+> are pretty inefficient.  Reservations have useful properties, too -- one 
+> could reserve memory for a critical process to use, but allow the system 
+> to use that memory for easy to reclaim caches or to help with memory 
+> defragmentation (more free pages really helps the buddy allocator).
 
-> Allocations backed by a mempool must always be allocated via
-> mempool_alloc() (or mempool_alloc_node() in this case).  What that means
-> is, without a mempool_alloc_node() function, NO mempool backed allocations
-> will be able to request a specific node, even when the system has PLENTY of
-> memory!  This, IMO, is unacceptable.  Adding more NUMA-awareness to the
-> mempool system allows us to keep the same slab behavior as before, as well
-> as leaving us free to ignore the node requests when memory is low.
+That's an interesting idea...  Keep track of the number of pages "reserved"
+but allow them to be used something like read-only pagecache...  Something
+along those lines would most certainly be easier on the page allocator,
+since it wouldn't have chunks of pages "missing" for long periods of time.
 
-Ok. That makes sense. I thought the mempool_xxx functions were only for 
-emergencies. But nevertheless you still duplicate all memory allocation 
-functions. I already was a bit concerned when I added the _node stuff.
 
-What may be better is to add some kind of "allocation policy" to an 
-allocation. That allocation policy could require the allocation on a node, 
-distribution over a series of nodes, require allocation on a particular 
-node, or allow the use of emergency pools etc.
+>>>Gfp flag? Better memory reclaim functionality?
+>>
+>>Well, I've got patches that implement the GFP flag approach, but as I
+>>mentioned above, that was poorly received.  Better memory reclaim is a
+>>broad and general approach that I agree is useful, but will not necessarily
+>>solve the same set of problems (though it would likely lessen the severity
+>>somewhat).
+> 
+> 
+> Which areas are the priorities for getting this functionality into?  
+> Networking over particular sockets?  A GFP_ flag would plug into the current 
+> network stack trivially, as sockets already have a field to store the memory 
+> allocation flags.
 
-Maybe unify all the different page allocations to one call and do the 
-same with the slab allocator.
+The impetus for this work was getting this functionality into the
+networking stack, to keep the network alive under periods of extreme VM
+pressure.  Keeping track of 'criticalness' on a per-socket basis is good,
+but the problem is the receive side.  Networking packets are received and
+put into skbuffs before there is any concept of what socket they belong to.
+ So to really handle incoming traffic under extreme memory pressure would
+require something beyond just a per-socket flag.
+
+I have to say I'm somewhat amused by how much support the old approach is
+getting now that I've spent a few weeks going back to the drawing board and
+coming up with what I thought was a more general solution! :\
+
+-Matt

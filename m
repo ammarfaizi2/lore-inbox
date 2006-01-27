@@ -1,39 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWA0ABc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWA0AHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbWA0ABc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 19:01:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWA0ABc
+	id S1751233AbWA0AHU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 19:07:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWA0AHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 19:01:32 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:49110 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751233AbWA0ABc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 19:01:32 -0500
-Date: Fri, 27 Jan 2006 01:06:30 +0100
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.16-rc1 - usb printer problems
-Message-ID: <20060127000630.GA13008@aitel.hist.no>
-References: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
-MIME-Version: 1.0
+	Thu, 26 Jan 2006 19:07:20 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:27303 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751233AbWA0AHT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 19:07:19 -0500
+Date: Thu, 26 Jan 2006 19:03:04 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org,
+       sri@us.ibm.com, andrea@suse.de, pavel@suse.cz, linux-mm@kvack.org
+Subject: Re: [patch 0/9] Critical Mempools
+Message-ID: <20060127000304.GG10409@kvack.org>
+References: <1138217992.2092.0.camel@localhost.localdomain> <Pine.LNX.4.62.0601260954540.15128@schroedinger.engr.sgi.com> <43D954D8.2050305@us.ibm.com> <Pine.LNX.4.62.0601261516160.18716@schroedinger.engr.sgi.com> <43D95BFE.4010705@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0601170001530.13339@g5.osdl.org>
-User-Agent: Mutt/1.5.11
-From: Helge Hafting <helgehaf@aitel.hist.no>
+In-Reply-To: <43D95BFE.4010705@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There seems to be a usb printer problem in 2.6.16-rc1 (amd64)
+On Thu, Jan 26, 2006 at 03:32:14PM -0800, Matthew Dobson wrote:
+> > I thought the earlier __GFP_CRITICAL was a good idea.
+> 
+> Well, I certainly could have used that feedback a month ago! ;)  The
+> general response to that patchset was overwhelmingly negative.  Yours is
+> the first vote in favor of that approach, that I'm aware of.
 
-I can print a page or two of graphichs (A4 maps), and then 
-my syslog fills up with these:
-kernel: drivers/usb/class/usblp.c: usblp0: error -19 reading printer status
+Personally, I'm more in favour of a proper reservation system.  mempools 
+are pretty inefficient.  Reservations have useful properties, too -- one 
+could reserve memory for a critical process to use, but allow the system 
+to use that memory for easy to reclaim caches or to help with memory 
+defragmentation (more free pages really helps the buddy allocator).
 
-It is then time to power-cycle the printer, restart cups and
-maybe get another page out.  Or maybe not. Going back to 2.6.15 I don't
-see such problems, the printer cranks out page after page with ease.
+> > Gfp flag? Better memory reclaim functionality?
+> 
+> Well, I've got patches that implement the GFP flag approach, but as I
+> mentioned above, that was poorly received.  Better memory reclaim is a
+> broad and general approach that I agree is useful, but will not necessarily
+> solve the same set of problems (though it would likely lessen the severity
+> somewhat).
 
-Known issue, or is some USB debugging in place?
+Which areas are the priorities for getting this functionality into?  
+Networking over particular sockets?  A GFP_ flag would plug into the current 
+network stack trivially, as sockets already have a field to store the memory 
+allocation flags.
 
-Helge Hafting
+		-ben
+-- 
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

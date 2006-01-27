@@ -1,55 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbWA0MvR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030324AbWA0MwB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965014AbWA0MvR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 07:51:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbWA0MvR
+	id S1030324AbWA0MwB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 07:52:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbWA0MwB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 07:51:17 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:26781 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S965007AbWA0MvQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 07:51:16 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: [-mm patch] drivers/net/wireless/tiacx/: remove code for WIRELESS_EXT < 18
-Date: Fri, 27 Jan 2006 14:49:49 +0200
-User-Agent: KMail/1.8.2
-Cc: Adrian Bunk <bunk@stusta.de>, acx100-devel@lists.sourceforge.net,
-       "John W. Linville" <linville@tuxdriver.com>, jgarzik@pobox.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20060122171104.GC10003@stusta.de> <200601271219.24332.vda@ilport.com.ua> <1138362557.5983.26.camel@localhost>
-In-Reply-To: <1138362557.5983.26.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Fri, 27 Jan 2006 07:52:01 -0500
+Received: from mail.renesas.com ([202.234.163.13]:57263 "EHLO
+	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S1030324AbWA0Mv7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 07:51:59 -0500
+Date: Fri, 27 Jan 2006 21:51:47 +0900 (JST)
+Message-Id: <20060127.215147.670306403.takata.hirokazu@renesas.com>
+To: mita@miraclelinux.com
+Cc: linux-kernel@vger.kernel.org, rth@twiddle.net, ink@jurassic.park.msu.ru,
+       rmk@arm.linux.org.uk, spyro@f2s.com, dev-etrax@axis.com,
+       dhowells@redhat.com, ysato@users.sourceforge.jp, torvalds@osdl.org,
+       linux-ia64@vger.kernel.org, takata@linux-m32r.org,
+       linux-m68k@vger.kernel.org, gerg@uclinux.org, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, uclinux-v850@lsi.nec.co.jp, ak@suse.de,
+       chris@zankel.net, akpm@osdl.org
+Subject: Re: [PATCH 3/6] C-language equivalents of include/asm-*/bitops.h
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <20060125113206.GD18584@miraclelinux.com>
+References: <20060125112625.GA18584@miraclelinux.com>
+	<20060125113206.GD18584@miraclelinux.com>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.18 (Social Property)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601271449.49226.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 27 January 2006 13:49, Johannes Berg wrote:
-> On Fri, 2006-01-27 at 12:19 +0200, Denis Vlasenko wrote:
+Hello Mita-san, and folks,
+
+From: mita@miraclelinux.com (Akinobu Mita)
+Subject: [PATCH 3/6] C-language equivalents of include/asm-*/bitops.h
+Date: Wed, 25 Jan 2006 20:32:06 +0900
+> o generic {,test_and_}{set,clear,change}_bit() (atomic bitops)
 > 
-> > I very much want to get rid of all remaining compat cruft, and
-> > I plan to do it as soon as acx will be present in mainline kernel.
+> This patch introduces the C-language equivalents of the functions below:
+> void set_bit(int nr, volatile unsigned long *addr);
+> void clear_bit(int nr, volatile unsigned long *addr);
+...
+> int test_and_change_bit(int nr, volatile unsigned long *addr);
 > 
-> I doubt you'll get it merged with the compat cruft.
+> HAVE_ARCH_ATOMIC_BITOPS is defined when the architecture has its own
+> version of these functions.
+> 
+> This code largely copied from:
+> include/asm-powerpc/bitops.h
+> include/asm-parisc/bitops.h
+> include/asm-parisc/atomic.h
 
-What cruft? This?
+Could you tell me more about the new generic {set,clear,test}_bit()
+routines?
 
-# grep -r WIRELESS_EXT .
-./pci.c:                ndev->name, WIRELESS_EXT, UTS_RELEASE);
-./common.c:             "Wireless extension version:\t" STRING(WIRELESS_EXT) "\n"
-./acx_struct.h:#ifdef WIRELESS_EXT
-./acx_struct.h:#if WIRELESS_EXT > 15
-./ioctl.c:      range->we_version_compiled = WIRELESS_EXT;
+Why do you copied these routines from parisc and employed them
+ as generic ones?
+I'm not sure whether these generic {set,clear,test}_bit() routines
+are really generic or not.
 
-I consider this to be a really modest amount of compat code
-which makes driver users happy (that fraction of it which is not
-willing to run -mm).
+> +/* Can't use raw_spin_lock_irq because of #include problems, so
+> + * this is the substitute */
+> +#define _atomic_spin_lock_irqsave(l,f) do {	\
+> +	raw_spinlock_t *s = ATOMIC_HASH(l);	\
+> +	local_irq_save(f);			\
+> +	__raw_spin_lock(s);			\
+> +} while(0)
+> +
+> +#define _atomic_spin_unlock_irqrestore(l,f) do {	\
+> +	raw_spinlock_t *s = ATOMIC_HASH(l);		\
+> +	__raw_spin_unlock(s);				\
+> +	local_irq_restore(f);				\
+> +} while(0)
 
-However, I would remove even that at Jeff's or Andrew's request,
-or without anyone's request if acx will be merged to Linus tree.
---
-vda
+Is there a possibility that these routines affect for archs
+with no HAVE_ARCH_ATOMIC_BITOPS for SMP ?
+I think __raw_spin_lock() is sufficient and local_irqsave() is 
+not necessary in general atomic routines.
+
+If the parisc's LDCW instruction required disabling interrupts,
+it would be parisc specific and not generic case, I think, 
+although I'm not familier with the parisc architecture...
+
+-- Takata

@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbWA0Tai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWA0TbS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932486AbWA0Tai (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 14:30:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbWA0Tai
+	id S932490AbWA0TbS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 14:31:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWA0TbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 14:30:38 -0500
-Received: from mail.gmx.de ([213.165.64.21]:62375 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932486AbWA0Tah convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 14:30:37 -0500
-X-Authenticated: #9962044
-From: Marc <marvin24@gmx.de>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Subject: Re: patching arm-linux 2.4.18 on sharp zaurus sl-5500
-Date: Fri, 27 Jan 2006 20:30:23 +0100
-User-Agent: KMail/1.9.1
-References: <a76b68304d1cadc77190142ba67324a6@cs.pitt.edu> <20060127143832.GG3673@harddisk-recovery.com>
-In-Reply-To: <20060127143832.GG3673@harddisk-recovery.com>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 27 Jan 2006 14:31:18 -0500
+Received: from host233.omnispring.com ([69.44.168.233]:4015 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S932485AbWA0TbR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 14:31:17 -0500
+Message-ID: <43DA74DC.3000702@cfl.rr.com>
+Date: Fri, 27 Jan 2006 14:30:36 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200601272030.24079.marvin24@gmx.de>
-X-Y-GMX-Trusted: 0
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14 kernels and above copy_to_user stupidity with IRQ disabled
+ check
+References: <43DA62CC.8090309@wolfmountaingroup.com>
+In-Reply-To: <43DA62CC.8090309@wolfmountaingroup.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Jan 2006 19:31:36.0921 (UTC) FILETIME=[49E1A490:01C62378]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14231.000
+X-TM-AS-Result: No--15.000000-5.000000-4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Friday 27 January 2006 15:38, vous avez écrit :
-> On Fri, Jan 27, 2006 at 09:28:07AM -0500, Lorne J. Leitman wrote:
-> > We are a group of researchers at University of Pittbsurgh trying to
-> > implement an ad-hoc routing protocol on the Sharp Zaurus 5500 pda.  Our
-> > network is running the following environment:
-> >       -arm-linux kernel 2.4.18-pxa3-embedix-021129
->
-> ncftp /pub/linux/kernel/v2.4 > dir patch-2.4.18.bz2
-> -rw-rw-r--    1 536      536       826105   Feb 25  2002   
-> patch-2.4.18.bz2
->
-> Any particular reason why you're using a 4 year old kernel?
->
-> >       -OpenZaurus 3.5.1
+Probably because you aren't allowed to call copy_to_user while holding a 
+spin lock?  The user pages might be non resident and you can't have a 
+page fault with interrupts disabled.  Also you don't want to spend a lot 
+of time with interrupts disabled, and copy_to_user can take a fair 
+amount of time for large copies. 
 
-as far as I know, OpenZaurus 3.5.4 is comming soon, but the standard kernel is 
-still 2.4.18-xyz. The Zaurus 5500 was not ported to newer kernels, because 
-the implementation from sharp/lineo was just to ugly. Instead a direct 2.6 
-port was started but not finished up to now (see 
-http://www.cs.wisc.edu/~lenz/zaurus).
-I don't know if netfilter is activated in the OpenZaurus kernels, but you can 
-build a kernel yourself and activate it (see www.openzaurus.org and 
-http://oe.handhelds.org/cgi-bin/moin.cgi/GettingStarted for the toolchain and 
-buildsystem).
-Pavel Machek has send some patches recently to lkml for the 2.6 kernel, but I 
-don't know what the status is right now.
-
-	marvin
+Jeff V. Merkey wrote:
+>
+> Is there a good reason someone set a disabled_irq() check on 2.6.14 
+> and above for copy_to_user to barf out
+> tons of bogus stack dump messages if the function is called from 
+> within a spinlock:
+>
+> i.e.
+>
+> spin_lock_irqsave(&regen_lock, regen_flags);
+>    v = regen_head;
+>    while (v)
+>    {
+>       if (i >= count)
+>          return -EFAULT;
+>                                                                                
+>
+>       err = copy_to_user(&s[i++], v, sizeof(VIRTUAL_SETUP));
+>       if (err)
+>          return err;
+>                                                                                
+>
+>       v = v->next;
+>    }
+>    spin_unlock_irqrestore(&regen_lock, regen_flags);
+>
+> is now busted and worked in kernels up to this point.  The error 
+> message is annoying but non-fatal.
+>
+> Jeff
+>
 

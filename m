@@ -1,90 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965001AbWA0MhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbWA0MqY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965001AbWA0MhS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 07:37:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965002AbWA0MhS
+	id S1750967AbWA0MqY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 07:46:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWA0MqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 07:37:18 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:60754 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S965001AbWA0MhR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 07:37:17 -0500
-Date: Fri, 27 Jan 2006 13:39:18 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: How to map high memory for block io
-Message-ID: <20060127123917.GI4311@suse.de>
-References: <43D9C19F.7090707@drzeus.cx> <20060127102611.GC4311@suse.de> <43D9F705.5000403@drzeus.cx> <20060127104321.GE4311@suse.de> <43DA0E97.5030504@drzeus.cx>
+	Fri, 27 Jan 2006 07:46:23 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:34004 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750967AbWA0MqX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 07:46:23 -0500
+Subject: Re: [RT] possible bug in trace_start_sched_wakeup
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060127094656.GA24878@elte.hu>
+References: <1138327022.7814.8.camel@localhost.localdomain>
+	 <1138336718.7814.41.camel@localhost.localdomain>
+	 <20060127094656.GA24878@elte.hu>
+Content-Type: text/plain
+Date: Fri, 27 Jan 2006 07:46:18 -0500
+Message-Id: <1138365978.8988.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43DA0E97.5030504@drzeus.cx>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27 2006, Pierre Ossman wrote:
-> Jens Axboe wrote:
-> > On Fri, Jan 27 2006, Pierre Ossman wrote:
-> >   
-> >> Jens Axboe wrote:
-> >>     
-> >>> On Fri, Jan 27 2006, Pierre Ossman wrote:
-> >>>   
-> >>>       
-> >>>> I'm having some problems getting high memory support to work smoothly in
-> >>>> my driver. The documentation doesn't indicate what I might be doing
-> >>>> wrong so I'll have to ask here.
-> >>>>
-> >>>> The problem seems to be that kmap & co maps a single page into kernel
-> >>>> memory. So when I happen to cross page boundaries I start corrupting
-> >>>> some unrelated parts of the kernel. I would prefer not having to
-> >>>> consider page boundaries in an already messy PIO loop, so I've been
-> >>>> trying to find either a routine to map an entire sg entry or some way to
-> >>>> force the block layer to not give me stuff crossing pages.
-> >>>>
-> >>>> As you can guess I have not found anything that can do what I want, so
-> >>>> some pointers would be nice.
-> >>>>     
-> >>>>         
-> >>> Honestly, just don't bother if you are doing PIO anyways. Just tell the
-> >>> block layer that you want io bounced for you instead.
-> >>>
-> >>>   
-> >>>       
-> >> This is the MMC layer so there is some separation between the block
-> >> layer and the drivers. Also, the transfers won't necessarily be from the
-> >> block layer so a generic solution is desired. I don't suppose there is
-> >> some way of accessing the bounce buffer routines in a non-bio context?
-> >>     
-> >
-> > Only the mapping routines are appropriate at that point, or things get
-> > complicated. You could still do a two-page mapping, if you are careful
-> > about using different KMAP_ types.
-> >
-> >   
+On Fri, 2006-01-27 at 10:46 +0100, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
-> That would still make things rather difficult since there is no way to
-> get both maps into joining vaddrs. Is there no way to say "don't cross
-> page boundaries"? Setting a segment size of PAGE_SIZE still causes
-> problems when the offset isn't 0.
+> >  	spin_lock(&sch.trace_lock);
+> > -	if (sch.task && (sch.task->prio >= p->prio))
+> > +	if (sch.task && ((sch.task->prio <= p->prio) || !rt_task(p)))
+> >  		goto out_unlock;
+> 
+> good catch - but i'd not do the !rt_task(p) condition, because e.g. PI 
+> related priority boosting works _without_ changing p->policy. So it is 
+> p->prio that controls. I.e. a simple "sch.task->prio <= p->prio" should 
+> be enough.
 
-To be absolutely sure, you can just disallow multiple pages in a bio.
-Ala:
+Ah, I don't know what I was thinking about the rt_task part (I was
+working on very little sleep).  You're right.  Nuke it!
 
-static int my_merge_bvec_fn(request_queue_t *q, struct bio *bio,
-                            struct bio_vec *bvec)
-{
-        return 1;
-}
+Thanks,
 
-init_code()
-{
-        ...
-        blk_queue_merge_bvec(q, my_merge_bvec_fn);
-}
+-- Steve
 
--- 
-Jens Axboe
 

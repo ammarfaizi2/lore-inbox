@@ -1,72 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbWA0EPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWA0E20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751243AbWA0EPV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 23:15:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWA0EPV
+	id S932199AbWA0E20 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 23:28:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWA0E20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 23:15:21 -0500
-Received: from flock1.newmail.ru ([212.48.140.157]:31362 "HELO
-	flock1.newmail.ru") by vger.kernel.org with SMTP id S1751243AbWA0EPU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 23:15:20 -0500
-From: Andrey Borzenkov <arvidjaar@newmail.ru>
-To: Rudolf Marek <r.marek@sh.cvut.cz>
-Subject: Re: [lm-sensors] 2.6.15: lm90 0-004c: Register 0x13 read failed (-1)
-Date: Fri, 27 Jan 2006 07:15:16 +0300
-User-Agent: KMail/1.9.1
-Cc: Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org,
-       lm-sensors@lm-sensors.org
-References: <200601142223.35838.arvidjaar@newmail.ru> <200601152248.07800.arvidjaar@newmail.ru> <43CAB1B7.6020903@sh.cvut.cz>
-In-Reply-To: <43CAB1B7.6020903@sh.cvut.cz>
-Content-Type: text/plain;
-  charset="utf-8"
+	Thu, 26 Jan 2006 23:28:26 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:29433 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932199AbWA0E20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 23:28:26 -0500
+Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP
+	slow)
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Howard Chu <hyc@symas.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       davids@webmaster.com, Nick Piggin <nickpiggin@yahoo.com.au>
+In-Reply-To: <43D94595.4030002@symas.com>
+References: <MDEHLPKNGKAHNMBLJOLKGENPJKAB.davids@webmaster.com>
+	 <43D930C6.40201@symas.com> <43D93542.9000809@yahoo.com.au>
+	 <43D93FEA.3070305@symas.com> <43D941FD.9050705@yahoo.com.au>
+	 <43D94595.4030002@symas.com>
+Content-Type: text/plain
+Date: Thu, 26 Jan 2006 23:27:50 -0500
+Message-Id: <1138336070.7814.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601270715.16881.arvidjaar@newmail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, 2006-01-26 at 13:56 -0800, Howard Chu wrote:
+> Nick Piggin wrote:
 
-On Sunday 15 January 2006 23:33, Rudolf Marek wrote:
-> Hello all,
->
-> > this appears simply a probing for non-existent i2c ports (correct me if I
-> > am wrong) presumably by eeprom driver.
->
-> yes I think you are right. (ADD/2 is the address of chip, that it tries to
-> access)
->
-> > Second block are errors from lm90 for different registers:
+> >>
+> >> But why does A take the mutex in the first place? Presumably because 
+> >> it is about to execute a critical section. And also presumably, A 
+> >> will not release the mutex until it no longer has anything critical 
+> >> to do; certainly it could hold it longer if it needed to.
+> >>
+> >> If A still needed the mutex, why release it and reacquire it, why not 
+> >> just hold onto it? The fact that it is being released is significant.
+> >>
 > >
-> > Jan 15 22:24:02 cooker kernel: i2c_adapter i2c-0: Transaction (pre):
-> > STS=04, TYP=10, CMD=01, ADD=99, DAT0=a0, DAT1=10
-> > Jan 15 22:24:02 cooker kernel: i2c_adapter i2c-0: Transaction (post):
-> > STS=14, TYP=10, CMD=01, ADD=99, DAT0=29, DAT1=10
-> > Jan 15 22:24:02 cooker kernel: i2c_adapter i2c-0: Transaction (pre):
-> > STS=04, TYP=10, CMD=08, ADD=98, DAT0=29, DAT1=10
-> > Jan 15 22:24:02 cooker kernel: i2c_adapter i2c-0: Error: command never
-> > completed
-> > Jan 15 22:24:02 cooker kernel: i2c_adapter i2c-0: Transaction (post):
-> > STS=04, TYP=10, CMD=08, ADD=98, DAT0=29, DAT1=10
-> > Jan 15 22:24:02 cooker kernel: lm90 0-004c: Register 0x8 read failed (-1)
+> > Regardless of why, that is just the simplest scenario I could think
+> > of that would give us a test case. However...
+> >
+> > Why not hold onto it? We sometimes do this in the kernel if we need
+> > to take a lock that is incompatible with the lock already being held,
+> > or if we discover we need to take a mutex which nests outside our
+> > currently held lock in other paths. Ie to prevent deadlock.
+> 
+> In those cases, A cannot retake the mutex anyway. I.e., you just said 
+> that you released the first mutex because you want to acquire a 
+> different one. So those cases don't fit this example very well.
 
-I still did not have much time to spend on it but booting today I suddenly got
+Lets say you have two locks X and Y.  Y nests inside of X. To do block1
+you need to have lock Y and to do block2 you need to have both locks X
+and Y, and block 1 must be done first without holding lock X.
 
-i2c_adapter i2c-0: Unsupported chip (man_id=0x41, chip_id=0x42).
+func()
+{
+again:
+	mutex_lock(Y);
+	block1();
+	if (!mutex_try_lock(X)) {
+		mutex_unlock(Y);
+		mutex_lock(X);
+		mutex_lock(Y);
+		if (block1_has_changed()) {
+			mutex_unlock(Y);
+			mutex_unlock(X);
+			goto again;
+		}
+	}
+	block2();
+	mutex_unlock(X);
+	mutex_unlock(Y);
+}
 
-I begin to suspect that it is still lm90 (at least partly). Transacton did not 
-fail (otherwise we were not here) but returned some strange value. Anyone 
-knows if such chip really exits?
+Stuff like the above actually is done (it's done in the kernel). So you
+can see here that Y can be released and reacquired right away.  If
+another task was waiting on Y (of lower priority) we don't want to give
+up the lock, since we would then block and the chances of
+block1_has_changed goes up even more.
 
-TIA
+> 
+> > Another reason might be because we will be running for a very long
+> > time without requiring the lock.
+> 
+> And again in this case, A should not be immediately reacquiring the lock 
+> if it doesn't actually need it.
 
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+I'm not sure what Nick means here, but I'm sure he didn't mean it to
+come out that way ;)
 
-iD8DBQFD2Z5UR6LMutpd94wRAmaYAKCAdwCutdUWK+RFbQu9nMiLuIl6jACdGgj9
-IHiDsWm37Xr4UWmQYbvwIOk=
-=a1Ao
------END PGP SIGNATURE-----
+> 
+> > Or we might like to release it because
+> > we expect a higher priority process to take it.
+> 
+> And in this case, the expected behavior is the same as I've been pursuing.
+
+But you can't know if a higher or lower priority process is waiting.
+Sure it works like what you say when a higher priority process is
+waiting, but it doesn't when it's a lower priority process waiting.
+
+-- Steve
+
+

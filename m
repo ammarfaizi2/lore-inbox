@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbWA0L2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030309AbWA0LcB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964988AbWA0L2t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 06:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030309AbWA0L2s
+	id S1030309AbWA0LcB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 06:32:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbWA0LcB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 06:28:48 -0500
-Received: from audible.transient.net ([216.254.12.79]:21483 "HELO
-	audible.transient.net") by vger.kernel.org with SMTP
-	id S964993AbWA0L2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 06:28:47 -0500
-Date: Fri, 27 Jan 2006 03:28:46 -0800
-From: Jamie Heilman <jamie@audible.transient.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: Ariel <askernel2615@dsgml.com>, Chase Venters <chase.venters@clientec.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: memory leak in scsi_cmd_cache 2.6.15
-Message-ID: <20060127112846.GA29829@fifty-fifty.audible.transient.net>
-Mail-Followup-To: Jens Axboe <axboe@suse.de>,
-	Ariel <askernel2615@dsgml.com>,
-	Chase Venters <chase.venters@clientec.com>,
-	Arjan van de Ven <arjan@infradead.org>, linux-ide@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <Pine.LNX.4.62.0601212105590.22868@pureeloreel.qftzy.pbz> <Pine.LNX.4.62.0601222045180.12815@pureeloreel.qftzy.pbz> <1137997104.2977.7.camel@laptopd505.fenrus.org> <200601230029.12674.chase.venters@clientec.com> <Pine.LNX.4.62.0601230136080.22979@pureeloreel.qftzy.pbz> <20060123072556.GC15490@fifty-fifty.audible.transient.net> <20060123083347.GA12773@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060123083347.GA12773@suse.de>
-User-Agent: Mutt/1.5.11
+	Fri, 27 Jan 2006 06:32:01 -0500
+Received: from sipsolutions.net ([66.160.135.76]:28170 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S1030309AbWA0LcA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 06:32:00 -0500
+Subject: Re: [PATCH] ieee1394: allow building with absolute SUBDIRS path
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: linux1394-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <43D94D06.8090708@s5r6.in-berlin.de>
+References: <1138234743.10202.3.camel@localhost>
+	 <43D94D06.8090708@s5r6.in-berlin.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6ICrTeBnSSfs/buUQka3"
+Date: Fri, 27 Jan 2006 12:31:29 +0100
+Message-Id: <1138361489.5983.24.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Sun, Jan 22 2006, Jamie Heilman wrote:
-> > Ariel wrote:
-> > > ata_piix seems like it's in common for all, but this is not a lot of 
-> > > systems, so it could just be a coincidence and the problem caused by 
-> > > something that's not chipset specific.
-> > 
-> > Hmm.  I just moved my sata_sil stuff out of the way and rebooted:
-> > 
-> > $ uptime; grep scsi_cmd_cache /proc/slabinfo
-> >  23:22:16 up 4 min,  1 user,  load average: 0.00, 0.03, 0.00
-> > scsi_cmd_cache      1200   1200    384   10    1 : tunables   54   27   8 : slabdata    120    120      0
-> > 
-> > My other workstation also runs 2.6.15.1 but uses sata_nv and doesn't
-> > exhibit the problem.
-> 
-> The SATA low level driver is very unlikely to play a role in this. But
-> you are both using md (raid1 to be specific) on top of scsi, I'd say
-> that's the best clue. I'd very much doubt the nvidia module as well.
 
-True, my sata_nv box doesn't use md.  OTOH, my machines running raid1
-on an LSI (MPT Fusion driver) SCSI controller don't have this leak.
+--=-6ICrTeBnSSfs/buUQka3
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jamie Heilman                     http://audible.transient.net/~jamie/
+
+> Looks good, although you should rediff against current sources
+> and post at linux1394-devel. :-)
+
+Right.
+
+> If you want to develop on top of latest 1394 sources but with a
+> released kernel underneath, you could check out my quilt trees.
+> http://me.in-berlin.de/~s5r6/linux1394/updates/
+
+Thanks, will take a look.
+
+johannes
+
+--=-6ICrTeBnSSfs/buUQka3
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (SIP Solutions)
+
+iQIVAwUAQ9oEkKVg1VMiehFYAQK8iBAAumjE0fEDlMORxUTiw79SjBiIXsnFwg1E
+S61FXZayPC3VPL7jmZ1HPvBVzG3+5piqX7ZzlT8etsevSRdEZkUTB6hW1E7TLLDL
+F/mzazEswZQR0PH3AIB4VVgykuz/l/BrcwYo+NFr+GT9tjrgOA0OEkdS4O6jvkZP
+4W52c29DKo0umDYCJagFFzmqP15BCwlo4Na9HYT7Qh0ccwgWzT3fB3NomAoYO9z+
+hiGadX9sP/FoQcGNg3O5unFkM2ruLAZ+RzT2Rj5sfpEuK5n+ATDDnUax02ngTrfF
+eivmm3szcub70HMYdtlD1Mgvcbmu5cl0oy17Yg49i9h9Io8edZCdpRw38Cg544ei
+zEk97+0qfXT0dDIC6bay1SnY3fkUELgm3M0CrLQ/jUFev0GtjIQPzta2Il88qEw7
+4vvK0f+wKTTIpl6M/G1MoUnnc+LQtxnhGfHqfq/ta/H6pssQhP/u6u8cCYkyY2h9
+BobyT6uUKfsTm9hEAjgyBIWlJCnvUqB5SrcsobKCiLyXzUwKyje01ZjyjvFgwet1
+ERBavE4vWiSd+gqJpsQ64js9tXgGmDzlWwh/cnccsA7ph48xyFU8ht1vcXqmMfBp
+XPHGmjtbT06gcgi/hoZXwolH7j5ptjM6+uu3wc8rvmu9anT2++KDh2jJNLGobf6G
+/MrbLawdh+g=
+=Tevt
+-----END PGP SIGNATURE-----
+
+--=-6ICrTeBnSSfs/buUQka3--
+

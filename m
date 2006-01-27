@@ -1,47 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbWA0JyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWA0KKB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932328AbWA0JyL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 04:54:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbWA0JyK
+	id S932454AbWA0KKB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 05:10:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWA0KKB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 04:54:10 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:46235 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932328AbWA0JyJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 04:54:09 -0500
-Date: Fri, 27 Jan 2006 10:54:49 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RT] possible bug in trace_start_sched_wakeup
-Message-ID: <20060127095449.GC24878@elte.hu>
-References: <1138327022.7814.8.camel@localhost.localdomain> <1138336718.7814.41.camel@localhost.localdomain>
+	Fri, 27 Jan 2006 05:10:01 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:8144 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932454AbWA0KKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 05:10:00 -0500
+Subject: Re:
+From: Arjan van de Ven <arjan@infradead.org>
+To: sarat <saratkumar.koduri@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <aed62bae0601270205v1156f3cfi3bb4a5857956f641@mail.gmail.com>
+References: <aed62bae0601270205v1156f3cfi3bb4a5857956f641@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 27 Jan 2006 11:09:57 +0100
+Message-Id: <1138356598.3058.16.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1138336718.7814.41.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2006-01-27 at 15:35 +0530, sarat wrote:
+> 
+> insmod: error inserting 'firewall.ko': -1 Invalid module format
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+your module is not compatible with the kernel you are running. In dmesg
+or /var/log/messages is more information on the nature of the
+incompatibility.
 
->  			trace_special_pid(sch.task->pid, sch.task->prio, p->prio);
-> -		if (sch.task && (sch.task->prio >= p->prio))
-> +		if (sch.task && ((sch.task->prio <= p->prio) || !rt_task(p)))
->  			sch.task = NULL;
 
-this second condition i'd not change: it just expresses the rare case 
-where a higher-prio task hits the CPU that we somehow did not start to 
-trace. In that case we just zap the current trace.
-
-	Ingo

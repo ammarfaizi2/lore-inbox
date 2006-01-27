@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751537AbWA0Swn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751522AbWA0SvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751537AbWA0Swn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 13:52:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWA0Swm
+	id S1751522AbWA0SvX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 13:51:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751534AbWA0SvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 13:52:42 -0500
-Received: from zproxy.gmail.com ([64.233.162.199]:17570 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751536AbWA0Swm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 13:52:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=XGOqO/3fF14znN+OPVi4uYXfMIxcL2Q56HiNgyKfdwO4siWwMh5yf2Q4Lj/XgcFXvZvwR2blfltp4E/X5ON+BP0L36/GEzApyzM2ychse2WBlE8IPzQOa7NzSQAI9hD2sGVY8hsUXMMVDCLbN7jwP5ZpdEAh3YmFYYqQuK0W3HM=
-Message-ID: <7f45d9390601271052j68255baq5f5ef14fa188d03d@mail.gmail.com>
-Date: Fri, 27 Jan 2006 11:52:40 -0700
-From: Shaun Jackman <sjackman@gmail.com>
-Reply-To: Shaun Jackman <sjackman@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Advantech touch screen driver
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Fri, 27 Jan 2006 13:51:23 -0500
+Received: from saraswathi.solana.com ([198.99.130.12]:9857 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S1751522AbWA0SvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 13:51:22 -0500
+Message-Id: <200601271730.k0RHUlB3006281@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: [PATCH 1/1] UML - compilation fix when MODE_SKAS disabled
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 27 Jan 2006 12:30:46 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an Advantech TPC-1260T touch panel computer. The touch screen
-is an RTKC manufactured by Liyitec. The electrical interface of the
-touch screen is PS/2, but the protocol does not seem to be PS/2.
-Liyitec provides a binary driver for XFree86 on i386-linux, named
-tsps2 1.1.0, but I have not been able to find an open source driver.
-I'm considering writing my own. Has anyone else started down this
-path?
+This is 2.6.16 material.
 
-Please cc me in your reply. Cheers!
-Shaun
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+
+This patch fixes the following compilation error when CONFIG_SKAS is disabled:
+
+  CC      arch/um/sys-i386/ldt.o
+arch/um/sys-i386/ldt.c:19:21: proc_mm.h: No such file or directory
+make[1]: *** [arch/um/sys-i386/ldt.o] Error 1
+
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
+
+Index: linux-2.6.15-mm/arch/um/sys-i386/ldt.c
+===================================================================
+--- linux-2.6.15-mm.orig/arch/um/sys-i386/ldt.c	2006-01-26 17:01:15.000000000 -0500
++++ linux-2.6.15-mm/arch/um/sys-i386/ldt.c	2006-01-26 19:48:23.000000000 -0500
+@@ -16,7 +16,6 @@
+ #include "choose-mode.h"
+ #include "kern.h"
+ #include "mode_kern.h"
+-#include "proc_mm.h"
+ #include "os.h"
+ 
+ extern int modify_ldt(int func, void *ptr, unsigned long bytecount);
+@@ -90,6 +89,7 @@ out:
+ #include "skas.h"
+ #include "skas_ptrace.h"
+ #include "asm/mmu_context.h"
++#include "proc_mm.h"
+ 
+ long write_ldt_entry(struct mm_id * mm_idp, int func, struct user_desc * desc,
+ 		     void **addr, int done)
+

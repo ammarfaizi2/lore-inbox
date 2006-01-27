@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751536AbWA0Sz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751546AbWA0S5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751536AbWA0Sz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 13:55:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751538AbWA0Sz3
+	id S1751546AbWA0S5p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 13:57:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbWA0S5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 13:55:29 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:56243 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751534AbWA0Sz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 13:55:29 -0500
-Subject: Re: RCU latency regression in 2.6.16-rc1
-From: Lee Revell <rlrevell@joe-job.com>
-To: paulmck@us.ibm.com
-Cc: dipankar@in.ibm.com, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20060126191809.GC6182@us.ibm.com>
-References: <20060124080157.GA25855@elte.hu>
-	 <1138090078.2771.88.camel@mindpipe> <20060124081301.GC25855@elte.hu>
-	 <1138090527.2771.91.camel@mindpipe> <20060124091730.GA31204@us.ibm.com>
-	 <20060124092330.GA7060@elte.hu> <1138095856.2771.103.camel@mindpipe>
-	 <20060124162846.GA7139@in.ibm.com> <20060124213802.GC7139@in.ibm.com>
-	 <1138224506.3087.22.camel@mindpipe>  <20060126191809.GC6182@us.ibm.com>
-Content-Type: text/plain
-Date: Fri, 27 Jan 2006 13:55:22 -0500
-Message-Id: <1138388123.3131.26.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Jan 2006 13:57:45 -0500
+Received: from zproxy.gmail.com ([64.233.162.206]:36677 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751546AbWA0S5o convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 13:57:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JIPYxC8kkQGW8lLGy0yNIAnw0e9mJAri2kiPsTXuVdu0tl0+xa4+2qnBehSyUi9lxhQwCHqmvfZe16GdiwyF5MvM3VpRORi7QV0pNDEMvgYFU+IvUSVEajZ0GQaWKTv8FlfaDeyos1KZMFxC4IfI8cSDclFZqtk8mS9Jn4KbM/8=
+Message-ID: <9a8748490601271057y709d3501ob278c85b104eef57@mail.gmail.com>
+Date: Fri, 27 Jan 2006 19:57:38 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Gerold van Dijk <gerold@sicon-sr.com>
+Subject: Re: traceroute bug ?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <000601c62370$db00cd50$1701a8c0@gerold>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <000601c62370$db00cd50$1701a8c0@gerold>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-26 at 11:18 -0800, Paul E. McKenney wrote:
-> >     Xorg-2154  0d.s.  213us : call_rcu_bh (rt_run_flush)
-> >     Xorg-2154  0d.s.  215us : local_bh_enable (rt_run_flush)
-> >     Xorg-2154  0d.s.  216us : local_bh_enable (rt_run_flush)
-> >     Xorg-2154  0d.s.  217us : local_bh_enable (rt_run_flush)
-> >     Xorg-2154  0d.s.  218us : local_bh_enable (rt_run_flush)
-> >     Xorg-2154  0d.s.  219us : local_bh_enable (rt_run_flush)
-> >     Xorg-2154  0d.s.  220us : local_bh_enable (rt_run_flush)
-> >     Xorg-2154  0d.s.  222us : local_bh_enable (rt_run_flush)
-> >     Xorg-2154  0d.s.  223us : call_rcu_bh (rt_run_flush)
-> > 
-> > [ zillions of these deleted ]
-> > 
-> >     Xorg-2154  0d.s. 7335us : local_bh_enable (rt_run_flush)
-> 
-> Dipankar's latest patch should hopefully address this problem.
-> 
-> Could you please give it a spin when you get a chance? 
+On 1/27/06, Gerold van Dijk <gerold@sicon-sr.com> wrote:
+> Why can I NOT do a traceroute specifically within my own (sub)network
+>
+> 207.253.5.64/27
+>
+> with any distribution of Linux??
+>
 
-Nope, no improvement at all, furthermore, the machine locked up once
-under heavy disk activity.
+Because you configured your machines to drop icmp packets perhaps.
+Some router on your network may be dropping icmp packets.
+You've configured the network incorrectly.
+There are several possible reasons, but I don't see what it has to do
+with the kernel at this point?
 
-I just got an 8ms+ latency from rt_run_flush that looks basically
-identical to the above.  It's still flushing routes in huge batches:
-
-$ grep 'call_rcu_bh (rt_run_flush)' /proc/latency_trace | wc -l
-2738
-
-Lee
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

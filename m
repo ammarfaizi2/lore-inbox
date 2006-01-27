@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWA0RvQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWA0SEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750964AbWA0RvQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 12:51:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbWA0RvQ
+	id S1751074AbWA0SEo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 13:04:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWA0SEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 12:51:16 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:62917 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750964AbWA0RvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 12:51:15 -0500
-Message-Id: <200601271751.k0RHp4AA021082@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Bernd Petrovitsch <bernd@firmix.at>
-Cc: Ian Kester-Haney <ikesterhaney@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux 
-In-Reply-To: Your message of "Fri, 27 Jan 2006 10:54:07 +0100."
-             <1138355647.12605.21.camel@tara.firmix.at> 
-From: Valdis.Kletnieks@vt.edu
-References: <MDEHLPKNGKAHNMBLJOLKIEOMJJAB.davids@webmaster.com> <Pine.LNX.4.61.0601240839380.17175@chaos.analogic.com> <43D65211.20006@wolfmountaingroup.com> <441e43c90601241721o8b4a9e5rd3a237f70aa46dbb@mail.gmail.com> <1138182144.4800.12.camel@tara.firmix.at> <200601270310.k0R3AIrf014656@turing-police.cc.vt.edu>
-            <1138355647.12605.21.camel@tara.firmix.at>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1138384264_3087P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 27 Jan 2006 12:51:04 -0500
+	Fri, 27 Jan 2006 13:04:44 -0500
+Received: from uproxy.gmail.com ([66.249.92.200]:47535 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751074AbWA0SEo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 13:04:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=s9mVeThDUoaieCp//EiUSH9an/6CgHK8r16FYMWthCFgi0idf/HOBCESEhvlBDL0fsx6tYFSfZmXccWnXmk/mSb//V6ZpcyCXiaSjajh3ToevCeTx+0vOgmg9Hpt3oDhF1Ij3dAFrLeRvaj30Em+q9+1v574gnWvsaRGwBt1SDo=
+Message-ID: <40f323d00601271004h7d6e3de3r1abc531cabc30b21@mail.gmail.com>
+Date: Fri, 27 Jan 2006 19:04:42 +0100
+From: Benoit Boissinot <bboissin@gmail.com>
+To: Andy Spiegl <kernelbug.Andy@spiegl.de>,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Benoit Boissinot <bboissin@gmail.com>, John Stoffel <john@stoffel.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.15 crashes X Server after running OpenGL programs
+In-Reply-To: <20060127173215.GC19166@spiegl.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060124121542.GB13646@spiegl.de>
+	 <20060124142151.GA3538@spiegl.de>
+	 <40f323d00601240713x26c3a04cra46e1cd9639b12f2@mail.gmail.com>
+	 <200601241937.06679.s0348365@sms.ed.ac.uk>
+	 <20060127173215.GC19166@spiegl.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1138384264_3087P
-Content-Type: text/plain; charset=us-ascii
+On 1/27/06, Andy Spiegl <kernelbug.Andy@spiegl.de> wrote:
+> Maybe I am doing something wrong but Mesa is awfully slow.
+> I don't need highend acceleration but I can't even play tuxracer.
+>
+> Maybe I missed something???
+>
+> gl-info says:
+>  GL_VENDOR = "Mesa project: www.mesa3d.org"
+>  GL_RENDERER = "Mesa GLX Indirect"
+>  GL_VERSION = "1.3 Mesa 4.0.4"
+>  GL_EXTENSIONS = "GL_ARB_imaging GL_ARB_multitexture GL_ARB_texture_border_clamp GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_env_dot3 GL_ARB_transpose_matrix GL_EXT_abgr GL_EXT_blend_color GL_EXT_blend_minmax GL_EXT_blend_subtract GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_env_dot3 GL_EXT_texture_lod_bias "
+>
+You should be looking for
+"direct rendering: Yes"
+in glxinfo
 
-On Fri, 27 Jan 2006 10:54:07 +0100, Bernd Petrovitsch said:
-> On Thu, 2006-01-26 at 22:10 -0500, Valdis.Kletnieks@vt.edu wrote:
+You can check your X logs to see why you don't get the acceleration
+(and you have to compile drm/radeon in your kernel).
 
-> > 17 USC 1201(a)(1)(A) says:
-> > 
-> > (A) No person shall circumvent a technological measure that effectively
->                                                               ^^^^^^^^^^
-> > controls access to a work protected under this title. The prohibition conta
-ined
->   ^^^^^^^^^^^^^^^
-> Actually there is similar wording here (but of course in German) used
-> for the similar purpose. The problem with this kind of law is IMHO:
-> -) "effectively controls access": If I (or someone else) can circumvent
->    it, it is obviously not "effective".
+regards,
 
-As Skylarov found out when he got into a pissing match with Adobe, ROT-13
-qualifies as an "effective access control" as far as the law is concerned.
-
---==_Exmh_1138384264_3087P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFD2l2IcC3lWbTT17ARAkqtAJ9TiDNnJCWef4b6Xede+ihWSUoDrQCfYCAU
-wK2+D0ixdCUkGOyorxSWKDU=
-=tch9
------END PGP SIGNATURE-----
-
---==_Exmh_1138384264_3087P--
+Benoit

@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWA0Ak1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbWA0AmL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbWA0Ak1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 19:40:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWA0Ak1
+	id S932290AbWA0AmL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 19:42:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWA0AmL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 19:40:27 -0500
-Received: from smtpout.mac.com ([17.250.248.83]:7156 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932225AbWA0Ak0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 19:40:26 -0500
-In-Reply-To: <787b0d920601261619l43bb95f5k64ddd338f377e56a@mail.gmail.com>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43D7A7F4.nailDE92K7TJI@burner> <787b0d920601251826l6a2491ccy48d22d33d1e2d3e7@mail.gmail.com> <43D8D396.nailE2X31OHFU@burner> <787b0d920601261619l43bb95f5k64ddd338f377e56a@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <B9D6BA8F-468D-46C4-B827-037A9D93F38D@mac.com>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org
+	Thu, 26 Jan 2006 19:42:11 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:31362 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932290AbWA0AmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 19:42:09 -0500
+Message-ID: <43D96C41.6020103@jp.fujitsu.com>
+Date: Fri, 27 Jan 2006 09:41:37 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+CC: Mel Gorman <mel@csn.ul.ie>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
+Subject: Re: [Lhms-devel] Re: [PATCH 0/9] Reducing fragmentation using zones
+ v4
+References: <20060126184305.8550.94358.sendpatchset@skynet.csn.ul.ie> <43D96987.8090608@jp.fujitsu.com>
+In-Reply-To: <43D96987.8090608@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Thu, 26 Jan 2006 19:40:14 -0500
-To: Albert Cahalan <acahalan@gmail.com>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 26, 2006, at 19:19, Albert Cahalan wrote:
-> I may just be crazy enough to fork this project. I very nearly did  
-> about 18 months ago. I can't very well do this alone, because I  
-> don't have all the hardware
+KAMEZAWA Hiroyuki wrote:
+> Could you add this patch to your set ?
+> This was needed to boot my x86 machine without HIGHMEM.
+> 
+Sorry, I sent a wrong patch..
+This is correct one.
+-- Kame
 
-I will gladly test your fork on my various hardware here.  I have a  
-desktop with Apple CD/RW+DVDROM and generic DVD+/-RW DL drive, and a  
-laptop with Apple DVD+/-RW drive.  Just send or post patches  
-somewhere and I'll take a look.  I suggest starting by looking at  
-some of the various distro patches, IIRC some of them have already  
-make significant cleanups.
+Index: linux-2.6.16-rc1-mm3/mm/highmem.c
+===================================================================
+--- linux-2.6.16-rc1-mm3.orig/mm/highmem.c
++++ linux-2.6.16-rc1-mm3/mm/highmem.c
+@@ -225,9 +225,6 @@ static __init int init_emergency_pool(vo
+  	struct sysinfo i;
+  	si_meminfo(&i);
+  	si_swapinfo(&i);
+-
+-	if (!i.totalhigh)
+-		return 0;
 
-> Matthias, can you give me a hand with this? I'll need a way to sort  
-> and publish incoming patches, letting them sit for a while. (like  
-> what Andrew Morton does for the kernel) This can't work like procps  
-> because the hardware varies too much.
-
-Might I suggest quilt or stgit?  Both allow you to maintain an  
-unstable and highly variable stack of patches based off a more stable  
-branch, from which some patches percolate down into stable occasionally.
-
-Good luck with this!
-
-Cheers,
-Kyle Moffett
-
---
-Simple things should be simple and complex things should be possible
-   -- Alan Kay
+  	page_pool = mempool_create(POOL_SIZE, page_pool_alloc, page_pool_free, NULL);
+  	if (!page_pool)
 
 
 

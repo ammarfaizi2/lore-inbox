@@ -1,89 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWA0HDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWA0HHK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751211AbWA0HDa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 02:03:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751386AbWA0HDa
+	id S1751423AbWA0HHK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 02:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751433AbWA0HHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 02:03:30 -0500
-Received: from bayc1-pasmtp05.bayc1.hotmail.com ([65.54.191.165]:16351 "EHLO
-	BAYC1-PASMTP05.bayc1.hotmail.com") by vger.kernel.org with ESMTP
-	id S1751211AbWA0HD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 02:03:29 -0500
-Message-ID: <BAYC1-PASMTP05B0F8D6E29A63544324F8AE140@CEZ.ICE>
-X-Originating-IP: [69.156.6.171]
-X-Originating-Email: [seanlkml@sympatico.ca]
-Date: Fri, 27 Jan 2006 01:58:11 -0500
-From: sean <seanlkml@sympatico.ca>
-To: Marc Perkel <marc@perkel.com>
-Cc: chase.venters@clientec.com, diegocg@gmail.com, paul@clubi.ie,
-       torvalds@osdl.org, linux-os@analogic.com, mrmacman_g4@mac.com,
-       jmerkey@wolfmountaingroup.com, pmclean@cs.ubishops.ca,
-       shemminger@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - V3 adds new restrictions
-Message-Id: <20060127015811.03beb9e5.seanlkml@sympatico.ca>
-In-Reply-To: <43D94D1D.8070300@perkel.com>
-References: <43D114A8.4030900@wolfmountaingroup.com>
-	<20060120111103.2ee5b531@dxpl.pdx.osdl.net>
-	<43D13B2A.6020504@cs.ubishops.ca>
-	<43D7C780.6080000@perkel.com>
-	<43D7B20D.7040203@wolfmountaingroup.com>
-	<43D7B5C4.5040601@wolfmountaingroup.com>
-	<43D7D05D.7030101@perkel.com>
-	<D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>
-	<Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>
-	<Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>
-	<Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>
-	<Pine.LNX.4.64.0601261757320.3920@sheen.jakma.org>
-	<20060126195323.d553a4b8.diegocg@gmail.com>
-	<Pine.LNX.4.64.0601261255430.17225@turbotaz.ourhouse>
-	<43D92175.6010804@perkel.com>
-	<Pine.LNX.4.64.0601261344220.17514@turbotaz.ourhouse>
-	<43D92B45.1030601@perkel.com>
-	<Pine.LNX.4.64.0601261416090.17514@turbotaz.ourhouse>
-	<43D94D1D.8070300@perkel.com>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.10; i386-redhat-linux-gnu)
+	Fri, 27 Jan 2006 02:07:10 -0500
+Received: from h80ad2572.async.vt.edu ([128.173.37.114]:40873 "EHLO
+	h80ad2572.async.vt.edu") by vger.kernel.org with ESMTP
+	id S1751423AbWA0HHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 02:07:08 -0500
+Message-Id: <200601270706.k0R76RqE023900@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Howard Chu <hyc@symas.com>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Christopher Friesen <cfriesen@nortel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hancockr@shaw.ca
+Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow) 
+In-Reply-To: Your message of "Thu, 26 Jan 2006 16:31:28 EST."
+             <Pine.LNX.4.61.0601261621250.10049@chaos.analogic.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20060124225919.GC12566@suse.de> <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de> <20060125121125.GH5465@suse.de> <43D78262.2050809@symas.com> <43D7BA0F.5010907@nortel.com> <43D7C2F0.5020108@symas.com> <1138223212.3087.16.camel@mindpipe> <43D7F863.3080207@symas.com> <43D88E55.7010506@yahoo.com.au> <43D8DB90.7070601@symas.com> <43D8E298.3020402@yahoo.com.au> <43D8E96B.3070606@symas.com> <43D8EFF7.3070203@yahoo.com.au> <43D8FC76.2050906@symas.com> <Pine.LNX.4.61.0601261231460.9298@chaos.analogic.com> <43D91C33.7050401@yahoo.com.au> <Pine.LNX.4.61.0601261405320.9584@chaos.analogic.com> <43D93B4D.20601@yahoo.com.au>
+            <Pine.LNX.4.61.0601261621250.10049@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1138345586_2915P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Jan 2006 07:03:25.0328 (UTC) FILETIME=[C4682900:01C6230F]
+Date: Fri, 27 Jan 2006 02:06:26 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Jan 2006 14:28:45 -0800
-Marc Perkel <marc@perkel.com> wrote:
+--==_Exmh_1138345586_2915P
+Content-Type: text/plain; charset=us-ascii
 
-> Trying to look at this from a legal point of view. GPLv3 might actually 
-> contradict GPLv2.
-> 
-> GPLv3 is more RESTRICTIVE than v2. With v2 you didn't have the new 
-> anti-DRM and anti-patent restrictions. The original license says 
-> somewhere that you can't change the license to be more restrictive.
-> 
-> None of us like patents and DRM but language that places new 
-> restrictions on software might not be GPLv2 compatible. Stallman might 
-> need to call his new license something else than GPL if he's going to 
-> add language that adds restrictions.
-> 
-> I can see an argument where GPLv2 prohibits GPLv3.
-> 
+On Thu, 26 Jan 2006 16:31:28 EST, "linux-os (Dick Johnson)" said:
 
-As the _owner_ of the code, you can set whatever license(s) you choose.  
-You don't lose your copyright just because you've granted the rest of 
-us the right to use your code under the terms of the GPL.
+> "It doesn't...." even though I can run sendmail by hand, using
+> telnet port 25, over the network, and know that the "." in the
+> first column is the way it knows the end-of-message after it
+> receives the "DATA" command.
 
-For instance, licensing your code to the world as GPL does not mean you 
-can't also license it to another group of people under XYZ terms.  The 
-XYZ license may be totally incompatible with the GPL and have many more 
-restrictions (a prohibition against distribution for instance).  Anyone
-who has agreed to the XYZ license with you, could also go grab a copy
-of the GPL'd code, but would then have to abide by _all_ the GPL 
-conditions.
+Right. That's how an MTA talks to another MTA.  However, your mail
+needs to be properly escaped.  RFC821, section 4.5.2:
 
-Similarly, the owner of each piece of Linux code is free to make the 
-code he released under GPLv2 available now under v3 without any
-conflict or violation of the prohibition against additional restrictions.
+     4.5.2.  TRANSPARENCY
 
-Of course, older versions of the code would still be available 
-under v2 as well; not even the owner can revoke that.
+         Without some provision for data transparency the character
+         sequence "<CRLF>.<CRLF>" ends the mail text and cannot be sent
+         by the user.  In general, users are not aware of such
+         "forbidden" sequences.  To allow all user composed text to be
+         transmitted transparently the following procedures are used.
 
-Sean
+            1. Before sending a line of mail text the sender-SMTP checks
+            the first character of the line.  If it is a period, one
+            additional period is inserted at the beginning of the line.
+
+            2. When a line of mail text is received by the receiver-SMTP
+            it checks the line.  If the line is composed of a single
+            period it is the end of mail.  If the first character is a
+            period and there are other characters on the line, the first
+            character is deleted.
+
+In other words, the on-the-wire protocol is specifically designed so that
+you *cant* accidentally lose the rest of the message by sending a bare '.'.
+The fact that some programs implement it when talking to the user is
+merely a convenience hack on the program's part.
+
+--==_Exmh_1138345586_2915P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD4DBQFD2cZycC3lWbTT17ARAkV7AKD2P/7ZiMkox+OYvNpDyIY3JPeDWACWIpQG
+Ociv9RkkAovDq61WOuvybw==
+=qrNf
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1138345586_2915P--

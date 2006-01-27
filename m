@@ -1,91 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422652AbWA0WvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751586AbWA0Wug@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422652AbWA0WvI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 17:51:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422651AbWA0WvH
+	id S1751586AbWA0Wug (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 17:50:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751589AbWA0Wug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 17:51:07 -0500
-Received: from smtp1.pp.htv.fi ([213.243.153.37]:53899 "EHLO smtp1.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S1422650AbWA0Wuy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 17:50:54 -0500
-Date: Sat, 28 Jan 2006 00:50:53 +0200
-From: Paul Mundt <lethal@linux-sh.org>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/11] sh: Make peripheral clock frequency setting mandatory.
-Message-ID: <20060127225053.GC30816@linux-sh.org>
-Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20060127224919.GA30816@linux-sh.org>
+	Fri, 27 Jan 2006 17:50:36 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:26823 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1751585AbWA0Wuf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 17:50:35 -0500
+Date: Fri, 27 Jan 2006 14:50:36 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, shai@scalex86.org, netdev@vger.kernel.org,
+       pravins@calsoftinc.com
+Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
+Message-ID: <20060127225036.GC3565@localhost.localdomain>
+References: <20060126185649.GB3651@localhost.localdomain> <20060126190357.GE3651@localhost.localdomain> <43D9DFA1.9070802@cosmosbay.com> <20060127195227.GA3565@localhost.localdomain> <20060127121602.18bc3f25.akpm@osdl.org> <43DA9EFF.1020200@cosmosbay.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060127224919.GA30816@linux-sh.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <43DA9EFF.1020200@cosmosbay.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pretty much every subtype does this now anyways, and as we depend
-on it in a few places being set to something sensible quite early
-on, it's better for a new subtype to simply set a sensible default.
+On Fri, Jan 27, 2006 at 11:30:23PM +0100, Eric Dumazet wrote:
+> 
+> There are several issues here :
+> 
+> alloc_percpu() current implementation is a a waste of ram. (because it uses 
+> slab allocations that have a minimum size of 32 bytes)
 
-Signed-off-by: Paul Mundt <lethal@linux-sh.org>
+Oh there was a solution for that :).  
 
----
+http://lwn.net/Articles/119532/
 
- arch/sh/Kconfig            |    6 ------
- arch/sh/kernel/cpu/clock.c |   13 +------------
- 2 files changed, 1 insertions(+), 18 deletions(-)
+I can quickly revive it if there is interest.
 
-e3efa1355438864fd56f850604722dc62d2aaa1b
-diff --git a/arch/sh/Kconfig b/arch/sh/Kconfig
-index 01bc7d5..504d56f 100644
---- a/arch/sh/Kconfig
-+++ b/arch/sh/Kconfig
-@@ -396,14 +396,8 @@ source "arch/sh/boards/renesas/hs7751rvo
- 
- source "arch/sh/boards/renesas/rts7751r2d/Kconfig"
- 
--config SH_PCLK_FREQ_BOOL
--	bool "Set default pclk frequency"
--	default y if !SH_RTC
--	default n
--
- config SH_PCLK_FREQ
- 	int "Peripheral clock frequency (in Hz)"
--	depends on SH_PCLK_FREQ_BOOL
- 	default "50000000" if CPU_SUBTYPE_SH7750 || CPU_SUBTYPE_SH7780
- 	default "60000000" if CPU_SUBTYPE_SH7751
- 	default "33333333" if CPU_SUBTYPE_SH7300 || CPU_SUBTYPE_SH7770 || CPU_SUBTYPE_SH7760
-diff --git a/arch/sh/kernel/cpu/clock.c b/arch/sh/kernel/cpu/clock.c
-index 989e7fd..97fa37f 100644
---- a/arch/sh/kernel/cpu/clock.c
-+++ b/arch/sh/kernel/cpu/clock.c
-@@ -38,9 +38,7 @@ static DECLARE_MUTEX(clock_list_sem);
- static struct clk master_clk = {
- 	.name		= "master_clk",
- 	.flags		= CLK_ALWAYS_ENABLED | CLK_RATE_PROPAGATES,
--#ifdef CONFIG_SH_PCLK_FREQ_BOOL
- 	.rate		= CONFIG_SH_PCLK_FREQ,
--#endif
- };
- 
- static struct clk module_clk = {
-@@ -227,16 +225,7 @@ int __init clk_init(void)
- {
- 	int i, ret = 0;
- 
--	if (unlikely(!master_clk.rate))
--		/*
--		 * NOTE: This will break if the default divisor has been
--		 * changed.
--		 *
--		 * No one should be changing the default on us however,
--		 * expect that a sane value for CONFIG_SH_PCLK_FREQ will
--		 * be defined in the event of a different divisor.
--		 */
--		master_clk.rate = get_timer_frequency() * 4;
-+	BUG_ON(unlikely(!master_clk.rate));
- 
- 	for (i = 0; i < ARRAY_SIZE(onchip_clocks); i++) {
- 		struct clk *clk = onchip_clocks[i];
+
+Thanks,
+Kiran

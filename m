@@ -1,43 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422660AbWA0XHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422672AbWA0XHM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422660AbWA0XHF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 18:07:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751584AbWA0XHE
+	id S1422672AbWA0XHM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 18:07:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751584AbWA0XHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 18:07:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:49794 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422660AbWA0XHB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 18:07:01 -0500
-Date: Fri, 27 Jan 2006 15:08:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: kiran@scalex86.org, dada1@cosmosbay.com, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, shai@scalex86.org, netdev@vger.kernel.org,
-       pravins@calsoftinc.com
-Subject: Re: [patch 3/4] net: Percpufy frequently used variables --
- proto.sockets_allocated
-Message-Id: <20060127150847.48c312c0.akpm@osdl.org>
-In-Reply-To: <20060127150106.38b9e041.akpm@osdl.org>
-References: <20060126185649.GB3651@localhost.localdomain>
-	<20060126190357.GE3651@localhost.localdomain>
-	<43D9DFA1.9070802@cosmosbay.com>
-	<20060127195227.GA3565@localhost.localdomain>
-	<20060127121602.18bc3f25.akpm@osdl.org>
-	<20060127224433.GB3565@localhost.localdomain>
-	<20060127150106.38b9e041.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Fri, 27 Jan 2006 18:07:12 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:43428 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751454AbWA0XHG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 18:07:06 -0500
+Date: Fri, 27 Jan 2006 17:06:59 -0600
+From: Jack Steiner <steiner@sgi.com>
+To: mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.16 - sys_sched_getaffinity & hotplug
+Message-ID: <20060127230659.GA4752@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> Oh, and because vm_acct_memory() is counting a singleton object, it can use
-> DEFINE_PER_CPU rather than alloc_percpu(), so it saves on a bit of kmalloc
-> overhead.
 
-Actually, I don't think that's true.  we're allocating a sizeof(long) with
-kmalloc_node() so there shouldn't be memory wastage.
+It appears if CONFIG_HOTPLUG_CPU is enabled, then all possible
+cpus (0 .. NR_CPUS-1) are set in the cpu_possible_map on IA64.
+
+	void __init
+	smp_build_cpu_map (void)
+	{
+	...
+        	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+                	ia64_cpu_to_sapicid[cpu] = -1;
+	#ifdef CONFIG_HOTPLUG_CPU				<<<<
+                	cpu_set(cpu, cpu_possible_map);		<<<<
+	#endif							<<<<
+        	}
+
+
+sched_getaffinity() returns the cpu_possible_map and'd with the current
+task p->cpus_allowed. The default cpus_allowed is all ones.
+
+This is causing problems for apps that use sched_get_sched_affinity()
+to determine which cpus that they are allowed to run on.
+The call to sched_getaffinity returns:
+
+	(from strace on a 2 cpu system with NR_CPUS = 512)
+	sched_getaffinity(0, 1024,  { ffffffffffffffff, ffffff ...
+
+
+
+The man page for sched_getaffinity() is ambiguous. It says:
+	- A set bit corresponds to a legally  schedulable  CPU
+
+But it also says:
+	- Usually, all bits in the mask are set.
+
+
+Should the following change be made to sched_getaffinity(). 
+
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c	2006-01-25 08:50:21.401747695 -0600
++++ linux/kernel/sched.c	2006-01-27 16:57:24.504871895 -0600
+@@ -4031,7 +4031,7 @@ long sched_getaffinity(pid_t pid, cpumas
+ 		goto out_unlock;
+ 
+ 	retval = 0;
+-	cpus_and(*mask, p->cpus_allowed, cpu_possible_map);
++	cpus_and(*mask, p->cpus_allowed, cpu_online_map);
+ 
+ out_unlock:
+ 	read_unlock(&tasklist_lock);
+
+-- 
+Thanks
+
+Jack Steiner (steiner@sgi.com)
+
 

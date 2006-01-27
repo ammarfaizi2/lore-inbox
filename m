@@ -1,74 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbWA0Oay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWA0Ofe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751238AbWA0Oay (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 09:30:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWA0Oay
+	id S1751324AbWA0Ofe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 09:35:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWA0Ofe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 09:30:54 -0500
-Received: from dtp.xs4all.nl ([80.126.206.180]:29128 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1751238AbWA0Oay (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 09:30:54 -0500
-Date: Fri, 27 Jan 2006 15:30:52 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Karel Kulhavy <clock@twibright.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel manual pages
-Message-ID: <20060127143052.GF3673@harddisk-recovery.com>
-References: <20060127092623.GA7882@kestrel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060127092623.GA7882@kestrel>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+	Fri, 27 Jan 2006 09:35:34 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:42432 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1751324AbWA0Ofd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 09:35:33 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Fri, 27 Jan 2006 15:30:17 +0100
+Cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43DA2E79.nailFM911AZXH@burner>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+ <43D7A7F4.nailDE92K7TJI@burner>
+ <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
+ <43D7B1E7.nailDFJ9MUZ5G@burner>
+ <20060125230850.GA2137@merlin.emma.line.org>
+ <43D8C04F.nailE1C2X9KNC@burner> <20060126161028.GA8099@suse.cz>
+In-Reply-To: <20060126161028.GA8099@suse.cz>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2006 at 10:26:23AM +0100, Karel Kulhavy wrote:
-> Who is responsible for writing the linux kernel manual pages?  I went to
-> vger.kernel.org and there is "There is much information about Linux on
-> the web." which points to 7 different 3rd party websites.  I searched
-> for "manual" and "manpage" in all 7 and didn't find any mention of
-> manual pages.
+Vojtech Pavlik <vojtech@suse.cz> wrote:
 
-The manpage editor, which is a completely different project than the
-linux kernel itself. The manual pages are usually edited by the
-distributions, so use the package manager for your distribution figure
-out which manpage they belong to and file a patch/bug for the pages you
-(dis)like:
+> > The only integrative (and this useful for libscg) interface on Linux is /dev/sg*
+> > 
+> > /dev/hd* may look nice if you only look skin-deep
+> > 
+> > How do you e.g. like send SCSI commands to ATAPI tape drives on Linux?
+>  
+> I see you asking this again and again, and you seem to want to hear this
+> answer: "You don't." I haven't checked the code, but I guess the SG_IO
+> interface isn't available there. And I don't think this is a problem,
+> because a) if it was needed, it can be added trivially with minimum
+> added code, b) ATAPI tapes are dead, much the way ATAPI floppies are.
 
-  dpkg -S /usr/share/man/man4/ttyS.4.gz (debian based distros)
-  rpm -qf /usr/share/man/man4/ttyS.4.gz (rpm based distros)
+Nice to see that agree that sending SCSI via /dev/hd* is a hack with limited 
+benefit.
 
-The distribution maintainer should take care of submitting the changes
-upstream.
+Maybe (now that we did agree about the way to go) it makes sense to start 
+discussing which bugs in Linux need to be fixed in order to close e.g.
+the Bugs in the Debian bug tracking system for cdrtools that are related to the 
+Linux kernel.
 
-> I also suggest the http://kernel.org/links.html to be structured
-> according to topic, and not according to name of the website. Because
-> if the user comes, he mostly needs to know information about particular
-> topic. This way he doesn't know which link to click to obtain the
-> information.
+This are the three most important Linux kernel bugs:
 
-Kernel.org is for distribution of the linux kernel for use by
-developers and advanced users. Joe Random User shouldn't be compiling
-his kernel in the first place, so making kernel.org "user friendly"
-doesn't serve any purpose. The amount of links on that particular page
-also doesn't really need a structure, even Joe Random User would be
-able to navigate it.
+-	ide-scsi does not do DMA if the DMAsize is not a multiple of 512
+	A person who knows internal Linux structures shoule be able
+	to fix this (and allow any multiple of 4) in less than one hour.
+	If we sum up the time spend on this discussoion, I really cannot
+	understand why this has not been fixed earlier.
 
-> Furthermore I suggest "Manuals" section to be added to vger.kernel.org
-> in the style OpenBSD has:
-> http://openbsd.org/
-> http://www.openbsd.org/cgi-bin/man.cgi
+-	/dev/hd* artificially prevents the ioctls SCSI_IOCTL_GET_IDLUN
+	SCSI_IOCTL_GET_BUS_NUMBER from returning useful values.
+	As long as this bug is present, there is no way to see SG_IO 
+	via /dev/hd* as integral part of the Linux SCSI transport concept.
 
-Manpages are userland stuff and therefore do not belong on kernel.org.
-The kernel is documented in the Documentation/ directory in the source
-tree, and ultimately in the source itself.
+-	If sending SCSI sia ATAPI, Linux under certain unknown conditions
+	bastardizes the content of SCSI commands. A possible reason may be
+	that it sends random data in the remainder between the actual 
+	SCSI cdb size and the ATAPI SCSI cdb size.
 
+	ATAPI drives that verify SCSI cdb's for correctness fail in this
+	case.
 
-Erik
+Jörg
 
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

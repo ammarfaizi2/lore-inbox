@@ -1,96 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWA0FBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbWA0FH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbWA0FBI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 00:01:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWA0FBH
+	id S932248AbWA0FH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 00:07:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWA0FH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 00:01:07 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:20935
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S932395AbWA0FBG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 00:01:06 -0500
-Date: Thu, 26 Jan 2006 21:01:09 -0800
-From: Greg KH <greg@kroah.com>
-To: Aritz Bastida <aritzbastida@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Right way to configure a driver? (sysfs, ioctl, proc, configfs,....)
-Message-ID: <20060127050109.GA23063@kroah.com>
-References: <7d40d7190601261206wdb22ccck@mail.gmail.com>
+	Fri, 27 Jan 2006 00:07:57 -0500
+Received: from main.gmane.org ([80.91.229.2]:36808 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932248AbWA0FH4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 00:07:56 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: libata errors in 2.6.15.1 ICH6 AHCI (SATA drive WD740GD)
+Date: Fri, 27 Jan 2006 14:07:41 +0900
+Message-ID: <drc9qt$mk4$1@sea.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7d40d7190601261206wdb22ccck@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
+User-Agent: Mail/News 1.5 (X11/20060115)
+X-Enigmail-Version: 0.94.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 26, 2006 at 09:06:28PM +0100, Aritz Bastida wrote:
-> Hello everybody.
-> 
-> I'm quite a newbie in the kernel development, but I'm writing a kernel
-> module and would like to do the things right. What I'm trying to do
-> is, more or less, a kind of "virtual" network device (not really that
-> but it will suffice).
-> 
-> This network device can be configured from userspace. I have read the
-> books "Linux Device Drivers 3" (LDD3) and "Linux Kernel Development"
-> and after that I didn't find the answer to the question I was making
-> myself: What should be the right way to configure it?
+Hi there.
 
-It all depends on what you want to configure, and what type of thing you
-are configuring.
+I am reiterating this, while trying to diagnose the problem.
+It is a DIY box with Asus P5GDC-V Deluxe motherboard with Marvel 88E8053 GB
+ethernet (for info see [1]) and WD740GD (10k RPM) harddisk.
 
-> In LDD3 it says that ioctls fall out of favor among kernel developers,
-> but there is not a  strong _advise_ to use another method. It says
-> that instead of that sysfs _could_ be used. Of course, that was almost
-> a year ago. I'm sure things have changed since then.
+The NIC was not found by the in kernel driver, so I used a patch to sk98lin
+binary driver, later tried sky2; both with intermittent succes. Now I have a
+r8169 NIC and have disabled on board one in BIOS and put a new vanilla
+linux-2.6.5.1
 
-No, not really.
+After some time (30 minutes to 3 days) the machine dies, first the disk,
+some partitions mounted RO by the kernel, finally everything is dead (no
+response to ping and KBD).
 
-> So, well, I did all this configuration using ioctls and proc, which
-> was the fastest for me, but may be not the best solution. So I'm
-> asking for advise here.
+What I get in the dmesg is this:
+...
+[   23.464209] hub 5-0:1.0: USB hub found
+[   23.464221] hub 5-0:1.0: 8 ports detected
+[   25.819331] r8169: eth0: link up
+[13091.397797] ata1: handling error/timeout
+[13091.397805] ata1: port reset, p_is 0 is 0 pis 0 cmd 4017 tf d0 ss 113 se 0
+[13091.397823] ata1: status=0x50 { DriveReady SeekComplete }
+[13091.397828] sda: Current: sense key=0x0
+[13091.397831]     ASC=0x0 ASCQ=0x0
+[13091.481534] ata1: port reset, p_is 40000001 is 1 pis 0 cmd 4017 tf 471 ss
+113 se 0
+[13091.481542] ata1: translated ATA stat/err 0x71/04 to SCSI SK/ASC/ASCQ
+0xb/00/00
+[13091.481544] ata1: status=0x71 { DriveReady DeviceFault SeekComplete Error }
+[13091.481549] ata1: error=0x04 { DriveStatusError }
+...
 
-do NOT use proc, unless you are doing things that concern processes.
+The full dmesg can be found under [1] as 2.6.15.1-K01_P4_server.3.dmesg
 
-> The configuration I need to do is actually quite simple. Most of the
-> commands are just set or get a variable defined in my module (for
-> example, write to a flags variable, just like in real network devices
-> -- i.e. IF_UP). The most difficult "config" I need to do is write a
-> struct to the module (just write two variables in the same command).
+I checked the drive (on the same machine) both with smartctl and with the
+boot floppy I downloaded from WD support site (Data lifeguard tools).
+Neither reported anything bad (yes I looked the status after the test).
 
-That sounds like something that sysfs or even debugfs is perfict for.
+The filesystem (reiserfs) does fscheck on every bood, but so far corruption
+has not occured as far as I can see.
 
-> What way do you suggest for all this? Is sysfs correct for this? What
-> about the new filesystem "configfs"? I've just heard about it, but I
-> don't even have it mounted on my system. Would it be what I need?
+As always, the usual question is:
 
-Read the docs on configfs for details on that.  But for simple variables
-like you describe, either sysfs or debugfs are the best.
+What is the cause of this? Bug?
 
-> On the other hand, I also need to export some statistics to userspace.
-> These are similar to the ones in a network device: packets received,
-> dropped,... but I would like to export not just the number of packets
-> received, but the number received by _each_ cpu, as well as the total.
-> Would you recommend me /proc or sysfs?
+What can I do to better diagnose it?
 
-Again, not proc.  So sysfs.
+Is any additional info helpful (see [1])?
 
-> In case of using sysfs, would this be the correct approach or you
-> would recommend  one value per file?
+Dmesg and other hardware info can be found here:
+[1]:	http://linux.tar.bz/reports/oopses/char/
 
-Yes.
+Kalin.
+-- 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
 
-> $ cat rx_packets
->      10     15     25
-> where the first value is packets received in CPU0, the second in CPU1
-> and the last the total.
-
-No.  Have 3 different files:
-	rx_packets_cpu0
-	rx_packets_cpu1
-	rx_packets_total
-
-Hope this helps,
-
-greg k-h

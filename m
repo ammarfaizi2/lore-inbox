@@ -1,80 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751570AbWA0Wai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751563AbWA0WaT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751570AbWA0Wai (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 17:30:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWA0Wai
+	id S1751563AbWA0WaT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 17:30:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWA0WaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 17:30:38 -0500
-Received: from mf01.sitadelle.com ([212.94.174.68]:30077 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1751567AbWA0Wag
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 17:30:36 -0500
-Message-ID: <43DA9EFF.1020200@cosmosbay.com>
-Date: Fri, 27 Jan 2006 23:30:23 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ravikiran G Thirumalai <kiran@scalex86.org>, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, shai@scalex86.org, netdev@vger.kernel.org,
-       pravins@calsoftinc.com
-Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
-References: <20060126185649.GB3651@localhost.localdomain>	<20060126190357.GE3651@localhost.localdomain>	<43D9DFA1.9070802@cosmosbay.com>	<20060127195227.GA3565@localhost.localdomain> <20060127121602.18bc3f25.akpm@osdl.org>
-In-Reply-To: <20060127121602.18bc3f25.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 27 Jan 2006 17:30:19 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:62438 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751563AbWA0WaS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 17:30:18 -0500
+Date: Fri, 27 Jan 2006 14:32:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [patch] drivers/block/floppy.c: dont free_irq() from irq
+ context
+Message-Id: <20060127143215.5e349aeb.akpm@osdl.org>
+In-Reply-To: <20060126162922.GA5135@elte.hu>
+References: <20060126162922.GA5135@elte.hu>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton a écrit :
-> Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
->> On Fri, Jan 27, 2006 at 09:53:53AM +0100, Eric Dumazet wrote:
->>> Ravikiran G Thirumalai a écrit :
->>>> Change the atomic_t sockets_allocated member of struct proto to a 
->>>> per-cpu counter.
->>>>
->>>> Signed-off-by: Pravin B. Shelar <pravins@calsoftinc.com>
->>>> Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
->>>> Signed-off-by: Shai Fultheim <shai@scalex86.org>
->>>>
->>> Hi Ravikiran
->>>
->>> If I correctly read this patch, I think there is a scalability problem.
->>>
->>> On a big SMP machine, read_sockets_allocated() is going to be a real killer.
->>>
->>> Say we have 128 Opterons CPUS in a box.
->> read_sockets_allocated is being invoked when when /proc/net/protocols is read,
->> which can be assumed as not frequent.  
->> At sk_stream_mem_schedule(), read_sockets_allocated() is invoked only 
->> certain conditions, under memory pressure -- on a large CPU count machine, 
->> you'd have large memory, and I don't think read_sockets_allocated would get 
->> called often.  It did not atleast on our 8cpu/16G box.  So this should be OK 
->> I think.
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> free_irq() should not be executed from softirq context.
 > 
-> That being said, the percpu_counters aren't a terribly successful concept
-> and probably do need a revisit due to the high inaccuracy at high CPU
-> counts.  It might be better to do some generic version of vm_acct_memory()
-> instead.
+> ...
+> 
+> the fix is to push fd_free_irq() into keventd. The code validates fine 
+> with this patch applied.
+> 
+> --- linux.orig/drivers/block/floppy.c
+> +++ linux/drivers/block/floppy.c
 
-There are several issues here :
+You know this makes you the floppy maintainer?
 
-alloc_percpu() current implementation is a a waste of ram. (because it uses 
-slab allocations that have a minimum size of 32 bytes)
+> @@ -251,6 +251,18 @@ static int irqdma_allocated;
+>  #include <linux/cdrom.h>	/* for the compatibility eject ioctl */
+>  #include <linux/completion.h>
+>  
+> +/*
+> + * Interrupt freeing also means /proc VFS work - dont do it
+> + * from interrupt context. We push this work into keventd:
+> + */
+> +static void fd_free_irq_fn(void *data)
+> +{
+> +	fd_free_irq();
+> +}
+> +
+> +static DECLARE_WORK(fd_free_irq_work, fd_free_irq_fn, NULL);
+> +
+> +
+>  static struct request *current_req;
+>  static struct request_queue *floppy_queue;
+>  static void do_fd_request(request_queue_t * q);
+> @@ -4434,6 +4446,13 @@ static int floppy_grab_irq_and_dma(void)
+>  		return 0;
+>  	}
+>  	spin_unlock_irqrestore(&floppy_usage_lock, flags);
+> +
+> +	/*
+> +	 * We might have scheduled a free_irq(), wait it to
+> +	 * drain first:
+> +	 */
+> +	flush_scheduled_work();
+> +
 
-Currently we cannot use per_cpu(&some_object, cpu), so a generic version of 
-vm_acct_memory() would need a rework of percpu.h and maybe this is not 
-possible on every platform ?
+yup.
 
-#define per_cpu(var, cpu) (*RELOC_HIDE(&per_cpu__##var, __per_cpu_offset[cpu]))
+>  	if (fd_request_irq()) {
+>  		DPRINT("Unable to grab IRQ%d for the floppy driver\n",
+>  		       FLOPPY_IRQ);
+> @@ -4523,7 +4542,7 @@ static void floppy_release_irq_and_dma(v
+>  	if (irqdma_allocated) {
+>  		fd_disable_dma();
+>  		fd_free_dma();
+> -		fd_free_irq();
+> +		schedule_work(&fd_free_irq_work);
+>  		irqdma_allocated = 0;
+>  	}
+>  	set_dor(0, ~0, 8);
 
--->
+I think we need a flush_scheduled_work() in cleanup_module() too.  Because
+floppy_release_irq_and_dma() might have taken usage_count to zero, but the
+workqueue is still pending.
 
-#define per_cpu_name(var) per_cpu__##var
-#define per_cpu_addr(var) &per_cpu_name(var)
-#define per_cpu(var, cpu) (*RELOC_HIDE(per_cpu_addr(var), __per_cpu_offset[cpu])
-
-
-But this could render TLS migration difficult...
-
-Eric
+This patch doesn't do anything to improve the floppy driver :(

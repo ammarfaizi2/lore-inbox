@@ -1,78 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWA0FWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWA0FYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbWA0FWa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 00:22:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbWA0FWa
+	id S1750741AbWA0FYy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 00:24:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWA0FYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 00:22:30 -0500
-Received: from main.gmane.org ([80.91.229.2]:38312 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932407AbWA0FW3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 00:22:29 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: [RFT] sky2: pci express error fix
-Date: Fri, 27 Jan 2006 14:22:00 +0900
-Message-ID: <drcalp$oq9$1@sea.gmane.org>
-References: <200601190930.k0J9US4P009504@typhaon.pacific.net.au>	<20060124220533.5fade501@localhost.localdomain>	<drasb9$5jj$1@sea.gmane.org> <20060126095145.7d6fc4e4@dxpl.pdx.osdl.net>
+	Fri, 27 Jan 2006 00:24:54 -0500
+Received: from h80ad2572.async.vt.edu ([128.173.37.114]:52916 "EHLO
+	h80ad2572.async.vt.edu") by vger.kernel.org with ESMTP
+	id S1750741AbWA0FYx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 00:24:53 -0500
+Message-Id: <200601270524.k0R5OIS8019541@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: jerome.lacoste@gmail.com, rlrevell@joe-job.com, mrmacman_g4@mac.com,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest) 
+In-Reply-To: Your message of "Thu, 26 Jan 2006 15:03:11 +0100."
+             <43D8D69F.nailE2XAJ2XIA@burner> 
+From: Valdis.Kletnieks@vt.edu
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43D7A7F4.nailDE92K7TJI@burner> <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com> <43D7B075.6000602@gmx.de> <43D7B2DF.nailDFJA51SL1@burner> <43D7B5BE.60304@gmx.de> <43D89B7C.nailDTH38QZBU@burner> <5a2cf1f60601260234r4c5cde3fu3e8d79e816b9f3fd@mail.gmail.com>
+            <43D8D69F.nailE2XAJ2XIA@burner>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; boundary="==_Exmh_1138339457_2915P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mail/News 1.5 (X11/20060115)
-In-Reply-To: <20060126095145.7d6fc4e4@dxpl.pdx.osdl.net>
-X-Enigmail-Version: 0.94.0.0
+Date: Fri, 27 Jan 2006 00:24:17 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> On Fri, 27 Jan 2006 01:11:20 +0900
-> Kalin KOZHUHAROV <kalin@thinrope.net> wrote:
-> 
->> Stephen Hemminger wrote:
->>> For all those people suffering with pci express errors
->>> on the sky2 driver.  The problem is the PCI subsystem sometimes
->>> won't let the sky2 driver write to PCI express registers. It depends
->>> on the phase of the moon (actually ACPI) and number of devices.
->>>
->>> Anyway, this should fix it. Please tell me if it solves it for you.
->> Can you describe the bug a bit more? What happens?
->>
->> I had a few times something like this:
->>
->> [   24.145040] sky2 eth0: phy interrupt status 0x1c40 0xbc0c
-> 
->> [ 3647.341757] sky2 eth0: phy interrupt status 0x1c40 0xbc4c
->>
-> 
-> Looks like a noisy crappy cable causing PHY link status changes.
+--==_Exmh_1138339457_2915P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-I will check that particular cable on monday, but it *should* be CAT6 not
-very cheap cable (Japanese brand: Elecom). In the worst case it is a CAT5e
-from probably the same brand. (just because there are no other cables in the
-office)
+On Thu, 26 Jan 2006 15:03:11 +0100, Joerg Schilling said:
+> jerome lacoste <jerome.lacoste=40gmail.com> wrote:
 
-Can these errors be caused by bad hub?
->From what I've seen the network on this machine dies at the same time (not
-sure before or after) as the error in dmesg.
+> >   ssh user=40host cdrecord dev=3D/dev/cdrw /path/to/file.iso
+>=20
+> On the vast majority of OS this does not work.
 
->> after which all network was dead. (and it wasn't a module so had to
->> restart). As you can see from the above two logs, sometimes it failed on
->> boot, sometimes after an hour. Sourry, I didn't remember the phase of the
->> moon, but I can check :-)
->>
->> I have two Asus P5GDC-V Deluxe boards, with these chips. One of them is
->> happily working with sk98lin (the binary one), the other is dying miserably,
->> so now I use r8169 card to be able to isolate the problem (separate mail).
-Forgot to post it, now it went under the subject:
-	libata errors in 2.6.15.1 ICH6 AHCI (SATA drive WD740GD)
+OK.. If =22vast majority=22 is the proper way to decide this issue..
 
-Kalin.
+.. What does WinXP call the CD writer device?
 
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
+What's wrong with this picture?  Maybe =22vast majority=22 is the wrong c=
+riteria...
 
+'cdrecord -scanbus' tells me I'm supposed to use 'dev=3D0,1,0', which has=
+ *zero*
+meaning to me, since my laptop has no SCSI in it.  Fortunately, I also ha=
+ve a
+/dev/hdb, and 'dev=3D/dev/hdb' works the way one would expect if they wer=
+en't
+attached to a 1986-style naming scheme for some transport mechanism that =
+isn't
+present on my hardware.
+
+And you know what? I really don't give a flying <fornicate> in a rolling =
+donut
+what FreeBSD calls the device. If I did, I'd have installed FreeBSD.  But=
+ I
+installed a Fedora distro of Linux, and the only sane naming scheme is th=
+e
+one that Fedora uses...
+
+
+--==_Exmh_1138339457_2915P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFD2a6BcC3lWbTT17ARArkpAKC90JBwqaIVZFXrMRRThWzeieHnPwCdGNn5
+bVzkvRUqzG0pGyZmYtK/1D0=
+=Ba3Q
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1138339457_2915P--

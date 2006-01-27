@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbWA0ITm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWA0IVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030294AbWA0ITm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 03:19:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030296AbWA0ITm
+	id S1750750AbWA0IVa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 03:21:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWA0IVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 03:19:42 -0500
-Received: from highlandsun.propagation.net ([66.221.212.168]:3595 "EHLO
-	highlandsun.propagation.net") by vger.kernel.org with ESMTP
-	id S1030292AbWA0ITl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 03:19:41 -0500
-Message-ID: <43D9D79D.9000402@symas.com>
-Date: Fri, 27 Jan 2006 00:19:41 -0800
-From: Howard Chu <hyc@symas.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20060115 SeaMonkey/1.5a Mnenhy/0.7.3.0
-MIME-Version: 1.0
-To: davids@webmaster.com
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
-References: <MDEHLPKNGKAHNMBLJOLKOEBHJLAB.davids@webmaster.com>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKOEBHJLAB.davids@webmaster.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 27 Jan 2006 03:21:30 -0500
+Received: from smtp3.wanadoo.fr ([193.252.22.28]:25419 "EHLO smtp3.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S1750750AbWA0IVa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 03:21:30 -0500
+X-ME-UUID: 20060127082128782.BEFA01C0035F@mwinf0306.wanadoo.fr
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Albert Cahalan <acahalan@gmail.com>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <787b0d920601261619l43bb95f5k64ddd338f377e56a@mail.gmail.com>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+	 <43D7A7F4.nailDE92K7TJI@burner>
+	 <787b0d920601251826l6a2491ccy48d22d33d1e2d3e7@mail.gmail.com>
+	 <43D8D396.nailE2X31OHFU@burner>
+	 <787b0d920601261619l43bb95f5k64ddd338f377e56a@mail.gmail.com>
+Content-Type: text/plain
+Message-Id: <1138350082.31306.104.camel@capoeira>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Fri, 27 Jan 2006 09:21:22 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz wrote:
->>> 	Third, there's the ambiguity of the standard. It says the "sceduling
->>> policy" shall decide, not that the scheduler shall decide. If
->>> the policy is
->>> to make a conditional or delayed decision, that is still perfectly valid
->>> policy. "Whichever thread requests it first" is a valid
->>> scheduler policy.
->>>       
+On Fri, 2006-01-27 at 01:19, Albert Cahalan wrote:
+> I may just be crazy enough to fork this project. I very nearly
+> did about 18 months ago. I can't very well do this alone,
+> because I don't have all the hardware.
 
->> I am not debating what the policy can decide. Merely the set of choices
->> from which it may decide.
->>     
->
-> 	Which is a restriction not found in the standard. A "policy" is a way of
-> deciding, not a decision. Scheduling policy can be to let whoever asks first
-> get it.
->   
+Then contribute code to libburn: <http://icculus.org/burn/>
 
-If we just went with "whoever asks first" then clearly one of the 
-blocked threads asked before the unlocker made its new request. You're 
-arguing for my point, then.
+	Xav
 
-Other ambiguities aside, one thing is clear - a decision is triggered by 
-the unlock. What you seem to be arguing is the equivalent of saying that 
-the decision is made based on the next lock operation. The spec doesn't 
-say that mutex_lock is to behave this way. Why do you suppose that is? 
-Perhaps you should raise this question with the Open Group.
-
--- 
-  -- Howard Chu
-  Chief Architect, Symas Corp.  http://www.symas.com
-  Director, Highland Sun        http://highlandsun.com/hyc
-  OpenLDAP Core Team            http://www.openldap.org/project/
 

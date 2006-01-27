@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030344AbWA0V7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422639AbWA0WDE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030344AbWA0V7E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 16:59:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030350AbWA0V7D
+	id S1422639AbWA0WDE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 17:03:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030352AbWA0WDE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 16:59:03 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:41689 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1030344AbWA0V7C (ORCPT
+	Fri, 27 Jan 2006 17:03:04 -0500
+Received: from tetsuo.zabbo.net ([207.173.201.20]:58823 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1030351AbWA0WDD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 16:59:02 -0500
-Message-ID: <43DA97A3.4080408@drzeus.cx>
-Date: Fri, 27 Jan 2006 22:58:59 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5 (X11/20060112)
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: How to map high memory for block io
-References: <43D9C19F.7090707@drzeus.cx> <20060127102611.GC4311@suse.de> <43D9F705.5000403@drzeus.cx> <20060127104321.GE4311@suse.de> <43DA0E97.5030504@drzeus.cx> <20060127194318.GA1433@flint.arm.linux.org.uk> <43DA7CD1.4040301@drzeus.cx> <20060127201458.GA2767@flint.arm.linux.org.uk> <20060127202206.GH9068@suse.de> <20060127202646.GC2767@flint.arm.linux.org.uk> <43DA84B2.8010501@drzeus.cx>
-In-Reply-To: <43DA84B2.8010501@drzeus.cx>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Jan 2006 17:03:03 -0500
+From: Zach Brown <zach.brown@oracle.com>
+To: Sam Ravnborg <sam@ravnborg.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Message-Id: <20060127220247.13917.8544.sendpatchset@tetsuo.zabbo.net>
+In-Reply-To: <20060127220242.13917.839.sendpatchset@tetsuo.zabbo.net>
+References: <20060127220242.13917.839.sendpatchset@tetsuo.zabbo.net>
+Subject: [PATCH 2/2] [x86] align per-cpu section to configured cache bytes
+Date: Fri, 27 Jan 2006 14:02:47 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman wrote:
-> Russell King wrote:
->   
->> On Fri, Jan 27, 2006 at 09:22:06PM +0100, Jens Axboe wrote:
->>   
->>     
->>> That is definitely valid, same goes for the bio_vec structure. They map
->>> _a_ page, after all :-)
->>>     
->>>       
->> Okay.  Pierre - are you saying that you have an sg entry where
->> sg->offset + sg->length > PAGE_SIZE, and hence is causing you to
->> cross a page boundary?
->>
->>   
->>     
->
-> That, and sg->length > PAGE_SIZE. On highmem systems this causes all
-> kinds of funky behaviour. Usually just bogus data in the buffers though.
->
->   
+[x86] align per-cpu section to configured cache bytes
 
-Test done here, few minutes ago. Added this to the wbsd driver in its
-kmap routine:
+This matches the fix for a bug seen on x86-64.  Test booted on old hardware
+that had 32 byte cachelines to begin with.
 
-    if ((host->cur_sg->offset + host->cur_sg->length) > PAGE_SIZE)
-        printk(KERN_DEBUG "wbsd: Big sg: %d, %d\n",
-            host->cur_sg->offset, host->cur_sg->length);
+  Signed-off-by: Zach Brown <zach.brown@oracle.com>
+---
 
-got:
+ arch/i386/kernel/vmlinux.lds.S |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
-[17385.425389] wbsd: Big sg: 0, 8192
-[17385.436849] wbsd: Big sg: 0, 7168
-[17385.436859] wbsd: Big sg: 0, 7168
-[17385.454029] wbsd: Big sg: 2560, 5632
-[17385.454216] wbsd: Big sg: 2560, 5632
-
-And so on.
-
-Rgds
-Pierre
-
+Index: 2.6.16-rc1-per-cpu-align/arch/i386/kernel/vmlinux.lds.S
+===================================================================
+--- 2.6.16-rc1-per-cpu-align.orig/arch/i386/kernel/vmlinux.lds.S	2006-01-27 13:21:34.000000000 -0800
++++ 2.6.16-rc1-per-cpu-align/arch/i386/kernel/vmlinux.lds.S	2006-01-27 13:32:55.000000000 -0800
+@@ -7,6 +7,7 @@
+ #include <asm-generic/vmlinux.lds.h>
+ #include <asm/thread_info.h>
+ #include <asm/page.h>
++#include <asm/cache.h>
+ 
+ OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
+ OUTPUT_ARCH(i386)
+@@ -115,7 +116,7 @@
+   __initramfs_start = .;
+   .init.ramfs : AT(ADDR(.init.ramfs) - LOAD_OFFSET) { *(.init.ramfs) }
+   __initramfs_end = .;
+-  . = ALIGN(32);
++  . = ALIGN(L1_CACHE_BYTES);
+   __per_cpu_start = .;
+   .data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) { *(.data.percpu) }
+   __per_cpu_end = .;

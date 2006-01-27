@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWA0TkV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbWA0Tn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932482AbWA0TkV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 14:40:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWA0TkV
+	id S932488AbWA0Tn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 14:43:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbWA0TnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 14:40:21 -0500
-Received: from tornado.reub.net ([202.89.145.182]:30858 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S932482AbWA0TkU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 14:40:20 -0500
-Message-ID: <43DA7722.6060107@reub.net>
-Date: Sat, 28 Jan 2006 08:40:18 +1300
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 1.5 (Windows/20060124)
-MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: Greg KH <greg@kroah.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.6.16-rc1-mm3
-References: <20060124232406.50abccd1.akpm@osdl.org>	<43D7567E.60003@reub.net>	<20060126053941.GA13361@kroah.com>	<43DA161C.1070404@reub.net>	<20060127172720.GB13320@kroah.com> <20060127094947.7439935d.zaitcev@redhat.com>
-In-Reply-To: <20060127094947.7439935d.zaitcev@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Jan 2006 14:43:25 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:20241 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932488AbWA0TnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 14:43:25 -0500
+Date: Fri, 27 Jan 2006 19:43:19 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: How to map high memory for block io
+Message-ID: <20060127194318.GA1433@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>
+References: <43D9C19F.7090707@drzeus.cx> <20060127102611.GC4311@suse.de> <43D9F705.5000403@drzeus.cx> <20060127104321.GE4311@suse.de> <43DA0E97.5030504@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43DA0E97.5030504@drzeus.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 27, 2006 at 01:14:15PM +0100, Pierre Ossman wrote:
+> Russell, would having a "highmem not supported" flag in the host
+> structure be an acceptable solution? mmc_block could then use that to
+> tell the block layer that bounce buffers are needed. As for other,
+> future, users they would have to take care not to give those drivers
+> highmem sg lists.
 
+The mmc_block layer only tells the block layer what the driver told it.
 
-On 28/01/2006 6:49 a.m., Pete Zaitcev wrote:
-> On Fri, 27 Jan 2006 09:27:20 -0800, Greg KH <greg@kroah.com> wrote:
-> 
->> How about just disabling USB legacy support in the bios completly?
->> Unless you have a USB keyboard that you need for a bootloader screen or
->> BIOS configuration, that's the recommended setting (due to all of the
->> horrible BIOS USB bugs we have seen over the years.)
-> 
-> I disagree with the "unless". Just disable it, period. Most of the time,
-> disabling "USB Legacy Support" leaves the bootloader fully operational.
-> I always recommend it as the first course of action in cases like this one.
+> The current buggy code, was modeled after another MMC driver (mmci). So
+> I suspect there might be more occurrences like this. Perhaps an audit
+> should be added as a janitor project?
 
-That seemed to clear the error message, and my 1.1 devices at least, still work 
-fine.  Perhaps the error message could be changed to point users in the right 
-direction to fixing this, perhaps something more like "0000:00:1d.7 EHCI: BIOS 
-handoff failed (BIOS bug?  Try disabling legacy USB support in BIOS if it is 
-enabled)"
+I don't see what the problem is.  A sg entry is a list of struct page
+pointers, an offset, and a size.  As such, it can't describe a transfer
+which crosses a page because such a structure does not imply that one
+struct page follows another struct page.
 
-Anyway, thanks for the hint (and sorry for the noise).
-
-reuben
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

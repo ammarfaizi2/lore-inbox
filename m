@@ -1,133 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbWA0JFt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbWA0JGW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932432AbWA0JFt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 04:05:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWA0JFs
+	id S932434AbWA0JGW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 04:06:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWA0JGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 04:05:48 -0500
-Received: from moutng.kundenserver.de ([212.227.126.171]:30408 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932429AbWA0JFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 04:05:47 -0500
-From: Prakash Punnoor <prakash@punnoor.de>
-To: jgarzik@pobox.com
-Subject: Re: libata support for JMicron JMB360 ?
-Date: Fri, 27 Jan 2006 10:08:22 +0100
-User-Agent: KMail/1.9
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-ide@vger.kernel.org
-References: <200512301541.36483.prakash@punnoor.de> <200512311047.54929.prakash@punnoor.de>
-In-Reply-To: <200512311047.54929.prakash@punnoor.de>
+	Fri, 27 Jan 2006 04:06:22 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47554 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932430AbWA0JGU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 04:06:20 -0500
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: Arjan van de Ven <arjan@infradead.org>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+References: <1137518714.5526.8.camel@localhost.localdomain>
+	<20060118045518.GB7292@kroah.com>
+	<1137601395.7850.9.camel@localhost.localdomain>
+	<m1fyniomw2.fsf@ebiederm.dsl.xmission.com>
+	<43D14578.6060801@watson.ibm.com>
+	<m1hd7xmylo.fsf@ebiederm.dsl.xmission.com>
+	<CC5052ED-FEC1-4B0C-A8A7-3CD190ADF0D3@mac.com>
+	<m18xt8mffq.fsf@ebiederm.dsl.xmission.com>
+	<1137945325.3328.17.camel@laptopd505.fenrus.org>
+	<m14q3wmds4.fsf@ebiederm.dsl.xmission.com>
+	<20060126200142.GB20473@MAIL.13thfloor.at>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 27 Jan 2006 02:04:21 -0700
+In-Reply-To: <20060126200142.GB20473@MAIL.13thfloor.at> (Herbert Poetzl's
+ message of "Thu, 26 Jan 2006 21:01:42 +0100")
+Message-ID: <m1d5ieghyi.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart19973450.pgB6uOvJAf";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601271008.25812.prakash@punnoor.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart19973450.pgB6uOvJAf
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Herbert Poetzl <herbert@13thfloor.at> writes:
 
-Am Samstag Dezember 31 2005 10:47 schrieb Prakash Punnoor:
-> Am Freitag Dezember 30 2005 15:41 schrieb Prakash Punnoor:
-> > Hi,
-> >
-> > I read in an old thread that this question was asked once and you repli=
-ed
-> > you never heard of this chip. Maybe now the situation has changed? If
-> > not, please take a look here:
-> >
-> > http://www.jmicron.com/product/jmb360.htm
-> >
-> > It claims the chip is ahci compatible, but the libata ahci driver can't
-> > detect it (tried 2.6.14.2 and 2.6.15-rc7).
-> >
-> > Maybe just adding some ids or such is enough for supporting it?
-> > Following lspci -vvv -xxx regrading the Jmicron stuff:
->
-> [...]
->
-> Well, I tried adding the ids into ahci.c, but this wasn't enough:
->
-> --- linux-2.6.15-rc7/drivers/scsi/ahci.c.old	2005-12-31 10:36:35.000000000
-> +0100
-> +++ linux-2.6.15-rc7/drivers/scsi/ahci.c	2005-12-31 10:36:45.000000000
-> +0100 @@ -277,6 +277,8 @@
->  	  board_ahci }, /* ESB2 */
->  	{ PCI_VENDOR_ID_INTEL, 0x27c6, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
->  	  board_ahci }, /* ICH7-M DH */
-> +	{ 0x197b, 0x2360, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-> +	  board_ahci }, /* JMicron JMB360 */
->  	{ }	/* terminate list */
->  };
->
-> dmesg gives:
-> libata version 1.20 loaded.
-> ahci 0000:03:00.0: version 1.2
-> ACPI: PCI Interrupt 0000:03:00.0[A] -> GSI 35 (level, low) -> IRQ 50
-> PCI: Setting latency timer of device 0000:03:00.0 to 64
-> ahci 0000:03:00.0: AHCI 0001.0000 32 slots 1 ports 3 Gbps 0x1 impl SATA
-> mode ahci 0000:03:00.0: flags: 64bit ncq pm led clo pmp pio slum part
-> ata1: SATA max UDMA/133 cmd 0xF8804100 ctl 0x0 bmdma 0x0 irq 50
-> ata1 is slow to respond, please be patient
-> ata1 failed to respond (30 secs)
-> scsi0 : ahci
+> well, yes, but wouldn't that be the RightThing(tm) 
+> anway? because 'referencing' something via a pid, then
+> letting the task holding the pid go away and even be
+> replaced by a new one (with the same pid) which then
+> will get suddenly signaled from somewhere, just because
+> the pid matches seems very broken to me ...
 
+Agreed, but that describes the current state of the kernel.
 
-Hi Jeff,
+Using a task_struct for referencing kernel threads where there
+is tight collaboration seems sane.  However using a task_struct
+is impossible when referring to process groups, and it feels
+like a bad idea to reference user space processes.
 
-I still haven't got a reply from lkml, but an JMicron employee contacted me=
-=20
-and told me how to get this working:
+Basically my concern is that by using task structs internally
+the kernel will start collecting invisible zombies.  And
+with a case like struct fown_struct we could force RLIMIT_NOFILE task
+structs into memory, per hostile process.  Usually this is much more
+than RLIMIT_NPROC which limits the total number of live processes
+and zombies a single user may create.
 
-> //=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=20
-> Root Cause:=20
-> Although AsRock reserves AHCI/IDE mode for JMB360, AsRock sets JMB360 in =
-=20
-> IDE mode actually when boot.=20
-> JMB360 needs a Reset mechanism to switch to AHCI mode on AsRock MB for =20
-> your Linux driver porting.=20
-> =20
-> Reset Mechanism:=20
-> 1. At PCI Configuration Address h'41, write value h'a1 (default is h'f1)=
-=20
-> 2. At AHCI Base address+offset h'04, write 1'b1 at bit 0 location. It is =
-=20
-> "HBA Reset" bit.=20
-> 3. And then JMB360 come back to AHCI mode=20
-> //=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
- =20
-Unfortunately my kernel knowledge is next to none, so I cannot implement th=
-is.=20
-But I guess it should be easy for you or anyone else having done similar. T=
-he=20
-employee actually told me that he mailed above to you, so was it just lack =
-of=20
-time, you didn't made a quirk or any other reason?
+So assuming RLIMIT_NPROC == 100 and RLIMIT_NOFILE == 1024
 
-Cheers,
-=2D-=20
-(=C2=B0=3D                 =3D=C2=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+Which means something like 100*1024*sizeof(struct task_struct) bytes
+sizeof(struct task_struct) is somewhere between 512 and 1K bytes,
+on a 32bit platform.
 
---nextPart19973450.pgB6uOvJAf
-Content-Type: application/pgp-signature
+So 100*1024*512 to 100*1024*1024 = 50 to 100MB.
+Being able to pin 100MB with modest ulimits does not sound like an
+obvious fix to me.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+Given what a hostile user can potentially accomplish I think anything that
+approaches using struct task_struct pointers as a replacements for pids
+should be approached carefully.
 
-iD8DBQBD2eMJxU2n/+9+t5gRAmj+AKDb0c3bbRSHHaezOfxpM8Q5JoYNwQCePIfD
-3A8sgLQ0qYOBxmln9qRqc7Y=
-=CNy0
------END PGP SIGNATURE-----
+Eric
 
---nextPart19973450.pgB6uOvJAf--

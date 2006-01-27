@@ -1,67 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161009AbWA0UVn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161006AbWA0UYu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161009AbWA0UVn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 15:21:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161011AbWA0UVn
+	id S1161006AbWA0UYu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 15:24:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161008AbWA0UYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 15:21:43 -0500
-Received: from dns.toxicfilms.tv ([150.254.220.184]:50894 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S1161010AbWA0UVm
+	Fri, 27 Jan 2006 15:24:50 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:47841 "EHLO
+	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S1161006AbWA0UYt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 15:21:42 -0500
-X-Spam-Report: SA TESTS
- -1.7 ALL_TRUSTED            Passed through trusted hosts only via SMTP
- -2.3 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                             [score: 0.0000]
-  0.4 AWL                    AWL: From: address is in the auto white-list
-X-QSS-TOXIC-Mail-From: solt2@dns.toxicfilms.tv via dns
-X-QSS-TOXIC: 1.25st (Clear:RC:1(62.21.10.43):SA:0(-3.6/2.5):. Processed in 7.981131 secs Process 18613)
-Date: Fri, 27 Jan 2006 21:21:47 +0100
-From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
-X-Priority: 3 (Normal)
-Message-ID: <166928002.20060127212147@dns.toxicfilms.tv>
-To: "Vladimir V. Saveliev" <vs@namesys.com>
-CC: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: 2.6.15 reiserfs bugs that cause the system to hang and increase load sistematically
-MIME-Version: 1.0
+	Fri, 27 Jan 2006 15:24:49 -0500
+Date: Fri, 27 Jan 2006 13:10:58 -0700
+From: jmerkey@ns1.utah-nac.org
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14 kernels and above copy_to_user stupidity with IRQ disabled check
+Message-ID: <20060127201058.GA18805@ns1.utah-nac.org>
+References: <43DA62CC.8090309@wolfmountaingroup.com> <Pine.LNX.4.61.0601271513360.15124@chaos.analogic.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0601271513360.15124@chaos.analogic.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Vladimir,
-
-Friday, January 27, 2006, 2:26:48 PM, you wrote:
-
-> On Thu, 2006-01-26 at 21:10 +0100, Maciej Soltysiak wrote:
->> Hello!
->> 
->> I just hit a problem with reiserfs. While working this popped on the console:
->> ReiserFS: sdb2: warning: vs-13060: reiserfs_update_sd: stat data of object [2497 4756 0x0 SD] (nlink == 2) not found (pos 1)
->> ReiserFS: sdb2: warning: zam-7002:reiserfs_add_entry: "reiserfs_find_entry" has returned unexpected value (3)
->> REISERFS: panic (device sdb2): vs-7050: new entry is found, new inode == 0
->> 
-
-> rename encountered "hidden" name when it should not be there.
-> the attached patch should make reiserfs to not panic but return -EIO.
-Ok, I'll apply that patch and be on the lookout for this warning.
-
-> It would be interesting to know how did you manage to create hidden
-> names.
-Well on this partition hidden names could have been created either by:
-a) bash, and mc with files like .bash_history, etc.. (all standard stuff)
-b) courier-imap which creates directories for IMAP folders, like:
-   .My Folder
-   .Sent
-   .Trash
-
-For now, I have no clues about it.
-
-> you should reiserfsck /dev/sdb2
-Sure thing.
-
-Thanks a lot.
-Maciej
 
 
+OK.  Got it.  I guess I need to restructure.  And BTW, This was a code fragment
+only, the spinlock gets released when -EFAULT is called -- was just an example.
+
+Jeff
+
+On Fri, Jan 27, 2006 at 03:18:06PM -0500, linux-os (Dick Johnson) wrote:
+> 
+> On Fri, 27 Jan 2006, Jeff V. Merkey wrote:
+> 
+> >
+> > Is there a good reason someone set a disabled_irq() check on 2.6.14 and
+> > above for copy_to_user to barf out
+> > tons of bogus stack dump messages if the function is called from within
+> > a spinlock:
+> >
+> 
+> This is a joke, right????
+> 
+> > i.e.
+> >
+> > spin_lock_irqsave(&regen_lock, regen_flags);
+> >    v = regen_head;
+> >    while (v)
+> >    {
+> >       if (i >= count)
+> >          return -EFAULT;
+> 
+> ** BUG **  return with spin-lock held!
+> 
+> >
+> >
+> >       err = copy_to_user(&s[i++], v, sizeof(VIRTUAL_SETUP));
+> 
+> ** BUG ** copy to user with spinlock held!
+> 
+> >       if (err)
+> >          return err;
+> >
+> 
+> ** BUG ** Return with spin-lock held!
+> >
+> >       v = v->next;
+> >    }
+> >    spin_unlock_irqrestore(&regen_lock, regen_flags);
+> >
+> > is now busted and worked in kernels up to this point.  The error message
+> > is annoying but non-fatal.
+> >
+> > Jeff
+> 
+> It was NEVER supposed to work! The only reason it worked is because
+> your page(s) copied to, were not swapped out. If they were swapped
+> out, you are stuck, the page-fault won't occur.
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.6.13.4 on an i686 machine (5589.66 BogoMips).
+> Warning : 98.36% of all statistics are fiction.
+> .
+> 
+> ****************************************************************
+> The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+> 
+> Thank you.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbWA0J2U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWA0J1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932438AbWA0J2U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 04:28:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbWA0J2T
+	id S1751084AbWA0J1L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 04:27:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWA0J1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 04:28:19 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:22670 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932438AbWA0J2T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 04:28:19 -0500
-Date: Fri, 27 Jan 2006 09:28:17 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: David H?rdeman <david@2gen.com>
-Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, keyrings@linux-nfs.org
-Subject: Re: [PATCH 01/04] Add multi-precision-integer maths library
-Message-ID: <20060127092817.GB24362@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	David H?rdeman <david@2gen.com>, linux-kernel@vger.kernel.org,
-	dhowells@redhat.com, keyrings@linux-nfs.org
-References: <1138312694656@2gen.com> <1138312695665@2gen.com>
+	Fri, 27 Jan 2006 04:27:10 -0500
+Received: from zux221-122-143.adsl.green.ch ([81.221.122.143]:35552 "EHLO
+	kestrel.twibright.com") by vger.kernel.org with ESMTP
+	id S1751084AbWA0J1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 04:27:09 -0500
+Date: Fri, 27 Jan 2006 10:26:23 +0100
+From: Karel Kulhavy <clock@twibright.com>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel manual pages
+Message-ID: <20060127092623.GA7882@kestrel>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1138312695665@2gen.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Orientation: Gay
+X-Stance: Goofy
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 26, 2006 at 10:58:15PM +0100, David H?rdeman wrote:
-> 
-> Adds the multi-precision-integer maths library which was originally taken
-> from GnuPG and ported to the kernel by (among others) David Howells.
-> This version is taken from Fedora kernel 2.6.15-1.1871_FC5.
+Who is responsible for writing the linux kernel manual pages?  I went to
+vger.kernel.org and there is "There is much information about Linux on
+the web." which points to 7 different 3rd party websites.  I searched
+for "manual" and "manpage" in all 7 and didn't find any mention of
+manual pages.
 
-This is ugly as hell.  If we decided to add it it really needs a major
-cleanup, fitting into linux style and removal of unused functionality,
-the assembly bits needs to move to an asm/ header, etc.
+I also suggest the http://kernel.org/links.html to be structured
+according to topic, and not according to name of the website. Because
+if the user comes, he mostly needs to know information about particular
+topic. This way he doesn't know which link to click to obtain the
+information.
 
-But to be honest I'd say anything that requires bigints shouldn't go into
-the kernel at all.  Could someone explain why they want dsa support in
-kernelspace?
+Furthermore I suggest "Manuals" section to be added to vger.kernel.org
+in the style OpenBSD has:
+http://openbsd.org/
+http://www.openbsd.org/cgi-bin/man.cgi
 
+CL<

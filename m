@@ -1,107 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751557AbWA0TQG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWA0TRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751557AbWA0TQG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 14:16:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751550AbWA0TQF
+	id S932378AbWA0TRO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 14:17:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWA0TRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 14:16:05 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:2613 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751514AbWA0TQE (ORCPT
+	Fri, 27 Jan 2006 14:17:14 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:50841 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932378AbWA0TRM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 14:16:04 -0500
-Date: Fri, 27 Jan 2006 20:16:37 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Mike Christie <michaelc@cs.wisc.edu>
-Cc: Neil Brown <neilb@suse.de>, Chase Venters <chase.venters@clientec.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, akpm@osdl.org,
-       a.titov@host.bg, askernel2615@dsgml.com, jamie@audible.transient.net
-Subject: Re: More information on scsi_cmd_cache leak... (bisect)
-Message-ID: <20060127191637.GD6928@suse.de>
-References: <200601270410.06762.chase.venters@clientec.com> <17369.65530.747867.844964@cse.unsw.edu.au> <20060127112352.GF4311@suse.de> <20060127112837.GG4311@suse.de> <43DA6F33.3070101@cs.wisc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43DA6F33.3070101@cs.wisc.edu>
+	Fri, 27 Jan 2006 14:17:12 -0500
+In-Reply-To: <200601271912.59557.a1426z@gawab.com>
+To: Al Boldi <a1426z@gawab.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: [RFC] VM: I have a dream...
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OFA0FDB57C.2E4B1B4D-ON88257103.00688AE2-88257103.0069EF1C@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Fri, 27 Jan 2006 11:17:04 -0800
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0HF124 | January 12, 2006) at
+ 01/27/2006 14:17:09,
+	Serialize complete at 01/27/2006 14:17:09
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27 2006, Mike Christie wrote:
-> Jens Axboe wrote:
-> >On Fri, Jan 27 2006, Jens Axboe wrote:
-> >
-> >>On Fri, Jan 27 2006, Neil Brown wrote:
-> >>
-> >>>On Friday January 27, chase.venters@clientec.com wrote:
-> >>>
-> >>>>Greetings,
-> >>>>	Just a quick recap - there are at least 4 reports of 2.6.15 users 
-> >>>>experiencing severe slab leaks with scsi_cmd_cache. It seems that a few 
-> >>>>of us have a board (Asus P5GDC-V Deluxe) in common. We seem to have 
-> >>>>raid in common. After dealing with this leak for a while, I decided 
-> >>>>	to do some dancing around with git bisect. I've landed on a possible 
-> >>>>point of regression:
-> >>>>
-> >>>>commit: a9701a30470856408d08657eb1bd7ae29a146190
-> >>>>[PATCH] md: support BIO_RW_BARRIER for md/raid1
-> >>>>
-> >>>>	I spent about an hour and a half reading through the patch, trying 
-> >>>>	to see if I could make sense of what might be wrong. The result (after 
-> >>>>I dug into the code to make a change I foolishly thought made sense) 
-> >>>>was a hung kernel.
-> >>>>	This is important because when I rebooted into the kernel that had 
-> >>>>	been giving me trouble, it started an md resync and I'm now watching 
-> >>>>(at least during this resync) the slab usage for scsi_cmd_cache stay 
-> >>>>sane:
-> >>>>
-> >>>>turbotaz ~ # cat /proc/slabinfo | grep scsi_cmd_cache
-> >>>>scsi_cmd_cache        30     30    384   10    1 : tunables   54   27   
-> >>>>8 : slabdata      3      3      0
-> >>>>
-> >>>
-> >>>This suggests that the problem happens when a BIO_RW_BARRIER write is
-> >>>sent to the device.  With this patch, md flags all superblock writes
-> >>>as BIO_RW_BARRIER However md is not so likely to update the superblock 
-> >>>often
-> >>>during a resync.
-> >>>
-> >>>There is a (rough) count of the number of superblock writes in the
-> >>>"Events" counter which "mdadm -D" will display.
-> >>>You could try collecting 'Events' counter together with the
-> >>>'active_objs' count from /proc/slabinfo and graph the pairs - see if
-> >>>they are linear.
-> >>>
-> >>>I believe a BIO_RW_BARRIER is likely to send some sort of 'flush'
-> >>>command to the device, and the driver for your particular device may
-> >>>well be losing scsi_cmd_cache allocation when doing that, but I leave
-> >>>that to someone how knows more about that code.
-> >>
-> >>I already checked up on that since I suspected barriers initially. The
-> >>path there for scsi is sd.c:sd_issue_flush() which looks pretty straight
-> >>forward. In the end it goes through the block layer and gets back to the
-> >>SCSI layer as a regular REQ_BLOCK_PC request.
-> >
-> >
-> >Sorry, that was for the ->issue_flush() that md also does but did before
-> >the barrier addition as well. Most of the barrier handling is done in
-> >the block layer, but it could show leaks in SCSI of course. FWIW, I
-> >tested barriers with and without md on SCSI here a few days ago and
-> >didn't see any leaks at all.
-> >
-> 
-> It does not have anything to do with this in scsi_io_completion does it?
-> 
->         if (blk_complete_barrier_rq(q, req, good_bytes >> 9))
->                 return;
-> 
-> For that case the scsi_cmnd does not get freed. Does it come back around 
-> again and get released from a different path?
+>> So we know it [single level storage] works, but also that people don't 
+seem to care much for it
+>
+>People didn't care, because the AS/400 was based on a proprietary 
+solution. 
 
-Certainly smells fishy. Unfortunately I cannot take a look at this until
-monday :/
+I don't know what a "proprietary solution" is, but what we had was a 
+complete demonstration of the value of single level storage, in commercial 
+use and everything,  and other computer makers (and other business units 
+of IBM) stuck with their memory/disk split personality.  For 25 years, 
+lots of computer makers developed lots of new computer architectures and 
+they all (practically speaking) had the memory/disk split.  There has to 
+be a lesson in that.
 
-But adding some tracing there might be really interesting. Since we are
-not seeing bio and/or req leaks, this does look very promising.
+>With todays generically mass-produced 64bit archs, what's not to care 
+about a 
+>cost-effective system that provides direct mapped access into linear 
+address 
+>space?
 
--- 
-Jens Axboe
+I don't know; I'm sure it's complicated.  But unless the stumbling block 
+since 1980 has been that it was too hard to get/make a CPU with a 64 bit 
+address space, I don't see what's different today.
+
+--
+Bryan Henderson                     IBM Almaden Research Center
+San Jose CA                         Filesystems
 

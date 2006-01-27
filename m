@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbWA0DBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWA0DIF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030264AbWA0DBD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 22:01:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbWA0DBC
+	id S1030267AbWA0DIF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 22:08:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbWA0DIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 22:01:02 -0500
-Received: from mtiwmhc13.worldnet.att.net ([204.127.131.117]:8404 "EHLO
-	mtiwmhc13.worldnet.att.net") by vger.kernel.org with ESMTP
-	id S1030264AbWA0DBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 22:01:00 -0500
-Message-ID: <43D98CE2.9020700@lwfinger.net>
-Date: Thu, 26 Jan 2006 21:00:50 -0600
-From: Larry Finger <Larry.Finger@lwfinger.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+	Thu, 26 Jan 2006 22:08:04 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:774 "EHLO
+	cyberguard.com.au") by vger.kernel.org with ESMTP id S1030267AbWA0DID
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 22:08:03 -0500
+Message-ID: <43D98EC7.9040908@snapgear.com>
+Date: Fri, 27 Jan 2006 13:08:55 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Eric Sesterhenn / snakebyte <snakebyte@gmx.de>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: How to dump stack for kernel threads
-References: <43D90AB2.3020705@lwfinger.net> <Pine.LNX.4.61.0601262214430.27891@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0601262214430.27891@yvahk01.tjqt.qr>
+Subject: Re: [Patch][Trivial] Fix debug statement in inftlcore.c
+References: <1138218910.5767.2.camel@alice>
+In-Reply-To: <1138218910.5767.2.camel@alice>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>In a driver that I am debugging, there is a periodic task that runs every
->>minute. Intermittently, it destructively interrupts some other activity in the
->>driver, but I have not been able to find the section that is not thread-safe. I
->>have included a dump_stack call at the point where the problem is evident, but
->>the current thread is OK. How would I generate a stack dump of the rest of this
->>driver's kernel threads? Dumping all kernel threads would also be OK.
-> 
-> 
-> Sysrq+T. Behind the jungle, there's a function doing what you want.
-> 
-> 
-> Jan Engelhardt
+Hi Eric,
 
-Thanks for the tip. It won't work for me from the keyboard but your suggestion got me into a call to 
-handle_sysrq.
+Eric Sesterhenn / snakebyte wrote:
+> this fixes a copy/paste bug found by cpminer inside the
+> inftlcore.c file
 
-Larry
+Looks good.
 
+
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+Signed-off-by: Greg Ungerer <gerg@snapgear.org>
+
+--- linux-2.6.16-rc1-git4/drivers/mtd/inftlcore.c.orig	2006-01-25 
+20:51:14.000000000 +0100
++++ linux-2.6.16-rc1-git4/drivers/mtd/inftlcore.c	2006-01-25 
+20:51:25.000000000 +0100
+@@ -132,7 +132,7 @@ static void inftl_add_mtd(struct mtd_blk
+  		return;
+  	}
+  #ifdef PSYCHO_DEBUG
+-	printk(KERN_INFO "INFTL: Found new nftl%c\n", nftl->mbd.devnum + 'a');
++	printk(KERN_INFO "INFTL: Found new inftl%c\n", inftl->mbd.devnum + 'a');
+  #endif
+  	return;
+  }
+
+
+
+
+-- 
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com

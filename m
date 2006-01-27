@@ -1,91 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422703AbWA0XnH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422706AbWA0Xp4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422703AbWA0XnH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 18:43:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422706AbWA0XnH
+	id S1422706AbWA0Xp4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 18:45:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422707AbWA0Xp4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 18:43:07 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:24965 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422703AbWA0XnG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 18:43:06 -0500
-Date: Fri, 27 Jan 2006 15:42:31 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch 1/2] rcu batch tuning
-Message-ID: <20060127234231.GD10075@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <43DA7B47.11D10B09@tv-sign.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43DA7B47.11D10B09@tv-sign.ru>
-User-Agent: Mutt/1.4.1i
+	Fri, 27 Jan 2006 18:45:56 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:21825 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1422706AbWA0Xpz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 18:45:55 -0500
+Message-ID: <43DAB0AC.9010108@oracle.com>
+Date: Fri, 27 Jan 2006 15:45:48 -0800
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] [x86-64] align per-cpu section to configured cache
+ bytes
+References: <20060127220242.13917.839.sendpatchset@tetsuo.zabbo.net> <20060127233227.GA9274@mars.ravnborg.org>
+In-Reply-To: <20060127233227.GA9274@mars.ravnborg.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2006 at 10:57:59PM +0300, Oleg Nesterov wrote:
-> Dipankar Sarma wrote:
-> >
-> > +static void force_quiescent_state(struct rcu_data *rdp,
-> > +			struct rcu_ctrlblk *rcp)
-> > +{
-> > +	int cpu;
-> > +	cpumask_t cpumask;
-> > +	set_need_resched();
-> > +	if (unlikely(rdp->qlen - rdp->last_rs_qlen > rsinterval)) {
-> > +		rdp->last_rs_qlen = rdp->qlen;
-> > +		/*
-> > +		 * Don't send IPI to itself. With irqs disabled,
-> > +		 * rdp->cpu is the current cpu.
-> > +		 */
-> > +		cpumask = rcp->cpumask;
-> > +		cpu_clear(rdp->cpu, cpumask);
-> > +		for_each_cpu_mask(cpu, cpumask)
-> > +			smp_send_reschedule(cpu);
-> > +	}
-> > +}
-> > [ ... snip ... ]
-> >
-> > @@ -92,17 +128,13 @@ void fastcall call_rcu(struct rcu_head *
-> >  	rdp = &__get_cpu_var(rcu_data);
-> >  	*rdp->nxttail = head;
-> >  	rdp->nxttail = &head->next;
-> > -
-> > -	if (unlikely(++rdp->count > 10000))
-> > -		set_need_resched();
-> > -
-> > +	if (unlikely(++rdp->qlen > qhimark)) {
-> > +		rdp->blimit = INT_MAX;
-> > +		force_quiescent_state(rdp, &rcu_ctrlblk);
-> > +	}
+Sam Ravnborg wrote:
+> On Fri, Jan 27, 2006 at 02:02:42PM -0800, Zach Brown wrote:
 > 
-> When ->qlen exceeds qhimark for the first time we send reschedule IPI to
-> other CPUs and force_quiescent_state() records ->last_rs_qlen = ->qlen.
-> But we don't reset ->last_rs_qlen when ->qlen goes to 0, this means that
-> next time we need ++rdp->qlen > qhimark + rsinterval to force other CPUS
-> to pass quiescent state, no?
+>>-  . = ALIGN(32);
+>>+  . = ALIGN(CONFIG_X86_L1_CACHE_BYTES);
+> 
+> 
+> Grepping other arch's than just x86 and x86_64 it looks like a common
+> thing.
+> Is this fix really only relevant for x86 + x86_64 or should it be done
+> for all arch's?
 
-Good catch -- this could well explain Lee's continuing to hit
-latency problems.  Although this would not cause the first
-latency event, only subsequent ones, it seems to me that ->last_rs_qlen
-should be reset whenever ->blimit is reset.
+I think it'd be needed if other archs had situations where C's
+(load_module()'s, in particular) notion of the cacheline size differed
+from vmlinux.lds.S's.  I didn't want to go screwing around with archs
+that I couldn't immediately test :)
 
-Dipankar, thoughts?
+> If we do it for all archs we may as well create:
+> #define PERCPU(aling) ...
+> macro in asm-generic/vmlinux.lds.h
 
-> Also, it seems to me it's better to have 2 counters, one for length(->donelist)
-> and another for length(->curlist + ->nxtlist). I think we don't need
-> force_quiescent_state() when all rcu callbacks are placed in ->donelist,
-> we only need to increase rdp->blimit in this case.
+Sounds reasonable to me, should I leave that in your capable hands?
 
-True, currently the patch keeps the sum of the length of all three lists,
-and takes both actions when the sum gets too large.  But the only way
-you would get unneeded IPIs would be if callback processing was
-stalled, but callback generation and grace-period processing was
-still proceeding.  Seems at first glance to be an unusual corner
-case, with the only downside being some extra IPIs.  Or am I missing
-some aspect?
-
-						Thanx, Paul
+- z

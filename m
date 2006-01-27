@@ -1,50 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWA0HY0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWA0HbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbWA0HY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 02:24:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWA0HY0
+	id S932191AbWA0HbU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 02:31:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWA0HbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 02:24:26 -0500
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:10372 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S932410AbWA0HYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 02:24:25 -0500
-Date: Fri, 27 Jan 2006 08:23:45 +0100
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, keyrings@linux-nfs.org
-Subject: Re: [PATCH 00/04] Add DSA key type
-Message-ID: <20060127072345.GB4082@hardeman.nu>
-Mail-Followup-To: Herbert Xu <herbert@gondor.apana.org.au>,
-	linux-kernel@vger.kernel.org, dhowells@redhat.com,
-	keyrings@linux-nfs.org
-References: <11380489522362@2gen.com> <E1F2IJr-0007Gu-00@gondolin.me.apana.org.au>
+	Fri, 27 Jan 2006 02:31:20 -0500
+Received: from rwcrmhc14.comcast.net ([216.148.227.154]:38379 "EHLO
+	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S932191AbWA0HbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 02:31:19 -0500
+Message-ID: <43D9CC31.9030209@namesys.com>
+Date: Thu, 26 Jan 2006 23:30:57 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <E1F2IJr-0007Gu-00@gondolin.me.apana.org.au>
-User-Agent: Mutt/1.5.11
-X-SA-Score: -2.1
+To: Jens Axboe <axboe@suse.de>
+CC: Edward Shishkin <edward@namesys.com>, LKML <linux-kernel@vger.kernel.org>,
+       Reiserfs mail-list <Reiserfs-List@namesys.com>
+Subject: Re: random minor benchmark: Re: Copy 20 tarfiles: ext2 vs (reiser4,
+ unixfile) vs (reiser4,cryptcompress)
+References: <43D7C6BE.1010804@namesys.com> <43D7CA7F.4010502@namesys.com> <20060126153343.GH4311@suse.de>
+In-Reply-To: <20060126153343.GH4311@suse.de>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2006 at 12:22:31PM +1100, Herbert Xu wrote:
->David H?rdeman <david@2gen.com> wrote:
->>
->> 3) Changes the keyctl syscall to accept six arguments (is it valid to do so?)
->>   and adds encryption as one of the supported ops for in-kernel keys.
+Jens Axboe wrote:
+
+>On Wed, Jan 25 2006, Hans Reiser wrote:
+>  
 >
->The asymmetric encryption support should be done inside the crypto/
->framework rather than as an extension to the key management system.
-
-It is done inside the crypto/ framework. crypto/dsa.c implements the DSA 
-signing as a hash crypto algorithm (since a DSA signature is two 160-bit 
-integers, the result has a fixed size).
-
-The above patch just adds the syscall to tell the in-kernel system that 
-you wish to encrypt/sign something with a given key. In the case that 
-the type of the given key is a DSA key, security/keys/dsa_key.c uses the 
-dsa crypto alg from crypto/dsa.c to satisfy that request.
-
-Regards,
-David
+>>Notice how CPU speed (and number of cpus) completely determines
+>>compression performance.
+>>
+>>cryptcompress refers to the reiser4 compression plugin, (unix file)
+>>refers to the reiser4 non-compressing plugin.
+>>
+>>Edward Shishkin wrote:
+>>
+>>    
+>>
+>>>Here are the tests that vs asked for:
+>>>Creation (dd) of 20 tarfiles (the original 200M file is in ramfs)
+>>>Kernel: 2.6.15-mm4 + current git snapshot of reiser4
+>>>
+>>>------------------------------------------
+>>>
+>>>Laputa workstation
+>>>Uni Intel Pentium 4 (2.26 GHz) 512M RAM
+>>>
+>>>ext2:
+>>>real 2m, 15s
+>>>sys 0m, 14s
+>>>
+>>>reiser4(unix file)
+>>>real 2m, 7s
+>>>sys  0m, 23s
+>>>
+>>>reiser4(cryptcompress, lzo1, 64K)
+>>>real 2m, 13s
+>>>sys 0m, 11s
+>>>      
+>>>
+>
+>Just curious - does your crypt plugin reside in user space?
+>
+>  
+>
+No, kernel.  It would have to  encrypt+compress with every write to be
+in user space, we encrypt+compress only at flush time, and that is a key
+optimization (encryption is disabled at the moment due to needing a
+little API work, but....) for file sets that are cachable.

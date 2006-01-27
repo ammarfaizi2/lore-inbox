@@ -1,26 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbWA0P56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751487AbWA0QBu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751484AbWA0P56 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 10:57:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWA0P55
+	id S1751487AbWA0QBu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 11:01:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWA0QBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 10:57:57 -0500
-Received: from ns2.suse.de ([195.135.220.15]:10628 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751484AbWA0P55 (ORCPT
+	Fri, 27 Jan 2006 11:01:50 -0500
+Received: from mail.suse.de ([195.135.220.2]:15075 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751487AbWA0QBt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 10:57:57 -0500
-Date: Fri, 27 Jan 2006 16:57:49 +0100
-Message-ID: <s5h7j8l64ua.wl%tiwai@suse.de>
+	Fri, 27 Jan 2006 11:01:49 -0500
+Date: Fri, 27 Jan 2006 17:01:44 +0100
+Message-ID: <s5h64o564nr.wl%tiwai@suse.de>
 From: Takashi Iwai <tiwai@suse.de>
-To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Cc: hugh@veritas.com, linux-kernel@vger.kernel.org, tbm@cyrius.com,
-       t.sailer@alumni.ethz.ch, perex@suse.cz, ralf@linux-mips.org
+To: Martin Michlmayr <tbm@cyrius.com>
+Cc: hugh@veritas.com, linux-kernel@vger.kernel.org, t.sailer@alumni.ethz.ch,
+       perex@suse.cz, ralf@linux-mips.org
 Subject: Re: ALSA on MIPS platform
-In-Reply-To: <20060128.004540.59467062.anemo@mba.ocn.ne.jp>
+In-Reply-To: <20060127154928.GE14110@deprecation.cyrius.com>
 References: <20060127.002925.25911749.anemo@mba.ocn.ne.jp>
 	<s5hzmljt1si.wl%tiwai@suse.de>
 	<Pine.LNX.4.61.0601261910230.15596@goblin.wat.veritas.com>
 	<20060128.004540.59467062.anemo@mba.ocn.ne.jp>
+	<20060127154928.GE14110@deprecation.cyrius.com>
 User-Agent: Wanderlust/2.12.0 (Your Wildest Dreams) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.7 (=?ISO-8859-4?Q?Sanj=F2?=) APEL/10.6 MULE XEmacs/21.5 (beta21)
  (corn) (+CVS-20050720) (i386-suse-linux)
@@ -29,41 +30,18 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At Sat, 28 Jan 2006 00:45:40 +0900 (JST),
-Atsushi Nemoto wrote:
+At Fri, 27 Jan 2006 15:49:28 +0000,
+Martin Michlmayr wrote:
 > 
-> >>>>> On Thu, 26 Jan 2006 19:19:22 +0000 (GMT), Hugh Dickins <hugh@veritas.com> said:
+> > tiwai> The memory allocation stuff in ALSA is being largely rewritten
+> > tiwai> on my local tree, but it's not released yet.  One reason is to
+> > tiwai> wait for the finish of page-reserve removals, and another
+> > tiwai> reason is that I've had little time to tidy them up :)
 > 
-> >> Well, the whole page-reserve kludge should disappear anyway in near
-> >> future.  Right now it's in the process.
-> 
-> hugh> Yes, mark_pages() and unmark_pages() can just be removed as soon
-> hugh> as you like.
-> 
-> When I tried undefining NEED_RESERVE_PAGES for MIPS on 2.6.13,
-> something did not work (I can not remember details...).  But it seems
-> things have been changed in 2.6.15.  I'll try again.  Thanks.
+> Do you have a rough idea when this may happen?
 
-Yes, it was changed pretty much.
-
-> hugh> I didn't reply to the original posting because I noticed they're
-> hugh> not all of the virt_to_page()s in sound/core, and sometimes a
-> hugh> part-answer distracts someone more competent from responding
-> hugh> with the full answer.
-> 
-> Yes, there is still virt_to_page() in snd_pcm_mmap_data_nopage() and
-> snd_malloc_sgbuf_pages().  If dma_mmap_coherent() was ported, former
-> might disappear but latter might not.  So it seems virt_to_page()
-> issue still remains...
-
-In theory, you can call dma_mmap_coherent() on each page obtained via
-dma_alloc_coherent() in the case of sg-buffer.  It should work without
-much overhead on most of archs, but ones like sparc32 may have
-problems because each alloc_coherent call results in another
-allocation a resource struct (if I understand the code correctly).
-
-So, I rewrote the code to use the normal get_page() + map/sync.
-Hopefully this works for archs with non-coherent mm...
+Hard to promise...  Hopefully I can start working seriously again on
+this issue in February.
 
 
 Takashi

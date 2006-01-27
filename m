@@ -1,76 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWA0R2c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWA0Rcg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbWA0R2c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 12:28:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932164AbWA0R2c
+	id S932164AbWA0Rcg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 12:32:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWA0Rcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 12:28:32 -0500
-Received: from madness.at ([217.196.146.217]:13285 "EHLO cronos.madness.at")
-	by vger.kernel.org with ESMTP id S932146AbWA0R2b (ORCPT
+	Fri, 27 Jan 2006 12:32:35 -0500
+Received: from lila.akte.de ([213.239.211.75]:22462 "EHLO lila.akte.de")
+	by vger.kernel.org with ESMTP id S932164AbWA0Rcf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 12:28:31 -0500
-Message-ID: <43DA580E.3020100@madness.at>
-Date: Fri, 27 Jan 2006 18:27:42 +0100
-From: Stefan Kaltenbrunner <mm-mailinglist@madness.at>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: andrew.vasquez@qlogic.com
-Subject: qla2xxx related oops in 2.6.16-rc1
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Jan 2006 12:32:35 -0500
+KRecCount: 1
+KInfo: virscan ok
+KInfo: !spam auth
+Date: Fri, 27 Jan 2006 18:32:15 +0100
+From: Andy Spiegl <kernelbug.Andy@spiegl.de>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Benoit Boissinot <bboissin@gmail.com>, John Stoffel <john@stoffel.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.15 crashes X Server after running OpenGL programs
+Message-ID: <20060127173215.GC19166@spiegl.de>
+Mail-Followup-To: Andy Spiegl <kernelbug.Andy@spiegl.de>,
+	Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+	Benoit Boissinot <bboissin@gmail.com>,
+	John Stoffel <john@stoffel.org>, linux-kernel@vger.kernel.org
+References: <20060124121542.GB13646@spiegl.de> <20060124142151.GA3538@spiegl.de> <40f323d00601240713x26c3a04cra46e1cd9639b12f2@mail.gmail.com> <200601241937.06679.s0348365@sms.ed.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601241937.06679.s0348365@sms.ed.ac.uk>
+X-PGP-GPG-Keys: mail -s "send pgp" auto@spiegl.de
+X-Accepted-File-Formats: ASCII OpenOffice .rtf .pdf - *NO* Microsoft files please.
+X-why-you-shouldnt-use-MS-LookOut: http://www.jensbenecke.de/l-oe-en.php
+X-warum-man-MS-Outlook-vermeiden-sollte: http://www.jensbenecke.de/l-oe-de.php
+X-Message-Flag: LookOut! You are using an insecure mail reader which can be used to spread viruses.
+X-how-to-quote: http://learn.to/quote/
+X-how-to-ask-questions: http://www.catb.org/~esr/faqs/smart-questions.html
+X-stupid-disclaimers: http://goldmark.org/jeff/stupid-disclaimers/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We hit the following oops in 2.6.16-rc1 during itesting of a
-devicemapper based multipath infrastructure.
+> > Radeon 9000 is supported in Xorg and as far as i know was already supported
+> > in Xfree86. The open-source driver works fine for me (Radeon 9200SE).
+> 
+> Indeed. Mesa will provide direct render acceleration on these cards without 
+> using the proprietary driver. Since the 9000 is really too old to run modern 
+> games, I suspect it will be more than adequate.
 
-The oops happend during heavy io on the devicemapper device and a reboot
-of one of the switches the host was directly connected too.
+Maybe I am doing something wrong but Mesa is awfully slow.
+I don't need highend acceleration but I can't even play tuxracer.
 
-The host in questions is as Dual Opteron 280 with 16GB ram and two
-qla2340 adapters accessing an IBM DS4300 Array.
+Maybe I missed something???
 
-Stefan
+gl-info says:
+ GL_VENDOR = "Mesa project: www.mesa3d.org"
+ GL_RENDERER = "Mesa GLX Indirect"
+ GL_VERSION = "1.3 Mesa 4.0.4"
+ GL_EXTENSIONS = "GL_ARB_imaging GL_ARB_multitexture GL_ARB_texture_border_clamp GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_env_dot3 GL_ARB_transpose_matrix GL_EXT_abgr GL_EXT_blend_color GL_EXT_blend_minmax GL_EXT_blend_subtract GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_env_dot3 GL_EXT_texture_lod_bias "
 
-Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP:
-<ffffffff803cc6c6>{_spin_lock+0}
-PGD 3ff513067 PUD 3ff514067 PMD 0
-Oops: 0002 [1] SMP
-CPU 0
-Modules linked in: dm_round_robin dm_multipath dm_mod i2c_amd756 qla2300
-qla2xxx i2c_core evdev
-Pid: 2568, comm: qla2300_1_dpc Not tainted 2.6.16-rc1 #4
-RIP: 0010:[<ffffffff803cc6c6>] <ffffffff803cc6c6>{_spin_lock+0}
-RSP: 0018:ffff8101ffbb1d70  EFLAGS: 00010286
-RAX: ffffffff804c6cc8 RBX: ffff8101fea11c78 RCX: ffffffffffffffd8
-RDX: ffffffffffffffd8 RSI: ffffffff803ca8e1 RDI: 0000000000000000
-RBP: ffff8101fea54160 R08: ffff8101ffbb0000 R09: 000000000000000a
-R10: 000000000000000a R11: ffff8103ffd18800 R12: 0000000000000000
-R13: 0000000000000000 R14: ffffffff880288c8 R15: 0000000000509c10
-FS:  00002b031d5f0640(0000) GS:ffffffff80571000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 0000000000000000 CR3: 00000003ff512000 CR4: 00000000000006e0
-Process qla2300_1_dpc (pid: 2568, threadinfo ffff8101ffbb0000, task
-ffff8101ff6311e0)
-Stack: ffffffff803ca95a ffffffff804c6cc8 ffff8101fea11c50 ffff8101fea54000
-       ffffffff802bd255 000000000000000a ffff8101fea11c50 ffff8101fea11c00
-       ffffffff8031acf5 ffff8101ffcbd600
-Call Trace: <ffffffff803ca95a>{klist_del+18}
-<ffffffff802bd255>{device_del+28}
-       <ffffffff8031acf5>{fc_rport_terminate+81}
-<ffffffff8800f3bb>{:qla2xxx:qla2x00_reg_remote_port+28}
-       <ffffffff88010001>{:qla2xxx:qla2x00_fabric_dev_login+111}
-       <ffffffff8800f749>{:qla2xxx:qla2x00_configure_fabric+503}
-       <ffffffff8800efa4>{:qla2xxx:qla2x00_configure_loop+283}
-       <ffffffff8801020d>{:qla2xxx:qla2x00_loop_resync+95}
-       <ffffffff8800c8bb>{:qla2xxx:qla2x00_do_dpc+655}
-<ffffffff8010b726>{child_rip+8}
-       <ffffffff8800c62c>{:qla2xxx:qla2x00_do_dpc+0}
-<ffffffff8010b71e>{child_rip+0}
+> I'd investigate the open source solution, because ATI's proprietary driver is 
+> poor quality, even for your average binary vendor.
+yep, just like nvidias drivers.  I had very bad experiences with them.
 
-Code: f0 ff 0f 0f 88 14 01 00 00 c3 48 89 f8 f0 81 28 00 00 00 01
-RIP <ffffffff803cc6c6>{_spin_lock+0} RSP <ffff8101ffbb1d70>
-CR2: 0000000000000000
- <6>qla2300 0000:05:08.0: scsi(0:4:0): Abort command issued -- 31e4c 2002.
+Thanks,
+ Andy.
+
+-- 
+ Fotos: francisco.spiegl.de            o      _     _         _              
+ Infos: peru.spiegl.de       __o      /\_   _ \\o  (_)\__/o  (_)         -o) 
+ Andy, Heidi, Francisco    _`\<,_    _>(_) (_)/<_    \_| \   _|/' \/      /\\
+ heidi.und.andy@spiegl.de (_)/ (_)  (_)        (_)   (_)    (_)'  _\o_   _\_v
+ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ Use the Source, Luke!

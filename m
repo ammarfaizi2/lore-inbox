@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWA0NGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWA0NQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbWA0NGF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 08:06:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWA0NGE
+	id S1750870AbWA0NQh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 08:16:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWA0NQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 08:06:04 -0500
-Received: from spooner.celestial.com ([192.136.111.35]:26012 "EHLO
-	spooner.celestial.com") by vger.kernel.org with ESMTP
-	id S1750789AbWA0NGD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 08:06:03 -0500
-Date: Fri, 27 Jan 2006 08:12:49 -0500
-From: Kurt Wall <kwall@kurtwerks.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [KORG] Kernel sources online
-Message-ID: <20060127131249.GB5884@kurtwerks.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20060127093920.GC7989@kestrel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060127093920.GC7989@kestrel>
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.16-rc1krw
-X-Woot: Woot!
+	Fri, 27 Jan 2006 08:16:37 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:59119 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1750857AbWA0NQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 08:16:36 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Fri, 27 Jan 2006 14:15:02 +0100
+To: Valdis.Kletnieks@vt.edu, schilling@fokus.fraunhofer.de
+Cc: rlrevell@joe-job.com, mrmacman_g4@mac.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jerome.lacoste@gmail.com,
+       acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43DA1CD6.nailFHI6QV3LO@burner>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+ <43D7A7F4.nailDE92K7TJI@burner>
+ <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
+ <43D7B075.6000602@gmx.de> <43D7B2DF.nailDFJA51SL1@burner>
+ <43D7B5BE.60304@gmx.de> <43D89B7C.nailDTH38QZBU@burner>
+ <5a2cf1f60601260234r4c5cde3fu3e8d79e816b9f3fd@mail.gmail.com>
+ <43D8D69F.nailE2XAJ2XIA@burner>
+ <200601270524.k0R5OIS8019541@turing-police.cc.vt.edu>
+In-Reply-To: <200601270524.k0R5OIS8019541@turing-police.cc.vt.edu>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2006 at 10:39:20AM +0100, Karel Kulhavy took 17 lines to write:
-> I suggest a link labeled "Browsable source code" to be added into the
-> www.kernel.org webpage like
-> BRLCAD has it http://www.brlcad.org/doxygen/index.html (Using Doxygen)
-> or Ronja has it http://ronja-svn.wservices.ch/file/browser/trunk/ (Using
-> Trac).
-> 
-> Further I suggest a link labeled "README" added to www.kernel.org which
-> would point to the README in this browsable source tree. This way the
-> users could use the documentation as reference online easily.
+Valdis.Kletnieks@vt.edu wrote:
 
-Mm. Idea hamster.
+> And you know what? I really don't give a flying <fornicate> in a rolling donut
+> what FreeBSD calls the device. If I did, I'd have installed FreeBSD.  But I
 
-Kurt
+It has been mentioned here many times, you only need to read it.
+
+FreeBSD comes with a T-10 (SCSI) compliant CAM interface that uses a multiplex 
+device and dev=b,t,l to address the devices. This is true for _all_ kind of 
+SCSI devices and thus includes ATAPI transport.
+
+Jörg
+
 -- 
-Finagle's fourth Law:
-	Once a job is fouled up, anything done to improve it only makes
-it worse.
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

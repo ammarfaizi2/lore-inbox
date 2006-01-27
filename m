@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWA0WUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751570AbWA0Wai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbWA0WUW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 17:20:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWA0WUW
+	id S1751570AbWA0Wai (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 17:30:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWA0Wai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 17:20:22 -0500
-Received: from pat.uio.no ([129.240.130.16]:16089 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1750782AbWA0WUW convert rfc822-to-8bit
+	Fri, 27 Jan 2006 17:30:38 -0500
+Received: from mf01.sitadelle.com ([212.94.174.68]:30077 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1751567AbWA0Wag
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 17:20:22 -0500
-Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths
-	library
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: David =?ISO-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-Cc: David Howells <dhowells@redhat.com>, Christoph Hellwig <hch@infradead.org>,
-       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060127204158.GA4754@hardeman.nu>
-References: <20060127092817.GB24362@infradead.org> <1138312694656@2gen.com>
-	 <1138312695665@2gen.com> <6403.1138392470@warthog.cambridge.redhat.com>
-	 <20060127204158.GA4754@hardeman.nu>
-Content-Type: text/plain; charset=utf-8
-Date: Fri, 27 Jan 2006 17:19:45 -0500
-Message-Id: <1138400385.8770.21.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 8BIT
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.448, required 12,
-	autolearn=disabled, AWL 1.36, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+	Fri, 27 Jan 2006 17:30:36 -0500
+Message-ID: <43DA9EFF.1020200@cosmosbay.com>
+Date: Fri, 27 Jan 2006 23:30:23 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ravikiran G Thirumalai <kiran@scalex86.org>, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, shai@scalex86.org, netdev@vger.kernel.org,
+       pravins@calsoftinc.com
+Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
+References: <20060126185649.GB3651@localhost.localdomain>	<20060126190357.GE3651@localhost.localdomain>	<43D9DFA1.9070802@cosmosbay.com>	<20060127195227.GA3565@localhost.localdomain> <20060127121602.18bc3f25.akpm@osdl.org>
+In-Reply-To: <20060127121602.18bc3f25.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-01-27 at 21:41 +0100, David HÃ¤rdeman wrote:
+Andrew Morton a écrit :
+> Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+>> On Fri, Jan 27, 2006 at 09:53:53AM +0100, Eric Dumazet wrote:
+>>> Ravikiran G Thirumalai a écrit :
+>>>> Change the atomic_t sockets_allocated member of struct proto to a 
+>>>> per-cpu counter.
+>>>>
+>>>> Signed-off-by: Pravin B. Shelar <pravins@calsoftinc.com>
+>>>> Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
+>>>> Signed-off-by: Shai Fultheim <shai@scalex86.org>
+>>>>
+>>> Hi Ravikiran
+>>>
+>>> If I correctly read this patch, I think there is a scalability problem.
+>>>
+>>> On a big SMP machine, read_sockets_allocated() is going to be a real killer.
+>>>
+>>> Say we have 128 Opterons CPUS in a box.
+>> read_sockets_allocated is being invoked when when /proc/net/protocols is read,
+>> which can be assumed as not frequent.  
+>> At sk_stream_mem_schedule(), read_sockets_allocated() is invoked only 
+>> certain conditions, under memory pressure -- on a large CPU count machine, 
+>> you'd have large memory, and I don't think read_sockets_allocated would get 
+>> called often.  It did not atleast on our 8cpu/16G box.  So this should be OK 
+>> I think.
+> 
+> That being said, the percpu_counters aren't a terribly successful concept
+> and probably do need a revisit due to the high inaccuracy at high CPU
+> counts.  It might be better to do some generic version of vm_acct_memory()
+> instead.
 
-> For example, a backup daemon which wishes to store the backup on another 
-> host using ssh. Usually this is solved by storing an unencrypted key in 
-> the fs or by providing a connection to a ssh-agent which has been 
-> preloaded with the proper key(s). Both are quite inelegant solutions. 
-> With the in-kernel support, the daemon can request the key using the 
-> request_key call, and (provided proper scripts are written), the user 
-> who controls the relevant key can supply it. This in turn means that the 
-> backup daemon can sign using the key and read its public parts but not 
-> the private key.
+There are several issues here :
 
-...but why would you want such a daemon to live in the kernel in the
-first place? A backup application might perhaps need some kernel support
-in order to ensure filesystem consistency, but that does not mean that
-moving the entire daemon into the kernel is a good idea.
+alloc_percpu() current implementation is a a waste of ram. (because it uses 
+slab allocations that have a minimum size of 32 bytes)
 
-Cheers,
-  Trond
+Currently we cannot use per_cpu(&some_object, cpu), so a generic version of 
+vm_acct_memory() would need a rework of percpu.h and maybe this is not 
+possible on every platform ?
 
+#define per_cpu(var, cpu) (*RELOC_HIDE(&per_cpu__##var, __per_cpu_offset[cpu]))
+
+-->
+
+#define per_cpu_name(var) per_cpu__##var
+#define per_cpu_addr(var) &per_cpu_name(var)
+#define per_cpu(var, cpu) (*RELOC_HIDE(per_cpu_addr(var), __per_cpu_offset[cpu])
+
+
+But this could render TLS migration difficult...
+
+Eric

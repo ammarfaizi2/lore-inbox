@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWA0CWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030227AbWA0CYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030228AbWA0CWX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 21:22:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbWA0CWW
+	id S1030227AbWA0CYF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 21:24:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbWA0CYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 21:22:22 -0500
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:12805 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1030228AbWA0CWW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 21:22:22 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: romieu@fr.zoreil.com (Francois Romieu)
-Subject: Re: [lock validator] drivers/net/8139too.c: deadlock?
-Cc: mingo@elte.hu, jgarzik@redhat.com, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, davem@redhat.com
-Organization: Core
-In-Reply-To: <20060127003511.GA10871@electric-eye.fr.zoreil.com>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1F2JFb-0007MW-00@gondolin.me.apana.org.au>
-Date: Fri, 27 Jan 2006 13:22:11 +1100
+	Thu, 26 Jan 2006 21:24:04 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:22505 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030227AbWA0CYD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 21:24:03 -0500
+Date: Thu, 26 Jan 2006 21:23:53 -0500
+From: Dave Jones <davej@redhat.com>
+To: David Schwartz <davids@webmaster.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+Message-ID: <20060127022353.GF16422@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
+References: <43D8FEF2.3080502@wolfmountaingroup.com> <MDEHLPKNGKAHNMBLJOLKKEBHJLAB.davids@webmaster.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKEBHJLAB.davids@webmaster.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@fr.zoreil.com> wrote:
-> Ingo Molnar <mingo@elte.hu> :
-> [...]
->> i'm wondering, is this a genuine deadlock, or a false positive? The 
->> dependency chain is quite complex, but looks realistic:
->> 
->>   -> #4 {&dev->xmit_lock}: [<c045294b>] dev_watchdog+0x1b/0xc0
->>   -> #3 {&dev->queue_lock}: [<c0447154>] dev_queue_xmit+0x64/0x290
->>   -> #2 {&((sk)->sk_lock.slock)}: [<c043eb66>] sk_clone+0x66/0x200
->>   -> #1 {&((sk)->sk_lock.slock)}: [<c047a116>] tcp_v4_rcv+0x726/0x9d0
->>   -> #0 {&tp->rx_lock}: [<c033e460>] rtl8139_tx_timeout+0x110/0x1f0
-> 
-> It looks like watchdog racing against rx_poll (which should/can not
-> happen). Do you have something specific in mind ?
+On Thu, Jan 26, 2006 at 06:15:54PM -0800, David Schwartz wrote:
 
-You've got it.
+ > 	Linus can't put additional restrictions on code he didn't write. If the
+ > authors licensed it under the GPL version 2 and "any later version", Linus
+ > can't re-release it under a more restrictive license. Read section 6
+ > carefully:
 
-rx_poll => rtl8139_rx => netif_receive_skb => ... => tcp_v4_rcv
+I suggest you read section 9, even more carefully. It's not an additional
+restriction, it's a option that the license provides, which Linus chose.
 
-In fact once we're at netif_receive_skb it's easy to see how we'll grab
-xmit_lock again.
+Also read the preface of COPYING in the root directory of the kernel source.
+(That has been there for a _long_ time btw).
 
-Prescription: Move TX timeout handling into a work queue.
+		Dave
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,95 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWA0KMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbWA0KLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964911AbWA0KMT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 05:12:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbWA0KMT
+	id S932466AbWA0KLU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 05:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWA0KLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 05:12:19 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:12552 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S932457AbWA0KMS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 05:12:18 -0500
-Message-ID: <43D9F20F.1000906@shadowen.org>
-Date: Fri, 27 Jan 2006 10:12:31 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: Andrew Morton <akpm@osdl.org>, penberg@cs.helsinki.fi,
-       linux-kernel@vger.kernel.org
+	Fri, 27 Jan 2006 05:11:20 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:41359 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932461AbWA0KLT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 05:11:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Q1HHuXKRtqBix91fbpU9/aCCO9+mbV/QdmKiND9kb+wGyQwRkVP1FM1POgQLZFlPxAsdu9lj68yj/f8BcR79xHYLMXcItv28bghP8pvcZdyfT9CdDsVf9AAL275NTM839mKKtxL2k1VsgOSeOimFiru5DLnM9LcRe18OlqwfuyU=
+Message-ID: <6bffcb0e0601270211v787f91d2r@mail.gmail.com>
+Date: Fri, 27 Jan 2006 11:11:17 +0100
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
 Subject: Re: 2.6.16-rc1-mm3
-References: <20060124232406.50abccd1.akpm@osdl.org>	<43D785E1.4020708@shadowen.org>	<84144f020601250644h6ca4e407q2e15aa53b50ef509@mail.gmail.com>	<43D7AB49.2010709@shadowen.org>	<1138212981.8595.6.camel@localhost>	<43D7E83D.7040603@shadowen.org>	<84144f020601252303x7e2a75c6rdfe789d3477d9317@mail.gmail.com>	<43D96758.4030808@shadowen.org> <20060126192342.7341f9b2.akpm@osdl.org> <43D9B7AD.2030603@cosmosbay.com>
-In-Reply-To: <43D9B7AD.2030603@cosmosbay.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <43D927F6.9080807@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060124232406.50abccd1.akpm@osdl.org>
+	 <6bffcb0e0601250340x6ca48af0w@mail.gmail.com>
+	 <43D7A047.3070004@yahoo.com.au>
+	 <6bffcb0e0601261102j7e0a5d5av@mail.gmail.com>
+	 <43D92754.4090007@yahoo.com.au> <43D927F6.9080807@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet wrote:
-> Andrew Morton a écrit :
-> 
->> Andy Whitcroft <apw@shadowen.org> wrote:
->>
->>> Yes.  I think I have this one.  It appears that the patch below is the
->>>  trigger for all our recent panic woe's.  The last of the testing should
->>>  complete in the next few hours and I will be able to confirm that
->>>  hypothesis; results so far are all good.
->>>
->>>      reduce-size-of-percpudata-and-make-sure-per_cpuobject.patch
->>
->>
->> That patch did have some missed conversions, which might well explain the
->> crash.
->>
->> Thanks for narrowing it down - I'll keep that patch in next -mm (and will
->> include the known fixups).  Could you please boot test that?  If we're
->> still in trouble, I'll drop it.
+Hi,
 
-Sounds eminently fair.  I think the patch has merit so now we know the
-symptoms we can spent a little effort to get the kinks out.  Will test
-the next -mm as a matter of course.
+On 26/01/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> Nick Piggin wrote:
+> Sorry, wrong patch.
+>
+> Note the warnings you are seeing should not result in memory
+> corruption, but will result in the given hugepage leaking.
+>
+> --
+> SUSE Labs, Novell Inc.
+>
+>
+> Index: linux-2.6/include/linux/mm.h
+> ===================================================================
+> --- linux-2.6.orig/include/linux/mm.h
+> +++ linux-2.6/include/linux/mm.h
+> @@ -294,6 +294,8 @@ struct page {
+>   */
+>  static inline int put_page_testzero(struct page *page)
+>  {
+> +       if (unlikely(PageCompound(page)))
+> +               page = (struct page *)page_private(page);
+>         BUG_ON(atomic_read(&page->_count) == 0);
+>         return atomic_dec_and_test(&page->_count);
+>  }
+>
+>
+>
 
+Now I have got this:
 
-> The NULL choice was maybe wrong. We might need more than one page to
-> fully catch all accesses. Something like 32KB.
+BUG: unable to handle kernel paging request at virtual address eaa34b3c
+ printing eip:
+b0161cdd
+*pde = 0048a067
+*pte = 3aa34000
+Oops: 0000 [#1]
+PREEMPT SMP DEBUG_PAGEALLOC
+last sysfs file: /devices/pci0000:00/0000:00:1d.1/usb3/idVendor
+Modules linked in: snd_intel8x0 snd_ac97_codec snd_ac97_bus
+snd_pcm_oss snd_mixer_oss snd_pcm snd_timer ide_cd cdrom intel_agp
+agpgart snd i2c_i801 hw_random soundcore snd_page_alloc unix
+CPU:    0
+EIP:    0060:[<b0161cdd>]    Not tainted VLI
+EFLAGS: 00010282   (2.6.16-rc1-mm3 #4)
+EIP is at do_path_lookup+0x22b/0x259
+eax: eaa34b20   ebx: eb328000   ecx: 00000000   edx: eb328f4c
+esi: ffffff9c   edi: fffffffe   ebp: eb328f24   esp: eb328f0c
+ds: 007b   es: 007b   ss: 0068
+Process udevd (pid: 731, threadinfo=eb328000 task=eb30ca80)
+Stack: <0>00000000 eb5cb000 b015fab1 eb5cb000 eb5cb000 00000000
+eb328f40 b01621f3
+       eb328f4c ffffff9c afbf6dec afbf6dec 00000100 eb328f9c b015bf69 eb328f4c
+       eaa34b20 b23d5f28 00000000 eb329003 b015f8ce 00000000 00000001 00000000
+Call Trace:
+ [<b0103917>] show_stack_log_lvl+0xaa/0xb5
+ [<b0103a54>] show_registers+0x132/0x19d
+ [<b0103d91>] die+0x171/0x1fb
+ [<b02ab110>] do_page_fault+0x3be/0x568
+ [<b010343f>] error_code+0x4f/0x54
+ [<b01621f3>] __user_walk_fd+0x2d/0x41
+ [<b015bf69>] sys_readlinkat+0x26/0x93
+ [<b015bfe9>] sys_readlink+0x13/0x15
+ [<b01028bf>] sysenter_past_esp+0x54/0x75
+Code: 00 83 c0 04 e8 9a 82 14 00 8b 03 c7 80 e4 01 00 00 00 00 00 00
+8b 55 08 8b 45 ec e8 55 fa ff ff 89 c7 8b 55 08 8b 02 85 c0 74 24 <8b>
+50 1c 85 d2 74 1d b8 00 f0 ff ff 21 e0 8b 00 83 b8 d4 04 00
+ <6>ACPI: PCI Interrupt 0000:02:05.0[A] -> GSI 22 (level, low) -> IRQ 21
 
-The crash behavoir is handy to catch that the problem exists, and is
-very cheap (0 cost) at run time.  However, once its known I think we
-need something more targetted to allow tracking of the cause.  Perhaps
-we could set the offset thingy to -1 or something and simply do
-something like the following in per_cpu():
+Here is dmesg:
+http://www.stardust.webpages.pl/files/mm/2.6.16-rc1-mm3/mm-dmesg2
 
-	if (__per_cpu_offset[i] == -1)
-		BUG();
-	else
-		*RELOC_HIDE(&per_cpu__##var, __per_cpu_offset[cpu])
+Here is config
+http://www.stardust.webpages.pl/files/mm/2.6.16-rc1-mm3/mm-config
 
-> In the meantime could you apply this one ?
-> 
-> Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
-> 
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> --- a/arch/i386/kernel/nmi.c	2006-01-27 07:51:04.000000000 +0100
-> +++ b/arch/i386/kernel/nmi.c	2006-01-27 07:52:14.000000000 +0100
-> @@ -148,7 +148,7 @@
->  	if (nmi_watchdog == NMI_LOCAL_APIC)
->  		smp_call_function(nmi_cpu_busy, (void *)&endflag, 0, 0);
->  
-> -	for (cpu = 0; cpu < NR_CPUS; cpu++)
-> +	for_each_cpu(cpu)
->  		prev_nmi_count[cpu] = per_cpu(irq_stat, cpu).__nmi_count;
->  	local_irq_enable();
->  	mdelay((10*1000)/nmi_hz); // wait 10 ticks
-
-No change to the panic's in alloc_slabmgmt.  A very quick review seems
-to say that slab percpu data is actually not in percpu space, so that
-seems a little odd.  Not had any real time to trace it further.
-
-If you have any other missed ones than this send them along and I'll put
-them through the mill.
-
--apw
+Regards,
+Michal Piotrowski

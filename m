@@ -1,77 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbWA0LUH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030307AbWA0LV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964992AbWA0LUH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 06:20:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbWA0LUH
+	id S1030307AbWA0LV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 06:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbWA0LV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 06:20:07 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:65197 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S964986AbWA0LUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 06:20:05 -0500
-Message-ID: <43DA01DD.9040808@jp.fujitsu.com>
-Date: Fri, 27 Jan 2006 20:19:57 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Mel Gorman <mel@csn.ul.ie>
-CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [Lhms-devel] Re: [PATCH 0/9] Reducing fragmentation using zones
- v4
-References: <20060126184305.8550.94358.sendpatchset@skynet.csn.ul.ie> <43D96987.8090608@jp.fujitsu.com> <43D96C41.6020103@jp.fujitsu.com> <Pine.LNX.4.58.0601271027560.25836@skynet>
-In-Reply-To: <Pine.LNX.4.58.0601271027560.25836@skynet>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Jan 2006 06:21:56 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:19300 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S964995AbWA0LVz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 06:21:55 -0500
+Date: Fri, 27 Jan 2006 12:23:52 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Neil Brown <neilb@suse.de>
+Cc: Chase Venters <chase.venters@clientec.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, akpm@osdl.org, a.titov@host.bg,
+       askernel2615@dsgml.com, jamie@audible.transient.net
+Subject: Re: More information on scsi_cmd_cache leak... (bisect)
+Message-ID: <20060127112352.GF4311@suse.de>
+References: <200601270410.06762.chase.venters@clientec.com> <17369.65530.747867.844964@cse.unsw.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17369.65530.747867.844964@cse.unsw.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mel Gorman wrote:
-> On Fri, 27 Jan 2006, KAMEZAWA Hiroyuki wrote:
+On Fri, Jan 27 2006, Neil Brown wrote:
+> On Friday January 27, chase.venters@clientec.com wrote:
+> > Greetings,
+> > 	Just a quick recap - there are at least 4 reports of 2.6.15 users 
+> > experiencing severe slab leaks with scsi_cmd_cache. It seems that a few of us 
+> > have a board (Asus P5GDC-V Deluxe) in common. We seem to have raid in common. 
+> > 	After dealing with this leak for a while, I decided to do some dancing around 
+> > with git bisect. I've landed on a possible point of regression:
+> > 
+> > commit: a9701a30470856408d08657eb1bd7ae29a146190
+> > [PATCH] md: support BIO_RW_BARRIER for md/raid1
+> > 
+> > 	I spent about an hour and a half reading through the patch, trying to see if 
+> > I could make sense of what might be wrong. The result (after I dug into the 
+> > code to make a change I foolishly thought made sense) was a hung kernel.
+> > 	This is important because when I rebooted into the kernel that had been 
+> > giving me trouble, it started an md resync and I'm now watching (at least 
+> > during this resync) the slab usage for scsi_cmd_cache stay sane:
+> > 
+> > turbotaz ~ # cat /proc/slabinfo | grep scsi_cmd_cache
+> > scsi_cmd_cache        30     30    384   10    1 : tunables   54   27    8 : 
+> > slabdata      3      3      0
+> > 
 > 
->> KAMEZAWA Hiroyuki wrote:
->>> Could you add this patch to your set ?
->>> This was needed to boot my x86 machine without HIGHMEM.
->>>
->> Sorry, I sent a wrong patch..
->> This is correct one.
+> This suggests that the problem happens when a BIO_RW_BARRIER write is
+> sent to the device.  With this patch, md flags all superblock writes
+> as BIO_RW_BARRIER However md is not so likely to update the superblock often
+> during a resync.
 > 
-> I can add it although I would like to know more about the problem. I tried
-> booting with and without CONFIG_HIGHMEM both stock kernels and with
-> anti-frag and they all boot fine. What causes your machine to die? Does it
-> occur with stock -mm or just with anti-frag?
+> There is a (rough) count of the number of superblock writes in the
+> "Events" counter which "mdadm -D" will display.
+> You could try collecting 'Events' counter together with the
+> 'active_objs' count from /proc/slabinfo and graph the pairs - see if
+> they are linear.
 > 
-Sorry, it looks there is no problem with your newest set :(
-This was problem of my tree...
+> I believe a BIO_RW_BARRIER is likely to send some sort of 'flush'
+> command to the device, and the driver for your particular device may
+> well be losing scsi_cmd_cache allocation when doing that, but I leave
+> that to someone how knows more about that code.
 
-Sigh, I should be more carefull.
-my note is attached.
+I already checked up on that since I suspected barriers initially. The
+path there for scsi is sd.c:sd_issue_flush() which looks pretty straight
+forward. In the end it goes through the block layer and gets back to the
+SCSI layer as a regular REQ_BLOCK_PC request.
 
-Sorry,
--- Kame
-
-== Note ==
-
-I replaced si_meminfo() like following
-==
-#ifdef CONFIG_HIGHMEM
-         val->totalhigh = nr_total_zonetype_pages(ZONE_HIGHMEM);
-         val->freehigh = nr_free_zonetype_pages(ZONE_HIGHMEM);
-#else
-==
-If ZONE_HIGHMEM has no pages, val->totalhigh is 0 and mempool for bounce buffer
-is not initialized.
-
-But, now
-==
-#ifdef CONFIG_HIGHMEM
-         val->totalhigh = totalhigh_pages;
-         val->freehigh = nr_free_highpages();
-#else
-==
-
-totalhigh_pages is defined by highstart_pfn and highend_pfn.
-By Zone_EasyRclm, totalhigh_pages is not affected.
-mempool for bounce buffer is properly initialized....
-
+-- 
+Jens Axboe
 

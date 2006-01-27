@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWA0M02@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964987AbWA0M3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964986AbWA0M02 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 07:26:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWA0M02
+	id S964987AbWA0M3E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 07:29:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWA0M3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 07:26:28 -0500
-Received: from 1-1-8-31a.gmt.gbg.bostream.se ([82.182.75.118]:36586 "EHLO
-	mail.shipmail.org") by vger.kernel.org with ESMTP id S964986AbWA0M01
+	Fri, 27 Jan 2006 07:29:04 -0500
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:37388 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S964987AbWA0M3B
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 07:26:27 -0500
-Message-ID: <43DA1166.4040700@tungstengraphics.com>
-Date: Fri, 27 Jan 2006 13:26:14 +0100
-From: =?ISO-8859-1?Q?Thomas_Hellstr=F6m?= <thomas@tungstengraphics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12)
- Gecko/20050920
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: mprotect() resets caching policy
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-BitDefender-Spam: No (14)
+	Fri, 27 Jan 2006 07:29:01 -0500
+Date: Fri, 27 Jan 2006 23:28:56 +1100
+To: linux-kernel@vger.kernel.org, dhowells@redhat.com, keyrings@linux-nfs.org
+Subject: Re: [PATCH 00/04] Add DSA key type
+Message-ID: <20060127122856.GB32128@gondor.apana.org.au>
+References: <11380489522362@2gen.com> <E1F2IJr-0007Gu-00@gondolin.me.apana.org.au> <20060127072345.GB4082@hardeman.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060127072345.GB4082@hardeman.nu>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Jan 27, 2006 at 08:23:45AM +0100, David H?rdeman wrote:
+> On Fri, Jan 27, 2006 at 12:22:31PM +1100, Herbert Xu wrote:
+> >David H?rdeman <david@2gen.com> wrote:
+> >>
+> >>3) Changes the keyctl syscall to accept six arguments (is it valid to do 
+> >>so?)
+> >>  and adds encryption as one of the supported ops for in-kernel keys.
+> >
+> >The asymmetric encryption support should be done inside the crypto/
+> >framework rather than as an extension to the key management system.
+> 
+> It is done inside the crypto/ framework. crypto/dsa.c implements the DSA 
+> signing as a hash crypto algorithm (since a DSA signature is two 160-bit 
+> integers, the result has a fixed size).
 
-I'm working on an infrastructure to allow drm clients to flip arbitrary 
-pages in and out of the AGP aperture (or any similar device). In order 
-to avoid conflicting mappings for those pages, the caching attribute of 
-both the kernel mapping and all VMA's is changed when binding / unbinding.
+Right.  I mistook the name encrypt to mean generic asymmetric encryption.
+Now I see that it is simply an interface to the signature algorithm.
+This is fine by me.  However, wouldn't "sign" be a better name for it?
 
-However, I noticed that mprotect() will, when run on a non-cached VMA, 
-reset the caching policy. The line in mm/mprotect.c causing this problem is
-
-newprot = protection_map[newflags & 0xf];
-
-So a user could potentially run mprotect() and create a conflicting 
-mapping which presumably is bad for stability on some architectures.
-
-Since mprotect() only deals with rwx protection. I figure replacing the 
-above with something like
-
-newprot = (vm_page_prot & ~MPROT_MASK) | (protection_map[newflags & 0xf] 
-& MPROT_MASK)
-
-Where MPROT_MASK is a arch-dependent mask identifying the bits available 
-to mprotect().
-
-Alternatively, is there a way to disable mprotect() for a VMA?
-
-Finally, is there a chance to get protection_map[] exported to modules?
-
-Any comments would be appreciated. Please CC me since I'm not on the list.
-
-Regards,
-Thomas Hellström
-
-
-
-
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

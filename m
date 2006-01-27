@@ -1,99 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932500AbWA0VHZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161022AbWA0VHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932500AbWA0VHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 16:07:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932502AbWA0VHZ
+	id S1161022AbWA0VHk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 16:07:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161028AbWA0VHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 16:07:25 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:29455 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S932500AbWA0VHZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 16:07:25 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <hyc@symas.com>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
-Date: Fri, 27 Jan 2006 13:05:46 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKMEHJJLAB.davids@webmaster.com>
+	Fri, 27 Jan 2006 16:07:40 -0500
+Received: from mail.suse.de ([195.135.220.2]:22940 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161022AbWA0VHh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 16:07:37 -0500
+From: Neil Brown <neilb@suse.de>
+To: Ariel <askernel2615@dsgml.com>
+Date: Sat, 28 Jan 2006 08:07:12 +1100
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <43DA7ED9.4090802@symas.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Fri, 27 Jan 2006 13:02:30 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Fri, 27 Jan 2006 13:03:58 -0800
+Message-ID: <17370.35712.629959.808446@cse.unsw.edu.au>
+Cc: Chase Venters <chase.venters@clientec.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, akpm@osdl.org, a.titov@host.bg,
+       axboe@suse.de, jamie@audible.transient.net, arjan@infradead.org
+Subject: Re: More information on scsi_cmd_cache leak... (bisect)
+In-Reply-To: message from Ariel on Friday January 27
+References: <200601270410.06762.chase.venters@clientec.com>
+	<Pine.LNX.4.62.0601271335470.8977@pureeloreel.qftzy.pbz>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> David Schwartz wrote:
-> > 	We don't agree on what the specification says.
+On Friday January 27, askernel2615@dsgml.com wrote:
+> 
+> On Fri, 27 Jan 2006, Chase Venters wrote:
+> 
+> > 	After dealing with this leak for a while, I decided to do some dancing around
+> > with git bisect. I've landed on a possible point of regression:
 > >
-> >
-> >> Why do you suppose that is?
-> >>
-> >
-> > 	Why do I suppose what? I find the specification perfectly
-> clear and your
-> > reading of it incredibly strained for the three reasons I stated.
-> >
+> > commit: a9701a30470856408d08657eb1bd7ae29a146190
+> > [PATCH] md: support BIO_RW_BARRIER for md/raid1
+> 
+> I can confirm that it only leaks with raid!
+> 
+> I rebooted with my raid5 root, read only, and it didn't leak. As soon as I 
+> remount,rw it started leaking. Go back to ro and it stopped (although it 
+> didn't clean up the old leaks). Tried my raid1 /boot and same thing - rw 
+> leaks, ro doesn't. But, it only leaks on activity.
+> 
+> I then tried a regular lvm mount (with root ro), and no leaks!
 
-> Oddly enough, you said
-> http://groups.google.com/group/comp.programming.threads/msg/28b58e
-> 91886a3602?hl=en&
-> "Unfortunately, it sounds reasonable"  so I can't lend credence to your
-> stating that my reading is incredibly strained. The fact that
-> LinuxThreads historically adhered to my reading of it lends more weight
-> to my argument. The fact that people accepted this interpretation for so
-> many years lends further weight. In light of this, it is your current
-> interpretation that is incredibly strained, and I would say, broken.
+It might be interesting, but probably not particularly helpful, to
+create an ext3 filesystem on this device and mount it with the
+  barrier=1
+mount option.
+That should send BIO_RW_BARRIER requests to the device just line md
+does.
 
-	After collecting other opinions from comp.programming.threads, and being
-unable to find other people who considered it reasonable, I've changed my
-opinion. I was far too generous and deferential before.
-
-	The more I consider it, the more absurd I find it. POSIX and SuS were so
-careful not to dictate scheduler policy (or even hint at any notion of
-fairness) that to argue that they intended to prohibit a thread from
-releasing and reacquiring a mutex while another thread was blocked on it is
-not tenable.
-
-	You are essentially arguing that they intended to prohibit the most natural
-and highest performing implementation. This is totally inconsistent with
-POSIX's overall design intention to provide the lightest and
-highest-performing primitives and allow users to add features with overhead
-if they needed those features and could tolerate the overhead.
-
-> You have essentially created a tri-state mutex. (Locked, unlocked, and
-> sort-of-unlocked-but-really-reserved.) That may be a good and useful
-> thing in its own right, but it should not be the default behavior.
-
-	Huh?
-
-	I'm suggesting the most natural implementation: When a thread tries to
-acquire a mutex, it is blocked if a higher-priority thread is already
-waiting for a mutex. When a thread releases a mutex, the highest-priority
-thread waiting for the mutex is woken (but not necessarily guaranteed the
-mutex, the mutex is simply marked available). When a thread tries to acquire
-a mutex, it gets it unless a higher-priority thread is already registered as
-wanting it. When a thread tries to acquire a mutex, it loops until it
-acquires it and on each iteration blocks if the mutex is taken or a
-higher-priority thread is waiting for it, otherwise it takes the mutex.
-
-	A thread that is descheduled should never get priority over a thread that
-is already running (unless a scheduling priority mechanism requires it).
-
-	DS
-
-
+NeilBrown

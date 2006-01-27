@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422706AbWA0Xp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422708AbWA0Xu3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422706AbWA0Xp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 18:45:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422707AbWA0Xp4
+	id S1422708AbWA0Xu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 18:50:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422710AbWA0Xu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 18:45:56 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:21825 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1422706AbWA0Xpz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 18:45:55 -0500
-Message-ID: <43DAB0AC.9010108@oracle.com>
-Date: Fri, 27 Jan 2006 15:45:48 -0800
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 27 Jan 2006 18:50:29 -0500
+Received: from ozlabs.org ([203.10.76.45]:22729 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1422708AbWA0Xu3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 18:50:29 -0500
+Date: Sat, 28 Jan 2006 10:48:53 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Mark Haverkamp <markh@osdl.org>
+Cc: "linuxppc64-dev@ozlabs.org" <linuxppc64-dev@ozlabs.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: iommu_alloc failure and panic
+Message-ID: <20060127234853.GA17018@krispykreme>
+References: <1138381060.11796.22.camel@markh3.pdx.osdl.net>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] [x86-64] align per-cpu section to configured cache
- bytes
-References: <20060127220242.13917.839.sendpatchset@tetsuo.zabbo.net> <20060127233227.GA9274@mars.ravnborg.org>
-In-Reply-To: <20060127233227.GA9274@mars.ravnborg.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1138381060.11796.22.camel@markh3.pdx.osdl.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> On Fri, Jan 27, 2006 at 02:02:42PM -0800, Zach Brown wrote:
+
+Hi,
+
+> I have been testing large numbers of storage devices.  I have 16000 scsi
+> LUNs configured.  (4000 fiberchannel LUNS seen 4 times).  They are
+> configured as 4000 multipath devices using device mapper.  I have 100 of
+> those devices configured as a logical volume using LVM2.  Once I start
+> bonnie++ using one of those logical volumes I start seeing iommu_alloc
+> failures and then a panic.  I don't have this issue when accessing the
+> individual devices or the individual multipath devices.  Only when
+> conglomerated into a logical volume.
 > 
->>-  . = ALIGN(32);
->>+  . = ALIGN(CONFIG_X86_L1_CACHE_BYTES);
+> Here is the syslog output:
 > 
-> 
-> Grepping other arch's than just x86 and x86_64 it looks like a common
-> thing.
-> Is this fix really only relevant for x86 + x86_64 or should it be done
-> for all arch's?
+> Jan 26 14:56:41 linux kernel: iommu_alloc failed, tbl c00000000263c480 vaddr c0000000d7967000 npages 10
 
-I think it'd be needed if other archs had situations where C's
-(load_module()'s, in particular) notion of the cacheline size differed
-from vmlinux.lds.S's.  I didn't want to go screwing around with archs
-that I couldn't immediately test :)
+This stuff should be OK since the lpfc driver should handle the iommu
+filling up. Im guessing since you have so many LUNs you can get a whole
+lot of outstanding IO, enough to fill up the TCE table.
 
-> If we do it for all archs we may as well create:
-> #define PERCPU(aling) ...
-> macro in asm-generic/vmlinux.lds.h
+> DAR: C000000600711710
 
-Sounds reasonable to me, should I leave that in your capable hands?
+> NIP [C00000000000F7D0] .validate_sp+0x30/0xc0
+> LR [C00000000000FA2C] .show_stack+0xec/0x1d0
+> Call Trace:
+> [C0000000076DBBC0] [C00000000000FA18] .show_stack+0xd8/0x1d0 (unreliable)
+> [C0000000076DBC60] [C000000000433838] .schedule+0xd78/0xfb0
+> [C0000000076DBDE0] [C000000000079FC0] .worker_thread+0x1b0/0x1c0
 
-- z
+This is interesting, an oops in validate_sp which is a pretty boring
+function. We have seen this in the past when you overflow your kernel
+stack. The bottom of the kernel stack contains the threadinfo struct and
+in that we have the task_cpu() data.
+
+When we overflow the stack and overwrite the threadinfo we end up with 
+a crazy number for task_cpu() and then oops when doing 
+hardirq_ctx[task_cpu(p)]. Can you turn on DEBUG_STACKOVERFLOW and
+DEBUG_STACK_USAGE and see if you get any stack overflow warnings? The
+second option will also allow you to do sysrq t and dump the most stack
+each process has used at that point.
+
+Anton

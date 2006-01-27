@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751436AbWA0KWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWA0KYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751436AbWA0KWK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 05:22:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWA0KWK
+	id S964825AbWA0KYE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 05:24:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbWA0KYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 05:22:10 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:3250 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1751436AbWA0KWJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 05:22:09 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Adrian Bunk <bunk@stusta.de>, acx100-devel@lists.sourceforge.net
-Subject: Re: [-mm patch] drivers/net/wireless/tiacx/: remove code for WIRELESS_EXT < 18
-Date: Fri, 27 Jan 2006 12:19:24 +0200
-User-Agent: KMail/1.8.2
-Cc: "John W. Linville" <linville@tuxdriver.com>, jgarzik@pobox.com,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20060122171104.GC10003@stusta.de>
-In-Reply-To: <20060122171104.GC10003@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Jan 2006 05:24:04 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:16690 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S964825AbWA0KYD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 05:24:03 -0500
+Date: Fri, 27 Jan 2006 11:26:11 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: How to map high memory for block io
+Message-ID: <20060127102611.GC4311@suse.de>
+References: <43D9C19F.7090707@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601271219.24332.vda@ilport.com.ua>
+In-Reply-To: <43D9C19F.7090707@drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
-
-
-On Sunday 22 January 2006 19:11, Adrian Bunk wrote:
-> WIRELESS_EXT < 18 will never be true in the kernel.
+On Fri, Jan 27 2006, Pierre Ossman wrote:
+> I'm having some problems getting high memory support to work smoothly in
+> my driver. The documentation doesn't indicate what I might be doing
+> wrong so I'll have to ask here.
 > 
+> The problem seems to be that kmap & co maps a single page into kernel
+> memory. So when I happen to cross page boundaries I start corrupting
+> some unrelated parts of the kernel. I would prefer not having to
+> consider page boundaries in an already messy PIO loop, so I've been
+> trying to find either a routine to map an entire sg entry or some way to
+> force the block layer to not give me stuff crossing pages.
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> As you can guess I have not found anything that can do what I want, so
+> some pointers would be nice.
 
-Please don't do this. We are not in the kernel yet.
+Honestly, just don't bother if you are doing PIO anyways. Just tell the
+block layer that you want io bounced for you instead.
 
-acx currently is in -mm, not in mainline.
+-- 
+Jens Axboe
 
-We have quite a few users of it which aren't using -mm,
-but instead compile it out-of-kernel.
-
-We gradually removed 2.4 compat code and most of early 2.6isms.
-Even that produced a few complains. Currently out-of-tree acx
-is working for any kernel >= 2.6.10.
-
-I very much want to get rid of all remaining compat cruft, and
-I plan to do it as soon as acx will be present in mainline kernel.
---
-vda

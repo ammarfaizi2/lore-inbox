@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbWA0HWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWA0HY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbWA0HWM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 02:22:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbWA0HWM
+	id S932410AbWA0HY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 02:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbWA0HY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 02:22:12 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:2518 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932407AbWA0HWL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 02:22:11 -0500
-Date: Fri, 27 Jan 2006 09:22:10 +0200 (EET)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Matthew Dobson <colpatch@us.ibm.com>
-cc: linux-kernel@vger.kernel.org, sri@us.ibm.com, andrea@suse.de,
-       pavel@suse.cz, linux-mm@kvack.org
-Subject: Re: [patch 9/9] slab - Implement single mempool backing for slab
- allocator
-In-Reply-To: <43D951C4.8050503@us.ibm.com>
-Message-ID: <Pine.LNX.4.58.0601270915450.14394@sbz-30.cs.Helsinki.FI>
-References: <20060125161321.647368000@localhost.localdomain> 
- <1138218024.2092.9.camel@localhost.localdomain>
- <84144f020601260011p1e2f883fp8058eb0e2edee99f@mail.gmail.com>
- <43D951C4.8050503@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Jan 2006 02:24:26 -0500
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:10372 "EHLO
+	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
+	id S932410AbWA0HYZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 02:24:25 -0500
+Date: Fri, 27 Jan 2006 08:23:45 +0100
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com, keyrings@linux-nfs.org
+Subject: Re: [PATCH 00/04] Add DSA key type
+Message-ID: <20060127072345.GB4082@hardeman.nu>
+Mail-Followup-To: Herbert Xu <herbert@gondor.apana.org.au>,
+	linux-kernel@vger.kernel.org, dhowells@redhat.com,
+	keyrings@linux-nfs.org
+References: <11380489522362@2gen.com> <E1F2IJr-0007Gu-00@gondolin.me.apana.org.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <E1F2IJr-0007Gu-00@gondolin.me.apana.org.au>
+User-Agent: Mutt/1.5.11
+X-SA-Score: -2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Jan 2006, Matthew Dobson wrote:
-> As you mention, there is no guarantee as to how long the critical page will
-> be in use for.  One idea to tackle that problem would be to use the new
-> mempool_t pointer in struct slab to provide exclusivity of critical slab
-> pages, ie: if a non-critical slab request comes in and the only free page
-> in the slab is a 'critical' page (it came from a mempool) then attempt to
-> grow the slab or fail the non-critical request.  Both of these concepts
-> were (more or less) implemented in my other attempt at solving the critical
-> pool problem, so moving them to fit into this approach should not be difficult.
+On Fri, Jan 27, 2006 at 12:22:31PM +1100, Herbert Xu wrote:
+>David H?rdeman <david@2gen.com> wrote:
+>>
+>> 3) Changes the keyctl syscall to accept six arguments (is it valid to do so?)
+>>   and adds encryption as one of the supported ops for in-kernel keys.
+>
+>The asymmetric encryption support should be done inside the crypto/
+>framework rather than as an extension to the key management system.
 
-Increasing struct slab size doesn't sound too appealing. I don't think the 
-slab allocator should know about mempools. Your critical allocations and 
-regular slab allocations have very different needs. For regular 
-allocations, we want to avoid page allocation which is why the object 
-caches hold on to slab pages whereas for mempool, I think you almost 
-always want to give back unused memory to the pool.
+It is done inside the crypto/ framework. crypto/dsa.c implements the DSA 
+signing as a hash crypto algorithm (since a DSA signature is two 160-bit 
+integers, the result has a fixed size).
 
-I think a better way to go is to improve the mempool implementation to 
-allow non-fixed size allocations and then combine that with the slab 
-allocator to get what you need.
+The above patch just adds the syscall to tell the in-kernel system that 
+you wish to encrypt/sign something with a given key. In the case that 
+the type of the given key is a DSA key, security/keys/dsa_key.c uses the 
+dsa crypto alg from crypto/dsa.c to satisfy that request.
 
-				Pekka
+Regards,
+David

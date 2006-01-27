@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWA0NQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWA0NQJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbWA0NQh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 08:16:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWA0NQh
+	id S1750787AbWA0NQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 08:16:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWA0NQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 08:16:37 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:59119 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1750857AbWA0NQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 08:16:36 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Fri, 27 Jan 2006 14:15:02 +0100
-To: Valdis.Kletnieks@vt.edu, schilling@fokus.fraunhofer.de
-Cc: rlrevell@joe-job.com, mrmacman_g4@mac.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jerome.lacoste@gmail.com,
-       acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43DA1CD6.nailFHI6QV3LO@burner>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
- <43D7A7F4.nailDE92K7TJI@burner>
- <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
- <43D7B075.6000602@gmx.de> <43D7B2DF.nailDFJA51SL1@burner>
- <43D7B5BE.60304@gmx.de> <43D89B7C.nailDTH38QZBU@burner>
- <5a2cf1f60601260234r4c5cde3fu3e8d79e816b9f3fd@mail.gmail.com>
- <43D8D69F.nailE2XAJ2XIA@burner>
- <200601270524.k0R5OIS8019541@turing-police.cc.vt.edu>
-In-Reply-To: <200601270524.k0R5OIS8019541@turing-police.cc.vt.edu>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 27 Jan 2006 08:16:08 -0500
+Received: from uproxy.gmail.com ([66.249.92.195]:29451 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750787AbWA0NQH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 08:16:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=Jks7CmcqjWrKc2NgQd+Fv2wXD5PCJqSQQ6VlHQtmfjRHWCSi6VK48Hj5rCxpwbE5LNsZZKXysuGls2mPvZEmkfXJpbbmLPfgDL1IKMeGiPx+zF1AHzOq0CkntQVbWxuEHTFzYPBkvrFQzLkMKVnVsjLwaVJmyS5AYl75EsZTRaI=
+Date: Fri, 27 Jan 2006 16:33:54 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Chase Venters <chase.venters@clientec.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, akpm@osdl.org,
+       a.titov@host.bg, axboe@suse.de, askernel2615@dsgml.com,
+       jamie@audible.transient.net, neilb@suse.de
+Subject: Re: More information on scsi_cmd_cache leak... (bisect)
+Message-ID: <20060127133354.GA11011@mipter.zuzino.mipt.ru>
+References: <200601270410.06762.chase.venters@clientec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601270410.06762.chase.venters@clientec.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
+On Fri, Jan 27, 2006 at 04:09:44AM -0600, Chase Venters wrote:
+> 	All bisect kernels were built from the same .config, and "make clean; make
+> mrproper" was executed between each compile. (Do I really need to do that?
 
-> And you know what? I really don't give a flying <fornicate> in a rolling donut
-> what FreeBSD calls the device. If I did, I'd have installed FreeBSD.  But I
+	git bisect {good,bad}
+	make
 
-It has been mentioned here many times, you only need to read it.
+should be enough.
 
-FreeBSD comes with a T-10 (SCSI) compliant CAM interface that uses a multiplex 
-device and dev=b,t,l to address the devices. This is true for _all_ kind of 
-SCSI devices and thus includes ATAPI transport.
+First bisect steps usually result in full rebuild because some often
+included header is patched.
 
-Jörg
+> How does git handle timestamps? I assumed I didn't really need to but did it
+> to be thorough).
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

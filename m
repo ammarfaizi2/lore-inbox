@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422663AbWA0Ww5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422651AbWA0WwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422663AbWA0Ww5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 17:52:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422650AbWA0Wws
+	id S1422651AbWA0WwT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 17:52:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422650AbWA0WwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 17:52:48 -0500
-Received: from smtp1.pp.htv.fi ([213.243.153.37]:63883 "EHLO smtp1.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S1422656AbWA0WwW (ORCPT
+	Fri, 27 Jan 2006 17:52:09 -0500
+Received: from smtp2.pp.htv.fi ([213.243.153.35]:48545 "EHLO smtp2.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S1422651AbWA0WwA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 17:52:22 -0500
-Date: Sat, 28 Jan 2006 00:52:21 +0200
+	Fri, 27 Jan 2006 17:52:00 -0500
+Date: Sat, 28 Jan 2006 00:51:59 +0200
 From: Paul Mundt <lethal@linux-sh.org>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 6/11] sh: drop maskpos from make_ipr_irq(), remove duplicate irq definitions.
-Message-ID: <20060127225221.GG30816@linux-sh.org>
+Subject: [PATCH 5/11] sh: unknown mach-type updates.
+Message-ID: <20060127225159.GF30816@linux-sh.org>
 Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>, akpm@osdl.org,
 	linux-kernel@vger.kernel.org
 References: <20060127224919.GA30816@linux-sh.org>
@@ -25,256 +25,227 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clean up some of the subtype IRQ definitions for IPR IRQ, and
-consolidate the make_ipr_irq() definitions by dropping maskpos.
-SH-4A was the only thing interested in the maskpos, and this
-should be handled through INTC2 rather than IPR.
+Trivial cleanup of the unknown machine type for some of the
+recent machvec changes.
 
 Signed-off-by: Paul Mundt <lethal@linux-sh.org>
 
 ---
 
- arch/sh/kernel/cpu/irq/ipr.c |   59 +++++++++++++++++++++---------------------
- include/asm-sh/irq-sh73180.h |   36 +-------------------------
- include/asm-sh/irq-sh7780.h  |   23 ----------------
- include/asm-sh/irq.h         |   10 ++++++-
- 4 files changed, 38 insertions(+), 90 deletions(-)
+ arch/sh/boards/unknown/Makefile |    2 +
+ arch/sh/boards/unknown/io.c     |   46 ---------------------------
+ arch/sh/boards/unknown/mach.c   |   67 ---------------------------------------
+ arch/sh/boards/unknown/setup.c  |   12 ++++++-
+ arch/sh/kernel/setup.c          |   13 ++------
+ 5 files changed, 16 insertions(+), 124 deletions(-)
+ delete mode 100644 arch/sh/boards/unknown/io.c
+ delete mode 100644 arch/sh/boards/unknown/mach.c
 
-f8f931cba083eba8848230eb02d3e815009daec9
-diff --git a/arch/sh/kernel/cpu/irq/ipr.c b/arch/sh/kernel/cpu/irq/ipr.c
-index fdbd718..e55150e 100644
---- a/arch/sh/kernel/cpu/irq/ipr.c
-+++ b/arch/sh/kernel/cpu/irq/ipr.c
-@@ -108,8 +108,7 @@ static void end_ipr_irq(unsigned int irq
- 		enable_ipr_irq(irq);
- }
+eaa4999ab033f852a67796317073a2d14f31c04d
+diff --git a/arch/sh/boards/unknown/Makefile b/arch/sh/boards/unknown/Makefile
+index cffc210..7d18f40 100644
+--- a/arch/sh/boards/unknown/Makefile
++++ b/arch/sh/boards/unknown/Makefile
+@@ -2,5 +2,5 @@
+ # Makefile for unknown SH boards 
+ #
  
--void make_ipr_irq(unsigned int irq, unsigned int addr, int pos,
--		  int priority, int maskpos)
-+void make_ipr_irq(unsigned int irq, unsigned int addr, int pos, int priority)
+-obj-y	 := mach.o io.o setup.o
++obj-y	 := setup.o
+ 
+diff --git a/arch/sh/boards/unknown/io.c b/arch/sh/boards/unknown/io.c
+deleted file mode 100644
+index 8f3f172..0000000
+--- a/arch/sh/boards/unknown/io.c
++++ /dev/null
+@@ -1,46 +0,0 @@
+-/*
+- * linux/arch/sh/kernel/io_unknown.c
+- *
+- * Copyright (C) 2000 Stuart Menefy (stuart.menefy@st.com)
+- *
+- * May be copied or modified under the terms of the GNU General Public
+- * License.  See linux/COPYING for more information.
+- *
+- * I/O routine for unknown hardware.
+- */
+-
+-static unsigned int unknown_handler(void)
+-{
+-	return 0;
+-}
+-
+-#define UNKNOWN_ALIAS(fn) \
+-	void unknown_##fn(void) __attribute__ ((alias ("unknown_handler")));
+-
+-UNKNOWN_ALIAS(inb)
+-UNKNOWN_ALIAS(inw)
+-UNKNOWN_ALIAS(inl)
+-UNKNOWN_ALIAS(outb)
+-UNKNOWN_ALIAS(outw)
+-UNKNOWN_ALIAS(outl)
+-UNKNOWN_ALIAS(inb_p)
+-UNKNOWN_ALIAS(inw_p)
+-UNKNOWN_ALIAS(inl_p)
+-UNKNOWN_ALIAS(outb_p)
+-UNKNOWN_ALIAS(outw_p)
+-UNKNOWN_ALIAS(outl_p)
+-UNKNOWN_ALIAS(insb)
+-UNKNOWN_ALIAS(insw)
+-UNKNOWN_ALIAS(insl)
+-UNKNOWN_ALIAS(outsb)
+-UNKNOWN_ALIAS(outsw)
+-UNKNOWN_ALIAS(outsl)
+-UNKNOWN_ALIAS(readb)
+-UNKNOWN_ALIAS(readw)
+-UNKNOWN_ALIAS(readl)
+-UNKNOWN_ALIAS(writeb)
+-UNKNOWN_ALIAS(writew)
+-UNKNOWN_ALIAS(writel)
+-UNKNOWN_ALIAS(isa_port2addr)
+-UNKNOWN_ALIAS(ioremap)
+-UNKNOWN_ALIAS(iounmap)
+diff --git a/arch/sh/boards/unknown/mach.c b/arch/sh/boards/unknown/mach.c
+deleted file mode 100644
+index ad0bcc6..0000000
+--- a/arch/sh/boards/unknown/mach.c
++++ /dev/null
+@@ -1,67 +0,0 @@
+-/*
+- * linux/arch/sh/kernel/mach_unknown.c
+- *
+- * Copyright (C) 2000 Stuart Menefy (stuart.menefy@st.com)
+- *
+- * May be copied or modified under the terms of the GNU General Public
+- * License.  See linux/COPYING for more information.
+- *
+- * Machine specific code for an unknown machine (internal peripherials only)
+- */
+-
+-#include <linux/config.h>
+-#include <linux/init.h>
+-
+-#include <asm/machvec.h>
+-#include <asm/machvec_init.h>
+-
+-#include <asm/io_unknown.h>
+-
+-#include <asm/rtc.h>
+-/*
+- * The Machine Vector
+- */
+-
+-struct sh_machine_vector mv_unknown __initmv = {
+-#if defined(CONFIG_CPU_SH4)
+-	.mv_nr_irqs		= 48,
+-#elif defined(CONFIG_CPU_SUBTYPE_SH7708)
+-	.mv_nr_irqs		= 32,
+-#elif defined(CONFIG_CPU_SUBTYPE_SH7709)
+-	.mv_nr_irqs		= 61,
+-#endif
+-
+-	.mv_inb			= unknown_inb,
+-	.mv_inw			= unknown_inw,
+-	.mv_inl			= unknown_inl,
+-	.mv_outb		= unknown_outb,
+-	.mv_outw		= unknown_outw,
+-	.mv_outl		= unknown_outl,
+-
+-	.mv_inb_p		= unknown_inb_p,
+-	.mv_inw_p		= unknown_inw_p,
+-	.mv_inl_p		= unknown_inl_p,
+-	.mv_outb_p		= unknown_outb_p,
+-	.mv_outw_p		= unknown_outw_p,
+-	.mv_outl_p		= unknown_outl_p,
+-
+-	.mv_insb		= unknown_insb,
+-	.mv_insw		= unknown_insw,
+-	.mv_insl		= unknown_insl,
+-	.mv_outsb		= unknown_outsb,
+-	.mv_outsw		= unknown_outsw,
+-	.mv_outsl		= unknown_outsl,
+-
+-	.mv_readb		= unknown_readb,
+-	.mv_readw		= unknown_readw,
+-	.mv_readl		= unknown_readl,
+-	.mv_writeb		= unknown_writeb,
+-	.mv_writew		= unknown_writew,
+-	.mv_writel		= unknown_writel,
+-
+-	.mv_ioremap		= unknown_ioremap,
+-	.mv_iounmap		= unknown_iounmap,
+-
+-	.mv_isa_port2addr	= unknown_isa_port2addr,
+-};
+-ALIAS_MV(unknown)
+diff --git a/arch/sh/boards/unknown/setup.c b/arch/sh/boards/unknown/setup.c
+index 7d772a6..02e84f0 100644
+--- a/arch/sh/boards/unknown/setup.c
++++ b/arch/sh/boards/unknown/setup.c
+@@ -7,10 +7,20 @@
+  * License.  See linux/COPYING for more information.
+  *
+  * Setup code for an unknown machine (internal peripherials only)
++ *
++ * This is the simplest of all boards, and serves only as a quick and dirty
++ * method to start debugging a new board during bring-up until proper board
++ * setup code is written.
+  */
+-
+ #include <linux/config.h>
+ #include <linux/init.h>
++#include <asm/machvec.h>
++#include <asm/irq.h>
++
++struct sh_machine_vector mv_unknown __initmv = {
++	.mv_nr_irqs		= NR_IRQS,
++};
++ALIAS_MV(unknown)
+ 
+ const char *get_system_type(void)
  {
- 	disable_irq_nosync(irq);
- 	ipr_data[irq].addr = addr;
-@@ -123,44 +122,44 @@ void make_ipr_irq(unsigned int irq, unsi
- void __init init_IRQ(void)
+diff --git a/arch/sh/kernel/setup.c b/arch/sh/kernel/setup.c
+index 0f1fbe7..a067a34 100644
+--- a/arch/sh/kernel/setup.c
++++ b/arch/sh/kernel/setup.c
+@@ -186,7 +186,7 @@ static inline void parse_cmdline (char *
+ 
+ static int __init sh_mv_setup(char **cmdline_p)
  {
- #ifndef CONFIG_CPU_SUBTYPE_SH7780
--	make_ipr_irq(TIMER_IRQ, TIMER_IPR_ADDR, TIMER_IPR_POS, TIMER_PRIORITY, 0);
--	make_ipr_irq(TIMER1_IRQ, TIMER1_IPR_ADDR, TIMER1_IPR_POS, TIMER1_PRIORITY, 0);
-+	make_ipr_irq(TIMER_IRQ, TIMER_IPR_ADDR, TIMER_IPR_POS, TIMER_PRIORITY);
-+	make_ipr_irq(TIMER1_IRQ, TIMER1_IPR_ADDR, TIMER1_IPR_POS, TIMER1_PRIORITY);
- #if defined(CONFIG_SH_RTC)
--	make_ipr_irq(RTC_IRQ, RTC_IPR_ADDR, RTC_IPR_POS, RTC_PRIORITY, 0);
-+	make_ipr_irq(RTC_IRQ, RTC_IPR_ADDR, RTC_IPR_POS, RTC_PRIORITY);
+-#if defined(CONFIG_SH_UNKNOWN)
++#ifdef CONFIG_SH_UNKNOWN
+ 	extern struct sh_machine_vector mv_unknown;
  #endif
+ 	struct sh_machine_vector *mv = NULL;
+@@ -196,7 +196,7 @@ static int __init sh_mv_setup(char **cmd
  
- #ifdef SCI_ERI_IRQ
--	make_ipr_irq(SCI_ERI_IRQ, SCI_IPR_ADDR, SCI_IPR_POS, SCI_PRIORITY, 0);
--	make_ipr_irq(SCI_RXI_IRQ, SCI_IPR_ADDR, SCI_IPR_POS, SCI_PRIORITY, 0);
--	make_ipr_irq(SCI_TXI_IRQ, SCI_IPR_ADDR, SCI_IPR_POS, SCI_PRIORITY, 0);
-+	make_ipr_irq(SCI_ERI_IRQ, SCI_IPR_ADDR, SCI_IPR_POS, SCI_PRIORITY);
-+	make_ipr_irq(SCI_RXI_IRQ, SCI_IPR_ADDR, SCI_IPR_POS, SCI_PRIORITY);
-+	make_ipr_irq(SCI_TXI_IRQ, SCI_IPR_ADDR, SCI_IPR_POS, SCI_PRIORITY);
+ 	parse_cmdline(cmdline_p, mv_name, &mv, &mv_io_base, &mv_mmio_enable);
+ 
+-#ifdef CONFIG_SH_GENERIC
++#ifdef CONFIG_SH_UNKNOWN
+ 	if (mv == NULL) {
+ 		mv = &mv_unknown;
+ 		if (*mv_name != '\0') {
+@@ -206,9 +206,6 @@ static int __init sh_mv_setup(char **cmd
+ 	}
+ 	sh_mv = *mv;
  #endif
+-#ifdef CONFIG_SH_UNKNOWN
+-	sh_mv = mv_unknown;
+-#endif
  
- #ifdef SCIF1_ERI_IRQ
--	make_ipr_irq(SCIF1_ERI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY, 0);
--	make_ipr_irq(SCIF1_RXI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY, 0);
--	make_ipr_irq(SCIF1_BRI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY, 0);
--	make_ipr_irq(SCIF1_TXI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY, 0);
-+	make_ipr_irq(SCIF1_ERI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY);
-+	make_ipr_irq(SCIF1_RXI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY);
-+	make_ipr_irq(SCIF1_BRI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY);
-+	make_ipr_irq(SCIF1_TXI_IRQ, SCIF1_IPR_ADDR, SCIF1_IPR_POS, SCIF1_PRIORITY);
- #endif
+ 	/*
+ 	 * Manually walk the vec, fill in anything that the board hasn't yet
+@@ -231,10 +228,8 @@ static int __init sh_mv_setup(char **cmd
+ 	mv_set(readb);	mv_set(readw);	mv_set(readl);
+ 	mv_set(writeb);	mv_set(writew);	mv_set(writel);
  
- #if defined(CONFIG_CPU_SUBTYPE_SH7300)
--	make_ipr_irq(SCIF0_IRQ, SCIF0_IPR_ADDR, SCIF0_IPR_POS, SCIF0_PRIORITY, 0);
--	make_ipr_irq(DMTE2_IRQ, DMA1_IPR_ADDR, DMA1_IPR_POS, DMA1_PRIORITY, 0);
--	make_ipr_irq(DMTE3_IRQ, DMA1_IPR_ADDR, DMA1_IPR_POS, DMA1_PRIORITY, 0);
--	make_ipr_irq(VIO_IRQ, VIO_IPR_ADDR, VIO_IPR_POS, VIO_PRIORITY, 0);
-+	make_ipr_irq(SCIF0_IRQ, SCIF0_IPR_ADDR, SCIF0_IPR_POS, SCIF0_PRIORITY);
-+	make_ipr_irq(DMTE2_IRQ, DMA1_IPR_ADDR, DMA1_IPR_POS, DMA1_PRIORITY);
-+	make_ipr_irq(DMTE3_IRQ, DMA1_IPR_ADDR, DMA1_IPR_POS, DMA1_PRIORITY);
-+	make_ipr_irq(VIO_IRQ, VIO_IPR_ADDR, VIO_IPR_POS, VIO_PRIORITY);
- #endif
- 
- #ifdef SCIF_ERI_IRQ
--	make_ipr_irq(SCIF_ERI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY, 0);
--	make_ipr_irq(SCIF_RXI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY, 0);
--	make_ipr_irq(SCIF_BRI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY, 0);
--	make_ipr_irq(SCIF_TXI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY, 0);
-+	make_ipr_irq(SCIF_ERI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY);
-+	make_ipr_irq(SCIF_RXI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY);
-+	make_ipr_irq(SCIF_BRI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY);
-+	make_ipr_irq(SCIF_TXI_IRQ, SCIF_IPR_ADDR, SCIF_IPR_POS, SCIF_PRIORITY);
- #endif
- 
- #ifdef IRDA_ERI_IRQ
--	make_ipr_irq(IRDA_ERI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY, 0);
--	make_ipr_irq(IRDA_RXI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY, 0);
--	make_ipr_irq(IRDA_BRI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY, 0);
--	make_ipr_irq(IRDA_TXI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY, 0);
-+	make_ipr_irq(IRDA_ERI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY);
-+	make_ipr_irq(IRDA_RXI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY);
-+	make_ipr_irq(IRDA_BRI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY);
-+	make_ipr_irq(IRDA_TXI_IRQ, IRDA_IPR_ADDR, IRDA_IPR_POS, IRDA_PRIORITY);
- #endif
- 
- #if defined(CONFIG_CPU_SUBTYPE_SH7707) || defined(CONFIG_CPU_SUBTYPE_SH7709) || \
-@@ -175,12 +174,12 @@ void __init init_IRQ(void)
- 	 * You should set corresponding bits of PFC to "00"
- 	 * to enable these interrupts.
- 	 */
--	make_ipr_irq(IRQ0_IRQ, IRQ0_IPR_ADDR, IRQ0_IPR_POS, IRQ0_PRIORITY, 0);
--	make_ipr_irq(IRQ1_IRQ, IRQ1_IPR_ADDR, IRQ1_IPR_POS, IRQ1_PRIORITY, 0);
--	make_ipr_irq(IRQ2_IRQ, IRQ2_IPR_ADDR, IRQ2_IPR_POS, IRQ2_PRIORITY, 0);
--	make_ipr_irq(IRQ3_IRQ, IRQ3_IPR_ADDR, IRQ3_IPR_POS, IRQ3_PRIORITY, 0);
--	make_ipr_irq(IRQ4_IRQ, IRQ4_IPR_ADDR, IRQ4_IPR_POS, IRQ4_PRIORITY, 0);
--	make_ipr_irq(IRQ5_IRQ, IRQ5_IPR_ADDR, IRQ5_IPR_POS, IRQ5_PRIORITY, 0);
-+	make_ipr_irq(IRQ0_IRQ, IRQ0_IPR_ADDR, IRQ0_IPR_POS, IRQ0_PRIORITY);
-+	make_ipr_irq(IRQ1_IRQ, IRQ1_IPR_ADDR, IRQ1_IPR_POS, IRQ1_PRIORITY);
-+	make_ipr_irq(IRQ2_IRQ, IRQ2_IPR_ADDR, IRQ2_IPR_POS, IRQ2_PRIORITY);
-+	make_ipr_irq(IRQ3_IRQ, IRQ3_IPR_ADDR, IRQ3_IPR_POS, IRQ3_PRIORITY);
-+	make_ipr_irq(IRQ4_IRQ, IRQ4_IPR_ADDR, IRQ4_IPR_POS, IRQ4_PRIORITY);
-+	make_ipr_irq(IRQ5_IRQ, IRQ5_IPR_ADDR, IRQ5_IPR_POS, IRQ5_PRIORITY);
- #endif
- #endif
- 
-diff --git a/include/asm-sh/irq-sh73180.h b/include/asm-sh/irq-sh73180.h
-index bf2e431..d705252 100644
---- a/include/asm-sh/irq-sh73180.h
-+++ b/include/asm-sh/irq-sh73180.h
-@@ -25,11 +25,6 @@
- #undef DMA_IPR_POS
- #undef DMA_PRIORITY
- 
--#undef NR_IRQS
+-	mv_set(ioremap);
+-	mv_set(iounmap);
 -
--#undef __irq_demux
--#undef irq_demux
--
- #undef INTC_IMCR0
- #undef INTC_IMCR1
- #undef INTC_IMCR2
-@@ -229,33 +224,6 @@
- #define SIU_IPR_POS	1
- #define SIU_PRIORITY	3
+-	mv_set(isa_port2addr);
++	mv_set(ioport_map);
++	mv_set(ioport_unmap);
+ 	mv_set(irq_demux);
  
--
--/* ONCHIP_NR_IRQS */
--#define NR_IRQS 109
--
--/* In a generic kernel, NR_IRQS is an upper bound, and we should use
-- * ACTUAL_NR_IRQS (which uses the machine vector) to get the correct value.
-- */
--#define ACTUAL_NR_IRQS NR_IRQS
--
--
--extern void disable_irq(unsigned int);
--extern void disable_irq_nosync(unsigned int);
--extern void enable_irq(unsigned int);
--
--/*
-- * Simple Mask Register Support
-- */
--extern void make_maskreg_irq(unsigned int irq);
--extern unsigned short *irq_mask_register;
--
--/*
-- * Function for "on chip support modules".
-- */
--extern void make_ipr_irq(unsigned int irq, unsigned int addr,
--			 int pos,  int priority);
--extern void make_imask_irq(unsigned int irq);
--
- #define PORT_PACR	0xA4050100UL
- #define PORT_PBCR	0xA4050102UL
- #define PORT_PCCR	0xA4050104UL
-@@ -343,8 +311,6 @@ extern void make_imask_irq(unsigned int 
- #define IRQ6_PRIORITY	1
- #define IRQ7_PRIORITY	1
- 
--extern int shmse_irq_demux(int irq);
--#define __irq_demux(irq) shmse_irq_demux(irq)
--#define irq_demux(irq) __irq_demux(irq)
-+int shmse_irq_demux(int irq);
- 
- #endif /* __ASM_SH_IRQ_SH73180_H */
-diff --git a/include/asm-sh/irq-sh7780.h b/include/asm-sh/irq-sh7780.h
-index 8c8ca12..7f90315 100644
---- a/include/asm-sh/irq-sh7780.h
-+++ b/include/asm-sh/irq-sh7780.h
-@@ -299,29 +299,6 @@
- #define	GPIO_IPR_POS	2
- #define	GPIO_PRIORITY	3
- 
--/* ONCHIP_NR_IRQS */
--#define NR_IRQS 150	/* 111 + 16 */
--
--/* In a generic kernel, NR_IRQS is an upper bound, and we should use
-- * ACTUAL_NR_IRQS (which uses the machine vector) to get the correct value.
-- */
--#define ACTUAL_NR_IRQS NR_IRQS
--
--extern void disable_irq(unsigned int);
--extern void disable_irq_nosync(unsigned int);
--extern void enable_irq(unsigned int);
--
--/*
-- * Simple Mask Register Support
-- */
--extern void make_maskreg_irq(unsigned int irq);
--extern unsigned short *irq_mask_register;
--
--/*
-- * Function for "on chip support modules".
-- */
--extern void make_imask_irq(unsigned int irq);
--
- #define	INTC_TMU0_MSK	0
- #define	INTC_TMU3_MSK	1
- #define	INTC_RTC_MSK	2
-diff --git a/include/asm-sh/irq.h b/include/asm-sh/irq.h
-index 060ec3c..42b8394 100644
---- a/include/asm-sh/irq.h
-+++ b/include/asm-sh/irq.h
-@@ -245,6 +245,7 @@
- #endif /* ST40STB1 */
- 
- #endif /* 775x / SH4-202 / ST40STB1 */
-+#endif /* 7780 */
- 
- /* NR_IRQS is made from three components:
-  *   1. ONCHIP_NR_IRQS - number of IRLS + on-chip peripherial modules
-@@ -274,8 +275,11 @@
- # define ONCHIP_NR_IRQS 72
- #elif defined(CONFIG_CPU_SUBTYPE_ST40STB1)
- # define ONCHIP_NR_IRQS 144
--#elif defined(CONFIG_CPU_SUBTYPE_SH7300)
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7300) || \
-+      defined(CONFIG_CPU_SUBTYPE_SH73180)
- # define ONCHIP_NR_IRQS 109
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7780)
-+# define ONCHIP_NR_IRQS 111
- #elif defined(CONFIG_SH_UNKNOWN)	/* Most be last */
- # define ONCHIP_NR_IRQS 144
- #endif
-@@ -306,6 +310,8 @@
- # define OFFCHIP_NR_IRQS 96
- #elif defined (CONFIG_SH_TITAN)
- # define OFFCHIP_NR_IRQS 4
-+#elif defined(CONFIG_SH_R7780RP)
-+# define OFFCHIP_NR_IRQS 16
- #elif defined(CONFIG_SH_UNKNOWN)
- # define OFFCHIP_NR_IRQS 16	/* Must also be last */
- #else
-@@ -550,7 +556,7 @@ extern int ipr_irq_demux(int irq);
- #define INTC_ICR_IRLM	(1<<7)
- #endif
- 
--#else
-+#ifdef CONFIG_CPU_SUBTYPE_SH7780
- #include <asm/irq-sh7780.h>
- #endif
- 
+ #ifdef CONFIG_SH_UNKNOWN

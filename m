@@ -1,54 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWA0Em7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWA0Emj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932403AbWA0Em7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 23:42:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbWA0Em7
+	id S932365AbWA0Emj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 23:42:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWA0Emj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 23:42:59 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:54459 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932407AbWA0Em6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 23:42:58 -0500
-Date: Fri, 27 Jan 2006 13:43:04 +0900
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: Grant Grundler <iod00d@hp.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 8/12] generic hweight{32,16,8}()
-Message-ID: <20060127044303.GA6594@miraclelinux.com>
-References: <20060125112625.GA18584@miraclelinux.com> <20060125113206.GD18584@miraclelinux.com> <20060125200250.GA26443@flint.arm.linux.org.uk> <20060125205907.GF9995@esmail.cup.hp.com> <20060126032713.GA9984@miraclelinux.com> <20060126033613.GG11138@miraclelinux.com> <1138301867.12632.71.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 26 Jan 2006 23:42:39 -0500
+Received: from cantor.suse.de ([195.135.220.2]:59791 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932365AbWA0Emi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 23:42:38 -0500
+From: Andi Kleen <ak@suse.de>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Subject: Re: [Patch] sched: new sched domain for representing multi-core
+Date: Fri, 27 Jan 2006 05:42:11 +0100
+User-Agent: KMail/1.8.2
+Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       rohit.seth@intel.com, asit.k.mallick@intel.com
+References: <20060126015132.A8521@unix-os.sc.intel.com>
+In-Reply-To: <20060126015132.A8521@unix-os.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1138301867.12632.71.camel@serpentine.pathscale.com>
-User-Agent: Mutt/1.5.9i
-From: mita@miraclelinux.com (Akinobu Mita)
+Message-Id: <200601270542.12404.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 26, 2006 at 10:57:47AM -0800, Bryan O'Sullivan wrote:
+On Thursday 26 January 2006 10:51, Siddha, Suresh B wrote:
 
-> How about putting each class of bitop into its own header file in
-> asm-generic, and getting the arches that need each one to include the
-> specific files it needs in its own bitops.h header?
-> 
+With this patch does the new distance checking code in the scheduler 
+from Ingo automatically discover all the relevant distances?
 
-I think it's better than adding many HAVE_ARCH_*_BITOPS.
-I will have 14 new headers. So I want to make new directory
-include/asm-generic/bitops/:
+> +#ifdef CONFIG_SMP
+> +	unsigned int cpu = (c == &boot_cpu_data) ? 0 : (c - cpu_data);
+> +#endif
 
-include/asm-generic/bitops/atomic.h
-include/asm-generic/bitops/nonatomic.h
-include/asm-generic/bitops/__ffs.h
-include/asm-generic/bitops/ffz.h
-include/asm-generic/bitops/fls.h
-include/asm-generic/bitops/fls64.h
-include/asm-generic/bitops/find.h
-include/asm-generic/bitops/ffs.h
-include/asm-generic/bitops/sched-ffs.h
-include/asm-generic/bitops/hweight.h
-include/asm-generic/bitops/hweight64.h
-include/asm-generic/bitops/ext2-atomic.h
-include/asm-generic/bitops/ext2-nonatomic.h
-include/asm-generic/bitops/minix.h
+Wouldn't it be better to just put that information into the cpuinfo_x86?
+We're having too many per CPU arrays already.
 
+
+> +int cpu_llc_id[NR_CPUS] __read_mostly = {[0 ... NR_CPUS-1] = BAD_APICID};
+
+This needs a comment on what a LLC actually is.
+
+> +
+>  /* representing HT siblings of each logical CPU */
+>  cpumask_t cpu_sibling_map[NR_CPUS] __read_mostly;
+>  EXPORT_SYMBOL(cpu_sibling_map);
+> @@ -84,6 +86,8 @@ EXPORT_SYMBOL(cpu_core_map);
+>  cpumask_t cpu_online_map __read_mostly;
+>  EXPORT_SYMBOL(cpu_online_map);
+>  
+> +cpumask_t cpu_llc_shared_map[NR_CPUS] __read_mostly;
+
+Dito.
+
+> +u8 cpu_llc_id[NR_CPUS] __read_mostly = {[0 ... NR_CPUS-1] = BAD_APICID};
+
+This could be __cpuinitdata, no?
+
+Actually it would be better to pass this information in some other way
+to smpboot.c than to add more and more arrays like this.  It's only
+needed for the current CPU, because for the others the information
+is in cpu_llc_shared_map
+
+Perhaps SMP boot up should pass around a pointer to temporary data like this?
+Or discover it in smpboot.c with a function call?
+
+> -#ifdef CONFIG_SCHED_SMT
+> +#if defined(CONFIG_SCHED_SMT)
+>  		sd = &per_cpu(cpu_domains, i);
+> +#elif defined(CONFIG_SCHED_MC)
+
+elif? What happens where there are both shared caches and SMT? 
+
+> +		sd = &per_cpu(core_domains, i);
+>  #else
+>  		sd = &per_cpu(phys_domains, i);
+>  #endif
+
+
+-Andi

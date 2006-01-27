@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751563AbWA0WaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751569AbWA0Wfk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751563AbWA0WaT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 17:30:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWA0WaT
+	id S1751569AbWA0Wfk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 17:35:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751573AbWA0Wfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 17:30:19 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:62438 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751563AbWA0WaS (ORCPT
+	Fri, 27 Jan 2006 17:35:40 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:58344 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751568AbWA0Wfk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 17:30:18 -0500
-Date: Fri, 27 Jan 2006 14:32:15 -0800
+	Fri, 27 Jan 2006 17:35:40 -0500
+Date: Fri, 27 Jan 2006 14:37:13 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [patch] drivers/block/floppy.c: dont free_irq() from irq
- context
-Message-Id: <20060127143215.5e349aeb.akpm@osdl.org>
-In-Reply-To: <20060126162922.GA5135@elte.hu>
-References: <20060126162922.GA5135@elte.hu>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, torvalds@osdl.org,
+       ergot86@gmail.com, Ashok Raj <ashok.raj@intel.com>
+Subject: Re: [patch 2.6.15] i386: allow disabling X86_FEATURE_SEP at boot
+Message-Id: <20060127143713.2efc16ed.akpm@osdl.org>
+In-Reply-To: <200601261339_MC3-1-B6C3-2E03@compuserve.com>
+References: <200601261339_MC3-1-B6C3-2E03@compuserve.com>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,68 +25,28 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
 >
-> free_irq() should not be executed from softirq context.
+> Allow the x86 "sep" feature to be disabled at bootup.  This
+> forces use of the int80 vsyscall.
 > 
-> ...
-> 
-> the fix is to push fd_free_irq() into keventd. The code validates fine 
-> with this patch applied.
-> 
-> --- linux.orig/drivers/block/floppy.c
-> +++ linux/drivers/block/floppy.c
 
-You know this makes you the floppy maintainer?
+Why is there a need to do this?
 
-> @@ -251,6 +251,18 @@ static int irqdma_allocated;
->  #include <linux/cdrom.h>	/* for the compatibility eject ioctl */
->  #include <linux/completion.h>
+> 
+>  Documentation/kernel-parameters.txt |    6 +++++-
+>  arch/i386/kernel/cpu/common.c       |   13 +++++++++++++
+>  2 files changed, 18 insertions(+), 1 deletion(-)
+> 
+> --- 2.6.15a.orig/arch/i386/kernel/cpu/common.c
+> +++ 2.6.15a/arch/i386/kernel/cpu/common.c
+> @@ -27,6 +27,7 @@ EXPORT_PER_CPU_SYMBOL(cpu_16bit_stack);
+>  static int cachesize_override __devinitdata = -1;
+>  static int disable_x86_fxsr __devinitdata = 0;
+>  static int disable_x86_serial_nr __devinitdata = 1;
+> +static int disable_x86_sep __devinitdata = 0;
 >  
-> +/*
-> + * Interrupt freeing also means /proc VFS work - dont do it
-> + * from interrupt context. We push this work into keventd:
-> + */
-> +static void fd_free_irq_fn(void *data)
-> +{
-> +	fd_free_irq();
-> +}
-> +
-> +static DECLARE_WORK(fd_free_irq_work, fd_free_irq_fn, NULL);
-> +
-> +
->  static struct request *current_req;
->  static struct request_queue *floppy_queue;
->  static void do_fd_request(request_queue_t * q);
-> @@ -4434,6 +4446,13 @@ static int floppy_grab_irq_and_dma(void)
->  		return 0;
->  	}
->  	spin_unlock_irqrestore(&floppy_usage_lock, flags);
-> +
-> +	/*
-> +	 * We might have scheduled a free_irq(), wait it to
-> +	 * drain first:
-> +	 */
-> +	flush_scheduled_work();
-> +
 
-yup.
-
->  	if (fd_request_irq()) {
->  		DPRINT("Unable to grab IRQ%d for the floppy driver\n",
->  		       FLOPPY_IRQ);
-> @@ -4523,7 +4542,7 @@ static void floppy_release_irq_and_dma(v
->  	if (irqdma_allocated) {
->  		fd_disable_dma();
->  		fd_free_dma();
-> -		fd_free_irq();
-> +		schedule_work(&fd_free_irq_work);
->  		irqdma_allocated = 0;
->  	}
->  	set_dor(0, ~0, 8);
-
-I think we need a flush_scheduled_work() in cleanup_module() too.  Because
-floppy_release_irq_and_dma() might have taken usage_count to zero, but the
-workqueue is still pending.
-
-This patch doesn't do anything to improve the floppy driver :(
+hm, I guess lots of things in there should be __cpuinit/__cpuinitdata. 
+__devinit is a superset of that, but we're being a little wasteful in the
+case of CONFIG_HOTPLUG&&!CONFIG_HOTPLUG_CPU.

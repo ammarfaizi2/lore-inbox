@@ -1,81 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbWA0SQM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751532AbWA0SiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751346AbWA0SQM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 13:16:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751406AbWA0SQM
+	id S1751532AbWA0SiL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 13:38:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751529AbWA0SiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 13:16:12 -0500
-Received: from dvhart.com ([64.146.134.43]:4999 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751346AbWA0SQL (ORCPT
+	Fri, 27 Jan 2006 13:38:11 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:19417 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1751530AbWA0SiL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 13:16:11 -0500
-Message-ID: <43DA6369.5050108@mbligh.org>
-Date: Fri, 27 Jan 2006 10:16:09 -0800
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Fri, 27 Jan 2006 13:38:11 -0500
+Message-ID: <43DA687C.8050401@drzeus.cx>
+Date: Fri, 27 Jan 2006 19:37:48 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5 (X11/20060112)
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Ray Bryant <raybry@mpdtxmail.amd.com>,
-       Dave McCracken <dmccr@us.ibm.com>, Robin Holt <holt@sgi.com>,
-       Hugh Dickins <hugh@veritas.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH/RFC] Shared page tables
-References: <A6D73CCDC544257F3D97F143@[10.1.1.4]> <200601240210.04337.ak@suse.de> <1138086398.2977.19.camel@laptopd505.fenrus.org> <200601240818.28696.ak@suse.de>
-In-Reply-To: <200601240818.28696.ak@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: How to map high memory for block io
+References: <43D9C19F.7090707@drzeus.cx> <20060127102611.GC4311@suse.de> <43D9F705.5000403@drzeus.cx> <20060127104321.GE4311@suse.de> <43DA0E97.5030504@drzeus.cx> <20060127123917.GI4311@suse.de> <43DA1D23.1000508@drzeus.cx>
+In-Reply-To: <43DA1D23.1000508@drzeus.cx>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> On Tuesday 24 January 2006 08:06, Arjan van de Ven wrote:
+Pierre Ossman wrote:
 > 
->>>The randomization is not for cache coloring, but for security purposes
->>>(except for the old very small stack randomization that was used
->>>to avoid conflicts on HyperThreaded CPUs). I would be surprised if the
->>>mmap made much difference because it's page aligned and at least
->>>on x86 the L2 and larger caches are usually PI.
->>
->>randomization to a large degree is more important between machines than
->>within the same machine (except for setuid stuff but lets call that a
->>special category for now). Imo prelink is one of the better bets to get
->>"all code for a binary/lib on the same 2 mb page",
+> Doesn't seem like a generic solution is easily implemented. I'll start
+> hacking together some way of specifying that highmem isn't supported so
+> that mmc_block can indicate this to the block layer.
 > 
-> 
-> Probably yes.
-> 
-> 
->>all distros ship 
->>prelink nowadays anyway 
-> 
-> 
-> SUSE doesn't use it.
-> 
-> 
->>(it's too much of a win that nobody can afford 
->>to not ship it ;) 
-> 
-> 
-> KDE and some other people disagree on that. 
-> 
-> 
->>and within prelink the balance between randomization 
->>for security and 2Mb sharing can be struck best. In fact it needs know
->>about the 2Mb thing anyway to place it there properly and for all
->>binaries... the kernel just can't do that.
-> 
-> 
-> Well, we first have to figure out if the shared page tables
-> are really worth all the ugly code, nasty locking and other problems 
-> (inefficient TLB flush etc.) I personally would prefer
-> to make large pages work better before going down that path.
 
-That needs defragmentation, etc, etc. etc. It also requires changes to 
-userspace apps. Large pages are crippled right now, and it looks like 
-they're going to stay that way. We need some sort of solution, and this 
-is pretty clean and transparent, by comparison.
+Whilst doing this I discovered that the MMC layer already does some
+bounce buffer limiting. It defaults to BLK_BOUNCE_HIGH, but when
+dev->dma_mask is set it uses that. The problem is that the default value
+for PCI devices covers high mem transfers.
 
-m.
+Russell, what was your plan here? Should MMC drivers set dma_mask to
+BLK_BOUNCE_HIGH when not doing DMA? Or perhaps 0?
+
+Rgds
+Pierre
+

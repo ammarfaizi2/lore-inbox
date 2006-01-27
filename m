@@ -1,49 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422694AbWA0Xhk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422703AbWA0XnH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422694AbWA0Xhk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 18:37:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422693AbWA0Xhk
+	id S1422703AbWA0XnH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 18:43:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422706AbWA0XnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 18:37:40 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:26762 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422695AbWA0Xhj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 18:37:39 -0500
-Subject: Re: iommu_alloc failure and panic
-From: Mark Haverkamp <markh@osdl.org>
-To: Olof Johansson <olof@lixom.net>
-Cc: "linuxppc64-dev@ozlabs.org" <linuxppc64-dev@ozlabs.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060127233443.GB26653@pb15.lixom.net>
-References: <1138381060.11796.22.camel@markh3.pdx.osdl.net>
-	 <20060127204022.GA26653@pb15.lixom.net>
-	 <1138401590.11796.26.camel@markh3.pdx.osdl.net>
-	 <20060127233443.GB26653@pb15.lixom.net>
-Content-Type: text/plain
-Date: Fri, 27 Jan 2006 15:37:34 -0800
-Message-Id: <1138405054.11796.27.camel@markh3.pdx.osdl.net>
+	Fri, 27 Jan 2006 18:43:07 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:24965 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422703AbWA0XnG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 18:43:06 -0500
+Date: Fri, 27 Jan 2006 15:42:31 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch 1/2] rcu batch tuning
+Message-ID: <20060127234231.GD10075@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <43DA7B47.11D10B09@tv-sign.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43DA7B47.11D10B09@tv-sign.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-28 at 12:34 +1300, Olof Johansson wrote:
-> On Fri, Jan 27, 2006 at 02:39:50PM -0800, Mark Haverkamp wrote:
+On Fri, Jan 27, 2006 at 10:57:59PM +0300, Oleg Nesterov wrote:
+> Dipankar Sarma wrote:
+> >
+> > +static void force_quiescent_state(struct rcu_data *rdp,
+> > +			struct rcu_ctrlblk *rcp)
+> > +{
+> > +	int cpu;
+> > +	cpumask_t cpumask;
+> > +	set_need_resched();
+> > +	if (unlikely(rdp->qlen - rdp->last_rs_qlen > rsinterval)) {
+> > +		rdp->last_rs_qlen = rdp->qlen;
+> > +		/*
+> > +		 * Don't send IPI to itself. With irqs disabled,
+> > +		 * rdp->cpu is the current cpu.
+> > +		 */
+> > +		cpumask = rcp->cpumask;
+> > +		cpu_clear(rdp->cpu, cpumask);
+> > +		for_each_cpu_mask(cpu, cpumask)
+> > +			smp_send_reschedule(cpu);
+> > +	}
+> > +}
+> > [ ... snip ... ]
+> >
+> > @@ -92,17 +128,13 @@ void fastcall call_rcu(struct rcu_head *
+> >  	rdp = &__get_cpu_var(rcu_data);
+> >  	*rdp->nxttail = head;
+> >  	rdp->nxttail = &head->next;
+> > -
+> > -	if (unlikely(++rdp->count > 10000))
+> > -		set_need_resched();
+> > -
+> > +	if (unlikely(++rdp->qlen > qhimark)) {
+> > +		rdp->blimit = INT_MAX;
+> > +		force_quiescent_state(rdp, &rcu_ctrlblk);
+> > +	}
 > 
-> > I would have thought that the npages would be 1 now.
-> 
-> No, npages is the size of the allocation coming from the driver, that
-> won't chance. The table blocksize just says how wide the cacheline size
-> is, i.e. how far it should advance between allocations.
-> 
-> This is a patch that should probably have been added a while ago, to
-> give a bit more info. Can you apply it and give it a go?
+> When ->qlen exceeds qhimark for the first time we send reschedule IPI to
+> other CPUs and force_quiescent_state() records ->last_rs_qlen = ->qlen.
+> But we don't reset ->last_rs_qlen when ->qlen goes to 0, this means that
+> next time we need ++rdp->qlen > qhimark + rsinterval to force other CPUS
+> to pass quiescent state, no?
 
-OK, I'll try it and let you know.
+Good catch -- this could well explain Lee's continuing to hit
+latency problems.  Although this would not cause the first
+latency event, only subsequent ones, it seems to me that ->last_rs_qlen
+should be reset whenever ->blimit is reset.
 
-Thanks,
-Mark.
--- 
-Mark Haverkamp <markh@osdl.org>
+Dipankar, thoughts?
 
+> Also, it seems to me it's better to have 2 counters, one for length(->donelist)
+> and another for length(->curlist + ->nxtlist). I think we don't need
+> force_quiescent_state() when all rcu callbacks are placed in ->donelist,
+> we only need to increase rdp->blimit in this case.
+
+True, currently the patch keeps the sum of the length of all three lists,
+and takes both actions when the sum gets too large.  But the only way
+you would get unneeded IPIs would be if callback processing was
+stalled, but callback generation and grace-period processing was
+still proceeding.  Seems at first glance to be an unusual corner
+case, with the only downside being some extra IPIs.  Or am I missing
+some aspect?
+
+						Thanx, Paul

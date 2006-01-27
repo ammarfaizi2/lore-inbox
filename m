@@ -1,69 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030309AbWA0LcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932456AbWA0Lnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030309AbWA0LcB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 06:32:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030318AbWA0LcB
+	id S932456AbWA0Lnz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 06:43:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbWA0Lnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 06:32:01 -0500
-Received: from sipsolutions.net ([66.160.135.76]:28170 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S1030309AbWA0LcA (ORCPT
+	Fri, 27 Jan 2006 06:43:55 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:44261 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S932456AbWA0Lnz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 06:32:00 -0500
-Subject: Re: [PATCH] ieee1394: allow building with absolute SUBDIRS path
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: linux1394-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <43D94D06.8090708@s5r6.in-berlin.de>
-References: <1138234743.10202.3.camel@localhost>
-	 <43D94D06.8090708@s5r6.in-berlin.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6ICrTeBnSSfs/buUQka3"
-Date: Fri, 27 Jan 2006 12:31:29 +0100
-Message-Id: <1138361489.5983.24.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+	Fri, 27 Jan 2006 06:43:55 -0500
+Date: Fri, 27 Jan 2006 11:42:41 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Subject: Re: [Lhms-devel] Re: [PATCH 0/9] Reducing fragmentation using zones
+ v4
+In-Reply-To: <43DA01DD.9040808@jp.fujitsu.com>
+Message-ID: <Pine.LNX.4.58.0601271131220.26687@skynet>
+References: <20060126184305.8550.94358.sendpatchset@skynet.csn.ul.ie>
+ <43D96987.8090608@jp.fujitsu.com> <43D96C41.6020103@jp.fujitsu.com>
+ <Pine.LNX.4.58.0601271027560.25836@skynet> <43DA01DD.9040808@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 27 Jan 2006, KAMEZAWA Hiroyuki wrote:
 
---=-6ICrTeBnSSfs/buUQka3
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Mel Gorman wrote:
+> > On Fri, 27 Jan 2006, KAMEZAWA Hiroyuki wrote:
+> >
+> > > KAMEZAWA Hiroyuki wrote:
+> > > > Could you add this patch to your set ?
+> > > > This was needed to boot my x86 machine without HIGHMEM.
+> > > >
+> > > Sorry, I sent a wrong patch..
+> > > This is correct one.
+> >
+> > I can add it although I would like to know more about the problem. I tried
+> > booting with and without CONFIG_HIGHMEM both stock kernels and with
+> > anti-frag and they all boot fine. What causes your machine to die? Does it
+> > occur with stock -mm or just with anti-frag?
+> >
+> Sorry, it looks there is no problem with your newest set :(
 
+Not a problem. If nothing else, testing CONFIG_HIGHMEM showed that there
+is a compile bug when memory hotplug is set but highmem is not, so some
+good came of this. At least I know you are trying the patches out :)
 
-> Looks good, although you should rediff against current sources
-> and post at linux1394-devel. :-)
+> This was problem of my tree...
+>
+> Sigh, I should be more carefull.
+> my note is attached.
+>
+> Sorry,
 
-Right.
+Not to worry, thanks for the note.
 
-> If you want to develop on top of latest 1394 sources but with a
-> released kernel underneath, you could check out my quilt trees.
-> http://me.in-berlin.de/~s5r6/linux1394/updates/
+> -- Kame
+>
+> == Note ==
+>
+> I replaced si_meminfo() like following
+> ==
+> #ifdef CONFIG_HIGHMEM
+>         val->totalhigh = nr_total_zonetype_pages(ZONE_HIGHMEM);
+>         val->freehigh = nr_free_zonetype_pages(ZONE_HIGHMEM);
+> #else
+> ==
+> If ZONE_HIGHMEM has no pages, val->totalhigh is 0 and mempool for bounce
+> buffer
+> is not initialized.
+>
+> But, now
+> ==
+> #ifdef CONFIG_HIGHMEM
+>         val->totalhigh = totalhigh_pages;
+>         val->freehigh = nr_free_highpages();
+> #else
+> ==
+>
+> totalhigh_pages is defined by highstart_pfn and highend_pfn.
+> By Zone_EasyRclm, totalhigh_pages is not affected.
+> mempool for bounce buffer is properly initialized....
+>
+>
 
-Thanks, will take a look.
-
-johannes
-
---=-6ICrTeBnSSfs/buUQka3
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (SIP Solutions)
-
-iQIVAwUAQ9oEkKVg1VMiehFYAQK8iBAAumjE0fEDlMORxUTiw79SjBiIXsnFwg1E
-S61FXZayPC3VPL7jmZ1HPvBVzG3+5piqX7ZzlT8etsevSRdEZkUTB6hW1E7TLLDL
-F/mzazEswZQR0PH3AIB4VVgykuz/l/BrcwYo+NFr+GT9tjrgOA0OEkdS4O6jvkZP
-4W52c29DKo0umDYCJagFFzmqP15BCwlo4Na9HYT7Qh0ccwgWzT3fB3NomAoYO9z+
-hiGadX9sP/FoQcGNg3O5unFkM2ruLAZ+RzT2Rj5sfpEuK5n+ATDDnUax02ngTrfF
-eivmm3szcub70HMYdtlD1Mgvcbmu5cl0oy17Yg49i9h9Io8edZCdpRw38Cg544ei
-zEk97+0qfXT0dDIC6bay1SnY3fkUELgm3M0CrLQ/jUFev0GtjIQPzta2Il88qEw7
-4vvK0f+wKTTIpl6M/G1MoUnnc+LQtxnhGfHqfq/ta/H6pssQhP/u6u8cCYkyY2h9
-BobyT6uUKfsTm9hEAjgyBIWlJCnvUqB5SrcsobKCiLyXzUwKyje01ZjyjvFgwet1
-ERBavE4vWiSd+gqJpsQ64js9tXgGmDzlWwh/cnccsA7ph48xyFU8ht1vcXqmMfBp
-XPHGmjtbT06gcgi/hoZXwolH7j5ptjM6+uu3wc8rvmu9anT2++KDh2jJNLGobf6G
-/MrbLawdh+g=
-=Tevt
------END PGP SIGNATURE-----
-
---=-6ICrTeBnSSfs/buUQka3--
-
+-- 
+Mel Gorman
+Part-time Phd Student                          Linux Technology Center
+University of Limerick                         IBM Dublin Software Lab

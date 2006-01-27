@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160999AbWA0UN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbWA0UNp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160999AbWA0UN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 15:13:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161000AbWA0UN2
+	id S1030329AbWA0UNp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 15:13:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030341AbWA0UNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 15:13:28 -0500
-Received: from highlandsun.propagation.net ([66.221.212.168]:23309 "EHLO
-	highlandsun.propagation.net") by vger.kernel.org with ESMTP
-	id S1160999AbWA0UN2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 15:13:28 -0500
-Message-ID: <43DA7ED9.4090802@symas.com>
-Date: Fri, 27 Jan 2006 12:13:13 -0800
-From: Howard Chu <hyc@symas.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20060115 SeaMonkey/1.5a Mnenhy/0.7.3.0
+	Fri, 27 Jan 2006 15:13:45 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46533 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030329AbWA0UNo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 15:13:44 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060127071806.GA4082@hardeman.nu> 
+References: <20060127071806.GA4082@hardeman.nu>  <1138312694656@2gen.com> <E1F2I7q-0007F6-00@gondolin.me.apana.org.au> 
+To: David =?us-ascii?Q?=3D=3Fiso-8859-1=3FQ=3FH=3DE4rdeman=3F=3D?= 
+	<david@2gen.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
+       dhowells@redhat.com, keyrings@linux-nfs.org
+Subject: Re: [PATCH 00/04] Add DSA key type 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
 MIME-Version: 1.0
-To: davids@webmaster.com
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
-References: <MDEHLPKNGKAHNMBLJOLKEEHCJLAB.davids@webmaster.com>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEHCJLAB.davids@webmaster.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Date: Fri, 27 Jan 2006 20:11:25 +0000
+Message-ID: <6497.1138392685@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz wrote:
-> 	We don't agree on what the specification says.
->
->   
->> Why do you suppose that is?
->>     
->
-> 	Why do I suppose what? I find the specification perfectly clear and your
-> reading of it incredibly strained for the three reasons I stated.
->   
+David Härdeman <david@2gen.com> wrote:
 
-Oddly enough, you said 
-http://groups.google.com/group/comp.programming.threads/msg/28b58e91886a3602?hl=en&
-"Unfortunately, it sounds reasonable"  so I can't lend credence to your 
-stating that my reading is incredibly strained. The fact that 
-LinuxThreads historically adhered to my reading of it lends more weight 
-to my argument. The fact that people accepted this interpretation for so 
-many years lends further weight. In light of this, it is your current 
-interpretation that is incredibly strained, and I would say, broken.
+> I have no problems with moving it to lib/mpi unless someone feels its a bad
+> idea (DHowells, do you agree?).
 
-You have essentially created a tri-state mutex. (Locked, unlocked, and 
-sort-of-unlocked-but-really-reserved.) That may be a good and useful 
-thing in its own right, but it should not be the default behavior.
+I don't think that's the right place for it, except for the fact you can then
+use the archive library generated to only include as much of mpilib as you
+actually require. It seems to me that it should really belong with the crypto
+stuff.
 
--- 
-  -- Howard Chu
-  Chief Architect, Symas Corp.  http://www.symas.com
-  Director, Highland Sun        http://highlandsun.com/hyc
-  OpenLDAP Core Team            http://www.openldap.org/project/
-
+David

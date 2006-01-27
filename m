@@ -1,21 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422650AbWA0Wzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422671AbWA0Wxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422650AbWA0Wzg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 17:55:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422647AbWA0Wzf
+	id S1422671AbWA0Wxy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 17:53:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422664AbWA0WxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 17:55:35 -0500
-Received: from smtp3.pp.htv.fi ([213.243.153.36]:32720 "EHLO smtp3.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S1422661AbWA0WxW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 27 Jan 2006 17:53:22 -0500
-Date: Sat, 28 Jan 2006 00:53:19 +0200
+Received: from smtp2.pp.htv.fi ([213.243.153.35]:57249 "EHLO smtp2.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S1422662AbWA0Ww5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 17:52:57 -0500
+Date: Sat, 28 Jan 2006 00:52:55 +0200
 From: Paul Mundt <lethal@linux-sh.org>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 8/11] sh: sh-sci clock framework updates.
-Message-ID: <20060127225319.GI30816@linux-sh.org>
+Cc: Manuel Lauss <mano@roarinelk.homelinux.net>
+Subject: [PATCH 7/11] sh: convert voyagergx to platform device, drop sh-bus.
+Message-ID: <20060127225255.GH30816@linux-sh.org>
 Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
+	linux-kernel@vger.kernel.org,
+	Manuel Lauss <mano@roarinelk.homelinux.net>
 References: <20060127224919.GA30816@linux-sh.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,752 +27,387 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A couple of updates for the sh-sci serial driver:
+Trivial patch updating the voyagergx cchip code to reference a
+platform device instead, now that the dma mask is taken care
+of. Given this, there's no longer any reason to drag around the
+SH-bus code, so kill that off entirely.
 
-	- Update for clock framework on sh.
-	- Fix a compile error introduced by some h8300 changes.
-	- Add SH7770/SH7780 subtype support.
-
+Signed-off-by: Manuel Lauss <mano@roarinelk.homelinux.net>
 Signed-off-by: Paul Mundt <lethal@linux-sh.org>
 
 ---
 
- drivers/serial/sh-sci.c |  225 +++++++++++++++++++++++++++++++++---------------
- drivers/serial/sh-sci.h |  114 ++++++++++++++----------
- 2 files changed, 223 insertions(+), 116 deletions(-)
+ arch/sh/cchips/voyagergx/consistent.c |   15 +--
+ arch/sh/cchips/voyagergx/irq.c        |    7 +
+ arch/sh/kernel/cpu/Makefile           |    2 
+ arch/sh/kernel/cpu/bus.c              |  197 ---------------------------------
+ include/asm-sh/bus-sh.h               |   66 -----------
+ 5 files changed, 12 insertions(+), 275 deletions(-)
+ delete mode 100644 arch/sh/kernel/cpu/bus.c
+ delete mode 100644 include/asm-sh/bus-sh.h
 
-da11fe2659737503709e2159a596224b08e002b8
-diff --git a/drivers/serial/sh-sci.c b/drivers/serial/sh-sci.c
-index a9e0707..12f87d2 100644
---- a/drivers/serial/sh-sci.c
-+++ b/drivers/serial/sh-sci.c
-@@ -42,6 +42,7 @@
- #include <linux/delay.h>
- #include <linux/console.h>
- #include <linux/bitops.h>
-+#include <linux/generic_serial.h>
- 
- #ifdef CONFIG_CPU_FREQ
- #include <linux/notifier.h>
-@@ -53,7 +54,9 @@
- #include <asm/irq.h>
- #include <asm/uaccess.h>
- 
--#include <linux/generic_serial.h>
-+#if defined(CONFIG_SUPERH) && !defined(CONFIG_SUPERH64)
-+#include <asm/clock.h>
-+#endif
- 
- #ifdef CONFIG_SH_STANDARD_BIOS
- #include <asm/sh_bios.h>
-@@ -86,9 +89,11 @@ static void sci_stop_rx(struct uart_port
- static int sci_request_irq(struct sci_port *port);
- static void sci_free_irq(struct sci_port *port);
- 
--static struct sci_port sci_ports[SCI_NPORTS];
-+static struct sci_port sci_ports[];
- static struct uart_driver sci_uart_driver;
- 
-+#define SCI_NPORTS sci_uart_driver.nr
+29a11ff14a7ec1409a7e3e8b62e5830d2dd1f080
+diff --git a/arch/sh/cchips/voyagergx/consistent.c b/arch/sh/cchips/voyagergx/consistent.c
+index 3d9a02c..07e8b9c 100644
+--- a/arch/sh/cchips/voyagergx/consistent.c
++++ b/arch/sh/cchips/voyagergx/consistent.c
+@@ -15,7 +15,7 @@
+ #include <linux/module.h>
+ #include <linux/device.h>
+ #include <asm/io.h>
+-#include <asm/bus-sh.h>
 +
- #if defined(CONFIG_SH_STANDARD_BIOS) || defined(CONFIG_SH_KGDB)
  
- static void handle_error(struct uart_port *port)
-@@ -168,7 +173,7 @@ static void put_string(struct sci_port *
- 	int usegdb=0;
+ struct voya_alloc_entry {
+ 	struct list_head list;
+@@ -30,12 +30,13 @@ static LIST_HEAD(voya_alloc_list);
+ #define OHCI_HCCA_SIZE	0x100
+ #define OHCI_SRAM_SIZE	0x10000
  
- #ifdef CONFIG_SH_STANDARD_BIOS
--    	/* This call only does a trap the first time it is
-+	/* This call only does a trap the first time it is
- 	 * called, and so is safe to do here unconditionally
++#define VOYAGER_OHCI_NAME	"voyager-ohci"
++
+ void *voyagergx_consistent_alloc(struct device *dev, size_t size,
+ 				 dma_addr_t *handle, gfp_t flag)
+ {
+ 	struct list_head *list = &voya_alloc_list;
+ 	struct voya_alloc_entry *entry;
+-	struct sh_dev *shdev = to_sh_dev(dev);
+ 	unsigned long start, end;
+ 	unsigned long flags;
+ 
+@@ -46,9 +47,7 @@ void *voyagergx_consistent_alloc(struct 
+ 	 *
+ 	 * Everything else goes through consistent_alloc().
  	 */
- 	usegdb |= sh_bios_in_gdb_mode();
-@@ -324,47 +329,46 @@ static void sci_init_pins_sci(struct uar
- 	/* tx mark output*/
- 	H8300_SCI_DR(ch) |= h8300_sci_pins[ch].tx;
+-	if (!dev || dev->bus != &sh_bus_types[SH_BUS_VIRT] ||
+-		   (dev->bus == &sh_bus_types[SH_BUS_VIRT] &&
+-		    shdev->dev_id != SH_DEV_ID_USB_OHCI))
++	if (!dev || strcmp(dev->driver->name, VOYAGER_OHCI_NAME))
+ 		return NULL;
+ 
+ 	start = OHCI_SRAM_START + OHCI_HCCA_SIZE;
+@@ -98,12 +97,9 @@ int voyagergx_consistent_free(struct dev
+ 			      void *vaddr, dma_addr_t handle)
+ {
+ 	struct voya_alloc_entry *entry;
+-	struct sh_dev *shdev = to_sh_dev(dev);
+ 	unsigned long flags;
+ 
+-	if (!dev || dev->bus != &sh_bus_types[SH_BUS_VIRT] ||
+-		   (dev->bus == &sh_bus_types[SH_BUS_VIRT] &&
+-		    shdev->dev_id != SH_DEV_ID_USB_OHCI))
++	if (!dev || strcmp(dev->driver->name, VOYAGER_OHCI_NAME))
+ 		return -EINVAL;
+ 
+ 	spin_lock_irqsave(&voya_list_lock, flags);
+@@ -123,4 +119,3 @@ int voyagergx_consistent_free(struct dev
+ 
+ EXPORT_SYMBOL(voyagergx_consistent_alloc);
+ EXPORT_SYMBOL(voyagergx_consistent_free);
+-
+diff --git a/arch/sh/cchips/voyagergx/irq.c b/arch/sh/cchips/voyagergx/irq.c
+index 1b6ac52..2ee330b 100644
+--- a/arch/sh/cchips/voyagergx/irq.c
++++ b/arch/sh/cchips/voyagergx/irq.c
+@@ -163,7 +163,12 @@ int voyagergx_irq_demux(int irq)
+ 	return irq;
  }
--#else
--static void sci_init_pins_sci(struct uart_port *port, unsigned int cflag)
+ 
+-static struct irqaction irq0  = { voyagergx_interrupt, SA_INTERRUPT, 0, "VOYAGERGX", NULL, NULL};
++static struct irqaction irq0  = {
++	.name		= "voyagergx",
++	.handler	= voyagergx_interrupt,
++	.flags		= SA_INTERRUPT,
++	.mask		= CPU_MASK_NONE,
++};
+ 
+ void __init setup_voyagergx_irq(void)
+ {
+diff --git a/arch/sh/kernel/cpu/Makefile b/arch/sh/kernel/cpu/Makefile
+index 5bfc33b..59d5b74 100644
+--- a/arch/sh/kernel/cpu/Makefile
++++ b/arch/sh/kernel/cpu/Makefile
+@@ -2,7 +2,7 @@
+ # Makefile for the Linux/SuperH CPU-specifc backends.
+ #
+ 
+-obj-y	+= irq/ init.o bus.o clock.o
++obj-y	+= irq/ init.o clock.o
+ 
+ obj-$(CONFIG_CPU_SH2)		+= sh2/
+ obj-$(CONFIG_CPU_SH3)		+= sh3/
+diff --git a/arch/sh/kernel/cpu/bus.c b/arch/sh/kernel/cpu/bus.c
+deleted file mode 100644
+index fc6c4bd..0000000
+--- a/arch/sh/kernel/cpu/bus.c
++++ /dev/null
+@@ -1,197 +0,0 @@
+-/*
+- * arch/sh/kernel/cpu/bus.c
+- *
+- * Virtual bus for SuperH.
+- *
+- * Copyright (C) 2004 Paul Mundt
+- *
+- * Shamelessly cloned from arch/arm/mach-omap/bus.c, which was written
+- * by:
+- *
+- *  	Copyright (C) 2003 - 2004 Nokia Corporation
+- *  	Written by Tony Lindgren <tony@atomide.com>
+- *  	Portions of code based on sa1111.c.
+- *
+- * This program is free software; you can redistribute it and/or modify it
+- * under the terms of the GNU General Public License as published by the
+- * Free Software Foundation; either version 2 of the License, or (at your
+- * option) any later version.
+- */
+-#include <linux/kernel.h>
+-#include <linux/device.h>
+-#include <linux/init.h>
+-#include <linux/module.h>
+-#include <asm/bus-sh.h>
+-
+-static int sh_bus_match(struct device *dev, struct device_driver *drv)
 -{
+-	struct sh_driver *shdrv = to_sh_driver(drv);
+-	struct sh_dev *shdev = to_sh_dev(dev);
+-
+-	return shdev->dev_id == shdrv->dev_id;
 -}
- #endif
- #endif
- 
- #if defined(SCIF_ONLY) || defined(SCI_AND_SCIF)
--#if defined(CONFIG_CPU_SH3)
--/* For SH7705, SH7707, SH7709, SH7709A, SH7729, SH7300*/
-+#if defined(CONFIG_CPU_SUBTYPE_SH7300)
-+/* SH7300 doesn't use RTS/CTS */
-+static void sci_init_pins_scif(struct uart_port *port, unsigned int cflag)
-+{
-+	sci_out(port, SCFCR, 0);
-+}
-+#elif defined(CONFIG_CPU_SH3)
-+/* For SH7705, SH7707, SH7709, SH7709A, SH7729 */
- static void sci_init_pins_scif(struct uart_port *port, unsigned int cflag)
- {
- 	unsigned int fcr_val = 0;
--#if !defined(CONFIG_CPU_SUBTYPE_SH7300) /* SH7300 doesn't use RTS/CTS */
--	{
--		unsigned short data;
-+	unsigned short data;
-+
-+	/* We need to set SCPCR to enable RTS/CTS */
-+	data = ctrl_inw(SCPCR);
-+	/* Clear out SCP7MD1,0, SCP6MD1,0, SCP4MD1,0*/
-+	ctrl_outw(data & 0x0fcf, SCPCR);
- 
--		/* We need to set SCPCR to enable RTS/CTS */
--		data = ctrl_inw(SCPCR);
--		/* Clear out SCP7MD1,0, SCP6MD1,0, SCP4MD1,0*/
--		ctrl_outw(data&0x0fcf, SCPCR);
--	}
- 	if (cflag & CRTSCTS)
- 		fcr_val |= SCFCR_MCE;
- 	else {
--		unsigned short data;
 -
- 		/* We need to set SCPCR to enable RTS/CTS */
- 		data = ctrl_inw(SCPCR);
- 		/* Clear out SCP7MD1,0, SCP4MD1,0,
- 		   Set SCP6MD1,0 = {01} (output)  */
--		ctrl_outw((data&0x0fcf)|0x1000, SCPCR);
-+		ctrl_outw((data & 0x0fcf) | 0x1000, SCPCR);
- 
- 		data = ctrl_inb(SCPDR);
- 		/* Set /RTS2 (bit6) = 0 */
--		ctrl_outb(data&0xbf, SCPDR);
-+		ctrl_outb(data & 0xbf, SCPDR);
- 	}
--#endif
-+
- 	sci_out(port, SCFCR, fcr_val);
- }
- 
-+#if defined(CONFIG_CPU_SUBTYPE_SH7707) || defined(CONFIG_CPU_SUBTYPE_SH7709)
- static void sci_init_pins_irda(struct uart_port *port, unsigned int cflag)
- {
- 	unsigned int fcr_val = 0;
-@@ -374,7 +378,7 @@ static void sci_init_pins_irda(struct ua
- 
- 	sci_out(port, SCFCR, fcr_val);
- }
+-static int sh_bus_suspend(struct device *dev, pm_message_t state)
+-{
+-	struct sh_dev *shdev = to_sh_dev(dev);
+-	struct sh_driver *shdrv = to_sh_driver(dev->driver);
 -
-+#endif
- #else
- 
- /* For SH7750 */
-@@ -385,7 +389,11 @@ static void sci_init_pins_scif(struct ua
- 	if (cflag & CRTSCTS) {
- 		fcr_val |= SCFCR_MCE;
- 	} else {
-+#ifdef CONFIG_CPU_SUBTYPE_SH7780
-+		ctrl_outw(0x0080, SCSPTR0); /* Set RTS = 1 */
-+#else
- 		ctrl_outw(0x0080, SCSPTR2); /* Set RTS = 1 */
-+#endif
- 	}
- 	sci_out(port, SCFCR, fcr_val);
- }
-@@ -422,7 +430,11 @@ static void sci_transmit_chars(struct ua
- 
- #if !defined(SCI_ONLY)
- 	if (port->type == PORT_SCIF) {
-+#if defined(CONFIG_CPU_SUBTYPE_SH7760) || defined(CONFIG_CPU_SUBTYPE_SH7780)
-+		txroom = SCIF_TXROOM_MAX - (sci_in(port, SCTFDR) & 0x7f);
-+#else
- 		txroom = SCIF_TXROOM_MAX - (sci_in(port, SCFDR)>>8);
-+#endif
- 	} else {
- 		txroom = (sci_in(port, SCxSR) & SCI_TDRE)?1:0;
- 	}
-@@ -491,7 +503,11 @@ static inline void sci_receive_chars(str
- 	while (1) {
- #if !defined(SCI_ONLY)
- 		if (port->type == PORT_SCIF) {
-+#if defined(CONFIG_CPU_SUBTYPE_SH7760) || defined(CONFIG_CPU_SUBTYPE_SH7780)
-+			count = sci_in(port, SCRFDR) & 0x7f;
-+#else
- 			count = sci_in(port, SCFDR)&SCIF_RFDC_MASK ;
-+#endif
- 		} else {
- 			count = (sci_in(port, SCxSR)&SCxSR_RDxF(port))?1:0;
- 		}
-@@ -652,7 +668,7 @@ static inline int sci_handle_breaks(stru
- 	struct tty_struct *tty = port->info->tty;
- 	struct sci_port *s = &sci_ports[port->line];
- 
--	if (!s->break_flag && status & SCxSR_BRK(port))
-+	if (!s->break_flag && status & SCxSR_BRK(port)) {
- #if defined(CONFIG_CPU_SH3)
- 		/* Debounce break */
- 		s->break_flag = 1;
-@@ -783,6 +799,7 @@ static int sci_notifier(struct notifier_
- 	    (phase == CPUFREQ_RESUMECHANGE)){
- 		for (i = 0; i < SCI_NPORTS; i++) {
- 			struct uart_port *port = &sci_ports[i].port;
-+			struct clk *clk;
- 
- 			/*
- 			 * Update the uartclk per-port if frequency has
-@@ -795,7 +812,9 @@ static int sci_notifier(struct notifier_
- 			 *
- 			 * Clean this up later..
- 			 */
--			port->uartclk = current_cpu_data.module_clock * 16;
-+			clk = clk_get("module_clk");
-+			port->uartclk = clk_get_rate(clk) * 16;
-+			clk_put(clk);
- 		}
- 
- 		printk("%s: got a postchange notification for cpu %d (old %d, new %d)\n",
-@@ -1008,15 +1027,20 @@ static void sci_set_termios(struct uart_
- 	sci_out(port, SCSMR, smr_val);
- 
- 	switch (baud) {
--		case 0:		t = -1;		break;
--		case 2400:	t = BPS_2400;	break;
--		case 4800:	t = BPS_4800;	break;
--		case 9600:	t = BPS_9600;	break;
--		case 19200:	t = BPS_19200;	break;
--		case 38400:	t = BPS_38400;	break;
--		case 57600:	t = BPS_57600;	break;
--		case 115200:	t = BPS_115200;	break;
--		default:	t = SCBRR_VALUE(baud); break;
-+		case 0:
-+			t = -1;
-+			break;
-+		default:
-+		{
-+#if defined(CONFIG_SUPERH) && !defined(CONFIG_SUPERH64)
-+			struct clk *clk = clk_get("module_clk");
-+			t = SCBRR_VALUE(baud, clk_get_rate(clk));
-+			clk_put(clk);
-+#else
-+			t = SCBRR_VALUE(baud);
-+#endif
-+		}
-+			break;
- 	}
- 
- 	if (t > 0) {
-@@ -1030,7 +1054,9 @@ static void sci_set_termios(struct uart_
- 		udelay((1000000+(baud-1)) / baud); /* Wait one bit interval */
- 	}
- 
--	s->init_pins(port, termios->c_cflag);
-+	if (likely(s->init_pins))
-+		s->init_pins(port, termios->c_cflag);
-+
- 	sci_out(port, SCSCR, SCSCR_INIT(port));
- 
- 	if ((termios->c_cflag & CREAD) != 0)
-@@ -1107,7 +1133,7 @@ static struct uart_ops sci_uart_ops = {
- 	.verify_port	= sci_verify_port,
- };
- 
--static struct sci_port sci_ports[SCI_NPORTS] = {
-+static struct sci_port sci_ports[] = {
- #if defined(CONFIG_CPU_SUBTYPE_SH7708)
- 	{
- 		.port	= {
-@@ -1121,7 +1147,6 @@ static struct sci_port sci_ports[SCI_NPO
- 		},
- 		.type		= PORT_SCI,
- 		.irqs		= SCI_IRQS,
--		.init_pins	= sci_init_pins_sci,
- 	},
- #elif defined(CONFIG_CPU_SUBTYPE_SH7705)
- 	{
-@@ -1165,7 +1190,6 @@ static struct sci_port sci_ports[SCI_NPO
- 		},
- 		.type		= PORT_SCI,
- 		.irqs		= SCI_IRQS,
--		.init_pins	= sci_init_pins_sci,
- 	},
- 	{
- 		.port	= {
-@@ -1225,7 +1249,7 @@ static struct sci_port sci_ports[SCI_NPO
- 		.irqs		= SH73180_SCIF_IRQS,
- 		.init_pins	= sci_init_pins_scif,
- 	},
--#elif defined(CONFIG_SH_RTS7751R2D)
-+#elif defined(CONFIG_CPU_SUBTYPE_SH4_202)
- 	{
- 		.port	= {
- 			.membase	= (void *)0xffe80000,
-@@ -1253,7 +1277,6 @@ static struct sci_port sci_ports[SCI_NPO
- 		},
- 		.type		= PORT_SCI,
- 		.irqs		= SCI_IRQS,
--		.init_pins	= sci_init_pins_sci,
- 	},
- 	{
- 		.port	= {
-@@ -1312,21 +1335,6 @@ static struct sci_port sci_ports[SCI_NPO
- 		.irqs		= SH7760_SCIF2_IRQS,
- 		.init_pins	= sci_init_pins_scif,
- 	},
--#elif defined(CONFIG_CPU_SUBTYPE_SH4_202)
+-	if (shdrv && shdrv->suspend)
+-		return shdrv->suspend(shdev, state);
+-
+-	return 0;
+-}
+-
+-static int sh_bus_resume(struct device *dev)
+-{
+-	struct sh_dev *shdev = to_sh_dev(dev);
+-	struct sh_driver *shdrv = to_sh_driver(dev->driver);
+-
+-	if (shdrv && shdrv->resume)
+-		return shdrv->resume(shdev);
+-
+-	return 0;
+-}
+-
+-static int sh_device_probe(struct device *dev)
+-{
+-	struct sh_dev *shdev = to_sh_dev(dev);
+-	struct sh_driver *shdrv = to_sh_driver(dev->driver);
+-
+-	if (shdrv && shdrv->probe)
+-		return shdrv->probe(shdev);
+-
+-	return -ENODEV;
+-}
+-
+-static int sh_device_remove(struct device *dev)
+-{
+-	struct sh_dev *shdev = to_sh_dev(dev);
+-	struct sh_driver *shdrv = to_sh_driver(dev->driver);
+-
+-	if (shdrv && shdrv->remove)
+-		return shdrv->remove(shdev);
+-
+-	return 0;
+-}
+-
+-static struct device sh_bus_devices[SH_NR_BUSES] = {
 -	{
--		.port	= {
--			.membase	= (void *)0xffe80000,
--			.mapbase	= 0xffe80000,
--			.iotype		= SERIAL_IO_MEM,
--			.irq		= 43,
--			.ops		= &sci_uart_ops,
--			.flags		= ASYNC_BOOT_AUTOCONF,
--			.line		= 0,
--		},
--		.type		= PORT_SCIF,
--		.irqs		= SH4_SCIF_IRQS,
--		.init_pins	= sci_init_pins_scif,
+-		.bus_id		= SH_BUS_NAME_VIRT,
 -	},
- #elif defined(CONFIG_CPU_SUBTYPE_ST40STB1)
- 	{
- 		.port	= {
-@@ -1455,6 +1463,78 @@ static struct sci_port sci_ports[SCI_NPO
- 		.irqs		= H8S_SCI_IRQS2,
- 		.init_pins	= sci_init_pins_sci,
- 	},
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7770)
-+	{
-+		.port   = {
-+			.membase	= (void *)0xff923000,
-+			.mapbase	= 0xff923000,
-+			.iotype		= SERIAL_IO_MEM,
-+			.irq		= 61,
-+			.ops		= &sci_uart_ops,
-+			.flags		= ASYNC_BOOT_AUTOCONF,
-+			.line		= 0,
-+		},
-+		.type		= PORT_SCIF,
-+		.irqs		= SH7770_SCIF0_IRQS,
-+		.init_pins	= sci_init_pins_scif,
-+	},
-+	{
-+		.port   = {
-+			.membase	= (void *)0xff924000,
-+			.mapbase	= 0xff924000,
-+			.iotype		= SERIAL_IO_MEM,
-+			.irq		= 62,
-+			.ops		= &sci_uart_ops,
-+			.flags		= ASYNC_BOOT_AUTOCONF,
-+			.line		= 1,
-+		},
-+		.type		= PORT_SCIF,
-+		.irqs		= SH7770_SCIF1_IRQS,
-+		.init_pins	= sci_init_pins_scif,
-+	},
-+	{
-+		.port   = {
-+			.membase	= (void *)0xff925000,
-+			.mapbase	= 0xff925000,
-+			.iotype		= SERIAL_IO_MEM,
-+			.irq		= 63,
-+			.ops		= &sci_uart_ops,
-+			.flags		= ASYNC_BOOT_AUTOCONF,
-+			.line		= 2,
-+		},
-+		.type		= PORT_SCIF,
-+		.irqs		= SH7770_SCIF2_IRQS,
-+		.init_pins	= sci_init_pins_scif,
-+	},
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7780)
-+	{
-+		.port   = {
-+			.membase	= (void *)0xffe00000,
-+			.mapbase	= 0xffe00000,
-+			.iotype		= SERIAL_IO_MEM,
-+			.irq		= 43,
-+			.ops		= &sci_uart_ops,
-+			.flags		= ASYNC_BOOT_AUTOCONF,
-+			.line		= 0,
-+		},
-+		.type		= PORT_SCIF,
-+		.irqs		= SH7780_SCIF0_IRQS,
-+		.init_pins	= sci_init_pins_scif,
-+	},
-+	{
-+		.port   = {
-+			.membase	= (void *)0xffe10000,
-+			.mapbase	= 0xffe10000,
-+			.iotype		= SERIAL_IO_MEM,
-+			.irq		= 79,
-+			.ops		= &sci_uart_ops,
-+			.flags		= ASYNC_BOOT_AUTOCONF,
-+			.line		= 1,
-+		},
-+		.type		= PORT_SCIF,
-+		.irqs		= SH7780_SCIF1_IRQS,
-+		.init_pins	= sci_init_pins_scif,
-+	},
- #else
- #error "CPU subtype not defined"
- #endif
-@@ -1480,9 +1560,6 @@ static int __init serial_console_setup(s
- 	int flow = 'n';
- 	int ret;
- 
--	if (co->index >= SCI_NPORTS)
--		co->index = 0;
+-};
 -
- 	serial_console_port = &sci_ports[co->index];
- 	port = &serial_console_port->port;
- 	port->type = serial_console_port->type;
-@@ -1496,14 +1573,21 @@ static int __init serial_console_setup(s
- 	 * We need to set the initial uartclk here, since otherwise it will
- 	 * only ever be setup at sci_init() time.
- 	 */
--#if !defined(__H8300H__) && !defined(__H8300S__)
--	port->uartclk = current_cpu_data.module_clock * 16;
--#else
-+#if defined(__H8300H__) || defined(__H8300S__)
- 	port->uartclk = CONFIG_CPU_CLOCK;
--#endif
-+
- #if defined(__H8300S__)
- 	h8300_sci_enable(port, sci_enable);
- #endif
-+#elif defined(CONFIG_SUPERH64)
-+	port->uartclk = current_cpu_info.module_clock * 16;
-+#else
-+	{
-+		struct clk *clk = clk_get("module_clk");
-+		port->uartclk = clk_get_rate(clk) * 16;
-+		clk_put(clk);
-+	}
-+#endif
- 	if (options)
- 		uart_parse_options(options, &baud, &parity, &bits, &flow);
- 
-@@ -1566,7 +1653,7 @@ int __init kgdb_console_setup(struct con
- 	int parity = 'n';
- 	int flow = 'n';
- 
--	if (co->index >= SCI_NPORTS || co->index != kgdb_portnum)
-+	if (co->index != kgdb_portnum)
- 		co->index = kgdb_portnum;
- 
- 	if (options)
-@@ -1606,7 +1693,7 @@ console_initcall(kgdb_console_init);
- #elif defined(CONFIG_SERIAL_SH_SCI_CONSOLE)
- #define SCI_CONSOLE	&serial_console
- #else
--#define SCI_CONSOLE 	0
-+#define SCI_CONSOLE	0
- #endif
- 
- static char banner[] __initdata =
-@@ -1621,7 +1708,6 @@ static struct uart_driver sci_uart_drive
- 	.dev_name	= "ttySC",
- 	.major		= SCI_MAJOR,
- 	.minor		= SCI_MINOR_START,
--	.nr		= SCI_NPORTS,
- 	.cons		= SCI_CONSOLE,
- };
- 
-@@ -1631,15 +1717,21 @@ static int __init sci_init(void)
- 
- 	printk("%s", banner);
- 
-+	sci_uart_driver.nr = ARRAY_SIZE(sci_ports);
-+
- 	ret = uart_register_driver(&sci_uart_driver);
- 	if (ret == 0) {
- 		for (chan = 0; chan < SCI_NPORTS; chan++) {
- 			struct sci_port *sciport = &sci_ports[chan];
- 
--#if !defined(__H8300H__) && !defined(__H8300S__)
--			sciport->port.uartclk = (current_cpu_data.module_clock * 16);
--#else
-+#if defined(__H8300H__) || defined(__H8300S__)
- 			sciport->port.uartclk = CONFIG_CPU_CLOCK;
-+#elif defined(CONFIG_SUPERH64)
-+			sciport->port.uartclk = current_cpu_info.module_clock * 16;
-+#else
-+			struct clk *clk = clk_get("module_clk");
-+			sciport->port.uartclk = clk_get_rate(clk) * 16;
-+			clk_put(clk);
- #endif
- 			uart_add_one_port(&sci_uart_driver, &sciport->port);
- 			sciport->break_timer.data = (unsigned long)sciport;
-diff --git a/drivers/serial/sh-sci.h b/drivers/serial/sh-sci.h
-index 2892169..1f14bb4 100644
---- a/drivers/serial/sh-sci.h
-+++ b/drivers/serial/sh-sci.h
-@@ -46,14 +46,17 @@
- #define H8S_SCI_IRQS1 {92, 93, 94,   0 }
- #define H8S_SCI_IRQS2 {96, 97, 98,   0 }
- #define SH5_SCIF_IRQS {39, 40, 42,   0 }
-+#define	SH7770_SCIF0_IRQS {61, 61, 61, 61 }
-+#define	SH7770_SCIF1_IRQS {62, 62, 62, 62 }
-+#define	SH7770_SCIF2_IRQS {63, 63, 63, 63 }
-+#define	SH7780_SCIF0_IRQS {40, 41, 43, 42 }
-+#define	SH7780_SCIF1_IRQS {76, 77, 79, 78 }
- 
- #if defined(CONFIG_CPU_SUBTYPE_SH7708)
--# define SCI_NPORTS 1
- # define SCSPTR 0xffffff7c /* 8 bit */
- # define SCSCR_INIT(port)          0x30 /* TIE=0,RIE=0,TE=1,RE=1 */
- # define SCI_ONLY
- #elif defined(CONFIG_CPU_SUBTYPE_SH7707) || defined(CONFIG_CPU_SUBTYPE_SH7709)
--# define SCI_NPORTS 3
- # define SCPCR  0xA4000116 /* 16 bit SCI and SCIF */
- # define SCPDR  0xA4000136 /* 8  bit SCI and SCIF */
- # define SCSCR_INIT(port)          0x30 /* TIE=0,RIE=0,TE=1,RE=1 */
-@@ -61,9 +64,8 @@
- #elif defined(CONFIG_CPU_SUBTYPE_SH7705)
- # define SCIF0		0xA4400000
- # define SCIF2		0xA4410000
--# define SCSMR_Ir 	0xA44A0000
--# define IRDA_SCIF 	SCIF0
--# define SCI_NPORTS 2
-+# define SCSMR_Ir	0xA44A0000
-+# define IRDA_SCIF	SCIF0
- # define SCPCR 0xA4000116
- # define SCPDR 0xA4000136
- 
-@@ -74,14 +76,11 @@
- # define SCSCR_INIT(port) (port->mapbase == SCIF2) ? 0xF3 : 0xF0
- # define SCIF_ONLY
- #elif defined(CONFIG_SH_RTS7751R2D)
--# define SCI_NPORTS 1
--# define SCSPTR1 0xffe0001c /* 8  bit SCI */
- # define SCSPTR2 0xFFE80020 /* 16 bit SCIF */
- # define SCIF_ORER 0x0001   /* overrun error bit */
- # define SCSCR_INIT(port) 0x3a /* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */
- # define SCIF_ONLY
- #elif defined(CONFIG_CPU_SUBTYPE_SH7750) || defined(CONFIG_CPU_SUBTYPE_SH7751)
--# define SCI_NPORTS 2
- # define SCSPTR1 0xffe0001c /* 8  bit SCI */
- # define SCSPTR2 0xFFE80020 /* 16 bit SCIF */
- # define SCIF_ORER 0x0001   /* overrun error bit */
-@@ -90,34 +89,29 @@
- 	0x38 /* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */ )
- # define SCI_AND_SCIF
- #elif defined(CONFIG_CPU_SUBTYPE_SH7760)
--# define SCI_NPORTS 3
--# define SCSPTR0 0xfe600000 /* 16 bit SCIF */
--# define SCSPTR1 0xfe610000 /* 16 bit SCIF */
--# define SCSPTR2 0xfe620000 /* 16 bit SCIF */
-+# define SCSPTR0 0xfe600024 /* 16 bit SCIF */
-+# define SCSPTR1 0xfe610024 /* 16 bit SCIF */
-+# define SCSPTR2 0xfe620024 /* 16 bit SCIF */
- # define SCIF_ORER 0x0001  /* overrun error bit */
- # define SCSCR_INIT(port)          0x38 /* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */
- # define SCIF_ONLY
- #elif defined(CONFIG_CPU_SUBTYPE_SH7300)
--# define SCI_NPORTS 1
- # define SCPCR  0xA4050116        /* 16 bit SCIF */
- # define SCPDR  0xA4050136        /* 16 bit SCIF */
- # define SCSCR_INIT(port)  0x0030 /* TIE=0,RIE=0,TE=1,RE=1 */
- # define SCIF_ONLY
- #elif defined(CONFIG_CPU_SUBTYPE_SH73180)
--# define SCI_NPORTS 1
- # define SCPDR  0xA4050138        /* 16 bit SCIF */
- # define SCSPTR2 SCPDR
- # define SCIF_ORER 0x0001   /* overrun error bit */
- # define SCSCR_INIT(port)  0x0038 /* TIE=0,RIE=0,TE=1,RE=1 */
- # define SCIF_ONLY
- #elif defined(CONFIG_CPU_SUBTYPE_SH4_202)
--# define SCI_NPORTS 1
- # define SCSPTR2 0xffe80020 /* 16 bit SCIF */
- # define SCIF_ORER 0x0001   /* overrun error bit */
- # define SCSCR_INIT(port) 0x38 /* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */
- # define SCIF_ONLY
- #elif defined(CONFIG_CPU_SUBTYPE_ST40STB1)
--# define SCI_NPORTS 2
- # define SCSPTR1 0xffe00020 /* 16 bit SCIF */
- # define SCSPTR2 0xffe80020 /* 16 bit SCIF */
- # define SCIF_ORER 0x0001   /* overrun error bit */
-@@ -129,26 +123,32 @@
- # define SCIF_ADDR_SH5     PHYS_PERIPHERAL_BLOCK+SCIF_BASE_ADDR
- # define SCIF_PTR2_OFFS    0x0000020
- # define SCIF_LSR2_OFFS    0x0000024
--# define SCI_NPORTS 1
--# define SCI_INIT { \
--  { {}, PORT_SCIF, 0, \
--     SH5_SCIF_IRQS, sci_init_pins_scif }  \
+-struct bus_type sh_bus_types[SH_NR_BUSES] = {
+-	{
+-		.name		= SH_BUS_NAME_VIRT,
+-		.match		= sh_bus_match,
+-		.probe		= sh_bus_probe,
+-		.remove		= sh_bus_remove,
+-		.suspend	= sh_bus_suspend,
+-		.resume		= sh_bus_resume,
+-	},
+-};
+-
+-int sh_device_register(struct sh_dev *dev)
+-{
+-	if (!dev)
+-		return -EINVAL;
+-
+-	if (dev->bus_id < 0 || dev->bus_id >= SH_NR_BUSES) {
+-		printk(KERN_ERR "%s: bus_id invalid: %s bus: %d\n",
+-		       __FUNCTION__, dev->name, dev->bus_id);
+-		return -EINVAL;
+-	}
+-
+-	dev->dev.parent = &sh_bus_devices[dev->bus_id];
+-	dev->dev.bus    = &sh_bus_types[dev->bus_id];
+-
+-	/* This is needed for USB OHCI to work */
+-	if (dev->dma_mask)
+-		dev->dev.dma_mask = dev->dma_mask;
+-	if (dev->coherent_dma_mask)
+-		dev->dev.coherent_dma_mask = dev->coherent_dma_mask;
+-
+-	snprintf(dev->dev.bus_id, BUS_ID_SIZE, "%s%u",
+-		 dev->name, dev->dev_id);
+-
+-	printk(KERN_INFO "Registering SH device '%s'. Parent at %s\n",
+-	       dev->dev.bus_id, dev->dev.parent->bus_id);
+-
+-	return device_register(&dev->dev);
 -}
- # define SCSPTR2           ((port->mapbase)+SCIF_PTR2_OFFS) /* 16 bit SCIF */
- # define SCLSR2            ((port->mapbase)+SCIF_LSR2_OFFS) /* 16 bit SCIF */
- # define SCSCR_INIT(port)  0x38                           /* TIE=0,RIE=0,
- 							     TE=1,RE=1,REIE=1 */
- # define SCIF_ONLY
- #elif defined(CONFIG_H83007) || defined(CONFIG_H83068)
--# define SCI_NPORTS 3
- # define SCSCR_INIT(port)          0x30 /* TIE=0,RIE=0,TE=1,RE=1 */
- # define SCI_ONLY
- # define H8300_SCI_DR(ch) *(volatile char *)(P1DR + h8300_sci_pins[ch].port)
- #elif defined(CONFIG_H8S2678)
--# define SCI_NPORTS 3
- # define SCSCR_INIT(port)          0x30 /* TIE=0,RIE=0,TE=1,RE=1 */
- # define SCI_ONLY
- # define H8300_SCI_DR(ch) *(volatile char *)(P1DR + h8300_sci_pins[ch].port)
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7770)
-+# define SCSPTR0 0xff923020 /* 16 bit SCIF */
-+# define SCSPTR1 0xff924020 /* 16 bit SCIF */
-+# define SCSPTR2 0xff925020 /* 16 bit SCIF */
-+# define SCIF_ORER 0x0001  /* overrun error bit */
-+# define SCSCR_INIT(port)	0x3c /* TIE=0,RIE=0,TE=1,RE=1,REIE=1,cke=2 */
-+# define SCIF_ONLY
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7780)
-+# define SCSPTR0	0xffe00024	/* 16 bit SCIF */
-+# define SCSPTR1	0xffe10024	/* 16 bit SCIF */
-+# define SCIF_OPER	0x0001		/* Overrun error bit */
-+# define SCSCR_INIT(port)	0x3a	/* TIE=0,RIE=0,TE=1,RE=1,REIE=1 */
-+# define SCIF_ONLY
- #else
- # error CPU subtype not defined
- #endif
-@@ -158,7 +158,7 @@
- #define SCI_CTRL_FLAGS_RIE  0x40 /* all */
- #define SCI_CTRL_FLAGS_TE   0x20 /* all */
- #define SCI_CTRL_FLAGS_RE   0x10 /* all */
--#if defined(CONFIG_CPU_SUBTYPE_SH7750) || defined(CONFIG_CPU_SUBTYPE_SH7751)
-+#if defined(CONFIG_CPU_SUBTYPE_SH7750) || defined(CONFIG_CPU_SUBTYPE_SH7751) || defined(CONFIG_CPU_SUBTYPE_SH7780)
- #define SCI_CTRL_FLAGS_REIE 0x08 /* 7750 SCIF */
- #else
- #define SCI_CTRL_FLAGS_REIE 0
-@@ -213,7 +213,7 @@
- # define SCxSR_RDxF_CLEAR(port)		0xbc
- # define SCxSR_ERROR_CLEAR(port)	0xc4
- # define SCxSR_TDxE_CLEAR(port)		0x78
--# define SCxSR_BREAK_CLEAR(port)   	0xc4
-+# define SCxSR_BREAK_CLEAR(port)	0xc4
- #elif defined(SCIF_ONLY)
- # define SCxSR_TEND(port)		SCIF_TEND
- # define SCxSR_ERRORS(port)		SCIF_ERRORS
-@@ -237,7 +237,7 @@
- # define SCxSR_RDxF_CLEAR(port)		0x00fc
- # define SCxSR_ERROR_CLEAR(port)	0x0073
- # define SCxSR_TDxE_CLEAR(port)		0x00df
--# define SCxSR_BREAK_CLEAR(port)   	0x00e3
-+# define SCxSR_BREAK_CLEAR(port)	0x00e3
- #endif
- #else
- # define SCxSR_TEND(port)	 (((port)->type == PORT_SCI) ? SCI_TEND   : SCIF_TEND)
-@@ -285,14 +285,14 @@ struct sci_port {
- 
- #define SCI_IN(size, offset)					\
-   unsigned int addr = port->mapbase + (offset);			\
--  if ((size) == 8) { 						\
-+  if ((size) == 8) {						\
-     return ctrl_inb(addr);					\
--  } else {					 		\
-+  } else {							\
-     return ctrl_inw(addr);					\
-   }
- #define SCI_OUT(size, offset, value)				\
-   unsigned int addr = port->mapbase + (offset);			\
--  if ((size) == 8) { 						\
-+  if ((size) == 8) {						\
-     ctrl_outb(value, addr);					\
-   } else {							\
-     ctrl_outw(value, addr);					\
-@@ -301,10 +301,10 @@ struct sci_port {
- #define CPU_SCIx_FNS(name, sci_offset, sci_size, scif_offset, scif_size)\
-   static inline unsigned int sci_##name##_in(struct uart_port *port)	\
-   {									\
--    if (port->type == PORT_SCI) { 					\
-+    if (port->type == PORT_SCI) {					\
-       SCI_IN(sci_size, sci_offset)					\
-     } else {								\
--      SCI_IN(scif_size, scif_offset);		 			\
-+      SCI_IN(scif_size, scif_offset);					\
-     }									\
-   }									\
-   static inline void sci_##name##_out(struct uart_port *port, unsigned int value) \
-@@ -319,7 +319,7 @@ struct sci_port {
- #define CPU_SCIF_FNS(name, scif_offset, scif_size)				\
-   static inline unsigned int sci_##name##_in(struct uart_port *port)	\
-   {									\
--    SCI_IN(scif_size, scif_offset);		 			\
-+    SCI_IN(scif_size, scif_offset);					\
-   }									\
-   static inline void sci_##name##_out(struct uart_port *port, unsigned int value) \
-   {									\
-@@ -329,7 +329,7 @@ struct sci_port {
- #define CPU_SCI_FNS(name, sci_offset, sci_size)				\
-   static inline unsigned int sci_##name##_in(struct uart_port* port)	\
-   {									\
--    SCI_IN(sci_size, sci_offset);		 			\
-+    SCI_IN(sci_size, sci_offset);					\
-   }									\
-   static inline void sci_##name##_out(struct uart_port* port, unsigned int value) \
-   {									\
-@@ -385,10 +385,17 @@ SCIx_FNS(SCxTDR, 0x06,  8, 0x0c,  8, 0x0
- SCIx_FNS(SCxSR,  0x08,  8, 0x10,  8, 0x08, 16, 0x10, 16, 0x04,  8)
- SCIx_FNS(SCxRDR, 0x0a,  8, 0x14,  8, 0x0A,  8, 0x14,  8, 0x05,  8)
- SCIF_FNS(SCFCR,                      0x0c,  8, 0x18, 16)
-+#if defined(CONFIG_CPU_SUBTYPE_SH7760) || defined(CONFIG_CPU_SUBTYPE_SH7780)
-+SCIF_FNS(SCTFDR,		     0x0e, 16, 0x1C, 16)
-+SCIF_FNS(SCRFDR,		     0x0e, 16, 0x20, 16)
-+SCIF_FNS(SCSPTR,			0,  0, 0x24, 16)
-+SCIF_FNS(SCLSR,				0,  0, 0x28, 16)
-+#else
- SCIF_FNS(SCFDR,                      0x0e, 16, 0x1C, 16)
- SCIF_FNS(SCSPTR,                        0,  0, 0x20, 16)
- SCIF_FNS(SCLSR,                         0,  0, 0x24, 16)
- #endif
-+#endif
- #define sci_in(port, reg) sci_##reg##_in(port)
- #define sci_out(port, reg, value) sci_##reg##_out(port, value)
- 
-@@ -518,6 +525,24 @@ static inline int sci_rxd_in(struct uart
- 	int ch = (port->mapbase - SMR0) >> 3;
- 	return (H8300_SCI_DR(ch) & h8300_sci_pins[ch].rx) ? 1 : 0;
- }
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7770)
-+static inline int sci_rxd_in(struct uart_port *port)
-+{
-+	if (port->mapbase == 0xff923000)
-+		return ctrl_inw(SCSPTR0) & 0x0001 ? 1 : 0; /* SCIF */
-+	if (port->mapbase == 0xff924000)
-+		return ctrl_inw(SCSPTR1) & 0x0001 ? 1 : 0; /* SCIF */
-+	if (port->mapbase == 0xff925000)
-+		return ctrl_inw(SCSPTR2) & 0x0001 ? 1 : 0; /* SCIF */
-+}
-+#elif defined(CONFIG_CPU_SUBTYPE_SH7780)
-+static inline int sci_rxd_in(struct uart_port *port)
-+{
-+	if (port->mapbase == 0xffe00000)
-+		return ctrl_inw(SCSPTR0) & 0x0001 ? 1 : 0; /* SCIF */
-+	if (port->mapbase == 0xffe10000)
-+		return ctrl_inw(SCSPTR1) & 0x0001 ? 1 : 0; /* SCIF */
-+}
- #endif
- 
- /*
-@@ -552,22 +577,15 @@ static inline int sci_rxd_in(struct uart
-  * -- Mitch Davis - 15 Jul 2000
-  */
- 
--#define PCLK           (current_cpu_data.module_clock)
 -
--#if defined(CONFIG_CPU_SUBTYPE_SH7300)
--#define SCBRR_VALUE(bps) ((PCLK+16*bps)/(16*bps)-1)
-+#if defined(CONFIG_CPU_SUBTYPE_SH7300) || defined(CONFIG_CPU_SUBTYPE_SH7780)
-+#define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(16*bps)-1)
- #elif defined(CONFIG_CPU_SUBTYPE_SH7705)
--#define SCBRR_VALUE(bps) (((PCLK*2)+16*bps)/(32*bps)-1)
--#elif !defined(__H8300H__) && !defined(__H8300S__)
--#define SCBRR_VALUE(bps) ((PCLK+16*bps)/(32*bps)-1)
--#else
-+#define SCBRR_VALUE(bps, clk) (((clk*2)+16*bps)/(32*bps)-1)
-+#elif defined(__H8300H__) || defined(__H8300S__)
- #define SCBRR_VALUE(bps) (((CONFIG_CPU_CLOCK*1000/32)/bps)-1)
-+#elif defined(CONFIG_SUPERH64)
-+#define SCBRR_VALUE(bps) ((current_cpu_data.module_clock+16*bps)/(32*bps)-1)
-+#else /* Generic SH */
-+#define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1)
- #endif
--#define BPS_2400       SCBRR_VALUE(2400)
--#define BPS_4800       SCBRR_VALUE(4800)
--#define BPS_9600       SCBRR_VALUE(9600)
--#define BPS_19200      SCBRR_VALUE(19200)
--#define BPS_38400      SCBRR_VALUE(38400)
--#define BPS_57600      SCBRR_VALUE(57600)
--#define BPS_115200     SCBRR_VALUE(115200)
- 
+-void sh_device_unregister(struct sh_dev *dev)
+-{
+-	device_unregister(&dev->dev);
+-}
+-
+-int sh_driver_register(struct sh_driver *drv)
+-{
+-	if (!drv)
+-		return -EINVAL;
+-
+-	if (drv->bus_id < 0 || drv->bus_id >= SH_NR_BUSES) {
+-		printk(KERN_ERR "%s: bus_id invalid: bus: %d device %d\n",
+-		       __FUNCTION__, drv->bus_id, drv->dev_id);
+-		return -EINVAL;
+-	}
+-
+-	drv->drv.bus    = &sh_bus_types[drv->bus_id];
+-
+-	return driver_register(&drv->drv);
+-}
+-
+-void sh_driver_unregister(struct sh_driver *drv)
+-{
+-	driver_unregister(&drv->drv);
+-}
+-
+-static int __init sh_bus_init(void)
+-{
+-	int i, ret = 0;
+-
+-	for (i = 0; i < SH_NR_BUSES; i++) {
+-		ret = device_register(&sh_bus_devices[i]);
+-		if (ret != 0) {
+-			printk(KERN_ERR "Unable to register bus device %s\n",
+-			       sh_bus_devices[i].bus_id);
+-			continue;
+-		}
+-
+-		ret = bus_register(&sh_bus_types[i]);
+-		if (ret != 0) {
+-			printk(KERN_ERR "Unable to register bus %s\n",
+-			       sh_bus_types[i].name);
+-			device_unregister(&sh_bus_devices[i]);
+-		}
+-	}
+-
+-	printk(KERN_INFO "SH Virtual Bus initialized\n");
+-
+-	return ret;
+-}
+-
+-static void __exit sh_bus_exit(void)
+-{
+-	int i;
+-
+-	for (i = 0; i < SH_NR_BUSES; i++) {
+-		bus_unregister(&sh_bus_types[i]);
+-		device_unregister(&sh_bus_devices[i]);
+-	}
+-}
+-
+-module_init(sh_bus_init);
+-module_exit(sh_bus_exit);
+-
+-MODULE_AUTHOR("Paul Mundt <lethal@linux-sh.org>");
+-MODULE_DESCRIPTION("SH Virtual Bus");
+-MODULE_LICENSE("GPL");
+-
+-EXPORT_SYMBOL(sh_bus_types);
+-EXPORT_SYMBOL(sh_device_register);
+-EXPORT_SYMBOL(sh_device_unregister);
+-EXPORT_SYMBOL(sh_driver_register);
+-EXPORT_SYMBOL(sh_driver_unregister);
+-
+diff --git a/include/asm-sh/bus-sh.h b/include/asm-sh/bus-sh.h
+deleted file mode 100644
+index e42d63b..0000000
+--- a/include/asm-sh/bus-sh.h
++++ /dev/null
+@@ -1,66 +0,0 @@
+-/*
+- * include/asm-sh/bus-sh.h
+- *
+- * Copyright (C) 2004 Paul Mundt
+- *
+- * This file is subject to the terms and conditions of the GNU General Public
+- * License.  See the file "COPYING" in the main directory of this archive
+- * for more details.
+- */
+-#ifndef __ASM_SH_BUS_SH_H
+-#define __ASM_SH_BUS_SH_H
+-
+-extern struct bus_type sh_bus_types[];
+-
+-struct sh_dev {
+-	struct device	dev;
+-	char		*name;
+-	unsigned int	dev_id;
+-	unsigned int	bus_id;
+-	struct resource	res;
+-	void		*mapbase;
+-	unsigned int	irq[6];
+-	u64		*dma_mask;
+-	u64		coherent_dma_mask;
+-};
+-
+-#define to_sh_dev(d)	container_of((d), struct sh_dev, dev)
+-
+-#define sh_get_drvdata(d)	dev_get_drvdata(&(d)->dev)
+-#define sh_set_drvdata(d,p)	dev_set_drvdata(&(d)->dev, (p))
+-
+-struct sh_driver {
+-	struct device_driver	drv;
+-	unsigned int		dev_id;
+-	unsigned int		bus_id;
+-	int (*probe)(struct sh_dev *);
+-	int (*remove)(struct sh_dev *);
+-	int (*suspend)(struct sh_dev *, pm_message_t);
+-	int (*resume)(struct sh_dev *);
+-};
+-
+-#define to_sh_driver(d)	container_of((d), struct sh_driver, drv)
+-#define sh_name(d)	((d)->dev.driver->name)
+-
+-/*
+- * Device ID numbers for bus types
+- */
+-enum {
+-	SH_DEV_ID_USB_OHCI,
+-};
+-
+-#define SH_NR_BUSES		1
+-#define SH_BUS_NAME_VIRT	"shbus"
+-
+-enum {
+-	SH_BUS_VIRT,
+-};
+-
+-/* arch/sh/kernel/cpu/bus.c */
+-extern int sh_device_register(struct sh_dev *dev);
+-extern void sh_device_unregister(struct sh_dev *dev);
+-extern int sh_driver_register(struct sh_driver *drv);
+-extern void sh_driver_unregister(struct sh_driver *drv);
+-
+-#endif /* __ASM_SH_BUS_SH_H */
+-

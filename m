@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWA0ImD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWA0IyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751228AbWA0ImD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 03:42:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751422AbWA0ImC
+	id S1751438AbWA0IyN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 03:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751436AbWA0IyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 03:42:02 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.154]:42988 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1751228AbWA0ImB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 03:42:01 -0500
-Message-ID: <43D9DCD7.3090600@namesys.com>
-Date: Fri, 27 Jan 2006 00:41:59 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Fri, 27 Jan 2006 03:54:13 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:1756 "EHLO gw1.cosmosbay.com")
+	by vger.kernel.org with ESMTP id S1750752AbWA0IyM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 03:54:12 -0500
+Message-ID: <43D9DFA1.9070802@cosmosbay.com>
+Date: Fri, 27 Jan 2006 09:53:53 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Edward Shishkin <edward@namesys.com>, LKML <linux-kernel@vger.kernel.org>,
-       Reiserfs mail-list <Reiserfs-List@namesys.com>
-Subject: Re: random minor benchmark: Re: Copy 20 tarfiles: ext2 vs (reiser4,
- unixfile) vs (reiser4,cryptcompress)
-References: <43D7C6BE.1010804@namesys.com> <43D7CA7F.4010502@namesys.com> <20060126153343.GH4311@suse.de> <43D91225.3030605@namesys.com> <20060126185612.GM4311@suse.de> <43D933EB.6080009@namesys.com> <20060127080625.GS4311@suse.de> <43D9D681.7020002@namesys.com> <20060127082113.GV4311@suse.de>
-In-Reply-To: <20060127082113.GV4311@suse.de>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+CC: Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, shai@scalex86.org, netdev@vger.kernel.org,
+       pravins@calsoftinc.com
+Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
+References: <20060126185649.GB3651@localhost.localdomain> <20060126190357.GE3651@localhost.localdomain>
+In-Reply-To: <20060126190357.GE3651@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Fri, 27 Jan 2006 09:53:54 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+Ravikiran G Thirumalai a écrit :
+> Change the atomic_t sockets_allocated member of struct proto to a 
+> per-cpu counter.
+> 
+> Signed-off-by: Pravin B. Shelar <pravins@calsoftinc.com>
+> Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
+> Signed-off-by: Shai Fultheim <shai@scalex86.org>
+> 
+Hi Ravikiran
 
->
->Yeah and that's ok, I was just interested in seeing some more
->interesting compression benchmarks so I wondered if you had done that.
->
->  
->
-I think "random minor benchmark" was an apt description, yes.;-)
+If I correctly read this patch, I think there is a scalability problem.
 
-First we will debug it fully. Then we will figure out how to change
-mongo so that the files do not consist entirely of the letter a as their
-contents, and run mongo on it. Probably we will find some way to slice
-up a linux kernel tar file into files of random sizes, and assume that
-is a fair thing to let it compress during mongo. Then, just so people
-won't think mongo is slanted in our favor we will do some cp -r's of
-large numbers of linux kernel source trees and time that also.
+On a big SMP machine, read_sockets_allocated() is going to be a real killer.
 
-Hans
+Say we have 128 Opterons CPUS in a box.
+
+You'll need to bring 128 cache lines (plus 8*128 bytes to read the 128 
+pointers inside percpu structure)
+
+I think a solution 'a la percpu_counter' is preferable, or even better a 
+dedicated per_cpu with a threshold management (see mm/swap.c , function 
+vm_acct_memory() to see how vm_committed_space is updated without too bad SMP 
+scalability)
+
+Thank you
+
+Eric
+

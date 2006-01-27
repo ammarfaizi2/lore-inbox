@@ -1,109 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWA0E20@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWA0Ehe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWA0E20 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 23:28:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWA0E20
+	id S932289AbWA0Ehe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 23:37:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWA0Ehe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 23:28:26 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:29433 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932199AbWA0E20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 23:28:26 -0500
-Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP
-	slow)
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Howard Chu <hyc@symas.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       davids@webmaster.com, Nick Piggin <nickpiggin@yahoo.com.au>
-In-Reply-To: <43D94595.4030002@symas.com>
-References: <MDEHLPKNGKAHNMBLJOLKGENPJKAB.davids@webmaster.com>
-	 <43D930C6.40201@symas.com> <43D93542.9000809@yahoo.com.au>
-	 <43D93FEA.3070305@symas.com> <43D941FD.9050705@yahoo.com.au>
-	 <43D94595.4030002@symas.com>
-Content-Type: text/plain
-Date: Thu, 26 Jan 2006 23:27:50 -0500
-Message-Id: <1138336070.7814.35.camel@localhost.localdomain>
+	Thu, 26 Jan 2006 23:37:34 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:50664
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S932289AbWA0Ehd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 23:37:33 -0500
+Date: Thu, 26 Jan 2006 20:37:34 -0800
+From: Greg KH <greg@kroah.com>
+To: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
+Cc: "Grundler, Grant G" <grant.grundler@hp.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Problems with MSI-X on ia64
+Message-ID: <20060127043734.GA32009@kroah.com>
+References: <D4CFB69C345C394284E4B78B876C1CF10B8481F1@cceexc23.americas.cpqcorp.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF10B8481F1@cceexc23.americas.cpqcorp.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-26 at 13:56 -0800, Howard Chu wrote:
-> Nick Piggin wrote:
-
-> >>
-> >> But why does A take the mutex in the first place? Presumably because 
-> >> it is about to execute a critical section. And also presumably, A 
-> >> will not release the mutex until it no longer has anything critical 
-> >> to do; certainly it could hold it longer if it needed to.
-> >>
-> >> If A still needed the mutex, why release it and reacquire it, why not 
-> >> just hold onto it? The fact that it is being released is significant.
-> >>
-> >
-> > Regardless of why, that is just the simplest scenario I could think
-> > of that would give us a test case. However...
-> >
-> > Why not hold onto it? We sometimes do this in the kernel if we need
-> > to take a lock that is incompatible with the lock already being held,
-> > or if we discover we need to take a mutex which nests outside our
-> > currently held lock in other paths. Ie to prevent deadlock.
+On Thu, Jan 26, 2006 at 02:37:14PM -0600, Miller, Mike (OS Dev) wrote:
+> > -----Original Message-----
+> > From: Grundler, Grant G 
+> > > We're using a 2.6.9 variant and a cciss driver with 
+> > MSI/MSI-X support.
+> > > The kernel has MSI enabled. On ia64 the MSI-X table is all zeroes.
+> > 
+> > Could you post the debug output you've collected so far?
 > 
-> In those cases, A cannot retake the mutex anyway. I.e., you just said 
-> that you released the first mutex because you want to acquire a 
-> different one. So those cases don't fit this example very well.
-
-Lets say you have two locks X and Y.  Y nests inside of X. To do block1
-you need to have lock Y and to do block2 you need to have both locks X
-and Y, and block 1 must be done first without holding lock X.
-
-func()
-{
-again:
-	mutex_lock(Y);
-	block1();
-	if (!mutex_try_lock(X)) {
-		mutex_unlock(Y);
-		mutex_lock(X);
-		mutex_lock(Y);
-		if (block1_has_changed()) {
-			mutex_unlock(Y);
-			mutex_unlock(X);
-			goto again;
-		}
-	}
-	block2();
-	mutex_unlock(X);
-	mutex_unlock(Y);
-}
-
-Stuff like the above actually is done (it's done in the kernel). So you
-can see here that Y can be released and reacquired right away.  If
-another task was waiting on Y (of lower priority) we don't want to give
-up the lock, since we would then block and the chances of
-block1_has_changed goes up even more.
-
+> There are 2 MSI-X capable controllers in the system. On IPF this is what
+> the tables look like:
 > 
-> > Another reason might be because we will be running for a very long
-> > time without requiring the lock.
+> cciss: offset = 0xfe000 table offset = 0xfe000 BIR = 0x0
+> cciss: 0: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: 1: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: 2: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: 3: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: using DAC cycles
+> ACPI: PCI interrupt 0000:88:00.0[A] -> GSI 71 (level, low) -> IRQ 61
+> cciss: MSI-X enabled
+> cciss: offset = 0xfe000 table offset = 0xfe000 BIR = 0x0
+> cciss: 0: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: 1: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: 2: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: 3: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: using DAC cycles
+> blocks= 143305920 block_size= 512
+> heads= 255, sectors= 32, cylinders= 17562
+>  
+> blocks= 142130880 block_size= 512
+> heads= 255, sectors= 32, cylinders= 17418
+>  
+> cciss/c2d0:
 > 
-> And again in this case, A should not be immediately reacquiring the lock 
-> if it doesn't actually need it.
+> And this is where we hang, when enabling interrupts in the driver.
 
-I'm not sure what Nick means here, but I'm sure he didn't mean it to
-come out that way ;)
+Can you try 2.6.15, or possibly 2.6.16-rc1-mm3?
 
-> 
-> > Or we might like to release it because
-> > we expect a higher priority process to take it.
-> 
-> And in this case, the expected behavior is the same as I've been pursuing.
+thanks,
 
-But you can't know if a higher or lower priority process is waiting.
-Sure it works like what you say when a higher priority process is
-waiting, but it doesn't when it's a lower priority process waiting.
-
--- Steve
-
-
+greg k-h

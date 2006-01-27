@@ -1,48 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161014AbWA0Ukd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161015AbWA0Umo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161014AbWA0Ukd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 15:40:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161015AbWA0Ukd
+	id S1161015AbWA0Umo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 15:42:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161021AbWA0Umo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 15:40:33 -0500
-Received: from host233.omnispring.com ([69.44.168.233]:20664 "EHLO
-	iradimed.com") by vger.kernel.org with ESMTP id S1161014AbWA0Ukd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 15:40:33 -0500
-Message-ID: <43DA851D.6070209@cfl.rr.com>
-Date: Fri, 27 Jan 2006 15:39:57 -0500
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Fri, 27 Jan 2006 15:42:44 -0500
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:19145 "EHLO
+	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
+	id S1161018AbWA0Umn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 15:42:43 -0500
+Date: Fri, 27 Jan 2006 21:41:58 +0100
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
+To: David Howells <dhowells@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       keyrings@linux-nfs.org
+Subject: Re: [PATCH 01/04] Add multi-precision-integer maths library
+Message-ID: <20060127204158.GA4754@hardeman.nu>
+Mail-Followup-To: David Howells <dhowells@redhat.com>,
+	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+	keyrings@linux-nfs.org
+References: <20060127092817.GB24362@infradead.org> <1138312694656@2gen.com> <1138312695665@2gen.com> <6403.1138392470@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-To: jmerkey@ns1.utah-nac.org
-CC: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14 kernels and above copy_to_user stupidity with IRQ disabled
- check
-References: <43DA62CC.8090309@wolfmountaingroup.com> <Pine.LNX.4.61.0601271513360.15124@chaos.analogic.com> <20060127201058.GA18805@ns1.utah-nac.org>
-In-Reply-To: <20060127201058.GA18805@ns1.utah-nac.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Jan 2006 20:40:58.0805 (UTC) FILETIME=[FA8EBE50:01C62381]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14232.000
-X-TM-AS-Result: No--1.000000-5.000000-31
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <6403.1138392470@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.5.11
+X-SA-Score: -2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jmerkey@ns1.utah-nac.org wrote:
-> OK.  Got it.  I guess I need to restructure.  And BTW, This was a code fragment
-> only, the spinlock gets released when -EFAULT is called -- was just an example.
+On Fri, Jan 27, 2006 at 08:07:50PM +0000, David Howells wrote:
+>Christoph Hellwig <hch@infradead.org> wrote:
 >
-> Jeff
+>> This is ugly as hell.  If we decided to add it it really needs a major
+>> cleanup, fitting into linux style and removal of unused functionality,
+>> the assembly bits needs to move to an asm/ header, etc.
+>
+>Which would make it harder to compare against the original, and so potentially
+>harder to track bug fixes in the original was my thinking.
 
-Unless you have redefined EFAULT in some strange and hideous way, it is 
-not "called" and doesn't free the spinlock.  EFAULT is defined as a 
-literal integer, so you're just returning a number without freeing the 
-spinlock. 
+I think it might still work quite well with a subset since each function 
+is quite self-contained and a bugfix in one function would still be 
+quite easy to match to the corresponding function in the in-kernel code 
+even if it has been refactored and moved around.
 
+>> But to be honest I'd say anything that requires bigints shouldn't go into
+>> the kernel at all.  Could someone explain why they want dsa support in
+>> kernelspace?
+>
+>Well... I'd like to revisit module signing at some point, though I imagine
+>it'll cause the LKML to melt again by those who think that I shouldn't have
+>the right to sign my modules because they imagine it impinges on their
+>rights:-) But I suspect the reason David wants this is so that he can encrypt
+>something with keys that he's not actually permitted to retrieve
+>directly. David?
 
-If you have redefined EFAULT to a macro function call or whatever, then 
-don't do that, it's REALLY horrible coding practice. 
+The reason that I wanted DSA-keys supported by the in-kernel key stuff 
+is that it allows for some cool stuff which is either impossible or very 
+hard to do otherwise.
 
+For example, a backup daemon which wishes to store the backup on another 
+host using ssh. Usually this is solved by storing an unencrypted key in 
+the fs or by providing a connection to a ssh-agent which has been 
+preloaded with the proper key(s). Both are quite inelegant solutions. 
+With the in-kernel support, the daemon can request the key using the 
+request_key call, and (provided proper scripts are written), the user 
+who controls the relevant key can supply it. This in turn means that the 
+backup daemon can sign using the key and read its public parts but not 
+the private key.
 
+So yes, that is one example of doing "something" with keys that the 
+process is not allowed to retrieve directly (the key itself could be 
+supplied from removable storage or something and given a few minutes of 
+time-to-live).
+
+It also means that users would not have to run ssh-agent and would not 
+have to bother with making sure that only one instance of ssh-agent is 
+running even if they are logged in multiple times.
+
+The in-kernel key management also protects the key against many of the 
+different ways in which a user-space daemon could be attacked (ptrace, 
+swap-out, coredump, etc).
+
+In addition, the dsa key code can be used to implement signed binaries 
+and signed modules.
+
+For now I'll create a version of mpilib which has been stripped down to 
+only the functions that are in use by the dsa-crypto stuff, hopefully 
+this will substantially reduce the size and amount of code. I'll get 
+back when I have some results.
+
+Regards,
+David

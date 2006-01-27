@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbWA0CCA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWA0CL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030202AbWA0CCA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 21:02:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030204AbWA0CCA
+	id S1030205AbWA0CL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 21:11:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbWA0CLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 21:02:00 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:41952 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030202AbWA0CCA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 21:02:00 -0500
-Date: Thu, 26 Jan 2006 21:01:51 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@cuia.boston.redhat.com
-To: Ian Kester-Haney <ikesterhaney@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux
-In-Reply-To: <441e43c90601241721o8b4a9e5rd3a237f70aa46dbb@mail.gmail.com>
-Message-ID: <Pine.LNX.4.63.0601262058260.29473@cuia.boston.redhat.com>
-References: <MDEHLPKNGKAHNMBLJOLKIEOMJJAB.davids@webmaster.com> 
- <Pine.LNX.4.61.0601240839380.17175@chaos.analogic.com> 
- <43D65211.20006@wolfmountaingroup.com> <441e43c90601241721o8b4a9e5rd3a237f70aa46dbb@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 Jan 2006 21:11:25 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:451 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1030205AbWA0CLZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 21:11:25 -0500
+Date: Thu, 26 Jan 2006 18:11:18 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Peter Williams <pwil3058@bigpond.net.au>, mingo@elte.hu,
+       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: smp 'nice' bias support breaks scheduler behavior
+Message-ID: <20060126181118.C19789@unix-os.sc.intel.com>
+References: <20060126025220.B8521@unix-os.sc.intel.com> <200601271229.02752.kernel@kolivas.org> <20060126173423.B19789@unix-os.sc.intel.com> <200601271254.54009.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200601271254.54009.kernel@kolivas.org>; from kernel@kolivas.org on Fri, Jan 27, 2006 at 12:54:53PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Jan 2006, Ian Kester-Haney wrote:
+On Fri, Jan 27, 2006 at 12:54:53PM +1100, Con Kolivas wrote:
+> It's not my decision to keep Peter's patch out of mainline. If you can make a 
+> strong enough case for it then Linus will merge it up even though it's after 
+> rc1. 
 
-> I think that subverting the efforts of companies and artists to protect 
-> their works is unnaceptable.
+I don't want to push Peters patch to 2.6.16, as I haven't tested much.
 
-That all depends on what they are protecting their works against.
-If they were protecting their works against illegal copying, that
-protection should indeed not be circumvented.
+> Otherwise I'll let Ingo decide on whether to pull the current 
+> implementation or not - you're saying that with the one thing you described 
+> that misbehaves that it is doing more harm than fixing smp nice handling.
 
-On the other hand, if all they are "protecting against" is lawful
-and legitimate behaviour by joe six-pack consumers, I do not see
-why those efforts should be protected or helped...
+Are we sure that it really fixes smp nice handling? Its not just one 
+scenario(bouncing processes on a lightly loaded system), I am talking about. 
+Imbalance calculations will be wrong even on a completely loaded system.. 
+Are you sure that there are no perf regressions with your patch..
 
-> It should be noted that DRM is not inherently bad,
+Sorry for commenting on this patch so late.. I was on a very long vacation.
+I think it is safe to back that out for 2.6.16 and do more work and get it
+in 2.6.17.
 
-It should also be noted that DRM does not protect works against
-copying - the one thing that DRM was supposed to achieve.
-
--- 
-All Rights Reversed
+thanks,
+suresh

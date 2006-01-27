@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbWA0TRO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWA0TVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbWA0TRO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 14:17:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932479AbWA0TRO
+	id S932436AbWA0TVF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 14:21:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWA0TVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 14:17:14 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:50841 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932378AbWA0TRM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 14:17:12 -0500
-In-Reply-To: <200601271912.59557.a1426z@gawab.com>
-To: Al Boldi <a1426z@gawab.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: Re: [RFC] VM: I have a dream...
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFA0FDB57C.2E4B1B4D-ON88257103.00688AE2-88257103.0069EF1C@us.ibm.com>
-From: Bryan Henderson <hbryan@us.ibm.com>
-Date: Fri, 27 Jan 2006 11:17:04 -0800
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0HF124 | January 12, 2006) at
- 01/27/2006 14:17:09,
-	Serialize complete at 01/27/2006 14:17:09
-Content-Type: text/plain; charset="US-ASCII"
+	Fri, 27 Jan 2006 14:21:05 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:26305 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932436AbWA0TVD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 14:21:03 -0500
+Subject: Re: More information on scsi_cmd_cache leak... (bisect)
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Mike Christie <michaelc@cs.wisc.edu>
+Cc: Jens Axboe <axboe@suse.de>, Neil Brown <neilb@suse.de>,
+       Chase Venters <chase.venters@clientec.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, akpm@osdl.org,
+       a.titov@host.bg, askernel2615@dsgml.com, jamie@audible.transient.net
+In-Reply-To: <43DA6F33.3070101@cs.wisc.edu>
+References: <200601270410.06762.chase.venters@clientec.com>
+	 <17369.65530.747867.844964@cse.unsw.edu.au> <20060127112352.GF4311@suse.de>
+	 <20060127112837.GG4311@suse.de>  <43DA6F33.3070101@cs.wisc.edu>
+Content-Type: text/plain
+Date: Fri, 27 Jan 2006 13:20:16 -0600
+Message-Id: <1138389616.3293.13.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> So we know it [single level storage] works, but also that people don't 
-seem to care much for it
->
->People didn't care, because the AS/400 was based on a proprietary 
-solution. 
+On Fri, 2006-01-27 at 13:06 -0600, Mike Christie wrote:
+> It does not have anything to do with this in scsi_io_completion does it?
+> 
+>          if (blk_complete_barrier_rq(q, req, good_bytes >> 9))
+>                  return;
+> 
+> For that case the scsi_cmnd does not get freed. Does it come back around 
+> again and get released from a different path?
 
-I don't know what a "proprietary solution" is, but what we had was a 
-complete demonstration of the value of single level storage, in commercial 
-use and everything,  and other computer makers (and other business units 
-of IBM) stuck with their memory/disk split personality.  For 25 years, 
-lots of computer makers developed lots of new computer architectures and 
-they all (practically speaking) had the memory/disk split.  There has to 
-be a lesson in that.
+It looks such a likely candidate, doesn't it.  Unfortunately, Tejun Heo
+removed that code around 6 Jan (in [BLOCK] update SCSI to use new
+blk_ordered for barriers), so if it is that, then the latest kernels
+should now not be leaking.
 
->With todays generically mass-produced 64bit archs, what's not to care 
-about a 
->cost-effective system that provides direct mapped access into linear 
-address 
->space?
+However, all the avaliable evidence does seem to point to the write
+barrier enforcement.  I'll take another look over those code paths.
 
-I don't know; I'm sure it's complicated.  But unless the stumbling block 
-since 1980 has been that it was too hard to get/make a CPU with a 64 bit 
-address space, I don't see what's different today.
+James
 
---
-Bryan Henderson                     IBM Almaden Research Center
-San Jose CA                         Filesystems
 

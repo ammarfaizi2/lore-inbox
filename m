@@ -1,98 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161006AbWA0UYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWA0U0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161006AbWA0UYu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 15:24:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161008AbWA0UYu
+	id S1161008AbWA0U0w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 15:26:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161010AbWA0U0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 15:24:50 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:47841 "EHLO
-	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S1161006AbWA0UYt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 15:24:49 -0500
-Date: Fri, 27 Jan 2006 13:10:58 -0700
-From: jmerkey@ns1.utah-nac.org
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14 kernels and above copy_to_user stupidity with IRQ disabled check
-Message-ID: <20060127201058.GA18805@ns1.utah-nac.org>
-References: <43DA62CC.8090309@wolfmountaingroup.com> <Pine.LNX.4.61.0601271513360.15124@chaos.analogic.com>
+	Fri, 27 Jan 2006 15:26:52 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59409 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1161008AbWA0U0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 15:26:52 -0500
+Date: Fri, 27 Jan 2006 20:26:46 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: How to map high memory for block io
+Message-ID: <20060127202646.GC2767@flint.arm.linux.org.uk>
+Mail-Followup-To: Jens Axboe <axboe@suse.de>,
+	Pierre Ossman <drzeus-list@drzeus.cx>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <43D9C19F.7090707@drzeus.cx> <20060127102611.GC4311@suse.de> <43D9F705.5000403@drzeus.cx> <20060127104321.GE4311@suse.de> <43DA0E97.5030504@drzeus.cx> <20060127194318.GA1433@flint.arm.linux.org.uk> <43DA7CD1.4040301@drzeus.cx> <20060127201458.GA2767@flint.arm.linux.org.uk> <20060127202206.GH9068@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0601271513360.15124@chaos.analogic.com>
+In-Reply-To: <20060127202206.GH9068@suse.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 27, 2006 at 09:22:06PM +0100, Jens Axboe wrote:
+> That is definitely valid, same goes for the bio_vec structure. They map
+> _a_ page, after all :-)
 
+Okay.  Pierre - are you saying that you have an sg entry where
+sg->offset + sg->length > PAGE_SIZE, and hence is causing you to
+cross a page boundary?
 
-OK.  Got it.  I guess I need to restructure.  And BTW, This was a code fragment
-only, the spinlock gets released when -EFAULT is called -- was just an example.
+(Sorry, your initial mail got lost because I've tend to be over-eager
+these days with the D key with lkml over the last week or so - I've
+not been around much.)
 
-Jeff
-
-On Fri, Jan 27, 2006 at 03:18:06PM -0500, linux-os (Dick Johnson) wrote:
-> 
-> On Fri, 27 Jan 2006, Jeff V. Merkey wrote:
-> 
-> >
-> > Is there a good reason someone set a disabled_irq() check on 2.6.14 and
-> > above for copy_to_user to barf out
-> > tons of bogus stack dump messages if the function is called from within
-> > a spinlock:
-> >
-> 
-> This is a joke, right????
-> 
-> > i.e.
-> >
-> > spin_lock_irqsave(&regen_lock, regen_flags);
-> >    v = regen_head;
-> >    while (v)
-> >    {
-> >       if (i >= count)
-> >          return -EFAULT;
-> 
-> ** BUG **  return with spin-lock held!
-> 
-> >
-> >
-> >       err = copy_to_user(&s[i++], v, sizeof(VIRTUAL_SETUP));
-> 
-> ** BUG ** copy to user with spinlock held!
-> 
-> >       if (err)
-> >          return err;
-> >
-> 
-> ** BUG ** Return with spin-lock held!
-> >
-> >       v = v->next;
-> >    }
-> >    spin_unlock_irqrestore(&regen_lock, regen_flags);
-> >
-> > is now busted and worked in kernels up to this point.  The error message
-> > is annoying but non-fatal.
-> >
-> > Jeff
-> 
-> It was NEVER supposed to work! The only reason it worked is because
-> your page(s) copied to, were not swapped out. If they were swapped
-> out, you are stuck, the page-fault won't occur.
-> 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.13.4 on an i686 machine (5589.66 BogoMips).
-> Warning : 98.36% of all statistics are fiction.
-> .
-> 
-> ****************************************************************
-> The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-> 
-> Thank you.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

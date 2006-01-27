@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751543AbWA0SlU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWA0Slp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751543AbWA0SlU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 13:41:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbWA0SlU
+	id S932175AbWA0Slp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 13:41:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751529AbWA0Slp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 13:41:20 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:31724 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751541AbWA0SlT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 13:41:19 -0500
-Message-ID: <43DA7B47.11D10B09@tv-sign.ru>
-Date: Fri, 27 Jan 2006 22:57:59 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Fri, 27 Jan 2006 13:41:45 -0500
+Received: from sccrmhc12.comcast.net ([63.240.77.82]:37826 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932175AbWA0Slo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 13:41:44 -0500
+Date: Fri, 27 Jan 2006 13:41:31 -0500 (EST)
+From: Ariel <askernel2615@dsgml.com>
+To: Chase Venters <chase.venters@clientec.com>
+cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, akpm@osdl.org,
+       a.titov@host.bg, axboe@suse.de, jamie@audible.transient.net,
+       neilb@suse.de, arjan@infradead.org
+Subject: Re: More information on scsi_cmd_cache leak... (bisect)
+In-Reply-To: <200601270410.06762.chase.venters@clientec.com>
+Message-ID: <Pine.LNX.4.62.0601271335470.8977@pureeloreel.qftzy.pbz>
+References: <200601270410.06762.chase.venters@clientec.com>
 MIME-Version: 1.0
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch 1/2] rcu batch tuning
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dipankar Sarma wrote:
+
+On Fri, 27 Jan 2006, Chase Venters wrote:
+
+> 	After dealing with this leak for a while, I decided to do some dancing around
+> with git bisect. I've landed on a possible point of regression:
 >
-> +static void force_quiescent_state(struct rcu_data *rdp,
-> +			struct rcu_ctrlblk *rcp)
-> +{
-> +	int cpu;
-> +	cpumask_t cpumask;
-> +	set_need_resched();
-> +	if (unlikely(rdp->qlen - rdp->last_rs_qlen > rsinterval)) {
-> +		rdp->last_rs_qlen = rdp->qlen;
-> +		/*
-> +		 * Don't send IPI to itself. With irqs disabled,
-> +		 * rdp->cpu is the current cpu.
-> +		 */
-> +		cpumask = rcp->cpumask;
-> +		cpu_clear(rdp->cpu, cpumask);
-> +		for_each_cpu_mask(cpu, cpumask)
-> +			smp_send_reschedule(cpu);
-> +	}
-> +}
-> [ ... snip ... ]
->
-> @@ -92,17 +128,13 @@ void fastcall call_rcu(struct rcu_head *
->  	rdp = &__get_cpu_var(rcu_data);
->  	*rdp->nxttail = head;
->  	rdp->nxttail = &head->next;
-> -
-> -	if (unlikely(++rdp->count > 10000))
-> -		set_need_resched();
-> -
-> +	if (unlikely(++rdp->qlen > qhimark)) {
-> +		rdp->blimit = INT_MAX;
-> +		force_quiescent_state(rdp, &rcu_ctrlblk);
-> +	}
+> commit: a9701a30470856408d08657eb1bd7ae29a146190
+> [PATCH] md: support BIO_RW_BARRIER for md/raid1
 
-When ->qlen exceeds qhimark for the first time we send reschedule IPI to
-other CPUs and force_quiescent_state() records ->last_rs_qlen = ->qlen.
-But we don't reset ->last_rs_qlen when ->qlen goes to 0, this means that
-next time we need ++rdp->qlen > qhimark + rsinterval to force other CPUS
-to pass quiescent state, no?
+I can confirm that it only leaks with raid!
 
-Also, it seems to me it's better to have 2 counters, one for length(->donelist)
-and another for length(->curlist + ->nxtlist). I think we don't need
-force_quiescent_state() when all rcu callbacks are placed in ->donelist,
-we only need to increase rdp->blimit in this case.
+I rebooted with my raid5 root, read only, and it didn't leak. As soon as I 
+remount,rw it started leaking. Go back to ro and it stopped (although it 
+didn't clean up the old leaks). Tried my raid1 /boot and same thing - rw 
+leaks, ro doesn't. But, it only leaks on activity.
 
-Oleg.
+I then tried a regular lvm mount (with root ro), and no leaks!
+
+What's interesting is that the mount was ro NOT the md (which can be set 
+ro independently). So it looks like it only leaks if you write to the md 
+device, and that's why setting the mount ro stopped the leaks.
+
+ 	-Ariel

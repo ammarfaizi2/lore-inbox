@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932505AbWA0VoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbWA0VsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932505AbWA0VoR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 16:44:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWA0VoR
+	id S1422636AbWA0VsR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 16:48:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbWA0VsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 16:44:17 -0500
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:41433 "EHLO
-	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932505AbWA0VoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 16:44:16 -0500
-Date: Fri, 27 Jan 2006 21:45:40 +0000
-From: ed <ed@ednevitible.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: OT: Re: traceroute bug ?
-Message-ID: <20060127214540.110ca18b@workstation>
-In-Reply-To: <9a8748490601271057y709d3501ob278c85b104eef57@mail.gmail.com>
-References: <000601c62370$db00cd50$1701a8c0@gerold>
-	<9a8748490601271057y709d3501ob278c85b104eef57@mail.gmail.com>
-Organization: the triads
-X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
-X-Face: =\=1ht]b*gboJ:&+:3x1vGz}fCe40TZJ9s@L2~YGi}]c(fY-_7J]wUR.6MSH\oeq#@H6aAERh(<<1miWJ|x/-1g`r3EmzY3FE?VxmEih9%ETmPd7zChR1"zWC$iuK{|{R+Ss{I3w(KC"_LM%S!
-Mime-Version: 1.0
+	Fri, 27 Jan 2006 16:48:17 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:60629 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932506AbWA0VsQ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 16:48:16 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Subject: RE: boot-time slowdown for measure_migration_cost
+Date: Fri, 27 Jan 2006 13:48:07 -0800
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F058CC7A6@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: boot-time slowdown for measure_migration_cost
+Thread-Index: AcYjhUFGEUY3c/kXR9qxGa44d9D+4gABDgAA
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>, "Ingo Molnar" <mingo@redhat.com>
+Cc: <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 27 Jan 2006 21:48:08.0935 (UTC) FILETIME=[5CB3C770:01C6238B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Jan 2006 19:57:38 +0100
-Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> The boot-time migration cost auto-tuning stuff seems to have
+> been merged to Linus' tree since 2.6.15.  On little one- or
+> two-processor systems, the time required to measure the
+> migration costs isn't very noticeable, but by the time we
+> get to even a four-processor ia64 box, it adds about
+> 30 seconds to the boot time, which seems like a lot.
 
-> On 1/27/06, Gerold van Dijk <gerold@sicon-sr.com> wrote:
-> > Why can I NOT do a traceroute specifically within my own
-> > (sub)network
-> >
-> > 207.253.5.64/27
-> >
-> > with any distribution of Linux??
+I only see about 16 seconds for a 4-way tiger (not that 16 seconds
+is good ... but it not as bad as 30).  This was with a build
+from tiger_defconfig that sets CONFIG_NR_CPUS=4 ... so I wonder
+what's causing the factor of two.  I measured with a printk
+each side of build_sched_domains() and booted with the "time"
+command line arg to get:
 
-> Because you configured your machines to drop icmp packets perhaps.
-> Some router on your network may be dropping icmp packets.
+[    0.540718] Building sched domains
+[   16.124693] migration_cost=10091
+[   16.124789] Done
 
-I've known some bridging devices have filter rules too.
+More importantly, how does this time scale as the number of
+cpus increases?  Linear, or worse?  What happens on a 512 cpu
+Altix (if it's quadratic, they may be still waiting for the
+boot to finish :-)
 
--- 
-Regards, Ed http://www.usenix.org.uk
-:%s/Open Source/Free Software/g
+-Tony

@@ -1,59 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422677AbWA0XVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422678AbWA0XWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422677AbWA0XVK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 18:21:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422678AbWA0XVJ
+	id S1422678AbWA0XWT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 18:22:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422679AbWA0XWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 18:21:09 -0500
-Received: from mf01.sitadelle.com ([212.94.174.68]:2727 "EHLO smtp.cegetel.net")
-	by vger.kernel.org with ESMTP id S1422677AbWA0XVI (ORCPT
+	Fri, 27 Jan 2006 18:22:19 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35283 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1422678AbWA0XWS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 18:21:08 -0500
-Message-ID: <43DAAAE3.2030107@cosmosbay.com>
-Date: Sat, 28 Jan 2006 00:21:07 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, shai@scalex86.org, netdev@vger.kernel.org,
-       pravins@calsoftinc.com
-Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
-References: <20060126185649.GB3651@localhost.localdomain> <20060126190357.GE3651@localhost.localdomain> <43D9DFA1.9070802@cosmosbay.com> <20060127195227.GA3565@localhost.localdomain> <20060127121602.18bc3f25.akpm@osdl.org> <43DA9EFF.1020200@cosmosbay.com> <20060127225036.GC3565@localhost.localdomain>
-In-Reply-To: <20060127225036.GC3565@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 27 Jan 2006 18:22:18 -0500
+Date: Sat, 28 Jan 2006 00:22:07 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Luca <kronos@kronoz.cjb.net>, mjg59@srcf.ucam.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Suspend to RAM: help with whitelist wanted
+Message-ID: <20060127232207.GB1617@elf.ucw.cz>
+References: <20060126213611.GA1668@elf.ucw.cz> <20060127170406.GA6164@dreamland.darkstar.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060127170406.GA6164@dreamland.darkstar.lan>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai a écrit :
-> On Fri, Jan 27, 2006 at 11:30:23PM +0100, Eric Dumazet wrote:
->> There are several issues here :
->>
->> alloc_percpu() current implementation is a a waste of ram. (because it uses 
->> slab allocations that have a minimum size of 32 bytes)
+Hi!
+
+> > On www.sf.net/projects/suspend , there's s2ram.c program for
+> > suspending machines. It contains whitelist of known machines, along
+> > with methods to get their video working (similar to
+> > Doc*/power/video.txt). Unfortunately, video.txt does not allow me to
+> > fill in whitelist automatically, so I need your help.
+> > 
+> > I do not yet have solution for machines that need vbetool; fortunately
+> > my machines do not need that :-), and it is pretty complex (includes
+> > x86 emulator).
 > 
-> Oh there was a solution for that :).  
+> What about adding something like:
 > 
-> http://lwn.net/Articles/119532/
+> void s2ram_restore(void) {
+>         if (needed)
+>                 fork_and_exec(vbetool);
+> }
 > 
-> I can quickly revive it if there is interest.
-> 
+> machine_table could set a global flag or something. It would be
+> possibile to us an array to carry the informations about what need to be
+> done on restore, i.e. something like:
 
-Well, nice work ! :)
+I can imagine fork_and_exec... Disadvantages are:
 
-Maybe a litle bit complicated if expected percpu space is 50 KB per cpu ?
+* if disk driver is toast, user does not see anything
 
-Why not use a boot time allocated percpu area (as done today in 
-setup_per_cpu_areas()), but instead of reserving extra space for module's 
-percpu data, being able to serve alloc_percpu() from this reserved area (ie no 
-kmalloced data anymore), and keeping your
+* vbetool can be missing from the system, or wrong version, or
+something like that.
 
-#define per_cpu_ptr(ptr, cpu)  ((__typeof__(ptr))         \
-	(RELOC_HIDE(ptr,  PCPU_BLKSIZE * cpu)))
+Other solution is to just integrate vbetool into s2ram. Advantages
+are:
 
-Some code from kernel/module.c could be reworked to serve both as an allocator 
-when a module percpudata must be relocated (insmod)/freed (rmmod), and serve 
-alloc_percpu() for 'dynamic allocations'
+* s2ram is nicely integrated.
 
-Eric
+Disadvantages are:
+
+* code duplication.
+
+If vbetool's primary purpose is to fix video after suspend/resume,
+then perhaps right thing to do is to integrate it into s2ram and
+maintain it there.
+
+Matthew, what do you think?
+
+Luca, would you cook quick&hacky fork-and-exec patch? I do not have
+machine that needs vbetool...
+							Pavel
+-- 
+Thanks, Sharp!

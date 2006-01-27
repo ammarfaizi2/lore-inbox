@@ -1,84 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbWA0Emj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWA0EzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932365AbWA0Emj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 23:42:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWA0Emj
+	id S932405AbWA0EzT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 23:55:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWA0EzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 23:42:39 -0500
-Received: from cantor.suse.de ([195.135.220.2]:59791 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932365AbWA0Emi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 23:42:38 -0500
-From: Andi Kleen <ak@suse.de>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [Patch] sched: new sched domain for representing multi-core
-Date: Fri, 27 Jan 2006 05:42:11 +0100
-User-Agent: KMail/1.8.2
-Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
-       rohit.seth@intel.com, asit.k.mallick@intel.com
-References: <20060126015132.A8521@unix-os.sc.intel.com>
-In-Reply-To: <20060126015132.A8521@unix-os.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Jan 2006 23:55:19 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:50109 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1751317AbWA0EzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 23:55:17 -0500
+Date: Fri, 27 Jan 2006 13:55:22 +0900
+To: Balbir Singh <bsingharora@gmail.com>
+Cc: Grant Grundler <iod00d@hp.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH 8/12] generic hweight{32,16,8}()
+Message-ID: <20060127045522.GA7587@miraclelinux.com>
+References: <20060125112625.GA18584@miraclelinux.com> <20060125113206.GD18584@miraclelinux.com> <20060125200250.GA26443@flint.arm.linux.org.uk> <20060125205907.GF9995@esmail.cup.hp.com> <20060126032713.GA9984@miraclelinux.com> <20060126033613.GG11138@miraclelinux.com> <661de9470601252312m1f9c9256peb79451e49fc8662@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601270542.12404.ak@suse.de>
+In-Reply-To: <661de9470601252312m1f9c9256peb79451e49fc8662@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+From: mita@miraclelinux.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 January 2006 10:51, Siddha, Suresh B wrote:
+On Thu, Jan 26, 2006 at 12:42:09PM +0530, Balbir Singh wrote:
 
-With this patch does the new distance checking code in the scheduler 
-from Ingo automatically discover all the relevant distances?
+> > +static inline unsigned int hweight32(unsigned int w)
+> > +{
+> > +        unsigned int res = (w & 0x55555555) + ((w >> 1) & 0x55555555);
+> > +        res = (res & 0x33333333) + ((res >> 2) & 0x33333333);
+> > +        res = (res & 0x0F0F0F0F) + ((res >> 4) & 0x0F0F0F0F);
+> > +        res = (res & 0x00FF00FF) + ((res >> 8) & 0x00FF00FF);
+> > +        return (res & 0x0000FFFF) + ((res >> 16) & 0x0000FFFF);
+> > +}
+> > +
+> 
+> This can be replaced with
+> 
+>   register int res=w;
+>   res=res-((res>>1)&0x55555555);
+>   res=(res&0x33333333)+((res>>2)&0x33333333);
+>   res=(res+(res>>4))&0x0f0f0f0f;
+>   res=res+(res>>8);
+>   return (res+(res>>16)) & 0xff;
 
-> +#ifdef CONFIG_SMP
-> +	unsigned int cpu = (c == &boot_cpu_data) ? 0 : (c - cpu_data);
-> +#endif
+Probably you are right.
+Unfortunately, it is difficult for me to prove that sane equivalence.
 
-Wouldn't it be better to just put that information into the cpuinfo_x86?
-We're having too many per CPU arrays already.
+Anyway those hweight*() functions are copied from include/linux/bitops.h:
+generic_hweight*(). So you can optimize these functions.
 
-
-> +int cpu_llc_id[NR_CPUS] __read_mostly = {[0 ... NR_CPUS-1] = BAD_APICID};
-
-This needs a comment on what a LLC actually is.
-
-> +
->  /* representing HT siblings of each logical CPU */
->  cpumask_t cpu_sibling_map[NR_CPUS] __read_mostly;
->  EXPORT_SYMBOL(cpu_sibling_map);
-> @@ -84,6 +86,8 @@ EXPORT_SYMBOL(cpu_core_map);
->  cpumask_t cpu_online_map __read_mostly;
->  EXPORT_SYMBOL(cpu_online_map);
->  
-> +cpumask_t cpu_llc_shared_map[NR_CPUS] __read_mostly;
-
-Dito.
-
-> +u8 cpu_llc_id[NR_CPUS] __read_mostly = {[0 ... NR_CPUS-1] = BAD_APICID};
-
-This could be __cpuinitdata, no?
-
-Actually it would be better to pass this information in some other way
-to smpboot.c than to add more and more arrays like this.  It's only
-needed for the current CPU, because for the others the information
-is in cpu_llc_shared_map
-
-Perhaps SMP boot up should pass around a pointer to temporary data like this?
-Or discover it in smpboot.c with a function call?
-
-> -#ifdef CONFIG_SCHED_SMT
-> +#if defined(CONFIG_SCHED_SMT)
->  		sd = &per_cpu(cpu_domains, i);
-> +#elif defined(CONFIG_SCHED_MC)
-
-elif? What happens where there are both shared caches and SMT? 
-
-> +		sd = &per_cpu(core_domains, i);
->  #else
->  		sd = &per_cpu(phys_domains, i);
->  #endif
-
-
--Andi

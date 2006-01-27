@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWA0ApF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbWA0AsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbWA0ApF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jan 2006 19:45:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWA0ApE
+	id S932383AbWA0AsO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jan 2006 19:48:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbWA0AsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jan 2006 19:45:04 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:29852 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932301AbWA0ApC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jan 2006 19:45:02 -0500
-Message-ID: <43D96D08.6050200@us.ibm.com>
-Date: Thu, 26 Jan 2006 16:44:56 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@engr.sgi.com>
-CC: linux-kernel@vger.kernel.org, sri@us.ibm.com, andrea@suse.de,
-       pavel@suse.cz, linux-mm@kvack.org
-Subject: Re: [patch 3/9] mempool - Make mempools NUMA aware
-References: <20060125161321.647368000@localhost.localdomain> <1138233093.27293.1.camel@localhost.localdomain> <Pine.LNX.4.62.0601260953200.15128@schroedinger.engr.sgi.com> <43D953C4.5020205@us.ibm.com> <Pine.LNX.4.62.0601261511520.18716@schroedinger.engr.sgi.com> <43D95A2E.4020002@us.ibm.com> <Pine.LNX.4.62.0601261525570.18810@schroedinger.engr.sgi.com> <43D96633.4080900@us.ibm.com> <Pine.LNX.4.62.0601261619030.19029@schroedinger.engr.sgi.com> <43D96A93.9000600@us.ibm.com> <Pine.LNX.4.62.0601261638210.19078@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0601261638210.19078@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Jan 2006 19:48:13 -0500
+Received: from mail.kroah.org ([69.55.234.183]:1935 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932383AbWA0AsN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jan 2006 19:48:13 -0500
+Date: Thu, 26 Jan 2006 16:47:46 -0800
+From: Greg KH <greg@kroah.com>
+To: Oskar Senft <osk-lkml@sirrix.de>
+Cc: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: USB host pci-quirks
+Message-ID: <20060127004746.GA17030@kroah.com>
+References: <0EF82802ABAA22479BC1CE8E2F60E8C3AA3641@scl-exch2k3.phoenix.com> <43D94F62.2090707@sirrix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43D94F62.2090707@sirrix.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Thu, 26 Jan 2006, Matthew Dobson wrote:
+On Thu, Jan 26, 2006 at 11:38:26PM +0100, Oskar Senft wrote:
+> Dear Aleksey,
 > 
+> thank you for your e-mail!
 > 
->>That seems a bit beyond the scope of what I'd hoped for this patch series,
->>but if an approach like this is believed to be generally useful, it's
->>something I'm more than willing to work on...
+> >>Is there a special need, that the "drivers/usb/host/pci-quirks.c" is
+> >>compiled into the kernel even if USB support is disabled?
+> > 
+> >   Yes, there is. USB handoff is necessary even if USB support is
+> > disabled completely in kernel. In fact, initially early usb handoff code
+> > was under pci, but since USB drivers do handoff anyway, it was decided
+> > to move everything into usb with a goal of merging them together. 
+> >   Just search for USB handoff in kernel archives.
 > 
+> I see ... but as David Brownell already stated on Thu Sep 02 2004 -
+> 20:07:57 EST:
+> For backwards compatibility, the early reset should not be the
+> default. There aren't many systems where it's a problem.
 > 
-> We need this for other issues as well. f.e. to establish memory allocation 
-> policies for the page cache, tmpfs and various other needs. Look at 
-> mempolicy.h which defines a subset of what we need. Currently there is no 
-> way to specify a policy when invoking the page allocator or slab 
-> allocator. The policy is implicily fetched from the current task structure 
-> which is not optimal.
+> What happened to that argument?
 
-I agree that the current, task-based policies are subobtimal.  Having to
-allocate and fill in even a small structure for each allocation is going to
-be a tough sell, though.  I suppose most allocations could get by with a
-small handfull of static generic "policy structures"...  This seems like it
-will turn into a signifcant rework of all the kernel's allocation routines,
-no small task.  Certainly not something that I'd even start without
-response from some other major players in the VM area...  Anyone?
+In the year and a half since then, we have changed our mind :)
 
+A major distro has shipped for a while with this always enabled with no
+problems, which has helped with this.
 
--Matt
+thanks,
+
+greg k-h

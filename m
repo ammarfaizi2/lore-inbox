@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWA0MqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965005AbWA0Mrh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750966AbWA0MqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 07:46:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWA0MqY
+	id S965005AbWA0Mrh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 07:47:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbWA0Mrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 07:46:24 -0500
-Received: from tornado.reub.net ([202.89.145.182]:24192 "EHLO tornado.reub.net")
-	by vger.kernel.org with ESMTP id S1750966AbWA0MqY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 07:46:24 -0500
-Message-ID: <43DA161C.1070404@reub.net>
-Date: Sat, 28 Jan 2006 01:46:20 +1300
-From: Reuben Farrelly <reuben-lkml@reub.net>
-User-Agent: Thunderbird 1.5 (Windows/20060124)
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: 2.6.16-rc1-mm3
-References: <20060124232406.50abccd1.akpm@osdl.org> <43D7567E.60003@reub.net> <20060126053941.GA13361@kroah.com>
-In-Reply-To: <20060126053941.GA13361@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 27 Jan 2006 07:47:37 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:53208 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965005AbWA0Mrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 07:47:36 -0500
+Subject: Re: [RT] possible bug in trace_start_sched_wakeup
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060127095449.GC24878@elte.hu>
+References: <1138327022.7814.8.camel@localhost.localdomain>
+	 <1138336718.7814.41.camel@localhost.localdomain>
+	 <20060127095449.GC24878@elte.hu>
+Content-Type: text/plain
+Date: Fri, 27 Jan 2006 07:47:31 -0500
+Message-Id: <1138366051.8988.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On 26/01/2006 6:39 p.m., Greg KH wrote:
-> On Wed, Jan 25, 2006 at 11:44:14PM +1300, Reuben Farrelly wrote:
->>
->> On 25/01/2006 8:24 p.m., Andrew Morton wrote:
->>> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm3/
->>>
->>> - Dropped the timekeeping patch series due to a complex timesource 
->>> selection
->>>  bug.
->>>
->>> - Various fixes and updates.
->> Generally quite good again :)
->>
->> I'm seeing this USB "handoff" warning message logged when booting up:
->>
->> 0000:00:1d.7 EHCI: BIOS handoff failed (BIOS bug ?)
->>
->> This is not new to this -mm release, looking back over my bootlogs I note 
->> that 2.6-15-rc5-mm1 was OK, but 2.6.15-mm4 was showing this message.  I'll 
->> narrow it down if it doesn't appear obvious what the problem is.
+On Fri, 2006-01-27 at 10:54 +0100, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
-> When this happens, does your usb-ehci driver still work properly
-> (meaning do usb 2.0 devices connect and go at the proper high speeds)?
+> >  			trace_special_pid(sch.task->pid, sch.task->prio, p->prio);
+> > -		if (sch.task && (sch.task->prio >= p->prio))
+> > +		if (sch.task && ((sch.task->prio <= p->prio) || !rt_task(p)))
+> >  			sch.task = NULL;
+> 
+> this second condition i'd not change: it just expresses the rare case 
+> where a higher-prio task hits the CPU that we somehow did not start to 
+> trace. In that case we just zap the current trace.
+> 
 
-It seems like every device I can lay my hands on either only supports 1.1 or 
-doesn't specify what it is.  I'll try find something which is known to be 2.0. 
-Certainly my 1.1 devices seem to work ok.
+OK, I think I understand that part now too.  There wasn't any comments
+about what it was doing so I wasn't sure if that was the right move.
+But looking at it further, I believe you are right.
 
-> And if you change the USB setting in your bios, does this error message
-> go away?
+Thanks,
 
-If I change "USB 2.0 legacy support" from "High Speed 480Mbps" which it was 
-originally to "Full Speed 12MBps" then yes it does go away.  Although I'm not 
-sure that's the best way to have it configured.
+-- Steve
 
-There is a slight possibility that this setting was changed in the bios which is 
-why I am now noticing it, and that it wasn't as a result of a change above.
-
-Reuben
 

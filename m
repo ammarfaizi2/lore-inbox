@@ -1,50 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751453AbWA0OgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbWA0Oie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751453AbWA0OgU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 09:36:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWA0OgU
+	id S1751328AbWA0Oie (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 09:38:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWA0Oie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 09:36:20 -0500
-Received: from bayc1-pasmtp04.bayc1.hotmail.com ([65.54.191.164]:54825 "EHLO
-	BAYC1-PASMTP04.bayc1.hotmail.com") by vger.kernel.org with ESMTP
-	id S1751453AbWA0OgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 09:36:19 -0500
-Message-ID: <BAYC1-PASMTP044EEF6AE96F3A240FF750AE140@CEZ.ICE>
-X-Originating-IP: [69.156.6.171]
-X-Originating-Email: [seanlkml@sympatico.ca]
-Date: Fri, 27 Jan 2006 09:31:03 -0500
-From: sean <seanlkml@sympatico.ca>
-To: Karel Kulhavy <clock@twibright.com>
+	Fri, 27 Jan 2006 09:38:34 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:28363 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1751328AbWA0Oid (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 09:38:33 -0500
+Date: Fri, 27 Jan 2006 15:38:32 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: "Lorne J. Leitman" <leitman@cs.pitt.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel manual pages
-Message-Id: <20060127093103.4f196745.seanlkml@sympatico.ca>
-In-Reply-To: <20060127092623.GA7882@kestrel>
-References: <20060127092623.GA7882@kestrel>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.10; i386-redhat-linux-gnu)
+Subject: Re: patching arm-linux 2.4.18 on sharp zaurus sl-5500
+Message-ID: <20060127143832.GG3673@harddisk-recovery.com>
+References: <a76b68304d1cadc77190142ba67324a6@cs.pitt.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Jan 2006 14:36:18.0190 (UTC) FILETIME=[08B1DAE0:01C6234F]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a76b68304d1cadc77190142ba67324a6@cs.pitt.edu>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Jan 2006 10:26:23 +0100
-Karel Kulhavy <clock@twibright.com> wrote:
+On Fri, Jan 27, 2006 at 09:28:07AM -0500, Lorne J. Leitman wrote:
+> We are a group of researchers at University of Pittbsurgh trying to
+> implement an ad-hoc routing protocol on the Sharp Zaurus 5500 pda.  Our
+> network is running the following environment:
+>       -arm-linux kernel 2.4.18-pxa3-embedix-021129
 
-> Who is responsible for writing the linux kernel manual pages?  I went to
-> vger.kernel.org and there is "There is much information about Linux on
-> the web." which points to 7 different 3rd party websites.  I searched
-> for "manual" and "manpage" in all 7 and didn't find any mention of
-> manual pages.
+ncftp /pub/linux/kernel/v2.4 > dir patch-2.4.18.bz2
+-rw-rw-r--    1 536      536       826105   Feb 25  2002    patch-2.4.18.bz2
+
+Any particular reason why you're using a 4 year old kernel?
+
+>       -OpenZaurus 3.5.1
 > 
+> The protocol has been implemented on laptops already, running normal 
+> Linux
+> OS.  Now we want to port it to embedix for the PDA's but we are having
+> some trouble.
+> 
+> In order to begin our implementation on the PDA's, we need to make use 
+> of
+> Linux real-time timers.  These are part of the POSIX.1b standard, and 
+> are
+> supposedly present already in the 2.4 kernel.  However, they do not seem
+> to be present in 2.4.18 embedix kernel.  Does anyone know of a patch or
+> module that we can apply to this kernel so we can take advantage of 
+> these
+> timers?
 
-Take a look in the MAINTAINERS file in the kernel source:
+The normal reply would be "upgrade to the latest 2.4 kernel". However,
+the ARM linux community abandoned support for 2.4 almost immediately
+after 2.6 was released, so the correct reply is "upgrade to the latest
+2.6 kernel".
 
-MAN-PAGES: MANUAL PAGES FOR LINUX -- Sections 2, 3, 4, 5, and 7
-P: Michael Kerrisk
-M: mtk-manpages@gmx.net
-W: ftp://ftp.kernel.org/pub/linux/docs/manpages
-S: Maintained
+> We also need to leverage the Netfilter portion of the kernel.  Again,
+> netfilter should be part of the 2.4 kernel.  There does appear to be an
+> "kernel-module-ip-tables"  installed, but there is no iptables binary in
+> the userspace.  Does anyone know how we can get hold of iptables for
+> arm-linux?
+
+Compile it yourself, or get a precompiled package from the debian
+project.
 
 
-Sean
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

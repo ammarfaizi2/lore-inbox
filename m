@@ -1,83 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030346AbWA0VyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030344AbWA0V7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030346AbWA0VyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 16:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbWA0VyQ
+	id S1030344AbWA0V7E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 16:59:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030350AbWA0V7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 16:54:16 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:22752 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1030346AbWA0VyP (ORCPT
+	Fri, 27 Jan 2006 16:59:03 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:41689 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1030344AbWA0V7C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 16:54:15 -0500
-Date: Fri, 27 Jan 2006 16:54:05 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-ide@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Carlos.Pardo@siliconimage.com
-Subject: [PATCH] sata_sil: add 'slow_down' module param
-Message-ID: <20060127215405.GA21714@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 27 Jan 2006 16:59:02 -0500
+Message-ID: <43DA97A3.4080408@drzeus.cx>
+Date: Fri, 27 Jan 2006 22:58:59 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5 (X11/20060112)
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: How to map high memory for block io
+References: <43D9C19F.7090707@drzeus.cx> <20060127102611.GC4311@suse.de> <43D9F705.5000403@drzeus.cx> <20060127104321.GE4311@suse.de> <43DA0E97.5030504@drzeus.cx> <20060127194318.GA1433@flint.arm.linux.org.uk> <43DA7CD1.4040301@drzeus.cx> <20060127201458.GA2767@flint.arm.linux.org.uk> <20060127202206.GH9068@suse.de> <20060127202646.GC2767@flint.arm.linux.org.uk> <43DA84B2.8010501@drzeus.cx>
+In-Reply-To: <43DA84B2.8010501@drzeus.cx>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pierre Ossman wrote:
+> Russell King wrote:
+>   
+>> On Fri, Jan 27, 2006 at 09:22:06PM +0100, Jens Axboe wrote:
+>>   
+>>     
+>>> That is definitely valid, same goes for the bio_vec structure. They map
+>>> _a_ page, after all :-)
+>>>     
+>>>       
+>> Okay.  Pierre - are you saying that you have an sg entry where
+>> sg->offset + sg->length > PAGE_SIZE, and hence is causing you to
+>> cross a page boundary?
+>>
+>>   
+>>     
+>
+> That, and sg->length > PAGE_SIZE. On highmem systems this causes all
+> kinds of funky behaviour. Usually just bogus data in the buffers though.
+>
+>   
 
-Just checked into 'sii-slow' branch of libata-dev:
+Test done here, few minutes ago. Added this to the wbsd driver in its
+kmap routine:
 
+    if ((host->cur_sg->offset + host->cur_sg->length) > PAGE_SIZE)
+        printk(KERN_DEBUG "wbsd: Big sg: %d, %d\n",
+            host->cur_sg->offset, host->cur_sg->length);
 
-commit 51e9f2ff83df6b1c81c5c44f4486c68ed87aa20e
-Author: Jeff Garzik <jgarzik@pobox.com>
-Date:   Fri Jan 27 16:50:27 2006 -0500
+got:
 
-    [libata sata_sil] implement 'slow_down' module parameter
-    
-    On occasion, a user will submit a patch that enables the "mod15write"
-    quirk for their device.  Enabling this quirk has the effect of clamping
-    all ATA commands to no more than 15 sectors.  The intended use of this
-    quirk is to stop the controller from generating FIS's of unusual size
-    ("but Wesley, what about the FOUS's?"), which in turn works around
-    problems in a <list> of hard drives.
-    
-    One side effect of this quirk is greatly decreased performance.  Users
-    often enable the mod15write quirk to fix various system, power, chip,
-    and/or driver problems.  For a few rare problematic cases, enabling this
-    has cured lockups or data corruption.
-    
-    Rather than add bogus listings to the mod15write quirk list (I get a
-    patch every month doing such), we add a 'slow_down' module parameter.
-    This allows users to employ a performance sledgehammer in the hopes
-    of curing a problem.  It defaults to off (0), of course.
+[17385.425389] wbsd: Big sg: 0, 8192
+[17385.436849] wbsd: Big sg: 0, 7168
+[17385.436859] wbsd: Big sg: 0, 7168
+[17385.454029] wbsd: Big sg: 2560, 5632
+[17385.454216] wbsd: Big sg: 2560, 5632
 
+And so on.
 
- drivers/scsi/sata_sil.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
+Rgds
+Pierre
 
-diff --git a/drivers/scsi/sata_sil.c b/drivers/scsi/sata_sil.c
-index b017f85..17f74d3 100644
---- a/drivers/scsi/sata_sil.c
-+++ b/drivers/scsi/sata_sil.c
-@@ -231,6 +231,10 @@ MODULE_LICENSE("GPL");
- MODULE_DEVICE_TABLE(pci, sil_pci_tbl);
- MODULE_VERSION(DRV_VERSION);
- 
-+static int slow_down = 0;
-+module_param(slow_down, int, 0444);
-+MODULE_PARM_DESC(slow_down, "Sledgehammer used to work around random problems, by limiting commands to 15 sectors (0=off, 1=on)");
-+
- 
- static unsigned char sil_get_device_cache_line(struct pci_dev *pdev)
- {
-@@ -354,8 +358,10 @@ static void sil_dev_config(struct ata_po
- 		}
- 
- 	/* limit requests to 15 sectors */
--	if ((ap->flags & SIL_FLAG_MOD15WRITE) && (quirks & SIL_QUIRK_MOD15WRITE)) {
--		printk(KERN_INFO "ata%u(%u): applying Seagate errata fix\n",
-+	if (slow_down ||
-+	    ((ap->flags & SIL_FLAG_MOD15WRITE) &&
-+	     (quirks & SIL_QUIRK_MOD15WRITE))) {
-+		printk(KERN_INFO "ata%u(%u): applying Seagate errata fix (mod15write workaround)\n",
- 		       ap->id, dev->devno);
- 		ap->host->max_sectors = 15;
- 		ap->host->hostt->max_sectors = 15;

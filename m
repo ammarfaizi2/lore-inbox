@@ -1,66 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbWA0Tw1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030211AbWA0Txk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932499AbWA0Tw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 14:52:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932501AbWA0Tw1
+	id S1030211AbWA0Txk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 14:53:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030323AbWA0Txk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 14:52:27 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:35755 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S932500AbWA0TwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 14:52:25 -0500
-Date: Fri, 27 Jan 2006 11:52:27 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, shai@scalex86.org, netdev@vger.kernel.org,
-       pravins@calsoftinc.com
-Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
-Message-ID: <20060127195227.GA3565@localhost.localdomain>
-References: <20060126185649.GB3651@localhost.localdomain> <20060126190357.GE3651@localhost.localdomain> <43D9DFA1.9070802@cosmosbay.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43D9DFA1.9070802@cosmosbay.com>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 27 Jan 2006 14:53:40 -0500
+Received: from relay03.pair.com ([209.68.5.17]:49673 "HELO relay03.pair.com")
+	by vger.kernel.org with SMTP id S1030211AbWA0Txj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 14:53:39 -0500
+X-pair-Authenticated: 67.163.102.102
+Date: Fri, 27 Jan 2006 13:53:34 -0600 (CST)
+From: Chase Venters <chase.venters@clientec.com>
+X-X-Sender: root@turbotaz.ourhouse
+To: Jens Axboe <axboe@suse.de>
+cc: Mike Christie <michaelc@cs.wisc.edu>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Neil Brown <neilb@suse.de>, Chase Venters <chase.venters@clientec.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, akpm@osdl.org,
+       a.titov@host.bg, askernel2615@dsgml.com, jamie@audible.transient.net
+Subject: Re: More information on scsi_cmd_cache leak... (bisect)
+In-Reply-To: <20060127194927.GB9068@suse.de>
+Message-ID: <Pine.LNX.4.64.0601271351070.9232@turbotaz.ourhouse>
+References: <200601270410.06762.chase.venters@clientec.com>
+ <17369.65530.747867.844964@cse.unsw.edu.au> <20060127112352.GF4311@suse.de>
+ <20060127112837.GG4311@suse.de> <43DA6F33.3070101@cs.wisc.edu>
+ <1138389616.3293.13.camel@mulgrave> <43DA787F.4080406@cs.wisc.edu>
+ <20060127194927.GB9068@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2006 at 09:53:53AM +0100, Eric Dumazet wrote:
-> Ravikiran G Thirumalai a écrit :
-> >Change the atomic_t sockets_allocated member of struct proto to a 
-> >per-cpu counter.
-> >
-> >Signed-off-by: Pravin B. Shelar <pravins@calsoftinc.com>
-> >Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
-> >Signed-off-by: Shai Fultheim <shai@scalex86.org>
-> >
-> Hi Ravikiran
-> 
-> If I correctly read this patch, I think there is a scalability problem.
-> 
-> On a big SMP machine, read_sockets_allocated() is going to be a real killer.
-> 
-> Say we have 128 Opterons CPUS in a box.
+On Fri, 27 Jan 2006, Jens Axboe wrote:
 
-read_sockets_allocated is being invoked when when /proc/net/protocols is read,
-which can be assumed as not frequent.  
-At sk_stream_mem_schedule(), read_sockets_allocated() is invoked only 
-certain conditions, under memory pressure -- on a large CPU count machine, 
-you'd have large memory, and I don't think read_sockets_allocated would get 
-called often.  It did not atleast on our 8cpu/16G box.  So this should be OK 
-I think.
+> On Fri, Jan 27 2006, Mike Christie wrote:
+>> James Bottomley wrote:
+>>> On Fri, 2006-01-27 at 13:06 -0600, Mike Christie wrote:
+>>>
+>>>> It does not have anything to do with this in scsi_io_completion does it?
+>>>>
+>>>>        if (blk_complete_barrier_rq(q, req, good_bytes >> 9))
+>>>>                return;
+>>>>
+>>>> For that case the scsi_cmnd does not get freed. Does it come back around
+>>>> again and get released from a different path?
+>>>
+>>>
+>>> It looks such a likely candidate, doesn't it.  Unfortunately, Tejun Heo
+>>> removed that code around 6 Jan (in [BLOCK] update SCSI to use new
+>>> blk_ordered for barriers), so if it is that, then the latest kernels
+>>> should now not be leaking.
+>>>
+>>
+>> Oh, I thought the reports were for 2.6.15 and below which has that
+>> scsi_io_completion test. Have there been reports for this with
+>> 2.6.16-rc1 too?
+>
+> The reports of leaks are only with > 2.6.15, not with 2.6.15.
+>
 
-There're no 128 CPU Opteron boxes yet afaik ;).
+Correction... my leak is with 2.6.15. I discovered it originally in an 
+NVIDIA-tainted, sk98lin-patched 2.6.15, but my bisect was stock 2.6.15 
+(bad) to 2.6.14 (good) in Linus's tree, sans any tainting or 
+modifications.
 
-Thanks,
-Kiran
+I haven't actually tried building the latest Linus kernel from git. I'll 
+do a pull and give it a try when I get home.
+
+Cheers,
+Chase

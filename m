@@ -1,55 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbWA0VsR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030346AbWA0VyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422636AbWA0VsR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 16:48:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbWA0VsR
+	id S1030346AbWA0VyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 16:54:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbWA0VyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 16:48:17 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:60629 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932506AbWA0VsQ convert rfc822-to-8bit (ORCPT
+	Fri, 27 Jan 2006 16:54:16 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:22752 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1030346AbWA0VyP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 16:48:16 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: boot-time slowdown for measure_migration_cost
-Date: Fri, 27 Jan 2006 13:48:07 -0800
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F058CC7A6@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: boot-time slowdown for measure_migration_cost
-Thread-Index: AcYjhUFGEUY3c/kXR9qxGa44d9D+4gABDgAA
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>, "Ingo Molnar" <mingo@redhat.com>
-Cc: <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 27 Jan 2006 21:48:08.0935 (UTC) FILETIME=[5CB3C770:01C6238B]
+	Fri, 27 Jan 2006 16:54:15 -0500
+Date: Fri, 27 Jan 2006 16:54:05 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: linux-ide@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Carlos.Pardo@siliconimage.com
+Subject: [PATCH] sata_sil: add 'slow_down' module param
+Message-ID: <20060127215405.GA21714@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The boot-time migration cost auto-tuning stuff seems to have
-> been merged to Linus' tree since 2.6.15.  On little one- or
-> two-processor systems, the time required to measure the
-> migration costs isn't very noticeable, but by the time we
-> get to even a four-processor ia64 box, it adds about
-> 30 seconds to the boot time, which seems like a lot.
 
-I only see about 16 seconds for a 4-way tiger (not that 16 seconds
-is good ... but it not as bad as 30).  This was with a build
-from tiger_defconfig that sets CONFIG_NR_CPUS=4 ... so I wonder
-what's causing the factor of two.  I measured with a printk
-each side of build_sched_domains() and booted with the "time"
-command line arg to get:
+Just checked into 'sii-slow' branch of libata-dev:
 
-[    0.540718] Building sched domains
-[   16.124693] migration_cost=10091
-[   16.124789] Done
 
-More importantly, how does this time scale as the number of
-cpus increases?  Linear, or worse?  What happens on a 512 cpu
-Altix (if it's quadratic, they may be still waiting for the
-boot to finish :-)
+commit 51e9f2ff83df6b1c81c5c44f4486c68ed87aa20e
+Author: Jeff Garzik <jgarzik@pobox.com>
+Date:   Fri Jan 27 16:50:27 2006 -0500
 
--Tony
+    [libata sata_sil] implement 'slow_down' module parameter
+    
+    On occasion, a user will submit a patch that enables the "mod15write"
+    quirk for their device.  Enabling this quirk has the effect of clamping
+    all ATA commands to no more than 15 sectors.  The intended use of this
+    quirk is to stop the controller from generating FIS's of unusual size
+    ("but Wesley, what about the FOUS's?"), which in turn works around
+    problems in a <list> of hard drives.
+    
+    One side effect of this quirk is greatly decreased performance.  Users
+    often enable the mod15write quirk to fix various system, power, chip,
+    and/or driver problems.  For a few rare problematic cases, enabling this
+    has cured lockups or data corruption.
+    
+    Rather than add bogus listings to the mod15write quirk list (I get a
+    patch every month doing such), we add a 'slow_down' module parameter.
+    This allows users to employ a performance sledgehammer in the hopes
+    of curing a problem.  It defaults to off (0), of course.
+
+
+ drivers/scsi/sata_sil.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/scsi/sata_sil.c b/drivers/scsi/sata_sil.c
+index b017f85..17f74d3 100644
+--- a/drivers/scsi/sata_sil.c
++++ b/drivers/scsi/sata_sil.c
+@@ -231,6 +231,10 @@ MODULE_LICENSE("GPL");
+ MODULE_DEVICE_TABLE(pci, sil_pci_tbl);
+ MODULE_VERSION(DRV_VERSION);
+ 
++static int slow_down = 0;
++module_param(slow_down, int, 0444);
++MODULE_PARM_DESC(slow_down, "Sledgehammer used to work around random problems, by limiting commands to 15 sectors (0=off, 1=on)");
++
+ 
+ static unsigned char sil_get_device_cache_line(struct pci_dev *pdev)
+ {
+@@ -354,8 +358,10 @@ static void sil_dev_config(struct ata_po
+ 		}
+ 
+ 	/* limit requests to 15 sectors */
+-	if ((ap->flags & SIL_FLAG_MOD15WRITE) && (quirks & SIL_QUIRK_MOD15WRITE)) {
+-		printk(KERN_INFO "ata%u(%u): applying Seagate errata fix\n",
++	if (slow_down ||
++	    ((ap->flags & SIL_FLAG_MOD15WRITE) &&
++	     (quirks & SIL_QUIRK_MOD15WRITE))) {
++		printk(KERN_INFO "ata%u(%u): applying Seagate errata fix (mod15write workaround)\n",
+ 		       ap->id, dev->devno);
+ 		ap->host->max_sectors = 15;
+ 		ap->host->hostt->max_sectors = 15;

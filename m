@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751439AbWA0Kap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbWA0Kds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751439AbWA0Kap (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 05:30:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWA0Kao
+	id S1030289AbWA0Kds (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 05:33:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030297AbWA0Kds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 05:30:44 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:55006 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1751439AbWA0Kao (ORCPT
+	Fri, 27 Jan 2006 05:33:48 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:7897 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1030289AbWA0Kds (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 05:30:44 -0500
-Date: Fri, 27 Jan 2006 10:29:22 +0000 (GMT)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [Lhms-devel] Re: [PATCH 0/9] Reducing fragmentation using zones
- v4
-In-Reply-To: <43D96C41.6020103@jp.fujitsu.com>
-Message-ID: <Pine.LNX.4.58.0601271027560.25836@skynet>
-References: <20060126184305.8550.94358.sendpatchset@skynet.csn.ul.ie>
- <43D96987.8090608@jp.fujitsu.com> <43D96C41.6020103@jp.fujitsu.com>
+	Fri, 27 Jan 2006 05:33:48 -0500
+Message-ID: <43D9F705.5000403@drzeus.cx>
+Date: Fri, 27 Jan 2006 11:33:41 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5 (X11/20060112)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: How to map high memory for block io
+References: <43D9C19F.7090707@drzeus.cx> <20060127102611.GC4311@suse.de>
+In-Reply-To: <20060127102611.GC4311@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Jan 2006, KAMEZAWA Hiroyuki wrote:
+Jens Axboe wrote:
+> On Fri, Jan 27 2006, Pierre Ossman wrote:
+>   
+>> I'm having some problems getting high memory support to work smoothly in
+>> my driver. The documentation doesn't indicate what I might be doing
+>> wrong so I'll have to ask here.
+>>
+>> The problem seems to be that kmap & co maps a single page into kernel
+>> memory. So when I happen to cross page boundaries I start corrupting
+>> some unrelated parts of the kernel. I would prefer not having to
+>> consider page boundaries in an already messy PIO loop, so I've been
+>> trying to find either a routine to map an entire sg entry or some way to
+>> force the block layer to not give me stuff crossing pages.
+>>
+>> As you can guess I have not found anything that can do what I want, so
+>> some pointers would be nice.
+>>     
+>
+> Honestly, just don't bother if you are doing PIO anyways. Just tell the
+> block layer that you want io bounced for you instead.
+>
+>   
 
-> KAMEZAWA Hiroyuki wrote:
-> > Could you add this patch to your set ?
-> > This was needed to boot my x86 machine without HIGHMEM.
-> >
-> Sorry, I sent a wrong patch..
-> This is correct one.
+This is the MMC layer so there is some separation between the block
+layer and the drivers. Also, the transfers won't necessarily be from the
+block layer so a generic solution is desired. I don't suppose there is
+some way of accessing the bounce buffer routines in a non-bio context?
 
-I can add it although I would like to know more about the problem. I tried
-booting with and without CONFIG_HIGHMEM both stock kernels and with
-anti-frag and they all boot fine. What causes your machine to die? Does it
-occur with stock -mm or just with anti-frag?
+Rgds
+Pierre
 
--- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab

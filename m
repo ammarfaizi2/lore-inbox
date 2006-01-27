@@ -1,50 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbWA0LTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbWA0LUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964970AbWA0LTY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 06:19:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWA0LTY
+	id S964992AbWA0LUH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 06:20:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbWA0LUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 06:19:24 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:27085 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964970AbWA0LTX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 06:19:23 -0500
-Message-ID: <43DA01B1.8040504@suse.de>
-Date: Fri, 27 Jan 2006 12:19:13 +0100
-From: Gerd Hoffmann <kraxel@suse.de>
-User-Agent: Thunderbird 1.5 (X11/20060111)
+	Fri, 27 Jan 2006 06:20:07 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:65197 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S964986AbWA0LUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 06:20:05 -0500
+Message-ID: <43DA01DD.9040808@jp.fujitsu.com>
+Date: Fri, 27 Jan 2006 20:19:57 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Jeff Dike <jdike@addtoit.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/2] uml: enable drivers (input, fb, vt)
-References: <43D64F05.90302@suse.de> <20060124213141.GA7891@ccure.user-mode-linux.org> <43D744B2.5030809@suse.de> <20060127035732.GA12763@ccure.user-mode-linux.org>
-In-Reply-To: <20060127035732.GA12763@ccure.user-mode-linux.org>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Mel Gorman <mel@csn.ul.ie>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       lhms-devel@lists.sourceforge.net
+Subject: Re: [Lhms-devel] Re: [PATCH 0/9] Reducing fragmentation using zones
+ v4
+References: <20060126184305.8550.94358.sendpatchset@skynet.csn.ul.ie> <43D96987.8090608@jp.fujitsu.com> <43D96C41.6020103@jp.fujitsu.com> <Pine.LNX.4.58.0601271027560.25836@skynet>
+In-Reply-To: <Pine.LNX.4.58.0601271027560.25836@skynet>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike wrote:
-> On Wed, Jan 25, 2006 at 10:28:18AM +0100, Gerd Hoffmann wrote:
->> Do you have "CONFIG_FRAMEBUFFER_CONSOLE=y" in .config?
+Mel Gorman wrote:
+> On Fri, 27 Jan 2006, KAMEZAWA Hiroyuki wrote:
 > 
-> Yup, here are all the option that look relevant:
+>> KAMEZAWA Hiroyuki wrote:
+>>> Could you add this patch to your set ?
+>>> This was needed to boot my x86 machine without HIGHMEM.
+>>>
+>> Sorry, I sent a wrong patch..
+>> This is correct one.
 > 
-> CONFIG_FRAMEBUFFER_CONSOLE=y
-> CONFIG_X11_FB=y
-> CONFIG_X11_FB=y
-> CONFIG_FB=y
-> CONFIG_VT=y
-> CONFIG_VT_CONSOLE=y
+> I can add it although I would like to know more about the problem. I tried
+> booting with and without CONFIG_HIGHMEM both stock kernels and with
+> anti-frag and they all boot fine. What causes your machine to die? Does it
+> occur with stock -mm or just with anti-frag?
+> 
+Sorry, it looks there is no problem with your newest set :(
+This was problem of my tree...
 
-Looks ok.  What kernel command line do you boot the kernel with?  Any
-console=something in there?  Any changes if you append "console=tty0"?
+Sigh, I should be more carefull.
+my note is attached.
 
-cheers,
+Sorry,
+-- Kame
 
-  Gerd
+== Note ==
 
--- 
-Gerd 'just married' Hoffmann <kraxel@suse.de>
-I'm the hacker formerly known as Gerd Knorr.
-http://www.suse.de/~kraxel/just-married.jpeg
+I replaced si_meminfo() like following
+==
+#ifdef CONFIG_HIGHMEM
+         val->totalhigh = nr_total_zonetype_pages(ZONE_HIGHMEM);
+         val->freehigh = nr_free_zonetype_pages(ZONE_HIGHMEM);
+#else
+==
+If ZONE_HIGHMEM has no pages, val->totalhigh is 0 and mempool for bounce buffer
+is not initialized.
+
+But, now
+==
+#ifdef CONFIG_HIGHMEM
+         val->totalhigh = totalhigh_pages;
+         val->freehigh = nr_free_highpages();
+#else
+==
+
+totalhigh_pages is defined by highstart_pfn and highend_pfn.
+By Zone_EasyRclm, totalhigh_pages is not affected.
+mempool for bounce buffer is properly initialized....
+
+

@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWA0GqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWA0GvZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751336AbWA0GqG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 01:46:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWA0GqG
+	id S1751317AbWA0GvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 01:51:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWA0GvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 01:46:06 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:5849 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1751336AbWA0GqD (ORCPT
+	Fri, 27 Jan 2006 01:51:25 -0500
+Received: from relay02.pair.com ([209.68.5.16]:17417 "HELO relay02.pair.com")
+	by vger.kernel.org with SMTP id S1751317AbWA0GvY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 01:46:03 -0500
-Message-ID: <43D9C19F.7090707@drzeus.cx>
-Date: Fri, 27 Jan 2006 07:45:51 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.7-2.1.fc4.nr (X11/20051011)
-X-Accept-Language: en-us, en
+	Fri, 27 Jan 2006 01:51:24 -0500
+X-pair-Authenticated: 67.163.102.102
+From: Chase Venters <chase.venters@clientec.com>
+Organization: Clientec, Inc.
+To: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: libata errors in 2.6.15.1 ICH6 AHCI (SATA drive WD740GD)
+Date: Fri, 27 Jan 2006 00:50:58 -0600
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org
+References: <drc9qt$mk4$1@sea.gmane.org>
+In-Reply-To: <drc9qt$mk4$1@sea.gmane.org>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: How to map high memory for block io
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601270051.20329.chase.venters@clientec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having some problems getting high memory support to work smoothly in
-my driver. The documentation doesn't indicate what I might be doing
-wrong so I'll have to ask here.
+On Thursday 26 January 2006 23:07, Kalin KOZHUHAROV wrote:
+> Hi there.
+>
+> I am reiterating this, while trying to diagnose the problem.
+> It is a DIY box with Asus P5GDC-V Deluxe motherboard with Marvel 88E8053 GB
+> ethernet (for info see [1]) and WD740GD (10k RPM) harddisk.
+>
 
-The problem seems to be that kmap & co maps a single page into kernel
-memory. So when I happen to cross page boundaries I start corrupting
-some unrelated parts of the kernel. I would prefer not having to
-consider page boundaries in an already messy PIO loop, so I've been
-trying to find either a routine to map an entire sg entry or some way to
-force the block layer to not give me stuff crossing pages.
+Funny. I've been having problems at least since 2.6.13 (perhaps before; my 
+memory is broken) with my Asus P5GDC-V Deluxe and 4 WD drives. I've seen DMA 
+timeouts on my serial console, followed by an immediate kernel freeze in 
+which Magic SysRQ doesn't even respond.
 
-As you can guess I have not found anything that can do what I want, so
-some pointers would be nice.
+I have yet to experience the freezing behavior on 2.6.15 (though I think I may 
+have seen errors in dmesg at one point), but then again, I've been a victim 
+of a slab leak which means I haven't maintained much of an uptime under 
+2.6.15.
 
-Rgds
-Pierre
+I'm working on debugging the slab leak at the moment... unfortunately, I don't 
+know enough about SATA to really debug this issue. Bisecting would take 
+forever because it usually takes several days before I ever experience a 
+random freeze.
+
+Nevertheless, if anyone has any pointers, I'd really like to start to wring 
+some of these bugs out of my kernel. 
+
+>
+> Kalin.
+
+Cheers,
+Chase

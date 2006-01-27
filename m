@@ -1,91 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932448AbWA0JyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbWA0JyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932448AbWA0JyP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 04:54:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWA0JyP
+	id S932328AbWA0JyL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 04:54:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbWA0JyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 04:54:15 -0500
-Received: from ns.firmix.at ([62.141.48.66]:48004 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S932448AbWA0JyO (ORCPT
+	Fri, 27 Jan 2006 04:54:10 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:46235 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932328AbWA0JyJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 04:54:14 -0500
-Subject: Re: GPL V3 and Linux
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Valdis.Kletnieks@vt.edu
-Cc: Ian Kester-Haney <ikesterhaney@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200601270310.k0R3AIrf014656@turing-police.cc.vt.edu>
-References: <MDEHLPKNGKAHNMBLJOLKIEOMJJAB.davids@webmaster.com>
-	 <Pine.LNX.4.61.0601240839380.17175@chaos.analogic.com>
-	 <43D65211.20006@wolfmountaingroup.com>
-	 <441e43c90601241721o8b4a9e5rd3a237f70aa46dbb@mail.gmail.com>
-	 <1138182144.4800.12.camel@tara.firmix.at>
-	 <200601270310.k0R3AIrf014656@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Fri, 27 Jan 2006 10:54:07 +0100
-Message-Id: <1138355647.12605.21.camel@tara.firmix.at>
+	Fri, 27 Jan 2006 04:54:09 -0500
+Date: Fri, 27 Jan 2006 10:54:49 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RT] possible bug in trace_start_sched_wakeup
+Message-ID: <20060127095449.GC24878@elte.hu>
+References: <1138327022.7814.8.camel@localhost.localdomain> <1138336718.7814.41.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1138336718.7814.41.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-01-26 at 22:10 -0500, Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 25 Jan 2006 10:42:24 +0100, Bernd Petrovitsch said:
-> 
-> > With the exception that I *can* circumvent the protection on PDFs *if*
-> > I'm legally allowed to copy the copyrighted work (with or without the
-> > owner's permission - this is one reason for a legal copy. But there are
-> > others which cannot be inhibited by the copyright holder - which is
-> > usually not the artist).
-> 
-> Actually, in the US, it is in fact illegal to bypass a protection scheme
-> *even if the content is something you have legal rights to*.
 
-Well, the so-called "land of the free". SCNR .....
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-> http://www4.law.cornell.edu/uscode/html/uscode17/usc_sec_17_00001201----000-.html
-> 
-> 17 USC 1201(a)(1)(A) says:
-> 
-> (A) No person shall circumvent a technological measure that effectively
-                                                              ^^^^^^^^^^
-> controls access to a work protected under this title. The prohibition contained
-  ^^^^^^^^^^^^^^^
-Actually there is similar wording here (but of course in German) used
-for the similar purpose. The problem with this kind of law is IMHO:
--) "effectively controls access": If I (or someone else) can circumvent
-   it, it is obviously not "effective".
--) If I (and no one else) cannot circumvent it, the laws/court decisions
-   as such is basically pointless because it doesn't limit or hinder
-   anything.
-And we have no definition (in the laws) hereover whatever "effective"
-should mean and hoe *I* can determine (which a sufficient large chance
-of getting it right) if a given protection scheme must be considered
-"effective".
+>  			trace_special_pid(sch.task->pid, sch.task->prio, p->prio);
+> -		if (sch.task && (sch.task->prio >= p->prio))
+> +		if (sch.task && ((sch.task->prio <= p->prio) || !rt_task(p)))
+>  			sch.task = NULL;
 
-Don't get me wrong, I understand how it is meant what such rules should
-achieve an, but I request from lawyers (as such) that they write
-laws/court decisions down in an unambigous way (for a non-law person -
-remember that laws affect *all* people so every law and court decision
-should IMHO readable and understandable by the average citizen).
+this second condition i'd not change: it just expresses the rare case 
+where a higher-prio task hits the CPU that we somehow did not start to 
+trace. In that case we just zap the current trace.
 
-And if they can't write it down unambigously, I actually question if we
-want to accept laws/court decisions about rules and concepts which
-cannot be even written down in a simple enough and clear way.
-
-[..]
-> Got that?  You have to apply for special permission to bypass to get data that
-> you have rights to use....
-
-Yes, because that is the primary goal of all of the laws in that area in
-last years: To effectively take away legal rights from you that you
-actually legally have (or better: had).
-
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
-
+	Ingo

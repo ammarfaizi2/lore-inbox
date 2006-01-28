@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932527AbWA1Gl3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbWA1HEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932527AbWA1Gl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 01:41:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbWA1Gl3
+	id S932531AbWA1HEk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 02:04:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbWA1HEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 01:41:29 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:8924 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932527AbWA1Gl2 (ORCPT
+	Sat, 28 Jan 2006 02:04:40 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:1761 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932531AbWA1HEj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 01:41:28 -0500
-Date: Fri, 27 Jan 2006 22:40:58 -0800
+	Sat, 28 Jan 2006 02:04:39 -0500
+Date: Fri, 27 Jan 2006 23:04:29 -0800
 From: Paul Jackson <pj@sgi.com>
 To: Nathan Lynch <ntl@pobox.com>
 Cc: steiner@sgi.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
        rml@novell.com
 Subject: Re: 2.6.16 - sys_sched_getaffinity & hotplug
-Message-Id: <20060127224058.a12994f7.pj@sgi.com>
+Message-Id: <20060127230429.4af008fb.pj@sgi.com>
 In-Reply-To: <20060128052355.GC18730@localhost.localdomain>
 References: <20060127230659.GA4752@sgi.com>
 	<20060127191400.aacb8539.pj@sgi.com>
@@ -30,55 +30,65 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan, responding to pj, responding to Nathan:
-> > Nathan wrote:
-> > > Which is problematic, because cpuset_cpus_allowed ->
-> > > guarantee_online_cpus restricts the task->cpus_allowed mask to cpus
-> > > which happen to be online at the time of the call to
-> > > sched_setaffinity.  If more cpus come online later, that task can't be
-> > > migrated to them.
-> > 
-> > Well, sort of.
-> > 
-> > A task could always migrate - just because a sched_getaffinity
-> > the task did in the past doesn't show a CPU as valid, doesn't stop
-> > the task from asking to pin to that CPU now.
-> 
-> I was speaking of the setaffinity (not getaffinity) case -- I assumed
-> this was what you were referring to since I couldn't find any calls to
-> the cpuset code in the getaffinity path.
+Nathan wrote:
+> I'm only recommending not changing the current behavior of
+> sched_getaffinity.
 
+Jack is essentially recommending -unchanging- the behaviour of
+sched_getaffinity.  CONFIG_HOTPLUG_CPU changed it, as an unintended
+side affect, and Jack is asking if we should revert that change.
 
-Oh dear ... and you said 'setaffinity' quite clearly.  Though
-Jack's original post only dealt with getaffinity.
+Prior to CONFIG_HOTPLUG_CPU, on (for example) an ia64 SN2, which is
+compiled with 512 or 1024 NR_CPUS, the sched_getaffinity call returned
+at most the number of CPUs set as were online.
 
-I think this discussion is getting quite confused, for which
-I can take at least some of the credit.
+For example, on an 8 CPU SN2 system (compiled NR_CPUS 512) that is at
+hand to me right now, compiled without CONFIG_HOTPLUG_CPU, the command:
+	strace -etrace=sched_getaffinity taskset -p $$
 
-You observe, correctly, that the call chain:
-	sched_setaffinity
-	cpuset_cpus_allowed
-	guarantee_online_cpus
-restricts a sched_setaffinity to CPUs online at the time of that
-sched_setaffinity call.
+produces the strace output:
+	sched_getaffinity(13282, 128,  { ff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }) = 128
 
-However, I have no clue how you conclude from this that "If more cpus
-come online later, that task can't be migrated to them."
+and produces the taskset output:
+	pid 13282's current affinity mask: ff
 
-At anytime that some system service or batch scheduler wants to
-migrate a task to some different CPUs (whether or not those CPUs were
-once offline), it can either attach that task to a different cpuset,
-or change the 'cpus' of its current cpuset.
+(why the particular taskset binary I am invoking is compiled
+for just 128 CPUs beats me ;).
 
-Then if it wants to properly keep that tasks placement relative to its
-new cpuset, it can reissue a sched_setaffinity on that tasks behalf,
-to again set that tasks cpus_allowed to the same, relative to the
-containing cpuset, CPUs as before.
+This is the sort of behaviour that apps might have become to
+expect.  And it is not clear that apps would clearly distinguish
+between CPUs online at the moment, and possibly online after
+some future hotplug event.  Given the paucity of hotpluggable
+CPUs, it is a safe bet most apps doing this have not clearly
+distinguished these two cases.
 
-Nothing in the behaviour of sched_getaffinity, that Jack was
-considering, nor in the behaviour of sched_setaffinity, that
-you thought I must be considering, has any impact on which CPUs
-a task can be migrated to.
+Now when we introduce CONFIG_HOTPLUG_CPU, as Jack reports, this
+set_getaffinity call is returning with all bits set (Jack was
+apparently using a sched_getaffinity call from an app compiled
+for 1024 CPUs, on a 512 NR_CPUS kernel):
+
+	(from strace on a 2 cpu system with NR_CPUS = 512)
+	sched_getaffinity(0, 1024,  { ffffffffffffffff, ffffff ...
+
+This will break code that thinks this return means that there are
+actually available, right now, all those CPUs.
+
+The addition of CONFIG_HOTPLUG_CPU has changed the apparent (what
+-seems- to be happening) behaviour of sched_getaffinity.  Without
+it, on a small system running a big NR_CPUS kernel, just a small
+number of bits were set.  With it, all the bits are set.
+
+We need to choose, with the advent of hotplug, whether the
+sched_getaffinity means:
+ 1) at most, the CPUs online now, or
+ 2) at most, all possible online CPUs.
+
+This choice did not exist before.  I recommend choosing the way that
+will be the "least surprising" to existing code.  I believe that this
+would be (1) the CPUs online now, as Jack's patch accomplishes.
+
+We should not stumble blindly into changing the behaviour of a system
+call in an effort to seem to avoid changing it.
 
 -- 
                   I won't rest till it's the best ...

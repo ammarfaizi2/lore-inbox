@@ -1,52 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWA1CuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965009AbWA1C7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbWA1CuE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 21:50:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751236AbWA1CuE
+	id S965009AbWA1C7A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 21:59:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWA1C7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 21:50:04 -0500
-Received: from bsamwel.xs4all.nl ([82.92.179.183]:45219 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S1750735AbWA1CuD (ORCPT
+	Fri, 27 Jan 2006 21:59:00 -0500
+Received: from proof.pobox.com ([207.106.133.28]:20417 "EHLO proof.pobox.com")
+	by vger.kernel.org with ESMTP id S1751236AbWA1C7A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 21:50:03 -0500
-Message-ID: <43DADB03.7080606@samwel.tk>
-Date: Sat, 28 Jan 2006 03:46:27 +0100
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH 0/3] Fix overflow issues with sysctl values in centiseconds/seconds
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: bart@samwel.tk
-X-SA-Exim-Scanned: No (on samwel.tk); SAEximRunCond expanded to false
+	Fri, 27 Jan 2006 21:59:00 -0500
+Date: Fri, 27 Jan 2006 20:58:55 -0600
+From: Nathan Lynch <ntl@pobox.com>
+To: Jack Steiner <steiner@sgi.com>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16 - sys_sched_getaffinity & hotplug
+Message-ID: <20060128025854.GA18730@localhost.localdomain>
+References: <20060127230659.GA4752@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060127230659.GA4752@sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+Jack Steiner wrote:
+> 
+> It appears if CONFIG_HOTPLUG_CPU is enabled, then all possible
+> cpus (0 .. NR_CPUS-1) are set in the cpu_possible_map on IA64.
 
-Here's a threesome of patches to fix up some issues with the following 
-sysctl values:
+That's too bad...
 
-/proc/sys/vm/laptop_mode
-/proc/sys/vm/dirty_writeback_centisecs
-/proc/sys/vm/dirty_expire_centisecs
 
-The issues:
-1. The values are not range checked when they are set. They all have
-a range smaller than the full integer range.
-2. Conversion from these centisecond/second values is done on-the-fly 
-wherever they are used. This wastes some resources.
-3. The conversions are done badly. Conversion from USER_HZ to HZ is done 
-by doing "value * USER_HZ / HZ". One day expressed in centiseconds 
-already causes an overflow at HZ = 250. This should use 
-clock_t_to_jiffies() instead.
+> sched_getaffinity() returns the cpu_possible_map and'd with the current
+> task p->cpus_allowed. The default cpus_allowed is all ones.
+> 
+> This is causing problems for apps that use sched_get_sched_affinity()
+> to determine which cpus that they are allowed to run on.
 
-The approach:
-1. Represent everything in jiffies internally.
-2. Do the conversion and range checking in the sysctl interface.
+How?  Are these apps expecting all set bits to correspond to online
+cpus?
 
-Cheers,
-Bart
+
+> The call to sched_getaffinity returns:
+> 
+> 	(from strace on a 2 cpu system with NR_CPUS = 512)
+> 	sched_getaffinity(0, 1024,  { ffffffffffffffff, ffffff ...
+> 
+> 
+> 
+> The man page for sched_getaffinity() is ambiguous. It says:
+> 	- A set bit corresponds to a legally  schedulable  CPU
+> 
+> But it also says:
+> 	- Usually, all bits in the mask are set.
+> 
+> 
+> Should the following change be made to sched_getaffinity(). 
+> 
+> Index: linux/kernel/sched.c
+> ===================================================================
+> --- linux.orig/kernel/sched.c	2006-01-25 08:50:21.401747695 -0600
+> +++ linux/kernel/sched.c	2006-01-27 16:57:24.504871895 -0600
+> @@ -4031,7 +4031,7 @@ long sched_getaffinity(pid_t pid, cpumas
+>  		goto out_unlock;
+>  
+>  	retval = 0;
+> -	cpus_and(*mask, p->cpus_allowed, cpu_possible_map);
+> +	cpus_and(*mask, p->cpus_allowed, cpu_online_map);
+
+
+I don't think so.
+
+For one, that would be mucking around with a kernel/userspace ABI, I
+guess.
+
+Additionally, it would mean that the result of sched_getaffinity would
+vary with the number of online cpus in the system, which I don't think
+is desirable.

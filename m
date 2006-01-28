@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWA1Pit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWA1Pnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbWA1Pit (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 10:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWA1Pis
+	id S932391AbWA1Pnh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 10:43:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWA1Pnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 10:38:48 -0500
-Received: from mail.enyo.de ([212.9.189.167]:11392 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S1751420AbWA1Pis (ORCPT
+	Sat, 28 Jan 2006 10:43:37 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:8162 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751446AbWA1Pnh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 10:38:48 -0500
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <43D114A8.4030900@wolfmountaingroup.com>
-	<20060120111103.2ee5b531@dxpl.pdx.osdl.net>
-	<43D13B2A.6020504@cs.ubishops.ca> <43D7C780.6080000@perkel.com>
-	<43D7B20D.7040203@wolfmountaingroup.com>
-	<43D7B5C4.5040601@wolfmountaingroup.com> <43D7D05D.7030101@perkel.com>
-	<D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>
-	<Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>
-	<Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>
-	<Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>
-	<43D9F9F9.5060501@ti-wmc.nl>
-Date: Sat, 28 Jan 2006 16:38:43 +0100
-In-Reply-To: <43D9F9F9.5060501@ti-wmc.nl> (Simon Oosthoek's message of "Fri,
-	27 Jan 2006 11:46:17 +0100")
-Message-ID: <87irs4qs58.fsf@mid.deneb.enyo.de>
-MIME-Version: 1.0
+	Sat, 28 Jan 2006 10:43:37 -0500
+Date: Sat, 28 Jan 2006 16:44:09 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [lock validator] inet6_destroy_sock(): soft-safe -> soft-unsafe lock dependency
+Message-ID: <20060128154409.GA18701@elte.hu>
+References: <20060127001807.GA17179@elte.hu> <E1F2IcV-0007Iq-00@gondolin.me.apana.org.au> <20060128152204.GA13940@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060128152204.GA13940@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Simon Oosthoek:
 
-> GPLv3-draft1:
->> (...)
->> Complete Corresponding Source Code also includes any encryption or
->> authorization codes necessary to install and/or execute the source
->> code of the work, perhaps modified by you, in the recommended or
->> principal context of use, such that its functioning in all
->> circumstances is identical to that of the work, except as altered by
->> your modifications. It also includes any decryption codes necessary
->> to access or unseal the work's output. Notwithstanding this, a code
->> need not be included in cases where use of the work normally implies
->> the user already has it.
->> (...)
->
-> I'd interpret that as forcing people who try to hide their code or make 
-> it difficult to get at the source code to not be able to do that.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-I view it slightly different.  Suppose you produce a device which can
-only boot images signed by a certain public key.  In this case, you
-can give your users source code, but they can't change it and run it
-on the device because the signature does not match.  This is a real
-threat to software freedom.
+>  to a softirq-unsafe lock:
+>   (&newsk->sk_dst_lock){+-}, at: [<c048f385>] inet6_destroy_sock+0x25/0x100
+>  ... which became softirq-unsafe at:
+>  ... [<00000000>] 0x0
 
-Such technology already exists, see for an example:
+fyi, here is where sk_dst_lock became softirq-unsafe:
 
-<http://java.sun.com/products/jce/doc/guide/HowToImplAProvider.html>
+marked lock as {softirq-on}:
+ (&sk->sk_dst_lock){--}, at: [<c04b45d3>] ip6_datagram_connect+0x3b3/0x520
+softirq was enabled at: c0497738
+hardirq was enabled at: c0102e27
+ (&sk->sk_dst_lock){--}, at: [<c04b45d3>] ip6_datagram_connect+0x3b3/0x520
+ [<c010432d>] show_trace+0xd/0x10
+ [<c0104347>] dump_stack+0x17/0x20
+ [<c0139243>] mark_lock+0x173/0x3a0
+ [<c01399a5>] debug_lock_chain+0x535/0x1090
+ [<c013a53d>] debug_lock_chain_spin+0x3d/0x60
+ [<c0268542>] _raw_write_lock+0x32/0x1a0
+ [<c04d48c8>] _write_lock+0x8/0x10
+ [<c04b45d3>] ip6_datagram_connect+0x3b3/0x520
+ [<c04805c7>] inet_dgram_connect+0x37/0x80
+ [<c0436f0a>] sys_connect+0x5a/0x80
+ [<c0437414>] sys_socketcall+0x94/0x260
+ [<c0102df7>] sysenter_past_esp+0x54/0x8d
 
-The reasons for that are entirely obscure (because anyone can obtain a
-certificate, there is no kind of quality control) and likely only
-related to export regulations.  But a similar approach could be used
-elsewhere, to exercise more control over which code can run on a
-certain platform.
+	Ingo

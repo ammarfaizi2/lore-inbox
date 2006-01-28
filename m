@@ -1,51 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932539AbWA1HQP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932538AbWA1HSW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932539AbWA1HQP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 02:16:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbWA1HQP
+	id S932538AbWA1HSW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 02:18:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbWA1HSV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 02:16:15 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:56262 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932535AbWA1HQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 02:16:14 -0500
-Date: Fri, 27 Jan 2006 23:15:17 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-Cc: akpm@osdl.org, apw@shadowen.org, bob.picco@hp.com,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       linux-ia64@vger.kernel.org, tony.luck@intel.com, ak@suse.de,
-       len.brown@intel.com, discuss@x86-64.org
-Subject: Re: [PATCH 001/003]Fix unify mapping from pxm to node id.
-Message-Id: <20060127231517.4c0ce573.pj@sgi.com>
-In-Reply-To: <20060128122758.CF50.Y-GOTO@jp.fujitsu.com>
-References: <20060123165644.C147.Y-GOTO@jp.fujitsu.com>
-	<20060126074846.1a6dd300.pj@sgi.com>
-	<20060128122758.CF50.Y-GOTO@jp.fujitsu.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Jan 2006 02:18:21 -0500
+Received: from smtpout.mac.com ([17.250.248.73]:57591 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932538AbWA1HSV convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 02:18:21 -0500
+In-Reply-To: <1138419925.8770.70.camel@lade.trondhjem.org>
+References: <20060127092817.GB24362@infradead.org> <1138312694656@2gen.com> <1138312695665@2gen.com> <6403.1138392470@warthog.cambridge.redhat.com> <20060127204158.GA4754@hardeman.nu> <1138400385.8770.21.camel@lade.trondhjem.org> <8155F461-1703-476B-8C5D-B834EE49905D@mac.com> <1138419925.8770.70.camel@lade.trondhjem.org>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
+Message-Id: <DEA6D91F-9925-47E3-8A93-3D0C7D7F8CDA@mac.com>
+Cc: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>,
+       David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, keyrings@linux-nfs.org,
+       LKML Kernel <linux-kernel@vger.kernel.org>,
+       Adrian Bunk <bunk@stusta.de>
+Content-Transfer-Encoding: 8BIT
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths library
+Date: Sat, 28 Jan 2006 02:17:49 -0500
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yasunori-san,
+On Jan 27, 2006, at 19:22, Adrian Bunk wrote:
+> On Fri, Jan 27, 2006 at 09:41:58PM +0100, David Härdeman wrote:
+>> The in-kernel key management also protects the key against many of  
+>> the different ways in which a user-space daemon could be attacked  
+>> (ptrace, swap-out, coredump, etc).
+>
+> If an attacker has enough privileges for attacking the daemon, he  
+> should usually also have enough privileges for attacking the kernel.
 
-Thank-you for updating your patch.
+Not necessarily.  If the daemon runs as the "backup" user or similar,  
+access to it does not imply root.  We want to make an efficient way  
+to allow the _use_ of keys without implying access to the key data.   
+For example, one item under consideration is a "key handle" that  
+could be cloned, however if you revoke a given handle, all of its  
+cloned handles (and their clones), will be automatically revoked as  
+well.  This would make it possible to pass a key to a program without  
+risking the key to compromise of that program.  Say I pass my SSL key  
+to Mozilla.  With this and some of the other new security features  
+(One of the code-isolation ones I think?), you could allow Mozilla to  
+use SSL websites without risking compromise of the SSL keys because  
+of a browser security hole.
 
-However I am still puzzled by one detail.
+On Jan 27, 2006, at 22:45, Trond Myklebust wrote:
+> On Fri, 2006-01-27 at 18:35 -0500, Kyle Moffett wrote:
+>
+>> No, the point is not to put the backup daemon into the kernel, but  
+>> to provide a way for the backup daemon and my user process to  
+>> communicate DSA key details without completely giving the backup  
+>> daemon my key.  I may not entirely trust the backup daemon not to  
+>> get compromised, but with support for the kernel keyring system,  
+>> compromising the backup daemon would only compromise the backed up  
+>> files, not the private keys and other secure data.
+>
+> This sort of thing is implemented routinely in user space by means  
+> of proxy  tickets/certificates/credentials. What makes them  
+> insufficient for this use?
 
-Your latest patchset removes the defines:
--#define MAX_PXM_DOMAINS	256	/* 1 byte and no promises about values */
+The problem is that there is no standard way to store/use the keys.   
+I can put my key in an ssh-agent to handle SSH, but that doesn't let  
+me securely auth mozilla.  To do that, I need to explore how mozilla  
+configs work.  And there are similar problems with context for  
+Kerberos, OpenAFS, encrypted filesystems, etc.  You need to have a  
+common standardized way to pass the secure information around.  This  
+provides that interface.
 
-and:
--#define MAX_PXM_DOMAINS (256)
+Cheers,
+Kyle Moffett
 
-but continues to have code using MAX_PXM_DOMAINS.  I am unable
-to compile ia64 with it now, for lack of this define.
+--
+Simple things should be simple and complex things should be possible
+   -- Alan Kay
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+
+

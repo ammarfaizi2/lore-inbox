@@ -1,229 +1,1006 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWA1V7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWA1W1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750769AbWA1V7q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 16:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWA1V7q
+	id S1750762AbWA1W1t (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 17:27:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWA1W1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 16:59:46 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:25092 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1750769AbWA1V7q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 16:59:46 -0500
-Date: Sat, 28 Jan 2006 22:59:37 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: LKML <linux-kernel@vger.kernel.org>, Randy Dunlap <rdunlap@xenotime.net>
-Subject: [PATCH RFC] put UTS_RELEASE in separate utsversion.h file
-Message-ID: <20060128215937.GA14442@mars.ravnborg.org>
-Mime-Version: 1.0
+	Sat, 28 Jan 2006 17:27:49 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:18153 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750762AbWA1W1s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 17:27:48 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rolf Eike Beer <eike-kernel@sf-tec.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.16-rc1-git4] accessfs: a permission managing filesystem
+References: <87ek3a8qpy.fsf@goat.bogus.local>
+	<200601231257.28796@bilbo.math.uni-mannheim.de>
+From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Date: Sat, 28 Jan 2006 23:27:34 +0100
+Message-ID: <87mzhgyomh.fsf@goat.bogus.local>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:fa0178852225c1084dbb63fc71559d78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During the last few days I have been toying with a allmodconfig tree
-and got irritated by all the extra modules being build over and over
-again.
-The root cause was the definition of UTS_RELEASE in version.h.
-I had enabled automatic appending of git version and it changed each
-time I committed something resulting in a lot of recompiling.
-With the following patch the recompile is kept minimal, the most
-annoying part being all the .mod.c files - but they actually use
-UTS_RELEASE so this is avoidable.
+Hi Andrew,
 
-I have not updated checkversion.pl - Randy can you do that?
+Can you please include this patch in -mm, to give it wider testing?
 
-I have not applied the patch yet - wanted some feedback from lkml first.
-Only functional changes is in top-level makefile.
-For all users of UTS_RELEASE I simple included utsversion.h.
+Accessfs is a permission managing filesystem. It allows to control
+access to system resources, based on file permissions.  It also
+includes two modules.  One module allows granting capabilities based
+on user-/groupid. The second module allows to grant access to lower
+numbered IP ports based on user-/groupid.
 
-Note: I do not know if any external stuff(*) uses UTS_RELEASE and expect it
-to be in version.h!
+Regards, Olaf.
 
-(*) I here think of glibc, gcc, udev etc. External modules will have to cope
-with this change like any in-kernel module
+Signed-off-by: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
 
-	Sam
-	
-diff --git a/Makefile b/Makefile
-index ec7e24f..b5b9c25 100644
---- a/Makefile
-+++ b/Makefile
-@@ -842,20 +842,26 @@ include/config/MARKER: scripts/basic/spl
+---
+ fs/Kconfig                  |    1 
+ fs/Makefile                 |    1 
+ fs/accessfs/Kconfig         |   82 ++++++++
+ fs/accessfs/Makefile        |   11 +
+ fs/accessfs/capabilities.c  |  107 +++++++++++
+ fs/accessfs/inode.c         |  418 ++++++++++++++++++++++++++++++++++++++++++++
+ fs/accessfs/ip.c            |   92 +++++++++
+ include/linux/accessfs_fs.h |   49 +++++
+ include/net/sock.h          |   17 +
+ net/Kconfig                 |   11 +
+ net/Makefile                |    1 
+ net/hooks.c                 |   56 +++++
+ net/ipv4/af_inet.c          |    4 
+ net/ipv6/af_inet6.c         |    4 
+ 14 files changed, 854 insertions(+)
+
+diff -urN a/fs/Kconfig b/fs/Kconfig
+--- a/fs/Kconfig	Fri Jan 27 23:52:40 2006
++++ b/fs/Kconfig	Sat Jan 28 12:47:19 2006
+@@ -1253,6 +1253,7 @@
+ 	  It's currently broken, so for now:
+ 	  answer N.
  
- uts_len := 64
++source "fs/accessfs/Kconfig"
  
--define filechk_version.h
-+define filechk_utsversion.h
- 	if [ `echo -n "$(KERNELRELEASE)" | wc -c ` -gt $(uts_len) ]; then \
--	  echo '"$(KERNELRELEASE)" exceeds $(uts_len) characters' >&2; \
--	  exit 1; \
--	fi; \
--	(echo \#define UTS_RELEASE \"$(KERNELRELEASE)\"; \
--	  echo \#define LINUX_VERSION_CODE `expr $(VERSION) \\* 65536 + $(PATCHLEVEL) \\* 256 + $(SUBLEVEL)`; \
--	 echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))'; \
--	)
-+	  echo '"$(KERNELRELEASE)" exceeds $(uts_len) characters' >&2;    \
-+	  exit 1;                                                         \
-+	fi;                                                               \
-+	(echo \#define UTS_RELEASE \"$(KERNELRELEASE)\";)
- endef
  
--include/linux/version.h: $(srctree)/Makefile .config FORCE
-+define filechk_version.h
-+	(echo \#define LINUX_VERSION_CODE $(shell                             \
-+	expr $(VERSION) \* 65536 + $(PATCHLEVEL) \* 256 + $(SUBLEVEL));     \
-+	echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))';)
-+endef
+ config SYSV_FS
+diff -urN a/fs/Makefile b/fs/Makefile
+--- a/fs/Makefile	Fri Jan 27 23:52:40 2006
++++ b/fs/Makefile	Sat Jan 28 12:48:03 2006
+@@ -103,3 +103,4 @@
+ obj-$(CONFIG_DEBUG_FS)		+= debugfs/
+ obj-$(CONFIG_CONFIGFS_FS)	+= configfs/
+ obj-$(CONFIG_OCFS2_FS)		+= ocfs2/
++obj-$(CONFIG_ACCESS_FS)		+= accessfs/
+diff -urN a/fs/accessfs/Kconfig b/fs/accessfs/Kconfig
+--- a/fs/accessfs/Kconfig	Thu Jan  1 01:00:00 1970
++++ b/fs/accessfs/Kconfig	Sat Jan 28 12:47:19 2006
+@@ -0,0 +1,82 @@
++config ACCESS_FS
++	tristate "Accessfs support (Experimental)"
++	depends on EXPERIMENTAL
++	default n
++	help
++	  This is a new file system to manage permissions. It is not very
++	  useful on its own. You need to enable other options below.
 +
-+include/linux/version.h: .config include/linux/utsversion.h FORCE
- 	$(call filechk,version.h)
- 
-+include/linux/utsversion.h: .config FORCE
-+	$(call filechk,utsversion.h)
++	  The recommended mount point for this file-system is /proc/access,
++	  which will appear automatically in the /proc filesystem.
 +
- # ---------------------------------------------------------------------------
++	  If you're unsure, say N.
++
++config ACCESSFS_USER_PORTS
++	tristate "User permission based IP ports"
++	depends on ACCESS_FS
++	select NET_HOOKS
++	default n
++	help
++	  If you say Y here, you will be able to control access to IP ports
++	  based on user-/groupid. For this to work, you must say Y
++	  to CONFIG_NET_HOOKS.
++
++	  With this option, there's no need anymore to run internet daemons
++	  as root. You can individually configure which user/program can bind to
++	  protected ports (by default, below 1024).
++
++	  For example, you can say, user www is allowed to bind to port 80 or
++	  user mail is allowed to bind to port 25. Then, you can run apache as
++	  user www and sendmail as user mail. Now, you don't have to rely on
++	  apache or sendmail giving up superuser rights to enhance security.
++
++	  To use this option, you need to mount the access file system
++	  and do a chown on the appropriate ports:
++
++	  # mount -t accessfs none /proc/access
++	  # chown www /proc/access/net/ip/bind/80
++	  # chown mail /proc/access/net/ip/bind/25
++
++	  You can grant access to a group for individual ports as well. Just say:
++
++	  # chgrp lp /proc/access/net/ip/bind/515
++	  # chown g+x /proc/access/net/ip/bind/515
++
++	  If you're unsure, say N.
++
++config ACCESSFS_PROT_SOCK
++	int "Range of protected ports (1024-65536)"
++	depends on ACCESSFS_USER_PORTS
++	default 1024
++	help
++	  Here you can extend the range of protected ports. This is
++	  from 1-1023 inclusive on normal unix systems. One use for this
++	  could be to reserve ports for X11 (port 6000) or database
++	  servers (port 3306 for mysql), so nobody else could grab this port.
++	  The default permission for extended ports is --x--x--x.
++
++	  If you build this as a module, you can specify the range of
++	  protected ports at module load time (max_prot_sock).
++
++	  If you're unsure, say 1024.
++
++config ACCESSFS_USER_CAPABILITIES
++	tristate "User permission based capabilities"
++	depends on ACCESS_FS
++	select SECURITY
++	default n
++	help
++	  If you say Y here, you will be able to grant capabilities based on
++	  user-/groupid (root by default). For this to work, you must say M or
++	  N to CONFIG_SECURITY_CAPABILITIES.
++
++	  For example you can create a group raw and change the capability
++	  net_raw to this group:
++
++	  # chgrp raw /proc/access/capabilities/net_raw
++	  # chmod ug+x /proc/access/capabilities/net_raw
++	  # chgrp raw /sbin/ping
++	  # chmod u-s /sbin/ping; chmod g+s /sbin/ping
++
++	  If you're unsure, say N.
++
+diff -urN a/fs/accessfs/Makefile b/fs/accessfs/Makefile
+--- a/fs/accessfs/Makefile	Thu Jan  1 01:00:00 1970
++++ b/fs/accessfs/Makefile	Sat Jan 28 12:47:19 2006
+@@ -0,0 +1,11 @@
++#
++# Makefile for the linux accessfs routines.
++#
++
++obj-$(CONFIG_ACCESS_FS) += accessfs.o
++obj-$(CONFIG_ACCESSFS_USER_CAPABILITIES) += usercaps.o
++obj-$(CONFIG_ACCESSFS_USER_PORTS) += userports.o
++
++accessfs-objs := inode.o
++usercaps-objs := capabilities.o
++userports-objs := ip.o
+diff -urN a/fs/accessfs/capabilities.c b/fs/accessfs/capabilities.c
+--- a/fs/accessfs/capabilities.c	Thu Jan  1 01:00:00 1970
++++ b/fs/accessfs/capabilities.c	Sat Jan 28 12:47:19 2006
+@@ -0,0 +1,107 @@
++/* Copyright (c) 2002 Olaf Dietsche
++ *
++ * User based capabilities for Linux.
++ */
++
++#include <linux/accessfs_fs.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/security.h>
++
++static struct access_attr caps[29];
++static const char *names[] = {
++	"chown",
++	"dac_override",
++	"dac_read_search",
++	"fowner",
++	"fsetid",
++	"kill",
++	"setgid",
++	"setuid",
++	"setpcap",
++	"linux_immutable",
++	"net_bind_service",
++	"net_broadcast",
++	"net_admin",
++	"net_raw",
++	"ipc_lock",
++	"ipc_owner",
++	"sys_module",
++	"sys_rawio",
++	"sys_chroot",
++	"sys_ptrace",
++	"sys_pacct",
++	"sys_admin",
++	"sys_boot",
++	"sys_nice",
++	"sys_resource",
++	"sys_time",
++	"sys_tty_config",
++	"mknod",
++	"lease"
++};
++
++static int accessfs_capable(struct task_struct *tsk, int cap)
++{
++	if (accessfs_permitted(&caps[cap], MAY_EXEC)) {
++		/* capability granted */
++		tsk->flags |= PF_SUPERPRIV;
++		return 0;
++	}
++
++	/* capability denied */
++	return -EPERM;
++}
++
++static struct security_operations accessfs_security_ops = {
++	.capable =	accessfs_capable,
++};
++
++static void unregister_capabilities(struct accessfs_direntry *dir, int n)
++{
++	int	i;
++	for (i = 0; i < n; ++i) {
++		accessfs_unregister(dir, names[i]);
++	}
++}
++
++static int __init init_capabilities(void)
++{
++	struct accessfs_direntry *dir;
++	int i, err;
++	dir = accessfs_make_dirpath("capabilities");
++	if (dir == 0)
++		return -ENOTDIR;
++
++	for (i = 0; i < sizeof(caps) / sizeof(caps[0]); ++i) {
++		caps[i].uid = 0;
++		caps[i].gid = 0;
++		caps[i].mode = S_IXUSR;
++		err = accessfs_register(dir, names[i], &caps[i]);
++		if (err) {
++			unregister_capabilities(dir, i);
++			return err;
++		}
++	}
++
++	err = register_security(&accessfs_security_ops);
++	if (err != 0)
++		unregister_capabilities(dir, sizeof(names) / sizeof(names[0]));
++
++	return err;
++}
++
++static void __exit exit_capabilities(void)
++{
++	struct accessfs_direntry *dir;
++	dir = accessfs_make_dirpath("capabilities");
++	unregister_security(&accessfs_security_ops);
++	unregister_capabilities(dir, sizeof(names) / sizeof(names[0]));
++}
++
++module_init(init_capabilities)
++module_exit(exit_capabilities)
++
++MODULE_AUTHOR("Olaf Dietsche");
++MODULE_DESCRIPTION("User based capabilities");
++MODULE_LICENSE("GPL");
+diff -urN a/fs/accessfs/inode.c b/fs/accessfs/inode.c
+--- a/fs/accessfs/inode.c	Thu Jan  1 01:00:00 1970
++++ b/fs/accessfs/inode.c	Sat Jan 28 12:47:19 2006
+@@ -0,0 +1,418 @@
++/* Copyright (c) 2001 Olaf Dietsche
++ *
++ * Access permission filesystem for Linux.
++ *
++ * 2002 Ben Clifford, create mount point at /proc/access
++ * 2002 Ben Clifford, trying to make it work under 2.5.5-dj2
++ *          (see comments: BENC255 for reminders and todos)
++ *
++ *
++ * BENC255: the kernel doesn't lock BKL for us when entering methods 
++ *          (see Documentation/fs/porting.txt)
++ *          Need to look at code here and see if we need either the BKL
++ *          or our own lock - I think probably not.
++ *
++ */
++
++#include <linux/accessfs_fs.h>
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/pagemap.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/string.h>
++#include <linux/proc_fs.h>
++#include <asm/statfs.h>
++#include <asm/semaphore.h>
++#include <asm/uaccess.h>
++
++#define ACCESSFS_MAGIC	0x3c1d36e7
++
++#ifdef CONFIG_PROC_FS           
++static struct proc_dir_entry *mountdir = NULL;
++#endif
++
++static DECLARE_MUTEX(accessfs_sem);
++
++static struct inode_operations accessfs_inode_operations;
++static struct file_operations accessfs_dir_file_operations;
++static struct inode_operations accessfs_dir_inode_operations;
++
++static inline void accessfs_readdir_aux(struct file *filp, struct accessfs_direntry *dir, int start, void *dirent, filldir_t filldir)
++{
++	struct list_head *list;
++	int i;
++
++	list = dir->children.next;
++	for (i = 2; i < start && list != &dir->children; ++i)
++		list = list->next;
++
++	while (list != &dir->children) {
++		struct accessfs_entry *de;
++		de = list_entry(list, struct accessfs_entry, siblings);
++		if (filldir(dirent, de->name, strlen(de->name), filp->f_pos, de->ino, DT_UNKNOWN) < 0)
++			break;
++
++		++filp->f_pos;
++		list = list->next;
++	}
++}
++
++static int accessfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
++{
++	int i;
++	struct dentry *dentry = filp->f_dentry;
++	struct accessfs_direntry *dir;
++
++	i = filp->f_pos;
++	switch (i) {
++	case 0:
++		if (filldir(dirent, ".", 1, i, dentry->d_inode->i_ino, DT_DIR) < 0)
++			break;
++
++		++i;
++		++filp->f_pos;
++		/* NO break; */
++	case 1:
++		if (filldir(dirent, "..", 2, i, dentry->d_parent->d_inode->i_ino, DT_DIR) < 0)
++			break;
++
++		++i;
++		++filp->f_pos;
++		/* NO break; */
++	default:
++		down(&accessfs_sem);
++		dir = (struct accessfs_direntry *) dentry->d_inode->u.generic_ip;
++		accessfs_readdir_aux(filp, dir, i, dirent, filldir);
++		up(&accessfs_sem);
++		break;
++	}
++
++	return 0;
++}
++
++static struct accessfs_entry *accessfs_lookup_entry(struct accessfs_entry *pe, const char *name, int len)
++{
++	struct list_head *list;
++	struct accessfs_direntry *dir;
++	struct accessfs_entry *de;
++	if (!S_ISDIR(pe->attr->mode))
++		return NULL;
++
++	dir = (struct accessfs_direntry *) pe;
++	de = NULL;
++	list_for_each(list, &dir->children) {
++		de = list_entry(list, struct accessfs_entry, siblings);
++		if (strncmp(de->name, name, len) == 0 && de->name[len] == 0)
++			break;
++	}
++
++	return de;
++}
++
++static struct dentry *accessfs_lookup(struct inode *dir, struct dentry *dentry, struct nameidata *nd)
++{
++	struct inode *inode = NULL;
++	struct accessfs_entry *pe;
++	down(&accessfs_sem);
++	pe = accessfs_lookup_entry(dir->u.generic_ip, dentry->d_name.name, dentry->d_name.len);
++	up(&accessfs_sem);
++	if (pe)
++		inode = iget(dir->i_sb, pe->ino);
++
++	d_add(dentry, inode);
++	return NULL;
++}
++
++static struct accessfs_direntry	accessfs_rootdir = {
++	{ "/", 
++	  LIST_HEAD_INIT(accessfs_rootdir.node.hash), 
++	  LIST_HEAD_INIT(accessfs_rootdir.node.siblings), 
++	  1, &accessfs_rootdir.attr },
++	NULL, LIST_HEAD_INIT(accessfs_rootdir.children), 
++	{ 0, 0, S_IFDIR | 0755 }
++};
++
++static void accessfs_init_inode(struct inode *inode, struct accessfs_entry *pe)
++{
++	static const struct timespec epoch = {0, 0};
++	inode->u.generic_ip = pe;
++	inode->i_uid = pe->attr->uid;
++	inode->i_gid = pe->attr->gid;
++	inode->i_mode = pe->attr->mode;
++/*
++	inode->i_blksize = PAGE_CACHE_SIZE;
++	inode->i_blocks = 0;
++	inode->i_rdev = NODEV;
++*/
++	inode->i_atime = inode->i_mtime = inode->i_ctime = epoch;
++	switch (inode->i_mode & S_IFMT) {
++	case S_IFREG:
++		inode->i_op = &accessfs_inode_operations;
++		break;
++	case S_IFDIR:
++		inode->i_op = &accessfs_dir_inode_operations;
++		inode->i_fop = &accessfs_dir_file_operations;
++		break;
++	default:
++		BUG();
++		break;
++	}
++}
++
++static struct inode *accessfs_get_root_inode(struct super_block *sb)
++{
++	struct inode *inode = new_inode(sb);
++	if (inode) {
++		down(&accessfs_sem);
++/* 		inode->i_ino = accessfs_rootdir.node.ino; */
++		accessfs_init_inode(inode, &accessfs_rootdir.node);
++		accessfs_rootdir.node.ino = inode->i_ino;
++		up(&accessfs_sem);
++	}
++
++	return inode;
++}
++
++static LIST_HEAD(hash);
++
++static int accessfs_node_init(struct accessfs_direntry *parent, struct accessfs_entry *de, const char *name, size_t len, struct access_attr *attr, mode_t mode)
++{
++	static unsigned long ino = 1;
++	de->name = kmalloc(len + 1, GFP_KERNEL);
++	if (de->name == NULL)
++		return -ENOMEM;
++
++	strncpy(de->name, name, len);
++	de->name[len] = 0;
++	de->ino = ++ino;
++	de->attr = attr;
++	de->attr->uid = 0;
++	de->attr->gid = 0;
++	de->attr->mode = mode;
++
++	list_add_tail(&de->hash, &hash);
++	list_add_tail(&de->siblings, &parent->children);
++	return 0;
++}
++
++static int accessfs_mknod(struct accessfs_direntry *dir, const char *name, struct access_attr *attr)
++{
++	struct accessfs_entry *pe;
++	pe = kmalloc(sizeof(struct accessfs_entry), GFP_KERNEL);
++	if (pe == NULL)
++		return -ENOMEM;
++
++	accessfs_node_init(dir, pe, name, strlen(name), attr, S_IFREG | attr->mode);
++	return 0;
++}
++
++static struct accessfs_direntry	*accessfs_mkdir(struct accessfs_direntry *parent, const char *name, size_t len)
++{
++	int err;
++	struct accessfs_direntry *dir;
++	dir = kmalloc(sizeof(struct accessfs_direntry), GFP_KERNEL);
++	if (dir == NULL)
++		return NULL;
++
++	dir->parent = parent;
++	INIT_LIST_HEAD(&dir->children);
++	err = accessfs_node_init(parent, &dir->node, name, len, &dir->attr, S_IFDIR | 0755);
++	if (err) {
++		kfree(dir);
++		dir = 0;
++	}
++
++	return dir;
++}
++
++struct accessfs_direntry *accessfs_make_dirpath(const char *name)
++{
++	struct accessfs_direntry *dir = &accessfs_rootdir;
++	const char *slash;
++	down(&accessfs_sem);
++	do {
++		struct accessfs_entry *de;
++		size_t len;
++		while (*name == '/')
++			++name;
++
++		slash = strchr(name, '/');
++		len = slash ? slash - name : strlen(name);
++		de = accessfs_lookup_entry(&dir->node, name, len);
++		if (de == NULL) {
++			dir = accessfs_mkdir(dir, name, len);
++		} else if (S_ISDIR(de->attr->mode)) {
++			dir = (struct accessfs_direntry *) de;
++		} else {
++			dir = NULL;
++		}
++
++		if (dir == NULL)
++			break;
++
++		name = slash  + 1;
++	} while (slash != NULL);
++
++	up(&accessfs_sem);
++	return dir;
++}
++
++static void accessfs_unlink(struct accessfs_entry *pe)
++{
++	list_del_init(&pe->hash);
++	list_del_init(&pe->siblings);
++	kfree(pe->name);
++	kfree(pe);
++}
++
++static int accessfs_notify_change(struct dentry *dentry, struct iattr *iattr)
++{
++	struct inode *i = dentry->d_inode;
++	int err = inode_setattr(i, iattr);
++	if (!err) {
++		struct accessfs_entry *pe;
++		pe = (struct accessfs_entry *) i->u.generic_ip;
++		pe->attr->uid = i->i_uid;
++		pe->attr->gid = i->i_gid;
++		pe->attr->mode = i->i_mode;
++	}
++
++	return err;
++}
++
++static void accessfs_read_inode(struct inode *inode)
++{
++	ino_t	ino = inode->i_ino;
++	struct list_head	*list;
++	down(&accessfs_sem);
++	list_for_each(list, &hash) {
++		struct accessfs_entry *pe;
++		pe = list_entry(list, struct accessfs_entry, hash);
++		if (pe->ino == ino) {
++			accessfs_init_inode(inode, pe);
++			break;
++		}
++	}
++
++	up(&accessfs_sem);
++}
++
++static struct inode_operations accessfs_inode_operations = {
++	.setattr =	accessfs_notify_change,
++};
++
++static struct inode_operations accessfs_dir_inode_operations = {
++	.lookup =	accessfs_lookup,
++	.setattr =	accessfs_notify_change,
++};
++
++static struct file_operations accessfs_dir_file_operations = {
++	.readdir =	accessfs_readdir,
++};
++
++static struct super_operations accessfs_ops = {
++	.read_inode =	accessfs_read_inode,
++	.statfs =	simple_statfs,
++};
++
++static int accessfs_fill_super(struct super_block *sb, void *data, int silent)
++{
++	struct inode *inode;
++	struct dentry *root;
++
++	sb->s_blocksize = PAGE_CACHE_SIZE;
++	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
++	sb->s_magic = ACCESSFS_MAGIC;
++	sb->s_op = &accessfs_ops;
++	inode = accessfs_get_root_inode(sb);
++	if (!inode)
++		return -ENOMEM;
++
++	root = d_alloc_root(inode);
++	if (!root) {
++		iput(inode);
++		return -ENOMEM;
++	}
++
++	sb->s_root = root;
++	return 0;
++}
++
++static struct super_block *accessfs_get_sb(struct file_system_type *fs_type, int flags, const char *dev_name, void *data)
++{
++	return get_sb_single(fs_type, flags, data, accessfs_fill_super);
++}
++
++int accessfs_permitted(struct access_attr *p, int mask)
++{
++	mode_t mode = p->mode;
++	if (current->fsuid == p->uid)
++		mode >>= 6;
++	else if (in_group_p(p->gid))
++		mode >>= 3;
++
++	return (mode & mask) == mask;
++}
++
++int accessfs_register(struct accessfs_direntry *dir, const char *name, struct access_attr *attr)
++{
++	int err;
++	if (dir == 0)
++		return -EINVAL;
++
++	down(&accessfs_sem);
++	err = accessfs_mknod(dir, name, attr);
++	up(&accessfs_sem);
++	return err;
++}
++
++void accessfs_unregister(struct accessfs_direntry *dir, const char *name)
++{
++	struct accessfs_entry *pe;
++	down(&accessfs_sem);
++	pe = accessfs_lookup_entry(&dir->node, name, strlen(name));
++	if (pe) {
++		accessfs_unlink(pe);
++	}
++
++	up(&accessfs_sem);
++}
++
++static struct file_system_type accessfs_fs_type = {
++	.owner =	THIS_MODULE,
++	.name =		"accessfs",
++	.get_sb =	accessfs_get_sb,
++	.kill_sb =	kill_anon_super,
++};
++
++static int __init init_accessfs_fs(void)
++{
++
++#ifdef CONFIG_PROC_FS
++	/* create mount point for accessfs */
++	mountdir = proc_mkdir("access",&proc_root);
++#endif
++	return register_filesystem(&accessfs_fs_type);
++}
++
++static void __exit exit_accessfs_fs(void)
++{
++	unregister_filesystem(&accessfs_fs_type);
++
++#ifdef CONFIG_PROC_FS
++	remove_proc_entry("access",&proc_root);
++#endif
++}
++
++module_init(init_accessfs_fs)
++module_exit(exit_accessfs_fs)
++
++MODULE_AUTHOR("Olaf Dietsche");
++MODULE_DESCRIPTION("Access Filesystem");
++MODULE_LICENSE("GPL");
++
++EXPORT_SYMBOL(accessfs_permitted);
++EXPORT_SYMBOL(accessfs_make_dirpath);
++EXPORT_SYMBOL(accessfs_register);
++EXPORT_SYMBOL(accessfs_unregister);
+diff -urN a/fs/accessfs/ip.c b/fs/accessfs/ip.c
+--- a/fs/accessfs/ip.c	Thu Jan  1 01:00:00 1970
++++ b/fs/accessfs/ip.c	Sat Jan 28 12:47:19 2006
+@@ -0,0 +1,92 @@
++/* Copyright (c) 2002 Olaf Dietsche
++ *
++ * User permission based port access for Linux.
++ */
++
++#include <linux/accessfs_fs.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <net/sock.h>
++
++static int max_prot_sock = CONFIG_ACCESSFS_PROT_SOCK;
++static struct access_attr *bind_to_port;
++
++static int accessfs_ip_prot_sock(struct socket *sock,
++				 struct sockaddr *uaddr, int addr_len)
++{
++	struct sockaddr_in *addr = (struct sockaddr_in *) uaddr;
++	unsigned short snum = ntohs(addr->sin_port);
++	if (snum && snum < max_prot_sock
++	    && !accessfs_permitted(&bind_to_port[snum], MAY_EXEC)
++	    && !capable(CAP_NET_BIND_SERVICE))
++		return -EACCES;
++
++	return 0;
++}
++
++static int accessfs_ip6_prot_sock(struct socket *sock,
++				  struct sockaddr *uaddr, int addr_len)
++{
++#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
++	struct sockaddr_in6 *addr = (struct sockaddr_in6 *) uaddr;
++	unsigned short snum = ntohs(addr->sin6_port);
++	if (snum && snum < max_prot_sock
++	    && !accessfs_permitted(&bind_to_port[snum], MAY_EXEC)
++	    && !capable(CAP_NET_BIND_SERVICE))
++		return -EACCES;
++
++	return 0;
++#else
++	return -EACCES;
++#endif
++}
++
++static struct net_hook_operations ip_net_ops = {
++	.ip_prot_sock =	accessfs_ip_prot_sock,
++	.ip6_prot_sock =	accessfs_ip6_prot_sock,
++};
++
++static int __init init_ip(void)
++{
++	struct accessfs_direntry *dir = accessfs_make_dirpath("net/ip/bind");
++	int i;
++	bind_to_port = kmalloc(max_prot_sock * sizeof(*bind_to_port), GFP_KERNEL);
++	if (bind_to_port == 0)
++		return -ENOMEM;
++
++	for (i = 1; i < max_prot_sock; ++i) {
++		char	buf[sizeof("65536")];
++		bind_to_port[i].uid = 0;
++		bind_to_port[i].gid = 0;
++		bind_to_port[i].mode = i < PROT_SOCK ? S_IXUSR : S_IXUGO;
++		sprintf(buf, "%d", i);
++		accessfs_register(dir, buf, &bind_to_port[i]);
++	}
++
++	net_hooks_register(&ip_net_ops);
++	return 0;
++}
++
++static void __exit exit_ip(void)
++{
++	struct accessfs_direntry *dir = accessfs_make_dirpath("net/ip/bind");
++	int i;
++	net_hooks_unregister(&ip_net_ops);
++	for (i = 1; i < max_prot_sock; ++i) {
++		char	buf[sizeof("65536")];
++		sprintf(buf, "%d", i);
++		accessfs_unregister(dir, buf);
++	}
++
++	if (bind_to_port != 0)
++		kfree(bind_to_port);
++}
++
++module_init(init_ip)
++module_exit(exit_ip)
++
++MODULE_AUTHOR("Olaf Dietsche");
++MODULE_DESCRIPTION("User based IP ports permission");
++MODULE_LICENSE("GPL");
++module_param(max_prot_sock, int, 0);
++MODULE_PARM_DESC(max_prot_sock, "Number of protected ports");
+diff -urN a/include/linux/accessfs_fs.h b/include/linux/accessfs_fs.h
+--- a/include/linux/accessfs_fs.h	Thu Jan  1 01:00:00 1970
++++ b/include/linux/accessfs_fs.h	Sat Jan 28 12:47:19 2006
+@@ -0,0 +1,49 @@
++/* -*- mode: c -*- */
++#ifndef __accessfs_fs_h_included__
++#define __accessfs_fs_h_included__	1
++
++/* Copyright (c) 2001 Olaf Dietsche
++ *
++ * Access permission filesystem for Linux.
++ */
++
++#include <linux/config.h>
++#include <linux/in.h>
++#include <linux/in6.h>
++#include <linux/fs.h>
++#include <linux/init.h>
++#include <net/sock.h>
++
++struct access_attr {
++	uid_t	uid;
++	gid_t	gid;
++	mode_t	mode;
++};
++
++struct accessfs_entry {
++	char	*name;
++	struct list_head	hash;
++	struct list_head	siblings;
++	ino_t	ino;
++	struct access_attr	*attr;
++};
++
++struct accessfs_direntry {
++	struct accessfs_entry	node;
++	struct accessfs_direntry	*parent;
++	struct list_head	children;
++	struct access_attr	attr;
++};
++
++extern int accessfs_permitted(struct access_attr *p, int mask);
++extern struct accessfs_direntry *accessfs_make_dirpath(const char *name);
++extern int accessfs_register(struct accessfs_direntry *dir, const char *name, struct access_attr *attr);
++extern void accessfs_unregister(struct accessfs_direntry *dir, const char *name);
++
++#if  CONFIG_ACCESSFS_PROT_SOCK < PROT_SOCK
++#define CONFIG_ACCESSFS_PROT_SOCK	PROT_SOCK
++#elseif CONFIG_ACCESSFS_PROT_SOCK > 65536
++#define CONFIG_ACCESSFS_PROT_SOCK	65536
++#endif
++
++#endif
+diff -urN a/include/net/sock.h b/include/net/sock.h
+--- a/include/net/sock.h	Fri Jan 27 23:53:13 2006
++++ b/include/net/sock.h	Sat Jan 28 12:47:19 2006
+@@ -1417,4 +1417,21 @@
+ extern __u32 sysctl_wmem_default;
+ extern __u32 sysctl_rmem_default;
  
- .PHONY: depend dep
-diff --git a/arch/alpha/boot/bootp.c b/arch/alpha/boot/bootp.c
-index ec53c28..b5580d9 100644
---- a/arch/alpha/boot/bootp.c
-+++ b/arch/alpha/boot/bootp.c
-@@ -10,6 +10,7 @@
- #include <linux/kernel.h>
- #include <linux/string.h>
- #include <linux/version.h>
-+#include <linux/utsversion.h>
- #include <linux/mm.h>
++/* Networking hooks */
++#ifdef	CONFIG_NET_HOOKS
++struct net_hook_operations {
++	int	(*ip_prot_sock)(struct socket *sock,
++				struct sockaddr *uaddr, int addr_len);
++	int	(*ip6_prot_sock)(struct socket *sock,
++				 struct sockaddr *uaddr, int addr_len);
++};
++
++extern struct net_hook_operations	*net_ops;
++
++extern int default_ip_prot_sock(struct socket *sock, struct sockaddr *uaddr, int addr_len);
++extern int default_ip6_prot_sock(struct socket *sock, struct sockaddr *uaddr, int addr_len);
++extern void net_hooks_register(struct net_hook_operations *ops);
++extern void net_hooks_unregister(struct net_hook_operations *ops);
++#endif
++
+ #endif	/* _SOCK_H */
+diff -urN a/net/Kconfig b/net/Kconfig
+--- a/net/Kconfig	Sat Jan 28 12:46:23 2006
++++ b/net/Kconfig	Sat Jan 28 12:47:19 2006
+@@ -56,6 +56,17 @@
+ if INET
+ source "net/ipv4/Kconfig"
+ source "net/ipv6/Kconfig"
++config NET_HOOKS
++	bool "IP: Networking hooks (Experimental)"
++	depends on INET && EXPERIMENTAL
++	default n
++	help
++	  This option enables other kernel parts or modules to hook into the
++	  networking area and provide fine grained control over the access to
++	  IP ports.
++
++	  If you're unsure, say N.
++
  
- #include <asm/system.h>
-diff --git a/arch/alpha/boot/bootpz.c b/arch/alpha/boot/bootpz.c
-index a6657f2..8d9a318 100644
---- a/arch/alpha/boot/bootpz.c
-+++ b/arch/alpha/boot/bootpz.c
-@@ -12,6 +12,7 @@
- #include <linux/kernel.h>
- #include <linux/string.h>
- #include <linux/version.h>
-+#include <linux/utsversion.h>
- #include <linux/mm.h>
+ endif # if INET
  
- #include <asm/system.h>
-diff --git a/arch/alpha/boot/main.c b/arch/alpha/boot/main.c
-index 78c9b0b..25ce6b3 100644
---- a/arch/alpha/boot/main.c
-+++ b/arch/alpha/boot/main.c
-@@ -8,6 +8,7 @@
- #include <linux/kernel.h>
- #include <linux/string.h>
- #include <linux/version.h>
-+#include <linux/utsversion.h>
- #include <linux/mm.h>
+diff -urN a/net/Makefile b/net/Makefile
+--- a/net/Makefile	Fri Jan 27 23:53:18 2006
++++ b/net/Makefile	Sat Jan 28 12:48:26 2006
+@@ -46,6 +46,7 @@
+ obj-$(CONFIG_IP_SCTP)		+= sctp/
+ obj-$(CONFIG_IEEE80211)		+= ieee80211/
+ obj-$(CONFIG_TIPC)		+= tipc/
++obj-$(CONFIG_NET_HOOKS)		+= hooks.o
  
- #include <asm/system.h>
-diff --git a/arch/frv/kernel/setup.c b/arch/frv/kernel/setup.c
-index 5908dea..92bf6ed 100644
---- a/arch/frv/kernel/setup.c
-+++ b/arch/frv/kernel/setup.c
-@@ -12,6 +12,7 @@
+ ifeq ($(CONFIG_NET),y)
+ obj-$(CONFIG_SYSCTL)		+= sysctl_net.o
+diff -urN a/net/hooks.c b/net/hooks.c
+--- a/net/hooks.c	Thu Jan  1 01:00:00 1970
++++ b/net/hooks.c	Sat Jan 28 12:47:19 2006
+@@ -0,0 +1,56 @@
++/* Copyright (c) 2002 Olaf Dietsche
++ *
++ * Networking hooks. Currently for IPv4 and IPv6 only.
++ */
++
++#include <linux/module.h>
++#include <linux/in.h>
++#include <linux/in6.h>
++#include <net/sock.h>
++
++int default_ip_prot_sock(struct socket *sock, struct sockaddr *uaddr, int addr_len)
++{
++	struct sockaddr_in *addr = (struct sockaddr_in *) uaddr;
++	unsigned short snum = ntohs(addr->sin_port);
++	if (snum && snum < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
++		return -EACCES;
++
++	return 0;
++}
++
++int default_ip6_prot_sock(struct socket *sock, struct sockaddr *uaddr, int addr_len)
++{
++#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
++	struct sockaddr_in6 *addr = (struct sockaddr_in6 *) uaddr;
++	unsigned short snum = ntohs(addr->sin6_port);
++	if (snum && snum < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
++		return -EACCES;
++
++	return 0;
++#else
++	return -EACCES;
++#endif
++}
++
++static struct net_hook_operations default_net_ops = {
++	.ip_prot_sock =	default_ip_prot_sock,
++	.ip6_prot_sock =	default_ip6_prot_sock,
++};
++
++struct net_hook_operations *net_ops = &default_net_ops;
++
++void net_hooks_register(struct net_hook_operations *ops)
++{
++	net_ops = ops;
++}
++
++void net_hooks_unregister(struct net_hook_operations *ops)
++{
++	net_ops = &default_net_ops;
++}
++
++EXPORT_SYMBOL(net_ops);
++EXPORT_SYMBOL(default_ip_prot_sock);
++EXPORT_SYMBOL(default_ip6_prot_sock);
++EXPORT_SYMBOL(net_hooks_register);
++EXPORT_SYMBOL(net_hooks_unregister);
+diff -urN a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+--- a/net/ipv4/af_inet.c	Fri Jan 27 23:53:20 2006
++++ b/net/ipv4/af_inet.c	Sat Jan 28 12:47:19 2006
+@@ -431,7 +431,11 @@
  
- #include <linux/config.h>
- #include <linux/version.h>
-+#include <linux/utsversion.h>
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/delay.h>
-diff --git a/arch/i386/boot/setup.S b/arch/i386/boot/setup.S
-index ca668d9..b7c289a 100644
---- a/arch/i386/boot/setup.S
-+++ b/arch/i386/boot/setup.S
-@@ -49,6 +49,7 @@
- #include <linux/config.h>
- #include <asm/segment.h>
- #include <linux/version.h>
-+#include <linux/utsversion.h>
- #include <linux/compile.h>
- #include <asm/boot.h>
- #include <asm/e820.h>
-diff --git a/arch/powerpc/platforms/chrp/setup.c b/arch/powerpc/platforms/chrp/setup.c
-index 2dc87aa..36a9996 100644
---- a/arch/powerpc/platforms/chrp/setup.c
-+++ b/arch/powerpc/platforms/chrp/setup.c
-@@ -28,6 +28,7 @@
- #include <linux/init.h>
- #include <linux/pci.h>
- #include <linux/version.h>
-+#include <linux/utsversion.h>
- #include <linux/adb.h>
- #include <linux/module.h>
- #include <linux/delay.h>
-diff --git a/arch/powerpc/platforms/powermac/bootx_init.c b/arch/powerpc/platforms/powermac/bootx_init.c
-index fa8b4d7..c8cd384 100644
---- a/arch/powerpc/platforms/powermac/bootx_init.c
-+++ b/arch/powerpc/platforms/powermac/bootx_init.c
-@@ -14,6 +14,7 @@
- #include <linux/string.h>
- #include <linux/init.h>
- #include <linux/version.h>
-+#include <linux/utsversion.h>
- #include <asm/sections.h>
- #include <asm/prom.h>
- #include <asm/page.h>
-diff --git a/arch/ppc/platforms/chrp_setup.c b/arch/ppc/platforms/chrp_setup.c
-index 48996b7..fc4ad8e 100644
---- a/arch/ppc/platforms/chrp_setup.c
-+++ b/arch/ppc/platforms/chrp_setup.c
-@@ -28,6 +28,7 @@
- #include <linux/init.h>
- #include <linux/pci.h>
- #include <linux/version.h>
-+#include <linux/utsversion.h>
- #include <linux/adb.h>
- #include <linux/module.h>
- #include <linux/delay.h>
-diff --git a/arch/ppc/syslib/btext.c b/arch/ppc/syslib/btext.c
-index 12fa83e..b40fd33 100644
---- a/arch/ppc/syslib/btext.c
-+++ b/arch/ppc/syslib/btext.c
-@@ -8,6 +8,7 @@
- #include <linux/string.h>
- #include <linux/init.h>
- #include <linux/version.h>
-+#include <linux/utsversion.h>
+ 	snum = ntohs(addr->sin_port);
+ 	err = -EACCES;
++#ifdef	CONFIG_NET_HOOKS
++	if (net_ops->ip_prot_sock(sock, uaddr, addr_len))
++#else
+ 	if (snum && snum < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
++#endif
+ 		goto out;
  
- #include <asm/sections.h>
- #include <asm/bootx.h>
-diff --git a/arch/x86_64/boot/setup.S b/arch/x86_64/boot/setup.S
-index 12ea0b6..b8ace49 100644
---- a/arch/x86_64/boot/setup.S
-+++ b/arch/x86_64/boot/setup.S
-@@ -48,6 +48,7 @@
- #include <linux/config.h>
- #include <asm/segment.h>
- #include <linux/version.h>
-+#include <linux/utsversion.h>
- #include <linux/compile.h>
- #include <asm/boot.h>
- #include <asm/e820.h>
-diff --git a/include/linux/vermagic.h b/include/linux/vermagic.h
-index fadc535..fa91e0d 100644
---- a/include/linux/vermagic.h
-+++ b/include/linux/vermagic.h
-@@ -1,4 +1,5 @@
- #include <linux/version.h>
-+#include <linux/utsversion.h>
- #include <linux/module.h>
+ 	/*      We keep a pair of addresses. rcv_saddr is the one
+diff -urN a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
+--- a/net/ipv6/af_inet6.c	Fri Jan 27 23:53:23 2006
++++ b/net/ipv6/af_inet6.c	Sat Jan 28 12:47:19 2006
+@@ -260,7 +260,11 @@
+ 		return -EINVAL;
  
- /* Simply sanity version stamp for modules. */
-diff --git a/init/version.c b/init/version.c
-index 3ddc3ce..fa2a300 100644
---- a/init/version.c
-+++ b/init/version.c
-@@ -10,6 +10,7 @@
- #include <linux/module.h>
- #include <linux/uts.h>
- #include <linux/utsname.h>
-+#include <linux/utsversion.h>
- #include <linux/version.h>
+ 	snum = ntohs(addr->sin6_port);
++#ifdef	CONFIG_NET_HOOKS
++	if (net_ops->ip6_prot_sock(sock, uaddr, addr_len))
++#else
+ 	if (snum && snum < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
++#endif
+ 		return -EACCES;
  
- #define version(a) Version_ ## a
+ 	lock_sock(sk);

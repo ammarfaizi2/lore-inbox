@@ -1,60 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751380AbWA1EEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbWA1EJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751380AbWA1EEk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 23:04:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbWA1EEk
+	id S932065AbWA1EJP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 23:09:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbWA1EJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 23:04:40 -0500
-Received: from xenotime.net ([66.160.160.81]:40413 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751380AbWA1EEk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 23:04:40 -0500
-Date: Fri, 27 Jan 2006 20:04:56 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
+	Fri, 27 Jan 2006 23:09:15 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:24211 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932065AbWA1EJP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 23:09:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=o/4nsWwRcOQUdJkxD6SOAdejuInSMAnWJhuhVImA+hr+kQo1CbN6rSUUQ+qdzZoRtw4tjd0gnxctHoRjHGpkrRUlZ7swX29IqNIu2F27ztrqTAT5+5uVE1sucs+5z1vTKs1daNCzpx4UGOcaafwDwBzxjpCEt7fY46RJKGvkc9Q=
+Message-ID: <29495f1d0601272009t9838bbw38caa1c806c5ab98@mail.gmail.com>
+Date: Fri, 27 Jan 2006 20:09:14 -0800
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: bart@samwel.tk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] Fix overflow issues with sysctl values in
- centiseconds/seconds
-Message-Id: <20060127200456.113f9756.rdunlap@xenotime.net>
+Subject: Re: [PATCH 0/3] Fix overflow issues with sysctl values in centiseconds/seconds
+Cc: Bart Samwel <bart@samwel.tk>, linux-kernel@vger.kernel.org
 In-Reply-To: <20060127195539.6ffc3d3a.akpm@osdl.org>
-References: <43DADB03.7080606@samwel.tk>
-	<20060127195539.6ffc3d3a.akpm@osdl.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43DADB03.7080606@samwel.tk>
+	 <20060127195539.6ffc3d3a.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Jan 2006 19:55:39 -0800 Andrew Morton wrote:
-
+On 1/27/06, Andrew Morton <akpm@osdl.org> wrote:
 > Bart Samwel <bart@samwel.tk> wrote:
 > >
 > >  Here's a threesome of patches
 > >
-> 
+>
 > All of which were space-stuffed by your (mozilla-derived) email client and
 > hence are unusable by users of non-MS-wannabe email clients.  They may also
 > be unusable by users of mozilla-based email clients, too - I don't know.
-> 
+>
 > As far as I know there's no way to prevent mailnews-derived mail clients
 > from performing space-stuffing.  I've had a bug report in against it for at
 > least two years and all they've done is fartarse around with it.
-> 
+
+I think this thread claims that there is a way (although a PITA):
+http://lkml.org/lkml/2005/12/27/191
+
+I don't use TBird, personally, but Randy D. seemed satisfied with the
+results in that thread.
+
 > IOW: please switch mail clients or use text/plain attachments.
 
-Someone kept saying that tbird would work and I kept asking how.
-What I finally got was:
+Also viable (and maybe preferred) solutions.
 
-a.  enable html-formatted email (unintuirive, I had disabled it)
-b.  for the body text, select Fixed Width
-c.  copy-and-paste the patch
-
-I tested it one time and it worked.
-But as long as Andrew accepts text/plain attachments, that
-works for him.  Makes it difficult to review them in some
-mail clients...
-
----
-~Randy
+Thanks,
+Nish

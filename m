@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965029AbWA1RLm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbWA1RkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965029AbWA1RLm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 12:11:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWA1RLm
+	id S1751489AbWA1RkG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 12:40:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWA1RkD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 12:11:42 -0500
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:20378 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S932441AbWA1RLl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 12:11:41 -0500
-Date: Sat, 28 Jan 2006 18:11:48 +0100
-From: Luca <kronos@kronoz.cjb.net>
-To: Jan De Luyck <lkml@kcore.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Suspend to RAM: help with whitelist wanted
-Message-ID: <20060128171148.GA5363@dreamland.darkstar.lan>
-References: <20060126213611.GA1668@elf.ucw.cz> <20060127232207.GB1617@elf.ucw.cz> <20060128155800.GA3064@dreamland.darkstar.lan> <200601281704.19050.lkml@kcore.org>
+	Sat, 28 Jan 2006 12:40:03 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:36041 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751489AbWA1RkA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 12:40:00 -0500
+Message-ID: <43DBAC64.1070902@pobox.com>
+Date: Sat, 28 Jan 2006 12:39:48 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601281704.19050.lkml@kcore.org>
-User-Agent: Mutt/1.5.11
+To: Lukasz Kosewski <lkosewsk@gmail.com>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 2.6.15-rc7-git3 1/3] sata_promise: add correct read/write
+ of hotplug registers for SATAII devices
+References: <355e5e5e0512291523h508fe0c8j459a9377d52d5529@mail.gmail.com>
+In-Reply-To: <355e5e5e0512291523h508fe0c8j459a9377d52d5529@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Lukasz Kosewski wrote: > This patch adds support for
+	correctly masking out and knowing about > hotplug events on Promise
+	SATAII150 Tx4/Tx2 Plus controllers. > > Signed-off-by: Luke Kosewski
+	<lkosewsk@gmail.com> [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Sat, Jan 28, 2006 at 05:04:18PM +0100, Jan De Luyck ha scritto: 
-> On Saturday 28 January 2006 16:58, Luca wrote:
-> > - I must stop acpid before suspending otherwise it will get a "power
-> >   button pressed" event on resume and shutdown the machine; not related
-> >   to s2ram though.
+Lukasz Kosewski wrote:
+> This patch adds support for correctly masking out and knowing about
+> hotplug events on Promise SATAII150 Tx4/Tx2 Plus controllers.
 > 
-> You can fix that by e.g creating a file /tmp/acpi_sleep, and checking in the 
-> powerbutton routine if the file is present. Delete it if it is present, and 
-> just shutdown the machine if not. 
-> 
-> I have to do that too on my Acer TM803.
+> Signed-off-by:  Luke Kosewski <lkosewsk@gmail.com>
 
-Well this is not a big deal, my suspend script just does:
+applied
 
-/etc/init.d/acpid stop
-echo mem > /sys/power/state
-/etc/init.d/acpid start
 
-Luca
--- 
-Home: http://kronoz.cjb.net
-La vasca da bagno fu inventata nel 1850, il telefono nel 1875.
-Se fossi vissuto nel 1850, avrei potuto restare in vasca per 25 anni
-senza sentir squillare il telefono

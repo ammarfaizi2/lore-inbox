@@ -1,87 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422715AbWA1AAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422718AbWA1ABE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422715AbWA1AAy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 19:00:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422713AbWA1AAy
+	id S1422718AbWA1ABE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 19:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422720AbWA1ABE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 19:00:54 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:41871 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422715AbWA1AAx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 19:00:53 -0500
-Subject: Re: iommu_alloc failure and panic
-From: Mark Haverkamp <markh@osdl.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: "linuxppc64-dev@ozlabs.org" <linuxppc64-dev@ozlabs.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060127234853.GA17018@krispykreme>
-References: <1138381060.11796.22.camel@markh3.pdx.osdl.net>
-	 <20060127234853.GA17018@krispykreme>
-Content-Type: text/plain
-Date: Fri, 27 Jan 2006 16:00:47 -0800
-Message-Id: <1138406447.11796.32.camel@markh3.pdx.osdl.net>
+	Fri, 27 Jan 2006 19:01:04 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:51109 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1422713AbWA1ABC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 19:01:02 -0500
+Date: Fri, 27 Jan 2006 16:01:00 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: dada1@cosmosbay.com, davem@davemloft.net, linux-kernel@vger.kernel.org,
+       shai@scalex86.org, netdev@vger.kernel.org, pravins@calsoftinc.com
+Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
+Message-ID: <20060128000100.GD3565@localhost.localdomain>
+References: <20060126185649.GB3651@localhost.localdomain> <20060126190357.GE3651@localhost.localdomain> <43D9DFA1.9070802@cosmosbay.com> <20060127195227.GA3565@localhost.localdomain> <20060127121602.18bc3f25.akpm@osdl.org> <20060127224433.GB3565@localhost.localdomain> <20060127150106.38b9e041.akpm@osdl.org> <20060127150847.48c312c0.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060127150847.48c312c0.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-28 at 10:48 +1100, Anton Blanchard wrote:
-> Hi,
+On Fri, Jan 27, 2006 at 03:08:47PM -0800, Andrew Morton wrote:
+> Andrew Morton <akpm@osdl.org> wrote:
+> >
+> > Oh, and because vm_acct_memory() is counting a singleton object, it can use
+> > DEFINE_PER_CPU rather than alloc_percpu(), so it saves on a bit of kmalloc
+> > overhead.
 > 
-> > I have been testing large numbers of storage devices.  I have 16000 scsi
-> > LUNs configured.  (4000 fiberchannel LUNS seen 4 times).  They are
-> > configured as 4000 multipath devices using device mapper.  I have 100 of
-> > those devices configured as a logical volume using LVM2.  Once I start
-> > bonnie++ using one of those logical volumes I start seeing iommu_alloc
-> > failures and then a panic.  I don't have this issue when accessing the
-> > individual devices or the individual multipath devices.  Only when
-> > conglomerated into a logical volume.
-> > 
-> > Here is the syslog output:
-> > 
-> > Jan 26 14:56:41 linux kernel: iommu_alloc failed, tbl c00000000263c480 vaddr c0000000d7967000 npages 10
-> 
-> This stuff should be OK since the lpfc driver should handle the iommu
-> filling up. Im guessing since you have so many LUNs you can get a whole
-> lot of outstanding IO, enough to fill up the TCE table.
-> 
-> > DAR: C000000600711710
-> 
-> > NIP [C00000000000F7D0] .validate_sp+0x30/0xc0
-> > LR [C00000000000FA2C] .show_stack+0xec/0x1d0
-> > Call Trace:
-> > [C0000000076DBBC0] [C00000000000FA18] .show_stack+0xd8/0x1d0 (unreliable)
-> > [C0000000076DBC60] [C000000000433838] .schedule+0xd78/0xfb0
-> > [C0000000076DBDE0] [C000000000079FC0] .worker_thread+0x1b0/0x1c0
-> 
-> This is interesting, an oops in validate_sp which is a pretty boring
-> function. We have seen this in the past when you overflow your kernel
-> stack. The bottom of the kernel stack contains the threadinfo struct and
-> in that we have the task_cpu() data.
-> 
-> When we overflow the stack and overwrite the threadinfo we end up with 
-> a crazy number for task_cpu() and then oops when doing 
-> hardirq_ctx[task_cpu(p)]. Can you turn on DEBUG_STACKOVERFLOW and
-> DEBUG_STACK_USAGE and see if you get any stack overflow warnings? 
+> Actually, I don't think that's true.  we're allocating a sizeof(long) with
+> kmalloc_node() so there shouldn't be memory wastage.
 
-It looks like they are already on:
+Oh yeah there is. Each dynamic per-cpu object would have been  atleast
+(NR_CPUS * sizeof (void *) + num_cpus_possible * cacheline_size ).  
+Now kmalloc_node will fall back on size-32 for allocation of long, so
+replace the cacheline_size above with 32 -- which then means dynamic per-cpu
+data are not on a cacheline boundary anymore (most modern cpus have 64byte/128 
+byte cache lines) which means per-cpu data could end up false shared....
 
-CONFIG_DEBUG_STACKOVERFLOW=y
-CONFIG_DEBUG_STACK_USAGE=y
-
-> The
-> second option will also allow you to do sysrq t and dump the most stack
-> each process has used at that point.
-
-The machine is frozen after the panic. 
-
-
-Mark.
-
-
-> 
-> Anton
--- 
-Mark Haverkamp <markh@osdl.org>
-
+Kiran

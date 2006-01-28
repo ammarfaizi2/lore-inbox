@@ -1,90 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751474AbWA1Qu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751473AbWA1Qtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751474AbWA1Qu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 11:50:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbWA1Qu1
+	id S1751473AbWA1Qtc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 11:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWA1Qtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 11:50:27 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:59330 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751474AbWA1Qu0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 11:50:26 -0500
-Message-ID: <43DBB2D1.8E79F4CE@tv-sign.ru>
-Date: Sat, 28 Jan 2006 21:07:13 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Sat, 28 Jan 2006 11:49:32 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35849 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751473AbWA1Qtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 11:49:32 -0500
+Date: Sat, 28 Jan 2006 17:49:30 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] i386: HIGHMEM64G must depend on X86_CMPXCHG64
+Message-ID: <20060128164930.GJ3777@stusta.de>
+References: <20051117235700.GJ11494@stusta.de> <m14q6aohg0.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
-To: paulmck@us.ibm.com
-Cc: Dipankar Sarma <dipankar@in.ibm.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [patch 1/2] rcu batch tuning
-References: <43DA7B47.11D10B09@tv-sign.ru> <20060127234231.GD10075@us.ibm.com>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m14q6aohg0.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Paul E. McKenney" wrote:
-> 
-> On Fri, Jan 27, 2006 at 10:57:59PM +0300, Oleg Nesterov wrote:
-> >
-> > When ->qlen exceeds qhimark for the first time we send reschedule IPI to
-> > other CPUs and force_quiescent_state() records ->last_rs_qlen = ->qlen.
-> > But we don't reset ->last_rs_qlen when ->qlen goes to 0, this means that
-> > next time we need ++rdp->qlen > qhimark + rsinterval to force other CPUS
-> > to pass quiescent state, no?
-> 
-> Good catch -- this could well explain Lee's continuing to hit
-> latency problems.  Although this would not cause the first
-> latency event, only subsequent ones, it seems to me that ->last_rs_qlen
-> should be reset whenever ->blimit is reset.
+On Thu, Nov 17, 2005 at 06:47:27PM -0700, Eric W. Biederman wrote:
+>...
+> So I think either the pgtable-3level.h needs to fixed,
+> or we just make CONFIG_HIGHME64G depend on CONFIG_X86_CMPXCHG64.
 
-May be it's better to do it in other way?
+Sounds reasonable (and sorry for the late answer).
 
-struct rcu_ctrlblk {
-	...
-	int signaled;
-	...
-};
+Patch below.
 
-void force_quiescent_state(rdp, rcp)
-{
-	if (!rcp->signaled) {
-		// racy, but tolerable
-		rcp->signaled = 1;
+> Eric
 
-		for_each_cpu_mask(cpu, cpumask)
-			smp_send_reschedule(cpu);
-	}
-}
+cu
+Adrian
 
-void rcu_start_batch(rcp, rdp)
-{
-	if (->next_pending && ->completed == ->cur) {
-		...
-		rcp->signaled = 0;
-		...
-	}
-}
 
-Probably it is also makes sense to tasklet_schedule(rcu_tasklet)
-in call_rcu() when ++rdp->qlen > qhimark, this way we can detect
-that we need to start the next batch earlier.
+<--  snip  -->
 
-> > Also, it seems to me it's better to have 2 counters, one for length(->donelist)
-> > and another for length(->curlist + ->nxtlist). I think we don't need
-> > force_quiescent_state() when all rcu callbacks are placed in ->donelist,
-> > we only need to increase rdp->blimit in this case.
->
-> True, currently the patch keeps the sum of the length of all three lists,
-> and takes both actions when the sum gets too large.  But the only way
-> you would get unneeded IPIs would be if callback processing was
-> stalled, but callback generation and grace-period processing was
-> still proceeding.  Seems at first glance to be an unusual corner
-> case, with the only downside being some extra IPIs.  Or am I missing
-> some aspect?
 
-Yes, it is probably not worth to complicate the code.
+Due to the usage of set_64bit in include/asm-i386/pgtable-3level.h, 
+HIGHMEM64G must depend on X86_CMPXCHG64.
 
-Oleg.
+
+--- linux-2.6.16-rc1-mm3-386/arch/i386/Kconfig.old	2006-01-28 16:04:45.000000000 +0100
++++ linux-2.6.16-rc1-mm3-386/arch/i386/Kconfig	2006-01-28 16:05:25.000000000 +0100
+@@ -442,6 +442,7 @@
+ 
+ config HIGHMEM64G
+ 	bool "64GB"
++	depends on X86_CMPXCHG64
+ 	help
+ 	  Select this if you have a 32-bit processor and more than 4
+ 	  gigabytes of physical RAM.

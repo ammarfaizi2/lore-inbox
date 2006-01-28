@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422807AbWA1CWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422812AbWA1CYD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422807AbWA1CWx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 21:22:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422806AbWA1CWw
+	id S1422812AbWA1CYD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 21:24:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422804AbWA1CXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 21:22:52 -0500
-Received: from mail.kroah.org ([69.55.234.183]:33722 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1422804AbWA1CW1 (ORCPT
+	Fri, 27 Jan 2006 21:23:35 -0500
+Received: from mail.kroah.org ([69.55.234.183]:62906 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1422812AbWA1CWz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 21:22:27 -0500
-Date: Fri, 27 Jan 2006 18:21:12 -0800
+	Fri, 27 Jan 2006 21:22:55 -0500
+Date: Fri, 27 Jan 2006 18:20:41 -0800
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,13 +17,13 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       davem@davemloft.net, richm@oldelvet.org.uk
-Subject: [patch 07/12] Fix timekeeping on sparc64 ultra-IIe machines
-Message-ID: <20060128022112.GH17001@kroah.com>
+       axboe@suse.de
+Subject: [patch 02/12] [BLOCK] Kill blk_attempt_remerge()
+Message-ID: <20060128022041.GC17001@kroah.com>
 References: <20060128020629.908825000@press.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="sparc64-fix-timekeeping-on-ultra-IIe-machines.patch"
+Content-Disposition: inline; filename="kill-blk_attempt_remerge.patch"
 In-Reply-To: <20060128022023.GA17001@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -34,81 +34,93 @@ us know.
 
 ------------------
 
-From: Richard Mortimer <richm@oldelvet.org.uk>
+From: Jens Axboe <axboe@suse.de>
 
-[SPARC64]: Eliminate race condition reading Hummingbird STICK register
+[BLOCK] Kill blk_attempt_remerge()
 
-Ensure a consistent value is read from the STICK register by ensuring
-that both high and low are read without high changing due to a roll
-over of the low register.
+It's a broken interface, it's done way too late. And apparently it triggers
+slab problems in recent kernels as well (most likely after the generic dispatch
+code was merged). So kill it, ide-cd is the only user of it.
 
-Various Debian/SPARC users (myself include) have noticed problems with
-Hummingbird based systems. The symptoms are that the system time is
-seen to jump forward 3 days, 6 hours, 11 minutes give or take a few
-seconds. In many cases the system then hangs some time afterwards.
+chrisw: backport to 2.6.15 tree
 
-I've spotted a race condition in the code to read the STICK register.
-I could not work out why 3d, 6h, 11m is important but guess that it is
-due to the 2^32 jump of STICK (forwards on one read and then the next
-read will seem to be backwards) during a timer interrupt. I'm guessing
-that a change of -2^32 will get converted to a large unsigned
-increment after the arithmetic manipulation between STICK,
-nanoseconds, jiffies etc.
-
-I did a test where I modified __hbird_read_stick to artificially
-inject rollover faults forcefully every few seconds. With this I saw
-the clock jump over 6 times in 12 hours compared to once every month
-or so.
-
-Signed-off-by: Richard Mortimer <richm@oldelvet.org.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jens Axboe <axboe@suse.de>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- arch/sparc64/kernel/time.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ block/ll_rw_blk.c      |   24 ------------------------
+ drivers/ide/ide-cd.c   |   10 ----------
+ include/linux/blkdev.h |    1 -
+ 3 files changed, 35 deletions(-)
 
---- linux-2.6.15.1.orig/arch/sparc64/kernel/time.c
-+++ linux-2.6.15.1/arch/sparc64/kernel/time.c
-@@ -280,9 +280,9 @@ static struct sparc64_tick_ops stick_ope
-  * Since STICK is constantly updating, we have to access it carefully.
-  *
-  * The sequence we use to read is:
-- * 1) read low
-- * 2) read high
-- * 3) read low again, if it rolled over increment high by 1
-+ * 1) read high
-+ * 2) read low
-+ * 3) read high again, if it rolled re-read both low and high again.
-  *
-  * Writing STICK safely is also tricky:
-  * 1) write low to zero
-@@ -295,18 +295,18 @@ static struct sparc64_tick_ops stick_ope
- static unsigned long __hbird_read_stick(void)
- {
- 	unsigned long ret, tmp1, tmp2, tmp3;
--	unsigned long addr = HBIRD_STICK_ADDR;
-+	unsigned long addr = HBIRD_STICK_ADDR+8;
+--- linux-2.6.15.1.orig/block/ll_rw_blk.c
++++ linux-2.6.15.1/block/ll_rw_blk.c
+@@ -2609,30 +2609,6 @@ static inline int attempt_front_merge(re
+ 	return 0;
+ }
  
--	__asm__ __volatile__("ldxa	[%1] %5, %2\n\t"
--			     "add	%1, 0x8, %1\n\t"
--			     "ldxa	[%1] %5, %3\n\t"
-+	__asm__ __volatile__("ldxa	[%1] %5, %2\n"
-+			     "1:\n\t"
- 			     "sub	%1, 0x8, %1\n\t"
-+			     "ldxa	[%1] %5, %3\n\t"
-+			     "add	%1, 0x8, %1\n\t"
- 			     "ldxa	[%1] %5, %4\n\t"
- 			     "cmp	%4, %2\n\t"
--			     "blu,a,pn	%%xcc, 1f\n\t"
--			     " add	%3, 1, %3\n"
--			     "1:\n\t"
--			     "sllx	%3, 32, %3\n\t"
-+			     "bne,a,pn	%%xcc, 1b\n\t"
-+			     " mov	%4, %2\n\t"
-+			     "sllx	%4, 32, %4\n\t"
- 			     "or	%3, %4, %0\n\t"
- 			     : "=&r" (ret), "=&r" (addr),
- 			       "=&r" (tmp1), "=&r" (tmp2), "=&r" (tmp3)
+-/**
+- * blk_attempt_remerge  - attempt to remerge active head with next request
+- * @q:    The &request_queue_t belonging to the device
+- * @rq:   The head request (usually)
+- *
+- * Description:
+- *    For head-active devices, the queue can easily be unplugged so quickly
+- *    that proper merging is not done on the front request. This may hurt
+- *    performance greatly for some devices. The block layer cannot safely
+- *    do merging on that first request for these queues, but the driver can
+- *    call this function and make it happen any way. Only the driver knows
+- *    when it is safe to do so.
+- **/
+-void blk_attempt_remerge(request_queue_t *q, struct request *rq)
+-{
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(q->queue_lock, flags);
+-	attempt_back_merge(q, rq);
+-	spin_unlock_irqrestore(q->queue_lock, flags);
+-}
+-
+-EXPORT_SYMBOL(blk_attempt_remerge);
+-
+ static int __make_request(request_queue_t *q, struct bio *bio)
+ {
+ 	struct request *req;
+--- linux-2.6.15.1.orig/drivers/ide/ide-cd.c
++++ linux-2.6.15.1/drivers/ide/ide-cd.c
+@@ -1332,8 +1332,6 @@ static ide_startstop_t cdrom_start_read 
+ 	if (cdrom_read_from_buffer(drive))
+ 		return ide_stopped;
+ 
+-	blk_attempt_remerge(drive->queue, rq);
+-
+ 	/* Clear the local sector buffer. */
+ 	info->nsectors_buffered = 0;
+ 
+@@ -1874,14 +1872,6 @@ static ide_startstop_t cdrom_start_write
+ 		return ide_stopped;
+ 	}
+ 
+-	/*
+-	 * for dvd-ram and such media, it's a really big deal to get
+-	 * big writes all the time. so scour the queue and attempt to
+-	 * remerge requests, often the plugging will not have had time
+-	 * to do this properly
+-	 */
+-	blk_attempt_remerge(drive->queue, rq);
+-
+ 	info->nsectors_buffered = 0;
+ 
+ 	/* use dma, if possible. we don't need to check more, since we
+--- linux-2.6.15.1.orig/include/linux/blkdev.h
++++ linux-2.6.15.1/include/linux/blkdev.h
+@@ -559,7 +559,6 @@ extern void register_disk(struct gendisk
+ extern void generic_make_request(struct bio *bio);
+ extern void blk_put_request(struct request *);
+ extern void blk_end_sync_rq(struct request *rq);
+-extern void blk_attempt_remerge(request_queue_t *, struct request *);
+ extern struct request *blk_get_request(request_queue_t *, int, gfp_t);
+ extern void blk_insert_request(request_queue_t *, struct request *, int, void *);
+ extern void blk_requeue_request(request_queue_t *, struct request *);
 
 --

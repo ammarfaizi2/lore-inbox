@@ -1,62 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751584AbWA1GZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932527AbWA1Gl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751584AbWA1GZT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 01:25:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbWA1GZT
+	id S932527AbWA1Gl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 01:41:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbWA1Gl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 01:25:19 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:63940 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751584AbWA1GZT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 01:25:19 -0500
-Date: Sat, 28 Jan 2006 06:25:04 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chase Venters <chase.venters@clientec.com>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Marc Perkel <marc@perkel.com>,
-       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Patrick McLean <pmclean@cs.ubishops.ca>,
-       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-Message-ID: <20060128062504.GW27946@ftp.linux.org.uk>
-References: <43D7B20D.7040203@wolfmountaingroup.com> <43D7B5C4.5040601@wolfmountaingroup.com> <43D7D05D.7030101@perkel.com> <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com> <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com> <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse> <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org> <1138387136.26811.8.camel@localhost> <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org> <Pine.LNX.4.64.0601280001000.2909@evo.osdl.org>
+	Sat, 28 Jan 2006 01:41:29 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:8924 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932527AbWA1Gl2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 01:41:28 -0500
+Date: Fri, 27 Jan 2006 22:40:58 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Nathan Lynch <ntl@pobox.com>
+Cc: steiner@sgi.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       rml@novell.com
+Subject: Re: 2.6.16 - sys_sched_getaffinity & hotplug
+Message-Id: <20060127224058.a12994f7.pj@sgi.com>
+In-Reply-To: <20060128052355.GC18730@localhost.localdomain>
+References: <20060127230659.GA4752@sgi.com>
+	<20060127191400.aacb8539.pj@sgi.com>
+	<20060128034241.GB18730@localhost.localdomain>
+	<20060127205834.b5821a02.pj@sgi.com>
+	<20060128052355.GC18730@localhost.localdomain>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0601280001000.2909@evo.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 28, 2006 at 12:22:58AM -0500, Linus Torvalds wrote:
-> PS. Just out of historical interest, the only other copyright license ever 
-> distributed with the kernel was this one:
+Nathan, responding to pj, responding to Nathan:
+> > Nathan wrote:
+> > > Which is problematic, because cpuset_cpus_allowed ->
+> > > guarantee_online_cpus restricts the task->cpus_allowed mask to cpus
+> > > which happen to be online at the time of the call to
+> > > sched_setaffinity.  If more cpus come online later, that task can't be
+> > > migrated to them.
+> > 
+> > Well, sort of.
+> > 
+> > A task could always migrate - just because a sched_getaffinity
+> > the task did in the past doesn't show a CPU as valid, doesn't stop
+> > the task from asking to pin to that CPU now.
 > 
->  "This kernel is (C) 1991 Linus Torvalds, but all or part of it may be
->   redistributed provided you do the following:
-> 
-> 	- Full source must be available (and free), if not with the
-> 	  distribution then at least on asking for it.
-> 
-> 	- Copyright notices must be intact. (In fact, if you distribute
-> 	  only parts of it you may have to add copyrights, as there aren't
-> 	  (C)'s in all files.) Small partial excerpts may be copied
-> 	  without bothering with copyrights.
-> 
-> 	- You may not distibute this for a fee, not even "handling"
-> 	  costs.
-> 
->   Mail me at "torvalds@kruuna.helsinki.fi" if you have any questions."
-> 
-> and that one was only valid between kernel versions 0.01 and 0.12 or 
-> something like that.
+> I was speaking of the setaffinity (not getaffinity) case -- I assumed
+> this was what you were referring to since I couldn't find any calls to
+> the cpuset code in the getaffinity path.
 
-Interesting...  What does that do to e.g. DVD with full (OK, modulo missing
-early versions) kernel history all way back to 0.01?
 
-Even funnier question is what does that do to full CVS including the
-early versions.  Can that be distributed at all and what license would
-fit it?  Arguing that it's mere aggregation is possible, but it's a
-bit of a stretch...
+Oh dear ... and you said 'setaffinity' quite clearly.  Though
+Jack's original post only dealt with getaffinity.
+
+I think this discussion is getting quite confused, for which
+I can take at least some of the credit.
+
+You observe, correctly, that the call chain:
+	sched_setaffinity
+	cpuset_cpus_allowed
+	guarantee_online_cpus
+restricts a sched_setaffinity to CPUs online at the time of that
+sched_setaffinity call.
+
+However, I have no clue how you conclude from this that "If more cpus
+come online later, that task can't be migrated to them."
+
+At anytime that some system service or batch scheduler wants to
+migrate a task to some different CPUs (whether or not those CPUs were
+once offline), it can either attach that task to a different cpuset,
+or change the 'cpus' of its current cpuset.
+
+Then if it wants to properly keep that tasks placement relative to its
+new cpuset, it can reissue a sched_setaffinity on that tasks behalf,
+to again set that tasks cpus_allowed to the same, relative to the
+containing cpuset, CPUs as before.
+
+Nothing in the behaviour of sched_getaffinity, that Jack was
+considering, nor in the behaviour of sched_setaffinity, that
+you thought I must be considering, has any impact on which CPUs
+a task can be migrated to.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

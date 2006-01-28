@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWA1Sbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbWA1Sji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbWA1Sbj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 13:31:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWA1Sbj
+	id S964813AbWA1Sji (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 13:39:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWA1Sji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 13:31:39 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:39556 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932449AbWA1Sbi convert rfc822-to-8bit
+	Sat, 28 Jan 2006 13:39:38 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:58378 "EHLO
+	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S964813AbWA1Sji
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 13:31:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=srPGEHDuqgCpwFcw5soBbRSipbpKPR1KnvqAkVDBRo98mY/F0+PDLvHY/4Hb5d5jlqGD0flJou1m49TWCsUyOm02He++/Mx3W20uOhyqRjqKXnpl388SDt3Wj27dCCBpkF2cvnc4G7pya3XNUWZ7Zx7yi0PUo8v0dKFwmF+yi2Y=
-Message-ID: <9a8748490601281031x514f0b9ckffcdce64148ebd8d@mail.gmail.com>
-Date: Sat, 28 Jan 2006 19:31:36 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Ken MacFerrin <lists@macferrin.com>
-Subject: Re: PROBLEM: kernel BUG at mm/rmap.c:486 - kernel 2.6.15-r1
+	Sat, 28 Jan 2006 13:39:38 -0500
+Date: Sat, 28 Jan 2006 18:38:15 +0000
+From: Martin Michlmayr <tbm@cyrius.com>
+To: Sam Ravnborg <sam@ravnborg.org>, torvalds@osdl.org
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43DAE307.5010306@macferrin.com>
+Subject: [mips] Accept various mips sub-types in SUBARCH
+Message-ID: <20060128183815.GA27304@deprecation.cyrius.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <43DAE307.5010306@macferrin.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/28/06, Ken MacFerrin <lists@macferrin.com> wrote:
-> I started getting hard lockups on my desktop PC with the error "kernel
-> BUG at mm/rmap.c:487" starting with kernel 2.6.13 and continuing through
-> 2.6.14.  After switching to 2.6.15 the lockups have continued with the
-> message "kernel BUG at mm/rmap.c:486".
->
-> The frequency and circumstance are completely random which originally
-> had me suspecting bad memory but after running Memtest86+ for over 12
-> hours without error I'm at a loss.
->
-> I'm running the binary Nvidia driver so I'll understand if I can't get
-> help here but in searching through the list archives it would seem I'm
-> not alone and I am willing to try any patches that may help diagnose the
-> issue.  The crash happens at least daily and I've seen no difference in
-> running kernels with or without PREEMPT enabled.
->
-If you don't actually *need* accelerated 3D (or if you could do
-without it for a while), switching to the "nv" driver for a few
-days/weeks would be interresting. If the crashes go away that would
-point towards the nvidia driver, if they don't go away we'll get a
-nice untainted crash report.
+uname -m on MIPS can give a number of results, such as mips64.  We
+need to add another substitution to the sed call for SUBARCH in the
+main Makefile.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Signed-off-by: Martin Michlmayr <tbm@cyrius.com>
+
+---
+
+ Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/Makefile	2006-01-28 18:33:03.000000000 +0000
++++ b/Makefile	2006-01-28 18:33:45.000000000 +0000
+@@ -152,7 +152,7 @@
+ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
+ 				  -e s/arm.*/arm/ -e s/sa110/arm/ \
+ 				  -e s/s390x/s390/ -e s/parisc64/parisc/ \
+-				  -e s/ppc.*/powerpc/ )
++				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ )
+ 
+ # Cross compiling and selecting different set of gcc/bin-utils
+ # ---------------------------------------------------------------------------
+
+-- 
+Martin Michlmayr
+http://www.cyrius.com/

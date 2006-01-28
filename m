@@ -1,119 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbWA1PBs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbWA1O71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751411AbWA1PBs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 10:01:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWA1PBs
+	id S1751372AbWA1O71 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 09:59:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWA1O70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 10:01:48 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:12167 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1751411AbWA1PBr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 10:01:47 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Recursive chmod/chown OOM kills box with 32MB RAM
-Date: Sat, 28 Jan 2006 17:01:02 +0200
-User-Agent: KMail/1.8.2
-References: <200601281613.16199.vda@ilport.com.ua>
-In-Reply-To: <200601281613.16199.vda@ilport.com.ua>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Jan 2006 09:59:26 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:40384 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751372AbWA1O70 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 09:59:26 -0500
+Date: Sat, 28 Jan 2006 16:00:06 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [patch] warn on release_region() from irq context
+Message-ID: <20060128150006.GA10660@elte.hu>
+References: <20060128144357.GA6881@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601281701.02533.vda@ilport.com.ua>
+In-Reply-To: <20060128144357.GA6881@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 January 2006 16:13, Denis Vlasenko wrote:
-> I have an old PII server box with just 32MB of RAM.
-> 
-> Yesterday I was preparing it for use by other people, not just me,
-> and went on checking and tightening filesystem permissions with
-> chmod -R and/or chown -R.
-> 
-> On deep directories box started to OOM-kill processes en masse!
-> 
-> I updated kernel to 2.6.15.1 - doesn't help.
-> I stopped some of more memory hungry processes before running
-> chmod -R  -  doesn't help.
+the rationale for this patch is that the lock validator (which now 
+tracks rwlock dependencies too, see output below) noticed that floppy.c 
+does a release_region() from softirq context -> ouch. I'm working on the 
+floppy.c fix for that.
 
-More details which might be relevant.
+	Ingo
 
-I did not alter anything in /proc/sys/vm, maybe I should?
-
-# cd /proc/sys/vm
-# for a in *; do echo "$a: `cat "$a"`"; done
-block_dump: 0
-dirty_background_ratio: 10
-dirty_expire_centisecs: 3000
-dirty_ratio: 40
-dirty_writeback_centisecs: 500
-hugetlb_shm_group: 0
-laptop_mode: 0
-legacy_va_layout: 0
-lowmem_reserve_ratio: 256       256     32
-max_map_count: 65536
-min_free_kbytes: 724
-nr_hugepages: 0
-nr_pdflush_threads: 2
-overcommit_memory: 0
-overcommit_ratio: 50
-page-cluster: 3
-swap_token_timeout: 300
-swappiness: 60
-vfs_cache_pressure: 100
-
-SCSI controller and disks attached to it:
-
-lspci says: "00:0b.0 SCSI storage controller: Adaptec AIC-7880U (rev 01)"
-boot log:
-13:48:34.50 ahc_pci:0:11:0: Using left over BIOS settings
-13:48:34.50 scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 7.0
-13:48:34.50         <Adaptec aic7880 Ultra SCSI adapter>
-13:48:34.50         aic7880: Ultra Wide Channel A, SCSI Id=7, 16/253 SCBs
-13:48:34.50
-13:48:34.50   Vendor: IBM       Model: DNES-309170W      Rev: SAH0
-13:48:34.50   Type:   Direct-Access                      ANSI SCSI revision: 03
-13:48:34.50 scsi0:A:0:0: Tagged Queuing enabled.  Depth 8
-13:48:34.50  target0:0:0: Beginning Domain Validation
-13:48:34.50  target0:0:0: wide asynchronous.
-13:48:34.50  target0:0:0: FAST-20 WIDE SCSI 40.0 MB/s ST (50 ns, offset 8)
-13:48:34.50  target0:0:0: Domain Validation skipping write tests
-13:48:34.50  target0:0:0: Ending Domain Validation
-13:48:34.50   Vendor: IBM       Model: DNES-309170W      Rev: SAH0
-13:48:34.50   Type:   Direct-Access                      ANSI SCSI revision: 03
-13:48:34.50 scsi0:A:1:0: Tagged Queuing enabled.  Depth 8
-13:48:34.50  target0:0:1: Beginning Domain Validation
-13:48:34.50  target0:0:1: wide asynchronous.
-13:48:34.50  target0:0:1: FAST-20 WIDE SCSI 40.0 MB/s ST (50 ns, offset 8)
-13:48:34.50  target0:0:1: Domain Validation skipping write tests
-13:48:34.50  target0:0:1: Ending Domain Validation
-13:48:34.50   Vendor: SEAGATE   Model: ST39140N          Rev: 1498
-13:48:34.50   Type:   Direct-Access                      ANSI SCSI revision: 02
-13:48:34.50 scsi0:A:3:0: Tagged Queuing enabled.  Depth 8
-13:48:34.50  target0:0:3: Beginning Domain Validation
-13:48:34.50  target0:0:3: FAST-20 SCSI 20.0 MB/s ST (50 ns, offset 15)
-13:48:34.50  target0:0:3: Domain Validation skipping write tests
-13:48:34.50  target0:0:3: Ending Domain Validation
-13:48:34.50 libata version 1.20 loaded.
-13:48:34.50 SCSI device sda: 17916240 512-byte hdwr sectors (9173 MB)
-13:48:34.50 SCSI device sda: drive cache: write back
-13:48:34.50 SCSI device sda: 17916240 512-byte hdwr sectors (9173 MB)
-13:48:34.50 SCSI device sda: drive cache: write back
-13:48:34.50  sda: sda1 sda2
-13:48:34.50 sd 0:0:0:0: Attached scsi disk sda
-13:48:34.51 SCSI device sdb: 17916240 512-byte hdwr sectors (9173 MB)
-13:48:34.51 SCSI device sdb: drive cache: write back
-13:48:34.51 SCSI device sdb: 17916240 512-byte hdwr sectors (9173 MB)
-13:48:34.51 SCSI device sdb: drive cache: write back
-13:48:34.51  sdb: sdb1 sdb2
-13:48:34.51 sd 0:0:1:0: Attached scsi disk sdb
-13:48:34.51 SCSI device sdc: 17783240 512-byte hdwr sectors (9105 MB)
-13:48:34.51 SCSI device sdc: drive cache: write back
-13:48:34.51 SCSI device sdc: 17783240 512-byte hdwr sectors (9105 MB)
-13:48:34.51 SCSI device sdc: drive cache: write back
-13:48:34.51  sdc: sdc1 sdc2 sdc3
-
---
-vda
+  ============================
+  [ BUG: illegal lock usage! ]
+  ----------------------------
+  illegal {softirq-on} -> {in-softirq} usage.
+  rcu_torture_rea/264 [HC0[0]:SC1[2]:HE1:SE0] takes:
+   (resource_lock){+-}, at: [<c0123997>] __release_region+0x37/0xf0
+  {softirq-on} state was registered at:
+   [<c0122c85>] irq_exit+0x45/0x50
+  hardirqs last enabled at: [<c011d39e>] vprintk+0x32e/0x3e0
+  softirqs last enabled at: [<c0122c85>] irq_exit+0x45/0x50
+  
+  other info that might help us debug this:
+  no locks held by rcu_torture_rea/264.
+  
+  stack backtrace:
+   [<c010432d>] show_trace+0xd/0x10
+   [<c0104347>] dump_stack+0x17/0x20
+   [<c0139078>] print_usage_bug+0x1d8/0x230
+   [<c0139436>] mark_lock+0x366/0x3a0
+   [<c0139903>] debug_lock_chain+0x493/0x1090
+   [<c013a53d>] debug_lock_chain_spin+0x3d/0x60
+   [<c0268522>] _raw_write_lock+0x32/0x1a0
+   [<c04dc158>] _write_lock+0x8/0x10
+   [<c0123997>] __release_region+0x37/0xf0
+   [<c02f5010>] floppy_release_irq_and_dma+0x140/0x200
+   [<c02f3577>] set_dor+0xc7/0x1b0
+   [<c02f65e1>] motor_off_callback+0x21/0x30
+   [<c01276c5>] run_timer_softirq+0xf5/0x1f0
+   [<c0122fc7>] __do_softirq+0x97/0x130
+   [<c01054a9>] do_softirq+0x69/0x100
+   =======================
+   [<c0122c85>] irq_exit+0x45/0x50
+   [<c010f504>] smp_apic_timer_interrupt+0x54/0x60
+   [<c010393b>] apic_timer_interrupt+0x27/0x2c
+   [<c0266b79>] __delay+0x9/0x10
+   [<c0266be1>] __udelay+0x31/0x40
+   [<c01445e3>] rcu_torture_reader+0x83/0x140
+   [<c0131cca>] kthread+0xca/0xd0
+   [<c0100ef5>] kernel_thread_helper+0x5/0x10

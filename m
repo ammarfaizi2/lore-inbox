@@ -1,57 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422772AbWA1BJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422777AbWA1BKG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422772AbWA1BJA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 20:09:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422777AbWA1BJA
+	id S1422777AbWA1BKG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 20:10:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422779AbWA1BKG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 20:09:00 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:53899 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422772AbWA1BI7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 20:08:59 -0500
-Message-ID: <43DAC427.70801@us.ibm.com>
-Date: Fri, 27 Jan 2006 17:08:55 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Fri, 27 Jan 2006 20:10:06 -0500
+Received: from mf01.sitadelle.com ([212.94.174.68]:1134 "EHLO smtp.cegetel.net")
+	by vger.kernel.org with ESMTP id S1422777AbWA1BKE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 20:10:04 -0500
+Message-ID: <43DAC46B.3010200@cosmosbay.com>
+Date: Sat, 28 Jan 2006 02:10:03 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@kvack.org>
-CC: linux-kernel@vger.kernel.org, sri@us.ibm.com, andrea@suse.de,
-       pavel@suse.cz, linux-mm@kvack.org
-Subject: Re: [patch 3/9] mempool - Make mempools NUMA aware
-References: <20060125161321.647368000@localhost.localdomain> <1138233093.27293.1.camel@localhost.localdomain> <20060127002331.GH10409@kvack.org> <43D96AEC.4030200@us.ibm.com> <20060127032307.GI10409@kvack.org>
-In-Reply-To: <20060127032307.GI10409@kvack.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@osdl.org>
+Cc: kiran@scalex86.org, davem@davemloft.net, linux-kernel@vger.kernel.org,
+       shai@scalex86.org, netdev@vger.kernel.org, pravins@calsoftinc.com
+Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
+References: <20060126185649.GB3651@localhost.localdomain>	<20060126190357.GE3651@localhost.localdomain>	<43D9DFA1.9070802@cosmosbay.com>	<20060127195227.GA3565@localhost.localdomain>	<20060127121602.18bc3f25.akpm@osdl.org>	<20060127224433.GB3565@localhost.localdomain>	<43DAA586.5050609@cosmosbay.com>	<20060127151635.3a149fe2.akpm@osdl.org>	<43DABAA4.8040208@cosmosbay.com> <20060127164308.1ea4c3e5.akpm@osdl.org>
+In-Reply-To: <20060127164308.1ea4c3e5.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------030001050404050803000506"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
-> On Thu, Jan 26, 2006 at 04:35:56PM -0800, Matthew Dobson wrote:
-> 
->>Ummm...  ok?  But with only a simple flag, how do you know *which* mempool
->>you're trying to use?  What if you want to use a mempool for a non-slab
->>allocation?
-> 
-> 
-> Are there any?  A quick poke around has only found a couple of places 
-> that use kzalloc(), which is still quite effectively a slab allocation.  
-> There seems to be just one page user, the dm-crypt driver, which could 
-> be served by a reservation scheme.
+This is a multi-part message in MIME format.
+--------------030001050404050803000506
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-A couple.  If Andrew is willing to pick up the mempool patches I posted an
-hour or so ago, there will be only 4 mempool users that aren't using a
-common mempool allocator.  Regardless of whether that happens, there are
-only a few users that aren't slab based:
-   1) mm/highmem.c - page based allocator
-   2) drivers/scsi/scsi_transport_iscsi.c - calls alloc_skb(), which does
-      eventually end up making a slab allocation
-   3) drivers/md/raid1.c & raid10.c - easily the biggest mempool_alloc
-      functions in the kernel.  Non-trivial.
-   4) drivers/md/dm-crypt.c - the driver you mentioned, also using a page
-      allocator
+Andrew Morton a écrit :
+> Eric Dumazet <dada1@cosmosbay.com> wrote:
+>>> An advantage of retaining a spinlock in percpu_counter is that if accuracy
+>>> is needed at a low rate (say, /proc reading) we can take the lock and then
+>>> go spill each CPU's local count into the main one.  It would need to be a
+>>> very low rate though.   Or we make the cpu-local counters atomic too.
+>> We might use atomic_long_t only (and no spinlocks)
+> 
+> Yup, that's it.
+> 
+>> Something like this ?
+>>
+> 
+> It'd be a lot neater if we had atomic_long_xchg().
 
-So we could possibly get away with a reservation scheme, but a couple users
-would be non-trivial to fixup.
+You are my guest :)
 
--Matt
+[PATCH] Add atomic_long_xchg() and atomic_long_cmpxchg() wrappers
+
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
+
+
+
+--------------030001050404050803000506
+Content-Type: text/plain;
+ name="atomic.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="atomic.patch"
+
+--- a/include/asm-generic/atomic.h	2006-01-28 02:59:49.000000000 +0100
++++ b/include/asm-generic/atomic.h	2006-01-28 02:57:36.000000000 +0100
+@@ -66,6 +66,18 @@
+ 	atomic64_sub(i, v);
+ }
+ 
++static inline long atomic_long_xchg(atomic_long_t *l, long val)
++{
++	atomic64_t *v = (atomic64_t *)l;
++	return atomic64_xchg(v, val);
++}
++
++static inline long atomic_long_cmpxchg(atomic_long_t *l, long old, long new)
++{
++	atomic64_t *v = (atomic64_t *)l;
++	return atomic64_cmpxchg(v, old, new);
++}
++
+ #else
+ 
+ typedef atomic_t atomic_long_t;
+@@ -113,5 +125,17 @@
+ 	atomic_sub(i, v);
+ }
+ 
++static inline long atomic_long_xchg(atomic_long_t *l, long val)
++{
++	atomic_t *v = (atomic_t *)l;
++	return atomic_xchg(v, val);
++}
++
++static inline long atomic_long_cmpxchg(atomic_long_t *l, long old, long new)
++{
++	atomic_t *v = (atomic_t *)l;
++	return atomic_cmpxchg(v, old, new);
++}
++
+ #endif
+ #endif
+
+--------------030001050404050803000506--

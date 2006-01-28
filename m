@@ -1,70 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932517AbWA1IRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751591AbWA1Ibc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932517AbWA1IRG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 03:17:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbWA1IRF
+	id S1751591AbWA1Ibc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 03:31:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751589AbWA1Ibb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 03:17:05 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48362 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932532AbWA1IRE (ORCPT
+	Sat, 28 Jan 2006 03:31:31 -0500
+Received: from [217.157.19.70] ([217.157.19.70]:15575 "EHLO jehova.dsm.dk")
+	by vger.kernel.org with ESMTP id S1751354AbWA1Ibb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 03:17:04 -0500
-Date: Sat, 28 Jan 2006 09:16:42 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Paul Jackson <pj@sgi.com>, clameter@engr.sgi.com,
-       linux-kernel@vger.kernel.org, sri@us.ibm.com, andrea@suse.de,
-       linux-mm@kvack.org
-Subject: Re: [patch 3/9] mempool - Make mempools NUMA aware
-Message-ID: <20060128081641.GB1605@elf.ucw.cz>
-References: <Pine.LNX.4.62.0601260953200.15128@schroedinger.engr.sgi.com> <43D953C4.5020205@us.ibm.com> <Pine.LNX.4.62.0601261511520.18716@schroedinger.engr.sgi.com> <43D95A2E.4020002@us.ibm.com> <Pine.LNX.4.62.0601261525570.18810@schroedinger.engr.sgi.com> <43D96633.4080900@us.ibm.com> <Pine.LNX.4.62.0601261619030.19029@schroedinger.engr.sgi.com> <43D96A93.9000600@us.ibm.com> <20060127025126.c95f8002.pj@sgi.com> <43DAC222.4060805@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43DAC222.4060805@us.ibm.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sat, 28 Jan 2006 03:31:31 -0500
+Date: Sat, 28 Jan 2006 08:31:26 +0000 (GMT)
+From: Thomas Horsten <thomas@horsten.com>
+X-X-Sender: thomas@jehova.dsm.dk
+To: Karim Yaghmour <karim@opersys.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+In-Reply-To: <43DB0343.1090808@opersys.com>
+Message-ID: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, 28 Jan 2006, Karim Yaghmour wrote:
 
-I'll probably regret getting into this discussion, but:
+> Just to make sure there is no confusion: note that both signed and
+> unsigned kernels behave identically here. It's the user-space applications
+> now that fail when attempting to access some piece of hardware. The
+> classic case being a mmap'ed register window, therefore both the signed
+> and unsigned kernel can map it to user-space (i.e. no modification in
+> behavior for the GPLv3'ed kernel), but the applications' read/writes on
+> said registers don't work on the non-signed kernel.
 
-> > Or Alan's suggested revival
-> > of the old code to drop non-critical network patches in duress.
-> 
-> Dropping non-critical packets is still in our plan, but I don't think that
-> is a FULL solution.  As we mentioned before on that topic, you can't tell
-> if a packet is critical until AFTER you receive it, by which point it has
-> already had an skbuff (hopefully) allocated for it.  If your network
-> traffic is coming in faster than you can receive, examine, and drop
-> non-critical packets you're hosed.  
+That would be a dubious circumvention. Remember that the GPLv3 is still a
+draft - the wording can (and should probably) be improved to make it clear
+that the system as a whole must behave identically if a modified version
+of the GPL'ed software is used.
 
-Why? You run out of atomic memory, start dropping the packets before
-they even enter the kernel memory, and process backlog in the
-meantime. Other hosts realize you are dropping packets and slow down,
-or, if they are malicious, you just end up consistently dropping 70%
-of packets. But that's okay.
+> Like I said in the LWN forum thread, I do believe things such as DRM
+> are worth fighting for, but I really think the GPL is the wrong venue.
 
-> I still think some sort of reserve pool
-> is necessary to give the networking stack a little breathing room when
-> under both memory pressure and network load.
+It's a good place to start putting pressure on the OEM's. If they can
+choose between heavy DRM'ed and closed hardware, and pay millions in
+license fees, or get the software they need for free in return for
+dropping the restrictions, some are bound to choose the free route. This
+is where the fight begins.
 
-"Lets throw some memory there and hope it does some good?" Eek? What
-about auditing/fixing the networking stack, instead?
+Thomas
 
-> >  * this doesn't really solve the problem (network can still starve)
-> 
-> Only if the pool is not large enough.  One can argue that sizing the pool
-> appropriately is impossible (theoretical incoming traffic over a GigE card
-> or two for a minute or two is extremely large), but then I guess we
-> shouldn't even try to fix the problem...?
-
-And what problem are you trying to fix, anyway? Last time I asked I
-got reply around some strange clustering solution that absolutely has
-to survive two minutes. And no, your patches do not even solve that,
-because sizing the pool is impossible. 
-								Pavel
--- 
-Thanks, Sharp!

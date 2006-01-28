@@ -1,21 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWA1XEq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWA1XFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbWA1XEq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 18:04:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWA1XEq
+	id S1750784AbWA1XFP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 18:05:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWA1XFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 18:04:46 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43787 "HELO
+	Sat, 28 Jan 2006 18:05:14 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48139 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750779AbWA1XEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 18:04:45 -0500
-Date: Sun, 29 Jan 2006 00:04:44 +0100
+	id S1750786AbWA1XE5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 18:04:57 -0500
+Date: Sun, 29 Jan 2006 00:04:56 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: ericvh@gmail.com, rminnich@lanl.gov, lucho@ionkov.net,
-       v9fs-developer@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/9p/: possible cleanups
-Message-ID: <20060128230444.GS3777@stusta.de>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: [2.6 patch] always enable CONFIG_PDC202XX_FORCE
+Message-ID: <20060128230456.GW3777@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,14 +24,7 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- mux.c: v9fs_poll_mux() was inline but not static resuling in needless
-         object size bloat
-- mux.c: remove all "inline"s: gcc should know best what to inline
-- #if 0 the following unused global functions:
-  - 9p.c: v9fs_v9fs_t_flush()
-  - conv.c: v9fs_create_tauth()
-  - mux.c: v9fs_mux_rpcnb()
+This patch removes the CONFIG_PDC202XX_FORCE=n case.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
@@ -38,130 +32,102 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 ---
 
 This patch was already sent on:
-- 21 Jan 2006
+- 22 Jan 2006
+- 14 Jan 2006
 
- fs/9p/9p.c   |    2 ++
- fs/9p/9p.h   |    2 --
- fs/9p/conv.c |    2 ++
- fs/9p/conv.h |    1 -
- fs/9p/mux.c  |   11 ++++++-----
- fs/9p/mux.h  |    2 --
- 6 files changed, 10 insertions(+), 10 deletions(-)
+ drivers/ide/Kconfig            |    7 -------
+ drivers/ide/pci/pdc202xx_new.c |    6 ------
+ drivers/ide/pci/pdc202xx_old.c |   15 ---------------
+ 3 files changed, 28 deletions(-)
 
---- linux-2.6.16-rc1-mm2-full/fs/9p/9p.h.old	2006-01-21 00:48:21.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/9p/9p.h	2006-01-21 00:48:30.000000000 +0100
-@@ -348,8 +348,6 @@
+--- linux-2.6.15-mm4-full/drivers/ide/Kconfig.old	2006-01-14 20:43:13.000000000 +0100
++++ linux-2.6.15-mm4-full/drivers/ide/Kconfig	2006-01-14 20:43:23.000000000 +0100
+@@ -673,13 +673,6 @@
+ config BLK_DEV_PDC202XX_NEW
+ 	tristate "PROMISE PDC202{68|69|70|71|75|76|77} support"
  
- int v9fs_t_clunk(struct v9fs_session_info *v9ses, u32 fid);
- 
--int v9fs_t_flush(struct v9fs_session_info *v9ses, u16 oldtag);
+-# FIXME - probably wants to be one for old and for new
+-config PDC202XX_FORCE
+-	bool "Enable controller even if disabled by BIOS"
+-	depends on BLK_DEV_PDC202XX_NEW
+-	help
+-	  Enable the PDC202xx controller even if it has been disabled in the BIOS setup.
 -
- int v9fs_t_stat(struct v9fs_session_info *v9ses, u32 fid,
- 		struct v9fs_fcall **rcall);
- 
---- linux-2.6.16-rc1-mm2-full/fs/9p/9p.c.old	2006-01-21 00:48:45.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/9p/9p.c	2006-01-21 01:14:14.000000000 +0100
-@@ -149,6 +149,7 @@
- 	return ret;
- }
- 
-+#if 0
- /**
-  * v9fs_v9fs_t_flush - flush a pending transaction
-  * @v9ses: 9P2000 session information
-@@ -172,6 +173,7 @@
- 
- 	return ret;
- }
-+#endif  /*  0  */
- 
- /**
-  * v9fs_t_stat - read a file's meta-data
---- linux-2.6.16-rc1-mm2-full/fs/9p/conv.h.old	2006-01-21 00:49:23.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/9p/conv.h	2006-01-21 00:49:31.000000000 +0100
-@@ -33,7 +33,6 @@
- void v9fs_set_tag(struct v9fs_fcall *fc, u16 tag);
- 
- struct v9fs_fcall *v9fs_create_tversion(u32 msize, char *version);
--struct v9fs_fcall *v9fs_create_tauth(u32 afid, char *uname, char *aname);
- struct v9fs_fcall *v9fs_create_tattach(u32 fid, u32 afid, char *uname,
- 	char *aname);
- struct v9fs_fcall *v9fs_create_tflush(u16 oldtag);
---- linux-2.6.16-rc1-mm2-full/fs/9p/conv.c.old	2006-01-21 00:49:44.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/9p/conv.c	2006-01-21 00:49:59.000000000 +0100
-@@ -526,6 +526,7 @@
- 	return fc;
- }
- 
-+#if 0
- struct v9fs_fcall *v9fs_create_tauth(u32 afid, char *uname, char *aname)
- {
- 	int size;
-@@ -549,6 +550,7 @@
-       error:
- 	return fc;
- }
-+#endif  /*  0  */
- 
- struct v9fs_fcall *
- v9fs_create_tattach(u32 fid, u32 afid, char *uname, char *aname)
---- linux-2.6.16-rc1-mm2-full/fs/9p/mux.h.old	2006-01-21 00:50:58.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/9p/mux.h	2006-01-21 00:51:03.000000000 +0100
-@@ -50,8 +50,6 @@
- int v9fs_mux_send(struct v9fs_mux_data *m, struct v9fs_fcall *tc);
- struct v9fs_fcall *v9fs_mux_recv(struct v9fs_mux_data *m);
- int v9fs_mux_rpc(struct v9fs_mux_data *m, struct v9fs_fcall *tc, struct v9fs_fcall **rc);
--int v9fs_mux_rpcnb(struct v9fs_mux_data *m, struct v9fs_fcall *tc,
--	v9fs_mux_req_callback cb, void *a);
- 
- void v9fs_mux_flush(struct v9fs_mux_data *m, int sendflush);
- void v9fs_mux_cancel(struct v9fs_mux_data *m, int err);
---- linux-2.6.16-rc1-mm2-full/fs/9p/mux.c.old	2006-01-21 00:50:13.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/9p/mux.c	2006-01-21 00:52:11.000000000 +0100
-@@ -143,7 +143,7 @@
-  *
-  * The current implementation returns sqrt of the number of mounts.
-  */
--inline int v9fs_mux_calc_poll_procs(int muxnum)
-+static int v9fs_mux_calc_poll_procs(int muxnum)
- {
- 	int n;
- 
-@@ -384,7 +384,7 @@
- /**
-  * v9fs_poll_mux - polls a mux and schedules read or write works if necessary
-  */
--static inline void v9fs_poll_mux(struct v9fs_mux_data *m)
-+static void v9fs_poll_mux(struct v9fs_mux_data *m)
- {
- 	int n;
- 
-@@ -756,9 +756,8 @@
- 	return req;
- }
- 
--static inline void
--v9fs_mux_flush_cb(void *a, struct v9fs_fcall *tc, struct v9fs_fcall *rc,
--		  int err)
-+static void v9fs_mux_flush_cb(void *a, struct v9fs_fcall *tc,
-+			      struct v9fs_fcall *rc, int err)
- {
- 	v9fs_mux_req_callback cb;
- 	int tag;
-@@ -895,6 +894,7 @@
- 	return err;
- }
- 
-+#if 0
- /**
-  * v9fs_mux_rpcnb - sends 9P request without waiting for response.
-  * @m: mux data
-@@ -918,6 +918,7 @@
- 	dprintk(DEBUG_MUX, "mux %p tc %p tag %d\n", m, tc, req->tag);
- 	return 0;
- }
-+#endif  /*  0  */
- 
- /**
-  * v9fs_mux_cancel - cancel all pending requests with error
+ config BLK_DEV_SVWKS
+ 	tristate "ServerWorks OSB4/CSB5/CSB6 chipsets support"
+ 	help
+--- linux-2.6.15-mm4-full/drivers/ide/pci/pdc202xx_new.c.old	2006-01-14 20:43:30.000000000 +0100
++++ linux-2.6.15-mm4-full/drivers/ide/pci/pdc202xx_new.c	2006-01-14 20:43:51.000000000 +0100
+@@ -420,9 +420,6 @@
+ 		.init_hwif	= init_hwif_pdc202new,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
+-		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+-#endif
+ 		.bootable	= OFF_BOARD,
+ 	},{	/* 3 */
+ 		.name		= "PDC20271",
+@@ -447,9 +444,6 @@
+ 		.init_hwif	= init_hwif_pdc202new,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
+-		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+-#endif
+ 		.bootable	= OFF_BOARD,
+ 	},{	/* 6 */
+ 		.name		= "PDC20277",
+--- linux-2.6.15-mm4-full/drivers/ide/pci/pdc202xx_old.c.old	2006-01-14 20:44:01.000000000 +0100
++++ linux-2.6.15-mm4-full/drivers/ide/pci/pdc202xx_old.c	2006-01-14 20:44:21.000000000 +0100
+@@ -786,9 +786,6 @@
+ 		.init_dma	= init_dma_pdc202xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
+-		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+-#endif
+ 		.bootable	= OFF_BOARD,
+ 		.extra		= 16,
+ 	},{	/* 1 */
+@@ -799,9 +796,6 @@
+ 		.init_dma	= init_dma_pdc202xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
+-		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+-#endif
+ 		.bootable	= OFF_BOARD,
+ 		.extra		= 48,
+ 		.flags		= IDEPCI_FLAG_FORCE_PDC,
+@@ -813,9 +807,6 @@
+ 		.init_dma	= init_dma_pdc202xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
+-		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+-#endif
+ 		.bootable	= OFF_BOARD,
+ 		.extra		= 48,
+ 	},{	/* 3 */
+@@ -826,9 +817,6 @@
+ 		.init_dma	= init_dma_pdc202xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
+-		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+-#endif
+ 		.bootable	= OFF_BOARD,
+ 		.extra		= 48,
+ 		.flags		= IDEPCI_FLAG_FORCE_PDC,
+@@ -840,9 +828,6 @@
+ 		.init_dma	= init_dma_pdc202xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
+-		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+-#endif
+ 		.bootable	= OFF_BOARD,
+ 		.extra		= 48,
+ 	}
 

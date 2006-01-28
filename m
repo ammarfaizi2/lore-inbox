@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422783AbWA1BpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422785AbWA1Bqn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422783AbWA1BpX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 20:45:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422786AbWA1BpX
+	id S1422785AbWA1Bqn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 20:46:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422786AbWA1Bqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 20:45:23 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:63946 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1422783AbWA1BpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 20:45:22 -0500
-Date: Fri, 27 Jan 2006 17:45:12 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, mingo@elte.hu,
-       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
-       rohit.seth@intel.com, asit.k.mallick@intel.com
-Subject: Re: [Patch] sched: new sched domain for representing multi-core
-Message-ID: <20060127174512.A6229@unix-os.sc.intel.com>
-References: <20060126015132.A8521@unix-os.sc.intel.com> <200601270542.12404.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200601270542.12404.ak@suse.de>; from ak@suse.de on Fri, Jan 27, 2006 at 05:42:11AM +0100
+	Fri, 27 Jan 2006 20:46:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:41891 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422785AbWA1Bqm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 20:46:42 -0500
+Date: Fri, 27 Jan 2006 20:46:08 -0500 (EST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Marc Perkel <marc@perkel.com>,
+       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       Patrick McLean <pmclean@cs.ubishops.ca>,
+       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+In-Reply-To: <20060127133939.GU27946@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0601272043020.3192@evo.osdl.org>
+References: <43D13B2A.6020504@cs.ubishops.ca> <43D7C780.6080000@perkel.com>
+ <43D7B20D.7040203@wolfmountaingroup.com> <43D7B5C4.5040601@wolfmountaingroup.com>
+ <43D7D05D.7030101@perkel.com> <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>
+ <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>
+ <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>
+ <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org> <43D9F9F9.5060501@ti-wmc.nl>
+ <20060127133939.GU27946@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2006 at 05:42:11AM +0100, Andi Kleen wrote:
-> On Thursday 26 January 2006 10:51, Siddha, Suresh B wrote:
+
+
+On Fri, 27 Jan 2006, Al Viro wrote:
 > 
-> With this patch does the new distance checking code in the scheduler 
-> from Ingo automatically discover all the relevant distances?
+> Bzzert.   "GPLv2 only in the context of the Linux kernel" is incompatible
+> with GPLv2 and means that resulting kernel is impossible to distribute.
 
-Yes.
+Indeed. The GPL (both v2 and v3) disallow restricting usage. 
 
-> 
-> > +#ifdef CONFIG_SMP
-> > +	unsigned int cpu = (c == &boot_cpu_data) ? 0 : (c - cpu_data);
-> > +#endif
-> 
-> Wouldn't it be better to just put that information into the cpuinfo_x86?
-> We're having too many per CPU arrays already.
+So certain _code_ can be either v2 or v3 only, but you can't make that 
+decision based on how the code is used. 
 
+So you can't license, for example, your code "udner the GPL only for the 
+Linux kernel". Trust me, some companies have actually wanted to do exactly 
+that - they wanted to distribute their code, but _only_ for the kernel 
+(and you'd not be allowed to use it for any other GPL'd project). That 
+just cannot fly. It's either GPL, or it isn't. There's no "GPL with the 
+following rules".
 
-> Actually it would be better to pass this information in some other way
-> to smpboot.c than to add more and more arrays like this.  It's only
-> needed for the current CPU, because for the others the information
-> is in cpu_llc_shared_map
-
-In smpboot.c we require the llc id of current CPU and all other online cpus.
-I will put cpu_llc_shared_map info into cpuinfo_x86 (in future with power
-savings sched policy, it will be used whenever someone changes sched policy)
-And will make cpu_llc_id[] as __cpuinitdata.
-
-> 
-> Perhaps SMP boot up should pass around a pointer to temporary data like this?
-> Or discover it in smpboot.c with a function call?
-> 
-> > -#ifdef CONFIG_SCHED_SMT
-> > +#if defined(CONFIG_SCHED_SMT)
-> >  		sd = &per_cpu(cpu_domains, i);
-> > +#elif defined(CONFIG_SCHED_MC)
-> 
-> elif? What happens where there are both shared caches and SMT? 
-
-Lowest domain the cpu gets attached to it is SMT domain.
-
-thanks,
-suresh
+		Linus

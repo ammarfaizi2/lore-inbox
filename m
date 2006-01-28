@@ -1,95 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbWA1Ews@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWA1E5V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932518AbWA1Ews (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 23:52:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbWA1Ews
+	id S932510AbWA1E5V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 23:57:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWA1E5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 23:52:48 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:6062 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S932512AbWA1Ewr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 23:52:47 -0500
-Date: Fri, 27 Jan 2006 20:52:48 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, shai@scalex86.org, netdev@vger.kernel.org,
-       pravins@calsoftinc.com
-Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
-Message-ID: <20060128045248.GA3584@localhost.localdomain>
-References: <20060126185649.GB3651@localhost.localdomain> <20060126190357.GE3651@localhost.localdomain> <43D9DFA1.9070802@cosmosbay.com> <20060127195227.GA3565@localhost.localdomain> <20060127121602.18bc3f25.akpm@osdl.org> <20060127224433.GB3565@localhost.localdomain> <43DAA586.5050609@cosmosbay.com> <20060127151635.3a149fe2.akpm@osdl.org> <43DABAA4.8040208@cosmosbay.com> <43DABC37.6070603@cosmosbay.com>
+	Fri, 27 Jan 2006 23:57:21 -0500
+Received: from bee.hiwaay.net ([216.180.54.11]:45352 "EHLO bee.hiwaay.net")
+	by vger.kernel.org with ESMTP id S932510AbWA1E5V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 23:57:21 -0500
+Date: Fri, 27 Jan 2006 22:57:19 -0600
+From: Chris Adams <cmadams@hiwaay.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+Message-ID: <20060128045719.GA1565760@hiwaay.net>
+References: <fa.fYMEVB/R3m3sZw+jmUvI2vJzl2I@ifi.uio.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43DABC37.6070603@cosmosbay.com>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <Pine.LNX.4.64.0601272333070.2909@evo.osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 28, 2006 at 01:35:03AM +0100, Eric Dumazet wrote:
-> Eric Dumazet a écrit :
-> >Andrew Morton a écrit :
-> >>Eric Dumazet <dada1@cosmosbay.com> wrote:
-> >
-> >#ifdef CONFIG_SMP
-> >void percpu_counter_mod(struct percpu_counter *fbc, long amount)
-> >{
-> >	long old, new;
-> >	atomic_long_t *pcount;
-> >
-> >	pcount = per_cpu_ptr(fbc->counters, get_cpu());
-> >start:
-> >	old = atomic_long_read(pcount);
-> >	new = old + amount;
-> >	if (new >= FBC_BATCH || new <= -FBC_BATCH) {
-> >		if (unlikely(atomic_long_cmpxchg(pcount, old, 0) != old))
-> >			goto start;
-> >		atomic_long_add(new, &fbc->count);
-> >	} else
-> >		atomic_long_add(amount, pcount);
-> >
-> >	put_cpu();
-> >}
-> >EXPORT_SYMBOL(percpu_counter_mod);
-> >
-> >long percpu_counter_read_accurate(struct percpu_counter *fbc)
-> >{
-> >	long res = 0;
-> >	int cpu;
-> >	atomic_long_t *pcount;
-> >
-> >	for_each_cpu(cpu) {
-> >		pcount = per_cpu_ptr(fbc->counters, cpu);
-> >		/* dont dirty cache line if not necessary */
-> >		if (atomic_long_read(pcount))
-> >			res += atomic_long_xchg(pcount, 0);
-				--------------------------->  (A)
-> >	}
-> 
+Once upon a time, Linus Torvalds  <torvalds@osdl.org> said:
+>I believe that hardware that limits what their users can do will die just 
+>becuase being user-unfriendly is not a way to do successful business. Yes, 
+>I'm a damned blue-eyed optimist, but I'd rather be blue-eyed than consider 
+>all uses of security technology to necessarily always be bad.
 
-> 	atomic_long_add(res, &fbc->count);
-				--------------------------->  (B)
-> 	res = atomic_long_read(&fbc->count);
-> 
-> >	return res;
-> >}
+I haven't read the GPLv3 draft myself, but I would guess that private
+signing key language is aimed squarely at TiVo.  They use a Linux
+kernel, but only kernel binaries signed by them will load (so you can't
+modify the kernel without jumping through hoops).  Is that
+"user-unfriendly"?  Probably so, but only to a small percentage of the
+users.
 
-The read is still theoritically FBC_BATCH * NR_CPUS inaccurate no?
-What happens when other cpus update  their local counters at (A) and (B)?
-
-(I am hoping we don't need percpu_counter_read_accurate anywhere yet and
-this is just demo ;).  I certainly don't want to go on all cpus for read / 
-add cmpxchg on the write path for the proto counters that started this 
-discussion)
-
-Thanks,
-Kiran
+-- 
+Chris Adams <cmadams@hiwaay.net>
+Systems and Network Administrator - HiWAAY Internet Services
+I don't speak for anybody but myself - that's enough trouble.

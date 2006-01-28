@@ -1,116 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWA1KrI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWA1LaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932186AbWA1KrI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 05:47:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWA1KrI
+	id S932134AbWA1LaP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 06:30:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbWA1LaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 05:47:08 -0500
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:19349 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S932186AbWA1KrH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 05:47:07 -0500
-Date: Sat, 28 Jan 2006 11:46:11 +0100
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: David Howells <dhowells@redhat.com>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org, keyrings@linux-nfs.org
-Subject: Re: [PATCH 01/04] Add multi-precision-integer maths library
-Message-ID: <20060128104611.GA4348@hardeman.nu>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	David Howells <dhowells@redhat.com>,
-	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-	keyrings@linux-nfs.org
-References: <20060127092817.GB24362@infradead.org> <1138312694656@2gen.com> <1138312695665@2gen.com> <6403.1138392470@warthog.cambridge.redhat.com> <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20060128002241.GD3777@stusta.de>
-User-Agent: Mutt/1.5.11
-Content-Transfer-Encoding: 8BIT
-X-SA-Score: -2.1
+	Sat, 28 Jan 2006 06:30:15 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:32654 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932134AbWA1LaN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 06:30:13 -0500
+Subject: [RFC/PATCH 1/2] slab: allow different page allocation back-ends
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: Paul Jackson <pj@sgi.com>, bcrl@kvack.org, clameter@engr.sgi.com,
+       linux-kernel@vger.kernel.org, sri@us.ibm.com, andrea@suse.de,
+       pavel@suse.cz, linux-mm@kvack.org
+Date: Sat, 28 Jan 2006 13:30:11 +0200
+Message-Id: <1138447811.8657.29.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 28, 2006 at 01:22:41AM +0100, Adrian Bunk wrote:
->On Fri, Jan 27, 2006 at 09:41:58PM +0100, David Härdeman wrote:
->> The reason that I wanted DSA-keys supported by the in-kernel key stuff 
->> is that it allows for some cool stuff which is either impossible or very 
->> hard to do otherwise.
->> 
->> For example, a backup daemon which wishes to store the backup on another 
->> host using ssh. Usually this is solved by storing an unencrypted key in 
->> the fs or by providing a connection to a ssh-agent which has been 
->> preloaded with the proper key(s). Both are quite inelegant solutions. 
->> With the in-kernel support, the daemon can request the key using the 
->> request_key call, and (provided proper scripts are written), the user 
->> who controls the relevant key can supply it. This in turn means that the 
->> backup daemon can sign using the key and read its public parts but not 
->> the private key.
->
->What exactly is the unsolvable problem with doing this in userspace?
+Hi Matthew,
 
-See below
+This untested patch adds kmem_cache_operations so we can have different
+page allocation back-ends. The next patch uses this infrastructure to
+implement mempool-backed object caches.
 
->> So yes, that is one example of doing "something" with keys that the 
->> process is not allowed to retrieve directly (the key itself could be 
->> supplied from removable storage or something and given a few minutes of 
->> time-to-live).
->> 
->> It also means that users would not have to run ssh-agent and would not 
->> have to bother with making sure that only one instance of ssh-agent is 
->> running even if they are logged in multiple times.
->> 
->> The in-kernel key management also protects the key against many of the 
->> different ways in which a user-space daemon could be attacked (ptrace, 
->> swap-out, coredump, etc).
->
->If an attacker has enough privileges for attacking the daemon, he should 
->usually also have enough privileges for attacking the kernel.
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
 
-Not necessarily, if you have your ssh-keys in ssh-agent, a compromise of 
-your account (forgot to lock the screen while going to the bathroom? 
-did the OOM-condition occur which killed the program which locks the
-screen? remote compromise of the system? local compromise?) means that a large 
-array of attacks are possible against the daemon.
+ mm/slab.c |   31 +++++++++++++++++++++++++++++--
+ 1 file changed, 29 insertions(+), 2 deletions(-)
 
-In addition, as stated before, the "backup" account, or whatever user the 
-daemon which wants to sign stuff with your key is running as, might be 
-compromised.
+Index: 2.6-mm/mm/slab.c
+===================================================================
+--- 2.6-mm.orig/mm/slab.c
++++ 2.6-mm/mm/slab.c
+@@ -362,6 +362,11 @@ static void kmem_list3_init(struct kmem_
+ 	MAKE_LIST((cachep), (&(ptr)->slabs_free), slabs_free, nodeid);	\
+ 	} while (0)
+ 
++struct kmem_cache_operations {
++	void* (*getpages)(struct kmem_cache *, gfp_t, int);
++	void (*freepages)(struct kmem_cache *, void *);
++};
++
+ /*
+  * struct kmem_cache
+  *
+@@ -401,6 +406,8 @@ struct kmem_cache {
+ 	/* de-constructor func */
+ 	void (*dtor) (void *, struct kmem_cache *, unsigned long);
+ 
++	struct kmem_cache_operations *ops;
++
+ 	/* shrinker data for this cache */
+ 	struct shrinker *shrinker;
+ 
+@@ -638,6 +645,8 @@ static struct arraycache_init initarray_
+ static struct arraycache_init initarray_generic =
+     { {0, BOOT_CPUCACHE_ENTRIES, 1, 0} };
+ 
++static struct kmem_cache_operations pagealloc_ops;
++
+ /* internal cache of cache description objs */
+ static struct kmem_cache cache_cache = {
+ 	.batchcount = 1,
+@@ -647,6 +656,7 @@ static struct kmem_cache cache_cache = {
+ 	.flags = SLAB_NO_REAP,
+ 	.spinlock = SPIN_LOCK_UNLOCKED,
+ 	.name = "kmem_cache",
++	.ops = &pagealloc_ops,
+ #if DEBUG
+ 	.obj_size = sizeof(struct kmem_cache),
+ #endif
+@@ -1282,7 +1292,7 @@ static void *kmem_getpages(struct kmem_c
+ 	int i;
+ 
+ 	flags |= cachep->gfpflags;
+-	page = alloc_pages_node(nodeid, flags, cachep->gfporder);
++	page = cachep->ops->getpages(cachep, flags, nodeid);
+ 	if (!page)
+ 		return NULL;
+ 	addr = page_address(page);
+@@ -1315,11 +1325,27 @@ static void kmem_freepages(struct kmem_c
+ 	sub_page_state(nr_slab, nr_freed);
+ 	if (current->reclaim_state)
+ 		current->reclaim_state->reclaimed_slab += nr_freed;
+-	free_pages((unsigned long)addr, cachep->gfporder);
++	cachep->ops->freepages(cachep, addr);
+ 	if (cachep->flags & SLAB_RECLAIM_ACCOUNT)
+ 		atomic_sub(1 << cachep->gfporder, &slab_reclaim_pages);
+ }
+ 
++static void *pagealloc_getpages(struct kmem_cache *cache, gfp_t flags,
++				int nodeid)
++{
++	return alloc_pages_node(nodeid, flags, cache->gfporder);
++}
++
++static void pagealloc_freepages(struct kmem_cache *cache, void *addr)
++{
++	free_pages((unsigned long)addr, cache->gfporder);
++}
++
++static struct kmem_cache_operations pagealloc_ops = {
++	.getpages = pagealloc_getpages,
++	.freepages = pagealloc_freepages
++};
++
+ static void kmem_rcu_free(struct rcu_head *head)
+ {
+ 	struct slab_rcu *slab_rcu = (struct slab_rcu *)head;
+@@ -1784,6 +1810,7 @@ kmem_cache_create (const char *name, siz
+ 		goto oops;
+ 	memset(cachep, 0, sizeof(struct kmem_cache));
+ 
++	cachep->ops = &pagealloc_ops;
+ #if DEBUG
+ 	cachep->obj_size = size;
+ 
 
-Currently, if you want to give the daemon access to the keys via 
-ssh-agent (or something similar), you have to change the permissions on 
-the ssh-agent socket to be much less restricted (especially since it's 
-unlikely that you have permission to change the uid or gid of the socket 
-to that of the daemon). Alternatively you can provide the backup daemon 
-with the key directly (via fs, or loaded somehow at startup...etc), but 
-then a compromise of the daemon means that the attacker has the private 
-key.
 
-Finally, the in-kernel system also provides a mechanism for the daemon 
-to request the key when it is needed should it realize that the proper 
-key is missing/has changed/whatever.
-
->The number of different attacks might be lower, but you haven't 
->completely solved any problem.
-
-Many of the problems are unsolveable without having specialized hardware 
-(i.e. a smartcard). The fact that the dsa patch is not a panacea does 
-not mean that it can't, or that we shouldn't strive to, improve upon the 
-current situation
-
->> In addition, the dsa key code can be used to implement signed binaries 
->> and signed modules.
->>...
->
->Checking signatures on modules sounds like a job for module-init-tools
->(if there's any real benefit in signing GPL'ed modules).
-
-No, not really, take a look at http://lwn.net/Articles/92617/ for 
-details of how signed modules could work (public key is merged into 
-kernel at build time, private key is used to build modules with embedded 
-signature, kernel checks module sigs at load-time using the embedded public 
-key, so checks can't be in module-init-tools).
-
-Regards,
-David

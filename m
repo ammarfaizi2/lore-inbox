@@ -1,27 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422819AbWA1Dug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWA1D4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422819AbWA1Dug (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 22:50:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422826AbWA1Dug
+	id S1751236AbWA1D4K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 22:56:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWA1D4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 22:50:36 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:10422 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422819AbWA1Duf (ORCPT
+	Fri, 27 Jan 2006 22:56:10 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:15287 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751236AbWA1D4J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 22:50:35 -0500
-Date: Fri, 27 Jan 2006 19:49:54 -0800
+	Fri, 27 Jan 2006 22:56:09 -0500
+Date: Fri, 27 Jan 2006 19:55:39 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, stable@kernel.org,
-       jmforbes@linuxtx.org, zwane@arm.linux.org.uk, tytso@mit.edu,
-       rdunlap@xenotime.net, davej@redhat.com, chuckw@quantumlinux.com,
-       torvalds@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [patch 09/12] Mask off GFP flags before swiotlb_alloc_coherent
-Message-Id: <20060127194954.0c9efcd6.akpm@osdl.org>
-In-Reply-To: <200601280333.25026.ak@suse.de>
-References: <20060128020629.908825000@press.kroah.org>
-	<20060128022121.GJ17001@kroah.com>
-	<200601280333.25026.ak@suse.de>
+To: Bart Samwel <bart@samwel.tk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] Fix overflow issues with sysctl values in
+ centiseconds/seconds
+Message-Id: <20060127195539.6ffc3d3a.akpm@osdl.org>
+In-Reply-To: <43DADB03.7080606@samwel.tk>
+References: <43DADB03.7080606@samwel.tk>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -29,16 +25,18 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
+Bart Samwel <bart@samwel.tk> wrote:
 >
->  On Saturday 28 January 2006 03:21, Greg KH wrote:
->  > 2.6.15.2 -stable review patch.  If anyone has any objections, please let 
->  > us know.
-> 
->  That patch isn't in mainline yet and shouldn't be merged to stable before
->  that happens.
+>  Here's a threesome of patches
+>
 
-But this patch will never go into mainline - pci-gart.c was radically
-altered in 2.6.16-rc1.
+All of which were space-stuffed by your (mozilla-derived) email client and
+hence are unusable by users of non-MS-wannabe email clients.  They may also
+be unusable by users of mozilla-based email clients, too - I don't know.
 
+As far as I know there's no way to prevent mailnews-derived mail clients
+from performing space-stuffing.  I've had a bug report in against it for at
+least two years and all they've done is fartarse around with it.
+
+IOW: please switch mail clients or use text/plain attachments.
 

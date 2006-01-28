@@ -1,35 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWA1J7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWA1KIP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbWA1J7E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 04:59:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWA1J7D
+	id S932115AbWA1KIP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 05:08:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932552AbWA1KIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 04:59:03 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:3397 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932281AbWA1J7B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 04:59:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=FTrjYtl0vGZDbu8x8bb1n5TiZTJyrE8WD3nzddq8wqLrGUo3PNbeMDhE/yjAjQ3eXVsoy3RuZiKllxobEnxrPyH2B7IdqlqVRY3tY4WLanDrku6H4DkDUW7762XUVJU2L6PPGA3V/PvwHcJy5bPwBoyTr29BkMtFoG3Tqxwqnnc=
-Message-ID: <43DB405E.4020602@gmail.com>
-Date: Sat, 28 Jan 2006 15:28:54 +0530
-From: Libin Varghese <libinv@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: I/O Scheduling
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 28 Jan 2006 05:08:15 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:46732 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932115AbWA1KIO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 05:08:14 -0500
+Subject: Re: [patch 2/6] Create and Use common mempool allocators
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: colpatch@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <1138407582.26088.2.camel@localhost.localdomain>
+References: <20060128001539.030809000@localhost.localdomain>
+	 <1138407582.26088.2.camel@localhost.localdomain>
+Date: Sat, 28 Jan 2006 12:08:12 +0200
+Message-Id: <1138442892.8657.4.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-        Is there any work done on new I/O scheduling techniques (other
-than as, cfq, noop, deadline)?
+Hi,
 
-Regards,
-Libin Varghese
+On Fri, 2006-01-27 at 16:19 -0800, Matthew Dobson wrote:
+> -	cc->page_pool = mempool_create(MIN_POOL_PAGES, mempool_alloc_page,
+> -				       mempool_free_page, NULL);
+> +	cc->page_pool = mempool_create(MIN_POOL_PAGES, mempool_alloc_pages,
+> +				       mempool_free_pages, 0);
+
+You need to cast that zero to a void pointer to avoid compliation
+warning (found in various other places as well). Would probably make
+sense to implement helper functions so the casting doesn't spread all
+over the place. Other than that, looks good to me.
+
+			Pekka
 

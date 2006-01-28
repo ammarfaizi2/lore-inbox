@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422831AbWA1FYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbWA1F7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422831AbWA1FYE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 00:24:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422832AbWA1FYE
+	id S932509AbWA1F7P (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 00:59:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbWA1F7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 00:24:04 -0500
-Received: from proof.pobox.com ([207.106.133.28]:60303 "EHLO proof.pobox.com")
-	by vger.kernel.org with ESMTP id S1422831AbWA1FYC (ORCPT
+	Sat, 28 Jan 2006 00:59:15 -0500
+Received: from xproxy.gmail.com ([66.249.82.192]:19908 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932509AbWA1F7P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 00:24:02 -0500
-Date: Fri, 27 Jan 2006 23:23:56 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: steiner@sgi.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       rml@novell.com
-Subject: Re: 2.6.16 - sys_sched_getaffinity & hotplug
-Message-ID: <20060128052355.GC18730@localhost.localdomain>
-References: <20060127230659.GA4752@sgi.com> <20060127191400.aacb8539.pj@sgi.com> <20060128034241.GB18730@localhost.localdomain> <20060127205834.b5821a02.pj@sgi.com>
-Mime-Version: 1.0
+	Sat, 28 Jan 2006 00:59:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=EhzMmIe0I+diiyuldnbrK3IETbW/HuhnVSyeT7zCvJC4l5N13BNOvpXLD+mfpwthVsyzNvdoTVqmhtb37v8hb2ivbMKQZiYAlbFp0+vz0TEhOY/JtORNO0DMPBFMwfsSjlo6OgsovrksXUnUTOKTIBEtRqT8jf6WMDmpq4WjAnQ=
+Message-ID: <43DB0839.6010703@gmail.com>
+Date: Sat, 28 Jan 2006 13:59:21 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: benh@kernel.crashing.org, linux-kernel@hansmi.ch,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] framebuffer: Remove old radeon driver
+References: <20060127231314.GA28324@hansmi.ch>	<1138421392.30599.10.camel@localhost.localdomain> <20060127.204645.96477793.davem@davemloft.net>
+In-Reply-To: <20060127.204645.96477793.davem@davemloft.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060127205834.b5821a02.pj@sgi.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:
-> Nathan wrote:
-> > Which is problematic, because cpuset_cpus_allowed ->
-> > guarantee_online_cpus restricts the task->cpus_allowed mask to cpus
-> > which happen to be online at the time of the call to
-> > sched_setaffinity.  If more cpus come online later, that task can't be
-> > migrated to them.
+David S. Miller wrote:
+> From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Date: Sat, 28 Jan 2006 15:09:52 +1100
 > 
-> Well, sort of.
+>> On Sat, 2006-01-28 at 00:13 +0100, Michael Hanselmann wrote:
 > 
-> A task could always migrate - just because a sched_getaffinity
-> the task did in the past doesn't show a CPU as valid, doesn't stop
-> the task from asking to pin to that CPU now.
+> The radeon_screen_blank() routine returns error codes back
+> to the X server which handily confuses it, making it
+> impossible to unblank the screen unless X has taken it
+> all the way to power-off or somesuch.  The comment above
+> this problematic code states:
+> 
+> 	/* let fbcon do a soft blank for us */
+> 	return (blank == FB_BLANK_NORMAL) ? -EINVAL : 0;
+> 
+> There has to be a better way to do this, which doesn't break
+> X when run via fbcon. :-)
+> 
 
-I was speaking of the setaffinity (not getaffinity) case -- I assumed
-this was what you were referring to since I couldn't find any calls to
-the cpuset code in the getaffinity path.
+The console layer has 5 blanking levels, with FB_BLANK_NORMAL defined
+as "soft blank" (or blank the display without turning off display sync
+signals) -- a console invention.  However, VESA has only 4 levels.
 
+This can be easily fixed by incrementing the blank value by one if
+the request originated from userspace.  I'll provide a patch
+soon.
 
-> One of three lessons could be taken from your example:
->  1) return all possible CPUS (CPU_MASK_ALL, likely), as you
-> recommend
-
-I'm only recommending not changing the current behavior of
-sched_getaffinity.
-
-(BTW - cpu_possible_map can be a subset of CPU_MASK_ALL on some
-platforms -- powerpc, at least, since we can discover the number of
-truly possible cpus early in boot.)
-
+Tony

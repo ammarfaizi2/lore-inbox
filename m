@@ -1,101 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422722AbWA1ABz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422724AbWA1ATk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422722AbWA1ABz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 19:01:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422724AbWA1ABy
+	id S1422724AbWA1ATk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 19:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422725AbWA1ATk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 19:01:54 -0500
-Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:46706 "EHLO
-	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1422722AbWA1ABx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 19:01:53 -0500
-Message-ID: <43DAB46E.9040709@bigpond.net.au>
-Date: Sat, 28 Jan 2006 11:01:50 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: MIke Galbraith <efault@gmx.de>, Paolo Ornati <ornati@fastwebnet.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [SCHED] wrong priority calc - SIMPLE test case
-References: <5.2.1.1.2.20060127175530.00c3db30@pop.gmx.net> <1138392368.7770.72.camel@homer> <200601281018.52121.kernel@kolivas.org>
-In-Reply-To: <200601281018.52121.kernel@kolivas.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 27 Jan 2006 19:19:40 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:19898 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422724AbWA1ATj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 19:19:39 -0500
+Subject: [patch 1/6] Create and Use common mempool allocators
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: penberg@cs.helsinki.fi, akpm@osdl.org
+References: <20060128001539.030809000@localhost.localdomain>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Fri, 27 Jan 2006 16:19:35 -0800
+Message-Id: <1138407575.26088.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 28 Jan 2006 00:01:51 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> On Saturday 28 January 2006 07:06, MIke Galbraith wrote:
-> 
->>What do you think of the below as an evaluation patch?  It leaves the
->>bits I'd really like to change (INTERACTIVE_SLEEP() for one), so it can
->>be switched on and off for easy comparison and regression testing.
->>
->>I really didn't want to add more to the task struct, but after trying
->>different things, a timeout was the most effective means of keeping the
->>nice burst aspect of the interactivity logic but still make sure that a
->>burst doesn't turn into starvation.
->>
->>The workings are dirt simple just as before.  The goal is to keep
->>sleep_avg and slice_avg balanced.  When an imbalance starts, immediately
->>cut off interactive bonus points.  If the imbalance doesn't correct
->>itself through normal sleep_avg usage, we'll soon hit the (1 dynamic
->>prio) trigger point, which starts a countdown toward active
->>intervention.  The default setting is that a task can run at higher
->>dynamic priority than it's cpu usage can justify for 5 seconds.  After
->>than, we start trying to work off the deficit, and if we don't succeeded
->>within another second (ie it was a big deficit), we demote the offender
->>to the rank his cpu usage indicates.
->>
->>The strategy works well enough to take the wind out of irman2's sails,
->>and interactive tasks can still do a nice reasonable burst of activity
->>without being evicted.  Down side to starvation control is that X is
->>sometimes a serious cpu user, and _can_ end up in the expired array (not
->>nice under load).  I personally don't think that's a show stopper
->>though... all you have to do is tell the scheduler that what it already
->>noticed, that X is a piggy, but an OK piggy by renicing it. It becomes
->>immune from active throttling, and all is well.  I know that's not going
->>to be popular, but you just can't let X have free rein without leaving
->>the barn door wide open.  (maybe that switch should stay since the
->>majority of boxen are workstations, and default to off?).
-> 
-> 
-> Sounds good but I have to disagree on the X renice thing. It's not that I have 
-> a religious objection to renicing things. The problem is that our mainline 
-> scheduler determines latency also by nice level. This means that if you 
-> -renice a bursty cpu hog like X, then audio applications will fail unless 
-> they too are reniced. Try it on your patch.
+plain text document attachment (mempool-add_page_allocator.patch)
+From: Matthew Dobson <colpatch@us.ibm.com>
+Subject: [patch 1/6] mempool - Add page allocator
 
-On the other hand, if X were reniced it would be possible to make the 
-interactive bonus mechanism more strict on what it considers to be 
-interactive.  As I see it the main reason that non interactive sleeps 
-get any consideration at all in determining whether a task is 
-interactive is to make sure that X is classified interactive.
+Add an allocator to the common mempool code: a simple page allocator
 
-One of the things that I've noticed about the X server (with 
-instrumented systems) is the its proportion of interruptible sleeps to 
-total sleeps goes down when it becomes CPU intensive.  This is because 
-the high CPU usage is usually related to screen updates (e.g. try "ls -R 
-/" in an xterm or similar) and not keyboard or mouse input.  This means 
-that during these periods the X server would lose most of its 
-interactive bonus and just rely on its niceness allowing genuine 
-interactive tasks to pip it (provided that X's nice value is 
-sufficiently small e.g. 5).
+This will be used by the next patch in the series to replace duplicate
+mempool-backed page allocators in 2 places in the kernel.  It is also
+likely that there will be more users in the future.
 
-Of course, for this to work all of the instances where interruptible 
-sleeps aren't interactive would need to be labelled TASK_NONINTERACTIVE 
-which would be a big job.
+Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
 
-Anyway just my 2c worth.
+ include/linux/mempool.h |    7 +++++++
+ mm/mempool.c            |   18 ++++++++++++++++++
+ 2 files changed, 25 insertions(+)
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+Index: linux-2.6.16-rc1-mm3+mempool_work/mm/mempool.c
+===================================================================
+--- linux-2.6.16-rc1-mm3+mempool_work.orig/mm/mempool.c
++++ linux-2.6.16-rc1-mm3+mempool_work/mm/mempool.c
+@@ -289,3 +289,21 @@ void mempool_free_slab(void *element, vo
+ 	kmem_cache_free(mem, element);
+ }
+ EXPORT_SYMBOL(mempool_free_slab);
++
++/*
++ * A simple mempool-backed page allocator that allocates pages
++ * of the order specified by pool_data.
++ */
++void *mempool_alloc_pages(gfp_t gfp_mask, void *pool_data)
++{
++	int order = (int) pool_data;
++	return alloc_pages(gfp_mask, order);
++}
++EXPORT_SYMBOL(mempool_alloc_pages);
++
++void mempool_free_pages(void *element, void *pool_data)
++{
++	int order = (int) pool_data;
++	__free_pages(element, order);
++}
++EXPORT_SYMBOL(mempool_free_pages);
+Index: linux-2.6.16-rc1-mm3+mempool_work/include/linux/mempool.h
+===================================================================
+--- linux-2.6.16-rc1-mm3+mempool_work.orig/include/linux/mempool.h
++++ linux-2.6.16-rc1-mm3+mempool_work/include/linux/mempool.h
+@@ -38,4 +38,11 @@ extern void mempool_free(void *element, 
+ void *mempool_alloc_slab(gfp_t gfp_mask, void *pool_data);
+ void mempool_free_slab(void *element, void *pool_data);
+ 
++/*
++ * A mempool_alloc_t and mempool_free_t for a simple page allocator that
++ * allocates pages of the order specified by pool_data
++ */
++void *mempool_alloc_pages(gfp_t gfp_mask, void *pool_data);
++void mempool_free_pages(void *element, void *pool_data);
++
+ #endif /* _LINUX_MEMPOOL_H */
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+--
+

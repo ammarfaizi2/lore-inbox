@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWA1TKv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWA1TNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbWA1TKv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 14:10:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbWA1TKv
+	id S1750733AbWA1TNl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 14:13:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWA1TNl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 14:10:51 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:51904 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750702AbWA1TKu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 14:10:50 -0500
-Date: Sun, 29 Jan 2006 00:40:16 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: paulmck@us.ibm.com, dada1@cosmosbay.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk,
-       nickpiggin@yahoo.com.au, hch@infradead.org
-Subject: Re: [patch 2/2] fix file counting
-Message-ID: <20060128191016.GG5633@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060126184010.GD4166@in.ibm.com> <20060126184127.GE4166@in.ibm.com> <20060126184233.GF4166@in.ibm.com> <43D92DD6.6090607@cosmosbay.com> <20060127145412.7d23e004.akpm@osdl.org> <20060127231420.GA10075@us.ibm.com> <20060127152857.32066a69.akpm@osdl.org> <20060128184245.GE5633@in.ibm.com> <20060128105108.1724e1cc.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 28 Jan 2006 14:13:41 -0500
+Received: from mcr-smtp-001.bulldogdsl.com ([212.158.248.7]:36624 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1750725AbWA1TNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 14:13:40 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Ken MacFerrin <lists@macferrin.com>
+Subject: Re: PROBLEM: kernel BUG at mm/rmap.c:486 - kernel 2.6.15-r1
+Date: Sat, 28 Jan 2006 19:13:50 +0000
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org
+References: <43DAE307.5010306@macferrin.com>
+In-Reply-To: <43DAE307.5010306@macferrin.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060128105108.1724e1cc.akpm@osdl.org>
-User-Agent: Mutt/1.5.10i
+Message-Id: <200601281913.50169.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 28, 2006 at 10:51:08AM -0800, Andrew Morton wrote:
-> Dipankar Sarma <dipankar@in.ibm.com> wrote:
-> >
-> >  > (And it forgot to initialise the atomic_t)
-> > 
-> >  I declared it static. Isn't that sufficient ?
-> 
-> ATOMIC_INIT(0);
+On Saturday 28 January 2006 03:20, Ken MacFerrin wrote:
+> I started getting hard lockups on my desktop PC with the error "kernel
+> BUG at mm/rmap.c:487" starting with kernel 2.6.13 and continuing through
+> 2.6.14.  After switching to 2.6.15 the lockups have continued with the
+> message "kernel BUG at mm/rmap.c:486".
+>
+> The frequency and circumstance are completely random which originally
+> had me suspecting bad memory but after running Memtest86+ for over 12
+> hours without error I'm at a loss.
+>
+> I'm running the binary Nvidia driver so I'll understand if I can't get
+> help here but in searching through the list archives it would seem I'm
+> not alone and I am willing to try any patches that may help diagnose the
+> issue.  The crash happens at least daily and I've seen no difference in
+> running kernels with or without PREEMPT enabled.
+>
+> The machine is a P4 3.00GHz with 2048MB PC3200 Unbuffered RAM on an ASUS
+> motherboard with an ICH5 chipset.  XFX GF 6600GT video card, 600W power
+> supply and plenty of cooling.
 
-OK, I will put an explicit initializer for that static variable.
+Ken,
 
-> 
-> >  > (And has a couple of suspicious-looking module exports.  We don't support
-> >  > CONFIG_PROC_FS=m).
-> > 
-> >  Where ?
-> 
-> +EXPORT_SYMBOL(get_nr_files);
-> +EXPORT_SYMBOL(get_max_files);
-> 
-> Why are these needed?
+Just to let you know, I've had the same problem on x86-64. It's an incredibly 
+rare fault here and I've not been able to reproduce it. However, I cannot 
+help but notice that all of the reporters so far have been running the binary 
+NVIDIA driver, including myself.
 
-get_max_files() is needed by unix sockets which can be a module.
-IIRC, xfs needed get_nr_files() when I originally wrote this patch. 
-There doesn't seem to be any in-tree use now,
-but files_stat was earlier exported and we should probably
-mark this for unexport at a later time.
+I would not be surprised if running without the NVIDIA driver eliminated the 
+problem.
 
-Thanks
-Dipankar
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

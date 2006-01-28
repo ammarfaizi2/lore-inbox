@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWA1XFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWA1XFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbWA1XFT (ORCPT <rfc822;willy@w.ods.org>);
+	id S1750781AbWA1XFT (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 28 Jan 2006 18:05:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbWA1XFS
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWA1XFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 18:05:18 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:45835 "HELO
+	Sat, 28 Jan 2006 18:05:17 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:46859 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750781AbWA1XEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 18:04:49 -0500
-Date: Sun, 29 Jan 2006 00:04:49 +0100
+	id S1750783AbWA1XEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 18:04:53 -0500
+Date: Sun, 29 Jan 2006 00:04:52 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/coda/: proper prototypes
-Message-ID: <20060128230449.GU3777@stusta.de>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: [2.6 patch] make CONFIG_SECCOMP default to n
+Message-ID: <20060128230452.GV3777@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,106 +22,133 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch introduces a file fs/coda/coda_int.h with proper prototypes 
-for some code.
+From: Ingo Molnar <mingo@elte.hu>
+
+i was profiling the scheduler on x86 and noticed some overhead related 
+to SECCOMP, and indeed, SECCOMP runs disable_tsc() at _every_ 
+context-switch:
+
+        if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr))
+                handle_io_bitmap(next, tss);
+
+        disable_tsc(prev_p, next_p);
+
+        return prev_p;
+
+these are a couple of instructions in the hottest scheduler codepath!
+
+x86_64 already removed disable_tsc() from switch_to(), but i think the 
+right solution is to turn SECCOMP off by default.
+
+besides the runtime overhead, there are a couple of other reasons as 
+well why this should be done:
+
+ - CONFIG_SECCOMP=y adds 836 bytes of bloat to the kernel:
+
+       text    data     bss     dec     hex filename
+    4185360  867112  391012 5443484  530f9c vmlinux-noseccomp
+    4185992  867316  391012 5444320  5312e0 vmlinux-seccomp
+
+ - virtually nobody seems to be using it (but cpushare.com, which seems
+   pretty inactive)
+
+ - users/distributions can still turn it on if they want it
+
+ - http://www.cpushare.com/legal seems to suggest that it is pursuing a
+   software patent to utilize the seccomp concept in a distributed 
+   environment, and seems to give a promise that 'end users' will not be
+   affected by that patent. How about non-end-users [i.e. server-side]?
+   Has the Linux kernel become a vehicle for a propriety server-side
+   feature, with every Linux user paying the price of it?
+
+so the patch below just does the minimal common-sense change: turn it 
+off by default.
 
 
+Adrian Bunk:
+I've removed the superfluous "default n"'s the original patch introduced.
+
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Acked-by: Jan Harkes <jaharkes@cs.cmu.edu>
 
----
+----
 
 This patch was already sent on:
 - 21 Jan 2006
 
- fs/coda/coda_int.h |   13 +++++++++++++
- fs/coda/dir.c      |    3 ++-
- fs/coda/file.c     |    2 ++
- fs/coda/inode.c    |    2 ++
- fs/coda/psdev.c    |    9 ++-------
- 5 files changed, 21 insertions(+), 8 deletions(-)
+This patch was sent by Ingo Molnar on:
+- 9 Jan 2006
 
---- /dev/null	2005-11-08 19:07:57.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/coda/coda_int.h	2006-01-21 01:06:23.000000000 +0100
-@@ -0,0 +1,13 @@
-+#ifndef _CODA_INT_
-+#define _CODA_INT_
-+
-+extern struct file_system_type coda_fs_type;
-+
-+void coda_destroy_inodecache(void);
-+int coda_init_inodecache(void);
-+int coda_fsync(struct file *coda_file, struct dentry *coda_dentry,
-+	       int datasync);
-+
-+#endif  /*  _CODA_INT_  */
-+
-+
---- linux-2.6.16-rc1-mm2-full/fs/coda/file.c.old	2006-01-21 01:02:36.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/coda/file.c	2006-01-21 01:02:51.000000000 +0100
-@@ -24,6 +24,8 @@
- #include <linux/coda_psdev.h>
- #include <linux/coda_proc.h>
- 
-+#include "coda_int.h"
-+
- /* if CODA_STORE fails with EOPNOTSUPP, venus clearly doesn't support
-  * CODA_STORE/CODA_RELEASE and we fall back on using the CODA_CLOSE upcall */
- static int use_coda_close;
---- linux-2.6.16-rc1-mm2-full/fs/coda/dir.c.old	2006-01-21 01:03:33.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/coda/dir.c	2006-01-21 01:03:57.000000000 +0100
-@@ -27,6 +27,8 @@
- #include <linux/coda_cache.h>
- #include <linux/coda_proc.h>
- 
-+#include "coda_int.h"
-+
- /* dir inode-ops */
- static int coda_create(struct inode *dir, struct dentry *new, int mode, struct nameidata *nd);
- static struct dentry *coda_lookup(struct inode *dir, struct dentry *target, struct nameidata *nd);
-@@ -50,7 +52,6 @@
- /* support routines */
- static int coda_venus_readdir(struct file *filp, filldir_t filldir,
- 			      void *dirent, struct dentry *dir);
--int coda_fsync(struct file *, struct dentry *dentry, int datasync);
- 
- /* same as fs/bad_inode.c */
- static int coda_return_EIO(void)
---- linux-2.6.16-rc1-mm2-full/fs/coda/inode.c.old	2006-01-21 01:04:12.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/coda/inode.c	2006-01-21 01:04:28.000000000 +0100
-@@ -31,6 +31,8 @@
- #include <linux/coda_fs_i.h>
- #include <linux/coda_cache.h>
- 
-+#include "coda_int.h"
-+
- /* VFS super_block ops */
- static void coda_clear_inode(struct inode *);
- static void coda_put_super(struct super_block *);
---- linux-2.6.16-rc1-mm2-full/fs/coda/psdev.c.old	2006-01-21 01:04:36.000000000 +0100
-+++ linux-2.6.16-rc1-mm2-full/fs/coda/psdev.c	2006-01-21 01:06:07.000000000 +0100
-@@ -48,12 +48,9 @@
- #include <linux/coda_psdev.h>
- #include <linux/coda_proc.h>
- 
--#define upc_free(r) kfree(r)
-+#include "coda_int.h"
- 
--/* 
-- * Coda stuff
-- */
--extern struct file_system_type coda_fs_type;
-+#define upc_free(r) kfree(r)
- 
- /* statistics */
- int           coda_hard;         /* allows signals during upcalls */
-@@ -394,8 +391,6 @@
- MODULE_AUTHOR("Peter J. Braam <braam@cs.cmu.edu>");
- MODULE_LICENSE("GPL");
- 
--extern int coda_init_inodecache(void);
--extern void coda_destroy_inodecache(void);
- static int __init init_coda(void)
- {
- 	int status;
-
+Index: linux/arch/i386/Kconfig
+===================================================================
+--- linux.orig/arch/i386/Kconfig
++++ linux/arch/i386/Kconfig
+@@ -637,7 +637,6 @@ config REGPARM
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
+Index: linux/arch/mips/Kconfig
+===================================================================
+--- linux.orig/arch/mips/Kconfig
++++ linux/arch/mips/Kconfig
+@@ -1787,7 +1787,6 @@ config BINFMT_ELF32
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS && BROKEN
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
+Index: linux/arch/powerpc/Kconfig
+===================================================================
+--- linux.orig/arch/powerpc/Kconfig
++++ linux/arch/powerpc/Kconfig
+@@ -666,7 +666,6 @@ endif
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
+Index: linux/arch/ppc/Kconfig
+===================================================================
+--- linux.orig/arch/ppc/Kconfig
++++ linux/arch/ppc/Kconfig
+@@ -1127,7 +1127,6 @@ endif
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
+Index: linux/arch/sparc64/Kconfig
+===================================================================
+--- linux.orig/arch/sparc64/Kconfig
++++ linux/arch/sparc64/Kconfig
+@@ -64,7 +64,6 @@ endchoice
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their
+Index: linux/arch/x86_64/Kconfig
+===================================================================
+--- linux.orig/arch/x86_64/Kconfig
++++ linux/arch/x86_64/Kconfig
+@@ -466,7 +466,6 @@ config PHYSICAL_START
+ config SECCOMP
+ 	bool "Enable seccomp to safely compute untrusted bytecode"
+ 	depends on PROC_FS
+-	default y
+ 	help
+ 	  This kernel feature is useful for number crunching applications
+ 	  that may need to compute untrusted bytecode during their

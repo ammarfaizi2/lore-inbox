@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422828AbWA1EsG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbWA1Esg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422828AbWA1EsG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 23:48:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422826AbWA1EsG
+	id S932515AbWA1Esg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 23:48:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbWA1Esg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 23:48:06 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:13247 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932512AbWA1EsF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 23:48:05 -0500
-Date: Fri, 27 Jan 2006 23:44:27 -0500 (EST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Marc Perkel <marc@perkel.com>
-cc: Chase Venters <chase.venters@clientec.com>,
-       Diego Calleja <diegocg@gmail.com>, Paul Jakma <paul@clubi.ie>,
-       linux-os@analogic.com, mrmacman_g4@mac.com,
-       jmerkey@wolfmountaingroup.com, pmclean@cs.ubishops.ca,
-       shemminger@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - V3 adds new restrictions
-In-Reply-To: <43D94D1D.8070300@perkel.com>
-Message-ID: <Pine.LNX.4.64.0601272340230.2909@evo.osdl.org>
-References: <43D114A8.4030900@wolfmountaingroup.com> <20060120111103.2ee5b531@dxpl.pdx.osdl.net>
- <43D13B2A.6020504@cs.ubishops.ca> <43D7C780.6080000@perkel.com>
- <43D7B20D.7040203@wolfmountaingroup.com> <43D7B5C4.5040601@wolfmountaingroup.com>
- <43D7D05D.7030101@perkel.com> <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>
- <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>
- <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>
- <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org> <Pine.LNX.4.64.0601261757320.3920@sheen.jakma.org>
- <20060126195323.d553a4b8.diegocg@gmail.com> <Pine.LNX.4.64.0601261255430.17225@turbotaz.ourhouse>
- <43D92175.6010804@perkel.com> <Pine.LNX.4.64.0601261344220.17514@turbotaz.ourhouse>
- <43D92B45.1030601@perkel.com> <Pine.LNX.4.64.0601261416090.17514@turbotaz.ourhouse>
- <43D94D1D.8070300@perkel.com>
+	Fri, 27 Jan 2006 23:48:36 -0500
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:61587 "EHLO
+	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S932515AbWA1Esf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 23:48:35 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: [ANNOUNCE] GIT 1.1.5
+cc: linux-kernel@vger.kernel.org
+Date: Fri, 27 Jan 2006 20:48:33 -0800
+Message-ID: <7virs5x8im.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The latest maintenance release GIT 1.1.5 is available at the
+usual places:
+
+	http://www.kernel.org/pub/software/scm/git/
+
+	git-1.1.5.tar.{gz,bz2}			(tarball)
+	RPMS/$arch/git-*-1.1.5-1.$arch.rpm	(RPM)
+
+Mark Wooding noticed that there is a bug in git-checkout-index
+to overflow its internal buffer, if you construct a blob that
+records an insanely long symbolic link in your index file and
+try to check it out.  This makes it dump core or worse.  
+
+The fix for this problem is the only change from v1.1.4.  The
+master branch has been updated with the same fix (so has "pu").
 
 
-On Thu, 26 Jan 2006, Marc Perkel wrote:
->
-> Trying to look at this from a legal point of view. GPLv3 might actually
-> contradict GPLv2.
+---
 
-The GPLv2 is explicitly written so that _nothing_ else than a GPLv2 
-license can be compatible with it.
+By the way, "dump core or worse" is a subtle way to say that
+this is a security fix.  To be victimized, you have to somehow
+first get such a bogus symbolic link in your index.  Merging
+with somebody of dubious trustworthiness is a way to do so;
+please practice safe merge ;-).
 
-At most you can dual-license and effectively allow extra rights that way, 
-but the point is that the GPLv2 is always the limit for any restrictions 
-(and it's written so that anybody can always take any but the GPLv2 
-freedoms away - so if you dual-license, your licensees can always decide 
-to _only_ honor the GPLv2, and ignore any other license).
-
-That's why, in order to re-license anythingt from GPLv2 to anything else, 
-the license grant itself must make it clear that the "anything else" was 
-always permissible in the first place. Which is why the FSF had only two 
-"outs": either people explicitly do the "..or any later version" thing, 
-_or_ people don't mention the version of the GPL at all, in which case any 
-version will do.
-
-		Linus

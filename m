@@ -1,43 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWA1TrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWA1TwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWA1TrR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 14:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWA1TrR
+	id S1750722AbWA1TwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 14:52:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWA1TwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 14:47:17 -0500
-Received: from relay03.pair.com ([209.68.5.17]:8720 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S1750717AbWA1TrP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 14:47:15 -0500
-X-pair-Authenticated: 67.163.102.102
-From: Chase Venters <chase.venters@clientec.com>
-Organization: Clientec, Inc.
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: memory leak in scsi_cmd_cache 2.6.15
-Date: Sat, 28 Jan 2006 13:46:48 -0600
-User-Agent: KMail/1.9
-Cc: Nix <nix@esperi.org.uk>, Ariel <askernel2615@dsgml.com>,
-       Jamie Heilman <jamie@audible.transient.net>,
-       Arjan van de Ven <arjan@infradead.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <Pine.LNX.4.62.0601212105590.22868@pureeloreel.qftzy.pbz> <87ek2td4i9.fsf@amaterasu.srvr.nix> <20060128192714.GI9750@suse.de>
-In-Reply-To: <20060128192714.GI9750@suse.de>
+	Sat, 28 Jan 2006 14:52:09 -0500
+Received: from mf00.sitadelle.com ([212.94.174.67]:29633 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1750722AbWA1TwI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 14:52:08 -0500
+Message-ID: <43DBCB62.7030308@cosmosbay.com>
+Date: Sat, 28 Jan 2006 20:52:02 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601281347.10531.chase.venters@clientec.com>
+To: dipankar@in.ibm.com
+Cc: Lee Revell <rlrevell@joe-job.com>, paulmck@us.ibm.com,
+       Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: RCU latency regression in 2.6.16-rc1
+References: <20060124092330.GA7060@elte.hu> <1138095856.2771.103.camel@mindpipe> <20060124162846.GA7139@in.ibm.com> <20060124213802.GC7139@in.ibm.com> <1138224506.3087.22.camel@mindpipe> <20060126191809.GC6182@us.ibm.com> <1138388123.3131.26.camel@mindpipe> <20060128170302.GB5633@in.ibm.com> <1138471203.2799.13.camel@mindpipe> <1138474283.2799.24.camel@mindpipe> <20060128193412.GH5633@in.ibm.com>
+In-Reply-To: <20060128193412.GH5633@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 January 2006 13:26, Jens Axboe wrote:
-> It's not a bad data point, it just confirms that setting ->ordered_flush
-> to 0 in the SATA drivers will fix the leak. So really, it's as expected.
-> So far apparently nobody tried it, suggested it twice.
+Dipankar Sarma a écrit :
+> On Sat, Jan 28, 2006 at 01:51:23PM -0500, Lee Revell wrote:
+>> On Sat, 2006-01-28 at 13:00 -0500, Lee Revell wrote:
+>>> OK, now we are making progress.
+>> I spoke too soon, it's not fixed:
+>>
+>> preemption latency trace v1.1.5 on 2.6.16-rc1
+>> --------------------------------------------------------------------
+>>  latency: 4183 us, #3676/3676, CPU#0 | (M:rt VP:0, KP:0, SP:0 HP:0)
+>>     -----------------
+>> evolutio-2877  0d.s.   97us : local_bh_enable (rt_run_flush)
+>> evolutio-2877  0d.s.   98us : local_bh_enable (rt_run_flush)
+>> evolutio-2877  0d.s.   99us : local_bh_enable (rt_run_flush)
+>> evolutio-2877  0d.s.  100us : local_bh_enable (rt_run_flush)
+>> evolutio-2877  0d.s.  101us : local_bh_enable (rt_run_flush)
+>>
+>> [ etc ]
+>>  
+>> evolutio-2877  0d.s. 4079us : local_bh_enable (rt_run_flush)
+>> evolutio-2877  0d.s. 4080us : local_bh_enable (rt_run_flush)
+> 
+> I am not sure if I am interpreting the latency trace right,
+> but it seems that there is a difference between the problem
+> you were seeing earlier and now.
+> 
+> In one of your earlier traces, I saw  -
+> 
+>   <idle>-0     0d.s.  182us : dst_destroy (dst_rcu_free)
+>   <idle>-0     0d.s.  183us : ipv4_dst_destroy (dst_destroy)
+> 
+> [ etc - zillions of dst_rcu_free()s deleted ]
+> 
+>   <idle>-0     0d.s. 13403us : dst_rcu_free (__rcu_process_callbacks)
+>   <idle>-0     0d.s. 13403us : dst_destroy (dst_rcu_free)
+> 
+> This points to latency increase caused by lots and lots of
+> RCU callbacks doing dst_rcu_free(). Do you still see those ?
+> 
+> Your new trace shows that we are held up in in rt_run_flush(). 
+> I guess we need to investigate why we spend so much time in rt_run_flush(),
+> because of a big route table or the lock acquisitions.
 
-In case you still wanted the data point, I just set ordered_flush to 0 on my 
-ata_piix and the slab leak disappeared.
+Some machines have millions of entries in their route cache.
 
-Thanks,
-Chase
+I suspect we cannot queue all them (or only hash heads as your previous patch) 
+by RCU. Latencies and/or OOM can occur.
+
+What can be done is :
+
+in rt_run_flush(), allocate a new empty hash table, and exchange the hash tables.
+
+Then wait a quiescent/grace RCU period (may be the exact term is not this one, 
+sorry, I'm not RCU expert)
+
+Then free all the entries from the old hash table (direclty of course, no need 
+for RCU grace period), and free the hash table.
+
+As the hash table can be huge, we might need allocate it at boot time, just in 
+case a flush is needed (it usually is :) ). If we choose dynamic allocation 
+and this allocation fails, then fallback to what is done today.
+
+Eric

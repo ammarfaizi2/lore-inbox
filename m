@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422798AbWA1CYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422814AbWA1CXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422798AbWA1CYE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 21:24:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422801AbWA1CXc
+	id S1422814AbWA1CXb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 21:23:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422806AbWA1CWy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 21:23:32 -0500
-Received: from mail.kroah.org ([69.55.234.183]:955 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1422798AbWA1CXA (ORCPT
+	Fri, 27 Jan 2006 21:22:54 -0500
+Received: from mail.kroah.org ([69.55.234.183]:29370 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1422801AbWA1CWX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 21:23:00 -0500
-Date: Fri, 27 Jan 2006 18:21:41 -0800
+	Fri, 27 Jan 2006 21:22:23 -0500
+Date: Fri, 27 Jan 2006 18:21:17 -0800
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,13 +17,13 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       ralf@linux-mips.org
-Subject: [patch 12/12] Fix mkiss locking bug
-Message-ID: <20060128022141.GM17001@kroah.com>
+       davem@davemloft.net
+Subject: [patch 08/12] [NET]: Make second arg to skb_reserved() signed.
+Message-ID: <20060128022117.GI17001@kroah.com>
 References: <20060128020629.908825000@press.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="fix-mkiss-locking-bug.patch"
+Content-Disposition: inline; filename="net-make-second-arg-to-skb_reserved-signed.patch"
 In-Reply-To: <20060128022023.GA17001@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -34,27 +34,32 @@ us know.
 
 ------------------
 
-From: Ralf Baechle DL5RB <ralf@linux-mips.org>
+From: David S. Miller <davem@davemloft.net>
 
-ax_encaps() forgot to drop the bufferlock at the end of the function.
-Patch is already in 2.6.16-rc1.
+Some subsystems, such as PPP, can send negative values
+here.  It just happened to work correctly on 32-bit with
+an unsigned value, but on 64-bit this explodes.
 
-Signed-off-by: Ralf Baechle DL5RB <ralf@linux-mips.org>
+Figured out by Paul Mackerras based upon several PPP crash
+reports.
+
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-
 ---
- drivers/net/hamradio/mkiss.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/linux/skbuff.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.15.1.orig/drivers/net/hamradio/mkiss.c
-+++ linux-2.6.15.1/drivers/net/hamradio/mkiss.c
-@@ -515,6 +515,7 @@ static void ax_encaps(struct net_device 
- 			count = kiss_esc(p, (unsigned char *)ax->xbuff, len);
- 		}
-   	}
-+	spin_unlock_bh(&ax->buflock);
- 
- 	set_bit(TTY_DO_WRITE_WAKEUP, &ax->tty->flags);
- 	actual = ax->tty->driver->write(ax->tty, ax->xbuff, count);
+--- linux-2.6.15.1.orig/include/linux/skbuff.h
++++ linux-2.6.15.1/include/linux/skbuff.h
+@@ -927,7 +927,7 @@ static inline int skb_tailroom(const str
+  *	Increase the headroom of an empty &sk_buff by reducing the tail
+  *	room. This is only allowed for an empty buffer.
+  */
+-static inline void skb_reserve(struct sk_buff *skb, unsigned int len)
++static inline void skb_reserve(struct sk_buff *skb, int len)
+ {
+ 	skb->data += len;
+ 	skb->tail += len;
 
 --

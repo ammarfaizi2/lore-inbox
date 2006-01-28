@@ -1,77 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbWA1Q6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWA1RDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965030AbWA1Q6I (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 11:58:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWA1Q6H
+	id S1751055AbWA1RDg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 12:03:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbWA1RDg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 11:58:07 -0500
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:47765 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S932411AbWA1Q6G convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 11:58:06 -0500
-Date: Sat, 28 Jan 2006 17:57:32 +0100
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Adrian Bunk <bunk@stusta.de>, Christoph Hellwig <hch@infradead.org>,
-       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths library
-Message-ID: <20060128165732.GA8633@hardeman.nu>
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Adrian Bunk <bunk@stusta.de>, Christoph Hellwig <hch@infradead.org>,
-	keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
-References: <20060127092817.GB24362@infradead.org> <1138312694656@2gen.com> <1138312695665@2gen.com> <6403.1138392470@warthog.cambridge.redhat.com> <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de> <20060128104611.GA4348@hardeman.nu> <1138466271.8770.77.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+	Sat, 28 Jan 2006 12:03:36 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:31914 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751055AbWA1RDf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 12:03:35 -0500
+Date: Sat, 28 Jan 2006 22:33:02 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: paulmck@us.ibm.com, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: RCU latency regression in 2.6.16-rc1
+Message-ID: <20060128170302.GB5633@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060124081301.GC25855@elte.hu> <1138090527.2771.91.camel@mindpipe> <20060124091730.GA31204@us.ibm.com> <20060124092330.GA7060@elte.hu> <1138095856.2771.103.camel@mindpipe> <20060124162846.GA7139@in.ibm.com> <20060124213802.GC7139@in.ibm.com> <1138224506.3087.22.camel@mindpipe> <20060126191809.GC6182@us.ibm.com> <1138388123.3131.26.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1138466271.8770.77.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.11
-Content-Transfer-Encoding: 8BIT
-X-SA-Score: -2.1
+In-Reply-To: <1138388123.3131.26.camel@mindpipe>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 28, 2006 at 11:37:51AM -0500, Trond Myklebust wrote:
->On Sat, 2006-01-28 at 11:46 +0100, David Härdeman wrote:
->> Not necessarily, if you have your ssh-keys in ssh-agent, a compromise of 
->> your account (forgot to lock the screen while going to the bathroom? 
->> did the OOM-condition occur which killed the program which locks the
->> screen? remote compromise of the system? local compromise?) means that a large 
->> array of attacks are possible against the daemon.
->> 
->> In addition, as stated before, the "backup" account, or whatever user the 
->> daemon which wants to sign stuff with your key is running as, might be 
->> compromised.
->> 
->> Currently, if you want to give the daemon access to the keys via 
->> ssh-agent (or something similar), you have to change the permissions on 
->> the ssh-agent socket to be much less restricted (especially since it's 
->> unlikely that you have permission to change the uid or gid of the socket 
->> to that of the daemon). Alternatively you can provide the backup daemon 
->> with the key directly (via fs, or loaded somehow at startup...etc), but 
->> then a compromise of the daemon means that the attacker has the private 
->> key.
->> 
->> Finally, the in-kernel system also provides a mechanism for the daemon 
->> to request the key when it is needed should it realize that the proper 
->> key is missing/has changed/whatever.
->
->Then fix ssh, not the kernel. As I said before, this is a problem that
->has been solved entirely in userspace by means of proxy certificates:
->they allow the user to issue time-limited certificates that are signed
->by the original certificate (hence can be authenticated as such), and
->that authorise a service to do a specific thing.
+On Fri, Jan 27, 2006 at 01:55:22PM -0500, Lee Revell wrote:
+> On Thu, 2006-01-26 at 11:18 -0800, Paul E. McKenney wrote:
+> > >     Xorg-2154  0d.s.  213us : call_rcu_bh (rt_run_flush)
+> > >     Xorg-2154  0d.s.  215us : local_bh_enable (rt_run_flush)
+> > >     Xorg-2154  0d.s.  222us : local_bh_enable (rt_run_flush)
+> > >     Xorg-2154  0d.s.  223us : call_rcu_bh (rt_run_flush)
+> > > 
+> > > [ zillions of these deleted ]
+> > > 
+> > >     Xorg-2154  0d.s. 7335us : local_bh_enable (rt_run_flush)
+> > 
+> > Dipankar's latest patch should hopefully address this problem.
+> > 
+> > Could you please give it a spin when you get a chance? 
+> 
+> Nope, no improvement at all, furthermore, the machine locked up once
+> under heavy disk activity.
+> 
+> I just got an 8ms+ latency from rt_run_flush that looks basically
+> identical to the above.  It's still flushing routes in huge batches:
 
-What about the first paragraph of what I wrote? You are going to want to 
-keep often-used keys around somehow, proxy certificates is not a 
-solution for your own use of your personal keys and with the exception 
-of hardware solutions such as smart cards, the keys will be safer in the 
-kernel than in a user-space daemon...
+I am not supprised that the earlier patch doesn't help your
+test. Once you reach the high watermark, the "desperation mode"
+latency can be fairly bad since the RCU batch size is pretty
+big.
 
-Further, the mpi and dsa code can also be used for supporting signed 
-modules and binaries...the "store dsa-keys in kernel" part adds 376 
-lines of code (counted with wc so comments and includes etc are also 
-counted)...
+How about trying out the patch included below ? It doesn't reduce
+amount of work done from softirq context, but decreases the
+*number of RCUs* generated during rt_run_flush() by using
+one RCU per hash chain. Can you check if this makes any
+difference ?
 
-Regards,
-David
+Thanks
+Dipankar
+
+
+Reduce the number of RCU callbacks by flushing one hash chain
+at a time. This is intended to reduce RCU overhead during
+frequent flushing.
+
+Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+---
+
+
+ net/ipv4/route.c |   18 +++++++++++++-----
+ 1 files changed, 13 insertions(+), 5 deletions(-)
+
+diff -puN net/ipv4/route.c~rcu-rt-flush-list net/ipv4/route.c
+--- linux-2.6.16-rc1-rcu/net/ipv4/route.c~rcu-rt-flush-list	2006-01-28 20:34:10.000000000 +0530
++++ linux-2.6.16-rc1-rcu-dipankar/net/ipv4/route.c	2006-01-28 21:30:27.000000000 +0530
+@@ -670,13 +670,23 @@ static void rt_check_expire(unsigned lon
+ 	mod_timer(&rt_periodic_timer, jiffies + ip_rt_gc_interval);
+ }
+ 
++static void rt_list_free(struct rcu_head *head)
++{
++	struct rtable *next, *rth;
++	rth = container_of(head, struct rtable, u.dst.rcu_head);
++	for (; rth; rth = next) {
++		next = rth->u.rt_next;
++		dst_free(&rth->u.dst);
++	}
++}
++
+ /* This can run from both BH and non-BH contexts, the latter
+  * in the case of a forced flush event.
+  */
+ static void rt_run_flush(unsigned long dummy)
+ {
+ 	int i;
+-	struct rtable *rth, *next;
++	struct rtable *rth;
+ 
+ 	rt_deadline = 0;
+ 
+@@ -689,10 +699,8 @@ static void rt_run_flush(unsigned long d
+ 			rt_hash_table[i].chain = NULL;
+ 		spin_unlock_bh(rt_hash_lock_addr(i));
+ 
+-		for (; rth; rth = next) {
+-			next = rth->u.rt_next;
+-			rt_free(rth);
+-		}
++		if (rth)
++			call_rcu_bh(&rth->u.dst.rcu_head, rt_list_free);
+ 	}
+ }
+ 
+
+_

@@ -1,76 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422763AbWA1Aya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422733AbWA1BAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422763AbWA1Aya (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 19:54:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422764AbWA1Aya
+	id S1422733AbWA1BAY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 20:00:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422769AbWA1BAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 19:54:30 -0500
-Received: from zproxy.gmail.com ([64.233.162.198]:12984 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422763AbWA1Aya convert rfc822-to-8bit
+	Fri, 27 Jan 2006 20:00:24 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:34748 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422733AbWA1BAX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 19:54:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=N7sU80iixxjpwTn7QY5yhdC58jZNVw5kXMNKx/dYSXG6TG+drRRccMCiqREUMFeGbmPslN0LGlBcbhJGpD1m2XiVBTCwIsJsybuFe0eQSuQ6jENjq3Merq4UMwaUmiLXhsylWL3Xuf1ubuBmZnbaenK9J07+hN49hHvxu8Hm0BM=
-Message-ID: <cfb54190601271654i8a001b7y5c37b27e2e7fa0ed@mail.gmail.com>
-Date: Sat, 28 Jan 2006 02:54:29 +0200
-From: Hai Zaar <haizaar@gmail.com>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: Re: vesa fb is slow on 2.6.15.1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43DABCF6.4000904@gmail.com>
+	Fri, 27 Jan 2006 20:00:23 -0500
+Message-ID: <43DAC222.4060805@us.ibm.com>
+Date: Fri, 27 Jan 2006 17:00:18 -0800
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <cfb54190601260620l5848ba3ai9d7e06c41d98c362@mail.gmail.com>
-	 <43D8E1EE.3040302@gmail.com>
-	 <cfb54190601260806h7199d7aej79139140d145d592@mail.gmail.com>
-	 <43D94764.3040303@gmail.com>
-	 <cfb54190601261610o1479b8fdsbedb0ca96b14b6@mail.gmail.com>
-	 <43D9B77E.6080003@gmail.com>
-	 <cfb54190601270832x29681873i624818603d5db26e@mail.gmail.com>
-	 <43DA5681.2020305@gmail.com>
-	 <cfb54190601271628j774df3d0xce0ab24c8abca845@mail.gmail.com>
-	 <43DABCF6.4000904@gmail.com>
+To: Paul Jackson <pj@sgi.com>
+CC: clameter@engr.sgi.com, linux-kernel@vger.kernel.org, sri@us.ibm.com,
+       andrea@suse.de, pavel@suse.cz, linux-mm@kvack.org
+Subject: Re: [patch 3/9] mempool - Make mempools NUMA aware
+References: <20060125161321.647368000@localhost.localdomain>	<1138233093.27293.1.camel@localhost.localdomain>	<Pine.LNX.4.62.0601260953200.15128@schroedinger.engr.sgi.com>	<43D953C4.5020205@us.ibm.com>	<Pine.LNX.4.62.0601261511520.18716@schroedinger.engr.sgi.com>	<43D95A2E.4020002@us.ibm.com>	<Pine.LNX.4.62.0601261525570.18810@schroedinger.engr.sgi.com>	<43D96633.4080900@us.ibm.com>	<Pine.LNX.4.62.0601261619030.19029@schroedinger.engr.sgi.com>	<43D96A93.9000600@us.ibm.com> <20060127025126.c95f8002.pj@sgi.com>
+In-Reply-To: <20060127025126.c95f8002.pj@sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/28/06, Antonino A. Daplas <adaplas@gmail.com> wrote:
-> Hai Zaar wrote:
-> >> Looks harmless to me.
-> >>
-> >> Can you check /proc/iomem just to verify if that particular address has
-> >> been reserved by the OS.
-> > Relevant iomem entries are:
-> > f0000000-f7ffffff : PCI Bus #40
-> >   f0000000-f7ffffff : 0000:40:00.0
-> >     f0000000-f7ffffff : vesafb
-> > f8000000-f9ffffff : PCI Bus #40
-> >   f8000000-f8ffffff : 0000:40:00.0
-> >   f9000000-f9ffffff : 0000:40:00.0
-> > After I load nvidia.ko, it changes to:
-> > f0000000-f7ffffff : PCI Bus #40
-> >   f0000000-f7ffffff : 0000:40:00.0
-> >     f0000000-f7ffffff : vesafb
-> > f8000000-f9ffffff : PCI Bus #40
-> >   f8000000-f8ffffff : 0000:40:00.0
->     ^^^^^^^^
-> Yes, this address range (16M) is already allocated to resource #0
-> of the nvidia card.  So trying to allocate resource #6 on the same
-> address looks bogus to me.
+Paul Jackson wrote:
+> Matthew wrote:
+> 
+>>I'm glad we're on the same page now. :)  And yes, adding four "duplicate"
+>>*_mempool allocators was not my first choice, but I couldn't easily see a
+>>better way.
+> 
+> 
+> I hope the following comments aren't too far off target.
+> 
+> I too am inclined to prefer the __GFP_CRITICAL approach over this.
 
-Ok. What now?
-I've rebooted without 'vga' and 'video' parameters at all - the error stays.
-
-BTW: How do you know that its allocated to resource #0 - are resource
-numbers written somewhere in /proc/iomem and I've missed it?
+OK.  Chalk one more up for that solution...
 
 
-> Tony
->
+> That or Andrea's suggestion, which except for a free hook, was entirely
+> outside of the page_alloc.c code paths.
+
+This is supposed to be an implementation of Andrea's suggestion.  There are
+no hooks in ANY page_alloc.c code paths.  These patches touch mempool code
+and some slab code, but not any page allocator code.
 
 
---
-Zaar
+> Or Alan's suggested revival
+> of the old code to drop non-critical network patches in duress.
+
+Dropping non-critical packets is still in our plan, but I don't think that
+is a FULL solution.  As we mentioned before on that topic, you can't tell
+if a packet is critical until AFTER you receive it, by which point it has
+already had an skbuff (hopefully) allocated for it.  If your network
+traffic is coming in faster than you can receive, examine, and drop
+non-critical packets you're hosed.  I still think some sort of reserve pool
+is necessary to give the networking stack a little breathing room when
+under both memory pressure and network load.
+
+
+> I am tempted to think you've taken an approach that raised some
+> substantial looking issues:
+> 
+>  * how to tell the system when to use the emergency pool
+
+We've dropped the whole "in_emergency" thing.  The system uses the
+emergency pool when the normal pool (ie: the buddy allocator) is out of pages.
+
+>  * this doesn't really solve the problem (network can still starve)
+
+Only if the pool is not large enough.  One can argue that sizing the pool
+appropriately is impossible (theoretical incoming traffic over a GigE card
+or two for a minute or two is extremely large), but then I guess we
+shouldn't even try to fix the problem...?
+
+>  * it wastes memory most of the time
+
+True.  Any "real" reserve system will suffer from that problem.  Ben
+LaHaise suggested a reserve system that allows the reserve pages to be used
+for trivially reclaimable allocation while not in active use.  An
+interesting idea.  Regardless, the Linux VM sorta already wastes memory by
+keeping min_free_kbytes around, no?
+
+>  * it doesn't really improve on GFP_ATOMIC
+
+I disagree.  It improves on GFP_ATOMIC by giving it a second chance.  If
+you've got a GFP_ATOMIC allocation that is particularly critical, using a
+mempool to back it means that you can keep going for a while when the rest
+of the system OOMs/goes into SWAP hell/etc.
+
+> and just added another substantial looking issue:
+> 
+>  * it entwines another thread of complexity and performance costs
+>    into the important memory allocation code path.
+
+I can't say that it doesn't add any complexity into an important memory
+allocation path, but I don't think it is a significant amount of
+complexity.  It is just a pointer check in kmem_getpages()...
+
+
+>>With large machines, especially as
+>>those large machines' workloads are more and more likely to be partitioned
+>>with something like cpusets, you want to be able to specify where you want
+>>your reserve pool to come from.
+> 
+> 
+> Cpusets is about performance, not correctness.  Anytime I get cornered
+> in the cpuset code, I prefer violating the cpuset containment, over
+> serious system failure.
+
+Fair enough.  But if we can keep the same baseline performance and add this
+new feature, I'd like to do that.  Doing our best to allocate on a
+particular node when requested to isn't too much to ask.
+
+-Matt

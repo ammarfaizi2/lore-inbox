@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWA1MXi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWA1Mgo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751307AbWA1MXi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 07:23:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWA1MXi
+	id S1751365AbWA1Mgo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 07:36:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWA1Mgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 07:23:38 -0500
-Received: from darwin.snarc.org ([81.56.210.228]:25297 "EHLO darwin.snarc.org")
-	by vger.kernel.org with ESMTP id S1751307AbWA1MXi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 07:23:38 -0500
-Date: Sat, 28 Jan 2006 13:23:35 +0100
-From: Vincent Hanquez <vincent.hanquez@cl.cam.ac.uk>
-To: Greg KH <greg@kroah.com>
-Cc: "Mike D. Day" <ncmike@us.ibm.com>, xen-devel@lists.xensource.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.12.6-xen] sysfs attributes for xen
-Message-ID: <20060128122335.GA24382@snarc.org>
-References: <43DAD4DB.4090708@us.ibm.com> <20060128023828.GA20881@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 28 Jan 2006 07:36:44 -0500
+Received: from uproxy.gmail.com ([66.249.92.199]:58154 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751365AbWA1Mgn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 07:36:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RnQAoaPbzxVaSYCcXbO6InB43KBTTZNKTw3j2bjdKLullJsVXHIIA6fLjX//PZpEsCALsX5CPOpEII40DVxSWPmuNkQNdqj3ZE2Y8LV0BAkTdVJ0za/DH7AyPTQbU7dQhkynYNAAtO3I1IyLwEe60MRV6RBMk1txMmfECcgrdKk=
+Message-ID: <84144f020601280436l7beafea9x6265b749d94ce593@mail.gmail.com>
+Date: Sat, 28 Jan 2006 14:36:39 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: Libata, bug 5700.
+Cc: =?ISO-8859-1?Q?Lasse_K=E4rkk=E4inen_/_Tronic?= 
+	<tronic+bpsk@trn.iki.fi>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1138451090.2993.14.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060128023828.GA20881@kroah.com>
-X-Warning: Email may contain unsmilyfied humor and/or satire.
-User-Agent: Mutt/1.5.9i
+References: <43DB5BE5.8050900@trn.iki.fi>
+	 <1138451090.2993.14.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2006 at 06:38:28PM -0800, Greg KH wrote:
-> > +
-> > +int __init
-> > +hyper_sysfs_init(void)
-> > +{
-> > +	int err ;
-> > +	
-> > +	if( 0 ==  (err = subsystem_register(&hypervisor_subsys)) ) {
-> > +		xen_kset.subsys = &hypervisor_subsys;
-> > +		err = kset_register(&xen_kset);
-> > +	}
-> 
-> Is this the xen coding style?  If so, it's got to change before making
-> it into mainline...  Please fix this up.
+On 1/28/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> Maybe think about if there's more information you can supply to make it
+> easier for the developers to diagnose (this is the most common reason
+> bugs aren't looked at, just plain not enough info to even begin thinking
+> about it)... or look at the code yourself, or try to find where this
+> behavior started, or .. or ...
 
-No, this is not coding style we use for linux related files.
-The patch really need to be fix ...
+The simplest thing you can do on your own is to see if you can find an
+older kernel that doesn't have that problem. And if you do find a
+working kernel, you can use git bisect to find out the exact changeset
+that broke it. See the following URL for details:
+http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with-bisect.txt
 
--- 
-Vincent Hanquez
+                               Pekka

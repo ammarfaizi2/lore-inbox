@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422725AbWA1ATq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422731AbWA1AVB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422725AbWA1ATq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 19:19:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422726AbWA1ATq
+	id S1422731AbWA1AVB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 19:21:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422730AbWA1AUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 19:19:46 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:53201 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422725AbWA1ATp
+	Fri, 27 Jan 2006 19:20:23 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:48297 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422729AbWA1AUF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 19:19:45 -0500
-Subject: [patch 2/6] Create and Use common mempool allocators
+	Fri, 27 Jan 2006 19:20:05 -0500
+Subject: [patch 6/6] Create and Use common mempool allocators
 From: Matthew Dobson <colpatch@us.ibm.com>
 Reply-To: colpatch@us.ibm.com
 To: linux-kernel@vger.kernel.org
@@ -17,136 +17,61 @@ Cc: penberg@cs.helsinki.fi, akpm@osdl.org
 References: <20060128001539.030809000@localhost.localdomain>
 Content-Type: text/plain
 Organization: IBM LTC
-Date: Fri, 27 Jan 2006 16:19:41 -0800
-Message-Id: <1138407582.26088.2.camel@localhost.localdomain>
+Date: Fri, 27 Jan 2006 16:20:01 -0800
+Message-Id: <1138407601.26088.6.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-plain text document attachment (mempool-use_page_allocator.patch)
+plain text document attachment (mempool-use_kzalloc_allocator.patch)
 From: Matthew Dobson <colpatch@us.ibm.com>
-Subject: [patch 2/6] mempool - Use common mempool page allocator
+Subject: [patch 6/6] mempool - Use common mempool kzalloc allocator
 
-Convert two mempool users that currently use their own mempool-backed page
-allocators to use the generic mempool page allocator.
-
-Also included are 2 trivial whitespace fixes.
+This patch changes a mempool user, which is basically just a wrapper around
+kzalloc(), to use the common mempool_kmalloc/kfree, rather than its own wrapper
+function, removing duplicated code.
 
 Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
 
- drivers/md/dm-crypt.c |   18 ++----------------
- mm/highmem.c          |   24 ++++++++----------------
- 2 files changed, 10 insertions(+), 32 deletions(-)
+ drivers/md/multipath.c |   16 ++--------------
+ 1 files changed, 2 insertions(+), 14 deletions(-)
 
-Index: linux-2.6.16-rc1-mm3+mempool_work/drivers/md/dm-crypt.c
+Index: linux-2.6.16-rc1-mm3+mempool_work/drivers/md/multipath.c
 ===================================================================
---- linux-2.6.16-rc1-mm3+mempool_work.orig/drivers/md/dm-crypt.c
-+++ linux-2.6.16-rc1-mm3+mempool_work/drivers/md/dm-crypt.c
-@@ -94,20 +94,6 @@ struct crypt_config {
- static kmem_cache_t *_crypt_io_pool;
+--- linux-2.6.16-rc1-mm3+mempool_work.orig/drivers/md/multipath.c
++++ linux-2.6.16-rc1-mm3+mempool_work/drivers/md/multipath.c
+@@ -35,18 +35,6 @@
+ #define	NR_RESERVED_BUFS	32
  
- /*
-- * Mempool alloc and free functions for the page
-- */
--static void *mempool_alloc_page(gfp_t gfp_mask, void *data)
+
+-static void *mp_pool_alloc(gfp_t gfp_flags, void *data)
 -{
--	return alloc_page(gfp_mask);
+-	struct multipath_bh *mpb;
+-	mpb = kzalloc(sizeof(*mpb), gfp_flags);
+-	return mpb;
 -}
 -
--static void mempool_free_page(void *page, void *data)
+-static void mp_pool_free(void *mpb, void *data)
 -{
--	__free_page(page);
+-	kfree(mpb);
 -}
 -
--
--/*
-  * Different IV generation algorithms:
-  *
-  * plain: the initial vector is the 32-bit low-endian version of the sector
-@@ -637,8 +623,8 @@ static int crypt_ctr(struct dm_target *t
- 		goto bad3;
- 	}
- 
--	cc->page_pool = mempool_create(MIN_POOL_PAGES, mempool_alloc_page,
--				       mempool_free_page, NULL);
-+	cc->page_pool = mempool_create(MIN_POOL_PAGES, mempool_alloc_pages,
-+				       mempool_free_pages, 0);
- 	if (!cc->page_pool) {
- 		ti->error = PFX "Cannot allocate page mempool";
- 		goto bad4;
-Index: linux-2.6.16-rc1-mm3+mempool_work/mm/highmem.c
-===================================================================
---- linux-2.6.16-rc1-mm3+mempool_work.orig/mm/highmem.c
-+++ linux-2.6.16-rc1-mm3+mempool_work/mm/highmem.c
-@@ -31,14 +31,9 @@
- 
- static mempool_t *page_pool, *isa_page_pool;
- 
--static void *page_pool_alloc_isa(gfp_t gfp_mask, void *data)
-+static void *mempool_alloc_pages_isa(gfp_t gfp_mask, void *data)
+ static int multipath_map (multipath_conf_t *conf)
  {
--	return alloc_page(gfp_mask | GFP_DMA);
--}
--
--static void page_pool_free(void *page, void *data)
--{
--	__free_page(page);
-+	return mempool_alloc_pages(gfp_mask | GFP_DMA, data);
- }
+ 	int i, disks = conf->raid_disks;
+@@ -495,8 +483,8 @@ static int multipath_run (mddev_t *mddev
+ 	mddev->degraded = conf->raid_disks = conf->working_disks;
  
- /*
-@@ -51,11 +46,6 @@ static void page_pool_free(void *page, v
-  */
- #ifdef CONFIG_HIGHMEM
- 
--static void *page_pool_alloc(gfp_t gfp_mask, void *data)
--{
--	return alloc_page(gfp_mask);
--}
--
- static int pkmap_count[LAST_PKMAP];
- static unsigned int last_pkmap_nr;
- static  __cacheline_aligned_in_smp DEFINE_SPINLOCK(kmap_lock);
-@@ -229,7 +219,8 @@ static __init int init_emergency_pool(vo
- 	if (!i.totalhigh)
- 		return 0;
- 
--	page_pool = mempool_create(POOL_SIZE, page_pool_alloc, page_pool_free, NULL);
-+	page_pool = mempool_create(POOL_SIZE, mempool_alloc_pages,
-+				   mempool_free_pages, 0);
- 	if (!page_pool)
- 		BUG();
- 	printk("highmem bounce pool size: %d pages\n", POOL_SIZE);
-@@ -272,7 +263,8 @@ int init_emergency_isa_pool(void)
- 	if (isa_page_pool)
- 		return 0;
- 
--	isa_page_pool = mempool_create(ISA_POOL_SIZE, page_pool_alloc_isa, page_pool_free, NULL);
-+	isa_page_pool = mempool_create(ISA_POOL_SIZE, mempool_alloc_pages_isa,
-+				       mempool_free_pages, 0);
- 	if (!isa_page_pool)
- 		BUG();
- 
-@@ -337,7 +329,7 @@ static void bounce_end_io(struct bio *bi
- 	bio_put(bio);
- }
- 
--static int bounce_end_io_write(struct bio *bio, unsigned int bytes_done,int err)
-+static int bounce_end_io_write(struct bio *bio, unsigned int bytes_done, int err)
- {
- 	if (bio->bi_size)
- 		return 1;
-@@ -384,7 +376,7 @@ static int bounce_end_io_read_isa(struct
- }
- 
- static void __blk_queue_bounce(request_queue_t *q, struct bio **bio_orig,
--			mempool_t *pool)
-+			       mempool_t *pool)
- {
- 	struct page *page;
- 	struct bio *bio = NULL;
+ 	conf->pool = mempool_create(NR_RESERVED_BUFS,
+-				    mp_pool_alloc, mp_pool_free,
+-				    NULL);
++				    mempool_kzalloc, mempool_kfree,
++				    sizeof(struct multipath_bh));
+ 	if (conf->pool == NULL) {
+ 		printk(KERN_ERR 
+ 			"multipath: couldn't allocate memory for %s\n",
 
 --
 

@@ -1,67 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422735AbWA1AY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422734AbWA1A1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422735AbWA1AY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 19:24:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422734AbWA1AY1
+	id S1422734AbWA1A1n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 19:27:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422736AbWA1A1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 19:24:27 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:41876 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422730AbWA1AY0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 19:24:26 -0500
-Date: Fri, 27 Jan 2006 16:26:11 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: dada1@cosmosbay.com, davem@davemloft.net, linux-kernel@vger.kernel.org,
-       shai@scalex86.org, netdev@vger.kernel.org, pravins@calsoftinc.com
-Subject: Re: [patch 3/4] net: Percpufy frequently used variables --
- proto.sockets_allocated
-Message-Id: <20060127162611.5d160638.akpm@osdl.org>
-In-Reply-To: <20060128000100.GD3565@localhost.localdomain>
-References: <20060126185649.GB3651@localhost.localdomain>
-	<20060126190357.GE3651@localhost.localdomain>
-	<43D9DFA1.9070802@cosmosbay.com>
-	<20060127195227.GA3565@localhost.localdomain>
-	<20060127121602.18bc3f25.akpm@osdl.org>
-	<20060127224433.GB3565@localhost.localdomain>
-	<20060127150106.38b9e041.akpm@osdl.org>
-	<20060127150847.48c312c0.akpm@osdl.org>
-	<20060128000100.GD3565@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Jan 2006 19:27:43 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23315 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1422734AbWA1A1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jan 2006 19:27:42 -0500
+Date: Sat, 28 Jan 2006 01:27:41 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>,
+       David Howells <dhowells@redhat.com>,
+       Christoph Hellwig <hch@infradead.org>, keyrings@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths library
+Message-ID: <20060128002741.GE3777@stusta.de>
+References: <20060127092817.GB24362@infradead.org> <1138312694656@2gen.com> <1138312695665@2gen.com> <6403.1138392470@warthog.cambridge.redhat.com> <20060127204158.GA4754@hardeman.nu> <1138400385.8770.21.camel@lade.trondhjem.org> <8155F461-1703-476B-8C5D-B834EE49905D@mac.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <8155F461-1703-476B-8C5D-B834EE49905D@mac.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
->
-> On Fri, Jan 27, 2006 at 03:08:47PM -0800, Andrew Morton wrote:
-> > Andrew Morton <akpm@osdl.org> wrote:
-> > >
-> > > Oh, and because vm_acct_memory() is counting a singleton object, it can use
-> > > DEFINE_PER_CPU rather than alloc_percpu(), so it saves on a bit of kmalloc
-> > > overhead.
-> > 
-> > Actually, I don't think that's true.  we're allocating a sizeof(long) with
-> > kmalloc_node() so there shouldn't be memory wastage.
+On Fri, Jan 27, 2006 at 06:35:40PM -0500, Kyle Moffett wrote:
+> On Jan 27, 2006, at 17:19, Trond Myklebust wrote:
+> >On Fri, 2006-01-27 at 21:41 +0100, David Härdeman wrote:
+> >
+> >>For example, a backup daemon which wishes to store the backup on  
+> >>another host using ssh. Usually this is solved by storing an  
+> >>unencrypted key in the fs or by providing a connection to a ssh- 
+> >>agent which has been preloaded with the proper key(s). Both are  
+> >>quite inelegant solutions.  With the in-kernel support, the daemon  
+> >>can request the key using the request_key call, and (provided  
+> >>proper scripts are written), the user who controls the relevant  
+> >>key can supply it. This in turn means that the backup daemon can  
+> >>sign using the key and read its public parts but not the private key.
+> >
+> >...but why would you want such a daemon to live in the kernel in  
+> >the first place? A backup application might perhaps need some  
+> >kernel support in order to ensure filesystem consistency, but that  
+> >does not mean that moving the entire daemon into the kernel is a  
+> >good idea.
 > 
-> Oh yeah there is. Each dynamic per-cpu object would have been  atleast
-> (NR_CPUS * sizeof (void *) + num_cpus_possible * cacheline_size ).  
-> Now kmalloc_node will fall back on size-32 for allocation of long, so
-> replace the cacheline_size above with 32 -- which then means dynamic per-cpu
-> data are not on a cacheline boundary anymore (most modern cpus have 64byte/128 
-> byte cache lines) which means per-cpu data could end up false shared....
-> 
+> No, the point is not to put the backup daemon into the kernel, but to  
+> provide a way for the backup daemon and my user process to  
+> communicate DSA key details without completely giving the backup  
+> daemon my key.  I may not entirely trust the backup daemon not to get  
+> compromised, but with support for the kernel keyring system,  
+> compromising the backup daemon would only compromise the backed up  
+> files, not the private keys and other secure data.
 
-OK.  But isn't the core of the problem the fact that __alloc_percpu() is
-using kmalloc_node() rather than a (new, as-yet-unimplemented)
-kmalloc_cpu()?  kmalloc_cpu() wouldn't need the L1 cache alignment.
+And why exactly is this not solvable through a userspace daemon?
 
-It might be worth creating just a small number of per-cpu slabs (4-byte,
-8-byte).  A kmalloc_cpu() would just need a per-cpu array of
-kmem_cache_t*'s and it'd internally use kmalloc_node(cpu_to_node), no?
+> Cheers,
+> Kyle Moffett
 
-Or we could just give __alloc_percpu() a custom, hand-rolled,
-not-cacheline-padded sizeof(long) slab per CPU and use that if (size ==
-sizeof(long)).  Or something.
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,154 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWA1XFT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWA1XLV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750781AbWA1XFT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 18:05:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWA1XFR
+	id S1750786AbWA1XLV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 18:11:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWA1XLV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 18:05:17 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:46859 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750783AbWA1XEx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 18:04:53 -0500
-Date: Sun, 29 Jan 2006 00:04:52 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: [2.6 patch] make CONFIG_SECCOMP default to n
-Message-ID: <20060128230452.GV3777@stusta.de>
-MIME-Version: 1.0
+	Sat, 28 Jan 2006 18:11:21 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44970 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750786AbWA1XLV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 18:11:21 -0500
+Date: Sun, 29 Jan 2006 00:10:58 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Sridhar Samudrala <sri@us.ibm.com>
+Cc: Matthew Dobson <colpatch@us.ibm.com>, Paul Jackson <pj@sgi.com>,
+       clameter@engr.sgi.com, linux-kernel@vger.kernel.org, andrea@suse.de,
+       linux-mm@kvack.org
+Subject: Let the flames begin... [was Re: [patch 3/9] mempool - Make mempools NUMA aware]
+Message-ID: <20060128231058.GA1718@elf.ucw.cz>
+References: <43D96633.4080900@us.ibm.com> <Pine.LNX.4.62.0601261619030.19029@schroedinger.engr.sgi.com> <43D96A93.9000600@us.ibm.com> <20060127025126.c95f8002.pj@sgi.com> <43DAC222.4060805@us.ibm.com> <20060128081641.GB1605@elf.ucw.cz> <43DB9877.7020206@us.ibm.com> <20060128164158.GD1858@elf.ucw.cz> <43DBA1A0.6010708@us.ibm.com> <20060128225907.GA1612@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060128225907.GA1612@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
+On So 28-01-06 23:59:07, Pavel Machek wrote:
+> Hi!
+> 
+> > >If sending routines can work with constant ammount of memory, why use
+> > >kmalloc at all? Anyway I thought we were talking receiving side
+> > >earlier in the thread.
+> > >
+> > >Ouch and wait a moment. You claim that GFP_KERNEL allocations can't
+> > >block/sleep? Of course they can, that's why they are GFP_KERNEL and
+> > >not GFP_ATOMIC.
+> > >  
+> > I didn't meant GFP_KERNEL allocations cannot block/sleep? When in 
+> > emergency, we
+> > want even the GFP_KERNEL allocations that are made by critical sockets 
+> > not to block/sleep.
+> > So my original critical sockets patches changes the gfp flag passed to 
+> > these allocation requests
+> > to GFP_KERNEL|GFP_CRITICAL.
 
-i was profiling the scheduler on x86 and noticed some overhead related 
-to SECCOMP, and indeed, SECCOMP runs disable_tsc() at _every_ 
-context-switch:
+(I'd say Al Viro mode, but Al could take that personally)
 
-        if (unlikely(prev->io_bitmap_ptr || next->io_bitmap_ptr))
-                handle_io_bitmap(next, tss);
+IOW: You keep pushing complex and known-broken solution for problem
+that does not exist.
 
-        disable_tsc(prev_p, next_p);
-
-        return prev_p;
-
-these are a couple of instructions in the hottest scheduler codepath!
-
-x86_64 already removed disable_tsc() from switch_to(), but i think the 
-right solution is to turn SECCOMP off by default.
-
-besides the runtime overhead, there are a couple of other reasons as 
-well why this should be done:
-
- - CONFIG_SECCOMP=y adds 836 bytes of bloat to the kernel:
-
-       text    data     bss     dec     hex filename
-    4185360  867112  391012 5443484  530f9c vmlinux-noseccomp
-    4185992  867316  391012 5444320  5312e0 vmlinux-seccomp
-
- - virtually nobody seems to be using it (but cpushare.com, which seems
-   pretty inactive)
-
- - users/distributions can still turn it on if they want it
-
- - http://www.cpushare.com/legal seems to suggest that it is pursuing a
-   software patent to utilize the seccomp concept in a distributed 
-   environment, and seems to give a promise that 'end users' will not be
-   affected by that patent. How about non-end-users [i.e. server-side]?
-   Has the Linux kernel become a vehicle for a propriety server-side
-   feature, with every Linux user paying the price of it?
-
-so the patch below just does the minimal common-sense change: turn it 
-off by default.
-
-
-Adrian Bunk:
-I've removed the superfluous "default n"'s the original patch introduced.
-
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
-----
-
-This patch was already sent on:
-- 21 Jan 2006
-
-This patch was sent by Ingo Molnar on:
-- 9 Jan 2006
-
-Index: linux/arch/i386/Kconfig
-===================================================================
---- linux.orig/arch/i386/Kconfig
-+++ linux/arch/i386/Kconfig
-@@ -637,7 +637,6 @@ config REGPARM
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
--	default y
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-Index: linux/arch/mips/Kconfig
-===================================================================
---- linux.orig/arch/mips/Kconfig
-+++ linux/arch/mips/Kconfig
-@@ -1787,7 +1787,6 @@ config BINFMT_ELF32
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS && BROKEN
--	default y
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-Index: linux/arch/powerpc/Kconfig
-===================================================================
---- linux.orig/arch/powerpc/Kconfig
-+++ linux/arch/powerpc/Kconfig
-@@ -666,7 +666,6 @@ endif
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
--	default y
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-Index: linux/arch/ppc/Kconfig
-===================================================================
---- linux.orig/arch/ppc/Kconfig
-+++ linux/arch/ppc/Kconfig
-@@ -1127,7 +1127,6 @@ endif
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
--	default y
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-Index: linux/arch/sparc64/Kconfig
-===================================================================
---- linux.orig/arch/sparc64/Kconfig
-+++ linux/arch/sparc64/Kconfig
-@@ -64,7 +64,6 @@ endchoice
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
--	default y
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
-Index: linux/arch/x86_64/Kconfig
-===================================================================
---- linux.orig/arch/x86_64/Kconfig
-+++ linux/arch/x86_64/Kconfig
-@@ -466,7 +466,6 @@ config PHYSICAL_START
- config SECCOMP
- 	bool "Enable seccomp to safely compute untrusted bytecode"
- 	depends on PROC_FS
--	default y
- 	help
- 	  This kernel feature is useful for number crunching applications
- 	  that may need to compute untrusted bytecode during their
+(Now you should be angry enough, and please explain why I'm wrong in
+easy to understand terms, so that even I will understand that we need
+critical sockets for kernels in emergency).
+								Pavel
+-- 
+Thanks, Sharp!

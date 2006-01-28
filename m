@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWA1XLV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWA1XPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbWA1XLV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 18:11:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWA1XLV
+	id S1750790AbWA1XPy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 18:15:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWA1XPy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 18:11:21 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44970 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750786AbWA1XLV (ORCPT
+	Sat, 28 Jan 2006 18:15:54 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:9883 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750790AbWA1XPx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 18:11:21 -0500
-Date: Sun, 29 Jan 2006 00:10:58 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Sridhar Samudrala <sri@us.ibm.com>
-Cc: Matthew Dobson <colpatch@us.ibm.com>, Paul Jackson <pj@sgi.com>,
-       clameter@engr.sgi.com, linux-kernel@vger.kernel.org, andrea@suse.de,
-       linux-mm@kvack.org
-Subject: Let the flames begin... [was Re: [patch 3/9] mempool - Make mempools NUMA aware]
-Message-ID: <20060128231058.GA1718@elf.ucw.cz>
-References: <43D96633.4080900@us.ibm.com> <Pine.LNX.4.62.0601261619030.19029@schroedinger.engr.sgi.com> <43D96A93.9000600@us.ibm.com> <20060127025126.c95f8002.pj@sgi.com> <43DAC222.4060805@us.ibm.com> <20060128081641.GB1605@elf.ucw.cz> <43DB9877.7020206@us.ibm.com> <20060128164158.GD1858@elf.ucw.cz> <43DBA1A0.6010708@us.ibm.com> <20060128225907.GA1612@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060128225907.GA1612@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sat, 28 Jan 2006 18:15:53 -0500
+Date: Sat, 28 Jan 2006 18:14:29 -0500 (EST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chase Venters <chase.venters@clientec.com>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Marc Perkel <marc@perkel.com>,
+       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       Patrick McLean <pmclean@cs.ubishops.ca>,
+       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+In-Reply-To: <20060128062504.GW27946@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0601281805300.3812@evo.osdl.org>
+References: <43D7B20D.7040203@wolfmountaingroup.com> <43D7B5C4.5040601@wolfmountaingroup.com>
+ <43D7D05D.7030101@perkel.com> <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>
+ <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>
+ <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>
+ <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org> <1138387136.26811.8.camel@localhost>
+ <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org> <Pine.LNX.4.64.0601280001000.2909@evo.osdl.org>
+ <20060128062504.GW27946@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On So 28-01-06 23:59:07, Pavel Machek wrote:
-> Hi!
+
+
+On Sat, 28 Jan 2006, Al Viro wrote:
+> > 
+> > 	- You may not distibute this for a fee, not even "handling"
+> > 	  costs.
+> > 
+> >   Mail me at "torvalds@kruuna.helsinki.fi" if you have any questions."
+> > 
+> > and that one was only valid between kernel versions 0.01 and 0.12 or 
+> > something like that.
 > 
-> > >If sending routines can work with constant ammount of memory, why use
-> > >kmalloc at all? Anyway I thought we were talking receiving side
-> > >earlier in the thread.
-> > >
-> > >Ouch and wait a moment. You claim that GFP_KERNEL allocations can't
-> > >block/sleep? Of course they can, that's why they are GFP_KERNEL and
-> > >not GFP_ATOMIC.
-> > >  
-> > I didn't meant GFP_KERNEL allocations cannot block/sleep? When in 
-> > emergency, we
-> > want even the GFP_KERNEL allocations that are made by critical sockets 
-> > not to block/sleep.
-> > So my original critical sockets patches changes the gfp flag passed to 
-> > these allocation requests
-> > to GFP_KERNEL|GFP_CRITICAL.
+> Interesting...  What does that do to e.g. DVD with full (OK, modulo missing
+> early versions) kernel history all way back to 0.01?
 
-(I'd say Al Viro mode, but Al could take that personally)
+Well, the good news is that I was the only real copyright holder back then 
+(there's a couple of other people who contributed to 0.11 and/or 0.12, 
+mainly Ted T'so with the BSD terminal control stuff - ^Z and friends).
 
-IOW: You keep pushing complex and known-broken solution for problem
-that does not exist.
+I used to even re-write patches to suit my style (this was back then, the 
+patches were smaller, and I was younger and had more energy). So some 
+things that others sent in patches for (I think Peter McDonald did pty's) 
+I ended up re-writing myself (and in the process I mixed up the master and 
+slave pty major number, iirc ;)
 
-(Now you should be angry enough, and please explain why I'm wrong in
-easy to understand terms, so that even I will understand that we need
-critical sockets for kernels in emergency).
-								Pavel
--- 
-Thanks, Sharp!
+> Even funnier question is what does that do to full CVS including the
+> early versions.  Can that be distributed at all and what license would
+> fit it?  Arguing that it's mere aggregation is possible, but it's a
+> bit of a stretch...
+
+I think you can take it for granted that the GPL re-licensing was 
+retro-active. I'm the sole copyright holder for 99% of it, and there were 
+no objections to the relicensing even back when it happened, so I can 
+pretty much guarantee that there would be none now ;)
+
+It was a kind of strange license. I didn't spend a whole lot of time 
+thinking about it ;)
+
+		Linus

@@ -1,121 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422740AbWA1A2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422737AbWA1Abn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422740AbWA1A2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 19:28:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422738AbWA1A2Y
+	id S1422737AbWA1Abn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 19:31:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422738AbWA1Abm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 19:28:24 -0500
-Received: from mf00.sitadelle.com ([212.94.174.67]:47256 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1422736AbWA1A2X
+	Fri, 27 Jan 2006 19:31:42 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:41358 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1422737AbWA1Abm convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 19:28:23 -0500
-Message-ID: <43DABAA4.8040208@cosmosbay.com>
-Date: Sat, 28 Jan 2006 01:28:20 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Fri, 27 Jan 2006 19:31:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UlIUbWZj3cI9TooucN9JlUPY3KxDLxwuuzXZbrf4lYe1nxDzDISar7nL779ZEH3gQrd/ShhjkNovdTG1QefLV1A6U7Rmeo4A1hEtB/gDu/vdcJb0YX4kYKjfi4GO61J3Y96M81hA7yr16QC6Ip6PNK/SKgnNvUb104h/nWWvodo=
+Message-ID: <cfb54190601271631v3af78d70v8993cae358fe9994@mail.gmail.com>
+Date: Sat, 28 Jan 2006 02:31:41 +0200
+From: Hai Zaar <haizaar@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: vesa fb is slow on 2.6.15.1
+In-Reply-To: <43DA5681.2020305@gmail.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: kiran@scalex86.org, davem@davemloft.net, linux-kernel@vger.kernel.org,
-       shai@scalex86.org, netdev@vger.kernel.org, pravins@calsoftinc.com
-Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
-References: <20060126185649.GB3651@localhost.localdomain>	<20060126190357.GE3651@localhost.localdomain>	<43D9DFA1.9070802@cosmosbay.com>	<20060127195227.GA3565@localhost.localdomain>	<20060127121602.18bc3f25.akpm@osdl.org>	<20060127224433.GB3565@localhost.localdomain>	<43DAA586.5050609@cosmosbay.com> <20060127151635.3a149fe2.akpm@osdl.org>
-In-Reply-To: <20060127151635.3a149fe2.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------020103080003080607060501"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <cfb54190601260620l5848ba3ai9d7e06c41d98c362@mail.gmail.com>
+	 <43D8E1EE.3040302@gmail.com>
+	 <cfb54190601260806h7199d7aej79139140d145d592@mail.gmail.com>
+	 <43D94764.3040303@gmail.com>
+	 <cfb54190601261610o1479b8fdsbedb0ca96b14b6@mail.gmail.com>
+	 <43D9B77E.6080003@gmail.com>
+	 <cfb54190601270832x29681873i624818603d5db26e@mail.gmail.com>
+	 <43DA5681.2020305@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020103080003080607060501
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+>
+> Looks harmless to me.
+>
+> Can you check /proc/iomem just to verify if that particular address has
+> been reserved by the OS.
+Relevant iomem entries are:
+f0000000-f7ffffff : PCI Bus #40
+ f0000000-f7ffffff : 0000:40:00.0
+   f0000000-f7ffffff : vesafb
+f8000000-f9ffffff : PCI Bus #40
+ f8000000-f8ffffff : 0000:40:00.0
+ f9000000-f9ffffff : 0000:40:00.0
+After I load nvidia.ko, it changes to:
+f0000000-f7ffffff : PCI Bus #40
+ f0000000-f7ffffff : 0000:40:00.0
+   f0000000-f7ffffff : vesafb
+f8000000-f9ffffff : PCI Bus #40
+ f8000000-f8ffffff : 0000:40:00.0
+   f8000000-f8ffffff : nvidia
+ f9000000-f9ffffff : 0000:40:00.0
 
-Andrew Morton a écrit :
-> Eric Dumazet <dada1@cosmosbay.com> wrote:
->> Ravikiran G Thirumalai a écrit :
->>> On Fri, Jan 27, 2006 at 12:16:02PM -0800, Andrew Morton wrote:
->>>> Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
->>>>> which can be assumed as not frequent.  
->>>>> At sk_stream_mem_schedule(), read_sockets_allocated() is invoked only 
->>>>> certain conditions, under memory pressure -- on a large CPU count machine, 
->>>>> you'd have large memory, and I don't think read_sockets_allocated would get 
->>>>> called often.  It did not atleast on our 8cpu/16G box.  So this should be OK 
->>>>> I think.
->>>> That being said, the percpu_counters aren't a terribly successful concept
->>>> and probably do need a revisit due to the high inaccuracy at high CPU
->>>> counts.  It might be better to do some generic version of vm_acct_memory()
->>>> instead.
->>> AFAICS vm_acct_memory is no better.  The deviation on large cpu counts is the 
->>> same as percpu_counters -- (NR_CPUS * NR_CPUS * 2) ...
->> Ah... yes you are right, I read min(16, NR_CPUS*2)
-> 
-> So did I ;)
-> 
->> I wonder if it is not a typo... I mean, I understand the more cpus you have, 
->> the less updates on central atomic_t is desirable, but a quadratic offset 
->> seems too much...
-> 
-> I'm not sure whether it was a mistake or if I intended it and didn't do the
-> sums on accuracy :(
-> 
-> An advantage of retaining a spinlock in percpu_counter is that if accuracy
-> is needed at a low rate (say, /proc reading) we can take the lock and then
-> go spill each CPU's local count into the main one.  It would need to be a
-> very low rate though.   Or we make the cpu-local counters atomic too.
+>
+> And, are you experiencing any problems with your nvidia card, ie, are
+> you able to launch X?
+X is working fine. KDE runs, glxgears reports 890fps on full screen (1280x1024)
 
-We might use atomic_long_t only (and no spinlocks)
-Something like this ?
+I usually boot with 'quiet' option, so this error is very evident. I
+personally can live with it, but I'll surely get a bunch of mail from
+my users reporting the "problem". I hope it will be fixed new next
+releases.
 
-
---------------020103080003080607060501
-Content-Type: text/plain;
- name="functions"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="functions"
-
-struct percpu_counter {
-	atomic_long_t count;
-	atomic_long_t *counters;
-};
-
-#ifdef CONFIG_SMP
-void percpu_counter_mod(struct percpu_counter *fbc, long amount)
-{
-	long old, new;
-	atomic_long_t *pcount;
-
-	pcount = per_cpu_ptr(fbc->counters, get_cpu());
-start:
-	old = atomic_long_read(pcount);
-	new = old + amount;
-	if (new >= FBC_BATCH || new <= -FBC_BATCH) {
-		if (unlikely(atomic_long_cmpxchg(pcount, old, 0) != old))
-			goto start;
-		atomic_long_add(new, &fbc->count);
-	} else
-		atomic_long_add(amount, pcount);
-
-	put_cpu();
-}
-EXPORT_SYMBOL(percpu_counter_mod);
-
-long percpu_counter_read_accurate(struct percpu_counter *fbc)
-{
-	long res = 0;
-	int cpu;
-	atomic_long_t *pcount;
-
-	for_each_cpu(cpu) {
-		pcount = per_cpu_ptr(fbc->counters, cpu);
-		/* dont dirty cache line if not necessary */
-		if (atomic_long_read(pcount))
-			res += atomic_long_xchg(pcount, 0);
-	}
-	return res;
-}
-EXPORT_SYMBOL(percpu_counter_read_accurate);
-#endif /* CONFIG_SMP */
-
-
---------------020103080003080607060501--
+Anyway. Thanks a lot for your help guys!

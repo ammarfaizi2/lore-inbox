@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422806AbWA1CZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422815AbWA1CZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422806AbWA1CZF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jan 2006 21:25:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422810AbWA1CWr
+	id S1422815AbWA1CZg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jan 2006 21:25:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422801AbWA1CZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jan 2006 21:22:47 -0500
-Received: from mail.kroah.org ([69.55.234.183]:44986 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1422805AbWA1CWi (ORCPT
+	Fri, 27 Jan 2006 21:25:05 -0500
+Received: from mail.kroah.org ([69.55.234.183]:57274 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1422800AbWA1CWu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jan 2006 21:22:38 -0500
-Date: Fri, 27 Jan 2006 18:20:46 -0800
+	Fri, 27 Jan 2006 21:22:50 -0500
+Date: Fri, 27 Jan 2006 18:20:52 -0800
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,13 +17,13 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       dtor@mail.ru
-Subject: [patch 03/12] Input: HID - fix an oops in PID initialization code
-Message-ID: <20060128022046.GD17001@kroah.com>
+       aviro@redhat.com
+Subject: [patch 04/12] Fix double decrement of mqueue_mnt->mnt_count in sys_mq_open (CVE-2005-3356)
+Message-ID: <20060128022052.GE17001@kroah.com>
 References: <20060128020629.908825000@press.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="input-hid-fix-an-oops-in-pid-initialization-code.patch"
+Content-Disposition: inline; filename="fix-double-decrement-of-mqueue_mnt-mnt_count-in-sys_mq_open.patch"
 In-Reply-To: <20060128022023.GA17001@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -34,27 +34,141 @@ us know.
 
 ------------------
 
-From: Dmitry Torokhov <dtor_core@ameritech.net>
+From: Alexander Viro <aviro@redhat.com>
 
-Input: HID - fix an oops in PID initialization code
+Fixed the refcounting on failure exits in sys_mq_open() and
+cleaned the logics up.  Rules are actually pretty simple - dentry_open()
+expects vfsmount and dentry to be pinned down and it either transfers
+them into created struct file or drops them.  Old code had been very
+confused in that area - if dentry_open() had failed either in do_open()
+or do_create(), we ended up dentry and mqueue_mnt dropped twice, once
+by dentry_open() cleanup and then by sys_mq_open().
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Fix consists of making the rules for do_create() and do_open()
+same as for dentry_open() and updating the sys_mq_open() accordingly;
+that actually leads to more straightforward code and less work on
+normal path.
+
+Signed-off-by: Al Viro <aviro@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 Signed-off-by: Chris Wright <chrisw@sous-sol.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/usb/input/pid.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ ipc/mqueue.c |   59 +++++++++++++++++++++++++++++++++--------------------------
+ 1 file changed, 33 insertions(+), 26 deletions(-)
 
---- linux-2.6.15.1.orig/drivers/usb/input/pid.c
-+++ linux-2.6.15.1/drivers/usb/input/pid.c
-@@ -259,7 +259,7 @@ static int hid_pid_upload_effect(struct 
- int hid_pid_init(struct hid_device *hid)
+--- linux-2.6.15.1.orig/ipc/mqueue.c
++++ linux-2.6.15.1/ipc/mqueue.c
+@@ -598,15 +598,16 @@ static int mq_attr_ok(struct mq_attr *at
+ static struct file *do_create(struct dentry *dir, struct dentry *dentry,
+ 			int oflag, mode_t mode, struct mq_attr __user *u_attr)
  {
- 	struct hid_ff_pid *private;
--	struct hid_input *hidinput = list_entry(&hid->inputs, struct hid_input, list);
-+	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
- 	struct input_dev *input_dev = hidinput->input;
+-	struct file *filp;
+ 	struct mq_attr attr;
+ 	int ret;
  
- 	private = hid->ff_private = kzalloc(sizeof(struct hid_ff_pid), GFP_KERNEL);
+-	if (u_attr != NULL) {
++	if (u_attr) {
++		ret = -EFAULT;
+ 		if (copy_from_user(&attr, u_attr, sizeof(attr)))
+-			return ERR_PTR(-EFAULT);
++			goto out;
++		ret = -EINVAL;
+ 		if (!mq_attr_ok(&attr))
+-			return ERR_PTR(-EINVAL);
++			goto out;
+ 		/* store for use during create */
+ 		dentry->d_fsdata = &attr;
+ 	}
+@@ -615,13 +616,14 @@ static struct file *do_create(struct den
+ 	ret = vfs_create(dir->d_inode, dentry, mode, NULL);
+ 	dentry->d_fsdata = NULL;
+ 	if (ret)
+-		return ERR_PTR(ret);
++		goto out;
+ 
+-	filp = dentry_open(dentry, mqueue_mnt, oflag);
+-	if (!IS_ERR(filp))
+-		dget(dentry);
++	return dentry_open(dentry, mqueue_mnt, oflag);
+ 
+-	return filp;
++out:
++	dput(dentry);
++	mntput(mqueue_mnt);
++	return ERR_PTR(ret);
+ }
+ 
+ /* Opens existing queue */
+@@ -629,20 +631,20 @@ static struct file *do_open(struct dentr
+ {
+ static int oflag2acc[O_ACCMODE] = { MAY_READ, MAY_WRITE,
+ 					MAY_READ | MAY_WRITE };
+-	struct file *filp;
+ 
+-	if ((oflag & O_ACCMODE) == (O_RDWR | O_WRONLY))
++	if ((oflag & O_ACCMODE) == (O_RDWR | O_WRONLY)) {
++		dput(dentry);
++		mntput(mqueue_mnt);
+ 		return ERR_PTR(-EINVAL);
++	}
+ 
+-	if (permission(dentry->d_inode, oflag2acc[oflag & O_ACCMODE], NULL))
++	if (permission(dentry->d_inode, oflag2acc[oflag & O_ACCMODE], NULL)) {
++		dput(dentry);
++		mntput(mqueue_mnt);
+ 		return ERR_PTR(-EACCES);
++	}
+ 
+-	filp = dentry_open(dentry, mqueue_mnt, oflag);
+-
+-	if (!IS_ERR(filp))
+-		dget(dentry);
+-
+-	return filp;
++	return dentry_open(dentry, mqueue_mnt, oflag);
+ }
+ 
+ asmlinkage long sys_mq_open(const char __user *u_name, int oflag, mode_t mode,
+@@ -670,17 +672,20 @@ asmlinkage long sys_mq_open(const char _
+ 
+ 	if (oflag & O_CREAT) {
+ 		if (dentry->d_inode) {	/* entry already exists */
+-			filp = (oflag & O_EXCL) ? ERR_PTR(-EEXIST) :
+-					do_open(dentry, oflag);
++			error = -EEXIST;
++			if (oflag & O_EXCL)
++				goto out;
++			filp = do_open(dentry, oflag);
+ 		} else {
+ 			filp = do_create(mqueue_mnt->mnt_root, dentry,
+ 						oflag, mode, u_attr);
+ 		}
+-	} else
+-		filp = (dentry->d_inode) ? do_open(dentry, oflag) :
+-					ERR_PTR(-ENOENT);
+-
+-	dput(dentry);
++	} else {
++		error = -ENOENT;
++		if (!dentry->d_inode)
++			goto out;
++		filp = do_open(dentry, oflag);
++	}
+ 
+ 	if (IS_ERR(filp)) {
+ 		error = PTR_ERR(filp);
+@@ -691,8 +696,10 @@ asmlinkage long sys_mq_open(const char _
+ 	fd_install(fd, filp);
+ 	goto out_upsem;
+ 
+-out_putfd:
++out:
++	dput(dentry);
+ 	mntput(mqueue_mnt);
++out_putfd:
+ 	put_unused_fd(fd);
+ out_err:
+ 	fd = error;
 
 --

@@ -1,84 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932538AbWA1HSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbWA1HTR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932538AbWA1HSW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 02:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbWA1HSV
+	id S964869AbWA1HTR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 02:19:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbWA1HTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 02:18:21 -0500
-Received: from smtpout.mac.com ([17.250.248.73]:57591 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932538AbWA1HSV convert rfc822-to-8bit
+	Sat, 28 Jan 2006 02:19:17 -0500
+Received: from mf00.sitadelle.com ([212.94.174.67]:23177 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S964869AbWA1HTQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 02:18:21 -0500
-In-Reply-To: <1138419925.8770.70.camel@lade.trondhjem.org>
-References: <20060127092817.GB24362@infradead.org> <1138312694656@2gen.com> <1138312695665@2gen.com> <6403.1138392470@warthog.cambridge.redhat.com> <20060127204158.GA4754@hardeman.nu> <1138400385.8770.21.camel@lade.trondhjem.org> <8155F461-1703-476B-8C5D-B834EE49905D@mac.com> <1138419925.8770.70.camel@lade.trondhjem.org>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
-Message-Id: <DEA6D91F-9925-47E3-8A93-3D0C7D7F8CDA@mac.com>
-Cc: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>,
-       David Howells <dhowells@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, keyrings@linux-nfs.org,
-       LKML Kernel <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>
-Content-Transfer-Encoding: 8BIT
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths library
-Date: Sat, 28 Jan 2006 02:17:49 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-Mailer: Apple Mail (2.746.2)
+	Sat, 28 Jan 2006 02:19:16 -0500
+Message-ID: <43DB1AF0.8040108@cosmosbay.com>
+Date: Sat, 28 Jan 2006 08:19:12 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: Andrew Morton <akpm@osdl.org>, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, shai@scalex86.org, netdev@vger.kernel.org,
+       pravins@calsoftinc.com
+Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
+References: <20060126185649.GB3651@localhost.localdomain> <20060126190357.GE3651@localhost.localdomain> <43D9DFA1.9070802@cosmosbay.com> <20060127195227.GA3565@localhost.localdomain> <20060127121602.18bc3f25.akpm@osdl.org> <20060127224433.GB3565@localhost.localdomain> <43DAA586.5050609@cosmosbay.com> <20060127151635.3a149fe2.akpm@osdl.org> <43DABAA4.8040208@cosmosbay.com> <43DABC37.6070603@cosmosbay.com> <20060128045248.GA3584@localhost.localdomain>
+In-Reply-To: <20060128045248.GA3584@localhost.localdomain>
+Content-Type: multipart/mixed;
+ boundary="------------000909030506090805000509"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 27, 2006, at 19:22, Adrian Bunk wrote:
-> On Fri, Jan 27, 2006 at 09:41:58PM +0100, David Härdeman wrote:
->> The in-kernel key management also protects the key against many of  
->> the different ways in which a user-space daemon could be attacked  
->> (ptrace, swap-out, coredump, etc).
->
-> If an attacker has enough privileges for attacking the daemon, he  
-> should usually also have enough privileges for attacking the kernel.
+This is a multi-part message in MIME format.
+--------------000909030506090805000509
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Not necessarily.  If the daemon runs as the "backup" user or similar,  
-access to it does not imply root.  We want to make an efficient way  
-to allow the _use_ of keys without implying access to the key data.   
-For example, one item under consideration is a "key handle" that  
-could be cloned, however if you revoke a given handle, all of its  
-cloned handles (and their clones), will be automatically revoked as  
-well.  This would make it possible to pass a key to a program without  
-risking the key to compromise of that program.  Say I pass my SSL key  
-to Mozilla.  With this and some of the other new security features  
-(One of the code-isolation ones I think?), you could allow Mozilla to  
-use SSL websites without risking compromise of the SSL keys because  
-of a browser security hole.
+Ravikiran G Thirumalai a écrit :
+> On Sat, Jan 28, 2006 at 01:35:03AM +0100, Eric Dumazet wrote:
+>> Eric Dumazet a écrit :
+>>> Andrew Morton a écrit :
+>>>> Eric Dumazet <dada1@cosmosbay.com> wrote:
+>>>
+>>> long percpu_counter_read_accurate(struct percpu_counter *fbc)
+>>> {
+>>> 	long res = 0;
+>>> 	int cpu;
+>>> 	atomic_long_t *pcount;
+>>>
+>>> 	for_each_cpu(cpu) {
+>>> 		pcount = per_cpu_ptr(fbc->counters, cpu);
+>>> 		/* dont dirty cache line if not necessary */
+>>> 		if (atomic_long_read(pcount))
+>>> 			res += atomic_long_xchg(pcount, 0);
+> 				--------------------------->  (A)
+>>> 	}
+> 
+>> 	atomic_long_add(res, &fbc->count);
+> 				--------------------------->  (B)
+>> 	res = atomic_long_read(&fbc->count);
+>>
+>>> 	return res;
+>>> }
+> 
+> The read is still theoritically FBC_BATCH * NR_CPUS inaccurate no?
+> What happens when other cpus update  their local counters at (A) and (B)?
 
-On Jan 27, 2006, at 22:45, Trond Myklebust wrote:
-> On Fri, 2006-01-27 at 18:35 -0500, Kyle Moffett wrote:
->
->> No, the point is not to put the backup daemon into the kernel, but  
->> to provide a way for the backup daemon and my user process to  
->> communicate DSA key details without completely giving the backup  
->> daemon my key.  I may not entirely trust the backup daemon not to  
->> get compromised, but with support for the kernel keyring system,  
->> compromising the backup daemon would only compromise the backed up  
->> files, not the private keys and other secure data.
->
-> This sort of thing is implemented routinely in user space by means  
-> of proxy  tickets/certificates/credentials. What makes them  
-> insufficient for this use?
+Well, after  atomic_read(&some_atomic) or percpu_counter_read_accurate(&s) the 
+  'value' you got may be inaccurate by whatever... You cannot 'freeze the 
+atomic / percpu_counter and gets its accurate value'. All you can do is 
+'atomically add/remove some value from this counter (atomic or percpu_counter))
 
-The problem is that there is no standard way to store/use the keys.   
-I can put my key in an ssh-agent to handle SSH, but that doesn't let  
-me securely auth mozilla.  To do that, I need to explore how mozilla  
-configs work.  And there are similar problems with context for  
-Kerberos, OpenAFS, encrypted filesystems, etc.  You need to have a  
-common standardized way to pass the secure information around.  This  
-provides that interface.
-
-Cheers,
-Kyle Moffett
-
---
-Simple things should be simple and complex things should be possible
-   -- Alan Kay
+See percpu_counter_read_accurate() as an attempt to collect all local offset 
+(and atomically set them to 0) and atomically reajust the central fbc->count 
+to with the sum of all these offsets. Kind of a consolidation that might be 
+driven by a user request (read /proc/sys/...) or a periodic timer.
 
 
 
+> 
+> (I am hoping we don't need percpu_counter_read_accurate anywhere yet and
+> this is just demo ;).  I certainly don't want to go on all cpus for read / 
+> add cmpxchg on the write path for the proto counters that started this 
+> discussion)
+
+As pointed by Andrew (If you decode carefully its short sentences :) ), all 
+you really need is atomic_long_xchg() (only in slow path), and 
+atomic_long_{read/add} in fast path)
+
+
+Eric
+
+--------------000909030506090805000509
+Content-Type: text/plain;
+ name="functions"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="functions"
+
+struct percpu_counter {
+	atomic_long_t count;
+	atomic_long_t *counters;
+};
+
+#ifdef CONFIG_SMP
+void percpu_counter_mod(struct percpu_counter *fbc, long amount)
+{
+        long new;
+	atomic_long_t *pcount;
+
+	pcount = per_cpu_ptr(fbc->counters, get_cpu());
+
+        new = atomic_long_read(pcount) + amount;
+ 
+	if (new >= FBC_BATCH || new <= -FBC_BATCH) {
+                new = atomic_long_xchg(pcount, 0) + amount;
+                if (new)
+                        atomic_long_add(new, &fbc->count);
+	} else
+		atomic_long_add(amount, pcount);
+
+	put_cpu();
+}
+EXPORT_SYMBOL(percpu_counter_mod);
+
+long percpu_counter_read_accurate(struct percpu_counter *fbc)
+{
+	long res = 0;
+	int cpu;
+	atomic_long_t *pcount;
+
+	for_each_cpu(cpu) {
+		pcount = per_cpu_ptr(fbc->counters, cpu);
+		/* dont dirty cache line if not necessary */
+		if (atomic_long_read(pcount))
+			res += atomic_long_xchg(pcount, 0);
+	}
+        atomic_long_add(res, &fbc->count);
+        return atomic_long_read(&fbc->count);
+}
+EXPORT_SYMBOL(percpu_counter_read_accurate);
+#endif /* CONFIG_SMP */
+
+
+--------------000909030506090805000509--

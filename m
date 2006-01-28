@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWA1Ura@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWA1Uut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWA1Ura (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 15:47:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbWA1Ura
+	id S1750706AbWA1Uut (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 15:50:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbWA1Uut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 15:47:30 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:13292 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S1750714AbWA1Ur3
+	Sat, 28 Jan 2006 15:50:49 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:26338 "EHLO
+	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S1750706AbWA1Uut
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 15:47:29 -0500
-Subject: Re: 2.6.16 - sys_sched_getaffinity & hotplug
-From: Robert Love <rml@novell.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: Ingo Molnar <mingo@elte.hu>, rml@ximian.com, akpm@osdl.org,
-       steiner@sgi.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20060128120946.648bcf6a.pj@sgi.com>
-References: <20060127230659.GA4752@sgi.com>
-	 <20060127191400.aacb8539.pj@sgi.com> <20060128133244.GA22704@elte.hu>
-	 <20060128120946.648bcf6a.pj@sgi.com>
-Content-Type: text/plain
-Date: Sat, 28 Jan 2006 15:50:23 -0500
-Message-Id: <1138481423.32314.35.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Sat, 28 Jan 2006 15:50:49 -0500
+Message-ID: <43DBCCAE.4070401@soleranetworks.com>
+Date: Sat, 28 Jan 2006 12:57:34 -0700
+From: jmerkey <jmerkey@soleranetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCE]   DSFS File System Patches 2.6.10/2.6.13/2.6.14 for FC2/FC4/SUSE10
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-28 at 12:09 -0800, Paul Jackson wrote:
 
-> And here I've been blaming Robert for that syscall all these years.
-> 
-> My humble apologies, Robert ;).
+DSFS Foresic File System patches can be downloaded from:
 
-Well, I actually did do the 2.5 version of the patch and sent it to
-Linus, so I do find myself at confession on a monthly basis, begging for
-some forgiveness.
+Fedora Core 2  kernel 2.6.10
+ftp://ftp.soleranetworks.com/pub/solera/dsfs/FedoraCore2/datascount-only-2.6.10-FC2-01-27-06.patch
 
-	Robert Love
+Fedora Core 4  kernel 2.6.14
+ftp://ftp.soleranetworks.com/pub/solera/dsfs/FedoraCore2/datascount-only-2.6.14-FC4-01-28-06.patch
+
+Suse Enterprise Server 10.0
+ftp://ftp.soleranetworks.com/pub/solera/dsfs/Suse10.0/datascount-only-2.6.13-SUSE-10.0-01-25-06.patch
+
+These patches contain kernel changes required to support the DSFS 
+Forensic File System as a software only product release on the
+Fedora Core 2, Fedora Core 4, and Suse 10.0 Linux Distributions and 
+kernels, and are provided IAW with terms and
+obligations defined in the GNU Public License as stated in COPYING on 
+the kernel.org repository as "GPLv2 or any later version"
+which may apply to the Linux Kernel Sources.
+
+Jeff V. Merkey
+Solera Networks
 
 

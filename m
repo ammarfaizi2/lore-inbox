@@ -1,104 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422830AbWA1FXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422829AbWA1FX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422830AbWA1FXy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 00:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422831AbWA1FXy
+	id S1422829AbWA1FX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 00:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422830AbWA1FX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 00:23:54 -0500
-Received: from opersys.com ([64.40.108.71]:52495 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1422830AbWA1FXy (ORCPT
+	Sat, 28 Jan 2006 00:23:26 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:52932 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422829AbWA1FX0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 00:23:54 -0500
-Message-ID: <43DB0343.1090808@opersys.com>
-Date: Sat, 28 Jan 2006 00:38:11 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Thomas Horsten <thomas@horsten.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
+	Sat, 28 Jan 2006 00:23:26 -0500
+Date: Sat, 28 Jan 2006 00:22:58 -0500 (EST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Chase Venters <chase.venters@clientec.com>,
+       "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Marc Perkel <marc@perkel.com>,
+       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       Patrick McLean <pmclean@cs.ubishops.ca>,
+       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
 Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <Pine.LNX.4.40.0601272112590.29965-100000@jehova.dsm.dk>
-In-Reply-To: <Pine.LNX.4.40.0601272112590.29965-100000@jehova.dsm.dk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org>
+Message-ID: <Pine.LNX.4.64.0601280001000.2909@evo.osdl.org>
+References: <43D114A8.4030900@wolfmountaingroup.com> 
+ <20060120111103.2ee5b531@dxpl.pdx.osdl.net>  <43D13B2A.6020504@cs.ubishops.ca>
+ <43D7C780.6080000@perkel.com>  <43D7B20D.7040203@wolfmountaingroup.com> 
+ <43D7B5C4.5040601@wolfmountaingroup.com> <43D7D05D.7030101@perkel.com> 
+ <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com> 
+ <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com> 
+ <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse> 
+ <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org> <1138387136.26811.8.camel@localhost>
+ <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[This is a repost of the private reply given that lkml wasn't cc'ed]
 
-Thomas Horsten wrote:
->> But when Linux is used instead (something that most major handset
->> manufacturers are working on at the moment), this whole picture changes.
->> Suddenly the whole point of "Free Software" goes away. Because the handset
->> manufacturer modifies, adapts and uses the Linux kernel (for free),
->> without having to give anything back to the community. Yes, they have to
->> make their modified source available, but there is no way a casual user
->> (read: someone not a member of the phone-unlocking mafia) can update the
->> kernel with a modified, recompiled version.
+On Fri, 27 Jan 2006, Linus Torvalds wrote:
+> 
+> This is basic copyright law, btw, and has nothing to do with the GPL per 
+> se. If you don't have a license, you don't have any copyright AT ALL.
 
-And I would contend that even if they did it wouldn't make much of a
-difference. In fact, my reading of GPLv3 is that it would be quite
-straight-forward to create GPLv3-compliant consumer exclusion mechanisms.
+This is really important, btw.
 
-Here's from an earlier posting I did on the LWN forum discussing the topic:
-----------
-Prior to booting kernel, let the firmware verify the kernel's signature.
-Whether or not the signature is valid, boot the thing. But, if it isn't
-valid, lock up or disable or just don't enable those hardware components
-that control access to the "stuff" -- and do this in a way that requires
-a hard reset for another pass at lock/don't-lock. Then package all the
-proprietary/DRM software into individual applications. So everything just
-runs as normal up to the time these apps try to access the hardware,
-and now because it's disabled, the device is useless.
+Yes, when we speak colloquially we talk about the fact that Linux is 
+licensed "under the GPL", but that is _not_ how anybody actually has ever 
+gotten a license legally. The ONLY way anybody has ever legally licensed 
+Linux is either with the original very strict copyright _or_ thanks to the 
+COPYING file. Nothing else really matters. 
 
-Using the words of the draft, there are no codes for you to "install and/
-or execute" the work. In fact, you're free to install and execute any
-kernel you wish. Plus, the kernel's "functioning in all circumstances is
-identical". It's just that hardware beneath it just doesn't work any more,
-and that, consequently, the proprietary applications running on top can't
-do anything because the hardware is disabled.
+So the version of the GPL has always been explicit. At no point has the 
+kernel been distributed without a specific version being clearly mentioned 
+in the ONLY PLACE that gave you rights to copy the kernel in the first 
+place. So either you knew it was GPLv2, or you didn't have the right to 
+copy it in the first place.
 
-There you have it, GPL3-compatible DRM -- to the best of my understanding
-of course, and mind you I'm not a lawyer.
-----------
+In other words, Linux has _never_ been licensed under anything but the GPL 
+v2, and nobody has _ever_ gotten a legal Linux source distribution with 
+anything but a complete copy of GPLv2 license file.
 
-Just to make sure there is no confusion: note that both signed and
-unsigned kernels behave identically here. It's the user-space applications
-now that fail when attempting to access some piece of hardware. The
-classic case being a mmap'ed register window, therefore both the signed
-and unsigned kernel can map it to user-space (i.e. no modification in
-behavior for the GPLv3'ed kernel), but the applications' read/writes on
-said registers don't work on the non-signed kernel.
+So when I say that the additions at the top of the COPYING file are 
+nothing but clarifications, I'm not just making that up. Anybody who 
+claims that any Linux kernel I've ever made has ever been licensed under 
+anything else than those exact two licenses is just not correct.
 
-Like I said in the LWN forum thread, I do believe things such as DRM
-are worth fighting for, but I really think the GPL is the wrong venue.
+And Alan, I know we've had this discussion before. You've claimed before 
+that my clarifications are somehow "changing" the license, and I've told 
+you before that no, they don't change the license, they just clarify 
+things that people keep on gettign wrong, or keep on being nervous about.
 
->> The only way to prevent Linux from being abused in this way is to require
->> that the end-users have a method of installing the modified code on the
->> device for which it was intended (such as your phone). If they don't want
->> to disclose their primary signing keys, fine, but then they need to make
->> another method available of replacing any free software used in the device
->> with a modified (by the end-user) version. I understand the need to
->> protect the non-GPL'ed "baseband" OS from tampering, but it has to be
->> possible to replace the GPL'ed software. This is what this provision is
->> all about (for me), and I think it is an extremely important one.
+So people can argue all they want about this. But unless you get a real 
+legal opinion (not just any random shyster - a real judge making a 
+statement, or a respected professional who states his firm legal opinion 
+in no uncertain terms), I don't think you have a legal leg to stand on.
 
-And entirely useless if you ask me. A GPLv3 could dictate that you could
-replace the kernel, but it isn't a hardware license nor a license for
-user-space applications -- both of which's direct interaction could not
-be dictated by the license of separate "work".
+But no, IANAL. I'd be willing to bet real money that a real lawyer would 
+back me up on this, though.
 
-So, in the end, even if this were applied, you would find yourself in a
-world where you can replace kernels, but that apart from having access
-to running programs on a given architecture, play around with the RAM,
-and access entirely unimportant hardware, you can't do very much.
+			Linus
 
-Karim
--- 
-President  / Opersys Inc.
-Embedded Linux Training and Expertise
-www.opersys.com  /  1.866.677.4546
+---
+
+PS. Just out of historical interest, the only other copyright license ever 
+distributed with the kernel was this one:
+
+ "This kernel is (C) 1991 Linus Torvalds, but all or part of it may be
+  redistributed provided you do the following:
+
+	- Full source must be available (and free), if not with the
+	  distribution then at least on asking for it.
+
+	- Copyright notices must be intact. (In fact, if you distribute
+	  only parts of it you may have to add copyrights, as there aren't
+	  (C)'s in all files.) Small partial excerpts may be copied
+	  without bothering with copyrights.
+
+	- You may not distibute this for a fee, not even "handling"
+	  costs.
+
+  Mail me at "torvalds@kruuna.helsinki.fi" if you have any questions."
+
+and that one was only valid between kernel versions 0.01 and 0.12 or 
+something like that.

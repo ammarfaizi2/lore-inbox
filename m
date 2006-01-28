@@ -1,75 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbWA1XPy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWA1XUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbWA1XPy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 18:15:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750791AbWA1XPy
+	id S1750791AbWA1XUX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 18:20:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWA1XUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 18:15:54 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:9883 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750790AbWA1XPx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 18:15:53 -0500
-Date: Sat, 28 Jan 2006 18:14:29 -0500 (EST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chase Venters <chase.venters@clientec.com>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Marc Perkel <marc@perkel.com>,
-       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Patrick McLean <pmclean@cs.ubishops.ca>,
-       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-In-Reply-To: <20060128062504.GW27946@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.64.0601281805300.3812@evo.osdl.org>
-References: <43D7B20D.7040203@wolfmountaingroup.com> <43D7B5C4.5040601@wolfmountaingroup.com>
- <43D7D05D.7030101@perkel.com> <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>
- <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>
- <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>
- <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org> <1138387136.26811.8.camel@localhost>
- <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org> <Pine.LNX.4.64.0601280001000.2909@evo.osdl.org>
- <20060128062504.GW27946@ftp.linux.org.uk>
+	Sat, 28 Jan 2006 18:20:23 -0500
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:62407 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750791AbWA1XUX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 18:20:23 -0500
+Message-ID: <43DBFC34.3010003@bigpond.net.au>
+Date: Sun, 29 Jan 2006 10:20:20 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Martin J. Bligh" <mbligh@google.com>
+CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: Re: -mm seems significanty slower than mainline on kernbench
+References: <43C45BDC.1050402@google.com> <43C5BD8F.3000307@bigpond.net.au> <43C5BE4A.9030105@google.com> <200601121739.17886.kernel@kolivas.org> <43D52E6F.7040808@google.com> <43D5821A.7050001@bigpond.net.au> <43D5A3F0.1000206@bigpond.net.au> <43D5AFF9.10608@google.com> <43D5C7AE.6040207@bigpond.net.au> <43D5CC4F.3000300@google.com>
+In-Reply-To: <43D5CC4F.3000300@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Sat, 28 Jan 2006 23:20:20 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 28 Jan 2006, Al Viro wrote:
-> > 
-> > 	- You may not distibute this for a fee, not even "handling"
-> > 	  costs.
-> > 
-> >   Mail me at "torvalds@kruuna.helsinki.fi" if you have any questions."
-> > 
-> > and that one was only valid between kernel versions 0.01 and 0.12 or 
-> > something like that.
+Martin J. Bligh wrote:
 > 
-> Interesting...  What does that do to e.g. DVD with full (OK, modulo missing
-> early versions) kernel history all way back to 0.01?
+>>> Thanks, but I have that. What do you think those vertical bars on the 
+>>> graph are for? ;-) They're deviation of 5 runs. I throw away the best 
+>>> and worst first.
+>>
+>>
+>>
+>> Not very good scientific practice :-)
+> 
+> 
+> 
+> Bollocks to scientific practice ;-) It works, it produces very stable 
+> results, has done for a few years now. Things like cron or sunspots can 
+> kick in. Yes, yes, I did stats at University ... but the real world 
+> doesn't work like that. The visuals in the graph speak for it.
+> 
+>>
+>> Looking at the other 6 kernbench graphs, I see that it also occurs for 
+>> elm3b70 but no others (including elm3b6 and elm3b67).  Are there any 
+>> differences between the various elm3b systems that could explain this?
+>>
+> Yes. They're all completely different architectures - there's a brief 
+> description at the top of the main page. elm3b67 should be ignored, nay 
+> thrown out of the window. It's an unstable POS that randomly loses 
+> processors. I've removed it from the pages.
+> 
+> elm3b70 is PPC64 (8 cpu)
+> elm3b6 is x86_64.
+> elm3b132 is a 4x SMP ia32 Pentium 3.
+> moe is 16x NUMA-Q (ia32).
+> gekko-lp1 is a 2x PPC blade.
+> 
+>>> Use the visuals in the graph .. it's very telling. -mm is *broken*.
+>>> It may well not be the same issue as last time though, I shouldn't
+>>> have jumped to that conclusion.
+>>
+>>
+>>
+>> It's very hard to understand how it could be an issue on a system that 
+>> doesn't have a lot of abnormally niced (i.e. non zero) tasks that are 
+>> fairly active as it's now mathematically equivalent to the original in 
+>> the absence of such tasks.  Do these two systems have many such tasks 
+>> running?
+>>
+>> Would it be possible to get a run with the following patches backed out:
+>>
+>> +sched-modified-nice-support-for-smp-load-balancing-fix.patch
+>> +sched-modified-nice-support-for-smp-load-balancing-fix-fix.patch
+> 
+> 
+> 
+> Yup, that should prove or disprove it. It's probably something 
+> completely un-scheduler-related ;-)
+> 
+> M.
 
-Well, the good news is that I was the only real copyright holder back then 
-(there's a couple of other people who contributed to 0.11 and/or 0.12, 
-mainly Ted T'so with the BSD terminal control stuff - ^Z and friends).
+Looking at the latest results for 2.6.16-rc1-mm3, it appears to me that 
+this is no longer an issue.  Do you agree?
 
-I used to even re-write patches to suit my style (this was back then, the 
-patches were smaller, and I was younger and had more energy). So some 
-things that others sent in patches for (I think Peter McDonald did pty's) 
-I ended up re-writing myself (and in the process I mixed up the master and 
-slave pty major number, iirc ;)
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-> Even funnier question is what does that do to full CVS including the
-> early versions.  Can that be distributed at all and what license would
-> fit it?  Arguing that it's mere aggregation is possible, but it's a
-> bit of a stretch...
-
-I think you can take it for granted that the GPL re-licensing was 
-retro-active. I'm the sole copyright holder for 99% of it, and there were 
-no objections to the relicensing even back when it happened, so I can 
-pretty much guarantee that there would be none now ;)
-
-It was a kind of strange license. I didn't spend a whole lot of time 
-thinking about it ;)
-
-		Linus
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

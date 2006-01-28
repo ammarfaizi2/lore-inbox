@@ -1,166 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWA1P5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965021AbWA1QCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964806AbWA1P5x (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 10:57:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWA1P5x
+	id S965021AbWA1QCA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 11:02:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbWA1QCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 10:57:53 -0500
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:13219 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S1751463AbWA1P5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 10:57:53 -0500
-Date: Sat, 28 Jan 2006 16:58:01 +0100
-From: Luca <kronos@kronoz.cjb.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org
-Subject: Re: Suspend to RAM: help with whitelist wanted
-Message-ID: <20060128155800.GA3064@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20060126213611.GA1668@elf.ucw.cz> <20060127170406.GA6164@dreamland.darkstar.lan> <20060127232207.GB1617@elf.ucw.cz>
-MIME-Version: 1.0
+	Sat, 28 Jan 2006 11:02:00 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:30686 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965022AbWA1QCA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 11:02:00 -0500
+Date: Sat, 28 Jan 2006 17:02:40 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [patch] warn on release_region() from irq context
+Message-ID: <20060128160240.GA21053@elte.hu>
+References: <20060128144357.GA6881@elte.hu> <20060128150006.GA10660@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060127232207.GB1617@elf.ucw.cz>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060128150006.GA10660@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Sat, Jan 28, 2006 at 12:22:07AM +0100, Pavel Machek ha scritto: 
-> > > On www.sf.net/projects/suspend , there's s2ram.c program for
-> > > suspending machines. It contains whitelist of known machines, along
-> > > with methods to get their video working (similar to
-> > > Doc*/power/video.txt). Unfortunately, video.txt does not allow me to
-> > > fill in whitelist automatically, so I need your help.
-> > > 
-> > > I do not yet have solution for machines that need vbetool; fortunately
-> > > my machines do not need that :-), and it is pretty complex (includes
-> > > x86 emulator).
-> > 
-> > What about adding something like:
-> > 
-> > void s2ram_restore(void) {
-> >         if (needed)
-> >                 fork_and_exec(vbetool);
-> > }
-> > 
-> > machine_table could set a global flag or something. It would be
-> > possibile to us an array to carry the informations about what need to be
-> > done on restore, i.e. something like:
-> 
-> I can imagine fork_and_exec... Disadvantages are:
-> 
-> * if disk driver is toast, user does not see anything
-> 
-> * vbetool can be missing from the system, or wrong version, or
-> something like that.
-> 
-> Other solution is to just integrate vbetool into s2ram. Advantages
-> are:
-> 
-> * s2ram is nicely integrated.
-> 
-> Disadvantages are:
-> 
-> * code duplication.
-> 
-> If vbetool's primary purpose is to fix video after suspend/resume,
-> then perhaps right thing to do is to integrate it into s2ram and
-> maintain it there.
-> 
-> Matthew, what do you think?
-> 
-> Luca, would you cook quick&hacky fork-and-exec patch? I do not have
-> machine that needs vbetool...
 
-Very quick and very hacky ;)
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-The following patch works on my notebook. A few notes about it:
+> the rationale for this patch is that the lock validator (which now 
+> tracks rwlock dependencies too, see output below) noticed that 
+> floppy.c does a release_region() from softirq context -> ouch. I'm 
+> working on the floppy.c fix for that.
 
-- I must stop acpid before suspending otherwise it will get a "power
-  button pressed" event on resume and shutdown the machine; not related
-  to s2ram though.
-- vbetool manpage says that it must be invoked from a text console;
-  since it works from X on my system I never bothered to do a chvt from
-  my suspend script.
-- I always save state before suspend since sometimes I STR from X,
-  sometimes from the console and the state file generated by vbetool is
-  different. According to Matthew Garrett this will break on some
-  setups... if state needs to the saved before X is started then I guess
-  that we need an init script that dump the state in a known place; even
-  if you integrate vbetool into s2ram it will need the state file, so if
-  the disk doesn't come back to life you're screwed...
+ugh. floppy.c is a mess. I did the patch below - but that's not enough, 
+it does stupid things like request_region() and release_region() from 
+the timer irq - so floppy.c file needs a serious redesign to fix these 
+deadlocks :-(
 
---- suspend/s2ram.c	2006-01-28 13:59:41.000000000 +0100
-+++ suspend/s2ram.c	2006-01-28 14:19:37.000000000 +0100
-@@ -15,2 +15,4 @@ int test_mode;
+	Ingo
+
+floppy.c does alot of irq-unsafe work within floppy_release_irq_and_dma():
+free_irq(), release_region() ... so when executing in irq context, push
+the whole function into keventd.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+----
+
+ drivers/block/floppy.c |   27 +++++++++++++++++++++++++--
+ 1 files changed, 25 insertions(+), 2 deletions(-)
+
+Index: linux/drivers/block/floppy.c
+===================================================================
+--- linux.orig/drivers/block/floppy.c
++++ linux/drivers/block/floppy.c
+@@ -561,6 +561,21 @@ static int floppy_grab_irq_and_dma(void)
+ static void floppy_release_irq_and_dma(void);
  
-+static int need_vbetool;
-+
- static void machine_known(void)
-@@ -49,2 +51,9 @@ static void machine_table(void)
- 	}
-+	if (!strcmp(sys_vendor, "ASUSTEK ")) {
-+		if (!strcmp(sys_product, "L3000D")) {
-+			machine_known();
-+			need_vbetool = 1;
-+			return;
-+		}
-+	}
- 
-@@ -59,2 +68,30 @@ static void machine_table(void)
- 
-+static int vbe_state_save() {
-+	int err;
-+	
-+	err = system("vbetool vbestate save > /tmp/.vbe.state");
-+	if (err)
-+		printf("vbetool failed to save video state with error %d\n.", err);
-+
-+	return err;
+ /*
++ * Interrupt, DMA and region freeing must not be done from IRQ
++ * context - e.g. irq-unregistration means /proc VFS work, region
++ * release takes an irq-unsafe lock, etc. So we push this work
++ * into keventd:
++ */
++static void fd_release_fn(void *data)
++{
++	mutex_lock(&open_lock);
++	floppy_release_irq_and_dma();
++	mutex_unlock(&open_lock);
 +}
 +
-+static int vbe_state_restore() {
-+	int err;
++static DECLARE_WORK(floppy_release_irq_and_dma_work, fd_release_fn, NULL);
 +
-+	err = system("vbetool post");
-+	if (err) {
-+		printf("vbetool failed to POST video board with error %d.\n", err);
-+		return err;
-+	}
-+	
-+	err = system("vbetool vbestate restore < /tmp/.vbe.state");
-+	if (err)
-+		printf("vbetool failed to restore video state with error %d.\n", err);
-+
-+	remove("/tmp/.vbe.state");
-+	
-+	return err;
-+}
-+
- /* Code that can only be run on non-frozen system. It does not matter now
-@@ -66,2 +103,5 @@ void s2ram_prepare(void)
- 	machine_table();
-+	if (need_vbetool)
-+		if (vbe_state_save())
-+			exit(1);
++/*
+  * The "reset" variable should be tested whenever an interrupt is scheduled,
+  * after the commands have been sent. This is to ensure that the driver doesn't
+  * get wedged when the interrupt doesn't come because of a failed command.
+@@ -824,7 +839,7 @@ static int set_dor(int fdc, char mask, c
+ 	if (newdor & FLOPPY_MOTOR_MASK)
+ 		floppy_grab_irq_and_dma();
+ 	if (olddor & FLOPPY_MOTOR_MASK)
+-		floppy_release_irq_and_dma();
++		schedule_work(&floppy_release_irq_and_dma_work);
+ 	return olddor;
  }
-@@ -81,2 +121,7 @@ void s2ram_do(void)
  
-+void s2ram_resume(void) {
-+	if (need_vbetool)
-+		vbe_state_restore();
-+}
+@@ -905,6 +920,8 @@ static int _lock_fdc(int drive, int inte
+ 
+ 		set_current_state(TASK_RUNNING);
+ 		remove_wait_queue(&fdc_wait, &wait);
 +
- int main(int argc, char *argv[])
-@@ -103,2 +148,3 @@ int main(int argc, char *argv[])
- 	s2ram_do();
-+	s2ram_resume();
- 	return 0;
-
-
-Luca
--- 
-Home: http://kronoz.cjb.net
-"Chi parla in tono cortese, ma continua a prepararsi, potra` andare avanti;
- chi parla in tono bellicoso e avanza rapidamente dovra` ritirarsi" 
-Sun Tzu -- L'arte della guerra
++		flush_scheduled_work();
+ 	}
+ 	command_status = FD_COMMAND_NONE;
+ 
+@@ -938,7 +955,7 @@ static inline void unlock_fdc(void)
+ 	if (elv_next_request(floppy_queue))
+ 		do_fd_request(floppy_queue);
+ 	spin_unlock_irqrestore(&floppy_lock, flags);
+-	floppy_release_irq_and_dma();
++	schedule_work(&floppy_release_irq_and_dma_work);
+ 	wake_up(&fdc_wait);
+ }
+ 
+@@ -4628,6 +4645,12 @@ void cleanup_module(void)
+ 	del_timer_sync(&fd_timer);
+ 	blk_cleanup_queue(floppy_queue);
+ 
++	/*
++	 * Wait for any asynchronous floppy_release_irq_and_dma()
++	 * calls to finish first:
++	 */
++	flush_scheduled_work();
++
+ 	if (usage_count)
+ 		floppy_release_irq_and_dma();
+ 

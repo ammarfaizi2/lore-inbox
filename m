@@ -1,71 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWA1UG3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWA1UJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbWA1UG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 15:06:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWA1UG3
+	id S1750732AbWA1UJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 15:09:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWA1UJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 15:06:29 -0500
-Received: from smtprelay01.ispgateway.de ([80.67.18.13]:11756 "EHLO
-	smtprelay01.ispgateway.de") by vger.kernel.org with ESMTP
-	id S1750709AbWA1UG2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 15:06:28 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] framebuffer: Remove old radeon driver
-Date: Sat, 28 Jan 2006 21:06:15 +0100
-User-Agent: KMail/1.7.2
-Cc: "Antonino A. Daplas" <adaplas@gmail.com>,
-       "David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
-       linux-kernel@hansmi.ch
-References: <20060127231314.GA28324@hansmi.ch> <20060127.204645.96477793.davem@davemloft.net> <43DB0839.6010703@gmail.com>
-In-Reply-To: <43DB0839.6010703@gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1438616.5JCsMlfsIx";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Sat, 28 Jan 2006 15:09:56 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:48552 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750730AbWA1UJz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 15:09:55 -0500
+Date: Sat, 28 Jan 2006 12:09:46 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: steiner@sgi.com, linux-kernel@vger.kernel.org, rml@novell.com,
+       akpm@osdl.org
+Subject: Re: 2.6.16 - sys_sched_getaffinity & hotplug
+Message-Id: <20060128120946.648bcf6a.pj@sgi.com>
+In-Reply-To: <20060128133244.GA22704@elte.hu>
+References: <20060127230659.GA4752@sgi.com>
+	<20060127191400.aacb8539.pj@sgi.com>
+	<20060128133244.GA22704@elte.hu>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200601282106.21664.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1438616.5JCsMlfsIx
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Ingo wrote:
+> i'm to blame for the syscall, Robert is to blame for the tool side
 
-On Saturday 28 January 2006 06:59, Antonino A. Daplas wrote:
-> The console layer has 5 blanking levels, with FB_BLANK_NORMAL defined
-> as "soft blank" (or blank the display without turning off display sync
-> signals) -- a console invention.  However, VESA has only 4 levels.
->=20
-> This can be easily fixed by incrementing the blank value by one if
-> the request originated from userspace.  I'll provide a patch
-> soon.
+And here I've been blaming Robert for that syscall all these years.
 
-May I suggest to hide this implementation detail?
+My humble apologies, Robert ;).
 
-E.g. please provide a macro/function blank_fb2vesa() just
-for this detail instead of doing magic increments in those drivers.
-
-Many thanks!
-
-
-Regards
-
-Ingo Oeser
-
-
---nextPart1438616.5JCsMlfsIx
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD2869U56oYWuOrkARAh7HAJ9oIKamn6xSR6H22YXTP1Mgdj8KWQCgtXbf
-DMxPDWtEo4fxMk3Fk46Y0j4=
-=KTdn
------END PGP SIGNATURE-----
-
---nextPart1438616.5JCsMlfsIx--
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

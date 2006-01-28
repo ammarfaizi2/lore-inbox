@@ -1,72 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbWA1Pwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWA1P5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751447AbWA1Pwz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 10:52:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751452AbWA1Pwz
+	id S964806AbWA1P5x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 10:57:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbWA1P5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 10:52:55 -0500
-Received: from inutil.org ([193.22.164.111]:6072 "EHLO
-	vserver151.vserver151.serverflex.de") by vger.kernel.org with ESMTP
-	id S1751447AbWA1Pwy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 10:52:54 -0500
-Date: Sat, 28 Jan 2006 16:52:37 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Display corruption with radeonfb after resuming from suspend-to-ram
-Message-ID: <20060128155237.GA4601@informatik.uni-bremen.de>
+	Sat, 28 Jan 2006 10:57:53 -0500
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:13219 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S1751463AbWA1P5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 10:57:53 -0500
+Date: Sat, 28 Jan 2006 16:58:01 +0100
+From: Luca <kronos@kronoz.cjb.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org
+Subject: Re: Suspend to RAM: help with whitelist wanted
+Message-ID: <20060128155800.GA3064@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+References: <20060126213611.GA1668@elf.ucw.cz> <20060127170406.GA6164@dreamland.darkstar.lan> <20060127232207.GB1617@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060127232207.GB1617@elf.ucw.cz>
 User-Agent: Mutt/1.5.11
-From: Moritz Muehlenhoff <jmm@inutil.org>
-X-SA-Exim-Connect-IP: 82.83.220.218
-X-SA-Exim-Mail-From: jmm@inutil.org
-X-SA-Exim-Scanned: No (on vserver151.vserver151.serverflex.de); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have a hard-to-reproduce problem with radeonfb and suspend-to-ram:
+Il Sat, Jan 28, 2006 at 12:22:07AM +0100, Pavel Machek ha scritto: 
+> > > On www.sf.net/projects/suspend , there's s2ram.c program for
+> > > suspending machines. It contains whitelist of known machines, along
+> > > with methods to get their video working (similar to
+> > > Doc*/power/video.txt). Unfortunately, video.txt does not allow me to
+> > > fill in whitelist automatically, so I need your help.
+> > > 
+> > > I do not yet have solution for machines that need vbetool; fortunately
+> > > my machines do not need that :-), and it is pretty complex (includes
+> > > x86 emulator).
+> > 
+> > What about adding something like:
+> > 
+> > void s2ram_restore(void) {
+> >         if (needed)
+> >                 fork_and_exec(vbetool);
+> > }
+> > 
+> > machine_table could set a global flag or something. It would be
+> > possibile to us an array to carry the informations about what need to be
+> > done on restore, i.e. something like:
+> 
+> I can imagine fork_and_exec... Disadvantages are:
+> 
+> * if disk driver is toast, user does not see anything
+> 
+> * vbetool can be missing from the system, or wrong version, or
+> something like that.
+> 
+> Other solution is to just integrate vbetool into s2ram. Advantages
+> are:
+> 
+> * s2ram is nicely integrated.
+> 
+> Disadvantages are:
+> 
+> * code duplication.
+> 
+> If vbetool's primary purpose is to fix video after suspend/resume,
+> then perhaps right thing to do is to integrate it into s2ram and
+> maintain it there.
+> 
+> Matthew, what do you think?
+> 
+> Luca, would you cook quick&hacky fork-and-exec patch? I do not have
+> machine that needs vbetool...
 
-I'm using radeonfb with fbcon in a pure console environment for most
-os the time (with mplayer on X11 being the rare exception) and I
-sometimes encounter display corruption after resuming from suspend to
-RAM. My notebook is a ThinkPad X31 with this Radeon model:
+Very quick and very hacky ;)
 
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M6 LY (prog-if 00 [VGA])
-        Subsystem: IBM: Unknown device 052f
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR+ FastB2B+
-        Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 66 (2000ns min), Cache Line Size: 0x08 (32 bytes)
-        Interrupt: pin A routed to IRQ 11
-        Region 0: Memory at e0000000 (32-bit, prefetchable) [size=128M]
-        Region 1: I/O ports at 3000 [size=256]
-        Region 2: Memory at c0100000 (32-bit, non-prefetchable) [size=64K]
-        Expansion ROM at c0120000 [disabled] [size=128K]
-        Capabilities: <available only to root>
+The following patch works on my notebook. A few notes about it:
 
-Resuming from suspend-to-ram works flawless in roughly 98% of all cases, but
-sometimes the display gets corrupted; some bits are set in the display in a
-weird way and the display starts to shift with every line break. An example:
+- I must stop acpid before suspending otherwise it will get a "power
+  button pressed" event on resume and shutdown the machine; not related
+  to s2ram though.
+- vbetool manpage says that it must be invoked from a text console;
+  since it works from X on my system I never bothered to do a chvt from
+  my suspend script.
+- I always save state before suspend since sometimes I STR from X,
+  sometimes from the console and the state file generated by vbetool is
+  different. According to Matthew Garrett this will break on some
+  setups... if state needs to the saved before X is started then I guess
+  that we need an init script that dump the state in a known place; even
+  if you integrate vbetool into s2ram it will need the state file, so if
+  the disk doesn't come back to life you're screwed...
 
- $ foo
-   $ foo
-      $ foo
+--- suspend/s2ram.c	2006-01-28 13:59:41.000000000 +0100
++++ suspend/s2ram.c	2006-01-28 14:19:37.000000000 +0100
+@@ -15,2 +15,4 @@ int test_mode;
+ 
++static int need_vbetool;
++
+ static void machine_known(void)
+@@ -49,2 +51,9 @@ static void machine_table(void)
+ 	}
++	if (!strcmp(sys_vendor, "ASUSTEK ")) {
++		if (!strcmp(sys_product, "L3000D")) {
++			machine_known();
++			need_vbetool = 1;
++			return;
++		}
++	}
+ 
+@@ -59,2 +68,30 @@ static void machine_table(void)
+ 
++static int vbe_state_save() {
++	int err;
++	
++	err = system("vbetool vbestate save > /tmp/.vbe.state");
++	if (err)
++		printf("vbetool failed to save video state with error %d\n.", err);
++
++	return err;
++}
++
++static int vbe_state_restore() {
++	int err;
++
++	err = system("vbetool post");
++	if (err) {
++		printf("vbetool failed to POST video board with error %d.\n", err);
++		return err;
++	}
++	
++	err = system("vbetool vbestate restore < /tmp/.vbe.state");
++	if (err)
++		printf("vbetool failed to restore video state with error %d.\n", err);
++
++	remove("/tmp/.vbe.state");
++	
++	return err;
++}
++
+ /* Code that can only be run on non-frozen system. It does not matter now
+@@ -66,2 +103,5 @@ void s2ram_prepare(void)
+ 	machine_table();
++	if (need_vbetool)
++		if (vbe_state_save())
++			exit(1);
+ }
+@@ -81,2 +121,7 @@ void s2ram_do(void)
+ 
++void s2ram_resume(void) {
++	if (need_vbetool)
++		vbe_state_restore();
++}
++
+ int main(int argc, char *argv[])
+@@ -103,2 +148,3 @@ int main(int argc, char *argv[])
+ 	s2ram_do();
++	s2ram_resume();
+ 	return 0;
 
-(The display wraps around on the after side for each line)
 
-When running reset(1) the display returns to a state where the whole screen is shifted
-to the left by two chars.
-
-The last time the problem occured I started X11 to check, whether it is affected as well
-and everything seemed alright expect a blocky area following the mouse cursor, but after
-roughly 30 seconds the system locked up hard.
-
-I cannot really reproduce it reliably, but if someone tells me which data I would
-need to collect (a register dump or something similar?) I can send it the next time
-the problem occurs.
-
-This problem is not specific to the 2.6.15 kernel, it occured with several previous
-kernels as well.
-
-Cheers,
-        Moritz
+Luca
+-- 
+Home: http://kronoz.cjb.net
+"Chi parla in tono cortese, ma continua a prepararsi, potra` andare avanti;
+ chi parla in tono bellicoso e avanza rapidamente dovra` ritirarsi" 
+Sun Tzu -- L'arte della guerra

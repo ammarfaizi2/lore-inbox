@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbWA1FI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422826AbWA1FMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932521AbWA1FI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 00:08:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbWA1FI0
+	id S1422826AbWA1FMR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 00:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422830AbWA1FMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 00:08:26 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:63678 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932521AbWA1FI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 00:08:26 -0500
-Date: Fri, 27 Jan 2006 21:08:10 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: clameter@engr.sgi.com, linux-kernel@vger.kernel.org, sri@us.ibm.com,
-       andrea@suse.de, pavel@suse.cz, linux-mm@kvack.org
-Subject: Re: [patch 3/9] mempool - Make mempools NUMA aware
-Message-Id: <20060127210810.54177d6d.pj@sgi.com>
-In-Reply-To: <43DAC222.4060805@us.ibm.com>
-References: <20060125161321.647368000@localhost.localdomain>
-	<1138233093.27293.1.camel@localhost.localdomain>
-	<Pine.LNX.4.62.0601260953200.15128@schroedinger.engr.sgi.com>
-	<43D953C4.5020205@us.ibm.com>
-	<Pine.LNX.4.62.0601261511520.18716@schroedinger.engr.sgi.com>
-	<43D95A2E.4020002@us.ibm.com>
-	<Pine.LNX.4.62.0601261525570.18810@schroedinger.engr.sgi.com>
-	<43D96633.4080900@us.ibm.com>
-	<Pine.LNX.4.62.0601261619030.19029@schroedinger.engr.sgi.com>
-	<43D96A93.9000600@us.ibm.com>
-	<20060127025126.c95f8002.pj@sgi.com>
-	<43DAC222.4060805@us.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 28 Jan 2006 00:12:17 -0500
+Received: from mail.majordomo.ru ([81.177.16.8]:61445 "EHLO mail.majordomo.ru")
+	by vger.kernel.org with ESMTP id S1422826AbWA1FMQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 00:12:16 -0500
+Message-ID: <43DB2550.4070800@nndl.org>
+Date: Sat, 28 Jan 2006 11:03:28 +0300
+From: "Nikolay N. Ivanov" <nn@nndl.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
+X-Accept-Language: en-us, ru, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: PROBLEM: kernel bug at net/core/net-sysfs.c:434 - kernel 2.6.16rc1
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew wrote:
-> > I too am inclined to prefer the __GFP_CRITICAL approach over this.
-> 
-> OK.  Chalk one more up for that solution...
+Hello!
 
-I don't think my vote should count for much.  See below.
+---
+CC      net/core/net-sysfs.o
+net/core/net-sysfs.c: In function `netdev_register_sysfs':
+net/core/net-sysfs.c:434: error: `i' undeclared (first use in this function)
+net/core/net-sysfs.c:434: error: (Each undeclared identifier is reported 
+only once
+net/core/net-sysfs.c:434: error: for each function it appears in.)
+net/core/net-sysfs.c:434: error: `attr' undeclared (first use in this 
+function)
+make[2]: *** [net/core/net-sysfs.o] Error 1
+make[1]: *** [net/core] Error 2
+make: *** [net] Error 2
+[nn@ linux-2.6.16-rc1]$ gcc --version
+gcc (GCC) 3.3.4
+---
 
-> This is supposed to be an implementation of Andrea's suggestion.  There are
-> no hooks in ANY page_alloc.c code paths.  These patches touch mempool code
-> and some slab code, but not any page allocator code.
+After adding:
 
-Yeah - you're right.  I misread your patch set.  Sorry
-for wasting your time.
+int i;
+
+new errors appeared:
+
+---
+CC      net/core/net-sysfs.o
+net/core/net-sysfs.c: In function `netdev_register_sysfs':
+net/core/net-sysfs.c:434: error: `attr' undeclared (first use in this 
+function)
+net/core/net-sysfs.c:434: error: (Each undeclared identifier is reported 
+only once
+net/core/net-sysfs.c:434: error: for each function it appears in.)
+make[2]: *** [net/core/net-sysfs.o] Error 1
+make[1]: *** [net/core] Error 2
+make: *** [net] Error 2
+---
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Nikolay N. Ivanov
+mailto: nn@nndl.org
+

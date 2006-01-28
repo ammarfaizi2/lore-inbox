@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932525AbWA1GEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932526AbWA1GIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932525AbWA1GEm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 01:04:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751584AbWA1GEm
+	id S932526AbWA1GIm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 01:08:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751584AbWA1GIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 01:04:42 -0500
-Received: from cantor.suse.de ([195.135.220.2]:24780 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751128AbWA1GEm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 01:04:42 -0500
-From: Andi Kleen <ak@suse.de>
+	Sat, 28 Jan 2006 01:08:42 -0500
+Received: from liaag1ag.mx.compuserve.com ([149.174.40.33]:22179 "EHLO
+	liaag1ag.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751128AbWA1GIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 01:08:41 -0500
+Date: Sat, 28 Jan 2006 01:04:16 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 2.6.15] i386: allow disabling X86_FEATURE_SEP at
+  boot
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 09/12] Mask off GFP flags before swiotlb_alloc_coherent
-Date: Sat, 28 Jan 2006 07:04:13 +0100
-User-Agent: KMail/1.8.2
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, stable@kernel.org,
-       jmforbes@linuxtx.org, zwane@arm.linux.org.uk, tytso@mit.edu,
-       rdunlap@xenotime.net, davej@redhat.com, chuckw@quantumlinux.com,
-       torvalds@osdl.org, alan@lxorguk.ukuu.org.uk
-References: <20060128020629.908825000@press.kroah.org> <200601280333.25026.ak@suse.de> <20060127194954.0c9efcd6.akpm@osdl.org>
-In-Reply-To: <20060127194954.0c9efcd6.akpm@osdl.org>
+Cc: Ashok Raj <ashok.raj@intel.com>, ergot86@gmail.com, torvalds@osdl.org,
+       mingo@elte.hu, linux-kernel@vger.kernel.org
+Message-ID: <200601280106_MC3-1-B6F2-9A79@compuserve.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601280704.15293.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 January 2006 04:49, Andrew Morton wrote:
-> Andi Kleen <ak@suse.de> wrote:
+In-Reply-To: <20060127143713.2efc16ed.akpm@osdl.org>
+
+On Fri, 27 Jan 2006 at 14:37:13 -0800, Andrew Morton wrote:
+
+> Chuck Ebbert <76306.1226@compuserve.com> wrote:
 > >
-> >  On Saturday 28 January 2006 03:21, Greg KH wrote:
-> >  > 2.6.15.2 -stable review patch.  If anyone has any objections, please let 
-> >  > us know.
+> > Allow the x86 "sep" feature to be disabled at bootup.  This
+> > forces use of the int80 vsyscall.
 > > 
-> >  That patch isn't in mainline yet and shouldn't be merged to stable before
-> >  that happens.
-> 
-> But this patch will never go into mainline - pci-gart.c was radically
-> altered in 2.6.16-rc1.
+>
+> Why is there a need to do this?
 
-It has an direct equivalent in the mainline version. It's 
-ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt/swiotlb-dma32
+Mainly for testing or benchmarking the int80 vsyscall code.
 
--Andi
+> > --- 2.6.15a.orig/arch/i386/kernel/cpu/common.c
+> > +++ 2.6.15a/arch/i386/kernel/cpu/common.c
+> > @@ -27,6 +27,7 @@ EXPORT_PER_CPU_SYMBOL(cpu_16bit_stack);
+> >  static int cachesize_override __devinitdata = -1;
+> >  static int disable_x86_fxsr __devinitdata = 0;
+> >  static int disable_x86_serial_nr __devinitdata = 1;
+> > +static int disable_x86_sep __devinitdata = 0;
+> >  
+>
+> hm, I guess lots of things in there should be __cpuinit/__cpuinitdata. 
 
-P.S.: I already have quite a lot of pure bug fixes for x86-64 (+ 1 late 
-but important feature). There will be a relatively big late
-x86-64 syncup for 2.6.16 soon.
+I'll try to do that.
+
+> __devinit is a superset of that, but we're being a little wasteful in the
+> case of CONFIG_HOTPLUG&&!CONFIG_HOTPLUG_CPU.
+
+-- 
+Chuck
+

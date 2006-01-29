@@ -1,75 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWA2VNy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWA2V37@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751130AbWA2VNy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 16:13:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWA2VNy
+	id S1750738AbWA2V37 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 16:29:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWA2V37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 16:13:54 -0500
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:190 "EHLO
+	Sun, 29 Jan 2006 16:29:59 -0500
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:38623 "EHLO
 	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S1751130AbWA2VNx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 16:13:53 -0500
-Date: Sun, 29 Jan 2006 22:13:10 +0100
+	id S1750738AbWA2V36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 16:29:58 -0500
+Date: Sun, 29 Jan 2006 22:29:15 +0100
 From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
 To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Adrian Bunk <bunk@stusta.de>, Christoph Hellwig <hch@infradead.org>,
-       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
-Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths library
-Message-ID: <20060129211310.GA20118@hardeman.nu>
+Cc: Dax Kelson <dax@gurulabs.com>, Christoph Hellwig <hch@infradead.org>,
+       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org,
+       Adrian Bunk <bunk@stusta.de>
+Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths	library
+Message-ID: <20060129212915.GB20118@hardeman.nu>
 Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Adrian Bunk <bunk@stusta.de>, Christoph Hellwig <hch@infradead.org>,
-	keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
-References: <1138312695665@2gen.com> <6403.1138392470@warthog.cambridge.redhat.com> <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de> <20060128104611.GA4348@hardeman.nu> <1138466271.8770.77.camel@lade.trondhjem.org> <20060128165732.GA8633@hardeman.nu> <1138504829.8770.125.camel@lade.trondhjem.org> <20060129113320.GA21386@hardeman.nu> <1138552702.8711.12.camel@lade.trondhjem.org>
+	Dax Kelson <dax@gurulabs.com>,
+	Christoph Hellwig <hch@infradead.org>, keyrings@linux-nfs.org,
+	linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
+References: <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de> <20060128104611.GA4348@hardeman.nu> <1138466271.8770.77.camel@lade.trondhjem.org> <20060128165732.GA8633@hardeman.nu> <1138504829.8770.125.camel@lade.trondhjem.org> <20060129113320.GA21386@hardeman.nu> <1138552702.8711.12.camel@lade.trondhjem.org> <406-SnapperMsg827D11E1C002BEC0@[70.7.65.98]> <1138561846.8711.33.camel@lade.trondhjem.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <1138552702.8711.12.camel@lade.trondhjem.org>
+In-Reply-To: <1138561846.8711.33.camel@lade.trondhjem.org>
 User-Agent: Mutt/1.5.11
-Content-Transfer-Encoding: 8BIT
 X-SA-Score: -2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 29, 2006 at 11:38:22AM -0500, Trond Myklebust wrote:
->On Sun, 2006-01-29 at 12:33 +0100, David Härdeman wrote:
->>>Why would you want to use proxy certificates for you own use? Use your
->>>own certificate for your own processes, and issue one or more proxy
->>>certificates to any daemon that you want to authorise to do some limited
->>>task.
+On Sun, Jan 29, 2006 at 02:10:46PM -0500, Trond Myklebust wrote:
+>On Sun, 2006-01-29 at 11:49 -0700, Dax Kelson wrote:
+>>>Has anyone tried to look for simpler signing mechanisms that make use of
+>>>the crypto algorithms that are already in the kernel?
 >> 
->>I meant that you can't use proxy certs for your own use, so you still need 
->>to store your own cert/key somehow...and I still believe that the kernel 
->>keyring is the best place...
->
->Agreed. Now, reread what I said above, and tell me why this is an
->argument for doing dsa in the kernel?
-
-If you agree that the kernel keyring is the best place, it shouldn't be 
-a big step to also agree that in-kernel signing is "good" since it 
-allows you to use the key while it makes it possible for the kernel to 
-refuse to divulge the private part...even to the user who added the key 
-(i.e. yourself)...
-
->>>...and what does this statement about "keys being safer in the kernel"
->>>mean?
+>> Maybe you meant something else, but history has shown that 'rolling your own' mechanism is a bad idea.
 >> 
->> swap-out to disk, ptrace, coredump all become non-issues. And in 
->> combination with some other security features (such as disallowing 
->> modules, read/write of /dev/mem + /dev/kmem, limited permissions via
->> SELinux, etc), it becomes pretty hard for the attacker to get your 
->> private key even if he/she manages to get access to the root account.
+>> Are there even any suitable algorithms in the kernel??
 >
->Turning off coredump is trivial. All the features that LSM provide apply
->to userland too (including security_ptrace()), so the SELinux policies
->are not an argument for putting stuff in the kernel.
+>I'm suggesting that if the only real problem that dsa in the kernel
+>solves is module signing, then perhaps one can simplify the problem.
 >
->Only the swap-out to disk is an issue, and that is less of a worry if
->you use a time-limited proxy in the daemon.
+>For instance, if instead of going for a general signing mechanism in the
+>kernel that will take any old module and verify it, you define a
+>particular binary as being trusted, and then devise a signature that the
+>kernel can check (even the SHA-1 of the binary image might be
+>sufficient).
+>The object would be to give the kernel a trusted program that can check
+>module signatures on its behalf.
 
-How do you use a "time-limited proxy in the daemon" for your own 
-keys/cerificates (e.g. ssh keys)?
+Today, if a security bug is found in the kernel, you have to compile and 
+install a new kernel.
 
-Re,
+With your system, the signature of a "trusted" binary is embedded in the 
+kernel. Now, if a bug is found in said binary, you also get to compile 
+and install a new kernel along with a new binary.
+
+Since the application is trusted, a security hole in the binary equals a 
+security hole in the kernel. In addition, you are bound to a given 
+kernel <-> userspace ABI, so if it has to be changed, you get to keep 
+several different trusted binaries around for different kernel versions 
+(/sbin/module-validate-v1 for ABI version 1, /sbin/module-validate-v2 
+for ABI version 2, etc).
+
+Further, how is the module actually verified? If the trusted binary 
+reads it and checks "something" (i.e. a signature), and then says it's 
+ok, what is to say that the module is not changed on-disk between the 
+time when the binary reads it and when the kernel does so (for instance 
+by direct access to the disk). How do you expect the system to provide 
+security if you are running with nfs-root?
+
+In addition you must protect the user-space binary against a slew of 
+attacks (you did statically link it to protect against LD_PRELOAD, right?).
+
+What exactly is the advantage of user-space trusted binary signing?
+
+Regards,
 David
 

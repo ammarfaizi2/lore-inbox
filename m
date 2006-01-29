@@ -1,62 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWA2DtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWA2EO3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbWA2DtA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 22:49:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWA2DtA
+	id S1750815AbWA2EO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 23:14:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbWA2EO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 22:49:00 -0500
-Received: from atlrel9.hp.com ([156.153.255.214]:26051 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S1750805AbWA2Ds7 (ORCPT
+	Sat, 28 Jan 2006 23:14:29 -0500
+Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:8845 "HELO
+	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750815AbWA2EO2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 22:48:59 -0500
-From: "Bob Picco" <bob.picco@hp.com>
-Date: Sat, 28 Jan 2006 22:44:34 -0500
-To: Paul Jackson <pj@sgi.com>
-Cc: Yasunori Goto <y-goto@jp.fujitsu.com>, akpm@osdl.org, apw@shadowen.org,
-       bob.picco@hp.com, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, linux-ia64@vger.kernel.org,
-       tony.luck@intel.com, ak@suse.de, len.brown@intel.com,
-       discuss@x86-64.org
-Subject: Re: [PATCH 001/003]Fix unify mapping from pxm to node id.
-Message-ID: <20060129034434.GO7306@localhost>
-References: <20060123165644.C147.Y-GOTO@jp.fujitsu.com> <20060126074846.1a6dd300.pj@sgi.com> <20060128122758.CF50.Y-GOTO@jp.fujitsu.com> <20060127231517.4c0ce573.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 28 Jan 2006 23:14:28 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Marek =?utf-8?q?Va=C5=A1ut?= <marek.vasut@gmail.com>
+Subject: Re: [PATCH] iforce: fix -ENOMEM check
+Date: Sat, 28 Jan 2006 23:14:20 -0500
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <200601281903.28176.marek.vasut@gmail.com>
+In-Reply-To: <200601281903.28176.marek.vasut@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20060127231517.4c0ce573.pj@sgi.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200601282314.21222.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson wrote:	[Sat Jan 28 2006, 02:15:17AM EST]
-> Yasunori-san,
-> 
-> Thank-you for updating your patch.
-> 
-> However I am still puzzled by one detail.
-> 
-> Your latest patchset removes the defines:
-> -#define MAX_PXM_DOMAINS	256	/* 1 byte and no promises about values */
-> 
-> and:
-> -#define MAX_PXM_DOMAINS (256)
-> 
-> but continues to have code using MAX_PXM_DOMAINS.  I am unable
-> to compile ia64 with it now, for lack of this define.
-> 
-> -- 
->                   I won't rest till it's the best ...
->                   Programmer, Linux Scalability
->                   Paul Jackson <pj@sgi.com> 1.925.600.0401
-Hi Paul. 
+On Saturday 28 January 2006 13:03, Marek Vašut wrote:
+> I have tried that patch, but nothing changed ...
+> That error is still there and no new device in /dev/input appears
 
-MAX_PXM_DOMAINS is defined in include/acpi/acpi_numa.h.  So I'm confused.
+You do have updated udev, don't you? Could you pease post your dmesg
+with the patch applied?
 
-I just built sn2 with Yasunori's patches applied to -mm3. I had previously
-built sn2 with a slightly different patch series of mine which Yasunori 
-later incorporated most of into this patch series. Would you please send your 
-.config and the error output from the build? 
-
-thanks,
-
-bob
+-- 
+Dmitry

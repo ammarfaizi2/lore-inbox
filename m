@@ -1,93 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWA2UAz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWA2UEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbWA2UAz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 15:00:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWA2UAz
+	id S1751145AbWA2UEp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 15:04:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWA2UEp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 15:00:55 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:6236 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751133AbWA2UAx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 15:00:53 -0500
-Date: Sun, 29 Jan 2006 20:57:33 +0100
-From: Jens Axboe <axboe@suse.de>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>,
-       Nix <nix@esperi.org.uk>, Ariel <askernel2615@dsgml.com>,
-       Jamie Heilman <jamie@audible.transient.net>,
-       Chase Venters <chase.venters@clientec.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: memory leak in scsi_cmd_cache 2.6.15
-Message-ID: <20060129195733.GH13831@suse.de>
-References: <Pine.LNX.4.62.0601222045180.12815@pureeloreel.qftzy.pbz> <1137997104.2977.7.camel@laptopd505.fenrus.org> <200601230029.12674.chase.venters@clientec.com> <Pine.LNX.4.62.0601230136080.22979@pureeloreel.qftzy.pbz> <20060123072556.GC15490@fifty-fifty.audible.transient.net> <Pine.LNX.4.62.0601261312160.1174@pureeloreel.qftzy.pbz> <87ek2td4i9.fsf@amaterasu.srvr.nix> <20060128192714.GI9750@suse.de> <20060129155009.GT28738@edu.joroinen.fi> <1138552692.3352.6.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1138552692.3352.6.camel@mulgrave>
+	Sun, 29 Jan 2006 15:04:45 -0500
+Received: from mf00.sitadelle.com ([212.94.174.67]:33959 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1751145AbWA2UEp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 15:04:45 -0500
+Message-ID: <43DD1FDC.4080302@cosmosbay.com>
+Date: Sun, 29 Jan 2006 21:04:44 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] i386: instead of poisoning .init zone, change protection
+ bits to force a fault
+References: <m1r76rft2t.fsf@ebiederm.dsl.xmission.com>	<m17j8jfs03.fsf@ebiederm.dsl.xmission.com>	<20060128235113.697e3a2c.akpm@osdl.org>	<200601291620.28291.ioe-lkml@rameria.de> <20060129113312.73f31485.akpm@osdl.org>
+In-Reply-To: <20060129113312.73f31485.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------090501040707070002010900"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 29 2006, James Bottomley wrote:
-> On Sun, 2006-01-29 at 17:50 +0200, Pasi Kärkkäinen wrote:
-> > Are all sata drivers affected by this bug in 2.6.15?
-> 
-> Well, all SCSI drivers are affected by it, yes.  However, SATA devices
-> are peculiarly affected because the ordered_flush method of enforcing
-> barriers, which is where the leak is, can only be implemented for
-> devices that don't do tag command queueing (i.e. don't have multiple
-> commands outstanding for a given single device).  By and large, SATA
-> drivers are the only drivers in the SCSI subsystem that can't do tag
-> command queueing, which is why the problem didn't show up for any other
-> type of SCSI driver.
+This is a multi-part message in MIME format.
+--------------090501040707070002010900
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-2.6.15 didn't support barriers for anything other than ordered flush
-SCSI low level drivers, hence only SATA is affected.
+Chasing some invalid accesses to .init zone, I found that free_init_pages() 
+was properly freeing the pages but virtual was still usable.
 
-> > Any 'official' patch available?
-> 
-> Well, yes, 2.6.16-rc1 has this fixed.  I can't see backporting this to
-> 2.6.15.x since it represents a significant functionality enhancement as
-> well, so I'd lean towards just forcing ordered_flush to zero in 2.6.15.x
-> which seems to be the best bug fix.
+A poisoning (memset(page, 0xcc, PAGE_SIZE)) was done but this is not reliable.
 
-Agree, backporting the barrier rewrite would be insane for stable.
+Applying this patch at least in mm is a good thing...
 
-> > Or is the recommended workaround to set ordered_flush to 0 to fix this..
-> > does that have any downsides?
-> 
-> setting ordered_flush to zero for 2.6.15 turns off the flushing
-> functionality and restores the old behaviour.  I don't see that there
-> would be any down side to this.
+(After that we could map non possible cpu percpu data to the initial 
+percpudata that is included in .init and discarded in free_initmem())
 
-Just the usual correctness issue, but since it's leaky it doesn't seem
-like a big deal to wait for 2.6.16.
+Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
 
-So here's a patch for 2.6.15:
 
----
+--------------090501040707070002010900
+Content-Type: text/plain;
+ name="i386_mm_init.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="i386_mm_init.patch"
 
-Turn off ordered flush barriers for SCSI driver, since the SCSI barrier
-code has a command leak.
-
-Signed-off-by: Jens Axboe <axboe@suse.de>
-
---- linux-2.6.15.1/drivers/scsi/scsi_lib.c~	2006-01-29 11:55:08.000000000 -0800
-+++ linux-2.6.15.1/drivers/scsi/scsi_lib.c	2006-01-29 11:55:38.000000000 -0800
-@@ -1534,11 +1534,6 @@
- 	 */
- 	if (shost->ordered_tag)
- 		blk_queue_ordered(q, QUEUE_ORDERED_TAG);
--	else if (shost->ordered_flush) {
--		blk_queue_ordered(q, QUEUE_ORDERED_FLUSH);
--		q->prepare_flush_fn = scsi_prepare_flush_fn;
--		q->end_flush_fn = scsi_end_flush_fn;
--	}
+--- linux-2.6.16-rc1-mm3/arch/i386/mm/init.c	2006-01-25 10:17:24.000000000 +0100
++++ linux-2.6.16-rc1-mm3-ed/arch/i386/mm/init.c	2006-01-29 21:46:39.000000000 +0100
+@@ -750,11 +750,12 @@
+ 	for (addr = begin; addr < end; addr += PAGE_SIZE) {
+ 		ClearPageReserved(virt_to_page(addr));
+ 		set_page_count(virt_to_page(addr), 1);
+-		memset((void *)addr, 0xcc, PAGE_SIZE);
++               change_page_attr(virt_to_page(addr), 1, __pgprot(0));
+ 		free_page(addr);
+ 		totalram_pages++;
+ 	}
+ 	printk(KERN_INFO "Freeing %s: %ldk freed\n", what, (end - begin) >> 10);
++	global_flush_tlb();
+ }
  
- 	if (!shost->use_clustering)
- 		clear_bit(QUEUE_FLAG_CLUSTER, &q->queue_flags);
+ void free_initmem(void)
 
--- 
-Jens Axboe
-
+--------------090501040707070002010900--

@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWA2BSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWA2BYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750785AbWA2BSY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 20:18:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWA2BSY
+	id S1750804AbWA2BYM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 20:24:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWA2BYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 20:18:24 -0500
-Received: from xenotime.net ([66.160.160.81]:49901 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750785AbWA2BSY (ORCPT
+	Sat, 28 Jan 2006 20:24:12 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:5093 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1750800AbWA2BYK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 20:18:24 -0500
-Date: Sat, 28 Jan 2006 17:18:41 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.6.16-rc1 kernel init oops
-Message-Id: <20060128171841.6f989958.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Sat, 28 Jan 2006 20:24:10 -0500
+Date: Sat, 28 Jan 2006 20:19:44 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: dada1@cosmosbay.com, kiran@scalex86.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, shai@scalex86.org, netdev@vger.kernel.org,
+       pravins@calsoftinc.com
+Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
+Message-ID: <20060129011944.GB24099@kvack.org>
+References: <20060126190357.GE3651@localhost.localdomain> <43D9DFA1.9070802@cosmosbay.com> <20060127195227.GA3565@localhost.localdomain> <20060127121602.18bc3f25.akpm@osdl.org> <20060127224433.GB3565@localhost.localdomain> <43DAA586.5050609@cosmosbay.com> <20060127151635.3a149fe2.akpm@osdl.org> <43DABAA4.8040208@cosmosbay.com> <20060129004459.GA24099@kvack.org> <20060128165549.262f2b90.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060128165549.262f2b90.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Jan 28, 2006 at 04:55:49PM -0800, Andrew Morton wrote:
+> local_t isn't much use until we get rid of asm-generic/local.h.  Bloaty,
+> racy with nested interrupts.
 
-I'm trying to boot 2.6.16-rc1 on a T42 Thinkpad notebook.
-No serial port for serial console.  I don't think that networking
-is alive yet (for network console ?).
+The overuse of atomics is horrific in what is being proposed.  All the
+major architectures except powerpc (i386, x86-64, ia64, and sparc64) 
+implement local_t.  It would make far more sense to push the last few 
+stragglers (which mostly seem to be uniprocessor) into writing the 
+appropriate implementations.  Perhaps it's time to add a #error in 
+asm-generic/local.h?
 
-Anyone recognize this?  got patch?
-
-This is just typed in, so could contain a few errors.
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000001
-printing eip:
-00000001
-*pde = 00000000
-Oops: 0000 [#1]
-SMP DEBUG_PAGEALLOC
-Modules linked in:
-CPU:	0
-EIP:	0060:[<00000001>]   Not tainted VLI
-EFLAGS: 00010202   (2.6.16-rc1)
-EIP is at 0x1
-<skip reg. dump>
-<skip stack dump>
-Call trace:
-	show_stack_log_lvl+0xa5/0xad
-	show_registers+0xf9/0x162
-	die+0xfe/0x179
-	do_page_fault+0x399/0x4d8
-	error_code+0x4f/0x54
-	device_register+0x13/0x18
-	platform_bus_init+0xd/0x19
-	driver_init+0x1c/0x2d
-	do_basic_setup+0x12/0x1e
-	init+0x95/0x195
-	kernel_thread_helper+0x5/0xb
-Code:  Bad EIP value.
-
-Thanks,
----
-~Randy
+		-ben
+-- 
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

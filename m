@@ -1,55 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWA2TP0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWA2TTP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751118AbWA2TP0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 14:15:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWA2TP0
+	id S1751120AbWA2TTP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 14:19:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbWA2TTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 14:15:26 -0500
-Received: from drugphish.ch ([69.55.226.176]:43728 "EHLO www.drugphish.ch")
-	by vger.kernel.org with ESMTP id S1751118AbWA2TP0 (ORCPT
+	Sun, 29 Jan 2006 14:19:15 -0500
+Received: from xenotime.net ([66.160.160.81]:28116 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751120AbWA2TTO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 14:15:26 -0500
-Message-ID: <43DD144C.9010709@drugphish.ch>
-Date: Sun, 29 Jan 2006 20:15:24 +0100
-From: Roberto Nibali <ratz@drugphish.ch>
-User-Agent: Thunderbird 1.4 (X11/20050908)
-MIME-Version: 1.0
-To: Willy Tarreau <wtarreau@exosec.fr>
-Cc: linux-kernel@vger.kernel.org, Syed Ahemed <kingkhan@gmail.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Grant Coady <grant_lkml@dodo.com.au>
-Subject: Re: [ANNOUNCE] Linux 2.4.32-hf32.2
-References: <20060129175647.GA21999@exosec.fr>
-In-Reply-To: <20060129175647.GA21999@exosec.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 29 Jan 2006 14:19:14 -0500
+Date: Sun, 29 Jan 2006 11:19:34 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1 kernel init oops
+Message-Id: <20060129111934.53710b03.rdunlap@xenotime.net>
+In-Reply-To: <20060129190029.GB7168@kroah.com>
+References: <20060128171841.6f989958.rdunlap@xenotime.net>
+	<20060128175511.35e39233.rdunlap@xenotime.net>
+	<20060129190029.GB7168@kroah.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Willy,
+On Sun, 29 Jan 2006 11:00:29 -0800 Greg KH wrote:
 
-> Changelog from 2.4.32-hf32.1 to 2.4.32-hf32.2
-
-Which of those are you going to push to Marcelo for inclusion?
-
-I've found two subtle IPVS bugs (using a persistency setup on SMP 
-combined with sharp TCP state transition timeouts), one of which is 
-fixed in my tree and has been running in production for over 1 month 
-now. The other is still in discussion phase with Horms and Julian Anastasov.
-
-> + 2.4.32-bond_alb-hash-table-corruption-1                (ODonnell, Michael)
+> On Sat, Jan 28, 2006 at 05:55:11PM -0800, Randy.Dunlap wrote:
+> > On Sat, 28 Jan 2006 17:18:41 -0800 Randy.Dunlap wrote:
+> > 
+> > > Hi,
+> > > 
+> > > I'm trying to boot 2.6.16-rc1 on a T42 Thinkpad notebook.
+> > > No serial port for serial console.  I don't think that networking
+> > > is alive yet (for network console ?).
+> > > 
+> > > Anyone recognize this?  got patch?
+> > > 
+> > > This is just typed in, so could contain a few errors.
+> > > 
+> > > Unable to handle kernel NULL pointer dereference at virtual address 00000001
+> > > printing eip:
+> > > 00000001
+> > > *pde = 00000000
+> > > Oops: 0000 [#1]
+> > > SMP DEBUG_PAGEALLOC
+> > > Modules linked in:
+> > > CPU:	0
+> > > EIP:	0060:[<00000001>]   Not tainted VLI
+> > > EFLAGS: 00010202   (2.6.16-rc1)
+> > > EIP is at 0x1
+> > > <skip reg. dump>
+> > > <skip stack dump>
+> > > Call trace:
+> > > 	show_stack_log_lvl+0xa5/0xad
+> > > 	show_registers+0xf9/0x162
+> > > 	die+0xfe/0x179
+> > > 	do_page_fault+0x399/0x4d8
+> > > 	error_code+0x4f/0x54
+> > > 	device_register+0x13/0x18
+> > > 	platform_bus_init+0xd/0x19
+> > > 	driver_init+0x1c/0x2d
+> > > 	do_basic_setup+0x12/0x1e
+> > > 	init+0x95/0x195
+> > > 	kernel_thread_helper+0x5/0xb
+> > > Code:  Bad EIP value.
+> > 
+> > Both 2.6.15 and 2.6.15.1 boot OK for me.
+> > .config for 2.6.16-rc1 is at
+> >   http://www.xenotime.net/linux/doc/config-2616rc1
 > 
->   Our systems have been crashing during testing of PCI HotPlug
->   support in the various networking components. We've faulted in
->   the bonding driver due to a bug in bond_alb.c:tlb_clear_slave().
->   In that routine, the last modification to the TLB hash table is
->   made without protection of the lock, allowing a race that can
->   lead tlb_choose_channel() to select an invalid table element.
+> If you disable CONFIG_PNP and CONFIG_ISAPNP options does that help?
 
-This is correct. Funny, It never triggered on my systems, but I only 
-have a bonding setup on three SMP systems, probably none of them using ALB.
+Nope, no change.  Any other suggestions?
 
-Thanks for your hard work,
-Roberto Nibali, ratz
--- 
-echo '[q]sa[ln0=aln256%Pln256/snlbx]sb3135071790101768542287578439snlbxq'|dc
+I just booted with a KOBJECT_DEBUG
+built kernel and it's failing after:
+
+kobject platform: registering, parent: <NULL>, set: devices
+
+thanks,
+---
+~Randy

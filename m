@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWA2Xjn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWA2Xm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932084AbWA2Xjn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 18:39:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWA2Xjn
+	id S932086AbWA2Xm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 18:42:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWA2Xm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 18:39:43 -0500
-Received: from xenotime.net ([66.160.160.81]:12254 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932084AbWA2Xjn (ORCPT
+	Sun, 29 Jan 2006 18:42:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:36550 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932086AbWA2Xm0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 18:39:43 -0500
-Date: Sun, 29 Jan 2006 15:40:02 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: akpm@osdl.org, ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1-mm4
-Message-Id: <20060129154002.360c7294.rdunlap@xenotime.net>
-In-Reply-To: <20060129233403.GA3777@stusta.de>
-References: <20060129144533.128af741.akpm@osdl.org>
-	<20060129233403.GA3777@stusta.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Sun, 29 Jan 2006 18:42:26 -0500
+Date: Sun, 29 Jan 2006 18:42:13 -0500
+From: Dave Jones <davej@redhat.com>
+To: Alan Cox <alan@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: noisy edac
+Message-ID: <20060129234213.GA20133@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Alan Cox <alan@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060127014105.GD16422@redhat.com> <20060129215206.GA18670@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060129215206.GA18670@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Jan 2006 00:34:03 +0100 Adrian Bunk wrote:
+On Sun, Jan 29, 2006 at 04:52:06PM -0500, Alan Cox wrote:
+ > On Thu, Jan 26, 2006 at 08:41:05PM -0500, Dave Jones wrote:
+ > > e752x_edac is very noisy on my PCIE system..
+ > > my dmesg is filled with these...
+ > > 
+ > > [91671.488379] Non-Fatal Error PCI Express B
+ > > [91671.492468] Non-Fatal Error PCI Express B
+ > > [91901.100576] Non-Fatal Error PCI Express B
+ > > [91901.104675] Non-Fatal Error PCI Express B
+ > 
+ > Pre-production system or final release ?
 
-> On Sun, Jan 29, 2006 at 02:45:33PM -0800, Andrew Morton wrote:
-> >...
-> > Changes since 2.6.16-rc1-mm3:
-> >...
-> > +i386-add-a-temporary-to-make-put_user-more-type-safe.patch
-> > 
-> >  x86 fixes/features
-> >...
-> 
-> This patch generates so many "ISO C90 forbids mixed declarations and code"
-> warnings that I start to consider Andrew's rejection of my "mark 
-> virt_to_bus/bus_to_virt as __deprecated on i386" patch due to the 
-> warnings it generates a personal insult...
+Currently shipping Dell Precision 470.
 
-I prefer to think of it as reasons why neither of them
-should be merged.
+		Dave
 
----
-~Randy

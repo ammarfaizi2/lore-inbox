@@ -1,66 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWA2RLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbWA2RKn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751082AbWA2RLM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 12:11:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWA2RLM
+	id S1751078AbWA2RKn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 12:10:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWA2RKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 12:11:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:46241 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751082AbWA2RLK (ORCPT
+	Sun, 29 Jan 2006 12:10:42 -0500
+Received: from edu.joroinen.fi ([194.89.68.130]:17632 "EHLO edu.joroinen.fi")
+	by vger.kernel.org with ESMTP id S1751078AbWA2RKl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 12:11:10 -0500
-Date: Sun, 29 Jan 2006 09:10:47 -0800
-From: Greg KH <gregkh@suse.de>
-To: Chuck Wolber <chuckw@quantumlinux.com>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, trivial@rustcorp.com.au
-Subject: Re: [PATCH] Documentation/stable_kernel_rules.txt: Clarification
-Message-ID: <20060129171047.GA10467@suse.de>
-References: <Pine.LNX.4.63.0601290032110.7252@localhost.localdomain>
+	Sun, 29 Jan 2006 12:10:41 -0500
+Date: Sun, 29 Jan 2006 19:10:40 +0200
+From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Jens Axboe <axboe@suse.de>, Nix <nix@esperi.org.uk>,
+       Ariel <askernel2615@dsgml.com>,
+       Jamie Heilman <jamie@audible.transient.net>,
+       Chase Venters <chase.venters@clientec.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: memory leak in scsi_cmd_cache 2.6.15
+Message-ID: <20060129171040.GU28738@edu.joroinen.fi>
+References: <Pine.LNX.4.62.0601222045180.12815@pureeloreel.qftzy.pbz> <1137997104.2977.7.camel@laptopd505.fenrus.org> <200601230029.12674.chase.venters@clientec.com> <Pine.LNX.4.62.0601230136080.22979@pureeloreel.qftzy.pbz> <20060123072556.GC15490@fifty-fifty.audible.transient.net> <Pine.LNX.4.62.0601261312160.1174@pureeloreel.qftzy.pbz> <87ek2td4i9.fsf@amaterasu.srvr.nix> <20060128192714.GI9750@suse.de> <20060129155009.GT28738@edu.joroinen.fi> <1138552692.3352.6.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0601290032110.7252@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1138552692.3352.6.camel@mulgrave>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 29, 2006 at 01:50:16AM -0800, Chuck Wolber wrote:
+On Sun, Jan 29, 2006 at 10:38:12AM -0600, James Bottomley wrote:
+> On Sun, 2006-01-29 at 17:50 +0200, Pasi Kärkkäinen wrote:
+> > Are all sata drivers affected by this bug in 2.6.15?
 > 
-> This reflects the clarification made on what patches the -stable team 
-> accepts. This applies cleanly to the 2.6.16-rc1 kernel.
+> Well, all SCSI drivers are affected by it, yes.  However, SATA devices
+> are peculiarly affected because the ordered_flush method of enforcing
+> barriers, which is where the leak is, can only be implemented for
+> devices that don't do tag command queueing (i.e. don't have multiple
+> commands outstanding for a given single device).  By and large, SATA
+> drivers are the only drivers in the SCSI subsystem that can't do tag
+> command queueing, which is why the problem didn't show up for any other
+> type of SCSI driver.
+>
+
+OK.. thanks for summarizing this.
+ 
+> > Any 'official' patch available?
 > 
-> Signed-off-by: Chuck Wolber <chuckw@quantumlinux.com>
-> ---
+> Well, yes, 2.6.16-rc1 has this fixed.  I can't see backporting this to
+> 2.6.15.x since it represents a significant functionality enhancement as
+> well, so I'd lean towards just forcing ordered_flush to zero in 2.6.15.x
+> which seems to be the best bug fix.
+>
+
+OK.
+ 
+> > Or is the recommended workaround to set ordered_flush to 0 to fix this..
+> > does that have any downsides?
 > 
-> --- a/Documentation/stable_kernel_rules.txt     2006-01-16 23:44:47.000000000 -0800
-> +++ b/Documentation/stable_kernel_rules.txt     2006-01-29 01:45:44.000000000 -0800
-> @@ -18,6 +18,7 @@
->     whitespace cleanups, etc).
->   - It must be accepted by the relevant subsystem maintainer.
->   - It must follow the Documentation/SubmittingPatches rules.
-> + - Patches for any 2.6 stable kernel release will be considered.
-
-No, this isn't true.
-
-People complained that we immediatly abandonded the last stable kernel
-when a new one came out, so we said we would take patches for a bit on
-the last series if people wanted to send them.
-
-That's all, it's not some confusing thing, and we are very much not
-going to accept patches for "any" kernel release.
-
-So no, I'm not going to accept this.
-
-thanks,
-
-greg k-h
-
+> setting ordered_flush to zero for 2.6.15 turns off the flushing
+> functionality and restores the old behaviour.  I don't see that there
+> would be any down side to this.
 > 
-> 
->  Procedure for submitting patches to the -stable tree:
 
--- 
+That's good to hear. Thanks.
+
+-- Pasi 

@@ -1,92 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWA2HKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbWA2HLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750855AbWA2HKl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 02:10:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbWA2HKl
+	id S1750859AbWA2HLs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 02:11:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWA2HLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 02:10:41 -0500
-Received: from tachyon.quantumlinux.com ([64.113.1.99]:33979 "EHLO
-	tachyon.quantumlinux.com") by vger.kernel.org with ESMTP
-	id S1750794AbWA2HKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 02:10:41 -0500
-Date: Sat, 28 Jan 2006 23:11:14 -0800 (PST)
-From: Chuck Wolber <chuckw@quantumlinux.com>
-X-X-Sender: chuckw@localhost.localdomain
-To: Greg KH <gregkh@suse.de>
-cc: "Randy.Dunlap" <rdunlap@xenotime.net>, jmforbes@linuxtx.org,
-       linux-kernel@vger.kernel.org, stable@kernel.org, zwane@arm.linux.org.uk,
-       tytso@mit.edu, davej@redhat.com, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: [patch 0/6] 2.6.14.7 -stable review
-In-Reply-To: <20060129053458.GA9293@suse.de>
-Message-ID: <Pine.LNX.4.63.0601282221400.7205@localhost.localdomain>
-References: <20060128021749.GA10362@kroah.com> <Pine.LNX.4.63.0601282028210.7205@localhost.localdomain>
- <20060129044307.GA23553@linuxtx.org> <Pine.LNX.4.63.0601282048380.7205@localhost.localdomain>
- <20060128205701.5b84922e.rdunlap@xenotime.net> <20060129053458.GA9293@suse.de>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 29 Jan 2006 02:11:47 -0500
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:59756 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1750859AbWA2HLp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 02:11:45 -0500
+Date: Sun, 29 Jan 2006 07:12:42 +0000
+From: Stuart Brady <sdbrady@ntlworld.com>
+To: Grant Grundler <grundler@parisc-linux.org>,
+       Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Ian Molton <spyro@f2s.com>,
+       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>
+Subject: Re: [parisc-linux] Re: [PATCH 3/6] C-language equivalents of include/asm-*/bitops.h
+Message-ID: <20060129071242.GA24624@miranda.arrow>
+References: <20060125112625.GA18584@miraclelinux.com> <20060125113206.GD18584@miraclelinux.com> <20060125200250.GA26443@flint.arm.linux.org.uk> <20060126000618.GA5592@twiddle.net> <20060126085540.GA15377@flint.arm.linux.org.uk> <20060126161849.GA13632@colo.lackof.org> <20060126164020.GA27222@flint.arm.linux.org.uk> <20060126230443.GC13632@colo.lackof.org> <20060126230353.GC27222@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060126230353.GC27222@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Jan 2006, Greg KH wrote:
+On Thu, Jan 26, 2006 at 11:03:54PM +0000, Russell King wrote:
+> Me too - already solved this problem once.  However, I'd rather not
+> needlessly take a step backwards in the name of generic bitops.
 
-> No, it's not a 6 month window, I released this because people sent us 
-> patches that they said should go into the 2.6.14-stable tree.  And as 
-> people complained so much on lkml that we were dropping the old kernels 
-> too fast, I never thought that people would complain that we are 
-> maintaining older stuff that people seem interested in...
+Indeed.  However, I think we can actually improve bitops for some
+architectures.  Here's what I've found so far:
 
-Don't think of it as a complaint. I'm sorry if it came off that way. It's 
-anyone's job if they want to maintain any kernel release as long as they 
-see fit.
+Versions of Alpha, ARM, MIPS, PowerPC and SPARC have bit counting
+instructions which we're using in most cases.  I may have missed some:
 
-I guess it's how we want to define ourselves. Was I mistaken to think that 
-the -stable team maintains -stable for the current patch release only? 
+  Alpha may have:
+    ctlz, CounT Leading Zeros
+    cttz, CounT Trailing Zeros
 
+  ARM (since v5) has:
+    clz, Count Leading Zeros
 
-> And, as always, anyone is free to take on maintaining any of the 
-> different kernel versions for as long as they wish.
-> 
-> Does that help?
+  MIPS may have:
+    clz, Count Leading Zeros
+    clo, Count Leading Ones
 
-Well, that's the way it's always been. We have a late model 2.5 kernel 
-that we still maintain in a level C avionics device on Boeing jets. You'd 
-be amazed at how stable a 2.5 kernel can be made ;)
+  PowerPC has:
+    cntlz[wd], CouNT Leading Zeros (for Word/Double-word)
 
+  SPARC v9 has:
+    popc, POPulation Count
 
-> Man, people complain when you don't maintain older kernels, and they 
-> complain when you do...
+PA-RISC has none.  I've not checked any others.
 
-Nope, wasn't complaining. It was an attempt at a dialog to more clearly 
-define our purpose (or perhaps my personal understanding of it) *AND* let 
-other developers know what to expect of us. We can choose to take on as 
-much or as little as we want. I personally am good with whatever everyone 
-else is comfortable taking on. We should manage outside expectations 
-though so you don't have to answer "why do you drop old kernels" questions 
-on your own. 
+The Alpha, ARM and PowerPC functions look fine to me.
 
-Things have changed a lot with the 2.6 release series and -stable seems to 
-me to be one of those growing pains that still isn't fully resolved. It's 
-a blending between the traditional stable release maintainers and the more 
-nimble release schedule these days. Can the -stable team fill the void, or 
-do we limit our scope to certain patch releases?
+On MIPS, fls() and flz() should probably use CLO.  Curiously, MIPS is
+the only arch with a flz() function.
 
-..Chuck..
+On SPARC, the implementation of ffz() appears to be "cheese", and the
+proposed generic versions would be better.  ffs() looks quite generic,
+and fls() uses the linux/bitops.h implementation.
 
+There are versions of hweight*() for sparc64 which use POPC when
+ULTRA_HAS_POPULATION_COUNT is defined, but AFAICS, it's never defined.
 
+The SPARC v9 arch manual recommends using popc(x ^ ~-x) for functions
+like ffs().  ffz() would return ffs(~x).
+
+I've had an idea for fls():
+
+static inline int fls(unsigned long x)
+{
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	return popc(x);
+}
+
+I'm not sure how that compares to the generic fls(), but I suspect it's
+quite a bit faster.  Unfortunately, I don't have any MIPS or SPARC v9
+hardware to test this on.
+
+I'm not sure if this is of any use:
+
+static inline int __ffs(unsigned long x)
+{
+	return (int)hweight_long(x ^ ~-x) - 1;
+}
+
+The idea being that the generic hweight_long has no branches.
 -- 
-http://www.quantumlinux.com
- Quantum Linux Laboratories, LLC.
- ACCELERATING Business with Open Technology
-
- "The measure of the restoration lies in the extent to which we apply
-  social values more noble than mere monetary profit." - FDR
+Stuart Brady

@@ -1,87 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWA2XoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWA2X6z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWA2XoE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 18:44:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWA2XoE
+	id S932095AbWA2X6z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 18:58:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWA2X6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 18:44:04 -0500
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:39908 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S932090AbWA2XoD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 18:44:03 -0500
-Message-ID: <43DD5339.3000009@ens-lyon.org>
-Date: Sun, 29 Jan 2006 18:43:53 -0500
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
+	Sun, 29 Jan 2006 18:58:55 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:39941 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932095AbWA2X6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 18:58:54 -0500
+Date: Mon, 30 Jan 2006 00:58:53 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: akpm@osdl.org, ebiederm@xmission.com, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.16-rc1-mm4
-References: <20060129144533.128af741.akpm@osdl.org>
-In-Reply-To: <20060129144533.128af741.akpm@osdl.org>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/mixed;
- boundary="------------060304060101070009000308"
+Message-ID: <20060129235853.GD3777@stusta.de>
+References: <20060129144533.128af741.akpm@osdl.org> <20060129233403.GA3777@stusta.de> <20060129154002.360c7294.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060129154002.360c7294.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060304060101070009000308
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-Andrew Morton wrote:
-
->ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm4/
->
->- New git tree `git-davej-x86.patch': misc x86 things, maintained by David
->  Jones.
->
->- Lots of USB updates.  Please be sure to Cc:
->  linux-usb-devel@lists.sourceforge.net if something broke.
->
->- Various other random bits and pieces.  Things have been pretty quiet
->  lately - most activity seems to be concentrated about putting bugs into the
->  various subsystem trees.
->
->- If you have a patch in -mm which you think should go into 2.6.16, it
->  doesn't hurt to remind me.  There's quite a lot here which will go into
->  2.6.16.
->  
->
-Hi Andrew,
-
-I get a lot of warnings like this one:
-sound/core/seq/oss/seq_oss_ioctl.c:122: warning: ISO C90 forbids mixed
-declarations and code
-
-They appear to be caused by put_user. The following patch should fix that.
-
-Signed-off-by: Brice Goglin <Brice.Goglin@ens-lyon.org>
-
-Brice
+On Sun, Jan 29, 2006 at 03:40:02PM -0800, Randy.Dunlap wrote:
+> On Mon, 30 Jan 2006 00:34:03 +0100 Adrian Bunk wrote:
+> 
+> > On Sun, Jan 29, 2006 at 02:45:33PM -0800, Andrew Morton wrote:
+> > >...
+> > > Changes since 2.6.16-rc1-mm3:
+> > >...
+> > > +i386-add-a-temporary-to-make-put_user-more-type-safe.patch
+> > > 
+> > >  x86 fixes/features
+> > >...
+> > 
+> > This patch generates so many "ISO C90 forbids mixed declarations and code"
+> > warnings that I start to consider Andrew's rejection of my "mark 
+> > virt_to_bus/bus_to_virt as __deprecated on i386" patch due to the 
+> > warnings it generates a personal insult...
+> 
+> I prefer to think of it as reasons why neither of them
+> should be merged.
 
 
+Some remarks:
 
---------------060304060101070009000308
-Content-Type: text/x-patch;
- name="fix_put_user_declarations.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fix_put_user_declarations.patch"
 
---- linux-mm/include/asm-i386/uaccess.h.old	2006-01-29 18:37:02.000000000 -0500
-+++ linux-mm/include/asm-i386/uaccess.h	2006-01-29 18:37:35.000000000 -0500
-@@ -197,8 +197,8 @@ extern void __put_user_8(void);
- 
- #define put_user(x,ptr)						\
- ({	int __ret_pu;						\
--	__chk_user_ptr(ptr);					\
- 	__typeof__(*(ptr)) __pu_val = x;			\
-+	__chk_user_ptr(ptr);					\
- 	switch(sizeof(*(ptr))) {				\
- 	case 1: __put_user_1(__pu_val, ptr); break;		\
- 	case 2: __put_user_2(__pu_val, ptr); break;		\
+I forgot the smiley.
 
---------------060304060101070009000308--
+
+If we want to get rid of a long deprecated API (as in the 
+virt_to_bus/bus_to_virt case), adding warnings could help making 
+maintainers aware of the fact that the API is deprecated.
+
+In such cases the warnings are supposed to be present only temporarily 
+until the code using the deprecated API got fixed.
+
+It might not be visible for people only using allyesconfig/allmodconfig, 
+but BROKEN_ON_SMP drivers often spit screenfuls of warnings. That's OK, 
+and most of them have been fixed during the last years.
+
+And otherwise, we could simply remove __deprecated from the kernel.
+
+Andrew rejected my patch to add -Werror-implicit-function-declaration to 
+the CFLAGS which helps us to avoid a certain class of nasty runtime 
+errors because it turned virt_to_bus/bus_to_virt link errors on powerpc 
+into compile errors (sic).
+
+
+> ~Randy
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

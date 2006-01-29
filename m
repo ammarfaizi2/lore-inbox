@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbWA2NSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbWA2Ng0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750973AbWA2NSg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 08:18:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750975AbWA2NSg
+	id S1750980AbWA2Ng0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 08:36:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWA2Ng0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 08:18:36 -0500
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:36513 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S1750972AbWA2NSf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 08:18:35 -0500
-Date: Sun, 29 Jan 2006 14:18:15 +0100
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Christoph Hellwig <hch@infradead.org>, keyrings@linux-nfs.org,
+	Sun, 29 Jan 2006 08:36:26 -0500
+Received: from mail-in-04.arcor-online.net ([151.189.21.44]:18347 "EHLO
+	mail-in-04.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750978AbWA2Ng0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 08:36:26 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [PATCH] exec: Only allow a threaded init to exec from the  thread_group_leader
+To: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths library
-Message-ID: <20060129131815.GB21386@hardeman.nu>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Christoph Hellwig <hch@infradead.org>, keyrings@linux-nfs.org,
-	linux-kernel@vger.kernel.org
-References: <1138312695665@2gen.com> <6403.1138392470@warthog.cambridge.redhat.com> <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de> <20060128104611.GA4348@hardeman.nu> <1138466271.8770.77.camel@lade.trondhjem.org> <20060128165732.GA8633@hardeman.nu> <1138504829.8770.125.camel@lade.trondhjem.org> <20060129113320.GA21386@hardeman.nu> <20060129122901.GX3777@stusta.de>
+Reply-To: 7eggert@gmx.de
+Date: Sun, 29 Jan 2006 14:36:13 +0100
+References: <5AeeD-7xb-7@gated-at.bofh.it> <5Aggm-1V6-3@gated-at.bofh.it> <5AhYT-4uR-7@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20060129122901.GX3777@stusta.de>
-User-Agent: Mutt/1.5.11
-X-SA-Score: -2.1
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1F3Ciz-0000tq-Ro@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 29, 2006 at 01:29:01PM +0100, Adrian Bunk wrote:
->You are taking the wrong approach.
->
->The _only_ question that matters is:
->Why is it technically impossible to do the same in userspace?
->
->If it's technically possible to do the same in userspace, it must not be 
->done in the kernel.
+Eric W. Biederman <ebiederm@xmission.com> wrote:
 
-It may not be impossible, but adding support for dsa key types to the 
-in-kernel key management is something like 150 lines of code once the 
-dsa crypto-ops are implemented. I think you get a lot of convenience 
-for those 150 lines (and yes, I do believe that convenience is also a 
-valid argument for adding functionality). Having to protect against all 
-attack vectors is much harder in user-space than in kernel-space.
+> If process id namespaces become a reality init stops being
+> terribly special, and becomes something you may have several
+> of running at any one time.  If one of those inits is compromised
+> by a hostile user I having the whole system go down so we can
+> avoid executing a cheap test sounds terribly wrong.  That is
+> why I really care.
 
-As for the addition of the dsa crypto-ops, you still haven't answered 
-the question of how signed modules and/or binaries can be implemented
-in userspace...
-
->That's exactly the reason why e.g. kernel 2.6 does not contain a 
->webserver.
-
-Apples and oranges
-
-Re,
-David
+There are virtual environments like linux-vserver(.org), where init is
+running several times on one system, each with their local/virtual
+pid being 1. Killing them does no harm unless it's the real init.
+I asume in your system,  the real init will exist under the control
+of the administrator, too, so there should be no danger.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

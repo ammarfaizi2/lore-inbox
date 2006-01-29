@@ -1,39 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWA2BpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbWA2Byz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWA2BpE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 20:45:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWA2BpD
+	id S1750802AbWA2Byz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 20:54:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWA2Byz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 20:45:03 -0500
-Received: from cabal.ca ([134.117.69.58]:55247 "EHLO fattire.cabal.ca")
-	by vger.kernel.org with ESMTP id S1750805AbWA2BpB (ORCPT
+	Sat, 28 Jan 2006 20:54:55 -0500
+Received: from xenotime.net ([66.160.160.81]:50611 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750802AbWA2Byy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 20:45:01 -0500
-Date: Sat, 28 Jan 2006 20:45:14 -0500
-From: Kyle McMartin <kyle@parisc-linux.org>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Andrew Morton <akpm@osdl.org>, dada1@cosmosbay.com, kiran@scalex86.org,
-       davem@davemloft.net, linux-kernel@vger.kernel.org, shai@scalex86.org,
-       netdev@vger.kernel.org, pravins@calsoftinc.com
-Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
-Message-ID: <20060129014514.GA32305@tachyon.int.mcmartin.ca>
-References: <43D9DFA1.9070802@cosmosbay.com> <20060127195227.GA3565@localhost.localdomain> <20060127121602.18bc3f25.akpm@osdl.org> <20060127224433.GB3565@localhost.localdomain> <43DAA586.5050609@cosmosbay.com> <20060127151635.3a149fe2.akpm@osdl.org> <43DABAA4.8040208@cosmosbay.com> <20060129004459.GA24099@kvack.org> <20060128165549.262f2b90.akpm@osdl.org> <20060129011944.GB24099@kvack.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060129011944.GB24099@kvack.org>
-User-Agent: Mutt/1.5.11
+	Sat, 28 Jan 2006 20:54:54 -0500
+Date: Sat, 28 Jan 2006 17:55:11 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1 kernel init oops
+Message-Id: <20060128175511.35e39233.rdunlap@xenotime.net>
+In-Reply-To: <20060128171841.6f989958.rdunlap@xenotime.net>
+References: <20060128171841.6f989958.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 28, 2006 at 08:19:44PM -0500, Benjamin LaHaise wrote:
-> The overuse of atomics is horrific in what is being proposed.  All the
-> major architectures except powerpc (i386, x86-64, ia64, and sparc64) 
-> implement local_t.  It would make far more sense to push the last few 
-> stragglers (which mostly seem to be uniprocessor) into writing the 
-> appropriate implementations.  Perhaps it's time to add a #error in 
-> asm-generic/local.h?
->
+On Sat, 28 Jan 2006 17:18:41 -0800 Randy.Dunlap wrote:
 
-Surely asm-generic/local.h could now be reimplemented using atomic_long_t
-to kill that aberration that is the BITS_PER_LONG != 32 case currently...? 
+> Hi,
+> 
+> I'm trying to boot 2.6.16-rc1 on a T42 Thinkpad notebook.
+> No serial port for serial console.  I don't think that networking
+> is alive yet (for network console ?).
+> 
+> Anyone recognize this?  got patch?
+> 
+> This is just typed in, so could contain a few errors.
+> 
+> Unable to handle kernel NULL pointer dereference at virtual address 00000001
+> printing eip:
+> 00000001
+> *pde = 00000000
+> Oops: 0000 [#1]
+> SMP DEBUG_PAGEALLOC
+> Modules linked in:
+> CPU:	0
+> EIP:	0060:[<00000001>]   Not tainted VLI
+> EFLAGS: 00010202   (2.6.16-rc1)
+> EIP is at 0x1
+> <skip reg. dump>
+> <skip stack dump>
+> Call trace:
+> 	show_stack_log_lvl+0xa5/0xad
+> 	show_registers+0xf9/0x162
+> 	die+0xfe/0x179
+> 	do_page_fault+0x399/0x4d8
+> 	error_code+0x4f/0x54
+> 	device_register+0x13/0x18
+> 	platform_bus_init+0xd/0x19
+> 	driver_init+0x1c/0x2d
+> 	do_basic_setup+0x12/0x1e
+> 	init+0x95/0x195
+> 	kernel_thread_helper+0x5/0xb
+> Code:  Bad EIP value.
+
+Both 2.6.15 and 2.6.15.1 boot OK for me.
+.config for 2.6.16-rc1 is at
+  http://www.xenotime.net/linux/doc/config-2616rc1
+
+---
+~Randy

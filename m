@@ -1,75 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWA2UGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWA2UJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751146AbWA2UGF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 15:06:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbWA2UGF
+	id S1751148AbWA2UJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 15:09:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWA2UJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 15:06:05 -0500
-Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:31473 "EHLO
-	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S1751146AbWA2UGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 15:06:04 -0500
-Message-ID: <43DD2010.7010700@austin.rr.com>
-Date: Sun, 29 Jan 2006 14:05:36 -0600
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>, keyrings@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths
- library
-References: <1138312694656@2gen.com> <1138312695665@2gen.com> <6403.1138392470@warthog.cambridge.redhat.com> <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de> <20060128104611.GA4348@hardeman.nu> <1138466271.8770.77.camel@lade.trondhjem.org> <20060128165732.GA8633@hardeman.nu> <1138504829.8770.125.camel@lade.trondhjem.org> <20060129113320.GA21386@hardeman.nu> <20060129122901.GX3777@stusta.de> <1138540148.3002.9.camel@laptopd505.fenrus.org>
-In-Reply-To: <1138540148.3002.9.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Jan 2006 15:09:28 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:49026 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751148AbWA2UJ2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 15:09:28 -0500
+Date: Sun, 29 Jan 2006 15:05:04 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386: instead of poisoning .init zone, change protection bits to force a fault
+Message-ID: <20060129200504.GD28400@kvack.org>
+References: <m1r76rft2t.fsf@ebiederm.dsl.xmission.com> <m17j8jfs03.fsf@ebiederm.dsl.xmission.com> <20060128235113.697e3a2c.akpm@osdl.org> <200601291620.28291.ioe-lkml@rameria.de> <20060129113312.73f31485.akpm@osdl.org> <43DD1FDC.4080302@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43DD1FDC.4080302@cosmosbay.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Sun, Jan 29, 2006 at 09:04:44PM +0100, Eric Dumazet wrote:
+> Chasing some invalid accesses to .init zone, I found that free_init_pages() 
+> was properly freeing the pages but virtual was still usable.
 
->>You are taking the wrong approach.
->>
->>The _only_ question that matters is:
->>Why is it technically impossible to do the same in userspace?
->>
->>If it's technically possible to do the same in userspace, it must not be 
->>done in the kernel.
->>    
->>
->
->
->that is not a reasonable statement because...
->1) you can do all of tcp/ip in userspace just fine
->2) you can do the NFS server in userspace
->3) ...
->4) ...
->
->there are reasons why things that can be done in userspace sometimes
->still make sense to do in kernel space, performance could be one of
->those reasons, being unreasonably complex in userspace is another.
->
->Identity management to some degree belongs in the kernel, simply because
->identity *enforcing* is in the kernel. Some things related to security
->need to be in the kernel at least partially just to avoid a LOT of hairy
->issues and never ending series of security holes due to the exceptional
->complexity you get.
->
->
->  
->
-Yes - nicely stated.  There are a few cases in which code would be 
-simpler in kernel, and there are even more cases where performance or 
-security considerations argue for a mostly kernel implementation of a 
-key piece of function.  Although I don't know if the case has been 
-reproven for web servers (userspace) or nfs server (kernel) recently,  
-this case may be easier to work through if we understood the likely use 
-scenarios better of this piece of code. I don't know the right answer 
-for the particular math library question, but I have not seen the 
-typical argument considered about whether a user space implementation of 
-this paticular function could deadlock - ie would this code (proposed to 
-move to userspace) ever be called in a path in which the:
-    1) kernel were out of memory and userspace is needed to resolve the 
-write out of dirty memory
-    2) hang due to code going up to userspace in path in which key 
-kernel semaphores must be held across the call.
+This change will break the large table entries up, resulting in more TLB 
+pressure and reducing performance, and so should only be activated as a 
+debug option.
+
+		-ben
+-- 
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

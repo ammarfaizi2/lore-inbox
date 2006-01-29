@@ -1,82 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWA2V37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWA2V25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWA2V37 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 16:29:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWA2V37
+	id S1751171AbWA2V25 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 16:28:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWA2V24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 16:29:59 -0500
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:38623 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S1750738AbWA2V36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 16:29:58 -0500
-Date: Sun, 29 Jan 2006 22:29:15 +0100
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Dax Kelson <dax@gurulabs.com>, Christoph Hellwig <hch@infradead.org>,
-       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths	library
-Message-ID: <20060129212915.GB20118@hardeman.nu>
-Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Dax Kelson <dax@gurulabs.com>,
-	Christoph Hellwig <hch@infradead.org>, keyrings@linux-nfs.org,
-	linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
-References: <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de> <20060128104611.GA4348@hardeman.nu> <1138466271.8770.77.camel@lade.trondhjem.org> <20060128165732.GA8633@hardeman.nu> <1138504829.8770.125.camel@lade.trondhjem.org> <20060129113320.GA21386@hardeman.nu> <1138552702.8711.12.camel@lade.trondhjem.org> <406-SnapperMsg827D11E1C002BEC0@[70.7.65.98]> <1138561846.8711.33.camel@lade.trondhjem.org>
+	Sun, 29 Jan 2006 16:28:56 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:27075 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751171AbWA2V24 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 16:28:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=S95VCHsbi8fjcdMXFA/Ohi/IbqU0pNgvYShYCVyROcaPrpobUMS8MS0iG3ZV74dKKi0SKPl2LB2Ov5kvXPtQPNa9WaFfX9bFXZz25z7EOwJ9ladSoORCgXa5GIHC8RibD8j4u9fRjEzUGw2Omhpw2WbzeQqwsjdxVRpsktvl6SE=
+Message-ID: <787b0d920601291328k52191977h3778a7c833d640f2@mail.gmail.com>
+Date: Sun, 29 Jan 2006 16:28:53 -0500
+From: Albert Cahalan <acahalan@gmail.com>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future Linux (stirring up a hornets' nest) ]
+Cc: matthias.andree@gmx.de, jengelh@linux01.gwdg.de, mrmacman_g4@mac.com,
+       linux-kernel@vger.kernel.org, bzolnier@gmail.com
+In-Reply-To: <43DD2A8A.nailGVQ115GOP@burner>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1138561846.8711.33.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.11
-X-SA-Score: -2.1
+References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com>
+	 <43DCA097.nailGPD11GI11@burner>
+	 <20060129112613.GA29356@merlin.emma.line.org>
+	 <Pine.LNX.4.61.0601292139080.2596@yvahk01.tjqt.qr>
+	 <43DD2A8A.nailGVQ115GOP@burner>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 29, 2006 at 02:10:46PM -0500, Trond Myklebust wrote:
->On Sun, 2006-01-29 at 11:49 -0700, Dax Kelson wrote:
->>>Has anyone tried to look for simpler signing mechanisms that make use of
->>>the crypto algorithms that are already in the kernel?
->> 
->> Maybe you meant something else, but history has shown that 'rolling your own' mechanism is a bad idea.
->> 
->> Are there even any suitable algorithms in the kernel??
+On 1/29/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+> Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
 >
->I'm suggesting that if the only real problem that dsa in the kernel
->solves is module signing, then perhaps one can simplify the problem.
+> > >That's what I believe to be cdrecord/libscg bugs:
+> > >
+> > >1) libscg or cdrecord does not automatically probe all available
+> > >   transports, but only SCSI:
+> >
+> > This one is IMO just "a missing feature", as I can get the ATA/PI list using
+> >   cdrecord -dev=ATA: -scanbus
 >
->For instance, if instead of going for a general signing mechanism in the
->kernel that will take any old module and verify it, you define a
->particular binary as being trusted, and then devise a signature that the
->kernel can check (even the SHA-1 of the binary image might be
->sufficient).
->The object would be to give the kernel a trusted program that can check
->module signatures on its behalf.
+> It cannot be fixed unless the two first bugs from my Linux kernel
+> bug report have been fixed.
 
-Today, if a security bug is found in the kernel, you have to compile and 
-install a new kernel.
+Which, from an earlier email, were:
 
-With your system, the signature of a "trusted" binary is embedded in the 
-kernel. Now, if a bug is found in said binary, you also get to compile 
-and install a new kernel along with a new binary.
+> ide-scsi does not do DMA if the DMAsize is not a
+> multiple of 512 A person who knows internal Linux
+> structures shoule be able to fix this (and allow
+> any multiple of 4) in less than one hour.
 
-Since the application is trusted, a security hole in the binary equals a 
-security hole in the kernel. In addition, you are bound to a given 
-kernel <-> userspace ABI, so if it has to be changed, you get to keep 
-several different trusted binaries around for different kernel versions 
-(/sbin/module-validate-v1 for ABI version 1, /sbin/module-validate-v2 
-for ABI version 2, etc).
+and
 
-Further, how is the module actually verified? If the trusted binary 
-reads it and checks "something" (i.e. a signature), and then says it's 
-ok, what is to say that the module is not changed on-disk between the 
-time when the binary reads it and when the kernel does so (for instance 
-by direct access to the disk). How do you expect the system to provide 
-security if you are running with nfs-root?
+> /dev/hd* artificially prevents the ioctls
+> SCSI_IOCTL_GET_IDLUN SCSI_IOCTL_GET_BUS_NUMBER from
+> returning useful values. As long as this bug is present,
+> there is no way to see SG_IO via /dev/hd* as integral
+> part of the Linux SCSI transport concept.
 
-In addition you must protect the user-space binary against a slew of 
-attacks (you did statically link it to protect against LD_PRELOAD, right?).
+Let's address the second bug first. Linux provides full
+bus number and LUN info for all block devices. You get it
+like this:
 
-What exactly is the advantage of user-space trusted binary signing?
+struct stat sbuf;
+stat("/dev/hdc", &sbuf);
+int bus = sbuf.st_mode>>12;
+int target = major(sbuf.st_rdev);
+int lun = minor(sbuf.st_rdev);
 
-Regards,
-David
+That makes as much sense as anything, and it lets you quickly
+find back the device by scanning /dev.
 
+As for ide-scsi, your right, it's horribly broken. We should
+just get rid of it. If there is anything that the normal driver
+is unable to do well, I'm sure you'll let us know.

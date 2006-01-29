@@ -1,87 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbWA2CTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWA2DU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750812AbWA2CTL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 21:19:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbWA2CTL
+	id S1750813AbWA2DU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 22:20:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbWA2DU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 21:19:11 -0500
-Received: from xproxy.gmail.com ([66.249.82.205]:21323 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750812AbWA2CTK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 21:19:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=IPRztcA5SDnqbMjj3if7woSxHu3qJTWxRUgEOoxy3iNZYM1BXiURuqemGOhKSd8lJy+npZmP2/ETWGZu892T1hx/dirfbEJNMPrOcTXHdcCUtHWiDduZjEmN4z7BvmXmGNA9D1XWEJVMZHcMzI8OuX6EYf3c06DV4omtE5IK3TY=
-Message-ID: <43DC25EB.1040005@gmail.com>
-Date: Sun, 29 Jan 2006 10:18:19 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-CC: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
-       linux-kernel@hansmi.ch
-Subject: [PATCH] fbdev: Fix usage of blank value passed to fb_blank
-References: <20060127231314.GA28324@hansmi.ch> <20060127.204645.96477793.davem@davemloft.net> <43DB0839.6010703@gmail.com> <200601282106.21664.ioe-lkml@rameria.de>
-In-Reply-To: <200601282106.21664.ioe-lkml@rameria.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 28 Jan 2006 22:20:57 -0500
+Received: from pat.uio.no ([129.240.130.16]:63921 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1750813AbWA2DU4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 22:20:56 -0500
+Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths
+	library
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: David =?ISO-8859-1?Q?H=E4rdeman?= <david@2gen.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Christoph Hellwig <hch@infradead.org>,
+       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060128165732.GA8633@hardeman.nu>
+References: <20060127092817.GB24362@infradead.org> <1138312694656@2gen.com>
+	 <1138312695665@2gen.com> <6403.1138392470@warthog.cambridge.redhat.com>
+	 <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de>
+	 <20060128104611.GA4348@hardeman.nu>
+	 <1138466271.8770.77.camel@lade.trondhjem.org>
+	 <20060128165732.GA8633@hardeman.nu>
+Content-Type: text/plain; charset=utf-8
+Date: Sat, 28 Jan 2006 22:20:29 -0500
+Message-Id: <1138504829.8770.125.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 8BIT
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.7, required 12,
+	autolearn=disabled, AWL 1.11, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The fb_blank() hook accepts 5 blanking levels which include 1 level designed
-for console use only.  Userspace is only aware of 4 levels. Thus, it's
-possible for userspace to request VESA_VSYNC_SUSPEND which, in turn, is
-interpreted by the fb driver as a request for FB_BLANK_NORMAL. A few drivers
-return -EINVAL for this, confusing userspace apps that the driver may not
-have VESA blanking support.
+On Sat, 2006-01-28 at 17:57 +0100, David Härdeman wrote:
 
-Fix by incrementing the blank value by one if the request originated from
-userspace.
+> What about the first paragraph of what I wrote? You are going to want to 
+> keep often-used keys around somehow, proxy certificates is not a 
+> solution for your own use of your personal keys and with the exception 
+> of hardware solutions such as smart cards, the keys will be safer in the 
+> kernel than in a user-space daemon...
 
-Signed-off-by: Antonino Daplas <adaplas@pol.net>
----
+I don't get this explanation at all.
 
-Ingo Oeser wrote:
-> > May I suggest to hide this implementation detail?
-> > 
+Why would you want to use proxy certificates for you own use? Use your
+own certificate for your own processes, and issue one or more proxy
+certificates to any daemon that you want to authorise to do some limited
+task.
 
-Yes.  The change will be invisible to drivers.
+...and what does this statement about "keys being safer in the kernel"
+mean?
 
-Unfortunately, this may cause some userland breakage.  X should work.
-However, some apps may have been developed that uses the FB_BLANK constants
-(DirectFB?).  In these cases, they'll get a deeper blank level instead, so it
-probably won't affect them significantly.  A follow up patch that hides the 
-FB_BLANK constants may be worthwhile.
+> Further, the mpi and dsa code can also be used for supporting signed 
+> modules and binaries...the "store dsa-keys in kernel" part adds 376 
+> lines of code (counted with wc so comments and includes etc are also 
+> counted)...
 
- drivers/video/fbmem.c |   13 +++++++++++++
- 1 files changed, 13 insertions(+), 0 deletions(-)
+Signed modules sounds like a better motivation, but is a full dsa
+implementation in the kernel really necessary to achieve this?
 
-diff --git a/drivers/video/fbmem.c b/drivers/video/fbmem.c
-index d2dede6..5bed0fb 100644
---- a/drivers/video/fbmem.c
-+++ b/drivers/video/fbmem.c
-@@ -843,6 +843,19 @@ fb_blank(struct fb_info *info, int blank
- {	
-  	int ret = -EINVAL;
- 
-+	/*
-+	 * The framebuffer core supports 5 blanking levels (FB_BLANK), whereas
-+	 * VESA defined only 4.  The extra level, FB_BLANK_NORMAL, is a
-+	 * console invention and is not related to power management.
-+	 * Unfortunately, fb_blank callers, especially X, pass VESA constants
-+	 * leading to undefined behavior.
-+	 *
-+	 * To avoid confusion, fb_blank will assume VESA constants if coming
-+	 * from userspace, and FB_BLANK constants if coming from the kernel.
-+	 */
-+	if (info->flags & FBINFO_MISC_USEREVENT && blank)
-+		blank++;
-+
-  	if (blank > FB_BLANK_POWERDOWN)
-  		blank = FB_BLANK_POWERDOWN;
- 
+Cheers,
+  Trond
 

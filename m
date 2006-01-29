@@ -1,107 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWA2XHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWA2XNu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751207AbWA2XHS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 18:07:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWA2XHS
+	id S932068AbWA2XNu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 18:13:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbWA2XNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 18:07:18 -0500
-Received: from xenotime.net ([66.160.160.81]:65195 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751207AbWA2XHQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 18:07:16 -0500
-Date: Sun, 29 Jan 2006 15:07:37 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1 kernel init oops
-Message-Id: <20060129150737.6f911430.rdunlap@xenotime.net>
-In-Reply-To: <20060129130812.011d8bf3.rdunlap@xenotime.net>
-References: <20060128171841.6f989958.rdunlap@xenotime.net>
-	<20060128175511.35e39233.rdunlap@xenotime.net>
-	<20060129190029.GB7168@kroah.com>
-	<20060129111934.53710b03.rdunlap@xenotime.net>
-	<20060129201923.GB6972@kroah.com>
-	<20060129130812.011d8bf3.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Jan 2006 18:13:50 -0500
+Received: from tassadar.physics.auth.gr ([155.207.123.25]:34249 "EHLO
+	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
+	id S932068AbWA2XNu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 18:13:50 -0500
+Date: Mon, 30 Jan 2006 01:13:48 +0200 (EET)
+From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
+To: linux-kernel@vger.kernel.org
+Subject: RAID autodetection not working when booting with initramfs
+Message-ID: <Pine.LNX.4.64.0601300103110.2016@tassadar.physics.auth.gr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Jan 2006 13:08:12 -0800 Randy.Dunlap wrote:
 
-> On Sun, 29 Jan 2006 12:19:23 -0800 Greg KH wrote:
-> 
-> > On Sun, Jan 29, 2006 at 11:19:34AM -0800, Randy.Dunlap wrote:
-> > > On Sun, 29 Jan 2006 11:00:29 -0800 Greg KH wrote:
-> > > 
-> > > > On Sat, Jan 28, 2006 at 05:55:11PM -0800, Randy.Dunlap wrote:
-> > > > > On Sat, 28 Jan 2006 17:18:41 -0800 Randy.Dunlap wrote:
-> > > > > 
-> > > > > > Hi,
-> > > > > > 
-> > > > > > I'm trying to boot 2.6.16-rc1 on a T42 Thinkpad notebook.
-> > > > > > No serial port for serial console.  I don't think that networking
-> > > > > > is alive yet (for network console ?).
-> > > > > > 
-> > > > > > Anyone recognize this?  got patch?
-> > > > > > 
-> > > > > > This is just typed in, so could contain a few errors.
-> > > > > > 
-> > > > > > Unable to handle kernel NULL pointer dereference at virtual address 00000001
-> > > > > > printing eip:
-> > > > > > 00000001
-> > > > > > *pde = 00000000
-> > > > > > Oops: 0000 [#1]
-> > > > > > SMP DEBUG_PAGEALLOC
-> > > > > > Modules linked in:
-> > > > > > CPU:	0
-> > > > > > EIP:	0060:[<00000001>]   Not tainted VLI
-> > > > > > EFLAGS: 00010202   (2.6.16-rc1)
-> > > > > > EIP is at 0x1
-> > > > > > <skip reg. dump>
-> > > > > > <skip stack dump>
-> > > > > > Call trace:
-> > > > > > 	show_stack_log_lvl+0xa5/0xad
-> > > > > > 	show_registers+0xf9/0x162
-> > > > > > 	die+0xfe/0x179
-> > > > > > 	do_page_fault+0x399/0x4d8
-> > > > > > 	error_code+0x4f/0x54
-> > > > > > 	device_register+0x13/0x18
-> > > > > > 	platform_bus_init+0xd/0x19
-> > > > > > 	driver_init+0x1c/0x2d
-> > > > > > 	do_basic_setup+0x12/0x1e
-> > > > > > 	init+0x95/0x195
-> > > > > > 	kernel_thread_helper+0x5/0xb
-> > > > > > Code:  Bad EIP value.
-> > > > > 
-> > > > > Both 2.6.15 and 2.6.15.1 boot OK for me.
-> > > > > .config for 2.6.16-rc1 is at
-> > > > >   http://www.xenotime.net/linux/doc/config-2616rc1
-> > > > 
-> > > > If you disable CONFIG_PNP and CONFIG_ISAPNP options does that help?
-> > > 
-> > > Nope, no change.  Any other suggestions?
-> > > 
-> > > I just booted with a KOBJECT_DEBUG
-> > > built kernel and it's failing after:
-> > > 
-> > > kobject platform: registering, parent: <NULL>, set: devices
-> > 
-> > Can you enable CONFIG_DEBUG_DRIVER and see if that helps?
-> 
-> Yes.  Transcribing that:
-> 
-> kobject platform: registering, parent: <NULL>, set: devices
-> DEV: registering device: ID = 'platform'
-> kobject_uevent
-> PM: Adding info for No Bus:platform
-> <Oops happens>
+ 	Hi ,
 
-odd.  in device_add(), <platform_notify> (a function ptr)
-has a value of 1.  garbahze.
+ 	I am building a diskless system with 2.6.15.1 kernel. Eveyrthing is built 
+in the kernel ( no modules). It is booting with the help of pxelinux and 
+then proceeds to nfsmount its root filesystem etc.The system has a raid1 
+array on two scsi disks.
+ 	Recently I added an initramfs image to the boot procedure (append 
+initrd=initramfs.img) for some tests. Since then the raid array is not 
+autodetected (with identical kernel). If I remove the initramfs line and 
+reboot , the array is autodetected. When I am using initramfs I can 
+manually activate it using mdadm.
 
----
-~Randy
+ 	Is this by design or something is wrong ?
+
+ 	TIA,
+
+--
+============================================================================
+
+Dimitris Zilaskos
+
+Department of Physics @ Aristotle University of Thessaloniki , Greece
+PGP key : http://tassadar.physics.auth.gr/~dzila/pgp_public_key.asc
+ 	  http://egnatia.ee.auth.gr/~dzila/pgp_public_key.asc
+MD5sum  : de2bd8f73d545f0e4caf3096894ad83f  pgp_public_key.asc
+============================================================================

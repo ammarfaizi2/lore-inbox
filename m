@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbWA2Q5D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWA2RLM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbWA2Q5D (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 11:57:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbWA2Q5C
+	id S1751082AbWA2RLM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 12:11:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWA2RLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 11:57:02 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7646 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751081AbWA2Q5A (ORCPT
+	Sun, 29 Jan 2006 12:11:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:46241 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751082AbWA2RLK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 11:57:00 -0500
-Date: Sun, 29 Jan 2006 17:56:47 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, ak@suse.de,
-       linux-kernel@vger.kernel.org, rohit.seth@intel.com,
-       asit.k.mallick@intel.com
-Subject: Re: [Patch] sched: new sched domain for representing multi-core
-Message-ID: <20060129165645.GF1764@elf.ucw.cz>
-References: <20060126015132.A8521@unix-os.sc.intel.com>
+	Sun, 29 Jan 2006 12:11:10 -0500
+Date: Sun, 29 Jan 2006 09:10:47 -0800
+From: Greg KH <gregkh@suse.de>
+To: Chuck Wolber <chuckw@quantumlinux.com>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk, trivial@rustcorp.com.au
+Subject: Re: [PATCH] Documentation/stable_kernel_rules.txt: Clarification
+Message-ID: <20060129171047.GA10467@suse.de>
+References: <Pine.LNX.4.63.0601290032110.7252@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060126015132.A8521@unix-os.sc.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.63.0601290032110.7252@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Čt 26-01-06 01:51:33, Siddha, Suresh B wrote:
-> Appended patch adds a new sched domain for representing multi-core with
-> shared caches between cores. Consider a dual package system, each package
-> containing two cores and with last level cache shared between cores with in a
-> package. If there are two runnable processes, with this appended patch
-> those two processes will be scheduled on different packages.
+On Sun, Jan 29, 2006 at 01:50:16AM -0800, Chuck Wolber wrote:
 > 
-> On such system, with this patch we have observed 8% perf improvement with 
-> specJBB(2 warehouse) benchmark and 35% improvement with CFP2000 rate(with
-> 2 users).
+> This reflects the clarification made on what patches the -stable team 
+> accepts. This applies cleanly to the 2.6.16-rc1 kernel.
 > 
-> This new domain will come into play only on multi-core systems with shared
-> caches. On other systems, this sched domain will be removed by
-> domain degeneration code. This new domain can be also used for implementing
-> power savings policy (see OLS 2005 CMP kernel scheduler paper for more
-> details.. I will post another patch for power savings policy soon)
+> Signed-off-by: Chuck Wolber <chuckw@quantumlinux.com>
+> ---
+> 
+> --- a/Documentation/stable_kernel_rules.txt     2006-01-16 23:44:47.000000000 -0800
+> +++ b/Documentation/stable_kernel_rules.txt     2006-01-29 01:45:44.000000000 -0800
+> @@ -18,6 +18,7 @@
+>     whitespace cleanups, etc).
+>   - It must be accepted by the relevant subsystem maintainer.
+>   - It must follow the Documentation/SubmittingPatches rules.
+> + - Patches for any 2.6 stable kernel release will be considered.
 
-Could we all do it with single CONFIG_SCHED_SMT or CONFIG_NUMA or
-something like that? No need for zillion options...
-								Pavel
+No, this isn't true.
+
+People complained that we immediatly abandonded the last stable kernel
+when a new one came out, so we said we would take patches for a bit on
+the last series if people wanted to send them.
+
+That's all, it's not some confusing thing, and we are very much not
+going to accept patches for "any" kernel release.
+
+So no, I'm not going to accept this.
+
+thanks,
+
+greg k-h
+
+> 
+> 
+>  Procedure for submitting patches to the -stable tree:
 
 -- 
-Thanks, Sharp!

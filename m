@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWA2XSy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWA2XTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbWA2XSy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 18:18:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbWA2XSy
+	id S932072AbWA2XTf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 18:19:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWA2XTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 18:18:54 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18437 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932070AbWA2XSy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 18:18:54 -0500
-Date: Mon, 30 Jan 2006 00:18:53 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Christoph Hellwig <hch@infradead.org>, keyrings@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths library
-Message-ID: <20060129231853.GZ3777@stusta.de>
-References: <6403.1138392470@warthog.cambridge.redhat.com> <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de> <20060128104611.GA4348@hardeman.nu> <1138466271.8770.77.camel@lade.trondhjem.org> <20060128165732.GA8633@hardeman.nu> <1138504829.8770.125.camel@lade.trondhjem.org> <20060129113320.GA21386@hardeman.nu> <20060129122901.GX3777@stusta.de> <1138540148.3002.9.camel@laptopd505.fenrus.org>
+	Sun, 29 Jan 2006 18:19:35 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:51357 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932072AbWA2XTe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 18:19:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ShOU5CT770hSfIcqkdMuiSWprTeHl1imlMKeAjfhTPCjkXiAY2EIQtA5ZdgMgLhLXroBj9qjBwZQLON3tWlRgpjipiEK298c43mYoKWsfAe5JJjAp0w+1BCeGdzGqmdQUY5n9LmA97+mt2FLldfqlqE6FvVRDnjTO8xmpGN7yzg=
+Message-ID: <9a8748490601291519k623a518apee03c95da8d21b96@mail.gmail.com>
+Date: Mon, 30 Jan 2006 00:19:33 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.16-rc1-mm4
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060129144533.128af741.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1138540148.3002.9.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
+References: <20060129144533.128af741.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 29, 2006 at 02:09:08PM +0100, Arjan van de Ven wrote:
-> 
-> > 
-> > You are taking the wrong approach.
-> > 
-> > The _only_ question that matters is:
-> > Why is it technically impossible to do the same in userspace?
-> > 
-> > If it's technically possible to do the same in userspace, it must not be 
-> > done in the kernel.
-> 
-> 
-> that is not a reasonable statement because...
-> 1) you can do all of tcp/ip in userspace just fine
-> 2) you can do the NFS server in userspace
-> 3) ...
-> 4) ...
-> 
-> there are reasons why things that can be done in userspace sometimes
-> still make sense to do in kernel space, performance could be one of
-> those reasons, being unreasonably complex in userspace is another.
+On 1/29/06, Andrew Morton <akpm@osdl.org> wrote:
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm4/
+>
+[...]
+>
+> - If you have a patch in -mm which you think should go into 2.6.16, it
+>   doesn't hurt to remind me.  There's quite a lot here which will go into
+>   2.6.16.
+>
+Well, the following 4 patches have been in -mm for a while, are fairly
+trivial and I've not heard any complains about them, so I guess they
+might as well move on and get into 2.6.16 :
 
-Agreed, my sentence was too general.
+   decrease-number-of-pointer-derefs-in-jsm_ttyc.patch
+   docs-update-missing-files-and-descriptions-for-filesystems-00-index.patch
+   reduce-nr-of-ptr-derefs-in-fs-jffs2-summaryc.patch
+   sound-remove-unneeded-kmalloc-return-value-casts.patch
 
-> Identity management to some degree belongs in the kernel, simply because
-> identity *enforcing* is in the kernel. Some things related to security
-> need to be in the kernel at least partially just to avoid a LOT of hairy
-> issues and never ending series of security holes due to the exceptional
-> complexity you get.
 
-OK, this sounds reasonable in the cases where the enforcing is actually 
-in the kernel (but not in the backup daemon example from this thread).
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

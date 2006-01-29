@@ -1,73 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWA2SOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWA2SWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751102AbWA2SOz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 13:14:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWA2SOz
+	id S1751109AbWA2SWm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 13:22:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWA2SWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 13:14:55 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19620 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751102AbWA2SOy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 13:14:54 -0500
-Subject: [PATCH] ibm-acpi brightness fix
-From: David Zeuthen <david@fubar.dk>
-To: borislav@users.sourceforge.net, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Sun, 29 Jan 2006 13:14:31 -0500
-Message-Id: <1138558472.9858.23.camel@daxter.boston.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 (2.5.4-10) 
+	Sun, 29 Jan 2006 13:22:42 -0500
+Received: from cicero2.cybercity.dk ([212.242.40.53]:57595 "EHLO
+	cicero2.cybercity.dk") by vger.kernel.org with ESMTP
+	id S1751106AbWA2SWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 13:22:41 -0500
+Message-ID: <43DD0850.8090705@vip.cybercity.dk>
+Date: Sun, 29 Jan 2006 19:24:16 +0100
+From: Mogens Valentin <mogensv@vip.cybercity.dk>
+Reply-To: mogensv@vip.cybercity.dk
+Organization: Mr Dev
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Prakash Punnoor <prakash@punnoor.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ahci: get JMicron JMB360 working
+References: <20060129050434.GA19047@havoc.gtf.org> <200601291016.30459.prakash@punnoor.de>
+In-Reply-To: <200601291016.30459.prakash@punnoor.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Prakash Punnoor wrote:
+> Am Sonntag Januar 29 2006 06:04 schrieb Jeff Garzik:
+> 
+> 
+>>This patch, against latest 2.6.16-rc-git, adds support for JMicron and
+>>fixes some code that should be Intel-only, but was being executed for
+>>all vendors.
+> 
+> 
+> Thx, works nicely here with JMicron jMB360 on an Asrock board.
 
-Hi,
+Interesting. On 111105, I wrote to Asrock about Linux libata support for 
+JM360, and mentioned Jeff Garzik as the developer/maintainer, along with 
+his requirements for implementing JM360 libata support, but never got a 
+reply from Asrock. I didn't get back to Garzik either; my apologies...
 
-The ibm-acpi driver allows user space to set the brightness of the
-display but the way it currently works is by fading from one of the
-eight levels to the other. While this effect is visually pleasing it's
-probably best taken care of by user space itself (and users of
-gnome-power-manager will notice that this is exactly what it does).
+Due to other work, I didn't go on with that mobo, and partly because I 
+saw no other products using JM360.
+Nvidia hving bought ULi, I wonder what'll happen to ILi and Asrock.
+I know that (fabless) Jmicron does chipset design and integration.
 
-This patch removes the fading. Patch is against ibm-acpi 0.11 but it
-also applies to the drivers/acpi/ibm_acpi.c file in Linus' tree. I've
-tested this on a IBM Thinkpad T41. Please apply.
+939Dual-SATA2 is interesting as an upgrade board due to performance, 
+price, working PCIe/AGP and provisions for socket M2 via an adapter.
+Whether this will actually work is of cause to be seen...
+Now having libata SATA support gets it back into my thoughts.
 
-(Please keep me in the Cc - I'm not subscribed to the LKML)
+@Prakash: Did you test with a SATA-2 disk?
 
-    David
-
-Signed-Off-By: David Zeuthen <david@fubar.dk>
-
---- ibm-acpi-0.11.orig/ibm_acpi.c	2005-03-17 05:06:16.000000000 -0500
-+++ ibm-acpi-0.11/ibm_acpi.c	2006-01-29 12:55:53.000000000 -0500
-@@ -1351,7 +1351,7 @@ static int brightness_read(char *p)
- 
- static int brightness_write(char *buf)
- {
--	int cmos_cmd, inc, i;
-+	int cmos_cmd;
- 	u8 level;
- 	int new_level;
- 	char *cmd;
-@@ -1372,13 +1372,11 @@ static int brightness_write(char *buf)
- 			return -EINVAL;
- 
- 		cmos_cmd = new_level > level ? BRIGHTNESS_UP : BRIGHTNESS_DOWN;
--		inc = new_level > level ? 1 : -1;
--		for (i = level; i != new_level; i += inc) {
--			if (!cmos_eval(cmos_cmd))
--				return -EIO;
--			if (!acpi_ec_write(brightness_offset, i + inc))
--				return -EIO;
--		}
-+
-+		if (!cmos_eval(cmos_cmd))
-+			return -EIO;
-+		if (!acpi_ec_write(brightness_offset, new_level))
-+			return -EIO;
- 	}
- 
- 	return 0;
+-- 
+Kind regards,
+Mogens Valentin
 

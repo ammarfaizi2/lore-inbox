@@ -1,72 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbWA2Byz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWA2B7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750802AbWA2Byz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 20:54:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWA2Byz
+	id S1750808AbWA2B7b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 20:59:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWA2B7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 20:54:55 -0500
-Received: from xenotime.net ([66.160.160.81]:50611 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750802AbWA2Byy (ORCPT
+	Sat, 28 Jan 2006 20:59:31 -0500
+Received: from pat.uio.no ([129.240.130.16]:63702 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1750808AbWA2B7a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 20:54:54 -0500
-Date: Sat, 28 Jan 2006 17:55:11 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1 kernel init oops
-Message-Id: <20060128175511.35e39233.rdunlap@xenotime.net>
-In-Reply-To: <20060128171841.6f989958.rdunlap@xenotime.net>
-References: <20060128171841.6f989958.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+	Sat, 28 Jan 2006 20:59:30 -0500
+Subject: Re: 2.6.15.1: persistent nasty hang in sync_page killing NFS
+	(ne2k-pci / DP83815-related?), i686/PIII
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Nix <nix@esperi.org.uk>
+Cc: linux-kernel@vger.kernel.org, thockin@hockin.org
+In-Reply-To: <87fyn8artm.fsf@amaterasu.srvr.nix>
+References: <87fyn8artm.fsf@amaterasu.srvr.nix>
+Content-Type: text/plain
+Date: Sat, 28 Jan 2006 20:59:17 -0500
+Message-Id: <1138499957.8770.91.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.148, required 12,
+	autolearn=disabled, AWL 1.67, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Jan 2006 17:18:41 -0800 Randy.Dunlap wrote:
+On Sat, 2006-01-28 at 22:52 +0000, Nix wrote:
 
-> Hi,
-> 
-> I'm trying to boot 2.6.16-rc1 on a T42 Thinkpad notebook.
-> No serial port for serial console.  I don't think that networking
-> is alive yet (for network console ?).
-> 
-> Anyone recognize this?  got patch?
-> 
-> This is just typed in, so could contain a few errors.
-> 
-> Unable to handle kernel NULL pointer dereference at virtual address 00000001
-> printing eip:
-> 00000001
-> *pde = 00000000
-> Oops: 0000 [#1]
-> SMP DEBUG_PAGEALLOC
-> Modules linked in:
-> CPU:	0
-> EIP:	0060:[<00000001>]   Not tainted VLI
-> EFLAGS: 00010202   (2.6.16-rc1)
-> EIP is at 0x1
-> <skip reg. dump>
-> <skip stack dump>
-> Call trace:
-> 	show_stack_log_lvl+0xa5/0xad
-> 	show_registers+0xf9/0x162
-> 	die+0xfe/0x179
-> 	do_page_fault+0x399/0x4d8
-> 	error_code+0x4f/0x54
-> 	device_register+0x13/0x18
-> 	platform_bus_init+0xd/0x19
-> 	driver_init+0x1c/0x2d
-> 	do_basic_setup+0x12/0x1e
-> 	init+0x95/0x195
-> 	kernel_thread_helper+0x5/0xb
-> Code:  Bad EIP value.
+> tcpdumps and the kernel's packet counters on both sides show NFS packets
+> flowing, and being retried, over and over again:
 
-Both 2.6.15 and 2.6.15.1 boot OK for me.
-.config for 2.6.16-rc1 is at
-  http://www.xenotime.net/linux/doc/config-2616rc1
+Are you using an Intel motherboard? If so, it could be the IPMI bug
 
----
-~Randy
+http://blogs.sun.com/roller/page/shepler?entry=port_623_or_the_mount
+
+Cheers,
+  Trond
+

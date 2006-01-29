@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750948AbWA2Uv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbWA2Uwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750948AbWA2Uv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 15:51:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWA2Uv7
+	id S1750985AbWA2Uwo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 15:52:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751051AbWA2Uwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 15:51:59 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:31936 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1750941AbWA2Uv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 15:51:58 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Sun, 29 Jan 2006 21:50:18 +0100
-To: matthias.andree@gmx.de, jengelh@linux01.gwdg.de
-Cc: schilling@fokus.fraunhofer.de, mrmacman_g4@mac.com,
-       linux-kernel@vger.kernel.org, bzolnier@gmail.com, acahalan@gmail.com
-Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future Linux (stirring up a hornets' nest) ]
-Message-ID: <43DD2A8A.nailGVQ115GOP@burner>
-References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com>
- <43DCA097.nailGPD11GI11@burner>
- <20060129112613.GA29356@merlin.emma.line.org>
- <Pine.LNX.4.61.0601292139080.2596@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0601292139080.2596@yvahk01.tjqt.qr>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 29 Jan 2006 15:52:44 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:11212 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750983AbWA2Uwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 15:52:43 -0500
+Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths
+	library
+From: Arjan van de Ven <arjan@infradead.org>
+To: Steve French <smfrench@austin.rr.com>
+Cc: keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
+In-Reply-To: <43DD2010.7010700@austin.rr.com>
+References: <1138312694656@2gen.com> <1138312695665@2gen.com>
+	 <6403.1138392470@warthog.cambridge.redhat.com>
+	 <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de>
+	 <20060128104611.GA4348@hardeman.nu>
+	 <1138466271.8770.77.camel@lade.trondhjem.org>
+	 <20060128165732.GA8633@hardeman.nu>
+	 <1138504829.8770.125.camel@lade.trondhjem.org>
+	 <20060129113320.GA21386@hardeman.nu> <20060129122901.GX3777@stusta.de>
+	 <1138540148.3002.9.camel@laptopd505.fenrus.org>
+	 <43DD2010.7010700@austin.rr.com>
+Content-Type: text/plain
+Date: Sun, 29 Jan 2006 21:52:34 +0100
+Message-Id: <1138567954.17148.4.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+>  I don't know the right answer 
+> for the particular math library question, but I have not seen the 
+> typical argument considered about whether a user space implementation of 
+> this paticular function could deadlock 
 
-> >That's what I believe to be cdrecord/libscg bugs:
-> >
-> >1) libscg or cdrecord does not automatically probe all available
-> >   transports, but only SCSI:
->
-> This one is IMO just "a missing feature", as I can get the ATA/PI list using
->   cdrecord -dev=ATA: -scanbus
+it's not that kind of thing. It's basically a public key encryption
+step. Putting it in the kernel can only serve one purpose: to be there
+to allow other parts to use this pke for encrypting/signing/verifying
+signatures. 
 
-It cannot be fixed unless the two first bugs from my Linux kernel
-bug report have been fixed.
+The keyring stuff is in the kernel for three reasons:
+1) to have a secure "vault" for keys, so that userspace doesn't need to
+store secret keys and manage them securely; this requires that certain
+operations on these keys also happen in the kernel
+2) to make session management of keys easier. Yes you can do that in
+userspace too but it's a mess (ssh-agent, while it works, isn't really
+it)
+3) to allow kernel pieces to do key things, like the secure nfs parts of
+nfsv4 or ipsec.
 
-Jörg
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+

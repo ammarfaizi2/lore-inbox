@@ -1,79 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWA2XHv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWA2XHS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWA2XHv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 18:07:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWA2XHv
+	id S1751207AbWA2XHS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 18:07:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWA2XHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 18:07:51 -0500
-Received: from pat.uio.no ([129.240.130.16]:19621 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751208AbWA2XHu (ORCPT
+	Sun, 29 Jan 2006 18:07:18 -0500
+Received: from xenotime.net ([66.160.160.81]:65195 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751207AbWA2XHQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 18:07:50 -0500
-Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths
-	library
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: David =?ISO-8859-1?Q?H=E4rdeman?= <david@2gen.com>, keyrings@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1BE90924-C4BF-4123-AF20-88655772C8BF@mac.com>
-References: <20060127204158.GA4754@hardeman.nu>
-	 <20060128002241.GD3777@stusta.de> <20060128104611.GA4348@hardeman.nu>
-	 <1138466271.8770.77.camel@lade.trondhjem.org>
-	 <20060128165732.GA8633@hardeman.nu>
-	 <1138504829.8770.125.camel@lade.trondhjem.org>
-	 <20060129113320.GA21386@hardeman.nu>
-	 <1138552702.8711.12.camel@lade.trondhjem.org>
-	 <20060129211310.GA20118@hardeman.nu>
-	 <1138570100.8711.63.camel@lade.trondhjem.org>
-	 <20060129220217.GA21832@hardeman.nu>
-	 <1138572311.8711.84.camel@lade.trondhjem.org>
-	 <1BE90924-C4BF-4123-AF20-88655772C8BF@mac.com>
-Content-Type: text/plain
-Date: Sun, 29 Jan 2006 18:07:30 -0500
-Message-Id: <1138576051.8711.123.camel@lade.trondhjem.org>
+	Sun, 29 Jan 2006 18:07:16 -0500
+Date: Sun, 29 Jan 2006 15:07:37 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1 kernel init oops
+Message-Id: <20060129150737.6f911430.rdunlap@xenotime.net>
+In-Reply-To: <20060129130812.011d8bf3.rdunlap@xenotime.net>
+References: <20060128171841.6f989958.rdunlap@xenotime.net>
+	<20060128175511.35e39233.rdunlap@xenotime.net>
+	<20060129190029.GB7168@kroah.com>
+	<20060129111934.53710b03.rdunlap@xenotime.net>
+	<20060129201923.GB6972@kroah.com>
+	<20060129130812.011d8bf3.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.149, required 12,
-	autolearn=disabled, AWL 1.66, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-29 at 17:54 -0500, Kyle Moffett wrote:
-> You keep mentioning proxy certificates.  So you are saying that when  
-> I pass the key to some daemon to which I do not want it to have  
-> permanent access, I should create a proxy certificate to pass  
-> instead?  This _vastly_ increases the amount of math that needs to be  
-> done.  Instead of just using my private key to encrypt data, I would  
-> need to generate a new private key with the required encryption  
-> strength, generate a proxy certificate, sign the proxy certificate  
-> with the old private key, keep track of revocation lists somehow (how  
-> do I reliably expire a proxy certificate on-demand everywhere it  
-> might be without a web-server hosting the CRLs?), _then_ I can  
-> finally encrypt my data with the proxy certificate.  I think this  
-> qualifies as a serious performance problem, especially if I'm opening  
-> and closing lots of SSH tunnels, like running remote commands on  
-> every system in a cluster.
+On Sun, 29 Jan 2006 13:08:12 -0800 Randy.Dunlap wrote:
 
-Feel free to profile it. I challenge you to find a real-life application
-where the above is actually a performance problem.
+> On Sun, 29 Jan 2006 12:19:23 -0800 Greg KH wrote:
+> 
+> > On Sun, Jan 29, 2006 at 11:19:34AM -0800, Randy.Dunlap wrote:
+> > > On Sun, 29 Jan 2006 11:00:29 -0800 Greg KH wrote:
+> > > 
+> > > > On Sat, Jan 28, 2006 at 05:55:11PM -0800, Randy.Dunlap wrote:
+> > > > > On Sat, 28 Jan 2006 17:18:41 -0800 Randy.Dunlap wrote:
+> > > > > 
+> > > > > > Hi,
+> > > > > > 
+> > > > > > I'm trying to boot 2.6.16-rc1 on a T42 Thinkpad notebook.
+> > > > > > No serial port for serial console.  I don't think that networking
+> > > > > > is alive yet (for network console ?).
+> > > > > > 
+> > > > > > Anyone recognize this?  got patch?
+> > > > > > 
+> > > > > > This is just typed in, so could contain a few errors.
+> > > > > > 
+> > > > > > Unable to handle kernel NULL pointer dereference at virtual address 00000001
+> > > > > > printing eip:
+> > > > > > 00000001
+> > > > > > *pde = 00000000
+> > > > > > Oops: 0000 [#1]
+> > > > > > SMP DEBUG_PAGEALLOC
+> > > > > > Modules linked in:
+> > > > > > CPU:	0
+> > > > > > EIP:	0060:[<00000001>]   Not tainted VLI
+> > > > > > EFLAGS: 00010202   (2.6.16-rc1)
+> > > > > > EIP is at 0x1
+> > > > > > <skip reg. dump>
+> > > > > > <skip stack dump>
+> > > > > > Call trace:
+> > > > > > 	show_stack_log_lvl+0xa5/0xad
+> > > > > > 	show_registers+0xf9/0x162
+> > > > > > 	die+0xfe/0x179
+> > > > > > 	do_page_fault+0x399/0x4d8
+> > > > > > 	error_code+0x4f/0x54
+> > > > > > 	device_register+0x13/0x18
+> > > > > > 	platform_bus_init+0xd/0x19
+> > > > > > 	driver_init+0x1c/0x2d
+> > > > > > 	do_basic_setup+0x12/0x1e
+> > > > > > 	init+0x95/0x195
+> > > > > > 	kernel_thread_helper+0x5/0xb
+> > > > > > Code:  Bad EIP value.
+> > > > > 
+> > > > > Both 2.6.15 and 2.6.15.1 boot OK for me.
+> > > > > .config for 2.6.16-rc1 is at
+> > > > >   http://www.xenotime.net/linux/doc/config-2616rc1
+> > > > 
+> > > > If you disable CONFIG_PNP and CONFIG_ISAPNP options does that help?
+> > > 
+> > > Nope, no change.  Any other suggestions?
+> > > 
+> > > I just booted with a KOBJECT_DEBUG
+> > > built kernel and it's failing after:
+> > > 
+> > > kobject platform: registering, parent: <NULL>, set: devices
+> > 
+> > Can you enable CONFIG_DEBUG_DRIVER and see if that helps?
+> 
+> Yes.  Transcribing that:
+> 
+> kobject platform: registering, parent: <NULL>, set: devices
+> DEV: registering device: ID = 'platform'
+> kobject_uevent
+> PM: Adding info for No Bus:platform
+> <Oops happens>
 
-> If we use this proposed in-kernel system, then I can give my  
-> certificate/pubkey to the kernel code, and then my web browser, SSH,  
-> and anything else can automatically use it to decrypt and sign data  
-> without being able to directly access (and thus compromise) the key.   
-> If I later notice what I think might be a rogue process, I can  
-> instantly and globally revoke all access to that keypair.
+odd.  in device_add(), <platform_notify> (a function ptr)
+has a value of 1.  garbahze.
 
-The latter is something you can do with keyrings anyway. As for the
-former, that too is completely solvable in userspace. For instance, CITI
-has a scheme for issuing X509 proxy certificates given a kerberos key.
-ssh can log you in automatically given the same kerberos key,...
-
-This sort of problem is simply not a reason for sticking dsa into the
-kernel.
-
-Cheers,
-  Trond
-
+---
+~Randy

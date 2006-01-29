@@ -1,50 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWA2Law@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750933AbWA2Le3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750932AbWA2Law (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 06:30:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWA2Law
+	id S1750933AbWA2Le3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 06:34:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbWA2Le3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 06:30:52 -0500
-Received: from main.gmane.org ([80.91.229.2]:52608 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750931AbWA2Lav (ORCPT
+	Sun, 29 Jan 2006 06:34:29 -0500
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:61896 "EHLO
+	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
+	id S1750933AbWA2Le2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 06:30:51 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Norbert Kiesel <nkiesel@tbdnetworks.com>
-Subject: Re: [PATCH] ahci: get JMicron JMB360 working
-Date: Sun, 29 Jan 2006 03:01:18 -0800
-Message-ID: <pan.2006.01.29.11.01.17.108084@tbdnetworks.com>
-References: <20060129050434.GA19047@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-71-141-12-207.dsl.snfc21.sbcglobal.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
-Cc: linux-ide@vger.kernel.org
+	Sun, 29 Jan 2006 06:34:28 -0500
+Date: Sun, 29 Jan 2006 12:33:20 +0100
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Adrian Bunk <bunk@stusta.de>, Christoph Hellwig <hch@infradead.org>,
+       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
+Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths library
+Message-ID: <20060129113320.GA21386@hardeman.nu>
+Mail-Followup-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Adrian Bunk <bunk@stusta.de>, Christoph Hellwig <hch@infradead.org>,
+	keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
+References: <20060127092817.GB24362@infradead.org> <1138312694656@2gen.com> <1138312695665@2gen.com> <6403.1138392470@warthog.cambridge.redhat.com> <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de> <20060128104611.GA4348@hardeman.nu> <1138466271.8770.77.camel@lade.trondhjem.org> <20060128165732.GA8633@hardeman.nu> <1138504829.8770.125.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+In-Reply-To: <1138504829.8770.125.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 8BIT
+X-SA-Score: -2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Jan 2006 00:04:34 -0500, Jeff Garzik wrote:
+On Sat, Jan 28, 2006 at 10:20:29PM -0500, Trond Myklebust wrote:
+>On Sat, 2006-01-28 at 17:57 +0100, David Härdeman wrote:
+>> What about the first paragraph of what I wrote? You are going to want to 
+>> keep often-used keys around somehow, proxy certificates is not a 
+>> solution for your own use of your personal keys and with the exception 
+>> of hardware solutions such as smart cards, the keys will be safer in the 
+>> kernel than in a user-space daemon...
+>
+>I don't get this explanation at all.
+>
+>Why would you want to use proxy certificates for you own use? Use your
+>own certificate for your own processes, and issue one or more proxy
+>certificates to any daemon that you want to authorise to do some limited
+>task.
 
-> 
-> I'll be sending this upstream sooner rather than later, since part of
-> this is a needed bugfix.  This is also a minor milestone:  the first
-> non-Intel AHCI implementation is working with the AHCI driver.  AHCI is
-> a nice SATA controller interface, and it's good to see other vendors
-> using it.  VIA is using it as well, and I hope to integrate a patch for
-> VIA AHCI SATA support soon.
-> 
-> This patch, against latest 2.6.16-rc-git, adds support for JMicron and
-> fixes some code that should be Intel-only, but was being executed for
-> all vendors.
+I meant that you can't use proxy certs for your own use, so you still need 
+to store your own cert/key somehow...and I still believe that the kernel 
+keyring is the best place...
 
-Sounds very good, thanks! Does that mean the ASRock MB 
-http://www.asrock.com/product/product_939Dual-SATA2.htm will work? Docu
-says "1 x SATA2 connector (based on PCI E SATA2 controller JMB360)".
+>...and what does this statement about "keys being safer in the kernel"
+>mean?
 
-Best,
-  Norbert
+swap-out to disk, ptrace, coredump all become non-issues. And in 
+combination with some other security features (such as disallowing 
+modules, read/write of /dev/mem + /dev/kmem, limited permissions via
+SELinux, etc), it becomes pretty hard for the attacker to get your 
+private key even if he/she manages to get access to the root account.
 
+>> Further, the mpi and dsa code can also be used for supporting signed 
+>> modules and binaries...the "store dsa-keys in kernel" part adds 376 
+>> lines of code (counted with wc so comments and includes etc are also 
+>> counted)...
+>
+>Signed modules sounds like a better motivation, but is a full dsa
+>implementation in the kernel really necessary to achieve this?
 
+How would you do it otherwise?
+
+Re,
+David

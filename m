@@ -1,109 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWA2Vku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWA2Vlu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751172AbWA2Vku (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 16:40:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWA2Vku
+	id S1751174AbWA2Vlu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 16:41:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWA2Vlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 16:40:50 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47591 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751172AbWA2Vkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 16:40:49 -0500
-To: Andrew Morton <akpm@osdl.org>
-CC: <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH] exec:  Allow init to exec from any thread.
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sun, 29 Jan 2006 14:40:19 -0700
-Message-ID: <m14q3m90ho.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Sun, 29 Jan 2006 16:41:50 -0500
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:45256 "EHLO
+	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S1751174AbWA2Vlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 16:41:49 -0500
+Message-ID: <43DD366F.9080906@austin.rr.com>
+Date: Sun, 29 Jan 2006 15:41:03 -0600
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       keyrings@linux-nfs.org
+Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths
+ library
+References: <1138312694656@2gen.com> <1138312695665@2gen.com> <6403.1138392470@warthog.cambridge.redhat.com> <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de> <20060128104611.GA4348@hardeman.nu> <1138466271.8770.77.camel@lade.trondhjem.org> <20060128165732.GA8633@hardeman.nu> <1138504829.8770.125.camel@lade.trondhjem.org> <20060129113320.GA21386@hardeman.nu> <20060129122901.GX3777@stusta.de> <1138540148.3002.9.camel@laptopd505.fenrus.org> <43DD2010.7010700@austin.rr.com> <1138567954.17148.4.camel@laptopd505.fenrus.org>
+In-Reply-To: <1138567954.17148.4.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arjan van de Ven wrote:
 
-After looking at the problem of init calling exec some more I figured
-out an easy way to make the code work.
+>it's not that kind of thing. It's basically a public key encryption
+>step. Putting it in the kernel can only serve one purpose: to be there
+>to allow other parts to use this pke for encrypting/signing/verifying
+>signatures. 
+>  
+>
+...
 
-The actual symptom without out this patch is that all threads will die
-except pid == 1, and the thread calling exec.  The thread calling exec
-will wait forever for pid == 1 to die. 
+>3) to allow kernel pieces to do key things, like the secure nfs parts of
+>nfsv4 or ipsec.
+>  
+>
+That can still deadlock.   If write or writepage or writepages requires 
+a network frame to be signed and
+an upcall occurs in that path ... For example cifs has long had 
+signature code in kernel (depends on MD5
+code in kernel, which because it is so small has not been controversial 
+presumably) and write requests
+(which can be necessary to flush inode data when the system is low on 
+memory) are signed
+and of course of types of frames are signed in cases where various 
+semaphores on the parent directory
+or inode are held by the vfs. This signing is done in kernel and at 
+least when authenticated with NTLM
+(and presumably NTLMv2 as well) has turned out to be fairly simple.   
+Note that for many or most
+cifs servers in modern day domains packet signatures are required by 
+default (unlike four or five years
+ago when it was less common).   A key issue that I have not worked 
+through is whether this would change
+as SPNEGO authentication negotiates PKI or Kerberos like tickets - and 
+whether any of this in kernel
+infrastructure being discussed would be needed for the common case of 
+cifs (beyond what
+we already have with MD5 packet signatures) or helpful for the case when
+Kerberos/SPNEGO authentication is negotiated (code that is not yet 
+complete in cifs, but will
+probably be 90% done in userspace) because CIFS packet signing when 
+Kerberos is
+authenticated (or when an alternative some x509/SPNEGO pki variant is 
+more commonly
+seem from e.g. Windows servers or NAS appliances) different signing code 
+may be required -
+and since the SMB WriteX frame would have to be signed ... it would be 
+very risky to upcall if
+we find out that packet signing for the very, very common case (more 
+than 2/3 of enterprises today)
+of Kerberized cifs sessions requires an encrypting/signing/verifying 
+mechanism that is not in kernel.
 
-Since pid == 1 does not install a handler for SIGKILL it will never die.
+Beyond the issue of how to handle the newer version of packet signing, 
+my main interest in the
+calling the keyring code from kernel (from cifs vfs) is using it to 
+determining more precisely
+what the "kerberos identity" of the current process is (ie what is the 
+"user@realm" for the current
+process and do I have an authenticated session for him - so I can map 
+the right smb_uid (in effect
+a handle to the network security context for the smb session) for the 
+header of the SMB/CIFS
+network file requests coming from any particular process).
 
-This modifies the tests for init from current->pid == 1 to the
-equivalent current == child_reaper.  And then it causes exec in the
-ugly case to modify child_reaper.
-
-The only weird symptom is that you wind up with an init process that
-doesn't have the oldest start time on the box. 
-
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-
-
----
-
- fs/exec.c       |   13 ++++++++++++-
- kernel/exit.c   |    2 +-
- kernel/signal.c |    2 +-
- 3 files changed, 14 insertions(+), 3 deletions(-)
-
-96629b6a7cc1bdb3afdd1b5190e08e3df62bfa6a
-diff --git a/fs/exec.c b/fs/exec.c
-index 62eca47..348e6ac 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -660,12 +660,23 @@ static int de_thread(struct task_struct 
- 		struct dentry *proc_dentry1, *proc_dentry2;
- 		unsigned long ptrace;
- 
-+		leader = current->group_leader;
-+		/*
-+		 * If our leader is the child_reaper become
-+		 * the child_reaper and resend SIGKILL signal.
-+		 */
-+		if (unlikely(leader == child_reaper)) {
-+			write_lock(&tasklist_lock);
-+			child_reaper = current;
-+			zap_other_threads(current);
-+			write_unlock(&tasklist_lock);
-+		}
-+		
- 		/*
- 		 * Wait for the thread group leader to be a zombie.
- 		 * It should already be zombie at this point, most
- 		 * of the time.
- 		 */
--		leader = current->group_leader;
- 		while (leader->exit_state != EXIT_ZOMBIE)
- 			yield();
- 
-diff --git a/kernel/exit.c b/kernel/exit.c
-index 93cee36..4059b2a 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -802,7 +802,7 @@ fastcall NORET_TYPE void do_exit(long co
- 		panic("Aiee, killing interrupt handler!");
- 	if (unlikely(!tsk->pid))
- 		panic("Attempted to kill the idle task!");
--	if (unlikely(tsk->pid == 1))
-+	if (unlikely(tsk == child_reaper))
- 		panic("Attempted to kill init!");
- 	if (tsk->io_context)
- 		exit_io_context();
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 20a67ae..6faf362 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -2019,7 +2019,7 @@ relock:
- 			continue;
- 
- 		/* Init gets no signals it doesn't want.  */
--		if (current->pid == 1)
-+		if (current == child_reaper)
- 			continue;
- 
- 		if (sig_kernel_stop(signr)) {
--- 
-1.1.5.g3480
-
+A secondary benefit of the keyring infrastructure, an issue that I hear 
+frequently from advanced users, an
+issue that the kernel keyring may eventually solve is allowing me to 
+automatically authenticate without all local
+users having to resupply the password for every local mount (in 
+particular when /proc/fs/cifs/MultiuserMount
+is enabled).   Currently each unique user logged on to a system 
+typically authenticates through pam but
+kernel code has no access to the password that was supplied earlier at 
+logon time, unless it is passed again
+explicitly on mount.   There are common cases in which users would logon 
+locally with the same userid/password
+as they would supply to mount to a remote server (especially when users 
+authenticate to a central
+security server through pam_winbind or pam_ldap, pam_kerberos) - in 
+those cases I hope someday that
+an optional pam module is available which saves the password (or in my 
+case there is also a one way hash of the
+password which would be fine) in the kernel key ring so cifs does not 
+have to upcall in the middle of
+an operation (from what to cifs is a new user for this mount) to prompt 
+the user at runtime for a password (which
+would be awful).   Currently users have to mount to the same server (and 
+export) multiple times, once with
+each uid/user/password combination - and the keyring would solve this if 
+there were an optional pam module that
+could save passwords (and eventually kerberos tickets too) securely in 
+kernel in the keyring.

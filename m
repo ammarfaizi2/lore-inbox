@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWA2WNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWA2WTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbWA2WNx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 17:13:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWA2WNx
+	id S1751200AbWA2WTj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 17:19:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWA2WTj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 17:13:53 -0500
-Received: from macferrin.com ([65.98.32.91]:30984 "EHLO macferrin.com")
-	by vger.kernel.org with ESMTP id S1751196AbWA2WNx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 17:13:53 -0500
-Message-ID: <43DD3DDF.6020901@macferrin.com>
-Date: Sun, 29 Jan 2006 15:12:47 -0700
-From: Ken MacFerrin <lists@macferrin.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Thunderbird/1.0.7 Mnenhy/0.7
-X-Accept-Language: en-us, en
+	Sun, 29 Jan 2006 17:19:39 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:46063 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751187AbWA2WTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 17:19:38 -0500
+From: Prakash Punnoor <prakash@punnoor.de>
+To: mogensv@vip.cybercity.dk
+Subject: Re: [PATCH] ahci: get JMicron JMB360 working
+Date: Sun, 29 Jan 2006 23:27:58 +0100
+User-Agent: KMail/1.9
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20060129050434.GA19047@havoc.gtf.org> <200601291016.30459.prakash@punnoor.de> <43DD0850.8090705@vip.cybercity.dk>
+In-Reply-To: <43DD0850.8090705@vip.cybercity.dk>
 MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>, s0348365@sms.ed.ac.uk,
-       hugh@veritas.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: kernel BUG at mm/rmap.c:486 - kernel 2.6.15-r1
-References: <43DAE307.5010306@macferrin.com> <9a8748490601281031x514f0b9ckffcdce64148ebd8d@mail.gmail.com>
-In-Reply-To: <9a8748490601281031x514f0b9ckffcdce64148ebd8d@mail.gmail.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1166515.DCrsk5b16Z";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200601292327.58267.prakash@punnoor.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> On 1/28/06, Ken MacFerrin <lists@macferrin.com> wrote:
-> 
->>I started getting hard lockups on my desktop PC with the error "kernel
->>BUG at mm/rmap.c:487" starting with kernel 2.6.13 and continuing through
->>2.6.14.  After switching to 2.6.15 the lockups have continued with the
->>message "kernel BUG at mm/rmap.c:486".
->>
->>The frequency and circumstance are completely random which originally
->>had me suspecting bad memory but after running Memtest86+ for over 12
->>hours without error I'm at a loss.
->>
->>I'm running the binary Nvidia driver so I'll understand if I can't get
->>help here but in searching through the list archives it would seem I'm
->>not alone and I am willing to try any patches that may help diagnose the
->>issue.  The crash happens at least daily and I've seen no difference in
->>running kernels with or without PREEMPT enabled.
->>
-> 
-> If you don't actually *need* accelerated 3D (or if you could do
-> without it for a while), switching to the "nv" driver for a few
-> days/weeks would be interresting. If the crashes go away that would
-> point towards the nvidia driver, if they don't go away we'll get a
-> nice untainted crash report.
-> 
+--nextPart1166515.DCrsk5b16Z
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Thanks to all for the response.  In hopes of helping to isolate this I 
-will move back over to the "nv" driver to see if I can recreate the 
-problem and get a clean bug report before applying Hugh's patch.
+Am Sonntag Januar 29 2006 19:24 schrieb Mogens Valentin:
+[...]
+>
+> 939Dual-SATA2 is interesting as an upgrade board due to performance,
+> price, working PCIe/AGP and provisions for socket M2 via an adapter.
+> Whether this will actually work is of cause to be seen...
 
-This crash currently happens daily for me so I should be able to test 
-this relatively quickly.
--Ken
+Well, it at least seems to work nicely with an Athlon X2 and 4GB of RAM. :-)
+
+> Now having libata SATA support gets it back into my thoughts.
+>
+> @Prakash: Did you test with a SATA-2 disk?
+
+Nope, just plain SATA (I).
+
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
+
+--nextPart1166515.DCrsk5b16Z
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBD3UFuxU2n/+9+t5gRAoMFAKCP2dXirbxuCmxGAwM8cL1ZB3WkwQCg2iTj
+VksF9Xglci7td8t+E9UHEkc=
+=iEmu
+-----END PGP SIGNATURE-----
+
+--nextPart1166515.DCrsk5b16Z--

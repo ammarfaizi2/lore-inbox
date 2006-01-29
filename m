@@ -1,99 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWA2Khq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWA2KjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750892AbWA2Khq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 05:37:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWA2Khq
+	id S1750904AbWA2KjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 05:39:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbWA2KjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 05:37:46 -0500
-Received: from [207.253.5.75] ([207.253.5.75]:5903 "EHLO
-	imailserver.sicon-sr.com") by vger.kernel.org with ESMTP
-	id S1750876AbWA2Khp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 05:37:45 -0500
-Message-ID: <002201c624bf$fdcc83b0$1701a8c0@gerold>
-From: "Gerold van Dijk" <gerold@sicon-sr.com>
-To: <Valdis.Kletnieks@vt.edu>
-Cc: <linux-kernel@vger.kernel.org>, "Alwin" <d_j_d@hotmail.com>,
-       "oswin martopawiro" <o_martopawiro@hotmail.com>,
-       "guno" <guno@sicon-sr.com>, "albert" <albert@sicon-sr.com>
-References: <000601c62370$db00cd50$1701a8c0@gerold> <200601271852.k0RIqaC0023706@turing-police.cc.vt.edu>
-Subject: Re: traceroute bug ? 
-Date: Sun, 29 Jan 2006 07:37:23 -0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	Sun, 29 Jan 2006 05:39:25 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:49311 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750896AbWA2KjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 05:39:23 -0500
+Date: Sun, 29 Jan 2006 02:38:41 -0800
+From: Paul Jackson <pj@sgi.com>
+To: "Bob Picco" <bob.picco@hp.com>
+Cc: y-goto@jp.fujitsu.com, akpm@osdl.org, apw@shadowen.org, bob.picco@hp.com,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       linux-ia64@vger.kernel.org, tony.luck@intel.com, ak@suse.de,
+       len.brown@intel.com, discuss@x86-64.org
+Subject: Re: [PATCH 001/003]Fix unify mapping from pxm to node id.
+Message-Id: <20060129023841.439a21af.pj@sgi.com>
+In-Reply-To: <20060129034434.GO7306@localhost>
+References: <20060123165644.C147.Y-GOTO@jp.fujitsu.com>
+	<20060126074846.1a6dd300.pj@sgi.com>
+	<20060128122758.CF50.Y-GOTO@jp.fujitsu.com>
+	<20060127231517.4c0ce573.pj@sgi.com>
+	<20060129034434.GO7306@localhost>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.3790.1289
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1289
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Valdis et.al.,
+Now that I applied the patches correctly:
+  x86-x86_64-ia64-unify-mapping-from-pxm-to-node-id.patch
+  x86-x86_64-ia64-unify-mapping-from-pxm-to-node-id-fix.patch
+  [PATCH 001/003]Fix unify mapping from pxm to node id. 
+  [PATCH 002/003]Fix unify mapping from pxm to node id. 
+  [PATCH 003/003]Fix unify mapping from pxm to node id. 
 
-thanks for biting! I really tested this thing thoroughly, with different 
-distributions (Red Hat, SuSE 8.0 and 10.0) on different machines with the 
-firewalls completely open, and without any router or switch involved: cross 
-cable straight from one machine to another!
+They compiled on a 2.6.16-rc1-mm3 source base, for archs:
+  alpha arm i386 ia64 sparc x86_64
 
-IF I ONLY CHANGE TO ANOTHER IP BLOCK (E.G. 206.253.5.64/24) OR A PRIVATE 
-RANGE (E.G. 192.168.1.0/24) THE TRACEROUTE WORKS FINE! SO IT IS SPECIFICALLY 
-THIS 207.253.5.0/24 BLOCK THAT DOES NOT TRACEROUTE WITHIN IT'S OWN RANGE!
+and they compiled and booted ok on SN2 (ia64 sn2_defconfig).
 
-Not only the subnetwork 207.253.5.64/27 but the whole class C block 
-207.253.5.0/24 !?
+I just noticed as I typed the above that the last 3 patches all had the
+same Subject "Fix unify mapping from pxm to node id."  Each patch
+should have a different Subject (after the [...] is stripped.)
 
-Just to be complete: we CAN ping normally within this network!
+Other than that detail ... looks good.
 
-But the traceroute simple displays "*  *  *" row after row!
+	Acked-by: Paul Jackson <pj@sgi.com>
 
-Of course it is not that urgent a problem, cause what is the sense of doing 
-a traceroute within your own network anyway? But I thought it might be 
-useful to report this strange thing!
-
-Thank you all for your time!
-
-Regards,
-
-Gerold H. van Dijk
-
-Research & Training Manager
-
-SICON; Suriname Information &
-Communication Network
-
-Verl.Gemenelandsweg 163
-Paramaribo, Suriname
-South America
-
-(+597)    464791
-(+597)    491510 (fax)
-(+597)(0) 8579216 (gsm)
-
-gerold@sicon-sr.com
-gerold_vandijk@hotmail.com
-
-
-
-On Fri, 27 Jan 2006 15:38:23 -0300, Gerold van Dijk said:
-> Why can I NOT do a traceroute specifically within my own (sub)network
->
-> 207.253.5.64/27
->
-> with any distribution of Linux??
-
-OK.. I'll bite.  What happens when you try?  And why are you posting here - 
-is
-there *any* evidence that there is a Linux kernel bug involved?
-
-The output of 'ifconfig' and 'netstat -r -n' would likely be helpful, as 
-would
-proof that the host(s) you're tracerouting from and to are *not* running a
-firewall that interferes with the way traceroute functions. (It's amazing 
-how
-many people block all ICMP, then wonder why traceroute doesn't work... ;)
-
-Watching the wire with 'tcpdump' and/or 'ethereal' can also help....
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

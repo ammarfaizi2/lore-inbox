@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWA2XgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWA2Xjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbWA2XgW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 18:36:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWA2XgW
+	id S932084AbWA2Xjn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 18:39:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbWA2Xjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 18:36:22 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28677 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932080AbWA2XgW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 18:36:22 -0500
-Date: Mon, 30 Jan 2006 00:36:21 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Christoph Hellwig <hch@infradead.org>, keyrings@linux-nfs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths library
-Message-ID: <20060129233621.GB3777@stusta.de>
-References: <6403.1138392470@warthog.cambridge.redhat.com> <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de> <20060128104611.GA4348@hardeman.nu> <1138466271.8770.77.camel@lade.trondhjem.org> <20060128165732.GA8633@hardeman.nu> <1138504829.8770.125.camel@lade.trondhjem.org> <20060129113320.GA21386@hardeman.nu> <20060129122901.GX3777@stusta.de> <20060129131815.GB21386@hardeman.nu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060129131815.GB21386@hardeman.nu>
-User-Agent: Mutt/1.5.11
+	Sun, 29 Jan 2006 18:39:43 -0500
+Received: from xenotime.net ([66.160.160.81]:12254 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932084AbWA2Xjn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 18:39:43 -0500
+Date: Sun, 29 Jan 2006 15:40:02 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: akpm@osdl.org, ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1-mm4
+Message-Id: <20060129154002.360c7294.rdunlap@xenotime.net>
+In-Reply-To: <20060129233403.GA3777@stusta.de>
+References: <20060129144533.128af741.akpm@osdl.org>
+	<20060129233403.GA3777@stusta.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 29, 2006 at 02:18:15PM +0100, David Härdeman wrote:
->...
-> you still haven't answered 
-> the question of how signed modules and/or binaries can be implemented
-> in userspace...
->...
+On Mon, 30 Jan 2006 00:34:03 +0100 Adrian Bunk wrote:
 
-It seems I'm slowly getting the point.
+> On Sun, Jan 29, 2006 at 02:45:33PM -0800, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.16-rc1-mm3:
+> >...
+> > +i386-add-a-temporary-to-make-put_user-more-type-safe.patch
+> > 
+> >  x86 fixes/features
+> >...
+> 
+> This patch generates so many "ISO C90 forbids mixed declarations and code"
+> warnings that I start to consider Andrew's rejection of my "mark 
+> virt_to_bus/bus_to_virt as __deprecated on i386" patch due to the 
+> warnings it generates a personal insult...
 
-I was partially confused by your backup daemon deamon example that can 
-be equally well implemented in userspace.
+I prefer to think of it as reasons why neither of them
+should be merged.
 
-Signed modules and/or binaries seems to be the application this might be 
-required for, so let's discuss exactly this application and not the 
-others.
-
-> Re,
-> David
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+---
+~Randy

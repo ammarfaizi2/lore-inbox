@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbWA2Xe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWA2XgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbWA2Xe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 18:34:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbWA2Xe6
+	id S932080AbWA2XgW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 18:36:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932084AbWA2XgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 18:34:58 -0500
-Received: from xproxy.gmail.com ([66.249.82.204]:13220 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932082AbWA2Xe5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 18:34:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=HODGhh/+u7x3Xur0CQ8Hm6cHaIvjMG4aZWsgBMztj842gSc5j+kSkk9e7U9p/sSuwMje3lV1KG1d0GfIlmrap8gXEIOYFBhGE3IU1N+387jBDaHkS7C6ZzsOxW2Zsvt7/gVwD5YRPyYUu5ilvRgnSGJTZ2b6v/FK9yiDtALytqk=
-Message-ID: <43DD510E.9090404@gmail.com>
-Date: Mon, 30 Jan 2006 07:34:38 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Sun, 29 Jan 2006 18:36:22 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28677 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932080AbWA2XgW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 18:36:22 -0500
+Date: Mon, 30 Jan 2006 00:36:21 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Christoph Hellwig <hch@infradead.org>, keyrings@linux-nfs.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths library
+Message-ID: <20060129233621.GB3777@stusta.de>
+References: <6403.1138392470@warthog.cambridge.redhat.com> <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de> <20060128104611.GA4348@hardeman.nu> <1138466271.8770.77.camel@lade.trondhjem.org> <20060128165732.GA8633@hardeman.nu> <1138504829.8770.125.camel@lade.trondhjem.org> <20060129113320.GA21386@hardeman.nu> <20060129122901.GX3777@stusta.de> <20060129131815.GB21386@hardeman.nu>
 MIME-Version: 1.0
-To: linux-fbdev-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
-       linux-kernel@hansmi.ch
-Subject: Re: [Linux-fbdev-devel] [PATCH] fbdev: Fix usage of blank value passed
- to fb_blank
-References: <20060127231314.GA28324@hansmi.ch> <20060127.204645.96477793.davem@davemloft.net> <43DB0839.6010703@gmail.com> <200601282106.21664.ioe-lkml@rameria.de> <43DC25EB.1040005@gmail.com> <20060129144228.GA22425@sci.fi>
-In-Reply-To: <20060129144228.GA22425@sci.fi>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060129131815.GB21386@hardeman.nu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ville Syrjälä wrote:
-> On Sun, Jan 29, 2006 at 10:18:19AM +0800, Antonino A. Daplas wrote:
->> diff --git a/drivers/video/fbmem.c b/drivers/video/fbmem.c
->> index d2dede6..5bed0fb 100644
->> --- a/drivers/video/fbmem.c
->> +++ b/drivers/video/fbmem.c
->> @@ -843,6 +843,19 @@ fb_blank(struct fb_info *info, int blank
->>  {	
->>   	int ret = -EINVAL;
->>  
->> +	/*
->> +	 * The framebuffer core supports 5 blanking levels (FB_BLANK), whereas
->> +	 * VESA defined only 4.  The extra level, FB_BLANK_NORMAL, is a
->> +	 * console invention and is not related to power management.
->> +	 * Unfortunately, fb_blank callers, especially X, pass VESA constants
->> +	 * leading to undefined behavior.
-> 
-> Since when? X.Org uses numbers 0,2,3,4 which match the FB_BLANK 
-> constants not the VESA constants.
-> 
+On Sun, Jan 29, 2006 at 02:18:15PM +0100, David Härdeman wrote:
+>...
+> you still haven't answered 
+> the question of how signed modules and/or binaries can be implemented
+> in userspace...
+>...
 
-How about if we silently convert FB_BLANK_NORMAL requests to
-FB_BLANK_VSYNC_SUSPEND, would that work?
+It seems I'm slowly getting the point.
 
-Tony
+I was partially confused by your backup daemon deamon example that can 
+be equally well implemented in userspace.
 
-PS: Soft blanking is very difficult, if not impossible, to
-implement correctly kernel-side, so we can either fail (current
-code), silently fail but return success, or convert to the next
-blank level.
+Signed modules and/or binaries seems to be the application this might be 
+required for, so let's discuss exactly this application and not the 
+others.
+
+> Re,
+> David
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

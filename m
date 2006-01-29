@@ -1,76 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbWA2FfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWA2Fi2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750828AbWA2FfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 00:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWA2FfZ
+	id S1750836AbWA2Fi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 00:38:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWA2Fi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 00:35:25 -0500
-Received: from mail.kroah.org ([69.55.234.183]:47851 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750828AbWA2FfY (ORCPT
+	Sun, 29 Jan 2006 00:38:28 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:202 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750831AbWA2Fi1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 00:35:24 -0500
-Date: Sat, 28 Jan 2006 21:34:58 -0800
-From: Greg KH <gregkh@suse.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Chuck Wolber <chuckw@quantumlinux.com>, jmforbes@linuxtx.org,
-       linux-kernel@vger.kernel.org, stable@kernel.org, zwane@arm.linux.org.uk,
-       tytso@mit.edu, davej@redhat.com, torvalds@osdl.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk
-Subject: Re: [patch 0/6] 2.6.14.7 -stable review
-Message-ID: <20060129053458.GA9293@suse.de>
-References: <20060128021749.GA10362@kroah.com> <Pine.LNX.4.63.0601282028210.7205@localhost.localdomain> <20060129044307.GA23553@linuxtx.org> <Pine.LNX.4.63.0601282048380.7205@localhost.localdomain> <20060128205701.5b84922e.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 29 Jan 2006 00:38:27 -0500
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
+Date: Sun, 29 Jan 2006 06:38:17 +0100
+User-Agent: KMail/1.8
+Cc: Benjamin LaHaise <bcrl@kvack.org>, dada1@cosmosbay.com, kiran@scalex86.org,
+       davem@davemloft.net, linux-kernel@vger.kernel.org, shai@scalex86.org,
+       netdev@vger.kernel.org, pravins@calsoftinc.com,
+       linux-arch@vger.kernel.org
+References: <20060126185649.GB3651@localhost.localdomain> <20060129004459.GA24099@kvack.org> <20060128165549.262f2b90.akpm@osdl.org>
+In-Reply-To: <20060128165549.262f2b90.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060128205701.5b84922e.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.11
+Message-Id: <200601290638.18630.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 28, 2006 at 08:57:01PM -0800, Randy.Dunlap wrote:
-> On Sat, 28 Jan 2006 20:52:46 -0800 (PST) Chuck Wolber wrote:
-> 
-> > On Sat, 28 Jan 2006, Justin M. Forbes wrote:
-> > 
-> > > On Sat, Jan 28, 2006 at 08:30:25PM -0800, Chuck Wolber wrote:
-> > > > 
-> > > > Please correct me if I'm wrong here, but aren't we supposed to stop doing 
-> > > > this for the 2.6.14 release now that 2.6.15 is out?
-> > >
-> > > I don't see a problems with doing additional stable releases for any 
-> > > kernel, I just wouldn't commit to supporting any specific number of 
-> > > releases.  Basically if people send enough patches to warrant a 
-> > > review/release there is obviously some interest.  What is the harm?
-> > 
-> > The harm is that stable release patches will eventually start being 
-> > maintained and we'll have to add another stable release "dot" to the end 
-> > of the growing width of the release version moniker. This stable branch 
-> > was meant only for "one-off" fixes to a stable release, not for adding 
-> > fixes upon fixes upon fixes that eventually turn into features that have 
-> > to be maintained. A new stable release means we change our focus to it and 
-> > ignore the old stable release.
-> 
-> It's a 6-month sliding window for stable releases IIRC.
-> Maybe <stable@kernel.org> can add something like that to
-> Documentation/stable_kernel_rules.txt>.
+[adding linux-arch]
 
-No, it's not a 6 month window, I released this because people sent us
-patches that they said should go into the 2.6.14-stable tree.  And as
-people complained so much on lkml that we were dropping the old kernels
-too fast, I never thought that people would complain that we are
-maintaining older stuff that people seem interested in...
+On Sunday 29 January 2006 01:55, Andrew Morton wrote:
+> Benjamin LaHaise <bcrl@kvack.org> wrote:
+> > On Sat, Jan 28, 2006 at 01:28:20AM +0100, Eric Dumazet wrote:
+> > > We might use atomic_long_t only (and no spinlocks)
+> > > Something like this ?
+> >
+> > Erk, complex and slow...  Try using local_t instead, which is
+> > substantially cheaper on the P4 as it doesn't use the lock prefix and act
+> > as a memory barrier.  See asm/local.h.
+>
+> local_t isn't much use until we get rid of asm-generic/local.h.  Bloaty,
+> racy with nested interrupts.
 
-And, odds are, it will probably be the last 2.6.14 stable kernel we (the
-stable team) release, unless something unusual happens...
+It is just implemented wrong. It should use 
+local_irq_save()/local_irq_restore() instead. But my bigger problem
+with local_t is these few architectures (IA64, PPC64) who implement it 
+with atomic_t. This means we can't replace local statistics counters
+with local_t because it would be regression for them. I haven't done the
+benchmarks yet, but I suspect both IA64 and PPC64 really should
+just turn off interrupts.
 
-And, as always, anyone is free to take on maintaining any of the
-different kernel versions for as long as they wish.
-
-Does that help?
-
-Man, people complain when you don't maintain older kernels, and they
-complain when you do...
-
-thanks,
-
-greg k-h
+-Andi

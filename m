@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWA2JLq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWA2JTo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbWA2JLq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 04:11:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWA2JLq
+	id S1750766AbWA2JTo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 04:19:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWA2JTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 04:11:46 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:10945 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750759AbWA2JLp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 04:11:45 -0500
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] ahci: get JMicron JMB360 working
-Date: Sun, 29 Jan 2006 10:16:26 +0100
-User-Agent: KMail/1.9
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20060129050434.GA19047@havoc.gtf.org>
-In-Reply-To: <20060129050434.GA19047@havoc.gtf.org>
+	Sun, 29 Jan 2006 04:19:44 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37088 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750766AbWA2JTn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 04:19:43 -0500
+To: Suleiman Souhlal <ssouhlal@FreeBSD.org>
+Cc: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH 5/5] file: Modify struct fown_struct to contain a tref
+References: <m1psmba4bn.fsf@ebiederm.dsl.xmission.com>
+	<m1lkwza479.fsf@ebiederm.dsl.xmission.com>
+	<m1hd7na44b.fsf_-_@ebiederm.dsl.xmission.com>
+	<m1d5iba3xf.fsf_-_@ebiederm.dsl.xmission.com>
+	<m18xsza3p4.fsf_-_@ebiederm.dsl.xmission.com>
+	<m14q3na3ma.fsf_-_@ebiederm.dsl.xmission.com>
+	<43DC804B.4060900@FreeBSD.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sun, 29 Jan 2006 02:18:28 -0700
+In-Reply-To: <43DC804B.4060900@FreeBSD.org> (Suleiman Souhlal's message of
+ "Sun, 29 Jan 2006 00:43:55 -0800")
+Message-ID: <m1u0bn8k9n.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1243907.OphOC9yPZf";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601291016.30459.prakash@punnoor.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1243907.OphOC9yPZf
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Suleiman Souhlal <ssouhlal@FreeBSD.org> writes:
 
-Am Sonntag Januar 29 2006 06:04 schrieb Jeff Garzik:
+> Eric W. Biederman wrote:
+>
+>> @@ -317,7 +326,9 @@ static long do_fcntl(int fd, unsigned in
+>>  		 * current syscall conventions, the only way
+>>  		 * to fix this will be in libc.
+>>  		 */
+>> -		err = filp->f_owner.pid;
+>> +		err = 0;
+>> +		if (filp->f_owner.tref->task)
+>> +			err = filp->f_owner.pid;
+>
+> Probably not very important, but why don't you use
+> filp->f_owner.tref->task->pid? This way you could completely get rid of the pid
+> field in fown_struct.
 
-> This patch, against latest 2.6.16-rc-git, adds support for JMicron and
-> fixes some code that should be Intel-only, but was being executed for
-> all vendors.
+Two reasons.
+One because task->pid is not the proper value for a thread group.
+And because task might be NULL.
 
-Thx, works nicely here with JMicron jMB360 on an Asrock board.
+Basically using filp->f_owner.tref->task->pid as my source is a much
+more complicated expression.
 
-Cheers,
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
-
---nextPart1243907.OphOC9yPZf
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBD3IfuxU2n/+9+t5gRAi2bAKCIjpK15ZvjpgsS9c/YH43zvE4XrwCeMRdb
-ZnLvUPom94ClXXV21Eu4fFQ=
-=3Kmj
------END PGP SIGNATURE-----
-
---nextPart1243907.OphOC9yPZf--
+Eric

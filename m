@@ -1,87 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWA2UTQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWA2UV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbWA2UTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 15:19:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWA2UTQ
+	id S1751161AbWA2UV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 15:21:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWA2UV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 15:19:16 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:47580
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751158AbWA2UTP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 15:19:15 -0500
-Date: Sun, 29 Jan 2006 12:19:23 -0800
-From: Greg KH <greg@kroah.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1 kernel init oops
-Message-ID: <20060129201923.GB6972@kroah.com>
-References: <20060128171841.6f989958.rdunlap@xenotime.net> <20060128175511.35e39233.rdunlap@xenotime.net> <20060129190029.GB7168@kroah.com> <20060129111934.53710b03.rdunlap@xenotime.net>
+	Sun, 29 Jan 2006 15:21:28 -0500
+Received: from pat.uio.no ([129.240.130.16]:54244 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751161AbWA2UV1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 15:21:27 -0500
+Subject: Re: 2.6.15.1: persistent nasty hang in sync_page killing NFS
+	(ne2k-pci / DP83815-related?), i686/PIII
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Nix <nix@esperi.org.uk>
+Cc: linux-kernel@vger.kernel.org, thockin@hockin.org
+In-Reply-To: <8764o23j0s.fsf@amaterasu.srvr.nix>
+References: <87fyn8artm.fsf@amaterasu.srvr.nix>
+	 <1138499957.8770.91.camel@lade.trondhjem.org>
+	 <87slr79knc.fsf@amaterasu.srvr.nix>  <8764o23j0s.fsf@amaterasu.srvr.nix>
+Content-Type: text/plain
+Date: Sun, 29 Jan 2006 15:21:15 -0500
+Message-Id: <1138566075.8711.39.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060129111934.53710b03.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.059, required 12,
+	autolearn=disabled, AWL 1.75, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 29, 2006 at 11:19:34AM -0800, Randy.Dunlap wrote:
-> On Sun, 29 Jan 2006 11:00:29 -0800 Greg KH wrote:
-> 
-> > On Sat, Jan 28, 2006 at 05:55:11PM -0800, Randy.Dunlap wrote:
-> > > On Sat, 28 Jan 2006 17:18:41 -0800 Randy.Dunlap wrote:
-> > > 
-> > > > Hi,
-> > > > 
-> > > > I'm trying to boot 2.6.16-rc1 on a T42 Thinkpad notebook.
-> > > > No serial port for serial console.  I don't think that networking
-> > > > is alive yet (for network console ?).
-> > > > 
-> > > > Anyone recognize this?  got patch?
-> > > > 
-> > > > This is just typed in, so could contain a few errors.
-> > > > 
-> > > > Unable to handle kernel NULL pointer dereference at virtual address 00000001
-> > > > printing eip:
-> > > > 00000001
-> > > > *pde = 00000000
-> > > > Oops: 0000 [#1]
-> > > > SMP DEBUG_PAGEALLOC
-> > > > Modules linked in:
-> > > > CPU:	0
-> > > > EIP:	0060:[<00000001>]   Not tainted VLI
-> > > > EFLAGS: 00010202   (2.6.16-rc1)
-> > > > EIP is at 0x1
-> > > > <skip reg. dump>
-> > > > <skip stack dump>
-> > > > Call trace:
-> > > > 	show_stack_log_lvl+0xa5/0xad
-> > > > 	show_registers+0xf9/0x162
-> > > > 	die+0xfe/0x179
-> > > > 	do_page_fault+0x399/0x4d8
-> > > > 	error_code+0x4f/0x54
-> > > > 	device_register+0x13/0x18
-> > > > 	platform_bus_init+0xd/0x19
-> > > > 	driver_init+0x1c/0x2d
-> > > > 	do_basic_setup+0x12/0x1e
-> > > > 	init+0x95/0x195
-> > > > 	kernel_thread_helper+0x5/0xb
-> > > > Code:  Bad EIP value.
-> > > 
-> > > Both 2.6.15 and 2.6.15.1 boot OK for me.
-> > > .config for 2.6.16-rc1 is at
-> > >   http://www.xenotime.net/linux/doc/config-2616rc1
-> > 
-> > If you disable CONFIG_PNP and CONFIG_ISAPNP options does that help?
-> 
-> Nope, no change.  Any other suggestions?
-> 
-> I just booted with a KOBJECT_DEBUG
-> built kernel and it's failing after:
-> 
-> kobject platform: registering, parent: <NULL>, set: devices
+On Sun, 2006-01-29 at 19:56 +0000, Nix wrote:
+> Further info, possibly in support of your suggestion, possibly not: the
+> problem does *not* occur with NFS-over-TCP. So it's specific to UDP,
+> this hardware (perhaps motherboard or network card, see the .config
+> diff), *and* NFS. Other UDP stuff (e.g. DNS) gets through fine in both
+> directions; NFS works with TCP; and the whole lot worked before the
+> hardware was changed.
 
-Can you enable CONFIG_DEBUG_DRIVER and see if that helps?
+If it works with TCP but not UDP, then the problem is usually either a
+NIC driver issue, or a lossy network.
+Comparing with DNS is not really useful, because NFS over UDP uses much
+larger packet sizes (32k usually) which causes heavy use of
+fragmentation.
 
-thanks,
+Cheers,
+ Trond
 
-greg k-h

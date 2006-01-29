@@ -1,79 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWA2GRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWA2GX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbWA2GRu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 01:17:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWA2GRu
+	id S1750837AbWA2GX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 01:23:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWA2GX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 01:17:50 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:22799 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1750827AbWA2GRt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 01:17:49 -0500
-Date: Sun, 29 Jan 2006 07:17:22 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Chuck Wolber <chuckw@quantumlinux.com>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, stable@kernel.org, jmforbes@linuxtx.org,
-       zwane@arm.linux.org.uk, tytso@mit.edu, davej@redhat.com,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [patch 0/6] 2.6.14.7 -stable review
-Message-ID: <20060129061722.GY7142@w.ods.org>
-References: <20060128021749.GA10362@kroah.com> <Pine.LNX.4.63.0601282028210.7205@localhost.localdomain> <20060128204531.4786aaea.rdunlap@xenotime.net> <Pine.LNX.4.63.0601282053170.7205@localhost.localdomain>
-Mime-Version: 1.0
+	Sun, 29 Jan 2006 01:23:29 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:22238 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750837AbWA2GX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 01:23:28 -0500
+To: Andrew Morton <akpm@osdl.org>
+CC: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] exec: Cleanup exec from a non thread group leader.
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sat, 28 Jan 2006 23:23:00 -0700
+Message-ID: <m1zmlfft8b.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0601282053170.7205@localhost.localdomain>
-User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 28, 2006 at 09:02:16PM -0800, Chuck Wolber wrote:
-> On Sat, 28 Jan 2006, Randy.Dunlap wrote:
-> 
-> > On Sat, 28 Jan 2006 20:30:25 -0800 (PST) Chuck Wolber wrote:
-> > 
-> > > On Fri, 27 Jan 2006, Greg KH wrote:
-> > > 
-> > > > This is the start of the stable review cycle for the 2.6.14.7 
-> > > > release. There are 6 patches in this series, all will be posted as a 
-> > > > response to this one.  If anyone has any issues with these being 
-> > > > applied, please let us know.  If anyone is a maintainer of the 
-> > > > proper subsystem, and wants to add a signed-off-by: line to the 
-> > > > patch, please respond with it.
-> > > 
-> > > Please correct me if I'm wrong here, but aren't we supposed to stop 
-> > > doing this for the 2.6.14 release now that 2.6.15 is out?
-> > 
-> > Some people wanted more -stable so the stable team agreed to do a little 
-> > more.  Is it a problem?
-> 
-> 
-> I don't know if there is a problem, but it goes against the concept of 
-> "one-off" fixes that aren't maintained (aka the purpose of the -stable 
-> team). This slope eventually leads us to backporting -stable fixes from 
-> other -stable releases etc etc. 
 
-The purpose of -stable is to provide stable kernels to 2.6 users. If time
-was not a problem, it's possible that there would be even more versions
-supported. The day you will install Linux on a server, you'll understand
-why it's problematic for some people to upgrade to latest version to get
-fixes. And when you get something that works, you hope to be able to use
-it as an alternative to a simple upgrade when the later breaks on your
-hardware.
+This patch modifies switch_exec_pids so that it uses the
+normal attach_pid/detach_pid functions.  This makes
+the code more maintainable and it removes a race
+where find_pid could fail to find a thread group or
+a process id that currently exists.
 
-> If there's one thing I've learned from watching guys like Alan Cox 
-> maintain stable releases, it's that they're profoundly good at saying 
-> "no". I'm not saying that's warranted here, I'm just trying to encourage 
-> the dialog (I suspect that I've missed part of the conversation as I am 
-> not currently subscribed to LKML).
+We also now preserve the exit_signal of our thread group
+leader when we call exec (when we take over the thread
+group leaders identity).
 
-It's not a matter of saying "yes" or "no", it's a matter of helping
-users in getting something which works best on their hardware while
-still being reliable and secure. Maintainers propose some solutions
-for this, and can adapt to users' demands. I don't see anything wrong
-with this.
+And for good measure we set the thread group leaders
+exit_signal to -1 so it will self reap.  We are actually
+past the point where that matters but it can't hurt, and
+it might help someday.
 
-> ..Chuck..
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 
-Willy
+
+---
+
+ fs/exec.c    |    3 ++-
+ kernel/pid.c |   33 +++++++++++++--------------------
+ 2 files changed, 15 insertions(+), 21 deletions(-)
+
+dab45943cf60c11f4432d6fdd26d68eb7092b8dd
+diff --git a/fs/exec.c b/fs/exec.c
+index c9d8e31..922dbee 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -721,10 +721,11 @@ static int de_thread(struct task_struct 
+ 
+ 		list_del(&current->tasks);
+ 		list_add_tail(&current->tasks, &init_task.tasks);
+-		current->exit_signal = SIGCHLD;
++		current->exit_signal = leader->exit_signal;
+ 
+ 		BUG_ON(leader->exit_state != EXIT_ZOMBIE);
+ 		leader->exit_state = EXIT_DEAD;
++		leader->exit_signal = -1;
+ 
+ 		write_unlock_irq(&tasklist_lock);
+ 		spin_unlock(&leader->proc_lock);
+diff --git a/kernel/pid.c b/kernel/pid.c
+index 1acc072..d2247dc 100644
+--- a/kernel/pid.c
++++ b/kernel/pid.c
+@@ -220,31 +220,24 @@ EXPORT_SYMBOL(find_task_by_pid_type);
+ /*
+  * This function switches the PIDs if a non-leader thread calls
+  * sys_execve() - this must be done without releasing the PID.
+- * (which a detach_pid() would eventually do.)
++ *
++ * The attach and detach operations have been carefully
++ * ordered so there is never an instant that pids that will
++ * survive are absent from the hash table.  This ensures
++ * that we don't release pids we mean to keep.
+  */
+ void switch_exec_pids(task_t *leader, task_t *thread)
+ {
+-	__detach_pid(leader, PIDTYPE_PID);
+-	__detach_pid(leader, PIDTYPE_TGID);
+-	__detach_pid(leader, PIDTYPE_PGID);
+-	__detach_pid(leader, PIDTYPE_SID);
+-
+-	__detach_pid(thread, PIDTYPE_PID);
+-	__detach_pid(thread, PIDTYPE_TGID);
+-
+-	leader->pid = leader->tgid = thread->pid;
+-	thread->pid = thread->tgid;
+-
+-	attach_pid(thread, PIDTYPE_PID, thread->pid);
+-	attach_pid(thread, PIDTYPE_TGID, thread->tgid);
++	detach_pid(thread, PIDTYPE_PID);
++	thread->pid = leader->pid;
++	attach_pid(thread, PIDTYPE_PID,  thread->pid);
+ 	attach_pid(thread, PIDTYPE_PGID, thread->signal->pgrp);
+-	attach_pid(thread, PIDTYPE_SID, thread->signal->session);
+-	list_add_tail(&thread->tasks, &init_task.tasks);
++	attach_pid(thread, PIDTYPE_SID,  thread->signal->session);
+ 
+-	attach_pid(leader, PIDTYPE_PID, leader->pid);
+-	attach_pid(leader, PIDTYPE_TGID, leader->tgid);
+-	attach_pid(leader, PIDTYPE_PGID, leader->signal->pgrp);
+-	attach_pid(leader, PIDTYPE_SID, leader->signal->session);
++	detach_pid(leader, PIDTYPE_PID);
++	detach_pid(leader, PIDTYPE_TGID);
++	detach_pid(leader, PIDTYPE_PGID);
++	detach_pid(leader, PIDTYPE_SID);
+ }
+ 
+ /*
+-- 
+1.1.5.g3480
 

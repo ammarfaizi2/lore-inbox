@@ -1,76 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWA2Hme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbWA2HqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbWA2Hme (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 02:42:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751067AbWA2Hmd
+	id S1750927AbWA2HqU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 02:46:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWA2HqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 02:42:33 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:57059 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751206AbWA2HiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 02:38:11 -0500
-Subject: Re: RCU latency regression in 2.6.16-rc1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: dipankar@in.ibm.com, paulmck@us.ibm.com, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <43DBCB62.7030308@cosmosbay.com>
-References: <20060124092330.GA7060@elte.hu>
-	 <1138095856.2771.103.camel@mindpipe> <20060124162846.GA7139@in.ibm.com>
-	 <20060124213802.GC7139@in.ibm.com> <1138224506.3087.22.camel@mindpipe>
-	 <20060126191809.GC6182@us.ibm.com> <1138388123.3131.26.camel@mindpipe>
-	 <20060128170302.GB5633@in.ibm.com> <1138471203.2799.13.camel@mindpipe>
-	 <1138474283.2799.24.camel@mindpipe> <20060128193412.GH5633@in.ibm.com>
-	 <43DBCB62.7030308@cosmosbay.com>
-Content-Type: text/plain
-Date: Sun, 29 Jan 2006 02:38:02 -0500
-Message-Id: <1138520283.2799.103.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Jan 2006 02:46:20 -0500
+Received: from tachyon.quantumlinux.com ([64.113.1.99]:46780 "EHLO
+	tachyon.quantumlinux.com") by vger.kernel.org with ESMTP
+	id S1751269AbWA2HnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 02:43:07 -0500
+Date: Sat, 28 Jan 2006 23:43:50 -0800 (PST)
+From: Chuck Wolber <chuckw@quantumlinux.com>
+X-X-Sender: chuckw@localhost.localdomain
+To: Willy Tarreau <willy@w.ods.org>
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>, gregkh@suse.de,
+       linux-kernel@vger.kernel.org, stable@kernel.org, jmforbes@linuxtx.org,
+       zwane@arm.linux.org.uk, tytso@mit.edu, davej@redhat.com,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [patch 0/6] 2.6.14.7 -stable review
+In-Reply-To: <20060129061722.GY7142@w.ods.org>
+Message-ID: <Pine.LNX.4.63.0601282339490.7205@localhost.localdomain>
+References: <20060128021749.GA10362@kroah.com> <Pine.LNX.4.63.0601282028210.7205@localhost.localdomain>
+ <20060128204531.4786aaea.rdunlap@xenotime.net>
+ <Pine.LNX.4.63.0601282053170.7205@localhost.localdomain> <20060129061722.GY7142@w.ods.org>
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-28 at 20:52 +0100, Eric Dumazet wrote:
-> > Your new trace shows that we are held up in in rt_run_flush(). 
-> > I guess we need to investigate why we spend so much time in rt_run_flush(),
-> > because of a big route table or the lock acquisitions.
-> 
-> Some machines have millions of entries in their route cache.
-> 
-> I suspect we cannot queue all them (or only hash heads as your
-> previous patch) by RCU. Latencies and/or OOM can occur.
-> 
-> What can be done is :
-> 
-> in rt_run_flush(), allocate a new empty hash table, and exchange the
-> hash tables.
-> 
-> Then wait a quiescent/grace RCU period (may be the exact term is not
-> this one, sorry, I'm not RCU expert)
-> 
-> Then free all the entries from the old hash table (direclty of course,
-> no need for RCU grace period), and free the hash table.
-> 
-> As the hash table can be huge, we might need allocate it at boot time,
-> just in case a flush is needed (it usually is :) ). If we choose
-> dynamic allocation and this allocation fails, then fallback to what is
-> done today.
-> 
+On Sun, 29 Jan 2006, Willy Tarreau wrote:
 
-No problem, I'm not a networking expert...
+> The purpose of -stable is to provide stable kernels to 2.6 users. If time
+> was not a problem, it's possible that there would be even more versions
+> supported.
 
-Ingo's response to these traces was that softirq preemption, which
-simply offloads all softirq processing to softirqd and has been tested
-in the -rt patchset for over a year, is the easiest solution.  Any
-thoughts on that?  Personally, I'd rather fix the very few problematic
-softirqs, than take such a drastic step - this softirq appears to be one
-of the last obstacles to being able to meet a 1ms soft RT constraint
-with the mainline kernel.
-
-Thanks for looking at this; I'd be glad to test any patches...
-
-Lee
+Mmmm, yup. I was there when this whole thing was brewed up ;)
 
 
+> The day you will install Linux on a server, you'll understand why it's 
+> problematic for some people to upgrade to latest version to get fixes.
+
+Sure hope you're not implying I haven't done that before...
+
+ 
+> It's not a matter of saying "yes" or "no", it's a matter of helping 
+> users in getting something which works best on their hardware while 
+> still being reliable and secure. Maintainers propose some solutions for 
+> this, and can adapt to users' demands. I don't see anything wrong with 
+> this.
+
+Neither do I. To a great extent, that void is already filled by distro 
+maintainers. 
+
+..Chuck..
+
+
+-- 
+http://www.quantumlinux.com
+ Quantum Linux Laboratories, LLC.
+ ACCELERATING Business with Open Technology
+
+ "The measure of the restoration lies in the extent to which we apply
+  social values more noble than mere monetary profit." - FDR

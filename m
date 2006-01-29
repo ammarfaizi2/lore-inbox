@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWA2ITM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWA2IVq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbWA2ITM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 03:19:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbWA2ITL
+	id S1750871AbWA2IVq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 03:21:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWA2IVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 03:19:11 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:41188 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750796AbWA2ITK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 03:19:10 -0500
-Date: Sun, 29 Jan 2006 00:18:32 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Cc: linux-fbdev-devel@lists.sourceforge.net, ioe-lkml@rameria.de,
-       linux-kernel@vger.kernel.org, davem@davemloft.net,
-       benh@kernel.crashing.org, linux-kernel@hansmi.ch
-Subject: Re: [PATCH] fbdev: Fix usage of blank value passed to fb_blank
-Message-Id: <20060129001832.4fe6fd7f.akpm@osdl.org>
-In-Reply-To: <43DC25EB.1040005@gmail.com>
-References: <20060127231314.GA28324@hansmi.ch>
-	<20060127.204645.96477793.davem@davemloft.net>
-	<43DB0839.6010703@gmail.com>
-	<200601282106.21664.ioe-lkml@rameria.de>
-	<43DC25EB.1040005@gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 29 Jan 2006 03:21:46 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:32424 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750869AbWA2IVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 03:21:45 -0500
+Subject: Re: RCU latency regression in 2.6.16-rc1
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Eric Dumazet <dada1@cosmosbay.com>, dipankar@in.ibm.com,
+       paulmck@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20060129075144.GA15056@elte.hu>
+References: <20060124213802.GC7139@in.ibm.com>
+	 <1138224506.3087.22.camel@mindpipe> <20060126191809.GC6182@us.ibm.com>
+	 <1138388123.3131.26.camel@mindpipe> <20060128170302.GB5633@in.ibm.com>
+	 <1138471203.2799.13.camel@mindpipe> <1138474283.2799.24.camel@mindpipe>
+	 <20060128193412.GH5633@in.ibm.com> <43DBCB62.7030308@cosmosbay.com>
+	 <1138520283.2799.103.camel@mindpipe>  <20060129075144.GA15056@elte.hu>
+Content-Type: text/plain
+Date: Sun, 29 Jan 2006 03:21:41 -0500
+Message-Id: <1138522902.2799.111.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Antonino A. Daplas" <adaplas@gmail.com> wrote:
->
-> Unfortunately, this may cause some userland breakage.  X should work.
->  However, some apps may have been developed that uses the FB_BLANK constants
->  (DirectFB?).  In these cases, they'll get a deeper blank level instead, so it
->  probably won't affect them significantly.  A follow up patch that hides the 
->  FB_BLANK constants may be worthwhile.
+On Sun, 2006-01-29 at 08:51 +0100, Ingo Molnar wrote:
+> 
+> well, softirq preemption is not really a drastic step - its biggest 
+> problem is that it cannot be included in v2.6.16 ;-) But i agree that
+> if a solution can be found to break up a latency path, that is
+> preferred.
+> 
 
-Would prefer to avoid any userland breakage.  Is this followup patch
-happening?
+Agreed.  It's only drastic in the context of my target (meeting a 1ms
+soft RT constraint) as this happens to be the one of the only code paths
+getting in the way.  Also I'd like to be able to go down to 1ms without
+requiring a custom kernel config...
+
+Lee
+

@@ -1,84 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWA2Qip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbWA2Q5D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751073AbWA2Qip (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 11:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWA2Qip
+	id S1751081AbWA2Q5D (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 11:57:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbWA2Q5C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 11:38:45 -0500
-Received: from pat.uio.no ([129.240.130.16]:24003 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751071AbWA2Qip convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 11:38:45 -0500
-Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths
-	library
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: David =?ISO-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Christoph Hellwig <hch@infradead.org>,
-       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060129113320.GA21386@hardeman.nu>
-References: <20060127092817.GB24362@infradead.org> <1138312694656@2gen.com>
-	 <1138312695665@2gen.com> <6403.1138392470@warthog.cambridge.redhat.com>
-	 <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de>
-	 <20060128104611.GA4348@hardeman.nu>
-	 <1138466271.8770.77.camel@lade.trondhjem.org>
-	 <20060128165732.GA8633@hardeman.nu>
-	 <1138504829.8770.125.camel@lade.trondhjem.org>
-	 <20060129113320.GA21386@hardeman.nu>
-Content-Type: text/plain; charset=utf-8
-Date: Sun, 29 Jan 2006 11:38:22 -0500
-Message-Id: <1138552702.8711.12.camel@lade.trondhjem.org>
+	Sun, 29 Jan 2006 11:57:02 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7646 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751081AbWA2Q5A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 11:57:00 -0500
+Date: Sun, 29 Jan 2006 17:56:47 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: mingo@elte.hu, nickpiggin@yahoo.com.au, ak@suse.de,
+       linux-kernel@vger.kernel.org, rohit.seth@intel.com,
+       asit.k.mallick@intel.com
+Subject: Re: [Patch] sched: new sched domain for representing multi-core
+Message-ID: <20060129165645.GF1764@elf.ucw.cz>
+References: <20060126015132.A8521@unix-os.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 8BIT
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.052, required 12,
-	autolearn=disabled, AWL 1.76, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060126015132.A8521@unix-os.sc.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-29 at 12:33 +0100, David Härdeman wrote:
-
-> >Why would you want to use proxy certificates for you own use? Use your
-> >own certificate for your own processes, and issue one or more proxy
-> >certificates to any daemon that you want to authorise to do some limited
-> >task.
+On Čt 26-01-06 01:51:33, Siddha, Suresh B wrote:
+> Appended patch adds a new sched domain for representing multi-core with
+> shared caches between cores. Consider a dual package system, each package
+> containing two cores and with last level cache shared between cores with in a
+> package. If there are two runnable processes, with this appended patch
+> those two processes will be scheduled on different packages.
 > 
-> I meant that you can't use proxy certs for your own use, so you still need 
-> to store your own cert/key somehow...and I still believe that the kernel 
-> keyring is the best place...
-
-Agreed. Now, reread what I said above, and tell me why this is an
-argument for doing dsa in the kernel?
-
-> >...and what does this statement about "keys being safer in the kernel"
-> >mean?
+> On such system, with this patch we have observed 8% perf improvement with 
+> specJBB(2 warehouse) benchmark and 35% improvement with CFP2000 rate(with
+> 2 users).
 > 
-> swap-out to disk, ptrace, coredump all become non-issues. And in 
-> combination with some other security features (such as disallowing 
-> modules, read/write of /dev/mem + /dev/kmem, limited permissions via
-> SELinux, etc), it becomes pretty hard for the attacker to get your 
-> private key even if he/she manages to get access to the root account.
+> This new domain will come into play only on multi-core systems with shared
+> caches. On other systems, this sched domain will be removed by
+> domain degeneration code. This new domain can be also used for implementing
+> power savings policy (see OLS 2005 CMP kernel scheduler paper for more
+> details.. I will post another patch for power savings policy soon)
 
-Turning off coredump is trivial. All the features that LSM provide apply
-to userland too (including security_ptrace()), so the SELinux policies
-are not an argument for putting stuff in the kernel.
+Could we all do it with single CONFIG_SCHED_SMT or CONFIG_NUMA or
+something like that? No need for zillion options...
+								Pavel
 
-Only the swap-out to disk is an issue, and that is less of a worry if
-you use a time-limited proxy in the daemon.
-
-> >> Further, the mpi and dsa code can also be used for supporting signed 
-> >> modules and binaries...the "store dsa-keys in kernel" part adds 376 
-> >> lines of code (counted with wc so comments and includes etc are also 
-> >> counted)...
-> >
-> >Signed modules sounds like a better motivation, but is a full dsa
-> >implementation in the kernel really necessary to achieve this?
-> 
-> How would you do it otherwise?
-
-Has anyone tried to look for simpler signing mechanisms that make use of
-the crypto algorithms that are already in the kernel?
-
-Cheers,
-  Trond
-
+-- 
+Thanks, Sharp!

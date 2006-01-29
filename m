@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbWA2OmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWA2Omk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751014AbWA2OmN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 09:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbWA2OmN
+	id S1751016AbWA2Omk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 09:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbWA2Omk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 09:42:13 -0500
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:20412 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S1751012AbWA2OmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 09:42:12 -0500
-Date: Sun, 29 Jan 2006 15:42:34 +0100
-From: Luca <kronos@kronoz.cjb.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Suspend to RAM: help with whitelist wanted
-Message-ID: <20060129144233.GA3052@dreamland.darkstar.lan>
-References: <20060126213611.GA1668@elf.ucw.cz> <20060127170406.GA6164@dreamland.darkstar.lan> <20060127232207.GB1617@elf.ucw.cz> <20060128155800.GA3064@dreamland.darkstar.lan> <20060128163611.GB1858@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 29 Jan 2006 09:42:40 -0500
+Received: from gw03.mail.saunalahti.fi ([195.197.172.111]:8840 "EHLO
+	gw03.mail.saunalahti.fi") by vger.kernel.org with ESMTP
+	id S1751012AbWA2Omj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 09:42:39 -0500
+Date: Sun, 29 Jan 2006 16:42:28 +0200
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Oeser <ioe-lkml@rameria.de>,
+       linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+       benh@kernel.crashing.org, linux-kernel@hansmi.ch
+Subject: Re: [Linux-fbdev-devel] [PATCH] fbdev: Fix usage of blank value passed to fb_blank
+Message-ID: <20060129144228.GA22425@sci.fi>
+Mail-Followup-To: linux-fbdev-devel@lists.sourceforge.net,
+	Andrew Morton <akpm@osdl.org>, Ingo Oeser <ioe-lkml@rameria.de>,
+	linux-kernel@vger.kernel.org,
+	"David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
+	linux-kernel@hansmi.ch
+References: <20060127231314.GA28324@hansmi.ch> <20060127.204645.96477793.davem@davemloft.net> <43DB0839.6010703@gmail.com> <200601282106.21664.ioe-lkml@rameria.de> <43DC25EB.1040005@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060128163611.GB1858@elf.ucw.cz>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43DC25EB.1040005@gmail.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Sat, Jan 28, 2006 at 05:36:11PM +0100, Pavel Machek ha scritto: 
-> > > If vbetool's primary purpose is to fix video after suspend/resume,
-> > > then perhaps right thing to do is to integrate it into s2ram and
-> > > maintain it there.
-> > > 
-> > > Matthew, what do you think?
-> > > 
-> > > Luca, would you cook quick&hacky fork-and-exec patch? I do not have
-> > > machine that needs vbetool...
-> > 
-> > Very quick and very hacky ;)
-> 
-> Thanks; applied after some cleanups. Could you fetch it from cvs and
-> confirm it still works?
+On Sun, Jan 29, 2006 at 10:18:19AM +0800, Antonino A. Daplas wrote:
+> diff --git a/drivers/video/fbmem.c b/drivers/video/fbmem.c
+> index d2dede6..5bed0fb 100644
+> --- a/drivers/video/fbmem.c
+> +++ b/drivers/video/fbmem.c
+> @@ -843,6 +843,19 @@ fb_blank(struct fb_info *info, int blank
+>  {	
+>   	int ret = -EINVAL;
+>  
+> +	/*
+> +	 * The framebuffer core supports 5 blanking levels (FB_BLANK), whereas
+> +	 * VESA defined only 4.  The extra level, FB_BLANK_NORMAL, is a
+> +	 * console invention and is not related to power management.
+> +	 * Unfortunately, fb_blank callers, especially X, pass VESA constants
+> +	 * leading to undefined behavior.
 
-Yup, it's ok.
+Since when? X.Org uses numbers 0,2,3,4 which match the FB_BLANK 
+constants not the VESA constants.
 
-Luca
 -- 
-Home: http://kronoz.cjb.net
-The trouble with computers is that they do what you tell them, 
-not what you want.
-D. Cohen
+Ville Syrjälä
+syrjala@sci.fi
+http://www.sci.fi/~syrjala/

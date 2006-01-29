@@ -1,92 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWA2Stj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbWA2TAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751107AbWA2Stj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 13:49:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWA2Stj
+	id S1751108AbWA2TAU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 14:00:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWA2TAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 13:49:39 -0500
-Received: from mail.gurulabs.com ([67.137.148.7]:64925 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S1751107AbWA2Sti convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 13:49:38 -0500
+	Sun, 29 Jan 2006 14:00:20 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:11479
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751108AbWA2TAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 14:00:19 -0500
+Date: Sun, 29 Jan 2006 11:00:29 -0800
+From: Greg KH <greg@kroah.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.16-rc1 kernel init oops
+Message-ID: <20060129190029.GB7168@kroah.com>
+References: <20060128171841.6f989958.rdunlap@xenotime.net> <20060128175511.35e39233.rdunlap@xenotime.net>
 Mime-Version: 1.0
-X-Mailer: SnapperMail 2.3.2.01  by Snapperfish
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>,
-       =?ISO-8859-1?Q?_=22David_H=E4rdeman=22?= <david@2gen.com>
-Cc: "Christoph Hellwig" <hch@infradead.org>, <keyrings@linux-nfs.org>,
-       <linux-kernel@vger.kernel.org>, "Adrian Bunk" <bunk@stusta.de>
-Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer 
- maths	library
-Message-ID: <406-SnapperMsg827D11E1C002BEC0@[70.7.65.98]>
-In-Reply-To: <1138552702.8711.12.camel@lade.trondhjem.org>
-References: <20060127092817.GB24362@infradead.org> 
- <1138312694656@2gen.com>
-	<1138312695665@2gen.com> 
- <6403.1138392470@warthog.cambridge.redhat.com>
-	<20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de>
-	<20060128104611.GA4348@hardeman.nu>
-	<1138466271.8770.77.camel@lade.trondhjem.org>
-	<20060128165732.GA8633@hardeman.nu>
-	<1138504829.8770.125.camel@lade.trondhjem.org>
-	<20060129113320.GA21386@hardeman.nu> <1138552702.8711.12.camel@lade.trondhjem.org>
-From: Dax Kelson <dax@gurulabs.com>
-Date: Sun, 29 Jan 2006 11:49:24 -0700
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060128175511.35e39233.rdunlap@xenotime.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- ..... Original Message .......
-On Sun, 29 Jan 2006 11:38:22 -0500 "Trond Myklebust" <trond.myklebust@fys.uio.no> wrote:
->On Sun, 2006-01-29 at 12:33 +0100, David Härdeman wrote:
->
->> >Why would you want to use proxy certificates for you own use? Use your
->> >own certificate for your own processes, and issue one or more proxy
->> >certificates to any daemon that you want to authorise to do some limited
->> >task.
->> 
->> I meant that you can't use proxy certs for your own use, so you still need 
->> to store your own cert/key somehow...and I still believe that the kernel 
->> keyring is the best place...
->
->Agreed. Now, reread what I said above, and tell me why this is an
->argument for doing dsa in the kernel?
->
->> >...and what does this statement about "keys being safer in the kernel"
->> >mean?
->> 
->> swap-out to disk, ptrace, coredump all become non-issues. And in 
->> combination with some other security features (such as disallowing 
->> modules, read/write of /dev/mem + /dev/kmem, limited permissions via
->> SELinux, etc), it becomes pretty hard for the attacker to get your 
->> private key even if he/she manages to get access to the root account.
->
->Turning off coredump is trivial. All the features that LSM provide apply
->to userland too (including security_ptrace()), so the SELinux policies
->are not an argument for putting stuff in the kernel.
->
->Only the swap-out to disk is an issue, and that is less of a worry if
->you use a time-limited proxy in the daemon.
+On Sat, Jan 28, 2006 at 05:55:11PM -0800, Randy.Dunlap wrote:
+> On Sat, 28 Jan 2006 17:18:41 -0800 Randy.Dunlap wrote:
+> 
+> > Hi,
+> > 
+> > I'm trying to boot 2.6.16-rc1 on a T42 Thinkpad notebook.
+> > No serial port for serial console.  I don't think that networking
+> > is alive yet (for network console ?).
+> > 
+> > Anyone recognize this?  got patch?
+> > 
+> > This is just typed in, so could contain a few errors.
+> > 
+> > Unable to handle kernel NULL pointer dereference at virtual address 00000001
+> > printing eip:
+> > 00000001
+> > *pde = 00000000
+> > Oops: 0000 [#1]
+> > SMP DEBUG_PAGEALLOC
+> > Modules linked in:
+> > CPU:	0
+> > EIP:	0060:[<00000001>]   Not tainted VLI
+> > EFLAGS: 00010202   (2.6.16-rc1)
+> > EIP is at 0x1
+> > <skip reg. dump>
+> > <skip stack dump>
+> > Call trace:
+> > 	show_stack_log_lvl+0xa5/0xad
+> > 	show_registers+0xf9/0x162
+> > 	die+0xfe/0x179
+> > 	do_page_fault+0x399/0x4d8
+> > 	error_code+0x4f/0x54
+> > 	device_register+0x13/0x18
+> > 	platform_bus_init+0xd/0x19
+> > 	driver_init+0x1c/0x2d
+> > 	do_basic_setup+0x12/0x1e
+> > 	init+0x95/0x195
+> > 	kernel_thread_helper+0x5/0xb
+> > Code:  Bad EIP value.
+> 
+> Both 2.6.15 and 2.6.15.1 boot OK for me.
+> .config for 2.6.16-rc1 is at
+>   http://www.xenotime.net/linux/doc/config-2616rc1
 
-I seem to remember a feature in the kernel that allows each uid to mlock a small number of memory pages specifically intended to be used by daemons that cache keys. It is possible this was a Fedora kernel patch and not in the mainline kernel.
+If you disable CONFIG_PNP and CONFIG_ISAPNP options does that help?
 
->> >> Further, the mpi and dsa code can also be used for supporting signed 
->> >> modules and binaries...the "store dsa-keys in kernel" part adds 376 
->> >> lines of code (counted with wc so comments and includes etc are also 
->> >> counted)...
->> >
->> >Signed modules sounds like a better motivation, but is a full dsa
->> >implementation in the kernel really necessary to achieve this?
->> 
->> How would you do it otherwise?
->
->Has anyone tried to look for simpler signing mechanisms that make use of
->the crypto algorithms that are already in the kernel?
+thanks,
 
-Maybe you meant something else, but history has shown that 'rolling your own' mechanism is a bad idea.
-
-Are there even any suitable algorithms in the kernel??
-
-___
-Dax Kelson
-Sent with my Treo
+greg k-h

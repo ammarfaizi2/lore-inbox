@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWA2JLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWA2JLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750755AbWA2JLa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 04:11:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWA2JLa
+	id S1750756AbWA2JLq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 04:11:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWA2JLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 04:11:30 -0500
-Received: from ozlabs.org ([203.10.76.45]:32897 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750755AbWA2JLa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 04:11:30 -0500
-Date: Sat, 28 Jan 2006 12:19:48 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Mark Haverkamp <markh@osdl.org>
-Cc: "linuxppc64-dev@ozlabs.org" <linuxppc64-dev@ozlabs.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: iommu_alloc failure and panic
-Message-ID: <20060128011948.GB17018@krispykreme>
-References: <1138381060.11796.22.camel@markh3.pdx.osdl.net> <20060127234853.GA17018@krispykreme> <1138406447.11796.32.camel@markh3.pdx.osdl.net>
+	Sun, 29 Jan 2006 04:11:46 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:10945 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750759AbWA2JLp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 04:11:45 -0500
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] ahci: get JMicron JMB360 working
+Date: Sun, 29 Jan 2006 10:16:26 +0100
+User-Agent: KMail/1.9
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20060129050434.GA19047@havoc.gtf.org>
+In-Reply-To: <20060129050434.GA19047@havoc.gtf.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1138406447.11796.32.camel@markh3.pdx.osdl.net>
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/signed;
+  boundary="nextPart1243907.OphOC9yPZf";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200601291016.30459.prakash@punnoor.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi,
+--nextPart1243907.OphOC9yPZf
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> It looks like they are already on:
-> 
-> CONFIG_DEBUG_STACKOVERFLOW=y
-> CONFIG_DEBUG_STACK_USAGE=y
+Am Sonntag Januar 29 2006 06:04 schrieb Jeff Garzik:
 
-You could try bumping the limit for the warning in
-arch/powerpc/kernel/irq.c
+> This patch, against latest 2.6.16-rc-git, adds support for JMicron and
+> fixes some code that should be Intel-only, but was being executed for
+> all vendors.
 
-	if (unlikely(sp < (sizeof(struct thread_info) + 2048)))
+Thx, works nicely here with JMicron jMB360 on an Asrock board.
 
-Change it to 4096.
+Cheers,
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
 
-Unfortunately if the long call chain is in an interrupt disabled area
-you will not get warned.
+--nextPart1243907.OphOC9yPZf
+Content-Type: application/pgp-signature
 
-> The machine is frozen after the panic. 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-You can do it sometime before the hang to see if you are getting close
-to overflowing the stack.
+iD8DBQBD3IfuxU2n/+9+t5gRAi2bAKCIjpK15ZvjpgsS9c/YH43zvE4XrwCeMRdb
+ZnLvUPom94ClXXV21Eu4fFQ=
+=3Kmj
+-----END PGP SIGNATURE-----
 
-Anton
+--nextPart1243907.OphOC9yPZf--

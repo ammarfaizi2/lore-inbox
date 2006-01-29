@@ -1,54 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWA2XTf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWA2XZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbWA2XTf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 18:19:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWA2XTf
+	id S932081AbWA2XZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 18:25:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWA2XZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 18:19:35 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:51357 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932072AbWA2XTe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 18:19:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ShOU5CT770hSfIcqkdMuiSWprTeHl1imlMKeAjfhTPCjkXiAY2EIQtA5ZdgMgLhLXroBj9qjBwZQLON3tWlRgpjipiEK298c43mYoKWsfAe5JJjAp0w+1BCeGdzGqmdQUY5n9LmA97+mt2FLldfqlqE6FvVRDnjTO8xmpGN7yzg=
-Message-ID: <9a8748490601291519k623a518apee03c95da8d21b96@mail.gmail.com>
-Date: Mon, 30 Jan 2006 00:19:33 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.16-rc1-mm4
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060129144533.128af741.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 29 Jan 2006 18:25:59 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:13263 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S932081AbWA2XZ6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 18:25:58 -0500
+Date: Mon, 30 Jan 2006 00:25:37 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: jesse.brandeburg@intel.com, jeffrey.t.kirsher@intel.com,
+       john.ronciak@intel.com, jgarzik@pobox.com
+Cc: linux-netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: patch "e100: Fix TX hang and RMCP Ping issue" (post-2.6.16-rc1) causes suspend-to-ram breakage
+Message-ID: <20060129232537.GA8343@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	jesse.brandeburg@intel.com, jeffrey.t.kirsher@intel.com,
+	john.ronciak@intel.com, jgarzik@pobox.com,
+	linux-netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060129144533.128af741.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/29/06, Andrew Morton <akpm@osdl.org> wrote:
->
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm4/
->
-[...]
->
-> - If you have a patch in -mm which you think should go into 2.6.16, it
->   doesn't hurt to remind me.  There's quite a lot here which will go into
->   2.6.16.
->
-Well, the following 4 patches have been in -mm for a while, are fairly
-trivial and I've not heard any complains about them, so I guess they
-might as well move on and get into 2.6.16 :
+Hi,
 
-   decrease-number-of-pointer-derefs-in-jsm_ttyc.patch
-   docs-update-missing-files-and-descriptions-for-filesystems-00-index.patch
-   reduce-nr-of-ptr-derefs-in-fs-jffs2-summaryc.patch
-   sound-remove-unneeded-kmalloc-return-value-casts.patch
+git bisect revealed that 24180333206519e6b0c4633eab81e773b4527cac is 
+the first bad commit, which is 
+
+"e100: Fix TX hang and RMCP Ping issue (due to a microcode loading issue)"
+
+With it applied, suspend-to-ram fails to resume to userspace, which is
+required on my system to get video back (vbetool). 
+
+02:08.0 Ethernet controller: Intel Corporation 82801DB PRO/100 VE (MOB) Ethernet Controller (rev 81)
+	Subsystem: Samsung Electronics Co Ltd Unknown device c009
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 66 (2000ns min, 14000ns max), Cache Line Size 08
+	Interrupt: pin A routed to IRQ 5
+	Region 0: Memory at e0201000 (32-bit, non-prefetchable) [size=4K]
+	Region 1: I/O ports at 3000 [size=64]
+	Capabilities: [dc] Power Management version 2
+		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+eth0      Link encap:Ethernet  HWaddr ...................
+          BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+
+Settings for eth0:
+	Supported ports: [ TP MII ]
+	Supported link modes:   10baseT/Half 10baseT/Full 
+	                        100baseT/Half 100baseT/Full 
+	Supports auto-negotiation: Yes
+	Advertised link modes:  10baseT/Half 10baseT/Full 
+	                        100baseT/Half 100baseT/Full 
+	Advertised auto-negotiation: Yes
+	Speed: 10Mb/s
+	Duplex: Half
+	Port: MII
+	PHYAD: 1
+	Transceiver: internal
+	Auto-negotiation: on
+	Supports Wake-on: g
+	Wake-on: g
+	Current message level: 0x00000007 (7)
+	Link detected: no
 
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+No cable inserted, therefore the link is down...
+
+	Dominik

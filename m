@@ -1,78 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWA2GuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWA2GyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbWA2GuD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 01:50:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWA2GuD
+	id S1750861AbWA2GyS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 01:54:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWA2GyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 01:50:03 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44510 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750853AbWA2GuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 01:50:01 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386: Add a temporary to make put_user more type safe.
-References: <m1r76rft2t.fsf@ebiederm.dsl.xmission.com>
-	<20060128223917.4e5c3dd9.akpm@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sat, 28 Jan 2006 23:49:32 -0700
-In-Reply-To: <20060128223917.4e5c3dd9.akpm@osdl.org> (Andrew Morton's
- message of "Sat, 28 Jan 2006 22:39:17 -0800")
-Message-ID: <m17j8jfs03.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Sun, 29 Jan 2006 01:54:18 -0500
+Received: from mf01.sitadelle.com ([212.94.174.68]:52672 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1750814AbWA2GyR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 01:54:17 -0500
+Message-ID: <43DC6691.9000001@cosmosbay.com>
+Date: Sun, 29 Jan 2006 07:54:09 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Andrew Morton <akpm@osdl.org>, kiran@scalex86.org, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, shai@scalex86.org, netdev@vger.kernel.org,
+       pravins@calsoftinc.com
+Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
+References: <20060126185649.GB3651@localhost.localdomain> <20060126190357.GE3651@localhost.localdomain> <43D9DFA1.9070802@cosmosbay.com> <20060127195227.GA3565@localhost.localdomain> <20060127121602.18bc3f25.akpm@osdl.org> <20060127224433.GB3565@localhost.localdomain> <43DAA586.5050609@cosmosbay.com> <20060127151635.3a149fe2.akpm@osdl.org> <43DABAA4.8040208@cosmosbay.com> <20060129004459.GA24099@kvack.org>
+In-Reply-To: <20060129004459.GA24099@kvack.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+Benjamin LaHaise a écrit :
+> On Sat, Jan 28, 2006 at 01:28:20AM +0100, Eric Dumazet wrote:
+>> We might use atomic_long_t only (and no spinlocks)
+>> Something like this ?
+> 
+> Erk, complex and slow...  Try using local_t instead, which is substantially 
+> cheaper on the P4 as it doesn't use the lock prefix and act as a memory 
+> barrier.  See asm/local.h.
+> 
 
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
->>
->> 
->> In some code I am developing I had occasion to change the type of a
->> variable.  This made the value put_user was putting to user space
->> wrong.  But the code continued to build cleanly without errors.
->
-> What do you mean by "wrong"?  What combinations of types do you think
-> should be disallowed here?  put_user(char, int*), for example, or what?
->
-> We had one instance recently where code was doing put_user() of an
-> eight-byte struct and that sailed through x86 testing but made the sparc64
-> compiler ICE.  Certainly we should stamp out tricks like that at compile
-> time, but how far should we go?
->
-> There's probably a good case for ensuring that typeof(x)==typeof(*ptr), but
-> I suspect that'd create a lot of noise.
+Well, I think that might be doable, maybe RCU magic ?
 
-All I do is ensure that typeof(x) is assignment compatible with typeof(*ptr).
-That is what the assignment to the temporary does.  We actually do
-this already on x86 if you compile for an i386 which people very rarely
-do anymore.
+1) local_t are not that nice on all archs.
 
-I have performed sever kernel compiles with it applied against the stable
-tree and saw no errors other than when I tried to assign a pointer to an
-integer using put_user.
+2) The consolidation phase (summing all the cpus local offset to consolidate 
+the central counter) might be more difficult to do (we would need kind of 2 
+counters per cpu, and a index that can be changed by the cpu that wants a 
+consolidation (still 'expensive'))
 
-So your eight-byte struct case would probably be caught but the character
-case would get type promoted and be fine.
+struct cpu_offset {
+	local_t   offset[2];
+	};
 
->> Introducing a temporary fixes this problem and at least with gcc-3.3.5
->> does not cause gcc any problems with optimizing out the temporary.
->> gcc-4.x using SSA internally ought to be even better at optimizing out
->> temporaries, so I don't expect a temporary to become a problem.
->> Especially because in all correct cases the types on both sides of the
->> assignment to the temporary are the same.
->> 
->
-> Sounds sane.  We could make it warn if typeof(x)!=typeof(*ptr) by adding
-> another temporary for the pointer, give it type typeof(x)*, but I haven't
-> tried it.
+struct percpu_counter {
+	atomic_long_t count;
+	unsigned int offidx;
+	spinlock_t   lock; /* to guard offidx changes */
+	cpu_offset *counters;
+};
 
-I guess we could do that.  However if we don't use the value we will probably
-get an unused variable warning.  
+void percpu_counter_mod(struct percpu_counter *fbc, long amount)
+{
+         long val;
+	struct cpu_offset *cp;
+	local_t *l;
 
-Mostly I am just after the normal C assignment warnings/errors.  Although if
-we can do better that would be great.
+	cp = per_cpu_ptr(fbc->counters, get_cpu());
+	l = &cp[fbc->offidx];
 
+         local_add(amount, l);
+	val = local_read(l);
+	if (new >= FBC_BATCH || new <= -FBC_BATCH) {
+                 local_set(l, 0);
+                 atomic_long_add(val, &fbc->count);
+	}
+	put_cpu();
+}
+
+long percpu_counter_read_accurate(struct percpu_counter *fbc)
+{
+	long res = 0, val;
+	int cpu;
+	struct cpu_offset *cp;
+	local_t *l;
+
+	spin_lock(&fbc->lock);
+	idx = fbc->offidx;
+	fbc->offidx ^= 1;
+	mb();
+	/*
+	 * FIXME :
+	 *	must 'wait' other cpus dont touch anymore their old local_t
+	 */
+	for_each_cpu(cpu) {
+		cp = per_cpu_ptr(fbc->counters, cpu);
+		l = &cp[idx];
+		val = local_read(l);
+		/* dont dirty alien cache line if not necessary */
+		if (val)
+			local_set(l, 0);
+		res += val;
+	}
+	spin_unlock(&fbc->lock);
+         atomic_long_add(res, &fbc->count);
+         return atomic_long_read(&fbc->count);
+}
+
+
+
+3) Are the locked ops so expensive if done on a cache line that is mostly in 
+exclusive state in cpu cache ?
+
+Thank you
 Eric
+

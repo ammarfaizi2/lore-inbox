@@ -1,61 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWA2T5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWA2UAz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751132AbWA2T5E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 14:57:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWA2T5E
+	id S1751138AbWA2UAz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 15:00:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWA2UAz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 14:57:04 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:58381 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751132AbWA2T5D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 14:57:03 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org, thockin@hockin.org
-Subject: Re: 2.6.15.1: persistent nasty hang in sync_page killing NFS
- (ne2k-pci / DP83815-related?), i686/PIII
-References: <87fyn8artm.fsf@amaterasu.srvr.nix>
-	<1138499957.8770.91.camel@lade.trondhjem.org>
-	<87slr79knc.fsf@amaterasu.srvr.nix>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: the Swiss Army of Editors.
-Date: Sun, 29 Jan 2006 19:56:35 +0000
-In-Reply-To: <87slr79knc.fsf@amaterasu.srvr.nix> (nix@esperi.org.uk's
- message of "Sun, 29 Jan 2006 14:24:55 +0000")
-Message-ID: <8764o23j0s.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 29 Jan 2006 15:00:55 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:6236 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751133AbWA2UAx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 15:00:53 -0500
+Date: Sun, 29 Jan 2006 20:57:33 +0100
+From: Jens Axboe <axboe@suse.de>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>,
+       Nix <nix@esperi.org.uk>, Ariel <askernel2615@dsgml.com>,
+       Jamie Heilman <jamie@audible.transient.net>,
+       Chase Venters <chase.venters@clientec.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: memory leak in scsi_cmd_cache 2.6.15
+Message-ID: <20060129195733.GH13831@suse.de>
+References: <Pine.LNX.4.62.0601222045180.12815@pureeloreel.qftzy.pbz> <1137997104.2977.7.camel@laptopd505.fenrus.org> <200601230029.12674.chase.venters@clientec.com> <Pine.LNX.4.62.0601230136080.22979@pureeloreel.qftzy.pbz> <20060123072556.GC15490@fifty-fifty.audible.transient.net> <Pine.LNX.4.62.0601261312160.1174@pureeloreel.qftzy.pbz> <87ek2td4i9.fsf@amaterasu.srvr.nix> <20060128192714.GI9750@suse.de> <20060129155009.GT28738@edu.joroinen.fi> <1138552692.3352.6.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1138552692.3352.6.camel@mulgrave>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Jan 2006, nix@esperi.org.uk whispered secretively:
-> On Sat, 28 Jan 2006, Trond Myklebust stipulated:
->> http://blogs.sun.com/roller/page/shepler?entry=port_623_or_the_mount
+On Sun, Jan 29 2006, James Bottomley wrote:
+> On Sun, 2006-01-29 at 17:50 +0200, Pasi Kärkkäinen wrote:
+> > Are all sata drivers affected by this bug in 2.6.15?
 > 
-> That's specific to one port. As the capture (from the server side this
-> time) shows, the NFS client is using all sorts of ports on the client,
-> and port 2049 on the server; acks are not required, this being UDP.
+> Well, all SCSI drivers are affected by it, yes.  However, SATA devices
+> are peculiarly affected because the ordered_flush method of enforcing
+> barriers, which is where the leak is, can only be implemented for
+> devices that don't do tag command queueing (i.e. don't have multiple
+> commands outstanding for a given single device).  By and large, SATA
+> drivers are the only drivers in the SCSI subsystem that can't do tag
+> command queueing, which is why the problem didn't show up for any other
+> type of SCSI driver.
+
+2.6.15 didn't support barriers for anything other than ordered flush
+SCSI low level drivers, hence only SATA is affected.
+
+> > Any 'official' patch available?
 > 
-> I'm going to rebuild with NFS-over-TCP support and see if that changes
-> anything next. A bit pointless on a clean switched network, but it's
-> hardly going to be noticeable...
+> Well, yes, 2.6.16-rc1 has this fixed.  I can't see backporting this to
+> 2.6.15.x since it represents a significant functionality enhancement as
+> well, so I'd lean towards just forcing ordered_flush to zero in 2.6.15.x
+> which seems to be the best bug fix.
 
-Further info, possibly in support of your suggestion, possibly not: the
-problem does *not* occur with NFS-over-TCP. So it's specific to UDP,
-this hardware (perhaps motherboard or network card, see the .config
-diff), *and* NFS. Other UDP stuff (e.g. DNS) gets through fine in both
-directions; NFS works with TCP; and the whole lot worked before the
-hardware was changed.
+Agree, backporting the barrier rewrite would be insane for stable.
 
-At this point though I'd say that it's really rather unlikely to be
-purely hardware at fault.
+> > Or is the recommended workaround to set ordered_flush to 0 to fix this..
+> > does that have any downsides?
+> 
+> setting ordered_flush to zero for 2.6.15 turns off the flushing
+> functionality and restores the old behaviour.  I don't see that there
+> would be any down side to this.
 
-> I'll get another network card on Monday and swap out the DP83815, and
-> see if *that* changes anything.
+Just the usual correctness issue, but since it's leaky it doesn't seem
+like a big deal to wait for 2.6.16.
 
-No need now, I can make it appear and disappear on demand.
+So here's a patch for 2.6.15:
+
+---
+
+Turn off ordered flush barriers for SCSI driver, since the SCSI barrier
+code has a command leak.
+
+Signed-off-by: Jens Axboe <axboe@suse.de>
+
+--- linux-2.6.15.1/drivers/scsi/scsi_lib.c~	2006-01-29 11:55:08.000000000 -0800
++++ linux-2.6.15.1/drivers/scsi/scsi_lib.c	2006-01-29 11:55:38.000000000 -0800
+@@ -1534,11 +1534,6 @@
+ 	 */
+ 	if (shost->ordered_tag)
+ 		blk_queue_ordered(q, QUEUE_ORDERED_TAG);
+-	else if (shost->ordered_flush) {
+-		blk_queue_ordered(q, QUEUE_ORDERED_FLUSH);
+-		q->prepare_flush_fn = scsi_prepare_flush_fn;
+-		q->end_flush_fn = scsi_end_flush_fn;
+-	}
+ 
+ 	if (!shost->use_clustering)
+ 		clear_bit(QUEUE_FLAG_CLUSTER, &q->queue_flags);
 
 -- 
-`I won't make a secret of the fact that your statement/question
- sent a wave of shock and horror through us.' --- David Anderson
+Jens Axboe
+

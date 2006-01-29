@@ -1,79 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWA2Nyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWA2OZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbWA2Nyl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 08:54:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWA2Nyl
+	id S1751007AbWA2OZU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 09:25:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWA2OZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 08:54:41 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:63418 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750997AbWA2Nyk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 08:54:40 -0500
-Date: Sun, 29 Jan 2006 14:55:08 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: [patch, lock validator] fix uidhash_lock <-> RCU deadlock
-Message-ID: <20060129135508.GA31156@elte.hu>
-References: <20060125142307.GA5427@elte.hu> <1138208378.3992.7.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Sun, 29 Jan 2006 09:25:20 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:60943 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751005AbWA2OZU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 09:25:20 -0500
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org, thockin@hockin.org
+Subject: Re: 2.6.15.1: persistent nasty hang in sync_page killing NFS
+ (ne2k-pci / DP83815-related?), i686/PIII
+References: <87fyn8artm.fsf@amaterasu.srvr.nix>
+	<1138499957.8770.91.camel@lade.trondhjem.org>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: if SIGINT doesn't work, try a tranquilizer.
+Date: Sun, 29 Jan 2006 14:24:55 +0000
+In-Reply-To: <1138499957.8770.91.camel@lade.trondhjem.org> (Trond
+ Myklebust's message of "Sat, 28 Jan 2006 20:59:17 -0500")
+Message-ID: <87slr79knc.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1138208378.3992.7.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Daniel Walker <dwalker@mvista.com> wrote:
-
-> On Wed, 2006-01-25 at 15:23 +0100, Ingo Molnar wrote:
-> > RCU task-struct freeing can call free_uid(), which is taking 
-> > uidhash_lock - while other users of uidhash_lock are softirq-unsafe.
-> > 
-> > This bug was found by the lock validator i'm working on:
+On Sat, 28 Jan 2006, Trond Myklebust stipulated:
+> On Sat, 2006-01-28 at 22:52 +0000, Nix wrote:
 > 
-> What is it doing exactly ?
+>> tcpdumps and the kernel's packet counters on both sides show NFS packets
+>> flowing, and being retried, over and over again:
+> 
+> Are you using an Intel motherboard? If so, it could be the IPMI bug
 
-the lock validator is building a runtime graph of lock dependencies, as 
-they occur. The granularity is not per lock instance, but per lock 
-"type" - making it easier (and more likely) to find deadlocks, without 
-having those deadlocks to trigger. So it's a proactive thing, not a 
-reactive thing like the current mutex deadlock detection code.
+The motherboard's an ASUS CUV4X, with VIA almost-everything. I think
+this is the first mobo I've had in a decade that doesn't even have an
+Intel PIIX bridge on it.
 
-the type granularity also has the positive effect that locking 
-dependencies between two locks have only be mapped once per bootup, for 
-any arbitrary object or task that makes use of that lock.
+(One other machine in the house has VIA almost-everything as well, and
+exhibits none of these problems.)
 
-the directed graph is constantly kept valid: when a new dependency is 
-added then it's checked for circular dependencies.
+> http://blogs.sun.com/roller/page/shepler?entry=port_623_or_the_mount
 
-the validator is also tracking the usage characteristics of locks: 
-whether they are used in hardirq context, softirq context, whether they 
-are held with hardirqs enabled, softirqs enabled.
+That's specific to one port. As the capture (from the server side this
+time) shows, the NFS client is using all sorts of ports on the client,
+and port 2049 on the server; acks are not required, this being UDP.
 
-then when a lock is taken in an irq context, or is taken with interrupts 
-enabled, or interrupts are enabled with the lock held, the validator 
-immediately transitions that lock (type) to the new usage state - and 
-validates all the ripple effects within the graph. [i.e. it validates 
-all locks dependending on this lock, and validates all locks this lock 
-is depending on.]
+I'm going to rebuild with NFS-over-TCP support and see if that changes
+anything next. A bit pointless on a clean switched network, but it's
+hardly going to be noticeable...
 
-the end-result is that this validator gets very close to being able to 
-prove the theoretical code-correctness of lock usage within Linux, for 
-all codepaths that occur at least once per bootup. This it can do even 
-on a uniprocessor system.
+I'll get another network card on Monday and swap out the DP83815, and
+see if *that* changes anything.
 
-i'll release the code soon. I wrote it as a debugging extension to 
-mutexes, but now it covers spinlocks and rwlocks too.
-
-	Ingo
+-- 
+`I won't make a secret of the fact that your statement/question
+ sent a wave of shock and horror through us.' --- David Anderson

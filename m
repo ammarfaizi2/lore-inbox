@@ -1,107 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWA2R5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWA2SOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbWA2R5H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 12:57:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWA2R5G
+	id S1751102AbWA2SOz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 13:14:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWA2SOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 12:57:06 -0500
-Received: from exo3753.pck.nerim.net ([213.41.240.142]:61494 "EHLO
-	mail-out1.exosec.net") by vger.kernel.org with ESMTP
-	id S1751090AbWA2R5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 12:57:05 -0500
-Date: Sun, 29 Jan 2006 18:56:47 +0100
-From: Willy Tarreau <wtarreau@exosec.fr>
-To: linux-kernel@vger.kernel.org
-Cc: Syed Ahemed <kingkhan@gmail.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Grant Coady <grant_lkml@dodo.com.au>
-Subject: [ANNOUNCE] Linux 2.4.32-hf32.2
-Message-ID: <20060129175647.GA21999@exosec.fr>
+	Sun, 29 Jan 2006 13:14:55 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19620 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751102AbWA2SOy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 13:14:54 -0500
+Subject: [PATCH] ibm-acpi brightness fix
+From: David Zeuthen <david@fubar.dk>
+To: borislav@users.sourceforge.net, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Sun, 29 Jan 2006 13:14:31 -0500
+Message-Id: <1138558472.9858.23.camel@daxter.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.5.4 (2.5.4-10) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-here's the second hotfix for 2.4.32 and older kernels. There are only
-a few fixes, two of them security-related, and one that I mistakenly
-removed from 2.4.32-hf32.1 because I thought it was fixed in 2.4.32
-while it was not. Please consult the appended changelog.
+Hi,
 
-In other news, with some help from Syed Ahemed, I added support for
-2.4.28 which some people still use. It is interesting to note that
-some recent patches do not apply to 2.4.28 because the bugs they fix
-were introduced later. That clearly demonstrates the usefulness of a
-feature freeze.
+The ibm-acpi driver allows user space to set the brightness of the
+display but the way it currently works is by fading from one of the
+eight levels to the other. While this effect is visually pleasing it's
+probably best taken care of by user space itself (and users of
+gnome-power-manager will notice that this is exactly what it does).
 
-I've successfully built 2.4.28-hf32.2 with all of its modules, which
-puts 150 patches on top of 2.4.28.
+This patch removes the fading. Patch is against ibm-acpi 0.11 but it
+also applies to the drivers/acpi/ibm_acpi.c file in Linus' tree. I've
+tested this on a IBM Thinkpad T41. Please apply.
 
-Grant, I think it's not necessary to rebuild all versions, doing 2.4.32
-should be enough.
+(Please keep me in the Cc - I'm not subscribed to the LKML)
 
- URLs of interest :
+    David
 
-    hotfixes home : http://linux.exosec.net/kernel/2.4-hf/
-     last version : http://linux.exosec.net/kernel/2.4-hf/LATEST/LATEST/
-         RSS feed : http://linux.exosec.net/kernel/hf.xml
-    build results : http://bugsplatter.mine.nu/test/linux-2.4/ (Grant's site)
+Signed-Off-By: David Zeuthen <david@fubar.dk>
 
-Cheers,
-Willy
-
-
-Changelog from 2.4.32-hf32.1 to 2.4.32-hf32.2
----------------------------------------
-'+' = added ; '-' = removed
-
-+ 2.4.32-wan-sdla-fix-probable-security-hole-1                       (Horms)
-
-  [PATCH] wan sdla:  fix probable security hole
-  Quoting Chris Wright : "Hrm, I believe you could use this to read 128k
-  of kernel memory. sdla_read() takes len as a short, whereas mem.len is
-  an int. So, if mem.len == 0x20000, the allocation could still succeed.
-  When cast to short, len will be 0x0, causing the read loop to copy
-  nothing into the buffer. At least it's protected by a capable() check.
-  I don't know what proper upper bound is for this hardware, or how much
-  it's used/cared about. Simple memset() is trivial fix."
-  This seems to be applicable to 2.4.
-
-+ 2.4.32-CAN-2004-1058-proc_pid_cmdline-race-fix-1            (dann frazier)
-
-  The following patch fixes a race condition that allows local users to
-  view the environment variables of another process. Taken from Red Hat's
-  kernel-2.4.21-27.0.4.EL.src.rpm.
-
-+ 2.4.32-bond_alb-hash-table-corruption-1                (ODonnell, Michael)
-
-  Our systems have been crashing during testing of PCI HotPlug
-  support in the various networking components. We've faulted in
-  the bonding driver due to a bug in bond_alb.c:tlb_clear_slave().
-  In that routine, the last modification to the TLB hash table is
-  made without protection of the lock, allowing a race that can
-  lead tlb_choose_channel() to select an invalid table element.
-
-+ 2.4.32-rc2-mcast-filter-1                                  (Willy Tarreau)
-
-  [PATCH-2.4][MCAST]IPv6: small fix for ip6_mc_msfilter(...)
-  Multicast source filters aren't widely used yet, and that's really
-  the only feature that's affected if an application actually exercises
-  this bug, as far as I can tell. An ordinary filter-less multicast join
-  should still work, and only forwarded multicast traffic making use of
-  filters and doing empty-source filters with the MSFILTER ioctl would
-  be at risk of not getting multicast traffic forwarded to them because
-  the reports generated would not be based on the correct counts.
-  Initial 2.6 patch by Yan Zheng, bug explanation by David Stevens,
-  patch ACKed by David.
-
---
-Willy Tarreau - http://w.ods.org/ 
-EXOSEC - ZAC des Metz - 3 Rue du petit robinson - 78350 JOUY EN JOSAS
-N°Indigo: 0 825 075 510 - Accueil: +33 1 72 89 72 30 - Fax: +33 1 72 89 80 19
-Site web : http://www.exosec.fr/
+--- ibm-acpi-0.11.orig/ibm_acpi.c	2005-03-17 05:06:16.000000000 -0500
++++ ibm-acpi-0.11/ibm_acpi.c	2006-01-29 12:55:53.000000000 -0500
+@@ -1351,7 +1351,7 @@ static int brightness_read(char *p)
+ 
+ static int brightness_write(char *buf)
+ {
+-	int cmos_cmd, inc, i;
++	int cmos_cmd;
+ 	u8 level;
+ 	int new_level;
+ 	char *cmd;
+@@ -1372,13 +1372,11 @@ static int brightness_write(char *buf)
+ 			return -EINVAL;
+ 
+ 		cmos_cmd = new_level > level ? BRIGHTNESS_UP : BRIGHTNESS_DOWN;
+-		inc = new_level > level ? 1 : -1;
+-		for (i = level; i != new_level; i += inc) {
+-			if (!cmos_eval(cmos_cmd))
+-				return -EIO;
+-			if (!acpi_ec_write(brightness_offset, i + inc))
+-				return -EIO;
+-		}
++
++		if (!cmos_eval(cmos_cmd))
++			return -EIO;
++		if (!acpi_ec_write(brightness_offset, new_level))
++			return -EIO;
+ 	}
+ 
+ 	return 0;
 

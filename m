@@ -1,83 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWA2K0C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWA2Khq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750894AbWA2K0C (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 05:26:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbWA2K0C
+	id S1750892AbWA2Khq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 05:37:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWA2Khq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 05:26:02 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17121 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750894AbWA2K0B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 05:26:01 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] exec: Only allow a threaded init to exec from the
- thread_group_leader
-References: <m14q3nh7zi.fsf@ebiederm.dsl.xmission.com>
-	<20060129003606.7887ecd9.akpm@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Sun, 29 Jan 2006 03:25:32 -0700
-In-Reply-To: <20060129003606.7887ecd9.akpm@osdl.org> (Andrew Morton's
- message of "Sun, 29 Jan 2006 00:36:06 -0800")
-Message-ID: <m1irs38h5v.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Sun, 29 Jan 2006 05:37:46 -0500
+Received: from [207.253.5.75] ([207.253.5.75]:5903 "EHLO
+	imailserver.sicon-sr.com") by vger.kernel.org with ESMTP
+	id S1750876AbWA2Khp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 05:37:45 -0500
+Message-ID: <002201c624bf$fdcc83b0$1701a8c0@gerold>
+From: "Gerold van Dijk" <gerold@sicon-sr.com>
+To: <Valdis.Kletnieks@vt.edu>
+Cc: <linux-kernel@vger.kernel.org>, "Alwin" <d_j_d@hotmail.com>,
+       "oswin martopawiro" <o_martopawiro@hotmail.com>,
+       "guno" <guno@sicon-sr.com>, "albert" <albert@sicon-sr.com>
+References: <000601c62370$db00cd50$1701a8c0@gerold> <200601271852.k0RIqaC0023706@turing-police.cc.vt.edu>
+Subject: Re: traceroute bug ? 
+Date: Sun, 29 Jan 2006 07:37:23 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.3790.1289
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.1289
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+Dear Valdis et.al.,
 
->> 408dad0f2b7067b23929866150e73b2b2f12d662
->> diff --git a/fs/exec.c b/fs/exec.c
->> index 055378d..c9d8e31 100644
->> --- a/fs/exec.c
->> +++ b/fs/exec.c
->> @@ -600,6 +600,12 @@ static int de_thread(struct task_struct 
->>  	if (thread_group_empty(current))
->>  		goto no_thread_group;
->>  
->> +	/* A threaded init must exec from it's primary thread.
->> +	 * As the init task (i.e. child_reaper) may not exit.
->> +	 */
->> +	if (!thread_group_leader(current) && (current->tgid == 1))
->> +		return -EINVAL;
->> +	
->>  	/*
->>  	 * Kill all other threads in the thread group.
->>  	 * We must hold tasklist_lock to call zap_other_threads.
+thanks for biting! I really tested this thing thoroughly, with different 
+distributions (Red Hat, SuSE 8.0 and 10.0) on different machines with the 
+firewalls completely open, and without any router or switch involved: cross 
+cable straight from one machine to another!
+
+IF I ONLY CHANGE TO ANOTHER IP BLOCK (E.G. 206.253.5.64/24) OR A PRIVATE 
+RANGE (E.G. 192.168.1.0/24) THE TRACEROUTE WORKS FINE! SO IT IS SPECIFICALLY 
+THIS 207.253.5.0/24 BLOCK THAT DOES NOT TRACEROUTE WITHIN IT'S OWN RANGE!
+
+Not only the subnetwork 207.253.5.64/27 but the whole class C block 
+207.253.5.0/24 !?
+
+Just to be complete: we CAN ping normally within this network!
+
+But the traceroute simple displays "*  *  *" row after row!
+
+Of course it is not that urgent a problem, cause what is the sense of doing 
+a traceroute within your own network anyway? But I thought it might be 
+useful to report this strange thing!
+
+Thank you all for your time!
+
+Regards,
+
+Gerold H. van Dijk
+
+Research & Training Manager
+
+SICON; Suriname Information &
+Communication Network
+
+Verl.Gemenelandsweg 163
+Paramaribo, Suriname
+South America
+
+(+597)    464791
+(+597)    491510 (fax)
+(+597)(0) 8579216 (gsm)
+
+gerold@sicon-sr.com
+gerold_vandijk@hotmail.com
+
+
+
+On Fri, 27 Jan 2006 15:38:23 -0300, Gerold van Dijk said:
+> Why can I NOT do a traceroute specifically within my own (sub)network
 >
-> hmm, this just looks like overhead.  If sometime someone _does_ try to
-> thread init, what will happen to them?  If it's something nice and nasty,
-> they'll just whine at us and stop doing that.  Same net effect, no runtime
-> cost.
+> 207.253.5.64/27
+>
+> with any distribution of Linux??
 
-So threading init will work just fine.  The only case that will blow up
-is calling exec from something that is not the thread group leader.
-i.e.  If tgid == 1 but pid != 1 the kernel will cause pid == 1 to exit.
+OK.. I'll bite.  What happens when you try?  And why are you posting here - 
+is
+there *any* evidence that there is a Linux kernel bug involved?
 
-I think that will trigger a kernel panic.  It might just ensure that
-no more processes are re-parented to init.  And we dereference a
-bad pointer we look at child_reaper.  I haven't been brave enough
-to try it.
+The output of 'ifconfig' and 'netstat -r -n' would likely be helpful, as 
+would
+proof that the host(s) you're tracerouting from and to are *not* running a
+firewall that interferes with the way traceroute functions. (It's amazing 
+how
+many people block all ICMP, then wonder why traceroute doesn't work... ;)
 
-The cost is only paid if you are a threaded task and you call exec.
-Normal process never take that path, so we are already off of the
-fast path.
+Watching the wire with 'tcpdump' and/or 'ethereal' can also help....
 
-The test when all expanded out is only:
-
-if ((current->tgid == current->pid) && (current->tgid == 1))
-	return -EINVAL
-
-So it should be relatively cheap.
-
-
-If process id namespaces become a reality init stops being
-terribly special, and becomes something you may have several
-of running at any one time.  If one of those inits is compromised
-by a hostile user I having the whole system go down so we can
-avoid executing a cheap test sounds terribly wrong.  That is
-why I really care.
-
-Eric

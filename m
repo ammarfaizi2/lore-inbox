@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWA2UV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWA2U0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbWA2UV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 15:21:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbWA2UV2
+	id S1751163AbWA2U0r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 15:26:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWA2U0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 15:21:28 -0500
-Received: from pat.uio.no ([129.240.130.16]:54244 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751161AbWA2UV1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 15:21:27 -0500
-Subject: Re: 2.6.15.1: persistent nasty hang in sync_page killing NFS
-	(ne2k-pci / DP83815-related?), i686/PIII
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Nix <nix@esperi.org.uk>
-Cc: linux-kernel@vger.kernel.org, thockin@hockin.org
-In-Reply-To: <8764o23j0s.fsf@amaterasu.srvr.nix>
-References: <87fyn8artm.fsf@amaterasu.srvr.nix>
-	 <1138499957.8770.91.camel@lade.trondhjem.org>
-	 <87slr79knc.fsf@amaterasu.srvr.nix>  <8764o23j0s.fsf@amaterasu.srvr.nix>
-Content-Type: text/plain
-Date: Sun, 29 Jan 2006 15:21:15 -0500
-Message-Id: <1138566075.8711.39.camel@lade.trondhjem.org>
+	Sun, 29 Jan 2006 15:26:47 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:49548
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1751163AbWA2U0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 15:26:47 -0500
+Date: Sun, 29 Jan 2006 12:26:58 -0800
+From: Greg KH <greg@kroah.com>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Does /sys/module/foo reflect external module name?
+Message-ID: <20060129202658.GA7139@kroah.com>
+References: <200601291914.48318.arvidjaar@mail.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.059, required 12,
-	autolearn=disabled, AWL 1.75, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601291914.48318.arvidjaar@mail.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-29 at 19:56 +0000, Nix wrote:
-> Further info, possibly in support of your suggestion, possibly not: the
-> problem does *not* occur with NFS-over-TCP. So it's specific to UDP,
-> this hardware (perhaps motherboard or network card, see the .config
-> diff), *and* NFS. Other UDP stuff (e.g. DNS) gets through fine in both
-> directions; NFS works with TCP; and the whole lot worked before the
-> hardware was changed.
+On Sun, Jan 29, 2006 at 07:14:47PM +0300, Andrey Borzenkov wrote:
+> Is it correct that /sys/module lists module *file* names (sans -_ confusion)? 
+> Is it possible to find out if module is built in or truly external? The goal 
+> is to automate initrd build by walking from /dev/root up and pulling in all 
+> modules. Now missing module may mean that it is built in or that it is really 
+> missing :) In my case:
+> 
+> {pts/1}% for i in /sys/module/*
+> for> do
+> for> grep -q ${i:t} /proc/modules || echo $i
+> for> done
+> /sys/module/8250
+> /sys/module/i8042
+> /sys/module/md_mod
+> /sys/module/psmouse
+> /sys/module/tcp_bic
+> {pts/1}% for i in $(lsmod | awk '{print $1}')
+> do
+> [[ -d /sys/module/$i ]] || echo $i
+> done
+> Module
+> 
+> so it looks quite reliable up to built in modules. Is there any information 
+> that could be exported in sysfs (like "builtin" == 0|1)?
 
-If it works with TCP but not UDP, then the problem is usually either a
-NIC driver issue, or a lossy network.
-Comparing with DNS is not really useful, because NFS over UDP uses much
-larger packet sizes (32k usually) which causes heavy use of
-fragmentation.
+What would that be needed for?  You can always just compare the list
+with /proc/modules, right?
 
-Cheers,
- Trond
+thanks,
 
+greg k-h

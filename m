@@ -1,56 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbWA2NvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWA2Nyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750998AbWA2NvP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 08:51:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWA2NvO
+	id S1751000AbWA2Nyl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 08:54:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751001AbWA2Nyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 08:51:14 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:64964 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750997AbWA2NvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 08:51:14 -0500
-Date: Sun, 29 Jan 2006 07:51:04 -0600
-From: Jack Steiner <steiner@sgi.com>
-To: akpm@osdl.org
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: [PATCH] - sys_sched_getaffinity & hotplug
-Message-ID: <20060129135104.GA19068@sgi.com>
-References: <20060127230659.GA4752@sgi.com> <20060127191400.aacb8539.pj@sgi.com> <20060128133244.GA22704@elte.hu> <20060128192736.GD18730@localhost.localdomain> <20060128120620.00be8227.pj@sgi.com>
+	Sun, 29 Jan 2006 08:54:41 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:63418 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750997AbWA2Nyk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 08:54:40 -0500
+Date: Sun, 29 Jan 2006 14:55:08 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: Re: [patch, lock validator] fix uidhash_lock <-> RCU deadlock
+Message-ID: <20060129135508.GA31156@elte.hu>
+References: <20060125142307.GA5427@elte.hu> <1138208378.3992.7.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060128120620.00be8227.pj@sgi.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1138208378.3992.7.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change sched_getaffinity() so that it returns a bitmap that indicates the
-legally schedulable cpus that a task is allowed to run on. 
 
-Without this patch, if CONFIG_HOTPLUG_CPU is enabled, sched_getaffinity()
-unconditionally returns (at least on IA64) a mask with NR_CPUS bits set.
-This conveys no useful infornmation except for a kernel compile option.
+* Daniel Walker <dwalker@mvista.com> wrote:
 
+> On Wed, 2006-01-25 at 15:23 +0100, Ingo Molnar wrote:
+> > RCU task-struct freeing can call free_uid(), which is taking 
+> > uidhash_lock - while other users of uidhash_lock are softirq-unsafe.
+> > 
+> > This bug was found by the lock validator i'm working on:
+> 
+> What is it doing exactly ?
 
-	Signed-off-by: Jack Steiner <steiner@sgi.com>
-	Acked-by: Ingo Molnar <mingo@elte.hu>
+the lock validator is building a runtime graph of lock dependencies, as 
+they occur. The granularity is not per lock instance, but per lock 
+"type" - making it easier (and more likely) to find deadlocks, without 
+having those deadlocks to trigger. So it's a proactive thing, not a 
+reactive thing like the current mutex deadlock detection code.
 
----
-This fixes a breakage we obseved running recent kernels. We have MPI jobs
-that use sched_getaffinity() to determine where to place their threads. 
-Placing them on non-existant cpus is problematic :-)
+the type granularity also has the positive effect that locking 
+dependencies between two locks have only be mapped once per bootup, for 
+any arbitrary object or task that makes use of that lock.
 
+the directed graph is constantly kept valid: when a new dependency is 
+added then it's checked for circular dependencies.
 
-Index: linux/kernel/sched.c
-===================================================================
---- linux.orig/kernel/sched.c	2006-01-28 10:13:01.834293691 -0600
-+++ linux/kernel/sched.c	2006-01-29 07:15:11.217227453 -0600
-@@ -4031,7 +4031,7 @@ long sched_getaffinity(pid_t pid, cpumas
- 		goto out_unlock;
- 
- 	retval = 0;
--	cpus_and(*mask, p->cpus_allowed, cpu_possible_map);
-+	cpus_and(*mask, p->cpus_allowed, cpu_online_map);
- 
- out_unlock:
- 	read_unlock(&tasklist_lock);
+the validator is also tracking the usage characteristics of locks: 
+whether they are used in hardirq context, softirq context, whether they 
+are held with hardirqs enabled, softirqs enabled.
+
+then when a lock is taken in an irq context, or is taken with interrupts 
+enabled, or interrupts are enabled with the lock held, the validator 
+immediately transitions that lock (type) to the new usage state - and 
+validates all the ripple effects within the graph. [i.e. it validates 
+all locks dependending on this lock, and validates all locks this lock 
+is depending on.]
+
+the end-result is that this validator gets very close to being able to 
+prove the theoretical code-correctness of lock usage within Linux, for 
+all codepaths that occur at least once per bootup. This it can do even 
+on a uniprocessor system.
+
+i'll release the code soon. I wrote it as a debugging extension to 
+mutexes, but now it covers spinlocks and rwlocks too.
+
+	Ingo

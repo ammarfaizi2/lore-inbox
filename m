@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWA2DU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWA2DtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750813AbWA2DU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jan 2006 22:20:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbWA2DU5
+	id S1750810AbWA2DtA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jan 2006 22:49:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWA2DtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jan 2006 22:20:57 -0500
-Received: from pat.uio.no ([129.240.130.16]:63921 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1750813AbWA2DU4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jan 2006 22:20:56 -0500
-Subject: Re: [Keyrings] Re: [PATCH 01/04] Add multi-precision-integer maths
-	library
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: David =?ISO-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Christoph Hellwig <hch@infradead.org>,
-       keyrings@linux-nfs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060128165732.GA8633@hardeman.nu>
-References: <20060127092817.GB24362@infradead.org> <1138312694656@2gen.com>
-	 <1138312695665@2gen.com> <6403.1138392470@warthog.cambridge.redhat.com>
-	 <20060127204158.GA4754@hardeman.nu> <20060128002241.GD3777@stusta.de>
-	 <20060128104611.GA4348@hardeman.nu>
-	 <1138466271.8770.77.camel@lade.trondhjem.org>
-	 <20060128165732.GA8633@hardeman.nu>
-Content-Type: text/plain; charset=utf-8
-Date: Sat, 28 Jan 2006 22:20:29 -0500
-Message-Id: <1138504829.8770.125.camel@lade.trondhjem.org>
+	Sat, 28 Jan 2006 22:49:00 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:26051 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S1750805AbWA2Ds7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jan 2006 22:48:59 -0500
+From: "Bob Picco" <bob.picco@hp.com>
+Date: Sat, 28 Jan 2006 22:44:34 -0500
+To: Paul Jackson <pj@sgi.com>
+Cc: Yasunori Goto <y-goto@jp.fujitsu.com>, akpm@osdl.org, apw@shadowen.org,
+       bob.picco@hp.com, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, linux-ia64@vger.kernel.org,
+       tony.luck@intel.com, ak@suse.de, len.brown@intel.com,
+       discuss@x86-64.org
+Subject: Re: [PATCH 001/003]Fix unify mapping from pxm to node id.
+Message-ID: <20060129034434.GO7306@localhost>
+References: <20060123165644.C147.Y-GOTO@jp.fujitsu.com> <20060126074846.1a6dd300.pj@sgi.com> <20060128122758.CF50.Y-GOTO@jp.fujitsu.com> <20060127231517.4c0ce573.pj@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 8BIT
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.7, required 12,
-	autolearn=disabled, AWL 1.11, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060127231517.4c0ce573.pj@sgi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-01-28 at 17:57 +0100, David Härdeman wrote:
+Paul Jackson wrote:	[Sat Jan 28 2006, 02:15:17AM EST]
+> Yasunori-san,
+> 
+> Thank-you for updating your patch.
+> 
+> However I am still puzzled by one detail.
+> 
+> Your latest patchset removes the defines:
+> -#define MAX_PXM_DOMAINS	256	/* 1 byte and no promises about values */
+> 
+> and:
+> -#define MAX_PXM_DOMAINS (256)
+> 
+> but continues to have code using MAX_PXM_DOMAINS.  I am unable
+> to compile ia64 with it now, for lack of this define.
+> 
+> -- 
+>                   I won't rest till it's the best ...
+>                   Programmer, Linux Scalability
+>                   Paul Jackson <pj@sgi.com> 1.925.600.0401
+Hi Paul. 
 
-> What about the first paragraph of what I wrote? You are going to want to 
-> keep often-used keys around somehow, proxy certificates is not a 
-> solution for your own use of your personal keys and with the exception 
-> of hardware solutions such as smart cards, the keys will be safer in the 
-> kernel than in a user-space daemon...
+MAX_PXM_DOMAINS is defined in include/acpi/acpi_numa.h.  So I'm confused.
 
-I don't get this explanation at all.
+I just built sn2 with Yasunori's patches applied to -mm3. I had previously
+built sn2 with a slightly different patch series of mine which Yasunori 
+later incorporated most of into this patch series. Would you please send your 
+.config and the error output from the build? 
 
-Why would you want to use proxy certificates for you own use? Use your
-own certificate for your own processes, and issue one or more proxy
-certificates to any daemon that you want to authorise to do some limited
-task.
+thanks,
 
-...and what does this statement about "keys being safer in the kernel"
-mean?
-
-> Further, the mpi and dsa code can also be used for supporting signed 
-> modules and binaries...the "store dsa-keys in kernel" part adds 376 
-> lines of code (counted with wc so comments and includes etc are also 
-> counted)...
-
-Signed modules sounds like a better motivation, but is a full dsa
-implementation in the kernel really necessary to achieve this?
-
-Cheers,
-  Trond
-
+bob

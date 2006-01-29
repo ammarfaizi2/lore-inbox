@@ -1,113 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWA2GyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbWA2HKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750861AbWA2GyS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 01:54:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWA2GyS
+	id S1750855AbWA2HKl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 02:10:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbWA2HKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 01:54:18 -0500
-Received: from mf01.sitadelle.com ([212.94.174.68]:52672 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1750814AbWA2GyR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 01:54:17 -0500
-Message-ID: <43DC6691.9000001@cosmosbay.com>
-Date: Sun, 29 Jan 2006 07:54:09 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Sun, 29 Jan 2006 02:10:41 -0500
+Received: from tachyon.quantumlinux.com ([64.113.1.99]:33979 "EHLO
+	tachyon.quantumlinux.com") by vger.kernel.org with ESMTP
+	id S1750794AbWA2HKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 02:10:41 -0500
+Date: Sat, 28 Jan 2006 23:11:14 -0800 (PST)
+From: Chuck Wolber <chuckw@quantumlinux.com>
+X-X-Sender: chuckw@localhost.localdomain
+To: Greg KH <gregkh@suse.de>
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>, jmforbes@linuxtx.org,
+       linux-kernel@vger.kernel.org, stable@kernel.org, zwane@arm.linux.org.uk,
+       tytso@mit.edu, davej@redhat.com, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [patch 0/6] 2.6.14.7 -stable review
+In-Reply-To: <20060129053458.GA9293@suse.de>
+Message-ID: <Pine.LNX.4.63.0601282221400.7205@localhost.localdomain>
+References: <20060128021749.GA10362@kroah.com> <Pine.LNX.4.63.0601282028210.7205@localhost.localdomain>
+ <20060129044307.GA23553@linuxtx.org> <Pine.LNX.4.63.0601282048380.7205@localhost.localdomain>
+ <20060128205701.5b84922e.rdunlap@xenotime.net> <20060129053458.GA9293@suse.de>
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
 MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Andrew Morton <akpm@osdl.org>, kiran@scalex86.org, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, shai@scalex86.org, netdev@vger.kernel.org,
-       pravins@calsoftinc.com
-Subject: Re: [patch 3/4] net: Percpufy frequently used variables -- proto.sockets_allocated
-References: <20060126185649.GB3651@localhost.localdomain> <20060126190357.GE3651@localhost.localdomain> <43D9DFA1.9070802@cosmosbay.com> <20060127195227.GA3565@localhost.localdomain> <20060127121602.18bc3f25.akpm@osdl.org> <20060127224433.GB3565@localhost.localdomain> <43DAA586.5050609@cosmosbay.com> <20060127151635.3a149fe2.akpm@osdl.org> <43DABAA4.8040208@cosmosbay.com> <20060129004459.GA24099@kvack.org>
-In-Reply-To: <20060129004459.GA24099@kvack.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise a écrit :
-> On Sat, Jan 28, 2006 at 01:28:20AM +0100, Eric Dumazet wrote:
->> We might use atomic_long_t only (and no spinlocks)
->> Something like this ?
+On Sat, 28 Jan 2006, Greg KH wrote:
+
+> No, it's not a 6 month window, I released this because people sent us 
+> patches that they said should go into the 2.6.14-stable tree.  And as 
+> people complained so much on lkml that we were dropping the old kernels 
+> too fast, I never thought that people would complain that we are 
+> maintaining older stuff that people seem interested in...
+
+Don't think of it as a complaint. I'm sorry if it came off that way. It's 
+anyone's job if they want to maintain any kernel release as long as they 
+see fit.
+
+I guess it's how we want to define ourselves. Was I mistaken to think that 
+the -stable team maintains -stable for the current patch release only? 
+
+
+> And, as always, anyone is free to take on maintaining any of the 
+> different kernel versions for as long as they wish.
 > 
-> Erk, complex and slow...  Try using local_t instead, which is substantially 
-> cheaper on the P4 as it doesn't use the lock prefix and act as a memory 
-> barrier.  See asm/local.h.
-> 
+> Does that help?
 
-Well, I think that might be doable, maybe RCU magic ?
-
-1) local_t are not that nice on all archs.
-
-2) The consolidation phase (summing all the cpus local offset to consolidate 
-the central counter) might be more difficult to do (we would need kind of 2 
-counters per cpu, and a index that can be changed by the cpu that wants a 
-consolidation (still 'expensive'))
-
-struct cpu_offset {
-	local_t   offset[2];
-	};
-
-struct percpu_counter {
-	atomic_long_t count;
-	unsigned int offidx;
-	spinlock_t   lock; /* to guard offidx changes */
-	cpu_offset *counters;
-};
-
-void percpu_counter_mod(struct percpu_counter *fbc, long amount)
-{
-         long val;
-	struct cpu_offset *cp;
-	local_t *l;
-
-	cp = per_cpu_ptr(fbc->counters, get_cpu());
-	l = &cp[fbc->offidx];
-
-         local_add(amount, l);
-	val = local_read(l);
-	if (new >= FBC_BATCH || new <= -FBC_BATCH) {
-                 local_set(l, 0);
-                 atomic_long_add(val, &fbc->count);
-	}
-	put_cpu();
-}
-
-long percpu_counter_read_accurate(struct percpu_counter *fbc)
-{
-	long res = 0, val;
-	int cpu;
-	struct cpu_offset *cp;
-	local_t *l;
-
-	spin_lock(&fbc->lock);
-	idx = fbc->offidx;
-	fbc->offidx ^= 1;
-	mb();
-	/*
-	 * FIXME :
-	 *	must 'wait' other cpus dont touch anymore their old local_t
-	 */
-	for_each_cpu(cpu) {
-		cp = per_cpu_ptr(fbc->counters, cpu);
-		l = &cp[idx];
-		val = local_read(l);
-		/* dont dirty alien cache line if not necessary */
-		if (val)
-			local_set(l, 0);
-		res += val;
-	}
-	spin_unlock(&fbc->lock);
-         atomic_long_add(res, &fbc->count);
-         return atomic_long_read(&fbc->count);
-}
+Well, that's the way it's always been. We have a late model 2.5 kernel 
+that we still maintain in a level C avionics device on Boeing jets. You'd 
+be amazed at how stable a 2.5 kernel can be made ;)
 
 
+> Man, people complain when you don't maintain older kernels, and they 
+> complain when you do...
 
-3) Are the locked ops so expensive if done on a cache line that is mostly in 
-exclusive state in cpu cache ?
+Nope, wasn't complaining. It was an attempt at a dialog to more clearly 
+define our purpose (or perhaps my personal understanding of it) *AND* let 
+other developers know what to expect of us. We can choose to take on as 
+much or as little as we want. I personally am good with whatever everyone 
+else is comfortable taking on. We should manage outside expectations 
+though so you don't have to answer "why do you drop old kernels" questions 
+on your own. 
 
-Thank you
-Eric
+Things have changed a lot with the 2.6 release series and -stable seems to 
+me to be one of those growing pains that still isn't fully resolved. It's 
+a blending between the traditional stable release maintainers and the more 
+nimble release schedule these days. Can the -stable team fill the void, or 
+do we limit our scope to certain patch releases?
 
+..Chuck..
+
+
+-- 
+http://www.quantumlinux.com
+ Quantum Linux Laboratories, LLC.
+ ACCELERATING Business with Open Technology
+
+ "The measure of the restoration lies in the extent to which we apply
+  social values more noble than mere monetary profit." - FDR

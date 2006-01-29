@@ -1,414 +1,1114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWA2Wpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWA2Wrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbWA2Wpx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 17:45:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbWA2Wpx
+	id S1751204AbWA2Wrp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 17:47:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWA2Wro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 17:45:53 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:1946 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751201AbWA2Wpw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 17:45:52 -0500
-Date: Sun, 29 Jan 2006 14:45:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.16-rc1-mm4
-Message-Id: <20060129144533.128af741.akpm@osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Jan 2006 17:47:44 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:47298 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751204AbWA2Wrn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 17:47:43 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: eike-kernel@sf-tec.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.16-rc1-git4] accessfs: a permission managing
+ filesystem
+References: <87ek3a8qpy.fsf@goat.bogus.local>
+	<200601231257.28796@bilbo.math.uni-mannheim.de>
+	<87mzhgyomh.fsf@goat.bogus.local>
+	<20060128150137.5ba5af04.akpm@osdl.org>
+From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+Date: Sun, 29 Jan 2006 23:47:34 +0100
+Message-ID: <87u0bmtzw9.fsf@goat.bogus.local>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:fa0178852225c1084dbb63fc71559d78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm4/
-
-- New git tree `git-davej-x86.patch': misc x86 things, maintained by David
-  Jones.
-
-- Lots of USB updates.  Please be sure to Cc:
-  linux-usb-devel@lists.sourceforge.net if something broke.
-
-- Various other random bits and pieces.  Things have been pretty quiet
-  lately - most activity seems to be concentrated about putting bugs into the
-  various subsystem trees.
-
-- If you have a patch in -mm which you think should go into 2.6.16, it
-  doesn't hurt to remind me.  There's quite a lot here which will go into
-  2.6.16.
-
-
-
-Changes since 2.6.16-rc1-mm3:
-
- linus.patch
- git-acpi.patch
- git-agpgart.patch
- git-alsa.patch
- git-arm.patch
- git-audit.patch
- git-blktrace.patch
- git-block.patch
- git-cfq.patch
- git-cifs.patch
- git-cpufreq.patch
- git-davej-x86.patch
- git-drm.patch
- git-dvb.patch
- git-ia64.patch
- git-infiniband.patch
- git-input.patch
- git-kbuild.patch
- git-libata-all.patch
- git-netdev-all.patch
- git-net.patch
- git-ntfs.patch
- git-ocfs2.patch
- git-parisc.patch
- git-powerpc.patch
- git-serial.patch
- git-sym2.patch
- git-pcmcia.patch
- git-scsi-rc-fixes.patch
- git-sas-jg.patch
- git-watchdog.patch
- git-cryptodev.patch
-
- git trees.
-
--drivers-serial-sh-scic-add-forgotten.patch
--sound-isa-cs423x-cs4236c-pnp-ids-for-netfinity-3000.patch
--enable-xfs-write-barrier.patch
--p4-clockmod-workaround-for-cpus-with-n60-errata.patch
--add-drm-support-for-radeon-x600.patch -drm-ati-use-null-instead-of-0.patch
--ati_pcigart-simplify-page_count-manipulations.patch
--drm-fix-sparse-warning-in-radeon-driver.patch
--media-video-stradis-memory-fix.patch
--gregkh-i2c-i2c-scx200_acb-07-docs-Kconfig-fix.patch
--pate_opti-build-fix.patch
--acenic-fix-checking-of-read_eeprom_byte-return-values.patch
--bonding-fix-get_settings-error-checking.patch
--gregkh-usb-usb-fix-ehci-early-handoff-issues-warning-fix.patch
--usb-yealink-printk-warning-fixes.patch
--gregkh-pci-msi-vector-targeting-abstractions-fix.patch
--sem2mutex-ioc4c.patch
--gusclassic-fix-adding-second-dma-channel.patch
--opl3sa2-fix-adding-second-dma-channel.patch
--drivers-acpi-make-two-functions-static.patch
--docbook-fix-some-comments-in-drivers-scsi.patch
-
- Merged
-
-+wrongly-marked-__init-__initdata-for-cpu-hotplug.patch
-
- Sectioning fix
-
-+ipmi-remove-invalid-acpi-register-spacing-check.patch
-
- IPMI fix
-
-+mips-gdb-stubc-fix-parse-error-before-token.patch
-
- MIPS fix
-
-+uml-compilation-fix-when-mode_skas-disabled.patch
-
- UML fix
-
-+git-acpi-fixup.patch
-
- Fix rejects in git-acpi.patch
-
-+git-blktrace-sparc64-fix.patch
-
- Make git-blktrace compile on sparc64
-
-+git-block-revert-stuff.patch
-
- Revert buggy patch from git-block.patch
-
-+gregkh-driver-spi-spi_butterfly-restore-lost-deltas.patch
-+gregkh-driver-fix-uevent-buffer-overflow-in-input-layer.patch
-+gregkh-driver-debugfs-trivial-comment-fix.patch
-+gregkh-driver-aoe-do-not-stop-retransmit-timer-when-device-goes-down.patch
-
- Driver tree updates
-
-+at76c651-dont-do-generic-__ilog2-on-mips.patch
-
- MIPS cleanup
-
--gregkh-i2c-i2c-i801-i2c-patch-for-intel-ich8.patch
-
- Accidentally dropped.
-
-+gregkh-i2c-i2c-fix-sx200_acb-build-on-other-arches.patch
-
- I2C tree update
-
-+drivers-mtd-use-array_size-macro.patch
-+mtd-cmdlinepart-allow-zero-offset-value.patch
-
- MTD fixes
-
-+git-netdev-all-s2io-fixes.patch
-
- Fix s2io changes in git-netdev-all.patch
-
-+revert-NET-Do-not-lose-accepted-socket-when-ENFILE-EMFILE.patch
-
- Revert buggy patch from git-net.patch.
-
-+remove-arch-ppc-syslib-ppc4xx_pmc.patch
-
- powerpc cleanup
-
-+gregkh-pci-pci-handle-bogus-mcfg-entries.patch
-+gregkh-pci-pci-fix-msi-build-breakage-in-x86_64.patch
-+gregkh-pci-shpchp-cleanup-init_slots.patch
-+gregkh-pci-shpchp-cleanup-shpchp_core.c.patch
-+gregkh-pci-shpchp-cleanup-slot-list.patch
-+gregkh-pci-shpchp-cleanup-controller-list.patch
-+gregkh-pci-shpchp-cleanup-check-command-status.patch
-+gregkh-pci-shpchp-bugfix-add-missing-serialization.patch
-+gregkh-pci-pcihp_skeleton.c-cleanup.patch
-+gregkh-pci-shpchp-replace-kmalloc-with-kzalloc-and-cleanup-arg-of-sizeof.patch
-+gregkh-pci-shpchp-removed-unncessary-magic-member-from-slot.patch
-+gregkh-pci-shpchp-move-slot-name-into-struct-slot.patch
-+gregkh-pci-shpchp-fix-incorrect-return-value-of-interrupt-handler.patch
-
- PCI tree updates
-
-+fusion-add-support-for-raid-hot-add-del-support.patch
-+fusion-target-reset-when-drive-is-being-removed.patch
-+fusion-move-sas-persistent-event-handling-over-to-the-mptsas-module.patch
-+fusion-fc-rport-code-fixes.patch
-+fusion-bump-version.patch
-
- mpt-fusion driver updates
-
-+gregkh-usb-usb-fix-ehci-early-handoff-issues-warning.patch
-+gregkh-usb-usb-hid-add-blacklist-entry-for-hp-keyboard.patch
-+gregkh-usb-usb-ehci-another-full-speed-iso-fix.patch
-+gregkh-usb-usb-uhci-no-fsbr-until-device-is-configured.patch
-+gregkh-usb-usb-yealink-printk-warning-fix.patch
-+gregkh-usb-usb-usb-authentication-states.patch
-+gregkh-usb-usb-gadget-zero-and-dma-coherent-buffers.patch
-+gregkh-usb-usb-mdc800.c-to-kzalloc.patch
-+gregkh-usb-usb-kzalloc-for-storage.patch
-+gregkh-usb-usb-kzalloc-for-hid.patch
-+gregkh-usb-usb-kzalloc-in-dabusb.patch
-+gregkh-usb-usb-kzalloc-in-w9968cf.patch
-+gregkh-usb-usb-kzalloc-in-usbvideo.patch
-+gregkh-usb-usb-kzalloc-in-cytherm.patch
-+gregkh-usb-usb-kzalloc-in-idmouse.patch
-+gregkh-usb-usb-kzalloc-in-ldusb.patch
-+gregkh-usb-usb-kzalloc-in-phidgetinterfacekit.patch
-+gregkh-usb-usb-kzalloc-in-phidgetservo.patch
-+gregkh-usb-usb-kzalloc-in-usbled.patch
-+gregkh-usb-usb-kzalloc-in-sisusbvga.patch
-+gregkh-usb-usb-remove-the-obsolete-usb_midi-driver.patch
-+gregkh-usb-usb-drivers-usb-core-message.c-make-usb_get_string-static.patch
-+gregkh-usb-usb-remove-linux_version_code-macro-usage.patch
-+gregkh-usb-usb-convert-a-bunch-of-usb-semaphores-to-mutexes.patch
-+gregkh-usb-usb-ehci-and-nf2-quirk.patch
-+gregkh-usb-usb-ehci-full-speed-iso-bugfixes.patch
-+gregkh-usb-usb-ehci-for-freescale-83xx.patch
-+gregkh-usb-usb-ehci-and-freescale-83xx-quirk.patch
-+gregkh-usb-usb-ehci-for-au1200.patch
-+gregkh-usb-usb-ohci-for-au1200.patch
-+gregkh-usb-usb-ehci-unlink-tweaks.patch
-+gregkh-usb-usb-add-support-for-ochi-on-at91rm9200.patch
-+gregkh-usb-usb-add-support-for-at91-gadget.patch
-+gregkh-usb-usb-minor-gadget-rndis-tweak.patch
-+gregkh-usb-usb-fix-masking-bug-initialization-of-freescale-ehci-controller.patch
-+gregkh-usb-recognize-three-more-usb-peripheral-controllers.patch
-+gregkh-usb-usb-usbcore-sets-up-root-hubs-earlier.patch
-+gregkh-usb-usb-ohci-uses-driver-model-wakeup-flags.patch
-+gregkh-usb-uhci-use-one-qh-per-endpoint-not-per-urb.patch
-+gregkh-usb-uhci-use-dummy-tds.patch
-+gregkh-usb-uhci-remove-main-list-of-urbs.patch
-+gregkh-usb-uhci-improve-debugging-code.patch
-+gregkh-usb-uhci-don-t-log-short-transfers.patch
-+gregkh-usb-usb-core-and-hcds-don-t-put_device-while-atomic.patch
-+gregkh-usb-usb-serial-dynamic-id.patch
-+gregkh-usb-usbip.patch
-+gregkh-usb-usb-usbip-build-fix.patch
-+gregkh-usb-usb-usbip-more-dead-code-fix.patch
-+gregkh-usb-usb-usbip-warning-fixes.patch
-+gregkh-usb-usb-gotemp.patch
-+gregkh-usb-always-announce-new-usb-devices.patch
-
- USB tree updates (gregkh-usb-usb-remove-usbcore-specific-wakeup-flags.patch
- was buggy, dropped.)
-
-+gregkh-usb-usb-convert-a-bunch-of-usb-semaphores-to-mutexes-fix.patch
-
- Fix USB tree
-
--x86_64-apic-main-timer-default.patch
-+x86_64-apic-main-timer-ati.patch
-+x86_64-hangcheck-remove-message.patch
-+x86_64-stack-random-large.patch
-+x86_64-garbage-values-in-file--proc-net-sockstat.patch
-+x86_64-bitops-cleanups.patch
-+x86_64-mark-two-routines-as-__cpuinit.patch
-+x86_64-impossible-per-cpu-data-workaround.patch
-+x86_64-srat-check-size.patch
-+x86_64-rename-node.patch
-
- x86_64 tree updates
-
-+kernel-posix-timersc-remove-do_posix_clock_notimer_create.patch
-
- cleanup
-
-+fix-deadlock-in-drivers-pci-msic.patch
-+drivers-block-floppyc-dont-free_irq-from-irq-context.patch
-+drivers-block-floppyc-dont-free_irq-from-irq-context-fix.patch
-+fix-uidhash_lock-rcu-deadlock.patch
-+fix-uidhash_lock-rcu-deadlock-fix.patch
-+rcu_torture_lock-deadlock-fix.patch
-+warn-if-free_irq-is-called-from-irq-context.patch
-
- Various things from Ingo's lock validator.
-
-+zone_reclaim-partial-scans-instead-of-full-scan.patch
-
- Zone reclaim fix
-
-+mm-page_alloc-less-atomics.patch
-+mm-slab-less-atomics.patch
-
- MM microoptimisations
-
-+mm-split-highorder-pages-fix.patch
-
- Fix mm-split-highorder-pages.patch
-
-+hugepage-allocator-cleanup.patch
-+kcalloc-int_max-ulong_max.patch
-
- MM tweaks
-
-+sh-sh4-202-microdev-updates.patch
-+sh-make-peripheral-clock-frequency-setting-mandatory.patch
-+sh-move-tra-expevt-intevt-definitions-for-reuse.patch
-+sh-cleanup-struct-sh_cpuinfo-for-clock-framework-changes.patch
-+sh-unknown-mach-type-updates.patch
-+sh-drop-maskpos-from-make_ipr_irq-remove-duplicate-irq-definitions.patch
-+sh-convert-voyagergx-to-platform-device-drop-sh-bus.patch
-+sh-sh-sci-clock-framework-updates.patch
-+sh-add-missing-timers-directory-rule-to-build.patch
-+sh-machine_halt-machine_power_off-cleanups.patch
-+sh-sh64-fix-bogus-tiocgicount-definitions.patch
-
- SuperH update
-
-+i386-__devinit-should-be-__cpuinit.patch
-+i386-allow-disabling-x86_feature_sep-at-boot.patch
-+i386-add-a-temporary-to-make-put_user-more-type-safe.patch
-
- x86 fixes/features
-
-+alpha-fix-getxpid-on-alpha-so-it-works-for-threads.patch
-
- Alpha fix
-
-+swsusp-userland-interface-update.patch
-
- Update swsusp-userland-interface.patch
-
-+xtensa-add-asm-futexh.patch
-
- xtensa update
-
-+s390-dasd-remove-dynamic-ioctl-registration-fix.patch
-
- Fix s390-dasd-remove-dynamic-ioctl-registration.patch
-
--x86-x86_64-ia64-unify-mapping-from-pxm-to-node-id.patch
--x86-x86_64-ia64-unify-mapping-from-pxm-to-node-id-fix.patch
-
- Dropped - am awaiting version 2.
-
-+reduce-size-of-percpudata-and-make-sure-per_cpuobject-fix.patch
-+txt-reduce-size-of-percpudata-and-make-sure-per_cpuobject-fix-2.patch
-+reduce-size-of-percpudata-and-make-sure-per_cpuobject-fix-3.patch
-
- Fix reduce-size-of-percpudata-and-make-sure-per_cpuobject.patch
-
-+drivers-serial-jsm-cleanups.patch
-
- JSM driver cleanup
-
-+export-cpu-topology-by-sysfs.patch
-+export-cpu-topology-by-sysfs-tidy.patch
-+export-cpu-topology-by-sysfs-tidy-2.patch
-
- Display CPU topology in sysfs,
-
-+quota-fix-error-code-for-ext2_new_inode.patch
-+fix-comment-to-synchronize_sched.patch
-+compilation-of-kexec-kdump-broken-in-linux-2616-rc1.patch
-+avoid-use-of-spinlock-for-percpu_counter.patch
-+ipmi-mem_inout-=-intf_mem_inout.patch
-+remove-fs-jffs2-histoh.patch
-+new-tty-buffering-locking-fix.patch
-+remove-isa-legacy-functions-drivers-char-toshibac.patch
-+remove-isa-legacy-functions-drivers-net-arcnet.patch
-+remove-isa-legacy-functions-drivers-scsi-g_ncr5380c.patch
-+remove-isa-legacy-functions-drivers-scsi-in2000c.patch
-+remove-isa-legacy-functions-drivers-net-hp-plusc.patch
-+remove-isa-legacy-functions-drivers-net-hp100c.patch
-+remove-isa-legacy-functions-drivers-net-lancec.patch
-+remove-isa-legacy-functions-remove-the-helpers.patch
-+remove-isa-legacy-functions-remove-documentation.patch
-+bitmap-region-cleanup.patch
-+bitmap-region-multiword-spanning-support.patch
-+bitmap-region-restructuring.patch
-+uninline-__sigqueue_free.patch
-+free_uid-locking-improvement.patch
-+represent-dirty__centisecs-as-jiffies-internally.patch
-+represent-laptop_mode-as-jiffies-internally.patch
-+range-checking-in-do_proc_dointvec_userhz_jiffies_conv.patch
-+rcu_process_callbacks-dont-cli-while-testing-nxtlist.patch
-+fs-9p-possible-cleanups.patch
-+fs-ext2-proper-ext2_get_parent-prototype.patch
-+fs-coda-proper-prototypes.patch
-+#exec-only-allow-a-threaded-init-to-exec-from-the.patch
-+exec-cleanup-exec-from-a-non-thread-group-leader.patch
-+remove-dead-kill_sl-prototype-from-schedh.patch
-+do_tty_hangup-use-group_send_sig_info-not.patch
-+do_sak-dont-depend-on-session-id-0.patch
-+pid-dont-hash-pid-0.patch
-
- Random fies and cleanups
-
-+reiser4-big-update-bug-fix-for-readpage-fix.patch
-+reiser4-warnings-cleanup.patch
-+reiser4-do-not-use-get_user_pages-and-do-not-check.patch
-
- reiser4 fixes and cleanups
-
-+always-enable-config_pdc202xx_force.patch
-
- IDE Kconfig cleanup
-
-+i810fb-do-not-probe-the-third-i2c-bus-by-default.patch
-+fbdev-fix-usage-of-blank-value-passed-to-fb_blank.patch
-
- fbdev updates
-
-+mark-f_ops-const-in-the-inode-ppc-htab-fix.patch
-
- Fix mark-f_ops-const-in-the-inode.patch
-
-
-
-All 1029 patches:
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm4/patch-list
-
-
+Andrew Morton <akpm@osdl.org> writes:
+
+> Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de> wrote:
+>>
+>> Can you please include this patch in -mm, to give it wider testing?
+>
+> I doubt if it'll get a lot of runtime testing.
+
+Well, this review alone was worth the effort. Thanks.
+
+>> Accessfs is a permission managing filesystem. It allows to control
+>> access to system resources, based on file permissions.  It also
+>> includes two modules.  One module allows granting capabilities based
+>> on user-/groupid. The second module allows to grant access to lower
+>> numbered IP ports based on user-/groupid.
+>> 
+>
+> It seems to be network-centric?
+
+It could be used anywhere, where you want access control on a file
+permission (user, group, other) basis.
+But yes, currently I use it that way only.
+
+> Do these capabilities really need to be implemented via a brand-new
+> security infrastructure, rather then by enhancing the existing one(s)?
+
+This doesn't change the existing security infrastructure. It just
+permits users and/or groups to get selected privileges. But I won't
+insist on this one, since I use filesystem capabilities anyway.
+
+>> +	  To use this option, you need to mount the access file system
+>> +	  and do a chown on the appropriate ports:
+>> +
+>> +	  # mount -t accessfs none /proc/access
+>> +	  # chown www /proc/access/net/ip/bind/80
+>> +	  # chown mail /proc/access/net/ip/bind/25
+>
+> Documenting a feature in Kconfig is a bit odd.  I assume proper
+> Documentation is forthcoming?
+
+When I encounter a new item in Kconfig, I expect help, which explains,
+what it is good for. Anyway, I moved a few lines to
+Documentation/filesystems/accessfs.txt
+
+>> +struct accessfs_direntry *accessfs_make_dirpath(const char *name)
+>> +{
+>> +	struct accessfs_direntry *dir = &accessfs_rootdir;
+>> +	const char *slash;
+>> +	down(&accessfs_sem);
+>
+> Shouldn't that lock be per-superblock?
+
+Like procfs or sysfs there's only one instance, so I don't think this
+is necessary.
+
+>> +static void accessfs_read_inode(struct inode *inode)
+>> +{
+>> +	ino_t	ino = inode->i_ino;
+>> +	struct list_head	*list;
+>> +	down(&accessfs_sem);
+>> +	list_for_each(list, &hash) {
+>> +		struct accessfs_entry *pe;
+>> +		pe = list_entry(list, struct accessfs_entry, hash);
+>> +		if (pe->ino == ino) {
+>> +			accessfs_init_inode(inode, pe);
+>> +			break;
+>> +		}
+>> +	}
+>
+> That's not a hash!
+
+Do you think it should be? accessfs_read_inode() is not a frequently
+called function.
+
+I think, I addressed all your remaining points. If you have further
+concerns, I won't respond until next weekend.
+
+Regards, Olaf.
+
+Signed-off-by: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
+
+---
+ Documentation/filesystems/accessfs.txt |   41 +++
+ fs/Kconfig                             |    1 
+ fs/Makefile                            |    1 
+ fs/accessfs/Kconfig                    |   50 +++
+ fs/accessfs/Makefile                   |   11 
+ fs/accessfs/capabilities.c             |  107 ++++++++
+ fs/accessfs/inode.c                    |  426 +++++++++++++++++++++++++++++++++
+ fs/accessfs/ip.c                       |   95 +++++++
+ include/linux/accessfs_fs.h            |   43 +++
+ include/net/sock.h                     |   43 +++
+ net/Kconfig                            |   11 
+ net/Makefile                           |    1 
+ net/hooks.c                            |   55 ++++
+ net/ipv4/af_inet.c                     |    2 
+ net/ipv6/af_inet6.c                    |    2 
+ 15 files changed, 887 insertions(+), 2 deletions(-)
+
+diff -urN a/Documentation/filesystems/accessfs.txt b/Documentation/filesystems/accessfs.txt
+--- a/Documentation/filesystems/accessfs.txt	Thu Jan  1 01:00:00 1970
++++ b/Documentation/filesystems/accessfs.txt	Sun Jan 29 16:16:31 2006
+@@ -0,0 +1,41 @@
++Accessfs is a permission managing filesystem. It allows to control access to
++system resources, based on file permissions. The recommended mount point for
++this file-system is /proc/access, which will appear automatically in the
++/proc filesystem.
++
++Currently there are two modules using accessfs, userports and usercaps.
++
++With userports, you will be able to control access to IP ports based
++on user-/groupid.
++
++There's no need anymore to run internet daemons as root. You can
++individually configure which user/program can bind to protected ports
++(by default, below 1024).
++
++For example, you can say, user www is allowed to bind to port 80 or
++user mail is allowed to bind to port 25. Then, you can run apache as
++user www and sendmail as user mail. Now, you don't have to rely on
++apache or sendmail giving up superuser rights to enhance security.
++
++To use this option, you need to mount the access file system
++and do a chown on the appropriate ports:
++
++# mount -t accessfs none /proc/access
++# chown www /proc/access/net/ip/bind/80
++# chown mail /proc/access/net/ip/bind/25
++
++You can grant access to a group for individual ports as well. Just say:
++
++# chgrp lp /proc/access/net/ip/bind/515
++# chown g+x /proc/access/net/ip/bind/515
++
++With usercaps, you will be able to grant capabilities based on
++user-/groupid (root by default).
++
++For example you can create a group raw and change the capability
++net_raw to this group:
++
++# chgrp raw /proc/access/capabilities/net_raw
++# chmod ug+x /proc/access/capabilities/net_raw
++# chgrp raw /sbin/ping
++# chmod u-s /sbin/ping; chmod g+s /sbin/ping
+diff -urN a/fs/Kconfig b/fs/Kconfig
+--- a/fs/Kconfig	Fri Jan 27 23:52:40 2006
++++ b/fs/Kconfig	Sat Jan 28 12:47:19 2006
+@@ -1253,6 +1253,7 @@
+ 	  It's currently broken, so for now:
+ 	  answer N.
+ 
++source "fs/accessfs/Kconfig"
+ 
+ 
+ config SYSV_FS
+diff -urN a/fs/Makefile b/fs/Makefile
+--- a/fs/Makefile	Fri Jan 27 23:52:40 2006
++++ b/fs/Makefile	Sat Jan 28 12:48:03 2006
+@@ -103,3 +103,4 @@
+ obj-$(CONFIG_DEBUG_FS)		+= debugfs/
+ obj-$(CONFIG_CONFIGFS_FS)	+= configfs/
+ obj-$(CONFIG_OCFS2_FS)		+= ocfs2/
++obj-$(CONFIG_ACCESS_FS)		+= accessfs/
+diff -urN a/fs/accessfs/Kconfig b/fs/accessfs/Kconfig
+--- a/fs/accessfs/Kconfig	Thu Jan  1 01:00:00 1970
++++ b/fs/accessfs/Kconfig	Sun Jan 29 23:18:33 2006
+@@ -0,0 +1,50 @@
++config ACCESS_FS
++	tristate "Accessfs support (Experimental)"
++	depends on EXPERIMENTAL
++	default n
++	help
++	  This is a new file system to manage permissions. It is not very
++	  useful on its own. You need to enable other options below.
++
++	  If you're unsure, say N.
++
++config ACCESSFS_USER_PORTS
++	tristate "User permission based IP ports"
++	depends on ACCESS_FS
++	select NET_HOOKS
++	default n
++	help
++	  If you say Y here, you will be able to control access to IP ports
++	  based on user-/groupid. For this to work, you must say Y
++	  to CONFIG_NET_HOOKS.
++
++	  If you're unsure, say N.
++
++config ACCESSFS_PROT_SOCK
++	int "Range of protected ports (1024-65536)"
++	depends on ACCESSFS_USER_PORTS
++	default 1024
++	help
++	  Here you can extend the range of protected ports. This is
++	  from 1-1023 inclusive on normal unix systems. One use for this
++	  could be to reserve ports for X11 (port 6000) or database
++	  servers (port 3306 for mysql), so nobody else could grab this port.
++	  The default permission for extended ports is --x--x--x.
++
++	  If you build this as a module, you can specify the range of
++	  protected ports at module load time (max_prot_sock).
++
++	  If you're unsure, say 1024.
++
++config ACCESSFS_USER_CAPABILITIES
++	tristate "User permission based capabilities"
++	depends on ACCESS_FS
++	select SECURITY
++	default n
++	help
++	  If you say Y here, you will be able to grant capabilities based on
++	  user-/groupid (root by default). For this to work, you must say M or
++	  N to CONFIG_SECURITY_CAPABILITIES.
++
++	  If you're unsure, say N.
++
+diff -urN a/fs/accessfs/Makefile b/fs/accessfs/Makefile
+--- a/fs/accessfs/Makefile	Thu Jan  1 01:00:00 1970
++++ b/fs/accessfs/Makefile	Sat Jan 28 12:47:19 2006
+@@ -0,0 +1,11 @@
++#
++# Makefile for the linux accessfs routines.
++#
++
++obj-$(CONFIG_ACCESS_FS) += accessfs.o
++obj-$(CONFIG_ACCESSFS_USER_CAPABILITIES) += usercaps.o
++obj-$(CONFIG_ACCESSFS_USER_PORTS) += userports.o
++
++accessfs-objs := inode.o
++usercaps-objs := capabilities.o
++userports-objs := ip.o
+diff -urN a/fs/accessfs/capabilities.c b/fs/accessfs/capabilities.c
+--- a/fs/accessfs/capabilities.c	Thu Jan  1 01:00:00 1970
++++ b/fs/accessfs/capabilities.c	Sun Jan 29 23:20:31 2006
+@@ -0,0 +1,107 @@
++/* Copyright (c) 2002-2006 Olaf Dietsche
++ *
++ * User based capabilities for Linux.
++ */
++
++#include <linux/accessfs_fs.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/security.h>
++
++static const char *names[] = {
++	"chown",
++	"dac_override",
++	"dac_read_search",
++	"fowner",
++	"fsetid",
++	"kill",
++	"setgid",
++	"setuid",
++	"setpcap",
++	"linux_immutable",
++	"net_bind_service",
++	"net_broadcast",
++	"net_admin",
++	"net_raw",
++	"ipc_lock",
++	"ipc_owner",
++	"sys_module",
++	"sys_rawio",
++	"sys_chroot",
++	"sys_ptrace",
++	"sys_pacct",
++	"sys_admin",
++	"sys_boot",
++	"sys_nice",
++	"sys_resource",
++	"sys_time",
++	"sys_tty_config",
++	"mknod",
++	"lease"
++};
++
++static struct access_attr caps[ARRAY_SIZE(names)];
++
++static int accessfs_capable(struct task_struct *tsk, int cap)
++{
++	if (accessfs_permitted(&caps[cap], MAY_EXEC)) {
++		/* capability granted */
++		tsk->flags |= PF_SUPERPRIV;
++		return 0;
++	}
++
++	/* capability denied */
++	return -EPERM;
++}
++
++static struct security_operations accessfs_security_ops = {
++	.capable =	accessfs_capable,
++};
++
++static void unregister_capabilities(struct accessfs_direntry *dir, int n)
++{
++	int	i;
++	for (i = 0; i < n; ++i)
++		accessfs_unregister(dir, names[i]);
++}
++
++static int __init init_capabilities(void)
++{
++	struct accessfs_direntry *dir;
++	int i, err;
++	dir = accessfs_make_dirpath("capabilities");
++	if (dir == 0)
++		return -ENOTDIR;
++
++	for (i = 0; i < ARRAY_SIZE(caps); ++i) {
++		caps[i].uid = 0;
++		caps[i].gid = 0;
++		caps[i].mode = S_IXUSR;
++		err = accessfs_register(dir, names[i], &caps[i]);
++		if (err) {
++			unregister_capabilities(dir, i);
++			return err;
++		}
++	}
++
++	err = register_security(&accessfs_security_ops);
++	if (err != 0)
++		unregister_capabilities(dir, ARRAY_SIZE(names));
++
++	return err;
++}
++
++static void __exit exit_capabilities(void)
++{
++	struct accessfs_direntry *dir;
++	dir = accessfs_make_dirpath("capabilities");
++	unregister_security(&accessfs_security_ops);
++	unregister_capabilities(dir, ARRAY_SIZE(names));
++}
++
++module_init(init_capabilities)
++module_exit(exit_capabilities)
++
++MODULE_AUTHOR("Olaf Dietsche");
++MODULE_DESCRIPTION("User based capabilities");
++MODULE_LICENSE("GPL");
+diff -urN a/fs/accessfs/inode.c b/fs/accessfs/inode.c
+--- a/fs/accessfs/inode.c	Thu Jan  1 01:00:00 1970
++++ b/fs/accessfs/inode.c	Sun Jan 29 23:20:20 2006
+@@ -0,0 +1,426 @@
++/* Copyright (c) 2001-2006 Olaf Dietsche
++ *
++ * Access permission filesystem for Linux.
++ *
++ * 2002 Ben Clifford, create mount point at /proc/access
++ * 2002 Ben Clifford, trying to make it work under 2.5.5-dj2
++ *          (see comments: BENC255 for reminders and todos)
++ *
++ *
++ * BENC255: the kernel doesn't lock BKL for us when entering methods 
++ *          (see Documentation/fs/porting.txt)
++ *          Need to look at code here and see if we need either the BKL
++ *          or our own lock - I think probably not.
++ *
++ */
++
++#include <linux/accessfs_fs.h>
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/pagemap.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/string.h>
++#include <linux/proc_fs.h>
++#include <asm/statfs.h>
++#include <asm/semaphore.h>
++#include <asm/uaccess.h>
++
++#define ACCESSFS_MAGIC	0x3c1d36e7
++
++static struct proc_dir_entry *mountdir = NULL;
++
++static DEFINE_MUTEX(accessfs_sem);
++
++static struct inode_operations accessfs_inode_operations;
++static struct file_operations accessfs_dir_file_operations;
++static struct inode_operations accessfs_dir_inode_operations;
++
++static inline void accessfs_readdir_aux(struct file *filp,
++					struct accessfs_direntry *dir,
++					int start, void *dirent,
++					filldir_t filldir)
++{
++	struct list_head *list;
++	int i = 2;
++	list_for_each(list, &dir->children) {
++		struct accessfs_entry *de;
++		if (i++ < start)
++			continue;
++
++		de = list_entry(list, struct accessfs_entry, siblings);
++		if (filldir(dirent, de->name, strlen(de->name), filp->f_pos,
++			    de->ino, DT_UNKNOWN) < 0)
++			break;
++
++		++filp->f_pos;
++	}
++}
++
++static int accessfs_readdir(struct file *filp, void *dirent, filldir_t filldir)
++{
++	int i;
++	struct dentry *dentry = filp->f_dentry;
++	struct accessfs_direntry *dir;
++
++	i = filp->f_pos;
++	switch (i) {
++	case 0:
++		if (filldir(dirent, ".", 1, i, dentry->d_inode->i_ino,
++			    DT_DIR) < 0)
++			break;
++
++		++i;
++		++filp->f_pos;
++		/* NO break; */
++	case 1:
++		if (filldir(dirent, "..", 2, i,
++			    dentry->d_parent->d_inode->i_ino, DT_DIR) < 0)
++			break;
++
++		++i;
++		++filp->f_pos;
++		/* NO break; */
++	default:
++		mutex_lock(&accessfs_sem);
++		dir = dentry->d_inode->u.generic_ip;
++		accessfs_readdir_aux(filp, dir, i, dirent, filldir);
++		mutex_unlock(&accessfs_sem);
++		break;
++	}
++
++	return 0;
++}
++
++static struct accessfs_entry *accessfs_lookup_entry(struct accessfs_entry *pe,
++						    const char *name, int len)
++{
++	struct list_head *list;
++	struct accessfs_direntry *dir;
++	struct accessfs_entry *de;
++	if (!S_ISDIR(pe->attr->mode))
++		return NULL;
++
++	dir = (struct accessfs_direntry *) pe;
++	de = NULL;
++	list_for_each(list, &dir->children) {
++		de = list_entry(list, struct accessfs_entry, siblings);
++		if (strncmp(de->name, name, len) == 0 && de->name[len] == 0)
++			break;
++	}
++
++	return de;
++}
++
++static struct dentry *accessfs_lookup(struct inode *dir, struct dentry *dentry,
++				      struct nameidata *nd)
++{
++	struct inode *inode = NULL;
++	struct accessfs_entry *pe;
++	mutex_lock(&accessfs_sem);
++	pe = accessfs_lookup_entry(dir->u.generic_ip, dentry->d_name.name,
++				   dentry->d_name.len);
++	mutex_unlock(&accessfs_sem);
++	if (pe)
++		inode = iget(dir->i_sb, pe->ino);
++
++	d_add(dentry, inode);
++	return NULL;
++}
++
++static struct accessfs_direntry	accessfs_rootdir = {
++	{ "/", 
++	  LIST_HEAD_INIT(accessfs_rootdir.node.hash), 
++	  LIST_HEAD_INIT(accessfs_rootdir.node.siblings), 
++	  1, &accessfs_rootdir.attr },
++	NULL, LIST_HEAD_INIT(accessfs_rootdir.children), 
++	{ 0, 0, S_IFDIR | 0755 }
++};
++
++static void accessfs_init_inode(struct inode *inode, struct accessfs_entry *pe)
++{
++	static const struct timespec epoch = {0, 0};
++	inode->u.generic_ip = pe;
++	inode->i_uid = pe->attr->uid;
++	inode->i_gid = pe->attr->gid;
++	inode->i_mode = pe->attr->mode;
++/*
++	inode->i_blksize = PAGE_CACHE_SIZE;
++	inode->i_blocks = 0;
++	inode->i_rdev = NODEV;
++*/
++	inode->i_atime = inode->i_mtime = inode->i_ctime = epoch;
++	switch (inode->i_mode & S_IFMT) {
++	case S_IFREG:
++		inode->i_op = &accessfs_inode_operations;
++		break;
++	case S_IFDIR:
++		inode->i_op = &accessfs_dir_inode_operations;
++		inode->i_fop = &accessfs_dir_file_operations;
++		break;
++	default:
++		BUG();
++		break;
++	}
++}
++
++static struct inode *accessfs_get_root_inode(struct super_block *sb)
++{
++	struct inode *inode = new_inode(sb);
++	if (inode) {
++		mutex_lock(&accessfs_sem);
++/* 		inode->i_ino = accessfs_rootdir.node.ino; */
++		accessfs_init_inode(inode, &accessfs_rootdir.node);
++		accessfs_rootdir.node.ino = inode->i_ino;
++		mutex_unlock(&accessfs_sem);
++	}
++
++	return inode;
++}
++
++static LIST_HEAD(hash);
++
++static int accessfs_node_init(struct accessfs_direntry *parent,
++			      struct accessfs_entry *de, const char *name,
++			      size_t len, struct access_attr *attr, mode_t mode)
++{
++	static unsigned long ino = 1;
++	de->name = kmalloc(len + 1, GFP_KERNEL);
++	if (de->name == NULL)
++		return -ENOMEM;
++
++	strncpy(de->name, name, len);
++	de->name[len] = 0;
++	de->ino = ++ino;
++	de->attr = attr;
++	de->attr->uid = 0;
++	de->attr->gid = 0;
++	de->attr->mode = mode;
++
++	list_add_tail(&de->hash, &hash);
++	list_add_tail(&de->siblings, &parent->children);
++	return 0;
++}
++
++static int accessfs_mknod(struct accessfs_direntry *dir, const char *name,
++			  struct access_attr *attr)
++{
++	struct accessfs_entry *pe;
++	pe = kmalloc(sizeof(struct accessfs_entry), GFP_KERNEL);
++	if (pe == NULL)
++		return -ENOMEM;
++
++	accessfs_node_init(dir, pe, name, strlen(name), attr,
++			   S_IFREG | attr->mode);
++	return 0;
++}
++
++static struct accessfs_direntry	*accessfs_mkdir(struct accessfs_direntry *parent,
++						const char *name, size_t len)
++{
++	int err;
++	struct accessfs_direntry *dir;
++	dir = kmalloc(sizeof(struct accessfs_direntry), GFP_KERNEL);
++	if (dir == NULL)
++		return NULL;
++
++	dir->parent = parent;
++	INIT_LIST_HEAD(&dir->children);
++	err = accessfs_node_init(parent, &dir->node, name, len, &dir->attr,
++				 S_IFDIR | 0755);
++	if (err) {
++		kfree(dir);
++		dir = 0;
++	}
++
++	return dir;
++}
++
++struct accessfs_direntry *accessfs_make_dirpath(const char *name)
++{
++	struct accessfs_direntry *dir = &accessfs_rootdir;
++	const char *slash;
++	mutex_lock(&accessfs_sem);
++	do {
++		struct accessfs_entry *de;
++		size_t len;
++		while (*name == '/')
++			++name;
++
++		slash = strchr(name, '/');
++		len = slash ? slash - name : strlen(name);
++		de = accessfs_lookup_entry(&dir->node, name, len);
++		if (de == NULL) {
++			dir = accessfs_mkdir(dir, name, len);
++		} else if (S_ISDIR(de->attr->mode)) {
++			dir = (struct accessfs_direntry *) de;
++		} else {
++			dir = NULL;
++		}
++
++		if (dir == NULL)
++			break;
++
++		name = slash  + 1;
++	} while (slash != NULL);
++
++	mutex_unlock(&accessfs_sem);
++	return dir;
++}
++
++static void accessfs_unlink(struct accessfs_entry *pe)
++{
++	list_del_init(&pe->hash);
++	list_del_init(&pe->siblings);
++	kfree(pe->name);
++	kfree(pe);
++}
++
++static int accessfs_notify_change(struct dentry *dentry, struct iattr *iattr)
++{
++	struct inode *i = dentry->d_inode;
++	int err = inode_setattr(i, iattr);
++	if (!err) {
++		struct accessfs_entry *pe;
++		pe = (struct accessfs_entry *) i->u.generic_ip;
++		pe->attr->uid = i->i_uid;
++		pe->attr->gid = i->i_gid;
++		pe->attr->mode = i->i_mode;
++	}
++
++	return err;
++}
++
++static void accessfs_read_inode(struct inode *inode)
++{
++	ino_t	ino = inode->i_ino;
++	struct list_head	*list;
++	mutex_lock(&accessfs_sem);
++	list_for_each(list, &hash) {
++		struct accessfs_entry *pe;
++		pe = list_entry(list, struct accessfs_entry, hash);
++		if (pe->ino == ino) {
++			accessfs_init_inode(inode, pe);
++			break;
++		}
++	}
++
++	mutex_unlock(&accessfs_sem);
++}
++
++static struct inode_operations accessfs_inode_operations = {
++	.setattr =	accessfs_notify_change,
++};
++
++static struct inode_operations accessfs_dir_inode_operations = {
++	.lookup =	accessfs_lookup,
++	.setattr =	accessfs_notify_change,
++};
++
++static struct file_operations accessfs_dir_file_operations = {
++	.readdir =	accessfs_readdir,
++};
++
++static struct super_operations accessfs_ops = {
++	.read_inode =	accessfs_read_inode,
++	.statfs =	simple_statfs,
++};
++
++static int accessfs_fill_super(struct super_block *sb, void *data, int silent)
++{
++	struct inode *inode;
++	struct dentry *root;
++
++	sb->s_blocksize = PAGE_CACHE_SIZE;
++	sb->s_blocksize_bits = PAGE_CACHE_SHIFT;
++	sb->s_magic = ACCESSFS_MAGIC;
++	sb->s_op = &accessfs_ops;
++	inode = accessfs_get_root_inode(sb);
++	if (!inode)
++		return -ENOMEM;
++
++	root = d_alloc_root(inode);
++	if (!root) {
++		iput(inode);
++		return -ENOMEM;
++	}
++
++	sb->s_root = root;
++	return 0;
++}
++
++static struct super_block *accessfs_get_sb(struct file_system_type *fs_type,
++					   int flags, const char *dev_name,
++					   void *data)
++{
++	return get_sb_single(fs_type, flags, data, accessfs_fill_super);
++}
++
++int accessfs_permitted(struct access_attr *p, int mask)
++{
++	mode_t mode = p->mode;
++	if (current->fsuid == p->uid)
++		mode >>= 6;
++	else if (in_group_p(p->gid))
++		mode >>= 3;
++
++	return (mode & mask) == mask;
++}
++
++int accessfs_register(struct accessfs_direntry *dir, const char *name,
++		      struct access_attr *attr)
++{
++	int err;
++	if (dir == 0)
++		return -EINVAL;
++
++	mutex_lock(&accessfs_sem);
++	err = accessfs_mknod(dir, name, attr);
++	mutex_unlock(&accessfs_sem);
++	return err;
++}
++
++void accessfs_unregister(struct accessfs_direntry *dir, const char *name)
++{
++	struct accessfs_entry *pe;
++	mutex_lock(&accessfs_sem);
++	pe = accessfs_lookup_entry(&dir->node, name, strlen(name));
++	if (pe) {
++		accessfs_unlink(pe);
++	}
++
++	mutex_unlock(&accessfs_sem);
++}
++
++static struct file_system_type accessfs_fs_type = {
++	.owner =	THIS_MODULE,
++	.name =		"accessfs",
++	.get_sb =	accessfs_get_sb,
++	.kill_sb =	kill_anon_super,
++};
++
++static int __init init_accessfs_fs(void)
++{
++
++	/* create mount point for accessfs */
++	mountdir = proc_mkdir("access",&proc_root);
++	return register_filesystem(&accessfs_fs_type);
++}
++
++static void __exit exit_accessfs_fs(void)
++{
++	unregister_filesystem(&accessfs_fs_type);
++	remove_proc_entry("access",&proc_root);
++}
++
++module_init(init_accessfs_fs)
++module_exit(exit_accessfs_fs)
++
++MODULE_AUTHOR("Olaf Dietsche");
++MODULE_DESCRIPTION("Access Filesystem");
++MODULE_LICENSE("GPL");
++
++EXPORT_SYMBOL(accessfs_permitted);
++EXPORT_SYMBOL(accessfs_make_dirpath);
++EXPORT_SYMBOL(accessfs_register);
++EXPORT_SYMBOL(accessfs_unregister);
+diff -urN a/fs/accessfs/ip.c b/fs/accessfs/ip.c
+--- a/fs/accessfs/ip.c	Thu Jan  1 01:00:00 1970
++++ b/fs/accessfs/ip.c	Sun Jan 29 23:20:39 2006
+@@ -0,0 +1,95 @@
++/* Copyright (c) 2002-2006 Olaf Dietsche
++ *
++ * User permission based port access for Linux.
++ */
++
++#include <linux/accessfs_fs.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <net/sock.h>
++
++static int max_prot_sock = CONFIG_ACCESSFS_PROT_SOCK;
++static struct access_attr *bind_to_port;
++
++static int accessfs_ip_prot_sock(struct socket *sock,
++				 struct sockaddr *uaddr, int addr_len)
++{
++	struct sockaddr_in *addr = (struct sockaddr_in *) uaddr;
++	unsigned short snum = ntohs(addr->sin_port);
++	if (snum && snum < max_prot_sock
++	    && !accessfs_permitted(&bind_to_port[snum], MAY_EXEC)
++	    && !capable(CAP_NET_BIND_SERVICE))
++		return -EACCES;
++
++	return 0;
++}
++
++static int accessfs_ip6_prot_sock(struct socket *sock,
++				  struct sockaddr *uaddr, int addr_len)
++{
++	struct sockaddr_in6 *addr = (struct sockaddr_in6 *) uaddr;
++	unsigned short snum = ntohs(addr->sin6_port);
++	if (snum && snum < max_prot_sock
++	    && !accessfs_permitted(&bind_to_port[snum], MAY_EXEC)
++	    && !capable(CAP_NET_BIND_SERVICE))
++		return -EACCES;
++
++	return 0;
++}
++
++static struct net_hook_operations ip_net_ops = {
++	.ip_prot_sock =	accessfs_ip_prot_sock,
++	.ip6_prot_sock =	accessfs_ip6_prot_sock,
++};
++
++static int __init init_ip(void)
++{
++	struct accessfs_direntry *dir = accessfs_make_dirpath("net/ip/bind");
++	int i;
++
++	if (max_prot_sock < PROT_SOCK)
++		max_prot_sock = PROT_SOCK;
++	else if (max_prot_sock > 65536)
++		max_prot_sock = 65536;
++
++	bind_to_port = kmalloc(max_prot_sock * sizeof(*bind_to_port),
++			       GFP_KERNEL);
++	if (bind_to_port == 0)
++		return -ENOMEM;
++
++	for (i = 1; i < max_prot_sock; ++i) {
++		char	buf[sizeof("65536")];
++		bind_to_port[i].uid = 0;
++		bind_to_port[i].gid = 0;
++		bind_to_port[i].mode = i < PROT_SOCK ? S_IXUSR : S_IXUGO;
++		sprintf(buf, "%d", i);
++		accessfs_register(dir, buf, &bind_to_port[i]);
++	}
++
++	net_hooks_register(&ip_net_ops);
++	return 0;
++}
++
++static void __exit exit_ip(void)
++{
++	struct accessfs_direntry *dir = accessfs_make_dirpath("net/ip/bind");
++	int i;
++	net_hooks_unregister(&ip_net_ops);
++	for (i = 1; i < max_prot_sock; ++i) {
++		char	buf[sizeof("65536")];
++		sprintf(buf, "%d", i);
++		accessfs_unregister(dir, buf);
++	}
++
++	if (bind_to_port != NULL)
++		kfree(bind_to_port);
++}
++
++module_init(init_ip)
++module_exit(exit_ip)
++
++MODULE_AUTHOR("Olaf Dietsche");
++MODULE_DESCRIPTION("User based IP ports permission");
++MODULE_LICENSE("GPL");
++module_param(max_prot_sock, int, 0);
++MODULE_PARM_DESC(max_prot_sock, "Number of protected ports");
+diff -urN a/include/linux/accessfs_fs.h b/include/linux/accessfs_fs.h
+--- a/include/linux/accessfs_fs.h	Thu Jan  1 01:00:00 1970
++++ b/include/linux/accessfs_fs.h	Sun Jan 29 13:58:52 2006
+@@ -0,0 +1,43 @@
++/* -*- mode: c -*- */
++#ifndef __accessfs_fs_h_included__
++#define __accessfs_fs_h_included__	1
++
++/* Copyright (c) 2001 Olaf Dietsche
++ *
++ * Access permission filesystem for Linux.
++ */
++
++#include <linux/config.h>
++#include <linux/in.h>
++#include <linux/in6.h>
++#include <linux/fs.h>
++#include <linux/init.h>
++#include <net/sock.h>
++
++struct access_attr {
++	uid_t	uid;
++	gid_t	gid;
++	mode_t	mode;
++};
++
++struct accessfs_entry {
++	char	*name;
++	struct list_head	hash;
++	struct list_head	siblings;
++	ino_t	ino;
++	struct access_attr	*attr;
++};
++
++struct accessfs_direntry {
++	struct accessfs_entry	node;
++	struct accessfs_direntry	*parent;
++	struct list_head	children;
++	struct access_attr	attr;
++};
++
++extern int accessfs_permitted(struct access_attr *p, int mask);
++extern struct accessfs_direntry *accessfs_make_dirpath(const char *name);
++extern int accessfs_register(struct accessfs_direntry *dir, const char *name, struct access_attr *attr);
++extern void accessfs_unregister(struct accessfs_direntry *dir, const char *name);
++
++#endif
+diff -urN a/include/net/sock.h b/include/net/sock.h
+--- a/include/net/sock.h	Fri Jan 27 23:53:13 2006
++++ b/include/net/sock.h	Sun Jan 29 15:29:13 2006
+@@ -1417,4 +1417,47 @@
+ extern __u32 sysctl_wmem_default;
+ extern __u32 sysctl_rmem_default;
+ 
++/* Networking hooks */
++extern int default_ip_prot_sock(struct socket *sock, struct sockaddr *uaddr,
++				int addr_len);
++extern int default_ip6_prot_sock(struct socket *sock, struct sockaddr *uaddr,
++				 int addr_len);
++#ifdef	CONFIG_NET_HOOKS
++struct net_hook_operations {
++	int	(*ip_prot_sock)(struct socket *sock,
++				struct sockaddr *uaddr, int addr_len);
++	int	(*ip6_prot_sock)(struct socket *sock,
++				 struct sockaddr *uaddr, int addr_len);
++};
++
++extern struct net_hook_operations	*net_ops;
++
++extern void net_hooks_register(struct net_hook_operations *ops);
++extern void net_hooks_unregister(struct net_hook_operations *ops);
++
++static inline int ip_prot_sock(struct socket *sock, struct sockaddr *uaddr,
++			       int addr_len)
++{
++	return net_ops->ip_prot_sock(sock, uaddr, addr_len);
++}
++
++static inline int ip6_prot_sock(struct socket *sock, struct sockaddr *uaddr,
++				int addr_len)
++{
++	return net_ops->ip6_prot_sock(sock, uaddr, addr_len);
++}
++#else
++static inline int ip_prot_sock(struct socket *sock, struct sockaddr *uaddr,
++			       int addr_len)
++{
++	return default_ip_prot_sock(sock, uaddr, addr_len);
++}
++
++static inline int ip6_prot_sock(struct socket *sock, struct sockaddr *uaddr,
++				int addr_len)
++{
++	return default_ip6_prot_sock(sock, uaddr, addr_len);
++}
++#endif
++
+ #endif	/* _SOCK_H */
+diff -urN a/net/Kconfig b/net/Kconfig
+--- a/net/Kconfig	Sat Jan 28 12:46:23 2006
++++ b/net/Kconfig	Sat Jan 28 12:47:19 2006
+@@ -56,6 +56,17 @@
+ if INET
+ source "net/ipv4/Kconfig"
+ source "net/ipv6/Kconfig"
++config NET_HOOKS
++	bool "IP: Networking hooks (Experimental)"
++	depends on INET && EXPERIMENTAL
++	default n
++	help
++	  This option enables other kernel parts or modules to hook into the
++	  networking area and provide fine grained control over the access to
++	  IP ports.
++
++	  If you're unsure, say N.
++
+ 
+ endif # if INET
+ 
+diff -urN a/net/Makefile b/net/Makefile
+--- a/net/Makefile	Fri Jan 27 23:53:18 2006
++++ b/net/Makefile	Sat Jan 28 12:48:26 2006
+@@ -46,6 +46,7 @@
+ obj-$(CONFIG_IP_SCTP)		+= sctp/
+ obj-$(CONFIG_IEEE80211)		+= ieee80211/
+ obj-$(CONFIG_TIPC)		+= tipc/
++obj-$(CONFIG_NET_HOOKS)		+= hooks.o
+ 
+ ifeq ($(CONFIG_NET),y)
+ obj-$(CONFIG_SYSCTL)		+= sysctl_net.o
+diff -urN a/net/hooks.c b/net/hooks.c
+--- a/net/hooks.c	Thu Jan  1 01:00:00 1970
++++ b/net/hooks.c	Sun Jan 29 15:29:00 2006
+@@ -0,0 +1,55 @@
++/* Copyright (c) 2002 Olaf Dietsche
++ *
++ * Networking hooks. Currently for IPv4 and IPv6 only.
++ */
++
++#include <linux/module.h>
++#include <linux/in.h>
++#include <linux/in6.h>
++#include <net/sock.h>
++
++int default_ip_prot_sock(struct socket *sock, struct sockaddr *uaddr, int addr_len)
++{
++	struct sockaddr_in *addr = (struct sockaddr_in *) uaddr;
++	unsigned short snum = ntohs(addr->sin_port);
++	if (snum && snum < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
++		return -EACCES;
++
++	return 0;
++}
++
++int default_ip6_prot_sock(struct socket *sock, struct sockaddr *uaddr, int addr_len)
++{
++	struct sockaddr_in6 *addr = (struct sockaddr_in6 *) uaddr;
++	unsigned short snum = ntohs(addr->sin6_port);
++	if (snum && snum < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
++		return -EACCES;
++
++	return 0;
++}
++
++EXPORT_SYMBOL(default_ip_prot_sock);
++EXPORT_SYMBOL(default_ip6_prot_sock);
++
++#ifdef CONFIG_NET_HOOKS
++static struct net_hook_operations default_net_ops = {
++	.ip_prot_sock =	default_ip_prot_sock,
++	.ip6_prot_sock =	default_ip6_prot_sock,
++};
++
++struct net_hook_operations *net_ops = &default_net_ops;
++
++void net_hooks_register(struct net_hook_operations *ops)
++{
++	net_ops = ops;
++}
++
++void net_hooks_unregister(struct net_hook_operations *ops)
++{
++	net_ops = &default_net_ops;
++}
++
++EXPORT_SYMBOL(net_ops);
++EXPORT_SYMBOL(net_hooks_register);
++EXPORT_SYMBOL(net_hooks_unregister);
++#endif
+diff -urN a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+--- a/net/ipv4/af_inet.c	Fri Jan 27 23:53:20 2006
++++ b/net/ipv4/af_inet.c	Sun Jan 29 15:29:48 2006
+@@ -431,7 +431,7 @@
+ 
+ 	snum = ntohs(addr->sin_port);
+ 	err = -EACCES;
+-	if (snum && snum < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
++	if (ip_prot_sock(sock, uaddr, addr_len))
+ 		goto out;
+ 
+ 	/*      We keep a pair of addresses. rcv_saddr is the one
+diff -urN a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
+--- a/net/ipv6/af_inet6.c	Fri Jan 27 23:53:23 2006
++++ b/net/ipv6/af_inet6.c	Sun Jan 29 15:28:49 2006
+@@ -260,7 +260,7 @@
+ 		return -EINVAL;
+ 
+ 	snum = ntohs(addr->sin6_port);
+-	if (snum && snum < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
++	if (ip6_prot_sock(sock, uaddr, addr_len))
+ 		return -EACCES;
+ 
+ 	lock_sock(sk);

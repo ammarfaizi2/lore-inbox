@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWA2Omk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWA2PPV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751016AbWA2Omk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 09:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbWA2Omk
+	id S1751023AbWA2PPV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 10:15:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751024AbWA2PPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 09:42:40 -0500
-Received: from gw03.mail.saunalahti.fi ([195.197.172.111]:8840 "EHLO
-	gw03.mail.saunalahti.fi") by vger.kernel.org with ESMTP
-	id S1751012AbWA2Omj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 09:42:39 -0500
-Date: Sun, 29 Jan 2006 16:42:28 +0200
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
-To: linux-fbdev-devel@lists.sourceforge.net
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Oeser <ioe-lkml@rameria.de>,
-       linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-       benh@kernel.crashing.org, linux-kernel@hansmi.ch
-Subject: Re: [Linux-fbdev-devel] [PATCH] fbdev: Fix usage of blank value passed to fb_blank
-Message-ID: <20060129144228.GA22425@sci.fi>
-Mail-Followup-To: linux-fbdev-devel@lists.sourceforge.net,
-	Andrew Morton <akpm@osdl.org>, Ingo Oeser <ioe-lkml@rameria.de>,
-	linux-kernel@vger.kernel.org,
-	"David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
-	linux-kernel@hansmi.ch
-References: <20060127231314.GA28324@hansmi.ch> <20060127.204645.96477793.davem@davemloft.net> <43DB0839.6010703@gmail.com> <200601282106.21664.ioe-lkml@rameria.de> <43DC25EB.1040005@gmail.com>
+	Sun, 29 Jan 2006 10:15:21 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46527 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750930AbWA2PPU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 10:15:20 -0500
+Date: Sun, 29 Jan 2006 16:15:10 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Make software suspend work with CONFIG_MEMORY_HOTPLUG=n
+Message-ID: <20060129151509.GC1764@elf.ucw.cz>
+References: <20060127204315.GA30447@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43DC25EB.1040005@gmail.com>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <20060127204315.GA30447@redhat.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 29, 2006 at 10:18:19AM +0800, Antonino A. Daplas wrote:
-> diff --git a/drivers/video/fbmem.c b/drivers/video/fbmem.c
-> index d2dede6..5bed0fb 100644
-> --- a/drivers/video/fbmem.c
-> +++ b/drivers/video/fbmem.c
-> @@ -843,6 +843,19 @@ fb_blank(struct fb_info *info, int blank
->  {	
->   	int ret = -EINVAL;
->  
-> +	/*
-> +	 * The framebuffer core supports 5 blanking levels (FB_BLANK), whereas
-> +	 * VESA defined only 4.  The extra level, FB_BLANK_NORMAL, is a
-> +	 * console invention and is not related to power management.
-> +	 * Unfortunately, fb_blank callers, especially X, pass VESA constants
-> +	 * leading to undefined behavior.
+Hi!
 
-Since when? X.Org uses numbers 0,2,3,4 which match the FB_BLANK 
-constants not the VESA constants.
+> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=178339
+> 
+> pageset_cpuup_callback() is marked __meminit, but software suspend
+> needs it.  Unfortunatly, if you don't have CONFIG_MEMORY_HOTPLUG set,
+> the __meminit translates to __init, resulting in this...
+
+> Signed-off-by: Dave Jones <davej@redhat.com>
+
+ACK. Please push...
+							Pavel
+
+> --- linux-2.6.15.noarch/mm/page_alloc.c~	2006-01-27 15:40:35.000000000 -0500
+> +++ linux-2.6.15.noarch/mm/page_alloc.c	2006-01-27 15:40:40.000000000 -0500
+> @@ -1939,7 +1939,7 @@ static inline void free_zone_pagesets(in
+>  	}
+>  }
+>  
+> -static int __meminit pageset_cpuup_callback(struct notifier_block *nfb,
+> +static int pageset_cpuup_callback(struct notifier_block *nfb,
+>  		unsigned long action,
+>  		void *hcpu)
+>  {
+
 
 -- 
-Ville Syrjälä
-syrjala@sci.fi
-http://www.sci.fi/~syrjala/
+Thanks, Sharp!

@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbWA2Nhd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750998AbWA2NvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750984AbWA2Nhd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 08:37:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbWA2Nhd
+	id S1750998AbWA2NvP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 08:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWA2NvO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 08:37:33 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:62951 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750983AbWA2Nhc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 08:37:32 -0500
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Norbert Kiesel <nkiesel@tbdnetworks.com>
-Subject: Re: [PATCH] ahci: get JMicron JMB360 working
-Date: Sun, 29 Jan 2006 14:43:48 +0100
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <20060129050434.GA19047@havoc.gtf.org> <pan.2006.01.29.11.01.17.108084@tbdnetworks.com>
-In-Reply-To: <pan.2006.01.29.11.01.17.108084@tbdnetworks.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1239875.nJYeblnhQx";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601291443.48769.prakash@punnoor.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
+	Sun, 29 Jan 2006 08:51:14 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:64964 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750997AbWA2NvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 08:51:14 -0500
+Date: Sun, 29 Jan 2006 07:51:04 -0600
+From: Jack Steiner <steiner@sgi.com>
+To: akpm@osdl.org
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: [PATCH] - sys_sched_getaffinity & hotplug
+Message-ID: <20060129135104.GA19068@sgi.com>
+References: <20060127230659.GA4752@sgi.com> <20060127191400.aacb8539.pj@sgi.com> <20060128133244.GA22704@elte.hu> <20060128192736.GD18730@localhost.localdomain> <20060128120620.00be8227.pj@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060128120620.00be8227.pj@sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1239875.nJYeblnhQx
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Change sched_getaffinity() so that it returns a bitmap that indicates the
+legally schedulable cpus that a task is allowed to run on. 
 
-Am Sonntag Januar 29 2006 12:01 schrieb Norbert Kiesel:
-> On Sun, 29 Jan 2006 00:04:34 -0500, Jeff Garzik wrote:
-> > I'll be sending this upstream sooner rather than later, since part of
-> > this is a needed bugfix.  This is also a minor milestone:  the first
-> > non-Intel AHCI implementation is working with the AHCI driver.  AHCI is
-> > a nice SATA controller interface, and it's good to see other vendors
-> > using it.  VIA is using it as well, and I hope to integrate a patch for
-> > VIA AHCI SATA support soon.
-> >
-> > This patch, against latest 2.6.16-rc-git, adds support for JMicron and
-> > fixes some code that should be Intel-only, but was being executed for
-> > all vendors.
->
-> Sounds very good, thanks! Does that mean the ASRock MB
-> http://www.asrock.com/product/product_939Dual-SATA2.htm will work? Docu
-> says "1 x SATA2 connector (based on PCI E SATA2 controller JMB360)".
+Without this patch, if CONFIG_HOTPLUG_CPU is enabled, sched_getaffinity()
+unconditionally returns (at least on IA64) a mask with NR_CPUS bits set.
+This conveys no useful infornmation except for a kernel compile option.
 
-Yes, I tested it a few hours ago.
 
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+	Signed-off-by: Jack Steiner <steiner@sgi.com>
+	Acked-by: Ingo Molnar <mingo@elte.hu>
 
---nextPart1239875.nJYeblnhQx
-Content-Type: application/pgp-signature
+---
+This fixes a breakage we obseved running recent kernels. We have MPI jobs
+that use sched_getaffinity() to determine where to place their threads. 
+Placing them on non-existant cpus is problematic :-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
 
-iD8DBQBD3MaUxU2n/+9+t5gRAm/qAJ9RRxLVBSF9tB9jR/ScVl61AToVBwCg1Z4G
-RWrPm845aeql1rZ1aU8kEFw=
-=48ul
------END PGP SIGNATURE-----
-
---nextPart1239875.nJYeblnhQx--
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c	2006-01-28 10:13:01.834293691 -0600
++++ linux/kernel/sched.c	2006-01-29 07:15:11.217227453 -0600
+@@ -4031,7 +4031,7 @@ long sched_getaffinity(pid_t pid, cpumas
+ 		goto out_unlock;
+ 
+ 	retval = 0;
+-	cpus_and(*mask, p->cpus_allowed, cpu_possible_map);
++	cpus_and(*mask, p->cpus_allowed, cpu_online_map);
+ 
+ out_unlock:
+ 	read_unlock(&tasklist_lock);

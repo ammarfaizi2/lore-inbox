@@ -1,68 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbWA2WTj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWA2WTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751200AbWA2WTj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 17:19:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbWA2WTj
+	id S1751197AbWA2WTz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 17:19:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWA2WTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 17:19:39 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:46063 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751187AbWA2WTi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 17:19:38 -0500
-From: Prakash Punnoor <prakash@punnoor.de>
-To: mogensv@vip.cybercity.dk
-Subject: Re: [PATCH] ahci: get JMicron JMB360 working
-Date: Sun, 29 Jan 2006 23:27:58 +0100
-User-Agent: KMail/1.9
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20060129050434.GA19047@havoc.gtf.org> <200601291016.30459.prakash@punnoor.de> <43DD0850.8090705@vip.cybercity.dk>
-In-Reply-To: <43DD0850.8090705@vip.cybercity.dk>
+	Sun, 29 Jan 2006 17:19:54 -0500
+Received: from xproxy.gmail.com ([66.249.82.194]:13015 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751197AbWA2WTx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 17:19:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=ZN/R1XNwP6YF2dSlwW5hdnh/1qbRpcIf3opN6m58ii4SV9TqYDJZvCcik5EUWGdGhGpop4VHewul5rRAj4XRp+K3KLBElgtsXnWpZPgF5O3UYEMYsPArYTXLW50Hn37PcwcJkH9MIxQs6w1FmqXeNBNdC2Ry/7yX/Qlx/koSNIo=
+Message-ID: <43DD3F77.5090306@gmail.com>
+Date: Mon, 30 Jan 2006 06:19:35 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1166515.DCrsk5b16Z";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200601292327.58267.prakash@punnoor.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
+To: linux-fbdev-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>, benh@kernel.crashing.org,
+       linux-kernel@hansmi.ch
+Subject: Re: [Linux-fbdev-devel] [PATCH] fbdev: Fix usage of blank value passed
+ to fb_blank
+References: <20060127231314.GA28324@hansmi.ch> <20060127.204645.96477793.davem@davemloft.net> <43DB0839.6010703@gmail.com> <200601282106.21664.ioe-lkml@rameria.de> <43DC25EB.1040005@gmail.com> <20060129144228.GA22425@sci.fi>
+In-Reply-To: <20060129144228.GA22425@sci.fi>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1166515.DCrsk5b16Z
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Ville Syrjälä wrote:
+> On Sun, Jan 29, 2006 at 10:18:19AM +0800, Antonino A. Daplas wrote:
+>> diff --git a/drivers/video/fbmem.c b/drivers/video/fbmem.c
+>> index d2dede6..5bed0fb 100644
+>> --- a/drivers/video/fbmem.c
+>> +++ b/drivers/video/fbmem.c
+>> @@ -843,6 +843,19 @@ fb_blank(struct fb_info *info, int blank
+>>  {	
+>>   	int ret = -EINVAL;
+>>  
+>> +	/*
+>> +	 * The framebuffer core supports 5 blanking levels (FB_BLANK), whereas
+>> +	 * VESA defined only 4.  The extra level, FB_BLANK_NORMAL, is a
+>> +	 * console invention and is not related to power management.
+>> +	 * Unfortunately, fb_blank callers, especially X, pass VESA constants
+>> +	 * leading to undefined behavior.
+> 
+> Since when? X.Org uses numbers 0,2,3,4 which match the FB_BLANK 
+> constants not the VESA constants.
+> 
 
-Am Sonntag Januar 29 2006 19:24 schrieb Mogens Valentin:
-[...]
->
-> 939Dual-SATA2 is interesting as an upgrade board due to performance,
-> price, working PCIe/AGP and provisions for socket M2 via an adapter.
-> Whether this will actually work is of cause to be seen...
+Hmm, you're correct... But I do remember that particular error before,
+about FBIOBLANK returning -EINVAL. I think it may be coming from 
+this particular code
 
-Well, it at least seems to work nicely with an Athlon X2 and 4GB of RAM. :-)
 
-> Now having libata SATA support gets it back into my thoughts.
->
-> @Prakash: Did you test with a SATA-2 disk?
+Bool
+fbdevHWSaveScreen(ScreenPtr pScreen, int mode)
+{
+	ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+	fbdevHWPtr fPtr = FBDEVHWPTR(pScrn);
+	unsigned long unblank;
 
-Nope, just plain SATA (I).
+	TRACE_ENTER("HWSaveScreen");
+	if (!pScrn->vtSema)
+		return TRUE;
 
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+	unblank = xf86IsUnblank(mode);
 
---nextPart1166515.DCrsk5b16Z
-Content-Type: application/pgp-signature
+	if (-1 == ioctl(fPtr->fd, FBIOBLANK, (void *)(1-unblank))) {
+		xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+			   "FBIOBLANK: %s\n", strerror(errno));
+		return FALSE;
+	}
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+	return TRUE;
+}
 
-iD8DBQBD3UFuxU2n/+9+t5gRAoMFAKCP2dXirbxuCmxGAwM8cL1ZB3WkwQCg2iTj
-VksF9Xglci7td8t+E9UHEkc=
-=iEmu
------END PGP SIGNATURE-----
+The FBIOBLANK ioctl call passes only 2 possible values, 0 and 1
+(1-unblank).
 
---nextPart1166515.DCrsk5b16Z--
+Andrew, 
+
+I think you should drop this patch, Xorg/XFree86's fbdevhw DPMS support
+does the correct thing. It's only the above that may be producing the
+particular error as reported by David. I'm not sure how to fix that
+(kernel or X side).
+
+
+Tony

@@ -1,67 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWA2Flk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWA2GKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWA2Flk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 00:41:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbWA2Flk
+	id S1750826AbWA2GKh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 01:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWA2GKg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 00:41:40 -0500
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:32424 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP
-	id S1750834AbWA2Flk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 00:41:40 -0500
-X-ORBL: [67.39.188.224]
-Message-ID: <43DC5587.9010908@gmail.com>
-Date: Sat, 28 Jan 2006 23:41:27 -0600
-From: Hareesh Nagarajan <hnagar2@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Potentially racy del_timer(&timer);  ... ; add_timer(&timer) sequence
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Jan 2006 01:10:36 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:19983 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1750826AbWA2GKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 01:10:35 -0500
+Date: Sun, 29 Jan 2006 07:09:46 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Greg KH <gregkh@suse.de>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, jmforbes@linuxtx.org,
+       linux-kernel@vger.kernel.org, stable@kernel.org, zwane@arm.linux.org.uk,
+       tytso@mit.edu, davej@redhat.com, torvalds@osdl.org, akpm@osdl.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [patch 0/6] 2.6.14.7 -stable review
+Message-ID: <20060129060946.GX7142@w.ods.org>
+References: <20060128021749.GA10362@kroah.com> <Pine.LNX.4.63.0601282028210.7205@localhost.localdomain> <20060129044307.GA23553@linuxtx.org> <Pine.LNX.4.63.0601282048380.7205@localhost.localdomain> <20060128205701.5b84922e.rdunlap@xenotime.net> <20060129053458.GA9293@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060129053458.GA9293@suse.de>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was going through the kernel sources looking for places where the 
-following sequence occurs:
-	
-	del_timer(&timer);
-	... modify timer ...
-	add_timer(&timer)
+On Sat, Jan 28, 2006 at 09:34:58PM -0800, Greg KH wrote:
+> On Sat, Jan 28, 2006 at 08:57:01PM -0800, Randy.Dunlap wrote:
+> > On Sat, 28 Jan 2006 20:52:46 -0800 (PST) Chuck Wolber wrote:
+> > 
+> > > On Sat, 28 Jan 2006, Justin M. Forbes wrote:
+> > > 
+> > > > On Sat, Jan 28, 2006 at 08:30:25PM -0800, Chuck Wolber wrote:
+> > > > > 
+> > > > > Please correct me if I'm wrong here, but aren't we supposed to stop doing 
+> > > > > this for the 2.6.14 release now that 2.6.15 is out?
+> > > >
+> > > > I don't see a problems with doing additional stable releases for any 
+> > > > kernel, I just wouldn't commit to supporting any specific number of 
+> > > > releases.  Basically if people send enough patches to warrant a 
+> > > > review/release there is obviously some interest.  What is the harm?
+> > > 
+> > > The harm is that stable release patches will eventually start being 
+> > > maintained and we'll have to add another stable release "dot" to the end 
+> > > of the growing width of the release version moniker. This stable branch 
+> > > was meant only for "one-off" fixes to a stable release, not for adding 
+> > > fixes upon fixes upon fixes that eventually turn into features that have 
+> > > to be maintained. A new stable release means we change our focus to it and 
+> > > ignore the old stable release.
+> > 
+> > It's a 6-month sliding window for stable releases IIRC.
+> > Maybe <stable@kernel.org> can add something like that to
+> > Documentation/stable_kernel_rules.txt>.
+> 
+> No, it's not a 6 month window, I released this because people sent us
+> patches that they said should go into the 2.6.14-stable tree.  And as
+> people complained so much on lkml that we were dropping the old kernels
+> too fast, I never thought that people would complain that we are
+> maintaining older stuff that people seem interested in...
+> 
+> And, odds are, it will probably be the last 2.6.14 stable kernel we (the
+> stable team) release, unless something unusual happens...
+> 
+> And, as always, anyone is free to take on maintaining any of the
+> different kernel versions for as long as they wish.
+> 
+> Does that help?
+> 
+> Man, people complain when you don't maintain older kernels, and they
+> complain when you do...
 
-To my surprise, I found numerous place where such code appears. I 
-figured this kind of code will always be (potentially) racy on SMP machines.
+Greg, there will always be stupid people who don't understand the work
+of others. These are the same type of people who won't understand at all
+why there's a -stable branch. When I started 2.4-hf, I've been told
+"you're dumb, 2.4 is dead". I'm very glad that you take care of people
+who cannot easily upgrade to latest version, and I'm sure that a lot of
+users are too.
 
-Examples are:
-1. net/lapb/lapb_timer.c
+> thanks,
+> 
+> greg k-h
 
-void lapb_start_t1timer(struct lapb_cb *lapb)
-{
-         del_timer(&lapb->t1timer);
+Thanks for keeping up the good work,
+Willy
 
-         lapb->t1timer.data     = (unsigned long)lapb;
-         lapb->t1timer.function = &lapb_t1timer_expiry;
-         lapb->t1timer.expires  = jiffies + lapb->t1;
-
-         add_timer(&lapb->t1timer);
-}
-
-mod_timer could have been used.
-
-2. arch/i386/mach-voyager/voyager_thread.c
-3. kernel/acct.c
-
-         del_timer(&acct_globals.timer);
-         acct_globals.needcheck = 0;
-         acct_globals.timer.expires = jiffies + ACCT_TIMEOUT*HZ;
-         add_timer(&acct_globals.timer);
-
-Would anyone on LKML interested in getting this cleaned up? I could do 
-it, if it would be useful. Or perhaps someone on Kernel Janitors is 
-already working on it.
-
-Thanks,
-
-Hareesh Nagarajan
-www.cs.uic.edu/~hnagaraj

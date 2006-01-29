@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWA2U2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWA2Ulc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbWA2U2e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 15:28:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWA2U2d
+	id S1751170AbWA2Ulc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 15:41:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWA2Ulc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 15:28:33 -0500
-Received: from mf00.sitadelle.com ([212.94.174.67]:45452 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1751164AbWA2U2d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 15:28:33 -0500
-Message-ID: <43DD2571.4020805@cosmosbay.com>
-Date: Sun, 29 Jan 2006 21:28:33 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Sun, 29 Jan 2006 15:41:32 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:39059 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751170AbWA2Ulc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 15:41:32 -0500
+Date: Sun, 29 Jan 2006 21:41:10 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Matthias Andree <matthias.andree@gmx.de>
+cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, bzolnier@gmail.com,
+       mrmacman_g4@mac.com, linux-kernel@vger.kernel.org, acahalan@gmail.com
+Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future
+ Linux (stirring up a hornets' nest) ]
+In-Reply-To: <20060129112613.GA29356@merlin.emma.line.org>
+Message-ID: <Pine.LNX.4.61.0601292139080.2596@yvahk01.tjqt.qr>
+References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com>
+ <43DCA097.nailGPD11GI11@burner> <20060129112613.GA29356@merlin.emma.line.org>
 MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386: instead of poisoning .init zone, change protection
- bits to force a fault
-References: <m1r76rft2t.fsf@ebiederm.dsl.xmission.com> <m17j8jfs03.fsf@ebiederm.dsl.xmission.com> <20060128235113.697e3a2c.akpm@osdl.org> <200601291620.28291.ioe-lkml@rameria.de> <20060129113312.73f31485.akpm@osdl.org> <43DD1FDC.4080302@cosmosbay.com> <20060129200504.GD28400@kvack.org>
-In-Reply-To: <20060129200504.GD28400@kvack.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise a écrit :
-> On Sun, Jan 29, 2006 at 09:04:44PM +0100, Eric Dumazet wrote:
->> Chasing some invalid accesses to .init zone, I found that free_init_pages() 
->> was properly freeing the pages but virtual was still usable.
-> 
-> This change will break the large table entries up, resulting in more TLB 
-> pressure and reducing performance, and so should only be activated as a 
-> debug option.
+>That's what I believe to be cdrecord/libscg bugs:
+>
+>1) libscg or cdrecord does not automatically probe all available
+>   transports, but only SCSI:
 
-Hum... yet another CONFIG option ?
+This one is IMO just "a missing feature", as I can get the ATA/PI list using
+  cdrecord -dev=ATA: -scanbus
 
-Could we 'just' move rodata (because of CONFIG_DEBUG_RODATA) and .init section 
-   in their own 2MB/4MB page, playing with vmlinux.lds.S ?
 
-It would be possible to have a full hugepage readonly for rodata,  and a full 
-NOPROT for .init ?
 
-Eric
+Jan Engelhardt
+-- 

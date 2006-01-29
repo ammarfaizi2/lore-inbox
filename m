@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbWA2U0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWA2U2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbWA2U0r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 15:26:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbWA2U0r
+	id S1751164AbWA2U2e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 15:28:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWA2U2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 15:26:47 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:49548
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1751163AbWA2U0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 15:26:47 -0500
-Date: Sun, 29 Jan 2006 12:26:58 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Does /sys/module/foo reflect external module name?
-Message-ID: <20060129202658.GA7139@kroah.com>
-References: <200601291914.48318.arvidjaar@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601291914.48318.arvidjaar@mail.ru>
-User-Agent: Mutt/1.5.11
+	Sun, 29 Jan 2006 15:28:33 -0500
+Received: from mf00.sitadelle.com ([212.94.174.67]:45452 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1751164AbWA2U2d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 15:28:33 -0500
+Message-ID: <43DD2571.4020805@cosmosbay.com>
+Date: Sun, 29 Jan 2006 21:28:33 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386: instead of poisoning .init zone, change protection
+ bits to force a fault
+References: <m1r76rft2t.fsf@ebiederm.dsl.xmission.com> <m17j8jfs03.fsf@ebiederm.dsl.xmission.com> <20060128235113.697e3a2c.akpm@osdl.org> <200601291620.28291.ioe-lkml@rameria.de> <20060129113312.73f31485.akpm@osdl.org> <43DD1FDC.4080302@cosmosbay.com> <20060129200504.GD28400@kvack.org>
+In-Reply-To: <20060129200504.GD28400@kvack.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 29, 2006 at 07:14:47PM +0300, Andrey Borzenkov wrote:
-> Is it correct that /sys/module lists module *file* names (sans -_ confusion)? 
-> Is it possible to find out if module is built in or truly external? The goal 
-> is to automate initrd build by walking from /dev/root up and pulling in all 
-> modules. Now missing module may mean that it is built in or that it is really 
-> missing :) In my case:
+Benjamin LaHaise a écrit :
+> On Sun, Jan 29, 2006 at 09:04:44PM +0100, Eric Dumazet wrote:
+>> Chasing some invalid accesses to .init zone, I found that free_init_pages() 
+>> was properly freeing the pages but virtual was still usable.
 > 
-> {pts/1}% for i in /sys/module/*
-> for> do
-> for> grep -q ${i:t} /proc/modules || echo $i
-> for> done
-> /sys/module/8250
-> /sys/module/i8042
-> /sys/module/md_mod
-> /sys/module/psmouse
-> /sys/module/tcp_bic
-> {pts/1}% for i in $(lsmod | awk '{print $1}')
-> do
-> [[ -d /sys/module/$i ]] || echo $i
-> done
-> Module
-> 
-> so it looks quite reliable up to built in modules. Is there any information 
-> that could be exported in sysfs (like "builtin" == 0|1)?
+> This change will break the large table entries up, resulting in more TLB 
+> pressure and reducing performance, and so should only be activated as a 
+> debug option.
 
-What would that be needed for?  You can always just compare the list
-with /proc/modules, right?
+Hum... yet another CONFIG option ?
 
-thanks,
+Could we 'just' move rodata (because of CONFIG_DEBUG_RODATA) and .init section 
+   in their own 2MB/4MB page, playing with vmlinux.lds.S ?
 
-greg k-h
+It would be possible to have a full hugepage readonly for rodata,  and a full 
+NOPROT for .init ?
+
+Eric

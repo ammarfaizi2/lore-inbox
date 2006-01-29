@@ -1,104 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWA2Hvf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWA2Hv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWA2Hvf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 02:51:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbWA2Hvf
+	id S1750741AbWA2Hv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 02:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWA2Hv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 02:51:35 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:31967 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750751AbWA2Hva (ORCPT
+	Sun, 29 Jan 2006 02:51:27 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:38122 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750741AbWA2Hv0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 02:51:30 -0500
-Date: Sat, 28 Jan 2006 23:51:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386: Add a temporary to make put_user more type safe.
-Message-Id: <20060128235113.697e3a2c.akpm@osdl.org>
-In-Reply-To: <m17j8jfs03.fsf@ebiederm.dsl.xmission.com>
-References: <m1r76rft2t.fsf@ebiederm.dsl.xmission.com>
-	<20060128223917.4e5c3dd9.akpm@osdl.org>
-	<m17j8jfs03.fsf@ebiederm.dsl.xmission.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 29 Jan 2006 02:51:26 -0500
+Date: Sun, 29 Jan 2006 08:51:44 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Eric Dumazet <dada1@cosmosbay.com>, dipankar@in.ibm.com,
+       paulmck@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: RCU latency regression in 2.6.16-rc1
+Message-ID: <20060129075144.GA15056@elte.hu>
+References: <20060124213802.GC7139@in.ibm.com> <1138224506.3087.22.camel@mindpipe> <20060126191809.GC6182@us.ibm.com> <1138388123.3131.26.camel@mindpipe> <20060128170302.GB5633@in.ibm.com> <1138471203.2799.13.camel@mindpipe> <1138474283.2799.24.camel@mindpipe> <20060128193412.GH5633@in.ibm.com> <43DBCB62.7030308@cosmosbay.com> <1138520283.2799.103.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1138520283.2799.103.camel@mindpipe>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) wrote:
->
-> > Sounds sane.  We could make it warn if typeof(x)!=typeof(*ptr) by adding
->  > another temporary for the pointer, give it type typeof(x)*, but I haven't
->  > tried it.
+
+* Lee Revell <rlrevell@joe-job.com> wrote:
+
+> On Sat, 2006-01-28 at 20:52 +0100, Eric Dumazet wrote:
+> > > Your new trace shows that we are held up in in rt_run_flush(). 
+> > > I guess we need to investigate why we spend so much time in rt_run_flush(),
+> > > because of a big route table or the lock acquisitions.
+> > 
+> > Some machines have millions of entries in their route cache.
+> > 
+> > I suspect we cannot queue all them (or only hash heads as your
+> > previous patch) by RCU. Latencies and/or OOM can occur.
+> > 
+> > What can be done is :
+> > 
+> > in rt_run_flush(), allocate a new empty hash table, and exchange the
+> > hash tables.
+> > 
+> > Then wait a quiescent/grace RCU period (may be the exact term is not
+> > this one, sorry, I'm not RCU expert)
+> > 
+> > Then free all the entries from the old hash table (direclty of course,
+> > no need for RCU grace period), and free the hash table.
+> > 
+> > As the hash table can be huge, we might need allocate it at boot time,
+> > just in case a flush is needed (it usually is :) ). If we choose
+> > dynamic allocation and this allocation fails, then fallback to what is
+> > done today.
+> > 
 > 
->  I guess we could do that.  However if we don't use the value we will probably
->  get an unused variable warning.  
+> No problem, I'm not a networking expert...
+> 
+> Ingo's response to these traces was that softirq preemption, which 
+> simply offloads all softirq processing to softirqd and has been tested 
+> in the -rt patchset for over a year, is the easiest solution.  Any 
+> thoughts on that?  Personally, I'd rather fix the very few problematic 
+> softirqs, than take such a drastic step - this softirq appears to be 
+> one of the last obstacles to being able to meet a 1ms soft RT 
+> constraint with the mainline kernel.
 
-No, that's OK, we can use the temporary.
+well, softirq preemption is not really a drastic step - its biggest 
+problem is that it cannot be included in v2.6.16 ;-) But i agree that if 
+a solution can be found to break up a latency path, that is preferred.
 
-Something like this:
-
---- devel/include/asm-i386/uaccess.h~x86-tighten-uaccess-type-checking	2006-01-28 23:45:16.000000000 -0800
-+++ devel-akpm/include/asm-i386/uaccess.h	2006-01-28 23:48:31.000000000 -0800
-@@ -149,14 +149,16 @@ extern void __get_user_4(void);
- #define get_user(x,ptr)							\
- ({	int __ret_gu;							\
- 	unsigned long __val_gu;						\
-+	__typeof__(x)*_p_;						\
-+	_p_ = ptr;							\
- 	__chk_user_ptr(ptr);						\
--	switch(sizeof (*(ptr))) {					\
--	case 1:  __get_user_x(1,__ret_gu,__val_gu,ptr); break;		\
--	case 2:  __get_user_x(2,__ret_gu,__val_gu,ptr); break;		\
--	case 4:  __get_user_x(4,__ret_gu,__val_gu,ptr); break;		\
--	default: __get_user_x(X,__ret_gu,__val_gu,ptr); break;		\
-+	switch(sizeof (*(_p_))) {					\
-+	case 1:  __get_user_x(1, __ret_gu, __val_gu, _p_); break;	\
-+	case 2:  __get_user_x(2, __ret_gu, __val_gu, _p_); break;	\
-+	case 4:  __get_user_x(4, __ret_gu, __val_gu, _p_); break;	\
-+	default: __get_user_x(X, __ret_gu, __val_gu, _p_); break;	\
- 	}								\
--	(x) = (__typeof__(*(ptr)))__val_gu;				\
-+	(x) = __val_gu;							\
- 	__ret_gu;							\
- })
- 
-@@ -198,13 +200,17 @@ extern void __put_user_8(void);
- #define put_user(x,ptr)						\
- ({	int __ret_pu;						\
- 	__chk_user_ptr(ptr);					\
--	__typeof__(*(ptr)) __pu_val = x;			\
-+	__typeof__(x)*_p_;					\
-+	__typeof__(x)__pu_val;					\
-+								\
-+	_p_ = ptr;						\
-+	__pu_val = x;						\
- 	switch(sizeof(*(ptr))) {				\
--	case 1: __put_user_1(__pu_val, ptr); break;		\
--	case 2: __put_user_2(__pu_val, ptr); break;		\
--	case 4: __put_user_4(__pu_val, ptr); break;		\
--	case 8: __put_user_8(__pu_val, ptr); break;		\
--	default:__put_user_X(__pu_val, ptr); break;		\
-+	case 1: __put_user_1(__pu_val, _p_); break;		\
-+	case 2: __put_user_2(__pu_val, _p_); break;		\
-+	case 4: __put_user_4(__pu_val, _p_); break;		\
-+	case 8: __put_user_8(__pu_val, _p_); break;		\
-+	default:__put_user_X(__pu_val, _p_); break;		\
- 	}							\
- 	__ret_pu;						\
- })
-_
-
-
-It gives ~100 warnings on my usual test config.  It's a bit awkward because
-get_user/put_user/etc aren't allowed to evaluate their args multiple times
-- code likes to do
-
-	get_user(v, p++);
-
-I guess fixing those 100-odd warnings might find some warts -
-compiler-caused truncation or sign-extension during uaccess copies is a bit
-of a worry.
-
-But I have enough things to be going on with :(
+	Ingo

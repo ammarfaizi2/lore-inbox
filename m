@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWA3MPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWA3MXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbWA3MPS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 07:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWA3MPR
+	id S932242AbWA3MXy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 07:23:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWA3MXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 07:15:17 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:45723 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S932241AbWA3MPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 07:15:15 -0500
-Date: Mon, 30 Jan 2006 10:15:09 -0200
-From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-To: Robert Olsson <Robert.Olsson@data.slu.se>
-Cc: davem@davemloft.net, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       robert.olsson@its.uu.se
-Subject: Re: [PATCH 0/4] - pktgen: refinements and small fixes (V2).
-Message-Id: <20060130101509.674bb081.lcapitulino@mandriva.com.br>
-In-Reply-To: <17373.62964.203852.42375@robur.slu.se>
-References: <20060129232342.1e481f9a@localhost>
-	<17373.62964.203852.42375@robur.slu.se>
-Organization: Mandriva
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i586-mandriva-linux-gnu)
+	Mon, 30 Jan 2006 07:23:54 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:38847 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932242AbWA3MXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 07:23:53 -0500
+Date: Mon, 30 Jan 2006 12:23:49 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>, jengelh@linux01.gwdg.de,
+       James@superbug.co.uk, mrmacman_g4@mac.com, linux-kernel@vger.kernel.org,
+       acahalan@gmail.com, "unlisted-recipients:; "@pop3.mail.demon.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060130122349.GA13871@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	jengelh@linux01.gwdg.de, James@superbug.co.uk, mrmacman_g4@mac.com,
+	linux-kernel@vger.kernel.org, acahalan@gmail.com,
+	"unlisted-recipients:; "@pop3.mail.demon.net
+References: <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com> <43D7B1E7.nailDFJ9MUZ5G@burner> <20060125230850.GA2137@merlin.emma.line.org> <43D8C04F.nailE1C2X9KNC@burner> <20060126161028.GA8099@suse.cz> <43DA2E79.nailFM911AZXH@burner> <43DA4DDA.7070509@superbug.co.uk> <Pine.LNX.4.61.0601271753430.11702@yvahk01.tjqt.qr> <43DDFBFF.nail16Z3N3C0M@burner> <20060130120408.GA8436@merlin.emma.line.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060130120408.GA8436@merlin.emma.line.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Jan 2006 12:18:12 +0100
-Robert Olsson <Robert.Olsson@data.slu.se> wrote:
+On Mon, Jan 30, 2006 at 01:04:08PM +0100, Matthias Andree wrote:
+> Why is it a *kernel* task to invent SCSI identifier for a non-SCSI
+> transport that does not have such identifiers, in addition to the device
+> name? libscg is already doing it for /dev/hd* and /dev/pg*.
+> How about USB or Firewire or SATA? Do they have ID or LUN?
 
-| 
-| Luiz Fernando Capitulino writes:
-| 
-|  > [PATCH 1/4]  pktgen: Lindent run.
-|  > [PATCH 2/4]  pktgen: Ports thread list to Kernel list implementation.
-|  > [PATCH 3/4]  pktgen: Fix kernel_thread() fail leak.
-|  > [PATCH 4/4]  pktgen: Fix Initialization fail leak.
-|  > 
-|  >  The changes from V1 are:
-|  > 
-|  >  1. More fixes made by hand after Lindent run
-|  >  2. Re-diffed agains't Dave's net-2.6.17 tree
-| 
-|  Should be fine I've used the previous version of the patches for a
-|  couple of days now. Thanks.
+Nothing but SPI (parallel scsi) has a target id.  Everything that broadly
+falls under SAM has luns.  Because SPI is dying transport the scsi
+midlayer will get rid of having a mandatory target id mid-term.  Relying
+on the target id to have any useful meaning is dangerous, it doesn't
+have a really useful meaning on anything but SPI.
 
- Ok Robert, I'll try to finish the interface list port this week.
-
-| 
-|  Signed-off-by: Robert Olsson <robert.olsson@its.uu.se>
-| 
-|  Cheers.	
-| 					--ro
-
--- 
-Luiz Fernando N. Capitulino

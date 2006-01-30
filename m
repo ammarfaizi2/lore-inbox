@@ -1,40 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWA3J0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWA3J3s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932161AbWA3J0s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 04:26:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWA3J0s
+	id S932162AbWA3J3s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 04:29:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWA3J3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 04:26:48 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:44781 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932161AbWA3J0s (ORCPT
+	Mon, 30 Jan 2006 04:29:48 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:8333 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932162AbWA3J3r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 04:26:48 -0500
-Date: Mon, 30 Jan 2006 10:26:39 +0100 (MET)
+	Mon, 30 Jan 2006 04:29:47 -0500
+Date: Mon, 30 Jan 2006 10:29:40 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix console utf8 composing
-In-Reply-To: <43AF7F00.50304@ums.usu.ru>
-Message-ID: <Pine.LNX.4.61.0601301025550.6405@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0512242300360.29877@yvahk01.tjqt.qr>
- <43AE2B06.4010906@ums.usu.ru> <Pine.LNX.4.61.0512252209380.15152@yvahk01.tjqt.qr>
- <43AF7F00.50304@ums.usu.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pid: Don't hash pid 0.
+In-Reply-To: <m1ek2rfsu9.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <Pine.LNX.4.61.0601301028510.6405@yvahk01.tjqt.qr>
+References: <m1ek2rfsu9.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > Differences between our versions are described below.
->
->> What do you think we should do? I have not given this fix any thought,
->> because it applied fine for long time (+/- fuzz), so I cannot comment on
->> anything in your version being better or not.
->
-> If you really don't care about characters beyond 0xffff (but see below),
-> please consider applying this on top of your patch:
 
-Could you just send the whole thing to mainline once 2.6.16 is out? Thanks.
+>@@ -148,6 +148,9 @@ int fastcall attach_pid(task_t *task, en
+> {
+> 	struct pid *pid, *task_pid;
+> 
+>+	if (!nr)
+>+		goto out;
+>+
 
+How about nr==0, it would make it more obvious.
 
 
 

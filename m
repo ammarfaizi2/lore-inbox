@@ -1,80 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWA3N2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWA3N3r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbWA3N2r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 08:28:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWA3N2r
+	id S932263AbWA3N3r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 08:29:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932264AbWA3N3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 08:28:47 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:3850 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932254AbWA3N2q convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 08:28:46 -0500
+	Mon, 30 Jan 2006 08:29:46 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:6670 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S932263AbWA3N3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 08:29:45 -0500
+Message-ID: <43DE14F0.5070208@shadowen.org>
+Date: Mon, 30 Jan 2006 13:30:24 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <43DDD1DA.6060507@aitel.hist.no>
-X-OriginalArrivalTime: 30 Jan 2006 13:28:16.0957 (UTC) FILETIME=[07545ED0:01C625A1]
-Content-class: urn:content-classes:message
-Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
-Date: Mon, 30 Jan 2006 08:28:09 -0500
-Message-ID: <Pine.LNX.4.61.0601300818290.28552@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
-Thread-Index: AcYloQdd5APOpcFdT1qGZF9kBHAAiQ==
-References: <20060124225919.GC12566@suse.de>  <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de>  <20060125121125.GH5465@suse.de> <43D78262.2050809@symas.com>  <43D7BA0F.5010907@nortel.com>  <43D7C2F0.5020108@symas.com> <1138223212.3087.16.camel@mindpipe> <43D7F863.3080207@symas.com> <43D88E55.7010506@yahoo.com.au> <43D8DB90.7070601@symas.com> <43D8E298.3020402@yahoo.com.au> <43D8E96B.3070606@symas.com> <43D8EFF7.3070203@yahoo.com.au> <43D8FC76.2050906@symas.com> <Pine.LNX.4.61.0601261231460.9298@chaos.analogic.com> <43DDD1DA.6060507@aitel.hist.no>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Helge Hafting" <helge.hafting@aitel.hist.no>
-Cc: "Howard Chu" <hyc@symas.com>, "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "Lee Revell" <rlrevell@joe-job.com>,
-       "Christopher Friesen" <cfriesen@nortel.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <hancockr@shaw.ca>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: john stultz <johnstul@us.ibm.com>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] timer tsc ensure we allow for initial tsc and tsc sync
+References: <20060120125342.GA7632@shadowen.org> <1138399887.14289.107.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1138399887.14289.107.camel@cog.beaverton.ibm.com>
+Content-Type: multipart/mixed;
+ boundary="------------050508000901040707030407"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------050508000901040707030407
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-On Mon, 30 Jan 2006, Helge Hafting wrote:
+john stultz wrote:
 
-> linux-os (Dick Johnson) wrote:
->
->> To fix the current problem, you can substitute usleep(0); It will
->> give the CPU to somebody if it's computable, then give it back to
->> you. It seems to work in every case that sched_yield() has
->> mucked up (perhaps 20 to 30 here).
->>
->>
-> Isn't that dangerous?  Someday, someone working on linux (or some
-> other unixish os) might come up with an usleep implementation where
-> usleep(0) just returns and becomes a no-op.  Which probably is ok
-> with the usleep spec - it did sleep for zero time . . .
->
-> Helge Hafting
+> There's a test patch in there that maybe you could try?
 
-Dangerous?? You have a product that needs to ship. You can make
-it work by adding a hack. You add a hack. I don't see danger at
-all. I see getting the management off the back of the software
-engineers so that they can fix the code. Further, you __test__ the
-stuff before you ship. If usleep(0) just spins, then you use
-usleep(1).
+Yep this one also seems to fix it.  It also looks like a more general
+solution than mine.  I've attached the patch here so that its recorded
+with this.  I've added some description to the top.  Tests ok on the
+machine which was showing issues for me.  Help yourself to a:
 
-Also, I don't think any Engineer would use threads for anything
-that could be potentially dangerous anyway. You create step-by-step
-ordered procedures with explicit state-machines for things that
-really need to happen as written. You use threads for things that
-must occur, but you don't give a damn when they occur (like updating
-a window on the screen or sorting keys in a database).
+Acked-by: Andy Whitcroft <apw@shadowen.org>
 
+If you are happy with it I for one would like to see it in -mm.  Perhaps
+you could sign it off and send it to Andrew for inclusion.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.66 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
+-apw
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+--------------050508000901040707030407
+Content-Type: text/plain;
+ name="jstultz-suppress-lost-tick-processing-till-after-timers-are-up-and-synchronised"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="jstultz-suppress-lost-tick-processing-till-after-timers-are-up-and-synchronised"
 
-Thank you.
+From: John Stultz <johnstul@us.ibm.com>
+
+Suppress lost tick detection until we are fully initialised.
+This prevents any modifications to the high resolution timers
+from causing non-linearities in the flow of time.  For example on
+an SMP system we resyncronise the TSC values for all processors.
+This results in a TSC reset which will be seen as a huge apparent
+tick loss.  This can cause premature expiry of timers and in extreme
+cases can cause the soft lockup detection to fire.
+
+Acked-by: Andy Whitcroft <apw@shadowen.org>
+
+diff --git a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
+--- a/arch/i386/kernel/timers/timer_tsc.c
++++ b/arch/i386/kernel/timers/timer_tsc.c
+@@ -45,6 +45,15 @@ static unsigned long last_tsc_high; /* m
+ static unsigned long long monotonic_base;
+ static seqlock_t monotonic_lock = SEQLOCK_UNLOCKED;
+ 
++/* Avoid compensating for lost ticks before TSCs are synched */
++static int detect_lost_ticks;
++static int __init start_lost_tick_compensation(void)
++{
++	detect_lost_ticks = 1;
++	return 0;
++}
++late_initcall(start_lost_tick_compensation);
++
+ /* convert from cycles(64bits) => nanoseconds (64bits)
+  *  basic equation:
+  *		ns = cycles / (freq / ns_per_sec)
+@@ -196,7 +205,8 @@ static void mark_offset_tsc_hpet(void)
+ 
+ 	/* lost tick compensation */
+ 	offset = hpet_readl(HPET_T0_CMP) - hpet_tick;
+-	if (unlikely(((offset - hpet_last) > hpet_tick) && (hpet_last != 0))) {
++	if (unlikely(((offset - hpet_last) > hpet_tick) && (hpet_last != 0))
++					&& detect_lost_ticks) {
+ 		int lost_ticks = (offset - hpet_last) / hpet_tick;
+ 		jiffies_64 += lost_ticks;
+ 	}
+@@ -419,7 +429,7 @@ static void mark_offset_tsc(void)
+ 	delta += delay_at_last_interrupt;
+ 	lost = delta/(1000000/HZ);
+ 	delay = delta%(1000000/HZ);
+-	if (lost >= 2) {
++	if (lost >= 2 && detect_lost_ticks) {
+ 		jiffies_64 += lost-1;
+ 
+ 		/* sanity check to ensure we're not always losing ticks */
+
+--------------050508000901040707030407--

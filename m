@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbWA3UXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbWA3UY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964947AbWA3UXT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 15:23:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbWA3UXS
+	id S964950AbWA3UY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 15:24:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbWA3UY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 15:23:18 -0500
-Received: from uproxy.gmail.com ([66.249.92.207]:5568 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964947AbWA3UXQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 15:23:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jv7EsLvLwICGWelJd7kT1Z2nurq+w+dLbZ/MfmFtYgN7xcJ/QiDuOdbgE2Laz84KbsZxMCMUuMLQScCGbH3Fu0fFLZyjnSZ0N+i0HMUHVCTKk+6TncvYM+jcMcb30+TuY6o0+zhOxN2buPK7nm2jceD6JO1NvyKIKLbWas7e5dk=
-Message-ID: <84144f020601301223j709ce2bco707ee73cf2d583b4@mail.gmail.com>
-Date: Mon, 30 Jan 2006 22:23:15 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Olaf Hering <olh@suse.de>
-Subject: Re: [PATCH] record last user if malloc request is exact 4k
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060130174919.GA7599@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 30 Jan 2006 15:24:28 -0500
+Received: from ns1.suse.de ([195.135.220.2]:30603 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964948AbWA3UY2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 15:24:28 -0500
+Date: Mon, 30 Jan 2006 21:24:18 +0100
+From: Olaf Hering <olh@suse.de>
+To: Andrew Vasquez <andrew.vasquez@qlogic.com>
+Cc: Stefan Kaltenbrunner <mm-mailinglist@madness.at>,
+       linux-kernel@vger.kernel.org
+Subject: Re: qla2xxx related oops in 2.6.16-rc1
+Message-ID: <20060130202418.GA12315@suse.de>
+References: <43DA580E.3020100@madness.at> <20060130153435.GC1160@andrew-vasquezs-powerbook-g4-15.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-References: <20060130174919.GA7599@suse.de>
+In-Reply-To: <20060130153435.GC1160@andrew-vasquezs-powerbook-g4-15.local>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ On Mon, Jan 30, Andrew Vasquez wrote:
 
-On 1/30/06, Olaf Hering <olh@suse.de> wrote:
-> Is there a reason why a 4096 malloc is not recorded?
-> untested patch below.
->
-> allow SLAB_STORE_USER also with an exact 4k request.
+> On Fri, 27 Jan 2006, Stefan Kaltenbrunner wrote:
+> 
+> > We hit the following oops in 2.6.16-rc1 during itesting of a
+> > devicemapper based multipath infrastructure.
+> > 
+> > The oops happend during heavy io on the devicemapper device and a reboot
+> > of one of the switches the host was directly connected too.
+> > 
+> > The host in questions is as Dual Opteron 280 with 16GB ram and two
+> > qla2340 adapters accessing an IBM DS4300 Array.
+> > 
+> > Stefan
+> > 
+> > Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP:
+> > <ffffffff803cc6c6>{_spin_lock+0}
+> > PGD 3ff513067 PUD 3ff514067 PMD 0
+> > Oops: 0002 [1] SMP
+> > CPU 0
+> > Modules linked in: dm_round_robin dm_multipath dm_mod i2c_amd756 qla2300
+> > qla2xxx i2c_core evdev
+> > Pid: 2568, comm: qla2300_1_dpc Not tainted 2.6.16-rc1 #4
+> > RIP: 0010:[<ffffffff803cc6c6>] <ffffffff803cc6c6>{_spin_lock+0}
+> 
+> Could you retry your tests with the following patchset:
 
-For architectures that have 4K pages, adding debugging overhead to 4K
-objects is pretty much the worst case. Any particular reason you want
-this?
+This is a generic bug. I hit it as well several times during my testing of
+https://bugzilla.novell.com/show_bug.cgi?id=145459
 
-                              Pekka
+If my slab corruption and this one is the same cause, no idea.
+
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

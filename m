@@ -1,98 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbWA3U2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbWA3Ua6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964951AbWA3U2J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 15:28:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbWA3U2J
+	id S964954AbWA3Ua6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 15:30:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbWA3Ua6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 15:28:09 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36742 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964951AbWA3U2I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 15:28:08 -0500
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] exec: Cleanup exec from a non thread group leader.
-References: <43DDFDE3.58C01234@tv-sign.ru>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 30 Jan 2006 13:27:30 -0700
-In-Reply-To: <43DDFDE3.58C01234@tv-sign.ru> (Oleg Nesterov's message of
- "Mon, 30 Jan 2006 14:52:03 +0300")
-Message-ID: <m1zmld5uml.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 30 Jan 2006 15:30:58 -0500
+Received: from hosting9000.com ([81.169.143.62]:29930 "EHLO
+	mail.hosting9000.com") by vger.kernel.org with ESMTP
+	id S964954AbWA3Ua5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 15:30:57 -0500
+Date: Mon, 30 Jan 2006 21:30:52 +0100
+From: "Gabriel C." <crazy@pimpmylinux.org>
+To: linux-kernel@vger.kernel.org, linville@tuxdriver.com
+Cc: netdev@vger.kernel.org, Adrian Bunk <bunk@stusta.de>, da.crew@gmx.net
+Subject: Re: [2.6 patch] PCMCIA=m, HOSTAP_CS=y is not a legal configuration
+Message-ID: <20060130213052.5b1ea5cd@zwerg>
+In-Reply-To: <20060130182317.GD3655@stusta.de>
+References: <20060130133833.7b7a3f8e@zwerg>
+	<20060130182317.GD3655@stusta.de>
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.8.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> writes:
+On Mon, 30 Jan 2006 19:23:17 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-> Eric W. Biederman wrote:
->>
->> And for good measure we set the thread group leaders
->> exit_signal to -1 so it will self reap.  We are actually
->> past the point where that matters but it can't hurt, and
->> it might help someday.
->> ...
->>               leader->exit_state = EXIT_DEAD;
->> +             leader->exit_signal = -1;
->
-> I disagree. The leader is already practically reaped, it is EXIT_DEAD.
-> I think this change will confuse the reader who will try to understand
-> why do we need this subtle assignment.
+> On Mon, Jan 30, 2006 at 01:38:33PM +0100, Gabriel C. wrote:
+> 
+> > Hello,
+> 
+> Hallo Gabriel,
+> 
+> > I got this compile error with 2.6.16-rc1-mm4 , config attached. 
+> > 
+> > 
+> >   LD      .tmp_vmlinux1
+> >...
+> > `sandisk_set_iobase':hostap_cs.c:(.text+0x801ad): undefined
+> > reference to
+> > `pcmcia_access_configuration_register' :hostap_cs.c:(.text+0x801f3):
+> > undefined reference to `pcmcia_access_configuration_register'
+> > drivers/built-in.o: In function
+> > `prism2_pccard_cor_sreset':hostap_cs.c:(.text+0x80254): undefined
+> > reference to
+> > `pcmcia_access_configuration_register' :hostap_cs.c:(.text+0x80289):
+> > undefined reference to
+> > `pcmcia_access_configuration_register' :hostap_cs.c:(.text+0x80325):
+> > undefined reference to `pcmcia_access_configuration_register' [more
+> > errors]
+> >...
+> 
+> thanks for your report, a patch is below.
+> > Gabriel 
+> 
+> cu
+> Adrian
+> 
+> 
+> <--  snip  -->
+> 
+> 
+> CONFIG_PCMCIA=m, CONFIG_HOSTAP_CS=y doesn't compile.
+> 
+> Reported by "Gabriel C." <crazy@pimpmylinux.org>.
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> linux-2.6.16-rc1-mm4/drivers/net/wireless/hostap/Kconfig.old
+> 2006-01-30 19:00:44.000000000 +0100 +++
+> linux-2.6.16-rc1-mm4/drivers/net/wireless/hostap/Kconfig
+> 2006-01-30 19:01:04.000000000 +0100 @@ -75,7 +75,7 @@ config HOSTAP_CS
+>  	tristate "Host AP driver for Prism2/2.5/3 PC Cards"
+> -	depends on PCMCIA!=n && HOSTAP
+> +	depends on PCMCIA && HOSTAP
+>  	---help---
+>  	Host AP driver's version for Prism2/2.5/3 PC Cards.
+>  
+> 
 
-Six of one half dozen of the other.  It doesn't matter so I don't
-care.
+Hi Adrian,
 
->>  void switch_exec_pids(task_t *leader, task_t *thread)
->>  {
->> -	__detach_pid(leader, PIDTYPE_PID);
->> -	__detach_pid(leader, PIDTYPE_TGID);
->> -	__detach_pid(leader, PIDTYPE_PGID);
->> -	__detach_pid(leader, PIDTYPE_SID);
->> -
->> -	__detach_pid(thread, PIDTYPE_PID);
->> -	__detach_pid(thread, PIDTYPE_TGID);
->> -
->> -	leader->pid = leader->tgid = thread->pid;
->> -	thread->pid = thread->tgid;
->> -
->> -	attach_pid(thread, PIDTYPE_PID, thread->pid);
->> -	attach_pid(thread, PIDTYPE_TGID, thread->tgid);
->> +	detach_pid(thread, PIDTYPE_PID);
->> +	thread->pid = leader->pid;
->> +	attach_pid(thread, PIDTYPE_PID,  thread->pid);
->>  	attach_pid(thread, PIDTYPE_PGID, thread->signal->pgrp);
->> -	attach_pid(thread, PIDTYPE_SID, thread->signal->session);
->> -	list_add_tail(&thread->tasks, &init_task.tasks);
->
-> The last deletion is wrong, I beleive.
+Your patch works fine,  thanks :)
 
-list_add_tail is duplicate code.  It is already present in the caller.
-So it is noise and confusing to leave it here.
-But you already noted that in the following email.
-
-
->> +	attach_pid(thread, PIDTYPE_SID,  thread->signal->session);
->>  
->> -	attach_pid(leader, PIDTYPE_PID, leader->pid);
->> -	attach_pid(leader, PIDTYPE_TGID, leader->tgid);
->> -	attach_pid(leader, PIDTYPE_PGID, leader->signal->pgrp);
->> -	attach_pid(leader, PIDTYPE_SID, leader->signal->session);
->> +	detach_pid(leader, PIDTYPE_PID);
->> +	detach_pid(leader, PIDTYPE_TGID);
->> +	detach_pid(leader, PIDTYPE_PGID);
->> +	detach_pid(leader, PIDTYPE_SID);
->>  }
->
-> I think most of detach_pid()s could be replaced with __detach_pid(),
-> this will save unneccesary pid_hash scanning
-
-Actually 90% of the point was to remove the need for __detach_pid.
-But you are right __detach_pid would be safe and we know that because
-of the ordering.  At the same time because we are not the last reference
-the code will never do that.
-
-I need to relook at this.  To not conflict with your code some of
-the detach_pids need to be removed so we don't unhash things twice.
-
-Eric
+Gabriel

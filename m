@@ -1,76 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWA3SDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbWA3SEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbWA3SDe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 13:03:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964854AbWA3SDe
+	id S964854AbWA3SEv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 13:04:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbWA3SEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 13:03:34 -0500
-Received: from mail.gmx.de ([213.165.64.21]:26772 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964859AbWA3SDd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 13:03:33 -0500
-X-Authenticated: #428038
-Date: Mon, 30 Jan 2006 19:03:27 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       cdwrite@other.debian.org
-Subject: Re: Request to stop cdrecord's bogus accusations of Linux.
-Message-ID: <20060130180327.GA15332@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	linux-kernel@vger.kernel.org, cdwrite@other.debian.org
-References: <20060130173722.GC3973@merlin.emma.line.org> <43DE511A.nail2DG117NWT@burner>
+	Mon, 30 Jan 2006 13:04:51 -0500
+Received: from mx01.qsc.de ([213.148.129.14]:29115 "EHLO mx01.qsc.de")
+	by vger.kernel.org with ESMTP id S964854AbWA3SEu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 13:04:50 -0500
+From: =?iso-8859-1?q?Ren=E9_Rebe?= <rene@exactcode.de>
+Organization: ExactCODE
+To: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [linux-usb-devel] Re: [PATCH] Adaptec USBXchange and USB2Xchange support
+Date: Mon, 30 Jan 2006 19:04:15 +0100
+User-Agent: KMail/1.9
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       "Louis C. Kouvaris" <louisk@comcast.net>,
+       "wilford smith" <wilford_smith_2@hotmail.com>
+References: <200509132253.53960.rene@exactcode.de> <200601301422.40500.rene@exactcode.de> <200601301622.19998.oliver@neukum.org>
+In-Reply-To: <200601301622.19998.oliver@neukum.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <43DE511A.nail2DG117NWT@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+Message-Id: <200601301904.15207.rene@exactcode.de>
+X-Spam-Score: -1.4 (-)
+X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Hi, finally - I got multi target (that is a SCSI device
+	other than ID = 0 and more than than one) working with the USB2Xchange.
+	But it needs two ugly changes in transport.c: The first one is only
+	encoding the ID, no LUN: [...] 
+	Content analysis details:   (-1.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-01-30:
+Hi,
 
-> Matthias Andree <matthias.andree@gmx.de> wrote:
-> 
-> > with this open letter, I officially request that you stop your
-> > misrepresentations in cdrecord that claim Linux were noncompliant in a
-> > place where it is conforming to POSIX.
-> >
-> > I am not speaking on behalf of any other party here, this is purely my
-> > personal opinion that is supposed to make sure both sides play fair.
-> >
-> > <ftp://ftp.berlios.de/pub/cdrecord/alpha/AN-2.01.01a05>
-> > (dated 2006-01-29 20:20" states
-> 
-> I am sorry to see that you still insist in claiming things that are not in this
-> announcement.
-> 
-> You did inform me about this Linux "self non-compliance" and you are the only 
-> person who did claim that there is a problem. I spend a lot of time in trying 
-> to find a work around for this problem and I am in hope that I did find a 
-> working solution.
+finally - I got multi target (that is a SCSI device other than ID = 0 and more than than one) working
+with the USB2Xchange. But it needs two ugly changes in transport.c:
 
-Compliance is a term used in contexts such as "standards" compliance.
-Even "self compliance" is given, the Linux manpage matches observed
-behavior, too.
+The first one is only encoding the ID, no LUN:
 
-Fact however is that I approached you with a patch that moved the
-allocation into root-mode code, and later with a patch that reset
-RLIMIT_MEMLOCK to RLIM_INFINITY, and we tested several variants forth
-and back until you settled for raising RLIMIT_MEMLOCK to some 6 MB.
+--- ../linux-2.6.15/drivers/usb/storage/transport.c	2006-01-03 04:21:10.000000000 +0100
++++ drivers/usb/storage/transport.c	2006-01-30 18:49:25.172317000 +0100
+@@ -983,7 +983,7 @@
+ 	bcb->Tag = ++us->tag;
+ 	bcb->Lun = srb->device->lun;
+ 	if (us->flags & US_FL_SCM_MULT_TARG)
+-		bcb->Lun |= srb->device->id << 4;
++		bcb->Lun = srb->device->id;
+ 	bcb->Length = srb->cmd_len;
+ 
+ 	/* copy the command payload */
 
-...
+Would it be ok when special case that one only for the Adaptec device, for now?
+Or define a whole new 2nd MULTI_TARG(2) quirk?
 
-> For this reason it is apropriate to call the code that deals with the problem
-> "a workaround".
+And furthermore the device does not respond to request other than the attached targets,
+this might be needed:
 
-Which was not at all my point, but "compliance" is. I don't mind you
-calling it workaround or call 2.6.9 incompatible with 2.6.8.1.
+@@ -1069,6 +1069,19 @@
+ 	US_DEBUGP("Bulk Status S 0x%x T 0x%x R %u Stat 0x%x\n",
+ 			le32_to_cpu(bcs->Signature), bcs->Tag, 
+ 			residue, bcs->Status);
++
++	if (bcs->Status > US_BULK_STAT_FAIL) {
++		/* Adaptec USB2XCHANGE */
++		if (us->pusb_dev->descriptor.idVendor == 0x03f3 &&
++		    us->pusb_dev->descriptor.idProduct == 0x2003) {
++
++			/* This device will send bcs->Status == 0x8a for unused targets and
++			   == 0x02 for SRB's that require SENSE. */
++			bcs->Status = US_BULK_STAT_OK;
++			fake_sense = 1;
++			US_DEBUGP("Patched Bulk status to %d.\n", bcs->Status);
++		}
++	}
+ 	if (bcs->Tag != us->tag || bcs->Status > US_BULK_STAT_PHASE) {
+ 		US_DEBUGP("Bulk logical error\n");
+ 		return USB_STOR_TRANSPORT_ERROR;
 
-Re-read my message - and I find it interesting to read this NOW, after
-I'd mailed this and discussed this earlier.
+Yours,
 
 -- 
-Matthias Andree
+René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
+            http://www.exactcode.de | http://www.t2-project.org
+            +49 (0)30  255 897 45

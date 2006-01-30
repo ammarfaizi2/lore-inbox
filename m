@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWA3Kgd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWA3Kie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbWA3Kgd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 05:36:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWA3Kgd
+	id S932205AbWA3Kie (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 05:38:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWA3Kie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 05:36:33 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:54737 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932203AbWA3Kgc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 05:36:32 -0500
-Date: Mon, 30 Jan 2006 11:36:21 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Andrew Morton <akpm@osdl.org>, olaf+list.linux-kernel@olafdietsche.de,
-       eike-kernel@sf-tec.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.16-rc1-git4] accessfs: a permission managing filesystem
-In-Reply-To: <1138617073.2977.21.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.61.0601301135540.12495@yvahk01.tjqt.qr>
-References: <87ek3a8qpy.fsf@goat.bogus.local>  <200601231257.28796@bilbo.math.uni-mannheim.de>
-  <87mzhgyomh.fsf@goat.bogus.local> <20060128150137.5ba5af04.akpm@osdl.org>
-  <Pine.LNX.4.61.0601301006240.6405@yvahk01.tjqt.qr>  <20060130011630.60f402d8.akpm@osdl.org>
-  <Pine.LNX.4.61.0601301024150.6405@yvahk01.tjqt.qr> 
- <1138614388.2977.10.camel@laptopd505.fenrus.org> 
- <Pine.LNX.4.61.0601301050260.6405@yvahk01.tjqt.qr> 
- <1138614856.2977.16.camel@laptopd505.fenrus.org> 
- <Pine.LNX.4.61.0601301114160.25336@yvahk01.tjqt.qr>
- <1138617073.2977.21.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 30 Jan 2006 05:38:34 -0500
+Received: from topsns.toshiba-tops.co.jp ([202.230.225.5]:6943 "HELO
+	topsns.toshiba-tops.co.jp") by vger.kernel.org with SMTP
+	id S932205AbWA3Kid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 05:38:33 -0500
+Date: Mon, 30 Jan 2006 19:38:29 +0900 (JST)
+Message-Id: <20060130.193829.112261566.nemoto@toshiba-tops.co.jp>
+To: tiwai@suse.de
+Cc: hugh@veritas.com, linux-kernel@vger.kernel.org, tbm@cyrius.com,
+       t.sailer@alumni.ethz.ch, perex@suse.cz, ralf@linux-mips.org
+Subject: Re: ALSA on MIPS platform
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <s5hoe1u3to1.wl%tiwai@suse.de>
+References: <s5h7j8l64ua.wl%tiwai@suse.de>
+	<20060130.185608.30186596.nemoto@toshiba-tops.co.jp>
+	<s5hoe1u3to1.wl%tiwai@suse.de>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->well... maybe.
->If you need to mess inside irq context, spinlocks sound more the right
->thing. Or if you need to do a "I'm done" in the irq and a "sleep until
->done" thing in process context, then you really should use completions
->instead.
+>>>>> On Mon, 30 Jan 2006 11:18:54 +0100, Takashi Iwai <tiwai@suse.de> said:
+tiwai> Well, as Hugu pointed out, that page reservation plays no longer any
+tiwai> role.  The patch below should work too on 2.6.15 or later.
 
-Hm, is it allowed to call copy_{from,to}_user() in irq context?
+The patch works for me.  Thank you.
 
+Acked-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
 
-
-Jan Engelhardt
--- 
+---
+Atsushi Nemoto

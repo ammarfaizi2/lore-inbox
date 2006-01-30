@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbWA3UoT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbWA3Unv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964971AbWA3UoT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 15:44:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbWA3UoS
+	id S964965AbWA3Unv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 15:43:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbWA3Unv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 15:44:18 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38874 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964971AbWA3UoR (ORCPT
+	Mon, 30 Jan 2006 15:43:51 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:25759 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964965AbWA3Unu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 15:44:17 -0500
-Message-ID: <008901c625dd$d02e6760$6f00a8c0@comcast.net>
-From: "John Hawkes" <hawkes@sgi.com>
-To: "Luck, Tony" <tony.luck@intel.com>, "Ingo Molnar" <mingo@elte.hu>
-Cc: "Bjorn Helgaas" <bjorn.helgaas@hp.com>, "Ingo Molnar" <mingo@redhat.com>,
-       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <200601271403.27065.bjorn.helgaas@hp.com> <20060130172140.GB11793@elte.hu> <20060130185301.GA4622@agluck-lia64.sc.intel.com>
-Subject: Re: boot-time slowdown for measure_migration_cost
-Date: Mon, 30 Jan 2006 12:43:22 -0800
+	Mon, 30 Jan 2006 15:43:50 -0500
+Message-ID: <43DE7A70.8030004@sgi.com>
+Date: Mon, 30 Jan 2006 15:43:28 -0500
+From: Prarit Bhargava <prarit@sgi.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "Luck, Tony" <tony.luck@intel.com>
+CC: Ingo Molnar <mingo@elte.hu>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Ingo Molnar <mingo@redhat.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: boot-time slowdown for measure_migration_cost
+References: <200601271403.27065.bjorn.helgaas@hp.com> <20060130172140.GB11793@elte.hu> <20060130185301.GA4622@agluck-lia64.sc.intel.com> <20060130192438.GA29129@elte.hu> <20060130200026.GA5081@agluck-lia64.sc.intel.com>
+In-Reply-To: <20060130200026.GA5081@agluck-lia64.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6600
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Luck, Tony" <tony.luck@intel.com>
-...
-> So the variation in the computed value of migration_cost was at worst
-> 2% with these modifications to the algorithm.  Do you really need to know
-> the value to this accuracy?  What 2nd order bad effects would occur from
-> using an off-by-2% value for scheduling decisions?
->
-> On the plus side Prarit's results show that this time isn't scaling with
-> NR_CPUS ... apparently just cache size and number of domains are significant
-> in the time to compute.
 
-Yes, the calculation is done just once per domain level, and a desire to
-achieve great accuracy for the calculation presupposes that the cpuM-to-cpuN
-migration cost for a given domain level is identical (or very close) across
-all the CPU pairs.  That is, for a given domain level, only one CPU pair are
-chosen for the calculation.  For the ia64/sn2 NUMA Altix, and I suspect for
-other NUMA platforms, this just isn't true for the middle domain level (i.e.,
-the level that appears when the CPU count is >32p) -- i.e., some CPU pairs are
-"closer" than other pairs.  The variation for other CPU pairs in this domain
-level is certainly much greater than 2%.
+Tony,
 
-John Hawkes
+> 
+> 
+> Might it be wise to see whether the 2% variation that I saw can be
+> repeated on some other architecture?   Can someone else try
+> this patch and post the before/after values for migration_cost from dmesg?
+> 
+
+
+
+Ask and ye shall receive ... on the 64p/64G system.
+
+Pristine:
+
+[    9.942253] Brought up 64 CPUs
+[    9.942904] Total of 64 processors activated (143654.91 BogoMIPS).
+[    9.943995] build_sched_domains: start
+[   32.108439] migration_cost=0,32232,39021
+[   37.894391] build_sched_domains: end
+
+Patched:
+
+[    0.001307] Calibrating delay loop... 2244.60 BogoMIPS (lpj=4489216)
+[    9.942308] Brought up 64 CPUs
+[    9.942812] Total of 64 processors activated (143654.91 BogoMIPS).
+[   18.080441] migration_cost=0,31934,38750
+[   23.865993] checking if image is initramfs... it is
+
+P.
 

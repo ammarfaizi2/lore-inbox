@@ -1,96 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWA3D0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWA3D24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbWA3D0y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 22:26:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750717AbWA3D0y
+	id S1750717AbWA3D24 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 22:28:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWA3D24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 22:26:54 -0500
-Received: from smtp112.sbc.mail.re2.yahoo.com ([68.142.229.93]:24702 "HELO
-	smtp112.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750701AbWA3D0y convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 22:26:54 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Marek =?utf-8?q?Va=C5=A1ut?= <marek.vasut@gmail.com>
-Subject: Re: [PATCH] iforce: fix -ENOMEM check
-Date: Sun, 29 Jan 2006 22:26:50 -0500
-User-Agent: KMail/1.9.1
+	Sun, 29 Jan 2006 22:28:56 -0500
+Received: from smtp1.ensim.com ([65.164.64.254]:1547 "EHLO
+	exchange-svr2.exch.ensim.com") by vger.kernel.org with ESMTP
+	id S1750717AbWA3D2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 22:28:55 -0500
+From: Borislav Deianov <borislav@users.sourceforge.net>
+Date: Sun, 29 Jan 2006 19:28:44 -0800
+To: David Zeuthen <david@fubar.dk>
 Cc: linux-kernel@vger.kernel.org
-References: <200601281903.28176.marek.vasut@gmail.com> <200601282314.21222.dtor_core@ameritech.net> <200601291209.15864.marek.vasut@gmail.com>
-In-Reply-To: <200601291209.15864.marek.vasut@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Subject: Re: [PATCH] ibm-acpi brightness fix
+Message-ID: <20060130032844.GF2271@aero.ensim.com>
+References: <1138558472.9858.23.camel@daxter.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601292226.51488.dtor_core@ameritech.net>
+In-Reply-To: <1138558472.9858.23.camel@daxter.boston.redhat.com>
+User-Agent: Mutt/1.4.2.1i
+X-OriginalArrivalTime: 30 Jan 2006 03:28:45.0129 (UTC) FILETIME=[46730390:01C6254D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 29 January 2006 06:09, Marek Vašut wrote:
-> Dne neděle 29 ledna 2006 05:14 jste napsal(a):
-> > On Saturday 28 January 2006 13:03, Marek Vašut wrote:
-> > > I have tried that patch, but nothing changed ...
-> > > That error is still there and no new device in /dev/input appears
-> >
-> > You do have updated udev, don't you? Could you pease post your dmesg
-> > with the patch applied?
+Hi David,
+
+On Sun, Jan 29, 2006 at 01:14:31PM -0500, David Zeuthen wrote:
 > 
-> usb 4-2: new full speed USB device using uhci_hcd and address 2
-> usb 4-2: configuration #1 chosen from 1 choice
-> iforce-main.c: Timeout waiting for response from device.
-> usbcore: registered new driver iforce
+> The ibm-acpi driver allows user space to set the brightness of the
+> display but the way it currently works is by fading from one of the
+> eight levels to the other. While this effect is visually pleasing it's
+> probably best taken care of by user space itself (and users of
+> gnome-power-manager will notice that this is exactly what it does).
+
+Thanks for the patch. Unfortunately, the fading is required on my X40 -
+setting a random brightness value just doesn't work without it. The
+EC probably expects it to happen that way since you can only go one
+step up or down with the hot keys.
+
+Wishes,
+Boris
+
+
+
 > 
-> I´ve cut off the unnecessary parts. This is what shows up when I connect it.
-> There is no js0 in /dev/input ... thats weird, isn´t it?
+> This patch removes the fading. Patch is against ibm-acpi 0.11 but it
+> also applies to the drivers/acpi/ibm_acpi.c file in Linus' tree. I've
+> tested this on a IBM Thinkpad T41. Please apply.
 > 
-
-OK, the patch below should get it going... Please let me know if it makes
-device appear.
-
--- 
-Dmitry
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/joystick/iforce/iforce-packets.c |    4 ++--
- drivers/input/joystick/iforce/iforce-usb.c     |    1 -
- 2 files changed, 2 insertions(+), 3 deletions(-)
-
-Index: work/drivers/input/joystick/iforce/iforce-packets.c
-===================================================================
---- work.orig/drivers/input/joystick/iforce/iforce-packets.c
-+++ work/drivers/input/joystick/iforce/iforce-packets.c
-@@ -167,9 +167,9 @@ void iforce_process_packet(struct iforce
- 		iforce->expect_packet = 0;
- 		iforce->ecmd = cmd;
- 		memcpy(iforce->edata, data, IFORCE_MAX_LENGTH);
--		wake_up(&iforce->wait);
- 	}
- #endif
-+	wake_up(&iforce->wait);
- 
- 	if (!iforce->type) {
- 		being_used--;
-@@ -264,7 +264,7 @@ int iforce_get_id_packet(struct iforce *
- 		wait_event_interruptible_timeout(iforce->wait,
- 			iforce->ctrl->status != -EINPROGRESS, HZ);
- 
--		if (iforce->ctrl->status != -EINPROGRESS) {
-+		if (iforce->ctrl->status) {
- 			usb_unlink_urb(iforce->ctrl);
- 			return -1;
- 		}
-Index: work/drivers/input/joystick/iforce/iforce-usb.c
-===================================================================
---- work.orig/drivers/input/joystick/iforce/iforce-usb.c
-+++ work/drivers/input/joystick/iforce/iforce-usb.c
-@@ -95,7 +95,6 @@ static void iforce_usb_irq(struct urb *u
- 		goto exit;
- 	}
- 
--	wake_up(&iforce->wait);
- 	iforce_process_packet(iforce,
- 		(iforce->data[0] << 8) | (urb->actual_length - 1), iforce->data + 1, regs);
- 
+> (Please keep me in the Cc - I'm not subscribed to the LKML)
+> 
+>     David
+> 
+> Signed-Off-By: David Zeuthen <david@fubar.dk>
+> 
+> --- ibm-acpi-0.11.orig/ibm_acpi.c	2005-03-17 05:06:16.000000000 -0500
+> +++ ibm-acpi-0.11/ibm_acpi.c	2006-01-29 12:55:53.000000000 -0500
+> @@ -1351,7 +1351,7 @@ static int brightness_read(char *p)
+>  
+>  static int brightness_write(char *buf)
+>  {
+> -	int cmos_cmd, inc, i;
+> +	int cmos_cmd;
+>  	u8 level;
+>  	int new_level;
+>  	char *cmd;
+> @@ -1372,13 +1372,11 @@ static int brightness_write(char *buf)
+>  			return -EINVAL;
+>  
+>  		cmos_cmd = new_level > level ? BRIGHTNESS_UP : BRIGHTNESS_DOWN;
+> -		inc = new_level > level ? 1 : -1;
+> -		for (i = level; i != new_level; i += inc) {
+> -			if (!cmos_eval(cmos_cmd))
+> -				return -EIO;
+> -			if (!acpi_ec_write(brightness_offset, i + inc))
+> -				return -EIO;
+> -		}
+> +
+> +		if (!cmos_eval(cmos_cmd))
+> +			return -EIO;
+> +		if (!acpi_ec_write(brightness_offset, new_level))
+> +			return -EIO;
+>  	}
+>  
+>  	return 0;

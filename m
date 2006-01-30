@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWA3A7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWA3BXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbWA3A7c (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 19:59:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWA3A7c
+	id S1751217AbWA3BXn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 20:23:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWA3BXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 19:59:32 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:64005 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932099AbWA3A7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 19:59:31 -0500
-Date: Mon, 30 Jan 2006 01:59:30 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: akpm@osdl.org, ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1-mm4
-Message-ID: <20060130005930.GE3777@stusta.de>
-References: <20060129144533.128af741.akpm@osdl.org> <20060129233403.GA3777@stusta.de> <20060129154002.360c7294.rdunlap@xenotime.net> <20060129235853.GD3777@stusta.de> <20060129165123.58b62b36.rdunlap@xenotime.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060129165123.58b62b36.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.11
+	Sun, 29 Jan 2006 20:23:43 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:34688 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S1751214AbWA3BXm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 20:23:42 -0500
+Date: Sun, 29 Jan 2006 23:23:42 -0200
+From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+To: davem <davem@davemloft.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
+       robert.olsson@its.uu.se
+Subject: [PATCH 0/4] - pktgen: refinements and small fixes (V2).
+Message-ID: <20060129232342.1e481f9a@localhost>
+Organization: Mandriva
+X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-mandriva-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 29, 2006 at 04:51:23PM -0800, Randy.Dunlap wrote:
-> On Mon, 30 Jan 2006 00:58:53 +0100 Adrian Bunk wrote:
->...
-> > If we want to get rid of a long deprecated API (as in the 
-> > virt_to_bus/bus_to_virt case), adding warnings could help making 
-> > maintainers aware of the fact that the API is deprecated.
-> 
-> I seriously expect that the maintainers are already aware
-> of that.  It's not new(s).
->...
 
-Looking at which drivers still use this API, I'm seeing some drivers 
-with active maintainers still using this API.
+ Hi!
 
-And for others, warnings might increase the probability of someone 
-fixing them for getting rid of the warnings...
+ I'm sending again the following patches for pktgen:
 
-> ~Randy
+[PATCH 1/4]  pktgen: Lindent run.
+[PATCH 2/4]  pktgen: Ports thread list to Kernel list implementation.
+[PATCH 3/4]  pktgen: Fix kernel_thread() fail leak.
+[PATCH 4/4]  pktgen: Fix Initialization fail leak.
 
-cu
-Adrian
+ The changes from V1 are:
+
+ 1. More fixes made by hand after Lindent run
+ 2. Re-diffed agains't Dave's net-2.6.17 tree
+ 
+  All the patches were tested with QEMU, emulating a machine with 4 CPUs
+and 4 ethernet cards.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Luiz Fernando N. Capitulino

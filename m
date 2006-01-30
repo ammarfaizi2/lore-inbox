@@ -1,40 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWA3Oi3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbWA3Ol1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbWA3Oi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 09:38:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWA3Oi3
+	id S932292AbWA3Ol1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 09:41:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWA3Ol1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 09:38:29 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:29349 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932291AbWA3Oi2 (ORCPT
+	Mon, 30 Jan 2006 09:41:27 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:51551 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932292AbWA3Ol1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 09:38:28 -0500
-Date: Mon, 30 Jan 2006 20:08:14 +0530
-From: Balbir Singh <balbir@in.ibm.com>
+	Mon, 30 Jan 2006 09:41:27 -0500
+Message-ID: <43DE25F0.6070709@sw.ru>
+Date: Mon, 30 Jan 2006 17:42:56 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
 To: Jan Blunck <jblunck@suse.de>
-Cc: Kirill Korotaev <dev@sw.ru>, viro@zeniv.linux.org.uk,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       olh@suse.de
+CC: viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, olh@suse.de, balbir@in.ibm.com
 Subject: Re: [PATCH] shrink_dcache_parent() races against shrink_dcache_memory()
-Message-ID: <20060130143814.GA25817@in.ibm.com>
-Reply-To: balbir@in.ibm.com
 References: <20060120203645.GF24401@hasse.suse.de> <43D48ED4.3010306@sw.ru> <20060130120318.GB9181@hasse.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20060130120318.GB9181@hasse.suse.de>
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Jan,
+
+this is much cleaner now and looks more like my original patch and is 
+smaller/more beautifull with counters usage. Thanks.
+
+However, with counters instead of list it is possible to create a live 
+lock :( So I'm not sure it is really ok.
+BTW, what kernel is it for? 2.6.15 or 2.6.16-X?
+
+Kirill
+
+>>1. this patch doesn't fix the whole problem. iput() after sb free is 
+>>still possible. So busy inodes after umount too.
+>>2. it has big problems with locking...
+>>
+> 
+> 
+> Uh yeah! I fixed the second issue but since the patch doesnt helped and only
+> gots the reference counting a little bit cleaner I don't post it.
+> 
+> 
+>>comments below inside.
+>>
+> 
 > 
 > New patch attached below. Comments are welcome.
 > 
 > Regards,
 > 	Jan
->
-[snip]
- 
+> 
+> 
+> 
+> ------------------------------------------------------------------------
+> 
 > From: Jan Blunck <jblunck@suse.de>
 > Subject: Fix shrink_dcache_parent() against shrink_dcache_memory() race
 > References: 136310
@@ -84,12 +109,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > +	sb->s_prunes--;
 > +	wake_up(&sb->s_wait_prunes);
 >  }
->
-  
-We can think about optimizing this to
-   if (!sb->sprunes)
-	wake_up(&sb->s_wait_prunes);
-
+>  
 >  /**
 > @@ -623,6 +627,34 @@ out:
 >  	return found;
@@ -137,12 +157,6 @@ We can think about optimizing this to
 > +	if (wait_on_prunes(parent->d_sb))
 > +		goto again;
 >  }
-
-Is the goto again required? At this point select_parent() should have pruned
-all entries, except those missed due to the race. These should be captured
-by sb->s_prunes. Once the code comes out of wait_on_prunes() everything
-should be ok since a dput has happened on the missed parent dentries.
-
 >  
 >  /**
 > Index: linux-2.6/fs/super.c
@@ -177,10 +191,6 @@ should be ok since a dput has happened on the missed parent dentries.
 >  	struct quota_info	s_dquot;	/* Diskquota specific options */
 >  
 > +	int			s_prunes;
-
-Can this be an unsigned int? Perhaps you might to mention that is protected
-by the dcache_lock.
-
 > +	wait_queue_head_t	s_wait_prunes;
 > +
 >  	int			s_frozen;
@@ -188,9 +198,3 @@ by the dcache_lock.
 >  
 
 
-Your fix seems correct at first sight and good to be included. But could you 
-please do a correctness/speed/cost analysis of your fix with the fix I 
-previously sent out?
-
-Regards,
-Balbir

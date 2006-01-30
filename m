@@ -1,34 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWA3HXH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWA3H0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932123AbWA3HXH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 02:23:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWA3HXH
+	id S932116AbWA3H0z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 02:26:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWA3H0z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 02:23:07 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:35795 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S932123AbWA3HXF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 02:23:05 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
+	Mon, 30 Jan 2006 02:26:55 -0500
+Received: from www.it.co.zw ([196.2.77.152]:36297 "EHLO thunderbird.timb.co.zw")
+	by vger.kernel.org with ESMTP id S932116AbWA3H0y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 02:26:54 -0500
+Message-ID: <43DDBE13.20806@timb.co.zw>
+Date: Mon, 30 Jan 2006 09:19:47 +0200
+From: Moses Marimo <marimo@timb.co.zw>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Heerath bh <heerath.bh@gmail.com>
+CC: kaos@ocs.wm.au, mec@shout.net, kbuild-devel@lists.sourceforge.net,
+       alan@linuxcare.com.au, rtlinux@rtlinux.org, yodaiken@fsmlabs.com,
+       linux-kernel@vger.kernel.org, cbrake@accelent.com,
+       jsutherland@accelent.com
 Subject: Re: Rebuilding Linux kernel
-Date: Mon, 30 Jan 2006 09:22:00 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
 References: <aca19fda0601292303r5d3dba06kf40121a118f13c69@mail.gmail.com>
 In-Reply-To: <aca19fda0601292303r5d3dba06kf40121a118f13c69@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601300922.00631.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[CC list mercilessly trimmed]
+Try this first! http://www.linuxfromscratch.org/
 
-On Monday 30 January 2006 09:03, Heerath bh wrote:
+I think it can be handful if you are starting on that staff!
+
+Regards,
+
+Moses
+
+
+
+
+Heerath bh wrote:
 > Hi!
 > I am Heerath BH,studying final year engineering in electronics and
 > communication. Now I am associated with the project. I am doing the
@@ -55,8 +66,18 @@ On Monday 30 January 2006 09:03, Heerath bh wrote:
 > to the rebuilded core kernel.
 > 
 > I am trying to make core kernel size as 300kB by including services
-> which I have mentioned above.
+> which I have mentioned above.Please guide me and Please do the
+> needful.
+> 
+> 
+> Looking forward for you reply.
+> 
+> Regards
+> Heerath.BH
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-http://www.catb.org/~esr/faqs/smart-questions.html
---
-vda

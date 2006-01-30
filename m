@@ -1,173 +1,411 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWA3KBK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWA3KHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbWA3KBK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 05:01:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWA3KBK
+	id S932196AbWA3KHw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 05:07:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWA3KHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 05:01:10 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:38023 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932195AbWA3KBI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 05:01:08 -0500
-Date: Mon, 30 Jan 2006 02:00:09 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: dada1@cosmosbay.com, dipankar@in.ibm.com, rlrevell@joe-job.com,
-       mingo@elte.hu, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: RCU latency regression in 2.6.16-rc1
-Message-ID: <20060130100009.GC17848@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060130043604.GF16585@us.ibm.com> <43DD9C49.4000000@cosmosbay.com> <20060130051156.GK16585@us.ibm.com> <20060129.215244.05901896.davem@davemloft.net>
+	Mon, 30 Jan 2006 05:07:52 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:41170
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S932196AbWA3KHv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 05:07:51 -0500
+Message-Id: <43DDF39B.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Mon, 30 Jan 2006 11:08:11 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: (correction) [PATCH] double fault enhancements
+References: <43DDF050.76F0.0078.0@novell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060129.215244.05901896.davem@davemloft.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/mixed; boundary="=__Part88AA1B9B.0__="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 29, 2006 at 09:52:44PM -0800, David S. Miller wrote:
-> From: "Paul E. McKenney" <paulmck@us.ibm.com>
-> Date: Sun, 29 Jan 2006 21:11:56 -0800
-> 
-> > > If the size is expanded by a 2 factor (or a power of too), can your 
-> > > proposal works ?
-> > 
-> > Yep!!!
-> > 
-> > Add the following:
-> 
-> This all sounds very exciting and promising.  I'll try to find some
-> spare cycles tomorrow to cook something up.
+This is a MIME message. If you are reading this text, you may want to 
+consider changing to a mail reader or gateway that understands how to 
+properly handle MIME multipart messages.
 
-Cool!  My earlier description did not get rid of all the explicit
-memory barriers.  The following updated pseudocode does so.
+--=__Part88AA1B9B.0__=
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-I will of course be happy to review what you come up with!!!
-(And I will be interested to see if this still makes sense after
-sleeping on it...)
+I'm sorry for having to resend this, but I mistakenly sent an older version of the patch. The correct one is attached
+now, fixing a warning and a build problem when CONFIG_DOUBLEFAULT is not defined.
 
-Improvements welcome as always!!!
+From: Jan Beulich <jbeulich@novell.com>
 
-						Thanx, Paul
+Make the double fault handler use CPU-specific stacks. Add some
+abstraction to simplify future change of other exception handlers to go
+through task gates. Change the pointer validity checks in the double
+fault handler to account for the fact that both GDT and TSS aren't in
+static kernel space anymore. Add a new notification of the event
+through the die notifier chain, also providing some environmental
+adjustments so that various infrastructural things work independent of
+the fact that the fault and the callbacks are running on other then the
+normal kernel stack.
 
-------------------------------------------------------------------------
+Signed-Off-By: Jan Beulich <jbeulich@novell.com>
 
-Data Structures
 
-o	Yes, the names suck, but that is why I usually am happy to
-	have other people come up with names...
+--=__Part88AA1B9B.0__=
+Content-Type: text/plain; name="linux-2.6.16-rc1-i386-doublefault.patch"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="linux-2.6.16-rc1-i386-doublefault.patch"
 
-o	Having separate fvbupd and fvbrdr removes the need for
-	(hopefully all) explicit memory barriers.
+From: Jan Beulich <jbeulich@novell.com>
 
-	struct hashtbl {
-		int nbuckets;
-		int fvbupd;	/* updater's first valid bucket. */
-		int fvbrdr;	/* readers' first valid bucket. */
-		struct hash_param params;
-		struct list_head buckets[0];
-	};
+Make the double fault handler use CPU-specific stacks. Add some
+abstraction to simplify future change of other exception handlers to go
+through task gates. Change the pointer validity checks in the double
+fault handler to account for the fact that both GDT and TSS aren't in
+static kernel space anymore. Add a new notification of the event
+through the die notifier chain, also providing some environmental
+adjustments so that various infrastructural things work independent of
+the fact that the fault and the callbacks are running on other then the
+normal kernel stack.
 
-	/* Both fvbupd and fvbrdr need to be initialized to -1. */
+Signed-Off-By: Jan Beulich <jbeulich@novell.com>
 
-	struct hashtbl *current;
-	struct hashtbl *not_current;
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc1/arch/i386/kernel/cpu/common.c 2.6.16-rc1-i386-doublefault/arch/i386/kernel/cpu/common.c
+--- /home/jbeulich/tmp/linux-2.6.16-rc1/arch/i386/kernel/cpu/common.c	2006-01-18 12:38:24.000000000 +0100
++++ 2.6.16-rc1-i386-doublefault/arch/i386/kernel/cpu/common.c	2006-01-25 11:15:51.000000000 +0100
+@@ -4,6 +4,7 @@
+ #include <linux/smp.h>
+ #include <linux/module.h>
+ #include <linux/percpu.h>
++#include <linux/bootmem.h>
+ #include <asm/semaphore.h>
+ #include <asm/processor.h>
+ #include <asm/i387.h>
+@@ -560,6 +561,7 @@ void __init early_cpu_init(void)
+ void __devinit cpu_init(void)
+ {
+ 	int cpu = smp_processor_id();
++	unsigned i;
+ 	struct tss_struct * t = &per_cpu(init_tss, cpu);
+ 	struct thread_struct *thread = &current->thread;
+ 	struct desc_struct *gdt = get_cpu_gdt_table(cpu);
+@@ -612,9 +614,54 @@ void __devinit cpu_init(void)
+ 	load_TR_desc();
+ 	load_LDT(&init_mm.context);
+ 
+-#ifdef CONFIG_DOUBLEFAULT
+-	/* Set up doublefault TSS pointer in the GDT */
+-	__set_tss_desc(cpu, GDT_ENTRY_DOUBLEFAULT_TSS, &doublefault_tss);
++#ifdef N_EXCEPTION_TSS
++# if EXCEPTION_STACK_ORDER > THREAD_ORDER
++#  error Assertion failed: EXCEPTION_STACK_ORDER <= THREAD_ORDER
++# endif
++	for (i = 0; i < N_EXCEPTION_TSS; ++i) {
++		unsigned long stack;
++
++		/* Set up exception handling TSS */
++		exception_tss[cpu][i].ebx = (unsigned long)&exception_tss[cpu][i];
++
++		/* Set up exception handling stacks */
++# ifdef CONFIG_SMP
++		if (cpu) {
++			stack = __get_free_pages(GFP_ATOMIC, THREAD_ORDER);
++			if (!stack)
++				panic("Cannot allocate exception stack %u %d\n",
++				      i,
++				      cpu);
++		}
++		else
++# endif
++			stack = (unsigned long)__alloc_bootmem(EXCEPTION_STKSZ,
++			                                       THREAD_SIZE,
++			                                       __pa(MAX_DMA_ADDRESS));
++		stack += EXCEPTION_STKSZ;
++		exception_tss[cpu][i].esp = exception_tss[cpu][i].esp0 = stack;
++# ifdef CONFIG_SMP
++		if (cpu) {
++			unsigned j;
++
++			for (j = EXCEPTION_STACK_ORDER; j < THREAD_ORDER; ++j) {
++				/* set_page_refs sets the page count only for the first
++				   page, but since we split the larger-order page here,
++				   we need to adjust the page count before freeing the
++				   pieces. */
++				struct page * page = virt_to_page((void *)stack);
++
++				BUG_ON(page_count(page));
++				set_page_count(page, 1);
++				free_pages(stack, j);
++				stack += (PAGE_SIZE << j);
++			}
++		}
++# endif
++
++		/* Set up exception handling TSS pointer in the GDT */
++		__set_tss_desc(cpu, GDT_ENTRY_EXCEPTION_TSS + i, &exception_tss[cpu][i]);
++	}
+ #endif
+ 
+ 	/* Clear %fs and %gs. */
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc1/arch/i386/kernel/doublefault.c 2.6.16-rc1-i386-doublefault/arch/i386/kernel/doublefault.c
+--- /home/jbeulich/tmp/linux-2.6.16-rc1/arch/i386/kernel/doublefault.c	2006-01-03 04:21:10.000000000 +0100
++++ 2.6.16-rc1-i386-doublefault/arch/i386/kernel/doublefault.c	2006-01-25 11:36:53.000000000 +0100
+@@ -8,58 +8,81 @@
+ #include <asm/pgtable.h>
+ #include <asm/processor.h>
+ #include <asm/desc.h>
++#include <asm/kdebug.h>
+ 
+-#define DOUBLEFAULT_STACKSIZE (1024)
+-static unsigned long doublefault_stack[DOUBLEFAULT_STACKSIZE];
+-#define STACK_START (unsigned long)(doublefault_stack+DOUBLEFAULT_STACKSIZE)
++extern unsigned long max_low_pfn;
++#define ptr_ok(x, l) ((x) >= PAGE_OFFSET \
++                      && (x) + (l) <= PAGE_OFFSET + max_low_pfn * PAGE_SIZE - 1)
+ 
+-#define ptr_ok(x) ((x) > PAGE_OFFSET && (x) < PAGE_OFFSET + 0x1000000)
++#define THREAD_INFO_FROM(x) ((struct thread_info *)((x) & ~(THREAD_SIZE - 1)))
+ 
+-static void doublefault_fn(void)
++register const struct tss_struct *self __asm__("ebx");
++
++void doublefault_fn(void)
+ {
+-	struct Xgt_desc_struct gdt_desc = {0, 0};
++	struct Xgt_desc_struct gdt_desc;
+ 	unsigned long gdt, tss;
+ 
+ 	store_gdt(&gdt_desc);
+ 	gdt = gdt_desc.address;
+ 
+-	printk("double fault, gdt at %08lx [%d bytes]\n", gdt, gdt_desc.size);
++	printk("double fault, gdt at %08lx [%d bytes]\n", gdt, gdt_desc.size + 1);
+ 
+-	if (ptr_ok(gdt)) {
++	if (ptr_ok(gdt, gdt_desc.size)) {
+ 		gdt += GDT_ENTRY_TSS << 3;
+ 		tss = *(u16 *)(gdt+2);
+ 		tss += *(u8 *)(gdt+4) << 16;
+ 		tss += *(u8 *)(gdt+7) << 24;
+ 		printk("double fault, tss at %08lx\n", tss);
+ 
+-		if (ptr_ok(tss)) {
+-			struct tss_struct *t = (struct tss_struct *)tss;
++		if (ptr_ok(tss, *(u16 *)gdt)) {
++			const struct tss_struct *t = (struct tss_struct *)tss;
++			struct {
++				struct pt_regs common;
++				struct {
++					unsigned long es;
++					unsigned long ds;
++					unsigned long fs;
++					unsigned long gs;
++				} vm86;
++			} regs;
++
++			/* for current/current_thread_info to work... */
++			*THREAD_INFO_FROM(self->esp) = *THREAD_INFO_FROM(t->esp0 - 1);
+ 
+ 			printk("eip = %08lx, esp = %08lx\n", t->eip, t->esp);
+ 
+ 			printk("eax = %08lx, ebx = %08lx, ecx = %08lx, edx = %08lx\n",
+ 				t->eax, t->ebx, t->ecx, t->edx);
+-			printk("esi = %08lx, edi = %08lx\n",
+-				t->esi, t->edi);
++			printk("esi = %08lx, edi = %08lx, ebp = %08lx\n",
++				t->esi, t->edi, t->ebp);
++
++			regs.common.ebx = t->ebx;
++			regs.common.ecx = t->ecx;
++			regs.common.edx = t->edx;
++			regs.common.esi = t->esi;
++			regs.common.edi = t->edi;
++			regs.common.ebp = t->ebp;
++			regs.common.eax = t->eax;
++			regs.common.xds = t->ds;
++			regs.common.xes = t->es;
++			regs.common.orig_eax = -1;
++			regs.common.eip = t->eip;
++			regs.common.xcs = t->cs;
++			regs.common.eflags = t->eflags;
++			regs.common.esp = t->esp;
++			regs.common.xss = t->ss;
++			if (t->eflags & X86_EFLAGS_VM) {
++				regs.common.xds = 0;
++				regs.common.xes = 0;
++				regs.vm86.es = t->es;
++				regs.vm86.ds = t->ds;
++				regs.vm86.fs = t->fs;
++				regs.vm86.gs = t->gs;
++			}
++			notify_die(DIE_DOUBLE_FAULT, "double fault", &regs.common, 0, 8, SIGKILL);
+ 		}
+ 	}
+ 
+ 	for (;;) /* nothing */;
+ }
+-
+-struct tss_struct doublefault_tss __cacheline_aligned = {
+-	.esp0		= STACK_START,
+-	.ss0		= __KERNEL_DS,
+-	.ldt		= 0,
+-	.io_bitmap_base	= INVALID_IO_BITMAP_OFFSET,
+-
+-	.eip		= (unsigned long) doublefault_fn,
+-	.eflags		= X86_EFLAGS_SF | 0x2,	/* 0x2 bit is always set */
+-	.esp		= STACK_START,
+-	.es		= __USER_DS,
+-	.cs		= __KERNEL_CS,
+-	.ss		= __KERNEL_DS,
+-	.ds		= __USER_DS,
+-
+-	.__cr3		= __pa(swapper_pg_dir)
+-};
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc1/arch/i386/kernel/traps.c 2.6.16-rc1-i386-doublefault/arch/i386/kernel/traps.c
+--- /home/jbeulich/tmp/linux-2.6.16-rc1/arch/i386/kernel/traps.c	2006-01-18 12:38:24.000000000 +0100
++++ 2.6.16-rc1-i386-doublefault/arch/i386/kernel/traps.c	2006-01-30 09:58:51.104384192 +0100
+@@ -61,6 +61,26 @@ asmlinkage int system_call(void);
+ struct desc_struct default_ldt[] = { { 0, 0 }, { 0, 0 }, { 0, 0 },
+ 		{ 0, 0 }, { 0, 0 } };
+ 
++void doublefault_fn(void);
++
++#ifdef N_EXCEPTION_TSS
++struct tss_struct exception_tss[NR_CPUS][N_EXCEPTION_TSS] __cacheline_aligned = {
++	[0 ... NR_CPUS-1] = {
++		[0 ... N_EXCEPTION_TSS-1] = {
++			.cs       = __KERNEL_CS,
++			.ss       = __KERNEL_DS,
++			.ss0      = __KERNEL_DS,
++			.__cr3    = __pa(swapper_pg_dir),
++			.io_bitmap_base = INVALID_IO_BITMAP_OFFSET,
++			.ds       = __USER_DS,
++			.es       = __USER_DS,
++			.eflags	  = X86_EFLAGS_SF | 0x2, /* 0x2 bit is always set */
++		},
++		[DOUBLEFAULT_TSS].eip = (unsigned long)doublefault_fn
++	}
++};
++#endif
++
+ /* Do we ignore FPU interrupts ? */
+ char ignore_fpu_irq = 0;
+ 
+@@ -1083,10 +1103,12 @@ static void __init set_system_gate(unsig
+ 	_set_gate(idt_table+n,15,3,addr,__KERNEL_CS);
+ }
+ 
++#ifdef N_EXCEPTION_TSS
+ static void __init set_task_gate(unsigned int n, unsigned int gdt_entry)
+ {
+ 	_set_gate(idt_table+n,5,0,0,(gdt_entry<<3));
+ }
++#endif
+ 
+ 
+ void __init trap_init(void)
+@@ -1111,7 +1133,9 @@ void __init trap_init(void)
+ 	set_trap_gate(5,&bounds);
+ 	set_trap_gate(6,&invalid_op);
+ 	set_trap_gate(7,&device_not_available);
+-	set_task_gate(8,GDT_ENTRY_DOUBLEFAULT_TSS);
++#ifdef DOUBLEFAULT_TSS
++	set_task_gate(8,GDT_ENTRY_EXCEPTION_TSS + DOUBLEFAULT_TSS);
++#endif
+ 	set_trap_gate(9,&coprocessor_segment_overrun);
+ 	set_trap_gate(10,&invalid_TSS);
+ 	set_trap_gate(11,&segment_not_present);
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc1/include/asm-i386/kdebug.h 2.6.16-rc1-i386-doublefault/include/asm-i386/kdebug.h
+--- /home/jbeulich/tmp/linux-2.6.16-rc1/include/asm-i386/kdebug.h	2006-01-03 04:21:10.000000000 +0100
++++ 2.6.16-rc1-i386-doublefault/include/asm-i386/kdebug.h	2006-01-27 16:29:53.000000000 +0100
+@@ -39,6 +39,7 @@ enum die_val {
+ 	DIE_CALL,
+ 	DIE_NMI_IPI,
+ 	DIE_PAGE_FAULT,
++	DIE_DOUBLE_FAULT
+ };
+ 
+ static inline int notify_die(enum die_val val, const char *str,
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc1/include/asm-i386/processor.h 2.6.16-rc1-i386-doublefault/include/asm-i386/processor.h
+--- /home/jbeulich/tmp/linux-2.6.16-rc1/include/asm-i386/processor.h	2006-01-18 12:39:04.000000000 +0100
++++ 2.6.16-rc1-i386-doublefault/include/asm-i386/processor.h	2006-01-25 17:08:53.000000000 +0100
+@@ -90,7 +90,9 @@ struct cpuinfo_x86 {
+ 
+ extern struct cpuinfo_x86 boot_cpu_data;
+ extern struct cpuinfo_x86 new_cpu_data;
+-extern struct tss_struct doublefault_tss;
++#ifdef N_EXCEPTION_TSS
++extern struct tss_struct exception_tss[NR_CPUS][N_EXCEPTION_TSS];
++#endif
+ DECLARE_PER_CPU(struct tss_struct, init_tss);
+ 
+ #ifdef CONFIG_SMP
+@@ -486,6 +488,13 @@ struct thread_struct {
+ 	.io_bitmap	= { [ 0 ... IO_BITMAP_LONGS] = ~0 },		\
+ }
+ 
++#ifndef CONFIG_NLKD_FTA
++# define EXCEPTION_STACK_ORDER 0
++#else
++# define EXCEPTION_STACK_ORDER THREAD_ORDER
++#endif
++#define EXCEPTION_STKSZ (PAGE_SIZE << EXCEPTION_STACK_ORDER)
++
+ static inline void load_esp0(struct tss_struct *tss, struct thread_struct *thread)
+ {
+ 	tss->esp0 = thread->esp0;
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc1/include/asm-i386/segment.h 2.6.16-rc1-i386-doublefault/include/asm-i386/segment.h
+--- /home/jbeulich/tmp/linux-2.6.16-rc1/include/asm-i386/segment.h	2006-01-18 12:39:04.000000000 +0100
++++ 2.6.16-rc1-i386-doublefault/include/asm-i386/segment.h	2006-01-30 09:57:02.400909632 +0100
+@@ -43,7 +43,8 @@
+  *  28 - unused
+  *  29 - unused
+  *  30 - unused
+- *  31 - TSS for double fault handler
++ *  31 - TSS for first exception handler (double fault)
++ *  32+  TSSes for further exception handlers
+  */
+ #define GDT_ENTRY_TLS_ENTRIES	3
+ #define GDT_ENTRY_TLS_MIN	6
+@@ -74,12 +75,22 @@
+ #define GDT_ENTRY_ESPFIX_SS		(GDT_ENTRY_KERNEL_BASE + 14)
+ #define __ESPFIX_SS (GDT_ENTRY_ESPFIX_SS * 8)
+ 
+-#define GDT_ENTRY_DOUBLEFAULT_TSS	31
++#define GDT_ENTRY_EXCEPTION_TSS	31
++#ifdef CONFIG_DOUBLEFAULT
++# define DOUBLEFAULT_TSS 0
++# define N_EXCEPTION_TSS 1
++#else
++# undef GDT_ENTRY_EXCEPTION_TSS
++#endif
+ 
+ /*
+- * The GDT has 32 entries
++ * The GDT has 31+ entries
+  */
+-#define GDT_ENTRIES 32
++#ifdef N_EXCEPTION_TSS
++# define GDT_ENTRIES (31 + N_EXCEPTION_TSS)
++#else
++# define GDT_ENTRIES 31
++#endif
+ 
+ #define GDT_SIZE (GDT_ENTRIES * 8)
+ 
+diff -Npru /home/jbeulich/tmp/linux-2.6.16-rc1/include/asm-i386/thread_info.h 2.6.16-rc1-i386-doublefault/include/asm-i386/thread_info.h
+--- /home/jbeulich/tmp/linux-2.6.16-rc1/include/asm-i386/thread_info.h	2006-01-18 12:39:04.000000000 +0100
++++ 2.6.16-rc1-i386-doublefault/include/asm-i386/thread_info.h	2006-01-25 10:41:49.000000000 +0100
+@@ -54,10 +54,11 @@ struct thread_info {
+ 
+ #define PREEMPT_ACTIVE		0x10000000
+ #ifdef CONFIG_4KSTACKS
+-#define THREAD_SIZE            (4096)
++#define THREAD_ORDER 0
+ #else
+-#define THREAD_SIZE		(8192)
++#define THREAD_ORDER 1
+ #endif
++#define THREAD_SIZE (4096 << THREAD_ORDER)
+ 
+ #define STACK_WARN             (THREAD_SIZE/8)
+ /*
 
-Switch Pseudocode: assumes that the switcher can block, if not,
-then need to make a state machine driven by call_rcu().
-
-o	Wait until at least one grace period has elapsed since the
-	previous switch.  Easiest to just put "synchronize_rcu()"
-	up front, but can take advantage of naturally occurring
-	grace periods that elapsed since the last switch if desired.
-
-o	Initialize the not-current array, including the hash params.
-	If the new array is to be different in size, allocate the
-	new one and free the not-current array.
-
-o	Use rcu_assign_pointer() to point not_current to (you guessed
-	it!) the not-current array.
-
-o	Set current->fvbupd = current->fvbrdr = 0;
-
-o	Wait for a grace period (synchronize_rcu() if blocking OK,
-	otherwise call_rcu()...).  The delay guarantees that readers
-	are aware that things might be disappearing before we actually
-	start making them disappear.
-
-o	Loop until all buckets of current are emptied:
-
-	o	current->fvbrdr = current->fvbupd
-
-		No memory barriers needed because all buckets
-		preceding current->fvbupd were emptied at least
-		one grace period ago, so any readers that were
-		active when any of those buckets were non-empty
-		have now completed.
-
-	o	Remove elements from current->bucket[current->fvbupd]
-		until the bucket is empty or until we use up our
-		alloted quota of time and/or elements.
-
-		o	If we empty the bucket, we of course increment
-			current->fvbupd, and if there is time/elements
-			left, could continue on the next bucket.
-
-	o	Wait for a grace period.
-
-	-Really- big arrays on really big SMP machines might want
-	to have multiple CPUs processing buckets in parallel.  In theory,
-	this is not hard, but the fvbrdr update gets messier.
-
-	And yes, there needs to be some sort of update-side locking.
-	Per-bucket locking seems like it should work -- one would
-	hold the bucket lock for the current array throughout,
-	and acquire and release the bucket lock for the non-current
-	array on a per-element basis.  One perhaps better way is to
-	simply remove the elements from current, and let the readers
-	insert them into not_current only upon cache miss.  Getting
-	this right requires more insight into the networking code
-	than I currently have.
-
-o	Use rcu_assign_pointer() to set current to not_current.
-
-o	Note: leave not_current pointing to the now-current array
-	to allow slow readers to complete successfully.  Alternatively,
-	one could wait for a grace period, then set non_current to
-	NULL (but does not seem worth it).
-
-Table lookup (am assuming that this does rcu_read_unlock() before
-returning, but that only makes sense if you have some sort of lock
-on the element being returned -- if no such lock, the rcu_read_unlock()
-primitives must be removed -- the caller must rcu_read_unlock() instead):
-
-o	rcu_read_lock();
-
-o	c = rcu_dereference(current);
-
-o	Compute hash based on c->params
-
-o	If hash >= c->fvbrdr, do lookup in c->bucket[hash]
-	If found, rcu_read_unlock() and return it.
-
-o	If c->fvbrdr is not -1, look the item up in the non-current
-	table:
-
-	o	c = rcu_dereference(not_current);
-
-	o	Compute hash based on c->params
-
-	o	Do lookup in c->bucket[hash]
-
-	Note that c->fvbrdr -could- transition to zero here, but
-	if it does, we are guaranteed that nothing will actually
-	be removed from the current table until we complete.
-
-	And note that we need the non-current lookup even if the
-	switch is not populating the non-current array, since the
-	readers would be doing so upon cache miss, right?
-
-o	rcu_read_unlock()
-
-o	return what is found or complain appropriately if nothing found.
+--=__Part88AA1B9B.0__=--

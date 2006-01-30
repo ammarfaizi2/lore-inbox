@@ -1,65 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWA3QbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWA3Qd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbWA3QbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 11:31:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbWA3QbQ
+	id S932369AbWA3Qd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 11:33:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWA3Qd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 11:31:16 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:25298 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932366AbWA3QbP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 11:31:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tyX3Uscmuykh6kpCD7lIlzNBzT2JBgKcjrH/Wcxwnnn1bderw4BeSYIp0r8Le73f+IWrKq2edL6P/c3vtECHenhsas0J7cUsR1TWzoAJfwDGpBcKPH1Qrye22Y7PT9BX9GH4VLnI3t+qUwDv38Al0jdBdVoGEH15jGLwzcs6LLM=
-Message-ID: <787b0d920601300831j99fae82n5d4a5d94f99baafd@mail.gmail.com>
-Date: Mon, 30 Jan 2006 11:31:14 -0500
-From: Albert Cahalan <acahalan@gmail.com>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future Linux (stirring up a hornets' nest) ]
-Cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de, bzolnier@gmail.com
-In-Reply-To: <43DE3A99.nail16ZK1MAWN@burner>
+	Mon, 30 Jan 2006 11:33:56 -0500
+Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:32410 "EHLO
+	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
+	id S932369AbWA3Qdz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 11:33:55 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com>
-	 <43DCA097.nailGPD11GI11@burner>
-	 <20060129112613.GA29356@merlin.emma.line.org>
-	 <Pine.LNX.4.61.0601292139080.2596@yvahk01.tjqt.qr>
-	 <43DD2A8A.nailGVQ115GOP@burner>
-	 <787b0d920601291328k52191977h3778a7c833d640f2@mail.gmail.com>
-	 <43DE3A99.nail16ZK1MAWN@burner>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: FW: MSI-X on 2.6.15
+Date: Mon, 30 Jan 2006 10:33:50 -0600
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF10B8AC113@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: MSI-X on 2.6.15
+Thread-Index: AcYjn6OJL5NN4pWRQ1WEgL3h1MoSxQCGhutA
+From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
+To: "Greg KH" <greg@kroah.com>, "Mark Maule" <maule@sgi.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
+       "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>
+X-OriginalArrivalTime: 30 Jan 2006 16:33:52.0386 (UTC) FILETIME=[F48FFE20:01C625BA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/30/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
-> Albert Cahalan <acahalan@gmail.com> wrote:
->
-> > Let's address the second bug first. Linux provides full
-> > bus number and LUN info for all block devices. You get it
-> > like this:
-> >
-> > struct stat sbuf;
-> > stat("/dev/hdc", &sbuf);
-> > int bus = sbuf.st_mode>>12;
-> > int target = major(sbuf.st_rdev);
-> > int lun = minor(sbuf.st_rdev);
->
-> Now tell me how to match this with information from /dev/sg*
+Greg KH,
+We have the same results on 2.6.15, the MSI-X table is all zeroes. See
+below. Any ideas of what to do do next? The driver works on x86_64. Is
+there any thing extra I need to do on ia64?
 
-You do the obvious, scanning /dev to find the device file.
+Andrew, can you try 2.6.16-rc1 and/or the rc1-git4 kernels?
 
-You can map from names to numbers (like DNS does for IP) and
-back from numbers to names (like reverse DNS does).
+Thanks,
+mikem
 
-If you need to map from /dev/hd* to /dev/sg*, then you have
-found a bug. Explain what must be added to /dev/hd* so that
-you don't need to go messing with /dev/sg* anymore.
-
-The name /dev/hd* is not the high-level interface. It's the device
-name, used by both high-level and low-level interfaces. It alone
-is the non-kernel way to refer to the device. (inside the kernel
-you just get a pointer, and the dev_t assists in translation)
+> -----Original Message-----
+> From: Patterson, Andrew D (Linux R&D) 
+> Sent: Friday, January 27, 2006 6:13 PM
+> To: Miller, Mike (OS Dev)
+> Subject: MSI-X on 2.6.15
+> 
+> Mike,
+> 
+> Here is what I get on 2.6.15.  I may look familiar.
+> 
+> Andrew
+> 
+> HP CISS Driver (v 2.6.8)
+> GSI 45 (level, low) -> CPU 0 (0x0000) vector 52
+> ACPI: PCI Interrupt 0000:46:01.0[A] -> GSI 45 (level, low) -> IRQ 52
+> cciss: using DAC cycles
+>       blocks= 143305920 block_size= 512
+>       heads= 255, sectors= 32, cylinders= 17562
+> 
+>       blocks= 143305920 block_size= 512
+>       heads= 255, sectors= 32, cylinders= 17562
+> 
+>       blocks= 71065440 block_size= 512
+>       heads= 255, sectors= 32, cylinders= 8709
+> 
+>       blocks= 143305920 block_size= 512
+>       heads= 255, sectors= 32, cylinders= 17562
+> 
+>  cciss/c0d0: p1 p2 p3
+>       blocks= 143305920 block_size= 512
+>       heads= 255, sectors= 32, cylinders= 17562
+> 
+>  cciss/c0d1: p1 p2 p3
+>       blocks= 71065440 block_size= 512
+>       heads= 255, sectors= 32, cylinders= 8709
+> 
+>  cciss/c0d2: p1 p2 p3
+> GSI 63 (level, low) -> CPU 1 (0x0100) vector 53
+> ACPI: PCI Interrupt 0000:4a:00.0[A] -> GSI 63 (level, low) -> IRQ 53
+> cciss: offset = 0xfe000 table offset = 0xfe000 BIR = 0x0
+> cciss: 0: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: 1: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: 2: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: 3: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: using DAC cycles
+> GSI 71 (level, low) -> CPU 2 (0x0200) vector 59
+> ACPI: PCI Interrupt 0000:88:00.0[A] -> GSI 71 (level, low) -> IRQ 59
+> cciss: offset = 0xfe000 table offset = 0xfe000 BIR = 0x0
+> cciss: 0: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: 1: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: 2: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: 3: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
+> cciss: using DAC cycles
+>       blocks= 143305920 block_size= 512
+>       heads= 255, sectors= 32, cylinders= 17562
+> 
+> 

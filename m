@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965035AbWA3XD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964925AbWA3XP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965035AbWA3XD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 18:03:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965028AbWA3XD5
+	id S964925AbWA3XP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 18:15:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964929AbWA3XP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 18:03:57 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:17612
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965025AbWA3XDz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 18:03:55 -0500
-Date: Mon, 30 Jan 2006 15:02:44 -0800 (PST)
-Message-Id: <20060130.150244.81476469.davem@davemloft.net>
-To: sdbrady@ntlworld.com
-Cc: ralf@linux-mips.org, grundler@parisc-linux.org, mita@miraclelinux.com,
-       linux-kernel@vger.kernel.org, ink@jurassic.park.msu.ru, spyro@f2s.com,
-       dev-etrax@axis.com, dhowells@redhat.com, ysato@users.sourceforge.jp,
-       torvalds@osdl.org, linux-ia64@vger.kernel.org, takata@linux-m32r.org,
-       linux-m68k@vger.kernel.org, gerg@uclinux.org, linux-mips@linux-mips.org,
-       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
-       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
-       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
-       ultralinux@vger.kernel.org, uclinux-v850@lsi.nec.co.jp, ak@suse.de,
-       chris@zankel.net
-Subject: Re: [parisc-linux] Re: [PATCH 3/6] C-language equivalents of
- include/asm-*/bitops.h
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060130195004.GA25860@miranda.arrow>
-References: <20060129071242.GA24624@miranda.arrow>
-	<20060130170647.GC3816@linux-mips.org>
-	<20060130195004.GA25860@miranda.arrow>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Mon, 30 Jan 2006 18:15:29 -0500
+Received: from lixom.net ([66.141.50.11]:19426 "EHLO mail.lixom.net")
+	by vger.kernel.org with ESMTP id S964925AbWA3XP2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 18:15:28 -0500
+Date: Tue, 31 Jan 2006 10:13:48 +1100
+To: Mark Haverkamp <markh@osdl.org>
+Cc: Olof Johansson <olof@lixom.net>,
+       "linuxppc64-dev@ozlabs.org" <linuxppc64-dev@ozlabs.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, moilanen@austin.ibm.com,
+       james.smart@emulex.com
+Subject: Re: iommu_alloc failure and panic
+Message-ID: <20060130231348.GC9368@pb15.lixom.net>
+References: <1138381060.11796.22.camel@markh3.pdx.osdl.net> <20060127204022.GA26653@pb15.lixom.net> <1138401590.11796.26.camel@markh3.pdx.osdl.net> <20060127233443.GB26653@pb15.lixom.net> <1138635178.5150.1.camel@markh3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1138635178.5150.1.camel@markh3.pdx.osdl.net>
+User-Agent: Mutt/1.5.9i
+From: Olof Johansson <olof@lixom.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Stuart Brady <sdbrady@ntlworld.com>
-Date: Mon, 30 Jan 2006 19:50:04 +0000
+On Mon, Jan 30, 2006 at 07:32:58AM -0800, Mark Haverkamp wrote:
+> On Sat, 2006-01-28 at 12:34 +1300, Olof Johansson wrote:
+> > On Fri, Jan 27, 2006 at 02:39:50PM -0800, Mark Haverkamp wrote:
+> > 
+> > > I would have thought that the npages would be 1 now.
+> > 
+> > No, npages is the size of the allocation coming from the driver, that
+> > won't chance. The table blocksize just says how wide the cacheline size
+> > is, i.e. how far it should advance between allocations.
+> > 
+> > This is a patch that should probably have been added a while ago, to
+> > give a bit more info. Can you apply it and give it a go?
+> > 
+> > 
+> > Thanks,
+> > 
+> > Olof
+> > 
+> 
+> 
+> Here are the last few lines of the log before it crashed.
+> 
+> 
+> Jan 30 07:29:14 linux kernel: table size 10000 used f752
 
-> Shame about popc on SPARC.  However, ffz is cheese, regardless of pops.
-> (On sparc64, ffs is too.)  I'll wait for the generic bitops patches to
-> be dealt with (or not) and then submit a patch fixing this if needed.
+Ok, that's a 256MB table, which is standard, and it seems to have been
+filled with mappings. in some cases there's a few entries left but it's
+likely that fragmentation causes the 10-entry alloc to fail, quite
+normal.
 
-I'm happy with any improvement you might make here, for sure.
+There's two things to look at, unfortunately I fall short on both of
+them myself:
 
-The sparc64 ffz() implementation was done so dog stupid like that
-so that the code would be small since this gets inlined all over
-the place.
+1) There's a way to get more than the default 256MB DMA window for a PCI
+slot. I'm not aware of the exact details, but you need recent firmware
+and you configure it in the ASM menues (the web interface for the
+service processor). Cc:ing Jake Moilanen in case he has any more up to
+date info.
 
-So if you can keep it small and improve it, or make it a bit larger
-and uninline it, that's great.
+2) The emulex driver has been prone to problems in the past where it's
+been very aggressive at starting DMA operations, and I think it can
+be avoided with tuning. What I don't know is if it's because of this,
+or simply because of the large number of targets you have. Cc:ing James
+Smart.
+
+
+-Olof

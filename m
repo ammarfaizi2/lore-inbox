@@ -1,92 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWA3IHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbWA3IaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbWA3IHW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 03:07:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWA3IHW
+	id S1750900AbWA3IaY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 03:30:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750896AbWA3IaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 03:07:22 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:41799 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751198AbWA3IHV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 03:07:21 -0500
-Date: Mon, 30 Jan 2006 09:09:31 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: How to map high memory for block io
-Message-ID: <20060130080930.GB4209@suse.de>
-References: <20060127201458.GA2767@flint.arm.linux.org.uk> <20060127202206.GH9068@suse.de> <20060127202646.GC2767@flint.arm.linux.org.uk> <43DA84B2.8010501@drzeus.cx> <43DA97A3.4080408@drzeus.cx> <20060127225428.GD2767@flint.arm.linux.org.uk> <20060128191759.GC9750@suse.de> <43DBC6E2.4000305@drzeus.cx> <20060129152228.GF13831@suse.de> <43DDC6F9.6070007@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43DDC6F9.6070007@drzeus.cx>
+	Mon, 30 Jan 2006 03:30:24 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:61156 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750703AbWA3IaY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 03:30:24 -0500
+Message-ID: <43DDCFD0.1090505@aitel.hist.no>
+Date: Mon, 30 Jan 2006 09:35:28 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nikita Danilov <nikita@clusterfs.com>
+CC: Howard Chu <hyc@symas.com>, Christopher Friesen <cfriesen@nortel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hancockr@shaw.ca
+Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
+References: <20060124225919.GC12566@suse.de>	<20060124232142.GB6174@inferi.kami.home>	<20060125090240.GA12651@suse.de>	<20060125121125.GH5465@suse.de>	<43D78262.2050809@symas.com>	<43D7BA0F.5010907@nortel.com>	<43D7C2F0.5020108@symas.com>	<43D7CAAB.9070008@yahoo.com.au>	<43D7D234.6060005@symas.com> <17368.42664.299094.987071@gargle.gargle.HOWL>
+In-Reply-To: <17368.42664.299094.987071@gargle.gargle.HOWL>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 30 2006, Pierre Ossman wrote:
-> Jens Axboe wrote:
-> > On Sat, Jan 28 2006, Pierre Ossman wrote:
-> >   
-> >> Jens Axboe wrote:
-> >>     
-> >>> On Fri, Jan 27 2006, Russell King wrote:
-> >>>   
-> >>>       
-> >>>> On Fri, Jan 27, 2006 at 10:58:59PM +0100, Pierre Ossman wrote:
-> >>>>     
-> >>>>         
-> >>>>> Test done here, few minutes ago. Added this to the wbsd driver in its
-> >>>>> kmap routine:
-> >>>>>
-> >>>>>     if ((host->cur_sg->offset + host->cur_sg->length) > PAGE_SIZE)
-> >>>>>         printk(KERN_DEBUG "wbsd: Big sg: %d, %d\n",
-> >>>>>             host->cur_sg->offset, host->cur_sg->length);
-> >>>>>
-> >>>>> got:
-> >>>>>
-> >>>>> [17385.425389] wbsd: Big sg: 0, 8192
-> >>>>> [17385.436849] wbsd: Big sg: 0, 7168
-> >>>>> [17385.436859] wbsd: Big sg: 0, 7168
-> >>>>> [17385.454029] wbsd: Big sg: 2560, 5632
-> >>>>> [17385.454216] wbsd: Big sg: 2560, 5632
-> >>>>>       
-> >>>>>           
-> >>>> Jens - what's going on?  These look like invalid sg entries to me.
-> >>>>
-> >>>> If they are supposed to be like that, there will be additional problems
-> >>>> for block drivers ensuring cache coherency on PIO.
-> >>>>     
-> >>>>         
-> >>> No freaking idea, must be coming out of the pci dma mapping. The IOMMU
-> >>> doing funky stuff? How are these sg lists mapped?
-> >>>
-> >>>   
-> >>>       
-> >> This is an ISA (i.e. platform) device, so no PCI involved. There is also
-> >> no IOMMU on this system.
-> >>
-> >> As for the mapping there doesn't seem to be anything fancy about it
-> >> (this is Russell's territory so this is just my naive view of it). The
-> >> queue is set up in mmc_queue.c and the sg is mapped using
-> >> blk_rq_map_sg() in mmc_block.c.
-> >>
-> >> But if sg entries are not supposed to cross pages, then I guess that
-> >> means that any transfer is limited in size by PAGE_SIZE *
-> >> min(max_phys_seg, max_hw_seg), right?
-> >>     
-> >
-> > Ah, you need to disable clustering to prevent that from happening! I was
-> > confused there for a while.
-> >
-> >   
-> 
-> And which is the lesser evil, highmem bounce buffers or disabling
-> clustering? I'd probably vote for the former since the MMC overhead can
-> be quite large.
+Nikita Danilov wrote:
 
-Disabling clustering is by far the least expensive way to accomplish it.
+>Howard Chu writes:
+>
+>[...]
+>
+> > 
+> > A straightforward reading of the language here says the decision happens 
+> > "when pthread_mutex_unlock() is called" and not at any later time. There 
+> > is nothing here to support your interpretation.
+> > >
+> > > I think the intention of the wording is that for deterministic policies,
+> > > it is clear that the waiting threads are actually worken and reevaluated
+> > > for scheduling. In the case of SCHED_OTHER, it means basically nothing,
+> > > considering the scheduling policy is arbitrary.
+> > >
+> > Clearly the point is that one of the waiting threads is waken and gets 
+> > the mutex, and it doesn't matter which thread is chosen. I.e., whatever 
+>
+>Note that this behavior directly leads to "convoy formation": if that
+>woken thread T0 does not immediately run (e.g., because there are higher
+>priority threads) but still already owns the mutex, then other running
+>threads contending for this mutex will block waiting for T0, forming a
+>convoy.
+>
+I just wonder - what is the problem with this convoy formation?
+It can only happen when the cpu is overloaded, and in that case
+someone has to wait.  In this case, the mutex waiters. 
 
--- 
-Jens Axboe
+Aggressively handing the cpu to whoever holds a mutex will mean the
+mutexes are free more of the time - but it will *not* mean less waiting in
+tghe system.  You just changes who waits.
+
+Helge Hafting
 

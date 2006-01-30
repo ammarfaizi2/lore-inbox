@@ -1,95 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWA3Q4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWA3Q71@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbWA3Q4M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 11:56:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWA3Q4L
+	id S964781AbWA3Q71 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 11:59:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWA3Q71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 11:56:11 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:45070 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S964778AbWA3Q4K
+	Mon, 30 Jan 2006 11:59:27 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:55994 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964781AbWA3Q70
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 11:56:10 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org, thockin@hockin.org
-Subject: Re: 2.6.15.1: persistent nasty hang in sync_page killing NFS
- (ne2k-pci / DP83815-related?), i686/PIII
-References: <87fyn8artm.fsf@amaterasu.srvr.nix>
-	<1138499957.8770.91.camel@lade.trondhjem.org>
-	<87slr79knc.fsf@amaterasu.srvr.nix>
-	<8764o23j0s.fsf@amaterasu.srvr.nix>
-	<1138566075.8711.39.camel@lade.trondhjem.org>
-	<871wyq3dl3.fsf@amaterasu.srvr.nix>
-	<1138572140.8711.82.camel@lade.trondhjem.org>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: a compelling argument for pencil and paper.
-Date: Mon, 30 Jan 2006 16:55:47 +0000
-In-Reply-To: <1138572140.8711.82.camel@lade.trondhjem.org> (Trond
- Myklebust's message of "Sun, 29 Jan 2006 17:02:20 -0500")
-Message-ID: <874q3lwt7w.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Mon, 30 Jan 2006 11:59:26 -0500
+Message-ID: <43DE45A4.6010808@us.ibm.com>
+Date: Mon, 30 Jan 2006 11:58:12 -0500
+From: "Mike D. Day" <ncmike@us.ibm.com>
+User-Agent: Thunderbird 1.5 (Macintosh/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Greg KH <greg@kroah.com>, xen-devel@lists.xensource.com,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Xen-devel] Re: [PATCH 2.6.12.6-xen] sysfs attributes for xen
+References: <43DAD4DB.4090708@us.ibm.com> <1138637931.19801.101.camel@localhost.localdomain>
+In-Reply-To: <1138637931.19801.101.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Jan 2006, Trond Myklebust stipulated:
-> As a general rule of thumb: if tcpdump/ethereal can see the reply on the
-> client, then the engine socket should see it too. If tcpdump is indeed
-> seeing those replies, you should check the RPC code by
-> setting /proc/sys/sunrpc/rpc_debug to 1.
+Dave Hansen wrote:
+ 
+> What are the actual types of the values that come back from the
+> 
+> 	HYPERVISOR_xen_version(XENVER_version, NULL)
+> call?  If they are really 8-bit or 16-bit values, it might be nice to
+> call that out and use some of the kernel types like u8 or u16.  In fact,
+> it might even be worth it to have a function wrap that up.
 
-tcpdump is seeing them.
+return is int, but the ranges are small enough for a u8, so a wrap might be good. ret == 0 is ESUCCESS _unless_ you are calling HYPERVISOR_xen_version, in which case ret == version. 
+  
+> Silly idea: you _could_ have separate files for the major and minor.
+> Are they something that a userspace program might commonly have to parse
+> out?  Is the patch trying to save a potential hcall by outputting them
+> both at once?
 
-... have a pile of messages in the midst of a locked-up transfer:
+no, this hypercall is not in any performance path and it also returns major ver and minor ver embedded into the returned int. Good suggestion and no problem calling repeatedly (within reason). 
+ 
+> Where does that 1024 come from?  Is it a guarantee from Xen that it will
+> never fill more than 1k?  I know it is a long shot, but what if the page
+> size is less than 1k?  Would this function have strange results?
 
-Jan 30 16:50:57 loki warning: kernel: -pid- proc flgs status -client- -prog- --rqstp- -timeout -rpcwait -action- --exit--
-Jan 30 16:50:57 loki warning: kernel: 15046 0006 0021 -00011 c1a11600 100003 c801f000 00000000 xprt_resend c02c3798 c01c0e4d
-Jan 30 16:50:57 loki warning: kernel: 15047 0006 0021 000000 c1a11600 100003 c801f0b8 00000070 xprt_pending c02c3869 c01c0e4d
-Jan 30 16:50:57 loki warning: kernel: 15048 0006 0021 -00011 c1a11600 100003 c801f170 00000000 xprt_resend c02c3798 c01c0e4d
-Jan 30 16:50:57 loki warning: kernel: 15049 0006 0001 -00011 c1a11600 100003 c801f228 00000000 xprt_sending c02c3798 c01c0e4d
-Jan 30 16:50:57 loki warning: kernel: RPC: 15047 xprt_timer
-Jan 30 16:50:57 loki warning: kernel: RPC:      cong 256, cwnd was 256, now 256
-Jan 30 16:50:57 loki warning: kernel: RPC: 15048 xprt_cwnd_limited cong = 0 cwnd = 256
-Jan 30 16:50:57 loki warning: kernel: RPC: 15048 xprt_prepare_transmit
-Jan 30 16:50:57 loki warning: kernel: RPC: 15048 xprt_transmit(116)
-Jan 30 16:50:57 loki warning: kernel: RPC: 15048 xmit complete
-Jan 30 16:50:57 loki warning: kernel: RPC: 15047 xprt_prepare_transmit
-Jan 30 16:50:57 loki warning: kernel: RPC: 15047 xprt_cwnd_limited cong = 256 cwnd = 256
-Jan 30 16:50:57 loki warning: kernel: RPC: 15047 failed to lock transport c1a11800
-Jan 30 16:50:58 loki warning: kernel: RPC: 15048 xprt_timer
-Jan 30 16:50:58 loki warning: kernel: RPC:      cong 256, cwnd was 256, now 256
-Jan 30 16:50:58 loki warning: kernel: RPC: 15046 xprt_cwnd_limited cong = 0 cwnd = 256
-Jan 30 16:50:58 loki warning: kernel: RPC: 15046 xprt_prepare_transmit
-Jan 30 16:50:58 loki warning: kernel: RPC: 15046 xprt_transmit(116)
-Jan 30 16:50:58 loki warning: kernel: RPC: 15046 xmit complete
-Jan 30 16:50:58 loki warning: kernel: RPC: 15048 xprt_prepare_transmit
-Jan 30 16:50:58 loki warning: kernel: RPC: 15048 xprt_cwnd_limited cong = 256 cwnd = 256
-Jan 30 16:50:58 loki warning: kernel: RPC: 15048 failed to lock transport c1a11800
-Jan 30 16:50:59 loki warning: kernel: RPC: 15046 xprt_timer
-Jan 30 16:50:59 loki warning: kernel: RPC:      cong 256, cwnd was 256, now 256
-Jan 30 16:50:59 loki warning: kernel: RPC: 15047 xprt_cwnd_limited cong = 0 cwnd = 256
-Jan 30 16:50:59 loki warning: kernel: RPC: 15047 xprt_prepare_transmit
-Jan 30 16:50:59 loki warning: kernel: RPC: 15047 xprt_transmit(116)
-Jan 30 16:50:59 loki warning: kernel: RPC: 15047 xmit complete
-Jan 30 16:50:59 loki warning: kernel: RPC: 15046 xprt_prepare_transmit
-Jan 30 16:50:59 loki warning: kernel: RPC: 15046 xprt_cwnd_limited cong = 256 cwnd = 256
-Jan 30 16:50:59 loki warning: kernel: RPC: 15046 failed to lock transport c1a11800
-Jan 30 16:51:00 loki warning: kernel: RPC: 15047 xprt_timer
-[repeats indefinitely]
-Jan 30 16:51:38 loki warning: kernel: -pid- proc flgs status -client- -prog- --rqstp- -timeout -rpcwait -action- --exit--
-Jan 30 16:51:38 loki warning: kernel: 15046 0006 0021 -00011 c1a11600 100003 c801f000 00000000 xprt_resend c02c3798 c01c0e4d
-Jan 30 16:51:38 loki warning: kernel: 15047 0006 0021 000000 c1a11600 100003 c801f0b8 00000140 xprt_pending c02c3869 c01c0e4d
-Jan 30 16:51:38 loki warning: kernel: 15048 0006 0021 -00011 c1a11600 100003 c801f170 00000000 xprt_resend c02c3798 c01c0e4d
+Per the xen headers, this particular hcall option returns a typedef char[1024] thingy_t (which is simply a char [1024] in the patch). Yes, if the page size is < 1024 there is a problem. So a check against PAGE_SIZE may be prudent. 
 
-The RPC messages are emitted at pretty much exactly the same frequency
-as the ACKs.
 
-I *guess* that the `failed to lock transport' is the underlying error...
-time to add some debugging and find out what task is locking the
-transport. Back soon, must rebuild the kernel and reboot to clear this
-lock ;)
+I'm rewriting based on Greg's and your feedback,
+
+thanks again, 
+
+Mike
 
 -- 
-`I won't make a secret of the fact that your statement/question
- sent a wave of shock and horror through us.' --- David Anderson
+

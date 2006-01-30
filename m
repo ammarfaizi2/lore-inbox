@@ -1,76 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWA3V26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWA3Vcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030190AbWA3V26 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 16:28:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbWA3V25
+	id S1750862AbWA3Vcz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 16:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWA3Vcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 16:28:57 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:29323 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S1030182AbWA3V24 convert rfc822-to-8bit
+	Mon, 30 Jan 2006 16:32:55 -0500
+Received: from mf00.sitadelle.com ([212.94.174.67]:25046 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1750862AbWA3Vcy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 16:28:56 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 30 Jan 2006 16:32:54 -0500
+Message-ID: <43DE8604.1060109@cosmosbay.com>
+Date: Mon, 30 Jan 2006 22:32:52 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 3/3] megaraid_sas: support for 1078 type controller added
-Date: Mon, 30 Jan 2006 14:28:41 -0700
-Message-ID: <F331B95B72AFFB4B87467BE1C8E9CF5F221260@NAMAIL2.ad.lsil.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 3/3] megaraid_sas: support for 1078 type controller added
-Thread-Index: AcYh63GGL6+BapisS4udLTQwRgUHAQD9rpNw
-From: "Moore, Eric" <Eric.Moore@lsil.com>
-To: "Sumant Patro" <sumantp@lsil.com>, <hch@lst.de>,
-       <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
-       <James.Bottomley@SteelEye.com>
-Cc: "Bagalkote, Sreenivas" <Sreenivas.Bagalkote@engenio.com>,
-       "Kolli, Neela" <Neela.Kolli@engenio.com>,
-       "Yang, Bo" <Bo.Yang@engenio.com>,
-       "Doelfel, Hardy" <Hardy.Doelfel@engenio.com>
-X-OriginalArrivalTime: 30 Jan 2006 21:28:41.0776 (UTC) FILETIME=[2442B300:01C625E4]
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       vserver@list.linux-vserver.org, Herbert Poetzl <herbert@13thfloor.at>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH 1/5] pid: Implement task references.
+References: <m1psmba4bn.fsf@ebiederm.dsl.xmission.com>	<m1lkwza479.fsf@ebiederm.dsl.xmission.com>	<20060129190539.GA26794@kroah.com>	<m1mzhe7l2c.fsf@ebiederm.dsl.xmission.com>	<20060130045153.GC13244@kroah.com> <43DDA1E7.5010109@cosmosbay.com>	<20060130184302.GA17457@kroah.com> <43DE6FE6.40705@cosmosbay.com> <m1bqxt5ts3.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1bqxt5ts3.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, January 25, 2006 1:06 PM, Sumant Patro wrote:
-
+Eric W. Biederman a écrit :
+> Eric Dumazet <dada1@cosmosbay.com> writes:
 > 
-> Hello All,
+>> Greg KH a écrit :
+>>> On Mon, Jan 30, 2006 at 06:19:35AM +0100, Eric Dumazet wrote:
+>>>> Example of improvement in kref_put() :
+>>>>
+>>>> [PATCH] kref : Avoid an atomic operation in kref_put() when the last
+>>>> reference is dropped. On most platforms, atomic_read() is a plan read of the
+>>>> counter and involves no atomic at all.
+>>> No, we wat to decrement and test at the same time, to protect against
+>>> any race where someone is incrementing right when we are dropping the
+>>> last reference.
+>> Sorry ? Me confused !
 > 
-> 	This patch adds support for 1078 type controller 
-> (device id : 0x62).
-> Patch is made against the latest git snapshot of scsi-misc-2.6 tree.
+> Largely I think you have the right of it, that the optimization is
+> correct.  My biggest complaint is that the common case is going to be
+> several references to the data structure.  Releasing the references
+> will always be slow.  To do the read you need to get the value into
+> the cache line.
 > 
-> 	Please review it and all comments are appreciated.
-> 
-> Thanks,
-> 
+> So it looks to me like you are optimizing the wrong case and
+> bloating the icache with unnecessary code.
 
-James - NACK this patch.
-I noticed you have picked up this patch in your scsi-rc-fixes stream.
-http://www.kernel.org/pub/linux/kernel/people/jejb/scsi-rc-fixes-2.6.cha
-ngelog
+This function is not inlined.
 
-There is a mistake with this patch.  This SAS1078 device id (0x62) is
-the same
-id we are claiming for our fusion drivers. Our device ID is 0x62.  You
-can see
-that at this link: http://pci-ids.ucw.cz/iii/?i=10000062.  I haven't got
-around
-to it, but I plan to post support for that soon.
+Adding a test and a branch is a matter of 7 bytes.
 
-A different version of SAS1078 is being manufactured by the megaraid
-group.  
-Neela Syam Kolli is aware of this issue, and I believe they are working
-out the details, 
-and will be posting a patch to solve this.
+  'Bloating the icache' is a litle bit off :)
 
-Can this patch be backed out if its not fixed before 2.6.16 kernel is
-released.
+Avoiding an atomic is important. This is already done elsewhere in the kernel, 
+in a inlined function with *many* call sites :
 
-Eric Moore
+(See kfree_skb() in include/linux//skbuff.h )
+
+/*
+  * If users == 1, we are the only owner and are can avoid redundant
+  * atomic change.
+  */
+
+/**
+  *      kfree_skb - free an sk_buff
+  *      @skb: buffer to free
+  *
+  *      Drop a reference to the buffer and free it if the usage count has
+  *      hit zero.
+  */
+static inline void kfree_skb(struct sk_buff *skb)
+{
+         if (likely(atomic_read(&skb->users) == 1))
+                 smp_rmb();
+         else if (likely(!atomic_dec_and_test(&skb->users)))
+                 return;
+         __kfree_skb(skb);
+}
 
 
+This is a valid optimization : an atomic_dec_and_test() is very expensive.
 
+Eric

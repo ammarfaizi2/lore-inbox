@@ -1,90 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWA3Pg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWA3PhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932335AbWA3Pg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 10:36:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWA3Pgz
+	id S932336AbWA3PhN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 10:37:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWA3PhN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 10:36:55 -0500
-Received: from mx03.qsc.de ([213.148.130.16]:13474 "EHLO mx03.qsc.de")
-	by vger.kernel.org with ESMTP id S932335AbWA3Pgy convert rfc822-to-8bit
+	Mon, 30 Jan 2006 10:37:13 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:30620 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S932336AbWA3PhL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 10:36:54 -0500
-From: =?iso-8859-1?q?Ren=E9_Rebe?= <rene@exactcode.de>
-Organization: ExactCODE
-To: Oliver Neukum <oliver@neukum.org>
-Subject: Re: [linux-usb-devel] Re: [PATCH] Adaptec USBXchange and USB2Xchange support
-Date: Mon, 30 Jan 2006 16:36:15 +0100
-User-Agent: KMail/1.9
-Cc: linux-usb-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <200509132253.53960.rene@exactcode.de> <200601301422.40500.rene@exactcode.de> <200601301622.19998.oliver@neukum.org>
-In-Reply-To: <200601301622.19998.oliver@neukum.org>
+	Mon, 30 Jan 2006 10:37:11 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Hans Reiser <reiser@namesys.com>
+Subject: Re: Recursive chmod/chown OOM kills box with 32MB RAM
+Date: Mon, 30 Jan 2006 14:28:50 +0200
+User-Agent: KMail/1.8.2
+Cc: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+References: <200601281613.16199.vda@ilport.com.ua> <200601281811.35690.vda@ilport.com.ua> <43DDAE2D.6080300@namesys.com>
+In-Reply-To: <43DDAE2D.6080300@namesys.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200601301636.15258.rene@exactcode.de>
-X-Spam-Score: -1.4 (-)
-X-Spam-Report: Spam detection software, running on the system "grum.localhost", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hi, On Monday 30 January 2006 16:22, Oliver Neukum
-	wrote: > Am Montag, 30. Januar 2006 14:22 schrieb  =?ISO-8859-1?Q?=20Ren=E9?= Rebe: > > + /*
-	Stop CPU */ > > + err = usbxchange_set_reset(dev, cpureg, 1); > > + err
-	= usbxchange_set_reset(dev, cpureg, 1); > > + if (err < 0) { > > +
-	printk(KERN_ERR "%s - error stopping dongle CPU: error = %d\n", > > +
-	__FUNCTION__, err); > > + return err; > > + } > > [..] > > > + /*
-	De-assert reset (let the CPU run) */ > > + err =
-	usbxchange_set_reset(dev, cpureg, 1); > > + err =
-	usbxchange_set_reset(dev, cpureg, 0); > > + if (err < 0) { > > +
-	printk(KERN_ERR "%s - error resetting dongle CPU: error = %d\n", > > +
-	__FUNCTION__, err); > > + return err; > > + } > > Do you really want to
-	ignore errors the first usbxchange_set_reset()s return? [...] 
-	Content analysis details:   (-1.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-1.4 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+Message-Id: <200601301428.50220.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Monday 30 January 2006 16:22, Oliver Neukum wrote:
-> Am Montag, 30. Januar 2006 14:22 schrieb René Rebe:
-> > +       /* Stop CPU */
-> > +       err = usbxchange_set_reset(dev, cpureg, 1);
-> > +       err = usbxchange_set_reset(dev, cpureg, 1);
-> > +       if (err < 0) {
-> > +               printk(KERN_ERR "%s - error stopping dongle CPU: error = %d\n",
-> > +                      __FUNCTION__, err);
-> > +               return err;
-> > +       }
+On Monday 30 January 2006 08:11, Hans Reiser wrote:
+> Denis Vlasenko wrote:
 > 
-> [..]
-> 
-> > +       /* De-assert reset (let the CPU run) */
-> > +       err = usbxchange_set_reset(dev, cpureg, 1);
-> > +       err = usbxchange_set_reset(dev, cpureg, 0);
-> > +       if (err < 0) {
-> > +               printk(KERN_ERR "%s - error resetting dongle CPU: error = %d\n",
-> > +                      __FUNCTION__, err);
-> > +               return err;
-> > +       }
-> 
-> Do you really want to ignore errors the first usbxchange_set_reset()s return?
+> >[CCing namesys]
+> >
+> >Narrowed it down to 100% reproducible case:
+> >
+> >	chown -Rc 0:<n> .
+> >
+> >in a top directory of tree containing ~21938 files
+> >on reiser3 partition:
+> >
+> >	/dev/sdc3 on /.3 type reiserfs (rw,noatime)
+> >
+> >causes oom kill storm. "ls -lR", "find ." etc work fine.
+> >
+> >I suspected that it is a leak in winbindd libnss module,
+> >but chown does not seem to grow larger in top, and also
+> >running it under softlimit -m 400000 still causes oom kills
 
-It is not really likely that the first one fails and the second succeeds. But yes,
-I could add an if (err == 0) before the 2nd send and skip it when the first already
-failed.
+(typo, must be -m 40000000)
 
-I can resent with more suggestions accumulated.
+> >while chown's RSS stays below 4MB.
+>
+> Chris, would you like to handle this?
 
-Yours,
 
--- 
-René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
-            http://www.exactcode.de | http://www.t2-project.org
-            +49 (0)30  255 897 45
+fs seems to be ok fsck-wise:
+
+# mount -o remount,ro /.3
+# reiserfsck /dev/sdc3
+reiserfsck 3.6.11 (2003 www.namesys.com)
+
+*************************************************************
+** If you are using the latest reiserfsprogs and  it fails **
+** please  email bug reports to reiserfs-list@namesys.com, **
+** providing  as  much  information  as  possible --  your **
+** hardware,  kernel,  patches,  settings,  all reiserfsck **
+** messages  (including version),  the reiserfsck logfile, **
+** check  the  syslog file  for  any  related information. **
+** If you would like advice on using this program, support **
+** is available  for $25 at  www.namesys.com/support.html. **
+*************************************************************
+
+Will read-only check consistency of the filesystem on /dev/sdc3
+Will put log info to 'stdout'
+
+Do you want to run this program?[N/Yes] (note need to type Yes if you do):Yes
+###########
+reiserfsck --check started at Mon Jan 30 14:11:15 2006
+###########
+Filesystem seems mounted read-only. Skipping journal replay.
+Checking internal tree..finished
+Comparing bitmaps..finished
+Checking Semantic tree:
+finished
+No corruptions found
+There are on the filesystem:
+        Leaves 8075
+        Internal nodes 52
+        Directories 1792
+        Other files 31865
+        Data block pointers 1058363 (0 of them are zero)
+        Safe links 0
+###########
+reiserfsck finished at Mon Jan 30 14:13:28 2006
+###########
+
+However, there is one strange thing: I cannot umount it.
+Why? There is no open files.
+
+# umount /.3
+umount: /.3: device is busy
+# lsof -nP | grep -F '/.3'
+# lsof -nP | grep -F 'sdc'
+# uname -a
+Linux pegasus 2.6.14.6 #1 SMP Mon Jan 30 08:46:20 EET 2006 i686 unknown unknown GNU/Linux
+
+--
+vda

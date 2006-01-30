@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbWA3WYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbWA3W0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965003AbWA3WYc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 17:24:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbWA3WYc
+	id S932390AbWA3W0A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 17:26:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932392AbWA3WZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 17:24:32 -0500
-Received: from smtp-4.llnl.gov ([128.115.41.84]:56281 "EHLO smtp-4.llnl.gov")
-	by vger.kernel.org with ESMTP id S965003AbWA3WYb (ORCPT
+	Mon, 30 Jan 2006 17:25:59 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:38850 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932390AbWA3WZ7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 17:24:31 -0500
-From: Dave Peterson <dsp@llnl.gov>
-To: doug thompson <dthompson@linuxnetworx.com>
-Subject: Re: noisy edac
-Date: Mon, 30 Jan 2006 14:24:16 -0800
-User-Agent: KMail/1.5.3
-Cc: Doug Thompson <norsk5@yahoo.com>, Dave Jones <davej@redhat.com>,
-       Alan Cox <alan@redhat.com>,
-       "bluesmoke-devel@lists.sourceforge.net" 
-	<bluesmoke-devel@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060130185931.71975.qmail@web50112.mail.yahoo.com> <200601301158.09438.dsp@llnl.gov> <1138655061.8251.74.camel@logos.linuxnetworx.com>
-In-Reply-To: <1138655061.8251.74.camel@logos.linuxnetworx.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Jan 2006 17:25:59 -0500
+Date: Mon, 30 Jan 2006 23:25:41 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Nigel Cunningham <nigel@suspend2.net>, linux-kernel@vger.kernel.org
+Subject: Re: [ 15/23] [Suspend2] Helper for counting uninterruptible threads of a type.
+Message-ID: <20060130222541.GK2250@elf.ucw.cz>
+References: <20060126034518.3178.55397.stgit@localhost.localdomain> <20060126034556.3178.79337.stgit@localhost.localdomain> <200601302318.28922.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601301424.16884.dsp@llnl.gov>
+In-Reply-To: <200601302318.28922.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 January 2006 13:04, doug thompson wrote:
-> Something like an ERROR report verbose level?  0 to 7 like?
->
-> 0 being quiet, 7 being very verbose? or the reverse.
->
-> /sys/drivers/system/edac/mc/error_report_verbosity   ????
->
-> This tackles the immediate issue, but there is a systemic issue we have
-> to face sometime.
->
-> One problem that this e752x_edac module exhibits, which is manifest on
-> all of the drivers to one degree, is the output of driver specific error
-> messages directly, since there is not an abstracted error interface
-> (yet) in the EDAC core.  The messages are or can be very specific to the
-> MC being driven.  In time, we can (should) add a better MC error
-> interface to the core and then map errors from specific MC errors to the
-> new CORE error interface. Similiar to how SCSI and SATA have higher
-> level abstract errors which the transport drivers map errors to.
->
-> This e752x_edac module just plainly outputs to printk() with
-> KERN_WARNING w/o any other output control.
->
-> Looks like the old "how do we report errors" pattern, with its first
-> implementation now looking old.
+On Po 30-01-06 23:18:28, Rafael J. Wysocki wrote:
+> Hi,
+> 
+> On Thursday 26 January 2006 04:45, Nigel Cunningham wrote:
+> > 
+> > Add a helper which counts the number of patches of a type (all
+> > or userspace only) which are in TASK_UNINTERRUPTIBLE state.
+> > These tasks are signalled (just in case they leave that state at
+> > a later point), but we do not consider freezing to have failed
+> > if and when they do not enter the freezer.
+> > 
+> > Note that when they eventually leave TASK_UNINTERRUPTIBLE state,
+> > they will enter the refrigerator, but will immediately exit if
+> > we no longer want to freeze at that point.
+> 
+> I think we need to do something like this to prevent problems with
+> freezing under load.
 
-For each individual type of error that is specific to a particular
-low-level chipset driver (e752x, amd76x, etc.) there could be an entry
-in the appropriate part of the sysfs hierarchy under the given chipset
-driver.  This entry could have several settings that the user may choose
-from such as { ignore, syslog, panic }.  For the implementation, there
-could be a generic piece of code in the core EDAC module that a chipset
-driver calls into.  The generic code would do the dirty work of creating
-the sysfs entries (and destroying them when the chipset module is
-unloading).  How does this sound?
+That is dangerous... task in UNINTERRUPTIBLE may hold some lock,
+AFAICT.
+
+No, there's some simple bug in refrigerator, and I/we need to fix
+that. Signals work under load, so refrigerator should, too.
+
+							Pavel
+-- 
+Thanks, Sharp!

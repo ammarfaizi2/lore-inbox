@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbWA3RtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbWA3R5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964846AbWA3RtW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 12:49:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWA3RtW
+	id S964847AbWA3R5J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 12:57:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWA3R5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 12:49:22 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:22694 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964846AbWA3RtV (ORCPT
+	Mon, 30 Jan 2006 12:57:08 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:10696 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964847AbWA3R5G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 12:49:21 -0500
-Date: Mon, 30 Jan 2006 18:49:19 +0100
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] record last user if malloc request is exact 4k
-Message-ID: <20060130174919.GA7599@suse.de>
+	Mon, 30 Jan 2006 12:57:06 -0500
+Subject: Re: [Xen-devel] Re: [PATCH 2.6.12.6-xen] sysfs attributes for xen
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Cc: Greg KH <greg@kroah.com>, xen-devel@lists.xensource.com,
+       lkml <linux-kernel@vger.kernel.org>, "Mike D. Day" <ncmike@us.ibm.com>
+In-Reply-To: <26c21a6abef89d4629a0da08bc0ba9bf@cl.cam.ac.uk>
+References: <43DAD4DB.4090708@us.ibm.com>
+	 <1138637931.19801.101.camel@localhost.localdomain>
+	 <43DE45A4.6010808@us.ibm.com>
+	 <1138640666.19801.106.camel@localhost.localdomain>
+	 <43DE4A1D.4050501@us.ibm.com>
+	 <1138642737.22903.14.camel@localhost.localdomain>
+	 <26c21a6abef89d4629a0da08bc0ba9bf@cl.cam.ac.uk>
+Content-Type: text/plain
+Date: Mon, 30 Jan 2006 09:56:53 -0800
+Message-Id: <1138643813.22903.28.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a reason why a 4096 malloc is not recorded?
-untested patch below.
+On Mon, 2006-01-30 at 17:53 +0000, Keir Fraser wrote:
+> On 30 Jan 2006, at 17:38, Dave Hansen wrote:
+> 
+> > Yes, they are.  Buuuuuuut, you _can_ make the code around them a little
+> > less evil.  If you _must_ use a typedef, you could do something like
+> > this:
+> >
+> > #define XEN_CAP_INFO_LEN_BYTES 1024
+> > typedef char [XEN_CAP_INFO_LEN_BYTES] xen_capabilities_info_t;
+> 
+> Is that really better than just referencing the typedef? I've always 
+> considered them okay for simple scalar and array types, even if they 
+> are to be avoided for structure types.
 
+One reason they're "evil" is that they hide what is going on.  It is
+worse for structures, but doing it for arrays still hides what is there,
+and a hapless programmer can easily jump off the end of the stack
+without realizing it.  I think the kernel style is to be as explicit as
+possible, especially when it isn't too verbose.
 
-allow SLAB_STORE_USER also with an exact 4k request.
+In this case, I expect a programmer declaring a 'char foo[XEN_FOO]'
+array on the stack to be much more likely to go look up how big XEN_FOO
+is than one who sees a 'xen_capabilities_info_t foo'.
 
-Signed-off-by: Olaf Hering <olh@suse.de>
+> Is it the size aspect that is 
+> the problem (e.g., a typedef'ed type should be okay to allocate on the 
+> stack)?
 
- mm/slab.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+The size is the issue.  A typedef just makes it a little bit harder to
+track down.  That's why typedefs are evil. ;)
 
-Index: linux-2.6.16-rc1-olh/mm/slab.c
-===================================================================
---- linux-2.6.16-rc1-olh.orig/mm/slab.c
-+++ linux-2.6.16-rc1-olh/mm/slab.c
-@@ -1637,7 +1637,7 @@ kmem_cache_create (const char *name, siz
- 	 * above the next power of two: caches with object sizes just above a
- 	 * power of two have a significant amount of internal fragmentation.
- 	 */
--	if ((size < 4096
-+	if ((size <= 4096
- 	     || fls(size - 1) == fls(size - 1 + 3 * BYTES_PER_WORD)))
- 		flags |= SLAB_RED_ZONE | SLAB_STORE_USER;
- 	if (!(flags & SLAB_DESTROY_BY_RCU))
+-- Dave
 
--- 
-short story of a lazy sysadmin:
- alias appserv=wotan

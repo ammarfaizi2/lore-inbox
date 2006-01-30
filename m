@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbWA3Tnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbWA3Tt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964920AbWA3Tnm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 14:43:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbWA3Tnm
+	id S964927AbWA3Tt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 14:49:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbWA3Tt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 14:43:42 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:19390 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964920AbWA3Tnl convert rfc822-to-8bit
+	Mon, 30 Jan 2006 14:49:28 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:15109 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S964931AbWA3Tt1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 14:43:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Dl3sw8cxjku+mlIdzwl0GpH6GTcuxJugcyN2/UGEU+AHknJj7WPcEndBs/Rc8u1+Vvok8Yl8EZgay0s2jCEG3EjfhRiz9H6JzCCDC9HXAMPtno8Qj9awbgKIN9VKZxIYfE0DeuML1hjElXC+TPJeXcwpbIpgu1cxVvDs3aXffEQ=
-Message-ID: <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com>
-Date: Mon, 30 Jan 2006 17:43:39 -0200
-From: Glauber de Oliveira Costa <glommer@gmail.com>
-To: karim@opersys.com
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-Cc: Thomas Horsten <thomas@horsten.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43DE57C4.5010707@opersys.com>
+	Mon, 30 Jan 2006 14:49:27 -0500
+To: thockin@hockin.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15.1: UDP fragments >27208 bytes lost with ne2k-pci on
+ DP83815
+References: <87slr79knc.fsf@amaterasu.srvr.nix>
+	<8764o23j0s.fsf@amaterasu.srvr.nix>
+	<1138566075.8711.39.camel@lade.trondhjem.org>
+	<871wyq3dl3.fsf@amaterasu.srvr.nix>
+	<1138572140.8711.82.camel@lade.trondhjem.org>
+	<874q3lwt7w.fsf@amaterasu.srvr.nix>
+	<1138640968.30641.3.camel@lade.trondhjem.org>
+	<87vew1vd03.fsf_-_@amaterasu.srvr.nix>
+	<20060130190306.GA19227@hockin.org>
+	<87vew1ttz7.fsf@amaterasu.srvr.nix>
+	<20060130193224.GA21500@hockin.org>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: there's a reason it comes with a built-in psychotherapist.
+Date: Mon, 30 Jan 2006 19:49:06 +0000
+In-Reply-To: <20060130193224.GA21500@hockin.org> (thockin@hockin.org's
+ message of "Mon, 30 Jan 2006 11:32:24 -0800")
+Message-ID: <87ek2pts25.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>
-	 <43DE57C4.5010707@opersys.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/30/06, Karim Yaghmour <karim@opersys.com> wrote:
->
-> Thomas Horsten wrote:
-> > That would be a dubious circumvention. Remember that the GPLv3 is still a
-> > draft - the wording can (and should probably) be improved to make it clear
-> > that the system as a whole must behave identically if a modified version
-> > of the GPL'ed software is used.
->
-> As a software license, GPLv3 can dictate the usage rules for software
-> distributed under it, but it can't dictate the usage terms of hardware
-> and software independently developed (ex.: DRM'ed hardware and
-> proprietary user-space applications). No wording could erase that.
-> And what is suggest is not "circumvention", it's just not something
-> GPLv3 could cover.
+[Pruned Trond from the Cc:, this isn't an NFS bug after all]
 
-I may be missing the point here, (In case you're more than welcome to
-correct me), but ... Why? Can't a software license restrict the usage
-of the software? In which ways do you think the sentence "Don't use in
-DRM'ed hardware" differs from sentences like  "Not allowed in country
-X",  "Don't use for commercial purposes",  and other alikes ? I think
-that saying in which hardware your software can or cannot run is a
-pretty valid license term (without messing with the question about it
-being the right thing to do here).
+On Mon, 30 Jan 2006, thockin@hockin.org said:
+> I can't imagine what kind of hidden bug would lay dormant for 4 years and
+> then pop up for just one person.  I don't know what I can offer except
+> extra eyes  to vet any potential solutions.  Happt Hunting.
 
-Besides that, I pretty much agree with the rest of your mail.
+I'll verify that the cause really is the network card shortly (by
+swapping the network cards I use for ADSL and internal networking:
+the ADSL link has very little large UDP traffic). This'll let us
+localize the problem to the NIC, or not, as the case may be.
 
---
-Free Software : Technology for a better world
-=============================
-Glauber de Oliveira Costa
-jabber: glommer@jabber.org
-=============================
+More once this is done.
+
+-- 
+`I won't make a secret of the fact that your statement/question
+ sent a wave of shock and horror through us.' --- David Anderson

@@ -1,100 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWA3Qd4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWA3Qfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWA3Qd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 11:33:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWA3Qd4
+	id S932370AbWA3Qfo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 11:35:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932327AbWA3Qfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 11:33:56 -0500
-Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:32410 "EHLO
-	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
-	id S932369AbWA3Qdz convert rfc822-to-8bit (ORCPT
+	Mon, 30 Jan 2006 11:35:44 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:46814 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932370AbWA3Qfn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 11:33:55 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 30 Jan 2006 11:35:43 -0500
+Message-ID: <43DE4055.8090501@pobox.com>
+Date: Mon, 30 Jan 2006 11:35:33 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: FW: MSI-X on 2.6.15
-Date: Mon, 30 Jan 2006 10:33:50 -0600
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF10B8AC113@cceexc23.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: MSI-X on 2.6.15
-Thread-Index: AcYjn6OJL5NN4pWRQ1WEgL3h1MoSxQCGhutA
-From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
-To: "Greg KH" <greg@kroah.com>, "Mark Maule" <maule@sgi.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
-       "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>
-X-OriginalArrivalTime: 30 Jan 2006 16:33:52.0386 (UTC) FILETIME=[F48FFE20:01C625BA]
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+CC: matthias.andree@gmx.de, mrmacman_g4@mac.com, linux-kernel@vger.kernel.org,
+       jengelh@linux01.gwdg.de, James@superbug.co.uk, acahalan@gmail.com,
+       "unlisted-recipients:; "@pop3.mail.demon.net
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <43D7A7F4.nailDE92K7TJI@burner> <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com> <43D7B1E7.nailDFJ9MUZ5G@burner> <20060125230850.GA2137@merlin.emma.line.org> <43D8C04F.nailE1C2X9KNC@burner> <20060126161028.GA8099@suse.cz> <43DA2E79.nailFM911AZXH@burner> <43DA4DDA.7070509@superbug.co.uk> <Pine.LNX.4.61.0601271753430.11702@yvahk01.tjqt.qr> <43DDFBFF.nail16Z3N3C0M@burner> <20060130120408.GA8436@merlin.emma.line.org> <43DE3AE5.nail16ZL1UH7X@burner>
+In-Reply-To: <43DE3AE5.nail16ZL1UH7X@burner>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Joerg Schilling wrote: > Matthias Andree
+	<matthias.andree@gmx.de> wrote: > > >>>Cdrecord is a program that needs
+	to be able to send any SCSI command as >>>it needs to be able to add
+	new vendor unique commands for new drive/feature >>>support. >>
+	>>Right, but evidently it does not need the kernel to invent numbering.
+	>>dev=/dev/hdc works today. > > > Maybe, I will need to enforce to use
+	official libscg device names in future.... [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH,
-We have the same results on 2.6.15, the MSI-X table is all zeroes. See
-below. Any ideas of what to do do next? The driver works on x86_64. Is
-there any thing extra I need to do on ia64?
+Joerg Schilling wrote:
+> Matthias Andree <matthias.andree@gmx.de> wrote:
+> 
+> 
+>>>Cdrecord is a program that needs to be able to send any SCSI command as 
+>>>it needs to be able to add new vendor unique commands for new drive/feature
+>>>support.
+>>
+>>Right, but evidently it does not need the kernel to invent numbering.
+>>dev=/dev/hdc works today.
+> 
+> 
+> Maybe, I will need to enforce to use official libscg device names in future....
 
-Andrew, can you try 2.6.16-rc1 and/or the rc1-git4 kernels?
+To burden users with yet another naming policy?
 
-Thanks,
-mikem
+	Jeff
 
-> -----Original Message-----
-> From: Patterson, Andrew D (Linux R&D) 
-> Sent: Friday, January 27, 2006 6:13 PM
-> To: Miller, Mike (OS Dev)
-> Subject: MSI-X on 2.6.15
-> 
-> Mike,
-> 
-> Here is what I get on 2.6.15.  I may look familiar.
-> 
-> Andrew
-> 
-> HP CISS Driver (v 2.6.8)
-> GSI 45 (level, low) -> CPU 0 (0x0000) vector 52
-> ACPI: PCI Interrupt 0000:46:01.0[A] -> GSI 45 (level, low) -> IRQ 52
-> cciss: using DAC cycles
->       blocks= 143305920 block_size= 512
->       heads= 255, sectors= 32, cylinders= 17562
-> 
->       blocks= 143305920 block_size= 512
->       heads= 255, sectors= 32, cylinders= 17562
-> 
->       blocks= 71065440 block_size= 512
->       heads= 255, sectors= 32, cylinders= 8709
-> 
->       blocks= 143305920 block_size= 512
->       heads= 255, sectors= 32, cylinders= 17562
-> 
->  cciss/c0d0: p1 p2 p3
->       blocks= 143305920 block_size= 512
->       heads= 255, sectors= 32, cylinders= 17562
-> 
->  cciss/c0d1: p1 p2 p3
->       blocks= 71065440 block_size= 512
->       heads= 255, sectors= 32, cylinders= 8709
-> 
->  cciss/c0d2: p1 p2 p3
-> GSI 63 (level, low) -> CPU 1 (0x0100) vector 53
-> ACPI: PCI Interrupt 0000:4a:00.0[A] -> GSI 63 (level, low) -> IRQ 53
-> cciss: offset = 0xfe000 table offset = 0xfe000 BIR = 0x0
-> cciss: 0: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: 1: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: 2: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: 3: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: using DAC cycles
-> GSI 71 (level, low) -> CPU 2 (0x0200) vector 59
-> ACPI: PCI Interrupt 0000:88:00.0[A] -> GSI 71 (level, low) -> IRQ 59
-> cciss: offset = 0xfe000 table offset = 0xfe000 BIR = 0x0
-> cciss: 0: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: 1: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: 2: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: 3: vector = 0,msg data = 0, msg upper addr = 0,msg addr = 0
-> cciss: using DAC cycles
->       blocks= 143305920 block_size= 512
->       heads= 255, sectors= 32, cylinders= 17562
-> 
-> 
+
+

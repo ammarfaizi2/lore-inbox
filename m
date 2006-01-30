@@ -1,75 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWA3Pqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWA3Pr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWA3Pqb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 10:46:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWA3Pqb
+	id S932343AbWA3Pr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 10:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932345AbWA3Pr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 10:46:31 -0500
-Received: from sorrow.cyrius.com ([65.19.161.204]:12050 "EHLO
-	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S932342AbWA3Pqa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 10:46:30 -0500
-Date: Mon, 30 Jan 2006 15:46:17 +0000
-From: Martin Michlmayr <tbm@cyrius.com>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Atsushi Nemoto <anemo@mba.ocn.ne.jp>, hugh@veritas.com,
-       linux-kernel@vger.kernel.org, t.sailer@alumni.ethz.ch, perex@suse.cz,
-       ralf@linux-mips.org
-Subject: Re: ALSA on MIPS platform
-Message-ID: <20060130154617.GC15563@deprecation.cyrius.com>
-References: <Pine.LNX.4.61.0601261910230.15596@goblin.wat.veritas.com> <20060128.004540.59467062.anemo@mba.ocn.ne.jp> <s5h7j8l64ua.wl%tiwai@suse.de> <20060130.185608.30186596.nemoto@toshiba-tops.co.jp> <s5hoe1u3to1.wl%tiwai@suse.de>
+	Mon, 30 Jan 2006 10:47:59 -0500
+Received: from xenotime.net ([66.160.160.81]:41124 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932343AbWA3Pr7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 10:47:59 -0500
+Date: Mon, 30 Jan 2006 07:47:57 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Jiri Slaby <xslaby@fi.muni.cz>
+cc: Marc Koschewski <marc@osknowledge.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: -git tree? (was Re: 2.6.16-rc1-mm4)
+In-Reply-To: <20060130141318.31F5622AEE6@anxur.fi.muni.cz>
+Message-ID: <Pine.LNX.4.58.0601300746490.17839@shark.he.net>
+References: <20060130141318.31F5622AEE6@anxur.fi.muni.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5hoe1u3to1.wl%tiwai@suse.de>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Takashi Iwai <tiwai@suse.de> [2006-01-30 11:18]:
-> Well, as Hugu pointed out, that page reservation plays no longer any
-> role.  The patch below should work too on 2.6.15 or later.
+On Mon, 30 Jan 2006, Jiri Slaby wrote:
 
-It doesn't solve the problem I have, those "wait source ready timeout
-0x1410 [0x8c8c8c8c]" messages on a Cobalt Qube2 with a 64-bit MIPS
-kernel.
+> Jiri Slaby wrote:
+> >Marc Koschewski wrote:
+> >>Andrew,
+> >>
+> >>	as already asked a couple of weeks ago: do we have a chance to be able
+> >>to checkout the -mm tree with git someday? It would be very convenient. ;)
+> >Search archive (a week or 2)...
+> Ignore me.
 
+Matthias Urlichs did import 2.6.15-mm3 into a git:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113726055823770&w=2
 
-Detecting hardware: de4x5 via82cxxx es1371 usb_uhci
-de4x5 disabled in configuration.
-Skipping unavailable/built-in via82cxxx module.
-Skipping unavailable/built-in es1371 module.
-Loading uhci_hcd module.
-usbcore: registered new driver usbfs
-usbcore: registered new driver hub
-USB Universal Host Controller Interface driver v2.3
-uhci_hcd 0000:00:09.2: Found HC with no IRQ.  Check BIOS/PCI 0000:00:09.2 setup!
-uhci_hcd 0000:00:09.2: init 0000:00:09.2 fail, -19
-Running 0dns-down to make sure resolv.conf is ok...done.
-Setting up networking...done.
-Starting hotplug subsystem:
-   pci     
-     uhci-hcd: already loaded
-wait source ready timeout 0x1410 [0x8c8c8c8c]  <- repeated 180 times
-AC'97 0 analog subsections not ready
-wait source ready timeout 0x1410 [0x8c8c8c8c] <- repeated 453 times
-     snd-ens1371: loaded successfully
-   pci      [success]
-   usb     
-   usb      [success]
-   isapnp  
-   isapnp   [success]
-   ide     
-   ide      [success]
-   input   
-   input    [success]
-   scsi    
-   scsi     [success]
-done.
-Setting up IP spoofing protection: rp_filter.
-Configuring network interfaces...done.
-Starting portmap daemon: portmap.
+but I don't see any more recent ones there:
+http://www.kernel.org/git/?p=linux/kernel/git/smurf/linux-trees.git;a=summary
 
 -- 
-Martin Michlmayr
-http://www.cyrius.com/
+~Randy

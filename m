@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbWA3SqG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbWA3StH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964862AbWA3SqG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 13:46:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWA3SqG
+	id S964864AbWA3StH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 13:49:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbWA3StH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 13:46:06 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:19260 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964862AbWA3SqE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 13:46:04 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=O5CnT8ue0bsBFymhE7ifYBjgYCdM9UmcTxzz4xnuSY3ks4qfgXkvGZ16DJtBm8I+zPHoWIOap2Gp9TF0gg7V49WdgRIkW7n/31U1m7oB/8AZOPKaQvWMU3dOvleZuco0Rdzv2tYtLw8/VaiL888TT+7hvUVJvsqFAjnZdy7uL+g=
-Message-ID: <56a8daef0601301046w37ecf5c0s93b906c7d971e272@mail.gmail.com>
-Date: Mon, 30 Jan 2006 10:46:04 -0800
-From: John Ronciak <john.ronciak@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [2.6 patch] drivers/net/e1000/: proper prototypes
-Cc: cramerj@intel.com, john.ronciak@intel.com, ganesh.venkatesan@intel.com,
-       jgarzik@pobox.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060130172047.GB3655@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 30 Jan 2006 13:49:07 -0500
+Received: from mail.kroah.org ([69.55.234.183]:18634 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964864AbWA3StF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 13:49:05 -0500
+Date: Mon, 30 Jan 2006 10:43:02 -0800
+From: Greg KH <greg@kroah.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
+       vserver@list.linux-vserver.org, Herbert Poetzl <herbert@13thfloor.at>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH 1/5] pid: Implement task references.
+Message-ID: <20060130184302.GA17457@kroah.com>
+References: <m1psmba4bn.fsf@ebiederm.dsl.xmission.com> <m1lkwza479.fsf@ebiederm.dsl.xmission.com> <20060129190539.GA26794@kroah.com> <m1mzhe7l2c.fsf@ebiederm.dsl.xmission.com> <20060130045153.GC13244@kroah.com> <43DDA1E7.5010109@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060130172047.GB3655@stusta.de>
+In-Reply-To: <43DDA1E7.5010109@cosmosbay.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I ACK this patch.
+On Mon, Jan 30, 2006 at 06:19:35AM +0100, Eric Dumazet wrote:
+> Example of improvement in kref_put() :
+> 
+> [PATCH] kref : Avoid an atomic operation in kref_put() when the last 
+> reference is dropped. On most platforms, atomic_read() is a plan read of 
+> the counter and involves no atomic at all.
 
-Jeff please apply.
+No, we wat to decrement and test at the same time, to protect against
+any race where someone is incrementing right when we are dropping the
+last reference.
 
---
-Cheers,
-John
+So, thanks, but I'm not going to apply this.
+
+greg k-h

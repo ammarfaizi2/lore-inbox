@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbWA3Lyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWA3MAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932233AbWA3Lyi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 06:54:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWA3Lyi
+	id S932234AbWA3MAW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 07:00:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWA3MAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 06:54:38 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:64745 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932233AbWA3Lyh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 06:54:37 -0500
-Date: Mon, 30 Jan 2006 12:54:36 +0100
-From: Jan Blunck <jblunck@suse.de>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Olaf Hering <olh@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
-Message-ID: <20060130115435.GA9181@hasse.suse.de>
-References: <20060116223431.GA24841@suse.de> <43CC2AF8.4050802@sw.ru> <20060118224953.GA31364@hasse.suse.de> <43CF6170.3050608@sw.ru> <20060119100443.GD10267@hasse.suse.de> <43CF693D.4020104@sw.ru> <20060120190653.GE24401@hasse.suse.de> <43D4907B.4060801@sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43D4907B.4060801@sw.ru>
-User-Agent: Mutt/1.5.9i
+	Mon, 30 Jan 2006 07:00:22 -0500
+Received: from science.horizon.com ([192.35.100.1]:55358 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S932234AbWA3MAW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 07:00:22 -0500
+Date: 30 Jan 2006 07:00:11 -0500
+Message-ID: <20060130120011.24515.qmail@science.horizon.com>
+From: linux@horizon.com
+To: pierre-olivier.gaillard@fr.thalesgroup.com
+Subject: Re: Can on-demand loading of user-space executables be disabled ?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 23, Kirill Korotaev wrote:
-
-> Jan, I still have not heard a single comment about what's wrong with 
-> it... I would really appreciate if you provide me one.
+> As far as I understand what happens when I start a Linux program, the
+> executable file is mmaped into memory and the execution of the code
+> itself prompts Linux to load the required pages of the program.
 > 
+> I expect that this could cause unwanted delays during program execution
+> when a function that has never been used (nor loaded into memory) is
+> called. This delay could be bigger than 10ms while the 2.6 kernel is
+> usually quite predictable thanks to Ingo Molnar and others' work.
+> 
+> Is Linux really using on-demand loading ?
 
-Sorry for the delay. I had to fix a totally bogus patch (mine ;).
+Yes.
 
-The problem with your patch is that it hides too early mntput's. Think about
-following situation:
+> Is it very different from what I described in the first paragraph ?
 
- mntput(path->mnt);   // too early mntput()
- dput(path->dentry);
+No, not really (it's not different).  The pages are mapped, and brought
+in via page faults.  There is read-ahead code, so if you start hitting
+sequential pages, it'll read more than is immediately necessary in the
+hope of keeping up.
 
-Assuming that in-between this sequence someone unmounts the file system, your
-patch will wait for this dput() to finish before it proceeds with unmounting
-the file system. I think this isn't what we want.
+> Can on-demand loading be disabled ? (This would seem convenient for my 
+> applications since I generally start a program that is meant to run as 
+> predictably as possible for months.)
 
-Regards,
-	Jan
+Well, the easy way to disable on-demand loading is munmap().
+Then the data won't be loaded and you'll get SIGSEGV.
 
--- 
-Jan Blunck                                               jblunck@suse.de
-SuSE LINUX AG - A Novell company
-Maxfeldstr. 5                                          +49-911-74053-608
-D-90409 Nürnberg                                      http://www.suse.de
+However, I don't think that's what you mean.
+If you want to keep code in memory, so it can't suffer a page
+fault, either on initial load or by being swapped out to make
+room for something else, use mlock() or mlockall().
+
+If you just want to encourage (but not *insist*) code to be in memory,
+I think Linux implements madvise(MADV_WILLNEED) sensibly.

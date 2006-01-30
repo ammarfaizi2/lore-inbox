@@ -1,59 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbWA3Vi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbWA3VjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030194AbWA3Vi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 16:38:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbWA3Vi6
+	id S1030196AbWA3VjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 16:39:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbWA3VjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 16:38:58 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:50827
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1030194AbWA3Vi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 16:38:58 -0500
-Date: Mon, 30 Jan 2006 13:39:08 -0800
-From: Greg KH <greg@kroah.com>
-To: Aritz Bastida <aritzbastida@gmail.com>
-Cc: Antonio Vargas <windenntw@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Right way to configure a driver? (sysfs, ioctl, proc, configfs,....)
-Message-ID: <20060130213908.GA26463@kroah.com>
-References: <7d40d7190601261206wdb22ccck@mail.gmail.com> <20060127050109.GA23063@kroah.com> <7d40d7190601270230u850604av@mail.gmail.com> <69304d110601270834q5fa8a078m63a7168aa7e288d1@mail.gmail.com> <7d40d7190601300323t1aca119ci@mail.gmail.com>
+	Mon, 30 Jan 2006 16:39:16 -0500
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:64963 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S1030195AbWA3VjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 16:39:12 -0500
+Date: Mon, 30 Jan 2006 13:38:41 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Ren@one-eyed-alien.net
+Cc: Oliver Neukum <oliver@neukum.org>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, "Louis C. Kouvaris" <louisk@comcast.net>,
+       wilford smith <wilford_smith_2@hotmail.com>
+Subject: Re: [linux-usb-devel] Re: [PATCH] Adaptec USBXchange and USB2Xchange support
+Message-ID: <20060130213841.GA20739@one-eyed-alien.net>
+Mail-Followup-To: Ren@one-eyed-alien.net, Oliver Neukum <oliver@neukum.org>,
+	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+	"Louis C. Kouvaris" <louisk@comcast.net>,
+	wilford smith <wilford_smith_2@hotmail.com>
+References: <200509132253.53960.rene@exactcode.de> <200601301422.40500.rene@exactcode.de> <200601301622.19998.oliver@neukum.org> <200601301904.15207.rene@exactcode.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
 Content-Disposition: inline
-In-Reply-To: <7d40d7190601300323t1aca119ci@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200601301904.15207.rene@exactcode.de>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2006 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 30, 2006 at 12:23:14PM +0100, Aritz Bastida wrote:
-> Thank you Antonio and Greg
-> But I still have one question pending:
-> 
-> > >
-> > > 3.- Actually the most difficult config I must do is to pass three
-> > > values from userspace to my module. Specifically two integers and a
-> > > long (it's an offset to a memory zone I've previously defined)
-> > >
-> > > struct meminfo {
-> > >         unsigned int      id;         /* segment identifier */
-> > >         unsigned int      size;     /* size of the memory area */
-> > >         unsigned long   offset;   /* offset to the information */
-> > > };
-> > >
-> > > How would you pass this information in sysfs? Three values in the same
-> > > file? Note that using three different files wouldn't be atomic, and I
-> > > need atomicity.
-> > >
-> 
-> I guess I could pass three values on the same file, like this:
-> $ echo "5  1000  500" > meminfo
-> 
-> I know that breaks the sysfs golden-rule, but how can I pass those
-> values _atomically_ then? Having three different files wouldn't be
-> atomic...
 
-That's what configfs was created for.  I suggest using that for things
-like this, as sysfs is not intended for it.
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+So how do you address a multi-LUN device with the USB2Xchange?
 
-greg k-h
+Matt
+
+On Mon, Jan 30, 2006 at 07:04:15PM +0100, Ren? Rebe wrote:
+> Hi,
+>=20
+> finally - I got multi target (that is a SCSI device other than ID =3D 0 a=
+nd more than than one) working
+> with the USB2Xchange. But it needs two ugly changes in transport.c:
+>=20
+> The first one is only encoding the ID, no LUN:
+>=20
+> --- ../linux-2.6.15/drivers/usb/storage/transport.c	2006-01-03 04:21:10.0=
+00000000 +0100
+> +++ drivers/usb/storage/transport.c	2006-01-30 18:49:25.172317000 +0100
+> @@ -983,7 +983,7 @@
+>  	bcb->Tag =3D ++us->tag;
+>  	bcb->Lun =3D srb->device->lun;
+>  	if (us->flags & US_FL_SCM_MULT_TARG)
+> -		bcb->Lun |=3D srb->device->id << 4;
+> +		bcb->Lun =3D srb->device->id;
+>  	bcb->Length =3D srb->cmd_len;
+> =20
+>  	/* copy the command payload */
+>=20
+> Would it be ok when special case that one only for the Adaptec device, fo=
+r now?
+> Or define a whole new 2nd MULTI_TARG(2) quirk?
+>=20
+> And furthermore the device does not respond to request other than the att=
+ached targets,
+> this might be needed:
+>=20
+> @@ -1069,6 +1069,19 @@
+>  	US_DEBUGP("Bulk Status S 0x%x T 0x%x R %u Stat 0x%x\n",
+>  			le32_to_cpu(bcs->Signature), bcs->Tag,=20
+>  			residue, bcs->Status);
+> +
+> +	if (bcs->Status > US_BULK_STAT_FAIL) {
+> +		/* Adaptec USB2XCHANGE */
+> +		if (us->pusb_dev->descriptor.idVendor =3D=3D 0x03f3 &&
+> +		    us->pusb_dev->descriptor.idProduct =3D=3D 0x2003) {
+> +
+> +			/* This device will send bcs->Status =3D=3D 0x8a for unused targets a=
+nd
+> +			   =3D=3D 0x02 for SRB's that require SENSE. */
+> +			bcs->Status =3D US_BULK_STAT_OK;
+> +			fake_sense =3D 1;
+> +			US_DEBUGP("Patched Bulk status to %d.\n", bcs->Status);
+> +		}
+> +	}
+>  	if (bcs->Tag !=3D us->tag || bcs->Status > US_BULK_STAT_PHASE) {
+>  		US_DEBUGP("Bulk logical error\n");
+>  		return USB_STOR_TRANSPORT_ERROR;
+>=20
+> Yours,
+>=20
+> --=20
+> Ren=E9 Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
+>             http://www.exactcode.de | http://www.t2-project.org
+>             +49 (0)30  255 897 45
+>=20
+>=20
+> -------------------------------------------------------
+> This SF.net email is sponsored by: Splunk Inc. Do you grep through log fi=
+les
+> for problems?  Stop!  Download the new AJAX search engine that makes
+> searching your log files as easy as surfing the  web.  DOWNLOAD SPLUNK!
+> http://sel.as-us.falkag.net/sel?cmd______________________________________=
+_________
+> linux-usb-devel@lists.sourceforge.net
+> To unsubscribe, use the last form field at:
+> https://lists.sourceforge.net/lists/listinfo/linux-usb-devel
+
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
+
+NYET! The evil stops here!
+					-- Pitr
+User Friendly, 6/22/1998
+
+--azLHFNyN32YCQGCU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFD3odhHL9iwnUZqnkRAvEEAJ9REA4WNFBXFWleRyOG7NR9+n5c7gCgqjpN
+IBR+JoFywYdrDRMJtIc6xMc=
+=/iCj
+-----END PGP SIGNATURE-----
+
+--azLHFNyN32YCQGCU--

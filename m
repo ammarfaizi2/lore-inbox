@@ -1,39 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWA3Iwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWA3Iwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWA3Iwe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 03:52:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWA3Iwe
+	id S932137AbWA3Iwg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 03:52:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWA3Iwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 03:52:34 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:52442 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932136AbWA3Iwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 03:52:33 -0500
-Subject: Re: security capabilities on filesystems
-From: Arjan van de Ven <arjan@infradead.org>
-To: Lukasz Stelmach <stlman@poczta.fm>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43DD1FB7.9050509@poczta.fm>
-References: <43DD1FB7.9050509@poczta.fm>
-Content-Type: text/plain
-Date: Mon, 30 Jan 2006 09:52:31 +0100
-Message-Id: <1138611152.2977.4.camel@laptopd505.fenrus.org>
+	Mon, 30 Jan 2006 03:52:36 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:32527 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932137AbWA3Iwf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 03:52:35 -0500
+Date: Mon, 30 Jan 2006 09:52:33 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Linux Kernel Useful Patches (2.4)
+Message-ID: <20060130085233.GA1498@w.ods.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-29 at 21:04 +0100, Lukasz Stelmach wrote:
-> Greetings.
-> 
-> I've poke around for some information but all I got (was this lousy t-shirt)
-> that there is no support for capablities stored on a filesystem. However, I'd
-> like to ask if there are any chances to see this feature soon.
+Hi all,
 
-this has been asked many many times, and the answer seems to always have
-been "no because that's not secure"; I suggest google as a way to find
-out more details...
+after some discussions with some people, I made available a collection of
+useful patches for kernel 2.4. There are only a dozen of patches right
+now, but it's very easy to add more. Amongst those patches can be found
+some drivers, security enhancements, polling optimisations, gcc4 fixes,
+VM optimisations, etc... Links to the original sites as well as a local
+mirror are provided.
+
+They are classified by categories and can easily be found in more than
+one category. I plan to add many more patches such as ACL, squashfs,
+preempt, netdev-random, patch-o-matic, etc... when I have the time, and
+possibly start the same work for 2.6 (everything has been prepared in
+order to make it easy too).
+
+If there are patches you frequently use and wish to be added there,
+feel free to send a link and description.
+
+At the moment, it's hosted on my home server. If it generates too much
+traffic, I'll move it somewhere else.
+
+  link:  http://w.ods.org/kernel/2.4/lkup/
+
+Regards,
+Willy
 

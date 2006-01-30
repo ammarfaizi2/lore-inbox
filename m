@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWA3Jku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWA3Jmo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbWA3Jku (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 04:40:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWA3Jkt
+	id S932167AbWA3Jmo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 04:42:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWA3Jmo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 04:40:49 -0500
-Received: from mtaout3.012.net.il ([84.95.2.7]:14192 "EHLO mtaout3.012.net.il")
-	by vger.kernel.org with ESMTP id S932167AbWA3Jkt (ORCPT
+	Mon, 30 Jan 2006 04:42:44 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:19360 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932167AbWA3Jmn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 04:40:49 -0500
-Date: Mon, 30 Jan 2006 11:40:49 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-Subject: Re: 2.6.16-rc1-mm4
-In-reply-to: <20060129144533.128af741.akpm@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Mark Maule <maule@sgi.com>
-Message-id: <20060130094049.GF23968@granada.merseine.nu>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <20060129144533.128af741.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+	Mon, 30 Jan 2006 04:42:43 -0500
+Message-ID: <43DDF19B.AF498BBD@tv-sign.ru>
+Date: Mon, 30 Jan 2006 13:59:39 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pid: Don't hash pid 0.
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 29, 2006 at 02:45:33PM -0800, Andrew Morton wrote:
-> 
+Eric W. Biederman wrote:
 >
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm4/
+> --- a/kernel/pid.c
+> +++ b/kernel/pid.c
+> @@ -148,6 +148,9 @@ int fastcall attach_pid(task_t *task, en
+>  {
+>  	struct pid *pid, *task_pid;
+>  
+> +	if (!nr)
+> +		goto out;
+> +
+>  	task_pid = &task->pids[type];
+>  	pid = find_pid(type, nr);
+>  	task_pid->nr = nr;
 
-IA64 defconfig breaks with:
+If nr == 0 then task_pid->nr is uninitialized, so
 
-  CC      arch/ia64/sn/pci/tioce_provider.o
-/home/muli/kernel/common-swiotlb/mm4.swiotlb/arch/ia64/sn/pci/tioce_provider.c:721:32:
-macro "ATE_MAKE" requires 3 arguments, but only 2 given
-/home/muli/kernel/common-swiotlb/mm4.swiotlb/arch/ia64/sn/pci/tioce_provider.c:
-In function `tioce_reserve_m32':
+> @@ -169,6 +172,9 @@ static fastcall int __detach_pid(task_t 
+>  	int nr = 0;
+>  
+>  	pid = &task->pids[type];
+> +	if (!pid->nr)
+> +		goto out;
 
-Attached patch fixes it. Mark, looks like it's your Altix MSI support
-patch (http://patchwork.ozlabs.org/linuxppc64/patch?id=4231) that
-broke it. Is the fix correct?
+this is unsafe.
 
-Signed-off-by: Muli Ben-Yehuda <mulix@mulix.org>
+Yes, INIT_TASK() sets pids[...].nr == 0, but this is fragile and at
+least needs a comment.
 
-diff -Naurp --exclude-from /home/muli/w/dontdiff mm4.orig/arch/ia64/sn/pci/tioce_provider.c mm4.ate/arch/ia64/sn/pci/tioce_provider.c
---- mm4.orig/arch/ia64/sn/pci/tioce_provider.c	2006-01-30 10:34:57.000000000 +0200
-+++ mm4.ate/arch/ia64/sn/pci/tioce_provider.c	2006-01-30 11:27:58.000000000 +0200
-@@ -717,7 +717,7 @@ tioce_reserve_m32(struct tioce_kernel *c
- 	while (ate_index <= last_ate) {
- 		u64 ate;
- 
--		ate = ATE_MAKE(0xdeadbeef, ps);
-+		ate = ATE_MAKE(0xdeadbeef, ps, 0);
- 		ce_kern->ce_ate3240_shadow[ate_index] = ate;
- 		tioce_mmr_storei(ce_kern, &ce_mmr->ce_ure_ate3240[ate_index],
- 				 ate);
+Eric, Andrew, I think I have a better patch, will post in a minute.
 
-
--- 
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
-
+Oleg.

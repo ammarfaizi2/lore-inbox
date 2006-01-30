@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWA3QLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWA3QMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932354AbWA3QLR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 11:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWA3QLR
+	id S932355AbWA3QMI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 11:12:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWA3QMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 11:11:17 -0500
-Received: from tassadar.physics.auth.gr ([155.207.123.25]:44003 "EHLO
-	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
-	id S932354AbWA3QLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 11:11:16 -0500
-Date: Mon, 30 Jan 2006 18:11:03 +0200 (EET)
-From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
-To: Neil Brown <neilb@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID autodetection not working when booting with initramfs
-In-Reply-To: <17373.20667.838469.977966@cse.unsw.edu.au>
-Message-ID: <Pine.LNX.4.64.0601301808180.24345@tassadar.physics.auth.gr>
-References: <Pine.LNX.4.64.0601300103110.2016@tassadar.physics.auth.gr>
- <17373.20667.838469.977966@cse.unsw.edu.au>
+	Mon, 30 Jan 2006 11:12:08 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:9092 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S932355AbWA3QMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 11:12:06 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Mon, 30 Jan 2006 17:11:05 +0100
+To: schilling@fokus.fraunhofer.de, acahalan@gmail.com
+Cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jengelh@linux01.gwdg.de, bzolnier@gmail.com
+Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future Linux (stirring up a hornets' nest) ]
+Message-ID: <43DE3A99.nail16ZK1MAWN@burner>
+References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com>
+ <43DCA097.nailGPD11GI11@burner>
+ <20060129112613.GA29356@merlin.emma.line.org>
+ <Pine.LNX.4.61.0601292139080.2596@yvahk01.tjqt.qr>
+ <43DD2A8A.nailGVQ115GOP@burner>
+ <787b0d920601291328k52191977h3778a7c833d640f2@mail.gmail.com>
+In-Reply-To: <787b0d920601291328k52191977h3778a7c833d640f2@mail.gmail.com>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Albert Cahalan <acahalan@gmail.com> wrote:
 
-> 	/*
-> 	 * check if there is an early userspace init.  If yes, let it do all
-> 	 * the work
-> 	 */
+> Let's address the second bug first. Linux provides full
+> bus number and LUN info for all block devices. You get it
+> like this:
 >
-> So yes, it is by design.  Assembling arrays with mdadm gives you a
-> lot more control than the kernel-autodetect so as you have an
-> initramfs, it is a good idea to make use of it.
->
-> If you *really* want to use the autodetect functionality, you can look
-> around for a program called 'raidautorun'.  It does triggers the
-> autodetect function from userspace.
->
+> struct stat sbuf;
+> stat("/dev/hdc", &sbuf);
+> int bus = sbuf.st_mode>>12;
+> int target = major(sbuf.st_rdev);
+> int lun = minor(sbuf.st_rdev);
 
- 	Thank you , raidautorun did the trick. I am trying to build an 
-initramfs as much generic as possible to be used with hundreds of systems, 
-so doing a custom image for every possible raid combination is really not 
-an options compared to autodetection.
+Now tell me how to match this with information from /dev/sg*
 
- 	Thnx again,
+Jörg
 
---
-============================================================================
-
-Dimitris Zilaskos
-
-Department of Physics @ Aristotle University of Thessaloniki , Greece
-PGP key : http://tassadar.physics.auth.gr/~dzila/pgp_public_key.asc
- 	  http://egnatia.ee.auth.gr/~dzila/pgp_public_key.asc
-MD5sum  : de2bd8f73d545f0e4caf3096894ad83f  pgp_public_key.asc
-============================================================================
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

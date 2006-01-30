@@ -1,90 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWA3AvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWA3A5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932097AbWA3AvG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 19:51:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWA3AvG
+	id S1751213AbWA3A5x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 19:57:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751214AbWA3A5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 19:51:06 -0500
-Received: from xenotime.net ([66.160.160.81]:2529 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751213AbWA3AvF (ORCPT
+	Sun, 29 Jan 2006 19:57:53 -0500
+Received: from macferrin.com ([65.98.32.91]:51464 "EHLO macferrin.com")
+	by vger.kernel.org with ESMTP id S1751213AbWA3A5w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 19:51:05 -0500
-Date: Sun, 29 Jan 2006 16:51:23 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: akpm@osdl.org, ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1-mm4
-Message-Id: <20060129165123.58b62b36.rdunlap@xenotime.net>
-In-Reply-To: <20060129235853.GD3777@stusta.de>
-References: <20060129144533.128af741.akpm@osdl.org>
-	<20060129233403.GA3777@stusta.de>
-	<20060129154002.360c7294.rdunlap@xenotime.net>
-	<20060129235853.GD3777@stusta.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 29 Jan 2006 19:57:52 -0500
+Message-ID: <43DD644B.8070501@macferrin.com>
+Date: Sun, 29 Jan 2006 17:56:43 -0700
+From: Ken MacFerrin <lists@macferrin.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Thunderbird/1.0.7 Mnenhy/0.7
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>, s0348365@sms.ed.ac.uk,
+       hugh@veritas.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: kernel BUG at mm/rmap.c:486 - kernel 2.6.15-r1
+References: <43DAE307.5010306@macferrin.com> <9a8748490601281031x514f0b9ckffcdce64148ebd8d@mail.gmail.com> <43DD3DDF.6020901@macferrin.com>
+In-Reply-To: <43DD3DDF.6020901@macferrin.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Jan 2006 00:58:53 +0100 Adrian Bunk wrote:
+Ken MacFerrin wrote:
+> Jesper Juhl wrote:
+> 
+>> On 1/28/06, Ken MacFerrin <lists@macferrin.com> wrote:
+>>
+>>> I started getting hard lockups on my desktop PC with the error "kernel
+>>> BUG at mm/rmap.c:487" starting with kernel 2.6.13 and continuing through
+>>> 2.6.14.  After switching to 2.6.15 the lockups have continued with the
+>>> message "kernel BUG at mm/rmap.c:486".
+>>>
+>>> The frequency and circumstance are completely random which originally
+>>> had me suspecting bad memory but after running Memtest86+ for over 12
+>>> hours without error I'm at a loss.
+>>>
+>>> I'm running the binary Nvidia driver so I'll understand if I can't get
+>>> help here but in searching through the list archives it would seem I'm
+>>> not alone and I am willing to try any patches that may help diagnose the
+>>> issue.  The crash happens at least daily and I've seen no difference in
+>>> running kernels with or without PREEMPT enabled.
+>>>
+>>
+>> If you don't actually *need* accelerated 3D (or if you could do
+>> without it for a while), switching to the "nv" driver for a few
+>> days/weeks would be interresting. If the crashes go away that would
+>> point towards the nvidia driver, if they don't go away we'll get a
+>> nice untainted crash report.
+>>
+> 
+> Thanks to all for the response.  In hopes of helping to isolate this I 
+> will move back over to the "nv" driver to see if I can recreate the 
+> problem and get a clean bug report before applying Hugh's patch.
+> 
+> This crash currently happens daily for me so I should be able to test 
+> this relatively quickly.
+> -Ken
 
-> On Sun, Jan 29, 2006 at 03:40:02PM -0800, Randy.Dunlap wrote:
-> > On Mon, 30 Jan 2006 00:34:03 +0100 Adrian Bunk wrote:
-> > 
-> > > On Sun, Jan 29, 2006 at 02:45:33PM -0800, Andrew Morton wrote:
-> > > >...
-> > > > Changes since 2.6.16-rc1-mm3:
-> > > >...
-> > > > +i386-add-a-temporary-to-make-put_user-more-type-safe.patch
-> > > > 
-> > > >  x86 fixes/features
-> > > >...
-> > > 
-> > > This patch generates so many "ISO C90 forbids mixed declarations and code"
-> > > warnings that I start to consider Andrew's rejection of my "mark 
-> > > virt_to_bus/bus_to_virt as __deprecated on i386" patch due to the 
-> > > warnings it generates a personal insult...
-> > 
-> > I prefer to think of it as reasons why neither of them
-> > should be merged.
-> 
-> 
-> Some remarks:
-> 
-> 
-> I forgot the smiley.
+Unfortunately it seems that the "nv" driver in Xorg does not currently 
+support multiple displays on a single video card with dual heads.  Not 
+being able to at least run xinerama is a deal breaker for me so I'm back 
+to the binary nvidia driver using twinview.  At this point I will apply 
+Hugh's patch and post any further "Bad page state" and "Bad rmap"
+messages as instructed.
 
-OK.  I guess I should not have replied at all then.
+Thanks,
+Ken
 
-> If we want to get rid of a long deprecated API (as in the 
-> virt_to_bus/bus_to_virt case), adding warnings could help making 
-> maintainers aware of the fact that the API is deprecated.
-
-I seriously expect that the maintainers are already aware
-of that.  It's not new(s).
-
-> In such cases the warnings are supposed to be present only temporarily 
-> until the code using the deprecated API got fixed.
-> 
-> It might not be visible for people only using allyesconfig/allmodconfig, 
-> but BROKEN_ON_SMP drivers often spit screenfuls of warnings. That's OK, 
-> and most of them have been fixed during the last years.
-> 
-> And otherwise, we could simply remove __deprecated from the kernel.
-> 
-> Andrew rejected my patch to add -Werror-implicit-function-declaration to 
-> the CFLAGS which helps us to avoid a certain class of nasty runtime 
-> errors because it turned virt_to_bus/bus_to_virt link errors on powerpc 
-> into compile errors (sic).
-> 
-> 
-> > ~Randy
-> 
-> cu
-> Adrian
-
-
----
-~Randy

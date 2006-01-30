@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWA3JYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbWA3J0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbWA3JYq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 04:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWA3JYp
+	id S932161AbWA3J0s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 04:26:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbWA3J0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 04:24:45 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:42221 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932163AbWA3JYp (ORCPT
+	Mon, 30 Jan 2006 04:26:48 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:44781 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932161AbWA3J0s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 04:24:45 -0500
-Date: Mon, 30 Jan 2006 10:24:33 +0100 (MET)
+	Mon, 30 Jan 2006 04:26:48 -0500
+Date: Mon, 30 Jan 2006 10:26:39 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: olaf+list.linux-kernel@olafdietsche.de, eike-kernel@sf-tec.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.16-rc1-git4] accessfs: a permission managing filesystem
-In-Reply-To: <20060130011630.60f402d8.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0601301024150.6405@yvahk01.tjqt.qr>
-References: <87ek3a8qpy.fsf@goat.bogus.local> <200601231257.28796@bilbo.math.uni-mannheim.de>
- <87mzhgyomh.fsf@goat.bogus.local> <20060128150137.5ba5af04.akpm@osdl.org>
- <Pine.LNX.4.61.0601301006240.6405@yvahk01.tjqt.qr> <20060130011630.60f402d8.akpm@osdl.org>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix console utf8 composing
+In-Reply-To: <43AF7F00.50304@ums.usu.ru>
+Message-ID: <Pine.LNX.4.61.0601301025550.6405@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0512242300360.29877@yvahk01.tjqt.qr>
+ <43AE2B06.4010906@ums.usu.ru> <Pine.LNX.4.61.0512252209380.15152@yvahk01.tjqt.qr>
+ <43AF7F00.50304@ums.usu.ru>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >> +static DECLARE_MUTEX(accessfs_sem);
->> >
->> >Please use a `struct mutex'.
->> 
->> You know what's irritating? That DECLARE_MUTEX starts a semaphore and
->> DEFINE_MUTEX a mutex.
+>> > Differences between our versions are described below.
 >
->DECLARE_MUTEX will go away.
+>> What do you think we should do? I have not given this fix any thought,
+>> because it applied fine for long time (+/- fuzz), so I cannot comment on
+>> anything in your version being better or not.
+>
+> If you really don't care about characters beyond 0xffff (but see below),
+> please consider applying this on top of your patch:
 
-And be replaced by... DEFINE_SEMAPHORE?
+Could you just send the whole thing to mainline once 2.6.16 is out? Thanks.
+
+
 
 
 Jan Engelhardt

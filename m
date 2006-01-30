@@ -1,44 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWA3Pjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWA3Pqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWA3Pjv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 10:39:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWA3Pju
+	id S932342AbWA3Pqb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 10:46:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbWA3Pqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 10:39:50 -0500
-Received: from mba.ocn.ne.jp ([210.190.142.172]:6113 "EHLO smtp.mba.ocn.ne.jp")
-	by vger.kernel.org with ESMTP id S932294AbWA3Pju (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 10:39:50 -0500
-Date: Tue, 31 Jan 2006 00:39:27 +0900 (JST)
-Message-Id: <20060131.003927.112625901.anemo@mba.ocn.ne.jp>
-To: gdavis@mvista.com
-Cc: rmk+serial@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] serial: Add spin_lock_init() in 8250
- early_serial_setup() to init port.lock
-From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-In-Reply-To: <20060126032403.GG5133@mvista.com>
-References: <20060126032403.GG5133@mvista.com>
-X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
-X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Jan 2006 10:46:31 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:12050 "EHLO
+	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S932342AbWA3Pqa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 10:46:30 -0500
+Date: Mon, 30 Jan 2006 15:46:17 +0000
+From: Martin Michlmayr <tbm@cyrius.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Atsushi Nemoto <anemo@mba.ocn.ne.jp>, hugh@veritas.com,
+       linux-kernel@vger.kernel.org, t.sailer@alumni.ethz.ch, perex@suse.cz,
+       ralf@linux-mips.org
+Subject: Re: ALSA on MIPS platform
+Message-ID: <20060130154617.GC15563@deprecation.cyrius.com>
+References: <Pine.LNX.4.61.0601261910230.15596@goblin.wat.veritas.com> <20060128.004540.59467062.anemo@mba.ocn.ne.jp> <s5h7j8l64ua.wl%tiwai@suse.de> <20060130.185608.30186596.nemoto@toshiba-tops.co.jp> <s5hoe1u3to1.wl%tiwai@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hoe1u3to1.wl%tiwai@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 25 Jan 2006 22:24:03 -0500, "George G. Davis" <gdavis@mvista.com> said:
+* Takashi Iwai <tiwai@suse.de> [2006-01-30 11:18]:
+> Well, as Hugu pointed out, that page reservation plays no longer any
+> role.  The patch below should work too on 2.6.15 or later.
 
-gdavis> Need spin_lock_init(&serial8250_ports[port->line].port.lock)
-gdavis> in early_serial_setup() since we're copying struct uart_port
-gdavis> *port into serial8250_ports[port->line].port and *port.lock is
-gdavis> typically unitiliased by the caller.
+It doesn't solve the problem I have, those "wait source ready timeout
+0x1410 [0x8c8c8c8c]" messages on a Cobalt Qube2 with a 64-bit MIPS
+kernel.
 
-Is this really needed?   The port.lock will be initialized in
-uart_set_options() or uart_add_one_port().
 
-I think spin_lock_init() in serial8250_isa_init_ports() can be omitted
-also.
+Detecting hardware: de4x5 via82cxxx es1371 usb_uhci
+de4x5 disabled in configuration.
+Skipping unavailable/built-in via82cxxx module.
+Skipping unavailable/built-in es1371 module.
+Loading uhci_hcd module.
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+USB Universal Host Controller Interface driver v2.3
+uhci_hcd 0000:00:09.2: Found HC with no IRQ.  Check BIOS/PCI 0000:00:09.2 setup!
+uhci_hcd 0000:00:09.2: init 0000:00:09.2 fail, -19
+Running 0dns-down to make sure resolv.conf is ok...done.
+Setting up networking...done.
+Starting hotplug subsystem:
+   pci     
+     uhci-hcd: already loaded
+wait source ready timeout 0x1410 [0x8c8c8c8c]  <- repeated 180 times
+AC'97 0 analog subsections not ready
+wait source ready timeout 0x1410 [0x8c8c8c8c] <- repeated 453 times
+     snd-ens1371: loaded successfully
+   pci      [success]
+   usb     
+   usb      [success]
+   isapnp  
+   isapnp   [success]
+   ide     
+   ide      [success]
+   input   
+   input    [success]
+   scsi    
+   scsi     [success]
+done.
+Setting up IP spoofing protection: rp_filter.
+Configuring network interfaces...done.
+Starting portmap daemon: portmap.
 
----
-Atsushi Nemoto
+-- 
+Martin Michlmayr
+http://www.cyrius.com/

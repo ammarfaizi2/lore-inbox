@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030180AbWA3V1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWA3V26@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030180AbWA3V1p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 16:27:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030182AbWA3V1p
+	id S1030190AbWA3V26 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 16:28:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbWA3V25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 16:27:45 -0500
-Received: from bay104-f5.bay104.hotmail.com ([65.54.175.15]:10413 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1030180AbWA3V1o
+	Mon, 30 Jan 2006 16:28:57 -0500
+Received: from mail0.lsil.com ([147.145.40.20]:29323 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S1030182AbWA3V24 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 16:27:44 -0500
-Message-ID: <BAY104-F5C6E5D461205362612E08C0090@phx.gbl>
-X-Originating-IP: [137.207.140.83]
-X-Originating-Email: [kamrankarimi@hotmail.com]
-In-Reply-To: <Pine.LNX.4.62.0601302148500.30329@pademelon.sonytel.be>
-From: "Kamran Karimi" <kamrankarimi@hotmail.com>
-To: geert@linux-m68k.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DIPC alpha2 for i386, Alpha, SPARC, and M68k
-Date: Mon, 30 Jan 2006 15:27:43 -0600
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 30 Jan 2006 21:27:43.0787 (UTC) FILETIME=[01B247B0:01C625E4]
+	Mon, 30 Jan 2006 16:28:56 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 3/3] megaraid_sas: support for 1078 type controller added
+Date: Mon, 30 Jan 2006 14:28:41 -0700
+Message-ID: <F331B95B72AFFB4B87467BE1C8E9CF5F221260@NAMAIL2.ad.lsil.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 3/3] megaraid_sas: support for 1078 type controller added
+Thread-Index: AcYh63GGL6+BapisS4udLTQwRgUHAQD9rpNw
+From: "Moore, Eric" <Eric.Moore@lsil.com>
+To: "Sumant Patro" <sumantp@lsil.com>, <hch@lst.de>,
+       <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
+       <James.Bottomley@SteelEye.com>
+Cc: "Bagalkote, Sreenivas" <Sreenivas.Bagalkote@engenio.com>,
+       "Kolli, Neela" <Neela.Kolli@engenio.com>,
+       "Yang, Bo" <Bo.Yang@engenio.com>,
+       "Doelfel, Hardy" <Hardy.Doelfel@engenio.com>
+X-OriginalArrivalTime: 30 Jan 2006 21:28:41.0776 (UTC) FILETIME=[2442B300:01C625E4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Works now. Please try again.
+On Wednesday, January 25, 2006 1:06 PM, Sumant Patro wrote:
 
-The problem was this: there seems to be a delay on cs.uwindsor.ca between 
-the time you upload something and the time it actually shows up on the page.
+> 
+> Hello All,
+> 
+> 	This patch adds support for 1078 type controller 
+> (device id : 0x62).
+> Patch is made against the latest git snapshot of scsi-misc-2.6 tree.
+> 
+> 	Please review it and all comments are appreciated.
+> 
+> Thanks,
+> 
 
--Kamran
+James - NACK this patch.
+I noticed you have picked up this patch in your scsi-rc-fixes stream.
+http://www.kernel.org/pub/linux/kernel/people/jejb/scsi-rc-fixes-2.6.cha
+ngelog
 
+There is a mistake with this patch.  This SAS1078 device id (0x62) is
+the same
+id we are claiming for our fusion drivers. Our device ID is 0x62.  You
+can see
+that at this link: http://pci-ids.ucw.cz/iii/?i=10000062.  I haven't got
+around
+to it, but I plan to post support for that soon.
 
->On Mon, 30 Jan 2006, Kamran Karimi wrote:
-> > The file http://www.cs.uwindsor.ca/~kamran/downloads/dipc-2.1-alpha2.tgz
->
->403 Forbidden
->
->Gr{oetje,eeting}s,
->
->						Geert
->
->--
->Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- 
->geert@linux-m68k.org
->
->In personal conversations with technical people, I call myself a hacker. 
->But
->when I'm talking to journalists I just say "programmer" or something like 
->that.
->							    -- Linus Torvalds
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+A different version of SAS1078 is being manufactured by the megaraid
+group.  
+Neela Syam Kolli is aware of this issue, and I believe they are working
+out the details, 
+and will be posting a patch to solve this.
+
+Can this patch be backed out if its not fixed before 2.6.16 kernel is
+released.
+
+Eric Moore
+
 
 

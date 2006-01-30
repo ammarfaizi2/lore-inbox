@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWA3RZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWA3R0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964830AbWA3RZg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 12:25:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWA3RZg
+	id S964790AbWA3R0n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 12:26:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWA3R0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 12:25:36 -0500
-Received: from bay108-dav12.bay108.hotmail.com ([65.54.162.84]:21235 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S964830AbWA3RZf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 12:25:35 -0500
-Message-ID: <BAY108-DAV12766C7B1A084C00C833FE93090@phx.gbl>
-X-Originating-IP: [143.182.124.2]
-X-Originating-Email: [multisyncfe991@hotmail.com]
-From: "John Smith" <multisyncfe991@hotmail.com>
-To: <netdev@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-References: <20060124225919.GC12566@suse.de> <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de> <20060125121125.GH5465@suse.de> <4807377b0601251137r7621216byc47b03a3c634557c@mail.gmail.com> <4807377b0601251628k4227dad0ld731f2c25c211b91@mail.gmail.com> <BAY108-DAV111F6EF46F6682FEECCC1593140@phx.gbl> <4807377b0601271404w6dbfcff6s4de1c3f785dded9f@mail.gmail.com>
-Subject: Can I do a regular read to simulate prefetch instruction?
-Date: Mon, 30 Jan 2006 10:25:34 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-OriginalArrivalTime: 30 Jan 2006 17:25:35.0228 (UTC) FILETIME=[2E001BC0:01C625C2]
+	Mon, 30 Jan 2006 12:26:43 -0500
+Received: from mail.kroah.org ([69.55.234.183]:35757 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964790AbWA3R0m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 12:26:42 -0500
+Date: Mon, 30 Jan 2006 09:26:09 -0800
+From: Greg KH <greg@kroah.com>
+To: "Mike D. Day" <ncmike@us.ibm.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, xen-devel@lists.xensource.com,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Xen-devel] Re: [PATCH 2.6.12.6-xen] sysfs attributes for xen
+Message-ID: <20060130172609.GA15949@kroah.com>
+References: <43DAD4DB.4090708@us.ibm.com> <1138637931.19801.101.camel@localhost.localdomain> <43DE45A4.6010808@us.ibm.com> <1138640666.19801.106.camel@localhost.localdomain> <43DE4A1D.4050501@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43DE4A1D.4050501@us.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jan 30, 2006 at 12:17:17PM -0500, Mike D. Day wrote:
+> Dave Hansen wrote:
+> >In the final version, there will be available Xen headers, and the patch
+> >won't need the open-coded 1024?
+> 
+> Good question, I need some advice. The Xen hcall headers get soft-linked 
+> into every paravirtualized OS tree: linux, bsd, solaris, etc. In linux 
+> right now the xen version.h shows up as  /include/asm-xen/version.h.
+> 
+> This file uses typedefs for every important parameter. For example, typedef 
+> char [1024] xen_capabilities_info_t;. 
+> But as Greg says TYPEDEFS ARE EVIL. 
 
-I find out some network card drivers (e.g. e1000 driver) use prefetch 
-instruction
-to reduce memory access latency and speed up data operation. My question is:
-Support we want to pre-read a skb buffer into the cache, what is the 
-difference
-between the following two methods, i.e. what is the different when using 
-prefetch
-and using a regular read opertation?
-1. use prefetch instruction to stimulate a pre-fetch of the skb address,
-    e.g. prefetch(skb);
-2. use an assignment statement to stimulate a pre-fetch of the skb address,
-    e.g. skb1 = skb;
+Then just make it a structure.  All the operating systems will be able
+to handle that just fine :)
 
-I was told the data will be prefetched into a so-called prefetching queue 
-only by
-using prefetching instruction? Is this true?
+thanks,
 
-Thanks,
-
-John
-
-
+greg k-h

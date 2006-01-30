@@ -1,37 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWA3SQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWA3SXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbWA3SQp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 13:16:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWA3SQp
+	id S1751283AbWA3SXT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 13:23:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWA3SXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 13:16:45 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:17615 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751275AbWA3SQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 13:16:44 -0500
-Subject: Re: [PATCH 1/2] I2O: don't disable PCI device if it is enabled
-	before probing
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43D566DB.2010103@shadowconnect.com>
-References: <43D566DB.2010103@shadowconnect.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 30 Jan 2006 18:17:47 +0000
-Message-Id: <1138645069.31089.79.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Mon, 30 Jan 2006 13:23:19 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18447 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751283AbWA3SXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 13:23:18 -0500
+Date: Mon, 30 Jan 2006 19:23:17 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Gabriel C." <crazy@pimpmylinux.org>, linville@tuxdriver.com
+Cc: linux-kernel@vger.kernel.org, da.crew@gmx.net, netdev@vger.kernel.org
+Subject: [2.6 patch] PCMCIA=m, HOSTAP_CS=y is not a legal configuration
+Message-ID: <20060130182317.GD3655@stusta.de>
+References: <20060130133833.7b7a3f8e@zwerg>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060130133833.7b7a3f8e@zwerg>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-01-24 at 00:29 +0100, Markus Lidel wrote:
-> Changes:
-> --------
-> - If PCI device is enabled before probing, it will not be disabled at
->    exit.
+On Mon, Jan 30, 2006 at 01:38:33PM +0100, Gabriel C. wrote:
 
-Looks ok for this case but be warned that pdev->is_enabled is not a safe
-check for many devices as the may be BIOS critical, or video for example
-but not in the Linux list of things _it_ enabled.
+> Hello,
+
+Hallo Gabriel,
+
+> I got this compile error with 2.6.16-rc1-mm4 , config attached. 
+> 
+> 
+>   LD      .tmp_vmlinux1
+>...
+> `sandisk_set_iobase':hostap_cs.c:(.text+0x801ad): undefined reference
+> to `pcmcia_access_configuration_register' :hostap_cs.c:(.text+0x801f3):
+> undefined reference to `pcmcia_access_configuration_register'
+> drivers/built-in.o: In function
+> `prism2_pccard_cor_sreset':hostap_cs.c:(.text+0x80254): undefined
+> reference to
+> `pcmcia_access_configuration_register' :hostap_cs.c:(.text+0x80289):
+> undefined reference to
+> `pcmcia_access_configuration_register' :hostap_cs.c:(.text+0x80325):
+> undefined reference to `pcmcia_access_configuration_register'
+> [more errors]
+>...
+
+thanks for your report, a patch is below.
+
+> Gabriel 
+
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+CONFIG_PCMCIA=m, CONFIG_HOSTAP_CS=y doesn't compile.
+
+Reported by "Gabriel C." <crazy@pimpmylinux.org>.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.16-rc1-mm4/drivers/net/wireless/hostap/Kconfig.old	2006-01-30 19:00:44.000000000 +0100
++++ linux-2.6.16-rc1-mm4/drivers/net/wireless/hostap/Kconfig	2006-01-30 19:01:04.000000000 +0100
+@@ -75,7 +75,7 @@
+ 
+ config HOSTAP_CS
+ 	tristate "Host AP driver for Prism2/2.5/3 PC Cards"
+-	depends on PCMCIA!=n && HOSTAP
++	depends on PCMCIA && HOSTAP
+ 	---help---
+ 	Host AP driver's version for Prism2/2.5/3 PC Cards.
+ 
 

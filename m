@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWA3KjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWA3Kpf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932209AbWA3KjR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 05:39:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWA3KjR
+	id S932206AbWA3Kpf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 05:45:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbWA3Kpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 05:39:17 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:36036 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932208AbWA3KjQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 05:39:16 -0500
-Subject: Re: [PATCH 2.6.16-rc1-git4] accessfs: a permission managing
-	filesystem
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Andrew Morton <akpm@osdl.org>, olaf+list.linux-kernel@olafdietsche.de,
-       eike-kernel@sf-tec.de, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0601301135540.12495@yvahk01.tjqt.qr>
-References: <87ek3a8qpy.fsf@goat.bogus.local>
-	 <200601231257.28796@bilbo.math.uni-mannheim.de>
-	 <87mzhgyomh.fsf@goat.bogus.local> <20060128150137.5ba5af04.akpm@osdl.org>
-	 <Pine.LNX.4.61.0601301006240.6405@yvahk01.tjqt.qr>
-	 <20060130011630.60f402d8.akpm@osdl.org>
-	 <Pine.LNX.4.61.0601301024150.6405@yvahk01.tjqt.qr>
-	 <1138614388.2977.10.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.61.0601301050260.6405@yvahk01.tjqt.qr>
-	 <1138614856.2977.16.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.61.0601301114160.25336@yvahk01.tjqt.qr>
-	 <1138617073.2977.21.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.61.0601301135540.12495@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Mon, 30 Jan 2006 11:39:10 +0100
-Message-Id: <1138617550.2977.24.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 30 Jan 2006 05:45:35 -0500
+Received: from inutil.org ([193.22.164.111]:14545 "EHLO
+	vserver151.vserver151.serverflex.de") by vger.kernel.org with ESMTP
+	id S932206AbWA3Kpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 05:45:34 -0500
+Date: Mon, 30 Jan 2006 11:45:11 +0100
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Moritz Muehlenhoff <jmm@inutil.org>, linux-kernel@vger.kernel.org
+Subject: Re: Display corruption with radeonfb after resuming from suspend-to-ram
+Message-ID: <20060130104511.GA9782@informatik.uni-bremen.de>
+References: <20060128155237.GA4601@informatik.uni-bremen.de> <20060129153811.GE1764@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060129153811.GE1764@elf.ucw.cz>
+User-Agent: Mutt/1.5.11
+From: Moritz Muehlenhoff <jmm@inutil.org>
+X-SA-Exim-Connect-IP: 134.102.116.14
+X-SA-Exim-Mail-From: jmm@inutil.org
+X-SA-Exim-Scanned: No (on vserver151.vserver151.serverflex.de); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-30 at 11:36 +0100, Jan Engelhardt wrote:
-> >
-> >well... maybe.
-> >If you need to mess inside irq context, spinlocks sound more the right
-> >thing. Or if you need to do a "I'm done" in the irq and a "sleep until
-> >done" thing in process context, then you really should use completions
-> >instead.
+Pavel Machek wrote:
+> > Resuming from suspend-to-ram works flawless in roughly 98% of all cases, but
+> > sometimes the display gets corrupted; some bits are set in the display in a
+> > weird way and the display starts to shift with every line break. An
+> > example:
 > 
-> Hm, is it allowed to call copy_{from,to}_user() in irq context?
+> Happens here, too... or happened, I think I have a solution. Reseting
+> video card during resume seems like a way to go.
+> 
+> Could you get s2ram.c from www.sf.net/projects/suspend, and add your
+> X31 with same parameters as X32 system, and let me know if it helps?
+> 
+> (You'll need an -mm kernel for parameter to be passed into kernel).
 
-absolutely not.
+I'll do that, but it might take a few weeks until I can tell you wether
+it worked, the bug only arises every few weeks.
 
-IRQ context has no defined "userspace" context at all, so even if
-copy_from/to_user wouldn't sleep (they do, and that alone makes it
-"illegal" to do already) it would be highly undefined what you would be
-copying to/from.
-
-
-
+Cheers,
+        Moritz

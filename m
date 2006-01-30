@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWA3Moc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWA3Mo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932245AbWA3Moc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 07:44:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWA3Moc
+	id S932249AbWA3Mo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 07:44:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWA3Mo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 07:44:32 -0500
-Received: from mail4.hitachi.co.jp ([133.145.228.5]:17052 "EHLO
-	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP id S932245AbWA3Mob
+	Mon, 30 Jan 2006 07:44:29 -0500
+Received: from mail8.hitachi.co.jp ([133.145.228.43]:3970 "EHLO
+	mail8.hitachi.co.jp") by vger.kernel.org with ESMTP id S932246AbWA3Mo1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 07:44:31 -0500
-Message-ID: <43DE0A3A.4090404@sdl.hitachi.co.jp>
-Date: Mon, 30 Jan 2006 21:44:42 +0900
+	Mon, 30 Jan 2006 07:44:27 -0500
+Message-ID: <43DE0A41.8020207@sdl.hitachi.co.jp>
+Date: Mon, 30 Jan 2006 21:44:49 +0900
 From: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
 User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 X-Accept-Language: ja, en-us, en
@@ -19,11 +19,11 @@ To: Andrew Morton <akpm@osdl.org>,
        Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
        Prasanna S Panchamukhi <prasanna@in.ibm.com>,
        "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
-Cc: SystemTAP <systemtap@sources.redhat.com>,
+CC: SystemTAP <systemtap@sources.redhat.com>,
        Jim Keniston <jkenisto@us.ibm.com>, linux-kernel@vger.kernel.org,
        Yumiko Sugita <sugita@sdl.hitachi.co.jp>,
        Satoshi Oshima <soshima@redhat.com>, Hideo Aoki <haoki@redhat.com>
-Subject: [PATCH][0/2] kprobe: kprobe-booster against 2.6.16-rc1 for i386
+Subject: [PATCH][1/2] kprobe: kprobe-booster against 2.6.16-rc1 for i386
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -31,123 +31,11 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi, Andrew
 
-I would like to propose the kprobe-booster and kretprobe-booster
-to reduce overhead of kprobes and kretprobes.
-They have already been discussed on the SystemTap ML.
+Here is a patch to clean up kprobe's resume_execute() for i386 arch
+against linux-2.6.16-rc1 and also appliable against 2.6.16-rc1-mm4.
 
-I send a couple of patches of kprobe-booster and a patch of
-kretprobe-booster in next mails.
-These patches are against 2.6.16-rc1 and can be applied against
-2.6.16-rc1-mm4.
-
-Here are the descriptions of kprobe-booster and kretprobe-booster.
-
-The description of kprobe-booster:
-==================================
-Current kprobe copies the original instruction at the probe
-point and replaces it with a breakpoint instruction (int3).
-When the kernel hits the probe point, kprobe handler is invoked.
-And the copied instruction is single-step executed on the copied
-buffer (not on the original address) by kprobe. After that,
-the kprobe checks registers and modify it (if need) as if the
-instructions was executed on the original address.
-
-My proposal is based on the fact there are many instructions which
-do NOT require the register modification after the single-step
-execution. When the copied instruction is a kind of them, kprobe
-just jumps back to the next instruction after single-step execution.
-If so, why don't we execute those instructions directly?
-
-With kprobe-booster patch, kprobes will execute a copied
-instruction directly and (if need) jump back to original code.
-This direct execution is executed when the kprobe don't have
-both post_handler and break_handler, and the copied instruction
-can be executed directly.
-
-I sorted instructions which can be executed directly or not;
-
-- Call instructions are NG(can not be executed directly).
-  We should correct the return address pushed into top of stack.
-- Indirect instructions except for absolute indirect-jumps
-  are NG. Those instructions changes EIP randomly. We should
-  check EIP and correct it.
-- Instructions that change EIP beyond the range of the
-  instruction buffer are NG.
-- Instructions that change EIP to tail 5 bytes of the
-  instruction buffer (it is the size of a jump instruction).
-  We must write a jump instruction which backs to original
-  kernel code in the instruction buffer.
-- Break point instruction is NG. We should not touch EIP and
-  pass to other handlers.
-- Absolute direct/indirect jumps are OK.- Conditional Jumps are NG.
-- Halt and software-interruptions are NG. Because it will stay on
-  the instruction buffer of kprobes.
-- Prefixes are NG.
-- Unknown/reserved opcode is NG.
-- Other 1 byte instructions are OK. But those instructions need a
-  jump back code.
-- 2 bytes instructions are mapped sparsely. So, in this release,
-  this patch don't boost those instructions.
-
- From Intel's IA-32 opcode map described in IA-32 Intel
-Architecture Software Developer's Manual Vol.2 B,
-I determined that following opcodes are not boostable.
-
-- 0FH (2byte escape)
-- 70H - 7FH (Jump on condition)
-- 9AH (Call) and 9CH (Pushf)
-- C0H-C1H (Grp 2: includes reserved opcode)
-- C6H-C7H (Grp11: includes reserved opcode)
-- CCH-CEH (Software-interrupt)
-- D0H-D3H (Grp2: includes reserved opcode)
-- D6H (Reserved)
-- D8H-DFH (Coprocessor)
-- E0H-E3H (loop/conditional jump)
-- E8H (Call)
-- F0H-F3H (Prefixes and reserved)
-- F4H (Halt)
-- F6H-F7H (Grp3: includes reserved opcode)
-- FEH-FFH(Grp4,5: includes reserved opcode)
-
-Kprobe-booster checks whether target instruction can be boosted
- (can be executed directly) at arch_copy_kprobe() function.
-If the target instruction can be boosted, it clears "boostable"
-flag. If not, it sets "boostable" flag -1. This is disabled status.
-In resume_execution() function, If "boostable" flag is cleared,
-kprobe-booster measures the size of the target instruction and
-sets "boostable" flag 1.
-
-In kprobe_handler(), kprobe checks the "boostable" flag.
-If the flag is 1, it resets current kprobe and executes instruction
-buffer directly instead of single stepping.
-
-When unregistering a boosted kprobe, it calls synchronize_sched()
-after "int3" is removed. So we can ensure followings after
-the synchronize_sched() called.
-- interrupt handlers are finished on all CPUs.
-- instruction buffer is not executed on all CPUs.
-And we can release the boosted kprobe safely.
-
-And also, on preemptible kernel, the booster is not enabled
-where the kernel preemption is enabled. So, there are no
-preempted threads on the instruction buffer.
-
-
-The description of kretprobe-booster:
-====================================
-In the normal operation, kretprobe make a target function return
-to trampoline code. And a kprobe (called trampoline_probe) have
-been inserted at the trampoline code. When the kernel hits this
-kprobe, it calls kretprobe's handler and it returns to original return
-address.
-
-Kretprobe-booster patch removes the trampoline_probe. It allows
-the tranpoline code to call kretprobe's handler directly instead of
-invoking kprobe. And tranpoline code returns to original return
-address.
-
-This new tranpoline code stores and restores registers, so the kretprobe
-handler is still able to access those registers.
+Before applying kprobe-booster, I'd like to cleanup codes. It is useful
+to simplify (and easy to understand) kprobe-booster patch.
 
 Best Regards,
 
@@ -156,4 +44,75 @@ Masami HIRAMATSU
 2nd Research Dept.
 Hitachi, Ltd., Systems Development Laboratory
 E-mail: hiramatu@sdl.hitachi.co.jp
+
+Signed-off-by: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
+
+ kprobes.c |   26 ++++++++++----------------
+ 1 files changed, 10 insertions(+), 16 deletions(-)
+diff -Narup a/arch/i386/kernel/kprobes.c b/arch/i386/kernel/kprobes.c
+--- a/arch/i386/kernel/kprobes.c	2006-01-24 19:07:26.000000000 +0900
++++ b/arch/i386/kernel/kprobes.c	2006-01-30 18:17:17.000000000 +0900
+@@ -350,10 +350,10 @@ static void __kprobes resume_execution(s
+ 		struct pt_regs *regs, struct kprobe_ctlblk *kcb)
+ {
+ 	unsigned long *tos = (unsigned long *)&regs->esp;
+-	unsigned long next_eip = 0;
+ 	unsigned long copy_eip = (unsigned long)&p->ainsn.insn;
+ 	unsigned long orig_eip = (unsigned long)p->addr;
+
++	regs->eflags &= ~TF_MASK;
+ 	switch (p->ainsn.insn[0]) {
+ 	case 0x9c:		/* pushfl */
+ 		*tos &= ~(TF_MASK | IF_MASK);
+@@ -363,9 +363,9 @@ static void __kprobes resume_execution(s
+ 	case 0xcb:
+ 	case 0xc2:
+ 	case 0xca:
+-		regs->eflags &= ~TF_MASK;
+-		/* eip is already adjusted, no more changes required*/
+-		return;
++	case 0xea:		/* jmp absolute -- eip is correct */
++		/* eip is already adjusted, no more changes required */
++		goto no_change;
+ 	case 0xe8:		/* call relative - Fix return addr */
+ 		*tos = orig_eip + (*tos - copy_eip);
+ 		break;
+@@ -373,27 +373,21 @@ static void __kprobes resume_execution(s
+ 		if ((p->ainsn.insn[1] & 0x30) == 0x10) {
+ 			/* call absolute, indirect */
+ 			/* Fix return addr; eip is correct. */
+-			next_eip = regs->eip;
+ 			*tos = orig_eip + (*tos - copy_eip);
++			goto no_change;
+ 		} else if (((p->ainsn.insn[1] & 0x31) == 0x20) ||	/* jmp near, absolute indirect */
+ 			   ((p->ainsn.insn[1] & 0x31) == 0x21)) {	/* jmp far, absolute indirect */
+ 			/* eip is correct. */
+-			next_eip = regs->eip;
++			goto no_change;
+ 		}
+-		break;
+-	case 0xea:		/* jmp absolute -- eip is correct */
+-		next_eip = regs->eip;
+-		break;
+ 	default:
+ 		break;
+ 	}
+
+-	regs->eflags &= ~TF_MASK;
+-	if (next_eip) {
+-		regs->eip = next_eip;
+-	} else {
+-		regs->eip = orig_eip + (regs->eip - copy_eip);
+-	}
++	regs->eip = orig_eip + (regs->eip - copy_eip);
++
++no_change:
++	return;
+ }
+
+ /*
+
+
+
+
 

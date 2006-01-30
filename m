@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWA3R4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbWA3SBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964843AbWA3R4d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 12:56:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWA3R4d
+	id S964848AbWA3SBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 13:01:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWA3SBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 12:56:33 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:22935 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932327AbWA3R4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 12:56:32 -0500
-Date: Mon, 30 Jan 2006 09:56:30 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: Greg KH <greg@kroah.com>
-Cc: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>, Mark Maule <maule@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>
-Subject: Re: FW: MSI-X on 2.6.15
-Message-ID: <20060130095630.A7765@unix-os.sc.intel.com>
-References: <20060130173852.GA16259@kroah.com>
-Mime-Version: 1.0
+	Mon, 30 Jan 2006 13:01:24 -0500
+Received: from opersys.com ([64.40.108.71]:523 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S964848AbWA3SBY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 13:01:24 -0500
+Message-ID: <43DE57C4.5010707@opersys.com>
+Date: Mon, 30 Jan 2006 13:15:32 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Thomas Horsten <thomas@horsten.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>
+In-Reply-To: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060130173852.GA16259@kroah.com>; from greg@kroah.com on Mon, Jan 30, 2006 at 09:38:52AM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 30, 2006 at 09:38:52AM -0800, Greg KH wrote:
-> 
->    On Mon, Jan 30, 2006 at 10:33:50AM -0600, Miller, Mike (OS Dev) wrote:
->    > Greg KH,
->    >  We  have the same results on 2.6.15, the MSI-X table is all zeroes.
->    See
->    >  below. Any ideas of what to do do next? The driver works on x86_64.
->    Is
->    > there any thing extra I need to do on ia64?
-> 
->    ia64  didn't  really  have  msi  support before the latest -mm kernel,
->    right
->    Mark?
 
-It wasnt enabled in any default configs, but i believe its functional
-even earlier. Atleast when i changed the method for irq migration via 
-/proc, i remember testing on ia64 on ixgb driver. 
+Thomas Horsten wrote:
+> That would be a dubious circumvention. Remember that the GPLv3 is still a
+> draft - the wording can (and should probably) be improved to make it clear
+> that the system as a whole must behave identically if a modified version
+> of the GPL'ed software is used.
 
-I havent followed the register_ops() discussion but believe it just changed
-the default vector allocation to arch/platform types. But the core
-msi should have worked even earlier.
+As a software license, GPLv3 can dictate the usage rules for software
+distributed under it, but it can't dictate the usage terms of hardware
+and software independently developed (ex.: DRM'ed hardware and
+proprietary user-space applications). No wording could erase that.
+And what is suggest is not "circumvention", it's just not something
+GPLv3 could cover.
 
-Cheers,
-ashok
+> It's a good place to start putting pressure on the OEM's. If they can
+> choose between heavy DRM'ed and closed hardware, and pay millions in
+> license fees, or get the software they need for free in return for
+> dropping the restrictions, some are bound to choose the free route. This
+> is where the fight begins.
+
+DRM is a symptom, not the root problem. The root problem is that someone
+somewhere has been convinced that they are loosing money because of
+"pirates". Sure, middle-men (record labels) have crafted the reality to
+fit their needs. But the latter would not be able to operate would the
+former not exist. There's only one thing "artists" will dislike more than
+the fear of not making money: it's actually not making any. So if you
+want to get rid of DRM, the solution is to not buy any DRM'ed stuff.
+Every time you buy a region-coded DVD or a "protected" CD you are
+feeding the DRM cycle. To stop it, just don't buy any of it.
+
+Karim
+-- 
+President  / Opersys Inc.
+Embedded Linux Training and Expertise
+www.opersys.com  /  1.866.677.4546

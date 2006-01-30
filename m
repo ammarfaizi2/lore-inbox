@@ -1,88 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWA3D24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbWA3D3j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbWA3D24 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 22:28:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWA3D24
+	id S1750833AbWA3D3j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 22:29:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbWA3D3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 22:28:56 -0500
-Received: from smtp1.ensim.com ([65.164.64.254]:1547 "EHLO
-	exchange-svr2.exch.ensim.com") by vger.kernel.org with ESMTP
-	id S1750717AbWA3D2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 22:28:55 -0500
-From: Borislav Deianov <borislav@users.sourceforge.net>
-Date: Sun, 29 Jan 2006 19:28:44 -0800
-To: David Zeuthen <david@fubar.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ibm-acpi brightness fix
-Message-ID: <20060130032844.GF2271@aero.ensim.com>
-References: <1138558472.9858.23.camel@daxter.boston.redhat.com>
+	Sun, 29 Jan 2006 22:29:39 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:3060 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1750847AbWA3D3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 22:29:36 -0500
+Date: Mon, 30 Jan 2006 12:29:33 +0900
+To: Hirokazu Takata <takata@linux-m32r.org>
+Cc: linux-kernel@vger.kernel.org, rth@twiddle.net, ink@jurassic.park.msu.ru,
+       rmk@arm.linux.org.uk, spyro@f2s.com, dev-etrax@axis.com,
+       dhowells@redhat.com, ysato@users.sourceforge.jp, torvalds@osdl.org,
+       linux-ia64@vger.kernel.org, linux-m68k@vger.kernel.org,
+       gerg@uclinux.org, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, uclinux-v850@lsi.nec.co.jp, ak@suse.de,
+       chris@zankel.net, akpm@osdl.org
+Subject: Re: [PATCH 3/6] C-language equivalents of include/asm-*/bitops.h
+Message-ID: <20060130032933.GB6897@miraclelinux.com>
+References: <20060125112625.GA18584@miraclelinux.com> <20060125113206.GD18584@miraclelinux.com> <20060127.215147.670306403.takata.hirokazu@renesas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1138558472.9858.23.camel@daxter.boston.redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-OriginalArrivalTime: 30 Jan 2006 03:28:45.0129 (UTC) FILETIME=[46730390:01C6254D]
+In-Reply-To: <20060127.215147.670306403.takata.hirokazu@renesas.com>
+User-Agent: Mutt/1.5.9i
+From: mita@miraclelinux.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
-
-On Sun, Jan 29, 2006 at 01:14:31PM -0500, David Zeuthen wrote:
+On Fri, Jan 27, 2006 at 09:51:47PM +0900, Hirokazu Takata wrote:
+ 
+> Could you tell me more about the new generic {set,clear,test}_bit()
+> routines?
 > 
-> The ibm-acpi driver allows user space to set the brightness of the
-> display but the way it currently works is by fading from one of the
-> eight levels to the other. While this effect is visually pleasing it's
-> probably best taken care of by user space itself (and users of
-> gnome-power-manager will notice that this is exactly what it does).
+> Why do you copied these routines from parisc and employed them
+>  as generic ones?
+> I'm not sure whether these generic {set,clear,test}_bit() routines
+> are really generic or not.
 
-Thanks for the patch. Unfortunately, the fading is required on my X40 -
-setting a random brightness value just doesn't work without it. The
-EC probably expects it to happen that way since you can only go one
-step up or down with the hot keys.
-
-Wishes,
-Boris
-
-
+I think it is the most portable implementation.
+And I'm trying not to write my own code in this patch set.
 
 > 
-> This patch removes the fading. Patch is against ibm-acpi 0.11 but it
-> also applies to the drivers/acpi/ibm_acpi.c file in Linus' tree. I've
-> tested this on a IBM Thinkpad T41. Please apply.
+> > +/* Can't use raw_spin_lock_irq because of #include problems, so
+> > + * this is the substitute */
+> > +#define _atomic_spin_lock_irqsave(l,f) do {	\
+> > +	raw_spinlock_t *s = ATOMIC_HASH(l);	\
+> > +	local_irq_save(f);			\
+> > +	__raw_spin_lock(s);			\
+> > +} while(0)
+> > +
+> > +#define _atomic_spin_unlock_irqrestore(l,f) do {	\
+> > +	raw_spinlock_t *s = ATOMIC_HASH(l);		\
+> > +	__raw_spin_unlock(s);				\
+> > +	local_irq_restore(f);				\
+> > +} while(0)
 > 
-> (Please keep me in the Cc - I'm not subscribed to the LKML)
-> 
->     David
-> 
-> Signed-Off-By: David Zeuthen <david@fubar.dk>
-> 
-> --- ibm-acpi-0.11.orig/ibm_acpi.c	2005-03-17 05:06:16.000000000 -0500
-> +++ ibm-acpi-0.11/ibm_acpi.c	2006-01-29 12:55:53.000000000 -0500
-> @@ -1351,7 +1351,7 @@ static int brightness_read(char *p)
->  
->  static int brightness_write(char *buf)
->  {
-> -	int cmos_cmd, inc, i;
-> +	int cmos_cmd;
->  	u8 level;
->  	int new_level;
->  	char *cmd;
-> @@ -1372,13 +1372,11 @@ static int brightness_write(char *buf)
->  			return -EINVAL;
->  
->  		cmos_cmd = new_level > level ? BRIGHTNESS_UP : BRIGHTNESS_DOWN;
-> -		inc = new_level > level ? 1 : -1;
-> -		for (i = level; i != new_level; i += inc) {
-> -			if (!cmos_eval(cmos_cmd))
-> -				return -EIO;
-> -			if (!acpi_ec_write(brightness_offset, i + inc))
-> -				return -EIO;
-> -		}
-> +
-> +		if (!cmos_eval(cmos_cmd))
-> +			return -EIO;
-> +		if (!acpi_ec_write(brightness_offset, new_level))
-> +			return -EIO;
->  	}
->  
->  	return 0;
+> Is there a possibility that these routines affect for archs
+> with no HAVE_ARCH_ATOMIC_BITOPS for SMP ?
+
+Currently there is no architecture using this atomic *_bit() routines
+on SMP. But it may be the benefit of those who are trying to port Linux.
+(See the comment by Theodore Ts'o in include/asm-generic/bitops.h)
+
+> I think __raw_spin_lock() is sufficient and local_irqsave() is 
+> not necessary in general atomic routines.
+
+If the interrupt handler also wants to do bit manipilation then
+you can get a deadlock between the original caller of *_bit() and the
+interrupt handler.
+

@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWA3KMm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWA3KSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWA3KMm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 05:12:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWA3KMl
+	id S1750993AbWA3KSI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 05:18:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWA3KSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 05:12:41 -0500
-Received: from thsmsgxrt12p.thalesgroup.com ([192.54.144.135]:13495 "EHLO
-	thsmsgxrt12p.thalesgroup.com") by vger.kernel.org with ESMTP
-	id S932199AbWA3KMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 05:12:40 -0500
-Message-ID: <43DDE697.5000007@fr.thalesgroup.com>
-Date: Mon, 30 Jan 2006 11:12:39 +0100
-From: "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
-Reply-To: pierre-olivier.gaillard@fr.thalesgroup.com
-Organization: Thales Air Defence
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.3) Gecko/20040924
-X-Accept-Language: en-us, en
+	Mon, 30 Jan 2006 05:18:08 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:15242 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750993AbWA3KSH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 05:18:07 -0500
+Date: Mon, 30 Jan 2006 11:18:04 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: config order problems
+Message-ID: <Pine.LNX.4.61.0601301114440.25336@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Ingo Molnar <mingo@elte.hu>
-Subject: Can on-demand loading of user-space executables be disabled ?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-As far as I understand what happens when I start a Linux program, the executable 
-file is mmaped into memory and the execution of the code itself prompts Linux to 
-load the required pages of the program.
-
-I expect that this could cause unwanted delays during program execution when a 
-function that has never been used (nor loaded into memory) is called. This delay 
-could be bigger than 10ms while the 2.6 kernel is usually quite predictable 
-thanks to Ingo Molnar and others' work.
-
-Is Linux really using on-demand loading ?
-Is it very different from what I described in the first paragraph ?
-Can on-demand loading be disabled ? (This would seem convenient for my 
-applications since I generally start a program that is meant to run as 
-predictably as possible for months.)
-
-    thanks for your help,
+Hi,
 
 
-   P.O. Gaillard
+there is a slight problem with `make config` (oldconfig, silentoldconfig).
+By the time we get to the
 
+  Netfilter Xtables support (required for ip_tables) 
+  (NETFILTER_XTABLES) [N/m/y/?] (NEW) m
+
+part, CONFIG_NETFILTER_XT_TARGET_CONNMARK is for example not offered 
+because it depends on IP_NF_MANGLE which can be selected later. It is 
+therefore impossible to select CONNMARK without having to go through config 
+twice. In case of automated scripts, this means that CONNMARK remains 
+unselected unless special actions were taken.
+
+
+
+Jan Engelhardt
+-- 
+| Software Engineer and Linux/Unix Network Administrator
+| Alphagate Systems, http://alphagate.hopto.org/
+| jengelh's site, http://jengelh.hopto.org/

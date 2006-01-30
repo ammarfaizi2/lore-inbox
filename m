@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964963AbWA3Ufb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbWA3UhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964963AbWA3Ufb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 15:35:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbWA3Ufa
+	id S932382AbWA3UhS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 15:37:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbWA3UhR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 15:35:30 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:42460 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S964963AbWA3Ufa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 15:35:30 -0500
-Subject: Re: [PATCH] record last user if malloc request is exact 4k
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Olaf Hering <olh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060130202527.GB12315@suse.de>
-References: <20060130174919.GA7599@suse.de>
-	 <84144f020601301223j709ce2bco707ee73cf2d583b4@mail.gmail.com>
-	 <20060130202527.GB12315@suse.de>
-Date: Mon, 30 Jan 2006 22:35:25 +0200
-Message-Id: <1138653326.21112.8.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.2.1 
+	Mon, 30 Jan 2006 15:37:17 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45446 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932382AbWA3UhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 15:37:16 -0500
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Kirill Korotaev <dev@sw.ru>, Jeff Dike <jdike@addtoit.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/3] pidhash: don't use zero pids
+References: <43DDF323.4517C349@tv-sign.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 30 Jan 2006 13:36:29 -0700
+In-Reply-To: <43DDF323.4517C349@tv-sign.ru> (Oleg Nesterov's message of
+ "Mon, 30 Jan 2006 14:06:11 +0300")
+Message-ID: <m1r76p5u7m.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Oleg Nesterov <oleg@tv-sign.ru> writes:
 
-On Mon, Jan 30, Pekka Enberg wrote:
-> > For architectures that have 4K pages, adding debugging overhead to 4K
-> > objects is pretty much the worst case. Any particular reason you want
-> > this?
+> daemonize() calls set_special_pids(1,1), while init and
+> kernel threads spawned from init/main.c:init() run with
+> 0,0 special pids. This patch changes INIT_SIGNALS() so
+> that that they run with ->pgrp == ->session == 1 also.
+>
+> This patch relies on fact that swapper's pid == 1.
+>
+> Now we never use pid == 0 in kernel/pid.c.
 
-On Mon, 2006-01-30 at 21:25 +0100, Olaf Hering wrote:
-> I'm just curious.
+This changes what is visible to user space, for the case
+where we are not a member of a session of a process group.
 
-Oh, okay. One or more pages are allocated for each slab depending on
-object size. Each slab is then divided into equal-sized buffers which
-must fit at one object. A buffer also has optional padding so that
-objects respect alignment rules given to a cache. In addition, when
-CONFIG_DEBUG_SLAB is enabled, the buffer contains space for red-zone on
-left and right of the object and last user information.
+By hashing the values these non-groups become available to
+user space.  Which I find disturbing.  Before I can comment
+further I need to see if there are any well defined semantics
+for processes that are not part of a session or a process
+group.  If there are well defined semantics we have just
+broken user space.
 
-When all debugging is enable, the total overhead is padding plus 4 *
-sizeof(void *) for red-zoning and one more sizeof(void *) for the last
-caller address. If you allow debugging for 4K objects, you have huge
-internal fragmentation for both 4 KB and 8 KB pages (almost one full
-page). The current 4095 limit isn't perfect either but increasing will
-only make things worse. I think it's designed for
-<linux/kmalloc_sizes.h> so that the last general object size with
-debugging is 2048.
-
-			Pekka
-
+Eric

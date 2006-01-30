@@ -1,49 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751269AbWA3KW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbWA3KWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751269AbWA3KW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 05:22:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751270AbWA3KW1
+	id S1751270AbWA3KWr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 05:22:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751272AbWA3KWq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 05:22:27 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:11146 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1751269AbWA3KW1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 05:22:27 -0500
-Message-ID: <43DDE8D1.6060503@cosmosbay.com>
-Date: Mon, 30 Jan 2006 11:22:09 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 30 Jan 2006 05:22:46 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:33186 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1751270AbWA3KWq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 05:22:46 -0500
+Date: Mon, 30 Jan 2006 11:22:05 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+cc: Andrew Morton <akpm@osdl.org>, Ingo Oeser <ioe-lkml@rameria.de>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel@hansmi.ch
+Subject: Re: [Linux-fbdev-devel] [PATCH] fbdev: Fix usage of blank value
+ passed to fb_blank
+In-Reply-To: <43DD510E.9090404@gmail.com>
+Message-ID: <Pine.LNX.4.62.0601301121250.18565@pademelon.sonytel.be>
+References: <20060127231314.GA28324@hansmi.ch> <20060127.204645.96477793.davem@davemloft.net>
+ <43DB0839.6010703@gmail.com> <200601282106.21664.ioe-lkml@rameria.de>
+ <43DC25EB.1040005@gmail.com> <20060129144228.GA22425@sci.fi>
+ <43DD510E.9090404@gmail.com>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: bcrl@kvack.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Questions about alloc_large_system_hash() and TLB entries
-References: <20060129200504.GD28400@kvack.org>	<43DD2C15.1090800@cosmosbay.com>	<43DDD66C.4060201@cosmosbay.com> <20060130.012259.78361400.davem@davemloft.net>
-In-Reply-To: <20060130.012259.78361400.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Mon, 30 Jan 2006 11:22:09 +0100 (CET)
+Content-Type: MULTIPART/MIXED; BOUNDARY="-584337861-1435854487-1138616525=:18565"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller a écrit :
-> From: Eric Dumazet <dada1@cosmosbay.com>
-> Date: Mon, 30 Jan 2006 10:03:40 +0100
-> 
->> What would be the needed changes in the code to get both :
->>
->>    - Allocate ram equally from all the nodes of the machine
->>
->>    - Use large pages (2MB) to lower TLB stress
-> 
-> These two desires are mutually exclusive, I think.
-> 
-> If you want an 8MB hash table, for example, with 2MB mappings
-> you could use memory from a maximum of 4 nodes since the
-> 2MB chunks have to be physically 2MB aligned and 2MB contiguous.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Yes of course, but as those hash tables are very big (their size is bigger 
-than 2MB * number_of_nodes if you have at least 4GB per node), this could be 
-done ?
+---584337861-1435854487-1138616525=:18565
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 
-Eric
+On Mon, 30 Jan 2006, Antonino A. Daplas wrote:
+> Ville Syrjälä wrote:
+> > On Sun, Jan 29, 2006 at 10:18:19AM +0800, Antonino A. Daplas wrote:
+> >> diff --git a/drivers/video/fbmem.c b/drivers/video/fbmem.c
+> >> index d2dede6..5bed0fb 100644
+> >> --- a/drivers/video/fbmem.c
+> >> +++ b/drivers/video/fbmem.c
+> >> @@ -843,6 +843,19 @@ fb_blank(struct fb_info *info, int blank
+> >>  {	
+> >>   	int ret = -EINVAL;
+> >>  
+> >> +	/*
+> >> +	 * The framebuffer core supports 5 blanking levels (FB_BLANK), whereas
+> >> +	 * VESA defined only 4.  The extra level, FB_BLANK_NORMAL, is a
+> >> +	 * console invention and is not related to power management.
+> >> +	 * Unfortunately, fb_blank callers, especially X, pass VESA constants
+> >> +	 * leading to undefined behavior.
+> > 
+> > Since when? X.Org uses numbers 0,2,3,4 which match the FB_BLANK 
+> > constants not the VESA constants.
+> > 
+> 
+> How about if we silently convert FB_BLANK_NORMAL requests to
+> FB_BLANK_VSYNC_SUSPEND, would that work?
 
+Do all (old, pre-VESA) monitors like it when vsync goes away?
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+---584337861-1435854487-1138616525=:18565--

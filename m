@@ -1,61 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWA3V5J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbWA3WAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932386AbWA3V5J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 16:57:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWA3V5I
+	id S932317AbWA3WAw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 17:00:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWA3WAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 16:57:08 -0500
-Received: from mail.gmx.net ([213.165.64.21]:49113 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932386AbWA3V5H (ORCPT
+	Mon, 30 Jan 2006 17:00:52 -0500
+Received: from mail.sbb.co.yu ([82.117.194.22]:63341 "EHLO smtp.sbb.co.yu")
+	by vger.kernel.org with ESMTP id S932317AbWA3WAv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 16:57:07 -0500
-X-Authenticated: #428038
-Date: Mon, 30 Jan 2006 22:57:01 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Albert Cahalan <acahalan@gmail.com>, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060130215701.GA10312@merlin.emma.line.org>
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
-	Albert Cahalan <acahalan@gmail.com>, linux-kernel@vger.kernel.org
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43D7A7F4.nailDE92K7TJI@burner> <787b0d920601251826l6a2491ccy48d22d33d1e2d3e7@mail.gmail.com> <43D8D396.nailE2X31OHFU@burner> <787b0d920601261619l43bb95f5k64ddd338f377e56a@mail.gmail.com> <43DE8A06.9010800@tmr.com>
+	Mon, 30 Jan 2006 17:00:51 -0500
+From: Filip Brcic <brcha@users.sourceforge.net>
+Organization: ETF Beograd
+To: Glauber de Oliveira Costa <glommer@gmail.com>
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+Date: Mon, 30 Jan 2006 23:00:56 +0100
+User-Agent: KMail/1.9
+Cc: karim@opersys.com, Thomas Horsten <thomas@horsten.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk> <43DE57C4.5010707@opersys.com> <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com>
+In-Reply-To: <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com>
+X-Face: G%^x?"S~ij}UIkM5Nz.d:nZd>{CC=paKMd=sx=>M}(IcMH=c22>:@TC/#J)/n}dNxzRo)=?utf-8?q?Z=0A=09XVt+=3FSgp=7DYH9=7D=24aeFY3kX=3Ak?=<?b}0EWJs/<h3F:c341ojhAF92B5PR-ox+!r$LtYdnK<=?utf-8?q?9kH=0A=09?=@r7tF+iR@Ay(6({{`@z3=JX|_jwf!G4@gaM"DMZB|S,@dgCtK,ybP>l[.7:E<=?utf-8?q?=5Exlu+Xh=5F=5D=0A=09a0+VN?=(U/pThxl+{rY_V$U5&9WBQ+l+h$sk-I7{#qO6sf
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43DE8A06.9010800@tmr.com>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+Content-Type: multipart/signed;
+  boundary="nextPart28488734.MWW1ICNRua";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200601302301.04582.brcha@users.sourceforge.net>
+X-SBB-MailScanner-Information: Please contact the ISP for more information
+X-SBB-MailScanner: Found to be clean
+X-SBB-MailScanner-From: brcha@users.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Jan 2006, Bill Davidsen wrote:
+--nextPart28488734.MWW1ICNRua
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Just to be clear, Joerg is not the only one I think has been a problem 
-> here, he pissed off some of the developers who don't seem overly eager 
-> to do things which would be helpful for any burner software. From here 
-> it looks like a pissing content, with users well within splash range.
+=D0=94=D0=B0=D0=BD=D0=B0 Monday 30 January 2006 20:43, Glauber de Oliveira =
+Costa =D1=98=D0=B5 =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BE(=D0=BB=D0=B0):
+> On 1/30/06, Karim Yaghmour <karim@opersys.com> wrote:
+> > As a software license, GPLv3 can dictate the usage rules for software
+> > distributed under it, but it can't dictate the usage terms of hardware
+> > and software independently developed (ex.: DRM'ed hardware and
+> > proprietary user-space applications). No wording could erase that.
+> > And what is suggest is not "circumvention", it's just not something
+> > GPLv3 could cover.
+>
+> I may be missing the point here, (In case you're more than welcome to
+> correct me), but ... Why? Can't a software license restrict the usage
+> of the software? In which ways do you think the sentence "Don't use in
+> DRM'ed hardware" differs from sentences like  "Not allowed in country
+> X",  "Don't use for commercial purposes",  and other alikes ?
 
-Well, Jörg is not giving us answers to the extent that might convince a
-Linux kernel hacker to change things, except for a few handrails besides
-the staircase, such as Ted's suggestion WRT RLIMIT_MEMLOCK, or people
-offering to fix ide-tape to talk SG_IO - Jörg however has not yet
-documented how ide-tape fixes are relevant for the CD writing
-application (no doubt that a SCSI /GENERAL/ interface library has
-interest in such, it does not matter to the CD writing topic).
+"Don't use in DRM'ed hardware" and "Don't use for commercial purposes" do=20
+differ from "Not allowed in country X". The first two are essentially the=20
+same (as far as I am aware, DRM has no use for F/OSS, it is made for=20
+commercial stuff). They protect the freedom of the software. The third=20
+(!country) is something different since it attacks the freedom of the=20
+software. Equivalents (or similar thoughts) would be "Don't use in DRM'ed=20
+hardware", "Don't use for commercial purposes" and "Use in any country you=
+=20
+want".
 
-> Look a year down the road, when we have have two (or more) new 25GB 
-> optical formats coming out, probably with new features and commands and 
-> several vendors building drives for them. Both formats have DRM stuff in 
-> them, and GPL 3 forbids implementing DRM (simplification).
+> I think
+> that saying in which hardware your software can or cannot run is a
+> pretty valid license term (without messing with the question about it
+> being the right thing to do here).
 
-I find it fascinating that everyone talks about the first public GPL v3
-draft as though it were the final version. Now is the time to express
-concerns, for instance, the GPL's incompatibility, to the FSF.
+I agree that it is a valid term. I wouldn't like to see my program running =
+on=20
+some obscure DRM'ed hardware when I made it to be free.
 
-And no, I do not have current plans to work on a cdrecord fork as it is.
+As far as I can see, Linus wants to allow usage of Linux in DRM'ed hardware=
+=20
+(for ex. future mobile phones). He wants to allow usage, but he hopes that=
+=20
+the customers would make companies disband DRM (and similar=20
+crypto/obscure/... stuff). If that is the case, I don't agree with his=20
+oppinion that the customers could do anything. Most of the "customers" have=
+=20
+no problem with DRM, and look-a-likes. Most of the customers still use m$ w=
+in=20
+and office, and others think that os x is an free/open operating system.
 
--- 
-Matthias Andree
+> Besides that, I pretty much agree with the rest of your mail.
+
+I do too, but I don't think that "To stop it, just don't buy any of it." is=
+=20
+the solution of the problem. It would be a solution if most of the customer=
+s=20
+would do so.
+
+=2D-=20
+=46ilip Brcic <brcha@users.sourceforge.net>
+WWWeb: http://purl.org/NET/brcha/home/
+Jabber: brcha@kdetalk.net
+Jabber: brcha@elitesecurity.org
+Jabber: fbrcic@gmail.com
+ICQ# 40994923
+Yahoo! brcha
+MSN: brcha@users.sourceforge.net
+
+--nextPart28488734.MWW1ICNRua
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2-ecc0.1.6 (GNU/Linux)
+
+iJoDBQBD3oygiWDX+jAieS9nAmSGAgkBi5sWVH6LN3DWIHgOGoLjWd45SEPaoG2L
+d14ZufqMMsq9vBDZExLIMVdH590LYZuTLXzO+Q/21kBrH8Azxt5GD1UCCKB5JhKP
+ZvopO5qC7HMaxkIHiMUd443kTlvP0jw/hv0TmS7xTxuSp02ZVmdh2mHzL+4tkZ7e
+ZbHwDw05Eq1if3bN
+=lXH0
+-----END PGP SIGNATURE-----
+
+--nextPart28488734.MWW1ICNRua--

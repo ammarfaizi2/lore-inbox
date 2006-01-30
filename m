@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWA3KMB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWA3KMm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWA3KMB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 05:12:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWA3KMB
+	id S932199AbWA3KMm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 05:12:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWA3KMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 05:12:01 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:55507
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932197AbWA3KMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 05:12:00 -0500
-Message-Id: <43DDF497.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Mon, 30 Jan 2006 11:12:23 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Arjan Ven" <arjan@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] double fault enhancements
-References: <43DDF050.76F0.0078.0@novell.com> <1138615114.2977.19.camel@laptopd505.fenrus.org>
-In-Reply-To: <1138615114.2977.19.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 30 Jan 2006 05:12:41 -0500
+Received: from thsmsgxrt12p.thalesgroup.com ([192.54.144.135]:13495 "EHLO
+	thsmsgxrt12p.thalesgroup.com") by vger.kernel.org with ESMTP
+	id S932199AbWA3KMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 05:12:40 -0500
+Message-ID: <43DDE697.5000007@fr.thalesgroup.com>
+Date: Mon, 30 Jan 2006 11:12:39 +0100
+From: "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
+Reply-To: pierre-olivier.gaillard@fr.thalesgroup.com
+Organization: Thales Air Defence
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.3) Gecko/20040924
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>
+Subject: Can on-demand loading of user-space executables be disabled ?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I would hope TSS and such remain in the kernel static space, because
->those are the kind of things I'd like to be read only over time...
+Hello,
 
-I'm not sure what you're trying to say. A TSS can't possibly be read-only, as the processor will need to write to it
-any time it gets used.
+As far as I understand what happens when I start a Linux program, the executable 
+file is mmaped into memory and the execution of the code itself prompts Linux to 
+load the required pages of the program.
 
->Also the last chunk of your patch has nothing to do with what you
->describe here... and seems sort of suprious. (it might be a useful
->cleanup, but it should be independent)
+I expect that this could cause unwanted delays during program execution when a 
+function that has never been used (nor loaded into memory) is called. This delay 
+could be bigger than 10ms while the 2.6 kernel is usually quite predictable 
+thanks to Ingo Molnar and others' work.
 
-It is relevant, for the preprocessor pseudo-assertion in cpu_init() to work. Anyway, I submitted the THREAD_ORDER
-introduction as a separate cleanup-like (as you suggest) patch before, without getting any positive or negative
-responses back...
+Is Linux really using on-demand loading ?
+Is it very different from what I described in the first paragraph ?
+Can on-demand loading be disabled ? (This would seem convenient for my 
+applications since I generally start a program that is meant to run as 
+predictably as possible for months.)
 
-Jan
+    thanks for your help,
+
+
+   P.O. Gaillard
 

@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWA3WEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbWA3WMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbWA3WEY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 17:04:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWA3WEY
+	id S932385AbWA3WMW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 17:12:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWA3WMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 17:04:24 -0500
-Received: from smtp.dkm.cz ([62.24.64.34]:20753 "HELO smtp.dkm.cz")
-	by vger.kernel.org with SMTP id S932334AbWA3WEY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 17:04:24 -0500
-Message-ID: <43DE8D5E.2040905@rulez.cz>
-Date: Mon, 30 Jan 2006 23:04:14 +0100
-From: iSteve <isteve@rulez.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: udevstart surprisingly slow
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 30 Jan 2006 17:12:22 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:1440 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932385AbWA3WMV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 17:12:21 -0500
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Albert Cahalan <acahalan@gmail.com>, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <43DE8A06.9010800@tmr.com>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+	 <43D7A7F4.nailDE92K7TJI@burner>
+	 <787b0d920601251826l6a2491ccy48d22d33d1e2d3e7@mail.gmail.com>
+	 <43D8D396.nailE2X31OHFU@burner>
+	 <787b0d920601261619l43bb95f5k64ddd338f377e56a@mail.gmail.com>
+	 <43DE8A06.9010800@tmr.com>
+Content-Type: text/plain
+Date: Mon, 30 Jan 2006 17:12:15 -0500
+Message-Id: <1138659135.16102.30.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
-I've recently upgraded udev from 063 to 082 and then 084.
+On Mon, 2006-01-30 at 16:49 -0500, Bill Davidsen wrote:
+> Look a year down the road, when we have have two (or more) new 25GB 
+> optical formats coming out, probably with new features and commands
+> and several vendors building drives for them. Both formats have DRM
+> stuff in them, and GPL 3 forbids implementing DRM (simplification). 
 
-With 063, startup of udev was near-instant; with both 082 and 084, it 
-takes a significant ammount of time (~15s) to create the base devices 
-using udevstart or udevsynthesize (this one is taken from Debian, which 
-apparently in turn taken it from SuSE; the rest of codebase is vanilla).
+Who cares what GPL 3 says, the kernel is GPL2.
 
-This issue appears on kernel 2.6.15.1 with SquashFS 2.2r2, SWSUP2 2.2 
-and VesaFB-TNG 1.0-rc1-r3 patches.
+Lee
 
-The init script used simply mounts 10MiB tmpfs onto /dev, creates 
-/dev/.udev/{db,queue} directories, then runs udevd --daemon and then 
-udevsynthesize or udevstart (tried both, same result).
-
-I'm quite out of ideas, I don't think downgrading udev is the best 
-solution, so I wonder: what takes such a long time in udevstart? What 
-can I alter at my end, or is this a known bug (or feature)?
-
-Thanks in advance for reply
-  -- iSteve

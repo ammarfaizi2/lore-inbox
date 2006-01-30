@@ -1,78 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbWA3Fqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWA3Fxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbWA3Fqb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 00:46:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbWA3Fqb
+	id S1751249AbWA3Fxc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 00:53:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWA3Fxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 00:46:31 -0500
-Received: from mf01.sitadelle.com ([212.94.174.68]:50330 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1751247AbWA3Fqa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 00:46:30 -0500
-Message-ID: <43DDA836.7070600@cosmosbay.com>
-Date: Mon, 30 Jan 2006 06:46:30 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Greg KH <greg@kroah.com>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: [PATCH 1/5] pid: Implement task references.
-References: <m1psmba4bn.fsf@ebiederm.dsl.xmission.com> <m1lkwza479.fsf@ebiederm.dsl.xmission.com> <20060129190539.GA26794@kroah.com> <m1mzhe7l2c.fsf@ebiederm.dsl.xmission.com> <20060130045153.GC13244@kroah.com> <43DDA1E7.5010109@cosmosbay.com> <AB74DF4E-5563-4449-8194-315AA4CCD7FE@mac.com>
-In-Reply-To: <AB74DF4E-5563-4449-8194-315AA4CCD7FE@mac.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 30 Jan 2006 00:53:32 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:19089
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751249AbWA3Fxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 00:53:31 -0500
+Date: Sun, 29 Jan 2006 21:52:44 -0800 (PST)
+Message-Id: <20060129.215244.05901896.davem@davemloft.net>
+To: paulmck@us.ibm.com
+Cc: dada1@cosmosbay.com, dipankar@in.ibm.com, rlrevell@joe-job.com,
+       mingo@elte.hu, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: RCU latency regression in 2.6.16-rc1
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060130051156.GK16585@us.ibm.com>
+References: <20060130043604.GF16585@us.ibm.com>
+	<43DD9C49.4000000@cosmosbay.com>
+	<20060130051156.GK16585@us.ibm.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett a écrit :
-> On Jan 30, 2006, at 00:19, Eric Dumazet wrote:
->> -    if (atomic_dec_and_test(&kref->refcount)) {
->> +    /*
->> +     * if current count is one, we are the last user and can release 
->> object
->> +     * right now, avoiding an atomic operation on 'refcount'
->> +     */
->> +    if ((atomic_read(&kref->refcount) == 1) ||
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+Date: Sun, 29 Jan 2006 21:11:56 -0800
+
+> > If the size is expanded by a 2 factor (or a power of too), can your 
+> > proposal works ?
 > 
-> Uhh, I think you got this test reversed.  Didn't you mean != 1?  
-> Otherwise you only do the dec_and_test when the refcount is one, which 
-> means that you leak everything kref-ed.
+> Yep!!!
 > 
+> Add the following:
 
-Not at all :)
-
-Your mail is just another proof why kref is a good abstraction :)
-
-If you are the last user of a kref, (refcount = 1), then
-you are sure that nobody else but you is using the object, and as we are 
-kref_put() this object, the atomic_dec_and-test *will* set the count the 
-object and you are going to release() object.
-
-The release() function is not going to look at kref_count again, just free the 
-resources and the object.
-
-Maybe a change in the documentation is necessary to explain this point 
-(release() can e called while the apparent krefcount is 1)
-
-Or in kref_put doing this :
-
-if (atomic_read(&kref->refcount) == 1) {
-	atomic_set(&kref->refcount, 0);
-	release(kref);
-}
-if (atomic_dec_and_test(&kref->refcount)) {
-         release(kref);
-         return 1;
-}
-
-
-Eric
-
+This all sounds very exciting and promising.  I'll try to find some
+spare cycles tomorrow to cook something up.

@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbWA3Jql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWA3JrQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932173AbWA3Jql (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 04:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWA3Jql
+	id S932174AbWA3JrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 04:47:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWA3JrQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 04:46:41 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:10649 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932173AbWA3Jqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 04:46:40 -0500
-Subject: Re: [PATCH 2.6.16-rc1-git4] accessfs: a permission managing
-	filesystem
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Andrew Morton <akpm@osdl.org>, olaf+list.linux-kernel@olafdietsche.de,
-       eike-kernel@sf-tec.de, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0601301024150.6405@yvahk01.tjqt.qr>
-References: <87ek3a8qpy.fsf@goat.bogus.local>
-	 <200601231257.28796@bilbo.math.uni-mannheim.de>
-	 <87mzhgyomh.fsf@goat.bogus.local> <20060128150137.5ba5af04.akpm@osdl.org>
-	 <Pine.LNX.4.61.0601301006240.6405@yvahk01.tjqt.qr>
-	 <20060130011630.60f402d8.akpm@osdl.org>
-	 <Pine.LNX.4.61.0601301024150.6405@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Mon, 30 Jan 2006 10:46:27 +0100
-Message-Id: <1138614388.2977.10.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 30 Jan 2006 04:47:16 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:54463 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932174AbWA3JrP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 04:47:15 -0500
+Date: Mon, 30 Jan 2006 10:47:07 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Nathan Scott <nathans@sgi.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-xfs@oss.sgi.com
+Subject: Re: reinitializing quota on xfs
+In-Reply-To: <20060130201908.A8865130@wobbly.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.61.0601301032440.6405@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0601291204380.18492@yvahk01.tjqt.qr>
+ <20060130201908.A8865130@wobbly.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-30 at 10:24 +0100, Jan Engelhardt wrote:
-> >> >> +static DECLARE_MUTEX(accessfs_sem);
-> >> >
-> >> >Please use a `struct mutex'.
-> >> 
-> >> You know what's irritating? That DECLARE_MUTEX starts a semaphore and
-> >> DEFINE_MUTEX a mutex.
-> >
-> >DECLARE_MUTEX will go away.
-> 
-> And be replaced by... DEFINE_SEMAPHORE?
+>> Hi,
+>> 
+>> for some strange reason, `quota -v` showed an impossible number in the 
+>> inodes (files) field, something that resembled 2^64 - n, n={1..100}. I do 
+>
+>It would be really good if we could get a test case for this; it
+>gets reported once in a blue moon, so there does seem to be some
+>latent issue there...
+>
+I'll try figure out a testcase.
 
-... or just go away entirely, depending if there are any users of it
-left after all mutexes have been converted to DEFINE_MUTEX()...
+>> not know how it happened, but I wanted to reinitialize the quota. Though, 
+>> how does one do that with XFS? (Since it's different from the vfsv0 quota 
+>> architecture.)
+>
+>See xfs_quota(8) from recent versions of xfsprogs, or in older
+>ones theres doco in /usr/share/doc/xfsprogs*/README.quota.
+
+I can't find it in xfsprogs-2.7.11/man/man8/xfs_admin.8 ... or it's too 
+well hidden.
 
 
+
+Jan Engelhardt
+-- 

@@ -1,62 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbWA3PFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbWA3PKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbWA3PFF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 10:05:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWA3PFF
+	id S932307AbWA3PKv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 10:10:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWA3PKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 10:05:05 -0500
-Received: from zproxy.gmail.com ([64.233.162.200]:55070 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932303AbWA3PFC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 10:05:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ANblfgeF5SnXN4oWHxfX80iMCMk+DiQxiKO6j77SYdONSzHt4mywGawztgkaO/7kFCwJ8tU0jy+ml42xYZDKXaGeUWCsLB+CPdhkTOqqhmlULVR6Cw588hnO+IJ8NPvY6b8EXY4XAV4gKRY2d67lvXB2SjUdqnDSeI79BbSqo+g=
-Message-ID: <43DE2B14.7090309@gmail.com>
-Date: Tue, 31 Jan 2006 00:04:52 +0900
-From: Tejun <htejun@gmail.com>
+	Mon, 30 Jan 2006 10:10:51 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:11753 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932307AbWA3PKu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 10:10:50 -0500
+Message-ID: <43DE2DAC.9020708@aitel.hist.no>
+Date: Mon, 30 Jan 2006 16:15:56 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
 User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: James Lamanna <jlamanna@gmail.com>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: I/O errors while dding between 2 SATA drives
-References: <aa4c40ff0601261021m1fe746feq172f0a34b6afd9ad@mail.gmail.com>
-In-Reply-To: <aa4c40ff0601261021m1fe746feq172f0a34b6afd9ad@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: Howard Chu <hyc@symas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Christopher Friesen <cfriesen@nortel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hancockr@shaw.ca
+Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
+References: <20060124225919.GC12566@suse.de>  <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de>  <20060125121125.GH5465@suse.de> <43D78262.2050809@symas.com>  <43D7BA0F.5010907@nortel.com>  <43D7C2F0.5020108@symas.com> <1138223212.3087.16.camel@mindpipe> <43D7F863.3080207@symas.com> <43D88E55.7010506@yahoo.com.au> <43D8DB90.7070601@symas.com> <43D8E298.3020402@yahoo.com.au> <43D8E96B.3070606@symas.com> <43D8EFF7.3070203@yahoo.com.au> <43D8FC76.2050906@symas.com> <Pine.LNX.4.61.0601261231460.9298@chaos.analogic.com> <43DDD1DA.6060507@aitel.hist.no> <Pine.LNX.4.61.0601300818290.28552@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0601300818290.28552@chaos.analogic.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Lamanna wrote:
-> I received the following errors while executing a
-> dd if=/dev/sdb of=/dev/sda bs=1M
-> between 2 500GB SATA Seagate Barracuda drives on 2.6.12 (Gentoo 2005.1
-> "Live" CD)
-> 
-> ata1: command 0x35 timeout stat 0xd1 host_stat 0x21
-> ata1: status=0xd1 { Busy }
-> end request: I/O Error dev sda, sector 51188392
-> Buffer I/O Error on device sda, logical block 6398549
-> lost page write due to I/O Error on sda
-> ATA: abnormal status 0xD1 on port 0x9F7
-> ATA: abnormal status 0xD1 on port 0x9F7
-> ATA: abnormal status 0xD1 on port 0x9F7
-> 
-> The message repeats every so often with the sector count increasing by
-> 8 and logical block count increasing by 1.
-> 
-> Is it bad hardware? (sda is brand new)
-> And is the copy hosed?
-> 
+linux-os (Dick Johnson) wrote:
 
-[CC'ing linux-ide]
+>On Mon, 30 Jan 2006, Helge Hafting wrote:
+>
+>  
+>
+>>linux-os (Dick Johnson) wrote:
+>>
+>>    
+>>
+>>>To fix the current problem, you can substitute usleep(0); It will
+>>>give the CPU to somebody if it's computable, then give it back to
+>>>you. It seems to work in every case that sched_yield() has
+>>>mucked up (perhaps 20 to 30 here).
+>>>
+>>>
+>>>      
+>>>
+>>Isn't that dangerous?  Someday, someone working on linux (or some
+>>other unixish os) might come up with an usleep implementation where
+>>usleep(0) just returns and becomes a no-op.  Which probably is ok
+>>with the usleep spec - it did sleep for zero time . . .
+>>    
+>>
+>
+>Dangerous?? You have a product that needs to ship. You can make
+>it work by adding a hack. You add a hack. I don't see danger at
+>all. I see getting the management off the back of the software
+>engineers so that they can fix the code. Further, you __test__ the
+>stuff before you ship. If usleep(0) just spins, then you use
+>usleep(1).
+>  
+>
+The dangerous part was that usleep(0) works as a "yield"
+today, as your testing will confirm before you ship the product.
+But it may break next year if someone changes this part of
+the kernel.  Then your customer suddenly have a broken product.
 
-Hi, James.
-
-Please post full dmesg and yeah the copy is probably hosed.  dd's exit 
-code will tell you.  Do 'echo $$'.
-
--- 
-tejun
+Helge Hafting

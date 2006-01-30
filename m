@@ -1,85 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932384AbWA3VwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbWA3V53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932384AbWA3VwW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 16:52:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWA3VwV
+	id S965015AbWA3V53 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 16:57:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbWA3V53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 16:52:21 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64391 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932384AbWA3VwV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 16:52:21 -0500
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       vserver@list.linux-vserver.org, Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH 1/5] pid: Implement task references.
-References: <m1psmba4bn.fsf@ebiederm.dsl.xmission.com>
-	<m1lkwza479.fsf@ebiederm.dsl.xmission.com>
-	<20060129190539.GA26794@kroah.com>
-	<m1mzhe7l2c.fsf@ebiederm.dsl.xmission.com>
-	<20060130045153.GC13244@kroah.com> <43DDA1E7.5010109@cosmosbay.com>
-	<20060130184302.GA17457@kroah.com> <43DE6FE6.40705@cosmosbay.com>
-	<m1bqxt5ts3.fsf@ebiederm.dsl.xmission.com>
-	<43DE8604.1060109@cosmosbay.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 30 Jan 2006 14:51:09 -0700
-In-Reply-To: <43DE8604.1060109@cosmosbay.com> (Eric Dumazet's message of
- "Mon, 30 Jan 2006 22:32:52 +0100")
-Message-ID: <m1zmld4c6q.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Mon, 30 Jan 2006 16:57:29 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:12350 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932387AbWA3V52
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 16:57:28 -0500
+Message-ID: <43DE8C1B.1050004@tmr.com>
+Date: Mon, 30 Jan 2006 16:58:51 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+CC: linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de, axboe@suse.de,
+       acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner> <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <20060125182552.GB4212@suse.de> <20060125231422.GB2137@merlin.emma.line.org> <20060126020951.14ebc188.grundig@teleline.es> <20060126082324.GB13125@merlin.emma.line.org> <43D8D50D.nailE2X5WK8ZO@burner>
+In-Reply-To: <43D8D50D.nailE2X5WK8ZO@burner>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet <dada1@cosmosbay.com> writes:
+Joerg Schilling wrote:
+> Matthias Andree <matthias.andree@gmx.de> wrote:
+> 
+> 
+>>Well, you need to implement 30 (or so) platform-specific ways to get a
+>>list of devices, and portable applications aren't going to do that. To
+>>make it explicit: no way. It is a maintenance nightmare, 30 lowly-tested
+>>pieces of code, too.
+> 
+> 
+> It already works in libscg since nearly 10 years.
+> 
+> 
+>>This sounds like a huge difference, but I don't believe it actually is.
+>>Jörg is trying to fight the system rather than stop complaining to users
+>>about their using /dev/hd*. The scanning code is there and can be made
+>>working with little effort probably.
+> 
+> 
+> Talking about /dev/hd* ignore the basic problem. Show me a way how to
+> send SCSI commands to a ATAPI tape drive on Linux. 
+> 
+> Please do not forget that libscg is OS _and_ device independent.
+> Implementing /dev/hd* support at all is already a concession that did go to far.
 
-> This function is not inlined.
->
-> Adding a test and a branch is a matter of 7 bytes.
->
->   'Bloating the icache' is a litle bit off :)
+You added the feature, and a message that it was accidental and 
+unsupported. In truth is was neither, and your little message pisses off 
+developers and scares casual users.
 
-The size all depends on your architecture.  But I agree it
-is not much of a size increase in general.
-
-> Avoiding an atomic is important. This is already done elsewhere in the kernel,
-> in a inlined function with *many* call sites :
->
-> (See kfree_skb() in include/linux//skbuff.h )
->
-> /*
->   * If users == 1, we are the only owner and are can avoid redundant
->   * atomic change.
->   */
->
-> /**
->   *      kfree_skb - free an sk_buff
->   *      @skb: buffer to free
->   *
->   *      Drop a reference to the buffer and free it if the usage count has
->   *      hit zero.
->   */
-> static inline void kfree_skb(struct sk_buff *skb)
-> {
->          if (likely(atomic_read(&skb->users) == 1))
->                  smp_rmb();
->          else if (likely(!atomic_dec_and_test(&skb->users)))
->                  return;
->          __kfree_skb(skb);
-> }
->
->
-> This is a valid optimization : an atomic_dec_and_test() is very expensive.
-
-It is a valid optimization if you will normally have only one user
-like a skb.  For other structures that frequently have many users I'm
-not at all certain it is a useful optimization.
-
-Eric
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

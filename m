@@ -1,90 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbWA3Ua6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964956AbWA3Uch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964954AbWA3Ua6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 15:30:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbWA3Ua6
+	id S964956AbWA3Uch (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 15:32:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964958AbWA3Ucg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 15:30:58 -0500
-Received: from hosting9000.com ([81.169.143.62]:29930 "EHLO
-	mail.hosting9000.com") by vger.kernel.org with ESMTP
-	id S964954AbWA3Ua5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 15:30:57 -0500
-Date: Mon, 30 Jan 2006 21:30:52 +0100
-From: "Gabriel C." <crazy@pimpmylinux.org>
-To: linux-kernel@vger.kernel.org, linville@tuxdriver.com
-Cc: netdev@vger.kernel.org, Adrian Bunk <bunk@stusta.de>, da.crew@gmx.net
-Subject: Re: [2.6 patch] PCMCIA=m, HOSTAP_CS=y is not a legal configuration
-Message-ID: <20060130213052.5b1ea5cd@zwerg>
-In-Reply-To: <20060130182317.GD3655@stusta.de>
-References: <20060130133833.7b7a3f8e@zwerg>
-	<20060130182317.GD3655@stusta.de>
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.8.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Mon, 30 Jan 2006 15:32:36 -0500
+Received: from uproxy.gmail.com ([66.249.92.196]:50336 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964956AbWA3Ucf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 15:32:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ackDQeMWJQBGulpKPGsovjs5MalC3Mj5L6D/cRbQUDtnT/Hc/8800zE9QFsx+iGFMzHi6ckEbaRkH8VQ3OdiJkSW+1I6wMIOUuR80W/lUgb019rpTTdv252n48xMVN32rCjOagibgTttr//sIEHVrSpMXJeSyaayui0Zy8iR+Hc=
+Message-ID: <728201270601301232v6da6fc2el7148ec33896d6b97@mail.gmail.com>
+Date: Mon, 30 Jan 2006 20:32:33 +0000
+From: Ram Gupta <ram.gupta5@gmail.com>
+To: Bernard Blackham <bernard@blackham.com.au>
+Subject: Re: Unique /proc/<pid>/fd/ inode numbers?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060130163748.GC8154@blackham.com.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060130163748.GC8154@blackham.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Jan 2006 19:23:17 +0100
-Adrian Bunk <bunk@stusta.de> wrote:
+On 1/30/06, Bernard Blackham <bernard@blackham.com.au> wrote:
+> A useful thing to be able to determine when checkpointing a process
+> from userspace is whether two file descriptors that point to the
+> same file are
+>    (a) two independently open()'d instances of the file; or
+>    (b) one open() and one dup().
+> (the latter case meaning the FDs share locks & seek offsets).
+>
 
-> On Mon, Jan 30, 2006 at 01:38:33PM +0100, Gabriel C. wrote:
-> 
-> > Hello,
-> 
-> Hallo Gabriel,
-> 
-> > I got this compile error with 2.6.16-rc1-mm4 , config attached. 
-> > 
-> > 
-> >   LD      .tmp_vmlinux1
-> >...
-> > `sandisk_set_iobase':hostap_cs.c:(.text+0x801ad): undefined
-> > reference to
-> > `pcmcia_access_configuration_register' :hostap_cs.c:(.text+0x801f3):
-> > undefined reference to `pcmcia_access_configuration_register'
-> > drivers/built-in.o: In function
-> > `prism2_pccard_cor_sreset':hostap_cs.c:(.text+0x80254): undefined
-> > reference to
-> > `pcmcia_access_configuration_register' :hostap_cs.c:(.text+0x80289):
-> > undefined reference to
-> > `pcmcia_access_configuration_register' :hostap_cs.c:(.text+0x80325):
-> > undefined reference to `pcmcia_access_configuration_register' [more
-> > errors]
-> >...
-> 
-> thanks for your report, a patch is below.
-> > Gabriel 
-> 
-> cu
-> Adrian
-> 
-> 
-> <--  snip  -->
-> 
-> 
-> CONFIG_PCMCIA=m, CONFIG_HOSTAP_CS=y doesn't compile.
-> 
-> Reported by "Gabriel C." <crazy@pimpmylinux.org>.
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> linux-2.6.16-rc1-mm4/drivers/net/wireless/hostap/Kconfig.old
-> 2006-01-30 19:00:44.000000000 +0100 +++
-> linux-2.6.16-rc1-mm4/drivers/net/wireless/hostap/Kconfig
-> 2006-01-30 19:01:04.000000000 +0100 @@ -75,7 +75,7 @@ config HOSTAP_CS
->  	tristate "Host AP driver for Prism2/2.5/3 PC Cards"
-> -	depends on PCMCIA!=n && HOSTAP
-> +	depends on PCMCIA && HOSTAP
->  	---help---
->  	Host AP driver's version for Prism2/2.5/3 PC Cards.
->  
-> 
+I dont see a way  which differentiates between open fd & dup fd. The
+only  difference between them is that when doing open it allocates a
+new file structure & initializes it while in case of dup the same file
+pointer. That's how you share the locks & seek offsets. But I dont see
+any kernel code which makes this difference currently. Implementing
+this should not be that hard any way
 
-Hi Adrian,
-
-Your patch works fine,  thanks :)
-
-Gabriel
+regards
+Ram Gupta

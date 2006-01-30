@@ -1,59 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWA3THz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbWA3TKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964883AbWA3THz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 14:07:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWA3THz
+	id S964884AbWA3TKF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 14:10:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWA3TKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 14:07:55 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:15879 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S964883AbWA3THy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 14:07:54 -0500
-To: thockin@hockin.org
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15.1: UDP fragments >27208 bytes lost with ne2k-pci on
- DP83815
-References: <87fyn8artm.fsf@amaterasu.srvr.nix>
-	<1138499957.8770.91.camel@lade.trondhjem.org>
-	<87slr79knc.fsf@amaterasu.srvr.nix>
-	<8764o23j0s.fsf@amaterasu.srvr.nix>
-	<1138566075.8711.39.camel@lade.trondhjem.org>
-	<871wyq3dl3.fsf@amaterasu.srvr.nix>
-	<1138572140.8711.82.camel@lade.trondhjem.org>
-	<874q3lwt7w.fsf@amaterasu.srvr.nix>
-	<1138640968.30641.3.camel@lade.trondhjem.org>
-	<87vew1vd03.fsf_-_@amaterasu.srvr.nix>
-	<20060130190306.GA19227@hockin.org>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: a learning curve that you can use as a plumb line.
-Date: Mon, 30 Jan 2006 19:07:40 +0000
-In-Reply-To: <20060130190306.GA19227@hockin.org> (thockin@hockin.org's
- message of "Mon, 30 Jan 2006 11:03:06 -0800")
-Message-ID: <87vew1ttz7.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
+	Mon, 30 Jan 2006 14:10:04 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:33481 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964884AbWA3TKD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 14:10:03 -0500
+Date: Mon, 30 Jan 2006 13:09:37 -0600
+From: Mark Maule <maule@sgi.com>
+To: Greg KH <greg@kroah.com>
+Cc: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org,
+       "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>
+Subject: Re: FW: MSI-X on 2.6.15
+Message-ID: <20060130190937.GB31945@sgi.com>
+References: <D4CFB69C345C394284E4B78B876C1CF10B8AC113@cceexc23.americas.cpqcorp.net> <20060130173852.GA16259@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060130173852.GA16259@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Jan 2006, thockin@hockin.org prattled cheerily:
-> I've never heard anything like that.  I don't have many of these cards
-> around, but Cobalt shipped tens of thousands, and I don't hear of anything
-> resembling this.
+As Ashok Raj has already responded, there was support for APIC-based MSI[-X]
+on ia64 before my patches.  I personally do not know if it worked or not, my
+suspicion is that it didn't get much airtime due to MSI being off by default
+until somewhat recently.
 
-Ah, it's always nice to be first with a bug.
+I believe MSI was working on zx1 after my patch, so I suspect it worked there
+before my patch as well.  I can't speak to MSI-X.
 
-Any idea how I could go about diagnosing this? (I'm fairly sure it's
-not the server end that's at fault, because that end is sending to other
-machines fine and was sending to this machine fine before it had a
-motherboard and network card change.)
+Mike, is your driver capable of MSI (vs. MSI-X)?  As a datapoint, could you
+try that?
 
-I've never really dealt with NIC-layer problems before so I don't know
-what beyond printk() is provided, if anything. (Some clues about where
-to stick the printk()s might be useful too, although I can probably find
-them myself in time).
+Mark
 
--- 
-`I won't make a secret of the fact that your statement/question
- sent a wave of shock and horror through us.' --- David Anderson
+On Mon, Jan 30, 2006 at 09:38:52AM -0800, Greg KH wrote:
+> On Mon, Jan 30, 2006 at 10:33:50AM -0600, Miller, Mike (OS Dev) wrote:
+> > Greg KH,
+> > We have the same results on 2.6.15, the MSI-X table is all zeroes. See
+> > below. Any ideas of what to do do next? The driver works on x86_64. Is
+> > there any thing extra I need to do on ia64?
+> 
+> ia64 didn't really have msi support before the latest -mm kernel, right
+> Mark?
+> 
+> > Andrew, can you try 2.6.16-rc1 and/or the rc1-git4 kernels?
+> 
+> How about the -mm kernel?
+> 
+> thanks,
+> 
+> greg k-h

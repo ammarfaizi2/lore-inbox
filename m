@@ -1,63 +1,198 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWA3QQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWA3QTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbWA3QQX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 11:16:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbWA3QQX
+	id S932361AbWA3QTE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 11:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWA3QTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 11:16:23 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:47237 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932360AbWA3QQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 11:16:22 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 30 Jan 2006 17:15:20 +0100
-To: schilling@fokus.fraunhofer.de, mrmacman_g4@mac.com,
-       linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de,
-       James@superbug.co.uk, hch@infradead.org, acahalan@gmail.com,
-       "unlisted-recipients:; "@pop3.mail.demon.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43DE3B98.nail16ZM1LULL@burner>
-References: <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
- <43D7B1E7.nailDFJ9MUZ5G@burner>
- <20060125230850.GA2137@merlin.emma.line.org>
- <43D8C04F.nailE1C2X9KNC@burner> <20060126161028.GA8099@suse.cz>
- <43DA2E79.nailFM911AZXH@burner> <43DA4DDA.7070509@superbug.co.uk>
- <Pine.LNX.4.61.0601271753430.11702@yvahk01.tjqt.qr>
- <43DDFBFF.nail16Z3N3C0M@burner>
- <20060130120408.GA8436@merlin.emma.line.org>
- <20060130122349.GA13871@infradead.org>
-In-Reply-To: <20060130122349.GA13871@infradead.org>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 30 Jan 2006 11:19:04 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:11160 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932361AbWA3QTC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 11:19:02 -0500
+Subject: Re: [PATCH 2.6.12.6-xen] sysfs attributes for xen
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Mike D. Day" <ncmike@us.ibm.com>
+Cc: xen-devel@lists.xensource.com, lkml <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <43DAD4DB.4090708@us.ibm.com>
+References: <43DAD4DB.4090708@us.ibm.com>
+Content-Type: text/plain
+Date: Mon, 30 Jan 2006 08:18:51 -0800
+Message-Id: <1138637931.19801.101.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> wrote:
+This looks much more sound than the /proc version.  Nice work.
 
-> On Mon, Jan 30, 2006 at 01:04:08PM +0100, Matthias Andree wrote:
-> > Why is it a *kernel* task to invent SCSI identifier for a non-SCSI
-> > transport that does not have such identifiers, in addition to the device
-> > name? libscg is already doing it for /dev/hd* and /dev/pg*.
-> > How about USB or Firewire or SATA? Do they have ID or LUN?
->
-> Nothing but SPI (parallel scsi) has a target id.  Everything that broadly
-> falls under SAM has luns.  Because SPI is dying transport the scsi
-> midlayer will get rid of having a mandatory target id mid-term.  Relying
-> on the target id to have any useful meaning is dangerous, it doesn't
-> have a really useful meaning on anything but SPI.
+On Fri, 2006-01-27 at 21:20 -0500, Mike D. Day wrote:
+> +int __init
+> +hyper_sysfs_init(void)
+> +{
+> +	int err ;
+> +	
+> +	if( 0 ==  (err = subsystem_register(&hypervisor_subsys)) ) {
+> +		xen_kset.subsys = &hypervisor_subsys;
+> +		err = kset_register(&xen_kset);
+> +	}
+> +	return err;
+> +}
 
-And now please tell me how you believe this will be inplemented.....
+As Greg said, we like to see assignments taken out of 'if' statements.
+I also like to see the main flow of code stay at the top level of a
+function, with _exceptions_ being the things that go inside of 'if'
+blocks.  I think it makes functions much easier to follow, but it's
+completely personal preference.  Something like this, maybe?
 
-Every kernel implementation I am aware of uses device instance numbers
-and BTW: I am open for any non-dogmatic discussion.
+hyper_sysfs_init(void)
+{
+	int err ;
+	
+	err = subsystem_register(&hypervisor_subsys);
+	if(err)
+		return err;
 
+	xen_kset.subsys = &hypervisor_subsys;
+	err = kset_register(&xen_kset);
+	return err;	
+}
 
-Jörg
+> +/* xen version info */
+> +static ssize_t xen_version_show(struct kobject * kobj, 
+> +				struct attribute * attr, 
+> +				char *page)
+> +{
+> +	long version;
+> +	long major, minor;
+> +	char extra_version[16];
+> +	
+> +	if ( (version = HYPERVISOR_xen_version(XENVER_version, NULL)) ) {
+> +		
+> +		major = version >> 16;
+> +		minor = version & 0xff;
+> +		if( ! HYPERVISOR_xen_version(XENVER_extraversion, 
+> +					    extra_version) ) {
+> +			page[PAGE_SIZE - 1] = 0x00;
+> +			return snprintf(page, PAGE_SIZE - 1, 
+> +					"xen-%ld.%ld%s\n",
+> +					major, minor, extra_version);
+> +		}
+> +	}
+> +	return 0;
+> +}
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+What are the actual types of the values that come back from the
+
+	HYPERVISOR_xen_version(XENVER_version, NULL)
+
+call?  If they are really 8-bit or 16-bit values, it might be nice to
+call that out and use some of the kernel types like u8 or u16.  In fact,
+it might even be worth it to have a function wrap that up.
+
+Silly idea: you _could_ have separate files for the major and minor.
+Are they something that a userspace program might commonly have to parse
+out?  Is the patch trying to save a potential hcall by outputting them
+both at once?
+
+> +/* xen compile info */
+> +static ssize_t xen_compile_show(struct kobject * kobj, 
+> +				struct attribute * attr, 
+> +				char * page)
+> +{
+> +	struct xen_compile_info info;
+> +	
+> +	if( 0 == HYPERVISOR_xen_version(XENVER_compile_info, &info) ) {
+> +		page[PAGE_SIZE - 1] = 0x00;
+> +		return snprintf(page, PAGE_SIZE - 1, 
+> +				"compiled by %s, using %s, on %s\n", 
+> +				info.compile_by, 
+> +				info.compile_date, 
+> +				info.compiler);
+> +	}
+> +	return 0;
+> +}
+
+I think this one breaks the "one value per file" sysfs rule.  Perhaps
+instead of 'cat compilation' you need:
+
+	greo . compilation/*
+
+Where compilation contains:
+
+	|-- compilation
+	|   |-- user
+	|   |-- date
+	|   |-- compiler
+
+> +/* xen capabilities info */
+> +static ssize_t xen_cap_show(struct kobject * kobj, 
+> +				struct attribute * attr, 
+> +				char * page)
+> +{
+> +	char info[1024];
+> +	
+> +	if( 0 == HYPERVISOR_xen_version(XENVER_capabilities, &info) ) {
+> +		page[PAGE_SIZE - 1] = 0x00;
+> +		return snprintf(page, PAGE_SIZE - 1, 
+> +				"%s\n", info);
+> +	}
+> +	return 0;
+> +}
+
+Where does that 1024 come from?  Is it a guarantee from Xen that it will
+never fill more than 1k?  I know it is a long shot, but what if the page
+size is less than 1k?  Would this function have strange results?
+
+Also, please don't declare large variables on the stack.  If you really
+need a buffer that large, simply dynamically allocate it.  We have a
+really speedy allocator.
+
+> +int __init
+> +sysfs_xen_version_init(void)
+> +{
+> +	__label__  out;
+> +	
+> +	struct kset * parent = get_xen_kset();
+> +	if ( parent != NULL ) {
+> +		kobject_init(&xen_ver_obj);
+> +		xen_ver_obj.parent = &parent->kobj;		
+> +		xen_ver_obj.dentry = parent->kobj.dentry;
+> +		kobject_get(&parent->kobj);
+> +		if ( sysfs_create_file(&xen_ver_obj, &xen_ver_attr.attr) )
+> +			goto out;
+...
+> +out:
+> +	return 1;
+> +}
+
+Instead of embedding all of the kobject() initializations, this could
+also just do the following:
+
+	if ( parent == NULL )
+		goto out;
+
+	kobject_init(&xen_ver_obj);
+	...
+
+I know the kset stuff might be going away, but you might run into a
+similar construct later down the road.
+
+There are quite a few references to PAGE_SIZE in the patch.  I think
+most of them have to do with trying to make sure that the buffer
+returned to the sysfs functions is NULL-terminated.  I'm not sure that
+is really an issue.
+
+Many sysfs users simply sprintf() right into the buffer, as long as
+they're writing reasonably short stuff.  We assume that we're not going
+to overflow, especially with single integer values.  This makes the code
+quite a bit more simple.
+
+If overflow is a real worry, we might want to come up with a specialized
+sysfs sprintf which encapsulates the PAGE_SIZE restriction.  It seems a
+little silly to have each driver going through all this trouble of
+worrying about buffer sizing and NULL termination.
+
+-- Dave
+

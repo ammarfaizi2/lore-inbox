@@ -1,109 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbWA3PhN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWA3Pjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbWA3PhN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 10:37:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWA3PhN
+	id S932294AbWA3Pjv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 10:39:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWA3Pju
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 10:37:13 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:30620 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S932336AbWA3PhL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 10:37:11 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: Recursive chmod/chown OOM kills box with 32MB RAM
-Date: Mon, 30 Jan 2006 14:28:50 +0200
-User-Agent: KMail/1.8.2
-Cc: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-References: <200601281613.16199.vda@ilport.com.ua> <200601281811.35690.vda@ilport.com.ua> <43DDAE2D.6080300@namesys.com>
-In-Reply-To: <43DDAE2D.6080300@namesys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 30 Jan 2006 10:39:50 -0500
+Received: from mba.ocn.ne.jp ([210.190.142.172]:6113 "EHLO smtp.mba.ocn.ne.jp")
+	by vger.kernel.org with ESMTP id S932294AbWA3Pju (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 10:39:50 -0500
+Date: Tue, 31 Jan 2006 00:39:27 +0900 (JST)
+Message-Id: <20060131.003927.112625901.anemo@mba.ocn.ne.jp>
+To: gdavis@mvista.com
+Cc: rmk+serial@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] serial: Add spin_lock_init() in 8250
+ early_serial_setup() to init port.lock
+From: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+In-Reply-To: <20060126032403.GG5133@mvista.com>
+References: <20060126032403.GG5133@mvista.com>
+X-Fingerprint: 6ACA 1623 39BD 9A94 9B1A  B746 CA77 FE94 2874 D52F
+X-Pgp-Public-Key: http://wwwkeys.pgp.net/pks/lookup?op=get&search=0x2874D52F
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601301428.50220.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 January 2006 08:11, Hans Reiser wrote:
-> Denis Vlasenko wrote:
-> 
-> >[CCing namesys]
-> >
-> >Narrowed it down to 100% reproducible case:
-> >
-> >	chown -Rc 0:<n> .
-> >
-> >in a top directory of tree containing ~21938 files
-> >on reiser3 partition:
-> >
-> >	/dev/sdc3 on /.3 type reiserfs (rw,noatime)
-> >
-> >causes oom kill storm. "ls -lR", "find ." etc work fine.
-> >
-> >I suspected that it is a leak in winbindd libnss module,
-> >but chown does not seem to grow larger in top, and also
-> >running it under softlimit -m 400000 still causes oom kills
+>>>>> On Wed, 25 Jan 2006 22:24:03 -0500, "George G. Davis" <gdavis@mvista.com> said:
 
-(typo, must be -m 40000000)
+gdavis> Need spin_lock_init(&serial8250_ports[port->line].port.lock)
+gdavis> in early_serial_setup() since we're copying struct uart_port
+gdavis> *port into serial8250_ports[port->line].port and *port.lock is
+gdavis> typically unitiliased by the caller.
 
-> >while chown's RSS stays below 4MB.
->
-> Chris, would you like to handle this?
+Is this really needed?   The port.lock will be initialized in
+uart_set_options() or uart_add_one_port().
 
+I think spin_lock_init() in serial8250_isa_init_ports() can be omitted
+also.
 
-fs seems to be ok fsck-wise:
-
-# mount -o remount,ro /.3
-# reiserfsck /dev/sdc3
-reiserfsck 3.6.11 (2003 www.namesys.com)
-
-*************************************************************
-** If you are using the latest reiserfsprogs and  it fails **
-** please  email bug reports to reiserfs-list@namesys.com, **
-** providing  as  much  information  as  possible --  your **
-** hardware,  kernel,  patches,  settings,  all reiserfsck **
-** messages  (including version),  the reiserfsck logfile, **
-** check  the  syslog file  for  any  related information. **
-** If you would like advice on using this program, support **
-** is available  for $25 at  www.namesys.com/support.html. **
-*************************************************************
-
-Will read-only check consistency of the filesystem on /dev/sdc3
-Will put log info to 'stdout'
-
-Do you want to run this program?[N/Yes] (note need to type Yes if you do):Yes
-###########
-reiserfsck --check started at Mon Jan 30 14:11:15 2006
-###########
-Filesystem seems mounted read-only. Skipping journal replay.
-Checking internal tree..finished
-Comparing bitmaps..finished
-Checking Semantic tree:
-finished
-No corruptions found
-There are on the filesystem:
-        Leaves 8075
-        Internal nodes 52
-        Directories 1792
-        Other files 31865
-        Data block pointers 1058363 (0 of them are zero)
-        Safe links 0
-###########
-reiserfsck finished at Mon Jan 30 14:13:28 2006
-###########
-
-However, there is one strange thing: I cannot umount it.
-Why? There is no open files.
-
-# umount /.3
-umount: /.3: device is busy
-# lsof -nP | grep -F '/.3'
-# lsof -nP | grep -F 'sdc'
-# uname -a
-Linux pegasus 2.6.14.6 #1 SMP Mon Jan 30 08:46:20 EET 2006 i686 unknown unknown GNU/Linux
-
---
-vda
+---
+Atsushi Nemoto

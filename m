@@ -1,67 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbWA3Uqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbWA3UtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbWA3Uqi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 15:46:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbWA3Uqi
+	id S964977AbWA3UtR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 15:49:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964979AbWA3UtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 15:46:38 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59014 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964969AbWA3Uqh convert rfc822-to-8bit (ORCPT
+	Mon, 30 Jan 2006 15:49:17 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:52675 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S964977AbWA3UtR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 15:46:37 -0500
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH 1/5] pid: Implement task references.
-References: <m1psmba4bn.fsf@ebiederm.dsl.xmission.com>
-	<m1lkwza479.fsf@ebiederm.dsl.xmission.com>
-	<20060129190539.GA26794@kroah.com>
-	<m1mzhe7l2c.fsf@ebiederm.dsl.xmission.com>
-	<20060130045153.GC13244@kroah.com> <43DDA1E7.5010109@cosmosbay.com>
-	<20060130184302.GA17457@kroah.com> <43DE6FE6.40705@cosmosbay.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 30 Jan 2006 13:45:48 -0700
-In-Reply-To: <43DE6FE6.40705@cosmosbay.com> (Eric Dumazet's message of "Mon,
- 30 Jan 2006 20:58:30 +0100")
-Message-ID: <m1bqxt5ts3.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Mon, 30 Jan 2006 15:49:17 -0500
+Date: Mon, 30 Jan 2006 21:49:07 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Kamran Karimi <kamrankarimi@hotmail.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: DIPC alpha2 for i386, Alpha, SPARC, and M68k
+In-Reply-To: <BAY104-F204940D55D8305A512ECCC0090@phx.gbl>
+Message-ID: <Pine.LNX.4.62.0601302148500.30329@pademelon.sonytel.be>
+References: <BAY104-F204940D55D8305A512ECCC0090@phx.gbl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet <dada1@cosmosbay.com> writes:
+On Mon, 30 Jan 2006, Kamran Karimi wrote:
+> The file http://www.cs.uwindsor.ca/~kamran/downloads/dipc-2.1-alpha2.tgz
 
-> Greg KH a écrit :
->> On Mon, Jan 30, 2006 at 06:19:35AM +0100, Eric Dumazet wrote:
->>> Example of improvement in kref_put() :
->>>
->>> [PATCH] kref : Avoid an atomic operation in kref_put() when the last
->>> reference is dropped. On most platforms, atomic_read() is a plan read of the
->>> counter and involves no atomic at all.
->> No, we wat to decrement and test at the same time, to protect against
->> any race where someone is incrementing right when we are dropping the
->> last reference.
->
-> Sorry ? Me confused !
+403 Forbidden
 
-Largely I think you have the right of it, that the optimization is
-correct.  My biggest complaint is that the common case is going to be
-several references to the data structure.  Releasing the references
-will always be slow.  To do the read you need to get the value into
-the cache line.
+Gr{oetje,eeting}s,
 
-So it looks to me like you are optimizing the wrong case and
-bloating the icache with unnecessary code.
+						Geert
 
-Eric
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

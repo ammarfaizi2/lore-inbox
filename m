@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbWA3S1j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWA3Saj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751285AbWA3S1j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 13:27:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbWA3S1j
+	id S1751288AbWA3Saj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 13:30:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbWA3Saj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 13:27:39 -0500
-Received: from mcr-smtp-001.bulldogdsl.com ([212.158.248.7]:38662 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1751285AbWA3S1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 13:27:39 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Ken MacFerrin <lists@macferrin.com>
-Subject: Re: PROBLEM: kernel BUG at mm/rmap.c:486 - kernel 2.6.15-r1
-Date: Mon, 30 Jan 2006 16:46:53 +0000
-User-Agent: KMail/1.9
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, hugh@veritas.com,
-       linux-kernel@vger.kernel.org
-References: <43DAE307.5010306@macferrin.com> <43DD3DDF.6020901@macferrin.com> <43DD644B.8070501@macferrin.com>
-In-Reply-To: <43DD644B.8070501@macferrin.com>
+	Mon, 30 Jan 2006 13:30:39 -0500
+Received: from mail.timesys.com ([65.117.135.102]:33929 "EHLO
+	postfix.timesys.com") by vger.kernel.org with ESMTP
+	id S1751288AbWA3Sai convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 13:30:38 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601301646.53526.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: [PATCH] kconfig: detect if -lintl is needed when linking conf,mconf
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+Date: Mon, 30 Jan 2006 13:26:47 -0500
+Message-ID: <3D848382FB72E249812901444C6BDB1D0908A150@exchange.timesys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] kconfig: detect if -lintl is needed when linking conf,mconf
+Thread-Index: AcYlyrrm7grohq4SRDiUSkJEoPJ/EA==
+From: "Robb, Sam" <sam.robb@timesys.com>
+To: <zippel@linux-m68k.org>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 January 2006 00:56, Ken MacFerrin wrote:
-[snip]
-> Unfortunately it seems that the "nv" driver in Xorg does not currently
-> support multiple displays on a single video card with dual heads.  Not
-> being able to at least run xinerama is a deal breaker for me so I'm back
-> to the binary nvidia driver using twinview.  At this point I will apply
-> Hugh's patch and post any further "Bad page state" and "Bad rmap"
-> messages as instructed.
+Hello,
 
-Indeed, Hugh's patch is the best way to proceed with discovering who the 
-culprits are. Using the "nv" driver was not really meant as a debugging aide, 
-but as a last resort if the patch yields nothing useful.
+  On a system where libintl.h is present, but the NLS functionality is
+supplied by a separate library instead of the system C library, an attempt
+to "make config" or "make menuconfig" will fail with link errors, ex:
 
--- 
-Cheers,
-Alistair.
+  scripts/kconfig/mconf.o:mconf.c:(.text+0xf63): undefined reference to
+    `_libintl_gettext'
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+  This patch attempts to correct the problem by detecting whether or not
+NLS support requires linking with libintl.
+
+Signed-off-by: Samuel J Robb <sam.robb@timesys.com>
+
+---
+
+--- linux-2.6.15.1/scripts/kconfig/Makefile.orig        2006-01-25 14:55:22.926372900 -0500
++++ linux-2.6.15.1/scripts/kconfig/Makefile     2006-01-30 12:51:04.551596200 -0500
+@@ -122,7 +122,17 @@ KBUILD_HAVE_NLS := $(shell \
+      then echo yes ; \
+      else echo no ; fi)
+ ifeq ($(KBUILD_HAVE_NLS),no)
+-HOSTCFLAGS     += -DKBUILD_NO_NLS
++  HOSTCFLAGS   += -DKBUILD_NO_NLS
++else
++  KBUILD_NEED_LINTL := $(shell \
++    if echo -e "\#include <libintl.h>\nint main(int a, char** b) { gettext(\"\"); return 0; }\n" | \
++      $(HOSTCC) $(HOSTCFLAGS) -x c - > /dev/null 2>&1 ; \
++    then echo no ; \
++    else echo yes ; fi)
++  ifeq ($(KBUILD_NEED_LINTL),yes)
++    HOSTLOADLIBES_conf += -lintl
++    HOSTLOADLIBES_mconf        += -lintl
++  endif
+ endif
+ 
+ # generated files seem to need this to find local include files

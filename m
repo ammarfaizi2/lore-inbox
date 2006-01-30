@@ -1,76 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWA3Jty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWA3JuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWA3Jty (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 04:49:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWA3Jty
+	id S932183AbWA3JuU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 04:50:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWA3JuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 04:49:54 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:3490 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932181AbWA3Jtw (ORCPT
+	Mon, 30 Jan 2006 04:50:20 -0500
+Received: from cantor.suse.de ([195.135.220.2]:15515 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932183AbWA3JuR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 04:49:52 -0500
-Message-ID: <43DDF351.2EFD1280@tv-sign.ru>
-Date: Mon, 30 Jan 2006 14:06:57 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Mon, 30 Jan 2006 04:50:17 -0500
+From: Andi Kleen <ak@suse.de>
+To: Muli Ben-Yehuda <mulix@mulix.org>
+Subject: Re: [PATCH RESEND] move swiotlb.h header file to asm-generic
+Date: Mon, 30 Jan 2006 10:49:41 +0100
+User-Agent: KMail/1.8.2
+Cc: Andrew Morton <akpm@osdl.org>, Jon Mason <jdmason@us.ibm.com>,
+       Christoph Hellwig <hch@lst.de>, "Luck, Tony" <tony.luck@intel.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Muli Ben-Yehuda <MULI@il.ibm.com>
+References: <20060130094434.GG23968@granada.merseine.nu>
+In-Reply-To: <20060130094434.GG23968@granada.merseine.nu>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@sw.ru>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Jeff Dike <jdike@addtoit.com>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 3/3] pidhash: temporal debug checks
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601301049.41854.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is only for testing in -mm tree.
+On Monday 30 January 2006 10:44, Muli Ben-Yehuda wrote:
+> This patch:
+> 
+> - creates asm-generic/swiotlb.h
+> - makes it use 'enum dma_data_direction dir' rather than 'int dir'
+> - updates x86-64 and IA64 to use the common swiotlb.h
+> - fixes the resulting fall out (s/int dir/enum dma_data_direction dir/
+>   all over the place).
 
-Ensure that we really do not use pid == 0.
+Al Viro will likely flame you badly for that enum change. Apparently it 
+causes some trouble in sparse. Frankly i don't see the point neither.
+It just makes the code harder to read and creates a monstrosity of a patch 
+and doesn't give you anything.
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+-Andi
 
---- RC-1/kernel/pid.c~DBG	2006-01-30 14:21:15.000000000 +0300
-+++ RC-1/kernel/pid.c	2006-01-30 16:37:29.000000000 +0300
-@@ -138,6 +138,7 @@ struct pid * fastcall find_pid(enum pid_
- 
- 	hlist_for_each_entry_rcu(pid, elem,
- 			&pid_hash[type][pid_hashfn(nr)], pid_chain) {
-+		WARN_ON(!pid->nr); /* to be removed soon */
- 		if (pid->nr == nr)
- 			return pid;
- 	}
-@@ -148,6 +149,9 @@ int fastcall attach_pid(task_t *task, en
- {
- 	struct pid *pid, *task_pid;
- 
-+	WARN_ON(!task->pid); /* to be removed soon */
-+	WARN_ON(!nr); /* to be removed soon */
-+
- 	task_pid = &task->pids[type];
- 	pid = find_pid(type, nr);
- 	task_pid->nr = nr;
-@@ -168,9 +172,11 @@ static fastcall int __detach_pid(task_t 
- 	struct pid *pid, *pid_next;
- 	int nr = 0;
- 
-+	WARN_ON(!task->pid); /* to be removed soon */
-+
- 	pid = &task->pids[type];
- 	if (!hlist_unhashed(&pid->pid_chain)) {
--
-+		WARN_ON(!pid->nr); /* to be removed soon */
- 		if (list_empty(&pid->pid_list)) {
- 			nr = pid->nr;
- 			hlist_del_rcu(&pid->pid_chain);
---- RC-1/kernel/fork.c~DBG	2006-01-30 14:17:58.000000000 +0300
-+++ RC-1/kernel/fork.c	2006-01-30 15:43:40.000000000 +0300
-@@ -1210,6 +1210,7 @@ task_t * __devinit fork_idle(int cpu)
- 	task = copy_process(CLONE_VM, 0, idle_regs(&regs), 0, NULL, NULL, 0);
- 	if (!task)
- 		return ERR_PTR(-ENOMEM);
-+	WARN_ON(task->proc_dentry); /* to be removed soon */
- 	init_idle(task, cpu);
- 
- 	return task;
+>

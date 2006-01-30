@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWA3Cru@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWA3DP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbWA3Cru (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 21:47:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWA3Cru
+	id S1750720AbWA3DP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 22:15:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWA3DP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 21:47:50 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:32262 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751222AbWA3Crt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 21:47:49 -0500
-Date: Mon, 30 Jan 2006 03:47:48 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: per.liden@ericsson.com, jon.maloy@ericsson.com,
-       allan.stephens@windriver.com
-Cc: tipc-discussion@lists.sourceforge.net, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: net/tipc/bcast.c:tipc_bcbearer_send() stack usage
-Message-ID: <20060130024748.GI3777@stusta.de>
-MIME-Version: 1.0
+	Sun, 29 Jan 2006 22:15:27 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:49393 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1750701AbWA3DPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 22:15:25 -0500
+Date: Mon, 30 Jan 2006 12:15:22 +0900
+To: Hirokazu Takata <takata@linux-m32r.org>
+Cc: linux-kernel@vger.kernel.org, rth@twiddle.net, ink@jurassic.park.msu.ru,
+       rmk@arm.linux.org.uk, spyro@f2s.com, dev-etrax@axis.com,
+       dhowells@redhat.com, ysato@users.sourceforge.jp, torvalds@osdl.org,
+       linux-ia64@vger.kernel.org, linux-m68k@vger.kernel.org,
+       gerg@uclinux.org, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, uclinux-v850@lsi.nec.co.jp, ak@suse.de,
+       chris@zankel.net, akpm@osdl.org
+Subject: Re: [PATCH 4/6] use include/asm-generic/bitops for each architecture
+Message-ID: <20060130031522.GA6897@miraclelinux.com>
+References: <20060125112625.GA18584@miraclelinux.com> <20060125113336.GE18584@miraclelinux.com> <20060126014934.GA6648@miraclelinux.com> <20060127.220401.356433243.takata.hirokazu@renesas.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060127.220401.356433243.takata.hirokazu@renesas.com>
+User-Agent: Mutt/1.5.9i
+From: mita@miraclelinux.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From net/tipc/bcast.c:
+On Fri, Jan 27, 2006 at 10:04:01PM +0900, Hirokazu Takata wrote:
 
-<--  snip  -->
+> compile and boot test on m32r: OK
 
-...
-int tipc_bcbearer_send(struct sk_buff *buf,
-                       struct tipc_bearer *unused1,
-                       struct tipc_media_addr *unused2)
-{
-        static int send_count = 0;
+Thanks.
 
-        struct node_map remains;
-        struct node_map remains_new;
-...
+> Code size became a little bigger...  ;-)
+> 
+> $ size linux-2.6.16-rc1*/vmlinux
+>    text    data     bss     dec     hex filename
+> 1768030  124412  721632 2614074  27e33a linux-2.6.16-rc1.bitops/vmlinux
+> 1755010  124412  721632 2601054  27b05e linux-2.6.16-rc1.org/vmlinux
 
-<--  snip  -->
-
-
-You've just allocated 2*516 Bytes for the two structs from a stack that 
-might only be 4 kB altogether.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+The only difference I can find is __ffs()/ffz().
+As Russel King clealy pointed out, it will generate larger code
+than before.
 

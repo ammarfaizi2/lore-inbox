@@ -1,91 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbWA3WgM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWA3WiV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030195AbWA3WgM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 17:36:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030198AbWA3WgM
+	id S1030198AbWA3WiV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 17:38:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbWA3WiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 17:36:12 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:63637 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S1030195AbWA3WgK convert rfc822-to-8bit
+	Mon, 30 Jan 2006 17:38:21 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:42767 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1030198AbWA3WiV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 17:36:10 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Mon, 30 Jan 2006 17:38:21 -0500
+To: Emmanuel Fleury <emmanuel.fleury@labri.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ASLR] Better control on Randomization
+References: <43DE710F.9020408@labri.fr>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: if it payed rent for disk space, you'd be rich.
+Date: Mon, 30 Jan 2006 22:38:10 +0000
+In-Reply-To: <43DE710F.9020408@labri.fr> (Emmanuel Fleury's message of "30
+ Jan 2006 20:05:19 -0000")
+Message-ID: <87d5i9qr3h.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 3/3] megaraid_sas: support for 1078 type controller added
-Date: Mon, 30 Jan 2006 15:35:58 -0700
-Message-ID: <9738BCBE884FDB42801FAD8A7769C265539345@NAMAIL1.ad.lsil.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 3/3] megaraid_sas: support for 1078 type controller added
-Thread-Index: AcYh63GGL6+BapisS4udLTQwRgUHAQD9rpNwAALMU0A=
-From: "Kolli, Neela" <Neela.Kolli@lsil.com>
-To: "Moore, Eric" <Eric.Moore@lsil.com>,
-       "Patro, Sumant" <Sumant.Patro@engenio.com>, <hch@lst.de>,
-       <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
-       <James.Bottomley@SteelEye.com>
-Cc: "Bagalkote, Sreenivas" <Sreenivas.Bagalkote@engenio.com>,
-       "Yang, Bo" <Bo.Yang@engenio.com>,
-       "Doelfel, Hardy" <Hardy.Doelfel@engenio.com>
-X-OriginalArrivalTime: 30 Jan 2006 22:35:59.0474 (UTC) FILETIME=[8AEA8520:01C625ED]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We will be sending a new patch that takes care of this problem.
+On 30 Jan 2006, Emmanuel Fleury prattled cheerily:
+> Would it be possible to tweak them independently from each other ?
+> (still via procfs)
 
-Thanks,
-Neela Syam Kolli.
+If you prelink your system, shared library randomization (of those
+libraries that were prelinked) ceases: but the stack is still
+randomized. If you prelink with -R, prelink uses random addresses,
+which is pretty much as good as using ASLR, but faster and more
+memory-efficient :)
 
+I don't know of any specific knob, nor of a way to turn off stack
+randomization but leave mmap(PROT_EXEC) randomization on.
 
------Original Message-----
-From: Moore, Eric 
-Sent: Monday, January 30, 2006 4:29 PM
-To: Patro, Sumant; hch@lst.de; linux-kernel@vger.kernel.org;
-linux-scsi@vger.kernel.org; James.Bottomley@SteelEye.com
-Cc: Bagalkote, Sreenivas; Kolli, Neela; Yang, Bo; Doelfel, Hardy
-Subject: RE: [PATCH 3/3] megaraid_sas: support for 1078 type controller
-added
-
-On Wednesday, January 25, 2006 1:06 PM, Sumant Patro wrote:
-
-> 
-> Hello All,
-> 
-> 	This patch adds support for 1078 type controller 
-> (device id : 0x62).
-> Patch is made against the latest git snapshot of scsi-misc-2.6 tree.
-> 
-> 	Please review it and all comments are appreciated.
-> 
-> Thanks,
-> 
-
-James - NACK this patch.
-I noticed you have picked up this patch in your scsi-rc-fixes stream.
-http://www.kernel.org/pub/linux/kernel/people/jejb/scsi-rc-fixes-2.6.cha
-ngelog
-
-There is a mistake with this patch.  This SAS1078 device id (0x62) is
-the same
-id we are claiming for our fusion drivers. Our device ID is 0x62.  You
-can see
-that at this link: http://pci-ids.ucw.cz/iii/?i=10000062.  I haven't got
-around
-to it, but I plan to post support for that soon.
-
-A different version of SAS1078 is being manufactured by the megaraid
-group.  
-Neela Syam Kolli is aware of this issue, and I believe they are working
-out the details, 
-and will be posting a patch to solve this.
-
-Can this patch be backed out if its not fixed before 2.6.16 kernel is
-released.
-
-Eric Moore
-
-
-
+-- 
+`I won't make a secret of the fact that your statement/question
+ sent a wave of shock and horror through us.' --- David Anderson

@@ -1,79 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbWA3T7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbWA3UAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964933AbWA3T7q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 14:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964938AbWA3T7q
+	id S964934AbWA3UAs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 15:00:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWA3UAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 14:59:46 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:48613 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S964933AbWA3T7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 14:59:45 -0500
-Message-ID: <43DE7035.1040806@t-online.de>
-Date: Mon, 30 Jan 2006 20:59:49 +0100
-From: Knut Petersen <Knut_Petersen@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.10) Gecko/20050726
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: netdev@vger.kernel.org, jgarzik@pobox.com
-Subject: [BUG] 8139too fails for ip autoconfig and nfsroot
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ID: ZqH3WYZTQeEaG+Q8r-ukLbBkoAEZyw3JIf9fqAXdo6YNWS3UqlDn64@t-dialin.net
-X-TOI-MSGID: fd1ecd92-9015-4727-95b3-68ef132ac63d
+	Mon, 30 Jan 2006 15:00:48 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:47274 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S964934AbWA3UAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 15:00:47 -0500
+Date: Mon, 30 Jan 2006 12:00:26 -0800
+From: "Luck, Tony" <tony.luck@intel.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Ingo Molnar <mingo@redhat.com>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: boot-time slowdown for measure_migration_cost
+Message-ID: <20060130200026.GA5081@agluck-lia64.sc.intel.com>
+References: <200601271403.27065.bjorn.helgaas@hp.com> <20060130172140.GB11793@elte.hu> <20060130185301.GA4622@agluck-lia64.sc.intel.com> <20060130192438.GA29129@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060130192438.GA29129@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a number of systems equipped with:
+On Mon, Jan 30, 2006 at 08:24:38PM +0100, Ingo Molnar wrote:
+> > Doing both gets the time down to 5.20s, and the migration_cost=9990.
+> 
+> ok, that's good enough i think - we could certainly do the patch below 
+> in v2.6.16.
 
-0000:05:05.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-RTL-8139/8139C/8139C+ (rev 10)
-        Subsystem: Realtek Semiconductor Co., Ltd. RT8139
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (8000ns min, 16000ns max)
-        Interrupt: pin A routed to IRQ 177
-        Region 0: I/O ports at d000 [size=1027M]
-        Region 1: Memory at d0320000 (32-bit, non-prefetchable) [size=256]
-        Expansion ROM at 00020000 [disabled]
-        Capabilities: [50] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA 
-PME(D0-,D1+,D2+,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+Might it be wise to see whether the 2% variation that I saw can be
+repeated on some other architecture?  Bjorn's initial post was just
+questioning whether we need to spend this much time during boot to acquire
+this data.  Now we have *one* data point that on an ia64 with four cpus
+with 9MB cache in a single domain that we can speed the calculation by
+a factor of three with only a 2% loss of accuracy.  Can someone else try
+this patch and post the before/after values for migration_cost from dmesg?
 
-Those cards have PXE boot roms.
+-Tony
 
-There are no problems in normal operation, but something is totaly wrong 
-when I
-try to use those cards for network booting:
+---
+reduce the amount of time the migration cost calculations cost during 
+bootup.
 
-I compiled a kernel for nfsroot and dhcp ip autoconfiguration, 
-configured the server and tried
-to boot. Well, booting memtest and booting msdos works perfectly fine. 
-Loading the kernel
-is also no problem, but at the point of ip autoconfiguration (ip=dhcp) 
-the kernel loops sending
-DHCPDISCOVER packets. Those packets arrive at the server, and the server 
-responds appropiately.
-ic_bootp_recv() never gets called (checked by a printk). I suspected a 
-server malconfiguration,
-but found none. Skipping ip autoconfig is no solution, the kernel then 
-fails trying rpc lookup.
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Then I tried to netboot another system with the same kernel + via rhine 
-driver, same server
-config. Voila, dhcp ip autoconfig and rpc port lookup is not a problem 
-on this system.
-
-During my search for a solution I tried some recent kernels, the oldest 
-2.6.14. All fail with 8139too.
-
-Any ideas?
-
-cu,
- Knut
+--- linux/kernel/sched.c.orig
++++ linux/kernel/sched.c
+@@ -5141,7 +5141,7 @@ static void init_sched_build_groups(stru
+ #define SEARCH_SCOPE		2
+ #define MIN_CACHE_SIZE		(64*1024U)
+ #define DEFAULT_CACHE_SIZE	(5*1024*1024U)
+-#define ITERATIONS		2
++#define ITERATIONS		1
+ #define SIZE_THRESH		130
+ #define COST_THRESH		130
+ 
+@@ -5480,9 +5480,9 @@ static unsigned long long measure_migrat
+ 				break;
+ 			}
+ 		/*
+-		 * Increase the cachesize in 5% steps:
++		 * Increase the cachesize in 10% steps:
+ 		 */
+-		size = size * 20 / 19;
++		size = size * 10 / 9;
+ 	}
+ 
+ 	if (migration_debug)

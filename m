@@ -1,93 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWA3Vcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWA3VeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750862AbWA3Vcz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 16:32:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWA3Vcz
+	id S1030192AbWA3VeK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 16:34:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbWA3VeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 16:32:55 -0500
-Received: from mf00.sitadelle.com ([212.94.174.67]:25046 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1750862AbWA3Vcy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 16:32:54 -0500
-Message-ID: <43DE8604.1060109@cosmosbay.com>
-Date: Mon, 30 Jan 2006 22:32:52 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 30 Jan 2006 16:34:09 -0500
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:64923 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S1030188AbWA3VeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 16:34:07 -0500
+X-IronPort-AV: i="4.01,236,1136188800"; 
+   d="scan'208"; a="1771651581:sNHT18534743392"
+To: Greg KH <greg@kroah.com>
+Cc: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>, Mark Maule <maule@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>
+Subject: Re: FW: MSI-X on 2.6.15
+X-Message-Flag: Warning: May contain useful information
+References: <D4CFB69C345C394284E4B78B876C1CF10B8AC113@cceexc23.americas.cpqcorp.net>
+	<20060130173852.GA16259@kroah.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 30 Jan 2006 13:33:49 -0800
+In-Reply-To: <20060130173852.GA16259@kroah.com> (Greg KH's message of "Mon,
+ 30 Jan 2006 09:38:52 -0800")
+Message-ID: <adafyn59z9e.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       vserver@list.linux-vserver.org, Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH 1/5] pid: Implement task references.
-References: <m1psmba4bn.fsf@ebiederm.dsl.xmission.com>	<m1lkwza479.fsf@ebiederm.dsl.xmission.com>	<20060129190539.GA26794@kroah.com>	<m1mzhe7l2c.fsf@ebiederm.dsl.xmission.com>	<20060130045153.GC13244@kroah.com> <43DDA1E7.5010109@cosmosbay.com>	<20060130184302.GA17457@kroah.com> <43DE6FE6.40705@cosmosbay.com> <m1bqxt5ts3.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1bqxt5ts3.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 30 Jan 2006 21:33:55.0474 (UTC) FILETIME=[DF3D3720:01C625E4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman a écrit :
-> Eric Dumazet <dada1@cosmosbay.com> writes:
-> 
->> Greg KH a écrit :
->>> On Mon, Jan 30, 2006 at 06:19:35AM +0100, Eric Dumazet wrote:
->>>> Example of improvement in kref_put() :
->>>>
->>>> [PATCH] kref : Avoid an atomic operation in kref_put() when the last
->>>> reference is dropped. On most platforms, atomic_read() is a plan read of the
->>>> counter and involves no atomic at all.
->>> No, we wat to decrement and test at the same time, to protect against
->>> any race where someone is incrementing right when we are dropping the
->>> last reference.
->> Sorry ? Me confused !
-> 
-> Largely I think you have the right of it, that the optimization is
-> correct.  My biggest complaint is that the common case is going to be
-> several references to the data structure.  Releasing the references
-> will always be slow.  To do the read you need to get the value into
-> the cache line.
-> 
-> So it looks to me like you are optimizing the wrong case and
-> bloating the icache with unnecessary code.
+    Greg> ia64 didn't really have msi support before the latest -mm
+    Greg> kernel, right Mark?
 
-This function is not inlined.
+No, I know Grant Grundler has been using MSI-X on ia64 with a PCI-X
+InfiniBand HCA and the ib_mthca driver for quite a while, at least
+since 2.6.11 or so.  ib_mthca uses 3 separate interrupts in MSI-X
+mode, so even multiple messages from a single device are fine.
 
-Adding a test and a branch is a matter of 7 bytes.
-
-  'Bloating the icache' is a litle bit off :)
-
-Avoiding an atomic is important. This is already done elsewhere in the kernel, 
-in a inlined function with *many* call sites :
-
-(See kfree_skb() in include/linux//skbuff.h )
-
-/*
-  * If users == 1, we are the only owner and are can avoid redundant
-  * atomic change.
-  */
-
-/**
-  *      kfree_skb - free an sk_buff
-  *      @skb: buffer to free
-  *
-  *      Drop a reference to the buffer and free it if the usage count has
-  *      hit zero.
-  */
-static inline void kfree_skb(struct sk_buff *skb)
-{
-         if (likely(atomic_read(&skb->users) == 1))
-                 smp_rmb();
-         else if (likely(!atomic_dec_and_test(&skb->users)))
-                 return;
-         __kfree_skb(skb);
-}
-
-
-This is a valid optimization : an atomic_dec_and_test() is very expensive.
-
-Eric
+ - R.

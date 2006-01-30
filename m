@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbWA3V53@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWA3V5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965015AbWA3V53 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 16:57:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbWA3V53
+	id S932386AbWA3V5J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 16:57:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWA3V5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 16:57:29 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:12350 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932387AbWA3V52
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 16:57:28 -0500
-Message-ID: <43DE8C1B.1050004@tmr.com>
-Date: Mon, 30 Jan 2006 16:58:51 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-CC: linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de, axboe@suse.de,
-       acahalan@gmail.com
+	Mon, 30 Jan 2006 16:57:08 -0500
+Received: from mail.gmx.net ([213.165.64.21]:49113 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932386AbWA3V5H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 16:57:07 -0500
+X-Authenticated: #428038
+Date: Mon, 30 Jan 2006 22:57:01 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Albert Cahalan <acahalan@gmail.com>, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-References: <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <43D7AF56.nailDFJ882IWI@burner> <20060125181847.b8ca4ceb.grundig@teleline.es> <20060125173127.GR4212@suse.de> <43D7C1DF.1070606@gmx.de> <20060125182552.GB4212@suse.de> <20060125231422.GB2137@merlin.emma.line.org> <20060126020951.14ebc188.grundig@teleline.es> <20060126082324.GB13125@merlin.emma.line.org> <43D8D50D.nailE2X5WK8ZO@burner>
-In-Reply-To: <43D8D50D.nailE2X5WK8ZO@burner>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Message-ID: <20060130215701.GA10312@merlin.emma.line.org>
+Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
+	Albert Cahalan <acahalan@gmail.com>, linux-kernel@vger.kernel.org
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43D7A7F4.nailDE92K7TJI@burner> <787b0d920601251826l6a2491ccy48d22d33d1e2d3e7@mail.gmail.com> <43D8D396.nailE2X31OHFU@burner> <787b0d920601261619l43bb95f5k64ddd338f377e56a@mail.gmail.com> <43DE8A06.9010800@tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <43DE8A06.9010800@tmr.com>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
-> Matthias Andree <matthias.andree@gmx.de> wrote:
-> 
-> 
->>Well, you need to implement 30 (or so) platform-specific ways to get a
->>list of devices, and portable applications aren't going to do that. To
->>make it explicit: no way. It is a maintenance nightmare, 30 lowly-tested
->>pieces of code, too.
-> 
-> 
-> It already works in libscg since nearly 10 years.
-> 
-> 
->>This sounds like a huge difference, but I don't believe it actually is.
->>Jörg is trying to fight the system rather than stop complaining to users
->>about their using /dev/hd*. The scanning code is there and can be made
->>working with little effort probably.
-> 
-> 
-> Talking about /dev/hd* ignore the basic problem. Show me a way how to
-> send SCSI commands to a ATAPI tape drive on Linux. 
-> 
-> Please do not forget that libscg is OS _and_ device independent.
-> Implementing /dev/hd* support at all is already a concession that did go to far.
+On Mon, 30 Jan 2006, Bill Davidsen wrote:
 
-You added the feature, and a message that it was accidental and 
-unsupported. In truth is was neither, and your little message pisses off 
-developers and scares casual users.
+> Just to be clear, Joerg is not the only one I think has been a problem 
+> here, he pissed off some of the developers who don't seem overly eager 
+> to do things which would be helpful for any burner software. From here 
+> it looks like a pissing content, with users well within splash range.
+
+Well, Jörg is not giving us answers to the extent that might convince a
+Linux kernel hacker to change things, except for a few handrails besides
+the staircase, such as Ted's suggestion WRT RLIMIT_MEMLOCK, or people
+offering to fix ide-tape to talk SG_IO - Jörg however has not yet
+documented how ide-tape fixes are relevant for the CD writing
+application (no doubt that a SCSI /GENERAL/ interface library has
+interest in such, it does not matter to the CD writing topic).
+
+> Look a year down the road, when we have have two (or more) new 25GB 
+> optical formats coming out, probably with new features and commands and 
+> several vendors building drives for them. Both formats have DRM stuff in 
+> them, and GPL 3 forbids implementing DRM (simplification).
+
+I find it fascinating that everyone talks about the first public GPL v3
+draft as though it were the final version. Now is the time to express
+concerns, for instance, the GPL's incompatibility, to the FSF.
+
+And no, I do not have current plans to work on a cdrecord fork as it is.
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Matthias Andree

@@ -1,78 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964967AbWA3UkS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964968AbWA3Ulm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964967AbWA3UkS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 15:40:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWA3UkS
+	id S964968AbWA3Ulm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 15:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964965AbWA3Ull
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 15:40:18 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50822 "EHLO
+	Mon, 30 Jan 2006 15:41:41 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53126 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S964967AbWA3UkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 15:40:17 -0500
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH 4/5] vt: Update spawnpid to use a task_ref.
-References: <m1psmba4bn.fsf@ebiederm.dsl.xmission.com>
-	<m1lkwza479.fsf@ebiederm.dsl.xmission.com>
-	<m1hd7na44b.fsf_-_@ebiederm.dsl.xmission.com>
-	<m1d5iba3xf.fsf_-_@ebiederm.dsl.xmission.com>
-	<m18xsza3p4.fsf_-_@ebiederm.dsl.xmission.com>
-	<20060130105143.GA2953@elf.ucw.cz>
+	id S964968AbWA3Ull (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 15:41:41 -0500
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] exec: Only allow a threaded init to exec from the
+ thread_group_leader
+References: <m14q3nh7zi.fsf@ebiederm.dsl.xmission.com>
+	<20060129003606.7887ecd9.akpm@osdl.org>
+	<m1irs38h5v.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.61.0601301014570.6405@yvahk01.tjqt.qr>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Mon, 30 Jan 2006 13:39:23 -0700
-In-Reply-To: <20060130105143.GA2953@elf.ucw.cz> (Pavel Machek's message of
- "Mon, 30 Jan 2006 11:51:43 +0100")
-Message-ID: <m1mzhd5u2s.fsf@ebiederm.dsl.xmission.com>
+Date: Mon, 30 Jan 2006 13:41:04 -0700
+In-Reply-To: <Pine.LNX.4.61.0601301014570.6405@yvahk01.tjqt.qr> (Jan
+ Engelhardt's message of "Mon, 30 Jan 2006 10:15:41 +0100 (MET)")
+Message-ID: <m1irs15tzz.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> writes:
+Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
 
-> On Ne 29-01-06 00:33:27, Eric W. Biederman wrote:
->> 
->> This is a classic example of a random kernel subsystem
->> holding a pid for purposes of signalling it later.
->> 
->> Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
->> 
->> 
->> ---
->> 
->>  drivers/char/keyboard.c |    8 ++++----
->>  drivers/char/vt_ioctl.c |    5 +++--
->>  2 files changed, 7 insertions(+), 6 deletions(-)
->> 
->> 7ed8301463a49ad03f8c9de2bbf8c41a5d9843ea
->> diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
->> index 8b603b2..4e1f2e0 100644
->> --- a/drivers/char/keyboard.c
->> +++ b/drivers/char/keyboard.c
->> @@ -109,7 +109,8 @@ struct kbd_struct kbd_table[MAX_NR_CONSO
->>  static struct kbd_struct *kbd = kbd_table;
->>  static struct kbd_struct kbd0;
->>  
->> -int spawnpid, spawnsig;
->> +TASK_REF(spawnpid);
+>>
+>>So threading init will work just fine.  The only case that will blow up
+>>is calling exec from something that is not the thread group leader.
+>>i.e.  If tgid == 1 but pid != 1 the kernel will cause pid == 1 to exit.
 >
-> Could we get some nicer syntax of declaration? This does not look like
-> declaration, and looks ugly to my eyes.
+> Should not it, at its best, replace the whole thread group by the new 
+> program and have things carry on?
 
-Any suggestions?
-
-Does 
-struct task_ref *spawnpid = &init_tref;
-
-I modeled it after how we did this is done for lists.
+You see the bug.
 
 Eric
 

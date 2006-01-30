@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWA3QH1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbWA3QLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932351AbWA3QH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 11:07:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWA3QH1
+	id S932354AbWA3QLR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 11:11:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932355AbWA3QLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 11:07:27 -0500
-Received: from zombie.ncsc.mil ([144.51.88.131]:27843 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S932351AbWA3QH0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 11:07:26 -0500
-Subject: Re: security capabilities on filesystems
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Lukasz Stelmach <stlman@poczta.fm>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43DD1FB7.9050509@poczta.fm>
-References: <43DD1FB7.9050509@poczta.fm>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Mon, 30 Jan 2006 11:13:15 -0500
-Message-Id: <1138637595.7076.86.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Jan 2006 11:11:17 -0500
+Received: from tassadar.physics.auth.gr ([155.207.123.25]:44003 "EHLO
+	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
+	id S932354AbWA3QLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 11:11:16 -0500
+Date: Mon, 30 Jan 2006 18:11:03 +0200 (EET)
+From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
+To: Neil Brown <neilb@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: RAID autodetection not working when booting with initramfs
+In-Reply-To: <17373.20667.838469.977966@cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.64.0601301808180.24345@tassadar.physics.auth.gr>
+References: <Pine.LNX.4.64.0601300103110.2016@tassadar.physics.auth.gr>
+ <17373.20667.838469.977966@cse.unsw.edu.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-01-29 at 21:04 +0100, Lukasz Stelmach wrote:
-> Greetings.
-> 
-> I've poke around for some information but all I got (was this lousy t-shirt)
-> that there is no support for capablities stored on a filesystem. However, I'd
-> like to ask if there are any chances to see this feature soon.
 
-Storage of the capability bits isn't the hard part; that is especially
-easy these days given the extensible security namespace for extended
-attributes that was introduced for SELinux (but not limited to it).
+> 	/*
+> 	 * check if there is an early userspace init.  If yes, let it do all
+> 	 * the work
+> 	 */
+>
+> So yes, it is by design.  Assembling arrays with mdadm gives you a
+> lot more control than the kernel-autodetect so as you have an
+> initramfs, it is a good idea to make use of it.
+>
+> If you *really* want to use the autodetect functionality, you can look
+> around for a program called 'raidautorun'.  It does triggers the
+> autodetect function from userspace.
+>
 
-# touch foo
-# setfattr -n security.capability.effcap -v 0xdeadbeef foo
-# getfattr -e hex -n security.capability.effcap foo
-# file: foo
-security.capability.effcap=0xdeadbeef
+ 	Thank you , raidautorun did the trick. I am trying to build an 
+initramfs as much generic as possible to be used with hundreds of systems, 
+so doing a custom image for every possible raid combination is really not 
+an options compared to autodetection.
 
--- 
-Stephen Smalley
-National Security Agency
+ 	Thnx again,
 
+--
+============================================================================
+
+Dimitris Zilaskos
+
+Department of Physics @ Aristotle University of Thessaloniki , Greece
+PGP key : http://tassadar.physics.auth.gr/~dzila/pgp_public_key.asc
+ 	  http://egnatia.ee.auth.gr/~dzila/pgp_public_key.asc
+MD5sum  : de2bd8f73d545f0e4caf3096894ad83f  pgp_public_key.asc
+============================================================================

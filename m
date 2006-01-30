@@ -1,90 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWA3Q4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWA3Q4M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964779AbWA3Q4h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 11:56:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWA3Q4h
+	id S964778AbWA3Q4M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 11:56:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWA3Q4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 11:56:37 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:7582 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964779AbWA3Q4g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 11:56:36 -0500
-Subject: [PATCH] generic_file_write_nolock cleanup
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>, hch@lst.de
-Content-Type: multipart/mixed; boundary="=-UtOyNMJSzm3DOT8lHJMt"
-Date: Mon, 30 Jan 2006 08:56:05 -0800
-Message-Id: <1138640165.28382.3.camel@dyn9047017102.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Mon, 30 Jan 2006 11:56:11 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:45070 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S964778AbWA3Q4K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 11:56:10 -0500
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org, thockin@hockin.org
+Subject: Re: 2.6.15.1: persistent nasty hang in sync_page killing NFS
+ (ne2k-pci / DP83815-related?), i686/PIII
+References: <87fyn8artm.fsf@amaterasu.srvr.nix>
+	<1138499957.8770.91.camel@lade.trondhjem.org>
+	<87slr79knc.fsf@amaterasu.srvr.nix>
+	<8764o23j0s.fsf@amaterasu.srvr.nix>
+	<1138566075.8711.39.camel@lade.trondhjem.org>
+	<871wyq3dl3.fsf@amaterasu.srvr.nix>
+	<1138572140.8711.82.camel@lade.trondhjem.org>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: a compelling argument for pencil and paper.
+Date: Mon, 30 Jan 2006 16:55:47 +0000
+In-Reply-To: <1138572140.8711.82.camel@lade.trondhjem.org> (Trond
+ Myklebust's message of "Sun, 29 Jan 2006 17:02:20 -0500")
+Message-ID: <874q3lwt7w.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 29 Jan 2006, Trond Myklebust stipulated:
+> As a general rule of thumb: if tcpdump/ethereal can see the reply on the
+> client, then the engine socket should see it too. If tcpdump is indeed
+> seeing those replies, you should check the RPC code by
+> setting /proc/sys/sunrpc/rpc_debug to 1.
 
---=-UtOyNMJSzm3DOT8lHJMt
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+tcpdump is seeing them.
 
-Hi,
+... have a pile of messages in the midst of a locked-up transfer:
 
-generic_file_write_nolock() and __generic_file_write_nolock() seems
-to be doing exactly same thing. Why do we have 2 of these ? 
-Can we kill __generic_file_write_nolock() ?
+Jan 30 16:50:57 loki warning: kernel: -pid- proc flgs status -client- -prog- --rqstp- -timeout -rpcwait -action- --exit--
+Jan 30 16:50:57 loki warning: kernel: 15046 0006 0021 -00011 c1a11600 100003 c801f000 00000000 xprt_resend c02c3798 c01c0e4d
+Jan 30 16:50:57 loki warning: kernel: 15047 0006 0021 000000 c1a11600 100003 c801f0b8 00000070 xprt_pending c02c3869 c01c0e4d
+Jan 30 16:50:57 loki warning: kernel: 15048 0006 0021 -00011 c1a11600 100003 c801f170 00000000 xprt_resend c02c3798 c01c0e4d
+Jan 30 16:50:57 loki warning: kernel: 15049 0006 0001 -00011 c1a11600 100003 c801f228 00000000 xprt_sending c02c3798 c01c0e4d
+Jan 30 16:50:57 loki warning: kernel: RPC: 15047 xprt_timer
+Jan 30 16:50:57 loki warning: kernel: RPC:      cong 256, cwnd was 256, now 256
+Jan 30 16:50:57 loki warning: kernel: RPC: 15048 xprt_cwnd_limited cong = 0 cwnd = 256
+Jan 30 16:50:57 loki warning: kernel: RPC: 15048 xprt_prepare_transmit
+Jan 30 16:50:57 loki warning: kernel: RPC: 15048 xprt_transmit(116)
+Jan 30 16:50:57 loki warning: kernel: RPC: 15048 xmit complete
+Jan 30 16:50:57 loki warning: kernel: RPC: 15047 xprt_prepare_transmit
+Jan 30 16:50:57 loki warning: kernel: RPC: 15047 xprt_cwnd_limited cong = 256 cwnd = 256
+Jan 30 16:50:57 loki warning: kernel: RPC: 15047 failed to lock transport c1a11800
+Jan 30 16:50:58 loki warning: kernel: RPC: 15048 xprt_timer
+Jan 30 16:50:58 loki warning: kernel: RPC:      cong 256, cwnd was 256, now 256
+Jan 30 16:50:58 loki warning: kernel: RPC: 15046 xprt_cwnd_limited cong = 0 cwnd = 256
+Jan 30 16:50:58 loki warning: kernel: RPC: 15046 xprt_prepare_transmit
+Jan 30 16:50:58 loki warning: kernel: RPC: 15046 xprt_transmit(116)
+Jan 30 16:50:58 loki warning: kernel: RPC: 15046 xmit complete
+Jan 30 16:50:58 loki warning: kernel: RPC: 15048 xprt_prepare_transmit
+Jan 30 16:50:58 loki warning: kernel: RPC: 15048 xprt_cwnd_limited cong = 256 cwnd = 256
+Jan 30 16:50:58 loki warning: kernel: RPC: 15048 failed to lock transport c1a11800
+Jan 30 16:50:59 loki warning: kernel: RPC: 15046 xprt_timer
+Jan 30 16:50:59 loki warning: kernel: RPC:      cong 256, cwnd was 256, now 256
+Jan 30 16:50:59 loki warning: kernel: RPC: 15047 xprt_cwnd_limited cong = 0 cwnd = 256
+Jan 30 16:50:59 loki warning: kernel: RPC: 15047 xprt_prepare_transmit
+Jan 30 16:50:59 loki warning: kernel: RPC: 15047 xprt_transmit(116)
+Jan 30 16:50:59 loki warning: kernel: RPC: 15047 xmit complete
+Jan 30 16:50:59 loki warning: kernel: RPC: 15046 xprt_prepare_transmit
+Jan 30 16:50:59 loki warning: kernel: RPC: 15046 xprt_cwnd_limited cong = 256 cwnd = 256
+Jan 30 16:50:59 loki warning: kernel: RPC: 15046 failed to lock transport c1a11800
+Jan 30 16:51:00 loki warning: kernel: RPC: 15047 xprt_timer
+[repeats indefinitely]
+Jan 30 16:51:38 loki warning: kernel: -pid- proc flgs status -client- -prog- --rqstp- -timeout -rpcwait -action- --exit--
+Jan 30 16:51:38 loki warning: kernel: 15046 0006 0021 -00011 c1a11600 100003 c801f000 00000000 xprt_resend c02c3798 c01c0e4d
+Jan 30 16:51:38 loki warning: kernel: 15047 0006 0021 000000 c1a11600 100003 c801f0b8 00000140 xprt_pending c02c3869 c01c0e4d
+Jan 30 16:51:38 loki warning: kernel: 15048 0006 0021 -00011 c1a11600 100003 c801f170 00000000 xprt_resend c02c3798 c01c0e4d
 
-Here is the patch.
+The RPC messages are emitted at pretty much exactly the same frequency
+as the ACKs.
 
-Thanks,
-Badari
+I *guess* that the `failed to lock transport' is the underlying error...
+time to add some debugging and find out what task is locking the
+transport. Back soon, must rebuild the kernel and reboot to clear this
+lock ;)
 
-
-
---=-UtOyNMJSzm3DOT8lHJMt
-Content-Disposition: attachment; filename=generic_file_write_nolock-cleanup.patch
-Content-Type: text/x-patch; name=generic_file_write_nolock-cleanup.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
---- linux.org/mm/filemap.c	2006-01-16 23:44:47.000000000 -0800
-+++ linux/mm/filemap.c	2006-01-30 08:51:04.000000000 -0800
-@@ -2155,20 +2155,6 @@ generic_file_aio_write_nolock(struct kio
- 	return ret;
- }
- 
--static ssize_t
--__generic_file_write_nolock(struct file *file, const struct iovec *iov,
--				unsigned long nr_segs, loff_t *ppos)
--{
--	struct kiocb kiocb;
--	ssize_t ret;
--
--	init_sync_kiocb(&kiocb, file);
--	ret = __generic_file_aio_write_nolock(&kiocb, iov, nr_segs, ppos);
--	if (ret == -EIOCBQUEUED)
--		ret = wait_on_sync_kiocb(&kiocb);
--	return ret;
--}
--
- ssize_t
- generic_file_write_nolock(struct file *file, const struct iovec *iov,
- 				unsigned long nr_segs, loff_t *ppos)
-@@ -2222,7 +2208,7 @@ ssize_t generic_file_write(struct file *
- 					.iov_len = count };
- 
- 	mutex_lock(&inode->i_mutex);
--	ret = __generic_file_write_nolock(file, &local_iov, 1, ppos);
-+	ret = generic_file_write_nolock(file, &local_iov, 1, ppos);
- 	mutex_unlock(&inode->i_mutex);
- 
- 	if (ret > 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
-@@ -2258,7 +2244,7 @@ ssize_t generic_file_writev(struct file 
- 	ssize_t ret;
- 
- 	mutex_lock(&inode->i_mutex);
--	ret = __generic_file_write_nolock(file, iov, nr_segs, ppos);
-+	ret = generic_file_write_nolock(file, iov, nr_segs, ppos);
- 	mutex_unlock(&inode->i_mutex);
- 
- 	if (ret > 0 && ((file->f_flags & O_SYNC) || IS_SYNC(inode))) {
-
---=-UtOyNMJSzm3DOT8lHJMt--
-
+-- 
+`I won't make a secret of the fact that your statement/question
+ sent a wave of shock and horror through us.' --- David Anderson

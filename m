@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbWA3NgM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWA3NsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932269AbWA3NgM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 08:36:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWA3NgM
+	id S932272AbWA3NsO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 08:48:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932274AbWA3NsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 08:36:12 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:29652 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932269AbWA3NgK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 08:36:10 -0500
-Message-ID: <43DE285C.D05E5748@tv-sign.ru>
-Date: Mon, 30 Jan 2006 17:53:16 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Mon, 30 Jan 2006 08:48:13 -0500
+Received: from uproxy.gmail.com ([66.249.92.205]:55234 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932272AbWA3NsN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 08:48:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:references:in-reply-to:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=SuOSzu533Yvcnhl+KjsjaOmKlFP0qVcUAdFedOt/zwrmQlE9xE+S6o2u5QW4bsGQhRShYC36EyuwO4g+/Tlnlm3B+I1wtnxyVLF5VsOVfdpaxMKY8EYIaAp0WhgyAvac/MNOUrWUELx1g3tCUbrZejgNSRLuqMvx3crogJ6h6mU=
+From: Marek =?utf-8?q?Va=C5=A1ut?= <marek.vasut@gmail.com>
+To: dtor_core@ameritech.net
+Subject: Re: [PATCH] iforce: fix -ENOMEM check
+Date: Mon, 30 Jan 2006 14:47:52 +0100
+User-Agent: KMail/1.7.2
+References: <200601281903.28176.marek.vasut@gmail.com> <200601291209.15864.marek.vasut@gmail.com> <200601292226.51488.dtor_core@ameritech.net>
+In-Reply-To: <200601292226.51488.dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] don't touch current->tasks in de_thread()
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200601301447.52382.marek.vasut@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-switch_exec_pids() already added 'current' to init_task.tasks,
-no need to re-add in de_thread().
-
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
-
---- RC-1/fs/exec.c~	2006-01-19 18:13:06.000000000 +0300
-+++ RC-1/fs/exec.c	2006-01-30 20:17:20.000000000 +0300
-@@ -713,8 +713,6 @@ static int de_thread(struct task_struct 
- 			__ptrace_link(current, parent);
- 		}
- 
--		list_del(&current->tasks);
--		list_add_tail(&current->tasks, &init_task.tasks);
- 		current->exit_signal = SIGCHLD;
- 
- 		BUG_ON(leader->exit_state != EXIT_ZOMBIE);
+Dne pondělí 30 ledna 2006 04:26 jste napsal(a):
+> OK, the patch below should get it going... Please let me know if it makes
+> device appear.
+Yeah, it works :-)
+Thanks a lot. Maybe this fix should get somehow in kernel tree.

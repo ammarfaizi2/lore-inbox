@@ -1,33 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWA3HWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWA3HXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbWA3HWe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 02:22:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWA3HWe
+	id S932123AbWA3HXH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 02:23:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWA3HXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 02:22:34 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:64455 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932122AbWA3HWd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 02:22:33 -0500
-Subject: Re: Rebuilding Linux kernel
-From: Lee Revell <rlrevell@joe-job.com>
+	Mon, 30 Jan 2006 02:23:07 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:35795 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S932123AbWA3HXF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 02:23:05 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
 To: Heerath bh <heerath.bh@gmail.com>
-Cc: kaos@ocs.wm.au, mec@shout.net, kbuild-devel@lists.sourceforge.net,
-       alan@linuxcare.com.au, rtlinux@rtlinux.org, yodaiken@fsmlabs.com,
-       linux-kernel@vger.kernel.org, cbrake@accelent.com,
-       jsutherland@accelent.com
-In-Reply-To: <aca19fda0601292303r5d3dba06kf40121a118f13c69@mail.gmail.com>
+Subject: Re: Rebuilding Linux kernel
+Date: Mon, 30 Jan 2006 09:22:00 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
 References: <aca19fda0601292303r5d3dba06kf40121a118f13c69@mail.gmail.com>
-Content-Type: text/plain
-Date: Mon, 30 Jan 2006 02:22:22 -0500
-Message-Id: <1138605742.2799.149.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
+In-Reply-To: <aca19fda0601292303r5d3dba06kf40121a118f13c69@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601300922.00631.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-30 at 12:33 +0530, Heerath bh wrote:
+[CC list mercilessly trimmed]
+
+On Monday 30 January 2006 09:03, Heerath bh wrote:
+> Hi!
+> I am Heerath BH,studying final year engineering in electronics and
+> communication. Now I am associated with the project. I am doing the
+> linux based project. Here i need your Help. I hope you wil do the
+> needful.
 > 
 > Basically  I am trying to rebuild the kernel.I am trying to make two
 > types of kernel.I am using Redhat 2.4 version on intel x86 machine.
@@ -41,9 +47,16 @@ On Mon, 2006-01-30 at 12:33 +0530, Heerath bh wrote:
 >  management,scheduling&synchronization,sysatem
 > timers,IPC,Interrupt handling,multitasking.
 > 
+> Here I am facing the problems. Please guide me in this section, if I
+> want to start from the begining to make the vanilla kernel how wil I
+> get started with that?
+> 
+> second kernel is pc development kernel,that is adding the config files
+> to the rebuilded core kernel.
+> 
+> I am trying to make core kernel size as 300kB by including services
+> which I have mentioned above.
 
-You will need 2.6 for this, 2.4 is inadeuate (no preemption).  2.6.14 or
-2.6.15 is a good choice.
-
-Lee
-
+http://www.catb.org/~esr/faqs/smart-questions.html
+--
+vda

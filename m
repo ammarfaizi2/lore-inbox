@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWA3OVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbWA3O3P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWA3OVk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 09:21:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbWA3OVk
+	id S932288AbWA3O3P (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 09:29:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932290AbWA3O3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 09:21:40 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:24460 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932286AbWA3OVk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 09:21:40 -0500
-Date: Mon, 30 Jan 2006 15:21:40 +0100
-From: Jan Blunck <jblunck@suse.de>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Olaf Hering <olh@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
-Message-ID: <20060130142140.GE9181@hasse.suse.de>
-References: <20060116223431.GA24841@suse.de> <43CC2AF8.4050802@sw.ru> <20060118224953.GA31364@hasse.suse.de> <43CF6170.3050608@sw.ru> <20060119100443.GD10267@hasse.suse.de> <43CF693D.4020104@sw.ru> <20060120190653.GE24401@hasse.suse.de> <43D4907B.4060801@sw.ru> <20060130115435.GA9181@hasse.suse.de> <43DE1D28.1030100@sw.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43DE1D28.1030100@sw.ru>
-User-Agent: Mutt/1.5.9i
+	Mon, 30 Jan 2006 09:29:15 -0500
+Received: from atombrateevo.atom.ru ([81.9.60.4]:44456 "HELO
+	atombrateevo.atom.ru") by vger.kernel.org with SMTP id S932288AbWA3O3P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 09:29:15 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Presentacion de trabajo / Job offer
+From: "Fiona Brennan" <bdbscobnyoib@therapy-store.com>
+Content-Type: text/plain;charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1F3a0i-000381-MO@atombrateevo.atom.ru>
+Date: Mon, 30 Jan 2006 17:28:04 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 30, Kirill Korotaev wrote:
+Estimado Senor/ Senora,
 
-> >
-> > mntput(path->mnt);   // too early mntput()
-> > dput(path->dentry);
-> >
-> >Assuming that in-between this sequence someone unmounts the file system, 
-> >your
-> >patch will wait for this dput() to finish before it proceeds with 
-> >unmounting
-> >the file system. I think this isn't what we want.
-> No, it won't wait for anything, because if umount happened between 
-> mntput/dput, dentry is not in s_dshrinkers list.
-> if umount happens in parallell with dput() (where shrinker operations 
-> are), then it will behave ok - will wait for dput() and then umount. It 
-> was intended behaviour!
+Compania Worldwide Rental era fundada en 1987 y es uno de los lideres europeos 
+en los asuntos de arrendamiento. Nuestra compania esta fomentando los caminos 
+nuevos para mejorar los servicios de arrendamiento de habitacion. Ahora tenemos 
+opportunidades nuevas de trabajo y estamos buscando a nuevos empleados en toda 
+la Europa. Usted no necesita tener algunos habitos o experiencias especiales en 
+los asuntos de inmuebles para trabajar con nosotros. Esta posicion es la oportunidad 
+para juntar el equipo Worldwide Rental, acaudalar la experiencia y ganar dinero 
+trabajando la jornada completa o al tiempo parcial (aun durante un par de horas 
+por un dia). 
 
-It should not wait.
+Se necesita 5 minutos para visitar nuestro web site y acceder a los mas detalles 
+de las corrientes posiciones abiertas. El nivel inicial del ingles se necesita 
+para la cooperacion Eso puede ser su primer paso en su camino hasta la prosperidad. 
 
-> 
-> Also, please, note that such early mntput()'s are bugs!!! because such 
-> dentries can reference freed memory after last mntput(). And I remember 
-> some patches in 2.4.x/2.6.x which fixed this sequence everywhere.
+Atentamente,
+Fiona Brennan
+Adjunto de Recursos Humanos
+http://www.worldwide-rental.com/
+brennan@worldwide-rental.com
 
-Thats why I'm complaining ...
 
-Regards,
-	Jan
 
--- 
-Jan Blunck                                               jblunck@suse.de
-SuSE LINUX AG - A Novell company
-Maxfeldstr. 5                                          +49-911-74053-608
-D-90409 Nürnberg                                      http://www.suse.de
+
+Dear Sir/Madam,
+
+Worldwide Rental company was founded in 1987 and now is one of European leaders 
+in rental business. Our company is developing new ways to improve home rental service. 
+Now we have new job opportunities and looking for new employees around the Europe. 
+You do not need to have any special skills or experience in real estate business 
+to work with us. This position is opportunity to join Worldwide Rental team, 
+get experience and earn money working full or part time (even a couple of hours a day). 
+
+It takes you 5 minutes to visit our web site for more details about currently 
+open positions. It can be your first step on your way to prosperity. 
+
+Best regards,
+Fiona Brennan
+Human resources assistant
+http://www.worldwide-rental.com/
+brennan@worldwide-rental.com
+

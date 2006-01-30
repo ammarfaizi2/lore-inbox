@@ -1,75 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWA3LCb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWA3LNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbWA3LCb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 06:02:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWA3LCb
+	id S932187AbWA3LNa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 06:13:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbWA3LNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 06:02:31 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:8684 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932211AbWA3LCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 06:02:31 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: [PATCH] pid: Don't hash pid 0.
-Date: Mon, 30 Jan 2006 19:58:18 +1000
-User-Agent: KMail/1.9.1
-Cc: Yuki Cuss <celtic@sairyx.org>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <m1ek2rfsu9.fsf@ebiederm.dsl.xmission.com> <43DDE009.9090104@sairyx.org> <Pine.LNX.4.61.0601301047200.6405@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0601301047200.6405@yvahk01.tjqt.qr>
+	Mon, 30 Jan 2006 06:13:30 -0500
+Received: from moraine.clusterfs.com ([66.96.26.190]:19149 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S932187AbWA3LN3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 06:13:29 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1781123.WFcMYkhPLk";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200601301958.24047.ncunningham@cyclades.com>
+Message-ID: <17373.62673.509668.227840@gargle.gargle.HOWL>
+Date: Mon, 30 Jan 2006 14:13:21 +0300
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: Nikita Danilov <nikita@clusterfs.com>, Howard Chu <hyc@symas.com>,
+       Christopher Friesen <cfriesen@nortel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hancockr@shaw.ca
+Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
+In-Reply-To: <43DDCFD0.1090505@aitel.hist.no>
+References: <20060124225919.GC12566@suse.de>
+	<20060124232142.GB6174@inferi.kami.home>
+	<20060125090240.GA12651@suse.de>
+	<20060125121125.GH5465@suse.de>
+	<43D78262.2050809@symas.com>
+	<43D7BA0F.5010907@nortel.com>
+	<43D7C2F0.5020108@symas.com>
+	<43D7CAAB.9070008@yahoo.com.au>
+	<43D7D234.6060005@symas.com>
+	<17368.42664.299094.987071@gargle.gargle.HOWL>
+	<43DDCFD0.1090505@aitel.hist.no>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1781123.WFcMYkhPLk
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Helge Hafting writes:
+ > Nikita Danilov wrote:
+ > 
+ > >Howard Chu writes:
+ > >
+ > >[...]
+ > >
+ > > > 
+ > > > A straightforward reading of the language here says the decision happens 
+ > > > "when pthread_mutex_unlock() is called" and not at any later time. There 
+ > > > is nothing here to support your interpretation.
+ > > > >
+ > > > > I think the intention of the wording is that for deterministic policies,
+ > > > > it is clear that the waiting threads are actually worken and reevaluated
+ > > > > for scheduling. In the case of SCHED_OTHER, it means basically nothing,
+ > > > > considering the scheduling policy is arbitrary.
+ > > > >
+ > > > Clearly the point is that one of the waiting threads is waken and gets 
+ > > > the mutex, and it doesn't matter which thread is chosen. I.e., whatever 
+ > >
+ > >Note that this behavior directly leads to "convoy formation": if that
+ > >woken thread T0 does not immediately run (e.g., because there are higher
+ > >priority threads) but still already owns the mutex, then other running
+ > >threads contending for this mutex will block waiting for T0, forming a
+ > >convoy.
+ > >
+ > I just wonder - what is the problem with this convoy formation?
+ > It can only happen when the cpu is overloaded, and in that case
+ > someone has to wait.  In this case, the mutex waiters. 
 
-Hi.
+The obvious problem is extra context switch: if mutex is left unlocked,
+then first thread (say, T0) that tries to acquire it, succeeds and
+continues to run, whereas if mutex is directly handed to the runnable
+(but not running) thread T1, T0 has to block, until T1 runs.
 
-On Monday 30 January 2006 19:49, Jan Engelhardt wrote:
-> >> How about nr==0, it would make it more obvious.
-> >
-> > I am inclined to agree. `!nr' seems to imply some sort of an error
-> > condition;
->
-> ! seems to imply a boolean usually. (If this was Java, this would even
-> be enforced.)
+What's worse, convoys tend to grow once formed.
 
-If this was Java! Thank goodness it's not :>
+ > 
+ > Aggressively handing the cpu to whoever holds a mutex will mean the
+ > mutexes are free more of the time - but it will *not* mean less waiting in
+ > tghe system.  You just changes who waits.
+ > 
+ > Helge Hafting
 
-Nigel
+Nikita.
 
-> However, !x (and x) is scattered all around the kernel where
-> x==0,x!=0 (or x==NULL,x!=NULL) would be more readable.
->
-> > perhaps a comment could be placed in order to make why the case of (nr ==
-> > 0) is being ignored.
-> >
-> > - Yuki.
->
-> Jan Engelhardt
-
---nextPart1781123.WFcMYkhPLk
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD3eNAN0y+n1M3mo0RAvTHAJwKN8LYovK1CnFhhrYluqUIqR+i7QCgxS0L
-QlKMUwaQ7LTp1YumRaynORA=
-=QeYR
------END PGP SIGNATURE-----
-
---nextPart1781123.WFcMYkhPLk--

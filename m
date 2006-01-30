@@ -1,90 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbWA3VZo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030180AbWA3V1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030186AbWA3VZo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 16:25:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030182AbWA3VZM
+	id S1030180AbWA3V1p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 16:27:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030182AbWA3V1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 16:25:12 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:40844 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030180AbWA3VYy
+	Mon, 30 Jan 2006 16:27:45 -0500
+Received: from bay104-f5.bay104.hotmail.com ([65.54.175.15]:10413 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1030180AbWA3V1o
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 16:24:54 -0500
-Subject: [patch 1/8] mempool - Add page allocator
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: linux-kernel@vger.kernel.org
-Cc: penberg@cs.helsinki.fi, akpm@osdl.org
-References: <20060130211951.225129000@localhost.localdomain>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Mon, 30 Jan 2006 13:23:37 -0800
-Message-Id: <1138656217.20704.1.camel@localhost.localdomain>
+	Mon, 30 Jan 2006 16:27:44 -0500
+Message-ID: <BAY104-F5C6E5D461205362612E08C0090@phx.gbl>
+X-Originating-IP: [137.207.140.83]
+X-Originating-Email: [kamrankarimi@hotmail.com]
+In-Reply-To: <Pine.LNX.4.62.0601302148500.30329@pademelon.sonytel.be>
+From: "Kamran Karimi" <kamrankarimi@hotmail.com>
+To: geert@linux-m68k.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DIPC alpha2 for i386, Alpha, SPARC, and M68k
+Date: Mon, 30 Jan 2006 15:27:43 -0600
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 30 Jan 2006 21:27:43.0787 (UTC) FILETIME=[01B247B0:01C625E4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-plain text document attachment (mempool-add_page_allocator.patch)
-Add an allocator to the common mempool code: a simple page allocator
+Works now. Please try again.
 
-This will be used by the next patch in the series to replace duplicate
-mempool-backed page allocators in 2 places in the kernel.  It is also
-likely that there will be more users in the future.
+The problem was this: there seems to be a delay on cs.uwindsor.ca between 
+the time you upload something and the time it actually shows up on the page.
 
-Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
+-Kamran
 
- include/linux/mempool.h |   12 ++++++++++++
- mm/mempool.c            |   18 ++++++++++++++++++
- 2 files changed, 30 insertions(+)
 
-Index: linux-2.6.16-rc1-mm4+mempool_work/mm/mempool.c
-===================================================================
---- linux-2.6.16-rc1-mm4+mempool_work.orig/mm/mempool.c
-+++ linux-2.6.16-rc1-mm4+mempool_work/mm/mempool.c
-@@ -289,3 +289,21 @@ void mempool_free_slab(void *element, vo
- 	kmem_cache_free(mem, element);
- }
- EXPORT_SYMBOL(mempool_free_slab);
-+
-+/*
-+ * A simple mempool-backed page allocator that allocates pages
-+ * of the order specified by pool_data.
-+ */
-+void *mempool_alloc_pages(gfp_t gfp_mask, void *pool_data)
-+{
-+	int order = (int) pool_data;
-+	return alloc_pages(gfp_mask, order);
-+}
-+EXPORT_SYMBOL(mempool_alloc_pages);
-+
-+void mempool_free_pages(void *element, void *pool_data)
-+{
-+	int order = (int) pool_data;
-+	__free_pages(element, order);
-+}
-+EXPORT_SYMBOL(mempool_free_pages);
-Index: linux-2.6.16-rc1-mm4+mempool_work/include/linux/mempool.h
-===================================================================
---- linux-2.6.16-rc1-mm4+mempool_work.orig/include/linux/mempool.h
-+++ linux-2.6.16-rc1-mm4+mempool_work/include/linux/mempool.h
-@@ -38,4 +38,16 @@ extern void mempool_free(void *element, 
- void *mempool_alloc_slab(gfp_t gfp_mask, void *pool_data);
- void mempool_free_slab(void *element, void *pool_data);
- 
-+/*
-+ * A mempool_alloc_t and mempool_free_t for a simple page allocator that
-+ * allocates pages of the order specified by pool_data
-+ */
-+void *mempool_alloc_pages(gfp_t gfp_mask, void *pool_data);
-+void mempool_free_pages(void *element, void *pool_data);
-+static inline mempool_t *mempool_create_page_pool(int min_nr, int order)
-+{
-+	return mempool_create(min_nr, mempool_alloc_pages, mempool_free_pages,
-+			      (void *) order);
-+}
-+
- #endif /* _LINUX_MEMPOOL_H */
+>On Mon, 30 Jan 2006, Kamran Karimi wrote:
+> > The file http://www.cs.uwindsor.ca/~kamran/downloads/dipc-2.1-alpha2.tgz
+>
+>403 Forbidden
+>
+>Gr{oetje,eeting}s,
+>
+>						Geert
+>
+>--
+>Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- 
+>geert@linux-m68k.org
+>
+>In personal conversations with technical people, I call myself a hacker. 
+>But
+>when I'm talking to journalists I just say "programmer" or something like 
+>that.
+>							    -- Linus Torvalds
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
---
 

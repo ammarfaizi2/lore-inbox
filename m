@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWA3PeC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932333AbWA3Pej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbWA3PeC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 10:34:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWA3PeB
+	id S932333AbWA3Pej (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 10:34:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWA3Pei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 10:34:01 -0500
-Received: from smtpout.mac.com ([17.250.248.87]:9972 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932332AbWA3PeA (ORCPT
+	Mon, 30 Jan 2006 10:34:38 -0500
+Received: from pat.qlogic.com ([198.70.193.2]:62438 "EHLO avexch02.qlogic.com")
+	by vger.kernel.org with ESMTP id S932333AbWA3Peh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 10:34:00 -0500
-In-Reply-To: <43DDD359.8090000@symas.com>
-References: <20060124225919.GC12566@suse.de> <20060124232142.GB6174@inferi.kami.home> <20060125090240.GA12651@suse.de> <20060125121125.GH5465@suse.de> <43D78262.2050809@symas.com> <43D7BA0F.5010907@nortel.com> <43D7C2F0.5020108@symas.com> <1138223212.3087.16.camel@mindpipe> <43D7F863.3080207@symas.com> <43D88E55.7010506@yahoo.com.au> <43D8DB90.7070601@symas.com> <43D8E298.3020402@yahoo.com.au> <43D8E96B.3070606@symas.com> <43D8EFF7.3070203@yahoo.com.au> <43D8FC76.2050906@symas.com> <Pine.LNX.4.61.0601261231460.9298@chaos.analogic.com> <43DDD1DA.6060507@aitel.hist.no> <43DDD359.8090000@symas.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <461FB690-4F18-409D-BC0A-6A3CC1F8312C@mac.com>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
-       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Christopher Friesen <cfriesen@nortel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hancockr@shaw.ca
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
-Date: Mon, 30 Jan 2006 10:33:34 -0500
-To: Howard Chu <hyc@symas.com>
-X-Mailer: Apple Mail (2.746.2)
+	Mon, 30 Jan 2006 10:34:37 -0500
+Date: Mon, 30 Jan 2006 07:34:35 -0800
+From: Andrew Vasquez <andrew.vasquez@qlogic.com>
+To: Stefan Kaltenbrunner <mm-mailinglist@madness.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: qla2xxx related oops in 2.6.16-rc1
+Message-ID: <20060130153435.GC1160@andrew-vasquezs-powerbook-g4-15.local>
+References: <43DA580E.3020100@madness.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43DA580E.3020100@madness.at>
+Organization: QLogic Corporation
+User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 30 Jan 2006 15:34:37.0504 (UTC) FILETIME=[ADB00C00:01C625B2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 30, 2006, at 03:50, Howard Chu wrote:
-> Helge Hafting wrote:
->> linux-os (Dick Johnson) wrote:
->>> To fix the current problem, you can substitute usleep(0); It will  
->>> give the CPU to somebody if it's computable, then give it back to  
->>> you. It seems to work in every case that sched_yield() has mucked  
->>> up (perhaps 20 to 30 here).
->>
->> Isn't that dangerous?  Someday, someone working on linux (or some  
->> other unixish os) might come up with an usleep implementation  
->> where usleep(0) just returns and becomes a no-op.  Which probably  
->> is ok with the usleep spec - it did sleep for zero time . . .
->
-> We actually experimented with usleep(0) and select(...) with a  
-> zeroed timeval. Both of these approaches performed worse than just  
-> using sched_yield(), depending on the system and some other  
-> conditions. Dual-core AMD64 vs single-CPU had quite different  
-> behaviors. Also, if the slapd main event loop was using epoll()  
-> instead of select(), the select's used for yields slowed down by a  
-> couple orders of magnitude. (A test that normally took ~30 seconds  
-> took as long as 45 minutes in one case, it was quite erratic.)
->
-> It turned out that most of those yield's were leftovers inherited  
-> from when we only supported non-preemptive threads, and simply  
-> deleting them was the best approach.
+On Fri, 27 Jan 2006, Stefan Kaltenbrunner wrote:
 
-I would argue that in a non realtime environment sched_yield() is not  
-useful at all.  When you want to wait for another process, you wait  
-explicitly for that process using one of the various POSIX-defined  
-methods, such as mutexes, condition variables, etc.  There are very  
-clearly and thoroughly defined ways to wait for other processes to  
-complete work, why rely on usleep(0) giving CPU to some other task  
-when you can explicitly tell the scheduler "I am waiting for task foo  
-to release this mutex" or "I can't run until somebody signals this  
-condition variable".
+> We hit the following oops in 2.6.16-rc1 during itesting of a
+> devicemapper based multipath infrastructure.
+> 
+> The oops happend during heavy io on the devicemapper device and a reboot
+> of one of the switches the host was directly connected too.
+> 
+> The host in questions is as Dual Opteron 280 with 16GB ram and two
+> qla2340 adapters accessing an IBM DS4300 Array.
+> 
+> Stefan
+> 
+> Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP:
+> <ffffffff803cc6c6>{_spin_lock+0}
+> PGD 3ff513067 PUD 3ff514067 PMD 0
+> Oops: 0002 [1] SMP
+> CPU 0
+> Modules linked in: dm_round_robin dm_multipath dm_mod i2c_amd756 qla2300
+> qla2xxx i2c_core evdev
+> Pid: 2568, comm: qla2300_1_dpc Not tainted 2.6.16-rc1 #4
+> RIP: 0010:[<ffffffff803cc6c6>] <ffffffff803cc6c6>{_spin_lock+0}
 
-Cheers,
-Kyle Moffett
+Could you retry your tests with the following patchset:
 
---
-Unix was not designed to stop people from doing stupid things,  
-because that would also stop them from doing clever things.
-   -- Doug Gwyn
+http://marc.theaimsgroup.com/?l=linux-scsi&m=113779768321616&w=2
+http://marc.theaimsgroup.com/?l=linux-scsi&m=113779768230038&w=2
+http://marc.theaimsgroup.com/?l=linux-scsi&m=113779768230735&w=2
 
+they will apply cleanly an 2.6.16-rc1 tree.
 
+Regards,
+Andrew Vasquez

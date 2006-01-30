@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965019AbWA3XA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965035AbWA3XD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965019AbWA3XA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 18:00:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965024AbWA3XA0
+	id S965035AbWA3XD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 18:03:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965028AbWA3XD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 18:00:26 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:50379 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S965019AbWA3XAZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 18:00:25 -0500
-Subject: PCI layer: Need for enable/disable counting (was  disable PCI
-	device if it is enabled	before probing)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43DE6A06.9030707@shadowconnect.com>
-References: <43D566DB.2010103@shadowconnect.com>
-	 <1138645069.31089.79.camel@localhost.localdomain>
-	 <43DE6A06.9030707@shadowconnect.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 30 Jan 2006 23:01:09 +0000
-Message-Id: <1138662069.31089.89.camel@localhost.localdomain>
+	Mon, 30 Jan 2006 18:03:57 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:17612
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965025AbWA3XDz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 18:03:55 -0500
+Date: Mon, 30 Jan 2006 15:02:44 -0800 (PST)
+Message-Id: <20060130.150244.81476469.davem@davemloft.net>
+To: sdbrady@ntlworld.com
+Cc: ralf@linux-mips.org, grundler@parisc-linux.org, mita@miraclelinux.com,
+       linux-kernel@vger.kernel.org, ink@jurassic.park.msu.ru, spyro@f2s.com,
+       dev-etrax@axis.com, dhowells@redhat.com, ysato@users.sourceforge.jp,
+       torvalds@osdl.org, linux-ia64@vger.kernel.org, takata@linux-m32r.org,
+       linux-m68k@vger.kernel.org, gerg@uclinux.org, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, uclinux-v850@lsi.nec.co.jp, ak@suse.de,
+       chris@zankel.net
+Subject: Re: [parisc-linux] Re: [PATCH 3/6] C-language equivalents of
+ include/asm-*/bitops.h
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060130195004.GA25860@miranda.arrow>
+References: <20060129071242.GA24624@miranda.arrow>
+	<20060130170647.GC3816@linux-mips.org>
+	<20060130195004.GA25860@miranda.arrow>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2006-01-30 at 20:33 +0100, Markus Lidel wrote:
-> I've searched for a function enabled() or so, but didn't find anything. 
-> Could you tell me the right way to do it normally?
+From: Stuart Brady <sdbrady@ntlworld.com>
+Date: Mon, 30 Jan 2006 19:50:04 +0000
 
-Right now there isn't one. I've hit this problem with the new libata
-layer stuff having successfully disabled my root pci bridge on unload at
-least once.
+> Shame about popc on SPARC.  However, ffz is cheese, regardless of pops.
+> (On sparc64, ffs is too.)  I'll wait for the generic bitops patches to
+> be dealt with (or not) and then submit a patch fixing this if needed.
 
-Would be easy to add one but I suspect it should be rcounted so that
-enable/disable just stack naturally ?
+I'm happy with any improvement you might make here, for sure.
 
-What do people want from such an interface and should it also start boot
-enabled devices at a count of 1 or just the bridges/video class
-devices ?
+The sparc64 ffz() implementation was done so dog stupid like that
+so that the code would be small since this gets inlined all over
+the place.
 
-Alan
-
+So if you can keep it small and improve it, or make it a bit larger
+and uninline it, that's great.

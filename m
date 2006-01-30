@@ -1,59 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWA3KB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWA3KBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbWA3KB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 05:01:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWA3KB0
+	id S932195AbWA3KBK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 05:01:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbWA3KBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 05:01:26 -0500
-Received: from mtaout1.012.net.il ([84.95.2.1]:31938 "EHLO mtaout1.012.net.il")
-	by vger.kernel.org with ESMTP id S932194AbWA3KBY (ORCPT
+	Mon, 30 Jan 2006 05:01:10 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:38023 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932195AbWA3KBI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 05:01:24 -0500
-Date: Mon, 30 Jan 2006 12:01:33 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-Subject: Re: [PATCH RESEND] move swiotlb.h header file to asm-generic
-In-reply-to: <200601301049.41854.ak@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, Jon Mason <jdmason@us.ibm.com>,
-       Christoph Hellwig <hch@lst.de>, "Luck, Tony" <tony.luck@intel.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Muli Ben-Yehuda <MULI@il.ibm.com>
-Message-id: <20060130100133.GH23968@granada.merseine.nu>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <20060130094434.GG23968@granada.merseine.nu>
- <200601301049.41854.ak@suse.de>
-User-Agent: Mutt/1.5.11
+	Mon, 30 Jan 2006 05:01:08 -0500
+Date: Mon, 30 Jan 2006 02:00:09 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: dada1@cosmosbay.com, dipankar@in.ibm.com, rlrevell@joe-job.com,
+       mingo@elte.hu, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: RCU latency regression in 2.6.16-rc1
+Message-ID: <20060130100009.GC17848@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060130043604.GF16585@us.ibm.com> <43DD9C49.4000000@cosmosbay.com> <20060130051156.GK16585@us.ibm.com> <20060129.215244.05901896.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060129.215244.05901896.davem@davemloft.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 30, 2006 at 10:49:41AM +0100, Andi Kleen wrote:
-> On Monday 30 January 2006 10:44, Muli Ben-Yehuda wrote:
-> > This patch:
-> > 
-> > - creates asm-generic/swiotlb.h
-> > - makes it use 'enum dma_data_direction dir' rather than 'int dir'
-> > - updates x86-64 and IA64 to use the common swiotlb.h
-> > - fixes the resulting fall out (s/int dir/enum dma_data_direction dir/
-> >   all over the place).
+On Sun, Jan 29, 2006 at 09:52:44PM -0800, David S. Miller wrote:
+> From: "Paul E. McKenney" <paulmck@us.ibm.com>
+> Date: Sun, 29 Jan 2006 21:11:56 -0800
 > 
-> Al Viro will likely flame you badly for that enum change. Apparently it 
-> causes some trouble in sparse. Frankly i don't see the point neither.
-> It just makes the code harder to read and creates a monstrosity of a patch 
-> and doesn't give you anything.
+> > > If the size is expanded by a 2 factor (or a power of too), can your 
+> > > proposal works ?
+> > 
+> > Yep!!!
+> > 
+> > Add the following:
+> 
+> This all sounds very exciting and promising.  I'll try to find some
+> spare cycles tomorrow to cook something up.
 
-DMA-API.txt uses the enum form; so do arm, frv, mips, parisc and
-powerpc. x86-64, IA64, alpha, sparc, sparc64 and v850 use the int
-form. I really couldn't care less whether we use an enum or an int for
-the DMA data direction in the DMA API, as long as all archs used the
-same thing. I don't feel comfortable putting swiotlb.h in generic code
-unless it really is generic. So... which should it be?
+Cool!  My earlier description did not get rid of all the explicit
+memory barriers.  The following updated pseudocode does so.
 
-Cheers,
-Muli
--- 
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
+I will of course be happy to review what you come up with!!!
+(And I will be interested to see if this still makes sense after
+sleeping on it...)
 
+Improvements welcome as always!!!
+
+						Thanx, Paul
+
+------------------------------------------------------------------------
+
+Data Structures
+
+o	Yes, the names suck, but that is why I usually am happy to
+	have other people come up with names...
+
+o	Having separate fvbupd and fvbrdr removes the need for
+	(hopefully all) explicit memory barriers.
+
+	struct hashtbl {
+		int nbuckets;
+		int fvbupd;	/* updater's first valid bucket. */
+		int fvbrdr;	/* readers' first valid bucket. */
+		struct hash_param params;
+		struct list_head buckets[0];
+	};
+
+	/* Both fvbupd and fvbrdr need to be initialized to -1. */
+
+	struct hashtbl *current;
+	struct hashtbl *not_current;
+
+Switch Pseudocode: assumes that the switcher can block, if not,
+then need to make a state machine driven by call_rcu().
+
+o	Wait until at least one grace period has elapsed since the
+	previous switch.  Easiest to just put "synchronize_rcu()"
+	up front, but can take advantage of naturally occurring
+	grace periods that elapsed since the last switch if desired.
+
+o	Initialize the not-current array, including the hash params.
+	If the new array is to be different in size, allocate the
+	new one and free the not-current array.
+
+o	Use rcu_assign_pointer() to point not_current to (you guessed
+	it!) the not-current array.
+
+o	Set current->fvbupd = current->fvbrdr = 0;
+
+o	Wait for a grace period (synchronize_rcu() if blocking OK,
+	otherwise call_rcu()...).  The delay guarantees that readers
+	are aware that things might be disappearing before we actually
+	start making them disappear.
+
+o	Loop until all buckets of current are emptied:
+
+	o	current->fvbrdr = current->fvbupd
+
+		No memory barriers needed because all buckets
+		preceding current->fvbupd were emptied at least
+		one grace period ago, so any readers that were
+		active when any of those buckets were non-empty
+		have now completed.
+
+	o	Remove elements from current->bucket[current->fvbupd]
+		until the bucket is empty or until we use up our
+		alloted quota of time and/or elements.
+
+		o	If we empty the bucket, we of course increment
+			current->fvbupd, and if there is time/elements
+			left, could continue on the next bucket.
+
+	o	Wait for a grace period.
+
+	-Really- big arrays on really big SMP machines might want
+	to have multiple CPUs processing buckets in parallel.  In theory,
+	this is not hard, but the fvbrdr update gets messier.
+
+	And yes, there needs to be some sort of update-side locking.
+	Per-bucket locking seems like it should work -- one would
+	hold the bucket lock for the current array throughout,
+	and acquire and release the bucket lock for the non-current
+	array on a per-element basis.  One perhaps better way is to
+	simply remove the elements from current, and let the readers
+	insert them into not_current only upon cache miss.  Getting
+	this right requires more insight into the networking code
+	than I currently have.
+
+o	Use rcu_assign_pointer() to set current to not_current.
+
+o	Note: leave not_current pointing to the now-current array
+	to allow slow readers to complete successfully.  Alternatively,
+	one could wait for a grace period, then set non_current to
+	NULL (but does not seem worth it).
+
+Table lookup (am assuming that this does rcu_read_unlock() before
+returning, but that only makes sense if you have some sort of lock
+on the element being returned -- if no such lock, the rcu_read_unlock()
+primitives must be removed -- the caller must rcu_read_unlock() instead):
+
+o	rcu_read_lock();
+
+o	c = rcu_dereference(current);
+
+o	Compute hash based on c->params
+
+o	If hash >= c->fvbrdr, do lookup in c->bucket[hash]
+	If found, rcu_read_unlock() and return it.
+
+o	If c->fvbrdr is not -1, look the item up in the non-current
+	table:
+
+	o	c = rcu_dereference(not_current);
+
+	o	Compute hash based on c->params
+
+	o	Do lookup in c->bucket[hash]
+
+	Note that c->fvbrdr -could- transition to zero here, but
+	if it does, we are guaranteed that nothing will actually
+	be removed from the current table until we complete.
+
+	And note that we need the non-current lookup even if the
+	switch is not populating the non-current array, since the
+	readers would be doing so upon cache miss, right?
+
+o	rcu_read_unlock()
+
+o	return what is found or complain appropriately if nothing found.

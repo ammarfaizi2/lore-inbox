@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbWA3WMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbWA3WRw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932385AbWA3WMW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 17:12:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbWA3WMW
+	id S932388AbWA3WRw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 17:17:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbWA3WRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 17:12:22 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:1440 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932385AbWA3WMV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 17:12:21 -0500
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Albert Cahalan <acahalan@gmail.com>, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <43DE8A06.9010800@tmr.com>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
-	 <43D7A7F4.nailDE92K7TJI@burner>
-	 <787b0d920601251826l6a2491ccy48d22d33d1e2d3e7@mail.gmail.com>
-	 <43D8D396.nailE2X31OHFU@burner>
-	 <787b0d920601261619l43bb95f5k64ddd338f377e56a@mail.gmail.com>
-	 <43DE8A06.9010800@tmr.com>
-Content-Type: text/plain
-Date: Mon, 30 Jan 2006 17:12:15 -0500
-Message-Id: <1138659135.16102.30.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.4 
+	Mon, 30 Jan 2006 17:17:52 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:46827 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932388AbWA3WRv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 17:17:51 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [ 15/23] [Suspend2] Helper for counting uninterruptible threads of a type.
+Date: Mon, 30 Jan 2006 23:18:28 +0100
+User-Agent: KMail/1.9.1
+Cc: Nigel Cunningham <nigel@suspend2.net>, linux-kernel@vger.kernel.org
+References: <20060126034518.3178.55397.stgit@localhost.localdomain> <20060126034556.3178.79337.stgit@localhost.localdomain>
+In-Reply-To: <20060126034556.3178.79337.stgit@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601302318.28922.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-30 at 16:49 -0500, Bill Davidsen wrote:
-> Look a year down the road, when we have have two (or more) new 25GB 
-> optical formats coming out, probably with new features and commands
-> and several vendors building drives for them. Both formats have DRM
-> stuff in them, and GPL 3 forbids implementing DRM (simplification). 
+Hi,
 
-Who cares what GPL 3 says, the kernel is GPL2.
+On Thursday 26 January 2006 04:45, Nigel Cunningham wrote:
+> 
+> Add a helper which counts the number of patches of a type (all
+> or userspace only) which are in TASK_UNINTERRUPTIBLE state.
+> These tasks are signalled (just in case they leave that state at
+> a later point), but we do not consider freezing to have failed
+> if and when they do not enter the freezer.
+> 
+> Note that when they eventually leave TASK_UNINTERRUPTIBLE state,
+> they will enter the refrigerator, but will immediately exit if
+> we no longer want to freeze at that point.
 
-Lee
+I think we need to do something like this to prevent problems with
+freezing under load.
 
+Greetings,
+Rafael

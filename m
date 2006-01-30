@@ -1,56 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbWA3Tt2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbWA3TtH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964927AbWA3Tt2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 14:49:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbWA3Tt2
+	id S964922AbWA3TtH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 14:49:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964923AbWA3TtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 14:49:28 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:15109 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S964931AbWA3Tt1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 14:49:27 -0500
-To: thockin@hockin.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15.1: UDP fragments >27208 bytes lost with ne2k-pci on
- DP83815
-References: <87slr79knc.fsf@amaterasu.srvr.nix>
-	<8764o23j0s.fsf@amaterasu.srvr.nix>
-	<1138566075.8711.39.camel@lade.trondhjem.org>
-	<871wyq3dl3.fsf@amaterasu.srvr.nix>
-	<1138572140.8711.82.camel@lade.trondhjem.org>
-	<874q3lwt7w.fsf@amaterasu.srvr.nix>
-	<1138640968.30641.3.camel@lade.trondhjem.org>
-	<87vew1vd03.fsf_-_@amaterasu.srvr.nix>
-	<20060130190306.GA19227@hockin.org>
-	<87vew1ttz7.fsf@amaterasu.srvr.nix>
-	<20060130193224.GA21500@hockin.org>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: there's a reason it comes with a built-in psychotherapist.
-Date: Mon, 30 Jan 2006 19:49:06 +0000
-In-Reply-To: <20060130193224.GA21500@hockin.org> (thockin@hockin.org's
- message of "Mon, 30 Jan 2006 11:32:24 -0800")
-Message-ID: <87ek2pts25.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
+	Mon, 30 Jan 2006 14:49:07 -0500
+Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:53783 "EHLO
+	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S964922AbWA3TtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 14:49:04 -0500
+Date: Mon, 30 Jan 2006 19:50:04 +0000
+From: Stuart Brady <sdbrady@ntlworld.com>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: Stuart Brady <sdbrady@ntlworld.com>,
+       Grant Grundler <grundler@parisc-linux.org>,
+       Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Ian Molton <spyro@f2s.com>,
+       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>
+Subject: Re: [parisc-linux] Re: [PATCH 3/6] C-language equivalents of include/asm-*/bitops.h
+Message-ID: <20060130195004.GA25860@miranda.arrow>
+References: <20060125113206.GD18584@miraclelinux.com> <20060125200250.GA26443@flint.arm.linux.org.uk> <20060126000618.GA5592@twiddle.net> <20060126085540.GA15377@flint.arm.linux.org.uk> <20060126161849.GA13632@colo.lackof.org> <20060126164020.GA27222@flint.arm.linux.org.uk> <20060126230443.GC13632@colo.lackof.org> <20060126230353.GC27222@flint.arm.linux.org.uk> <20060129071242.GA24624@miranda.arrow> <20060130170647.GC3816@linux-mips.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060130170647.GC3816@linux-mips.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Pruned Trond from the Cc:, this isn't an NFS bug after all]
+On Mon, Jan 30, 2006 at 05:06:47PM +0000, Ralf Baechle wrote:
+> On Sun, Jan 29, 2006 at 07:12:42AM +0000, Stuart Brady wrote:
+> 
+> > On MIPS, fls() and flz() should probably use CLO.
+> 
+> It actually uses clz.
 
-On Mon, 30 Jan 2006, thockin@hockin.org said:
-> I can't imagine what kind of hidden bug would lay dormant for 4 years and
-> then pop up for just one person.  I don't know what I can offer except
-> extra eyes  to vet any potential solutions.  Happt Hunting.
+I know.  flz(x) is basically __ilog2(~x), and I still say clo would be
+better.  Removing flz() sounds reasonable, though.
 
-I'll verify that the cause really is the network card shortly (by
-swapping the network cards I use for ADSL and internal networking:
-the ADSL link has very little large UDP traffic). This'll let us
-localize the problem to the NIC, or not, as the case may be.
+> > Curiously, MIPS is the only arch with a flz() function.
+> 
+> No longer.  The fls implementation was based on flz and fls was the only
+> user of flz.  So I cleaned that, once I commit flz will be gone.  Not
+> only a cleanup but also a minor optimization.
 
-More once this is done.
+I'd got that slightly wrong.  Yeah, fls(x) returned flz(~x) + 1, which
+is __ilog2(~~x) + 1.  So obviously clz was fine for that, but it needed
+cleaning up.
 
+Shame about popc on SPARC.  However, ffz is cheese, regardless of pops.
+(On sparc64, ffs is too.)  I'll wait for the generic bitops patches to
+be dealt with (or not) and then submit a patch fixing this if needed.
+
+Thanks,
 -- 
-`I won't make a secret of the fact that your statement/question
- sent a wave of shock and horror through us.' --- David Anderson
+Stuart Brady
+
+By the way, I really hope nobody gets ten copies of this, as happened
+with my last post.  It does not seem to be my fault, AFAICS.

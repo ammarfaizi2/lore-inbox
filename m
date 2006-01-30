@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWA3WEm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWA3WEY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932345AbWA3WEm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 17:04:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWA3WEm
+	id S932334AbWA3WEY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 17:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWA3WEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 17:04:42 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:41195 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932345AbWA3WEl (ORCPT
+	Mon, 30 Jan 2006 17:04:24 -0500
+Received: from smtp.dkm.cz ([62.24.64.34]:20753 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S932334AbWA3WEY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 17:04:41 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [ 06/23] [Suspend2] Disable usermode helper invocations when the freezer is on.
-Date: Mon, 30 Jan 2006 23:05:17 +0100
-User-Agent: KMail/1.9.1
-Cc: Nigel Cunningham <nigel@suspend2.net>, linux-kernel@vger.kernel.org
-References: <20060126034518.3178.55397.stgit@localhost.localdomain> <20060126034539.3178.56611.stgit@localhost.localdomain>
-In-Reply-To: <20060126034539.3178.56611.stgit@localhost.localdomain>
+	Mon, 30 Jan 2006 17:04:24 -0500
+Message-ID: <43DE8D5E.2040905@rulez.cz>
+Date: Mon, 30 Jan 2006 23:04:14 +0100
+From: iSteve <isteve@rulez.cz>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050602)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: linux-kernel@vger.kernel.org
+Subject: udevstart surprisingly slow
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601302305.18202.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thursday 26 January 2006 04:45, Nigel Cunningham wrote:
-> 
-> Disable usermode helper invocations when the freezer is on. This avoids
-> deadlocks due to hotplug events occuring while processes are frozen.
-> 
-> Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
-> 
->  kernel/kmod.c |    4 ++++
->  1 files changed, 4 insertions(+), 0 deletions(-)
-> 
-> diff --git a/kernel/kmod.c b/kernel/kmod.c
-> index 51a8920..12afa2c 100644
-> --- a/kernel/kmod.c
-> +++ b/kernel/kmod.c
-> @@ -36,6 +36,7 @@
->  #include <linux/mount.h>
->  #include <linux/kernel.h>
->  #include <linux/init.h>
-> +#include <linux/freezer.h>
->  #include <asm/uaccess.h>
->  
->  extern int max_threads;
-> @@ -249,6 +250,9 @@ int call_usermodehelper_keys(char *path,
->  	if (!khelper_wq)
->  		return -EBUSY;
->  
-> +	if (freezer_is_on())
-> +		return 0;
-> +
->  	if (path[0] == '\0')
->  		return 0;
->  
-
-Disabling the usermode helper while freeze_processes() is executed seems to be
-a good idea to me, but I think it should be done with a mutex or something
-like that.
-
 Greetings,
-Rafael
+I've recently upgraded udev from 063 to 082 and then 084.
+
+With 063, startup of udev was near-instant; with both 082 and 084, it 
+takes a significant ammount of time (~15s) to create the base devices 
+using udevstart or udevsynthesize (this one is taken from Debian, which 
+apparently in turn taken it from SuSE; the rest of codebase is vanilla).
+
+This issue appears on kernel 2.6.15.1 with SquashFS 2.2r2, SWSUP2 2.2 
+and VesaFB-TNG 1.0-rc1-r3 patches.
+
+The init script used simply mounts 10MiB tmpfs onto /dev, creates 
+/dev/.udev/{db,queue} directories, then runs udevd --daemon and then 
+udevsynthesize or udevstart (tried both, same result).
+
+I'm quite out of ideas, I don't think downgrading udev is the best 
+solution, so I wonder: what takes such a long time in udevstart? What 
+can I alter at my end, or is this a known bug (or feature)?
+
+Thanks in advance for reply
+  -- iSteve

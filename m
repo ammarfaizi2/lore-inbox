@@ -1,84 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWA2X6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWA3AAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWA2X6z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jan 2006 18:58:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWA2X6z
+	id S932093AbWA3AAi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jan 2006 19:00:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWA3AAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 18:58:55 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:39941 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932095AbWA2X6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 18:58:54 -0500
-Date: Mon, 30 Jan 2006 00:58:53 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: akpm@osdl.org, ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1-mm4
-Message-ID: <20060129235853.GD3777@stusta.de>
-References: <20060129144533.128af741.akpm@osdl.org> <20060129233403.GA3777@stusta.de> <20060129154002.360c7294.rdunlap@xenotime.net>
+	Sun, 29 Jan 2006 19:00:38 -0500
+Received: from uproxy.gmail.com ([66.249.92.201]:14881 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932093AbWA3AAh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jan 2006 19:00:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UaZpIpmAEIQYIQ5BBahJs6G2FLFlyOWCJhhZZCW86xufprDuSOOD9mnJuySYnWnmK3Db19jkQbMbP8HctZ8xjv3op66bO9uigTsO3lw8/LzarGlFS4KAmVr5AJlqXT/ogQNkzXYR/XN87ORbZfq3Q6Au5J5DUaT9+kIsZkVD71c=
+Message-ID: <7e90c9180601291600w53186f19w767ddcaa46a61039@mail.gmail.com>
+Date: Sun, 29 Jan 2006 16:00:35 -0800
+From: Peter Gordon <codergeek42@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: security capabilities on filesystems
+Cc: Lukasz Stelmach <stlman@poczta.fm>
+In-Reply-To: <43DD1FB7.9050509@poczta.fm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060129154002.360c7294.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.11
+References: <43DD1FB7.9050509@poczta.fm>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 29, 2006 at 03:40:02PM -0800, Randy.Dunlap wrote:
-> On Mon, 30 Jan 2006 00:34:03 +0100 Adrian Bunk wrote:
-> 
-> > On Sun, Jan 29, 2006 at 02:45:33PM -0800, Andrew Morton wrote:
-> > >...
-> > > Changes since 2.6.16-rc1-mm3:
-> > >...
-> > > +i386-add-a-temporary-to-make-put_user-more-type-safe.patch
-> > > 
-> > >  x86 fixes/features
-> > >...
-> > 
-> > This patch generates so many "ISO C90 forbids mixed declarations and code"
-> > warnings that I start to consider Andrew's rejection of my "mark 
-> > virt_to_bus/bus_to_virt as __deprecated on i386" patch due to the 
-> > warnings it generates a personal insult...
-> 
-> I prefer to think of it as reasons why neither of them
-> should be merged.
+On 1/29/06, Lukasz Stelmach <stlman@poczta.fm> wrote:
+> Greetings.
+>
+> I've poke around for some information but all I got (was this lousy t-shirt)
+> that there is no support for capablities stored on a filesystem. However, I'd
+> like to ask if there are any chances to see this feature soon.
+>
 
-
-Some remarks:
-
-
-I forgot the smiley.
-
-
-If we want to get rid of a long deprecated API (as in the 
-virt_to_bus/bus_to_virt case), adding warnings could help making 
-maintainers aware of the fact that the API is deprecated.
-
-In such cases the warnings are supposed to be present only temporarily 
-until the code using the deprecated API got fixed.
-
-It might not be visible for people only using allyesconfig/allmodconfig, 
-but BROKEN_ON_SMP drivers often spit screenfuls of warnings. That's OK, 
-and most of them have been fixed during the last years.
-
-And otherwise, we could simply remove __deprecated from the kernel.
-
-Andrew rejected my patch to add -Werror-implicit-function-declaration to 
-the CFLAGS which helps us to avoid a certain class of nasty runtime 
-errors because it turned virt_to_bus/bus_to_virt link errors on powerpc 
-into compile errors (sic).
-
-
-> ~Randy
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+What do you mean exactly? Ext2 (and its journalled cousin, Ext3; I'm
+not certain of other filesystems) can both store POSIX-style Access
+Control Lists (ACLs) and SELinux labeling as part of the inode
+metadata. Hope this helps.

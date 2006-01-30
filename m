@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965039AbWA3X03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbWA3X3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965039AbWA3X03 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 18:26:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbWA3X03
+	id S1030208AbWA3X3D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 18:29:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030214AbWA3X3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 18:26:29 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30389 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S965039AbWA3X02 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 18:26:28 -0500
-Date: Tue, 31 Jan 2006 00:26:09 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: matthias.andree@gmx.de, mrmacman_g4@mac.com, linux-kernel@vger.kernel.org,
-       bzolnier@gmail.com, acahalan@gmail.com
-Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future Linux (stirring up a hornets' nest) ]
-Message-ID: <20060130232609.GA3631@elf.ucw.cz>
-References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com> <43DCA097.nailGPD11GI11@burner> <20060129112613.GA29356@merlin.emma.line.org> <43DE2FF4.nail16ZCI3FMV@burner> <20060130170904.GH19173@merlin.emma.line.org> <43DE49C5.nail2BR31RV8R@burner>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43DE49C5.nail2BR31RV8R@burner>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 30 Jan 2006 18:29:03 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:14015 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1030208AbWA3X3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 18:29:02 -0500
+Message-ID: <43DEA195.1080609@tmr.com>
+Date: Mon, 30 Jan 2006 18:30:29 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: CD writing - related question
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Po 30-01-06 18:15:49, Joerg Schilling wrote:
-> Matthias Andree <matthias.andree@gmx.de> wrote:
-> 
-> > > > 2) libscg or cdrecord aborts ATA: scans as soon as one device probe
-> > > >    returns EPERM, which lets devices that resmgr made accessible
-> > > >    disappear from the list.
-> > > 
-> > > looks like your memory does not last long enough......
-> > > 
-> > > We did already discuss this before. If you call cdrecord with
-> > > apropriatr privileges, it works.
-> >
-> > Well, if you're freezing the bugs, I don't see how there could be
-> > progress towards a non-root cdrecord on Linux.
-> 
-> There is no such bug in libscg.
-> 
-> There is nothing that has been freezed. 
-> 
-> If you have the apropriate privs to send SCSI commands to any SCSI device 
-> on the system, you will not come across your problem.
+Please take this as a question to elicit information, not an invitation 
+for argument.
 
-Why should I need privs to talk to *any* SCSI device, when I want to
-talk to just *one* SCSI device?
+In Linux currently:
+  SCSI - liiks like SCSI
+  USB - looks like SCSI
+  Firewaire - looks like SCSI
+  SATA - looks like SCSI
+  Compact flash and similar - looks like SCSI
+  ATAPI - looks different unless ide-scsi used
 
-Yes, it is a missing feature in libscg. It requires priviledge to talk
-to *any* device, while is only really needs to talk to *one* device.
+Was there a reason, a technical reason, why the minor blotches in 
+ide-scsi weren't fixed so that everything could look the same and share 
+the same device naming form? The DMA issue is solved for blocks, and 
+several people have stated to the list that the remaining issues could 
+be solved in minimal time. Seeing no disagreement, I'll assume that's true.
 
-[Imagine ls that only worked if it had priviledges for reading
-/etc/shadow. That would surely be bug.]
-								Pavel
+There are separate IDE drivers for disk, tape, floppy, and CD, and the 
+only reason I ever heard was that ide-scsi adds overhead. I did some 
+tests using a mighty Pentium-II 350, and there was no overhead with disk 
+or CD (within the limits of measurement). So there's no huge CPU 
+penalty, why then the decision to have the separate ide drivers?
+
+The last time I tried, there was one thing which didn't work quite right 
+doing ZIP drives unless ide-scsi was used, and MO drives don't seem to 
+work any other way, but I haven't tried since about 2.6.6 or so, that 
+info could be dated.
+
+This is NOT an argument for change, it may be a reminder that ide-scsi 
+is not unused, I just never saw any technical reason mentioned.
 
 -- 
-Thanks, Sharp!
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

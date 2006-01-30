@@ -1,75 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbWA3T0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbWA3Tc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbWA3T0E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 14:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbWA3T0E
+	id S964908AbWA3Tc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 14:32:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbWA3Tc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 14:26:04 -0500
-Received: from host27-37.discord.birch.net ([65.16.27.37]:40399 "EHLO
-	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
-	id S932381AbWA3T0C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 14:26:02 -0500
-From: "Roger Heflin" <rheflin@atipa.com>
-To: "'Trond Myklebust'" <trond.myklebust@fys.uio.no>,
-       "'Nix'" <nix@esperi.org.uk>
-Cc: <linux-kernel@vger.kernel.org>, <thockin@hockin.org>
-Subject: RE: 2.6.15.1: persistent nasty hang in sync_page killing NFS(ne2k-pci / DP83815-related?), i686/PIII
-Date: Mon, 30 Jan 2006 13:36:17 -0600
+	Mon, 30 Jan 2006 14:32:28 -0500
+Received: from s0003.shadowconnect.net ([213.239.201.226]:9451 "EHLO
+	mail.shadowconnect.com") by vger.kernel.org with ESMTP
+	id S964908AbWA3Tc1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 14:32:27 -0500
+Message-ID: <43DE6A06.9030707@shadowconnect.com>
+Date: Mon, 30 Jan 2006 20:33:26 +0100
+From: Markus Lidel <Markus.Lidel@shadowconnect.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] I2O: don't disable PCI device if it is enabled	before
+ probing
+References: <43D566DB.2010103@shadowconnect.com> <1138645069.31089.79.camel@localhost.localdomain>
+In-Reply-To: <1138645069.31089.79.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <1138499957.8770.91.camel@lade.trondhjem.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcYkdrxEcijFEgICQBC2FMGzUcgvgABXHsxg
-Message-ID: <EXCHG2003dMJOtd3rOE000010a2@EXCHG2003.microtech-ks.com>
-X-OriginalArrivalTime: 30 Jan 2006 19:19:22.0390 (UTC) FILETIME=[134E5B60:01C625D2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+Hello,
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> Trond Myklebust
-> Sent: Saturday, January 28, 2006 7:59 PM
-> To: Nix
-> Cc: linux-kernel@vger.kernel.org; thockin@hockin.org
-> Subject: Re: 2.6.15.1: persistent nasty hang in sync_page 
-> killing NFS(ne2k-pci / DP83815-related?), i686/PIII
-> 
-> On Sat, 2006-01-28 at 22:52 +0000, Nix wrote:
-> 
-> > tcpdumps and the kernel's packet counters on both sides show NFS 
-> > packets flowing, and being retried, over and over again:
-> 
-> Are you using an Intel motherboard? If so, it could be the IPMI bug
-> 
-> http://blogs.sun.com/roller/page/shepler?entry=port_623_or_the_mount
-> 
-> Cheers,
->   Trond
+Alan Cox wrote:
+> On Maw, 2006-01-24 at 00:29 +0100, Markus Lidel wrote:
+>> Changes:
+>> --------
+>> - If PCI device is enabled before probing, it will not be disabled at
+>>    exit.
+> Looks ok for this case but be warned that pdev->is_enabled is not a safe
+> check for many devices as the may be BIOS critical, or video for example
+> but not in the Linux list of things _it_ enabled.
 
-Trond, Nix,
+I've searched for a function enabled() or so, but didn't find anything. 
+Could you tell me the right way to do it normally?
 
-There is a *WORSE* bug with the Broadcom network chip based boards
-around IPMI if IPMI and linux are using the same ip and mac address.
+Thanks for the hint!
 
-The broadcom firmware will collect all packets destined for the IPMI
-port (which should be fine-except that the broadcom firmware does not
-understand IP fragments and collects any fragments whose value where 
-the port would normally be matches the IPMI port-even though it is an
-ip fragment and does not have an associated port number).
+Best regards,
 
-I have only so far seen it affect UDP and not TCP, but I have a
-nice simple program (supplied by a customer) that will nicely duplicate
-the problem (every time), I lose the same single fragment out of a 
-32k NFS packet each and every time.
 
-I have reported the problem to Broadcom, the only real response out
-of anyone is to use separate ip/mac address for IPMI.
+Markus Lidel
+------------------------------------------
+Markus Lidel (Senior IT Consultant)
 
-                                  Roger
+Shadow Connect GmbH
+Carl-Reisch-Weg 12
+D-86381 Krumbach
+Germany
 
+Phone:  +49 82 82/99 51-0
+Fax:    +49 82 82/99 51-11
+
+E-Mail: Markus.Lidel@shadowconnect.com
+URL:    http://www.shadowconnect.com

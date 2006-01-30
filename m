@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWA3Jos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbWA3Jql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbWA3Jos (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 04:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWA3Jos
+	id S932173AbWA3Jql (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 04:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWA3Jql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 04:44:48 -0500
-Received: from smtpout06-01.prod.mesa1.secureserver.net ([64.202.165.224]:8654
-	"HELO smtpout06-04.prod.mesa1.secureserver.net") by vger.kernel.org
-	with SMTP id S932171AbWA3Jor (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 04:44:47 -0500
-Message-ID: <43DDE009.9090104@sairyx.org>
-Date: Mon, 30 Jan 2006 20:44:41 +1100
-From: Yuki Cuss <celtic@sairyx.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Mon, 30 Jan 2006 04:46:41 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:10649 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932173AbWA3Jqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 04:46:40 -0500
+Subject: Re: [PATCH 2.6.16-rc1-git4] accessfs: a permission managing
+	filesystem
+From: Arjan van de Ven <arjan@infradead.org>
 To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pid: Don't hash pid 0.
-References: <m1ek2rfsu9.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.61.0601301028510.6405@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0601301028510.6405@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Cc: Andrew Morton <akpm@osdl.org>, olaf+list.linux-kernel@olafdietsche.de,
+       eike-kernel@sf-tec.de, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0601301024150.6405@yvahk01.tjqt.qr>
+References: <87ek3a8qpy.fsf@goat.bogus.local>
+	 <200601231257.28796@bilbo.math.uni-mannheim.de>
+	 <87mzhgyomh.fsf@goat.bogus.local> <20060128150137.5ba5af04.akpm@osdl.org>
+	 <Pine.LNX.4.61.0601301006240.6405@yvahk01.tjqt.qr>
+	 <20060130011630.60f402d8.akpm@osdl.org>
+	 <Pine.LNX.4.61.0601301024150.6405@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Date: Mon, 30 Jan 2006 10:46:27 +0100
+Message-Id: <1138614388.2977.10.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
+On Mon, 2006-01-30 at 10:24 +0100, Jan Engelhardt wrote:
+> >> >> +static DECLARE_MUTEX(accessfs_sem);
+> >> >
+> >> >Please use a `struct mutex'.
+> >> 
+> >> You know what's irritating? That DECLARE_MUTEX starts a semaphore and
+> >> DEFINE_MUTEX a mutex.
+> >
+> >DECLARE_MUTEX will go away.
+> 
+> And be replaced by... DEFINE_SEMAPHORE?
 
->>@@ -148,6 +148,9 @@ int fastcall attach_pid(task_t *task, en
->>{
->>	struct pid *pid, *task_pid;
->>
->>+	if (!nr)
->>+		goto out;
->>+
->>    
->>
->
->How about nr==0, it would make it more obvious.
->
->
->
->Jan Engelhardt
->  
->
+... or just go away entirely, depending if there are any users of it
+left after all mutexes have been converted to DEFINE_MUTEX()...
 
-I am inclined to agree. `!nr' seems to imply some sort of an error 
-condition; perhaps a comment could be placed in order to make why the 
-case of (nr == 0) is being ignored.
 
- - Yuki.

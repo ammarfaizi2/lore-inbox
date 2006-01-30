@@ -1,30 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbWA3VjQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbWA3Vk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030196AbWA3VjQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 16:39:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030197AbWA3VjQ
+	id S1030197AbWA3Vk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 16:40:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWA3Vk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 16:39:16 -0500
-Received: from multivac.one-eyed-alien.net ([64.169.228.101]:64963 "EHLO
+	Mon, 30 Jan 2006 16:40:26 -0500
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:5316 "EHLO
 	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S1030195AbWA3VjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 16:39:12 -0500
-Date: Mon, 30 Jan 2006 13:38:41 -0800
+	id S1030197AbWA3VkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 16:40:25 -0500
+Date: Mon, 30 Jan 2006 13:40:05 -0800
 From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Ren@one-eyed-alien.net
+To: Ren Rebe <rene@exactcode.de>
 Cc: Oliver Neukum <oliver@neukum.org>, linux-usb-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org, "Louis C. Kouvaris" <louisk@comcast.net>,
        wilford smith <wilford_smith_2@hotmail.com>
 Subject: Re: [linux-usb-devel] Re: [PATCH] Adaptec USBXchange and USB2Xchange support
-Message-ID: <20060130213841.GA20739@one-eyed-alien.net>
-Mail-Followup-To: Ren@one-eyed-alien.net, Oliver Neukum <oliver@neukum.org>,
+Message-ID: <20060130214005.GB20739@one-eyed-alien.net>
+Mail-Followup-To: Ren Rebe <rene@exactcode.de>,
+	Oliver Neukum <oliver@neukum.org>,
 	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
 	"Louis C. Kouvaris" <louisk@comcast.net>,
 	wilford smith <wilford_smith_2@hotmail.com>
 References: <200509132253.53960.rene@exactcode.de> <200601301422.40500.rene@exactcode.de> <200601301622.19998.oliver@neukum.org> <200601301904.15207.rene@exactcode.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
+	protocol="application/pgp-signature"; boundary="QTprm0S8XgL7H0Dt"
 Content-Disposition: inline
 In-Reply-To: <200601301904.15207.rene@exactcode.de>
 User-Agent: Mutt/1.4.1i
@@ -35,12 +36,12 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---azLHFNyN32YCQGCU
+--QTprm0S8XgL7H0Dt
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-So how do you address a multi-LUN device with the USB2Xchange?
+So how do you address a multi-LUN target if you don't encode the LUN?
 
 Matt
 
@@ -120,20 +121,20 @@ Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
 net=20
 Maintainer, Linux USB Mass Storage Driver
 
-NYET! The evil stops here!
-					-- Pitr
-User Friendly, 6/22/1998
+A female who groks UNIX?  My universe is collapsing.
+					-- Mike
+User Friendly, 10/11/1998
 
---azLHFNyN32YCQGCU
+--QTprm0S8XgL7H0Dt
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQFD3odhHL9iwnUZqnkRAvEEAJ9REA4WNFBXFWleRyOG7NR9+n5c7gCgqjpN
-IBR+JoFywYdrDRMJtIc6xMc=
-=/iCj
+iD8DBQFD3oe1HL9iwnUZqnkRAkx3AJ4yIZrtEcr7pBfnh7tHr8slVZ6+MQCeMqk1
+SqSYj+u1x0s6upmOApA+7ck=
+=0e+N
 -----END PGP SIGNATURE-----
 
---azLHFNyN32YCQGCU--
+--QTprm0S8XgL7H0Dt--

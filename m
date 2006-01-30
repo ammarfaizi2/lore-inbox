@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWA3Saj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751290AbWA3SiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751288AbWA3Saj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 13:30:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbWA3Saj
+	id S1751290AbWA3SiM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 13:38:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWA3SiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 13:30:39 -0500
-Received: from mail.timesys.com ([65.117.135.102]:33929 "EHLO
-	postfix.timesys.com") by vger.kernel.org with ESMTP
-	id S1751288AbWA3Sai convert rfc822-to-8bit (ORCPT
+	Mon, 30 Jan 2006 13:38:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:55493 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751290AbWA3SiM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 13:30:38 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [PATCH] kconfig: detect if -lintl is needed when linking conf,mconf
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-Date: Mon, 30 Jan 2006 13:26:47 -0500
-Message-ID: <3D848382FB72E249812901444C6BDB1D0908A150@exchange.timesys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] kconfig: detect if -lintl is needed when linking conf,mconf
-Thread-Index: AcYlyrrm7grohq4SRDiUSkJEoPJ/EA==
-From: "Robb, Sam" <sam.robb@timesys.com>
-To: <zippel@linux-m68k.org>
-Cc: <linux-kernel@vger.kernel.org>
+	Mon, 30 Jan 2006 13:38:12 -0500
+Date: Mon, 30 Jan 2006 13:38:08 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org
+Subject: fix saa7146 kobject register failure.
+Message-ID: <20060130183808.GA14899@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Whoops.
 
-  On a system where libintl.h is present, but the NLS functionality is
-supplied by a separate library instead of the system C library, an attempt
-to "make config" or "make menuconfig" will fail with link errors, ex:
+kobject_register failed for hexium HV-PCI6/Orion (-13)
+[<c01d3eb6>] kobject_register+0x31/0x47
+[<c023a996>] bus_add_driver+0x4a/0xfd
+[<c01de3c1>] __pci_register_driver+0x82/0xa4
+[<d083400a>] hexium_init_module+0xa/0x47 [hexium_orion]
+[<c013bdae>] sys_init_module+0x167b/0x1822
+[<c01633f7>] do_sync_read+0xb8/0xf3
+[<c0133fa3>] autoremove_wake_function+0x0/0x2d
+[<c0145390>] audit_syscall_entry+0x118/0x13f
+[<c0106ae2>] do_syscall_trace+0x104/0x14a
+[<c0103d21>] syscall_call+0x7/0xb
 
-  scripts/kconfig/mconf.o:mconf.c:(.text+0xf63): undefined reference to
-    `_libintl_gettext'
+slashes in kobject names aren't allowed.
 
-  This patch attempts to correct the problem by detecting whether or not
-NLS support requires linking with libintl.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-Signed-off-by: Samuel J Robb <sam.robb@timesys.com>
-
----
-
---- linux-2.6.15.1/scripts/kconfig/Makefile.orig        2006-01-25 14:55:22.926372900 -0500
-+++ linux-2.6.15.1/scripts/kconfig/Makefile     2006-01-30 12:51:04.551596200 -0500
-@@ -122,7 +122,17 @@ KBUILD_HAVE_NLS := $(shell \
-      then echo yes ; \
-      else echo no ; fi)
- ifeq ($(KBUILD_HAVE_NLS),no)
--HOSTCFLAGS     += -DKBUILD_NO_NLS
-+  HOSTCFLAGS   += -DKBUILD_NO_NLS
-+else
-+  KBUILD_NEED_LINTL := $(shell \
-+    if echo -e "\#include <libintl.h>\nint main(int a, char** b) { gettext(\"\"); return 0; }\n" | \
-+      $(HOSTCC) $(HOSTCFLAGS) -x c - > /dev/null 2>&1 ; \
-+    then echo no ; \
-+    else echo yes ; fi)
-+  ifeq ($(KBUILD_NEED_LINTL),yes)
-+    HOSTLOADLIBES_conf += -lintl
-+    HOSTLOADLIBES_mconf        += -lintl
-+  endif
- endif
+--- linux-2.6.15.noarch/drivers/media/video/hexium_orion.c~	2006-01-30 13:36:05.000000000 -0500
++++ linux-2.6.15.noarch/drivers/media/video/hexium_orion.c	2006-01-30 13:36:24.000000000 -0500
+@@ -484,7 +484,7 @@ static struct saa7146_ext_vv vv_data = {
+ };
  
- # generated files seem to need this to find local include files
+ static struct saa7146_extension extension = {
+-	.name = "hexium HV-PCI6/Orion",
++	.name = "hexium HV-PCI6 Orion",
+ 	.flags = 0,		// SAA7146_USE_I2C_IRQ,
+ 
+ 	.pci_tbl = &pci_tbl[0],

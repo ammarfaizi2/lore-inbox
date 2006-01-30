@@ -1,89 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbWA3Rbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWA3Rhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964837AbWA3Rbp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 12:31:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWA3Rbp
+	id S964834AbWA3Rhe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 12:37:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWA3Rhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 12:31:45 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:35850 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S964837AbWA3Rbo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 12:31:44 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org, thockin@hockin.org
-Subject: Re: 2.6.15.1: UDP fragments >27208 bytes lost with ne2k-pci on
- DP83815 (was Re: persistent nasty hang in sync_page killing NFS (ne2k-pci
- / DP83815-related?), i686/PIII)
-References: <87fyn8artm.fsf@amaterasu.srvr.nix>
-	<1138499957.8770.91.camel@lade.trondhjem.org>
-	<87slr79knc.fsf@amaterasu.srvr.nix>
-	<8764o23j0s.fsf@amaterasu.srvr.nix>
-	<1138566075.8711.39.camel@lade.trondhjem.org>
-	<871wyq3dl3.fsf@amaterasu.srvr.nix>
-	<1138572140.8711.82.camel@lade.trondhjem.org>
-	<874q3lwt7w.fsf@amaterasu.srvr.nix>
-	<1138640968.30641.3.camel@lade.trondhjem.org>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: where editing text is like playing Paganini on a glass harmonica.
-Date: Mon, 30 Jan 2006 17:31:24 +0000
-In-Reply-To: <1138640968.30641.3.camel@lade.trondhjem.org> (Trond
- Myklebust's message of "Mon, 30 Jan 2006 12:09:28 -0500")
-Message-ID: <87vew1vd03.fsf_-_@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Mon, 30 Jan 2006 12:37:33 -0500
+Received: from mail.gmx.de ([213.165.64.21]:20665 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964834AbWA3Rhd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 12:37:33 -0500
+X-Authenticated: #428038
+Date: Mon, 30 Jan 2006 18:37:22 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+       cdwrite@other.debian.org
+Subject: Request to stop cdrecord's bogus accusations of Linux.
+Message-ID: <20060130173722.GC3973@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+	cdwrite@other.debian.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Jan 2006, Trond Myklebust suggested tentatively:
-> On Mon, 2006-01-30 at 16:55 +0000, Nix wrote:
->> On Sun, 29 Jan 2006, Trond Myklebust stipulated:
->> > As a general rule of thumb: if tcpdump/ethereal can see the reply on the
->> > client, then the engine socket should see it too. If tcpdump is indeed
->> > seeing those replies, you should check the RPC code by
->> > setting /proc/sys/sunrpc/rpc_debug to 1.
->> 
->> tcpdump is seeing them.
-> 
-> The complete packets, including all fragments?
+Jörg,
 
-Will check. Maybe one fragment or something is getting lost
-(but if so, it's getting lost terribly *consistently*, as in,
-every single time).
+with this open letter, I officially request that you stop your
+misrepresentations in cdrecord that claim Linux were noncompliant in a
+place where it is conforming to POSIX.
 
->> I *guess* that the `failed to lock transport' is the underlying error...
->> time to add some debugging and find out what task is locking the
->> transport. Back soon, must rebuild the kernel and reboot to clear this
->> lock ;)
-> 
-> Nope. The congestion window is 1 request, and you do indeed appear to
-> have one request on the "pending" queue. The problem in the above trace
-> is a complete lack of data_ready messages, meaning that the socket is
-> never seeing any complete packets come in.
+I am not speaking on behalf of any other party here, this is purely my
+personal opinion that is supposed to make sure both sides play fair.
 
-O*kay*. I'll do some tcpdumps on both sides and compare them.
+<ftp://ftp.berlios.de/pub/cdrecord/alpha/AN-2.01.01a05>
+(dated 2006-01-29 20:20" states
 
+  "-  Trying to work around a noncompliance (modified interface) present
+  on newer Linux kernels that causes cdrecord to be unable to allocate a
+  SCSI transfer buffer.
 
-... you are quite right. I'm mounting with an rsize and wsize of 32768
-(i.e., the default negotiated between a recent Linux NFS client and
-kernel server), and, completely consistently, 31504 bytes are sent and
-*only 27208 bytes are received*. This is so consistent that there's no
-way that this could be due to network congestion (unless it's getting
-jammed up inside the receiving NIC or something: it's an NE2K card and
-they're rather crap so maybe the card is just too slow: my determination
-to replace the card has just gone up a notch. But nonetheless if it was
-getting lost by the card I'd see TCP retransmissions, which `netstat -s'
-assures me I do not).
+  Newer Linux kernels do not honor a contract from mlockall(MCL_FUTURE)
+  after cdrecord turned off euid == 0 from a suid root installation.
+  Instead of honoring mlockall(MCL_FUTURE), Linux checks each mmap() and
+  compares against getrlimit(RLIMIT_MEMLOCK"
 
-This explains why I don't see a problem with DNS: the number of DNS
-packets >27208 bytes can be counted on the fingers of one foot.
+There is no such contract that would promise future allocations to
+always succeed after MCL_FUTURE.
 
-Captures are available, but I gathered about half a minute's traffic
-so they're quite large (1Mb apiece).
+POSIX explicitly allows operating systems to fail later allocations if
+the limit of mappable memory exceeds a certain limit, quoting the
+mlockall() description from IEEE Std 1003.1-2001, 2004 edition:
 
-Tim? Any ideas? Is anyone else with this card seeing this problem?
+  "If MCL_FUTURE is specified, and the automatic locking of future
+  mappings eventually causes the amount of locked memory to exceed the
+| amount of available physical memory or any other
+| implementation-defined limit, the behavior is implementation-defined.
+| The manner in which the implementation informs the application of
+| these situations is also implementation-defined."
+
+Linux is therefore POSIX compliant here. MCL_FUTURE succeeds and the
+RLIMIT_MEMLOCK interface that you are whining about is this
+"implementation-defined limit", and the implementation-defined behavior
+refusing the allocation.
+
+You had been told much earlier in linux-kernel@ that Linux is POSIX
+compliant here, yet your document repeats this slander.
+
+You are correct that Linux changed behavior beginning with release
+2.6.9, but that change does not make Linux noncompliant with applicable
+standards. I suggest to reword the quoted paragraph as
+
+  "Working around a new behavior in Linux since 2.6.9 that causes
+   cdrecord to be unable to allocate a SCSI transfer buffer.
+
+   These Linux kernel versions impose a tighter RLIMIT_MEMLOCK limit
+   than earlier versions that cause the allocation failure."
 
 -- 
-`I won't make a secret of the fact that your statement/question
- sent a wave of shock and horror through us.' --- David Anderson
+Matthias Andree

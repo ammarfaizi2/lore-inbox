@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWA3OcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWA3Odd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932293AbWA3OcX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 09:32:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWA3OcX
+	id S932297AbWA3Odd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 09:33:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWA3Odd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 09:32:23 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:6518 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932293AbWA3OcW (ORCPT
+	Mon, 30 Jan 2006 09:33:33 -0500
+Received: from er-systems.de ([217.172.180.163]:3339 "EHLO er-systems.de")
+	by vger.kernel.org with ESMTP id S932294AbWA3Odc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 09:32:22 -0500
-Message-ID: <43DE23E3.6020009@sw.ru>
-Date: Mon, 30 Jan 2006 17:34:11 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Mon, 30 Jan 2006 09:33:32 -0500
+Date: Mon, 30 Jan 2006 15:33:32 +0100 (CET)
+From: Thomas Voegtle <tv@lio96.de>
+To: Willy Tarreau <willy@w.ods.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Linux Kernel Useful Patches (2.4)
+In-Reply-To: <20060130085233.GA1498@w.ods.org>
+Message-ID: <Pine.LNX.4.63.0601301520070.20245@er-systems.de>
+References: <20060130085233.GA1498@w.ods.org>
 MIME-Version: 1.0
-To: Jan Blunck <jblunck@suse.de>
-CC: Olaf Hering <olh@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Busy inodes after unmount, be more verbose in generic_shutdown_super
-References: <20060116223431.GA24841@suse.de> <43CC2AF8.4050802@sw.ru> <20060118224953.GA31364@hasse.suse.de> <43CF6170.3050608@sw.ru> <20060119100443.GD10267@hasse.suse.de> <43CF693D.4020104@sw.ru> <20060120190653.GE24401@hasse.suse.de> <43D4907B.4060801@sw.ru> <20060130115435.GA9181@hasse.suse.de> <43DE1D28.1030100@sw.ru> <20060130142140.GE9181@hasse.suse.de>
-In-Reply-To: <20060130142140.GE9181@hasse.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1395022924-1905308498-1138631612=:20245"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jan,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
->>>mntput(path->mnt);   // too early mntput()
->>>dput(path->dentry);
->>>
->>>Assuming that in-between this sequence someone unmounts the file system, 
->>>your
->>>patch will wait for this dput() to finish before it proceeds with 
->>>unmounting
->>>the file system. I think this isn't what we want.
->>
->>No, it won't wait for anything, because if umount happened between 
->>mntput/dput, dentry is not in s_dshrinkers list.
->>if umount happens in parallell with dput() (where shrinker operations 
->>are), then it will behave ok - will wait for dput() and then umount. It 
->>was intended behaviour!
+---1395022924-1905308498-1138631612=:20245
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+
+On Mon, 30 Jan 2006, Willy Tarreau wrote:
+
+> Hi all,
 > 
+> after some discussions with some people, I made available a collection of
+> useful patches for kernel 2.4. There are only a dozen of patches right
+> now, but it's very easy to add more. Amongst those patches can be found
+> some drivers, security enhancements, polling optimisations, gcc4 fixes,
+> VM optimisations, etc... Links to the original sites as well as a local
+> mirror are provided.
 > 
-> It should not wait.
-why?! it makes sure, that dentries/inodes are gone _before_ super block 
-destroyed.
-
->>Also, please, note that such early mntput()'s are bugs!!! because such 
->>dentries can reference freed memory after last mntput(). And I remember 
->>some patches in 2.4.x/2.6.x which fixed this sequence everywhere.
+> They are classified by categories and can easily be found in more than
+> one category. I plan to add many more patches such as ACL, squashfs,
+> preempt, netdev-random, patch-o-matic, etc... when I have the time, and
+> possibly start the same work for 2.6 (everything has been prepared in
+> order to make it easy too).
 > 
-> 
-> Thats why I'm complaining ...
-about what?
-my patch doesn't hide this bug, nor helps it anyhow.
+> If there are patches you frequently use and wish to be added there,
+> feel free to send a link and description.
 
-Kirill
+ My wish:
 
+ 3ware 9xxx SATA-RAID support (is CONFIG_SCSI_3W_9XXX in 2.6)
 
+ http://www.amcc.com
+
+ 
+
+      Thomas
+
+-- 
+ Thomas Vögtle    email: thomas@voegtle-clan.de
+ ----- http://www.voegtle-clan.de/thomas ------
+---1395022924-1905308498-1138631612=:20245--

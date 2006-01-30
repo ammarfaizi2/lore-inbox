@@ -1,90 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbWA3VlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbWA3Vsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030200AbWA3VlG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 16:41:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWA3VlG
+	id S932304AbWA3Vsc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 16:48:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWA3Vsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 16:41:06 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:54686
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1030200AbWA3VlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 16:41:04 -0500
-Date: Mon, 30 Jan 2006 13:41:18 -0800
-From: Greg KH <greg@kroah.com>
-To: Aritz Bastida <aritzbastida@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Right way to configure a driver? (sysfs, ioctl, proc, configfs,....)
-Message-ID: <20060130214118.GB26463@kroah.com>
-References: <7d40d7190601261206wdb22ccck@mail.gmail.com> <20060127050109.GA23063@kroah.com> <7d40d7190601270230u850604av@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7d40d7190601270230u850604av@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Mon, 30 Jan 2006 16:48:32 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:49455 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932304AbWA3Vsb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 16:48:31 -0500
+Message-ID: <43DE8A06.9010800@tmr.com>
+Date: Mon, 30 Jan 2006 16:49:58 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Albert Cahalan <acahalan@gmail.com>
+CC: matthias.andree@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>	 <43D7A7F4.nailDE92K7TJI@burner>	 <787b0d920601251826l6a2491ccy48d22d33d1e2d3e7@mail.gmail.com>	 <43D8D396.nailE2X31OHFU@burner> <787b0d920601261619l43bb95f5k64ddd338f377e56a@mail.gmail.com>
+In-Reply-To: <787b0d920601261619l43bb95f5k64ddd338f377e56a@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 27, 2006 at 11:30:26AM +0100, Aritz Bastida wrote:
-> Hi!
+Albert Cahalan wrote:
+
+> OK, this is getting silly and downright offensive. I encourage
+> everyone else to look over the code to see that I am right.
 > 
-> > Hope this helps,
-> >
-> > greg k-h
-> >
+> I may just be crazy enough to fork this project. I very nearly
+> did about 18 months ago. I can't very well do this alone,
+> because I don't have all the hardware. (It's either cdrecord
+> or Asterisk -- I'm not sure which one pisses me off the most)
+
+I can test on various 2.6 kernel ATAPI CD and DVD burners, and on 2.4 
+kernel even a real SCSI CD burner as long as it lasts. I would love to 
+see some mutual cooperation, but I doubt it's going to happen.
+
+Just to be clear, Joerg is not the only one I think has been a problem 
+here, he pissed off some of the developers who don't seem overly eager 
+to do things which would be helpful for any burner software. From here 
+it looks like a pissing content, with users well within splash range.
 > 
-> Yes, it helped me much. I'll move all the configuration/statistics to
-> sysfs. I will read carefully the corresponding chapter in LDD3 :)
-> But before that, I've got a few questions with what I know:
+> * was an RTOS developer
+> * day job is all about secure software
+> * the procps maintainer
+> * running Linux 2.6.xx only
+> * using FireWire, which is totally hot-plug
 > 
-> 1.- In what directory should I do all this configuration? I guess as,
-> I'm writing a module it should be in /sys/module/<my_module>, right?
-> Or would your recommend /sys/class/net or anything?
+> Perhaps the first thing to do would be to find a list of all the
+> apps that depend on cdrecord. Their interface to cdrecord
+> needs to be documented so that a compatibility script can
+> be made.
 
-Your device directory is usually the best for device specific options.
-In your driver directory (for the type of bus driver that your device
-lives on) is for driver-wide options.
-
-Not in the module directory, that's not easy to get to and not
-recommended at all.  Only module paramaters go there.
-
-> 2.- In my sysfs directory I would create two subdirectories: "config"
-> and "stats". In the first I would place read/write files used for
-> configuration. For example "config/flags" for the flags variable. In
-> the second read-only files with the statistics. Is this approach
-> correct?
-
-The config stuff might be better off in configfs, not sysfs.
-
-> 3.- Actually the most difficult config I must do is to pass three
-> values from userspace to my module. Specifically two integers and a
-> long (it's an offset to a memory zone I've previously defined)
+Do you plan on changing the interface, then? Removing the SCSI stuff 
+completely? Do bear in mind that there are still SCSI burners and people 
+using them, and cdrecord is currently portable to many operating systems.
 > 
-> struct meminfo {
->         unsigned int      id;         /* segment identifier */
->         unsigned int      size;     /* size of the memory area */
->         unsigned long   offset;   /* offset to the information */
-> };
-> 
-> How would you pass this information in sysfs? Three values in the same
-> file? Note that using three different files wouldn't be atomic, and I
-> need atomicity.
+> Matthias, can you give me a hand with this? I'll need a way
+> to sort and publish incoming patches, letting them sit for a
+> while. (like what Andrew Morton does for the kernel) This
+> can't work like procps because the hardware varies too much.
 
-Use configfs.
+Look a year down the road, when we have have two (or more) new 25GB 
+optical formats coming out, probably with new features and commands and 
+several vendors building drives for them. Both formats have DRM stuff in 
+them, and GPL 3 forbids implementing DRM (simplification).
 
-> 4.- Last, you suggested that I had three files for the rx_packets count:
->       rx_packets_cpu0
->       rx_packets_cpu1
->       rx_packets_total
-> 
->      I have quite a few counters, and if that number of files is multiplied by
->      the number of cpus, the number of files could be very large (imagine a
->      8-cpu box), don't you think so? And after all reading a file with three
->      values could be done very easily with awk...
+Better you than me, but it will be exciting. To the extent that I have 
+the hardware I'll be glad to test.
 
-So, lots of files is not a problem, have you looked at the sysfs file
-entries for the sensor/hwmon drivers in a while?  There are zillions of
-them :)
-
-thanks,
-
-greg k-h
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

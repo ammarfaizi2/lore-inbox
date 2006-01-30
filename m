@@ -1,88 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWA3Gqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWA3GwJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbWA3Gqq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 01:46:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWA3Gqq
+	id S1751255AbWA3GwJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 01:52:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWA3GwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 01:46:46 -0500
-Received: from smtpout.mac.com ([17.250.248.72]:35323 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751257AbWA3Gqp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 01:46:45 -0500
-In-Reply-To: <43DDA836.7070600@cosmosbay.com>
-References: <m1psmba4bn.fsf@ebiederm.dsl.xmission.com> <m1lkwza479.fsf@ebiederm.dsl.xmission.com> <20060129190539.GA26794@kroah.com> <m1mzhe7l2c.fsf@ebiederm.dsl.xmission.com> <20060130045153.GC13244@kroah.com> <43DDA1E7.5010109@cosmosbay.com> <AB74DF4E-5563-4449-8194-315AA4CCD7FE@mac.com> <43DDA836.7070600@cosmosbay.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=ISO-8859-1; delsp=yes; format=flowed
-Message-Id: <603638A5-E0A5-4B75-9485-A56B1C145277@mac.com>
-Cc: Greg KH <greg@kroah.com>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Cedric Le Goater <clg@fr.ibm.com>
-Content-Transfer-Encoding: 8BIT
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH 1/5] pid: Implement task references.
-Date: Mon, 30 Jan 2006 01:46:11 -0500
-To: Eric Dumazet <dada1@cosmosbay.com>
-X-Mailer: Apple Mail (2.746.2)
+	Mon, 30 Jan 2006 01:52:09 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:28407 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751255AbWA3GwI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 01:52:08 -0500
+Date: Mon, 30 Jan 2006 07:51:58 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Vincent Hanquez <tab@snarc.org>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [BUG] debugfs: hard link count wrong
+Message-ID: <20060130065158.GA9559@osiris.boeblingen.de.ibm.com>
+References: <20060126141142.GA11599@osiris.boeblingen.de.ibm.com> <20060127032513.GA12559@suse.de> <20060127055607.GA9331@osiris.boeblingen.de.ibm.com> <20060127063804.GA4680@suse.de> <20060127070423.GB9331@osiris.boeblingen.de.ibm.com> <20060127071749.GA13924@suse.de> <20060127174332.GA19649@snarc.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060127174332.GA19649@snarc.org>
+User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 30, 2006, at 00:46, Eric Dumazet wrote:
-> Kyle Moffett a écrit :
->> On Jan 30, 2006, at 00:19, Eric Dumazet wrote:
->>> -    if (atomic_dec_and_test(&kref->refcount)) {
->>> +    /*
->>> +     * if current count is one, we are the last user and can  
->>> release object
->>> +     * right now, avoiding an atomic operation on 'refcount'
->>> +     */
->>> +    if ((atomic_read(&kref->refcount) == 1) ||
->> Uhh, I think you got this test reversed.  Didn't you mean != 1?   
->> Otherwise you only do the dec_and_test when the refcount is one,  
->> which means that you leak everything kref-ed.
->
-> Not at all :)
->
-> Your mail is just another proof why kref is a good abstraction :)
->
-> If you are the last user of a kref, (refcount = 1), then
-> you are sure that nobody else but you is using the object, and as  
-> we are kref_put() this object, the atomic_dec_and-test *will* set  
-> the count the object and you are going to release() object.
->
-> The release() function is not going to look at kref_count again,  
-> just free the resources and the object.
+> looks like all fs that use simple_fill_super got a root inode with
+> i_nlink=1 at the start of day.
+> 
+> I've compared with shmem, the nlink is incremented to 2 by a call to
+> shmem_get_inode, when filling_super.
+> 
+> I've test the following patch with debugfs and securityfs, and its
+> seems to cure the problem.
+> 
+> ------
+> 
+> Fix incorrect nlink of root inode for filesystems that use simple_fill_super
+> 
+> Signed-off-by: Vincent Hanquez <vincent@snarc.org>
+> 
+> diff -Naur a/fs/libfs.c a/fs/libfs.c
+> --- a/fs/libfs.c	2006-01-03 03:21:10.000000000 +0000
+> +++ b/fs/libfs.c	2006-01-27 17:43:31.000000000 +0000
+> @@ -388,6 +388,7 @@
+>  	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+>  	inode->i_op = &simple_dir_inode_operations;
+>  	inode->i_fop = &simple_dir_operations;
+> +	inode->i_nlink = 2;
+>  	root = d_alloc_root(inode);
+>  	if (!root) {
+>  		iput(inode);
+> 
+> -
 
-OHHH, I see where I got confused.  The indentation was bad, dunno if  
-it was my end or yours, so I misread it as this:
+Works fine for me. Is the patch ok, Greg?
 
-if (atomic_read(...) == 1) {
-	atomic_dec_and_test(...);
-	...
-}
-
-instead of this:
-
-if (atomic_read(...) == 1 ||
-		atomic_dec_and_test(...)) {
-	...
-}
-
-This should teach me not to reply this late at night.  Sorry for the  
-confusion.
-
-Cheers,
-Kyle Moffett
-
---
-They _will_ find opposing experts to say it isn't, if you push hard  
-enough the wrong way.  Idiots with a PhD aren't hard to buy.
-   -- Rob Landley
-
-
-
+Thanks,
+Heiko

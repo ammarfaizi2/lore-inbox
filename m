@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964937AbWA3XhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWA3XsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964937AbWA3XhS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 18:37:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbWA3XhS
+	id S1030225AbWA3XsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 18:48:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbWA3XsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 18:37:18 -0500
-Received: from science.horizon.com ([192.35.100.1]:16971 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S964937AbWA3XhQ
+	Mon, 30 Jan 2006 18:48:09 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:59453 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965044AbWA3XsI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 18:37:16 -0500
-Date: 30 Jan 2006 18:37:11 -0500
-Message-ID: <20060130233711.23743.qmail@science.horizon.com>
-From: linux@horizon.com
-To: davids@webmaster.com
-Subject: RE: pthread_mutex_unlock (was Re: sched_yield() makes OpenLDAP slow)
+	Mon, 30 Jan 2006 18:48:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=lBs73+JghYuWi5avGxXmUuZjPG/MQhMxswMJ3NycE13mjhT3CerZxlahLmXucF3GVAGhv2i3/swmWpix08F/nSqdvUfJV2RCYnaclAR6ZQq+AObpeq3c43H8DLtws945j6tniKVYwhEkIR4G3WYx9gXW2qDIrCPiUOpAaT5FjJs=
+Message-ID: <32e47b670601301548w36482c78n2119f8a78ae68ce0@mail.gmail.com>
+Date: Mon, 30 Jan 2006 18:48:05 -0500
+From: Sai Bathina <sai.bathina@gmail.com>
+To: Jesse Brandeburg <jesse.brandeburg@gmail.com>
+Subject: Re: 2.6.14.3 and page allocation failures..
 Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4807377b0601251459p76e4a6a1x1295ee3fd0cf95a5@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1138048153.136509.119540@f14g2000cwb.googlegroups.com>
+	 <32e47b670601231255l16fa0fa5i20823aab0c213971@mail.gmail.com>
+	 <4807377b0601251459p76e4a6a1x1295ee3fd0cf95a5@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thinking some more on my example, for SCHED_OTHER threads, it is possible
-to define the problem away by making pthread_mutex_trylock behave
-compatibly with pthread_mutex_lock.  That is, threads in pthread_mutex_lock()
-are actually descheduled just before waiting for the lock (SCHED_OTHER is
-allowed to do that), and when the lock becomes available, the scheduler
-then decides who to run through the acquisition code.
+Thanks for the information. It does work now. However, I am having
+similar problems with e100 driver on a dell 650 box. I am using the
+e100 driver which comes with the 2.6.14.3 kernel and it throws similar
+page allocation failures. Any help in this regard is appreciated.
 
-As long as pthread_mutex_trylock() succeeds in such a case, some may call
-it weird, but it's conformant, and the performance arguments for the
-"unfair" case might easily win the day.
+Thanks
 
-This is assuming that SCHED_OTHER can block a process for an arbitrary
-time for no good reason.  Otherwise, if the lock holder is waiting for
-device I/O and no other processes are competing for the CPU, perhaps
-blocking on the edge like that for an unbounded time is illegal.
-
-
-However, if you have priorities and can't redefine locking using creative
-scheduling policies, it's less clear.  If I have a couple of real-time
-tasks, I can't decide arbitrarily to run one in lieu of the other.
-For example, suppose that without priority inheritance, you have three
-tasks, A (highest priority), B, and C (lowest).
-
-There are three locks.  Initially, A holds lock 1 and C holds lock 2.
-Then A tries to acquire lock 2.  A blocks, so B runs until it blocks trying
-to get lock 1.  Then C runs and drops lock 2.  A gets it, then drops lock 1
-and tries to re-acquire it.
-
-It seems to me that the Posix spec mandates that B gets lock 1 (and A
-must block) before A can re-acquire it.
-
-(This can also be done with priority inheritance, although it's a bit
-different.  A version that works whether priority inheritance is
-implemented or not is probably possible, too.)
-
-I'm not saying that this is a good thing, but it's distinguishable, and I
-don't have any language-lawyer way to escape the obligation.
+On 1/25/06, Jesse Brandeburg <jesse.brandeburg@gmail.com> wrote:
+> On 1/23/06, Sai Bathina <sai.bathina@gmail.com> wrote:
+> > Hi,
+> >      I am seeing page allocation errors and I have a snapshot of the
+> > /var/log/messages.
+> >
+> > My Hardware configs are
+> > Dell 750, using e1000 driver(e1000-6.2.15)
+>
+> there is a leak in the 6.2.15 driver (this leak was not in the code
+> submitted to the kernel)
+>
+> you can either use 6.3.9 or you can fix this by applying this attached
+> patch (or something similar)
+>
+> Jesse
+>
+>
+>

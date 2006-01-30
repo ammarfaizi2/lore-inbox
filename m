@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWA3PZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWA3PZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbWA3PZc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 10:25:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWA3PZc
+	id S932318AbWA3PZR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 10:25:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932319AbWA3PZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 10:25:32 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:5103 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932319AbWA3PZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 10:25:31 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 30 Jan 2006 16:24:24 +0100
-To: schilling@fokus.fraunhofer.de, jengelh@linux01.gwdg.de
-Cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       bzolnier@gmail.com, acahalan@gmail.com
-Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future Linux (stirring up a hornets' nest) ]
-Message-ID: <43DE2FA8.nail16ZB1XOPF@burner>
-References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com>
- <43DCA097.nailGPD11GI11@burner>
- <Pine.LNX.4.61.0601291212360.18492@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0601291212360.18492@yvahk01.tjqt.qr>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
+	Mon, 30 Jan 2006 10:25:17 -0500
+Received: from ns.suse.de ([195.135.220.2]:38605 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932318AbWA3PZP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 10:25:15 -0500
+Date: Mon, 30 Jan 2006 16:25:15 +0100
+From: Jan Blunck <jblunck@suse.de>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Balbir Singh <balbir@in.ibm.com>, viro@zeniv.linux.org.uk,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       olh@suse.de
+Subject: Re: [PATCH] shrink_dcache_parent() races against shrink_dcache_memory()
+Message-ID: <20060130152515.GH9181@hasse.suse.de>
+References: <20060120203645.GF24401@hasse.suse.de> <43D48ED4.3010306@sw.ru> <20060130120318.GB9181@hasse.suse.de> <20060130143814.GA25817@in.ibm.com> <20060130145418.GF9181@hasse.suse.de> <43DE2A71.80906@sw.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <43DE2A71.80906@sw.ru>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+On Mon, Jan 30, Kirill Korotaev wrote:
 
-> >Testing could be done the following way:
+> >>We can think about optimizing this to
+> >>  if (!sb->sprunes)
+> >>	wake_up(&sb->s_wait_prunes);
+> >>
 > >
-> >-	insert a blank CD into your writer and do an initial test burn.
 > >
-> >	sdd -inull bs=2352 of= test.raw count=75x60x74
-> >	cdrecord dev=ATA:b,t,0 -audio -sao -v test.raw
-> >
-> >	Remember the speed that should be > 40x
->
-> Does speed==40 also suffice?
+> >Hardly. This is only the case when two or more shrinkers are active in
+> >parallel. If that was the case often, we would have seen this much more
+> >frequent IMHO.
+> But this avoids taking 2nd lock on fast path.
+> 
 
-NO, speed==40 may be too slow as I cannot grant that it will
-always fail with PIO and speed <=40.
+No, the fast path (more frequent) is s_prunes == 0.
 
-In case that the clock rate of your CPU just fits nicely, it
-may be that it by accident works.
+sb->s_prunes--;
+if (likely(!sb->s_prunes))
+   wake_up(&sb->s_wait_prunes);
 
-> How about a DVD at 8x speed? (Even faster than CD at 40x)
+This is only optimizing a rare case ... and unmounting isn't very time
+critical.
 
-This problem is not present with DVDs as they only support
-virtual sector size == 2048.
-
-Jörg
+Regards,
+	Jan
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Jan Blunck                                               jblunck@suse.de
+SuSE LINUX AG - A Novell company
+Maxfeldstr. 5                                          +49-911-74053-608
+D-90409 Nürnberg                                      http://www.suse.de

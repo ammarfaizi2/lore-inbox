@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964949AbWA3UZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbWA3UZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964949AbWA3UZa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 15:25:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbWA3UZa
+	id S964948AbWA3UZH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 15:25:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964951AbWA3UZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 15:25:30 -0500
-Received: from mx2.suse.de ([195.135.220.15]:56247 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964949AbWA3UZ3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 15:25:29 -0500
-Date: Mon, 30 Jan 2006 21:25:27 +0100
-From: Olaf Hering <olh@suse.de>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] record last user if malloc request is exact 4k
-Message-ID: <20060130202527.GB12315@suse.de>
-References: <20060130174919.GA7599@suse.de> <84144f020601301223j709ce2bco707ee73cf2d583b4@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <84144f020601301223j709ce2bco707ee73cf2d583b4@mail.gmail.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Mon, 30 Jan 2006 15:25:06 -0500
+Received: from host233.omnispring.com ([69.44.168.233]:61071 "EHLO
+	iradimed.com") by vger.kernel.org with ESMTP id S964948AbWA3UZF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 15:25:05 -0500
+Message-ID: <43DE75F5.40900@cfl.rr.com>
+Date: Mon, 30 Jan 2006 15:24:21 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+CC: matthias.andree@gmx.de, mrmacman_g4@mac.com, linux-kernel@vger.kernel.org,
+       jengelh@linux01.gwdg.de, bzolnier@gmail.com, acahalan@gmail.com
+Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future
+ Linux (stirring up a hornets' nest) ]
+References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com> <43DCA097.nailGPD11GI11@burner> <20060129112613.GA29356@merlin.emma.line.org> <Pine.LNX.4.61.0601292139080.2596@yvahk01.tjqt.qr> <43DD2A8A.nailGVQ115GOP@burner> <787b0d920601291328k52191977h37 <43DE495A.nail2BR211K0O@burner>
+In-Reply-To: <43DE495A.nail2BR211K0O@burner>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 30 Jan 2006 20:26:06.0156 (UTC) FILETIME=[65BC90C0:01C625DB]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14238.000
+X-TM-AS-Result: No--11.700000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Jan 30, Pekka Enberg wrote:
+Joerg Schilling wrote:
+> I am sorry to see your recent dicussion style.
+>
+> I was asking a question and I did get a completely useless answer as
+> any person who has some basic know how Linux SCSI would know that
+> doing a stat("/dev/sg*", ...) will not return anything useful.
+>   
 
-> Hi,
-> 
-> On 1/30/06, Olaf Hering <olh@suse.de> wrote:
-> > Is there a reason why a 4096 malloc is not recorded?
-> > untested patch below.
-> >
-> > allow SLAB_STORE_USER also with an exact 4k request.
-> 
-> For architectures that have 4K pages, adding debugging overhead to 4K
-> objects is pretty much the worst case. Any particular reason you want
-> this?
+It certainly does return something useful, just not what you are looking 
+for.  It does not return information that allows you to cleanly build 
+your bus:device:lun view of the world, but it does return sufficient 
+information to enumerate and communicate with all devices in the 
+system.  Is that not sufficient to be able to implement cdrecord?  If it 
+is, then the real issue here is that you want Linux to conform to the 
+bus:device:lun world view, which it seems many people do not wish to do. 
 
-I'm just curious.
+Maybe it would be more constructive if you were to make a good argument 
+for why the bus:device:lun view is better than /dev/*, but right now it 
+seems to me that they are just two different ways of doing the same 
+thing, and you prefer one way while the rest of the Linux developers 
+prefer the other. 
+> If people give useful answers, it makes sense to continue a discussion but it 
+> turns out that "joe average" on KLML replies before thinking about the problem. 
+>
+> Let me ask again:
+>
+> 	Is there a way to get (or construct) a closed view on the namespace 
+> 	for all SCSI devices?
+>
+>
+> And IMPORTANT: don't answer unless you have a real answer for the problem.
+>
+> Jörg
+>
+>   
 
--- 
-short story of a lazy sysadmin:
- alias appserv=wotan

@@ -1,73 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbWA3UAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbWA3UEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964934AbWA3UAs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 15:00:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbWA3UAs
+	id S964940AbWA3UEo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 15:04:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbWA3UEn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 15:00:48 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:47274 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S964934AbWA3UAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 15:00:47 -0500
-Date: Mon, 30 Jan 2006 12:00:26 -0800
-From: "Luck, Tony" <tony.luck@intel.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Ingo Molnar <mingo@redhat.com>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: boot-time slowdown for measure_migration_cost
-Message-ID: <20060130200026.GA5081@agluck-lia64.sc.intel.com>
-References: <200601271403.27065.bjorn.helgaas@hp.com> <20060130172140.GB11793@elte.hu> <20060130185301.GA4622@agluck-lia64.sc.intel.com> <20060130192438.GA29129@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060130192438.GA29129@elte.hu>
-User-Agent: Mutt/1.4.1i
+	Mon, 30 Jan 2006 15:04:43 -0500
+Received: from iona.labri.fr ([147.210.8.143]:8842 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S964940AbWA3UEn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 15:04:43 -0500
+Message-ID: <43DE710F.9020408@labri.fr>
+Date: Mon, 30 Jan 2006 21:03:27 +0100
+From: Emmanuel Fleury <emmanuel.fleury@labri.fr>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [ASLR] Better control on Randomization
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 30, 2006 at 08:24:38PM +0100, Ingo Molnar wrote:
-> > Doing both gets the time down to 5.20s, and the migration_cost=9990.
-> 
-> ok, that's good enough i think - we could certainly do the patch below 
-> in v2.6.16.
+Hi all,
 
-Might it be wise to see whether the 2% variation that I saw can be
-repeated on some other architecture?  Bjorn's initial post was just
-questioning whether we need to spend this much time during boot to acquire
-this data.  Now we have *one* data point that on an ia64 with four cpus
-with 9MB cache in a single domain that we can speed the calculation by
-a factor of three with only a 2% loss of accuracy.  Can someone else try
-this patch and post the before/after values for migration_cost from dmesg?
+I would like to have a way to enable/disable randomization of the stack
+independently of the randomization of the dynamic library loading.
 
--Tony
+I mean, in recent Linux kernel, thanks to the ASLR, we have a
+randomization of the stack:
 
----
-reduce the amount of time the migration cost calculations cost during 
-bootup.
+[fleury@carioca programs]$ ./testASLR
+str= 0xbf8e3a3c (/bin/sh), envp= 0xbf8e18ec, argv= 0xbf8e18e4
+[fleury@carioca programs]$ ./testASLR
+str= 0xbfedda3c (/bin/sh), envp= 0xbfedd75c, argv= 0xbfedd754
+[fleury@carioca programs]$ ./testASLR
+str= 0xbfe3ba3c (/bin/sh), envp= 0xbfe3a10c, argv= 0xbfe3a104
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+(testASLR just output the address of the envp and the argv variables).
 
---- linux/kernel/sched.c.orig
-+++ linux/kernel/sched.c
-@@ -5141,7 +5141,7 @@ static void init_sched_build_groups(stru
- #define SEARCH_SCOPE		2
- #define MIN_CACHE_SIZE		(64*1024U)
- #define DEFAULT_CACHE_SIZE	(5*1024*1024U)
--#define ITERATIONS		2
-+#define ITERATIONS		1
- #define SIZE_THRESH		130
- #define COST_THRESH		130
- 
-@@ -5480,9 +5480,9 @@ static unsigned long long measure_migrat
- 				break;
- 			}
- 		/*
--		 * Increase the cachesize in 5% steps:
-+		 * Increase the cachesize in 10% steps:
- 		 */
--		size = size * 20 / 19;
-+		size = size * 10 / 9;
- 	}
- 
- 	if (migration_debug)
+And randomization of the dynamic library:
+[fleury@carioca programs]$ cat /proc/self/maps | grep libc
+b7e01000-b7f2e000 r-xp 00000000 03:02 328183     /lib/tls/libc-2.3.5.so
+b7f2e000-b7f33000 r--p 0012d000 03:02 328183     /lib/tls/libc-2.3.5.so
+b7f33000-b7f36000 rw-p 00132000 03:02 328183     /lib/tls/libc-2.3.5.so
+[fleury@carioca programs]$ cat /proc/self/maps | grep libc
+b7e59000-b7f86000 r-xp 00000000 03:02 328183     /lib/tls/libc-2.3.5.so
+b7f86000-b7f8b000 r--p 0012d000 03:02 328183     /lib/tls/libc-2.3.5.so
+b7f8b000-b7f8e000 rw-p 00132000 03:02 328183     /lib/tls/libc-2.3.5.so
+[fleury@carioca programs]$ cat /proc/self/maps | grep libc
+b7de4000-b7f11000 r-xp 00000000 03:02 328183     /lib/tls/libc-2.3.5.so
+b7f11000-b7f16000 r--p 0012d000 03:02 328183     /lib/tls/libc-2.3.5.so
+b7f16000-b7f19000 rw-p 00132000 03:02 328183     /lib/tls/libc-2.3.5.so
+
+When setting /proc/sys/kernel/randomize_va_space to 0, both
+randomization stop (see in linux/arch/i386/kernel/process.c).
+
+Would it be possible to tweak them independently from each other ?
+(still via procfs)
+
+Regards
+-- 
+Emmanuel Fleury
+
+The highest goal of computer science is to automate that
+which can be automated.
+  -- D. L. VerLee

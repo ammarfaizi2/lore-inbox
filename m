@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbWA3UY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964949AbWA3UZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964950AbWA3UY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 15:24:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbWA3UY2
+	id S964949AbWA3UZa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 15:25:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbWA3UZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 15:24:28 -0500
-Received: from ns1.suse.de ([195.135.220.2]:30603 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964948AbWA3UY2 (ORCPT
+	Mon, 30 Jan 2006 15:25:30 -0500
+Received: from mx2.suse.de ([195.135.220.15]:56247 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964949AbWA3UZ3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 15:24:28 -0500
-Date: Mon, 30 Jan 2006 21:24:18 +0100
+	Mon, 30 Jan 2006 15:25:29 -0500
+Date: Mon, 30 Jan 2006 21:25:27 +0100
 From: Olaf Hering <olh@suse.de>
-To: Andrew Vasquez <andrew.vasquez@qlogic.com>
-Cc: Stefan Kaltenbrunner <mm-mailinglist@madness.at>,
-       linux-kernel@vger.kernel.org
-Subject: Re: qla2xxx related oops in 2.6.16-rc1
-Message-ID: <20060130202418.GA12315@suse.de>
-References: <43DA580E.3020100@madness.at> <20060130153435.GC1160@andrew-vasquezs-powerbook-g4-15.local>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] record last user if malloc request is exact 4k
+Message-ID: <20060130202527.GB12315@suse.de>
+References: <20060130174919.GA7599@suse.de> <84144f020601301223j709ce2bco707ee73cf2d583b4@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20060130153435.GC1160@andrew-vasquezs-powerbook-g4-15.local>
+In-Reply-To: <84144f020601301223j709ce2bco707ee73cf2d583b4@mail.gmail.com>
 X-DOS: I got your 640K Real Mode Right Here Buddy!
 X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
 User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Jan 30, Andrew Vasquez wrote:
+ On Mon, Jan 30, Pekka Enberg wrote:
 
-> On Fri, 27 Jan 2006, Stefan Kaltenbrunner wrote:
+> Hi,
 > 
-> > We hit the following oops in 2.6.16-rc1 during itesting of a
-> > devicemapper based multipath infrastructure.
-> > 
-> > The oops happend during heavy io on the devicemapper device and a reboot
-> > of one of the switches the host was directly connected too.
-> > 
-> > The host in questions is as Dual Opteron 280 with 16GB ram and two
-> > qla2340 adapters accessing an IBM DS4300 Array.
-> > 
-> > Stefan
-> > 
-> > Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP:
-> > <ffffffff803cc6c6>{_spin_lock+0}
-> > PGD 3ff513067 PUD 3ff514067 PMD 0
-> > Oops: 0002 [1] SMP
-> > CPU 0
-> > Modules linked in: dm_round_robin dm_multipath dm_mod i2c_amd756 qla2300
-> > qla2xxx i2c_core evdev
-> > Pid: 2568, comm: qla2300_1_dpc Not tainted 2.6.16-rc1 #4
-> > RIP: 0010:[<ffffffff803cc6c6>] <ffffffff803cc6c6>{_spin_lock+0}
+> On 1/30/06, Olaf Hering <olh@suse.de> wrote:
+> > Is there a reason why a 4096 malloc is not recorded?
+> > untested patch below.
+> >
+> > allow SLAB_STORE_USER also with an exact 4k request.
 > 
-> Could you retry your tests with the following patchset:
+> For architectures that have 4K pages, adding debugging overhead to 4K
+> objects is pretty much the worst case. Any particular reason you want
+> this?
 
-This is a generic bug. I hit it as well several times during my testing of
-https://bugzilla.novell.com/show_bug.cgi?id=145459
-
-If my slab corruption and this one is the same cause, no idea.
+I'm just curious.
 
 -- 
 short story of a lazy sysadmin:

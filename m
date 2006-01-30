@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWA3RRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWA3RTP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbWA3RRR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 12:17:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWA3RRR
+	id S964818AbWA3RTP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 12:19:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbWA3RTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 12:17:17 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:18831 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964800AbWA3RRP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 12:17:15 -0500
-Message-ID: <43DE4A1D.4050501@us.ibm.com>
-Date: Mon, 30 Jan 2006 12:17:17 -0500
-From: "Mike D. Day" <ncmike@us.ibm.com>
-User-Agent: Thunderbird 1.5 (Macintosh/20051201)
-MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Greg KH <greg@kroah.com>, xen-devel@lists.xensource.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Xen-devel] Re: [PATCH 2.6.12.6-xen] sysfs attributes for xen
-References: <43DAD4DB.4090708@us.ibm.com>	 <1138637931.19801.101.camel@localhost.localdomain>	 <43DE45A4.6010808@us.ibm.com> <1138640666.19801.106.camel@localhost.localdomain>
-In-Reply-To: <1138640666.19801.106.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Jan 2006 12:19:15 -0500
+Received: from mipsfw.mips-uk.com ([194.74.144.146]:42252 "EHLO
+	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
+	id S964807AbWA3RTN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 12:19:13 -0500
+Date: Mon, 30 Jan 2006 17:06:47 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Stuart Brady <sdbrady@ntlworld.com>
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       Akinobu Mita <mita@miraclelinux.com>, linux-kernel@vger.kernel.org,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Ian Molton <spyro@f2s.com>,
+       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>
+Subject: Re: [parisc-linux] Re: [PATCH 3/6] C-language equivalents of include/asm-*/bitops.h
+Message-ID: <20060130170647.GC3816@linux-mips.org>
+References: <20060125112625.GA18584@miraclelinux.com> <20060125113206.GD18584@miraclelinux.com> <20060125200250.GA26443@flint.arm.linux.org.uk> <20060126000618.GA5592@twiddle.net> <20060126085540.GA15377@flint.arm.linux.org.uk> <20060126161849.GA13632@colo.lackof.org> <20060126164020.GA27222@flint.arm.linux.org.uk> <20060126230443.GC13632@colo.lackof.org> <20060126230353.GC27222@flint.arm.linux.org.uk> <20060129071242.GA24624@miranda.arrow>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060129071242.GA24624@miranda.arrow>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> In the final version, there will be available Xen headers, and the patch
-> won't need the open-coded 1024?
+On Sun, Jan 29, 2006 at 07:12:42AM +0000, Stuart Brady wrote:
 
-Good question, I need some advice. The Xen hcall headers get soft-linked into every paravirtualized OS tree: linux, bsd, solaris, etc. In linux right now the xen version.h shows up as  /include/asm-xen/version.h.
+> On MIPS, fls() and flz() should probably use CLO.
 
-This file uses typedefs for every important parameter. For example, typedef char [1024] xen_capabilities_info_t;. 
+It actually uses clz.
 
-But as Greg says TYPEDEFS ARE EVIL. 
+> Curiously, MIPS is the only arch with a flz() function.
 
-Last resort would be to use the funky gcc #include_next to override the xen hcall headers with a linux-specific hcall headers. But I don't know if that would be cool with lkml either. 
+No longer.  The fls implementation was based on flz and fls was the only
+user of flz.  So I cleaned that, once I commit flz will be gone.  Not
+only a cleanup but also a minor optimization.
 
-So, advice would be welcome :). 
-
-thanks, 
-
-Mike
-
-
--- 
-
-
+  Ralf

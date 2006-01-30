@@ -1,64 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWA3RiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWA3RjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964838AbWA3RiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 12:38:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbWA3RiY
+	id S964840AbWA3RjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 12:39:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWA3RjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 12:38:24 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:52642 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S964838AbWA3RiY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 12:38:24 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 30 Jan 2006 18:37:07 +0100
-To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de
-Cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de, bzolnier@gmail.com, acahalan@gmail.com
-Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future Linux (stirring up a hornets' nest) ]
-Message-ID: <43DE4EC3.nail2D51I6BPD@burner>
-References: <43DCA097.nailGPD11GI11@burner>
- <20060129112613.GA29356@merlin.emma.line.org>
- <Pine.LNX.4.61.0601292139080.2596@yvahk01.tjqt.qr>
- <43DD2A8A.nailGVQ115GOP@burner>
- <787b0d920601291328k52191977h3778a7c833d640f2@mail.gmail.com>
- <43DE3A99.nail16ZK1MAWN@burner>
- <787b0d920601300831j99fae82n5d4a5d94f99baafd@mail.gmail.com>
- <43DE405D.nail2AM2BPF20@burner>
- <20060130170813.GG19173@merlin.emma.line.org>
- <43DE495A.nail2BR211K0O@burner>
- <20060130173028.GA5452@merlin.emma.line.org>
-In-Reply-To: <20060130173028.GA5452@merlin.emma.line.org>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 30 Jan 2006 12:39:09 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:65246 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S964839AbWA3RjH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 12:39:07 -0500
+Subject: Re: [Xen-devel] Re: [PATCH 2.6.12.6-xen] sysfs attributes for xen
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Mike D. Day" <ncmike@us.ibm.com>
+Cc: Greg KH <greg@kroah.com>, xen-devel@lists.xensource.com,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <43DE4A1D.4050501@us.ibm.com>
+References: <43DAD4DB.4090708@us.ibm.com>
+	 <1138637931.19801.101.camel@localhost.localdomain>
+	 <43DE45A4.6010808@us.ibm.com>
+	 <1138640666.19801.106.camel@localhost.localdomain>
+	 <43DE4A1D.4050501@us.ibm.com>
+Content-Type: text/plain
+Date: Mon, 30 Jan 2006 09:38:56 -0800
+Message-Id: <1138642737.22903.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@gmx.de> wrote:
+On Mon, 2006-01-30 at 12:17 -0500, Mike D. Day wrote:
+> Dave Hansen wrote:
+> > In the final version, there will be available Xen headers, and the
+> patch
+> > won't need the open-coded 1024?
+> 
+> Good question, I need some advice. The Xen hcall headers get
+> soft-linked into every paravirtualized OS tree: linux, bsd, solaris,
+> etc. In linux right now the xen version.h shows up
+> as /include/asm-xen/version.h.
 
-> Joerg Schilling schrieb am 2006-01-30:
->
-> > Let me ask again:
-> > 
-> > 	Is there a way to get (or construct) a closed view on the namespace 
-> > 	for all SCSI devices?
->
-> Of course there is, /dev/sg*.
->
-> But that is not what you're _actually_ asking - you appear to desire a
-> unified namespace for SCSI + ATAPI + whatever, and the answer to that
-> was /dev/*.
+But, you can #include it from any old Linux file and not care, right?
 
-I am only asking for a unique name space for all devices that talk SCSI.
+> This file uses typedefs for every important parameter. For example,
+> typedef char [1024] xen_capabilities_info_t;. 
+> 
+> But as Greg says TYPEDEFS ARE EVIL. 
 
-And please: read the SCSI Standard on t10.org to learn that ATA is just one
-of many possible SCSI transports.
+Yes, they are.  Buuuuuuut, you _can_ make the code around them a little
+less evil.  If you _must_ use a typedef, you could do something like
+this:
 
-Jörg
+#define XEN_CAP_INFO_LEN_BYTES 1024
+typedef char [XEN_CAP_INFO_LEN_BYTES] xen_capabilities_info_t;
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+That way, you can do your thing without using the typedef in the sysfs
+code.  The very best way to do it is to skip the typedef altogether, and
+just explicitly create char[] arrays with the length macro when you need
+them.
+
+If you did this, and dynamically allocated the buffer, your cap_show
+function could look something like this:
+
++/* xen capabilities info */
++static ssize_t xen_cap_show(struct kobject *kobj,
++                               struct attribute *attr,
++                               char *sysfs_buf)
++{
++	ssize_t result = 0;
++       char *info_buf;
++
++	/* +1 is to make room for the \n in the snprintf */
++	info_buf = kmalloc(XEN_CAP_INFO_LEN_BYTES+1, GFP_KERNEL);
++       if(!info_buf)
++		return result;
++
++	if (HYPERVISOR_xen_version(XENVER_capabilities, &info_buf))
++		goto out;
++
++       result = snprintf(sysfs_buf, XEN_CAP_INFO_LEN_BYTES+1,
++                               "%s\n", info_buf);
++out:
++       kfree(info_buf);
++       return result;
++}
+
+> Last resort would be to use the funky gcc #include_next to override
+> the xen hcall headers with a linux-specific hcall headers. But I don't
+> know if that would be cool with lkml either. 
+
+I've never seen that done, so I'd try to steer clear.  
+
+-- Dave
+

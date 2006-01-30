@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWA3SH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbWA3SKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964861AbWA3SH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 13:07:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbWA3SH6
+	id S1751040AbWA3SKm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 13:10:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbWA3SKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 13:07:58 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:34998 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964861AbWA3SH5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 13:07:57 -0500
-Subject: Re: [PATCH] generic_file_write_nolock cleanup
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: akpm@osdl.org, lkml <linux-kernel@vger.kernel.org>, hch@lst.de
-In-Reply-To: <Pine.LNX.4.61.0601301717060.5478@goblin.wat.veritas.com>
-References: <1138640165.28382.3.camel@dyn9047017102.beaverton.ibm.com>
-	 <Pine.LNX.4.61.0601301717060.5478@goblin.wat.veritas.com>
-Content-Type: text/plain
-Date: Mon, 30 Jan 2006 10:07:27 -0800
-Message-Id: <1138644447.28382.10.camel@dyn9047017102.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Jan 2006 13:10:41 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:10767 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750974AbWA3SKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 13:10:41 -0500
+Date: Mon, 30 Jan 2006 19:10:39 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Gabriel C." <crazy@pimpmylinux.org>, Denis Vlasenko <vda@ilport.com.ua>,
+       linville@tuxdriver.com
+Cc: linux-kernel@vger.kernel.org, da.crew@gmx.net, netdev@vger.kernel.org
+Subject: 2.6.16-rc1-mm4: ACX=y, ACX_USB=n compile error
+Message-ID: <20060130181039.GC3655@stusta.de>
+References: <20060130133833.7b7a3f8e@zwerg>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060130133833.7b7a3f8e@zwerg>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-30 at 17:20 +0000, Hugh Dickins wrote:
-> On Mon, 30 Jan 2006, Badari Pulavarty wrote:
-> > 
-> > generic_file_write_nolock() and __generic_file_write_nolock() seems
-> > to be doing exactly same thing. Why do we have 2 of these ? 
-> > Can we kill __generic_file_write_nolock() ?
+On Mon, Jan 30, 2006 at 01:38:33PM +0100, Gabriel C. wrote:
+
+> Hello,
+
+Hi Gabriel,
+
+> I got this compile error with 2.6.16-rc1-mm4 , config attached. 
 > 
-> Doesn't generic_file_write_nolock() call generic_file_aio_write_nolock(),
-> but __generic_file_write_nolock() call __generic_file_aio_write_nolock()?
-> With the first doing some syncing which the __second doesn't do?
 > 
-> Lovely names in mm/filemap.c, aren't they?
+>   LD      .tmp_vmlinux1
+> drivers/built-in.o: In function
+> `acx_l_transmit_authen1':common.c:(.text+0x6cd62): undefined reference
+> to `acxusb_l_alloc_tx' :common.c:(.text+0x6cd74): undefined reference
+> to `acxusb_l_get_txbuf' :common.c:(.text+0x6cdeb): undefined reference
+> to `acxusb_l_tx_data' drivers/built-in.o: In function
+> `acx_s_configure_debug': undefined reference to
+> `acxusb_s_issue_cmd_timeo_debug' drivers/built-in.o: In function
+> [many more]
+>...
 
-Sigh !! I see it now. It was my version which was exactly equal (I was
-doing some cleanup). :(
+Thanks for your report.
 
-Please ignore my patch.
+@Denis:
+The problem seems to be CONFIG_ACX=y, CONFIG_ACX_USB=n.
 
-Thanks,
-Badari
+> Gabriel 
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbWA3R5J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWA3R4d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964847AbWA3R5J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 12:57:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWA3R5I
+	id S964843AbWA3R4d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 12:56:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWA3R4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 12:57:08 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:10696 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964847AbWA3R5G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 12:57:06 -0500
-Subject: Re: [Xen-devel] Re: [PATCH 2.6.12.6-xen] sysfs attributes for xen
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Cc: Greg KH <greg@kroah.com>, xen-devel@lists.xensource.com,
-       lkml <linux-kernel@vger.kernel.org>, "Mike D. Day" <ncmike@us.ibm.com>
-In-Reply-To: <26c21a6abef89d4629a0da08bc0ba9bf@cl.cam.ac.uk>
-References: <43DAD4DB.4090708@us.ibm.com>
-	 <1138637931.19801.101.camel@localhost.localdomain>
-	 <43DE45A4.6010808@us.ibm.com>
-	 <1138640666.19801.106.camel@localhost.localdomain>
-	 <43DE4A1D.4050501@us.ibm.com>
-	 <1138642737.22903.14.camel@localhost.localdomain>
-	 <26c21a6abef89d4629a0da08bc0ba9bf@cl.cam.ac.uk>
-Content-Type: text/plain
-Date: Mon, 30 Jan 2006 09:56:53 -0800
-Message-Id: <1138643813.22903.28.camel@localhost.localdomain>
+	Mon, 30 Jan 2006 12:56:33 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:22935 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932327AbWA3R4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 12:56:32 -0500
+Date: Mon, 30 Jan 2006 09:56:30 -0800
+From: Ashok Raj <ashok.raj@intel.com>
+To: Greg KH <greg@kroah.com>
+Cc: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>, Mark Maule <maule@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>
+Subject: Re: FW: MSI-X on 2.6.15
+Message-ID: <20060130095630.A7765@unix-os.sc.intel.com>
+References: <20060130173852.GA16259@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060130173852.GA16259@kroah.com>; from greg@kroah.com on Mon, Jan 30, 2006 at 09:38:52AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-01-30 at 17:53 +0000, Keir Fraser wrote:
-> On 30 Jan 2006, at 17:38, Dave Hansen wrote:
+On Mon, Jan 30, 2006 at 09:38:52AM -0800, Greg KH wrote:
 > 
-> > Yes, they are.  Buuuuuuut, you _can_ make the code around them a little
-> > less evil.  If you _must_ use a typedef, you could do something like
-> > this:
-> >
-> > #define XEN_CAP_INFO_LEN_BYTES 1024
-> > typedef char [XEN_CAP_INFO_LEN_BYTES] xen_capabilities_info_t;
+>    On Mon, Jan 30, 2006 at 10:33:50AM -0600, Miller, Mike (OS Dev) wrote:
+>    > Greg KH,
+>    >  We  have the same results on 2.6.15, the MSI-X table is all zeroes.
+>    See
+>    >  below. Any ideas of what to do do next? The driver works on x86_64.
+>    Is
+>    > there any thing extra I need to do on ia64?
 > 
-> Is that really better than just referencing the typedef? I've always 
-> considered them okay for simple scalar and array types, even if they 
-> are to be avoided for structure types.
+>    ia64  didn't  really  have  msi  support before the latest -mm kernel,
+>    right
+>    Mark?
 
-One reason they're "evil" is that they hide what is going on.  It is
-worse for structures, but doing it for arrays still hides what is there,
-and a hapless programmer can easily jump off the end of the stack
-without realizing it.  I think the kernel style is to be as explicit as
-possible, especially when it isn't too verbose.
+It wasnt enabled in any default configs, but i believe its functional
+even earlier. Atleast when i changed the method for irq migration via 
+/proc, i remember testing on ia64 on ixgb driver. 
 
-In this case, I expect a programmer declaring a 'char foo[XEN_FOO]'
-array on the stack to be much more likely to go look up how big XEN_FOO
-is than one who sees a 'xen_capabilities_info_t foo'.
+I havent followed the register_ops() discussion but believe it just changed
+the default vector allocation to arch/platform types. But the core
+msi should have worked even earlier.
 
-> Is it the size aspect that is 
-> the problem (e.g., a typedef'ed type should be okay to allocate on the 
-> stack)?
-
-The size is the issue.  A typedef just makes it a little bit harder to
-track down.  That's why typedefs are evil. ;)
-
--- Dave
-
+Cheers,
+ashok

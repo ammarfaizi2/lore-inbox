@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWAaVVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751497AbWAaVU7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751498AbWAaVVH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 16:21:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751499AbWAaVVH
+	id S1751497AbWAaVU7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 16:20:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbWAaVU7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 16:21:07 -0500
-Received: from amdext3.amd.com ([139.95.251.6]:53934 "EHLO amdext3.amd.com")
-	by vger.kernel.org with ESMTP id S1751498AbWAaVVE (ORCPT
+	Tue, 31 Jan 2006 16:20:59 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:26651 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751497AbWAaVU7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 16:21:04 -0500
-X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
-Date: Tue, 31 Jan 2006 14:22:49 -0700
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: "Jens Axboe" <axboe@suse.de>
-cc: linux-kernel@vger.kernel.org, rpurdie@rpsys.net
-Subject: Re: LED: Add IDE disk activity LED trigger
-Message-ID: <20060131212249.GR31163@cosmic.amd.com>
-References: <20060131203552.GG4215@suse.de>
-MIME-Version: 1.0
-In-Reply-To: <20060131203552.GG4215@suse.de>
-User-Agent: Mutt/1.5.11
-X-WSS-ID: 6FC10B211HW3887969-01-01
-Content-Type: text/plain;
- charset=us-ascii
+	Tue, 31 Jan 2006 16:20:59 -0500
+Date: Tue, 31 Jan 2006 21:59:55 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Joshua Kugler <joshua.kugler@uaf.edu>
+Cc: Sander <sander@humilis.net>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: Re: [OT] 8-port AHCI SATA Controller?
+Message-ID: <20060131205954.GJ4215@suse.de>
+References: <20060131115343.GA2580@favonius> <20060131185646.GF6178@favonius> <20060131203845.GH4215@suse.de> <200601311148.52955.joshua.kugler@uaf.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <200601311148.52955.joshua.kugler@uaf.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 31/01/06 21:35 +0100, "Jens Axboe" wrote:
-> Perhaps a generic solution isn't feasible, because this isn't really a
-> generic problem. The LED stuff has very limited use - you mention
-> embedded platforms, perhaps they should just be doing this on their own?
+On Tue, Jan 31 2006, Joshua Kugler wrote:
+> On Tuesday 31 January 2006 11:38, Jens Axboe wrote:
+> > On Tue, Jan 31 2006, Sander wrote:
+> > > > I got the drivers here:
+> > > >
+> > > > http://www.keffective.com/mvsata/FC3/
+> > > >
+> > > > The latest was mvSata_Linux_3.6.1.tgz as of 2005-10-13.
+> > >
+> > > I very, very much prefer in-tree drivers :-)
+> >
+> > Actually there is a sata_mv driver in the kernel, however it's pretty
+> > experimental right now. I'm sure it could use testers :-)
+> 
+> Interesting.  I understand it going through testing, but why didn't
+> they pull in the mvSata driver referenced above?  It was already GPL.
+> Or did they pull in that driver and just want testing?
 
-Possibly, but what you'll find is that many different embedded platforms
-end up wanting similar behavior, and if they all do it on their own, that
-ends up in a mess.
+Did you look at the driver? I'm guessing no :-)
 
-Take the Alchemy platform for example - we have a bank of LEDs at our
-disposal, and we too would like to use them to do very similar things
-as the ARM/Xscale folks - things like show IDE/SD/MTD traffic, or the 
-status of a battery.   Rather then go in and hack that stuff in ourselves, 
-I would much rather just define a few API hooks and getting the rest for 
-free (or really cheap).
-
-Perhaps it can be hidden behind a CONFIG_EMBEDDED or something so that
-the desktop platforms aren't bothered by it, but speaking for the two 
-embedded platforms I'm attached to, my vote for this LED class is a "yes".
+Additionally, it didn't interface with libata at all. A native libata
+driver is greatly preferred.
 
 -- 
-Jordan Crouse
-Senior Linux Engineer
-AMD - Personal Connectivity Solutions Group
-<www.amd.com/embeddedprocessors>
+Jens Axboe
 

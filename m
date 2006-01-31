@@ -1,166 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWAaBpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWAaBq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbWAaBpR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 20:45:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWAaBpR
+	id S932215AbWAaBq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 20:46:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWAaBq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 20:45:17 -0500
-Received: from mail7.hitachi.co.jp ([133.145.228.42]:37853 "EHLO
-	mail7.hitachi.co.jp") by vger.kernel.org with ESMTP
-	id S1030263AbWAaBpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 20:45:14 -0500
-Message-ID: <43DEC13E.8020200@sdl.hitachi.co.jp>
-Date: Tue, 31 Jan 2006 10:45:34 +0900
-From: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Mon, 30 Jan 2006 20:46:59 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:8428 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932177AbWAaBq6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 20:46:58 -0500
+Message-ID: <43DEC157.1000002@zytor.com>
+Date: Mon, 30 Jan 2006 17:45:59 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>,
-       Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
-       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
-       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
-CC: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>,
-       SystemTAP <systemtap@sources.redhat.com>,
-       Jim Keniston <jkenisto@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Yumiko Sugita <sugita@sdl.hitachi.co.jp>,
-       Satoshi Oshima <soshima@redhat.com>, Hideo Aoki <haoki@redhat.com>
-Subject: Re: [PATCH] kretprobe: kretprobe-booster against 2.6.16-rc1 for i386
-References: <43DE0A53.3060801@sdl.hitachi.co.jp>
-In-Reply-To: <43DE0A53.3060801@sdl.hitachi.co.jp>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Kyle Moffett <mrmacman_g4@mac.com>
+CC: Neil Brown <neilb@suse.de>, klibc list <klibc@zytor.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-raid@vger.kernel.org
+Subject: Re: Exporting which partitions to md-configure
+References: <43DEB4B8.5040607@zytor.com> <17374.47368.715991.422607@cse.unsw.edu.au> <859CB9D0-A1D3-4931-9D9F-96153D0F3E1B@mac.com>
+In-Reply-To: <859CB9D0-A1D3-4931-9D9F-96153D0F3E1B@mac.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, also I forgot to remove a solo decrement routine.
-
-Masami Hiramatsu wrote:
-> @@ -310,18 +338,11 @@ int __kprobes trampoline_probe_handler(s
->  	}
+Kyle Moffett wrote:
 > 
->  	BUG_ON(!orig_ret_address || (orig_ret_address == trampoline_address));
-> -	regs->eip = orig_ret_address;
+> Well, for an MSDOS partition table, you would look for '253', for a  Mac 
+> partition table you could look for something like 'Linux_RAID' or  
+> similar (just arbitrarily define some name beginning with the Linux_  
+> prefix), etc.  This means that the partition table type would need to  
+> be exposed as well (I don't know if it is already).
 > 
-> -	reset_current_kprobe();
->  	spin_unlock_irqrestore(&kretprobe_lock, flags);
->  	preempt_enable_no_resched();
-	^^^^^^^^^^^^^^^^^^^^^^^^^^^^  This must cause a trouble.
 
-So, I must remove it (when boosting)
-> -	preempt_enable_no_resched();
+It's not, but perhaps exporting "format" and "type" as distinct 
+attributes is the way to go.  The policy for which partitions to 
+consider would live entirely in kinit that way.
 
-I attatch the fixed patch to this mail.
+type would be format-specific; in EFI it's a UUID.
 
-> 
-> -	/*
-> -	 * By returning a non-zero value, we are telling
-> -	 * kprobe_handler() that we don't want the post_handler
-> -	 * to run (and have re-enabled preemption)
-> -	 */
-> -        return 1;
-> +	return (void*)orig_ret_address;
->  }
-> 
->  /*
+This, of course, is a bigger change, but it just might be worth it.
 
--- 
-Masami HIRAMATSU
-2nd Research Dept.
-Hitachi, Ltd., Systems Development Laboratory
-E-mail: hiramatu@sdl.hitachi.co.jp
-
-Signed-off-by: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
-
- kprobes.c |   57 ++++++++++++++++++++++++++++++++++++---------------------
- 1 files changed, 36 insertions(+), 21 deletions(-)
-diff -Narup a/arch/i386/kernel/kprobes.c b/arch/i386/kernel/kprobes.c
---- a/arch/i386/kernel/kprobes.c	2006-01-24 19:07:26.000000000 +0900
-+++ b/arch/i386/kernel/kprobes.c	2006-01-31 10:26:46.000000000 +0900
-@@ -255,17 +255,45 @@ no_kprobe:
-  * here. When a retprobed function returns, this probe is hit and
-  * trampoline_probe_handler() runs, calling the kretprobe's handler.
-  */
-- void kretprobe_trampoline_holder(void)
-+ void __kprobes kretprobe_trampoline_holder(void)
-  {
-- 	asm volatile (  ".global kretprobe_trampoline\n"
-+	 asm volatile ( ".global kretprobe_trampoline\n"
-  			"kretprobe_trampoline: \n"
-- 			"nop\n");
-- }
-+			"	subl $8, %esp\n"
-+			"	pushf\n"
-+			"	subl $20, %esp\n"
-+			"	pushl %eax\n"
-+			"	pushl %ebp\n"
-+			"	pushl %edi\n"
-+			"	pushl %esi\n"
-+			"	pushl %edx\n"
-+			"	pushl %ecx\n"
-+			"	pushl %ebx\n"
-+			"	movl %esp, %eax\n"
-+			"	pushl %eax\n"
-+			"	addl $60, %eax\n"
-+			"	movl %eax, 56(%esp)\n"
-+			"	movl $trampoline_handler, %eax\n"
-+			"	call *%eax\n"
-+			"	addl $4, %esp\n"
-+			"	movl %eax, 56(%esp)\n"
-+			"	popl %ebx\n"
-+			"	popl %ecx\n"
-+			"	popl %edx\n"
-+			"	popl %esi\n"
-+			"	popl %edi\n"
-+			"	popl %ebp\n"
-+			"	popl %eax\n"
-+			"	addl $20, %esp\n"
-+			"	popf\n"
-+			"	addl $4, %esp\n"
-+			"	ret\n");
-+}
-
- /*
-- * Called when we hit the probe point at kretprobe_trampoline
-+ * Called from kretprobe_trampoline
-  */
--int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
-+asmlinkage void *__kprobes trampoline_handler(struct pt_regs *regs)
- {
-         struct kretprobe_instance *ri = NULL;
-         struct hlist_head *head;
-@@ -310,18 +338,10 @@ int __kprobes trampoline_probe_handler(s
- 	}
-
- 	BUG_ON(!orig_ret_address || (orig_ret_address == trampoline_address));
--	regs->eip = orig_ret_address;
-
--	reset_current_kprobe();
- 	spin_unlock_irqrestore(&kretprobe_lock, flags);
--	preempt_enable_no_resched();
-
--	/*
--	 * By returning a non-zero value, we are telling
--	 * kprobe_handler() that we don't want the post_handler
--	 * to run (and have re-enabled preemption)
--	 */
--        return 1;
-+	return (void*)orig_ret_address;
- }
-
- /*
-@@ -552,12 +572,7 @@ int __kprobes longjmp_break_handler(stru
- 	return 0;
- }
-
--static struct kprobe trampoline_p = {
--	.addr = (kprobe_opcode_t *) &kretprobe_trampoline,
--	.pre_handler = trampoline_probe_handler
--};
--
- int __init arch_init_kprobes(void)
- {
--	return register_kprobe(&trampoline_p);
-+	return 0;
- }
-
-
+	-hpa

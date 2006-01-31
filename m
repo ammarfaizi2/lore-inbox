@@ -1,75 +1,102 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751160AbWA2UVE (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 29 Jan 2006 15:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWA2UVE
+	id S1750902AbWAaOg4 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 31 Jan 2006 09:36:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750908AbWAaOg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jan 2006 15:21:04 -0500
-Received: from smtpa4.aruba.it ([62.149.128.201]:460 "HELO smtpa3.aruba.it")
-	by vger.kernel.org with SMTP id S1751160AbWA2UVD convert rfc822-to-8bit
+	Tue, 31 Jan 2006 09:36:56 -0500
+Received: from bay15-f9.bay15.hotmail.com ([65.54.185.9]:35269 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1750902AbWAaOg4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jan 2006 15:21:03 -0500
-Message-ID: <4124-22006102920211403@gmail.com>
-Organization: ATALIS
-From: "ATALIS" <atalis.lista@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: ATALIS In-version 1.0 - Por fin...
-Date: Sun, 29 Jan 2006 21:21:01 +0100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+	Tue, 31 Jan 2006 09:36:56 -0500
+Message-ID: <BAY15-F980D773B2497AE3BEBE0B93080@phx.gbl>
+X-Originating-IP: [213.136.98.39]
+X-Originating-Email: [linder1@hotmail.fr]
+Reply-To: linderomar1@yahoo.com.au
+From: "Linder Omar" <linder1@hotmail.fr>
+Subject: Miss LINDER OMAR
+Date: Tue, 31 Jan 2006 15:36:55 +0100
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 31 Jan 2006 14:36:55.0559 (UTC) FILETIME=[C89EE970:01C62673]
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751160AbWA2UVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750902AbWAaOg4@vger.kernel.org>
 
-Tal y como te avisamos antes de navidades, hemos renovado completamente=
- la web con secciones nuevas,videos nuevos y sobre todo podras descarga=
-rte completamete GRATIS  (SI, GRATIS !) el nuevo trabajo de ATALIS "IN-=
-VERSION 1.0". Dicho trabajo es una coleccion de temas dedicado a todas =
-esas personas que vivieron la decada de los 80 como algo especial, ya  =
-que todo son temas de esa epoca , trasladados a nuestro sonido.
-Ademas de descargar los temas podas acceder a las webs de todos los gru=
-pos originales y asi conocerlos un poco mejor.
-=A1AH! y como el disco es gratis solo te pedimos que nos dejes tu salud=
-o en el libro de visitas.  :)
-
-www.atalis.net
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
------------------------------------------------------------------------=
-----------------------------------------
-Te enviamos este mail porque pensamos que puedes estar interesado en es=
-ta informacion.=20
-Si no quieres recibir mas nuestras noticias responde a este mail con la=
- palabra BORRAR en
-el asunto y te quitaremos de nuestra lista de correo.=20
-Los mails que llegan a esta cuenta son tratados automaticamente y no se=
- leen, si quieres
-contactar con nosotros, hazlo a traves de la web www.atalis.net.
------------------------------------------------------------------------=
-----------------------------------------
-
+Mlle LINDER OMAR MAINASSARA BARE
+Je vous prie d’emblée de m’excuser pour tous les désagréments que mon
+courrier pourrait vous causer. Mais même si nous ne nous
+sommes jamais rencontrés, je crois fermement que sur la base du droit
+d’assistance humanitaire une confiance véritable peut naître de notre
+communication et favoriser ainsi un véritable partenariat entre nous deux.
+Aussi c'est avec un réel plaisir que je vous contacte
+depuis ABIDJAN la capitale économique de la COTE D’IVOIRE(L'AFRIQUE de 
+l'Ouest)
+où je vis depuis quelques temps . En fait je suis la fille légitime
+de l’ex-président de la république du NIGER (l'Afrique de l'Ouest) assassiné 
+par une junte militaire en avril 1999.Pendant l’exercice de son mandat 
+présidentiel, mon
+père avait déposé sur un compte numéroté et bloqué auprès d'une Compagnie de 
+Sécurité et de Finance en CI la somme de vingt huit millions de dollars 
+américains(28.000.000$ US) pour
+lui permettre de concevoir un projet d'investissement; la fin de son mandat 
+présidentiel. Malheureusement le sort en a décidé autrement. Quelques temps 
+après sa mort, j'ai découvert dans le testament cette information et j'ai 
+automatiquement pris contacte avec le dit établissement Financier pour 
+revendiquer cet important legs en ma qualité de fille légitime et au regard 
+des stipulations testamentaires. Au jour d’aujourd’hui ma préoccupation 
+majeure est de transférer cette somme hors de L'AFRIQUE de l’Ouest 
+principalement de Côte d'Ivoire où sévit actuellement de graves problèmes 
+politiques.
+Vu que je suis avec mes deux petits frères,vraiment nous avons sérieusement 
+soufferts des brimades et tracasseries de la part des adversaires politiques 
+de mon père. C’est dans cette perspective que je vous contacte pour que vous 
+me porté assistance dans ce transfert , ou que vous me conseilliez un autre 
+moyen de les transférés .Car, croyez-moi je n'ai aucune maîtrise des rouages 
+financiers et je compte sur vous pour m'aider dans cette tâche qui du reste 
+est dénuée de tout risque. Je peux ainsi vous rassurer qu'à la fin de 
+l’opération je vous consentirai 20% du montant total comme votre récompense 
+personnelle. Je compte vraiment sur vous,sur vos qualités humaines, 
+vertueuses et professionnelles. Dès que vous manifesterez le désir de nous 
+aider je vous délivrerai une attestation sur honneur pour garantir ma parole 
+et mes engagements votre égard.
+LINDER OMAR
 
 
----------------------------------
-www.atalis.net
----------------------------------
+PLEASE SEE THE ENGLISH VASON OF MY PROPOSAL
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
- in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+Miss LINDER OMAR MAINASSARA BARE please start excuse itself for all the 
+nuisances which my mail could cause you. But even if we never met, I believe 
+firmly that on the basis of right of assistance humane a true confidence can 
+be born from our communication and thus support a true partnership between 
+us two. As it is with a real pleasure as I contact you from ABIDJAN the 
+economic capital of Ivory Coast WEST AFRICA) where I live for some time. In 
+fact I am the legitimate girl of the former president of the republic of 
+NIGER (West Africa) assassinated by a military junta April 1999.Pendant the 
+exercise of his presidential mandate, my father had deposited on an account 
+numbered and blocked near a Company of Safety and Finance in Ci the sum of 
+twenty eight million dollars US américains(28.000.000$) to allow him to 
+conceive a project of investment; end of its presidential mandate. 
+Unfortunately the fate in decided differently. A few times after his death, 
+I discovered in the will this information and I automatically took contacts 
+with the known as Financier establishment to assert this important legacy in 
+my quality of legitimate girl and in comparison with the testamentary 
+stipulations. At the day of today my major concern is to transfer this sum 
+out of WEST AFRICA mainly from Ivory Coast where currently prevails of 
+serious political problems. Considering I am with my two little brothers, 
+really we seriously suffered from the brimades and annoyances on behalf of 
+the political adversaries of my father. It is from this point of view that I 
+contact you so that you carried me assistance in this transfer, or that you 
+advise me another means of transferred Car, believe me I do not have any 
+control of the financial wheels and I count on you to help itself in this 
+task which remainder is stripped of any risk. I can thus reassure you that 
+at the end of the operation I will authorize to you 20% of the total amount 
+like your personal reward. I really count on you, on your human qualities, 
+virtuous and professional. As soon as you express the desire to help us I 
+will deliver you a certificate on honor to guarantee my word and my 
+engagements your regard. LINDER OMAR
+
+

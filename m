@@ -1,70 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWAaNmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWAaNmq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbWAaNmx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 08:42:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWAaNms
+	id S1750846AbWAaNmq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 08:42:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWAaNmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 08:42:48 -0500
-Received: from emulex.emulex.com ([138.239.112.1]:44164 "EHLO
-	emulex.emulex.com") by vger.kernel.org with ESMTP id S1750837AbWAaNmh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 08:42:37 -0500
-Message-ID: <43DF691E.1020008@emulex.com>
-Date: Tue, 31 Jan 2006 08:41:50 -0500
-From: James Smart <James.Smart@Emulex.Com>
-Reply-To: James.Smart@Emulex.Com
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Doug Maxey <dwm@maxeymade.com>
-CC: Olof Johansson <olof@lixom.net>, Mark Haverkamp <markh@osdl.org>,
-       "linuxppc64-dev@ozlabs.org" <linuxppc64-dev@ozlabs.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-Subject: Re: iommu_alloc failure and panic
-References: <200601310118.k0V1Il7Z018408@falcon30.maxeymade.com>
-In-Reply-To: <200601310118.k0V1Il7Z018408@falcon30.maxeymade.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 31 Jan 2006 08:42:18 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:5267 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1750830AbWAaNmN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 08:42:13 -0500
+Subject: [PATCH 11/11] LED: Add NAND MTD activity LED trigger
+From: Richard Purdie <rpurdie@rpsys.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: tglx@linutronix.de
+Content-Type: text/plain
+Date: Tue, 31 Jan 2006 13:42:02 +0000
+Message-Id: <1138714922.6869.140.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 31 Jan 2006 13:41:52.0167 (UTC) FILETIME=[17A54B70:01C6266C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Index: linux-2.6.15/drivers/mtd/nand/nand_base.c
+===================================================================
+--- linux-2.6.15.orig/drivers/mtd/nand/nand_base.c	2006-01-29 14:37:20.000000000 +0000
++++ linux-2.6.15/drivers/mtd/nand/nand_base.c	2006-01-29 15:25:11.000000000 +0000
+@@ -80,6 +80,7 @@
+ #include <linux/mtd/compatmac.h>
+ #include <linux/interrupt.h>
+ #include <linux/bitops.h>
++#include <linux/leds.h>
+ #include <asm/io.h>
+ 
+ #ifdef CONFIG_MTD_PARTITIONS
+@@ -515,6 +516,8 @@
+ 	return nand_isbad_bbt (mtd, ofs, allowbbt);
+ }
+ 
++INIT_LED_TRIGGER(nand_led_trigger);
++
+ /*
+  * Wait for the ready pin, after a command
+  * The timeout is catched later.
+@@ -524,12 +527,14 @@
+ 	struct nand_chip *this = mtd->priv;
+ 	unsigned long	timeo = jiffies + 2;
+ 
++	led_trigger_event(nand_led_trigger, LED_FULL);
+ 	/* wait until command is processed or timeout occures */
+ 	do {
+ 		if (this->dev_ready(mtd))
+-			return;
++			break;
+ 		touch_softlockup_watchdog();
+ 	} while (time_before(jiffies, timeo));
++	led_trigger_event(nand_led_trigger, LED_OFF);
+ }
+ 
+ /**
+@@ -817,6 +822,8 @@
+ 	else
+ 		 timeo += (HZ * 20) / 1000;
+ 
++	led_trigger_event(nand_led_trigger, LED_FULL);
++
+ 	/* Apply this short delay always to ensure that we do wait tWB in
+ 	 * any case on any machine. */
+ 	ndelay (100);
+@@ -840,6 +847,8 @@
+ 		}
+ 		cond_resched();
+ 	}
++	led_trigger_event(nand_led_trigger, LED_OFF);
++	
+ 	status = (int) this->read_byte(mtd);
+ 	return status;
+ }
+@@ -2724,6 +2733,21 @@
+ EXPORT_SYMBOL_GPL (nand_scan);
+ EXPORT_SYMBOL_GPL (nand_release);
+ 
++
++static int __init nand_base_init(void)
++{
++	led_trigger_register_simple("nand-disk", &nand_led_trigger);
++	return 0;
++}
++    
++static void nand_base_exit(void)
++{
++	led_trigger_unregister_simple(nand_led_trigger);
++}
++
++module_init(nand_base_init);
++module_exit(nand_base_exit);
++
+ MODULE_LICENSE ("GPL");
+ MODULE_AUTHOR ("Steven J. Hill <sjhill@realitydiluted.com>, Thomas Gleixner <tglx@linutronix.de>");
+ MODULE_DESCRIPTION ("Generic NAND flash driver code");
 
->> 2) The emulex driver has been prone to problems in the past where it's
->> been very aggressive at starting DMA operations, and I think it can
->> be avoided with tuning. What I don't know is if it's because of this,
->> or simply because of the large number of targets you have. Cc:ing James
->> Smart.
-
-I don't have data points for the 2.6 kernel, but I can comment on what I
-have seen on the 2.4 kernel.
-
-The issue that I saw on the 2.4 kernel was that the pci dma alloc routine
-was inappropriately allocating from the dma s/g maps. On systems with less
-than 4Gig of memory, or on those with no iommmu (emt64), the checks around
-adapter-supported dma masks were off (I'm going to be loose in terms to not
-describe it in detail). The result was, although the adapter could support
-a fully 64bit address and/or although the physical dma address would be under
-32-bits, the logic forced allocation from the mapped dma pool. On some
-systems, this pool was originally only 16MB. Around 2.4.30, the swiotlb was
-introduced, which reduced issue, but unfortunately, still never solved the
-allocation logic. It fails less as the swiotlb simply had more space.
-As far as I know, this problem doesn't exist in the 2.6 kernel. I'd have to
-go look at the dma map functions to make sure.
-
-Why was the lpfc driver prone to the dma map exhaustion failures ? Due to the
-default # of commands per lun and max sg segments reported by the driver to
-the scsi midlayer, the scsi mid-layer's preallocation of dma maps for commands
-for each lun, and the fact that our FC configs were usually large, had lots
-of luns, and replicated the resources for each path to the same storage.
-
-Ultimately, what I think is the real issue here is the way the scsi mid-layer
-is preallocating dma maps for the luns. 16000 luns is a huge number.
-Multiply this by a max sg segment count of 64 by the driver, and a number
-between 3 and 30 commands per lun, and you can see the numbers. Scsi does do
-some interesting allocation algorithms once it hits an allocation failure.
-One side effect of this is that it is fairly efficient at allocating the
-bulk of the dma pool.
-
--- james s
 

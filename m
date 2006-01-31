@@ -1,46 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbWAaBKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbWAaBTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030254AbWAaBKj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 20:10:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965057AbWAaBKj
+	id S1030252AbWAaBTK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 20:19:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030249AbWAaBTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 20:10:39 -0500
-Received: from mail.suse.de ([195.135.220.2]:59822 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965056AbWAaBKi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 20:10:38 -0500
-From: Neil Brown <neilb@suse.de>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Date: Tue, 31 Jan 2006 12:10:32 +1100
-MIME-Version: 1.0
+	Mon, 30 Jan 2006 20:19:09 -0500
+Received: from falcon30.maxeymade.com ([24.173.215.190]:12776 "EHLO
+	falcon30.maxeymade.com") by vger.kernel.org with ESMTP
+	id S1030255AbWAaBTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 20:19:08 -0500
+Message-Id: <200601310118.k0V1Il7Z018408@falcon30.maxeymade.com>
+X-Mailer: exmh maxeymade.com version 2.7.2.1 01/17/2005 with nmh-1.1
+In-reply-to: <20060130231348.GC9368@pb15.lixom.net> 
+To: Olof Johansson <olof@lixom.net>
+cc: Mark Haverkamp <markh@osdl.org>,
+       "linuxppc64-dev@ozlabs.org" <linuxppc64-dev@ozlabs.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, james.smart@emulex.com
+Subject: Re: iommu_alloc failure and panic 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17374.47368.715991.422607@cse.unsw.edu.au>
-Cc: klibc list <klibc@zytor.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-raid@vger.kernel.org
-Subject: Re: Exporting which partitions to md-configure
-In-Reply-To: message from H. Peter Anvin on Monday January 30
-References: <43DEB4B8.5040607@zytor.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Date: Mon, 30 Jan 2006 19:18:47 -0600
+From: Doug Maxey <dwm@maxeymade.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday January 30, hpa@zytor.com wrote:
-> 
-> Any feeling how best to do that?  My current thinking is to export a 
-> "flags" entry in addition to the current ones, presumably based on 
-> "struct parsed_partitions->parts[].flags" (fs/partitions/check.h), which 
-> seems to be what causes md_autodetect_dev() to be called.
-> 
 
-I think I would prefer a 'type' attribute in each partition that
-records the 'type' from the partition table.  This might be more
-generally useful than just for md.
-Then your userspace code would have to look for '253' and use just
-those partitions.
+On Tue, 31 Jan 2006 10:13:48 +1100, Olof Johansson wrote:
+>On Mon, Jan 30, 2006 at 07:32:58AM -0800, Mark Haverkamp wrote:
+>> On Sat, 2006-01-28 at 12:34 +1300, Olof Johansson wrote:
+>> > On Fri, Jan 27, 2006 at 02:39:50PM -0800, Mark Haverkamp wrote:
+>> > 
+>> > > I would have thought that the npages would be 1 now.
+>> > 
+>> > No, npages is the size of the allocation coming from the driver, that
+>> > won't chance. The table blocksize just says how wide the cacheline size
+>> > is, i.e. how far it should advance between allocations.
+>> > 
+>> > This is a patch that should probably have been added a while ago, to
+>> > give a bit more info. Can you apply it and give it a go?
+>> > 
+>> > 
+>> > Thanks,
+>> > 
+>> > Olof
+>> > 
+>> 
+>> 
+>> Here are the last few lines of the log before it crashed.
+>> 
+>> 
+>> Jan 30 07:29:14 linux kernel: table size 10000 used f752
+>
+>Ok, that's a 256MB table, which is standard, and it seems to have been
+>filled with mappings. in some cases there's a few entries left but it's
+>likely that fragmentation causes the 10-entry alloc to fail, quite
+>normal.
+>
+>There's two things to look at, unfortunately I fall short on both of
+>them myself:
+>
+>1) There's a way to get more than the default 256MB DMA window for a PCI
+>slot. I'm not aware of the exact details, but you need recent firmware
+>and you configure it in the ASM menues (the web interface for the
+>service processor). Cc:ing Jake Moilanen in case he has any more up to
+>date info.
+>
 
-NeilBrown
+ASM > System Configuration > I/O Adapter Enlarged Capacity.
+
+This only applies to the last slot on a PHB.  AKA superslot.
+
+
+>2) The emulex driver has been prone to problems in the past where it's
+>been very aggressive at starting DMA operations, and I think it can
+>be avoided with tuning. What I don't know is if it's because of this,
+>or simply because of the large number of targets you have. Cc:ing James
+>Smart.
+>
+>
+>-Olof
+>_______________________________________________
+>Linuxppc64-dev mailing list
+>Linuxppc64-dev@ozlabs.org
+>https://ozlabs.org/mailman/listinfo/linuxppc64-dev
+>
+
+

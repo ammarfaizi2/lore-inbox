@@ -1,55 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbWAaVCa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751486AbWAaVDF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751489AbWAaVCa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 16:02:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751488AbWAaVCa
+	id S1751486AbWAaVDF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 16:03:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbWAaVDF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 16:02:30 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:58517 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751486AbWAaVC3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 16:02:29 -0500
-From: "Jiri Slaby" <xslaby@fi.muni.cz>
-Date: Tue, 31 Jan 2006 22:02:17 +0100
-Cc: linux-kernel@vger.kernel.org, linux-kernel-announce@vger.kernel.org,
-       akpm@osdl.org
-To: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
-Subject: Re: vgacon scrolling problem [Was: Re: 2.6.16-rc1-mm4]
-In-reply-to: <drohmk$itt$1@sea.gmane.org>
-Message-Id: <20060131210216.6A52A22AEAC@anxur.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Tue, 31 Jan 2006 16:03:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:59279 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751486AbWAaVDD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 16:03:03 -0500
+Date: Tue, 31 Jan 2006 13:02:42 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Hubertus Franke <frankeh@watson.ibm.com>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+In-Reply-To: <43D14578.6060801@watson.ibm.com>
+Message-ID: <Pine.LNX.4.64.0601311248180.7301@g5.osdl.org>
+References: <20060117143258.150807000@sergelap> <20060117143326.283450000@sergelap>
+ <1137511972.3005.33.camel@laptopd505.fenrus.org> <20060117155600.GF20632@sergelap.austin.ibm.com>
+ <1137513818.14135.23.camel@localhost.localdomain> <1137518714.5526.8.camel@localhost.localdomain>
+ <20060118045518.GB7292@kroah.com> <1137601395.7850.9.camel@localhost.localdomain>
+ <m1fyniomw2.fsf@ebiederm.dsl.xmission.com> <43D14578.6060801@watson.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jindrich Makovicka wrote:
->Jiri Slaby wrote:
->> Jindrich Makovicka wrote:
->>>In vgacon.c, there is a stray printk("vgacon delta: %i\n", lines); which
->>>effectively disables the scrollback of the vga console (at least when
->>>not using the new soft scrollback). Removing it fixes the problem.
->> Then ... could you post a patch?
->if you insist  :) 
-Ok, but not that way -- append at least Sign-off (see
-Documentation/SubmittingPatches) to allow somebody push it to right places.
-And do not remove cc people, please, when replying.
 
->--- linux-2.6.16-rc1-mm4/drivers/video/console/vgacon.c	2006-01-25 19:16:35.000000000 +0100
->+++ linux-2.6.16-rc1-mm4/drivers/video/console/vgacon.c	2006-01-31 21:33:40.433055896 +0100
->@@ -331,7 +331,6 @@
-> 		int margin = c->vc_size_row * 4;
-> 		int ul, we, p, st;
+(I'm coming in late, it's not been a high priority for me)
+
+On Fri, 20 Jan 2006, Hubertus Franke wrote:
 > 
->-		printk("vgacon delta: %i\n", lines);
-> 		if (vga_rolled_over >
-> 		    (c->vc_scr_end - vga_vram_base) + margin) {
-> 			ul = c->vc_scr_end - vga_vram_base;
->
->
+> 2nd:
+> ====	Issue: we don't need pid virtualization, instead simply use
+> <container,pid> pair.
+> 
+> This requires a bit more thought. Essentially that's what I was doing, 
+> but I mangled them into the same pid and using masking to add/remove the 
+> container for internal use. As pointed out by Alan(?), we can indeed 
+> reused the same pid internally many times as long as we can distinguish 
+> during the pid-to-task_struct lookup. This is easily done because, the 
+> caller provides the context hence the container for the lookup.
 
-regards,
---
-Jiri Slaby         www.fi.muni.cz/~xslaby
-~\-/~      jirislaby@gmail.com      ~\-/~
-B67499670407CE62ACC8 22A032CC55C339D47A7E
+This is my preferred approach BY FAR.
+
+Doing a <container,pid> approach is very natural, and avoids almost all 
+issues. At most, you might want to have a new system call (most naturally 
+just the one that is limited to the "init container" - it the one that we 
+boot up with) that can specify both container and pid explicitly, and see 
+all processes and access all processes. But all "normal" system calls 
+would only ever operate within their container.
+
+The fact is, we want "containers" anyway for any virtualization thing, ie 
+vserver already adds them. And if we have containers, then it's very easy 
+("easyish") to split up the current static "pid_hash[]", "pidmap_array[]" 
+and "pidmap_lock", and make them per-container, and have a pointer to the 
+container for each "struct task_struct".
+
+After that, there wouldn't even be a lot else to do. The normal system 
+calls would just use their own container, and the (few) places that save 
+away pid's for later (ie things that use "kill_proc_info_as_uid()" and 
+"struct fown_struct" friends) would have to also squirrell away the 
+container, but then you should be pretty much done.
+
+Of course, you'll have to do the system calls to _create_ the containers 
+in the first place, but that's at a higher level and involves much more 
+than just the pid-space (ie a container would normally have more than just 
+the uid mappings, it would have any network knowledge too etc - hostname, 
+perhaps list of network devices associated with that context etc etc)
+
+			Linus

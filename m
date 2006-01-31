@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWAaSeq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbWAaSjV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751329AbWAaSeq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 13:34:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWAaSeq
+	id S1751335AbWAaSjV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 13:39:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWAaSjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 13:34:46 -0500
-Received: from mail.gmx.de ([213.165.64.21]:35500 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751329AbWAaSep (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 13:34:45 -0500
-X-Authenticated: #17209196
-Date: Tue, 31 Jan 2006 19:34:43 +0100
-From: "Gabriel C." <da.crew@gmx.net>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: linux-kernel@vger.kernel.org, "John W. Linville" <linville@tuxdriver.com>,
-       Adrian Bunk <bunk@stusta.de>, netdev@vger.kernel.org
-Subject: Re: 2.6.16-rc1-mm4: ACX=y, ACX_USB=n compile error
-Message-ID: <20060131193443.5822661b@zwerg>
-In-Reply-To: <200601311658.09423.vda@ilport.com.ua>
-References: <20060130133833.7b7a3f8e@zwerg>
-	<200601311416.05397.vda@ilport.com.ua>
-	<20060131145431.GI5433@tuxdriver.com>
-	<200601311658.09423.vda@ilport.com.ua>
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.8.11; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Tue, 31 Jan 2006 13:39:21 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:39123 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S1751335AbWAaSjU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 13:39:20 -0500
+Date: Tue, 31 Jan 2006 19:39:29 +0100
+From: Sander <sander@humilis.net>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Sander <sander@humilis.net>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: Re: [OT] 8-port AHCI SATA Controller?
+Message-ID: <20060131183929.GB6178@favonius>
+Reply-To: sander@humilis.net
+References: <20060131115343.GA2580@favonius> <20060131163928.GE18972@csclub.uwaterloo.ca> <20060131171723.GA6178@favonius> <20060131183013.GH18970@csclub.uwaterloo.ca>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060131183013.GH18970@csclub.uwaterloo.ca>
+X-Uptime: 18:06:22 up  7:50, 21 users,  load average: 0.18, 0.15, 0.09
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 Jan 2006 16:58:09 +0200
-Denis Vlasenko <vda@ilport.com.ua> wrote:
-
-> On Tuesday 31 January 2006 16:54, John W. Linville wrote:
-> > On Tue, Jan 31, 2006 at 02:16:05PM +0200, Denis Vlasenko wrote:
-> > 
-> > > CONFIG_ACX=y
-> > > # CONFIG_ACX_PCI is not set
-> > > # CONFIG_ACX_USB is not set
-> > > 
-> > > This won't fly. You must select at least one.
-> > > 
-> > > Attached patch will check for this and #error out.
-> > > Andrew, do not apply to -mm, I'll send you bigger update today.
-> > 
-> > Is there any way to move this into a Kconfig file?  That seems nicer
-> > than having #ifdefs in source code to check for a configuration
-> > error.
+Lennart Sorensen wrote (ao):
+> > Yeah, I know, but because of their real 'hardware' raid, these cards
+> > are three times more expensive per port. And I just need JBOD.
 > 
-> Can't think of any at the moment.
-> --
-> vda
-> 
+> Really? How much does a 24 port areca card cost? Is it 12 times the
+> cost of a two port promise card?
+ 
+Not sure about the two port, but for example the SX8 is 180 dollars at
+pricewatch.com, while an Areca 12-port starts at 756 dollars. That is
+22.5 dollars per port vs 63 dollars per port. More or less the same goes
+for 3Ware.
 
-I'm not a kernel hacker :-) and mabye I'm wrong but why not auto select
-ACX_{PCI,USB} ?
+Of course you can't compare Areca/3Ware with the SX8 feature-wise, but
+all I need JBOD.
 
-Gabriel
+	Kind regards, Sander
+
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

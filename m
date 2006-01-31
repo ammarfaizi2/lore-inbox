@@ -1,52 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751455AbWAaUWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWAaUY7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751455AbWAaUWY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 15:22:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWAaUWY
+	id S1751452AbWAaUY7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 15:24:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751456AbWAaUY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 15:22:24 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:65248 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1751455AbWAaUWX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 15:22:23 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <43DFC648.4030404@s5r6.in-berlin.de>
-Date: Tue, 31 Jan 2006 21:19:20 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Jody McIntyre <scjody@modernduck.com>
-CC: linux1394-user@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Ben Collins <ben.collins@ubuntu.com>
-Subject: ieee1394/oui.db (was Re: [PATCH] ieee1394: allow building with absolute
- SUBDIRS path)
-References: <1138234743.10202.3.camel@localhost> <20060131052101.GC9667@conscoop.ottawa.on.ca>
-In-Reply-To: <20060131052101.GC9667@conscoop.ottawa.on.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (0.455) AWL,BAYES_50
+	Tue, 31 Jan 2006 15:24:59 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:54435 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751452AbWAaUY6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 15:24:58 -0500
+From: "Jiri Slaby" <xslaby@fi.muni.cz>
+Date: Tue, 31 Jan 2006 21:24:56 +0100
+Cc: linux-kernel@vger.kernel.org
+To: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
+Subject: vgacon scrolling problem [Was: Re: 2.6.16-rc1-mm4]
+In-reply-to: <drln68$n82$1@sea.gmane.org>
+Message-Id: <20060131202454.CDC2322AEAC@anxur.fi.muni.cz>
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: xslaby@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jody McIntyre wrote:
-> Does anyone else feel like killing oui.c?
+Jindrich Makovicka wrote:
+>In vgacon.c, there is a stray printk("vgacon delta: %i\n", lines); which
+>effectively disables the scrollback of the vga console (at least when
+>not using the new soft scrollback). Removing it fixes the problem.
+Then ... could you post a patch?
 
-I have no strong feelings for or against oui.db. It is nice to have the 
-vendor names decoded in sysfs, although the footprint is considerable:
-
-$ du oui.o ieee1394.ko
-252K    oui.o
-356K    ieee1394.ko
-
-OTOH, nobody is forced to compile it in. And except for the Makefile 
-patch and .gitignore patch which came in this month, oui.db does not 
-impose a real maintenance burden. The fact that we are too lazy to 
-update the db saves us work too. :-)
-
-BTW, oui.db has 7048 entries but IEEE lists 8949 today. Either people 
-vote oui.db off the island now, or I will submit an update.
--- 
-Stefan Richter
--=====-=-==- ---= =====
-http://arcgraph.de/sr/
+regards,
+--
+Jiri Slaby         www.fi.muni.cz/~xslaby
+~\-/~      jirislaby@gmail.com      ~\-/~
+B67499670407CE62ACC8 22A032CC55C339D47A7E

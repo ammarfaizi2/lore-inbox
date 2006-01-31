@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWAaMua@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWAaNET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750799AbWAaMua (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 07:50:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWAaMua
+	id S1750801AbWAaNET (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 08:04:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWAaNET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 07:50:30 -0500
-Received: from stinky.trash.net ([213.144.137.162]:38126 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S1750781AbWAaMu3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 07:50:29 -0500
-Message-ID: <43DF5D11.2040703@trash.net>
-Date: Tue, 31 Jan 2006 13:50:25 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Reuben Farrelly <reuben-lkml@reub.net>
-CC: Harald Welte <laforge@netfilter.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       Linux Netdev List <netdev@vger.kernel.org>
-Subject: Re: ip_conntrack related slab error (Re: Fw: Re: 2.6.16-rc1-mm3)
-References: <20060130221429.5f12d947.akpm@osdl.org> <20060131092447.GL4603@sunbeam.de.gnumonks.org> <43DF36FD.70305@reub.net>
-In-Reply-To: <43DF36FD.70305@reub.net>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 31 Jan 2006 08:04:19 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:49282 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750801AbWAaNET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 08:04:19 -0500
+Subject: Re: Linux 2.6.15.2
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, stable@kernel.org, linux-kernel@vger.kernel.org,
+       Greg KH <gregkh@suse.de>
+In-Reply-To: <20060130233427.5e7912ae.akpm@osdl.org>
+References: <20060131070642.GA25015@kroah.com>
+	 <20060130233427.5e7912ae.akpm@osdl.org>
+Content-Type: text/plain
+Date: Tue, 31 Jan 2006 08:04:08 -0500
+Message-Id: <1138712648.7088.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reuben Farrelly wrote:
-> tornado.reub.net login: BUG: unable to handle kernel paging request at
-> virtual address 00200200
+On Mon, 2006-01-30 at 23:34 -0800, Andrew Morton wrote:
 
-This means ct->nat.info.bysource was already removed from the list,
-which can only happen if the conntrack entry is destroyed twice.
+> All of these only seem to affect a small minority of machines.
 
-I can't find how this could have happened, please enable
-CONFIG_NETFILTER_DEBUG, the DPRINTK defines in
-ip_conntrack_{standalone,core,netlink}.c and ip_nat_{core,standalone}.c
-and logging of invalid packets ("echo 255 >
-/proc/sys/net/ipv4/netfilter/ip_conntrack_log_invalid"). I hope this
-will give some clues ..
+Andrew, I think you really mean here "a small minority of those that
+reported it".  Remember that for ever bug that is reported, there's
+probably 100 cases of that same bug that isn't reported. If not more.
+
+-- Steve
+
+

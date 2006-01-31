@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWAaJHc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWAaJLB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbWAaJHc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 04:07:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWAaJHc
+	id S1750719AbWAaJLB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 04:11:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWAaJLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 04:07:32 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:37399 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750718AbWAaJHb (ORCPT
+	Tue, 31 Jan 2006 04:11:01 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:55499 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1750719AbWAaJLA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 04:07:31 -0500
-Date: Tue, 31 Jan 2006 10:09:45 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: more cfq spinlock badness
-Message-ID: <20060131090944.GU4215@suse.de>
-References: <20060131063938.GA1876@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060131063938.GA1876@redhat.com>
+	Tue, 31 Jan 2006 04:11:00 -0500
+Message-ID: <43DF3BB7.B423AC08@tv-sign.ru>
+Date: Tue, 31 Jan 2006 13:28:07 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kirill Korotaev <dev@sw.ru>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Jeff Dike <jdike@addtoit.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/3] pidhash: don't use zero pids
+References: <43DDF323.4517C349@tv-sign.ru> <m1r76p5u7m.fsf@ebiederm.dsl.xmission.com> <43DEFFB7.6010404@sw.ru>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 31 2006, Dave Jones wrote:
-> Not seen this break for a while, but I just hit it again in 2.6.16rc1-git4.
-> 
-> 		Dave
-> 
-> BUG: spinlock bad magic on CPU#0, pdflush/1128
->  lock: ffff81003a219000, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-> 
-> Call Trace: <ffffffff80206edc>{spin_bug+177} <ffffffff80207045>{_raw_spin_lock+25}
->        <ffffffff801fea4a>{cfq_exit_single_io_context+85} <ffffffff801ff9a6>{cfq_exit_io_context+24}
->        <ffffffff801f79b0>{exit_io_context+137} <ffffffff80135fbc>{do_exit+182}
->        <ffffffff8010ba49>{child_rip+15} <ffffffff80146087>{keventd_create_kthread+0}
->        <ffffffff8014629c>{kthread+0} <ffffffff8010ba3a>{child_rip+0}
-> Kernel panic - not syncing: bad locking
+Hello Kirill,
 
-Again, which devices have you used? Did it happen at shutdown, or? Did
-the ub bug get fixed, if you are using that? The bug above has in the
-past always been able to be explained by a driver destroying a structure
-embedding the queue lock before the queue is dead.
+Kirill Korotaev wrote:
+> 
+> Hello Oleg,
+> 
+> I had quite the same comment, but had no time to check it.
+> I can't understand what problem do you solve, or just making code
+> cleaner (from your point of view)?
 
--- 
-Jens Axboe
+Please look at http://marc.theaimsgroup.com/?t=113851660700001
 
+> For me it was quite natural that pid=0 is used by idle, and I'm very
+> suspicuos about such changes.
+
+This patch does not change idle's pid, it is still 0. It changes ->pgrp
+and ->session only from 0 to 1. Currently kernel threads run with 0,0
+unless they call daemonize() which does set_special_pids(1, 1).
+
+Oleg.

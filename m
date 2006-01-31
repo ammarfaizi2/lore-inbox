@@ -1,75 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWBAAOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWBAAQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751232AbWBAAOi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 19:14:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbWBAAOh
+	id S1751252AbWBAAQo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 19:16:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWBAAQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 19:14:37 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:29407 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751232AbWBAAOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 19:14:37 -0500
-Message-ID: <43DFFDBC.7010401@tmr.com>
-Date: Tue, 31 Jan 2006 19:15:56 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
-X-Accept-Language: en-us, en
+	Tue, 31 Jan 2006 19:16:44 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2065 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751246AbWBAAQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 19:16:43 -0500
+Date: Tue, 31 Jan 2006 23:16:37 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: "John W. Linville" <linville@tuxdriver.com>,
+       "Gabriel C." <crazy@pimpmylinux.org>, da.crew@gmx.net,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: 2.6.16-rc1-mm4: ACX=y, ACX_USB=n compile error
+Message-ID: <20060131221637.GJ3986@stusta.de>
+References: <20060130133833.7b7a3f8e@zwerg> <200601311416.05397.vda@ilport.com.ua> <20060131145431.GI5433@tuxdriver.com> <200601311658.09423.vda@ilport.com.ua>
 MIME-Version: 1.0
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-CC: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de, bzolnier@gmail.com, acahalan@gmail.com
-Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future
- Linux (stirring up a hornets' nest) ]
-References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com> <43DCA097.nailGPD11GI11@burner> <20060129112613.GA29356@merlin.emma.line.org> <Pine.LNX.4.61.0601292139080.2596@yvahk01.tjqt.qr> <43DD2A8A.nailGVQ115GOP@burner> <787b0d920601291328k52191977h37 <43DE495A.nail2BR211K0O@burner> <43DE75F5.40900@cfl.rr.com> <43DF403F.nail2RF310RP6@burner>
-In-Reply-To: <43DF403F.nail2RF310RP6@burner>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601311658.09423.vda@ilport.com.ua>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
-> Phillip Susi <psusi@cfl.rr.com> wrote:
+On Tue, Jan 31, 2006 at 04:58:09PM +0200, Denis Vlasenko wrote:
+> On Tuesday 31 January 2006 16:54, John W. Linville wrote:
+> > On Tue, Jan 31, 2006 at 02:16:05PM +0200, Denis Vlasenko wrote:
+> > 
+> > > CONFIG_ACX=y
+> > > # CONFIG_ACX_PCI is not set
+> > > # CONFIG_ACX_USB is not set
+> > > 
+> > > This won't fly. You must select at least one.
+> > > 
+> > > Attached patch will check for this and #error out.
+> > > Andrew, do not apply to -mm, I'll send you bigger update today.
+> > 
+> > Is there any way to move this into a Kconfig file?  That seems nicer
+> > than having #ifdefs in source code to check for a configuration error.
 > 
-> 
->>Joerg Schilling wrote:
->>
->>>I am sorry to see your recent dicussion style.
->>>
->>>I was asking a question and I did get a completely useless answer as
->>>any person who has some basic know how Linux SCSI would know that
->>>doing a stat("/dev/sg*", ...) will not return anything useful.
->>>  
->>
->>It certainly does return something useful, just not what you are looking 
->>for.  It does not return information that allows you to cleanly build 
->>your bus:device:lun view of the world, but it does return sufficient 
->>information to enumerate and communicate with all devices in the 
->>system.  Is that not sufficient to be able to implement cdrecord?  If it 
->>is, then the real issue here is that you want Linux to conform to the 
->>bus:device:lun world view, which it seems many people do not wish to do. 
-> 
-> 
-> It does not allow libscg to find all devices.
-> 
-> 
->>Maybe it would be more constructive if you were to make a good argument 
->>for why the bus:device:lun view is better than /dev/*, but right now it 
->>seems to me that they are just two different ways of doing the same 
->>thing, and you prefer one way while the rest of the Linux developers 
->>prefer the other. 
-> 
-> 
-> It would help if someone would give arguments why Linux does treat all 
-> SCSI devices equal, except for ATAPI transport based ones.
+> Can't think of any at the moment.
 
-That's a fair question, which I asked in a seperate thread. Everything 
-in the system which looks like a block device, tape or optical device 
-looks like SCSI except ATAPI.
+There are two possible solutions ("offer" means "is user visible"):
+- only offer ACX and always build ACX_PCI/ACX_USB depending on the
+  availability of PCI/USB
+- only offer ACX_PCI and ACX_USB which select ACX
 
-However, as my mother used to say "those are the conditions which 
-prevail," so perhaps it's time to accept it and move on.
+If you tell me which you prefer I can send a patch.
+
+> vda
+
+cu
+Adrian
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

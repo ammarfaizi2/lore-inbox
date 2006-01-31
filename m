@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbWAaSNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWAaSR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751320AbWAaSNt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 13:13:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWAaSNt
+	id S1751316AbWAaSR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 13:17:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWAaSR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 13:13:49 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:9631 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S1751317AbWAaSNs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 13:13:48 -0500
-Date: Tue, 31 Jan 2006 10:14:01 -0800
-From: Grant Grundler <iod00d@hp.com>
-To: linux@horizon.com
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       mita@miraclelinux.com
-Subject: Re: [PATCH 8/12] generic hweight{32,16,8}()
-Message-ID: <20060131181401.GB10640@esmail.cup.hp.com>
-References: <20060131164949.3365.qmail@science.horizon.com>
+	Tue, 31 Jan 2006 13:17:28 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:3498 "EHLO
+	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S1751316AbWAaSR2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 13:17:28 -0500
+Message-ID: <43DF9D42.7050802@wolfmountaingroup.com>
+Date: Tue, 31 Jan 2006 10:24:18 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060131164949.3365.qmail@science.horizon.com>
-User-Agent: Mutt/1.5.11
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chase Venters <chase.venters@clientec.com>,
+       "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Marc Perkel <marc@perkel.com>,
+       Patrick McLean <pmclean@cs.ubishops.ca>,
+       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+References: <43D114A8.4030900@wolfmountaingroup.com>  <20060120111103.2ee5b531@dxpl.pdx.osdl.net>  <43D13B2A.6020504@cs.ubishops.ca> <43D7C780.6080000@perkel.com>  <43D7B20D.7040203@wolfmountaingroup.com>  <43D7B5C4.5040601@wolfmountaingroup.com> <43D7D05D.7030101@perkel.com>  <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>  <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>  <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>  <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>  <1138387136.26811.8.camel@localhost>  <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org> <1138620390.31089.43.camel@localhost.localdomain> <Pine.LNX.4.64.0601310931540.7301@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0601310931540.7301@g5.osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 31, 2006 at 11:49:49AM -0500, linux@horizon.com wrote:
-> This is an extremely well-known technique.  You can see a similar version
-> that uses a multiply for the last few steps at
-> http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
-> whch refers to 
-> "Software Optimization Guide for AMD Athlon 64 and Opteron Processors"
-> http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/25112.PDF
-...
 
-> The next step consists of breaking up b (made of 16 2-bir fields) into
-> even and odd halves and adding them into 4-bit fields.  Since the largest
-> possible sum is 2+2 = 4, which will not fit into a 4-bit field, the 2-bit
-> fields have to be masked before they are added.
+>>In short your interpretation of the past state of affairs would not
+>>stand up to scrutiny.
+>>    
+>>
+>
+>You can claim anything you like. I think you're wrong. But in the 
+>meantime, that doesn't matter. If it ever goes to court, you'll see what a 
+>real judge will claim.
+>
+>My bet is that my interpretation is the only sane one. 
+>
+>  
+>
+And how many times have you actually stood in front of a Judge over IP 
+and contract issues?
+The language "GPLv2 or any later version" is what it is. You can change 
+it moving forward, but
+you cannot undo the past. You put this language in there and IT WAS WHAT 
+YOU MEANT AT THE
+TIME. Trying to alter that would most likely result in a finding you are 
+acting in bad faith.
 
-Up to here, things were clear.
-My guess is you meant "which will not fit into a 2-bit field".
+Anyway, I am not religious on it, v2 or v3 I don't care, but I like v3 
+and I am moving my stuff to it. It's a
+good idea.
 
-thanks,
-grant
+Anyway, good luck figuring it out Linus. You should listen to Alan -- 
+he's right and is trying to help you.
+
+:-)
+
+Jeff

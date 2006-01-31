@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWAaBq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWAaBrP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932215AbWAaBq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 20:46:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWAaBq7
+	id S932192AbWAaBrP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 20:47:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWAaBrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 20:46:59 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:8428 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932177AbWAaBq6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 20:46:58 -0500
-Message-ID: <43DEC157.1000002@zytor.com>
-Date: Mon, 30 Jan 2006 17:45:59 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kyle Moffett <mrmacman_g4@mac.com>
-CC: Neil Brown <neilb@suse.de>, klibc list <klibc@zytor.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-raid@vger.kernel.org
-Subject: Re: Exporting which partitions to md-configure
-References: <43DEB4B8.5040607@zytor.com> <17374.47368.715991.422607@cse.unsw.edu.au> <859CB9D0-A1D3-4931-9D9F-96153D0F3E1B@mac.com>
-In-Reply-To: <859CB9D0-A1D3-4931-9D9F-96153D0F3E1B@mac.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 30 Jan 2006 20:47:15 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:10213
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932192AbWAaBrN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 20:47:13 -0500
+Date: Mon, 30 Jan 2006 17:47:05 -0800 (PST)
+Message-Id: <20060130.174705.15703464.davem@davemloft.net>
+To: diablod3@gmail.com
+Cc: schilling@fokus.fraunhofer.de, bzolnier@gmail.com, mrmacman_g4@mac.com,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       acahalan@gmail.com
+Subject: Re: CD writing in future Linux try #2
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <200601302043.56615.diablod3@gmail.com>
+References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com>
+	<43DCA097.nailGPD11GI11@burner>
+	<200601302043.56615.diablod3@gmail.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett wrote:
-> 
-> Well, for an MSDOS partition table, you would look for '253', for a  Mac 
-> partition table you could look for something like 'Linux_RAID' or  
-> similar (just arbitrarily define some name beginning with the Linux_  
-> prefix), etc.  This means that the partition table type would need to  
-> be exposed as well (I don't know if it is already).
-> 
+From: Patrick McFarland <diablod3@gmail.com>
+Date: Mon, 30 Jan 2006 20:43:55 -0500
 
-It's not, but perhaps exporting "format" and "type" as distinct 
-attributes is the way to go.  The policy for which partitions to 
-consider would live entirely in kinit that way.
+> I believe LKML is for serious discussion of Linux kernel development
+> only, and for this to optimally continue, we need to purge the list
+> of trolls like him.
 
-type would be format-specific; in EFI it's a UUID.
-
-This, of course, is a bigger change, but it just might be worth it.
-
-	-hpa
+I'd rather natural forces work to show him what an anti-social person
+he is.  We don't need to ban him from the lists, as that is an act
+which is about as low as he is, and we don't need to stoop like that.

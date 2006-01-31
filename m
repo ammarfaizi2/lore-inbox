@@ -1,369 +1,277 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWAaNmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbWAaNmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWAaNmI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 08:42:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWAaNlw
+	id S1750845AbWAaNmx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 08:42:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWAaNmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 08:41:52 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:62866 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1750822AbWAaNle (ORCPT
+	Tue, 31 Jan 2006 08:42:50 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:5523 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1750830AbWAaNmZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 08:41:34 -0500
-Subject: [PATCH 2/11] LED: Add LED Class
+	Tue, 31 Jan 2006 08:42:25 -0500
+Subject: [PATCH 8/11] LED: Add LED device support for ixp4xx devices
 From: Richard Purdie <rpurdie@rpsys.net>
 To: LKML <linux-kernel@vger.kernel.org>
+Cc: jbowler@acm.org
 Content-Type: text/plain
-Date: Tue, 31 Jan 2006 13:41:28 +0000
-Message-Id: <1138714888.6869.125.camel@localhost.localdomain>
+Date: Tue, 31 Jan 2006 13:41:49 +0000
+Message-Id: <1138714909.6869.136.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add the foundations of a new LEDs subsystem. This patch adds a class
-which presents LED devices within sysfs and allows their brightness to
-be controlled.
+From: John Bowler <jbowler@acm.org>
 
+NEW_LEDS support for ixp4xx boards where LEDs are connected
+to the GPIO lines.
+
+This includes a new generic ixp4xx driver (leds-ixp4xx-gpio.c
+name "IXP4XX-GPIO-LED")
+
+Signed-off-by: John Bowler <jbowler@acm.org>
 Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 
-Index: linux-2.6.15/drivers/leds/Kconfig
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.15/drivers/leds/Kconfig	2006-01-29 16:02:38.000000000 +0000
-@@ -0,0 +1,18 @@
-+
-+menu "LED devices"
-+
-+config NEW_LEDS
-+	bool "LED Support"
+--- linux-2.6.15/drivers/leds/Kconfig	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.15/drivers/leds/Kconfig	1970-01-01 00:00:00.000000000 +0000
+@@ -43,6 +43,15 @@ config LEDS_SPITZ
+ 	  This option enables support for the LEDs on Sharp Zaurus
+ 	  SL-Cxx00 series (C1000, C3000, C3100).
+ 
++config LEDS_IXP4XX
++	tristate "LED Support for GPIO connected LEDs on IXP4XX processors"
++	depends LEDS_CLASS && ARCH_IXP4XX
 +	help
-+	  Say Y to enable Linux LED support.  This is not related to standard
-+	  keyboard LEDs which are controlled via the input system.
++	  This option enables support for the LEDs connected to GPIO
++	  outputs of the Intel IXP4XX processors.  To be useful the
++	  particular board must have LEDs and they must be connected
++	  to the GPIO lines.  If unsure, say Y.
 +
-+config LEDS_CLASS
-+	tristate "LED Class Support"
-+	depends NEW_LEDS
-+	help
-+	  This option enables the led sysfs class in /sys/class/leds.  You'll
-+	  need this to do anything useful with LEDs.  If unsure, say N.
-+
-+endmenu
-+
-Index: linux-2.6.15/drivers/leds/Makefile
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.15/drivers/leds/Makefile	2006-01-29 16:02:38.000000000 +0000
-@@ -0,0 +1,4 @@
-+
-+# LED Core
-+obj-$(CONFIG_NEW_LEDS)			+= led-core.o
-+obj-$(CONFIG_LEDS_CLASS)		+= led-class.o
-Index: linux-2.6.15/include/linux/leds.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.15/include/linux/leds.h	2006-01-29 16:03:21.000000000 +0000
-@@ -0,0 +1,48 @@
+ config LEDS_TRIGGER_TIMER
+ 	tristate "LED Timer Trigger"
+ 	depends LEDS_TRIGGERS
+--- linux-2.6.15/drivers/leds/Makefile	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.15/drivers/leds/Makefile	1970-01-01 00:00:00.000000000 +0000
+@@ -8,6 +8,7 @@ obj-$(CONFIG_LEDS_TRIGGERS)		+= led-trig
+ obj-$(CONFIG_LEDS_CORGI)		+= leds-corgi.o
+ obj-$(CONFIG_LEDS_LOCOMO)		+= leds-locomo.o
+ obj-$(CONFIG_LEDS_SPITZ)		+= leds-spitz.o
++obj-$(CONFIG_LEDS_IXP4XX)		+= leds-ixp4xx-gpio.o
+ 
+ # LED Triggers
+ obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+= ledtrig-timer.o
+--- linux-2.6.15/drivers/leds/leds-ixp4xx-gpio.c	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.15/drivers/leds/leds-ixp4xx-gpio.c	1970-01-01 00:00:00.000000000 +0000
+@@ -0,0 +1,209 @@
 +/*
-+ * Driver model for leds and led triggers
++ * IXP4XX GPIO driver LED driver
 + *
-+ * Copyright (C) 2005 John Lenz <lenz@cs.wisc.edu>
-+ * Copyright (C) 2005 Richard Purdie <rpurdie@openedhand.com>
++ * Author: John Bowler <jbowler@acm.org>
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
++ * Copyright (c) 2006 John Bowler
 + *
-+ */
-+
-+struct device;
-+struct class_device;
-+/*
-+ * LED Core
-+ */
-+
-+enum led_brightness {
-+	LED_OFF = 0,
-+	LED_HALF = 127,
-+	LED_FULL = 255,
-+};
-+
-+struct led_device {
-+	const char *name;
-+	int brightness;
-+	int flags;
-+#define LED_SUSPENDED       (1 << 0)
-+
-+	/* A function to set the brightness of the led */
-+	void (*brightness_set)(struct led_device *led_dev, enum led_brightness brightness);
-+
-+	struct class_device *class_dev;
-+	/* LED Device linked list */
-+	struct list_head node;
-+
-+	/* Trigger data */
-+	char *default_trigger;
-+
-+	/* This protects the data in this structure */
-+	rwlock_t lock;
-+};
-+
-+extern int led_device_register(struct device *dev, struct led_device *led_dev);
-+extern void led_device_unregister(struct led_device *led_dev);
-+extern void led_device_suspend(struct led_device *led_dev);
-+extern void led_device_resume(struct led_device *led_dev);
-Index: linux-2.6.15/arch/arm/Kconfig
-===================================================================
---- linux-2.6.15.orig/arch/arm/Kconfig	2006-01-29 14:37:31.000000000 +0000
-+++ linux-2.6.15/arch/arm/Kconfig	2006-01-29 16:02:15.000000000 +0000
-@@ -774,6 +774,8 @@
- 
- source "drivers/mfd/Kconfig"
- 
-+source "drivers/leds/Kconfig"
-+
- source "drivers/media/Kconfig"
- 
- source "drivers/video/Kconfig"
-Index: linux-2.6.15/drivers/Makefile
-===================================================================
---- linux-2.6.15.orig/drivers/Makefile	2006-01-29 14:42:52.000000000 +0000
-+++ linux-2.6.15/drivers/Makefile	2006-01-29 14:43:11.000000000 +0000
-@@ -68,6 +68,7 @@
- obj-$(CONFIG_EISA)		+= eisa/
- obj-$(CONFIG_CPU_FREQ)		+= cpufreq/
- obj-$(CONFIG_MMC)		+= mmc/
-+obj-$(CONFIG_NEW_LEDS)		+= leds/
- obj-$(CONFIG_INFINIBAND)	+= infiniband/
- obj-$(CONFIG_SGI_IOC4)		+= sn/
- obj-y				+= firmware/
-Index: linux-2.6.15/drivers/Kconfig
-===================================================================
---- linux-2.6.15.orig/drivers/Kconfig	2006-01-29 14:42:51.000000000 +0000
-+++ linux-2.6.15/drivers/Kconfig	2006-01-29 14:43:11.000000000 +0000
-@@ -64,6 +64,8 @@
- 
- source "drivers/mmc/Kconfig"
- 
-+source "drivers/leds/Kconfig"
-+
- source "drivers/infiniband/Kconfig"
- 
- source "drivers/sn/Kconfig"
-Index: linux-2.6.15/drivers/leds/leds.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.15/drivers/leds/leds.h	2006-01-29 16:02:38.000000000 +0000
-@@ -0,0 +1,26 @@
-+/*
-+ * LED Core
++ * Permission is hereby granted, free of charge, to any
++ * person obtaining a copy of this software and associated
++ * documentation files (the "Software"), to deal in the
++ * Software without restriction, including without
++ * limitation the rights to use, copy, modify, merge,
++ * publish, distribute, sublicense, and/or sell copies of
++ * the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the
++ * following conditions:
 + *
-+ * Copyright 2005 Openedhand Ltd.
++ * The above copyright notice and this permission notice
++ * shall be included in all copies or substantial portions
++ * of the Software.
 + *
-+ * Author: Richard Purdie <rpurdie@openedhand.com>
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
++ * ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
++ * TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
++ * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
++ * SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
++ * ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
++ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
++ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ * OTHER DEALINGS IN THE SOFTWARE.
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+
-+/* led_dev->lock must be held as write */
-+static inline void led_set_brightness(struct led_device *led_dev, enum led_brightness value)
-+{
-+	if (value > LED_FULL)
-+		value = LED_FULL;
-+	led_dev->brightness = value;
-+	if (!(led_dev->flags & LED_SUSPENDED))
-+		led_dev->brightness_set(led_dev, value);
-+}
-+
-+extern rwlock_t leds_list_lock;
-+extern struct list_head leds_list;
-+
-Index: linux-2.6.15/drivers/leds/led-class.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.15/drivers/leds/led-class.c	2006-01-29 16:02:38.000000000 +0000
-@@ -0,0 +1,150 @@
-+/*
-+ * LED Class Core
-+ *
-+ * Copyright (C) 2005 John Lenz <lenz@cs.wisc.edu>
-+ * Copyright (C) 2005-2006 Richard Purdie <rpurdie@openedhand.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
 + */
 +
 +#include <linux/config.h>
-+#include <linux/module.h>
 +#include <linux/kernel.h>
 +#include <linux/init.h>
-+#include <linux/list.h>
++#include <linux/platform_device.h>
 +#include <linux/spinlock.h>
-+#include <linux/device.h>
-+#include <linux/sysdev.h>
-+#include <linux/timer.h>
-+#include <linux/err.h>
 +#include <linux/leds.h>
-+#include "leds.h"
++#include <asm/arch/hardware.h>
 +
-+static struct class *leds_class;
++extern spinlock_t gpio_lock;
 +
-+static ssize_t led_brightness_show(struct class_device *dev, char *buf)
++/* Up to 16 gpio lines are possible. */
++#define GPIO_MAX 16
++static struct ixp4xxgpioled_device {
++	struct led_device ancestor;
++	int               flags;
++} ixp4xxgpioled_devices[GPIO_MAX];
++
++void ixp4xxgpioled_brightness_set(struct led_device *pled, enum led_brightness value)
 +{
-+	struct led_device *led_dev = dev->class_data;
-+	ssize_t ret = 0;
++	const struct ixp4xxgpioled_device *const ixp4xx_dev =
++		container_of(pled, struct ixp4xxgpioled_device, ancestor);
++	const u32 gpio_pin = ixp4xx_dev - ixp4xxgpioled_devices;
 +
-+	/* no lock needed for this */
-+	sprintf(buf, "%u\n", led_dev->brightness);
-+	ret = strlen(buf) + 1;
++	if (gpio_pin < GPIO_MAX && ixp4xx_dev->ancestor.name != 0) {
++		/* Set or clear the 'gpio_pin' bit according to the style
++		 * and the required setting (value > 0 == on)
++		 */
++		const int gpio_value =
++			(value > 0) == (ixp4xx_dev->flags != IXP4XX_GPIO_LOW) ?
++				IXP4XX_GPIO_HIGH : IXP4XX_GPIO_LOW;
 +
-+	return ret;
++		{
++			unsigned long flags;
++			spin_lock_irqsave(&gpio_lock, flags);
++			gpio_line_set(gpio_pin, gpio_value);
++			spin_unlock_irqrestore(&gpio_lock, flags);
++		}
++	}
 +}
 +
-+static ssize_t led_brightness_store(struct class_device *dev, const char *buf, size_t size)
-+{
-+	struct led_device *led_dev = dev->class_data;
-+	ssize_t ret = -EINVAL;
-+	char *after;
++/* LEDs are described in resources, the following iterates over the valid
++ * LED resources.
++ */
++#define for_all_leds(i, pdev) \
++	for (i=0; i<pdev->num_resources; ++i) \
++		if (pdev->resource[i].start < GPIO_MAX && \
++			pdev->resource[i].name != 0)
 +
-+	unsigned long state = simple_strtoul(buf, &after, 10);
-+	if (after - buf > 0) {
-+		ret = after - buf;
-+		write_lock(&led_dev->lock);
-+		led_set_brightness(led_dev, state);
-+		write_unlock(&led_dev->lock);
++/* The following applies 'operation' to each LED from the given platform,
++ * the function always returns 0 to allow tail call elimination.
++ */
++static int apply_to_all_leds(struct platform_device *pdev,
++	void (*operation)(struct led_device *pled)) {
++	int i;
++	for_all_leds(i, pdev)
++		operation(&ixp4xxgpioled_devices[pdev->resource[i].start].ancestor);
++	return 0;
++}
++
++#ifdef CONFIG_PM
++static int ixp4xxgpioled_suspend(struct platform_device *pdev, pm_message_t state)
++{
++	return apply_to_all_leds(pdev, led_device_suspend);
++}
++
++static int ixp4xxgpioled_resume(struct platform_device *pdev)
++{
++	return apply_to_all_leds(pdev, led_device_resume);
++}
++#endif
++
++static void ixp4xxgpioled_remove_one_led(struct led_device *pled) {
++	led_device_unregister(pled);
++	pled->name = 0;
++}
++
++static int ixp4xxgpioled_remove(struct platform_device *pdev)
++{
++	return apply_to_all_leds(pdev, ixp4xxgpioled_remove_one_led);
++}
++
++static int ixp4xxgpioled_probe(struct platform_device *pdev)
++{
++	/* The board level has to tell the driver where the
++	 * LEDs are connected - there is no way to find out
++	 * electrically.  It must also say whether the GPIO
++	 * lines are active high or active low.
++	 *
++	 * To do this read the num_resources (the number of
++	 * LEDs) and the struct resource (the data for each
++	 * LED).  The name comes from the resource, and it
++	 * isn't copied.
++	 */
++	int i;
++	for_all_leds(i, pdev) {
++		const u8 gpio_pin = pdev->resource[i].start;
++		int      rc;
++
++		if (ixp4xxgpioled_devices[gpio_pin].ancestor.name == 0) {
++			unsigned long flags;
++
++			spin_lock_irqsave(&gpio_lock, flags);
++			gpio_line_config(gpio_pin, IXP4XX_GPIO_OUT);
++			/* The config can, apparently, reset the state,
++			 * I suspect the gpio line may be an input and
++			 * the config may cause the line to be latched,
++			 * so the setting depends on how the LED is
++			 * connected to the line (which affects how it
++			 * floats if not driven).
++			 */
++			gpio_line_set(gpio_pin, IXP4XX_GPIO_HIGH);
++			spin_unlock_irqrestore(&gpio_lock, flags);
++
++			ixp4xxgpioled_devices[gpio_pin].flags =
++				pdev->resource[i].flags & IORESOURCE_BITS;
++
++			ixp4xxgpioled_devices[gpio_pin].ancestor.name =
++				pdev->resource[i].name;
++
++			/* This is how a board manufacturer makes the LED
++			 * come on on reset - the GPIO line will be high, so
++			 * make the LED light when the line is low...
++			 */
++			if (ixp4xxgpioled_devices[gpio_pin].flags != IXP4XX_GPIO_LOW)
++				ixp4xxgpioled_devices[gpio_pin].ancestor.brightness = 100;
++			else
++				ixp4xxgpioled_devices[gpio_pin].ancestor.brightness = 0;
++
++			ixp4xxgpioled_devices[gpio_pin].ancestor.flags = 0;
++				
++			ixp4xxgpioled_devices[gpio_pin].ancestor.brightness_set =
++				ixp4xxgpioled_brightness_set;
++
++			ixp4xxgpioled_devices[gpio_pin].ancestor.default_trigger = 0;
++		}
++
++		rc = led_device_register(&pdev->dev,
++				&ixp4xxgpioled_devices[gpio_pin].ancestor);
++		if (rc < 0) {
++			ixp4xxgpioled_devices[gpio_pin].ancestor.name = 0;
++			ixp4xxgpioled_remove(pdev);
++			return rc;
++		}
 +	}
 +
-+	return ret;
-+}
-+
-+static CLASS_DEVICE_ATTR(brightness, 0644, led_brightness_show, led_brightness_store);
-+
-+
-+/**
-+ * led_device_suspend - suspend an led_device.
-+ * @led_dev: the led_device to suspend.
-+ */
-+void led_device_suspend(struct led_device *led_dev)
-+{
-+	write_lock(&led_dev->lock);
-+	led_dev->flags |= LED_SUSPENDED;
-+	led_dev->brightness_set(led_dev, 0);
-+	write_unlock(&led_dev->lock);
-+}
-+
-+/**
-+ * led_device_resume - resume an led_device.
-+ * @led_dev: the led_device to resume.
-+ */
-+void led_device_resume(struct led_device *led_dev)
-+{
-+	write_lock(&led_dev->lock);
-+	led_dev->flags &= ~LED_SUSPENDED;
-+	led_dev->brightness_set(led_dev, led_dev->brightness);
-+	write_unlock(&led_dev->lock);
-+}
-+
-+/**
-+ * led_device_register - register a new object of led_device class.
-+ * @dev: The device to register.
-+ * @led_dev: the led_device structure for this device.
-+ */
-+int led_device_register(struct device *dev, struct led_device *led_dev)
-+{
-+	led_dev->class_dev = class_device_create(leds_class, NULL, 0, dev, "%s", led_dev->name);
-+	if (unlikely(IS_ERR(led_dev->class_dev)))
-+		return PTR_ERR(led_dev->class_dev);
-+
-+	rwlock_init(&led_dev->lock);
-+	led_dev->class_dev->class_data = led_dev;
-+
-+	/* register the attributes */
-+	class_device_create_file(led_dev->class_dev, &class_device_attr_brightness);
-+
-+	/* add to the list of leds */
-+	write_lock(&leds_list_lock);
-+	list_add_tail(&led_dev->node, &leds_list);
-+	write_unlock(&leds_list_lock);
-+
-+	printk(KERN_INFO "Registered led device: %s\n", led_dev->class_dev->class_id);
-+
 +	return 0;
 +}
 +
-+/**
-+ * led_device_unregister - unregisters a object of led_properties class.
-+ * @led_dev: the led device to unreigister
-+ *
-+ * Unregisters a previously registered via led_device_register object.
-+ */
-+void led_device_unregister(struct led_device *led_dev)
++static struct platform_driver ixp4xxgpioled_driver = {
++	.probe   = ixp4xxgpioled_probe,
++	.remove  = ixp4xxgpioled_remove,
++#ifdef CONFIG_PM
++	.suspend = ixp4xxgpioled_suspend,
++	.resume  = ixp4xxgpioled_resume,
++#endif
++	.driver  = {
++		.name = "IXP4XX-GPIO-LED",
++	},
++};
++
++static int __devinit ixp4xxgpioled_init(void)
 +{
-+	class_device_remove_file(led_dev->class_dev, &class_device_attr_brightness);
-+
-+	class_device_unregister(led_dev->class_dev);
-+
-+	write_lock(&leds_list_lock);
-+	list_del(&led_dev->node);
-+	write_unlock(&leds_list_lock);
++	return platform_driver_register(&ixp4xxgpioled_driver);
 +}
 +
-+EXPORT_SYMBOL_GPL(led_device_suspend);
-+EXPORT_SYMBOL_GPL(led_device_resume);
-+EXPORT_SYMBOL_GPL(led_device_register);
-+EXPORT_SYMBOL_GPL(led_device_unregister);
-+
-+static int __init leds_init(void)
++static void ixp4xxgpioled_exit(void)
 +{
-+	leds_class = class_create(THIS_MODULE, "leds");
-+	if (IS_ERR(leds_class))
-+		return PTR_ERR(leds_class);
-+	return 0;
++	platform_driver_unregister(&ixp4xxgpioled_driver);
 +}
 +
-+static void __exit leds_exit(void)
-+{
-+	class_destroy(leds_class);
-+}
++module_init(ixp4xxgpioled_init);
++module_exit(ixp4xxgpioled_exit);
 +
-+subsys_initcall(leds_init);
-+module_exit(leds_exit);
-+
-+MODULE_AUTHOR("John Lenz, Richard Purdie");
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("LED Class Interface");
-Index: linux-2.6.15/drivers/leds/led-core.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.15/drivers/leds/led-core.c	2006-01-29 14:43:11.000000000 +0000
-@@ -0,0 +1,24 @@
-+/*
-+ * LED Class Core
-+ *
-+ * Copyright 2005-2006 Openedhand Ltd.
-+ *
-+ * Author: Richard Purdie <rpurdie@openedhand.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/list.h>
-+#include <linux/module.h>
-+#include <linux/spinlock.h>
-+#include <linux/leds.h>
-+#include "leds.h"
-+
-+rwlock_t leds_list_lock = RW_LOCK_UNLOCKED;
-+LIST_HEAD(leds_list);
-+
-+EXPORT_SYMBOL_GPL(leds_list);
++MODULE_AUTHOR("John Bowler <jbowler@acm.org>");
++MODULE_DESCRIPTION("IXP4XX GPIO LED driver");
++MODULE_LICENSE("MIT");
 
 

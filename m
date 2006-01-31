@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbWAaGLl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWAaGNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932379AbWAaGLl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 01:11:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWAaGLl
+	id S932395AbWAaGNI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 01:13:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbWAaGNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 01:11:41 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:43153 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S932379AbWAaGLk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 01:11:40 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.16-rc1-mm4: ACX=y, ACX_USB=n compile error
-Date: Tue, 31 Jan 2006 08:10:32 +0200
-User-Agent: KMail/1.8.2
-Cc: "Gabriel C." <crazy@pimpmylinux.org>, linville@tuxdriver.com,
-       linux-kernel@vger.kernel.org, da.crew@gmx.net, netdev@vger.kernel.org
-References: <20060130133833.7b7a3f8e@zwerg> <20060130181039.GC3655@stusta.de>
-In-Reply-To: <20060130181039.GC3655@stusta.de>
+	Tue, 31 Jan 2006 01:13:08 -0500
+Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:55807 "EHLO
+	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
+	id S932395AbWAaGNH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 01:13:07 -0500
+Message-ID: <43DEFFB7.6010404@sw.ru>
+Date: Tue, 31 Jan 2006 09:12:07 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Oleg Nesterov <oleg@tv-sign.ru>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Jeff Dike <jdike@addtoit.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/3] pidhash: don't use zero pids
+References: <43DDF323.4517C349@tv-sign.ru> <m1r76p5u7m.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1r76p5u7m.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601310810.33107.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 January 2006 20:10, Adrian Bunk wrote:
-> On Mon, Jan 30, 2006 at 01:38:33PM +0100, Gabriel C. wrote:
-> 
-> > Hello,
-> 
-> Hi Gabriel,
-> 
-> > I got this compile error with 2.6.16-rc1-mm4 , config attached. 
-> > 
-> > 
-> >   LD      .tmp_vmlinux1
-> > drivers/built-in.o: In function
-> > `acx_l_transmit_authen1':common.c:(.text+0x6cd62): undefined reference
-> > to `acxusb_l_alloc_tx' :common.c:(.text+0x6cd74): undefined reference
-> > to `acxusb_l_get_txbuf' :common.c:(.text+0x6cdeb): undefined reference
-> > to `acxusb_l_tx_data' drivers/built-in.o: In function
-> > `acx_s_configure_debug': undefined reference to
-> > `acxusb_s_issue_cmd_timeo_debug' drivers/built-in.o: In function
-> > [many more]
-> >...
-> 
-> Thanks for your report.
-> 
-> @Denis:
-> The problem seems to be CONFIG_ACX=y, CONFIG_ACX_USB=n.
+Hello Oleg,
 
-Thanks, will test/fix ASAP.
+I had quite the same comment, but had no time to check it.
+I can't understand what problem do you solve, or just making code 
+cleaner (from your point of view)?
+For me it was quite natural that pid=0 is used by idle, and I'm very 
+suspicuos about such changes.
 
-Gabriel, please send me your .config
---
-vda
+Kirill
+
+> Oleg Nesterov <oleg@tv-sign.ru> writes:
+> 
+>> daemonize() calls set_special_pids(1,1), while init and
+>> kernel threads spawned from init/main.c:init() run with
+>> 0,0 special pids. This patch changes INIT_SIGNALS() so
+>> that that they run with ->pgrp == ->session == 1 also.
+>>
+>> This patch relies on fact that swapper's pid == 1.
+>>
+>> Now we never use pid == 0 in kernel/pid.c.
+> 
+> This changes what is visible to user space, for the case
+> where we are not a member of a session of a process group.
+> 
+> By hashing the values these non-groups become available to
+> user space.  Which I find disturbing.  Before I can comment
+> further I need to see if there are any well defined semantics
+> for processes that are not part of a session or a process
+> group.  If there are well defined semantics we have just
+> broken user space.
+> 
+> Eric
+> 

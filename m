@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWAaU4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWAaU40@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWAaU4H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 15:56:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbWAaU4G
+	id S1751399AbWAaU40 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 15:56:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWAaU40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 15:56:06 -0500
-Received: from smtp.uaf.edu ([137.229.34.30]:4868 "EHLO smtp.uaf.edu")
-	by vger.kernel.org with ESMTP id S1751393AbWAaU4G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 15:56:06 -0500
-From: Joshua Kugler <joshua.kugler@uaf.edu>
-Organization: UAF Center for Distance Education - IT
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [OT] 8-port AHCI SATA Controller?
-Date: Tue, 31 Jan 2006 11:48:52 -0900
-User-Agent: KMail/1.7.2
-Cc: Sander <sander@humilis.net>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-References: <20060131115343.GA2580@favonius> <20060131185646.GF6178@favonius> <20060131203845.GH4215@suse.de>
-In-Reply-To: <20060131203845.GH4215@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 31 Jan 2006 15:56:26 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:23957 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1751399AbWAaU4Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 15:56:25 -0500
+Subject: Re: R: Xorg  crashes 2.6.16-rc1-git4
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Mauro Tassinari <mtassinari@cmanet.it>
+Cc: linux-kernel@vger.kernel.org, airlied@linux.ie
+In-Reply-To: <1138740690.22358.11.camel@localhost>
+References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAATCL5fQYOzEifgaWohcVWWwEAAAAA@cmanet.it>
+	 <1138740690.22358.11.camel@localhost>
+Date: Tue, 31 Jan 2006 22:56:23 +0200
+Message-Id: <1138740983.22358.15.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601311148.52955.joshua.kugler@uaf.edu>
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 31 January 2006 11:38, Jens Axboe wrote:
-> On Tue, Jan 31 2006, Sander wrote:
-> > > I got the drivers here:
-> > >
-> > > http://www.keffective.com/mvsata/FC3/
-> > >
-> > > The latest was mvSata_Linux_3.6.1.tgz as of 2005-10-13.
-> >
-> > I very, very much prefer in-tree drivers :-)
->
-> Actually there is a sata_mv driver in the kernel, however it's pretty
-> experimental right now. I'm sure it could use testers :-)
+Hi Mauro,
 
-Interesting.  I understand it going through testing, but why didn't they pull 
-in the mvSata driver referenced above?  It was already GPL.  Or did they pull 
-in that driver and just want testing?
+On Tue, 2006-01-31 at 21:34 +0100, Mauro Tassinari wrote:
+> > in both cases, no kernel video module was loaded. 
+> > Hope this helps a bit, thank you for your attention.
 
-j----- k-----
+On Tue, 2006-01-31 at 22:51 +0200, Pekka Enberg wrote:
+> Does disabling CONFIG_DRM_RADEON fix the hard lock? You have compiled
+> Radeon DRM as module so I think X will try to load it at start-up.
 
--- 
-Joshua Kugler                 PGP Key: http://pgp.mit.edu/
-CDE System Administrator             ID 0xDB26D7CE
-http://distance.uaf.edu/
+Seems likely as others are having problems with RV370 as well:
+
+https://bugs.freedesktop.org/show_bug.cgi?id=5341
+
+			Pekka
+

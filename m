@@ -1,129 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWAaNjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWAaNlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750819AbWAaNjl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 08:39:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWAaNjl
+	id S1750826AbWAaNlr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 08:41:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWAaNlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 08:39:41 -0500
-Received: from mgw-ext03.nokia.com ([131.228.20.95]:38075 "EHLO
-	mgw-ext03.nokia.com") by vger.kernel.org with ESMTP
-	id S1750819AbWAaNjk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 08:39:40 -0500
-Message-ID: <43DF683C.4080301@indt.org.br>
-Date: Tue, 31 Jan 2006 09:38:04 -0400
-From: Anderson Briglia <anderson.briglia@indt.org.br>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Russell King - ARM Linux <linux@arm.linux.org.uk>,
-       Tony Lindgren <tony@atomide.com>
-Subject: [patch 4/5] MMC OMAP driver
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 31 Jan 2006 08:41:47 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:65426 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1750826AbWAaNlp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 08:41:45 -0500
+Subject: [PATCH 5/11] LED: Add Sharp Charger Status LED Trigger
+From: Richard Purdie <rpurdie@rpsys.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 31 Jan 2006 13:41:40 +0000
+Message-Id: <1138714900.6869.131.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 31 Jan 2006 13:36:21.0812 (UTC) FILETIME=[52BD1F40:01C6266B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some MMC cards don't set the R1_READY_FOR_DATA bit if EOFB
-interrupt comes first. In this case we need to mask R1_READY_FOR_DATA
-to avoid polling card status forever.
-This patch needs to be discussed as it requires interface change.
-This interface change is done here only for omap for now.
+Add an LED trigger for the charger status as found on the Sharp 
+Zaurus series of devices.
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+Acked-by: Pavel Machek <pavel@suse.cz>
 
-Index: linux-2.6.15-mmc_omap/drivers/mmc/mmc_block.c
+Index: linux-2.6.15/arch/arm/common/sharpsl_pm.c
 ===================================================================
---- linux-2.6.15-mmc_omap.orig/drivers/mmc/mmc_block.c	2006-01-26 16:57:08.000000000 -0400
-+++ linux-2.6.15-mmc_omap/drivers/mmc/mmc_block.c	2006-01-26 17:04:52.000000000 -0400
-@@ -218,6 +218,10 @@ static int mmc_blk_issue_rq(struct mmc_q
- 			goto cmd_err;
- 		}
-
-+		/* No need to check card status after a read */
-+		if (rq_data_dir(req) == READ)
-+			goto card_ready;
-+
- 		do {
- 			int err;
-
-@@ -239,6 +243,8 @@ static int mmc_blk_issue_rq(struct mmc_q
- 		if (mmc_decode_status(cmd.resp))
- 			goto cmd_err;
- #endif
-+
-+card_ready:
- 		/*
- 		 * A block was successfully transferred.
- 		 */
-@@ -336,6 +342,7 @@ static struct mmc_blk_data *mmc_blk_allo
-
- 	card_ready:
-
-+card_ready:
- 		/*
- 		 * As discussed on lkml, GENHD_FL_REMOVABLE should:
- 		 *
-Index: linux-2.6.15-mmc_omap/drivers/mmc/omap.c
-===================================================================
---- linux-2.6.15-mmc_omap.orig/drivers/mmc/omap.c	2006-01-26 16:57:11.000000000 -0400
-+++ linux-2.6.15-mmc_omap/drivers/mmc/omap.c	2006-01-26 16:57:11.000000000 -0400
-@@ -319,7 +319,7 @@ mmc_omap_dma_done(struct mmc_omap_host *
+--- linux-2.6.15.orig/arch/arm/common/sharpsl_pm.c	2006-01-29 14:37:21.000000000 +0000
++++ linux-2.6.15/arch/arm/common/sharpsl_pm.c	2006-01-29 15:04:01.000000000 +0000
+@@ -22,6 +22,7 @@
+ #include <linux/delay.h>
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
++#include <linux/leds.h>
+ 
+ #include <asm/hardware.h>
+ #include <asm/mach-types.h>
+@@ -75,6 +76,7 @@
+ struct sharpsl_pm_status sharpsl_pm;
+ DECLARE_WORK(toggle_charger, sharpsl_charge_toggle, NULL);
+ DECLARE_WORK(sharpsl_bat, sharpsl_battery_thread, NULL);
++INIT_LED_TRIGGER(sharpsl_charge_led_trigger);
+ 
+ 
+ static int get_percentage(int voltage)
+@@ -190,10 +192,10 @@
+ 		dev_err(sharpsl_pm.dev, "Charging Error!\n");
+ 	} else if (val == SHARPSL_LED_ON) {
+ 		dev_dbg(sharpsl_pm.dev, "Charge LED On\n");
+-
++		led_trigger_event(sharpsl_charge_led_trigger, LED_FULL);
+ 	} else {
+ 		dev_dbg(sharpsl_pm.dev, "Charge LED Off\n");
+-
++		led_trigger_event(sharpsl_charge_led_trigger, LED_OFF);
+ 	}
  }
+ 
+@@ -786,6 +788,8 @@
+ 	init_timer(&sharpsl_pm.chrg_full_timer);
+ 	sharpsl_pm.chrg_full_timer.function = sharpsl_chrg_full_timer;
+ 
++	led_trigger_register_simple("sharpsl-charge", &sharpsl_charge_led_trigger);
++
+ 	sharpsl_pm.machinfo->init();
+ 
+ 	device_create_file(&pdev->dev, &dev_attr_battery_percentage);
+@@ -807,6 +811,8 @@
+ 	device_remove_file(&pdev->dev, &dev_attr_battery_percentage);
+ 	device_remove_file(&pdev->dev, &dev_attr_battery_voltage);
+ 
++	led_trigger_unregister_simple(sharpsl_charge_led_trigger);
++
+ 	sharpsl_pm.machinfo->exit();
+ 
+ 	del_timer_sync(&sharpsl_pm.chrg_full_timer);
 
- static void
--mmc_omap_cmd_done(struct mmc_omap_host *host, struct mmc_command *cmd)
-+mmc_omap_cmd_done(struct mmc_omap_host *host, struct mmc_command *cmd, int card_ready)
- {
- 	host->cmd = NULL;
 
-@@ -332,6 +332,9 @@ mmc_omap_cmd_done(struct mmc_omap_host *
- 		cmd->resp[0] =
- 			OMAP_MMC_READ(host->base, RSP6) |
- 			(OMAP_MMC_READ(host->base, RSP7) << 16);
-+		if (card_ready) {
-+			cmd->resp[0] |= R1_READY_FOR_DATA;
-+		}
- 		break;
- 	case MMC_RSP_LONG:
- 		/* response type 2 */
-@@ -428,6 +431,7 @@ static irqreturn_t mmc_omap_irq(int irq,
- 	u16 status;
- 	int end_command;
- 	int end_transfer;
-+	int card_ready;
- 	int transfer_error;
-
- 	if (host->cmd == NULL && host->data == NULL) {
-@@ -442,6 +446,7 @@ static irqreturn_t mmc_omap_irq(int irq,
-
- 	end_command = 0;
- 	end_transfer = 0;
-+	card_ready = 0;
- 	transfer_error = 0;
-
- 	while ((status = OMAP_MMC_READ(host->base, STAT)) != 0) {
-@@ -542,10 +547,19 @@ static irqreturn_t mmc_omap_irq(int irq,
- 		    (!(status & OMAP_MMC_STAT_A_EMPTY))) {
- 			end_command = 1;
- 		}
-+		/* Some cards produce EOFB interrupt and never
-+		 * raise R1_READY_FOR_DATA bit after that.
-+		 * To avoid infinite card status polling loop,
-+		 * we must fake that bit to MMC layer.
-+		 */
-+		if ((status & OMAP_MMC_STAT_END_OF_CMD) &&
-+				(status & OMAP_MMC_STAT_END_BUSY)) {
-+			card_ready = 1;
-+		}
- 	}
-
- 	if (end_command) {
--		mmc_omap_cmd_done(host, host->cmd);
-+		mmc_omap_cmd_done(host, host->cmd, card_ready);
- 	}
- 	if (transfer_error)
- 		mmc_omap_xfer_done(host, host->data);

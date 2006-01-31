@@ -1,82 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWAaNlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWAaNlc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbWAaNlr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 08:41:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWAaNlr
+	id S1750821AbWAaNlc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 08:41:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWAaNlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 08:41:47 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:65426 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1750826AbWAaNlp (ORCPT
+	Tue, 31 Jan 2006 08:41:32 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:61586 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1750821AbWAaNla (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 08:41:45 -0500
-Subject: [PATCH 5/11] LED: Add Sharp Charger Status LED Trigger
+	Tue, 31 Jan 2006 08:41:30 -0500
+Subject: [PATCH 1/11] LED Class Documentation
 From: Richard Purdie <rpurdie@rpsys.net>
 To: LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Tue, 31 Jan 2006 13:41:40 +0000
-Message-Id: <1138714900.6869.131.camel@localhost.localdomain>
+Date: Tue, 31 Jan 2006 13:41:25 +0000
+Message-Id: <1138714885.6869.124.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add an LED trigger for the charger status as found on the Sharp 
-Zaurus series of devices.
+Add some brief documentation of the design decisions behind the LED 
+class and how it appears to users.
 
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
-Acked-by: Pavel Machek <pavel@suse.cz>
+Signed-off-by Richard Purdie <rpurdie@rpsys.net>
 
-Index: linux-2.6.15/arch/arm/common/sharpsl_pm.c
+Index: linux-2.6.15/Documentation/leds-class.txt
 ===================================================================
---- linux-2.6.15.orig/arch/arm/common/sharpsl_pm.c	2006-01-29 14:37:21.000000000 +0000
-+++ linux-2.6.15/arch/arm/common/sharpsl_pm.c	2006-01-29 15:04:01.000000000 +0000
-@@ -22,6 +22,7 @@
- #include <linux/delay.h>
- #include <linux/interrupt.h>
- #include <linux/platform_device.h>
-+#include <linux/leds.h>
- 
- #include <asm/hardware.h>
- #include <asm/mach-types.h>
-@@ -75,6 +76,7 @@
- struct sharpsl_pm_status sharpsl_pm;
- DECLARE_WORK(toggle_charger, sharpsl_charge_toggle, NULL);
- DECLARE_WORK(sharpsl_bat, sharpsl_battery_thread, NULL);
-+INIT_LED_TRIGGER(sharpsl_charge_led_trigger);
- 
- 
- static int get_percentage(int voltage)
-@@ -190,10 +192,10 @@
- 		dev_err(sharpsl_pm.dev, "Charging Error!\n");
- 	} else if (val == SHARPSL_LED_ON) {
- 		dev_dbg(sharpsl_pm.dev, "Charge LED On\n");
--
-+		led_trigger_event(sharpsl_charge_led_trigger, LED_FULL);
- 	} else {
- 		dev_dbg(sharpsl_pm.dev, "Charge LED Off\n");
--
-+		led_trigger_event(sharpsl_charge_led_trigger, LED_OFF);
- 	}
- }
- 
-@@ -786,6 +788,8 @@
- 	init_timer(&sharpsl_pm.chrg_full_timer);
- 	sharpsl_pm.chrg_full_timer.function = sharpsl_chrg_full_timer;
- 
-+	led_trigger_register_simple("sharpsl-charge", &sharpsl_charge_led_trigger);
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.15/Documentation/leds-class.txt	2006-01-31 12:42:59.000000000 +0000
+@@ -0,0 +1,71 @@
++LED handling under Linux
++========================
 +
- 	sharpsl_pm.machinfo->init();
- 
- 	device_create_file(&pdev->dev, &dev_attr_battery_percentage);
-@@ -807,6 +811,8 @@
- 	device_remove_file(&pdev->dev, &dev_attr_battery_percentage);
- 	device_remove_file(&pdev->dev, &dev_attr_battery_voltage);
- 
-+	led_trigger_unregister_simple(sharpsl_charge_led_trigger);
++If you're reading this and thinking about keyboard leds, these are 
++handled by the input subsystem and the led class is *not* needed.
 +
- 	sharpsl_pm.machinfo->exit();
- 
- 	del_timer_sync(&sharpsl_pm.chrg_full_timer);
++In its simplest form, the LED class just allows control of LEDs from 
++userspace. LEDs appear in /sys/class/leds/. The brightness file will 
++set the brightness of the LED (taking a value 0-255). Most LEDs don't
++have hardware brightness support so will just be turned on for none zero
++brightness settings.
++
++The class also introduces the optional concept of an LED trigger. A trigger 
++is a kernel based source of led events. Triggers can either be simple or 
++complex. A simple trigger isn't configurable and is designed to slot into 
++existing subsystems with minimal additional code. Examples are the ide-disk, 
++nand-disk and sharpsl-charge triggers. With led triggers disabled, the code 
++optimises away.
++
++Complex triggers whilst available to all LEDs have LED specific
++parameters and work on a per LED basis. The timer trigger is an example.
++
++You can change triggers in a similar manner to the way an IO scheduler
++is chosen (via /sys/class/leds/<device>/trigger). Trigger specific 
++parameters can appear in /sys/class/leds/<device> once a given trigger is 
++selected.
++
++
++Design Philosophy
++=================
++
++The underlying design philosophy is simplicity. LEDs are simple devices 
++and the aim is to keep a small amount of code giving as much functionality 
++as possible.  Please keep this in mind when suggesting enhancements.
++
++
++LED Device Naming
++=================
++
++Is currently of the form:
++
++"devicename:colour"
++
++There have been calls for LED properties such as colour to be exported as 
++individual led class attributes. As a solution which doesn't incur as much 
++overhead, I suggest these become part of the device name. The naming scheme 
++above leaves scope for further attributes should they be needed.
++
++
++Known Issues
++============
++
++The LED Trigger core cannot be a module as the simple trigger functions
++would cause nightmare dependency issues. I see this as a minor issue
++compared to the benefits the simple trigger functionality brings. The
++rest of the LED subsystem can be modular.
++
++Some leds can be programmed to flash in hardware. As this isn't a generic 
++LED device property, this should be exported as a device specific sysfs 
++attribute rather than part of the class if this functionality is required.
++
++
++Future Development
++==================
++
++At the moment, a trigger can't be created specifically for a single LED.
++There are a number of cases where a trigger might only be mappable to a
++particular LED (ACPI?). The addition of triggers provided by the LED driver
++should cover this option and be possible to add without breaking the
++current interface.
++
 
 

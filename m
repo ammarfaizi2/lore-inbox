@@ -1,104 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWAaLWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWAaLxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbWAaLWa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 06:22:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWAaLWa
+	id S1750768AbWAaLxa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 06:53:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWAaLxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 06:22:30 -0500
-Received: from mail.gmx.net ([213.165.64.21]:47294 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750745AbWAaLW3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 06:22:29 -0500
-X-Authenticated: #428038
-Date: Tue, 31 Jan 2006 12:22:23 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: psusi@cfl.rr.com, mrmacman_g4@mac.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de,
-       bzolnier@gmail.com, acahalan@gmail.com
-Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future Linux (stirring up a hornets' nest) ]
-Message-ID: <20060131112223.GA23149@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	psusi@cfl.rr.com, mrmacman_g4@mac.com, linux-kernel@vger.kernel.org,
-	jengelh@linux01.gwdg.de, bzolnier@gmail.com, acahalan@gmail.com
-References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com> <43DCA097.nailGPD11GI11@burner> <20060129112613.GA29356@merlin.emma.line.org> <Pine.LNX.4.61.0601292139080.2596@yvahk01.tjqt.qr> <43DD2A8A.nailGVQ115GOP@burner> <43DE495A.nail2BR211K0O@burner> <43DE75F5.40900@cfl.rr.com> <43DF403F.nail2RF310RP6@burner>
+	Tue, 31 Jan 2006 06:53:30 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:44955 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S1750768AbWAaLx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 06:53:29 -0500
+Date: Tue, 31 Jan 2006 12:53:43 +0100
+From: Sander <sander@humilis.net>
+To: linux-kernel@vger.kernel.org
+Cc: jgarzik@pobox.com
+Subject: [OT] 8-port AHCI SATA Controller?
+Message-ID: <20060131115343.GA2580@favonius>
+Reply-To: sander@humilis.net
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <43DF403F.nail2RF310RP6@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+X-Uptime: 11:59:51 up  1:42, 10 users,  load average: 0.13, 0.22, 0.18
 User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-01-31:
+Hello,
 
-> > It certainly does return something useful, just not what you are looking 
-> > for.  It does not return information that allows you to cleanly build 
-> > your bus:device:lun view of the world, but it does return sufficient 
-> > information to enumerate and communicate with all devices in the 
-> > system.  Is that not sufficient to be able to implement cdrecord?  If it 
-> > is, then the real issue here is that you want Linux to conform to the 
-> > bus:device:lun world view, which it seems many people do not wish to do. 
-> 
-> It does not allow libscg to find all devices.
+I'm looking for an 8-port SATA controller based on the AHCI chipset, as
+according to http://linux.yyz.us/sata/sata-status.html#vendor_support
+this chipset is completely open.
 
-On my system,
+I've searched the websides of the companies which according to
+http://linux.yyz.us/sata/sata-status.html#ahci base some of their
+products on this chipset, but I couldn't find an 8-port controller.
 
-sudo cdrecord -scanbus ; \
-sudo cdrecord -scanbus dev=ATA:
+I've also googled, but without success, hence this somewhat offtopic
+message. Although I hope the response helps others in their quest.
 
-finds all devices that talk ATAPI, SCSI, MMC.
+The question: does an 8-port AHCI based SATA controller exist? And if,
+where can I find it? 12, 16 or 24 ports will do too. I don't need HW
+raid, just JBOD.
 
-> > Maybe it would be more constructive if you were to make a good argument 
-> > for why the bus:device:lun view is better than /dev/*, but right now it 
-> > seems to me that they are just two different ways of doing the same 
-> > thing, and you prefer one way while the rest of the Linux developers 
-> > prefer the other. 
-> 
-> It would help if someone would give arguments why Linux does treat all 
-> SCSI devices equal, except for ATAPI transport based ones.
 
-1a The question is rather, what is the reason that you claim libscg is
-allegedly unable to find all devices?
+Some background info: I have a 24-disk chassis which is currently filled
+with 7 disks, and will soon be filled with 12 disks. The 7 disks are
+spread across two Promise SX8 controllers and the onboard nVidia
+controller. 3 On each SX8 and one onboard. The disks have a small
+partition dedicated to SW raid1 and a large partition dedicated to SW
+raid5. One disk acts as a spare.
 
-  1b Not scanning all of the devices perhaps?
+The performance of the SX8 is very bad because the in-kernel driver
+handles one request per controller to safeguard against corruption.
 
-  1c Not asking the right enumeration interface perhaps?
+This is what the comment in drivers/block/sx8.c states:
 
-2 And what devices are actually missing?
-Name tangible devices or groups, not phantoms that no-one uses.
+/*
+ * SX8 hardware has a single message queue for all ATA ports.
+ * When this driver was written, the hardware (firmware?) would
+ * corrupt data eventually, if more than one request was outstanding.
+ * As one can imagine, having 8 ports bottlenecking on a single
+ * command hurts performance.
+ *
+ * Based on user reports, later versions of the hardware (firmware?)
+ * seem to be able to survive with more than one command queued.
+ *
+ * Therefore, we default to the safe option -- 1 command -- but
+ * allow the user to increase this.
+ *
+ * SX8 should be able to support up to ~60 queued commands
+ * (CARM_MAX_REQ),
+ * but problems seem to occur when you exceed ~30, even on newer
+ * hardware.
+ */
+static int max_queue = 1;
 
-3 Why does libscg need to care at all which kernel driver provides SG_IO?
-The device node give access to the target the user desires. Add serial
-number listing to -scanbus to make those happy that have several drives
-of the same brand and model.
 
-4 Why have you not yet responded to the suggestion to use freedesktop.org
-HAL to enumerate devices?
+In my tests with 'static int max_queue' I tried 30, 16, 4 and 2. With 30
+and 16 I get instant corruption on the fs (ext3, which remounts ro
+quickly on error). With 4 I need to hit it a bit harder to see
+corruption, and with 2 the fs is rock solid.
 
-Summarizing past discussions, it appears as though you have not
-presented sufficiently substantiated arguments to prove libscg is
-actually missing out on device, and not sufficient evidence to convince
-kernel developers to CHANGE things.
+o The performance with anything larger than 2 seems acceptable.
+o It was also harder to hit with larger chunk sizes for the SW raid.
 
-The same way as you want them to justify their using device nodes
-instead bus:id:lun to map everything into a narrow namespace, they can
-make you justify your request. Fact is that cdrecord+libscg appear to
-work well enough so that nobody wants to care about theoretical gaps
-that have no practical impact.
+I've flashed the SX8 controllers with the latest BIOS/firmware, so
+that's not the problem. NCQ is disabled in the SX8 BIOS, as the
+in-kernel driver doesn't support NCQ and others have reported instant
+corruption with NCQ enabled.
 
-And given that libscg's namespace is already transport:bus:id:lun which
-comprises /dev/hd* and /dev/sg* so nicely that CD writing works today,
-it seems hard to justify changes beyond 1. removing irritating warnings
-from cdrecord/libscg, 2. making libscg actually scan all transports and
-not just one when looking for devices.
+I've contacted Promise Support about this (including the sx8.c comment
+and my findings). They replied:
 
-It is pretty clear now that the Linux kernel developers do not care if
-your application bitches at users because you don't like a particular
-interface.
+===
+   Case Solution: I have not seen this problem in any os.
 
--- 
-Matthias Andree
+   We populate all the drives and then put data into all seperate
+   logical drives. It has worked fine. One problem that you might be
+   having is that you are creating one large volume with a bunch of
+   smaller volume. This card is not made for that.
+
+   If you need a raid card use a card with a raid engine. If your trying
+   to software raid it your going to get errors.
+
+   I have not seen what you are talking about because we use this card
+   for basic or ext 3 ext 2 single hard drives. Try doing this that way.
+===
+
+This nonsense reply made me quite angry and disappointed with Promise.
+The SX8 seemed a realy nice controller for a good price if you only need
+JBOD support. But I guess in the end you always get what you pay for.
+
+FWIW, this is with a pure 64bit kernel 2.6.16-rc1 on a Tyan K8SE
+motherboard.
+
+Thanks a lot in advance.
+
+	With kind regards, Sander

@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbWAaHiv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbWAaHmL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965053AbWAaHiv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 02:38:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965055AbWAaHiv
+	id S1030215AbWAaHmL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 02:42:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbWAaHmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 02:38:51 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:64490
+	Tue, 31 Jan 2006 02:42:10 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:58074
 	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S965053AbWAaHiu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 02:38:50 -0500
-Date: Mon, 30 Jan 2006 23:38:45 -0800
-From: Greg KH <gregkh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
-Subject: Re: Linux 2.6.15.2
-Message-ID: <20060131073845.GA26024@suse.de>
-References: <20060131070642.GA25015@kroah.com> <20060130233427.5e7912ae.akpm@osdl.org>
+	id S965056AbWAaHmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 02:42:09 -0500
+Date: Mon, 30 Jan 2006 23:42:04 -0800
+From: Greg KH <greg@kroah.com>
+To: iSteve <isteve@rulez.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: udevstart surprisingly slow
+Message-ID: <20060131074204.GA26356@kroah.com>
+References: <43DE8D5E.2040905@rulez.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060130233427.5e7912ae.akpm@osdl.org>
+In-Reply-To: <43DE8D5E.2040905@rulez.cz>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 30, 2006 at 11:34:27PM -0800, Andrew Morton wrote:
-> Greg KH <gregkh@suse.de> wrote:
-> >
-> > We (the -stable team) are announcing the release of the 2.6.15.2 kernel.
-> >
+On Mon, Jan 30, 2006 at 11:04:14PM +0100, iSteve wrote:
+> Greetings,
+> I've recently upgraded udev from 063 to 082 and then 084.
 > 
-> There remain some box-killing bugs:
-> 
-> - The scsi_cmd leak
+> With 063, startup of udev was near-instant; with both 082 and 084, it 
+> takes a significant ammount of time (~15s) to create the base devices 
+> using udevstart or udevsynthesize (this one is taken from Debian, which 
+> apparently in turn taken it from SuSE; the rest of codebase is vanilla).
 
-In my to-apply queue, came after we started the review cycle here.
+With the 2.6.15 kernel, udevstart is no longer needed.  Please use the
+recommended shell script instead (as posted to the linux-hotplug-devel
+mailing list.)
 
-> - The BIO-uses-ZONE_DMA-hence-oom-killing bug
-> 
-> - A skbuff_head_cache leak causes oom-killings.
+> This issue appears on kernel 2.6.15.1 with SquashFS 2.2r2, SWSUP2 2.2 
+> and VesaFB-TNG 1.0-rc1-r3 patches.
 
-No one has forwarded these to us (stable@kernel.org), can someone please
-do so?
+All of which are not patches included in the mainline kernel.  Can you
+try it without these?
+
+> The init script used simply mounts 10MiB tmpfs onto /dev, creates 
+> /dev/.udev/{db,queue} directories, then runs udevd --daemon and then 
+> udevsynthesize or udevstart (tried both, same result).
+
+Again, don't do that :)
+
+Also, udev specific questions like these are best asked on the
+linux-hotplug-devel mailing list, as the udev documentation states.
 
 thanks,
 

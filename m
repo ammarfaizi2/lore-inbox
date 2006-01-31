@@ -1,44 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWAaLSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWAaLVS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbWAaLSY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 06:18:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWAaLSY
+	id S1750766AbWAaLVS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 06:21:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWAaLVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 06:18:24 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:58496
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750764AbWAaLSY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 06:18:24 -0500
-Date: Tue, 31 Jan 2006 03:18:17 -0800 (PST)
-Message-Id: <20060131.031817.85883571.davem@davemloft.net>
-To: gmack@innerfire.net
-Cc: diablod3@gmail.com, schilling@fokus.fraunhofer.de, bzolnier@gmail.com,
-       mrmacman_g4@mac.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, acahalan@gmail.com
-Subject: Re: CD writing in future Linux try #2
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.64.0601310609210.2979@innerfire.net>
-References: <200601302043.56615.diablod3@gmail.com>
-	<20060130.174705.15703464.davem@davemloft.net>
-	<Pine.LNX.4.64.0601310609210.2979@innerfire.net>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 31 Jan 2006 06:21:18 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:47302 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750766AbWAaLVS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 06:21:18 -0500
+Date: Tue, 31 Jan 2006 12:21:54 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: herbert@gondor.apana.org.au, davem@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [lock validator] inet6_destroy_sock(): soft-safe -> soft-unsafe lock dependency
+Message-ID: <20060131112154.GA21099@elte.hu>
+References: <E1F2IcV-0007Iq-00@gondolin.me.apana.org.au> <20060128152204.GA13940@elte.hu> <20060131102758.GA31460@gondor.apana.org.au> <20060131.024323.83813817.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060131.024323.83813817.davem@davemloft.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Gerhard Mack <gmack@innerfire.net>
-Date: Tue, 31 Jan 2006 06:13:09 -0500 (EST)
 
-> The downside to that is that while this all gets fought out cd burning on 
-> Linux is more of a pain than it should be.
+* David S. Miller <davem@davemloft.net> wrote:
 
-Someone remind me why the whole world is a prisoner to Joerg's cd
-burning program?
+> From: Herbert Xu <herbert@gondor.apana.org.au>
+> Date: Tue, 31 Jan 2006 21:27:58 +1100
+> 
+> > tcp_close is only called from process context.  The rule for sk_dst_lock
+> > is that it must also only be obtained in process context.  On the other
+> > hand, it is true that sk_lock can be obtained in softirq context.
+> > 
+> > In this particular case, sk_dst_lock is obtained by tcp_close with
+> > softirqs disabled.  This is not a problem in itself since we're not
+> > trying to get sk_dst_lock from a real softirq context (as opposed to
+> > process context with softirq disabled).
+> > 
+> > I believe this warning comes about because the validator creates a
+> > dependency between sk_lock and sk_dst_lock.  It then infers from this
+> > dependency that in softirq contexts where sk_lock is obtained the code
+> > may also attempt to obtain sk_dst_lock.
+> > 
+> > This inference is where the validator errs.  sk_dst_lock is never
+> > (or should never be, and as far as I can see none of the traces show
+> > it to do so) obtained in a real softirq context.
+> 
+> Herbert's analysis is correct.  This unique locking strategy is used 
+> by tcp_close() because at this point it knows that every single 
+> reference to this socket in the system is gone once it takes the 
+> socket lock with BH disabled.
+> 
+> And that known invariant is why this is correct, and the locking 
+> validator has no way to figure this out.
 
-Anybody can write their own, and if Joerg is a pain to work with that
-is a double extra incentive for this other implementation to be
-written.
+ok, thanks for the analysis! I'll fix this with an explicit hint to the 
+validator.
 
-In fact I'm very surprised this hasn't happened already.
+	Ingo

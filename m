@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030315AbWAaDqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbWAaDx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030315AbWAaDqT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 22:46:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030326AbWAaDqT
+	id S1030220AbWAaDx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 22:53:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030215AbWAaDx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 22:46:19 -0500
-Received: from xenotime.net ([66.160.160.81]:35294 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1030315AbWAaDqS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 22:46:18 -0500
-Date: Mon, 30 Jan 2006 19:46:41 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Kurt Wall <kwall@kurtwerks.com>
-Cc: linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk
-Subject: Re: Fix "make mandocs" for fs/inode.c
-Message-Id: <20060130194641.76401872.rdunlap@xenotime.net>
-In-Reply-To: <20060131034634.GT1501@kurtwerks.com>
-References: <20060131034634.GT1501@kurtwerks.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 30 Jan 2006 22:53:56 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:53456 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1030207AbWAaDxz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 22:53:55 -0500
+Message-ID: <43DEDF46.2060505@zytor.com>
+Date: Mon, 30 Jan 2006 19:53:42 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org,
+       klibc list <klibc@zytor.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [klibc] Exporting which partitions to md-configure
+References: <43DEB4B8.5040607@zytor.com> <20060131032133.GA8920@kroah.com>
+In-Reply-To: <20060131032133.GA8920@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Jan 2006 22:46:34 -0500 Kurt Wall wrote:
-
-> "make mandocs" complains on fs/inode.c because touch_atime() has an undescribed paramter. This patch silences the complaint by describing the param. Also update the kernel-doc entry to reflect dentry usage over raw inode access.
+Greg KH wrote:
 > 
-> Signed-off-by: Kurt Wall <kwall@kurtwerks.com>
+> What are you looking for exactly?  udev has a great helper program,
+> volume_id, that identifies any type of filesystem that Linux knows about
+> (it was based on the ext2 lib code, but smaller, and much more sane, and
+> works better.)
 > 
+> Would that help out here?
 > 
-> --- ./linux-2.6.16-rc1/fs/inode.c.orig	2006-01-21 09:30:59.000000000 -0500
-> +++ ./linux-2.6.16-rc1/fs/inode.c	2006-01-30 22:45:38.000000000 -0500
-> @@ -1179,7 +1179,7 @@
->  /**
->   *	touch_atime	-	update the access time
->   *	@mnt: mount the inode is accessed on
-> - *	@inode: inode accessed
-> + *	@dentry: dentry containing the inode to update
 
-patched on 2006-JAN-21 by Martin Waitz.
+It might, but it's also rather ugly to have two pieces of code, 
+especially in the presence of very dynamic partitions.  In other words, 
+if the kernel deals with partitions, you want to be able to get at the 
+kernel's view of partitions, not necessarily the actual set of 
+partitions on disk, which can be quite different.
 
-Most of the others have also been submitted, either on
-linux-kernel or linux-ide (for ATA) mailing lists.  Sorry.
-Thanks for trying to help out, though.
-
----
-~Randy
+	-hpa

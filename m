@@ -1,77 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbWAaAIF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbWAaAQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965046AbWAaAIF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 19:08:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWAaAIF
+	id S1030238AbWAaAQW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 19:16:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbWAaAQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 19:08:05 -0500
-Received: from mail.gmx.net ([213.165.64.21]:20448 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S965046AbWAaAIE (ORCPT
+	Mon, 30 Jan 2006 19:16:22 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8380 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965048AbWAaAQV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 19:08:04 -0500
-X-Authenticated: #13409387
-Message-ID: <43DEA922.3030602@gmx.net>
-Date: Tue, 31 Jan 2006 01:02:42 +0100
-From: Gunther Mayer <gunther.mayer@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Peterson <dsp@llnl.gov>
-CC: "bluesmoke-devel@lists.sourceforge.net" 
-	<bluesmoke-devel@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: noisy edac
-References: <20060130185931.71975.qmail@web50112.mail.yahoo.com> <200601301424.16884.dsp@llnl.gov> <43DEA4CA.8070700@gmx.net> <200601301552.09955.dsp@llnl.gov>
-In-Reply-To: <200601301552.09955.dsp@llnl.gov>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 30 Jan 2006 19:16:21 -0500
+Date: Mon, 30 Jan 2006 16:15:51 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Pekka Pietikainen <pp@ee.oulu.fi>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>,
+       Knut Petersen <Knut_Petersen@t-online.de>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+Subject: Re: skge bridge & hw csum failure (Was: Re: [BUG] sky2 broken for
+ Yukon PCI-E Gigabit Ethernet Controller 11ab:4362 (rev 19))
+Message-ID: <20060130161551.623a3ad0@dxpl.pdx.osdl.net>
+In-Reply-To: <20060130231658.GA6952@ee.oulu.fi>
+References: <20060130231658.GA6952@ee.oulu.fi>
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Peterson wrote:
+On Tue, 31 Jan 2006 01:16:59 +0200
+Pekka Pietikainen <pp@ee.oulu.fi> wrote:
 
->On Monday 30 January 2006 15:44, Gunther Mayer wrote:
->  
->
->>>For each individual type of error that is specific to a particular
->>>low-level chipset driver (e752x, amd76x, etc.) there could be an entry
->>>in the appropriate part of the sysfs hierarchy under the given chipset
->>>driver.  This entry could have several settings that the user may choose
->>>      
->>>
->>>from such as { ignore, syslog, panic }.  For the implementation, there
->>    
->>
->>>could be a generic piece of code in the core EDAC module that a chipset
->>>driver calls into.  The generic code would do the dirty work of creating
->>>the sysfs entries (and destroying them when the chipset module is
->>>unloading).  How does this sound?
->>>      
->>>
->>Over-Engineered.
->>    
->>
->
->Do you have an alternate suggestion?
->  
->
-Just printk() the exact driver specific low-level error, even if non-fatal.
+> On Fri, Jan 27, 2006 at 11:22:42PM +1100, Herbert Xu wrote:
+> > OK, although we can't rule out sky2/netfilter from the enquiry, I've
+> > identified two bugs in ppp/pppoe that may be responsible for what you
+> > are seeing.  So please try the following patch and let us know if the
+> > problem still exists (or deteriorates/improves).
+> Borrowing this thread for a related problem, I'm getting lots of those on a
+> bridge device (this one running skge, rmmod skge; modprobe sk98lin actually
+> seemed to do it too, I've disabled rx checksums with ethtool for now). 
+> Kernel is a 2.6.15.1-ish Fedora one.
 
-Single non-fatal errors just show your system recovers correctly.
-
-Multiple (e.g. noisy) non-fatal are either an indication of a serious 
-problem
-  (e.g. after how many corrected ECC errors on the same address in which
-    time interval will you replace your dimm? How many S-ATA CRC-errors
-     will indicate marginal bad cabling? )
-or it shows the problem needs to be root analyzed. But don't disable the
-messages as this will only hide the real problem.
-
-Concerning Non-Fatal PCI Express errors, the error cause registers need
-to be printed in case of error, too (see Intel Chipset Specifications)
-
--
-Gunther
-
-
+Okay, what is the hardware version:
+	dmesg | grep skge
+Maybe that chip rev is no good.

@@ -1,103 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWAaJZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWAaJbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWAaJZH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 04:25:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbWAaJZH
+	id S1750729AbWAaJbg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 04:31:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWAaJbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 04:25:07 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:44227 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1750725AbWAaJZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 04:25:05 -0500
-Date: Tue, 31 Jan 2006 10:24:47 +0100
-From: Harald Welte <laforge@netfilter.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Reuben Farrelly <reuben-lkml@reub.net>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       Linux Netdev List <netdev@vger.kernel.org>
-Subject: ip_conntrack related slab error (Re: Fw: Re: 2.6.16-rc1-mm3)
-Message-ID: <20060131092447.GL4603@sunbeam.de.gnumonks.org>
-References: <20060130221429.5f12d947.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KyQYs6ZyN5PqqdMo"
-Content-Disposition: inline
-In-Reply-To: <20060130221429.5f12d947.akpm@osdl.org>
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.0 (/)
+	Tue, 31 Jan 2006 04:31:36 -0500
+Received: from s0003.shadowconnect.net ([213.239.201.226]:4760 "EHLO
+	mail.shadowconnect.com") by vger.kernel.org with ESMTP
+	id S1750729AbWAaJbf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 04:31:35 -0500
+Message-ID: <43DF2E85.4000200@shadowconnect.com>
+Date: Tue, 31 Jan 2006 10:31:49 +0100
+From: Markus Lidel <Markus.Lidel@shadowconnect.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PCI layer: Need for enable/disable counting (was  disable PCI
+ device if it is enabled	before probing)
+References: <43D566DB.2010103@shadowconnect.com>	 <1138645069.31089.79.camel@localhost.localdomain>	 <43DE6A06.9030707@shadowconnect.com> <1138662069.31089.89.camel@localhost.localdomain>
+In-Reply-To: <1138662069.31089.89.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---KyQYs6ZyN5PqqdMo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Alan Cox wrote:
+> On Llu, 2006-01-30 at 20:33 +0100, Markus Lidel wrote:
+>> I've searched for a function enabled() or so, but didn't find anything. 
+>> Could you tell me the right way to do it normally?
+> Right now there isn't one. I've hit this problem with the new libata
 
-> Begin forwarded message:
->=20
-> Date: Sat, 28 Jan 2006 00:47:06 +1300
-> From: Reuben Farrelly <reuben-lkml@reub.net>
-> To: Andrew Morton <akpm@osdl.org>
-> Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-> Subject: Re: 2.6.16-rc1-mm3
->=20
-> Just triggered this one, which had a fairly bad effect on connectivity to=
- the box:
->=20
-> i2c /dev entries driver
-> slab error in kmem_cache_destroy(): cache `ip_conntrack': Can't free all =
-objects
->   [<b010412b>] show_trace+0xd/0xf
->   [<b01041cc>] dump_stack+0x17/0x19
->   [<b0155d04>] kmem_cache_destroy+0x9b/0x1a9
->   [<f0ebf701>] ip_conntrack_cleanup+0x5d/0x10e [ip_conntrack]
->   [<f0ebe31e>] init_or_cleanup+0x1f8/0x283 [ip_conntrack]
->   [<f0ec2c4e>] fini+0xa/0x66 [ip_conntrack]
->   [<b0136d06>] sys_delete_module+0x161/0x1fb
->   [<b0102b3f>] sysenter_past_esp+0x54/0x75
-> Removing netfilter NETLINK layer.
-> [root@tornado log]#
->=20
-> I was just reading IMAP mail at the time, ie same as I'd been doing for a=
-n hour=20
-> or two beforehand and not altering config of the box in any way.  I was a=
-ble to=20
-> log on via console but lost all network connectivity and had to reboot :(
+OK, at least i haven't overseen something :-D
 
-The codepath you see in that backtrace is only hit during load or
-removal of the 'ip_conntrack' module.  While this certainly still should
-not oops, your description of 'not doing anything but IMAP reading' is
-certainly not true. =20
+> layer stuff having successfully disabled my root pci bridge on unload at
+> least once.
 
-Could you please describe what actually happened when that bug happened?
-It looks to me that you were unloading ip_conntrack_netlink.ko followed
-by ip_conntrack.ko.
+Hmmm, think this is something everyone could use...
 
-> Generic details such as .config is at http://www.reub.net/files/kernel/
+> Would be easy to add one but I suspect it should be rcounted so that
+> enable/disable just stack naturally ?
 
-You don't have permission to access /files/kernel/ on this server.
+Sounds great to me... So the verification if the device is enabled before 
+could be completely removed from my and probably others code...
 
---=20
-- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
+> What do people want from such an interface and should it also start boot
+> enabled devices at a count of 1 or just the bridges/video class
+> devices ?
 
---KyQYs6ZyN5PqqdMo
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Hmmm, i don't know what happens if a boot enabled device is disabled, but 
+from my point of view i would start at 1 :-D
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+Probably also the probing function could also enable the device, so the 
+subsystems don't have to do it on there own? But because i don't know PCI 
+stuff very well i don't know if this makes sense at all...
 
-iD8DBQFD3yzfXaXGVTD0i/8RAmflAJ9l3V8XDCJrU6RvE4BR+YQno3ZMEgCfdwk9
-b8RXGYdF6vLGOhMHn1r9pT0=
-=zGaL
------END PGP SIGNATURE-----
+Thank you very much!
 
---KyQYs6ZyN5PqqdMo--
+
+Best regards,
+
+
+Markus Lidel
+------------------------------------------
+Markus Lidel (Senior IT Consultant)
+
+Shadow Connect GmbH
+Carl-Reisch-Weg 12
+D-86381 Krumbach
+Germany
+
+Phone:  +49 82 82/99 51-0
+Fax:    +49 82 82/99 51-11
+
+E-Mail: Markus.Lidel@shadowconnect.com
+URL:    http://www.shadowconnect.com

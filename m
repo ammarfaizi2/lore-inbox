@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751507AbWAaVaQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751506AbWAaVaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751507AbWAaVaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 16:30:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWAaVaQ
+	id S1751506AbWAaVaH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 16:30:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWAaVaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 16:30:16 -0500
-Received: from mail.suse.de ([195.135.220.2]:39873 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751507AbWAaVaP (ORCPT
+	Tue, 31 Jan 2006 16:30:07 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62890 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751506AbWAaVaG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 16:30:15 -0500
-Date: Tue, 31 Jan 2006 22:30:09 +0100
-From: Olaf Hering <olh@suse.de>
-To: Stefan Kaltenbrunner <mm-mailinglist@madness.at>
-Cc: Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-kernel@vger.kernel.org
-Subject: Re: qla2xxx related oops in 2.6.16-rc1
-Message-ID: <20060131213009.GA27795@suse.de>
-References: <43DA580E.3020100@madness.at> <20060130153435.GC1160@andrew-vasquezs-powerbook-g4-15.local> <20060131100710.GA3039@suse.de> <43DFD542.7090508@madness.at>
+	Tue, 31 Jan 2006 16:30:06 -0500
+Date: Tue, 31 Jan 2006 22:29:53 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: seife@suse.de, Nigel Cunningham <nigel@suspend2.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC/RFT] finally solve "swsusp fails with mysqld" problem
+Message-ID: <20060131212953.GA2018@elf.ucw.cz>
+References: <20060126034518.3178.55397.stgit@localhost.localdomain> <200601310102.00646.rjw@sisk.pl> <20060131092726.GA2718@elf.ucw.cz> <200601311717.56918.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43DFD542.7090508@madness.at>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <200601311717.56918.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Tue, Jan 31, Stefan Kaltenbrunner wrote:
+Hi!
 
-> After applying Andrews patches I have so far failed to reproduce the
-> issue again - but I'm not really convinced that it is really gone now
-> since I could not trigger it very reliably before too ...
+> > Place refrigerator hook at more clever place; avoids "system can't be
+> > suspended while mysqld running" problem.
+> > 
+> > I'd like you to test it. It looks correct to me, and it is actually a
+> > solution, not a workaround like my previous tries. It still does not
+> > solve suspend while running stress tests.
+> 
+> Which kernel is it against?  It does not apply to the recent -mm ...
 
-I hit that several times, and will track it down once my memcorruption
-bug is sorted out.
+Against vanilla -- but it should be easy to make it work against -mm.
 
+								Pavel
 -- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+Thanks, Sharp!

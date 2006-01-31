@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751682AbWAaWXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751562AbWAaWZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751682AbWAaWXM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 17:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751688AbWAaWXM
+	id S1751562AbWAaWZI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 17:25:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751688AbWAaWZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 17:23:12 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:28625 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751682AbWAaWXL (ORCPT
+	Tue, 31 Jan 2006 17:25:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:20135 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751564AbWAaWZG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 17:23:11 -0500
-Date: Tue, 31 Jan 2006 17:23:05 -0500
-From: Dave Jones <davej@redhat.com>
-To: Larry Finger <Larry.Finger@lwfinger.net>
+	Tue, 31 Jan 2006 17:25:06 -0500
+Date: Tue, 31 Jan 2006 14:27:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Jan Beulich" <JBeulich@novell.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix compile error in latest git pull - post 2.6.16-rc1-git4
-Message-ID: <20060131222305.GE29937@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Larry Finger <Larry.Finger@lwfinger.net>,
-	linux-kernel@vger.kernel.org
-References: <43DFBA93.3090103@lwfinger.net>
+Subject: Re: [PATCH] tvec_bases too large for per-cpu data
+Message-Id: <20060131142708.2b995f7c.akpm@osdl.org>
+In-Reply-To: <43DDDFDD.76F0.0078.0@novell.com>
+References: <43CE4C98.76F0.0078.0@novell.com>
+	<20060120232500.07f0803a.akpm@osdl.org>
+	<43D4BE7F.76F0.0078.0@novell.com>
+	<20060123025702.1f116e70.akpm@osdl.org>
+	<43DDDFDD.76F0.0078.0@novell.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43DFBA93.3090103@lwfinger.net>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 31, 2006 at 01:29:23PM -0600, Larry Finger wrote:
- > After doing a git pull from linux/kernel/git/torvalds/linux-2.6.git, I get 
- > the following compiler error:
- > 
- >   CC      net/ipv4/igmp.o
- > net/ipv4/igmp.c: In function ‘igmp_rcv’:
- > net/ipv4/igmp.c:973: error: label at end of compound statement
- > 
- > Using git bisect, the patch that introduces this error is:
- > 
- >  c5d90e000437a463440c1fe039011a02583a9ee5 is first bad commit
- > diff-tree c5d90e000437a463440c1fe039011a02583a9ee5 (from 
- > e2c2fc2c8f3750e1f7ffbb3ac2b885a49416110c)
- > Author: Dave Jones <davej@redhat.com>
- > Date:   Mon Jan 30 20:27:17 2006 -0800
- > 
- >     [IPV4] igmp: remove pointless printk
- > 
- >     This is easily triggerable by sending bogus packets,
- >     allowing a malicious user to flood remote logs.
- > 
- >     Signed-off-by: Dave Jones <davej@redhat.com>
- >     Signed-off-by: David S. Miller <davem@davemloft.net>
- > 
- > 
- > I suspect this error arises due to differences between gcc 4.0.2 and 
- > earlier releases. The patch is as follows:
+"Jan Beulich" <JBeulich@novell.com> wrote:
+>
+> Hopefully attached revised patch addresses all concerns mentioned (except that it intentionally continues to not use
+> alloc_percpu()).
 
-Looks good.
+This remains unaddressed:
 
-Signed-off-by: Dave Jones <davej@redhat.com>
 
-		Dave
++#ifdef CONFIG_NUMA
++			base = kmalloc_node(sizeof(*base), GFP_KERNEL, cpu_to_node(cpu));
++			if (!base)
++				/* Just in case, fall back to normal allocation. */
++#endif
++				base = kmalloc(sizeof(*base), GFP_KERNEL);
++			if (!base)
++				return -ENOMEM;
+
+
+If we cannot allocate memory on this node for this CPU (wildly unlikely,
+btw) we face a choice.  Either
+
+a) Allocate memory from some other node, making the machine mysteriously
+   run slower for the remainder of its uptime or
+
+b) Fail the CPU bringup.
+
+I think b) is better - it tells the operator that something went wrong, so
+some sort of corrective action can be taken.  I suspect that most operators
+would prefer that to having the kernel secretly make their machine run
+slower.
+

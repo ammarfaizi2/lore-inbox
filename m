@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbWAaDeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbWAaDk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030314AbWAaDeX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 22:34:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbWAaDeX
+	id S1030279AbWAaDk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 22:40:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030304AbWAaDk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 22:34:23 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:58205 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030304AbWAaDeX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 22:34:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=c2wubbnEZL7RHAGDOSadBii94J3XBWdOIMKa8Rkn+XV4noro40JTcej4+Jbz/SKz5nR+CmBFtqI2zqpLaYizzjh4kZ+SWFPEe8R7xMccJysLIoGrVhjaPClTwXgRZ9AwWnLVgBvb+arv25V5s7G+/xhUvbZ+j+9mmtVa2sOtucA=
-Message-ID: <29495f1d0601301934x1f4b7925w19261f457117637a@mail.gmail.com>
-Date: Mon, 30 Jan 2006 19:34:21 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: "L. A. Walsh" <lkml@tlinx.org>
-Subject: Re: i386 requires x86_64?
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43DED532.5060407@tlinx.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 30 Jan 2006 22:40:28 -0500
+Received: from spooner.celestial.com ([192.136.111.35]:47583 "EHLO
+	spooner.celestial.com") by vger.kernel.org with ESMTP
+	id S1030279AbWAaDk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 22:40:27 -0500
+Date: Mon, 30 Jan 2006 22:46:34 -0500
+From: Kurt Wall <kwall@kurtwerks.com>
+To: LKML <linux-kernel@vger.kernel.org>, viro@zeniv.linux.org.uk
+Subject: Fix "make mandocs" for fs/inode.c
+Message-ID: <20060131034634.GT1501@kurtwerks.com>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>,
+	viro@zeniv.linux.org.uk
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <43DED532.5060407@tlinx.org>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.16-rc1krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/30/06, L. A. Walsh <lkml@tlinx.org> wrote:
-> Generating a new kernel and wanted to delete the unrelated architectures.
->
-> Is the i386 supposed to depend on the the x86_64 architecture?
->
-> In file included from arch/i386/kernel/acpi/earlyquirk.c:8:
-> include/asm/pci-direct.h:1:35: asm-x86_64/pci-direct.h: No such file or
-> directory
+"make mandocs" complains on fs/inode.c because touch_atime() has an undescribed paramter. This patch silences the complaint by describing the param. Also update the kernel-doc entry to reflect dentry usage over raw inode access.
 
-You didn't say which kernel, but it looks like you didn't do a make
-clean/mrproper before trying to build just an i386 kernel? Did you
-build an x86_64 kernel at some point from the same tree?
+Signed-off-by: Kurt Wall <kwall@kurtwerks.com>
 
-I think that include/asm is pointing to asm-x86_64, which, if you
-removed it, is why the compiler can't find said file.
 
-Thanks,
-Nish
+--- ./linux-2.6.16-rc1/fs/inode.c.orig	2006-01-21 09:30:59.000000000 -0500
++++ ./linux-2.6.16-rc1/fs/inode.c	2006-01-30 22:45:38.000000000 -0500
+@@ -1179,7 +1179,7 @@
+ /**
+  *	touch_atime	-	update the access time
+  *	@mnt: mount the inode is accessed on
+- *	@inode: inode accessed
++ *	@dentry: dentry containing the inode to update
+  *
+  *	Update the accessed time on an inode and mark it for writeback.
+  *	This function automatically handles read only file systems and media,
+-- 
+Tact, n.:
+	The unsaid part of what you're thinking.

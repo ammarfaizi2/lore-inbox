@@ -1,80 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWAaPDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWAaPEQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbWAaPDh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 10:03:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWAaPDh
+	id S1750880AbWAaPEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 10:04:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750877AbWAaPEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 10:03:37 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:63121 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750872AbWAaPDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 10:03:36 -0500
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Kirill Korotaev <dev@sw.ru>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Jeff Dike <jdike@addtoit.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2/3] pidhash: don't use zero pids
-References: <43DDF323.4517C349@tv-sign.ru>
-	<m1r76p5u7m.fsf@ebiederm.dsl.xmission.com> <43DEFFB7.6010404@sw.ru>
-	<43DF3BB7.B423AC08@tv-sign.ru>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Tue, 31 Jan 2006 08:02:12 -0700
-In-Reply-To: <43DF3BB7.B423AC08@tv-sign.ru> (Oleg Nesterov's message of
- "Tue, 31 Jan 2006 13:28:07 +0300")
-Message-ID: <m1lkww4f0r.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 31 Jan 2006 10:04:16 -0500
+Received: from lug-owl.de ([195.71.106.12]:47547 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1750873AbWAaPEP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 10:04:15 -0500
+Date: Tue, 31 Jan 2006 16:04:13 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Russell King <rmk@arm.linux.org.uk>,
+       John Lenz <lenz@cs.wisc.edu>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, dirk@opfer-online.de,
+       jbowler@acm.org
+Subject: Re: [PATCH 0/11] LED Class, Triggers and Drivers
+Message-ID: <20060131150413.GY18336@lug-owl.de>
+Mail-Followup-To: Richard Purdie <rpurdie@rpsys.net>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Russell King <rmk@arm.linux.org.uk>, John Lenz <lenz@cs.wisc.edu>,
+	Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+	tglx@linutronix.de, dirk@opfer-online.de, jbowler@acm.org
+References: <1138714882.6869.123.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uAPpM8TI9SUHvGJT"
+Content-Disposition: inline
+In-Reply-To: <1138714882.6869.123.camel@localhost.localdomain>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> writes:
 
-> Hello Kirill,
->
-> Kirill Korotaev wrote:
->> 
->> Hello Oleg,
->> 
->> I had quite the same comment, but had no time to check it.
->> I can't understand what problem do you solve, or just making code
->> cleaner (from your point of view)?
->
-> Please look at http://marc.theaimsgroup.com/?t=113851660700001
->
->> For me it was quite natural that pid=0 is used by idle, and I'm very
->> suspicuos about such changes.
->
-> This patch does not change idle's pid, it is still 0. It changes ->pgrp
-> and ->session only from 0 to 1. Currently kernel threads run with 0,0
-> unless they call daemonize() which does set_special_pids(1, 1).
+--uAPpM8TI9SUHvGJT
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Tue, 2006-01-31 13:41:22 +0000, Richard Purdie <rpurdie@rpsys.net> wrote:
+> This is an updated version of the LED class/subsystem I proposed a while
+> ago. It takes John Lenz's work and extends and alters it to give what I
+> think should be a fairly universal LED implementation.
 
-daemonize consuming pids (1,1) then consumes pgrp 1.  So that when
-/sbin/init calls setsid() it thinks /sbin/init is a process group
-leader and setsid() fails.  So /sbin/init wants pgrp 1 session 1
-but doesn't get it.  I am pretty certain daemonize did not exist so
-/sbin/init got pgrp 1 session 1 in 2.4.
+I'd abandon my own LED implementation I wrote for the status LEDs of
+some VAXen, though it cannot substitute it fully (eg. there are some
+7-segment displays using bitmasks _or_ 0x00..0x0f for the bars) once
+some small tweaks are done (which I just sent with the other emails.)
 
-That is the bug that is being fixed.
+MfG, JBG
 
-This patch takes things one step farther and essentially calls
-setsid() for pid == 1 before init is execed.  That is new behavior
-but it cleans up the kernel as we now do not need to support the
-case of a process without a process group or a session.
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
 
-The only process that could have possibly cared was /sbin/init
-and it already calls setsid() because it doesn't want that.
+--uAPpM8TI9SUHvGJT
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-If this was going to break anything noticeable the change in behavior
-from 2.4 to 2.6 would have already done that.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-Hopefully that is sufficiently comprehensible to everyone.
+iD8DBQFD33xtHb1edYOZ4bsRAv+KAJ0dUcrTVcfdtnYaFNINrfWuRDg8pwCfb/uR
+d7GhmlXcOwONan/TeMEwzHk=
+=TUL3
+-----END PGP SIGNATURE-----
 
-Eric
-
-
-
-
-
-
+--uAPpM8TI9SUHvGJT--

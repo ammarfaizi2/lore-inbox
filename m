@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030343AbWAaGcH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWAaGjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030343AbWAaGcH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 01:32:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWAaGcH
+	id S932340AbWAaGjq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 01:39:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWAaGjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 01:32:07 -0500
-Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:55699 "HELO
-	smtp111.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932276AbWAaGcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 01:32:05 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Ben Collins <bcollins@ubuntu.com>
-Subject: Re: [PATCH 2.6.15/2.6.16-git] Fix off-by-one for num_values =?utf-8?q?in=09uref=5Fmulti?= requests
-Date: Tue, 31 Jan 2006 01:32:02 -0500
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       vojtech@suse.cz
-References: <1138638276.4456.121.camel@grayson>
-In-Reply-To: <1138638276.4456.121.camel@grayson>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Tue, 31 Jan 2006 01:39:46 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:28889 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932340AbWAaGjq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 01:39:46 -0500
+Date: Tue, 31 Jan 2006 01:39:39 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: more cfq spinlock badness
+Message-ID: <20060131063938.GA1876@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601310132.02803.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 January 2006 11:24, Ben Collins wrote:
-> Found this when working with a HAPP UGCI device. It has a usage with 7
-> indexes. I could read them all one at a time, but using a multiref it
-> would only allow me to read the first 6. The patch below fixed it.
-> 
-> Signed-off-by: Ben Collins <bcollins@ubuntu.com>
->
+Not seen this break for a while, but I just hit it again in 2.6.16rc1-git4.
 
-I applied this to the input tree, thanks!
+		Dave
 
-> --- a/drivers/usb/input/hiddev.c
-> +++ b/drivers/usb/input/hiddev.c
-> @@ -632,7 +632,7 @@ static int hiddev_ioctl(struct inode *in
->  
->  			else if ((cmd == HIDIOCGUSAGES || cmd == HIDIOCSUSAGES) &&
->  				 (uref_multi->num_values > HID_MAX_MULTI_USAGES ||
-> -				  uref->usage_index + uref_multi->num_values >= field->report_count))
-> +				  uref->usage_index + uref_multi->num_values > field->report_count))
->  				goto inval;
->  			}
->  
-> 
+BUG: spinlock bad magic on CPU#0, pdflush/1128
+ lock: ffff81003a219000, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
 
--- 
-Dmitry
+Call Trace: <ffffffff80206edc>{spin_bug+177} <ffffffff80207045>{_raw_spin_lock+25}
+       <ffffffff801fea4a>{cfq_exit_single_io_context+85} <ffffffff801ff9a6>{cfq_exit_io_context+24}
+       <ffffffff801f79b0>{exit_io_context+137} <ffffffff80135fbc>{do_exit+182}
+       <ffffffff8010ba49>{child_rip+15} <ffffffff80146087>{keventd_create_kthread+0}
+       <ffffffff8014629c>{kthread+0} <ffffffff8010ba3a>{child_rip+0}
+Kernel panic - not syncing: bad locking
+
+

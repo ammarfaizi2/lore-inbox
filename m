@@ -1,139 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWAaKbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWAaKer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWAaKbm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 05:31:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWAaKbl
+	id S1750707AbWAaKer (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 05:34:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWAaKer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 05:31:41 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:54001 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1750736AbWAaKbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 05:31:41 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 31 Jan 2006 11:30:18 +0100
-To: schilling@fokus.fraunhofer.de, j@bitron.ch
-Cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de, James@superbug.co.uk, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43DF3C3A.nail2RF112LAB@burner>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
- <43D7A7F4.nailDE92K7TJI@burner>
- <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
- <43D7B1E7.nailDFJ9MUZ5G@burner>
- <20060125230850.GA2137@merlin.emma.line.org>
- <43D8C04F.nailE1C2X9KNC@burner> <200  <43DDFBFF.nail16Z3N3C0M@burner>
- <1138642683.7404.31.camel@juerg-pd.bitron.ch>
-In-Reply-To: <1138642683.7404.31.camel@juerg-pd.bitron.ch>
-User-Agent: nail 11.2 8/15/04
+	Tue, 31 Jan 2006 05:34:47 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:60808 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1750707AbWAaKeq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 05:34:46 -0500
+Message-ID: <43DF3D0D.6080409@cosmosbay.com>
+Date: Tue, 31 Jan 2006 11:33:49 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+To: dipankar@in.ibm.com
+CC: Andrew Morton <akpm@osdl.org>, paulmck@us.ibm.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk,
+       nickpiggin@yahoo.com.au, hch@infradead.org
+Subject: Re: [patch 2/2] fix file counting
+References: <20060126184010.GD4166@in.ibm.com> <20060126184127.GE4166@in.ibm.com> <20060126184233.GF4166@in.ibm.com> <43D92DD6.6090607@cosmosbay.com> <20060127145412.7d23e004.akpm@osdl.org> <20060127231420.GA10075@us.ibm.com> <20060127152857.32066a69.akpm@osdl.org> <20060130170028.GA6264@in.ibm.com>
+In-Reply-To: <20060130170028.GA6264@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Tue, 31 Jan 2006 11:33:52 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jürg Billeter <j@bitron.ch> wrote:
+Dipankar Sarma a écrit :
+> On Fri, Jan 27, 2006 at 03:28:57PM -0800, Andrew Morton wrote:
+>> "Paul E. McKenney" <paulmck@us.ibm.com> wrote:
+>>>>> I am using a patch that seems sligthly better : It removes the filp_count_lock 
+>>>>> as yours but introduces a percpu variable, and a lazy nr_files . (Its value 
+>>>>> can be off with a delta of +/- 16*num_possible_cpus()
+>>>> Yes, I think that is better.
+>>> I agree that Eric's approach likely improves performance on large systems
+>>> due to decreased cache thrashing.  However, the real problem is getting
+>>> both good throughput and good latency in RCU callback processing, given
+>>> Lee Revell's latency testing results.  Once we get that in hand, then
+>>> we should consider Eric's approach.
+>> Dipankar's patch risks worsening large-SMP scalability, doesn't it? 
+>> Putting an atomic op into the file_free path?
+> 
+> Here are some numbers from a 32-way (HT) P4 xeon box with kernbench -
+> 
 
-> Hi JÃ¶rg
->
-> On Mon, 2006-01-30 at 12:43 +0100, Joerg Schilling wrote:
-> > > Hm, this ATAPI stuff makes me a headache. Well, anyway, out of 
-> > > curiosity, what is an ATAPI drive (IDE-ATAPI) supposed to return when asked 
-> > > for bus number, id or lun - independent of OS and/or cdrecord?
-> > 
-> > The drive does not return this information, but the SCSI subsystem creates
-> > these instance numbers. A SCSI drive (like a CD/DVD burner) is supposed to
-> > be known to the SCSI sub-system and thus needs to have a SCSI subsystem
-> > related instance number.
->
-> Whenever someone talks about ATAPI drives, you respond with
-> s/ATAPI/SCSI/. Why do you insist that every transport should be used as
-> it was a SCSI bus? ATAPI drives use the same SCSI command set as SCSI
-> drives do, but that won't change the fact that ATAPI drives are not
-> connected to a SCSI bus.
+Hi Dipankar, thank you very much for doing these tests.
 
-Well, this is simple: it is SCSI.
+To have an idea of the number of files that are allocated/freed during a 
+kernel build, I added 4 fields in struct files_stat.
 
-When SCSI started from modifying the SASI (Shugart Asociated System Interface)
-system around 1984 and at that time come with it's own transport only
-(a 50 wire cable), this did change soon (around 1986) by introducing
-transports that use one or two 68 wire cable(s) (16 resp. 32 Bit SCSI).
+4th field is the central atomic_t nr_files.
+5th field is the counter of allocated files.
+6th field is the counter of freed files.
+7th field is the counter of changes done on central atomic_t.
 
-Around 1990, even this did change while ATAPI (ATA Packet Interface) was
-introduced. 
+(Test machine is a dual Xeon HT, 2 GHz)
+# make clean
+# cat /proc/sys/fs/file-nr
+119     0       206071  119     39169   39022   1131
+[root@localhost linux-2.6.16-rc1-mm4]# time make -j4 bzImage
+798.49user 82.36system 4:56.56elapsed 297%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (62major+7223263minor)pagefaults 0swaps
 
-Around 1995, the T10 standard group (SCSI) did split up the SCSI standard
-into a transport specific part and a protocol specific part. SCSI is now using
-many different transport mechanisms.
+# cat /proc/sys/fs/file-nr
+153     0       206071  153     755767  755620  5119
 
-This is a list of some known SCSI transports: 
- 
-	-	Good old Parallel SCSI 50/68 pin (what most people call SCSI) 
-	-	SCSI over fiber optics (e.g. FACL - there are others too) 
-	-	SCSI over a copper variant of FCAL (used in modern servers) 
-	-	SCSI over IEEE 1394 (Fire Wire) 
-	-	SCSI over USB 
-	-	SCSI over IDE/ATA (ATAPI) 
-	-	SCSI over TCI/IP (iSCSI)
-	-	SCSI over SSCSI (see below)
+So thats (755767-39169)/(4*60+56) = 2420 files opened per second.
 
-SCSI over Serial SCSI cabling uses the same transport (cable type) as SATA uses.
-If you buy a SATA HBA card for your PC, you may connect SSCSI & SATA
-disks to this HBA using the same cables and connectors.
-
-So the circle is closing again....
+Number of changes on central atomic_t was :
+(5119-1131)/(4*60+56) = 13 per second.
 
 
-> It makes sense to address parallel SCSI devices via target id. If an
-> operating system likes to simulate virtual SCSI buses for other bus
-> types as well, ok, I have no objections. But if the operating system
-> doesn't like to simulate virtual SCSI buses and allows applications to
-> address devices by a filename, you should have no objections, too.
+13 atomic ops per second (instead of 2420*2 per second if I had one atomic_t 
+as in your patch), this is certainly not something we can notice in a typical 
+SMP machine... maybe on a big NUMA machine it could be different ?
 
-It seems that you missunderstand this. No operating system uses file names
-internally. OS instead typically handle SCSI devices that are not connected
-via an arbitraring Bus like the "Good old Parallel SCSI 50/68 pin" system
-by asuming they are all on separate SCSI busses that only have one single drive 
-conected each.
-
-What Linux does is to artificially prevent this view to been seen from outside the
-Linux kernel, or to avoid integrating a particular device into a unique SCSI
-driver system although it would be apropriate.
-
-Users like to be able to get a list of posible targets for a single protocol.
-Nobody would ever think about trying to prevent people from getting a unified
-view on the list possible hosts that talk TCP/IP. What cdrecord does with
--scanbus is nothing really different. 
-
-In addition, nobody would ever think about implementing a separate TCP/IP stack 
-for network interfaces that are PPP connections via a modem vs. network 
-interfaces that go via a Ethernet adaptor. Nobody would ever try to convince
-me that you could save code in the kernel by avoiding the usual network stack 
-as a specific machine may not have Ethernet but a Modem connection only.
-
-So why do people try to convince me that there is a need to avoid the standard 
-SCSI protocol stack because a PC might have only ATAPI? 
-
-Major OS implementations use a unique view on SCSI (MS-win [*], FreeBSD, Solaris, 
-...). Why do people believe that Linux needs to be different? What does it buy 
-you to go this way?
-
-
-*] MS-WIN-NT even includes SCSI emulation (it allows you to connect to the
-SCSI subsystem, set the Address and use SCSI commands from a limited list
-to read/write sector from ATA only hard disks).
-
-If the Linux folks could give technical based explanations for the questions 
-from above and if they would create a new completely orthogonal view on SCSI [*]
-I had no problem. But up to now, the only answer was: "We do it this 
-way because we do it this way". 
-
-*] Note that this would need to implement SCSI Generic support for drives that
-have no native driver in the system.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Eric

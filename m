@@ -1,69 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030284AbWAaDOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030274AbWAaDKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030284AbWAaDOX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 22:14:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbWAaDOX
+	id S1030274AbWAaDKo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 22:10:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030280AbWAaDKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 22:14:23 -0500
-Received: from spooner.celestial.com ([192.136.111.35]:22751 "EHLO
-	spooner.celestial.com") by vger.kernel.org with ESMTP
-	id S1030281AbWAaDOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 22:14:22 -0500
-Date: Mon, 30 Jan 2006 22:20:29 -0500
-From: Kurt Wall <kwall@kurtwerks.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: jgarzik@pobox.com, linux-ide@vger.kernel.org
-Subject: Fix make mandocs for libata-core.c
-Message-ID: <20060131032029.GO1501@kurtwerks.com>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>,
-	jgarzik@pobox.com, linux-ide@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Operating-System: Linux 2.6.16-rc1krw
-X-Woot: Woot!
+	Mon, 30 Jan 2006 22:10:44 -0500
+Received: from ishtar.tlinx.org ([64.81.245.74]:31128 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S1030274AbWAaDKn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 22:10:43 -0500
+Message-ID: <43DED532.5060407@tlinx.org>
+Date: Mon, 30 Jan 2006 19:10:42 -0800
+From: "L. A. Walsh" <lkml@tlinx.org>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: i386 requires x86_64?
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"make mandocs" complains when on libata-core.c because several
-functions have undescribed parameters. This patch adds silences those
-warnings by adding descriptions for the undescribed parameters.
+Generating a new kernel and wanted to delete the unrelated architectures.
 
-Signed-off-by: Kurt Wall <kwall@kurtwerks.com>
+Is the i386 supposed to depend on the the x86_64 architecture?
 
+In file included from arch/i386/kernel/acpi/earlyquirk.c:8:
+include/asm/pci-direct.h:1:35: asm-x86_64/pci-direct.h: No such file or 
+directory
+arch/i386/kernel/acpi/earlyquirk.c: In function `check_acpi_pci':
+arch/i386/kernel/acpi/earlyquirk.c:34: warning: implicit declaration of 
+function `read_pci_config'
+make[2]: *** [arch/i386/kernel/acpi/earlyquirk.o] Error 1
+make[1]: *** [arch/i386/kernel/acpi] Error 2
+make: *** [arch/i386/kernel] Error 2
+make: *** Waiting for unfinished jobs....
 
---- ./linux-2.6.16-rc1/drivers/scsi/libata-core.c.orig	2006-01-21 09:30:59.000000000 -0500
-+++ ./linux-2.6.16-rc1/drivers/scsi/libata-core.c	2006-01-30 22:18:32.000000000 -0500
-@@ -4163,6 +4163,8 @@
- /**
-  *	ata_port_start - Set port up for dma.
-  *	@ap: Port to initialize
-+ *  @dev: Device whose port will be prepared for DMA
-+ *  @cmd: Command to issue
-  *
-  *	Called just after data structures for each port are
-  *	initialized.  Allocates space for PRD table.
-@@ -4224,6 +4226,8 @@
- 
- /**
-  *	ata_device_resume - wakeup a previously suspended devices
-+ *  @ap: port to which command is being issued
-+ *  @dev: device to wake up from suspended state
-  *
-  *	Kick the drive back into action, by sending it an idle immediate
-  *	command and making sure its transfer mode matches between drive
-@@ -4246,6 +4250,8 @@
- 
- /**
-  *	ata_device_suspend - prepare a device for suspend
-+ *  @ap: port to wich command is being issued
-+ *  @dev: device to prepare for suspend
-  *
-  *	Flush the cache on the drive, if appropriate, then issue a
-  *	standbynow command.
--- 
-Critic, n.:
-	A person who boasts himself hard to please because nobody tries
-to please him.
-		-- Ambrose Bierce, "The Devil's Dictionary"
+I'm generating for a pentium-3 based computer.  Should that
+include x86_64 bits?
+
+Thanks,
+Linda

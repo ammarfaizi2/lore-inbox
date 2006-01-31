@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbWAaPd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750956AbWAaPfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750970AbWAaPd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 10:33:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbWAaPd0
+	id S1750956AbWAaPfE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 10:35:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750986AbWAaPfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 10:33:26 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:56802 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1750956AbWAaPd0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 10:33:26 -0500
-Message-ID: <43DF8349.9070908@drzeus.cx>
-Date: Tue, 31 Jan 2006 16:33:29 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5 (X11/20060128)
+	Tue, 31 Jan 2006 10:35:04 -0500
+Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:16320 "EHLO
+	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750956AbWAaPfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 10:35:01 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Beber <beber.lkml@gmail.com>
+Subject: Re: 2.6.15-ck3
+Date: Wed, 1 Feb 2006 02:34:54 +1100
+User-Agent: KMail/1.9
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck list <ck@vds.kolivas.org>
+References: <200601312319.20403.kernel@kolivas.org> <4615f4910601310732u79bd1427o9e34ced7baf860c8@mail.gmail.com>
+In-Reply-To: <4615f4910601310732u79bd1427o9e34ced7baf860c8@mail.gmail.com>
 MIME-Version: 1.0
-To: Richard Purdie <rpurdie@rpsys.net>
-CC: LKML <linux-kernel@vger.kernel.org>, Russell King <rmk@arm.linux.org.uk>,
-       John Lenz <lenz@cs.wisc.edu>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, dirk@opfer-online.de,
-       jbowler@acm.org
-Subject: Re: [PATCH 0/11] LED Class, Triggers and Drivers
-References: <1138714882.6869.123.camel@localhost.localdomain>
-In-Reply-To: <1138714882.6869.123.camel@localhost.localdomain>
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602010234.54317.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Purdie wrote:
-> 
-> Future Development
-> ==================
+On Wednesday 01 February 2006 02:32, Beber wrote:
+> Hi,
+>
+> A chance to have linux-ck under git ?
 
-A MMC trigger in the pipeline? My new SDHCI MMC driver can be built as a
-LED device, but it should probably be mapped to MMC activity by default.
+No, sorry. A series of patches that remain a series of patches from one 
+version to the next is much easier and simpler for me to maintain as a quilt 
+series (http://savannah.nongnu.org/projects/quilt). The closest I come to 
+automation is support for 'ketchup'.
 
-Rgds
-Pierre
-
+Cheers,
+Con

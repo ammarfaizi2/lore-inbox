@@ -1,61 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbWAaBnu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWAaBpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030261AbWAaBnu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 20:43:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbWAaBnu
+	id S932289AbWAaBpR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 20:45:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWAaBpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 20:43:50 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:5298 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030261AbWAaBnt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 20:43:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=AU69ljPtfKKzWMSh1c+ZT8elmf7h6DUJy+GAZosTvcoxEUGNYJE6USZoMD7Mc5faaMMBQNLgpkiTvkkP9jOQiJwIhY5rhfAo0CHz82aUxG4rVTMbkRiZHR0w89HTASBsDm/38LTz5F4g21VJg/q9H4Sq/nNkiTmq8A168hQD3cc=
-From: Patrick McFarland <diablod3@gmail.com>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future Linux (stirring up a hornets' nest) ]
-Date: Mon, 30 Jan 2006 20:43:55 -0500
-User-Agent: KMail/1.9.1
-Cc: bzolnier@gmail.com, mrmacman_g4@mac.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, acahalan@gmail.com
-References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com> <43DCA097.nailGPD11GI11@burner>
-In-Reply-To: <43DCA097.nailGPD11GI11@burner>
+	Mon, 30 Jan 2006 20:45:17 -0500
+Received: from mail7.hitachi.co.jp ([133.145.228.42]:37853 "EHLO
+	mail7.hitachi.co.jp") by vger.kernel.org with ESMTP
+	id S1030263AbWAaBpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 20:45:14 -0500
+Message-ID: <43DEC13E.8020200@sdl.hitachi.co.jp>
+Date: Tue, 31 Jan 2006 10:45:34 +0900
+From: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>,
+       Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
+CC: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>,
+       SystemTAP <systemtap@sources.redhat.com>,
+       Jim Keniston <jkenisto@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Yumiko Sugita <sugita@sdl.hitachi.co.jp>,
+       Satoshi Oshima <soshima@redhat.com>, Hideo Aoki <haoki@redhat.com>
+Subject: Re: [PATCH] kretprobe: kretprobe-booster against 2.6.16-rc1 for i386
+References: <43DE0A53.3060801@sdl.hitachi.co.jp>
+In-Reply-To: <43DE0A53.3060801@sdl.hitachi.co.jp>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601302043.56615.diablod3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 29 January 2006 06:01, Joerg Schilling wrote:
-> Danger: Highly Flammable Material. <!>
+Sorry, also I forgot to remove a solo decrement routine.
 
-I formally request that Joerg Schilling be banned from the LKML until he 
-learns how to take bugs in his program seriously. cdrecord has bugs, people 
-hit them, and he won't either fix the bugs, or hand maintainership over to 
-someone who wants to fix them.
+Masami Hiramatsu wrote:
+> @@ -310,18 +338,11 @@ int __kprobes trampoline_probe_handler(s
+>  	}
+> 
+>  	BUG_ON(!orig_ret_address || (orig_ret_address == trampoline_address));
+> -	regs->eip = orig_ret_address;
+> 
+> -	reset_current_kprobe();
+>  	spin_unlock_irqrestore(&kretprobe_lock, flags);
+>  	preempt_enable_no_resched();
+	^^^^^^^^^^^^^^^^^^^^^^^^^^^^  This must cause a trouble.
 
-Not only that, he constantly trolls on the LKML about how awesome cdrecord is, 
-and how stupid kernel developers are. He also rears his head in any 
-discussion on CD burning under Linux, even though it not always has anything 
-to do with cdrecord; and totally derails any such discussion.
+So, I must remove it (when boosting)
+> -	preempt_enable_no_resched();
 
-In addition to the aforementioned problems, he also has a serious hate for 
-Debian, and the Debian developers who maintain the cdrecord package; in 
-addition, he has lesser hate for all Linux developers, users, and basically 
-anyone who isn't using Schillix or worshipping the ground he walks on.
+I attatch the fixed patch to this mail.
 
-I believe LKML is for serious discussion of Linux kernel development only, and 
-for this to optimally continue, we need to purge the list of trolls like him.
+> 
+> -	/*
+> -	 * By returning a non-zero value, we are telling
+> -	 * kprobe_handler() that we don't want the post_handler
+> -	 * to run (and have re-enabled preemption)
+> -	 */
+> -        return 1;
+> +	return (void*)orig_ret_address;
+>  }
+> 
+>  /*
 
 -- 
-Patrick "Diablo-D3" McFarland || diablod3@gmail.com
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
-we'd all be running around in darkened rooms, munching magic pills and
-listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
-Inc, 1989
+Masami HIRAMATSU
+2nd Research Dept.
+Hitachi, Ltd., Systems Development Laboratory
+E-mail: hiramatu@sdl.hitachi.co.jp
+
+Signed-off-by: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
+
+ kprobes.c |   57 ++++++++++++++++++++++++++++++++++++---------------------
+ 1 files changed, 36 insertions(+), 21 deletions(-)
+diff -Narup a/arch/i386/kernel/kprobes.c b/arch/i386/kernel/kprobes.c
+--- a/arch/i386/kernel/kprobes.c	2006-01-24 19:07:26.000000000 +0900
++++ b/arch/i386/kernel/kprobes.c	2006-01-31 10:26:46.000000000 +0900
+@@ -255,17 +255,45 @@ no_kprobe:
+  * here. When a retprobed function returns, this probe is hit and
+  * trampoline_probe_handler() runs, calling the kretprobe's handler.
+  */
+- void kretprobe_trampoline_holder(void)
++ void __kprobes kretprobe_trampoline_holder(void)
+  {
+- 	asm volatile (  ".global kretprobe_trampoline\n"
++	 asm volatile ( ".global kretprobe_trampoline\n"
+  			"kretprobe_trampoline: \n"
+- 			"nop\n");
+- }
++			"	subl $8, %esp\n"
++			"	pushf\n"
++			"	subl $20, %esp\n"
++			"	pushl %eax\n"
++			"	pushl %ebp\n"
++			"	pushl %edi\n"
++			"	pushl %esi\n"
++			"	pushl %edx\n"
++			"	pushl %ecx\n"
++			"	pushl %ebx\n"
++			"	movl %esp, %eax\n"
++			"	pushl %eax\n"
++			"	addl $60, %eax\n"
++			"	movl %eax, 56(%esp)\n"
++			"	movl $trampoline_handler, %eax\n"
++			"	call *%eax\n"
++			"	addl $4, %esp\n"
++			"	movl %eax, 56(%esp)\n"
++			"	popl %ebx\n"
++			"	popl %ecx\n"
++			"	popl %edx\n"
++			"	popl %esi\n"
++			"	popl %edi\n"
++			"	popl %ebp\n"
++			"	popl %eax\n"
++			"	addl $20, %esp\n"
++			"	popf\n"
++			"	addl $4, %esp\n"
++			"	ret\n");
++}
+
+ /*
+- * Called when we hit the probe point at kretprobe_trampoline
++ * Called from kretprobe_trampoline
+  */
+-int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
++asmlinkage void *__kprobes trampoline_handler(struct pt_regs *regs)
+ {
+         struct kretprobe_instance *ri = NULL;
+         struct hlist_head *head;
+@@ -310,18 +338,10 @@ int __kprobes trampoline_probe_handler(s
+ 	}
+
+ 	BUG_ON(!orig_ret_address || (orig_ret_address == trampoline_address));
+-	regs->eip = orig_ret_address;
+
+-	reset_current_kprobe();
+ 	spin_unlock_irqrestore(&kretprobe_lock, flags);
+-	preempt_enable_no_resched();
+
+-	/*
+-	 * By returning a non-zero value, we are telling
+-	 * kprobe_handler() that we don't want the post_handler
+-	 * to run (and have re-enabled preemption)
+-	 */
+-        return 1;
++	return (void*)orig_ret_address;
+ }
+
+ /*
+@@ -552,12 +572,7 @@ int __kprobes longjmp_break_handler(stru
+ 	return 0;
+ }
+
+-static struct kprobe trampoline_p = {
+-	.addr = (kprobe_opcode_t *) &kretprobe_trampoline,
+-	.pre_handler = trampoline_probe_handler
+-};
+-
+ int __init arch_init_kprobes(void)
+ {
+-	return register_kprobe(&trampoline_p);
++	return 0;
+ }
+
 

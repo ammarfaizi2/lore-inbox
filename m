@@ -1,134 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWAaNoy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWAaNof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbWAaNoy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 08:44:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWAaNoj
+	id S1750825AbWAaNof (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 08:44:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWAaNlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 08:44:39 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:659 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1750827AbWAaNls (ORCPT
+	Tue, 31 Jan 2006 08:41:50 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:64658 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1750825AbWAaNln (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 08:41:48 -0500
-Subject: [PATCH 6/11] LED: Add LED device support for the zaurus corgi and
-	spitz models
+	Tue, 31 Jan 2006 08:41:43 -0500
+Subject: [PATCH 4/11] LED: Add LED Timer Trigger
 From: Richard Purdie <rpurdie@rpsys.net>
 To: LKML <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Tue, 31 Jan 2006 13:41:43 +0000
-Message-Id: <1138714903.6869.132.camel@localhost.localdomain>
+Date: Tue, 31 Jan 2006 13:41:37 +0000
+Message-Id: <1138714898.6869.129.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adds LED drivers for LEDs found on the Sharp Zaurus c7x0 (corgi, 
-shepherd, husky) and cxx00 (akita, spitz, borzoi) models.
+Add an example of a complex LED trigger in the form of a generic timer 
+which triggers the LED its attached to at a user specified frequency
+and duty cycle.
 
 Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 
-Index: linux-2.6.15/arch/arm/mach-pxa/corgi.c
-===================================================================
---- linux-2.6.15.orig/arch/arm/mach-pxa/corgi.c	2006-01-29 16:02:30.000000000 +0000
-+++ linux-2.6.15/arch/arm/mach-pxa/corgi.c	2006-01-29 16:11:47.000000000 +0000
-@@ -165,6 +165,15 @@
- 
- 
- /*
-+ * Corgi LEDs
-+ */
-+static struct platform_device corgiled_device = {
-+	.name		= "corgi-led",
-+	.id		= -1,
-+};
-+
-+
-+/*
-  * Corgi Touch Screen Device
-  */
- static struct resource corgits_resources[] = {
-@@ -298,6 +307,7 @@
- 	&corgikbd_device,
- 	&corgibl_device,
- 	&corgits_device,
-+	&corgiled_device,
- };
- 
- static void __init corgi_init(void)
-Index: linux-2.6.15/arch/arm/mach-pxa/spitz.c
-===================================================================
---- linux-2.6.15.orig/arch/arm/mach-pxa/spitz.c	2006-01-29 16:02:30.000000000 +0000
-+++ linux-2.6.15/arch/arm/mach-pxa/spitz.c	2006-01-29 16:11:48.000000000 +0000
-@@ -243,6 +243,15 @@
- 
- 
- /*
-+ * Spitz LEDs
-+ */
-+static struct platform_device spitzled_device = {
-+	.name		= "spitz-led",
-+	.id		= -1,
-+};
-+
-+
-+/*
-  * Spitz Touch Screen Device
-  */
- static struct resource spitzts_resources[] = {
-@@ -419,6 +428,7 @@
- 	&spitzkbd_device,
- 	&spitzts_device,
- 	&spitzbl_device,
-+	&spitzled_device,
- };
- 
- static void __init common_init(void)
 Index: linux-2.6.15/drivers/leds/Kconfig
 ===================================================================
---- linux-2.6.15.orig/drivers/leds/Kconfig	2006-01-29 16:04:20.000000000 +0000
-+++ linux-2.6.15/drivers/leds/Kconfig	2006-01-29 16:11:54.000000000 +0000
-@@ -22,6 +22,20 @@
+--- linux-2.6.15.orig/drivers/leds/Kconfig	2006-01-29 16:13:48.000000000 +0000
++++ linux-2.6.15/drivers/leds/Kconfig	2006-01-29 20:32:16.000000000 +0000
+@@ -22,5 +22,12 @@
  	  These triggers allow kernel events to drive the LEDs and can
  	  be configured via sysfs. If unsure, say Y.
  
-+config LEDS_CORGI
-+	tristate "LED Support for the Sharp SL-C7x0 series"
-+	depends LEDS_CLASS && PXA_SHARP_C7xx
++config LEDS_TRIGGER_TIMER
++	tristate "LED Timer Trigger"
++	depends LEDS_TRIGGERS
 +	help
-+	  This option enables support for the LEDs on Sharp Zaurus
-+	  SL-C7x0 series (C700, C750, C760, C860).
++	  This allows LEDs to be controlled by a programmable timer
++	  via sysfs. If unsure, say Y.
 +
-+config LEDS_SPITZ
-+	tristate "LED Support for the Sharp SL-Cxx00 series"
-+	depends LEDS_CLASS && PXA_SHARP_Cxx00
-+	help
-+	  This option enables support for the LEDs on Sharp Zaurus
-+	  SL-Cxx00 series (C1000, C3000, C3100).
-+
- config LEDS_TRIGGER_TIMER
- 	tristate "LED Timer Trigger"
- 	depends LEDS_TRIGGERS
+ endmenu
+ 
 Index: linux-2.6.15/drivers/leds/Makefile
 ===================================================================
---- linux-2.6.15.orig/drivers/leds/Makefile	2006-01-29 16:04:20.000000000 +0000
-+++ linux-2.6.15/drivers/leds/Makefile	2006-01-29 16:11:54.000000000 +0000
-@@ -4,5 +4,9 @@
+--- linux-2.6.15.orig/drivers/leds/Makefile	2006-01-29 16:13:48.000000000 +0000
++++ linux-2.6.15/drivers/leds/Makefile	2006-01-29 20:32:16.000000000 +0000
+@@ -3,3 +3,6 @@
+ obj-$(CONFIG_NEW_LEDS)			+= led-core.o
  obj-$(CONFIG_LEDS_CLASS)		+= led-class.o
  obj-$(CONFIG_LEDS_TRIGGERS)		+= led-triggers.o
- 
-+# LED Platform Drivers
-+obj-$(CONFIG_LEDS_CORGI)		+= leds-corgi.o
-+obj-$(CONFIG_LEDS_SPITZ)		+= leds-spitz.o
 +
- # LED Triggers
- obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+= ledtrig-timer.o
-Index: linux-2.6.15/drivers/leds/leds-corgi.c
++# LED Triggers
++obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+= ledtrig-timer.o
+Index: linux-2.6.15/drivers/leds/ledtrig-timer.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.15/drivers/leds/leds-corgi.c	2006-01-29 16:08:42.000000000 +0000
-@@ -0,0 +1,121 @@
++++ linux-2.6.15/drivers/leds/ledtrig-timer.c	2006-01-29 17:40:11.000000000 +0000
+@@ -0,0 +1,204 @@
 +/*
-+ * LED Triggers Core
++ * LED Kernel Timer Trigger
 + *
 + * Copyright 2005-2006 Openedhand Ltd.
 + *
@@ -141,242 +74,195 @@ Index: linux-2.6.15/drivers/leds/leds-corgi.c
 + */
 +
 +#include <linux/config.h>
++#include <linux/module.h>
 +#include <linux/kernel.h>
 +#include <linux/init.h>
-+#include <linux/platform_device.h>
++#include <linux/list.h>
++#include <linux/spinlock.h>
++#include <linux/device.h>
++#include <linux/sysdev.h>
++#include <linux/timer.h>
 +#include <linux/leds.h>
-+#include <asm/mach-types.h>
-+#include <asm/arch/corgi.h>
-+#include <asm/arch/hardware.h>
-+#include <asm/arch/pxa-regs.h>
-+#include <asm/hardware/scoop.h>
++#include "leds.h"
 +
-+void corgiled_amber_set(struct led_device *led_dev, enum led_brightness value)
-+{
-+	if (value)
-+		GPSR0 = GPIO_bit(CORGI_GPIO_LED_ORANGE);
-+	else
-+		GPCR0 = GPIO_bit(CORGI_GPIO_LED_ORANGE);
-+}
-+
-+void corgiled_green_set(struct led_device *led_dev, enum led_brightness value)
-+{
-+	if (value)
-+		set_scoop_gpio(&corgiscoop_device.dev, CORGI_SCP_LED_GREEN);
-+	else
-+		reset_scoop_gpio(&corgiscoop_device.dev, CORGI_SCP_LED_GREEN);
-+}
-+
-+struct led_device corgi_amber_led = {
-+	.name			= "corgi:amber",
-+	.default_trigger	= "sharpsl-charge",
-+	.brightness_set		= corgiled_amber_set,
++struct timer_trig_data {
++	unsigned long duty; /* duty cycle, as a percentage */
++	unsigned long frequency; /* frequency of blinking, in Hz */
++	unsigned long delay_on; /* milliseconds on */
++	unsigned long delay_off; /* milliseconds off */
++	struct timer_list timer;
 +};
 +
-+struct led_device corgi_green_led = {
-+	.name			= "corgi:green",
-+	.default_trigger	= "nand-disk",
-+	.brightness_set		= corgiled_green_set,
-+};
-+
-+#ifdef CONFIG_PM
-+static int corgiled_suspend(struct platform_device *dev, pm_message_t state)
++static void led_timer_function(unsigned long data)
 +{
-+#ifdef CONFIG_LEDS_TRIGGERS
-+	if (corgi_amber_led.trigger && strcmp(corgi_amber_led.trigger->name, "sharpsl-charge"))
-+#endif
-+		led_device_suspend(&corgi_amber_led);
-+	led_device_suspend(&corgi_green_led);
-+	return 0;
++	struct led_device *led_dev = (struct led_device *) data;
++	struct timer_trig_data *timer_data = led_dev->trigger_data;
++	unsigned long brightness = LED_OFF;
++	unsigned long delay = timer_data->delay_off;
++
++	write_lock(&led_dev->lock);
++
++	if (!timer_data->frequency) {
++		led_set_brightness(led_dev, LED_OFF);
++		write_unlock(&led_dev->lock);
++		return;
++	}
++
++	if (!led_dev->brightness) {
++		brightness = LED_FULL;
++		delay = timer_data->delay_on;
++	}
++
++	led_set_brightness(led_dev, brightness);
++
++	mod_timer(&timer_data->timer, jiffies + msecs_to_jiffies(delay));
++	write_unlock(&led_dev->lock);
 +}
 +
-+static int corgiled_resume(struct platform_device *dev)
++/* led_dev write lock needs to be held */
++static void led_timer_setdata(struct led_device *led_dev, unsigned long duty, unsigned long frequency)
 +{
-+	led_device_resume(&corgi_amber_led);
-+	led_device_resume(&corgi_green_led);
-+	return 0;
++	struct timer_trig_data *timer_data = led_dev->trigger_data;
++	signed long duty1;
++
++	if (frequency > 500)
++		frequency = 500;
++
++	if (duty > 100)
++		duty = 100;
++
++	duty1 = duty - 50;
++
++	timer_data->duty = duty;
++	timer_data->frequency = frequency;
++	if (frequency != 0) {
++		timer_data->delay_on = (50 - duty1) * 1000 / 50 / frequency;
++		timer_data->delay_off = (50 + duty1) * 1000 / 50 / frequency;
++	}
++
++	mod_timer(&timer_data->timer, jiffies);
 +}
-+#endif
 +
-+static int corgiled_probe(struct platform_device *pdev)
++static ssize_t led_duty_show(struct class_device *dev, char *buf)
 +{
-+	int ret;
++	struct led_device *led_dev = dev->class_data;
++	struct timer_trig_data *timer_data;
 +
-+	ret = led_device_register(&pdev->dev, &corgi_amber_led);
-+	if (ret < 0)
-+		return ret;
++	read_lock(&led_dev->lock);
++	timer_data = led_dev->trigger_data;
++	sprintf(buf, "%lu\n", timer_data->duty);
++	read_unlock(&led_dev->lock);
 +
-+	ret = led_device_register(&pdev->dev, &corgi_green_led);
-+	if (ret < 0)
-+		led_device_unregister(&corgi_amber_led);
++	return strlen(buf) + 1;
++}
++
++static ssize_t led_duty_store(struct class_device *dev, const char *buf, size_t size)
++{
++	struct led_device *led_dev = dev->class_data;
++	struct timer_trig_data *timer_data;
++	int ret = -EINVAL;
++	char *after;
++
++	unsigned long state = simple_strtoul(buf, &after, 10);
++	if (after - buf > 0) {
++		ret = after - buf;
++		write_lock(&led_dev->lock);
++		timer_data = led_dev->trigger_data;
++		led_timer_setdata(led_dev, state, timer_data->frequency);
++		write_unlock(&led_dev->lock);
++	}
 +
 +	return ret;
 +}
 +
-+static int corgiled_remove(struct platform_device *pdev)
++
++static ssize_t led_frequency_show(struct class_device *dev, char *buf)
 +{
-+	led_device_unregister(&corgi_amber_led);
-+	led_device_unregister(&corgi_green_led);
-+	return 0;
++	struct led_device *led_dev = dev->class_data;
++	struct timer_trig_data *timer_data;
++
++	read_lock(&led_dev->lock);
++	timer_data = led_dev->trigger_data;
++	sprintf(buf, "%lu\n", timer_data->frequency);
++	read_unlock(&led_dev->lock);
++
++	return strlen(buf) + 1;
 +}
 +
-+static struct platform_driver corgiled_driver = {
-+	.probe		= corgiled_probe,
-+	.remove		= corgiled_remove,
-+#ifdef CONFIG_PM
-+	.suspend	= corgiled_suspend,
-+	.resume		= corgiled_resume,
-+#endif
-+	.driver		= {
-+		.name		= "corgi-led",
-+	},
-+};
-+
-+static int __devinit corgiled_init(void)
++static ssize_t led_frequency_store(struct class_device *dev, const char *buf, size_t size)
 +{
-+	return platform_driver_register(&corgiled_driver);
-+}
++	struct led_device *led_dev = dev->class_data;
++	struct timer_trig_data *timer_data;
++	int ret = -EINVAL;
++	char *after;
 +
-+static void corgiled_exit(void)
-+{
-+ 	platform_driver_unregister(&corgiled_driver);
-+}
-+
-+module_init(corgiled_init);
-+module_exit(corgiled_exit);
-+
-+MODULE_AUTHOR("Richard Purdie <rpurdie@openedhand.com>");
-+MODULE_DESCRIPTION("Corgi LED driver");
-+MODULE_LICENSE("GPL");
-Index: linux-2.6.15/drivers/leds/leds-spitz.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.15/drivers/leds/leds-spitz.c	2006-01-29 16:08:09.000000000 +0000
-@@ -0,0 +1,125 @@
-+/*
-+ * LED Triggers Core
-+ *
-+ * Copyright 2005-2006 Openedhand Ltd.
-+ *
-+ * Author: Richard Purdie <rpurdie@openedhand.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/platform_device.h>
-+#include <linux/leds.h>
-+#include <asm/hardware/scoop.h>
-+#include <asm/mach-types.h>
-+#include <asm/arch/hardware.h>
-+#include <asm/arch/pxa-regs.h>
-+#include <asm/arch/spitz.h>
-+
-+void spitzled_amber_set(struct led_device *led_dev, enum led_brightness value)
-+{
-+	if (value)
-+		set_scoop_gpio(&spitzscoop_device.dev, SPITZ_SCP_LED_ORANGE);
-+	else
-+		reset_scoop_gpio(&spitzscoop_device.dev, SPITZ_SCP_LED_ORANGE);
-+}
-+
-+void spitzled_green_set(struct led_device *led_dev, enum led_brightness value)
-+{
-+	if (value)
-+		set_scoop_gpio(&spitzscoop_device.dev, SPITZ_SCP_LED_GREEN);
-+	else
-+		reset_scoop_gpio(&spitzscoop_device.dev, SPITZ_SCP_LED_GREEN);
-+}
-+
-+static struct led_device spitz_amber_led = {
-+	.name			= "spitz:amber",
-+	.default_trigger	= "sharpsl-charge",
-+	.brightness_set		= spitzled_amber_set,
-+};
-+
-+static struct led_device spitz_green_led = {
-+	.name			= "spitz:green",
-+	.default_trigger	= "ide-disk",
-+	.brightness_set		= spitzled_green_set,
-+};
-+
-+#ifdef CONFIG_PM
-+static int spitzled_suspend(struct platform_device *dev, pm_message_t state)
-+{
-+#ifdef CONFIG_LEDS_TRIGGERS
-+	if (spitz_amber_led.trigger && strcmp(spitz_amber_led.trigger->name, "sharpsl-charge"))
-+#endif
-+		led_device_suspend(&spitz_amber_led);
-+	led_device_suspend(&spitz_green_led);
-+	return 0;
-+}
-+
-+static int spitzled_resume(struct platform_device *dev)
-+{
-+	led_device_resume(&spitz_amber_led);
-+	led_device_resume(&spitz_green_led);
-+	return 0;
-+}
-+#endif
-+
-+static int spitzled_probe(struct platform_device *pdev)
-+{
-+	int ret;
-+
-+	if (machine_is_akita())
-+		spitz_green_led.default_trigger = "nand-disk";
-+
-+	ret = led_device_register(&pdev->dev, &spitz_amber_led);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = led_device_register(&pdev->dev, &spitz_green_led);
-+	if (ret < 0)
-+		led_device_unregister(&spitz_amber_led);
++	unsigned long state = simple_strtoul(buf, &after, 10);
++	if (after - buf > 0) {
++		ret = after - buf;
++		write_lock(&led_dev->lock);
++		timer_data = led_dev->trigger_data;
++		led_timer_setdata(led_dev, timer_data->duty, state);
++		write_unlock(&led_dev->lock);
++	}
 +
 +	return ret;
 +}
 +
-+static int spitzled_remove(struct platform_device *pdev)
-+{
-+	led_device_unregister(&spitz_amber_led);
-+	led_device_unregister(&spitz_green_led);
++static CLASS_DEVICE_ATTR(duty, 0644, led_duty_show, led_duty_store);
++static CLASS_DEVICE_ATTR(frequency, 0644, led_frequency_show, led_frequency_store);
 +
-+	return 0;
++void timer_trig_activate(struct led_device *led_dev)
++{
++	struct timer_trig_data *timer_data;
++
++	timer_data = kzalloc(sizeof(struct timer_trig_data), GFP_KERNEL);
++	if (!timer_data)
++		return;
++
++	led_dev->trigger_data = timer_data;
++
++	init_timer(&timer_data->timer);
++	timer_data->timer.function = led_timer_function;
++	timer_data->timer.data = (unsigned long) led_dev;
++
++	timer_data->duty = 50;
++
++	class_device_create_file(led_dev->class_dev, &class_device_attr_duty);
++	class_device_create_file(led_dev->class_dev, &class_device_attr_frequency);
 +}
 +
-+static struct platform_driver spitzled_driver = {
-+	.probe		= spitzled_probe,
-+	.remove		= spitzled_remove,
-+#ifdef CONFIG_PM
-+	.suspend	= spitzled_suspend,
-+	.resume		= spitzled_resume,
-+#endif
-+	.driver		= {
-+		.name		= "spitz-led",
-+	},
++void timer_trig_deactivate(struct led_device *led_dev)
++{
++	struct timer_trig_data *timer_data = led_dev->trigger_data;
++	if (timer_data) {
++		class_device_remove_file(led_dev->class_dev, &class_device_attr_duty);
++		class_device_remove_file(led_dev->class_dev, &class_device_attr_frequency);
++		del_timer_sync(&timer_data->timer);
++		kfree(timer_data);
++	}
++}
++
++static struct led_trigger timer_led_trigger = {
++	.name     = "timer",
++	.activate = timer_trig_activate,
++	.deactivate = timer_trig_deactivate,
 +};
 +
-+static int __devinit spitzled_init(void)
++static int __init timer_trig_init(void)
 +{
-+	return platform_driver_register(&spitzled_driver);
++	return led_trigger_register(&timer_led_trigger);
 +}
 +
-+static void spitzled_exit(void)
++static void __exit timer_trig_exit (void)
 +{
-+ 	platform_driver_unregister(&spitzled_driver);
++	led_trigger_unregister(&timer_led_trigger);
 +}
 +
-+module_init(spitzled_init);
-+module_exit(spitzled_exit);
++module_init(timer_trig_init);
++module_exit(timer_trig_exit);
 +
 +MODULE_AUTHOR("Richard Purdie <rpurdie@openedhand.com>");
-+MODULE_DESCRIPTION("Spitz LED driver");
++MODULE_DESCRIPTION("Timer LED trigger");
 +MODULE_LICENSE("GPL");
 
 

@@ -1,280 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWAaW7W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWAaXEc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbWAaW7W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 17:59:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWAaW7V
+	id S1750932AbWAaXEc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 18:04:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWAaXEc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 17:59:21 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:16327 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750752AbWAaW7V convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 17:59:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=HjS8tZ7SLQDmcUKmQDn17eHWBm3nabgiCWAyRyPaW+hM8Hc2o3iOTVtqmXTwQBrwcrUtt+abyGT6YomibbKwEtwOFoOK10FH6fqljmoB8jvSyR8vU7mvaMvbgLQtpJ0CFwJ1oDD8T+29baowg61ZGQkUGdJSwfdemLItbEpqb4A=
-Message-ID: <7f45d9390601311459o45de3c34sd4d25fc7990c728d@mail.gmail.com>
-Date: Tue, 31 Jan 2006 15:59:20 -0700
-From: Shaun Jackman <sjackman@gmail.com>
-Reply-To: Shaun Jackman <sjackman@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Liyitec PS/2 touch panel driver [PATCH]
+	Tue, 31 Jan 2006 18:04:32 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:12480 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750925AbWAaXEc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 18:04:32 -0500
+From: Pat Gefre <pfg@sgi.com>
+Message-Id: <200601312304.k0VN4Pnp044804@fsgi900.americas.sgi.com>
+Subject: [PATCH] 2.6 Altix : correct export call
+To: akpm@osdl.org
+Date: Tue, 31 Jan 2006 17:04:25 -0600 (CST)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've written an input driver for the Liyitec PS/2 touch panel. The
-patch follows. As this is my first input driver, I'd appreciate any
-feedback.
+Andrew,
 
-Please cc me in your reply. Cheers,
-Shaun
+I didn't get any resistence to this - so guessing these are the correct
+macro calls...
 
-2006-01-31  Shaun Jackman  <sjackman@gmail.com>
 
-	* drivers/input/touchscreen/Kconfig (TOUCHSCREEN_LIYITEC): New item.
-	* drivers/input/touchscreen/Makefile: Add liyitec driver.
-	* drivers/input/touchscreen/liyitec.c: New file.
-	* include/linux/serio.h (SERIO_LIYITEC): New constant.
 
---- linux-2.6.15.orig/drivers/input/touchscreen/Kconfig	2006-01-02
-20:21:10.000000000 -0700
-+++ linux-2.6.15/drivers/input/touchscreen/Kconfig	2006-01-31
-15:56:36.000000000 -0700
-@@ -60,6 +60,19 @@
- 	  To compile this driver as a module, choose M here: the
-  	  module will be called elo.
+Call EXPORT_SYMBOL_GPL in ioc3 shim layer.
 
-+config TOUCHSCREEN_LIYITEC
-+	tristate "Lyitec PS/2 touchscreen"
-+	select SERIO
-+	select SERIO_I8042 if X86_PC
-+	help
-+	  Say Y here if you have a Liyitec PS/2 touchscreen connected to
-+	  your system.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called liyitec.
-+
-  config TOUCHSCREEN_MTOUCH
-  	tristate "MicroTouch serial touchscreens"
-  	select SERIO
---- linux-2.6.15.orig/drivers/input/touchscreen/Makefile	2006-01-02
-20:21:10.000000000 -0700
-+++ linux-2.6.15/drivers/input/touchscreen/Makefile	2006-01-27
-16:01:39.000000000 -0700
-@@ -8,6 +8,7 @@
- obj-$(CONFIG_TOUCHSCREEN_CORGI)	+= corgi_ts.o
-  obj-$(CONFIG_TOUCHSCREEN_GUNZE)	+= gunze.o
-  obj-$(CONFIG_TOUCHSCREEN_ELO)	+= elo.o
-+obj-$(CONFIG_TOUCHSCREEN_LIYITEC) += liyitec.o
-  obj-$(CONFIG_TOUCHSCREEN_MTOUCH) += mtouch.o
- obj-$(CONFIG_TOUCHSCREEN_MK712)	+= mk712.o
- obj-$(CONFIG_TOUCHSCREEN_HP600)	+= hp680_ts_input.o
---- linux-2.6.15.orig/drivers/input/touchscreen/liyitec.c	1969-12-31
-17:00:00.000000000 -0700
-+++ linux-2.6.15/drivers/input/touchscreen/liyitec.c	2006-01-31
-15:06:49.000000000 -0700
-@@ -0,0 +1,188 @@
-+/* Liyitec PS/2 touch panel driver
-+ * Written by Shaun Jackman <sjackman@gmail.com>.
-+ * Copyright 2006 Pathway Connectivity
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ *
-+ * This driver was derived from mtouch.c.
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/module.h>
-+#include <linux/serio.h>
-+
-+#define DRIVER_DESC "Liyitec PS/2 touch panel driver"
-+
-+MODULE_AUTHOR("Shaun Jackman <sjackman@gmail.com>");
-+MODULE_DESCRIPTION(DRIVER_DESC);
-+MODULE_LICENSE("GPL");
-+
-+#define LIYITEC_MAX_X 0x3ff
-+#define LIYITEC_MAX_Y 0x3ff
-+
-+#define LIYITEC_Y9    0x80
-+#define LIYITEC_X9    0x40
-+#define LIYITEC_Y8    0x20
-+#define LIYITEC_X8    0x10
-+#define LIYITEC_SYNC  0x08
-+#define LIYITEC_ABS   0x04
-+#define LIYITEC_RIGHT 0x02
-+#define LIYITEC_TOUCH 0x01
-+
-+#define LIYITEC_PACKET_SIZE 3
-+#define LIYITEC_CMD_ENABLE    0xf4
-+#define LIYITEC_CMD_SETSTREAM 0xea
-+#define LIYITEC_RET_ACK       0xfa
-+
-+struct liyitec {
-+	struct input_dev *dev;
-+	struct serio *serio;
-+	char phys[32];
-+	signed char count;
-+	unsigned char data[LIYITEC_PACKET_SIZE];
-+};
-+
-+static irqreturn_t liyitec_interrupt(struct serio *serio,
-+		unsigned char data, unsigned int flags, struct pt_regs *regs)
-+{
-+	struct liyitec *liyitec = serio_get_drvdata(serio);
-+
-+	if (liyitec->count < 0) {
-+		if (data != LIYITEC_RET_ACK)
-+			printk(KERN_DEBUG "liyitec: expected ACK: 0x%02x\n", data);
-+	} else
-+		liyitec->data[liyitec->count] = data;
-+	liyitec->count++;
-+
-+	if (liyitec->count == 1 && !(data & LIYITEC_SYNC)) {
-+		printk(KERN_DEBUG "liyitec: unsynchronized data: 0x%02x\n", data);
-+		liyitec->count = 0;
-+	}
-+	else if (liyitec->count == LIYITEC_PACKET_SIZE) {
-+		struct input_dev *dev = liyitec->dev;
-+		input_regs(dev, regs);
-+		if (liyitec->data[0] & LIYITEC_ABS) {
-+			unsigned x = liyitec->data[1] +
-+				(liyitec->data[0] & LIYITEC_X8 ? 0x100 : 0) +
-+				(liyitec->data[0] & LIYITEC_X9 ? 0x200 : 0);
-+			unsigned y = liyitec->data[2] +
-+				(liyitec->data[0] & LIYITEC_Y8 ? 0x100 : 0) +
-+				(liyitec->data[0] & LIYITEC_Y9 ? 0x200 : 0);
-+			input_report_abs(dev, ABS_X, x);
-+			input_report_abs(dev, ABS_Y, y);
-+			printk(KERN_DEBUG "liyitec: (%d,%d)\n", x, y); //xxx
-+		}
-+		input_report_key(dev, BTN_TOUCH, liyitec->data[0] & LIYITEC_TOUCH);
-+		input_report_key(dev, BTN_RIGHT, liyitec->data[0] & LIYITEC_RIGHT);
-+		printk(KERN_DEBUG "liyitec: %02x\n", liyitec->data[0]); //xxx
-+		input_sync(dev);
-+		liyitec->count = 0;
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int liyitec_connect(struct serio *serio, struct serio_driver *drv)
-+{
-+	struct liyitec *liyitec;
-+	struct input_dev *input_dev;
-+	int retval;
-+
-+	liyitec = kzalloc(sizeof *liyitec, GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (liyitec == NULL || input_dev == NULL) {
-+		retval = -ENOMEM;
-+		goto out;
-+	}
-+
-+	liyitec->serio = serio;
-+	liyitec->dev = input_dev;
-+	sprintf(liyitec->phys, "%s/input0", serio->phys);
-+
-+	input_dev->private = liyitec;
-+	input_dev->name = "Liyitec PS/2 touch screen";
-+	input_dev->phys = liyitec->phys;
-+	input_dev->id.bustype = BUS_I8042;
-+	input_dev->id.vendor = SERIO_LIYITEC;
-+	input_dev->id.product = 0;
-+	input_dev->id.version = 0x0100;
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
-+	input_dev->keybit[LONG(BTN_TOUCH)] = BIT(BTN_TOUCH);
-+	input_dev->keybit[LONG(BTN_MOUSE)] = BIT(BTN_RIGHT);
-+	input_set_abs_params(liyitec->dev, ABS_X, 0, LIYITEC_MAX_X, 0, 0);
-+	input_set_abs_params(liyitec->dev, ABS_Y, 0, LIYITEC_MAX_Y, 0, 0);
-+
-+	serio_set_drvdata(serio, liyitec);
-+	retval = serio_open(serio, drv);
-+	if (retval)
-+		goto out;
-+	input_register_device(liyitec->dev);
-+
-+	liyitec->count = -2;
-+	retval = serio_write(serio, LIYITEC_CMD_SETSTREAM);
-+	if (retval)
-+		goto out;
-+	retval = serio_write(serio, LIYITEC_CMD_ENABLE);
-+
-+out:
-+	if (retval) {
-+		serio_set_drvdata(serio, NULL);
-+		input_free_device(input_dev);
-+		kfree(liyitec);
-+	}
-+	return retval;
-+}
-+
-+static void liyitec_disconnect(struct serio *serio)
-+{
-+	struct liyitec *liyitec = serio_get_drvdata(serio);
-+
-+	input_get_device(liyitec->dev);
-+	input_unregister_device(liyitec->dev);
-+	serio_close(serio);
-+	serio_set_drvdata(serio, NULL);
-+	input_put_device(liyitec->dev);
-+	kfree(liyitec);
-+}
-+
-+static struct serio_device_id liyitec_serio_ids[] = {
-+	{
-+		.type  = SERIO_8042,
-+		.proto = SERIO_ANY,
-+		.id    = SERIO_ANY,
-+		.extra = SERIO_ANY,
-+	},
-+	{ 0 }
-+};
-+
-+MODULE_DEVICE_TABLE(serio, liyitec_serio_ids);
-+
-+static struct serio_driver liyitec_drv = {
-+	.driver = {
-+		.name = "liyitec",
-+	},
-+	.description = DRIVER_DESC,
-+	.id_table    = liyitec_serio_ids,
-+	.interrupt   = liyitec_interrupt,
-+	.connect     = liyitec_connect,
-+	.disconnect  = liyitec_disconnect,
-+};
-+
-+static int __init liyitec_init(void)
-+{
-+	printk(KERN_INFO "liyitec: %s\n", DRIVER_DESC);
-+	serio_register_driver(&liyitec_drv);
-+	return 0;
-+}
-+
-+static void __exit liyitec_exit(void)
-+{
-+	printk(KERN_INFO "liyitec: %s\n", __func__);
-+	serio_unregister_driver(&liyitec_drv);
-+}
-+
-+module_init(liyitec_init);
-+module_exit(liyitec_exit);
---- linux-2.6.15.orig/include/linux/serio.h	2006-01-02 20:21:10.000000000 -0700
-+++ linux-2.6.15/include/linux/serio.h	2006-01-27 16:57:57.000000000 -0700
-@@ -216,5 +216,6 @@
- #define SERIO_LKKBD	0x28
- #define SERIO_ELO	0x29
- #define SERIO_MICROTOUCH	0x30
-+#define SERIO_LIYITEC	0x31
 
-  #endif
+Signed-off-by: Patrick Gefre <pfg@sgi.com>
+
+
+ ioc3.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
+
+
+Index: linux/drivers/sn/ioc3.c
+===================================================================
+--- linux.orig/drivers/sn/ioc3.c	2006-01-26 10:46:30.201721192 -0600
++++ linux/drivers/sn/ioc3.c	2006-01-26 11:53:34.685090381 -0600
+@@ -843,9 +843,9 @@
+ MODULE_DESCRIPTION("PCI driver for SGI IOC3");
+ MODULE_LICENSE("GPL");
+ 
+-EXPORT_SYMBOL(ioc3_register_submodule);
+-EXPORT_SYMBOL(ioc3_unregister_submodule);
+-EXPORT_SYMBOL(ioc3_ack);
+-EXPORT_SYMBOL(ioc3_gpcr_set);
+-EXPORT_SYMBOL(ioc3_disable);
+-EXPORT_SYMBOL(ioc3_enable);
++EXPORT_SYMBOL_GPL(ioc3_register_submodule);
++EXPORT_SYMBOL_GPL(ioc3_unregister_submodule);
++EXPORT_SYMBOL_GPL(ioc3_ack);
++EXPORT_SYMBOL_GPL(ioc3_gpcr_set);
++EXPORT_SYMBOL_GPL(ioc3_disable);
++EXPORT_SYMBOL_GPL(ioc3_enable);

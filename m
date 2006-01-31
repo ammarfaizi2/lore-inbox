@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751487AbWAaVD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWAaVEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751487AbWAaVD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 16:03:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWAaVD7
+	id S1751490AbWAaVEW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 16:04:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWAaVEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 16:03:59 -0500
-Received: from mgw-ext04.nokia.com ([131.228.20.96]:65224 "EHLO
-	mgw-ext04.nokia.com") by vger.kernel.org with ESMTP
-	id S1751487AbWAaVD6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 16:03:58 -0500
-Message-Id: <20060131202547.535444000@localhost.localdomain>
-References: <20060131201636.264543000@localhost.localdomain>
-Date: Tue, 31 Jan 2006 16:16:41 -0400
-From: Carlos Aguiar <carlos.aguiar@indt.org.br>
-To: linux-kernel@vger.kernel.org,
-       "Linux-omap-open-source@linux.omap.com" 
-	<linux-omap-open-source@linux.omap.com>
-Cc: linux@arm.linux.org.uk, David Brownell <david-b@pacbell.net>,
-       Tony Lindgren <tony@atomide.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
-       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
-       Anderson Briglia <anderson.briglia@indt.org.br>
-Subject: [patch 5/6] Add MMC password protection (lock/unlock) support V4
-Content-Disposition: inline; filename=mmc_omap_blklen.diff
-X-OriginalArrivalTime: 31 Jan 2006 20:25:51.0911 (UTC) FILETIME=[87A8B370:01C626A4]
+	Tue, 31 Jan 2006 16:04:22 -0500
+Received: from dslsmtp.struer.net ([62.242.36.21]:16146 "EHLO
+	dslsmtp.struer.net") by vger.kernel.org with ESMTP id S1751490AbWAaVEU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 16:04:20 -0500
+Message-ID: <29639.194.237.142.10.1138741459.squirrel@194.237.142.10>
+In-Reply-To: <1138738320.6424.37.camel@localhost.localdomain>
+References: <11368427243850@foobar.com>
+    <1138738320.6424.37.camel@localhost.localdomain>
+Date: Tue, 31 Jan 2006 22:04:19 +0100 (CET)
+Subject: Re: [PATCH 09/11] kbuild: drop vmlinux dependency from 'make 
+     install'
+From: "Sam Ravnborg" <sam@ravnborg.org>
+To: "Dave Hansen" <haveblue@us.ibm.com>
+Cc: "Sam Ravnborg" <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The MMC_LOCK_UNLOCK command requires the block length to be exactly the
-password length + 2 bytes, but hardware-specific drivers force a "power of 2"
-block size.
+> On Mon, 2006-01-09 at 22:38 +0100, Sam Ravnborg wrote:
+>> This removes the dependency from vmlinux to install, thus avoiding the
+>> current situation where "make install" has a nasty tendency to leave
+>> root-turds in the working directory.
+>
+> One minor issue I've noticed with this is that I have script that do:
+>
+> 	make -j8 vmlinux install
+>
+> Without the dependency, I think the install is done in parallel, and
+> doesn't get the result of that build.
+Correct. All targets on the commandline are evaluated in parallel.
 
-This patch sends the exact block size (password + 2 bytes) to the host. OMAP
-specific.
+>  Is there a way I can accomplish
+> the same thing with one make command with the new dependency?
+No - unfortunately not.
 
-Signed-off-by: Anderson Briglia <anderson.briglia@indt.org.br>
-Signed-off-by: Anderson Lizardo <anderson.lizardo@indt.org.br>
-Signed-off-by: Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>
+Oh, you may restrict yourself to UP and use make -j1 but that would be
+a workaround ;-)
 
-Index: linux-omap-2.6.git/drivers/mmc/omap.c
-===================================================================
---- linux-omap-2.6.git.orig/drivers/mmc/omap.c	2006-01-31 15:17:44.000000000 -0400
-+++ linux-omap-2.6.git/drivers/mmc/omap.c	2006-01-31 15:22:33.000000000 -0400
-@@ -888,8 +888,12 @@ mmc_omap_prepare_data(struct mmc_omap_ho
- 		return;
- 	}
- 
--
--	block_size = 1 << data->blksz_bits;
-+	/*  password protection: we need to send the exact block size to the
-+	 *  card (password + 2), not a 2-exponent. */
-+	if (req->cmd->opcode == MMC_LOCK_UNLOCK)
-+		block_size = data->sg[0].length;
-+	else
-+		block_size = 1 << data->blksz_bits;
- 
- 	OMAP_MMC_WRITE(host->base, NBLK, data->blocks - 1);
- 	OMAP_MMC_WRITE(host->base, BLEN, block_size - 1);
+    Sam
 
---

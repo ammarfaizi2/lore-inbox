@@ -1,57 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWAaKn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWAaKxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbWAaKn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 05:43:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWAaKn0
+	id S1750739AbWAaKxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 05:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWAaKxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 05:43:26 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:23250
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1750743AbWAaKnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 05:43:25 -0500
-Date: Tue, 31 Jan 2006 02:43:23 -0800 (PST)
-Message-Id: <20060131.024323.83813817.davem@davemloft.net>
-To: herbert@gondor.apana.org.au
-Cc: mingo@elte.hu, davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [lock validator] inet6_destroy_sock(): soft-safe ->
- soft-unsafe lock dependency
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20060131102758.GA31460@gondor.apana.org.au>
-References: <E1F2IcV-0007Iq-00@gondolin.me.apana.org.au>
-	<20060128152204.GA13940@elte.hu>
-	<20060131102758.GA31460@gondor.apana.org.au>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 31 Jan 2006 05:53:09 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60381 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750739AbWAaKxI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 05:53:08 -0500
+Date: Tue, 31 Jan 2006 10:27:26 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>, seife@suse.de
+Cc: Nigel Cunningham <nigel@suspend2.net>, linux-kernel@vger.kernel.org
+Subject: [RFC/RFT] finally solve "swsusp fails with mysqld" problem
+Message-ID: <20060131092726.GA2718@elf.ucw.cz>
+References: <20060126034518.3178.55397.stgit@localhost.localdomain> <200601302318.28922.rjw@sisk.pl> <20060130222541.GK2250@elf.ucw.cz> <200601310102.00646.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200601310102.00646.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Tue, 31 Jan 2006 21:27:58 +1100
 
-> tcp_close is only called from process context.  The rule for sk_dst_lock
-> is that it must also only be obtained in process context.  On the other
-> hand, it is true that sk_lock can be obtained in softirq context.
-> 
-> In this particular case, sk_dst_lock is obtained by tcp_close with
-> softirqs disabled.  This is not a problem in itself since we're not
-> trying to get sk_dst_lock from a real softirq context (as opposed to
-> process context with softirq disabled).
-> 
-> I believe this warning comes about because the validator creates a
-> dependency between sk_lock and sk_dst_lock.  It then infers from this
-> dependency that in softirq contexts where sk_lock is obtained the code
-> may also attempt to obtain sk_dst_lock.
-> 
-> This inference is where the validator errs.  sk_dst_lock is never
-> (or should never be, and as far as I can see none of the traces show
-> it to do so) obtained in a real softirq context.
+Place refrigerator hook at more clever place; avoids "system can't be
+suspended while mysqld running" problem.
 
-Herbert's analysis is correct.  This unique locking strategy
-is used by tcp_close() because at this point it knows that
-every single reference to this socket in the system is gone
-once it takes the socket lock with BH disabled.
+I'd like you to test it. It looks correct to me, and it is actually a
+solution, not a workaround like my previous tries. It still does not
+solve suspend while running stress tests.
 
-And that known invariant is why this is correct, and the locking
-validator has no way to figure this out.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
+
+---
+commit 01d049aacf36961d361cfd382fcbf746afcbb61b
+tree 67e3d1fcb65cebfab058f9a699534b1689494dad
+parent 92dfb5b4ac96e200138006901837056825c758d3
+author <pavel@amd.ucw.cz> Tue, 31 Jan 2006 10:18:22 +0100
+committer <pavel@amd.ucw.cz> Tue, 31 Jan 2006 10:18:22 +0100
+
+ arch/i386/kernel/signal.c |    3 ---
+ fs/jbd/journal.c          |    1 +
+ kernel/signal.c           |    4 ++--
+ 3 files changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/arch/i386/kernel/signal.c b/arch/i386/kernel/signal.c
+index adcd069..5ad8c65 100644
+--- a/arch/i386/kernel/signal.c
++++ b/arch/i386/kernel/signal.c
+@@ -615,9 +615,6 @@ int fastcall do_signal(struct pt_regs *r
+ 	if (!user_mode(regs))
+ 		return 1;
+ 
+-	if (try_to_freeze())
+-		goto no_signal;
+-
+ 	if (!oldset)
+ 		oldset = &current->blocked;
+ 
+diff --git a/fs/jbd/journal.c b/fs/jbd/journal.c
+index e4b516a..20b5918 100644
+--- a/fs/jbd/journal.c
++++ b/fs/jbd/journal.c
+@@ -153,6 +153,7 @@ loop:
+ 	}
+ 
+ 	wake_up(&journal->j_wait_done_commit);
++	/* Race here? May someone already be waking at *next* commit? */
+ 	if (freezing(current)) {
+ 		/*
+ 		 * The simpler the better. Flushing journal isn't a
+diff --git a/kernel/signal.c b/kernel/signal.c
+index 717f1f3..6ef3c90 100644
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -1922,6 +1922,8 @@ int get_signal_to_deliver(siginfo_t *inf
+ 	sigset_t *mask = &current->blocked;
+ 	int signr = 0;
+ 
++	try_to_freeze();
++
+ relock:
+ 	spin_lock_irq(&current->sighand->siglock);
+ 	for (;;) {
+@@ -2307,7 +2309,6 @@ sys_rt_sigtimedwait(const sigset_t __use
+ 
+ 			timeout = schedule_timeout_interruptible(timeout);
+ 
+-			try_to_freeze();
+ 			spin_lock_irq(&current->sighand->siglock);
+ 			sig = dequeue_signal(current, &these, &info);
+ 			current->blocked = current->real_blocked;
+
+diff --git a/arch/x86_64/kernel/signal.c b/arch/x86_64/kernel/signal.c
+index 5876df1..f4dd2ca 100644
+--- a/arch/x86_64/kernel/signal.c
++++ b/arch/x86_64/kernel/signal.c
+@@ -443,9 +443,6 @@ int do_signal(struct pt_regs *regs, sigs
+ 	if (!user_mode(regs))
+ 		return 1;
+ 
+-	if (try_to_freeze())
+-		goto no_signal;
+-
+ 	if (!oldset)
+ 		oldset = &current->blocked;
+ 
+
+-- 
+Thanks, Sharp!

@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751086AbWAaQL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWAaQRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751086AbWAaQL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 11:11:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWAaQL3
+	id S1751091AbWAaQRU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 11:17:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbWAaQRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 11:11:29 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:62218 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751084AbWAaQL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 11:11:28 -0500
-Date: Tue, 31 Jan 2006 17:11:24 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linville@tuxdriver.com
-Cc: netdev@vger.kernel.org, Jesper Juhl <jesper.juhl@gmail.com>,
-       linux-kernel@vger.kernel.org, yi.zhu@intel.com,
-       jketreno@linux.intel.com
-Subject: [2.6 patch] wrong firmware location in IPW2100 Kconfig entry
-Message-ID: <20060131161124.GA3986@stusta.de>
+	Tue, 31 Jan 2006 11:17:20 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:41345 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751091AbWAaQRT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 11:17:19 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [RFC/RFT] finally solve "swsusp fails with mysqld" problem
+Date: Tue, 31 Jan 2006 17:17:56 +0100
+User-Agent: KMail/1.9.1
+Cc: seife@suse.de, Nigel Cunningham <nigel@suspend2.net>,
+       linux-kernel@vger.kernel.org
+References: <20060126034518.3178.55397.stgit@localhost.localdomain> <200601310102.00646.rjw@sisk.pl> <20060131092726.GA2718@elf.ucw.cz>
+In-Reply-To: <20060131092726.GA2718@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200601311717.56918.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesper Juhl <jesper.juhl@gmail.com>
+Hi,
 
-Firmware should go into /lib/firmware, not /etc/firmware.
+On Tuesday 31 January 2006 10:27, Pavel Machek wrote:
+> 
+> Place refrigerator hook at more clever place; avoids "system can't be
+> suspended while mysqld running" problem.
+> 
+> I'd like you to test it. It looks correct to me, and it is actually a
+> solution, not a workaround like my previous tries. It still does not
+> solve suspend while running stress tests.
 
-Found by Alejandro Bonilla.
+Which kernel is it against?  It does not apply to the recent -mm ...
 
-
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
-This patch was sent by Jesper Juhl on:
-- 6 Sep 2005
-
---- linux-2.6.13-mm1-orig/drivers/net/wireless/Kconfig	2005-09-02 23:59:51.000000000 +0200
-+++ linux-2.6.13-mm1/drivers/net/wireless/Kconfig	2005-09-06 20:39:45.000000000 +0200
-@@ -152,7 +152,7 @@
- 	  In order to use this driver, you will need a firmware image for it.
-           You can obtain the firmware from
- 	  <http://ipw2100.sf.net/>.  Once you have the firmware image, you 
--	  will need to place it in /etc/firmware.
-+	  will need to place it in /lib/firmware.
- 
-           You will also very likely need the Wireless Tools in order to
-           configure your card:
-
-
+Rafael

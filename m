@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWAaNhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWAaNif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbWAaNhP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 08:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWAaNhP
+	id S1750816AbWAaNif (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 08:38:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbWAaNif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 08:37:15 -0500
-Received: from zeus2.kernel.org ([204.152.191.36]:16051 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1750818AbWAaNhN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 08:37:13 -0500
-Message-ID: <43DF6807.9020907@indt.org.br>
-Date: Tue, 31 Jan 2006 09:37:11 -0400
-From: Anderson Briglia <anderson.briglia@indt.org.br>
-User-Agent: Debian Thunderbird 1.0.6 (X11/20050802)
-X-Accept-Language: en-us, en
+	Tue, 31 Jan 2006 08:38:35 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:18877 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1750819AbWAaNie (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 08:38:34 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Tue, 31 Jan 2006 14:37:22 +0100
+To: schilling@fokus.fraunhofer.de, j@bitron.ch
+Cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jengelh@linux01.gwdg.de, James@superbug.co.uk, acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43DF6812.nail3B44TLQOP@burner>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+ <43D7A7F4.nailDE92K7TJI@burner>
+ <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
+ <43D7B1E7.nailDFJ9MUZ5G@burner>
+ <20060125230850.GA2137@merlin.emma.line.org>
+ <43D8C04F.nailE1C2X9KNC@burner> <200  <43DDFBFF.nail16Z3N3C0M@burner>
+ <1138642683.7404.31.camel@juerg-pd.bitron.ch>
+ <43DF3C3A.nail2RF112LAB@burner>
+ <1138710764.17338.47.camel@juerg-t40p.bitron.ch>
+In-Reply-To: <1138710764.17338.47.camel@juerg-t40p.bitron.ch>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Russell King - ARM Linux <linux@arm.linux.org.uk>,
-       Tony Lindgren <tony@atomide.com>
-Subject: [patch 3/5] MMC OMAP driver
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 31 Jan 2006 13:35:28.0547 (UTC) FILETIME=[32FD8730:01C6266B]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Juerg Billeter <j@bitron.ch> wrote:
 
-Here are some misc fixes we've had in the OMAP tree. Might be worth
-testing them on other platforms too.
+> > So why do people try to convince me that there is a need to avoid the standard 
+> > SCSI protocol stack because a PC might have only ATAPI? 
+> > 
+> > Major OS implementations use a unique view on SCSI (MS-win [*], FreeBSD, Solaris, 
+> > ...). Why do people believe that Linux needs to be different? What does it buy 
+> > you to go this way?
+>
+> Why do you believe that Linux needs to do the same as every other OS?
 
-Index: linux-2.6.15-mmc_omap/drivers/mmc/mmc.c
-===================================================================
---- linux-2.6.15-mmc_omap.orig/drivers/mmc/mmc.c	2006-01-30 10:24:50.000000000 -0400
-+++ linux-2.6.15-mmc_omap/drivers/mmc/mmc.c	2006-01-30 10:25:19.000000000 -0400
-@@ -704,6 +704,7 @@ static void mmc_power_up(struct mmc_host
- 	int bit = fls(host->ocr_avail) - 1;
+Why do you believe that Linux needs to be worse than other OS?
 
- 	host->ios.vdd = bit;
-+	host->ios.clock = host->f_min;
- 	host->ios.bus_mode = MMC_BUSMODE_OPENDRAIN;
- 	host->ios.chip_select = MMC_CS_DONTCARE;
- 	host->ios.power_mode = MMC_POWER_UP;
-@@ -712,7 +713,6 @@ static void mmc_power_up(struct mmc_host
+Jörg
 
- 	mmc_delay(1);
-
--	host->ios.clock = host->f_min;
- 	host->ios.power_mode = MMC_POWER_ON;
- 	host->ops->set_ios(host, &host->ios);
-
-@@ -747,6 +747,7 @@ static int mmc_send_op_cond(struct mmc_h
- 		if (cmd.resp[0] & MMC_CARD_BUSY || ocr == 0)
- 			break;
-
-+		mmc_delay(1);
- 		err = MMC_ERR_TIMEOUT;
-
- 		mmc_delay(10);
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

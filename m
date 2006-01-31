@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751696AbWAaWb3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWAaWcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751696AbWAaWb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 17:31:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751698AbWAaWb3
+	id S932115AbWAaWcV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 17:32:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751699AbWAaWcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 17:31:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:4566 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751695AbWAaWb2 (ORCPT
+	Tue, 31 Jan 2006 17:32:21 -0500
+Received: from acid.ch.pw.edu.pl ([194.29.156.2]:59556 "EHLO acid.ch.pw.edu.pl")
+	by vger.kernel.org with ESMTP id S1751698AbWAaWcU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 17:31:28 -0500
-Date: Tue, 31 Jan 2006 17:31:15 -0500
-From: Dave Jones <davej@redhat.com>
+	Tue, 31 Jan 2006 17:32:20 -0500
+Date: Tue, 31 Jan 2006 23:29:05 +0100 (CET)
+From: Jacek Lipkowski <sq5bpf@acid.ch.pw.edu.pl>
 To: linux-kernel@vger.kernel.org
-Cc: mail@renninger.de, mm-commits@vger.kernel.org
-Subject: Re: + cpufreq-_ppc-frequency-change-issues-freq-already-lowered-by-bios.patch added to -mm tree
-Message-ID: <20060131223115.GF29937@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org, mail@renninger.de,
-	mm-commits@vger.kernel.org
-References: <200601312112.k0VLCRdV031988@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601312112.k0VLCRdV031988@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.4.2.1i
+Subject: patch to make 2.4.32 work on i486 again
+Message-ID: <Pine.LNX.4.58.0601312313050.6477@acid.ch.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 31, 2006 at 01:14:32PM -0800, Andrew Morton wrote:
- > 
- > The patch titled
- > 
- >      cpufreq: _PPC frequency change issues - freq already lowered by BIOS
- > 
- > has been added to the -mm tree.  Its filename is
- > 
- >      cpufreq-_ppc-frequency-change-issues-freq-already-lowered-by-bios.patch
- > 
- > See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
- > out what to do about this
- > 
+Booting the 2.4.32 kernel compiled for a i486 on an i486 box fails,
+because "Kernel compiled for Pentium+, requires TSC feature!" (printed
+from check_config() include/asm-i386/bugs.h). To reproduce, select 486 in
+the kernel configuration and grep CONFIG_X86_TSC .config
 
-*puzzled look*
+Seems strange that no one noticed this, am i the only one still using 486
+boxes? :)
 
-I merged this into cpufreq-git last week.
+Jacek
 
-diff-tree 0961dd0... (from c70ca00...)
-Author: Thomas Renninger <trenn@suse.de>
-Date:   Thu Jan 26 18:46:33 2006 +0100
+Simple patch against vanilla 2.4.32:
 
-    [CPUFREQ] _PPC frequency change issues
-
-
-
-Did your pull fail for some reason? 
-
-		Dave
+--- arch/i386/config.in.old	2006-01-30 22:57:21.000000000 +0100
++++ arch/i386/config.in	2006-01-30 23:00:55.000000000 +0100
+@@ -65,6 +65,7 @@
+    define_bool CONFIG_X86_POPAD_OK y
+    define_bool CONFIG_RWSEM_GENERIC_SPINLOCK n
+    define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM y
++   define_bool CONFIG_X86_TSC n
+ fi
+ if [ "$CONFIG_M486" = "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 4
+@@ -72,6 +73,7 @@
+    define_bool CONFIG_X86_ALIGNMENT_16 y
+    define_bool CONFIG_X86_PPRO_FENCE y
+    define_bool CONFIG_X86_F00F_WORKS_OK n
++   define_bool CONFIG_X86_TSC n
+ fi
+ if [ "$CONFIG_M586" = "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5

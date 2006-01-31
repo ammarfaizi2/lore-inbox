@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751694AbWAaWaX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751696AbWAaWb3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751694AbWAaWaX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 17:30:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751695AbWAaWaX
+	id S1751696AbWAaWb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 17:31:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751698AbWAaWb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 17:30:23 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:61571 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751692AbWAaWaW (ORCPT
+	Tue, 31 Jan 2006 17:31:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:4566 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751695AbWAaWb2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 17:30:22 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [RFC/RFT] finally solve "swsusp fails with mysqld" problem
-Date: Tue, 31 Jan 2006 23:30:50 +0100
-User-Agent: KMail/1.9.1
-Cc: seife@suse.de, Nigel Cunningham <nigel@suspend2.net>,
-       linux-kernel@vger.kernel.org
-References: <20060126034518.3178.55397.stgit@localhost.localdomain> <200601311717.56918.rjw@sisk.pl> <20060131212953.GA2018@elf.ucw.cz>
-In-Reply-To: <20060131212953.GA2018@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 31 Jan 2006 17:31:28 -0500
+Date: Tue, 31 Jan 2006 17:31:15 -0500
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: mail@renninger.de, mm-commits@vger.kernel.org
+Subject: Re: + cpufreq-_ppc-frequency-change-issues-freq-already-lowered-by-bios.patch added to -mm tree
+Message-ID: <20060131223115.GF29937@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org, mail@renninger.de,
+	mm-commits@vger.kernel.org
+References: <200601312112.k0VLCRdV031988@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601312330.50916.rjw@sisk.pl>
+In-Reply-To: <200601312112.k0VLCRdV031988@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Jan 31, 2006 at 01:14:32PM -0800, Andrew Morton wrote:
+ > 
+ > The patch titled
+ > 
+ >      cpufreq: _PPC frequency change issues - freq already lowered by BIOS
+ > 
+ > has been added to the -mm tree.  Its filename is
+ > 
+ >      cpufreq-_ppc-frequency-change-issues-freq-already-lowered-by-bios.patch
+ > 
+ > See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
+ > out what to do about this
+ > 
 
-On Tuesday 31 January 2006 22:29, Pavel Machek wrote:
-> > > Place refrigerator hook at more clever place; avoids "system can't be
-> > > suspended while mysqld running" problem.
-> > > 
-> > > I'd like you to test it. It looks correct to me, and it is actually a
-> > > solution, not a workaround like my previous tries. It still does not
-> > > solve suspend while running stress tests.
-> > 
-> > Which kernel is it against?  It does not apply to the recent -mm ...
-> 
-> Against vanilla -- but it should be easy to make it work against -mm.
+*puzzled look*
 
-Yes, I've already done it.
+I merged this into cpufreq-git last week.
 
-BTW, the no_signal labels are no longer needed in signal.c for i386 and
-x86_64.
+diff-tree 0961dd0... (from c70ca00...)
+Author: Thomas Renninger <trenn@suse.de>
+Date:   Thu Jan 26 18:46:33 2006 +0100
 
-Greetings,
-Rafael
+    [CPUFREQ] _PPC frequency change issues
+
+
+
+Did your pull fail for some reason? 
+
+		Dave

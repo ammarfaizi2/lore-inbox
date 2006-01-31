@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751497AbWAaVU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWAaVX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751497AbWAaVU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 16:20:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751498AbWAaVU7
+	id S1751500AbWAaVX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 16:23:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWAaVX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 16:20:59 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:26651 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751497AbWAaVU7 (ORCPT
+	Tue, 31 Jan 2006 16:23:28 -0500
+Received: from madness.at ([217.196.146.217]:41978 "EHLO cronos.madness.at")
+	by vger.kernel.org with ESMTP id S1751500AbWAaVX2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 16:20:59 -0500
-Date: Tue, 31 Jan 2006 21:59:55 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Joshua Kugler <joshua.kugler@uaf.edu>
-Cc: Sander <sander@humilis.net>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [OT] 8-port AHCI SATA Controller?
-Message-ID: <20060131205954.GJ4215@suse.de>
-References: <20060131115343.GA2580@favonius> <20060131185646.GF6178@favonius> <20060131203845.GH4215@suse.de> <200601311148.52955.joshua.kugler@uaf.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601311148.52955.joshua.kugler@uaf.edu>
+	Tue, 31 Jan 2006 16:23:28 -0500
+Message-ID: <43DFD542.7090508@madness.at>
+Date: Tue, 31 Jan 2006 22:23:14 +0100
+From: Stefan Kaltenbrunner <mm-mailinglist@madness.at>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Olaf Hering <olh@suse.de>
+CC: Andrew Vasquez <andrew.vasquez@qlogic.com>, linux-kernel@vger.kernel.org
+Subject: Re: qla2xxx related oops in 2.6.16-rc1
+References: <43DA580E.3020100@madness.at> <20060130153435.GC1160@andrew-vasquezs-powerbook-g4-15.local> <20060131100710.GA3039@suse.de>
+In-Reply-To: <20060131100710.GA3039@suse.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 31 2006, Joshua Kugler wrote:
-> On Tuesday 31 January 2006 11:38, Jens Axboe wrote:
-> > On Tue, Jan 31 2006, Sander wrote:
-> > > > I got the drivers here:
-> > > >
-> > > > http://www.keffective.com/mvsata/FC3/
-> > > >
-> > > > The latest was mvSata_Linux_3.6.1.tgz as of 2005-10-13.
-> > >
-> > > I very, very much prefer in-tree drivers :-)
-> >
-> > Actually there is a sata_mv driver in the kernel, however it's pretty
-> > experimental right now. I'm sure it could use testers :-)
+Olaf Hering wrote:
+>  On Mon, Jan 30, Andrew Vasquez wrote:
 > 
-> Interesting.  I understand it going through testing, but why didn't
-> they pull in the mvSata driver referenced above?  It was already GPL.
-> Or did they pull in that driver and just want testing?
+> 
+>>On Fri, 27 Jan 2006, Stefan Kaltenbrunner wrote:
+>>
+>>
+>>>We hit the following oops in 2.6.16-rc1 during itesting of a
+>>>devicemapper based multipath infrastructure.
+>>>
+>>>The oops happend during heavy io on the devicemapper device and a reboot
+>>>of one of the switches the host was directly connected too.
+>>>
+>>>The host in questions is as Dual Opteron 280 with 16GB ram and two
+>>>qla2340 adapters accessing an IBM DS4300 Array.
+>>>
+>>>Stefan
+>>>
+>>>Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP:
+>>><ffffffff803cc6c6>{_spin_lock+0}
+>>>PGD 3ff513067 PUD 3ff514067 PMD 0
+>>>Oops: 0002 [1] SMP
+>>>CPU 0
+>>>Modules linked in: dm_round_robin dm_multipath dm_mod i2c_amd756 qla2300
+>>>qla2xxx i2c_core evdev
+>>>Pid: 2568, comm: qla2300_1_dpc Not tainted 2.6.16-rc1 #4
+>>>RIP: 0010:[<ffffffff803cc6c6>] <ffffffff803cc6c6>{_spin_lock+0}
+> 
+> 
+> This one happens at least since 58b6c58caef7a34eab7ec887288fa495696653e7
 
-Did you look at the driver? I'm guessing no :-)
+After applying Andrews patches I have so far failed to reproduce the
+issue again - but I'm not really convinced that it is really gone now
+since I could not trigger it very reliably before too ...
 
-Additionally, it didn't interface with libata at all. A native libata
-driver is greatly preferred.
 
--- 
-Jens Axboe
-
+Stefan

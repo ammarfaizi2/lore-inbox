@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWAaIuq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbWAaIy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbWAaIuq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 03:50:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbWAaIuq
+	id S1750708AbWAaIy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 03:54:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWAaIy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 03:50:46 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:53958 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1750702AbWAaIuq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 03:50:46 -0500
-Message-ID: <43DF36EF.C38E6C4B@tv-sign.ru>
-Date: Tue, 31 Jan 2006 13:07:43 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Tue, 31 Jan 2006 03:54:27 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:11570 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750708AbWAaIy1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 03:54:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=LfZQdY2yhf5EH+cGIWzHe/+1cyZw5sZ/tMT7a9+4/2CtEMDxXfAFBKms9i5sMrC5omHF/fEkD/Y/ulodSF6ECBEI0tlpkoNoOc2QfV5HaP0JtiA+RzdSuL4bKHktnXE6Uh5CxXWYJKnU+rrAiYcWeTF9mRiwNFgM8Xy+Y7IpyI0=
+Message-ID: <9a8748490601310054w19e0fa1foc0cb8c65e337aadf@mail.gmail.com>
+Date: Tue, 31 Jan 2006 09:54:26 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "L. A. Walsh" <lkml@tlinx.org>
+Subject: Re: i386 requires x86_64?
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43DED532.5060407@tlinx.org>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] exec: Cleanup exec from a non thread group leader.
-References: <43DDFDE3.58C01234@tv-sign.ru> <43DE2730.795468DC@tv-sign.ru> <m1vew15ud4.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43DED532.5060407@tlinx.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
-> 
-> Oleg Nesterov <oleg@tv-sign.ru> writes:
-> 
-> > Oleg Nesterov wrote:
-> >>
-> >> Eric W. Biederman wrote:
-> >> >
-> >> > -     list_add_tail(&thread->tasks, &init_task.tasks);
-> >>
-> >> The last deletion is wrong, I beleive.
-> >
-> > Just to clarify, it looks like we can kill this line because
-> > de_thread() also does list_add_tail(current, &init_task.tasks).
-> >
-> > But please note that it (and probably __ptrace_link() above)
-> > does list_del(current->task) first, and current->task may have
-> > very stale values after old leader called dup_task_struct().
-> > SET_LINKS() in copy_process() does nothing with ->tasks in a
-> > CLONE_THREAD case.
-> 
-> Good point in that instance we need to remove the list_del
-> as well.
+On 1/31/06, L. A. Walsh <lkml@tlinx.org> wrote:
+> Generating a new kernel and wanted to delete the unrelated architectures.
+>
 
-We can't just remove this list_del, note __ptrace_link() above.
-So if we remove list_add from switch_exec_pids() (like you did
-in your patch) we should also place list_add before ptrace_link()
-in de_thread(), otherwise I beleive it is a bug.
+Why bother deleting parts of the code?
+The kernel you build will only contain code for the architecture you
+build for anyway. Sure, the extra source takes up a little space on
+disk but if that bothers you you could just delete (or tar+bzip2) the
+entire source tree after you build and install your new kernel.
 
-I agree, we should cleanup this. I just noticed that I forgot
-to add you on CC: list while sending this patch:
-
-	http://marc.theaimsgroup.com/?l=linux-kernel&m=113862839924746
-
-Btw, I don't understand why __ptrace_link() use REMOVE_LINKS/SET_LINKS
-instead of remove_parent/add_parent.
-
-Oleg.
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

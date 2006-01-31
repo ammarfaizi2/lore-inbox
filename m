@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbWAaXEc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWAaXHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750932AbWAaXEc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 18:04:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWAaXEc
+	id S1750968AbWAaXHV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 18:07:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbWAaXHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 18:04:32 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:12480 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750925AbWAaXEc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 18:04:32 -0500
-From: Pat Gefre <pfg@sgi.com>
-Message-Id: <200601312304.k0VN4Pnp044804@fsgi900.americas.sgi.com>
-Subject: [PATCH] 2.6 Altix : correct export call
-To: akpm@osdl.org
-Date: Tue, 31 Jan 2006 17:04:25 -0600 (CST)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL2]
+	Tue, 31 Jan 2006 18:07:21 -0500
+Received: from xenotime.net ([66.160.160.81]:9664 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750957AbWAaXHU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 18:07:20 -0500
+Date: Tue, 31 Jan 2006 15:07:18 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Pat Gefre <pfg@sgi.com>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6 Altix : correct export call
+In-Reply-To: <200601312304.k0VN4Pnp044804@fsgi900.americas.sgi.com>
+Message-ID: <Pine.LNX.4.58.0601311506380.5449@shark.he.net>
+References: <200601312304.k0VN4Pnp044804@fsgi900.americas.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+On Tue, 31 Jan 2006, Pat Gefre wrote:
 
-I didn't get any resistence to this - so guessing these are the correct
-macro calls...
+> Andrew,
+>
+> I didn't get any resistence to this - so guessing these are the correct
+> macro calls...
+>
+>
+>
+> Call EXPORT_SYMBOL_GPL in ioc3 shim layer.
 
-
-
-Call EXPORT_SYMBOL_GPL in ioc3 shim layer.
-
-
-Signed-off-by: Patrick Gefre <pfg@sgi.com>
-
-
- ioc3.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
+only resistence to "Call".  Try "Use".
 
 
-Index: linux/drivers/sn/ioc3.c
-===================================================================
---- linux.orig/drivers/sn/ioc3.c	2006-01-26 10:46:30.201721192 -0600
-+++ linux/drivers/sn/ioc3.c	2006-01-26 11:53:34.685090381 -0600
-@@ -843,9 +843,9 @@
- MODULE_DESCRIPTION("PCI driver for SGI IOC3");
- MODULE_LICENSE("GPL");
- 
--EXPORT_SYMBOL(ioc3_register_submodule);
--EXPORT_SYMBOL(ioc3_unregister_submodule);
--EXPORT_SYMBOL(ioc3_ack);
--EXPORT_SYMBOL(ioc3_gpcr_set);
--EXPORT_SYMBOL(ioc3_disable);
--EXPORT_SYMBOL(ioc3_enable);
-+EXPORT_SYMBOL_GPL(ioc3_register_submodule);
-+EXPORT_SYMBOL_GPL(ioc3_unregister_submodule);
-+EXPORT_SYMBOL_GPL(ioc3_ack);
-+EXPORT_SYMBOL_GPL(ioc3_gpcr_set);
-+EXPORT_SYMBOL_GPL(ioc3_disable);
-+EXPORT_SYMBOL_GPL(ioc3_enable);
+> Signed-off-by: Patrick Gefre <pfg@sgi.com>
+>
+>
+>  ioc3.c |   12 ++++++------
+>  1 files changed, 6 insertions(+), 6 deletions(-)
+>
+>
+> Index: linux/drivers/sn/ioc3.c
+> ===================================================================
+> --- linux.orig/drivers/sn/ioc3.c	2006-01-26 10:46:30.201721192 -0600
+> +++ linux/drivers/sn/ioc3.c	2006-01-26 11:53:34.685090381 -0600
+> @@ -843,9 +843,9 @@
+>  MODULE_DESCRIPTION("PCI driver for SGI IOC3");
+>  MODULE_LICENSE("GPL");
+>
+> -EXPORT_SYMBOL(ioc3_register_submodule);
+> -EXPORT_SYMBOL(ioc3_unregister_submodule);
+> -EXPORT_SYMBOL(ioc3_ack);
+> -EXPORT_SYMBOL(ioc3_gpcr_set);
+> -EXPORT_SYMBOL(ioc3_disable);
+> -EXPORT_SYMBOL(ioc3_enable);
+> +EXPORT_SYMBOL_GPL(ioc3_register_submodule);
+> +EXPORT_SYMBOL_GPL(ioc3_unregister_submodule);
+> +EXPORT_SYMBOL_GPL(ioc3_ack);
+> +EXPORT_SYMBOL_GPL(ioc3_gpcr_set);
+> +EXPORT_SYMBOL_GPL(ioc3_disable);
+> +EXPORT_SYMBOL_GPL(ioc3_enable);
+> -
+
+-- 
+~Randy

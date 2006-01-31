@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbWAaBDP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbWAaBKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030251AbWAaBDP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 20:03:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbWAaBDP
+	id S1030254AbWAaBKj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 20:10:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965057AbWAaBKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 20:03:15 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:7498 "EHLO
-	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S965055AbWAaBDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 20:03:14 -0500
-Date: Mon, 30 Jan 2006 19:01:51 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future
- Linux (stirring up a hornets' nest) ]
-In-reply-to: <5AKRr-4V5-19@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43DEB6FF.1020505@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-References: <5zENZ-72l-47@gated-at.bofh.it> <5AiBB-5AH-17@gated-at.bofh.it>
- <5AiV2-62l-7@gated-at.bofh.it> <5AJ9s-2go-23@gated-at.bofh.it>
- <5AKHI-4IV-5@gated-at.bofh.it> <5AKRr-4V5-19@gated-at.bofh.it>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
+	Mon, 30 Jan 2006 20:10:39 -0500
+Received: from mail.suse.de ([195.135.220.2]:59822 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965056AbWAaBKi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 20:10:38 -0500
+From: Neil Brown <neilb@suse.de>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Date: Tue, 31 Jan 2006 12:10:32 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17374.47368.715991.422607@cse.unsw.edu.au>
+Cc: klibc list <klibc@zytor.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-raid@vger.kernel.org
+Subject: Re: Exporting which partitions to md-configure
+In-Reply-To: message from H. Peter Anvin on Monday January 30
+References: <43DEB4B8.5040607@zytor.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling wrote:
-> There is no such bug in libscg.
+On Monday January 30, hpa@zytor.com wrote:
 > 
-> There is nothing that has been freezed. 
+> Any feeling how best to do that?  My current thinking is to export a 
+> "flags" entry in addition to the current ones, presumably based on 
+> "struct parsed_partitions->parts[].flags" (fs/partitions/check.h), which 
+> seems to be what causes md_autodetect_dev() to be called.
 > 
-> If you have the apropriate privs to send SCSI commands to any SCSI device 
-> on the system, you will not come across your problem.
-> 
-> Now let us try to talk about real problems or stop this discussion.
 
-It appears that you are wanting to blame all of these problems on Linux 
-and refuse to accept the possibility that cdrecord/libscg is doing 
-things incorrectly from a Linux perspective. If you want to "talk about 
-real problems" you must accept this possibility.
+I think I would prefer a 'type' attribute in each partition that
+records the 'type' from the partition table.  This might be more
+generally useful than just for md.
+Then your userspace code would have to look for '253' and use just
+those partitions.
 
-Why should I have to give privileges to send SCSI commands to any device 
-  in the system just to write CDs? The answer, it would appear, is that 
-cdrecord is messing with things (i.e. /dev/sg interface) it has no 
-business messing with in current Linux systems, since that interface 
-should not be necessary for the purpose of cdrecord.
-
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+NeilBrown

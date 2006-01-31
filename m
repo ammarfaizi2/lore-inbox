@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030285AbWAaDTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030295AbWAaDVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030285AbWAaDTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 22:19:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030288AbWAaDTZ
+	id S1030295AbWAaDVs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 22:21:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030292AbWAaDVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 22:19:25 -0500
-Received: from ishtar.tlinx.org ([64.81.245.74]:62601 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id S1030285AbWAaDTY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 22:19:24 -0500
-Message-ID: <43DED73B.7060902@tlinx.org>
-Date: Mon, 30 Jan 2006 19:19:23 -0800
-From: "L. A. Walsh" <lkml@tlinx.org>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-CC: Linux-Xfs <linux-xfs@oss.sgi.com>
-Subject: Compile warnings in XFS, kernel 2.6.15.1
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Jan 2006 22:21:48 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:64689
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1030288AbWAaDVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 22:21:47 -0500
+Date: Mon, 30 Jan 2006 19:21:33 -0800
+From: Greg KH <greg@kroah.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org,
+       klibc list <klibc@zytor.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [klibc] Exporting which partitions to md-configure
+Message-ID: <20060131032133.GA8920@kroah.com>
+References: <43DEB4B8.5040607@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43DEB4B8.5040607@zytor.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Are these warnings anything to worry about?
+On Mon, Jan 30, 2006 at 04:52:08PM -0800, H. Peter Anvin wrote:
+> I'm putting the final touches on kinit, which is the user-space 
+> replacement (based on klibc) for the whole in-kernel root-mount complex. 
+>   Pretty much the one thing remaining -- other than lots of testing -- 
+> is to handle automatically mounted md devices.  In order to do that, 
+> without adding userspace versions of all the paritition code (which may 
+> be a future change, but a pretty big one) it would be good if the 
+> partition flag to auto-configure RAID was available in userspace, 
+> presumably through sysfs.
 
-  CC      fs/xfs/xfs_bmap.o
-  LD      fs/udf/udf.o
-  LD      fs/udf/built-in.o
-  CC      fs/dnotify.o
-  CC      fs/xfs/xfs_bmap_btree.o
-fs/xfs/xfs_bmap.c: In function `xfs_bmap_search_extents':
-fs/xfs/xfs_bmap.c:3590: warning: long long unsigned int format, 
-different type arg (arg 5)
-  CC      fs/xfs/xfs_btree.o
-  CC      fs/xfs/xfs_buf_item.o
-  CC      fs/xfs/xfs_iget.o
-  CC      fs/xfs/xfs_inode.o
-  CC      fs/xfs/xfs_inode_item.o
-  CC      fs/xfs/xfs_iocore.o
-  CC      fs/xfs/xfs_iomap.o
-  CC      fs/xfs/xfs_itable.o
-fs/xfs/xfs_iomap.c: In function `xfs_iomap_write_direct':
-fs/xfs/xfs_iomap.c:488: warning: long long unsigned int format, 
-different type arg (arg 5)
-fs/xfs/xfs_iomap.c: In function `xfs_iomap_write_delay':
-fs/xfs/xfs_iomap.c:591: warning: long long unsigned int format, 
-different type arg (arg 5)
-fs/xfs/xfs_iomap.c:697: warning: long long unsigned int format, 
-different type arg (arg 5)
-fs/xfs/xfs_iomap.c: In function `xfs_iomap_write_allocate':
-fs/xfs/xfs_iomap.c:834: warning: long long unsigned int format, 
-different type arg (arg 5)
-fs/xfs/xfs_iomap.c: In function `xfs_iomap_write_unwritten':
-fs/xfs/xfs_iomap.c:941: warning: long long unsigned int format, 
-different type arg (arg 5)
+What are you looking for exactly?  udev has a great helper program,
+volume_id, that identifies any type of filesystem that Linux knows about
+(it was based on the ext2 lib code, but smaller, and much more sane, and
+works better.)
+
+Would that help out here?
+
+thanks,
+
+greg k-h

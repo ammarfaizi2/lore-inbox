@@ -1,66 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWAaK2V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWAaK24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbWAaK2V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 05:28:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWAaK2V
+	id S1750744AbWAaK24 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 05:28:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWAaK24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 05:28:21 -0500
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:50693 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1750734AbWAaK2U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 05:28:20 -0500
-Date: Tue, 31 Jan 2006 21:27:58 +1100
-To: Ingo Molnar <mingo@elte.hu>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [lock validator] inet6_destroy_sock(): soft-safe -> soft-unsafe lock dependency
-Message-ID: <20060131102758.GA31460@gondor.apana.org.au>
-References: <20060127001807.GA17179@elte.hu> <E1F2IcV-0007Iq-00@gondolin.me.apana.org.au> <20060128152204.GA13940@elte.hu>
+	Tue, 31 Jan 2006 05:28:56 -0500
+Received: from ganesha.gnumonks.org ([213.95.27.120]:27046 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S1750742AbWAaK2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 05:28:55 -0500
+Date: Tue, 31 Jan 2006 11:28:52 +0100
+From: Harald Welte <laforge@netfilter.org>
+To: Reuben Farrelly <reuben-lkml@reub.net>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       Linux Netdev List <netdev@vger.kernel.org>
+Subject: Re: ip_conntrack related slab error (Re: Fw: Re: 2.6.16-rc1-mm3)
+Message-ID: <20060131102852.GV4603@sunbeam.de.gnumonks.org>
+References: <20060130221429.5f12d947.akpm@osdl.org> <20060131092447.GL4603@sunbeam.de.gnumonks.org> <43DF3677.8040701@reub.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tWRTUBMosAF2WQf4"
 Content-Disposition: inline
-In-Reply-To: <20060128152204.GA13940@elte.hu>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <43DF3677.8040701@reub.net>
+User-Agent: mutt-ng devel-20050619 (Debian)
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 28, 2006 at 04:22:04PM +0100, Ingo Molnar wrote:
-> 
->  ===========================================================
->  [ BUG: soft-safe -> soft-unsafe lock dependency detected! ]
->  -----------------------------------------------------------
->  sshd/2853 [HC0[0]:SC0[1]:HE1:SE0] is trying to acquire:
->   (&newsk->sk_dst_lock){+-}, at: [<c048f385>] inet6_destroy_sock+0x25/0x100
->  
->  and this task is already holding:
->   (&((sk)->sk_lock.slock)){+-}, at: [<c0464832>] tcp_close+0x142/0x650
->  which would create a new lock dependency:
->    (&((sk)->sk_lock.slock)){+-} -> (&newsk->sk_dst_lock){+-}
 
-OK, I believe this is a false positive.  However, Dave should
-double-check this.
+--tWRTUBMosAF2WQf4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-tcp_close is only called from process context.  The rule for sk_dst_lock
-is that it must also only be obtained in process context.  On the other
-hand, it is true that sk_lock can be obtained in softirq context.
+On Tue, Jan 31, 2006 at 11:05:43PM +1300, Reuben Farrelly wrote:
 
-In this particular case, sk_dst_lock is obtained by tcp_close with
-softirqs disabled.  This is not a problem in itself since we're not
-trying to get sk_dst_lock from a real softirq context (as opposed to
-process context with softirq disabled).
+> >>slab error in kmem_cache_destroy(): cache `ip_conntrack': Can't free al=
+l objects
+> >>  [<b010412b>] show_trace+0xd/0xf
+> >>  [<b01041cc>] dump_stack+0x17/0x19
+> >>  [<b0155d04>] kmem_cache_destroy+0x9b/0x1a9
+> >>  [<f0ebf701>] ip_conntrack_cleanup+0x5d/0x10e [ip_conntrack]
+> >>  [<f0ebe31e>] init_or_cleanup+0x1f8/0x283 [ip_conntrack]
+> >>  [<f0ec2c4e>] fini+0xa/0x66 [ip_conntrack]
+> >>  [<b0136d06>] sys_delete_module+0x161/0x1fb
+> >>  [<b0102b3f>] sysenter_past_esp+0x54/0x75
+> >>Removing netfilter NETLINK layer.
+> >>[root@tornado log]#
+> >>I was just reading IMAP mail at the time, ie same as I'd been doing for=
+ an hour or two beforehand and not=20
+> >>altering config of the box in any way.  I was able to log on via consol=
+e but lost all network connectivity and=20
+> >>had to reboot :(
+> >The codepath you see in that backtrace is only hit during load or
+> >removal of the 'ip_conntrack' module.  While this certainly still should
+> >not oops, your description of 'not doing anything but IMAP reading' is
+> >certainly not true. =20
+>=20
+> With the greatest of respect (which I do have for you Harald), I don't
+> think being essentially called a liar is very fair.
 
-I believe this warning comes about because the validator creates a
-dependency between sk_lock and sk_dst_lock.  It then infers from this
-dependency that in softirq contexts where sk_lock is obtained the code
-may also attempt to obtain sk_dst_lock.
+I didn't want to imply that you are lying, but merely point out that
+something was going on on your system that you didn't be aware of.
 
-This inference is where the validator errs.  sk_dst_lock is never
-(or should never be, and as far as I can see none of the traces show
-it to do so) obtained in a real softirq context.
+Sorry if that was to be misunderstood.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Without knowing what actually happened at the time you encountered the
+bug, it is hard for me to try and reproduce / understand it.
+
+This is not a lame excuse.
+
+--=20
+- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
+
+--tWRTUBMosAF2WQf4
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFD3zvkXaXGVTD0i/8RAhA1AKCxE/aFmCfpCURTvDJrUh4ZGWrd0gCfUAp6
+hkco6uCZK4UVkPMdaRO7zrA=
+=l9sR
+-----END PGP SIGNATURE-----
+
+--tWRTUBMosAF2WQf4--

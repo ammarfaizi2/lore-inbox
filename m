@@ -1,67 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbWAaABe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030236AbWAaAES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965045AbWAaABe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 19:01:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965046AbWAaABe
+	id S1030236AbWAaAES (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 19:04:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWAaAES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 19:01:34 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:11500 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S965045AbWAaABe (ORCPT
+	Mon, 30 Jan 2006 19:04:18 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:41653 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965046AbWAaAER (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 19:01:34 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [ 15/23] [Suspend2] Helper for counting uninterruptible threads of a type.
-Date: Tue, 31 Jan 2006 01:02:00 +0100
-User-Agent: KMail/1.9.1
-Cc: Nigel Cunningham <nigel@suspend2.net>, linux-kernel@vger.kernel.org
-References: <20060126034518.3178.55397.stgit@localhost.localdomain> <200601302318.28922.rjw@sisk.pl> <20060130222541.GK2250@elf.ucw.cz>
-In-Reply-To: <20060130222541.GK2250@elf.ucw.cz>
+	Mon, 30 Jan 2006 19:04:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=JIHsEtjrua71ZCqgtZ/nj/m5yQcTCGMcbabcKEhHkEuYKmqBK1aunRwYojOF8FUlBtMa/RClFHI+kzY50BRuNEP6m5PibgTYPd0ggNc3ws4+zlf7lxuTAZYeBkR6GDCg+itBvJVfSHteTbiGkkNv+zB2hti+1S2PUgidXgpP1Jw=
+Message-ID: <43DEA978.8000706@gmail.com>
+Date: Tue, 31 Jan 2006 09:04:08 +0900
+From: Tejun <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Ingo Oeser <ioe-lkml@rameria.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] libata queue updated
+References: <20060128182522.GA31458@havoc.gtf.org> <200601300936.43977.ioe-lkml@rameria.de> <43DDD206.6000502@gmail.com> <200601302002.18962.ioe-lkml@rameria.de>
+In-Reply-To: <200601302002.18962.ioe-lkml@rameria.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601310102.00646.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Monday 30 January 2006 23:25, Pavel Machek wrote:
-> On Po 30-01-06 23:18:28, Rafael J. Wysocki wrote:
-> > On Thursday 26 January 2006 04:45, Nigel Cunningham wrote:
-> > > 
-> > > Add a helper which counts the number of patches of a type (all
-> > > or userspace only) which are in TASK_UNINTERRUPTIBLE state.
-> > > These tasks are signalled (just in case they leave that state at
-> > > a later point), but we do not consider freezing to have failed
-> > > if and when they do not enter the freezer.
-> > > 
-> > > Note that when they eventually leave TASK_UNINTERRUPTIBLE state,
-> > > they will enter the refrigerator, but will immediately exit if
-> > > we no longer want to freeze at that point.
-> > 
-> > I think we need to do something like this to prevent problems with
-> > freezing under load.
+Ingo Oeser wrote:
+> Hi,
 > 
-> That is dangerous... task in UNINTERRUPTIBLE may hold some lock,
-> AFAICT.
+> On Monday 30 January 2006 09:44, Tejun Heo wrote:
+> 
+>>So, are you saying....
+>>
+>>struct ata_classes {
+>>	unsigned int classes[2];
+>>|;
+>>
+>>is safer than
+>>
+>>unsigned int *class;
+>>
+>>?
+> 
+>  
+> No, but with a little bit of additional code it CAN be safer.
+> 
+> Or maybe, we can store the classification in a different way.
+> 
+> What about putting the information directly into "ap->device[INDEX].class" 
+> in the sole caller (ata_drive_probe_reset) so far?
+> 
 
-Yes, and we have discussed that already, but frankly I'm still unconvinced. ;-)
+Not altering ->class directly in lldd driver is one major point of this 
+whole patchset such that higher level driving logic has a say on whether 
+a device is online or not, not the low level driver.  Primarily this is 
+useful for sharing low-level codes with hot plugging / EH but it's also 
+possible to retry some of the operations during probing in limited cases.
 
-> No, there's some simple bug in refrigerator, and I/we need to fix
-> that. Signals work under load, so refrigerator should, too.
+> 
+>>>So please let the core layer pass a bounded array here or provide
+>>>a function from core layer to set that and check the index.
+>>>
+>>
+>>Can you show me what you have in mind as code?
+> 
+>  
+> /* Define this to 15, if you need to */
+> #define ATA_MAX_CLASSES 2
+> struct ata_set {
+>         unsigned int class[ATA_MAX_CLASSES];
+> };
+> 
+> void set_ata_class(struct ata_set *cls, unsigned int idx, unsigned int what)
+> {
+>         BUG_ON(idx >= ARRAY_SIZE(cls->class);
+>         cls->class[idx] = what;
+> }
+> 
+> set_ata_class(&myclass, 0, what);
+> 
+> You can enforce that even better by making "what" 
+> a typedef like we do it with pte/pmd/pud/pgd in the VM.
 
-I don't think there's a bug as such.  The refrigerator is just very simple
-and apparently does not cover all possible cases.
+First of all, I'm not a big fan of safety through typedef/structure kind 
+of stuff.  For VM, I think it's justifiable, but this class thing 
+doesn't involve any complex operation around it.  Drivers just do what 
+they do and record the result into the @classes array.  I mean, how/why 
+a driver would touch classes[1] when it can recognize only one device. 
+It's dictated by the hardware spec and reflected in the driver code.  If 
+a driver doesn't get this right, things wouldn't work at all.  @classes 
+safety is a minor issue at that point.
 
-I think the problems with freezing tasks are generally related to
-uninterruptible processes waiting for events that never happen.
+> But I prefer not passing this class stuff around, which would even safe
+> arguments and thus reduce code size.
 
-IMHO we can try to defer calling freeze() for kernel threads until all of the
-user space processes are frozen.  If that doesn't help, we'll need to treat
-uninterruptible tasks in a special way, I'm afraid.
+No boudnary check is done for accessing ap->device[i] and this is really 
+not a place to worry about code size, IMHO.
 
-Greetings,
-Rafael
+> Maybe we should even have a classify ata port operation instead?
+
+In ATA, probe and reset are closely related.  There's only one way to 
+get class code without resetting - EDD, and it doesn't always work well. 
+  That's why the callback is named ->probe_reset.  ATA devices are 
+designed to be classfied by resetting them.
+
+-- 
+tejun

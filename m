@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWAaMli@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWAaMle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbWAaMli (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 07:41:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbWAaMlg
+	id S1750791AbWAaMle (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 07:41:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbWAaMle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 07:41:36 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:43016 "HELO
+	Tue, 31 Jan 2006 07:41:34 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:41736 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750795AbWAaMlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 07:41:35 -0500
-Date: Tue, 31 Jan 2006 13:41:34 +0100
+	id S1750791AbWAaMld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 07:41:33 -0500
+Date: Tue, 31 Jan 2006 13:41:30 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linville@tuxdriver.com, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] AIRO{,_CS} <-> CRYPTO fixes
-Message-ID: <20060131124134.GH3655@stusta.de>
+Cc: jejb@steeleye.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove drivers/mca/mca-proc.c
+Message-ID: <20060131124130.GG3655@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,15 +22,11 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CRYPTO is a helper variable, and to make it easier for users, it should 
-therefore select'ed and not be listed in the dependencies.
+Do we really need an additional proc interface for the few drivers still 
+using the obsolete old MCA API?
 
-drivers/net/wireless/airo.c requires CONFIG_CRYPTO for compilations.
-
-Therefore, AIRO_CS also has to CRYPTO.
-
-Additionally, this patch removes the #ifdef's for the non-compiling 
-CRYPTO=n case from drivers/net/wireless/airo.c.
+This patch removes drivers/mca/mca-proc.c and does the cleanups that are 
+possible after this removal.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
@@ -39,287 +34,878 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 ---
 
 This patch was already sent on:
-- 21 Jan 2006
+- 23 Nov 2005
 
- drivers/net/wireless/Kconfig |    4 +-
- drivers/net/wireless/airo.c  |   56 +----------------------------------
- 2 files changed, 5 insertions(+), 55 deletions(-)
+ arch/i386/kernel/mca.c          |    2 
+ arch/i386/kernel/setup.c        |   12 -
+ drivers/block/ps2esdi.c         |    3 
+ drivers/mca/Kconfig             |    6 
+ drivers/mca/Makefile            |    1 
+ drivers/mca/mca-device.c        |   17 --
+ drivers/mca/mca-legacy.c        |    2 
+ drivers/mca/mca-proc.c          |  249 --------------------------------
+ drivers/net/3c523.c             |   34 ----
+ drivers/net/eexpress.c          |    1 
+ drivers/net/ibmlana.c           |   33 ----
+ drivers/net/ne2.c               |   27 ---
+ drivers/net/sk_mca.c            |    3 
+ drivers/net/tokenring/madgemc.c |   47 ------
+ drivers/scsi/aha1542.c          |    1 
+ drivers/scsi/ibmmca.c           |   55 -------
+ include/asm-i386/bugs.h         |    8 -
+ include/asm-i386/processor.h    |    7 
+ include/linux/mca.h             |   24 ---
+ 19 files changed, 1 insertion(+), 531 deletions(-)
 
---- linux-2.6.15-mm2-full/drivers/net/wireless/Kconfig.old	2006-01-10 20:40:12.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/net/wireless/Kconfig	2006-01-10 21:06:08.000000000 +0100
-@@ -244,6 +244,7 @@
- config AIRO
- 	tristate "Cisco/Aironet 34X/35X/4500/4800 ISA and PCI cards"
--	depends on NET_RADIO && ISA_DMA_API && CRYPTO && (PCI || BROKEN)
-+ 	depends on NET_RADIO && ISA_DMA_API && (PCI || BROKEN)
-+	select CRYPTO
- 	---help---
- 	  This is the standard Linux driver to support Cisco/Aironet ISA and
- 	  PCI 802.11 wireless cards.
-@@ -391,6 +392,7 @@
- config AIRO_CS
- 	tristate "Cisco/Aironet 34X/35X/4500/4800 PCMCIA cards"
- 	depends on NET_RADIO && PCMCIA && (BROKEN || !M32R)
-+	select CRYPTO
- 	---help---
- 	  This is the standard Linux driver to support Cisco/Aironet PCMCIA
- 	  802.11 wireless cards.  This driver is the same as the Aironet
---- linux-2.6.15-mm2-full/drivers/net/wireless/airo.c.old	2006-01-10 20:40:31.000000000 +0100
-+++ linux-2.6.15-mm2-full/drivers/net/wireless/airo.c	2006-01-10 20:42:44.000000000 +0100
-@@ -36,6 +36,7 @@
- #include <linux/in.h>
- #include <linux/bitops.h>
- #include <linux/scatterlist.h>
-+#include <linux/crypto.h>
- #include <asm/io.h>
- #include <asm/system.h>
+--- linux-2.6.15-rc2-mm1-full/drivers/mca/Kconfig.old	2005-11-23 19:39:38.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/drivers/mca/Kconfig	2005-11-23 19:39:45.000000000 +0100
+@@ -6,9 +6,3 @@
+ 	  have an unconverted MCA driver, you will need to say Y here.  It
+ 	  is safe to say Y anyway.
  
-@@ -87,14 +88,6 @@
- #include <linux/delay.h>
+-config MCA_PROC_FS
+-	bool "Support for the mca entry in /proc"
+-	depends on MCA_LEGACY && PROC_FS
+-	help
+-	  If you want the old style /proc/mca directory in addition to the
+-	  new style sysfs say Y here.
+--- linux-2.6.15-rc2-mm1-full/drivers/mca/Makefile.old	2005-11-23 19:39:53.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/drivers/mca/Makefile	2005-11-23 19:39:56.000000000 +0100
+@@ -2,6 +2,5 @@
+ 
+ obj-y	:= mca-bus.o mca-device.o mca-driver.o
+ 
+-obj-$(CONFIG_MCA_PROC_FS)	+= mca-proc.o
+ obj-$(CONFIG_MCA_LEGACY)	+= mca-legacy.o
+ 
+--- linux-2.6.15-rc2-mm1-full/include/linux/mca.h.old	2005-11-23 19:40:08.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/include/linux/mca.h	2005-11-23 19:52:58.000000000 +0100
+@@ -58,14 +58,6 @@
+ 	short			pos_register;
+ 	
+ 	enum MCA_AdapterStatus	status;
+-#ifdef CONFIG_MCA_PROC_FS
+-	/* name of the proc/mca file */
+-	char			procname[8];
+-	/* /proc info callback */
+-	MCA_ProcFn		procfn;
+-	/* device/context info for proc callback */
+-	void			*proc_dev;
+-#endif
+ 	struct device		dev;
+ 	char			name[32];
+ };
+@@ -99,7 +91,6 @@
+ #define to_mca_driver(mdriver) container_of(mdriver, struct mca_driver, driver)
+ 
+ /* Ongoing supported API functions */
+-extern struct mca_device *mca_find_device_by_slot(int slot);
+ extern int mca_system_init(void);
+ extern struct mca_bus *mca_attach_bus(int);
+ 
+@@ -120,8 +111,6 @@
+ 	return mca_dev ? mca_dev->name : NULL;
+ }
+ 
+-extern enum MCA_AdapterStatus mca_device_status(struct mca_device *mca_dev);
+-
+ extern struct bus_type mca_bus_type;
+ 
+ extern int mca_register_driver(struct mca_driver *drv);
+@@ -130,17 +119,4 @@
+ /* WARNING: only called by the boot time device setup */
+ extern int mca_register_device(int bus, struct mca_device *mca_dev);
+ 
+-#ifdef CONFIG_MCA_PROC_FS
+-extern void mca_do_proc_init(void);
+-extern void mca_set_adapter_procfn(int slot, MCA_ProcFn, void* dev);
+-#else
+-static inline void mca_do_proc_init(void)
+-{
+-}
+-
+-static inline void mca_set_adapter_procfn(int slot, MCA_ProcFn fn, void* dev)
+-{
+-}
+-#endif
+-
+ #endif /* _LINUX_MCA_H */
+--- linux-2.6.15-rc2-mm1-full/drivers/mca/mca-legacy.c.old	2005-11-23 19:53:13.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/drivers/mca/mca-legacy.c	2005-11-23 19:53:34.000000000 +0100
+@@ -169,7 +169,7 @@
+ 	return 0;
+ }
+ 
+-struct mca_device *mca_find_device_by_slot(int slot)
++static struct mca_device *mca_find_device_by_slot(int slot)
+ {
+ 	struct mca_find_device_by_slot_info info;
+ 
+--- linux-2.6.15-rc2-mm1-full/drivers/mca/mca-device.c.old	2005-11-23 19:52:25.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/drivers/mca/mca-device.c	2005-11-23 19:52:36.000000000 +0100
+@@ -187,23 +187,6 @@
+ EXPORT_SYMBOL(mca_device_set_claim);
+ 
+ /**
+- *	mca_device_status - get the status of the device
+- *	@mca_device:	device to get
+- *
+- *	returns an enumeration of the device status:
+- *
+- *	MCA_ADAPTER_NORMAL	adapter is OK.
+- *	MCA_ADAPTER_NONE	no adapter at device (should never happen).
+- *	MCA_ADAPTER_DISABLED	adapter is disabled.
+- *	MCA_ADAPTER_ERROR	adapter cannot be initialised.
+- */
+-enum MCA_AdapterStatus mca_device_status(struct mca_device *mca_dev)
+-{
+-	return mca_dev->status;
+-}
+-EXPORT_SYMBOL(mca_device_status);
+-
+-/**
+  *	mca_device_set_name - set the name of the device
+  *	@mca_device:	device to set the name of
+  *	@name:		name to set
+--- linux-2.6.15-rc2-mm1-full/include/asm-i386/processor.h.old	2005-11-23 19:54:01.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/include/asm-i386/processor.h	2005-11-23 19:55:49.000000000 +0100
+@@ -301,13 +301,6 @@
+ 		: :"a" (eax), "c" (ecx));
+ }
+ 
+-/* from system description table in BIOS.  Mostly for MCA use, but
+-others may find it useful. */
+-extern unsigned int machine_id;
+-extern unsigned int machine_submodel_id;
+-extern unsigned int BIOS_revision;
+-extern unsigned int mca_pentium_flag;
+-
+ /* Boot loader type from the setup header */
+ extern int bootloader_type;
+ 
+--- linux-2.6.15-rc2-mm1-full/include/asm-i386/bugs.h.old	2005-11-23 19:56:33.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/include/asm-i386/bugs.h	2005-11-23 19:57:11.000000000 +0100
+@@ -44,14 +44,6 @@
+ 
+ __setup("no-hlt", no_halt);
+ 
+-static int __init mca_pentium(char *s)
+-{
+-	mca_pentium_flag = 1;
+-	return 1;
+-}
+-
+-__setup("mca-pentium", mca_pentium);
+-
+ static int __init no_387(char *s)
+ {
+ 	boot_cpu_data.hard_math = 0;
+--- linux-2.6.15-rc2-mm1-full/arch/i386/kernel/mca.c.old	2005-11-23 19:40:46.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/arch/i386/kernel/mca.c	2005-11-23 19:40:52.000000000 +0100
+@@ -400,8 +400,6 @@
+ 	for (i = 0; i < MCA_STANDARD_RESOURCES; i++)
+ 		request_resource(&ioport_resource, mca_standard_resources + i);
+ 
+-	mca_do_proc_init();
+-
+ 	return 0;
+ 
+  out_unlock_nomem:
+--- linux-2.6.15-rc2-mm1-full/arch/i386/kernel/setup.c.old	2005-11-23 19:54:34.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/arch/i386/kernel/setup.c	2005-11-23 19:56:17.000000000 +0100
+@@ -99,15 +99,6 @@
+ extern acpi_interrupt_flags	acpi_sci_flags;
  #endif
  
--/* Support Cisco MIC feature */
--#define MICSUPPORT
--
--#if defined(MICSUPPORT) && !defined(CONFIG_CRYPTO)
--#warning MIC support requires Crypto API
--#undef MICSUPPORT
+-/* for MCA, but anyone else can use it if they want */
+-unsigned int machine_id;
+-#ifdef CONFIG_MCA
+-EXPORT_SYMBOL(machine_id);
 -#endif
+-unsigned int machine_submodel_id;
+-unsigned int BIOS_revision;
+-unsigned int mca_pentium_flag;
 -
- /* Hack to do some power saving */
- #define POWER_ON_DOWN
+ /* For PCI or other memory-mapped resources */
+ unsigned long pci_mem_start = 0x10000000;
+ #ifdef CONFIG_PCI
+@@ -1519,9 +1510,6 @@
+ 	saved_videomode = VIDEO_MODE;
+ 	if( SYS_DESC_TABLE.length != 0 ) {
+ 		set_mca_bus(SYS_DESC_TABLE.table[3] & 0x2);
+-		machine_id = SYS_DESC_TABLE.table[0];
+-		machine_submodel_id = SYS_DESC_TABLE.table[1];
+-		BIOS_revision = SYS_DESC_TABLE.table[2];
+ 	}
+ 	bootloader_type = LOADER_TYPE;
  
-@@ -1118,7 +1111,6 @@
- static int writerids(struct net_device *dev, aironet_ioctl *comp);
- static int flashcard(struct net_device *dev, aironet_ioctl *comp);
- #endif /* CISCO_EXT */
--#ifdef MICSUPPORT
- static void micinit(struct airo_info *ai);
- static int micsetup(struct airo_info *ai);
- static int encapsulate(struct airo_info *ai, etherHead *pPacket, MICBuffer *buffer, int len);
-@@ -1127,9 +1119,6 @@
- static u8 airo_rssi_to_dbm (tdsRssiEntry *rssi_rid, u8 rssi);
- static u8 airo_dbm_to_pct (tdsRssiEntry *rssi_rid, u8 dbm);
+--- linux-2.6.15-rc2-mm1-full/drivers/block/ps2esdi.c.old	2005-11-23 19:41:08.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/drivers/block/ps2esdi.c	2005-11-23 19:41:19.000000000 +0100
+@@ -205,7 +205,6 @@
+ 	int i;
+ 	if(ps2esdi_slot) {
+ 		mca_mark_as_unused(ps2esdi_slot);
+-		mca_set_adapter_procfn(ps2esdi_slot, NULL, NULL);
+ 	}
+ 	release_region(io_base, 4);
+ 	free_dma(dma_arb_level);
+@@ -313,7 +312,6 @@
  
--#include <linux/crypto.h>
--#endif
--
- struct airo_info {
- 	struct net_device_stats	stats;
- 	struct net_device             *dev;
-@@ -1190,12 +1179,10 @@
- 	unsigned long		scan_timestamp;	/* Time started to scan */
- 	struct iw_spy_data	spy_data;
- 	struct iw_public_data	wireless_data;
--#ifdef MICSUPPORT
- 	/* MIC stuff */
- 	struct crypto_tfm	*tfm;
- 	mic_module		mod[2];
- 	mic_statistics		micstats;
--#endif
- 	HostRxDesc rxfids[MPI_MAX_FIDS]; // rx/tx/config MPI350 descriptors
- 	HostTxDesc txfids[MPI_MAX_FIDS];
- 	HostRidDesc config_desc;
-@@ -1229,7 +1216,6 @@
- static int flashputbuf(struct airo_info *ai);
- static int flashrestart(struct airo_info *ai,struct net_device *dev);
+ 	ps2esdi_slot = slot;
+ 	mca_mark_as_used(slot);
+-	mca_set_adapter_procfn(slot, (MCA_ProcFn) ps2esdi_getinfo, NULL);
  
--#ifdef MICSUPPORT
- /***********************************************************************
-  *                              MIC ROUTINES                           *
-  ***********************************************************************
-@@ -1686,7 +1672,6 @@
- 	digest[2] = (val>>8) & 0xFF;
- 	digest[3] = val & 0xFF;
+ 	/* Found the slot - read the POS register 2 to get the necessary
+ 	   configuration and status information.  POS register 2 has the
+@@ -444,7 +442,6 @@
+ err_out1:
+ 	if(ps2esdi_slot) {
+ 		mca_mark_as_unused(ps2esdi_slot);
+-		mca_set_adapter_procfn(ps2esdi_slot, NULL, NULL);
+ 	}
+ 	return error;
  }
--#endif
+--- linux-2.6.15-rc2-mm1-full/drivers/net/3c523.c.old	2005-11-23 19:41:28.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/drivers/net/3c523.c	2005-11-23 19:45:48.000000000 +0100
+@@ -379,37 +379,6 @@
  
- static int readBSSListRid(struct airo_info *ai, int first,
- 		      BSSListRid *list) {
-@@ -2005,7 +1990,6 @@
- 	 * Firmware automaticly puts 802 header on so
- 	 * we don't need to account for it in the length
- 	 */
--#ifdef MICSUPPORT
- 	if (test_bit(FLAG_MIC_CAPABLE, &ai->flags) && ai->micstats.enabled &&
- 		(ntohs(((u16 *)buffer)[6]) != 0x888E)) {
- 		MICBuffer pMic;
-@@ -2022,9 +2006,7 @@
- 		memcpy (sendbuf, &pMic, sizeof(pMic));
- 		sendbuf += sizeof(pMic);
- 		memcpy (sendbuf, buffer, len - sizeof(etherHead));
--	} else
--#endif
--	{
-+	} else {
- 		*payloadLen = cpu_to_le16(len - sizeof(etherHead));
+ /*****************************************************************/
  
- 		dev->trans_start = jiffies;
-@@ -2400,9 +2382,7 @@
- 				ai->shared, ai->shared_dma);
- 		}
-         }
--#ifdef MICSUPPORT
- 	crypto_free_tfm(ai->tfm);
--#endif
- 	del_airo_dev( dev );
- 	free_netdev( dev );
+-static int elmc_getinfo(char *buf, int slot, void *d)
+-{
+-	int len = 0;
+-	struct net_device *dev = (struct net_device *) d;
+-	int i;
+-
+-	if (dev == NULL)
+-		return len;
+-
+-	len += sprintf(buf + len, "Revision: 0x%x\n",
+-		       inb(dev->base_addr + ELMC_REVISION) & 0xf);
+-	len += sprintf(buf + len, "IRQ: %d\n", dev->irq);
+-	len += sprintf(buf + len, "IO Address: %#lx-%#lx\n", dev->base_addr,
+-		       dev->base_addr + ELMC_IO_EXTENT);
+-	len += sprintf(buf + len, "Memory: %#lx-%#lx\n", dev->mem_start,
+-		       dev->mem_end - 1);
+-	len += sprintf(buf + len, "Transceiver: %s\n", dev->if_port ?
+-		       "External" : "Internal");
+-	len += sprintf(buf + len, "Device: %s\n", dev->name);
+-	len += sprintf(buf + len, "Hardware Address:");
+-	for (i = 0; i < 6; i++) {
+-		len += sprintf(buf + len, " %02x", dev->dev_addr[i]);
+-	}
+-	buf[len++] = '\n';
+-	buf[len] = 0;
+-
+-	return len;
+-}				/* elmc_getinfo() */
+-
+-/*****************************************************************/
+-
+ static int __init do_elmc_probe(struct net_device *dev)
+ {
+ 	static int slot;
+@@ -459,7 +428,6 @@
+ 		return ((base_addr || irq) ? -ENXIO : -ENODEV);
+ 
+ 	mca_set_adapter_name(slot, "3Com 3c523 Etherlink/MC");
+-	mca_set_adapter_procfn(slot, (MCA_ProcFn) elmc_getinfo, dev);
+ 
+ 	/* if we get this far, adapter has been found - carry on */
+ 	printk(KERN_INFO "%s: 3c523 adapter found in slot %d\n", dev->name, slot + 1);
+@@ -578,14 +546,12 @@
+ 
+ 	return 0;
+ err_out:
+-	mca_set_adapter_procfn(slot, NULL, NULL);
+ 	release_region(dev->base_addr, ELMC_IO_EXTENT);
+ 	return retval;
  }
-@@ -2726,9 +2706,7 @@
- 	ai->thr_pid = kernel_thread(airo_thread, dev, CLONE_FS | CLONE_FILES);
- 	if (ai->thr_pid < 0)
- 		goto err_out_free;
--#ifdef MICSUPPORT
- 	ai->tfm = NULL;
--#endif
- 	rc = add_airo_dev( dev );
- 	if (rc)
- 		goto err_out_thr;
-@@ -2969,10 +2947,8 @@
- 			airo_read_wireless_stats(ai);
- 		else if (test_bit(JOB_PROMISC, &ai->flags))
- 			airo_set_promisc(ai);
--#ifdef MICSUPPORT
- 		else if (test_bit(JOB_MIC, &ai->flags))
- 			micinit(ai);
--#endif
- 		else if (test_bit(JOB_EVENT, &ai->flags))
- 			airo_send_event(dev);
- 		else if (test_bit(JOB_AUTOWEP, &ai->flags))
-@@ -3010,12 +2986,10 @@
+  
+ static void cleanup_card(struct net_device *dev)
+ {
+-	mca_set_adapter_procfn(((struct priv *) (dev->priv))->slot, NULL, NULL);
+ 	release_region(dev->base_addr, ELMC_IO_EXTENT);
+ }
  
- 		if ( status & EV_MIC ) {
- 			OUT4500( apriv, EVACK, EV_MIC );
--#ifdef MICSUPPORT
- 			if (test_bit(FLAG_MIC_CAPABLE, &apriv->flags)) {
- 				set_bit(JOB_MIC, &apriv->flags);
- 				wake_up_interruptible(&apriv->thr_wait);
+--- linux-2.6.15-rc2-mm1-full/drivers/net/eexpress.c.old	2005-11-23 19:41:43.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/drivers/net/eexpress.c	2005-11-23 19:41:46.000000000 +0100
+@@ -385,7 +385,6 @@
  			}
--#endif
- 		}
- 		if ( status & EV_LINK ) {
- 			union iwreq_data	wrqu;
-@@ -3194,11 +3168,8 @@
- 				}
- 				bap_read (apriv, buffer + hdrlen/2, len, BAP0);
- 			} else {
--#ifdef MICSUPPORT
- 				MICBuffer micbuf;
--#endif
- 				bap_read (apriv, buffer, ETH_ALEN*2, BAP0);
--#ifdef MICSUPPORT
- 				if (apriv->micstats.enabled) {
- 					bap_read (apriv,(u16*)&micbuf,sizeof(micbuf),BAP0);
- 					if (ntohs(micbuf.typelen) > 0x05DC)
-@@ -3211,15 +3182,10 @@
- 						skb_trim (skb, len + hdrlen);
- 					}
- 				}
--#endif
- 				bap_read(apriv,buffer+ETH_ALEN,len,BAP0);
--#ifdef MICSUPPORT
- 				if (decapsulate(apriv,&micbuf,(etherHead*)buffer,len)) {
- badmic:
- 					dev_kfree_skb_irq (skb);
--#else
--				if (0) {
--#endif
- badrx:
- 					OUT4500( apriv, EVACK, EV_RX);
- 					goto exitrx;
-@@ -3430,10 +3396,8 @@
- 	int len = 0;
- 	struct sk_buff *skb;
- 	char *buffer;
--#ifdef MICSUPPORT
- 	int off = 0;
- 	MICBuffer micbuf;
--#endif
  
- 	memcpy_fromio(&rxd, ai->rxfids[0].card_ram_off, sizeof(rxd));
- 	/* Make sure we got something */
-@@ -3448,7 +3412,6 @@
- 			goto badrx;
- 		}
- 		buffer = skb_put(skb,len);
--#ifdef MICSUPPORT
- 		memcpy(buffer, ai->rxfids[0].virtual_host_addr, ETH_ALEN * 2);
- 		if (ai->micstats.enabled) {
- 			memcpy(&micbuf,
-@@ -3470,9 +3433,6 @@
- 			dev_kfree_skb_irq (skb);
- 			goto badrx;
- 		}
--#else
--		memcpy(buffer, ai->rxfids[0].virtual_host_addr, len);
--#endif
- #ifdef WIRELESS_SPY
- 		if (ai->spy_data.spy_number > 0) {
- 			char *sa;
-@@ -3689,13 +3649,11 @@
- 		ai->config.authType = AUTH_OPEN;
- 		ai->config.modulation = MOD_CCK;
+ 			mca_set_adapter_name(slot, "Intel EtherExpress 16 MCA");
+-			mca_set_adapter_procfn(slot, NULL, dev);
+ 			mca_mark_as_used(slot);
  
--#ifdef MICSUPPORT
- 		if ((cap_rid.len>=sizeof(cap_rid)) && (cap_rid.extSoftCap&1) &&
- 		    (micsetup(ai) == SUCCESS)) {
- 			ai->config.opmode |= MODE_MIC;
- 			set_bit(FLAG_MIC_CAPABLE, &ai->flags);
- 		}
--#endif
+ 			break;
+--- linux-2.6.15-rc2-mm1-full/drivers/net/ibmlana.c.old	2005-11-23 19:41:53.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/drivers/net/ibmlana.c	2005-11-23 19:49:32.000000000 +0100
+@@ -743,36 +743,6 @@
+  * driver methods
+  * ------------------------------------------------------------------------ */
  
- 		/* Save off the MAC */
- 		for( i = 0; i < ETH_ALEN; i++ ) {
-@@ -4170,15 +4128,12 @@
- 	}
- 	len -= ETH_ALEN * 2;
- 
--#ifdef MICSUPPORT
- 	if (test_bit(FLAG_MIC_CAPABLE, &ai->flags) && ai->micstats.enabled && 
- 	    (ntohs(((u16 *)pPacket)[6]) != 0x888E)) {
- 		if (encapsulate(ai,(etherHead *)pPacket,&pMic,len) != SUCCESS)
- 			return ERROR;
- 		miclen = sizeof(pMic);
- 	}
--#endif
+-/* MCA info */
 -
- 	// packet is destination[6], source[6], payload[len-12]
- 	// write the payload length and dst/src/payload
- 	if (bap_setup(ai, txFid, 0x0036, BAP1) != SUCCESS) return ERROR;
-@@ -7271,13 +7226,11 @@
- 	case AIROGSTAT:     ridcode = RID_STATUS;       break;
- 	case AIROGSTATSD32: ridcode = RID_STATSDELTA;   break;
- 	case AIROGSTATSC32: ridcode = RID_STATS;        break;
--#ifdef MICSUPPORT
- 	case AIROGMICSTATS:
- 		if (copy_to_user(comp->data, &ai->micstats,
- 				 min((int)comp->len,(int)sizeof(ai->micstats))))
- 			return -EFAULT;
- 		return 0;
--#endif
- 	case AIRORRID:      ridcode = comp->ridnum;     break;
- 	default:
- 		return -EINVAL;
-@@ -7309,9 +7262,7 @@
- static int writerids(struct net_device *dev, aironet_ioctl *comp) {
- 	struct airo_info *ai = dev->priv;
- 	int  ridcode;
--#ifdef MICSUPPORT
-         int  enabled;
--#endif
- 	Resp      rsp;
- 	static int (* writer)(struct airo_info *, u16 rid, const void *, int, int);
- 	unsigned char *iobuf;
-@@ -7368,11 +7319,9 @@
+-static int ibmlana_getinfo(char *buf, int slot, void *d)
+-{
+-	int len = 0, i;
+-	struct net_device *dev = (struct net_device *) d;
+-	ibmlana_priv *priv;
+-
+-	/* can't say anything about an uninitialized device... */
+-
+-	if (dev == NULL)
+-		return len;
+-	priv = netdev_priv(dev);
+-
+-	/* print info */
+-
+-	len += sprintf(buf + len, "IRQ: %d\n", priv->realirq);
+-	len += sprintf(buf + len, "I/O: %#lx\n", dev->base_addr);
+-	len += sprintf(buf + len, "Memory: %#lx-%#lx\n", dev->mem_start, dev->mem_end - 1);
+-	len += sprintf(buf + len, "Transceiver: %s\n", MediaNames[priv->medium]);
+-	len += sprintf(buf + len, "Device: %s\n", dev->name);
+-	len += sprintf(buf + len, "MAC address:");
+-	for (i = 0; i < 6; i++)
+-		len += sprintf(buf + len, " %02x", dev->dev_addr[i]);
+-	buf[len++] = '\n';
+-	buf[len] = 0;
+-
+-	return len;
+-}
+-
+ /* open driver.  Means also initialization and start of LANCE */
  
- 		PC4500_readrid(ai,RID_STATSDELTACLEAR,iobuf,RIDSIZE, 1);
+ static int ibmlana_open(struct net_device *dev)
+@@ -971,7 +941,6 @@
  
--#ifdef MICSUPPORT
- 		enabled = ai->micstats.enabled;
- 		memset(&ai->micstats,0,sizeof(ai->micstats));
- 		ai->micstats.enabled = enabled;
--#endif
+ 	/* make procfs entries */
+ 	mca_set_adapter_name(slot, "IBM LAN Adapter/A");
+-	mca_set_adapter_procfn(slot, (MCA_ProcFn) ibmlana_getinfo, dev);
  
- 		if (copy_to_user(comp->data, iobuf,
- 				 min((int)comp->len, (int)RIDSIZE))) {
+ 	mca_mark_as_used(slot);
+ 
+@@ -1049,7 +1018,6 @@
+ 			release_region(dev->base_addr, IBM_LANA_IORANGE);
+ 			mca_mark_as_unused(priv->slot);
+ 			mca_set_adapter_name(priv->slot, "");
+-			mca_set_adapter_procfn(priv->slot, NULL, NULL);
+ 			iounmap(priv->base);
+ 			free_netdev(dev);
+ 			break;
+@@ -1071,7 +1039,6 @@
+ 			release_region(dev->base_addr, IBM_LANA_IORANGE);
+ 			mca_mark_as_unused(priv->slot);
+ 			mca_set_adapter_name(priv->slot, "");
+-			mca_set_adapter_procfn(priv->slot, NULL, NULL);
+ 			iounmap(priv->base);
+ 			free_netdev(dev);
+ 		}
+--- linux-2.6.15-rc2-mm1-full/drivers/net/sk_mca.c.old	2005-11-23 19:42:31.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/drivers/net/sk_mca.c	2005-11-23 19:42:40.000000000 +0100
+@@ -1016,7 +1016,6 @@
+ 		free_irq(dev->irq, dev);
+ 	iounmap(priv->base);
+ 	mca_mark_as_unused(priv->slot);
+-	mca_set_adapter_procfn(priv->slot, NULL, NULL);
+ }
+ 
+ struct net_device * __init skmca_probe(int unit)
+@@ -1090,7 +1089,6 @@
+ 				     "SKNET junior MC2 Ethernet Adapter");
+ 	else
+ 		mca_set_adapter_name(slot, "SKNET MC2+ Ethernet Adapter");
+-	mca_set_adapter_procfn(slot, (MCA_ProcFn) skmca_getinfo, dev);
+ 
+ 	mca_mark_as_used(slot);
+ 
+@@ -1101,7 +1099,6 @@
+ 	priv = netdev_priv(dev);
+ 	priv->base = ioremap(base, 0x4000);
+ 	if (!priv->base) {
+-		mca_set_adapter_procfn(slot, NULL, NULL);
+ 		mca_mark_as_unused(slot);
+ 		free_netdev(dev);
+ 		return ERR_PTR(-ENOMEM);
+--- linux-2.6.15-rc2-mm1-full/drivers/net/tokenring/madgemc.c.old	2005-11-23 19:42:51.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/drivers/net/tokenring/madgemc.c	2005-11-23 19:45:04.000000000 +0100
+@@ -64,8 +64,6 @@
+ static unsigned short madgemc_setnselout_pins(struct net_device *dev);
+ static void madgemc_setcabletype(struct net_device *dev, int type);
+ 
+-static int madgemc_mcaproc(char *buf, int slot, void *d);
+-
+ static void madgemc_setregpage(struct net_device *dev, int page);
+ static void madgemc_setsifsel(struct net_device *dev, int val);
+ static void madgemc_setint(struct net_device *dev, int val);
+@@ -322,7 +320,6 @@
+ 
+ 	/* Setup MCA structures */
+ 	mca_device_set_name(mdev, (card->cardtype == 0x08)?MADGEMC16_CARDNAME:MADGEMC32_CARDNAME);
+-	mca_set_adapter_procfn(mdev->slot, madgemc_mcaproc, dev);
+ 
+ 	printk("%s:     Ring Station Address: ", dev->name);
+ 	printk("%2.2x", dev->dev_addr[0]);
+@@ -685,50 +682,6 @@
+ 	return 0;
+ }
+ 
+-/*
+- * Give some details available from /proc/mca/slotX
+- */
+-static int madgemc_mcaproc(char *buf, int slot, void *d) 
+-{	
+-	struct net_device *dev = (struct net_device *)d;
+-	struct net_local *tp = dev->priv;
+-	struct card_info *curcard = tp->tmspriv;
+-	int len = 0;
+-	
+-	len += sprintf(buf+len, "-------\n");
+-	if (curcard) {
+-		struct net_local *tp = netdev_priv(dev);
+-		int i;
+-		
+-		len += sprintf(buf+len, "Card Revision: %d\n", curcard->cardrev);
+-		len += sprintf(buf+len, "RAM Size: %dkb\n", curcard->ramsize);
+-		len += sprintf(buf+len, "Cable type: %s\n", (curcard->cabletype)?"STP/DB9":"UTP/RJ-45");
+-		len += sprintf(buf+len, "Configured ring speed: %dMb/sec\n", (curcard->ringspeed)?16:4);
+-		len += sprintf(buf+len, "Running ring speed: %dMb/sec\n", (tp->DataRate==SPEED_16)?16:4);
+-		len += sprintf(buf+len, "Device: %s\n", dev->name);
+-		len += sprintf(buf+len, "IO Port: 0x%04lx\n", dev->base_addr);
+-		len += sprintf(buf+len, "IRQ: %d\n", dev->irq);
+-		len += sprintf(buf+len, "Arbitration Level: %d\n", curcard->arblevel);
+-		len += sprintf(buf+len, "Burst Mode: ");
+-		switch(curcard->burstmode) {
+-		case 0: len += sprintf(buf+len, "Cycle steal"); break;
+-		case 1: len += sprintf(buf+len, "Limited burst"); break;
+-		case 2: len += sprintf(buf+len, "Delayed release"); break;
+-		case 3: len += sprintf(buf+len, "Immediate release"); break;
+-		}
+-		len += sprintf(buf+len, " (%s)\n", (curcard->fairness)?"Unfair":"Fair");
+-		
+-		len += sprintf(buf+len, "Ring Station Address: ");
+-		len += sprintf(buf+len, "%2.2x", dev->dev_addr[0]);
+-		for (i = 1; i < 6; i++)
+-			len += sprintf(buf+len, " %2.2x", dev->dev_addr[i]);
+-		len += sprintf(buf+len, "\n");
+-	} else 
+-		len += sprintf(buf+len, "Card not configured\n");
+-
+-	return len;
+-}
+-
+ static int __devexit madgemc_remove(struct device *device)
+ {
+ 	struct net_device *dev = dev_get_drvdata(device);
+--- linux-2.6.15-rc2-mm1-full/drivers/scsi/aha1542.c.old	2005-11-23 19:43:03.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/drivers/scsi/aha1542.c	2005-11-23 19:43:08.000000000 +0100
+@@ -1116,7 +1116,6 @@
+ 			printk(KERN_INFO "Found an AHA-1640 in MCA slot %d, I/O 0x%04x\n", slot, bases[indx]);
+ 
+ 			mca_set_adapter_name(slot, "Adapter AHA-1640");
+-			mca_set_adapter_procfn(slot, NULL, NULL);
+ 			mca_mark_as_used(slot);
+ 			
+ 			/* Go on */
+--- linux-2.6.15-rc2-mm1-full/drivers/scsi/ibmmca.c.old	2005-11-23 19:43:18.000000000 +0100
++++ linux-2.6.15-rc2-mm1-full/drivers/scsi/ibmmca.c	2005-11-23 19:47:00.000000000 +0100
+@@ -1432,57 +1432,6 @@
+ 	return;
+ }
+ 
+-static int ibmmca_getinfo(char *buf, int slot, void *dev_id)
+-{
+-	struct Scsi_Host *shpnt;
+-	int len, speciale, connectore, k;
+-	unsigned int pos[8];
+-	unsigned long flags;
+-	struct Scsi_Host *dev = dev_id;
+-
+-	spin_lock_irqsave(dev->host_lock, flags);
+-	
+-	shpnt = dev;		/* assign host-structure to local pointer */
+-	len = 0;		/* set filled text-buffer index to 0 */
+-	/* get the _special contents of the hostdata structure */
+-	speciale = ((struct ibmmca_hostdata *) shpnt->hostdata)->_special;
+-	connectore = ((struct ibmmca_hostdata *) shpnt->hostdata)->_connector_size;
+-	for (k = 2; k < 4; k++)
+-		pos[k] = ((struct ibmmca_hostdata *) shpnt->hostdata)->_pos[k];
+-	if (speciale == FORCED_DETECTION) {	/* forced detection */
+-		len += sprintf(buf + len,
+-			       "Adapter category: forced detected\n" "***************************************\n" "***  Forced detected SCSI Adapter   ***\n" "***  No chip-information available  ***\n" "***************************************\n");
+-	} else if (speciale == INTEGRATED_SCSI) {
+-		/* if the integrated subsystem has been found automatically: */
+-		len += sprintf(buf + len,
+-			       "Adapter category: integrated\n" "Chip revision level: %d\n" "Chip status: %s\n" "8 kByte NVRAM status: %s\n", ((pos[2] & 0xf0) >> 4), (pos[2] & 1) ? "enabled" : "disabled", (pos[2] & 2) ? "locked" : "accessible");
+-	} else if ((speciale >= 0) && (speciale < (sizeof(subsys_list) / sizeof(struct subsys_list_struct)))) {
+-		/* if the subsystem is a slot adapter */
+-		len += sprintf(buf + len, "Adapter category: slot-card\n" "ROM Segment Address: ");
+-		if ((pos[2] & 0xf0) == 0xf0)
+-			len += sprintf(buf + len, "off\n");
+-		else
+-			len += sprintf(buf + len, "0x%x\n", ((pos[2] & 0xf0) << 13) + 0xc0000);
+-		len += sprintf(buf + len, "Chip status: %s\n", (pos[2] & 1) ? "enabled" : "disabled");
+-		len += sprintf(buf + len, "Adapter I/O Offset: 0x%x\n", ((pos[2] & 0x0e) << 2));
+-	} else {
+-		len += sprintf(buf + len, "Adapter category: unknown\n");
+-	}
+-	/* common subsystem information to write to the slotn file */
+-	len += sprintf(buf + len, "Subsystem PUN: %d\n", shpnt->this_id);
+-	len += sprintf(buf + len, "I/O base address range: 0x%x-0x%x\n", (unsigned int) (shpnt->io_port), (unsigned int) (shpnt->io_port + 7));
+-	len += sprintf(buf + len, "MCA-slot size: %d bits", connectore);
+-	/* Now make sure, the bufferlength is devidable by 4 to avoid
+-	 * paging problems of the buffer. */
+-	while (len % sizeof(int) != (sizeof(int) - 1))
+-		len += sprintf(buf + len, " ");
+-	len += sprintf(buf + len, "\n");
+-	
+-	spin_unlock_irqrestore(shpnt->host_lock, flags);
+-	
+-	return len;
+-}
+-
+ int ibmmca_detect(struct scsi_host_template * scsi_template)
+ {
+ 	struct Scsi_Host *shpnt;
+@@ -1526,7 +1475,6 @@
+ 					((struct ibmmca_hostdata *) shpnt->hostdata)->_pos[k] = 0;
+ 				((struct ibmmca_hostdata *) shpnt->hostdata)->_special = FORCED_DETECTION;
+ 				mca_set_adapter_name(MCA_INTEGSCSI, "forced detected SCSI Adapter");
+-				mca_set_adapter_procfn(MCA_INTEGSCSI, (MCA_ProcFn) ibmmca_getinfo, shpnt);
+ 				mca_mark_as_used(MCA_INTEGSCSI);
+ 				devices_on_irq_14++;
+ 			}
+@@ -1594,7 +1542,6 @@
+ 				((struct ibmmca_hostdata *) shpnt->hostdata)->_pos[k] = pos[k];
+ 			((struct ibmmca_hostdata *) shpnt->hostdata)->_special = INTEGRATED_SCSI;
+ 			mca_set_adapter_name(MCA_INTEGSCSI, "IBM Integrated SCSI Controller");
+-			mca_set_adapter_procfn(MCA_INTEGSCSI, (MCA_ProcFn) ibmmca_getinfo, shpnt);
+ 			mca_mark_as_used(MCA_INTEGSCSI);
+ 			devices_on_irq_14++;
+ 		}
+@@ -1655,7 +1602,6 @@
+ 					((struct ibmmca_hostdata *) shpnt->hostdata)->_pos[k] = pos[k];
+ 				((struct ibmmca_hostdata *) shpnt->hostdata)->_special = i;
+ 				mca_set_adapter_name(slot, subsys_list[i].description);
+-				mca_set_adapter_procfn(slot, (MCA_ProcFn) ibmmca_getinfo, shpnt);
+ 				mca_mark_as_used(slot);
+ 				if ((i == IBM_SCSI2_FW) && (pos[4] & 0x01) && (pos[6] == 0))
+ 					devices_on_irq_11++;
+@@ -1717,7 +1663,6 @@
+ 					((struct ibmmca_hostdata *) shpnt->hostdata)->_pos[k] = pos[k];
+ 				((struct ibmmca_hostdata *) shpnt->hostdata)->_special = i;
+ 				mca_set_adapter_name(slot, subsys_list[i].description);
+-				mca_set_adapter_procfn(slot, (MCA_ProcFn) ibmmca_getinfo, shpnt);
+ 				mca_mark_as_used(slot);
+ 				if ((i == IBM_SCSI2_FW) && (pos[4] & 0x01) && (pos[6] == 0))
+ 					devices_on_irq_11++;
+--- linux-2.6.15-rc2-mm1-full/drivers/mca/mca-proc.c	2005-10-28 02:02:08.000000000 +0200
++++ /dev/null	2005-11-08 19:07:57.000000000 +0100
+@@ -1,249 +0,0 @@
+-/* -*- mode: c; c-basic-offset: 8 -*- */
+-
+-/*
+- * MCA bus support functions for the proc fs.
+- *
+- * NOTE: this code *requires* the legacy MCA api.
+- *
+- * Legacy API means the API that operates in terms of MCA slot number
+- *
+- * (C) 2002 James Bottomley <James.Bottomley@HansenPartnership.com>
+- *
+-**-----------------------------------------------------------------------------
+-**  
+-**  This program is free software; you can redistribute it and/or modify
+-**  it under the terms of the GNU General Public License as published by
+-**  the Free Software Foundation; either version 2 of the License, or
+-**  (at your option) any later version.
+-**
+-**  This program is distributed in the hope that it will be useful,
+-**  but WITHOUT ANY WARRANTY; without even the implied warranty of
+-**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-**  GNU General Public License for more details.
+-**
+-**  You should have received a copy of the GNU General Public License
+-**  along with this program; if not, write to the Free Software
+-**  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+-**
+-**-----------------------------------------------------------------------------
+- */
+-#include <linux/module.h>
+-#include <linux/init.h>
+-#include <linux/proc_fs.h>
+-#include <linux/mca.h>
+-
+-static int get_mca_info_helper(struct mca_device *mca_dev, char *page, int len)
+-{
+-	int j;
+-
+-	for(j=0; j<8; j++)
+-		len += sprintf(page+len, "%02x ",
+-			       mca_dev ? mca_dev->pos[j] : 0xff);
+-	len += sprintf(page+len, " %s\n", mca_dev ? mca_dev->name : "");
+-	return len;
+-}
+-
+-static int get_mca_info(char *page, char **start, off_t off,
+-			int count, int *eof, void *data)
+-{
+-	int i, len = 0;
+-
+-	if(MCA_bus) {
+-		struct mca_device *mca_dev;
+-		/* Format POS registers of eight MCA slots */
+-
+-		for(i=0; i<MCA_MAX_SLOT_NR; i++) {
+-			mca_dev = mca_find_device_by_slot(i);
+-
+-			len += sprintf(page+len, "Slot %d: ", i+1);
+-			len = get_mca_info_helper(mca_dev, page, len);
+-		}
+-
+-		/* Format POS registers of integrated video subsystem */
+-
+-		mca_dev = mca_find_device_by_slot(MCA_INTEGVIDEO);
+-		len += sprintf(page+len, "Video : ");
+-		len = get_mca_info_helper(mca_dev, page, len);
+-
+-		/* Format POS registers of integrated SCSI subsystem */
+-
+-		mca_dev = mca_find_device_by_slot(MCA_INTEGSCSI);
+-		len += sprintf(page+len, "SCSI  : ");
+-		len = get_mca_info_helper(mca_dev, page, len);
+-
+-		/* Format POS registers of motherboard */
+-
+-		mca_dev = mca_find_device_by_slot(MCA_MOTHERBOARD);
+-		len += sprintf(page+len, "Planar: ");
+-		len = get_mca_info_helper(mca_dev, page, len);
+-	} else {
+-		/* Leave it empty if MCA not detected - this should *never*
+-		 * happen!
+-		 */
+-	}
+-
+-	if (len <= off+count) *eof = 1;
+-	*start = page + off;
+-	len -= off;
+-	if (len>count) len = count;
+-	if (len<0) len = 0;
+-	return len;
+-}
+-
+-/*--------------------------------------------------------------------*/
+-
+-static int mca_default_procfn(char* buf, struct mca_device *mca_dev)
+-{
+-	int len = 0, i;
+-	int slot = mca_dev->slot;
+-
+-	/* Print out the basic information */
+-
+-	if(slot < MCA_MAX_SLOT_NR) {
+-		len += sprintf(buf+len, "Slot: %d\n", slot+1);
+-	} else if(slot == MCA_INTEGSCSI) {
+-		len += sprintf(buf+len, "Integrated SCSI Adapter\n");
+-	} else if(slot == MCA_INTEGVIDEO) {
+-		len += sprintf(buf+len, "Integrated Video Adapter\n");
+-	} else if(slot == MCA_MOTHERBOARD) {
+-		len += sprintf(buf+len, "Motherboard\n");
+-	}
+-	if (mca_dev->name[0]) {
+-
+-		/* Drivers might register a name without /proc handler... */
+-
+-		len += sprintf(buf+len, "Adapter Name: %s\n",
+-			       mca_dev->name);
+-	} else {
+-		len += sprintf(buf+len, "Adapter Name: Unknown\n");
+-	}
+-	len += sprintf(buf+len, "Id: %02x%02x\n",
+-		mca_dev->pos[1], mca_dev->pos[0]);
+-	len += sprintf(buf+len, "Enabled: %s\nPOS: ",
+-		mca_device_status(mca_dev) == MCA_ADAPTER_NORMAL ?
+-			"Yes" : "No");
+-	for(i=0; i<8; i++) {
+-		len += sprintf(buf+len, "%02x ", mca_dev->pos[i]);
+-	}
+-	len += sprintf(buf+len, "\nDriver Installed: %s",
+-		mca_device_claimed(mca_dev) ? "Yes" : "No");
+-	buf[len++] = '\n';
+-	buf[len] = 0;
+-
+-	return len;
+-} /* mca_default_procfn() */
+-
+-static int get_mca_machine_info(char* page, char **start, off_t off,
+-				 int count, int *eof, void *data)
+-{
+-	int len = 0;
+-
+-	len += sprintf(page+len, "Model Id: 0x%x\n", machine_id);
+-	len += sprintf(page+len, "Submodel Id: 0x%x\n", machine_submodel_id);
+-	len += sprintf(page+len, "BIOS Revision: 0x%x\n", BIOS_revision);
+-
+-	if (len <= off+count) *eof = 1;
+-	*start = page + off;
+-	len -= off;
+-	if (len>count) len = count;
+-	if (len<0) len = 0;
+-	return len;
+-}
+-
+-static int mca_read_proc(char *page, char **start, off_t off,
+-				 int count, int *eof, void *data)
+-{
+-	struct mca_device *mca_dev = (struct mca_device *)data;
+-	int len = 0;
+-
+-	/* Get the standard info */
+-
+-	len = mca_default_procfn(page, mca_dev);
+-
+-	/* Do any device-specific processing, if there is any */
+-
+-	if(mca_dev->procfn) {
+-		len += mca_dev->procfn(page+len, mca_dev->slot,
+-				       mca_dev->proc_dev);
+-	}
+-	if (len <= off+count) *eof = 1;
+-	*start = page + off;
+-	len -= off;
+-	if (len>count) len = count;
+-	if (len<0) len = 0;
+-	return len;
+-} /* mca_read_proc() */
+-
+-/*--------------------------------------------------------------------*/
+-
+-void __init mca_do_proc_init(void)
+-{
+-	int i;
+-	struct proc_dir_entry *proc_mca;
+-	struct proc_dir_entry* node = NULL;
+-	struct mca_device *mca_dev;
+-
+-	proc_mca = proc_mkdir("mca", &proc_root);
+-	create_proc_read_entry("pos",0,proc_mca,get_mca_info,NULL);
+-	create_proc_read_entry("machine",0,proc_mca,get_mca_machine_info,NULL);
+-
+-	/* Initialize /proc/mca entries for existing adapters */
+-
+-	for(i = 0; i < MCA_NUMADAPTERS; i++) {
+-		enum MCA_AdapterStatus status;
+-		mca_dev = mca_find_device_by_slot(i);
+-		if(!mca_dev)
+-			continue;
+-
+-		mca_dev->procfn = NULL;
+-
+-		if(i < MCA_MAX_SLOT_NR) sprintf(mca_dev->procname,"slot%d", i+1);
+-		else if(i == MCA_INTEGVIDEO) sprintf(mca_dev->procname,"video");
+-		else if(i == MCA_INTEGSCSI) sprintf(mca_dev->procname,"scsi");
+-		else if(i == MCA_MOTHERBOARD) sprintf(mca_dev->procname,"planar");
+-
+-		status = mca_device_status(mca_dev);
+-		if (status != MCA_ADAPTER_NORMAL &&
+-		    status != MCA_ADAPTER_DISABLED)
+-			continue;
+-
+-		node = create_proc_read_entry(mca_dev->procname, 0, proc_mca,
+-					      mca_read_proc, (void *)mca_dev);
+-
+-		if(node == NULL) {
+-			printk("Failed to allocate memory for MCA proc-entries!");
+-			return;
+-		}
+-	}
+-
+-} /* mca_do_proc_init() */
+-
+-/**
+- *	mca_set_adapter_procfn - Set the /proc callback
+- *	@slot: slot to configure
+- *	@procfn: callback function to call for /proc
+- *	@dev: device information passed to the callback
+- *
+- *	This sets up an information callback for /proc/mca/slot?.  The
+- *	function is called with the buffer, slot, and device pointer (or
+- *	some equally informative context information, or nothing, if you
+- *	prefer), and is expected to put useful information into the
+- *	buffer.  The adapter name, ID, and POS registers get printed
+- *	before this is called though, so don't do it again.
+- *
+- *	This should be called with a %NULL @procfn when a module
+- *	unregisters, thus preventing kernel crashes and other such
+- *	nastiness.
+- */
+-
+-void mca_set_adapter_procfn(int slot, MCA_ProcFn procfn, void* proc_dev)
+-{
+-	struct mca_device *mca_dev = mca_find_device_by_slot(slot);
+-
+-	if(!mca_dev)
+-		return;
+-
+-	mca_dev->procfn = procfn;
+-	mca_dev->proc_dev = proc_dev;
+-}
+-EXPORT_SYMBOL(mca_set_adapter_procfn);
 
+--- linux-2.6.16-rc1-mm4-full/drivers/net/ne2.c.old	2006-01-30 23:28:13.000000000 +0100
++++ linux-2.6.16-rc1-mm4-full/drivers/net/ne2.c	2006-01-30 23:29:17.000000000 +0100
+@@ -301,29 +301,6 @@
+ }
+ #endif
+ 
+-static int ne2_procinfo(char *buf, int slot, struct net_device *dev)
+-{
+-	int len=0;
+-
+-	len += sprintf(buf+len, "The NE/2 Ethernet Adapter\n" );
+-	len += sprintf(buf+len, "Driver written by Wim Dumon ");
+-	len += sprintf(buf+len, "<wimpie@kotnet.org>\n"); 
+-	len += sprintf(buf+len, "Modified by ");
+-	len += sprintf(buf+len, "David Weinehall <tao@acc.umu.se>\n");
+-	len += sprintf(buf+len, "and by Magnus Jonsson <bigfoot@acc.umu.se>\n");
+-	len += sprintf(buf+len, "Based on the original NE2000 drivers\n" );
+-	len += sprintf(buf+len, "Base IO: %#x\n", (unsigned int)dev->base_addr);
+-	len += sprintf(buf+len, "IRQ    : %d\n", dev->irq);
+-
+-#define HW_ADDR(i) dev->dev_addr[i]
+-	len += sprintf(buf+len, "HW addr : %x:%x:%x:%x:%x:%x\n", 
+-			HW_ADDR(0), HW_ADDR(1), HW_ADDR(2), 
+-			HW_ADDR(3), HW_ADDR(4), HW_ADDR(5) );
+-#undef HW_ADDR
+-
+-	return len;
+-}
+-
+ static int __init ne2_probe1(struct net_device *dev, int slot)
+ {
+ 	int i, base_addr, irq, retval;
+@@ -479,8 +456,6 @@
+ 	printk("\n%s: %s found at %#x, using IRQ %d.\n",
+ 			dev->name, name, base_addr, dev->irq);
+ 
+-	mca_set_adapter_procfn(slot, (MCA_ProcFn) ne2_procinfo, dev);
+-
+ 	ei_status.name = name;
+ 	ei_status.tx_start_page = start_page;
+ 	ei_status.stop_page = stop_page;
+@@ -511,7 +486,6 @@
+ 		goto out1;
+ 	return 0;
+ out1:
+-	mca_set_adapter_procfn( ei_status.priv, NULL, NULL);
+ 	free_irq(dev->irq, dev);
+ out:
+ 	release_region(base_addr, NE_IO_EXTENT);
+@@ -808,7 +782,6 @@
+ static void cleanup_card(struct net_device *dev)
+ {
+ 	mca_mark_as_unused(ei_status.priv);
+-	mca_set_adapter_procfn( ei_status.priv, NULL, NULL);
+ 	free_irq(dev->irq, dev);
+ 	release_region(dev->base_addr, NE_IO_EXTENT);
+ }

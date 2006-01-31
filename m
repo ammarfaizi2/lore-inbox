@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751527AbWAaVkL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751522AbWAaVlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751527AbWAaVkL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 16:40:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751533AbWAaVkK
+	id S1751522AbWAaVlm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 16:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751535AbWAaVlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 16:40:10 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:46901 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751527AbWAaVkJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 16:40:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tkvz4nRj3HVddU26Hsk/OjYJFpoDXZCDiRxsfOO+1mleB/nsk67FcagGU9gcZg3orFUH8AIPg2CR7q4b00Zk2dMMePrSZiOyGi0xdTXmBPukcfgqcnuvl+PQj50CLifnU+KcvfyD8RRxK+Pg5UF+kk71J8cHkvDc03SV/lzgMZA=
-Message-ID: <d120d5000601311340tee7d35cr177fff5a4072bc29@mail.gmail.com>
-Date: Tue, 31 Jan 2006 16:40:07 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [2.6 patch] drivers/input/: make some functions static
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060131213234.GD3986@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060131213234.GD3986@stusta.de>
+	Tue, 31 Jan 2006 16:41:42 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:27031 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1751522AbWAaVlm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 16:41:42 -0500
+Subject: Re: [PATCH 2/11] LED: Add LED Class
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060131205928.GA24349@kroah.com>
+References: <1138714888.6869.125.camel@localhost.localdomain>
+	 <20060131205928.GA24349@kroah.com>
+Content-Type: text/plain
+Date: Tue, 31 Jan 2006 21:41:37 +0000
+Message-Id: <1138743698.6869.273.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/31/06, Adrian Bunk <bunk@stusta.de> wrote:
-> This patch makes some needlessly global functions static.
->
+On Tue, 2006-01-31 at 12:59 -0800, Greg KH wrote:
+> On Tue, Jan 31, 2006 at 01:41:28PM +0000, Richard Purdie wrote:
+> > +/**
+> > + * led_device_register - register a new object of led_device class.
+> > + * @dev: The device to register.
+> > + * @led_dev: the led_device structure for this device.
+> > + */
+> > +int led_device_register(struct device *dev, struct led_device *led_dev)
+> 
+> Shouldn't struct led_device contain a struct device within it, like the
+> rest of the driver model?
 
-I applied your earlier version of the patch about 2 days ago ;) Will
-push it out to Linus soon.
+The code supports more than one led per struct device. 
 
-Thank you Adrian.
+Perhaps the name is misleading and should be led_class_register? The
+code has changed a lot through its various development stages (it did
+start out as a device IIRC).
 
---
-Dmitry
+led_device should also probably be led_class by that argument...
+
+Richard
+

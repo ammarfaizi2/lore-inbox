@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWAaRhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWAaRoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbWAaRhF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 12:37:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWAaRhF
+	id S1751167AbWAaRoG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 12:44:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWAaRoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 12:37:05 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:43405 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1751294AbWAaRhD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 12:37:03 -0500
-Subject: Re: [PATCH 4/11] LED: Add LED Timer Trigger
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060131150101.GX18336@lug-owl.de>
-References: <1138714882.6869.123.camel@localhost.localdomain>
-	 <1138714898.6869.129.camel@localhost.localdomain>
-	 <20060131150101.GX18336@lug-owl.de>
-Content-Type: text/plain
-Date: Tue, 31 Jan 2006 17:36:56 +0000
-Message-Id: <1138729017.6869.219.camel@localhost.localdomain>
+	Tue, 31 Jan 2006 12:44:05 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:7628 "EHLO
+	aria.kroah.org") by vger.kernel.org with ESMTP id S1751167AbWAaRoE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 12:44:04 -0500
+Date: Tue, 31 Jan 2006 09:43:58 -0800
+From: Greg KH <gregkh@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+Subject: Re: Linux 2.6.15.2
+Message-ID: <20060131174358.GA9036@suse.de>
+References: <20060131070642.GA25015@kroah.com> <20060130233427.5e7912ae.akpm@osdl.org> <20060131073845.GA26024@suse.de> <20060130234443.78d06f5d.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060130234443.78d06f5d.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-31 at 16:01 +0100, Jan-Benedict Glaw wrote:
-> On Tue, 2006-01-31 13:41:37 +0000, Richard Purdie <rpurdie@rpsys.net> wrote:
-> > +static void led_timer_setdata(struct led_device *led_dev, unsigned long duty, unsigned long frequency)
-> > +{
-> > +	struct timer_trig_data *timer_data = led_dev->trigger_data;
-> > +	signed long duty1;
-> > +
-> > +	if (frequency > 500)
-> > +		frequency = 500;
+On Mon, Jan 30, 2006 at 11:44:43PM -0800, Andrew Morton wrote:
+> Greg KH <gregkh@suse.de> wrote:
+> >
+> > On Mon, Jan 30, 2006 at 11:34:27PM -0800, Andrew Morton wrote:
+> > > Greg KH <gregkh@suse.de> wrote:
+> > > >
+> > > > We (the -stable team) are announcing the release of the 2.6.15.2 kernel.
+> > > >
+> > > 
+> > > There remain some box-killing bugs:
+> > > 
+> > > - The scsi_cmd leak
+> > 
+> > In my to-apply queue, came after we started the review cycle here.
 > 
-> Why? 
+> I wish it was in mine - I didn't know we had a fix.
 
-We're dealing with msec delays. Any frequency > 1000 will just cause
-problems. There was a reason for using half that but it escapes me and
-might be unneeded now. 500Hz/1000Hz is above the frequency the human eye
-can see so is unlikely to present a problem.
+I just bounced it to you, Jens found it in the scsi layer.
 
-> ...and especially: why, without complaining?
-
-This is the important bit. It should return an -EINVAL back to
-userspace.
-
-> > +	if (duty > 100)
-> > +		duty = 100;
+> > > - The BIO-uses-ZONE_DMA-hence-oom-killing bug
+> > > 
+> > > - A skbuff_head_cache leak causes oom-killings.
+> > 
+> > No one has forwarded these to us (stable@kernel.org), can someone please
+> > do so?
 > 
-> Dito.
+> These remain unfixed, afaik.
 
-Duty cycles > 100 make no sense and would break the subsequent
-calculation. Same problem/solution as above.
-
-Thanks,
-
-Richard
-
-
+Oh :(

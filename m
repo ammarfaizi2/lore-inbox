@@ -1,89 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWAaU0S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751458AbWAaU1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751456AbWAaU0S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 15:26:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751457AbWAaU0S
+	id S1751458AbWAaU1c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 15:27:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWAaU1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 15:26:18 -0500
-Received: from mgw-ext03.nokia.com ([131.228.20.95]:15977 "EHLO
-	mgw-ext03.nokia.com") by vger.kernel.org with ESMTP
-	id S1751456AbWAaU0R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 15:26:17 -0500
-Message-Id: <20060131201636.264543000@localhost.localdomain>
-Date: Tue, 31 Jan 2006 16:16:36 -0400
-From: Carlos Aguiar <carlos.aguiar@indt.org.br>
-To: linux-kernel@vger.kernel.org,
-       "Linux-omap-open-source@linux.omap.com" 
-	<linux-omap-open-source@linux.omap.com>
-Cc: linux@arm.linux.org.uk, David Brownell <david-b@pacbell.net>,
-       Tony Lindgren <tony@atomide.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
-       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
-       Anderson Briglia <anderson.briglia@indt.org.br>
-Subject: [patch 0/6] Add MMC password protection (lock/unlock) support V4
-X-OriginalArrivalTime: 31 Jan 2006 20:25:42.0927 (UTC) FILETIME=[824DD9F0:01C626A4]
+	Tue, 31 Jan 2006 15:27:31 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:63077 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1751458AbWAaU1a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 15:27:30 -0500
+Date: Tue, 31 Jan 2006 21:29:45 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Richard Purdie <rpurdie@rpsys.net>, LKML <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux-ide <linux-ide@vger.kernel.org>
+Subject: Re: [PATCH 10/11] LED: Add IDE disk activity LED trigger
+Message-ID: <20060131202944.GE4215@suse.de>
+References: <1138714918.6869.139.camel@localhost.localdomain> <58cb370e0601310646y263acb96h62c422435e7016e@mail.gmail.com> <1138724479.6869.201.camel@localhost.localdomain> <58cb370e0601310944l421174f8j1802d94f1ae93a01@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <58cb370e0601310944l421174f8j1802d94f1ae93a01@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Tue, Jan 31 2006, Bartlomiej Zolnierkiewicz wrote:
+> Hi,
+> 
+> On 1/31/06, Richard Purdie <rpurdie@rpsys.net> wrote:
+> > Hi,
+> >
+> > On Tue, 2006-01-31 at 15:46 +0100, Bartlomiej Zolnierkiewicz wrote:
+> > >
+> > > Why cannot existing block layer hook be used for this?
+> >
+> > The trigger is supposed to be reflecting actual hardware activity, not
+> > block layer activity.
+> 
+> Ben, code in pmac.c (+ block layer) seems to be doing something
+> different then Kconfig help entry states ("Blink laptop LED on drive
+> activity")?
 
-New in this version:
+I doubt it really matters a lot, since either the activity will be done
+right after (the LED will likely still be on), or the drive is already
+busy doing stuff (in which case the LED is on anyways). So while the
+trigger point might not be at the instant we start drive activity, it's
+really close.
 
-- The remaining MMC password operations previously executed by key
-  retention functions (change password, unlock card and assign password)
-  were implemented using the sysfs mechanism.
-- Added the host MMC lock/unlock capability support for OMAP platform.
-- Added verbose debugging messages
+You could move the block layer trigger from add_request() to
+elevator.c:elv_next_request() instead, right where it sets REQ_STARTED
+to improve the start trigger point. Since that can happen at irq time
+(whereas the add_request() cannot), it's likely more expensive.
 
-This series of patches add support for MultiMediaCard (MMC) password
-protection, as described in the MMC Specification v4.1. This feature is
-supported by all compliant MMC cards, and used by some devices such as
-Symbian OS cell phones to optionally protect MMC cards with a password.
+The goal of the activity led for powerbook was not really to be 100%
+accurate, but be able to tell whether the drive was doing io or not.
+It's nice feedback to have for the user.
 
-By default, a MMC card with no password assigned is always in "unlocked"
-state. After password assignment, in the next power cycle the card
-switches to a "locked" state where only the "basic" and "lock card"
-command classes are accepted by the card. Only after unlocking it with
-the correct password the card can be normally used for operations like
-block I/O.
+That said, the LED stuff should be able to handle pmac as well, so why
+not add it generically instead of clamping it into the ide layer in odd
+places?
 
-Password management and caching is done through the "Kernel Key
-Retention Service" mechanism and the sysfs filesystem. A new sysfs
-attribute was added to the MMC driver for unlocking the card, assigning
-a password to an unlocked card, change a card's password, remove the
-password and check locked/unlocked status.
+-- 
+Jens Axboe
 
-A sample text-mode reference UI written in shell script (using the
-keyctl command from the keyutils package), can be found at:
-
-http://www.indt.org.br/10le/mmc_pwd/mmc_reference_ui-20060130.tar.bz2
-
-TODO:
-
-- Password caching: when inserting a locked card, the driver should try
-  to unlock it with the currently stored password (if any), and if it
-  fails, revoke the key containing it and fallback to the normal "no
-  password present" situation.
-
-Known Issue:
-
-- Some cards have an incorrect behaviour (hardware bug?) regarding
-  password acceptance: if an affected card has password <pwd>, it
-  accepts <pwd><xxx> as the correct password too, where <xxx> is any
-  sequence of characters, of any length. In other words, on these cards
-  only the first <password length> bytes need to match the correct
-  password.
-
-
-We would like to ask you to test these patches. We believe they are
-ready to be included on the kernel source.
-
-Comments and suggestions are welcome.
---
-Anderson Briglia,
-Anderson Lizardo,
-Carlos Eduardo Aguiar
-Embedded Linux Lab - 10LE
-Nokia Institute of Technology - INdT
-Manaus - Brazil

@@ -1,48 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWAaOtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWAaOzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750908AbWAaOtt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 09:49:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbWAaOtt
+	id S1750909AbWAaOzh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 09:55:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750912AbWAaOzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 09:49:49 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:20682 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750888AbWAaOts convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 09:49:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=A7mf8WIWvBfGVLvd+WwiiiXt3dFqwLrt0GOB/Knw89HgiFUIZvUUcruJQm4MgL/kUX9L00DKljrx/BmEqjOHQJo07YwwMdcwY5j6K02kjan/l9W0DY2MltO/8yfqh3sgrCbCy0NX1ZrKkoTpQxNy+ruRPWPeFvNh+CPl/hJdMNg=
-Message-ID: <c2f233c10601310649j6b104787m5a2287d3e022a911@mail.gmail.com>
-Date: Tue, 31 Jan 2006 20:19:47 +0530
-From: Vinod KK <kkvinod@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: CONFIG_PREEMPT_SOFTIRQS
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 31 Jan 2006 09:55:37 -0500
+Received: from lug-owl.de ([195.71.106.12]:41437 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1750909AbWAaOzh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 09:55:37 -0500
+Date: Tue, 31 Jan 2006 15:55:35 +0100
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/11] LED: Add LED Class
+Message-ID: <20060131145535.GW18336@lug-owl.de>
+Mail-Followup-To: Richard Purdie <rpurdie@rpsys.net>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <1138714882.6869.123.camel@localhost.localdomain> <1138714888.6869.125.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vowh9qpYCOVF+x5F"
 Content-Disposition: inline
+In-Reply-To: <1138714888.6869.125.camel@localhost.localdomain>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I am using linux 2.6.10 (with Ingo Molnars real time patches) on my mips board.
+--vowh9qpYCOVF+x5F
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-When I try running high network traffic (10% traffic on a 100Mbps
-link) on my target board with the CONFIG_PREEMPT_DESKTOP=y and
-CONFIG_PREEMPT_SOFTIRQS=y options enabled I notice that the console
-freezes and recovers only after the traffic stops. I do not notice
-this behaviour with the CONFIG_PREEMPT_SOFTIRQS option disabled.
+On Tue, 2006-01-31 13:41:28 +0000, Richard Purdie <rpurdie@rpsys.net> wrote:
+> Index: linux-2.6.15/include/linux/leds.h
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-2.6.15/include/linux/leds.h	2006-01-29 16:03:21.000000000 +0000
+> +enum led_brightness {
+> +	LED_OFF =3D 0,
+> +	LED_HALF =3D 127,
+> +	LED_FULL =3D 255,
+> +};
+> +
+> +struct led_device {
+> +	/* A function to set the brightness of the led */
+> +	void (*brightness_set)(struct led_device *led_dev, enum led_brightness =
+brightness);
 
-I understand that the CONFIG_PREEMPT_SOFTIRQS option puts all softirq
-processing to the ksoftirqd daemon, but i do not see why this should
-stall the console. I believe there should be some task which is
-starving for CPU, but I do not know which one.
+I somehow dislike using an enum being abused for a dimmed LED value...
 
-The console is on an 16550 serial port.
+MfG, JBG
 
-Could someone please give me some pointers on where I should start looking?
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
+m Irak!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
 
-Thanks,
-Vinod K.
+--vowh9qpYCOVF+x5F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFD33pnHb1edYOZ4bsRAhBEAKCLf95FVYbwJnuDphuI9MjA8c/BVQCfTcRD
+M9Gf9IHm9J54MO3LH1d+KTo=
+=xBjK
+-----END PGP SIGNATURE-----
+
+--vowh9qpYCOVF+x5F--

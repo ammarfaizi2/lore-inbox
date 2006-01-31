@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWAaOrD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWAaOtt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWAaOrD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 09:47:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWAaOrD
+	id S1750908AbWAaOtt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 09:49:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbWAaOtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 09:47:03 -0500
-Received: from uproxy.gmail.com ([66.249.92.199]:32168 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750732AbWAaOrB convert rfc822-to-8bit
+	Tue, 31 Jan 2006 09:49:49 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:20682 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750888AbWAaOts convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 09:47:01 -0500
+	Tue, 31 Jan 2006 09:49:48 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LtVwD/oGrpDkT6ML43lS+koL4SdeosN5YQr5VmvBUnUExnJ8ei53Uy9e24khn7s8KHQ6cw3Mh6pa/VuPUW0BWv6N1BuaLV8CZCSEo4mTcrGUy6wU6jWspXZGKjXU7a1SG5QedB5+XvkOfTpJt/fkmtR0+8F/y9kyNNiiGq7IXeU=
-Message-ID: <58cb370e0601310646y263acb96h62c422435e7016e@mail.gmail.com>
-Date: Tue, 31 Jan 2006 15:46:58 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Richard Purdie <rpurdie@rpsys.net>
-Subject: Re: [PATCH 10/11] LED: Add IDE disk activity LED trigger
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1138714918.6869.139.camel@localhost.localdomain>
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=A7mf8WIWvBfGVLvd+WwiiiXt3dFqwLrt0GOB/Knw89HgiFUIZvUUcruJQm4MgL/kUX9L00DKljrx/BmEqjOHQJo07YwwMdcwY5j6K02kjan/l9W0DY2MltO/8yfqh3sgrCbCy0NX1ZrKkoTpQxNy+ruRPWPeFvNh+CPl/hJdMNg=
+Message-ID: <c2f233c10601310649j6b104787m5a2287d3e022a911@mail.gmail.com>
+Date: Tue, 31 Jan 2006 20:19:47 +0530
+From: Vinod KK <kkvinod@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: CONFIG_PREEMPT_SOFTIRQS
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <1138714918.6869.139.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-Why cannot existing block layer hook be used for this?
+I am using linux 2.6.10 (with Ingo Molnars real time patches) on my mips board.
 
-Why are you adding LED_FULL event handling to a specific
-device driver (ide-disk) but LED_OFF event handling to a generic
-IDE end request function?
+When I try running high network traffic (10% traffic on a 100Mbps
+link) on my target board with the CONFIG_PREEMPT_DESKTOP=y and
+CONFIG_PREEMPT_SOFTIRQS=y options enabled I notice that the console
+freezes and recovers only after the traffic stops. I do not notice
+this behaviour with the CONFIG_PREEMPT_SOFTIRQS option disabled.
 
-This solution has very limited flexibility (disk accesses for
-all IDE ports will be registered as coming from the same
-source) but I guess it is fine?
+I understand that the CONFIG_PREEMPT_SOFTIRQS option puts all softirq
+processing to the ksoftirqd daemon, but i do not see why this should
+stall the console. I believe there should be some task which is
+starving for CPU, but I do not know which one.
+
+The console is on an 16550 serial port.
+
+Could someone please give me some pointers on where I should start looking?
 
 Thanks,
-Bartlomiej
-
-On 1/31/06, Richard Purdie <rpurdie@rpsys.net> wrote:
-> Add an LED trigger for IDE disk activity to the IDE subsystem.
->
-> Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+Vinod K.

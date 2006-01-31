@@ -1,138 +1,219 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbWAaTHq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751398AbWAaTIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751356AbWAaTHq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 14:07:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751357AbWAaTHq
+	id S1751398AbWAaTIs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 14:08:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWAaTIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 14:07:46 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:20697 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751356AbWAaTHp (ORCPT
+	Tue, 31 Jan 2006 14:08:48 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:30401 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751393AbWAaTIr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 14:07:45 -0500
-Date: Tue, 31 Jan 2006 11:07:15 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chase Venters <chase.venters@clientec.com>,
-       "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Marc Perkel <marc@perkel.com>,
-       Patrick McLean <pmclean@cs.ubishops.ca>,
-       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-In-Reply-To: <43DF9D42.7050802@wolfmountaingroup.com>
-Message-ID: <Pine.LNX.4.64.0601311032180.7301@g5.osdl.org>
-References: <43D114A8.4030900@wolfmountaingroup.com> 
- <20060120111103.2ee5b531@dxpl.pdx.osdl.net>  <43D13B2A.6020504@cs.ubishops.ca>
- <43D7C780.6080000@perkel.com>  <43D7B20D.7040203@wolfmountaingroup.com> 
- <43D7B5C4.5040601@wolfmountaingroup.com> <43D7D05D.7030101@perkel.com> 
- <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com> 
- <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com> 
- <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse> 
- <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>  <1138387136.26811.8.camel@localhost>
-  <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org> <1138620390.31089.43.camel@localhost.localdomain>
- <Pine.LNX.4.64.0601310931540.7301@g5.osdl.org> <43DF9D42.7050802@wolfmountaingroup.com>
+	Tue, 31 Jan 2006 14:08:47 -0500
+From: Chris Mason <mason@suse.com>
+To: Dave Jones <davej@redhat.com>
+Subject: Re: 2.6.16rc1-git4 slab corruption.
+Date: Tue, 31 Jan 2006 14:08:35 -0500
+User-Agent: KMail/1.9.1
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060131180319.GA18948@redhat.com>
+In-Reply-To: <20060131180319.GA18948@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200601311408.35771.mason@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 31 January 2006 13:03, Dave Jones wrote:
+> Redzone: 0x5a2cf071/0x5a2cf071.
+> Last user: [<ffffffff80181cc0>](free_buffer_head+0x2a/0x43)
 
+Haven't seen this one yet, but we have an assortment of strange bugs on 2.6.16-rc1-git.  What were you doing to trigger it?
 
-On Tue, 31 Jan 2006, Jeff V. Merkey wrote:
->
-> And how many times have you actually stood in front of a Judge over IP and
-> contract issues?
+I've been trying to hammer on things with the slab exerciser below, but haven't had much luck in getting a nice reliable test case.
 
-Well, at least I know what I'm talking about.
+modprobe crasher threads=X
 
-> The language "GPLv2 or any later version" is what it is. You can change 
-> it moving forward, but you cannot undo the past. You put this language 
-> in there and IT WAS WHAT YOU MEANT AT THE TIME. Trying to alter that 
-> would most likely result in a finding you are acting in bad faith.
+X defaults to 1.
 
-I did _not_ put that language in, which is the whole point.
+-chris
 
-That language is in almost all GPL-licensed projects _except_ for Linux. 
-It's in the FSF guidelines for what they _suggest_ people will do when 
-they license something under the GPL. It's in all the FSF projects, 
-obviously, and a lot of other GPL'd projects have also just mindlessly 
-copied the FSF-suggested boilerplate.
-
-Linux never did. Linux has _never_ had the "v2 or later" license wording 
-in general. Go take a look. The kernel on the whole tends to not mention 
-licenses in the individual files, preferring to instead rely on the 
-external COPYING file that it is distributed with. That's very much on 
-purpose: I personally _hate_ seeing a screenful of crapola that adds 
-nothing over and over again.
-
-In short, apart from the very early code in 1991 and early -92 (versions 
-0.01 through 0.12), Linux has been licensed with _only_ the GPLv2 license 
-file, and normally no mention of "v2 or later" in the actual sources.
-
-And the way copyrights work, you have only as many rights as explicitly 
-granted to you, so nobody has _ever_ had rights to re-license Linux under 
-any other license than the one it came with: namely the GPLv2. Alan is 
-trying to argue that the fact that it has been licensed under the GPLv2 
-would somehow "magically" mean that it has been licensed under any version 
-of GPL that you can pick, BUT THAT IS AN OBVIOUSLY LEGALLY FLAWED 
-ARGUMENT.
-
-It is so obviously flawed that I'm surprised he continues to argue it. 
-There has _never_ been anything that says "any version of the GPL", or 
-indeed just "the GPL" without any version. The version has _always_ been 
-explicit: the kernel comes with the GPLv2 and no other version. If you 
-don't accept the COPYING file as the license, then you had no license AT 
-ALL to distribute Linux under.
-
-So you have one choice, and once choice ONLY: accept the GPLv2 (as 
-reproduced in COPYING) or don't accept the license at all. The option 
-that Alan seems to want to do is "I'll take just the word 'GPL' from the 
-COPYING file, and then stick to that" has simply never been an option.
-
-Now, I can't stop Alan making stupid arguments. People can argue anything 
-they damn well please, whether it makes sense or not. As SCO has shows us, 
-people can argue crap for years, even in front of a judge, without any 
-actual fact or paper to stand on.
-
-And that is what Alan does. He tries to argue that the kernel has somehow 
-magically been released under "the GPL" (without version specifier), even 
-though the only license that it was ever released under (apart from the 
-original non-GPL made-up-by-yours-truly license) very explicitly says 
-which version it is, in big letters at the very top.
-
-The fact that I made it even _more_ obvious five years ago by adding a 
-further explanatory notice doesn't change anything at all, except make it 
-more obvious.
-
-Alan - talk to a lawyer. Really. Show him this email thread and my 
-arguments, and ask him what he believes. I bet you can get a lawyer to 
-argue your case if you _pay_ him (lawyers are whores - they are paid to 
-argue for their client, not for the law), but ask him what he honestly 
-thinks a judge would rule. THEN come back to me.
-
-Because let's face it, the burden on proof on changing the kernel license 
-is on _Alan_, not me. Alan is the one arguing for change. 
-
-Now, some individual files in the kernel are dual-licensed. Some of them 
-are dual-licensed with a BSD-license, others are "v2 or later version". 
-The latter is by no means uncommon, but it's definitely in the minority. 
-Just to give you an idea:
-
-    [torvalds@g5 linux]$ git-ls-files '*.c' | wc -l
-    7978
-    [torvalds@g5 linux]$ git grep -l "any later version" '*.c' | wc -l
-    2720
-    [torvalds@g5 linux]$ git grep -l "Redistributions in binary form must" '*.c' | wc -l
-    230
-
-ie of the C files, only about a third have the "any later version" 
-verbiage needed to be able to convert GPL v2 to v3 (and a small minority 
-look like they are dual-BSD licensed - I didn't know exactly what to grep 
-for, so I just picked a part of the normal BSD license, but they can 
-probably also be converted to GPLv3 thanks to the BSD license being a 
-strictly less restrictive license).
-
-(I picked just the '*.c' files because that seemed fairer. If you could 
-_all_ files, the "any later version" percentage drops even further).
-
-			Linus
+diff -r abc01241b9e0 drivers/char/Kconfig
+--- a/drivers/char/Kconfig	Tue Jan 24 15:03:39 2006 -0500
++++ b/drivers/char/Kconfig	Wed Jan 25 08:03:06 2006 -0500
+@@ -1020,5 +1020,10 @@ config TELCLOCK
+ 	  sysfs directory, /sys/devices/platform/telco_clock, with a number of
+ 	  files for controlling the behavior of this hardware.
+ 
++config CRASHER
++	tristate "Crasher Module"
++	help
++	  Slab cache memory tester.  Only use this as a module
++
+ endmenu
+ 
+diff -r abc01241b9e0 drivers/char/Makefile
+--- a/drivers/char/Makefile	Tue Jan 24 15:03:39 2006 -0500
++++ b/drivers/char/Makefile	Wed Jan 25 08:03:06 2006 -0500
+@@ -95,6 +95,7 @@ obj-$(CONFIG_IPMI_HANDLER) += ipmi/
+ 
+ obj-$(CONFIG_HANGCHECK_TIMER) += hangcheck-timer.o
+ obj-$(CONFIG_TCG_TPM) += tpm/
++obj-$(CONFIG_CRASHER) += crasher.o
+ # Files generated that shall be removed upon make clean
+ clean-files := consolemap_deftbl.c defkeymap.c qtronixmap.c
+ 
+diff -r abc01241b9e0 drivers/char/crasher.c
+--- /dev/null	Thu Jan  1 00:00:00 1970 +0000
++++ b/drivers/char/crasher.c	Wed Jan 25 08:03:06 2006 -0500
+@@ -0,0 +1,148 @@
++/*
++ * crasher.c, it breaks things
++ */
++
++
++#include <linux/module.h>
++#include <linux/config.h>
++#include <linux/types.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/moduleparam.h>
++
++static int module_exiting;
++static struct completion startup = COMPLETION_INITIALIZER(startup);
++static unsigned long rand_seed = 152L;
++static unsigned long seed = 152L;
++static int threads = 1;
++
++module_param(seed, ulong, 0);
++module_param(threads, int, 0);
++MODULE_PARM_DESC(seed, "random seed for memory tests");
++MODULE_PARM_DESC(threads, "number of threads to run");
++MODULE_LICENSE("GPL");
++
++#define NUM_ALLOC 24
++#define NUM_SIZES 8
++static int sizes[]  = { 32, 64, 128, 192, 256, 1024, 2048, 4096 };
++
++struct mem_buf {
++    char *buf;
++    int size;
++};
++
++static unsigned long crasher_random(void)
++{
++        rand_seed = rand_seed*69069L+1;
++        return rand_seed^jiffies;
++}
++
++void crasher_srandom(unsigned long entropy)
++{
++        rand_seed ^= entropy;
++        crasher_random();
++}
++
++static char *mem_alloc(int size) {
++	char *p = kmalloc(size, GFP_KERNEL);
++	int i;
++	if (!p)
++		return p;
++	for (i = 0 ; i < size; i++)
++		p[i] = (i % 119) + 8;
++	return p;
++}
++
++static void mem_check(char *p, int size) {
++	int i;
++	if (!p) 
++		return;
++	for (i = 0 ; i < size; i++) {
++        	if (p[i] != ((i % 119) + 8)) {
++			printk(KERN_CRIT "verify error at %lX offset %d " 
++			       " wanted %d found %d size %d\n", 
++			       (unsigned long)(p + i), i, (i % 119) + 8, 
++			       p[i], size);
++		}
++	}
++	// try and trigger slab poisoning for people using this buffer
++	// wrong
++	memset(p, 0, size);
++}
++
++static void mem_verify(void) {
++	struct mem_buf bufs[NUM_ALLOC];
++	struct mem_buf *b;
++	int index;
++	int size;
++	unsigned long sleep;
++	memset(bufs, 0, sizeof(struct mem_buf) * NUM_ALLOC);
++	while(!module_exiting) {
++		index = crasher_random() % NUM_ALLOC;
++		b = bufs + index;
++		if (b->size) {
++			mem_check(b->buf, b->size);
++			kfree(b->buf);
++			b->buf = NULL;
++			b->size = 0;
++		} else {
++			size = crasher_random() % NUM_SIZES;
++			size = sizes[size];
++			b->buf = mem_alloc(size);
++			b->size = size;
++		}
++		sleep = crasher_random() % (HZ / 10);
++		set_current_state(TASK_INTERRUPTIBLE);
++		schedule_timeout(sleep);
++		set_current_state(TASK_RUNNING);
++	}
++	for (index = 0 ; index < NUM_ALLOC ; index++) {
++		b = bufs + index;
++		if (b->size) {
++			mem_check(b->buf, b->size);
++			kfree(b->buf);
++		}
++	}
++}
++
++static int crasher_thread(void *unused) 
++{
++	daemonize("crasher");
++	complete(&startup);
++	mem_verify();
++	complete(&startup);
++	return 0;
++}
++
++static int __init crasher_init(void)
++{
++	int i;
++	init_completion(&startup);
++	crasher_srandom(seed);
++
++	printk("crasher module (%d threads).  Testing sizes: ", threads);
++	for (i = 0 ; i < NUM_SIZES ; i++)
++		printk("%d ", sizes[i]);
++	printk("\n");
++
++	for (i = 0 ; i < threads ; i++) 
++		kernel_thread(crasher_thread, crasher_thread, 
++			      CLONE_FS | CLONE_FILES);
++	for (i = 0 ; i < threads ; i++) 
++		wait_for_completion(&startup);
++	return 0;
++}
++
++static void __exit crasher_exit(void)
++{
++	int i;
++	module_exiting = 1;
++	for (i = 0 ; i < threads ; i++) 
++		wait_for_completion(&startup);
++	printk("all crasher threads done\n");
++	return;
++}
++
++module_init(crasher_init);
++module_exit(crasher_exit);

@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWAaUQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751454AbWAaUUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751384AbWAaUQd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 15:16:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751451AbWAaUQd
+	id S1751454AbWAaUUE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 15:20:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWAaUUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 15:16:33 -0500
-Received: from 8.ctyme.com ([69.50.231.8]:22437 "EHLO darwin.ctyme.com")
-	by vger.kernel.org with ESMTP id S1751384AbWAaUQd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 15:16:33 -0500
-Message-ID: <43DFC59F.9080006@perkel.com>
-Date: Tue, 31 Jan 2006 12:16:31 -0800
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chase Venters <chase.venters@clientec.com>,
-       "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Patrick McLean <pmclean@cs.ubishops.ca>,
-       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <43D114A8.4030900@wolfmountaingroup.com>  <20060120111103.2ee5b531@dxpl.pdx.osdl.net>  <43D13B2A.6020504@cs.ubishops.ca> <43D7C780.6080000@perkel.com>  <43D7B20D.7040203@wolfmountaingroup.com>  <43D7B5C4.5040601@wolfmountaingroup.com> <43D7D05D.7030101@perkel.com>  <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>  <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>  <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>  <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>  <1138387136.26811.8.camel@localhost>  <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org> <1138620390.31089.43.camel@localhost.localdomain> <Pine.LNX.4.64.0601310931540.7301@g5.osdl.org> <43DF9D42.7050802@wolfmountaingroup.com> <Pine.LNX.4.64.0601311032180.7301@g5.osdl.org> <43DFC0B3.3000909@perkel.com> <43DFB635.2000309@wolfmountaingroup.com>
-In-Reply-To: <43DFB635.2000309@wolfmountaingroup.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 31 Jan 2006 15:20:04 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:48354 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751454AbWAaUUC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 15:20:02 -0500
+Date: Wed, 1 Feb 2006 01:49:16 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Andrew Morton <akpm@osdl.org>, paulmck@us.ibm.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       hch@infradead.org
+Subject: Re: [patch 2/2] fix file counting
+Message-ID: <20060131201916.GB5633@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060126184010.GD4166@in.ibm.com> <20060126184127.GE4166@in.ibm.com> <20060126184233.GF4166@in.ibm.com> <43D92DD6.6090607@cosmosbay.com> <20060127145412.7d23e004.akpm@osdl.org> <20060127231420.GA10075@us.ibm.com> <20060127152857.32066a69.akpm@osdl.org> <20060130170028.GA6264@in.ibm.com> <43DF3D0D.6080409@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43DF3D0D.6080409@cosmosbay.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 31, 2006 at 11:33:49AM +0100, Eric Dumazet wrote:
+> Dipankar Sarma a écrit :
+> >>Putting an atomic op into the file_free path?
+> >
+> >Here are some numbers from a 32-way (HT) P4 xeon box with kernbench -
+> >
+> 
+> Hi Dipankar, thank you very much for doing these tests.
+> 
+> To have an idea of the number of files that are allocated/freed during a 
+> kernel build, I added 4 fields in struct files_stat.
+> 
+> # cat /proc/sys/fs/file-nr
+> 153     0       206071  153     755767  755620  5119
+> 
+> So thats (755767-39169)/(4*60+56) = 2420 files opened per second.
+> 
+> Number of changes on central atomic_t was :
+> (5119-1131)/(4*60+56) = 13 per second.
+> 
+> 13 atomic ops per second (instead of 2420*2 per second if I had one 
+> atomic_t as in your patch), this is certainly not something we can notice 
+> in a typical SMP machine... maybe on a big NUMA machine it could be 
+> different ?
 
+Depends on what you call big :) The one I ran on is a 2-node NUMA
+16(32)-way with HT. I can't find anything bigger than this
+in our server farm. On a 8-way ppc64 box too, there was no difference
+at all.
 
-Jeff V. Merkey wrote:
-> Marc Perkel wrote:
->
->> Linus,
->>
->> For what it's worth, maybe you should run some of these issues past 
->> the Electronic Frontier Foundation (eff.org) or Robin Gross at 
->> IPJustice.org who might be able to review these issues and help make 
->> sure you're doing it right.
->
->
-> Great advice, however, the EFF are not experts in IP law.  I would 
-> suggest a good firm in Palo Alto, like Rosati, Goodrich and Sonsini, 
-> they are experts
-> in corporate IP law and Corporate law in general.  They would know all 
-> the loopholes people and companies are likely to use.  Stay away from 
-> these
-> freebie Law Groups who are more likely to kiss your butt and tell you 
-> waht you want to hear rather than what you NEED to hear.
-> OSDL should pick up the tab.  It will cost around 30K for a good 
-> analysis from them.
->
-> Jeff
->
+Can you think of some non-microbenchish workload with more open/sec ?
+I privately pointed out this thread to John Hawkes from SGI to see
+if they care about the potential issues. In the mean while,
+I will investigate some more.
 
-Actually EFF does have some good IP lawyers on staff and Robin Gross - a 
-former EFF employee (robin@ipjustice.org) is also very up on this. And 
-the prices is right too if you don't want to spend the big bucks. I 
-would rather get legal advice from lawyer who care about GPL than 
-lawyers who just want to run up a big fee and screw you in the end.
-
-It might be worth looking into doing it right before some other SCO type 
-decides they can get rich by busting Linux.
+Thanks
+Dipankar
 

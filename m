@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbWAaSoc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbWAaSsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751338AbWAaSoc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 13:44:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWAaSoc
+	id S1751339AbWAaSsN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 13:48:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWAaSsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 13:44:32 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:30401 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1751338AbWAaSob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 13:44:31 -0500
-Date: Tue, 31 Jan 2006 13:44:28 -0500
-To: Sander <sander@humilis.net>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [OT] 8-port AHCI SATA Controller?
-Message-ID: <20060131184428.GJ18970@csclub.uwaterloo.ca>
-References: <20060131115343.GA2580@favonius> <20060131163928.GE18972@csclub.uwaterloo.ca> <20060131171723.GA6178@favonius> <20060131183013.GH18970@csclub.uwaterloo.ca> <20060131183929.GB6178@favonius>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060131183929.GB6178@favonius>
-User-Agent: Mutt/1.5.9i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+	Tue, 31 Jan 2006 13:48:13 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:37610 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751339AbWAaSsN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 13:48:13 -0500
+Message-ID: <43DFB0D7.3070805@us.ibm.com>
+Date: Tue, 31 Jan 2006 12:47:51 -0600
+From: Brian Twichell <tbrian@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ray Bryant <raybry@mpdtxmail.amd.com>
+CC: Hugh Dickins <hugh@veritas.com>, Dave McCracken <dmccr@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH/RFC] Shared page tables
+References: <A6D73CCDC544257F3D97F143@[10.1.1.4]> <Pine.LNX.4.61.0601202020001.8821@goblin.wat.veritas.com> <43DAA3C9.9070105@us.ibm.com> <200601301246.27455.raybry@mpdtxmail.amd.com>
+In-Reply-To: <200601301246.27455.raybry@mpdtxmail.amd.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 31, 2006 at 07:39:29PM +0100, Sander wrote:
-> Not sure about the two port, but for example the SX8 is 180 dollars at
-> pricewatch.com, while an Areca 12-port starts at 756 dollars. That is
-> 22.5 dollars per port vs 63 dollars per port. More or less the same goes
-> for 3Ware.
+Ray Bryant wrote:
 
-Hmm, well the 24 port is listed at 1278, so less per port than the 12
-port for sure, but if you only need 8, then well... :)
+>On Friday 27 January 2006 16:50, Brian Twichell wrote:
+><snip>
+>
+>  
+>
+>>Hi,
+>>
+>>We collected more granular performance data for the ppc64/hugepage case.
+>>
+>>CPI decreased by 3% when shared pagetables were used.  Underlying this was
+>>a 7% decrease in the overall TLB miss rate.  The TLB miss rate for
+>>hugepages decreased 39%.  TLB miss rates are calculated per instruction
+>>executed.
+>>
+>>    
+>>
+>
+>Interesting.
+>
+>Do you know if Dave's patch supports sharing of pte's for 2 MB pages on 
+>X86_64?
+>  
+>
+I believe it does.  Dave, can you confirm ?
 
-Of course I doubt there is that big a market for an 8 port NON raid
-card, which might explain why there doesn't seem to be any.  Of course
-if there aren't any it is hard to have a market exist for them.
+>Was there a corresponding improvement in overall transaction throughput for 
+>the hugetlb, shared pte case?    That is, did the 3% improvement in CPI 
+>translate to a measurable improvement in the overall OLTP benchmark score?
+>  
+>
+Yes.  My original post with performance data described a 3% improvement
+in the ppc64/hugepage case.  This is a transaction throughput statement.
 
-> Of course you can't compare Areca/3Ware with the SX8 feature-wise, but
-> all I need JBOD.
+>(I'm assuming your 25-50% improvement measurements, as mentioned in a previous 
+>note, was for small pages.)
+>
+>  
+>
+That's correct.
 
-Well personally I have never seen more than 4 ports per card on a non
-hardware raid card.  That doesn't mean they don't exist, but it makes it
-a lot less likely that they exist in my book. :)
 
-Len Sorensen

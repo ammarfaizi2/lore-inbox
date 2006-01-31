@@ -1,126 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbWAaQAB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWAaQGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751057AbWAaQAB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 11:00:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbWAaQAB
+	id S1750770AbWAaQGN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 11:06:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWAaQGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 11:00:01 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:54709 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751057AbWAaQAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 11:00:00 -0500
-Date: Tue, 31 Jan 2006 07:59:23 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: ak@muc.de
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Dont use num_processors as index to generate logical cpu# in x86_64
-Message-ID: <20060131075923.A14773@unix-os.sc.intel.com>
-Mime-Version: 1.0
+	Tue, 31 Jan 2006 11:06:12 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42642 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750770AbWAaQGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 11:06:12 -0500
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, vserver@list.linux-vserver.org,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Hansen <haveblue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Suleiman Souhlal <ssouhlal@FreeBSD.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Cedric Le Goater <clg@fr.ibm.com>, Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH 1/5] pid: Implement task references.
+References: <m1psmba4bn.fsf@ebiederm.dsl.xmission.com>
+	<m1lkwza479.fsf@ebiederm.dsl.xmission.com>
+	<20060129190539.GA26794@kroah.com>
+	<m1mzhe7l2c.fsf@ebiederm.dsl.xmission.com>
+	<20060130045153.GC13244@kroah.com>
+	<m14q3l79uv.fsf@ebiederm.dsl.xmission.com>
+	<20060131065843.GA24733@kroah.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 31 Jan 2006 09:04:14 -0700
+In-Reply-To: <20060131065843.GA24733@kroah.com> (Greg KH's message of "Mon,
+ 30 Jan 2006 22:58:44 -0800")
+Message-ID: <m1d5i84c5d.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andi
+Greg KH <greg@kroah.com> writes:
 
-Please consider the following patch. Iam in process of developing ACPI based
-cpu hotplug support. Using num_processors as index is not friendly to 
-hotplug, so i turned it to use cpu_present_map instead. The code is 
-also little bit more cleaner and easy to ready.
+> On Mon, Jan 30, 2006 at 01:13:12PM -0700, Eric W. Biederman wrote:
+>
+> What function would you have to add?  A release function?  You should
+> have that logic somewhere already, so net gain should be the same.
 
-Cheers,
-ashok
+Yes inline in my if statement all 3 lines of it. Adding a function
+makes the code less clear.
 
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+>> The extra debugging checks in krefs are nice, but not something I
+>> am lusting over.
+>
+> Heh, but they do catch a lot of improper usages.
 
+Agreed.
 
-Minor cleanup to lend better for physical CPU hotplug.
-Earlier way of using num_processors as index doesnt
-fit if CPUs come and go. This makes the code little bit better
-to read, and helps physical hotplug use the same functions as boot.
+>> As for code recognition I don't see how recognizing the atomic_t idiom
+>> versus the kref idiom is much different.  But I haven't had this issue
+>> come up in a code review so I have no practical experience there.
+>
+> It's not a different "idiom", but rather, a way to implement the
+> reference counting logic without having to code it all by hand, and
+> ensure that you get it correct.
 
-Reserving CPU0 for BSP is too late to be done in smp_prepare_boot_cpu().
-Since logical assignments from MADT is already done via
-setup_arch()->acpi_boot_init()->parse lapic
+Yes a way to implement the reference counting logic that requires more
+lines of code to implement and obscures my code in this instance.
 
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-------------------------------------------------------
- arch/x86_64/kernel/mpparse.c |   19 ++++++++-----------
- arch/x86_64/kernel/setup.c   |    6 ++++++
- 2 files changed, 14 insertions(+), 11 deletions(-)
+> They are used all the time, and there's not that many atomic_t usages in
+> the kernel that do reference counting that have not been already
+> converted to use kref (the vfs not-withstanding, for other reasons.)
 
-Index: linux-2.6.16-rc1-mm2/arch/x86_64/kernel/mpparse.c
-===================================================================
---- linux-2.6.16-rc1-mm2.orig/arch/x86_64/kernel/mpparse.c
-+++ linux-2.6.16-rc1-mm2/arch/x86_64/kernel/mpparse.c
-@@ -106,11 +106,11 @@ static int __init mpf_checksum(unsigned 
- 	return sum & 0xFF;
- }
- 
--static void __init MP_processor_info (struct mpc_config_processor *m)
-+static void __cpuinit MP_processor_info (struct mpc_config_processor *m)
- {
- 	int cpu;
- 	unsigned char ver;
--	static int found_bsp=0;
-+	cpumask_t tmp_map;
- 
- 	if (!(m->mpc_cpuflag & CPU_ENABLED)) {
- 		disabled_cpus++;
-@@ -133,8 +133,10 @@ static void __init MP_processor_info (st
- 		return;
- 	}
- 
--	cpu = num_processors++;
--	
-+	num_processors++;
-+	cpus_complement(tmp_map, cpu_present_map);
-+	cpu = first_cpu(tmp_map);
-+
- #if MAX_APICS < 255	
- 	if ((int)m->mpc_apicid > MAX_APICS) {
- 		printk(KERN_ERR "Processor #%d INVALID. (Max ID: %d).\n",
-@@ -160,12 +162,7 @@ static void __init MP_processor_info (st
-  		 * entry is BSP, and so on.
-  		 */
- 		cpu = 0;
--
-- 		bios_cpu_apicid[0] = m->mpc_apicid;
-- 		x86_cpu_to_apicid[0] = m->mpc_apicid;
-- 		found_bsp = 1;
-- 	} else
--		cpu = num_processors - found_bsp;
-+ 	}
- 	bios_cpu_apicid[cpu] = m->mpc_apicid;
- 	x86_cpu_to_apicid[cpu] = m->mpc_apicid;
- 
-@@ -691,7 +688,7 @@ void __init mp_register_lapic_address (
- }
- 
- 
--void __init mp_register_lapic (
-+void __cpuinit mp_register_lapic (
- 	u8			id, 
- 	u8			enabled)
- {
-Index: linux-2.6.16-rc1-mm2/arch/x86_64/kernel/setup.c
-===================================================================
---- linux-2.6.16-rc1-mm2.orig/arch/x86_64/kernel/setup.c
-+++ linux-2.6.16-rc1-mm2/arch/x86_64/kernel/setup.c
-@@ -704,6 +704,12 @@ void __init setup_arch(char **cmdline_p)
- 
- 	check_ioapic();
- 
-+	/*
-+	 * set this early, so we dont allocate cpu0
-+	 * if MADT list doesnt list BSP first
-+	 * mpparse.c/MP_processor_info() allocates logical cpu numbers.
-+	 */
-+	cpu_set(0, cpu_present_map);
- #ifdef CONFIG_ACPI
- 	/*
- 	 * Read APIC and some other early information from ACPI tables.
+Well either that is all code that is still to be merged in the
+mainline or I am looking with a very different filter than you are.
+
+A quick grep for atomic_t in the kernel include files (filtering
+out the asm headers where it was defined) I got several screen fulls
+of hits.  Things like the network stack, shared process resources are
+places I have worked lately and where atomic_t is used, all of the
+core bits of the kernel.  My similar grep for kref should barely returned
+a screen full of hits.
+
+>> So those are all of the nits I can pick. :)  I don't kref seems to be
+>> a perfectly usable piece of code but not one that seems to help my
+>> code.  Unless it becomes a mandate from the code correctness police.
+>
+> As you are adding a new reference count, it is highly encouraged that
+> you not reimplement the same logic, but rather use the functions already
+> provided in the kernel to do that work for you.  That way you don't have
+> to write the extra code, and we don't have to check the logic for you.
+
+If there was something to implement I would agree with you.  In drivers
+out at the fringes of the kernel where looking at some of the code submissions
+you wonder if the implementors know C I can totally understand anything
+to make things less error prone.  But that isn't what this code is.
+
+Given how short my code is and what the effects are I am actually
+disappointed that the review only got as far as noticing I was using
+an atomic_t.  Oh well.  Thanks for getting that far.
+
+Eric

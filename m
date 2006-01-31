@@ -1,65 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWAaXOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWAaXT3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbWAaXOG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 18:14:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751070AbWAaXOG
+	id S932103AbWAaXT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 18:19:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932106AbWAaXT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 18:14:06 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:5005 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751067AbWAaXOE (ORCPT
+	Tue, 31 Jan 2006 18:19:29 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:39865 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932103AbWAaXT1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 18:14:04 -0500
-In-Reply-To: <9162B459-F175-4F3A-9F7B-849890A9FDC2@mac.com>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Al Boldi <a1426z@gawab.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: Re: [RFC] VM: I have a dream...
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFC6272927.0C1225DD-ON88257107.007E29C3-88257107.007FA24A@us.ibm.com>
-From: Bryan Henderson <hbryan@us.ibm.com>
-Date: Tue, 31 Jan 2006 15:14:00 -0800
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0HF124 | January 12, 2006) at
- 01/31/2006 18:14:02,
-	Serialize complete at 01/31/2006 18:14:02
-Content-Type: text/plain; charset="US-ASCII"
+	Tue, 31 Jan 2006 18:19:27 -0500
+Date: Tue, 31 Jan 2006 15:21:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] timer tsc ensure we allow for initial tsc and tsc sync
+Message-Id: <20060131152113.14781abf.akpm@osdl.org>
+In-Reply-To: <43DE14F0.5070208@shadowen.org>
+References: <20060120125342.GA7632@shadowen.org>
+	<1138399887.14289.107.camel@cog.beaverton.ibm.com>
+	<43DE14F0.5070208@shadowen.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->1) IF the ONLY reason this was not done before is that 64-bit archs 
->were hard to get, then you are right.
+Andy Whitcroft <apw@shadowen.org> wrote:
 >
->2) IF there were OTHER reasons, then you are not correct.
->
->This is the argument.  You keep discussing how 64-bit archs were not 
->easily available before and are now, and I AGREE, but that is NOT 
->RELEVANT to the point he made. 
+> From: John Stultz <johnstul@us.ibm.com>
+> 
+> Suppress lost tick detection until we are fully initialised.
+> This prevents any modifications to the high resolution timers
+> from causing non-linearities in the flow of time.  For example on
+> an SMP system we resyncronise the TSC values for all processors.
+> This results in a TSC reset which will be seen as a huge apparent
+> tick loss.  This can cause premature expiry of timers and in extreme
+> cases can cause the soft lockup detection to fire.
+> 
+> Acked-by: Andy Whitcroft <apw@shadowen.org>
+> 
+> diff --git a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
+> --- a/arch/i386/kernel/timers/timer_tsc.c
+> +++ b/arch/i386/kernel/timers/timer_tsc.c
+> @@ -45,6 +45,15 @@ static unsigned long last_tsc_high; /* m
+>  static unsigned long long monotonic_base;
+>  static seqlock_t monotonic_lock = SEQLOCK_UNLOCKED;
+>  
+> +/* Avoid compensating for lost ticks before TSCs are synched */
+> +static int detect_lost_ticks;
+> +static int __init start_lost_tick_compensation(void)
+> +{
+> +	detect_lost_ticks = 1;
+> +	return 0;
+> +}
+> +late_initcall(start_lost_tick_compensation);
+> +
+>  /* convert from cycles(64bits) => nanoseconds (64bits)
+>   *  basic equation:
+>   *		ns = cycles / (freq / ns_per_sec)
+> @@ -196,7 +205,8 @@ static void mark_offset_tsc_hpet(void)
+>  
+>  	/* lost tick compensation */
+>  	offset = hpet_readl(HPET_T0_CMP) - hpet_tick;
+> -	if (unlikely(((offset - hpet_last) > hpet_tick) && (hpet_last != 0))) {
+> +	if (unlikely(((offset - hpet_last) > hpet_tick) && (hpet_last != 0))
+> +					&& detect_lost_ticks) {
 
-As I remember it, my argument was that single level storage was known and 
-practical for 25 years and people did not flock to it, therefore they must 
-not see it as useful.  So if 64 bit processors were not available enough 
-during that time, that blows away my argument, because people might have 
-liked the idea but just couldn't afford the necessary address width.  It 
-doesn't matter if there were other reasons to shun the technology; all it 
-takes is one.  And if 64 bit processors are more available today, that 
-might tip the balance in favor of making the change away from multilevel 
-storage.
+Simple enough.  John, so you feel that this is 2.6.16 material?
 
-But I don't really buy that 64 bit processors weren't available until 
-recently.  I think they weren't produced in commodity fashion because 
-people didn't have a need for them.  They saw what you can do with 128 bit 
-addresses (i.e. single level storage) in the IBM I Series line, but 
-weren't impressed.  People added lots of other new technology to the 
-mainstream CPU lines, but not additional address bits.  Not until they 
-wanted to address more than 4G of main memory at a time did they see any 
-reason to make 64 bit processors in volume.
-
-Ergo, I do think it was something bigger that made the industry stick with 
-traditional multilevel storage all these years.
-
---
-Bryan Henderson                     IBM Almaden Research Center
-San Jose CA                         Filesystems
-
-
-
+Note that the time changes in -mm will blow this change away, so I'd be
+needing a fresh version of this patch against next-mm, please.

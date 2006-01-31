@@ -1,112 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030236AbWAaAES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965046AbWAaAIF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030236AbWAaAES (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 19:04:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWAaAES
+	id S965046AbWAaAIF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 19:08:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbWAaAIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 19:04:18 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:41653 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965046AbWAaAER (ORCPT
+	Mon, 30 Jan 2006 19:08:05 -0500
+Received: from mail.gmx.net ([213.165.64.21]:20448 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965046AbWAaAIE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 19:04:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=JIHsEtjrua71ZCqgtZ/nj/m5yQcTCGMcbabcKEhHkEuYKmqBK1aunRwYojOF8FUlBtMa/RClFHI+kzY50BRuNEP6m5PibgTYPd0ggNc3ws4+zlf7lxuTAZYeBkR6GDCg+itBvJVfSHteTbiGkkNv+zB2hti+1S2PUgidXgpP1Jw=
-Message-ID: <43DEA978.8000706@gmail.com>
-Date: Tue, 31 Jan 2006 09:04:08 +0900
-From: Tejun <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+	Mon, 30 Jan 2006 19:08:04 -0500
+X-Authenticated: #13409387
+Message-ID: <43DEA922.3030602@gmx.net>
+Date: Tue, 31 Jan 2006 01:02:42 +0100
+From: Gunther Mayer <gunther.mayer@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Oeser <ioe-lkml@rameria.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] libata queue updated
-References: <20060128182522.GA31458@havoc.gtf.org> <200601300936.43977.ioe-lkml@rameria.de> <43DDD206.6000502@gmail.com> <200601302002.18962.ioe-lkml@rameria.de>
-In-Reply-To: <200601302002.18962.ioe-lkml@rameria.de>
+To: Dave Peterson <dsp@llnl.gov>
+CC: "bluesmoke-devel@lists.sourceforge.net" 
+	<bluesmoke-devel@lists.sourceforge.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: noisy edac
+References: <20060130185931.71975.qmail@web50112.mail.yahoo.com> <200601301424.16884.dsp@llnl.gov> <43DEA4CA.8070700@gmx.net> <200601301552.09955.dsp@llnl.gov>
+In-Reply-To: <200601301552.09955.dsp@llnl.gov>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser wrote:
-> Hi,
-> 
-> On Monday 30 January 2006 09:44, Tejun Heo wrote:
-> 
->>So, are you saying....
->>
->>struct ata_classes {
->>	unsigned int classes[2];
->>|;
->>
->>is safer than
->>
->>unsigned int *class;
->>
->>?
-> 
+Dave Peterson wrote:
+
+>On Monday 30 January 2006 15:44, Gunther Mayer wrote:
 >  
-> No, but with a little bit of additional code it CAN be safer.
-> 
-> Or maybe, we can store the classification in a different way.
-> 
-> What about putting the information directly into "ap->device[INDEX].class" 
-> in the sole caller (ata_drive_probe_reset) so far?
-> 
-
-Not altering ->class directly in lldd driver is one major point of this 
-whole patchset such that higher level driving logic has a say on whether 
-a device is online or not, not the low level driver.  Primarily this is 
-useful for sharing low-level codes with hot plugging / EH but it's also 
-possible to retry some of the operations during probing in limited cases.
-
-> 
->>>So please let the core layer pass a bounded array here or provide
->>>a function from core layer to set that and check the index.
+>
+>>>For each individual type of error that is specific to a particular
+>>>low-level chipset driver (e752x, amd76x, etc.) there could be an entry
+>>>in the appropriate part of the sysfs hierarchy under the given chipset
+>>>driver.  This entry could have several settings that the user may choose
+>>>      
 >>>
+>>>from such as { ignore, syslog, panic }.  For the implementation, there
+>>    
 >>
->>Can you show me what you have in mind as code?
-> 
+>>>could be a generic piece of code in the core EDAC module that a chipset
+>>>driver calls into.  The generic code would do the dirty work of creating
+>>>the sysfs entries (and destroying them when the chipset module is
+>>>unloading).  How does this sound?
+>>>      
+>>>
+>>Over-Engineered.
+>>    
+>>
+>
+>Do you have an alternate suggestion?
 >  
-> /* Define this to 15, if you need to */
-> #define ATA_MAX_CLASSES 2
-> struct ata_set {
->         unsigned int class[ATA_MAX_CLASSES];
-> };
-> 
-> void set_ata_class(struct ata_set *cls, unsigned int idx, unsigned int what)
-> {
->         BUG_ON(idx >= ARRAY_SIZE(cls->class);
->         cls->class[idx] = what;
-> }
-> 
-> set_ata_class(&myclass, 0, what);
-> 
-> You can enforce that even better by making "what" 
-> a typedef like we do it with pte/pmd/pud/pgd in the VM.
+>
+Just printk() the exact driver specific low-level error, even if non-fatal.
 
-First of all, I'm not a big fan of safety through typedef/structure kind 
-of stuff.  For VM, I think it's justifiable, but this class thing 
-doesn't involve any complex operation around it.  Drivers just do what 
-they do and record the result into the @classes array.  I mean, how/why 
-a driver would touch classes[1] when it can recognize only one device. 
-It's dictated by the hardware spec and reflected in the driver code.  If 
-a driver doesn't get this right, things wouldn't work at all.  @classes 
-safety is a minor issue at that point.
+Single non-fatal errors just show your system recovers correctly.
 
-> But I prefer not passing this class stuff around, which would even safe
-> arguments and thus reduce code size.
+Multiple (e.g. noisy) non-fatal are either an indication of a serious 
+problem
+  (e.g. after how many corrected ECC errors on the same address in which
+    time interval will you replace your dimm? How many S-ATA CRC-errors
+     will indicate marginal bad cabling? )
+or it shows the problem needs to be root analyzed. But don't disable the
+messages as this will only hide the real problem.
 
-No boudnary check is done for accessing ap->device[i] and this is really 
-not a place to worry about code size, IMHO.
+Concerning Non-Fatal PCI Express errors, the error cause registers need
+to be printed in case of error, too (see Intel Chipset Specifications)
 
-> Maybe we should even have a classify ata port operation instead?
+-
+Gunther
 
-In ATA, probe and reset are closely related.  There's only one way to 
-get class code without resetting - EDD, and it doesn't always work well. 
-  That's why the callback is named ->probe_reset.  ATA devices are 
-designed to be classfied by resetting them.
 
--- 
-tejun

@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbWAaUDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWAaUIk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751418AbWAaUDu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 15:03:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWAaUDu
+	id S1751448AbWAaUIk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 15:08:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWAaUIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 15:03:50 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:54699 "EHLO
-	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S1751418AbWAaUDt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 15:03:49 -0500
-Message-ID: <43DFB635.2000309@wolfmountaingroup.com>
-Date: Tue, 31 Jan 2006 12:10:45 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc Perkel <marc@perkel.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chase Venters <chase.venters@clientec.com>,
-       "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Patrick McLean <pmclean@cs.ubishops.ca>,
-       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <43D114A8.4030900@wolfmountaingroup.com>  <20060120111103.2ee5b531@dxpl.pdx.osdl.net>  <43D13B2A.6020504@cs.ubishops.ca> <43D7C780.6080000@perkel.com>  <43D7B20D.7040203@wolfmountaingroup.com>  <43D7B5C4.5040601@wolfmountaingroup.com> <43D7D05D.7030101@perkel.com>  <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>  <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>  <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>  <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>  <1138387136.26811.8.camel@localhost>  <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org> <1138620390.31089.43.camel@localhost.localdomain> <Pine.LNX.4.64.0601310931540.7301@g5.osdl.org> <43DF9D42.7050802@wolfmountaingroup.com> <Pine.LNX.4.64.0601311032180.7301@g5.osdl.org> <43DFC0B3.3000909@perkel.com>
-In-Reply-To: <43DFC0B3.3000909@perkel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 31 Jan 2006 15:08:40 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:36111 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751448AbWAaUIk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 15:08:40 -0500
+Date: Tue, 31 Jan 2006 21:08:35 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Massimo De Beni <maxdb82@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Make my own modules for kernel 2.4.32
+Message-ID: <20060131200835.GA7142@w.ods.org>
+References: <f4fb6a4d0601310239o5cf95887y@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f4fb6a4d0601310239o5cf95887y@mail.gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Perkel wrote:
+Hi,
 
-> Linus,
->
-> For what it's worth, maybe you should run some of these issues past 
-> the Electronic Frontier Foundation (eff.org) or Robin Gross at 
-> IPJustice.org who might be able to review these issues and help make 
-> sure you're doing it right.
+On Tue, Jan 31, 2006 at 11:39:25AM +0100, Massimo De Beni wrote:
+> Hi all,
+> I'm a newbye to kernel 'modding' and I've a question that may seems
+> outdated... The situation is this:
+> I worked to get a Set Top Box to work with the latest stable 2.4
+> kernel, the way is clear but the box need some modules to be loaded at
+> boot in order to get the video and audio device to work (modules that
+> are not shipped in kernels 2.4...); now I'm building those modules
+> separatly, compiling directly the drivers source codes with 'make',
+> and then I insert the .o with 'insmod'.
+> I would create a better system in which one could compile those
+> modules directly on the 'make menuconfig' of the kernel, so I'm
+> modifying the various Makefiles && config files, but I'm a bit
+> confused... Any good hint?
 
+You have to add an 'obj-m' entry to the Makefile located in the same
+directory as your driver, and make it depend on an option which will
+be enabled in some Config.in (in the same directory if possible).
+You should look at any driver provided as a patch for the kernel, it
+will be fairly easier for you to understand what they touch. And don't
+forget one important thing : always ensure that the kernel still builds
+with your module disabled. Also, don't forget to add an entry in the
+Configure.help file.
 
-Great advice, however, the EFF are not experts in IP law.  I would 
-suggest a good firm in Palo Alto, like Rosati, Goodrich and Sonsini, 
-they are experts
-in corporate IP law and Corporate law in general.  They would know all 
-the loopholes people and companies are likely to use.  Stay away from these
-freebie Law Groups who are more likely to kiss your butt and tell you 
-waht you want to hear rather than what you NEED to hear. 
+> Thanks in advance...!
 
-OSDL should pick up the tab.  It will cost around 30K for a good 
-analysis from them.
-
-Jeff
-
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Regards,
+Willy
 

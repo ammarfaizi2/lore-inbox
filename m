@@ -1,86 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWAaOzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbWAaO4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750909AbWAaOzh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 09:55:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750912AbWAaOzh
+	id S1750917AbWAaO4o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 09:56:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbWAaO4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 09:55:37 -0500
-Received: from lug-owl.de ([195.71.106.12]:41437 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1750909AbWAaOzh (ORCPT
+	Tue, 31 Jan 2006 09:56:43 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:2056 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1750915AbWAaO4m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 09:55:37 -0500
-Date: Tue, 31 Jan 2006 15:55:35 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/11] LED: Add LED Class
-Message-ID: <20060131145535.GW18336@lug-owl.de>
-Mail-Followup-To: Richard Purdie <rpurdie@rpsys.net>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <1138714882.6869.123.camel@localhost.localdomain> <1138714888.6869.125.camel@localhost.localdomain>
+	Tue, 31 Jan 2006 09:56:42 -0500
+Date: Tue, 31 Jan 2006 09:54:36 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: "Gabriel C." <crazy@pimpmylinux.org>, da.crew@gmx.net,
+       linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
+       netdev@vger.kernel.org
+Subject: Re: 2.6.16-rc1-mm4: ACX=y, ACX_USB=n compile error
+Message-ID: <20060131145431.GI5433@tuxdriver.com>
+Mail-Followup-To: Denis Vlasenko <vda@ilport.com.ua>,
+	"Gabriel C." <crazy@pimpmylinux.org>, da.crew@gmx.net,
+	linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
+	netdev@vger.kernel.org
+References: <20060130133833.7b7a3f8e@zwerg> <200601310810.33107.vda@ilport.com.ua> <20060131100330.2931cbe9@zwerg> <200601311416.05397.vda@ilport.com.ua>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vowh9qpYCOVF+x5F"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1138714888.6869.125.camel@localhost.localdomain>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200601311416.05397.vda@ilport.com.ua>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 31, 2006 at 02:16:05PM +0200, Denis Vlasenko wrote:
 
---vowh9qpYCOVF+x5F
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> CONFIG_ACX=y
+> # CONFIG_ACX_PCI is not set
+> # CONFIG_ACX_USB is not set
+> 
+> This won't fly. You must select at least one.
+> 
+> Attached patch will check for this and #error out.
+> Andrew, do not apply to -mm, I'll send you bigger update today.
 
-On Tue, 2006-01-31 13:41:28 +0000, Richard Purdie <rpurdie@rpsys.net> wrote:
-> Index: linux-2.6.15/include/linux/leds.h
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-2.6.15/include/linux/leds.h	2006-01-29 16:03:21.000000000 +0000
-> +enum led_brightness {
-> +	LED_OFF =3D 0,
-> +	LED_HALF =3D 127,
-> +	LED_FULL =3D 255,
-> +};
-> +
-> +struct led_device {
-> +	/* A function to set the brightness of the led */
-> +	void (*brightness_set)(struct led_device *led_dev, enum led_brightness =
-brightness);
+Is there any way to move this into a Kconfig file?  That seems nicer
+than having #ifdefs in source code to check for a configuration error.
 
-I somehow dislike using an enum being abused for a dimmed LED value...
+John
 
-MfG, JBG
+P.S.  Please post any patches with formatting according to kernel
+conventions:
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- f=C3=BCr einen Freien Staat voll Freier B=C3=BCrger"  | im Internet! |   i=
-m Irak!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
+	http://linux.yyz.us/patch-format.html
 
---vowh9qpYCOVF+x5F
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFD33pnHb1edYOZ4bsRAhBEAKCLf95FVYbwJnuDphuI9MjA8c/BVQCfTcRD
-M9Gf9IHm9J54MO3LH1d+KTo=
-=xBjK
------END PGP SIGNATURE-----
-
---vowh9qpYCOVF+x5F--
+-- 
+John W. Linville
+linville@tuxdriver.com

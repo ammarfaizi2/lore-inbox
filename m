@@ -1,80 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWAaK5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWAaLFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWAaK5l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 05:57:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWAaK5l
+	id S1750750AbWAaLFF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 06:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWAaLFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 05:57:41 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:15086 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750746AbWAaK5k (ORCPT
+	Tue, 31 Jan 2006 06:05:05 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:35919 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1750750AbWAaLFD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 05:57:40 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [ 06/23] [Suspend2] Disable usermode helper invocations when the freezer is on.
-Date: Tue, 31 Jan 2006 11:58:16 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-References: <20060126034518.3178.55397.stgit@localhost.localdomain> <200601302305.18202.rjw@sisk.pl> <200601311324.38149.nigel@suspend2.net>
-In-Reply-To: <200601311324.38149.nigel@suspend2.net>
+	Tue, 31 Jan 2006 06:05:03 -0500
+Message-ID: <43DF445F.6060704@tls.msk.ru>
+Date: Tue, 31 Jan 2006 14:05:03 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Another Assertion failure in journal_start()
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200601311158.16882.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Just hit our main server, while doing kernel compile
+(producing a .deb using custom script which does quite
+some usage of symlinks - hence sys_symlink() operation
+is in call trace) -- that particular filesystem stopped
+working, while the rest of the system was still operational.
 
-On Tuesday 31 January 2006 04:24, Nigel Cunningham wrote:
-> On Tuesday 31 January 2006 08:05, Rafael J. Wysocki wrote:
-> > On Thursday 26 January 2006 04:45, Nigel Cunningham wrote:
-> > > Disable usermode helper invocations when the freezer is on. This avoids
-> > > deadlocks due to hotplug events occuring while processes are frozen.
-> > >
-> > > Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
-> > >
-> > >  kernel/kmod.c |    4 ++++
-> > >  1 files changed, 4 insertions(+), 0 deletions(-)
-> > >
-> > > diff --git a/kernel/kmod.c b/kernel/kmod.c
-> > > index 51a8920..12afa2c 100644
-> > > --- a/kernel/kmod.c
-> > > +++ b/kernel/kmod.c
-> > > @@ -36,6 +36,7 @@
-> > >  #include <linux/mount.h>
-> > >  #include <linux/kernel.h>
-> > >  #include <linux/init.h>
-> > > +#include <linux/freezer.h>
-> > >  #include <asm/uaccess.h>
-> > >
-> > >  extern int max_threads;
-> > > @@ -249,6 +250,9 @@ int call_usermodehelper_keys(char *path,
-> > >  	if (!khelper_wq)
-> > >  		return -EBUSY;
-> > >
-> > > +	if (freezer_is_on())
-> > > +		return 0;
-> > > +
-> > >  	if (path[0] == '\0')
-> > >  		return 0;
-> >
-> > Disabling the usermode helper while freeze_processes() is executed seems to
-> > be a good idea to me, but I think it should be done with a mutex or
-> > something like that.
-> 
-> With the refrigerator code you guys are using at the moment, ouldn't that 
-> result in deadlocks when we later try to freeze the process in preparation 
-> for the atomic restore? (Or perhaps you don't freeze processes at that 
-> point?)
+It's 2.6.15.1 kernel running on an athlon-1.3GHz, pretty
+old but pretty stable box, with ECC memory.  The filesystem
+in question is on top of a raid0 array out of 4 scsi drives
+(it's used as a "staging area" for various temporary stuff,
+incl. compiles and whatnot).
 
-I'm not sure what you mean.  I said "mutex" because you seem to have a race
-here (the freezer may be started right after the freezer_is_on() check).  IMO
-the freezer should disable the invocations of new usermode helpers and
-wait util all of the already running helpers are finished.  For this purpose
-two variables would be needed and a lock.
+Any clues about this one?
 
-Greetings,
-Rafael
+Note it's the first time I encountered an error like this
+one, but I did quite alot of kernel compiles on this box
+already since last boot (I'm experimenting with Xen on
+another box, this box is used as a "compiling server").
+So I can hardly say the problem is "easily reproduceable".
+
+Thanks.
+
+/mjt
+
+BTW... What's this strange "kernel BUG at <bad filename>:17407!" ?
+I've seen similar stuff already on another machine, and it does
+not look right...  Also, the "[ cut here ]" line seems to be
+misplaced.
+
+Assertion failure in journal_start() at fs/jbd/transaction.c:270: "handle->h_transaction->t_journal == journal"
+------------[ cut here ]------------
+kernel BUG at <bad filename>:17407!
+invalid operand: 0000 [#1]
+Modules linked in: sr_mod cdrom ide_generic nfsd exportfs lockd nfs_acl sunrpc autofs4 quota_v2 raid0 via82cxxx ide_core raid5 xor 8139too mii crc32 rtc ext3 jbd mbcache raid1 md_mod sd_mod aic7xxx scsi_transport_spi scsi_mod
+CPU:    0
+EIP:    0060:[<f0868483>]    Not tainted VLI
+EFLAGS: 00010296   (2.6.15-i686)
+EIP is at journal_start+0x63/0xc0 [jbd]
+eax: 00000076   ebx: cac77748   ecx: c02933ac   edx: c02933ac
+esi: f0870587   edi: 0000010e   ebp: 0000001f   esp: c6f68d78
+ds: 007b   es: 007b   ss: 0068
+Process perl (pid: 9232, threadinfo=c6f68000 task=ea83d050)
+Stack: f086eee0 f086ea02 f0870587 0000010e f086efa0 e3940a68 e7e1b920 c6f68dd4
+       f08e3cea e3940a68 e7e1b920 c0167a91 c6f68dd4 e3940a70 e3940a68 c0167b0b
+       c2ced198 c2ced190 00000080 00000080 c0167d98 00000002 00000080 c6914310
+Call Trace:
+ [<f08e3cea>] ext3_dquot_drop+0x2a/0x60 [ext3]
+ [<c0167a91>] clear_inode+0xe1/0x120
+ [<c0167b0b>] dispose_list+0x3b/0xb0
+ [<c0167d98>] prune_icache+0x98/0x170
+ [<c0167e84>] shrink_icache_memory+0x14/0x40
+ [<c013f84f>] shrink_slab+0x16f/0x1d0
+ [<c014074a>] try_to_free_pages+0xda/0x1a0
+ [<c0139d37>] __alloc_pages+0x137/0x2c0
+ [<c0135c44>] find_or_create_page+0x84/0xa0
+ [<c01608de>] page_symlink+0x2e/0x124
+ [<f08e082f>] ext3_symlink+0x19f/0x1e0 [ext3]
+ [<c015f969>] vfs_symlink+0x89/0x110
+ [<c015fa64>] sys_symlink+0x74/0xc0
+ [<c0150fb2>] vfs_read+0xf2/0x150
+ [<c01512b7>] sys_read+0x47/0x80
+ [<c0102e99>] syscall_call+0x7/0xb
+Code: 86 f0 b9 02 ea 86 f0 b8 a0 ef 86 f0 89 4c 24 04 bf 0e 01 00 00 be 87 05 87 f0 89 7c 24 0c 89 74 24 08 89 44 24 10 e8 6d 0e 8b cf <0f> 0b ff 43 08 89 d8 8b 5c 24 14 8b 74 24 18 8b 7c 24 1c 83 c4
+

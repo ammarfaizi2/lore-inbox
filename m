@@ -1,80 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965055AbWAaIiY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWAaIuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965055AbWAaIiY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 03:38:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbWAaIiY
+	id S1750702AbWAaIuq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 03:50:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbWAaIuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 03:38:24 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:46754 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S965055AbWAaIiY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 03:38:24 -0500
-Message-ID: <43DF2332.3070705@aitel.hist.no>
-Date: Tue, 31 Jan 2006 09:43:30 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Tue, 31 Jan 2006 03:50:46 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:53958 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1750702AbWAaIuq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 03:50:46 -0500
+Message-ID: <43DF36EF.C38E6C4B@tv-sign.ru>
+Date: Tue, 31 Jan 2006 13:07:43 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: pierre-olivier.gaillard@fr.thalesgroup.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Can on-demand loading of user-space executables be disabled ?
-References: <43DDE697.5000007@fr.thalesgroup.com>
-In-Reply-To: <43DDE697.5000007@fr.thalesgroup.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] exec: Cleanup exec from a non thread group leader.
+References: <43DDFDE3.58C01234@tv-sign.ru> <43DE2730.795468DC@tv-sign.ru> <m1vew15ud4.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-P.O. Gaillard wrote:
+"Eric W. Biederman" wrote:
+> 
+> Oleg Nesterov <oleg@tv-sign.ru> writes:
+> 
+> > Oleg Nesterov wrote:
+> >>
+> >> Eric W. Biederman wrote:
+> >> >
+> >> > -     list_add_tail(&thread->tasks, &init_task.tasks);
+> >>
+> >> The last deletion is wrong, I beleive.
+> >
+> > Just to clarify, it looks like we can kill this line because
+> > de_thread() also does list_add_tail(current, &init_task.tasks).
+> >
+> > But please note that it (and probably __ptrace_link() above)
+> > does list_del(current->task) first, and current->task may have
+> > very stale values after old leader called dup_task_struct().
+> > SET_LINKS() in copy_process() does nothing with ->tasks in a
+> > CLONE_THREAD case.
+> 
+> Good point in that instance we need to remove the list_del
+> as well.
 
-> Hello,
->
-> As far as I understand what happens when I start a Linux program, the 
-> executable file is mmaped into memory and the execution of the code 
-> itself prompts Linux to load the required pages of the program.
->
-> I expect that this could cause unwanted delays during program 
-> execution when a function that has never been used (nor loaded into 
-> memory) is called. This delay could be bigger than 10ms while the 2.6 
-> kernel is usually quite predictable thanks to Ingo Molnar and others' 
-> work.
+We can't just remove this list_del, note __ptrace_link() above.
+So if we remove list_add from switch_exec_pids() (like you did
+in your patch) we should also place list_add before ptrace_link()
+in de_thread(), otherwise I beleive it is a bug.
 
-Delays may indeed happen due to something that isn't yet loaded.  They 
-may also
-happen because of something being swapped out due to memory pressure.
-Note that "turning off swap" by not having any swap-device won't help you.
-Linux knows that program code can be reloaded from the executable file,
-and may decide to drop little-used functions from memory.  They will then
-be demand-loaded if they ever are needed again.
+I agree, we should cleanup this. I just noticed that I forgot
+to add you on CC: list while sending this patch:
 
->
-> Is Linux really using on-demand loading ?
-> Is it very different from what I described in the first paragraph ?
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=113862839924746
 
-Not very.  Just note that linux doesn't load whole functions, it loads
-4kB chunks called pages.
+Btw, I don't understand why __ptrace_link() use REMOVE_LINKS/SET_LINKS
+instead of remove_parent/add_parent.
 
-> Can on-demand loading be disabled ? (This would seem convenient for my 
-> applications since I generally start a program that is meant to run as 
-> predictably as possible for months.) 
-
-Probably possible. It would have to be a special use for this to make 
-sense though,
-don't consider this just to have a "snappier desktop". Loading whole 
-executables
-and keeping them loaded wastes lots of memory.  Usual programs have 
-startup code
-that is only used once - it is normally nice that it gets dropped from 
-memory
-after a while.  This frees up memory for everything else.  Similiarly, 
-it is nice that
-the cleanup code used to end the program isn't loaded until needed, that
-way it doesn't waste space so the program have more memory available for 
-work.
-
-Still, if the very occational and short page-in delay is too much for your
-specialized use - use mlock.  If demand loading or swapping merely is slow
-due to heavy disk usage, put the executables and swap on a spindle
-of its own so these disk accesses won't compete with data accesses.
-
-Helge Hafting
+Oleg.

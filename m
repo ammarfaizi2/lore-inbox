@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbWAaHmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbWAaHpK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030215AbWAaHmL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 02:42:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbWAaHmK
+	id S1030221AbWAaHpK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 02:45:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbWAaHpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 02:42:10 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:58074
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S965056AbWAaHmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 02:42:09 -0500
-Date: Mon, 30 Jan 2006 23:42:04 -0800
-From: Greg KH <greg@kroah.com>
-To: iSteve <isteve@rulez.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udevstart surprisingly slow
-Message-ID: <20060131074204.GA26356@kroah.com>
-References: <43DE8D5E.2040905@rulez.cz>
+	Tue, 31 Jan 2006 02:45:10 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:28327 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965055AbWAaHpI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 02:45:08 -0500
+Date: Mon, 30 Jan 2006 23:44:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+Subject: Re: Linux 2.6.15.2
+Message-Id: <20060130234443.78d06f5d.akpm@osdl.org>
+In-Reply-To: <20060131073845.GA26024@suse.de>
+References: <20060131070642.GA25015@kroah.com>
+	<20060130233427.5e7912ae.akpm@osdl.org>
+	<20060131073845.GA26024@suse.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43DE8D5E.2040905@rulez.cz>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 30, 2006 at 11:04:14PM +0100, iSteve wrote:
-> Greetings,
-> I've recently upgraded udev from 063 to 082 and then 084.
+Greg KH <gregkh@suse.de> wrote:
+>
+> On Mon, Jan 30, 2006 at 11:34:27PM -0800, Andrew Morton wrote:
+> > Greg KH <gregkh@suse.de> wrote:
+> > >
+> > > We (the -stable team) are announcing the release of the 2.6.15.2 kernel.
+> > >
+> > 
+> > There remain some box-killing bugs:
+> > 
+> > - The scsi_cmd leak
 > 
-> With 063, startup of udev was near-instant; with both 082 and 084, it 
-> takes a significant ammount of time (~15s) to create the base devices 
-> using udevstart or udevsynthesize (this one is taken from Debian, which 
-> apparently in turn taken it from SuSE; the rest of codebase is vanilla).
+> In my to-apply queue, came after we started the review cycle here.
 
-With the 2.6.15 kernel, udevstart is no longer needed.  Please use the
-recommended shell script instead (as posted to the linux-hotplug-devel
-mailing list.)
+I wish it was in mine - I didn't know we had a fix.
+ 
+> > - The BIO-uses-ZONE_DMA-hence-oom-killing bug
+> > 
+> > - A skbuff_head_cache leak causes oom-killings.
+> 
+> No one has forwarded these to us (stable@kernel.org), can someone please
+> do so?
 
-> This issue appears on kernel 2.6.15.1 with SquashFS 2.2r2, SWSUP2 2.2 
-> and VesaFB-TNG 1.0-rc1-r3 patches.
-
-All of which are not patches included in the mainline kernel.  Can you
-try it without these?
-
-> The init script used simply mounts 10MiB tmpfs onto /dev, creates 
-> /dev/.udev/{db,queue} directories, then runs udevd --daemon and then 
-> udevsynthesize or udevstart (tried both, same result).
-
-Again, don't do that :)
-
-Also, udev specific questions like these are best asked on the
-linux-hotplug-devel mailing list, as the udev documentation states.
-
-thanks,
-
-greg k-h
+These remain unfixed, afaik.

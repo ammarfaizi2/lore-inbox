@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbWAaNPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWAaNRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750802AbWAaNPY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 08:15:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWAaNPY
+	id S1750809AbWAaNRx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 08:17:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWAaNRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 08:15:24 -0500
-Received: from iona.labri.fr ([147.210.8.143]:27060 "EHLO iona.labri.fr")
-	by vger.kernel.org with ESMTP id S1750802AbWAaNPX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 08:15:23 -0500
-Message-ID: <43DF629E.7070300@labri.fr>
-Date: Tue, 31 Jan 2006 14:14:06 +0100
-From: Emmanuel Fleury <emmanuel.fleury@labri.fr>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ASLR] Better control on Randomization
-References: <43DE710F.9020408@labri.fr>
-In-Reply-To: <43DE710F.9020408@labri.fr>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 31 Jan 2006 08:17:53 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:64951 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750809AbWAaNRw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 08:17:52 -0500
+Subject: Re: i386 requires x86_64?
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
+       "L. A. Walsh" <lkml@tlinx.org>
+In-Reply-To: <9a8748490601310054w19e0fa1foc0cb8c65e337aadf@mail.gmail.com>
+References: <43DED532.5060407@tlinx.org>
+	 <9a8748490601310054w19e0fa1foc0cb8c65e337aadf@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 31 Jan 2006 08:17:33 -0500
+Message-Id: <1138713453.7088.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some more details...
-
-Emmanuel Fleury wrote:
+On Tue, 2006-01-31 at 09:54 +0100, Jesper Juhl wrote:
+> On 1/31/06, L. A. Walsh <lkml@tlinx.org> wrote:
+> > Generating a new kernel and wanted to delete the unrelated architectures.
+> >
 > 
-> Would it be possible to tweak them independently from each other ?
-> (still via procfs)
+> Why bother deleting parts of the code?
+> The kernel you build will only contain code for the architecture you
+> build for anyway. Sure, the extra source takes up a little space on
+> disk but if that bothers you you could just delete (or tar+bzip2) the
+> entire source tree after you build and install your new kernel.
 
-I mean it surely immply some modifications of the kernel source. My
-question is more about where to locate the "if" to stop only one or the
-other.
+I still have 1G boxes (and even an 800Meg) HD boxes that I sometimes
+develop on.  And these things are not very fast either, so doing the tar
+bzip2 is also slow.  So I have deleted not only archs, but drivers that
+I don't need to work on these and to keep the code there.
 
-Regards
--- 
-Emmanuel Fleury
+Now, I mainly do the development on a bigger and faster machine, and
+only do the make install via nfs. But that wasn't always an option.
 
-A journey of a thousand miles must begin with a single step.
-   -- Lao Tzu
+-- Steve
+
+

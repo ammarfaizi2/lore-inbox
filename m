@@ -1,114 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWAaKxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWAaKxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbWAaKxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 05:53:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWAaKxJ
+	id S1750740AbWAaKxL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 05:53:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWAaKxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 31 Jan 2006 05:53:11 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:31737 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1750740AbWAaKxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 31 Jan 2006 05:53:09 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60381 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750739AbWAaKxI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 05:53:08 -0500
-Date: Tue, 31 Jan 2006 10:27:26 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>, seife@suse.de
-Cc: Nigel Cunningham <nigel@suspend2.net>, linux-kernel@vger.kernel.org
-Subject: [RFC/RFT] finally solve "swsusp fails with mysqld" problem
-Message-ID: <20060131092726.GA2718@elf.ucw.cz>
-References: <20060126034518.3178.55397.stgit@localhost.localdomain> <200601302318.28922.rjw@sisk.pl> <20060130222541.GK2250@elf.ucw.cz> <200601310102.00646.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601310102.00646.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Tue, 31 Jan 2006 11:47:27 +0100
+To: schilling@fokus.fraunhofer.de, psusi@cfl.rr.com
+Cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jengelh@linux01.gwdg.de, bzolnier@gmail.com, acahalan@gmail.com
+Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future Linux (stirring up a hornets' nest) ]
+Message-ID: <43DF403F.nail2RF310RP6@burner>
+References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com>
+ <43DCA097.nailGPD11GI11@burner>
+ <20060129112613.GA29356@merlin.emma.line.org>
+ <Pine.LNX.4.61.0601292139080.2596@yvahk01.tjqt.qr>
+ <43DD2A8A.nailGVQ115GOP@burner>
+ <787b0d920601291328k52191977h37 <43DE495A.nail2BR211K0O@burner>
+ <43DE75F5.40900@cfl.rr.com>
+In-Reply-To: <43DE75F5.40900@cfl.rr.com>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Phillip Susi <psusi@cfl.rr.com> wrote:
 
-Place refrigerator hook at more clever place; avoids "system can't be
-suspended while mysqld running" problem.
+> Joerg Schilling wrote:
+> > I am sorry to see your recent dicussion style.
+> >
+> > I was asking a question and I did get a completely useless answer as
+> > any person who has some basic know how Linux SCSI would know that
+> > doing a stat("/dev/sg*", ...) will not return anything useful.
+> >   
+>
+> It certainly does return something useful, just not what you are looking 
+> for.  It does not return information that allows you to cleanly build 
+> your bus:device:lun view of the world, but it does return sufficient 
+> information to enumerate and communicate with all devices in the 
+> system.  Is that not sufficient to be able to implement cdrecord?  If it 
+> is, then the real issue here is that you want Linux to conform to the 
+> bus:device:lun world view, which it seems many people do not wish to do. 
 
-I'd like you to test it. It looks correct to me, and it is actually a
-solution, not a workaround like my previous tries. It still does not
-solve suspend while running stress tests.
+It does not allow libscg to find all devices.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
+> Maybe it would be more constructive if you were to make a good argument 
+> for why the bus:device:lun view is better than /dev/*, but right now it 
+> seems to me that they are just two different ways of doing the same 
+> thing, and you prefer one way while the rest of the Linux developers 
+> prefer the other. 
 
----
-commit 01d049aacf36961d361cfd382fcbf746afcbb61b
-tree 67e3d1fcb65cebfab058f9a699534b1689494dad
-parent 92dfb5b4ac96e200138006901837056825c758d3
-author <pavel@amd.ucw.cz> Tue, 31 Jan 2006 10:18:22 +0100
-committer <pavel@amd.ucw.cz> Tue, 31 Jan 2006 10:18:22 +0100
+It would help if someone would give arguments why Linux does treat all 
+SCSI devices equal, except for ATAPI transport based ones.
 
- arch/i386/kernel/signal.c |    3 ---
- fs/jbd/journal.c          |    1 +
- kernel/signal.c           |    4 ++--
- 3 files changed, 3 insertions(+), 5 deletions(-)
-
-diff --git a/arch/i386/kernel/signal.c b/arch/i386/kernel/signal.c
-index adcd069..5ad8c65 100644
---- a/arch/i386/kernel/signal.c
-+++ b/arch/i386/kernel/signal.c
-@@ -615,9 +615,6 @@ int fastcall do_signal(struct pt_regs *r
- 	if (!user_mode(regs))
- 		return 1;
- 
--	if (try_to_freeze())
--		goto no_signal;
--
- 	if (!oldset)
- 		oldset = &current->blocked;
- 
-diff --git a/fs/jbd/journal.c b/fs/jbd/journal.c
-index e4b516a..20b5918 100644
---- a/fs/jbd/journal.c
-+++ b/fs/jbd/journal.c
-@@ -153,6 +153,7 @@ loop:
- 	}
- 
- 	wake_up(&journal->j_wait_done_commit);
-+	/* Race here? May someone already be waking at *next* commit? */
- 	if (freezing(current)) {
- 		/*
- 		 * The simpler the better. Flushing journal isn't a
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 717f1f3..6ef3c90 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -1922,6 +1922,8 @@ int get_signal_to_deliver(siginfo_t *inf
- 	sigset_t *mask = &current->blocked;
- 	int signr = 0;
- 
-+	try_to_freeze();
-+
- relock:
- 	spin_lock_irq(&current->sighand->siglock);
- 	for (;;) {
-@@ -2307,7 +2309,6 @@ sys_rt_sigtimedwait(const sigset_t __use
- 
- 			timeout = schedule_timeout_interruptible(timeout);
- 
--			try_to_freeze();
- 			spin_lock_irq(&current->sighand->siglock);
- 			sig = dequeue_signal(current, &these, &info);
- 			current->blocked = current->real_blocked;
-
-diff --git a/arch/x86_64/kernel/signal.c b/arch/x86_64/kernel/signal.c
-index 5876df1..f4dd2ca 100644
---- a/arch/x86_64/kernel/signal.c
-+++ b/arch/x86_64/kernel/signal.c
-@@ -443,9 +443,6 @@ int do_signal(struct pt_regs *regs, sigs
- 	if (!user_mode(regs))
- 		return 1;
- 
--	if (try_to_freeze())
--		goto no_signal;
--
- 	if (!oldset)
- 		oldset = &current->blocked;
- 
+Jörg
 
 -- 
-Thanks, Sharp!
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

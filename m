@@ -1,103 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbWAaFqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbWAaGLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965025AbWAaFqn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 00:46:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbWAaFqn
+	id S932379AbWAaGLl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 01:11:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWAaGLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 00:46:43 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:9182 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S965025AbWAaFqn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 00:46:43 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [ 15/23] [Suspend2] Helper for counting uninterruptible threads of a type.
-Date: Tue, 31 Jan 2006 15:42:59 +1000
-User-Agent: KMail/1.9.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-kernel@vger.kernel.org
-References: <20060126034518.3178.55397.stgit@localhost.localdomain> <200601302318.28922.rjw@sisk.pl> <20060130222541.GK2250@elf.ucw.cz>
-In-Reply-To: <20060130222541.GK2250@elf.ucw.cz>
+	Tue, 31 Jan 2006 01:11:41 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:43153 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S932379AbWAaGLk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 01:11:40 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: 2.6.16-rc1-mm4: ACX=y, ACX_USB=n compile error
+Date: Tue, 31 Jan 2006 08:10:32 +0200
+User-Agent: KMail/1.8.2
+Cc: "Gabriel C." <crazy@pimpmylinux.org>, linville@tuxdriver.com,
+       linux-kernel@vger.kernel.org, da.crew@gmx.net, netdev@vger.kernel.org
+References: <20060130133833.7b7a3f8e@zwerg> <20060130181039.GC3655@stusta.de>
+In-Reply-To: <20060130181039.GC3655@stusta.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart6782956.jyIpIvjvCV";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200601311543.04302.nigel@suspend2.net>
+Content-Disposition: inline
+Message-Id: <200601310810.33107.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart6782956.jyIpIvjvCV
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Monday 30 January 2006 20:10, Adrian Bunk wrote:
+> On Mon, Jan 30, 2006 at 01:38:33PM +0100, Gabriel C. wrote:
+> 
+> > Hello,
+> 
+> Hi Gabriel,
+> 
+> > I got this compile error with 2.6.16-rc1-mm4 , config attached. 
+> > 
+> > 
+> >   LD      .tmp_vmlinux1
+> > drivers/built-in.o: In function
+> > `acx_l_transmit_authen1':common.c:(.text+0x6cd62): undefined reference
+> > to `acxusb_l_alloc_tx' :common.c:(.text+0x6cd74): undefined reference
+> > to `acxusb_l_get_txbuf' :common.c:(.text+0x6cdeb): undefined reference
+> > to `acxusb_l_tx_data' drivers/built-in.o: In function
+> > `acx_s_configure_debug': undefined reference to
+> > `acxusb_s_issue_cmd_timeo_debug' drivers/built-in.o: In function
+> > [many more]
+> >...
+> 
+> Thanks for your report.
+> 
+> @Denis:
+> The problem seems to be CONFIG_ACX=y, CONFIG_ACX_USB=n.
 
-Hi.
+Thanks, will test/fix ASAP.
 
-On Tuesday 31 January 2006 08:25, Pavel Machek wrote:
-> On Po 30-01-06 23:18:28, Rafael J. Wysocki wrote:
-> > Hi,
-> >
-> > On Thursday 26 January 2006 04:45, Nigel Cunningham wrote:
-> > > Add a helper which counts the number of patches of a type (all
-> > > or userspace only) which are in TASK_UNINTERRUPTIBLE state.
-> > > These tasks are signalled (just in case they leave that state at
-> > > a later point), but we do not consider freezing to have failed
-> > > if and when they do not enter the freezer.
-> > >
-> > > Note that when they eventually leave TASK_UNINTERRUPTIBLE state,
-> > > they will enter the refrigerator, but will immediately exit if
-> > > we no longer want to freeze at that point.
-> >
-> > I think we need to do something like this to prevent problems with
-> > freezing under load.
->
-> That is dangerous... task in UNINTERRUPTIBLE may hold some lock,
-> AFAICT.
->
-> No, there's some simple bug in refrigerator, and I/we need to fix
-> that. Signals work under load, so refrigerator should, too.
-
-I know you understand English, Pavel! Re-read what I wrote previously! The=
-=20
-problem is a race. You're telling processes that process I/O to freeze at t=
-he=20
-same time as you're telling processes that submit I/O to freeze. If kjourna=
-ld=20
-(eg) enters the refrigerator while dd is still running, dd is going to have=
- a=20
-chance of getting stuck, waiting for some I/O to complete.
-
-This also means your sys_sync is totally useless if anything is submitting=
-=20
-I/O, since there will still be I/O being submitted after the sync is done.=
-=20
-This is why (in the numbers I submitted yesterday), the current=20
-implementation took so much longer than the new one. The sys_sync really on=
-ly=20
-introduces a big delay. It needs to be done after the things that generate=
-=20
-I/O have been stopped.
-
-Regards,
-
-Nigel
-
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
-
---nextPart6782956.jyIpIvjvCV
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD3vjoN0y+n1M3mo0RAq4VAKCiBjlarHGQeQsHP1peLdN+r3LDMwCdEzrC
-9jb5Bq7M/xtYKAPpDo+g0Tg=
-=HskV
------END PGP SIGNATURE-----
-
---nextPart6782956.jyIpIvjvCV--
+Gabriel, please send me your .config
+--
+vda

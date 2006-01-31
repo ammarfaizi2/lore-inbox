@@ -1,76 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWAaCEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030266AbWAaCF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030263AbWAaCEo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 21:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbWAaCEo
+	id S1030266AbWAaCF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 21:05:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030268AbWAaCF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 21:04:44 -0500
-Received: from smtpout.mac.com ([17.250.248.73]:27604 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1030263AbWAaCEn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 21:04:43 -0500
-In-Reply-To: <43DE98B9.6010008@tmr.com>
-References: <787b0d920601241923k5cde2bfcs75b89360b8313b5b@mail.gmail.com> <Pine.LNX.4.61.0601251523330.31234@yvahk01.tjqt.qr> <20060125144543.GY4212@suse.de> <Pine.LNX.4.61.0601251606530.14438@yvahk01.tjqt.qr> <20060125153057.GG4212@suse.de> <Pine.LNX.4.61.0601262139290.27891@yvahk01.tjqt.qr> <20060127080026.GR4311@suse.de> <43DE98B9.6010008@tmr.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <74B203F5-441F-4953-A95D-FEA162700876@mac.com>
-Cc: Jens Axboe <axboe@suse.de>, Albert Cahalan <acahalan@gmail.com>,
+	Mon, 30 Jan 2006 21:05:28 -0500
+Received: from terminus.zytor.com ([192.83.249.54]:32450 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S1030266AbWAaCF1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 21:05:27 -0500
+Message-ID: <43DEC5DC.1030709@zytor.com>
+Date: Mon, 30 Jan 2006 18:05:16 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Neil Brown <neilb@suse.de>
+CC: klibc list <klibc@zytor.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       rmatthias.andree@gmx.de
+       linux-raid@vger.kernel.org
+Subject: Re: Exporting which partitions to md-configure
+References: <43DEB4B8.5040607@zytor.com>	<17374.47368.715991.422607@cse.unsw.edu.au>	<43DEC095.2090507@zytor.com> <17374.50399.1898.458649@cse.unsw.edu.au>
+In-Reply-To: <17374.50399.1898.458649@cse.unsw.edu.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Date: Mon, 30 Jan 2006 21:04:37 -0500
-To: Bill Davidsen <davidsen@tmr.com>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 30, 2006, at 17:52, Bill Davidsen wrote:
-> What is not easily available in Linux is a nice single place to  
-> find out what mass storage (disk/optical/floppy/ZIP/LS120/tape)  
-> devices are on the system, and what the system calls them.
+Neil Brown wrote:
+> 
+> Well, grepping through fs/partitions/*.c, the 'flags' thing is set by
+>  efi.c, msdos.c sgi.c sun.c
+> 
+> Of these, efi compares something against PARTITION_LINUX_RAID_GUID,
+> and msdos.c, sgi.c and sun. compare something against
+> LINUX_RAID_PARTITION.
+> 
+> The former would look like
+>   e6d6d379-f507-44c2-a23c-238f2a3df928
+> in sysfs (I think);
+> The latter would look like
+>   fd
+> (I suspect).
+> 
+> These are both easily recognisable with no real room for confusion.
 
-Yes it is available, and a whole slew of GUI applications use it.   
-It's called "hal", or Hardware Abstraction Layer, and it has small  
-hooks into udev and a bit of sysfs code so that it has a list of all  
-devices of various types and knows what their associated udev-created  
-device nodes are.  This means that I can configure udev to put my CD  
-drive on /dev/burner and correctly written GUI programs will just  
-find it and work.
+Well, if we're going to have a generic facility it should make sense 
+across the board.  If all we're doing is supporting legacy usage we 
+might as well export a flag.
 
-> Because for low tech users udev is the problem, not the solution.  
-> The user doesn't want to tell the system what to call the device,  
-> he wants to see what's there, and that includes serial numbers of  
-> drives (where available) because if a user has several drives it's  
-> likely that they are identical.
+I guess we could have a single entry with a string of the form 
+"efi:e6d6d379-f507-44c2-a23c-238f2a3df928" or "msdos:fd" etc -- it 
+really doesn't make any difference to me, but it seems cleaner to have 
+two pieces of data in two different sysfs entries.
 
-Your average low-tech user installing stock Debian (Not even  
-something targeted at user-friendliness like Ubuntu), will end up  
-with udev/hal installed.  When he plugs in his burner, it will get  
-the name /dev/cdrom[0-9] behind the scenes, and hal will notice.   
-When he starts up k3b, it will use hal and automatically notice his  
-drive, showing him brand, serial number, etc.
+> 
+> And if other partition styles wanted to add support for raid auto
+> detect, tell them "no". It is perfectly possible and even preferable
+> to live without autodetect.   We should support legacy usage (those
+> above) but should discourage any new usage.
+> 
 
-> Instead of having the user tell the system what to call a device,  
-> let the system tell the user what it is called.
+Why is that, keeping in mind this will all be done in userspace?
 
-Uhh, both happen.  The system tells userspace "I just got/have a  
-device with brand 'foo', specs 'bar', serial 'baz', etc".  Userspace  
-(behind the scenes, without your low-tech user caring) creates a  
-device node "/dev/cdrom[0-9]" and alerts hal, which sends it to your  
-application, which nicely alerts the user.  As an admin who does a  
-lot on the command line, I can tie certain drive serial numbers to / 
-dev/blue_burner and /dev/red_burner for my own ease-of-command-line- 
-use without breaking the aforementioned hal system.
-
-Cheers,
-Kyle Moffett
-
---
-I have yet to see any problem, however complicated, which, when you  
-looked at it in the right way, did not become still more complicated.
-   -- Poul Anderson
-
-
+	-hpa
 

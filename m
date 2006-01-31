@@ -1,268 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWAaNof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWAaNp5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750825AbWAaNof (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 08:44:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWAaNlu
+	id S1750824AbWAaNp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 08:45:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWAaNpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 08:41:50 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:64658 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1750825AbWAaNln (ORCPT
+	Tue, 31 Jan 2006 08:45:49 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:39628 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S1750843AbWAaNpg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 08:41:43 -0500
-Subject: [PATCH 4/11] LED: Add LED Timer Trigger
+	Tue, 31 Jan 2006 08:45:36 -0500
+Subject: [PATCH 0/11] LED Class, Triggers and Drivers
 From: Richard Purdie <rpurdie@rpsys.net>
 To: LKML <linux-kernel@vger.kernel.org>
+Cc: Russell King <rmk@arm.linux.org.uk>, John Lenz <lenz@cs.wisc.edu>,
+       Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       tglx@linutronix.de, dirk@opfer-online.de, jbowler@acm.org
 Content-Type: text/plain
-Date: Tue, 31 Jan 2006 13:41:37 +0000
-Message-Id: <1138714898.6869.129.camel@localhost.localdomain>
+Date: Tue, 31 Jan 2006 13:41:22 +0000
+Message-Id: <1138714882.6869.123.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add an example of a complex LED trigger in the form of a generic timer 
-which triggers the LED its attached to at a user specified frequency
-and duty cycle.
+This is an updated version of the LED class/subsystem I proposed a while
+ago. It takes John Lenz's work and extends and alters it to give what I
+think should be a fairly universal LED implementation.
 
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+Hopefully a decision on whether this is going to head into mainline or
+not can be made soon. I've not had any feedback from Russell on this
+issue (but have asked). 
 
-Index: linux-2.6.15/drivers/leds/Kconfig
-===================================================================
---- linux-2.6.15.orig/drivers/leds/Kconfig	2006-01-29 16:13:48.000000000 +0000
-+++ linux-2.6.15/drivers/leds/Kconfig	2006-01-29 20:32:16.000000000 +0000
-@@ -22,5 +22,12 @@
- 	  These triggers allow kernel events to drive the LEDs and can
- 	  be configured via sysfs. If unsure, say Y.
- 
-+config LEDS_TRIGGER_TIMER
-+	tristate "LED Timer Trigger"
-+	depends LEDS_TRIGGERS
-+	help
-+	  This allows LEDs to be controlled by a programmable timer
-+	  via sysfs. If unsure, say Y.
-+
- endmenu
- 
-Index: linux-2.6.15/drivers/leds/Makefile
-===================================================================
---- linux-2.6.15.orig/drivers/leds/Makefile	2006-01-29 16:13:48.000000000 +0000
-+++ linux-2.6.15/drivers/leds/Makefile	2006-01-29 20:32:16.000000000 +0000
-@@ -3,3 +3,6 @@
- obj-$(CONFIG_NEW_LEDS)			+= led-core.o
- obj-$(CONFIG_LEDS_CLASS)		+= led-class.o
- obj-$(CONFIG_LEDS_TRIGGERS)		+= led-triggers.o
-+
-+# LED Triggers
-+obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+= ledtrig-timer.o
-Index: linux-2.6.15/drivers/leds/ledtrig-timer.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.15/drivers/leds/ledtrig-timer.c	2006-01-29 17:40:11.000000000 +0000
-@@ -0,0 +1,204 @@
-+/*
-+ * LED Kernel Timer Trigger
-+ *
-+ * Copyright 2005-2006 Openedhand Ltd.
-+ *
-+ * Author: Richard Purdie <rpurdie@openedhand.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/list.h>
-+#include <linux/spinlock.h>
-+#include <linux/device.h>
-+#include <linux/sysdev.h>
-+#include <linux/timer.h>
-+#include <linux/leds.h>
-+#include "leds.h"
-+
-+struct timer_trig_data {
-+	unsigned long duty; /* duty cycle, as a percentage */
-+	unsigned long frequency; /* frequency of blinking, in Hz */
-+	unsigned long delay_on; /* milliseconds on */
-+	unsigned long delay_off; /* milliseconds off */
-+	struct timer_list timer;
-+};
-+
-+static void led_timer_function(unsigned long data)
-+{
-+	struct led_device *led_dev = (struct led_device *) data;
-+	struct timer_trig_data *timer_data = led_dev->trigger_data;
-+	unsigned long brightness = LED_OFF;
-+	unsigned long delay = timer_data->delay_off;
-+
-+	write_lock(&led_dev->lock);
-+
-+	if (!timer_data->frequency) {
-+		led_set_brightness(led_dev, LED_OFF);
-+		write_unlock(&led_dev->lock);
-+		return;
-+	}
-+
-+	if (!led_dev->brightness) {
-+		brightness = LED_FULL;
-+		delay = timer_data->delay_on;
-+	}
-+
-+	led_set_brightness(led_dev, brightness);
-+
-+	mod_timer(&timer_data->timer, jiffies + msecs_to_jiffies(delay));
-+	write_unlock(&led_dev->lock);
-+}
-+
-+/* led_dev write lock needs to be held */
-+static void led_timer_setdata(struct led_device *led_dev, unsigned long duty, unsigned long frequency)
-+{
-+	struct timer_trig_data *timer_data = led_dev->trigger_data;
-+	signed long duty1;
-+
-+	if (frequency > 500)
-+		frequency = 500;
-+
-+	if (duty > 100)
-+		duty = 100;
-+
-+	duty1 = duty - 50;
-+
-+	timer_data->duty = duty;
-+	timer_data->frequency = frequency;
-+	if (frequency != 0) {
-+		timer_data->delay_on = (50 - duty1) * 1000 / 50 / frequency;
-+		timer_data->delay_off = (50 + duty1) * 1000 / 50 / frequency;
-+	}
-+
-+	mod_timer(&timer_data->timer, jiffies);
-+}
-+
-+static ssize_t led_duty_show(struct class_device *dev, char *buf)
-+{
-+	struct led_device *led_dev = dev->class_data;
-+	struct timer_trig_data *timer_data;
-+
-+	read_lock(&led_dev->lock);
-+	timer_data = led_dev->trigger_data;
-+	sprintf(buf, "%lu\n", timer_data->duty);
-+	read_unlock(&led_dev->lock);
-+
-+	return strlen(buf) + 1;
-+}
-+
-+static ssize_t led_duty_store(struct class_device *dev, const char *buf, size_t size)
-+{
-+	struct led_device *led_dev = dev->class_data;
-+	struct timer_trig_data *timer_data;
-+	int ret = -EINVAL;
-+	char *after;
-+
-+	unsigned long state = simple_strtoul(buf, &after, 10);
-+	if (after - buf > 0) {
-+		ret = after - buf;
-+		write_lock(&led_dev->lock);
-+		timer_data = led_dev->trigger_data;
-+		led_timer_setdata(led_dev, state, timer_data->frequency);
-+		write_unlock(&led_dev->lock);
-+	}
-+
-+	return ret;
-+}
-+
-+
-+static ssize_t led_frequency_show(struct class_device *dev, char *buf)
-+{
-+	struct led_device *led_dev = dev->class_data;
-+	struct timer_trig_data *timer_data;
-+
-+	read_lock(&led_dev->lock);
-+	timer_data = led_dev->trigger_data;
-+	sprintf(buf, "%lu\n", timer_data->frequency);
-+	read_unlock(&led_dev->lock);
-+
-+	return strlen(buf) + 1;
-+}
-+
-+static ssize_t led_frequency_store(struct class_device *dev, const char *buf, size_t size)
-+{
-+	struct led_device *led_dev = dev->class_data;
-+	struct timer_trig_data *timer_data;
-+	int ret = -EINVAL;
-+	char *after;
-+
-+	unsigned long state = simple_strtoul(buf, &after, 10);
-+	if (after - buf > 0) {
-+		ret = after - buf;
-+		write_lock(&led_dev->lock);
-+		timer_data = led_dev->trigger_data;
-+		led_timer_setdata(led_dev, timer_data->duty, state);
-+		write_unlock(&led_dev->lock);
-+	}
-+
-+	return ret;
-+}
-+
-+static CLASS_DEVICE_ATTR(duty, 0644, led_duty_show, led_duty_store);
-+static CLASS_DEVICE_ATTR(frequency, 0644, led_frequency_show, led_frequency_store);
-+
-+void timer_trig_activate(struct led_device *led_dev)
-+{
-+	struct timer_trig_data *timer_data;
-+
-+	timer_data = kzalloc(sizeof(struct timer_trig_data), GFP_KERNEL);
-+	if (!timer_data)
-+		return;
-+
-+	led_dev->trigger_data = timer_data;
-+
-+	init_timer(&timer_data->timer);
-+	timer_data->timer.function = led_timer_function;
-+	timer_data->timer.data = (unsigned long) led_dev;
-+
-+	timer_data->duty = 50;
-+
-+	class_device_create_file(led_dev->class_dev, &class_device_attr_duty);
-+	class_device_create_file(led_dev->class_dev, &class_device_attr_frequency);
-+}
-+
-+void timer_trig_deactivate(struct led_device *led_dev)
-+{
-+	struct timer_trig_data *timer_data = led_dev->trigger_data;
-+	if (timer_data) {
-+		class_device_remove_file(led_dev->class_dev, &class_device_attr_duty);
-+		class_device_remove_file(led_dev->class_dev, &class_device_attr_frequency);
-+		del_timer_sync(&timer_data->timer);
-+		kfree(timer_data);
-+	}
-+}
-+
-+static struct led_trigger timer_led_trigger = {
-+	.name     = "timer",
-+	.activate = timer_trig_activate,
-+	.deactivate = timer_trig_deactivate,
-+};
-+
-+static int __init timer_trig_init(void)
-+{
-+	return led_trigger_register(&timer_led_trigger);
-+}
-+
-+static void __exit timer_trig_exit (void)
-+{
-+	led_trigger_unregister(&timer_led_trigger);
-+}
-+
-+module_init(timer_trig_init);
-+module_exit(timer_trig_exit);
-+
-+MODULE_AUTHOR("Richard Purdie <rpurdie@openedhand.com>");
-+MODULE_DESCRIPTION("Timer LED trigger");
-+MODULE_LICENSE("GPL");
+I'm unsure what the kconfig name for the class should be (something
+better than NEW_LEDS is needed but arm is using LEDS).
+
+The series consists of several logical units:
+
+* LED Core + Class implementation
+* LED Trigger Core implementation
+* LED timer trigger (example of a complex trigger)
+* LED device drivers for corgi, spitz and tosa Zaurus models
+* LED device driver for locomo LEDs
+* LED device driver for ARM ixp4xx LEDs
+* Zaurus charging LED trigger
+* IDE disk activity LED trigger
+* NAND MTD activity LED trigger
+
+
+Changes
+=======
+
+The patches have been updated after the feedback from GregKH and others
+on LKML and other feedback elsewhere. These include:
+
+* using class_create()/class_destroy()/class_device_create()
+* updates to the timer trigger so it accepts a duty parameter
+* addition of led drivers for tosa and ixp4xx
+* using an enum for led brightness
+* correct the ide trigger when ide_disk isn't compiled
+* added some brief documentation
+
+
+Why?
+====
+
+LEDs are really simple devices usually amounting to a GPIO that can be
+turned on and off so why do we need all this code? On handheld or
+embedded devices they're an important part of an often limited user
+interface. Both users and developers want to be able to control and
+configure what the LED does and the number of different things they'd
+potentially want the LED to show is large. 
+
+A subsystem is needed to try and provide all this different
+functionality in an architecture independent, simple but complete,
+generic and scalable manner.
+
+The alternative is for everyone to implement just what they need hidden
+away in different corners of the kernel source tree and to provide an
+inconsistent interface to userspace.
+
+
+Other Implementations
+=====================
+
+I'm aware of the existing arm led implementation. Currently the new
+subsystem and the arm code can coexist quite happily. Its up to the arm
+community to decide whether this new interface is acceptable to them. As
+far as I can see, the new interface can do everything the existing arm
+implementation can with the advantage that the new code is architecture
+independent and much more generic configurable and scalable.
+
+I'm prepared to make the conversion to the LED subsystem (or assist with
+it) if appropriate.
+
+
+Implementation Details
+======================
+
+I've stripped a lot of code out of John's original LED class. Colours
+were removed as LED colour is now part of the device name. Multiple
+colours are to be handled as multiple led devices. This means you get
+full control over each colour. I also removed the LED hardware timer
+code as the generic timer isn't going to add much overhead and is just
+as useful. I also decided to have the LED core track the current LED
+status (to ease suspend/resume handling) removing the need for
+brightness_get implementations in the LED drivers.
+
+An underlying design philosophy is simplicity. The aim is to keep a
+small amount of code giving as much functionality as possible.
+
+The major new idea is the led "trigger". A trigger is a source of led
+events. Triggers can either be simple or complex. A simple trigger isn't
+configurable and is designed to slot into existing subsystems with
+minimal additional code. Examples are the ide-disk, nand-disk and
+zaurus-charging triggers. With leds disabled, the code optimises away.
+Examples are nand-disk and ide-disk.
+
+Complex triggers whilst available to all LEDs have LED specific
+parameters and work on a per LED basis. The timer trigger is an example.
+
+You can change triggers in a similar manner to the way an IO scheduler
+is chosen (via /sys/class/leds/somedevice/trigger).
+
+So far there are only a handful of examples but it should easy to add
+further LED triggers without too much interference into other
+subsystems.
+
+
+Known Issues
+============
+
+The LED Trigger core cannot be a module as the simple trigger functions
+would cause nightmare dependency issues. I see this as a minor issue
+compared to the benefits the simple trigger functionality brings. The
+rest of the LED subsystem can be modular.
+
+Some leds can be programmed to flash in hardware. As this isn't a
+generic LED device property, I think this should be exported as a device
+specific sysfs attribute rather than part of the class if this
+functionality is required (eg. to keep the led flashing whilst the
+device is suspended).
+
+
+Future Development
+==================
+
+At the moment, a trigger can't be created specifically for a single LED.
+There are a number of cases where a trigger might only be mappable to a
+particular LED. The addition of triggers provided by the LED driver
+should cover this option and be possible to add without breaking the
+current interface.
+
+A cpu activity trigger similar to that found in the arm led
+implementation should be trivial to add.
+
+
+Richard
 
 

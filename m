@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWAaRaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWAaRgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWAaRaU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 12:30:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWAaRaU
+	id S1751230AbWAaRgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 12:36:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbWAaRgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 12:30:20 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:24541 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1751296AbWAaRaT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 12:30:19 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: "John W. Linville" <linville@tuxdriver.com>
-Subject: Re: 2.6.16-rc1-mm4: ACX=y, ACX_USB=n compile error
-Date: Tue, 31 Jan 2006 16:58:09 +0200
-User-Agent: KMail/1.8.2
-Cc: "Gabriel C." <crazy@pimpmylinux.org>, da.crew@gmx.net,
-       linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
-       netdev@vger.kernel.org
-References: <20060130133833.7b7a3f8e@zwerg> <200601311416.05397.vda@ilport.com.ua> <20060131145431.GI5433@tuxdriver.com>
-In-Reply-To: <20060131145431.GI5433@tuxdriver.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 31 Jan 2006 12:36:09 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:65417 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751230AbWAaRgI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 12:36:08 -0500
+Date: Tue, 31 Jan 2006 12:36:01 -0500
+From: Dave Jones <davej@redhat.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: more cfq spinlock badness
+Message-ID: <20060131173601.GA7204@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Jens Axboe <axboe@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060131063938.GA1876@redhat.com> <20060131090944.GU4215@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200601311658.09423.vda@ilport.com.ua>
+In-Reply-To: <20060131090944.GU4215@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 31 January 2006 16:54, John W. Linville wrote:
-> On Tue, Jan 31, 2006 at 02:16:05PM +0200, Denis Vlasenko wrote:
-> 
-> > CONFIG_ACX=y
-> > # CONFIG_ACX_PCI is not set
-> > # CONFIG_ACX_USB is not set
-> > 
-> > This won't fly. You must select at least one.
-> > 
-> > Attached patch will check for this and #error out.
-> > Andrew, do not apply to -mm, I'll send you bigger update today.
-> 
-> Is there any way to move this into a Kconfig file?  That seems nicer
-> than having #ifdefs in source code to check for a configuration error.
+On Tue, Jan 31, 2006 at 10:09:45AM +0100, Jens Axboe wrote:
+ > On Tue, Jan 31 2006, Dave Jones wrote:
+ > > Not seen this break for a while, but I just hit it again in 2.6.16rc1-git4.
+ > > 
+ > > 		Dave
+ > > 
+ > > BUG: spinlock bad magic on CPU#0, pdflush/1128
+ > >  lock: ffff81003a219000, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+ > > 
+ > > Call Trace: <ffffffff80206edc>{spin_bug+177} <ffffffff80207045>{_raw_spin_lock+25}
+ > >        <ffffffff801fea4a>{cfq_exit_single_io_context+85} <ffffffff801ff9a6>{cfq_exit_io_context+24}
+ > >        <ffffffff801f79b0>{exit_io_context+137} <ffffffff80135fbc>{do_exit+182}
+ > >        <ffffffff8010ba49>{child_rip+15} <ffffffff80146087>{keventd_create_kthread+0}
+ > >        <ffffffff8014629c>{kthread+0} <ffffffff8010ba3a>{child_rip+0}
+ > > Kernel panic - not syncing: bad locking
+ > 
+ > Again, which devices have you used?
 
-Can't think of any at the moment.
---
-vda
+nothing special (Ie, no usb bits, just the onboard ata_piix SATA)
+
+ > Did it happen at shutdown, or?
+
+whislt starting up a bunch of gnome panel applets.
+
+ > Did the ub bug get fixed
+
+yes
+
+ > if you are using that? The bug above has in the
+ > past always been able to be explained by a driver destroying a structure
+ > embedding the queue lock before the queue is dead.
+
+as there were no ub devices plugged in at the time, I think
+Pete is off the hook for this one.
+
+		Dave
+

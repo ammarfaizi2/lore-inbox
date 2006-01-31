@@ -1,68 +1,257 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbWAaApg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWAaAm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965051AbWAaApg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jan 2006 19:45:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbWAaApg
+	id S1030244AbWAaAm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jan 2006 19:42:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbWAaAm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jan 2006 19:45:36 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:27024 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S965051AbWAaApg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jan 2006 19:45:36 -0500
-X-IronPort-AV: i="4.01,236,1136188800"; 
-   d="scan'208"; a="252465845:sNHT29445392"
-Subject: [git patch review 1/4] IB/mthca: Relax UAR size check
-From: Roland Dreier <rolandd@cisco.com>
-Date: Tue, 31 Jan 2006 00:45:32 +0000
-To: linux-kernel@vger.kernel.org, openib-general@openib.org
-X-Mailer: IB-patch-reviewer
-Content-Transfer-Encoding: 8bit
-Message-ID: <1138668332064-a06b57921710eb35@cisco.com>
-X-OriginalArrivalTime: 31 Jan 2006 00:45:34.0896 (UTC) FILETIME=[A56DC300:01C625FF]
+	Mon, 30 Jan 2006 19:42:29 -0500
+Received: from mail7.hitachi.co.jp ([133.145.228.42]:3732 "EHLO
+	mail7.hitachi.co.jp") by vger.kernel.org with ESMTP
+	id S1030244AbWAaAm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jan 2006 19:42:28 -0500
+Message-ID: <43DEB290.1050000@sdl.hitachi.co.jp>
+Date: Tue, 31 Jan 2006 09:42:56 +0900
+From: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>,
+       Ananth N Mavinakayanahalli <ananth@in.ibm.com>,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
+CC: SystemTAP <systemtap@sources.redhat.com>,
+       Jim Keniston <jkenisto@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Yumiko Sugita <sugita@sdl.hitachi.co.jp>,
+       Satoshi Oshima <soshima@redhat.com>, Hideo Aoki <haoki@redhat.com>
+Subject: Re: [PATCH][2/2] kprobe: kprobe-booster against 2.6.16-rc1 for i386
+References: <43DE0A4D.20908@sdl.hitachi.co.jp>
+In-Reply-To: <43DE0A4D.20908@sdl.hitachi.co.jp>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are some cards around that have UAR (user access region) size
-different from 8 MB.  Relax our sanity check to make sure that the PCI
-BAR is big enough to access the UAR size reported by the device
-firmware instead.
+Sorry, I took a single mistake
 
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
+Masami Hiramatsu wrote:
+> @@ -240,6 +291,21 @@ static int __kprobes kprobe_handler(stru
+>  		/* handler has already set things up, so skip ss setup */
+>  		return 1;
+> 
+> +	if (p->ainsn.boostable == 1 &&
+> +#ifdef CONFIG_PREEMPT
+> +	    !(pre_preempt_count()) && /*
 
----
+This should be;
+> +	    !(pre_preempt_count) && /*
 
- drivers/infiniband/hw/mthca/mthca_main.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
+And I attach a fixed patch in this mail.
 
-cbd2981a97cb628431a987a8abd1731c74bcc32e
-diff --git a/drivers/infiniband/hw/mthca/mthca_main.c b/drivers/infiniband/hw/mthca/mthca_main.c
-index 8b00d9a..9c849d2 100644
---- a/drivers/infiniband/hw/mthca/mthca_main.c
-+++ b/drivers/infiniband/hw/mthca/mthca_main.c
-@@ -155,6 +155,13 @@ static int __devinit mthca_dev_lim(struc
- 		return -ENODEV;
- 	}
- 
-+	if (dev_lim->uar_size > pci_resource_len(mdev->pdev, 2)) {
-+		mthca_err(mdev, "HCA reported UAR size of 0x%x bigger than "
-+			  "PCI resource 2 size of 0x%lx, aborting.\n",
-+			  dev_lim->uar_size, pci_resource_len(mdev->pdev, 2));
-+		return -ENODEV;
+> +				       * This enables booster when the direct
+> +				       * execution path aren't preempted.
+> +				       */
+> +#endif /* CONFIG_PREEMPT */
+> +	    !p->post_handler && !p->break_handler ) {
+> +		/* Boost up -- we can execute copied instructions directly */
+> +		reset_current_kprobe();
+> +		regs->eip = (unsigned long)&p->ainsn.insn;
+> +		preempt_enable_no_resched();
+> +		return 1;
+> +	}
+> +
+>  ss_probe:
+>  	prepare_singlestep(p, regs);
+>  	kcb->kprobe_status = KPROBE_HIT_SS;
+> @@ -345,6 +411,8 @@ int __kprobes trampoline_probe_handler(s
+
+
+-- 
+Masami HIRAMATSU
+2nd Research Dept.
+Hitachi, Ltd., Systems Development Laboratory
+E-mail: hiramatu@sdl.hitachi.co.jp
+
+Signed-off-by: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
+
+ arch/i386/kernel/kprobes.c |   92 ++++++++++++++++++++++++++++++++++++++++++++-
+ include/asm-i386/kprobes.h |    6 ++
+ 2 files changed, 96 insertions(+), 2 deletions(-)
+diff -Narup a/arch/i386/kernel/kprobes.c b/arch/i386/kernel/kprobes.c
+--- a/arch/i386/kernel/kprobes.c	2006-01-24 22:43:17.000000000 +0900
++++ b/arch/i386/kernel/kprobes.c	2006-01-24 23:12:23.000000000 +0900
+@@ -41,6 +41,49 @@ void jprobe_return_end(void);
+ DEFINE_PER_CPU(struct kprobe *, current_kprobe) = NULL;
+ DEFINE_PER_CPU(struct kprobe_ctlblk, kprobe_ctlblk);
+
++/* insert a jmp code */
++static inline void set_jmp_op(void *from, void *to)
++{
++	struct __arch_jmp_op {
++		char op;
++		long raddr;
++	} __attribute__((packed)) *jop;
++	jop = (struct __arch_jmp_op *)from;
++	jop->raddr = (long)(to) - ((long)(from) + 5);
++	jop->op = RELATIVEJUMP_INSTRUCTION;
++}
++
++/*
++ * returns non-zero if opcodes can be boosted.
++ */
++static inline int can_boost(kprobe_opcode_t opcode)
++{
++	switch (opcode & 0xf0 ) {
++	case 0x70:
++		return 0; /* can't boost conditional jump */
++	case 0x90:
++		/* can't boost call and pushf */
++		return opcode != 0x9a && opcode != 0x9c;
++	case 0xc0:
++		/* can't boost undefined opcodes and soft-interruptions */
++		return (0xc1 < opcode && opcode < 0xc6) ||
++			(0xc7 < opcode && opcode < 0xcc) || opcode == 0xcf;
++	case 0xd0:
++		/* can boost AA* and XLAT */
++		return (opcode == 0xd4 || opcode == 0xd5 || opcode == 0xd7);
++	case 0xe0:
++		/* can boost in/out and (may be) jmps */
++		return (0xe3 < opcode && opcode != 0xe8);
++	case 0xf0:
++		/* clear and set flags can be boost */
++		return (opcode == 0xf5 || (0xf7 < opcode && opcode < 0xfe));
++	default:
++		/* currently, can't boost 2 bytes opcodes */
++		return opcode != 0x0f;
++	}
++}
++
++
+ /*
+  * returns non-zero if opcode modifies the interrupt flag.
+  */
+@@ -60,6 +103,11 @@ int __kprobes arch_prepare_kprobe(struct
+ {
+ 	memcpy(p->ainsn.insn, p->addr, MAX_INSN_SIZE * sizeof(kprobe_opcode_t));
+ 	p->opcode = *p->addr;
++	if (can_boost(p->opcode)) {
++		p->ainsn.boostable = 0;
++	} else {
++		p->ainsn.boostable = -1;
++	}
+ 	return 0;
+ }
+
+@@ -146,6 +194,9 @@ static int __kprobes kprobe_handler(stru
+ 	kprobe_opcode_t *addr = NULL;
+ 	unsigned long *lp;
+ 	struct kprobe_ctlblk *kcb;
++#ifdef CONFIG_PREEMPT
++	unsigned pre_preempt_count = preempt_count();
++#endif /* CONFIG_PREEMPT */
+
+ 	/*
+ 	 * We don't want to be preempted for the entire
+@@ -240,6 +291,21 @@ static int __kprobes kprobe_handler(stru
+ 		/* handler has already set things up, so skip ss setup */
+ 		return 1;
+
++	if (p->ainsn.boostable == 1 &&
++#ifdef CONFIG_PREEMPT
++	    !(pre_preempt_count) && /*
++				       * This enables booster when the direct
++				       * execution path aren't preempted.
++				       */
++#endif /* CONFIG_PREEMPT */
++	    !p->post_handler && !p->break_handler ) {
++		/* Boost up -- we can execute copied instructions directly */
++		reset_current_kprobe();
++		regs->eip = (unsigned long)&p->ainsn.insn;
++		preempt_enable_no_resched();
++		return 1;
 +	}
 +
- 	mdev->limits.num_ports      	= dev_lim->num_ports;
- 	mdev->limits.vl_cap             = dev_lim->max_vl;
- 	mdev->limits.mtu_cap            = dev_lim->max_mtu;
-@@ -976,8 +983,7 @@ static int __devinit mthca_init_one(stru
- 		err = -ENODEV;
- 		goto err_disable_pdev;
+ ss_probe:
+ 	prepare_singlestep(p, regs);
+ 	kcb->kprobe_status = KPROBE_HIT_SS;
+@@ -345,6 +411,8 @@ int __kprobes trampoline_probe_handler(s
+  * 2) If the single-stepped instruction was a call, the return address
+  * that is atop the stack is the address following the copied instruction.
+  * We need to make it the address following the original instruction.
++ *
++ * This function also checks instruction size for preparing direct execution.
+  */
+ static void __kprobes resume_execution(struct kprobe *p,
+ 		struct pt_regs *regs, struct kprobe_ctlblk *kcb)
+@@ -365,6 +433,7 @@ static void __kprobes resume_execution(s
+ 	case 0xca:
+ 	case 0xea:		/* jmp absolute -- eip is correct */
+ 		/* eip is already adjusted, no more changes required */
++		p->ainsn.boostable = 1;
+ 		goto no_change;
+ 	case 0xe8:		/* call relative - Fix return addr */
+ 		*tos = orig_eip + (*tos - copy_eip);
+@@ -372,18 +441,37 @@ static void __kprobes resume_execution(s
+ 	case 0xff:
+ 		if ((p->ainsn.insn[1] & 0x30) == 0x10) {
+ 			/* call absolute, indirect */
+-			/* Fix return addr; eip is correct. */
++			/*
++			 * Fix return addr; eip is correct.
++			 * But this is not boostable
++			 */
+ 			*tos = orig_eip + (*tos - copy_eip);
+ 			goto no_change;
+ 		} else if (((p->ainsn.insn[1] & 0x31) == 0x20) ||	/* jmp near, absolute indirect */
+ 			   ((p->ainsn.insn[1] & 0x31) == 0x21)) {	/* jmp far, absolute indirect */
+-			/* eip is correct. */
++			/* eip is correct. And this is boostable */
++			p->ainsn.boostable = 1;
+ 			goto no_change;
+ 		}
+ 	default:
+ 		break;
  	}
--	if (!(pci_resource_flags(pdev, 2) & IORESOURCE_MEM) ||
--	    pci_resource_len(pdev, 2) != 1 << 23) {
-+	if (!(pci_resource_flags(pdev, 2) & IORESOURCE_MEM)) {
- 		dev_err(&pdev->dev, "Missing UAR, aborting.\n");
- 		err = -ENODEV;
- 		goto err_disable_pdev;
--- 
-1.1.3
+
++	if (p->ainsn.boostable == 0) {
++		if ((regs->eip > copy_eip) &&
++		    (regs->eip - copy_eip) + 5 < MAX_INSN_SIZE) {
++			/*
++			 * These instructions can be executed directly if it
++			 * jumps back to correct address.
++			 */
++			set_jmp_op((void *)regs->eip,
++				   (void *)orig_eip + (regs->eip - copy_eip));
++			p->ainsn.boostable = 1;
++		} else {
++			p->ainsn.boostable = -1;
++		}
++	}
++
+ 	regs->eip = orig_eip + (regs->eip - copy_eip);
+
+ no_change:
+diff -Narup a/include/asm-i386/kprobes.h b/include/asm-i386/kprobes.h
+--- a/include/asm-i386/kprobes.h	2006-01-24 19:07:39.000000000 +0900
++++ b/include/asm-i386/kprobes.h	2006-01-24 22:54:35.000000000 +0900
+@@ -31,6 +31,7 @@ struct pt_regs;
+
+ typedef u8 kprobe_opcode_t;
+ #define BREAKPOINT_INSTRUCTION	0xcc
++#define RELATIVEJUMP_INSTRUCTION 0xe9
+ #define MAX_INSN_SIZE 16
+ #define MAX_STACK_SIZE 64
+ #define MIN_STACK_SIZE(ADDR) (((MAX_STACK_SIZE) < \
+@@ -48,6 +49,11 @@ void kretprobe_trampoline(void);
+ struct arch_specific_insn {
+ 	/* copy of the original instruction */
+ 	kprobe_opcode_t insn[MAX_INSN_SIZE];
++	/*
++	 * If this flag is not 0, this kprobe can be boost when its
++	 * post_handler and break_handler is not set.
++	 */
++	int boostable;
+ };
+
+ struct prev_kprobe {
+
+

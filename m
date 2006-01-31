@@ -1,96 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWAaK24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWAaKbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbWAaK24 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 05:28:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWAaK24
+	id S1750736AbWAaKbm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 05:31:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWAaKbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 05:28:56 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:27046 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S1750742AbWAaK2z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 05:28:55 -0500
-Date: Tue, 31 Jan 2006 11:28:52 +0100
-From: Harald Welte <laforge@netfilter.org>
-To: Reuben Farrelly <reuben-lkml@reub.net>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       Linux Netdev List <netdev@vger.kernel.org>
-Subject: Re: ip_conntrack related slab error (Re: Fw: Re: 2.6.16-rc1-mm3)
-Message-ID: <20060131102852.GV4603@sunbeam.de.gnumonks.org>
-References: <20060130221429.5f12d947.akpm@osdl.org> <20060131092447.GL4603@sunbeam.de.gnumonks.org> <43DF3677.8040701@reub.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tWRTUBMosAF2WQf4"
-Content-Disposition: inline
-In-Reply-To: <43DF3677.8040701@reub.net>
-User-Agent: mutt-ng devel-20050619 (Debian)
-X-Spam-Score: 0.0 (/)
+	Tue, 31 Jan 2006 05:31:41 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:54001 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1750736AbWAaKbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 05:31:41 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Tue, 31 Jan 2006 11:30:18 +0100
+To: schilling@fokus.fraunhofer.de, j@bitron.ch
+Cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jengelh@linux01.gwdg.de, James@superbug.co.uk, acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43DF3C3A.nail2RF112LAB@burner>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+ <43D7A7F4.nailDE92K7TJI@burner>
+ <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
+ <43D7B1E7.nailDFJ9MUZ5G@burner>
+ <20060125230850.GA2137@merlin.emma.line.org>
+ <43D8C04F.nailE1C2X9KNC@burner> <200  <43DDFBFF.nail16Z3N3C0M@burner>
+ <1138642683.7404.31.camel@juerg-pd.bitron.ch>
+In-Reply-To: <1138642683.7404.31.camel@juerg-pd.bitron.ch>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jürg Billeter <j@bitron.ch> wrote:
 
---tWRTUBMosAF2WQf4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Hi JÃ¶rg
+>
+> On Mon, 2006-01-30 at 12:43 +0100, Joerg Schilling wrote:
+> > > Hm, this ATAPI stuff makes me a headache. Well, anyway, out of 
+> > > curiosity, what is an ATAPI drive (IDE-ATAPI) supposed to return when asked 
+> > > for bus number, id or lun - independent of OS and/or cdrecord?
+> > 
+> > The drive does not return this information, but the SCSI subsystem creates
+> > these instance numbers. A SCSI drive (like a CD/DVD burner) is supposed to
+> > be known to the SCSI sub-system and thus needs to have a SCSI subsystem
+> > related instance number.
+>
+> Whenever someone talks about ATAPI drives, you respond with
+> s/ATAPI/SCSI/. Why do you insist that every transport should be used as
+> it was a SCSI bus? ATAPI drives use the same SCSI command set as SCSI
+> drives do, but that won't change the fact that ATAPI drives are not
+> connected to a SCSI bus.
 
-On Tue, Jan 31, 2006 at 11:05:43PM +1300, Reuben Farrelly wrote:
+Well, this is simple: it is SCSI.
 
-> >>slab error in kmem_cache_destroy(): cache `ip_conntrack': Can't free al=
-l objects
-> >>  [<b010412b>] show_trace+0xd/0xf
-> >>  [<b01041cc>] dump_stack+0x17/0x19
-> >>  [<b0155d04>] kmem_cache_destroy+0x9b/0x1a9
-> >>  [<f0ebf701>] ip_conntrack_cleanup+0x5d/0x10e [ip_conntrack]
-> >>  [<f0ebe31e>] init_or_cleanup+0x1f8/0x283 [ip_conntrack]
-> >>  [<f0ec2c4e>] fini+0xa/0x66 [ip_conntrack]
-> >>  [<b0136d06>] sys_delete_module+0x161/0x1fb
-> >>  [<b0102b3f>] sysenter_past_esp+0x54/0x75
-> >>Removing netfilter NETLINK layer.
-> >>[root@tornado log]#
-> >>I was just reading IMAP mail at the time, ie same as I'd been doing for=
- an hour or two beforehand and not=20
-> >>altering config of the box in any way.  I was able to log on via consol=
-e but lost all network connectivity and=20
-> >>had to reboot :(
-> >The codepath you see in that backtrace is only hit during load or
-> >removal of the 'ip_conntrack' module.  While this certainly still should
-> >not oops, your description of 'not doing anything but IMAP reading' is
-> >certainly not true. =20
->=20
-> With the greatest of respect (which I do have for you Harald), I don't
-> think being essentially called a liar is very fair.
+When SCSI started from modifying the SASI (Shugart Asociated System Interface)
+system around 1984 and at that time come with it's own transport only
+(a 50 wire cable), this did change soon (around 1986) by introducing
+transports that use one or two 68 wire cable(s) (16 resp. 32 Bit SCSI).
 
-I didn't want to imply that you are lying, but merely point out that
-something was going on on your system that you didn't be aware of.
+Around 1990, even this did change while ATAPI (ATA Packet Interface) was
+introduced. 
 
-Sorry if that was to be misunderstood.
+Around 1995, the T10 standard group (SCSI) did split up the SCSI standard
+into a transport specific part and a protocol specific part. SCSI is now using
+many different transport mechanisms.
 
-Without knowing what actually happened at the time you encountered the
-bug, it is hard for me to try and reproduce / understand it.
+This is a list of some known SCSI transports: 
+ 
+	-	Good old Parallel SCSI 50/68 pin (what most people call SCSI) 
+	-	SCSI over fiber optics (e.g. FACL - there are others too) 
+	-	SCSI over a copper variant of FCAL (used in modern servers) 
+	-	SCSI over IEEE 1394 (Fire Wire) 
+	-	SCSI over USB 
+	-	SCSI over IDE/ATA (ATAPI) 
+	-	SCSI over TCI/IP (iSCSI)
+	-	SCSI over SSCSI (see below)
 
-This is not a lame excuse.
+SCSI over Serial SCSI cabling uses the same transport (cable type) as SATA uses.
+If you buy a SATA HBA card for your PC, you may connect SSCSI & SATA
+disks to this HBA using the same cables and connectors.
 
---=20
-- Harald Welte <laforge@netfilter.org>                 http://netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
+So the circle is closing again....
 
---tWRTUBMosAF2WQf4
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+> It makes sense to address parallel SCSI devices via target id. If an
+> operating system likes to simulate virtual SCSI buses for other bus
+> types as well, ok, I have no objections. But if the operating system
+> doesn't like to simulate virtual SCSI buses and allows applications to
+> address devices by a filename, you should have no objections, too.
 
-iD8DBQFD3zvkXaXGVTD0i/8RAhA1AKCxE/aFmCfpCURTvDJrUh4ZGWrd0gCfUAp6
-hkco6uCZK4UVkPMdaRO7zrA=
-=l9sR
------END PGP SIGNATURE-----
+It seems that you missunderstand this. No operating system uses file names
+internally. OS instead typically handle SCSI devices that are not connected
+via an arbitraring Bus like the "Good old Parallel SCSI 50/68 pin" system
+by asuming they are all on separate SCSI busses that only have one single drive 
+conected each.
 
---tWRTUBMosAF2WQf4--
+What Linux does is to artificially prevent this view to been seen from outside the
+Linux kernel, or to avoid integrating a particular device into a unique SCSI
+driver system although it would be apropriate.
+
+Users like to be able to get a list of posible targets for a single protocol.
+Nobody would ever think about trying to prevent people from getting a unified
+view on the list possible hosts that talk TCP/IP. What cdrecord does with
+-scanbus is nothing really different. 
+
+In addition, nobody would ever think about implementing a separate TCP/IP stack 
+for network interfaces that are PPP connections via a modem vs. network 
+interfaces that go via a Ethernet adaptor. Nobody would ever try to convince
+me that you could save code in the kernel by avoiding the usual network stack 
+as a specific machine may not have Ethernet but a Modem connection only.
+
+So why do people try to convince me that there is a need to avoid the standard 
+SCSI protocol stack because a PC might have only ATAPI? 
+
+Major OS implementations use a unique view on SCSI (MS-win [*], FreeBSD, Solaris, 
+...). Why do people believe that Linux needs to be different? What does it buy 
+you to go this way?
+
+
+*] MS-WIN-NT even includes SCSI emulation (it allows you to connect to the
+SCSI subsystem, set the Address and use SCSI commands from a limited list
+to read/write sector from ATA only hard disks).
+
+If the Linux folks could give technical based explanations for the questions 
+from above and if they would create a new completely orthogonal view on SCSI [*]
+I had no problem. But up to now, the only answer was: "We do it this 
+way because we do it this way". 
+
+*] Note that this would need to implement SCSI Generic support for drives that
+have no native driver in the system.
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

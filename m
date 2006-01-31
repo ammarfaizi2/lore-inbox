@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWAaS4m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWAaS4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbWAaS4m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 13:56:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWAaS4m
+	id S1751345AbWAaS4f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 13:56:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbWAaS4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 13:56:42 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:11675 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751347AbWAaS4l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 13:56:41 -0500
-Date: Tue, 31 Jan 2006 19:57:14 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Herbert Xu <herbert@gondor.apana.org.au>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, davem@redhat.com
-Subject: Re: [PATCH] 8139too: fix a TX timeout watchdog thread against NAPI softirq race
-Message-ID: <20060131185714.GA24635@elte.hu>
-References: <E1F2JFb-0007MW-00@gondolin.me.apana.org.au> <43D98915.6040004@pobox.com> <20060131002418.GA917@electric-eye.fr.zoreil.com> <20060131184957.GA22660@elte.hu>
-Mime-Version: 1.0
+	Tue, 31 Jan 2006 13:56:34 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:25756 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S1751345AbWAaS4d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 13:56:33 -0500
+Date: Tue, 31 Jan 2006 19:56:46 +0100
+From: Sander <sander@humilis.net>
+To: Joshua Kugler <joshua.kugler@uaf.edu>
+Cc: linux-kernel@vger.kernel.org, sander@humilis.net, jgarzik@pobox.com
+Subject: Re: [OT] 8-port AHCI SATA Controller?
+Message-ID: <20060131185646.GF6178@favonius>
+Reply-To: sander@humilis.net
+References: <20060131115343.GA2580@favonius> <200601310919.20199.joshua.kugler@uaf.edu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060131184957.GA22660@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <200601310919.20199.joshua.kugler@uaf.edu>
+X-Uptime: 18:06:22 up  7:50, 21 users,  load average: 0.18, 0.15, 0.09
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> > Ingo's stealth lock validator detected that both thread acquire
-> > dev->xmit_lock and tp->rx_lock in reverse order.
-> > 
-> > Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+Joshua Kugler wrote (ao):
+> I've run some tests with this card under Linux and done pretty well:
 > 
-> i've ported this to -mm4 (see the attached patch), but i'm also 
-> getting a new deadlock message. Seems to be a separate issue, not 
-> introduced by your patch - but still needs fixing i guess.
+> http://www.supermicro.com/products/accessories/addon/DAC-SATA-MV8.cfm
+> 
+> They also have a 3.0Gb version.
+> 
+> Not sure if that is AHCI, but it is eight port.
 
-sorry - this is a false alarm. (caused by the lock validator not 
-properly handling DEBUG_SHIRQ)
+Marvell has their own chipset, according to
+http://linux.yyz.us/sata/sata-status.html#marvell
 
-	Ingo
+> I got the drivers here:
+> 
+> http://www.keffective.com/mvsata/FC3/
+> 
+> The latest was mvSata_Linux_3.6.1.tgz as of 2005-10-13.
+
+I very, very much prefer in-tree drivers :-)
+
+	Kind regards, Sander
+
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

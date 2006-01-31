@@ -1,45 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWAaPF1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbWAaPKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWAaPF1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 10:05:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbWAaPF1
+	id S1750921AbWAaPKz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 10:10:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbWAaPKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 10:05:27 -0500
-Received: from khc.piap.pl ([195.187.100.11]:9486 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1750877AbWAaPF1 (ORCPT
+	Tue, 31 Jan 2006 10:10:55 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:48354 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1750873AbWAaPKy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 10:05:27 -0500
-To: Chuck Wolber <chuckw@quantumlinux.com>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, stable@kernel.org, jmforbes@linuxtx.org,
-       zwane@arm.linux.org.uk, tytso@mit.edu, davej@redhat.com,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: [patch 0/6] 2.6.14.7 -stable review
-References: <20060128021749.GA10362@kroah.com>
-	<Pine.LNX.4.63.0601282028210.7205@localhost.localdomain>
-	<20060128204531.4786aaea.rdunlap@xenotime.net>
-	<Pine.LNX.4.63.0601282053170.7205@localhost.localdomain>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Tue, 31 Jan 2006 16:05:22 +0100
-In-Reply-To: <Pine.LNX.4.63.0601282053170.7205@localhost.localdomain> (Chuck Wolber's message of "Sat, 28 Jan 2006 21:02:16 -0800 (PST)")
-Message-ID: <m3d5i8tp3h.fsf@defiant.localdomain>
+	Tue, 31 Jan 2006 10:10:54 -0500
+Message-ID: <43DF7E01.9030204@drzeus.cx>
+Date: Tue, 31 Jan 2006 16:10:57 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5 (X11/20060128)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Anderson Briglia <anderson.briglia@indt.org.br>
+CC: linux-kernel@vger.kernel.org,
+       Russell King - ARM Linux <linux@arm.linux.org.uk>,
+       Tony Lindgren <tony@atomide.com>
+Subject: Re: [patch 4/5] MMC OMAP driver
+References: <43DF683C.4080301@indt.org.br>
+In-Reply-To: <43DF683C.4080301@indt.org.br>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Wolber <chuckw@quantumlinux.com> writes:
+Anderson Briglia wrote:
+> Some MMC cards don't set the R1_READY_FOR_DATA bit if EOFB
+> interrupt comes first. In this case we need to mask R1_READY_FOR_DATA
+> to avoid polling card status forever.
+> This patch needs to be discussed as it requires interface change.
+> This interface change is done here only for omap for now.
+> 
+> Signed-off-by: Tony Lindgren <tony@atomide.com>
+> 
 
-> I don't know if there is a problem, but it goes against the concept of 
-> "one-off" fixes that aren't maintained
+> @@ -336,6 +342,7 @@ static struct mmc_blk_data *mmc_blk_allo
+> 
+>  	card_ready:
+> 
+> +card_ready:
+>  		/*
+>  		 * As discussed on lkml, GENHD_FL_REMOVABLE should:
+>  		 *
 
-If they have time for this then great, I can't see any drawbacks.
-The early concept was just meant to limit the workload.
+This chunk seems incorrect.
 
-> (aka the purpose of the -stable 
-> team). This slope eventually leads us to backporting -stable fixes from 
-> other -stable releases etc etc.
+> @@ -542,10 +547,19 @@ static irqreturn_t mmc_omap_irq(int irq,
+>  		    (!(status & OMAP_MMC_STAT_A_EMPTY))) {
+>  			end_command = 1;
+>  		}
+> +		/* Some cards produce EOFB interrupt and never
+> +		 * raise R1_READY_FOR_DATA bit after that.
+> +		 * To avoid infinite card status polling loop,
+> +		 * we must fake that bit to MMC layer.
+> +		 */
+> +		if ((status & OMAP_MMC_STAT_END_OF_CMD) &&
+> +				(status & OMAP_MMC_STAT_END_BUSY)) {
+> +			card_ready = 1;
+> +		}
+>  	}
+> 
+>  	if (end_command) {
+> -		mmc_omap_cmd_done(host, host->cmd);
+> +		mmc_omap_cmd_done(host, host->cmd, card_ready);
+>  	}
+>  	if (transfer_error)
+>  		mmc_omap_xfer_done(host, host->data);
 
-As long as they can contribute their time it's a win.
--- 
-Krzysztof Halasa
+This sounds highly suspicious. Have you tried the card on another
+controller? I do not like this mix of fixing it both in the driver and
+in the MMC layer. Either it's a hardware issue and should be fixed in
+the driver, or it's a generic problem and should be fixed in the MMC layer.
+
+Rgds
+Pierre
+

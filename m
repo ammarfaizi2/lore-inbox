@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWAaRRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWAaRaU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbWAaRRU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 12:17:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWAaRRU
+	id S1751296AbWAaRaU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 12:30:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbWAaRaU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 12:17:20 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:37774 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S1751280AbWAaRRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 12:17:19 -0500
-Date: Tue, 31 Jan 2006 18:17:23 +0100
-From: Sander <sander@humilis.net>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Sander <sander@humilis.net>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [OT] 8-port AHCI SATA Controller?
-Message-ID: <20060131171723.GA6178@favonius>
-Reply-To: sander@humilis.net
-References: <20060131115343.GA2580@favonius> <20060131163928.GE18972@csclub.uwaterloo.ca>
+	Tue, 31 Jan 2006 12:30:20 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:24541 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1751296AbWAaRaT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 12:30:19 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "John W. Linville" <linville@tuxdriver.com>
+Subject: Re: 2.6.16-rc1-mm4: ACX=y, ACX_USB=n compile error
+Date: Tue, 31 Jan 2006 16:58:09 +0200
+User-Agent: KMail/1.8.2
+Cc: "Gabriel C." <crazy@pimpmylinux.org>, da.crew@gmx.net,
+       linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>,
+       netdev@vger.kernel.org
+References: <20060130133833.7b7a3f8e@zwerg> <200601311416.05397.vda@ilport.com.ua> <20060131145431.GI5433@tuxdriver.com>
+In-Reply-To: <20060131145431.GI5433@tuxdriver.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060131163928.GE18972@csclub.uwaterloo.ca>
-X-Uptime: 18:06:22 up  7:50, 21 users,  load average: 0.18, 0.15, 0.09
-User-Agent: Mutt/1.5.11
+Message-Id: <200601311658.09423.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote (ao):
-> On Tue, Jan 31, 2006 at 12:53:43PM +0100, Sander wrote:
-> > I'm looking for an 8-port SATA controller based on the AHCI chipset, as
-> > according to http://linux.yyz.us/sata/sata-status.html#vendor_support
-> > this chipset is completely open.
+On Tuesday 31 January 2006 16:54, John W. Linville wrote:
+> On Tue, Jan 31, 2006 at 02:16:05PM +0200, Denis Vlasenko wrote:
 > 
-> Hmm, I am not sure what the specs of AHCI are. Not sure if it supports
-> 2 or 4 or more ports.
+> > CONFIG_ACX=y
+> > # CONFIG_ACX_PCI is not set
+> > # CONFIG_ACX_USB is not set
+> > 
+> > This won't fly. You must select at least one.
+> > 
+> > Attached patch will check for this and #error out.
+> > Andrew, do not apply to -mm, I'll send you bigger update today.
+> 
+> Is there any way to move this into a Kconfig file?  That seems nicer
+> than having #ifdefs in source code to check for a configuration error.
 
-According to page 7 of the 
-"Serial ATA Advanced Host Controller Interface Revision 1.1"
-(available at http://www.intel.com/technology/serialata/ahci.htm), AHCI
-supports up to 32 ports.
-
-For example, Silicon Image 3124 also looks good on paper, but only
-supports up to 4 ports.
-
-> The only controllers I have seen that run more than 4 ports, are some
-> raid cards, such as 3ware and areca. 3ware has had linux support for
-> years, and areca is getting there. Both of those make 12+ port cards,
-> which can run in JBOD mode.
-
-Yeah, I know, but because of their real 'hardware' raid, these cards are
-three times more expensive per port. And I just need JBOD.
-
-Thanks for your time. Kind regards, Sander
-
--- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+Can't think of any at the moment.
+--
+vda

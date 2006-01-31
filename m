@@ -1,72 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030304AbWAaHeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030360AbWAaHev@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030304AbWAaHeA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 02:34:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030359AbWAaHd7
+	id S1030360AbWAaHev (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 02:34:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030361AbWAaHev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 02:33:59 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:35208
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1030304AbWAaHd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 02:33:59 -0500
-Date: Mon, 30 Jan 2006 23:33:54 -0800
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: torvalds@osdl.org, akpm@osdl.org
-Subject: Linux 2.6.14.7
-Message-ID: <20060131073354.GA25397@kroah.com>
+	Tue, 31 Jan 2006 02:34:51 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:65445 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030282AbWAaHeu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 02:34:50 -0500
+Date: Mon, 30 Jan 2006 23:34:27 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+Subject: Re: Linux 2.6.15.2
+Message-Id: <20060130233427.5e7912ae.akpm@osdl.org>
+In-Reply-To: <20060131070642.GA25015@kroah.com>
+References: <20060131070642.GA25015@kroah.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We (the -stable team) are announcing the release of the 2.6.14.7 kernel.
+Greg KH <gregkh@suse.de> wrote:
+>
+> We (the -stable team) are announcing the release of the 2.6.15.2 kernel.
+>
 
-The diffstat and short summary of the fixes are below.
+There remain some box-killing bugs:
 
-I'll also be replying to this message with a copy of the patch between
-2.6.14.6 and 2.6.14.7, as it is small enough to do so.
+- The scsi_cmd leak
 
-The updated 2.6.14.y git tree can be found at:
- 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/linux-2.6.14.y.git
-and can be browsed at the normal kernel.org git web browser:
-	www.kernel.org/git/
+- The BIO-uses-ZONE_DMA-hence-oom-killing bug
 
-thanks,
+- A skbuff_head_cache leak causes oom-killings.
 
-greg k-h
-
---------
-
- Makefile                                |    2 -
- arch/i386/kernel/io_apic.c              |    4 +-
- arch/sparc64/kernel/entry.S             |    7 +--
- arch/sparc64/kernel/systbls.S           |    2 -
- net/bridge/netfilter/ebt_ip.c           |    3 +
- net/ipv4/netfilter/ip_nat_helper_pptp.c |   59 +++++++++++++++-----------------
- 6 files changed, 37 insertions(+), 40 deletions(-)
-
-Summary of changes from v2.6.14.6 to v2.6.14.7
-==============================================
-
-Bart De Schuymer:
-      Don't match tcp/udp source/destination port for IP fragments
-
-David S. Miller:
-      Fix sys_fstat64() entry in 64-bit syscall table.
-
-Greg Kroah-Hartman:
-      Linux 2.6.14.7
-
-Patrick McHardy:
-      Fix crash in ip_nat_pptp (CVE-2006-0036)
-      Fix another crash in ip_nat_pptp (CVE-2006-0037)
-
-Richard Mortimer:
-      Fix ptrace/strace
-
-Shaohua Li:
-      setting irq affinity is broken in ia32 with MSI enabled
-
+All of these only seem to affect a small minority of machines.

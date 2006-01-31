@@ -1,244 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbWAaU4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWAaU5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751478AbWAaU4e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 15:56:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWAaU4e
+	id S1751483AbWAaU5J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 15:57:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWAaU5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 15:56:34 -0500
-Received: from mgw-ext01.nokia.com ([131.228.20.93]:59632 "EHLO
-	mgw-ext01.nokia.com") by vger.kernel.org with ESMTP
-	id S1751478AbWAaU4d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 15:56:33 -0500
-Message-Id: <20060131202540.885179000@localhost.localdomain>
-References: <20060131201636.264543000@localhost.localdomain>
-Date: Tue, 31 Jan 2006 16:16:38 -0400
-From: Carlos Aguiar <carlos.aguiar@indt.org.br>
-To: linux-kernel@vger.kernel.org,
-       "Linux-omap-open-source@linux.omap.com" 
-	<linux-omap-open-source@linux.omap.com>
-Cc: linux@arm.linux.org.uk, David Brownell <david-b@pacbell.net>,
-       Tony Lindgren <tony@atomide.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
-       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
-       Anderson Briglia <anderson.briglia@indt.org.br>
-Subject: [patch 2/6] Add MMC password protection (lock/unlock) support V4
-Content-Disposition: inline; filename=mmc_lock_unlock.diff
-X-OriginalArrivalTime: 31 Jan 2006 20:25:45.0739 (UTC) FILETIME=[83FAEDB0:01C626A4]
+	Tue, 31 Jan 2006 15:57:09 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:30415 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751480AbWAaU5G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 15:57:06 -0500
+Subject: [GIT PATCH] SCSI bug fixes for 2.6.16-rc1
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Content-Type: text/plain
+Date: Tue, 31 Jan 2006 14:56:56 -0600
+Message-Id: <1138741016.3307.20.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Implement card lock/unlock operation, using the MMC_LOCK_UNLOCK command.
+These are mainly driver bug fixes and updates.
 
-Signed-off-by: Anderson Briglia <anderson.briglia@indt.org.br>
-Signed-off-by: Anderson Lizardo <anderson.lizardo@indt.org.br>
-Signed-off-by: Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>
+The patch is available here:
 
-Index: linux-omap-2.6.git/drivers/mmc/mmc.c
-===================================================================
---- linux-omap-2.6.git.orig/drivers/mmc/mmc.c	2006-01-31 15:22:07.000000000 -0400
-+++ linux-omap-2.6.git/drivers/mmc/mmc.c	2006-01-31 15:22:21.000000000 -0400
-@@ -4,6 +4,8 @@
-  *  Copyright (C) 2003-2004 Russell King, All Rights Reserved.
-  *  SD support Copyright (C) 2004 Ian Molton, All Rights Reserved.
-  *  SD support Copyright (C) 2005 Pierre Ossman, All Rights Reserved.
-+ *  MMC password protection (C) 2005 Instituto Nokia de Tecnologia (INdT),
-+ *     All Rights Reserved.
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2 as
-@@ -20,6 +22,7 @@
- #include <linux/err.h>
- #include <asm/scatterlist.h>
- #include <linux/scatterlist.h>
-+#include <linux/key.h>
- 
- #include <linux/mmc/card.h>
- #include <linux/mmc/host.h>
-@@ -1011,10 +1014,14 @@ static void mmc_check_cards(struct mmc_h
- 		cmd.flags = MMC_RSP_R1;
- 
- 		err = mmc_wait_for_cmd(host, &cmd, CMD_RETRIES);
--		if (err == MMC_ERR_NONE)
-+		if (err != MMC_ERR_NONE) {
-+			mmc_card_set_dead(card);
- 			continue;
--
--		mmc_card_set_dead(card);
-+		}
-+		if (cmd.resp[0] & R1_CARD_IS_LOCKED)
-+			mmc_card_set_locked(card);
-+		else
-+			mmc_card_clear_locked(card);
- 	}
- }
- 
-@@ -1108,6 +1115,135 @@ static void mmc_setup(struct mmc_host *h
- 		mmc_read_scrs(host);
- }
- 
-+/* Calculate the minimal blksz_bits to hold x bytes. */
-+static inline int blksz_bits(unsigned x)
-+{
-+	return fls(x-1);
-+}
-+
-+/**
-+ *	mmc_lock_unlock - send LOCK_UNLOCK command to a specific card.
-+ *	@card: card to which the LOCK_UNLOCK command should be sent
-+ *	@key: key containing the MMC password
-+ *	@mode: LOCK_UNLOCK mode
-+ *
-+ */
-+int mmc_lock_unlock(struct mmc_card *card, struct key *key, int mode)
-+{
-+	struct mmc_request mrq;
-+	struct mmc_command cmd;
-+	struct mmc_data data;
-+	struct scatterlist sg;
-+	struct mmc_key_payload *mpayload;
-+	unsigned long erase_timeout;
-+	int err, data_size;
-+	u8 *data_buf;
-+
-+	mpayload = NULL;
-+	data_size = 1;
-+	if (mode != MMC_LOCK_MODE_ERASE) {
-+		mpayload = rcu_dereference(key->payload.data);
-+		data_size = 2 + mpayload->datalen;
-+	}
-+
-+	data_buf = kmalloc(data_size, GFP_KERNEL);
-+	if (!data_buf)
-+		return -ENOMEM;
-+	memset(data_buf, 0, data_size);
-+
-+	data_buf[0] = mode;
-+	if (mode != MMC_LOCK_MODE_ERASE) {
-+		data_buf[1] = mpayload->datalen;
-+		memcpy(data_buf + 2, mpayload->data, mpayload->datalen);
-+	}
-+
-+	err = mmc_card_claim_host(card);
-+	if (err != MMC_ERR_NONE) {
-+		mmc_card_set_dead(card);
-+		goto out;
-+	}
-+
-+	memset(&cmd, 0, sizeof(struct mmc_command));
-+
-+	cmd.opcode = MMC_SET_BLOCKLEN;
-+	cmd.arg = data_size;
-+	cmd.flags = MMC_RSP_R1;
-+	err = mmc_wait_for_cmd(card->host, &cmd, CMD_RETRIES);
-+	if (err != MMC_ERR_NONE) {
-+		mmc_card_set_dead(card);
-+		goto error;
-+	}
-+
-+	memset(&cmd, 0, sizeof(struct mmc_command));
-+
-+	cmd.opcode = MMC_LOCK_UNLOCK;
-+	cmd.arg = 0;
-+	cmd.flags = MMC_RSP_R1B;
-+
-+	memset(&data, 0, sizeof(struct mmc_data));
-+
-+	data.timeout_ns = card->csd.tacc_ns * 10;
-+	data.timeout_clks = card->csd.tacc_clks * 10;
-+	data.blksz_bits = blksz_bits(data_size);
-+	data.blocks = 1;
-+	data.flags = MMC_DATA_WRITE;
-+	data.sg = &sg;
-+	data.sg_len = 1;
-+
-+	memset(&mrq, 0, sizeof(struct mmc_request));
-+
-+	mrq.cmd = &cmd;
-+	mrq.data = &data;
-+
-+	sg_init_one(&sg, data_buf, data_size);
-+	err = mmc_wait_for_req(card->host, &mrq);
-+	if (err != MMC_ERR_NONE) {
-+		if(err != MMC_ERR_INVALID)
-+			mmc_card_set_dead(card);
-+		goto error;
-+	}
-+
-+	memset(&cmd, 0, sizeof(struct mmc_command));
-+
-+	cmd.opcode = MMC_SEND_STATUS;
-+	cmd.arg = card->rca << 16;
-+	cmd.flags = MMC_RSP_R1;
-+
-+	/* set timeout for forced erase operation to 3 min. (see MMC spec) */
-+	erase_timeout = jiffies + 180 * HZ;
-+	do {
-+		/* we cannot use "retries" here because the
-+		 * R1_LOCK_UNLOCK_FAILED bit is cleared by subsequent reads to
-+		 * the status register, hiding the error condition */
-+		err = mmc_wait_for_cmd(card->host, &cmd, 0);
-+		if (err != MMC_ERR_NONE)
-+			break;
-+		/* the other modes don't need timeout checking */
-+		if (mode != MMC_LOCK_MODE_ERASE)
-+			continue;
-+		if (time_after(jiffies, erase_timeout)) {
-+			dev_dbg(&card->dev, "forced erase timed out\n");
-+			err = MMC_ERR_TIMEOUT;
-+			break;
-+		}
-+	} while (!(cmd.resp[0] & R1_READY_FOR_DATA));
-+	if (cmd.resp[0] & R1_LOCK_UNLOCK_FAILED) {
-+		dev_dbg(&card->dev, "LOCK_UNLOCK operation failed\n");
-+		err = MMC_ERR_FAILED;
-+	}
-+
-+error:
-+	mmc_check_cards(card->host);
-+	mmc_deselect_cards(card->host);
-+	mmc_card_release_host(card);
-+out:
-+	kfree(data_buf);
-+
-+	return err;
-+}
-+
-+EXPORT_SYMBOL(mmc_lock_unlock);
-+
- 
- /**
-  *	mmc_detect_change - process change of state on a MMC socket
-Index: linux-omap-2.6.git/include/linux/mmc/card.h
-===================================================================
---- linux-omap-2.6.git.orig/include/linux/mmc/card.h	2006-01-31 15:22:07.000000000 -0400
-+++ linux-omap-2.6.git/include/linux/mmc/card.h	2006-01-31 15:22:21.000000000 -0400
-@@ -116,4 +116,8 @@ static inline int mmc_card_claim_host(st
- 
- #define mmc_card_release_host(c)	mmc_release_host((c)->host)
- 
-+struct key;
-+
-+extern int mmc_lock_unlock(struct mmc_card *card, struct key *key, int mode);
-+
- #endif
-Index: linux-omap-2.6.git/include/linux/mmc/protocol.h
-===================================================================
---- linux-omap-2.6.git.orig/include/linux/mmc/protocol.h	2006-01-31 15:17:45.000000000 -0400
-+++ linux-omap-2.6.git/include/linux/mmc/protocol.h	2006-01-31 15:22:21.000000000 -0400
-@@ -243,5 +243,13 @@ struct _mmc_csd {
- #define SD_BUS_WIDTH_1      0
- #define SD_BUS_WIDTH_4      2
- 
-+/*
-+ * MMC_LOCK_UNLOCK modes
-+ */
-+#define MMC_LOCK_MODE_ERASE	(1<<3)
-+#define MMC_LOCK_MODE_UNLOCK	(0<<2)
-+#define MMC_LOCK_MODE_CLR_PWD	(1<<1)
-+#define MMC_LOCK_MODE_SET_PWD	(1<<0)
-+
- #endif  /* MMC_MMC_PROTOCOL_H */
- 
+master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
 
---
+The short changelog is:
+
+Andrew Vasquez:
+  o qla2xxx: Drop legacy 'bypass lun scan for tape device' code
+  o qla2xxx: Correct issue where the rport's upcall was not being made after relogin
+  o qla2xxx: Correct synchronization issues during rport addition/deletion
+
+Brian King:
+  o Prevent scsi_execute_async from guessing cdb length
+
+Christoph Hellwig:
+  o mptsas: don't complain on bogus slave_alloc calls
+  o fusion: add MSI support
+  o fusion: setting timeouts in eh threads appropiatley for fc/sas/spi
+
+Dave Boutcher:
+  o ibmvscsi: handle re-enable firmware message
+
+Eric Moore:
+  o fusion: add message sanity check
+  o fusion: unloading the driver - only set asyn narrow for configured devices
+  o fusion: unloading the driver results in panic - fix
+  o fusion: add task managment response code info
+  o fusion: overrun tape fix
+  o fusion: add verbose messages for RAID actions
+  o fusion: increase reply frame size from 0x40 to 0x50 bytes
+  o fusion: mptsas, increase discovery timout to 300 seconds
+  o fusion: spi bus reset when driver loads
+  o fusion: bump version
+  o fusion: move sas persistent event handling over to the mptsas module
+  o fusion: target reset when drive is being removed
+  o fusion: add support for raid hot add/del support
+  o scsi_transport_sas.c: display port identifier
+
+Guennadi Liakhovetski:
+  o dc395x: "fix" virt_addr calculation on AUTO_REQSENSE
+
+Hannes Reinecke:
+  o aic79xx: Fix timer handling
+  o aic7xxx: update documentation
+  o aic79xx: SLOWCRC fix
+  o aic79xx: sequencer fixes
+  o aic7xxx: Update aicasm
+
+Jack Hammer:
+  o ServeRAID: prevent seeing DADSI devices
+  o ips soft lockup during reset/initialization
+
+James Bottomley:
+  o fusion: fix compile
+
+Jes Sorensen:
+  o qla1280: remove < 2.6.0 support
+
+Michael Reed:
+  o fusion: FC rport code fixes
+
+Sumant Patro:
+  o megaraid_sas: new template defined to represent each type of controllers
+  o megaraid_sas: cleanup queue command path
+
+And the diffstat:
+
+ Documentation/scsi/ChangeLog.megaraid_sas        |   24 
+ Documentation/scsi/aic79xx.txt                   |   93 --
+ Documentation/scsi/aic7xxx.txt                   |   86 --
+ drivers/message/fusion/Makefile                  |    2 
+ drivers/message/fusion/mptbase.c                 |  184 ++++
+ drivers/message/fusion/mptbase.h                 |   16 
+ drivers/message/fusion/mptfc.c                   |  203 +++--
+ drivers/message/fusion/mptsas.c                  |  241 +++++-
+ drivers/message/fusion/mptscsih.c                |  116 ++-
+ drivers/message/fusion/mptscsih.h                |    1 
+ drivers/message/fusion/mptspi.c                  |   10 
+ drivers/scsi/aic7xxx/Kconfig.aic79xx             |    4 
+ drivers/scsi/aic7xxx/aic79xx.h                   |    3 
+ drivers/scsi/aic7xxx/aic79xx.reg                 |   29 
+ drivers/scsi/aic7xxx/aic79xx.seq                 |  143 +++
+ drivers/scsi/aic7xxx/aic79xx_core.c              |  286 +++++--
+ drivers/scsi/aic7xxx/aic79xx_inline.h            |    7 
+ drivers/scsi/aic7xxx/aic79xx_osm.c               |   43 -
+ drivers/scsi/aic7xxx/aic79xx_osm.h               |   10 
+ drivers/scsi/aic7xxx/aic79xx_osm_pci.c           |   17 
+ drivers/scsi/aic7xxx/aic79xx_pci.c               |   11 
+ drivers/scsi/aic7xxx/aic79xx_reg.h_shipped       |   27 
+ drivers/scsi/aic7xxx/aic79xx_reg_print.c_shipped |   21 
+ drivers/scsi/aic7xxx/aic79xx_seq.h_shipped       |  881 +++++++++++------------
+ drivers/scsi/aic7xxx/aicasm/aicasm.c             |   23 
+ drivers/scsi/aic7xxx/aicasm/aicasm_gram.y        |   19 
+ drivers/scsi/aic7xxx/aicasm/aicasm_insformat.h   |   88 ++
+ drivers/scsi/aic7xxx/aicasm/aicasm_scan.l        |   27 
+ drivers/scsi/dc395x.c                            |    6 
+ drivers/scsi/ibmvscsi/ibmvscsi.c                 |   67 -
+ drivers/scsi/ibmvscsi/ibmvscsi.h                 |    3 
+ drivers/scsi/ibmvscsi/iseries_vscsi.c            |   13 
+ drivers/scsi/ibmvscsi/rpa_vscsi.c                |   22 
+ drivers/scsi/ips.c                               |   54 -
+ drivers/scsi/megaraid/megaraid_sas.c             |  291 +++----
+ drivers/scsi/megaraid/megaraid_sas.h             |   24 
+ drivers/scsi/qla1280.c                           |  311 --------
+ drivers/scsi/qla2xxx/qla_def.h                   |    4 
+ drivers/scsi/qla2xxx/qla_gbl.h                   |    6 
+ drivers/scsi/qla2xxx/qla_init.c                  |   83 +-
+ drivers/scsi/qla2xxx/qla_isr.c                   |   16 
+ drivers/scsi/qla2xxx/qla_os.c                    |   55 +
+ drivers/scsi/scsi_error.c                        |    2 
+ drivers/scsi/scsi_lib.c                          |    5 
+ drivers/scsi/scsi_transport_sas.c                |    6 
+ drivers/scsi/sg.c                                |    2 
+ drivers/scsi/st.c                                |    2 
+ include/scsi/scsi_device.h                       |    2 
+ 48 files changed, 2161 insertions(+), 1428 deletions(-)
+
+James
+
+

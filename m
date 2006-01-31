@@ -1,198 +1,249 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751470AbWAaUpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751474AbWAaUu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751470AbWAaUpq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 15:45:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751471AbWAaUpq
+	id S1751474AbWAaUu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 15:50:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWAaUu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 15:45:46 -0500
-Received: from mgw-ext03.nokia.com ([131.228.20.95]:36516 "EHLO
-	mgw-ext03.nokia.com") by vger.kernel.org with ESMTP
-	id S1751470AbWAaUpp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 15:45:45 -0500
-Message-Id: <20060131202543.501914000@localhost.localdomain>
-References: <20060131201636.264543000@localhost.localdomain>
-Date: Tue, 31 Jan 2006 16:16:39 -0400
-From: Carlos Aguiar <carlos.aguiar@indt.org.br>
-To: linux-kernel@vger.kernel.org,
-       "Linux-omap-open-source@linux.omap.com" 
-	<linux-omap-open-source@linux.omap.com>
-Cc: linux@arm.linux.org.uk, David Brownell <david-b@pacbell.net>,
-       Tony Lindgren <tony@atomide.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       "Aguiar Carlos (EXT-INdT/Manaus)" <carlos.aguiar@indt.org.br>,
-       "Lizardo Anderson (EXT-INdT/Manaus)" <anderson.lizardo@indt.org.br>,
-       Anderson Briglia <anderson.briglia@indt.org.br>
-Subject: [patch 3/6] Add MMC password protection (lock/unlock) support V4
-Content-Disposition: inline; filename=mmc_key_retention.diff
-X-OriginalArrivalTime: 31 Jan 2006 20:25:47.0849 (UTC) FILETIME=[853CE390:01C626A4]
+	Tue, 31 Jan 2006 15:50:57 -0500
+Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:37548 "EHLO
+	ns1.utah-nac.org") by vger.kernel.org with ESMTP id S1751474AbWAaUu4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 15:50:56 -0500
+Message-ID: <43DFC140.2000402@wolfmountaingroup.com>
+Date: Tue, 31 Jan 2006 12:57:52 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chase Venters <chase.venters@clientec.com>,
+       "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Marc Perkel <marc@perkel.com>,
+       Patrick McLean <pmclean@cs.ubishops.ca>,
+       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+References: <43D114A8.4030900@wolfmountaingroup.com>  <20060120111103.2ee5b531@dxpl.pdx.osdl.net>  <43D13B2A.6020504@cs.ubishops.ca> <43D7C780.6080000@perkel.com>  <43D7B20D.7040203@wolfmountaingroup.com>  <43D7B5C4.5040601@wolfmountaingroup.com> <43D7D05D.7030101@perkel.com>  <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>  <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>  <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>  <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>  <1138387136.26811.8.camel@localhost>  <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org> <1138620390.31089.43.camel@localhost.localdomain> <Pine.LNX.4.64.0601310931540.7301@g5.osdl.org> <43DF9D42.7050802@wolfmountaingroup.com> <Pine.LNX.4.64.0601311032180.7301@g5.osdl.org> <43DFB0F2.4030901@wolfmountaingroup.com> <Pine.LNX.4.64.0601311152070.7301@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0601311152070.7301@g5.osdl.org>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Implement key retention operations.
+Linus Torvalds wrote:
 
-Signed-off-by: Anderson Briglia <anderson.briglia@indt.org.br>
-Signed-off-by: Anderson Lizardo <anderson.lizardo@indt.org.br>
-Signed-off-by: Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>
+>On Tue, 31 Jan 2006, Jeff V. Merkey wrote:
+>  
+>
+>>>I did _not_ put that language in, which is the whole point.
+>>>      
+>>>
+>>If you can provide this beyond all doubt, then I agree you have a solid 
+>>basis to object.
+>>    
+>>
+>
+>It's really easy to prove.
+>
+>Look at core kernel source code today, and look at it 10 years ago. Look 
+>at it 15 years ago. Nothing has changed.
+>
+>The really core files have copyright notices like this:
+>
+>	/*
+>	 *  kernel/sched.c
+>	 *
+>	 *  Kernel scheduler and related syscalls
+>	 *
+>	 *  Copyright (C) 1991-2002  Linus Torvalds
+>	...
+>
+>with absolutely no mention of any license rights at all. Not "this is 
+>under the GPL", not "GPLv2 or later". The _only_ license rights anybody 
+>ever had to those files come from the COPYING file, which very clearly 
+>states that it's "version 2, 1991"
+>
+>(And yes, I'm a lazy bastard. I don't update the years. Some of the files 
+>I wrote still say "1991, 1992" even though they've obviously been edited 
+>since by me. If they fall into the public domain a couple of years 
+>earlier, I really don't see myself caring, since I will have been dead for 
+>a long while by that time _anyway_, judging by the current copyright 
+>nonsense).
+>
+>[ Side note: the _core_ kernel files are more universally GPL v2-only than 
+>  the rest of the kernel. So for example, while almost a third of all C 
+>  files have the "any later version" notice in them, when you look at just 
+>  the core files in kernel/ mm/ fs/, it's a _lot_ less rare. For example, 
+>  in fs/*.c, it's only two files out of 57, and those aren't even the most 
+>  core files.
+>
+>  So _qualitatively_, a lot more than "just" two thirds of the kernel are 
+>  based on my core files, and are GPLv2 _only_. The "..any later version" 
+>  stuff tends to exist mostly in drivers (and some filesystems: 9pfs, 
+>  afs, autofs, cifs, jfs, ntfs, ocfs2 have the "any later version" in 
+>  them, but the most common ones do not, and are often derived 
+>  (admittedly very indirectly, by now) from my original code. ]
+>
+>  
+>
+OK. This one might make it.
 
-Index: linux-omap-2.6.git/drivers/mmc/Kconfig
-===================================================================
---- linux-omap-2.6.git.orig/drivers/mmc/Kconfig	2006-01-31 15:17:45.000000000 -0400
-+++ linux-omap-2.6.git/drivers/mmc/Kconfig	2006-01-31 15:22:25.000000000 -0400
-@@ -19,6 +19,19 @@ config MMC_DEBUG
- 	  This is an option for use by developers; most people should
- 	  say N here.  This enables MMC core and driver debugging.
- 
-+config MMC_PASSWORDS
-+	boolean "MMC card lock/unlock passwords (EXPERIMENTAL)"
-+	depends on MMC && EXPERIMENTAL
-+	select KEYS
-+	help
-+	  Say Y here to enable the use of passwords to lock and unlock
-+	  MMC cards.  This uses the access key retention support, using
-+	  request_key to look up the key associated with each card.
-+
-+	  For example, if you have an MMC card that was locked using
-+	  Symbian OS on your cell phone, you won't be able to read it
-+	  on Linux without this support.
-+
- config MMC_BLOCK
- 	tristate "MMC block device driver"
- 	depends on MMC
-Index: linux-omap-2.6.git/drivers/mmc/mmc.h
-===================================================================
---- linux-omap-2.6.git.orig/drivers/mmc/mmc.h	2006-01-31 15:17:45.000000000 -0400
-+++ linux-omap-2.6.git/drivers/mmc/mmc.h	2006-01-31 15:22:25.000000000 -0400
-@@ -18,4 +18,12 @@ struct mmc_host *mmc_alloc_host_sysfs(in
- int mmc_add_host_sysfs(struct mmc_host *host);
- void mmc_remove_host_sysfs(struct mmc_host *host);
- void mmc_free_host_sysfs(struct mmc_host *host);
-+
-+/* core-internal data */
-+extern struct key_type mmc_key_type;
-+struct mmc_key_payload {
-+	struct rcu_head	rcu;		/* RCU destructor */
-+	unsigned short	datalen;	/* length of this data */
-+	char		data[0];	/* actual data */
-+};
- #endif
-Index: linux-omap-2.6.git/drivers/mmc/mmc_sysfs.c
-===================================================================
---- linux-omap-2.6.git.orig/drivers/mmc/mmc_sysfs.c	2006-01-31 15:22:07.000000000 -0400
-+++ linux-omap-2.6.git/drivers/mmc/mmc_sysfs.c	2006-01-31 15:22:25.000000000 -0400
-@@ -2,6 +2,8 @@
-  *  linux/drivers/mmc/mmc_sysfs.c
-  *
-  *  Copyright (C) 2003 Russell King, All Rights Reserved.
-+ *  MMC password protection (C) 2005 Instituto Nokia de Tecnologia (INdT),
-+ *     All Rights Reserved.
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2 as
-@@ -13,6 +15,7 @@
- #include <linux/init.h>
- #include <linux/device.h>
- #include <linux/idr.h>
-+#include <linux/key.h>
- 
- #include <linux/mmc/card.h>
- #include <linux/mmc/host.h>
-@@ -265,6 +268,71 @@ static struct class mmc_host_class = {
- static DEFINE_IDR(mmc_host_idr);
- static DEFINE_SPINLOCK(mmc_host_lock);
- 
-+#ifdef  CONFIG_MMC_PASSWORDS
-+
-+#define MMC_KEYLEN_MAXBYTES 32
-+
-+int mmc_key_instantiate(struct key *key, const void *data, size_t datalen)
-+{
-+	struct mmc_key_payload *mpayload, *zap;
-+	int ret;
-+
-+	zap = NULL;
-+	ret = -EINVAL;
-+	if (datalen <= 0 || datalen > MMC_KEYLEN_MAXBYTES || !data) {
-+		DBG("Invalid data\n");
-+		goto error;
-+	}
-+
-+	ret = key_payload_reserve(key, datalen);
-+	if (ret < 0) {
-+		DBG("ret = %d\n", ret);
-+		goto error;
-+	}
-+
-+	ret = -ENOMEM;
-+	mpayload = kmalloc(sizeof(*mpayload) + datalen, GFP_KERNEL);
-+	if (!mpayload) {
-+		DBG("Unable to allocate mpayload structure\n");
-+		goto error;
-+	}
-+	mpayload->datalen = datalen;
-+	memcpy(mpayload->data, data, datalen);
-+
-+	rcu_assign_pointer(key->payload.data, mpayload);
-+
-+	/* ret = 0 if there is no error */
-+	ret = 0;
-+
-+error:
-+	return ret;
-+}
-+
-+int mmc_key_match(const struct key *key, const void *description)
-+{
-+	return strcmp(key->description, description) == 0;
-+}
-+
-+/*
-+ * dispose of the data dangling from the corpse of a mmc key
-+ */
-+void mmc_key_destroy(struct key *key)
-+{
-+	struct mmc_key_payload *mpayload = key->payload.data;
-+
-+	kfree(mpayload);
-+}
-+
-+struct key_type mmc_key_type = {
-+	.name		= "mmc",
-+	.def_datalen	= MMC_KEYLEN_MAXBYTES,
-+	.instantiate	= mmc_key_instantiate,
-+	.match		= mmc_key_match,
-+	.destroy	= mmc_key_destroy,
-+};
-+
-+#endif
-+
- /*
-  * Internal function. Allocate a new MMC host.
-  */
-@@ -335,6 +403,15 @@ static int __init mmc_init(void)
- 		ret = class_register(&mmc_host_class);
- 		if (ret)
- 			bus_unregister(&mmc_bus_type);
-+#ifdef	CONFIG_MMC_PASSWORDS
-+		else {
-+			ret = register_key_type(&mmc_key_type);
-+			if (ret) {
-+				class_unregister(&mmc_host_class);
-+				bus_unregister(&mmc_bus_type);
-+			}
-+		}
-+#endif
- 	}
- 	return ret;
- }
-@@ -343,6 +420,9 @@ static void __exit mmc_exit(void)
- {
- 	class_unregister(&mmc_host_class);
- 	bus_unregister(&mmc_bus_type);
-+#ifdef	CONFIG_MMC_PASSWORDS
-+	unregister_key_type(&mmc_key_type);
-+#endif
- }
- 
- module_init(mmc_init);
+>>However, it being there does make the whole arguments 
+>>nebulous. I would suggest removing any such language from kernel.org and 
+>>state GPLv2 ONLY.
+>>    
+>>
+>
+>The COPYING file was edited (over _five_ years ago) to clarify the issue, 
+>exactly because some people were confused. So the COPYING file now 
+>explicitly says:
+>
+> Also note that the only valid version of the GPL as far as the kernel
+> is concerned is _this_ particular version of the license (ie v2, not
+> v2.2 or v3.x or whatever), unless explicitly otherwise stated.
+>
+>and that has been the case for the last 5+ years.
+>
+>(Another clarification is even older: the clarification that using "normal 
+>system calls" is _not_ considered linking, and thus the GPL doesn't infect 
+>any normal user-level programs. That one is over ten years old, since some 
+>people seriously worried about it. Again, it was really pretty obvious 
+>from the license itself, but the clarification made the question stop and 
+>made some people stop worrying unnecessarily).
+>
+>Alan argues that that extra notice "changed" the license (and that any 
+>code that is older than 5 years would somehow not be GPLv2). I argue 
+>otherwise. I argue that for the whole history, Linux has been v2-only 
+>unless otherwise explicitly specified.
+>
+>And I don't think even Alan will argue that the "v2 only" thing hasn't 
+>been true for the last five years.
+>  
+>
+Got it. Agreed. There was a COPYING file inside the tar.gz (you need to 
+check this one)
+I recall seeing but I think it was 2.4 and some header files that still 
+said this -- better clean those up.
 
---
+>  
+>
+>>I was also under the impression based on the language "any later license"
+>>and I am a very bright chap. So if I got it wrong, then imagine how many other
+>>folks are likely to be confused.
+>>    
+>>
+>
+>Exactly. That's why I added the clarification on top of the COPYING file: 
+>people _have_ been confused.
+>
+>That confusion doesn't stem from Linux, btw, but from the FSF distribution 
+>of the GPLv2 license itself. The license is distributed as one single 
+>file, which actually contains three parts: (1) the "preamble", (2) the 
+>actual license itself and (3) the "How to Apply These Terms to Your New 
+>Programs" mini-FAQ.
+>
+>And that third part actually contains the wording "(at your option) any 
+>later version.", 
+>
+
+Take this out of the GPL license. It's granting as a term of the license 
+the ability to
+adopt later versions. An obvious loophole -- modify the license text and 
+state
+LINE NUMBER AND PARAGRAPH that this language DOES NOT APPLY
+and BE SPECIFIC in your explanation. If it's not numbered in the GPL 
+text, number
+it so you can make it CLEAR.
+
+>but a lot of people seemed to not realize that this was 
+>just part of a FSF-suggested boiler-plate on what to put in your source 
+>files.  In other words, that was never actually part of the license 
+>itself, but just a "btw, here's how you should use it" post-script.
+>
+>A lot of people seemed to be confused by that, and this is exactly why the 
+>Linux COPYING file got the additional explanation.
+>
+>(Side note: from a legal standpoint, "intent" does actually matter in the 
+>US legal system. So the FSF can actually argue that their pre-amble and 
+>their post-script to the license carry legal weight, because it shows 
+>their _intent_. However, they can only argue that for programs that they 
+>own copyright to, or when the license itself might be unclear - they can't 
+>argue that it shows _my_ intent. I've made my intent very clear over the 
+>years, and I've been consistent on this matter, so nobody can claim that 
+>I've "changed the rules").
+>
+>  
+>
+>>Alan is trying to help you. I have never seen him do anything other than 
+>>support you to the hilt. Sure, disagreements happen, but he is there for 
+>>you and Linux and has been from day one.
+>>    
+>>
+>
+>Absolutely. And I actually try to be very open to changing my mind if 
+>somebody has a valid point. Open source is absolutely not about just the 
+>source code - it's very much about the process, and about (mostly the lack 
+>of) control.
+>
+>And hey, Alan tends to be mostly right in his concerns. Which is why he's 
+>so respected in the community. I just think that he is off the deep end on 
+>this one, and I have yet to see any actual convincing arguments for his 
+>standpoint. 
+>  
+>
+
+Alan is awesome -- period.
+
+>  
+>
+>>Linus, remove all nebulous language and post a notice on kernel.org 
+>>clarifying your position on this code, and I think the issue becomes 
+>>closed.
+>>    
+>>
+>
+>The thing is, even the _clarification_ HAS BEEN THERE FOR 5 YEARS. At the 
+>very top of the COPYING file.
+>  
+>
+CITE REFERENCES. Number the GPL and Cite where it is invalid.
+
+>This really is nothing new. How much more prominent can it be than be in 
+>the top-level COPYING file that gets distributed with every single kernel 
+>version?
+>
+>  
+>
+>>>Because let's face it, the burden on proof on changing the kernel license is
+>>>on _Alan_, not me. Alan is the one arguing for change.  
+>>>      
+>>>
+>>A change to GPLv3 would be a good thing for you.
+>>    
+>>
+>
+>A lot of people like the GPLv3. I personally don't _dislike_ the current 
+>draft, but I don't think it's appropriate for the kernel. Part of why I 
+>liked the GPL in the first place (v2 at that point, obviously - v3 hadn't 
+>even been thought about) was that it put no restrictions at all on the 
+>_use_ of binaries. 
+>
+>So I actually prefer the GPLv2. I don't think the current GPLv3 draft is 
+>"evil" or "bad", or anything like that, but it's not the license I would 
+>have selected when I started, and I don't see any reason to change to it 
+>for the kernel.
+>  
+>
+
+Lets see where it goes. It protects the end users and gives them the 
+freedom to combine
+GPL and non-GPL stuff, which is great.
+
+Jeff
+
+
+>			Linus
+>
+>  
+>
+

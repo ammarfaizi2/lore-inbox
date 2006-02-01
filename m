@@ -1,81 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWBAKBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbWBAKDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964806AbWBAKBc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 05:01:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWBAKBc
+	id S964902AbWBAKDe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 05:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbWBAKDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 05:01:32 -0500
-Received: from dtp.xs4all.nl ([80.126.206.180]:62265 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S964806AbWBAKBc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 05:01:32 -0500
-Date: Wed, 1 Feb 2006 11:01:27 +0100
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Chase Venters <chase.venters@clientec.com>,
-       "linux-os \(Dick Johnson\)" <linux-os@analogic.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Marc Perkel <marc@perkel.com>,
-       Patrick McLean <pmclean@cs.ubishops.ca>,
-       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-Message-ID: <20060201100127.GA13543@bitwizard.nl>
-References: <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com> <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse> <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org> <1138387136.26811.8.camel@localhost> <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org> <1138620390.31089.43.camel@localhost.localdomain> <Pine.LNX.4.64.0601310931540.7301@g5.osdl.org> <43DF9D42.7050802@wolfmountaingroup.com> <Pine.LNX.4.64.0601311032180.7301@g5.osdl.org> <1138751851.10316.32.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Wed, 1 Feb 2006 05:03:34 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:49792 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S964902AbWBAKDd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 05:03:33 -0500
+Date: Wed, 1 Feb 2006 11:03:32 +0100
+From: Sander <sander@humilis.net>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Sander <sander@humilis.net>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: Re: [OT] 8-port AHCI SATA Controller?
+Message-ID: <20060201100332.GA14960@favonius>
+Reply-To: sander@humilis.net
+References: <20060131115343.GA2580@favonius> <20060131163928.GE18972@csclub.uwaterloo.ca> <20060131171723.GA6178@favonius> <20060131183013.GH18970@csclub.uwaterloo.ca> <20060131183929.GB6178@favonius> <20060131184428.GJ18970@csclub.uwaterloo.ca> <20060131185007.GD6178@favonius> <20060131185804.GM18970@csclub.uwaterloo.ca>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1138751851.10316.32.camel@localhost.localdomain>
-Organization: BitWizard.nl
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060131185804.GM18970@csclub.uwaterloo.ca>
+X-Uptime: 10:59:06 up 1 day, 47 min, 26 users,  load average: 0.01, 0.05, 0.06
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 31, 2006 at 11:57:31PM +0000, Alan Cox wrote:
-> Clause 9 is clear and is part of the GPL v2. The GPL v2 text gives
-> people (including you) that right itself if no version is specified in
-> the program. You and the other authors granted that right if you didn't
-> include a statement about version. Now as it happens various
-> contributors specified versions long ago and you clarified it too.
-
-Alan, Linus, 
-
-I have indicated my wish to have my code GPL-2 only in 2000. Linus, 
-declined to change the files. My intention has been for the
-past 5 and a half years to have my code GPL-2  only, only the 
-files don't reflect that change yet. 
-
-REW wrote on Fri, 8 Sep 2000 23:17:09 +0200 (MEST):
-> Linus, 
-
-> I  trust YOU on this. Could you change 
-
->  *      modify it under the terms of the GNU General Public License as
->  *      published by the Free Software Foundation; either version 2 of
->  *      the License, or (at your option) any later version.
-
-> into 
-
->  *      modify it under the terms of the GNU General Public License 
->  *      version 2 as published by the Free Software Foundation.
-
-> for all the files that I own copyright on?
-
-
-Linus answered on: Sat, 9 Sep 2000 09:29:01 +0200 (MEST)
-> Thanks. For the moment, I'd rather like to not do any extra changes, and
-> see what the reaction from the FSF and other people is - let's not hurry
-> into this any faster than we have to. I wanted to make a public statement
-> because I thought it needed to be done, but at the same time I do not want
-> to make a rift between Linux and the FSF bigger than necessary.
+Lennart Sorensen wrote (ao):
+> On Tue, Jan 31, 2006 at 07:50:07PM +0100, Sander wrote:
+> > Actually, I need 24 ports :-)  But 3x SX8 sets me back 540 dollars
+> > according to pricewatch, which is less than half.
 > 
-> So let this lie for a while, and see what happens, ok?
+> I know with older promise controllers, it wasn't possible to run more
+> than 2 in one system as far as I remember due to some dma issues.  Not
+> sure if that applies to the SX8.
+> 
+> If it turns out the SX8 has issues (like the one pointed out earlier
+> about number of commands to the card at once) or that it can't have 3
+> cards in one system at once, then what?  Are you then out $540 + the
+> cost of a better controller?  Certainly worth finding out before
+> spending the money.
 
-	Roger. 
+I have a few systems which need 24 ports, so I could spread them, but
+you are right of course.
+
+> > Fakeraid controllers are less expensive, and would do too of course :-)
+> 
+> Of course those aren't hardware, and are only meant for small toy raids
+> for windows users. The rest of use treat them as ide/sata controllers
+> only.
+
+Exactly what I need (and am looking for). An 8+ sata controller. I would
+not use the fakeraid.
+
+> I haven't seen one of those with more than 4 ports either. If
+> the SX8 is one, then I must admit I haven't looked at it before. I try
+> to avoid hardware from promise whenever possible.
+
+I did too, but their attitude towards Linux seems to have changed, and I
+am pretty pleased with their SATA150 TX4.
+
+	Kind regards, Sander
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-Q: It doesn't work. A: Look buddy, doesn't work is an ambiguous statement. 
-Does it sit on the couch all day? Is it unemployed? Please be specific! 
-Define 'it' and what it isn't doing. --------- Adapted from lxrbot FAQ
+Humilis IT Services and Solutions
+http://www.humilis.net

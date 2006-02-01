@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422882AbWBATQ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422884AbWBATTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422882AbWBATQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 14:16:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422884AbWBATQ7
+	id S1422884AbWBATTE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 14:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422686AbWBATTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 14:16:59 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:3781 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1422882AbWBATQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 14:16:58 -0500
-Date: Wed, 1 Feb 2006 11:15:54 -0800
-From: Ashok Raj <ashok.raj@intel.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@redhat.com>,
-       Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       Andrew Morton <akpm@osdl.org>, Ashok Raj <ashok.raj@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch -mm4] i386: __init should be __cpuinit
-Message-ID: <20060201111554.A21287@unix-os.sc.intel.com>
-References: <200601312352_MC3-1-B748-FCE9@compuserve.com> <200601312352_MC3-1-B748-FCE9@compuserve.com> <20060201053357.GA5335@redhat.com> <E1F4Czv-00018m-00@chiark.greenend.org.uk> <20060201160324.GA5875@redhat.com> <1138820183.3943.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1138820183.3943.11.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Wed, Feb 01, 2006 at 06:56:22PM +0000
+	Wed, 1 Feb 2006 14:19:04 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:8652 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S1422884AbWBATTC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 14:19:02 -0500
+Message-ID: <43E109BA.2070004@t-online.de>
+Date: Wed, 01 Feb 2006 20:19:22 +0100
+From: Knut Petersen <Knut_Petersen@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.10) Gecko/20050726
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au,
+       nfs@lists.sourceforge.net
+Subject: Re: [BUG] nfs version 2 broken
+References: <43E05031.2000107@t-online.de>	 <1138774519.7861.4.camel@lade.trondhjem.org>  <43E0567F.20004@t-online.de>	 <1138775744.7875.0.camel@lade.trondhjem.org> <43E05FA1.6070407@t-online.de> <1138812065.7858.6.camel@lade.trondhjem.org>
+In-Reply-To: <1138812065.7858.6.camel@lade.trondhjem.org>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ID: Z6heYoZZZeHorMgVXf0jPthI3VwGcEN+V+2A6aybwHbnykwCdePrrs@t-dialin.net
+X-TOI-MSGID: 93c1d3f0-b711-4bd0-870c-07dcce032375
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, 2006 at 06:56:22PM +0000, Alan Cox wrote:
-> On Mer, 2006-02-01 at 11:03 -0500, Dave Jones wrote:
-> >  > For SMP systems, suspend/resume "unplugs" all non-boot CPUs before
-> >  > executing the suspend code. I don't recall any SMP cyrix systems, but
-> >  > it's potentially something to consider.
-> > 
-> > There weren't any.  Until AMD's Athlon MPs, Intel had the only
-> > SMP x86 afair.
-> 
-> Several vendors demonstrated OpenMP designs including Cyrix. Nothing
-> production and nothing we support.
+Trond Myklebust wrote:
 
-In order to support logical cpu hotplug, you dont need any special hw, as long
-as you has some SMP box. Sometimes its just a little bit more than 
-moving __init to __cpuinit. A lot of these references were not changed
-just speculatively to ensure when the need is there, someone will change and
-test those as well.
+>Does it do the same if you mount the same partition normally (i.e. not
+>through nfsroot) in some other directory?
+>
+>  
+>
 
-Chuck, would it be possible for you also test cpu hotplug for the ones you 
-are interested in and accompany the related changes if there are more
-as separate patches? (Documentation now has a howto on cpu hotplug)
+That also fails. Same error message.
 
-That would make it more useful for this exersise.
+Unlike the nfsroot code at least my version of mount
+does not use nfs version 2 as the default. I had to force
+a v2 nfs mount attempt with mount -o nfsvers=2 ...
 
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+Would it be a good idea to change the default nfs version
+nfsroot uses? I think nfsroot and mount defaults should
+be identical.
+
+BTW: Google shows some related old threads, e.g. "Madhan" writes on
+2 Aug. 2001 06:55  "There has been a change in the NFS Client
+behaviour in Linux Kernel  2.4.3 onwards.  There are 2 issues here,
+1. as traces show new clients expect link count '1' and NetWare
+NFS has  been sending '0' for volumes. ..."
+
+cu,
+ Knut
+

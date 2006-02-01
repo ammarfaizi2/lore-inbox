@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932433AbWBAJPB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWBAJPA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932433AbWBAJPB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 04:15:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbWBAJNv
+	id S932270AbWBAJPA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 04:15:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbWBAJNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 04:13:51 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:45642 "EHLO
+	Wed, 1 Feb 2006 04:13:54 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:44874 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932271AbWBAJD2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932270AbWBAJD2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 1 Feb 2006 04:03:28 -0500
-Message-Id: <20060201090327.340085000@localhost.localdomain>
+Message-Id: <20060201090327.060870000@localhost.localdomain>
 References: <20060201090224.536581000@localhost.localdomain>
-Date: Wed, 01 Feb 2006 18:02:44 +0900
+Date: Wed, 01 Feb 2006 18:02:43 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: Ian Molton <spyro@f2s.com>, Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 20/44] arm26: use generic bitops
-Content-Disposition: inline; filename=arm26.patch
+Cc: Russell King <rmk@arm.linux.org.uk>, Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 19/44] arm: use generic bitops
+Content-Disposition: inline; filename=arm-2.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 - remove __{,test_and_}{set,clear,change}_bit() and test_bit()
-- remove ffz()
-- remove __ffs()
-- remove generic_fls()
+
+- if __LINUX_ARM_ARCH__ < 5
+
+  - remove ffz()
+  - remove __ffs()
+  - remove generic_fls()
+  - remove generic_ffs()
+
 - remove generic_fls64()
-- remove generic_ffs()
 - remove sched_find_first_bit()
 - remove generic_hweight{32,16,8}()
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
- include/asm-arm26/bitops.h |  146 +++------------------------------------------
+ include/asm-arm/bitops.h |  146 +++--------------------------------------------
  1 files changed, 10 insertions(+), 136 deletions(-)
 
-Index: 2.6-git/include/asm-arm26/bitops.h
+Index: 2.6-git/include/asm-arm/bitops.h
 ===================================================================
---- 2.6-git.orig/include/asm-arm26/bitops.h
-+++ 2.6-git/include/asm-arm26/bitops.h
+--- 2.6-git.orig/include/asm-arm/bitops.h
++++ 2.6-git/include/asm-arm/bitops.h
 @@ -117,65 +117,7 @@ ____atomic_test_and_change_bit(unsigned 
  	return res & mask;
  }
@@ -103,8 +107,8 @@ Index: 2.6-git/include/asm-arm26/bitops.h
 +#include <asm-generic/bitops/non-atomic.h>
  
  /*
-  * Little endian assembly bitops.  nr = 0 -> byte 0 bit 0.
-@@ -211,7 +153,6 @@ extern int _find_next_bit_le(const unsig
+  *  A note about Endian-ness.
+@@ -261,7 +203,6 @@ extern int _find_next_bit_be(const unsig
  #define test_and_set_bit(nr,p)		ATOMIC_BITOP_LE(test_and_set_bit,nr,p)
  #define test_and_clear_bit(nr,p)	ATOMIC_BITOP_LE(test_and_clear_bit,nr,p)
  #define test_and_change_bit(nr,p)	ATOMIC_BITOP_LE(test_and_change_bit,nr,p)
@@ -112,9 +116,17 @@ Index: 2.6-git/include/asm-arm26/bitops.h
  #define find_first_zero_bit(p,sz)	_find_first_zero_bit_le(p,sz)
  #define find_next_zero_bit(p,sz,off)	_find_next_zero_bit_le(p,sz,off)
  #define find_first_bit(p,sz)		_find_first_bit_le(p,sz)
-@@ -219,80 +160,13 @@ extern int _find_next_bit_le(const unsig
+@@ -280,7 +221,6 @@ extern int _find_next_bit_be(const unsig
+ #define test_and_set_bit(nr,p)		ATOMIC_BITOP_BE(test_and_set_bit,nr,p)
+ #define test_and_clear_bit(nr,p)	ATOMIC_BITOP_BE(test_and_clear_bit,nr,p)
+ #define test_and_change_bit(nr,p)	ATOMIC_BITOP_BE(test_and_change_bit,nr,p)
+-#define test_bit(nr,p)			__test_bit(nr,p)
+ #define find_first_zero_bit(p,sz)	_find_first_zero_bit_be(p,sz)
+ #define find_next_zero_bit(p,sz,off)	_find_next_zero_bit_be(p,sz,off)
+ #define find_first_bit(p,sz)		_find_first_bit_be(p,sz)
+@@ -292,55 +232,10 @@ extern int _find_next_bit_be(const unsig
  
- #define WORD_BITOFF_TO_LE(x)		((x))
+ #if __LINUX_ARM_ARCH__ < 5
  
 -/*
 - * ffz = Find First Zero in word. Undefined if no zero exists,
@@ -165,12 +177,29 @@ Index: 2.6-git/include/asm-arm26/bitops.h
 - */
 -
 -#define ffs(x) generic_ffs(x)
--
++#include <asm-generic/bitops/ffz.h>
++#include <asm-generic/bitops/__ffs.h>
++#include <asm-generic/bitops/fls.h>
++#include <asm-generic/bitops/ffs.h>
+ 
+ #else
+ 
+@@ -352,37 +247,16 @@ static inline unsigned long __ffs(unsign
+ #define fls(x) \
+ 	( __builtin_constant_p(x) ? generic_fls(x) : \
+ 	  ({ int __r; asm("clz\t%0, %1" : "=r"(__r) : "r"(x) : "cc"); 32-__r; }) )
+-#define fls64(x)   generic_fls64(x)
+ #define ffs(x) ({ unsigned long __t = (x); fls(__t & -__t); })
+ #define __ffs(x) (ffs(x) - 1)
+ #define ffz(x) __ffs( ~(x) )
+ 
+ #endif
+ 
 -/*
 - * Find first bit set in a 168-bit bitmap, where the first
 - * 128 bits are unlikely to be set.
 - */
--static inline int sched_find_first_bit(unsigned long *b)
+-static inline int sched_find_first_bit(const unsigned long *b)
 -{
 -	unsigned long v;
 -	unsigned int off;
@@ -186,21 +215,17 @@ Index: 2.6-git/include/asm-arm26/bitops.h
 - * hweightN: returns the hamming weight (i.e. the number
 - * of bits set) of a N-bit word
 - */
--
++#include <asm-generic/bitops/fls64.h>
+ 
 -#define hweight32(x) generic_hweight32(x)
 -#define hweight16(x) generic_hweight16(x)
 -#define hweight8(x) generic_hweight8(x)
-+#include <asm-generic/bitops/ffz.h>
-+#include <asm-generic/bitops/__ffs.h>
-+#include <asm-generic/bitops/fls.h>
-+#include <asm-generic/bitops/fls64.h>
-+#include <asm-generic/bitops/ffs.h>
 +#include <asm-generic/bitops/sched.h>
 +#include <asm-generic/bitops/hweight.h>
  
  /*
   * Ext2 is defined to use little-endian byte ordering.
-@@ -307,7 +181,7 @@ static inline int sched_find_first_bit(u
+@@ -397,7 +271,7 @@ static inline int sched_find_first_bit(c
  #define ext2_clear_bit_atomic(lock,nr,p)        \
                  test_and_clear_bit(WORD_BITOFF_TO_LE(nr), (unsigned long *)(p))
  #define ext2_test_bit(nr,p)			\
@@ -209,7 +234,7 @@ Index: 2.6-git/include/asm-arm26/bitops.h
  #define ext2_find_first_zero_bit(p,sz)		\
  		_find_first_zero_bit_le(p,sz)
  #define ext2_find_next_zero_bit(p,sz,off)	\
-@@ -320,7 +194,7 @@ static inline int sched_find_first_bit(u
+@@ -410,7 +284,7 @@ static inline int sched_find_first_bit(c
  #define minix_set_bit(nr,p)			\
  		__set_bit(WORD_BITOFF_TO_LE(nr), (unsigned long *)(p))
  #define minix_test_bit(nr,p)			\

@@ -1,104 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWBAABt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWBAADI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbWBAABt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 19:01:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWBAABt
+	id S1751127AbWBAADI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 19:03:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWBAADI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 19:01:49 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:62370 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932071AbWBAABs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 19:01:48 -0500
-Message-ID: <43DFFA65.9010504@watson.ibm.com>
-Date: Tue, 31 Jan 2006 19:01:41 -0500
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-References: <20060117143258.150807000@sergelap> <20060117143326.283450000@sergelap> <1137511972.3005.33.camel@laptopd505.fenrus.org> <20060117155600.GF20632@sergelap.austin.ibm.com> <1137513818.14135.23.camel@localhost.localdomain> <1137518714.5526.8.camel@localhost.localdomain> <20060118045518.GB7292@kroah.com> <1137601395.7850.9.camel@localhost.localdomain> <m1fyniomw2.fsf@ebiederm.dsl.xmission.com> <43D14578.6060801@watson.ibm.com> <Pine.LNX.4.64.0601311248180.7301@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0601311248180.7301@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 31 Jan 2006 19:03:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:27075 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932210AbWBAADH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 19:03:07 -0500
+Date: Tue, 31 Jan 2006 16:01:50 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "V. Ananda Krishnan" <mansarov@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, bunk@stusta.de,
+       gregkh@suse.de, Scott_Kilau@digi.com
+Subject: Re: [RFC: linux-2.6.16-rc1 patch] jsm: fix for high baud rates
+ problem
+Message-Id: <20060131160150.0cae687e.akpm@osdl.org>
+In-Reply-To: <43DE30F1.6040107@us.ibm.com>
+References: <43DE30F1.6040107@us.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> (I'm coming in late, it's not been a high priority for me)
-> 
-> On Fri, 20 Jan 2006, Hubertus Franke wrote:
-> 
->>2nd:
->>====	Issue: we don't need pid virtualization, instead simply use
->><container,pid> pair.
->>
->>This requires a bit more thought. Essentially that's what I was doing, 
->>but I mangled them into the same pid and using masking to add/remove the 
->>container for internal use. As pointed out by Alan(?), we can indeed 
->>reused the same pid internally many times as long as we can distinguish 
->>during the pid-to-task_struct lookup. This is easily done because, the 
->>caller provides the context hence the container for the lookup.
-> 
-> 
-> This is my preferred approach BY FAR.
-> 
-> Doing a <container,pid> approach is very natural, and avoids almost all 
-> issues. At most, you might want to have a new system call (most naturally 
-> just the one that is limited to the "init container" - it the one that we 
-> boot up with) that can specify both container and pid explicitly, and see 
-> all processes and access all processes. But all "normal" system calls 
-> would only ever operate within their container.
+"V. Ananda Krishnan" <mansarov@us.ibm.com> wrote:
+>
+> igi serial port console doesn't work when baud rates are set higher 
+> than 38400.  So the lookup table and code in jsm_neo.c has been modified 
+> and tested.
 
-That's what the current patch set does.
-One "global container" that sees and accesses all and the rest is limited
-to their respective "container".
+- All the code you've added is one tabstop too far to the right.
 
-> 
-> The fact is, we want "containers" anyway for any virtualization thing, ie 
-> vserver already adds them. And if we have containers, then it's very easy 
-> ("easyish") to split up the current static "pid_hash[]", "pidmap_array[]" 
-> and "pidmap_lock", and make them per-container, and have a pointer to the 
-> container for each "struct task_struct".
+- We can simplify the definition of baud_rates[]
 
-We are very close to that .. the pidmap_array is already organized that way.
-This was done so not to make the container an object that penetrates every
-where in the code. Now that the discussion is flushing out, actually
-accessing those entities through the container of the context-task would
-be the next logical restructuring of the code.
+- Using local variable `baud' as a temporary cflag is confusing.
 
-> 
-> After that, there wouldn't even be a lot else to do. The normal system 
-> calls would just use their own container, and the (few) places that save 
-> away pid's for later (ie things that use "kill_proc_info_as_uid()" and 
-> "struct fown_struct" friends) would have to also squirrell away the 
-> container, but then you should be pretty much done.
+- The baud_rates[] scanning can be simplified.
 
-Agreed.
+- local `i' doesn't need the initialiser.
 
-> 
-> Of course, you'll have to do the system calls to _create_ the containers 
-> in the first place, but that's at a higher level and involves much more 
-> than just the pid-space (ie a container would normally have more than just 
-> the uid mappings, it would have any network knowledge too etc - hostname, 
-> perhaps list of network devices associated with that context etc etc)
 
-Right now we do it simply through a poor man's /proc/container fs approach
-that should be reasonable straight forward to convert to a syscall.
 
-> 
-> 			Linus
-> 
+How's this look?
 
-Finally, I presume you followed the discussion on the conversion from task->pid
-to access_functions that stirred some criticism. That part would disappear.
-
--- Hubertus
+--- 25/drivers/serial/jsm/jsm_neo.c~jsm-fix-for-high-baud-rates-problem-tidy	Tue Jan 31 15:57:46 2006
++++ 25-akpm/drivers/serial/jsm/jsm_neo.c	Tue Jan 31 15:57:46 2006
+@@ -965,50 +965,47 @@ static void neo_param(struct jsm_channel
+ 			baud = ch->ch_custom_speed;
+ 			if (ch->ch_flags & CH_BAUD0)
+ 				ch->ch_flags &= ~(CH_BAUD0);
+-		} else {
+-			int i= 0;
+-			struct baud_rates {
+-				unsigned int rate;
+-				unsigned int cflag;
+-			};
+-			static struct baud_rates baud_rates[] = {
+-				{ 921600, B921600 },
+-				{ 460800, B460800 },
+-				{ 230400, B230400 },
+-				{ 115200, B115200 },
+-				{  57600, B57600  },
+-				{  38400, B38400  },
+-				{  19200, B19200  },
+-				{   9600, B9600   },
+-				{   4800, B4800   },
+-				{   2400, B2400   },
+-				{   1200, B1200   },
+-				{    600, B600    },
+-				{    300, B300    },
+-				{    200, B200    },
+-				{    150, B150    },
+-				{    134, B134    },
+-				{    110, B110    },
+-				{     75, B75     },
+-				{     50, B50     },
+-				{      0, B600	  }
+-			};
++	} else {
++		int i;
++		unsigned int cflag;
++		static struct {
++			unsigned int rate;
++			unsigned int cflag;
++		} baud_rates[] = {
++			{ 921600, B921600 },
++			{ 460800, B460800 },
++			{ 230400, B230400 },
++			{ 115200, B115200 },
++			{  57600, B57600  },
++			{  38400, B38400  },
++			{  19200, B19200  },
++			{   9600, B9600   },
++			{   4800, B4800   },
++			{   2400, B2400   },
++			{   1200, B1200   },
++			{    600, B600    },
++			{    300, B300    },
++			{    200, B200    },
++			{    150, B150    },
++			{    134, B134    },
++			{    110, B110    },
++			{     75, B75     },
++			{     50, B50     },
++		};
+ 
+-			baud = C_BAUD(ch->uart_port.info->tty);
+-
+-			for (i = 0; baud_rates[i].rate; i++) {
+-				if (baud_rates[i].cflag == baud)
+-					break;
++		cflag = C_BAUD(ch->uart_port.info->tty);
++		baud = 9600;
++		for (i = 0; i < ARRAY_SIZE(baud_rates); i++) {
++			if (baud_rates[i].cflag == cflag) {
++				baud = baud_rates[i].rate;
++				break;
+ 			}
+-			baud = baud_rates[i].rate;
+-
+-			if (baud == 0)
+-				baud = 9600;
+-
+-			if (ch->ch_flags & CH_BAUD0)
+-				ch->ch_flags &= ~(CH_BAUD0);
+ 		}
+ 
++		if (ch->ch_flags & CH_BAUD0)
++			ch->ch_flags &= ~(CH_BAUD0);
++	}
++
+ 	if (ch->ch_c_cflag & PARENB)
+ 		lcr |= UART_LCR_PARITY;
+ 
+_
 

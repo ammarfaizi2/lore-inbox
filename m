@@ -1,71 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422672AbWBAQMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422670AbWBAQML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422672AbWBAQMf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 11:12:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422673AbWBAQMf
+	id S1422670AbWBAQML (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 11:12:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422671AbWBAQML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 11:12:35 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:15100 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1422672AbWBAQMX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 11:12:23 -0500
-Message-ID: <43E0DE1F.4040809@tmr.com>
-Date: Wed, 01 Feb 2006 11:13:19 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joshua Kugler <joshua.kugler@uaf.edu>
-CC: jgarzik@pobox.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] 8-port AHCI SATA Controller?
-References: <20060131115343.GA2580@favonius> <200601310919.20199.joshua.kugler@uaf.edu>
-In-Reply-To: <200601310919.20199.joshua.kugler@uaf.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 1 Feb 2006 11:12:11 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:8401 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1422670AbWBAQMK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 11:12:10 -0500
+Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060201132607.GA670@elte.hu>
+References: <1138736609.7088.35.camel@localhost.localdomain>
+	 <20060201130818.GA26481@elte.hu>
+	 <1138800181.7088.51.camel@localhost.localdomain>
+	 <20060201132607.GA670@elte.hu>
+Content-Type: text/plain
+Date: Wed, 01 Feb 2006 11:11:56 -0500
+Message-Id: <1138810316.7088.56.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Kugler wrote:
-> On Tuesday 31 January 2006 02:53, Sander wrote:
+On Wed, 2006-02-01 at 14:26 +0100, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
->>Hello,
->>
->>I'm looking for an 8-port SATA controller based on the AHCI chipset, as
->>according to http://linux.yyz.us/sata/sata-status.html#vendor_support
->>this chipset is completely open.
->>
->>I've searched the websides of the companies which according to
->>http://linux.yyz.us/sata/sata-status.html#ahci base some of their
->>products on this chipset, but I couldn't find an 8-port controller.
->>
->>I've also googled, but without success, hence this somewhat offtopic
->>message. Although I hope the response helps others in their quest.
->>
->>The question: does an 8-port AHCI based SATA controller exist? And if,
->>where can I find it? 12, 16 or 24 ports will do too. I don't need HW
->>raid, just JBOD.
+> > On Wed, 2006-02-01 at 14:08 +0100, Ingo Molnar wrote:
+> > > * Steven Rostedt <rostedt@goodmis.org> wrote:
+> > > 
+> > > [pls. use -p when generating patches]
+> > > 
+> > 
+> > OK, how do you make quilt do that?
 > 
+> hm, i'm using 0.42, and this command:
 > 
-> I've run some tests with this card under Linux and done pretty well:
+>   #!/bin/bash
 > 
-> http://www.supermicro.com/products/accessories/addon/DAC-SATA-MV8.cfm
+>   quilt refresh --diffstat --sort --no-timestamps -p 1 $@
 > 
-> They also have a 3.0Gb version.
-> 
-> Not sure if that is AHCI, but it is eight port.
-> 
-> I got the drivers here:
-> 
-> http://www.keffective.com/mvsata/FC3/
-> 
-> The latest was mvSata_Linux_3.6.1.tgz as of 2005-10-13.
-> 
-> Hope that helps.
+> does the -p thing automatically. (the -p option to quilt is for the 
+> patch-file-depth, not for the function-name thing.)
 
-I get a "you do not have permission" using that link, for what it's worth.
+Found it.  Do you have QUILT_DIFF_OPTS set as an environment variable?
+If I do the following:
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+QUILT_DIFF_OPTS='-p' quilt refresh
+
+It works.
+
+I guess I'll add that to my .bash_profile.
+
+Thanks,
+
+-- Steve
+
+

@@ -1,91 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbWBALOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161020AbWBALSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932447AbWBALOs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 06:14:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbWBALOr
+	id S1161020AbWBALSI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 06:18:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWBALSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 06:14:47 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:38062 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932416AbWBALOq (ORCPT
+	Wed, 1 Feb 2006 06:18:08 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:35301 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932419AbWBALSH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 06:14:46 -0500
-Date: Wed, 1 Feb 2006 12:13:19 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
-Subject: Re: [lock validator] inet6_destroy_sock(): soft-safe -> soft-unsafe lock dependency
-Message-ID: <20060201111318.GA6259@elte.hu>
-References: <20060127001807.GA17179@elte.hu> <E1F2IcV-0007Iq-00@gondolin.me.apana.org.au> <20060128152204.GA13940@elte.hu> <20060131102758.GA31460@gondor.apana.org.au> <20060131212432.GA18812@elte.hu> <20060201104214.GA9085@gondor.apana.org.au>
+	Wed, 1 Feb 2006 06:18:07 -0500
+Date: Wed, 1 Feb 2006 03:17:54 -0800
+From: Jeremy Higdon <jeremy@sgi.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Jes Sorensen <jes@sgi.com>, Alan Cox <alan@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] SGIIOC4 limit request size
+Message-ID: <20060201111754.GB152005@sgi.com>
+References: <yq0vevzpi8r.fsf@jaguar.mkp.net> <58cb370e0602010234p62521a00h6d8920c84cac44d5@mail.gmail.com> <20060201104913.GA152005@sgi.com> <58cb370e0602010308o4cde24aeg8d629b1b3d45cdd3@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060201104214.GA9085@gondor.apana.org.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <58cb370e0602010308o4cde24aeg8d629b1b3d45cdd3@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Herbert Xu <herbert@gondor.apana.org.au> wrote:
-
-> On Tue, Jan 31, 2006 at 10:24:32PM +0100, Ingo Molnar wrote:
+On Wed, Feb 01, 2006 at 12:08:30PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> On 2/1/06, Jeremy Higdon <jeremy@sgi.com> wrote:
+> > On Wed, Feb 01, 2006 at 11:34:18AM +0100, Bartlomiej Zolnierkiewicz wrote:
+> > > On 01 Feb 2006 03:59:16 -0500, Jes Sorensen <jes@sgi.com> wrote:
+> > > > Hi,
+> > >
+> > > Hi,
+> > >
+> > > > This one takes care of a problem with the SGI IOC4 driver where it
+> > > > hits DMA problems if the request grows too large.
+> > >
+> > > Does this happen only for CONFIG_IA64_PAGE_SIZE_4KB=y
+> > > or CONFIG_IA64_PAGE_SIZE_8KB=y?
 > >
-> >  [<c04de9e8>] _write_lock+0x8/0x10
-> >  [<c0499015>] inet6_destroy_sock+0x25/0x100
-> >  [<c04b8672>] tcp_v6_destroy_sock+0x12/0x20
-> >  [<c046bbda>] inet_csk_destroy_sock+0x4a/0x150
-> >  [<c047625c>] tcp_rcv_state_process+0xd4c/0xdd0
-> >  [<c047d8e9>] tcp_v4_do_rcv+0xa9/0x340
-> >  [<c047eabb>] tcp_v4_rcv+0x8eb/0x9d0
+> > Actually, it happens with a 16KB page size.
+> >
+> > > from sgiioc4.c:
+> > >
+> > > /* Each Physical Region Descriptor Entry size is 16 bytes (2 * 64 bits) */
+> > > /* IOC4 has only 1 IDE channel */
+> > > #define IOC4_PRD_BYTES       16
+> > > #define IOC4_PRD_ENTRIES     (PAGE_SIZE /(4*IOC4_PRD_BYTES))
+> > >
+> > > As limiting request size to 127 sectors punishes performance
+> > > wouldn't it be better to define IOC4_PRD_ENTRIES to 256
+> > > if this is possible (would need 4 pages for PAGE_SIZE=4096
+> > > and 2 for PAGE_SIZE=8192)?
+> >
+> > I may be misunderstanding something, but it looks to me as though
+> > IOC4_PRD_ENTRIES may be ignored, since ide_init_queue() just uses
+> > PRD_ENTRIES.  Fortunately, with a 16KB page size, the arithmetic
+> > works out to the same.  In any case, it seems that the 64KB
+> > limit is the problem.  Whether that is due to too many s/g entries
 > 
-> OK this is definitely broken.  We should never touch the dst lock in 
-> softirq context.  Since inet6_destroy_sock may be called from that 
-> context due to the asynchronous nature of sockets, we can't take the 
-> lock there.
+> Indeed, seems that hwif->max_sg_nents is not respected when
+> setting queue ->max_hw_segments and ->max_phys_segments.
 > 
-> In fact this sk_dst_reset is totally redundant since all IPv6 sockets 
-> use inet_sock_destruct as their socket destructor which always cleans 
-> up the dst anyway.  So the solution is to simply remove the call.
+> Does the logic really work the same?
+> Isn't PCI_DMA_BUS_IS_PHYS == 0 for SN2?
 > 
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> If so then the code sets ->max_{hw,phys}_segments
+> to IOC4_PRD_ENTRIES/2 which actually shouldn't hurt...
+> 
+> > or total byte count I cannot say.  I do know that with a 2KB
+> > physical sector size, the minimum size for a s/g entry should be
+> > 2KB, which would mean we're using at most 32 with 127 max sectors --
+> > well below the 256 that we get from PRD_ENTRIES and IOC4_PRD_ENTRIES.
+> >
+> > We're still looking for root cause of this problem.  But with the
+> > default 128KB max request size, we occasionally get timeouts on
+> > DMA commands.
+> 
+> I have no big problem with applying patch as it is but I think that
+> it just hides the real problem and/or makes it harder to hit...
+> 
+> Bartlomiej
 
-cool - i've booted your patch and will have results later today [it's 
-looking good so far, after 10 minutes of uptime ;)]
+I agree.  I think I found the real problem.
 
-btw., this codepath took some time to trigger, and i'm not sure why: 
-maybe because i dont have any true ipv6 traffic? (In fact i dont have 
-CONFIG_IPV6 enabled at all in this kernel config - so this codepath must 
-be an effect of ipv4/ipv6 unification?) I guess i should run the ipv6 
-testsuite to expose all the important codepaths to the validator? [Would 
-you have any suggestions for me how to do that quickly & easily?]
+I'm going to test it and sleep on it, but here is the correct patch,
+I think.  Hot off the press.
 
-another thing: could you add the string 'lock validator' somewhere into 
-the changelog, so that we can grep for such things later on? One reason 
-for that is to strenghten my future arguments for mainline inclusion 
-;-), but there's another argument as well:
+Give us 16 hours  :-)
 
-the lock validator finds _all_ hidden deadlocks [no matter how obscure, 
-interdependent or unlikely they are, as long as the affected codepath is 
-triggered at least once], and thus the resulting bug statistics and 
-characteristics will be an excellent (and one-time) opportunity to 
-objectively judge the absolute code quality (and defect rate) of the 
-Linux kernel, for an important category of hard-to-find bugs. (Maybe the 
-results can even be extrapolated to other, similarly hard-to-find bug 
-categories.)
+The problem was that the chip actually likes a count of 0x10000 for
+a 64K s/g, but the original author programmed 0 instead of 0x10000
+for that amount (I don't know why).
 
-in other words, the lock validator is building a runtime set of formal 
-"locking requirements", and is automatically proving (and maintaining 
-the proof) that all locking activity within the kernel meets those 
-requirements, mathematically. It thus enables us to achieve a hard 
-ceiling of 100% correctness that we can rarely achieve in complex code 
-as the kernel. We should minimize the changeset entropy introduced and 
-preserve this historic information.
+I'll send a better patch tomorrow.  This one depends on a byte count
+multiple of 2.  Though according to the chip docs, it ignores bit 0
+of the byte count anyway (and the address for that matter).  So I
+think this is functionally correct.  But I think the xcount variable
+is superfluous.
 
-	Ingo
+jeremy
+
+
+--- a/linux/drivers/ide/pci/sgiioc4.c	2006-02-01 03:13:40.000000000 -0800
++++ b/linux/drivers/ide/pci/sgiioc4.c	2006-02-01 03:02:18.144450010 -0800
+@@ -525,7 +525,7 @@
+ 				*table = 0x0;
+ 				table++;
+ 
+-				xcount = bcount & 0xffff;
++				xcount = ((bcount - 1) & 0xffff) + 1;
+ 				*table = cpu_to_be32(xcount);
+ 				table++;
+ 

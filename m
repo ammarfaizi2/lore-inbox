@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161112AbWBAU0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422643AbWBAVEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161112AbWBAU0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 15:26:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161113AbWBAU0X
+	id S1422643AbWBAVEr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 16:04:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbWBAVEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 15:26:23 -0500
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:11027 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1161112AbWBAU0X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 15:26:23 -0500
-Date: Thu, 2 Feb 2006 07:26:10 +1100
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
-Subject: Re: [lock validator] inet6_destroy_sock(): soft-safe -> soft-unsafe lock dependency
-Message-ID: <20060201202610.GA13107@gondor.apana.org.au>
-References: <E1F2IcV-0007Iq-00@gondolin.me.apana.org.au> <20060128152204.GA13940@elte.hu> <20060131102758.GA31460@gondor.apana.org.au> <20060131.024323.83813817.davem@davemloft.net> <20060201133219.GA1435@elte.hu>
+	Wed, 1 Feb 2006 16:04:47 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:39850 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932453AbWBAVEq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 16:04:46 -0500
+Date: Wed, 1 Feb 2006 21:04:39 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: device-mapper log bitset: fix big endian find_next_zero_bit
+Message-ID: <20060201210439.GN4724@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060201133219.GA1435@elte.hu>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, 2006 at 02:32:19PM +0100, Ingo Molnar wrote:
-> 
-> update: with all of Herbert's fixes i havent gotten these yet - so maybe 
-> the validator was not producing a false positive, but perhaps the 
-> inet6_destroy_sock()->sk_dst_reset() thing was causing the messages?
+From: Stefan Bader <shbader@de.ibm.com>
 
-Maybe.  But in that case shouldn't the validator show that code-path?
+This is a fix to the device-mapper-log-bitset-fix-endian patch that
+switched to ext2_* versions of the set and clear bit functions.
+The find_next_zero_bit function also has to be the ext2 one. Otherwise 
+the mirror target tries to recover non-existent regions beyond the end of
+device.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Signed-Off-By: Stefan Bader <shbader@de.ibm.com>
+Signed-Off-By: Alasdair G Kergon <agk@redhat.com>
+
+Index: linux-2.6.16-rc1/drivers/md/dm-log.c
+===================================================================
+--- linux-2.6.16-rc1.orig/drivers/md/dm-log.c	2006-01-23 21:22:19.000000000 +0000
++++ linux-2.6.16-rc1/drivers/md/dm-log.c	2006-02-01 20:54:50.000000000 +0000
+@@ -545,7 +545,8 @@ static int core_get_resync_work(struct d
+ 		return 0;
+ 
+ 	do {
+-		*region = find_next_zero_bit((unsigned long *) lc->sync_bits,
++		*region = ext2_find_next_zero_bit(
++					     (unsigned long *) lc->sync_bits,
+ 					     lc->region_count,
+ 					     lc->sync_search);
+ 		lc->sync_search = *region + 1;

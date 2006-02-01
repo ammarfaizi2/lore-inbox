@@ -1,68 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422977AbWBAWQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422980AbWBAWUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422977AbWBAWQe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 17:16:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422979AbWBAWQe
+	id S1422980AbWBAWUp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 17:20:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422981AbWBAWUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 17:16:34 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:2786 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1422977AbWBAWQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 17:16:33 -0500
-Subject: Re: 2.6.15-rt16
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Clark Williams <williams@redhat.com>
-Cc: chris perkins <cperkins@OCF.Berkeley.EDU>, linux-kernel@vger.kernel.org
-In-Reply-To: <1138830694.18762.46.camel@localhost.localdomain>
-References: <Pine.SOL.4.63.0601300839050.8546@conquest.OCF.Berkeley.EDU>
-	 <1138640592.12625.0.camel@localhost.localdomain>
-	 <Pine.SOL.4.63.0601300917120.8546@conquest.OCF.Berkeley.EDU>
-	 <1138653235.26657.7.camel@localhost.localdomain>
-	 <Pine.SOL.4.63.0601310946000.8770@conquest.OCF.Berkeley.EDU>
-	 <1138730835.5959.3.camel@localhost.localdomain>
-	 <1138818770.6685.1.camel@localhost.localdomain>
-	 <1138819142.18762.10.camel@localhost.localdomain>
-	 <1138830476.6632.5.camel@localhost.localdomain>
-	 <1138830694.18762.46.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 01 Feb 2006 17:16:19 -0500
-Message-Id: <1138832179.6632.12.camel@localhost.localdomain>
+	Wed, 1 Feb 2006 17:20:45 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:19084 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1422980AbWBAWUp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 17:20:45 -0500
+Date: Wed, 1 Feb 2006 16:20:40 -0600
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [GIT PATCH] PCI patches for 2.6.16-rc1
+Message-ID: <20060201222040.GM14705@austin.ibm.com>
+References: <20060201020437.GA20719@kroah.com> <Pine.LNX.4.64.0601311813400.7301@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0601311813400.7301@g5.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-01 at 15:51 -0600, Clark Williams wrote:
-
-> > Could you make sure that your modules in the initrd that you use are the
-> > ones created with the LATENCY_TRACE option.  After converting all the
-> > modules into compiled in options, I successfully booted the kernel.  So
-> > you might have an incompatibility with the modules in initrd, when you
-> > turn on LATENCY_TRACE.
+On Tue, Jan 31, 2006 at 06:16:43PM -0800, Linus Torvalds was heard to remark:
+> On Tue, 31 Jan 2006, Greg KH wrote:
+> > 
+> > linas:
+> >       PCI Hotplug: PCI panic on dlpar add (add pci slot to running partition)
+> >       PCI Hotplug/powerpc: module build break
+> > 
+> > linas@austin.ibm.com:
+> >       powerpc/PCI hotplug: remove rpaphp_find_bus()
+> >       powerpc/PCI hotplug: merge config_pci_adapter
 > 
-> Did you ever duplicated the failure?
-
-No, but I don't use an initrd, so my failure was first that it couldn't
-recognize my harddrives.  So I compiled in the necessary drivers into my
-kernel, and it booted right up to the GDM login.  I logged in, and was
-going to reply to you, but I guess I have a different network card since
-I had no network.
-
+> Looks like Linas Vepstas doesn't have a good email address in his From: 
+> fields.. As a result, the logs are nasty. 
 > 
-> I'm fairly certain that the initrd contains the appropriate modules,
-> since I regenerate the initrd each time I generate a new kernel, but
-> I'll go back and verify. 
-> 
-> I'll also convert modules to compiled in and see if that makes a
-> difference.
+> Linas - could you _please_ fix your email setup, of if your email setup is 
+> good, could whoever added the bogus "From: " line to the email please NOT 
+> DO THAT HORRIBLE THING?
 
-Thanks, I've been burnt before with incompatible modules in initrd, that
-I now only use compiled in modules that are needed to boot (ide, ext3,
-etc).  When compiling 3 different kernels with several different configs
-constantly for the same machine, it just becomes easier to not use an
-initrd.
+(OK, I'm red with embarrassment. I can only offer that email has
+been an enemy for a while now).  
 
--- Steve
+Is this better?
 
-
+--linas

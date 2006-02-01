@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbWBAJT5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964915AbWBAJ3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbWBAJT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 04:19:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWBAJTo
+	id S964915AbWBAJ3w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 04:29:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbWBAJ3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 04:19:44 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:37194 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1751494AbWBAJD2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 04:03:28 -0500
-Message-Id: <20060201090326.300490000@localhost.localdomain>
-References: <20060201090224.536581000@localhost.localdomain>
-Date: Wed, 01 Feb 2006 18:02:40 +0900
-From: Akinobu Mita <mita@miraclelinux.com>
-To: linux-kernel@vger.kernel.org
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>,
-       Hirokazu Takata <takata@linux-m32r.org>, linux-mips@linux-mips.org,
-       linuxsh-dev@lists.sourceforge.net,
-       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
-       Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 16/44] generic ext2_{set,clear}_bit_atomic()
-Content-Disposition: inline; filename=ext2-atomic-bitops.patch
+	Wed, 1 Feb 2006 04:29:52 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31757 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964824AbWBAJ3u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 04:29:50 -0500
+Date: Wed, 1 Feb 2006 09:29:34 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Purpose of MMC_DATA_MULTI?
+Message-ID: <20060201092934.GB27735@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <43E057DA.7000909@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43E057DA.7000909@drzeus.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch introduces the C-language equivalents of the functions below:
+On Wed, Feb 01, 2006 at 07:40:26AM +0100, Pierre Ossman wrote:
+> I noticed that a new transfer flag was recently added to the MMC layer
+> without any immediate users, the MMC_DATA_MULTI flag. I'm guessing the
+> purpose of the flag is to indicate the difference between
+> MMC_READ_SINGLE_BLOCK and MMC_READ_MULTIPLE_BLOCKS with just one block.
+> If so, then that should probably be mentioned in a comment somewhere.
 
-int ext2_set_bit_atomic(int nr, volatile unsigned long *addr);
-int ext2_clear_bit_atomic(int nr, volatile unsigned long *addr);
+There are hosts out there (Atmel AT91-based) which need to know if the
+transfer is going to be multiple block.  Rather than have them test
+the op-code (which is what they're already doing), we provide a flag
+instead.
 
-In include/asm-generic/bitops/ext2-atomic.h
-
-This code largely copied from:
-include/asm-sparc/bitops.h
-
-Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
- include/asm-generic/bitops/ext2-atomic.h |   22 ++++++++++++++++++++++
- 1 files changed, 22 insertions(+)
-
-Index: 2.6-git/include/asm-generic/bitops/ext2-atomic.h
-===================================================================
---- /dev/null
-+++ 2.6-git/include/asm-generic/bitops/ext2-atomic.h
-@@ -0,0 +1,22 @@
-+#ifndef _ASM_GENERIC_BITOPS_EXT2_ATOMIC_H_
-+#define _ASM_GENERIC_BITOPS_EXT2_ATOMIC_H_
-+
-+#define ext2_set_bit_atomic(lock, nr, addr)		\
-+	({						\
-+		int ret;				\
-+		spin_lock(lock);			\
-+		ret = ext2_set_bit((nr), (unsigned long *)(addr)); \
-+		spin_unlock(lock);			\
-+		ret;					\
-+	})
-+
-+#define ext2_clear_bit_atomic(lock, nr, addr)		\
-+	({						\
-+		int ret;				\
-+		spin_lock(lock);			\
-+		ret = ext2_clear_bit((nr), (unsigned long *)(addr)); \
-+		spin_unlock(lock);			\
-+		ret;					\
-+	})
-+
-+#endif /* _ASM_GENERIC_BITOPS_EXT2_ATOMIC_H_ */
-
---
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

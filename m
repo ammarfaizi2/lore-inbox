@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422644AbWBAPtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422642AbWBAPvl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422644AbWBAPtw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 10:49:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422643AbWBAPtw
+	id S1422642AbWBAPvl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 10:51:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422647AbWBAPvl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 10:49:52 -0500
-Received: from uproxy.gmail.com ([66.249.92.197]:34389 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1422642AbWBAPtv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 10:49:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eaH/gLa4jjC6IGsV9JITM6FxP46SAwK1I3eZ2NimesRDHbu4asImNznRzVw/CR+uSlAPhJACr7Hydf1/3nAeO3VRUYFDbenpUeO/qwrTA/zFnZ7/ZrizXUcdPc6tSgc03/VkZG3IA+1dfspBo5QO85/W/fnKvNVtfMyhl0W1A9M=
-Message-ID: <58cb370e0602010749r7ab0273x8fad3d5a76d67b76@mail.gmail.com>
-Date: Wed, 1 Feb 2006 16:49:48 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, mrmacman_g4@mac.com,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       James@superbug.co.uk, j@bitron.ch, acahalan@gmail.com
-In-Reply-To: <Pine.LNX.4.61.0602011630440.22529@yvahk01.tjqt.qr>
+	Wed, 1 Feb 2006 10:51:41 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:27268 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1422642AbWBAPvk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 10:51:40 -0500
+Date: Wed, 1 Feb 2006 16:51:23 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, matthias.andree@gmx.de,
+       mrmacman_g4@mac.com, linux-kernel@vger.kernel.org, bzolnier@gmail.com,
+       acahalan@gmail.com
+Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future
+ Linux (stirring up a hornets' nest) ]
+In-Reply-To: <20060130232609.GA3631@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.61.0602011650390.22529@yvahk01.tjqt.qr>
+References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com>
+ <43DCA097.nailGPD11GI11@burner> <20060129112613.GA29356@merlin.emma.line.org>
+ <43DE2FF4.nail16ZCI3FMV@burner> <20060130170904.GH19173@merlin.emma.line.org>
+ <43DE49C5.nail2BR31RV8R@burner> <20060130232609.GA3631@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
-	 <20060125230850.GA2137@merlin.emma.line.org>
-	 <43D8C04F.nailE1C2X9KNC@burner> <43DDFBFF.nail16Z3N3C0M@burner>
-	 <1138642683.7404.31.camel@juerg-pd.bitron.ch>
-	 <43DF3C3A.nail2RF112LAB@burner>
-	 <58cb370e0601310410r46210e8dvc66f631f208e9b8d@mail.gmail.com>
-	 <43DF678E.nail3B431CUWJ@burner>
-	 <58cb370e0601310623ic220d27q3bfd4642cd0538fb@mail.gmail.com>
-	 <Pine.LNX.4.61.0602011630440.22529@yvahk01.tjqt.qr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/1/06, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-> >>
-> >> This is called integration and it is done by Linux e.g. for 1394 and USB SCSI
-> >> devices. So why not for ATAPI?
-> >
-> >Because we have native drivers which do not require SCSI stack et all.
-> >
-> >* if [ED: it] is very useful if cd-writing can be done with ide-cd and without
-> >  SCSI stack (a hack but very useful one)
-> >* you don't need SCSI stack (a lot of code saved!)
+>> 
+>> If you have the apropriate privs to send SCSI commands to any SCSI device 
+>> on the system, you will not come across your problem.
 >
+>Why should I need privs to talk to *any* SCSI device, when I want to
+>talk to just *one* SCSI device?
 >
-> Which unfortunately leads us back to one of the early questions.
->
-> If ATAPI is some sort of SCSI [command set] over ATA, and ide-cd can be used
-> without the "Big Bad" SCSI layer (CONFIG_SCSI), don't we have redundant code
-> floating around?
 
-No, because this code belongs to the block layer (scsi_ioctl.c)
-and is shared between SCSI and IDE drivers.
+Because of the (drumroll...) -scanbus thing everyone wants!
 
-BTW This was already at least once explained in this thread.
 
-Bartlomiej
+
+Jan Engelhardt
+-- 

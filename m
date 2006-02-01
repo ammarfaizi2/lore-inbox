@@ -1,118 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422976AbWBAWOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422977AbWBAWQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422976AbWBAWOE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 17:14:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422979AbWBAWOE
+	id S1422977AbWBAWQe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 17:16:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422979AbWBAWQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 17:14:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:11489 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422976AbWBAWOD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 17:14:03 -0500
-Date: Wed, 1 Feb 2006 14:13:55 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Rene Herman <rene.herman@keyaccess.nl>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-In-Reply-To: <43E0C5E7.6050406@keyaccess.nl>
-Message-ID: <Pine.LNX.4.64.0602011334270.21884@g5.osdl.org>
-References: <43D114A8.4030900@wolfmountaingroup.com> 
- <20060120111103.2ee5b531@dxpl.pdx.osdl.net>  <43D13B2A.6020504@cs.ubishops.ca>
- <43D7C780.6080000@perkel.com>  <43D7B20D.7040203@wolfmountaingroup.com> 
- <43D7B5C4.5040601@wolfmountaingroup.com> <43D7D05D.7030101@perkel.com> 
- <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com> 
- <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com> 
- <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse> 
- <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>  <1138387136.26811.8.camel@localhost>
-  <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org> <1138620390.31089.43.camel@localhost.localdomain>
- <Pine.LNX.4.64.0601310931540.7301@g5.osdl.org> <43DF9D42.7050802@wolfmountaingroup.com>
- <Pine.LNX.4.64.0601311032180.7301@g5.osdl.org> <43DFB0F2.4030901@wolfmountaingroup.com>
- <Pine.LNX.4.64.0601311152070.7301@g5.osdl.org> <43DFDEF9.2030001@keyaccess.nl>
- <Pine.LNX.4.64.0601311430130.7301@g5.osdl.org> <43E0C5E7.6050406@keyaccess.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Feb 2006 17:16:34 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:2786 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1422977AbWBAWQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 17:16:33 -0500
+Subject: Re: 2.6.15-rt16
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Clark Williams <williams@redhat.com>
+Cc: chris perkins <cperkins@OCF.Berkeley.EDU>, linux-kernel@vger.kernel.org
+In-Reply-To: <1138830694.18762.46.camel@localhost.localdomain>
+References: <Pine.SOL.4.63.0601300839050.8546@conquest.OCF.Berkeley.EDU>
+	 <1138640592.12625.0.camel@localhost.localdomain>
+	 <Pine.SOL.4.63.0601300917120.8546@conquest.OCF.Berkeley.EDU>
+	 <1138653235.26657.7.camel@localhost.localdomain>
+	 <Pine.SOL.4.63.0601310946000.8770@conquest.OCF.Berkeley.EDU>
+	 <1138730835.5959.3.camel@localhost.localdomain>
+	 <1138818770.6685.1.camel@localhost.localdomain>
+	 <1138819142.18762.10.camel@localhost.localdomain>
+	 <1138830476.6632.5.camel@localhost.localdomain>
+	 <1138830694.18762.46.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 01 Feb 2006 17:16:19 -0500
+Message-Id: <1138832179.6632.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-02-01 at 15:51 -0600, Clark Williams wrote:
 
-
-On Wed, 1 Feb 2006, Rene Herman wrote:
-> > 
-> > but the fact is, the GPL also says that any license notices must be
-> > kept intact, and that a copy of the GPL itself must be given along
-> > with the program (in section 1).
+> > Could you make sure that your modules in the initrd that you use are the
+> > ones created with the LATENCY_TRACE option.  After converting all the
+> > modules into compiled in options, I successfully booted the kernel.  So
+> > you might have an incompatibility with the modules in initrd, when you
+> > turn on LATENCY_TRACE.
 > 
-> The GPL text itself really is not under a GPL compatible license. The GPL says
-> that, under certain provisions, "You may modify your copy or copies of the
-> Program or any portion of it" (section 2) while the GPL document does not
-> allow any modification, under any provision: "but changing it is not allowed".
+> Did you ever duplicated the failure?
 
-You continue to ignore the big important fact that:
+No, but I don't use an initrd, so my failure was first that it couldn't
+recognize my harddrives.  So I compiled in the necessary drivers into my
+kernel, and it booted right up to the GDM login.  I logged in, and was
+going to reply to you, but I guess I have a different network card since
+I had no network.
 
- - section 2 is _conditional_ on section 1
- - section 1 (and FSF guidelines) _requires_ you to leave copyright 
-   notices intact and give the license out along with the program.
+> 
+> I'm fairly certain that the initrd contains the appropriate modules,
+> since I regenerate the initrd each time I generate a new kernel, but
+> I'll go back and verify. 
+> 
+> I'll also convert modules to compiled in and see if that makes a
+> difference.
 
-IOW, your claim that the GPL requires you to be able to make changes is 
-INCORRECT.
+Thanks, I've been burnt before with incompatible modules in initrd, that
+I now only use compiled in modules that are needed to boot (ide, ext3,
+etc).  When compiling 3 different kernels with several different configs
+constantly for the same machine, it just becomes easier to not use an
+initrd.
 
-The GPL requires you to be able to make a certain _class_ of changes, but 
-other changes (like modifying the copyright license of notices or removing 
-the license) are expressly _forbidden_ both by the GPL and by copyright 
-law.
+-- Steve
 
-Think about it. The GPL is _not_ incompatible with including the GNU 
-General Public License as part of the program. 
 
-This can, btw, also be shown independently by the fact that the FSF 
-clearly _intended_ the license to be actively linked into the program: 
-they ask you (in the "How to Apply These Terms to Your New Programs") to 
-have commands to view parts of the license if your program is interactive.
-
-In other words, your claim that the license file itself is somehow 
-"incompatible" with being included as part of the the GPL'd Program is 
-simply not possible.
-
-Btw, try this:
-
-	shell$ gdb
-
-	(gdb) show copying
-
-and if you strace it (or do "strings" on the binary), you'll even notice 
-that the license is very much part of the binary image itself. How much 
-more "part of the program" can it be?
-
-So if you seriously suggest that the GNU General Public License file is 
-incompatible with the GPL, then that ignores the fact that
-
- - the license file itself assks you to combine it with the program
-   (much more tightly than "mere aggregation")
-
- - the GPL license itself has the requirement that copyright licenses be 
-   left intact (actually, the license itself seems to say just keep intact 
-   all notices that "refer to this License", but the FSF has made it clear 
-   that it covers _any_ copyright license notes, and that the GPL is 
-   compatible with the BSD license which requires the same retention of 
-   copyright notices).
-
-or alternatively:
-
- - the FSF actively _encourages_ people to violate their own copyright 
-   (which means that they can't sue, under the doctine of estoppel), and 
-   your point is moot _anyway_.
-
-So. Claiming that the GPL license text itself cannot be part of the 
-program is disingenious. According to your reading, the modified BSD 
-license wouldn't be compatible with the GPL either, because it requires:
-
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions, and the following disclaimer,
- *    without modification.
-
-yet the FSF has clearly stated that this is perfectly fine, even though it 
-also disallows modifications to the license text.
-
-Quod erat demonstrandum.
-
-			Linus

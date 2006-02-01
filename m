@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422902AbWBATjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422901AbWBAToY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422902AbWBATjR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 14:39:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422899AbWBATjR
+	id S1422901AbWBAToY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 14:44:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422903AbWBAToY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 14:39:17 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:63116 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S1422898AbWBATjQ (ORCPT
+	Wed, 1 Feb 2006 14:44:24 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:55014 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422901AbWBAToX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 14:39:16 -0500
-Date: Wed, 1 Feb 2006 11:39:33 -0800
-From: Grant Grundler <iod00d@hp.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Akinobu Mita'" <mita@miraclelinux.com>,
-       Grant Grundler <iod00d@hp.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 1/12] generic *_bit()
-Message-ID: <20060201193933.GA16471@esmail.cup.hp.com>
-References: <20060201180237.GA18464@infradead.org> <200602011807.k11I7ag15563@unix-os.sc.intel.com>
-MIME-Version: 1.0
+	Wed, 1 Feb 2006 14:44:23 -0500
+Date: Wed, 1 Feb 2006 14:44:00 -0500
+From: Dave Jones <davej@redhat.com>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] AMD64: fix mce_cpu_quirks typos
+Message-ID: <20060201194400.GB21132@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Florian Weimer <fw@deneb.enyo.de>, linux-kernel@vger.kernel.org
+References: <87fyn2yjpr.fsf@mid.deneb.enyo.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602011807.k11I7ag15563@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <87fyn2yjpr.fsf@mid.deneb.enyo.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, 2006 at 10:07:28AM -0800, Chen, Kenneth W wrote:
-> I think these should be defined to operate on arrays of unsigned int.
-> Bit is a bit, no matter how many byte you load (8/16/32/64), you can
-> only operate on just one bit.
+On Wed, Feb 01, 2006 at 08:14:56PM +0100, Florian Weimer wrote:
+ > The spurious MCE is TLB-related.  I *think* the bit for the correct
+ > status code is stored at position 10 HEX, not 10 DEC
 
-Well, if it doesn't matter, why is unsigned int better?
+not true.   According to the BIOS writer guide, it's bit 10.
+The register only defines bits up to bit 12
 
-unsigned long is typically the native register size, right?
-I'd expect that to be more efficient on most arches.
+Your patch makes it poke a reserved part of the register, which
+is definitly undesired.
 
-grant
+		Dave
+

@@ -1,73 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWBBPEx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWBBPF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbWBBPEx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 10:04:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWBBPEx
+	id S1751128AbWBBPF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 10:05:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbWBBPF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 10:04:53 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:16655 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751121AbWBBPEx
+	Thu, 2 Feb 2006 10:05:28 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17167 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751123AbWBBPEz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 10:04:53 -0500
-Date: Sat, 21 Jan 2006 23:20:08 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Chris Mason <mason@suse.com>
-Cc: Hans Reiser <reiser@namesys.com>, Denis Vlasenko <vda@ilport.com.ua>,
-       linux-kernel@vger.kernel.org,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-Subject: Re: Recursive chmod/chown OOM kills box with 32MB RAM
-Message-ID: <20060121232008.GA2697@ucw.cz>
-References: <200601281613.16199.vda@ilport.com.ua> <200601281811.35690.vda@ilport.com.ua> <43DDAE2D.6080300@namesys.com> <200601300822.47821.mason@suse.com>
+	Thu, 2 Feb 2006 10:04:55 -0500
+Date: Wed, 1 Feb 2006 21:04:33 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: CD writing - related question
+Message-ID: <20060201210433.GC8552@ucw.cz>
+References: <43DEA195.1080609@tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200601300822.47821.mason@suse.com>
+In-Reply-To: <43DEA195.1080609@tmr.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon 30-01-06 18:30:29, Bill Davidsen wrote:
+> Please take this as a question to elicit information, not 
+> an invitation for argument.
+> 
+> In Linux currently:
+>  SCSI - liiks like SCSI
+>  USB - looks like SCSI
+>  Firewaire - looks like SCSI
+>  SATA - looks like SCSI
+>  Compact flash and similar - looks like SCSI
 
+Your definition of "looks like scsi" is way too broad. CF looks like
+PCMCIA and that in turn is ide chip on isa-like bus.
 
-> > >[CCing namesys]
-> > >
-> > >Narrowed it down to 100% reproducible case:
-> > >
-> > >	chown -Rc 0:<n> .
-> > >
-> > >in a top directory of tree containing ~21938 files
-> > >on reiser3 partition:
-> > >
-> > >	/dev/sdc3 on /.3 type reiserfs (rw,noatime)
-> > >
-> > >causes oom kill storm. "ls -lR", "find ." etc work fine.
-> > >
-> > >I suspected that it is a leak in winbindd libnss module,
-> > >but chown does not seem to grow larger in top, and also
-> > >running it under softlimit -m 400000 still causes oom kills
-> > >while chown's RSS stays below 4MB.
-> 
-> In order for the journaled filesystems to make sure the FS is consistent after 
-> a crash, we need to keep some blocks in memory until other blocks have been 
-> written.  These blocks are pinned, and can't be freed until a certain amount 
-> of io is done.
-> 
-> In the case of reiserfs, it might pin as much as the size of the journal at 
-> any time.  The default journal is 32MB, which is much too large for a system 
-> with only 32MB of ram.
-> 
-> You can shrink the log of an existing filesystem.  The minimum size is 513 
-> blocks, you might try 1024 as a good starting poing.
-> 
-> reiserfstune -s 1024 /dev/xxxx
-> 
-> The filesystem must be unmounted first.
+(unless you plug it to usb reader)
 
-Could we refuse to mount filesystem unless journal_size <
-physmem_size/2 or something like that?
-
-I was not aware of this trap, and it seems unlikely that users know
-about it...
-								Pavel
 -- 
 Thanks, Sharp!

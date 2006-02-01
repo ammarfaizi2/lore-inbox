@@ -1,87 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422638AbWBAPop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161095AbWBAPpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422638AbWBAPop (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 10:44:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161097AbWBAPop
+	id S1161095AbWBAPpv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 10:45:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161099AbWBAPpv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 10:44:45 -0500
-Received: from zproxy.gmail.com ([64.233.162.194]:63053 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161095AbWBAPoo convert rfc822-to-8bit
+	Wed, 1 Feb 2006 10:45:51 -0500
+Received: from gateway-1237.mvista.com ([63.81.120.158]:57850 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1161095AbWBAPpv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 10:44:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZuYoq22GTJLSx1e1NNh62kxvXh/OMbIcRs15kYFrHJ1y2G5SUkFeBriqfj07kgf7KNpooAvQ3ZlJPrUVmxmsQ2AxS7ZCCx//2M4aTW1o1S8+pnQY8kNkx7d2YzeeMOz4EutijTFE/8fx+QphvG6Y0Tv0R/xGHlket0AZ7z294sE=
-Message-ID: <7d40d7190602010744vc2eaf3fm@mail.gmail.com>
-Date: Wed, 1 Feb 2006 16:44:44 +0100
-From: Aritz Bastida <aritzbastida@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Right way to configure a driver? (sysfs, ioctl, proc, configfs,....)
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Antonio Vargas <windenntw@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060201151145.GA3744@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 1 Feb 2006 10:45:51 -0500
+Date: Wed, 1 Feb 2006 10:45:49 -0500
+From: "George G. Davis" <gdavis@mvista.com>
+To: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
+Cc: rmk+serial@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] serial: Add spin_lock_init() in 8250 early_serial_setup() to init port.lock
+Message-ID: <20060201154549.GE7405@mvista.com>
+References: <20060126032403.GG5133@mvista.com> <20060131.003927.112625901.anemo@mba.ocn.ne.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <7d40d7190601261206wdb22ccck@mail.gmail.com>
-	 <20060127050109.GA23063@kroah.com>
-	 <7d40d7190601270230u850604av@mail.gmail.com>
-	 <69304d110601270834q5fa8a078m63a7168aa7e288d1@mail.gmail.com>
-	 <7d40d7190601300323t1aca119ci@mail.gmail.com>
-	 <20060130213908.GA26463@kroah.com>
-	 <Pine.LNX.4.61.0602011553410.22529@yvahk01.tjqt.qr>
-	 <20060201151145.GA3744@kroah.com>
+In-Reply-To: <20060131.003927.112625901.anemo@mba.ocn.ne.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Can't we just somewhat merge all the duplicated functionality between procfs,
-> > sysfs and configfs...
->
-> What "duplicated functionality"?  They all do different, unique things.
->
-> Patches are always welcome...
->
-> thanks,
->
-> greg k-h
->
+On Tue, Jan 31, 2006 at 12:39:27AM +0900, Atsushi Nemoto wrote:
+> >>>>> On Wed, 25 Jan 2006 22:24:03 -0500, "George G. Davis" <gdavis@mvista.com> said:
+> 
+> gdavis> Need spin_lock_init(&serial8250_ports[port->line].port.lock)
+> gdavis> in early_serial_setup() since we're copying struct uart_port
+> gdavis> *port into serial8250_ports[port->line].port and *port.lock is
+> gdavis> typically unitiliased by the caller.
+> 
+> Is this really needed?
 
-May be not "duplicated functionality", but _yes_ lots of ways to do
-the same thing. I know, that's the magic with Linux, that there are
-different ways to achieve the same goal, but in an effort to write
-standard, generic, readable code, some ways should be preferred over
-others.
+Yes, IMO, it is required for targets which use early_serial_setup().  If
+you have doubts, enable DEBUG_SPINLOCK and you will see the problem but
+only if your target uses early_serial_setup().
 
-As I said in previous messages, my driver is a kind of virtual network
-device (imagine something like "snull" in LDD3) and my question was:
-what would be the right way to configure it? I know, i know, there is
-not a unique question for that, but I'm sure at least there are
-suggestions. Some years ago, maybe there was no alternative other than
-using system calls or ioctls, but the spectrum is a lot wider now.
+> The port.lock will be initialized in
+> uart_set_options()
 
-I try to resume here the different ways that could be used, and their
-original purpose:
+uart_set_options() is only called from serial8250_console_setup() when 8250
+serial devices have already been registered via serial8250_isa_init_ports()
+(for legacy devices only though AFAICT).
 
-* IOCTLS: as far as I know, this is deprecated for new drivers,
-although it will still be there for a long time because of backward
-compatibility.
-* PROCFS: it has been used a lot apart from export process
-information, but it seems that finally this is moving toward some new
-filesystems (sysfs,configfs).
-* SYSFS: this is to export system information
-* CONFIGFS: this is to configure kernel modules/subsystems. This is
-new to me, and don't have it (at least by default) in my Linux 2.6.15
-box (guess it will be in the menuconfig somewhere :P).
-* NETLINK: As far as I know this is used for configuring network
-devices, routers, firewalls, ...
+> or uart_add_one_port().
 
-I guess that, with what I know now (sure more than when I started this
-thread), the right ways could be either configfs or netlink. For my
-purposes netlink would be more convenient (since the communication
-link is bidirectional), but I still don't know if you guys think that
-this method is all right.
+But uart_add_one_port() intentionally does not spin_lock_init() the
+port.lock of the serial console device under the assumption that
+it is already done.
 
-Bye
-Aritz
+
+Here's the call sequence:
+
+
+start_kernel()
+	...
+	console_init()
+		...
+		serial8250_console_init()
+			serial8250_isa_init_ports()
+				if (first)
+					spin_lock_init() /* port.lock init */
+				...
+
+All 8250 serial port.locks are now initialised but no ports have
+been registered (on targets which do not register legacy serial ports
+via old_serial_port[]) at this point.
+
+
+			register_console()
+				serial8250_console_setup() /* -ENODEV */
+	...
+	rest_init()
+		...
+		/* arch_initcalls */
+		early_serial_setup()
+			serial8250_isa_init_ports() /* !first, do nothing */
+			serial8250_ports[port->line].port = *port;
+			...
+
+serial8250_ports[port->line].port.lock is over written above and may
+not be properly initialised.
+
+
+		/* module_inits */
+		serial8250_init()
+			...
+			serial8250_register_ports()
+				serial8250_isa_init_ports() /* !first */
+				uart_add_one_port()
+					if (!uart_console(port))
+						spin_lock_init(&port->lock);
+					uart_configure_port()
+
+
+At this point I see the following with DEBUG_SPINLOCK enabled:
+
+
+Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
+BUG: spinlock bad magic on CPU#0, swapper/1
+ lock: c02fcffc, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+[<c002bdec>] (dump_stack+0x0/0x14) from [<c0136268>] (spin_bug+0x94/0xac)
+[<c01361d4>] (spin_bug+0x0/0xac) from [<c01362a8>] (_raw_spin_lock+0x28/0x160)
+ r5 = A0000013  r4 = C02FCFFC 
+[<c0136280>] (_raw_spin_lock+0x0/0x160) from [<c024459c>] (_spin_lock_irqsave+0x2c/0x34)
+ r8 = 00000000  r7 = C02FCFFC  r6 = C02A4144  r5 = A0000013
+ r4 = C02FCFFC 
+[<c0244570>] (_spin_lock_irqsave+0x0/0x34) from [<c0168748>] (serial8250_config_port+0x7c/0x988)
+ r5 = C02FCFFC  r4 = C02FCFFC 
+[<c01686cc>] (serial8250_config_port+0x0/0x988) from [<c01668cc>] (uart_add_one_port+0x110/0x2a0)
+[<c01667bc>] (uart_add_one_port+0x0/0x2a0) from [<c001a174>] (serial8250_init+0xec/0x170)
+ r8 = C02A40F4  r7 = C1C7B2B0  r6 = C02FD2FC  r5 = 00000000
+ r4 = C02FCFFC 
+[<c001a088>] (serial8250_init+0x0/0x170) from [<c0026110>] (init+0xa0/0x228)
+ r8 = 00000000  r7 = C00205B4  r6 = 00000001  r5 = C0374000
+ r4 = C0020504 
+[<c0026070>] (init+0x0/0x228) from [<c00446cc>] (do_exit+0x0/0x874)
+ r7 = 00000000  r6 = 00000000  r5 = 00000000  r4 = 00000000
+BUG: spinlock lockup on CPU#0, swapper/1, c02fcffc
+[<c002bdec>] (dump_stack+0x0/0x14) from [<c01363a8>] (_raw_spin_lock+0x128/0x160)
+[<c0136280>] (_raw_spin_lock+0x0/0x160) from [<c024459c>] (_spin_lock_irqsave+0x2c/0x34)
+ r8 = 00000000  r7 = C02FCFFC  r6 = C02A4144  r5 = A0000013
+ r4 = C02FCFFC 
+[<c0244570>] (_spin_lock_irqsave+0x0/0x34) from [<c0168748>] (serial8250_config_port+0x7c/0x988)
+ r5 = C02FCFFC  r4 = C02FCFFC 
+[<c01686cc>] (serial8250_config_port+0x0/0x988) from [<c01668cc>] (uart_add_one_port+0x110/0x2a0)
+[<c01667bc>] (uart_add_one_port+0x0/0x2a0) from [<c001a174>] (serial8250_init+0xec/0x170)
+ r8 = C02A40F4  r7 = C1C7B2B0  r6 = C02FD2FC  r5 = 00000000
+ r4 = C02FCFFC 
+[<c001a088>] (serial8250_init+0x0/0x170) from [<c0026110>] (init+0xa0/0x228)
+ r8 = 00000000  r7 = C00205B4  r6 = 00000001  r5 = C0374000
+ r4 = C0020504 
+[<c0026070>] (init+0x0/0x228) from [<c00446cc>] (do_exit+0x0/0x874)
+ r7 = 00000000  r6 = 00000000  r5 = 00000000  r4 = 00000000
+
+
+Adding spin_lock_init() in early_serial_setup() resolves the above.  Perhaps
+there is a better way to fix this?
+
+> 
+> I think spin_lock_init() in serial8250_isa_init_ports() can be omitted
+> also.
+
+AFAICS, there are still a few corner cases where port.lock's are not
+initialised on targets which do not define legacy serial ports via
+old_serial_port[].
+
+
+Thanks!
+
+--
+Regards,
+George
+> 
+> ---
+> Atsushi Nemoto

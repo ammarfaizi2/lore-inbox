@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161067AbWBAOy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161070AbWBAOyh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161067AbWBAOy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 09:54:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161071AbWBAOy6
+	id S1161070AbWBAOyh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 09:54:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161068AbWBAOyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 09:54:58 -0500
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:1199 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1161067AbWBAOy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 09:54:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=dhyhHZYlH/n1ll+ak/8vXa3B254rFplkMn6q0+OJ5T5Xunh8N24YwPJQQdNENBPABVQ22FM113mUgEQB2JIDJ5jqGNCFe0BElIdotmg2UF3DoXABuiOt6n+ZToeVIz5agetddSswPLaoA7jmMsRzGC+IvvBOsV+5mAHw6kVjyMo=  ;
-Message-ID: <43E0CBBC.2000002@yahoo.com.au>
-Date: Thu, 02 Feb 2006 01:54:52 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 1 Feb 2006 09:54:37 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:52866 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1161070AbWBAOyh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 09:54:37 -0500
+Date: Wed, 1 Feb 2006 15:54:22 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Greg KH <greg@kroah.com>
+cc: Aritz Bastida <aritzbastida@gmail.com>,
+       Antonio Vargas <windenntw@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Right way to configure a driver? (sysfs, ioctl, proc, configfs,....)
+In-Reply-To: <20060130213908.GA26463@kroah.com>
+Message-ID: <Pine.LNX.4.61.0602011553410.22529@yvahk01.tjqt.qr>
+References: <7d40d7190601261206wdb22ccck@mail.gmail.com> <20060127050109.GA23063@kroah.com>
+ <7d40d7190601270230u850604av@mail.gmail.com>
+ <69304d110601270834q5fa8a078m63a7168aa7e288d1@mail.gmail.com>
+ <7d40d7190601300323t1aca119ci@mail.gmail.com> <20060130213908.GA26463@kroah.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Steven Rostedt <rostedt@goodmis.org>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
-References: <1138736609.7088.35.camel@localhost.localdomain> <43E02CC2.3080805@bigpond.net.au> <1138797874.7088.44.camel@localhost.localdomain> <43E0B24E.8080508@yahoo.com.au> <43E0B342.6090700@yahoo.com.au> <20060201132054.GA31156@elte.hu> <43E0BBEC.3020209@yahoo.com.au> <43E0BDA3.8040003@yahoo.com.au> <20060201141248.GA6277@elte.hu> <43E0C4CF.8090501@yahoo.com.au> <20060201143727.GA9915@elte.hu>
-In-Reply-To: <20060201143727.GA9915@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
-> 
->>What I am talking about is when you want a task to have the highest 
->>possible scheduling priority and you'd like to guarantee that it is 
->>not interrupted for more than Xus, including scheduling latency.
-> 
-> 
-> this is not a big issue in practice, because it's very hard to saturate 
-> current x86 systems running the -rt kernel with pure IRQ load. The APIC 
-> messages all have a natural latency, which serves as a throttler.
-> 
+>> 
+>> I guess I could pass three values on the same file, like this:
+>> $ echo "5  1000  500" > meminfo
+>> 
+>> I know that breaks the sysfs golden-rule, but how can I pass those
+>> values _atomically_ then? Having three different files wouldn't be
+>> atomic...
+>
+>That's what configfs was created for.  I suggest using that for things
+>like this, as sysfs is not intended for it.
+>
+Can't we just somewhat merge all the duplicated functionality between procfs,
+sysfs and configfs...
 
-Either way, you don't measure it. Doesn't matter. As I said, off topic.
 
->>
->>Then it is a fine hack for the RT kernel (or at least an improved, 
->>batched version of the patch). No arguments from me.
-> 
-> 
-> no, it is also fine for the mainline scheduler, as long as the patch is 
-> clean and does the obviously right thing [which the current patch doesnt 
-> offer]. A 1+ msec latency with irqs off is nothing to sniff at. Trying 
-
-If it were generated by some real workload that cares, then I would care.
-
-> to argue that 'you can get the same by using rwsems so why should we 
-> bother' is pretty lame: rwsems are rare and arguably broken in behavior, 
-> and i'd not say the same about the scheduler (just yet :-).
-> 
-
-I don't think it is lame at all. They're fairly important in use in mmap_sem
-that I know of. And I have seen workloads where the up_write path gets really
-expensive (arguably more relevant ones than hackbench).
-
-PS. I'd like to see you argue how they're broken in behaviour, and how
-you're going to replace mmap_sem -- this is not a rhetorical statement,
-I'd really be interested to see ;)
-
+Jan Engelhardt
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

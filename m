@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbWBAJhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWBAJti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030234AbWBAJhY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 04:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWBAJhY
+	id S1750726AbWBAJti (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 04:49:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWBAJti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 04:37:24 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:42726 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1030234AbWBAJhX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 04:37:23 -0500
-Message-ID: <43E08148.3060003@drzeus.cx>
-Date: Wed, 01 Feb 2006 10:37:12 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5 (X11/20060128)
+	Wed, 1 Feb 2006 04:49:38 -0500
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:29012 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750726AbWBAJth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 04:49:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=V6xJBSTP5MBLIoyDvHBTT8NNa4XnVhH/FKhZzO+4+UdEaPyNyQsgsljAnhfBrH6b8getAcEL7rk0jL6bnRnPuzqhyJTZgyg9HbB3P+g1DsauD58r8OLJjfv5wogOU6qLDWiIwprXa9JOxtqOSMd+APp/GX20zLDXOa8QryBSonM=  ;
+Message-ID: <43E0842A.105@yahoo.com.au>
+Date: Wed, 01 Feb 2006 20:49:30 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Pierre Ossman <drzeus-list@drzeus.cx>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Purpose of MMC_DATA_MULTI?
-References: <43E057DA.7000909@drzeus.cx> <20060201092934.GB27735@flint.arm.linux.org.uk>
-In-Reply-To: <20060201092934.GB27735@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Andi Kleen <ak@suse.de>
+CC: Arjan van de Ven <arjan@infradead.org>,
+       Ray Bryant <raybry@mpdtxmail.amd.com>,
+       Dave McCracken <dmccr@us.ibm.com>, Robin Holt <holt@sgi.com>,
+       Hugh Dickins <hugh@veritas.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH/RFC] Shared page tables
+References: <A6D73CCDC544257F3D97F143@[10.1.1.4]> <200601240210.04337.ak@suse.de> <1138086398.2977.19.camel@laptopd505.fenrus.org> <200601240818.28696.ak@suse.de>
+In-Reply-To: <200601240818.28696.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Wed, Feb 01, 2006 at 07:40:26AM +0100, Pierre Ossman wrote:
->   
->> I noticed that a new transfer flag was recently added to the MMC layer
->> without any immediate users, the MMC_DATA_MULTI flag. I'm guessing the
->> purpose of the flag is to indicate the difference between
->> MMC_READ_SINGLE_BLOCK and MMC_READ_MULTIPLE_BLOCKS with just one block.
->> If so, then that should probably be mentioned in a comment somewhere.
->>     
->
-> There are hosts out there (Atmel AT91-based) which need to know if the
-> transfer is going to be multiple block.  Rather than have them test
-> the op-code (which is what they're already doing), we provide a flag
-> instead.
->
->   
+Andi Kleen wrote:
 
-As far as the hardware is concerned there are two "multi-block" transfers:
+> 
+> Well, we first have to figure out if the shared page tables
+> are really worth all the ugly code, nasty locking and other problems 
+> (inefficient TLB flush etc.) I personally would prefer
+> to make large pages work better before going down that path.
+> 
 
- * Multiple, back-to-back blocks.
- * One or more blocks that need to be terminated by some form of stop
-command.
+Other thing I wonder about - less efficient page table placement
+on NUMA systems might harm TLB miss latency on some systems
+(although we don't always do a great job of trying to localise these
+things yet anyway). Another is possible increased lock contention on
+widely shared page tables like libc.
 
-The first can be identified by checking the number of blocks in the
-request, the latter is harder to identify since it's a protocol semantic
-(it could be just one block, but still need a stop). Does MMC_DATA_MULTI
-indicate the latter, former or both?
+I agree that it is not something which needs to be rushed in any
+time soon. We've already got significant concessions and complexity
+in the memory manager for databases (hugepages, direct io / raw io)
+so a few % improvement on database performance doesn't put it on our
+must have list IMO.
 
-Rgds
-Pierre
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

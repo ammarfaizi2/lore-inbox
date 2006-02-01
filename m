@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWBAAc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbWBAAg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932312AbWBAAc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 19:32:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWBAAc3
+	id S932316AbWBAAg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 19:36:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWBAAg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 19:32:29 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:46468 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932312AbWBAAc2 (ORCPT
+	Tue, 31 Jan 2006 19:36:59 -0500
+Received: from xproxy.gmail.com ([66.249.82.205]:58086 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932316AbWBAAg6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 19:32:28 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [ 06/23] [Suspend2] Disable usermode helper invocations when the freezer is on.
-Date: Wed, 1 Feb 2006 01:33:08 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-References: <20060126034518.3178.55397.stgit@localhost.localdomain> <200601311158.16882.rjw@sisk.pl> <200602010921.09750.nigel@suspend2.net>
-In-Reply-To: <200602010921.09750.nigel@suspend2.net>
+	Tue, 31 Jan 2006 19:36:58 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=pMrmRILG0mTcIzYO7AyFJdoJlcoCwAo1GlEqZN/OlVdjv1l34TSO0CbU+ErTdrUTyBBH99Q0+rqxdM2lQfVN0MuYUjLE1THh0feyGK+RUSsF7Vxs5dh+bgjcJs3A17kmLLr96QqZYBz5j3Fej9j04/YN5hdtwEjvhqZa77p+4JE=
+Message-ID: <43E00291.5050507@gmail.com>
+Date: Wed, 01 Feb 2006 08:36:33 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: vgacon scrolling problem [Was: Re: 2.6.16-rc1-mm4]
+References: <drln68$n82$1@sea.gmane.org> <20060131202454.CDC2322AEAC@anxur.fi.muni.cz> <drohmk$itt$1@sea.gmane.org>
+In-Reply-To: <drohmk$itt$1@sea.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602010133.08720.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wednesday 01 February 2006 00:21, Nigel Cunningham wrote:
-> On Tuesday 31 January 2006 20:58, Rafael J. Wysocki wrote:
-> > Hi,
-> > > > >
-> > > > > +	if (freezer_is_on())
-> > > > > +		return 0;
-> > > > > +
-> > > > >  	if (path[0] == '\0')
-> > > > >  		return 0;
-> > > >
-> > > > Disabling the usermode helper while freeze_processes() is executed
-> > > > seems to be a good idea to me, but I think it should be done with a
-> > > > mutex or something like that.
-> > >
-> > > With the refrigerator code you guys are using at the moment, ouldn't that
-> > > result in deadlocks when we later try to freeze the process in
-> > > preparation for the atomic restore? (Or perhaps you don't freeze
-> > > processes at that point?)
-> >
-> > I'm not sure what you mean.  I said "mutex" because you seem to have a race
-> > here (the freezer may be started right after the freezer_is_on() check). 
-> > IMO the freezer should disable the invocations of new usermode helpers and
-> > wait util all of the already running helpers are finished.  For this
-> > purpose two variables would be needed and a lock.
+Jindrich Makovicka wrote:
+> Jiri Slaby wrote:
+>> Jindrich Makovicka wrote:
+>>
+>>> In vgacon.c, there is a stray printk("vgacon delta: %i\n", lines); which
+>>> effectively disables the scrollback of the vga console (at least when
+>>> not using the new soft scrollback). Removing it fixes the problem.
+>> Then ... could you post a patch?
 > 
-> Sorry. Being a bit thick.
-> 
-> I wasn't worried about already-running usermode helpers (or about-to-run 
-> helpers either) because the spawned processes would either complete or be 
-> caught be the usual freezing code. My concern was more that new invocations 
-> of this path don't leave us with unfrozen processes hanging around. That 
-> said, I think you have a valid point about letting existing helpers run to 
-> completion. It does make me concerned though about the possibility of a 
-> long-lived helper (not that I know that there really are such things at the 
-> moment). Do you think that needs to be taken as a genuine concern? If so, I 
-> guess we then need to make freezing a four stage process:
-> 
-> 1. Stop new usermodehelpers from starting & let existing ones run to 
-> completion.
-> 2. Freeze userspace.
-> 3. Freezer bdevs.
-> 4. Freezer kernel space.
+> if you insist :)
 
-Well, I know a little about bdevs, but generally I think that's reasonable.
+Sorry about that, thanks for noticing.
 
-Greetings,
-Rafael
+Acked-by: Antonino Daplas <adaplas@pol.net>
+
+> 
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> --- linux-2.6.16-rc1-mm4/drivers/video/console/vgacon.c	2006-01-25 19:16:35.000000000 +0100
+> +++ linux-2.6.16-rc1-mm4/drivers/video/console/vgacon.c	2006-01-31 21:33:40.433055896 +0100
+> @@ -331,7 +331,6 @@
+>  		int margin = c->vc_size_row * 4;
+>  		int ul, we, p, st;
+>  
+> -		printk("vgacon delta: %i\n", lines);
+>  		if (vga_rolled_over >
+>  		    (c->vc_scr_end - vga_vram_base) + margin) {
+>  			ul = c->vc_scr_end - vga_vram_base;
+

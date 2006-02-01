@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbWBALmf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWBALlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964833AbWBALmf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 06:42:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbWBALlT
+	id S932435AbWBALlw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 06:41:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWBALlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 06:41:19 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:19163 "EHLO
+	Wed, 1 Feb 2006 06:41:21 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:18651 "EHLO
 	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S964835AbWBALkv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 06:40:51 -0500
+	id S964833AbWBALkt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 06:40:49 -0500
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [ 07/10] [Suspend2] Header storage for modules.
-Date: Wed, 01 Feb 2006 21:37:24 +1000
+Subject: [ 05/10] [Suspend2] Get next module.
+Date: Wed, 01 Feb 2006 21:37:21 +1000
 To: linux-kernel@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060201113723.6320.19646.stgit@localhost.localdomain>
+Message-Id: <20060201113720.6320.16737.stgit@localhost.localdomain>
 In-Reply-To: <20060201113710.6320.68289.stgit@localhost.localdomain>
 References: <20060201113710.6320.68289.stgit@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Calculate the space in an image header required for storing module
-configuration data.
+Given a current (possibly NULL) pointer to a module, find the next module
+in the pipeline.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/modules.c |   21 +++++++++++++++++++++
- 1 files changed, 21 insertions(+), 0 deletions(-)
+ kernel/power/modules.c |   20 ++++++++++++++++++++
+ 1 files changed, 20 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/modules.c b/kernel/power/modules.c
-index dd53b27..7d56ce0 100644
+index eee5678..a7c3c38 100644
 --- a/kernel/power/modules.c
 +++ b/kernel/power/modules.c
-@@ -16,6 +16,27 @@ static int num_filters = 0, num_ui = 0;
- int num_writers = 0, num_modules = 0;
- 
- /*
-+ * header_storage_for_modules
+@@ -165,3 +165,23 @@ void suspend2_cleanup_modules(int finish
+ 		}
+ 	}
+ }
++
++/*
++ * get_next_filter
 + *
-+ * Returns the amount of space needed to store configuration
-+ * data needed by the modules prior to copying back the original
-+ * kernel. We can exclude data for pageset2 because it will be
-+ * available anyway once the kernel is copied back.
++ * Get the next filter in the pipeline.
 + */
-+unsigned long header_storage_for_modules(void)
++struct suspend_module_ops *get_next_filter(struct suspend_module_ops *filter_sought)
 +{
-+	struct suspend_module_ops *this_module;
-+	unsigned long bytes = 0;
-+	
-+	list_for_each_entry(this_module, &suspend_modules, module_list) {
-+		if (this_module->disabled)
++	struct suspend_module_ops *last_filter = NULL, *this_filter = NULL;
++
++	list_for_each_entry(this_filter, &suspend_filters, ops.filter.filter_list) {
++		if (this_filter->disabled)
 +			continue;
-+		if (this_module->storage_needed)
-+			bytes += this_module->storage_needed();
++		if ((last_filter == filter_sought) || (!filter_sought))
++			return this_filter;
++		last_filter = this_filter;
 +	}
 +
-+	return bytes;
++	return active_writer;
 +}
-  * suspend_register_module
-  *
-  * Register a module.
 
 --
 Nigel Cunningham		nigel at suspend2 dot net

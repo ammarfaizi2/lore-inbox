@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbWBANr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbWBANxW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030370AbWBANr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 08:47:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWBANr3
+	id S1030371AbWBANxW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 08:53:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWBANxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 08:47:29 -0500
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:10656 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932175AbWBANr2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 08:47:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=2gW42koOqrsN96Yu6Yk4/OqCG8TPZUVCVzF2TpgQ0MQH8ML/QhdflrlgVgGKXnNHS+p5w+xm9V/KV9E2dq0rAdzw2sETYj/8r1hZ9di5tP7ywvg929Q4lgVXL9KU0rdsadVHd7x2q9kBea1lMgVEV0s9q65X6/aEZ9E1L3y4/u4=  ;
-Message-ID: <43E0BBEC.3020209@yahoo.com.au>
-Date: Thu, 02 Feb 2006 00:47:24 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 1 Feb 2006 08:53:22 -0500
+Received: from odyssey.analogic.com ([204.178.40.5]:25604 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S932453AbWBANxW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 08:53:22 -0500
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Steven Rostedt <rostedt@goodmis.org>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
-References: <1138736609.7088.35.camel@localhost.localdomain> <43E02CC2.3080805@bigpond.net.au> <1138797874.7088.44.camel@localhost.localdomain> <43E0B24E.8080508@yahoo.com.au> <43E0B342.6090700@yahoo.com.au> <20060201132054.GA31156@elte.hu>
-In-Reply-To: <20060201132054.GA31156@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <7d40d7190602010537i3f10b722h@mail.gmail.com>
+X-OriginalArrivalTime: 01 Feb 2006 13:53:18.0297 (UTC) FILETIME=[DB062C90:01C62736]
+Content-class: urn:content-classes:message
+Subject: Re: Right way to configure a driver? (sysfs, ioctl, proc, configfs,....)
+Date: Wed, 1 Feb 2006 08:53:17 -0500
+Message-ID: <Pine.LNX.4.61.0602010849100.15638@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Right way to configure a driver? (sysfs, ioctl, proc, configfs,....)
+Thread-Index: AcYnNtsPM8BhsWUoRiunDolEXl5cJA==
+References: <7d40d7190601261206wdb22ccck@mail.gmail.com> <20060127050109.GA23063@kroah.com> <7d40d7190601270230u850604av@mail.gmail.com> <20060130214118.GB26463@kroah.com> <7d40d7190602010537i3f10b722h@mail.gmail.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Aritz Bastida" <aritzbastida@gmail.com>
+Cc: "Greg KH" <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
->>Oh, I forgot: Ingo once introduced some code to bail early (though for 
->>different reasons and under different conditions), and this actually 
->>was found to cause significant regressions in some database workloads.
-> 
-> 
-> well, we both did changes with that effect - pretty much any change in 
-> this area can cause a regression on _some_ workload ;) So there wont be 
-> any silver bullet.
-> 
+On Wed, 1 Feb 2006, Aritz Bastida wrote:
 
-Well yes. Although specifically the bail-out-early stuff which IIRC
-you did... I wasn't singling you out in particular, I've broken the
-scheduler at _least_ as much as you have since starting work on it ;)
+>>> 3.- Actually the most difficult config I must do is to pass three
+>>> values from userspace to my module. Specifically two integers and a
+>>> long (it's an offset to a memory zone I've previously defined)
+>>>
+>>> struct meminfo {
+>>>         unsigned int      id;         /* segment identifier */
+>>>         unsigned int      size;     /* size of the memory area */
+>>>         unsigned long   offset;   /* offset to the information */
+>>> };
+>>>
+>>> How would you pass this information in sysfs? Three values in the same
+>>> file? Note that using three different files wouldn't be atomic, and I
+>>> need atomicity.
+>>
+>> Use configfs.
+>>
+>
+> Ummhh, and would it be correct to configure my device via a netlink
+> socket? Remember that my driver is a kind of network "virtual" device.
+>
+> There are so many old and new ways to configure a driver that I'm a
+> bit overwhelmed...
+>
+> Regards
+> Aritz
 
-> 
->>So it is not a nice thing to tinker with unless there is good reason.
-> 
-> 
-> unbound latencies with hardirqs off are obviously a good reason - but i 
-> agree that the solution is not good enough, yet.
-> 
+At the risk of the obvious....
 
-Ah, so this is an RT tree thing where the scheduler lock turns off "hard
-irqs"? As opposed to something like the rwsem lock that only turns off
-your "soft irqs" (sorry, I'm not with the terminlogy)?
+ 	struct meminfo meminfo;
+         ioctl(fd, UPDATE_PARAMS, &meminfo);
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+... and define UPDATE_PARAMS and other function codes to start
+above those normally used by kernel stuff so that `strace` doesn't
+make up stories.
+
+This is what the ioctl() interface is for. Inside the kernel
+you can use spinlocks (after you got the data from user-space)
+to make the operations atomicc.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.66 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+_
+To unsubscribe
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

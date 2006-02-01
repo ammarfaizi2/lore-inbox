@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbWBALlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWBALnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964869AbWBALlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 06:41:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964942AbWBALlO
+	id S964835AbWBALnL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 06:43:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWBALlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 06:41:14 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:19675 "EHLO
+	Wed, 1 Feb 2006 06:41:18 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:18651 "EHLO
 	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S964887AbWBALky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 06:40:54 -0500
+	id S964855AbWBALkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 06:40:52 -0500
 From: Nigel Cunningham <nigel@suspend2.net>
-Subject: [ 08/10] [Suspend2] Find a module given its name
-Date: Wed, 01 Feb 2006 21:37:26 +1000
+Subject: [ 09/10] [Suspend2] Append module debug info to a buffer.
+Date: Wed, 01 Feb 2006 21:37:28 +1000
 To: linux-kernel@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Message-Id: <20060201113725.6320.53709.stgit@localhost.localdomain>
+Message-Id: <20060201113727.6320.22089.stgit@localhost.localdomain>
 In-Reply-To: <20060201113710.6320.68289.stgit@localhost.localdomain>
 References: <20060201113710.6320.68289.stgit@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Given the name of a module, return a pointer to it, or NULL if not found.
-This is used when reloading the configuration data at resume time.
+Append the (textual) debugging output of each non-disabled module to a
+buffer. This output should be short, so we don't get carried away
+supporting multiple pages of output.
 
 Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
 
- kernel/power/modules.c |   20 ++++++++++++++++++++
- 1 files changed, 20 insertions(+), 0 deletions(-)
+ kernel/power/modules.c |   24 ++++++++++++++++++++++++
+ 1 files changed, 24 insertions(+), 0 deletions(-)
 
 diff --git a/kernel/power/modules.c b/kernel/power/modules.c
-index 7d56ce0..63f9dbb 100644
+index 63f9dbb..9c27957 100644
 --- a/kernel/power/modules.c
 +++ b/kernel/power/modules.c
-@@ -37,6 +37,26 @@ unsigned long header_storage_for_modules
- 
- 	return bytes;
+@@ -57,6 +57,30 @@ struct suspend_module_ops *find_module_g
+ 	return found_module;
  }
-+
-+/* find_module_given_name
-+ * Functionality :	Return a module (if found), given a pointer
-+ * 			to its name
+ 
++/*
++ * print_module_debug_info
++ * Functionality   : Get debugging info from modules into a buffer.
 + */
-+
-+struct suspend_module_ops *find_module_given_name(char *name)
++int print_module_debug_info(char *buffer, int buffer_size)
 +{
-+	struct suspend_module_ops *this_module, *found_module = NULL;
-+	
++	struct suspend_module_ops *this_module;
++	int len = 0;
++
 +	list_for_each_entry(this_module, &suspend_modules, module_list) {
-+		if (!strcmp(name, this_module->name)) {
-+			found_module = this_module;
-+			break;
-+		}			
++		if (this_module->disabled)
++			continue;
++		if (this_module->print_debug_info) {
++			int result;
++			result = this_module->print_debug_info(buffer + len, 
++					buffer_size - len);
++			len += result;
++		}
 +	}
 +
-+	return found_module;
++	return len;
 +}
 +
++/*
   * suspend_register_module
   *
   * Register a module.

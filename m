@@ -1,63 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030337AbWBAFeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030387AbWBAFlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030337AbWBAFeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 00:34:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbWBAFeJ
+	id S1030387AbWBAFlG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 00:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030400AbWBAFlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 00:34:09 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:24763 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030337AbWBAFeI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 00:34:08 -0500
-Date: Wed, 1 Feb 2006 00:33:57 -0500
-From: Dave Jones <davej@redhat.com>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ashok Raj <ashok.raj@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch -mm4] i386: __init should be __cpuinit
-Message-ID: <20060201053357.GA5335@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Chuck Ebbert <76306.1226@compuserve.com>,
-	Andrew Morton <akpm@osdl.org>, Ashok Raj <ashok.raj@intel.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <200601312352_MC3-1-B748-FCE9@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200601312352_MC3-1-B748-FCE9@compuserve.com>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 1 Feb 2006 00:41:06 -0500
+Received: from smtp110.sbc.mail.re2.yahoo.com ([68.142.229.95]:19809 "HELO
+	smtp110.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030387AbWBAFlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 00:41:05 -0500
+Message-Id: <20060201050734.541844000.dtor_core@ameritech.net>
+References: <20060201045514.178498000.dtor_core@ameritech.net>
+Date: Tue, 31 Jan 2006 23:55:25 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: [GIT PATCH 11/18] sidewinder: handle errors from input_register_device()
+Content-Disposition: inline; filename=sidewinder-error-handling.patch
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 31, 2006 at 11:49:43PM -0500, Chuck Ebbert wrote:
- > When CONFIG_HOTPLUG_CPU on i386 there are places where __init[data] is
- > referenced from normal code.
- > 
- > On startup:
- >         arch/i386/kernel/cpu/amd.c::amd_init_cpu():
- >                 cpu_devs[X86_VENDOR_AMD] = &amd_cpu_dev;        
- >         amd_cpu_dev is declared __initdata and is freed
- > 
- > On CPU hotplug:
- >         arch/i386/kernel/cpu/common.c::get_cpu_vendor():
- >                for (i = 0; i < X86_VENDOR_NUM; i++) {
- >                         if (cpu_devs[i]) {
- >                                 if (!strcmp(v,cpu_devs[i]->c_ident[0]) ||
- > 
- > To fix this, change every instance of __init that seems suspicious
- > into __cpuinit.  When !CONFIG_HOTPLUG_CPU there is no change in .text
- > or .data size.  When enabled, .text += 3248 bytes; .data += 2148 bytes.
- > 
- > This should be safe in every case; the only drawback is the extra code and
- > data when CPU hotplug is enabled.
+Input: sidewinder - handle errors from input_register_device()
 
-Especially as for the bulk of them, those CPUs aren't hotplug capable.
-(I seriously doubt we'll ever see a hotplugable cyrix for eg, which
- takes up the bulk of your diff).
+Also set .owner in driver structure so we'll have a link between
+module and driver in sysfs.
 
-How about leaving it __init on non-hotplug systems, and somehow removing
-those from cpu_devs, so get_cpu_vendor() just skips them ?
-NULL'ing those entries should be just a few bytes, instead of adding 5KB.
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-		Dave
+ drivers/input/joystick/sidewinder.c |    8 ++++++--
+ 1 files changed, 6 insertions(+), 2 deletions(-)
+
+Index: work/drivers/input/joystick/sidewinder.c
+===================================================================
+--- work.orig/drivers/input/joystick/sidewinder.c
++++ work/drivers/input/joystick/sidewinder.c
+@@ -771,12 +771,15 @@ static int sw_connect(struct gameport *g
+ 
+ 		dbg("%s%s [%d-bit id %d data %d]\n", sw->name, comment, m, l, k);
+ 
+-		input_register_device(sw->dev[i]);
++		err = input_register_device(sw->dev[i]);
++		if (err)
++			goto fail4;
+ 	}
+ 
+ 	return 0;
+ 
+- fail3: while (--i >= 0)
++ fail4:	input_free_device(sw->dev[i]);
++ fail3:	while (--i >= 0)
+ 		input_unregister_device(sw->dev[i]);
+  fail2:	gameport_close(gameport);
+  fail1:	gameport_set_drvdata(gameport, NULL);
+@@ -801,6 +804,7 @@ static void sw_disconnect(struct gamepor
+ static struct gameport_driver sw_drv = {
+ 	.driver		= {
+ 		.name	= "sidewinder",
++		.owner	= THIS_MODULE,
+ 	},
+ 	.description	= DRIVER_DESC,
+ 	.connect	= sw_connect,
 

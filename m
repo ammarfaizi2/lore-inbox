@@ -1,47 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161033AbWBAMcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161038AbWBAMgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161033AbWBAMcT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 07:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWBAMcT
+	id S1161038AbWBAMgz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 07:36:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWBAMgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 07:32:19 -0500
-Received: from uproxy.gmail.com ([66.249.92.197]:2737 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932431AbWBAMcR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 07:32:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Lesh+5rE4CVgBiNo1Fif0Yuw1ZIm/AUkjTWyTSvi4cUsOy/2IICCdUT0nWFJgsWNC2CkHTAdTay2vrfzCtq8VdA7S85fzvcyaZYzyiSRKG9N+K1W+O+YlnH6u0UaGd6t1PGJVfmU/DPHivENvOTpV6X2SRpbRNardi2QHCUSDr4=
-Message-ID: <84144f020602010432p51ff7a9cq1dd6654bd04f36a4@mail.gmail.com>
-Date: Wed, 1 Feb 2006 14:32:14 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060201113711.6320.42205.stgit@localhost.localdomain>
+	Wed, 1 Feb 2006 07:36:54 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:33491 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932434AbWBAMgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 07:36:52 -0500
+Date: Wed, 01 Feb 2006 21:36:16 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [Patch:000/004] Unify pxm_to_node id ver.2. 
+Cc: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
+       "Brown, Len" <len.brown@intel.com>, Bob Picco <bob.picco@hp.com>,
+       Andy Whitcroft <apw@shadowen.org>, Paul Jackson <pj@sgi.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       ACPI-ML <linux-acpi@vger.kernel.org>, linux-ia64@vger.kernel.org,
+       x86-64 Discuss <discuss@x86-64.org>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.062
+Message-Id: <20060201205152.41E6.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060201113710.6320.68289.stgit@localhost.localdomain>
-	 <20060201113711.6320.42205.stgit@localhost.localdomain>
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/1/06, Nigel Cunningham <nigel@suspend2.net> wrote:
-> Suspend2 uses a strong internal API to separate the method of determining
-> the content of the image from the method by which it is saved. The code for
-> determining the content is part of the core of Suspend2, and
-> transformations (compression and/or encryption) and storage of the pages
-> are handled by 'modules'.
+Hello.
 
-[snip]
+I rewrote patches to unify mapping from pxm to node id as ver.2.
+I already posted all of fixes for ver.1.
+However, searching first patch and appling fixes are a bit messy
+due to too many mail and patches in LKML.
+So, I rearranged them to find all of them easier.
+Basically, (ver.1 + previous fix patches) = ver.2.
+But ver.2 is set of following patches.
+  - generic code.
+  - for ia64.
+  - for x86_64.
+  - for i386.
 
-> Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
->
->  0 files changed, 0 insertions(+), 0 deletions(-)
+Fixes from ver.1 are followigs.
+  - They are for 2.6.16-rc1-mm4.
+  - Fix old map from HP and SGI's code by Bob Picco-san.
+  - Remove MAX_PXM_DOMAINS from asm-ia64/acpi.h. It is already defined at
+    include/acpi/acpi_numa.h.
+  - Fix return code of setup_node() at arch/x86_64/mm/srat.c
+  - Fix ACPI_NUMA config for i386 by Andy Witcroft-san.
+  - Define dummy functions for i386's compile error.
+  - Remove garbage nid_to_pxm_map from acpi20_parse_srat() 
+    at arch/i386/kernel/srat.c
 
-Uh, oh, where's the patch?
+I tested ia64 and x86_64 with dummy SRAT NUMA emulation.
+And I checked compile completion for hp, SGI, and Summit.
 
-                               Pekka
+Andrew-san. Please apply.
+
+Thanks.
+
+----------------------------------
+
+This patch is to unify mapping from pxm to node id.
+In current code, i386, x86-64, and ia64 have its mapping by each own code.
+But PXM is defined by ACPI and node id is used generically. So,
+I think there is no reason to define it on each arch's code.
+This mapping should be written at drivers/acpi/numa.c as a common code.
+
+
+-- 
+Yasunori Goto 
+
+

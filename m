@@ -1,123 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422967AbWBAWXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422645AbWBAWb2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422967AbWBAWXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 17:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422979AbWBAWXQ
+	id S1422645AbWBAWb2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 17:31:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422970AbWBAWb2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 17:23:16 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:13805 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1422967AbWBAWXP (ORCPT
+	Wed, 1 Feb 2006 17:31:28 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:51429 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422645AbWBAWb1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 17:23:15 -0500
-Date: Wed, 1 Feb 2006 23:23:14 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Byron Stanoszek <gandalf@winds.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH ]  VMSPLIT config options (with default config fixed)
-Message-ID: <20060201222314.GA26081@MAIL.13thfloor.at>
-Mail-Followup-To: Mark Lord <lkml@rtr.ca>,
-	Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-	Byron Stanoszek <gandalf@winds.org>, Ingo Molnar <mingo@elte.hu>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de> <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de> <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3E9C2.1000309@rtr.ca> <20060110173217.GU3389@suse.de> <43C3F0CA.10205@rtr.ca> <43C403BA.1050106@pobox.com> <43C40803.2000106@rtr.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43C40803.2000106@rtr.ca>
-User-Agent: Mutt/1.5.6i
+	Wed, 1 Feb 2006 17:31:27 -0500
+Date: Wed, 1 Feb 2006 14:31:07 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Karim Yaghmour <karim@opersys.com>
+cc: Filip Brcic <brcha@users.sourceforge.net>,
+       Glauber de Oliveira Costa <glommer@gmail.com>,
+       Thomas Horsten <thomas@horsten.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+In-Reply-To: <43E0E282.1000908@opersys.com>
+Message-ID: <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org>
+References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>
+ <43DE57C4.5010707@opersys.com> <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com>
+ <200601302301.04582.brcha@users.sourceforge.net> <43E0E282.1000908@opersys.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 10, 2006 at 02:16:19PM -0500, Mark Lord wrote:
-> Okay, fixed the ordering of the "default" lines
-> so that the Kconfig actually works correctly.
-> 
-> Best for Andrew to soak this one in -mm.
 
-glad to see that the linux kernel is now ready for
-the 'idea' I submitted a patch[1] for, more than a 
-year ago -- which unfortunately went unnoticed back
-then ...
 
-cheers to Jens and Mark!
+On Wed, 1 Feb 2006, Karim Yaghmour wrote:
+> 
+> DRM is something worth fighting, but we need something that attacks the
+> root problem, not its symptoms. In comparison, GPLv2 was indeed
+> successful in that it attacked the root problem of software distribution
+> freedom. How it may leverage that by introducing restrictions on symptoms
+> of another problem still evades me.
 
-best,
-Herbert
+Side note: the reason GPLv2 is so successful at fighting the root problem 
+of using copyright to fight restrictive copyrights is that it makes 
+"interesting material" available under a license that forbids further 
+restricting it.
 
-[1] http://lkml.org/lkml/2004/10/9/126
+I would suggest that anybody who wants to fight DRM practices seriously 
+look at the equivalent angle. If you create interesting content, you can 
+forbid that _content_ to ever be encrypted or limited. 
 
-> Signed-off-by:  Mark Lord <mlord@pobox.com>
-> 
-> diff -u --recursive --new-file --exclude='.*' 
-> linux-2.6.15/arch/i386/Kconfig linux/arch/i386/Kconfig
-> --- linux-2.6.15/arch/i386/Kconfig	2006-01-02 22:21:10.000000000 -0500
-> +++ linux/arch/i386/Kconfig	2006-01-10 12:02:40.000000000 -0500
-> @@ -448,6 +448,43 @@
-> 
->  endchoice
-> 
-> +choice
-> +	depends on EXPERIMENTAL && !X86_PAE
-> +	prompt "Memory split"
-> +	default VMSPLIT_3G
-> +	help
-> +	  Select the desired split between kernel and user memory.
-> +
-> +	  If the address range available to the kernel is less than the
-> +	  physical memory installed, the remaining memory will be available
-> +	  as "high memory". Accessing high memory is a little more costly
-> +	  than low memory, as it needs to be mapped into the kernel first.
-> +	  Note that increasing the kernel address space limits the range
-> +	  available to user programs, making the address space there
-> +	  tighter.  Selecting anything other than the default 3G/1G split
-> +	  will also likely make your kernel incompatible with binary-only
-> +	  kernel modules.
-> +
-> +	  If you are not absolutely sure what you are doing, leave this
-> +	  option alone!
-> +
-> +	config VMSPLIT_3G
-> +		bool "3G/1G user/kernel split"
-> +	config VMSPLIT_3G_OPT
-> +		bool "3G/1G user/kernel split (for full 1G low memory)"
-> +	config VMSPLIT_2G
-> +		bool "2G/2G user/kernel split"
-> +	config VMSPLIT_1G
-> +		bool "1G/3G user/kernel split"
-> +endchoice
-> +
-> +config PAGE_OFFSET
-> +	hex
-> +	default 0xB0000000 if VMSPLIT_3G_OPT
-> +	default 0x78000000 if VMSPLIT_2G
-> +	default 0x40000000 if VMSPLIT_1G
-> +	default 0xC0000000
-> +
->  config HIGHMEM
->  	bool
->  	depends on HIGHMEM64G || HIGHMEM4G
-> diff -u --recursive --new-file --exclude='.*' 
-> linux-2.6.15/include/asm-i386/page.h linux/include/asm-i386/page.h
-> --- linux-2.6.15/include/asm-i386/page.h	2006-01-02 
-> 22:21:10.000000000 -0500
-> +++ linux/include/asm-i386/page.h	2006-01-10 12:04:56.000000000 -0500
-> @@ -110,10 +110,10 @@
->  #endif /* __ASSEMBLY__ */
-> 
->  #ifdef __ASSEMBLY__
-> -#define __PAGE_OFFSET		(0xC0000000)
-> +#define __PAGE_OFFSET		CONFIG_PAGE_OFFSET
->  #define __PHYSICAL_START	CONFIG_PHYSICAL_START
->  #else
-> -#define __PAGE_OFFSET		(0xC0000000UL)
-> +#define __PAGE_OFFSET		((unsigned long)CONFIG_PAGE_OFFSET)
->  #define __PHYSICAL_START	((unsigned long)CONFIG_PHYSICAL_START)
->  #endif
->  #define __KERNEL_START		(__PAGE_OFFSET + __PHYSICAL_START)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+In other words, I personally think that the anti-DRM clause is much more 
+sensible in the context of the Creative Commons licenses, than in software 
+licenses. If you create valuable and useful content that other people want 
+to be able to use (catchy tunes, funny animation, good icons), I would 
+suggest you protect that _content_ by saying that it cannot be used in any 
+content-protection schemes.
+
+Afaik, all the Creative Commons licenses already require that you can't 
+use technological measures to restrict the rigts you give with the CC 
+licenses. The "Share Alike" license in particular requires all work based 
+on it to also be shared alike, ie it has the "GPL feel" to it.
+
+If enough interesting content is licensed that way, DRM eventually becomes 
+marginalized. Yes, it takes decades, but that's really no different at all 
+from how the GPL works. The GPL has taken decades, and it hasn't 
+"marginalized" commercial proprietary software yet, but it's gotten to the 
+point where fewer people at least _worry_ about it.
+
+As long as you expect Disney to feed your brain and just sit there on your 
+couch, Disney & co will always be able to control the content you see. DRM 
+is the smallest part of it - the crap we see and hear every day 
+(regardless of any protection) is a much bigger issue.
+
+The GPL already requires source code (ie non-protected content). So the 
+GPL already _does_ have an anti-DRM clause as far as the _software_ is 
+concerned. If you want to fight DRM on non-software fronts, you need to 
+create non-software content, and fight it _there_.
+
+I realize that programmers are bad at content creation. So many 
+programmers feel that they can't fight DRM that way. Tough. Spread the 
+word instead. Don't try to fight DRM the wrong way.
+
+			Linus

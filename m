@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964992AbWBAQaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbWBAQeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964992AbWBAQaL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 11:30:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964995AbWBAQaL
+	id S964995AbWBAQeM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 11:34:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbWBAQeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 11:30:11 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:19600 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S964993AbWBAQaI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 11:30:08 -0500
-Message-ID: <43E0E1D3.5000803@fr.ibm.com>
-Date: Wed, 01 Feb 2006 17:29:07 +0100
-From: Greg <gkurz@fr.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 1 Feb 2006 11:34:12 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:15545 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S964995AbWBAQeK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 11:34:10 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Wed, 01 Feb 2006 17:32:57 +0100
+To: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, davidsen@tmr.com
+Subject: Re: CD writing in future Linux try #2
+Message-ID: <43E0E2B9.nail46Y11CA23@burner>
+References: <200601302043.56615.diablod3@gmail.com>
+ <20060130.174705.15703464.davem@davemloft.net>
+ <Pine.LNX.4.64.0601310609210.2979@innerfire.net>
+ <20060131.031817.85883571.davem@davemloft.net>
+ <43E00091.5030503@tmr.com> <43E0CFDB.nail43Z219JZE@burner>
+ <20060201152502.GB30811@merlin.emma.line.org>
+In-Reply-To: <20060201152502.GB30811@merlin.emma.line.org>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-References: <20060117143258.150807000@sergelap>	<20060117143326.283450000@sergelap>	<1137511972.3005.33.camel@laptopd505.fenrus.org>	<20060117155600.GF20632@sergelap.austin.ibm.com>	<1137513818.14135.23.camel@localhost.localdomain>	<1137518714.5526.8.camel@localhost.localdomain>	<20060118045518.GB7292@kroah.com>	<1137601395.7850.9.camel@localhost.localdomain>	<m1fyniomw2.fsf@ebiederm.dsl.xmission.com>	<43D14578.6060801@watson.ibm.com>	<Pine.LNX.4.64.0601311248180.7301@g5.osdl.org> <m13bj34spw.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m13bj34spw.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> 
-> On this front I have been planning on using sys_clone as it allows
-> pieces of the virtualization to be incrementally built, it already
-> supports the FS namespace, and it supports flexibly specifying what
-> you want to contain.
-> 
+Matthias Andree <matthias.andree@gmx.de> wrote:
 
-What would you do to handle the following case:
+> Joerg Schilling schrieb am 2006-02-01:
+>
+> > Bill Davidsen <davidsen@tmr.com> wrote:
+> > 
+> > > Joerg is technically astute, and has no clue how to interface with 
+> > > people without pissing them off. He loves the obsolete sg interface, he 
+> > > thinks his DVD-pro thing will make money but the last time I checked he 
+> > > didn't tke credit cards or paypal, and he just has no people skills or 
+> > > interest in learning them.
+> > 
+> > How did you manage to write 3 incorrect claims inside a single sentence?
+>
+> You don't consider yourself astute or being skilled in working with
+> people?  That's news to me. (Hint: list the statements you think are false).
 
-pid = getpid();
-if (sys_clone(CLONE_CONTAINER) == 0) {
-	ppid = getppid();
-	assert(ppid == pid);
-}
+The way a reply is made depends on what it is going to reply to.
 
-Most of the calls involving resource ids will return values that aren't
-*consistent* with ids already stored in userland... could possibly break some
-piece of code. Perhaps a sys_exec() should also be enforced to reset the process
-memory.
+This was a reply to a really offensive mail.....
 
--Greg-
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

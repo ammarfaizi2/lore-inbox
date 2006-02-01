@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030350AbWBAKS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030374AbWBAKVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030350AbWBAKS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 05:18:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWBAKS0
+	id S1030374AbWBAKVY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 05:21:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030375AbWBAKVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 05:18:26 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:20969 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S932216AbWBAKS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 05:18:26 -0500
-Date: Wed, 1 Feb 2006 11:18:30 +0100
-From: Sander <sander@humilis.net>
-To: Joshua Kugler <joshua.kugler@uaf.edu>
-Cc: linux-kernel@vger.kernel.org, sander@humilis.net, jgarzik@pobox.com
-Subject: Re: [OT] 8-port AHCI SATA Controller?
-Message-ID: <20060201101830.GD14960@favonius>
-Reply-To: sander@humilis.net
-References: <20060131115343.GA2580@favonius> <200601310919.20199.joshua.kugler@uaf.edu> <20060131185646.GF6178@favonius> <200601311002.11091.joshua.kugler@uaf.edu>
-MIME-Version: 1.0
+	Wed, 1 Feb 2006 05:21:24 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:25100 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1030374AbWBAKVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 05:21:24 -0500
+Date: Wed, 1 Feb 2006 10:21:13 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Anderson Briglia <anderson.briglia@indt.org.br>
+Cc: linux-kernel@vger.kernel.org, Tony Lindgren <tony@atomide.com>
+Subject: Re: [patch 3/5] MMC OMAP driver
+Message-ID: <20060201102113.GD27735@flint.arm.linux.org.uk>
+Mail-Followup-To: Anderson Briglia <anderson.briglia@indt.org.br>,
+	linux-kernel@vger.kernel.org, Tony Lindgren <tony@atomide.com>
+References: <43DF6807.9020907@indt.org.br>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200601311002.11091.joshua.kugler@uaf.edu>
-X-Uptime: 10:59:06 up 1 day, 47 min, 26 users,  load average: 0.01, 0.05, 0.06
-User-Agent: Mutt/1.5.11
+In-Reply-To: <43DF6807.9020907@indt.org.br>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Kugler wrote (ao):
-> > > http://www.supermicro.com/products/accessories/addon/DAC-SATA-MV8.cfm
+On Tue, Jan 31, 2006 at 09:37:11AM -0400, Anderson Briglia wrote:
+> Here are some misc fixes we've had in the OMAP tree. Might be worth
+> testing them on other platforms too.
 
-> I do too.  However, I was trying to use a Supermicro P4SCi motherboard and it 
-> *would not boot* with two SX8 cards and more than 8 SATA drives hooked up, 
-> regardless of configuration (7 on one card, 2 on the other, etc). So, I had 
-> to find another eight port card.  And besides, the MV8's are about half the 
-> price of the SX8's. :)  So I went with what worked.
+I've already provided feedback on this a year or so ago - and it
+annoys me that absolutely _nothing_ has happened as a result.
 
-Hm, thanks for the tip :-)  This seems a good one indeed. I try to dig
-up some specs. Thanks!
+The quoted part of this patch is WRONG and will _NEVER_ be merged.
+You must NOT enable the clock until the power is stable.  Maybe
+this is a cause of the problems that you're seeing with various
+cards, since you're not allowing them to reset correctly?
 
-	Kind regards, Sander
+Fix this first, then re-test to see if every other fix you have
+is actually necessary.
+
+Sorry, but not following the power up protocol invalidates all other
+testing wrt card initialisation behaviour.
+
+> Index: linux-2.6.15-mmc_omap/drivers/mmc/mmc.c
+> ===================================================================
+> --- linux-2.6.15-mmc_omap.orig/drivers/mmc/mmc.c	2006-01-30 10:24:50.000000000 -0400
+> +++ linux-2.6.15-mmc_omap/drivers/mmc/mmc.c	2006-01-30 10:25:19.000000000 -0400
+> @@ -704,6 +704,7 @@ static void mmc_power_up(struct mmc_host
+>  	int bit = fls(host->ocr_avail) - 1;
+> 
+>  	host->ios.vdd = bit;
+> +	host->ios.clock = host->f_min;
+>  	host->ios.bus_mode = MMC_BUSMODE_OPENDRAIN;
+>  	host->ios.chip_select = MMC_CS_DONTCARE;
+>  	host->ios.power_mode = MMC_POWER_UP;
+> @@ -712,7 +713,6 @@ static void mmc_power_up(struct mmc_host
+> 
+>  	mmc_delay(1);
+> 
+> -	host->ios.clock = host->f_min;
+>  	host->ios.power_mode = MMC_POWER_ON;
+>  	host->ops->set_ios(host, &host->ios);
+> 
 
 -- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,82 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161000AbWBAKma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWBAKo0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161000AbWBAKma (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 05:42:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161001AbWBAKma
+	id S1161008AbWBAKo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 05:44:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161009AbWBAKo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 05:42:30 -0500
-Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:7690 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1161000AbWBAKm2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 05:42:28 -0500
-Date: Wed, 1 Feb 2006 21:42:14 +1100
-To: Ingo Molnar <mingo@elte.hu>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
-Subject: Re: [lock validator] inet6_destroy_sock(): soft-safe -> soft-unsafe lock dependency
-Message-ID: <20060201104214.GA9085@gondor.apana.org.au>
-References: <20060127001807.GA17179@elte.hu> <E1F2IcV-0007Iq-00@gondolin.me.apana.org.au> <20060128152204.GA13940@elte.hu> <20060131102758.GA31460@gondor.apana.org.au> <20060131212432.GA18812@elte.hu>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="X1bOJ3K7DJ5YkBrT"
+	Wed, 1 Feb 2006 05:44:26 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2822 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1161008AbWBAKoZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 05:44:25 -0500
+Date: Wed, 1 Feb 2006 11:44:19 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Armin Schindler <armin@melware.de>
+Cc: kkeil@suse.de, kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] ISDN_CAPI_CAPIFS related cleanups
+Message-ID: <20060201104419.GL3986@stusta.de>
+References: <20060131213306.GG3986@stusta.de> <Pine.LNX.4.61.0602010943180.30915@phoenix.one.melware.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060131212432.GA18812@elte.hu>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <Pine.LNX.4.61.0602010943180.30915@phoenix.one.melware.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 01, 2006 at 09:43:48AM +0100, Armin Schindler wrote:
+> On Tue, 31 Jan 2006, Adrian Bunk wrote:
+> > This patch contains the following cleanups:
+> > - move the help text to the right option
+> 
+> where did you move it to? I just see the removal of the help text.
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I moved it from ISDN_CAPI_CAPIFS to ISDN_CAPI_CAPIFS_BOOL (diff displays 
+this a bit strange).
 
-On Tue, Jan 31, 2006 at 10:24:32PM +0100, Ingo Molnar wrote:
->
->  [<c04de9e8>] _write_lock+0x8/0x10
->  [<c0499015>] inet6_destroy_sock+0x25/0x100
->  [<c04b8672>] tcp_v6_destroy_sock+0x12/0x20
->  [<c046bbda>] inet_csk_destroy_sock+0x4a/0x150
->  [<c047625c>] tcp_rcv_state_process+0xd4c/0xdd0
->  [<c047d8e9>] tcp_v4_do_rcv+0xa9/0x340
->  [<c047eabb>] tcp_v4_rcv+0x8eb/0x9d0
+> Armin
+>...
+> >  config ISDN_CAPI_CAPIFS_BOOL
+> >  	bool "CAPI2.0 filesystem support"
+> >  	depends on ISDN_CAPI_MIDDLEWARE && ISDN_CAPI_CAPI20
+> > -
+> > -config ISDN_CAPI_CAPIFS
+> > -	tristate
+> > -	depends on ISDN_CAPI_CAPIFS_BOOL
+> > -	default ISDN_CAPI_CAPI20
+> >  	help
+> >  	  This option provides a special file system, similar to /dev/pts with
+> >  	  device nodes for the special ttys established by using the
+> >  	  middleware extension above. If you want to use pppd with
+> >  	  pppdcapiplugin to dial up to your ISP, say Y here.
+> >  
+> > +config ISDN_CAPI_CAPIFS
+> > +	tristate
+> > +	depends on ISDN_CAPI_CAPIFS_BOOL
+> > +	default ISDN_CAPI_CAPI20
+> > +
+>...
 
-OK this is definitely broken.  We should never touch the dst lock in
-softirq context.  Since inet6_destroy_sock may be called from that
-context due to the asynchronous nature of sockets, we can't take the
-lock there.
+cu
+Adrian
 
-In fact this sk_dst_reset is totally redundant since all IPv6 sockets
-use inet_sock_destruct as their socket destructor which always cleans
-up the dst anyway.  So the solution is to simply remove the call.
-
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-
-Cheers,
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=inet6-destroy-sock-should-not-reset-dst
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
---- a/net/ipv6/af_inet6.c
-+++ b/net/ipv6/af_inet6.c
-@@ -369,12 +369,6 @@ int inet6_destroy_sock(struct sock *sk)
- 	struct sk_buff *skb;
- 	struct ipv6_txoptions *opt;
- 
--	/*
--	 *	Release destination entry
--	 */
--
--	sk_dst_reset(sk);
--
- 	/* Release rx options */
- 
- 	if ((skb = xchg(&np->pktoptions, NULL)) != NULL)
-
---X1bOJ3K7DJ5YkBrT--

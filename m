@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbWBAKHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030356AbWBAKPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964926AbWBAKHV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 05:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWBAKHU
+	id S1030356AbWBAKPE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 05:15:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030366AbWBAKPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 05:07:20 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:57302 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964926AbWBAKHT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 05:07:19 -0500
-Date: Wed, 1 Feb 2006 02:06:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Avuton Olrich <avuton@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@codemonkey.org.uk>,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: 2.6.16-rc1-mm4
-Message-Id: <20060201020650.47b92fad.akpm@osdl.org>
-In-Reply-To: <3aa654a40602010154r54e0072bp3e7bd46ce9aafa03@mail.gmail.com>
-References: <20060129144533.128af741.akpm@osdl.org>
-	<3aa654a40601311445t65fc9b6aqf2d565b72ded9c1a@mail.gmail.com>
-	<20060131151028.3a6c1c75.akpm@osdl.org>
-	<3aa654a40602010154r54e0072bp3e7bd46ce9aafa03@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Feb 2006 05:15:04 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:24802 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S1030356AbWBAKPC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 05:15:02 -0500
+Date: Wed, 1 Feb 2006 11:15:04 +0100
+From: Sander <sander@humilis.net>
+To: Roger Heflin <rheflin@atipa.com>
+Cc: "'Lennart Sorensen'" <lsorense@csclub.uwaterloo.ca>,
+       "'Sander'" <sander@humilis.net>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: Re: [OT] 8-port AHCI SATA Controller?
+Message-ID: <20060201101504.GC14960@favonius>
+Reply-To: sander@humilis.net
+References: <20060131185804.GM18970@csclub.uwaterloo.ca> <EXCHG2003yL2m9lHiu3000010e0@EXCHG2003.microtech-ks.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <EXCHG2003yL2m9lHiu3000010e0@EXCHG2003.microtech-ks.com>
+X-Uptime: 10:59:06 up 1 day, 47 min, 26 users,  load average: 0.01, 0.05, 0.06
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avuton Olrich <avuton@gmail.com> wrote:
->
-> On 1/31/06, Andrew Morton <akpm@osdl.org> wrote:
-> > Avuton Olrich <avuton@gmail.com> wrote:
-> > > I'm getting a kernel panic on my Libretto L5 on boot, I don't have a
-> > > serial port on this laptop, I don't have time at the moment to setup
-> > > netconsole, and it doesn't get the full information. Hopefully this
-> > > picture helps a bit:
-> > >
-> > > http://68.111.224.150:8080/P1010306.JPG
-> > >
-> > > If it doesn't help I will attempt to get a netconsole on this computer
-> > > on the near future.
-> >
-> > jpeg is fine.  It helps if you can get 50 rows on the screen - boot with
-> > the appropriate `vga=' option, put SYSFONT="iso08.08" in
-> > /etc/sysconfig/i18n, etc.
-> >
-> > It seems that some cpufreq notifier has done a divide-by-zero.  But I can't
-> > see any sign of which one it is.  You might get a better trace if you set
-> > CONFIG_FRAME_POINTER=n.
-> >
-> > If you could do those things and then prepare another photo it would really
-> > help, thanks.
+Roger Heflin wrote (ao):
+> Highpoint has some that I believe are software raidish.
 > 
-> Disabled CONFIG_FRAME_POINTER and changed my font to ultra small. It's
-> painful to read so use a good image viewing tool with zoom :)
+> They do have on-board parity generators that are used when
+> you use there binary only modules.
 > 
-> http://68.111.224.150:8080/P1010001.JPG
-> 
-> Also, I tried the cpufreq.debug=7 thing that Dave Jones recommended
-> and got no more output than I got without. I may have done something
-> wrong, please let me know if it's needed.
-> 
+> I have heard that they will work with later kernels (2.6.15+)
+> since the highpoint are a standard Marvell chipset, and they
+> seem to be fairly price competitive with JBOD raid controllers,
+> and have some controllers that have more than 8 ports, the price
+> per port may be better on the larger controllers.
 
-Ah, better, thanks.
+Thanks for the tip. I'll do some research on the Highpoint controllers.
 
-You got the divide-by-zero in time_cpufreq_notifier().  John has been
-playing with that in the time patches in -mm, so perhaps he broke it?
+	Kind regards, Sander
 
-At a guess I'd say that there's some new startup ordering thing and
-we're now passing zero into cpufreq_scale().
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

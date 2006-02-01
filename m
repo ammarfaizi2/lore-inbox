@@ -1,43 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbWBAJJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWBAJJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964803AbWBAJJW (ORCPT <rfc822;willy@w.ods.org>);
+	id S932396AbWBAJJW (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 1 Feb 2006 04:09:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbWBAJIu
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWBAJIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 04:08:50 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:3659 "EHLO
+	Wed, 1 Feb 2006 04:08:45 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:8267 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932383AbWBAJDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932397AbWBAJDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 1 Feb 2006 04:03:34 -0500
-Message-Id: <20060201090332.783740000@localhost.localdomain>
+Message-Id: <20060201090333.395732000@localhost.localdomain>
 References: <20060201090224.536581000@localhost.localdomain>
-Date: Wed, 01 Feb 2006 18:02:51 +0900
+Date: Wed, 01 Feb 2006 18:02:54 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: linux-m68k@vger.kernel.org, Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 27/44] m68k: use generic bitops
-Content-Disposition: inline; filename=m68k.patch
+Cc: parisc-linux@parisc-linux.org, Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 30/44] parisc: use generic bitops
+Content-Disposition: inline; filename=parisc.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+- remove __{,test_and_}{set,clear,change}_bit() and test_bit()
+- remove ffz()
 - remove generic_fls64()
+- remove generic_hweight{32,16,8}()
+- remove generic_hweight64()
 - remove sched_find_first_bit()
-- remove generic_hweight()
+- remove find_{next,first}{,_zero}_bit()
 - remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
- include/asm-m68k/bitops.h |   86 ++--------------------------------------------
- 1 files changed, 5 insertions(+), 81 deletions(-)
+ include/asm-parisc/bitops.h |  286 +-------------------------------------------
+ 1 files changed, 9 insertions(+), 277 deletions(-)
 
-Index: 2.6-git/include/asm-m68k/bitops.h
+Index: 2.6-git/include/asm-parisc/bitops.h
 ===================================================================
---- 2.6-git.orig/include/asm-m68k/bitops.h
-+++ 2.6-git/include/asm-m68k/bitops.h
-@@ -310,36 +310,10 @@ static inline int fls(int x)
+--- 2.6-git.orig/include/asm-parisc/bitops.h
++++ 2.6-git/include/asm-parisc/bitops.h
+@@ -35,13 +35,6 @@ static __inline__ void set_bit(int nr, v
+ 	_atomic_spin_unlock_irqrestore(addr, flags);
+ }
  
- 	return 32 - cnt;
+-static __inline__ void __set_bit(unsigned long nr, volatile unsigned long * addr)
+-{
+-	unsigned long *m = (unsigned long *) addr + (nr >> SHIFT_PER_LONG);
+-
+-	*m |= 1UL << CHOP_SHIFTCOUNT(nr);
+-}
+-
+ static __inline__ void clear_bit(int nr, volatile unsigned long * addr)
+ {
+ 	unsigned long mask = ~(1UL << CHOP_SHIFTCOUNT(nr));
+@@ -53,13 +46,6 @@ static __inline__ void clear_bit(int nr,
+ 	_atomic_spin_unlock_irqrestore(addr, flags);
+ }
+ 
+-static __inline__ void __clear_bit(unsigned long nr, volatile unsigned long * addr)
+-{
+-	unsigned long *m = (unsigned long *) addr + (nr >> SHIFT_PER_LONG);
+-
+-	*m &= ~(1UL << CHOP_SHIFTCOUNT(nr));
+-}
+-
+ static __inline__ void change_bit(int nr, volatile unsigned long * addr)
+ {
+ 	unsigned long mask = 1UL << CHOP_SHIFTCOUNT(nr);
+@@ -71,13 +57,6 @@ static __inline__ void change_bit(int nr
+ 	_atomic_spin_unlock_irqrestore(addr, flags);
+ }
+ 
+-static __inline__ void __change_bit(unsigned long nr, volatile unsigned long * addr)
+-{
+-	unsigned long *m = (unsigned long *) addr + (nr >> SHIFT_PER_LONG);
+-
+-	*m ^= 1UL << CHOP_SHIFTCOUNT(nr);
+-}
+-
+ static __inline__ int test_and_set_bit(int nr, volatile unsigned long * addr)
+ {
+ 	unsigned long mask = 1UL << CHOP_SHIFTCOUNT(nr);
+@@ -93,18 +72,6 @@ static __inline__ int test_and_set_bit(i
+ 	return (oldbit & mask) ? 1 : 0;
+ }
+ 
+-static __inline__ int __test_and_set_bit(int nr, volatile unsigned long * address)
+-{
+-	unsigned long mask = 1UL << CHOP_SHIFTCOUNT(nr);
+-	unsigned long oldbit;
+-	unsigned long *addr = (unsigned long *)address + (nr >> SHIFT_PER_LONG);
+-
+-	oldbit = *addr;
+-	*addr = oldbit | mask;
+-
+-	return (oldbit & mask) ? 1 : 0;
+-}
+-
+ static __inline__ int test_and_clear_bit(int nr, volatile unsigned long * addr)
+ {
+ 	unsigned long mask = 1UL << CHOP_SHIFTCOUNT(nr);
+@@ -120,18 +87,6 @@ static __inline__ int test_and_clear_bit
+ 	return (oldbit & mask) ? 1 : 0;
+ }
+ 
+-static __inline__ int __test_and_clear_bit(int nr, volatile unsigned long * address)
+-{
+-	unsigned long mask = 1UL << CHOP_SHIFTCOUNT(nr);
+-	unsigned long *addr = (unsigned long *)address + (nr >> SHIFT_PER_LONG);
+-	unsigned long oldbit;
+-
+-	oldbit = *addr;
+-	*addr = oldbit & ~mask;
+-
+-	return (oldbit & mask) ? 1 : 0;
+-}
+-
+ static __inline__ int test_and_change_bit(int nr, volatile unsigned long * addr)
+ {
+ 	unsigned long mask = 1UL << CHOP_SHIFTCOUNT(nr);
+@@ -147,25 +102,7 @@ static __inline__ int test_and_change_bi
+ 	return (oldbit & mask) ? 1 : 0;
+ }
+ 
+-static __inline__ int __test_and_change_bit(int nr, volatile unsigned long * address)
+-{
+-	unsigned long mask = 1UL << CHOP_SHIFTCOUNT(nr);
+-	unsigned long *addr = (unsigned long *)address + (nr >> SHIFT_PER_LONG);
+-	unsigned long oldbit;
+-
+-	oldbit = *addr;
+-	*addr = oldbit ^ mask;
+-
+-	return (oldbit & mask) ? 1 : 0;
+-}
+-
+-static __inline__ int test_bit(int nr, const volatile unsigned long *address)
+-{
+-	unsigned long mask = 1UL << CHOP_SHIFTCOUNT(nr);
+-	const unsigned long *addr = (const unsigned long *)address + (nr >> SHIFT_PER_LONG);
+-	
+-	return !!(*addr & mask);
+-}
++#include <asm-generic/bitops/non-atomic.h>
+ 
+ #ifdef __KERNEL__
+ 
+@@ -219,8 +156,7 @@ static __inline__ unsigned long __ffs(un
+ 	return ret;
+ }
+ 
+-/* Undefined if no bit is zero. */
+-#define ffz(x)	__ffs(~(x))
++#include <asm-generic/bitops/ffz.h>
+ 
+ /*
+  * ffs: find first bit set. returns 1 to BITS_PER_LONG or 0 (if none set)
+@@ -263,155 +199,22 @@ static __inline__ int fls(int x)
+ 
+ 	return ret;
  }
 -#define fls64(x)   generic_fls64(x)
+ 
+-/*
+- * hweightN: returns the hamming weight (i.e. the number
+- * of bits set) of a N-bit word
+- */
+-#define hweight64(x) generic_hweight64(x)
+-#define hweight32(x) generic_hweight32(x)
+-#define hweight16(x) generic_hweight16(x)
+-#define hweight8(x) generic_hweight8(x)
 -
 -/*
 - * Every architecture must define this function. It's the fastest
@@ -47,6 +177,13 @@ Index: 2.6-git/include/asm-m68k/bitops.h
 - */
 -static inline int sched_find_first_bit(const unsigned long *b)
 -{
+-#ifdef __LP64__
+-	if (unlikely(b[0]))
+-		return __ffs(b[0]);
+-	if (unlikely(b[1]))
+-		return __ffs(b[1]) + 64;
+-	return __ffs(b[2]) + 128;
+-#else
 -	if (unlikely(b[0]))
 -		return __ffs(b[0]);
 -	if (unlikely(b[1]))
@@ -56,86 +193,207 @@ Index: 2.6-git/include/asm-m68k/bitops.h
 -	if (b[3])
 -		return __ffs(b[3]) + 96;
 -	return __ffs(b[4]) + 128;
+-#endif
 -}
- 
--
--/*
-- * hweightN: returns the hamming weight (i.e. the number
-- * of bits set) of a N-bit word
-- */
--
--#define hweight32(x) generic_hweight32(x)
--#define hweight16(x) generic_hweight16(x)
--#define hweight8(x) generic_hweight8(x)
 +#include <asm-generic/bitops/fls64.h>
-+#include <asm-generic/bitops/sched.h>
 +#include <asm-generic/bitops/hweight.h>
++#include <asm-generic/bitops/sched.h>
  
- /* Bitmap functions for the minix filesystem */
+ #endif /* __KERNEL__ */
  
-@@ -377,61 +351,11 @@ static inline int minix_test_bit(int nr,
- 
- /* Bitmap functions for the ext2 filesystem. */
- 
--#define ext2_set_bit(nr, addr)			__test_and_set_bit((nr) ^ 24, (unsigned long *)(addr))
-+#include <asm-generic/bitops/ext2-non-atomic.h>
-+
- #define ext2_set_bit_atomic(lock, nr, addr)	test_and_set_bit((nr) ^ 24, (unsigned long *)(addr))
--#define ext2_clear_bit(nr, addr)		__test_and_clear_bit((nr) ^ 24, (unsigned long *)(addr))
- #define ext2_clear_bit_atomic(lock, nr, addr)	test_and_clear_bit((nr) ^ 24, (unsigned long *)(addr))
- 
--static inline int ext2_test_bit(int nr, const void *vaddr)
+-/*
+- * This implementation of find_{first,next}_zero_bit was stolen from
+- * Linus' asm-alpha/bitops.h.
+- */
+-#define find_first_zero_bit(addr, size) \
+-	find_next_zero_bit((addr), (size), 0)
+-
+-static __inline__ unsigned long find_next_zero_bit(const void * addr, unsigned long size, unsigned long offset)
 -{
--	const unsigned char *p = vaddr;
--	return (p[nr >> 3] & (1U << (nr & 7))) != 0;
--}
--
--static inline int ext2_find_first_zero_bit(const void *vaddr, unsigned size)
--{
--	const unsigned long *p = vaddr, *addr = vaddr;
--	int res;
--
--	if (!size)
--		return 0;
--
--	size = (size >> 5) + ((size & 31) > 0);
--	while (*p++ == ~0UL)
--	{
--		if (--size == 0)
--			return (p - addr) << 5;
--	}
--
--	--p;
--	for (res = 0; res < 32; res++)
--		if (!ext2_test_bit (res, p))
--			break;
--	return (p - addr) * 32 + res;
--}
--
--static inline int ext2_find_next_zero_bit(const void *vaddr, unsigned size,
--					  unsigned offset)
--{
--	const unsigned long *addr = vaddr;
--	const unsigned long *p = addr + (offset >> 5);
--	int bit = offset & 31UL, res;
+-	const unsigned long * p = ((unsigned long *) addr) + (offset >> SHIFT_PER_LONG);
+-	unsigned long result = offset & ~(BITS_PER_LONG-1);
+-	unsigned long tmp;
 -
 -	if (offset >= size)
 -		return size;
--
--	if (bit) {
--		/* Look for zero in first longword */
--		for (res = bit; res < 32; res++)
--			if (!ext2_test_bit (res, p))
--				return (p - addr) * 32 + res;
--		p++;
+-	size -= result;
+-	offset &= (BITS_PER_LONG-1);
+-	if (offset) {
+-		tmp = *(p++);
+-		tmp |= ~0UL >> (BITS_PER_LONG-offset);
+-		if (size < BITS_PER_LONG)
+-			goto found_first;
+-		if (~tmp)
+-			goto found_middle;
+-		size -= BITS_PER_LONG;
+-		result += BITS_PER_LONG;
 -	}
--	/* No zero yet, search remaining full bytes for a zero */
--	res = ext2_find_first_zero_bit (p, size - 32 * (p - addr));
--	return (p - addr) * 32 + res;
+-	while (size & ~(BITS_PER_LONG -1)) {
+-		if (~(tmp = *(p++)))
+-			goto found_middle;
+-		result += BITS_PER_LONG;
+-		size -= BITS_PER_LONG;
+-	}
+-	if (!size)
+-		return result;
+-	tmp = *p;
+-found_first:
+-	tmp |= ~0UL << size;
+-found_middle:
+-	return result + ffz(tmp);
 -}
 -
- #endif /* __KERNEL__ */
+-static __inline__ unsigned long find_next_bit(const unsigned long *addr, unsigned long size, unsigned long offset)
+-{
+-	const unsigned long *p = addr + (offset >> SHIFT_PER_LONG);
+-	unsigned long result = offset & ~(BITS_PER_LONG-1);
+-	unsigned long tmp;
+-
+-	if (offset >= size)
+-		return size;
+-	size -= result;
+-	offset &= (BITS_PER_LONG-1);
+-	if (offset) {
+-		tmp = *(p++);
+-		tmp &= (~0UL << offset);
+-		if (size < BITS_PER_LONG)
+-			goto found_first;
+-		if (tmp)
+-			goto found_middle;
+-		size -= BITS_PER_LONG;
+-		result += BITS_PER_LONG;
+-	}
+-	while (size & ~(BITS_PER_LONG-1)) {
+-		if ((tmp = *(p++)))
+-			goto found_middle;
+-		result += BITS_PER_LONG;
+-		size -= BITS_PER_LONG;
+-	}
+-	if (!size)
+-		return result;
+-	tmp = *p;
+-
+-found_first:
+-	tmp &= (~0UL >> (BITS_PER_LONG - size));
+-	if (tmp == 0UL)        /* Are any bits set? */
+-		return result + size; /* Nope. */
+-found_middle:
+-	return result + __ffs(tmp);
+-}
+-
+-/**
+- * find_first_bit - find the first set bit in a memory region
+- * @addr: The address to start the search at
+- * @size: The maximum size to search
+- *
+- * Returns the bit-number of the first set bit, not the number of the byte
+- * containing a bit.
+- */
+-#define find_first_bit(addr, size) \
+-        find_next_bit((addr), (size), 0)
+-
+-#define _EXT2_HAVE_ASM_BITOPS_
++#include <asm-generic/bitops/find.h>
  
- #endif /* _M68K_BITOPS_H */
+ #ifdef __KERNEL__
+-/*
+- * test_and_{set,clear}_bit guarantee atomicity without
+- * disabling interrupts.
+- */
++
++#include <asm-generic/bitops/ext2-non-atomic.h>
+ 
+ /* '3' is bits per byte */
+ #define LE_BYTE_ADDR ((sizeof(unsigned long) - 1) << 3)
+ 
+-#define ext2_test_bit(nr, addr) \
+-			test_bit((nr)	^ LE_BYTE_ADDR, (unsigned long *)addr)
+-#define ext2_set_bit(nr, addr)	\
+-		__test_and_set_bit((nr) ^ LE_BYTE_ADDR, (unsigned long *)addr)
+-#define ext2_clear_bit(nr, addr) \
+-		__test_and_clear_bit((nr) ^ LE_BYTE_ADDR, (unsigned long *)addr)
+-
+ #define ext2_set_bit_atomic(l,nr,addr) \
+ 		test_and_set_bit((nr)   ^ LE_BYTE_ADDR, (unsigned long *)addr)
+ #define ext2_clear_bit_atomic(l,nr,addr) \
+@@ -419,77 +222,6 @@ found_middle:
+ 
+ #endif	/* __KERNEL__ */
+ 
+-
+-#define ext2_find_first_zero_bit(addr, size) \
+-	ext2_find_next_zero_bit((addr), (size), 0)
+-
+-/* include/linux/byteorder does not support "unsigned long" type */
+-static inline unsigned long ext2_swabp(unsigned long * x)
+-{
+-#ifdef __LP64__
+-	return (unsigned long) __swab64p((u64 *) x);
+-#else
+-	return (unsigned long) __swab32p((u32 *) x);
+-#endif
+-}
+-
+-/* include/linux/byteorder doesn't support "unsigned long" type */
+-static inline unsigned long ext2_swab(unsigned long y)
+-{
+-#ifdef __LP64__
+-	return (unsigned long) __swab64((u64) y);
+-#else
+-	return (unsigned long) __swab32((u32) y);
+-#endif
+-}
+-
+-static __inline__ unsigned long ext2_find_next_zero_bit(void *addr, unsigned long size, unsigned long offset)
+-{
+-	unsigned long *p = (unsigned long *) addr + (offset >> SHIFT_PER_LONG);
+-	unsigned long result = offset & ~(BITS_PER_LONG - 1);
+-	unsigned long tmp;
+-
+-	if (offset >= size)
+-		return size;
+-	size -= result;
+-	offset &= (BITS_PER_LONG - 1UL);
+-	if (offset) {
+-		tmp = ext2_swabp(p++);
+-		tmp |= (~0UL >> (BITS_PER_LONG - offset));
+-		if (size < BITS_PER_LONG)
+-			goto found_first;
+-		if (~tmp)
+-			goto found_middle;
+-		size -= BITS_PER_LONG;
+-		result += BITS_PER_LONG;
+-	}
+-
+-	while (size & ~(BITS_PER_LONG - 1)) {
+-		if (~(tmp = *(p++)))
+-			goto found_middle_swap;
+-		result += BITS_PER_LONG;
+-		size -= BITS_PER_LONG;
+-	}
+-	if (!size)
+-		return result;
+-	tmp = ext2_swabp(p);
+-found_first:
+-	tmp |= ~0UL << size;
+-	if (tmp == ~0UL)	/* Are any bits zero? */
+-		return result + size; /* Nope. Skip ffz */
+-found_middle:
+-	return result + ffz(tmp);
+-
+-found_middle_swap:
+-	return result + ffz(ext2_swab(tmp));
+-}
+-
+-
+-/* Bitmap functions for the minix filesystem.  */
+-#define minix_test_and_set_bit(nr,addr) ext2_set_bit(nr,addr)
+-#define minix_set_bit(nr,addr) ((void)ext2_set_bit(nr,addr))
+-#define minix_test_and_clear_bit(nr,addr) ext2_clear_bit(nr,addr)
+-#define minix_test_bit(nr,addr) ext2_test_bit(nr,addr)
+-#define minix_find_first_zero_bit(addr,size) ext2_find_first_zero_bit(addr,size)
++#include <asm-generic/bitops/minix-le.h>
+ 
+ #endif /* _PARISC_BITOPS_H */
 
 --

@@ -1,94 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWBACWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWBACXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbWBACWG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 21:22:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbWBACWG
+	id S964890AbWBACXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 21:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWBACXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 21:22:06 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:52452 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964889AbWBACWE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 21:22:04 -0500
-Date: Tue, 31 Jan 2006 18:21:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: suresh.b.siddha@intel.com, mingo@elte.hu, nickpiggin@yahoo.com.au,
-       ak@suse.de, linux-kernel@vger.kernel.org, rohit.seth@intel.com,
-       asit.k.mallick@intel.com
-Subject: Re: [Patch] sched: new sched domain for representing multi-core
-Message-Id: <20060131182136.665c8fe3.akpm@osdl.org>
-In-Reply-To: <20060131174820.A32626@unix-os.sc.intel.com>
-References: <20060126015132.A8521@unix-os.sc.intel.com>
-	<20060127000854.GA16332@elte.hu>
-	<20060126195156.E19789@unix-os.sc.intel.com>
-	<20060127160019.64caa6be.akpm@osdl.org>
-	<20060130172809.A4851@unix-os.sc.intel.com>
-	<20060131171216.449b9e06.akpm@osdl.org>
-	<20060131174820.A32626@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 31 Jan 2006 21:23:16 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:61129 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S964890AbWBACXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 21:23:15 -0500
+Date: Wed, 01 Feb 2006 11:23:03 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.16-rc1-mm4
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060129144533.128af741.akpm@osdl.org>
+References: <20060129144533.128af741.akpm@osdl.org>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.062
+Message-Id: <20060201104334.D697.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.24.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
->
-> On Tue, Jan 31, 2006 at 05:12:16PM -0800, Andrew Morton wrote:
->  > It's still not clear what's supposed to be happening here.
->  > 
->  > In build_sched_domains() we still have code which does:
->  > 
->  > 
->  > 	for_each_cpu_mask(...) {
->  > 		...
->  > #ifdef CONFIG_SCHED_MC
->  > 		...
->  > #endif
->  > #ifdef CONFIG_SCHED_SMT
->  > 		...
->  > #endif
->  > 		...
->  > 	}
->  > 	...
->  > #ifdef CONFIG_SCHED_SMT
->  > 	...
->  > #endif
->  > 	...
->  > #ifdef CONFIG_SCHED_MC
->  > 	...
->  > #endif
->  > 
->  > So in the first case the SCHED_SMT code will win and in the second case the
->  > SCHED_MC code will win.  I think.  
+
+Hi Andrew-san.
+
+> -x86-x86_64-ia64-unify-mapping-from-pxm-to-node-id.patch
+> -x86-x86_64-ia64-unify-mapping-from-pxm-to-node-id-fix.patch
 > 
->  I am not sure what you mean here. At all the above pointed places, both 
->  MC and SMT will win if both are configured.
+>  Dropped - am awaiting version 2.
 
-I was assuming that the code really does something like:
+Should I repost this patch which includes fixes as a ver.2 ?
+I already posted fix patches for them.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113841952421236&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113841952421512&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113841952428750&w=2
 
-#ifdef CONFIG_SCHED_MC
-		some_global_thing = <expr>
-#endif
-#ifdef CONFIG_SCHED_SMT
-		some_global_thing = <expr>
-#endif
-	}
-	...
-#ifdef CONFIG_SCHED_SMT
-	some_other_global_thing = <expr>
-#endif
-#ifdef CONFIG_SCHED_MC
-	some_other_global_thing = <expr>
-#endif
+But, if you lost my first patch by managing too many patches,
+I'll repost total patch as ver.2.
 
-Which, looking a bit closer, was wrong (yes?)
+Thanks.
 
-It is a bit irregular that in one place we do the SMT processing first and
-in another we do the MC processing first, but I guess it'll work OK.
+-- 
+Yasunori Goto 
 
-We do need to be super-careful in the reviewing and testing here.  If we
-slip up we won't have a nice crash to tell us.  Instead we'll find that
-some machines with some configs will, under some workloads, take a few
-percent longer than they should.  We could waste people's time for years
-until some developer stumbles across something.
+

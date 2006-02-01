@@ -1,83 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161094AbWBAPkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422637AbWBAPma@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161094AbWBAPkB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 10:40:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161095AbWBAPkB
+	id S1422637AbWBAPma (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 10:42:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161095AbWBAPma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 10:40:01 -0500
-Received: from crosspoint.informatik.gu.se ([130.241.141.44]:52663 "EHLO
-	crosspoint.fsfeurope.org") by vger.kernel.org with ESMTP
-	id S1161094AbWBAPkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 10:40:00 -0500
-From: "Georg C. F. Greve" <greve@fsfeurope.org>
-To: Glauber de Oliveira Costa <glommer@gmail.com>
-Cc: Filip Brcic <brcha@users.sourceforge.net>, karim@opersys.com,
-       Thomas Horsten <thomas@horsten.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>
-	<43DE57C4.5010707@opersys.com>
-	<5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com>
-	<200601302301.04582.brcha@users.sourceforge.net>
-	<5d6222a80601302012v22196faci3ce81320fb534f30@mail.gmail.com>
-Organisation: Free Software Foundation Europe
-X-PGP-Fingerprint: 2D68 D553 70E5 CCF9 75F4 9CC9 6EF8 AFC2 8657 4ACA
-X-PGP-Affinity: will accept encrypted messages for GNU Privacy Guard
-X-Home-Page: http://gnuhh.org
-X-Accept-Language: en, de
-Date: Wed, 01 Feb 2006 16:30:46 +0100
-In-Reply-To: <5d6222a80601302012v22196faci3ce81320fb534f30@mail.gmail.com>
-	(Glauber de Oliveira Costa's message of "Tue, 31 Jan 2006 02:12:17
-	-0200")
-Message-ID: <m3d5i76qqh.fsf@cerebro.gnuhh.org>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 1 Feb 2006 10:42:30 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:14278 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1161076AbWBAPma (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 10:42:30 -0500
+Date: Wed, 1 Feb 2006 16:37:14 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Denis Vlasenko <vda@ilport.com.ua>
+cc: Oliver Neukum <oliver@neukum.org>,
+       jerome lacoste <jerome.lacoste@gmail.com>,
+       Joerg Schilling <schilling@fokus.fraunhofer.de>, j@bitron.ch,
+       mrmacman_g4@mac.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, James@superbug.co.uk, acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+In-Reply-To: <200601311444.47199.vda@ilport.com.ua>
+Message-ID: <Pine.LNX.4.61.0602011634520.22529@yvahk01.tjqt.qr>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+ <5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com>
+ <200601311333.36000.oliver@neukum.org> <200601311444.47199.vda@ilport.com.ua>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="20060201163046+010053585333-49551236-132439075";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---20060201163046+010053585333-49551236-132439075
-Content-Transfer-Encoding: quoted-printable
+>> > If it's /dev/cdrw, then it's /dev/cdrw, not '1,0,0'.
+>> > 
+>> > Should we make a poll ?
 
- || On Tue, 31 Jan 2006 02:12:17 -0200
- || Glauber de Oliveira Costa <glommer@gmail.com> wrote:=20
+select(), poll(), epoll(), anyone? (SCNR)
 
- g> So, I think the main point is that free software and Linux has
- g> both to gain being together. And maybe saying no to GPLv3 may be a
- g> too disruptive move. GPLv3 is still a draft. Can't it be discussed
- g> a little among with Linus, some companies representants, and some
- g> guys from fsf?
+>Do we need to expose IDE master/slave, primary/secondary concepts in Linux?
+>
+AFAICS, we do. hda is always primary slave, etc. With the SCSI layer it's
+(surprisingly) the other way round, sda just happens to be the first disk
+inserted (SCA, USB, etc.)
 
-Yes, indeed discussing is what FSF has allocated an entire year for.
 
-While it is possible that this particular criticism was based on a
-misunderstanding, which may be an indicator of need for language
-improvement, all criticism should ideally be put into a comprehensive
-form and submitted through the gplv3.fsf.org/comments system.
-
-If Linus lacks the time to do it himself, maybe some people on this
-list could help gather his points as possible submissions for
-improvement?
-
-Regards,
-Georg
-
-=2D-=20
-Georg C. F. Greve                                 <greve@fsfeurope.org>
-Free Software Foundation Europe	                 (http://fsfeurope.org)
-Join the Fellowship and protect your freedom!     (http://www.fsfe.org)
-
---20060201163046+010053585333-49551236-132439075
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iQCVAwUAQ+DUJik9sUy32wQcAQKfvgP/as0XWSxg/3miG1lTbpGWnEOGknKuYKw/
-Yy9QwU07+cB90tYCjUJ8Xe99goIKdnWwbxY6xLSQyctHdgvl411gRORaqBi881f3
-CdHMn7ubhLmYs/72rkv6p10EXEAm7L3VTHSn2G2tKKjva4F+tjhUAmzlcFIIC3BT
-+j8Xtsja3Qo=
-=Q9j1
------END PGP SIGNATURE-----
---20060201163046+010053585333-49551236-132439075--
+Jan Engelhardt
+-- 

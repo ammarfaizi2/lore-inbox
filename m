@@ -1,35 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbWBANju@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbWBANr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030368AbWBANju (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 08:39:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWBANju
+	id S1030370AbWBANr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 08:47:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWBANr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 08:39:50 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:38104 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964980AbWBANjt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 08:39:49 -0500
-Date: Wed, 1 Feb 2006 08:39:17 -0500
-From: Alan Cox <alan@redhat.com>
-To: Jeremy Higdon <jeremy@sgi.com>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, Jes Sorensen <jes@sgi.com>,
-       Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] SGIIOC4 limit request size
-Message-ID: <20060201133917.GA27011@devserv.devel.redhat.com>
-References: <yq0vevzpi8r.fsf@jaguar.mkp.net> <58cb370e0602010234p62521a00h6d8920c84cac44d5@mail.gmail.com> <20060201104913.GA152005@sgi.com> <58cb370e0602010308o4cde24aeg8d629b1b3d45cdd3@mail.gmail.com> <20060201111754.GB152005@sgi.com> <58cb370e0602010326k265ef278k4010df13fb5adf8c@mail.gmail.com> <20060201113607.GF152005@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060201113607.GF152005@sgi.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 1 Feb 2006 08:47:29 -0500
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:10656 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S932175AbWBANr2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 08:47:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=2gW42koOqrsN96Yu6Yk4/OqCG8TPZUVCVzF2TpgQ0MQH8ML/QhdflrlgVgGKXnNHS+p5w+xm9V/KV9E2dq0rAdzw2sETYj/8r1hZ9di5tP7ywvg929Q4lgVXL9KU0rdsadVHd7x2q9kBea1lMgVEV0s9q65X6/aEZ9E1L3y4/u4=  ;
+Message-ID: <43E0BBEC.3020209@yahoo.com.au>
+Date: Thu, 02 Feb 2006 00:47:24 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Steven Rostedt <rostedt@goodmis.org>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
+References: <1138736609.7088.35.camel@localhost.localdomain> <43E02CC2.3080805@bigpond.net.au> <1138797874.7088.44.camel@localhost.localdomain> <43E0B24E.8080508@yahoo.com.au> <43E0B342.6090700@yahoo.com.au> <20060201132054.GA31156@elte.hu>
+In-Reply-To: <20060201132054.GA31156@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, 2006 at 03:36:07AM -0800, Jeremy Higdon wrote:
-> Here's one that removes xcount.  It seems to work too.
-> Should we set hwif->rqsize to 256, or are we pretty safe in
-> expecting that the default won't rise?  The driver should be
+Ingo Molnar wrote:
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-255 is the safest for LBA28 devices because a small number incorrectly
-interpret 0 (meaning 256) as 0. And that can have unfortunate results
+>>Oh, I forgot: Ingo once introduced some code to bail early (though for 
+>>different reasons and under different conditions), and this actually 
+>>was found to cause significant regressions in some database workloads.
+> 
+> 
+> well, we both did changes with that effect - pretty much any change in 
+> this area can cause a regression on _some_ workload ;) So there wont be 
+> any silver bullet.
+> 
+
+Well yes. Although specifically the bail-out-early stuff which IIRC
+you did... I wasn't singling you out in particular, I've broken the
+scheduler at _least_ as much as you have since starting work on it ;)
+
+> 
+>>So it is not a nice thing to tinker with unless there is good reason.
+> 
+> 
+> unbound latencies with hardirqs off are obviously a good reason - but i 
+> agree that the solution is not good enough, yet.
+> 
+
+Ah, so this is an RT tree thing where the scheduler lock turns off "hard
+irqs"? As opposed to something like the rwsem lock that only turns off
+your "soft irqs" (sorry, I'm not with the terminlogy)?
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

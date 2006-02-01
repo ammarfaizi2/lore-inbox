@@ -1,94 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932397AbWBAKeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160997AbWBAKgL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932397AbWBAKeX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 05:34:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbWBAKeX
+	id S1160997AbWBAKgL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 05:36:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1160998AbWBAKgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 05:34:23 -0500
-Received: from uproxy.gmail.com ([66.249.92.200]:53519 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932397AbWBAKeW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 05:34:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ae+Ogy9tIsMwNO/3yodbvlpi47Pxi1b+TA34E0VCIQqqQ/4AuNBGLqj/bvpjrBhuXuGfRaXsl1kYfXW0/NgqQLjbMXb5Ihz8EKamIS6uADjHlDL++krpPB4ktNmBSohucWRjGbgLLGE2P+GPTBalgT+LdTIXTYxZE6fW1oLoTxU=
-Message-ID: <58cb370e0602010234p62521a00h6d8920c84cac44d5@mail.gmail.com>
-Date: Wed, 1 Feb 2006 11:34:18 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jes Sorensen <jes@sgi.com>
-Subject: Re: [patch] SGIIOC4 limit request size
-Cc: Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Jeremy Higdon <jeremy@sgi.com>
-In-Reply-To: <yq0vevzpi8r.fsf@jaguar.mkp.net>
+	Wed, 1 Feb 2006 05:36:10 -0500
+Received: from ns2.suse.de ([195.135.220.15]:29095 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1160997AbWBAKgJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 05:36:09 -0500
+From: Thomas Renninger <trenn@suse.de>
+To: Dave Jones <davej@redhat.com>
+Subject: [PATCH 1/2] Re: 2.6.16-rc1-mm4
+Date: Wed, 1 Feb 2006 11:36:04 +0100
+User-Agent: KMail/1.8.2
+Cc: Avuton Olrich <avuton@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20060129144533.128af741.akpm@osdl.org> <20060201001940.GM16557@redhat.com> <20060201005930.GR16557@redhat.com>
+In-Reply-To: <20060201005930.GR16557@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <yq0vevzpi8r.fsf@jaguar.mkp.net>
+Message-Id: <200602011136.05381.trenn@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01 Feb 2006 03:59:16 -0500, Jes Sorensen <jes@sgi.com> wrote:
-> Hi,
+On Wednesday 01 February 2006 01:59, Dave Jones wrote:
+> On Tue, Jan 31, 2006 at 07:19:40PM -0500, Dave Jones wrote:
+>  > On Tue, Jan 31, 2006 at 02:45:58PM -0800, Avuton Olrich wrote:
+>  >  > On 1/29/06, Andrew Morton <akpm@osdl.org> wrote:
+>  >  > >
+>  >  > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm4/
+>  >  > 
+>  >  > I'm getting a kernel panic on my Libretto L5 on boot, I don't have a
+>  >  > serial port on this laptop, I don't have time at the moment to setup
+>  >  > netconsole, and it doesn't get the full information. Hopefully this
+>  >  > picture helps a bit:
+>  >  > 
+>  >  > http://68.111.224.150:8080/P1010306.JPG
+>  >  > 
+>  >  > If it doesn't help I will attempt to get a netconsole on this computer
+>  >  > on the near future.
+>  > 
+>  > Thomas recently changed cpufreq_update_policy to call cpufreq_out_of_sync()
+>  > to resync when the BIOS changed the frequency behind our back.
+>  > The div by 0 trace fingers that code, but I'm puzzled what we're actually
+>  > dividing there.
+> 
+> it'd be interesting to see the output of cpufreq.debug=7 to see
+> what adjust_jiffies is getting before we div by 0, though I fear
+> it'll scroll off the screen before we get a chance to capture it.
 
-Hi,
+The driver seem not to initialize policy->cur in it's init function?
+The 0 div probably comes from cpufreq_scale() called in time_cpufreq_notifier()
+in kernel/arch/i386/timers/timer_tsc.c
 
-> This one takes care of a problem with the SGI IOC4 driver where it
-> hits DMA problems if the request grows too large.
+This patch checks in update_policy() whether 0 is set as current freq:
+(Be careful, Dave adjusted my original patch to mm, this one is on top of my
+original one, so it might not patch cleanly on what Dave finally put in, but it should...)
+Maybe it's easier if I submit the old one again with these lines added?
+compile tested ...
+_________________________________________________
 
-Does this happen only for CONFIG_IA64_PAGE_SIZE_4KB=y
-or CONFIG_IA64_PAGE_SIZE_8KB=y?
+Check whether driver init did not initialize current freq
 
-from sgiioc4.c:
+signed-off-by: Thomas Renninger <trenn@suse.de>
 
-/* Each Physical Region Descriptor Entry size is 16 bytes (2 * 64 bits) */
-/* IOC4 has only 1 IDE channel */
-#define IOC4_PRD_BYTES       16
-#define IOC4_PRD_ENTRIES     (PAGE_SIZE /(4*IOC4_PRD_BYTES))
 
-As limiting request size to 127 sectors punishes performance
-wouldn't it be better to define IOC4_PRD_ENTRIES to 256
-if this is possible (would need 4 pages for PAGE_SIZE=4096
-and 2 for PAGE_SIZE=8192)?
-
-Cheers.
-Bartlomiej
-
-> Cheers,
-> Jes
->
-> Avoid requests larger than the number of SG table entries, to avoid
-> DMA timeouts.
->
-> Signed-off-by: Jes Sorensen <jes@sgi.com>
->
-> ----
->
->  drivers/ide/pci/sgiioc4.c |    8 +++++++-
->  1 files changed, 7 insertions(+), 1 deletion(-)
->
-> Index: linux-2.6/drivers/ide/pci/sgiioc4.c
-> ===================================================================
-> --- linux-2.6.orig/drivers/ide/pci/sgiioc4.c
-> +++ linux-2.6/drivers/ide/pci/sgiioc4.c
-> @@ -1,5 +1,5 @@
->  /*
-> - * Copyright (c) 2003 Silicon Graphics, Inc.  All Rights Reserved.
-> + * Copyright (C) 2003, 2006 Silicon Graphics, Inc.  All Rights Reserved.
->   *
->   * This program is free software; you can redistribute it and/or modify it
->   * under the terms of version 2 of the GNU General Public License
-> @@ -613,6 +613,12 @@
->         hwif->ide_dma_lostirq = &sgiioc4_ide_dma_lostirq;
->         hwif->ide_dma_timeout = &__ide_dma_timeout;
->         hwif->INB = &sgiioc4_INB;
-> +
-> +       /*
-> +        * Limit the request size to avoid DMA timeouts when
-> +        * requesting  more entries than goes in the sg table.
-> +        */
-> +       hwif->rqsize = 127;
->  }
->
->  static int __devinit
+Index: linux-2.6.16-rc1-mm3/drivers/cpufreq/cpufreq.c
+===================================================================
+--- linux-2.6.16-rc1-mm3.orig/drivers/cpufreq/cpufreq.c
++++ linux-2.6.16-rc1-mm3/drivers/cpufreq/cpufreq.c
+@@ -1435,8 +1435,14 @@ int cpufreq_update_policy(unsigned int c
+ 	*/
+ 	if (cpufreq_driver->get){
+ 		policy.cur = cpufreq_driver->get(cpu);
+-		if (data->cur != policy.cur)
+-			cpufreq_out_of_sync(cpu, data->cur, policy.cur);
++		if (!data->cur){
++			dprintk("Driver did not initialize current freq");
++			data->cur = policy.cur;
++		}
++		else{
++			if (data->cur != policy.cur)
++				cpufreq_out_of_sync(cpu, data->cur, policy.cur);
++		}
+ 	}
+ 
+ 	ret = __cpufreq_set_policy(data, &policy);

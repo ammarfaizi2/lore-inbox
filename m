@@ -1,30 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWBAJLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWBAJMT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964811AbWBAJLX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 04:11:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWBAJIf
+	id S964859AbWBAJMT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 04:12:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWBAJIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 04:08:35 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:12107 "EHLO
+	Wed, 1 Feb 2006 04:08:32 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:13387 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932400AbWBAJDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932401AbWBAJDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 1 Feb 2006 04:03:35 -0500
-Message-Id: <20060201090333.928089000@localhost.localdomain>
+Message-Id: <20060201090334.112965000@localhost.localdomain>
 References: <20060201090224.536581000@localhost.localdomain>
-Date: Wed, 01 Feb 2006 18:02:57 +0900
+Date: Wed, 01 Feb 2006 18:02:58 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: linuxsh-dev@lists.sourceforge.net, Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 33/44] sh: use generic bitops
-Content-Disposition: inline; filename=sh.patch
+Cc: linuxsh-shmedia-dev@lists.sourceforge.net,
+       Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 34/44] sh64: use generic bitops
+Content-Disposition: inline; filename=sh64.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 - remove __{,test_and_}{set,clear,change}_bit() and test_bit()
+- remove __ffs()
 - remove find_{next,first}{,_zero}_bit()
-- remove generic_ffs()
 - remove generic_hweight{32,16,8}()
 - remove sched_find_first_bit()
+- remove generic_ffs()
 - remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
 - remove ext2_{set,clear}_bit_atomic()
 - remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
@@ -32,21 +34,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 - remove generic_fls64()
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
- include/asm-sh/bitops.h |  342 +-----------------------------------------------
- 1 files changed, 10 insertions(+), 332 deletions(-)
+ include/asm-sh64/bitops.h |  384 +---------------------------------------------
+ 1 files changed, 11 insertions(+), 373 deletions(-)
 
-Index: 2.6-git/include/asm-sh/bitops.h
+Index: 2.6-git/include/asm-sh64/bitops.h
 ===================================================================
---- 2.6-git.orig/include/asm-sh/bitops.h
-+++ 2.6-git/include/asm-sh/bitops.h
-@@ -19,16 +19,6 @@ static __inline__ void set_bit(int nr, v
+--- 2.6-git.orig/include/asm-sh64/bitops.h
++++ 2.6-git/include/asm-sh64/bitops.h
+@@ -31,16 +31,6 @@ static __inline__ void set_bit(int nr, v
  	local_irq_restore(flags);
  }
  
--static __inline__ void __set_bit(int nr, volatile void * addr)
+-static inline void __set_bit(int nr, void *addr)
 -{
 -	int	mask;
--	volatile unsigned int *a = addr;
+-	unsigned int *a = addr;
 -
 -	a += nr >> 5;
 -	mask = 1 << (nr & 0x1f);
@@ -56,14 +58,13 @@ Index: 2.6-git/include/asm-sh/bitops.h
  /*
   * clear_bit() doesn't provide any barrier for the compiler.
   */
-@@ -47,16 +37,6 @@ static __inline__ void clear_bit(int nr,
+@@ -58,15 +48,6 @@ static inline void clear_bit(int nr, vol
  	local_irq_restore(flags);
  }
  
--static __inline__ void __clear_bit(int nr, volatile void * addr)
+-static inline void __clear_bit(int nr, volatile unsigned long *a)
 -{
 -	int	mask;
--	volatile unsigned int *a = addr;
 -
 -	a += nr >> 5;
 -	mask = 1 << (nr & 0x1f);
@@ -73,7 +74,7 @@ Index: 2.6-git/include/asm-sh/bitops.h
  static __inline__ void change_bit(int nr, volatile void * addr)
  {
  	int	mask;
-@@ -70,16 +50,6 @@ static __inline__ void change_bit(int nr
+@@ -80,16 +61,6 @@ static __inline__ void change_bit(int nr
  	local_irq_restore(flags);
  }
  
@@ -90,7 +91,7 @@ Index: 2.6-git/include/asm-sh/bitops.h
  static __inline__ int test_and_set_bit(int nr, volatile void * addr)
  {
  	int	mask, retval;
-@@ -96,19 +66,6 @@ static __inline__ int test_and_set_bit(i
+@@ -106,19 +77,6 @@ static __inline__ int test_and_set_bit(i
  	return retval;
  }
  
@@ -110,7 +111,7 @@ Index: 2.6-git/include/asm-sh/bitops.h
  static __inline__ int test_and_clear_bit(int nr, volatile void * addr)
  {
  	int	mask, retval;
-@@ -125,19 +82,6 @@ static __inline__ int test_and_clear_bit
+@@ -135,19 +93,6 @@ static __inline__ int test_and_clear_bit
  	return retval;
  }
  
@@ -130,7 +131,7 @@ Index: 2.6-git/include/asm-sh/bitops.h
  static __inline__ int test_and_change_bit(int nr, volatile void * addr)
  {
  	int	mask, retval;
-@@ -154,23 +98,7 @@ static __inline__ int test_and_change_bi
+@@ -164,23 +109,7 @@ static __inline__ int test_and_change_bi
  	return retval;
  }
  
@@ -155,17 +156,52 @@ Index: 2.6-git/include/asm-sh/bitops.h
  
  static __inline__ unsigned long ffz(unsigned long word)
  {
-@@ -206,265 +134,15 @@ static __inline__ unsigned long __ffs(un
+@@ -204,307 +133,16 @@ static __inline__ unsigned long ffz(unsi
  	return result;
  }
  
+-/**
+- * __ffs - find first bit in word
+- * @word: The word to search
+- *
+- * Undefined if no bit exists, so code should check against 0 first.
+- */
+-static inline unsigned long __ffs(unsigned long word)
+-{
+-	int r = 0;
+-
+-	if (!word)
+-		return 0;
+-	if (!(word & 0xffff)) {
+-		word >>= 16;
+-		r += 16;
+-	}
+-	if (!(word & 0xff)) {
+-		word >>= 8;
+-		r += 8;
+-	}
+-	if (!(word & 0xf)) {
+-		word >>= 4;
+-		r += 4;
+-	}
+-	if (!(word & 3)) {
+-		word >>= 2;
+-		r += 2;
+-	}
+-	if (!(word & 1)) {
+-		word >>= 1;
+-		r += 1;
+-	}
+-	return r;
+-}
+-
 -/**
 - * find_next_bit - find the next set bit in a memory region
 - * @addr: The address to base the search on
 - * @offset: The bitnumber to start searching at
 - * @size: The maximum size to search
 - */
--static __inline__ unsigned long find_next_bit(const unsigned long *addr,
+-static inline unsigned long find_next_bit(const unsigned long *addr,
 -	unsigned long size, unsigned long offset)
 -{
 -	unsigned int *p = ((unsigned int *) addr) + (offset >> 5);
@@ -215,9 +251,10 @@ Index: 2.6-git/include/asm-sh/bitops.h
 -#define find_first_bit(addr, size) \
 -	find_next_bit((addr), (size), 0)
 -
--static __inline__ int find_next_zero_bit(const unsigned long *addr, int size, int offset)
+-
+-static inline int find_next_zero_bit(void *addr, int size, int offset)
 -{
--	const unsigned long *p = ((unsigned long *) addr) + (offset >> 5);
+-	unsigned long *p = ((unsigned long *) addr) + (offset >> 5);
 -	unsigned long result = offset & ~31UL;
 -	unsigned long tmp;
 -
@@ -255,6 +292,35 @@ Index: 2.6-git/include/asm-sh/bitops.h
 -        find_next_zero_bit((addr), (size), 0)
 -
 -/*
+- * hweightN: returns the hamming weight (i.e. the number
+- * of bits set) of a N-bit word
+- */
+-
+-#define hweight32(x)	generic_hweight32(x)
+-#define hweight16(x)	generic_hweight16(x)
+-#define hweight8(x)	generic_hweight8(x)
+-
+-/*
+- * Every architecture must define this function. It's the fastest
+- * way of searching a 140-bit bitmap where the first 100 bits are
+- * unlikely to be set. It's guaranteed that at least one of the 140
+- * bits is cleared.
+- */
+-
+-static inline int sched_find_first_bit(unsigned long *b)
+-{
+-	if (unlikely(b[0]))
+-		return __ffs(b[0]);
+-	if (unlikely(b[1]))
+-		return __ffs(b[1]) + 32;
+-	if (unlikely(b[2]))
+-		return __ffs(b[2]) + 64;
+-	if (b[3])
+-		return __ffs(b[3]) + 96;
+-	return __ffs(b[4]) + 128;
+-}
+-
+-/*
 - * ffs: find first bit set. This is defined the same way as
 - * the libc and compiler builtin ffs routines, therefore
 - * differs in spirit from the above ffz (man ffs).
@@ -271,33 +337,13 @@ Index: 2.6-git/include/asm-sh/bitops.h
 -#define hweight16(x) generic_hweight16(x)
 -#define hweight8(x) generic_hweight8(x)
 -
--/*
-- * Every architecture must define this function. It's the fastest
-- * way of searching a 140-bit bitmap where the first 100 bits are
-- * unlikely to be set. It's guaranteed that at least one of the 140
-- * bits is cleared.
-- */
--
--static inline int sched_find_first_bit(const unsigned long *b)
--{
--	if (unlikely(b[0]))
--		return __ffs(b[0]);
--	if (unlikely(b[1]))
--		return __ffs(b[1]) + 32;
--	if (unlikely(b[2]))
--		return __ffs(b[2]) + 64;
--	if (b[3])
--		return __ffs(b[3]) + 96;
--	return __ffs(b[4]) + 128;
--}
--
 -#ifdef __LITTLE_ENDIAN__
 -#define ext2_set_bit(nr, addr) __test_and_set_bit((nr), (addr))
 -#define ext2_clear_bit(nr, addr) __test_and_clear_bit((nr), (addr))
 -#define ext2_test_bit(nr, addr) test_bit((nr), (addr))
 -#define ext2_find_first_zero_bit(addr, size) find_first_zero_bit((addr), (size))
 -#define ext2_find_next_zero_bit(addr, size, offset) \
--                find_next_zero_bit((unsigned long *)(addr), (size), (offset))
+-                find_next_zero_bit((addr), (size), (offset))
 -#else
 -static __inline__ int ext2_set_bit(int nr, volatile void * addr)
 -{
@@ -412,16 +458,14 @@ Index: 2.6-git/include/asm-sh/bitops.h
 -#define minix_test_bit(nr,addr) test_bit(nr,addr)
 -#define minix_find_first_zero_bit(addr,size) find_first_zero_bit(addr,size)
 -
--/*
-- * fls: find last bit set.
-- */
--
--#define fls(x) generic_fls(x)
+-#define ffs(x)	generic_ffs(x)
+-#define fls(x)	generic_fls(x)
 -#define fls64(x)   generic_fls64(x)
++#include <asm-generic/bitops/__ffs.h>
 +#include <asm-generic/bitops/find.h>
-+#include <asm-generic/bitops/ffs.h>
 +#include <asm-generic/bitops/hweight.h>
 +#include <asm-generic/bitops/sched.h>
++#include <asm-generic/bitops/ffs.h>
 +#include <asm-generic/bitops/ext2-non-atomic.h>
 +#include <asm-generic/bitops/ext2-atomic.h>
 +#include <asm-generic/bitops/minix.h>

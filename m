@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422667AbWBAQR7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbWBAQSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422667AbWBAQR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 11:17:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbWBAQR7
+	id S964988AbWBAQSe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 11:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964985AbWBAQSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 11:17:59 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:6288 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S964980AbWBAQR6 (ORCPT
+	Wed, 1 Feb 2006 11:18:34 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:34769 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964960AbWBAQSc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 11:17:58 -0500
-Date: Wed, 1 Feb 2006 17:17:47 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Aritz Bastida <aritzbastida@gmail.com>
-cc: Greg KH <greg@kroah.com>, Antonio Vargas <windenntw@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Right way to configure a driver? (sysfs, ioctl, proc, configfs,....)
-In-Reply-To: <7d40d7190602010744vc2eaf3fm@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0602011716150.22529@yvahk01.tjqt.qr>
-References: <7d40d7190601261206wdb22ccck@mail.gmail.com>  <20060127050109.GA23063@kroah.com>
-  <7d40d7190601270230u850604av@mail.gmail.com> 
- <69304d110601270834q5fa8a078m63a7168aa7e288d1@mail.gmail.com> 
- <7d40d7190601300323t1aca119ci@mail.gmail.com>  <20060130213908.GA26463@kroah.com>
-  <Pine.LNX.4.61.0602011553410.22529@yvahk01.tjqt.qr>  <20060201151145.GA3744@kroah.com>
- <7d40d7190602010744vc2eaf3fm@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Feb 2006 11:18:32 -0500
+Date: Wed, 1 Feb 2006 11:18:25 -0500
+From: Dave Jones <davej@redhat.com>
+To: Thomas Renninger <mail@renninger.de>
+Cc: linux-kernel@vger.kernel.org, mm-commits@vger.kernel.org
+Subject: Re: + cpufreq-_ppc-frequency-change-issues-freq-already-lowered-by-bios.patch added to -mm tree
+Message-ID: <20060201161825.GE5875@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Thomas Renninger <mail@renninger.de>, linux-kernel@vger.kernel.org,
+	mm-commits@vger.kernel.org
+References: <200601312112.k0VLCRdV031988@shell0.pdx.osdl.net> <20060131223115.GF29937@redhat.com> <43E0A55C.6020700@renninger.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43E0A55C.6020700@renninger.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->As I said in previous messages, my driver is a kind of virtual network
->device (imagine something like "snull" in LDD3) and my question was:
->what would be the right way to configure it? I know, i know, there is
->not a unique question for that, but I'm sure at least there are
->suggestions. Some years ago, maybe there was no alternative other than
->using system calls or ioctls, but the spectrum is a lot wider now.
->
->I try to resume here the different ways that could be used, and their
->original purpose:
->
->* SYSFS: this is to export system information
->* CONFIGFS: this is to configure kernel modules/subsystems.
+On Wed, Feb 01, 2006 at 01:11:08PM +0100, Thomas Renninger wrote:
+ > >Did your pull fail for some reason? 
+ > >
+ > >		Dave
+ > 
+ > I got this answer from Andrew, maybe he also picked up the patch
+ > from cpufreq list?:
+ > ____________
+ > This generates 100% rejects against the current cpufreq tree.
 
-So there basically is an "exportfs" (sysfs) and an "importfs" (configfs). 
-[This has nothing to do with the nfs-exportfs for the moment.]
-Can't these be merged to have a "importexportfs", would make things 
-simpler. Especially with system parameters (exported stuff, /sys) can be 
-changed (aka imported).
+Ah, that's because I changed the indentation slightly when I merged it.
 
+ > The patch needs a (!policy->cur) check for some cpufreq drivers, shall I 
+ > resend
+ > the whole patch with this one added or is the "ontop" patch I answered to 
+ > avuton@gmail.com (Subject: Re: [PATCH 2/2] Re: 2.6.16-rc1-mm4) enough?
 
-Jan Engelhardt
--- 
+The 'ontop' is enough probably (I'm having a 'heavy' email day, so I've not
+got to it yet).
+
+		Dave
+

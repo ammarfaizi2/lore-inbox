@@ -1,26 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWBABFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbWBABKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751319AbWBABFy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 20:05:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWBABFy
+	id S1751332AbWBABKV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 20:10:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbWBABKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 20:05:54 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:45524 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751319AbWBABFx (ORCPT
+	Tue, 31 Jan 2006 20:10:21 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:18389 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751332AbWBABKT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 20:05:53 -0500
-Date: Tue, 31 Jan 2006 16:55:25 -0800
+	Tue, 31 Jan 2006 20:10:19 -0500
+Date: Tue, 31 Jan 2006 17:12:16 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: jgarzik@pobox.com, herbert@gondor.apana.org.au, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: [PATCH] 8139too: fix a TX timeout watchdog thread against NAPI
- softirq race
-Message-Id: <20060131165525.3e741285.akpm@osdl.org>
-In-Reply-To: <20060131002418.GA917@electric-eye.fr.zoreil.com>
-References: <E1F2JFb-0007MW-00@gondolin.me.apana.org.au>
-	<43D98915.6040004@pobox.com>
-	<20060131002418.GA917@electric-eye.fr.zoreil.com>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: suresh.b.siddha@intel.com, mingo@elte.hu, nickpiggin@yahoo.com.au,
+       ak@suse.de, linux-kernel@vger.kernel.org, rohit.seth@intel.com,
+       asit.k.mallick@intel.com
+Subject: Re: [Patch] sched: new sched domain for representing multi-core
+Message-Id: <20060131171216.449b9e06.akpm@osdl.org>
+In-Reply-To: <20060130172809.A4851@unix-os.sc.intel.com>
+References: <20060126015132.A8521@unix-os.sc.intel.com>
+	<20060127000854.GA16332@elte.hu>
+	<20060126195156.E19789@unix-os.sc.intel.com>
+	<20060127160019.64caa6be.akpm@osdl.org>
+	<20060130172809.A4851@unix-os.sc.intel.com>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -28,49 +30,45 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu <romieu@fr.zoreil.com> wrote:
+"Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
 >
-> +	unsigned int watchdog_fired : 1;
->  	unsigned int default_port : 4;	/* Last dev->if_port value. */
->  	unsigned int have_thread : 1;
+> > Perhaps we should just make SMT and MC disjoint in Kconfig.  Your call.
+> 
+> No. SMT and MC are not disjoint.
 
-Bear in mind that the compiler will put these three fields into the same
-word and will use non-atomic RMWs when they are modified.
+It's still not clear what's supposed to be happening here.
 
-In this particualr case it's hard to see how an SMP or IRQ race can occur,
-but it's a trap.   Which won't show up on x86.
+In build_sched_domains() we still have code which does:
 
 
-struct x {
-	unsigned int a:1;
-	unsigned int b:1;
-};
+	for_each_cpu_mask(...) {
+		...
+#ifdef CONFIG_SCHED_MC
+		...
+#endif
+#ifdef CONFIG_SCHED_SMT
+		...
+#endif
+		...
+	}
+	...
+#ifdef CONFIG_SCHED_SMT
+	...
+#endif
+	...
+#ifdef CONFIG_SCHED_MC
+	...
+#endif
 
-void foo(struct x *a)
-{
-	a->a = 1;
-}
+So in the first case the SCHED_SMT code will win and in the second case the
+SCHED_MC code will win.  I think.  The code is so repetitive in there that
+`patch' may have put the hunks in the wrong place.
 
-void bar(struct x *a)
-{
-	a->b = 1;
-}
+What is the design intention here?  What do we _want_ to happen if both MC
+and SMT are enabled?
 
 
-On ppc:
 
+Also the path tests CONFIG_SCHED_MT in a few places where it meant to use
+CONFIG_SCHED_SMT, which rather casts doubt upon the testing quality.
 
-foo:
-        lwz 0,0(3)
-        oris 0,0,0x8000
-        stw 0,0(3)
-        blr
-        .size   foo, .-foo
-        .align 2
-        .globl bar
-        .type   bar, @function
-bar:
-        lwz 0,0(3)
-        oris 0,0,0x4000
-        stw 0,0(3)
-        blr

@@ -1,72 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030390AbWBARjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030391AbWBARlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030390AbWBARjg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 12:39:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030391AbWBARjg
+	id S1030391AbWBARlm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 12:41:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030392AbWBARll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 12:39:36 -0500
-Received: from mx2.netapp.com ([216.240.18.37]:31913 "EHLO mx2.netapp.com")
-	by vger.kernel.org with ESMTP id S1030390AbWBARjf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 12:39:35 -0500
-X-IronPort-AV: i="4.01,245,1136188800"; 
-   d="scan'208"; a="355818007:sNHT18143536"
-Subject: [PATCH] VFS: Ensure LOOKUP_CONTINUE flag is preserved by
-	link_path_walk()
-From: Trond Myklebust <Trond.Myklebust@netapp.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Network Appliance, Inc
-Date: Wed, 01 Feb 2006 12:39:27 -0500
-Message-Id: <1138815567.14230.1.camel@lade.trondhjem.org>
+	Wed, 1 Feb 2006 12:41:41 -0500
+Received: from bayc1-pasmtp05.bayc1.hotmail.com ([65.54.191.165]:32284 "EHLO
+	BAYC1-PASMTP05.bayc1.hotmail.com") by vger.kernel.org with ESMTP
+	id S1030391AbWBARll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 12:41:41 -0500
+Message-ID: <BAYC1-PASMTP05E6111897E4EEAB87C04FAE0B0@CEZ.ICE>
+X-Originating-IP: [69.156.6.171]
+X-Originating-Email: [seanlkml@sympatico.ca]
+Date: Wed, 1 Feb 2006 12:41:51 -0500
+From: sean <seanlkml@sympatico.ca>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: bernd@firmix.at, xslaby@fi.muni.cz, wellspringkavitha@yahoo.co.in,
+       linux-kernel@vger.kernel.org
+Subject: Re: root=LABEL= problem [Was: Re: Linux Issue]
+Message-Id: <20060201124151.5b4c0435.seanlkml@sympatico.ca>
+In-Reply-To: <Pine.LNX.4.61.0602011718450.22529@yvahk01.tjqt.qr>
+References: <20060201114845.E41F222AF24@anxur.fi.muni.cz>
+	<Pine.LNX.4.61.0602011713410.22529@yvahk01.tjqt.qr>
+	<1138810616.16643.30.camel@tara.firmix.at>
+	<Pine.LNX.4.61.0602011718450.22529@yvahk01.tjqt.qr>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-X-OriginalArrivalTime: 01 Feb 2006 17:39:34.0503 (UTC) FILETIME=[7712CF70:01C62756]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Feb 2006 17:41:40.0704 (UTC) FILETIME=[C24B8E00:01C62756]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- When walking a path, the LOOKUP_CONTINUE flag is used by some filesystems
- (for instance NFS) in order to determine whether or not it is looking up
- the last component of the path. It this is the case, it may have to look
- at the intent information in order to perform various tasks such as atomic
- open.
+On Wed, 1 Feb 2006 17:18:56 +0100 (MET)
+Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
 
- A problem currently occurs when link_path_walk() hits a symlink. In this
- case LOOKUP_CONTINUE may be cleared prematurely when we hit the end of the
- path passed by __vfs_follow_link() (i.e. the end of the symlink path)
- rather than when we hit the end of the path passed by the user.
+> >Yes, in RedHat's/Fedora's kernels since ages.
 
- The solution is to have link_path_walk() clear LOOKUP_CONTINUE if and only
- if that flag was unset when we entered the function.
+Label processing in Red Hat/Fedora distributions is not handled in the
+kernel at all (thus you won't find a patch).   It's all done in user space
+via the initrd and works with vanilla kernels without a problem.
 
- Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
----
-
- fs/namei.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/fs/namei.c b/fs/namei.c
-index 4acdac0..e1195f4 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -790,7 +790,7 @@ static fastcall int __link_path_walk(con
- 
- 	inode = nd->dentry->d_inode;
- 	if (nd->depth)
--		lookup_flags = LOOKUP_FOLLOW;
-+		lookup_flags = LOOKUP_FOLLOW | (nd->flags & LOOKUP_CONTINUE);
- 
- 	/* At this point we know we have a real path component. */
- 	for(;;) {
-@@ -885,7 +885,8 @@ static fastcall int __link_path_walk(con
- last_with_slashes:
- 		lookup_flags |= LOOKUP_FOLLOW | LOOKUP_DIRECTORY;
- last_component:
--		nd->flags &= ~LOOKUP_CONTINUE;
-+		/* Clear LOOKUP_CONTINUE iff it was previously unset */
-+		nd->flags &= lookup_flags | ~LOOKUP_CONTINUE;
- 		if (lookup_flags & LOOKUP_PARENT)
- 			goto lookup_parent;
- 		if (this.name[0] == '.') switch (this.len) {
+Sean

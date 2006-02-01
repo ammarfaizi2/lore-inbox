@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422660AbWBAQCW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422656AbWBAQDn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422660AbWBAQCW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 11:02:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422663AbWBAQCW
+	id S1422656AbWBAQDn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 11:03:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422659AbWBAQDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 11:02:22 -0500
-Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:62637 "HELO
-	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1422660AbWBAQCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 11:02:21 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH] usbcore: fix compile error with CONFIG_USB_SUSPEND=n
-Date: Wed, 1 Feb 2006 08:01:48 -0800
-User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0602011044270.5635-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0602011044270.5635-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Feb 2006 11:03:43 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:44488 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422658AbWBAQDm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 11:03:42 -0500
+Date: Wed, 1 Feb 2006 11:03:24 -0500
+From: Dave Jones <davej@redhat.com>
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, Ashok Raj <ashok.raj@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch -mm4] i386: __init should be __cpuinit
+Message-ID: <20060201160324.GA5875@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+	Andrew Morton <akpm@osdl.org>, Ashok Raj <ashok.raj@intel.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Chuck Ebbert <76306.1226@compuserve.com>
+References: <200601312352_MC3-1-B748-FCE9@compuserve.com> <200601312352_MC3-1-B748-FCE9@compuserve.com> <20060201053357.GA5335@redhat.com> <E1F4Czv-00018m-00@chiark.greenend.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602010801.48348.david-b@pacbell.net>
+In-Reply-To: <E1F4Czv-00018m-00@chiark.greenend.org.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 February 2006 7:47 am, Alan Stern wrote:
+On Wed, Feb 01, 2006 at 08:05:51AM +0000, Matthew Garrett wrote:
+ > Dave Jones <davej@redhat.com> wrote:
+ > 
+ > > Especially as for the bulk of them, those CPUs aren't hotplug capable.
+ > > (I seriously doubt we'll ever see a hotplugable cyrix for eg, which
+ > >  takes up the bulk of your diff).
+ > 
+ > For SMP systems, suspend/resume "unplugs" all non-boot CPUs before
+ > executing the suspend code. I don't recall any SMP cyrix systems, but
+ > it's potentially something to consider.
 
-> This should fix it.
+There weren't any.  Until AMD's Athlon MPs, Intel had the only
+SMP x86 afair.
 
-Well, a warning which in this case actually does indicate an
-error ... but yes, this looks right.  Thanks.
+		Dave
 
-- Dave
-
- 
-> Index: usb-2.6/drivers/usb/core/hub.c
-> ===================================================================
-> --- usb-2.6.orig/drivers/usb/core/hub.c
-> +++ usb-2.6/drivers/usb/core/hub.c
-> @@ -1890,8 +1890,8 @@ int usb_resume_device(struct usb_device 
->  			status = hub_port_resume(hdev_to_hub(udev->parent),
->  					udev->portnum, udev);
->  		} else
-> -			status = 0;
->  #endif
-> +			status = 0;
->  	} else
->  		status = finish_device_resume(udev);
->  	if (status < 0)
-> 

@@ -1,102 +1,84 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750902AbWAaOg4 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 31 Jan 2006 09:36:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750908AbWAaOg4
+	id S964791AbWBABAI (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 31 Jan 2006 20:00:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWBABAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 09:36:56 -0500
-Received: from bay15-f9.bay15.hotmail.com ([65.54.185.9]:35269 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1750902AbWAaOg4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 09:36:56 -0500
-Message-ID: <BAY15-F980D773B2497AE3BEBE0B93080@phx.gbl>
-X-Originating-IP: [213.136.98.39]
-X-Originating-Email: [linder1@hotmail.fr]
-Reply-To: linderomar1@yahoo.com.au
-From: "Linder Omar" <linder1@hotmail.fr>
-Subject: Miss LINDER OMAR
-Date: Tue, 31 Jan 2006 15:36:55 +0100
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 31 Jan 2006 14:36:55.0559 (UTC) FILETIME=[C89EE970:01C62673]
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 31 Jan 2006 20:00:08 -0500
+Received: from pq162.internetdsl.tpnet.pl ([80.55.16.162]:37017 "HELO
+	excite.com") by vger.kernel.org with SMTP id S1751284AbWBABAH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 20:00:07 -0500
+Message-ID: <4134CE26.FA4F467@excite.com>
+Date: Tue, 31 Jan 2006 20:53:34 -0500
+From: "Quazi Hossain" <qquazi676@excite.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "Thanks" <linux-kernel@vger.kernel.org>
+Subject: CAN WE GO INTO THIS TOGETHER
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1750902AbWAaOg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S964791AbWBABAI@vger.kernel.org>
 
-Mlle LINDER OMAR MAINASSARA BARE
-Je vous prie d’emblée de m’excuser pour tous les désagréments que mon
-courrier pourrait vous causer. Mais même si nous ne nous
-sommes jamais rencontrés, je crois fermement que sur la base du droit
-d’assistance humanitaire une confiance véritable peut naître de notre
-communication et favoriser ainsi un véritable partenariat entre nous deux.
-Aussi c'est avec un réel plaisir que je vous contacte
-depuis ABIDJAN la capitale économique de la COTE D’IVOIRE(L'AFRIQUE de 
-l'Ouest)
-où je vis depuis quelques temps . En fait je suis la fille légitime
-de l’ex-président de la république du NIGER (l'Afrique de l'Ouest) assassiné 
-par une junte militaire en avril 1999.Pendant l’exercice de son mandat 
-présidentiel, mon
-père avait déposé sur un compte numéroté et bloqué auprès d'une Compagnie de 
-Sécurité et de Finance en CI la somme de vingt huit millions de dollars 
-américains(28.000.000$ US) pour
-lui permettre de concevoir un projet d'investissement; la fin de son mandat 
-présidentiel. Malheureusement le sort en a décidé autrement. Quelques temps 
-après sa mort, j'ai découvert dans le testament cette information et j'ai 
-automatiquement pris contacte avec le dit établissement Financier pour 
-revendiquer cet important legs en ma qualité de fille légitime et au regard 
-des stipulations testamentaires. Au jour d’aujourd’hui ma préoccupation 
-majeure est de transférer cette somme hors de L'AFRIQUE de l’Ouest 
-principalement de Côte d'Ivoire où sévit actuellement de graves problèmes 
-politiques.
-Vu que je suis avec mes deux petits frères,vraiment nous avons sérieusement 
-soufferts des brimades et tracasseries de la part des adversaires politiques 
-de mon père. C’est dans cette perspective que je vous contacte pour que vous 
-me porté assistance dans ce transfert , ou que vous me conseilliez un autre 
-moyen de les transférés .Car, croyez-moi je n'ai aucune maîtrise des rouages 
-financiers et je compte sur vous pour m'aider dans cette tâche qui du reste 
-est dénuée de tout risque. Je peux ainsi vous rassurer qu'à la fin de 
-l’opération je vous consentirai 20% du montant total comme votre récompense 
-personnelle. Je compte vraiment sur vous,sur vos qualités humaines, 
-vertueuses et professionnelles. Dès que vous manifesterez le désir de nous 
-aider je vous délivrerai une attestation sur honneur pour garantir ma parole 
-et mes engagements votre égard.
-LINDER OMAR
+Hello!
 
+Compliments
 
-PLEASE SEE THE ENGLISH VASON OF MY PROPOSAL
+I have been searching for a person whom we can jointly invest, Trust in and
+also solicit an honorable partnership with. 
 
+I want to confirm that your contact information was got from a web email
+directory. I represent a client who is interested in investing in your
+country in areas related to agriculture or any business of your choice, to
+initiate a proper and structured relationship. Please let me know what your
+response will be to an offer to receive investment funds in cash if; 
 
+1. The said fund amounts to US$38,500,000 (Thirty Eight Million, Five
+hundred Thousand US Dollars).
 
+2. The said fund is in cash and needs to be transferred in the same state,
+due to some covert reasons.
 
-Miss LINDER OMAR MAINASSARA BARE please start excuse itself for all the 
-nuisances which my mail could cause you. But even if we never met, I believe 
-firmly that on the basis of right of assistance humane a true confidence can 
-be born from our communication and thus support a true partnership between 
-us two. As it is with a real pleasure as I contact you from ABIDJAN the 
-economic capital of Ivory Coast WEST AFRICA) where I live for some time. In 
-fact I am the legitimate girl of the former president of the republic of 
-NIGER (West Africa) assassinated by a military junta April 1999.Pendant the 
-exercise of his presidential mandate, my father had deposited on an account 
-numbered and blocked near a Company of Safety and Finance in Ci the sum of 
-twenty eight million dollars US américains(28.000.000$) to allow him to 
-conceive a project of investment; end of its presidential mandate. 
-Unfortunately the fate in decided differently. A few times after his death, 
-I discovered in the will this information and I automatically took contacts 
-with the known as Financier establishment to assert this important legacy in 
-my quality of legitimate girl and in comparison with the testamentary 
-stipulations. At the day of today my major concern is to transfer this sum 
-out of WEST AFRICA mainly from Ivory Coast where currently prevails of 
-serious political problems. Considering I am with my two little brothers, 
-really we seriously suffered from the brimades and annoyances on behalf of 
-the political adversaries of my father. It is from this point of view that I 
-contact you so that you carried me assistance in this transfer, or that you 
-advise me another means of transferred Car, believe me I do not have any 
-control of the financial wheels and I count on you to help itself in this 
-task which remainder is stripped of any risk. I can thus reassure you that 
-at the end of the operation I will authorize to you 20% of the total amount 
-like your personal reward. I really count on you, on your human qualities, 
-virtuous and professional. As soon as you express the desire to help us I 
-will deliver you a certificate on honor to guarantee my word and my 
-engagements your regard. LINDER OMAR
+3. The fund could be invested through your agency in the purchase of
+facility and assets for investment purposes within your country, in
+collaboration with the agency of the current brokers.
 
+4. This transaction will result in you being paid a commission of 10% off
+the investment capital.
+
+5. The fund owners desire absolute confidentiality and professionalism
+in the handling of this matter, due to risks of seizure of the fund and
+litigation if personalities are revealed. 
+
+The fund owners have interest to invest in any of the following industries,
+depending on which is most transparent, low risk, and average profit
+yielding: Power Generation, Telecommunication and Software Development, Film
+Production, Hardware Manufacturing and Export, Medicine, Construction or
+Real-Estate Development.
+
+Based upon the information provided above, I would like to know if you
+shall be able to assist in the nature of managing the investment fund. You
+must note that the fund can only be transferred in cash, therefore if you
+are in acceptance to participate with us in the investment of the fund, you
+shall also need to participate with us in the transfer of the fund in cash
+in the manner of receiving the fund in cash and depositing it in a Trusted
+account opened in favour of the investment to be established.
+
+And this account would serve as the base or operating account for the
+investment. I am obliged to believe that you would be able to understand the
+information above, and should you need further information, please do not
+hesitate to ask.
+
+Kindly confirm receipt of this email by sending all correspondence to:
+quazihossain77@netscape.net OR quazihossain77@myway.com
+
+ 
+
+Sincerely,
+Quazi Hossain (Esq.)
+Tel: +871 763 591 465 
+Fax: +871 763 591 466
 

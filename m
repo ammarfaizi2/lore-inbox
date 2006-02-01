@@ -1,64 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbWBAQWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964960AbWBAQZd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030372AbWBAQWt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 11:22:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964985AbWBAQWs
+	id S964960AbWBAQZd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 11:25:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWBAQZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 11:22:48 -0500
-Received: from opersys.com ([64.40.108.71]:46865 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S964960AbWBAQWs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 11:22:48 -0500
-Message-ID: <43E0E282.1000908@opersys.com>
-Date: Wed, 01 Feb 2006 11:32:02 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Wed, 1 Feb 2006 11:25:33 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:31338 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S964960AbWBAQZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 11:25:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=Ml9452ekBs4nYwXRkWdH1Mtmdr+jqbCrvxCRVo22aDIvKjAjP5VSYqUOVoODzu9bu/s4eVo9225VBVLCp/Xqpf/7lTd7cM+lEDKpC/VwLpmQSfMInqQgCWua2HRRDVfHNyoJ7zvOa4LudqVbDA2YNGgSJBmkPRrZWtxaTkS2Re8=  ;
+Message-ID: <43E0E0F7.60209@yahoo.com.au>
+Date: Thu, 02 Feb 2006 03:25:27 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Filip Brcic <brcha@users.sourceforge.net>
-CC: Glauber de Oliveira Costa <glommer@gmail.com>,
-       Thomas Horsten <thomas@horsten.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk> <43DE57C4.5010707@opersys.com> <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com> <200601302301.04582.brcha@users.sourceforge.net>
-In-Reply-To: <200601302301.04582.brcha@users.sourceforge.net>
-Content-Type: text/plain; charset=us-ascii
+To: Ingo Molnar <mingo@elte.hu>
+CC: Steven Rostedt <rostedt@goodmis.org>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
+References: <43E0B342.6090700@yahoo.com.au> <20060201132054.GA31156@elte.hu> <43E0BBEC.3020209@yahoo.com.au> <43E0BDA3.8040003@yahoo.com.au> <20060201141248.GA6277@elte.hu> <43E0C4CF.8090501@yahoo.com.au> <20060201143727.GA9915@elte.hu> <43E0CBBC.2000002@yahoo.com.au> <20060201151137.GA14794@elte.hu> <43E0D464.2020509@yahoo.com.au> <20060201161035.GA22264@elte.hu>
+In-Reply-To: <20060201161035.GA22264@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+> 
+>>Ingo Molnar wrote:
+>>
 
-Filip Brcic wrote:
-> I do too, but I don't think that "To stop it, just don't buy any of it." is 
-> the solution of the problem. It would be a solution if most of the customers 
-> would do so.
+>>No, if you read what I'd been saying, I'm not dismissing the whole 
+>>subject based on the workload. I'm saying that there is no point to 
+>>include such a "fix" based on the numbers given by this workload (if 
+>>there is a more meaningful one, then sure). Especially not while there 
+>>are sources of equivalent latency.
+> 
+> 
+> firstly, you are ignoring the fact that Steve never submitted this for 
+> actual inclusion. His very first email stated:
+> 
 
-Exactly. And this may indeed be a case where the non-techies have decided
-for the techies. The tech community (or part of it in this case) cannot
-change the world. It can certainly act as a catalyst, and boy has free
-software been such a catalyst, but there are other forces at play here,
-including consumers who not care about DRM and those that even understand/
-accommodate it. Even if licenses prohibited the use of FLOSS in DRM'ed
-hardware: where there's a need, there's demand, and where'd demand, there's
-supply. IOW, we will continue seeing DRM'ed hardware for the foreseeable
-future, and there's nothing any techie (or software license) can do about
-it. So, I have to question myself with regards to what use it is to
-encumber a successful license with draconian runtime restrictions when
-said restrictions will not solve anything anytime in the future --
-especially as said restrictions will not effectively block the use of
-DRM hardware and corresponding user-space applications as I explained
-earlier.
+You keep saying this. I'm talking about the general concept of
+"avoid moving tasks when a schedule can be made", or some way to
+reduce latencies in move_tasks. Obviously we are long past the fact
+that this particular patch isn't the best implementation.
 
-DRM is something worth fighting, but we need something that attacks the
-root problem, not its symptoms. In comparison, GPLv2 was indeed
-successful in that it attacked the root problem of software distribution
-freedom. How it may leverage that by introducing restrictions on symptoms
-of another problem still evades me.
+>   "I'm not convinced that this bail out is in the right location, but 
+>    it worked where it is.  Comments are welcome."
+> 
+> so i'm not sure why you are still pounding upon his patch and suggesting 
+> that any solution to this problem is to be limited to the -rt kernel and 
 
-Karim
+Err, I'm not.
+
+>>It is really simple: I can find a code path in the kernel, and work 
+>>out how to exploit it by increasing resource loading until it goes 
+>>bang (another example, tasklist_lock).
+> 
+> 
+> we are busy fixing tasklist_lock latencies too. The point you are still 
+> trying to make, that the scheduler should not be touched just because 
+> there are other problem areas with unbound latencies, is still plain 
+> illogical.
+> 
+
+Actually my main argument is that it is not a realistic workload,
+and that I'd prefer not to touch the fragile scheduler until I see
+one. I think that's perfectly logical, but whatever.
+
+> 
+>>But there are still places where interrupts can be held off for 
+>>indefinite periods. I don't see why the scheduler lock is suddenly 
+>>important [...]
+> 
+> 
+> the scheduler lock is obviously important because it's the most central 
+> lock in existence.
+> 
+
+Now I call that argument much more illogical than any of mine. How
+can such a fine grained, essentially per-cpu lock be "central", let
+alone "most central"? And even if it were central, why would that
+make it obviously important?
+
+> 
+>>[...] I could have told you years ago what would happen if you trigger 
+>>the load balancer with enough tasks.
+> 
+> 
+> i very well know what move_tasks() can do. There used to be other ways 
+> to provoke unbound latencies in the scheduler - e.g.  via pinned tasks, 
+> for which we introduced the all_pinned hack. The all_pinned hack was 
+> needed because the worst-case behavior was getting so bad on some larger 
+> boxes under larger loads that it totally DoSed the system. So it's not 
+
+But luckily the scheduler is basically completely non functional in
+the presence of pinned tasks anyway, so this is the only time this
+special case kicks in.
+
+But sure, it is there. I don't see how that justifies more changes
+in that place for no reason. As soon as I see a good reason then I'd
+be more than happy to look into it myself.
+
 -- 
-President  / Opersys Inc.
-Embedded Linux Training and Expertise
-www.opersys.com  /  1.866.677.4546
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

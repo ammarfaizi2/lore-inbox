@@ -1,84 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbWBAOi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbWBAOnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932450AbWBAOi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 09:38:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWBAOi5
+	id S932457AbWBAOnd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 09:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWBAOnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 09:38:57 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:26793 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932450AbWBAOi4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 09:38:56 -0500
-Date: Wed, 1 Feb 2006 15:37:27 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
-Message-ID: <20060201143727.GA9915@elte.hu>
-References: <1138736609.7088.35.camel@localhost.localdomain> <43E02CC2.3080805@bigpond.net.au> <1138797874.7088.44.camel@localhost.localdomain> <43E0B24E.8080508@yahoo.com.au> <43E0B342.6090700@yahoo.com.au> <20060201132054.GA31156@elte.hu> <43E0BBEC.3020209@yahoo.com.au> <43E0BDA3.8040003@yahoo.com.au> <20060201141248.GA6277@elte.hu> <43E0C4CF.8090501@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43E0C4CF.8090501@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 1 Feb 2006 09:43:33 -0500
+Received: from host27-37.discord.birch.net ([65.16.27.37]:16537 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S932457AbWBAOnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 09:43:33 -0500
+From: "Roger Heflin" <rheflin@atipa.com>
+To: <sander@humilis.net>
+Cc: "'Lennart Sorensen'" <lsorense@csclub.uwaterloo.ca>,
+       <linux-kernel@vger.kernel.org>, <jgarzik@pobox.com>
+Subject: RE: [OT] 8-port AHCI SATA Controller?
+Date: Wed, 1 Feb 2006 08:53:57 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <20060201101504.GC14960@favonius>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcYnF28zLSLuEgaySJWGL3lXnGCGGAAJkskQ
+Message-ID: <EXCHG2003yD7TfSr0fV00001104@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 01 Feb 2006 14:36:53.0432 (UTC) FILETIME=[F1C41B80:01C6273C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-
-> What I am talking about is when you want a task to have the highest 
-> possible scheduling priority and you'd like to guarantee that it is 
-> not interrupted for more than Xus, including scheduling latency.
-
-this is not a big issue in practice, because it's very hard to saturate 
-current x86 systems running the -rt kernel with pure IRQ load. The APIC 
-messages all have a natural latency, which serves as a throttler.
-
-[ Pretty much the only way i know to lock up a box via hardirq load is
-  to misprogram the local APIC timer IRQ. (but we have protection
-  against that in the HRT code, and the same is not possible via
-  external interrupts.) ]
-
-in case this becomes a problem (on some other platforms) we have a 
-solution for it: interrupt prioritiziation. We didnt want to complicate 
-things with this in the current IRQ preemption model, but it's all 
-pretty straightforward to do.
-
-> Now in your kernel you can measure a single long interrupt time, but 
-> if you "break" that latency by splitting it into two interrupts, the 
-> end result will be the same if not worse due to decreased efficiency.
-
-there really is a maximum rate of interrupts you can inject, which has 
-an effect of slowing down the CPU, which has a linear effect on the 
-worst-case latency - but not not some other drastic effect.
-
-> >not really - isolcpus is useful for certain problems, but it is not 
-> >generic as it puts heavy constraints on usability and resource 
-> >utilization. We have really, really good latencies on SMP too in the -rt 
-> >kernel, with _arbitrary_ SCHED_OTHER workloads. Rwsems and rwlocks are 
-> >not an issue, pretty much the only issue is the scheduler's 
-> >load-balancing.
+> -----Original Message-----
+> From: Sander [mailto:sander@humilis.net] 
+> Sent: Wednesday, February 01, 2006 4:15 AM
+> To: Roger Heflin
+> Cc: 'Lennart Sorensen'; 'Sander'; 
+> linux-kernel@vger.kernel.org; jgarzik@pobox.com
+> Subject: Re: [OT] 8-port AHCI SATA Controller?
 > 
-> Then it is a fine hack for the RT kernel (or at least an improved, 
-> batched version of the patch). No arguments from me.
+> Roger Heflin wrote (ao):
+> > Highpoint has some that I believe are software raidish.
+> > 
+> > They do have on-board parity generators that are used when you use 
+> > there binary only modules.
+> > 
+> > I have heard that they will work with later kernels (2.6.15+) since 
+> > the highpoint are a standard Marvell chipset, and they seem to be 
+> > fairly price competitive with JBOD raid controllers, and have some 
+> > controllers that have more than 8 ports, the price per port may be 
+> > better on the larger controllers.
+> 
+> Thanks for the tip. I'll do some research on the Highpoint 
+> controllers.
+> 
+> 	Kind regards, Sander
 
-no, it is also fine for the mainline scheduler, as long as the patch is 
-clean and does the obviously right thing [which the current patch doesnt 
-offer]. A 1+ msec latency with irqs off is nothing to sniff at. Trying 
-to argue that 'you can get the same by using rwsems so why should we 
-bother' is pretty lame: rwsems are rare and arguably broken in behavior, 
-and i'd not say the same about the scheduler (just yet :-).
+Something important to note, if you need to use highpoints binary
+driver (ie the one in the kernel is not quite working yet) - then you
+will need to run a 2.6.13 or earlier kernel, their driver has some
+issue with 2.6.14+ they are working on it.
 
-	Ingo
+I believe this also holds true of the Marvell drivers also, highpoints
+driver is (from what I can tell) a modified Marvell driver with their
+binary software raid support added on, so the Marvell driver *may* also
+have an issue with the later kernels.
+
+                            Roger
+
+

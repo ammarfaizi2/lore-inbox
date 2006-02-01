@@ -1,85 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932462AbWBAJV5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbWBAJV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932462AbWBAJV5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 04:21:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWBAJVy
+	id S964900AbWBAJV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 04:21:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWBAJUL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 04:21:54 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:2230 "EHLO gw1.cosmosbay.com")
-	by vger.kernel.org with ESMTP id S932448AbWBAJVm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 04:21:42 -0500
-Message-ID: <43E07D86.10509@cosmosbay.com>
-Date: Wed, 01 Feb 2006 10:21:10 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Jan Beulich <JBeulich@novell.com>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@suse.de>, shai@scalex86.org, kiran@scalex86.org,
-       pravins@calsoftinc.com
-Subject: [PATCH] [SMP] __GENERIC_PER_CPU changes
-References: <43CE4C98.76F0.0078.0@novell.com>	<20060120232500.07f0803a.akpm@osdl.org>	<43D4BE7F.76F0.0078.0@novell.com>	<20060123025702.1f116e70.akpm@osdl.org>	<43D5F44C.76F0.0078.0@novell.com> <20060124005806.7e9ab02e.akpm@osdl.org> <43D63DB5.3010601@cosmosbay.com>
-In-Reply-To: <43D63DB5.3010601@cosmosbay.com>
-Content-Type: multipart/mixed;
- boundary="------------080105080406080108020504"
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Wed, 01 Feb 2006 10:21:09 +0100 (CET)
+	Wed, 1 Feb 2006 04:20:11 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:74 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S932067AbWBAJDZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 04:03:25 -0500
+Message-Id: <20060201090322.422243000@localhost.localdomain>
+References: <20060201090224.536581000@localhost.localdomain>
+Date: Wed, 01 Feb 2006 18:02:30 +0900
+From: Akinobu Mita <mita@miraclelinux.com>
+To: linux-kernel@vger.kernel.org
+Cc: Richard Henderson <rth@twiddle.net>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
+       dev-etrax@axis.com, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Chris Zankel <chris@zankel.net>,
+       Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 06/44] generic __{,test_and_}{set,clear,change}_bit() and test_bit()
+Content-Disposition: inline; filename=non-atomic-bitops.h
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080105080406080108020504
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+This patch introduces the C-language equivalents of the functions below:
 
-Now CONFIG_DEBUG_INITDATA is in, initial percpu data 
-[__per_cpu_start,__per_cpu_end] can be declared as a redzone, and invalid 
-accesses after boot can be detected, at least for i386.
+void __set_bit(int nr, volatile unsigned long *addr);
+void __clear_bit(int nr, volatile unsigned long *addr);
+void __change_bit(int nr, volatile unsigned long *addr);
+int __test_and_set_bit(int nr, volatile unsigned long *addr);
+int __test_and_clear_bit(int nr, volatile unsigned long *addr);
+int __test_and_change_bit(int nr, volatile unsigned long *addr);
+int test_bit(int nr, const volatile unsigned long *addr);
 
-We can let non possible cpus percpu data point to this 'redzone' instead of NULL .
+In include/asm-generic/bitops/non-atomic.h
 
-NULL was not a good choice because part of [0..32768] memory may be readable 
-and invalid accesses may happen unnoticed.
+This code largely copied from:
+asm-powerpc/bitops.h
 
-If CONFIG_DEBUG_INITDATA is not defined, each non possible cpu points to the 
-initial percpu data (__per_cpu_offset[cpu] == 0), thus invalid accesses wont 
-be detected/crash.
+Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+ include/asm-generic/bitops/non-atomic.h |  111 ++++++++++++++++++++++++++++++++
+ 1 files changed, 111 insertions(+)
 
-This patch also moves __per_cpu_offset[] to read_mostly area to avoid false 
-sharing.
+Index: 2.6-git/include/asm-generic/bitops/non-atomic.h
+===================================================================
+--- /dev/null
++++ 2.6-git/include/asm-generic/bitops/non-atomic.h
+@@ -0,0 +1,111 @@
++#ifndef _ASM_GENERIC_BITOPS_NON_ATOMIC_H_
++#define _ASM_GENERIC_BITOPS_NON_ATOMIC_H_
++
++#include <asm/types.h>
++
++#define BITOP_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
++#define BITOP_WORD(nr)		((nr) / BITS_PER_LONG)
++
++/**
++ * __set_bit - Set a bit in memory
++ * @nr: the bit to set
++ * @addr: the address to start counting from
++ *
++ * Unlike set_bit(), this function is non-atomic and may be reordered.
++ * If it's called on the same region of memory simultaneously, the effect
++ * may be that only one operation succeeds.
++ */
++static __inline__ void __set_bit(int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BITOP_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
++
++	*p  |= mask;
++}
++
++static __inline__ void __clear_bit(int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BITOP_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
++
++	*p &= ~mask;
++}
++
++/**
++ * __change_bit - Toggle a bit in memory
++ * @nr: the bit to change
++ * @addr: the address to start counting from
++ *
++ * Unlike change_bit(), this function is non-atomic and may be reordered.
++ * If it's called on the same region of memory simultaneously, the effect
++ * may be that only one operation succeeds.
++ */
++static __inline__ void __change_bit(int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BITOP_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
++
++	*p ^= mask;
++}
++
++/**
++ * __test_and_set_bit - Set a bit and return its old value
++ * @nr: Bit to set
++ * @addr: Address to count from
++ *
++ * This operation is non-atomic and can be reordered.  
++ * If two examples of this operation race, one can appear to succeed
++ * but actually fail.  You must protect multiple accesses with a lock.
++ */
++static __inline__ int __test_and_set_bit(int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BITOP_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
++	unsigned long old = *p;
++
++	*p = old | mask;
++	return (old & mask) != 0;
++}
++
++/**
++ * __test_and_clear_bit - Clear a bit and return its old value
++ * @nr: Bit to clear
++ * @addr: Address to count from
++ *
++ * This operation is non-atomic and can be reordered.  
++ * If two examples of this operation race, one can appear to succeed
++ * but actually fail.  You must protect multiple accesses with a lock.
++ */
++static __inline__ int __test_and_clear_bit(int nr, volatile unsigned long *addr)
++{
++	unsigned long mask = BITOP_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
++	unsigned long old = *p;
++
++	*p = old & ~mask;
++	return (old & mask) != 0;
++}
++
++/* WARNING: non atomic and it can be reordered! */
++static __inline__ int __test_and_change_bit(int nr,
++					    volatile unsigned long *addr)
++{
++	unsigned long mask = BITOP_MASK(nr);
++	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
++	unsigned long old = *p;
++
++	*p = old ^ mask;
++	return (old & mask) != 0;
++}
++
++/**
++ * test_bit - Determine whether a bit is set
++ * @nr: bit number to test
++ * @addr: Address to start counting from
++ */
++static __inline__ int test_bit(int nr, __const__ volatile unsigned long *addr)
++{
++	return 1UL & (addr[BITOP_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
++}
++
++#endif /* _ASM_GENERIC_BITOPS_NON_ATOMIC_H_ */
 
-Signed-off-by: Eric Dumazet <dada1@cosmosbay.com>
-
---------------080105080406080108020504
-Content-Type: text/plain;
- name="init_main.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="init_main.patch"
-
---- a/init/main.c	2006-02-01 10:44:10.000000000 +0100
-+++ b/init/main.c	2006-02-01 10:50:16.000000000 +0100
-@@ -325,7 +325,7 @@
- #else
- 
- #ifdef __GENERIC_PER_CPU
--unsigned long __per_cpu_offset[NR_CPUS];
-+unsigned long __per_cpu_offset[NR_CPUS] __read_mostly;
- 
- EXPORT_SYMBOL(__per_cpu_offset);
- 
-@@ -343,11 +343,7 @@
- #endif
- 	ptr = alloc_bootmem(size * nr_possible_cpus);
- 
--	for (i = 0; i < NR_CPUS; i++) {
--		if (!cpu_possible(i)) {
--			__per_cpu_offset[i] = (char*)0 - __per_cpu_start;
--			continue;
--		}
-+	for_each_cpu(i) {
- 		__per_cpu_offset[i] = ptr - __per_cpu_start;
- 		memcpy(ptr, __per_cpu_start, __per_cpu_end - __per_cpu_start);
- 		ptr += size;
-
---------------080105080406080108020504--
+--

@@ -1,84 +1,62 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWBABAI (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 31 Jan 2006 20:00:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWBABAI
+	id S1751330AbWBABKS (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 31 Jan 2006 20:10:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbWBABKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 20:00:08 -0500
-Received: from pq162.internetdsl.tpnet.pl ([80.55.16.162]:37017 "HELO
-	excite.com") by vger.kernel.org with SMTP id S1751284AbWBABAH (ORCPT
+	Tue, 31 Jan 2006 20:10:18 -0500
+Received: from vsmtp1.tin.it ([212.216.176.141]:49076 "EHLO vsmtp1.tin.it")
+	by vger.kernel.org with ESMTP id S1751330AbWBABKR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 20:00:07 -0500
-Message-ID: <4134CE26.FA4F467@excite.com>
-Date: Tue, 31 Jan 2006 20:53:34 -0500
-From: "Quazi Hossain" <qquazi676@excite.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: "Thanks" <linux-kernel@vger.kernel.org>
-Subject: CAN WE GO INTO THIS TOGETHER
-Content-Type: text/plain;
-	charset="us-ascii"
+	Tue, 31 Jan 2006 20:10:17 -0500
+Message-ID: <15884077.1138755513174.JavaMail.root@pswm13.cp.tin.it>
+Date: Wed, 1 Feb 2006 01:58:33 +0100 (GMT+01:00)
+From: PAUL CAMPBELL <paul.campbell3@virgilio.it>
+Reply-To: paul.campbell@email.ro
+Subject: Enquiry
+Mime-Version: 1.0
+Content-Type: text/plain;charset="UTF-8"
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: 62.56.145.2
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S964791AbWBABAI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751330AbWBABKS@vger.kernel.org>
 
-Hello!
+Dear Friend,
 
-Compliments
+My name is Paul Campbell, a senior staff and executive of 
+a 
+bank I have only written to seek your indulgence and assistance.
 
-I have been searching for a person whom we can jointly invest, Trust in and
-also solicit an honorable partnership with. 
+I 
+wish to make a transfer involving a huge amount.
 
-I want to confirm that your contact information was got from a web email
-directory. I represent a client who is interested in investing in your
-country in areas related to agriculture or any business of your choice, to
-initiate a proper and structured relationship. Please let me know what your
-response will be to an offer to receive investment funds in cash if; 
+I am proposing to 
+make this transfer to a designated bank 
+account of your choice.Thus,  
+for your indulgence and support, I 
+propose an offer of 25% of the 
+total amount to be yours after the 
+transfer has been successfully 
+concluded.
 
-1. The said fund amounts to US$38,500,000 (Thirty Eight Million, Five
-hundred Thousand US Dollars).
+Kindly reply me stating your interest, and I shall furnish 
+you with the details and necessary proceedure with which to make the 
+transfer.
 
-2. The said fund is in cash and needs to be transferred in the same state,
-due to some covert reasons.
+I anxiously await your response.
 
-3. The fund could be invested through your agency in the purchase of
-facility and assets for investment purposes within your country, in
-collaboration with the agency of the current brokers.
+Thanks and Godbless.
 
-4. This transaction will result in you being paid a commission of 10% off
-the investment capital.
+Sincerely yours,
 
-5. The fund owners desire absolute confidentiality and professionalism
-in the handling of this matter, due to risks of seizure of the fund and
-litigation if personalities are revealed. 
+PAUL
+.......................................
+PAUL 
+CAMPBELL
 
-The fund owners have interest to invest in any of the following industries,
-depending on which is most transparent, low risk, and average profit
-yielding: Power Generation, Telecommunication and Software Development, Film
-Production, Hardware Manufacturing and Export, Medicine, Construction or
-Real-Estate Development.
+Email: paul_campbell@email.ro
 
-Based upon the information provided above, I would like to know if you
-shall be able to assist in the nature of managing the investment fund. You
-must note that the fund can only be transferred in cash, therefore if you
-are in acceptance to participate with us in the investment of the fund, you
-shall also need to participate with us in the transfer of the fund in cash
-in the manner of receiving the fund in cash and depositing it in a Trusted
-account opened in favour of the investment to be established.
 
-And this account would serve as the base or operating account for the
-investment. I am obliged to believe that you would be able to understand the
-information above, and should you need further information, please do not
-hesitate to ask.
 
-Kindly confirm receipt of this email by sending all correspondence to:
-quazihossain77@netscape.net OR quazihossain77@myway.com
-
- 
-
-Sincerely,
-Quazi Hossain (Esq.)
-Tel: +871 763 591 465 
-Fax: +871 763 591 466
 

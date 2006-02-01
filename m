@@ -1,85 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964769AbWBANCA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbWBANCB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964769AbWBANCA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 08:02:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWBANCA
+	id S932432AbWBANCB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 08:02:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbWBANCB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 08:02:00 -0500
-Received: from uproxy.gmail.com ([66.249.92.193]:14739 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932422AbWBANB7 convert rfc822-to-8bit
+	Wed, 1 Feb 2006 08:02:01 -0500
+Received: from mail7.hitachi.co.jp ([133.145.228.42]:7650 "EHLO
+	mail7.hitachi.co.jp") by vger.kernel.org with ESMTP id S932432AbWBANCA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 08:01:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Wb0TmpoO7+5nd6NIkzpLYayoLI3ZtKjMrvFkV5f5y14KQo5kkpEoAOqX0YJ25oaDyqpodz9ahMYsee1CMt7oU6Y1g7jtL6aSmjts6F0g83i9PlVUOnsWW/9JZZzmsqrSQBb5JI5V2Mi/Lch6GRFBVQJWh3Qg+n5aEwWz14m3KOA=
-Message-ID: <84144f020602010501k23e7898at82c0f231a2da0ad4@mail.gmail.com>
-Date: Wed, 1 Feb 2006 15:01:57 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200602012245.06328.nigel@suspend2.net>
+	Wed, 1 Feb 2006 08:02:00 -0500
+Message-ID: <43E0B165.2020405@sdl.hitachi.co.jp>
+Date: Wed, 01 Feb 2006 22:02:29 +0900
+From: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060201113710.6320.68289.stgit@localhost.localdomain>
-	 <20060201113711.6320.42205.stgit@localhost.localdomain>
-	 <84144f020602010432p51ff7a9cq1dd6654bd04f36a4@mail.gmail.com>
-	 <200602012245.06328.nigel@suspend2.net>
+To: Andrew Morton <akpm@osdl.org>
+CC: ananth@in.ibm.com, prasanna@in.ibm.com, anil.s.keshavamurthy@intel.com,
+       systemtap@sources.redhat.com, jkenisto@us.ibm.com,
+       linux-kernel@vger.kernel.org, sugita@sdl.hitachi.co.jp,
+       soshima@redhat.com, haoki@redhat.com
+Subject: Re: [PATCH][2/2] kprobe: kprobe-booster against 2.6.16-rc1 for i386
+References: <43DE0A4D.20908@sdl.hitachi.co.jp>	<43DEB290.1050000@sdl.hitachi.co.jp> <20060131145053.235e27e4.akpm@osdl.org>
+In-Reply-To: <20060131145053.235e27e4.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/1/06, Nigel Cunningham <nigel@suspend2.net> wrote:
-> --- /dev/null
-> +++ b/kernel/power/modules.h
+Hi, Andrew
+Andrew Morton wrote:
+> These preempt tricks look rather nasty.  Can you please describe what the
+> problem is, precisely?  And how this code avoids it?  Perhaps we can find
+> something cleaner.
 
-> +struct module_header {
+The problem is how to remove the copied instructions of the
+kprobe *safely* on the preemptable kernel (CONFIG_PREEMPT=y).
 
-[snip]
+Kprobes basically executes the following actions;
 
-> +extern int num_modules, num_writers;
+(1)int3
+(2)preempt_disable()
+(3)kprobe_prehandler()
+(4)copied instructioin(single step)
+(5)kprobe_posthandler()
+(6)preempt_enable()
+(7)return to the original code
 
-[snip]
+During the execution of copied instruction, preemption is
+disabled (from step (2) to (6)).
+When unregistering the probes, Kprobe waits for RCU
+quiescent state by using synchronize_sched() after removing
+int3 instruction.
+Thus we can ensure the copied instruction is not executed.
 
-> +extern struct suspend_module_ops *active_writer;
+On the other hand, kprobe-booster executes the following actions;
 
-[snip]
+(1)int3
+(2)preempt_disable()
+(3)kprobe_prehandler()
+(4)preempt_enable()             <-- this one is added by my patch
+(5)copied instruction(direct execution)
+(6)jmp back to the original code
 
-> +extern void prepare_console_modules(void);
-> +extern void cleanup_console_modules(void);
+The problem is that we have no way to prevent preemption on
+step (5) or (6). We cannot call preempt_disable() after step (6),
+because there are no rooms to do that. Thus, some other
+processes may be preempted at step(5) or (6) on preemptable kernel.
+And I couldn't find the easy way to ensure that other processes'
+stack do *not* have the address of them. (I thought some way
+to do that, but those are very costly.)
 
-[snip, snip]
+So currently, I simply boost the kprobe only when the probe
+point is already preemption disabled.
 
-> +extern unsigned long header_storage_for_modules(void);
-> +extern unsigned long memory_for_modules(void);
-> +
-> +extern int print_module_debug_info(char *buffer, int buffer_size);
+> Also, the patch adds a preempt_enable() but I don't see a corresponding
+> preempt_disable().  Am I missing something?
 
-Suspend prefix for the names of all of the above please? They're
-confusing with kernel/module.c now.
+It is corresponding to the preempt_disable() in the top of
+kprobe_handler().
+I copied the code of kprobe_handler() here:
 
-> +extern int suspend_register_module(struct suspend_module_ops *module);
-> +extern void suspend_unregister_module(struct suspend_module_ops *module);
-> +
-> +extern int suspend2_initialise_modules(int starting_cycle);
-> +extern void suspend2_cleanup_modules(int finishing_cycle);
-> +
-> +int suspend2_get_modules(void);
-> +void suspend2_put_modules(void);
+static int __kprobes kprobe_handler(struct pt_regs *regs)
+{
+        struct kprobe *p;
+        int ret = 0;
+        kprobe_opcode_t *addr = NULL;
+        unsigned long *lp;
+        struct kprobe_ctlblk *kcb;
 
-I think we can call these suspend_{get|set}_modules instead i.e.
-without the extra '2'.
+        /*
+         * We don't want to be preempted for the entire
+         * duration of kprobe processing
+         */
+        preempt_disable();             <-- HERE
+        kcb = get_kprobe_ctlblk();
 
-> +
-> +static inline void suspend_initialise_module_lists(void) {
-> +       INIT_LIST_HEAD(&suspend_filters);
-> +       INIT_LIST_HEAD(&suspend_writers);
-> +       INIT_LIST_HEAD(&suspend_modules);
-> +}
+Best regards,
 
-I couldn't find a user for this. I would imagine there's only one,
-though, and this should be inlined there?
 
-                        Pekka
+-- 
+Masami HIRAMATSU
+2nd Research Dept.
+Hitachi, Ltd., Systems Development Laboratory
+E-mail: hiramatu@sdl.hitachi.co.jp
+

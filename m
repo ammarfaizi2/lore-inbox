@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161075AbWBAPAK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161077AbWBAPBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161075AbWBAPAK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 10:00:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161076AbWBAPAK
+	id S1161077AbWBAPBT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 10:01:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWBAPBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 10:00:10 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:10380 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1161075AbWBAPAI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 10:00:08 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: vitaly@namesys.com
-Subject: Re: Recursive chmod/chown OOM kills box with 32MB RAM
-Date: Wed, 1 Feb 2006 16:59:52 +0200
-User-Agent: KMail/1.8.2
-Cc: reiserfs-dev@namesys.com, Chris Mason <mason@suse.com>,
-       Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-References: <200601281613.16199.vda@ilport.com.ua> <200602011445.05785.vitaly@namesys.com> <200602011625.25572.vda@ilport.com.ua>
-In-Reply-To: <200602011625.25572.vda@ilport.com.ua>
+	Wed, 1 Feb 2006 10:01:19 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:33712 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932387AbWBAPBT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 10:01:19 -0500
+Date: Wed, 1 Feb 2006 16:01:12 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Matthias Andree <matthias.andree@gmx.de>
+cc: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       linux-kernel@vger.kernel.org, acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+In-Reply-To: <20060130170527.GF19173@merlin.emma.line.org>
+Message-ID: <Pine.LNX.4.61.0602011600140.22529@yvahk01.tjqt.qr>
+References: <43D8C04F.nailE1C2X9KNC@burner> <20060126161028.GA8099@suse.cz>
+ <43DA2E79.nailFM911AZXH@burner> <43DA4DDA.7070509@superbug.co.uk>
+ <Pine.LNX.4.61.0601271753430.11702@yvahk01.tjqt.qr> <43DDFBFF.nail16Z3N3C0M@burner>
+ <20060130120408.GA8436@merlin.emma.line.org> <43DE3AE5.nail16ZL1UH7X@burner>
+ <20060130163006.GA19173@merlin.emma.line.org> <43DE402B.nail2AM1S47R8@burner>
+ <20060130170527.GF19173@merlin.emma.line.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200602011659.52572.vda@ilport.com.ua>
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 February 2006 16:25, Denis Vlasenko wrote:
-> On Wednesday 01 February 2006 13:45, Vitaly Fertman wrote:
-> > On Wednesday 01 February 2006 13:15, Denis Vlasenko wrote:
-> > > 
-> > > # reiserfstune -s 1024 /dev/sdc3
-> > > # mount /dev/sdc3 /.3 -o noatime
-> > > mount: you must specify the filesystem type
-> > > 
-> > > # dmesg | tail -4
-> > > br: topology change detected, propagating
-> > > br: port 1(ifi) entering forwarding state
-> > > FAT: bogus number of reserved sectors
-> > > VFS: Can't find a valid FAT filesystem on dev sdc3.
-> > > 
-> > > # reiserfsck /dev/sdc3
-> > > reiserfsck 3.6.11 (2003 www.namesys.com)
-> > 
-> > your reiserfsprogs are old. which kernel are you using?
-> 
-> # uname -a
-> Linux pegasus 2.6.12.3-2 #1 SMP Thu Sep 15 11:04:37 EEST 2005 i686 unknown unknown GNU/Linux
 
-I actually _looked at_ the uname output :) I am running wrong kernel!
-Rebooted into 2.6.15.1. Mount still failing.
---
-vda
+>> Many people announced forks in the past, nobody so far did contribute real 
+>> work... 
+>
+>Only the DVD patches...
+>
+Which don't always work. I remember SUSE Linux's pomped-up cdrecord-blahdvd 
+thing can't even do DVD-Plus-*, not to mention DVD-DL (some sort of 
+DVD-Plus).
+
+
+
+
+Jan Engelhardt
+-- 
+| Software Engineer and Linux/Unix Network Administrator
+| Alphagate Systems, http://alphagate.hopto.org/
+| jengelh's site, http://jengelh.hopto.org/

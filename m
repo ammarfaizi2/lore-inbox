@@ -1,72 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWBAMxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964769AbWBANCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbWBAMxX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 07:53:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWBAMxX
+	id S964769AbWBANCA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 08:02:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWBANCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 07:53:23 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:59869 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932216AbWBAMxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 07:53:23 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Date: Wed, 1 Feb 2006 22:49:52 +1000
-User-Agent: KMail/1.9.1
+	Wed, 1 Feb 2006 08:02:00 -0500
+Received: from uproxy.gmail.com ([66.249.92.193]:14739 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932422AbWBANB7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 08:01:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Wb0TmpoO7+5nd6NIkzpLYayoLI3ZtKjMrvFkV5f5y14KQo5kkpEoAOqX0YJ25oaDyqpodz9ahMYsee1CMt7oU6Y1g7jtL6aSmjts6F0g83i9PlVUOnsWW/9JZZzmsqrSQBb5JI5V2Mi/Lch6GRFBVQJWh3Qg+n5aEwWz14m3KOA=
+Message-ID: <84144f020602010501k23e7898at82c0f231a2da0ad4@mail.gmail.com>
+Date: Wed, 1 Feb 2006 15:01:57 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
 Cc: linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <84144f020602010438n3a1b50b3r3d2db9c84da94166@mail.gmail.com>
-In-Reply-To: <84144f020602010438n3a1b50b3r3d2db9c84da94166@mail.gmail.com>
+In-Reply-To: <200602012245.06328.nigel@suspend2.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2250854.oUttEiYquT";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602012249.56963.nigel@suspend2.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20060201113710.6320.68289.stgit@localhost.localdomain>
+	 <20060201113711.6320.42205.stgit@localhost.localdomain>
+	 <84144f020602010432p51ff7a9cq1dd6654bd04f36a4@mail.gmail.com>
+	 <200602012245.06328.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2250854.oUttEiYquT
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 2/1/06, Nigel Cunningham <nigel@suspend2.net> wrote:
+> --- /dev/null
+> +++ b/kernel/power/modules.h
 
-Hi.
+> +struct module_header {
 
-On Wednesday 01 February 2006 22:38, Pekka Enberg wrote:
-> On 2/1/06, Nigel Cunningham <nigel@suspend2.net> wrote:
-> > The name is currently mostly historical, from the time when these
-> > components could be built as kernel modules.
->
-> I think suspend_plugin would be a nicer name. Your code is even using
-> the term 'plugin' and 'filter' instead of module in many places.
+[snip]
 
-Hmm. Thought I got rid of all mentions of 'plugin'. I was trying to follow=
-=20
-Dave M's advice from LCA :). Filters are slightly different - they're the=20
-modules that do the encryption or compression, as opposed to the writers th=
-at=20
-do the I/O.
+> +extern int num_modules, num_writers;
 
-Regards,
+[snip]
 
-Nigel
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
+> +extern struct suspend_module_ops *active_writer;
 
---nextPart2250854.oUttEiYquT
-Content-Type: application/pgp-signature
+[snip]
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+> +extern void prepare_console_modules(void);
+> +extern void cleanup_console_modules(void);
 
-iD8DBQBD4K50N0y+n1M3mo0RAvBgAJwPfHbHJfBPlFzpWPvdner/ivj7lgCeIVYF
-fFKo5vTTH8YpovgUovHOzm0=
-=9Tu4
------END PGP SIGNATURE-----
+[snip, snip]
 
---nextPart2250854.oUttEiYquT--
+> +extern unsigned long header_storage_for_modules(void);
+> +extern unsigned long memory_for_modules(void);
+> +
+> +extern int print_module_debug_info(char *buffer, int buffer_size);
+
+Suspend prefix for the names of all of the above please? They're
+confusing with kernel/module.c now.
+
+> +extern int suspend_register_module(struct suspend_module_ops *module);
+> +extern void suspend_unregister_module(struct suspend_module_ops *module);
+> +
+> +extern int suspend2_initialise_modules(int starting_cycle);
+> +extern void suspend2_cleanup_modules(int finishing_cycle);
+> +
+> +int suspend2_get_modules(void);
+> +void suspend2_put_modules(void);
+
+I think we can call these suspend_{get|set}_modules instead i.e.
+without the extra '2'.
+
+> +
+> +static inline void suspend_initialise_module_lists(void) {
+> +       INIT_LIST_HEAD(&suspend_filters);
+> +       INIT_LIST_HEAD(&suspend_writers);
+> +       INIT_LIST_HEAD(&suspend_modules);
+> +}
+
+I couldn't find a user for this. I would imagine there's only one,
+though, and this should be inlined there?
+
+                        Pekka

@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161077AbWBAPBT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161078AbWBAPIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161077AbWBAPBT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 10:01:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbWBAPBT
+	id S1161078AbWBAPIT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 10:08:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbWBAPIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 10:01:19 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:33712 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932387AbWBAPBT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 10:01:19 -0500
-Date: Wed, 1 Feb 2006 16:01:12 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Matthias Andree <matthias.andree@gmx.de>
-cc: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       linux-kernel@vger.kernel.org, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-In-Reply-To: <20060130170527.GF19173@merlin.emma.line.org>
-Message-ID: <Pine.LNX.4.61.0602011600140.22529@yvahk01.tjqt.qr>
-References: <43D8C04F.nailE1C2X9KNC@burner> <20060126161028.GA8099@suse.cz>
- <43DA2E79.nailFM911AZXH@burner> <43DA4DDA.7070509@superbug.co.uk>
- <Pine.LNX.4.61.0601271753430.11702@yvahk01.tjqt.qr> <43DDFBFF.nail16Z3N3C0M@burner>
- <20060130120408.GA8436@merlin.emma.line.org> <43DE3AE5.nail16ZL1UH7X@burner>
- <20060130163006.GA19173@merlin.emma.line.org> <43DE402B.nail2AM1S47R8@burner>
- <20060130170527.GF19173@merlin.emma.line.org>
+	Wed, 1 Feb 2006 10:08:19 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:14978 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S932467AbWBAPIS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 10:08:18 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Wed, 01 Feb 2006 16:06:44 +0100
+To: schilling@fokus.fraunhofer.de, davidsen@tmr.com
+Cc: mrmacman_g4@mac.com, linux-kernel@vger.kernel.org, bzolnier@gmail.com,
+       acahalan@gmail.com
+Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future Linux (stirring up a hornets' nest) ]
+Message-ID: <43E0CE84.nail43Z17DW8Z@burner>
+References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com>
+ <43DCA097.nailGPD11GI11@burner>
+ <20060129112613.GA29356@merlin.emma.line.org>
+ <Pine.LNX.4.61.0601292139080.2596@yvahk01.tjqt.qr>
+ <43DD2A8A.nailGVQ115GOP@burner> <43DFF906.1090805@tmr.com>
+In-Reply-To: <43DFF906.1090805@tmr.com>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bill Davidsen <davidsen@tmr.com> wrote:
 
->> Many people announced forks in the past, nobody so far did contribute real 
->> work... 
->
->Only the DVD patches...
->
-Which don't always work. I remember SUSE Linux's pomped-up cdrecord-blahdvd 
-thing can't even do DVD-Plus-*, not to mention DVD-DL (some sort of 
-DVD-Plus).
+> Since we are making an effort to be civil, perhaps you might call these 
+> "characteristics" instead of bugs. Generally "bug" refers to an 
+> unintended behaviour, rather than an intended behaviour which may not be 
+> optimal.
 
+If you are talking about the DMA problem, this should be calle a bug as
+the same problem has been fixed elsewhere.
 
+Jörg
 
-
-Jan Engelhardt
 -- 
-| Software Engineer and Linux/Unix Network Administrator
-| Alphagate Systems, http://alphagate.hopto.org/
-| jengelh's site, http://jengelh.hopto.org/
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

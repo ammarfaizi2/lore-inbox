@@ -1,74 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964904AbWBAEGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWBAEON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964904AbWBAEGM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 23:06:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWBAEGM
+	id S964913AbWBAEON (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 23:14:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWBAEON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 23:06:12 -0500
-Received: from xproxy.gmail.com ([66.249.82.193]:52284 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964902AbWBAEGK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 23:06:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=D8tywxsL9QE+FX9lYKE6zXQxZVStR91aYk+VOeR/9/5A9j3+9vf8bc0oxutHRCkzNKjwRjXam6MKc1SI6OyHAKE529bIaDA78r0P9quAwWE+q+zlliq4Ylll3nyBlI5PoKCej0ITQydryK5cP66HE21ZKFBi4VReYe4SNMVSO+s=
-Message-ID: <986ed62e0601312006y75748bd9x8925556e979d59c9@mail.gmail.com>
-Date: Tue, 31 Jan 2006 20:06:10 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Al Boldi <a1426z@gawab.com>
-Subject: Re: [RFC] VM: I have a dream...
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Bryan Henderson <hbryan@us.ibm.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200601311856.17569.a1426z@gawab.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 31 Jan 2006 23:14:13 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:27321 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S964907AbWBAEON (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 23:14:13 -0500
+Date: Tue, 31 Jan 2006 23:14:09 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patches] libata updates
+Message-ID: <20060201041409.GA17794@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <OFA0FDB57C.2E4B1B4D-ON88257103.00688AE2-88257103.0069EF1C@us.ibm.com>
-	 <200601301621.24051.a1426z@gawab.com>
-	 <8F530CA8-1AC8-4AE5-8F1E-DC6518BD7D42@mac.com>
-	 <200601311856.17569.a1426z@gawab.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 1/31/06, Al Boldi <a1426z@gawab.com> wrote:
-> Faulty, because we are currently running a legacy solution to workaround an
-> 8,16,(32) arch bits address space limitation, which does not exist in
-> 64bits+ archs for most purposes.
 
-In the early 1990's (and maybe even the mid 90's), the typical hard
-disk's storage could theoretically be byte-addressed using 32-bit
-addresses -- just as (if I understand you correctly) you are arguing
-that today's hard disks can be byte-addressed using 64-bit addresses.
+Please pull from 'upstream-fixes' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
-If this was going to be practical ever (on commodity hardware anyway),
-I would have expected someone to try it on a 32-bit PC or Mac when
-hard drives were in the 100MB-3GB range... That suggests to me that
-there's a more fundamental reason (i.e. other than lack of address
-space) that caused people to stick with the current scheme.
+to receive the following updates:
 
-[snip]
-> There is a lot to gain, for one there is no more swapping w/ all its related
-> side-effects.  You're dealing with memory only.  You can also run your fs
-> inside memory, like tmpfs, which is definitely faster.  And there may be
-> lots of other advantages, due to the simplified architecture applied.
+ drivers/scsi/ahci.c |   19 +++++++++++++++----
+ 1 files changed, 15 insertions(+), 4 deletions(-)
 
-tmpfs isn't "definitely faster". Remember those benchmarks where Linux
-ext2 beat Solaris tmpfs?
-http://www.tux.org/lkml/#s9-12
+Jeff Garzik:
+      [libata ahci] Isolate Intel-ism, add JMicron JMB360 support
+      [libata ahci] add another JMicron pci id
 
-Also, the only way I see where "there is no more swapping" and
-"[y]ou're dealing with memory only" is if the disk *becomes* main
-memory, and main memory becomes an L3 (or L4) cache for the CPU [and
-as a consequence, main memory also becomes the main form of long-term
-storage]. Is that what you're proposing?
-
-If so, then it actually makes *less* sense to me than before -- with
-your scheme, you've reduced the speed of main memory by 100x or more,
-then you try to compensate with a huge cache. IOW, you've reduced the
-speed of *main* memory to (more or less) the speed of today's swap!
-Suddenly it doesn't sound so good anymore...
-
---
--Barry K. Nathan <barryn@pobox.com>
+diff --git a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c
+index 19bd346..a800fb5 100644
+--- a/drivers/scsi/ahci.c
++++ b/drivers/scsi/ahci.c
+@@ -286,6 +286,10 @@ static const struct pci_device_id ahci_p
+ 	  board_ahci }, /* ICH8M */
+ 	{ PCI_VENDOR_ID_INTEL, 0x282a, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 	  board_ahci }, /* ICH8M */
++	{ 0x197b, 0x2360, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* JMicron JMB360 */
++	{ 0x197b, 0x2363, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* JMicron JMB363 */
+ 	{ }	/* terminate list */
+ };
+ 
+@@ -802,7 +806,6 @@ static int ahci_host_init(struct ata_pro
+ 	struct pci_dev *pdev = to_pci_dev(probe_ent->dev);
+ 	void __iomem *mmio = probe_ent->mmio_base;
+ 	u32 tmp, cap_save;
+-	u16 tmp16;
+ 	unsigned int i, j, using_dac;
+ 	int rc;
+ 	void __iomem *port_mmio;
+@@ -836,9 +839,13 @@ static int ahci_host_init(struct ata_pro
+ 	writel(0xf, mmio + HOST_PORTS_IMPL);
+ 	(void) readl(mmio + HOST_PORTS_IMPL);	/* flush */
+ 
+-	pci_read_config_word(pdev, 0x92, &tmp16);
+-	tmp16 |= 0xf;
+-	pci_write_config_word(pdev, 0x92, tmp16);
++	if (pdev->vendor == PCI_VENDOR_ID_INTEL) {
++		u16 tmp16;
++
++		pci_read_config_word(pdev, 0x92, &tmp16);
++		tmp16 |= 0xf;
++		pci_write_config_word(pdev, 0x92, tmp16);
++	}
+ 
+ 	hpriv->cap = readl(mmio + HOST_CAP);
+ 	hpriv->port_map = readl(mmio + HOST_PORTS_IMPL);
+@@ -1082,6 +1089,10 @@ static int ahci_init_one (struct pci_dev
+ 	if (have_msi)
+ 		hpriv->flags |= AHCI_FLAG_MSI;
+ 
++	/* JMicron-specific fixup: make sure we're in AHCI mode */
++	if (pdev->vendor == 0x197b)
++		pci_write_config_byte(pdev, 0x41, 0xa1);
++
+ 	/* initialize adapter */
+ 	rc = ahci_host_init(probe_ent);
+ 	if (rc)

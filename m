@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWBAOcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWBAOgQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWBAOcd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 09:32:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWBAOcd
+	id S932452AbWBAOgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 09:36:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWBAOgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 09:32:33 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:4505 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932130AbWBAOcd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 09:32:33 -0500
-Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060201142249.GB6277@elte.hu>
-References: <1138736609.7088.35.camel@localhost.localdomain>
-	 <43E02CC2.3080805@bigpond.net.au>
-	 <1138797874.7088.44.camel@localhost.localdomain>
-	 <43E0B24E.8080508@yahoo.com.au> <43E0B342.6090700@yahoo.com.au>
-	 <20060201132054.GA31156@elte.hu> <43E0BBEC.3020209@yahoo.com.au>
-	 <20060201140041.GA5298@elte.hu> <43E0C127.8060401@yahoo.com.au>
-	 <20060201142249.GB6277@elte.hu>
-Content-Type: text/plain
-Date: Wed, 01 Feb 2006 09:32:17 -0500
-Message-Id: <1138804337.7088.54.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Wed, 1 Feb 2006 09:36:16 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:15621 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S932452AbWBAOgP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 09:36:15 -0500
+Message-ID: <43E0C72D.4070709@shadowen.org>
+Date: Wed, 01 Feb 2006 14:35:25 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Yasunori Goto <y-goto@jp.fujitsu.com>
+CC: Andrew Morton <akpm@osdl.org>, "Luck, Tony" <tony.luck@intel.com>,
+       Andi Kleen <ak@suse.de>, "Brown, Len" <len.brown@intel.com>,
+       Bob Picco <bob.picco@hp.com>, Paul Jackson <pj@sgi.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       ACPI-ML <linux-acpi@vger.kernel.org>, linux-ia64@vger.kernel.org,
+       x86-64 Discuss <discuss@x86-64.org>
+Subject: Re: [Patch:000/004] Unify pxm_to_node id ver.2.
+References: <20060201205152.41E6.Y-GOTO@jp.fujitsu.com>
+In-Reply-To: <20060201205152.41E6.Y-GOTO@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-01 at 15:22 +0100, Ingo Molnar wrote:
-> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Yasunori Goto wrote:
+> Hello.
 > 
-> > >rwsems/rwlocks are not an issue in -rt because they have different 
-> > >semantics there - and thus readers cannot amass. I do think rwsems and 
-> > >rwlocks have pretty nasty characteristics [non-latency ones] for the 
-> > >mainline kernel's use too, but that's not being argued here ;)
-> > 
-> > But all I'm saying is that while there are equivalent magnitudes of 
-> > interrupts off regions in mainline, there is little point introducing 
-> > a hack like this to "solve" one of them.
+> I rewrote patches to unify mapping from pxm to node id as ver.2.
+> I already posted all of fixes for ver.1.
+> However, searching first patch and appling fixes are a bit messy
+> due to too many mail and patches in LKML.
+> So, I rearranged them to find all of them easier.
+> Basically, (ver.1 + previous fix patches) = ver.2.
+> But ver.2 is set of following patches.
+>   - generic code.
+>   - for ia64.
+>   - for x86_64.
+>   - for i386.
 > 
-> nobody is arguing to have this hack included. Hacks are to be introduced 
-> into the scheduler only over my cold dead body ;-) Steve only sent this 
-> as an RFC thing, to raise the issue.
+> Fixes from ver.1 are followigs.
+>   - They are for 2.6.16-rc1-mm4.
+>   - Fix old map from HP and SGI's code by Bob Picco-san.
+>   - Remove MAX_PXM_DOMAINS from asm-ia64/acpi.h. It is already defined at
+>     include/acpi/acpi_numa.h.
+>   - Fix return code of setup_node() at arch/x86_64/mm/srat.c
+>   - Fix ACPI_NUMA config for i386 by Andy Witcroft-san.
+>   - Define dummy functions for i386's compile error.
+>   - Remove garbage nid_to_pxm_map from acpi20_parse_srat() 
+>     at arch/i386/kernel/srat.c
+> 
+> I tested ia64 and x86_64 with dummy SRAT NUMA emulation.
+> And I checked compile completion for hp, SGI, and Summit.
 
-I'll confirm this. Even in my submission, I stated that this was
-probably wrong, and wanted comments (thank you btw for commenting :).  I
-just wanted to show where the problem was, and that the problem went
-away with the "hack".
+Ran it across my test boxes, builds and boots on the affected platforms
+and generally elsewhere.
 
--- Steve
-
+-apw
 

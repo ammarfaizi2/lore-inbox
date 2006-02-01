@@ -1,51 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWBAJDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWBAJDX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751492AbWBAJDY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 04:03:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWBAJDY
+	id S1750762AbWBAJDX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 04:03:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWBAJDW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 04:03:24 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:41289 "EHLO
+	Wed, 1 Feb 2006 04:03:22 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:40521 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1750769AbWBAJDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1750762AbWBAJDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 1 Feb 2006 04:03:21 -0500
-Message-Id: <20060201090320.899381000@localhost.localdomain>
-References: <20060201090224.536581000@localhost.localdomain>
-Date: Wed, 01 Feb 2006 18:02:25 +0900
+Message-Id: <20060201090224.536581000@localhost.localdomain>
+Date: Wed, 01 Feb 2006 18:02:24 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: linux-ia64@vger.kernel.org, Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 01/44] ia64: use cpu_set() instead of __set_bit()
-Content-Disposition: inline; filename=ia64-cleanup.patch
+Subject: [patch 00/44] generic bitops
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-__set_bit() --> cpu_set() cleanup
+Large number of boilerplate bit operations which are written in C-language
+are scattered around include/asm-*/bitops.h.
+This patch series gathers them into include/asm-generic/bitops/*.h .
+It will be the benefit to:
 
-Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
- arch/ia64/kernel/mca.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+- kill duplicated code and comment (about 4000 lines)
+- use better C-language equivalents
+- help porting new architecture
 
-Index: 2.6-git/arch/ia64/kernel/mca.c
-===================================================================
---- 2.6-git.orig/arch/ia64/kernel/mca.c
-+++ 2.6-git/arch/ia64/kernel/mca.c
-@@ -69,6 +69,7 @@
- #include <linux/kernel.h>
- #include <linux/smp.h>
- #include <linux/workqueue.h>
-+#include <linux/cpumask.h>
- 
- #include <asm/delay.h>
- #include <asm/kdebug.h>
-@@ -1430,7 +1431,7 @@ format_mca_init_stack(void *mca_data, un
- 	ti->cpu = cpu;
- 	p->thread_info = ti;
- 	p->state = TASK_UNINTERRUPTIBLE;
--	__set_bit(cpu, &p->cpus_allowed);
-+	cpu_set(cpu, p->cpus_allowed);
- 	INIT_LIST_HEAD(&p->tasks);
- 	p->parent = p->real_parent = p->group_leader = p;
- 	INIT_LIST_HEAD(&p->children);
+Major changes since previous version:
+
+- put each class of bitop into its own header file in asm-generic/bitops/
+- change __ffs()
+- fix warning fix
+
+Todo:
+
+- improve hweight*() routines
 
 --

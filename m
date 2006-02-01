@@ -1,74 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422972AbWBAWIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422971AbWBAWLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422972AbWBAWIq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 17:08:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422971AbWBAWIq
+	id S1422971AbWBAWLR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 17:11:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422974AbWBAWLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 17:08:46 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:32153 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S1422962AbWBAWIp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 17:08:45 -0500
-Date: Wed, 1 Feb 2006 14:09:03 -0800
-From: Grant Grundler <iod00d@hp.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Grant Grundler'" <iod00d@hp.com>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Akinobu Mita'" <mita@miraclelinux.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 1/12] generic *_bit()
-Message-ID: <20060201220903.GE16471@esmail.cup.hp.com>
-References: <20060201193933.GA16471@esmail.cup.hp.com> <200602012141.k11LfCg32497@unix-os.sc.intel.com>
+	Wed, 1 Feb 2006 17:11:17 -0500
+Received: from nutty.inf.ed.ac.uk ([129.215.216.3]:45235 "EHLO
+	nutty.inf.ed.ac.uk") by vger.kernel.org with ESMTP id S1422971AbWBAWLQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 17:11:16 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602012141.k11LfCg32497@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
+Message-ID: <17377.6410.121318.124897@palau.inf.ed.ac.uk>
+In-Reply-To: <20060201172653.GA22700@suse.de>
+References: <17374.5399.546606.933186@palau.inf.ed.ac.uk>
+	<20060201172653.GA22700@suse.de>
+X-Mailer: VM 7.18 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
+From: Julian Bradfield <jcb@inf.ed.ac.uk>
+To: Olaf Dabrunz <od@suse.de>
+cc: linux-kernel@vger.kernel.org, lhofhansl@yahoo.com
+Subject: Re: TIOCCONS security revisited
+Date: Wed, 1 Feb 2006 20:24:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, 2006 at 01:41:03PM -0800, Chen, Kenneth W wrote:
-> > Well, if it doesn't matter, why is unsigned int better?
-> 
-> I was coming from the angle of having bitop operate on unsigned
-> int *, so people don't have to type cast or change bit flag variable
-> to unsigned long for various structures.  With unsigned int type for
-> bit flag, some of them are not even close to fully utilized. for example:
-> 
-> thread_info->flags uses 18 bits
-> thread_struct->flags uses 7 bits
-> 
-> It's a waste of memory to define a variable that kernel will *never*
-> touch the 4 MSB in that field.
+>The problem is that TIOCCONS causes security problems.
+>
+>Please rehash what I wrote in the thread. Essentially, these are my
+>points (citing myself here):
 
-Agreed. Good point. But this can be mitigated if the code using "unsigned int"
-(or unsigned byte) first loads the value into a local unsigned long variable.
-That typically translates into a tmp register anyway. Compiler will help
-you find places where that needs to happen.
+If you insist, I will rehash them, though they are not really relevant.
 
-Counter point is bit arrays (e.g. bit maps) like cpumask_t are
-typically much larger than 32-bits (typically distro's ship with
-NR_CPUS set to 256 or so).  File system code also likes bit arrays
-for block allocation tables. Searching a bit array using unsigned
-long is 2x faster on 64-bit architectures. I don't want to give
-that up and I'm pretty sure Tony Luck, Paul Mckerras and a few
-others would object unless you can give a better reason.
+>    the ioctl TIOCCONS allows any user to redirect console output to
+>    another tty. This allows anyone to suppress messages to the console
+>    at will.
 
-Obviously neither memory footprint nor speed of walking memory is an
-the issue for 32-bit arches (where unsigned long == unsigned int).
+I do not propose returning to this situation.
 
+>[and in a later mail:]
+>    Changing the ownership on /dev/console causes security problems
+>    (that user can usually access the current virtual terminal anytime,
+>    and the current one may not belong to him).
 
-> > unsigned long is typically the native register size, right?
-> > I'd expect that to be more efficient on most arches.
-> 
-> The only difference that I can think of on Itanium processor is the
-> memory operation, you either load/store 4 or 8 bytes. Once the data
-> is in the CPU register, it doesn't make any difference whether it is
-> operating on 32bit or entire 64 bit. I don't know about others RISC
-> arch though whether it is more efficient with native register size.
+If this is seen as a problem, it should be fixed in the virtual
+terminal system. /dev/console and TIOCCONS exist and work in many
+Unices, not just Linux.
 
-agreed. I was thinking mostly of the bit map search - not searching
-within a single unsigned int.
+>Also I refered to a security advisory for SunOS which describes one of
+>the problems (hijacking):
+>http://www.cert.org/advisories/CA-1990-12.html
 
-grant
+And how did Sun fix it? They fixed it by restricting TIOCCONS to users
+who have read access to the console - more liberal than my proposal!
+
+>And I said that there are alternatives to /dev/console, and a commonly
+>used one is /dev/xconsole (see below how to use this). It does not have
+
+I do not have the option of using /dev/xconsole.
+I use machines that I don't administer, and on all of them for the
+last 15 years until the recent breakage, "xterm -C" worked.
+
+>syslog/syslog-ng). But it also does not receive the messages that are
+>simply written to /dev/console.
+
+Exactly. I have an array of programs that write to /dev/console in the
+expectation that the message will be read by the person sitting at the
+console.
+
+>The latter problem still needs to be fixed, but is seldom a real
+>problem. AFAICS nowadays only scripts that run at boot time write to
+>/dev/console. The user has several ways to look at these messages
+
+As I have indicated, there is a world outside your experience of
+Linux. As well as my own scripts, the machines one which I work are
+set up to have syslog write urgent messages to /dev/console.
+
+>If you want this problem fixed, consider copying messages to
+>/dev/console with a demon to a logging facility. Have a look at
+>bootlogd/blogd.
+
+I do not administer the machines. If you hadn't broken TIOCCONS,
+everything would still work.
+
+>All this can be done by using /dev/xconsole.
+
+Which is not available.
+
+>Xconsole fails because by default it tries to use /dev/console. You can
+>avoid that by setting the resources to point to another file, e.g.
+>/dev/xconsole:
+
+which is not available.
+

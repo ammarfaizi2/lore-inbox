@@ -1,99 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWBAJG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbWBAJDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932418AbWBAJG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 04:06:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWBAJD4
+	id S932414AbWBAJDy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 04:03:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWBAJDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 04:03:56 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:23627 "EHLO
+	Wed, 1 Feb 2006 04:03:52 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:24651 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932409AbWBAJDh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932410AbWBAJDh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 1 Feb 2006 04:03:37 -0500
-Message-Id: <20060201090335.476045000@localhost.localdomain>
+Message-Id: <20060201090336.067087000@localhost.localdomain>
 References: <20060201090224.536581000@localhost.localdomain>
-Date: Wed, 01 Feb 2006 18:03:05 +0900
+Date: Wed, 01 Feb 2006 18:03:08 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: Richard Henderson <rth@twiddle.net>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-ia64@vger.kernel.org,
-       linuxsh-dev@lists.sourceforge.net, Andi Kleen <ak@suse.de>,
-       Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 41/44] make thread_info.flags an unsigned long
-Content-Disposition: inline; filename=thread_info-flags.patch
+Cc: Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 44/44] remove unused generic bitops in include/linux/bitops.h
+Content-Disposition: inline; filename=remove-unused.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The *_bit() routines are defined to work on a pointer to unsigned long.
-And the thread_info.flags is passed to *_bit() routines in
-include/linux/thread_info.h. But
+generic_{ffs,fls,fls64,hweight{64,32,16,8}}() were moved into
+include/asm-generic/bitops.h. So all architectures don't use them.
 
- - alpha: flags is unsigned int
- - ia64, sh, x86_64: flags is __u32
-
-So flags should be changed to unsigned long instead.
-
-The only affected 64-platforms are little endian, so it will work
-without this change. But it's better to change it before people copy the
-code to a big endian platform.
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
- include/asm-alpha/thread_info.h  |    2 +-
- include/asm-ia64/thread_info.h   |    2 +-
- include/asm-sh/thread_info.h     |    2 +-
- include/asm-x86_64/thread_info.h |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ include/linux/bitops.h |  124 -------------------------------------------------
+ 1 files changed, 1 insertion(+), 123 deletions(-)
 
-Index: 2.6-git/include/asm-alpha/thread_info.h
+Index: 2.6-git/include/linux/bitops.h
 ===================================================================
---- 2.6-git.orig/include/asm-alpha/thread_info.h
-+++ 2.6-git/include/asm-alpha/thread_info.h
-@@ -14,7 +14,7 @@ struct thread_info {
- 	struct pcb_struct	pcb;		/* palcode state */
+--- 2.6-git.orig/include/linux/bitops.h
++++ 2.6-git/include/linux/bitops.h
+@@ -3,88 +3,11 @@
+ #include <asm/types.h>
  
- 	struct task_struct	*task;		/* main task structure */
--	unsigned int		flags;		/* low level flags */
-+	unsigned long		flags;		/* low level flags */
- 	unsigned int		ieee_state;	/* see fpu.h */
+ /*
+- * ffs: find first bit set. This is defined the same way as
+- * the libc and compiler builtin ffs routines, therefore
+- * differs in spirit from the above ffz (man ffs).
+- */
+-
+-static inline int generic_ffs(int x)
+-{
+-	int r = 1;
+-
+-	if (!x)
+-		return 0;
+-	if (!(x & 0xffff)) {
+-		x >>= 16;
+-		r += 16;
+-	}
+-	if (!(x & 0xff)) {
+-		x >>= 8;
+-		r += 8;
+-	}
+-	if (!(x & 0xf)) {
+-		x >>= 4;
+-		r += 4;
+-	}
+-	if (!(x & 3)) {
+-		x >>= 2;
+-		r += 2;
+-	}
+-	if (!(x & 1)) {
+-		x >>= 1;
+-		r += 1;
+-	}
+-	return r;
+-}
+-
+-/*
+- * fls: find last bit set.
+- */
+-
+-static __inline__ int generic_fls(int x)
+-{
+-	int r = 32;
+-
+-	if (!x)
+-		return 0;
+-	if (!(x & 0xffff0000u)) {
+-		x <<= 16;
+-		r -= 16;
+-	}
+-	if (!(x & 0xff000000u)) {
+-		x <<= 8;
+-		r -= 8;
+-	}
+-	if (!(x & 0xf0000000u)) {
+-		x <<= 4;
+-		r -= 4;
+-	}
+-	if (!(x & 0xc0000000u)) {
+-		x <<= 2;
+-		r -= 2;
+-	}
+-	if (!(x & 0x80000000u)) {
+-		x <<= 1;
+-		r -= 1;
+-	}
+-	return r;
+-}
+-
+-/*
+  * Include this here because some architectures need generic_ffs/fls in
+  * scope
+  */
+ #include <asm/bitops.h>
  
- 	struct exec_domain	*exec_domain;	/* execution domain */
-Index: 2.6-git/include/asm-ia64/thread_info.h
-===================================================================
---- 2.6-git.orig/include/asm-ia64/thread_info.h
-+++ 2.6-git/include/asm-ia64/thread_info.h
-@@ -24,7 +24,7 @@
- struct thread_info {
- 	struct task_struct *task;	/* XXX not really needed, except for dup_task_struct() */
- 	struct exec_domain *exec_domain;/* execution domain */
--	__u32 flags;			/* thread_info flags (see TIF_*) */
-+	unsigned long flags;		/* thread_info flags (see TIF_*) */
- 	__u32 cpu;			/* current CPU */
- 	mm_segment_t addr_limit;	/* user-level address space limit */
- 	int preempt_count;		/* 0=premptable, <0=BUG; will also serve as bh-counter */
-Index: 2.6-git/include/asm-sh/thread_info.h
-===================================================================
---- 2.6-git.orig/include/asm-sh/thread_info.h
-+++ 2.6-git/include/asm-sh/thread_info.h
-@@ -18,7 +18,7 @@
- struct thread_info {
- 	struct task_struct	*task;		/* main task structure */
- 	struct exec_domain	*exec_domain;	/* execution domain */
--	__u32			flags;		/* low level flags */
-+	unsigned long		flags;		/* low level flags */
- 	__u32			cpu;
- 	int			preempt_count; /* 0 => preemptable, <0 => BUG */
- 	struct restart_block	restart_block;
-Index: 2.6-git/include/asm-x86_64/thread_info.h
-===================================================================
---- 2.6-git.orig/include/asm-x86_64/thread_info.h
-+++ 2.6-git/include/asm-x86_64/thread_info.h
-@@ -26,7 +26,7 @@ struct exec_domain;
- struct thread_info {
- 	struct task_struct	*task;		/* main task structure */
- 	struct exec_domain	*exec_domain;	/* execution domain */
--	__u32			flags;		/* low level flags */
-+	unsigned long		flags;		/* low level flags */
- 	__u32			status;		/* thread synchronous flags */
- 	__u32			cpu;		/* current CPU */
- 	int 			preempt_count;	/* 0 => preemptable, <0 => BUG */
+-
+-static inline int generic_fls64(__u64 x)
+-{
+-	__u32 h = x >> 32;
+-	if (h)
+-		return fls(x) + 32;
+-	return fls(x);
+-}
+-
+ static __inline__ int get_bitmask_order(unsigned int count)
+ {
+ 	int order;
+@@ -103,54 +26,9 @@ static __inline__ int get_count_order(un
+ 	return order;
+ }
+ 
+-/*
+- * hweightN: returns the hamming weight (i.e. the number
+- * of bits set) of a N-bit word
+- */
+-
+-static inline unsigned int generic_hweight32(unsigned int w)
+-{
+-        unsigned int res = (w & 0x55555555) + ((w >> 1) & 0x55555555);
+-        res = (res & 0x33333333) + ((res >> 2) & 0x33333333);
+-        res = (res & 0x0F0F0F0F) + ((res >> 4) & 0x0F0F0F0F);
+-        res = (res & 0x00FF00FF) + ((res >> 8) & 0x00FF00FF);
+-        return (res & 0x0000FFFF) + ((res >> 16) & 0x0000FFFF);
+-}
+-
+-static inline unsigned int generic_hweight16(unsigned int w)
+-{
+-        unsigned int res = (w & 0x5555) + ((w >> 1) & 0x5555);
+-        res = (res & 0x3333) + ((res >> 2) & 0x3333);
+-        res = (res & 0x0F0F) + ((res >> 4) & 0x0F0F);
+-        return (res & 0x00FF) + ((res >> 8) & 0x00FF);
+-}
+-
+-static inline unsigned int generic_hweight8(unsigned int w)
+-{
+-        unsigned int res = (w & 0x55) + ((w >> 1) & 0x55);
+-        res = (res & 0x33) + ((res >> 2) & 0x33);
+-        return (res & 0x0F) + ((res >> 4) & 0x0F);
+-}
+-
+-static inline unsigned long generic_hweight64(__u64 w)
+-{
+-#if BITS_PER_LONG < 64
+-	return generic_hweight32((unsigned int)(w >> 32)) +
+-				generic_hweight32((unsigned int)w);
+-#else
+-	u64 res;
+-	res = (w & 0x5555555555555555ul) + ((w >> 1) & 0x5555555555555555ul);
+-	res = (res & 0x3333333333333333ul) + ((res >> 2) & 0x3333333333333333ul);
+-	res = (res & 0x0F0F0F0F0F0F0F0Ful) + ((res >> 4) & 0x0F0F0F0F0F0F0F0Ful);
+-	res = (res & 0x00FF00FF00FF00FFul) + ((res >> 8) & 0x00FF00FF00FF00FFul);
+-	res = (res & 0x0000FFFF0000FFFFul) + ((res >> 16) & 0x0000FFFF0000FFFFul);
+-	return (res & 0x00000000FFFFFFFFul) + ((res >> 32) & 0x00000000FFFFFFFFul);
+-#endif
+-}
+-
+ static inline unsigned long hweight_long(unsigned long w)
+ {
+-	return sizeof(w) == 4 ? generic_hweight32(w) : generic_hweight64(w);
++	return sizeof(w) == 4 ? hweight32(w) : hweight64(w);
+ }
+ 
+ /*
 
 --

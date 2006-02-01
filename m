@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964958AbWBANQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964957AbWBANQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964958AbWBANQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 08:16:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964960AbWBANQP
+	id S964957AbWBANQE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 08:16:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964972AbWBANQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 08:16:15 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:48593 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964958AbWBANQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 08:16:14 -0500
-Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060201130818.GA26481@elte.hu>
-References: <1138736609.7088.35.camel@localhost.localdomain>
-	 <20060201130818.GA26481@elte.hu>
-Content-Type: text/plain
-Date: Wed, 01 Feb 2006 08:15:54 -0500
-Message-Id: <1138799754.7088.48.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Feb 2006 08:16:04 -0500
+Received: from 1-1-3-46a.gml.gbg.bostream.se ([82.182.110.161]:54498 "EHLO
+	kotiaho.net") by vger.kernel.org with ESMTP id S964957AbWBANQC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 08:16:02 -0500
+Date: Wed, 1 Feb 2006 14:15:21 +0100 (CET)
+From: "J.O. Aho" <trizt@iname.com>
+X-X-Sender: trizt@lai.local.lan
+To: "David S. Miller" <davem@davemloft.net>
+cc: linux-kernel maillist <linux-kernel@vger.kernel.org>,
+       sparclinux@vger.kernel.org
+Subject: Re: Sparc: Kernel 2.6.13 to 2.6.15-rc2 bug when running X11
+In-Reply-To: <20051211.210752.83944980.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.64.0602011406260.27149@lai.local.lan>
+References: <Pine.LNX.4.64.0512102350310.4739@lai.local.lan>
+ <20051210.150034.67577008.davem@davemloft.net> <Pine.LNX.4.64.0512110020050.4809@lai.local.lan>
+ <20051211.210752.83944980.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-01 at 14:08 +0100, Ingo Molnar wrote:
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
-> 
-> [pls. use -p when generating patches]
-> 
-> > @@ -1983,6 +1983,10 @@
-> >  
-> >  	curr = curr->prev;
-> >  
-> > +	/* bail if someone else woke up */
-> > +	if (need_resched())
-> > +		goto out;
-> > +
-> >  	if (!can_migrate_task(tmp, busiest, this_cpu, sd, idle, &pinned)) {
-> >  		if (curr != head)
-> >  			goto skip_queue;
-> 
-> even putting the problems of this approach aside (is it right to abort 
-> the act of load-balancing - which is a periodic activity that wont be 
-> restarted after this - so we lose real work), i think this will not 
-> solve the latency. Imagine a hardirq hitting the CPU that is executing 
-> move_tasks() above. We might not service that hardirq for up to 1.5 
-> msecs ...
-> 
-> i think the right approach would be to split up this work into smaller 
-> chunks. Or rather, lets first see how this can happen: why is 
-> can_migrate() false for so many tasks? Are they all cpu-hot? If yes, 
-> shouldnt we simply skip only up to a limit of tasks in this case - it's 
-> not like we want to spend 1.5 msecs searching for a cache-cold task 
-> which might give us a 50 usecs advantage over cache-hot tasks ...
-> 
+On Sun, 11 Dec 2005, David S. Miller wrote:
 
-OK, agreed.
+> I strongly believe your kernel is being miscompiled by whatever
+> gcc is being used to build your kernels.
 
-Just to clear things up.  I looked further into what was causing this,
-and the can_migrate was indeed true, and it just happened that we got a
-large imbalance, and it pulled a few hundred tasks.  So, my earlier
-analysis was incorrect about the can_migrate being false.
+After a bit posting at comp.sys.sun.hardware I found a person with an 
+Ultra60 using Creator3D (UPA) too on it, he had a working X. He did run 
+kernel 2.6.8, so today I did install 2.6.8.1 (vanilla) and tested Xorg 
+and it worked as well as it does under 2.4.x.
 
--- Steve
+I guess there has been some bad change in the sparc kernel code somewhere 
+between 2.6.8.1 and 2.6.13. I can say that 2.6.15.1 still "crashes" the 
+kernel. I don't know if there has been any discussion if it's the small 
+amount of UPA relatad code that causes the problem or not, but I think 
+it's plausible that the UPA code has been "damaged" in the later versions 
+of the kernel.
 
+
+-- 
+      //Aho
+
+  ------------------------------------------------------------------------
+   E-Mail: trizt@iname.com            URL: http://www.kotiaho.net/~trizt/
+      ICQ: 13696780
+   System: Linux System                        (PPC7447/1000 AMD K7A/2000)
+  ------------------------------------------------------------------------
+             EU forbids you to send spam without my permission
+  ------------------------------------------------------------------------

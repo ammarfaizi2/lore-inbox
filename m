@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbWBAEEE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964904AbWBAEGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964894AbWBAEEE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 23:04:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWBAEEE
+	id S964904AbWBAEGM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 23:06:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbWBAEGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 23:04:04 -0500
-Received: from mail.kroah.org ([69.55.234.183]:41664 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964894AbWBAEEC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 23:04:02 -0500
-Date: Tue, 31 Jan 2006 20:03:36 -0800
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       Linas Vepstas <linas@austin.ibm.com>
-Subject: Re: [GIT PATCH] PCI patches for 2.6.16-rc1
-Message-ID: <20060201040336.GA26107@suse.de>
-References: <20060201020437.GA20719@kroah.com> <Pine.LNX.4.64.0601311813400.7301@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 31 Jan 2006 23:06:12 -0500
+Received: from xproxy.gmail.com ([66.249.82.193]:52284 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964902AbWBAEGK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 23:06:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=D8tywxsL9QE+FX9lYKE6zXQxZVStR91aYk+VOeR/9/5A9j3+9vf8bc0oxutHRCkzNKjwRjXam6MKc1SI6OyHAKE529bIaDA78r0P9quAwWE+q+zlliq4Ylll3nyBlI5PoKCej0ITQydryK5cP66HE21ZKFBi4VReYe4SNMVSO+s=
+Message-ID: <986ed62e0601312006y75748bd9x8925556e979d59c9@mail.gmail.com>
+Date: Tue, 31 Jan 2006 20:06:10 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Al Boldi <a1426z@gawab.com>
+Subject: Re: [RFC] VM: I have a dream...
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Bryan Henderson <hbryan@us.ibm.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200601311856.17569.a1426z@gawab.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0601311813400.7301@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+References: <OFA0FDB57C.2E4B1B4D-ON88257103.00688AE2-88257103.0069EF1C@us.ibm.com>
+	 <200601301621.24051.a1426z@gawab.com>
+	 <8F530CA8-1AC8-4AE5-8F1E-DC6518BD7D42@mac.com>
+	 <200601311856.17569.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 31, 2006 at 06:16:43PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Tue, 31 Jan 2006, Greg KH wrote:
-> > 
-> > linas:
-> >       PCI Hotplug: PCI panic on dlpar add (add pci slot to running partition)
-> >       PCI Hotplug/powerpc: module build break
-> > 
-> > linas@austin.ibm.com:
-> >       powerpc/PCI hotplug: remove rpaphp_find_bus()
-> >       powerpc/PCI hotplug: merge config_pci_adapter
-> 
-> Looks like Linas Vepstas doesn't have a good email address in his From: 
-> fields.. As a result, the logs are nasty. 
-> 
-> Linas - could you _please_ fix your email setup, of if your email setup is 
-> good, could whoever added the bogus "From: " line to the email please NOT 
-> DO THAT HORRIBLE THING?
+On 1/31/06, Al Boldi <a1426z@gawab.com> wrote:
+> Faulty, because we are currently running a legacy solution to workaround an
+> 8,16,(32) arch bits address space limitation, which does not exist in
+> 64bits+ archs for most purposes.
 
-At least he put a valid email address in there, it used to just bounce
-to a non-existant domain :(
+In the early 1990's (and maybe even the mid 90's), the typical hard
+disk's storage could theoretically be byte-addressed using 32-bit
+addresses -- just as (if I understand you correctly) you are arguing
+that today's hard disks can be byte-addressed using 64-bit addresses.
 
-> Greg, if you notice things like this, can you fix them up or bounce them 
-> back to the author? Yeah, I let mistakes get through too, so I shouldn't 
-> throw stones, but it's just so much _nicer_ if things look nice in the 
-> logs etc, so I try to catch it when I can..
+If this was going to be practical ever (on commodity hardware anyway),
+I would have expected someone to try it on a 32-bit PC or Mac when
+hard drives were in the 100MB-3GB range... That suggests to me that
+there's a more fundamental reason (i.e. other than lack of address
+space) that caused people to stick with the current scheme.
 
-Sorry about that, I should have caught this.
+[snip]
+> There is a lot to gain, for one there is no more swapping w/ all its related
+> side-effects.  You're dealing with memory only.  You can also run your fs
+> inside memory, like tmpfs, which is definitely faster.  And there may be
+> lots of other advantages, due to the simplified architecture applied.
 
-thanks,
+tmpfs isn't "definitely faster". Remember those benchmarks where Linux
+ext2 beat Solaris tmpfs?
+http://www.tux.org/lkml/#s9-12
 
-greg k-h
+Also, the only way I see where "there is no more swapping" and
+"[y]ou're dealing with memory only" is if the disk *becomes* main
+memory, and main memory becomes an L3 (or L4) cache for the CPU [and
+as a consequence, main memory also becomes the main form of long-term
+storage]. Is that what you're proposing?
+
+If so, then it actually makes *less* sense to me than before -- with
+your scheme, you've reduced the speed of main memory by 100x or more,
+then you try to compensate with a huge cache. IOW, you've reduced the
+speed of *main* memory to (more or less) the speed of today's swap!
+Suddenly it doesn't sound so good anymore...
+
+--
+-Barry K. Nathan <barryn@pobox.com>

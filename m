@@ -1,49 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422636AbWBAPjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161094AbWBAPkB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422636AbWBAPjc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 10:39:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161095AbWBAPjc
+	id S1161094AbWBAPkB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 10:40:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161095AbWBAPkB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 10:39:32 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:13469 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1161094AbWBAPjb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 10:39:31 -0500
-Date: Wed, 1 Feb 2006 16:39:20 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Juerg Billeter <j@bitron.ch>
-cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, mrmacman_g4@mac.com,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       James@superbug.co.uk, acahalan@gmail.com
-Subject: [OT] Re: CD writing in future Linux (stirring up a hornets' nest)
-In-Reply-To: <1138710764.17338.47.camel@juerg-t40p.bitron.ch>
-Message-ID: <Pine.LNX.4.61.0602011638150.22529@yvahk01.tjqt.qr>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> 
- <43D7A7F4.nailDE92K7TJI@burner>  <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
-  <43D7B1E7.nailDFJ9MUZ5G@burner>  <20060125230850.GA2137@merlin.emma.line.org>
-  <43D8C04F.nailE1C2X9KNC@burner> <200  <43DDFBFF.nail16Z3N3C0M@burner> 
- <1138642683.7404.31.camel@juerg-pd.bitron.ch>  <43DF3C3A.nail2RF112LAB@burner>
- <1138710764.17338.47.camel@juerg-t40p.bitron.ch>
+	Wed, 1 Feb 2006 10:40:01 -0500
+Received: from crosspoint.informatik.gu.se ([130.241.141.44]:52663 "EHLO
+	crosspoint.fsfeurope.org") by vger.kernel.org with ESMTP
+	id S1161094AbWBAPkA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 10:40:00 -0500
+From: "Georg C. F. Greve" <greve@fsfeurope.org>
+To: Glauber de Oliveira Costa <glommer@gmail.com>
+Cc: Filip Brcic <brcha@users.sourceforge.net>, karim@opersys.com,
+       Thomas Horsten <thomas@horsten.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>
+	<43DE57C4.5010707@opersys.com>
+	<5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com>
+	<200601302301.04582.brcha@users.sourceforge.net>
+	<5d6222a80601302012v22196faci3ce81320fb534f30@mail.gmail.com>
+Organisation: Free Software Foundation Europe
+X-PGP-Fingerprint: 2D68 D553 70E5 CCF9 75F4 9CC9 6EF8 AFC2 8657 4ACA
+X-PGP-Affinity: will accept encrypted messages for GNU Privacy Guard
+X-Home-Page: http://gnuhh.org
+X-Accept-Language: en, de
+Date: Wed, 01 Feb 2006 16:30:46 +0100
+In-Reply-To: <5d6222a80601302012v22196faci3ce81320fb534f30@mail.gmail.com>
+	(Glauber de Oliveira Costa's message of "Tue, 31 Jan 2006 02:12:17
+	-0200")
+Message-ID: <m3d5i76qqh.fsf@cerebro.gnuhh.org>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed; boundary="20060201163046+010053585333-49551236-132439075";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Users like to be able to get a list of posible targets for a single protocol.
->> Nobody would ever think about trying to prevent people from getting a unified
->> view on the list possible hosts that talk TCP/IP. What cdrecord does with
->> -scanbus is nothing really different. 
->
->Well, please show me how to get the list of all possible hosts that talk
->TCP/IP and are directly or indirectly connected to my computer. As my
->computer is attached to the internet, the list would get pretty long...
->And even if only considering hosts in the local network, how do you get
->a unified view of all TCP/IP hosts conected to any of my two network
->adapters?
->
-For direct connections (0 hop inbetween), spew pings around the local network,
-look into the ARP table and try to TCP-connect to everyone listed.
+--20060201163046+010053585333-49551236-132439075
+Content-Transfer-Encoding: quoted-printable
 
+ || On Tue, 31 Jan 2006 02:12:17 -0200
+ || Glauber de Oliveira Costa <glommer@gmail.com> wrote:=20
 
-Jan Engelhardt
--- 
+ g> So, I think the main point is that free software and Linux has
+ g> both to gain being together. And maybe saying no to GPLv3 may be a
+ g> too disruptive move. GPLv3 is still a draft. Can't it be discussed
+ g> a little among with Linus, some companies representants, and some
+ g> guys from fsf?
+
+Yes, indeed discussing is what FSF has allocated an entire year for.
+
+While it is possible that this particular criticism was based on a
+misunderstanding, which may be an indicator of need for language
+improvement, all criticism should ideally be put into a comprehensive
+form and submitted through the gplv3.fsf.org/comments system.
+
+If Linus lacks the time to do it himself, maybe some people on this
+list could help gather his points as possible submissions for
+improvement?
+
+Regards,
+Georg
+
+=2D-=20
+Georg C. F. Greve                                 <greve@fsfeurope.org>
+Free Software Foundation Europe	                 (http://fsfeurope.org)
+Join the Fellowship and protect your freedom!     (http://www.fsfe.org)
+
+--20060201163046+010053585333-49551236-132439075
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iQCVAwUAQ+DUJik9sUy32wQcAQKfvgP/as0XWSxg/3miG1lTbpGWnEOGknKuYKw/
+Yy9QwU07+cB90tYCjUJ8Xe99goIKdnWwbxY6xLSQyctHdgvl411gRORaqBi881f3
+CdHMn7ubhLmYs/72rkv6p10EXEAm7L3VTHSn2G2tKKjva4F+tjhUAmzlcFIIC3BT
++j8Xtsja3Qo=
+=Q9j1
+-----END PGP SIGNATURE-----
+--20060201163046+010053585333-49551236-132439075--

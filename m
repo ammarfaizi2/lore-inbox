@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbWBAQP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWBAQRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964942AbWBAQP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 11:15:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWBAQP4
+	id S964986AbWBAQRN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 11:17:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbWBAQRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 11:15:56 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:11728 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964942AbWBAQPz (ORCPT
+	Wed, 1 Feb 2006 11:17:13 -0500
+Received: from ns.firmix.at ([62.141.48.66]:43657 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S964980AbWBAQRL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 11:15:55 -0500
-Date: Wed, 1 Feb 2006 11:15:41 -0500
-From: Dave Jones <davej@redhat.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: more cfq spinlock badness
-Message-ID: <20060201161541.GD5875@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Jens Axboe <axboe@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060131063938.GA1876@redhat.com> <20060131090944.GU4215@suse.de> <20060131173601.GA7204@redhat.com> <20060201110228.GS4215@suse.de>
+	Wed, 1 Feb 2006 11:17:11 -0500
+Subject: Re: root=LABEL= problem [Was: Re: Linux Issue]
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Jiri Slaby <xslaby@fi.muni.cz>, kavitha s <wellspringkavitha@yahoo.co.in>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0602011713410.22529@yvahk01.tjqt.qr>
+References: <20060201114845.E41F222AF24@anxur.fi.muni.cz>
+	 <Pine.LNX.4.61.0602011713410.22529@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Wed, 01 Feb 2006 17:16:56 +0100
+Message-Id: <1138810616.16643.30.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060201110228.GS4215@suse.de>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, 2006 at 12:02:28PM +0100, Jens Axboe wrote:
+On Wed, 2006-02-01 at 17:14 +0100, Jan Engelhardt wrote:
+[...]
+> >change root=LABEL=/ to root=/dev/XXX. Vanilla doesn't support this...
+> >
+> is there a kernel patch that does allow it?
 
- > >  > if you are using that? The bug above has in the
- > >  > past always been able to be explained by a driver destroying a structure
- > >  > embedding the queue lock before the queue is dead.
- > > 
- > > as there were no ub devices plugged in at the time, I think
- > > Pete is off the hook for this one.
- > 
- > The ub fix hasn't been merged yet.
+Yes, in RedHat's/Fedora's kernels since ages.
 
-Really? I thought Pete synced up a whole bunch of ub bits including that already.
-
- > Just trying to be absolutely certain
- > that you didn't have that loaded?
-
-99.9% sure. (It was a few days ago, and I'm already forgetting details).
-
-		Dave
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 

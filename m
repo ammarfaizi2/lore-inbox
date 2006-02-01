@@ -1,286 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbWBAJJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbWBAJLW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932391AbWBAJJW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 04:09:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932396AbWBAJIr
+	id S932401AbWBAJLW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 04:11:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWBAJIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 04:08:47 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:4939 "EHLO
+	Wed, 1 Feb 2006 04:08:40 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:10571 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932391AbWBAJDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932399AbWBAJDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 1 Feb 2006 04:03:34 -0500
-Message-Id: <20060201090333.007615000@localhost.localdomain>
+Message-Id: <20060201090333.740090000@localhost.localdomain>
 References: <20060201090224.536581000@localhost.localdomain>
-Date: Wed, 01 Feb 2006 18:02:52 +0900
+Date: Wed, 01 Feb 2006 18:02:56 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: Greg Ungerer <gerg@uclinux.org>, Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 28/44] m68knommu: use generic bitops
-Content-Disposition: inline; filename=m68knommu.patch
+Cc: linux390@de.ibm.com, Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 32/44] s390: use generic bitops
+Content-Disposition: inline; filename=s390.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- remove ffs()
-- remove __ffs()
-- remove sched_find_first_bit()
-- remove ffz()
-- remove find_{next,first}{,_zero}_bit()
-- remove generic_hweight()
-- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+- remove generic_ffs()
 - remove generic_fls()
 - remove generic_fls64()
+- remove generic_hweight{64,32,16,8}()
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
- include/asm-m68knommu/bitops.h |  221 +----------------------------------------
- 1 files changed, 9 insertions(+), 212 deletions(-)
+ include/asm-s390/bitops.h |   44 +++++---------------------------------------
+ 1 files changed, 5 insertions(+), 39 deletions(-)
 
-Index: 2.6-git/include/asm-m68knommu/bitops.h
+Index: 2.6-git/include/asm-s390/bitops.h
 ===================================================================
---- 2.6-git.orig/include/asm-m68knommu/bitops.h
-+++ 2.6-git/include/asm-m68knommu/bitops.h
-@@ -12,104 +12,10 @@
- 
- #ifdef __KERNEL__
- 
--/*
-- *	Generic ffs().
-- */
--static inline int ffs(int x)
--{
--	int r = 1;
--
--	if (!x)
--		return 0;
--	if (!(x & 0xffff)) {
--		x >>= 16;
--		r += 16;
--	}
--	if (!(x & 0xff)) {
--		x >>= 8;
--		r += 8;
--	}
--	if (!(x & 0xf)) {
--		x >>= 4;
--		r += 4;
--	}
--	if (!(x & 3)) {
--		x >>= 2;
--		r += 2;
--	}
--	if (!(x & 1)) {
--		x >>= 1;
--		r += 1;
--	}
--	return r;
--}
--
--/*
-- *	Generic __ffs().
-- */
--static inline int __ffs(int x)
--{
--	int r = 0;
--
--	if (!x)
--		return 0;
--	if (!(x & 0xffff)) {
--		x >>= 16;
--		r += 16;
--	}
--	if (!(x & 0xff)) {
--		x >>= 8;
--		r += 8;
--	}
--	if (!(x & 0xf)) {
--		x >>= 4;
--		r += 4;
--	}
--	if (!(x & 3)) {
--		x >>= 2;
--		r += 2;
--	}
--	if (!(x & 1)) {
--		x >>= 1;
--		r += 1;
--	}
--	return r;
--}
--
--/*
-- * Every architecture must define this function. It's the fastest
-- * way of searching a 140-bit bitmap where the first 100 bits are
-- * unlikely to be set. It's guaranteed that at least one of the 140
-- * bits is cleared.
-- */
--static inline int sched_find_first_bit(unsigned long *b)
--{
--	if (unlikely(b[0]))
--		return __ffs(b[0]);
--	if (unlikely(b[1]))
--		return __ffs(b[1]) + 32;
--	if (unlikely(b[2]))
--		return __ffs(b[2]) + 64;
--	if (b[3])
--		return __ffs(b[3]) + 96;
--	return __ffs(b[4]) + 128;
--}
--
--/*
-- * ffz = Find First Zero in word. Undefined if no zero exists,
-- * so code should check against ~0UL first..
-- */
--static __inline__ unsigned long ffz(unsigned long word)
--{
--	unsigned long result = 0;
--
--	while(word & 1) {
--		result++;
--		word >>= 1;
--	}
--	return result;
--}
--
-+#include <asm-generic/bitops/ffs.h>
-+#include <asm-generic/bitops/__ffs.h>
-+#include <asm-generic/bitops/sched.h>
-+#include <asm-generic/bitops/ffz.h>
- 
- static __inline__ void set_bit(int nr, volatile unsigned long * addr)
- {
-@@ -254,98 +160,8 @@ static __inline__ int __test_bit(int nr,
-  __constant_test_bit((nr),(addr)) : \
-  __test_bit((nr),(addr)))
- 
--#define find_first_zero_bit(addr, size) \
--        find_next_zero_bit((addr), (size), 0)
--#define find_first_bit(addr, size) \
--        find_next_bit((addr), (size), 0)
--
--static __inline__ int find_next_zero_bit (const void * addr, int size, int offset)
--{
--	unsigned long *p = ((unsigned long *) addr) + (offset >> 5);
--	unsigned long result = offset & ~31UL;
--	unsigned long tmp;
--
--	if (offset >= size)
--		return size;
--	size -= result;
--	offset &= 31UL;
--	if (offset) {
--		tmp = *(p++);
--		tmp |= ~0UL >> (32-offset);
--		if (size < 32)
--			goto found_first;
--		if (~tmp)
--			goto found_middle;
--		size -= 32;
--		result += 32;
--	}
--	while (size & ~31UL) {
--		if (~(tmp = *(p++)))
--			goto found_middle;
--		result += 32;
--		size -= 32;
--	}
--	if (!size)
--		return result;
--	tmp = *p;
--
--found_first:
--	tmp |= ~0UL << size;
--found_middle:
--	return result + ffz(tmp);
--}
--
--/*
-- * Find next one bit in a bitmap reasonably efficiently.
-- */
--static __inline__ unsigned long find_next_bit(const unsigned long *addr,
--	unsigned long size, unsigned long offset)
--{
--	unsigned int *p = ((unsigned int *) addr) + (offset >> 5);
--	unsigned int result = offset & ~31UL;
--	unsigned int tmp;
--
--	if (offset >= size)
--		return size;
--	size -= result;
--	offset &= 31UL;
--	if (offset) {
--		tmp = *p++;
--		tmp &= ~0UL << offset;
--		if (size < 32)
--			goto found_first;
--		if (tmp)
--			goto found_middle;
--		size -= 32;
--		result += 32;
--	}
--	while (size >= 32) {
--		if ((tmp = *p++) != 0)
--			goto found_middle;
--		result += 32;
--		size -= 32;
--	}
--	if (!size)
--		return result;
--	tmp = *p;
--
--found_first:
--	tmp &= ~0UL >> (32 - size);
--	if (tmp == 0UL)        /* Are any bits set? */
--		return result + size; /* Nope. */
--found_middle:
--	return result + __ffs(tmp);
--}
--
--/*
-- * hweightN: returns the hamming weight (i.e. the number
-- * of bits set) of a N-bit word
-- */
--
--#define hweight32(x) generic_hweight32(x)
--#define hweight16(x) generic_hweight16(x)
--#define hweight8(x) generic_hweight8(x)
--
-+#include <asm-generic/bitops/find.h>
-+#include <asm-generic/bitops/hweight.h>
- 
- static __inline__ int ext2_set_bit(int nr, volatile void * addr)
- {
-@@ -475,30 +291,11 @@ found_middle:
- 	return result + ffz(__swab32(tmp));
+--- 2.6-git.orig/include/asm-s390/bitops.h
++++ 2.6-git/include/asm-s390/bitops.h
+@@ -828,35 +828,12 @@ static inline int sched_find_first_bit(u
+ 	return find_first_bit(b, 140);
  }
  
--/* Bitmap functions for the minix filesystem.  */
--#define minix_test_and_set_bit(nr,addr) __test_and_set_bit(nr,addr)
--#define minix_set_bit(nr,addr) __set_bit(nr,addr)
--#define minix_test_and_clear_bit(nr,addr) __test_and_clear_bit(nr,addr)
--#define minix_test_bit(nr,addr) test_bit(nr,addr)
--#define minix_find_first_zero_bit(addr,size) find_first_zero_bit(addr,size)
--
--/**
-- * hweightN - returns the hamming weight of a N-bit word
-- * @x: the word to weigh
-- *
-- * The Hamming Weight of a number is the total number of bits set in it.
+-/*
+- * ffs: find first bit set. This is defined the same way as
+- * the libc and compiler builtin ffs routines, therefore
+- * differs in spirit from the above ffz (man ffs).
 - */
--
--#define hweight32(x) generic_hweight32(x)
--#define hweight16(x) generic_hweight16(x)
--#define hweight8(x) generic_hweight8(x)
-+#include <asm-generic/bitops/minix.h>
- 
- #endif /* __KERNEL__ */
+-#define ffs(x) generic_ffs(x)
++#include <asm-generic/bitops/ffs.h>
  
 -/*
 - * fls: find last bit set.
 - */
 -#define fls(x) generic_fls(x)
 -#define fls64(x)   generic_fls64(x)
+-
+-/*
+- * hweightN: returns the hamming weight (i.e. the number
+- * of bits set) of a N-bit word
+- */
+-#define hweight64(x)						\
+-({								\
+-	unsigned long __x = (x);				\
+-	unsigned int __w;					\
+-	__w = generic_hweight32((unsigned int) __x);		\
+-	__w += generic_hweight32((unsigned int) (__x>>32));	\
+-	__w;							\
+-})
+-#define hweight32(x) generic_hweight32(x)
+-#define hweight16(x) generic_hweight16(x)
+-#define hweight8(x) generic_hweight8(x)
 +#include <asm-generic/bitops/fls.h>
 +#include <asm-generic/bitops/fls64.h>
  
- #endif /* _M68KNOMMU_BITOPS_H */
++#include <asm-generic/bitops/hweight.h>
+ 
+ #ifdef __KERNEL__
+ 
+@@ -1011,18 +988,7 @@ ext2_find_next_zero_bit(void *vaddr, uns
+ 	return offset + ext2_find_first_zero_bit(p, size);
+ }
+ 
+-/* Bitmap functions for the minix filesystem.  */
+-/* FIXME !!! */
+-#define minix_test_and_set_bit(nr,addr) \
+-	__test_and_set_bit(nr,(unsigned long *)addr)
+-#define minix_set_bit(nr,addr) \
+-	__set_bit(nr,(unsigned long *)addr)
+-#define minix_test_and_clear_bit(nr,addr) \
+-	__test_and_clear_bit(nr,(unsigned long *)addr)
+-#define minix_test_bit(nr,addr) \
+-	test_bit(nr,(unsigned long *)addr)
+-#define minix_find_first_zero_bit(addr,size) \
+-	find_first_zero_bit(addr,size)
++#include <asm-generic/bitops/minix.h>
+ 
+ #endif /* __KERNEL__ */
+ 
 
 --

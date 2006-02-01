@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161013AbWBANeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161019AbWBANhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161013AbWBANeF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 08:34:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbWBANeF
+	id S1161019AbWBANhS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 08:37:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161049AbWBANhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 08:34:05 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:51160 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964980AbWBANeE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 08:34:04 -0500
-Date: Wed, 1 Feb 2006 14:32:19 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: herbert@gondor.apana.org.au, davem@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [lock validator] inet6_destroy_sock(): soft-safe -> soft-unsafe lock dependency
-Message-ID: <20060201133219.GA1435@elte.hu>
-References: <E1F2IcV-0007Iq-00@gondolin.me.apana.org.au> <20060128152204.GA13940@elte.hu> <20060131102758.GA31460@gondor.apana.org.au> <20060131.024323.83813817.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 1 Feb 2006 08:37:18 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:42131 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161019AbWBANhQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 08:37:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CEQgUE1zers4wuQ+J7i/wQH6tCPIE7YV4hmuDku/rt+pvT8l+zU64UzkAm24inwhE3JBksPE3EvDX++7sTq0h4nOkSAxpVOTZszAa/xjDhB9z2jBSHCRzjIXlXiLba3WC2VgvLJUS8fQXZNkUkdQ5CT6PQjbKzwhepiA82hnfog=
+Message-ID: <7d40d7190602010537i3f10b722h@mail.gmail.com>
+Date: Wed, 1 Feb 2006 14:37:15 +0100
+From: Aritz Bastida <aritzbastida@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Right way to configure a driver? (sysfs, ioctl, proc, configfs,....)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060130214118.GB26463@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060131.024323.83813817.davem@davemloft.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <7d40d7190601261206wdb22ccck@mail.gmail.com>
+	 <20060127050109.GA23063@kroah.com>
+	 <7d40d7190601270230u850604av@mail.gmail.com>
+	 <20060130214118.GB26463@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > 3.- Actually the most difficult config I must do is to pass three
+> > values from userspace to my module. Specifically two integers and a
+> > long (it's an offset to a memory zone I've previously defined)
+> >
+> > struct meminfo {
+> >         unsigned int      id;         /* segment identifier */
+> >         unsigned int      size;     /* size of the memory area */
+> >         unsigned long   offset;   /* offset to the information */
+> > };
+> >
+> > How would you pass this information in sysfs? Three values in the same
+> > file? Note that using three different files wouldn't be atomic, and I
+> > need atomicity.
+>
+> Use configfs.
+>
 
-* David S. Miller <davem@davemloft.net> wrote:
+Ummhh, and would it be correct to configure my device via a netlink
+socket? Remember that my driver is a kind of network "virtual" device.
 
-> From: Herbert Xu <herbert@gondor.apana.org.au>
-> Date: Tue, 31 Jan 2006 21:27:58 +1100
-> 
-> > tcp_close is only called from process context.  The rule for sk_dst_lock
-> > is that it must also only be obtained in process context.  On the other
-> > hand, it is true that sk_lock can be obtained in softirq context.
-> > 
-> > In this particular case, sk_dst_lock is obtained by tcp_close with
-> > softirqs disabled.  This is not a problem in itself since we're not
-> > trying to get sk_dst_lock from a real softirq context (as opposed to
-> > process context with softirq disabled).
-> > 
-> > I believe this warning comes about because the validator creates a
-> > dependency between sk_lock and sk_dst_lock.  It then infers from this
-> > dependency that in softirq contexts where sk_lock is obtained the code
-> > may also attempt to obtain sk_dst_lock.
-> > 
-> > This inference is where the validator errs.  sk_dst_lock is never
-> > (or should never be, and as far as I can see none of the traces show
-> > it to do so) obtained in a real softirq context.
-> 
-> Herbert's analysis is correct.  This unique locking strategy is used 
-> by tcp_close() because at this point it knows that every single 
-> reference to this socket in the system is gone once it takes the 
-> socket lock with BH disabled.
-> 
-> And that known invariant is why this is correct, and the locking 
-> validator has no way to figure this out.
+There are so many old and new ways to configure a driver that I'm a
+bit overwhelmed...
 
-update: with all of Herbert's fixes i havent gotten these yet - so maybe 
-the validator was not producing a false positive, but perhaps the 
-inet6_destroy_sock()->sk_dst_reset() thing was causing the messages?
-
-	Ingo
+Regards
+Aritz

@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422867AbWBBC2T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423065AbWBBCja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422867AbWBBC2T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 21:28:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423057AbWBBC2S
+	id S1423065AbWBBCja (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 21:39:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423064AbWBBCja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 21:28:18 -0500
-Received: from ozlabs.org ([203.10.76.45]:19368 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1422867AbWBBC2S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 21:28:18 -0500
-Date: Thu, 2 Feb 2006 13:25:55 +1100
-From: Anton Blanchard <anton@samba.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix cpu hotplug
-Message-ID: <20060202022555.GA11005@krispykreme>
+	Wed, 1 Feb 2006 21:39:30 -0500
+Received: from 66-169-249-72.dhcp.gnps.or.charter.com ([66.169.249.72]:37639
+	"EHLO Jeff-Office") by vger.kernel.org with ESMTP id S1423060AbWBBCj2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 21:39:28 -0500
+Date: Thu, 2 Feb 2006  2:39:27 +0480
+From: "Hallie Norton" <kevin@1-stop-job-interviews.com>
+X-Mailer: The Bat! (v3.0.1.33) CD5BF9353B3B7091
+Reply-To: "Hallie Norton" <kevin@1-stop-job-interviews.com>
+X-Priority: 3 (Normal)
+Message-ID: <508956407.20060202023927@1-stop-job-interviews.com>
+To: linux-kernel@vger.kernel.org
+Subject: re: Discover this stock
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+OTC Update: 
 
-Hi,
+Legendary Palace Theme Park Pushes DKDY Up The Market, Up 250% Since December
 
-CPU hotplug was broken by the __meminit changes. Avoid the madness of
-creating a mem+cpu hotplug init attribute and just make them __devinit.
 
-Anton
+SYM:  DKDY
+Days Close: $1.63
+SH0RT;  $2.45 - 2.75
+Long Term: $3.75 - $4.25
+Indicat0r;   Strng Buy
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
----
 
-Index: build/mm/page_alloc.c
-===================================================================
---- build.orig/mm/page_alloc.c	2006-02-02 12:20:50.000000000 +1100
-+++ build/mm/page_alloc.c	2006-02-02 13:14:56.000000000 +1100
-@@ -1799,7 +1799,7 @@ void zonetable_add(struct zone *zone, in
- 	memmap_init_zone((size), (nid), (zone), (start_pfn))
- #endif
- 
--static int __meminit zone_batchsize(struct zone *zone)
-+static int __devinit zone_batchsize(struct zone *zone)
- {
- 	int batch;
- 
-@@ -1893,7 +1893,7 @@ static struct per_cpu_pageset
-  * Dynamically allocate memory for the
-  * per cpu pageset array in struct zone.
-  */
--static int __meminit process_zones(int cpu)
-+static int __devinit process_zones(int cpu)
- {
- 	struct zone *zone, *dzone;
- 
-@@ -1934,7 +1934,7 @@ static inline void free_zone_pagesets(in
- 	}
- }
- 
--static int __meminit pageset_cpuup_callback(struct notifier_block *nfb,
-+static int __devinit pageset_cpuup_callback(struct notifier_block *nfb,
- 		unsigned long action,
- 		void *hcpu)
- {
+Members,
+
+For several weeks we have been keeping you up to date on amazing progress of DKDY. 
+We have seen solid, steady growth from $0.65 last month to $1.63 by close Today.
+
+The market interest in DKDY continues to grow as information about the theme park and 
+its upcoming events, pushing the stock to new hights daily.
+
+About the park
+
+1974 brought the discovery of the world famous Terricaota Warriors and Horses and the 
+uncovering of the Qin Dynasty's greatest achievements. This site has been China's most 
+visited landmark and draws nearly $350,000,000.00 anually.
+
+For thousands of years the Qin Dynasty boasted the legend of the E Pang Palace and was 
+believed simply to be a myth. Recent discoveries have unearthed the lobby to the legendary 
+Palace and has been developed into a theme park designed to take tourists back in time to 
+this once great dynasty.
+
+After having visited the relics and sites of the "Natural History Museum", The Museum of 
+Terra Cotta Warriors and Horses; praised as "the eighth major miracle of the world; the 
+Mausoleum of Emperor Qin Shi Huang, the City Wall of the Ming Dynasty, the 3000 year old 
+Banpo Village Remains, and the Forest of Stone Steles, tourists will now be taken back in 
+time to a nightly banquet and dance show held in the palace lobby of the legandary E-Pang 
+Palace capable of holding 10,000 visiters which is in the middle of the park.
+
+These nightly banquets are expected to double the yearly visitors to the park and increase 
+revenues by $3.4 million annually.
+
+There is no wonder this stock has been taking off, as they draw closer to the new evening 
+programs to go in place in early April. 
+
+After todays trading we expect to see the stock continue a buy frezy with a substantial 
+increase in price as we close the trading week tomorrow.
+
+Put your buy in for first thing in the morning and take advantage of this upward moving 
+company.
+
+Good Trading!

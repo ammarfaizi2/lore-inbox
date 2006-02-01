@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422650AbWBAPwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422647AbWBAP4Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422650AbWBAPwU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 10:52:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422649AbWBAPwU
+	id S1422647AbWBAP4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 10:56:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161105AbWBAP4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 10:52:20 -0500
-Received: from mx1.mail.ru ([194.67.23.121]:44895 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id S1422647AbWBAPwS (ORCPT
+	Wed, 1 Feb 2006 10:56:16 -0500
+Received: from ns.firmix.at ([62.141.48.66]:41097 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1161101AbWBAP4P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 10:52:18 -0500
-Date: Wed, 1 Feb 2006 18:40:20 +0300
-From: Evgeniy Dushistov <dushistov@mail.ru>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] Mark CONFIG_UFS_FS_WRITE as BROKEN
-Message-ID: <20060201154020.GA593@rain.homenetwork>
-Mail-Followup-To: Alexey Dobriyan <adobriyan@gmail.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org
-References: <20060131234634.GA13773@mipter.zuzino.mipt.ru>
+	Wed, 1 Feb 2006 10:56:15 -0500
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Denis Vlasenko <vda@ilport.com.ua>, Oliver Neukum <oliver@neukum.org>,
+       jerome lacoste <jerome.lacoste@gmail.com>,
+       Joerg Schilling <schilling@fokus.fraunhofer.de>, j@bitron.ch,
+       mrmacman_g4@mac.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, James@superbug.co.uk, acahalan@gmail.com
+In-Reply-To: <Pine.LNX.4.61.0602011634520.22529@yvahk01.tjqt.qr>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+	 <5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com>
+	 <200601311333.36000.oliver@neukum.org>
+	 <200601311444.47199.vda@ilport.com.ua>
+	 <Pine.LNX.4.61.0602011634520.22529@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Wed, 01 Feb 2006 16:55:03 +0100
+Message-Id: <1138809303.16643.28.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060131234634.GA13773@mipter.zuzino.mipt.ru>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, 2006 at 02:46:34AM +0300, Alexey Dobriyan wrote:
-> OpenBSD doesn't see "." correctly in directories created by Linux.
-The problem is in dir.c:ufs_make_empty, which create "." and ".."
-entires, in this function i_size isn't updated, 
-so result directory has zero size.
-This patch should solve the problem, can you try it?
+On Wed, 2006-02-01 at 16:37 +0100, Jan Engelhardt wrote:
+[...]
+> >Do we need to expose IDE master/slave, primary/secondary concepts in Linux?
+> >
+> AFAICS, we do. hda is always primary slave, etc. With the SCSI layer it's
+> (surprisingly) the other way round, sda just happens to be the first disk
+> inserted (SCA, USB, etc.)
 
-Signed-off-by: Evgeniy Dushistov <dushistov@mail.ru>
+The (historical) reason was: There were not enough major/minor numbers
+(IIRC 8 bit for each of them) for a sane (and static) SCSI device number
+mapping (similar to IDE) - just multiply the possible # of partitions *
+# of LUNs * # IDs for a few controllers.
 
----
-
---- linux-2.6.16-rc1-mm4/fs/ufs/dir.c.orig	2006-02-01 18:29:28.943878250 +0300
-+++ linux-2.6.16-rc1-mm4/fs/ufs/dir.c	2006-02-01 18:12:24.043826000 +0300
-@@ -539,6 +539,7 @@ int ufs_make_empty(struct inode * inode,
- 		return err;
- 
- 	inode->i_blocks = sb->s_blocksize / UFS_SECTOR_SIZE;
-+	inode->i_size = sb->s_blocksize;
- 	de = (struct ufs_dir_entry *) dir_block->b_data;
- 	de->d_ino = cpu_to_fs32(sb, inode->i_ino);
- 	ufs_set_de_type(sb, de, inode->i_mode);
-
-
+	Bernd
 -- 
-/Evgeniy
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 

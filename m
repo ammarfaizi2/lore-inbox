@@ -1,117 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422946AbWBAVfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422952AbWBAVjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422946AbWBAVfU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 16:35:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422947AbWBAVfU
+	id S1422952AbWBAVjP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 16:39:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422951AbWBAVjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 16:35:20 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:41355 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1422946AbWBAVfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 16:35:19 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h'
-Date: Thu, 2 Feb 2006 07:31:53 +1000
-User-Agent: KMail/1.9.1
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602012245.06328.nigel@suspend2.net> <Pine.LNX.4.58.0602010909530.23607@shark.he.net>
-In-Reply-To: <Pine.LNX.4.58.0602010909530.23607@shark.he.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2659318.WJ4M92yQBq";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602020731.58183.nigel@suspend2.net>
+	Wed, 1 Feb 2006 16:39:15 -0500
+Received: from rigel.cs.pdx.edu ([131.252.208.59]:35474 "EHLO rigel.cs.pdx.edu")
+	by vger.kernel.org with ESMTP id S1422947AbWBAVjO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 16:39:14 -0500
+Date: Wed, 1 Feb 2006 13:38:54 -0800
+From: Kristen Carlson Accardi <kristenc@cs.pdx.edu>
+To: pcihpd-discuss@lists.sourceforge.net
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
+       muneda.takahiro@jp.fujitsu.com, linux-acpi@vger.kernel.org
+Subject: [patch] acpiphp: add new bus to acpi
+Message-ID: <20060201213854.GC27247@nerpa>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2659318.WJ4M92yQBq
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+From: kristen.c.accardi@intel.com
 
-Hi.
+If we add a new bridge with subordinate busses, we should call make sure
+that acpi is notified so that the PRT (if present) can be read and drivers
+who have registered on this bus will be notified when it is started.
+Also make sure to use the max reservered bus number for the starting the bus
+scan.
+ 
+ 
+ Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+---
+I broke this out of the dock patches because it is applicable to more
+than just docking stations.
 
-On Thursday 02 February 2006 03:12, Randy.Dunlap wrote:
-> On Wed, 1 Feb 2006, Nigel Cunningham wrote:
-> > On Wednesday 01 February 2006 22:32, Pekka Enberg wrote:
-> > > On 2/1/06, Nigel Cunningham <nigel@suspend2.net> wrote:
-> > > > Suspend2 uses a strong internal API to separate the method of
-> > > > determining the content of the image from the method by which it is
-> > > > saved. The code for determining the content is part of the core of
-> > > > Suspend2, and transformations (compression and/or encryption) and
-> > > > storage of the pages are handled by 'modules'.
-> > >
-> > > [snip]
-> > >
-> > > > Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
-> > > >
-> > > >  0 files changed, 0 insertions(+), 0 deletions(-)
-> > >
-> > > Uh, oh, where's the patch?
-> >
-> > Indeed! Oops! I think I've managed to put this in kmail without having =
-it
-> > mangled!
-> >
-> > Nigel
-> >
-> >
-> > [Suspend2] kernel/power/modules.h
-> >
-> >  kernel/power/modules.h |  179
-> > ++++++++++++++++++++++++++++++++++++++++++++++++ 1 files changed, 179
-> > insertions(+), 0 deletions(-)
-> >
-> > diff --git a/kernel/power/modules.h b/kernel/power/modules.h
-> > new file mode 100644
-> > index 0000000..ee34199
-> > --- /dev/null
-> > +++ b/kernel/power/modules.h
-> > @@ -0,0 +1,179 @@
-> > +/*
-> > + * kernel/power/module.h
->
-> wrong file name.
+ drivers/pci/hotplug/acpiphp_glue.c |  106 ++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 104 insertions(+), 2 deletions(-)
 
-Oops. Thanks.
+Index: linux-2.6.16-rc1/drivers/pci/hotplug/acpiphp_glue.c
+===================================================================
+--- linux-2.6.16-rc1.orig/drivers/pci/hotplug/acpiphp_glue.c
++++ linux-2.6.16-rc1/drivers/pci/hotplug/acpiphp_glue.c
+@@ -751,6 +751,101 @@ static int power_off_slot(struct acpiphp
+ }
+ 
+ 
++
++/**
++ * acpiphp_max_busnr - return the highest reserved bus number under
++ * the given bus.
++ * @bus: bus to start search with
++ *
++ */
++static unsigned char acpiphp_max_busnr(struct pci_bus *bus)
++{
++	struct list_head *tmp;
++	unsigned char max, n;
++
++	/*
++	 * pci_bus_max_busnr will return the highest
++	 * reserved busnr for all these children.
++	 * that is equivalent to the bus->subordinate
++	 * value.  We don't want to use the parent's
++	 * bus->subordinate value because it could have
++	 * padding in it.
++	 */
++	max = bus->secondary;
++
++	list_for_each(tmp, &bus->children) {
++		n = pci_bus_max_busnr(pci_bus_b(tmp));
++		if (n > max)
++			max = n;
++	}
++	return max;
++}
++
++
++
++/**
++ *  get_func - get a pointer to acpiphp_func given a slot, device
++ *  @slot: slot to search
++ *  @dev:  pci_dev struct to match.
++ *
++ *  This function will increase the reference count of pci_dev,
++ *  so callers should call pci_dev_put when complete.
++ *
++ */
++static struct acpiphp_func *
++get_func(struct acpiphp_slot *slot, struct pci_dev *dev)
++{
++	struct acpiphp_func *func = NULL;
++	struct pci_bus *bus = slot->bridge->pci_bus;
++	struct pci_dev *pdev;
++
++	list_for_each_entry(func, &slot->funcs, sibling) {
++		pdev = pci_get_slot(bus, PCI_DEVFN(slot->device,
++					func->function));
++		if (pdev) {
++			if (pdev == dev)
++				break;
++			pci_dev_put(pdev);
++		}
++	}
++	return func;
++}
++
++
++/**
++ * acpiphp_bus_add - add a new bus to acpi subsystem
++ * @func: acpiphp_func of the bridge
++ *
++ */
++static int acpiphp_bus_add(struct acpiphp_func *func)
++{
++	acpi_handle phandle;
++	struct acpi_device *device, *pdevice;
++	int ret_val;
++
++	acpi_get_parent(func->handle, &phandle);
++	if (acpi_bus_get_device(phandle, &pdevice)) {
++		dbg("no parent device, assuming NULL\n");
++		pdevice = NULL;
++	}
++	ret_val = acpi_bus_add(&device, pdevice, func->handle,
++			ACPI_BUS_TYPE_DEVICE);
++	if (ret_val)
++		dbg("cannot add bridge to acpi list\n");
++
++	/*
++	 * try to start anyway.  We could have failed to add
++	 * simply because this bus had previously been added
++	 * on another add.  Don't bother with the return value
++	 * we just keep going.
++	 */
++	ret_val = acpi_bus_start(device);
++
++	return ret_val;
++}
++
++
++
+ /**
+  * enable_device - enable, configure a slot
+  * @slot: slot to be enabled
+@@ -788,7 +883,7 @@ static int enable_device(struct acpiphp_
+ 		goto err_exit;
+ 	}
+ 
+-	max = bus->secondary;
++	max = acpiphp_max_busnr(bus);
+ 	for (pass = 0; pass < 2; pass++) {
+ 		list_for_each_entry(dev, &bus->devices, bus_list) {
+ 			if (PCI_SLOT(dev->devfn) != slot->device)
+@@ -796,8 +891,15 @@ static int enable_device(struct acpiphp_
+ 			if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE ||
+ 			    dev->hdr_type == PCI_HEADER_TYPE_CARDBUS) {
+ 				max = pci_scan_bridge(bus, dev, max, pass);
+-				if (pass && dev->subordinate)
++				if (pass && dev->subordinate) {
+ 					pci_bus_size_bridges(dev->subordinate);
++					func = get_func(slot, dev);
++					if (func) {
++						acpiphp_bus_add(func);
++						/* side effect of get_func */
++						pci_dev_put(dev);
++					}
++				}
+ 			}
+ 		}
+ 	}
 
-> > +enum {
-> > +	FILTER_PLUGIN,
-> > +	WRITER_PLUGIN,
-> > +	MISC_PLUGIN, // Block writer, eg.
-> > +	CHECKSUM_PLUGIN
-> > +};
->
-> Kernel comment style is /* ... */, not // (many places).
-
-Hmm. Learnt that a while ago. Not sure how I missed this one :)
-
-> > +	/* Bytes! */
->
-> Drop the '!'.
-
-:) Will do.
-
-Nigel
-
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
-
---nextPart2659318.WJ4M92yQBq
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD4SjON0y+n1M3mo0RArmmAKDNGGcqRX3eZcSv3TJFMFtmnwP6QgCfQ2J1
-GxIXVFpmXnTYJNuLKWxe+qQ=
-=8tJp
------END PGP SIGNATURE-----
-
---nextPart2659318.WJ4M92yQBq--

@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161015AbWBAKuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWBAKyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161015AbWBAKuc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 05:50:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161012AbWBAKub
+	id S932410AbWBAKyr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 05:54:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWBAKyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 05:50:31 -0500
-Received: from khc.piap.pl ([195.187.100.11]:37126 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S932175AbWBAKua (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 05:50:30 -0500
-To: <netdev@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: [RFC] Backward compatibility and WAN netdev configuration
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Wed, 01 Feb 2006 11:50:28 +0100
-Message-ID: <m3psm7tksr.fsf@defiant.localdomain>
+	Wed, 1 Feb 2006 05:54:47 -0500
+Received: from uproxy.gmail.com ([66.249.92.203]:41769 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932410AbWBAKyq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 05:54:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KMuWtL2XU+Y7fg4gTwMy3R0nrU+tAtn46Vt7WDJKp0vSNKId0M6IJ2KOsoyG6vRb2J2tyL99ISMg8wu5Fo9abICdXzO+vyFmdTWOs7nLXiG9XRPVw4vKPqhQr4J54OqQxgyE9R0OC6DjunCHSE7EosLb/6HU6zxGPfj169OZvv4=
+Message-ID: <84144f020602010254j3fc34061ve7d38277054548fe@mail.gmail.com>
+Date: Wed, 1 Feb 2006 12:54:44 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: sarat <saratkumar.koduri@gmail.com>
+Subject: Re: got it
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <aed62bae0602010238i78765753g60df3239fe6bf5c8@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <aed62bae0602010238i78765753g60df3239fe6bf5c8@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I'm considering some changes/additions to my generic HDLC (WAN) code.
+On 2/1/06, sarat <saratkumar.koduri@gmail.com> wrote:
+> we have a snippet to capture the packet using netfilter but can
+> anybody tell me ..
+>
+> is it necessary to install a libipq rpm to access the packet and
+> modify it's data& headers..
 
-What do you think about:
-a) Currently it consists of mid-layer WAN protocols single module (Cisco
-   HDLC, FR etc.) + low-level hardware HDLC card driver (C101, N2, PCI200SYN
-   etc.). I'm thinking about splitting the protocol module into separate
-   modules - it would make them independent, users would be able to
-   load, say, FR without PPP or X.25 and underlying syncppp, lapb etc.
-   From the technical POV it would be superior to current code but it
-   would require sysadmins to change modprobe.conf, add another modprobe
-   or something like that. Not a real problem but the upgrade can't be
-   automatic.
+http://www.catb.org/~esr/faqs/smart-questions.html
 
-b) I'm currently using a dedicated "sethdlc" tool for configuring WAN
-   devices (both physical parameters like clocking, speeds etc. and
-   protocol parameters/selection). It uses ioctl(). I'm thinking about
-   switching configuration interface to sysfs. That would render the
-   old ioctl interface obsolete.
-   It would mean much better flexibility, and (when the HDLC ioctl
-   interface is removed in a year or so) would simplify the code.
+And you're off-topic for LKML, please take it off-line. Thanks.
 
-   I'm not sure about using sysfs for net device configuration, though.
-   Of course, it would make sysfs mandatory for generic HDLC users.
-
-I'd aim at making changes to ~ 2.6.18.
-
-Opinions?
--- 
-Krzysztof Halasa
+                                      Pekka

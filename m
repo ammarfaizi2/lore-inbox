@@ -1,88 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWBAEON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030246AbWBAETx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964913AbWBAEON (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 23:14:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbWBAEON
+	id S1030246AbWBAETx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 23:19:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030255AbWBAETx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 23:14:13 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:27321 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S964907AbWBAEON (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 23:14:13 -0500
-Date: Tue, 31 Jan 2006 23:14:09 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [git patches] libata updates
-Message-ID: <20060201041409.GA17794@havoc.gtf.org>
-Mime-Version: 1.0
+	Tue, 31 Jan 2006 23:19:53 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:410 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030246AbWBAETw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 23:19:52 -0500
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+References: <20060117143258.150807000@sergelap>
+	<20060117143326.283450000@sergelap>
+	<1137511972.3005.33.camel@laptopd505.fenrus.org>
+	<20060117155600.GF20632@sergelap.austin.ibm.com>
+	<1137513818.14135.23.camel@localhost.localdomain>
+	<1137518714.5526.8.camel@localhost.localdomain>
+	<20060118045518.GB7292@kroah.com>
+	<1137601395.7850.9.camel@localhost.localdomain>
+	<m1fyniomw2.fsf@ebiederm.dsl.xmission.com>
+	<43D14578.6060801@watson.ibm.com>
+	<Pine.LNX.4.64.0601311248180.7301@g5.osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 31 Jan 2006 21:18:35 -0700
+In-Reply-To: <Pine.LNX.4.64.0601311248180.7301@g5.osdl.org> (Linus
+ Torvalds's message of "Tue, 31 Jan 2006 13:02:42 -0800 (PST)")
+Message-ID: <m13bj34spw.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@osdl.org> writes:
 
-Please pull from 'upstream-fixes' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+> (I'm coming in late, it's not been a high priority for me)
 
-to receive the following updates:
+Thanks.  For taking the time.
 
- drivers/scsi/ahci.c |   19 +++++++++++++++----
- 1 files changed, 15 insertions(+), 4 deletions(-)
+> On Fri, 20 Jan 2006, Hubertus Franke wrote:
+>> 
+>> 2nd:
+>> ====	Issue: we don't need pid virtualization, instead simply use
+>> <container,pid> pair.
+>> 
+>> This requires a bit more thought. Essentially that's what I was doing, 
+>> but I mangled them into the same pid and using masking to add/remove the 
+>> container for internal use. As pointed out by Alan(?), we can indeed 
+>> reused the same pid internally many times as long as we can distinguish 
+>> during the pid-to-task_struct lookup. This is easily done because, the 
+>> caller provides the context hence the container for the lookup.
+>
+> This is my preferred approach BY FAR.
+>
+> Doing a <container,pid> approach is very natural, and avoids almost all 
+> issues. At most, you might want to have a new system call (most naturally 
+> just the one that is limited to the "init container" - it the one that we 
+> boot up with) that can specify both container and pid explicitly, and see 
+> all processes and access all processes. But all "normal" system calls 
+> would only ever operate within their container.
 
-Jeff Garzik:
-      [libata ahci] Isolate Intel-ism, add JMicron JMB360 support
-      [libata ahci] add another JMicron pci id
+On this front I have been planning on using sys_clone as it allows
+pieces of the virtualization to be incrementally built, it already
+supports the FS namespace, and it supports flexibly specifying what
+you want to contain.
 
-diff --git a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c
-index 19bd346..a800fb5 100644
---- a/drivers/scsi/ahci.c
-+++ b/drivers/scsi/ahci.c
-@@ -286,6 +286,10 @@ static const struct pci_device_id ahci_p
- 	  board_ahci }, /* ICH8M */
- 	{ PCI_VENDOR_ID_INTEL, 0x282a, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
- 	  board_ahci }, /* ICH8M */
-+	{ 0x197b, 0x2360, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* JMicron JMB360 */
-+	{ 0x197b, 0x2363, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_ahci }, /* JMicron JMB363 */
- 	{ }	/* terminate list */
- };
- 
-@@ -802,7 +806,6 @@ static int ahci_host_init(struct ata_pro
- 	struct pci_dev *pdev = to_pci_dev(probe_ent->dev);
- 	void __iomem *mmio = probe_ent->mmio_base;
- 	u32 tmp, cap_save;
--	u16 tmp16;
- 	unsigned int i, j, using_dac;
- 	int rc;
- 	void __iomem *port_mmio;
-@@ -836,9 +839,13 @@ static int ahci_host_init(struct ata_pro
- 	writel(0xf, mmio + HOST_PORTS_IMPL);
- 	(void) readl(mmio + HOST_PORTS_IMPL);	/* flush */
- 
--	pci_read_config_word(pdev, 0x92, &tmp16);
--	tmp16 |= 0xf;
--	pci_write_config_word(pdev, 0x92, tmp16);
-+	if (pdev->vendor == PCI_VENDOR_ID_INTEL) {
-+		u16 tmp16;
-+
-+		pci_read_config_word(pdev, 0x92, &tmp16);
-+		tmp16 |= 0xf;
-+		pci_write_config_word(pdev, 0x92, tmp16);
-+	}
- 
- 	hpriv->cap = readl(mmio + HOST_CAP);
- 	hpriv->port_map = readl(mmio + HOST_PORTS_IMPL);
-@@ -1082,6 +1089,10 @@ static int ahci_init_one (struct pci_dev
- 	if (have_msi)
- 		hpriv->flags |= AHCI_FLAG_MSI;
- 
-+	/* JMicron-specific fixup: make sure we're in AHCI mode */
-+	if (pdev->vendor == 0x197b)
-+		pci_write_config_byte(pdev, 0x41, 0xa1);
-+
- 	/* initialize adapter */
- 	rc = ahci_host_init(probe_ent);
- 	if (rc)
+> The fact is, we want "containers" anyway for any virtualization thing, ie 
+> vserver already adds them. And if we have containers, then it's very easy 
+> ("easyish") to split up the current static "pid_hash[]", "pidmap_array[]" 
+> and "pidmap_lock", and make them per-container, and have a pointer to the 
+> container for each "struct task_struct".
+
+Well hash tables with their giant allocations are hard to split it has
+been easier to add a container tag.
+
+> After that, there wouldn't even be a lot else to do. The normal system 
+> calls would just use their own container, and the (few) places that save 
+> away pid's for later (ie things that use "kill_proc_info_as_uid()" and 
+> "struct fown_struct" friends) would have to also squirrell away the 
+> container, but then you should be pretty much done.
+
+Yes.  Although there are a few container lifetimes problems with that
+approach.  Do you want your container alive for a long time after every
+process using it has exited just because someone has squirrelled away their
+pid.  While container lifetime issues crop up elsewhere as well PIDs are
+by far the worst, because it is current safe to store a PID indefinitely 
+with nothing worse that PID wrap around.
+
+> Of course, you'll have to do the system calls to _create_ the containers 
+> in the first place, but that's at a higher level and involves much more 
+> than just the pid-space (ie a container would normally have more than just 
+> the uid mappings, it would have any network knowledge too etc - hostname, 
+> perhaps list of network devices associated with that context etc etc)
+
+Yes.  A list of network devices works seems to work well.
+
+Eric

@@ -1,771 +1,340 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422915AbWBAUHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422913AbWBAUKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422915AbWBAUHa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 15:07:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422913AbWBAUHa
+	id S1422913AbWBAUKa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 15:10:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422918AbWBAUKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 15:07:30 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:28582 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1422909AbWBAUH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 15:07:29 -0500
+	Wed, 1 Feb 2006 15:10:30 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:46312 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1422913AbWBAUK3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 15:10:29 -0500
 From: "Sean Hefty" <sean.hefty@intel.com>
 To: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>
 Cc: <openib-general@openib.org>
-Subject: [PATCH 1/5] Infiniband: connection abstraction
-Date: Wed, 1 Feb 2006 12:07:25 -0800
+Subject: [PATCH 2/5] Infiniband: connection abstraction
+Date: Wed, 1 Feb 2006 12:10:26 -0800
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 X-Mailer: Microsoft Office Outlook, Build 11.0.6353
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-Thread-Index: AcYnaoPoeQwbN57KSxu+/VIzb9oBFwAAB+og
+Thread-Index: AcYnaoPoeQwbN57KSxu+/VIzb9oBFwAAJ5QQ
 In-Reply-To: <ORSMSX401KZmcK8r6be00000097@orsmsx401.amr.corp.intel.com>
-Message-ID: <ORSMSX401Rqf69aZbLA00000098@orsmsx401.amr.corp.intel.com>
-X-OriginalArrivalTime: 01 Feb 2006 20:07:25.0922 (UTC) FILETIME=[1ED9EC20:01C6276B]
+Message-ID: <ORSMSX401ZDgC81Tbdk00000099@orsmsx401.amr.corp.intel.com>
+X-OriginalArrivalTime: 01 Feb 2006 20:10:27.0377 (UTC) FILETIME=[8B01C210:01C6276B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch provides common handling for marshalling data between
-Userspace clients and kernel mode Infiniband drivers.
+The following patch extends matching connection requests to listens in the
+Infiniband CM to include private data.
 
 Signed-off-by: Sean Hefty <sean.hefty@intel.com>
 
 ---
 
 diff -uprN -X linux-2.6.git/Documentation/dontdiff 
-linux-2.6.git/drivers/infiniband/core/Makefile 
-linux-2.6.ib/drivers/infiniband/core/Makefile
---- linux-2.6.git/drivers/infiniband/core/Makefile	2006-01-16 10:25:27.000000000 -0800
-+++ linux-2.6.ib/drivers/infiniband/core/Makefile	2006-01-16 15:34:15.000000000 -0800
-@@ -16,4 +16,5 @@ ib_umad-y :=			user_mad.o
+linux-2.6.git/drivers/infiniband/core/cm.c 
+linux-2.6.ib/drivers/infiniband/core/cm.c
+--- linux-2.6.git/drivers/infiniband/core/cm.c	2006-01-16 10:25:26.000000000 -0800
++++ linux-2.6.ib/drivers/infiniband/core/cm.c	2006-01-16 16:03:35.000000000 -0800
+@@ -32,7 +32,7 @@
+  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  * SOFTWARE.
+  *
+- * $Id: cm.c 2821 2005-07-08 17:07:28Z sean.hefty $
++ * $Id: cm.c 4311 2005-12-05 18:42:01Z sean.hefty $
+  */
+ #include <linux/dma-mapping.h>
+ #include <linux/err.h>
+@@ -130,6 +130,7 @@ struct cm_id_private {
+ 	/* todo: use alternate port on send failure */
+ 	struct cm_av av;
+ 	struct cm_av alt_av;
++	struct ib_cm_compare_data *compare_data;
  
- ib_ucm-y :=			ucm.o
+ 	void *private_data;
+ 	__be64 tid;
+@@ -355,6 +356,41 @@ static struct cm_id_private * cm_acquire
+ 	return cm_id_priv;
+ }
  
--ib_uverbs-y :=			uverbs_main.o uverbs_cmd.o uverbs_mem.o
-+ib_uverbs-y :=			uverbs_main.o uverbs_cmd.o uverbs_mem.o \
-+				uverbs_marshall.o
++static void cm_mask_copy(u8 *dst, u8 *src, u8 *mask)
++{
++	int i;
++
++	for (i = 0; i < IB_CM_COMPARE_SIZE / sizeof(unsigned long); i++)
++		((unsigned long *) dst)[i] = ((unsigned long *) src)[i] &
++					     ((unsigned long *) mask)[i];
++}
++
++static int cm_compare_data(struct ib_cm_compare_data *src_data,
++			   struct ib_cm_compare_data *dst_data)
++{
++	u8 src[IB_CM_COMPARE_SIZE];
++	u8 dst[IB_CM_COMPARE_SIZE];
++
++	if (!src_data || !dst_data)
++		return 0;
++	
++	cm_mask_copy(src, src_data->data, dst_data->mask);
++	cm_mask_copy(dst, dst_data->data, src_data->mask);
++	return memcmp(src, dst, IB_CM_COMPARE_SIZE);
++}
++
++static int cm_compare_private_data(u8 *private_data,
++				   struct ib_cm_compare_data *dst_data)
++{
++	u8 src[IB_CM_COMPARE_SIZE];
++
++	if (!dst_data)
++		return 0;
++	
++	cm_mask_copy(src, private_data, dst_data->mask);
++	return memcmp(src, dst_data->data, IB_CM_COMPARE_SIZE);
++}
++
+ static struct cm_id_private * cm_insert_listen(struct cm_id_private *cm_id_priv)
+ {
+ 	struct rb_node **link = &cm.listen_service_table.rb_node;
+@@ -362,14 +397,18 @@ static struct cm_id_private * cm_insert_
+ 	struct cm_id_private *cur_cm_id_priv;
+ 	__be64 service_id = cm_id_priv->id.service_id;
+ 	__be64 service_mask = cm_id_priv->id.service_mask;
++	int data_cmp;
+ 
+ 	while (*link) {
+ 		parent = *link;
+ 		cur_cm_id_priv = rb_entry(parent, struct cm_id_private,
+ 					  service_node);
++		data_cmp = cm_compare_data(cm_id_priv->compare_data,
++					   cur_cm_id_priv->compare_data);
+ 		if ((cur_cm_id_priv->id.service_mask & service_id) ==
+ 		    (service_mask & cur_cm_id_priv->id.service_id) &&
+-		    (cm_id_priv->id.device == cur_cm_id_priv->id.device))
++		    (cm_id_priv->id.device == cur_cm_id_priv->id.device) &&
++		    !data_cmp)
+ 			return cur_cm_id_priv;
+ 
+ 		if (cm_id_priv->id.device < cur_cm_id_priv->id.device)
+@@ -378,6 +417,10 @@ static struct cm_id_private * cm_insert_
+ 			link = &(*link)->rb_right;
+ 		else if (service_id < cur_cm_id_priv->id.service_id)
+ 			link = &(*link)->rb_left;
++		else if (service_id > cur_cm_id_priv->id.service_id)
++			link = &(*link)->rb_right;
++		else if (data_cmp < 0)
++			link = &(*link)->rb_left;
+ 		else
+ 			link = &(*link)->rb_right;
+ 	}
+@@ -387,16 +430,20 @@ static struct cm_id_private * cm_insert_
+ }
+ 
+ static struct cm_id_private * cm_find_listen(struct ib_device *device,
+-					     __be64 service_id)
++					     __be64 service_id,
++					     u8 *private_data)
+ {
+ 	struct rb_node *node = cm.listen_service_table.rb_node;
+ 	struct cm_id_private *cm_id_priv;
++	int data_cmp;
+ 
+ 	while (node) {
+ 		cm_id_priv = rb_entry(node, struct cm_id_private, service_node);
++		data_cmp = cm_compare_private_data(private_data,
++						   cm_id_priv->compare_data);
+ 		if ((cm_id_priv->id.service_mask & service_id) ==
+ 		     cm_id_priv->id.service_id &&
+-		    (cm_id_priv->id.device == device))
++		    (cm_id_priv->id.device == device) && !data_cmp)
+ 			return cm_id_priv;
+ 
+ 		if (device < cm_id_priv->id.device)
+@@ -405,6 +452,10 @@ static struct cm_id_private * cm_find_li
+ 			node = node->rb_right;
+ 		else if (service_id < cm_id_priv->id.service_id)
+ 			node = node->rb_left;
++		else if (service_id > cm_id_priv->id.service_id)
++			node = node->rb_right;
++		else if (data_cmp < 0)
++			node = node->rb_left;
+ 		else
+ 			node = node->rb_right;
+ 	}
+@@ -728,15 +779,14 @@ retest:
+ 	wait_event(cm_id_priv->wait, !atomic_read(&cm_id_priv->refcount));
+ 	while ((work = cm_dequeue_work(cm_id_priv)) != NULL)
+ 		cm_free_work(work);
+-	if (cm_id_priv->private_data && cm_id_priv->private_data_len)
+-		kfree(cm_id_priv->private_data);
++	kfree(cm_id_priv->compare_data);
++	kfree(cm_id_priv->private_data);
+ 	kfree(cm_id_priv);
+ }
+ EXPORT_SYMBOL(ib_destroy_cm_id);
+ 
+-int ib_cm_listen(struct ib_cm_id *cm_id,
+-		 __be64 service_id,
+-		 __be64 service_mask)
++int ib_cm_listen(struct ib_cm_id *cm_id, __be64 service_id, __be64 service_mask,
++		 struct ib_cm_compare_data *compare_data)
+ {
+ 	struct cm_id_private *cm_id_priv, *cur_cm_id_priv;
+ 	unsigned long flags;
+@@ -750,7 +800,19 @@ int ib_cm_listen(struct ib_cm_id *cm_id,
+ 		return -EINVAL;
+ 
+ 	cm_id_priv = container_of(cm_id, struct cm_id_private, id);
+-	BUG_ON(cm_id->state != IB_CM_IDLE);
++	if (cm_id->state != IB_CM_IDLE)
++		return -EINVAL;
++
++	if (compare_data) {
++		cm_id_priv->compare_data = kzalloc(sizeof *compare_data,
++						   GFP_KERNEL);
++		if (!cm_id_priv->compare_data)
++			return -ENOMEM;
++		cm_mask_copy(cm_id_priv->compare_data->data,
++			     compare_data->data, compare_data->mask);
++		memcpy(cm_id_priv->compare_data->mask, compare_data->mask,
++		       IB_CM_COMPARE_SIZE);
++	}
+ 
+ 	cm_id->state = IB_CM_LISTEN;
+ 
+@@ -767,6 +829,8 @@ int ib_cm_listen(struct ib_cm_id *cm_id,
+ 
+ 	if (cur_cm_id_priv) {
+ 		cm_id->state = IB_CM_IDLE;
++		kfree(cm_id_priv->compare_data);
++		cm_id_priv->compare_data = NULL;
+ 		ret = -EBUSY;
+ 	}
+ 	return ret;
+@@ -1239,7 +1303,8 @@ static struct cm_id_private * cm_match_r
+ 
+ 	/* Find matching listen request. */
+ 	listen_cm_id_priv = cm_find_listen(cm_id_priv->id.device,
+-					   req_msg->service_id);
++					   req_msg->service_id,
++					   req_msg->private_data);
+ 	if (!listen_cm_id_priv) {
+ 		spin_unlock_irqrestore(&cm.lock, flags);
+ 		cm_issue_rej(work->port, work->mad_recv_wc,
+@@ -2646,7 +2711,8 @@ static int cm_sidr_req_handler(struct cm
+ 		goto out; /* Duplicate message. */
+ 	}
+ 	cur_cm_id_priv = cm_find_listen(cm_id->device,
+-					sidr_req_msg->service_id);
++					sidr_req_msg->service_id,
++					sidr_req_msg->private_data);
+ 	if (!cur_cm_id_priv) {
+ 		rb_erase(&cm_id_priv->sidr_id_node, &cm.remote_sidr_table);
+ 		spin_unlock_irqrestore(&cm.lock, flags);
 diff -uprN -X linux-2.6.git/Documentation/dontdiff 
 linux-2.6.git/drivers/infiniband/core/ucm.c 
 linux-2.6.ib/drivers/infiniband/core/ucm.c
---- linux-2.6.git/drivers/infiniband/core/ucm.c	2006-01-16 10:25:26.000000000 -0800
-+++ linux-2.6.ib/drivers/infiniband/core/ucm.c	2006-01-16 15:34:15.000000000 -0800
-@@ -30,7 +30,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: ucm.c 2594 2005-06-13 19:46:02Z libor $
-+ * $Id: ucm.c 4311 2005-12-05 18:42:01Z sean.hefty $
-  */
- #include <linux/init.h>
- #include <linux/fs.h>
-@@ -48,6 +48,7 @@
- 
- #include <rdma/ib_cm.h>
- #include <rdma/ib_user_cm.h>
-+#include <rdma/ib_marshall.h>
- 
- MODULE_AUTHOR("Libor Michalek");
- MODULE_DESCRIPTION("InfiniBand userspace Connection Manager access");
-@@ -203,36 +204,6 @@ error:
- 	return NULL;
- }
- 
--static void ib_ucm_event_path_get(struct ib_ucm_path_rec *upath,
--				  struct ib_sa_path_rec	 *kpath)
--{
--	if (!kpath || !upath)
--		return;
--
--	memcpy(upath->dgid, kpath->dgid.raw, sizeof *upath->dgid);
--	memcpy(upath->sgid, kpath->sgid.raw, sizeof *upath->sgid);
--
--	upath->dlid             = kpath->dlid;
--	upath->slid             = kpath->slid;
--	upath->raw_traffic      = kpath->raw_traffic;
--	upath->flow_label       = kpath->flow_label;
--	upath->hop_limit        = kpath->hop_limit;
--	upath->traffic_class    = kpath->traffic_class;
--	upath->reversible       = kpath->reversible;
--	upath->numb_path        = kpath->numb_path;
--	upath->pkey             = kpath->pkey;
--	upath->sl	        = kpath->sl;
--	upath->mtu_selector     = kpath->mtu_selector;
--	upath->mtu              = kpath->mtu;
--	upath->rate_selector    = kpath->rate_selector;
--	upath->rate             = kpath->rate;
--	upath->packet_life_time = kpath->packet_life_time;
--	upath->preference       = kpath->preference;
--
--	upath->packet_life_time_selector =
--		kpath->packet_life_time_selector;
--}
--
- static void ib_ucm_event_req_get(struct ib_ucm_req_event_resp *ureq,
- 				 struct ib_cm_req_event_param *kreq)
- {
-@@ -251,8 +222,10 @@ static void ib_ucm_event_req_get(struct 
- 	ureq->srq                        = kreq->srq;
- 	ureq->port			 = kreq->port;
- 
--	ib_ucm_event_path_get(&ureq->primary_path, kreq->primary_path);
--	ib_ucm_event_path_get(&ureq->alternate_path, kreq->alternate_path);
-+	ib_copy_path_rec_to_user(&ureq->primary_path, kreq->primary_path);
-+	if (kreq->alternate_path)
-+		ib_copy_path_rec_to_user(&ureq->alternate_path,
-+					 kreq->alternate_path);
- }
- 
- static void ib_ucm_event_rep_get(struct ib_ucm_rep_event_resp *urep,
-@@ -322,8 +295,8 @@ static int ib_ucm_event_process(struct i
- 		info	      = evt->param.rej_rcvd.ari;
- 		break;
- 	case IB_CM_LAP_RECEIVED:
--		ib_ucm_event_path_get(&uvt->resp.u.lap_resp.path,
--				      evt->param.lap_rcvd.alternate_path);
-+		ib_copy_path_rec_to_user(&uvt->resp.u.lap_resp.path,
-+					 evt->param.lap_rcvd.alternate_path);
- 		uvt->data_len = IB_CM_LAP_PRIVATE_DATA_SIZE;
- 		uvt->resp.present = IB_UCM_PRES_ALTERNATE;
- 		break;
-@@ -635,65 +608,11 @@ static ssize_t ib_ucm_attr_id(struct ib_
+--- linux-2.6.git/drivers/infiniband/core/ucm.c	2006-01-16 16:03:08.000000000 -0800
++++ linux-2.6.ib/drivers/infiniband/core/ucm.c	2006-01-16 16:03:35.000000000 -0800
+@@ -646,6 +646,17 @@ out:
  	return result;
  }
  
--static void ib_ucm_copy_ah_attr(struct ib_ucm_ah_attr *dest_attr,
--				struct ib_ah_attr *src_attr)
--{
--	memcpy(dest_attr->grh_dgid, src_attr->grh.dgid.raw,
--	       sizeof src_attr->grh.dgid);
--	dest_attr->grh_flow_label = src_attr->grh.flow_label;
--	dest_attr->grh_sgid_index = src_attr->grh.sgid_index;
--	dest_attr->grh_hop_limit = src_attr->grh.hop_limit;
--	dest_attr->grh_traffic_class = src_attr->grh.traffic_class;
--
--	dest_attr->dlid = src_attr->dlid;
--	dest_attr->sl = src_attr->sl;
--	dest_attr->src_path_bits = src_attr->src_path_bits;
--	dest_attr->static_rate = src_attr->static_rate;
--	dest_attr->is_global = (src_attr->ah_flags & IB_AH_GRH);
--	dest_attr->port_num = src_attr->port_num;
--}
--
--static void ib_ucm_copy_qp_attr(struct ib_ucm_init_qp_attr_resp *dest_attr,
--				struct ib_qp_attr *src_attr)
--{
--	dest_attr->cur_qp_state = src_attr->cur_qp_state;
--	dest_attr->path_mtu = src_attr->path_mtu;
--	dest_attr->path_mig_state = src_attr->path_mig_state;
--	dest_attr->qkey = src_attr->qkey;
--	dest_attr->rq_psn = src_attr->rq_psn;
--	dest_attr->sq_psn = src_attr->sq_psn;
--	dest_attr->dest_qp_num = src_attr->dest_qp_num;
--	dest_attr->qp_access_flags = src_attr->qp_access_flags;
--
--	dest_attr->max_send_wr = src_attr->cap.max_send_wr;
--	dest_attr->max_recv_wr = src_attr->cap.max_recv_wr;
--	dest_attr->max_send_sge = src_attr->cap.max_send_sge;
--	dest_attr->max_recv_sge = src_attr->cap.max_recv_sge;
--	dest_attr->max_inline_data = src_attr->cap.max_inline_data;
--
--	ib_ucm_copy_ah_attr(&dest_attr->ah_attr, &src_attr->ah_attr);
--	ib_ucm_copy_ah_attr(&dest_attr->alt_ah_attr, &src_attr->alt_ah_attr);
--
--	dest_attr->pkey_index = src_attr->pkey_index;
--	dest_attr->alt_pkey_index = src_attr->alt_pkey_index;
--	dest_attr->en_sqd_async_notify = src_attr->en_sqd_async_notify;
--	dest_attr->sq_draining = src_attr->sq_draining;
--	dest_attr->max_rd_atomic = src_attr->max_rd_atomic;
--	dest_attr->max_dest_rd_atomic = src_attr->max_dest_rd_atomic;
--	dest_attr->min_rnr_timer = src_attr->min_rnr_timer;
--	dest_attr->port_num = src_attr->port_num;
--	dest_attr->timeout = src_attr->timeout;
--	dest_attr->retry_cnt = src_attr->retry_cnt;
--	dest_attr->rnr_retry = src_attr->rnr_retry;
--	dest_attr->alt_port_num = src_attr->alt_port_num;
--	dest_attr->alt_timeout = src_attr->alt_timeout;
--}
--
- static ssize_t ib_ucm_init_qp_attr(struct ib_ucm_file *file,
- 				   const char __user *inbuf,
- 				   int in_len, int out_len)
- {
--	struct ib_ucm_init_qp_attr_resp resp;
-+	struct ib_uverbs_qp_attr resp;
- 	struct ib_ucm_init_qp_attr cmd;
- 	struct ib_ucm_context *ctx;
- 	struct ib_qp_attr qp_attr;
-@@ -716,7 +635,7 @@ static ssize_t ib_ucm_init_qp_attr(struc
- 	if (result)
- 		goto out;
++static int ucm_validate_listen(__be64 service_id, __be64 service_mask)
++{
++	service_id &= service_mask;
++
++	if (((service_id & IB_CMA_SERVICE_ID_MASK) == IB_CMA_SERVICE_ID) ||
++	    ((service_id & IB_SDP_SERVICE_ID_MASK) == IB_SDP_SERVICE_ID))
++		return -EINVAL;
++
++	return 0;
++}
++
+ static ssize_t ib_ucm_listen(struct ib_ucm_file *file,
+ 			     const char __user *inbuf,
+ 			     int in_len, int out_len)
+@@ -661,7 +672,13 @@ static ssize_t ib_ucm_listen(struct ib_u
+ 	if (IS_ERR(ctx))
+ 		return PTR_ERR(ctx);
  
--	ib_ucm_copy_qp_attr(&resp, &qp_attr);
-+	ib_copy_qp_attr_to_user(&resp, &qp_attr);
- 
- 	if (copy_to_user((void __user *)(unsigned long)cmd.response,
- 			 &resp, sizeof(resp)))
-@@ -791,7 +710,7 @@ static int ib_ucm_alloc_data(const void 
- 
- static int ib_ucm_path_get(struct ib_sa_path_rec **path, u64 src)
- {
--	struct ib_ucm_path_rec ucm_path;
-+	struct ib_user_path_rec upath;
- 	struct ib_sa_path_rec  *sa_path;
- 
- 	*path = NULL;
-@@ -803,36 +722,14 @@ static int ib_ucm_path_get(struct ib_sa_
- 	if (!sa_path)
- 		return -ENOMEM;
- 
--	if (copy_from_user(&ucm_path, (void __user *)(unsigned long)src,
--			   sizeof(ucm_path))) {
-+	if (copy_from_user(&upath, (void __user *)(unsigned long)src,
-+			   sizeof(upath))) {
- 
- 		kfree(sa_path);
- 		return -EFAULT;
- 	}
- 
--	memcpy(sa_path->dgid.raw, ucm_path.dgid, sizeof sa_path->dgid);
--	memcpy(sa_path->sgid.raw, ucm_path.sgid, sizeof sa_path->sgid);
--
--	sa_path->dlid	          = ucm_path.dlid;
--	sa_path->slid	          = ucm_path.slid;
--	sa_path->raw_traffic      = ucm_path.raw_traffic;
--	sa_path->flow_label       = ucm_path.flow_label;
--	sa_path->hop_limit        = ucm_path.hop_limit;
--	sa_path->traffic_class    = ucm_path.traffic_class;
--	sa_path->reversible       = ucm_path.reversible;
--	sa_path->numb_path        = ucm_path.numb_path;
--	sa_path->pkey             = ucm_path.pkey;
--	sa_path->sl               = ucm_path.sl;
--	sa_path->mtu_selector     = ucm_path.mtu_selector;
--	sa_path->mtu              = ucm_path.mtu;
--	sa_path->rate_selector    = ucm_path.rate_selector;
--	sa_path->rate             = ucm_path.rate;
--	sa_path->packet_life_time = ucm_path.packet_life_time;
--	sa_path->preference       = ucm_path.preference;
--
--	sa_path->packet_life_time_selector =
--		ucm_path.packet_life_time_selector;
--
-+	ib_copy_path_rec_from_user(sa_path, &upath);
- 	*path = sa_path;
- 	return 0;
- }
-@@ -1243,8 +1140,10 @@ static unsigned int ib_ucm_poll(struct f
- 
- 	poll_wait(filp, &file->poll_wait, wait);
- 
-+	down(&file->mutex);
- 	if (!list_empty(&file->events))
- 		mask = POLLIN | POLLRDNORM;
-+	up(&file->mutex);
- 
- 	return mask;
+-	result = ib_cm_listen(ctx->cm_id, cmd.service_id, cmd.service_mask);
++	result = ucm_validate_listen(cmd.service_id, cmd.service_mask);
++	if (result)
++		goto out;
++
++	result = ib_cm_listen(ctx->cm_id, cmd.service_id, cmd.service_mask,
++			      NULL);
++out:
+ 	ib_ucm_ctx_put(ctx);
+ 	return result;
  }
 diff -uprN -X linux-2.6.git/Documentation/dontdiff 
-linux-2.6.git/drivers/infiniband/core/uverbs_marshall.c 
-linux-2.6.ib/drivers/infiniband/core/uverbs_marshall.c
---- linux-2.6.git/drivers/infiniband/core/uverbs_marshall.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.ib/drivers/infiniband/core/uverbs_marshall.c	2006-01-16 15:34:15.000000000 -0800
-@@ -0,0 +1,138 @@
-+/*
-+ * Copyright (c) 2005 Intel Corporation.  All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
-+
-+#include <rdma/ib_marshall.h>
-+
-+static void ib_copy_ah_attr_to_user(struct ib_uverbs_ah_attr *dst,
-+				    struct ib_ah_attr *src)
-+{
-+	memcpy(dst->grh.dgid, src->grh.dgid.raw, sizeof src->grh.dgid);
-+	dst->grh.flow_label        = src->grh.flow_label;
-+	dst->grh.sgid_index        = src->grh.sgid_index;
-+	dst->grh.hop_limit         = src->grh.hop_limit;
-+	dst->grh.traffic_class     = src->grh.traffic_class;
-+	dst->dlid 	    	   = src->dlid;
-+	dst->sl   	    	   = src->sl;
-+	dst->src_path_bits 	   = src->src_path_bits;
-+	dst->static_rate   	   = src->static_rate;
-+	dst->is_global             = src->ah_flags & IB_AH_GRH ? 1 : 0;
-+	dst->port_num 	    	   = src->port_num;
-+}
-+
-+void ib_copy_qp_attr_to_user(struct ib_uverbs_qp_attr *dst,
-+			     struct ib_qp_attr *src)
-+{
-+	dst->cur_qp_state	= src->cur_qp_state;
-+	dst->path_mtu		= src->path_mtu;
-+	dst->path_mig_state	= src->path_mig_state;
-+	dst->qkey		= src->qkey;
-+	dst->rq_psn		= src->rq_psn;
-+	dst->sq_psn		= src->sq_psn;
-+	dst->dest_qp_num	= src->dest_qp_num;
-+	dst->qp_access_flags	= src->qp_access_flags;
-+
-+	dst->max_send_wr	= src->cap.max_send_wr;
-+	dst->max_recv_wr	= src->cap.max_recv_wr;
-+	dst->max_send_sge	= src->cap.max_send_sge;
-+	dst->max_recv_sge	= src->cap.max_recv_sge;
-+	dst->max_inline_data	= src->cap.max_inline_data;
-+
-+	ib_copy_ah_attr_to_user(&dst->ah_attr, &src->ah_attr);
-+	ib_copy_ah_attr_to_user(&dst->alt_ah_attr, &src->alt_ah_attr);
-+
-+	dst->pkey_index		= src->pkey_index;
-+	dst->alt_pkey_index	= src->alt_pkey_index;
-+	dst->en_sqd_async_notify = src->en_sqd_async_notify;
-+	dst->sq_draining	= src->sq_draining;
-+	dst->max_rd_atomic	= src->max_rd_atomic;
-+	dst->max_dest_rd_atomic	= src->max_dest_rd_atomic;
-+	dst->min_rnr_timer	= src->min_rnr_timer;
-+	dst->port_num		= src->port_num;
-+	dst->timeout		= src->timeout;
-+	dst->retry_cnt		= src->retry_cnt;
-+	dst->rnr_retry		= src->rnr_retry;
-+	dst->alt_port_num	= src->alt_port_num;
-+	dst->alt_timeout	= src->alt_timeout;
-+}
-+EXPORT_SYMBOL(ib_copy_qp_attr_to_user);
-+
-+void ib_copy_path_rec_to_user(struct ib_user_path_rec *dst,
-+			      struct ib_sa_path_rec *src)
-+{
-+	memcpy(dst->dgid, src->dgid.raw, sizeof src->dgid);
-+	memcpy(dst->sgid, src->sgid.raw, sizeof src->sgid);
-+
-+	dst->dlid		= src->dlid;
-+	dst->slid		= src->slid;
-+	dst->raw_traffic	= src->raw_traffic;
-+	dst->flow_label		= src->flow_label;
-+	dst->hop_limit		= src->hop_limit;
-+	dst->traffic_class	= src->traffic_class;
-+	dst->reversible		= src->reversible;
-+	dst->numb_path		= src->numb_path;
-+	dst->pkey		= src->pkey;
-+	dst->sl			= src->sl;
-+	dst->mtu_selector	= src->mtu_selector;
-+	dst->mtu		= src->mtu;
-+	dst->rate_selector	= src->rate_selector;
-+	dst->rate		= src->rate;
-+	dst->packet_life_time	= src->packet_life_time;
-+	dst->preference		= src->preference;
-+	dst->packet_life_time_selector = src->packet_life_time_selector;
-+}
-+EXPORT_SYMBOL(ib_copy_path_rec_to_user);
-+
-+void ib_copy_path_rec_from_user(struct ib_sa_path_rec *dst,
-+				struct ib_user_path_rec *src)
-+{
-+	memcpy(dst->dgid.raw, src->dgid, sizeof dst->dgid);
-+	memcpy(dst->sgid.raw, src->sgid, sizeof dst->sgid);
-+
-+	dst->dlid		= src->dlid;
-+	dst->slid		= src->slid;
-+	dst->raw_traffic	= src->raw_traffic;
-+	dst->flow_label		= src->flow_label;
-+	dst->hop_limit		= src->hop_limit;
-+	dst->traffic_class	= src->traffic_class;
-+	dst->reversible		= src->reversible;
-+	dst->numb_path		= src->numb_path;
-+	dst->pkey		= src->pkey;
-+	dst->sl			= src->sl;
-+	dst->mtu_selector	= src->mtu_selector;
-+	dst->mtu		= src->mtu;
-+	dst->rate_selector	= src->rate_selector;
-+	dst->rate		= src->rate;
-+	dst->packet_life_time	= src->packet_life_time;
-+	dst->preference		= src->preference;
-+	dst->packet_life_time_selector = src->packet_life_time_selector;
-+}
-+EXPORT_SYMBOL(ib_copy_path_rec_from_user);
-diff -uprN -X linux-2.6.git/Documentation/dontdiff 
-linux-2.6.git/include/rdma/ib_marshall.h 
-linux-2.6.ib/include/rdma/ib_marshall.h
---- linux-2.6.git/include/rdma/ib_marshall.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.ib/include/rdma/ib_marshall.h	2006-01-16 15:34:15.000000000 -0800
-@@ -0,0 +1,50 @@
-+/*
-+ * Copyright (c) 2005 Intel Corporation.  All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
-+
-+#if !defined(IB_USER_MARSHALL_H)
-+#define IB_USER_MARSHALL_H
-+
-+#include <rdma/ib_verbs.h>
-+#include <rdma/ib_sa.h>
-+#include <rdma/ib_user_verbs.h>
-+#include <rdma/ib_user_sa.h>
-+
-+void ib_copy_qp_attr_to_user(struct ib_uverbs_qp_attr *dst,
-+			     struct ib_qp_attr *src);
-+
-+void ib_copy_path_rec_to_user(struct ib_user_path_rec *dst,
-+			      struct ib_sa_path_rec *src);
-+
-+void ib_copy_path_rec_from_user(struct ib_sa_path_rec *dst,
-+				struct ib_user_path_rec *src);
-+
-+#endif /* IB_USER_MARSHALL_H */
-diff -uprN -X linux-2.6.git/Documentation/dontdiff 
-linux-2.6.git/include/rdma/ib_user_cm.h 
-linux-2.6.ib/include/rdma/ib_user_cm.h
---- linux-2.6.git/include/rdma/ib_user_cm.h	2006-01-16 10:26:47.000000000 -0800
-+++ linux-2.6.ib/include/rdma/ib_user_cm.h	2006-01-16 15:34:15.000000000 -0800
-@@ -30,13 +30,13 @@
+linux-2.6.git/include/rdma/ib_cm.h 
+linux-2.6.ib/include/rdma/ib_cm.h
+--- linux-2.6.git/include/rdma/ib_cm.h	2006-01-16 10:26:47.000000000 -0800
++++ linux-2.6.ib/include/rdma/ib_cm.h	2006-01-16 16:03:35.000000000 -0800
+@@ -32,7 +32,7 @@
   * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   * SOFTWARE.
   *
-- * $Id: ib_user_cm.h 2576 2005-06-09 17:00:30Z libor $
-+ * $Id: ib_user_cm.h 4019 2005-11-11 00:33:09Z sean.hefty $
+- * $Id: ib_cm.h 2730 2005-06-28 16:43:03Z sean.hefty $
++ * $Id: ib_cm.h 4311 2005-12-05 18:42:01Z sean.hefty $
   */
- 
- #ifndef IB_USER_CM_H
- #define IB_USER_CM_H
- 
--#include <linux/types.h>
-+#include <rdma/ib_user_sa.h>
- 
- #define IB_USER_CM_ABI_VERSION 4
- 
-@@ -110,58 +110,6 @@ struct ib_ucm_init_qp_attr {
- 	__u32 qp_state;
+ #if !defined(IB_CM_H)
+ #define IB_CM_H
+@@ -102,7 +102,8 @@ enum ib_cm_data_size {
+ 	IB_CM_APR_INFO_LENGTH		 = 72,
+ 	IB_CM_SIDR_REQ_PRIVATE_DATA_SIZE = 216,
+ 	IB_CM_SIDR_REP_PRIVATE_DATA_SIZE = 136,
+-	IB_CM_SIDR_REP_INFO_LENGTH	 = 72
++	IB_CM_SIDR_REP_INFO_LENGTH	 = 72,
++	IB_CM_COMPARE_SIZE		 = 64
  };
  
--struct ib_ucm_ah_attr {
--	__u8	grh_dgid[16];
--	__u32	grh_flow_label;
--	__u16	dlid;
--	__u16	reserved;
--	__u8	grh_sgid_index;
--	__u8	grh_hop_limit;
--	__u8	grh_traffic_class;
--	__u8	sl;
--	__u8	src_path_bits;
--	__u8	static_rate;
--	__u8	is_global;
--	__u8	port_num;
--};
+ struct ib_cm_id;
+@@ -238,7 +239,6 @@ struct ib_cm_sidr_rep_event_param {
+ 	u32			qpn;
+ 	void			*info;
+ 	u8			info_len;
 -
--struct ib_ucm_init_qp_attr_resp {
--	__u32	qp_attr_mask;
--	__u32	qp_state;
--	__u32	cur_qp_state;
--	__u32	path_mtu;
--	__u32	path_mig_state;
--	__u32	qkey;
--	__u32	rq_psn;
--	__u32	sq_psn;
--	__u32	dest_qp_num;
--	__u32	qp_access_flags;
--
--	struct ib_ucm_ah_attr	ah_attr;
--	struct ib_ucm_ah_attr	alt_ah_attr;
--
--	/* ib_qp_cap */
--	__u32	max_send_wr;
--	__u32	max_recv_wr;
--	__u32	max_send_sge;
--	__u32	max_recv_sge;
--	__u32	max_inline_data;
--
--	__u16	pkey_index;
--	__u16	alt_pkey_index;
--	__u8	en_sqd_async_notify;
--	__u8	sq_draining;
--	__u8	max_rd_atomic;
--	__u8	max_dest_rd_atomic;
--	__u8	min_rnr_timer;
--	__u8	port_num;
--	__u8	timeout;
--	__u8	retry_cnt;
--	__u8	rnr_retry;
--	__u8	alt_port_num;
--	__u8	alt_timeout;
--};
--
- struct ib_ucm_listen {
- 	__be64 service_id;
- 	__be64 service_mask;
-@@ -180,28 +128,6 @@ struct ib_ucm_private_data {
- 	__u8  reserved[3];
  };
  
--struct ib_ucm_path_rec {
--	__u8  dgid[16];
--	__u8  sgid[16];
--	__be16 dlid;
--	__be16 slid;
--	__u32 raw_traffic;
--	__be32 flow_label;
--	__u32 reversible;
--	__u32 mtu;
--	__be16 pkey;
--	__u8  hop_limit;
--	__u8  traffic_class;
--	__u8  numb_path;
--	__u8  sl;
--	__u8  mtu_selector;
--	__u8  rate_selector;
--	__u8  rate;
--	__u8  packet_life_time_selector;
--	__u8  packet_life_time;
--	__u8  preference;
--};
--
- struct ib_ucm_req {
- 	__u32 id;
- 	__u32 qpn;
-@@ -304,8 +230,8 @@ struct ib_ucm_event_get {
- };
+ struct ib_cm_event {
+@@ -317,6 +317,15 @@ void ib_destroy_cm_id(struct ib_cm_id *c
  
- struct ib_ucm_req_event_resp {
--	struct ib_ucm_path_rec primary_path;
--	struct ib_ucm_path_rec alternate_path;
-+	struct ib_user_path_rec primary_path;
-+	struct ib_user_path_rec alternate_path;
- 	__be64                 remote_ca_guid;
- 	__u32                  remote_qkey;
- 	__u32                  remote_qpn;
-@@ -349,7 +275,7 @@ struct ib_ucm_mra_event_resp {
- };
- 
- struct ib_ucm_lap_event_resp {
--	struct ib_ucm_path_rec path;
-+	struct ib_user_path_rec path;
- };
- 
- struct ib_ucm_apr_event_resp {
-diff -uprN -X linux-2.6.git/Documentation/dontdiff 
-linux-2.6.git/include/rdma/ib_user_sa.h 
-linux-2.6.ib/include/rdma/ib_user_sa.h
---- linux-2.6.git/include/rdma/ib_user_sa.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.ib/include/rdma/ib_user_sa.h	2006-01-16 15:34:15.000000000 -0800
-@@ -0,0 +1,60 @@
-+/*
-+ * Copyright (c) 2005 Intel Corporation.  All rights reserved.
-+ *
-+ * This software is available to you under a choice of one of two
-+ * licenses.  You may choose to be licensed under the terms of the GNU
-+ * General Public License (GPL) Version 2, available from the file
-+ * COPYING in the main directory of this source tree, or the
-+ * OpenIB.org BSD license below:
-+ *
-+ *     Redistribution and use in source and binary forms, with or
-+ *     without modification, are permitted provided that the following
-+ *     conditions are met:
-+ *
-+ *      - Redistributions of source code must retain the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer.
-+ *
-+ *      - Redistributions in binary form must reproduce the above
-+ *        copyright notice, this list of conditions and the following
-+ *        disclaimer in the documentation and/or other materials
-+ *        provided with the distribution.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-+ * SOFTWARE.
-+ */
+ #define IB_SERVICE_ID_AGN_MASK	__constant_cpu_to_be64(0xFF00000000000000ULL)
+ #define IB_CM_ASSIGN_SERVICE_ID __constant_cpu_to_be64(0x0200000000000000ULL)
++#define IB_CMA_SERVICE_ID	__constant_cpu_to_be64(0x0000000001000000ULL)
++#define IB_CMA_SERVICE_ID_MASK	__constant_cpu_to_be64(0xFFFFFFFFFF000000ULL)
++#define IB_SDP_SERVICE_ID	__constant_cpu_to_be64(0x0000000000010000ULL)
++#define IB_SDP_SERVICE_ID_MASK	__constant_cpu_to_be64(0xFFFFFFFFFFFF0000ULL)
 +
-+#ifndef IB_USER_SA_H
-+#define IB_USER_SA_H
-+
-+#include <linux/types.h>
-+
-+struct ib_user_path_rec {
-+	__u8	dgid[16];
-+	__u8	sgid[16];
-+	__be16	dlid;
-+	__be16	slid;
-+	__u32	raw_traffic;
-+	__be32	flow_label;
-+	__u32	reversible;
-+	__u32	mtu;
-+	__be16	pkey;
-+	__u8	hop_limit;
-+	__u8	traffic_class;
-+	__u8	numb_path;
-+	__u8	sl;
-+	__u8	mtu_selector;
-+	__u8	rate_selector;
-+	__u8	rate;
-+	__u8	packet_life_time_selector;
-+	__u8	packet_life_time;
-+	__u8	preference;
++struct ib_cm_compare_data {
++	u8  data[IB_CM_COMPARE_SIZE];
++	u8  mask[IB_CM_COMPARE_SIZE];
 +};
-+
-+#endif /* IB_USER_SA_H */
-diff -uprN -X linux-2.6.git/Documentation/dontdiff 
-linux-2.6.git/include/rdma/ib_user_verbs.h 
-linux-2.6.ib/include/rdma/ib_user_verbs.h
---- linux-2.6.git/include/rdma/ib_user_verbs.h	2006-01-16 10:26:47.000000000 -0800
-+++ linux-2.6.ib/include/rdma/ib_user_verbs.h	2006-01-16 15:34:15.000000000 -0800
-@@ -31,7 +31,7 @@
-  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  * SOFTWARE.
-  *
-- * $Id: ib_user_verbs.h 2708 2005-06-24 17:27:21Z roland $
-+ * $Id: ib_user_verbs.h 4019 2005-11-11 00:33:09Z sean.hefty $
+ 
+ /**
+  * ib_cm_listen - Initiates listening on the specified service ID for
+@@ -330,10 +339,12 @@ void ib_destroy_cm_id(struct ib_cm_id *c
+  *   range of service IDs.  If set to 0, the service ID is matched
+  *   exactly.  This parameter is ignored if %service_id is set to
+  *   IB_CM_ASSIGN_SERVICE_ID.
++ * @compare_data: This parameter is optional.  It specifies data that must
++ *   appear in the private data of a connection request for the specified
++ *   listen request.
   */
+-int ib_cm_listen(struct ib_cm_id *cm_id,
+-		 __be64 service_id,
+-		 __be64 service_mask);
++int ib_cm_listen(struct ib_cm_id *cm_id, __be64 service_id, __be64 service_mask,
++		 struct ib_cm_compare_data *compare_data);
  
- #ifndef IB_USER_VERBS_H
-@@ -311,6 +311,64 @@ struct ib_uverbs_destroy_cq_resp {
- 	__u32 async_events_reported;
- };
- 
-+struct ib_uverbs_global_route {
-+	__u8  dgid[16];
-+	__u32 flow_label;    
-+	__u8  sgid_index;
-+	__u8  hop_limit;
-+	__u8  traffic_class;
-+	__u8  reserved;
-+};
-+
-+struct ib_uverbs_ah_attr {
-+	struct ib_uverbs_global_route grh;
-+	__u16 dlid;
-+	__u8  sl;
-+	__u8  src_path_bits;
-+	__u8  static_rate;
-+	__u8  is_global;
-+	__u8  port_num;
-+	__u8  reserved;
-+};
-+
-+struct ib_uverbs_qp_attr {
-+	__u32	qp_attr_mask;
-+	__u32	qp_state;
-+	__u32	cur_qp_state;
-+	__u32	path_mtu;
-+	__u32	path_mig_state;
-+	__u32	qkey;
-+	__u32	rq_psn;
-+	__u32	sq_psn;
-+	__u32	dest_qp_num;
-+	__u32	qp_access_flags;
-+
-+	struct ib_uverbs_ah_attr ah_attr;
-+	struct ib_uverbs_ah_attr alt_ah_attr;
-+
-+	/* ib_qp_cap */
-+	__u32	max_send_wr;
-+	__u32	max_recv_wr;
-+	__u32	max_send_sge;
-+	__u32	max_recv_sge;
-+	__u32	max_inline_data;
-+
-+	__u16	pkey_index;
-+	__u16	alt_pkey_index;
-+	__u8	en_sqd_async_notify;
-+	__u8	sq_draining;
-+	__u8	max_rd_atomic;
-+	__u8	max_dest_rd_atomic;
-+	__u8	min_rnr_timer;
-+	__u8	port_num;
-+	__u8	timeout;
-+	__u8	retry_cnt;
-+	__u8	rnr_retry;
-+	__u8	alt_port_num;
-+	__u8	alt_timeout;
-+	__u8	reserved[5];
-+};
-+
- struct ib_uverbs_create_qp {
- 	__u64 response;
- 	__u64 user_handle;
-@@ -487,26 +545,6 @@ struct ib_uverbs_post_srq_recv_resp {
- 	__u32 bad_wr;
- };
- 
--struct ib_uverbs_global_route {
--	__u8  dgid[16];
--	__u32 flow_label;    
--	__u8  sgid_index;
--	__u8  hop_limit;
--	__u8  traffic_class;
--	__u8  reserved;
--};
--
--struct ib_uverbs_ah_attr {
--	struct ib_uverbs_global_route grh;
--	__u16 dlid;
--	__u8  sl;
--	__u8  src_path_bits;
--	__u8  static_rate;
--	__u8  is_global;
--	__u8  port_num;
--	__u8  reserved;
--};
--
- struct ib_uverbs_create_ah {
- 	__u64 response;
- 	__u64 user_handle;
+ struct ib_cm_req_param {
+ 	struct ib_sa_path_rec	*primary_path;
 
 
 

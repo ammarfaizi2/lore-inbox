@@ -1,66 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbWBALAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbWBALBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932436AbWBALAL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 06:00:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932445AbWBALAL
+	id S932445AbWBALBR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 06:01:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932441AbWBALBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 06:00:11 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:59979 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932436AbWBALAJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 06:00:09 -0500
-Date: Wed, 1 Feb 2006 12:02:28 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: more cfq spinlock badness
-Message-ID: <20060201110228.GS4215@suse.de>
-References: <20060131063938.GA1876@redhat.com> <20060131090944.GU4215@suse.de> <20060131173601.GA7204@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060131173601.GA7204@redhat.com>
+	Wed, 1 Feb 2006 06:01:17 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:53444 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932445AbWBALBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 06:01:16 -0500
+Date: Wed, 1 Feb 2006 12:01:06 +0100 (CET)
+From: Armin Schindler <armin@melware.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
+       linux-kernel@vger.kernel.org, kkeil@suse.de
+Subject: Re: [2.6 patch] ISDN_CAPI_CAPIFS related cleanups
+In-Reply-To: <20060201104419.GL3986@stusta.de>
+Message-ID: <Pine.LNX.4.61.0602011159420.2155@phoenix.one.melware.de>
+References: <20060131213306.GG3986@stusta.de> <Pine.LNX.4.61.0602010943180.30915@phoenix.one.melware.de>
+ <20060201104419.GL3986@stusta.de>
+Organization: Cytronics & Melware
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:4f0aeee4703bc17a8237042c4702a75a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 31 2006, Dave Jones wrote:
-> On Tue, Jan 31, 2006 at 10:09:45AM +0100, Jens Axboe wrote:
->  > On Tue, Jan 31 2006, Dave Jones wrote:
->  > > Not seen this break for a while, but I just hit it again in 2.6.16rc1-git4.
->  > > 
->  > > 		Dave
->  > > 
->  > > BUG: spinlock bad magic on CPU#0, pdflush/1128
->  > >  lock: ffff81003a219000, .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
->  > > 
->  > > Call Trace: <ffffffff80206edc>{spin_bug+177} <ffffffff80207045>{_raw_spin_lock+25}
->  > >        <ffffffff801fea4a>{cfq_exit_single_io_context+85} <ffffffff801ff9a6>{cfq_exit_io_context+24}
->  > >        <ffffffff801f79b0>{exit_io_context+137} <ffffffff80135fbc>{do_exit+182}
->  > >        <ffffffff8010ba49>{child_rip+15} <ffffffff80146087>{keventd_create_kthread+0}
->  > >        <ffffffff8014629c>{kthread+0} <ffffffff8010ba3a>{child_rip+0}
->  > > Kernel panic - not syncing: bad locking
->  > 
->  > Again, which devices have you used?
+On Wed, 1 Feb 2006, Adrian Bunk wrote:
+> On Wed, Feb 01, 2006 at 09:43:48AM +0100, Armin Schindler wrote:
+> > On Tue, 31 Jan 2006, Adrian Bunk wrote:
+> > > This patch contains the following cleanups:
+> > > - move the help text to the right option
+> > 
+> > where did you move it to? I just see the removal of the help text.
 > 
-> nothing special (Ie, no usb bits, just the onboard ata_piix SATA)
-> 
->  > Did it happen at shutdown, or?
-> 
-> whislt starting up a bunch of gnome panel applets.
-> 
->  > Did the ub bug get fixed
-> 
-> yes
-> 
->  > if you are using that? The bug above has in the
->  > past always been able to be explained by a driver destroying a structure
->  > embedding the queue lock before the queue is dead.
-> 
-> as there were no ub devices plugged in at the time, I think
-> Pete is off the hook for this one.
+> I moved it from ISDN_CAPI_CAPIFS to ISDN_CAPI_CAPIFS_BOOL (diff displays 
+> this a bit strange).
 
-The ub fix hasn't been merged yet. Just trying to be absolutely certain
-that you didn't have that loaded?
+Yes, sorry. I didn't look close enough. I should wait a bit after wake up... 
 
--- 
-Jens Axboe
-
+Armin
+ 
+> > Armin
+> >...
+> > >  config ISDN_CAPI_CAPIFS_BOOL
+> > >  	bool "CAPI2.0 filesystem support"
+> > >  	depends on ISDN_CAPI_MIDDLEWARE && ISDN_CAPI_CAPI20
+> > > -
+> > > -config ISDN_CAPI_CAPIFS
+> > > -	tristate
+> > > -	depends on ISDN_CAPI_CAPIFS_BOOL
+> > > -	default ISDN_CAPI_CAPI20
+> > >  	help
+> > >  	  This option provides a special file system, similar to /dev/pts with
+> > >  	  device nodes for the special ttys established by using the
+> > >  	  middleware extension above. If you want to use pppd with
+> > >  	  pppdcapiplugin to dial up to your ISP, say Y here.
+> > >  
+> > > +config ISDN_CAPI_CAPIFS
+> > > +	tristate
+> > > +	depends on ISDN_CAPI_CAPIFS_BOOL
+> > > +	default ISDN_CAPI_CAPI20
+> > > +
+> >...
+> 
+> cu
+> Adrian
+> 
+> -- 
+> 
+>        "Is there not promise of rain?" Ling Tan asked suddenly out
+>         of the darkness. There had been need of rain for many days.
+>        "Only a promise," Lao Er said.
+>                                        Pearl S. Buck - Dragon Seed
+> 
+> _______________________________________________
+> isdn4linux mailing list
+> isdn4linux@listserv.isdn4linux.de
+> https://www.isdn4linux.de/mailman/listinfo/isdn4linux
+> 

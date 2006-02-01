@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932457AbWBAOnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161069AbWBAOxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932457AbWBAOnd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 09:43:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWBAOnd
+	id S1161069AbWBAOxN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 09:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161068AbWBAOxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 09:43:33 -0500
-Received: from host27-37.discord.birch.net ([65.16.27.37]:16537 "EHLO
-	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
-	id S932457AbWBAOnd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 09:43:33 -0500
-From: "Roger Heflin" <rheflin@atipa.com>
-To: <sander@humilis.net>
-Cc: "'Lennart Sorensen'" <lsorense@csclub.uwaterloo.ca>,
-       <linux-kernel@vger.kernel.org>, <jgarzik@pobox.com>
-Subject: RE: [OT] 8-port AHCI SATA Controller?
-Date: Wed, 1 Feb 2006 08:53:57 -0600
+	Wed, 1 Feb 2006 09:53:12 -0500
+Received: from uproxy.gmail.com ([66.249.92.192]:10967 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161067AbWBAOxM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 09:53:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=U8tZPLgQgH4bMwcn1RY2EUqw4BwBIupyHP39Tt0KJ+wkW7kOxFB1wMgvpLqJW44L4yFt1CwQM8oGxVV3pK9Ksz4PvJZRXCMpcKf9BABfYuBXtoDteG8ZfwWeXWTu6CaDshr52YkhBKBYVDdrPCGm70chASahASGIiU/XDsaktEQ=
+Message-ID: <58cb370e0602010653g3c60b2ffoa9a84f83c7af45c1@mail.gmail.com>
+Date: Wed, 1 Feb 2006 15:53:10 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alan Cox <alan@redhat.com>
+Subject: Re: [patch] SGIIOC4 limit request size
+Cc: Jeremy Higdon <jeremy@sgi.com>, Jes Sorensen <jes@sgi.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060201133917.GA27011@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <20060201101504.GC14960@favonius>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcYnF28zLSLuEgaySJWGL3lXnGCGGAAJkskQ
-Message-ID: <EXCHG2003yD7TfSr0fV00001104@EXCHG2003.microtech-ks.com>
-X-OriginalArrivalTime: 01 Feb 2006 14:36:53.0432 (UTC) FILETIME=[F1C41B80:01C6273C]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <yq0vevzpi8r.fsf@jaguar.mkp.net>
+	 <58cb370e0602010234p62521a00h6d8920c84cac44d5@mail.gmail.com>
+	 <20060201104913.GA152005@sgi.com>
+	 <58cb370e0602010308o4cde24aeg8d629b1b3d45cdd3@mail.gmail.com>
+	 <20060201111754.GB152005@sgi.com>
+	 <58cb370e0602010326k265ef278k4010df13fb5adf8c@mail.gmail.com>
+	 <20060201113607.GF152005@sgi.com>
+	 <20060201133917.GA27011@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+On 2/1/06, Alan Cox <alan@redhat.com> wrote:
+> On Wed, Feb 01, 2006 at 03:36:07AM -0800, Jeremy Higdon wrote:
+> > Here's one that removes xcount.  It seems to work too.
+> > Should we set hwif->rqsize to 256, or are we pretty safe in
+> > expecting that the default won't rise?  The driver should be
+>
+> 255 is the safest for LBA28 devices because a small number incorrectly
+> interpret 0 (meaning 256) as 0. And that can have unfortunate results
 
-> -----Original Message-----
-> From: Sander [mailto:sander@humilis.net] 
-> Sent: Wednesday, February 01, 2006 4:15 AM
-> To: Roger Heflin
-> Cc: 'Lennart Sorensen'; 'Sander'; 
-> linux-kernel@vger.kernel.org; jgarzik@pobox.com
-> Subject: Re: [OT] 8-port AHCI SATA Controller?
-> 
-> Roger Heflin wrote (ao):
-> > Highpoint has some that I believe are software raidish.
-> > 
-> > They do have on-board parity generators that are used when you use 
-> > there binary only modules.
-> > 
-> > I have heard that they will work with later kernels (2.6.15+) since 
-> > the highpoint are a standard Marvell chipset, and they seem to be 
-> > fairly price competitive with JBOD raid controllers, and have some 
-> > controllers that have more than 8 ports, the price per port may be 
-> > better on the larger controllers.
-> 
-> Thanks for the tip. I'll do some research on the Highpoint 
-> controllers.
-> 
-> 	Kind regards, Sander
-
-Something important to note, if you need to use highpoints binary
-driver (ie the one in the kernel is not quite working yet) - then you
-will need to run a 2.6.13 or earlier kernel, their driver has some
-issue with 2.6.14+ they are working on it.
-
-I believe this also holds true of the Marvell drivers also, highpoints
-driver is (from what I can tell) a modified Marvell driver with their
-binary software raid support added on, so the Marvell driver *may* also
-have an issue with the later kernels.
-
-                            Roger
-
-
+We can blacklist vulnerable devices if needed.
+We have been using 256 for a long time now.

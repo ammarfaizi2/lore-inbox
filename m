@@ -1,57 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbWBAKlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161000AbWBAKma@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932408AbWBAKlg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 05:41:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWBAKlf
+	id S1161000AbWBAKma (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 05:42:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161001AbWBAKma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 05:41:35 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:49287 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932408AbWBAKle (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 05:41:34 -0500
-Message-ID: <43E0904C.1020201@sgi.com>
-Date: Wed, 01 Feb 2006 11:41:16 +0100
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-CC: Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, Jeremy Higdon <jeremy@sgi.com>
-Subject: Re: [patch] SGIIOC4 limit request size
-References: <yq0vevzpi8r.fsf@jaguar.mkp.net> <58cb370e0602010234p62521a00h6d8920c84cac44d5@mail.gmail.com>
-In-Reply-To: <58cb370e0602010234p62521a00h6d8920c84cac44d5@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Feb 2006 05:42:30 -0500
+Received: from 22.107.233.220.exetel.com.au ([220.233.107.22]:7690 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1161000AbWBAKm2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 05:42:28 -0500
+Date: Wed, 1 Feb 2006 21:42:14 +1100
+To: Ingo Molnar <mingo@elte.hu>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+Subject: Re: [lock validator] inet6_destroy_sock(): soft-safe -> soft-unsafe lock dependency
+Message-ID: <20060201104214.GA9085@gondor.apana.org.au>
+References: <20060127001807.GA17179@elte.hu> <E1F2IcV-0007Iq-00@gondolin.me.apana.org.au> <20060128152204.GA13940@elte.hu> <20060131102758.GA31460@gondor.apana.org.au> <20060131212432.GA18812@elte.hu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="X1bOJ3K7DJ5YkBrT"
+Content-Disposition: inline
+In-Reply-To: <20060131212432.GA18812@elte.hu>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On 01 Feb 2006 03:59:16 -0500, Jes Sorensen <jes@sgi.com> wrote:
->>This one takes care of a problem with the SGI IOC4 driver where it
->>hits DMA problems if the request grows too large.
-> 
-> 
-> Does this happen only for CONFIG_IA64_PAGE_SIZE_4KB=y
-> or CONFIG_IA64_PAGE_SIZE_8KB=y?
-> 
-> from sgiioc4.c:
-> 
-> /* Each Physical Region Descriptor Entry size is 16 bytes (2 * 64 bits) */
-> /* IOC4 has only 1 IDE channel */
-> #define IOC4_PRD_BYTES       16
-> #define IOC4_PRD_ENTRIES     (PAGE_SIZE /(4*IOC4_PRD_BYTES))
-> 
-> As limiting request size to 127 sectors punishes performance
-> wouldn't it be better to define IOC4_PRD_ENTRIES to 256
-> if this is possible (would need 4 pages for PAGE_SIZE=4096
-> and 2 for PAGE_SIZE=8192)?
 
-This happens with the default page size which is 16KB, ie.
-IOC4_PRD_ENTRIES=256, the problem is not due to the request
-going beyond the number of PRD_ENTRIES. I haven't tried with smaller
-page sizes but I would assume the problem would be the same.
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Even with this patch performance seems very reasonable.
+On Tue, Jan 31, 2006 at 10:24:32PM +0100, Ingo Molnar wrote:
+>
+>  [<c04de9e8>] _write_lock+0x8/0x10
+>  [<c0499015>] inet6_destroy_sock+0x25/0x100
+>  [<c04b8672>] tcp_v6_destroy_sock+0x12/0x20
+>  [<c046bbda>] inet_csk_destroy_sock+0x4a/0x150
+>  [<c047625c>] tcp_rcv_state_process+0xd4c/0xdd0
+>  [<c047d8e9>] tcp_v4_do_rcv+0xa9/0x340
+>  [<c047eabb>] tcp_v4_rcv+0x8eb/0x9d0
 
-Jes
+OK this is definitely broken.  We should never touch the dst lock in
+softirq context.  Since inet6_destroy_sock may be called from that
+context due to the asynchronous nature of sockets, we can't take the
+lock there.
+
+In fact this sk_dst_reset is totally redundant since all IPv6 sockets
+use inet_sock_destruct as their socket destructor which always cleans
+up the dst anyway.  So the solution is to simply remove the call.
+
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=inet6-destroy-sock-should-not-reset-dst
+
+diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
+--- a/net/ipv6/af_inet6.c
++++ b/net/ipv6/af_inet6.c
+@@ -369,12 +369,6 @@ int inet6_destroy_sock(struct sock *sk)
+ 	struct sk_buff *skb;
+ 	struct ipv6_txoptions *opt;
+ 
+-	/*
+-	 *	Release destination entry
+-	 */
+-
+-	sk_dst_reset(sk);
+-
+ 	/* Release rx options */
+ 
+ 	if ((skb = xchg(&np->pktoptions, NULL)) != NULL)
+
+--X1bOJ3K7DJ5YkBrT--

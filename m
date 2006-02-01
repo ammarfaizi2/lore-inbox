@@ -1,174 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWBAIne@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbWBAIoB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbWBAIne (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 03:43:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbWBAIne
+	id S1751238AbWBAIoB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 03:44:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWBAIoB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 03:43:34 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:49269 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750742AbWBAInd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 03:43:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=lFUJI4dmG90yBjBWRzv075hBfZUaIfNOm/DR5e/99ngZEH7w4HXgpZA7etLBuD/7zc8Asoe2duDS7ZOp8yN8DvMPgKdeqRcVWXnpsxIln2F24f8Csl5cfjSE9L+Vbv19cLunOocQxYpqbnFdXC8Gl2grZIM/DTaG7bl3X0/uWc0=
-Message-ID: <a59861030602010043n1bf518cdl@mail.gmail.com>
-Date: Wed, 1 Feb 2006 09:43:32 +0100
-From: Ivan Korzakow <ivan.korzakow@gmail.com>
-To: Robert Schwebel <robert@schwebel.de>
-Subject: Re: GPIO device class driver
-Cc: Kumar Gala <galak@kernel.crashing.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060201070653.GF2494@pengutronix.de>
+	Wed, 1 Feb 2006 03:44:01 -0500
+Received: from moutng.kundenserver.de ([212.227.126.187]:35582 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751253AbWBAIoA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 03:44:00 -0500
+Date: Wed, 1 Feb 2006 09:43:48 +0100 (CET)
+From: Armin Schindler <armin@melware.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: kkeil@suse.de, kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] ISDN_CAPI_CAPIFS related cleanups
+In-Reply-To: <20060131213306.GG3986@stusta.de>
+Message-ID: <Pine.LNX.4.61.0602010943180.30915@phoenix.one.melware.de>
+References: <20060131213306.GG3986@stusta.de>
+Organization: Cytronics & Melware
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_6525_26397200.1138783412461"
-References: <a59861030512210307l4c8a0a29o@mail.gmail.com>
-	 <20051221115009.GZ6703@pengutronix.de>
-	 <3405AA51-AE3C-4E8F-AFA5-88B103B1E02C@kernel.crashing.org>
-	 <20060201070653.GF2494@pengutronix.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:4f0aeee4703bc17a8237042c4702a75a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_6525_26397200.1138783412461
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, 31 Jan 2006, Adrian Bunk wrote:
+> This patch contains the following cleanups:
+> - move the help text to the right option
 
-2006/2/1, Robert Schwebel <robert@schwebel.de>:
-> On Wed, Feb 01, 2006 at 01:00:27AM -0600, Kumar Gala wrote:
-> > Any further progress on this.  I'm looking at the GPIO's on an
-> > embedded PowerPC and would prefer to produce a driver towards a
-> > standard kernel interface.  I'm also happy to help on the standard
-> > interface if it needs some work.
->
-> Sorry, no progress so far on our side.
->
+where did you move it to? I just see the removal of the help text.
 
-Hi,
+Armin
 
-I worked on a GPIO driver, starting from the work of Robert Schwebel.
-I wrote something that suited my needs, but I kept in mind the idea of
-a generic layer. It's worth what it's worth, but i'm sending it in
-case it might help someone.
-Basically I nearly didn't touch the sysfs part of Robert's driver. I
-added the possibility to register a block of GPIO pins, and to handle
-interrupts. The platform specific layer registers itself with this
-generic layer and passes all the required platform dependant functions
-and parameters through a struct.
-Attached is the generic layer gpio.c and I moved the header in
-include/linux/gpio.h
-Feel free to comment, criticize, reject  :-)
-
-Ivan
-
-------=_Part_6525_26397200.1138783412461
-Content-Type: application/x-gzip; name=gpio.tgz
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="gpio.tgz"
-
-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
-Pv8HfoE8jQB4AAA=
-------=_Part_6525_26397200.1138783412461--
+> - replace some #ifdef's in capi.c with dummy functions in capifs.h
+> - use CONFIG_ISDN_CAPI_CAPIFS_BOOL in one place in capi.c
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+>  drivers/isdn/capi/Kconfig  |   10 +++++-----
+>  drivers/isdn/capi/capi.c   |    9 ++-------
+>  drivers/isdn/capi/capifs.h |    9 +++++++++
+>  3 files changed, 16 insertions(+), 12 deletions(-)
+> 
+> --- linux-2.6.16-rc1-mm4-full/drivers/isdn/capi/Kconfig.old	2006-01-31 20:36:44.000000000 +0100
+> +++ linux-2.6.16-rc1-mm4-full/drivers/isdn/capi/Kconfig	2006-01-31 20:38:10.000000000 +0100
+> @@ -31,17 +31,17 @@
+>  config ISDN_CAPI_CAPIFS_BOOL
+>  	bool "CAPI2.0 filesystem support"
+>  	depends on ISDN_CAPI_MIDDLEWARE && ISDN_CAPI_CAPI20
+> -
+> -config ISDN_CAPI_CAPIFS
+> -	tristate
+> -	depends on ISDN_CAPI_CAPIFS_BOOL
+> -	default ISDN_CAPI_CAPI20
+>  	help
+>  	  This option provides a special file system, similar to /dev/pts with
+>  	  device nodes for the special ttys established by using the
+>  	  middleware extension above. If you want to use pppd with
+>  	  pppdcapiplugin to dial up to your ISP, say Y here.
+>  
+> +config ISDN_CAPI_CAPIFS
+> +	tristate
+> +	depends on ISDN_CAPI_CAPIFS_BOOL
+> +	default ISDN_CAPI_CAPI20
+> +
+>  config ISDN_CAPI_CAPIDRV
+>  	tristate "CAPI2.0 capidrv interface support"
+>  	depends on ISDN_CAPI && ISDN_I4L
+> --- linux-2.6.16-rc1-mm4-full/drivers/isdn/capi/capifs.h.old	2006-01-31 20:40:36.000000000 +0100
+> +++ linux-2.6.16-rc1-mm4-full/drivers/isdn/capi/capifs.h	2006-01-31 20:41:44.000000000 +0100
+> @@ -7,5 +7,14 @@
+>   *
+>   */
+>  
+> +#ifdef CONFIG_ISDN_CAPI_CAPIFS_BOOL
+> +
+>  void capifs_new_ncci(unsigned int num, dev_t device);
+>  void capifs_free_ncci(unsigned int num);
+> +
+> +#else  /*  CONFIG_ISDN_CAPI_CAPIFS_BOOL  */
+> +
+> +static inline void capifs_new_ncci(unsigned int num, dev_t device) {}
+> +static inline void capifs_free_ncci(unsigned int num) {}
+> +
+> +#endif  /*  CONFIG_ISDN_CAPI_CAPIFS_BOOL  */
+> --- linux-2.6.16-rc1-mm4-full/drivers/isdn/capi/capi.c.old	2006-01-31 20:38:53.000000000 +0100
+> +++ linux-2.6.16-rc1-mm4-full/drivers/isdn/capi/capi.c	2006-01-31 20:40:24.000000000 +0100
+> @@ -42,9 +42,8 @@
+>  #include <linux/devfs_fs_kernel.h>
+>  #include <linux/isdn/capiutil.h>
+>  #include <linux/isdn/capicmd.h>
+> -#if defined(CONFIG_ISDN_CAPI_CAPIFS) || defined(CONFIG_ISDN_CAPI_CAPIFS_MODULE)
+> +
+>  #include "capifs.h"
+> -#endif
+>  
+>  static char *revision = "$Revision: 1.1.2.7 $";
+>  
+> @@ -311,9 +310,7 @@
+>  #ifdef _DEBUG_REFCOUNT
+>  		printk(KERN_DEBUG "set mp->nccip\n");
+>  #endif
+> -#if defined(CONFIG_ISDN_CAPI_CAPIFS) || defined(CONFIG_ISDN_CAPI_CAPIFS_MODULE)
+>  		capifs_new_ncci(mp->minor, MKDEV(capi_ttymajor, mp->minor));
+> -#endif
+>  	}
+>  #endif /* CONFIG_ISDN_CAPI_MIDDLEWARE */
+>  	for (pp=&cdev->nccis; *pp; pp = &(*pp)->next)
+> @@ -336,9 +333,7 @@
+>  			*pp = (*pp)->next;
+>  #ifdef CONFIG_ISDN_CAPI_MIDDLEWARE
+>  			if ((mp = np->minorp) != 0) {
+> -#if defined(CONFIG_ISDN_CAPI_CAPIFS) || defined(CONFIG_ISDN_CAPI_CAPIFS_MODULE)
+>  				capifs_free_ncci(mp->minor);
+> -#endif
+>  				if (mp->tty) {
+>  					mp->nccip = NULL;
+>  #ifdef _DEBUG_REFCOUNT
+> @@ -1520,7 +1515,7 @@
+>  	proc_init();
+>  
+>  #ifdef CONFIG_ISDN_CAPI_MIDDLEWARE
+> -#if defined(CONFIG_ISDN_CAPI_CAPIFS) || defined(CONFIG_ISDN_CAPI_CAPIFS_MODULE)
+> +#ifdef CONFIG_ISDN_CAPI_CAPIFS_BOOL
+>          compileinfo = " (middleware+capifs)";
+>  #else
+>          compileinfo = " (no capifs)";
+> 
+> _______________________________________________
+> isdn4linux mailing list
+> isdn4linux@listserv.isdn4linux.de
+> https://www.isdn4linux.de/mailman/listinfo/isdn4linux
+> 

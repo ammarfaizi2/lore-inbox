@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161036AbWBAQij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161041AbWBAQlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161036AbWBAQij (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 11:38:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161042AbWBAQij
+	id S1161041AbWBAQlS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 11:41:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161042AbWBAQlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 11:38:39 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:37343 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161036AbWBAQii (ORCPT
+	Wed, 1 Feb 2006 11:41:18 -0500
+Received: from pat.uio.no ([129.240.130.16]:24051 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1161041AbWBAQlR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 11:38:38 -0500
-Date: Wed, 1 Feb 2006 11:38:18 -0500
-From: Dave Jones <davej@redhat.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Cc: Chris Mason <mason@suse.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.16rc1-git4 slab corruption.
-Message-ID: <20060201163818.GG5875@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Pekka Enberg <penberg@cs.helsinki.fi>, Chris Mason <mason@suse.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060131180319.GA18948@redhat.com> <200601311408.35771.mason@suse.com> <20060131221542.GC29937@redhat.com> <84144f020601312327t490dcf4fi6fb09942a0f3dd87@mail.gmail.com> <20060201160921.GC5875@redhat.com> <1138811364.8604.5.camel@localhost>
+	Wed, 1 Feb 2006 11:41:17 -0500
+Subject: Re: [BUG] nfs version 2 broken
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Knut Petersen <Knut_Petersen@t-online.de>
+Cc: linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au,
+       nfs@lists.sourceforge.net
+In-Reply-To: <43E05FA1.6070407@t-online.de>
+References: <43E05031.2000107@t-online.de>
+	 <1138774519.7861.4.camel@lade.trondhjem.org>  <43E0567F.20004@t-online.de>
+	 <1138775744.7875.0.camel@lade.trondhjem.org> <43E05FA1.6070407@t-online.de>
+Content-Type: text/plain
+Date: Wed, 01 Feb 2006 11:41:05 -0500
+Message-Id: <1138812065.7858.6.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1138811364.8604.5.camel@localhost>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.868, required 12,
+	autolearn=disabled, AWL 1.13, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, 2006 at 06:29:24PM +0200, Pekka Enberg wrote:
- > Hi Dave,
- > 
- > On Wed, 2006-02-01 at 11:09 -0500, Dave Jones wrote:
- > > @@ -1446,7 +1448,11 @@ next:
- > >  	} 
- > >  
- > >  	cachep->lists.next_reap = jiffies + REAPTIMEOUT_LIST3 +
- > > -					((unsigned long)cachep)%REAPTIMEOUT_LIST3;
- > > +					((unsigned long)cachep/L1_CACHE_BYTES)%REAPTIMEOUT_LIST3;
- > 
- > Hmm. This bit seems unrelated. Was it in the original patch?
+On Wed, 2006-02-01 at 08:13 +0100, Knut Petersen wrote:
+> >>AOpen i915GMm-HFS with Pentium M, linux kernel 2.6.15-git7
+> >>running a system that startet as SuSE 9.2. Nfs-utils are still
+> >>the original 1.0.6, grep -i nfs linuxbuild/.config gives
+> >>    
+> >>
+> >
+> >...and what kind of filesystem are you exporting?
+> >
+> >  
+> >
+> 
+> I think it is _not_ related to reiserfs. Moving my
+> exported /tftpboot directory to a fresh ext2 partition
+> gave the same results - failing with nfs 2, succeeding with
+> nfs 3.
 
-as far as I recall, yes.
+Does it do the same if you mount the same partition normally (i.e. not
+through nfsroot) in some other directory?
 
-		Dave
+Cheers,
+  Trond
 

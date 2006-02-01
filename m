@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422880AbWBATO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422881AbWBATQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422880AbWBATO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 14:14:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422881AbWBATO7
+	id S1422881AbWBATQU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 14:16:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422882AbWBATQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 14:14:59 -0500
-Received: from mail.enyo.de ([212.9.189.167]:4016 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S1422880AbWBATO6 (ORCPT
+	Wed, 1 Feb 2006 14:16:20 -0500
+Received: from smtp.uaf.edu ([137.229.34.30]:13572 "EHLO smtp.uaf.edu")
+	by vger.kernel.org with ESMTP id S1422881AbWBATQU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 14:14:58 -0500
-From: Florian Weimer <fw@deneb.enyo.de>
+	Wed, 1 Feb 2006 14:16:20 -0500
+From: Joshua Kugler <joshua.kugler@uaf.edu>
+Organization: UAF Center for Distance Education - IT
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] AMD64: fix mce_cpu_quirks typos
-Date: Wed, 01 Feb 2006 20:14:56 +0100
-Message-ID: <87fyn2yjpr.fsf@mid.deneb.enyo.de>
+Subject: Re: [OT] 8-port AHCI SATA Controller?
+Date: Wed, 1 Feb 2006 10:15:29 -0900
+User-Agent: KMail/1.7.2
+Cc: Bill Davidsen <davidsen@tmr.com>, jgarzik@pobox.com
+References: <20060131115343.GA2580@favonius> <200601310919.20199.joshua.kugler@uaf.edu> <43E0DE1F.4040809@tmr.com>
+In-Reply-To: <43E0DE1F.4040809@tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602011015.30151.joshua.kugler@uaf.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The spurious MCE is TLB-related.  I *think* the bit for the correct
-status code is stored at position 10 HEX, not 10 DEC.  At least I
-still get those MCEs on a two-way Opteron box, even though they are
-supposed to be filtered out.
+On Wednesday 01 February 2006 07:13, Bill Davidsen wrote:
+> > I got the drivers here:
+> >
+> > http://www.keffective.com/mvsata/FC3/
+> >
+> > The latest was mvSata_Linux_3.6.1.tgz as of 2005-10-13.
+> I get a "you do not have permission" using that link, for what it's worth.
 
-Signed-off-by: Florian Weimer <fw@deneb.enyo.de>
+Hmm...so you do.  It was down for a while yesterday, so they might have some 
+configuration issues.  This page works:
 
----
+http://www.keffective.com/mvsata/
 
- arch/x86_64/kernel/mce.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+And this link does work:
 
-102dfead12550ecaf7363a8ca7269ac0f1241bac
-diff --git a/arch/x86_64/kernel/mce.c b/arch/x86_64/kernel/mce.c
-index 13a2ead..975d128 100644
---- a/arch/x86_64/kernel/mce.c
-+++ b/arch/x86_64/kernel/mce.c
-@@ -350,9 +350,9 @@ static void __cpuinit mce_cpu_quirks(str
- { 
- 	/* This should be disabled by the BIOS, but isn't always */
- 	if (c->x86_vendor == X86_VENDOR_AMD && c->x86 == 15) {
--		/* disable GART TBL walk error reporting, which trips off 
-+		/* disable GART TLB walk error reporting, which trips off
- 		   incorrectly with the IOMMU & 3ware & Cerberus. */
--		clear_bit(10, &bank[4]);
-+		clear_bit(0x10, &bank[4]);
- 		/* Lots of broken BIOS around that don't clear them
- 		   by default and leave crap in there. Don't log. */
- 		mce_bootlog = 0;
+http://www.keffective.com/mvsata/FC3/mvSata_Linux_3.6.1.tgz
+
+They must have turned of indexes for directories.  I e-mailed the owner of the 
+page.
+
+j----- k-----
+
 -- 
-1.1.5
+Joshua Kugler                 PGP Key: http://pgp.mit.edu/
+CDE System Administrator             ID 0xDB26D7CE
+http://distance.uaf.edu/

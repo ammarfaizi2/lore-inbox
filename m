@@ -1,93 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030364AbWBANG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161035AbWBANJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030364AbWBANG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 08:06:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbWBANG1
+	id S1161035AbWBANJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 08:09:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbWBANJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 08:06:27 -0500
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:8889 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S964924AbWBANG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 08:06:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=vjkdTuhBSb1Z0aUHKeUCbUSjT5qFJwgNk02Pz7aDauNr3ZwFYxhOfWSgiZeKFia207Pk/jdXEdi+IbXB41b3V5XNf52Zqrj8a6xzNmxCZwUsNL8JVLYkQTYHZrn3YjFh9/6ZAfS5i0fntj3ZTcd6ZLdmAZQPxvfFvudq+pWDwJ0=  ;
-Message-ID: <43E0B24E.8080508@yahoo.com.au>
-Date: Thu, 02 Feb 2006 00:06:22 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
+	Wed, 1 Feb 2006 08:09:56 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:32227 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964955AbWBANJz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 08:09:55 -0500
+Date: Wed, 1 Feb 2006 14:08:18 +0100
+From: Ingo Molnar <mingo@elte.hu>
 To: Steven Rostedt <rostedt@goodmis.org>
-CC: Peter Williams <pwil3058@bigpond.net.au>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
        LKML <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
-References: <1138736609.7088.35.camel@localhost.localdomain>	 <43E02CC2.3080805@bigpond.net.au> <1138797874.7088.44.camel@localhost.localdomain>
-In-Reply-To: <1138797874.7088.44.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20060201130818.GA26481@elte.hu>
+References: <1138736609.7088.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1138736609.7088.35.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.2
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.6 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
-> On Wed, 2006-02-01 at 14:36 +1100, Peter Williams wrote:
 
->>However, a newly woken task that preempts the current task isn't the 
->>only way that needs_resched() can become true just before load balancing 
->>is started.  E.g. scheduler_tick() calls set_tsk_need_resched(p) when a 
->>task finishes a time slice and this patch would cause rebalance_tick() 
->>to be aborted after a lot of work has been done in this case.
-> 
-> 
-> No real work is lost.  This is a loop that individually pulls tasks.  So
-> the bail only stops the work of looking for more tasks to pull and we
-> don't lose the tasks that have already been pulled.
-> 
-> 
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-Once we've gone to the trouble of deciding which tasks to move and how
-many (and the estimate should be very conservative), and locked the source
-and destination runqueues, it is a very good idea to follow up with our
-threat of actually moving the tasks rather than bail out early.
+[pls. use -p when generating patches]
 
-It is quite likely (though perhaps less so in this braindead benchmark)
-that a subsequent load balance operation will need to move the remaining
-tasks anyway, so decreasing the efficiency of this routine is going to cause
-more damage to your RT task even if you "fix" it to not actually show up as
-a single latency blip.
+> @@ -1983,6 +1983,10 @@
+>  
+>  	curr = curr->prev;
+>  
+> +	/* bail if someone else woke up */
+> +	if (need_resched())
+> +		goto out;
+> +
+>  	if (!can_migrate_task(tmp, busiest, this_cpu, sd, idle, &pinned)) {
+>  		if (curr != head)
+>  			goto skip_queue;
 
->>In summary, I think that the bail out is badly placed and needs some way 
->>of knowing if the reason need_resched() has become true is because of 
->>preemption of a newly woken task and not some other reason.
-> 
-> 
-> I need that bail in the loop, so it can stop if needed. Like I said, it
-> can be a task that is pulled to cause the bail. Also, having the run
-> queue locks and interrupts off for over a msec is really a bad idea.
-> 
+even putting the problems of this approach aside (is it right to abort 
+the act of load-balancing - which is a periodic activity that wont be 
+restarted after this - so we lose real work), i think this will not 
+solve the latency. Imagine a hardirq hitting the CPU that is executing 
+move_tasks() above. We might not service that hardirq for up to 1.5 
+msecs ...
 
-I don't think we need to change it in the mainline kernel just yet. At least
-not something that will bail after moving just a single task every time in
-the worst case.
+i think the right approach would be to split up this work into smaller 
+chunks. Or rather, lets first see how this can happen: why is 
+can_migrate() false for so many tasks? Are they all cpu-hot? If yes, 
+shouldnt we simply skip only up to a limit of tasks in this case - it's 
+not like we want to spend 1.5 msecs searching for a cache-cold task 
+which might give us a 50 usecs advantage over cache-hot tasks ...
 
-> 
->>Peter
->>PS I've added Nick Piggin to the CC list as he is interested in load 
->>balancing issues.
-> 
-> 
-> Thanks, and thanks for the comments too.  I'm up for all suggestions and
-> ideas.  I just feel it is important that we don't have unbounded
-> latencies of spin locks and interrupts off.
-> 
-
-That's a long way off (if ever) if you want to run crazy code that simply
-increases some resource loading until something breaks. Take an rwsem for
-writing and then queue up thousands of readers on the lock. Release the
-writer. (this will be very similar to run queue balancing, in effect).
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	Ingo

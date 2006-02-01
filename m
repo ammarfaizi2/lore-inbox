@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161096AbWBAP1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161093AbWBAP2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161096AbWBAP1M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 10:27:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161094AbWBAP1M
+	id S1161093AbWBAP2d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 10:28:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161095AbWBAP2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 10:27:12 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:45788 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1161093AbWBAP1K
+	Wed, 1 Feb 2006 10:28:33 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:52382 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1161093AbWBAP2c
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 10:27:10 -0500
-From: "Jiri Slaby" <xslaby@fi.muni.cz>
-Date: Wed,  1 Feb 2006 16:26:57 +0100
-Cc: linux-kernel@vger.kernel.org, linux-kernel-announce@vger.kernel.org,
-       Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>, jirislaby@gmail.com,
-       "Antonino A. Daplas" <adaplas@gmail.com>,
-       "Antonino Daplas" <adaplas@pol.net>, ", "@fi.muni.cz, Martin@fi.muni.cz,
-       Mares@fi.muni.cz, " <mj@ucw.cz>"@fi.muni.cz
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: [PATCH -mm] vgacon printk scrolling fix
-Message-Id: <20060201152656.8DEBC22AEF3@anxur.fi.muni.cz>
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: xslaby@fi.muni.cz
-X-Muni-Virus-Test: Clean
+	Wed, 1 Feb 2006 10:28:32 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Bernd Eckenfels <be-news06@lina.inka.de>
+Subject: Re: Recursive chmod/chown OOM kills box with 32MB RAM
+Date: Wed, 1 Feb 2006 17:28:10 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org
+References: <E1F4JgR-0004m5-00@calista.inka.de>
+In-Reply-To: <E1F4JgR-0004m5-00@calista.inka.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602011728.10118.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vgacon printk scrolling fix
+On Wednesday 01 February 2006 17:14, Bernd Eckenfels wrote:
+> Denis Vlasenko <vda@ilport.com.ua> wrote:
+> > # mount /dev/sdc3 /.3
+> > mount: you must specify the filesystem type
+> 
+> what happens if you actually specify the fs type?
 
-As Jindrich Makovicka suggested, there is a stray printk("vgacon delta: %i\n",
-lines); which effectively disables the scrollback of the vga console (at least
-when not using the new soft scrollback). Removing it fixes the problem.
+It works.
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
-Acked-by: Antonino Daplas <adaplas@pol.net>
-Cc: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
-Cc: Martin Mares <mj@ucw.cz>
+# mount -t reiserfs /dev/sdc3 /.3
+# umount /.3
+# mount /dev/sdc3 /.3
+mount: you must specify the filesystem type
+
 --
- vgacon.c |    1 -
- 1 files changed, 1 deletion(-)
---- linux-2.6.16-rc1-mm4/drivers/video/console/vgacon.c	2006-01-25 19:16:35.000000000 +0100
-+++ linux-2.6.16-rc1-mm4/drivers/video/console/vgacon.c	2006-01-31 21:33:40.433055896 +0100
-@@ -331,7 +331,6 @@
- 		int margin = c->vc_size_row * 4;
- 		int ul, we, p, st;
- 
--		printk("vgacon delta: %i\n", lines);
- 		if (vga_rolled_over >
- 		    (c->vc_scr_end - vga_vram_base) + margin) {
- 			ul = c->vc_scr_end - vga_vram_base;
+vda

@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422905AbWBATuC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422896AbWBAT7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422905AbWBATuC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 14:50:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422904AbWBATuB
+	id S1422896AbWBAT7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 14:59:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422907AbWBAT7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 14:50:01 -0500
-Received: from mail.enyo.de ([212.9.189.167]:14500 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S1422905AbWBATuB (ORCPT
+	Wed, 1 Feb 2006 14:59:16 -0500
+Received: from mx1.suse.de ([195.135.220.2]:53663 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422896AbWBAT7P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 14:50:01 -0500
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 1 Feb 2006 14:59:15 -0500
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
 Subject: Re: [PATCH] AMD64: fix mce_cpu_quirks typos
-References: <87fyn2yjpr.fsf@mid.deneb.enyo.de>
-	<20060201194400.GB21132@redhat.com>
-Date: Wed, 01 Feb 2006 20:49:58 +0100
-In-Reply-To: <20060201194400.GB21132@redhat.com> (Dave Jones's message of
-	"Wed, 1 Feb 2006 14:44:00 -0500")
-Message-ID: <87psm6x3ix.fsf@mid.deneb.enyo.de>
+References: <87fyn2yjpr.fsf@mid.deneb.enyo.de.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 01 Feb 2006 20:59:06 +0100
+In-Reply-To: <87fyn2yjpr.fsf@mid.deneb.enyo.de.suse.lists.linux.kernel>
+Message-ID: <p731wymn94l.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Dave Jones:
+Florian Weimer <fw@deneb.enyo.de> writes:
 
-> On Wed, Feb 01, 2006 at 08:14:56PM +0100, Florian Weimer wrote:
->  > The spurious MCE is TLB-related.  I *think* the bit for the correct
->  > status code is stored at position 10 HEX, not 10 DEC
->
-> not true.   According to the BIOS writer guide, it's bit 10.
-> The register only defines bits up to bit 12
+First please send x86-64 patches cc to the maintainer, things can
+get lost in the noise of the list.
 
-Okay, so why I'm still getting these MCEs?
+> The spurious MCE is TLB-related.  I *think* the bit for the correct
+> status code is stored at position 10 HEX, not 10 DEC.  At least I
+> still get those MCEs on a two-way Opteron box, even though they are
+> supposed to be filtered out.
 
-MCE 0
-CPU 0 4 northbridge TSC 91ec03f09330
-ADDR 104500000
-  Northbridge GART error
-       bit61 = error uncorrected
-  TLB error 'generic transaction, level generic'
-STATUS a40000000005001b MCGSTATUS 0
+No, 10 is the correct bit index. But normally it's set by BIOS anyways.
 
-They are supposed to be disabled by the quirks routine, aren't they?
+The reason you still see it is that setting the bit here only
+prevent MCE exceptions, but it's still logged and the regular polling
+picks them up anyways. I have not found a nice way to handle this
+(other than adding a ugly CPU specific special case in the middle
+of the nice cpu independent machine check handler, which I couldn't 
+bring myself to do so far...)
+
+-Andi

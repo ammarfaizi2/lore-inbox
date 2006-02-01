@@ -1,104 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWBAJD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbWBAJEJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbWBAJD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 04:03:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbWBAJDz
+	id S932405AbWBAJEJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 04:04:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbWBAJEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 04:03:55 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:25419 "EHLO
+	Wed, 1 Feb 2006 04:04:08 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:17995 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932411AbWBAJDh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 04:03:37 -0500
-Message-Id: <20060201090335.859839000@localhost.localdomain>
+	id S932405AbWBAJDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 04:03:36 -0500
+Message-Id: <20060201090334.886957000@localhost.localdomain>
 References: <20060201090224.536581000@localhost.localdomain>
-Date: Wed, 01 Feb 2006 18:03:07 +0900
+Date: Wed, 01 Feb 2006 18:03:02 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: Anton Altaparmakov <aia21@cantab.net>,
-       linux-ntfs-dev@lists.sourceforge.net,
-       Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 43/44] ntfs: remove generic_ffs()
-Content-Disposition: inline; filename=ntfs-fix.patch
+Cc: Andi Kleen <ak@suse.de>, Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 38/44] x86_64: use generic bitops
+Content-Disposition: inline; filename=x86_64.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now the only user who are using generic_ffs() is ntfs filesystem.
-This patch isolates generic_ffs() as ntfs_ffs() for ntfs.
+- remove sched_find_first_bit()
+- remove generic_hweight{64,32,16,8}()
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+ include/asm-x86_64/bitops.h |   42 ++++++------------------------------------
+ 1 files changed, 6 insertions(+), 36 deletions(-)
 
- fs/ntfs/logfile.c |    4 ++--
- fs/ntfs/mft.c     |    2 +-
- fs/ntfs/ntfs.h    |   29 +++++++++++++++++++++++++++++
- 3 files changed, 32 insertions(+), 3 deletions(-)
-
-Index: 2.6-git/fs/ntfs/logfile.c
+Index: 2.6-git/include/asm-x86_64/bitops.h
 ===================================================================
---- 2.6-git.orig/fs/ntfs/logfile.c
-+++ 2.6-git/fs/ntfs/logfile.c
-@@ -515,10 +515,10 @@ BOOL ntfs_check_logfile(struct inode *lo
- 		log_page_size = PAGE_CACHE_SIZE;
- 	log_page_mask = log_page_size - 1;
- 	/*
--	 * Use generic_ffs() instead of ffs() to enable the compiler to
-+	 * Use ntfs_ffs() instead of ffs() to enable the compiler to
- 	 * optimize log_page_size and log_page_bits into constants.
- 	 */
--	log_page_bits = generic_ffs(log_page_size) - 1;
-+	log_page_bits = ntfs_ffs(log_page_size) - 1;
- 	size &= ~(s64)(log_page_size - 1);
- 	/*
- 	 * Ensure the log file is big enough to store at least the two restart
-Index: 2.6-git/fs/ntfs/mft.c
-===================================================================
---- 2.6-git.orig/fs/ntfs/mft.c
-+++ 2.6-git/fs/ntfs/mft.c
-@@ -2672,7 +2672,7 @@ mft_rec_already_initialized:
- 			ni->name_len = 4;
+--- 2.6-git.orig/include/asm-x86_64/bitops.h
++++ 2.6-git/include/asm-x86_64/bitops.h
+@@ -356,14 +356,7 @@ static __inline__ unsigned long __fls(un
  
- 			ni->itype.index.block_size = 4096;
--			ni->itype.index.block_size_bits = generic_ffs(4096) - 1;
-+			ni->itype.index.block_size_bits = ntfs_ffs(4096) - 1;
- 			ni->itype.index.collation_rule = COLLATION_FILE_NAME;
- 			if (vol->cluster_size <= ni->itype.index.block_size) {
- 				ni->itype.index.vcn_size = vol->cluster_size;
-Index: 2.6-git/fs/ntfs/ntfs.h
-===================================================================
---- 2.6-git.orig/fs/ntfs/ntfs.h
-+++ 2.6-git/fs/ntfs/ntfs.h
-@@ -132,4 +132,33 @@ extern int ntfs_ucstonls(const ntfs_volu
- /* From fs/ntfs/upcase.c */
- extern ntfschar *generate_default_upcase(void);
+ #ifdef __KERNEL__
  
-+static inline int ntfs_ffs(int x)
-+{
-+	int r = 1;
+-static inline int sched_find_first_bit(const unsigned long *b)
+-{
+-	if (b[0])
+-		return __ffs(b[0]);
+-	if (b[1])
+-		return __ffs(b[1]) + 64;
+-	return __ffs(b[2]) + 128;
+-}
++#include <asm-generic/bitops/sched.h>
+ 
+ /**
+  * ffs - find first bit set
+@@ -412,43 +405,20 @@ static __inline__ int fls(int x)
+ 	return r+1;
+ }
+ 
+-/**
+- * hweightN - returns the hamming weight of a N-bit word
+- * @x: the word to weigh
+- *
+- * The Hamming Weight of a number is the total number of bits set in it.
+- */
+-
+-#define hweight64(x) generic_hweight64(x)
+-#define hweight32(x) generic_hweight32(x)
+-#define hweight16(x) generic_hweight16(x)
+-#define hweight8(x) generic_hweight8(x)
++#include <asm-generic/bitops/hweight.h>
+ 
+ #endif /* __KERNEL__ */
+ 
+ #ifdef __KERNEL__
+ 
+-#define ext2_set_bit(nr,addr) \
+-	__test_and_set_bit((nr),(unsigned long*)addr)
++#include <asm-generic/bitops/ext2-non-atomic.h>
 +
-+	if (!x)
-+		return 0;
-+	if (!(x & 0xffff)) {
-+		x >>= 16;
-+		r += 16;
-+	}
-+	if (!(x & 0xff)) {
-+		x >>= 8;
-+		r += 8;
-+	}
-+	if (!(x & 0xf)) {
-+		x >>= 4;
-+		r += 4;
-+	}
-+	if (!(x & 3)) {
-+		x >>= 2;
-+		r += 2;
-+	}
-+	if (!(x & 1)) {
-+		x >>= 1;
-+		r += 1;
-+	}
-+	return r;
-+}
+ #define ext2_set_bit_atomic(lock,nr,addr) \
+ 	        test_and_set_bit((nr),(unsigned long*)addr)
+-#define ext2_clear_bit(nr, addr) \
+-	__test_and_clear_bit((nr),(unsigned long*)addr)
+ #define ext2_clear_bit_atomic(lock,nr,addr) \
+ 	        test_and_clear_bit((nr),(unsigned long*)addr)
+-#define ext2_test_bit(nr, addr)      test_bit((nr),(unsigned long*)addr)
+-#define ext2_find_first_zero_bit(addr, size) \
+-	find_first_zero_bit((unsigned long*)addr, size)
+-#define ext2_find_next_zero_bit(addr, size, off) \
+-	find_next_zero_bit((unsigned long*)addr, size, off)
+-
+-/* Bitmap functions for the minix filesystem.  */
+-#define minix_test_and_set_bit(nr,addr) __test_and_set_bit(nr,(void*)addr)
+-#define minix_set_bit(nr,addr) __set_bit(nr,(void*)addr)
+-#define minix_test_and_clear_bit(nr,addr) __test_and_clear_bit(nr,(void*)addr)
+-#define minix_test_bit(nr,addr) test_bit(nr,(void*)addr)
+-#define minix_find_first_zero_bit(addr,size) \
+-	find_first_zero_bit((void*)addr,size)
 +
- #endif /* _LINUX_NTFS_H */
++#include <asm-generic/bitops/minix.h>
+ 
+ #endif /* __KERNEL__ */
+ 
 
 --

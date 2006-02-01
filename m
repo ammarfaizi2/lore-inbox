@@ -1,40 +1,225 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422661AbWBAQJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422662AbWBAQJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422661AbWBAQJK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 11:09:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422662AbWBAQJK
+	id S1422662AbWBAQJd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 11:09:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422668AbWBAQJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 11:09:10 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:26244 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1422661AbWBAQJJ (ORCPT
+	Wed, 1 Feb 2006 11:09:33 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:38860 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1422662AbWBAQJc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 11:09:09 -0500
-Date: Wed, 1 Feb 2006 17:09:06 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Richard Purdie <rpurdie@rpsys.net>
-cc: LKML <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Subject: Re: [PATCH 10/11] LED: Add IDE disk activity LED trigger
-In-Reply-To: <1138714918.6869.139.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0602011707460.22529@yvahk01.tjqt.qr>
-References: <1138714918.6869.139.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Feb 2006 11:09:32 -0500
+Date: Wed, 1 Feb 2006 11:09:21 -0500
+From: Dave Jones <davej@redhat.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Chris Mason <mason@suse.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.16rc1-git4 slab corruption.
+Message-ID: <20060201160921.GC5875@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pekka Enberg <penberg@cs.helsinki.fi>, Chris Mason <mason@suse.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060131180319.GA18948@redhat.com> <200601311408.35771.mason@suse.com> <20060131221542.GC29937@redhat.com> <84144f020601312327t490dcf4fi6fb09942a0f3dd87@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <84144f020601312327t490dcf4fi6fb09942a0f3dd87@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Add an LED trigger for IDE disk activity to the IDE subsystem.
->
+On Wed, Feb 01, 2006 at 09:27:02AM +0200, Pekka Enberg wrote:
+ > Hi,
+ > 
+ > On 2/1/06, Dave Jones <davej@redhat.com> wrote:
+ > > Manfred had a nice 'check all slabs before they're freed' patch, which might
+ > > be worth resurrecting for some tests. It may be that we're corrupting rarely
+ > > free'd slabs, making them hard to hit.
+ > 
+ > Do you know where I can find that patch? I would like to try to sneak
+ > that past Andrew. It seems silly not to have these useful slab
+ > debugging patches within mainline.
 
-Since I am not a real user of the led subsystem - what LED should be lit 
-anyway? only the motherboard one does, and it seems to be connected 
-directly to the IDE chip - I would want this as a compile-time option so I 
-don't pay any extra time for any led stuff.
+Here's the last version that I had that was rediffed against
+2.6.13 or .14 (I forget which, it's been a while since I used it).
 
->Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+		Dave
+
+ 
+diff -urNp --exclude-from=/home/davej/.exclude linux-1000/mm/slab.c linux-1010/mm/slab.c
+--- linux-1000/mm/slab.c
++++ linux-1010/mm/slab.c
+@@ -189,7 +189,7 @@
+  */
+ 
+ #define BUFCTL_END	(((kmem_bufctl_t)(~0U))-0)
+-#define BUFCTL_FREE	(((kmem_bufctl_t)(~0U))-1)
++#define BUFCTL_ALLOC	(((kmem_bufctl_t)(~0U))-1)
+ #define	SLAB_LIMIT	(((kmem_bufctl_t)(~0U))-2)
+ 
+ /* Max number of objs-per-slab for caches which use off-slab slabs.
+@@ -355,6 +355,7 @@ struct kmem_cache_s {
+ #if DEBUG
+ 	int			dbghead;
+ 	int			reallen;
++	unsigned long		redzonetest;
+ #endif
+ };
+ 
+@@ -370,6 +371,7 @@ struct kmem_cache_s {
+  */
+ #define REAPTIMEOUT_CPUC	(2*HZ)
+ #define REAPTIMEOUT_LIST3	(4*HZ)
++#define REDZONETIMEOUT		(300*HZ)
+ 
+ #if STATS
+ #define	STATS_INC_ACTIVE(x)	((x)->num_active++)
+@@ -1446,7 +1448,11 @@ next:
+ 	} 
+ 
+ 	cachep->lists.next_reap = jiffies + REAPTIMEOUT_LIST3 +
+-					((unsigned long)cachep)%REAPTIMEOUT_LIST3;
++					((unsigned long)cachep/L1_CACHE_BYTES)%REAPTIMEOUT_LIST3;
++#if DEBUG
++	cachep->redzonetest = jiffies + REDZONETIMEOUT +
++					((unsigned long)cachep/L1_CACHE_BYTES)%REDZONETIMEOUT;
++#endif
+ 
+ 	/* Need the semaphore to access the chain. */
+ 	down(&cache_chain_sem);
+@@ -2043,7 +2049,7 @@ retry:
+ 			slabp->inuse++;
+ 			next = slab_bufctl(slabp)[slabp->free];
+ #if DEBUG
+-			slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
++			slab_bufctl(slabp)[slabp->free] = BUFCTL_ALLOC;
+ #endif
+ 		       	slabp->free = next;
+ 		}
+@@ -2181,7 +2187,7 @@ static void free_block(kmem_cache_t *cac
+ 		objnr = (objp - slabp->s_mem) / cachep->objsize;
+ 		check_slabp(cachep, slabp);
+ #if DEBUG
+-		if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
++		if (slab_bufctl(slabp)[objnr] != BUFCTL_ALLOC) {
+ 			printk(KERN_ERR "slab: double free detected in cache '%s', objp %p.\n",
+ 						cachep->name, objp);
+ 			BUG();
+@@ -2409,7 +2415,7 @@ got_slabp:
+ 	slabp->inuse++;
+ 	next = slab_bufctl(slabp)[slabp->free];
+ #if DEBUG
+-	slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
++	slab_bufctl(slabp)[slabp->free] = BUFCTL_ALLOC;
+ #endif
+ 	slabp->free = next;
+ 	check_slabp(cachep, slabp);
+@@ -2615,6 +2621,94 @@ unsigned int kmem_cache_size(kmem_cache_
+ 
+ EXPORT_SYMBOL(kmem_cache_size);
+ 
++#if DEBUG
++static void check_slabuse(kmem_cache_t *cachep, struct slab *slabp)
++{
++	int i;
++
++	if (!(cachep->flags & SLAB_RED_ZONE))
++		return;	/* no redzone data to check */
++
++#if CONFIG_DEBUG_PAGEALLOC
++	/* Page alloc debugging on for this cache. Mapping & Unmapping happens
++	 * without any locking, thus parallel checks are impossible.
++	 */
++	if ((cachep->objsize%PAGE_SIZE)==0 && OFF_SLAB(cachep))
++		return;
++#endif
++
++	for (i=0;i<cachep->num;i++) {
++		void *objp = slabp->s_mem + cachep->objsize * i;
++		unsigned long red1, red2;
++
++		red1 = *dbg_redzone1(cachep, objp);
++		red2 = *dbg_redzone2(cachep, objp);
++
++		/* simplest case: marked as inactive */
++		if (red1 == RED_INACTIVE && red2 == RED_INACTIVE)
++			continue;
++
++		/* tricky case: if the bufctl value is BUFCTL_ALLOC, then
++		 * the object is either allocated or somewhere in a cpu
++		 * cache. The cpu caches are lockless and there might be
++		 * a concurrent alloc/free call, thus we must accept random
++		 * combinations of RED_ACTIVE and _INACTIVE
++		 */
++		if (slab_bufctl(slabp)[i] == BUFCTL_ALLOC &&
++				(red1 == RED_INACTIVE || red1 == RED_ACTIVE) &&
++				(red2 == RED_INACTIVE || red2 == RED_ACTIVE))
++			continue;
++
++		printk(KERN_ERR "slab %s: redzone mismatch in slabp %p, objp %p, bufctl 0x%x\n",
++				cachep->name, slabp, objp, slab_bufctl(slabp)[i]);
++		print_objinfo(cachep, objp, 2);
++	}
++}
++
++/*
++ * Perform a self test on all slabs from a cache
++ */
++static void check_redzone(kmem_cache_t *cachep)
++{
++	struct list_head *q;
++	struct slab *slabp;
++
++	check_spinlock_acquired(cachep);
++
++	list_for_each(q,&cachep->lists.slabs_full) {
++		slabp = list_entry(q, struct slab, list);
++
++		if (slabp->inuse != cachep->num) {
++			printk(KERN_INFO "slab %s: wrong slabp found in full slab chain at %p (%d/%d).\n",
++					cachep->name, slabp, slabp->inuse, cachep->num);
++		}
++		check_slabp(cachep, slabp);
++		check_slabuse(cachep, slabp);
++	}
++	list_for_each(q,&cachep->lists.slabs_partial) {
++		slabp = list_entry(q, struct slab, list);
++
++		if (slabp->inuse == cachep->num || slabp->inuse == 0) {
++			printk(KERN_INFO "slab %s: wrong slab found in partial chain at %p (%d/%d).\n",
++					cachep->name, slabp, slabp->inuse, cachep->num);
++		}
++		check_slabp(cachep, slabp);
++		check_slabuse(cachep, slabp);
++	}
++	list_for_each(q,&cachep->lists.slabs_free) {
++		slabp = list_entry(q, struct slab, list);
++
++		if (slabp->inuse != 0) {
++			printk(KERN_INFO "slab %s: wrong slab found in free chain at %p (%d/%d).\n",
++					cachep->name, slabp, slabp->inuse, cachep->num);
++		}
++		check_slabp(cachep, slabp);
++		check_slabuse(cachep, slabp);
++	}
++}
++
++#endif
++
+ struct ccupdate_struct {
+ 	kmem_cache_t *cachep;
+ 	struct array_cache *new[NR_CPUS];
+@@ -2798,6 +2892,12 @@ static void cache_reap(void *unused)
+ 
+ 		drain_array_locked(searchp, ac_data(searchp), 0);
+ 
++#if DEBUG
++		if(time_before(searchp->redzonetest, jiffies)) {
++			searchp->redzonetest = jiffies + REDZONETIMEOUT;
++			check_redzone(searchp);
++		}
++#endif
+ 		if(time_after(searchp->lists.next_reap, jiffies))
+ 			goto next_unlock;
+ 
 
 
-
-Jan Engelhardt
--- 

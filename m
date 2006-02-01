@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161035AbWBANJ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbWBANKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161035AbWBANJ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 08:09:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbWBANJ4
+	id S964924AbWBANKa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 08:10:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbWBANKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 08:09:56 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:32227 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964955AbWBANJz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 08:09:55 -0500
-Date: Wed, 1 Feb 2006 14:08:18 +0100
-From: Ingo Molnar <mingo@elte.hu>
+	Wed, 1 Feb 2006 08:10:30 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:37540 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S964924AbWBANKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 08:10:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=lrQGsBTOnq0225/BAMAWOLqYZH9MIT11ycTlpGebAmKrJ5EOrZ9UoFmqddGCaxK5WZfoZicdAUu09nO7gnq7ZgqqKj13VVQkFQPMUwuZ1ohHeShzeT5U2H8BAUCRKoXaU+U8uGES5GSlJ+o7mHeeC6Qtzw+GYhtAIf/pkQHuDas=  ;
+Message-ID: <43E0B342.6090700@yahoo.com.au>
+Date: Thu, 02 Feb 2006 00:10:26 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+CC: Peter Williams <pwil3058@bigpond.net.au>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
        LKML <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
-Message-ID: <20060201130818.GA26481@elte.hu>
-References: <1138736609.7088.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1138736609.7088.35.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <1138736609.7088.35.camel@localhost.localdomain>	 <43E02CC2.3080805@bigpond.net.au> <1138797874.7088.44.camel@localhost.localdomain> <43E0B24E.8080508@yahoo.com.au>
+In-Reply-To: <43E0B24E.8080508@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Piggin wrote:
+> Steven Rostedt wrote:
+> 
+>>
+>> No real work is lost.  This is a loop that individually pulls tasks.  So
+>> the bail only stops the work of looking for more tasks to pull and we
+>> don't lose the tasks that have already been pulled.
+>>
+>>
+> 
+> Once we've gone to the trouble of deciding which tasks to move and how
+> many (and the estimate should be very conservative), and locked the source
+> and destination runqueues, it is a very good idea to follow up with our
+> threat of actually moving the tasks rather than bail out early.
+> 
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+Oh, I forgot: Ingo once introduced some code to bail early (though for
+different reasons and under different conditions), and this actually
+was found to cause significant regressions in some database workloads.
+So it is not a nice thing to tinker with unless there is good reason.
 
-[pls. use -p when generating patches]
-
-> @@ -1983,6 +1983,10 @@
->  
->  	curr = curr->prev;
->  
-> +	/* bail if someone else woke up */
-> +	if (need_resched())
-> +		goto out;
-> +
->  	if (!can_migrate_task(tmp, busiest, this_cpu, sd, idle, &pinned)) {
->  		if (curr != head)
->  			goto skip_queue;
-
-even putting the problems of this approach aside (is it right to abort 
-the act of load-balancing - which is a periodic activity that wont be 
-restarted after this - so we lose real work), i think this will not 
-solve the latency. Imagine a hardirq hitting the CPU that is executing 
-move_tasks() above. We might not service that hardirq for up to 1.5 
-msecs ...
-
-i think the right approach would be to split up this work into smaller 
-chunks. Or rather, lets first see how this can happen: why is 
-can_migrate() false for so many tasks? Are they all cpu-hot? If yes, 
-shouldnt we simply skip only up to a limit of tasks in this case - it's 
-not like we want to spend 1.5 msecs searching for a cache-cold task 
-which might give us a 50 usecs advantage over cache-hot tasks ...
-
-	Ingo
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

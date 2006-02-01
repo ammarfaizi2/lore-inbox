@@ -1,46 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWBAJT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWBAJYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932440AbWBAJT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 04:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWBAJDZ
+	id S932341AbWBAJYz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 04:24:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932425AbWBAJT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 04:03:25 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:44105 "EHLO
+	Wed, 1 Feb 2006 04:19:59 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:20810 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1750781AbWBAJDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 04:03:22 -0500
-Message-Id: <20060201090321.223003000@localhost.localdomain>
+	id S932186AbWBAJD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 04:03:26 -0500
+Message-Id: <20060201090323.294297000@localhost.localdomain>
 References: <20060201090224.536581000@localhost.localdomain>
-Date: Wed, 01 Feb 2006 18:02:26 +0900
+Date: Wed, 01 Feb 2006 18:02:34 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: Michael Tokarev <mjt@tls.msk.ru>, parisc-linux@parisc-linux.org,
+Cc: Richard Henderson <rth@twiddle.net>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
+       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>,
        Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 02/44] parisc: add ()-pair in __ffz() macro
-Content-Disposition: inline; filename=parisc-cleanup.patch
+Subject: [patch 10/44] generic fls64()
+Content-Disposition: inline; filename=fls64.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Noticed by Michael Tokarev
+This patch introduces the C-language equivalent of the function:
+int fls64(__u64 x);
 
-add missing ()-pair in __ffz() macro for parisc
+In include/asm-generic/bitops/fls64.h
+
+This code largely copied from:
+include/linux/bitops.h
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
- include/asm-parisc/bitops.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ include/asm-generic/bitops/fls64.h |   12 ++++++++++++
+ 1 files changed, 12 insertions(+)
 
-Index: 2.6-git/include/asm-parisc/bitops.h
+Index: 2.6-git/include/asm-generic/bitops/fls64.h
 ===================================================================
---- 2.6-git.orig/include/asm-parisc/bitops.h
-+++ 2.6-git/include/asm-parisc/bitops.h
-@@ -220,7 +220,7 @@ static __inline__ unsigned long __ffs(un
- }
- 
- /* Undefined if no bit is zero. */
--#define ffz(x)	__ffs(~x)
-+#define ffz(x)	__ffs(~(x))
- 
- /*
-  * ffs: find first bit set. returns 1 to BITS_PER_LONG or 0 (if none set)
+--- /dev/null
++++ 2.6-git/include/asm-generic/bitops/fls64.h
+@@ -0,0 +1,12 @@
++#ifndef _ASM_GENERIC_BITOPS_FLS64_H_
++#define _ASM_GENERIC_BITOPS_FLS64_H_
++
++static inline int fls64(__u64 x)
++{
++	__u32 h = x >> 32;
++	if (h)
++		return fls(x) + 32;
++	return fls(x);
++}
++
++#endif /* _ASM_GENERIC_BITOPS_FLS64_H_ */
 
 --

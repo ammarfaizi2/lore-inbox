@@ -1,104 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWBACNk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbWBACRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964880AbWBACNk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 21:13:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964882AbWBACNk
+	id S964877AbWBACRL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 21:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWBACRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 21:13:40 -0500
-Received: from viefep12-int.chello.at ([213.46.255.25]:54830 "EHLO
-	viefep20-int.chello.at") by vger.kernel.org with ESMTP
-	id S964880AbWBACNj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 21:13:39 -0500
-Date: Wed, 1 Feb 2006 03:13:31 +0100
-To: linux-kernel@vger.kernel.org
-Subject: kernel panic 2.6.15
-Message-ID: <20060201021331.GA500@lazy.shacknet.nu>
+	Tue, 31 Jan 2006 21:17:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:9700 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964877AbWBACRK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 21:17:10 -0500
+Date: Tue, 31 Jan 2006 18:16:43 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <gregkh@suse.de>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       Linas Vepstas <linas@austin.ibm.com>
+Subject: Re: [GIT PATCH] PCI patches for 2.6.16-rc1
+In-Reply-To: <20060201020437.GA20719@kroah.com>
+Message-ID: <Pine.LNX.4.64.0601311813400.7301@g5.osdl.org>
+References: <20060201020437.GA20719@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
-From: lkml@lazy.shacknet.nu
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-good morning,
 
-when rendering a video with cinelerra (heavy disk io/cpu), even in
-single user mode (recent debian unstable), the kernel running on this
-computer haunts me with panic reactions.
 
-Call Trace:
+On Tue, 31 Jan 2006, Greg KH wrote:
+> 
+> linas:
+>       PCI Hotplug: PCI panic on dlpar add (add pci slot to running partition)
+>       PCI Hotplug/powerpc: module build break
+> 
+> linas@austin.ibm.com:
+>       powerpc/PCI hotplug: remove rpaphp_find_bus()
+>       powerpc/PCI hotplug: merge config_pci_adapter
 
-update_process_times
-timer_interrupt
-handle_IRQ_event
-__do_IRQ
-do_IRQ
-common_interrupt
-__copy_from_user
-genuine_file_buffered_write
-lin_vfs_get_block
-xfs_write
-ide_build_sglist
-linvfs_aio_write
-do_sync_write
-autoremove_wake_function
-vfs_write
-sys_write
-syscall_call
+Looks like Linas Vepstas doesn't have a good email address in his From: 
+fields.. As a result, the logs are nasty. 
 
-if that says anything to you - please tell me. I hope its enough to tell
-whats going on. if not, please ask, I want that to work :)
+Linas - could you _please_ fix your email setup, of if your email setup is 
+good, could whoever added the bogus "From: " line to the email please NOT 
+DO THAT HORRIBLE THING?
 
-yours,
-peter
+Greg, if you notice things like this, can you fix them up or bounce them 
+back to the author? Yeah, I let mistakes get through too, so I shouldn't 
+throw stones, but it's just so much _nicer_ if things look nice in the 
+logs etc, so I try to catch it when I can..
 
-PS: the render goes thru with an old 2.4.sth kernel, but not with
-2.6.14. the system is a via kt400 based, list of modules loaded:
-
-Module                  Size  Used by
-nls_iso8859_15          4104  - 
-nls_cp850               4360  - 
-vfat                   11112  - 
-fat                    46052  - 
-w83627hf               24760  - 
-hwmon_vid               2024  - 
-eeprom                  5432  - 
-i2c_isa                 3016  - 
-i2c_viapro              6488  - 
-snd_seq_oss            31808  - 
-snd_seq_midi            6752  - 
-snd_seq_midi_event      5704  - 
-snd_seq                47440  - 
-tuner                  37840  - 
-snd_via82xx            23168  - 
-snd_ens1371            18436  - 
-snd_ac97_codec         93436  - 
-snd_pcm_oss            49184  - 
-snd_mixer_oss          16904  - 
-snd_pcm                80264  - 
-snd_mpu401_uart         5544  - 
-bttv                  155376  - 
-video_buf              17004  - 
-i2c_algo_bit            8400  - 
-snd_timer              20076  - 
-snd_rawmidi            19776  - 
-snd_seq_device          6772  - 
-v4l2_common             4520  - 
-btcx_risc               3792  - 
-snd                    43652  - 
-tveeprom               11800  - 
-i2c_core               17112  - 
-videodev                6688  - 
-ehci_hcd               29392  - 
-snd_page_alloc          8208  - 
-ohci1394               31740  - 
-via_rhine              19596  - 
-ide_cd                 38276  - 
-cdrom                  37696  - 
-8139too                21896  - 
-uhci_hcd               29912  - 
-snd_ac97_bus            1576  - 
-soundcore               6848  - 
-ieee1394               87860  - 
-usbcore               108448  - 
+		Linus

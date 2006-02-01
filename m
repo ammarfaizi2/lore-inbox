@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422670AbWBAQML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422666AbWBAQOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422670AbWBAQML (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 11:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422671AbWBAQML
+	id S1422666AbWBAQOU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 11:14:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422667AbWBAQOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 11:12:11 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:8401 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1422670AbWBAQMK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 11:12:10 -0500
-Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060201132607.GA670@elte.hu>
-References: <1138736609.7088.35.camel@localhost.localdomain>
-	 <20060201130818.GA26481@elte.hu>
-	 <1138800181.7088.51.camel@localhost.localdomain>
-	 <20060201132607.GA670@elte.hu>
-Content-Type: text/plain
-Date: Wed, 01 Feb 2006 11:11:56 -0500
-Message-Id: <1138810316.7088.56.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Feb 2006 11:14:20 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:17035 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1422666AbWBAQOT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 11:14:19 -0500
+Date: Wed, 1 Feb 2006 17:14:17 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jiri Slaby <xslaby@fi.muni.cz>
+cc: kavitha s <wellspringkavitha@yahoo.co.in>, linux-kernel@vger.kernel.org
+Subject: Re: root=LABEL= problem [Was: Re: Linux Issue]
+In-Reply-To: <20060201114845.E41F222AF24@anxur.fi.muni.cz>
+Message-ID: <Pine.LNX.4.61.0602011713410.22529@yvahk01.tjqt.qr>
+References: <20060201114845.E41F222AF24@anxur.fi.muni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-01 at 14:26 +0100, Ingo Molnar wrote:
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
-> 
-> > On Wed, 2006-02-01 at 14:08 +0100, Ingo Molnar wrote:
-> > > * Steven Rostedt <rostedt@goodmis.org> wrote:
-> > > 
-> > > [pls. use -p when generating patches]
-> > > 
-> > 
-> > OK, how do you make quilt do that?
-> 
-> hm, i'm using 0.42, and this command:
-> 
->   #!/bin/bash
-> 
->   quilt refresh --diffstat --sort --no-timestamps -p 1 $@
-> 
-> does the -p thing automatically. (the -p option to quilt is for the 
-> patch-file-depth, not for the function-name thing.)
+Hi,
 
-Found it.  Do you have QUILT_DIFF_OPTS set as an environment variable?
-If I do the following:
-
-QUILT_DIFF_OPTS='-p' quilt refresh
-
-It works.
-
-I guess I'll add that to my .bash_profile.
-
-Thanks,
-
--- Steve
+>>    I have some problem while booting inside linux,so
+>>tried to boot in single user mode for some changes in
+>>/etc/grub.conf.But iam not able to boot in single user
+>>mode.It is giving error message as
+>>
+>> ds: no socket drivers loaded!
+>> VFS: Cannot open root device "LABEL=/" or 00:00
+>
+>change root=LABEL=/ to root=/dev/XXX. Vanilla doesn't support this...
+>
+is there a kernel patch that does allow it?
 
 
+Jan Engelhardt
+-- 

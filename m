@@ -1,45 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbWBAPMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161082AbWBAPNK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932471AbWBAPMX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 10:12:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbWBAPMX
+	id S1161082AbWBAPNK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 10:13:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161081AbWBAPNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 10:12:23 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:45717 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932468AbWBAPMV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 10:12:21 -0500
-Message-Id: <200602011511.k11FBgg00314@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Akinobu Mita'" <mita@miraclelinux.com>, "Grant Grundler" <iod00d@hp.com>
-Cc: "Linux Kernel Development" <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>
-Subject: RE: [PATCH 1/12] generic *_bit()
-Date: Wed, 1 Feb 2006 07:11:34 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcYiKR4r4xPfGPGJRoKSZm+jiuN1pwFGFSLA
-In-Reply-To: <20060126032918.GB9984@miraclelinux.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Wed, 1 Feb 2006 10:13:10 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:58241 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1161080AbWBAPNI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 10:13:08 -0500
+Date: Wed, 1 Feb 2006 16:11:37 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
+Message-ID: <20060201151137.GA14794@elte.hu>
+References: <1138797874.7088.44.camel@localhost.localdomain> <43E0B24E.8080508@yahoo.com.au> <43E0B342.6090700@yahoo.com.au> <20060201132054.GA31156@elte.hu> <43E0BBEC.3020209@yahoo.com.au> <43E0BDA3.8040003@yahoo.com.au> <20060201141248.GA6277@elte.hu> <43E0C4CF.8090501@yahoo.com.au> <20060201143727.GA9915@elte.hu> <43E0CBBC.2000002@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43E0CBBC.2000002@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Akinobu Mita wrote on Wednesday, January 25, 2006 7:29 PM
-> This patch introduces the C-language equivalents of the functions below:
+
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+
+> Ingo Molnar wrote:
+> >* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> >
+> >
+> >>What I am talking about is when you want a task to have the highest 
+> >>possible scheduling priority and you'd like to guarantee that it is 
+> >>not interrupted for more than Xus, including scheduling latency.
+> >
+> >
+> >this is not a big issue in practice, because it's very hard to saturate 
+> >current x86 systems running the -rt kernel with pure IRQ load. The APIC 
+> >messages all have a natural latency, which serves as a throttler.
+> >
 > 
-> - atomic operation:
-> void set_bit(int nr, volatile unsigned long *addr);
-> void clear_bit(int nr, volatile unsigned long *addr);
-> void change_bit(int nr, volatile unsigned long *addr);
-> int test_and_set_bit(int nr, volatile unsigned long *addr);
-> int test_and_clear_bit(int nr, volatile unsigned long *addr);
-> int test_and_change_bit(int nr, volatile unsigned long *addr);
+> Either way, you don't measure it. Doesn't matter. As I said, off 
+> topic.
 
-I wonder why you did not make these functions take volatile
-unsigned int * address argument?
+(sure we are measuring such effects too - our current worst-case latency 
+paths are related to two-irqs-after-each-other scenarios.)
 
-- Ken
+> >>
+> >>Then it is a fine hack for the RT kernel (or at least an improved, 
+> >>batched version of the patch). No arguments from me.
+> >
+> >
+> >no, it is also fine for the mainline scheduler, as long as the patch is 
+> >clean and does the obviously right thing [which the current patch doesnt 
+> >offer]. A 1+ msec latency with irqs off is nothing to sniff at. Trying 
+> 
+> If it were generated by some real workload that cares, then I would care.
 
+well, you might not care, but i do. It's up to you what you care about, 
+but right now the scheduler policy is that we do care about latencies.  
+Yes, it's obviously all subject to common sense, and if something 
+triggers in a rare and extreme workload then any change related to it 
+has a _much_ higher barrier of acceptance than a common codepath. But
+your blanket dismissal of this whole subject based on the rarity of the
+workload is just plain wrong.
+
+> >to argue that 'you can get the same by using rwsems so why should we 
+> >bother' is pretty lame: rwsems are rare and arguably broken in 
+> >behavior, and i'd not say the same about the scheduler (just yet :-).
+> 
+> I don't think it is lame at all. They're fairly important in use in 
+> mmap_sem that I know of. And I have seen workloads where the up_write 
+> path gets really expensive (arguably more relevant ones than 
+> hackbench).
+
+they are broken e.g. in that they are mass-waking all the readers with 
+interrupts disabled. At a minimum rwsems should be declared irq-unsafe 
+(like mutexes), as all the substantial uses are in process-context 
+codepaths anyway. I'll revisit rwsems once the current mutex work is 
+done.
+
+	Ingo

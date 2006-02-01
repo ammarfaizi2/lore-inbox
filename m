@@ -1,73 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbWBAV5C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422972AbWBAWIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932468AbWBAV5C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 16:57:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422941AbWBAV5C
+	id S1422972AbWBAWIq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 17:08:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422971AbWBAWIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 16:57:02 -0500
-Received: from node1.usercenter.de ([62.112.158.193]:17366 "EHLO
-	node1.UserCenter.de") by vger.kernel.org with ESMTP id S932468AbWBAV5A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 16:57:00 -0500
-From: Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>
-Organization: Gunter Ohrner Datensysteme
-To: JG <jg@cms.ac>
-Subject: Re: 100% cpu usage (kjournald, pdflush) with encrypted disks (dm-crypt)
-Date: Wed, 1 Feb 2006 22:50:46 +0100
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <20060201220752.382b1927@x90.0x4a47.net>
-In-Reply-To: <20060201220752.382b1927@x90.0x4a47.net>
+	Wed, 1 Feb 2006 17:08:46 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:32153 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S1422962AbWBAWIp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 17:08:45 -0500
+Date: Wed, 1 Feb 2006 14:09:03 -0800
+From: Grant Grundler <iod00d@hp.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Grant Grundler'" <iod00d@hp.com>,
+       "'Christoph Hellwig'" <hch@infradead.org>,
+       "'Akinobu Mita'" <mita@miraclelinux.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH 1/12] generic *_bit()
+Message-ID: <20060201220903.GE16471@esmail.cup.hp.com>
+References: <20060201193933.GA16471@esmail.cup.hp.com> <200602012141.k11LfCg32497@unix-os.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1441534.sIl3kzBiLB";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602012250.53465.G.Ohrner@post.rwth-aachen.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602012141.k11LfCg32497@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1441534.sIl3kzBiLB
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, Feb 01, 2006 at 01:41:03PM -0800, Chen, Kenneth W wrote:
+> > Well, if it doesn't matter, why is unsigned int better?
+> 
+> I was coming from the angle of having bitop operate on unsigned
+> int *, so people don't have to type cast or change bit flag variable
+> to unsigned long for various structures.  With unsigned int type for
+> bit flag, some of them are not even close to fully utilized. for example:
+> 
+> thread_info->flags uses 18 bits
+> thread_struct->flags uses 7 bits
+> 
+> It's a waste of memory to define a variable that kernel will *never*
+> touch the 4 MSB in that field.
 
-Am Mittwoch, 1. Februar 2006 22:07, schrieb JG:
-> non-journalling fs) or do i have to live with it that encryption eats
-> all my cpu?
+Agreed. Good point. But this can be mitigated if the code using "unsigned int"
+(or unsigned byte) first loads the value into a local unsigned long variable.
+That typically translates into a tmp register anyway. Compiler will help
+you find places where that needs to happen.
 
-Yes of course, the encryption process is slower than the disk access, so=20
-encryption will eat 100% cpu while transfering data from/to an encrypted=20
-disk device.
+Counter point is bit arrays (e.g. bit maps) like cpumask_t are
+typically much larger than 32-bits (typically distro's ship with
+NR_CPUS set to 256 or so).  File system code also likes bit arrays
+for block allocation tables. Searching a bit array using unsigned
+long is 2x faster on 64-bit architectures. I don't want to give
+that up and I'm pretty sure Tony Luck, Paul Mckerras and a few
+others would object unless you can give a better reason.
 
-Especially if you copy from one encrypted device to another, so the data=20
-also has to be decrypted first.
+Obviously neither memory footprint nor speed of walking memory is an
+the issue for 32-bit arches (where unsigned long == unsigned int).
 
-Did you expect anything else?
 
-Greetings,
+> > unsigned long is typically the native register size, right?
+> > I'd expect that to be more efficient on most arches.
+> 
+> The only difference that I can think of on Itanium processor is the
+> memory operation, you either load/store 4 or 8 bytes. Once the data
+> is in the CPU register, it doesn't make any difference whether it is
+> operating on 32bit or entire 64 bit. I don't know about others RISC
+> arch though whether it is more efficient with native register size.
 
-  Gunter
+agreed. I was thinking mostly of the bit map search - not searching
+within a single unsigned int.
 
-=2D-=20
-*********** Powered by AudioScrobbler -> http://www.last.fm/ ***********
-22:40 | Sirenia - On The Wane
-22:34 | Sirenia - Sister Nightfall
-22:28 | Sirenia - Meridian
-22:20 | Tristania - Endogenisis
-*** PGP-Verschl=FCsselung bei eMails erw=FCnscht :-) *** PGP: 0x1128F25F ***
-
---nextPart1441534.sIl3kzBiLB
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBD4S090ORHvREo8l8RAq+pAJsF41rIam8IhqPxBU87KV25EFVqxQCfav/a
-jCjXltkdRNnFEok1IudTP4E=
-=0pOT
------END PGP SIGNATURE-----
-
---nextPart1441534.sIl3kzBiLB--
+grant

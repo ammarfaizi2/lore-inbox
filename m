@@ -1,113 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWBAJQG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbWBAJQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbWBAJQG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 04:16:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWBAJNl
+	id S932443AbWBAJQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 04:16:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWBAJNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 04:13:41 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:54090 "EHLO
+	Wed, 1 Feb 2006 04:13:38 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:58698 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932337AbWBAJD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S932328AbWBAJD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 1 Feb 2006 04:03:29 -0500
-Message-Id: <20060201090325.905071000@localhost.localdomain>
+Message-Id: <20060201090326.484695000@localhost.localdomain>
 References: <20060201090224.536581000@localhost.localdomain>
-Date: Wed, 01 Feb 2006 18:02:38 +0900
+Date: Wed, 01 Feb 2006 18:02:41 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
 Cc: Richard Henderson <rth@twiddle.net>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
-       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>, dev-etrax@axis.com,
+       David Howells <dhowells@redhat.com>,
        Yoshinori Sato <ysato@users.sourceforge.jp>,
        Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
-       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>,
        Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
-       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
        linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
        linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
        ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
        Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>,
        Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 14/44] generic hweight{64,32,16,8}()
-Content-Disposition: inline; filename=hweight-bitops.patch
+Subject: [patch 17/44] generic minix_{test,set,test_and_clear,test,find_first_zero}_bit()
+Content-Disposition: inline; filename=minix-bitops.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 This patch introduces the C-language equivalents of the functions below:
 
-unsigned int hweight32(unsigned int w);
-unsigned int hweight16(unsigned int w);
-unsigned int hweight8(unsigned int w);
-unsigned long hweight64(__u64 w);
+int minix_test_and_set_bit(int nr, volatile unsigned long *addr);
+int minix_set_bit(int nr, volatile unsigned long *addr);
+int minix_test_and_clear_bit(int nr, volatile unsigned long *addr);
+int minix_test_bit(int nr, const volatile unsigned long *addr);
+unsigned long minix_find_first_zero_bit(const unsigned long *addr,
+                                        unsigned long size);
 
-In include/asm-generic/bitops/hweight.h
+In include/asm-generic/bitops/minix.h
+   and include/asm-generic/bitops/minix-le.h
 
 This code largely copied from:
-include/linux/bitops.h
+include/asm-sparc/bitops.h
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
- include/asm-generic/bitops/hweight.h |   54 +++++++++++++++++++++++++++++++++++
- 1 files changed, 54 insertions(+)
 
-Index: 2.6-git/include/asm-generic/bitops/hweight.h
+ include/asm-generic/bitops/minix-le.h |   17 +++++++++++++++++
+ include/asm-generic/bitops/minix.h    |   15 +++++++++++++++
+ 2 files changed, 32 insertions(+)
+
+Index: 2.6-git/include/asm-generic/bitops/minix.h
 ===================================================================
 --- /dev/null
-+++ 2.6-git/include/asm-generic/bitops/hweight.h
-@@ -0,0 +1,54 @@
-+#ifndef _ASM_GENERIC_BITOPS_HWEIGHT_H_
-+#define _ASM_GENERIC_BITOPS_HWEIGHT_H_
++++ 2.6-git/include/asm-generic/bitops/minix.h
+@@ -0,0 +1,15 @@
++#ifndef _ASM_GENERIC_BITOPS_MINIX_H_
++#define _ASM_GENERIC_BITOPS_MINIX_H_
 +
-+#include <asm/types.h>
++#define minix_test_and_set_bit(nr,addr)	\
++	__test_and_set_bit((nr),(unsigned long *)(addr))
++#define minix_set_bit(nr,addr)		\
++	__set_bit((nr),(unsigned long *)(addr))
++#define minix_test_and_clear_bit(nr,addr) \
++	__test_and_clear_bit((nr),(unsigned long *)(addr))
++#define minix_test_bit(nr,addr)		\
++	test_bit((nr),(unsigned long *)(addr))
++#define minix_find_first_zero_bit(addr,size) \
++	find_first_zero_bit((unsigned long *)(addr),(size))
 +
-+/**
-+ * hweightN - returns the hamming weight of a N-bit word
-+ * @x: the word to weigh
-+ *
-+ * The Hamming Weight of a number is the total number of bits set in it.
-+ */
++#endif /* _ASM_GENERIC_BITOPS_MINIX_H_ */
+Index: 2.6-git/include/asm-generic/bitops/minix-le.h
+===================================================================
+--- /dev/null
++++ 2.6-git/include/asm-generic/bitops/minix-le.h
+@@ -0,0 +1,17 @@
++#ifndef _ASM_GENERIC_BITOPS_MINIX_LE_H_
++#define _ASM_GENERIC_BITOPS_MINIX_LE_H_
 +
-+static inline unsigned int hweight32(unsigned int w)
-+{
-+        unsigned int res = (w & 0x55555555) + ((w >> 1) & 0x55555555);
-+        res = (res & 0x33333333) + ((res >> 2) & 0x33333333);
-+        res = (res & 0x0F0F0F0F) + ((res >> 4) & 0x0F0F0F0F);
-+        res = (res & 0x00FF00FF) + ((res >> 8) & 0x00FF00FF);
-+        return (res & 0x0000FFFF) + ((res >> 16) & 0x0000FFFF);
-+}
++#include <asm-generic/bitops/le.h>
 +
-+static inline unsigned int hweight16(unsigned int w)
-+{
-+        unsigned int res = (w & 0x5555) + ((w >> 1) & 0x5555);
-+        res = (res & 0x3333) + ((res >> 2) & 0x3333);
-+        res = (res & 0x0F0F) + ((res >> 4) & 0x0F0F);
-+        return (res & 0x00FF) + ((res >> 8) & 0x00FF);
-+}
++#define minix_test_and_set_bit(nr,addr)	\
++	generic___test_and_set_le_bit((nr),(unsigned long *)(addr))
++#define minix_set_bit(nr,addr)		\
++	generic___set_le_bit((nr),(unsigned long *)(addr))
++#define minix_test_and_clear_bit(nr,addr) \
++	generic___test_and_clear_le_bit((nr),(unsigned long *)(addr))
++#define minix_test_bit(nr,addr)		\
++	generic_test_le_bit((nr),(unsigned long *)(addr))
++#define minix_find_first_zero_bit(addr,size) \
++	generic_find_first_zero_le_bit((unsigned long *)(addr),(size))
 +
-+static inline unsigned int hweight8(unsigned int w)
-+{
-+        unsigned int res = (w & 0x55) + ((w >> 1) & 0x55);
-+        res = (res & 0x33) + ((res >> 2) & 0x33);
-+        return (res & 0x0F) + ((res >> 4) & 0x0F);
-+}
-+
-+static inline unsigned long hweight64(__u64 w)
-+{
-+#if BITS_PER_LONG == 32
-+	return hweight32((unsigned int)(w >> 32)) + hweight32((unsigned int)w);
-+#elif BITS_PER_LONG == 64
-+	u64 res;
-+	res = (w & 0x5555555555555555ul) + ((w >> 1) & 0x5555555555555555ul);
-+	res = (res & 0x3333333333333333ul) + ((res >> 2) & 0x3333333333333333ul);
-+	res = (res & 0x0F0F0F0F0F0F0F0Ful) + ((res >> 4) & 0x0F0F0F0F0F0F0F0Ful);
-+	res = (res & 0x00FF00FF00FF00FFul) + ((res >> 8) & 0x00FF00FF00FF00FFul);
-+	res = (res & 0x0000FFFF0000FFFFul) + ((res >> 16) & 0x0000FFFF0000FFFFul);
-+	return (res & 0x00000000FFFFFFFFul) + ((res >> 32) & 0x00000000FFFFFFFFul);
-+#else
-+#error BITS_PER_LONG not defined
-+#endif
-+}
-+
-+#endif /* _ASM_GENERIC_BITOPS_HWEIGHT_H_ */
++#endif /* _ASM_GENERIC_BITOPS_MINIX_LE_H_ */
 
 --

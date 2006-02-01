@@ -1,314 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWBAJMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWBAJLW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbWBAJMT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 04:12:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964804AbWBAJIc
+	id S964814AbWBAJLW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 04:11:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWBAJIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 04:08:32 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:13387 "EHLO
+	Wed, 1 Feb 2006 04:08:37 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:10315 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S932401AbWBAJDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 04:03:35 -0500
-Message-Id: <20060201090334.112965000@localhost.localdomain>
+	id S932398AbWBAJDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 04:03:34 -0500
+Message-Id: <20060201090333.565332000@localhost.localdomain>
 References: <20060201090224.536581000@localhost.localdomain>
-Date: Wed, 01 Feb 2006 18:02:58 +0900
+Date: Wed, 01 Feb 2006 18:02:55 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: linuxsh-shmedia-dev@lists.sourceforge.net,
-       Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 34/44] sh64: use generic bitops
-Content-Disposition: inline; filename=sh64.patch
+Cc: linuxppc-dev@ozlabs.org, Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 31/44] powerpc: use generic bitops
+Content-Disposition: inline; filename=powerpc.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 - remove __{,test_and_}{set,clear,change}_bit() and test_bit()
-- remove __ffs()
-- remove find_{next,first}{,_zero}_bit()
-- remove generic_hweight{32,16,8}()
-- remove sched_find_first_bit()
-- remove generic_ffs()
-- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
-- remove ext2_{set,clear}_bit_atomic()
-- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
-- remove generic_fls()
 - remove generic_fls64()
+- remove generic_hweight{64,32,16,8}()
+- remove sched_find_first_bit()
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
- include/asm-sh64/bitops.h |  384 +---------------------------------------------
- 1 files changed, 11 insertions(+), 373 deletions(-)
+ include/asm-powerpc/bitops.h |  105 +------------------------------------------
+ 1 files changed, 4 insertions(+), 101 deletions(-)
 
-Index: 2.6-git/include/asm-sh64/bitops.h
+Index: 2.6-git/include/asm-powerpc/bitops.h
 ===================================================================
---- 2.6-git.orig/include/asm-sh64/bitops.h
-+++ 2.6-git/include/asm-sh64/bitops.h
-@@ -31,16 +31,6 @@ static __inline__ void set_bit(int nr, v
- 	local_irq_restore(flags);
+--- 2.6-git.orig/include/asm-powerpc/bitops.h
++++ 2.6-git/include/asm-powerpc/bitops.h
+@@ -184,72 +184,7 @@ static __inline__ void set_bits(unsigned
+ 	: "cc");
  }
  
--static inline void __set_bit(int nr, void *addr)
+-/* Non-atomic versions */
+-static __inline__ int test_bit(unsigned long nr,
+-			       __const__ volatile unsigned long *addr)
 -{
--	int	mask;
--	unsigned int *a = addr;
--
--	a += nr >> 5;
--	mask = 1 << (nr & 0x1f);
--	*a |= mask;
+-	return 1UL & (addr[BITOP_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
 -}
 -
- /*
-  * clear_bit() doesn't provide any barrier for the compiler.
-  */
-@@ -58,15 +48,6 @@ static inline void clear_bit(int nr, vol
- 	local_irq_restore(flags);
- }
- 
--static inline void __clear_bit(int nr, volatile unsigned long *a)
+-static __inline__ void __set_bit(unsigned long nr,
+-				 volatile unsigned long *addr)
 -{
--	int	mask;
+-	unsigned long mask = BITOP_MASK(nr);
+-	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
 -
--	a += nr >> 5;
--	mask = 1 << (nr & 0x1f);
--	*a &= ~mask;
+-	*p  |= mask;
 -}
 -
- static __inline__ void change_bit(int nr, volatile void * addr)
- {
- 	int	mask;
-@@ -80,16 +61,6 @@ static __inline__ void change_bit(int nr
- 	local_irq_restore(flags);
- }
- 
--static __inline__ void __change_bit(int nr, volatile void * addr)
+-static __inline__ void __clear_bit(unsigned long nr,
+-				   volatile unsigned long *addr)
 -{
--	int	mask;
--	volatile unsigned int *a = addr;
+-	unsigned long mask = BITOP_MASK(nr);
+-	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
 -
--	a += nr >> 5;
--	mask = 1 << (nr & 0x1f);
--	*a ^= mask;
+-	*p &= ~mask;
 -}
 -
- static __inline__ int test_and_set_bit(int nr, volatile void * addr)
- {
- 	int	mask, retval;
-@@ -106,19 +77,6 @@ static __inline__ int test_and_set_bit(i
- 	return retval;
- }
- 
--static __inline__ int __test_and_set_bit(int nr, volatile void * addr)
+-static __inline__ void __change_bit(unsigned long nr,
+-				    volatile unsigned long *addr)
 -{
--	int	mask, retval;
--	volatile unsigned int *a = addr;
+-	unsigned long mask = BITOP_MASK(nr);
+-	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
 -
--	a += nr >> 5;
--	mask = 1 << (nr & 0x1f);
--	retval = (mask & *a) != 0;
--	*a |= mask;
--
--	return retval;
+-	*p ^= mask;
 -}
 -
- static __inline__ int test_and_clear_bit(int nr, volatile void * addr)
- {
- 	int	mask, retval;
-@@ -135,19 +93,6 @@ static __inline__ int test_and_clear_bit
- 	return retval;
- }
- 
--static __inline__ int __test_and_clear_bit(int nr, volatile void * addr)
+-static __inline__ int __test_and_set_bit(unsigned long nr,
+-					 volatile unsigned long *addr)
 -{
--	int	mask, retval;
--	volatile unsigned int *a = addr;
+-	unsigned long mask = BITOP_MASK(nr);
+-	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
+-	unsigned long old = *p;
 -
--	a += nr >> 5;
--	mask = 1 << (nr & 0x1f);
--	retval = (mask & *a) != 0;
--	*a &= ~mask;
--
--	return retval;
+-	*p = old | mask;
+-	return (old & mask) != 0;
 -}
 -
- static __inline__ int test_and_change_bit(int nr, volatile void * addr)
- {
- 	int	mask, retval;
-@@ -164,23 +109,7 @@ static __inline__ int test_and_change_bi
- 	return retval;
- }
- 
--static __inline__ int __test_and_change_bit(int nr, volatile void * addr)
+-static __inline__ int __test_and_clear_bit(unsigned long nr,
+-					   volatile unsigned long *addr)
 -{
--	int	mask, retval;
--	volatile unsigned int *a = addr;
+-	unsigned long mask = BITOP_MASK(nr);
+-	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
+-	unsigned long old = *p;
 -
--	a += nr >> 5;
--	mask = 1 << (nr & 0x1f);
--	retval = (mask & *a) != 0;
--	*a ^= mask;
--
--	return retval;
+-	*p = old & ~mask;
+-	return (old & mask) != 0;
 -}
 -
--static __inline__ int test_bit(int nr, const volatile void *addr)
+-static __inline__ int __test_and_change_bit(unsigned long nr,
+-					    volatile unsigned long *addr)
 -{
--	return 1UL & (((const volatile unsigned int *) addr)[nr >> 5] >> (nr & 31));
+-	unsigned long mask = BITOP_MASK(nr);
+-	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
+-	unsigned long old = *p;
+-
+-	*p = old ^ mask;
+-	return (old & mask) != 0;
 -}
 +#include <asm-generic/bitops/non-atomic.h>
  
- static __inline__ unsigned long ffz(unsigned long word)
- {
-@@ -204,307 +133,16 @@ static __inline__ unsigned long ffz(unsi
- 	return result;
+ /*
+  * Return the zero-based bit position (LE, not IBM bit numbering) of
+@@ -310,16 +245,9 @@ static __inline__ int fls(unsigned int x
+ 	asm ("cntlzw %0,%1" : "=r" (lz) : "r" (x));
+ 	return 32 - lz;
  }
+-#define fls64(x)   generic_fls64(x)
++#include <asm-generic/bitops/fls64.h>
  
--/**
-- * __ffs - find first bit in word
-- * @word: The word to search
-- *
-- * Undefined if no bit exists, so code should check against 0 first.
-- */
--static inline unsigned long __ffs(unsigned long word)
--{
--	int r = 0;
--
--	if (!word)
--		return 0;
--	if (!(word & 0xffff)) {
--		word >>= 16;
--		r += 16;
--	}
--	if (!(word & 0xff)) {
--		word >>= 8;
--		r += 8;
--	}
--	if (!(word & 0xf)) {
--		word >>= 4;
--		r += 4;
--	}
--	if (!(word & 3)) {
--		word >>= 2;
--		r += 2;
--	}
--	if (!(word & 1)) {
--		word >>= 1;
--		r += 1;
--	}
--	return r;
--}
--
--/**
-- * find_next_bit - find the next set bit in a memory region
-- * @addr: The address to base the search on
-- * @offset: The bitnumber to start searching at
-- * @size: The maximum size to search
-- */
--static inline unsigned long find_next_bit(const unsigned long *addr,
--	unsigned long size, unsigned long offset)
--{
--	unsigned int *p = ((unsigned int *) addr) + (offset >> 5);
--	unsigned int result = offset & ~31UL;
--	unsigned int tmp;
--
--	if (offset >= size)
--		return size;
--	size -= result;
--	offset &= 31UL;
--	if (offset) {
--		tmp = *p++;
--		tmp &= ~0UL << offset;
--		if (size < 32)
--			goto found_first;
--		if (tmp)
--			goto found_middle;
--		size -= 32;
--		result += 32;
--	}
--	while (size >= 32) {
--		if ((tmp = *p++) != 0)
--			goto found_middle;
--		result += 32;
--		size -= 32;
--	}
--	if (!size)
--		return result;
--	tmp = *p;
--
--found_first:
--	tmp &= ~0UL >> (32 - size);
--	if (tmp == 0UL)        /* Are any bits set? */
--		return result + size; /* Nope. */
--found_middle:
--	return result + __ffs(tmp);
--}
--
--/**
-- * find_first_bit - find the first set bit in a memory region
-- * @addr: The address to start the search at
-- * @size: The maximum size to search
-- *
-- * Returns the bit-number of the first set bit, not the number of the byte
-- * containing a bit.
-- */
--#define find_first_bit(addr, size) \
--	find_next_bit((addr), (size), 0)
--
--
--static inline int find_next_zero_bit(void *addr, int size, int offset)
--{
--	unsigned long *p = ((unsigned long *) addr) + (offset >> 5);
--	unsigned long result = offset & ~31UL;
--	unsigned long tmp;
--
--	if (offset >= size)
--		return size;
--	size -= result;
--	offset &= 31UL;
--	if (offset) {
--		tmp = *(p++);
--		tmp |= ~0UL >> (32-offset);
--		if (size < 32)
--			goto found_first;
--		if (~tmp)
--			goto found_middle;
--		size -= 32;
--		result += 32;
--	}
--	while (size & ~31UL) {
--		if (~(tmp = *(p++)))
--			goto found_middle;
--		result += 32;
--		size -= 32;
--	}
--	if (!size)
--		return result;
--	tmp = *p;
--
--found_first:
--	tmp |= ~0UL << size;
--found_middle:
--	return result + ffz(tmp);
--}
--
--#define find_first_zero_bit(addr, size) \
--        find_next_zero_bit((addr), (size), 0)
--
 -/*
 - * hweightN: returns the hamming weight (i.e. the number
 - * of bits set) of a N-bit word
 - */
--
--#define hweight32(x)	generic_hweight32(x)
--#define hweight16(x)	generic_hweight16(x)
--#define hweight8(x)	generic_hweight8(x)
--
+-#define hweight64(x) generic_hweight64(x)
+-#define hweight32(x) generic_hweight32(x)
+-#define hweight16(x) generic_hweight16(x)
+-#define hweight8(x) generic_hweight8(x)
++#include <asm-generic/bitops/hweight.h>
+ 
+ #define find_first_zero_bit(addr, size) find_next_zero_bit((addr), (size), 0)
+ unsigned long find_next_zero_bit(const unsigned long *addr,
+@@ -397,32 +325,7 @@ unsigned long find_next_zero_le_bit(cons
+ #define minix_find_first_zero_bit(addr,size) \
+ 	find_first_zero_le_bit((unsigned long *)addr, size)
+ 
 -/*
 - * Every architecture must define this function. It's the fastest
 - * way of searching a 140-bit bitmap where the first 100 bits are
 - * unlikely to be set. It's guaranteed that at least one of the 140
 - * bits is cleared.
 - */
--
--static inline int sched_find_first_bit(unsigned long *b)
+-static inline int sched_find_first_bit(const unsigned long *b)
 -{
+-#ifdef CONFIG_PPC64
+-	if (unlikely(b[0]))
+-		return __ffs(b[0]);
+-	if (unlikely(b[1]))
+-		return __ffs(b[1]) + 64;
+-	return __ffs(b[2]) + 128;
+-#else
 -	if (unlikely(b[0]))
 -		return __ffs(b[0]);
 -	if (unlikely(b[1]))
@@ -318,159 +154,9 @@ Index: 2.6-git/include/asm-sh64/bitops.h
 -	if (b[3])
 -		return __ffs(b[3]) + 96;
 -	return __ffs(b[4]) + 128;
--}
--
--/*
-- * ffs: find first bit set. This is defined the same way as
-- * the libc and compiler builtin ffs routines, therefore
-- * differs in spirit from the above ffz (man ffs).
-- */
--
--#define ffs(x) generic_ffs(x)
--
--/*
-- * hweightN: returns the hamming weight (i.e. the number
-- * of bits set) of a N-bit word
-- */
--
--#define hweight32(x) generic_hweight32(x)
--#define hweight16(x) generic_hweight16(x)
--#define hweight8(x) generic_hweight8(x)
--
--#ifdef __LITTLE_ENDIAN__
--#define ext2_set_bit(nr, addr) __test_and_set_bit((nr), (addr))
--#define ext2_clear_bit(nr, addr) __test_and_clear_bit((nr), (addr))
--#define ext2_test_bit(nr, addr) test_bit((nr), (addr))
--#define ext2_find_first_zero_bit(addr, size) find_first_zero_bit((addr), (size))
--#define ext2_find_next_zero_bit(addr, size, offset) \
--                find_next_zero_bit((addr), (size), (offset))
--#else
--static __inline__ int ext2_set_bit(int nr, volatile void * addr)
--{
--	int		mask, retval;
--	volatile unsigned char	*ADDR = (unsigned char *) addr;
--
--	ADDR += nr >> 3;
--	mask = 1 << (nr & 0x07);
--	retval = (mask & *ADDR) != 0;
--	*ADDR |= mask;
--	return retval;
--}
--
--static __inline__ int ext2_clear_bit(int nr, volatile void * addr)
--{
--	int		mask, retval;
--	volatile unsigned char	*ADDR = (unsigned char *) addr;
--
--	ADDR += nr >> 3;
--	mask = 1 << (nr & 0x07);
--	retval = (mask & *ADDR) != 0;
--	*ADDR &= ~mask;
--	return retval;
--}
--
--static __inline__ int ext2_test_bit(int nr, const volatile void * addr)
--{
--	int			mask;
--	const volatile unsigned char	*ADDR = (const unsigned char *) addr;
--
--	ADDR += nr >> 3;
--	mask = 1 << (nr & 0x07);
--	return ((mask & *ADDR) != 0);
--}
--
--#define ext2_find_first_zero_bit(addr, size) \
--        ext2_find_next_zero_bit((addr), (size), 0)
--
--static __inline__ unsigned long ext2_find_next_zero_bit(void *addr, unsigned long size, unsigned long offset)
--{
--	unsigned long *p = ((unsigned long *) addr) + (offset >> 5);
--	unsigned long result = offset & ~31UL;
--	unsigned long tmp;
--
--	if (offset >= size)
--		return size;
--	size -= result;
--	offset &= 31UL;
--	if(offset) {
--		/* We hold the little endian value in tmp, but then the
--		 * shift is illegal. So we could keep a big endian value
--		 * in tmp, like this:
--		 *
--		 * tmp = __swab32(*(p++));
--		 * tmp |= ~0UL >> (32-offset);
--		 *
--		 * but this would decrease preformance, so we change the
--		 * shift:
--		 */
--		tmp = *(p++);
--		tmp |= __swab32(~0UL >> (32-offset));
--		if(size < 32)
--			goto found_first;
--		if(~tmp)
--			goto found_middle;
--		size -= 32;
--		result += 32;
--	}
--	while(size & ~31UL) {
--		if(~(tmp = *(p++)))
--			goto found_middle;
--		result += 32;
--		size -= 32;
--	}
--	if(!size)
--		return result;
--	tmp = *p;
--
--found_first:
--	/* tmp is little endian, so we would have to swab the shift,
--	 * see above. But then we have to swab tmp below for ffz, so
--	 * we might as well do this here.
--	 */
--	return result + ffz(__swab32(tmp) | (~0UL << size));
--found_middle:
--	return result + ffz(__swab32(tmp));
--}
 -#endif
--
--#define ext2_set_bit_atomic(lock, nr, addr)		\
--	({						\
--		int ret;				\
--		spin_lock(lock);			\
--		ret = ext2_set_bit((nr), (addr));	\
--		spin_unlock(lock);			\
--		ret;					\
--	})
--
--#define ext2_clear_bit_atomic(lock, nr, addr)		\
--	({						\
--		int ret;				\
--		spin_lock(lock);			\
--		ret = ext2_clear_bit((nr), (addr));	\
--		spin_unlock(lock);			\
--		ret;					\
--	})
--
--/* Bitmap functions for the minix filesystem.  */
--#define minix_test_and_set_bit(nr,addr) __test_and_set_bit(nr,addr)
--#define minix_set_bit(nr,addr) __set_bit(nr,addr)
--#define minix_test_and_clear_bit(nr,addr) __test_and_clear_bit(nr,addr)
--#define minix_test_bit(nr,addr) test_bit(nr,addr)
--#define minix_find_first_zero_bit(addr,size) find_first_zero_bit(addr,size)
--
--#define ffs(x)	generic_ffs(x)
--#define fls(x)	generic_fls(x)
--#define fls64(x)   generic_fls64(x)
-+#include <asm-generic/bitops/__ffs.h>
-+#include <asm-generic/bitops/find.h>
-+#include <asm-generic/bitops/hweight.h>
+-}
 +#include <asm-generic/bitops/sched.h>
-+#include <asm-generic/bitops/ffs.h>
-+#include <asm-generic/bitops/ext2-non-atomic.h>
-+#include <asm-generic/bitops/ext2-atomic.h>
-+#include <asm-generic/bitops/minix.h>
-+#include <asm-generic/bitops/fls.h>
-+#include <asm-generic/bitops/fls64.h>
  
  #endif /* __KERNEL__ */
  

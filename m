@@ -1,100 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964887AbWBANC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030364AbWBANG1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964887AbWBANC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 08:02:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbWBANC0
+	id S1030364AbWBANG1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 08:06:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbWBANG1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 08:02:26 -0500
-Received: from mail4.hitachi.co.jp ([133.145.228.5]:3275 "EHLO
-	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP id S964887AbWBANCQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 08:02:16 -0500
-Message-ID: <43E0B177.9020607@sdl.hitachi.co.jp>
-Date: Wed, 01 Feb 2006 22:02:47 +0900
-From: Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Wed, 1 Feb 2006 08:06:27 -0500
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:8889 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S964924AbWBANG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 08:06:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=vjkdTuhBSb1Z0aUHKeUCbUSjT5qFJwgNk02Pz7aDauNr3ZwFYxhOfWSgiZeKFia207Pk/jdXEdi+IbXB41b3V5XNf52Zqrj8a6xzNmxCZwUsNL8JVLYkQTYHZrn3YjFh9/6ZAfS5i0fntj3ZTcd6ZLdmAZQPxvfFvudq+pWDwJ0=  ;
+Message-ID: <43E0B24E.8080508@yahoo.com.au>
+Date: Thu, 02 Feb 2006 00:06:22 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: ananth@in.ibm.com, prasanna@in.ibm.com, anil.s.keshavamurthy@intel.com,
-       systemtap@sources.redhat.com, jkenisto@us.ibm.com,
-       linux-kernel@vger.kernel.org, sugita@sdl.hitachi.co.jp,
-       soshima@redhat.com, haoki@redhat.com
-Subject: Re: [PATCH] kretprobe: kretprobe-booster against 2.6.16-rc1 for i386
-References: <43DE0A53.3060801@sdl.hitachi.co.jp>	<43DEC13E.8020200@sdl.hitachi.co.jp> <20060131145540.3e9a78be.akpm@osdl.org>
-In-Reply-To: <20060131145540.3e9a78be.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: Peter Williams <pwil3058@bigpond.net.au>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
+References: <1138736609.7088.35.camel@localhost.localdomain>	 <43E02CC2.3080805@bigpond.net.au> <1138797874.7088.44.camel@localhost.localdomain>
+In-Reply-To: <1138797874.7088.44.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andrew
-Andrew Morton wrote:
-> Masami Hiramatsu <hiramatu@sdl.hitachi.co.jp> wrote:
->>-	regs->eip = orig_ret_address;
->>
->>-	reset_current_kprobe();
->> 	spin_unlock_irqrestore(&kretprobe_lock, flags);
->>-	preempt_enable_no_resched();
->
-> Again, the patch removes a preempt_enable() and doesn't add a
-> preempt_disable().  Maybe this is to balance the earlier patch.  If so,
-> they should both be in the same patch so the kernel works OK at each stage.
-> You didn't include a description of what this patch actually does.
+Steven Rostedt wrote:
+> On Wed, 2006-02-01 at 14:36 +1100, Peter Williams wrote:
 
-That is not to balance the previous patch. Here is the reason and
-the description of kretprobe-booster.
+>>However, a newly woken task that preempts the current task isn't the 
+>>only way that needs_resched() can become true just before load balancing 
+>>is started.  E.g. scheduler_tick() calls set_tsk_need_resched(p) when a 
+>>task finishes a time slice and this patch would cause rebalance_tick() 
+>>to be aborted after a lot of work has been done in this case.
+> 
+> 
+> No real work is lost.  This is a loop that individually pulls tasks.  So
+> the bail only stops the work of looking for more tasks to pull and we
+> don't lose the tasks that have already been pulled.
+> 
+> 
 
-The kretprobe basically invokes kprobe twice as following actions;
+Once we've gone to the trouble of deciding which tasks to move and how
+many (and the estimate should be very conservative), and locked the source
+and destination runqueues, it is a very good idea to follow up with our
+threat of actually moving the tasks rather than bail out early.
 
-At function entrance:
-(1) int3 (1st kprobe)
-(2) preempt_disable
-(3) call pre_handler_kretprobe ()
-(3-1) store original return address to a retprobe instance
-(3-2) modify return address.
-(4) copied instructioin(single step)
-(5) preempt_enable
+It is quite likely (though perhaps less so in this braindead benchmark)
+that a subsequent load balance operation will need to move the remaining
+tasks anyway, so decreasing the efficiency of this routine is going to cause
+more damage to your RT task even if you "fix" it to not actually show up as
+a single latency blip.
 
-At function exit:
-(1) return to kretprobe_trampoline
-(2) int3 (2nd kprobe)
-(3) preempt_disable()
-(4) call trampoline_probe_handler()
-(4-1) find the corresponding instance and call true handler.
-(4-2) restore original return address to regs->eip
-(4-3) preempt_enable()
-(5) return to int3 handler (do NOT execute single step)
+>>In summary, I think that the bail out is badly placed and needs some way 
+>>of knowing if the reason need_resched() has become true is because of 
+>>preemption of a newly woken task and not some other reason.
+> 
+> 
+> I need that bail in the loop, so it can stop if needed. Like I said, it
+> can be a task that is pulled to cause the bail. Also, having the run
+> queue locks and interrupts off for over a msec is really a bad idea.
+> 
 
-The first kprobe is to modify return address of the function,
-and the second is to call the true kretprobe's handler from
-the function return point. The first kprobe is executed
-normally. But the second does not execute single-step,
-because the copied instruction of the probe is always "nop".
+I don't think we need to change it in the mainline kernel just yet. At least
+not something that will bail after moving just a single task every time in
+the worst case.
 
-In the other hand, kretprobe-booster modifies the process at
-function exit as following actions;
+> 
+>>Peter
+>>PS I've added Nick Piggin to the CC list as he is interested in load 
+>>balancing issues.
+> 
+> 
+> Thanks, and thanks for the comments too.  I'm up for all suggestions and
+> ideas.  I just feel it is important that we don't have unbounded
+> latencies of spin locks and interrupts off.
+> 
 
-At function exit:
-(1) return to kretprobe_trampoline
-(2) store registers
-(3) call trampoline_handler()
-(3-1) find the corresponding instance and call true handler.
-(3-2) return original return address
-(4) restore registers and the original return address.
-(5) return to original function caller.
-
-There are no kprobes, and any instructions are not removed.
-So, there is no need to disable preemption.
-This is the reason why I removed preempt_enable().
-
-Best regards,
-
+That's a long way off (if ever) if you want to run crazy code that simply
+increases some resource loading until something breaks. Take an rwsem for
+writing and then queue up thousands of readers on the lock. Release the
+writer. (this will be very similar to run queue balancing, in effect).
 
 -- 
-Masami HIRAMATSU
-2nd Research Dept.
-Hitachi, Ltd., Systems Development Laboratory
-E-mail: hiramatu@sdl.hitachi.co.jp
-
-
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

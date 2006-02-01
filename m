@@ -1,83 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422988AbWBAWr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422996AbWBAWtf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422988AbWBAWr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 17:47:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422991AbWBAWr4
+	id S1422996AbWBAWtf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 17:49:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422995AbWBAWtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 17:47:56 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:19467 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1422988AbWBAWr4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 17:47:56 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: GPL V3 and Linux - Dead Copyright Holders
-Date: Wed, 1 Feb 2006 14:46:52 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKEGPJNAB.davids@webmaster.com>
+	Wed, 1 Feb 2006 17:49:35 -0500
+Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:56045 "EHLO
+	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1422991AbWBAWte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 17:49:34 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Wed, 1 Feb 2006 22:49:08 +0000 (GMT)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Grant Grundler <iod00d@hp.com>
+cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "'Christoph Hellwig'" <hch@infradead.org>,
+       "'Akinobu Mita'" <mita@miraclelinux.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH 1/12] generic *_bit()
+In-Reply-To: <20060201220903.GE16471@esmail.cup.hp.com>
+Message-ID: <Pine.LNX.4.64.0602012246330.3680@hermes-2.csi.cam.ac.uk>
+References: <20060201193933.GA16471@esmail.cup.hp.com>
+ <200602012141.k11LfCg32497@unix-os.sc.intel.com> <20060201220903.GE16471@esmail.cup.hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.64.0601311430130.7301@g5.osdl.org>
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Wed, 01 Feb 2006 14:43:35 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Wed, 01 Feb 2006 14:43:36 -0800
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 1 Feb 2006, Grant Grundler wrote:
+> On Wed, Feb 01, 2006 at 01:41:03PM -0800, Chen, Kenneth W wrote:
+> > > Well, if it doesn't matter, why is unsigned int better?
+> > 
+> > I was coming from the angle of having bitop operate on unsigned
+> > int *, so people don't have to type cast or change bit flag variable
+> > to unsigned long for various structures.  With unsigned int type for
+> > bit flag, some of them are not even close to fully utilized. for example:
+> > 
+> > thread_info->flags uses 18 bits
+> > thread_struct->flags uses 7 bits
+> > 
+> > It's a waste of memory to define a variable that kernel will *never*
+> > touch the 4 MSB in that field.
+> 
+> Agreed. Good point. But this can be mitigated if the code using "unsigned int"
+> (or unsigned byte) first loads the value into a local unsigned long variable.
+> That typically translates into a tmp register anyway. Compiler will help
+> you find places where that needs to happen.
+> 
+> Counter point is bit arrays (e.g. bit maps) like cpumask_t are
+> typically much larger than 32-bits (typically distro's ship with
+> NR_CPUS set to 256 or so).  File system code also likes bit arrays
+> for block allocation tables. Searching a bit array using unsigned
+> long is 2x faster on 64-bit architectures. I don't want to give
+> that up and I'm pretty sure Tony Luck, Paul Mckerras and a few
+> others would object unless you can give a better reason.
 
-Linus Torvalds wrote:
+Err, searching by anything other than bytes is useless for a file system 
+driver.  Otherwise you get all sorts of disgustingly horrible allocation 
+patterns depending on the endianness of the machine...
 
-> but the fact is, the GPL also says that any license notices must be kept
-> intact, and that a copy of the GPL itself must be given along with the
-> program (in section 1).
+Best regards,
 
-	The GPL says you must keep intact notices in the Program that refer to the
-license. That logically cannot include the license itself. For one thing,
-the license is not in the program. For another thing, the license does not
-refer to itself.
-
-> I'm convinced _that_ is how you get "no version specified" in section 9.
-> You have a program that just says "This is licensed under the GPL",
-> instead of doing the full thing.
-
-	You are essentially arguing here that the FSF screwed up. They intended the
-normal case to be that you got a copy of the GPL with the program but could
-substitute a later version at your option. Why would they have made it
-almost impossible (or even extra-difficult) to get the result that they
-preferred?
-
-	A much more logical reading is that the License and the Program are two
-distinct things. When it says "notices in the Program", that's precisely
-what it means, notices that are in the Program. When it says "the Program
-specifies a version number", that's also what it means, a version number
-specified by the Program.
-
-	Not only does this make it easy to get the result the FSF preferred, but ot
-is supported by the License's internal definition of the term "Program".
-
-	I don't think you can lock a person down to a single version of the GPL
-unless you explicitly say so in each individual file. Otherwise, nothing
-prevents someone from separating out one file and distributing it, kicking
-in clause 9's rule about a Program that does not specify a version number.
-The requirement to keep license notices intact does not mean you must add
-them or maintain them. Just that you can't remove or modify them.
-
-	It has always been well-understood on this mailing list that a file can be
-excerpted from a GPL project and inserted into another one. Surely the FSF
-didn't intend to make the default position be that GPL'd projects would be
-mutually incompatible.
-
-	DS
-
-
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

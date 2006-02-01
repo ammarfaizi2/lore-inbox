@@ -1,75 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030562AbWBAH44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWBAIGD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030562AbWBAH44 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 02:56:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030564AbWBAH44
+	id S1750705AbWBAIGD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 03:06:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWBAIGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 02:56:56 -0500
-Received: from zproxy.gmail.com ([64.233.162.193]:62584 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030562AbWBAH44 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 02:56:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jt9jSfkdLZQtuzdzOU8wpZxpShqIPVMOnyJrgwPxj+vx0hY0RHOV/+bl9L3TjfbhUBkW8OzPRuW6hAuEPtE78dDeHwvbJ+6lnGq9Z4k77Fta6fzzQRxg6wDIlNocmUrF0eW5q9kcuF+YJcsl3MWQJOdCJj/WJFmv7LnAzZi0Azo=
-Message-ID: <5a2cf1f60601312356n1b031344r11290879d80d5b57@mail.gmail.com>
-Date: Wed, 1 Feb 2006 08:56:54 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-To: Albert Cahalan <acahalan@gmail.com>
-Subject: Re: CD writing in future Linux try #2
-Cc: "David S. Miller" <davem@davemloft.net>, gmack@innerfire.net,
-       diablod3@gmail.com, schilling@fokus.fraunhofer.de, bzolnier@gmail.com,
-       mrmacman_g4@mac.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <787b0d920601312049n313364a1q8a41e10c3cda98e0@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200601302043.56615.diablod3@gmail.com>
-	 <20060130.174705.15703464.davem@davemloft.net>
-	 <Pine.LNX.4.64.0601310609210.2979@innerfire.net>
-	 <20060131.031817.85883571.davem@davemloft.net>
-	 <787b0d920601312049n313364a1q8a41e10c3cda98e0@mail.gmail.com>
+	Wed, 1 Feb 2006 03:06:03 -0500
+Received: from chiark.greenend.org.uk ([193.201.200.170]:64456 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S1750705AbWBAIGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 03:06:01 -0500
+To: Dave Jones <davej@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ashok Raj <ashok.raj@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch -mm4] i386: __init should be __cpuinit
+In-Reply-To: <20060201053357.GA5335@redhat.com>
+References: <200601312352_MC3-1-B748-FCE9@compuserve.com> <200601312352_MC3-1-B748-FCE9@compuserve.com> <20060201053357.GA5335@redhat.com>
+Date: Wed, 1 Feb 2006 08:05:51 +0000
+Message-Id: <E1F4Czv-00018m-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/1/06, Albert Cahalan <acahalan@gmail.com> wrote:
-> On 1/31/06, David S. Miller <davem@davemloft.net> wrote:
->
-> > Someone remind me why the whole world is a prisoner to Joerg's cd
-> > burning program?
-> >
-> > Anybody can write their own, and if Joerg is a pain to work with that
-> > is a double extra incentive for this other implementation to be
-> > written.
-> >
-> > In fact I'm very surprised this hasn't happened already.
->
-> It has happened, many times, but sustaining such a project is
-> very difficult. The obstacles are numerous:
->
-> All the GUI apps parse cdrecord output. The output is somehow
-> even messier than the recent /proc/*/smaps abomination. It is
-> thus difficult to change or replace cdrecord. One of the major
-> GUI apps appears to be written by Joerg's real-life non-Internet
-> friend, who naturally refuses any patches to eliminate the need
-> for cdrecord.
+Dave Jones <davej@redhat.com> wrote:
 
-http://lists.freedesktop.org/archives/libburn/2006-January/000329.html
+> Especially as for the bulk of them, those CPUs aren't hotplug capable.
+> (I seriously doubt we'll ever see a hotplugable cyrix for eg, which
+>  takes up the bulk of your diff).
 
-"Announcing cdrskin, a limited cdrecord compatibility wrapper for libburn
+For SMP systems, suspend/resume "unplugs" all non-boot CPUs before
+executing the suspend code. I don't recall any SMP cyrix systems, but
+it's potentially something to consider.
 
-cdrskin currently is able to blank and burn data CDs with one or more
-tracks. [...]
-
-I am using cdrskin daily with my data backups on CD-RW where it shows about
-the same reliability as cdrecord-ProDVD 2.01b31. The backup success is verified
-by my backup tool via a MD5 stream checksum.
-
-This is the initial public release 0.1.0 of cdrskin. [...]"
-
-see also http://icculus.org/burn/
-
-Jerome
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

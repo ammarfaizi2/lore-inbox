@@ -1,44 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030391AbWBARlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbWBARvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030391AbWBARlm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 12:41:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030392AbWBARll
+	id S1030381AbWBARvY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 12:51:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030392AbWBARvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 12:41:41 -0500
-Received: from bayc1-pasmtp05.bayc1.hotmail.com ([65.54.191.165]:32284 "EHLO
-	BAYC1-PASMTP05.bayc1.hotmail.com") by vger.kernel.org with ESMTP
-	id S1030391AbWBARll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 12:41:41 -0500
-Message-ID: <BAYC1-PASMTP05E6111897E4EEAB87C04FAE0B0@CEZ.ICE>
-X-Originating-IP: [69.156.6.171]
-X-Originating-Email: [seanlkml@sympatico.ca]
-Date: Wed, 1 Feb 2006 12:41:51 -0500
-From: sean <seanlkml@sympatico.ca>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: bernd@firmix.at, xslaby@fi.muni.cz, wellspringkavitha@yahoo.co.in,
-       linux-kernel@vger.kernel.org
-Subject: Re: root=LABEL= problem [Was: Re: Linux Issue]
-Message-Id: <20060201124151.5b4c0435.seanlkml@sympatico.ca>
-In-Reply-To: <Pine.LNX.4.61.0602011718450.22529@yvahk01.tjqt.qr>
-References: <20060201114845.E41F222AF24@anxur.fi.muni.cz>
-	<Pine.LNX.4.61.0602011713410.22529@yvahk01.tjqt.qr>
-	<1138810616.16643.30.camel@tara.firmix.at>
-	<Pine.LNX.4.61.0602011718450.22529@yvahk01.tjqt.qr>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 1 Feb 2006 12:51:24 -0500
+Received: from smtpout.mac.com ([17.250.248.47]:10729 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1030381AbWBARvX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 12:51:23 -0500
+In-Reply-To: <Pine.LNX.4.61.0602011722300.22529@yvahk01.tjqt.qr>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com> <200601311333.36000.oliver@neukum.org> <200601311444.47199.vda@ilport.com.ua> <Pine.LNX.4.61.0602011634520.22529@yvahk01.tjqt.qr> <58cb370e0602010756r3973fde7v387c7529b2bd80cd@mail.gmail.com> <Pine.LNX.4.61.0602011722300.22529@yvahk01.tjqt.qr>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <06C3EA9E-1D1B-4BF9-9BDD-60B8D59DAE4B@mac.com>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Denis Vlasenko <vda@ilport.com.ua>, Oliver Neukum <oliver@neukum.org>,
+       jerome lacoste <jerome.lacoste@gmail.com>,
+       Joerg Schilling <schilling@fokus.fraunhofer.de>, j@bitron.ch,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       James@superbug.co.uk, acahalan@gmail.com
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Feb 2006 17:41:40.0704 (UTC) FILETIME=[C24B8E00:01C62756]
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Date: Wed, 1 Feb 2006 12:51:13 -0500
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Feb 2006 17:18:56 +0100 (MET)
-Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+On Feb 01, 2006, at 11:28, Jan Engelhardt wrote:
+>> Moreover providing ordering by IDE driver has been nightmare to  
+>> maintain and can't be done correctly for 100% weird cases.
+>
+> So how much weird cases do we have?
 
-> >Yes, in RedHat's/Fedora's kernels since ages.
+Speaking from personal experience, _waay_ too many.  On my old G4  
+which now serves as a fileserver, I have 5 IDE busses out of 3  
+controllers (Onboard ATA-66 with 2 busses, onboard ATA-33 with one  
+bus, add-in PCI ATA-100 with 2 busses)  There's a _config_ option to  
+control probe order specific to the two Apple onboard interfaces, and  
+it used to be (before udev) that option was a nightmare to ensure  
+that my new kernel has the same probe order as the old one.  Once you  
+throw PCI hotplug into the mix, reliable probing order is impossible,  
+and you should just use udev to dynamically assign names.
 
-Label processing in Red Hat/Fedora distributions is not handled in the
-kernel at all (thus you won't find a patch).   It's all done in user space
-via the initrd and works with vanilla kernels without a problem.
 
-Sean
+>>> (surprisingly) the other way round, sda just happens to be the  
+>>> first disk
+>>> inserted (SCA, USB, etc.)
+>>
+>> Which is much saner approach from developers' POV.
+>
+> Developer... and about the user/admin? With a sparcbox (ran suse  
+> linux 7.3 the last time it was powered on - 2.4 kernel, no udev -  
+> don't complain :), replugging disks in put them at the end of the  
+> 'sd*' naming chain, effectively killing the features of hotplug the  
+> machine itself offered. (Oh, that OS starting with S.. managed it  
+> with the help of the behated/-loved c?d?t?s? scheme, but that's OT.)
+
+Yeah, 2.4 was bad at hotplug, everybody knows that already.  This is  
+why the changes were made for 2.6 to add udev and hal and make it  
+much saner.
+
+Cheers,
+Kyle Moffett
+
+--
+I lost interest in "blade servers" when I found they didn't throw  
+knives at people who weren't supposed to be in your machine room.
+   -- Anthony de Boer
+
+

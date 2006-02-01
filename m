@@ -1,66 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422889AbWBATUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422891AbWBAT1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422889AbWBATUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 14:20:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422888AbWBATUI
+	id S1422891AbWBAT1P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 14:27:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422888AbWBAT1P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 14:20:08 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61967 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1422887AbWBATUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 14:20:07 -0500
-Date: Wed, 1 Feb 2006 19:19:57 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+	Wed, 1 Feb 2006 14:27:15 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:41928 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1422885AbWBAT1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 14:27:14 -0500
+Message-Id: <200602011925.k11JPYg22845@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Russell King'" <rmk+lkml@arm.linux.org.uk>
 Cc: "'Christoph Hellwig'" <hch@infradead.org>,
        "'Akinobu Mita'" <mita@miraclelinux.com>,
-       Grant Grundler <iod00d@hp.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 1/12] generic *_bit()
-Message-ID: <20060201191957.GG3072@flint.arm.linux.org.uk>
-Mail-Followup-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-	'Christoph Hellwig' <hch@infradead.org>,
-	'Akinobu Mita' <mita@miraclelinux.com>,
-	Grant Grundler <iod00d@hp.com>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>,
-	linux-ia64@vger.kernel.org
-References: <20060201180237.GA18464@infradead.org> <200602011807.k11I7ag15563@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602011807.k11I7ag15563@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.1i
+       "Grant Grundler" <iod00d@hp.com>,
+       "Linux Kernel Development" <linux-kernel@vger.kernel.org>,
+       <linux-ia64@vger.kernel.org>
+Subject: RE: [PATCH 1/12] generic *_bit()
+Date: Wed, 1 Feb 2006 11:25:25 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcYnZL96AVMivZZ2Tby7xMvdOfwcYgAABibw
+In-Reply-To: <20060201191957.GG3072@flint.arm.linux.org.uk>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, 2006 at 10:07:28AM -0800, Chen, Kenneth W wrote:
-> Christoph Hellwig wrote on Wednesday, February 01, 2006 10:03 AM
-> > > Akinobu Mita wrote on Wednesday, January 25, 2006 7:29 PM
-> > > > This patch introduces the C-language equivalents of the functions below:
-> > > > 
-> > > > - atomic operation:
-> > > > void set_bit(int nr, volatile unsigned long *addr);
-> > > > void clear_bit(int nr, volatile unsigned long *addr);
-> > > > void change_bit(int nr, volatile unsigned long *addr);
-> > > > int test_and_set_bit(int nr, volatile unsigned long *addr);
-> > > > int test_and_clear_bit(int nr, volatile unsigned long *addr);
-> > > > int test_and_change_bit(int nr, volatile unsigned long *addr);
-> > > 
-> > > I wonder why you did not make these functions take volatile
-> > > unsigned int * address argument?
-> > 
-> > Because they are defined to operate on arrays of unsigned long
+Russell King wrote on Wednesday, February 01, 2006 11:20 AM
+> > I think these should be defined to operate on arrays of unsigned int.
+> > Bit is a bit, no matter how many byte you load (8/16/32/64), you can
+> > only operate on just one bit.
 > 
-> I think these should be defined to operate on arrays of unsigned int.
-> Bit is a bit, no matter how many byte you load (8/16/32/64), you can
-> only operate on just one bit.
+> Invalid assumption, from the point of view of endianness across different
+> architectures.  Consider where bit 0 is for a LE and BE unsigned long *
+> vs a LE and BE unsigned char *.
 
-Invalid assumption, from the point of view of endianness across different
-architectures.  Consider where bit 0 is for a LE and BE unsigned long *
-vs a LE and BE unsigned char *.
+Where the bit end up in LE or BE is irrelevant. As long as one always
+use the same bit numbering and same address pointer type, you always
+get the same bit.  Or am I missing something?
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+- Ken
+

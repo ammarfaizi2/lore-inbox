@@ -1,75 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161038AbWBAMgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWBAMgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161038AbWBAMgz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 07:36:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWBAMgy
+	id S932431AbWBAMgq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 07:36:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932434AbWBAMgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 07:36:54 -0500
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:33491 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932434AbWBAMgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 07:36:52 -0500
-Date: Wed, 01 Feb 2006 21:36:16 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
+	Wed, 1 Feb 2006 07:36:45 -0500
+Received: from uproxy.gmail.com ([66.249.92.198]:21454 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932431AbWBAMgp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 07:36:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=QwTeL6u3/mboT4i+Kb5+hn7rIk6BnUaofR9XQ55ucU7bmg5kaCFhHpfyxlk2HLSFnXr2cCdpIh4ucx+nlUOLZrMLC5Na1ANsDyhGikx1LPI9GFQNNwiTxnaXNlVDgOvBpjf9YUQ9cvoySE4YFBkWAVq9D6zxtBerRaNNptPXnkk=
+Date: Wed, 1 Feb 2006 15:54:35 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [Patch:000/004] Unify pxm_to_node id ver.2. 
-Cc: "Luck, Tony" <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
-       "Brown, Len" <len.brown@intel.com>, Bob Picco <bob.picco@hp.com>,
-       Andy Whitcroft <apw@shadowen.org>, Paul Jackson <pj@sgi.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       ACPI-ML <linux-acpi@vger.kernel.org>, linux-ia64@vger.kernel.org,
-       x86-64 Discuss <discuss@x86-64.org>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.062
-Message-Id: <20060201205152.41E6.Y-GOTO@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.24.02 [ja]
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] extract-ikconfig: use mktemp(1)
+Message-ID: <20060201125435.GA8943@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-I rewrote patches to unify mapping from pxm to node id as ver.2.
-I already posted all of fixes for ver.1.
-However, searching first patch and appling fixes are a bit messy
-due to too many mail and patches in LKML.
-So, I rearranged them to find all of them easier.
-Basically, (ver.1 + previous fix patches) = ver.2.
-But ver.2 is set of following patches.
-  - generic code.
-  - for ia64.
-  - for x86_64.
-  - for i386.
+ scripts/extract-ikconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Fixes from ver.1 are followigs.
-  - They are for 2.6.16-rc1-mm4.
-  - Fix old map from HP and SGI's code by Bob Picco-san.
-  - Remove MAX_PXM_DOMAINS from asm-ia64/acpi.h. It is already defined at
-    include/acpi/acpi_numa.h.
-  - Fix return code of setup_node() at arch/x86_64/mm/srat.c
-  - Fix ACPI_NUMA config for i386 by Andy Witcroft-san.
-  - Define dummy functions for i386's compile error.
-  - Remove garbage nid_to_pxm_map from acpi20_parse_srat() 
-    at arch/i386/kernel/srat.c
-
-I tested ia64 and x86_64 with dummy SRAT NUMA emulation.
-And I checked compile completion for hp, SGI, and Summit.
-
-Andrew-san. Please apply.
-
-Thanks.
-
-----------------------------------
-
-This patch is to unify mapping from pxm to node id.
-In current code, i386, x86-64, and ia64 have its mapping by each own code.
-But PXM is defined by ACPI and node id is used generically. So,
-I think there is no reason to define it on each arch's code.
-This mapping should be written at drivers/acpi/numa.c as a common code.
-
-
--- 
-Yasunori Goto 
-
+--- a/scripts/extract-ikconfig
++++ b/scripts/extract-ikconfig
+@@ -45,7 +46,7 @@ then
+ 	exit 1
+ fi
+ 
+-TMPFILE="/tmp/ikconfig-$$"
++TMPFILE=`mktemp -t ikconfig-XXXXXX` || exit 1
+ image="$1"
+ 
+ # vmlinux: Attempt to dump the configuration from the file directly
 

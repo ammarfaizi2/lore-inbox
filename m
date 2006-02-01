@@ -1,66 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWBAOgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbWBAOip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932452AbWBAOgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 09:36:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932457AbWBAOgQ
+	id S932464AbWBAOip (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 09:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWBAOip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 09:36:16 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:15621 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S932452AbWBAOgP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 09:36:15 -0500
-Message-ID: <43E0C72D.4070709@shadowen.org>
-Date: Wed, 01 Feb 2006 14:35:25 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-CC: Andrew Morton <akpm@osdl.org>, "Luck, Tony" <tony.luck@intel.com>,
-       Andi Kleen <ak@suse.de>, "Brown, Len" <len.brown@intel.com>,
-       Bob Picco <bob.picco@hp.com>, Paul Jackson <pj@sgi.com>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       ACPI-ML <linux-acpi@vger.kernel.org>, linux-ia64@vger.kernel.org,
-       x86-64 Discuss <discuss@x86-64.org>
-Subject: Re: [Patch:000/004] Unify pxm_to_node id ver.2.
-References: <20060201205152.41E6.Y-GOTO@jp.fujitsu.com>
-In-Reply-To: <20060201205152.41E6.Y-GOTO@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Feb 2006 09:38:45 -0500
+Received: from mail.shareable.org ([81.29.64.88]:58017 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S932454AbWBAOio
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 09:38:44 -0500
+Date: Wed, 1 Feb 2006 14:38:40 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Al Boldi <a1426z@gawab.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] VM: I have a dream...
+Message-ID: <20060201143840.GA19134@mail.shareable.org>
+References: <200602011658.10418.a1426z@gawab.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200602011658.10418.a1426z@gawab.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yasunori Goto wrote:
-> Hello.
+Al Boldi wrote:
+> > Presumably you will want access to more data than you have RAM,
+> > because RAM is still limited to a few GB these days, whereas a typical
+> > personal data store is a few 100s of GB.
+> >
+> > 64-bit architecture doesn't change this mismatch.  So how do you
+> > propose to avoid swapping to/from a disk, with all the time delays and
+> > I/O scheduling algorithms that needs?
 > 
-> I rewrote patches to unify mapping from pxm to node id as ver.2.
-> I already posted all of fixes for ver.1.
-> However, searching first patch and appling fixes are a bit messy
-> due to too many mail and patches in LKML.
-> So, I rearranged them to find all of them easier.
-> Basically, (ver.1 + previous fix patches) = ver.2.
-> But ver.2 is set of following patches.
->   - generic code.
->   - for ia64.
->   - for x86_64.
->   - for i386.
+> This is exactly what a linear-mapped memory model avoids.
+> Everything is already mapped into memory/disk.
+
+Having everything mapped to memory/disk *does not* avoid time delays
+and I/O scheduling.  At some level, whether it's software or hardware,
+something has to schedule the I/O to disk because there isn't enough RAM.
+
+How do you propose to avoid those delays?
+
+In my terminology, I/O of pages between disk and memory is called
+swapping.  (Or paging, or loading, or virtual memory I/O...)
+
+Perhaps you have a different terminology?
+
+> Would you call reading and writing to memory/disk swapping?
+
+Yes, if it involves the disk and heuristic paging decisions.  Whether
+that's handled by software or hardware.
+
+> > Applications don't currently care if they are swapped to disk or in
+> > physical memory.  That is handled by the OS and is transparent to the
+> > application.
 > 
-> Fixes from ver.1 are followigs.
->   - They are for 2.6.16-rc1-mm4.
->   - Fix old map from HP and SGI's code by Bob Picco-san.
->   - Remove MAX_PXM_DOMAINS from asm-ia64/acpi.h. It is already defined at
->     include/acpi/acpi_numa.h.
->   - Fix return code of setup_node() at arch/x86_64/mm/srat.c
->   - Fix ACPI_NUMA config for i386 by Andy Witcroft-san.
->   - Define dummy functions for i386's compile error.
->   - Remove garbage nid_to_pxm_map from acpi20_parse_srat() 
->     at arch/i386/kernel/srat.c
+> Yes, a linear-mapped memory model extends this transparency to the OS.
+
+Yes, that is possible.  It's slow in practice because that
+transparency comes at the cost of page faults (when the OS accesses
+that linear-mapped memory), which is slow on the kinds of CPU we are
+talking about - i.e. commodity 64-bit chips.
+
+> > > If you didn't understand it's meaning.  The shortest path meaning
+> > > accessing hw w/o running workarounds; using 64bits+ to fly over past
+> > > limitations.
+> >
+> > THe OS still has to map the address space to where it physically exists.
+> > Mapping all disk space into the address space may actually be a lot less
+> > efficient than using the filesystem interface for a block device.
 > 
-> I tested ia64 and x86_64 with dummy SRAT NUMA emulation.
-> And I checked compile completion for hp, SGI, and Summit.
+> Did you try tmpfs?
 
-Ran it across my test boxes, builds and boots on the affected platforms
-and generally elsewhere.
+Actually, mmap() to read a tmpfs file can be slower than just calling
+read(), for some access patterns.  It's because page faults, which are
+used to map the file, can be slower than copying data.  However,
+copying uses more memory.  Today we leave it to the application to
+decide which method to use.
 
--apw
+> > If so, then it actually makes *less* sense to me than before -- with
+> > your scheme, you've reduced the speed of main memory by 100x or more,
+> > then you try to compensate with a huge cache. IOW, you've reduced the
+> > speed of *main* memory to (more or less) the speed of today's swap!
+> > Suddenly it doesn't sound so good anymore...
+> 
+> There really isn't anything new here; we do swap and access the fs on disk 
+> and compensate with a huge dcache now.  All this idea implies, is to remove 
+> certain barriers that could not be easily passed before, thus move swap and 
+> fs into main memory.
+> 
+> Can you see how removing barriers would aid performance?
 
+I suspect that, despite possibly simplifying code, removing those
+barriers would make it run slower.
+
+If I understand your scheme, you're suggesting the kernel accesses
+disks, filesystems, etc. by simply reading and writing somewhere in
+the 64-bit address space.
+
+At some level, that will involve page faults to move data between RAM and disk.
+
+Those page faults are relatively slow - governed by the CPU's page
+fault mechanism.  Probably slower than what the kernel does now:
+testing flags and indirecting through "struct page *".
+
+However, do feel free to try out your idea.  If it is actually notably
+faster, or if it makes no difference to speed but makes a lot of code
+simpler, well then surely it will be interesting.
+
+-- Jamie

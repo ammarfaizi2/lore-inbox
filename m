@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWBABuR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbWBACEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964825AbWBABuR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 20:50:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWBABuR
+	id S964853AbWBACEm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 21:04:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWBACEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 20:50:17 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:12211
+	Tue, 31 Jan 2006 21:04:42 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:30443
 	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S964825AbWBABuP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 20:50:15 -0500
-Date: Tue, 31 Jan 2006 17:50:13 -0800
+	id S964853AbWBACEl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 21:04:41 -0500
+Date: Tue, 31 Jan 2006 18:04:37 -0800
 From: Greg KH <gregkh@suse.de>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [GIT PATCH] USB patches for 2.6.16-rc1
-Message-ID: <20060201015013.GA20562@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [GIT PATCH] PCI patches for 2.6.16-rc1
+Message-ID: <20060201020437.GA20719@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,219 +22,99 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some USB patches for 2.6.16-rc1.  They fix a bunch of different
-bugs (run-time, and build time), add a number of new device ids for
-various drivers, and add 2 new usb video drivers.  There is also an
-update to the usb atm drivers in here, as they have not been updated in
-a long time and the authors assure me that it is safe to do so :)
+Here are some small PCI patches against your latest git tree.  They have
+all been in the -mm tree for a while with no problems.
 
-All of these patches have been in the -mm tree for quite a while.
-
-(The one sound file being modified in this patchset comes from an
-embedded board fix that Andrew forwarded to me that also has a usb host
-driver fix in it.)
+They do the following:
+	- document some feature-removal things for the future
+	- add support for amd pci hotplug devices to the shpchp driver.
+	- fix bugs and update the ppc64 rpaphp pci hotplug driver.
+	- add some new and remove some duplicate pci ids.
+	- make it more obvious that some msi functions are really being
+	  used.
+	- fix a bug on some boxes that have bogus MCFG tables.
 
 Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
 or if master.kernel.org hasn't synced up yet:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
 
-The full patches will be sent to the linux-usb-devel mailing list, if
-anyone wants to see them.
+The full patches will be sent to the linux-pci mailing list, if anyone
+wants to see them.
 
 thanks,
 
 greg k-h
 
 
- Documentation/usb/et61x251.txt          |  306 +++
- Documentation/usb/sn9c102.txt           |   95 -
- Documentation/usb/w9968cf.txt           |   32 
- MAINTAINERS                             |   10 
- drivers/block/ub.c                      |  139 +
- drivers/usb/Makefile                    |    1 
- drivers/usb/atm/cxacru.c                |   92 -
- drivers/usb/atm/speedtch.c              |  181 +-
- drivers/usb/atm/ueagle-atm.c            |   98 -
- drivers/usb/atm/usbatm.c                |  618 ++++---
- drivers/usb/atm/usbatm.h                |   59 
- drivers/usb/atm/xusbatm.c               |  143 +
- drivers/usb/class/cdc-acm.c             |    9 
- drivers/usb/class/usblp.c               |   71 
- drivers/usb/core/message.c              |    1 
- drivers/usb/core/urb.c                  |    1 
- drivers/usb/gadget/inode.c              |    8 
- drivers/usb/gadget/net2280.c            |    1 
- drivers/usb/gadget/zero.c               |    8 
- drivers/usb/host/ehci-pci.c             |   64 
- drivers/usb/host/ehci-sched.c           |    4 
- drivers/usb/host/isp116x-hcd.c          |   21 
- drivers/usb/host/ohci-au1xxx.c          |    2 
- drivers/usb/host/pci-quirks.c           |  106 -
- drivers/usb/host/uhci-q.c               |    4 
- drivers/usb/input/hid-core.c            |    9 
- drivers/usb/input/hiddev.c              |    3 
- drivers/usb/input/touchkitusb.c         |    3 
- drivers/usb/input/yealink.c             |   48 
- drivers/usb/media/Kconfig               |   17 
- drivers/usb/media/Makefile              |    2 
- drivers/usb/media/et61x251.h            |  220 ++
- drivers/usb/media/et61x251_core.c       | 2605 ++++++++++++++++++++++++++++++++
- drivers/usb/media/et61x251_sensor.h     |  115 +
- drivers/usb/media/et61x251_tas5130d1b.c |  137 +
- drivers/usb/media/ov511.c               |  196 --
- drivers/usb/media/pwc/pwc-ctrl.c        |  264 +--
- drivers/usb/media/sn9c102.h             |   58 
- drivers/usb/media/sn9c102_core.c        | 1697 +++++++++++---------
- drivers/usb/media/sn9c102_hv7131d.c     |    2 
- drivers/usb/media/sn9c102_mi0343.c      |    2 
- drivers/usb/media/sn9c102_ov7630.c      |    8 
- drivers/usb/media/sn9c102_pas106b.c     |    2 
- drivers/usb/media/sn9c102_sensor.h      |   85 -
- drivers/usb/media/sn9c102_tas5110c1b.c  |    2 
- drivers/usb/media/sn9c102_tas5130d1b.c  |    2 
- drivers/usb/media/w9968cf.c             |  128 -
- drivers/usb/media/w9968cf.h             |    1 
- drivers/usb/media/w9968cf_vpp.h         |    3 
- drivers/usb/misc/auerswald.c            |    2 
- drivers/usb/misc/ldusb.c                |    2 
- drivers/usb/net/asix.c                  |    4 
- drivers/usb/serial/cp2101.c             |   14 
- drivers/usb/serial/ftdi_sio.c           |    6 
- drivers/usb/serial/ftdi_sio.h           |   23 
- drivers/usb/serial/pl2303.c             |    4 
- drivers/usb/serial/pl2303.h             |    7 
- drivers/usb/storage/initializers.c      |   73 
- drivers/usb/storage/initializers.h      |    1 
- drivers/usb/storage/libusual.c          |    2 
- drivers/usb/storage/unusual_devs.h      |   15 
- drivers/usb/usb-skeleton.c              |    2 
- include/linux/usb_ch9.h                 |    6 
- include/linux/videodev2.h               |    1 
- sound/oss/au1550_ac97.c                 |   12 
- 65 files changed, 5739 insertions(+), 2118 deletions(-)
+ Documentation/feature-removal-schedule.txt |   14 +
+ arch/i386/pci/irq.c                        |    5 
+ arch/i386/pci/mmconfig.c                   |   15 +
+ arch/x86_64/pci/mmconfig.c                 |   19 +
+ drivers/pci/hotplug/Kconfig                |    3 
+ drivers/pci/hotplug/acpiphp_ibm.c          |   21 --
+ drivers/pci/hotplug/ibmphp_core.c          |    4 
+ drivers/pci/hotplug/rpadlpar_core.c        |   64 +++---
+ drivers/pci/hotplug/rpaphp.h               |   14 -
+ drivers/pci/hotplug/rpaphp_core.c          |  114 ++++++-----
+ drivers/pci/hotplug/rpaphp_pci.c           |  277 +----------------------------
+ drivers/pci/hotplug/rpaphp_slot.c          |   16 -
+ drivers/pci/hotplug/shpchp.h               |   94 +++++++++
+ drivers/pci/hotplug/shpchp_ctrl.c          |   12 +
+ drivers/pci/msi.c                          |    8 
+ drivers/pci/msi.h                          |    6 
+ drivers/pci/pci.c                          |    2 
+ drivers/pci/setup-res.c                    |    1 
+ drivers/video/cyblafb.c                    |    1 
+ include/linux/pci.h                        |    2 
+ include/linux/pci_ids.h                    |   16 -
+ 21 files changed, 299 insertions(+), 409 deletions(-)
 
 
 Adrian Bunk:
-      USB: drivers/usb/media/ov511.c: remove hooks for the decomp module
-      USB: drivers/usb/media/w9968cf.c: remove hooks for the vpp module
+      PCI: schedule PCI_LEGACY_PROC for removal
+      PCI: drivers/pci/pci.c: #if 0 pci_find_ext_capability()
 
-Alan Cox:
-      USB: libusual: fix warning on 64bit boxes
+Andi Kleen:
+      PCI: handle bogus MCFG entries
 
-Alan Stern:
-      USB: UHCI: No FSBR until device is configured
-      USB: gadgetfs: set "zero" flag for short control-IN response
+Arthur Othieno:
+      PCI: cyblafb: remove pci_module_init() return, really.
 
-Alexandre Duret-Lutz:
-      USB: usb-storage support for SONY DSC-T5 still camera
+Grant Coady:
+      PCI: pci_ids: remove duplicates gathered during merge period
 
-Alexey Dobriyan:
-      USB: arm26: fix compilation of drivers/usb/core/message.c
+Grant Grundler:
+      PCI: make it easier to see that set_msi_affinity() is used
 
-Andrew Morton:
-      USB: fix ehci early handoff issues warning
-      USB: add new auerswald device ids
-      USB: yealink printk warning fix
+Jason Gaston:
+      PCI: irq and pci_ids: patch for Intel ICH8
 
-Arjan van de Ven:
-      USBATM: semaphore to mutex conversion
+Keck, David:
+      PCI Hotplug: shpchp: AMD POGO errata fix
 
-Clemens Ladisch:
-      USB: EHCI, another full speed iso fix
+linas:
+      PCI Hotplug: PCI panic on dlpar add (add pci slot to running partition)
+      PCI Hotplug/powerpc: module build break
 
-Craig Shelley:
-      USB: cp2101 Add new device IDs
+linas@austin.ibm.com:
+      powerpc/PCI hotplug: remove rpaphp_find_bus()
+      powerpc/PCI hotplug: merge config_pci_adapter
+      powerpc/PCI hotplug: remove remove_bus_device()
+      powerpc/PCI hotplug: de-convolute rpaphp_unconfig_pci_adap
+      powerpc/PCI hotplug: remove rpaphp_fixup_new_pci_devices()
+      powerpc/PCI hotplug: shuffle error checking to better location.
+      powerpc/PCI hotplug: minor cleanup forward decls
+      powerpc/PCI hotplug: merge rpaphp_enable_pci_slot()
+      powerpc/PCI hotplug: cleanup: add prefix
 
-David Brownell:
-      USB: fix EHCI early handoff issues
-      USB: net2280 warning fix
-      USB: gadget zero and dma-coherent buffers
-      USB: USB authentication states
+Mark Rustad:
+      PCI: restore 2 missing pci ids
 
-David Hollis:
-      USB: asix - Add device IDs for 0G0 Cable Ethernet
+Pavel Machek:
+      PCI Hotplug: fix up coding style issues
+      PCI Hotplug: fix up Kconfig help text
 
-Denis MONTERRAT:
-      USB: add new pl2303 device ids
-
-Duncan Sands:
-      USBATM: remove .owner
-      USBATM: shutdown open connections when disconnected
-      USBATM: trivial modifications
-      USBATM: xusbatm rewrite
-      USBATM: add flags field
-      USBATM: return correct error code when out of memory
-      USBATM: kzalloc conversion
-      USBATM: use dev_kfree_skb_any rather than dev_kfree_skb
-      USBATM: measure buffer size in bytes; force valid sizes
-      USBATM: allow isochronous transfer
-      USBATM: bump version numbers
-      USBATM: -EILSEQ workaround
-      USBATM: handle urbs containing partial cells
-
-Eric Sesterhenn / snakebyte:
-      USB: Remove LINUX_VERSION_CODE check in pwc/pwc-ctrl.c
-
-Greg Kroah-Hartman:
-      USB: remove some left over devfs droppings hanging around in the usb drivers
-      USB: add might_sleep() to usb_unlink_urb() to warn developers
-
-Henk:
-      drivers/usb/input/yealink.c: Cleanup device matching code
-
-Ian Abbott:
-      USB: ftdi_sio: new IDs for Westrex devices
-
-Juergen Schindele:
-      USB: touchkitusb.c (eGalax driver) fix
-
-Louis Nyffenegger:
-      USB: new id for ftdi_sio.c and ftdi_sio.h
-
-Luca Risolia:
-      USB: SN9C10x driver updates and bugfixes
-      USB: SN9C10x driver updates
-      USB: Add ET61X[12]51 Video4Linux2 driver
-
-Martin Gingras:
-      USB: pl2303: Added support for CA-42 clone cable
-
-Matthew Dharm:
-      USB: usb-storage: Add support for Rio Karma
-
-matthieu castet:
-      UEAGLE : add iso support
-      UEAGLE : cosmetic
-      UEAGLE : cmv name bug (was cosmetic)
-
-Olaf Hering:
-      USB: remove extra newline in hid_init_reports
-
-Olav Kongas:
-      USB: isp116x-hcd: replace mdelay() by msleep()
-
-Oliver Neukum:
-      USB: fix oops in acm disconnect
-      USB: cleanup of usblp
-
-Pete Zaitcev:
-      USB: ub 05 Bulk reset
-      USB: ub 03 Oops with CFQ
-      USB: ub 04 Loss of timer and a hang
-
-Randy Dunlap:
-      USB EHCI: fix gfp_t sparse warning
-
-Rui Santos:
-      USB: ftdi: Two new ATIK based USB astronomical CCD cameras
-
-Sergei Shtylylov:
-      USB: Au1xx0: replace casual readl() with au_readl() in the drivers
-
-Vojtech Pavlik:
-      USB HID: add blacklist entry for HP keyboard
-
-Wouter Paesen:
-      USB: ftdi_sio: new PID for PCDJ DAC2
+Richard Knutsson:
+      pci: Schedule removal of pci_module_init
 

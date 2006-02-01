@@ -1,95 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422971AbWBAWLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422974AbWBAWNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422971AbWBAWLR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 17:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422974AbWBAWLR
+	id S1422974AbWBAWNN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 17:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422975AbWBAWNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 17:11:17 -0500
-Received: from nutty.inf.ed.ac.uk ([129.215.216.3]:45235 "EHLO
-	nutty.inf.ed.ac.uk") by vger.kernel.org with ESMTP id S1422971AbWBAWLQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 17:11:16 -0500
+	Wed, 1 Feb 2006 17:13:12 -0500
+Received: from mail.ccur.com ([66.10.65.12]:3747 "EHLO mail.ccur.com")
+	by vger.kernel.org with ESMTP id S1422974AbWBAWNL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 17:13:11 -0500
+Message-ID: <43E13273.5020202@ccur.com>
+Date: Wed, 01 Feb 2006 17:13:07 -0500
+From: John Blackwood <john.blackwood@ccur.com>
+Reply-To: john.blackwood@ccur.com
+Organization: Concurrent Computer Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.4) Gecko/20050318 Red Hat/1.4.4-1.3.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+CC: Andi Kleen <ak@suse.de>, bugsy@ccur.com
+Subject: CONFIG_K8_NUMA x86_64 no-memory node bug
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17377.6410.121318.124897@palau.inf.ed.ac.uk>
-In-Reply-To: <20060201172653.GA22700@suse.de>
-References: <17374.5399.546606.933186@palau.inf.ed.ac.uk>
-	<20060201172653.GA22700@suse.de>
-X-Mailer: VM 7.18 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
-From: Julian Bradfield <jcb@inf.ed.ac.uk>
-To: Olaf Dabrunz <od@suse.de>
-cc: linux-kernel@vger.kernel.org, lhofhansl@yahoo.com
-Subject: Re: TIOCCONS security revisited
-Date: Wed, 1 Feb 2006 20:24:42 +0000
+X-OriginalArrivalTime: 01 Feb 2006 22:13:08.0609 (UTC) FILETIME=[AEA49F10:01C6277C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->The problem is that TIOCCONS causes security problems.
->
->Please rehash what I wrote in the thread. Essentially, these are my
->points (citing myself here):
+I would like to mention a bug with the x86_64 CONFIG_K8_NUMA support.
 
-If you insist, I will rehash them, though they are not really relevant.
+We have a 4 CPU AMD Opteron (processor 846 -- no dual core) system that
+boots up with a 2.6.15.2-based kernel with NUMA enabled if all the numa
+nodes are populated with memory modules.
 
->    the ioctl TIOCCONS allows any user to redirect console output to
->    another tty. This allows anyone to suppress messages to the console
->    at will.
+If we then pull out the memory module for the 3rd CPU/node, then the
+kernel will no longer boot.
 
-I do not propose returning to this situation.
+In this configuration, after the grub 'boot' command is entered, no
+output is seen, and the system appears to be hung.
 
->[and in a later mail:]
->    Changing the ownership on /dev/console causes security problems
->    (that user can usually access the current virtual terminal anytime,
->    and the current one may not belong to him).
+While this is admittedly a 'degraded' configuration, it would be nice
+if the kernel could handle having a middle numbered node without memory.
 
-If this is seen as a problem, it should be fixed in the virtual
-terminal system. /dev/console and TIOCCONS exist and work in many
-Unices, not just Linux.
+I believe that removing the 4th CPU's memory module so that only the
+last CPU/node is without memory, then the system boots up fine.
 
->Also I refered to a security advisory for SunOS which describes one of
->the problems (hijacking):
->http://www.cert.org/advisories/CA-1990-12.html
+It seems that having a middle node without memory is what causes this
+problem to occur.
 
-And how did Sun fix it? They fixed it by restricting TIOCCONS to users
-who have read access to the console - more liberal than my proposal!
-
->And I said that there are alternatives to /dev/console, and a commonly
->used one is /dev/xconsole (see below how to use this). It does not have
-
-I do not have the option of using /dev/xconsole.
-I use machines that I don't administer, and on all of them for the
-last 15 years until the recent breakage, "xterm -C" worked.
-
->syslog/syslog-ng). But it also does not receive the messages that are
->simply written to /dev/console.
-
-Exactly. I have an array of programs that write to /dev/console in the
-expectation that the message will be read by the person sitting at the
-console.
-
->The latter problem still needs to be fixed, but is seldom a real
->problem. AFAICS nowadays only scripts that run at boot time write to
->/dev/console. The user has several ways to look at these messages
-
-As I have indicated, there is a world outside your experience of
-Linux. As well as my own scripts, the machines one which I work are
-set up to have syslog write urgent messages to /dev/console.
-
->If you want this problem fixed, consider copying messages to
->/dev/console with a demon to a logging facility. Have a look at
->bootlogd/blogd.
-
-I do not administer the machines. If you hadn't broken TIOCCONS,
-everything would still work.
-
->All this can be done by using /dev/xconsole.
-
-Which is not available.
-
->Xconsole fails because by default it tries to use /dev/console. You can
->avoid that by setting the resources to point to another file, e.g.
->/dev/xconsole:
-
-which is not available.
+Thanks for reading this.
 

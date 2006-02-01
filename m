@@ -1,87 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030386AbWBARZt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422674AbWBAR04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030386AbWBARZt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 12:25:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030388AbWBARZt
+	id S1422674AbWBAR04 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 12:26:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422654AbWBAR04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 12:25:49 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:28373 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030386AbWBARZs (ORCPT
+	Wed, 1 Feb 2006 12:26:56 -0500
+Received: from mx2.suse.de ([195.135.220.15]:58247 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030392AbWBAR0z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 12:25:48 -0500
-Date: Wed, 1 Feb 2006 18:24:13 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
-Message-ID: <20060201172413.GA22596@elte.hu>
-References: <43E0BBEC.3020209@yahoo.com.au> <43E0BDA3.8040003@yahoo.com.au> <20060201141248.GA6277@elte.hu> <43E0C4CF.8090501@yahoo.com.au> <20060201143727.GA9915@elte.hu> <43E0CBBC.2000002@yahoo.com.au> <20060201151137.GA14794@elte.hu> <43E0D464.2020509@yahoo.com.au> <20060201161035.GA22264@elte.hu> <43E0E0F7.60209@yahoo.com.au>
+	Wed, 1 Feb 2006 12:26:55 -0500
+Date: Wed, 1 Feb 2006 18:26:53 +0100
+From: Olaf Dabrunz <od@suse.de>
+To: Julian Bradfield <jcb@inf.ed.ac.uk>
+Cc: linux-kernel@vger.kernel.org, lhofhansl@yahoo.com
+Subject: Re: TIOCCONS security revisited
+Message-ID: <20060201172653.GA22700@suse.de>
+Mail-Followup-To: Julian Bradfield <jcb@inf.ed.ac.uk>,
+	linux-kernel@vger.kernel.org, lhofhansl@yahoo.com
+References: <17374.5399.546606.933186@palau.inf.ed.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <43E0E0F7.60209@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <17374.5399.546606.933186@palau.inf.ed.ac.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-
-> >>But there are still places where interrupts can be held off for 
-> >>indefinite periods. I don't see why the scheduler lock is suddenly 
-> >>important [...]
-> >
-> >
-> >the scheduler lock is obviously important because it's the most central 
-> >lock in existence.
-> >
+On 30-Jan-06, Julian Bradfield wrote:
+> In August 2004, Olaf Dabrunz posted a patch, which appears to have got
+> into 2.6.10, restricting TIOC_CONS to CAP_SYS_ADMIN .
 > 
-> Now I call that argument much more illogical than any of mine. How can 
-> such a fine grained, essentially per-cpu lock be "central", let alone 
-> "most central"? [...]
+> He justified this by claiming that normal users don't need to grab the
+> console output.
 
-i meant central in the sense that it's the most frequently taken lock, 
-in the majority of workloads. Here's the output from the lock validator, 
-sorted by number of ops per lock:
+I understand that users want to see these messages and I want them to
+see these messages. (I did not emphasize this but I believe I never
+stated something else.)
 
- -> (dcache_lock){--} 124233 {
- -> (&rt_hash_locks[i]){-+} 131085 {
- -> (&dentry->d_lock){--} 312431 {
- -> (cpa_lock){++} 507385 {
- -> (__pte_lockptr(new)){--} 660193 {
- -> (kernel/synchro-test.c:&mutex){--} 825023 {
- -> (&rwsem){--} 930501 {
- -> (&rq->lock){++} 2029146 {
+The problem is that TIOCCONS causes security problems.
 
-the runqueue lock is also central in the sense that it is the most 
-spread-out lock in the locking dependencies graph. Toplist of locks, by 
-number of backwards dependencies:
+Please rehash what I wrote in the thread. Essentially, these are my
+points (citing myself here):
 
-     15     -> &cwq->lock
-     15     -> nl_table_wait
-     15     -> &zone->lock
-     17     -> &base->t_base.lock
-     32     -> modlist_lock
-     38     -> &cachep->spinlock
-     46     -> &parent->list_lock
-     47     -> &rq->lock
+    the ioctl TIOCCONS allows any user to redirect console output to
+    another tty. This allows anyone to suppress messages to the console
+    at will.
 
-(obviously, as no other lock must nest inside the runqueue lock.)
+[and in a later mail:]
 
-so the quality of code (including asymptotic behavior) that runs under 
-the runqueue lock is of central importance. I didnt think i'd ever have 
-to explain this to you, but it is my pleasure to do so ;-) Maybe you 
-thought of something else under "central"?
+    Changing the ownership on /dev/console causes security problems
+    (that user can usually access the current virtual terminal anytime,
+    and the current one may not belong to him).
 
-	Ingo
+Also I refered to a security advisory for SunOS which describes one of
+the problems (hijacking):
+
+http://www.cert.org/advisories/CA-1990-12.html
+
+And I said that there are alternatives to /dev/console, and a commonly
+used one is /dev/xconsole (see below how to use this). It does not have
+the security problems and has other advantages (configurable via
+syslog/syslog-ng). But it also does not receive the messages that are
+simply written to /dev/console.
+
+The latter problem still needs to be fixed, but is seldom a real
+problem. AFAICS nowadays only scripts that run at boot time write to
+/dev/console. The user has several ways to look at these messages
+already (including watching the "console" window during boot or looking
+at /var/log/boot.msg).
+
+If you want this problem fixed, consider copying messages to
+/dev/console with a demon to a logging facility. Have a look at
+bootlogd/blogd.
+
+> I disagree. Normal users log into the desktop of their machine, and
+> should expect to be able to see the console output just as much as if
+> they logged into "the console" and worked without graphics.
+> For example, I want to know when the machine I'm working on has
+> problems, when somebody is probing sshd, and simply when one of my
+> batch jobs wants to tell me something.
+
+All this can be done by using /dev/xconsole.
+
+> Further, on our systems, I own the console (ownership is transferred
+> to the user by the login procedure), so it's daft that I can't call TIOCCONS
+> on it.
+
+Changing ownership of /dev/console is part of the security problem. But
+you can do that with /dev/xconsole.
+
+> I propose that a better security test would be:
+> user owns /dev/console OR has CAP_SYS_ADMIN .
+> 
+> It should then be the responsibility of the log-out procedure to
+> cancel redirections when it changes the ownership of devices back to
+> root.
+> 
+> In December '04, Lars posted about this breakage, and proposed a
+> simpler patch, allowing general TIOCCONS but restricting cancellation
+
+Lars reported that xconsole breaks and proposed to simply revert the
+kernel patch. His patch does not fix the security problems, it just
+reverts to the old known-broken state.
+
+Xconsole fails because by default it tries to use /dev/console. You can
+avoid that by setting the resources to point to another file, e.g.
+/dev/xconsole:
+
+/usr/X11R6/lib/X11/app-defaults/XConsole:
+XConsole.file:          /dev/xconsole
+
+Alternatively, you can use "xconsole -file /dev/xconsole".
+
+When my TIOCCONS kernel patch is applied, xconsole should never try to
+use /dev/console. We fixed this by putting the code that checks for
+/dev/console into an #if in xconsole.c:OpenConsole():
+
+#if !defined(linux)
+           if (!stat("/dev/console", &sbuf) &&
+               (sbuf.st_uid == getuid()) &&
+               !access("/dev/console", R_OK|W_OK))
+#endif
+
+Later on in the code we use /dev/xconsole as the default.
+
+-- 
+Olaf Dabrunz (od/odabrunz), SUSE Linux Products GmbH, Nürnberg
+

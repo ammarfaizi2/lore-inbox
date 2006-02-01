@@ -1,242 +1,321 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbWBAJNY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWBAJOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932273AbWBAJNY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 04:13:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbWBAJD3
+	id S932259AbWBAJOU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 04:14:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWBAJOB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 04:03:29 -0500
-Received: from ns.miraclelinux.com ([219.118.163.66]:48969 "EHLO
+	Wed, 1 Feb 2006 04:14:01 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:40778 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1751491AbWBAJDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 04:03:23 -0500
-Message-Id: <20060201090322.252374000@localhost.localdomain>
+	id S932259AbWBAJD2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 04:03:28 -0500
+Message-Id: <20060201090326.824836000@localhost.localdomain>
 References: <20060201090224.536581000@localhost.localdomain>
-Date: Wed, 01 Feb 2006 18:02:29 +0900
+Date: Wed, 01 Feb 2006 18:02:42 +0900
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: Chris Zankel <chris@zankel.net>, Keith Owens <kaos@sgi.com>,
+Cc: Richard Henderson <rth@twiddle.net>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
        Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 05/44] generic {,test_and_}{set,clear,change}_bit()
-Content-Disposition: inline; filename=atomic-bitops.patch
+Subject: [patch 18/44] alpha: use generic bitops
+Content-Disposition: inline; filename=alpha-2.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch introduces the C-language equivalents of the functions below:
+- remove __{,test_and_}{set,clear,change}_bit() and test_bit()
 
-void set_bit(int nr, volatile unsigned long *addr);
-void clear_bit(int nr, volatile unsigned long *addr);
-void change_bit(int nr, volatile unsigned long *addr);
-int test_and_set_bit(int nr, volatile unsigned long *addr);
-int test_and_clear_bit(int nr, volatile unsigned long *addr);
-int test_and_change_bit(int nr, volatile unsigned long *addr);
+- unless defined(__alpha_cix__) and defined(__alpha_fix__)
 
-In include/asm-generic/bitops/atomic.h
+  - remove generic_fls()
+  - remove generic_hweight{64,32,16,8}()
 
-This code largely copied from:
-
-include/asm-powerpc/bitops.h
-include/asm-parisc/bitops.h
-include/asm-parisc/atomic.h
+- remove generic_fls64()
+- remove find_{next,first}{,_zero}_bit()
+- remove ext2_{set,clear,test,find_first_zero,find_next_zero}_bit()
+- remove minix_{test,set,test_and_clear,test,find_first_zero}_bit()
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
- include/asm-generic/bitops/atomic.h |  191 ++++++++++++++++++++++++++++++++++++
- 1 files changed, 191 insertions(+)
+ include/asm-alpha/bitops.h |  204 +--------------------------------------------
+ 1 files changed, 8 insertions(+), 196 deletions(-)
 
-Index: 2.6-git/include/asm-generic/bitops/atomic.h
+Index: 2.6-git/include/asm-alpha/bitops.h
 ===================================================================
---- /dev/null
-+++ 2.6-git/include/asm-generic/bitops/atomic.h
-@@ -0,0 +1,191 @@
-+#ifndef _ASM_GENERIC_BITOPS_ATOMIC_H_
-+#define _ASM_GENERIC_BITOPS_ATOMIC_H_
+--- 2.6-git.orig/include/asm-alpha/bitops.h
++++ 2.6-git/include/asm-alpha/bitops.h
+@@ -38,17 +38,6 @@ set_bit(unsigned long nr, volatile void 
+ 	:"Ir" (1UL << (nr & 31)), "m" (*m));
+ }
+ 
+-/*
+- * WARNING: non atomic version.
+- */
+-static inline void
+-__set_bit(unsigned long nr, volatile void * addr)
+-{
+-	int *m = ((int *) addr) + (nr >> 5);
+-
+-	*m |= 1 << (nr & 31);
+-}
+-
+ #define smp_mb__before_clear_bit()	smp_mb()
+ #define smp_mb__after_clear_bit()	smp_mb()
+ 
+@@ -70,17 +59,6 @@ clear_bit(unsigned long nr, volatile voi
+ 	:"Ir" (1UL << (nr & 31)), "m" (*m));
+ }
+ 
+-/*
+- * WARNING: non atomic version.
+- */
+-static __inline__ void
+-__clear_bit(unsigned long nr, volatile void * addr)
+-{
+-	int *m = ((int *) addr) + (nr >> 5);
+-
+-	*m &= ~(1 << (nr & 31));
+-}
+-
+ static inline void
+ change_bit(unsigned long nr, volatile void * addr)
+ {
+@@ -99,17 +77,6 @@ change_bit(unsigned long nr, volatile vo
+ 	:"Ir" (1UL << (nr & 31)), "m" (*m));
+ }
+ 
+-/*
+- * WARNING: non atomic version.
+- */
+-static __inline__ void
+-__change_bit(unsigned long nr, volatile void * addr)
+-{
+-	int *m = ((int *) addr) + (nr >> 5);
+-
+-	*m ^= 1 << (nr & 31);
+-}
+-
+ static inline int
+ test_and_set_bit(unsigned long nr, volatile void *addr)
+ {
+@@ -137,20 +104,6 @@ test_and_set_bit(unsigned long nr, volat
+ 	return oldbit != 0;
+ }
+ 
+-/*
+- * WARNING: non atomic version.
+- */
+-static inline int
+-__test_and_set_bit(unsigned long nr, volatile void * addr)
+-{
+-	unsigned long mask = 1 << (nr & 0x1f);
+-	int *m = ((int *) addr) + (nr >> 5);
+-	int old = *m;
+-
+-	*m = old | mask;
+-	return (old & mask) != 0;
+-}
+-
+ static inline int
+ test_and_clear_bit(unsigned long nr, volatile void * addr)
+ {
+@@ -178,20 +131,6 @@ test_and_clear_bit(unsigned long nr, vol
+ 	return oldbit != 0;
+ }
+ 
+-/*
+- * WARNING: non atomic version.
+- */
+-static inline int
+-__test_and_clear_bit(unsigned long nr, volatile void * addr)
+-{
+-	unsigned long mask = 1 << (nr & 0x1f);
+-	int *m = ((int *) addr) + (nr >> 5);
+-	int old = *m;
+-
+-	*m = old & ~mask;
+-	return (old & mask) != 0;
+-}
+-
+ static inline int
+ test_and_change_bit(unsigned long nr, volatile void * addr)
+ {
+@@ -217,25 +156,7 @@ test_and_change_bit(unsigned long nr, vo
+ 	return oldbit != 0;
+ }
+ 
+-/*
+- * WARNING: non atomic version.
+- */
+-static __inline__ int
+-__test_and_change_bit(unsigned long nr, volatile void * addr)
+-{
+-	unsigned long mask = 1 << (nr & 0x1f);
+-	int *m = ((int *) addr) + (nr >> 5);
+-	int old = *m;
+-
+-	*m = old ^ mask;
+-	return (old & mask) != 0;
+-}
+-
+-static inline int
+-test_bit(int nr, const volatile void * addr)
+-{
+-	return (1UL & (((const int *) addr)[nr >> 5] >> (nr & 31))) != 0UL;
+-}
++#include <asm-generic/bitops/non-atomic.h>
+ 
+ /*
+  * ffz = Find First Zero in word. Undefined if no zero exists,
+@@ -319,9 +240,9 @@ static inline int fls(int word)
+ 	return 64 - __kernel_ctlz(word & 0xffffffff);
+ }
+ #else
+-#define fls	generic_fls
++#include <asm-generic/bitops/fls.h>
+ #endif
+-#define fls64   generic_fls64
++#include <asm-generic/bitops/fls64.h>
+ 
+ /* Compute powers of two for the given integer.  */
+ static inline long floor_log2(unsigned long word)
+@@ -358,112 +279,12 @@ static inline unsigned long hweight64(un
+ #define hweight16(x)	(unsigned int) hweight64((x) & 0xfffful)
+ #define hweight8(x)	(unsigned int) hweight64((x) & 0xfful)
+ #else
+-static inline unsigned long hweight64(unsigned long w)
+-{
+-	unsigned long result;
+-	for (result = 0; w ; w >>= 1)
+-		result += (w & 1);
+-	return result;
+-}
+-
+-#define hweight32(x) generic_hweight32(x)
+-#define hweight16(x) generic_hweight16(x)
+-#define hweight8(x)  generic_hweight8(x)
++#include <asm-generic/bitops/hweight.h>
+ #endif
+ 
+ #endif /* __KERNEL__ */
+ 
+-/*
+- * Find next zero bit in a bitmap reasonably efficiently..
+- */
+-static inline unsigned long
+-find_next_zero_bit(const void *addr, unsigned long size, unsigned long offset)
+-{
+-	const unsigned long *p = addr;
+-	unsigned long result = offset & ~63UL;
+-	unsigned long tmp;
+-
+-	p += offset >> 6;
+-	if (offset >= size)
+-		return size;
+-	size -= result;
+-	offset &= 63UL;
+-	if (offset) {
+-		tmp = *(p++);
+-		tmp |= ~0UL >> (64-offset);
+-		if (size < 64)
+-			goto found_first;
+-		if (~tmp)
+-			goto found_middle;
+-		size -= 64;
+-		result += 64;
+-	}
+-	while (size & ~63UL) {
+-		if (~(tmp = *(p++)))
+-			goto found_middle;
+-		result += 64;
+-		size -= 64;
+-	}
+-	if (!size)
+-		return result;
+-	tmp = *p;
+- found_first:
+-	tmp |= ~0UL << size;
+-	if (tmp == ~0UL)        /* Are any bits zero? */
+-		return result + size; /* Nope. */
+- found_middle:
+-	return result + ffz(tmp);
+-}
+-
+-/*
+- * Find next one bit in a bitmap reasonably efficiently.
+- */
+-static inline unsigned long
+-find_next_bit(const void * addr, unsigned long size, unsigned long offset)
+-{
+-	const unsigned long *p = addr;
+-	unsigned long result = offset & ~63UL;
+-	unsigned long tmp;
+-
+-	p += offset >> 6;
+-	if (offset >= size)
+-		return size;
+-	size -= result;
+-	offset &= 63UL;
+-	if (offset) {
+-		tmp = *(p++);
+-		tmp &= ~0UL << offset;
+-		if (size < 64)
+-			goto found_first;
+-		if (tmp)
+-			goto found_middle;
+-		size -= 64;
+-		result += 64;
+-	}
+-	while (size & ~63UL) {
+-		if ((tmp = *(p++)))
+-			goto found_middle;
+-		result += 64;
+-		size -= 64;
+-	}
+-	if (!size)
+-		return result;
+-	tmp = *p;
+- found_first:
+-	tmp &= ~0UL >> (64 - size);
+-	if (!tmp)
+-		return result + size;
+- found_middle:
+-	return result + __ffs(tmp);
+-}
+-
+-/*
+- * The optimizer actually does good code for this case.
+- */
+-#define find_first_zero_bit(addr, size) \
+-	find_next_zero_bit((addr), (size), 0)
+-#define find_first_bit(addr, size) \
+-	find_next_bit((addr), (size), 0)
++#include <asm-generic/bitops/find.h>
+ 
+ #ifdef __KERNEL__
+ 
+@@ -487,21 +308,12 @@ sched_find_first_bit(unsigned long b[3])
+ 	return __ffs(b0) + ofs;
+ }
+ 
++#include <asm-generic/bitops/ext2-non-atomic.h>
+ 
+-#define ext2_set_bit                 __test_and_set_bit
+ #define ext2_set_bit_atomic(l,n,a)   test_and_set_bit(n,a)
+-#define ext2_clear_bit               __test_and_clear_bit
+ #define ext2_clear_bit_atomic(l,n,a) test_and_clear_bit(n,a)
+-#define ext2_test_bit                test_bit
+-#define ext2_find_first_zero_bit     find_first_zero_bit
+-#define ext2_find_next_zero_bit      find_next_zero_bit
+-
+-/* Bitmap functions for the minix filesystem.  */
+-#define minix_test_and_set_bit(nr,addr) __test_and_set_bit(nr,addr)
+-#define minix_set_bit(nr,addr) __set_bit(nr,addr)
+-#define minix_test_and_clear_bit(nr,addr) __test_and_clear_bit(nr,addr)
+-#define minix_test_bit(nr,addr) test_bit(nr,addr)
+-#define minix_find_first_zero_bit(addr,size) find_first_zero_bit(addr,size)
 +
-+#include <asm/types.h>
-+
-+#define BITOP_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
-+#define BITOP_WORD(nr)		((nr) / BITS_PER_LONG)
-+
-+#ifdef CONFIG_SMP
-+#include <asm/spinlock.h>
-+#include <asm/cache.h>		/* we use L1_CACHE_BYTES */
-+
-+/* Use an array of spinlocks for our atomic_ts.
-+ * Hash function to index into a different SPINLOCK.
-+ * Since "a" is usually an address, use one spinlock per cacheline.
-+ */
-+#  define ATOMIC_HASH_SIZE 4
-+#  define ATOMIC_HASH(a) (&(__atomic_hash[ (((unsigned long) a)/L1_CACHE_BYTES) & (ATOMIC_HASH_SIZE-1) ]))
-+
-+extern raw_spinlock_t __atomic_hash[ATOMIC_HASH_SIZE] __lock_aligned;
-+
-+/* Can't use raw_spin_lock_irq because of #include problems, so
-+ * this is the substitute */
-+#define _atomic_spin_lock_irqsave(l,f) do {	\
-+	raw_spinlock_t *s = ATOMIC_HASH(l);	\
-+	local_irq_save(f);			\
-+	__raw_spin_lock(s);			\
-+} while(0)
-+
-+#define _atomic_spin_unlock_irqrestore(l,f) do {	\
-+	raw_spinlock_t *s = ATOMIC_HASH(l);		\
-+	__raw_spin_unlock(s);				\
-+	local_irq_restore(f);				\
-+} while(0)
-+
-+
-+#else
-+#  define _atomic_spin_lock_irqsave(l,f) do { local_irq_save(f); } while (0)
-+#  define _atomic_spin_unlock_irqrestore(l,f) do { local_irq_restore(f); } while (0)
-+#endif
-+
-+/*
-+ * NMI events can occur at any time, including when interrupts have been
-+ * disabled by *_irqsave().  So you can get NMI events occurring while a
-+ * *_bit fucntion is holding a spin lock.  If the NMI handler also wants
-+ * to do bit manipulation (and they do) then you can get a deadlock
-+ * between the original caller of *_bit() and the NMI handler.
-+ *
-+ * by Keith Owens
-+ */
-+
-+/**
-+ * set_bit - Atomically set a bit in memory
-+ * @nr: the bit to set
-+ * @addr: the address to start counting from
-+ *
-+ * This function is atomic and may not be reordered.  See __set_bit()
-+ * if you do not require the atomic guarantees.
-+ *
-+ * Note: there are no guarantees that this function will not be reordered
-+ * on non x86 architectures, so if you are writting portable code,
-+ * make sure not to rely on its reordering guarantees.
-+ *
-+ * Note that @nr may be almost arbitrarily large; this function is not
-+ * restricted to acting on a single-word quantity.
-+ */
-+static __inline__ void set_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BITOP_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
-+	unsigned long flags;
-+
-+	_atomic_spin_lock_irqsave(p, flags);
-+	*p  |= mask;
-+	_atomic_spin_unlock_irqrestore(p, flags);
-+}
-+
-+/**
-+ * clear_bit - Clears a bit in memory
-+ * @nr: Bit to clear
-+ * @addr: Address to start counting from
-+ *
-+ * clear_bit() is atomic and may not be reordered.  However, it does
-+ * not contain a memory barrier, so if it is used for locking purposes,
-+ * you should call smp_mb__before_clear_bit() and/or smp_mb__after_clear_bit()
-+ * in order to ensure changes are visible on other processors.
-+ */
-+static __inline__ void clear_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BITOP_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
-+	unsigned long flags;
-+
-+	_atomic_spin_lock_irqsave(p, flags);
-+	*p &= ~mask;
-+	_atomic_spin_unlock_irqrestore(p, flags);
-+}
-+
-+/**
-+ * change_bit - Toggle a bit in memory
-+ * @nr: Bit to change
-+ * @addr: Address to start counting from
-+ *
-+ * change_bit() is atomic and may not be reordered. It may be
-+ * reordered on other architectures than x86.
-+ * Note that @nr may be almost arbitrarily large; this function is not
-+ * restricted to acting on a single-word quantity.
-+ */
-+static __inline__ void change_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BITOP_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
-+	unsigned long flags;
-+
-+	_atomic_spin_lock_irqsave(p, flags);
-+	*p ^= mask;
-+	_atomic_spin_unlock_irqrestore(p, flags);
-+}
-+
-+/**
-+ * test_and_set_bit - Set a bit and return its old value
-+ * @nr: Bit to set
-+ * @addr: Address to count from
-+ *
-+ * This operation is atomic and cannot be reordered.  
-+ * It may be reordered on other architectures than x86.
-+ * It also implies a memory barrier.
-+ */
-+static __inline__ int test_and_set_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BITOP_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
-+	unsigned long old;
-+	unsigned long flags;
-+
-+	_atomic_spin_lock_irqsave(p, flags);
-+	old = *p;
-+	*p = old | mask;
-+	_atomic_spin_unlock_irqrestore(p, flags);
-+
-+	return (old & mask) != 0;
-+}
-+
-+/**
-+ * test_and_clear_bit - Clear a bit and return its old value
-+ * @nr: Bit to clear
-+ * @addr: Address to count from
-+ *
-+ * This operation is atomic and cannot be reordered.
-+ * It can be reorderdered on other architectures other than x86.
-+ * It also implies a memory barrier.
-+ */
-+static __inline__ int test_and_clear_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BITOP_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
-+	unsigned long old;
-+	unsigned long flags;
-+
-+	_atomic_spin_lock_irqsave(p, flags);
-+	old = *p;
-+	*p = old & ~mask;
-+	_atomic_spin_unlock_irqrestore(p, flags);
-+
-+	return (old & mask) != 0;
-+}
-+
-+/**
-+ * test_and_change_bit - Change a bit and return its old value
-+ * @nr: Bit to change
-+ * @addr: Address to count from
-+ *
-+ * This operation is atomic and cannot be reordered.  
-+ * It also implies a memory barrier.
-+ */
-+static __inline__ int test_and_change_bit(int nr, volatile unsigned long *addr)
-+{
-+	unsigned long mask = BITOP_MASK(nr);
-+	unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
-+	unsigned long old;
-+	unsigned long flags;
-+
-+	_atomic_spin_lock_irqsave(p, flags);
-+	old = *p;
-+	*p = old ^ mask;
-+	_atomic_spin_unlock_irqrestore(p, flags);
-+
-+	return (old & mask) != 0;
-+}
-+
-+#endif /* _ASM_GENERIC_BITOPS_ATOMIC_H */
++#include <asm-generic/bitops/minix.h>
+ 
+ #endif /* __KERNEL__ */
+ 
 
 --

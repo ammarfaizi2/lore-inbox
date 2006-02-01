@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422684AbWBASIk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422687AbWBASNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422684AbWBASIk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 13:08:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422682AbWBASIk
+	id S1422687AbWBASNM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 13:13:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932463AbWBASNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 13:08:40 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:2227 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932448AbWBASIj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 13:08:39 -0500
-Message-Id: <200602011807.k11I7ag15563@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Christoph Hellwig'" <hch@infradead.org>
-Cc: "'Akinobu Mita'" <mita@miraclelinux.com>, "Grant Grundler" <iod00d@hp.com>,
-       "Linux Kernel Development" <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>
-Subject: RE: [PATCH 1/12] generic *_bit()
-Date: Wed, 1 Feb 2006 10:07:28 -0800
+	Wed, 1 Feb 2006 13:13:12 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:447 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932448AbWBASNK convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 13:13:10 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcYnWb1G+/xcKV22QVyeWI4bq1TQrwAAFEkA
-In-Reply-To: <20060201180237.GA18464@infradead.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] amd76x_pm: C3 powersaving for AMD K7
+Date: Wed, 1 Feb 2006 13:11:36 -0500
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3005E907CA@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] amd76x_pm: C3 powersaving for AMD K7
+Thread-Index: AcYm4NOTyrhNWOQ4RmmeF+1vwEmKDgAeYV+w
+From: "Brown, Len" <len.brown@intel.com>
+To: "Andrew Morton" <akpm@osdl.org>, "Joerg Sommrey" <jo@sommrey.de>
+Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
+       <arjan@infradead.org>, "Tony Lindgren" <tony@atomide.com>
+X-OriginalArrivalTime: 01 Feb 2006 18:11:38.0842 (UTC) FILETIME=[F211A3A0:01C6275A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote on Wednesday, February 01, 2006 10:03 AM
-> > Akinobu Mita wrote on Wednesday, January 25, 2006 7:29 PM
-> > > This patch introduces the C-language equivalents of the functions below:
-> > > 
-> > > - atomic operation:
-> > > void set_bit(int nr, volatile unsigned long *addr);
-> > > void clear_bit(int nr, volatile unsigned long *addr);
-> > > void change_bit(int nr, volatile unsigned long *addr);
-> > > int test_and_set_bit(int nr, volatile unsigned long *addr);
-> > > int test_and_clear_bit(int nr, volatile unsigned long *addr);
-> > > int test_and_change_bit(int nr, volatile unsigned long *addr);
-> > 
-> > I wonder why you did not make these functions take volatile
-> > unsigned int * address argument?
-> 
-> Because they are defined to operate on arrays of unsigned long
+ 
+>>  This patch can also be found at
+>>  http://www.sommrey.de/amd76x_pm/amd76x_pm-2.6.15-4.patch
+>> 
+>>  In this version more locking was added to make sure all or 
+>>  no CPU enter C3 mode.
+>> 
+>>  Signed-off-by: Joerg Sommrey <jo@sommrey.de>
+>
+>Thanks.  I'll merge this into -mm and shall plague the ACPI 
+>guys with it. 
+>They have said discouraging things about board-specific drivers in the
+>past.  We shall see.
 
-I think these should be defined to operate on arrays of unsigned int.
-Bit is a bit, no matter how many byte you load (8/16/32/64), you can
-only operate on just one bit.
+Linux/ACPI has had generic supported SMP deep (> C1) C-states
+for a few months now and AFAIK it is working fine.
+Why is a platform specific driver needed for these boards?
 
-- Ken
-
+-Len

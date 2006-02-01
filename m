@@ -1,72 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422996AbWBAWtf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423000AbWBAWzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422996AbWBAWtf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 17:49:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422995AbWBAWtf
+	id S1423000AbWBAWzq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 17:55:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423001AbWBAWzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 17:49:35 -0500
-Received: from ppsw-9.csi.cam.ac.uk ([131.111.8.139]:56045 "EHLO
-	ppsw-9.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1422991AbWBAWte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 17:49:34 -0500
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Date: Wed, 1 Feb 2006 22:49:08 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Grant Grundler <iod00d@hp.com>
-cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Akinobu Mita'" <mita@miraclelinux.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 1/12] generic *_bit()
-In-Reply-To: <20060201220903.GE16471@esmail.cup.hp.com>
-Message-ID: <Pine.LNX.4.64.0602012246330.3680@hermes-2.csi.cam.ac.uk>
-References: <20060201193933.GA16471@esmail.cup.hp.com>
- <200602012141.k11LfCg32497@unix-os.sc.intel.com> <20060201220903.GE16471@esmail.cup.hp.com>
+	Wed, 1 Feb 2006 17:55:45 -0500
+Received: from ns2.suse.de ([195.135.220.15]:46251 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1423000AbWBAWzp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 17:55:45 -0500
+From: Andi Kleen <ak@suse.de>
+To: Florian Weimer <fw@deneb.enyo.de>
+Subject: Re: [PATCH] AMD64: fix mce_cpu_quirks typos
+Date: Wed, 1 Feb 2006 21:43:19 +0100
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+References: <87fyn2yjpr.fsf@mid.deneb.enyo.de.suse.lists.linux.kernel> <p731wymn94l.fsf@verdi.suse.de> <87ek2mx22i.fsf@mid.deneb.enyo.de>
+In-Reply-To: <87ek2mx22i.fsf@mid.deneb.enyo.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602012143.19867.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Feb 2006, Grant Grundler wrote:
-> On Wed, Feb 01, 2006 at 01:41:03PM -0800, Chen, Kenneth W wrote:
-> > > Well, if it doesn't matter, why is unsigned int better?
-> > 
-> > I was coming from the angle of having bitop operate on unsigned
-> > int *, so people don't have to type cast or change bit flag variable
-> > to unsigned long for various structures.  With unsigned int type for
-> > bit flag, some of them are not even close to fully utilized. for example:
-> > 
-> > thread_info->flags uses 18 bits
-> > thread_struct->flags uses 7 bits
-> > 
-> > It's a waste of memory to define a variable that kernel will *never*
-> > touch the 4 MSB in that field.
+On Wednesday 01 February 2006 21:21, Florian Weimer wrote:
+
+> > but it's still logged and the regular polling picks them up
+> > anyways. I have not found a nice way to handle this (other than
+> > adding a ugly CPU specific special case in the middle of the nice
+> > cpu independent machine check handler, which I couldn't bring myself
+> > to do so far...)
 > 
-> Agreed. Good point. But this can be mitigated if the code using "unsigned int"
-> (or unsigned byte) first loads the value into a local unsigned long variable.
-> That typically translates into a tmp register anyway. Compiler will help
-> you find places where that needs to happen.
-> 
-> Counter point is bit arrays (e.g. bit maps) like cpumask_t are
-> typically much larger than 32-bits (typically distro's ship with
-> NR_CPUS set to 256 or so).  File system code also likes bit arrays
-> for block allocation tables. Searching a bit array using unsigned
-> long is 2x faster on 64-bit architectures. I don't want to give
-> that up and I'm pretty sure Tony Luck, Paul Mckerras and a few
-> others would object unless you can give a better reason.
+> Someone tried to track these messages down together with someone else
+> from AMD, but they never got it finished.
 
-Err, searching by anything other than bytes is useless for a file system 
-driver.  Otherwise you get all sorts of disgustingly horrible allocation 
-patterns depending on the endianness of the machine...
+They could have saved themselves a lot of work by just asking
+at the right mailing lists (which is not l-k BTW)
+ 
+> For reference, here's the lspci -n output for the system.  It's a
+> two-way Opteron box (248, 2.2 GHz, stepping 10) with 8 GB of RAM.
+> (BIOS and chipset details are not available to me at the moment.)
+> The MCEs only appeared after a switch to a 64-bit kernel (2.6.15.2),
+> adding the second CPU, along with 4 GB of RAM.  Previously, the box
+> ran 2.6.13 in 32-bit mode, and no MCEs appeared regularly.
 
-Best regards,
+The 64bit kernel uses the AGP aperture as IOMMU, the 32bit kernel doesn't.
+It's a known documented hardware bug that this causes spurious GART errors.
+That is why the BIOS and Linux disable them. Unfortunately the Linux
+MCE handler is too thorough and picks them up anyways as corrected events.
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+-Andi

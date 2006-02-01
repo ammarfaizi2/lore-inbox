@@ -1,75 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbWAaX5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWBAABt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751097AbWAaX5S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Jan 2006 18:57:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWAaX5S
+	id S932071AbWBAABt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Jan 2006 19:01:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWBAABt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Jan 2006 18:57:18 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:4510 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751097AbWAaX5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Jan 2006 18:57:17 -0500
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Tue, 31 Jan 2006 19:01:49 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:62370 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932071AbWBAABs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Jan 2006 19:01:48 -0500
+Message-ID: <43DFFA65.9010504@watson.ibm.com>
+Date: Tue, 31 Jan 2006 19:01:41 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Chase Venters <chase.venters@clientec.com>,
-       "linux-os \\(Dick Johnson\\)" <linux-os@analogic.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>, Marc Perkel <marc@perkel.com>,
-       Patrick McLean <pmclean@cs.ubishops.ca>,
-       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0601311032180.7301@g5.osdl.org>
-References: <43D114A8.4030900@wolfmountaingroup.com>
-	 <20060120111103.2ee5b531@dxpl.pdx.osdl.net>
-	 <43D13B2A.6020504@cs.ubishops.ca> <43D7C780.6080000@perkel.com>
-	 <43D7B20D.7040203@wolfmountaingroup.com>
-	 <43D7B5C4.5040601@wolfmountaingroup.com> <43D7D05D.7030101@perkel.com>
-	 <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>
-	 <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>
-	 <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>
-	 <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>
-	 <1138387136.26811.8.camel@localhost>
-	 <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org>
-	 <1138620390.31089.43.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0601310931540.7301@g5.osdl.org>
-	 <43DF9D42.7050802@wolfmountaingroup.com>
-	 <Pine.LNX.4.64.0601311032180.7301@g5.osdl.org>
-Content-Type: text/plain
+CC: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+References: <20060117143258.150807000@sergelap> <20060117143326.283450000@sergelap> <1137511972.3005.33.camel@laptopd505.fenrus.org> <20060117155600.GF20632@sergelap.austin.ibm.com> <1137513818.14135.23.camel@localhost.localdomain> <1137518714.5526.8.camel@localhost.localdomain> <20060118045518.GB7292@kroah.com> <1137601395.7850.9.camel@localhost.localdomain> <m1fyniomw2.fsf@ebiederm.dsl.xmission.com> <43D14578.6060801@watson.ibm.com> <Pine.LNX.4.64.0601311248180.7301@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0601311248180.7301@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 31 Jan 2006 23:57:31 +0000
-Message-Id: <1138751851.10316.32.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2006-01-31 at 11:07 -0800, Linus Torvalds wrote: 
-> granted to you, so nobody has _ever_ had rights to re-license Linux under 
-> any other license than the one it came with: namely the GPLv2. Alan is 
-> trying to argue that the fact that it has been licensed under the GPLv2 
-> would somehow "magically" mean that it has been licensed under any version 
-> of GPL that you can pick, BUT THAT IS AN OBVIOUSLY LEGALLY FLAWED 
-> ARGUMENT.
+Linus Torvalds wrote:
+> (I'm coming in late, it's not been a high priority for me)
+> 
+> On Fri, 20 Jan 2006, Hubertus Franke wrote:
+> 
+>>2nd:
+>>====	Issue: we don't need pid virtualization, instead simply use
+>><container,pid> pair.
+>>
+>>This requires a bit more thought. Essentially that's what I was doing, 
+>>but I mangled them into the same pid and using masking to add/remove the 
+>>container for internal use. As pointed out by Alan(?), we can indeed 
+>>reused the same pid internally many times as long as we can distinguish 
+>>during the pid-to-task_struct lookup. This is easily done because, the 
+>>caller provides the context hence the container for the lookup.
+> 
+> 
+> This is my preferred approach BY FAR.
+> 
+> Doing a <container,pid> approach is very natural, and avoids almost all 
+> issues. At most, you might want to have a new system call (most naturally 
+> just the one that is limited to the "init container" - it the one that we 
+> boot up with) that can specify both container and pid explicitly, and see 
+> all processes and access all processes. But all "normal" system calls 
+> would only ever operate within their container.
 
-Clause 9 is clear and is part of the GPL v2. The GPL v2 text gives
-people (including you) that right itself if no version is specified in
-the program. You and the other authors granted that right if you didn't
-include a statement about version. Now as it happens various
-contributors specified versions long ago and you clarified it too.
+That's what the current patch set does.
+One "global container" that sees and accesses all and the rest is limited
+to their respective "container".
 
-> Alan - talk to a lawyer. 
+> 
+> The fact is, we want "containers" anyway for any virtualization thing, ie 
+> vserver already adds them. And if we have containers, then it's very easy 
+> ("easyish") to split up the current static "pid_hash[]", "pidmap_array[]" 
+> and "pidmap_lock", and make them per-container, and have a pointer to the 
+> container for each "struct task_struct".
 
-Actually I did, long ago before this argument even appeared, because it
-was important for another situation.
+We are very close to that .. the pidmap_array is already organized that way.
+This was done so not to make the container an object that penetrates every
+where in the code. Now that the discussion is flushing out, actually
+accessing those entities through the container of the context-task would
+be the next logical restructuring of the code.
 
-Also please get one thing straight. I'm not arguing for a license
-change, I'm pointing out misunderstandings that might lead people,
-particularly other GPL projects to make mistakes.
+> 
+> After that, there wouldn't even be a lot else to do. The normal system 
+> calls would just use their own container, and the (few) places that save 
+> away pid's for later (ie things that use "kill_proc_info_as_uid()" and 
+> "struct fown_struct" friends) would have to also squirrell away the 
+> container, but then you should be pretty much done.
 
-The big problem with any license change is actually the moral one, as
-I'm sure you'd agree: Do you have the moral right to change the rules
-(eg on DRM) when many have contributed with many differing views and in
-many ways not all of them leading to them being copyright holders ?
+Agreed.
 
-Alan
+> 
+> Of course, you'll have to do the system calls to _create_ the containers 
+> in the first place, but that's at a higher level and involves much more 
+> than just the pid-space (ie a container would normally have more than just 
+> the uid mappings, it would have any network knowledge too etc - hostname, 
+> perhaps list of network devices associated with that context etc etc)
+
+Right now we do it simply through a poor man's /proc/container fs approach
+that should be reasonable straight forward to convert to a syscall.
+
+> 
+> 			Linus
+> 
+
+Finally, I presume you followed the discussion on the conversion from task->pid
+to access_functions that stirred some criticism. That part would disappear.
+
+-- Hubertus
 

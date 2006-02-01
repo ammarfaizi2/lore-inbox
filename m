@@ -1,102 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030401AbWBAFlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030324AbWBAFyT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030401AbWBAFlb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 00:41:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030400AbWBAFlJ
+	id S1030324AbWBAFyT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 00:54:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030403AbWBAFyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 00:41:09 -0500
-Received: from smtp109.sbc.mail.re2.yahoo.com ([68.142.229.96]:17342 "HELO
-	smtp109.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1030389AbWBAFlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 00:41:05 -0500
-Message-Id: <20060201050734.894858000.dtor_core@ameritech.net>
-References: <20060201045514.178498000.dtor_core@ameritech.net>
-Date: Tue, 31 Jan 2006 23:55:28 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: [GIT PATCH 14/18] turbografx: handle errors from input_register_device()
-Content-Disposition: inline; filename=turbografx-error-handling.patch
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Feb 2006 00:54:19 -0500
+Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:43951
+	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
+	id S1030324AbWBAFyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 00:54:18 -0500
+Date: Tue, 31 Jan 2006 21:54:16 -0800
+From: Greg KH <greg@kroah.com>
+To: Richard Purdie <rpurdie@rpsys.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 6/11] LED: Add LED device support for the zaurus corgi and spitz models
+Message-ID: <20060201055416.GA23520@kroah.com>
+References: <1138714903.6869.132.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1138714903.6869.132.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Input: turbografx - handle errors from input_register_device()
+On Tue, Jan 31, 2006 at 01:41:43PM +0000, Richard Purdie wrote:
+> Adds LED drivers for LEDs found on the Sharp Zaurus c7x0 (corgi, 
+> shepherd, husky) and cxx00 (akita, spitz, borzoi) models.
+> 
+> Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+> 
+> Index: linux-2.6.15/arch/arm/mach-pxa/corgi.c
+> ===================================================================
+> --- linux-2.6.15.orig/arch/arm/mach-pxa/corgi.c	2006-01-29 16:02:30.000000000 +0000
+> +++ linux-2.6.15/arch/arm/mach-pxa/corgi.c	2006-01-29 16:11:47.000000000 +0000
+> @@ -165,6 +165,15 @@
+>  
+>  
+>  /*
+> + * Corgi LEDs
+> + */
+> +static struct platform_device corgiled_device = {
+> +	.name		= "corgi-led",
+> +	.id		= -1,
+> +};
 
-Also tgfx_remove shouldn't be marked __exit as it is also called from
-__init code.
+Please use the platform device interface to create these dynamically and
+don't make static structures.
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+thanks,
 
- drivers/input/joystick/turbografx.c |   20 +++++++++++++-------
- 1 files changed, 13 insertions(+), 7 deletions(-)
-
-Index: work/drivers/input/joystick/turbografx.c
-===================================================================
---- work.orig/drivers/input/joystick/turbografx.c
-+++ work/drivers/input/joystick/turbografx.c
-@@ -204,14 +204,14 @@ static struct tgfx __init *tgfx_probe(in
- 		if (n_buttons[i] > 6) {
- 			printk(KERN_ERR "turbografx.c: Invalid number of buttons %d\n", n_buttons[i]);
- 			err = -EINVAL;
--			goto err_free_devs;
-+			goto err_unreg_devs;
- 		}
- 
- 		tgfx->dev[i] = input_dev = input_allocate_device();
- 		if (!input_dev) {
- 			printk(KERN_ERR "turbografx.c: Not enough memory for input device\n");
- 			err = -ENOMEM;
--			goto err_free_devs;
-+			goto err_unreg_devs;
- 		}
- 
- 		tgfx->sticks |= (1 << i);
-@@ -238,7 +238,9 @@ static struct tgfx __init *tgfx_probe(in
- 		for (j = 0; j < n_buttons[i]; j++)
- 			set_bit(tgfx_buttons[j], input_dev->keybit);
- 
--		input_register_device(tgfx->dev[i]);
-+		err = input_register_device(tgfx->dev[i]);
-+		if (err)
-+			goto err_free_dev;
- 	}
- 
-         if (!tgfx->sticks) {
-@@ -249,9 +251,12 @@ static struct tgfx __init *tgfx_probe(in
- 
- 	return tgfx;
- 
-- err_free_devs:
-+ err_free_dev:
-+	input_free_device(tgfx->dev[i]);
-+ err_unreg_devs:
- 	while (--i >= 0)
--		input_unregister_device(tgfx->dev[i]);
-+		if (tgfx->dev[i])
-+			input_unregister_device(tgfx->dev[i]);
-  err_free_tgfx:
- 	kfree(tgfx);
-  err_unreg_pardev:
-@@ -262,7 +267,7 @@ static struct tgfx __init *tgfx_probe(in
- 	return ERR_PTR(err);
- }
- 
--static void __exit tgfx_remove(struct tgfx *tgfx)
-+static void tgfx_remove(struct tgfx *tgfx)
- {
- 	int i;
- 
-@@ -300,7 +305,8 @@ static int __init tgfx_init(void)
- 
- 	if (err) {
- 		while (--i >= 0)
--			tgfx_remove(tgfx_base[i]);
-+			if (tgfx_base[i])
-+				tgfx_remove(tgfx_base[i]);
- 		return err;
- 	}
- 
-
+greg k-h

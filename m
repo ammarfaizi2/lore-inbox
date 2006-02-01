@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWBAI7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751492AbWBAJDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbWBAI7S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 03:59:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbWBAI7S
+	id S1751492AbWBAJDY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 04:03:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWBAJDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 03:59:18 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:42429 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1751101AbWBAI7S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 03:59:18 -0500
-To: Alan Cox <alan@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Jeremy Higdon <jeremy@sgi.com>
-Subject: [patch] SGIIOC4 limit request size
-From: Jes Sorensen <jes@sgi.com>
-Date: 01 Feb 2006 03:59:16 -0500
-Message-ID: <yq0vevzpi8r.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 1 Feb 2006 04:03:24 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:41289 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1750769AbWBAJDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 04:03:21 -0500
+Message-Id: <20060201090320.899381000@localhost.localdomain>
+References: <20060201090224.536581000@localhost.localdomain>
+Date: Wed, 01 Feb 2006 18:02:25 +0900
+From: Akinobu Mita <mita@miraclelinux.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-ia64@vger.kernel.org, Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 01/44] ia64: use cpu_set() instead of __set_bit()
+Content-Disposition: inline; filename=ia64-cleanup.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+__set_bit() --> cpu_set() cleanup
 
-This one takes care of a problem with the SGI IOC4 driver where it
-hits DMA problems if the request grows too large.
+Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+ arch/ia64/kernel/mca.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
 
-Cheers,
-Jes
-
-Avoid requests larger than the number of SG table entries, to avoid
-DMA timeouts.
-
-Signed-off-by: Jes Sorensen <jes@sgi.com>
-
-----
-
- drivers/ide/pci/sgiioc4.c |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletion(-)
-
-Index: linux-2.6/drivers/ide/pci/sgiioc4.c
+Index: 2.6-git/arch/ia64/kernel/mca.c
 ===================================================================
---- linux-2.6.orig/drivers/ide/pci/sgiioc4.c
-+++ linux-2.6/drivers/ide/pci/sgiioc4.c
-@@ -1,5 +1,5 @@
- /*
-- * Copyright (c) 2003 Silicon Graphics, Inc.  All Rights Reserved.
-+ * Copyright (C) 2003, 2006 Silicon Graphics, Inc.  All Rights Reserved.
-  *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms of version 2 of the GNU General Public License
-@@ -613,6 +613,12 @@
- 	hwif->ide_dma_lostirq = &sgiioc4_ide_dma_lostirq;
- 	hwif->ide_dma_timeout = &__ide_dma_timeout;
- 	hwif->INB = &sgiioc4_INB;
-+
-+	/*
-+	 * Limit the request size to avoid DMA timeouts when
-+	 * requesting  more entries than goes in the sg table.
-+	 */
-+	hwif->rqsize = 127;
- }
+--- 2.6-git.orig/arch/ia64/kernel/mca.c
++++ 2.6-git/arch/ia64/kernel/mca.c
+@@ -69,6 +69,7 @@
+ #include <linux/kernel.h>
+ #include <linux/smp.h>
+ #include <linux/workqueue.h>
++#include <linux/cpumask.h>
  
- static int __devinit
+ #include <asm/delay.h>
+ #include <asm/kdebug.h>
+@@ -1430,7 +1431,7 @@ format_mca_init_stack(void *mca_data, un
+ 	ti->cpu = cpu;
+ 	p->thread_info = ti;
+ 	p->state = TASK_UNINTERRUPTIBLE;
+-	__set_bit(cpu, &p->cpus_allowed);
++	cpu_set(cpu, p->cpus_allowed);
+ 	INIT_LIST_HEAD(&p->tasks);
+ 	p->parent = p->real_parent = p->group_leader = p;
+ 	INIT_LIST_HEAD(&p->children);
+
+--

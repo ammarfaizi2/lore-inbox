@@ -1,92 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbWBAMTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbWBAMUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030204AbWBAMTV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 07:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbWBAMTV
+	id S1161032AbWBAMUH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 07:20:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbWBAMUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 07:19:21 -0500
-Received: from zproxy.gmail.com ([64.233.162.203]:48462 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932430AbWBAMTU (ORCPT
+	Wed, 1 Feb 2006 07:20:07 -0500
+Received: from gate.perex.cz ([85.132.177.35]:60604 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S932430AbWBAMUG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 07:19:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:references;
-        b=Kn7rify0yofoA4AVfXv1LqchLPVAUg/7+mVVLq7aJrgdQ3xhqvm7Vg+98rWaOjzarNjCk92YAQ1EWgSOu7suD7mOlZd4W1d39CoPD9MNKPYBkOJvWp7pWqR21AvYm3ALQ8/IKwh6Ubmql//VT8l4hHX2rEG3qwOphX33Xw5quQU=
-Message-ID: <81083a450602010419l16e6c2f2ldf1f87bff2582662@mail.gmail.com>
-Date: Wed, 1 Feb 2006 17:49:18 +0530
-From: Ashutosh Naik <ashutosh.naik@gmail.com>
-To: Ben Greear <greearb@candelatech.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, linux-net@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com
-Subject: Re: [RFC] Poor Network Performance with e1000 on 2.6.14.3
-In-Reply-To: <43E04712.6080108@candelatech.com>
+	Wed, 1 Feb 2006 07:20:06 -0500
+Date: Wed, 1 Feb 2006 13:20:03 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Takashi Iwai <tiwai@suse.de>
+Subject: [ALSA PATCH] Sync with ALSA CVS
+Message-ID: <Pine.LNX.4.61.0602011318460.9342@tm8103.perex-int.cz>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_3046_27781836.1138796358412"
-References: <81083a450601312117p391f1780g5bb25f5f90324f85@mail.gmail.com>
-	 <43E04712.6080108@candelatech.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_3046_27781836.1138796358412
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Linus, please do an update from:
 
-On 2/1/06, Ben Greear <greearb@candelatech.com> wrote:
-> Ashutosh Naik wrote:
-> > Now, I assume that on Gigabit ethernet, I should be getting Line Rate,
-> > which is around 220 MBps. Even the CPU is not getting max-ed out here
-> > and I am at a loss to understand this behaviour.
->
-> Make sure you are running 64-bit 100+Mhz PCI, otherwise you will not
-> get line speed.  ethtool -d [device]
-> may get that info for you.
+  rsync://rsync.kernel.org/pub/scm/linux/kernel/git/perex/alsa.git
 
-Thanks for that Ben. I now used a 64 bit,133 MHz PCI-X on both
-machines and I got around  180 MBps, (86259.48 + 95164.90 ), which is
-still a decent way away from Line speed. I think PCI is not a
-bottleneck now, although I could be wrong. What could I be missing,
-and has anybody seen line speed ( 220 MBps ) with e1000 ?
+The GNU patch is available at:
 
-Regards and Thanks
-Ashutosh
+  ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-git-2006-02-01.patch.gz
 
-ps - Attaching my ettcp log
+Additional notes:
 
-------=_Part_3046_27781836.1138796358412
-Content-Type: text/plain; name=log.txt; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="log.txt"
+  Only small patches and fixes were selected.
 
-[root@localhost ~]# ettcp -s -t -i 300ttcp-r: accept from 192.168.90.100
-User: 17553  Nice: 0  System 8885  Idle:737051  Params:4
+The following files will be updated:
 
-ttcp-t: buflen=65536, nbuf=2048, align=16384/0, port=5001  tcp  -> 192.168.90.10
-0
-nttcp-t: socket
-nttcp-t: connect
-User: 17555  Nice: 0  System 8892  Idle:737076  Params:4
-^[
-User: 19818  Nice: 0  System 14716  Idle:747604  Params:4
-User_diff: 2265  Nice_diff: 0  System_diff: 5831  Idle_diff:10553 Tot:18649
-User: 12.145423  System: 31.267092  Nice 0.000000  Idle:56.587485        
-nttcp-r: Buflen:65536 SysLoad:31.27% 29232070656 bytes 299.97secs =95164.90 KB/s
-ec
-nttcp-r: 699884 I/O calls, msec/call = 0.44, calls/sec = 2333.15
-nttcp-r: 0.2user 32.6sys 4:59real 10% 0i+0d 0maxrss 0+30pf 691228+3947csw
-User: 19834  Nice: 0  System 14722  Idle:747623  Params:4
-User_diff: 2279  Nice_diff: 0  System_diff: 5830  Idle_diff:10547 Tot:18656
-User: 12.215909  System: 31.250000  Nice 0.000000  Idle:56.534091        
-nttcp-t: Buflen:65536 SysLoad:31.25% 26499153920 bytes 300.00secs =86259.48 KB/s
-ec
-nttcp-t: 404345 I/O calls, msec/call = 0.76, calls/sec = 1347.80
-nttcp-t: 0.2user 44.9sys 5:00real 15% 0i+0d 0maxrss 0+30pf 374765+1306csw
-[1]+  Done                    ettcp -s -r -l 65536
+ Documentation/sound/alsa/ALSA-Configuration.txt              |   10 
+ Documentation/sound/alsa/DocBook/writing-an-alsa-driver.tmpl |    4 
+ drivers/pnp/card.c                                           |    9 
+ sound/core/info.c                                            |   33 --
+ sound/drivers/serial-u16550.c                                |    2 
+ sound/isa/cmi8330.c                                          |    6 
+ sound/isa/cs423x/cs4236.c                                    |   13 
+ sound/isa/es18xx.c                                           |    6 
+ sound/isa/gus/gusclassic.c                                   |    2 
+ sound/isa/opl3sa2.c                                          |   12 
+ sound/isa/opti9xx/opti92x-ad1848.c                           |    2 
+ sound/isa/sb/sb16.c                                          |    4 
+ sound/isa/sscape.c                                           |    6 
+ sound/isa/wavefront/wavefront.c                              |    7 
+ sound/isa/wavefront/wavefront_synth.c                        |    2 
+ sound/pci/ac97/ac97_patch.c                                  |   53 ++-
+ sound/pci/ali5451/ali5451.c                                  |    2 
+ sound/pci/au88x0/au88x0_eq.c                                 |    2 
+ sound/pci/bt87x.c                                            |    4 
+ sound/pci/ca0106/ca0106_main.c                               |   12 
+ sound/pci/cs46xx/dsp_spos_scb_lib.c                          |    2 
+ sound/pci/cs5535audio/cs5535audio.c                          |    6 
+ sound/pci/emu10k1/emumixer.c                                 |   10 
+ sound/pci/hda/hda_intel.c                                    |    2 
+ sound/pci/hda/patch_realtek.c                                |   11 
+ sound/pci/hda/patch_si3054.c                                 |    1 
+ sound/pci/hda/patch_sigmatel.c                               |  176 ++++++++++-
+ sound/pci/intel8x0.c                                         |   15 
+ sound/pci/pcxhr/pcxhr.c                                      |    9 
+ sound/pci/rme9652/hdspm.c                                    |    6 
+ sound/pci/trident/trident.c                                  |    8 
+ sound/pci/via82xx.c                                          |    5 
+ sound/pci/ymfpci/ymfpci_main.c                               |    2 
+ sound/ppc/pmac.c                                             |    2 
+ sound/usb/usbaudio.c                                         |   31 +
+ 35 files changed, 365 insertions(+), 112 deletions(-)
 
 
+The following things were done:
 
+Adam Belay:
+      [ALSA] check return code in pnp_register_card_driver()
 
+Alexey Dobriyan:
+      [ALSA] Fix adding second dma channel
 
-------=_Part_3046_27781836.1138796358412--
+Andrew Morton:
+      [ALSA] Fix a typo in snd_assert()
+      [ALSA] hdsp - Fix printk warnings
+      [ALSA] pcxhr - Fix printk warning
+
+Arnaud Patard:
+      [ALSA] patch_realtek.c: Add new model
+
+Chris Ball:
+      [ALSA] intel8x0: Add quirk for Optiplex GX270
+
+Clemens Ladisch:
+      [ALSA] usb-audio: don't use empty packets at start of playback
+      [ALSA] ymfpci: fix SPDIF sample rate information
+      [ALSA] usb-audio: fix non-48k sample rates with SB Audigy 2 ZS
+
+Giuliano Pochini:
+      [ALSA] fix typos in writing-an-alsa-driver
+
+Ingo Molnar:
+      [ALSA] Remove BKL from sound/core/info.c
+
+James Courtier-Dutton:
+      [ALSA] snd-ca0106: Fixed ALSA bug#1600
+
+Jaroslav Kysela:
+      [ALSA] bt87x - fix detection of unknown card
+      [ALSA] cs4232/cs4236 - moved CS423X_DRIVER define outside CONFIG_PNP
+
+Jason Gaston:
+      [ALSA] hda-intel - patch for Intel ICH8
+
+Jon Mason:
+      [ALSA] Prevent ALSA trident driver from grabbing pcnet32 hardware
+      [ALSA] ali5451: Add PCI_DEVICE and #defines in snd_ali_ids
+
+Jonathan Woithe:
+      [ALSA] hda-codec - Fix init verb of ALC260
+
+Lukasz Stemach:
+      [ALSA] cs4236 - Add PnP ids for Netfinity 3000
+
+Martin Drab:
+      [ALSA] bt87x - Fix the unability of snd-bt87x to recognize AVerMedia Studio
+
+Matt Porter:
+      [ALSA] hda-codec - add D975XBK support to sigmatel patch
+      [ALSA] hda-codec - add sigmatel 927x codec support
+      [ALSA] hda: sigmatel fixes
+
+Rene Rebe:
+      [ALSA] AMD cs5536 ID for cs5535audio
+
+Sasha Khapyorsky:
+      [ALSA] hda-codec - support for Agere's HDA soft modem
+
+Stelian Pop:
+      [ALSA] sound/ppc/pmac.c typo
+
+Takashi Iwai:
+      [ALSA] via82xx - Add dxs_support for ASUS mobo
+      [ALSA] Fix compilation without CONFIG_PNP
+      [ALSA] emu10k1 - Fix silence problems after suspend
+      [ALSA] emu10k1 - Fix the confliction of 'Front' control
+      [ALSA] via82xx - Add dxs_support entry
+      [ALSA] pcxhr - Fix the sample rate changes
+      [ALSA] hda-codec - Add model entry for Sony VAIO
+      [ALSA] ac97 - Suppress jack sense controls for Thinkpads
+      [ALSA] ac97 - Fix CLFE channel setting of ALC850
+      [ALSA] hda-codec - Fix capture on Sigmatel STAC92xx codecs
+      [ALSA] via82xx - Add dxs_support entry for EpoX 9HEAI
+      [ALSA] au88x0 - Fix a compile warning
+      [ALSA] opl3sa2 - Fix conflict of driver name on sysfs
+      [ALSA] sb16 - Fix duplicated PnP entry
+      [ALSA] via82xx - Add dxs entry for a FSC board
+      [ALSA] wavefront - Fix a compile warning
+      [ALSA] opti93x - Fix a compile warning
+      [ALSA] serial-uart16550 - Fix a compile warning
+      [ALSA] via82xx - Add dxs entry for P4M800/VIA8237R
+      [ALSA] hda-codec - Fix max_channels computation for STAC92xx codecs
+      [ALSA] intel8x0 - Add MCP51 PCI ID
+      [ALSA] hda-codec - Fix typos in alc882 model table
+
+Ulrich Mueller:
+      [ALSA] intel8x0 - Fix duplicate ac97_quirks entry
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

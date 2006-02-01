@@ -1,49 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161069AbWBAOxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161067AbWBAOy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161069AbWBAOxN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 09:53:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161068AbWBAOxM
+	id S1161067AbWBAOy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 09:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161071AbWBAOy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 09:53:12 -0500
-Received: from uproxy.gmail.com ([66.249.92.192]:10967 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161067AbWBAOxM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 09:53:12 -0500
+	Wed, 1 Feb 2006 09:54:58 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:1199 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1161067AbWBAOy5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 09:54:57 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=U8tZPLgQgH4bMwcn1RY2EUqw4BwBIupyHP39Tt0KJ+wkW7kOxFB1wMgvpLqJW44L4yFt1CwQM8oGxVV3pK9Ksz4PvJZRXCMpcKf9BABfYuBXtoDteG8ZfwWeXWTu6CaDshr52YkhBKBYVDdrPCGm70chASahASGIiU/XDsaktEQ=
-Message-ID: <58cb370e0602010653g3c60b2ffoa9a84f83c7af45c1@mail.gmail.com>
-Date: Wed, 1 Feb 2006 15:53:10 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@redhat.com>
-Subject: Re: [patch] SGIIOC4 limit request size
-Cc: Jeremy Higdon <jeremy@sgi.com>, Jes Sorensen <jes@sgi.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060201133917.GA27011@devserv.devel.redhat.com>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=dhyhHZYlH/n1ll+ak/8vXa3B254rFplkMn6q0+OJ5T5Xunh8N24YwPJQQdNENBPABVQ22FM113mUgEQB2JIDJ5jqGNCFe0BElIdotmg2UF3DoXABuiOt6n+ZToeVIz5agetddSswPLaoA7jmMsRzGC+IvvBOsV+5mAHw6kVjyMo=  ;
+Message-ID: <43E0CBBC.2000002@yahoo.com.au>
+Date: Thu, 02 Feb 2006 01:54:52 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <yq0vevzpi8r.fsf@jaguar.mkp.net>
-	 <58cb370e0602010234p62521a00h6d8920c84cac44d5@mail.gmail.com>
-	 <20060201104913.GA152005@sgi.com>
-	 <58cb370e0602010308o4cde24aeg8d629b1b3d45cdd3@mail.gmail.com>
-	 <20060201111754.GB152005@sgi.com>
-	 <58cb370e0602010326k265ef278k4010df13fb5adf8c@mail.gmail.com>
-	 <20060201113607.GF152005@sgi.com>
-	 <20060201133917.GA27011@devserv.devel.redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+CC: Steven Rostedt <rostedt@goodmis.org>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
+References: <1138736609.7088.35.camel@localhost.localdomain> <43E02CC2.3080805@bigpond.net.au> <1138797874.7088.44.camel@localhost.localdomain> <43E0B24E.8080508@yahoo.com.au> <43E0B342.6090700@yahoo.com.au> <20060201132054.GA31156@elte.hu> <43E0BBEC.3020209@yahoo.com.au> <43E0BDA3.8040003@yahoo.com.au> <20060201141248.GA6277@elte.hu> <43E0C4CF.8090501@yahoo.com.au> <20060201143727.GA9915@elte.hu>
+In-Reply-To: <20060201143727.GA9915@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/1/06, Alan Cox <alan@redhat.com> wrote:
-> On Wed, Feb 01, 2006 at 03:36:07AM -0800, Jeremy Higdon wrote:
-> > Here's one that removes xcount.  It seems to work too.
-> > Should we set hwif->rqsize to 256, or are we pretty safe in
-> > expecting that the default won't rise?  The driver should be
->
-> 255 is the safest for LBA28 devices because a small number incorrectly
-> interpret 0 (meaning 256) as 0. And that can have unfortunate results
+Ingo Molnar wrote:
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+> 
+>>What I am talking about is when you want a task to have the highest 
+>>possible scheduling priority and you'd like to guarantee that it is 
+>>not interrupted for more than Xus, including scheduling latency.
+> 
+> 
+> this is not a big issue in practice, because it's very hard to saturate 
+> current x86 systems running the -rt kernel with pure IRQ load. The APIC 
+> messages all have a natural latency, which serves as a throttler.
+> 
 
-We can blacklist vulnerable devices if needed.
-We have been using 256 for a long time now.
+Either way, you don't measure it. Doesn't matter. As I said, off topic.
+
+>>
+>>Then it is a fine hack for the RT kernel (or at least an improved, 
+>>batched version of the patch). No arguments from me.
+> 
+> 
+> no, it is also fine for the mainline scheduler, as long as the patch is 
+> clean and does the obviously right thing [which the current patch doesnt 
+> offer]. A 1+ msec latency with irqs off is nothing to sniff at. Trying 
+
+If it were generated by some real workload that cares, then I would care.
+
+> to argue that 'you can get the same by using rwsems so why should we 
+> bother' is pretty lame: rwsems are rare and arguably broken in behavior, 
+> and i'd not say the same about the scheduler (just yet :-).
+> 
+
+I don't think it is lame at all. They're fairly important in use in mmap_sem
+that I know of. And I have seen workloads where the up_write path gets really
+expensive (arguably more relevant ones than hackbench).
+
+PS. I'd like to see you argue how they're broken in behaviour, and how
+you're going to replace mmap_sem -- this is not a rhetorical statement,
+I'd really be interested to see ;)
+
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

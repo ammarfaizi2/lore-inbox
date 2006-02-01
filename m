@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750781AbWBALuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbWBALvh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750781AbWBALuF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 06:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161032AbWBALuE
+	id S1751126AbWBALvh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 06:51:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWBALvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 06:50:04 -0500
-Received: from relay.wplus.net ([195.131.52.142]:39201 "EHLO relay.wplus.net")
-	by vger.kernel.org with ESMTP id S1750781AbWBALuD (ORCPT
+	Wed, 1 Feb 2006 06:51:37 -0500
+Received: from mail.suse.de ([195.135.220.2]:32940 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751126AbWBALvg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 06:50:03 -0500
-From: Vitaly Fertman <vitaly@namesys.com>
-Reply-To: vitaly@namesys.com
-To: reiserfs-dev@namesys.com
-Subject: Re: Recursive chmod/chown OOM kills box with 32MB RAM
-Date: Wed, 1 Feb 2006 14:45:05 +0300
-User-Agent: KMail/1.7.1
-Cc: Denis Vlasenko <vda@ilport.com.ua>, Chris Mason <mason@suse.com>,
-       Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-References: <200601281613.16199.vda@ilport.com.ua> <200602010942.36134.vda@ilport.com.ua> <200602011215.54637.vda@ilport.com.ua>
-In-Reply-To: <200602011215.54637.vda@ilport.com.ua>
-MIME-Version: 1.0
+	Wed, 1 Feb 2006 06:51:36 -0500
+Date: Wed, 1 Feb 2006 12:51:34 +0100
+From: Karsten Keil <kkeil@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: ISDN warning
+Message-ID: <20060201115134.GA8219@pingi.kke.suse.de>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+References: <20060201010406.05f55c09.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602011445.05785.vitaly@namesys.com>
+In-Reply-To: <20060201010406.05f55c09.akpm@osdl.org>
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.13-15.7-smp x86_64
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 February 2006 13:15, Denis Vlasenko wrote:
+On Wed, Feb 01, 2006 at 01:04:06AM -0800, Andrew Morton wrote:
 > 
-> # reiserfstune -s 1024 /dev/sdc3
-> # mount /dev/sdc3 /.3 -o noatime
-> mount: you must specify the filesystem type
+> Karsten, could you please take a look at fixing this?
 > 
-> # dmesg | tail -4
-> br: topology change detected, propagating
-> br: port 1(ifi) entering forwarding state
-> FAT: bogus number of reserved sectors
-> VFS: Can't find a valid FAT filesystem on dev sdc3.
+> drivers/isdn/hisax/hscx_irq.c: In function `hscx_interrupt':
+> drivers/isdn/hisax/hscx_irq.c:201: warning: comparison is always 1 due to width of bit-field
 > 
-> # reiserfsck /dev/sdc3
-> reiserfsck 3.6.11 (2003 www.namesys.com)
+> It's due to
+> 
+> 	(PACKET_NOACK != bcs->tx_skb->pkt_type)
+> 
+> pkt_type is only three bit wide.
+> 
 
-your reiserfsprogs are old. which kernel are you using?
+I think this should fix it for the moment, pkt_type 7 is not used yet and
+this is only used internal in hisax.
 
-as I can see 3.6.11 had that problem indeed, however I have no 
-problem with progs 3.6.19 and kernel 2.6.9 even after shrinking 
-the journal with tune 3.6.11. 
+Signed-off-by:  Karsten keil <kkeil@suse.de>
+
+diff -ur a/drivers/isdn/hisax/hisax.h b/drivers/isdn/hisax/hisax.h
+--- a/drivers/isdn/hisax/hisax.h	2005-08-29 01:41:01.000000000 +0200
++++ b/drivers/isdn/hisax/hisax.h	2006-02-01 12:39:21.000000000 +0100
+@@ -217,7 +217,7 @@
+ #define GROUP_TEI	127
+ #define TEI_SAPI	63
+ #define CTRL_SAPI	0
+-#define PACKET_NOACK	250
++#define PACKET_NOACK	7
+ 
+ /* Layer2 Flags */
+ 
 
 -- 
-Vitaly
+Karsten Keil
+SuSE Labs
+ISDN development

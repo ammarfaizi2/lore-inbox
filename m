@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160999AbWBAKlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbWBAKlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160999AbWBAKlI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 05:41:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbWBAKlH
+	id S932408AbWBAKlg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 05:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbWBAKlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 05:41:07 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:37568 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932408AbWBAKlG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 05:41:06 -0500
-Date: Wed, 1 Feb 2006 11:39:42 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: dwmw2@infradead.org
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: [patch] simplify audit_free() locking
-Message-ID: <20060201103942.GA5772@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 1 Feb 2006 05:41:35 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:49287 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932408AbWBAKle (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 05:41:34 -0500
+Message-ID: <43E0904C.1020201@sgi.com>
+Date: Wed, 01 Feb 2006 11:41:16 +0100
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+CC: Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, Jeremy Higdon <jeremy@sgi.com>
+Subject: Re: [patch] SGIIOC4 limit request size
+References: <yq0vevzpi8r.fsf@jaguar.mkp.net> <58cb370e0602010234p62521a00h6d8920c84cac44d5@mail.gmail.com>
+In-Reply-To: <58cb370e0602010234p62521a00h6d8920c84cac44d5@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bartlomiej Zolnierkiewicz wrote:
+> On 01 Feb 2006 03:59:16 -0500, Jes Sorensen <jes@sgi.com> wrote:
+>>This one takes care of a problem with the SGI IOC4 driver where it
+>>hits DMA problems if the request grows too large.
+> 
+> 
+> Does this happen only for CONFIG_IA64_PAGE_SIZE_4KB=y
+> or CONFIG_IA64_PAGE_SIZE_8KB=y?
+> 
+> from sgiioc4.c:
+> 
+> /* Each Physical Region Descriptor Entry size is 16 bytes (2 * 64 bits) */
+> /* IOC4 has only 1 IDE channel */
+> #define IOC4_PRD_BYTES       16
+> #define IOC4_PRD_ENTRIES     (PAGE_SIZE /(4*IOC4_PRD_BYTES))
+> 
+> As limiting request size to 127 sectors punishes performance
+> wouldn't it be better to define IOC4_PRD_ENTRIES to 256
+> if this is possible (would need 4 pages for PAGE_SIZE=4096
+> and 2 for PAGE_SIZE=8192)?
 
-this patch simplifies audit_free()'s locking: no need to lock a task 
-that we are tearing down. [the extra locking also caused false positives 
-in the lock validator]
+This happens with the default page size which is 16KB, ie.
+IOC4_PRD_ENTRIES=256, the problem is not due to the request
+going beyond the number of PRD_ENTRIES. I haven't tried with smaller
+page sizes but I would assume the problem would be the same.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Even with this patch performance seems very reasonable.
 
-Index: linux/kernel/auditsc.c
-===================================================================
---- linux.orig/kernel/auditsc.c
-+++ linux/kernel/auditsc.c
-@@ -692,10 +692,14 @@ void audit_free(struct task_struct *tsk)
- {
- 	struct audit_context *context;
- 
--	task_lock(tsk);
-+	/*
-+	 * No need to lock the task - when we execute audit_free()
-+	 * then the task has no external references anymore, and
-+	 * we are tearing it down. (The locking also confuses
-+	 * DEBUG_LOCKDEP - this freeing may occur in softirq
-+	 * contexts as well, via RCU.)
-+	 */
- 	context = audit_get_context(tsk, 0, 0);
--	task_unlock(tsk);
--
- 	if (likely(!context))
- 		return;
- 
+Jes

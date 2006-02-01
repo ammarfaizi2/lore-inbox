@@ -1,130 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422674AbWBAR04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030390AbWBARjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422674AbWBAR04 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 12:26:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422654AbWBAR04
+	id S1030390AbWBARjg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 12:39:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030391AbWBARjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 12:26:56 -0500
-Received: from mx2.suse.de ([195.135.220.15]:58247 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030392AbWBAR0z (ORCPT
+	Wed, 1 Feb 2006 12:39:36 -0500
+Received: from mx2.netapp.com ([216.240.18.37]:31913 "EHLO mx2.netapp.com")
+	by vger.kernel.org with ESMTP id S1030390AbWBARjf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 12:26:55 -0500
-Date: Wed, 1 Feb 2006 18:26:53 +0100
-From: Olaf Dabrunz <od@suse.de>
-To: Julian Bradfield <jcb@inf.ed.ac.uk>
-Cc: linux-kernel@vger.kernel.org, lhofhansl@yahoo.com
-Subject: Re: TIOCCONS security revisited
-Message-ID: <20060201172653.GA22700@suse.de>
-Mail-Followup-To: Julian Bradfield <jcb@inf.ed.ac.uk>,
-	linux-kernel@vger.kernel.org, lhofhansl@yahoo.com
-References: <17374.5399.546606.933186@palau.inf.ed.ac.uk>
+	Wed, 1 Feb 2006 12:39:35 -0500
+X-IronPort-AV: i="4.01,245,1136188800"; 
+   d="scan'208"; a="355818007:sNHT18143536"
+Subject: [PATCH] VFS: Ensure LOOKUP_CONTINUE flag is preserved by
+	link_path_walk()
+From: Trond Myklebust <Trond.Myklebust@netapp.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Network Appliance, Inc
+Date: Wed, 01 Feb 2006 12:39:27 -0500
+Message-Id: <1138815567.14230.1.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <17374.5399.546606.933186@palau.inf.ed.ac.uk>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.1 
+X-OriginalArrivalTime: 01 Feb 2006 17:39:34.0503 (UTC) FILETIME=[7712CF70:01C62756]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30-Jan-06, Julian Bradfield wrote:
-> In August 2004, Olaf Dabrunz posted a patch, which appears to have got
-> into 2.6.10, restricting TIOC_CONS to CAP_SYS_ADMIN .
-> 
-> He justified this by claiming that normal users don't need to grab the
-> console output.
+ When walking a path, the LOOKUP_CONTINUE flag is used by some filesystems
+ (for instance NFS) in order to determine whether or not it is looking up
+ the last component of the path. It this is the case, it may have to look
+ at the intent information in order to perform various tasks such as atomic
+ open.
 
-I understand that users want to see these messages and I want them to
-see these messages. (I did not emphasize this but I believe I never
-stated something else.)
+ A problem currently occurs when link_path_walk() hits a symlink. In this
+ case LOOKUP_CONTINUE may be cleared prematurely when we hit the end of the
+ path passed by __vfs_follow_link() (i.e. the end of the symlink path)
+ rather than when we hit the end of the path passed by the user.
 
-The problem is that TIOCCONS causes security problems.
+ The solution is to have link_path_walk() clear LOOKUP_CONTINUE if and only
+ if that flag was unset when we entered the function.
 
-Please rehash what I wrote in the thread. Essentially, these are my
-points (citing myself here):
+ Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+---
 
-    the ioctl TIOCCONS allows any user to redirect console output to
-    another tty. This allows anyone to suppress messages to the console
-    at will.
+ fs/namei.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
-[and in a later mail:]
-
-    Changing the ownership on /dev/console causes security problems
-    (that user can usually access the current virtual terminal anytime,
-    and the current one may not belong to him).
-
-Also I refered to a security advisory for SunOS which describes one of
-the problems (hijacking):
-
-http://www.cert.org/advisories/CA-1990-12.html
-
-And I said that there are alternatives to /dev/console, and a commonly
-used one is /dev/xconsole (see below how to use this). It does not have
-the security problems and has other advantages (configurable via
-syslog/syslog-ng). But it also does not receive the messages that are
-simply written to /dev/console.
-
-The latter problem still needs to be fixed, but is seldom a real
-problem. AFAICS nowadays only scripts that run at boot time write to
-/dev/console. The user has several ways to look at these messages
-already (including watching the "console" window during boot or looking
-at /var/log/boot.msg).
-
-If you want this problem fixed, consider copying messages to
-/dev/console with a demon to a logging facility. Have a look at
-bootlogd/blogd.
-
-> I disagree. Normal users log into the desktop of their machine, and
-> should expect to be able to see the console output just as much as if
-> they logged into "the console" and worked without graphics.
-> For example, I want to know when the machine I'm working on has
-> problems, when somebody is probing sshd, and simply when one of my
-> batch jobs wants to tell me something.
-
-All this can be done by using /dev/xconsole.
-
-> Further, on our systems, I own the console (ownership is transferred
-> to the user by the login procedure), so it's daft that I can't call TIOCCONS
-> on it.
-
-Changing ownership of /dev/console is part of the security problem. But
-you can do that with /dev/xconsole.
-
-> I propose that a better security test would be:
-> user owns /dev/console OR has CAP_SYS_ADMIN .
-> 
-> It should then be the responsibility of the log-out procedure to
-> cancel redirections when it changes the ownership of devices back to
-> root.
-> 
-> In December '04, Lars posted about this breakage, and proposed a
-> simpler patch, allowing general TIOCCONS but restricting cancellation
-
-Lars reported that xconsole breaks and proposed to simply revert the
-kernel patch. His patch does not fix the security problems, it just
-reverts to the old known-broken state.
-
-Xconsole fails because by default it tries to use /dev/console. You can
-avoid that by setting the resources to point to another file, e.g.
-/dev/xconsole:
-
-/usr/X11R6/lib/X11/app-defaults/XConsole:
-XConsole.file:          /dev/xconsole
-
-Alternatively, you can use "xconsole -file /dev/xconsole".
-
-When my TIOCCONS kernel patch is applied, xconsole should never try to
-use /dev/console. We fixed this by putting the code that checks for
-/dev/console into an #if in xconsole.c:OpenConsole():
-
-#if !defined(linux)
-           if (!stat("/dev/console", &sbuf) &&
-               (sbuf.st_uid == getuid()) &&
-               !access("/dev/console", R_OK|W_OK))
-#endif
-
-Later on in the code we use /dev/xconsole as the default.
-
--- 
-Olaf Dabrunz (od/odabrunz), SUSE Linux Products GmbH, Nürnberg
-
+diff --git a/fs/namei.c b/fs/namei.c
+index 4acdac0..e1195f4 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -790,7 +790,7 @@ static fastcall int __link_path_walk(con
+ 
+ 	inode = nd->dentry->d_inode;
+ 	if (nd->depth)
+-		lookup_flags = LOOKUP_FOLLOW;
++		lookup_flags = LOOKUP_FOLLOW | (nd->flags & LOOKUP_CONTINUE);
+ 
+ 	/* At this point we know we have a real path component. */
+ 	for(;;) {
+@@ -885,7 +885,8 @@ static fastcall int __link_path_walk(con
+ last_with_slashes:
+ 		lookup_flags |= LOOKUP_FOLLOW | LOOKUP_DIRECTORY;
+ last_component:
+-		nd->flags &= ~LOOKUP_CONTINUE;
++		/* Clear LOOKUP_CONTINUE iff it was previously unset */
++		nd->flags &= lookup_flags | ~LOOKUP_CONTINUE;
+ 		if (lookup_flags & LOOKUP_PARENT)
+ 			goto lookup_parent;
+ 		if (this.name[0] == '.') switch (this.len) {

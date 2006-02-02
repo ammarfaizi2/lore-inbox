@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423433AbWBBJyf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161123AbWBBJza@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423433AbWBBJyf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 04:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423435AbWBBJyf
+	id S1161123AbWBBJza (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 04:55:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161125AbWBBJz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 04:54:35 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:177 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1423429AbWBBJyT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 04:54:19 -0500
-Date: Thu, 2 Feb 2006 10:54:07 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: [ 02/10] [Suspend2] Module (de)registration.
-Message-ID: <20060202095407.GA1981@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060201113713.6320.99223.stgit@localhost.localdomain> <84144f020602010437n1d738b94m2d08ddfb21fdb300@mail.gmail.com> <200602012247.45286.nigel@suspend2.net>
+	Thu, 2 Feb 2006 04:55:29 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:46466 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1161123AbWBBJz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 04:55:28 -0500
+Date: Thu, 2 Feb 2006 10:55:02 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH 3/3] s390: fix to_channelpath macro
+Message-ID: <20060202095502.GC22815@osiris.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602012247.45286.nigel@suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+User-Agent: mutt-ng/devel (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On St 01-02-06 22:47:41, Nigel Cunningham wrote:
-> Hi.
-> 
-> On Wednesday 01 February 2006 22:37, Pekka Enberg wrote:
-> > Hi,
-> >
-> > On 2/1/06, Nigel Cunningham <nigel@suspend2.net> wrote:
-> > > +++ b/kernel/power/modules.c
-> > > @@ -0,0 +1,87 @@
-> >
-> > [snip]
-> >
-> > > +
-> > > +struct list_head suspend_filters, suspend_writers, suspend_modules;
-> > > +struct suspend_module_ops *active_writer = NULL;
-> > > +static int num_filters = 0, num_ui = 0;
-> > > +int num_writers = 0, num_modules = 0;
-> >
-> > Unneeded assignments, they're already guaranteed to be zeroed.
-> 
-> Good point. Will fix.
-> 
-> > > +       list_add_tail(&module->module_list, &suspend_modules);
-> > > +       num_modules++;
-> >
-> > No locking, why?
-> 
-> Not needed - the callers are _init routines only.
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-And insmod?
-								Pavel
+Fix broken to_channelpath macro (fortunately worked in all current cases...).
 
+Signed-off-by: Cornelia Huck <cohuck@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+---
 
+ drivers/s390/cio/chsc.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
--- 
-Thanks, Sharp!
+diff -urpN linux-2.6/drivers/s390/cio/chsc.h linux-2.6-patched/drivers/s390/cio/chsc.h
+--- linux-2.6/drivers/s390/cio/chsc.h	2006-02-02 09:52:57.000000000 +0100
++++ linux-2.6-patched/drivers/s390/cio/chsc.h	2006-02-02 09:53:29.000000000 +0100
+@@ -68,6 +68,6 @@ extern void *chsc_get_chp_desc(struct su
+ 
+ extern int chsc_enable_facility(int);
+ 
+-#define to_channelpath(dev) container_of(dev, struct channel_path, dev)
++#define to_channelpath(device) container_of(device, struct channel_path, dev)
+ 
+ #endif

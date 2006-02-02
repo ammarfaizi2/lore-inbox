@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWBBAII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbWBBAPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbWBBAII (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 19:08:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWBBAIH
+	id S1751292AbWBBAPW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 19:15:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751326AbWBBAPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 19:08:07 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:55751 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S1751098AbWBBAIG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 19:08:06 -0500
-Date: Wed, 1 Feb 2006 16:08:20 -0800
-From: Grant Grundler <iod00d@hp.com>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Grant Grundler <iod00d@hp.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Akinobu Mita'" <mita@miraclelinux.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 1/12] generic *_bit()
-Message-ID: <20060202000820.GI16471@esmail.cup.hp.com>
-References: <20060201193933.GA16471@esmail.cup.hp.com> <200602012141.k11LfCg32497@unix-os.sc.intel.com> <20060201220903.GE16471@esmail.cup.hp.com> <Pine.LNX.4.64.0602012246330.3680@hermes-2.csi.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0602012246330.3680@hermes-2.csi.cam.ac.uk>
-User-Agent: Mutt/1.5.11
+	Wed, 1 Feb 2006 19:15:22 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:25220 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751292AbWBBAPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 19:15:21 -0500
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Rene Herman <rene.herman@keyaccess.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0602011540070.21884@g5.osdl.org>
+References: <43D114A8.4030900@wolfmountaingroup.com>
+	 <43D13B2A.6020504@cs.ubishops.ca> <43D7D05D.7030101@perkel.com>
+	 <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>
+	 <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>
+	 <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>
+	 <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>
+	 <1138387136.26811.8.camel@localhost>
+	 <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org>
+	 <1138620390.31089.43.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0601310931540.7301@g5.osdl.org>
+	 <43DF9D42.7050802@wolfmountaingroup.com>
+	 <Pine.LNX.4.64.0601311032180.7301@g5.osdl.org>
+	 <43DFB0F2.4030901@wolfmountaingroup.com>
+	 <Pine.LNX.4.64.0601311152070.7301@g5.osdl.org>
+	 <43DFDEF9.2030001@keyaccess.nl>
+	 <Pine.LNX.4.64.0601311430130.7301@g5.osdl.org>
+	 <43E0C5E7.6050406@keyaccess.nl>
+	 <Pine.LNX.4.64.0602011334270.21884@g5.osdl.org>
+	 <43E14451.1010100@keyaccess.nl>
+	 <Pine.LNX.4.64.0602011540070.21884@g5.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 02 Feb 2006 00:16:30 +0000
+Message-Id: <1138839390.5557.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, 2006 at 10:49:08PM +0000, Anton Altaparmakov wrote:
-> Err, searching by anything other than bytes is useless for a file system 
-> driver.  Otherwise you get all sorts of disgustingly horrible allocation 
-> patterns depending on the endianness of the machine...
+> The "license notices" _are_ an integral part of the program. Nothing else 
+> makes sense. They are often in the same files (that's the most common case 
+> by far), and as I showed you, they are often (as in the case of the GPL 
+> license notice itself) actually _linked_in_ into the actual binary itself.
 
-Well, tell that to ext2/3 maintainers since they introduced
-the ext2_test_bit() and friends. They do require LE handling
-of the bit array since that's an on-disk format. See how big endian
-machines (parisc/ppc/sparc/etc) deal with it in asm/bitops.h.
+The COPYING file is not part of the program. I'm sorry you can't get
+that into your brain but continually bleating that it doesn't make sense
+won't actually get you anywhere. Please go and talk to a law student or
+just let the subject drop.
 
-grant
+

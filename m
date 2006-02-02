@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbWBBWcu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWBBWdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932372AbWBBWcu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 17:32:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWBBWcu
+	id S932368AbWBBWdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 17:33:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWBBWdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 17:32:50 -0500
-Received: from zcars04f.nortel.com ([47.129.242.57]:57282 "EHLO
-	zcars04f.nortel.com") by vger.kernel.org with ESMTP id S932368AbWBBWct
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 17:32:49 -0500
-Message-ID: <43E2885E.3070506@nortel.com>
-Date: Thu, 02 Feb 2006 16:31:58 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Thu, 2 Feb 2006 17:33:24 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:13503 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932373AbWBBWdX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 17:33:23 -0500
+In-Reply-To: <200602022159.04508.a1426z@gawab.com>
+To: Al Boldi <a1426z@gawab.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Kyle Moffett <mrmacman_g4@mac.com>
 MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: Michael Loftis <mloftis@wgops.com>, David Weinehall <tao@acc.umu.se>,
-       Doug McNaught <doug@mcnaught.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Valdis.Kletnieks@vt.edu,
-       dtor_core@ameritech.net, James Courtier-Dutton <James@superbug.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE?
-References: <d120d5000601200850w611e8af8v41a0786b7dc973d9@mail.gmail.com> <30D11C032F1FC0FE9CA1CDFD@d216-220-25-20.dynip.modwest.com> <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu> <E27F809F04C1C673D283E84F@d216-220-25-20.dynip.modwest.com> <20060120200051.GA12610@flint.arm.linux.org.uk> <5793EB6F192350088E0AC4CE@d216-220-25-20.dynip.modwest.com> <87slrio9wd.fsf@asmodeus.mcnaught.org> <25D702FB62516982999D7084@d216-220-25-20.dynip.modwest.com> <20060202121653.GI20484@vasa.acc.umu.se> <67A0AFFBC77C32B9DEE25EFA@dhcp-2-206.wgops.com> <20060202220158.GA11380@w.ods.org>
-In-Reply-To: <20060202220158.GA11380@w.ods.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Feb 2006 22:32:03.0277 (UTC) FILETIME=[7D5EF7D0:01C62848]
+Subject: Re: [RFC] VM: I have a dream...
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OFA0D197E9.2DB3AE6F-ON88257109.007A60B4-88257109.007BE836@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Thu, 2 Feb 2006 14:33:18 -0800
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0HF124 | January 12, 2006) at
+ 02/02/2006 17:33:19,
+	Serialize complete at 02/02/2006 17:33:19
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
+>So w/ 1GB RAM, no swap, and 1TB disk mmap'd, could this mmap'd space be 
+added 
+>to the total memory available to the OS, as is done w/ swap?
 
-> Given the past
-> experience of 2.4 and the time I can spend on kernel work, I would
-> not even consider basing anything on 2.6 before something like 2.6.20-25,
-> when it will hopefully settle down a bit.
+Yes.
 
-Unfortunately there are many times when this simply isn't an option. 
-I'm currently working on boards that simply are not supported on 2.4. 
-Thus either we need to track 2.6, or else we need to pay someone to do 
-it for us and hope they do a good job.
+>And if that's possible, why not replace swap w/ mmap'd disk-space?
 
-Of course what actually happens is that you pick a kernel version 
-(hopefully you pick well) and then backport fixes.  Upgrading 
-continuously simply isn't an option, as we have multiple vendors 
-providing BSPs, drivers, patches, etc. and they're all supported only 
-for that specific kernel version.  We can really only upversion the 
-kernel once a year or so, if that often.
+Because mmapped disk space has a permanent mapping of address to disk 
+location.  That's how the earliest virtual memory systems worked, but we 
+moved beyond that to what we have now (what we've been calling swapping), 
+where the mapping gets established at the last possible moment, which 
+means we can go a lot faster.  E.g. when the OS needs to steal 10 page 
+frames used for malloc pages which are scattered across the virtual 
+address space, it could write all those pages out in a single cluster 
+wherever a disk head happens to be at the moment.
 
-Chris
+Also, given that we use multiple address spaces (my shell and your shell 
+both have an Address 0, but they're different pages), there'd be a giant 
+allocation problem in assigning a contiguous area of disk to each address 
+space.
+
+--
+Bryan Henderson                     IBM Almaden Research Center
+San Jose CA                         Filesystems
+

@@ -1,58 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbWBBTBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWBBTIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750993AbWBBTBV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 14:01:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751018AbWBBTBV
+	id S1750972AbWBBTIb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 14:08:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWBBTIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 14:01:21 -0500
-Received: from [212.76.84.183] ([212.76.84.183]:15621 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1750993AbWBBTBU (ORCPT
+	Thu, 2 Feb 2006 14:08:31 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:45959 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1750803AbWBBTIa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 14:01:20 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFC] VM: I have a dream...
-Date: Thu, 2 Feb 2006 21:59:04 +0300
-User-Agent: KMail/1.5
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Bryan Henderson <hbryan@us.ibm.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <OFA0FDB57C.2E4B1B4D-ON88257103.00688AE2-88257103.0069EF1C@us.ibm.com> <200601311856.17569.a1426z@gawab.com> <1138893090.9861.25.camel@localhost.localdomain>
-In-Reply-To: <1138893090.9861.25.camel@localhost.localdomain>
+	Thu, 2 Feb 2006 14:08:30 -0500
+Message-ID: <43E26AB1.8509A175@tv-sign.ru>
+Date: Thu, 02 Feb 2006 23:25:21 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Herbert Poetzl <herbert@13thfloor.at>
+Subject: Re: [PATCH] pidhash:  Kill switch_exec_pids
+References: <m1r76lslhi.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602022159.04508.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Maw, 2006-01-31 at 18:56 +0300, Al Boldi wrote:
-> > So with 64bits widely available now, and to let Linux spread its wings
-> > and really fly, how could tmpfs merged w/ swap be tweaked to provide
-> > direct mapped access into this linear address space?
+Eric W. Biederman wrote:
 >
-> Why bother. You can already create a private large file and mmap it if
-> you want to do this, and you will get better performance than being
-> smeared around swap with everyone else.
->
-> Currently swap means your data is mixed in with other stuff. Swap could
-> do preallocation of each vma when running in limited overcommit modes
-> and it would run a lot faster if you did but you would pay a lot in
-> flexibility and efficiency, as well as needing a lot more swap.
->
-> Far better to let applications wanting to work this way do it
-> themselves. Just mmap and the cache balancing and pager will do the rest
-> for you.
+> --- a/fs/exec.c
+> +++ b/fs/exec.c
+> @@ -699,7 +699,17 @@ static int de_thread(struct task_struct 
+>  		remove_parent(current);
+>  		remove_parent(leader);
+>  
+> -		switch_exec_pids(leader, current);
+> +
+> +		/* Become a process group leader with the old leader's pid.
+> +		 * Note: The old leader also uses thispid until release_task
+> +		 *       is called.  Odd but simple and correct.
+> +		 */
+> +		detach_pid(current, PIDTYPE_PID);
+> +		current->pid = leader->pid;
+> +		attach_pid(current, PIDTYPE_PID,  current->pid);
 
-So w/ 1GB RAM, no swap, and 1TB disk mmap'd, could this mmap'd space be added 
-to the total memory available to the OS, as is done w/ swap?
+What happens after de_thread() unlocks tasklist_lock and before
+it is taken again in release_task() ?
 
-And if that's possible, why not replace swap w/ mmap'd disk-space?
+In that window find_task_by_pid() will return dead leader, not
+the new leader of thread group. This means we can miss tkill()
+or ptrace(), for example.
 
-Thanks!
-
---
-Al
-
+Oleg.

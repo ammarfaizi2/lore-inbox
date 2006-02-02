@@ -1,72 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423375AbWBBIXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422956AbWBBI0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423375AbWBBIXT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 03:23:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423377AbWBBIXT
+	id S1422956AbWBBI0T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 03:26:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423377AbWBBI0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 03:23:19 -0500
-Received: from ns2.suse.de ([195.135.220.15]:59614 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1423375AbWBBIXS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 03:23:18 -0500
-From: Neil Brown <neilb@suse.de>
-To: "J.A. Magallon" <jamagallon@able.es>
-Date: Thu, 2 Feb 2006 19:23:08 +1100
-MIME-Version: 1.0
+	Thu, 2 Feb 2006 03:26:19 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:9679 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
+	id S1422956AbWBBI0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 03:26:18 -0500
+Date: Thu, 2 Feb 2006 10:25:59 +0200 (EET)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Andrew Morton <akpm@osdl.org>
+cc: "Kevin O'Connor" <kevin@koconnor.net>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, manfred@colorfullife.com
+Subject: [PATCH] slab leak detector (Was: Size-128 slab leak)
+Message-ID: <Pine.LNX.4.58.0602021021240.32240@sbz-30.cs.Helsinki.FI>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17377.49516.989172.414525@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1-mm4 i386 atomic operations broken on SMP (in modules
- at least)
-In-Reply-To: message from J.A. Magallon on Thursday February 2
-References: <17377.24090.486443.865483@cse.unsw.edu.au>
-	<20060202023550.46f06ee1@werewolf.auna.net>
-	<17377.25947.81994.747575@cse.unsw.edu.au>
-	<20060202091514.5e9f356e@werewolf.auna.net>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday February 2, jamagallon@able.es wrote:
-> On Thu, 2 Feb 2006 12:50:19 +1100, Neil Brown <neilb@suse.de> wrote:
-> 
-> > On Thursday February 2, jamagallon@able.es wrote:
-> > > On Thu, 2 Feb 2006 12:19:22 +1100, Neil Brown <neilb@suse.de> wrote:
-> > > 
-> > > > 
-> > > > I've been testing md/raid in 2.6.16-rc1-mm4 on a dual Xeon with most
-> > > > of the md personalities compiled as modules, and weird stuff if
-> > > > happening.
-> > > > 
-> > > > In particular I'm getting lots of 
-> > > > 
-> > > >     BUG: atomic counter underflow at:
-> > > > 
-> > > > reports in raid10 and raid5, which are modules.
-> > > > 
-> > > >
-> > > 
-> > > I also run this kernel (plus a couple patches) on a SATA raid5 setup, and
-> > > had no problems. People throws and gets files via SMB/AFP, mainly.
-> > > 
-> > > My box is dual PIII@933.
-> > 
-> > Is 'raid5' a module, or is it compiled in?
-> > 
-> 
-> nada:/usr/src/linux# grep _MD_ .config
-> CONFIG_MD_LINEAR=y
-> CONFIG_MD_RAID0=y
-> CONFIG_MD_RAID1=y
-> CONFIG_MD_RAID10=y
-> CONFIG_MD_RAID5=y
+Hi,
 
-I see it's not a module.
-That points pretty strongly to the module loading code then I guess.
+Here's a version that uses dbg_userword() instead of overriding bufctls 
+and adds a CONFIG_DEBUG_SLAB_LEAK config option. Upside is that this works 
+with the slab verifier patch and is less invasive. Downside is that now 
+some slabs don't get leak reports (those that don't get SLAB_STORE_USER 
+enabled in kmem_cache_create). However, I think we should improve 
+dbg_userword() mechanism instead if we need leak reports for all caches.
 
-Thanks,
-NeilBrown
+			Pekka
+
+From: Manfred Spraul <manfred@colorfullife.com>
+
+Maintenance work from Alexander Nyberg <alexn@telia.com>
+
+With the patch applied,
+
+	echo "size-32 0 0 0" > /proc/slabinfo
+
+walks the objects in the size-32 slab, printing out the calling address
+of whoever allocated that object.
+
+It is for leak detection.
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
+
+ lib/Kconfig.debug |   12 ++++++++++++
+ mm/slab.c         |   49 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 61 insertions(+)
+
+Index: 2.6-git/mm/slab.c
+===================================================================
+--- 2.6-git.orig/mm/slab.c
++++ 2.6-git/mm/slab.c
+@@ -3669,6 +3669,54 @@ struct seq_operations slabinfo_op = {
+ 	.show = s_show,
+ };
+ 
++#ifdef CONFIG_DEBUG_SLAB_LEAK
++
++static void print_slab_last_users(struct kmem_cache *cache, struct slab *slab)
++{
++	int i;
++
++	for (i = 0; i < cache->num; i++) {
++		void *obj = slab->s_mem + cache->buffer_size * i;
++		unsigned long sym = (unsigned long) *dbg_userword(cache, obj);
++
++		printk("obj %p/%d: %p", slab, i, (void *)sym);
++		print_symbol(" <%s>", sym);
++		printk("\n");
++	}
++}
++
++static void print_cache_last_users(struct kmem_cache *cache)
++{
++	int node;
++
++	if (!(cache->flags & SLAB_STORE_USER))
++		return;
++
++	check_irq_on();
++	spin_lock_irq(&cache->spinlock);
++	for_each_online_node(node) {
++		struct kmem_list3 *lists = cache->nodelists[node];
++		struct list_head *q;
++
++		spin_lock(&lists->list_lock);
++
++		list_for_each(q, &lists->slabs_full) {
++			struct slab *slab = list_entry(q, struct slab, list);
++			print_slab_last_users(cache, slab);
++		}
++		spin_unlock(&lists->list_lock);
++	}
++	spin_unlock_irq(&cache->spinlock);
++}
++
++#else
++
++static void print_cache_last_users(struct kmem_cache *cache)
++{
++}
++
++#endif
++
+ #define MAX_SLABINFO_WRITE 128
+ /**
+  * slabinfo_write - Tuning for the slab allocator
+@@ -3709,6 +3757,7 @@ ssize_t slabinfo_write(struct file *file
+ 			if (limit < 1 ||
+ 			    batchcount < 1 ||
+ 			    batchcount > limit || shared < 0) {
++				print_cache_last_users(cachep);
+ 				res = 0;
+ 			} else {
+ 				res = do_tune_cpucache(cachep, limit,
+Index: 2.6-git/lib/Kconfig.debug
+===================================================================
+--- 2.6-git.orig/lib/Kconfig.debug
++++ 2.6-git/lib/Kconfig.debug
+@@ -85,6 +85,18 @@ config DEBUG_SLAB
+ 	  allocation as well as poisoning memory on free to catch use of freed
+ 	  memory. This can make kmalloc/kfree-intensive workloads much slower.
+ 
++config DEBUG_SLAB_LEAK
++	bool "Debug memory leaks"
++	depends on DEBUG_SLAB
++	help
++	  Say Y here to have the kernel track last user of a slab object which
++	  can be used to detect memory leaks. With this config option enabled,
++
++	      echo "size-32 0 0 0" > /proc/slabinfo
++
++	  walks the objects in the size-32 slab, printing out the calling
++	  address of whoever allocated that object.
++
+ config DEBUG_PREEMPT
+ 	bool "Debug preemptible kernel"
+ 	depends on DEBUG_KERNEL && PREEMPT

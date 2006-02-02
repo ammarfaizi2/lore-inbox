@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWBBO5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbWBBPA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbWBBO5X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 09:57:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWBBO5X
+	id S1751118AbWBBPA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 10:00:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWBBPA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 09:57:23 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:64543 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751113AbWBBO5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 09:57:22 -0500
-Date: Thu, 2 Feb 2006 15:57:20 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: Olaf Hering <olh@suse.de>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       "Bryan O'Sullivan" <bos@pathscale.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Introduce __iowrite32_copy
-Message-ID: <20060202145720.GE22815@osiris.boeblingen.de.ibm.com>
-References: <200602011820.k11IKUBo024575@hera.kernel.org> <20060202142917.GA10870@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060202142917.GA10870@suse.de>
-User-Agent: mutt-ng/devel (Linux)
+	Thu, 2 Feb 2006 10:00:58 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:62954 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1751121AbWBBPA5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 10:00:57 -0500
+Message-ID: <43E21EA0.7050100@drzeus.cx>
+Date: Thu, 02 Feb 2006 16:00:48 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5 (X11/20060128)
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Purpose of MMC_DATA_MULTI?
+References: <43E057DA.7000909@drzeus.cx> <20060201092934.GB27735@flint.arm.linux.org.uk> <43E08148.3060003@drzeus.cx> <20060202093656.GA5034@flint.arm.linux.org.uk> <43E1D5BF.5000807@drzeus.cx> <20060202095910.GB5034@flint.arm.linux.org.uk>
+In-Reply-To: <20060202095910.GB5034@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> lib/iomap_copy.c: In function '__iowrite32_copy':
-> lib/iomap_copy.c:40: error: implicit declaration of function '__raw_writel'
-> 
-> We compile with -Werror-implicit-function-declaration, and s390 does not
-> have a __raw_writel.
-> Should it just define __raw_writel to writel, like uml does a few
-> commits later?
+Russell King wrote:
+> Mainly because I don't know if that's sufficient, and until I get around
+> to finding and reading the AT91RM9200 data sheet, I won't know if it is.
+> What I do know is that the addition of that flag provides the exact
+> information which the driver wants.
+>
+>   
 
-I sent a patch which fixes this for s390 earlier today.
-http://lkml.org/lkml/2006/2/2/78
+I had a look in the spec[1] and things didn't exactly get any clearer. 
+All it says is that the encoding 01 (binary) means "Multiple Block", no 
+a single word on its semantics or an example of when it should be used. 
+So I still advocate the simpler approach (code complexity-wise) until we 
+have a test case that says it's insufficient.
 
-Thanks,
-Heiko
+Rgds
+Pierre
+
+[1] http://www.atmel.com/dyn/resources/prod_documents/doc1768.pdf

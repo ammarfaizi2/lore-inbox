@@ -1,59 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751067AbWBBNcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWBBNeH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751067AbWBBNcX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 08:32:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWBBNcX
+	id S1751064AbWBBNeH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 08:34:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWBBNeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 08:32:23 -0500
-Received: from webmail.terra.es ([213.4.149.12]:13055 "EHLO
-	csmtpout2.frontal.correo") by vger.kernel.org with ESMTP
-	id S1751070AbWBBNcW convert rfc822-to-8bit (ORCPT
+	Thu, 2 Feb 2006 08:34:06 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:17298 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751054AbWBBNeE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 08:32:22 -0500
-Date: Thu, 2 Feb 2006 14:24:43 +0100 (added by postmaster@terra.es)
-From: <grundig@teleline.es>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: xavier.bestel@free.fr, schilling@fokus.fraunhofer.de, oliver@neukum.org,
-       mrmacman_g4@mac.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jerome.lacoste@gmail.com,
-       jengelh@linux01.gwdg.de, James@superbug.co.uk, j@bitron.ch,
-       acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-Id: <20060202143202.3c2bd4a3.grundig@teleline.es>
-In-Reply-To: <43E20047.nail4TP1PULVQ@burner>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
-	<43DF3C3A.nail2RF112LAB@burner>
-	<5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com>
-	<200601311333.36000.oliver@neukum.org>
-	<1138867142.31458.3.camel@capoeira>
-	<43E1EAD5.nail4R031RZ5A@burner>
-	<1138880048.31458.31.camel@capoeira>
-	<43E20047.nail4TP1PULVQ@burner>
-X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 2 Feb 2006 08:34:04 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
+Date: Thu, 2 Feb 2006 14:34:32 +0100
+User-Agent: KMail/1.9.1
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@suse.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602020931.29796.rjw@sisk.pl> <200602021922.11100.nigel@suspend2.net>
+In-Reply-To: <200602021922.11100.nigel@suspend2.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200602021434.33660.rjw@sisk.pl>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 02 Feb 2006 13:51:19 +0100,
-Joerg Schilling <schilling@fokus.fraunhofer.de> escribió:
+Hi Nigel,
 
-> Libscg is _the_ HAL for cdrecord. It is availaible the same way as today since
-> 10 years.
+On Thursday 02 February 2006 10:22, Nigel Cunningham wrote:
+> On Thursday 02 February 2006 18:31, Rafael J. Wysocki wrote:
+> > > Well, I'd love that to be true, but I don't believe Pavel's going to roll
+> > > over and say "Ok Nigel. You've got a better implementation. I'll submit
+> > > patches to remove mine." I might be wrong, and I hope I will be, but I
+> > > fear they're going to coexist for a while.
+> >
+> > First, your code introduces many changes in many parts of the kernel,
+> > so to merge it you'll have to ask many people for acceptance.
+> 
+> I really must work harder to get rid of that perception. It used to be the 
+> case, but isn't nowadays. Just about all of suspend2's changes are new files 
+> in kernel/power and include/<arch>/suspend2.h. The remainder are misc fixes, 
+> and enhancements like Christoph's todo list.
 
+Well, in your previous series of patches there are examples to the contrary,
+like the changes to kthread_create() or workqueues.  They would require an ack
+from the maintainers of that code, at least.
 
-libscg being there for 10 years doesn't means that it's the right or the
-better way of doing things.
+Also, you probably need some changes in the arch code.  If that is so, the
+maintainers of relevant architectures should be asked.
 
-Hal is _the_ HAL for linux, in fact HAL is targetted to become _the_
-"standard" (freedesktop standard) HAL for open operative systems. HAL
-should be already available on solaris, at least there's a @sun.com guy
-who created a hald/solaris/ directory (gnome is already using HAL and
-sun is interested in gnome). It doesn't seem to do nothing today but I
-bet that sun is interested in getting HAL working in solaris (there're
-at least people in the opensolaris mailing lists interested). I guess
-the BSD guys will end up implementing BSD support some day aswell - desktop
-is not as important for them as it is for linux.
+That already is "many".
 
-So the fact is that HAL is quickly becoming _the_ HAL for unix systems.
+> > Second, swsusp is actively developed, not only by Pavel, and you know that,
+> > so you could be nicer. ;-)
+> 
+> It was hardly touched for a long time, but that has certainly been changing in 
+> the last few months. I wasn't meaning to be uncharitable. Sorry for giving 
+> that impression.
+
+Accepted. :-)
+
+> > Still our approach is quite different to yours.  We are focused on keepeing
+> > the code possibly simple and non-intrusive wrt the other parts of the
+> > kernel, whereas you seem to concentrate on features (which is not wrong,
+> > IMO, it's just a different point of view).  We're moving towards the
+> > implementation of the features like the system image compression and
+> > encryption,
+> > graphical progress meters etc. in the user space, which has some
+> > advantages, and I think this approach is correct for a laptop/desktop
+> > system.
+> >
+> > Its limitation , however, is that it requires a lot of memory for the
+> > system memory snapshot which may be impractical for systems with limited
+> > RAM, and that's where your solution may be required.
+> 
+> I'm more concerned about the security implications. I'll freely admit that I 
+> haven't spent any real time looking at your code, but I'm concerned that the 
+> additional functionality made available could be used by viruses and the 
+> like. I'm sure you'd have to be root to do anything, but how could the 
+> interfaces be misused?
+
+In not many ways, really.  Of course you can do a DoS with them, but need
+to be root to do this anyway.
+
+> > In conclusion, I see the room for both, as long as the do not conflict, so
+> > could we please bury the hatched and start working _together_?
+> 
+> I didn't realise I was holding one :). I'm not sure that I agree that there's 
+> a need for both, but I have no desire whatsoever to act an any sort of nasty 
+> way. All I want is to help provide Linux users with stable, reliable, 
+> flexible and fast suspend-to-disk functionality.
+
+That's fine. :-)
+
+Obviously both solutions are used, so they both seem to be needed.
+
+Greetings,
+Rafael
+

@@ -1,55 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWBBOIU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbWBBOL2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbWBBOIU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 09:08:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbWBBOIT
+	id S1751085AbWBBOL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 09:11:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWBBOL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 09:08:19 -0500
-Received: from penta.pentaserver.com ([66.45.247.194]:50337 "EHLO
-	penta.pentaserver.com") by vger.kernel.org with ESMTP
-	id S1751080AbWBBOIT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 09:08:19 -0500
-Message-ID: <43E20ED5.3000401@gmail.com>
-Date: Thu, 02 Feb 2006 17:53:25 +0400
-From: Manu Abraham <abraham.manu@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Thu, 2 Feb 2006 09:11:27 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54445 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751088AbWBBOL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 09:11:26 -0500
+To: Greg <gkurz@fr.ibm.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+References: <20060117143258.150807000@sergelap>
+	<20060117143326.283450000@sergelap>
+	<1137511972.3005.33.camel@laptopd505.fenrus.org>
+	<20060117155600.GF20632@sergelap.austin.ibm.com>
+	<1137513818.14135.23.camel@localhost.localdomain>
+	<1137518714.5526.8.camel@localhost.localdomain>
+	<20060118045518.GB7292@kroah.com>
+	<1137601395.7850.9.camel@localhost.localdomain>
+	<m1fyniomw2.fsf@ebiederm.dsl.xmission.com>
+	<43D14578.6060801@watson.ibm.com>
+	<Pine.LNX.4.64.0601311248180.7301@g5.osdl.org>
+	<m13bj34spw.fsf@ebiederm.dsl.xmission.com>
+	<43E0E1D3.5000803@fr.ibm.com>
+	<m1u0bjvxj7.fsf@ebiederm.dsl.xmission.com>
+	<43E20E31.2030601@fr.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 02 Feb 2006 07:09:27 -0700
+In-Reply-To: <43E20E31.2030601@fr.ibm.com> (gkurz@fr.ibm.com's message of
+ "Thu, 02 Feb 2006 14:50:41 +0100")
+Message-ID: <m1oe1pvomg.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: Linux and Kernel Video <video4linux-list@redhat.com>
-CC: linux-kernel@vger.kernel.org, debian-amd64@lists.debian.org,
-       dancer@netfort.gr.jp
-Subject: Re: [x86_64] bttv: linux 2.6.16-rc1 mplayer fails to record ALSA
- audio and fails tune TV.
-References: <87fyqeicge.dancerj%dancer@netfort.gr.jp>	<87wtjg5gh2.dancerj%dancer@netfort.gr.jp>	<87mzj4uoys.dancerj%dancer@netfort.gr.jp>	<877ja0znsi.dancerj%dancer@netfort.gr.jp>	<873bjr8drz.dancerj%dancer@netfort.gr.jp>	<8764ofke3d.dancerj%dancer@netfort.gr.jp> <87u0bim8c4.dancerj%dancer@netfort.gr.jp>
-In-Reply-To: <87u0bim8c4.dancerj%dancer@netfort.gr.jp>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - penta.pentaserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - gmail.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Junichi Uekawa wrote:
-> Hi,
+Greg <gkurz@fr.ibm.com> writes:
+
+>> Well that assertion will fail.
+>> At that point getppid() will return 0, and getpid() will return 1.
+>> 
+>> Processes getting confused is their own problem.
+>> 
 >
-> status update, it's still like this; I probably don't have much time
-> to sit around debugging this problem myself, but if anyone else has
-> met this problem and fixed it, I'd be delighted to know about it.
+> This flavour of clone should be used with great care then since it breaks the
+> usual unix process semantics. :)
+
+Do you know of a flavor of clone (besides fork) that doesn't share that
+property?
+
+For the most part I am not breaking the usual process semantics I work
+very hard to preserve it but simply which pids you see are different.
+Which what would be expected.
+
+>> Now there will be a pid that the parent sees that will not be 0.
+>> And that is what the parent will see in the context of wait.
+>> 
+>> In my code I introduced a wid (wait id) for that purpose.
+>> 
 >
-> Linux dancer64 2.6.16-rc1dancer-ga6df590d-dirty #1 Wed Feb 1 18:36:00 JST 2006 x86_64 GNU/Linux
->
->   
+> Is it possible to see the code ?
 
-Are you referring to bugzilla 5895 ? I just closed that ticket.
+git://git.kernel.org/pub/scm/linux/kernel/git/ebiederm/linux-2.6-ns.git/
 
-http://linuxtv.org/hg/v4l-dvb?cmd=changeset;node=dc3ce5a86001;style=gitweb
+The tree is still at the proof of concept level but it does come fairly close
+to what has been discussed.
 
-
-Manu
-
+Eric

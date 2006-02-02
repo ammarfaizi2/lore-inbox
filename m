@@ -1,74 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWBBBIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161030AbWBBBKX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030237AbWBBBIv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 20:08:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWBBBIu
+	id S1161030AbWBBBKX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 20:10:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161034AbWBBBKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 20:08:50 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:46862 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP
-	id S1030237AbWBBBIu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 20:08:50 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: GPL V3 and Linux - Dead Copyright Holders
-Date: Wed, 1 Feb 2006 17:08:33 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKOEIDJNAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 1 Feb 2006 20:10:23 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:55472 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1161030AbWBBBKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 20:10:22 -0500
+Subject: Re: 2.6.15-rt16
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Clark Williams <williams@redhat.com>
+Cc: chris perkins <cperkins@OCF.Berkeley.EDU>, linux-kernel@vger.kernel.org
+In-Reply-To: <1138833380.18762.67.camel@localhost.localdomain>
+References: <Pine.SOL.4.63.0601300839050.8546@conquest.OCF.Berkeley.EDU>
+	 <1138640592.12625.0.camel@localhost.localdomain>
+	 <Pine.SOL.4.63.0601300917120.8546@conquest.OCF.Berkeley.EDU>
+	 <1138653235.26657.7.camel@localhost.localdomain>
+	 <Pine.SOL.4.63.0601310946000.8770@conquest.OCF.Berkeley.EDU>
+	 <1138730835.5959.3.camel@localhost.localdomain>
+	 <1138818770.6685.1.camel@localhost.localdomain>
+	 <1138819142.18762.10.camel@localhost.localdomain>
+	 <1138830476.6632.5.camel@localhost.localdomain>
+	 <1138830694.18762.46.camel@localhost.localdomain>
+	 <1138832179.6632.12.camel@localhost.localdomain>
+	 <1138833380.18762.67.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 01 Feb 2006 20:10:12 -0500
+Message-Id: <1138842612.6632.30.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.64.0602011540070.21884@g5.osdl.org>
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Wed, 01 Feb 2006 17:05:17 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Wed, 01 Feb 2006 17:05:17 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-02-01 at 16:36 -0600, Clark Williams wrote:
+> On Wed, 2006-02-01 at 17:16 -0500, Steven Rostedt wrote:
+> > 
+> > No, but I don't use an initrd, so my failure was first that it couldn't
+> > recognize my harddrives.  So I compiled in the necessary drivers into my
+> > kernel, and it booted right up to the GDM login.  I logged in, and was
+> > going to reply to you, but I guess I have a different network card since
+> > I had no network.
+> > 
+> 
+> Ok, I took the config file I sent you, globally substituted '=y' for
+> '=m' and rebuilt, then booted that kernel. Other than a message that it
+> was unable to open the console (udev wasn't started) I got the exact
+> same failure (same panic backtrace).
 
-> The fact is, the copyright notices and licenses really _are_ a very
-> integral part of "Program". You cannot separate one from the other - not
-> conceptually, and not physically - and trying to do so would in fact be a
-> clear violation of section 1.
+Thanks for the clarification.
 
-	Is it your position that a program distribution that includes a copy of
-GPLv2 and contains no other information about licensing is licensed *only*
-under GPLv2 and you can not substitute a later version at your option?
+> 
+> > > 
+> > > I'm fairly certain that the initrd contains the appropriate modules,
+> > > since I regenerate the initrd each time I generate a new kernel, but
+> > > I'll go back and verify. 
+> > > 
+> > > I'll also convert modules to compiled in and see if that makes a
+> > > difference.
+> > 
+> > Thanks, I've been burnt before with incompatible modules in initrd, that
+> > I now only use compiled in modules that are needed to boot (ide, ext3,
+> > etc).  When compiling 3 different kernels with several different configs
+> > constantly for the same machine, it just becomes easier to not use an
+> > initrd.
+> 
+> One of the things I wanted to see was how the -rt patch worked with
+> SELinux, so I decided to try and run a kernel that looked like a distro
+> kernel (in this case FC4).  I just put together some scripting logic to
+> build the kernel and module tree three times (athlon64, p3smp, and
+> duron).  After I've rebuilt, I install on each target system using a
+> shell script that deletes the old module tree, rsyncs a new one,
+> installs the matching kernel and builds a new initrd.
+> 
+> Hmmm, FC4 is based on 2.6.14.x. Did something change in the 2.6.15
+> series that needs a user-space change as well? (I'm running a current
+> FC4 rootfs).
 
-	It may help to review section 9:
+But, didn't you say that if you turn off LATENCY_TRACING that the -rt
+patched kernel boots?
 
-"Each version is given a distinguishing version number.  If the Program
-specifies a version number of this License which applies to it and "any
-later version", you have the option of following the terms and conditions
-either of that version or of any later version published by the Free
-Software Foundation.  If the Program does not specify a version number of
-this License, you may choose any version ever published by the Free Software
-Foundation."
+So, now it seems to be something hardware specific that is different
+between your machine and mine.
 
-	Do you see in here *any* reference to a way to limit a program so that only
-one particular version of the GPL applies to it?
+Note:  I'm using Debian.
 
-	In fact, the kernel's notice that you may only use v2 and no later version
-of the GPL appears, to me, to be an additional restriction that is not
-permitted by the GPL. That is, unless you can find a GPL section that
-permits that type of restriction. I was unable to find one. None of the
-examples included with the GPL include any such restriction of that type.
-
-	I previously wrote that I thought that you could do so by including a
-notice to that effect in every file. I now do not believe that is the case.
-You cannot include any other type of restriction in a file under the GPL,
-and I don't see why that type of restriction would be an exception.
-
-	DS
+-- Steve
 
 

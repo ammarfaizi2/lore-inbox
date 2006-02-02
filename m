@@ -1,53 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423455AbWBBKs5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423456AbWBBKtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423455AbWBBKs5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 05:48:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423456AbWBBKs4
+	id S1423456AbWBBKtv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 05:49:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423457AbWBBKtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 05:48:56 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22965 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1423455AbWBBKs4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 05:48:56 -0500
-Date: Thu, 2 Feb 2006 11:48:45 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Message-ID: <20060202104845.GD1884@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060202100522.GB1981@elf.ucw.cz> <200602022038.16262.nigel@suspend2.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+	Thu, 2 Feb 2006 05:49:51 -0500
+Received: from smtp.andrew.cmu.edu ([128.2.10.82]:41705 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S1423456AbWBBKtu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 05:49:50 -0500
+Message-ID: <43E1E2F2.1090102@andrew.cmu.edu>
+Date: Thu, 02 Feb 2006 05:46:10 -0500
+From: James Bruce <bruce@andrew.cmu.edu>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?UTF-8?B?RW1pbGlvIEplc8O6cyBHYWxsZWdvIEFyaWFz?= 
+	<egallego@babel.ls.fi.upm.es>
+CC: Linus Torvalds <torvalds@osdl.org>, Karim Yaghmour <karim@opersys.com>,
+       Filip Brcic <brcha@users.sourceforge.net>,
+       Glauber de Oliveira Costa <glommer@gmail.com>,
+       Thomas Horsten <thomas@horsten.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk> <43DE57C4.5010707@opersys.com> <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com> <200601302301.04582.brcha@users.sourceforge.net> <43E0E282.1000908@opersys.com> <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org> <43E1C55A.7090801@drzeus.cx> <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org> <87mzha85sc.fsf@babel.ls.fi.upm.es>
+In-Reply-To: <87mzha85sc.fsf@babel.ls.fi.upm.es>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <200602022038.16262.nigel@suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Čt 02-02-06 20:38:11, Nigel Cunningham wrote:
-> Hi.
+Emilio Jesús Gallego Arias wrote:
+>... 
+> 1.- Distribute a kernel with some DRM built-in under the GPL.
 > 
-> On Thursday 02 February 2006 20:05, Pavel Machek wrote:
-> > Hi!
-> >
-> > > This set of patches represents the core of Suspend2's module support.
-> > >
-> > > Suspend2 uses a strong internal API to separate the method of
-> > > determining the content of the image from the method by which it is
-> > > saved. The code for determining the content is part of the core of
-> > > Suspend2, and transformations (compression and/or encryption) and storage
-> > > of the pages are handled by 'modules'.
-> >
-> > swsusp already has a very strong API to separate image writing from
-> > image creation (in -mm patch, anyway). It is also very nice, just
-> > read() from /dev/snapshot. Please use it.
-> 
-> You know that's not an option.
+> 2.- Claim that such kernel is an effective technological measure to
+>     protect copyright. 
 
-(You could even use /dev/snapshot from kernelspace... for tests or
-something. But such patch is not going to be mergeable.)
-							Pavel
--- 
-Thanks, Sharp!
+You forgot:
+
+2.5- Due to the DMCA, the code now has an additional restriction on
+      top of what is already in its license, the GPL v2.  The GPL v2
+      forbids additional restrictions, and thus the resulting work
+      cannot be distributed.
+
+> 3.- You are no longer free to modify that kernel, (removing the DRM
+>     module) or you can be sued under the DMCA, for circumventing an
+>     effective technological measure. It doesn't matter in what
+>     hardware are you going to run such kernel. The DMCA implicitly
+>     imposes an additional restriction to the GPL, but as the
+>     restriction is not imposed directly by the copyright owner, but by
+>     the law, it's OK as far the GPL is concerned.
+
+If the DRM author(s) are the ones claiming the DRM is an "effective 
+technological measure", then they are the ones imposing an additional 
+restriction.  Those authors are the ones who can be sued, not the end 
+users of the kernel+DRM.  If someone else makes the claim, it carries no 
+weight at all, because they are not the author or copyright owner.
+
+Also, remember that the GPL is about DISTRIBUTION only.  You are always 
+free to modify whatever you want.  So your #3 is just plain wrong, as 
+you still can modify the kernel.  What you can't do is distribute that 
+modified version, although that's a meaningless since #2.5 shows you 
+couldn't distribute the unmodified version anyway.
+
+The modification vs. distribution point cannot be emphasized enough, as 
+far too many people miss this important distinction when thinking about 
+the GPL.  Nothing in GPL software becomes magically illegal at any 
+point; The only thing that can be legal or not is distribution.  I am 
+free to mix Linux, Open Solaris, GCC, and BSD code with the advertising 
+clause, and top it off with GNU FDL docs, and do so to my hearts' 
+content.  The only thing I *can't* do with that abomination is 
+distribute it.
+
+  - Jim Bruce

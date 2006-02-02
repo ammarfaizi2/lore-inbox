@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWBBQLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWBBQMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWBBQLu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 11:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbWBBQLu
+	id S932097AbWBBQMO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 11:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWBBQMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 11:11:50 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:47797 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932096AbWBBQLt
+	Thu, 2 Feb 2006 11:12:14 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:59418 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932097AbWBBQMM convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 11:11:49 -0500
-Subject: [PATCH 0/3] VFS changes to collapse all the vectored and AIO
-	support
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: christoph <hch@lst.de>, Benjamin LaHaise <bcrl@kvack.org>,
-       Zach Brown <zach.brown@oracle.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>, pbadari@us.ibm.com
-Content-Type: text/plain
-Date: Thu, 02 Feb 2006 08:12:38 -0800
-Message-Id: <1138896758.28382.112.camel@dyn9047017102.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Feb 2006 11:12:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gPsucsLVbDaQfZBbl5LXrfmg3/roZmCOYNBQ7gUBUyLhDY9MlTbAloOIBNbwqW4pNY80sGosMq4y1WHkrAtN+eb0XVqj4u+k/1odM3U/aNELga/VSxeb0T21Y9+YvpI7ncmUJRHP3DL/l/3ZPJ3uYUErQEb5GPIgLtLq4/bRJeg=
+Message-ID: <d120d5000602020812j557164fdm6e1136eb04975be6@mail.gmail.com>
+Date: Thu, 2 Feb 2006 11:12:11 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Shaun Jackman <sjackman@gmail.com>
+Subject: Re: lsserio
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <7f45d9390602020800y1108a12ai832fd0b0ba630d24@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <7f45d9390602020800y1108a12ai832fd0b0ba630d24@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 2/2/06, Shaun Jackman <sjackman@gmail.com> wrote:
+> Is there a lsserio utility, akin to lspci and lsusb? In particular,
+> I'd like to see the result of the PS/2 GETID command for all PS/2
+> buses and devices.
+>
 
-This work was originally suggested & started by Christoph Hellwig, 
-when Zack Brown tried to add vectored support for AIO. These series
-of changes collapses all the vectored IO support into single
-file-operation method using aio_read/aio_write. 
+No there is no such utility because only some serio ports are PS/2.
+You can try building serio_raw module and binding it to the port you
+are interested in - it will provide you with something like old
+/dev/psaux interface and will allow you to play with the device from
+userspace.
 
-Christoph & Zack, comments/suggestions ? If you are happy with the
-work, can you add your Sign-off or Ack ?
-
-Here is the summary:
-
-[PATCH 1/3] Vectorize aio_read/aio_write methods
-
-[PATCH 2/3] Remove readv/writev methods and use aio_read/aio_write
-instead.
-
-[PATCH 3/3] Zack's core aio changes to support vectored AIO.
-
-To Do/Issues:
-
-1) Since aio_read/aio_write are vectorized now, need to modify
-nfs AIO+DIO and usb/gadget to handle vectors. Is it needed ?
-For now, it handles only single vector. Christoph, should I
-loop over all the vectors ?
-
-2) AIO changes need careful review & could be cleaned up further.
-Zack, can you take a look at those ?
-
-3) Ben's suggestion of kernel iovec to hold precomputed information
-(like total iolen) instead of computing every time.
-
-Thanks,
-Badari
-
+--
+Dmitry

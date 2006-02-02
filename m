@@ -1,107 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423424AbWBBJhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423419AbWBBJhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423424AbWBBJhV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 04:37:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423425AbWBBJhU
+	id S1423419AbWBBJhO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 04:37:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423424AbWBBJhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 04:37:20 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:34282 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1423424AbWBBJhT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 04:37:19 -0500
-Message-ID: <43E1D2D0.2060105@drzeus.cx>
-Date: Thu, 02 Feb 2006 10:37:20 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5 (X11/20060128)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Karim Yaghmour <karim@opersys.com>,
-       Filip Brcic <brcha@users.sourceforge.net>,
-       Glauber de Oliveira Costa <glommer@gmail.com>,
-       Thomas Horsten <thomas@horsten.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk> <43DE57C4.5010707@opersys.com> <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com> <200601302301.04582.brcha@users.sourceforge.net> <43E0E282.1000908@opersys.com> <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org> <43E1C55A.7090801@drzeus.cx> <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Feb 2006 04:37:14 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50441 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1423419AbWBBJhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 04:37:13 -0500
+Date: Thu, 2 Feb 2006 09:36:57 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Purpose of MMC_DATA_MULTI?
+Message-ID: <20060202093656.GA5034@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <43E057DA.7000909@drzeus.cx> <20060201092934.GB27735@flint.arm.linux.org.uk> <43E08148.3060003@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43E08148.3060003@drzeus.cx>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Thu, 2 Feb 2006, Pierre Ossman wrote:
->   
->> The point is not only getting access to the source code, but also being able
->> to change it. Being able to freely study the code is only half of the beauty
->> of the GPL. The other half, being able to change it, can be very effectively
->> stopped using DRM.
->>     
->
-> No it cannot.
->
-> Sure, DRM may mean that you can not _install_ or _run_ your changes on 
-> somebody elses hardware. But it in no way changes the fact that you got 
->   
+On Wed, Feb 01, 2006 at 10:37:12AM +0100, Pierre Ossman wrote:
+> Russell King wrote:
+> > On Wed, Feb 01, 2006 at 07:40:26AM +0100, Pierre Ossman wrote:
+> >> I noticed that a new transfer flag was recently added to the MMC layer
+> >> without any immediate users, the MMC_DATA_MULTI flag. I'm guessing the
+> >> purpose of the flag is to indicate the difference between
+> >> MMC_READ_SINGLE_BLOCK and MMC_READ_MULTIPLE_BLOCKS with just one block.
+> >> If so, then that should probably be mentioned in a comment somewhere.
+> >>     
+> >
+> > There are hosts out there (Atmel AT91-based) which need to know if the
+> > transfer is going to be multiple block.  Rather than have them test
+> > the op-code (which is what they're already doing), we provide a flag
+> > instead.
+> 
+> As far as the hardware is concerned there are two "multi-block" transfers:
+> 
+>  * Multiple, back-to-back blocks.
+>  * One or more blocks that need to be terminated by some form of stop
+> command.
+> 
+> The first can be identified by checking the number of blocks in the
+> request, the latter is harder to identify since it's a protocol semantic
+> (it could be just one block, but still need a stop). Does MMC_DATA_MULTI
+> indicate the latter, former or both?
 
-I don't consider things I've bought to be somebody elses hardware. The 
-whole attitude of the big manufacturer that kindly gives me permission 
-to use their product only how they see fit is very disgusting to me.
+In short, it's defined to be whatever AT91_MCI_TRTYP_MULTIPLE means in
+the AT91RM9200 MMC host driver, which appears to be set for any of the
+multiple block commands.  They currently are doing:
 
-> The difference? The hardware may only run signed kernels. The fact that 
-> the hardware is closed is a _hardware_ license issue. Not a software 
-> license issue. I'd suggest you take it up with your hardware vendor, and 
-> quite possibly just decide to not buy the hardware. Vote with your feet. 
-> Join the OpenCores groups. Make your own FPGA's.
->   
++static const u32 commands[64] = {
++       /* Class 1  (0) */
++       MMC_GO_IDLE_STATE,
++       MMC_SEND_OP_COND        | AT91_MCI_RSPTYP_48,
++       MMC_ALL_SEND_CID        | AT91_MCI_RSPTYP_136,
++       MMC_SET_RELATIVE_ADDR   | AT91_MCI_RSPTYP_48    | AT91_MCI_MAXLAT,
++       MMC_SET_DSR             | AT91_MCI_MAXLAT,
+...
++       MMC_READ_SINGLE_BLOCK   | AT91_MCI_RSPTYP_48    | AT91_MCI_MAXLAT | AT91_MCI_TRDIR | AT91_MCI_TRCMD_START | AT91_MCI_TRTYP_BLOCK,
++       MMC_READ_MULTIPLE_BLOCK | AT91_MCI_RSPTYP_48    | AT91_MCI_MAXLAT | AT91_MCI_TRDIR | AT91_MCI_TRCMD_START | AT91_MCI_TRTYP_MULTIPLE,
+...
++       MMC_WRITE_BLOCK         | AT91_MCI_RSPTYP_48    | AT91_MCI_MAXLAT | AT91_MCI_TRCMD_START | AT91_MCI_TRTYP_BLOCK,
++       MMC_WRITE_MULTIPLE_BLOCK| AT91_MCI_RSPTYP_48    | AT91_MCI_MAXLAT | AT91_MCI_TRCMD_START | AT91_MCI_TRTYP_MULTIPLE,
 
-I'm concerned that in a few years time such systems will be rare and 
-hard to come by (possibly even illegal). I find such system pissing all 
-over the spirit of the GPL. To me, the GPL has always been about the 
-freedom of modifying (in place, not making a clone).
+and using that as a lookup table by command for the value to put into
+the command register.  I want to eliminate that, and not passing the
+MULTI flag prevents elimination of this table.
 
-It's a fine line before we are in the territory of restricting what 
-software can be used for. But for me this is not about restricting their 
-rights as much as it is preventing them from restricting mine.
-
-> And it's important to realize that signed kernels that you can't run in 
-> modified form under certain circumstances is not at all a bad idea in many 
-> cases.
->
-> For example, distributions signing the kernel modules (that are 
-> distributed under the GPL) that _they_ have compiled, and having their 
-> kernels either refuse to load them entirely (under a "secure policy") or 
-> marking the resulting kernel as "Tainted" (under a "less secure" policy) 
-> is a GOOD THING.
->   
-
-I dislike the former but the latter is acceptable (and, as you say, in 
-some cases desirable). There is a big difference between refusing to run 
-and printing/logging warnings.
-
-> Notice how the current GPLv3 draft pretty clearly says that Red Hat would 
-> have to distribute their private keys so that anybody sign their own 
-> versions of the modules they recompile, in order to re-create their own 
-> versions of the signed binaries that Red Hat creates. That's INSANE.
->
-> Btw, what about signed RPM archives? How well do you think a secure 
-> auto-updater would work if it cannot trust digital signatures?
->
->   
-
-I'm arguing the principle here, not the wording of the current draft. 
-Signatures that are required for execution should be covered, those that 
-result in warnings should not be. Imagine the shit storm if Red Hat 
-decided to ship an rpm that didn't allow packages that weren't signed by 
-them.
-
-It's basically about control. I do not find it reasonable to allow the 
-vendor control of what goes or not on systems I've bought. They're free 
-to put systems in place so they can detect that I've fiddled with it so 
-they can deny me support. But if they want to make a completely closed 
-system then they'll have to develop it on their own and not use my code. 
-"Look but don't touch" is not sufficient for me.
-
-Rgds
-Pierre
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

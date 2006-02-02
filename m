@@ -1,45 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWBBQMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbWBBQNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932097AbWBBQMO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 11:12:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWBBQMO
+	id S932098AbWBBQNN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 11:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbWBBQNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 11:12:14 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:59418 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932097AbWBBQMM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 11:12:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gPsucsLVbDaQfZBbl5LXrfmg3/roZmCOYNBQ7gUBUyLhDY9MlTbAloOIBNbwqW4pNY80sGosMq4y1WHkrAtN+eb0XVqj4u+k/1odM3U/aNELga/VSxeb0T21Y9+YvpI7ncmUJRHP3DL/l/3ZPJ3uYUErQEb5GPIgLtLq4/bRJeg=
-Message-ID: <d120d5000602020812j557164fdm6e1136eb04975be6@mail.gmail.com>
-Date: Thu, 2 Feb 2006 11:12:11 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Shaun Jackman <sjackman@gmail.com>
-Subject: Re: lsserio
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <7f45d9390602020800y1108a12ai832fd0b0ba630d24@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 2 Feb 2006 11:13:13 -0500
+Received: from rodin.limsi.fr ([129.175.152.156]:64198 "EHLO rodin.limsi.fr")
+	by vger.kernel.org with ESMTP id S932098AbWBBQNL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 11:13:11 -0500
+Date: Thu, 2 Feb 2006 17:12:53 +0100
+From: Olivier Galibert <olivier.galibert@limsi.fr>
+To: "Hack inc." <linux-kernel@vger.kernel.org>
+Subject: How is static multicast routing done in practice ?
+Message-ID: <20060202161253.GA10215@m23.limsi.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <7f45d9390602020800y1108a12ai832fd0b0ba630d24@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
+X-LIMSI-rodin-MailScanner: Found to be clean
+X-LIMSI-rodin-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.599,
+	requis 5, autolearn=not spam, BAYES_00 -2.60)
+X-MailScanner-Auteur: galibert@m23.limsi.fr
+X-MailScanner-Dest: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/2/06, Shaun Jackman <sjackman@gmail.com> wrote:
-> Is there a lsserio utility, akin to lspci and lsusb? In particular,
-> I'd like to see the result of the PS/2 GETID command for all PS/2
-> buses and devices.
->
+I have an application[1] that does sends and recieve over multicast
+udp.  Its setup looks like that (note, no IP_MULTICAST_IF call):
 
-No there is no such utility because only some serio ports are PS/2.
-You can try building serio_raw module and binding it to the port you
-are interested in - it will provide you with something like old
-/dev/psaux interface and will allow you to play with the device from
-userspace.
+4920  socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) = 3
+4920  fcntl64(3, F_GETFL)               = 0x2 (flags O_RDWR)
+4920  fcntl64(3, F_SETFL, O_RDWR|O_NONBLOCK) = 0
+4920  setsockopt(3, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
+4920  bind(3, {sa_family=AF_INET, sin_port=htons(8649), sin_addr=inet_addr("239.2.11.71")}, 16) = 0
+4920  ioctl(3, SIOCGIFADDR, 0xbfcc0bd0) = 0
+4920  setsockopt(3, SOL_IP, IP_ADD_MEMBERSHIP, "\357\2\vG\300\250Wd", 8) = 0
 
---
-Dmitry
+4920  socket(PF_INET, SOCK_STREAM, IPPROTO_IP) = 4
+4920  fcntl64(4, F_GETFL)               = 0x2 (flags O_RDWR)
+4920  fcntl64(4, F_SETFL, O_RDWR|O_NONBLOCK) = 0
+4920  setsockopt(4, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
+4920  bind(4, {sa_family=AF_INET, sin_port=htons(8649), sin_addr=inet_addr("0.0.0.0")}, 16) = 0
+4920  listen(4, 5)                      = 0
+
+4920  socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) = 5
+4920  connect(5, {sa_family=AF_INET, sin_port=htons(8649), sin_addr=inet_addr("239.2.11.71")}, 16) = 0
+4920  getsockname(5, {sa_family=AF_INET, sin_port=htons(32775), sin_addr=inet_addr("192.168.87.100")}, [16]) = 0
+4920  setsockopt(5, SOL_IP, IP_MULTICAST_TTL, "\1", 1) = 0
+
+The box has two ethernet interfaces, eth0 and eth1.  The routes are:
+
+239.2.11.71 dev eth1  scope link 
+192.168.87.0/24 dev eth1  proto kernel  scope link  src 192.168.87.100 
+192.44.78.0/24 dev eth0  scope link 
+169.254.0.0/16 dev eth1  scope link 
+224.0.0.0/4 dev eth1 
+
+And the adresses:
+1: lo: <LOOPBACK,UP> mtu 16436 qdisc noqueue 
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 1000
+    link/ether 00:09:6b:00:dc:8a brd ff:ff:ff:ff:ff:ff
+    inet 192.168.87.100/24 brd 192.168.87.255 scope global eth0
+    inet6 fe80::209:6bff:fe00:dc8a/64 scope link 
+       valid_lft forever preferred_lft forever
+3: eth1: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 1000
+    link/ether 00:09:6b:00:dc:8b brd ff:ff:ff:ff:ff:ff
+    inet 192.168.87.100/24 scope global eth1
+    inet6 fe80::209:6bff:fe00:dc8b/64 scope link 
+       valid_lft forever preferred_lft forever
+4: sit0: <NOARP> mtu 1480 qdisc noop 
+    link/sit 0.0.0.0 brd 0.0.0.0
+
+Yes, same ip on both interfaces, we want it that way.
+
+No mrouted anywhere as far as I know.
+
+Problem is: the multicast udp packets are sent over eth0, not eth1.
+
+How can I debug/fix that?
+
+  OG.
+
+[1] Ganglia daemon

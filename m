@@ -1,77 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWBBTVE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWBBTYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751068AbWBBTVE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 14:21:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWBBTVD
+	id S1751005AbWBBTYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 14:24:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWBBTYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 14:21:03 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:27115 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1751068AbWBBTVD (ORCPT
+	Thu, 2 Feb 2006 14:24:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46486 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751005AbWBBTYQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 14:21:03 -0500
-Message-ID: <43E25B92.8060602@drzeus.cx>
-Date: Thu, 02 Feb 2006 20:20:50 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5 (X11/20060119)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Karim Yaghmour <karim@opersys.com>,
-       Filip Brcic <brcha@users.sourceforge.net>,
-       Glauber de Oliveira Costa <glommer@gmail.com>,
-       Thomas Horsten <thomas@horsten.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>  <43DE57C4.5010707@opersys.com>  <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com>  <200601302301.04582.brcha@users.sourceforge.net>  <43E0E282.1000908@opersys.com>  <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org>  <43E1C55A.7090801@drzeus.cx>  <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org> <1138891081.9861.4.camel@localhost.localdomain> <Pine.LNX.4.64.0602020814320.21884@g5.osdl.org> <43E23C79.8050606@drzeus.cx> <Pine.LNX.4.64.0602020937360.21884@g5.osdl.org> <43E24767.1090708@drzeus.cx> <Pine.LNX.4.64.0602021021320.21884@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0602021021320.21884@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Feb 2006 14:24:16 -0500
+Date: Thu, 2 Feb 2006 14:24:15 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: discriminate single bit error hardware failure from slab corruption.
+Message-ID: <20060202192414.GA22074@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Thu, 2 Feb 2006, Pierre Ossman wrote:
->   
->> Linus Torvalds wrote:
->>     
->>> I _literally_ feel that we do not - as software developers - have the 
->>> moral right to enforce our rules on hardware manufacturers. We are not 
->>> crusaders, trying to force people to bow to our superior God. We are 
->>> trying to show others that co-operation and openness works better.
->>>       
->> Then I have to ask, why GPL and not a BSD license? GPL is after all,
->> forcing our beliefs onto anyone who wishes to benefit from our work.
->>     
->
-> Yes, a lot of people see the GPL as a "crusading" license, and I think 
-> that's partly because the FSF really has been acting like a crusader.
->
-> But I think that one of the main reasons Linux has been successful is that 
-> I don't think that the Linux community really is into crusading (some 
-> small parts of it are, but it's not the main reason). I think Linux has 
-> made the GPL more "socially acceptable", by being a hell of a lot less 
-> religious about it than the FSF was.
->
-> So to me, the point of the GPL is not the "convert the infidels" logic, 
-> but something totally different:
->   
+In the case where we detect a single bit has been flipped, we spew
+the usual slab corruption message, which users instantly think
+is a kernel bug.  In a lot of cases, single bit errors are
+down to bad memory, or other hardware failure.
 
-Thank you. I think that completely clarified your position in this.
+This patch adds an extra line to the slab debug messages in those
+cases, in the hope that users will try memtest before they report a bug.
 
-Personally, I'm more of a "crusader". I don't think it's ok to force
-someone into our way of thinking, but when the try to use our work I
-feel they have at least a moral obligation to be as open themselves.
-Kind of along the lines of the old "Do unto others..."-saying. That also
-mean I don't really like bundling proprietary and open software (which I
-do for a living so feel free to call me a hypocrite).
+000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Single bit error detected. Possibly bad RAM. Please run memtest86.
 
-This whole DRM:d hardware issue is a bit different though since it seems
-to be moving to a point where it cannot be avoided. "Vote with your
-wallet" fails when there are so few of us that care about these things.
-With they way electronics are packaged nowadays (chip packages that is),
-it's getting increasingly difficult to build your own stuff. My fear is
-that open source will be something you can only fiddle with on your ten
-year old computer from the pre-DRM era.
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-Rgds
-Pierre
-
+--- linux-2.6.15/mm/slab.c~	2006-01-09 13:25:17.000000000 -0500
++++ linux-2.6.15/mm/slab.c	2006-01-09 13:26:01.000000000 -0500
+@@ -1313,8 +1313,11 @@ static void poison_obj(kmem_cache_t *cac
+ static void dump_line(char *data, int offset, int limit)
+ {
+ 	int i;
++	unsigned char total=0;
+ 	printk(KERN_ERR "%03x:", offset);
+ 	for (i = 0; i < limit; i++) {
++		if (data[offset+i] != POISON_FREE)
++			total += data[offset+i];
+ 		printk(" %02x", (unsigned char)data[offset + i]);
+ 	}
+ 	printk("\n");
+@@ -1019,6 +1023,18 @@ static void dump_line(char *data, int of
+ 		}
+ 	}
+ 	printk("\n");
++	switch (total) {
++		case 0x36:
++		case 0x6a:
++		case 0x6f:
++		case 0x81:
++		case 0xac:
++		case 0xd3:
++		case 0xd5:
++		case 0xea:
++			printk (KERN_ERR "Single bit error detected. Possibly bad RAM. Please run memtest86.\n");
++			return;
++	}
+ }
+ #endif
+ 

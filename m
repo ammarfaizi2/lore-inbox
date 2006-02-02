@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWBBQpn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWBBQrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbWBBQpn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 11:45:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbWBBQpn
+	id S932158AbWBBQrp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 11:47:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbWBBQrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 11:45:43 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:21435 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932127AbWBBQpn (ORCPT
+	Thu, 2 Feb 2006 11:47:45 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:29144 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932158AbWBBQro (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 11:45:43 -0500
-Date: Thu, 2 Feb 2006 17:45:32 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-cc: Patrick McFarland <diablod3@gmail.com>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>, bzolnier@gmail.com,
-       mrmacman_g4@mac.com, matthias.andree@gmx.de,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       acahalan@gmail.com
-Subject: Re: CD writing in future Linux try #2 [ was: Re: CD writing in future
- Linux (stirring up a hornets' nest) ]
-In-Reply-To: <9a8748490601311625mc3b2c89ofcc191b29c4a9ce2@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0602021743530.13212@yvahk01.tjqt.qr>
-References: <58cb370e0601270837h61ac2b03uee84c0fa9a92bc28@mail.gmail.com> 
- <43DCA097.nailGPD11GI11@burner>  <200601302043.56615.diablod3@gmail.com>
- <9a8748490601311625mc3b2c89ofcc191b29c4a9ce2@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Feb 2006 11:47:44 -0500
+Subject: Re: [PATCH] Dynamically allocated pageflags
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>, linux-mm <linux-mm@kvack.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200602021431.30194.ak@suse.de>
+References: <200602022111.32930.ncunningham@cyclades.com>
+	 <200602021431.30194.ak@suse.de>
+Content-Type: text/plain
+Date: Thu, 02 Feb 2006 08:47:06 -0800
+Message-Id: <1138898826.29030.25.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> On Sunday 29 January 2006 06:01, Joerg Schilling wrote:
->> > Danger: Highly Flammable Material. <!>
->>
->> I formally request that Joerg Schilling be banned from the LKML until he
->> learns how to take bugs in his program seriously. cdrecord has bugs, people
->> hit them, and he won't either fix the bugs, or hand maintainership over to
->> someone who wants to fix them.
->>
+On Thu, 2006-02-02 at 14:31 +0100, Andi Kleen wrote:
+> On Thursday 02 February 2006 12:11, Nigel Cunningham wrote:
+> > This is my latest revision of the dynamically allocated pageflags patch.
+> > 
+> > The patch is useful for kernel space applications that sometimes need to flag
+> > pages for some purpose, but don't otherwise need the retain the state. A prime
+> > example is suspend-to-disk, which needs to flag pages as unsaveable, allocated
+> > by suspend-to-disk and the like while it is working, but doesn't need to
+> > retain any of this state between cycles.
+> 
+> It looks like total overkill for a simple problem to me. And is there really
+> any other user of this other than swsusp?
 
-LKML is not the Chinese Government.
+We'll probably end up needing a similar mechanism for memory hotplug.
+What I need is a mechanism that is exceedingly quick during normal
+runtime, any maybe marginally slower during a memory remove operation.
 
->>
->And who's to be the judge of who's a troll and who's not?  you? me?
->some third party?
->
->I personally agree with some things Joerg is saying and disagree with
->others but I still believe he should be allowed to speak, and a mail
->such as yours is at least as annoying/offending/trollish as anything
->he has said so far.
->
->If he bothers you, just ignore him.
->
->Now let's get back to a technical discussion.
->
+We basically put three or so hooks into some crucial parts of the page
+allocator to grab out pages which we want to remove so that they never
+make it back into the allocator or out to the system.
 
-Yep. We were quite there. At least I got that impression.
+Those hooks have to be _really_ fast at runtime, obviously.  In my
+testing code, I always just added a page flag, but that's only because I
+was being lazy when I coded it up.
 
+-- Dave
 
-Jan Engelhardt
--- 

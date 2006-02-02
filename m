@@ -1,253 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423390AbWBBI76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423391AbWBBJB1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423390AbWBBI76 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 03:59:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423391AbWBBI76
+	id S1423391AbWBBJB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 04:01:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423393AbWBBJB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 03:59:58 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:32464 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP
-	id S1423390AbWBBI75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 03:59:57 -0500
-Date: Thu, 2 Feb 2006 10:59:51 +0200 (EET)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Andrew Morton <akpm@osdl.org>
-cc: kevin@koconnor.net, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       manfred@colorfullife.com, davej@redhat.com
-Subject: Re: [PATCH] slab leak detector (Was: Size-128 slab leak)
-In-Reply-To: <20060202004415.28249549.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0602021050480.934@sbz-30.cs.Helsinki.FI>
-References: <Pine.LNX.4.58.0602021021240.32240@sbz-30.cs.Helsinki.FI>
- <20060202004415.28249549.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Feb 2006 04:01:27 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:37793 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423391AbWBBJB1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 04:01:27 -0500
+Date: Thu, 2 Feb 2006 01:00:54 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+cc: Karim Yaghmour <karim@opersys.com>,
+       Filip Brcic <brcha@users.sourceforge.net>,
+       Glauber de Oliveira Costa <glommer@gmail.com>,
+       Thomas Horsten <thomas@horsten.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+In-Reply-To: <43E1C55A.7090801@drzeus.cx>
+Message-ID: <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org>
+References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>
+ <43DE57C4.5010707@opersys.com> <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com>
+ <200601302301.04582.brcha@users.sourceforge.net> <43E0E282.1000908@opersys.com>
+ <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org> <43E1C55A.7090801@drzeus.cx>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
-> >  Here's a version that uses dbg_userword() instead of overriding bufctls 
-> >  and adds a CONFIG_DEBUG_SLAB_LEAK config option. Upside is that this works 
-> >  with the slab verifier patch and is less invasive.
 
-On Thu, 2 Feb 2006, Andrew Morton wrote:
-> What is the slab verifier patch?
 
-See the included (untested) patch. I got it from Davej who got it from 
-Manfred and cleaned it up a bit. The verifier checks slab red zones during 
-cache_reap() to catch slab corruption early.
+On Thu, 2 Feb 2006, Pierre Ossman wrote:
+> 
+> The point is not only getting access to the source code, but also being able
+> to change it. Being able to freely study the code is only half of the beauty
+> of the GPL. The other half, being able to change it, can be very effectively
+> stopped using DRM.
 
-Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
-> > Downside is that now 
-> >  some slabs don't get leak reports (those that don't get SLAB_STORE_USER 
-> >  enabled in kmem_cache_create).
+No it cannot.
 
-On Thu, 2 Feb 2006, Andrew Morton wrote:
-> Which slabs are those?  SLAB_HWCACHE_ALIGN?  If so, that's quite a lot of
-> them (more than needed, probably).
+Sure, DRM may mean that you can not _install_ or _run_ your changes on 
+somebody elses hardware. But it in no way changes the fact that you got 
+all the source code, and you can make changes (and use their changes) to 
+it. That requirement has always been there, even with plain GPLv2. You 
+have the source.
 
-It's for those caches that don't get red-zoning now. I am not sure how far 
-it extends but kmem_cache_create() tries to avoid worst-case scenarios 
-where internal fragmentation would be too much.
+The difference? The hardware may only run signed kernels. The fact that 
+the hardware is closed is a _hardware_ license issue. Not a software 
+license issue. I'd suggest you take it up with your hardware vendor, and 
+quite possibly just decide to not buy the hardware. Vote with your feet. 
+Join the OpenCores groups. Make your own FPGA's.
 
-			Pekka
+And it's important to realize that signed kernels that you can't run in 
+modified form under certain circumstances is not at all a bad idea in many 
+cases.
 
----
+For example, distributions signing the kernel modules (that are 
+distributed under the GPL) that _they_ have compiled, and having their 
+kernels either refuse to load them entirely (under a "secure policy") or 
+marking the resulting kernel as "Tainted" (under a "less secure" policy) 
+is a GOOD THING.
 
- mm/slab.c |  134 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 131 insertions(+), 3 deletions(-)
+Notice how the current GPLv3 draft pretty clearly says that Red Hat would 
+have to distribute their private keys so that anybody sign their own 
+versions of the modules they recompile, in order to re-create their own 
+versions of the signed binaries that Red Hat creates. That's INSANE.
 
-Index: 2.6-git/mm/slab.c
-===================================================================
---- 2.6-git.orig/mm/slab.c
-+++ 2.6-git/mm/slab.c
-@@ -202,7 +202,7 @@
- 
- typedef unsigned int kmem_bufctl_t;
- #define BUFCTL_END	(((kmem_bufctl_t)(~0U))-0)
--#define BUFCTL_FREE	(((kmem_bufctl_t)(~0U))-1)
-+#define BUFCTL_ALLOC	(((kmem_bufctl_t)(~0U))-1)
- #define	SLAB_LIMIT	(((kmem_bufctl_t)(~0U))-2)
- 
- /* Max number of objs-per-slab for caches which use off-slab slabs.
-@@ -430,6 +430,11 @@ struct kmem_cache {
- 	 */
- 	int obj_offset;
- 	int obj_size;
-+
-+	/*
-+	 * Time for next cache verification.
-+	 */
-+	unsigned long next_verify;
- #endif
- };
- 
-@@ -445,6 +450,7 @@ struct kmem_cache {
-  */
- #define REAPTIMEOUT_CPUC	(2*HZ)
- #define REAPTIMEOUT_LIST3	(4*HZ)
-+#define REDZONETIMEOUT		(300*HZ)
- 
- #if STATS
- #define	STATS_INC_ACTIVE(x)	((x)->num_active++)
-@@ -1923,6 +1929,11 @@ kmem_cache_create (const char *name, siz
- 		cachep->limit = BOOT_CPUCACHE_ENTRIES;
- 	}
- 
-+#if DEBUG
-+	cachep->next_verify = jiffies + REDZONETIMEOUT +
-+		((unsigned long)cachep/L1_CACHE_BYTES)%REDZONETIMEOUT;
-+#endif
-+
- 	/* cache setup completed, link it into the list */
- 	list_add(&cachep->next, &cache_chain);
- 	unlock_cpu_hotplug();
-@@ -2251,7 +2262,7 @@ static void *slab_get_obj(struct kmem_ca
- 	slabp->inuse++;
- 	next = slab_bufctl(slabp)[slabp->free];
- #if DEBUG
--	slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
-+	slab_bufctl(slabp)[slabp->free] = BUFCTL_ALLOC;
- 	WARN_ON(slabp->nodeid != nodeid);
- #endif
- 	slabp->free = next;
-@@ -2268,7 +2279,7 @@ static void slab_put_obj(struct kmem_cac
- 	/* Verify that the slab belongs to the intended node */
- 	WARN_ON(slabp->nodeid != nodeid);
- 
--	if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
-+	if (slab_bufctl(slabp)[objnr] != BUFCTL_ALLOC) {
- 		printk(KERN_ERR "slab: double free detected in cache "
- 		       "'%s', objp %p\n", cachep->name, objp);
- 		BUG();
-@@ -3266,6 +3277,116 @@ static int alloc_kmemlist(struct kmem_ca
- 	return err;
- }
- 
-+#if DEBUG
-+
-+static void verify_slab_redzone(struct kmem_cache *cache, struct slab *slab)
-+{
-+	int i;
-+
-+	if (!(cache->flags & SLAB_RED_ZONE))
-+		return;
-+
-+#ifdef CONFIG_DEBUG_PAGEALLOC
-+	/* Page alloc debugging on for this cache. Mapping & Unmapping happens
-+	 * without any locking, thus parallel checks are impossible.
-+	 */
-+	if ((cache->buffer_size % PAGE_SIZE) == 0 && OFF_SLAB(cache))
-+		return;
-+#endif
-+
-+	for (i = 0; i < cache->num; i++) {
-+		unsigned long red1, red2;
-+		void *obj = slab->s_mem + cache->buffer_size * i;
-+
-+		red1 = *dbg_redzone1(cache, obj);
-+		red2 = *dbg_redzone2(cache, obj);
-+
-+		/* Simplest case: redzones marked as inactive.  */
-+		if (red1 == RED_INACTIVE && red2 == RED_INACTIVE)
-+			continue;
-+
-+		/*
-+		 * Tricky case: if the bufctl value is BUFCTL_ALLOC, then
-+		 * the object is either allocated or somewhere in a cpu
-+		 * cache. The cpu caches are lockless and there might be
-+		 * a concurrent alloc/free call, thus we must accept random
-+		 * combinations of RED_ACTIVE and _INACTIVE
-+		 */
-+		if (slab_bufctl(slab)[i] == BUFCTL_ALLOC &&
-+				(red1 == RED_INACTIVE || red1 == RED_ACTIVE) &&
-+				(red2 == RED_INACTIVE || red2 == RED_ACTIVE))
-+			continue;
-+
-+		printk(KERN_ERR "slab %s: redzone mismatch in slab %p,"
-+		       " obj %p, bufctl 0x%lx\n", cache->name, slab, obj,
-+		       slab_bufctl(slab)[i]);
-+
-+		print_objinfo(cache, obj, 2);
-+	}
-+}
-+
-+static void print_invalid_slab(const char *list_name, struct kmem_cache *cache,
-+			       struct slab *slab)
-+{
-+	printk(KERN_ERR "slab %s: invalid slab found in %s list at %p (%d/%d).\n",
-+	       cache->name, list_name, slab, slab->inuse, cache->num);
-+}
-+
-+static void verify_nodelists(struct kmem_cache *cache,
-+			     struct kmem_list3 *lists)
-+{
-+	struct list_head *q;
-+	struct slab *slab;
-+
-+	list_for_each(q, &lists->slabs_full) {
-+		slab = list_entry(q, struct slab, list);
-+
-+		if (slab->inuse != cache->num)
-+			print_invalid_slab("full", cache, slab);
-+
-+		check_slabp(cache, slab);
-+		verify_slab_redzone(cache, slab);
-+	}
-+	list_for_each(q, &lists->slabs_partial) {
-+		slab = list_entry(q, struct slab, list);
-+
-+		if (slab->inuse == cache->num || slab->inuse == 0)
-+			print_invalid_slab("partial", cache, slab);
-+
-+		check_slabp(cache, slab);
-+		verify_slab_redzone(cache, slab);
-+	}
-+	list_for_each(q, &lists->slabs_free) {
-+		slab = list_entry(q, struct slab, list);
-+
-+		if (slab->inuse != 0)
-+			print_invalid_slab("free", cache, slab);
-+
-+		check_slabp(cache, slab);
-+		verify_slab_redzone(cache, slab);
-+	}
-+}
-+
-+/*
-+ * Perform a self test on all slabs from a cache
-+ */
-+static void verify_cache(struct kmem_cache *cache)
-+{
-+	int node;
-+
-+	check_spinlock_acquired(cache);
-+
-+	for_each_online_node(node) {
-+		struct kmem_list3 *lists = cache->nodelists[node];
-+
-+		if (!lists)
-+			continue;
-+		verify_nodelists(cache, lists);
-+	}
-+}
-+
-+#endif
-+
- struct ccupdate_struct {
- 	struct kmem_cache *cachep;
- 	struct array_cache *new[NR_CPUS];
-@@ -3446,6 +3567,13 @@ static void cache_reap(void *unused)
- 		drain_array_locked(searchp, cpu_cache_get(searchp), 0,
- 				   numa_node_id());
- 
-+#if DEBUG
-+		if (time_before(searchp->next_verify, jiffies)) {
-+			searchp->next_verify = jiffies + REDZONETIMEOUT;
-+			verify_cache(searchp);
-+		}
-+#endif
-+
- 		if (time_after(l3->next_reap, jiffies))
- 			goto next_unlock;
- 
+Btw, what about signed RPM archives? How well do you think a secure 
+auto-updater would work if it cannot trust digital signatures?
+
+I think a lot of people may find that the GPLv3 "anti-DRM" measures aren't 
+all that wonderful after all.
+
+Because digital signatures and cryptography aren't just "bad DRM". They 
+very much are "good security" too.
+
+Babies and bathwater..
+
+		Linus

@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWBBQaG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWBBQaQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWBBQaG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 11:30:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWBBQaG
+	id S932140AbWBBQaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 11:30:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWBBQaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 11:30:06 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:32894 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932133AbWBBQaE (ORCPT
+	Thu, 2 Feb 2006 11:30:15 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:44969 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932137AbWBBQaO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 11:30:04 -0500
-Message-ID: <43E233F4.3040903@openvz.org>
-Date: Thu, 02 Feb 2006 19:31:48 +0300
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Thu, 2 Feb 2006 11:30:14 -0500
+Date: Thu, 2 Feb 2006 17:29:56 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: "David S. Miller" <davem@davemloft.net>, diablod3@gmail.com,
+       schilling@fokus.fraunhofer.de, bzolnier@gmail.com, mrmacman_g4@mac.com,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       acahalan@gmail.com
+Subject: Re: CD writing in future Linux try #2
+In-Reply-To: <43E00091.5030503@tmr.com>
+Message-ID: <Pine.LNX.4.61.0602021724560.13212@yvahk01.tjqt.qr>
+References: <200601302043.56615.diablod3@gmail.com> <20060130.174705.15703464.davem@davemloft.net>
+ <Pine.LNX.4.64.0601310609210.2979@innerfire.net> <20060131.031817.85883571.davem@davemloft.net>
+ <43E00091.5030503@tmr.com>
 MIME-Version: 1.0
-To: Kirill Korotaev <dev@openvz.org>
-CC: serue@us.ibm.com, arjan@infradead.org, frankeh@watson.ibm.com,
-       clg@fr.ibm.com, haveblue@us.ibm.com, mrmacman_g4@mac.com,
-       alan@lxorguk.ukuu.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, devel@openvz.org
-Subject: [RFC][PATCH 6/7] VPIDs: small proc VPID export
-References: <43E22B2D.1040607@openvz.org>
-In-Reply-To: <43E22B2D.1040607@openvz.org>
-Content-Type: multipart/mixed;
- boundary="------------050708000401080902010101"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050708000401080902010101
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+>> 
+>> Someone remind me why the whole world is a prisoner to Joerg's cd
+>> burning program?
+>> 
+>> Anybody can write their own, and if Joerg is a pain to work with that
+>> is a double extra incentive for this other implementation to be
+>> written.
+>> 
+>> In fact I'm very surprised this hasn't happened already.
+>
+> Because Jorg has maintained the program for a decade, has found and supported
+> new vendors and devices, he seems to get new hardware sooner than most, and
+> many programs and scripts use his program as an output stage.
+>
 
-Export of task VPID to /proc
-Simple.
+Because cdrecord (and recently -prodvd) work. And they are "somewhat free".
+There are not much dvd-dl writing programs around that do it without crashing
+freezing or foobaring the disc. You are right, I could go to Nero or Nero4Linux
+("the best of burning from Windows now for Linux"), but I don't.
 
-Kirill
+> he thinks his
+> DVD-pro thing will make money but the last time I checked he didn't tke credit
+> cards or paypal
 
---------------050708000401080902010101
-Content-Type: text/plain;
- name="diff-vpids-proc"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-vpids-proc"
+The last time I checked, prodvd was free for non-commercial purposes and - as
+far as I can *guess* - is free for commercial purposes as long as they give
+notice that it is being used. Unless commercials disguise using the
+non-commercial key.
 
---- ./fs/proc/array.c.vpid_proc	2006-02-02 14:33:58.000000000 +0300
-+++ ./fs/proc/array.c	2006-02-02 17:54:34.673273968 +0300
-@@ -200,6 +200,8 @@ static inline char * task_state(struct t
- 	put_group_info(group_info);
- 
- 	buffer += sprintf(buffer, "\n");
-+
-+	buffer += sprintf(buffer, "VPid:\t%d\n", virt_pid(p));
- 	return buffer;
- }
- 
 
---------------050708000401080902010101--
-
+Jan Engelhardt
+-- 

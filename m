@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWBBRPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWBBRRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbWBBRPT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 12:15:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWBBRPS
+	id S932180AbWBBRRc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 12:17:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWBBRRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 12:15:18 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.7]:49163 "EHLO
-	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S932179AbWBBRPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 12:15:17 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: PROBLEM: kernel BUG at lib/kernel_lock.c:199!
-Date: Thu, 2 Feb 2006 17:15:12 +0000
-User-Agent: KMail/1.9.1
-Cc: "Fabio d'Alessi" <cars@bio.unipd.it>, linux-kernel@vger.kernel.org
-References: <43E2217B.9050404@bio.unipd.it> <9a8748490602020904m10d5a1e6h4e343ed7fbc71c87@mail.gmail.com>
-In-Reply-To: <9a8748490602020904m10d5a1e6h4e343ed7fbc71c87@mail.gmail.com>
+	Thu, 2 Feb 2006 12:17:32 -0500
+Received: from silver.veritas.com ([143.127.12.111]:32369 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S932180AbWBBRRb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 12:17:31 -0500
+Date: Thu, 2 Feb 2006 17:18:04 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: yipee <yipeeyipeeyipeeyipee@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: changing physical page
+In-Reply-To: <loom.20060202T160457-366@post.gmane.org>
+Message-ID: <Pine.LNX.4.61.0602021711110.8796@goblin.wat.veritas.com>
+References: <loom.20060202T160457-366@post.gmane.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602021715.12370.s0348365@sms.ed.ac.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 02 Feb 2006 17:17:31.0467 (UTC) FILETIME=[8CE549B0:01C6281C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 February 2006 17:04, Jesper Juhl wrote:
-> On 2/2/06, Fabio d'Alessi <cars@bio.unipd.it> wrote:
-> > Dear sirs,
-> > I have a problem with a dual athlon xp running fedora/4
-> > with the 2.6.14-1 kernel. Hard locks. Please if anyone
->
-> [...]
->
-> > [7.1] standard fedora 4 install - nothing new added, just the
-> > drivers for the nv graphic board.
->
-> Adding the binary only nvidia module is not a little thing.
-> That driver is a closed source binary blob that noone here has a
-> chance to debug.
+On Thu, 2 Feb 2006, yipee wrote:
+> 
+> On a system running without swap, can there be a case in which the
+> kernel decides to move (from one physical page to another)
+> a dynamically-allocated page owned by a user program?
 
-I suggest also if you want the kernel guys to help debug your problem, and not 
-your distributor, that you upgrade to at least 2.6.15.2 and confirm the fault 
-still exists.
+I'll assume that when you say "page owned by a user program", you're
+meaning a private page, not a shared file page mapped into the program.
 
-Of course, Jesper is 100% correct about binary modules.
+If you're asking about what currently happens, the answer is "No".
 
--- 
-Cheers,
-Alistair.
+If you're asking about what you can assume, the answer is "Yes".
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+The kernel is entitled to move them if it wishes, various people
+are interested in page migration, and one application would be if
+the system is short of free memory of a particular kind, and your
+page is on such memory, and it would help to move it elsewhere.
+
+Hugh

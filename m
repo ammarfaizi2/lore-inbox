@@ -1,61 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWBBLus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbWBBLvZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbWBBLus (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 06:50:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbWBBLus
+	id S1750915AbWBBLvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 06:51:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbWBBLvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 06:50:48 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:15146 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750720AbWBBLur (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 06:50:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=tejZx7OdX6KChxlfNPjBQ9ul4W+k/akNp8j98AyvUShLc7Ra3yo3tyTabYNbaSAEF+/03WIHQJvA2pzVPA5qxLImg2UQztpilESAmX4TZC8mUFNXGeRuiUzKjl8Fuos/NDatqbdRVneAe1IYf0pzpKZWRTQDvpeM0FxsIBa+JxQ=
-Message-ID: <43E1F211.8030507@gmail.com>
-Date: Thu, 02 Feb 2006 20:50:41 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
+	Thu, 2 Feb 2006 06:51:25 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:32531 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1750912AbWBBLvY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 06:51:24 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: GPL V3 and Linux - Dead Copyright Holders
+Date: Thu, 2 Feb 2006 03:50:30 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKGEKMJNAB.davids@webmaster.com>
 MIME-Version: 1.0
-To: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: Broken sata (VIA) on Asus A8V (kernel 2.6.14+)
-References: <20060201162800.GA32196@tentacle.sectorb.msk.ru> <43E13F57.40808@gmail.com> <20060201231911.GA5463@tentacle.sectorb.msk.ru> <43E145B8.6090404@gmail.com> <20060202114429.GA3035@tentacle.sectorb.msk.ru>
-In-Reply-To: <20060202114429.GA3035@tentacle.sectorb.msk.ru>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Importance: Normal
+In-Reply-To: <87mzha85sc.fsf@babel.ls.fi.upm.es>
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Thu, 02 Feb 2006 03:47:12 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Thu, 02 Feb 2006 03:47:13 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir B. Savkin wrote:
-> On Thu, Feb 02, 2006 at 08:35:20AM +0900, Tejun Heo wrote:
-> 
->>Your BMDMA controller is reporting raised interrupt (0x4) and your drive 
->>is saying that it's ready for the next command, yet interrupt handler of 
->>sata_via hasn't run and thus the timeout.  It looks like some kind of 
->>IRQ routing problem to me although I have no idea how the problem 
->>doesn't affect the boot process.
->>
->>Can you try to boot with boot parameter pci=noacpi?
-> 
-> 
-> That did not help.
-> 
-> And yes, irqbalance is running, as Kenneth suggested.
-> 
 
-Sadly, I'm pretty much ignorant with that part of the kernel.  However, 
-if it's really because interrupts are lost when sent to one of the 
-processors, one of the following should keep the system going while the 
-other cause the problem immediately.
+> 1.- Distribute a kernel with some DRM built-in under the GPL.
+>
+> 2.- Claim that such kernel is an effective technological measure to
+>     protect copyright.
+>
+> 3.- You are no longer free to modify that kernel, (removing the DRM
+>     module) or you can be sued under the DMCA, for circumventing an
+>     effective technological measure. It doesn't matter in what
+>     hardware are you going to run such kernel. The DMCA implicitly
+>     imposes an additional restriction to the GPL, but as the
+>     restriction is not imposed directly by the copyright owner, but by
+>     the law, it's OK as far the GPL is concerned.
 
-echo 1 > /proc/irq/your_IRQ_number/smp_affinity
+	You can't do that. The restriction is not imposed by the law, it's imposed
+by the the copyright owner the instant he added an effective technological
+measure to protect copyright to the GPL'd code.
 
-or...
+	GPLv2 code *cannot* contain any license or copyright enforcement
+mechanisms. It can contain code that appears to be such a thing only
+provided that the legal position is not that it's such a thing.
 
-echo 2 > /proc/irq/your_IRQ_number/smp_affinity
+	For example, you can make a kernel that will refuse to load kernel modules
+that aren't licensed under the GPL. But you cannot prevent anyone from
+removing that logic if they want to.
 
--- 
-tejun
+	*If* you add a license enforcement mechanism to some code or *you* declare
+that existing code is such a mechanism, then *you* are imposing the
+additional restrictions.
+
+	The idea of it being imposed "directly by the copyright owner" is just
+something you made up. The GPL does not distinguish between direct and
+indirect impositions. In fact, it goes out of its way to make it impossible
+to indirectly impose additional conditions. See, for example, section 7.
+
+> The point is that it is not the copyright holder who is imposing the
+> restrictions, is the law. For example, the law may impose some export
+> restrictions, would that void the GPL?
+
+	Again, see section 6. If you cannot allow unrestricted modification, then
+you cannot comply with the GPL. If you cannot comply with the GPL, then you
+do not get the rights the GPL might give you. If you need the GPL to give
+you the right to distribute, and you cannot comply with the GPL (even though
+it's through no fault of your own), then you cannot distribute.
+
+	DS
+
+

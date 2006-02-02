@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423385AbWBBIpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423380AbWBBIpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423385AbWBBIpd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 03:45:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423382AbWBBIpd
+	id S1423380AbWBBIpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 03:45:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423382AbWBBIpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 03:45:33 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:10124 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1423383AbWBBIpc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 03:45:32 -0500
-Message-ID: <43E1C695.1080102@sgi.com>
-Date: Thu, 02 Feb 2006 09:45:09 +0100
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeremy Higdon <jeremy@sgi.com>
-CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, Alan Cox <alan@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: [patch] Fix DMA timeouts with sgiioc4
-References: <yq0vevzpi8r.fsf@jaguar.mkp.net> <58cb370e0602010234p62521a00h6d8920c84cac44d5@mail.gmail.com> <20060201104913.GA152005@sgi.com> <58cb370e0602010308o4cde24aeg8d629b1b3d45cdd3@mail.gmail.com> <20060201111754.GB152005@sgi.com> <58cb370e0602010326k265ef278k4010df13fb5adf8c@mail.gmail.com> <20060201113607.GF152005@sgi.com> <58cb370e0602010444m46a39705q4a3043778df1628d@mail.gmail.com> <20060202080046.GB157213@sgi.com>
-In-Reply-To: <20060202080046.GB157213@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 2 Feb 2006 03:45:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:51357 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1423380AbWBBIpH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 03:45:07 -0500
+Date: Thu, 2 Feb 2006 00:44:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+Cc: kevin@koconnor.net, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       manfred@colorfullife.com
+Subject: Re: [PATCH] slab leak detector (Was: Size-128 slab leak)
+Message-Id: <20060202004415.28249549.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0602021021240.32240@sbz-30.cs.Helsinki.FI>
+References: <Pine.LNX.4.58.0602021021240.32240@sbz-30.cs.Helsinki.FI>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Higdon wrote:
-> Thanks Bartlomiej.  You're correct in that it is ATAPI only (and
-> read-only also).
-> 
-> In this case, this is the final patch (last night's with a copyright
-> update and removing spurious whitespace at end of line).
+Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
+>
+>  Here's a version that uses dbg_userword() instead of overriding bufctls 
+>  and adds a CONFIG_DEBUG_SLAB_LEAK config option. Upside is that this works 
+>  with the slab verifier patch and is less invasive.
 
-Hi Jeremy,
+What is the slab verifier patch?
 
-Just ack'ing for completeness! Please discard my previous patch and use
-this one instead.
+> Downside is that now 
+>  some slabs don't get leak reports (those that don't get SLAB_STORE_USER 
+>  enabled in kmem_cache_create).
 
-Cheers,
-Jes
+Which slabs are those?  SLAB_HWCACHE_ALIGN?  If so, that's quite a lot of
+them (more than needed, probably).
 
-> 
-> jeremy
-> 
-> Signed-off-by: Jeremy Higdon <jeremy@sgi.com>
-Acked-by: Jes Sorensen <jes@sgi.com>

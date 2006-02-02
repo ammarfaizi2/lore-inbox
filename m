@@ -1,67 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161119AbWBBFMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161121AbWBBFMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161119AbWBBFMf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 00:12:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161117AbWBBFMf
+	id S1161121AbWBBFMq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 00:12:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161122AbWBBFMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 00:12:35 -0500
-Received: from smtpout.mac.com ([17.250.248.88]:24290 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1161119AbWBBFMe (ORCPT
+	Thu, 2 Feb 2006 00:12:46 -0500
+Received: from chilli.pcug.org.au ([203.10.76.44]:26262 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1161121AbWBBFMp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 00:12:34 -0500
-X-PGP-Universal: processed;
-	by AlPB on Wed, 01 Feb 2006 23:12:19 -0600
-In-Reply-To: <43E0F73B.6040507@pobox.com>
-References: <200602010609.k1169QDX017012@hera.kernel.org> <43E0F73B.6040507@pobox.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <A9543B03-333E-470F-AD18-0313192ADB23@mac.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>
+	Thu, 2 Feb 2006 00:12:45 -0500
+Date: Thu, 2 Feb 2006 16:11:51 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linus <torvalds@osdl.org>,
+       Ulrich Drepper <drepper@redhat.com>, linux-arch@vger.kernel.org
+Subject: [PATCH] compat: fix compat_sys_openat and friends
+Message-Id: <20060202161151.58839ffd.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Mark Rustad <mrustad@mac.com>
-Subject: Re: [PATCH] PCI: restore 2 missing pci ids
-Date: Wed, 1 Feb 2006 23:11:36 -0600
-To: Jeff Garzik <jgarzik@pobox.com>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff,
+Most of the 64 bit architectures will zero extend the first argument to
+compat_sys_{openat,newfstatat,futimesat} which will fail if the 32 bit
+syscall was passed AT_FDCWD (which is a small negative number).  Declare
+the first argument to be an unsigned int which will force the correct
+sign extension when the internal functions are called in each case.
 
-On Feb 1, 2006, at 12:00 PM, Jeff Garzik wrote:
+Also, do some small white space cleanups in fs/compat.c.
 
-> Linux Kernel Mailing List wrote:
->> tree e425ac74afc0b89f3a513290a2dd5e503d974906
->> parent 654143ee3a73b2793350b039a135d9cd3101147b
->> author Mark Rustad <MRustad@mac.com> Fri, 06 Jan 2006 14:47:29 -0800
->> committer Greg Kroah-Hartman <gregkh@suse.de> Wed, 01 Feb 2006  
->> 10:00:11 -0800
->> [PATCH] PCI: restore 2 missing pci ids
->> Somewhere between 2.6.14 and 2.6.15-rc3, some PCI ids were apparently
->> removed.  The ecc.c module, which is not a part of the kernel.org  
->> tree, but
->> included in some distributions, fails to compile.
->> Signed-off-by: Mark Rustad <mrustad@mac.com>
->> Signed-off-by: Andrew Morton <akpm@osdl.org>
->> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
->>  include/linux/pci_ids.h |    2 ++
->>  1 files changed, 2 insertions(+)
->
-> Why was this applied?  We could apply these patches all day, and  
-> get nothing else done.  If it's not in the kernel tree, we  
-> shouldn't be worrying about it.  Let the distros patch it in.
+Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
+---
 
-Well, I offered the patch because I found that I suddenly needed it.  
-I did not know why the ids had been removed, but it looks to me like  
-edac is coming right along and will need the ids itself, so I sent  
-the patch off.
+ fs/compat.c              |   12 ++++++------
+ include/linux/syscalls.h |    6 +++---
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-Frankly, I was surprised that the patch was so quickly accepted. I  
-perceive some difference of opinion on how PCI ids should be handled.  
-Is there a consensus on a better way to handle ids? Why were the ids  
-removed in the first place? THAT was worse than wasted effort.
+This has been built on powerpc (and does the neede sign extension)
+but not tested as we have yet to wire up the syscalls there.
 
+Also, we will need compat wrappers for the other *at syscalls for
+the same reason (sign extension of the first argument).
+
+Also, I am wondering if we should move the declarations of the compat
+syscalls to linux/compat.h (where all previous compat syscalls are
+declated).
 -- 
-Mark Rustad, MRustad@mac.com
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
+13be12a8986f1e178e20f80b94e2fab7c46bc5fe
+diff --git a/fs/compat.c b/fs/compat.c
+index cc58a20..70c5af4 100644
+--- a/fs/compat.c
++++ b/fs/compat.c
+@@ -73,17 +73,17 @@ asmlinkage long compat_sys_utime(char __
+ 	return do_utimes(AT_FDCWD, filename, t ? tv : NULL);
+ }
+ 
+-asmlinkage long compat_sys_futimesat(int dfd, char __user *filename, struct compat_timeval __user *t)
++asmlinkage long compat_sys_futimesat(unsigned int dfd, char __user *filename, struct compat_timeval __user *t)
+ {
+ 	struct timeval tv[2];
+ 
+-	if (t) { 
++	if (t) {
+ 		if (get_user(tv[0].tv_sec, &t[0].tv_sec) ||
+ 		    get_user(tv[0].tv_usec, &t[0].tv_usec) ||
+ 		    get_user(tv[1].tv_sec, &t[1].tv_sec) ||
+ 		    get_user(tv[1].tv_usec, &t[1].tv_usec))
+-			return -EFAULT; 
+-	} 
++			return -EFAULT;
++	}
+ 	return do_utimes(dfd, filename, t ? tv : NULL);
+ }
+ 
+@@ -114,7 +114,7 @@ asmlinkage long compat_sys_newlstat(char
+ 	return error;
+ }
+ 
+-asmlinkage long compat_sys_newfstatat(int dfd, char __user *filename,
++asmlinkage long compat_sys_newfstatat(unsigned int dfd, char __user *filename,
+ 		struct compat_stat __user *statbuf, int flag)
+ {
+ 	struct kstat stat;
+@@ -1326,7 +1326,7 @@ compat_sys_open(const char __user *filen
+  * O_LARGEFILE flag.
+  */
+ asmlinkage long
+-compat_sys_openat(int dfd, const char __user *filename, int flags, int mode)
++compat_sys_openat(unsigned int dfd, const char __user *filename, int flags, int mode)
+ {
+ 	return do_sys_open(dfd, filename, flags, mode);
+ }
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index fdbd436..3877209 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -559,12 +559,12 @@ asmlinkage long sys_newfstatat(int dfd, 
+ 			       struct stat __user *statbuf, int flag);
+ asmlinkage long sys_readlinkat(int dfd, const char __user *path, char __user *buf,
+ 			       int bufsiz);
+-asmlinkage long compat_sys_futimesat(int dfd, char __user *filename,
++asmlinkage long compat_sys_futimesat(unsigned int dfd, char __user *filename,
+ 				     struct compat_timeval __user *t);
+-asmlinkage long compat_sys_newfstatat(int dfd, char __user * filename,
++asmlinkage long compat_sys_newfstatat(unsigned int dfd, char __user * filename,
+ 				      struct compat_stat __user *statbuf,
+ 				      int flag);
+-asmlinkage long compat_sys_openat(int dfd, const char __user *filename,
++asmlinkage long compat_sys_openat(unsigned int dfd, const char __user *filename,
+ 				   int flags, int mode);
+ 
+ #endif
+-- 
+1.1.5

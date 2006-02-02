@@ -1,87 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422649AbWBBCru@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422871AbWBBCsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422649AbWBBCru (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 21:47:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422871AbWBBCru
+	id S1422871AbWBBCsr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 21:48:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422877AbWBBCsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 21:47:50 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17337 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422649AbWBBCrt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 21:47:49 -0500
-Date: Wed, 1 Feb 2006 18:47:06 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix cpu hotplug
-Message-Id: <20060201184706.5638c1a3.akpm@osdl.org>
-In-Reply-To: <20060202022555.GA11005@krispykreme>
-References: <20060202022555.GA11005@krispykreme>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 1 Feb 2006 21:48:47 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:32238 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1422871AbWBBCsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 21:48:46 -0500
+Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+In-Reply-To: <43E15FAE.6040707@bigpond.net.au>
+References: <1138736609.7088.35.camel@localhost.localdomain>
+	 <43E02CC2.3080805@bigpond.net.au>
+	 <1138797874.7088.44.camel@localhost.localdomain>
+	 <43E15FAE.6040707@bigpond.net.au>
+Content-Type: text/plain
+Date: Wed, 01 Feb 2006 21:48:31 -0500
+Message-Id: <1138848511.6632.41.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard <anton@samba.org> wrote:
->
+On Thu, 2006-02-02 at 12:26 +1100, Peter Williams wrote:
+
+> > 
+> > Actually, one of the tasks that was moved might need to resched right
+> > away, since it preempts the current task that is doing the moving.
 > 
-> Hi,
+> Good point but I'd say that this was an instance when you didn't want to 
+> bail out of the load balance.  E.g. during idle balancing the very first 
+> task moved would trigger it regardless of its priority.  Also, if the 
+> task was of sufficiently high priority for it to warrant bailing out of 
+> the load balance why wasn't the current task (i.e. why didn't it preempt 
+> on its current CPU).
+
+Because the task running on the current CPU is higher in priority.  That
+doesn't mean that the next one down shouldn't get scheduled on another
+CPU if it is a higher priority than the currently running one.  Of
+course one needs to be careful not to cause too much cache blasting by
+popping RT tasks all over CPUS.
+
 > 
-> CPU hotplug was broken by the __meminit changes. Avoid the madness of
-> creating a mem+cpu hotplug init attribute and just make them __devinit.
+> > 
+> > 
+> >>However, a newly woken task that preempts the current task isn't the 
+> >>only way that needs_resched() can become true just before load balancing 
+> >>is started.  E.g. scheduler_tick() calls set_tsk_need_resched(p) when a 
+> >>task finishes a time slice and this patch would cause rebalance_tick() 
+> >>to be aborted after a lot of work has been done in this case.
+> > 
+> > 
+> > No real work is lost.   This is a loop that individually pulls tasks.  So
+> > the bail only stops the work of looking for more tasks to pull and we
+> > don't lose the tasks that have already been pulled.
 > 
-> Anton
+> I disagree.  A bunch of work is done to determine which CPU to pull from 
+> and how many tasks to pull and then it will bail out before any of them 
+> are moved (and for no good reason).
+
+Yeah, that was my mistake.  There is work lost. So nuke that argument of
+mine :)
+
 > 
-> Signed-off-by: Anton Blanchard <anton@samba.org>
-> ---
+> > 
+> > 
+> >>In summary, I think that the bail out is badly placed and needs some way 
+> >>of knowing if the reason need_resched() has become true is because of 
+> >>preemption of a newly woken task and not some other reason.
+> > 
+> > 
+> > I need that bail in the loop, so it can stop if needed. Like I said, it
+> > can be a task that is pulled to cause the bail. Also, having the run
+> > queue locks and interrupts off for over a msec is really a bad idea.
 > 
-> Index: build/mm/page_alloc.c
-> ===================================================================
-> --- build.orig/mm/page_alloc.c	2006-02-02 12:20:50.000000000 +1100
-> +++ build/mm/page_alloc.c	2006-02-02 13:14:56.000000000 +1100
-> @@ -1799,7 +1799,7 @@ void zonetable_add(struct zone *zone, in
->  	memmap_init_zone((size), (nid), (zone), (start_pfn))
->  #endif
->  
-> -static int __meminit zone_batchsize(struct zone *zone)
-> +static int __devinit zone_batchsize(struct zone *zone)
->  {
->  	int batch;
->  
-> @@ -1893,7 +1893,7 @@ static struct per_cpu_pageset
->   * Dynamically allocate memory for the
->   * per cpu pageset array in struct zone.
->   */
-> -static int __meminit process_zones(int cpu)
-> +static int __devinit process_zones(int cpu)
->  {
->  	struct zone *zone, *dzone;
->  
-> @@ -1934,7 +1934,7 @@ static inline void free_zone_pagesets(in
->  	}
->  }
->  
-> -static int __meminit pageset_cpuup_callback(struct notifier_block *nfb,
-> +static int __devinit pageset_cpuup_callback(struct notifier_block *nfb,
->  		unsigned long action,
->  		void *hcpu)
->  {
+> Clearly, the way to handle this is to impose some limit on the number of 
+> tasks to be moved or split large moves into a number of smaller moves 
+> (releasing and reacquiring locks in between).  This could be done in the 
+> bits of code that set things up before move_tasks() is called.
 
-These are __cpuinit in Linus's current tree.  Which probably means that
-we're busted with hotplug-memory && !hotplug-cpu.
+I think that's something like what Ingo wants to do.  Or something other
+than my first brain dead patch.
 
-I don't think we want to make these __devinit, because that would penalise
-systems which are hotplug && !hotplug-memory && !hotplug-cpu, which are the
-systems which can least afford the memory waste.
+> 
+> > 
+> > 
+> >>Peter
+> >>PS I've added Nick Piggin to the CC list as he is interested in load 
+> >>balancing issues.
+> > 
+> > 
+> > Thanks, and thanks for the comments too.  I'm up for all suggestions and
+> > ideas.  I just feel it is important that we don't have unbounded
+> > latencies of spin locks and interrupts off.
+> 
+> Well, you seem to have succeeded in starting a discussion :-)
 
-So really, yes, we need the madness of mem+cpu.
+:)
 
-Or we can do
+-- Steve
 
-static int __cpuinit __meminit foo(void)
-{
-}
 
-Which actually seems to work.

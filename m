@@ -1,47 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423353AbWBBH7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423369AbWBBIBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423353AbWBBH7R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 02:59:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423366AbWBBH7R
+	id S1423369AbWBBIBD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 03:01:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423366AbWBBIBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 02:59:17 -0500
-Received: from smtp14.wanadoo.fr ([193.252.23.69]:47468 "EHLO
-	smtp14.wanadoo.fr") by vger.kernel.org with ESMTP id S1423353AbWBBH7Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 02:59:16 -0500
-X-ME-UUID: 20060202075913676.A51FE70000A9@mwinf1401.wanadoo.fr
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: jerome lacoste <jerome.lacoste@gmail.com>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>, j@bitron.ch,
-       mrmacman_g4@mac.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de,
-       James@superbug.co.uk, acahalan@gmail.com
-In-Reply-To: <200601311333.36000.oliver@neukum.org>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
-	 <43DF3C3A.nail2RF112LAB@burner>
-	 <5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com>
-	 <200601311333.36000.oliver@neukum.org>
-Content-Type: text/plain
-Message-Id: <1138867142.31458.3.camel@capoeira>
+	Thu, 2 Feb 2006 03:01:03 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:50148 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1423367AbWBBIBB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 03:01:01 -0500
+Date: Thu, 2 Feb 2006 00:00:46 -0800
+From: Jeremy Higdon <jeremy@sgi.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Jes Sorensen <jes@sgi.com>, Alan Cox <alan@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: [patch] Fix DMA timeouts with sgiioc4
+Message-ID: <20060202080046.GB157213@sgi.com>
+References: <yq0vevzpi8r.fsf@jaguar.mkp.net> <58cb370e0602010234p62521a00h6d8920c84cac44d5@mail.gmail.com> <20060201104913.GA152005@sgi.com> <58cb370e0602010308o4cde24aeg8d629b1b3d45cdd3@mail.gmail.com> <20060201111754.GB152005@sgi.com> <58cb370e0602010326k265ef278k4010df13fb5adf8c@mail.gmail.com> <20060201113607.GF152005@sgi.com> <58cb370e0602010444m46a39705q4a3043778df1628d@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Thu, 02 Feb 2006 08:59:02 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <58cb370e0602010444m46a39705q4a3043778df1628d@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-01-31 at 13:33, Oliver Neukum wrote:
-> It is entirely possible that the people you know are far from a representative
-> sample. Most people likely prefer clicking on a description in a GUI. There
-> needs to be a way to get this list and if possible it should not be specific
-> to Linux.
+On Wed, Feb 01, 2006 at 01:44:01PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> On 2/1/06, Jeremy Higdon <jeremy@sgi.com> wrote:
+> >
+> > Here's one that removes xcount.  It seems to work too.
+> > Should we set hwif->rqsize to 256, or are we pretty safe in
+> > expecting that the default won't rise?  The driver should be
+> > able to handle more, but this ioc4 hardware is weird, and it
+> > probably wouldn't get tested if a general change were made :-)
+> 
+> The current maximum request size is:
+> *  256 for LBA28 and ATAPI devices
+> * 1024 for LBA48 devices
+> 
+> The maximum request size allowed by IDE driver for
+> LBA48 devices will change to 65536 but block layer will
+> continue to use 1024 as a default maximum request size,
+> also IIRC sgiioc4 IDE is used only for ATAPI devices.
+> So I think that there is no need to worry about ->rqsize.
 
-As repeated over and over here, there is such a way, it's called HAL and
-it is cross-platform. And it's what's used by some GUIs out there (e.g.
-nautilus-cd-burner).
 
-	Xav
+Thanks Bartlomiej.  You're correct in that it is ATAPI only (and
+read-only also).
 
+In this case, this is the final patch (last night's with a copyright
+update and removing spurious whitespace at end of line).
 
+thanks
+
+jeremy
+
+Signed-off-by: Jeremy Higdon <jeremy@sgi.com>
+
+Fix sgiioc4 DMA timeout problem with 64KiB s/g elements.
+
+--- a/linux/drivers/ide/pci/sgiioc4.c	2006-02-01 23:57:08.000000000 -0800
++++ b/linux/drivers/ide/pci/sgiioc4.c	2006-02-01 23:56:47.169588392 -0800
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (c) 2003 Silicon Graphics, Inc.  All Rights Reserved.
++ * Copyright (c) 2003-2006 Silicon Graphics, Inc.  All Rights Reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms of version 2 of the GNU General Public License
+@@ -510,7 +510,7 @@
+ 				       drive->name);
+ 				goto use_pio_instead;
+ 			} else {
+-				u32 xcount, bcount =
++				u32 bcount =
+ 				    0x10000 - (cur_addr & 0xffff);
+ 
+ 				if (bcount > cur_len)
+@@ -525,8 +525,7 @@
+ 				*table = 0x0;
+ 				table++;
+ 
+-				xcount = bcount & 0xffff;
+-				*table = cpu_to_be32(xcount);
++				*table = cpu_to_be32(bcount);
+ 				table++;
+ 
+ 				cur_addr += bcount;
+@@ -680,7 +679,7 @@
+ 		return -EIO;
+ 
+ 	/* Create /proc/ide entries */
+-	create_proc_ide_interfaces(); 
++	create_proc_ide_interfaces();
+ 
+ 	return 0;
+ }

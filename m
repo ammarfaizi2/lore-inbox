@@ -1,143 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWBBLxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWBBL5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWBBLxt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 06:53:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbWBBLxt
+	id S1750862AbWBBL5E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 06:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbWBBL5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 06:53:49 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:13740 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1750738AbWBBLxt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 06:53:49 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: vitaly@namesys.com
-Subject: Re: Recursive chmod/chown OOM kills box with 32MB RAM
-Date: Thu, 2 Feb 2006 13:52:59 +0200
-User-Agent: KMail/1.8.2
-Cc: reiserfs-dev@namesys.com, Chris Mason <mason@suse.com>,
-       Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-References: <200601281613.16199.vda@ilport.com.ua> <200602020925.00863.vda@ilport.com.ua> <200602021242.21512.vitaly@namesys.com>
-In-Reply-To: <200602021242.21512.vitaly@namesys.com>
+	Thu, 2 Feb 2006 06:57:04 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:43694 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1750862AbWBBL5C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 06:57:02 -0500
+Message-ID: <43E1F40A.4090704@openvz.org>
+Date: Thu, 02 Feb 2006 14:59:06 +0300
+From: Kirill Korotaev <dev@openvz.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>
+CC: "Dmitry Mishin" <dim@sw.ru>, Kir Kolyshkin <kir@openvz.org>,
+       devel@openvz.org, Rik van Riel <riel@redhat.com>,
+       Kurt Garloff <garloff@suse.de>
+Subject: [ANNOUNCE] OpenVZ patch for 2.6.15 kernel
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602021352.59635.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 February 2006 11:42, Vitaly Fertman wrote:
-> > > reiserfstune -s 1024 /dev/xxxx
-> > 
-> > I had reiserfsprogs 3.6.11 and reiserfstune (above command) made my /dev/sdc3
-> > unmountable without -t reiserfs. I upgraded reiserfsprogs to 3.6.19 and now
-> > reiserfsck /dev/sdc3 reports no problems, but mount problem persists:
-> > 
-> > # mount -t reiserfs /dev/sdc3 /.3
-> > # umount /.3
-> > # mount /dev/sdc3 /.3
-> > mount: you must specify the filesystem type
-> > # dmesg | tail -3
-> > br: port 1(ifi) entering forwarding state
-> > FAT: bogus number of reserved sectors
-> > VFS: Can't find a valid FAT filesystem on dev sdc3.
-> > 
-> > "chown -Rc <n>:<m> ." now does not OOM kill the box, so this issue
-> > is resolved, thanks!
-> > 
-> > Can I restore sdc3 somehow that I won't need -t reiserfs in mount command?
-> > You can find result of
-> > 
-> > dd if=/dev/sdc3 of=1m bs=1M count=1
-> > 
-> > at http://195.66.192.167/linux/1m
-> 
-> the problem seems to be in mount program, which version do you use?
-> I still have no problem with your 1m image, mount version is 2.11z, 
-> 2.12c.
+OpenVZ team is happy to announce the release of its virtualization 
+solution based on 2.6.15 kernel.
 
-# mount --version
-mount: mount-2.11p
+As in previous releases, OpenVZ 2.6.15 kernel patch includes:
+- virtualization
+- fine grained resource management (user beancounters)
+- 2 level disk quota
+- a number of mainstream fixes (umount race, proc locking etc.).
 
-Obviously you are right, mount reads some data in /dev/sdc3 itself
-and decides to try specific fs types first instead of just asking
-kernel to autodetect:
+More information about OpenVZ project is available at http://openvz.org/
 
-...
-...
-stat64("/dev/sdc3", {st_mode=S_IFBLK|0660, st_rdev=makedev(8, 35), ...}) = 0
-open("/dev/sdc3", O_RDONLY|O_LARGEFILE) = 4
-_llseek(4, 0, [0], SEEK_SET)            = 0
-read(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 576) = 576
-_llseek(4, 512, [512], SEEK_SET)        = 0
-read(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 512) = 512
-_llseek(4, 1024, [1024], SEEK_SET)      = 0
-read(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 228) = 228
-_llseek(4, 1024, [1024], SEEK_SET)      = 0
-read(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 24) = 24
-_llseek(4, 3072, [3072], SEEK_SET)      = 0
-read(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 512) = 512
-_llseek(4, 8192, [8192], SEEK_SET)      = 0
-read(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 1376) = 1376
-_llseek(4, 8192, [8192], SEEK_SET)      = 0
-read(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 64) = 64
-_llseek(4, 8192, [8192], SEEK_SET)      = 0
-read(4, "\0\0\0\0\0\0\0\0", 8)          = 8
-_llseek(4, 32768, [32768], SEEK_SET)    = 0
-read(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 112) = 112
-_llseek(4, 32768, [32768], SEEK_SET)    = 0
-read(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 2048) = 2048
-_llseek(4, 65536, [65536], SEEK_SET)    = 0
-read(4, "\212\365\37\0>\217\17\0\255\200\0\0\22\0\0\0\0\0\0\0\377"..., 64) = 64
-_llseek(4, 0, [0], SEEK_SET)            = 0
-read(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 8192) = 8192
-close(4)                                = 0
-open("/etc/filesystems", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-open("/proc/filesystems", O_RDONLY|O_LARGEFILE) = 4
-fstat64(4, {st_mode=S_IFREG|0444, st_size=0, ...}) = 0
-old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xb7f7f000
-read(4, "nodev\tsysfs\nnodev\trootfs\nnodev\tb"..., 1024) = 277
-mount("/dev/sdc3", "/.3", "msdos", 0xc0ed0000, 0) = -1 EINVAL (Invalid argument)
-mount("/dev/sdc3", "/.3", "vfat", 0xc0ed0000, 0) = -1 EINVAL (Invalid argument)
-read(4, "", 1024)                       = 0
-close(4)                                = 0
-munmap(0xb7f7f000, 4096)                = 0
-rt_sigprocmask(SIG_UNBLOCK, ~[TRAP SEGV], NULL, 8) = 0
-open("/usr/share/locale/ru_RU.KOI8-R/LC_MESSAGES/util-linux.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-open("/usr/share/locale/ru_RU.koi8r/LC_MESSAGES/util-linux.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-open("/usr/share/locale/ru_RU/LC_MESSAGES/util-linux.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-open("/usr/share/locale/ru.KOI8-R/LC_MESSAGES/util-linux.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-open("/usr/share/locale/ru.koi8r/LC_MESSAGES/util-linux.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-open("/usr/share/locale/ru/LC_MESSAGES/util-linux.mo", O_RDONLY) = -1 ENOENT (No such file or directory)
-write(2, "mount: you must specify the file"..., 44) = 44
+Fine grained broken-out patch set can be found at
+http://download.openvz.org/kernel/broken-out/2.6.15-025stab012.1/
 
-mount from busybox 1.0 works fine:
+About OpenVZ software
+~~~~~~~~~~~~~~~~~~~~~
 
-# strace busybox mount /dev/sdc3 /.3
-execve("/sbin/busybox", ["busybox", "mount", "/dev/sdc3", "/.3"], [/* 24 vars */]) = 0
-ioctl(0, SNDCTL_TMR_TIMEBASE, {B38400 opost isig icanon echo ...}) = 0
-ioctl(1, SNDCTL_TMR_TIMEBASE, {B38400 opost isig icanon echo ...}) = 0
-getuid()                                = 0
-getgid()                                = 0
-getuid()                                = 0
-getgid()                                = 0
-setgid(0)                               = 0
-setuid(0)                               = 0
-brk(0)                                  = 0x80f6000
-brk(0x80f7000)                          = 0x80f7000
-brk(0x80f8000)                          = 0x80f8000
-brk(0x80f9000)                          = 0x80f9000
-stat64("/dev/sdc3", {st_mode=S_IFBLK|0660, st_rdev=makedev(8, 35), ...}) = 0
-open("/etc/filesystems", O_RDONLY|O_LARGEFILE) = -1 ENOENT (No such file or directory)
-open("/proc/filesystems", O_RDONLY|O_LARGEFILE) = 4
-ioctl(4, SNDCTL_TMR_TIMEBASE, 0xbfb32740) = -1 ENOTTY (Inappropriate ioctl for device)
-brk(0x80fa000)                          = 0x80fa000
-read(4, "nodev\tsysfs\nnodev\trootfs\nnodev\tb"..., 4096) = 277
-mount("/dev/sdc3", "/.3", "reiserfs", 0xc0ed0000, 0x80f6008) = 0
-close(4)                                = 0
-_exit(0)
+OpenVZ is a kernel virtualization solution which can be considered as a
+natural step in the OS kernel evolution: after multiuser and 
+multitasking functionality there comes an OpenVZ feature of having 
+multiple environments.
+
+Virtualization lets you divide a system into separate isolated
+execution environments (called VPSs - Virtual Private Servers). From the
+point of view of the VPS owner (root), it looks like a stand-alone 
+server. Each VPS has its own filesystem tree, process tree (starting 
+from init as in a real system) and so on. The  single-kernel approach 
+makes it possible to virtualize with very little overhead, if any.
+
+OpenVZ in-kernel modifications can be divided into several components:
+
+1. Virtualization and isolation.
+Many Linux kernel subsystems are virtualized, so each VPS has its own:
+- process tree (featuring virtualized pids, so that the init pid is 1);
+- filesystems (including virtualized /proc and /sys);
+- network (virtual network device, its own ip addresses,
+   set of netfilter and routing rules);
+- devices (if needed, any VPS can be granted access to real devices
+   like network interfaces, serial ports, disk partitions, etc);
+- IPC objects.
+
+2. Resource Management.
+This subsystem enables multiple VPSs to coexist, providing managed
+resource sharing and limiting.
+- User Beancounters is a set of per-VPS resource counters, limits,
+   and guarantees (kernel memory, network buffers, phys pages, etc.).
+- Two-level disk quota (first-level: per-VPS quota;
+   second-level: ordinary user/group quota inside a VPS)
+
+Resource management is what makes OpenVZ different from other solutions
+of this kind (like Linux VServer or FreeBSD jails). There are a few
+resources that can be abused from inside a VPS (such as files, IPC
+objects, ...) leading to a DoS attack. User Beancounters prevent such
+abuses.
+
+As virtualization solution OpenVZ makes it possible to do the same 
+things for which people use UML, Xen, QEmu or VMware, but there are 
+differences:
+(a) there is no ability to run other operating systems
+     (although different Linux distros can happily coexist);
+(b) performance loss is negligible due to absense of any kind of
+     emulation;
+(c) resource utilization is much better.
+
+Thanks,
+OpenVZ team.
 
 
---
-vda

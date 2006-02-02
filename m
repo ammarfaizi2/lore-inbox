@@ -1,147 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWBBSDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbWBBSM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbWBBSDU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 13:03:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWBBSDU
+	id S1751149AbWBBSM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 13:12:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWBBSM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 13:03:20 -0500
-Received: from 1-1-8-31a.gmt.gbg.bostream.se ([82.182.75.118]:48114 "EHLO
-	mail.shipmail.org") by vger.kernel.org with ESMTP id S1751148AbWBBSDT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 13:03:19 -0500
-Message-ID: <43E24958.2000609@tungstengraphics.com>
-Date: Thu, 02 Feb 2006 19:03:04 +0100
-From: =?UTF-8?B?VGhvbWFzIEhlbGxzdHLDtm0=?= <thomas@tungstengraphics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8)
- Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: mprotect() resets caching policy
-References: <43DA1166.4040700@tungstengraphics.com>
- <Pine.LNX.4.61.0602021612370.8207@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0602021612370.8207@goblin.wat.veritas.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-BitDefender-Spam: No (0)
+	Thu, 2 Feb 2006 13:12:26 -0500
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:26055 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1751149AbWBBSMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 13:12:25 -0500
+Date: Thu, 2 Feb 2006 13:12:24 -0500
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Karim Yaghmour <karim@opersys.com>,
+       Filip Brcic <brcha@users.sourceforge.net>,
+       Glauber de Oliveira Costa <glommer@gmail.com>,
+       Thomas Horsten <thomas@horsten.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+Message-ID: <20060202181224.GA2480@csclub.uwaterloo.ca>
+References: <200601302301.04582.brcha@users.sourceforge.net> <43E0E282.1000908@opersys.com> <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org> <43E1C55A.7090801@drzeus.cx> <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org> <1138891081.9861.4.camel@localhost.localdomain> <Pine.LNX.4.64.0602020814320.21884@g5.osdl.org> <43E23C79.8050606@drzeus.cx> <Pine.LNX.4.64.0602020937360.21884@g5.osdl.org> <43E24767.1090708@drzeus.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43E24767.1090708@drzeus.cx>
+User-Agent: Mutt/1.5.9i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
+On Thu, Feb 02, 2006 at 06:54:47PM +0100, Pierre Ossman wrote:
+> Then I have to ask, why GPL and not a BSD license? GPL is after all,
+> forcing our beliefs onto anyone who wishes to benefit from our work.
 
->>However, I noticed that mprotect() will, when run on a non-cached VMA, reset
->>the caching policy. The line in mm/mprotect.c causing this problem is
->>
->>newprot = protection_map[newflags & 0xf];
->>
->>So a user could potentially run mprotect() and create a conflicting mapping
->>which presumably is bad for stability on some architectures.
->>    
->>
->
->Perhaps: I think it already depends on what the architecture does.
->newprot is used (a) to set vm_page_prot and (b) for use in pte_modify
->(which change_protection applies to each pte present).
->
->Now I think vm_page_prot is irrelevant to the kinds of VMA you are
->interested in?  It's essential to provide the permissions/protections
->when faulting a new page in, but your VMAs are fully managed by the
->driver, and have all ptes already in place?  So wouldn't use vm_page_prot.
->
->  
->
-The strategy I use for changing the protection in currently a bit ugly, 
-since it
-1) Flushes caches.
-2) Invalidates all relevant PTE entries
-3) Changes the kernel mapping caching policy.
-4) Flushes tlb
-5) Relies on nopage() to get called to map the page with the new caching 
-policy.
-Here I must set vm_page_prot, since that it what is used for the newly 
-mapped page.
+The GPL enforced the view on free software, the BSD license does not.
+The BSD license lets you do whatever you want pretty much.
 
->And pte_modify is implemented per-architecture: looking just at the
->i386 implementation, yes, _PAGE_CHG_MASK looks like it'll mask off
->the bits you understandably want it to retain.
->  
->
-Yes. I've tried running mprotect() and it does indeed reset the caching 
-policy.
+If you want to make money from linux, you can do so by being better than
+other people at solving problems and making enhancements.  With BSD all
+it takes is keeping secrets.  So if you are very good at what you do,
+you will be perfectly happy dealing with GPL code and making money
+writing enhancements for people, while if you aren't very good, you
+could just go write some software using BSD licensed code and sell that,
+preferably taking out a software patent while you are at it to prevent
+someone else from writing another implementation.
 
->>Since mprotect() only deals with rwx protection. I figure replacing the above
->>with something like
->>
->>newprot = (vm_page_prot & ~MPROT_MASK) | (protection_map[newflags & 0xf] &
->>MPROT_MASK)
->>
->>Where MPROT_MASK is a arch-dependent mask identifying the bits available to
->>mprotect().
->>    
->>
->
->I think it's the per-architecture implementations of pte_modify that
->you need to adjust.
->  
->
-Agreed. That would work unless also nopage() uses pte_modify to set the 
-original caching policy. Then it will get masked away.
-
->It might be nice, but probably irrelevant, to have vm_page_prot maintained
->in a similar way.  Whether every arch can do that with a straightforward
->MPROT_MASK or _PAGE_CHG_MASK is not obvious to me: would more likely
->need a pte_modify-like macro to do it.
->
->But would that even be correct?  The same vm_page_prot would be applied
->also to anonymous COWed pages from the mapping.  Very exceptional in the
->case that interests you; but perhaps it's simpler to keep vm_page_prot
->just for the rwx part of it.
->  
->
-I'm not sure it will work in my case, since the caching policy is a 
-per-page attribute and I rely totally on nopage() to get called for 
-every new page attached to a vma mapping the region.
-
->  
->
->>Alternatively, is there a way to disable mprotect() for a VMA?
->>    
->>
->
->Not at present.  It would be easier to add a VM_flag for that,
->than to correct every architecture's pte_modify.  I'm not sure
->whether "easier" amounts to "better" here.
->
->  
->
->>Finally, is there a chance to get protection_map[] exported to modules?
->>    
->>
->
->I very much doubt that.  Exporting a functional interface to it would
->be preferable; but even that, I think the core mm would strongly resist
->- the less of the pte business we export the better.  What were you
->wanting it exported for?
->
->  
->
-When nopage() gets called, I set vm_page_prot to 
-
-modify_for_caching( protection_map[vma-> vm_flags & 0x0f])
-
-Again, since someone might have called mprotect() to change vm_flags and 
-I can't rely on previous values of vm_page_prot since it's changing all 
-the time.
-
-Anyway, thanks for looking at this and if there is something I can do 
-(patch maybe) to
-correct this behaviour plese let me know.
-
-/Thomas
-
-
->Hugh
->
-
-
+Len Sorensen

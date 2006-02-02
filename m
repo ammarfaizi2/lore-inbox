@@ -1,93 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423265AbWBBHVP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423343AbWBBHZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423265AbWBBHVP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 02:21:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423267AbWBBHVO
+	id S1423343AbWBBHZr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 02:25:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423345AbWBBHZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 02:21:14 -0500
-Received: from main.gmane.org ([80.91.229.2]:59849 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1423265AbWBBHVO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 02:21:14 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: <pci_lookup_name: buffer too small>
-Date: Thu, 02 Feb 2006 16:19:04 +0900
-Message-ID: <drsbp9$76q$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 2 Feb 2006 02:25:46 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:14988 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S1423343AbWBBHZq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 02:25:46 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Chris Mason <mason@suse.com>
+Subject: Re: Recursive chmod/chown OOM kills box with 32MB RAM
+Date: Thu, 2 Feb 2006 09:25:00 +0200
+User-Agent: KMail/1.8.2
+Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+References: <200601281613.16199.vda@ilport.com.ua> <43DDAE2D.6080300@namesys.com> <200601300822.47821.mason@suse.com>
+In-Reply-To: <200601300822.47821.mason@suse.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s185160.ppp.asahi-net.or.jp
-User-Agent: Mail/News 1.5 (X11/20060119)
-X-Enigmail-Version: 0.94.0.0
+Content-Disposition: inline
+Message-Id: <200602020925.00863.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there.
+On Monday 30 January 2006 15:22, Chris Mason wrote:
+> > >	chown -Rc 0:<n> .
+> > >
+> > >in a top directory of tree containing ~21938 files
+> > >on reiser3 partition:
+> > >
+> > >	/dev/sdc3 on /.3 type reiserfs (rw,noatime)
+> > >
+> > >causes oom kill storm. "ls -lR", "find ." etc work fine.
+>
+> In order for the journaled filesystems to make sure the FS is consistent after 
+> a crash, we need to keep some blocks in memory until other blocks have been 
+> written.  These blocks are pinned, and can't be freed until a certain amount 
+> of io is done.
+> 
+> In the case of reiserfs, it might pin as much as the size of the journal at 
+> any time.  The default journal is 32MB, which is much too large for a system 
+> with only 32MB of ram.
+> 
+> You can shrink the log of an existing filesystem.  The minimum size is 513 
+> blocks, you might try 1024 as a good starting poing.
+> 
+> reiserfstune -s 1024 /dev/xxxx
 
-Not sure if this is kernel problem or pcuitils-2.2.0 problem, please have a
-look.
+I had reiserfsprogs 3.6.11 and reiserfstune (above command) made my /dev/sdc3
+unmountable without -t reiserfs. I upgraded reiserfsprogs to 3.6.19 and now
+reiserfsck /dev/sdc3 reports no problems, but mount problem persists:
 
+# mount -t reiserfs /dev/sdc3 /.3
+# umount /.3
+# mount /dev/sdc3 /.3
+mount: you must specify the filesystem type
+# dmesg | tail -3
+br: port 1(ifi) entering forwarding state
+FAT: bogus number of reserved sectors
+VFS: Can't find a valid FAT filesystem on dev sdc3.
 
- ~ # uname -a
-Linux char 2.6.15.1-K01_P4_server #3 SMP Wed Jan 25 22:57:16 JST 2006 i686
-Intel(R) Pentium(R) 4 CPU 3.00GHz GenuineIntel GNU/Linux
+"chown -Rc <n>:<m> ." now does not OOM kill the box, so this issue
+is resolved, thanks!
 
- ~ # lspci |grep 01:04.0 && echo && lspci -G -xxxx -vv -s 01:04.0
-01:04.0 Mass storage controller: <pci_lookup_name: buffer too small> (rev 13)
+Can I restore sdc3 somehow that I won't need -t reiserfs in mount command?
+You can find result of
 
-Trying method 1......using /sys/bus/pci...OK
-Decided to use Linux-sysfs
-01:04.0 Mass storage controller: <pci_lookup_name: buffer too small> (rev 13)
-        Subsystem: ASUSTeK Computer Inc. Unknown device 813a
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0 (2000ns min, 2000ns max)
-        Interrupt: pin A routed to IRQ 18
-        Region 0: I/O ports at d400 [size=8]
-        Region 1: I/O ports at d000 [size=4]
-        Region 2: I/O ports at c800 [size=8]
-        Region 3: I/O ports at c400 [size=4]
-        Region 4: I/O ports at c000 [size=16]
-        Expansion ROM at 80000000 [disabled] [size=128K]
-        Capabilities: [80] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-00: 83 12 12 82 07 00 30 02 13 00 80 01 00 00 00 00
-10: 01 d4 00 00 01 d0 00 00 01 c8 00 00 01 c4 00 00
-20: 01 c0 00 00 00 00 00 00 00 00 00 00 43 10 3a 81
-30: 00 00 fc cf 80 00 00 00 00 00 00 00 0b 01 08 08
-40: f0 a0 36 01 08 00 08 00 02 02 00 00 04 02 04 02
-50: 00 20 00 00 a3 00 31 31 a3 00 31 31 00 1a 01 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 01 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+dd if=/dev/sdc3 of=1m bs=1M count=1
 
-The controller in question is on board Asus P5GDC-V Deluxe and I just
-enabled it in BIOS, because I run shoert of IDE channels:
-
- ~ # dmesg |grep -i IT8212
-[    1.636300] IT8212: IDE controller at PCI slot 0000:01:04.0
-[    1.636320] IT8212: chipset revision 19
-[    1.636326] IT8212: 100% native mode on irq 18
-
-
-Kalin.
-
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
-
+at http://195.66.192.167/linux/1m
+--
+vda

@@ -1,45 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWBBARe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbWBBATL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbWBBARe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 19:17:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWBBARe
+	id S932409AbWBBATL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 19:19:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751411AbWBBATL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 19:17:34 -0500
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:46289 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751326AbWBBARd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 19:17:33 -0500
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Wed, 1 Feb 2006 19:19:11 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:31390 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751404AbWBBATJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 19:19:09 -0500
+Date: Wed, 1 Feb 2006 18:19:06 -0600
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Karim Yaghmour <karim@opersys.com>,
-       Filip Brcic <brcha@users.sourceforge.net>,
-       Glauber de Oliveira Costa <glommer@gmail.com>,
-       Thomas Horsten <thomas@horsten.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org>
-References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>
-	 <43DE57C4.5010707@opersys.com>
-	 <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com>
-	 <200601302301.04582.brcha@users.sourceforge.net>
-	 <43E0E282.1000908@opersys.com>
-	 <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 02 Feb 2006 00:18:22 +0000
-Message-Id: <1138839503.5557.3.camel@localhost.localdomain>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Dave Jones <davej@redhat.com>,
+       linuxppc64-dev@ozlabs.org
+Subject: [PATCH 1/2]: PowerPC/PCI Hotplug build break
+Message-ID: <20060202001906.GA24916@austin.ibm.com>
+References: <1138833335.6933.5.camel@sinatra.austin.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1138833335.6933.5.camel@sinatra.austin.ibm.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2006-02-01 at 14:31 -0800, Linus Torvalds wrote:
-> I realize that programmers are bad at content creation. So many 
-> programmers feel that they can't fight DRM that way. Tough. Spread the 
-> word instead. Don't try to fight DRM the wrong way.
 
+Please apply ASAP:
 
-Programmers tend to be interested in economics for some strange reason.
-So read the analyses on DRM. Then stop worrying about the content
-companies because they are the losers to the computer industry on this..
+Build break: Building PCI hotplug on PowerPC results in 
+a build break, due to failure to export symbols.
 
+Reported today by Dave Jones <davej@redhat.com>:
+drivers/pci/hotplug/rpaphp.ko needs unknown symbol pcibios_add_pci_devices
+
+This patch fixes the break in the arch/powerpc tree.
+Next patch fixes same problem in drivers/pci tree
+
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+
+---
+ pci_dlpar.c |    3 +++
+ 1 files changed, 3 insertions(+)
+
+Index: linux-2.6.16-rc1-git5/arch/powerpc/platforms/pseries/pci_dlpar.c
+===================================================================
+--- linux-2.6.16-rc1-git5.orig/arch/powerpc/platforms/pseries/pci_dlpar.c	2006-02-01 18:06:12.380829512 -0600
++++ linux-2.6.16-rc1-git5/arch/powerpc/platforms/pseries/pci_dlpar.c	2006-02-01 18:11:41.040673750 -0600
+@@ -58,6 +58,7 @@
+ 
+ 	return find_bus_among_children(pdn->phb->bus, dn);
+ }
++EXPORT_SYMBOL_GPL(pcibios_find_pci_bus);
+ 
+ /**
+  * pcibios_remove_pci_devices - remove all devices under this bus
+@@ -106,6 +107,7 @@
+ 		}
+ 	}
+ }
++EXPORT_SYMBOL_GPL(pcibios_fixup_new_pci_devices);
+ 
+ static int
+ pcibios_pci_config_bridge(struct pci_dev *dev)
+@@ -172,3 +174,4 @@
+ 			pcibios_pci_config_bridge(dev);
+ 	}
+ }
++EXPORT_SYMBOL_GPL(pcibios_add_pci_devices);

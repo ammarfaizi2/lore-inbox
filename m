@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423379AbWBBIb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423055AbWBBIkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423379AbWBBIb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 03:31:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423380AbWBBIb4
+	id S1423055AbWBBIkF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 03:40:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423372AbWBBIkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 03:31:56 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:2704 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1423379AbWBBIbz (ORCPT
+	Thu, 2 Feb 2006 03:40:05 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:30442 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1423055AbWBBIkE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 03:31:55 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
-Date: Thu, 2 Feb 2006 09:31:29 +0100
-User-Agent: KMail/1.9.1
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@suse.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <84144f020602011345i2e395336s371786c441b9f5b2@mail.gmail.com> <200602020855.12392.nigel@suspend2.net>
-In-Reply-To: <200602020855.12392.nigel@suspend2.net>
+	Thu, 2 Feb 2006 03:40:04 -0500
+Message-ID: <43E1C55A.7090801@drzeus.cx>
+Date: Thu, 02 Feb 2006 09:39:54 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5 (X11/20060128)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Karim Yaghmour <karim@opersys.com>,
+       Filip Brcic <brcha@users.sourceforge.net>,
+       Glauber de Oliveira Costa <glommer@gmail.com>,
+       Thomas Horsten <thomas@horsten.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk> <43DE57C4.5010707@opersys.com> <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com> <200601302301.04582.brcha@users.sourceforge.net> <43E0E282.1000908@opersys.com> <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602020931.29796.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wednesday 01 February 2006 23:55, Nigel Cunningham wrote:
-> On Thursday 02 February 2006 07:45, Pekka Enberg wrote:
-> > On Wednesday 01 February 2006 23:01, Pekka Enberg wrote:
-> > > > I think we can call these suspend_{get|set}_modules instead i.e.
-> > > > without the extra '2'.
-> >
-> > On 2/1/06, Nigel Cunningham <nigel@suspend2.net> wrote:
-> > > I wanted to avoid confusion with similar routine names Pavel might use.
-> > > For example, he has a resume_setup and I have a resume2_setup.
-> >
-> > Is that necessary for the mainline, though? We have only one suspend
-> > in the kernel, not "Pavel suspend" and "Nigel suspend", right?
+Linus Torvalds wrote:
 > 
-> Well, I'd love that to be true, but I don't believe Pavel's going to roll over 
-> and say "Ok Nigel. You've got a better implementation. I'll submit patches to 
-> remove mine." I might be wrong, and I hope I will be, but I fear they're 
-> going to coexist for a while.
+> The GPL already requires source code (ie non-protected content). So the 
+> GPL already _does_ have an anti-DRM clause as far as the _software_ is 
+> concerned. If you want to fight DRM on non-software fronts, you need to 
+> create non-software content, and fight it _there_.
+> 
 
-First, your code introduces many changes in many parts of the kernel,
-so to merge it you'll have to ask many people for acceptance.
+The point is not only getting access to the source code, but also being 
+able to change it. Being able to freely study the code is only half of 
+the beauty of the GPL. The other half, being able to change it, can be 
+very effectively stopped using DRM.
 
-Second, swsusp is actively developed, not only by Pavel, and you know that,
-so you could be nicer. ;-)
+I agree with your position that the GPL should not be used to prevent 
+implementing a DRM system, but I like the fact that it's trying to 
+prevent DRM:ing the code itself (e.g. requiring signed binaries to run).
 
-Still our approach is quite different to yours.  We are focused on keepeing
-the code possibly simple and non-intrusive wrt the other parts of the kernel,
-whereas you seem to concentrate on features (which is not wrong, IMO, it's
-just a different point of view).  We're moving towards the implementation
-of the features like the system image compression and encryption,
-graphical progress meters etc. in the user space, which has some advantages,
-and I think this approach is correct for a laptop/desktop system.
+The effect would probably be that no one can implement a DRM system that 
+isn't easily broken, but that only demonstrates how flawed the idea of 
+DRM is.
 
-Its limitation , however, is that it requires a lot of memory for the system
-memory snapshot which may be impractical for systems with limited RAM,
-and that's where your solution may be required.
-
-In conclusion, I see the room for both, as long as the do not conflict, so
-could we please bury the hatched and start working _together_?
-
-Greetings,
-Rafael
+Rgds
+Pierre
 

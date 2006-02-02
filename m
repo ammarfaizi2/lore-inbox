@@ -1,72 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161085AbWBBFHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161120AbWBBFMM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161085AbWBBFHX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 00:07:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161086AbWBBFHX
+	id S1161120AbWBBFMM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 00:12:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161119AbWBBFMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 00:07:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:20448 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1161085AbWBBFHW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 00:07:22 -0500
-Date: Thu, 2 Feb 2006 00:07:13 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.16rc1-git4 slab corruption.
-Message-ID: <20060202050713.GA2560@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060131180319.GA18948@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060131180319.GA18948@redhat.com>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 2 Feb 2006 00:12:12 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:39108 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1161115AbWBBFMK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 00:12:10 -0500
+Message-ID: <43E19401.6060500@jp.fujitsu.com>
+Date: Thu, 02 Feb 2006 14:09:21 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Kristen Carlson Accardi <kristenc@cs.pdx.edu>
+CC: pcihpd-discuss@lists.sourceforge.net, greg@kroah.com, len.brown@intel.com,
+       pavel@ucw.cz, linux-kernel@vger.kernel.org,
+       muneda.takahiro@jp.fujitsu.com, linux-acpi@vger.kernel.org
+Subject: Re: [Pcihpd-discuss] [patch] acpiphp: handle dock stations
+References: <20060201233005.GA4999@nerpa>
+In-Reply-To: <20060201233005.GA4999@nerpa>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 31, 2006 at 01:03:19PM -0500, Dave Jones wrote:
- > Slab corruption: start=ffff81000057a360, len=88
- > Redzone: 0x5a2cf071/0x5a2cf071.
- > Last user: [<ffffffff80181cc0>](free_buffer_head+0x2a/0x43)
- > 
- > Call Trace: <ffffffff8017b4d0>{check_poison_obj+127}
- >        <ffffffff80181cea>{alloc_buffer_head+17} <ffffffff8017b638>{cache_alloc_debugcheck_after+48}
- >        <ffffffff8017b828>{kmem_cache_alloc+231} <ffffffff80181cea>{alloc_buffer_head+17}
- >        <ffffffff801824b1>{alloc_page_buffers+53} <ffffffff8018255c>{create_empty_buffers+20}
- >        <ffffffff801831c8>{__block_prepare_write+148} <ffffffff8807e5f4>{:ext3:ext3_get_block+0}
- >        <ffffffff8017b0cc>{poison_obj+38} <ffffffff8017b6f7>{cache_alloc_debugcheck_after+239}
- >        <ffffffff80183536>{block_prepare_write+26} <ffffffff8807fcd1>{:ext3:ext3_prepare_write+148}
- >        <ffffffff80340386>{_write_unlock_irq+9} <ffffffff8015e3b7>{generic_file_buffered_write+603}
- >        <ffffffff80137896>{current_fs_time+59} <ffffffff80137896>{current_fs_time+59}
- >        <ffffffff8015ea13>{__generic_file_aio_write_nolock+767}
- >        <ffffffff8015ee22>{generic_file_aio_write+78} <ffffffff80149d23>{debug_mutex_add_waiter+159}
- >        <ffffffff8033fb23>{__mutex_lock_slowpath+817} <ffffffff8015ee39>{generic_file_aio_write+101}
- >        <ffffffff8807be5e>{:ext3:ext3_file_write+22} <ffffffff8018054e>{do_sync_write+199}
- >        <ffffffff801464d6>{autoremove_wake_function+0} <ffffffff8015ae1f>{audit_syscall_entry+301}
- >        <ffffffff80180e48>{vfs_write+206} <ffffffff801813fa>{sys_write+69}
- >        <ffffffff8010aa78>{tracesys+209}
- > 020: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 01 00 00 00
+Kristen Carlson Accardi wrote:
+> +int is_dependent_device(acpi_handle handle)
+> +{
+> +	struct dependent_device *dd;
+> +
+> +	if (!ds)
+> +		return 0;
+> +
+> +	list_for_each_entry(dd, &ds->dependent_devices, device_list) {
+> +		if (handle == dd->handle)
+> +			return 1;
+> +	}
+> +	return 0;
+> +}
+(snip.)
+> +struct dependent_device * get_dependent_device(acpi_handle handle)
+> +{
+> +	struct dependent_device *dd;
+> +
+> +	list_for_each_entry(dd, &ds->dependent_devices, device_list) {
+> +		if (handle == dd->handle)
+> +			return dd;
+> +	}
+> +	return NULL;
+> +}
 
-I just hit corruption again (I had rebooted since), but this time with
-a completely different trace.
+Those look very similar...
 
-Slab corruption: start=ffff81000057a000, len=4096
 
-Call Trace: <ffffffff8017b4f0>{check_poison_obj+127}
-        <ffffffff802dd12a>{__alloc_skb+92} <ffffffff8017b658>{cache_alloc_debugcheck_after+48}
-        <ffffffff8017c271>{__kmalloc+294} <ffffffff802dd12a>{__alloc_skb+92}
-        <ffffffff802d9ba3>{sock_alloc_send_skb+101} <ffffffff801dd163>{avc_has_perm+67}
-        <ffffffff8017b340>{cache_free_debugcheck+554} <ffffffff8033952e>{unix_stream_sendmsg+348}
-        <ffffffff801dd4c2>{socket_has_perm+93} <ffffffff802d70e2>{do_sock_write+193}
-        <ffffffff802d90ad>{sock_writev+183} <ffffffff801464de>{autoremove_wake_function+0}
-        <ffffffff801dd818>{inode_has_perm+86} <ffffffff802d7668>{sock_aio_read+81}
-        <ffffffff801dd8bb>{file_has_perm+150} <ffffffff80180bf7>{do_readv_writev+381}
-        <ffffffff801811a7>{sys_writev+69} <ffffffff8010a906>{system_call+126}
-380: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 01 00 00 00
 
-What I find interesting here is the corruption pattern is the same both times.
-Strange, and very scary.
+> +
+> +	/* make sure we are dependent on the dock device */
+> +	acpi_get_name(dck_handle, ACPI_FULL_PATHNAME, &buffer);
+> +	status = acpi_evaluate_object(handle, "_EJD", NULL, &ejd_buffer);
+> +	if (ACPI_FAILURE(status)) {
+> +		err("Unable to execute _EJD!\n");
+> +		goto find_ejd_out;
+> +	}
+> +
+> +	/* because acpi_get_name will pad the names if they are less
+> +	 * than 4 characters, we can't compare the strings returned
+> +	 * from _EJD with those returned from acpi_get_name.  So,
+> +	 * we have to get a handle to the object referenced by _EJD
+> +	 * and then call get name on that.
+> +	 */
+> +	ejd_obj = ejd_buffer.pointer;
+> +	status = acpi_get_handle(NULL, ejd_obj->string.pointer, &tmp);
+> +	if (ACPI_FAILURE(status))
+> +		goto find_ejd_out;
+> +	acpi_get_name(tmp, ACPI_FULL_PATHNAME, &ejd_name_buffer);
+> +
+> +	dck_obj = buffer.pointer;
+> +	if (!strncmp(ejd_objname, objname, strlen(ejd_objname))) {
 
-		Dave
+I don't think you need to compare pathnames.
+Why not just compare ACPI handles like below?
+
+	if (dck_handle == tmp) {
+		...
+
+Thanks,
+Kenji Kaneshige
 

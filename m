@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWBBLCP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWBBLCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbWBBLCP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 06:02:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWBBLCP
+	id S1750730AbWBBLCq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 06:02:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbWBBLCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 06:02:15 -0500
-Received: from ns.firmix.at ([62.141.48.66]:24714 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750724AbWBBLCO (ORCPT
+	Thu, 2 Feb 2006 06:02:46 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:424 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750730AbWBBLCp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 06:02:14 -0500
-Subject: Re: root=LABEL= problem [Was: Re: Linux Issue]
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Jiri Slaby <xslaby@fi.muni.cz>,
-       kavitha s <wellspringkavitha@yahoo.co.in>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060202091900.469e7394@werewolf.auna.net>
-References: <20060201114845.E41F222AF24@anxur.fi.muni.cz>
-	 <Pine.LNX.4.61.0602011713410.22529@yvahk01.tjqt.qr>
-	 <1138810616.16643.30.camel@tara.firmix.at>
-	 <1138863107.3270.8.camel@laptopd505.fenrus.org>
-	 <20060202091900.469e7394@werewolf.auna.net>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Thu, 02 Feb 2006 11:55:28 +0100
-Message-Id: <1138877728.12822.5.camel@tara.firmix.at>
+	Thu, 2 Feb 2006 06:02:45 -0500
+Date: Thu, 2 Feb 2006 12:02:35 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Nigel Cunningham <nigel@suspend2.net>, linux-kernel@vger.kernel.org
+Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
+Message-ID: <20060202110235.GE1884@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602012245.06328.nigel@suspend2.net> <84144f020602010501k23e7898at82c0f231a2da0ad4@mail.gmail.com> <200602020730.16916.nigel@suspend2.net> <84144f020602011345i2e395336s371786c441b9f5b2@mail.gmail.com> <20060202100646.GC1981@elf.ucw.cz> <84144f020602020257g72bda32bkc3d6264495bea2aa@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <84144f020602020257g72bda32bkc3d6264495bea2aa@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-02 at 09:19 +0100, J.A. Magallon wrote:
-> On Thu, 02 Feb 2006 07:51:47 +0100, Arjan van de Ven <arjan@infradead.org> wrote:
+Hi!
+
+> On St 01-02-06 23:45:15, Pekka Enberg wrote:
+> > > Is that necessary for the mainline, though? We have only one suspend
+> > > in the kernel, not "Pavel suspend" and "Nigel suspend", right?
 > 
-> > On Wed, 2006-02-01 at 17:16 +0100, Bernd Petrovitsch wrote:
-> > > On Wed, 2006-02-01 at 17:14 +0100, Jan Engelhardt wrote:
-> > > [...]
-> > > > >change root=LABEL=/ to root=/dev/XXX. Vanilla doesn't support this...
-> > > > >
-> > > > is there a kernel patch that does allow it?
-> > > 
-> > > Yes, in RedHat's/Fedora's kernels since ages.
-> > 
-> > wrong.
-> > there is NO kernel patch for this. Not in RHs and not in Fedora's
-> > kernel.
-> > Never was either.
-> > it's 100% done in the initrd.
+> On 2/2/06, Pavel Machek <pavel@ucw.cz> wrote:
+> > Actually plan is to only have "Rafael suspend" :-). That's basically
+> > "Pavel suspend" minus the disk writing parts. That is *long* term.
+> 
+> So what's the plan for short-term? Are userspace suspend and suspend
+> modules mutually exclusive or can they co-exist?
 
-Oooops, sorry.
-s/RedHat's\/Fedora's kernels/RedHa\/Fedora/
+They can coexist for as long as neccessary. (At one point, it was even
+possible to suspend using userland code, then resume using kernel code
+:-).
 
-> Isn't this a matter of the bootloader ?
-
-No, because it is merely used as a kernel parameter (which led me to the
-false conclusion that it is done within the kernel) and the kernel
-either mounts the root filesystem (without initrd) or it is handled
-within the initrd (if you have one).
-
-	Bernd
+When I found out noone is really using kernel code any more (2.8.0 or
+something), I'd like to get rid of it.
+								Pavel
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+Thanks, Sharp!

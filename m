@@ -1,110 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWBBMko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbWBBMlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750997AbWBBMko (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 07:40:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWBBMko
+	id S1751011AbWBBMlH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 07:41:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbWBBMks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 07:40:44 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:38587 "EHLO
+	Thu, 2 Feb 2006 07:40:48 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:39867 "EHLO
 	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1750997AbWBBMkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 07:40:43 -0500
+	id S1751000AbWBBMko (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 07:40:44 -0500
 From: Nigel Cunningham <nigel@suspend2.net>
 Organization: Suspend2.net
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
-Date: Thu, 2 Feb 2006 21:35:52 +1000
+To: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [ 00/10] [Suspend2] Modules support.
+Date: Thu, 2 Feb 2006 22:14:48 +1000
 User-Agent: KMail/1.9.1
 Cc: linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602012245.06328.nigel@suspend2.net> <84144f020602010501k23e7898at82c0f231a2da0ad4@mail.gmail.com>
-In-Reply-To: <84144f020602010501k23e7898at82c0f231a2da0ad4@mail.gmail.com>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602022131.59928.nigel@suspend2.net> <20060202115907.GH1884@elf.ucw.cz>
+In-Reply-To: <20060202115907.GH1884@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart2394419.uQtfgOsVRy";
+  boundary="nextPart1151847.dRXbmx6jt0";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602022135.56830.nigel@suspend2.net>
+Message-Id: <200602022214.52752.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2394419.uQtfgOsVRy
+--nextPart1151847.dRXbmx6jt0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
 Hi.
 
-On Wednesday 01 February 2006 23:01, Pekka Enberg wrote:
-> On 2/1/06, Nigel Cunningham <nigel@suspend2.net> wrote:
-> > --- /dev/null
-> > +++ b/kernel/power/modules.h
+On Thursday 02 February 2006 21:59, Pavel Machek wrote:
+> On =C4=8Ct 02-02-06 21:31:55, Nigel Cunningham wrote:
+> > Hi.
 > >
-> > +struct module_header {
+> > On Thursday 02 February 2006 20:47, Pavel Machek wrote:
+> > > Hi!
+> > >
+> > > > > swsusp already has a very strong API to separate image writing fr=
+om
+> > > > > image creation (in -mm patch, anyway). It is also very nice, just
+> > > > > read() from /dev/snapshot. Please use it.
+> > > >
+> > > > You know that's not an option.
+> > >
+> > > No, I don't... please explain. Switching to this interface is going to
+> > > be easier than pushing suspend2 into kernel. Granted, end result may
+> > > not be suspend2, it may be something like suspend3, but it will be
+> > > better result than u-swsusp or suspend2 is today...
+> >
+> > It's not an option because I'm not trying not to step all over your
+> > codebase, because I'm not moving suspend2 to userspace and because it
+> > doesn't make sense to add another layer of abstraction by sticking
+> > /dev/snapshot in the middle of kernel space code. There may be more
+> > reasons, but I haven't looked at the /dev/snapshot code at all.
 >
-> [snip]
+> Please take a look at /dev/snapshot.
 >
-> > +extern int num_modules, num_writers;
+> Parse error at the first sentence (too many nots), anyway:
 >
-> [snip]
+> 1) we do not want two implementations of same code in kernel. [swsusp
+> vs. pmdisk was a mess]
 >
-> > +extern struct suspend_module_ops *active_writer;
+> 2) we are not going to merge code into kernel, when it is possible to
+> do same thing in userspace. (*)
 >
-> [snip]
+> 3) backwards compatibility is important in stable series.
 >
-> > +extern void prepare_console_modules(void);
-> > +extern void cleanup_console_modules(void);
+> 4) merging code into kernel is a lot of work.
 >
-> [snip, snip]
+> I do not think I want to remove swsusp from kernel. Even if I wanted
+> to, there's 3). That means suspend2 should not go in (see 1). Even if I
+> removed swsusp from kernel, suspend2 is not going to be merged,
+> because of 2). Even if world somehow forgot that it is possible to do
+> suspend2 in userspace, merging 10K lines of code is (4) still lot of
+> work.
 >
-> > +extern unsigned long header_storage_for_modules(void);
-> > +extern unsigned long memory_for_modules(void);
-> > +
-> > +extern int print_module_debug_info(char *buffer, int buffer_size);
->
-> Suspend prefix for the names of all of the above please? They're
-> confusing with kernel/module.c now.
->
-> > +extern int suspend_register_module(struct suspend_module_ops *module);
-> > +extern void suspend_unregister_module(struct suspend_module_ops
-> > *module); +
-> > +extern int suspend2_initialise_modules(int starting_cycle);
-> > +extern void suspend2_cleanup_modules(int finishing_cycle);
-> > +
-> > +int suspend2_get_modules(void);
-> > +void suspend2_put_modules(void);
->
-> I think we can call these suspend_{get|set}_modules instead i.e.
-> without the extra '2'.
->
-> > +
-> > +static inline void suspend_initialise_module_lists(void) {
-> > +       INIT_LIST_HEAD(&suspend_filters);
-> > +       INIT_LIST_HEAD(&suspend_writers);
-> > +       INIT_LIST_HEAD(&suspend_modules);
-> > +}
->
-> I couldn't find a user for this. I would imagine there's only one,
-> though, and this should be inlined there?
+> Oops, that looks bad for suspend2 merge. I really think you should
+> take a look at /dev/snapshot. Unless it is terminally broken, I can't
+> see how suspend2 could be merged.
 
-All done. Thanks!
+I don't want to argue Pavel. I want to give users the best suspend to disk=
+=20
+implementation they can get. If you want to argue, you can do so with=20
+yourself. Meanwhile, I'll work on getting Suspend2 ready for merging, and l=
+et=20
+Andrew and Linus decide what they think should happen. If they want to step=
+=20
+in now and tell me not to bother, I'll happily listen and just maintain the=
+=20
+patches out of kernel until you and Rafael get swsusp up to scratch. I'll=20
+even cc them now so they can have the opportunity to tell me not to bother.=
+=20
+But that's not what I've heard so far. In previous correspondence between u=
+s,=20
+Andrew has seemed keen to get a better implementation in, and Linus said=20
+something to the effect of "I'm sold" when I gave him an impromptu demo las=
+t=20
+week at LCA (Linus, if you read this, feel free to tell me if my memory is=
+=20
+faulty and I'm putting words in your mouth).
+
+As to backwards compatability, that shouldn't be hard to do.
+
+Regards,
 
 Nigel
+
+> 									Pavel
+> (*) or very close to same thing. We still can't save memory full of cache=
+s.
 
 =2D-=20
 See our web page for Howtos, FAQs, the Wiki and mailing list info.
 http://www.suspend2.net                IRC: #suspend2 on Freenode
 
---nextPart2394419.uQtfgOsVRy
+--nextPart1151847.dRXbmx6jt0
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQBD4e6cN0y+n1M3mo0RAopAAJ9p6ATgE+fzKCGf2kTzVym8kTkKgQCgs8cu
-7MHDcAG5zXQOWyY1bDSNNNE=
-=xOls
+iD8DBQBD4fe8N0y+n1M3mo0RAr2pAKDnHyZQhWxyYXDtmntbR3EYFWLFHACgwCbh
+kMQ7Af+w65P3bPiC1ypw288=
+=QgIt
 -----END PGP SIGNATURE-----
 
---nextPart2394419.uQtfgOsVRy--
+--nextPart1151847.dRXbmx6jt0--

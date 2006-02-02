@@ -1,350 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbWBBXyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbWBBXxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932493AbWBBXyL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 18:54:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWBBXyK
+	id S932486AbWBBXxk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 18:53:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWBBXxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 18:54:10 -0500
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:30983 "EHLO
+	Thu, 2 Feb 2006 18:53:40 -0500
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:28679 "EHLO
 	cassiel.sirena.org.uk") by vger.kernel.org with ESMTP
-	id S932487AbWBBXxr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 18:53:47 -0500
-Message-Id: <20060202235155.775450000@lorien.sirena.org.uk>
-References: <20060202233909.426660000@lorien.sirena.org.uk>
-Date: Thu, 02 Feb 2006 00:00:01 +0000
+	id S932486AbWBBXxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 18:53:39 -0500
+Message-Id: <20060202233909.426660000@lorien.sirena.org.uk>
+Date: Thu, 02 Feb 2006 23:27:26 +0000
 From: Mark Brown <broonie@sirena.org.uk>
 To: Jeff Garzik <jgarzik@pobox.com>, Tim Hockin <thockin@hockin.org>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [patch 1/2] natsemi: NAPI and a bugfix
-Content-Disposition: inline; filename=natsemi-napi
-X-Spam-Score: -2.1 (--)
+Subject: [patch 0/2] natsemi: NAPI and a bugfix
+X-Spam-Score: -2.5 (--)
 X-Spam-Report: Spam detection software, running on the system "cassiel.sirena.org.uk", has
 	identified this incoming email as possible spam.  The original message
 	has been attached to this so you can view it (if it isn't spam) or label
 	similar future email.  If you have any questions, see
 	the administrator of that system for details.
-	Content preview:  This patch converts the natsemi driver to use NAPI. It
-	was originally based on one written by Harald Welte, though it has
-	since been modified quite a bit, most extensively in order to remove
-	the ability to disable NAPI since none of the other drivers seem to
-	provide that functionality any more. [...] 
-	Content analysis details:   (-2.1 points, 5.0 required)
+	Content preview:  These patches provide a series of updates to the
+	natsemi driver: the NAPI patch I've submitted before and a workaround
+	for an issue with the hardware that is easier to provoke at higher data
+	rates. 1/2: Convert the driver to NAPI 2/2: Fix hardware issue with RX
+	state machine lock up [...] 
+	Content analysis details:   (-2.5 points, 5.0 required)
 	pts rule name              description
 	---- ---------------------- --------------------------------------------------
-	0.7 DATE_IN_PAST_12_24     Date: is 12 to 24 hours before Received: date
 	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
 	[score: 0.0000]
-	-0.2 AWL                    AWL: From: address is in the auto white-list
+	0.1 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch converts the natsemi driver to use NAPI.  It was originally
-based on one written by Harald Welte, though it has since been modified
-quite a bit, most extensively in order to remove the ability to disable
-NAPI since none of the other drivers seem to provide that functionality
-any more.
+These patches provide a series of updates to the natsemi driver: the
+NAPI patch I've submitted before and a workaround for an issue with the
+hardware that is easier to provoke at higher data rates.
 
-Signed-off-by: Mark Brown <broonie@sirena.org.uk>
-
-Index: linux-2.6.15.2/drivers/net/natsemi.c
-===================================================================
---- linux-2.6.15.2.orig/drivers/net/natsemi.c	2006-01-31 06:25:07.000000000 +0000
-+++ linux-2.6.15.2/drivers/net/natsemi.c	2006-02-01 22:59:29.000000000 +0000
-@@ -3,6 +3,7 @@
- 	Written/copyright 1999-2001 by Donald Becker.
- 	Portions copyright (c) 2001,2002 Sun Microsystems (thockin@sun.com)
- 	Portions copyright 2001,2002 Manfred Spraul (manfred@colorfullife.com)
-+	Portions copyright 2004 Harald Welte <laforge@gnumonks.org>
- 
- 	This software may be used and distributed according to the terms of
- 	the GNU General Public License (GPL), incorporated herein by reference.
-@@ -135,8 +136,6 @@
- 
- 	TODO:
- 	* big endian support with CFG:BEM instead of cpu_to_le32
--	* support for an external PHY
--	* NAPI
- */
- 
- #include <linux/config.h>
-@@ -160,6 +159,7 @@
- #include <linux/mii.h>
- #include <linux/crc32.h>
- #include <linux/bitops.h>
-+#include <linux/prefetch.h>
- #include <asm/processor.h>	/* Processor type for cache alignment. */
- #include <asm/io.h>
- #include <asm/irq.h>
-@@ -183,8 +183,6 @@
- 				 NETIF_MSG_TX_ERR)
- static int debug = -1;
- 
--/* Maximum events (Rx packets, etc.) to handle at each interrupt. */
--static int max_interrupt_work = 20;
- static int mtu;
- 
- /* Maximum number of multicast addresses to filter (vs. rx-all-multicast).
-@@ -251,14 +249,11 @@ MODULE_AUTHOR("Donald Becker <becker@scy
- MODULE_DESCRIPTION("National Semiconductor DP8381x series PCI Ethernet driver");
- MODULE_LICENSE("GPL");
- 
--module_param(max_interrupt_work, int, 0);
- module_param(mtu, int, 0);
- module_param(debug, int, 0);
- module_param(rx_copybreak, int, 0);
- module_param_array(options, int, NULL, 0);
- module_param_array(full_duplex, int, NULL, 0);
--MODULE_PARM_DESC(max_interrupt_work, 
--	"DP8381x maximum events handled per interrupt");
- MODULE_PARM_DESC(mtu, "DP8381x MTU (all boards)");
- MODULE_PARM_DESC(debug, "DP8381x default debug level");
- MODULE_PARM_DESC(rx_copybreak, 
-@@ -691,6 +686,8 @@ struct netdev_private {
- 	/* Based on MTU+slack. */
- 	unsigned int rx_buf_sz;
- 	int oom;
-+	/* Interrupt status */
-+	u32 intr_status;
- 	/* Do not touch the nic registers */
- 	int hands_off;
- 	/* external phy that is used: only valid if dev->if_port != PORT_TP */
-@@ -748,7 +745,8 @@ static void init_registers(struct net_de
- static int start_tx(struct sk_buff *skb, struct net_device *dev);
- static irqreturn_t intr_handler(int irq, void *dev_instance, struct pt_regs *regs);
- static void netdev_error(struct net_device *dev, int intr_status);
--static void netdev_rx(struct net_device *dev);
-+static int natsemi_poll(struct net_device *dev, int *budget);
-+static void netdev_rx(struct net_device *dev, int *work_done, int work_to_do);
- static void netdev_tx_done(struct net_device *dev);
- static int natsemi_change_mtu(struct net_device *dev, int new_mtu);
- #ifdef CONFIG_NET_POLL_CONTROLLER
-@@ -776,6 +774,18 @@ static inline void __iomem *ns_ioaddr(st
- 	return (void __iomem *) dev->base_addr;
- }
- 
-+static inline void natsemi_irq_enable(struct net_device *dev)
-+{
-+	writel(1, ns_ioaddr(dev) + IntrEnable);
-+	readl(ns_ioaddr(dev) + IntrEnable);
-+}
-+
-+static inline void natsemi_irq_disable(struct net_device *dev)
-+{
-+	writel(0, ns_ioaddr(dev) + IntrEnable);
-+	readl(ns_ioaddr(dev) + IntrEnable);
-+}
-+
- static void move_int_phy(struct net_device *dev, int addr)
- {
- 	struct netdev_private *np = netdev_priv(dev);
-@@ -879,6 +889,7 @@ static int __devinit natsemi_probe1 (str
- 	spin_lock_init(&np->lock);
- 	np->msg_enable = (debug >= 0) ? (1<<debug)-1 : NATSEMI_DEF_MSG;
- 	np->hands_off = 0;
-+	np->intr_status = 0;
- 
- 	/* Initial port:
- 	 * - If the nic was configured to use an external phy and if find_mii
-@@ -932,6 +943,9 @@ static int __devinit natsemi_probe1 (str
- 	dev->do_ioctl = &netdev_ioctl;
- 	dev->tx_timeout = &tx_timeout;
- 	dev->watchdog_timeo = TX_TIMEOUT;
-+	dev->poll = natsemi_poll;
-+	dev->weight = 64;
-+
- #ifdef CONFIG_NET_POLL_CONTROLLER
- 	dev->poll_controller = &natsemi_poll_controller;
- #endif
-@@ -2158,68 +2172,92 @@ static void netdev_tx_done(struct net_de
- 	}
- }
- 
--/* The interrupt handler does all of the Rx thread work and cleans up
--   after the Tx thread. */
-+/* The interrupt handler doesn't actually handle interrupts itself, it
-+ * schedules a NAPI poll if there is anything to do. */
- static irqreturn_t intr_handler(int irq, void *dev_instance, struct pt_regs *rgs)
- {
- 	struct net_device *dev = dev_instance;
- 	struct netdev_private *np = netdev_priv(dev);
- 	void __iomem * ioaddr = ns_ioaddr(dev);
--	int boguscnt = max_interrupt_work;
--	unsigned int handled = 0;
- 
- 	if (np->hands_off)
- 		return IRQ_NONE;
--	do {
--		/* Reading automatically acknowledges all int sources. */
--		u32 intr_status = readl(ioaddr + IntrStatus);
-+	
-+	/* Reading automatically acknowledges. */
-+	np->intr_status = readl(ioaddr + IntrStatus);
- 
--		if (netif_msg_intr(np))
--			printk(KERN_DEBUG
--				"%s: Interrupt, status %#08x, mask %#08x.\n",
--				dev->name, intr_status,
--				readl(ioaddr + IntrMask));
-+	if (netif_msg_intr(np))
-+		printk(KERN_DEBUG
-+		       "%s: Interrupt, status %#08x, mask %#08x.\n",
-+		       dev->name, np->intr_status,
-+		       readl(ioaddr + IntrMask));
- 
--		if (intr_status == 0)
--			break;
--		handled = 1;
-+	if (!np->intr_status) 
-+		return IRQ_NONE;
- 
--		if (intr_status &
--		   (IntrRxDone | IntrRxIntr | RxStatusFIFOOver |
--		    IntrRxErr | IntrRxOverrun)) {
--			netdev_rx(dev);
--		}
-+	prefetch(&np->rx_skbuff[np->cur_rx % RX_RING_SIZE]);
-+
-+	if (netif_rx_schedule_prep(dev)) {
-+		/* Disable interrupts and register for poll */
-+		natsemi_irq_disable(dev);
-+		__netif_rx_schedule(dev);
-+	}
-+	return IRQ_HANDLED;
-+}
- 
--		if (intr_status &
--		   (IntrTxDone | IntrTxIntr | IntrTxIdle | IntrTxErr)) {
-+/* This is the NAPI poll routine.  As well as the standard RX handling
-+ * it also handles all other interrupts that the chip might raise.
-+ */
-+static int natsemi_poll(struct net_device *dev, int *budget)
-+{
-+	struct netdev_private *np = netdev_priv(dev);
-+	void __iomem * ioaddr = ns_ioaddr(dev);
-+
-+	int work_to_do = min(*budget, dev->quota);
-+	int work_done = 0;
-+
-+	do {
-+		if (np->intr_status &
-+		    (IntrTxDone | IntrTxIntr | IntrTxIdle | IntrTxErr)) {
- 			spin_lock(&np->lock);
- 			netdev_tx_done(dev);
- 			spin_unlock(&np->lock);
- 		}
- 
- 		/* Abnormal error summary/uncommon events handlers. */
--		if (intr_status & IntrAbnormalSummary)
--			netdev_error(dev, intr_status);
--
--		if (--boguscnt < 0) {
--			if (netif_msg_intr(np))
--				printk(KERN_WARNING
--					"%s: Too much work at interrupt, "
--					"status=%#08x.\n",
--					dev->name, intr_status);
--			break;
-+		if (np->intr_status & IntrAbnormalSummary)
-+			netdev_error(dev, np->intr_status);
-+		
-+		if (np->intr_status &
-+		    (IntrRxDone | IntrRxIntr | RxStatusFIFOOver |
-+		     IntrRxErr | IntrRxOverrun)) {
-+			netdev_rx(dev, &work_done, work_to_do);
- 		}
--	} while (1);
-+		
-+		*budget -= work_done;
-+		dev->quota -= work_done;
- 
--	if (netif_msg_intr(np))
--		printk(KERN_DEBUG "%s: exiting interrupt.\n", dev->name);
-+		if (work_done >= work_to_do)
-+			return 1;
-+
-+		np->intr_status = readl(ioaddr + IntrStatus);
-+	} while (np->intr_status);
- 
--	return IRQ_RETVAL(handled);
-+	netif_rx_complete(dev);
-+
-+	/* Reenable interrupts providing nothing is trying to shut
-+	 * the chip down. */
-+	spin_lock(&np->lock);
-+	if (!np->hands_off && netif_running(dev))
-+		natsemi_irq_enable(dev);
-+	spin_unlock(&np->lock);
-+
-+	return 0;
- }
- 
- /* This routine is logically part of the interrupt handler, but separated
-    for clarity and better register allocation. */
--static void netdev_rx(struct net_device *dev)
-+static void netdev_rx(struct net_device *dev, int *work_done, int work_to_do)
- {
- 	struct netdev_private *np = netdev_priv(dev);
- 	int entry = np->cur_rx % RX_RING_SIZE;
-@@ -2237,6 +2275,12 @@ static void netdev_rx(struct net_device 
- 				entry, desc_status);
- 		if (--boguscnt < 0)
- 			break;
-+
-+		if (*work_done >= work_to_do)
-+			break;
-+
-+		(*work_done)++;
-+
- 		pkt_len = (desc_status & DescSizeMask) - 4;
- 		if ((desc_status&(DescMore|DescPktOK|DescRxLong)) != DescPktOK){
- 			if (desc_status & DescMore) {
-@@ -2293,7 +2337,7 @@ static void netdev_rx(struct net_device 
- 				np->rx_skbuff[entry] = NULL;
- 			}
- 			skb->protocol = eth_type_trans(skb, dev);
--			netif_rx(skb);
-+			netif_receive_skb(skb);
- 			dev->last_rx = jiffies;
- 			np->stats.rx_packets++;
- 			np->stats.rx_bytes += pkt_len;
-@@ -3074,9 +3118,7 @@ static int netdev_close(struct net_devic
- 	del_timer_sync(&np->timer);
- 	disable_irq(dev->irq);
- 	spin_lock_irq(&np->lock);
--	/* Disable interrupts, and flush posted writes */
--	writel(0, ioaddr + IntrEnable);
--	readl(ioaddr + IntrEnable);
-+	natsemi_irq_disable(dev);
- 	np->hands_off = 1;
- 	spin_unlock_irq(&np->lock);
- 	enable_irq(dev->irq);
-@@ -3158,6 +3200,9 @@ static void __devexit natsemi_remove1 (s
-  *	* netdev_timer: timer stopped by natsemi_suspend.
-  *	* intr_handler: doesn't acquire the spinlock. suspend calls
-  *		disable_irq() to enforce synchronization.
-+ *      * natsemi_poll: checks before reenabling interrupts.  suspend
-+ *              sets hands_off, disables interrupts and then waits with
-+ *              netif_poll_disable().
-  *
-  * Interrupts must be disabled, otherwise hands_off can cause irq storms.
-  */
-@@ -3183,6 +3228,8 @@ static int natsemi_suspend (struct pci_d
- 		spin_unlock_irq(&np->lock);
- 		enable_irq(dev->irq);
- 
-+		netif_poll_disable(dev);
-+
- 		/* Update the error counts. */
- 		__get_stats(dev);
- 
-@@ -3235,6 +3282,7 @@ static int natsemi_resume (struct pci_de
- 		mod_timer(&np->timer, jiffies + 1*HZ);
- 	}
- 	netif_device_attach(dev);
-+	netif_poll_enable(dev);
- out:
- 	rtnl_unlock();
- 	return 0;
+  1/2: Convert the driver to NAPI
+  2/2: Fix hardware issue with RX state machine lock up
 
 --
 "You grabbed my hand and we fell into it, like a daydream - or a fever."

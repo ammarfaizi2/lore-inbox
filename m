@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423053AbWBBBu3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422867AbWBBC2T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423053AbWBBBu3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 20:50:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423054AbWBBBu3
+	id S1422867AbWBBC2T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 21:28:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423057AbWBBC2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 20:50:29 -0500
-Received: from mail.suse.de ([195.135.220.2]:30409 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1423053AbWBBBu2 (ORCPT
+	Wed, 1 Feb 2006 21:28:18 -0500
+Received: from ozlabs.org ([203.10.76.45]:19368 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1422867AbWBBC2S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 20:50:28 -0500
-From: Neil Brown <neilb@suse.de>
-To: "J.A. Magallon" <jamagallon@able.es>
-Date: Thu, 2 Feb 2006 12:50:19 +1100
+	Wed, 1 Feb 2006 21:28:18 -0500
+Date: Thu, 2 Feb 2006 13:25:55 +1100
+From: Anton Blanchard <anton@samba.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix cpu hotplug
+Message-ID: <20060202022555.GA11005@krispykreme>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17377.25947.81994.747575@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1-mm4 i386 atomic operations broken on SMP (in modules
- at least)
-In-Reply-To: message from J.A. Magallon on Thursday February 2
-References: <17377.24090.486443.865483@cse.unsw.edu.au>
-	<20060202023550.46f06ee1@werewolf.auna.net>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday February 2, jamagallon@able.es wrote:
-> On Thu, 2 Feb 2006 12:19:22 +1100, Neil Brown <neilb@suse.de> wrote:
-> 
-> > 
-> > I've been testing md/raid in 2.6.16-rc1-mm4 on a dual Xeon with most
-> > of the md personalities compiled as modules, and weird stuff if
-> > happening.
-> > 
-> > In particular I'm getting lots of 
-> > 
-> >     BUG: atomic counter underflow at:
-> > 
-> > reports in raid10 and raid5, which are modules.
-> > 
-> >
-> 
-> I also run this kernel (plus a couple patches) on a SATA raid5 setup, and
-> had no problems. People throws and gets files via SMB/AFP, mainly.
-> 
-> My box is dual PIII@933.
 
-Is 'raid5' a module, or is it compiled in?
+Hi,
 
-NeilBrown
+CPU hotplug was broken by the __meminit changes. Avoid the madness of
+creating a mem+cpu hotplug init attribute and just make them __devinit.
+
+Anton
+
+Signed-off-by: Anton Blanchard <anton@samba.org>
+---
+
+Index: build/mm/page_alloc.c
+===================================================================
+--- build.orig/mm/page_alloc.c	2006-02-02 12:20:50.000000000 +1100
++++ build/mm/page_alloc.c	2006-02-02 13:14:56.000000000 +1100
+@@ -1799,7 +1799,7 @@ void zonetable_add(struct zone *zone, in
+ 	memmap_init_zone((size), (nid), (zone), (start_pfn))
+ #endif
+ 
+-static int __meminit zone_batchsize(struct zone *zone)
++static int __devinit zone_batchsize(struct zone *zone)
+ {
+ 	int batch;
+ 
+@@ -1893,7 +1893,7 @@ static struct per_cpu_pageset
+  * Dynamically allocate memory for the
+  * per cpu pageset array in struct zone.
+  */
+-static int __meminit process_zones(int cpu)
++static int __devinit process_zones(int cpu)
+ {
+ 	struct zone *zone, *dzone;
+ 
+@@ -1934,7 +1934,7 @@ static inline void free_zone_pagesets(in
+ 	}
+ }
+ 
+-static int __meminit pageset_cpuup_callback(struct notifier_block *nfb,
++static int __devinit pageset_cpuup_callback(struct notifier_block *nfb,
+ 		unsigned long action,
+ 		void *hcpu)
+ {

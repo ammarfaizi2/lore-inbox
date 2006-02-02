@@ -1,61 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423422AbWBBJqj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423426AbWBBJro@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423422AbWBBJqj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 04:46:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161076AbWBBJqj
+	id S1423426AbWBBJro (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 04:47:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423427AbWBBJro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 04:46:39 -0500
-Received: from relay1.wplus.net ([195.131.52.143]:5642 "EHLO relay1.wplus.net")
-	by vger.kernel.org with ESMTP id S1161018AbWBBJqi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 04:46:38 -0500
-From: Vitaly Fertman <vitaly@namesys.com>
-Reply-To: vitaly@namesys.com
-To: reiserfs-dev@namesys.com
-Subject: Re: Recursive chmod/chown OOM kills box with 32MB RAM
-Date: Thu, 2 Feb 2006 12:42:21 +0300
-User-Agent: KMail/1.7.1
-Cc: Denis Vlasenko <vda@ilport.com.ua>, Chris Mason <mason@suse.com>,
-       Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-References: <200601281613.16199.vda@ilport.com.ua> <200601300822.47821.mason@suse.com> <200602020925.00863.vda@ilport.com.ua>
-In-Reply-To: <200602020925.00863.vda@ilport.com.ua>
+	Thu, 2 Feb 2006 04:47:44 -0500
+Received: from smtpq3.groni1.gr.home.nl ([213.51.130.202]:59885 "EHLO
+	smtpq3.groni1.gr.home.nl") by vger.kernel.org with ESMTP
+	id S1423426AbWBBJrn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 04:47:43 -0500
+Message-ID: <43E1D5E0.1050406@keyaccess.nl>
+Date: Thu, 02 Feb 2006 10:50:24 +0100
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Thunderbird 1.5 (X11/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+References: <43D114A8.4030900@wolfmountaingroup.com>  <43D13B2A.6020504@cs.ubishops.ca> <43D7D05D.7030101@perkel.com>  <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>  <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com>  <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse>  <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>  <1138387136.26811.8.camel@localhost>  <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org> <1138620390.31089.43.camel@localhost.localdomain> <Pine.LNX.4.64.0601310931540.7301@g5.osdl.org> <43DF9D42.7050802@wolfmountaingroup.com> <Pine.LNX.4.64.0601311032180.7301@g5.osdl.org> <43DFB0F2.4030901@wolfmountaingroup.com> <Pine.LNX.4.64.0601311152070.7301@g5.osdl.org> <43DFDEF9.2030001@keyaccess.nl> <Pine.LNX.4.64.0601311430130.7301@g5.osdl.org> <43E0C5E7.6050406@keyaccess.nl> <Pine.LNX.4.64.0602011334270.21884@g5.osdl.org> <43E14451.1010100@keyaccess.nl> <Pine.LNX.4.64.0602011540070.21884@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602011540070.21884@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602021242.21512.vitaly@namesys.com>
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > reiserfstune -s 1024 /dev/xxxx
-> 
-> I had reiserfsprogs 3.6.11 and reiserfstune (above command) made my /dev/sdc3
-> unmountable without -t reiserfs. I upgraded reiserfsprogs to 3.6.19 and now
-> reiserfsck /dev/sdc3 reports no problems, but mount problem persists:
-> 
-> # mount -t reiserfs /dev/sdc3 /.3
-> # umount /.3
-> # mount /dev/sdc3 /.3
-> mount: you must specify the filesystem type
-> # dmesg | tail -3
-> br: port 1(ifi) entering forwarding state
-> FAT: bogus number of reserved sectors
-> VFS: Can't find a valid FAT filesystem on dev sdc3.
-> 
-> "chown -Rc <n>:<m> ." now does not OOM kill the box, so this issue
-> is resolved, thanks!
-> 
-> Can I restore sdc3 somehow that I won't need -t reiserfs in mount command?
-> You can find result of
-> 
-> dd if=/dev/sdc3 of=1m bs=1M count=1
-> 
-> at http://195.66.192.167/linux/1m
+Linus Torvalds wrote:
 
-the problem seems to be in mount program, which version do you use?
-I still have no problem with your 1m image, mount version is 2.11z, 
-2.12c.
+> That distinction does not make any sense.
 
--- 
-Vitaly
+I'm afraid I have by now run out of steam. I you still feel the subject 
+interesting, please consult a lawyer.
+
+Rene.

@@ -1,46 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWBBTL5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbWBBTQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751044AbWBBTL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 14:11:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWBBTL5
+	id S1750832AbWBBTQq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 14:16:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWBBTQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 14:11:57 -0500
-Received: from zcars04f.nortel.com ([47.129.242.57]:56545 "EHLO
-	zcars04f.nortel.com") by vger.kernel.org with ESMTP
-	id S1751044AbWBBTL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 14:11:56 -0500
-Message-ID: <43E25976.6090109@nortel.com>
-Date: Thu, 02 Feb 2006 13:11:50 -0600
-From: "Christopher Friesen" <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+	Thu, 2 Feb 2006 14:16:46 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:37830 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1750832AbWBBTQq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 14:16:46 -0500
+Message-ID: <43E25ADF.7070903@tmr.com>
+Date: Thu, 02 Feb 2006 14:17:51 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Ian Kester-Haney <ikesterhaney@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>	 <200601302301.04582.brcha@users.sourceforge.net>	 <43E0E282.1000908@opersys.com>	 <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org>	 <43E1C55A.7090801@drzeus.cx>	 <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org>	 <1138891081.9861.4.camel@localhost.localdomain>	 <Pine.LNX.4.64.0602020814320.21884@g5.osdl.org>	 <43E23C79.8050606@drzeus.cx>	 <Pine.LNX.4.64.0602020937360.21884@g5.osdl.org>	 <441e43c90602021013j6edb2fa6m1142ef255040106d@mail.gmail.com> <1138906199.15691.54.camel@mindpipe>
-In-Reply-To: <1138906199.15691.54.camel@mindpipe>
+To: Albert Cahalan <acahalan@gmail.com>
+CC: gmack@innerfire.net, diablod3@gmail.com, schilling@fokus.fraunhofer.de,
+       bzolnier@gmail.com, mrmacman_g4@mac.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux try #2
+References: <200601302043.56615.diablod3@gmail.com>	 <20060130.174705.15703464.davem@davemloft.net>	 <Pine.LNX.4.64.0601310609210.2979@innerfire.net>	 <20060131.031817.85883571.davem@davemloft.net> <787b0d920601312049n313364a1q8a41e10c3cda98e0@mail.gmail.com>
+In-Reply-To: <787b0d920601312049n313364a1q8a41e10c3cda98e0@mail.gmail.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Feb 2006 19:11:53.0127 (UTC) FILETIME=[86C38370:01C6282C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+Albert Cahalan wrote:
+> On 1/31/06, David S. Miller <davem@davemloft.net> wrote:
+> 
+> 
+>>Someone remind me why the whole world is a prisoner to Joerg's cd
+>>burning program?
+>>
+>>Anybody can write their own, and if Joerg is a pain to work with that
+>>is a double extra incentive for this other implementation to be
+>>written.
+>>
+>>In fact I'm very surprised this hasn't happened already.
+> 
+> 
+> It has happened, many times, but sustaining such a project is
+> very difficult. The obstacles are numerous:
+> 
+> All the GUI apps parse cdrecord output. The output is somehow
+> even messier than the recent /proc/*/smaps abomination. It is
+> thus difficult to change or replace cdrecord. One of the major
+> GUI apps appears to be written by Joerg's real-life non-Internet
+> friend, who naturally refuses any patches to eliminate the need
+> for cdrecord.
+> 
+> Joerg is a Fraunhofer employee. That gives him connections to
+> many hardware companies. (and the RIAA, MPAA, Sony, Disney...)
+> One may wonder if this is both blessing and curse.
+> 
+> Forking means dealing with a giant pile of messy and ugly code.
+> The coding conventions are... interesting... and this code has
+> to run setuid. One had better be really careful making changes.
+> Most people are clueless about setuid code.
+> 
+> Starting fresh means rediscovering firmware bugs, of which there
+> are many. Things may be getting somewhat better though, with the
+> old pre-standard interfaces hopefully dying out. Getting the most
+> out of the hardware will require lots of device-specific code.
+> 
+> Joerg gets the hardware.
+> 
+> There are all sorts of funky formats. I've only ever heard of
+> mixed audio+data CDs for circa-1995 games and Sony spyware, but
+> maybe there are decent people who actually create these things.
+> In theory, somebody might be making multi-session CDs. Who knows?
 
-> What nvidia is doing is already illegal under the GPLv2.
+Not just in theory, I get notes from people saying they use addir for 
+backups, which is why I wrote it, because I change ~50MB/day and one CD 
+will hold all the change. So addir is like growisofs with some 
+additional bells and whistles I found useful, like taking a list of 
+files changed taoday from stdin (find) and adding them to the end of the 
+CD, preserving or renaming directory names, etc.
 
-I don't think that's been legally proven.
+http://www.tmr.com/~public/source/addir if you want to see an example.
 
-The question is whether it is a derivative work.  If their driver core 
-(aka the binary blob) is common to all their drivers (across multiple 
-OS's), it could be argued that the binary blob itself is not a 
-derivative work.  One could almost view it as firmware.
+I used the mixed audio and data a few times, I'm sure there are folks 
+who use it regularly. cdrecord is full function, and continues to 
+support new vendors and models, work around firmware bugs etc. A real 
+replacement is going to be a lot of ongoing work.
 
-If they ship the binary blob as well as code that interfaces the binary 
-blob with the kernel, and the end-user compiles the code together and 
-loads it into the kernel, does that necessarily violate the GPL?
-
-Chris
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

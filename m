@@ -1,73 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWBBVcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWBBVcR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932191AbWBBVcp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 16:32:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWBBVcp
+	id S932282AbWBBVcR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 16:32:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWBBVcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 16:32:45 -0500
-Received: from mtagate3.uk.ibm.com ([195.212.29.136]:4342 "EHLO
-	mtagate3.uk.ibm.com") by vger.kernel.org with ESMTP id S932284AbWBBVcc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 16:32:32 -0500
-Message-ID: <43E27A68.40003@fr.ibm.com>
-Date: Thu, 02 Feb 2006 22:32:24 +0100
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 2 Feb 2006 16:32:16 -0500
+Received: from odyssey.analogic.com ([204.178.40.5]:45320 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S932284AbWBBVcO convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 16:32:14 -0500
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Kirill Korotaev <dev@sw.ru>, Linus Torvalds <torvalds@osdl.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-References: <20060117143258.150807000@sergelap>	<20060117143326.283450000@sergelap>	<1137511972.3005.33.camel@laptopd505.fenrus.org>	<20060117155600.GF20632@sergelap.austin.ibm.com>	<1137513818.14135.23.camel@localhost.localdomain>	<1137518714.5526.8.camel@localhost.localdomain>	<20060118045518.GB7292@kroah.com>	<1137601395.7850.9.camel@localhost.localdomain>	<m1fyniomw2.fsf@ebiederm.dsl.xmission.com>	<43D14578.6060801@watson.ibm.com>	<Pine.LNX.4.64.0601311248180.7301@g5.osdl.org>	<43E21BD0.6000606@sw.ru> <m1d5i5vln3.fsf@ebiederm.dsl.xmission.com>	<43E2249D.8060608@sw.ru> <m1vevxu5bh.fsf@ebiederm.dsl.xmission.com>	<43E22DCA.3070004@sw.ru> <m1lkwtu3om.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1lkwtu3om.fsf@ebiederm.dsl.xmission.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <Pine.LNX.4.44L0.0602021607100.5016-100000@iolanthe.rowland.org>
+X-OriginalArrivalTime: 02 Feb 2006 21:32:12.0487 (UTC) FILETIME=[2117E570:01C62840]
+Content-class: urn:content-classes:message
+Subject: Re: Question about memory barriers
+Date: Thu, 2 Feb 2006 16:32:12 -0500
+Message-ID: <Pine.LNX.4.61.0602021626260.22302@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Question about memory barriers
+Thread-Index: AcYoQCE0VIrtQ7B/Sq2k2b9fqopH8A==
+References: <Pine.LNX.4.44L0.0602021607100.5016-100000@iolanthe.rowland.org>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Alan Stern" <stern@rowland.harvard.edu>
+Cc: "Kernel development list" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
 
-> For everything except the PID namespace I am just interested in having multiple
-> separate namespaces.  For the PID namespace to keep the traditional unix
-> model you need a parent process so it is actually nesting.
-> 
-> I am interested because, it is easy, because if it is possible than
-> the range of applications you can apply a containers to is much
-> larger.  At the far end of that spectrum is migrating a server running
-> on real hardware and bringing it up as a guest on a newer much more
-> powerful machine.  With the appearance that it had only been
-> unreachable for a few seconds.
+On Thu, 2 Feb 2006, Alan Stern wrote:
 
-We gave a name to such containers. We call them 'application' containers
-just to make a difference with the 'system' containers, like vserver or openvz.
+> The kernel's documentation about memory barriers is rather skimpy.  I
+> gather that rmb() guarantees that all preceding reads will have completed
+> before any following reads are made, and wmb() guarantees that all
+> preceding writes will have completed before any following writes are made.
+> I also gather that mb() is essentially the same as rmb() and wmb() put
+> together.
+>
+> But suppose I need to prevent a read from being moved past a write?  It
+> doesn't look like either rmb() or wmb() will do this.  And if mb() is the
+> same as "rmb(); wmb();" then it won't either.  So what's the right thing
+> to do?
+>
+> Alan Stern
 
-'application' containers are very useful in an HPC environment where you
-can trig checkpoint/restart through batch managers. But, this model,
-really, has some virtualization issues on the edge. The virtualisation of
-the parent process of such a container is tricky, it can be in multiple
-containers at the same time, it can die (difficult to restart ...), it
-could belong to another process groups, etc. Plenty of annoying cases to
-handle.
+If you use the correct macros for device I/O (in other words
+the operations are upon volatile objects), there can never
+be any re-ordering of any associated code.
 
-'system' containers, like vserver or openvz, are safer because they use a
-private PID space.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.66 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+_
+To unsubscribe
 
-Now, would it be possible to have an 'application' container using a
-private PID space and being friendly to the usual unix process semantics ?
-We haven't found a solution yet ...
 
-> Entering is different from execing a process on the inside.
-> Implementation wise it is changing the context pointer on your task.
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-yes and you could restrict that privilege to some top level container, like
-the container 0.
-
-C.
-
+Thank you.

@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbWBBXag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932476AbWBBXiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932469AbWBBXag (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 18:30:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWBBXag
+	id S932476AbWBBXiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 18:38:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932475AbWBBXiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 18:30:36 -0500
-Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:28397 "EHLO
-	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932467AbWBBXaf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 18:30:35 -0500
-Date: Thu, 2 Feb 2006 18:28:17 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: 2.6.16-rc1-mm4 i386 atomic operations broken on SMP (in
-  modules at least)
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, kraxel@suse.de, neilb@suse.de
-Message-ID: <200602021830_MC3-1-B773-597F@compuserve.com>
-MIME-Version: 1.0
+	Thu, 2 Feb 2006 18:38:24 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:52149 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932474AbWBBXiX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 18:38:23 -0500
+Date: Thu, 2 Feb 2006 15:40:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Evgeniy Dushistov <dushistov@mail.ru>
+Cc: adobriyan@gmail.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: Re [2]: [PATCH] Mark CONFIG_UFS_FS_WRITE as BROKEN
+Message-Id: <20060202154022.19776a93.akpm@osdl.org>
+In-Reply-To: <20060201200410.GA11747@rain.homenetwork>
+References: <20060131234634.GA13773@mipter.zuzino.mipt.ru>
+	<20060201200410.GA11747@rain.homenetwork>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060202135205.08d91b76.akpm@osdl.org>
-
-On Thu, 2 Feb 2006 at 13:52:05 -0800, Andrew Morton wrote:
-
-> Chuck Ebbert <76306.1226@compuserve.com> wrote:
-> > 
-> > SMP alternatives is re-using the constant_tsc X86 feature bit.
-> > 
-> 
-> Darn, how did you spot that?
-
-I went looking for which bit represented X86_FEATURE_UP and there
-it was...
-
+Evgeniy Dushistov <dushistov@mail.ru> wrote:
 >
-> Should `feature_up' appear in /proc/cpuinfo?
+> On Wed, Feb 01, 2006 at 02:46:34AM +0300, Alexey Dobriyan wrote:
+> > Copying files over several KB will buy you infinite loop in
+> > __getblk_slow(). Copying files smaller than 1 KB seems to be OK.
+> > Sometimes files will be filled with zeros. Sometimes incorrectly copied
+> > file will reappear after next file with truncated size.
+> The problem as can I see, in very strange code in
+> balloc.c:ufs_new_fragments. b_blocknr is changed without "restraint".
+> 
+> This patch just "workaround", not a clear solution. But it helps me
+> copy files more than 4K. Can you try it and say is it really help?
 
-Probably.  The bug would have been nearly impossible if that had
-been done to begin with.
-
-
-i386: show x86 feature "up" in cpuinfo
-
-Show feature bit "up" (SMP kernel running on uniprocessor) in
-/proc/cpuinfo.
-
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
-
---- 2.6.16-rc1-mm4-386.orig/arch/i386/kernel/cpu/proc.c
-+++ 2.6.16-rc1-mm4-386/arch/i386/kernel/cpu/proc.c
-@@ -40,7 +40,7 @@ static int show_cpuinfo(struct seq_file 
- 		/* Other (Linux-defined) */
- 		"cxmmx", "k6_mtrr", "cyrix_arr", "centaur_mcr",
- 		NULL, NULL, NULL, NULL,
--		"constant_tsc", NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-+		"constant_tsc", "up", NULL, NULL, NULL, NULL, NULL, NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 
--- 
-Chuck
+Thanks for working on this.  I won't apply these two patches at this stage
+as things don't seem to be finalised.  But if you and Alexey could come up
+with some final thing which resurrects UFS write support, that'd be great.

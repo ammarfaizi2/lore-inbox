@@ -1,55 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWBBLVA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWBBLWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWBBLVA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 06:21:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750773AbWBBLVA
+	id S1750713AbWBBLWm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 06:22:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWBBLWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 06:21:00 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:18075 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1750777AbWBBLVA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 06:21:00 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Thu, 02 Feb 2006 12:19:49 +0100
-To: xavier.bestel@free.fr, oliver@neukum.org
-Cc: schilling@fokus.fraunhofer.de, mrmacman_g4@mac.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jerome.lacoste@gmail.com,
-       jengelh@linux01.gwdg.de, James@superbug.co.uk, j@bitron.ch,
-       acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43E1EAD5.nail4R031RZ5A@burner>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
- <43DF3C3A.nail2RF112LAB@burner>
- <5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com>
- <200601311333.36000.oliver@neukum.org>
- <1138867142.31458.3.camel@capoeira>
-In-Reply-To: <1138867142.31458.3.camel@capoeira>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 2 Feb 2006 06:22:41 -0500
+Received: from smtp1.pp.htv.fi ([213.243.153.37]:22730 "EHLO smtp1.pp.htv.fi")
+	by vger.kernel.org with ESMTP id S1750713AbWBBLWl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 06:22:41 -0500
+Date: Thu, 2 Feb 2006 13:22:17 +0200
+From: Paul Mundt <lethal@linux-sh.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>, chris@zankel.net
+Subject: Re: [BUG] sizeof(struct async_icount) exported to userspace on SH, SH64 and xtensa
+Message-ID: <20060202112217.GA3960@linux-sh.org>
+Mail-Followup-To: Paul Mundt <lethal@linux-sh.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>, chris@zankel.net
+References: <20060121185712.GA25185@flint.arm.linux.org.uk> <20060202102708.GD5034@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060202102708.GD5034@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Bestel <xavier.bestel@free.fr> wrote:
-
-> On Tue, 2006-01-31 at 13:33, Oliver Neukum wrote:
-> > It is entirely possible that the people you know are far from a representative
-> > sample. Most people likely prefer clicking on a description in a GUI. There
-> > needs to be a way to get this list and if possible it should not be specific
-> > to Linux.
->
-> As repeated over and over here, there is such a way, it's called HAL and
-> it is cross-platform. And it's what's used by some GUIs out there (e.g.
-> nautilus-cd-burner).
-
-The fact that people here repeat unadquate proposals forces me to repeat my 
-proposals. Name a list fo OS that implement HAL and then look at the list
-of crecord supported platforms 
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+On Thu, Feb 02, 2006 at 10:27:08AM +0000, Russell King wrote:
+> Ping?
+> 
+Fixed for sh/sh64 in current git, though I forgot to CC you on it.
+Thanks for catching this.

@@ -1,92 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161030AbWBBBKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422646AbWBBBTc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161030AbWBBBKX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 20:10:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161034AbWBBBKX
+	id S1422646AbWBBBTc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 20:19:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161065AbWBBBTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 20:10:23 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:55472 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1161030AbWBBBKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 20:10:22 -0500
-Subject: Re: 2.6.15-rt16
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Clark Williams <williams@redhat.com>
-Cc: chris perkins <cperkins@OCF.Berkeley.EDU>, linux-kernel@vger.kernel.org
-In-Reply-To: <1138833380.18762.67.camel@localhost.localdomain>
-References: <Pine.SOL.4.63.0601300839050.8546@conquest.OCF.Berkeley.EDU>
-	 <1138640592.12625.0.camel@localhost.localdomain>
-	 <Pine.SOL.4.63.0601300917120.8546@conquest.OCF.Berkeley.EDU>
-	 <1138653235.26657.7.camel@localhost.localdomain>
-	 <Pine.SOL.4.63.0601310946000.8770@conquest.OCF.Berkeley.EDU>
-	 <1138730835.5959.3.camel@localhost.localdomain>
-	 <1138818770.6685.1.camel@localhost.localdomain>
-	 <1138819142.18762.10.camel@localhost.localdomain>
-	 <1138830476.6632.5.camel@localhost.localdomain>
-	 <1138830694.18762.46.camel@localhost.localdomain>
-	 <1138832179.6632.12.camel@localhost.localdomain>
-	 <1138833380.18762.67.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 01 Feb 2006 20:10:12 -0500
-Message-Id: <1138842612.6632.30.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Wed, 1 Feb 2006 20:19:32 -0500
+Received: from ns2.suse.de ([195.135.220.15]:19128 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161071AbWBBBTb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 20:19:31 -0500
+From: Neil Brown <neilb@suse.de>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 2 Feb 2006 12:19:22 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17377.24090.486443.865483@cse.unsw.edu.au>
+Subject: 2.6.16-rc1-mm4 i386 atomic operations broken on SMP (in modules at least)
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-02-01 at 16:36 -0600, Clark Williams wrote:
-> On Wed, 2006-02-01 at 17:16 -0500, Steven Rostedt wrote:
-> > 
-> > No, but I don't use an initrd, so my failure was first that it couldn't
-> > recognize my harddrives.  So I compiled in the necessary drivers into my
-> > kernel, and it booted right up to the GDM login.  I logged in, and was
-> > going to reply to you, but I guess I have a different network card since
-> > I had no network.
-> > 
-> 
-> Ok, I took the config file I sent you, globally substituted '=y' for
-> '=m' and rebuilt, then booted that kernel. Other than a message that it
-> was unable to open the console (udev wasn't started) I got the exact
-> same failure (same panic backtrace).
 
-Thanks for the clarification.
+I've been testing md/raid in 2.6.16-rc1-mm4 on a dual Xeon with most
+of the md personalities compiled as modules, and weird stuff if
+happening.
 
-> 
-> > > 
-> > > I'm fairly certain that the initrd contains the appropriate modules,
-> > > since I regenerate the initrd each time I generate a new kernel, but
-> > > I'll go back and verify. 
-> > > 
-> > > I'll also convert modules to compiled in and see if that makes a
-> > > difference.
-> > 
-> > Thanks, I've been burnt before with incompatible modules in initrd, that
-> > I now only use compiled in modules that are needed to boot (ide, ext3,
-> > etc).  When compiling 3 different kernels with several different configs
-> > constantly for the same machine, it just becomes easier to not use an
-> > initrd.
-> 
-> One of the things I wanted to see was how the -rt patch worked with
-> SELinux, so I decided to try and run a kernel that looked like a distro
-> kernel (in this case FC4).  I just put together some scripting logic to
-> build the kernel and module tree three times (athlon64, p3smp, and
-> duron).  After I've rebuilt, I install on each target system using a
-> shell script that deletes the old module tree, rsyncs a new one,
-> installs the matching kernel and builds a new initrd.
-> 
-> Hmmm, FC4 is based on 2.6.14.x. Did something change in the 2.6.15
-> series that needs a user-space change as well? (I'm running a current
-> FC4 rootfs).
+In particular I'm getting lots of 
 
-But, didn't you say that if you turn off LATENCY_TRACING that the -rt
-patched kernel boots?
+    BUG: atomic counter underflow at:
 
-So, now it seems to be something hardware specific that is different
-between your machine and mine.
+reports in raid10 and raid5, which are modules.
 
-Note:  I'm using Debian.
+I reverted to 2.6.16-rc1-mm2, which still has that BUG check, but
+doesn't muck about with the LOCK prefix, and the "atomic" problems go
+away (leaving me to look into the other problems of my own making:-).
 
--- Steve
+My guess is there is there is something wrong with the 'alternative'
+stuff which strips out the lock prefix, but I couldn't see anything
+obviously wrong.  The CPUs don't have FEATURE_UP (see below) so it
+cannot possibly be removing the 'lock' prefix... but it certainly acts
+like it is.
 
+Help?
+
+NeilBrown
+
+
+
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 3
+model name      : Intel(R) Xeon(TM) CPU 3.20GHz
+stepping        : 4
+cpu MHz         : 3192.524
+cache size      : 1024 KB
+physical id     : 0
+siblings        : 2
+core id         : 0
+cpu cores       : 1
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 5
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe lm constant_tsc pni monitor ds_cpl cid xtpr
+bogomips        : 6389.26
 

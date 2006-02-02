@@ -1,87 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbWBBT2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbWBBT3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750985AbWBBT2H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 14:28:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWBBT2H
+	id S1751083AbWBBT3J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 14:29:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWBBT3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 14:28:07 -0500
-Received: from xenotime.net ([66.160.160.81]:16841 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750985AbWBBT2G (ORCPT
+	Thu, 2 Feb 2006 14:29:09 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:23016 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751083AbWBBT3I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 14:28:06 -0500
-Date: Thu, 2 Feb 2006 11:28:04 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Dave Jones <davej@redhat.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: discriminate single bit error hardware failure from slab
- corruption.
-In-Reply-To: <20060202192414.GA22074@redhat.com>
-Message-ID: <Pine.LNX.4.58.0602021126340.16597@shark.he.net>
-References: <20060202192414.GA22074@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Feb 2006 14:29:08 -0500
+Date: Thu, 2 Feb 2006 13:29:01 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Kirill Korotaev <dev@openvz.org>, serue@us.ibm.com, arjan@infradead.org,
+       frankeh@watson.ibm.com, clg@fr.ibm.com, mrmacman_g4@mac.com,
+       alan@lxorguk.ukuu.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, devel@openvz.org
+Subject: Re: [RFC][PATCH 5/7] VPIDs: vpid/pid conversion in VPID enabled case
+Message-ID: <20060202192901.GC10920@sergelap.austin.ibm.com>
+References: <43E22B2D.1040607@openvz.org> <43E23398.7090608@openvz.org> <1138899951.29030.30.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1138899951.29030.30.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Feb 2006, Dave Jones wrote:
+Quoting Dave Hansen (haveblue@us.ibm.com):
+> On Thu, 2006-02-02 at 19:30 +0300, Kirill Korotaev wrote:
+> > This is the main patch which contains all vpid-to-pid conversions
+> > and auxilliary stuff. Virtual pids are distinguished from real ones
+> > by the VPID_BIT bit set. Conversion from vpid to pid and vice versa
+> > is performed in two ways: fast way, when vpid and it's according pid
+> > differ only in VPID_BIT bit set ("linear" case), and more complex way,
+> > when pid may correspond to any vpid ("sparse" case) - in this case we
+> > use a hash-table based mapping. 
+> 
+> This is an interesting approach.  Could you elaborate a bit on on why
+> you need the two different approaches?  What conditions cause the switch
+> to the sparse approach?
+> 
+> Also, if you could separate those two approaches out into two different
+> patches, it would be much easier to get a grasp about what's going on.
+> One of them is just an optimization, right?
+> 
+> Did you happen to catch Linus's mail about his preferred approach?  
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=113874154731279&w=2
 
-> In the case where we detect a single bit has been flipped, we spew
-> the usual slab corruption message, which users instantly think
-> is a kernel bug.  In a lot of cases, single bit errors are
-> down to bad memory, or other hardware failure.
->
-> This patch adds an extra line to the slab debug messages in those
-> cases, in the hope that users will try memtest before they report a bug.
->
-> 000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> Single bit error detected. Possibly bad RAM. Please run memtest86.
+And in particular, is there any functionality which you could not
+implement by using this approach, which you can implement with the
+pid_to_vpid approach?
 
-does memtest86 run on all $ARCHes ?
-or this is good for <large percentage>, so it's Good.  :)
-Just checking; it is a good idea.
-
-> Signed-off-by: Dave Jones <davej@redhat.com>
->
-> --- linux-2.6.15/mm/slab.c~	2006-01-09 13:25:17.000000000 -0500
-> +++ linux-2.6.15/mm/slab.c	2006-01-09 13:26:01.000000000 -0500
-> @@ -1313,8 +1313,11 @@ static void poison_obj(kmem_cache_t *cac
->  static void dump_line(char *data, int offset, int limit)
->  {
->  	int i;
-> +	unsigned char total=0;
->  	printk(KERN_ERR "%03x:", offset);
->  	for (i = 0; i < limit; i++) {
-> +		if (data[offset+i] != POISON_FREE)
-> +			total += data[offset+i];
->  		printk(" %02x", (unsigned char)data[offset + i]);
->  	}
->  	printk("\n");
-> @@ -1019,6 +1023,18 @@ static void dump_line(char *data, int of
->  		}
->  	}
->  	printk("\n");
-> +	switch (total) {
-> +		case 0x36:
-> +		case 0x6a:
-> +		case 0x6f:
-> +		case 0x81:
-> +		case 0xac:
-> +		case 0xd3:
-> +		case 0xd5:
-> +		case 0xea:
-> +			printk (KERN_ERR "Single bit error detected. Possibly bad RAM. Please run memtest86.\n");
-> +			return;
-> +	}
->  }
->  #endif
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
--- 
-~Randy
+thanks,
+-serge

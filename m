@@ -1,112 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWBBLih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWBBLjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbWBBLih (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 06:38:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWBBLih
+	id S1750810AbWBBLjY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 06:39:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWBBLjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 06:38:37 -0500
-Received: from 60-240-149-171.tpgi.com.au ([60.240.149.171]:48262 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1750784AbWBBLig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 06:38:36 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h'
-Date: Thu, 2 Feb 2006 21:35:07 +1000
-User-Agent: KMail/1.9.1
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602012245.06328.nigel@suspend2.net> <Pine.LNX.4.58.0602010909530.23607@shark.he.net>
-In-Reply-To: <Pine.LNX.4.58.0602010909530.23607@shark.he.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1237745.MXyFnISHOo";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602022135.11741.nigel@suspend2.net>
+	Thu, 2 Feb 2006 06:39:24 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:37795 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750810AbWBBLjY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 06:39:24 -0500
+Date: Thu, 2 Feb 2006 12:39:11 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Nigel Cunningham <nigel@suspend2.net>, linux-kernel@vger.kernel.org
+Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
+Message-ID: <20060202113911.GF1884@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602012245.06328.nigel@suspend2.net> <84144f020602010501k23e7898at82c0f231a2da0ad4@mail.gmail.com> <200602020730.16916.nigel@suspend2.net> <84144f020602011345i2e395336s371786c441b9f5b2@mail.gmail.com> <20060202100646.GC1981@elf.ucw.cz> <84144f020602020257g72bda32bkc3d6264495bea2aa@mail.gmail.com> <20060202110235.GE1884@elf.ucw.cz> <84144f020602020316x1a996f74u8099df2696c716b4@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <84144f020602020316x1a996f74u8099df2696c716b4@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1237745.MXyFnISHOo
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-Hi.
-
-On Thursday 02 February 2006 03:12, Randy.Dunlap wrote:
-> On Wed, 1 Feb 2006, Nigel Cunningham wrote:
-> > On Wednesday 01 February 2006 22:32, Pekka Enberg wrote:
-> > > On 2/1/06, Nigel Cunningham <nigel@suspend2.net> wrote:
-> > > > Suspend2 uses a strong internal API to separate the method of
-> > > > determining the content of the image from the method by which it is
-> > > > saved. The code for determining the content is part of the core of
-> > > > Suspend2, and transformations (compression and/or encryption) and
-> > > > storage of the pages are handled by 'modules'.
-> > >
-> > > [snip]
-> > >
-> > > > Signed-off-by: Nigel Cunningham <nigel@suspend2.net>
-> > > >
-> > > >  0 files changed, 0 insertions(+), 0 deletions(-)
-> > >
-> > > Uh, oh, where's the patch?
+On Čt 02-02-06 13:16:40, Pekka Enberg wrote:
+> Hi,
+> 
+> On St 01-02-06 23:45:15, Pekka Enberg wrote:
+> > > So what's the plan for short-term? Are userspace suspend and suspend
+> > > modules mutually exclusive or can they co-exist?
+> 
+> On 2/2/06, Pavel Machek <pavel@ucw.cz> wrote:
+> > They can coexist for as long as neccessary. (At one point, it was even
+> > possible to suspend using userland code, then resume using kernel code
+> > :-).
 > >
-> > Indeed! Oops! I think I've managed to put this in kmail without having =
-it
-> > mangled!
-> >
-> > Nigel
-> >
-> >
-> > [Suspend2] kernel/power/modules.h
-> >
-> >  kernel/power/modules.h |  179
-> > ++++++++++++++++++++++++++++++++++++++++++++++++ 1 files changed, 179
-> > insertions(+), 0 deletions(-)
-> >
-> > diff --git a/kernel/power/modules.h b/kernel/power/modules.h
-> > new file mode 100644
-> > index 0000000..ee34199
-> > --- /dev/null
-> > +++ b/kernel/power/modules.h
-> > @@ -0,0 +1,179 @@
-> > +/*
-> > + * kernel/power/module.h
->
-> wrong file name.
->
-> > +enum {
-> > +	FILTER_PLUGIN,
-> > +	WRITER_PLUGIN,
-> > +	MISC_PLUGIN, // Block writer, eg.
-> > +	CHECKSUM_PLUGIN
-> > +};
->
-> Kernel comment style is /* ... */, not // (many places).
->
-> > +	/* Bytes! */
->
-> Drop the '!'.
+> > When I found out noone is really using kernel code any more (2.8.0 or
+> > something), I'd like to get rid of it.
+> 
+> So are you saying we should pursue merging Suspend2 bits in the
+> mainline and deprecate it when userspace is mature enough and has all
+> the same features? Seems counter-productive but then again I am mostly
+> clueless of suspend issues.
 
-All done. Thanks.
-
-Nigel
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
-
---nextPart1237745.MXyFnISHOo
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD4e5vN0y+n1M3mo0RAtBbAJ9k7bmgdaKXjuJbeu1HaKYhXKEXQQCgmkgd
-SC0WqnoPArxf9knNU07xD4k=
-=efW5
------END PGP SIGNATURE-----
-
---nextPart1237745.MXyFnISHOo--
+No, I'm saying that suspend2 bits should be moved into userspace. That
+way we get mature userspace much faster, without any big merge into
+kernel.
+								Pavel
+-- 
+Thanks, Sharp!

@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932356AbWBBW2s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWBBW3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932356AbWBBW2s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 17:28:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbWBBW2r
+	id S932360AbWBBW3o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 17:29:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbWBBW3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 17:28:47 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:56223 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932356AbWBBW2r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 17:28:47 -0500
-Date: Thu, 2 Feb 2006 14:29:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: rlrevell@joe-job.com, linux-kernel@vger.kernel.org
-Subject: Re: Wanted: hotfixes for -mm kernels
-Message-Id: <20060202142909.7335e0f0.akpm@osdl.org>
-In-Reply-To: <200602021710_MC3-1-B771-3DDC@compuserve.com>
-References: <200602021710_MC3-1-B771-3DDC@compuserve.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 2 Feb 2006 17:29:44 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:31900 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932360AbWBBW3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 17:29:43 -0500
+Subject: Re: [ 00/10] [Suspend2] Modules support.
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: pavel@ucw.cz, nigel@suspend2.net, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060202142323.088a585c.akpm@osdl.org>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain>
+	 <200602022131.59928.nigel@suspend2.net> <20060202115907.GH1884@elf.ucw.cz>
+	 <200602022214.52752.nigel@suspend2.net> <20060202152316.GC8944@ucw.cz>
+	 <20060202132708.62881af6.akpm@osdl.org>
+	 <1138916079.15691.130.camel@mindpipe>
+	 <20060202142323.088a585c.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 02 Feb 2006 17:29:40 -0500
+Message-Id: <1138919381.15691.162.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.5.90 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert <76306.1226@compuserve.com> wrote:
->
-> E.g. in 2.6.16-rc1-mm4 we have:
+On Thu, 2006-02-02 at 14:23 -0800, Andrew Morton wrote:
+> Lee Revell <rlrevell@joe-job.com> wrote:
+> >
+> > On Thu, 2006-02-02 at 13:27 -0800, Andrew Morton wrote:
+> > > And having them separate like this weakens both in the area where
+> > >   the real problems are: drivers. 
+> > 
+> > Which are the worst offenders, keeping in mind that ALSA was recently
+> > fixed?
+> > 
 > 
->         - SMP alternatives removes the lock prefix from instructions
->           in every loaded module because it wrongly believes you are
->           running an SMP kernel on UP.
+> I don't have that info, sorry - that was vague handwaving.
 > 
->         - Device-mapper mirroring is using the wrong endianness and will
->           try to recover non-existent regions on the device.
+> We seem to get a lot of reports of PATA drivers failing to resume correctly.
 > 
->         - Compiler spews hundreds of warning messages during build.
+> And video hardware not coming back in a sane state (lack of documentation).
 > 
->         - VGA console scrollback is totally broken because it prints
->           a message on every scroll operation.
 
-We suck.
+OK.
 
-> Patches for all of the above and more have been posted to the list and
-> I have applied them.  All I want is a place to collect them so they can
-> be more easily found.
+Follow up - do we have a rough idea how bad the suspend problem is, like
+approximately what % of laptops don't DTRT and just suspend when you
+close the lid?
 
-OK, I'll create a hot-fixes directory there and will try to remember to put
-stuff into it.
+Lee
+

@@ -1,119 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423413AbWBBJZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423411AbWBBJd3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423413AbWBBJZm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 04:25:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423411AbWBBJZm
+	id S1423411AbWBBJd3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 04:33:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423415AbWBBJd3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 04:25:42 -0500
-Received: from 60-240-149-171.tpgi.com.au ([60.240.149.171]:35005 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1423413AbWBBJZl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 04:25:41 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
-Date: Thu, 2 Feb 2006 19:22:06 +1000
-User-Agent: KMail/1.9.1
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@suse.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602020855.12392.nigel@suspend2.net> <200602020931.29796.rjw@sisk.pl>
-In-Reply-To: <200602020931.29796.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1802504.qIIoneOH77";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602021922.11100.nigel@suspend2.net>
+	Thu, 2 Feb 2006 04:33:29 -0500
+Received: from goofy.fi.upm.es ([138.100.8.23]:2318 "EHLO goofy.fi.upm.es")
+	by vger.kernel.org with ESMTP id S1423411AbWBBJd2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 04:33:28 -0500
+Date: Thu, 02 Feb 2006 10:32:35 +0100
+From: egallego@babel.ls.fi.upm.es (Emilio =?utf-8?Q?Jes=C3=BAs?= Gallego
+	Arias)
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+In-reply-to: <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Karim Yaghmour <karim@opersys.com>,
+       Filip Brcic <brcha@users.sourceforge.net>,
+       Glauber de Oliveira Costa <glommer@gmail.com>,
+       Thomas Horsten <thomas@horsten.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <87mzha85sc.fsf@babel.ls.fi.upm.es>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/22.0.50 (gnu/linux)
+References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>
+ <43DE57C4.5010707@opersys.com>
+ <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com>
+ <200601302301.04582.brcha@users.sourceforge.net>
+ <43E0E282.1000908@opersys.com> <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org>
+ <43E1C55A.7090801@drzeus.cx> <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1802504.qIIoneOH77
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Linus Torvalds <torvalds@osdl.org> writes:
 
-Hi Rafael.
-
-On Thursday 02 February 2006 18:31, Rafael J. Wysocki wrote:
-> > Well, I'd love that to be true, but I don't believe Pavel's going to ro=
-ll
-> > over and say "Ok Nigel. You've got a better implementation. I'll submit
-> > patches to remove mine." I might be wrong, and I hope I will be, but I
-> > fear they're going to coexist for a while.
+> On Thu, 2 Feb 2006, Pierre Ossman wrote:
+>> 
+>> The point is not only getting access to the source code, but also being able
+>> to change it. Being able to freely study the code is only half of the beauty
+>> of the GPL. The other half, being able to change it, can be very effectively
+>> stopped using DRM.
 >
-> First, your code introduces many changes in many parts of the kernel,
-> so to merge it you'll have to ask many people for acceptance.
+> No it cannot.
 
-I really must work harder to get rid of that perception. It used to be the=
-=20
-case, but isn't nowadays. Just about all of suspend2's changes are new file=
-s=20
-in kernel/power and include/<arch>/suspend2.h. The remainder are misc fixes=
-,=20
-and enhancements like Christoph's todo list.
+1.- Distribute a kernel with some DRM built-in under the GPL.
 
-> Second, swsusp is actively developed, not only by Pavel, and you know tha=
-t,
-> so you could be nicer. ;-)
+2.- Claim that such kernel is an effective technological measure to
+    protect copyright. 
 
-It was hardly touched for a long time, but that has certainly been changing=
- in=20
-the last few months. I wasn't meaning to be uncharitable. Sorry for giving=
-=20
-that impression.
-
-> Still our approach is quite different to yours.  We are focused on keepei=
-ng
-> the code possibly simple and non-intrusive wrt the other parts of the
-> kernel, whereas you seem to concentrate on features (which is not wrong,
-> IMO, it's just a different point of view).  We're moving towards the
-> implementation of the features like the system image compression and
-> encryption,
-> graphical progress meters etc. in the user space, which has some
-> advantages, and I think this approach is correct for a laptop/desktop
-> system.
->
-> Its limitation , however, is that it requires a lot of memory for the
-> system memory snapshot which may be impractical for systems with limited
-> RAM, and that's where your solution may be required.
-
-I'm more concerned about the security implications. I'll freely admit that =
-I=20
-haven't spent any real time looking at your code, but I'm concerned that th=
-e=20
-additional functionality made available could be used by viruses and the=20
-like. I'm sure you'd have to be root to do anything, but how could the=20
-interfaces be misused?
-
-> In conclusion, I see the room for both, as long as the do not conflict, so
-> could we please bury the hatched and start working _together_?
-
-I didn't realise I was holding one :). I'm not sure that I agree that there=
-'s=20
-a need for both, but I have no desire whatsoever to act an any sort of nast=
-y=20
-way. All I want is to help provide Linux users with stable, reliable,=20
-flexible and fast suspend-to-disk functionality.
+3.- You are no longer free to modify that kernel, (removing the DRM
+    module) or you can be sued under the DMCA, for circumventing an
+    effective technological measure. It doesn't matter in what
+    hardware are you going to run such kernel. The DMCA implicitly
+    imposes an additional restriction to the GPL, but as the
+    restriction is not imposed directly by the copyright owner, but by
+    the law, it's OK as far the GPL is concerned.
 
 Regards,
 
-Nigel
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
-
---nextPart1802504.qIIoneOH77
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD4c9DN0y+n1M3mo0RAqQiAJ9lIHGTjsjlQK2V4maLrOcanRYa1QCdHLZX
-cIfBIBjadLIewAjl3MR2xc0=
-=FQNB
------END PGP SIGNATURE-----
-
---nextPart1802504.qIIoneOH77--
+Emilio

@@ -1,109 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422871AbWBBCsr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422878AbWBBCvr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422871AbWBBCsr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 21:48:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422877AbWBBCsr
+	id S1422878AbWBBCvr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 21:51:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423066AbWBBCvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 21:48:47 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:32238 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1422871AbWBBCsq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 21:48:46 -0500
+	Wed, 1 Feb 2006 21:51:47 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:20195 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1422878AbWBBCvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 21:51:46 -0500
 Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
 From: Steven Rostedt <rostedt@goodmis.org>
 To: Peter Williams <pwil3058@bigpond.net.au>
 Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-In-Reply-To: <43E15FAE.6040707@bigpond.net.au>
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <43E1636D.1000304@bigpond.net.au>
 References: <1138736609.7088.35.camel@localhost.localdomain>
-	 <43E02CC2.3080805@bigpond.net.au>
-	 <1138797874.7088.44.camel@localhost.localdomain>
-	 <43E15FAE.6040707@bigpond.net.au>
+	 <20060201130818.GA26481@elte.hu> <20060201131111.GA27793@elte.hu>
+	 <43E1636D.1000304@bigpond.net.au>
 Content-Type: text/plain
-Date: Wed, 01 Feb 2006 21:48:31 -0500
-Message-Id: <1138848511.6632.41.camel@localhost.localdomain>
+Date: Wed, 01 Feb 2006 21:51:30 -0500
+Message-Id: <1138848690.6632.44.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-02 at 12:26 +1100, Peter Williams wrote:
+On Thu, 2006-02-02 at 12:42 +1100, Peter Williams wrote:
+> Ingo Molnar wrote:
 
-> > 
-> > Actually, one of the tasks that was moved might need to resched right
-> > away, since it preempts the current task that is doing the moving.
-> 
-> Good point but I'd say that this was an instance when you didn't want to 
-> bail out of the load balance.  E.g. during idle balancing the very first 
-> task moved would trigger it regardless of its priority.  Also, if the 
-> task was of sufficiently high priority for it to warrant bailing out of 
-> the load balance why wasn't the current task (i.e. why didn't it preempt 
-> on its current CPU).
+> BTW why do you assume that this problem is caused by can_migrate() 
+> failing and is not just simply due to large numbers of tasks needing to 
+> be moved (which is highly likely to be true when hackbench is running)?
 
-Because the task running on the current CPU is higher in priority.  That
-doesn't mean that the next one down shouldn't get scheduled on another
-CPU if it is a higher priority than the currently running one.  Of
-course one needs to be careful not to cause too much cache blasting by
-popping RT tasks all over CPUS.
-
-> 
-> > 
-> > 
-> >>However, a newly woken task that preempts the current task isn't the 
-> >>only way that needs_resched() can become true just before load balancing 
-> >>is started.  E.g. scheduler_tick() calls set_tsk_need_resched(p) when a 
-> >>task finishes a time slice and this patch would cause rebalance_tick() 
-> >>to be aborted after a lot of work has been done in this case.
-> > 
-> > 
-> > No real work is lost.   This is a loop that individually pulls tasks.  So
-> > the bail only stops the work of looking for more tasks to pull and we
-> > don't lose the tasks that have already been pulled.
-> 
-> I disagree.  A bunch of work is done to determine which CPU to pull from 
-> and how many tasks to pull and then it will bail out before any of them 
-> are moved (and for no good reason).
-
-Yeah, that was my mistake.  There is work lost. So nuke that argument of
-mine :)
-
-> 
-> > 
-> > 
-> >>In summary, I think that the bail out is badly placed and needs some way 
-> >>of knowing if the reason need_resched() has become true is because of 
-> >>preemption of a newly woken task and not some other reason.
-> > 
-> > 
-> > I need that bail in the loop, so it can stop if needed. Like I said, it
-> > can be a task that is pulled to cause the bail. Also, having the run
-> > queue locks and interrupts off for over a msec is really a bad idea.
-> 
-> Clearly, the way to handle this is to impose some limit on the number of 
-> tasks to be moved or split large moves into a number of smaller moves 
-> (releasing and reacquiring locks in between).  This could be done in the 
-> bits of code that set things up before move_tasks() is called.
-
-I think that's something like what Ingo wants to do.  Or something other
-than my first brain dead patch.
-
-> 
-> > 
-> > 
-> >>Peter
-> >>PS I've added Nick Piggin to the CC list as he is interested in load 
-> >>balancing issues.
-> > 
-> > 
-> > Thanks, and thanks for the comments too.  I'm up for all suggestions and
-> > ideas.  I just feel it is important that we don't have unbounded
-> > latencies of spin locks and interrupts off.
-> 
-> Well, you seem to have succeeded in starting a discussion :-)
-
-:)
+That's my fault.  In another thread (-rt related) I told Ingo that the
+problem was with the can_migrate function call.  But later I realized
+that was because I miss read some of my logging output, and discovered
+that it was indeed passing the can_migrate and getting further.
 
 -- Steve
 

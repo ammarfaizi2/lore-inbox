@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbWBBVfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWBBVhv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932286AbWBBVfX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 16:35:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbWBBVfX
+	id S932291AbWBBVhv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 16:37:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWBBVhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 16:35:23 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47815 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932286AbWBBVfV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 16:35:21 -0500
-Date: Thu, 2 Feb 2006 22:34:50 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Jones <davej@redhat.com>, Chuck Ebbert <76306.1226@compuserve.com>,
-       Andrew Morton <akpm@osdl.org>, Ashok Raj <ashok.raj@intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch -mm4] i386: __init should be __cpuinit
-Message-ID: <20060202213450.GA2405@elf.ucw.cz>
-References: <200601312352_MC3-1-B748-FCE9@compuserve.com> <20060201053357.GA5335@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060201053357.GA5335@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 2 Feb 2006 16:37:51 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:11133 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S932291AbWBBVhu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 16:37:50 -0500
+X-IronPort-AV: i="4.02,81,1139212800"; 
+   d="scan'208"; a="400016446:sNHT29479926"
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Question about memory barriers
+X-Message-Flag: Warning: May contain useful information
+References: <Pine.LNX.4.44L0.0602021607100.5016-100000@iolanthe.rowland.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 02 Feb 2006 13:37:48 -0800
+In-Reply-To: <Pine.LNX.4.44L0.0602021607100.5016-100000@iolanthe.rowland.org> (Alan
+ Stern's message of "Thu, 2 Feb 2006 16:12:16 -0500 (EST)")
+Message-ID: <adamzh9xx03.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 02 Feb 2006 21:37:49.0460 (UTC) FILETIME=[E9F1E540:01C62840]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>>>>> "Alan" == Alan Stern <stern@rowland.harvard.edu> writes:
 
->  > When CONFIG_HOTPLUG_CPU on i386 there are places where __init[data] is
->  > referenced from normal code.
->  > 
->  > On startup:
->  >         arch/i386/kernel/cpu/amd.c::amd_init_cpu():
->  >                 cpu_devs[X86_VENDOR_AMD] = &amd_cpu_dev;        
->  >         amd_cpu_dev is declared __initdata and is freed
->  > 
->  > On CPU hotplug:
->  >         arch/i386/kernel/cpu/common.c::get_cpu_vendor():
->  >                for (i = 0; i < X86_VENDOR_NUM; i++) {
->  >                         if (cpu_devs[i]) {
->  >                                 if (!strcmp(v,cpu_devs[i]->c_ident[0]) ||
->  > 
->  > To fix this, change every instance of __init that seems suspicious
->  > into __cpuinit.  When !CONFIG_HOTPLUG_CPU there is no change in .text
->  > or .data size.  When enabled, .text += 3248 bytes; .data += 2148 bytes.
->  > 
->  > This should be safe in every case; the only drawback is the extra code and
->  > data when CPU hotplug is enabled.
-> 
-> Especially as for the bulk of them, those CPUs aren't hotplug capable.
-> (I seriously doubt we'll ever see a hotplugable cyrix for eg, which
->  takes up the bulk of your diff).
-> 
-> How about leaving it __init on non-hotplug systems, and somehow removing
-> those from cpu_devs, so get_cpu_vendor() just skips them ?
-> NULL'ing those entries should be just a few bytes, instead of adding 5KB.
+    Alan> The kernel's documentation about memory barriers is rather
+    Alan> skimpy.  I gather that rmb() guarantees that all preceding
+    Alan> reads will have completed before any following reads are
+    Alan> made, and wmb() guarantees that all preceding writes will
+    Alan> have completed before any following writes are made.  I also
+    Alan> gather that mb() is essentially the same as rmb() and wmb()
+    Alan> put together.
 
-We use cpu hotplug system for swsusp; but unless someone makes
-cyrix/SMP machine and tries to suspend it, we are ok.
+Most of this is correct, except that mb() is stronger than just rmb()
+and wmb() put together.  All memory operations before the mb() will
+complete before any operations after the mb().  A better way to
+understand this is to look at the sparc64 definition:
 
-							Pavel
--- 
-Thanks, Sharp!
+#define mb()    \
+        membar_safe("#LoadLoad | #LoadStore | #StoreStore | #StoreLoad")
+
+    Alan> But suppose I need to prevent a read from being moved past a
+    Alan> write?  It doesn't look like either rmb() or wmb() will do
+    Alan> this.  And if mb() is the same as "rmb(); wmb();" then it
+    Alan> won't either.  So what's the right thing to do?
+
+As described above, mb() will work in this case.  It actually
+guarantees more than you need, so you could conceivably define a new
+primitive, but the current barriers are hard enough for people to
+figure out ;)
+
+ - R.

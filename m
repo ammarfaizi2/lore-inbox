@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423438AbWBBKNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422962AbWBBKOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423438AbWBBKNx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 05:13:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423436AbWBBKNx
+	id S1422962AbWBBKOr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 05:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWBBKOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 05:13:53 -0500
-Received: from ns1.suse.de ([195.135.220.2]:63375 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1423386AbWBBKNw (ORCPT
+	Thu, 2 Feb 2006 05:14:47 -0500
+Received: from mail.gmx.de ([213.165.64.21]:33973 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932420AbWBBKOq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 05:13:52 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Grant Grundler <iod00d@hp.com>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Akinobu Mita'" <mita@miraclelinux.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 1/12] generic *_bit()
-References: <20060201193933.GA16471@esmail.cup.hp.com>
-	<200602012141.k11LfCg32497@unix-os.sc.intel.com>
-	<20060201220903.GE16471@esmail.cup.hp.com>
-	<Pine.LNX.4.64.0602012246330.3680@hermes-2.csi.cam.ac.uk>
-	<20060202000820.GI16471@esmail.cup.hp.com>
-	<Pine.LNX.4.64.0602020849160.785@hermes-2.csi.cam.ac.uk>
-X-Yow: Now my EMOTIONAL RESOURCES are heavily committed to 23% of the
- SMELTING and REFINING industry of the state of NEVADA!!
-Date: Thu, 02 Feb 2006 11:13:37 +0100
-In-Reply-To: <Pine.LNX.4.64.0602020849160.785@hermes-2.csi.cam.ac.uk> (Anton
-	Altaparmakov's message of "Thu, 2 Feb 2006 08:52:11 +0000 (GMT)")
-Message-ID: <jemzhajcfi.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+	Thu, 2 Feb 2006 05:14:46 -0500
+X-Authenticated: #428038
+Date: Thu, 2 Feb 2006 11:14:41 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: jengelh@linux01.gwdg.de, mrmacman_g4@mac.com, mj@ucw.cz,
+       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       James@superbug.co.uk, j@bitron.ch, acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060202101441.GA10554@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	jengelh@linux01.gwdg.de, mrmacman_g4@mac.com, mj@ucw.cz,
+	linux-kernel@vger.kernel.org, James@superbug.co.uk, j@bitron.ch,
+	acahalan@gmail.com
+References: <43D7B1E7.nailDFJ9MUZ5G@burner> <20060125230850.GA2137@merlin.emma.line.org> <43D8C04F.nailE1C2X9KNC@burner> <43DDFBFF.nail16Z3N3C0M@burner> <1138642683.7404.31.camel@juerg-pd.bitron.ch> <43DF3C3A.nail2RF112LAB@burner> <mj+md-20060131.104748.24740.atrey@ucw.cz> <43DF65C8.nail3B41650J9@burner> <Pine.LNX.4.61.0602011612520.22529@yvahk01.tjqt.qr> <43E1D417.nail4MI11WTFI@burner>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43E1D417.nail4MI11WTFI@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov <aia21@cam.ac.uk> writes:
+Joerg Schilling schrieb am 2006-02-02:
 
-> The name seems a bit silly as I imagine most fs drivers would be able to 
-> use them and there already are ext2 and minix versions.  Probably ought 
-> be renamed to a more generic name like le_test_bit() or something...
+> Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> 
+> > It's shorter than /dev/c0t0d0s0? Well, I think it's because people think 
+> > in terms of connectors (my drive is IDE therefore it must be hdc) rather 
+> > than protocol (my drive does ATAPI therefore it must be 
+> > /dev/scsi/c0t0d0s0).
+> 
+> Is there any reason why the people with small PCs should dominate the 
+> people with big machines?
 
-Minix is even more complicated, since the on-disk format is different
-between architectures (the m68k port of Minix did not handle that
-correctly).
+No side should dominate.
 
-Andreas.
+> If you use /dev/hd*, you loose control after you add more than ~ 6-10 disks.
+
+I don't see how a letter such as /dev/hdo /dev/hdp /dev/hdq is much
+different than an opaque number tuple as 1,15,0 1,16,0 1,17,0... either
+is a string with systematic generation, and that's about it.
+
+I'm still wondering why mtst (mid-layer access to control tape drives)
+is happy with /dev/nst0 nst1 ... (device name) and cdrecord (or its
+author) isn't. cdrecord or libscg should be agnostic of these schemas
+and take any opaque string that works properly for the given system
+without complaining. It can invent any numbering scheme it likes, but
+requesting that the kernel does it if it has no further use for it is
+barking up the wrong tree.
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Matthias Andree

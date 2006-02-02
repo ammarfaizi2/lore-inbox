@@ -1,54 +1,194 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422942AbWBBFao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422939AbWBBFgQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422942AbWBBFao (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 00:30:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422939AbWBBFao
+	id S1422939AbWBBFgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 00:36:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422947AbWBBFgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 00:30:44 -0500
-Received: from xenotime.net ([66.160.160.81]:5516 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1422942AbWBBFan (ORCPT
+	Thu, 2 Feb 2006 00:36:16 -0500
+Received: from zproxy.gmail.com ([64.233.162.193]:1642 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1422939AbWBBFgQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 00:30:43 -0500
-Date: Wed, 1 Feb 2006 21:31:09 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1 kernel init oops
-Message-Id: <20060201213109.33bf49d8.rdunlap@xenotime.net>
-In-Reply-To: <20060130044436.GA13244@kroah.com>
-References: <20060128171841.6f989958.rdunlap@xenotime.net>
-	<20060128175511.35e39233.rdunlap@xenotime.net>
-	<20060129190029.GB7168@kroah.com>
-	<20060129111934.53710b03.rdunlap@xenotime.net>
-	<20060129201923.GB6972@kroah.com>
-	<20060129130812.011d8bf3.rdunlap@xenotime.net>
-	<20060129150737.6f911430.rdunlap@xenotime.net>
-	<20060129165732.03446fc3.rdunlap@xenotime.net>
-	<20060130044436.GA13244@kroah.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.3; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Feb 2006 00:36:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=mYUrD3GURTr0Ql0cPtvlZk16fkhXwIiYdSWAlAl2qIhXQIPhdgMH2Q2aSi3JmDGjW1c8/mT/04K0qTbdj9Muw5a9Rf2KYDiKeo0e8VB6fh1tNOpx2ghY1wDoSDLqzrIGkufOEqDJatDS3dLOIxLhw0Bil1u0eBfUmCCb70T2jlc=
+Message-ID: <81083a450602012136t4193fd94we8f0ea59f2508060@mail.gmail.com>
+Date: Thu, 2 Feb 2006 11:06:14 +0530
+From: Ashutosh Naik <ashutosh.naik@gmail.com>
+To: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] kernel/module.c Semaphore to Mutex Conversion for module_mutex
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_5346_18682158.1138858574978"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Jan 2006 20:44:36 -0800 Greg KH wrote:
+------=_Part_5346_18682158.1138858574978
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> On Sun, Jan 29, 2006 at 04:57:32PM -0800, Randy.Dunlap wrote:
-> > furthermore, this happens on 2.6.16-rc1 and 2.6.16-rc1-git4,
-> > but <platform_notify> is not at the same memory address in
-> > my builds, so it smells more like a bad ptr reference
-> > somewhere than like bad memory IMO.
-> 
-> Hm, can you do a git bisect from 2.6.15 to 2.6.16-rc1 to see if you can
-> find this?
+This patch converts the module_mutex semaphore to a mutex.
 
-follow-up:  for now I guess I'll blame the oopsen that I was seeing
-on a bad compiler or just karma.  I don't have proof except that
-I installed a new distro + gcc and no longer can cause/create the
-problems.  (was using gcc 3.4.3 from Mandriva 2005)
+Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
 
-thanks,
----
-~Randy
+------=_Part_5346_18682158.1138858574978
+Content-Type: text/plain; name=patch.txt; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch.txt"
+
+--- /usr/src/linux-2.6.16-rc1-mm4/kernel/module.c.orig	2006-02-02 10:54:31.000000000 +0530
++++ /usr/src/linux-2.6.16-rc1-mm4/kernel/module.c	2006-02-02 10:50:12.000000000 +0530
+@@ -61,7 +61,7 @@
+ static DEFINE_SPINLOCK(modlist_lock);
+ 
+ /* List of modules, protected by module_mutex AND modlist_lock */
+-static DECLARE_MUTEX(module_mutex);
++static DEFINE_MUTEX(module_mutex);
+ static LIST_HEAD(modules);
+ 
+ static DEFINE_MUTEX(notify_mutex);
+@@ -558,7 +558,7 @@ static void free_module(struct module *m
+ static void wait_for_zero_refcount(struct module *mod)
+ {
+ 	/* Since we might sleep for some time, drop the semaphore first */
+-	up(&module_mutex);
++	mutex_unlock(&module_mutex);
+ 	for (;;) {
+ 		DEBUGP("Looking at refcount...\n");
+ 		set_current_state(TASK_UNINTERRUPTIBLE);
+@@ -567,7 +567,7 @@ static void wait_for_zero_refcount(struc
+ 		schedule();
+ 	}
+ 	current->state = TASK_RUNNING;
+-	down(&module_mutex);
++	mutex_lock(&module_mutex);
+ }
+ 
+ asmlinkage long
+@@ -584,7 +584,7 @@ sys_delete_module(const char __user *nam
+ 		return -EFAULT;
+ 	name[MODULE_NAME_LEN-1] = '\0';
+ 
+-	if (down_interruptible(&module_mutex) != 0)
++	if (mutex_lock_interruptible(&module_mutex) != 0)
+ 		return -EINTR;
+ 
+ 	mod = find_module(name);
+@@ -633,14 +633,14 @@ sys_delete_module(const char __user *nam
+ 
+ 	/* Final destruction now noone is using it. */
+ 	if (mod->exit != NULL) {
+-		up(&module_mutex);
++		mutex_unlock(&module_mutex);
+ 		mod->exit();
+-		down(&module_mutex);
++		mutex_lock(&module_mutex);
+ 	}
+ 	free_module(mod);
+ 
+  out:
+-	up(&module_mutex);
++	mutex_unlock(&module_mutex);
+ 	return ret;
+ }
+ 
+@@ -1931,13 +1931,13 @@ sys_init_module(void __user *umod,
+ 		return -EPERM;
+ 
+ 	/* Only one module load at a time, please */
+-	if (down_interruptible(&module_mutex) != 0)
++	if (mutex_lock_interruptible(&module_mutex) != 0)
+ 		return -EINTR;
+ 
+ 	/* Do all the hard work */
+ 	mod = load_module(umod, len, uargs);
+ 	if (IS_ERR(mod)) {
+-		up(&module_mutex);
++		mutex_unlock(&module_mutex);
+ 		return PTR_ERR(mod);
+ 	}
+ 
+@@ -1946,7 +1946,7 @@ sys_init_module(void __user *umod,
+ 	stop_machine_run(__link_module, mod, NR_CPUS);
+ 
+ 	/* Drop lock so they can recurse */
+-	up(&module_mutex);
++	mutex_unlock(&module_mutex);
+ 
+ 	mutex_lock(&notify_mutex);
+ 	notifier_call_chain(&module_notify_list, MODULE_STATE_COMING, mod);
+@@ -1965,15 +1965,15 @@ sys_init_module(void __user *umod,
+ 			       mod->name);
+ 		else {
+ 			module_put(mod);
+-			down(&module_mutex);
++			mutex_lock(&module_mutex);
+ 			free_module(mod);
+-			up(&module_mutex);
++			mutex_unlock(&module_mutex);
+ 		}
+ 		return ret;
+ 	}
+ 
+ 	/* Now it's a first class citizen! */
+-	down(&module_mutex);
++	mutex_lock(&module_mutex);
+ 	mod->state = MODULE_STATE_LIVE;
+ 	/* Drop initial reference. */
+ 	module_put(mod);
+@@ -1981,7 +1981,7 @@ sys_init_module(void __user *umod,
+ 	mod->module_init = NULL;
+ 	mod->init_size = 0;
+ 	mod->init_text_size = 0;
+-	up(&module_mutex);
++	mutex_unlock(&module_mutex);
+ 
+ 	return 0;
+ }
+@@ -2071,7 +2071,7 @@ struct module *module_get_kallsym(unsign
+ {
+ 	struct module *mod;
+ 
+-	down(&module_mutex);
++	mutex_lock(&module_mutex);
+ 	list_for_each_entry(mod, &modules, list) {
+ 		if (symnum < mod->num_symtab) {
+ 			*value = mod->symtab[symnum].st_value;
+@@ -2079,12 +2079,12 @@ struct module *module_get_kallsym(unsign
+ 			strncpy(namebuf,
+ 				mod->strtab + mod->symtab[symnum].st_name,
+ 				127);
+-			up(&module_mutex);
++			mutex_unlock(&module_mutex);
+ 			return mod;
+ 		}
+ 		symnum -= mod->num_symtab;
+ 	}
+-	up(&module_mutex);
++	mutex_unlock(&module_mutex);
+ 	return NULL;
+ }
+ 
+@@ -2127,7 +2127,7 @@ static void *m_start(struct seq_file *m,
+ 	struct list_head *i;
+ 	loff_t n = 0;
+ 
+-	down(&module_mutex);
++	mutex_lock(&module_mutex);
+ 	list_for_each(i, &modules) {
+ 		if (n++ == *pos)
+ 			break;
+@@ -2148,7 +2148,7 @@ static void *m_next(struct seq_file *m, 
+ 
+ static void m_stop(struct seq_file *m, void *p)
+ {
+-	up(&module_mutex);
++	mutex_unlock(&module_mutex);
+ }
+ 
+ static int m_show(struct seq_file *m, void *p)
+
+------=_Part_5346_18682158.1138858574978--

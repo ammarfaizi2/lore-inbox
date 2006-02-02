@@ -1,118 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWBBLqF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWBBLus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWBBLqF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 06:46:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWBBLqF
+	id S1750753AbWBBLus (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 06:50:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbWBBLus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 06:46:05 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:37098 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1750703AbWBBLqE (ORCPT
+	Thu, 2 Feb 2006 06:50:48 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:15146 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750720AbWBBLur (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 06:46:04 -0500
-Message-ID: <43E1F0F3.3020801@drzeus.cx>
-Date: Thu, 02 Feb 2006 12:45:55 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5 (X11/20060128)
+	Thu, 2 Feb 2006 06:50:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=tejZx7OdX6KChxlfNPjBQ9ul4W+k/akNp8j98AyvUShLc7Ra3yo3tyTabYNbaSAEF+/03WIHQJvA2pzVPA5qxLImg2UQztpilESAmX4TZC8mUFNXGeRuiUzKjl8Fuos/NDatqbdRVneAe1IYf0pzpKZWRTQDvpeM0FxsIBa+JxQ=
+Message-ID: <43E1F211.8030507@gmail.com>
+Date: Thu, 02 Feb 2006 20:50:41 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Tony Lindgren <tony@atomide.com>,
-       Anderson Briglia <anderson.briglia@indt.org.br>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/5] MMC OMAP driver
-References: <43DF6750.1060505@indt.org.br> <20060201124434.GC3072@flint.arm.linux.org.uk> <20060201194724.GD15939@atomide.com> <20060202104022.GF5034@flint.arm.linux.org.uk>
-In-Reply-To: <20060202104022.GF5034@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: "Vladimir B. Savkin" <master@sectorb.msk.ru>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: Broken sata (VIA) on Asus A8V (kernel 2.6.14+)
+References: <20060201162800.GA32196@tentacle.sectorb.msk.ru> <43E13F57.40808@gmail.com> <20060201231911.GA5463@tentacle.sectorb.msk.ru> <43E145B8.6090404@gmail.com> <20060202114429.GA3035@tentacle.sectorb.msk.ru>
+In-Reply-To: <20060202114429.GA3035@tentacle.sectorb.msk.ru>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> Here's a revised patch.  Pierre - could you look at the missing command
-> types marked with /* ? */ in this patch please?
->
->   
+Vladimir B. Savkin wrote:
+> On Thu, Feb 02, 2006 at 08:35:20AM +0900, Tejun Heo wrote:
+> 
+>>Your BMDMA controller is reporting raised interrupt (0x4) and your drive 
+>>is saying that it's ready for the next command, yet interrupt handler of 
+>>sata_via hasn't run and thus the timeout.  It looks like some kind of 
+>>IRQ routing problem to me although I have no idea how the problem 
+>>doesn't affect the boot process.
+>>
+>>Can you try to boot with boot parameter pci=noacpi?
+> 
+> 
+> That did not help.
+> 
+> And yes, irqbalance is running, as Kenneth suggested.
+> 
 
-*snip*
+Sadly, I'm pretty much ignorant with that part of the kernel.  However, 
+if it's really because interrupts are lost when sent to one of the 
+processors, one of the following should keep the system going while the 
+other cause the problem immediately.
 
-> --- a/drivers/mmc/mmc.c
-> +++ b/drivers/mmc/mmc.c
-> @@ -211,7 +211,7 @@ int mmc_wait_for_app_cmd(struct mmc_host
->  
->  		appcmd.opcode = MMC_APP_CMD;
->  		appcmd.arg = rca << 16;
-> -		appcmd.flags = MMC_RSP_R1;
-> +		appcmd.flags = MMC_RSP_R1 | MMC_CMD_AC; /* ? */
->  		appcmd.retries = 0;
->  		memset(appcmd.resp, 0, sizeof(appcmd.resp));
->  		appcmd.data = NULL;
->   
+echo 1 > /proc/irq/your_IRQ_number/smp_affinity
 
-Correct.
+or...
 
-> @@ -358,7 +358,7 @@ static int mmc_select_card(struct mmc_ho
->  			struct mmc_command cmd;
->  			cmd.opcode = SD_APP_SET_BUS_WIDTH;
->  			cmd.arg = SD_BUS_WIDTH_4;
-> -			cmd.flags = MMC_RSP_R1;
-> +			cmd.flags = MMC_RSP_R1; /* ? */
->  
->  			err = mmc_wait_for_app_cmd(host, card->rca, &cmd,
->  				CMD_RETRIES);
->   
+echo 2 > /proc/irq/your_IRQ_number/smp_affinity
 
-MMC_CMD_AC
-
-> @@ -766,7 +766,7 @@ static int mmc_send_app_op_cond(struct m
->  
->  	cmd.opcode = SD_APP_OP_COND;
->  	cmd.arg = ocr;
-> -	cmd.flags = MMC_RSP_R3;
-> +	cmd.flags = MMC_RSP_R3; /* ? */
->  
->  	for (i = 100; i; i--) {
->  		err = mmc_wait_for_app_cmd(host, 0, &cmd, CMD_RETRIES);
->   
-
-MMC_CMD_BCR
-
-> @@ -835,7 +835,7 @@ static void mmc_discover_cards(struct mm
->  
->  			cmd.opcode = SD_SEND_RELATIVE_ADDR;
->  			cmd.arg = 0;
-> -			cmd.flags = MMC_RSP_R6;
-> +			cmd.flags = MMC_RSP_R6; /* ? */
->  
->  			err = mmc_wait_for_cmd(host, &cmd, CMD_RETRIES);
->  			if (err != MMC_ERR_NONE)
->   
-
-MMC_CMD_BCR (feel free to update protocol.h since it's incorrect with 
-regard to this opcode)
-
-> @@ -920,7 +920,7 @@ static void mmc_read_scrs(struct mmc_hos
->  
->  		cmd.opcode = MMC_APP_CMD;
->  		cmd.arg = card->rca << 16;
-> -		cmd.flags = MMC_RSP_R1;
-> +		cmd.flags = MMC_RSP_R1 | MMC_CMD_AC; /* ? */
->  
->  		err = mmc_wait_for_cmd(host, &cmd, 0);
->  		if ((err != MMC_ERR_NONE) || !(cmd.resp[0] & R1_APP_CMD)) {
->   
-
-Correct.
-
-> @@ -932,7 +932,7 @@ static void mmc_read_scrs(struct mmc_hos
->  
->  		cmd.opcode = SD_APP_SEND_SCR;
->  		cmd.arg = 0;
-> -		cmd.flags = MMC_RSP_R1;
-> +		cmd.flags = MMC_RSP_R1; /* ? */
->  
->  		memset(&data, 0, sizeof(struct mmc_data));
->   
-
-MMC_CMD_ADTC
-
-Rgds
-Pierre
-
+-- 
+tejun

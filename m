@@ -1,69 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbWBBLMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWBBLO2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbWBBLMp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 06:12:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWBBLMp
+	id S1750760AbWBBLO2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 06:14:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbWBBLO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 06:12:45 -0500
-Received: from mail.acc.umu.se ([130.239.18.156]:59825 "EHLO mail.acc.umu.se")
-	by vger.kernel.org with ESMTP id S1750748AbWBBLMo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 06:12:44 -0500
-Date: Thu, 2 Feb 2006 12:12:42 +0100 (MET)
-From: Niklas Edmundsson <Niklas.Edmundsson@hpc2n.umu.se>
-X-X-Sender: nikke@kleopatra.acc.umu.se
-To: "shin, jacob" <jacob.shin@amd.com>
-cc: cpufreq@lists.linux.org.uk, linux-kernel@vger.kernel.org,
-       "Langsdorf, Mark" <mark.langsdorf@amd.com>,
-       Andreas.Burghart@fujitsu-siemens.com, Andi Kleen <ak@suse.de>
-Subject: RE: powernow-k8: out of sync on Athlon64 x2 3800+
-In-Reply-To: <B3870AD84389624BAF87A3C7B83149930293551F@SAUSEXMB2.amd.com>
-Message-ID: <Pine.GSO.4.64.0602021205040.14848@kleopatra.acc.umu.se>
-References: <B3870AD84389624BAF87A3C7B83149930293551F@SAUSEXMB2.amd.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 2 Feb 2006 06:14:28 -0500
+Received: from goofy.fi.upm.es ([138.100.8.23]:33038 "EHLO goofy.fi.upm.es")
+	by vger.kernel.org with ESMTP id S1750757AbWBBLO1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 06:14:27 -0500
+Date: Thu, 02 Feb 2006 12:13:42 +0100
+From: egallego@babel.ls.fi.upm.es (Emilio =?utf-8?Q?Jes=C3=BAs?= Gallego
+	Arias)
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+In-reply-to: <43E1E2F2.1090102@andrew.cmu.edu>
+To: James Bruce <bruce@andrew.cmu.edu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Karim Yaghmour <karim@opersys.com>,
+       Filip Brcic <brcha@users.sourceforge.net>,
+       Glauber de Oliveira Costa <glommer@gmail.com>,
+       Thomas Horsten <thomas@horsten.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <87ek2m813t.fsf@babel.ls.fi.upm.es>
+MIME-version: 1.0
+Content-type: text/plain; charset=utf-8
+Content-transfer-encoding: 8BIT
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/22.0.50 (gnu/linux)
+References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>
+ <43DE57C4.5010707@opersys.com>
+ <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com>
+ <200601302301.04582.brcha@users.sourceforge.net>
+ <43E0E282.1000908@opersys.com> <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org>
+ <43E1C55A.7090801@drzeus.cx> <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org>
+ <87mzha85sc.fsf@babel.ls.fi.upm.es> <43E1E2F2.1090102@andrew.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Feb 2006, shin, jacob wrote:
+James Bruce <bruce@andrew.cmu.edu> writes:
 
-> Hello,
+> Emilio Jesús Gallego Arias wrote:
+>> ... 1.- Distribute a kernel with some DRM built-in under the GPL.
+>> 2.- Claim that such kernel is an effective technological measure to
+>>     protect copyright. 
 >
-> I don't think this is a BIOS issue, but a kernel bug in the i386 
-> tree.  I believe this was recently discussed and hopefully fixed by 
-> Andi Kleen in the kernel mailing list:
+> You forgot:
 >
-> http://lkml.org/lkml/2006/1/9/442
+> 2.5- Due to the DMCA, the code now has an additional restriction on
+>      top of what is already in its license, the GPL v2.  The GPL v2
+>      forbids additional restrictions, and thus the resulting work
+>      cannot be distributed.
 
-My symptoms are identical, so it's probably that bug. I guess my bug 
-report through FSC's official support channel will bounce eventually 
-then ;)
+Ok, so to add DRM to GPLed software, the copyright holder has to state
+that the DMCA does not apply to such software? Or does the GPL state
+that? 
 
-> This is a critical bug especially for systems running AMD Dual-Core 
-> Processors on i386 kernel configuration w/ powernow-k8.
+Quoting the GPL:
+
+6.- [...] You may not impose any further restrictions on the recipients'
+  exercise of the rights granted herein. [...]
+
+The point is that it is not the copyright holder who is imposing the
+restrictions, is the law. For example, the law may impose some export
+restrictions, would that void the GPL?
+
+>> 3.- You are no longer free to modify that kernel, (removing the DRM
+                                 ^^^^^^
+I meant modify and distribute, sorry.
+>> [...]
 >
-> The reason for "powernow-k8 - out of sync" errors is because the 
-> cpufreq driver is not aware [or has the wrong idea] about which CPUs 
-> are tied together, because cpu_core_id and phy_proc_id data is 
-> wrong.
->
-> Now this is fairly harmless as Mark mentioned, but only on single 
-> socket Dual Core systems.
+> If the DRM author(s) are the ones claiming the DRM is an "effective
+> technological measure", then they are the ones imposing an additional
 
-It doesn't crash my machine, but it also doesn't seem capable to 
-really lower the clock frequency...
+They are only a claiming, not restricting. The restriction would come
+from the law when a judge decides that the code in question is an
+"effective technological measure".
+> restriction.  Those authors are the ones who can be sued, not the end
+> users of the kernel+DRM.  If someone else makes the claim, it carries
+Ok, I mean a user who tries to exercise all the rights stated in the
+GPL, including distribution of the modified code.
+> no weight at all, because they are not the author or copyright owner.
 
-> I was wondering if anyone has already tested Andi's patch, if it 
-> successfully solves this problem, and if the patch has made it into 
-> the git yet.
+Regards,
 
-I can give the patch a try if you feel that would help, albeit I 
-prefer not rebooting my workstation ;)
-
-/Nikke
--- 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  Niklas Edmundsson, Admin @ {acc,hpc2n}.umu.se     |    nikke@hpc2n.umu.se
----------------------------------------------------------------------------
-  Want to forget all your troubles? Wear tight shoes.
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Emilio

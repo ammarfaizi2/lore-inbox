@@ -1,88 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751001AbWBBMko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWBBMqX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751001AbWBBMko (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 07:40:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751003AbWBBMkn
+	id S1751016AbWBBMqX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 07:46:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbWBBMqX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 07:40:43 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:40123 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1750999AbWBBMkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 07:40:43 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Date: Thu, 2 Feb 2006 22:28:15 +1000
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602022131.59928.nigel@suspend2.net> <84144f020602020344p228e20b2x34226f341c296578@mail.gmail.com>
-In-Reply-To: <84144f020602020344p228e20b2x34226f341c296578@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4622688.cbRWE4cv4S";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602022228.20032.nigel@suspend2.net>
+	Thu, 2 Feb 2006 07:46:23 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:32395 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751014AbWBBMqW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 07:46:22 -0500
+Date: Thu, 2 Feb 2006 13:46:21 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org, bzolnier@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <mj+md-20060202.121514.24403.atrey@ucw.cz>
+References: <43DDFBFF.nail16Z3N3C0M@burner> <1138642683.7404.31.camel@juerg-pd.bitron.ch> <43DF3C3A.nail2RF112LAB@burner> <58cb370e0601310410r46210e8dvc66f631f208e9b8d@mail.gmail.com> <43DF678E.nail3B431CUWJ@burner> <58cb370e0601310623ic220d27q3bfd4642cd0538fb@mail.gmail.com> <Pine.LNX.4.61.0602011630440.22529@yvahk01.tjqt.qr> <43E1D5AD.nail4MI2R8NR2@burner> <20060202102058.GB10554@merlin.emma.line.org> <43E1ECF1.nail4SJ15SNCH@burner>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43E1ECF1.nail4SJ15SNCH@burner>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4622688.cbRWE4cv4S
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hello Joerg!
 
-Hi.
+> > > BTW: Introducing an orthogonal SCSI based implementation would save a lot of
+> > > code. The model currently used on Linux is duplicating a lot of unneeded code 
+> > > in target drivers and the SCSI glue code is only a few KB (less than 30k on 
+> > > Solaris). 
+> >
+> > You've been stating this oft enough now. It won't change in a day even
+> > if you post this every hour. Please cease posting the same stuff over
+> > and over again.
+> 
+> Why do you repeat posting false claims over and over?
 
-On Thursday 02 February 2006 21:44, Pekka Enberg wrote:
-> Hi,
->
-> On 2/2/06, Nigel Cunningham <nigel@suspend2.net> wrote:
-> > It's not an option because I'm not trying not to step all over your
-> > codebase, because I'm not moving suspend2 to userspace and because it
-> > doesn't make sense to add another layer of abstraction by sticking
-> > /dev/snapshot in the middle of kernel space code. There may be more
-> > reasons, but I haven't looked at the /dev/snapshot code at all.
->
-> Any technical reasons why suspend modules shouldn't be in userspace? I
-> can understand that you're not keen on redoing them but that's not an
-> argument for inclusion in the mainline.
+This is getting ridiculous. Point to a single false claim in the mail
+you were replying to.
 
-They're using cryptoapi to do the compression and encryption, and bio to do=
-=20
-the I/O. Moving this to userspace will add extra complexity and of course=20
-slow down the process. It will also mean that to suspend and resume, the us=
-er=20
-will be unconditionally required to have an initrd or initramfs. This is=20
-already the case for the more complicated configurations (LVM, encryption=20
-with keys that need to be entered at a prompt etc), but most people simply=
-=20
-use an unencrypted, compressed image on a swap partition and in that case d=
-o=20
-not and should not need the added complication of configuring an initrd.
+The only claim there was that you are posting the same stuff again and
+again, and it is obviously true, as can be demostrated by anybody who
+can use grep.
 
-Shouldn't the question be "Why are we making this more complicated by movin=
-g=20
-it to userspace?"
+> Unless I see any move towards a more realistic way of looking at things
+> it does not make sense to repeat things and short time later I will see
+> the same unadequate replies as I did see days before.
 
-Regards,
+Yes. You have been repeatedly asked to produce any sound arguments why the
+current interface is bad.
 
-Nigel
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
+So far, you have produced none. You have only written about Linux not
+following your personal model of virtual SCSI buses, which is maybe
+a good argument for supporting your dislike for Linux, but nothing else.
 
---nextPart4622688.cbRWE4cv4S
-Content-Type: application/pgp-signature
+Also, you mentioned several phantoms like IDE tapes, which nobody seems
+to care about, a couple of bugs which the driver developers were willing
+to fix if you tell how to reproduce them.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Finally, you mentioned problems with scanning and you were told that:
+(1) the current scanning code in libscg works at least for all currently
+existing transports, if a trivial bug is fixed,
+(2) for a complete view of the available HW, you should use the HAL,
+(3) most people prefer either using a GUI interface which converges to
+using HAL anyway, or refer to devices by their names.
 
-iD8DBQBD4frjN0y+n1M3mo0RAvTZAKDbktP3Ij07exhD3iPiP+jIsm11QwCeMcy/
-EeUO7TAbRppCjVd3bQUWfWc=
-=7e2e
------END PGP SIGNATURE-----
+The rest was just hand-waving.
 
---nextPart4622688.cbRWE4cv4S--
+The interface preferred by Linux has changed for very good reasons,
+and a number of such reasons has been demonstrated. Also, it's not
+changing daily, the switchover from emulating SCSI to performing SG_IO
+directly on /dev/hd* was the only big change in last 10 years.
+
+So unless anybody has any new arguments for either approach, let's end
+this thread.
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Outside of a dog, a book is man's best friend. Inside a dog, it's too dark to read.

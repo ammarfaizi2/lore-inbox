@@ -1,57 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWBBUwD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbWBBUy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbWBBUwD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 15:52:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWBBUwD
+	id S932242AbWBBUy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 15:54:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWBBUy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 15:52:03 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18342 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932242AbWBBUwB (ORCPT
+	Thu, 2 Feb 2006 15:54:27 -0500
+Received: from atlrel6.hp.com ([156.153.255.205]:24475 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S932235AbWBBUy0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 15:52:01 -0500
-Date: Thu, 2 Feb 2006 21:51:48 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Dave Jones <davej@redhat.com>, Olivier Galibert <galibert@pobox.com>,
-       Nigel Cunningham <nigel@suspend2.net>,
-       Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Message-ID: <20060202205148.GE2264@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602022131.59928.nigel@suspend2.net> <84144f020602020344p228e20b2x34226f341c296578@mail.gmail.com> <200602022228.20032.nigel@suspend2.net> <20060202154319.GA96923@dspnet.fr.eu.org> <20060202202527.GC2264@elf.ucw.cz> <20060202203155.GE11831@redhat.com>
+	Thu, 2 Feb 2006 15:54:26 -0500
+Subject: Re: [PATCH] 2.6.16-rc-mm4 reiser4 calls try_to_unmap() with 1 arg
+	-- now takes 2
+From: Lee Schermerhorn <lee.schermerhorn@hp.com>
+Reply-To: lee.schermerhorn@hp.com
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0602022040020.10639@goblin.wat.veritas.com>
+References: <1138911375.5204.31.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0602022040020.10639@goblin.wat.veritas.com>
+Content-Type: text/plain
+Organization: LOSL, Nashua
+Date: Thu, 02 Feb 2006 15:54:04 -0500
+Message-Id: <1138913644.5204.54.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060202203155.GE11831@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Čt 02-02-06 15:31:55, Dave Jones wrote:
-> On Thu, Feb 02, 2006 at 09:25:27PM +0100, Pavel Machek wrote:
->  > On Čt 02-02-06 16:43:19, Olivier Galibert wrote:
->  > > On Thu, Feb 02, 2006 at 10:28:15PM +1000, Nigel Cunningham wrote:
->  > > > Shouldn't the question be "Why are we making this more complicated by moving 
->  > > > it to userspace?"
->  > > 
->  > > Indeed.  It seems that turning the kernel into Hurd is the latest
->  > > fad.
->  > 
->  > Heh, try reading suspend2.
+On Thu, 2006-02-02 at 20:46 +0000, Hugh Dickins wrote:
+> On Thu, 2 Feb 2006, Lee Schermerhorn wrote:
 > 
-> Can we leave the playground level insults off of linux-kernel please,
-> and keep the discussion at a technical level ?
+> > Apparent race between reiser4 and direct migration patches in 16-rc1-
+> > mm4.
+> > Direct migration added arg to rmap.c:try_to_unmap()--int ignore_refs--
+> > and
+> > fixed up existing refs.  reiser4 adds new call with single arg. 
+> > 
+> > One doesn't see this when building mm4 w/ reiser4 because the ref under
+> > an
+> > "#if REISER4_COPY_ON_CAPTURE" that is apparently not enabled.  I  just
+> > noticed
+> > it while looking at direct migration patches.  So, this patch is
+> > essentially
+> > UNTESTED.  Supplied simply to illustrate the location of the single arg
 > 
-> Such remarks aren't furthering the cause of either implementation.
+> That's worrying code to find down in a filesystem.  But never mind,
+> it refers to pte_chain_lock(), which hasn't existed since 2.6.5.  So
+> REISER4_COPY_ON_CAPTURE is long untested and should just be deleted.
+> 
+> Hugh
 
-Well, Olivier said I'm turning kernel into Hurd. So he instead
-advocates merging 10 000 lines of code (+7500, contains new
-compression algorithm and new plugin architecture). I'd like to add
-interface to userland (+300) and remove swap writing (long term,
--1000).
+OK.  I had a 16-rc1-mm4 build problem earlier because of a similar patch
+race between an SGI patch bundle and one of gregkh's patches [ATE_MAKE()
+arg changes], so I just wanted to give folks a heads up.
 
-Olivier clearly did not see the patches; is asking him to learn what
-he is talking about *that* much to ask?
-								Pavel
--- 
-Thanks, Sharp!
+Thanks for the response.
+
+Lee
+> 
+> > 
+> > Signed-off-by: Lee Schermerhorn <lee.schermerhorn@hp.com>
+> > 
+> > Index: linux-2.6.16-rc1-mm4/fs/reiser4/txnmgr.c
+> > ===================================================================
+> > --- linux-2.6.16-rc1-mm4.orig/fs/reiser4/txnmgr.c	2006-01-31
+> > 16:51:39.000000000 -0500
+> > +++ linux-2.6.16-rc1-mm4/fs/reiser4/txnmgr.c	2006-02-02
+> > 14:43:01.659744418 -0500
+> > @@ -3693,7 +3693,7 @@ static int create_copy_and_replace(jnode
+> >  		pte_chain_lock(page);
+> >  
+> >  		if (page_mapped(page)) {
+> > -			result = try_to_unmap(page);
+> > +			result = try_to_unmap(page, 0);
+> >  			if (result == SWAP_AGAIN) {
+> >  				result = RETERR(-E_REPEAT);
+> 
+

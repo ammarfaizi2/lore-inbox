@@ -1,84 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWBBPYX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWBBPYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWBBPYX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 10:24:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWBBPYW
+	id S932069AbWBBPYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 10:24:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWBBPYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 10:24:22 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:53774 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932066AbWBBPYV convert rfc822-to-8bit
+	Thu, 2 Feb 2006 10:24:25 -0500
+Received: from zproxy.gmail.com ([64.233.162.196]:38588 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932072AbWBBPYY convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 10:24:21 -0500
+	Thu, 2 Feb 2006 10:24:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rQaTbqEUwR1iLT/z3mKP1P6FlOkH4xoZNyr81tVZYgARNTTI3uAo4Q/YJ2AsLvmIYHpvAque1qUKeHdq0qe7EKTTh6eftPOXeyRU+axfmDsrC6NQoYq0zR6FkfeHhqKk7VqurXpdHsaCXpYutAdwB+WoH64AzfTKbAeSsWvaDd0=
+Message-ID: <787b0d920602020724q7be70037qf898da7ea362b2b1@mail.gmail.com>
+Date: Thu, 2 Feb 2006 10:24:22 -0500
+From: Albert Cahalan <acahalan@gmail.com>
+To: Bernd Petrovitsch <bernd@firmix.at>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1138809303.16643.28.camel@tara.firmix.at>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <1138891408.9861.12.camel@localhost.localdomain>
-X-OriginalArrivalTime: 02 Feb 2006 15:24:20.0240 (UTC) FILETIME=[BD024900:01C6280C]
-Content-class: urn:content-classes:message
-Subject: Re: calling bios interrupt
-Date: Thu, 2 Feb 2006 10:24:19 -0500
-Message-ID: <Pine.LNX.4.61.0602021018400.20650@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: calling bios interrupt
-Thread-Index: AcYoDL0hvxree4TQTxC+aig4hbJ9+A==
-References: <43E1B93A.5000603@slovanet.net> <1138891408.9861.12.camel@localhost.localdomain>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Jozef Kutej" <jozef.kutej@slovanet.net>, <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Disposition: inline
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+	 <5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com>
+	 <200601311333.36000.oliver@neukum.org>
+	 <200601311444.47199.vda@ilport.com.ua>
+	 <Pine.LNX.4.61.0602011634520.22529@yvahk01.tjqt.qr>
+	 <1138809303.16643.28.camel@tara.firmix.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 2 Feb 2006, Alan Cox wrote:
-
-> On Iau, 2006-02-02 at 08:48 +0100, Jozef Kutej wrote:
->> Hello.
->>
->> Can someone help me solve my problem with on board watch dog timer that
->> need to call bios interrupt? Here's how to update watch dog timer.
->>
->> mov ax,6f02h
->> mov bl, 30	;number of seconds
->> int 15h
->>
->> How can i do this in kernel so that i can write wdt driver?
+On 2/1/06, Bernd Petrovitsch <bernd@firmix.at> wrote:
+> On Wed, 2006-02-01 at 16:37 +0100, Jan Engelhardt wrote:
+> [...]
+> > >Do we need to expose IDE master/slave, primary/secondary concepts in Linux?
+> > >
+> > AFAICS, we do. hda is always primary slave, etc. With the SCSI layer it's
+> > (surprisingly) the other way round, sda just happens to be the first disk
+> > inserted (SCA, USB, etc.)
 >
-> You need to drive the hardware directly. Ask the vendor for the hardware
-> info, or alternatively you might want to try using a library like lrmi
-> in user space to call it and log the I/O instructions it tries to
-> execute.
->
+> The (historical) reason was: There were not enough major/minor numbers
+> (IIRC 8 bit for each of them) for a sane (and static) SCSI device number
+> mapping (similar to IDE) - just multiply the possible # of partitions *
+> # of LUNs * # IDs for a few controllers.
 
-Also, if the machine has a floppy, boot DOS. Write the above snippit
-of code using DOS debug. Step through it. Watch what register(s) get
-written...
+It's a hashing problem, and should have originally been seen as such.
+The constraints are that you'd like some stability as devices come
+and go. Splitting /dev into fields could have worked nicely:
 
-A>debug
-- a100
-- mov ax,6f02
-- mov bl, ff
-- int 15
-- int 3
+1. the partition
+2. dev type: disk, CD-ROM, built-in (ramdisk,loop), other
+3. physical: master/slave, SCSI target, IDE 1/2/other, "is USB"...
+4. volatile+rare stuff: PCI slot, ISA address, USB position, LUN
 
-rip 100
-- t ; trace the steps.
+(needlessly crammed into 16 bits: 5:2:4:5 or 5:2:5:4)
 
-Once the timer gets written, the machine will reboot when it
-times-out. Therefore use a large timeout value as above 0xff.
+For the physical stuff, per-driver values are assigned explicitly
+in the source code. Collisions are determined by humans. We make
+USB collide with something old, like XT disks and Atari disks.
+Collisions are chosen so that normal machines are unlikely to
+suffer from them.
 
+Note that I use "IDE 1/2/other". Only an x86 PC can have a primary
+or secondary controller, as determined by IO port location. Macs
+just have "other", as a single value. (they differentiate based on
+the rare and volatile stuff as needed) USB is distinguished from SCSI,
+FireWire, and IDE unless delibrately made to collide because of a bit
+shortage.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.66 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-_
-To unsubscribe
+Collisions found at run-time are resolved by mucking with the field
+for volatile and rare stuff. Adding a new USB device can will probably
+not mess up a different USB device, because the hashing is not too
+likely to pick the same number. Adding a new USB device will certainly
+not mess up a non-USB device unless the non-USB device is in a class
+of physical devices that was delibrately made to collide with USB.
+Adding a SCSI device with target ID 4 will only stand a chance of
+messing up other SCSI devices with target ID 4, on other busses or
+with other LUNs. It wouldn't mess up SCSI target ID 3, FireWire, USB,
+or anything else UNLESS those share the "physical" field ID.
 
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+Not that Joerg would like this: LUN values and bus numbers get tossed
+into a hash function. You can't recover the individual numbers.

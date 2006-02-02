@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWBBUQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWBBUT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbWBBUQe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 15:16:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWBBUQe
+	id S1751181AbWBBUT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 15:19:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWBBUT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 15:16:34 -0500
-Received: from ccerelbas03.cce.hp.com ([161.114.21.106]:40085 "EHLO
-	ccerelbas03.cce.hp.com") by vger.kernel.org with ESMTP
-	id S932207AbWBBUQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 15:16:33 -0500
-Subject: [PATCH] 2.6.16-rc-mm4 reiser4 calls try_to_unmap() with 1 arg --
-	now takes 2
-From: Lee Schermerhorn <lee.schermerhorn@hp.com>
-Reply-To: lee.schermerhorn@hp.com
-To: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
-Content-Type: text/plain
-Organization: LOSL, Nashua
-Date: Thu, 02 Feb 2006 15:16:15 -0500
-Message-Id: <1138911375.5204.31.camel@localhost.localdomain>
+	Thu, 2 Feb 2006 15:19:56 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26856 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751181AbWBBUTz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 15:19:55 -0500
+Date: Thu, 2 Feb 2006 21:19:43 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: CD writing - related question
+Message-ID: <20060202201943.GB2264@elf.ucw.cz>
+References: <43DEA195.1080609@tmr.com> <20060201210433.GC8552@ucw.cz> <43E2602C.2090008@tmr.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43E2602C.2090008@tmr.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apparent race between reiser4 and direct migration patches in 16-rc1-
-mm4.
-Direct migration added arg to rmap.c:try_to_unmap()--int ignore_refs--
-and
-fixed up existing refs.  reiser4 adds new call with single arg. 
+On Čt 02-02-06 14:40:28, Bill Davidsen wrote:
+> Pavel Machek wrote:
+> >On Mon 30-01-06 18:30:29, Bill Davidsen wrote:
+> >
+> >>Please take this as a question to elicit information, not 
+> >>an invitation for argument.
+> >>
+> >>In Linux currently:
+> >>SCSI - liiks like SCSI
+> >>USB - looks like SCSI
+> >>Firewaire - looks like SCSI
+> >>SATA - looks like SCSI
+> >>Compact flash and similar - looks like SCSI
+> >
+> >
+> >Your definition of "looks like scsi" is way too broad. CF looks like
+> >PCMCIA and that in turn is ide chip on isa-like bus.
+> >
+> >(unless you plug it to usb reader)
+> >
+> I was unaware of any serious use of PCMCIA reader cards therese days, as 
+> you note the CD shows up as an sd device. I have a laptop which might 
+> have a card slot, if it takes CD I'll pull one from my camera and try it 
+> there instead of the USB reader.
 
-One doesn't see this when building mm4 w/ reiser4 because the ref under
-an
-"#if REISER4_COPY_ON_CAPTURE" that is apparently not enabled.  I  just
-noticed
-it while looking at direct migration patches.  So, this patch is
-essentially
-UNTESTED.  Supplied simply to illustrate the location of the single arg
-ref.  
+CD? Did you want to say CF?
 
-Signed-off-by: Lee Schermerhorn <lee.schermerhorn@hp.com>
+Anyway it is not really PCMCIA reader. It is just PCMCIA-to-CF
+adapter, plugged into PCMCIA slot. Adapter is pretty much passive. 
 
-Index: linux-2.6.16-rc1-mm4/fs/reiser4/txnmgr.c
-===================================================================
---- linux-2.6.16-rc1-mm4.orig/fs/reiser4/txnmgr.c	2006-01-31
-16:51:39.000000000 -0500
-+++ linux-2.6.16-rc1-mm4/fs/reiser4/txnmgr.c	2006-02-02
-14:43:01.659744418 -0500
-@@ -3693,7 +3693,7 @@ static int create_copy_and_replace(jnode
- 		pte_chain_lock(page);
- 
- 		if (page_mapped(page)) {
--			result = try_to_unmap(page);
-+			result = try_to_unmap(page, 0);
- 			if (result == SWAP_AGAIN) {
- 				result = RETERR(-E_REPEAT);
- 
+> The question is still why not make all devices look like SCSI, and use 
+> one set of drivers and a bit of glue. Redhat used to use ide-scsi by 
+> default if my memory serves, and the overhead wasn't an issue even back 
+> on my 1st Linux laptop running Slackware on a Thinkpad 486-25 (the fat 
+> one, not the 486-16 -;).
 
+CF card is as much ide as it can get. You can even pug it to IDE cable
+with passive adapter!
 
+Forcing everything to SCSI makes about as much sense as making
+everything look like IDE.
+							Pavel
+-- 
+Thanks, Sharp!

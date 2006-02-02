@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWBBTIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWBBTL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbWBBTIb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 14:08:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbWBBTIb
+	id S1751044AbWBBTL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 14:11:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbWBBTL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 14:08:31 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:45959 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1750803AbWBBTIa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 14:08:30 -0500
-Message-ID: <43E26AB1.8509A175@tv-sign.ru>
-Date: Thu, 02 Feb 2006 23:25:21 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Thu, 2 Feb 2006 14:11:57 -0500
+Received: from zcars04f.nortel.com ([47.129.242.57]:56545 "EHLO
+	zcars04f.nortel.com") by vger.kernel.org with ESMTP
+	id S1751044AbWBBTL4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 14:11:56 -0500
+Message-ID: <43E25976.6090109@nortel.com>
+Date: Thu, 02 Feb 2006 13:11:50 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Herbert Poetzl <herbert@13thfloor.at>
-Subject: Re: [PATCH] pidhash:  Kill switch_exec_pids
-References: <m1r76lslhi.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=koi8-r
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Ian Kester-Haney <ikesterhaney@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>	 <200601302301.04582.brcha@users.sourceforge.net>	 <43E0E282.1000908@opersys.com>	 <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org>	 <43E1C55A.7090801@drzeus.cx>	 <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org>	 <1138891081.9861.4.camel@localhost.localdomain>	 <Pine.LNX.4.64.0602020814320.21884@g5.osdl.org>	 <43E23C79.8050606@drzeus.cx>	 <Pine.LNX.4.64.0602020937360.21884@g5.osdl.org>	 <441e43c90602021013j6edb2fa6m1142ef255040106d@mail.gmail.com> <1138906199.15691.54.camel@mindpipe>
+In-Reply-To: <1138906199.15691.54.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Feb 2006 19:11:53.0127 (UTC) FILETIME=[86C38370:01C6282C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
->
-> --- a/fs/exec.c
-> +++ b/fs/exec.c
-> @@ -699,7 +699,17 @@ static int de_thread(struct task_struct 
->  		remove_parent(current);
->  		remove_parent(leader);
->  
-> -		switch_exec_pids(leader, current);
-> +
-> +		/* Become a process group leader with the old leader's pid.
-> +		 * Note: The old leader also uses thispid until release_task
-> +		 *       is called.  Odd but simple and correct.
-> +		 */
-> +		detach_pid(current, PIDTYPE_PID);
-> +		current->pid = leader->pid;
-> +		attach_pid(current, PIDTYPE_PID,  current->pid);
+Lee Revell wrote:
 
-What happens after de_thread() unlocks tasklist_lock and before
-it is taken again in release_task() ?
+> What nvidia is doing is already illegal under the GPLv2.
 
-In that window find_task_by_pid() will return dead leader, not
-the new leader of thread group. This means we can miss tkill()
-or ptrace(), for example.
+I don't think that's been legally proven.
 
-Oleg.
+The question is whether it is a derivative work.  If their driver core 
+(aka the binary blob) is common to all their drivers (across multiple 
+OS's), it could be argued that the binary blob itself is not a 
+derivative work.  One could almost view it as firmware.
+
+If they ship the binary blob as well as code that interfaces the binary 
+blob with the kernel, and the end-user compiles the code together and 
+loads it into the kernel, does that necessarily violate the GPL?
+
+Chris
+

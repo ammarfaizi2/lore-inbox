@@ -1,90 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWBBLfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbWBBLhi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750783AbWBBLfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 06:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWBBLfZ
+	id S1750778AbWBBLhi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 06:37:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWBBLhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 06:35:25 -0500
-Received: from 60-240-149-171.tpgi.com.au ([60.240.149.171]:32384 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1750800AbWBBLfY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 06:35:24 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Date: Thu, 2 Feb 2006 21:31:55 +1000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602022038.16262.nigel@suspend2.net> <20060202104750.GC1884@elf.ucw.cz>
-In-Reply-To: <20060202104750.GC1884@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2090073.C9mklPSHvX";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602022131.59928.nigel@suspend2.net>
+	Thu, 2 Feb 2006 06:37:38 -0500
+Received: from webmail.terra.es ([213.4.149.12]:27527 "EHLO
+	csmtpout4.frontal.correo") by vger.kernel.org with ESMTP
+	id S1750778AbWBBLhh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 06:37:37 -0500
+Date: Thu, 2 Feb 2006 12:37:13 +0100 (added by postmaster@terra.es)
+From: <grundig@teleline.es>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: schilling@fokus.fraunhofer.de, jim@why.dont.jablowme.net,
+       mrmacman_g4@mac.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de,
+       James@superbug.co.uk, j@bitron.ch, acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-Id: <20060202123607.b3902517.grundig@teleline.es>
+In-Reply-To: <43E1EA35.nail4R02QCGIW@burner>
+References: <43D7A7F4.nailDE92K7TJI@burner>
+	<8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
+	<43D7B1E7.nailDFJ9MUZ5G@burner>
+	<20060125230850.GA2137@merlin.emma.line.org>
+	<43D8C04F.nailE1C2X9KNC@burner>
+	<43DDFBFF.nail16Z3N3C0M@burner>
+	<1138642683.7404.31.camel@juerg-pd.bitron.ch>
+	<43DF3C3A.nail2RF112LAB@burner>
+	<1138710764.17338.47.camel@juerg-t40p.bitron.ch>
+	<43DF6812.nail3B44TLQOP@burner>
+	<20060202062840.GI5501@mail>
+	<43E1EA35.nail4R02QCGIW@burner>
+X-Mailer: Sylpheed version 2.1.9 (GTK+ 2.8.10; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2090073.C9mklPSHvX
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+El Thu, 02 Feb 2006 12:17:09 +0100,
+Joerg Schilling <schilling@fokus.fraunhofer.de> escribió:
 
-Hi.
+> Note that I need to avoid unneeded efforts and for this reason, I need to wait
+> 5 years until is is forseable that a recent incompatible change in Linux will
+> survive long enough to spent time on it.
 
-On Thursday 02 February 2006 20:47, Pavel Machek wrote:
-> Hi!
->
-> > > > This set of patches represents the core of Suspend2's module suppor=
-t.
-> > > >
-> > > > Suspend2 uses a strong internal API to separate the method of
-> > > > determining the content of the image from the method by which it is
-> > > > saved. The code for determining the content is part of the core of
-> > > > Suspend2, and transformations (compression and/or encryption) and
-> > > > storage of the pages are handled by 'modules'.
-> > >
-> > > swsusp already has a very strong API to separate image writing from
-> > > image creation (in -mm patch, anyway). It is also very nice, just
-> > > read() from /dev/snapshot. Please use it.
-> >
-> > You know that's not an option.
->
-> No, I don't... please explain. Switching to this interface is going to
-> be easier than pushing suspend2 into kernel. Granted, end result may
-> not be suspend2, it may be something like suspend3, but it will be
-> better result than u-swsusp or suspend2 is today...
 
-It's not an option because I'm not trying not to step all over your codebas=
-e,=20
-because I'm not moving suspend2 to userspace and because it doesn't make=20
-sense to add another layer of abstraction by sticking /dev/snapshot in the=
-=20
-middle of kernel space code. There may be more reasons, but I haven't looke=
-d=20
-at the /dev/snapshot code at all.
-
-Regards,
-
-Nigel
-
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
-
---nextPart2090073.C9mklPSHvX
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD4e2vN0y+n1M3mo0RAkIHAJ4po16606VqjB8XHCOCP6gNN+fFPwCgwxgs
-SBF9tqnUaGk17uJP067HvHg=
-=Dw3V
------END PGP SIGNATURE-----
-
---nextPart2090073.C9mklPSHvX--
+Woah. No comments.

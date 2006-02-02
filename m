@@ -1,99 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWBBUKi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbWBBUQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbWBBUKi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 15:10:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932206AbWBBUKi
+	id S932211AbWBBUQe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 15:16:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWBBUQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 15:10:38 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:47798 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932204AbWBBUKh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 15:10:37 -0500
-Date: Thu, 2 Feb 2006 15:10:08 -0500
-From: Dave Jones <davej@redhat.com>
-To: Michael Loftis <mloftis@wgops.com>
-Cc: David Weinehall <tao@acc.umu.se>, Doug McNaught <doug@mcnaught.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Valdis.Kletnieks@vt.edu,
-       dtor_core@ameritech.net, James Courtier-Dutton <James@superbug.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE?
-Message-ID: <20060202201008.GD11831@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Michael Loftis <mloftis@wgops.com>,
-	David Weinehall <tao@acc.umu.se>, Doug McNaught <doug@mcnaught.org>,
-	Russell King <rmk+lkml@arm.linux.org.uk>, Valdis.Kletnieks@vt.edu,
-	dtor_core@ameritech.net,
-	James Courtier-Dutton <James@superbug.co.uk>,
-	linux-kernel@vger.kernel.org
-References: <d120d5000601200850w611e8af8v41a0786b7dc973d9@mail.gmail.com> <30D11C032F1FC0FE9CA1CDFD@d216-220-25-20.dynip.modwest.com> <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu> <E27F809F04C1C673D283E84F@d216-220-25-20.dynip.modwest.com> <20060120200051.GA12610@flint.arm.linux.org.uk> <5793EB6F192350088E0AC4CE@d216-220-25-20.dynip.modwest.com> <87slrio9wd.fsf@asmodeus.mcnaught.org> <25D702FB62516982999D7084@d216-220-25-20.dynip.modwest.com> <20060202121653.GI20484@vasa.acc.umu.se> <67A0AFFBC77C32B9DEE25EFA@dhcp-2-206.wgops.com>
+	Thu, 2 Feb 2006 15:16:34 -0500
+Received: from ccerelbas03.cce.hp.com ([161.114.21.106]:40085 "EHLO
+	ccerelbas03.cce.hp.com") by vger.kernel.org with ESMTP
+	id S932207AbWBBUQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 15:16:33 -0500
+Subject: [PATCH] 2.6.16-rc-mm4 reiser4 calls try_to_unmap() with 1 arg --
+	now takes 2
+From: Lee Schermerhorn <lee.schermerhorn@hp.com>
+Reply-To: lee.schermerhorn@hp.com
+To: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org
+Content-Type: text/plain
+Organization: LOSL, Nashua
+Date: Thu, 02 Feb 2006 15:16:15 -0500
+Message-Id: <1138911375.5204.31.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <67A0AFFBC77C32B9DEE25EFA@dhcp-2-206.wgops.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 02, 2006 at 11:25:24AM -0700, Michael Loftis wrote:
+Apparent race between reiser4 and direct migration patches in 16-rc1-
+mm4.
+Direct migration added arg to rmap.c:try_to_unmap()--int ignore_refs--
+and
+fixed up existing refs.  reiser4 adds new call with single arg. 
 
- > >o You want security fixes and only minor other fixes (done magically
- > >  by someone else as you're not willing to pay for it, nor are you
- > >  willing to help yourself), for at least 6 months, but you ignore
- > >  the existance of the 2.6.x.y kernel series, which does exactly
- > >  that -- check
- > 
- > There's noone out there that does that, I'd LOVE to be able to pay for it 
- > and not have to do it myself.  RedHat kernels don't work on most of our 
- > gear
+One doesn't see this when building mm4 w/ reiser4 because the ref under
+an
+"#if REISER4_COPY_ON_CAPTURE" that is apparently not enabled.  I  just
+noticed
+it while looking at direct migration patches.  So, this patch is
+essentially
+UNTESTED.  Supplied simply to illustrate the location of the single arg
+ref.  
 
-Specifics?  The patches we carry in Fedora aren't very system-specific,
-so any failure to boot there would likely be a problem on mainline.
-The "but it works on $otherdistro" response that seems to be so popular
-these days is time after time proven due to be because $otherdistro is
-shipping an older kernel, and hasn't hit that particular bug yet.
+Signed-off-by: Lee Schermerhorn <lee.schermerhorn@hp.com>
 
- > , and RH, up to and including fedora core, and centos have some 'great' 
- > issues, like the listener processes for Apache and MySQL using up *ALL* of 
- > the system CPU when *NOTHING* is happening.
+Index: linux-2.6.16-rc1-mm4/fs/reiser4/txnmgr.c
+===================================================================
+--- linux-2.6.16-rc1-mm4.orig/fs/reiser4/txnmgr.c	2006-01-31
+16:51:39.000000000 -0500
++++ linux-2.6.16-rc1-mm4/fs/reiser4/txnmgr.c	2006-02-02
+14:43:01.659744418 -0500
+@@ -3693,7 +3693,7 @@ static int create_copy_and_replace(jnode
+ 		pte_chain_lock(page);
+ 
+ 		if (page_mapped(page)) {
+-			result = try_to_unmap(page);
++			result = try_to_unmap(page, 0);
+ 			if (result == SWAP_AGAIN) {
+ 				result = RETERR(-E_REPEAT);
+ 
 
-How did you determine this is a kernel bug?  Did you file a bugzilla report on this?
-
- > We've tried to track it down, 
- > it's gotten to where we just don't care and we just don't deploy RedHat 
- > anymore.  SuSE's kernels suffer the same problem of too many patches I 
- > mentioned before for totally unrelated, non-security things.
-
-You can't complain about 'too many patches' in a distro kernel these days.
-Any distro that ships a stock vanilla kernel is a distro that has
-known oopsable drivers, features that don't work as expected, 
-won't boot on certain hardware, and other general flakyness.
-
-In the current FC4 2.6.15.2 based update..
-
-- 47 bug fix patches. Shipping without these isn't an option.
-- 24 'deviation' patches, where we add some not-yet-upstream feature
-  or rh-specific feature. (Xen, Execshield, signed modules, restricted /dev/mem etc)
-  [note, not 1 diff per feature, some features are multiple patches]
-- 21 debugging patches. (Enabling extra output in certain bad situations etc)
-- 3 convenient 'make the buildsys life easier' patches
-- the remainder are other 'nice to haves' backported from 2.6.16rc
-
-At the absolute minimum, we'd need to carry those 47 bugfixes.
-Some of these get pushed to -stable, some aren't considered enough
-of a problem, so they'll sit there until I rebase to a .16
-
-We have this mentality in certain circles of "I don't want any
-changes in my distro kernel, oh, except for ones that I want".
-The problem is when >1 person wants patches to make their systems
-run, the result is a pretty large collection of patches.
-
-If you want a kernel with a limited set of patches, the only answer
-is 'build your own', but don't complain about vendors doing the
-only thing that they can do that they've been doing for the last
-10-15 years -- Trying to make a single kernel image work on
-as many platforms as possible with the smallest amount of pain.
-(And 'new' development model hasn't changed a damn thing in this regard,
- it's always been a challenge).
-
-		Dave
 

@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423416AbWBBJjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423421AbWBBJoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423416AbWBBJjW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 04:39:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423425AbWBBJjV
+	id S1423421AbWBBJoM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 04:44:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423422AbWBBJoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 04:39:21 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29385 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1423416AbWBBJjV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 04:39:21 -0500
-Date: Thu, 2 Feb 2006 10:38:59 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Nigel Cunningham <nigel@suspend2.net>,
-       Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
-Message-ID: <20060202093859.GA1884@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <84144f020602011345i2e395336s371786c441b9f5b2@mail.gmail.com> <200602020855.12392.nigel@suspend2.net> <200602020931.29796.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602020931.29796.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 2 Feb 2006 04:44:12 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:53499 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1423421AbWBBJoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 04:44:10 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Thu, 02 Feb 2006 10:42:47 +0100
+To: schilling@fokus.fraunhofer.de, jengelh@linux01.gwdg.de
+Cc: mrmacman_g4@mac.com, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, James@superbug.co.uk, j@bitron.ch,
+       acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43E1D417.nail4MI11WTFI@burner>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+ <43D7A7F4.nailDE92K7TJI@burner>
+ <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
+ <43D7B1E7.nailDFJ9MUZ5G@burner>
+ <20060125230850.GA2137@merlin.emma.line.org>
+ <43D8C04F.nailE1C2X9KNC@burner> <43DDFBFF.nail16Z3N3C0M@burner>
+ <1138642683.7404.31.camel@juerg-pd.bitron.ch>
+ <43DF3C3A.nail2RF112LAB@burner>
+ <mj+md-20060131.104748.24740.atrey@ucw.cz>
+ <43DF65C8.nail3B41650J9@burner>
+ <Pine.LNX.4.61.0602011612520.22529@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0602011612520.22529@yvahk01.tjqt.qr>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
 
-> Its limitation , however, is that it requires a lot of memory for the system
-> memory snapshot which may be impractical for systems with limited RAM,
-> and that's where your solution may be required.
+> It's shorter than /dev/c0t0d0s0? Well, I think it's because people think 
+> in terms of connectors (my drive is IDE therefore it must be hdc) rather 
+> than protocol (my drive does ATAPI therefore it must be 
+> /dev/scsi/c0t0d0s0).
 
-Actually, suspend2 has similar limitation. It still needs half a
-memory free, but it does not count caches into that as it can save
-them separately.
+Is there any reason why the people with small PCs should dominate the 
+people with big machines?
 
-That means that on certain small systems (32MB RAM?), suspend2 is going to
-have big advantage of responsivity after resume. But on the systems
-where [u]swsusp can't suspend (6MB RAM?), suspend2 is not going to be
-able to suspend, either. [Roughly; due to bugs and implementation
-differences there may be some system size where one works and second
-one does not, but they are pretty similar]
+If you use /dev/hd*, you loose control after you add more than ~ 6-10 disks.
 
-But that's probably not a problem as it is only going to fail on
-*very* small system. Desktops with 6MB RAM are not too common these
-days, fortunately. Not even in embedded space.
-								Pavel
+The systematical attempt is easy to remember even with a big amount of 
+external hardware.
+
+Jörg
+
 -- 
-Thanks, Sharp!
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

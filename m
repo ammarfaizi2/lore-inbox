@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWBBVzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbWBBV4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbWBBVzF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 16:55:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932320AbWBBVzF
+	id S932320AbWBBV4t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 16:56:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWBBV4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 16:55:05 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:60051 "HELO
+	Thu, 2 Feb 2006 16:56:49 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:34196 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932314AbWBBVzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 16:55:03 -0500
+	id S932320AbWBBV4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 16:56:48 -0500
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
 From: Lee Revell <rlrevell@joe-job.com>
 To: Jim Crilly <jim@why.dont.jablowme.net>
@@ -27,8 +27,8 @@ References: <43DF3C3A.nail2RF112LAB@burner>
 	 <20060202210949.GD10352@voodoo> <1138915551.15691.123.camel@mindpipe>
 	 <20060202214938.GF10352@voodoo>
 Content-Type: text/plain
-Date: Thu, 02 Feb 2006 16:54:56 -0500
-Message-Id: <1138917297.15691.138.camel@mindpipe>
+Date: Thu, 02 Feb 2006 16:56:45 -0500
+Message-Id: <1138917406.15691.141.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.5.90 
 Content-Transfer-Encoding: 7bit
@@ -49,8 +49,8 @@ On Thu, 2006-02-02 at 16:49 -0500, Jim Crilly wrote:
 > Is this something that's available now?
 > 
 
-Yes but only in the CFQ IO scheduler, and a pre-release util-linux is
-required to get the docs and command line utils.
+Hmm, actually I'm not sure it would make a difference, as I don't think
+CD writing goes through the regular IO scheduler.
 
 Lee
 

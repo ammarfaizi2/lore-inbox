@@ -1,54 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbWBBWdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWBBWfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932368AbWBBWdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 17:33:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbWBBWdY
+	id S932374AbWBBWfg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 17:35:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWBBWfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 17:33:24 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:13503 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932373AbWBBWdX (ORCPT
+	Thu, 2 Feb 2006 17:35:36 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:40097 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932374AbWBBWff (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 17:33:23 -0500
-In-Reply-To: <200602022159.04508.a1426z@gawab.com>
-To: Al Boldi <a1426z@gawab.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Kyle Moffett <mrmacman_g4@mac.com>
-MIME-Version: 1.0
-Subject: Re: [RFC] VM: I have a dream...
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFA0D197E9.2DB3AE6F-ON88257109.007A60B4-88257109.007BE836@us.ibm.com>
-From: Bryan Henderson <hbryan@us.ibm.com>
-Date: Thu, 2 Feb 2006 14:33:18 -0800
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0HF124 | January 12, 2006) at
- 02/02/2006 17:33:19,
-	Serialize complete at 02/02/2006 17:33:19
-Content-Type: text/plain; charset="US-ASCII"
+	Thu, 2 Feb 2006 17:35:35 -0500
+Date: Thu, 2 Feb 2006 14:37:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Joerg Sommrey <jo@sommrey.de>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, tony@atomide.com,
+       len.brown@intel.com, erik@slagter.name, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] amd76x_pm: C3 powersaving for AMD K7
+Message-Id: <20060202143725.46d218dc.akpm@osdl.org>
+In-Reply-To: <20060202222407.GB896@sommrey.de>
+References: <20060202222407.GB896@sommrey.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->So w/ 1GB RAM, no swap, and 1TB disk mmap'd, could this mmap'd space be 
-added 
->to the total memory available to the OS, as is done w/ swap?
+Joerg Sommrey <jo@sommrey.de> wrote:
+>
+> This is a processor idle module for AMD SMP 760MP(X) based systems.
+>
 
-Yes.
-
->And if that's possible, why not replace swap w/ mmap'd disk-space?
-
-Because mmapped disk space has a permanent mapping of address to disk 
-location.  That's how the earliest virtual memory systems worked, but we 
-moved beyond that to what we have now (what we've been calling swapping), 
-where the mapping gets established at the last possible moment, which 
-means we can go a lot faster.  E.g. when the OS needs to steal 10 page 
-frames used for malloc pages which are scattered across the virtual 
-address space, it could write all those pages out in a single cluster 
-wherever a disk head happens to be at the moment.
-
-Also, given that we use multiple address spaces (my shell and your shell 
-both have an Address 0, but they're different pages), there'd be a giant 
-allocation problem in assigning a contiguous area of disk to each address 
-space.
-
---
-Bryan Henderson                     IBM Almaden Research Center
-San Jose CA                         Filesystems
-
+Len's comments about loss of cache coherency on some machines possibly
+causing corruption made me drop this patch.   Was I wrong to do so?

@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423420AbWBBKFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422950AbWBBKG6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423420AbWBBKFe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 05:05:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423386AbWBBKFe
+	id S1422950AbWBBKG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 05:06:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWBBKG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 05:05:34 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44684 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1422950AbWBBKFd (ORCPT
+	Thu, 2 Feb 2006 05:06:58 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45452 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932453AbWBBKG5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 05:05:33 -0500
-Date: Thu, 2 Feb 2006 11:05:22 +0100
+	Thu, 2 Feb 2006 05:06:57 -0500
+Date: Thu, 2 Feb 2006 11:06:46 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Message-ID: <20060202100522.GB1981@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Nigel Cunningham <nigel@suspend2.net>, linux-kernel@vger.kernel.org
+Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
+Message-ID: <20060202100646.GC1981@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602012245.06328.nigel@suspend2.net> <84144f020602010501k23e7898at82c0f231a2da0ad4@mail.gmail.com> <200602020730.16916.nigel@suspend2.net> <84144f020602011345i2e395336s371786c441b9f5b2@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060201113710.6320.68289.stgit@localhost.localdomain>
+In-Reply-To: <84144f020602011345i2e395336s371786c441b9f5b2@mail.gmail.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> This set of patches represents the core of Suspend2's module support.
+On St 01-02-06 23:45:15, Pekka Enberg wrote:
+> On Wednesday 01 February 2006 23:01, Pekka Enberg wrote:
+> > > I think we can call these suspend_{get|set}_modules instead i.e.
+> > > without the extra '2'.
 > 
-> Suspend2 uses a strong internal API to separate the method of
-> determining the content of the image from the method by which it is saved.
-> The code for determining the content is part of the core of Suspend2, and
-> transformations (compression and/or encryption) and storage of the pages are
-> handled by 'modules'.
+> On 2/1/06, Nigel Cunningham <nigel@suspend2.net> wrote:
+> > I wanted to avoid confusion with similar routine names Pavel might use. For
+> > example, he has a resume_setup and I have a resume2_setup.
+> 
+> Is that necessary for the mainline, though? We have only one suspend
+> in the kernel, not "Pavel suspend" and "Nigel suspend", right?
 
-swsusp already has a very strong API to separate image writing from
-image creation (in -mm patch, anyway). It is also very nice, just
-read() from /dev/snapshot. Please use it.
-
+Actually plan is to only have "Rafael suspend" :-). That's basically
+"Pavel suspend" minus the disk writing parts. That is *long* term.
 								Pavel
 -- 
 Thanks, Sharp!

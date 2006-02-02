@@ -1,99 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423369AbWBBIBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423368AbWBBIFl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423369AbWBBIBD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 03:01:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423366AbWBBIBD
+	id S1423368AbWBBIFl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 03:05:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423370AbWBBIFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 03:01:03 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:50148 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1423367AbWBBIBB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 03:01:01 -0500
-Date: Thu, 2 Feb 2006 00:00:46 -0800
-From: Jeremy Higdon <jeremy@sgi.com>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: Jes Sorensen <jes@sgi.com>, Alan Cox <alan@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: [patch] Fix DMA timeouts with sgiioc4
-Message-ID: <20060202080046.GB157213@sgi.com>
-References: <yq0vevzpi8r.fsf@jaguar.mkp.net> <58cb370e0602010234p62521a00h6d8920c84cac44d5@mail.gmail.com> <20060201104913.GA152005@sgi.com> <58cb370e0602010308o4cde24aeg8d629b1b3d45cdd3@mail.gmail.com> <20060201111754.GB152005@sgi.com> <58cb370e0602010326k265ef278k4010df13fb5adf8c@mail.gmail.com> <20060201113607.GF152005@sgi.com> <58cb370e0602010444m46a39705q4a3043778df1628d@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <58cb370e0602010444m46a39705q4a3043778df1628d@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 2 Feb 2006 03:05:41 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:18296 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S1423368AbWBBIFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 03:05:40 -0500
+In-Reply-To: <A20324D8-446C-4760-9ECC-64FA9736E783@kernel.crashing.org>
+References: <Pine.LNX.4.44.0602011911360.22854-100000@gate.crashing.org> <1138844838.5557.17.camel@localhost.localdomain> <A20324D8-446C-4760-9ECC-64FA9736E783@kernel.crashing.org>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <6E8F349B-CD5A-473E-A2E1-21CFD949E83E@kernel.crashing.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, rmk+kernel@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: 8250 serial console fixes -- issue
+Date: Thu, 2 Feb 2006 02:05:40 -0600
+To: Kumar Gala <galak@kernel.crashing.org>
+X-Mailer: Apple Mail (2.746.2)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, 2006 at 01:44:01PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> On 2/1/06, Jeremy Higdon <jeremy@sgi.com> wrote:
-> >
-> > Here's one that removes xcount.  It seems to work too.
-> > Should we set hwif->rqsize to 256, or are we pretty safe in
-> > expecting that the default won't rise?  The driver should be
-> > able to handle more, but this ioc4 hardware is weird, and it
-> > probably wouldn't get tested if a general change were made :-)
-> 
-> The current maximum request size is:
-> *  256 for LBA28 and ATAPI devices
-> * 1024 for LBA48 devices
-> 
-> The maximum request size allowed by IDE driver for
-> LBA48 devices will change to 65536 but block layer will
-> continue to use 1024 as a default maximum request size,
-> also IIRC sgiioc4 IDE is used only for ATAPI devices.
-> So I think that there is no need to worry about ->rqsize.
 
+On Feb 1, 2006, at 11:54 PM, Kumar Gala wrote:
 
-Thanks Bartlomiej.  You're correct in that it is ATAPI only (and
-read-only also).
+>
+> On Feb 1, 2006, at 7:47 PM, Alan Cox wrote:
+>
+>> On Mer, 2006-02-01 at 19:21 -0600, Kumar Gala wrote:
+>>> This patch introduces an issue for me an embedded PowerPC SoC  
+>>> using the
+>>> 8250 driver.
+>>>
+>>> The simple description of my issue is this:  I'm using the serial  
+>>> port for
+>>> both a terminal and console.  I run fdisk on a /dev/hda.  Before  
+>>> this
+>>> patch I would get the prompt for fdisk immediately.  After this  
+>>> patch I
+>>> have to hit return before the prompt is displayed.
+>>>
+>>> I know that's not a lot of info, but just let me know what else  
+>>> you need
+>>> to help debug this.
+>>>
+>>> I'm guessing something about the UARTs on the PowerPC maybe bit a  
+>>> little
+>>> non-standard.
+>>
+>> I wonder if I've swapped one race for another. Can you revert just  
+>> the
+>> line which forces THRI on and test with the rest of the change  
+>> please.
+>
+> This doesn't seem to help.
 
-In this case, this is the final patch (last night's with a copyright
-update and removing spurious whitespace at end of line).
+I realized a bit later that the kernel I build with your suggested  
+change wasn't the one I was testing.  After loading the proper kernel  
+this does make the issue I was seeing go away.
 
-thanks
-
-jeremy
-
-Signed-off-by: Jeremy Higdon <jeremy@sgi.com>
-
-Fix sgiioc4 DMA timeout problem with 64KiB s/g elements.
-
---- a/linux/drivers/ide/pci/sgiioc4.c	2006-02-01 23:57:08.000000000 -0800
-+++ b/linux/drivers/ide/pci/sgiioc4.c	2006-02-01 23:56:47.169588392 -0800
-@@ -1,5 +1,5 @@
- /*
-- * Copyright (c) 2003 Silicon Graphics, Inc.  All Rights Reserved.
-+ * Copyright (c) 2003-2006 Silicon Graphics, Inc.  All Rights Reserved.
-  *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms of version 2 of the GNU General Public License
-@@ -510,7 +510,7 @@
- 				       drive->name);
- 				goto use_pio_instead;
- 			} else {
--				u32 xcount, bcount =
-+				u32 bcount =
- 				    0x10000 - (cur_addr & 0xffff);
- 
- 				if (bcount > cur_len)
-@@ -525,8 +525,7 @@
- 				*table = 0x0;
- 				table++;
- 
--				xcount = bcount & 0xffff;
--				*table = cpu_to_be32(xcount);
-+				*table = cpu_to_be32(bcount);
- 				table++;
- 
- 				cur_addr += bcount;
-@@ -680,7 +679,7 @@
- 		return -EIO;
- 
- 	/* Create /proc/ide entries */
--	create_proc_ide_interfaces(); 
-+	create_proc_ide_interfaces();
- 
- 	return 0;
- }
+- kumar

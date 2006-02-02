@@ -1,76 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423065AbWBBCja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422649AbWBBCru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423065AbWBBCja (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 21:39:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423064AbWBBCja
+	id S1422649AbWBBCru (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 21:47:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422871AbWBBCru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 21:39:30 -0500
-Received: from 66-169-249-72.dhcp.gnps.or.charter.com ([66.169.249.72]:37639
-	"EHLO Jeff-Office") by vger.kernel.org with ESMTP id S1423060AbWBBCj2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 21:39:28 -0500
-Date: Thu, 2 Feb 2006  2:39:27 +0480
-From: "Hallie Norton" <kevin@1-stop-job-interviews.com>
-X-Mailer: The Bat! (v3.0.1.33) CD5BF9353B3B7091
-Reply-To: "Hallie Norton" <kevin@1-stop-job-interviews.com>
-X-Priority: 3 (Normal)
-Message-ID: <508956407.20060202023927@1-stop-job-interviews.com>
-To: linux-kernel@vger.kernel.org
-Subject: re: Discover this stock
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 1 Feb 2006 21:47:50 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:17337 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422649AbWBBCrt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 21:47:49 -0500
+Date: Wed, 1 Feb 2006 18:47:06 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Anton Blanchard <anton@samba.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix cpu hotplug
+Message-Id: <20060201184706.5638c1a3.akpm@osdl.org>
+In-Reply-To: <20060202022555.GA11005@krispykreme>
+References: <20060202022555.GA11005@krispykreme>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OTC Update: 
+Anton Blanchard <anton@samba.org> wrote:
+>
+> 
+> Hi,
+> 
+> CPU hotplug was broken by the __meminit changes. Avoid the madness of
+> creating a mem+cpu hotplug init attribute and just make them __devinit.
+> 
+> Anton
+> 
+> Signed-off-by: Anton Blanchard <anton@samba.org>
+> ---
+> 
+> Index: build/mm/page_alloc.c
+> ===================================================================
+> --- build.orig/mm/page_alloc.c	2006-02-02 12:20:50.000000000 +1100
+> +++ build/mm/page_alloc.c	2006-02-02 13:14:56.000000000 +1100
+> @@ -1799,7 +1799,7 @@ void zonetable_add(struct zone *zone, in
+>  	memmap_init_zone((size), (nid), (zone), (start_pfn))
+>  #endif
+>  
+> -static int __meminit zone_batchsize(struct zone *zone)
+> +static int __devinit zone_batchsize(struct zone *zone)
+>  {
+>  	int batch;
+>  
+> @@ -1893,7 +1893,7 @@ static struct per_cpu_pageset
+>   * Dynamically allocate memory for the
+>   * per cpu pageset array in struct zone.
+>   */
+> -static int __meminit process_zones(int cpu)
+> +static int __devinit process_zones(int cpu)
+>  {
+>  	struct zone *zone, *dzone;
+>  
+> @@ -1934,7 +1934,7 @@ static inline void free_zone_pagesets(in
+>  	}
+>  }
+>  
+> -static int __meminit pageset_cpuup_callback(struct notifier_block *nfb,
+> +static int __devinit pageset_cpuup_callback(struct notifier_block *nfb,
+>  		unsigned long action,
+>  		void *hcpu)
+>  {
 
-Legendary Palace Theme Park Pushes DKDY Up The Market, Up 250% Since December
+These are __cpuinit in Linus's current tree.  Which probably means that
+we're busted with hotplug-memory && !hotplug-cpu.
 
+I don't think we want to make these __devinit, because that would penalise
+systems which are hotplug && !hotplug-memory && !hotplug-cpu, which are the
+systems which can least afford the memory waste.
 
-SYM:  DKDY
-Days Close: $1.63
-SH0RT;  $2.45 - 2.75
-Long Term: $3.75 - $4.25
-Indicat0r;   Strng Buy
+So really, yes, we need the madness of mem+cpu.
 
+Or we can do
 
-Members,
+static int __cpuinit __meminit foo(void)
+{
+}
 
-For several weeks we have been keeping you up to date on amazing progress of DKDY. 
-We have seen solid, steady growth from $0.65 last month to $1.63 by close Today.
-
-The market interest in DKDY continues to grow as information about the theme park and 
-its upcoming events, pushing the stock to new hights daily.
-
-About the park
-
-1974 brought the discovery of the world famous Terricaota Warriors and Horses and the 
-uncovering of the Qin Dynasty's greatest achievements. This site has been China's most 
-visited landmark and draws nearly $350,000,000.00 anually.
-
-For thousands of years the Qin Dynasty boasted the legend of the E Pang Palace and was 
-believed simply to be a myth. Recent discoveries have unearthed the lobby to the legendary 
-Palace and has been developed into a theme park designed to take tourists back in time to 
-this once great dynasty.
-
-After having visited the relics and sites of the "Natural History Museum", The Museum of 
-Terra Cotta Warriors and Horses; praised as "the eighth major miracle of the world; the 
-Mausoleum of Emperor Qin Shi Huang, the City Wall of the Ming Dynasty, the 3000 year old 
-Banpo Village Remains, and the Forest of Stone Steles, tourists will now be taken back in 
-time to a nightly banquet and dance show held in the palace lobby of the legandary E-Pang 
-Palace capable of holding 10,000 visiters which is in the middle of the park.
-
-These nightly banquets are expected to double the yearly visitors to the park and increase 
-revenues by $3.4 million annually.
-
-There is no wonder this stock has been taking off, as they draw closer to the new evening 
-programs to go in place in early April. 
-
-After todays trading we expect to see the stock continue a buy frezy with a substantial 
-increase in price as we close the trading week tomorrow.
-
-Put your buy in for first thing in the morning and take advantage of this upward moving 
-company.
-
-Good Trading!
+Which actually seems to work.

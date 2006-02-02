@@ -1,106 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423040AbWBBAB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWBBAGY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423040AbWBBAB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 19:01:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423045AbWBBAB6
+	id S1751089AbWBBAGY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 19:06:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWBBAGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 19:01:58 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:51604 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1423040AbWBBAB5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 19:01:57 -0500
-Date: Wed, 1 Feb 2006 16:01:49 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Rene Herman <rene.herman@keyaccess.nl>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-In-Reply-To: <43E14451.1010100@keyaccess.nl>
-Message-ID: <Pine.LNX.4.64.0602011540070.21884@g5.osdl.org>
-References: <43D114A8.4030900@wolfmountaingroup.com>  <43D13B2A.6020504@cs.ubishops.ca>
- <43D7D05D.7030101@perkel.com>  <D665B796-ACC2-4EA1-81E3-CB5A092861E3@mac.com>
-  <Pine.LNX.4.61.0601251537360.4677@chaos.analogic.com> 
- <Pine.LNX.4.64.0601251512480.8861@turbotaz.ourhouse> 
- <Pine.LNX.4.64.0601251728530.2644@evo.osdl.org>  <1138387136.26811.8.camel@localhost>
-  <Pine.LNX.4.64.0601272101510.3192@evo.osdl.org> <1138620390.31089.43.camel@localhost.localdomain>
- <Pine.LNX.4.64.0601310931540.7301@g5.osdl.org> <43DF9D42.7050802@wolfmountaingroup.com>
- <Pine.LNX.4.64.0601311032180.7301@g5.osdl.org> <43DFB0F2.4030901@wolfmountaingroup.com>
- <Pine.LNX.4.64.0601311152070.7301@g5.osdl.org> <43DFDEF9.2030001@keyaccess.nl>
- <Pine.LNX.4.64.0601311430130.7301@g5.osdl.org> <43E0C5E7.6050406@keyaccess.nl>
- <Pine.LNX.4.64.0602011334270.21884@g5.osdl.org> <43E14451.1010100@keyaccess.nl>
+	Wed, 1 Feb 2006 19:06:24 -0500
+Received: from amdext3.amd.com ([139.95.251.6]:28614 "EHLO amdext3.amd.com")
+	by vger.kernel.org with ESMTP id S1751089AbWBBAGY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 19:06:24 -0500
+X-Server-Uuid: 89466532-923C-4A88-82C1-66ACAA0041DF
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: RE: powernow-k8: out of sync on Athlon64 x2 3800+
+Date: Wed, 1 Feb 2006 18:05:00 -0600
+Message-ID: <B3870AD84389624BAF87A3C7B83149930293551F@SAUSEXMB2.amd.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: powernow-k8: out of sync on Athlon64 x2 3800+
+Thread-Index: AcYme8mpLUYdJdAhQPWJxEEu/vsN4gAAZWAQAEKPSEA=
+From: "shin, jacob" <jacob.shin@amd.com>
+To: cpufreq@lists.linux.org.uk, linux-kernel@vger.kernel.org
+cc: "Langsdorf, Mark" <mark.langsdorf@amd.com>,
+       "Niklas Edmundsson" <Niklas.Edmundsson@hpc2n.umu.se>,
+       Andreas.Burghart@fujitsu-siemens.com, "Andi Kleen" <ak@suse.de>
+X-OriginalArrivalTime: 02 Feb 2006 00:05:01.0527 (UTC)
+ FILETIME=[4FDA9E70:01C6278C]
+X-WSS-ID: 6FFF93271HW4366461-01-01
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
+I don't think this is a BIOS issue, but a kernel bug in the i386 tree.  I believe this was recently discussed and hopefully fixed by Andi Kleen in the kernel mailing list:
 
-On Thu, 2 Feb 2006, Rene Herman wrote:
-> > So. Claiming that the GPL license text itself cannot be part of the program
-> > is disingenious. According to your reading, the modified BSD license
-> > wouldn't be compatible with the GPL either, because it requires:
-> > 
-> >  * 1. Redistributions of source code must retain the above copyright
-> >  *    notice, this list of conditions, and the following disclaimer,
-> >  *    without modification.
-> > 
-> > yet the FSF has clearly stated that this is perfectly fine, even though it
-> > also disallows modifications to the license text.
+http://lkml.org/lkml/2006/1/9/442
+
+This is a critical bug especially for systems running AMD Dual-Core Processors on i386 kernel configuration w/ powernow-k8.
+
+The reason for "powernow-k8 - out of sync" errors is because the cpufreq driver is not aware [or has the wrong idea] about which CPUs are tied together, because cpu_core_id and phy_proc_id data is wrong.
+
+Now this is fairly harmless as Mark mentioned, but only on single socket Dual Core systems.
+
+On a multi-socket multi-core system, it will result in something like: (2 dual-core Opterons)
+
+cpu0:
+drwxr-xr-x  2 root root    0 Nov  3 09:51 cpufreq
+
+cpu1:
+drwxr-xr-x  2 root root    0 Nov  3 09:51 cpufreq
+
+cpu2:
+lrwxrwxrwx  1 root root    0 Nov  3 09:51 cpufreq -> ../../../../devices/system/cpu/cpu1/cpufreq
+
+cpu3:
+lrwxrwxrwx  1 root root    0 Nov  3 09:51 cpufreq -> ../../../../devices/system/cpu/cpu1/cpufreq
+
+In this configuration, the second processors will never be able to be managed by a governor.
+
+I was wondering if anyone has already tested Andi's patch, if it successfully solves this problem, and if the patch has made it into the git yet.
+
+Thanks,
+
+-Jacob Shin
+AMD, Inc.
+
+On  cpufreq-bounces@lists.linux.org.uk wrote:
+>>> You'll get that message on an Athlon X2 if you're using an
+>>> old version of the driver that doesn't fully support
+>>> dual core or if your part is being reported to Linux as 2 single core parts.
+>>> 
+>>> Neither of those should be happening with the 2.6.15.1 kernel.
+>> 
+>> OK, seems we've really found a bug then.
 > 
-> But please note that this is indeed perfectly fine, and does not contradict
-> anything I say. This requirement only disallows modifications  to the copright
-> and license notices, not modifications of the _program_ and the GPL is
-> perfectly fine with that.
+> Yes, but it's a BIOS bug.
+> 
+>>> Could you send me the results of `dmesg | grep powern` immediately
+>>> after boot?
+>> 
+>> Sure:
+>> # dmesg|grep powern
+>> powernow-k8: Found 2 AMD Athlon 64 / Opteron processors (version 1.50.4)
+>> powernow-k8:    0 : fid 0xc (2000 MHz), vid 0x8 (1350 mV)
+>> powernow-k8:    1 : fid 0xa (1800 MHz), vid 0xa (1300 mV)
+>> powernow-k8:    2 : fid 0x2 (1000 MHz), vid 0x12 (1100 mV)
+>> powernow-k8:    0 : fid 0xc (2000 MHz), vid 0x8 (1350 mV)
+>> powernow-k8:    1 : fid 0xa (1800 MHz), vid 0xa (1300 mV)
+>> powernow-k8:    2 : fid 0x2 (1000 MHz), vid 0x12 (1100 mV)
+> 
+> You're using a driver that supports dual-core, but the BIOS
+> is reporting the two cores as two separate processors.
+> They've probably got the APICIDs misconfigured.
+> 
+> I've reported it to FSC and I advise you to do the same.
+> 
+>> powernow-k8: error - out of sync, fix 0xc 0x2, vid 0x8 0x12
+>> powernow-k8: error - out of sync, fix 0x2 0xa, vid 0x12 0xa
+>> powernow-k8: error - out of sync, fix 0xa 0xc, vid 0xa 0x8
+>> powernow-k8: error - out of sync, fix 0xc 0x2, vid 0x8 0x12
+>> powernow-k8: error - out of sync, fix 0x2 0xc, vid 0x12 0x8
+>> powernow-k8: error - out of sync, fix 0xc 0x2, vid 0x8 0x12
+> 
+> These messages are mostly harmless, by the way, but some
+> people have seen system instability.  I would enable
+> pmtimer support as your clock source, but that's advisable
+> when running a single dual-core anyway.
+> 
+> -Mark Langsdorf
+> AMD, Inc.
+> 
+> 
+> _______________________________________________
+> Cpufreq mailing list
+> Cpufreq@lists.linux.org.uk
+> http://lists.linux.org.uk/mailman/listinfo/cpufreq
 
-You continue to make this totally arbitrary distinction between "copyright 
-and license notices" and the "program".
-
-That distinction does not make any sense.
-
-The "license notices" _are_ an integral part of the program. Nothing else 
-makes sense. They are often in the same files (that's the most common case 
-by far), and as I showed you, they are often (as in the case of the GPL 
-license notice itself) actually _linked_in_ into the actual binary itself.
-
-I find absolutely zero legal ground for your distinction that they are 
-somehow a totally independent entity from "the program", and it is in 
-fact in total disagreement with GPLv2 section 9 where they talk about the 
-"Program" specifying a license version.
-
-You seem to be saying that no copyright license or notice is ever part of 
-the "Program", but that's totally idiotic. It would mean that you can 
-_never_ specify a "license version" in the Program, because by your 
-totally inconsistent rules, that copyright license note would 
-automatically somehow magically not be part of "Program".
-
-So your reading simply DOES NOT MAKE SENSE.
-
-I claim that Copyright notices and licenses very much _are_ part of the 
-program. I claim that because (a) the license says nothing to the contrary 
-and (b) the license clearly _does_ talk of copyright notices within the 
-Program (since the "Program" can specify a license version as per section 
-9: how the hell could you specify a license version "in" the Program, if 
-all copyright license notices were somehow magically "outside" the 
-Program?)
-
-You cannot have it both ways. You can't say that copyright license notes 
-are sometimes outside the Program, and sometimes part of the Program.
-
-The _only_ consistent reading is that copyright notices are _always_ part 
-of the Program, and that you must leave them intact as per section 1. This 
-also makes it clear that the "you must be able to modify" (section 2) does 
-_not_ cover copyright notices and licenses, even though they _are_ part of 
-the Program.
-
-See? My reading is perfectly self-consistent, and doesn't need any 
-artificial separation of "copyright notice" vs "Program". Yours is not. 
-
-Your notion of copyright notes and licenses somehow being separate from 
-"Program" simply cannot be reconciled with reality, common sense _or_ the 
-wording in section 9.
-
-The fact is, the copyright notices and licenses really _are_ a very 
-integral part of "Program". You cannot separate one from the other - not 
-conceptually, and not physically - and trying to do so would in fact be a 
-clear violation of section 1.
-
-			Linus

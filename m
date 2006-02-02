@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWBBVrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWBBVs1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932305AbWBBVrp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 16:47:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbWBBVrp
+	id S932310AbWBBVs1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 16:48:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbWBBVs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 16:47:45 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:22707 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932304AbWBBVrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 16:47:42 -0500
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Kirill Korotaev <dev@sw.ru>, Linus Torvalds <torvalds@osdl.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-References: <20060117143258.150807000@sergelap>
-	<20060117143326.283450000@sergelap>
-	<1137511972.3005.33.camel@laptopd505.fenrus.org>
-	<20060117155600.GF20632@sergelap.austin.ibm.com>
-	<1137513818.14135.23.camel@localhost.localdomain>
-	<1137518714.5526.8.camel@localhost.localdomain>
-	<20060118045518.GB7292@kroah.com>
-	<1137601395.7850.9.camel@localhost.localdomain>
-	<m1fyniomw2.fsf@ebiederm.dsl.xmission.com>
-	<43D14578.6060801@watson.ibm.com>
-	<Pine.LNX.4.64.0601311248180.7301@g5.osdl.org>
-	<43E21BD0.6000606@sw.ru> <m1d5i5vln3.fsf@ebiederm.dsl.xmission.com>
-	<43E2249D.8060608@sw.ru> <m1vevxu5bh.fsf@ebiederm.dsl.xmission.com>
-	<43E22DCA.3070004@sw.ru> <m1lkwtu3om.fsf@ebiederm.dsl.xmission.com>
-	<43E27A68.40003@fr.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 02 Feb 2006 14:46:00 -0700
-In-Reply-To: <43E27A68.40003@fr.ibm.com> (Cedric Le Goater's message of
- "Thu, 02 Feb 2006 22:32:24 +0100")
-Message-ID: <m1k6cdqvs7.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Thu, 2 Feb 2006 16:48:27 -0500
+Received: from xenotime.net ([66.160.160.81]:27328 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932304AbWBBVs0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 16:48:26 -0500
+Date: Thu, 2 Feb 2006 13:48:18 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: dtor_core@ameritech.net
+cc: Lee Revell <rlrevell@joe-job.com>,
+       Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Wanted: hotfixes for -mm kernels
+In-Reply-To: <d120d5000602021345i255bb69eydb67bc1b0a448f8d@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0602021346510.16597@shark.he.net>
+References: <200602021502_MC3-1-B772-547@compuserve.com> 
+ <1138913633.15691.109.camel@mindpipe> <d120d5000602021345i255bb69eydb67bc1b0a448f8d@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cedric Le Goater <clg@fr.ibm.com> writes:
+On Thu, 2 Feb 2006, Dmitry Torokhov wrote:
 
-> Now, would it be possible to have an 'application' container using a
-> private PID space and being friendly to the usual unix process semantics ?
-> We haven't found a solution yet ...
+> On 2/2/06, Lee Revell <rlrevell@joe-job.com> wrote:
+> > On Thu, 2006-02-02 at 15:00 -0500, Chuck Ebbert wrote:
+> > > Most -mm kernels have small but critical bugs that are found shortly
+> > > after release.  Patches for these are posted on linux-kernel but
+> > > they aren't made available on kernel.org until the next -mm release.
+> > >
+> > > Would it be possible to create a hotfix/ directory for each -mm
+> > > release and put those patches there?  A README could explain that
+> > > the fixes are untested.  At least people reading the files could
+> > > see an issue exists even if they're not brave enough to try the
+> > > patch. :)
+> >
+> > I doubt it - mm is an experimental kernel, hotfixes only make sense for
+> > production stuff.  It moves too fast.
+> >
+> > A better question is what does -mm give you that mainline does not, that
+> > causes you to want to "stabilize" a specific -mm version?
+> >
+>
+> Some people just run -mm so the hotfixes/* would help them to get
+> their boxes running until the next -mm without having to hunt through
+> LKML for bugs already reported/fixed. This will allow better testing
+> coverage because most obvious bugs are caught almost immediately and
+> then people can continue using -mm to find more stuff.
 
-Well that is what I implemented.  So I am pretty certain it is solvable.
+Yep.  I think it's a good idea, although it does move fast, like
+Lee says.  I'd be willing to help if e.g. there was some place
+where several of us could upload patches to.
 
-Eric
+-- 
+~Randy

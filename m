@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422962AbWBBKOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423436AbWBBKQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422962AbWBBKOr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 05:14:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWBBKOr
+	id S1423436AbWBBKQm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 05:16:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWBBKQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 05:14:47 -0500
-Received: from mail.gmx.de ([213.165.64.21]:33973 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932420AbWBBKOq (ORCPT
+	Thu, 2 Feb 2006 05:16:42 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8385 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932420AbWBBKQm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 05:14:46 -0500
-X-Authenticated: #428038
-Date: Thu, 2 Feb 2006 11:14:41 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: jengelh@linux01.gwdg.de, mrmacman_g4@mac.com, mj@ucw.cz,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       James@superbug.co.uk, j@bitron.ch, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060202101441.GA10554@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	jengelh@linux01.gwdg.de, mrmacman_g4@mac.com, mj@ucw.cz,
-	linux-kernel@vger.kernel.org, James@superbug.co.uk, j@bitron.ch,
-	acahalan@gmail.com
-References: <43D7B1E7.nailDFJ9MUZ5G@burner> <20060125230850.GA2137@merlin.emma.line.org> <43D8C04F.nailE1C2X9KNC@burner> <43DDFBFF.nail16Z3N3C0M@burner> <1138642683.7404.31.camel@juerg-pd.bitron.ch> <43DF3C3A.nail2RF112LAB@burner> <mj+md-20060131.104748.24740.atrey@ucw.cz> <43DF65C8.nail3B41650J9@burner> <Pine.LNX.4.61.0602011612520.22529@yvahk01.tjqt.qr> <43E1D417.nail4MI11WTFI@burner>
-MIME-Version: 1.0
+	Thu, 2 Feb 2006 05:16:42 -0500
+Date: Thu, 2 Feb 2006 11:16:26 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pekka Enberg <penberg@cs.helsinki.fi>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
+Message-ID: <20060202101626.GD1981@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602020855.12392.nigel@suspend2.net> <200602020931.29796.rjw@sisk.pl> <200602021922.11100.nigel@suspend2.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43E1D417.nail4MI11WTFI@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+In-Reply-To: <200602021922.11100.nigel@suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-02-02:
+Hi!
 
-> Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> > Still our approach is quite different to yours.  We are focused on keepeing
+> > the code possibly simple and non-intrusive wrt the other parts of the
+> > kernel, whereas you seem to concentrate on features (which is not wrong,
+> > IMO, it's just a different point of view).  We're moving towards the
+> > implementation of the features like the system image compression and
+> > encryption,
+> > graphical progress meters etc. in the user space, which has some
+> > advantages, and I think this approach is correct for a laptop/desktop
+> > system.
+> >
+> > Its limitation , however, is that it requires a lot of memory for the
+> > system memory snapshot which may be impractical for systems with limited
+> > RAM, and that's where your solution may be required.
 > 
-> > It's shorter than /dev/c0t0d0s0? Well, I think it's because people think 
-> > in terms of connectors (my drive is IDE therefore it must be hdc) rather 
-> > than protocol (my drive does ATAPI therefore it must be 
-> > /dev/scsi/c0t0d0s0).
+> I'm more concerned about the security implications. I'll freely admit that I 
+> haven't spent any real time looking at your code, but I'm concerned that the 
+> additional functionality made available could be used by viruses and the 
+> like. I'm sure you'd have to be root to do anything, but how could the 
+> interfaces be misused?
+
+In vanilla kernel userland suspend has no security implications: root
+can just do what he wants in /dev/mem, anyway.
+
+In fedora kernel, userland suspend can be [miss]used to snapshot an
+image, modify it, and write it back. Fortunately, this is going to
+take *long* time so people will notice. [Interface changed on DaveJ's
+request, now we have separate device, we no longer mess with
+/dev/mem]. And similar problem exists in suspend2 -- malicious
+graphical progress bar could probably modify memory image on disk.
+
+> > In conclusion, I see the room for both, as long as the do not conflict, so
+> > could we please bury the hatched and start working _together_?
 > 
-> Is there any reason why the people with small PCs should dominate the 
-> people with big machines?
+> I didn't realise I was holding one :). I'm not sure that I agree that there's 
+> a need for both, but I have no desire whatsoever to act an any sort of nasty 
+> way. All I want is to help provide Linux users with stable, reliable, 
+> flexible and fast suspend-to-disk functionality.
 
-No side should dominate.
-
-> If you use /dev/hd*, you loose control after you add more than ~ 6-10 disks.
-
-I don't see how a letter such as /dev/hdo /dev/hdp /dev/hdq is much
-different than an opaque number tuple as 1,15,0 1,16,0 1,17,0... either
-is a string with systematic generation, and that's about it.
-
-I'm still wondering why mtst (mid-layer access to control tape drives)
-is happy with /dev/nst0 nst1 ... (device name) and cdrecord (or its
-author) isn't. cdrecord or libscg should be agnostic of these schemas
-and take any opaque string that works properly for the given system
-without complaining. It can invent any numbering scheme it likes, but
-requesting that the kernel does it if it has no further use for it is
-barking up the wrong tree.
+Please take a look at current -mm series. It has everything neccessary
+for your goals.
+								Pavel
 
 -- 
-Matthias Andree
+Thanks, Sharp!

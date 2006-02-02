@@ -1,124 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423445AbWBBKWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWBBKZV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423445AbWBBKWk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 05:22:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423447AbWBBKWk
+	id S932278AbWBBKZV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 05:25:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWBBKZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 05:22:40 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:62398 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1423445AbWBBKWj
+	Thu, 2 Feb 2006 05:25:21 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:16821 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932278AbWBBKZU
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 05:22:39 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [patch] drivers/char/snsc.c kmalloc2kzalloc
-From: Jes Sorensen <jes@sgi.com>
-Date: 02 Feb 2006 05:22:38 -0500
-Message-ID: <yq0slr2njpt.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Thu, 2 Feb 2006 05:25:20 -0500
+Message-ID: <43E1DF46.5020803@aitel.hist.no>
+Date: Thu, 02 Feb 2006 11:30:30 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: =?UTF-8?B?RW1pbGlvIEplc8O6cyBHYWxsZWdvIEFyaWFz?= 
+	<egallego@babel.ls.fi.upm.es>
+CC: Linus Torvalds <torvalds@osdl.org>, Karim Yaghmour <karim@opersys.com>,
+       Filip Brcic <brcha@users.sourceforge.net>,
+       Glauber de Oliveira Costa <glommer@gmail.com>,
+       Thomas Horsten <thomas@horsten.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk> <43DE57C4.5010707@opersys.com> <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com> <200601302301.04582.brcha@users.sourceforge.net> <43E0E282.1000908@opersys.com> <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org> <43E1C55A.7090801@drzeus.cx> <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org> <87mzha85sc.fsf@babel.ls.fi.upm.es>
+In-Reply-To: <87mzha85sc.fsf@babel.ls.fi.upm.es>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Emilio Jesús Gallego Arias wrote:
 
-Small patch to change the SN2 system controller driver to use kzalloc
-instead of kmalloc+memset.
+>Linus Torvalds <torvalds@osdl.org> writes:
+>
+>  
+>
+>>On Thu, 2 Feb 2006, Pierre Ossman wrote:
+>>    
+>>
+>>>The point is not only getting access to the source code, but also being able
+>>>to change it. Being able to freely study the code is only half of the beauty
+>>>of the GPL. The other half, being able to change it, can be very effectively
+>>>stopped using DRM.
+>>>      
+>>>
+>>No it cannot.
+>>    
+>>
+>
+>1.- Distribute a kernel with some DRM built-in under the GPL.
+>
+>2.- Claim that such kernel is an effective technological measure to
+>    protect copyright. 
+>
+>3.- You are no longer free to modify that kernel, (removing the DRM
+>    module) or you can be sued under the DMCA, for circumventing an
+>    effective technological measure. It doesn't matter in what
+>    hardware are you going to run such kernel. The DMCA implicitly
+>    imposes an additional restriction to the GPL, but as the
+>    restriction is not imposed directly by the copyright owner, but by
+>    the law, it's OK as far the GPL is concerned.
+>  
+>
+This can't legally happen.  Do the DMCA prevent "circumventing"
+even when you have the legal right to make copies of the content?
+(If so, then the music industry breaks DMCA when manufacturing
+their protected CDs from a protected master . . .)
 
-Cheers,
-Jes
+If so, then step (1) is illegal because it breaks with the GPL. 
+Remember, when you distribute something under the GPL, you cannot
+impose restrictions.  It is well established that you can't link in
+something with a more restrictive commercial licence, for example. 
+I think adding that DRM falls in the same trap - if the DMCA really
+impose this additional restriction (because DRM-breaking is illegal
+even when content copying is not) then you are not allowed to
+add that restriction. 
 
-Change driver to use kzalloc rather than kmalloc+memset
+Someone distributing DRM-protected kernels are breaking
+copyrigth law then, if the DMCA is so strict.
 
-Signed-off-by: Jes Sorensen <jes@sgi.com>
-
-----
-
- drivers/char/snsc.c       |    8 +++-----
- drivers/char/snsc_event.c |    7 ++-----
- 2 files changed, 5 insertions(+), 10 deletions(-)
-
-Index: linux-2.6/drivers/char/snsc.c
-===================================================================
---- linux-2.6.orig/drivers/char/snsc.c
-+++ linux-2.6/drivers/char/snsc.c
-@@ -5,7 +5,7 @@
-  * License.  See the file "COPYING" in the main directory of this archive
-  * for more details.
-  *
-- * Copyright (C) 2004 Silicon Graphics, Inc. All rights reserved.
-+ * Copyright (C) 2004, 2006 Silicon Graphics, Inc. All rights reserved.
-  */
- 
- /*
-@@ -77,7 +77,7 @@
- 	scd = container_of(inode->i_cdev, struct sysctl_data_s, scd_cdev);
- 
- 	/* allocate memory for subchannel data */
--	sd = kmalloc(sizeof (struct subch_data_s), GFP_KERNEL);
-+	sd = kzalloc(sizeof (struct subch_data_s), GFP_KERNEL);
- 	if (sd == NULL) {
- 		printk("%s: couldn't allocate subchannel data\n",
- 		       __FUNCTION__);
-@@ -85,7 +85,6 @@
- 	}
- 
- 	/* initialize subch_data_s fields */
--	memset(sd, 0, sizeof (struct subch_data_s));
- 	sd->sd_nasid = scd->scd_nasid;
- 	sd->sd_subch = ia64_sn_irtr_open(scd->scd_nasid);
- 
-@@ -394,7 +393,7 @@
- 			sprintf(devnamep, "#%d", geo_slab(geoid));
- 
- 			/* allocate sysctl device data */
--			scd = kmalloc(sizeof (struct sysctl_data_s),
-+			scd = kzalloc(sizeof (struct sysctl_data_s),
- 				      GFP_KERNEL);
- 			if (!scd) {
- 				printk("%s: failed to allocate device info"
-@@ -402,7 +401,6 @@
- 				       SYSCTL_BASENAME, devname);
- 				continue;
- 			}
--			memset(scd, 0, sizeof (struct sysctl_data_s));
- 
- 			/* initialize sysctl device data fields */
- 			scd->scd_nasid = cnodeid_to_nasid(cnode);
-Index: linux-2.6/drivers/char/snsc_event.c
-===================================================================
---- linux-2.6.orig/drivers/char/snsc_event.c
-+++ linux-2.6/drivers/char/snsc_event.c
-@@ -5,7 +5,7 @@
-  * License.  See the file "COPYING" in the main directory of this archive
-  * for more details.
-  *
-- * Copyright (C) 2004 Silicon Graphics, Inc. All rights reserved.
-+ * Copyright (C) 2004, 2006 Silicon Graphics, Inc. All rights reserved.
-  */
- 
- /*
-@@ -271,7 +271,7 @@
- {
- 	int rv;
- 
--	event_sd = kmalloc(sizeof (struct subch_data_s), GFP_KERNEL);
-+	event_sd = kzalloc(sizeof (struct subch_data_s), GFP_KERNEL);
- 	if (event_sd == NULL) {
- 		printk(KERN_WARNING "%s: couldn't allocate subchannel info"
- 		       " for event monitoring\n", __FUNCTION__);
-@@ -279,7 +279,6 @@
- 	}
- 
- 	/* initialize subch_data_s fields */
--	memset(event_sd, 0, sizeof (struct subch_data_s));
- 	event_sd->sd_nasid = scd->scd_nasid;
- 	spin_lock_init(&event_sd->sd_rlock);
- 
-@@ -305,5 +304,3 @@
- 		return;
- 	}
- }
--
--
+Helge Hafting

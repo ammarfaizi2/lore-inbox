@@ -1,67 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWBBPZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbWBBPYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932077AbWBBPZF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 10:25:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWBBPZF
+	id S932072AbWBBPYt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 10:24:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWBBPYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 10:25:05 -0500
-Received: from smtpout.mac.com ([17.250.248.87]:55776 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932077AbWBBPZB (ORCPT
+	Thu, 2 Feb 2006 10:24:48 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:13840 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932072AbWBBPYk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 10:25:01 -0500
-X-PGP-Universal: processed;
-	by AlPB on Thu, 02 Feb 2006 09:24:28 -0600
-In-Reply-To: <43E1B490.7080200@pobox.com>
-References: <200602010609.k1169QDX017012@hera.kernel.org> <43E0F73B.6040507@pobox.com> <A9543B03-333E-470F-AD18-0313192ADB23@mac.com> <1138857560.15691.0.camel@mindpipe> <D1A90FC1-95F7-4C2B-BC6D-1F60000FC989@mac.com> <43E1B490.7080200@pobox.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <CBCD4CAD-57C8-41A6-9265-83834064EADC@mac.com>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Lee Revell <rlrevell@joe-job.com>,
+	Thu, 2 Feb 2006 10:24:40 -0500
+Message-ID: <43E2249D.8060608@sw.ru>
+Date: Thu, 02 Feb 2006 18:26:21 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>
+       Cedric Le Goater <clg@fr.ibm.com>
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+References: <20060117143258.150807000@sergelap>	<20060117143326.283450000@sergelap>	<1137511972.3005.33.camel@laptopd505.fenrus.org>	<20060117155600.GF20632@sergelap.austin.ibm.com>	<1137513818.14135.23.camel@localhost.localdomain>	<1137518714.5526.8.camel@localhost.localdomain>	<20060118045518.GB7292@kroah.com>	<1137601395.7850.9.camel@localhost.localdomain>	<m1fyniomw2.fsf@ebiederm.dsl.xmission.com>	<43D14578.6060801@watson.ibm.com>	<Pine.LNX.4.64.0601311248180.7301@g5.osdl.org>	<43E21BD0.6000606@sw.ru> <m1d5i5vln3.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1d5i5vln3.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Mark Rustad <mrustad@mac.com>
-Subject: Re: [PATCH] PCI: restore 2 missing pci ids
-Date: Thu, 2 Feb 2006 09:24:09 -0600
-To: Jeff Garzik <jgarzik@pobox.com>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 2, 2006, at 1:28 AM, Jeff Garzik wrote:
+>>In fact this is almost what OpenVZ does for half a year, both containers and
+>>VPIDs.
+>>But it is very usefull to see process tree from host system. To be able to use
+>>std tools to manage containers from host (i.e. ps, kill, top, etc.). So it is
+>>much more convinient to have 2 pids. One globally unique, and one for container.
+> 
+> 
+> There are two issues here.
+> 1) Monitoring.  (ps, top etc)
+> 2) Control (kill).
+> 
+> For monitoring you might need to patch ps/top a little but it is doable without
+> 2 pids.
+> 
+> For kill it is extremely rude to kill processes inside of a nested pid space.
+> There are other solutions to the problem.
+it is not always good idea to fix the tools everytime new functionality 
+is involved. why do you think there are no more tools except for 
+ps,top,kill? will you fix it all?
 
-> Kyle Moffett wrote:
->> On Feb 02, 2006, at 00:19, Lee Revell wrote:
->>> On Wed, 2006-02-01 at 23:11 -0600, Mark Rustad wrote:
->>>
->>>> Why were the ids removed in the first place?
->>>
->>> Because they weren't used by anything in the tree.
->> Also, the new PCI-ID policy is to put the defines in the driver   
->> itself, near where it is used, instead of collecting them in a  
->> single  file.  The goal is to minimize the number of unused PCI  
->> IDs in the  tree by keeping the definition near the usage.
->
-> No, if you do create a constant for a PCI ID, it still should go  
-> into include/linux/pci_ids.h.
->
-> Putting them in the driver will result in highly variable naming  
-> policies, which in turn means the constants are less grep-able than  
-> today.
->
-> Device IDs simply do not need an associated constant, if they are  
-> used only in a PCI ID table.  Device IDs are arbitrary numbers that  
-> are normally only used once in a source file.
->
-> Vendor IDs are used repeatedly, and definitely belong in pci_ids.h.  
-> Device IDs make sense in pci_ids.h if they are used more than once.
+Another example, when you have problems in your VPS it is very 
+convinient to attach with strace/gdb/etc from the host. Will you patch 
+it as well?
 
-Thank you for explaining the policy. In this particular case, there  
-was only one use of the ID in the file in question, so it could have  
-simply been a hex constant, I guess. Of course my instinct is to  
-avoid weird constants like this in source code, but I can learn to  
-make an exception for this kind of thing.
+OpenVZ big advantage is this ease of administering compared to VM 
+approach and it is not good idea to forbid this. If you have broken VM 
+you have problems, in OpenVZ you have control over VPSs.
 
--- 
-Mark Rustad, MRustad@mac.com
+> It is undesireable to make it too easy to communicate through the barrier because
+> then applications may start to take advantage of it and then depend on
+> it and you will have lost the isolation that the container gives you.
+in OpenVZ we have VPSs fully isolated between each other.
+But host system has access to some of VPS resources such as files, 
+processes, etc. I understand your concern which is related to 
+checkpointing, yeah?
+
+Kirill
 

@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932479AbWBBXpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932482AbWBBXsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932479AbWBBXpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 18:45:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbWBBXpJ
+	id S932482AbWBBXsc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 18:48:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbWBBXsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 18:45:09 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:22962 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932479AbWBBXpH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 18:45:07 -0500
-Date: Thu, 2 Feb 2006 18:45:02 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>
-Subject: Fix build failure in recent pm_prepare_* changes.
-Message-ID: <20060202234501.GA4091@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Feb 2006 18:48:32 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:42654 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932482AbWBBXsb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 18:48:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nGzxjQeH7Nw6OsgVqMd9+xuZ8axqIcHqlC85ZDPdLs/WR+FrNEIlFl8T9javEtgzOf3yUyl42Unmh6eVS112kKACr+u2tWVCueJkXR6ABvHyFCIbOXS7ct9A06dHZ06d0T7N3p5W6sL/eXIaXQPTrAFVE6eOCfdGDby1zTfYYiI=
+Message-ID: <6bffcb0e0602021548r26164f91i@mail.gmail.com>
+Date: Fri, 3 Feb 2006 00:48:29 +0100
+From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.16-rc1-mm3
+Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+In-Reply-To: <20060202142041.6222e846.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+References: <20060124232406.50abccd1.akpm@osdl.org>
+	 <43D7A047.3070004@yahoo.com.au>
+	 <6bffcb0e0601261102j7e0a5d5av@mail.gmail.com>
+	 <43D92754.4090007@yahoo.com.au> <43D927F6.9080807@yahoo.com.au>
+	 <6bffcb0e0601270211v787f91d2r@mail.gmail.com>
+	 <43E0718F.1020604@yahoo.com.au>
+	 <20060201005106.35ca4b8c.akpm@osdl.org>
+	 <6bffcb0e0602021306l6b6c1423r@mail.gmail.com>
+	 <20060202142041.6222e846.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel/power/power.h:49: error: static declaration of 'pm_prepare_console' follows non-static declaration
-include/linux/suspend.h:46: error: previous declaration of 'pm_prepare_console' was here
-kernel/power/power.h:50: error: static declaration of 'pm_restore_console' follows non-static declaration
-include/linux/suspend.h:47: error: previous declaration of 'pm_restore_console' was here
+On 02/02/06, Andrew Morton <akpm@osdl.org> wrote:
+>
+> I actually meant `l *0xb0161cdd' so we get file-n-line.  But from that, it
+> appears that we won't get very interesting info anyway.
+>
+> Oh well, let's see if this still happens in next -mm.  Bugs like this have
+> a habit of simply vanishing as people fix stuff up.
+>
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+I have been using -mm4 for five days (with Nick's patch) and I didn't
+notice this bug.
 
---- linux-2.6.15.noarch/include/linux/suspend.h~	2006-02-02 16:27:38.000000000 -0500
-+++ linux-2.6.15.noarch/include/linux/suspend.h	2006-02-02 16:28:07.000000000 -0500
-@@ -42,10 +42,6 @@ extern void mark_free_pages(struct zone 
- #ifdef CONFIG_PM
- /* kernel/power/swsusp.c */
- extern int software_suspend(void);
--
--extern int pm_prepare_console(void);
--extern void pm_restore_console(void);
--
- #else
- static inline int software_suspend(void)
- {
+Regards,
+Michal Piotrowski

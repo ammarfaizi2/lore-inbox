@@ -1,50 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161018AbWBBJs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423423AbWBBJtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161018AbWBBJs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 04:48:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161076AbWBBJs6
+	id S1423423AbWBBJtv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 04:49:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423428AbWBBJtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 04:48:58 -0500
-Received: from uproxy.gmail.com ([66.249.92.199]:58084 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161018AbWBBJs5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 04:48:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mI7bWFxUN5hIzAfJSSCpvnhoDja9i3DeQLlkywoWjHgCBND+oJMQLDB1x9hpqG3Y/ageOtnhVk6JmEznrdIjx1jnGyHj43B3WXhmMAzeOSSfLbZ7dvoaxxjjCMjYFl6CRY/g2hgSEb0zuJay+Auc8fpzb8ZswVgIXwmqSqb2MQw=
-Message-ID: <21d7e9970602020148r52476d7eh32e0d0ed44b598c5@mail.gmail.com>
-Date: Thu, 2 Feb 2006 20:48:55 +1100
-From: Dave Airlie <airlied@gmail.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: R: Xorg crashes 2.6.16-rc1-git4
-Cc: Mauro Tassinari <mtassinari@cmanet.it>, linux-kernel@vger.kernel.org,
-       airlied@linux.ie
-In-Reply-To: <1138740983.22358.15.camel@localhost>
+	Thu, 2 Feb 2006 04:49:51 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:35306 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1423423AbWBBJtu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 04:49:50 -0500
+Message-ID: <43E1D5BF.5000807@drzeus.cx>
+Date: Thu, 02 Feb 2006 10:49:51 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5 (X11/20060128)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAATCL5fQYOzEifgaWohcVWWwEAAAAA@cmanet.it>
-	 <1138740690.22358.11.camel@localhost>
-	 <1138740983.22358.15.camel@localhost>
+To: Pierre Ossman <drzeus-list@drzeus.cx>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Purpose of MMC_DATA_MULTI?
+References: <43E057DA.7000909@drzeus.cx> <20060201092934.GB27735@flint.arm.linux.org.uk> <43E08148.3060003@drzeus.cx> <20060202093656.GA5034@flint.arm.linux.org.uk>
+In-Reply-To: <20060202093656.GA5034@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 2006-01-31 at 21:34 +0100, Mauro Tassinari wrote:
-> > > in both cases, no kernel video module was loaded.
-> > > Hope this helps a bit, thank you for your attention.
+Russell King wrote:
+> On Wed, Feb 01, 2006 at 10:37:12AM +0100, Pierre Ossman wrote:
+>   
+>> Russell King wrote:
+>>     
+>>> On Wed, Feb 01, 2006 at 07:40:26AM +0100, Pierre Ossman wrote:
+>>>       
+>>>> I noticed that a new transfer flag was recently added to the MMC layer
+>>>> without any immediate users, the MMC_DATA_MULTI flag. I'm guessing the
+>>>> purpose of the flag is to indicate the difference between
+>>>> MMC_READ_SINGLE_BLOCK and MMC_READ_MULTIPLE_BLOCKS with just one block.
+>>>> If so, then that should probably be mentioned in a comment somewhere.
+>>>>     
+>>>>         
+>>> There are hosts out there (Atmel AT91-based) which need to know if the
+>>> transfer is going to be multiple block.  Rather than have them test
+>>> the op-code (which is what they're already doing), we provide a flag
+>>> instead.
+>>>       
+>> As far as the hardware is concerned there are two "multi-block" transfers:
+>>
+>>  * Multiple, back-to-back blocks.
+>>  * One or more blocks that need to be terminated by some form of stop
+>> command.
+>>
+>> The first can be identified by checking the number of blocks in the
+>> request, the latter is harder to identify since it's a protocol semantic
+>> (it could be just one block, but still need a stop). Does MMC_DATA_MULTI
+>> indicate the latter, former or both?
+>>     
 >
-> On Tue, 2006-01-31 at 22:51 +0200, Pekka Enberg wrote:
-> > Does disabling CONFIG_DRM_RADEON fix the hard lock? You have compiled
-> > Radeon DRM as module so I think X will try to load it at start-up.
+> In short, it's defined to be whatever AT91_MCI_TRTYP_MULTIPLE means in
+> the AT91RM9200 MMC host driver, which appears to be set for any of the
+> multiple block commands.  They currently are doing:
 >
-> Seems likely as others are having problems with RV370 as well:
+>   
+
+That's a bit fuzzy and bound to give problems. Why not settle for the 
+first case and change their code to check the block count in the 
+request? Less flags should be a good thing. And if that proves to be 
+insufficient we should do a more thorough investigation once we have an 
+actual failure case.
+
+> and using that as a lookup table by command for the value to put into
+> the command register.  I want to eliminate that, and not passing the
+> MULTI flag prevents elimination of this table.
 >
-> https://bugs.freedesktop.org/show_bug.cgi?id=5341
+>   
 
-Can you disable DRI in xorg.conf? remove the Load "dri" line.
+Seems to be a common theme in the more recent drivers. Don't they teach 
+people proper layering in the schools anymore? :)
 
-X probably shouldn't enable dri by default on r300..
+Rgds
+Pierre
 
-Dave.
+

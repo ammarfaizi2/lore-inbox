@@ -1,36 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbWBBVMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWBBVUU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751193AbWBBVMX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 16:12:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWBBVMX
+	id S932254AbWBBVUU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 16:20:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWBBVUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 16:12:23 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:37518 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751193AbWBBVMW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 16:12:22 -0500
-Date: Thu, 2 Feb 2006 16:12:16 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Question about memory barriers
-Message-ID: <Pine.LNX.4.44L0.0602021607100.5016-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Feb 2006 16:20:15 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:59367 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751195AbWBBVUN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 16:20:13 -0500
+Date: Thu, 2 Feb 2006 16:20:11 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patch] libata: sata_mv MSI workaround
+Message-ID: <20060202212011.GA18990@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The kernel's documentation about memory barriers is rather skimpy.  I 
-gather that rmb() guarantees that all preceding reads will have completed 
-before any following reads are made, and wmb() guarantees that all 
-preceding writes will have completed before any following writes are made.  
-I also gather that mb() is essentially the same as rmb() and wmb() put 
-together.
 
-But suppose I need to prevent a read from being moved past a write?  It 
-doesn't look like either rmb() or wmb() will do this.  And if mb() is the 
-same as "rmb(); wmb();" then it won't either.  So what's the right thing 
-to do?
+Please pull from 'upstream-fixes' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
-Alan Stern
+to receive the following updates:
 
+ drivers/scsi/sata_mv.c |   11 ++++++++++-
+ 1 files changed, 10 insertions(+), 1 deletion(-)
+
+Jeff Garzik:
+      [libata sata_mv] do not enable PCI MSI by default
+
+diff --git a/drivers/scsi/sata_mv.c b/drivers/scsi/sata_mv.c
+index cd54244..6fddf17 100644
+--- a/drivers/scsi/sata_mv.c
++++ b/drivers/scsi/sata_mv.c
+@@ -510,6 +510,12 @@ static const struct mv_hw_ops mv6xxx_ops
+ };
+ 
+ /*
++ * module options
++ */
++static int msi;	      /* Use PCI msi; either zero (off, default) or non-zero */
++
++
++/*
+  * Functions
+  */
+ 
+@@ -2191,7 +2197,7 @@ static int mv_init_one(struct pci_dev *p
+ 	}
+ 
+ 	/* Enable interrupts */
+-	if (pci_enable_msi(pdev) == 0) {
++	if (msi && pci_enable_msi(pdev) == 0) {
+ 		hpriv->hp_flags |= MV_HP_FLAG_MSI;
+ 	} else {
+ 		pci_intx(pdev, 1);
+@@ -2246,5 +2252,8 @@ MODULE_LICENSE("GPL");
+ MODULE_DEVICE_TABLE(pci, mv_pci_tbl);
+ MODULE_VERSION(DRV_VERSION);
+ 
++module_param(msi, int, 0444);
++MODULE_PARM_DESC(msi, "Enable use of PCI MSI (0=off, 1=on)");
++
+ module_init(mv_init);
+ module_exit(mv_exit);

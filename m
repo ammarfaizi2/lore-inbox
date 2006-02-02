@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbWBBRGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWBBRIF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932173AbWBBRGc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 12:06:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWBBRGc
+	id S932175AbWBBRIF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 12:08:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWBBRIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 12:06:32 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:31370 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932173AbWBBRGc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 12:06:32 -0500
-Subject: Re: [RFC][PATCH 5/7] VPIDs: vpid/pid conversion in VPID enabled
-	case
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Kirill Korotaev <dev@openvz.org>
-Cc: serue@us.ibm.com, arjan@infradead.org, frankeh@watson.ibm.com,
-       clg@fr.ibm.com, mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, devel@openvz.org
-In-Reply-To: <43E23398.7090608@openvz.org>
-References: <43E22B2D.1040607@openvz.org>  <43E23398.7090608@openvz.org>
-Content-Type: text/plain
-Date: Thu, 02 Feb 2006 09:05:51 -0800
-Message-Id: <1138899951.29030.30.camel@localhost.localdomain>
+	Thu, 2 Feb 2006 12:08:04 -0500
+Received: from uproxy.gmail.com ([66.249.92.193]:52313 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932175AbWBBRID (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 12:08:03 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=kYpAT7S+NuP0/biYBZy2NXuaFmCDqnYRc2IDxxWJCIfS1HgyiWYMobkaXZtElGae/Kyxw62nZ8L1Ss8cxDhQq1n6WTKvq3KyOD4sWGQZr9UT5dKj4JjDZlanznkuEpljhOrHaQZW1TTc9O9uFRdOYQJ5ll6gs6ichvEyGED2fr4=
+Date: Thu, 2 Feb 2006 20:26:09 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@google.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] xquad_portio fix declaration missmatch
+Message-ID: <20060202172609.GA4231@mipter.zuzino.mipt.ru>
+References: <20060202004306.GA32466@shadowen.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060202004306.GA32466@shadowen.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-02 at 19:30 +0300, Kirill Korotaev wrote:
-> This is the main patch which contains all vpid-to-pid conversions
-> and auxilliary stuff. Virtual pids are distinguished from real ones
-> by the VPID_BIT bit set. Conversion from vpid to pid and vice versa
-> is performed in two ways: fast way, when vpid and it's according pid
-> differ only in VPID_BIT bit set ("linear" case), and more complex way,
-> when pid may correspond to any vpid ("sparse" case) - in this case we
-> use a hash-table based mapping. 
+On Thu, Feb 02, 2006 at 12:43:06AM +0000, Andy Whitcroft wrote:
+> xquad_portio fix declaration missmatch
 
-This is an interesting approach.  Could you elaborate a bit on on why
-you need the two different approaches?  What conditions cause the switch
-to the sparse approach?
+>   arch/i386/boot/compressed/misc.c:125: error: static declaration of
+> 				'xquad_portio' follows non-static declaration
+>   include/asm/io.h:315: error: previous declaration of 'xquad_portio' was here
 
-Also, if you could separate those two approaches out into two different
-patches, it would be much easier to get a grasp about what's going on.
-One of them is just an optimization, right?
+> --- reference/arch/i386/boot/compressed/misc.c
+> +++ current/arch/i386/boot/compressed/misc.c
+> @@ -122,7 +122,7 @@ static int vidport;
+>  static int lines, cols;
+>  
+>  #ifdef CONFIG_X86_NUMAQ
+> -static void * xquad_portio = NULL;
+> +void * xquad_portio = NULL;
+>  #endif
 
-Did you happen to catch Linus's mail about his preferred approach?  
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=113874154731279&w=2
-
--- Dave
+Can you explain why it should stay in misc.c?
 

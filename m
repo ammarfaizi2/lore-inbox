@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbWBBVhv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWBBVlQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbWBBVhv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 16:37:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWBBVhv
+	id S932294AbWBBVlQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 16:41:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWBBVlQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 16:37:51 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:11133 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S932291AbWBBVhu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 16:37:50 -0500
-X-IronPort-AV: i="4.02,81,1139212800"; 
-   d="scan'208"; a="400016446:sNHT29479926"
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Question about memory barriers
-X-Message-Flag: Warning: May contain useful information
-References: <Pine.LNX.4.44L0.0602021607100.5016-100000@iolanthe.rowland.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 02 Feb 2006 13:37:48 -0800
-In-Reply-To: <Pine.LNX.4.44L0.0602021607100.5016-100000@iolanthe.rowland.org> (Alan
- Stern's message of "Thu, 2 Feb 2006 16:12:16 -0500 (EST)")
-Message-ID: <adamzh9xx03.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 02 Feb 2006 21:37:49.0460 (UTC) FILETIME=[E9F1E540:01C62840]
+	Thu, 2 Feb 2006 16:41:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:18406 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932294AbWBBVlP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 16:41:15 -0500
+Date: Thu, 2 Feb 2006 16:39:09 -0500
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>, Andrew Morton <akpm@osdl.org>,
+       Ashok Raj <ashok.raj@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch -mm4] i386: __init should be __cpuinit
+Message-ID: <20060202213909.GH11831@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@ucw.cz>,
+	Chuck Ebbert <76306.1226@compuserve.com>,
+	Andrew Morton <akpm@osdl.org>, Ashok Raj <ashok.raj@intel.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <200601312352_MC3-1-B748-FCE9@compuserve.com> <20060201053357.GA5335@redhat.com> <20060202213450.GA2405@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060202213450.GA2405@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Alan" == Alan Stern <stern@rowland.harvard.edu> writes:
+On Thu, Feb 02, 2006 at 10:34:50PM +0100, Pavel Machek wrote:
+ > Hi!
+ > 
+ > >  > When CONFIG_HOTPLUG_CPU on i386 there are places where __init[data] is
+ > >  > referenced from normal code.
+ > >  > 
+ > >  > On startup:
+ > >  >         arch/i386/kernel/cpu/amd.c::amd_init_cpu():
+ > >  >                 cpu_devs[X86_VENDOR_AMD] = &amd_cpu_dev;        
+ > >  >         amd_cpu_dev is declared __initdata and is freed
+ > >  > 
+ > >  > On CPU hotplug:
+ > >  >         arch/i386/kernel/cpu/common.c::get_cpu_vendor():
+ > >  >                for (i = 0; i < X86_VENDOR_NUM; i++) {
+ > >  >                         if (cpu_devs[i]) {
+ > >  >                                 if (!strcmp(v,cpu_devs[i]->c_ident[0]) ||
+ > >  > 
+ > >  > To fix this, change every instance of __init that seems suspicious
+ > >  > into __cpuinit.  When !CONFIG_HOTPLUG_CPU there is no change in .text
+ > >  > or .data size.  When enabled, .text += 3248 bytes; .data += 2148 bytes.
+ > >  > 
+ > >  > This should be safe in every case; the only drawback is the extra code and
+ > >  > data when CPU hotplug is enabled.
+ > > 
+ > > Especially as for the bulk of them, those CPUs aren't hotplug capable.
+ > > (I seriously doubt we'll ever see a hotplugable cyrix for eg, which
+ > >  takes up the bulk of your diff).
+ > > 
+ > > How about leaving it __init on non-hotplug systems, and somehow removing
+ > > those from cpu_devs, so get_cpu_vendor() just skips them ?
+ > > NULL'ing those entries should be just a few bytes, instead of adding 5KB.
+ > 
+ > We use cpu hotplug system for swsusp; but unless someone makes
+ > cyrix/SMP machine and tries to suspend it, we are ok.
 
-    Alan> The kernel's documentation about memory barriers is rather
-    Alan> skimpy.  I gather that rmb() guarantees that all preceding
-    Alan> reads will have completed before any following reads are
-    Alan> made, and wmb() guarantees that all preceding writes will
-    Alan> have completed before any following writes are made.  I also
-    Alan> gather that mb() is essentially the same as rmb() and wmb()
-    Alan> put together.
+As Alan mentioned, there were never any production SMP cyrix machines,
+and the prototypes never worked on Linux anyway.  With Cyrix no longer
+around this code is safe to assume 'UP only'.
 
-Most of this is correct, except that mb() is stronger than just rmb()
-and wmb() put together.  All memory operations before the mb() will
-complete before any operations after the mb().  A better way to
-understand this is to look at the sparc64 definition:
+		Dave
 
-#define mb()    \
-        membar_safe("#LoadLoad | #LoadStore | #StoreStore | #StoreLoad")
+ 
 
-    Alan> But suppose I need to prevent a read from being moved past a
-    Alan> write?  It doesn't look like either rmb() or wmb() will do
-    Alan> this.  And if mb() is the same as "rmb(); wmb();" then it
-    Alan> won't either.  So what's the right thing to do?
-
-As described above, mb() will work in this case.  It actually
-guarantees more than you need, so you could conceivably define a new
-primitive, but the current barriers are hard enough for people to
-figure out ;)
-
- - R.

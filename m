@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWBBWiI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWBBWjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbWBBWiI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 17:38:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWBBWiI
+	id S932377AbWBBWjH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 17:39:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbWBBWjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 17:38:08 -0500
-Received: from sipsolutions.net ([66.160.135.76]:44805 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S932376AbWBBWiH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 17:38:07 -0500
-Subject: [RFC 1/4] firewire: node interface
-From: Johannes Berg <johannes@sipsolutions.net>
+	Thu, 2 Feb 2006 17:39:07 -0500
+Received: from smtp-relay.tamu.edu ([165.91.22.120]:35521 "EHLO
+	smtp-relay.tamu.edu") by vger.kernel.org with ESMTP id S932377AbWBBWjF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 17:39:05 -0500
+Message-ID: <43E28A07.1040604@tamu.edu>
+Date: Thu, 02 Feb 2006 16:39:03 -0600
+From: Benjamin Chu <benchu@tamu.edu>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: linux1394-devel@lists.sourceforge.net
-In-Reply-To: <1138919238.3621.12.camel@localhost>
-References: <1138919238.3621.12.camel@localhost>
-Content-Type: text/plain
-Date: Thu, 02 Feb 2006 23:38:00 +0100
-Message-Id: <1138919880.3621.15.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+Subject: Measure the Accept Queueing Time
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds just two small helper functions to allow other code to
-register a struct class_interface to interface node entries.
+Hello! I am doing my research for the web server performance modeling.
+After the connection request from a client complete the TCP 3-way 
+handshake. It would become an open request and this open request will be 
+placed in the accept queue. At this point the new child socket is 
+created and pointed to by the open request. The connection is considered 
+to be established at this point.
+Each time the Web server process executes the "accept()" system call, 
+the first open request in the accept queue is removed and the socket 
+which is pointed to by this open request is returned.
+All I want is to measure the amount of time when a open request is in 
+the accept queue. I've tracked the source code of the Linux kernel. I 
+may know the flow but still not sure my direction is correct or not. I 
+write down what I found as follows. If there is anything wrong, please 
+tell me! Thank you very mush
 
-diff --git a/drivers/ieee1394/nodemgr.c b/drivers/ieee1394/nodemgr.c
-index 082c7fd..06f4544 100644
---- a/drivers/ieee1394/nodemgr.c
-+++ b/drivers/ieee1394/nodemgr.c
-@@ -1796,3 +1796,11 @@ void cleanup_ieee1394_nodemgr(void)
- 	class_unregister(&nodemgr_ud_class);
- 	class_unregister(&nodemgr_ne_class);
- }
-+
-+int hpsb_register_node_interface(struct class_interface *intf)
-+{
-+	intf->class = &nodemgr_ne_class;
-+
-+	return class_interface_register(intf);
-+}
-+EXPORT_SYMBOL_GPL(hpsb_register_node_interface);
-diff --git a/drivers/ieee1394/nodemgr.h b/drivers/ieee1394/nodemgr.h
-index 0b26616..d779f81 100644
---- a/drivers/ieee1394/nodemgr.h
-+++ b/drivers/ieee1394/nodemgr.h
-@@ -170,6 +170,14 @@ int hpsb_node_write(struct node_entry *n
- int hpsb_node_lock(struct node_entry *ne, u64 addr,
- 		   int extcode, quadlet_t *data, quadlet_t arg);
- 
-+/*
-+ * things like mem1394 are interfaces to nodes, thus
-+ * allow them to register and unregister one.
-+ */
-+int hpsb_register_node_interface(struct class_interface *intf);
-+static inline void hpsb_unregister_node_interface(struct class_interface *intf) {
-+	class_interface_unregister(intf);
-+}
- 
- /* Iterate the hosts, calling a given function with supplied data for each
-  * host. */
+1. The struct "sock" in "sock.h" has a parameter call "ack_backlog". 
+This parameter counts how many open request in the accept queue.
+
+2. The struct "tcp_opt" in "sock.h" has two parameters call 
+"accept_queque" and "accept_queue_tail".These two parameter actually 
+point to the exact accept queue.
+
+3. The struct "open_request" in "tcp.h" exactly represents the open 
+request which I've mention above.
+
+4. After a connection request from a client complete the TCP 3-way 
+handshake, the listen socket would call the function "tcp_acceptq_queue" 
+in "tcp.h". This function puts new open request (i.e. the struct 
+"open_request") into accept queue (i.e. struct "accept_queue" in 
+"tcp_opt").
+
+5. Each time the Web server process executes the accept() system call,
+the function "tcp_accept" in "tcp.c" would be called. This function 
+removes the first open request in the accept queue and return the socket 
+which is pointed to by the open request.
 
 
+Is there anything wrong with what I describe above? Or there is any 
+reference regarding this matter? Please tell me! Thank you very much!
+
+p.s. My Linux Kernel Version is 2.4.25

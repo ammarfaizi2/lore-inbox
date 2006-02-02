@@ -1,87 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWBBPYZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932077AbWBBPZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbWBBPYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 10:24:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWBBPYZ
+	id S932077AbWBBPZF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 10:25:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbWBBPZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 10:24:25 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:38588 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932072AbWBBPYY convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 10:24:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rQaTbqEUwR1iLT/z3mKP1P6FlOkH4xoZNyr81tVZYgARNTTI3uAo4Q/YJ2AsLvmIYHpvAque1qUKeHdq0qe7EKTTh6eftPOXeyRU+axfmDsrC6NQoYq0zR6FkfeHhqKk7VqurXpdHsaCXpYutAdwB+WoH64AzfTKbAeSsWvaDd0=
-Message-ID: <787b0d920602020724q7be70037qf898da7ea362b2b1@mail.gmail.com>
-Date: Thu, 2 Feb 2006 10:24:22 -0500
-From: Albert Cahalan <acahalan@gmail.com>
-To: Bernd Petrovitsch <bernd@firmix.at>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1138809303.16643.28.camel@tara.firmix.at>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
-	 <5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com>
-	 <200601311333.36000.oliver@neukum.org>
-	 <200601311444.47199.vda@ilport.com.ua>
-	 <Pine.LNX.4.61.0602011634520.22529@yvahk01.tjqt.qr>
-	 <1138809303.16643.28.camel@tara.firmix.at>
+	Thu, 2 Feb 2006 10:25:05 -0500
+Received: from smtpout.mac.com ([17.250.248.87]:55776 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932077AbWBBPZB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 10:25:01 -0500
+X-PGP-Universal: processed;
+	by AlPB on Thu, 02 Feb 2006 09:24:28 -0600
+In-Reply-To: <43E1B490.7080200@pobox.com>
+References: <200602010609.k1169QDX017012@hera.kernel.org> <43E0F73B.6040507@pobox.com> <A9543B03-333E-470F-AD18-0313192ADB23@mac.com> <1138857560.15691.0.camel@mindpipe> <D1A90FC1-95F7-4C2B-BC6D-1F60000FC989@mac.com> <43E1B490.7080200@pobox.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <CBCD4CAD-57C8-41A6-9265-83834064EADC@mac.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, Lee Revell <rlrevell@joe-job.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>
+Content-Transfer-Encoding: 7bit
+From: Mark Rustad <mrustad@mac.com>
+Subject: Re: [PATCH] PCI: restore 2 missing pci ids
+Date: Thu, 2 Feb 2006 09:24:09 -0600
+To: Jeff Garzik <jgarzik@pobox.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/1/06, Bernd Petrovitsch <bernd@firmix.at> wrote:
-> On Wed, 2006-02-01 at 16:37 +0100, Jan Engelhardt wrote:
-> [...]
-> > >Do we need to expose IDE master/slave, primary/secondary concepts in Linux?
-> > >
-> > AFAICS, we do. hda is always primary slave, etc. With the SCSI layer it's
-> > (surprisingly) the other way round, sda just happens to be the first disk
-> > inserted (SCA, USB, etc.)
+On Feb 2, 2006, at 1:28 AM, Jeff Garzik wrote:
+
+> Kyle Moffett wrote:
+>> On Feb 02, 2006, at 00:19, Lee Revell wrote:
+>>> On Wed, 2006-02-01 at 23:11 -0600, Mark Rustad wrote:
+>>>
+>>>> Why were the ids removed in the first place?
+>>>
+>>> Because they weren't used by anything in the tree.
+>> Also, the new PCI-ID policy is to put the defines in the driver   
+>> itself, near where it is used, instead of collecting them in a  
+>> single  file.  The goal is to minimize the number of unused PCI  
+>> IDs in the  tree by keeping the definition near the usage.
 >
-> The (historical) reason was: There were not enough major/minor numbers
-> (IIRC 8 bit for each of them) for a sane (and static) SCSI device number
-> mapping (similar to IDE) - just multiply the possible # of partitions *
-> # of LUNs * # IDs for a few controllers.
+> No, if you do create a constant for a PCI ID, it still should go  
+> into include/linux/pci_ids.h.
+>
+> Putting them in the driver will result in highly variable naming  
+> policies, which in turn means the constants are less grep-able than  
+> today.
+>
+> Device IDs simply do not need an associated constant, if they are  
+> used only in a PCI ID table.  Device IDs are arbitrary numbers that  
+> are normally only used once in a source file.
+>
+> Vendor IDs are used repeatedly, and definitely belong in pci_ids.h.  
+> Device IDs make sense in pci_ids.h if they are used more than once.
 
-It's a hashing problem, and should have originally been seen as such.
-The constraints are that you'd like some stability as devices come
-and go. Splitting /dev into fields could have worked nicely:
+Thank you for explaining the policy. In this particular case, there  
+was only one use of the ID in the file in question, so it could have  
+simply been a hex constant, I guess. Of course my instinct is to  
+avoid weird constants like this in source code, but I can learn to  
+make an exception for this kind of thing.
 
-1. the partition
-2. dev type: disk, CD-ROM, built-in (ramdisk,loop), other
-3. physical: master/slave, SCSI target, IDE 1/2/other, "is USB"...
-4. volatile+rare stuff: PCI slot, ISA address, USB position, LUN
+-- 
+Mark Rustad, MRustad@mac.com
 
-(needlessly crammed into 16 bits: 5:2:4:5 or 5:2:5:4)
-
-For the physical stuff, per-driver values are assigned explicitly
-in the source code. Collisions are determined by humans. We make
-USB collide with something old, like XT disks and Atari disks.
-Collisions are chosen so that normal machines are unlikely to
-suffer from them.
-
-Note that I use "IDE 1/2/other". Only an x86 PC can have a primary
-or secondary controller, as determined by IO port location. Macs
-just have "other", as a single value. (they differentiate based on
-the rare and volatile stuff as needed) USB is distinguished from SCSI,
-FireWire, and IDE unless delibrately made to collide because of a bit
-shortage.
-
-Collisions found at run-time are resolved by mucking with the field
-for volatile and rare stuff. Adding a new USB device can will probably
-not mess up a different USB device, because the hashing is not too
-likely to pick the same number. Adding a new USB device will certainly
-not mess up a non-USB device unless the non-USB device is in a class
-of physical devices that was delibrately made to collide with USB.
-Adding a SCSI device with target ID 4 will only stand a chance of
-messing up other SCSI devices with target ID 4, on other busses or
-with other LUNs. It wouldn't mess up SCSI target ID 3, FireWire, USB,
-or anything else UNLESS those share the "physical" field ID.
-
-Not that Joerg would like this: LUN values and bus numbers get tossed
-into a hash function. You can't recover the individual numbers.

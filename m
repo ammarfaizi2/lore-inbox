@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423045AbWBBBlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423051AbWBBBmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423045AbWBBBlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 20:41:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423047AbWBBBlZ
+	id S1423051AbWBBBmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 20:42:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423048AbWBBBmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 20:41:25 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:62223 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1423045AbWBBBlY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 20:41:24 -0500
-Date: Thu, 2 Feb 2006 02:41:20 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: missing license tag in intermodule.
-Message-ID: <20060202014120.GV3986@stusta.de>
-References: <20060201230254.GA3413@redhat.com>
+	Wed, 1 Feb 2006 20:42:09 -0500
+Received: from omta02sl.mx.bigpond.com ([144.140.93.154]:56725 "EHLO
+	omta02sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1423051AbWBBBmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 20:42:07 -0500
+Message-ID: <43E1636D.1000304@bigpond.net.au>
+Date: Thu, 02 Feb 2006 12:42:05 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060201230254.GA3413@redhat.com>
-User-Agent: Mutt/1.5.11
+To: Ingo Molnar <mingo@elte.hu>
+CC: Steven Rostedt <rostedt@goodmis.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Avoid moving tasks when a schedule can be made.
+References: <1138736609.7088.35.camel@localhost.localdomain> <20060201130818.GA26481@elte.hu> <20060201131111.GA27793@elte.hu>
+In-Reply-To: <20060201131111.GA27793@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 2 Feb 2006 01:42:05 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, 2006 at 06:02:55PM -0500, Dave Jones wrote:
-
-> It may suck something awful, but it shouldn't taint the kernel.
+Ingo Molnar wrote:
+> * Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> Signed-off-by: Dave Jones <davej@redhat.com>
 > 
-> --- linux-2.6.15.noarch/kernel/intermodule.c~	2006-02-01 18:01:39.000000000 -0500
-> +++ linux-2.6.15.noarch/kernel/intermodule.c	2006-02-01 18:01:47.000000000 -0500
-> @@ -179,3 +179,6 @@ EXPORT_SYMBOL(inter_module_register);
->  EXPORT_SYMBOL(inter_module_unregister);
->  EXPORT_SYMBOL(inter_module_get_request);
->  EXPORT_SYMBOL(inter_module_put);
-> +
-> +MODULE_LICENSE("GPL");
-> +
+>>i think the right approach would be to split up this work into smaller 
+>>chunks. Or rather, lets first see how this can happen: why is 
+>>can_migrate() false for so many tasks? Are they all cpu-hot? If yes, 
+>>shouldnt we simply skip only up to a limit of tasks in this case - 
+>>it's not like we want to spend 1.5 msecs searching for a cache-cold 
+>>task which might give us a 50 usecs advantage over cache-hot tasks ...
+> 
+> 
+> the only legimate case where we have to skip alot of tasks is the case 
+> when there are alot of CPU-bound (->cpus_alowed) tasks in the runqueue.  
+> In that case the scheduler really has to skip that task. But that is not 
+> an issue in your workload.
 
-Sorry, my fault.
+The new SMP nice load balancing may cause some tasks to be skipped while 
+it's looking for ones with small enough bias_prios but I doubt that this 
+would cause many to be skipped on a real system.
 
-Acked-by: Adrian Bunk <bunk@stusta.de
+BTW why do you assume that this problem is caused by can_migrate() 
+failing and is not just simply due to large numbers of tasks needing to 
+be moved (which is highly likely to be true when hackbench is running)?
 
-cu
-Adrian
+If it is a "skip" problem that would make the "busting it up into 
+smaller chunks" solution more complex as it would make it desirable to 
+remember where you were up to between chunks.
 
+Peter
 -- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

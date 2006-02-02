@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbWBBQuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWBBQvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbWBBQuE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 11:50:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbWBBQuD
+	id S932163AbWBBQvg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 11:51:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWBBQvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 11:50:03 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:61367 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S932160AbWBBQuB (ORCPT
+	Thu, 2 Feb 2006 11:51:35 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:11680 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932163AbWBBQvf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 11:50:01 -0500
-Subject: Re: [PATCH] Introduce __iowrite32_copy
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Olaf Hering <olh@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060202145720.GE22815@osiris.boeblingen.de.ibm.com>
-References: <200602011820.k11IKUBo024575@hera.kernel.org>
-	 <20060202142917.GA10870@suse.de>
-	 <20060202145720.GE22815@osiris.boeblingen.de.ibm.com>
-Content-Type: text/plain
-Date: Thu, 02 Feb 2006 08:49:50 -0800
-Message-Id: <1138898990.17599.0.camel@camp4.serpentine.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Feb 2006 11:51:35 -0500
+Date: Thu, 2 Feb 2006 17:51:28 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Jiri Slaby <xslaby@fi.muni.cz>
+cc: Arjan van de Ven <arjan@infradead.org>,
+       kavitha s <wellspringkavitha@yahoo.co.in>, linux-kernel@vger.kernel.org
+Subject: Re: root=LABEL= problem [Was: Re: Linux Issue]
+In-Reply-To: <20060202105338.E921D22AF07@anxur.fi.muni.cz>
+Message-ID: <Pine.LNX.4.61.0602021750510.13212@yvahk01.tjqt.qr>
+References: <1138863068.3270.6.camel@laptopd505.fenrus.org>,
+ <20060201114845.E41F222AF24@anxur.fi.muni.cz> <20060202105338.E921D22AF07@anxur.fi.muni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-02 at 15:57 +0100, Heiko Carstens wrote:
+>>> > ds: no socket drivers loaded!
+>>> > VFS: Cannot open root device "LABEL=/" or 00:00
+>>> change root=LABEL=/ to root=/dev/XXX. Vanilla doesn't support this...
+>>
+>>ehhh??
+>>sure it does.
+>>
+>>this is not a kernel feature, but an initrd feature, independent on
+>>which kernel is used (there never was and is not a patch for this in any
+>>distro kernel I know about)
+>Ok, thank you for pointing that out.
+>
 
-> I sent a patch which fixes this for s390 earlier today.
-> http://lkml.org/lkml/2006/2/2/78
+So does someone have a kernel-side patch for enabling LABEL=? (Is the 
+kernel even able to tell the label of a filesystem, or is that specific to 
+mount(8)?)
 
-Thanks.
 
-	<b
-
+Jan Engelhardt
+-- 

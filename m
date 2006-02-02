@@ -1,75 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbWBBOg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbWBBOhi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbWBBOg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 09:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWBBOg2
+	id S1751096AbWBBOhi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 09:37:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbWBBOhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 09:36:28 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:14794 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751093AbWBBOg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 09:36:27 -0500
-Date: Thu, 02 Feb 2006 09:36:23 -0500
-From: Eric Buddington <ebuddington@verizon.net>
-Subject: 2.6.15-mm3 hang with raid-1
-To: linux-kernel@vger.kernel.org
-Reply-to: ebuddington@wesleyan.edu
-Message-id: <20060202143623.GC1188@pool-71-123-118-13.spfdma.east.verizon.net>
-Organization: ECS Labs
-MIME-version: 1.0
-Content-type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature"; boundary=8GpibOaaTibBMecb
-Content-disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Eric-conspiracy: there is no conspiracy
+	Thu, 2 Feb 2006 09:37:38 -0500
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:17046 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751096AbWBBOhh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 09:37:37 -0500
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, Karim Yaghmour <karim@opersys.com>,
+       Filip Brcic <brcha@users.sourceforge.net>,
+       Glauber de Oliveira Costa <glommer@gmail.com>,
+       Thomas Horsten <thomas@horsten.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org>
+References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>
+	 <43DE57C4.5010707@opersys.com>
+	 <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com>
+	 <200601302301.04582.brcha@users.sourceforge.net>
+	 <43E0E282.1000908@opersys.com>
+	 <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org>
+	 <43E1C55A.7090801@drzeus.cx>
+	 <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 02 Feb 2006 14:38:01 +0000
+Message-Id: <1138891081.9861.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Iau, 2006-02-02 at 01:00 -0800, Linus Torvalds wrote:
+> Sure, DRM may mean that you can not _install_ or _run_ your changes on 
+> somebody elses hardware. 
 
---8GpibOaaTibBMecb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Last time I checked the Xbox was owned by the person who bought it. Xbox
+Linux hits this problem today. So it may affect "your hardware" too
+unless you make hardware, which is an unusual and privileged position.
 
-Running 2.6.15-mm3 PREEMPT on an Athlon XP, Asus motherboard with
-VT8366/A/7 chipset.
+That isn't to say the GPLv3 approach is neccessarily a solution at all.
 
-I have a 240GB raid0 on hda3 and hdc1 containing a reiser3
-filesystem. It works fine.
-
-I have a 40GB raid1 on hda2 and hdd1, which is giving me problems. I
-can write to all of hda2 and hdd1 (before creating the array) without
-error, and mdadm seems to create the array all right.
-
-However, just after the array finishes synchronizing (either after
-creation or messy reboot), all new commands hang (I can still type at
-existing shells, but as soon as I try to run a program, it becomes
-unresponsive). While hung, disk activity light is off. On reboot, the
-array is detected as clean, no synchronization is done, and my system
-works (until I try to use the raid1 array).
-
-mkreiserfs /dev/md0 also causes the hang, when it syscalls fsync().
-
-My system disk is hda1, so I don't know if all disks are hung up, or
-just all of hda.
-
-I'm doing all this at the console, and I see no error messages.
-
-The computer keeps performing NAT, and alt-sysrq-b works.
-
-What can I do to fix or help debug this problem?
-
--Eric
-
---8GpibOaaTibBMecb
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFD4hjnce4O6PAsbIkRAgGQAJ9KScOYtj/HhxOWwGMIh23OeKB7dwCfWFw9
-F95c4oevFXumno93LLTEltU=
-=AVaU
------END PGP SIGNATURE-----
-
---8GpibOaaTibBMecb--

@@ -1,50 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbWBBRIF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWBBRIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932175AbWBBRIF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 12:08:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWBBRIE
+	id S932176AbWBBRIT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 12:08:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbWBBRIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 12:08:04 -0500
-Received: from uproxy.gmail.com ([66.249.92.193]:52313 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932175AbWBBRID (ORCPT
+	Thu, 2 Feb 2006 12:08:19 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:17131 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S932176AbWBBRIS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 12:08:03 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=kYpAT7S+NuP0/biYBZy2NXuaFmCDqnYRc2IDxxWJCIfS1HgyiWYMobkaXZtElGae/Kyxw62nZ8L1Ss8cxDhQq1n6WTKvq3KyOD4sWGQZr9UT5dKj4JjDZlanznkuEpljhOrHaQZW1TTc9O9uFRdOYQJ5ll6gs6ichvEyGED2fr4=
-Date: Thu, 2 Feb 2006 20:26:09 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Andrew Morton <akpm@osdl.org>, Martin Bligh <mbligh@google.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] xquad_portio fix declaration missmatch
-Message-ID: <20060202172609.GA4231@mipter.zuzino.mipt.ru>
-References: <20060202004306.GA32466@shadowen.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060202004306.GA32466@shadowen.org>
-User-Agent: Mutt/1.5.11
+	Thu, 2 Feb 2006 12:08:18 -0500
+Message-ID: <43E23C79.8050606@drzeus.cx>
+Date: Thu, 02 Feb 2006 18:08:09 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5 (X11/20060128)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Karim Yaghmour <karim@opersys.com>,
+       Filip Brcic <brcha@users.sourceforge.net>,
+       Glauber de Oliveira Costa <glommer@gmail.com>,
+       Thomas Horsten <thomas@horsten.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>  <43DE57C4.5010707@opersys.com>  <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com>  <200601302301.04582.brcha@users.sourceforge.net>  <43E0E282.1000908@opersys.com>  <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org>  <43E1C55A.7090801@drzeus.cx>  <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org> <1138891081.9861.4.camel@localhost.localdomain> <Pine.LNX.4.64.0602020814320.21884@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602020814320.21884@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 02, 2006 at 12:43:06AM +0000, Andy Whitcroft wrote:
-> xquad_portio fix declaration missmatch
+Linus Torvalds wrote:
+> On Thu, 2 Feb 2006, Alan Cox wrote:
+>
+>   
+>> On Iau, 2006-02-02 at 01:00 -0800, Linus Torvalds wrote:
+>>     
+>>> Sure, DRM may mean that you can not _install_ or _run_ your changes on 
+>>> somebody elses hardware. 
+>>>       
+>> Last time I checked the Xbox was owned by the person who bought it. Xbox
+>> Linux hits this problem today. So it may affect "your hardware" too
+>> unless you make hardware, which is an unusual and privileged position.
+>>     
+>
+> Ok, now replace "hardware" by "software", and replace DRM by 
+> "proprietary", and what's the difference?
+>
+> The fact is, if you buy proprietary software, you cannot make it do 
+> everything you want, regardless of of whether you "own" it or not. The 
+> creator of the software may have designed it so that it only does certain 
+> things.
+>
+> Tough. The solution: use open source software.
+>
+> The same holds true for hardware. If you buy proprietary hardware, you 
+> cannot make it do everything you want, whether you "own" it or not. The 
+> manufacturer of the hardware may have designed it so that it only does 
+> certain things.
+>
+> Tough. The solution: use open hardware.
+>
+>   
 
->   arch/i386/boot/compressed/misc.c:125: error: static declaration of
-> 				'xquad_portio' follows non-static declaration
->   include/asm/io.h:315: error: previous declaration of 'xquad_portio' was here
+So taking open software and closed hardware and combining it into 
+something that I cannot modify is ok by you? But since you support GPLv2 
+I take it you do not find it ok to take open software and closed 
+software and combine that into something that I cannot modify. 
+Personally, I consider both equal violations of the rights I seek to 
+protect when I license my code under the GPL.
 
-> --- reference/arch/i386/boot/compressed/misc.c
-> +++ current/arch/i386/boot/compressed/misc.c
-> @@ -122,7 +122,7 @@ static int vidport;
->  static int lines, cols;
->  
->  #ifdef CONFIG_X86_NUMAQ
-> -static void * xquad_portio = NULL;
-> +void * xquad_portio = NULL;
->  #endif
+> The solution is NOT to create a software license that is obviously not 
+> usable. And the GPLv3 really _is_ obviously not usable for the kernel, 
+> because it creates insane situations whether the hardware is open or 
+> closed.
+>   
 
-Can you explain why it should stay in misc.c?
+Just to make things clear, are you only having problems with the risk of 
+forcing everyone to hand out their signing keys, or are you also opposed 
+to preventing the hardware scenario above (provided it could be done 
+without side-effects)?
+
+Rgds
+Pierre
 

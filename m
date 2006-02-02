@@ -1,72 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422933AbWBBKCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423420AbWBBKFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422933AbWBBKCR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 05:02:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423435AbWBBKCR
+	id S1423420AbWBBKFe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 05:05:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423386AbWBBKFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 05:02:17 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:52926 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1422933AbWBBKCR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 05:02:17 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, Dave Jones <davej@redhat.com>,
-       tony.luck@intel.com
-Subject: [patch] Build drivers/sn/ for all sn2 builds
-From: Jes Sorensen <jes@sgi.com>
-Date: 02 Feb 2006 05:02:15 -0500
-Message-ID: <yq01wymoz88.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
+	Thu, 2 Feb 2006 05:05:34 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44684 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1422950AbWBBKFd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 05:05:33 -0500
+Date: Thu, 2 Feb 2006 11:05:22 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ 00/10] [Suspend2] Modules support.
+Message-ID: <20060202100522.GB1981@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060201113710.6320.68289.stgit@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-Reposting this patch which solves the problem where drivers/sn isn't
-being evaluated by the build system for some config cases.
+> This set of patches represents the core of Suspend2's module support.
+> 
+> Suspend2 uses a strong internal API to separate the method of
+> determining the content of the image from the method by which it is saved.
+> The code for determining the content is part of the core of Suspend2, and
+> transformations (compression and/or encryption) and storage of the pages are
+> handled by 'modules'.
 
-Solves a problem earlier reported by Dave Jones.
+swsusp already has a very strong API to separate image writing from
+image creation (in -mm patch, anyway). It is also very nice, just
+read() from /dev/snapshot. Please use it.
 
-Cheers,
-Jes
-
-Include drivers/sn when CONFIG_IA64_SGI_SN2 or CONFIG_IA64_GENERIC
-is enabled.
-
-Signed-off-by: Jes Sorensen <jes@sgi.com>
-----
-
- arch/ia64/Kconfig |    3 +++
- drivers/Makefile  |    2 +-
- 2 files changed, 4 insertions(+), 1 deletion(-)
-
-Index: linux-2.6/arch/ia64/Kconfig
-===================================================================
---- linux-2.6.orig/arch/ia64/Kconfig
-+++ linux-2.6/arch/ia64/Kconfig
-@@ -374,6 +374,9 @@
- 	  To use this option, you have to ensure that the "/proc file system
- 	  support" (CONFIG_PROC_FS) is enabled, too.
- 
-+config SGI_SN
-+	def_bool y if (IA64_SGI_SN2 || IA64_GENERIC)
-+
- source "drivers/firmware/Kconfig"
- 
- source "fs/Kconfig.binfmt"
-Index: linux-2.6/drivers/Makefile
-===================================================================
---- linux-2.6.orig/drivers/Makefile
-+++ linux-2.6/drivers/Makefile
-@@ -69,7 +69,7 @@
- obj-$(CONFIG_CPU_FREQ)		+= cpufreq/
- obj-$(CONFIG_MMC)		+= mmc/
- obj-$(CONFIG_INFINIBAND)	+= infiniband/
--obj-$(CONFIG_SGI_IOC4)		+= sn/
-+obj-$(CONFIG_SGI_SN)		+= sn/
- obj-y				+= firmware/
- obj-$(CONFIG_CRYPTO)		+= crypto/
- obj-$(CONFIG_SUPERH)		+= sh/
+								Pavel
+-- 
+Thanks, Sharp!

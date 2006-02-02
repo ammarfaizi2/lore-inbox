@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbWBBXak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbWBBXag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbWBBXak (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 18:30:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWBBXak
+	id S932469AbWBBXag (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 18:30:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932470AbWBBXag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 18:30:40 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:61107 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932467AbWBBXaj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 18:30:39 -0500
-Date: Thu, 2 Feb 2006 15:32:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] extract-ikconfig: be sure binoffset exists before
- extracting
-Message-Id: <20060202153241.48b206fb.akpm@osdl.org>
-In-Reply-To: <20060201125658.GB8943@mipter.zuzino.mipt.ru>
-References: <20060201125658.GB8943@mipter.zuzino.mipt.ru>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 2 Feb 2006 18:30:36 -0500
+Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:28397 "EHLO
+	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932467AbWBBXaf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 18:30:35 -0500
+Date: Thu, 2 Feb 2006 18:28:17 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: 2.6.16-rc1-mm4 i386 atomic operations broken on SMP (in
+  modules at least)
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, kraxel@suse.de, neilb@suse.de
+Message-ID: <200602021830_MC3-1-B773-597F@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan <adobriyan@gmail.com> wrote:
+In-Reply-To: <20060202135205.08d91b76.akpm@osdl.org>
+
+On Thu, 2 Feb 2006 at 13:52:05 -0800, Andrew Morton wrote:
+
+> Chuck Ebbert <76306.1226@compuserve.com> wrote:
+> > 
+> > SMP alternatives is re-using the constant_tsc X86 feature bit.
+> > 
+> 
+> Darn, how did you spot that?
+
+I went looking for which bit represented X86_FEATURE_UP and there
+it was...
+
 >
-> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-> ---
-> 
->  scripts/extract-ikconfig |    1 +
->  1 file changed, 1 insertion(+)
-> 
-> --- a/scripts/extract-ikconfig
-> +++ b/scripts/extract-ikconfig
-> @@ -4,6 +4,7 @@
->  # $arg1 is [b]zImage filename
->  
->  binoffset="./scripts/binoffset"
-> +test -e $binoffset || cc -o $binoffset ./scripts/binoffset.c || exit 1
->  
+> Should `feature_up' appear in /proc/cpuinfo?
 
-OK, but it would be better if we could find a way of doing this within a
-Makefile.
+Probably.  The bug would have been nearly impossible if that had
+been done to begin with.
 
+
+i386: show x86 feature "up" in cpuinfo
+
+Show feature bit "up" (SMP kernel running on uniprocessor) in
+/proc/cpuinfo.
+
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+
+--- 2.6.16-rc1-mm4-386.orig/arch/i386/kernel/cpu/proc.c
++++ 2.6.16-rc1-mm4-386/arch/i386/kernel/cpu/proc.c
+@@ -40,7 +40,7 @@ static int show_cpuinfo(struct seq_file 
+ 		/* Other (Linux-defined) */
+ 		"cxmmx", "k6_mtrr", "cyrix_arr", "centaur_mcr",
+ 		NULL, NULL, NULL, NULL,
+-		"constant_tsc", NULL, NULL, NULL, NULL, NULL, NULL, NULL,
++		"constant_tsc", "up", NULL, NULL, NULL, NULL, NULL, NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 
+-- 
+Chuck

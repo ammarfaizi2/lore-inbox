@@ -1,121 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422918AbWBBFOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422938AbWBBFT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422918AbWBBFOR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 00:14:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422932AbWBBFOR
+	id S1422938AbWBBFT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 00:19:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422939AbWBBFTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 00:14:17 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.50]:9454 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S1422918AbWBBFOQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 00:14:16 -0500
-Date: Thu, 2 Feb 2006 06:14:15 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Hubertus Franke <frankeh@watson.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
+	Thu, 2 Feb 2006 00:19:25 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:7841 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1422938AbWBBFTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 00:19:25 -0500
+Subject: Re: [PATCH] PCI: restore 2 missing pci ids
+From: Lee Revell <rlrevell@joe-job.com>
+To: Mark Rustad <mrustad@mac.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Cedric Le Goater <clg@fr.ibm.com>
-Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-Message-ID: <20060202051415.GB32499@MAIL.13thfloor.at>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Hubertus Franke <frankeh@watson.ibm.com>,
-	Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Serge E. Hallyn" <serue@us.ibm.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Cedric Le Goater <clg@fr.ibm.com>
-References: <20060117155600.GF20632@sergelap.austin.ibm.com> <1137513818.14135.23.camel@localhost.localdomain> <1137518714.5526.8.camel@localhost.localdomain> <20060118045518.GB7292@kroah.com> <1137601395.7850.9.camel@localhost.localdomain> <m1fyniomw2.fsf@ebiederm.dsl.xmission.com> <43D14578.6060801@watson.ibm.com> <Pine.LNX.4.64.0601311248180.7301@g5.osdl.org> <m13bj34spw.fsf@ebiederm.dsl.xmission.com> <Pine.LNX.4.64.0601312027450.7301@g5.osdl.org>
+       Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <A9543B03-333E-470F-AD18-0313192ADB23@mac.com>
+References: <200602010609.k1169QDX017012@hera.kernel.org>
+	 <43E0F73B.6040507@pobox.com> <A9543B03-333E-470F-AD18-0313192ADB23@mac.com>
+Content-Type: text/plain
+Date: Thu, 02 Feb 2006 00:19:19 -0500
+Message-Id: <1138857560.15691.0.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0601312027450.7301@g5.osdl.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.5.90 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 31, 2006 at 08:39:19PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Tue, 31 Jan 2006, Eric W. Biederman wrote:
-> > 
-> > Yes. Although there are a few container lifetimes problems with
-> > that approach. Do you want your container alive for a long time
-> > after every process using it has exited just because someone has
-> > squirrelled away their pid. While container lifetime issues crop up
-> > elsewhere as well PIDs are by far the worst, because it is current
-> > safe to store a PID indefinitely with nothing worse that PID wrap
-> > around.
->
-> Are people really expecting to have a huge turn-over on containers? It
-> sounds like this shouldn't be a problem in any normal circumstance:
-> especially if you don't even do the "big hash-table per container"
-> approach, who really cares if a container lives on after the last
-> process exited?
->
-> I'd have expected that the major user for this would end up being     
-> ISP's and the like, and I would not expect the virtual machines to be 
-> brought up all the time.                                              
+On Wed, 2006-02-01 at 23:11 -0600, Mark Rustad wrote:
+> Why were the ids  
+> removed in the first place? 
 
-well, really depends, as far as I can tell the 
-number of guest (container) (re)starts can be as
-high as one per second (in extreme cases) while
-the entire setup doesn't have more than 50-100
-containers at the same time, and usually 'runs'
-for more than a few months without reboot ...
+Because they weren't used by anything in the tree.
 
-but agreed, the typical number of container
-creations and deletions will be around one per
-hour or day ...
+Lee
 
-> If it's a problem, you can do the same thing that the "struct
-> mm_struct" does: it has life-time issues because a mm_struct actually
-> has to live for potentially a _long_ time (zombies) but at the same
-> time we want to free the data structures allocated to the mm_struct as
-> soon as possible, notably the VMA's and the page tables.
->
-> So a mm_struct uses a two-level counter, with the "real" users
-> (who need the page tables etc) incrementing one ("mm_users"), and
-> the "secondary" ones (who just need to have an mm_struct pinned,
-> but are ok with an empty VM being attached) incrementing the other
-> ("mm_count").
-
-yes, we already do something very similar in 
-Linux-VServer, basically differentiating between 
-'active users' and 'passive references' ...
-
-> The same approach might be valid for "containers": you can destroy most of 
-> the associated container when the actual processes are gone, but keep just 
-> the empty container around until all secondary references are finally also 
-> gone.
-> 
-> It's pretty simple: the secondary reference starts at 1 - with the 
-> "primary" counter being the single ref to the secondary. Then freeing a 
-> primary does:
-> 
-> 	if (atomic_dec_and_test(&container->primary_counter)) {
-> 		.. free the core resources here ..
-> 
-> 		/* then release the ref from the primary to secondary */
-> 		secondary_free(container);
-> 	}
-> 
-> (for "mm_struct", the primary is dropped "mmput()" and the secondary is 
-> dropped with "mmdrop()", which is absolutely horrid naming. Please name 
-> things better than I did ;)
-
-best,
-Herbert
-
-> 			Linus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

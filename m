@@ -1,89 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751078AbWBBTZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbWBBT2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751078AbWBBTZM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 14:25:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWBBTZL
+	id S1750985AbWBBT2H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 14:28:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWBBT2H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 14:25:11 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:2258 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1751078AbWBBTZK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 14:25:10 -0500
-Message-ID: <43E25CDA.7020503@tmr.com>
-Date: Thu, 02 Feb 2006 14:26:18 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
-X-Accept-Language: en-us, en
+	Thu, 2 Feb 2006 14:28:07 -0500
+Received: from xenotime.net ([66.160.160.81]:16841 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750985AbWBBT2G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 14:28:06 -0500
+Date: Thu, 2 Feb 2006 11:28:04 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Dave Jones <davej@redhat.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: discriminate single bit error hardware failure from slab
+ corruption.
+In-Reply-To: <20060202192414.GA22074@redhat.com>
+Message-ID: <Pine.LNX.4.58.0602021126340.16597@shark.he.net>
+References: <20060202192414.GA22074@redhat.com>
 MIME-Version: 1.0
-To: Denis Vlasenko <vda@ilport.com.ua>
-CC: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-Subject: Re: Recursive chmod/chown OOM kills box with 32MB RAM
-References: <200601281613.16199.vda@ilport.com.ua> <43DDAE2D.6080300@namesys.com> <200601300822.47821.mason@suse.com> <200602010932.50972.vda@ilport.com.ua>
-In-Reply-To: <200602010932.50972.vda@ilport.com.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
-> On Monday 30 January 2006 15:22, Chris Mason wrote:
-> 
->>On Monday 30 January 2006 01:11, Hans Reiser wrote:
->>
->>>Chris, would Denis Vlasenko wrote:
->>>
->>>>[CCing namesys]
->>>>
->>>>Narrowed it down to 100% reproducible case:
->>>>
->>>>	chown -Rc 0:<n> .
->>>>
->>>>in a top directory of tree containing ~21938 files
->>>>on reiser3 partition:
->>>>
->>>>	/dev/sdc3 on /.3 type reiserfs (rw,noatime)
->>>>
->>>>causes oom kill storm. "ls -lR", "find ." etc work fine.
->>>>
->>>>I suspected that it is a leak in winbindd libnss module,
->>>>but chown does not seem to grow larger in top, and also
->>>>running it under softlimit -m 400000 still causes oom kills
->>>>while chown's RSS stays below 4MB.
->>
->>In order for the journaled filesystems to make sure the FS is consistent after 
->>a crash, we need to keep some blocks in memory until other blocks have been 
->>written.  These blocks are pinned, and can't be freed until a certain amount 
->>of io is done.
->>
->>In the case of reiserfs, it might pin as much as the size of the journal at 
->>any time.  The default journal is 32MB, which is much too large for a system 
->>with only 32MB of ram.
->>
->>You can shrink the log of an existing filesystem.  The minimum size is 513 
->>blocks, you might try 1024 as a good starting poing.
->>
->>reiserfstune -s 1024 /dev/xxxx
->>
->>The filesystem must be unmounted first.
-> 
-> 
-> Will try this and report the result.
-> 
-> Please consider printing a big fat warning at mount time if total RAM
-> on the system is close to sum of RAM space required for all currently
-> mounted reiserfs partitions...
+On Thu, 2 Feb 2006, Dave Jones wrote:
 
-I would think that rather than warn about the problem that it would be 
-better to teach the filesystem not to use all of memory, and to stop and 
-wait for i/o to finish rather than pin so many pages that the system 
-becomes unusable. For definitions of usable which include not killing 
-random small processes because the filesystem code isn't playing nicely.
+> In the case where we detect a single bit has been flipped, we spew
+> the usual slab corruption message, which users instantly think
+> is a kernel bug.  In a lot of cases, single bit errors are
+> down to bad memory, or other hardware failure.
+>
+> This patch adds an extra line to the slab debug messages in those
+> cases, in the hope that users will try memtest before they report a bug.
+>
+> 000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> Single bit error detected. Possibly bad RAM. Please run memtest86.
 
-Would some global count of reiser_pinned_pages be possible as a way to 
-track the problem?
+does memtest86 run on all $ARCHes ?
+or this is good for <large percentage>, so it's Good.  :)
+Just checking; it is a good idea.
+
+> Signed-off-by: Dave Jones <davej@redhat.com>
+>
+> --- linux-2.6.15/mm/slab.c~	2006-01-09 13:25:17.000000000 -0500
+> +++ linux-2.6.15/mm/slab.c	2006-01-09 13:26:01.000000000 -0500
+> @@ -1313,8 +1313,11 @@ static void poison_obj(kmem_cache_t *cac
+>  static void dump_line(char *data, int offset, int limit)
+>  {
+>  	int i;
+> +	unsigned char total=0;
+>  	printk(KERN_ERR "%03x:", offset);
+>  	for (i = 0; i < limit; i++) {
+> +		if (data[offset+i] != POISON_FREE)
+> +			total += data[offset+i];
+>  		printk(" %02x", (unsigned char)data[offset + i]);
+>  	}
+>  	printk("\n");
+> @@ -1019,6 +1023,18 @@ static void dump_line(char *data, int of
+>  		}
+>  	}
+>  	printk("\n");
+> +	switch (total) {
+> +		case 0x36:
+> +		case 0x6a:
+> +		case 0x6f:
+> +		case 0x81:
+> +		case 0xac:
+> +		case 0xd3:
+> +		case 0xd5:
+> +		case 0xea:
+> +			printk (KERN_ERR "Single bit error detected. Possibly bad RAM. Please run memtest86.\n");
+> +			return;
+> +	}
+>  }
+>  #endif
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+~Randy

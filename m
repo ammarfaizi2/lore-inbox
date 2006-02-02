@@ -1,57 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWBBLeV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWBBLfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWBBLeV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 06:34:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWBBLeV
+	id S1750783AbWBBLfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 06:35:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWBBLfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 06:34:21 -0500
-Received: from smtp3.wanadoo.fr ([193.252.22.28]:27655 "EHLO smtp3.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S1750754AbWBBLeU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 06:34:20 -0500
-X-ME-UUID: 20060202113419489.776A01C00181@mwinf0307.wanadoo.fr
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: oliver@neukum.org, mrmacman_g4@mac.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jerome.lacoste@gmail.com,
-       jengelh@linux01.gwdg.de, James@superbug.co.uk, j@bitron.ch,
-       acahalan@gmail.com
-In-Reply-To: <43E1EAD5.nail4R031RZ5A@burner>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
-	 <43DF3C3A.nail2RF112LAB@burner>
-	 <5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com>
-	 <200601311333.36000.oliver@neukum.org> <1138867142.31458.3.camel@capoeira>
-	 <43E1EAD5.nail4R031RZ5A@burner>
-Content-Type: text/plain
-Message-Id: <1138880048.31458.31.camel@capoeira>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Thu, 02 Feb 2006 12:34:09 +0100
+	Thu, 2 Feb 2006 06:35:25 -0500
+Received: from 60-240-149-171.tpgi.com.au ([60.240.149.171]:32384 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1750800AbWBBLfY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 06:35:24 -0500
+From: Nigel Cunningham <nigel@suspend2.net>
+Organization: Suspend2.net
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [ 00/10] [Suspend2] Modules support.
+Date: Thu, 2 Feb 2006 21:31:55 +1000
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602022038.16262.nigel@suspend2.net> <20060202104750.GC1884@elf.ucw.cz>
+In-Reply-To: <20060202104750.GC1884@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2090073.C9mklPSHvX";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200602022131.59928.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-02 at 12:19, Joerg Schilling wrote:
-> Xavier Bestel <xavier.bestel@free.fr> wrote:
-> 
-> > On Tue, 2006-01-31 at 13:33, Oliver Neukum wrote:
-> > > It is entirely possible that the people you know are far from a representative
-> > > sample. Most people likely prefer clicking on a description in a GUI. There
-> > > needs to be a way to get this list and if possible it should not be specific
-> > > to Linux.
+--nextPart2090073.C9mklPSHvX
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+Hi.
+
+On Thursday 02 February 2006 20:47, Pavel Machek wrote:
+> Hi!
+>
+> > > > This set of patches represents the core of Suspend2's module suppor=
+t.
+> > > >
+> > > > Suspend2 uses a strong internal API to separate the method of
+> > > > determining the content of the image from the method by which it is
+> > > > saved. The code for determining the content is part of the core of
+> > > > Suspend2, and transformations (compression and/or encryption) and
+> > > > storage of the pages are handled by 'modules'.
+> > >
+> > > swsusp already has a very strong API to separate image writing from
+> > > image creation (in -mm patch, anyway). It is also very nice, just
+> > > read() from /dev/snapshot. Please use it.
 > >
-> > As repeated over and over here, there is such a way, it's called HAL and
-> > it is cross-platform. And it's what's used by some GUIs out there (e.g.
-> > nautilus-cd-burner).
-> 
-> The fact that people here repeat unadquate proposals forces me to repeat my 
-> proposals. Name a list fo OS that implement HAL and then look at the list
-> of crecord supported platforms 
+> > You know that's not an option.
+>
+> No, I don't... please explain. Switching to this interface is going to
+> be easier than pushing suspend2 into kernel. Granted, end result may
+> not be suspend2, it may be something like suspend3, but it will be
+> better result than u-swsusp or suspend2 is today...
 
-Well ... from your sayings it seems Linux is supported by HAL but not by
-libscg. 
+It's not an option because I'm not trying not to step all over your codebas=
+e,=20
+because I'm not moving suspend2 to userspace and because it doesn't make=20
+sense to add another layer of abstraction by sticking /dev/snapshot in the=
+=20
+middle of kernel space code. There may be more reasons, but I haven't looke=
+d=20
+at the /dev/snapshot code at all.
 
-	Xav
+Regards,
 
+Nigel
 
+=2D-=20
+See our web page for Howtos, FAQs, the Wiki and mailing list info.
+http://www.suspend2.net                IRC: #suspend2 on Freenode
+
+--nextPart2090073.C9mklPSHvX
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBD4e2vN0y+n1M3mo0RAkIHAJ4po16606VqjB8XHCOCP6gNN+fFPwCgwxgs
+SBF9tqnUaGk17uJP067HvHg=
+=Dw3V
+-----END PGP SIGNATURE-----
+
+--nextPart2090073.C9mklPSHvX--

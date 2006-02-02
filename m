@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbWBBTiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWBBTjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751077AbWBBTiM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 14:38:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbWBBTiM
+	id S1751173AbWBBTjK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 14:39:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWBBTjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 14:38:12 -0500
-Received: from wproxy.gmail.com ([64.233.184.204]:7792 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751077AbWBBTiL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 14:38:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RKMVyenN4/0pTYew+eP3zFzN+QwkJVQ2Nd5bDFAXWQ9wRIy5aapJl/dLZhtqmZorMH/A2kt5eNM9Dq4XTMO+RjsDd2wik7UYGBO8noUC8Zf8xmTuN8VxtxXUCOQSHvtBQq5IJceFURCrYfZXHdsLuqJgome+IfBW4WGmGzfZpPo=
-Message-ID: <9a8748490602021138h3b4b4432se1529101e5536ddc@mail.gmail.com>
-Date: Thu, 2 Feb 2006 20:38:10 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: discriminate single bit error hardware failure from slab corruption.
-In-Reply-To: <20060202192414.GA22074@redhat.com>
+	Thu, 2 Feb 2006 14:39:10 -0500
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:36048 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
+	id S1751177AbWBBTjI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 14:39:08 -0500
+X-ORBL: [67.117.73.34]
+Date: Thu, 2 Feb 2006 11:38:33 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Erik Slagter <erik@slagter.name>
+Cc: linux-acpi@vger.kernel.org, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, Joerg Sommrey <jo@sommrey.de>,
+       Andrew Morton <akpm@osdl.org>, Len <len.brown@intel.com>,
+       Brown@skylla.slagter.name, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] amd76x_pm: C3 powersaving for AMD K7
+Message-ID: <20060202193833.GM15939@atomide.com>
+References: <F7DC2337C7631D4386A2DF6E8FB22B3005EC94C3@hdsmsx401.amr.corp.intel.com> <1138845041.5557.20.camel@localhost.localdomain> <1138873815.4449.61.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060202192414.GA22074@redhat.com>
+In-Reply-To: <1138873815.4449.61.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/2/06, Dave Jones <davej@redhat.com> wrote:
-> In the case where we detect a single bit has been flipped, we spew
-> the usual slab corruption message, which users instantly think
-> is a kernel bug.  In a lot of cases, single bit errors are
-> down to bad memory, or other hardware failure.
->
-> This patch adds an extra line to the slab debug messages in those
-> cases, in the hope that users will try memtest before they report a bug.
->
-> 000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> Single bit error detected. Possibly bad RAM. Please run memtest86.
->
-May I suggest that the text be
- Single bit error detected. Possibly bad RAM. Please run memtest86
-and/or memtest86+.
+* Erik Slagter <erik@slagter.name> [060202 01:50]:
+> On Thu, 2006-02-02 at 01:50 +0000, Alan Cox wrote:
+> > On Mer, 2006-02-01 at 20:35 -0500, Brown, Len wrote:
+> > > This endeavor is full of risk, and I would be extremely careful
+> > > about enabling features that the BIOS explicitly disabled --
+> > > unless the hardware manufacturer publicly publishes
+> > > support for the feature, or the errata that you're working around.
 
-both programs are good memory testers, but they are different and
-sometimes one finds problems not detected by the other.
+Well the same code could also be used to disable C states on buggy
+hardware. On my Fujitsu Lifebook p2120 C states are enabled, but don't
+work. But we don't have currently anything in place to fix them or
+disable them. And enabling C states on amd76x could be a cmdline option.
+ 
+> > Folks had code that supported AMD76x by banging the hardware directly.
+> > On some AMD76x systems it caused corruption. Nobody AFAIK ever figured
+> > out if it was an errata (nothing obvious in the docs/errata list) or a
+> > bug in the code doing the banging on the chip or some other bit of
+> > hardware on the mainboard that needed extra handling.
+> 
+> Looks like it would be beneficial if someone, preferably with some
+> authority ;-), would try to get Tyan and/or AMD to reveal this
+> information.
+> 
+> I have read the docs for the AMD768 chipset numerous times, but I least
+> I (okay okay, I am not the expert here ;-)) cannot find anything that
+> would prevent this from working correctly.
+> 
+> AFAIK Tyan has been more or less cooperative with linux developers in
+> the past?! I'd be more than happy to ask them, but I don't think they
+> will take me very serious
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+The C states on amd76x are quite usable. The only problem I had on my
+Tyan s2460 was the some BIOS bug puts the machine into sleep at first
+when they're enabled :) This does not happen on other systems.
+
+Tony
+

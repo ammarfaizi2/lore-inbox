@@ -1,77 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423343AbWBBHZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423349AbWBBH2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423343AbWBBHZr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 02:25:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423345AbWBBHZq
+	id S1423349AbWBBH2e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 02:28:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423346AbWBBH2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 02:25:46 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:14988 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1423343AbWBBHZq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 02:25:46 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Chris Mason <mason@suse.com>
-Subject: Re: Recursive chmod/chown OOM kills box with 32MB RAM
-Date: Thu, 2 Feb 2006 09:25:00 +0200
-User-Agent: KMail/1.8.2
-Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-References: <200601281613.16199.vda@ilport.com.ua> <43DDAE2D.6080300@namesys.com> <200601300822.47821.mason@suse.com>
-In-Reply-To: <200601300822.47821.mason@suse.com>
+	Thu, 2 Feb 2006 02:28:34 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:45978 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1423349AbWBBH2e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 02:28:34 -0500
+Message-ID: <43E1B490.7080200@pobox.com>
+Date: Thu, 02 Feb 2006 02:28:16 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Kyle Moffett <mrmacman_g4@mac.com>
+CC: Lee Revell <rlrevell@joe-job.com>, Mark Rustad <mrustad@mac.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] PCI: restore 2 missing pci ids
+References: <200602010609.k1169QDX017012@hera.kernel.org> <43E0F73B.6040507@pobox.com> <A9543B03-333E-470F-AD18-0313192ADB23@mac.com> <1138857560.15691.0.camel@mindpipe> <D1A90FC1-95F7-4C2B-BC6D-1F60000FC989@mac.com>
+In-Reply-To: <D1A90FC1-95F7-4C2B-BC6D-1F60000FC989@mac.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602020925.00863.vda@ilport.com.ua>
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Kyle Moffett wrote: > On Feb 02, 2006, at 00:19, Lee
+	Revell wrote: > >> On Wed, 2006-02-01 at 23:11 -0600, Mark Rustad
+	wrote: >> >>> Why were the ids removed in the first place? >> >> >>
+	Because they weren't used by anything in the tree. > > > Also, the new
+	PCI-ID policy is to put the defines in the driver itself, > near where
+	it is used, instead of collecting them in a single file. > The goal is
+	to minimize the number of unused PCI IDs in the tree by > keeping the
+	definition near the usage. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 January 2006 15:22, Chris Mason wrote:
-> > >	chown -Rc 0:<n> .
-> > >
-> > >in a top directory of tree containing ~21938 files
-> > >on reiser3 partition:
-> > >
-> > >	/dev/sdc3 on /.3 type reiserfs (rw,noatime)
-> > >
-> > >causes oom kill storm. "ls -lR", "find ." etc work fine.
->
-> In order for the journaled filesystems to make sure the FS is consistent after 
-> a crash, we need to keep some blocks in memory until other blocks have been 
-> written.  These blocks are pinned, and can't be freed until a certain amount 
-> of io is done.
+Kyle Moffett wrote:
+> On Feb 02, 2006, at 00:19, Lee Revell wrote:
 > 
-> In the case of reiserfs, it might pin as much as the size of the journal at 
-> any time.  The default journal is 32MB, which is much too large for a system 
-> with only 32MB of ram.
+>> On Wed, 2006-02-01 at 23:11 -0600, Mark Rustad wrote:
+>>
+>>> Why were the ids removed in the first place?
+>>
+>>
+>> Because they weren't used by anything in the tree.
 > 
-> You can shrink the log of an existing filesystem.  The minimum size is 513 
-> blocks, you might try 1024 as a good starting poing.
 > 
-> reiserfstune -s 1024 /dev/xxxx
+> Also, the new PCI-ID policy is to put the defines in the driver  itself, 
+> near where it is used, instead of collecting them in a single  file.  
+> The goal is to minimize the number of unused PCI IDs in the  tree by 
+> keeping the definition near the usage.
 
-I had reiserfsprogs 3.6.11 and reiserfstune (above command) made my /dev/sdc3
-unmountable without -t reiserfs. I upgraded reiserfsprogs to 3.6.19 and now
-reiserfsck /dev/sdc3 reports no problems, but mount problem persists:
+No, if you do create a constant for a PCI ID, it still should go into 
+include/linux/pci_ids.h.
 
-# mount -t reiserfs /dev/sdc3 /.3
-# umount /.3
-# mount /dev/sdc3 /.3
-mount: you must specify the filesystem type
-# dmesg | tail -3
-br: port 1(ifi) entering forwarding state
-FAT: bogus number of reserved sectors
-VFS: Can't find a valid FAT filesystem on dev sdc3.
+Putting them in the driver will result in highly variable naming 
+policies, which in turn means the constants are less grep-able than today.
 
-"chown -Rc <n>:<m> ." now does not OOM kill the box, so this issue
-is resolved, thanks!
+Device IDs simply do not need an associated constant, if they are used 
+only in a PCI ID table.  Device IDs are arbitrary numbers that are 
+normally only used once in a source file.
 
-Can I restore sdc3 somehow that I won't need -t reiserfs in mount command?
-You can find result of
+Vendor IDs are used repeatedly, and definitely belong in pci_ids.h. 
+Device IDs make sense in pci_ids.h if they are used more than once.
 
-dd if=/dev/sdc3 of=1m bs=1M count=1
+	Jeff
 
-at http://195.66.192.167/linux/1m
---
-vda
+
+

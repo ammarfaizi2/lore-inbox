@@ -1,146 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbWBBOLJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWBBO3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbWBBOLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 09:11:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbWBBOLI
+	id S1751088AbWBBO3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 09:29:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWBBO3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 09:11:08 -0500
-Received: from gra-lx1.iram.es ([150.214.224.41]:3022 "EHLO gra-lx1.iram.es")
-	by vger.kernel.org with ESMTP id S1751078AbWBBOLF (ORCPT
+	Thu, 2 Feb 2006 09:29:24 -0500
+Received: from mx2.suse.de ([195.135.220.15]:6057 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751088AbWBBO3X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 09:11:05 -0500
-From: Gabriel Paubert <paubert@iram.es>
-Date: Thu, 2 Feb 2006 02:26:38 +0100
-To: Akinobu Mita <mita@miraclelinux.com>
-Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
-       linux-ia64@vger.kernel.org, Ian Molton <spyro@f2s.com>,
-       David Howells <dhowells@redhat.com>, linuxppc-dev@ozlabs.org,
-       Greg Ungerer <gerg@uclinux.org>, sparclinux@vger.kernel.org,
-       Miles Bader <uclinux-v850@lsi.nec.co.jp>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Yoshinori Sato <ysato@users.sourceforge.jp>,
-       Hirokazu Takata <takata@linux-m32r.org>,
-       linuxsh-shmedia-dev@lists.sourceforge.net, linux-m68k@vger.kernel.org,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Richard Henderson <rth@twiddle.net>, Chris Zankel <chris@zankel.net>,
-       dev-etrax@axis.com, ultralinux@vger.kernel.org, Andi Kleen <ak@suse.de>,
-       linuxsh-dev@lists.sourceforge.net, linux390@de.ibm.com,
-       Russell King <rmk@arm.linux.org.uk>, parisc-linux@parisc-linux.org
-Subject: Re: [patch 14/44] generic hweight{64,32,16,8}()
-Message-ID: <20060202012637.GA25093@iram.es>
-References: <20060201090224.536581000@localhost.localdomain> <20060201090325.905071000@localhost.localdomain>
+	Thu, 2 Feb 2006 09:29:23 -0500
+Date: Thu, 2 Feb 2006 15:29:17 +0100
+From: Olaf Hering <olh@suse.de>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Introduce __iowrite32_copy
+Message-ID: <20060202142917.GA10870@suse.de>
+References: <200602011820.k11IKUBo024575@hera.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20060201090325.905071000@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <200602011820.k11IKUBo024575@hera.kernel.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, 2006 at 06:02:38PM +0900, Akinobu Mita wrote:
+ On Wed, Feb 01, Linux Kernel Mailing List wrote:
+
+> tree c4d797b413bb6f8a1b8507213294a291ab5114f8
+> parent f7589f28d7dd4586b4e90ac3b2a180409669053a
+> author Bryan O'Sullivan <bos@pathscale.com> Wed, 01 Feb 2006 19:05:16 -0800
+> committer Linus Torvalds <torvalds@g5.osdl.org> Thu, 02 Feb 2006 00:53:13 -0800
 > 
-> This patch introduces the C-language equivalents of the functions below:
+> [PATCH] Introduce __iowrite32_copy
 > 
-> unsigned int hweight32(unsigned int w);
-> unsigned int hweight16(unsigned int w);
-> unsigned int hweight8(unsigned int w);
-> unsigned long hweight64(__u64 w);
+> This arch-independent routine copies data to a memory-mapped I/O region,
+> using 32-bit accesses.  The naming is double-underscored to make it clear
+> that it does not guarantee write ordering, nor does it perform a memory
+> barrier afterwards; the kernel doc also explicitly states this.  This style
+> of access is required by some devices.
 > 
-> In include/asm-generic/bitops/hweight.h
-> 
-> This code largely copied from:
-> include/linux/bitops.h
-> 
-> Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
->  include/asm-generic/bitops/hweight.h |   54 +++++++++++++++++++++++++++++++++++
->  1 files changed, 54 insertions(+)
-> 
-> Index: 2.6-git/include/asm-generic/bitops/hweight.h
-> ===================================================================
-> --- /dev/null
-> +++ 2.6-git/include/asm-generic/bitops/hweight.h
-> @@ -0,0 +1,54 @@
-> +#ifndef _ASM_GENERIC_BITOPS_HWEIGHT_H_
-> +#define _ASM_GENERIC_BITOPS_HWEIGHT_H_
-> +
-> +#include <asm/types.h>
-> +
-> +/**
-> + * hweightN - returns the hamming weight of a N-bit word
-> + * @x: the word to weigh
-> + *
-> + * The Hamming Weight of a number is the total number of bits set in it.
-> + */
-> +
-> +static inline unsigned int hweight32(unsigned int w)
+> This change also introduces include/linux/io.h, at Andrew's suggestion.  It
+> only has one occupant at the moment, but is a logical destination for
+> oft-replicated contents of include/asm-*/{io,iomap}.h to migrate to.
+
+> +++ b/lib/iomap_copy.c
+
+> +void __attribute__((weak)) __iowrite32_copy(void __iomem *to,
+> +					    const void *from,
+> +					    size_t count)
 > +{
-> +        unsigned int res = (w & 0x55555555) + ((w >> 1) & 0x55555555);
-> +        res = (res & 0x33333333) + ((res >> 2) & 0x33333333);
-> +        res = (res & 0x0F0F0F0F) + ((res >> 4) & 0x0F0F0F0F);
-> +        res = (res & 0x00FF00FF) + ((res >> 8) & 0x00FF00FF);
-> +        return (res & 0x0000FFFF) + ((res >> 16) & 0x0000FFFF);
+> +	u32 __iomem *dst = to;
+> +	const u32 *src = from;
+> +	const u32 *end = src + count;
+> +
+> +	while (src < end)
+> +		__raw_writel(*src++, dst++);
 > +}
 
+lib/iomap_copy.c: In function '__iowrite32_copy':
+lib/iomap_copy.c:40: error: implicit declaration of function '__raw_writel'
 
-The first step can be implemented slightly better:
+We compile with -Werror-implicit-function-declaration, and s390 does not
+have a __raw_writel.
+Should it just define __raw_writel to writel, like uml does a few
+commits later?
 
-unsigned int res = w-((w>>1)&0x55555555);
-
-as I found once on the web[1].
-
-Several of the following steps can also be simplified
-by omitting the masking when the result can't possibly
-cause a carry to propagate too far.
-
-This might also have a non negligible impact
-on code size.
-
-
-> +
-> +static inline unsigned int hweight16(unsigned int w)
-> +{
-> +        unsigned int res = (w & 0x5555) + ((w >> 1) & 0x5555);
-> +        res = (res & 0x3333) + ((res >> 2) & 0x3333);
-> +        res = (res & 0x0F0F) + ((res >> 4) & 0x0F0F);
-> +        return (res & 0x00FF) + ((res >> 8) & 0x00FF);
-> +}
-> +
-> +static inline unsigned int hweight8(unsigned int w)
-> +{
-> +        unsigned int res = (w & 0x55) + ((w >> 1) & 0x55);
-> +        res = (res & 0x33) + ((res >> 2) & 0x33);
-> +        return (res & 0x0F) + ((res >> 4) & 0x0F);
-> +}
-> +
-> +static inline unsigned long hweight64(__u64 w)
-> +{
-> +#if BITS_PER_LONG == 32
-> +	return hweight32((unsigned int)(w >> 32)) + hweight32((unsigned int)w);
-> +#elif BITS_PER_LONG == 64
-> +	u64 res;
-> +	res = (w & 0x5555555555555555ul) + ((w >> 1) & 0x5555555555555555ul);
-> +	res = (res & 0x3333333333333333ul) + ((res >> 2) & 0x3333333333333333ul);
-> +	res = (res & 0x0F0F0F0F0F0F0F0Ful) + ((res >> 4) & 0x0F0F0F0F0F0F0F0Ful);
-> +	res = (res & 0x00FF00FF00FF00FFul) + ((res >> 8) & 0x00FF00FF00FF00FFul);
-> +	res = (res & 0x0000FFFF0000FFFFul) + ((res >> 16) & 0x0000FFFF0000FFFFul);
-> +	return (res & 0x00000000FFFFFFFFul) + ((res >> 32) & 0x00000000FFFFFFFFul);
-> +#else
-> +#error BITS_PER_LONG not defined
-> +#endif
-> +}
-> +
-> +#endif /* _ASM_GENERIC_BITOPS_HWEIGHT_H_ */
->
-
-
-	Regards,
-	Gabriel
-
-[1] It might be better to write the first line 
-
-	unsigned res = w - ((w&0xaaaaaaaa)>>1);
-
-but I can never remember what the C standard guarantess about 
-right shifts values (very little IIRC). I believe that it will
-work properly on all architectures that GCC supports, however,
-and that it will help on many.
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

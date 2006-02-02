@@ -1,109 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423405AbWBBJYL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423413AbWBBJZm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423405AbWBBJYL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 04:24:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423411AbWBBJYL
+	id S1423413AbWBBJZm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 04:25:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423411AbWBBJZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 04:24:11 -0500
-Received: from mail.charite.de ([160.45.207.131]:38102 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S1423405AbWBBJYK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 04:24:10 -0500
-Date: Thu, 2 Feb 2006 10:23:58 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.16-rc1-mm4: APIC error on CPU0: 40(40)
-Message-ID: <20060202092358.GF821@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Thu, 2 Feb 2006 04:25:42 -0500
+Received: from 60-240-149-171.tpgi.com.au ([60.240.149.171]:35005 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S1423413AbWBBJZl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 04:25:41 -0500
+From: Nigel Cunningham <nigel@suspend2.net>
+Organization: Suspend2.net
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
+Date: Thu, 2 Feb 2006 19:22:06 +1000
+User-Agent: KMail/1.9.1
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@suse.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602020855.12392.nigel@suspend2.net> <200602020931.29796.rjw@sisk.pl>
+In-Reply-To: <200602020931.29796.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/signed;
+  boundary="nextPart1802504.qIIoneOH77";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602021922.11100.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--nextPart1802504.qIIoneOH77
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I'm using 2.6.16-rc1-mm4 on a Medion Laptop. lame me for crap hardware.
+Hi Rafael.
 
-Recent vanilla kernels were only usable when I gave them the boot options
-"irqpoll noapic lapic", and even then I had problems with messages like:
+On Thursday 02 February 2006 18:31, Rafael J. Wysocki wrote:
+> > Well, I'd love that to be true, but I don't believe Pavel's going to ro=
+ll
+> > over and say "Ok Nigel. You've got a better implementation. I'll submit
+> > patches to remove mine." I might be wrong, and I hope I will be, but I
+> > fear they're going to coexist for a while.
+>
+> First, your code introduces many changes in many parts of the kernel,
+> so to merge it you'll have to ask many people for acceptance.
 
-Jan 25 20:04:37 knarzkiste kernel: irq 11: nobody cared (try booting with the "irqpoll" option)
+I really must work harder to get rid of that perception. It used to be the=
+=20
+case, but isn't nowadays. Just about all of suspend2's changes are new file=
+s=20
+in kernel/power and include/<arch>/suspend2.h. The remainder are misc fixes=
+,=20
+and enhancements like Christoph's todo list.
 
-With 2.6.16-rc1-mm3 and 2.6.16-rc1-mm4 I was able to boot the box with
-no additional boot options and things seem to be working smoothly for
-the first time ever.
+> Second, swsusp is actively developed, not only by Pavel, and you know tha=
+t,
+> so you could be nicer. ;-)
 
-Now on the other hand, I'm getting these:
+It was hardly touched for a long time, but that has certainly been changing=
+ in=20
+the last few months. I wasn't meaning to be uncharitable. Sorry for giving=
+=20
+that impression.
 
-Feb  3 06:54:15 knarzkiste kernel: APIC error on CPU0: 40(40)
-Feb  3 07:06:43 knarzkiste kernel: APIC error on CPU0: 40(40)
-Feb  3 08:21:16 knarzkiste kernel: APIC error on CPU0: 40(40)
-Feb  3 09:50:49 knarzkiste kernel: APIC error on CPU0: 40(40)
-Feb  3 09:52:18 knarzkiste kernel: APIC error on CPU0: 40(40)
-Feb  3 10:30:38 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 0
-Feb  3 10:31:00 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 1
-Feb  3 10:31:01 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 1
-Feb  3 12:30:10 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 0
-Feb  3 13:07:33 knarzkiste kernel: APIC error on CPU0: 40(40)
-Feb  3 14:27:13 knarzkiste kernel: APIC error on CPU0: 40(40)
-Feb  3 14:30:04 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 0
-Feb  3 15:30:27 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 0
-Feb  3 16:42:44 knarzkiste kernel: APIC error on CPU0: 40(40)
-Feb  3 16:45:30 knarzkiste kernel: APIC error on CPU0: 40(40)
-Feb  3 17:14:01 knarzkiste kernel: APIC error on CPU0: 40(40)
-Feb  3 17:48:09 knarzkiste kernel: APIC error on CPU0: 40(40)
-Feb  3 18:30:44 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 0
-Feb  3 19:30:30 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 0
+> Still our approach is quite different to yours.  We are focused on keepei=
+ng
+> the code possibly simple and non-intrusive wrt the other parts of the
+> kernel, whereas you seem to concentrate on features (which is not wrong,
+> IMO, it's just a different point of view).  We're moving towards the
+> implementation of the features like the system image compression and
+> encryption,
+> graphical progress meters etc. in the user space, which has some
+> advantages, and I think this approach is correct for a laptop/desktop
+> system.
+>
+> Its limitation , however, is that it requires a lot of memory for the
+> system memory snapshot which may be impractical for systems with limited
+> RAM, and that's where your solution may be required.
 
-# cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 15
-model           : 36
-model name      : AMD Turion(tm) 64 Mobile Technology ML-30
-stepping        : 2
-cpu MHz         : 1592.107
-cache size      : 1024 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext fxsr_opt lm 3dnowext 3dnow constant_tsc pni lahf_lm ts fid vid ttp tm stc
-bogomips        : 3193.01
+I'm more concerned about the security implications. I'll freely admit that =
+I=20
+haven't spent any real time looking at your code, but I'm concerned that th=
+e=20
+additional functionality made available could be used by viruses and the=20
+like. I'm sure you'd have to be root to do anything, but how could the=20
+interfaces be misused?
 
-# lspci
-0000:00:00.0 Host bridge: ATI Technologies Inc RS480 Host Bridge (rev 10)
-0000:00:01.0 PCI bridge: ATI Technologies Inc RS480 PCI Bridge
-0000:00:13.0 USB Controller: ATI Technologies Inc IXP SB400 USB Host Controller
-0000:00:13.1 USB Controller: ATI Technologies Inc IXP SB400 USB Host Controller
-0000:00:13.2 USB Controller: ATI Technologies Inc IXP SB400 USB2 Host Controller
-0000:00:14.0 SMBus: ATI Technologies Inc IXP SB400 SMBus Controller (rev 10)
-0000:00:14.1 IDE interface: ATI Technologies Inc Standard Dual Channel PCI IDE Controller ATI
-0000:00:14.3 ISA bridge: ATI Technologies Inc IXP SB400 PCI-ISA Bridge
-0000:00:14.4 PCI bridge: ATI Technologies Inc IXP SB400 PCI-PCI Bridge
-0000:00:14.5 Multimedia audio controller: ATI Technologies Inc IXP SB400 AC'97 Audio Controller (rev 01)
-0000:00:14.6 Modem: ATI Technologies Inc ATI SB400 - AC'97 Modem Controller (rev 01)
-0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
-0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-0000:01:05.0 VGA compatible controller: ATI Technologies Inc ATI Radeon XPRESS 200M 5955 (PCIE)
-0000:02:03.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-0000:02:04.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev ac)
-0000:02:04.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev ac)
-0000:02:04.2 FireWire (IEEE 1394): Ricoh Co Ltd R5C552 IEEE 1394 Controller (rev 04)
-0000:02:09.0 Network controller: RaLink RT2500 802.11g Cardbus/mini-PCI (rev 01)
-0000:07:00.0 Multimedia controller: Philips Semiconductors SAA7134 Video Broadcast Decoder (rev 01)
+> In conclusion, I see the room for both, as long as the do not conflict, so
+> could we please bury the hatched and start working _together_?
 
--- 
-Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+I didn't realise I was holding one :). I'm not sure that I agree that there=
+'s=20
+a need for both, but I have no desire whatsoever to act an any sort of nast=
+y=20
+way. All I want is to help provide Linux users with stable, reliable,=20
+flexible and fast suspend-to-disk functionality.
+
+Regards,
+
+Nigel
+=2D-=20
+See our web page for Howtos, FAQs, the Wiki and mailing list info.
+http://www.suspend2.net                IRC: #suspend2 on Freenode
+
+--nextPart1802504.qIIoneOH77
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBD4c9DN0y+n1M3mo0RAqQiAJ9lIHGTjsjlQK2V4maLrOcanRYa1QCdHLZX
+cIfBIBjadLIewAjl3MR2xc0=
+=FQNB
+-----END PGP SIGNATURE-----
+
+--nextPart1802504.qIIoneOH77--

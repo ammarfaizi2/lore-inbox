@@ -1,97 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWBBXPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbWBBXVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751185AbWBBXPW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 18:15:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWBBXPV
+	id S932446AbWBBXVc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 18:21:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932451AbWBBXVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 18:15:21 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:47765 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751185AbWBBXPU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 18:15:20 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
-Date: Thu, 2 Feb 2006 23:10:40 +0100
+	Thu, 2 Feb 2006 18:21:32 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:56770 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S932446AbWBBXVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 18:21:31 -0500
+From: Nigel Cunningham <nigel@suspend2.net>
+Organization: Suspend2.net
+To: Andrew Morton <akpm@osdl.org>, suspend2-devel@lists.suspend2.net
+Subject: Re: [ 00/10] [Suspend2] Modules support.
+Date: Fri, 3 Feb 2006 09:18:02 +1000
 User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@cs.helsinki.fi>,
+Cc: Pavel Machek <pavel@ucw.cz>, torvalds@osdl.org,
        linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602021353.30802.rjw@sisk.pl> <200602030727.48855.nigel@suspend2.net>
-In-Reply-To: <200602030727.48855.nigel@suspend2.net>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060202152316.GC8944@ucw.cz> <20060202132708.62881af6.akpm@osdl.org>
+In-Reply-To: <20060202132708.62881af6.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: multipart/signed;
+  boundary="nextPart1669816.kGr0fDvutv";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602022310.40783.rjw@sisk.pl>
+Message-Id: <200602030918.07006.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--nextPart1669816.kGr0fDvutv
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Thursday 02 February 2006 22:27, Nigel Cunningham wrote:
-> On Thursday 02 February 2006 22:53, Rafael J. Wysocki wrote:
-> > On Thursday 02 February 2006 10:38, Pavel Machek wrote:
-> > > > Its limitation , however, is that it requires a lot of memory for the
-> > > > system memory snapshot which may be impractical for systems with
-> > > > limited RAM, and that's where your solution may be required.
-> > >
-> > > Actually, suspend2 has similar limitation. It still needs half a
-> > > memory free, but it does not count caches into that as it can save
-> > > them separately.
+Hi Andrew et al.
+
+On Friday 03 February 2006 07:27, Andrew Morton wrote:
+> Pavel Machek <pavel@ucw.cz> wrote:
+> > > I don't want to argue Pavel. I want to give users the best suspend to
+> > > disk implementation they can get. If you want to argue, you can do so
+> > > with
 > >
-> > I didn't know that.  [If that is the case, I wonder what Nigel means by
-> > the "whole memory image".  Nigel?]
-> 
-> The LRU almost always easily accounts for more 50% of memory in use. Suspend2 
-> writes LRU pages to disk, then uses those pages to store the atomic copy of 
-> the remainder of memory. That's how I overcome the 50% problem and still 
-> really do get a full image of memory. If the LRU is smaller than the 
-> remainder of memory in use, we allocate extra memory if possible. If that 
-> still doesn't give enough memory for the atomic copy, we seek to free memory 
-> until that constraint is satisfied. If we free everything we can, and still 
-> can't satisfy that constraint, we give up and return control to the user. In 
-> 99% of the cases, however, no freeing of memory is required and the user 
-> really can get a full image of memory saved.
+> > I want to create best suspen that can be still merged into kernel; I
+> > guess thats the difference. Anyway I believe that most of suspend
+> > should be done in userspace -- most of it can. But I guess you need to
+> > hear it from Linus/Andrew, so...
+>
+> You're unlikely to hear anything dispositive from either of us on this.
+> You three guys know far more than us about suspend, so it would be silly
+> for us to be making the technical decisions.  When cornered, we're more
+> likely to come out with general kernel platitudes such as "doing it in
+> userspace:good" and "crashing the kernel:bad" and "incremental development
+> with early merges:good" and "mucking up the kernel source:bad".
+>
+> What we hope and expect is that you'll come up with an agreed path in
+> accordance with general kernel coding and development principles.  Linus
+> and I don't want to have to make tiebreak decisions - if we have to do
+> that, the system has failed.
+>
+> Random thoughts:
+>
+> - swsusp has been a multi-year ongoing source of churn and bug reports.
+>   It hasn't been a big success and we have a way to go yet.
+>
+> - People seem to be doing too much development on the swsusp core and not
+>   enough development out where the actual problems are: drivers which don=
+'t
+>   suspend and resume correctly.
+>
+> - suspend2 is at a disadvantage because swsusp was merged first.  If
+>   neither of the solutions had been merged and if we were evaluating them
+>   side-by-side, suspend2 would have a much better chance.  This is a
+>   problem.
+>
+> - If you want my cheerfully uninformed opinion, we should toss both of
+>   them out and implement suspend3, which is based on the kexec/kdump
+>   infrastructure.  There's so much duplication of intent here that it's n=
+ot
+>   funny.  And having them separate like this weakens both in the area whe=
+re
+>   the real problems are: drivers.
+>
+> - Justifying the inclusion of a feature by the appearance and usefulness
+>   of the end result doesn't really work in this world.  There are numerous
+>   unmerged kernel features out there which work well and look great.  But
+>   we will look under the hood, and that's when problems start.
+>
+>
+> So, as promised, there's nothing useful here.  What we'd most like to see
+> is for Nigel to start working on in-kernel swsusp, merging up the good bi=
+ts
+> from suspend2 in some evolutionary incremental manner under which the
+> kernel continually improves.  If, at the end of the day, that ends up with
+> us having a complete implementation of suspend2, well, Mission
+> Accomplished?
 
-Now that's clear to me.  Thanks for the explanation.
+Thanks for the reply. You're right. It doesn't help at all :)
 
-> > > That means that on certain small systems (32MB RAM?), suspend2 is going
-> > > to have big advantage of responsivity after resume. But on the systems
-> > > where [u]swsusp can't suspend (6MB RAM?), suspend2 is not going to be
-> > > able to suspend, either. [Roughly; due to bugs and implementation
-> > > differences there may be some system size where one works and second one
-> > > does not, but they are pretty similar]
-> >
-> > Generally speaking, my perception is that suspend2 may be preferrable below
-> > 256 MB of RAM.  Moreover there are some people who seem to prefer
-> > entirely kernel-based suspend, and I'm not going to develop the code
-> > in swap.c and disk.c any further (of course with the exception of bugfixes
-> > etc.).  Nigel has done it already so perhaps there is a room for his code,
-> > too, _provided_ _that_ it is accepted.
-> 
-> All of the machines I regularly use have 512M+ of memory. Suspend2 is 
-> definitely preferable on them because I've worked hard to maximise I/O 
-> throughput. Last time I measured swsusp throughput, it was 16MB/s on my old 
-> Omnibook. Suspend2 achieved ~25MB writing and 50MB/s reading when using LZF 
-> compression (933 Celeron), or the 35MB/s uncompressed (the maximum throughput 
-> that could be achieved according to tools like hdparm -t) on the same system. 
-> With the same drive in my new laptop (amd64 M34), I get ~70MB/s read/write 
-> (depending on cpufreq settings). My 3G P4s at work and home do about 70
-> (w)/110(r) MB/s. (All of this is using LZF compression).
+Well, actually it does.
 
-I was referring to the (not so far) future situation when we have compression
-in the userland suspend/resume utilities.  The times of writing/reading the image
-will be similar to yours and IMHO it's usually possible to free 1/2 of RAM
-in a box with 512+ MB of RAM at a little cost as far as the responsiveness
-after resume is concerned.  Thus on machines with 512+ MB of RAM
-both solutions will give similar results performance-wise, but the
-userland-driven suspend gives you much more flexibility wrt what you can
-do with the image (eg. you can even send it over the network if need be).
+It reminds me why I started working on this in the first place. It wasn't=20
+because I wanted to be a big shot kernel developer or the like, or have my=
+=20
+name in the kernel credits. It was because I wanted to use the code.
 
-On machines with less RAM suspend2 will probably be better preformance-wise,
-and that may be more important than the flexibility.
+So, given that I'm perfectly willing to send Pavel patches, but he's not=20
+willing to take them, I guess I the best thing I can do is to just let Pave=
+l=20
+have his way, give up on the concept of merging Suspend2 and maintain it ou=
+t=20
+of tree. When Pavel and Rafael get swsusp up to scratch, I can stop doing=20
+that and just use their version.
 
-Greetings,
-Rafael
+Well, that's what I think at the moment. Let's see how things progress.
 
+Nigel
+=2D-=20
+See our web page for Howtos, FAQs, the Wiki and mailing list info.
+http://www.suspend2.net                IRC: #suspend2 on Freenode
+
+--nextPart1669816.kGr0fDvutv
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBD4pMuN0y+n1M3mo0RAnkAAKDRN2yBzA1cCpYSr4fr1XHfipAi2wCfZDQX
+589/pkWPp9Pd//FpzZWwkvM=
+=FxEr
+-----END PGP SIGNATURE-----
+
+--nextPart1669816.kGr0fDvutv--

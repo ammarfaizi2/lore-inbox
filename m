@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWBBVV3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWBBVW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbWBBVV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 16:21:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWBBVV3
+	id S932261AbWBBVW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 16:22:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWBBVW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 16:21:29 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:39167 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932249AbWBBVV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 16:21:28 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Thu, 02 Feb 2006 22:20:18 +0100
-To: jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de
-Cc: schilling@fokus.fraunhofer.de, mrmacman_g4@mac.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, James@superbug.co.uk, j@bitron.ch,
-       acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43E27792.nail54V1B1B3Z@burner>
-References: <43DDFBFF.nail16Z3N3C0M@burner>
- <1138642683.7404.31.camel@juerg-pd.bitron.ch>
- <43DF3C3A.nail2RF112LAB@burner>
- <1138710764.17338.47.camel@juerg-t40p.bitron.ch>
- <43DF6812.nail3B44TLQOP@burner> <20060202062840.GI5501@mail>
- <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo>
- <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com>
- <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr>
- <20060202210949.GD10352@voodoo>
-In-Reply-To: <20060202210949.GD10352@voodoo>
-User-Agent: nail 11.2 8/15/04
+	Thu, 2 Feb 2006 16:22:58 -0500
+Received: from smtp3.netcologne.de ([194.8.194.66]:35537 "EHLO
+	smtp3.netcologne.de") by vger.kernel.org with ESMTP id S932261AbWBBVW5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 16:22:57 -0500
+Message-ID: <43E27895.4010904@blx4.net>
+Date: Thu, 02 Feb 2006 22:24:37 +0100
+From: Mathias Kretschmer <posting@blx4.net>
+User-Agent: Mail/News 1.5 (X11/20060117)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Willy Tarreau <willy@w.ods.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Linux Kernel Useful Patches (2.4)
+References: <20060130085233.GA1498@w.ods.org>
+In-Reply-To: <20060130085233.GA1498@w.ods.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+Willy Tarreau wrote:
+> Hi all,
+> 
+> after some discussions with some people, I made available a collection of
+> useful patches for kernel 2.4. There are only a dozen of patches right
+> now, but it's very easy to add more. Amongst those patches can be found
+> some drivers, security enhancements, polling optimisations, gcc4 fixes,
+> VM optimisations, etc... Links to the original sites as well as a local
+> mirror are provided.
+> 
+> They are classified by categories and can easily be found in more than
+> one category. I plan to add many more patches such as ACL, squashfs,
+> preempt, netdev-random, patch-o-matic, etc... when I have the time, and
 
-> I see the same thing with, the only external kernel patch I have
-> applied is Suspend2. The ATA scanbus code tries to 
-> open("/dev/hda", O_RDWR|O_NONBLOCK|O_EXCL) and that fails, and since
+O(1) and low latency would also be interesting candidates for inclusion.
 
-This is not cdrecord but a bastardized version......
+BTW, does anyone know about the state of the (l)ck patches for recent 
+2.4 kernels ?
 
-Jörg
+> possibly start the same work for 2.6 (everything has been prepared in
+> order to make it easy too).
+> 
+> If there are patches you frequently use and wish to be added there,
+> feel free to send a link and description.
+> 
+> At the moment, it's hosted on my home server. If it generates too much
+> traffic, I'll move it somewhere else.
+> 
+>   link:  http://w.ods.org/kernel/2.4/lkup/
+> 
+> Regards,
+> Willy
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

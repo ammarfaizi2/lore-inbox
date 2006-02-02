@@ -1,83 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWBBKZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423447AbWBBK1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWBBKZV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 05:25:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbWBBKZV
+	id S1423447AbWBBK1S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 05:27:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423450AbWBBK1S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 05:25:21 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:16821 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932278AbWBBKZU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 05:25:20 -0500
-Message-ID: <43E1DF46.5020803@aitel.hist.no>
-Date: Thu, 02 Feb 2006 11:30:30 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?UTF-8?B?RW1pbGlvIEplc8O6cyBHYWxsZWdvIEFyaWFz?= 
-	<egallego@babel.ls.fi.upm.es>
-CC: Linus Torvalds <torvalds@osdl.org>, Karim Yaghmour <karim@opersys.com>,
-       Filip Brcic <brcha@users.sourceforge.net>,
-       Glauber de Oliveira Costa <glommer@gmail.com>,
-       Thomas Horsten <thomas@horsten.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk> <43DE57C4.5010707@opersys.com> <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com> <200601302301.04582.brcha@users.sourceforge.net> <43E0E282.1000908@opersys.com> <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org> <43E1C55A.7090801@drzeus.cx> <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org> <87mzha85sc.fsf@babel.ls.fi.upm.es>
-In-Reply-To: <87mzha85sc.fsf@babel.ls.fi.upm.es>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 2 Feb 2006 05:27:18 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:7185 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1423447AbWBBK1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 05:27:17 -0500
+Date: Thu, 2 Feb 2006 10:27:08 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>, chris@zankel.net,
+       lethal@linux-sh.org
+Subject: Re: [BUG] sizeof(struct async_icount) exported to userspace on SH, SH64 and xtensa
+Message-ID: <20060202102708.GD5034@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	chris@zankel.net, lethal@linux-sh.org
+References: <20060121185712.GA25185@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060121185712.GA25185@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Emilio Jesús Gallego Arias wrote:
+Ping?
 
->Linus Torvalds <torvalds@osdl.org> writes:
->
->  
->
->>On Thu, 2 Feb 2006, Pierre Ossman wrote:
->>    
->>
->>>The point is not only getting access to the source code, but also being able
->>>to change it. Being able to freely study the code is only half of the beauty
->>>of the GPL. The other half, being able to change it, can be very effectively
->>>stopped using DRM.
->>>      
->>>
->>No it cannot.
->>    
->>
->
->1.- Distribute a kernel with some DRM built-in under the GPL.
->
->2.- Claim that such kernel is an effective technological measure to
->    protect copyright. 
->
->3.- You are no longer free to modify that kernel, (removing the DRM
->    module) or you can be sued under the DMCA, for circumventing an
->    effective technological measure. It doesn't matter in what
->    hardware are you going to run such kernel. The DMCA implicitly
->    imposes an additional restriction to the GPL, but as the
->    restriction is not imposed directly by the copyright owner, but by
->    the law, it's OK as far the GPL is concerned.
->  
->
-This can't legally happen.  Do the DMCA prevent "circumventing"
-even when you have the legal right to make copies of the content?
-(If so, then the music industry breaks DMCA when manufacturing
-their protected CDs from a protected master . . .)
+On Sat, Jan 21, 2006 at 06:57:12PM +0000, Russell King wrote:
+> I've just been looking through the remaining cruft in the serial
+> drivers, and have come across this silly thing:
+> 
+> TIOCGICOUNT exports a structure to userspace called
+> struct serial_icounter_struct.
+> 
+> However, sh, sh64 and xtensa do this:
+> 
+> include/asm-sh/ioctls.h:#define TIOCGICOUNT     _IOR('T', 93, struct async_icount) /* 0x545D */ /* read serial port inline interrupt counts */
+> include/asm-sh64/ioctls.h:#define TIOCGICOUNT   0x802c545d      /* _IOR('T', 93, struct async_icount) 0x545D */ /* read serial port inline interrupt counts */
+> include/asm-xtensa/ioctls.h:#define TIOCGICOUNT _IOR('T', 93, struct async_icount) /* read serial port inline interrupt counts */
+> 
+> What's more is that no driver actually exports async_icount, and
+> async_icount is a kernel internal structure which does _not_ form
+> part of the public API, and modifications to this will result in
+> unexpected breakage on these platforms.
+> 
+> 100% for trying to clean up the tty ioctl definitions.  0% for
+> using the wrong structures.  As such, these _require_ fixing.
+> 
+> Please document that your TIOCGICOUNT is broken and remove the
+> dependence on the async_icount structure.  Thanks.
+> 
+> -- 
+> Russell King
+>  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+>  maintainer of:  2.6 Serial core
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-If so, then step (1) is illegal because it breaks with the GPL. 
-Remember, when you distribute something under the GPL, you cannot
-impose restrictions.  It is well established that you can't link in
-something with a more restrictive commercial licence, for example. 
-I think adding that DRM falls in the same trap - if the DMCA really
-impose this additional restriction (because DRM-breaking is illegal
-even when content copying is not) then you are not allowed to
-add that restriction. 
-
-Someone distributing DRM-protected kernels are breaking
-copyrigth law then, if the DMCA is so strict.
-
-Helge Hafting
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

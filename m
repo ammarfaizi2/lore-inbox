@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWBBAVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbWBBAYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751404AbWBBAVY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Feb 2006 19:21:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWBBAVY
+	id S1751411AbWBBAYd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Feb 2006 19:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWBBAYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 19:21:24 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:50886 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751404AbWBBAVX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 19:21:23 -0500
-Date: Wed, 1 Feb 2006 18:21:09 -0600
-To: Linus Torvalds <torvalds@osdl.org>, Greg KH <gregkh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Dave Jones <davej@redhat.com>,
-       linuxppc64-dev@ozlabs.org
-Subject: [PATCH 2/2]: PowerPC/PCI Hotplug build break
-Message-ID: <20060202002109.GB24916@austin.ibm.com>
+	Wed, 1 Feb 2006 19:24:33 -0500
+Received: from spooner.celestial.com ([192.136.111.35]:55705 "EHLO
+	spooner.celestial.com") by vger.kernel.org with ESMTP
+	id S1751411AbWBBAYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Feb 2006 19:24:32 -0500
+Date: Wed, 1 Feb 2006 19:30:18 -0500
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux try #2
+Message-ID: <20060202003018.GD6878@kurtwerks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200601302043.56615.diablod3@gmail.com> <20060130.174705.15703464.davem@davemloft.net> <Pine.LNX.4.64.0601310609210.2979@innerfire.net> <20060131.031817.85883571.davem@davemloft.net> <787b0d920601312049n313364a1q8a41e10c3cda98e0@mail.gmail.com> <5a2cf1f60601312356n1b031344r11290879d80d5b57@mail.gmail.com> <43E0E4FB.nail46331XLLU@burner>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-From: linas@austin.ibm.com (Linas Vepstas)
+In-Reply-To: <43E0E4FB.nail46331XLLU@burner>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.6.16-rc1krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 01, 2006 at 05:42:35PM +0100, Joerg Schilling took 23 lines to write:
+> jerome lacoste <jerome.lacoste@gmail.com> wrote:
+> 
+> > http://lists.freedesktop.org/archives/libburn/2006-January/000329.html
+> >
+> > "Announcing cdrskin, a limited cdrecord compatibility wrapper for libburn
+> 
+> You you really believe that something like libcdburn that does not even come
+> close to compiling because of a syntax error in "./configure" and that
+> is Linux only will be of any help?
 
-Please apply ASAP:
+If it avoids annual pissing contests on this topic, yes.
 
-Build break: Building PCI hotplug on PowerPC results in
-a build break, due to failure to export symbols.
+-- 
+WHERE CAN THE MATTER BE
 
-Reported today by Dave Jones <davej@redhat.com>:
-drivers/pci/hotplug/rpaphp.ko needs unknown symbol pcibios_add_pci_devices
-
-This patch fixes same problem in drivers/pci tree
-Previous patch fixes the break in the arch/powerpc tree.
-
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
----
- rpaphp_slot.c |    1 +
- 1 files changed, 1 insertion(+)
-
-Index: linux-2.6.16-rc1-git5/drivers/pci/hotplug/rpaphp_slot.c
-===================================================================
---- linux-2.6.16-rc1-git5.orig/drivers/pci/hotplug/rpaphp_slot.c	2006-02-01 18:06:06.022722369 -0600
-+++ linux-2.6.16-rc1-git5/drivers/pci/hotplug/rpaphp_slot.c	2006-02-01 18:11:46.049970222 -0600
-@@ -159,6 +159,7 @@
- 	dbg("%s - Exit: rc[%d]\n", __FUNCTION__, retval);
- 	return retval;
- }
-+EXPORT_SYMBOL_GPL(rpaphp_deregister_slot);
- 
- int rpaphp_register_slot(struct slot *slot)
- {
+	Oh, dear, where can the matter be
+	When it's converted to energy?
+	There is a slight loss of parity.
+	Johnny's so long at the fair.

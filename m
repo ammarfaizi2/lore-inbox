@@ -1,204 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423397AbWBBJTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1423405AbWBBJYL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1423397AbWBBJTK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 04:19:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423398AbWBBJTJ
+	id S1423405AbWBBJYL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 04:24:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1423411AbWBBJYL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 04:19:09 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:57028 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S1423397AbWBBJTI (ORCPT
+	Thu, 2 Feb 2006 04:24:11 -0500
+Received: from mail.charite.de ([160.45.207.131]:38102 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S1423405AbWBBJYK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 04:19:08 -0500
-Date: Thu, 2 Feb 2006 09:17:47 +0000 (GMT)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [git pull] drm patches for 2.6.16
-Message-ID: <Pine.LNX.4.58.0602020913460.19173@skynet>
+	Thu, 2 Feb 2006 04:24:10 -0500
+Date: Thu, 2 Feb 2006 10:23:58 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.16-rc1-mm4: APIC error on CPU0: 40(40)
+Message-ID: <20060202092358.GF821@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Hi Linus,
+I'm using 2.6.16-rc1-mm4 on a Medion Laptop. lame me for crap hardware.
 
-Can you pull the drm-linus branch from
-git://git.kernel.org/pub/scm/linux/kernel/git/airlied/drm-2.6.git
+Recent vanilla kernels were only usable when I gave them the boot options
+"irqpoll noapic lapic", and even then I had problems with messages like:
 
-It contains a bunch of cleanup patches (mutex conversion, static function,
-sparse) along with new i945GM chipset support (pciid and some minor
-changes) which Intel recently pushed to me, there should be nothing
-contentious in here ....
+Jan 25 20:04:37 knarzkiste kernel: irq 11: nobody cared (try booting with the "irqpoll" option)
 
-Dave.
+With 2.6.16-rc1-mm3 and 2.6.16-rc1-mm4 I was able to boot the box with
+no additional boot options and things seem to be working smoothly for
+the first time ever.
 
- ati_pcigart.c |   17 +++++-------
- drmP.h        |    5 ++-
- drm_auth.c    |   20 +++++++-------
- drm_bufs.c    |   80 +++++++++++++++++++++++++++++-----------------------------
- drm_context.c |   52 ++++++++++++++++++-------------------
- drm_drv.c     |    4 +-
- drm_fops.c    |   12 ++++----
- drm_ioctl.c   |   18 ++++++-------
- drm_irq.c     |   16 +++++------
- drm_pciids.h  |    2 +
- drm_proc.c    |   28 ++++++++++----------
- drm_stub.c    |    4 +-
- drm_vm.c      |   12 ++++----
- i810_dma.c    |    2 -
- i810_drv.h    |    2 -
- i830_dma.c    |    2 -
- i830_drv.h    |    3 --
- i915_dma.c    |   42 +++++++++++++++++++++---------
- i915_drm.h    |   33 +++++++++++++++++++++++
- i915_drv.h    |    6 ++--
- i915_mem.c    |   31 ++++++++++++++++++++++
- radeon_cp.c   |    2 -
- savage_bci.c  |    4 ++
- savage_drv.h  |    1
- via_dma.c     |   10 +++----
- via_dmablit.c |    6 ++--
- via_drv.h     |    7 -----
- via_irq.c     |    2 -
- 28 files changed, 248 insertions(+), 175 deletions(-)
+Now on the other hand, I'm getting these:
 
+Feb  3 06:54:15 knarzkiste kernel: APIC error on CPU0: 40(40)
+Feb  3 07:06:43 knarzkiste kernel: APIC error on CPU0: 40(40)
+Feb  3 08:21:16 knarzkiste kernel: APIC error on CPU0: 40(40)
+Feb  3 09:50:49 knarzkiste kernel: APIC error on CPU0: 40(40)
+Feb  3 09:52:18 knarzkiste kernel: APIC error on CPU0: 40(40)
+Feb  3 10:30:38 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 0
+Feb  3 10:31:00 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 1
+Feb  3 10:31:01 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 1
+Feb  3 12:30:10 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 0
+Feb  3 13:07:33 knarzkiste kernel: APIC error on CPU0: 40(40)
+Feb  3 14:27:13 knarzkiste kernel: APIC error on CPU0: 40(40)
+Feb  3 14:30:04 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 0
+Feb  3 15:30:27 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 0
+Feb  3 16:42:44 knarzkiste kernel: APIC error on CPU0: 40(40)
+Feb  3 16:45:30 knarzkiste kernel: APIC error on CPU0: 40(40)
+Feb  3 17:14:01 knarzkiste kernel: APIC error on CPU0: 40(40)
+Feb  3 17:48:09 knarzkiste kernel: APIC error on CPU0: 40(40)
+Feb  3 18:30:44 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 0
+Feb  3 19:30:30 knarzkiste kernel: set_rtc_mmss: can't update from 59 to 0
 
-commit 30e2fb188194908e48d3f27a53ccea6740eb1e98
-Author: Dave Airlie <airlied@starflyer.(none)>
-Date:   Thu Feb 2 19:37:46 2006 +1100
+# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 15
+model           : 36
+model name      : AMD Turion(tm) 64 Mobile Technology ML-30
+stepping        : 2
+cpu MHz         : 1592.107
+cache size      : 1024 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext fxsr_opt lm 3dnowext 3dnow constant_tsc pni lahf_lm ts fid vid ttp tm stc
+bogomips        : 3193.01
 
-    sem2mutex: drivers/char/drm/
+# lspci
+0000:00:00.0 Host bridge: ATI Technologies Inc RS480 Host Bridge (rev 10)
+0000:00:01.0 PCI bridge: ATI Technologies Inc RS480 PCI Bridge
+0000:00:13.0 USB Controller: ATI Technologies Inc IXP SB400 USB Host Controller
+0000:00:13.1 USB Controller: ATI Technologies Inc IXP SB400 USB Host Controller
+0000:00:13.2 USB Controller: ATI Technologies Inc IXP SB400 USB2 Host Controller
+0000:00:14.0 SMBus: ATI Technologies Inc IXP SB400 SMBus Controller (rev 10)
+0000:00:14.1 IDE interface: ATI Technologies Inc Standard Dual Channel PCI IDE Controller ATI
+0000:00:14.3 ISA bridge: ATI Technologies Inc IXP SB400 PCI-ISA Bridge
+0000:00:14.4 PCI bridge: ATI Technologies Inc IXP SB400 PCI-PCI Bridge
+0000:00:14.5 Multimedia audio controller: ATI Technologies Inc IXP SB400 AC'97 Audio Controller (rev 01)
+0000:00:14.6 Modem: ATI Technologies Inc ATI SB400 - AC'97 Modem Controller (rev 01)
+0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
+0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
+0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
+0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
+0000:01:05.0 VGA compatible controller: ATI Technologies Inc ATI Radeon XPRESS 200M 5955 (PCIE)
+0000:02:03.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
+0000:02:04.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev ac)
+0000:02:04.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev ac)
+0000:02:04.2 FireWire (IEEE 1394): Ricoh Co Ltd R5C552 IEEE 1394 Controller (rev 04)
+0000:02:09.0 Network controller: RaLink RT2500 802.11g Cardbus/mini-PCI (rev 01)
+0000:07:00.0 Multimedia controller: Philips Semiconductors SAA7134 Video Broadcast Decoder (rev 01)
 
-    From: Arjan van de Ven <arjan@infradead.org>
-
-    Semaphore to mutex conversion.
-
-    The conversion was generated via scripts, and the result was validated
-    automatically via a script as well.
-
-    Signed-off-by: Arjan van de Ven <arjan@infradead.org>
-    Signed-off-by: Ingo Molnar <mingo@elte.hu>
-    Signed-off-by: Andrew Morton <akpm@osdl.org>
-    Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-commit ce60fe02fbe737cbce09e2ba5a2ef1efd20eff73
-Author: Dave Airlie <airlied@starflyer.(none)>
-Date:   Thu Feb 2 19:21:38 2006 +1100
-
-    drm: drivers/char/drm/: make some functions static
-
-    From: Adrian Bunk <bunk@stusta.de>
-
-    This patch makes some needlessly global functions static.
-
-    Signed-off-by: Adrian Bunk <bunk@stusta.de>
-    Signed-off-by: Andrew Morton <akpm@osdl.org>
-    Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-commit 339363c4c6fe01043c51e7d6e9fbeb8feee00841
-Author: Dave Airlie <airlied@starflyer.(none)>
-Date:   Thu Jan 26 08:32:14 2006 +1100
-
-    drm: Fixes sparse warnings in via_dmablit.c
-
-    Fixes the following sparse warnings:
-
-     drivers/char/drm/via_dmablit.c:111:35: warning: Using plain integer as NULL pointer
-     drivers/char/drm/via_dmablit.c:584:23: warning: Using plain integer as NULL pointer
-
-    Signed-off-by: Luiz Capitulino <lcapitulino@mandriva.com.br>
-    Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-commit de227f5f32775d86e5c780a7cffdd2e08574f7fb
-Author: Dave Airlie <airlied@starflyer.(none)>
-Date:   Wed Jan 25 15:31:43 2006 +1100
-
-    drm: i915 patches from Tungsten Graphics
-
-    Fix CMDBUFFER path, add heap destroy and flesh out sarea for rotation
-    (Tungsten Graphics)
-
-    From: Alan Hourihane <alanh@tungstengraphics.com>
-    Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-commit 507d256bae9eef7acd5049af6e3f67c24904a1e4
-Author: Dave Airlie <airlied@starflyer.(none)>
-Date:   Wed Jan 25 14:58:58 2006 +1100
-
-    drm: ati_pcigart: simplify page_count manipulations
-
-    From: Nick Piggin <npiggin@suse.de>
-
-    Allocate a compound page for the user mapping instead of tweaking the page
-    refcounts.
-
-    Signed-off-by: Nick Piggin <npiggin@suse.de>
-    Signed-off-by: Andrew Morton <akpm@osdl.org>
-    Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-commit f1e5c03d34c39394781ae13543cd3355976e4812
-Author: Dave Airlie <airlied@starflyer.(none)>
-Date:   Wed Jan 25 14:54:15 2006 +1100
-
-    drm: use NULL instead of 0
-    From: Randy Dunlap <rdunlap@xenotime.net>
-
-    Use NULL instead of 0 (sparse warnings):
-
-    drivers/char/drm/ati_pcigart.c:64:10: warning: Using plain integer as NULL
-    pointer
-    drivers/char/drm/ati_pcigart.c:130:21: warning: Using plain integer as NULL
-    pointer
-    drivers/char/drm/ati_pcigart.c:171:14: warning: Using plain integer as NULL
-    pointer
-
-    Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-    Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-commit 2fed3bd7436e8988980989493c16b4983be1a800
-Author: Dave Airlie <airlied@starflyer.(none)>
-Date:   Wed Jan 25 14:52:43 2006 +1100
-
-    drm: add X600 PCI IDs
-
-    From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-
-    Now that Xorg 6.9/7.0 has been released, DRI is supported on more Radeon
-    cards without ATI proprietary drivers.  I got my X300 to work without
-    problem.  But, another Radeon X600 required to add its PCI ids to the
-    Radeon driver.  Patch is attached.
-
-    I can't be sure about the "CHIP_RV350", I copied it from the X300 entry
-    (from http://dri.freedesktop.org/wiki/ATIRadeon, X600 is a rv380 chip while
-    X300 is a rv370).  But, at least it works now.
-
-    Signed-off-by: Brice Goglin <Brice.Goglin@ens-lyon.org>
-    Signed-off-by: Andrew Morton <akpm@osdl.org>
-    Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-commit 5457f38e01ae2d296ff49db42254679018f13fa9
-Author: Dave Airlie <airlied@starflyer.(none)>
-Date:   Wed Jan 25 14:34:33 2006 +1100
-
-    drm: add i945GM PCI ID
-
-    From: Charles F. Johnson <charles.f.johnson@intel.com>
-    Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-commit d59cc22f7ce48bf5454f12eec8603bff81c34cdb
-Author: Dave Airlie <airlied@starflyer.(none)>
-Date:   Wed Jan 25 14:31:45 2006 +1100
-
-    drm: Fix sparce warning in radeon driver
-
-    From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-
-    drivers/char/drm/radeon_cp.c:1643:31: warning: Using plain integer as NULL
-    pointer
-
-    Signed-off-by: Luiz Capitulino <lcapitulino@mandriva.com.br>
-    Signed-off-by: Andrew Morton <akpm@osdl.org>
-    Signed-off-by: Dave Airlie <airlied@linux.ie>
-
+-- 
+Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

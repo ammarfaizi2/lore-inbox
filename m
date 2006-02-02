@@ -1,96 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbWBBVIP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWBBVFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbWBBVIP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 16:08:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWBBVIP
+	id S932243AbWBBVFr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 16:05:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWBBVFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 16:08:15 -0500
-Received: from smtpout.mac.com ([17.250.248.85]:13284 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932250AbWBBVIO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 16:08:14 -0500
-X-PGP-Universal: processed;
-	by AlPB on Thu, 02 Feb 2006 15:08:15 -0600
-Date: Thu,  2 Feb 2006 15:08:11 -0600
-From: Mark Rustad <MRustad@mac.com>
-Subject: current elf 0-length loading issue
-To: linux-kernel@vger.kernel.org
-X-Priority: 3
-Message-ID: <r02010500-1044-04E83AC6943011DAB99E0011248907EC@[10.64.61.76]>
+	Thu, 2 Feb 2006 16:05:46 -0500
+Received: from khc.piap.pl ([195.187.100.11]:7692 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932243AbWBBVFq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 16:05:46 -0500
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: CD writing - related question
+References: <43DEA195.1080609@tmr.com> <20060201210433.GC8552@ucw.cz>
+	<43E2602C.2090008@tmr.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Thu, 02 Feb 2006 22:05:41 +0100
+In-Reply-To: <43E2602C.2090008@tmr.com> (Bill Davidsen's message of "Thu, 02 Feb 2006 14:40:28 -0500")
+Message-ID: <m3ek2l31zu.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Mailsmith 2.1.5 (Blindsider)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have run into an elf loading issue when moving a program from running with a 2.6.5-
-derived SuSE kernel to the 2.6.15 kernel.org kernel. The image being loaded is admittedly
-unusual, but used to work and seems to be valid.
+Bill Davidsen <davidsen@tmr.com> writes:
 
-The program header for the troublesome image is the following:
+> The question is still why not make all devices look like SCSI, and use
+> one set of drivers and a bit of glue.
 
-Back.t:     file format elf32-i386
-
-Program Header:
-    LOAD off    0x00000000 vaddr 0x08048000 paddr 0x08048000 align 2**12
-         filesz 0x00135718 memsz 0x00135718 flags r-x
-    LOAD off    0x00135720 vaddr 0x0817e720 paddr 0x0817e720 align 2**12
-         filesz 0x0000ffbc memsz 0x0002e594 flags rw-
-    LOAD off    0x00146000 vaddr 0x63c03000 paddr 0x63c03000 align 2**12
-         filesz 0x00000000 memsz 0x0008134c flags rw-
-    NOTE off    0x00000200 vaddr 0x08048200 paddr 0x08048200 align 2**2
-         filesz 0x00000020 memsz 0x00000020 flags r--
-    NOTE off    0x00000220 vaddr 0x08048220 paddr 0x08048220 align 2**2
-         filesz 0x00000018 memsz 0x00000018 flags r--
-   STACK off    0x00000000 vaddr 0x00000000 paddr 0x00000000 align 2**2
-         filesz 0x00000000 memsz 0x00000000 flags rw-
-
-Note that the third LOAD area has a filesz of 0. This causes the elf loader to
-attempt to do an mmap of zero length. In the older kernel, this seemed to "work"
-in that no error was generated. Now in mm/mmap.c there is a check on the length
-which returns -EINVAL if the length being mapped is zero. That error currently
-results in a SIGKILL before things even get started.
-
-In case you are wondering how this image was created, this funny load section was
-the result from the following lines in a custom linker script:
-
-  . = 0x63c03000;
-  PROVIDE (SHMEM_START = .);
-  .shmem (NOLOAD) :  { *(.shmem) }
-
-AFAIK, this is not an invalid thing to do. If I am wrong about that, please
-let me know.
-
-I have created a patch that allows this image to be successfully run. This patch
-attempts to tread lightly on the source by only modifying the existing error path.
-It might be better to check for the zero length to avoid making the doomed elf_map
-call. Depending on the response to this message, I will submit any resulting patch
-in a proper form later.
-
-From: Mark Rustad <MRustad@mac.com>
-
-Allow zero-length load sections once again. They stopped working when do_mmap
-began failing 0-length mappings.
-
-Signed-off-by: Mark Rustad <MRustad@mac.com>
----
-
---- a/fs/binfmt_elf.c	2006-01-02 21:21:10.000000000 -0600
-+++ b/fs/binfmt_elf.c	2006-02-02 10:03:05.686253489 -0600
-@@ -842,8 +842,11 @@ static int load_elf_binary(struct linux_
- 
- 		error = elf_map(bprm->file, load_bias + vaddr, elf_ppnt, elf_prot, elf_flags);
- 		if (BAD_ADDR(error)) {
--			send_sig(SIGKILL, current, 0);
--			goto out_free_dentry;
-+			if (elf_ppnt->p_filesz) {
-+				send_sig(SIGKILL, current, 0);
-+				goto out_free_dentry;
-+			}
-+			error = ELF_PAGESTART(load_bias + vaddr);
- 		}
- 
- 		if (!load_addr_set) {
+That could probably make sense, and libata currently does that (which,
+I hope, will obsolete drivers/ide WRT PATA as well), but SCSI commands
+are a different thing than a bus/ID/lun address from outer space.
 -- 
-Mark Rustad, mrustad@mac.com
+Krzysztof Halasa

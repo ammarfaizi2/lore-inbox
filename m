@@ -1,44 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWBBXM4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932193AbWBBXPo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbWBBXM4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 18:12:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbWBBXM4
+	id S932193AbWBBXPo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 18:15:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbWBBXPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 18:12:56 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:1774 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751185AbWBBXMz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 18:12:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kVcRKjZhwtCb01WRiIvQzOkQrv7zpbq9nOr/mv8tKD9TbJl/VqMbFDS4ciNYAd/gQShkOMc8Sgh4wjAlsoutqNg73DRmrfDSnkLrjMz7S/+d7hQeglMz6eljWBoAZjjZX9rj52JLydLYcfo5Y19fruShnADKKJwfKk9HvfNq3As=
-Message-ID: <d120d5000602021512x42be2006h31e63cb6d78ac1b3@mail.gmail.com>
-Date: Thu, 2 Feb 2006 18:12:54 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Shaun Jackman <sjackman@gmail.com>
-Subject: Re: [PATCH] liyitec: Liyitec PS/2 touchscreen driver
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <7f45d9390602021502q325752d7oe635569cde7ce2c7@mail.gmail.com>
+	Thu, 2 Feb 2006 18:15:24 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:48277 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751196AbWBBXPV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 18:15:21 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <nigel@suspend2.net>
+Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
+Date: Fri, 3 Feb 2006 00:12:08 +0100
+User-Agent: KMail/1.9.1
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@suse.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602021434.33660.rjw@sisk.pl> <200602030727.58153.nigel@suspend2.net>
+In-Reply-To: <200602030727.58153.nigel@suspend2.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <7f45d9390602021502q325752d7oe635569cde7ce2c7@mail.gmail.com>
+Message-Id: <200602030012.08606.rjw@sisk.pl>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/2/06, Shaun Jackman <sjackman@gmail.com> wrote:
-> [PATCH] liyitec: Liyitec PS/2 touchscreen driver
->
-> Add an input driver for the Liyitec PS/2 touchscreen.
->
+Hi,
 
-I don't see any suibstantial differences from the older patch. I think
-it should be integrated into psmouse. Is there a way to query the
-device? What kind of boxes use this touchscreen? Maybe using DMI is an
-option, like lifebook does?
+On Thursday 02 February 2006 22:27, Nigel Cunningham wrote:
+> On Thursday 02 February 2006 23:34, Rafael J. Wysocki wrote:
+> > > > First, your code introduces many changes in many parts of the kernel,
+> > > > so to merge it you'll have to ask many people for acceptance.
+> > >
+> > > I really must work harder to get rid of that perception. It used to be
+> > > the case, but isn't nowadays. Just about all of suspend2's changes are
+> > > new files in kernel/power and include/<arch>/suspend2.h. The remainder
+> > > are misc fixes, and enhancements like Christoph's todo list.
+> >
+> > Well, in your previous series of patches there are examples to the
+> > contrary, like the changes to kthread_create() or workqueues.  They would
+> > require an ack from the maintainers of that code, at least.
+> 
+> That's not Suspend2 itself, but rather improvements to the freezer that are 
+> logically distinct and would be useful to swsusp too. That said, if the work 
+> you guys have done in the last couple of days gets merged,
 
---
-Dmitry
+I hope so.
+
+> perhaps I'll drop most of it and just do the bdev freezing instead of
+> sys_syncing, at least to check reliability.
+
+Well, I must admit I haven't read your bdevs-freezing patch, mostly due to
+limited time, but in principle I'm not against it.
+
+> > Also, you probably need some changes in the arch code.  If that is so, the
+> > maintainers of relevant architectures should be asked.
+> >
+> > That already is "many".
+> 
+> No. I have a little cleaning up still to do there, but the current arch 
+> specific patches are all: 1) adding suspend2.h; 2) old modifications that can 
+> be cleaned up 3) the odd new routine (eg a page_is_ram function for amd64).
+
+If that is so, fine.  As I said before, as far as I'm concerned both solutions
+can coexist as long as they don't conflict.
+
+Greetings,
+Rafael
+

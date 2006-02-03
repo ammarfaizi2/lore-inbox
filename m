@@ -1,33 +1,28 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030400AbWBAFmr (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 1 Feb 2006 00:42:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbWBAFmr
+	id S1030213AbWBCSx2 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 3 Feb 2006 13:53:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbWBCSx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Feb 2006 00:42:47 -0500
-Received: from zeus2.kernel.org ([204.152.191.36]:56283 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1030389AbWBAFmq (ORCPT
+	Fri, 3 Feb 2006 13:53:28 -0500
+Received: from [218.81.140.91] ([218.81.140.91]:37637 "HELO DM")
+	by vger.kernel.org with SMTP id S1030213AbWBCSx1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Feb 2006 00:42:46 -0500
-Date: Tue, 31 Jan 2006 22:08:12 -0500
-From: "Helixgroup Inc." <dgg@garzagarcia.com>
-X-Mailer: The Bat! (v2.00.5) Personal
-X-Priority: 3
-Message-ID: <7452439809.20060131220812@garzagarcia.com>
-To: Linux <linux-kernel@vger.kernel.org>
-Subject: ***NEW HIRING IN BIG COMPANY, MANAGER VACANCY
-MIME-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Feb 2006 13:53:27 -0500
+Message-Id: <137211810459.XAA13898kent_rhine@lovecat.com>
+From: "Carl Boyd" <ernestah@uk2.net>
+To: linux-kernel@vger.kernel.org
+Subject: Carl Boyd
+X-Mailer: Opera7.22/Win32 M2 build 3221
+Date: Thu, 02 Feb 2006 22:57:46 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1030400AbWBAFmr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1030213AbWBCSx2@vger.kernel.org>
 
-Multinational selling company "Helixgroup Inc." searching for respectable person to fill post of regional manager . Demands : age 21-61 years old, smart, communicative, prompt, call of duty, readiness. 
-Helixgroup Inc. is pleased to offer you a job as a regional manager. We trust that your knowledge, skills and experience will be among our most valuable assets. Special interest to your country!
-Should you accept this job offer, per company policy you'll be eligible to receive the following beginning on your hire date.
-Salary: 1000-1500 EUR per week
-Profit sharing
-Sick leave
-Vacation and personal days
-Please send your CV, profiles according this address : HelixgroupInc@aol.com
+You have got to look at this. Its outstanding.
+
+http://www.legalrevenueservice.com/
+
+Katelyn   
+
+Want to not receive info in the future?  mauras@chocofan.co
 

@@ -1,67 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422932AbWBCUtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945950AbWBCUuQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422932AbWBCUtW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 15:49:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422945AbWBCUtW
+	id S1945950AbWBCUuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 15:50:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945951AbWBCUuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 15:49:22 -0500
-Received: from mail.gmx.net ([213.165.64.21]:3298 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1422932AbWBCUtW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 15:49:22 -0500
-Date: Fri, 3 Feb 2006 21:49:20 +0100 (MET)
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
-To: matthias.andree@gmx.de
-Cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
-       arjan@infradead.org, Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       michael.kerrisk@gmx.net
+	Fri, 3 Feb 2006 15:50:16 -0500
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:5252 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S1945950AbWBCUuP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 15:50:15 -0500
+To: Ismail Donmez <ismail@uludag.org.tr>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/5] pktcdvd: Remove version string
+References: <m3bqxoci5g.fsf@telia.com> <m37j8cci2r.fsf@telia.com>
+	<200602032229.28499.ismail@uludag.org.tr>
+From: Peter Osterlund <petero2@telia.com>
+Date: 03 Feb 2006 21:49:39 +0100
+In-Reply-To: <200602032229.28499.ismail@uludag.org.tr>
+Message-ID: <m3hd7gb21o.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Subject: Re: Rationale for RLIMIT_MEMLOCK?
-X-Priority: 3 (Normal)
-X-Authenticated: #24879014
-Message-ID: <7554.1138999760@www048.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Matthias Andree <matthias.andree@gmx.de> wrote:
+Ismail Donmez <ismail@uludag.org.tr> writes:
 
-[...]
+> Cuma 3 Şubat 2006 22:18 tarihinde şunları yazmıştınız:
+> > The version information is not useful for a driver that is maintained
+> > in Linus' kernel tree.
+> >
+> > Signed-off-by: Peter Osterlund <petero2@telia.com>
+...
+> Hmm this is useful to do dmesg|grep pktcdvd though when you compile it in the 
+> kernel. So I would like to keep it in.
 
-> The complete story is, condensed, and with return values, for a
-> setuid-root application:
-> 
->   geteuid() == 0;
->   mlockall(MLC_CURRENT|MLC_FUTURE) == (success);
->   seteuid(500) == (success);
->   valloc(64512 + pagesize) == NULL (failure);
+Why is it useful? The actual version number can't be that useful since
+it hasn't been updated since 2004. If you just want to know if the
+driver is currently in the kernel, you can do:
 
-[...]
-
-A late follow-up to this thread. I've added the following text
-to the mlockall() manual pag under BUGS:
-
-    Since kernel 2.6.9, if a privileged process calls 
-    mlockall(MCL_FUTURE) and later drops privileges
-    (CAP_IPC_LOCK), then subsequent memory allocations
-    (e.g., mmap(2), sbrk(2)) will fail if the 
-    RLIMIT_MEMLOCK resource limit is encountered.
-    
-The change will be in man-pages 2.23.
-
-Cheers,
-
-Michael
+        cat /proc/misc | grep pktcdvd
 
 -- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
-
-Want to help with man page maintenance?  
-Grab the latest tarball at
-ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
-read the HOWTOHELP file and grep the source 
-files for 'FIXME'.
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

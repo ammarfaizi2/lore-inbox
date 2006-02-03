@@ -1,82 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWBCILH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWBCIem@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751204AbWBCILH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 03:11:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWBCILH
+	id S1751026AbWBCIem (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 03:34:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWBCIem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 03:11:07 -0500
-Received: from CPE-141-168-16-16.nsw.bigpond.net.au ([141.168.16.16]:52905
-	"EHLO sydlxfw01.samad.com.au") by vger.kernel.org with ESMTP
-	id S1751204AbWBCILG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 03:11:06 -0500
-Date: Fri, 3 Feb 2006 19:11:04 +1100
-To: linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060203081104.GB14577@samad.com.au>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43DF3C3A.nail2RF112LAB@burner> <5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com> <200601311333.36000.oliver@neukum.org> <1138867142.31458.3.camel@capoeira> <43E1EAD5.nail4R031RZ5A@burner> <1138880048.31458.31.camel@capoeira> <Pine.LNX.4.61.0602021719380.13212@yvahk01.tjqt.qr>
+	Fri, 3 Feb 2006 03:34:42 -0500
+Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:64964 "EHLO
+	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1750973AbWBCIel (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 03:34:41 -0500
+Date: Fri, 3 Feb 2006 02:30:59 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: [patch -mm4] x86 SMP alternatives: update X86_FEATURE_UP on
+  cpu0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Gerd Hoffman <kraxel@suse.de>
+Message-ID: <200602030234_MC3-1-B77D-3328@compuserve.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0602021719380.13212@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.11
-From: Alexander Samad <alex@samad.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When cpu hotplug is enabled, the x86 feature "up" is always shown
+for CPU 0 in /proc/cpuinfo.  Update CPU 0 when updating
+boot_cpu_data so they stay in sync.  Also, get some definitions
+from header files.
 
---7iMSBzlTiPOCCT2k
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
 
-On Thu, Feb 02, 2006 at 05:20:13PM +0100, Jan Engelhardt wrote:
-> >> >
-> >> > As repeated over and over here, there is such a way, it's called HAL=
- and
-> >> > it is cross-platform. And it's what's used by some GUIs out there (e=
-=2Eg.
-> >> > nautilus-cd-burner).
-> >>=20
-> >> The fact that people here repeat unadquate proposals forces me to repe=
-at my=20
-> >> proposals. Name a list fo OS that implement HAL and then look at the l=
-ist
-> >> of crecord supported platforms=20
-> >
-> >Well ... from your sayings it seems Linux is supported by HAL but not by
-> >libscg.=20
-> >
-> But sounds like freedesktop-hal is not available for all platforms libscg
-> currently works on!
-
-I presume that the system api are not the same between OS either, so why
-can't there be different methods of interacting with the
-cdburners/cddrives!
-
->=20
->=20
-> Jan Engelhardt
-> --=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->=20
-
---7iMSBzlTiPOCCT2k
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFD4xAYkZz88chpJ2MRAneDAKCqHF7W/egoEbje9VbHmNG3hiTMwACg0o4Z
-qsVBIWFi2spctgJxPBJOTJY=
-=A4sT
------END PGP SIGNATURE-----
-
---7iMSBzlTiPOCCT2k--
+--- 2.6.16-rc1-mm4-386.orig/arch/i386/kernel/alternative.c
++++ 2.6.16-rc1-mm4-386/arch/i386/kernel/alternative.c
+@@ -2,6 +2,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
+ #include <asm/alternative.h>
++#include <asm/sections.h>
+ 
+ #define DEBUG 0
+ #if DEBUG
+@@ -71,7 +72,6 @@ extern struct alt_instr __alt_instructio
+ extern struct alt_instr __smp_alt_instructions[], __smp_alt_instructions_end[];
+ extern u8 *__smp_locks[], *__smp_locks_end[];
+ 
+-extern u8 _text[], _etext[];
+ extern u8 __smp_alt_begin[], __smp_alt_end[];
+ 
+ 
+@@ -264,6 +264,7 @@ void alternatives_smp_switch(int smp)
+ 	if (smp) {
+ 		printk(KERN_INFO "SMP alternatives: switching to SMP code\n");
+ 		clear_bit(X86_FEATURE_UP, boot_cpu_data.x86_capability);
++		clear_bit(X86_FEATURE_UP, cpu_data[0].x86_capability);
+ 		alternatives_smp_apply(__smp_alt_instructions,
+ 				       __smp_alt_instructions_end);
+ 		list_for_each_entry(mod, &smp_alt_modules, next)
+@@ -272,6 +273,7 @@ void alternatives_smp_switch(int smp)
+ 	} else {
+ 		printk(KERN_INFO "SMP alternatives: switching to UP code\n");
+ 		set_bit(X86_FEATURE_UP, boot_cpu_data.x86_capability);
++		set_bit(X86_FEATURE_UP, cpu_data[0].x86_capability);
+ 		apply_alternatives(__smp_alt_instructions,
+ 				   __smp_alt_instructions_end);
+ 		list_for_each_entry(mod, &smp_alt_modules, next)
+@@ -301,6 +303,7 @@ void __init alternative_instructions(voi
+ 		if (1 == num_possible_cpus()) {
+ 			printk(KERN_INFO "SMP alternatives: switching to UP code\n");
+ 			set_bit(X86_FEATURE_UP, boot_cpu_data.x86_capability);
++			set_bit(X86_FEATURE_UP, cpu_data[0].x86_capability);
+ 			apply_alternatives(__smp_alt_instructions,
+ 					   __smp_alt_instructions_end);
+ 			alternatives_smp_unlock(__smp_locks, __smp_locks_end,
+-- 
+Chuck

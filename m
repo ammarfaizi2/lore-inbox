@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751314AbWBCSXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWBCSZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751314AbWBCSXp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 13:23:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWBCSXp
+	id S1751317AbWBCSZL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 13:25:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751328AbWBCSZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 13:23:45 -0500
-Received: from mail-gw3.adaptec.com ([216.52.22.36]:5591 "EHLO
-	mail-gw3.adaptec.com") by vger.kernel.org with ESMTP
-	id S1751314AbWBCSXo convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 13:23:44 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
+	Fri, 3 Feb 2006 13:25:10 -0500
+Received: from mtiwmhc12.worldnet.att.net ([204.127.131.116]:30417 "EHLO
+	mtiwmhc12.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S1751317AbWBCSZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 13:25:09 -0500
+Message-ID: <43E3A001.7080309@lwfinger.net>
+Date: Fri, 03 Feb 2006 12:25:05 -0600
+From: Larry Finger <Larry.Finger@lwfinger.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: RAID5 unusably unstable through 2.6.14
-Date: Fri, 3 Feb 2006 13:23:43 -0500
-Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F021C9959@otce2k03.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RAID5 unusably unstable through 2.6.14
-Thread-Index: AcYo7KRKIhh4utIlTsSdi9uBLTilHAAARkTQ
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "Martin Drab" <drab@kepler.fjfi.cvut.cz>
-Cc: "Phillip Susi" <psusi@cfl.rr.com>, "Bill Davidsen" <davidsen@tmr.com>,
-       "Cynbe ru Taren" <cynbe@muq.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.6.16-c2
+References: <43E39932.4000001@lwfinger.net> <Pine.LNX.4.64.0602031007420.4630@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0602031007420.4630@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Drab [mailto:drab@kepler.fjfi.cvut.cz] sez:
->       sd 0:0:0:0: SCSI error: return code = 0x8000002
->       sda: Current: sense key: Hardware Error
->           Additional sense: Internal target failure
->       Info fld=0x0
->       end_request: I/O error, dev sda, sector <some sector number>
+Linus Torvalds wrote:
+> On Fri, 3 Feb 2006, Larry Finger wrote:
+> 
+>>I know you must have a good reason to switch to the 'pack' form in the git
+>>tree, but I'm curious. I did a git pull late yesterday, which was "normal",
+>>and another this morning when I saw that 2.6.16-rc2 was posted. I was quite
+>>surprised to download 110 MB of data to get roughly 150 changed lines.
+> 
+> 
+> Don't use rsync (or http) access unless you have to.
+> 
+> Try using "git://git.kernel.org/" instead. 
+> 
+> Now, it may be that if we have lots of people using it, the CPU usage of 
+> the server-side effort will go through the roof, and we'll have to come up 
+> with something else (most likely meaning having some mirrors also run 
+> git-daemon, so that the CPU overhead can be pushed out too).
+> 
+> The point being that you shouldn't see the packing as even an issue (it 
+> should be a per-repository decision). The fact that it shows up is because 
+> of using non-git-aware protocols.
+> 
+> 		Linus
+> 
 
-You reported that the Adaptec management software did not indicate the
-array was offline in the Adapter, thus these reports come when there is
-a unrecoverable (non-redundant) bad block being read from the physical
-media. The alternate to this is that such a condition or similar had
-existed in the past, and the media bad block was remapped then marked as
-inconsistent (as noted, until a write makes it consistent).
+Thanks for the explanation. I have to admit that git is pretty much a black box to me. I use the 
+guide at http://linux.yyz.us/git-howto.html and it recommends using rsync. I'll have to figure out 
+how to change to git protocol.
 
-However, such conditions do not make the array inaccessible from dd as
-you indicate (unless block 0 is the inconsistent block?); thus the array
-must have been offline. Too bad we can not reproduce this, the
-management applications must have indicated the array was offline (two
-drive + failure).
+Larry
 
--- Mark

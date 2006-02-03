@@ -1,88 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945941AbWBCUNl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWBCUQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945941AbWBCUNl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 15:13:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945942AbWBCUNl
+	id S1750799AbWBCUQq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 15:16:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751267AbWBCUQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 15:13:41 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:25520 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1945939AbWBCUNj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 15:13:39 -0500
-Date: Fri, 3 Feb 2006 12:13:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: dada1@cosmosbay.com, davem@davemloft.net, linux-kernel@vger.kernel.org,
-       shai@scalex86.org, netdev@vger.kernel.org, pravins@calsoftinc.com,
-       bcrl@kvack.org
-Subject: Re: [patch 3/4] net: Percpufy frequently used variables --
- proto.sockets_allocated
-Message-Id: <20060203121303.0f9d0249.akpm@osdl.org>
-In-Reply-To: <20060203193714.GB3653@localhost.localdomain>
-References: <20060126185649.GB3651@localhost.localdomain>
-	<20060126190357.GE3651@localhost.localdomain>
-	<43D9DFA1.9070802@cosmosbay.com>
-	<20060127195227.GA3565@localhost.localdomain>
-	<20060127121602.18bc3f25.akpm@osdl.org>
-	<20060127224433.GB3565@localhost.localdomain>
-	<20060127150106.38b9e041.akpm@osdl.org>
-	<20060203030547.GB3612@localhost.localdomain>
-	<20060202191600.3bf3a64a.akpm@osdl.org>
-	<20060203193714.GB3653@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Feb 2006 15:16:45 -0500
+Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:9103 "EHLO
+	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1750799AbWBCUQp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 15:16:45 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Phillip Susi <psusi@cfl.rr.com>
+Subject: [PATCH 1/5] pktcdvd: Fix overflow for discs with large packets
+From: Peter Osterlund <petero2@telia.com>
+Date: 03 Feb 2006 21:16:27 +0100
+Message-ID: <m3bqxoci5g.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
->
-> On Thu, Feb 02, 2006 at 07:16:00PM -0800, Andrew Morton wrote:
-> > Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
-> > >
-> > > On Fri, Jan 27, 2006 at 03:01:06PM -0800, Andrew Morton wrote:
-> > > Here's an implementation which delegates tuning of batching to the user.  We
-> > > don't really need local_t at all as percpu_counter_mod is not safe against
-> > > interrupts and softirqs  as it is.  If we have a counter which could be
-> > > modified in process context and irq/bh context, we just have to use a
-> > > wrapper like percpu_counter_mod_bh which will just disable and enable bottom
-> > > halves.  Reads on the counters are safe as they are atomic_reads, and the
-> > > cpu local variables are always accessed by that cpu only.
-> > > 
-> > > (PS: the maxerr for ext2/ext3 is just guesstimate)
-> > 
-> > Well that's the problem.  We need to choose production-quality values for
-> > use in there.
-> 
-> The guesstimate was loosely based on keeping the per-cpu batch at atleast 8
-> on reasonably sized systems, while not letting maxerr grow too big.  I guess
-> machines with cpu counts more than 128 don't use ext3 :).  And if they do,
-> they can tune the counters with a higher maxerr.  I guess it might be a bit
-> ugly on the user side with all the if num_possibl_cpus(), but is there a
-> better alternative?
-> 
-> (I plan to test the counter values for ext2 and ext3 on a 16 way box, and
-> change these if they turn out to be not so good)
+From: Phillip Susi <psusi@cfl.rr.com>
 
-OK, thanks.  Frankly I think I went overboard on the scalability thing when
-adding percpu counters to ext2 and ext3.  I suspect they're not providing
-significant benefit over per-sb-spinlock and a ulong.
+The pktcdvd driver was using an 8 bit field to store the packet length
+obtained from the disc track info.  This causes it to overflow packet
+length values of 128KB or more.  I changed the field to 32 bits to fix
+this.
 
-> > 
-> > > Comments?
-> > 
-> > Using num_possible_cpus() in that header file is just asking for build
-> > errors.  Probably best to uninline the function rather than adding the
-> > needed include of cpumask.h.
-> 
-> Yup,
-> 
-> Here it is.
-> 
-> Change the percpu_counter interface so that user can specify the maximum
-> tolerable deviation.
+The pktcdvd driver defaulted to its maximum allowed packet length
+when it detected a 0 in the track info field.  I changed this to fail
+the operation and refuse to access the media.  This seems more sane
+than attempting to access it with a value that almost certainly will
+not work.
 
-OK, thanks.  I need to sit down and a) remember why we're even discussing
-this and b) see what we've merged thus far and work out what it all does ;)
+Signed-off-by: Peter Osterlund <petero2@telia.com>
+---
 
+ drivers/block/pktcdvd.c |    2 +-
+ include/linux/pktcdvd.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
+index 81ad466..f0a0ad4 100644
+--- a/drivers/block/pktcdvd.c
++++ b/drivers/block/pktcdvd.c
+@@ -1640,7 +1640,7 @@ static int pkt_probe_settings(struct pkt
+ 	pd->settings.size = be32_to_cpu(ti.fixed_packet_size) << 2;
+ 	if (pd->settings.size == 0) {
+ 		printk("pktcdvd: detected zero packet size!\n");
+-		pd->settings.size = 128;
++		return -ENXIO;
+ 	}
+ 	if (pd->settings.size > PACKET_MAX_SECTORS) {
+ 		printk("pktcdvd: packet size is too big\n");
+diff --git a/include/linux/pktcdvd.h b/include/linux/pktcdvd.h
+index 2c177e4..d1c9c4a 100644
+--- a/include/linux/pktcdvd.h
++++ b/include/linux/pktcdvd.h
+@@ -114,7 +114,7 @@ struct pkt_ctrl_command {
+ 
+ struct packet_settings
+ {
+-	__u8			size;		/* packet size in (512 byte) sectors */
++	__u32			size;		/* packet size in (512 byte) sectors */
+ 	__u8			fp;		/* fixed packets */
+ 	__u8			link_loss;	/* the rest is specified
+ 						 * as per Mt Fuji */
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

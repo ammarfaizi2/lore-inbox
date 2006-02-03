@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422654AbWBCS6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbWBCTAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422654AbWBCS6m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 13:58:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422675AbWBCS6l
+	id S1030215AbWBCTAV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 14:00:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030221AbWBCTAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 13:58:41 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:43668 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1422654AbWBCS6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 13:58:40 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Fri, 03 Feb 2006 19:57:35 +0100
-To: schilling@fokus.fraunhofer.de, khc@pm.waw.pl
-Cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de, James@superbug.co.uk, j@bitron.ch,
-       acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43E3A79F.nail6AV1Z7299@burner>
-References: <43DF6812.nail3B44TLQOP@burner> <20060202062840.GI5501@mail>
- <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo>
- <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com>
- <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr>
- <20060202210949.GD10352@voodoo> <43E27792.nail54V1B1B3Z@burner>
- <787b0d920602021827m4890fbf4j24d110dc656d2d3a@mail.gmail.com>
- <43E374CF.nail5CAMKAKEV@burner> <20060203155349.GA9301@voodoo>
- <m3hd7ge3j2.fsf@defiant.localdomain>
-In-Reply-To: <m3hd7ge3j2.fsf@defiant.localdomain>
-User-Agent: nail 11.2 8/15/04
+	Fri, 3 Feb 2006 14:00:21 -0500
+Received: from host27-37.discord.birch.net ([65.16.27.37]:2326 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S1030215AbWBCTAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 14:00:20 -0500
+From: "Roger Heflin" <rheflin@atipa.com>
+To: "'Martin Drab'" <drab@kepler.fjfi.cvut.cz>,
+       "'Phillip Susi'" <psusi@cfl.rr.com>
+Cc: "'Bill Davidsen'" <davidsen@tmr.com>, "'Cynbe ru Taren'" <cynbe@muq.org>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       "'Salyzyn, Mark'" <mark_salyzyn@adaptec.com>
+Subject: RE: FYI: RAID5 unusably unstable through 2.6.14
+Date: Fri, 3 Feb 2006 13:10:51 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <Pine.LNX.4.60.0602031846510.24081@kepler.fjfi.cvut.cz>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcYo6e+pkaWo6Q6OTueSxDcWDyrtZgACzn+A
+Message-ID: <EXCHG2003KfYDovvQ0P000011f7@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 03 Feb 2006 18:53:36.0579 (UTC) FILETIME=[23955130:01C628F3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa <khc@pm.waw.pl> wrote:
+ 
 
-> "Jim Crilly" <jim@why.dont.jablowme.net> writes:
->
-> > A bug in HAL is not a bug in Linux. If the HAL people need to make some
-> > changes to their daemon to make it play nice with cdrecord and the like
-> > that's fine, but telling people here makes no sense.
->
-> Does that mean that hald doesn't actually play nice with cdrecord?
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Martin Drab
+> Sent: Friday, February 03, 2006 11:51 AM
+> To: Phillip Susi
+> Cc: Bill Davidsen; Cynbe ru Taren; Linux Kernel Mailing List; 
+> Salyzyn, Mark
+> Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
+> 
+> On Fri, 3 Feb 2006, Martin Drab wrote:
+> 
+> > On Fri, 3 Feb 2006, Phillip Susi wrote:
+> > 
+> > > Usually drives will fail reads to bad sectors but when 
+> you write to 
+> > > that sector, it will write and read that sector to see if 
+> it is fine 
+> > > after being written again, or if the media is bad in 
+> which case it 
+> > > will remap the sector to a spare.
+> > 
+> > No, I don't think this was the case of a physically bad sectors. I 
+> > think it was just an inconsistency of the RAID controllers metadata 
+> > (or something simillar) related to that particular array.
+> 
+> Or is such a situation not possible at all? Are bad sectors 
+> the only reason that might have caused this? That sounds a 
+> little strange to me, that would have been a very unlikely 
+> concentration of conincidences, IMO. 
+> That's why I still think there are no bad sectors at all (at 
+> least not because of this). Is there any way to actually find out?
 
-I cannot speak from own experiences on Linux here, but this is what I see:
 
--	If you check Linux distributions for related bug reports,
-	you find many problems with hald.
+Some of the drive manufacturers have tools that will read out
+"log" files from the disks, and these log files include stuff
+such as how many bad block errors where returned to the host
+over the life of the disk.
 
--	If you try to find similar bug reports for Solaris vold, there is
-	no report I am aware of.
+You would need a decent contatct with the disk manufacturer, and
+you might be able to get them to tell you, maybe.
 
-Trying to rate this would make me asume that hald could be changed to play
-better with cdrecord.
+                         Roger
 
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

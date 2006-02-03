@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWBCS2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWBCS2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751417AbWBCS2i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 13:28:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWBCS2h
+	id S1751412AbWBCS2X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 13:28:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWBCS2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 13:28:37 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:12958 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751350AbWBCS2f convert rfc822-to-8bit (ORCPT
+	Fri, 3 Feb 2006 13:28:22 -0500
+Received: from mail-gw3.adaptec.com ([216.52.22.36]:41175 "EHLO
+	mail-gw3.adaptec.com") by vger.kernel.org with ESMTP
+	id S1751350AbWBCS2W convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 13:28:35 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 3 Feb 2006 13:28:22 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] amd76x_pm: C3 powersaving for AMD K7
-Date: Fri, 3 Feb 2006 13:28:13 -0500
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3005EFF0A4@hdsmsx401.amr.corp.intel.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: RAID5 unusably unstable through 2.6.14
+Date: Fri, 3 Feb 2006 13:28:21 -0500
+Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F021C9963@otce2k03.adaptec.com>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] amd76x_pm: C3 powersaving for AMD K7
-Thread-Index: AcYo2t7zRMpS3n87QYWKDXSBE9fNZgAFFoGg
-From: "Brown, Len" <len.brown@intel.com>
-To: "Juhani Rautiainen" <juhani.rautiainen@gmail.com>
-Cc: "Joerg Sommrey" <jo@sommrey.de>, "Andrew Morton" <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
-       <tony@atomide.com>, <erik@slagter.name>, <alan@lxorguk.ukuu.org.uk>
-X-OriginalArrivalTime: 03 Feb 2006 18:28:14.0760 (UTC) FILETIME=[98822A80:01C628EF]
+Thread-Topic: RAID5 unusably unstable through 2.6.14
+Thread-Index: AcYo6m0O5irPL7EzRC+j98OcNoMLTAABNYww
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "Martin Drab" <drab@kepler.fjfi.cvut.cz>,
+       "Phillip Susi" <psusi@cfl.rr.com>
+Cc: "Bill Davidsen" <davidsen@tmr.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->If I understand errata correctly then enabling C2/C3 should be safe in
->SMP environment put not in single processor enviroment.
+Martin Drab [mailto:drab@kepler.fjfi.cvut.cz] sez:
+> That's why I still think there are no bad sectors at all (at 
+> least not because of this). Is there any way to actually find out?
 
-No, I would not assume SMP works when UP does not just because
-SMP was not mentioned.  Things are generally easier to get right
-in UP and harder to get right in SMP.
+Run the Verify (or Verify with Fix) Task on the controller, the report
+will indicate the reasons for inconsistencies.
 
--Len
- 
-
->
->Link:
->http://www.amd.com/us-en/assets/content_type/white_papers_and_tech_docs/24472.pdf
->
+-- Mark

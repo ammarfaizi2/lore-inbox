@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945953AbWBCUzI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945956AbWBCU4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945953AbWBCUzI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 15:55:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945954AbWBCUzH
+	id S1945956AbWBCU4I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 15:56:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945954AbWBCU4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 15:55:07 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:56505 "EHLO
+	Fri, 3 Feb 2006 15:56:08 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:7098 "EHLO
 	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S1945953AbWBCUzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 15:55:05 -0500
-Date: Fri, 3 Feb 2006 12:55:14 -0800
+	id S1422929AbWBCU4H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 15:56:07 -0500
+Date: Fri, 3 Feb 2006 12:56:15 -0800
 From: Ravikiran G Thirumalai <kiran@scalex86.org>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Manfred Spraul <manfred@colorfullife.com>,
        "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
        Christoph Lameter <clameter@engr.sgi.com>,
        Alok Kataria <alok.kataria@calsoftinc.com>, sonny@burdell.org
-Subject: [patch 1/3] NUMA slab locking fixes -- slab-colour-next fix
-Message-ID: <20060203205514.GD3653@localhost.localdomain>
+Subject: [patch 2/3] NUMA slab locking fixes -- slab locking irq optimizations
+Message-ID: <20060203205615.GE3653@localhost.localdomain>
 References: <20060203205341.GC3653@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -35,16 +35,13 @@ X-Source-Dir:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-colour_next is used as an index to add a colouring offset to a new slab 
-in the cache (colour_off * colour_next).  Now with the NUMA aware slab 
-allocator, it makes sense to colour slabs added on the same node 
-sequentially with colour_next.
-
-This patch moves the colouring index "colour_next" per-node by placing it
-on kmem_list3 rather than kmem_cache.
-
-This also avoids taking the cachep->spinlock on the alloc path at
-cache_grow.
+Earlier, we had to disable on chip interrupts while taking the cachep->spinlock
+because, at cache_grow, on every addition of a slab to a slab cache, we 
+incremented colour_next which was protected by the cachep->spinlock, and
+cache_grow could occur at interrupt context.  Since, now we protect the 
+per-node colour_next with the node's list_lock, we do not need to disable 
+on chip interrupts while taking the per-cache spinlock, but we
+just need to disable interrupts when taking the per-node kmem_list3 list_lock.
 
 Signed-off-by: Alok N Kataria <alokk@calsoftinc.com>
 Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
@@ -52,73 +49,165 @@ Signed-off-by: Shai Fultheim <shai@scalex86.org>
 
 Index: linux-2.6.16-rc1mm4/mm/slab.c
 ===================================================================
---- linux-2.6.16-rc1mm4.orig/mm/slab.c	2006-01-29 20:20:20.000000000 -0800
-+++ linux-2.6.16-rc1mm4/mm/slab.c	2006-01-29 20:23:28.000000000 -0800
-@@ -294,6 +294,7 @@ struct kmem_list3 {
- 	unsigned long next_reap;
- 	int free_touched;
- 	unsigned int free_limit;
-+	unsigned int colour_next;	/* Per-node cache coloring */
- 	spinlock_t list_lock;
- 	struct array_cache *shared;	/* shared per node */
- 	struct array_cache **alien;	/* on other nodes */
-@@ -344,6 +345,7 @@ static void kmem_list3_init(struct kmem_
- 	INIT_LIST_HEAD(&parent->slabs_free);
- 	parent->shared = NULL;
- 	parent->alien = NULL;
-+	parent->colour_next = 0;
- 	spin_lock_init(&parent->list_lock);
- 	parent->free_objects = 0;
- 	parent->free_touched = 0;
-@@ -390,7 +392,6 @@ struct kmem_cache {
+--- linux-2.6.16-rc1mm4.orig/mm/slab.c	2006-01-29 20:23:28.000000000 -0800
++++ linux-2.6.16-rc1mm4/mm/slab.c	2006-01-29 23:13:14.000000000 -0800
+@@ -995,7 +995,7 @@ static int __devinit cpuup_callback(stru
+ 			cpumask_t mask;
  
- 	size_t colour;		/* cache colouring range */
- 	unsigned int colour_off;	/* colour offset */
--	unsigned int colour_next;	/* cache colouring */
- 	struct kmem_cache *slabp_cache;
- 	unsigned int slab_size;
- 	unsigned int dflags;	/* dynamic flags */
-@@ -1127,7 +1128,6 @@ void __init kmem_cache_init(void)
- 		BUG();
+ 			mask = node_to_cpumask(node);
+-			spin_lock_irq(&cachep->spinlock);
++			spin_lock(&cachep->spinlock);
+ 			/* cpu is dead; no one can alloc from it. */
+ 			nc = cachep->array[cpu];
+ 			cachep->array[cpu] = NULL;
+@@ -1004,7 +1004,7 @@ static int __devinit cpuup_callback(stru
+ 			if (!l3)
+ 				goto unlock_cache;
  
- 	cache_cache.colour = left_over / cache_cache.colour_off;
--	cache_cache.colour_next = 0;
- 	cache_cache.slab_size = ALIGN(cache_cache.num * sizeof(kmem_bufctl_t) +
- 				      sizeof(struct slab), cache_line_size());
+-			spin_lock(&l3->list_lock);
++			spin_lock_irq(&l3->list_lock);
  
-@@ -2334,18 +2334,19 @@ static int cache_grow(struct kmem_cache 
- 		 */
- 		ctor_flags |= SLAB_CTOR_ATOMIC;
+ 			/* Free limit for this kmem_list3 */
+ 			l3->free_limit -= cachep->batchcount;
+@@ -1012,7 +1012,7 @@ static int __devinit cpuup_callback(stru
+ 				free_block(cachep, nc->entry, nc->avail, node);
  
--	/* About to mess with non-constant members - lock. */
-+	/* Take the l3 list lock to change the colour_next on this node */
- 	check_irq_off();
--	spin_lock(&cachep->spinlock);
-+	l3 = cachep->nodelists[nodeid];
-+	spin_lock(&l3->list_lock);
+ 			if (!cpus_empty(mask)) {
+-				spin_unlock(&l3->list_lock);
++				spin_unlock_irq(&l3->list_lock);
+ 				goto unlock_cache;
+ 			}
  
- 	/* Get colour for the slab, and cal the next value. */
--	offset = cachep->colour_next;
--	cachep->colour_next++;
--	if (cachep->colour_next >= cachep->colour)
--		cachep->colour_next = 0;
--	offset *= cachep->colour_off;
-+	offset = l3->colour_next;
-+	l3->colour_next++;
-+	if (l3->colour_next >= cachep->colour)
-+		l3->colour_next = 0;
-+	spin_unlock(&l3->list_lock);
+@@ -1031,13 +1031,13 @@ static int __devinit cpuup_callback(stru
+ 			/* free slabs belonging to this node */
+ 			if (__node_shrink(cachep, node)) {
+ 				cachep->nodelists[node] = NULL;
+-				spin_unlock(&l3->list_lock);
++				spin_unlock_irq(&l3->list_lock);
+ 				kfree(l3);
+ 			} else {
+-				spin_unlock(&l3->list_lock);
++				spin_unlock_irq(&l3->list_lock);
+ 			}
+ 		      unlock_cache:
+-			spin_unlock_irq(&cachep->spinlock);
++			spin_unlock(&cachep->spinlock);
+ 			kfree(nc);
+ 		}
+ 		mutex_unlock(&cache_chain_mutex);
+@@ -2021,18 +2021,18 @@ static void drain_cpu_caches(struct kmem
  
--	spin_unlock(&cachep->spinlock);
-+	offset *= cachep->colour_off;
+ 	smp_call_function_all_cpus(do_drain, cachep);
+ 	check_irq_on();
+-	spin_lock_irq(&cachep->spinlock);
++	spin_lock(&cachep->spinlock);
+ 	for_each_online_node(node) {
+ 		l3 = cachep->nodelists[node];
+ 		if (l3) {
+-			spin_lock(&l3->list_lock);
++			spin_lock_irq(&l3->list_lock);
+ 			drain_array_locked(cachep, l3->shared, 1, node);
+-			spin_unlock(&l3->list_lock);
++			spin_unlock_irq(&l3->list_lock);
+ 			if (l3->alien)
+ 				drain_alien_cache(cachep, l3);
+ 		}
+ 	}
+-	spin_unlock_irq(&cachep->spinlock);
++	spin_unlock(&cachep->spinlock);
+ }
  
- 	check_irq_off();
+ static int __node_shrink(struct kmem_cache *cachep, int node)
+@@ -2348,7 +2348,6 @@ static int cache_grow(struct kmem_cache 
+ 
+ 	offset *= cachep->colour_off;
+ 
+-	check_irq_off();
  	if (local_flags & __GFP_WAIT)
-@@ -2377,7 +2378,6 @@ static int cache_grow(struct kmem_cache 
- 	if (local_flags & __GFP_WAIT)
- 		local_irq_disable();
- 	check_irq_off();
--	l3 = cachep->nodelists[nodeid];
+ 		local_irq_enable();
+ 
+@@ -2744,6 +2743,7 @@ static void *__cache_alloc_node(struct k
+ 	BUG_ON(!l3);
+ 
+       retry:
++	check_irq_off();
  	spin_lock(&l3->list_lock);
+ 	entry = l3->slabs_partial.next;
+ 	if (entry == &l3->slabs_partial) {
+@@ -3323,11 +3323,11 @@ static int do_tune_cpucache(struct kmem_
+ 	smp_call_function_all_cpus(do_ccupdate_local, (void *)&new);
  
- 	/* Make slab active. */
+ 	check_irq_on();
+-	spin_lock_irq(&cachep->spinlock);
++	spin_lock(&cachep->spinlock);
+ 	cachep->batchcount = batchcount;
+ 	cachep->limit = limit;
+ 	cachep->shared = shared;
+-	spin_unlock_irq(&cachep->spinlock);
++	spin_unlock(&cachep->spinlock);
+ 
+ 	for_each_online_cpu(i) {
+ 		struct array_cache *ccold = new.new[i];
+@@ -3584,8 +3584,7 @@ static int s_show(struct seq_file *m, vo
+ 	int node;
+ 	struct kmem_list3 *l3;
+ 
+-	check_irq_on();
+-	spin_lock_irq(&cachep->spinlock);
++	spin_lock(&cachep->spinlock);
+ 	active_objs = 0;
+ 	num_slabs = 0;
+ 	for_each_online_node(node) {
+@@ -3593,7 +3592,8 @@ static int s_show(struct seq_file *m, vo
+ 		if (!l3)
+ 			continue;
+ 
+-		spin_lock(&l3->list_lock);
++		check_irq_on();
++		spin_lock_irq(&l3->list_lock);
+ 
+ 		list_for_each(q, &l3->slabs_full) {
+ 			slabp = list_entry(q, struct slab, list);
+@@ -3620,7 +3620,7 @@ static int s_show(struct seq_file *m, vo
+ 		free_objects += l3->free_objects;
+ 		shared_avail += l3->shared->avail;
+ 
+-		spin_unlock(&l3->list_lock);
++		spin_unlock_irq(&l3->list_lock);
+ 	}
+ 	num_slabs += active_slabs;
+ 	num_objs = num_slabs * cachep->num;
+@@ -3670,7 +3670,7 @@ static int s_show(struct seq_file *m, vo
+ 			shrinker_stat_read(cachep->shrinker, nr_freed));
+ 	}
+ 	seq_putc(m, '\n');
+-	spin_unlock_irq(&cachep->spinlock);
++	spin_unlock(&cachep->spinlock);
+ 	return 0;
+ }
+ 
+@@ -3702,10 +3702,10 @@ static void do_dump_slabp(kmem_cache_t *
+ 	int node;
+ 
+ 	check_irq_on();
+-	spin_lock_irq(&cachep->spinlock);
++	spin_lock(&cachep->spinlock);
+ 	for_each_online_node(node) {
+ 		struct kmem_list3 *rl3 = cachep->nodelists[node];
+-		spin_lock(&rl3->list_lock);
++		spin_lock_irq(&rl3->list_lock);
+ 
+ 		list_for_each(q, &rl3->slabs_full) {
+ 			int i;
+@@ -3719,9 +3719,9 @@ static void do_dump_slabp(kmem_cache_t *
+ 				printk("\n");
+ 			}
+ 		}
+-		spin_unlock(&rl3->list_lock);
++		spin_unlock_irq(&rl3->list_lock);
+ 	}
+-	spin_unlock_irq(&cachep->spinlock);
++	spin_unlock(&cachep->spinlock);
+ #endif
+ }
+ 

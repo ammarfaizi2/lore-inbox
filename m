@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945910AbWBCTWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945911AbWBCTWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945910AbWBCTWu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 14:22:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945912AbWBCTWu
+	id S1945911AbWBCTWp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 14:22:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945910AbWBCTWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 14:22:50 -0500
-Received: from smtp.bulldogdsl.com ([212.158.248.8]:54285 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1945910AbWBCTWt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 14:22:49 -0500
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: WLAN drivers
-Date: Fri, 3 Feb 2006 19:22:52 +0000
-User-Agent: KMail/1.9.1
-Cc: takis.issaris@uhasselt.be, linux-kernel@vger.kernel.org
-References: <1138969138.8434.26.camel@localhost.localdomain> <mailman.1138977902.23981.linux-kernel2news@redhat.com> <20060203111423.17275a33.zaitcev@redhat.com>
-In-Reply-To: <20060203111423.17275a33.zaitcev@redhat.com>
+	Fri, 3 Feb 2006 14:22:45 -0500
+Received: from mail.gmx.net ([213.165.64.21]:20680 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1945911AbWBCTWo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 14:22:44 -0500
+X-Authenticated: #428038
+Date: Fri, 3 Feb 2006 20:22:39 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060203192239.GB18533@merlin.emma.line.org>
+Mail-Followup-To: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	linux-kernel@vger.kernel.org
+References: <43DDFBFF.nail16Z3N3C0M@burner> <1138710764.17338.47.camel@juerg-t40p.bitron.ch> <43DF6812.nail3B44TLQOP@burner> <20060202062840.GI5501@mail> <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo> <43E374CF.nail5CAMKAKEV@burner> <43E38084.9040200@cfl.rr.com> <43E38B51.nail5CAZ1GYRE@burner> <Pine.LNX.4.61.0602032005550.19459@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200602031922.52769.s0348365@sms.ed.ac.uk>
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <Pine.LNX.4.61.0602032005550.19459@yvahk01.tjqt.qr>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 February 2006 19:14, Pete Zaitcev wrote:
-> On Fri, 3 Feb 2006 12:35:30 +0000, Alistair John Strachan 
-<s0348365@sms.ed.ac.uk> wrote:
-> > > And now the reason I'm sending this to this mailing list: Which
-> > > wireless network cards are you all using and which ones would you
-> > > recommend? Is anyone using USB wireless network cards (without using
-> > > ndiswrapper)?
+Jan Engelhardt schrieb am 2006-02-03:
+
 > >
-> > In my experience, you're simply best going to either http://prism54.org/
-> > (if you can find one still)
->
-> You can't get a fullmac card anymore, but softmac is still available
->  http://www.cdw.com/shop/products/default.aspx?EDC=543916
-> It's a gen1, too.
->
-> > Keywords for _modern_ Linux supported wireless chipsets are still (to my
-> > knowledge) atheros, atmel, prism54, and most recently broadcom, though
-> > that support is currently immature.
->
-> Intel is the king, dude. Get a 2200. Uses in-tree drivers, too.
+> >> You CAN'T have multiple cdrecord processes burning the same disc at the 
+> >> same time; the very idea makes no sense.  The O_EXCL just prevents you 
+> >> from trying such foolishness and creating a coaster. 
+> >
+> >It does not prevent you from creatig a coaster in case you connect e.g.
+> >two ATAPI writers to the same ATA cable.
+> >
+> Apart from transfer speed issues and potential buffer underruns coming 
+> along with that, is there anything technically impossible with writing to 
+> two ATAPI drives at the same time?
 
-I agree, but this:
+Bus locking while waiting for command completion. If you start a
+long-lasting operation on one device, the other device on the same cable
+is blocked so you cannot feed the other.
 
-a)	Still uses proprietary firmware.
-b)	Is made only in mini-pci versions (I think?).
+Same holds for SCSI if one of the devices involved doesn't disconnect
+from the bus for that long-lasting command.
+
+Try for instance "eject /dev/hdc" while writing to /dev/hdd, or same
+stuff with sr0 and sr1. Been there, done that, got a coaster.
 
 -- 
-Cheers,
-Alistair.
-
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Matthias Andree

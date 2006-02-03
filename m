@@ -1,58 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946008AbWBCWXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946009AbWBCWXt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946008AbWBCWXa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 17:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWBCWX3
+	id S1946009AbWBCWXt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 17:23:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946010AbWBCWXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 17:23:29 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:6320 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1751503AbWBCWX2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 17:23:28 -0500
-Date: Fri, 3 Feb 2006 17:18:58 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [2.6 patch] schedule eepro100.c for removal
-Message-ID: <20060203221858.GA3670@kvack.org>
-References: <20060203213234.GS4408@stusta.de>
+	Fri, 3 Feb 2006 17:23:49 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30226 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1946009AbWBCWXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 17:23:47 -0500
+Date: Fri, 3 Feb 2006 22:23:40 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Glen Turner <glen.turner@aarnet.edu.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 8250 serial console fixes -- issue
+Message-ID: <20060203222340.GB10700@flint.arm.linux.org.uk>
+Mail-Followup-To: Glen Turner <glen.turner@aarnet.edu.au>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0602011911360.22854-100000@gate.crashing.org> <1138844838.5557.17.camel@localhost.localdomain> <43E2B8D6.1070707@aarnet.edu.au> <20060203094042.GB30738@flint.arm.linux.org.uk> <43E36850.5030900@aarnet.edu.au> <20060203160218.GA27452@flint.arm.linux.org.uk> <43E38E00.301@aarnet.edu.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060203213234.GS4408@stusta.de>
+In-Reply-To: <43E38E00.301@aarnet.edu.au>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Where's the hunk to make the eepro100 driver spew messages about being 
-obsolete out upon loading?
+On Sat, Feb 04, 2006 at 03:38:16AM +1030, Glen Turner wrote:
+> How about the other bugs reported by people who have used
+> the Remote-Serial-Console-HOWTO:
+> 
+>   - writing any text to an idle (DCD not asserted) modem still
+>     causes incoming calls to be hung up on.  That's not good
+>     as sysadmins can't connect to systems with failing hardware.
+> 
+>     [Note that modems really need the 'r' option, so it's
+>      fine to continue to write with DCD unasserted without
+>      the 'r' option.]
 
-		-ben
+What about those who have incomplete null modem cables which might
+not connect DCD or DSR, but who want to use hardware flow control?
 
-On Fri, Feb 03, 2006 at 10:32:34PM +0100, Adrian Bunk wrote:
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---
-> 
-> This patch was already sent on:
-> - 18 Jan 2006
-> 
-> --- linux-2.6.15-mm4-full/Documentation/feature-removal-schedule.txt.old	2006-01-18 08:38:57.000000000 +0100
-> +++ linux-2.6.15-mm4-full/Documentation/feature-removal-schedule.txt	2006-01-18 08:39:59.000000000 +0100
-> @@ -164,0 +165,6 @@
-> +---------------------------
-> +
-> +What:   eepro100 network driver
-> +When:   April 2006
-> +Why:    replaced by the e100 driver
-> +Who:    Adrian Bunk <bunk@stusta.de>
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>   - the huge boot times with the 'r' option and an idle/
+>     unconnected modem/terminal server.  This is caused by
+>     the CTS timing out per character even when CTS is
+>     floating (CTS is not defined unless DSR is asserted).
+>     This basically makes the 'r' option impossible to
+>     use on production systems.
+
+Not convinced about this claim - see above.
+
+>     Not using the 'r' option
+>     with a terminal server brings other problems (notably
+>     character loss problems when people paste a large
+>     number of characters into the SSH session through
+>     the terminal server to the remote host).
+
+If you're talking about the terminal server sending to the Linux console,
+that's got absolutely nothing to do with the 'r' option.  The 'r' option
+only controls the settings for the kernel-side of the console, which is
+strictly output only.  The input side is handled just like any tty, and
+the termios settings define how that behaves.
+
+Hence, if you enable CRTSCTS without 'r' then you will have flow control
+for the userspace side, and no flow control for the kernel messages.
+
+Thinking about this more, all your issues can be cleared up quite
+trivially IMHO.  Consider 'r' to mean "I want my kernel console to
+try to not drop any kernel messages" and the CRTSCTS termios flag
+to mean "I want flow control for non-kernel input/output".  Hence,
+if you don't want the modem to be able to effectively halt the kernel,
+but you do want reliable communications for getty/shell etc, don't
+specify 'r' but ensure that CRTSCTS gets set.
+
+>   - writing LF CR rather than CR LF unfortunately causes
+>     issues with some terminals.
+
+This one I agree with.  The well known sequence is CRLF not LFCR.
 
 -- 
-"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
-and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

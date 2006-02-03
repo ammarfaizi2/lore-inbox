@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWBCOJr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbWBCOKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750826AbWBCOJr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 09:09:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWBCOJr
+	id S1750837AbWBCOKV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 09:10:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbWBCOKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 09:09:47 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:29347 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750826AbWBCOJq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 09:09:46 -0500
-Date: Fri, 3 Feb 2006 15:09:36 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Dave Jones <davej@redhat.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: discriminate single bit error hardware failure from slab
- corruption.
-In-Reply-To: <20060202192414.GA22074@redhat.com>
-Message-ID: <Pine.LNX.4.61.0602031509190.7991@yvahk01.tjqt.qr>
-References: <20060202192414.GA22074@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Feb 2006 09:10:20 -0500
+Received: from chiark.greenend.org.uk ([193.201.200.170]:35547 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S1750842AbWBCOKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 09:10:19 -0500
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       nigel@suspend2.net, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@ucw.cz>
+Subject: Re: [ 00/10] [Suspend2] Modules support.
+In-Reply-To: <58cb370e0602030546q2ea4b70bq1dc66306d5ef1b12@mail.gmail.com>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060202115907.GH1884@elf.ucw.cz> <200602022214.52752.nigel@suspend2.net> <20060202152316.GC8944@ucw.cz> <20060202132708.62881af6.akpm@osdl.org> <1138916079.15691.130.camel@mindpipe> <20060202142323.088a585c.akpm@osdl.org> <20060203105100.GD2830@elf.ucw.cz> <58cb370e0602030322u4c2c9f9bm21a38be6d35d2ea6@mail.gmail.com> <20060203113543.GA3056@elf.ucw.cz> <20060203113543.GA3056@elf.ucw.cz> <58cb370e0602030546q2ea4b70bq1dc66306d5ef1b12@mail.gmail.com>
+Date: Fri, 3 Feb 2006 14:10:13 +0000
+Message-Id: <E1F51dd-0005cc-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
->Single bit error detected. Possibly bad RAM. Please run memtest86.
->
->--- linux-2.6.15/mm/slab.c~	2006-01-09 13:25:17.000000000 -0500
->+++ linux-2.6.15/mm/slab.c	2006-01-09 13:26:01.000000000 -0500
+Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
 
-So, and what do non-x86 users use?
+> This is untrue as Linux has support for setting IDE controller
+> and drives.  It was added by Benjamin Herrenschmidt in late
+> 2.5.x or early 2.6.x (I don't remember exact kernel version).
 
-
-Jan Engelhardt
+In generic_ide_resume, rqpm.pm_step gets set to
+ide_pm_state_start_resume and ide_do_drive_cmd gets called. This ends up
+being passed through to start_request. start_request waits for the BSY
+bit to go away. On the affected hardware I've seen, this never happens
+unless the ACPI calls are made. As far as I can tell, there's nothing in
+the current driver code that does anything to make sure that the bus is
+in a state to accept commands at this point - the pci drivers don't (for
+the most part) seem to have any resume methods. Calling the ACPI _STM
+method before attempting to do this magically makes everything work.
 -- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

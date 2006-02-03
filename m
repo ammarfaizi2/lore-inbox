@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWBCNaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWBCNb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbWBCNaU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 08:30:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWBCNaT
+	id S1750774AbWBCNb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 08:31:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWBCNb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 08:30:19 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:57100 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1750771AbWBCNaS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 08:30:18 -0500
+	Fri, 3 Feb 2006 08:31:26 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:50895 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1750774AbWBCNbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 08:31:25 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Fri, 03 Feb 2006 14:29:44 +0100
+To: rlrevell@joe-job.com, jim@why.dont.jablowme.net
+Cc: schilling@fokus.fraunhofer.de, mrmacman_g4@mac.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de,
+       James@superbug.co.uk, j@bitron.ch, acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43E35AC8.nail5CAD55WJ3@burner>
+References: <43DDFBFF.nail16Z3N3C0M@burner>
+ <1138642683.7404.31.camel@juerg-pd.bitron.ch>
+ <43DF3C3A.nail2RF112LAB@burner>
+ <1138710764.17338.47.camel@juerg-t40p.bitron.ch>
+ <43DF6812.nail3B44TLQOP@burner> <20060202062840.GI5501@mail>
+ <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo>
+ <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com>
+ <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr>
+ <20060202210949.GD10352@voodoo> <1138915551.15691.123.camel@mindpipe>
+In-Reply-To: <1138915551.15691.123.camel@mindpipe>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <43E3536B.nail5CA82F9RH@burner>
-X-OriginalArrivalTime: 03 Feb 2006 13:30:17.0865 (UTC) FILETIME=[F90C7790:01C628C5]
-Content-class: urn:content-classes:message
-Subject: Re: CD writing in future Linux try #2
-Date: Fri, 3 Feb 2006 08:30:16 -0500
-Message-ID: <Pine.LNX.4.61.0602030822150.25967@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: CD writing in future Linux try #2
-Thread-Index: AcYoxfkT0V477TEPTAuNxfcraHOprg==
-References: <200601302043.56615.diablod3@gmail.com> <20060130.174705.15703464.davem@davemloft.net> <Pine.LNX.4.64.0601310609210.2979@innerfire.net> <20060131.031817.85883571.davem@davemloft.net> <43E00091.5030503@tmr.com> <Pine.LNX.4.61.0602021724560.13212@yvahk01.tjqt.qr> <43E25171.7040203@tmr.com> <43E3536B.nail5CA82F9RH@burner>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Joerg Schilling" <schilling@fokus.fraunhofer.de>
-Cc: <jengelh@linux01.gwdg.de>, <davidsen@tmr.com>, <matthias.andree@gmx.de>,
-       <linux-kernel@vger.kernel.org>, <bzolnier@gmail.com>,
-       <acahalan@gmail.com>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Lee Revell <rlrevell@joe-job.com> wrote:
 
-On Fri, 3 Feb 2006, Joerg Schilling wrote:
-
-> Bill Davidsen <davidsen@tmr.com> wrote:
+> On Thu, 2006-02-02 at 16:09 -0500, Jim Crilly wrote:
+> > Apparently O_EXCL was added by Ubuntu and Debian to stop
+> > burns being corrupted by hald polling the device while a disc is
+> > being burned. 
 >
->> Free, but not open source, and that's an issue with a mission critical
->> application. For home use it doesn't matter, for business use it really
->
-> Since when is mission critical requiring OpenSource?
->
-> Jörg
->
+> IO priorities are the correct solution...
 
-Funny, when I was returning from Austin Texas with a stop at
-Dallas, the B777 encountered a problem with the 1st officer's
-flight-director display so the airplane was delayed while the
-maintenance crew replaced a LRU. I watched as it was started
-up, "booted". It was Windows CE!  Now, that's "mission critical!"
+No, they are not. 
 
+The correct solution is to implement "hald" in a _cooperative_ way 
+like e.g. vold on Solaris.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.66 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-_
-To unsubscribe
+The main point is not to poll to frequent (Solaris does once everz 3 seconds)
+and to use SCSI commands only that to not interrupt or disturb CD/DVD-writing.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+Jörg
 
-Thank you.
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

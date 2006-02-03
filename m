@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422926AbWBCUMb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422928AbWBCUMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422926AbWBCUMb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 15:12:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422921AbWBCUMb
+	id S1422928AbWBCUMz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 15:12:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422927AbWBCUMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 15:12:31 -0500
-Received: from zombie.ncsc.mil ([144.51.88.131]:9633 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1422926AbWBCUMa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 15:12:30 -0500
-Subject: [patch 1/1] MAINTAINERS/CREDITS:  Update contact info
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: lkml <linux-kernel@vger.kernel.org>, James Morris <jmorris@namei.org>,
-       Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Fri, 03 Feb 2006 10:39:33 -0500
-Message-Id: <1138981173.18268.426.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Feb 2006 15:12:55 -0500
+Received: from 213-140-2-68.ip.fastwebnet.it ([213.140.2.68]:51409 "EHLO
+	aa001msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1422928AbWBCUMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 15:12:54 -0500
+Date: Fri, 3 Feb 2006 21:13:17 +0100
+From: Mattia Dongili <malattia@linux.it>
+To: Andreas Eriksson <andreas@tpwch.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: can't enable cpufreq ondemand governor
+Message-ID: <20060203201317.GB3965@inferi.kami.home>
+Mail-Followup-To: Andreas Eriksson <andreas@tpwch.com>,
+	linux-kernel@vger.kernel.org
+References: <79052f10602031042p9c5a3d9xf3934a2f0a3073bf@mail.gmail.com> <79052f10602031049m4dfdab3cyce643db486483b70@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <79052f10602031049m4dfdab3cyce643db486483b70@mail.gmail.com>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.16-rc1-mm4-1 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update my contact info.  Please apply.
+On Fri, Feb 03, 2006 at 07:49:10PM +0100, Andreas Eriksson wrote:
+> The kernels I have tried it with are 2.6.15-1-686 and 2.6.15-ck3 and
+> 2.6.15 vanilla, and this happens with all of those.
+[...]
+> # lsmod | grep speed
+> speedstep_ich           4844  0
+> speedstep_lib           3972  1 speedstep_ich
+> freq_table              4164  1 speedstep_ich
 
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+support for ondemand on speedstep-ich has been merged in 2.6.16-rc1
+or .15 but using the -mm patchset.
 
----
+If you don't want to test such kernels you can grab these 2 commits and
+apply to 2.6.15 (they'll probably apply cleanly)
+<url>http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=9a7d82a89a8bf55b112f2a5c3b3f405eb95a4303;hp=1a10760c91c394dfe4adfefeeaf85cd8098c4894</url> 
+<url>http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff_plain;h=1a10760c91c394dfe4adfefeeaf85cd8098c4894;hp=fc457fa7c0cdbfe96812ba377e508880d600298f</url>                                                                                                                 
 
- CREDITS     |    2 +-
- MAINTAINERS |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.16-rc2/CREDITS	2006-02-03 10:14:26.000000000 -0500
-+++ linux-2.6.16-rc2-x/CREDITS	2006-02-03 10:04:49.000000000 -0500
-@@ -3101,7 +3101,7 @@
- S: Australia
- 
- N: Stephen Smalley
--E: sds@epoch.ncsc.mil
-+E: sds@tycho.nsa.gov
- D: portions of the Linux Security Module (LSM) framework and security modules
- 
- N: Chris Smith
---- linux-2.6.16-rc2/MAINTAINERS	2006-02-03 10:14:27.000000000 -0500
-+++ linux-2.6.16-rc2-x/MAINTAINERS	2006-02-03 10:05:00.000000000 -0500
-@@ -2298,7 +2298,7 @@
- 
- SELINUX SECURITY MODULE
- P:	Stephen Smalley
--M:	sds@epoch.ncsc.mil
-+M:	sds@tycho.nsa.gov
- P:	James Morris
- M:	jmorris@namei.org
- L:	linux-kernel@vger.kernel.org (kernel issues)
-
+hth
 -- 
-Stephen Smalley
-National Security Agency
-
+mattia
+:wq!

@@ -1,37 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030232AbWBCVBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422953AbWBCVBU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030232AbWBCVBg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 16:01:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030236AbWBCVBf
+	id S1422953AbWBCVBU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 16:01:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030232AbWBCVBU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 16:01:35 -0500
-Received: from web50207.mail.yahoo.com ([206.190.38.48]:33359 "HELO
-	web50207.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1030232AbWBCVBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 16:01:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=KqDC2Ex+c63BMVePGifxDwBruCZr1fG6c2703pcvvG4qfCMXEflKwX54qtYs6tozqeCiWyZkZEtoB2/kS/x84UY7Z8cWe3+qwGEYNjT82x5WLXS/YS+qLnlneULp+hcQHP0SKxamRVfPaXDbJ1032dZfpEOzH2bcZXaR+Pj7QkA=  ;
-Message-ID: <20060203210132.97199.qmail@web50207.mail.yahoo.com>
-Date: Fri, 3 Feb 2006 13:01:32 -0800 (PST)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: RE: Unable to read DVDs - what could be wrong?
-To: linux-kernel@vger.kernel.org, helge.hafting@broadpark.no
+	Fri, 3 Feb 2006 16:01:20 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:2491 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030238AbWBCVBT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 16:01:19 -0500
+Date: Fri, 3 Feb 2006 13:01:04 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Larry Finger <Larry.Finger@lwfinger.net>
+cc: Paolo Ornati <ornati@fastwebnet.it>, linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.6.16-c2
+In-Reply-To: <43E3BF5A.3040305@lwfinger.net>
+Message-ID: <Pine.LNX.4.64.0602031258300.4630@g5.osdl.org>
+References: <43E39932.4000001@lwfinger.net> <Pine.LNX.4.64.0602031007420.4630@g5.osdl.org>
+ <43E3A001.7080309@lwfinger.net> <20060203205716.7ed38386@localhost>
+ <43E3BF5A.3040305@lwfinger.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have that same model working flawlessly under 2.6.15.
-Could you build a vanilla 2.6.15 kernel and test with that?
-NOTE: Do NOT configure ide-scsi. There are issues with it 
-which probably won't be resolved.
 
-I code, therefore I am
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+On Fri, 3 Feb 2006, Larry Finger wrote:
+
+> Paolo Ornati wrote:
+> > On Fri, 03 Feb 2006 12:25:05 -0600
+> > Larry Finger <Larry.Finger@lwfinger.net> wrote:
+> > 
+> > 
+> > > Thanks for the explanation. I have to admit that git is pretty much a
+> > > black box to me. I use the guide at http://linux.yyz.us/git-howto.html and
+> > > it recommends using rsync. I'll have to figure out how to change to git
+> > > protocol.
+> > 
+> > 
+> > Just do:
+> > 
+> > git pull
+> > git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
+> > 
+> > :)
+> > 
+> 
+> Got it now. Thanks.
+
+You can also edit the file that describe your shorthand notation. If you 
+normally do "git pull origin" just look into the ".git/remotes/origin" 
+file, and I think you'll find it very obvious what it all does.
+
+(If you used a really old version of git to create the archive originally, 
+it might be ".git/branches/origin" instead).
+
+		Linus

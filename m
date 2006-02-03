@@ -1,77 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWBCIem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbWBCIdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751026AbWBCIem (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 03:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWBCIem
+	id S1751029AbWBCIdo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 03:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWBCIdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 03:34:42 -0500
-Received: from liaag1ac.mx.compuserve.com ([149.174.40.29]:64964 "EHLO
-	liaag1ac.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750973AbWBCIel (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 03:34:41 -0500
-Date: Fri, 3 Feb 2006 02:30:59 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: [patch -mm4] x86 SMP alternatives: update X86_FEATURE_UP on
-  cpu0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Gerd Hoffman <kraxel@suse.de>
-Message-ID: <200602030234_MC3-1-B77D-3328@compuserve.com>
+	Fri, 3 Feb 2006 03:33:44 -0500
+Received: from mail.domino-uk.com ([193.131.116.193]:38927 "EHLO
+	vMIMEsweeper.dps.local") by vger.kernel.org with ESMTP
+	id S1750836AbWBCIdm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 03:33:42 -0500
+From: Ulrich Eckhardt <eckhardt@satorlaser.com>
+Organization: Sator Laser GmbH
+To: Akinobu Mita <mita@miraclelinux.com>
+Subject: Re: [patch 14/44] generic hweight{64,32,16,8}()
+Date: Fri, 3 Feb 2006 09:31:42 +0100
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>,
+       dev-etrax@axis.com, David Howells <dhowells@redhat.com>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>,
+       Linus Torvalds <torvalds@osdl.org>, linux-ia64@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-m68k@vger.kernel.org,
+       Greg Ungerer <gerg@uclinux.org>, linux-mips@linux-mips.org,
+       parisc-linux@parisc-linux.org, linuxppc-dev@ozlabs.org,
+       linux390@de.ibm.com, linuxsh-dev@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Andi Kleen <ak@suse.de>, Chris Zankel <chris@zankel.net>
+References: <20060201090224.536581000@localhost.localdomain> <20060201090325.905071000@localhost.localdomain>
+In-Reply-To: <20060201090325.905071000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	 charset=us-ascii
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200602030931.43686.eckhardt@satorlaser.com>
+X-OriginalArrivalTime: 03 Feb 2006 08:26:27.0578 (UTC) FILETIME=[86F36DA0:01C6289B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When cpu hotplug is enabled, the x86 feature "up" is always shown
-for CPU 0 in /proc/cpuinfo.  Update CPU 0 when updating
-boot_cpu_data so they stay in sync.  Also, get some definitions
-from header files.
+On Wednesday 01 February 2006 10:02, Akinobu Mita wrote:
+> unsigned int hweight32(unsigned int w);
+> unsigned int hweight16(unsigned int w);
+> unsigned int hweight8(unsigned int w);
+> unsigned long hweight64(__u64 w);
 
-Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+IMHO, this should use explicitly sized integers like __u8, __u16 etc, unless 
+there are stringent reasons like better register use - which is hard to tell 
+for generic C code. Also, why on earth is the returntype for hweight64 a 
+long?
 
---- 2.6.16-rc1-mm4-386.orig/arch/i386/kernel/alternative.c
-+++ 2.6.16-rc1-mm4-386/arch/i386/kernel/alternative.c
-@@ -2,6 +2,7 @@
- #include <linux/spinlock.h>
- #include <linux/list.h>
- #include <asm/alternative.h>
-+#include <asm/sections.h>
- 
- #define DEBUG 0
- #if DEBUG
-@@ -71,7 +72,6 @@ extern struct alt_instr __alt_instructio
- extern struct alt_instr __smp_alt_instructions[], __smp_alt_instructions_end[];
- extern u8 *__smp_locks[], *__smp_locks_end[];
- 
--extern u8 _text[], _etext[];
- extern u8 __smp_alt_begin[], __smp_alt_end[];
- 
- 
-@@ -264,6 +264,7 @@ void alternatives_smp_switch(int smp)
- 	if (smp) {
- 		printk(KERN_INFO "SMP alternatives: switching to SMP code\n");
- 		clear_bit(X86_FEATURE_UP, boot_cpu_data.x86_capability);
-+		clear_bit(X86_FEATURE_UP, cpu_data[0].x86_capability);
- 		alternatives_smp_apply(__smp_alt_instructions,
- 				       __smp_alt_instructions_end);
- 		list_for_each_entry(mod, &smp_alt_modules, next)
-@@ -272,6 +273,7 @@ void alternatives_smp_switch(int smp)
- 	} else {
- 		printk(KERN_INFO "SMP alternatives: switching to UP code\n");
- 		set_bit(X86_FEATURE_UP, boot_cpu_data.x86_capability);
-+		set_bit(X86_FEATURE_UP, cpu_data[0].x86_capability);
- 		apply_alternatives(__smp_alt_instructions,
- 				   __smp_alt_instructions_end);
- 		list_for_each_entry(mod, &smp_alt_modules, next)
-@@ -301,6 +303,7 @@ void __init alternative_instructions(voi
- 		if (1 == num_possible_cpus()) {
- 			printk(KERN_INFO "SMP alternatives: switching to UP code\n");
- 			set_bit(X86_FEATURE_UP, boot_cpu_data.x86_capability);
-+			set_bit(X86_FEATURE_UP, cpu_data[0].x86_capability);
- 			apply_alternatives(__smp_alt_instructions,
- 					   __smp_alt_instructions_end);
- 			alternatives_smp_unlock(__smp_locks, __smp_locks_end,
--- 
-Chuck
+> +static inline unsigned int hweight32(unsigned int w)
+> +{
+> +        unsigned int res = (w & 0x55555555) + ((w >> 1) & 0x55555555);
+> +        res = (res & 0x33333333) + ((res >> 2) & 0x33333333);
+[...]
+
+Why not use unsigned constants here?
+
+> +static inline unsigned long hweight64(__u64 w)
+> +{
+[..]
+> +	u64 res;
+> +	res = (w & 0x5555555555555555ul) + ((w >> 1) & 0x5555555555555555ul);
+
+Why not use initialisation here, too?
+
+just my 2c
+
+Uli

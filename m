@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWBCRq0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWBCRrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbWBCRq0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 12:46:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWBCRq0
+	id S1751281AbWBCRrj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 12:47:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWBCRri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 12:46:26 -0500
-Received: from khc.piap.pl ([195.187.100.11]:45330 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1751242AbWBCRqZ (ORCPT
+	Fri, 3 Feb 2006 12:47:38 -0500
+Received: from mail-gw3.adaptec.com ([216.52.22.36]:5586 "EHLO
+	mail-gw3.adaptec.com") by vger.kernel.org with ESMTP
+	id S1751242AbWBCRri convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 12:46:25 -0500
-To: Glen Turner <glen.turner@aarnet.edu.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: 8250 serial console fixes -- issue
-References: <Pine.LNX.4.44.0602011911360.22854-100000@gate.crashing.org>
-	<1138844838.5557.17.camel@localhost.localdomain>
-	<43E2B8D6.1070707@aarnet.edu.au>
-	<20060203094042.GB30738@flint.arm.linux.org.uk>
-	<43E36850.5030900@aarnet.edu.au>
-	<20060203160218.GA27452@flint.arm.linux.org.uk>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Fri, 03 Feb 2006 18:46:24 +0100
-In-Reply-To: <20060203160218.GA27452@flint.arm.linux.org.uk> (Russell King's message of "Fri, 3 Feb 2006 16:02:18 +0000")
-Message-ID: <m3lkwse3nz.fsf@defiant.localdomain>
+	Fri, 3 Feb 2006 12:47:38 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: RAID5 unusably unstable through 2.6.14
+Date: Fri, 3 Feb 2006 12:47:36 -0500
+Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F021C9924@otce2k03.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: RAID5 unusably unstable through 2.6.14
+Thread-Index: AcYo6MpEJsXBgo0cQW+UKPnpHWTySAAAJRIw
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "Martin Drab" <drab@kepler.fjfi.cvut.cz>
+Cc: "Phillip Susi" <psusi@cfl.rr.com>, "Bill Davidsen" <davidsen@tmr.com>,
+       "Cynbe ru Taren" <cynbe@muq.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> writes:
+Martin Drab [mailto:drab@kepler.fjfi.cvut.cz] sez:
+> no access was possible at all to that block device entirely.
 
-> My point stands - if the user can provide an arbitary string to printk,
-> they can fake any kernel message.  That in itself is a security bug.
-> If there is an instance of that, then that's the real bug which would
-> need fixing.
+Then 'we' are missing an offline message (from SCSI/block or from a
+check of the controller's array status).
 
-I think the AT problem is valid - the user doesn't have to be able to
-send anything to the console, the system alone can screw it up with
-something as simple as ATZ^M (or with almost any string with embedded
-[aA][tT].*^M).
+bd_claim locking out access?
 
-_If_ we want to be able to connect a serial console to dial-up modem
-we can't send _anything_ to it when DCD is down (except configuration
-strings etc). I don't know exact timings but the modem will probably
-accept commands hundreds of milliseconds after dropping DCD.
-
-
-There are/were modems which could be configured using a jumper to
-password-protected power-on dial-in mode and which doesn't accept
-further Hayes commands - those are safe (they don't even abort
-inbound connection negotiation if they receive characters from
-the computer).
--- 
-Krzysztof Halasa
+-- Mark

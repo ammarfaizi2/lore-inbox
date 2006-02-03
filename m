@@ -1,78 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWBCLuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWBCLvp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWBCLuE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 06:50:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWBCLuE
+	id S1750710AbWBCLvp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 06:51:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWBCLvp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 06:50:04 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1498 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750715AbWBCLuB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 06:50:01 -0500
-Date: Fri, 3 Feb 2006 12:49:48 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Bojan Smojver <bojan@rexursive.com>
-Cc: Andrew Morton <akpm@osdl.org>, nigel@suspend2.net,
-       suspend2-devel@lists.suspend2.net, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
-Message-ID: <20060203114948.GC2972@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060202152316.GC8944@ucw.cz> <20060202132708.62881af6.akpm@osdl.org> <200602030918.07006.nigel@suspend2.net> <20060203120055.0nu3ym4yuck0os84@imp.rexursive.com> <20060202171812.49b86721.akpm@osdl.org> <20060203124253.m6azcn4wg88gsogc@imp.rexursive.com>
-Mime-Version: 1.0
+	Fri, 3 Feb 2006 06:51:45 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:49672 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750710AbWBCLvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 06:51:45 -0500
+Date: Fri, 3 Feb 2006 12:51:43 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, sam@ravnborg.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] Makefile: remove a tab from an empty line
+Message-ID: <20060203115143.GA3912@stusta.de>
+References: <20060203000704.3964a39f.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060203124253.m6azcn4wg88gsogc@imp.rexursive.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060203000704.3964a39f.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Feb 03, 2006 at 12:07:04AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.15-mm4:
+>...
+>  git-kbuild.patch
+>...
+>  Git trees
+>...
 
-Just for the record.
 
-> Here is what I prefer in suspend2:
-> 
-> - it works (i.e. I have compiled it for at least 20 different Rawhide 
-> kernels and it always suspended/resumed properly)
-> 
-> - it is reliable (e.g. I have suspended/resumed mid kernel compile  - 
-> actually, kernel RPM build, which included compile - many times, 
-> without any ill effect)
+Emacs warns if an otherwise empty line starts with a tab.
 
-Rafael has test patch for this one.
 
-> - it is fast (i.e. even on my crappy old HP ZE4201 
-> [http://www.rexursive.com/articles/linuxonhpze4201.html], it writes all 
-> of 700+ MB of RAM to disk just as fast or faster than swsusp).
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Help us with userland parts of uswsusp, pretty please?
+--- linux-2.6.16-rc1-mm5-full/Makefile.old	2006-02-03 12:46:09.000000000 +0100
++++ linux-2.6.16-rc1-mm5-full/Makefile	2006-02-03 12:46:31.000000000 +0100
+@@ -1122,7 +1122,7 @@
+ 
+ .PHONY: modules_install
+ modules_install: _emodinst_ _emodinst_post
+-	
++
+ install-dir := $(if $(INSTALL_MOD_DIR),$(INSTALL_MOD_DIR),extra)	
+ .PHONY: _emodinst_
+ _emodinst_:
 
-> - it looks nice (both text and GUI interface supported)
-
-Planned for userland parts.
-
-> - it leaves the system responsive on resume (kinda nice to come back to 
-> X and "Just Use it")
-
-Merged in latest mainline.
-
-> - it suspends to both swap and file (I personally use swap, but many 
-> people on the list use file)
-
-Doable in userland parts; not sure with someone plans it.
-
-> Just today, I tried the most recent Rawhide kernel (based on 
-> 2.6.16-rc1-git5) with swsusp and for the first time *ever* it actually 
-> returned X to its original state (I was so excited, I even notified 
-> people on suspend2 development list about it). But, on second 
-> suspend/resume, it promptly locked up my system. Before, it would 
-> simply lock up. So, if swsusp can be made to actually work, be 
-> reliable, look nice and be responsive on resume, I'm all for it. I will 
-> miss Nigel's excellent support though, but I'm sure he deserves a break 
-> :-)
-
-Can you do usual "try again with minimum drivers" debugging?
-								Pavel
--- 
-Thanks, Sharp!

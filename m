@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbWBCBYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbWBCB1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932325AbWBCBYN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 20:24:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbWBCBYN
+	id S932362AbWBCB1v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 20:27:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932333AbWBCB1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 20:24:13 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:42200 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932325AbWBCBYM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 20:24:12 -0500
-Date: Thu, 2 Feb 2006 20:24:05 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: More imformative message on umount failure.
-Message-ID: <20060203012405.GA7306@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	Thu, 2 Feb 2006 20:27:51 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:28487 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S932329AbWBCB1s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 20:27:48 -0500
+Date: Fri, 3 Feb 2006 10:27:35 +0900
+To: Rune Torgersen <runet@innovsys.com>
+Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
+       linux-ia64@vger.kernel.org, Ian Molton <spyro@f2s.com>,
+       David Howells <dhowells@redhat.com>, linuxppc-dev@ozlabs.org,
+       Greg Ungerer <gerg@uclinux.org>, sparclinux@vger.kernel.org,
+       Miles Bader <uclinux-v850@lsi.nec.co.jp>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Yoshinori Sato <ysato@users.sourceforge.jp>,
+       Hirokazu Takata <takata@linux-m32r.org>,
+       linuxsh-shmedia-dev@lists.sourceforge.net, linux-m68k@vger.kernel.org,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Richard Henderson <rth@twiddle.net>, Chris Zankel <chris@zankel.net>,
+       dev-etrax@axis.com, ultralinux@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       linuxsh-dev@lists.sourceforge.net, linux390@de.ibm.com,
+       Russell King <rmk@arm.linux.org.uk>, parisc-linux@parisc-linux.org,
+       akpm@osdl.org, Stephen Hemminger <shemminger@osdl.org>
+Subject: [PATCH] fix generic_fls64()
+Message-ID: <20060203012735.GA21567@miraclelinux.com>
+References: <DCEAAC0833DD314AB0B58112AD99B93B859547@ismail.innsys.innovsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <DCEAAC0833DD314AB0B58112AD99B93B859547@ismail.innsys.innovsys.com>
+User-Agent: Mutt/1.5.9i
+From: mita@miraclelinux.com (Akinobu Mita)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We had a user trigger this message on a box that had a lot
-of different mounts, all with different options.
-It might help narrow down wtf happened if we print out
-which device failed.
+Noticed by Rune Torgersen.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+fix generic_fls64().
+tcp_cubic is using fls64().
 
---- linux-2.6.15.noarch/fs/super.c~	2006-02-02 20:19:20.000000000 -0500
-+++ linux-2.6.15.noarch/fs/super.c	2006-02-02 20:20:02.000000000 -0500
-@@ -247,8 +247,9 @@ void generic_shutdown_super(struct super
+Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
+
+ include/linux/bitops.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+Index: 2.6-git/include/linux/bitops.h
+===================================================================
+--- 2.6-git.orig/include/linux/bitops.h
++++ 2.6-git/include/linux/bitops.h
+@@ -81,7 +81,7 @@ static inline int generic_fls64(__u64 x)
+ {
+ 	__u32 h = x >> 32;
+ 	if (h)
+-		return fls(x) + 32;
++		return fls(h) + 32;
+ 	return fls(x);
+ }
  
- 		/* Forget any remaining inodes */
- 		if (invalidate_inodes(sb)) {
--			printk("VFS: Busy inodes after unmount. "
--			   "Self-destruct in 5 seconds.  Have a nice day...\n");
-+			printk("VFS: Busy inodes after unmount of %s. "
-+			   "Self-destruct in 5 seconds.  Have a nice day...\n",
-+			   sb->s_id);
- 		}
- 
- 		unlock_kernel();

@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWBCTNI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945899AbWBCTN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030226AbWBCTNI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 14:13:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbWBCTNI
+	id S1945899AbWBCTN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 14:13:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWBCTN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 14:13:08 -0500
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:16015 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP
-	id S1030226AbWBCTNG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 14:13:06 -0500
-Date: Fri, 3 Feb 2006 20:12:57 +0100 (CET)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Roger Heflin <rheflin@atipa.com>
-cc: "'Phillip Susi'" <psusi@cfl.rr.com>, "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'Cynbe ru Taren'" <cynbe@muq.org>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       "'Salyzyn, Mark'" <mark_salyzyn@adaptec.com>
-Subject: RE: FYI: RAID5 unusably unstable through 2.6.14
-In-Reply-To: <EXCHG2003KfYDovvQ0P000011f7@EXCHG2003.microtech-ks.com>
-Message-ID: <Pine.LNX.4.60.0602032010430.24081@kepler.fjfi.cvut.cz>
-References: <EXCHG2003KfYDovvQ0P000011f7@EXCHG2003.microtech-ks.com>
+	Fri, 3 Feb 2006 14:13:58 -0500
+Received: from mcr-smtp-001.bulldogdsl.com ([212.158.248.7]:58385 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1030224AbWBCTN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 14:13:57 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: WLAN drivers
+Date: Fri, 3 Feb 2006 19:14:01 +0000
+User-Agent: KMail/1.9.1
+Cc: Panagiotis Issaris <takis.issaris@uhasselt.be>,
+       linux-kernel@vger.kernel.org, linux-netdev@vger.kernel.org
+References: <1138969138.8434.26.camel@localhost.localdomain> <200602031235.31098.s0348365@sms.ed.ac.uk> <1138990013.15691.272.camel@mindpipe>
+In-Reply-To: <1138990013.15691.272.camel@mindpipe>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602031914.01573.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Feb 2006, Roger Heflin wrote:
+On Friday 03 February 2006 18:06, Lee Revell wrote:
+> On Fri, 2006-02-03 at 12:35 +0000, Alistair John Strachan wrote:
+> > In my experience, you're simply best going to either
+> > http://prism54.org/ (if you can find one still) or http://madwifi.org/
+> > (modern cards, likely to be purchasable), and then buying one of the
+> > cards on the "known to work" lists. If you buy the wrong revision,
+> > return it.
+>
+> Isn't madwifi a proprietary driver?  Are things really so bad that
+> people on LKML are recommending users buy this junk?
 
-> > -----Original Message-----
-> > From: linux-kernel-owner@vger.kernel.org 
-> > [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Martin Drab
-> > Sent: Friday, February 03, 2006 11:51 AM
-> > To: Phillip Susi
-> > Cc: Bill Davidsen; Cynbe ru Taren; Linux Kernel Mailing List; 
-> > Salyzyn, Mark
-> > Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
-> > 
-> > On Fri, 3 Feb 2006, Martin Drab wrote:
-> > 
-> > > On Fri, 3 Feb 2006, Phillip Susi wrote:
-> > > 
-> > > > Usually drives will fail reads to bad sectors but when 
-> > you write to 
-> > > > that sector, it will write and read that sector to see if 
-> > it is fine 
-> > > > after being written again, or if the media is bad in 
-> > which case it 
-> > > > will remap the sector to a spare.
-> > > 
-> > > No, I don't think this was the case of a physically bad sectors. I 
-> > > think it was just an inconsistency of the RAID controllers metadata 
-> > > (or something simillar) related to that particular array.
-> > 
-> > Or is such a situation not possible at all? Are bad sectors 
-> > the only reason that might have caused this? That sounds a 
-> > little strange to me, that would have been a very unlikely 
-> > concentration of conincidences, IMO. 
-> > That's why I still think there are no bad sectors at all (at 
-> > least not because of this). Is there any way to actually find out?
-> 
-> 
-> Some of the drive manufacturers have tools that will read out
-> "log" files from the disks, and these log files include stuff
-> such as how many bad block errors where returned to the host
-> over the life of the disk.
+Yes.
 
-S.M.A.R.T. should be able to do this. But last time I've checked it wasn't 
-working with Linux and SCSI/SATA. Is this working now?
+-- 
+Cheers,
+Alistair.
 
-> You would need a decent contatct with the disk manufacturer, and
-> you might be able to get them to tell you, maybe.
-
-Well it's a WD 1600SD.
-
-Martin
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945954AbWBCU4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945955AbWBCU4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945954AbWBCU4f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 15:56:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945958AbWBCU4f
+	id S1945955AbWBCU4K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 15:56:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945954AbWBCU4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 15:56:35 -0500
-Received: from sycorax.lbl.gov ([128.3.5.196]:24477 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id S1945954AbWBCU43 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 15:56:29 -0500
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-To: Alexander Fieroch <fieroch@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.16rc2] compile error
-References: <ds08vk$hk$1@sea.gmane.org> <87d5i48dxg.fsf@sycorax.lbl.gov>
-	<ds0ce1$dma$1@sea.gmane.org>
-Date: Fri, 03 Feb 2006 12:56:28 -0800
-In-Reply-To: <ds0ce1$dma$1@sea.gmane.org> (message from Alexander Fieroch on
-	Fri, 03 Feb 2006 20:54:41 +0100)
-Message-ID: <87vevw6u0z.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Fri, 3 Feb 2006 15:56:09 -0500
+Received: from web50205.mail.yahoo.com ([206.190.38.46]:55701 "HELO
+	web50205.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1945955AbWBCU4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 15:56:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=dDs4PzLbr219lISIyCsrqz15dowQPjlATzr7leRfs6rmFXxMuoiJH7LczMIzf/dmkyHns6g+6UDY6SYoQ6PRaMCqxpY8NudL4N8sNESkqqlGqSwMImuN6WiYEA2wjepsynZeH/KnbYEd3XG3zP8bBfrLa9PxTuZAE7VmGp/d6ec=  ;
+Message-ID: <20060203205605.85529.qmail@web50205.mail.yahoo.com>
+Date: Fri, 3 Feb 2006 12:56:05 -0800 (PST)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: RE: Unable to read DVDs - what could be wrong?
+To: linux-kernel@vger.kernel.org, helge.hafting@broadpark.no
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Fieroch wrote:
+I have that same model working flawlessly under 2.6.15.
+Could you build a vanilla 2.6.15 kernel and test with that?
+NOTE: Do NOT configure ide-scsi. There are issues with it 
+which probably won't be resolved.
 
-> Alex Romosan wrote:
->> look at /dev/null. on my system it keeps getting replaced by a regular
->> file. not really sure where the bug is, but 'cd /dev; ./MAKEDEV null'
->> will recreate the null character device and then the compilation will
->> proceed normally.
->> 
->> --alex--
->
-> Thanks, that's it. /dev/null was replaced by a regular file.
-> Hm, /dev/MAKEDEV null and /dev/MAKEDEV std didn't rebuild the character
-> device null... but a reboot did.
+I code, therefore I am
 
-you are probably running udev or something like that which generates
-the devices automagically...
-
---alex--
-
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

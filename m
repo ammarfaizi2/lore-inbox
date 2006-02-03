@@ -1,65 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422951AbWBCU7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030232AbWBCVBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422951AbWBCU7c (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 15:59:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422953AbWBCU7b
+	id S1030232AbWBCVBg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 16:01:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030236AbWBCVBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 15:59:31 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:54541 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1422951AbWBCU7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 15:59:31 -0500
-Date: Fri, 3 Feb 2006 21:59:29 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] kernel/timer.c: make some variables static
-Message-ID: <20060203205929.GJ4408@stusta.de>
-References: <20060203000704.3964a39f.akpm@osdl.org>
+	Fri, 3 Feb 2006 16:01:35 -0500
+Received: from web50207.mail.yahoo.com ([206.190.38.48]:33359 "HELO
+	web50207.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1030232AbWBCVBe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 16:01:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=KqDC2Ex+c63BMVePGifxDwBruCZr1fG6c2703pcvvG4qfCMXEflKwX54qtYs6tozqeCiWyZkZEtoB2/kS/x84UY7Z8cWe3+qwGEYNjT82x5WLXS/YS+qLnlneULp+hcQHP0SKxamRVfPaXDbJ1032dZfpEOzH2bcZXaR+Pj7QkA=  ;
+Message-ID: <20060203210132.97199.qmail@web50207.mail.yahoo.com>
+Date: Fri, 3 Feb 2006 13:01:32 -0800 (PST)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: RE: Unable to read DVDs - what could be wrong?
+To: linux-kernel@vger.kernel.org, helge.hafting@broadpark.no
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060203000704.3964a39f.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 12:07:04AM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.15-mm4:
->...
-> +time-reduced-ntp-rework-part-2.patch
->...
->  Bring back John's time-reqork patches.  New, improved, fixed.
->...
+I have that same model working flawlessly under 2.6.15.
+Could you build a vanilla 2.6.15 kernel and test with that?
+NOTE: Do NOT configure ide-scsi. There are issues with it 
+which probably won't be resolved.
 
+I code, therefore I am
 
-This patch makes some needlessly global variables static.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
----
-
- kernel/timer.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
---- linux-2.6.16-rc1-mm5-full/kernel/timer.c.old	2006-02-03 20:05:54.000000000 +0100
-+++ linux-2.6.16-rc1-mm5-full/kernel/timer.c	2006-02-03 20:07:35.000000000 +0100
-@@ -590,12 +590,12 @@
- long time_reftime;			/* time at last adjustment (s)	*/
- long time_adjust;
- long time_next_adjust;
--long time_adjust_step;			/* per tick time_adjust step */
-+static long time_adjust_step;		/* per tick time_adjust step */
- 
--long total_sppm;			/* shifted ppm sum of all adjustments */
--long offset_adj_ppm;
--long tick_adj_ppm;
--long singleshot_adj_ppm;
-+static long total_sppm;			/* shifted ppm sum of all adjustments */
-+static long offset_adj_ppm;
-+static long tick_adj_ppm;
-+static long singleshot_adj_ppm;
- 
- #define MAX_SINGLESHOT_ADJ	500	/* (ppm) */
- #define SEC_PER_DAY		86400
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

@@ -1,56 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbWBCBae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbWBCBfn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751024AbWBCBae (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 20:30:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWBCBae
+	id S932187AbWBCBfn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 20:35:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWBCBfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 20:30:34 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:2795 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750952AbWBCBad (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 20:30:33 -0500
-Date: Fri, 3 Feb 2006 02:29:48 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Dave Jones <davej@redhat.com>, Michael Loftis <mloftis@wgops.com>,
-       David Weinehall <tao@acc.umu.se>, Doug McNaught <doug@mcnaught.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Valdis.Kletnieks@vt.edu,
-       dtor_core@ameritech.net, James Courtier-Dutton <James@superbug.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE?
-In-Reply-To: <20060202221922.GB8712@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.61.0602030225570.9696@scrub.home>
-References: <E27F809F04C1C673D283E84F@d216-220-25-20.dynip.modwest.com>
- <20060120200051.GA12610@flint.arm.linux.org.uk>
- <5793EB6F192350088E0AC4CE@d216-220-25-20.dynip.modwest.com>
- <87slrio9wd.fsf@asmodeus.mcnaught.org> <25D702FB62516982999D7084@d216-220-25-20.dynip.modwest.com>
- <20060202121653.GI20484@vasa.acc.umu.se> <67A0AFFBC77C32B9DEE25EFA@dhcp-2-206.wgops.com>
- <20060202201008.GD11831@redhat.com> <20060202220519.GA8712@mars.ravnborg.org>
- <20060202221023.GJ11831@redhat.com> <20060202221922.GB8712@mars.ravnborg.org>
+	Thu, 2 Feb 2006 20:35:43 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:54243 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S932187AbWBCBfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 20:35:42 -0500
+From: Nigel Cunningham <nigel@suspend2.net>
+Organization: Suspend2.net
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
+Date: Fri, 3 Feb 2006 11:32:13 +1000
+User-Agent: KMail/1.9.1
+Cc: Bojan Smojver <bojan@rexursive.com>, suspend2-devel@lists.suspend2.net,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, pavel@ucw.cz
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060203120055.0nu3ym4yuck0os84@imp.rexursive.com> <20060202171812.49b86721.akpm@osdl.org>
+In-Reply-To: <20060202171812.49b86721.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart1278696.RJXEEoIoTy";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602031132.18512.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--nextPart1278696.RJXEEoIoTy
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Thu, 2 Feb 2006, Sam Ravnborg wrote:
+Hi again.
 
-> On Thu, Feb 02, 2006 at 05:10:25PM -0500, Dave Jones wrote:
-> > 
-> > -rw-r--r--    1 davej    davej        4613 Dec 15 23:31 linux-2.6-build-nonintconfig.patch
-> > 
-> > Adds a 'nonintconfig' target that behaves like oldconfig, but doesn't
-> > ask any questions (takes the default answer), and prints out a list
-> > at the end of all the options it didn't know about.
-> > (Handy when rebasing, as it means I get to add all the new options
-> >  in one swoop).
-> I have this around somewhere. hch did it but recall Roman did not
-> like it. It's in my pile of 'when I am in kconfig hacking mode' which
-> happens now and then.
+On Friday 03 February 2006 11:18, Andrew Morton wrote:
+> Bojan Smojver <bojan@rexursive.com> wrote:
+> > Bottom line: With your code, my machine works. Without it, it doesn't.
+>
+> This leaves us in rather awkward position.  You see, there will be other
+> people whose machines don't work with suspend2 but which do work with
+> swsusp.  And other people who prefer swsusp for other reasons.
+>
+> It'd help if we knew _why_ your machine doesn't work with swsusp so we can
+> fix it.  Futhermore it'd help if we knew specifically what you prefer abo=
+ut
+> suspend2 so we can understand what more needs to be done, and how we shou=
+ld
+> do it.
 
-I'm not sure if I've even seen it, I usually don't poke around in rpms, so 
-I can't even find it easily right now.
+As much as I appreciate Bojan's comments, I want to ask the same question -=
+=20
+when it comes to driver model invocations and the method of restoring the=20
+original kernel data, swsusp and Suspend2 work in almost exactly the same=20
+way, so if one works for someone, the other should too and vice versa.
 
-bye, Roman
+Regards,
+
+Nigel
+=2D-=20
+See our web page for Howtos, FAQs, the Wiki and mailing list info.
+http://www.suspend2.net                IRC: #suspend2 on Freenode
+
+--nextPart1278696.RJXEEoIoTy
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBD4rKiN0y+n1M3mo0RAhroAJ4jNPPW8YRaUyzZSUW2372EHB9bsgCg9iDm
+f8ODp9bCx457Ldhg6wtZYDI=
+=epg9
+-----END PGP SIGNATURE-----
+
+--nextPart1278696.RJXEEoIoTy--

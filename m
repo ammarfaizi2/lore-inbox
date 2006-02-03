@@ -1,78 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945905AbWBCTSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945903AbWBCTSJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945905AbWBCTSm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 14:18:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945900AbWBCTSm
+	id S1945903AbWBCTSJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 14:18:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945900AbWBCTSJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 14:18:42 -0500
-Received: from hummeroutlaws.com ([12.161.0.3]:20999 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S1945908AbWBCTSk (ORCPT
+	Fri, 3 Feb 2006 14:18:09 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:46039 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1945902AbWBCTSH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 14:18:40 -0500
-From: "Jim Crilly" <jim@why.dont.jablowme.net>
-Date: Fri, 3 Feb 2006 14:18:22 -0500
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       cdwrite@other.debian.org, acahalan@gmail.com
-Subject: Re: [cdrtools PATCH (GPL)] Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060203191821.GD11241@voodoo>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-	cdwrite@other.debian.org, acahalan@gmail.com
-References: <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com> <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr> <20060202210949.GD10352@voodoo> <43E27792.nail54V1B1B3Z@burner> <787b0d920602021827m4890fbf4j24d110dc656d2d3a@mail.gmail.com> <43E374CF.nail5CAMKAKEV@burner> <20060203182049.GB11083@merlin.emma.line.org> <43E3A19E.nail6A511N92B@burner> <20060203184240.GC11241@voodoo> <43E3AA95.nail6AV21A253@burner>
+	Fri, 3 Feb 2006 14:18:07 -0500
+Message-ID: <43E3AC6B.7060608@watson.ibm.com>
+Date: Fri, 03 Feb 2006 14:18:03 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43E3AA95.nail6AV21A253@burner>
-User-Agent: Mutt/1.5.11+cvs20060126
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@sw.ru>,
+       Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       clg@fr.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
+       serue@us.ibm.com, arjan@infradead.org, Rik van Riel <riel@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
+       Pavel Emelianov <xemul@sw.ru>
+Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
+References: <43E38BD1.4070707@openvz.org>	 <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org> <43E3915A.2080000@sw.ru>	 <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org> <1138991641.6189.37.camel@localhost.localdomain>
+In-Reply-To: <1138991641.6189.37.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/03/06 08:10:13PM +0100, Joerg Schilling wrote:
-> "Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+Dave Hansen wrote:
+>  On Fri, 2006-02-03 at 09:49 -0800, Linus Torvalds wrote:
 > 
-> > On 02/03/06 07:31:58PM +0100, Joerg Schilling wrote:
-> > > Matthias Andree <matthias.andree@gmx.de> wrote:
-> > > 
-> > > > So patches to the rescue -- please review the patch below (for 2.01.01a05).
-> > > > Note that GPL 2a and 2c apply, so you cannot merge a modified version of
-> > > > my patch without adding a tag that you goofed my fixes.
-> > > 
-> > > OK, I did not look at it and I never will!
-> > > 
-> > > Jörg
-> >
-> > This is an excellent example to verify how bad cdrecord developent
-> > is done.....
+>>One thing I don't particularly like is some of the naming. To me "vps" 
+>>doesn't sound particularly generic or logical. I realize that it probably 
+>>makes perfect sense to you (and I assume it just means "virtual private 
+>>servers"), but especially if you see patches 1-3 to really be independent 
+>>of any "actual" virtualization code that is totally generic, I'd actually 
+>>prefer a less specialized name.
 > 
-> Well,
 > 
-> cdrecord is done as good as possible. 
-
-The fact that you seem to sling mud at everyone that doesn't agree
-with you makes that seem questionable.
-
-> Note that if peope send a patch together with personal infringements or 
-> untrue claims, the best I can do is to ignore alltogether.
+> I just did a global s/vps/container/ and it looks pretty reasonable, at
+> least from my point of view.
 > 
-> I did spend a lot of time with a fruitful discussion with Matthias.
-> Then Matthias started this thread.... It now seems like Matthias 
-> does not like to be serious anymore.
-
-It's hard to have a serious discussion with you because you just keep
-parotting the same things and pointing fingers over and over.
-
-> I am of course interested to make cdrecord better, but for the price
-> of spending an ridiculously amount of time ob LKML.
+> Couple of minor naming nitpick questions, though.  Is vps/container_info
+> really what we want to call it?  It seems to me to be the basis for a
+> real "container", without the _info part.
 > 
-> Jörg
+> "tsk->owner_container"  That makes it sound like a pointer to the "task
+> owner's container".  How about "owning_container"?  The "container
+> owning this task".  Or, maybe just "container"?
+> 
+> Any particular reason for the "u32 id" in the vps_info struct as opposed
+> to one of the more generic types?  Do we want to abstract this one in
+> the same way we do pid_t?
+> 
+> The "host" in "host_container_info" doesn't mean much to me.  Though, I
+> guess it has some context in the UML space.  Would "init_container_info"
+> or "root_container_info" be more descriptive?
+> 
+> Lastly, is this a place for krefs?  I don't see a real need for a
+> destructor yet, but the idea is fresh in my mind.
+> 
+> How does the attached patch look?
 > 
 
-And you never did answer my question about why cdrecord is the only app on any
-OS to use devicename:scsibus,target,lun to specify the target device. Every
-other tool out there, e.g. mount, fsck, tar, etc, all use the device name
-exported by the OS, e.g. /dev/c0t0s0d0, /dev/hda1, /dev/nst0, etc, so why
-is it necessary for cdrecord to be different?
+Looks good to me ...
 
-Jim.
+Similar to parts of our patch set, so overlap is good that means on
+large parts we agree.
+Let's go with Dave's adaption, since it already addresses some of
+Linus's concerns and I start moving the pid isolation (in contrast to
+pid virtualization) over this.
+
+-- Hubertus
+

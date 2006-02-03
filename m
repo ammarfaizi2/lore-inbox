@@ -1,87 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWBCMG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWBCMJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbWBCMG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 07:06:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWBCMG4
+	id S1750707AbWBCMJk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 07:09:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWBCMJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 07:06:56 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:36007 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750721AbWBCMG4 (ORCPT
+	Fri, 3 Feb 2006 07:09:40 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:46475 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1750707AbWBCMJj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 07:06:56 -0500
-Date: Fri, 3 Feb 2006 13:05:26 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Ingo Molnar <mingo@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch -mm4] sched: only print migration_cost once
-Message-ID: <20060203120526.GC8665@elte.hu>
-References: <200602030212_MC3-1-B773-7D06@compuserve.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602030212_MC3-1-B773-7D06@compuserve.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.2
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.2 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.6 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 3 Feb 2006 07:09:39 -0500
+Message-ID: <43E35A13.B83AC4B8@tv-sign.ru>
+Date: Fri, 03 Feb 2006 16:26:43 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: Re: [PATCH] pidhash:  Kill switch_exec_pids
+References: <m1r76lslhi.fsf@ebiederm.dsl.xmission.com>
+		<43E26AB1.8509A175@tv-sign.ru> <m13bj1sevb.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-hm, why not use system_state for this?
-
-	Ingo
-
-* Chuck Ebbert <76306.1226@compuserve.com> wrote:
-
-> migration_cost prints after every CPU hotplug event.  Make it
-> print only once at boot.
+"Eric W. Biederman" wrote:
 > 
-> Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+> Oleg Nesterov <oleg@tv-sign.ru> writes:
 > 
-> --- 2.6.16-rc1-mm4-386.orig/kernel/sched.c
-> +++ 2.6.16-rc1-mm4-386/kernel/sched.c
-> @@ -5656,6 +5656,7 @@ static void calibrate_migration_costs(co
->  	int cpu1 = -1, cpu2 = -1, cpu, orig_cpu = raw_smp_processor_id();
->  	unsigned long j0, j1, distance, max_distance = 0;
->  	struct sched_domain *sd;
-> +	static int printed_cost = 0; /* has cost already been printed? */
->  
->  	j0 = jiffies;
->  
-> @@ -5699,13 +5700,16 @@ static void calibrate_migration_costs(co
->  			-1
->  #endif
->  		);
-> -	printk("migration_cost=");
-> -	for (distance = 0; distance <= max_distance; distance++) {
-> -		if (distance)
-> -			printk(",");
-> -		printk("%ld", (long)migration_cost[distance] / 1000);
-> +	if (!printed_cost) {
-> +		printed_cost++;
-> +		printk("migration_cost=");
-> +		for (distance = 0; distance <= max_distance; distance++) {
-> +			if (distance)
-> +				printk(",");
-> +			printk("%ld", (long)migration_cost[distance] / 1000);
-> +		}
-> +		printk("\n");
->  	}
-> -	printk("\n");
->  	j1 = jiffies;
->  	if (migration_debug)
->  		printk("migration: %ld seconds\n", (j1-j0)/HZ);
-> -- 
-> Chuck
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> > Eric W. Biederman wrote:
+> >>
+> >> +            detach_pid(current, PIDTYPE_PID);
+> >> +            current->pid = leader->pid;
+> >> +            attach_pid(current, PIDTYPE_PID,  current->pid);
+> >
+> > What happens after de_thread() unlocks tasklist_lock and before
+> > it is taken again in release_task() ?
+> >
+> > In that window find_task_by_pid() will return dead leader, not
+> > the new leader of thread group. This means we can miss tkill()
+> > or ptrace(), for example.
+> 
+> All I have done is enlarged the window where this
+> race is possible.  So for tkill I am not concerned,
+> as it wants a particular thread.  Nor am I concerned
+> about anything else that wants a particular thread.
+
+Yes, you are right, sorry for noise. We have exactly same situation
+before de_thread() locks tasklist after killing the leader.
+
+> The fact that the group_leader does not point
+> at the actual thread group leader might be a problem,
+> as I have opened a window where that is now the case.
+> 
+> For signals that is not a problem as signals are still shared.
+> This applies to most other resources as well.
+
+Actually, now I think this patch fixes a small theoretical bug.
+Currently we have a tiny window in switch_exec_pids() when it
+detaches ->pid from PIDTYPE_PID namespace. RCU based kill_proc_info()
+does not take tasklist, so we can miss a signal.
+
+I have added Paul to the CC: list.
+
+> So until we spot that case I'm ready to put this down
+> of one of those cases in de_thread that looks wrong
+> but happens to work.  Now if there is a way to make
+> it work more cleanly that may be worth looking at.
+
+I think you are right.
+
+Andrew, please drop this one:
+
+	dont-touch-current-tasks-in-de_thread.patch
+
+Eric's patch includes this cleanup.
+
+Oleg.

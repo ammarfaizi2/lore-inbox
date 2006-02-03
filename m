@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWBCPpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbWBCPv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750913AbWBCPpj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 10:45:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbWBCPpi
+	id S1750865AbWBCPv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 10:51:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWBCPv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 10:45:38 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:2996 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750910AbWBCPpi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 10:45:38 -0500
-Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>, Greg KH <greg@kroah.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Serge E. Hallyn" <serue@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Cedric Le Goater <clg@fr.ibm.com>
-In-Reply-To: <43E335D4.9000401@sw.ru>
-References: <20060117143258.150807000@sergelap>
-	 <20060117143326.283450000@sergelap>
-	 <1137511972.3005.33.camel@laptopd505.fenrus.org>
-	 <20060117155600.GF20632@sergelap.austin.ibm.com>
-	 <1137513818.14135.23.camel@localhost.localdomain>
-	 <1137518714.5526.8.camel@localhost.localdomain>
-	 <20060118045518.GB7292@kroah.com>
-	 <1137601395.7850.9.camel@localhost.localdomain>
-	 <m1fyniomw2.fsf@ebiederm.dsl.xmission.com>
-	 <43D14578.6060801@watson.ibm.com>
-	 <Pine.LNX.4.64.0601311248180.7301@g5.osdl.org>	<43E21BD0.6000606@sw.ru>
-	 <m1d5i5vln3.fsf@ebiederm.dsl.xmission.com>	<43E2249D.8060608@sw.ru>
-	 <m1vevxu5bh.fsf@ebiederm.dsl.xmission.com>	<43E22DCA.3070004@sw.ru>
-	 <m1lkwtu3om.fsf@ebiederm.dsl.xmission.com>  <43E335D4.9000401@sw.ru>
-Content-Type: text/plain
-Date: Fri, 03 Feb 2006 07:45:27 -0800
-Message-Id: <1138981528.6189.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Feb 2006 10:51:59 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:52633 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1750824AbWBCPv7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 10:51:59 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Fri, 03 Feb 2006 16:50:09 +0100
+To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de
+Cc: xavier.bestel@free.fr, linux-kernel@vger.kernel.org, acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <43E37BB1.nail5CAOHE2BW@burner>
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
+ <43DF3C3A.nail2RF112LAB@burner>
+ <5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com>
+ <200601311333.36000.oliver@neukum.org>
+ <1138867142.31458.3.camel@capoeira> <43E1EAD5.nail4R031RZ5A@burner>
+ <1138880048.31458.31.camel@capoeira> <43E20047.nail4TP1PULVQ@burner>
+ <1138885334.31458.42.camel@capoeira> <43E32884.nail5CA1O92YA@burner>
+ <20060203100536.GA17144@merlin.emma.line.org>
+In-Reply-To: <20060203100536.GA17144@merlin.emma.line.org>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-02-03 at 13:52 +0300, Kirill Korotaev wrote:
-> How can you migrate application which consists of two processes doing 
-> IPC via signals? They are not tired inside kernel anyhow and there is
-> no way to automatically detect that both should be migrated together.
-> VPSs what provides you such kind of boundaries of what should be 
-> considered as a whole.
+Matthias Andree <matthias.andree@gmx.de> wrote:
 
-Could you explain a little bit _how_ VPSs provide this?
+> Joerg Schilling schrieb am 2006-02-03:
+>
+> > libscg & cdrecord have been available long before Linux HAL was there.
+>
+> Perhaps libscg was too arcane and too badly integrated into Linux?
 
--- Dave
+>From a cdrecord point of view, this seems to rather apply to Linux HAL.
 
+
+> > Note that UNIX people usually believe that is is best practice to have this 
+> > kind of software intergrated in the kernel (or at leat in the system). This is 
+> > what FreeBSD did try for some years, and FreeBSD has failed with this attempt.
+>
+> So why would Linux want to have it in the kernel if it hasn't worked for
+> FreeBSD either? Thanks for proving it doesn't belong there BTW.
+
+Please try to understand my text before answering.
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

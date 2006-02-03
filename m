@@ -1,197 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945929AbWBCTr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422887AbWBCTuk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945929AbWBCTr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 14:47:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945926AbWBCTr5
+	id S1422887AbWBCTuk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 14:50:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422888AbWBCTuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 14:47:57 -0500
-Received: from vms042pub.verizon.net ([206.46.252.42]:45692 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1945931AbWBCTrz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 14:47:55 -0500
-Date: Fri, 03 Feb 2006 14:47:53 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [2.6.16rc2] compile error
-In-reply-to: <20060203190126.GA28929@mars.ravnborg.org>
-To: linux-kernel@vger.kernel.org
-Reply-to: gene.heskett@verizon.net
-Message-id: <200602031447.53193.gene.heskett@verizon.net>
-Organization: Absolutely none - usually detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <ds08vk$hk$1@sea.gmane.org>
- <20060203190126.GA28929@mars.ravnborg.org>
-User-Agent: KMail/1.7
+	Fri, 3 Feb 2006 14:50:40 -0500
+Received: from silver.veritas.com ([143.127.12.111]:21842 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1422887AbWBCTuj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 14:50:39 -0500
+Date: Fri, 3 Feb 2006 19:51:18 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Roland Dreier <rdreier@cisco.com>
+cc: Andrew Morton <akpm@osdl.org>, "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] ib: don't doublefree pages from scatterlist
+In-Reply-To: <Pine.LNX.4.61.0602031842290.14065@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0602031948100.14829@goblin.wat.veritas.com>
+References: <Pine.LNX.4.63.0512271807130.4955@kai.makisara.local>
+ <20060104172727.GA320@tau.solarneutrino.net> <Pine.LNX.4.63.0601042334310.5087@kai.makisara.local>
+ <20060105201249.GB1795@tau.solarneutrino.net> <Pine.LNX.4.64.0601051312380.3169@g5.osdl.org>
+ <20060109033149.GC283@tau.solarneutrino.net> <Pine.LNX.4.64.0601082000450.3169@g5.osdl.org>
+ <Pine.LNX.4.61.0601090933160.7632@goblin.wat.veritas.com>
+ <20060109185350.GG283@tau.solarneutrino.net> <Pine.LNX.4.61.0601091922550.15426@goblin.wat.veritas.com>
+ <20060118001252.GB821@tau.solarneutrino.net> <Pine.LNX.4.61.0601181556050.9110@goblin.wat.veritas.com>
+ <Pine.LNX.4.61.0602031842290.14065@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 03 Feb 2006 19:50:38.0651 (UTC) FILETIME=[1B4C10B0:01C628FB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 February 2006 14:01, Sam Ravnborg wrote:
->On Fri, Feb 03, 2006 at 07:55:47PM +0100, Alexander Fieroch wrote:
->> Hello,
->>
->> I can't compile kernel 2.6.16-rc[12] and get the following error:
->>
->> # make
->> /bin/sh: -c: line 0: syntax error near unexpected token `('
->> /bin/sh: -c: line 0: `set -e; echo '  CHK    
->> include/linux/version.h'; mkdir -p include/linux/;        if [ `echo
->> -n "2.6.16-rc2 .file null .ident
->> GCC:(GNU)4.0.320060128(prerelease)(Debian4.0.2-8) .section
->> .note.GNU-stack,,@progbits" | wc -c ` -gt 64 ]; then echo
->> '"2.6.16-rc2 .file null .ident
->> GCC:(GNU)4.0.320060128(prerelease)(Debian4.0.2-8) .section
->> .note.GNU-stack,,@progbits" exceeds 64 characters' >&2; exit 1; fi;
->> (echo \#define UTS_RELEASE \"2.6.16-rc2 .file null .ident
->> GCC:(GNU)4.0.320060128(prerelease)(Debian4.0.2-8) .section
->> .note.GNU-stack,,@progbits\"; echo \#define LINUX_VERSION_CODE `expr
->> 2 \\* 65536 + 6 \\* 256 + 16`; echo '#define KERNEL_VERSION(a,b,c)
->> (((a) << 16) + ((b) << 8) + (c))'; ) <
->> /usr/src/linux-2.6.16rc2/Makefile > include/linux/version.h.tmp; if
->> [ -r include/linux/version.h ] && cmp -s include/linux/version.h
->> include/linux/version.h.tmp; then rm -f include/linux/version.h.tmp;
->> else echo '  UPD
->> include/linux/version.h'; mv -f include/linux/version.h.tmp
->> include/linux/version.h; fi'
->> make: *** [include/linux/version.h] Error 2
->
->You are hit be an outstanding issue with -rc1 + rc2.
->When you build as root you will alter /dev/null and in your case it
->became a regular file.
+On some architectures, mapping the scatterlist may coalesce entries:
+if that coalesced list is then used for freeing the pages afterwards,
+there's a danger that pages may be doubly freed (and others leaked).
 
-That didn't hit me Sam, and I built it as root, running it right now.
+Fix Infiniband's __ib_umem_release by freeing from a separate array
+beyond the scatterlist: IB_UMEM_MAX_PAGE_CHUNK lowered to fit one page.
 
->Recreate /dev/null and build as normal user for now.
->You can apply patch below to fix it - will be in next -rc.
->
-> Sam
->
->diff-tree 3835f82183eab8b67ddda6b32c127859a546c82d (from
-> 3ee68c4af3fd7228c1be63254b9f884614f9ebb2) Author: Sam Ravnborg
-> <sam@mars.ravnborg.org>
->Date:   Sat Jan 21 12:03:09 2006 +0100
->
->    kconfig: fix /dev/null breakage
->
->    While running "make menuconfig" and "make mrproper"
->    some people experienced that /dev/null suddenly changed
->    permissions or suddenly became a regular file.
->    The main reason was that /dev/null was used as output
->    to gcc in the check-lxdialog.sh script and gcc did
->    some strange things with the output file; in this
->    case /dev/null when it errorred out.
->
->    Following patch implements a suggestion
->    from Bryan O'Sullivan <bos@serpentine.com> to
->    use gcc -print-file-name=libxxx.so.
->
->    Also the Makefile is adjusted to not resolve value of
->    HOST_EXTRACFLAGS and HOST_LOADLIBES until they are actually used.
->    This prevents us from calling gcc when running make
-> *clean/mrproper
->
->    Thanks to Eyal Lebedinsky <eyal@eyal.emu.id.au> and
->    Jean Delvare <khali@linux-fr.org> for the first error reports.
->
->    Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
->    ---
->
->diff --git a/scripts/kconfig/lxdialog/Makefile
-> b/scripts/kconfig/lxdialog/Makefile index fae3e29..bbf4887 100644
->--- a/scripts/kconfig/lxdialog/Makefile
->+++ b/scripts/kconfig/lxdialog/Makefile
->@@ -1,11 +1,14 @@
-> # Makefile to build lxdialog package
-> #
->
-> check-lxdialog  := $(srctree)/$(src)/check-lxdialog.sh
->-HOST_EXTRACFLAGS:= $(shell $(CONFIG_SHELL) $(check-lxdialog)
-> -ccflags) -HOST_LOADLIBES  := $(shell $(CONFIG_SHELL)
-> $(check-lxdialog) -ldflags $(HOSTCC)) +
->+# Use reursively expanded variables so we do not call gcc unless
->+# we really need to do so. (Do not call gcc as part of make mrproper)
->+HOST_EXTRACFLAGS = $(shell $(CONFIG_SHELL) $(check-lxdialog)
-> -ccflags) +HOST_LOADLIBES   = $(shell $(CONFIG_SHELL)
-> $(check-lxdialog) -ldflags $(HOSTCC))
->
-> HOST_EXTRACFLAGS += -DLOCALE
->
-> .PHONY: dochecklxdialog
-> $(obj)/dochecklxdialog:
->diff --git a/scripts/kconfig/lxdialog/check-lxdialog.sh
-> b/scripts/kconfig/lxdialog/check-lxdialog.sh index 448e353..120d624
-> 100644
->--- a/scripts/kconfig/lxdialog/check-lxdialog.sh
->+++ b/scripts/kconfig/lxdialog/check-lxdialog.sh
->@@ -2,21 +2,21 @@
-> # Check ncurses compatibility
->
-> # What library to link
-> ldflags()
-> {
->-	echo "main() {}" | $cc -lncursesw -xc - -o /dev/null 2> /dev/null
->+	$cc -print-file-name=libncursesw.so | grep -q /
-> 	if [ $? -eq 0 ]; then
-> 		echo '-lncursesw'
-> 		exit
-> 	fi
->-	echo "main() {}" | $cc -lncurses -xc - -o /dev/null 2> /dev/null
->+	$cc -print-file-name=libncurses.so | grep -q /
-> 	if [ $? -eq 0 ]; then
-> 		echo '-lncurses'
-> 		exit
-> 	fi
->-	echo "main() {}" | $cc -lcurses -xc - -o /dev/null 2> /dev/null
->+	$cc -print-file-name=libcurses.so | grep -q /
-> 	if [ $? -eq 0 ]; then
-> 		echo '-lcurses'
-> 		exit
-> 	fi
-> 	exit 1
->@@ -34,14 +34,17 @@ ccflags()
-> 	else
-> 		echo '-DCURSES_LOC="<curses.h>"'
-> 	fi
-> }
->
->-compiler=""
->+# Temp file, try to clean up after us
->+tmp=.lxdialog.tmp
->+trap "rm -f $tmp" 0 1 2 3 15
->+
-> # Check if we can link to ncurses
-> check() {
->-	echo "main() {}" | $cc -xc - -o /dev/null 2> /dev/null
->+	echo "main() {}" | $cc -xc - -o $tmp 2> /dev/null
-> 	if [ $? != 0 ]; then
-> 		echo " *** Unable to find the ncurses libraries."          1>&2
-> 		echo " *** make menuconfig require the ncurses libraries"  1>&2
-> 		echo " *** "                                               1>&2
-> 		echo " *** Install ncurses (ncurses-devel) and try again"  1>&2
->@@ -57,10 +60,11 @@ usage() {
-> if [ $# == 0 ]; then
-> 	usage
-> 	exit 1
-> fi
->
->+cc=""
-> case "$1" in
-> 	"-check")
-> 		shift
-> 		cc="$@"
-> 		check
->-
->To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
+Warning: untested!  And please double-check the adjusted definition of
+IB_UMEM_MAX_PAGE_CHUNK - the old definition was avoiding "sizeof"s, but
+I don't understand why.
 
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+ drivers/infiniband/core/uverbs_mem.c |   22 ++++++++++++++++------
+ include/rdma/ib_verbs.h              |    3 +--
+ 2 files changed, 17 insertions(+), 8 deletions(-)
+
+--- 2.6.16-rc2/drivers/infiniband/core/uverbs_mem.c	2005-10-28 01:02:08.000000000 +0100
++++ linux/drivers/infiniband/core/uverbs_mem.c	2006-02-03 09:59:37.000000000 +0000
+@@ -49,15 +49,18 @@ struct ib_umem_account_work {
+ static void __ib_umem_release(struct ib_device *dev, struct ib_umem *umem, int dirty)
+ {
+ 	struct ib_umem_chunk *chunk, *tmp;
++	struct page **sg_pages;
+ 	int i;
+ 
+ 	list_for_each_entry_safe(chunk, tmp, &umem->chunk_list, list) {
+ 		dma_unmap_sg(dev->dma_device, chunk->page_list,
+ 			     chunk->nents, DMA_BIDIRECTIONAL);
++		/* Scatterlist may have been coalesced: free saved pagelist */
++		sg_pages = (struct page **) (chunk->page_list + chunk->nents);
+ 		for (i = 0; i < chunk->nents; ++i) {
+ 			if (umem->writable && dirty)
+-				set_page_dirty_lock(chunk->page_list[i].page);
+-			put_page(chunk->page_list[i].page);
++				set_page_dirty_lock(sg_pages[i]);
++			put_page(sg_pages[i]);
+ 		}
+ 
+ 		kfree(chunk);
+@@ -69,11 +72,13 @@ int ib_umem_get(struct ib_device *dev, s
+ {
+ 	struct page **page_list;
+ 	struct ib_umem_chunk *chunk;
++	struct page **sg_pages;
+ 	unsigned long locked;
+ 	unsigned long lock_limit;
+ 	unsigned long cur_base;
+ 	unsigned long npages;
+ 	int ret = 0;
++	int nents;
+ 	int off;
+ 	int i;
+ 
+@@ -121,16 +126,21 @@ int ib_umem_get(struct ib_device *dev, s
+ 		off = 0;
+ 
+ 		while (ret) {
+-			chunk = kmalloc(sizeof *chunk + sizeof (struct scatterlist) *
+-					min_t(int, ret, IB_UMEM_MAX_PAGE_CHUNK),
++			nents = min_t(int, ret, IB_UMEM_MAX_PAGE_CHUNK);
++			chunk = kmalloc(sizeof *chunk +
++					sizeof (struct scatterlist) * nents +
++					sizeof (struct page *) * nents,
+ 					GFP_KERNEL);
+ 			if (!chunk) {
+ 				ret = -ENOMEM;
+ 				goto out;
+ 			}
++			/* Save pages to be freed in array beyond scatterlist */
++			sg_pages = (struct page **) (chunk->page_list + nents);
+ 
+-			chunk->nents = min_t(int, ret, IB_UMEM_MAX_PAGE_CHUNK);
++			chunk->nents = nents;
+ 			for (i = 0; i < chunk->nents; ++i) {
++				sg_pages[i] =
+ 				chunk->page_list[i].page   = page_list[i + off];
+ 				chunk->page_list[i].offset = 0;
+ 				chunk->page_list[i].length = PAGE_SIZE;
+@@ -142,7 +152,7 @@ int ib_umem_get(struct ib_device *dev, s
+ 						 DMA_BIDIRECTIONAL);
+ 			if (chunk->nmap <= 0) {
+ 				for (i = 0; i < chunk->nents; ++i)
+-					put_page(chunk->page_list[i].page);
++					put_page(sg_pages[i]);
+ 				kfree(chunk);
+ 
+ 				ret = -ENOMEM;
+--- 2.6.16-rc2/include/rdma/ib_verbs.h	2006-02-03 09:32:50.000000000 +0000
++++ linux/include/rdma/ib_verbs.h	2006-02-03 09:59:37.000000000 +0000
+@@ -696,8 +696,7 @@ struct ib_udata {
+ 
+ #define IB_UMEM_MAX_PAGE_CHUNK						\
+ 	((PAGE_SIZE - offsetof(struct ib_umem_chunk, page_list)) /	\
+-	 ((void *) &((struct ib_umem_chunk *) 0)->page_list[1] -	\
+-	  (void *) &((struct ib_umem_chunk *) 0)->page_list[0]))
++	 (sizeof(struct scatterlist) + sizeof(struct page *)))
+ 
+ struct ib_umem_object {
+ 	struct ib_uobject	uobject;

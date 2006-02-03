@@ -1,139 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWBCVM3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945964AbWBCVNW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030243AbWBCVM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 16:12:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWBCVM3
+	id S1945964AbWBCVNW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 16:13:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945968AbWBCVNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 16:12:29 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:62989 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030243AbWBCVM2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 16:12:28 -0500
-Date: Fri, 3 Feb 2006 22:12:27 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] arch/i386/kernel/cpu/: make tons of functions static
-Message-ID: <20060203211227.GO4408@stusta.de>
-References: <20060203000704.3964a39f.akpm@osdl.org>
+	Fri, 3 Feb 2006 16:13:22 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:28828 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1945964AbWBCVNV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 16:13:21 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Olivier Galibert <galibert@pobox.com>
+Subject: Re: [ 00/10] [Suspend2] Modules support.
+Date: Fri, 3 Feb 2006 22:08:57 +0100
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, Dave Jones <davej@redhat.com>,
+       Nigel Cunningham <nigel@suspend2.net>,
+       Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602031824.45467.rjw@sisk.pl> <20060203183006.GB57965@dspnet.fr.eu.org>
+In-Reply-To: <20060203183006.GB57965@dspnet.fr.eu.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060203000704.3964a39f.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200602032208.58640.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 12:07:04AM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.15-mm4:
->...
-> +i386-cpu-hotplug-dont-access-freed-memory.patch
+On Friday 03 February 2006 19:30, Olivier Galibert wrote:
+> On Fri, Feb 03, 2006 at 06:24:44PM +0100, Rafael J. Wysocki wrote:
+> > I use it on a daily basis.  It works.
 > 
->  init sectoin fix
->...
+> The plural of anecdote is not data.  Nobody except Pavel and you ever
+> wrote code to work in the userland part of your suspend.  But the aim
+> is to have GUI-type code written by other people running between the
+> snapshotting and the system shutdown, right?  Code that is pretty much
+> by definition just plain untrustable in the first place.
 
+By the same token any code that's run as/by root is untrastable and it can
+destroy the system just as well.
 
-Functions only used in the files they are defined in should be static.
+> The interactions with a frozen, direct-rendering X are going to be
+> quite amusing too.  You'll have to be very careful to switch VTs to a
+> suspend-aware framebuffer before snapshotting.  That could help
+> reducing your video-card related problems though.
 
+Yes.  We are switching to a VT before snapshotting the system.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > The suspending helper should not use mounted filesystems after it
+> > calls the atomic snapshot ioctl().
+> 
+> You can s/mounted// on that.  It's pretty much impossible to unmount
+> filesystems on a running system, it's always kept busy by something.
+> Especially system filesystems.
 
----
+I mean it shouldn't read files from such filesystems or write to them.  They
+are mounted all the time and should not be unmounted, of course.
 
- arch/i386/kernel/cpu/amd.c       |    2 +-
- arch/i386/kernel/cpu/centaur.c   |    2 +-
- arch/i386/kernel/cpu/cyrix.c     |    4 ++--
- arch/i386/kernel/cpu/nexgen.c    |    2 +-
- arch/i386/kernel/cpu/rise.c      |    2 +-
- arch/i386/kernel/cpu/transmeta.c |    2 +-
- arch/i386/kernel/cpu/umc.c       |    2 +-
- 7 files changed, 8 insertions(+), 8 deletions(-)
+> > The resuming helper should be run from
+> > an initrd and all filesystems should be unmounted at that time (of course
+> > it should not attempt to mount them).
+> 
+> Mandatory initrd?  How nice...
 
---- linux-2.6.16-rc1-mm5-full/arch/i386/kernel/cpu/amd.c.old	2006-02-03 16:14:11.000000000 +0100
-+++ linux-2.6.16-rc1-mm5-full/arch/i386/kernel/cpu/amd.c	2006-02-03 16:14:24.000000000 +0100
-@@ -283,7 +283,7 @@
- 
- //early_arch_initcall(amd_init_cpu);
- 
--int __init amd_exit_cpu(void)
-+static int __init amd_exit_cpu(void)
- {
- 	cpu_devs[X86_VENDOR_AMD] = NULL;
- 	return 0;
---- linux-2.6.16-rc1-mm5-full/arch/i386/kernel/cpu/centaur.c.old	2006-02-03 16:14:32.000000000 +0100
-+++ linux-2.6.16-rc1-mm5-full/arch/i386/kernel/cpu/centaur.c	2006-02-03 16:14:42.000000000 +0100
-@@ -471,7 +471,7 @@
- 
- //early_arch_initcall(centaur_init_cpu);
- 
--int __init centaur_exit_cpu(void)
-+static int __init centaur_exit_cpu(void)
- {
- 	cpu_devs[X86_VENDOR_CENTAUR] = NULL;
- 	return 0;
---- linux-2.6.16-rc1-mm5-full/arch/i386/kernel/cpu/cyrix.c.old	2006-02-03 16:15:00.000000000 +0100
-+++ linux-2.6.16-rc1-mm5-full/arch/i386/kernel/cpu/cyrix.c	2006-02-03 16:15:21.000000000 +0100
-@@ -444,7 +444,7 @@
- 
- //early_arch_initcall(cyrix_init_cpu);
- 
--int __init cyrix_exit_cpu(void)
-+static int __init cyrix_exit_cpu(void)
- {
- 	cpu_devs[X86_VENDOR_CYRIX] = NULL;
- 	return 0;
-@@ -467,7 +467,7 @@
- 
- //early_arch_initcall(nsc_init_cpu);
- 
--int __init nsc_exit_cpu(void)
-+static int __init nsc_exit_cpu(void)
- {
- 	cpu_devs[X86_VENDOR_NSC] = NULL;
- 	return 0;
---- linux-2.6.16-rc1-mm5-full/arch/i386/kernel/cpu/nexgen.c.old	2006-02-03 16:15:38.000000000 +0100
-+++ linux-2.6.16-rc1-mm5-full/arch/i386/kernel/cpu/nexgen.c	2006-02-03 16:15:44.000000000 +0100
-@@ -62,7 +62,7 @@
- 
- //early_arch_initcall(nexgen_init_cpu);
- 
--int __init nexgen_exit_cpu(void)
-+static int __init nexgen_exit_cpu(void)
- {
- 	cpu_devs[X86_VENDOR_NEXGEN] = NULL;
- 	return 0;
---- linux-2.6.16-rc1-mm5-full/arch/i386/kernel/cpu/rise.c.old	2006-02-03 16:15:57.000000000 +0100
-+++ linux-2.6.16-rc1-mm5-full/arch/i386/kernel/cpu/rise.c	2006-02-03 16:16:27.000000000 +0100
-@@ -52,7 +52,7 @@
- 
- //early_arch_initcall(rise_init_cpu);
- 
--int __init rise_exit_cpu(void)
-+static int __init rise_exit_cpu(void)
- {
- 	cpu_devs[X86_VENDOR_RISE] = NULL;
- 	return 0;
---- linux-2.6.16-rc1-mm5-full/arch/i386/kernel/cpu/transmeta.c.old	2006-02-03 16:16:37.000000000 +0100
-+++ linux-2.6.16-rc1-mm5-full/arch/i386/kernel/cpu/transmeta.c	2006-02-03 16:16:50.000000000 +0100
-@@ -112,7 +112,7 @@
- 
- //early_arch_initcall(transmeta_init_cpu);
- 
--int __init transmeta_exit_cpu(void)
-+static int __init transmeta_exit_cpu(void)
- {
- 	cpu_devs[X86_VENDOR_TRANSMETA] = NULL;
- 	return 0;
---- linux-2.6.16-rc1-mm5-full/arch/i386/kernel/cpu/umc.c.old	2006-02-03 16:17:02.000000000 +0100
-+++ linux-2.6.16-rc1-mm5-full/arch/i386/kernel/cpu/umc.c	2006-02-03 16:17:12.000000000 +0100
-@@ -32,7 +32,7 @@
- 
- //early_arch_initcall(umc_init_cpu);
- 
--int __init umc_exit_cpu(void)
-+static int __init umc_exit_cpu(void)
- {
- 	cpu_devs[X86_VENDOR_UMC] = NULL;
- 	return 0;
+Why?  It's quite easy to set up and virtually all distributions use it anyway.
 
+> > > Will the fs be in a coherent state after resume?
+> > 
+> > Yes, it will, as long as the helpers follow some strict rules (above).
+> 
+> That's exactly what I'm terribly afraid of.  You have no way to
+> enforce them, so they won't be respected.  And filesystems will die
+> randomly and unpredictably.
+
+Yes, this may happen if the userland helpers are buggy, but again any
+root-equivalent process that is buggy can do the damage just as well.
+
+Your point seem to be "we should implement this in the kernel to protect
+the users from irresponsible authors of userland applications
+and distributors".  I just don't agree with that.  [Going along this line of
+reasoning we should implement fsck in the kernel too. ;-)]
+
+> > > The idea of trying to save a state that can be modified dynamically
+> > > while you're saving in unpredictable ways makes me very, very afraid.
+> > > At least when you're in the kernel you can have complete control over
+> > > the machine when needed.
+> > 
+> > Not necessarily.  For example, if you suspend the box and then start it with
+> > a wrong kernel that is unable to read the image, it will mount the file
+> > systems and you loose the saved state.
+> 
+> You can always limit the damage by syncing the disks before
+> snapshotting.
+
+Yes, we are doing that already and we are working on improving it further
+(just now :-)).
+
+Still, if you don't like the idea of userland-based suspend, we are not going
+to remove the kernel-based suspend, AFAICT.
+
+Greetings,
+Rafael

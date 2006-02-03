@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbWBCPv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbWBCPxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750865AbWBCPv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 10:51:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWBCPv7
+	id S1750907AbWBCPxw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 10:53:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbWBCPxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 10:51:59 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:52633 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1750824AbWBCPv7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 10:51:59 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Fri, 03 Feb 2006 16:50:09 +0100
-To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de
-Cc: xavier.bestel@free.fr, linux-kernel@vger.kernel.org, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43E37BB1.nail5CAOHE2BW@burner>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
- <43DF3C3A.nail2RF112LAB@burner>
- <5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com>
- <200601311333.36000.oliver@neukum.org>
- <1138867142.31458.3.camel@capoeira> <43E1EAD5.nail4R031RZ5A@burner>
- <1138880048.31458.31.camel@capoeira> <43E20047.nail4TP1PULVQ@burner>
- <1138885334.31458.42.camel@capoeira> <43E32884.nail5CA1O92YA@burner>
- <20060203100536.GA17144@merlin.emma.line.org>
-In-Reply-To: <20060203100536.GA17144@merlin.emma.line.org>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 3 Feb 2006 10:53:52 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:6859 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750842AbWBCPxv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 10:53:51 -0500
+Date: Fri, 3 Feb 2006 10:53:23 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>, rlrevell@joe-job.com,
+       pavel@ucw.cz, nigel@suspend2.net, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ 00/10] [Suspend2] Modules support.
+Message-ID: <20060203155323.GB24201@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+	rlrevell@joe-job.com, pavel@ucw.cz, nigel@suspend2.net,
+	torvalds@osdl.org, linux-kernel@vger.kernel.org
+References: <20060202115907.GH1884@elf.ucw.cz> <200602022214.52752.nigel@suspend2.net> <20060202152316.GC8944@ucw.cz> <20060202132708.62881af6.akpm@osdl.org> <1138916079.15691.130.camel@mindpipe> <20060202142323.088a585c.akpm@osdl.org> <20060202142323.088a585c.akpm@osdl.org> <1138919381.15691.162.camel@mindpipe> <E1F4xZN-0001K1-00@chiark.greenend.org.uk> <20060203022305.2e619476.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060203022305.2e619476.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@gmx.de> wrote:
+On Fri, Feb 03, 2006 at 02:23:05AM -0800, Andrew Morton wrote:
+ > Matthew Garrett <mgarrett@chiark.greenend.org.uk> wrote:
+ > >
+ > > (By and large, the biggest problem is repeated kernel regressions that
+ > >  hit suspend in bizarre ways. This doesn't get picked up on quickly
+ > >  because almost nobody is using this code, because "everyone knows" it
+ > >  doesn't work. Except it /does/. What we need is for distributions to
+ > >  actually work together on this, rather than everyone trying to fix the
+ > >  same problems independently, each coming up with different solutions and
+ > >  the world generally being a miserable place)
+ > 
+ > Is it still the case that swsusp requries that the disk drivers be
+ > statically linked into vmlinux?
+ > 
+ > If so, I'd have thought that this was quite a problem for distros,
+ > although I have a vague feeling that RH worked around it in some manner.
 
-> Joerg Schilling schrieb am 2006-02-03:
->
-> > libscg & cdrecord have been available long before Linux HAL was there.
->
-> Perhaps libscg was too arcane and too badly integrated into Linux?
+We do it all in the initrd, before any filesystems are touched.
 
->From a cdrecord point of view, this seems to rather apply to Linux HAL.
+		Dave
 
-
-> > Note that UNIX people usually believe that is is best practice to have this 
-> > kind of software intergrated in the kernel (or at leat in the system). This is 
-> > what FreeBSD did try for some years, and FreeBSD has failed with this attempt.
->
-> So why would Linux want to have it in the kernel if it hasn't worked for
-> FreeBSD either? Thanks for proving it doesn't belong there BTW.
-
-Please try to understand my text before answering.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

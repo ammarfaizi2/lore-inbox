@@ -1,60 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWBCMz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWBCNA3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750756AbWBCMz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 07:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbWBCMz7
+	id S1750761AbWBCNA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 08:00:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWBCNA3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 07:55:59 -0500
-Received: from vbn.0050556.lodgenet.net ([216.142.194.234]:10887 "EHLO
-	vbn.0050556.lodgenet.net") by vger.kernel.org with ESMTP
-	id S1750756AbWBCMz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 07:55:59 -0500
-Subject: Re: root=LABEL= problem [Was: Re: Linux Issue]
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Jiri Slaby <xslaby@fi.muni.cz>, kavitha s <wellspringkavitha@yahoo.co.in>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0602021750510.13212@yvahk01.tjqt.qr>
-References: <1138863068.3270.6.camel@laptopd505.fenrus.org>
-	 , <20060201114845.E41F222AF24@anxur.fi.muni.cz>
-	 <20060202105338.E921D22AF07@anxur.fi.muni.cz>
-	 <Pine.LNX.4.61.0602021750510.13212@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Fri, 03 Feb 2006 13:55:49 +0100
-Message-Id: <1138971350.3086.0.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Feb 2006 08:00:29 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:18876 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750763AbWBCNA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 08:00:28 -0500
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Herbert Poetzl <herbert@13thfloor.at>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: Re: [PATCH] pidhash:  Kill switch_exec_pids
+References: <m1r76lslhi.fsf@ebiederm.dsl.xmission.com>
+	<43E26AB1.8509A175@tv-sign.ru>
+	<m13bj1sevb.fsf@ebiederm.dsl.xmission.com>
+	<43E35A13.B83AC4B8@tv-sign.ru>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Fri, 03 Feb 2006 05:59:40 -0700
+In-Reply-To: <43E35A13.B83AC4B8@tv-sign.ru> (Oleg Nesterov's message of
+ "Fri, 03 Feb 2006 16:26:43 +0300")
+Message-ID: <m1psm4pphf.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-02-02 at 17:51 +0100, Jan Engelhardt wrote:
-> >>> > ds: no socket drivers loaded!
-> >>> > VFS: Cannot open root device "LABEL=/" or 00:00
-> >>> change root=LABEL=/ to root=/dev/XXX. Vanilla doesn't support this...
-> >>
-> >>ehhh??
-> >>sure it does.
-> >>
-> >>this is not a kernel feature, but an initrd feature, independent on
-> >>which kernel is used (there never was and is not a patch for this in any
-> >>distro kernel I know about)
-> >Ok, thank you for pointing that out.
-> >
-> 
-> So does someone have a kernel-side patch for enabling LABEL=?
+Oleg Nesterov <oleg@tv-sign.ru> writes:
 
-I'm not aware of one existing.
+> "Eric W. Biederman" wrote:
+>> 
+>> 
+>> All I have done is enlarged the window where this
+>> race is possible.  So for tkill I am not concerned,
+>> as it wants a particular thread.  Nor am I concerned
+>> about anything else that wants a particular thread.
+>
+> Yes, you are right, sorry for noise. We have exactly same situation
+> before de_thread() locks tasklist after killing the leader.
 
->  (Is the 
-> kernel even able to tell the label of a filesystem, or is that specific to 
-> mount(8)?)
+No problem.  If de_thread was simple and obviously correct
+we wouldn't be fixing it :)
 
-currently the kernel is fully unaware of any labels, other than having
-the space reserved in the various filesystem on disk metadata.
+>> The fact that the group_leader does not point
+>> at the actual thread group leader might be a problem,
+>> as I have opened a window where that is now the case.
+>> 
+>> For signals that is not a problem as signals are still shared.
+>> This applies to most other resources as well.
+>
+> Actually, now I think this patch fixes a small theoretical bug.
+> Currently we have a tiny window in switch_exec_pids() when it
+> detaches ->pid from PIDTYPE_PID namespace. RCU based kill_proc_info()
+> does not take tasklist, so we can miss a signal.
 
+Ok.  I thought there was a RCU component to the readers.  I just
+lost track of where it was.
 
+> I have added Paul to the CC: list.
+>
+>> So until we spot that case I'm ready to put this down
+>> of one of those cases in de_thread that looks wrong
+>> but happens to work.  Now if there is a way to make
+>> it work more cleanly that may be worth looking at.
+>
+> I think you are right.
 
-This is one of those things that is better done in userspace really.....
+I hope so.
 
+> Andrew, please drop this one:
+>
+> 	dont-touch-current-tasks-in-de_thread.patch
+>
+> Eric's patch includes this cleanup.
 
+I just tested this path against 2.6.16-rc1-mm5 
+and the patch applies with just a little fuzz.
+
+Eric

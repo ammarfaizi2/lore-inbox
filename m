@@ -1,101 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbWBCRYY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbWBCRYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751262AbWBCRYY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 12:24:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWBCRYY
+	id S1751265AbWBCRYt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 12:24:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751266AbWBCRYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 12:24:24 -0500
-Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:21975 "EHLO
-	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
-	id S1751262AbWBCRYX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 12:24:23 -0500
-Message-ID: <43E3915A.2080000@sw.ru>
-Date: Fri, 03 Feb 2006 20:22:34 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Fri, 3 Feb 2006 12:24:49 -0500
+Received: from user-0c93tin.cable.mindspring.com ([24.145.246.87]:25216 "EHLO
+	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
+	id S1751265AbWBCRYs convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 12:24:48 -0500
+From: Luke-Jr <luke@dashjr.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest) (was: Rationale for RLIMIT_MEMLOCK?)
+Date: Fri, 3 Feb 2006 17:24:52 +0000
+User-Agent: KMail/1.9
+Cc: Matthias Andree <matthias.andree@gmx.de>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       linux-kernel@vger.kernel.org
+References: <20060123105634.GA17439@merlin.emma.line.org> <200602021717.08100.luke@dashjr.org> <Pine.LNX.4.61.0602031502000.7991@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0602031502000.7991@yvahk01.tjqt.qr>
+Public-GPG-Key: 0xD53E9583
+Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
+IM-Address: luke-jr@jabber.org
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       frankeh@watson.ibm.com, clg@fr.ibm.com, haveblue@us.ibm.com,
-       greg@kroah.com, alan@lxorguk.ukuu.org.uk, serue@us.ibm.com,
-       arjan@infradead.org, Rik van Riel <riel@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
-       Pavel Emelianov <xemul@sw.ru>
-Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
-References: <43E38BD1.4070707@openvz.org> <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200602031724.55729.luke@dashjr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Friday 03 February 2006 14:08, Jan Engelhardt wrote:
+> >> >2. find out the current state of affairs,
+> >>
+> >> I am currently able to properly write all sorts of CD-R/RW and DVD±R/RW,
+> >> DVD-DL with no problems using
+> >>     cdrecord -dev=/dev/hdb
+> >> it _currently_ works, no matter how ugly or not this is from either
+> >> Jörg's or any other developer's POV - therefore it's fine from the
+> >> end-user's POV.
+> >
+> >How did you manage to burn a dual layer disc? I have been completely
+> >unsuccessful at doing this at all. :(
+>
+> You have to add  -driver=mmc_dvdplusr , because the Dual Layer discs are
+> not yet in the ProDVD database as it seems.
 
-Not a problem and fully agree with you.
-Just had to better review patch before sending.
+ProDVD is immoral software. I use growisofs.
 
-Do you have any other ideas/comments on this?
-I will send additional IPC/filesystems virtualization patches a bit later.
+> >> I'm fine (=I agree) with the general possibility of having it setuid,
+> >> though.
+> >
+> >Provided it doesn't allow burning files the real-user shouldn't be able to
+> >access... But since cdrecord is commonly suid-root, I presume this has
+> > long been taken into consideration.
+>
+> Security-critical environments like data centers
 
-Kirill
-
-> On Fri, 3 Feb 2006, Kirill Korotaev wrote:
->> This patch introduces some abstract container/VPS kernel structure and tiny
->> amount of operations on it.
-> 
-> Please don't use things like "vps_t".
-> 
-> It's a _mistake_ to use typedef for structures and pointers. When you see 
-> a
-> 
-> 	vps_t a;
-> 
-> in the source, what does it mean?
-> 
-> In contrast, if it says
-> 
-> 	struct virtual_container *a;
-> 
-> you can actually tell what "a" is. 
-> 
-> Lots of people think that typedefs "help readability". Not so. They are 
-> useful only for 
-> 
->  (a) totally opaque objects (where the typedef is actively used to _hide_
->      what the object is). 
-> 
->      Example: "pte_t" etc opaque objects that you can only access using 
->      the proper accessor functions.
-> 
->      NOTE! Opaqueness and "accessor functions" are not good in themselves. 
->      The reason we have them for things like pte_t etc is that there 
->      really is absolutely _zero_ portably accessible information there.
-> 
->  (b) Clear integer types, where the abstraction _helps_ avoid confusion 
->      whether it is "int" or "long".
-> 
->      u8/u16/u32 are perfectly fine typedefs. 
-> 
->      NOTE! Again - there needs to be a _reason_ for this. If something is 
->      "unsigned long", then there's no reason to do
-> 
-> 	typedef long myflags_t;
-> 
->      but if there is a clear reason for why it under certain circumstances 
->      might be an "unsigned int" and under other configurations might be 
->      "unsigned long", then by all means go ahead and use a typedef.
-> 
->  (c) when you use sparse to literally create a _new_ type for 
->      type-checking.
-> 
-> Maybe there are other cases too, but the rule should basically be to NEVER 
-> EVER use a typedef unless you can clearly match one of those rules.
-> 
-> In general, a pointer, or a struct that has elements that can reasonably 
-> be directly accessed should _never_ be a typedef.
-> 
-> 		Linus
-> 
+I'm not referring to anything security-critical, but basic minimal UNIX file 
+permissions. If I have a file that's go-r, I expect that Joe Random User 
+can't burn a CD/DVD with that file.

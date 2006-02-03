@@ -1,231 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422677AbWBCWaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030235AbWBCWal@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422677AbWBCWaq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 17:30:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422690AbWBCWaq
+	id S1030235AbWBCWal (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 17:30:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030249AbWBCWal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 17:30:46 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:13745 "EHLO
+	Fri, 3 Feb 2006 17:30:41 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:14257 "EHLO
 	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1422677AbWBCWap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 17:30:45 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
-Date: Fri, 3 Feb 2006 21:47:18 +1000
+	id S1030235AbWBCWak (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 17:30:40 -0500
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Organization: Cyclades Corporation
+To: linux-kernel@vger.kernel.org
+Subject: Time to harpoon the "Suspend2 changes things lots of things" myth.
+Date: Sat, 4 Feb 2006 07:31:12 +1000
 User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@cs.helsinki.fi>,
-       linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602031020.46641.nigel@suspend2.net> <200602030957.48626.rjw@sisk.pl>
-In-Reply-To: <200602030957.48626.rjw@sisk.pl>
 MIME-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart2301397.HnQPEU7XHf";
+  boundary="nextPart2711574.5FDcIlPa8U";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602032147.23782.nigel@suspend2.net>
+Message-Id: <200602040731.16814.ncunningham@cyclades.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2301397.HnQPEU7XHf
+--nextPart2711574.5FDcIlPa8U
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-Hi.
+Hi all.
 
-On Friday 03 February 2006 18:57, Rafael J. Wysocki wrote:
-> Hi,
->
-> On Friday 03 February 2006 01:20, Nigel Cunningham wrote:
-> > On Friday 03 February 2006 08:10, Rafael J. Wysocki wrote:
-> > > I was referring to the (not so far) future situation when we have
-> > > compression in the userland suspend/resume utilities.  The times of
-> > > writing/reading the image will be similar to yours and IMHO it's
-> > > usually possible to free 1/2 of RAM in a box with 512+ MB of RAM at a
-> > > little cost as far as the responsiveness after resume is concerned.=20
-> > > Thus on machines with 512+ MB of RAM
-> > > both solutions will give similar results performance-wise, but the
-> > > userland-driven suspend gives you much more flexibility wrt what you
-> > > can do with the image (eg. you can even send it over the network if
-> > > need be).
-> > >
-> > > On machines with less RAM suspend2 will probably be better
-> > > preformance-wise, and that may be more important than the flexibility.
-> >
-> > Ok. So I bit the bullet and downloaded -mm4 to take a look at this
-> > interface you're making, and I have a few questions:
-> >
-> > - It seems to be hardwired to use swap, but you talk about writing to a
-> > network image above. In Suspend2, I just bmap whatever the storage is,
-> > and then submit bios to read and write the data. Is anything like that
-> > possible with this interface? (Could it be extended if not?)
->
-> The swap partition was easy. :-)  However, there is the bmap() call that
-> userspace processes can use, so it seems to be possible.  [BTW, the netwo=
-rk
-> is easy too, because it desn't require us to tamper with disks while
-> suspended.]
+Here's a diff stat of the core changes for Suspend2:
 
-Yes. I already did suspend to network last March, but haven't spent more ti=
-me=20
-on it since - it wasn't working perfectly, but it was working using a=20
-modified userspace nbd client.
+ Documentation/kernel-parameters.txt |    8=20
+ Documentation/power/internals.txt   |  360 ++++++++++
+ Documentation/power/suspend2.txt    |  631 ++++++++++++++++++
+ arch/arm/mm/init.c                  |   15=20
+ arch/x86_64/kernel/e820.c           |   17=20
+ arch/x86_64/kernel/suspend.c        |    6=20
+ arch/x86_64/mm/init.c               |   19=20
+ block/ll_rw_blk.c                   |   19=20
+ include/asm-arm/hw_irq.h            |    4=20
+ include/asm-arm/suspend2.h          |  136 ++++
+ include/asm-i386/suspend2.h         |  288 ++++++++
+ include/asm-x86_64/page.h           |    2=20
+ include/asm-x86_64/suspend.h        |    2=20
+ include/linux/bio.h                 |    1=20
+ include/linux/dyn_pageflags.h       |   66 +
+ include/linux/kernel.h              |    2=20
+ include/linux/netlink.h             |    2=20
+ include/linux/suspend.h             |    9=20
+ include/linux/suspend2.h            |  231 ++++++
+ init/do_mounts.c                    |   28=20
+ init/do_mounts_initrd.c             |    9=20
+ init/main.c                         |    4=20
+ kernel/fork.c                       |    9=20
+ kernel/power/Kconfig                |   73 ++
+ kernel/power/Makefile               |   25=20
+ kernel/power/atomic_copy.c          |  473 ++++++++++++++
+ kernel/power/atomic_copy.h          |    4=20
+ kernel/power/block_io.h             |   76 ++
+ kernel/power/checksum.h             |   11=20
+ kernel/power/compression.c          |  638 ++++++++++++++++++
+ kernel/power/debug_pagealloc.c      |  111 +++
+ kernel/power/debug_pagealloc.h      |    3=20
+ kernel/power/encryption.c           |  597 +++++++++++++++++
+ kernel/power/extent.c               |  247 +++++++
+ kernel/power/extent.h               |  105 +++
+ kernel/power/io.c                   | 1026 ++++++++++++++++++++++++++++++
+ kernel/power/io.h                   |   38 +
+ kernel/power/modules.c              |  312 +++++++++
+ kernel/power/modules.h              |  180 +++++
+ kernel/power/netlink.c              |  365 ++++++++++
+ kernel/power/netlink.h              |   43 +
+ kernel/power/pagedir.c              |  370 ++++++++++
+ kernel/power/pagedir.h              |   37 +
+ kernel/power/pageflags.c            |  150 ++++
+ kernel/power/pageflags.h            |   86 ++
+ kernel/power/power.h                |    4=20
+ kernel/power/power_off.c            |   79 ++
+ kernel/power/power_off.h            |   13=20
+ kernel/power/prepare_image.c        |  753 ++++++++++++++++++++++
+ kernel/power/prepare_image.h        |   31=20
+ kernel/power/proc.c                 |  305 +++++++++
+ kernel/power/proc.h                 |   70 ++
+ kernel/power/snapshot.c             |    2=20
+ kernel/power/storage.c              |  323 +++++++++
+ kernel/power/storage.h              |   21=20
+ kernel/power/suspend.c              | 1133 +++++++++++++++++++++++++++++++=
+++
+ kernel/power/suspend.h              |   28=20
+ kernel/power/suspend2.h             |   31=20
+ kernel/power/suspend2_common.h      |   25=20
+ kernel/power/suspend_block_io.c     | 1086 ++++++++++++++++++++++++++++++++
+ kernel/power/suspend_checksums.c    |  509 +++++++++++++++
+ kernel/power/suspend_file.c         | 1077 +++++++++++++++++++++++++++++++
+ kernel/power/suspend_swap.c         | 1213 +++++++=3D=3D> (Trunc'd for wor=
+d wrap)
+ kernel/power/swsusp.c               |    4=20
+ kernel/power/swsusp.h               |   24=20
+ kernel/power/ui.c                   |  853 +++++++++++++++++++++++++
+ kernel/power/ui.h                   |   44 +
+ kernel/power/version.h              |    2=20
+ lib/Kconfig                         |    3=20
+ lib/Makefile                        |    2=20
+ lib/dyn_pageflags.c                 |  330 +++++++++
+ lib/vsprintf.c                      |   28=20
+ mm/memory.c                         |    9=20
+ 73 files changed, 14823 insertions(+), 17 deletions(-)
 
-> > - Is there any way you could support doing a full image of memory with
-> > this approach?
->
-> I'm not sure, but I think that's possible.  For now I don't see major
-> obstacles, but honestly I'll have to read your code (and understand it)
-> to answer this question responsibly.
-
-Ditto in reverse. I have to admit I'm still struggling to see what the=20
-advantage to userspace is. At the moment, it seems to me like nothing more=
+As you can see, nearly everything is in the new kernel/power files and arch=
 =20
-than an extra layer of complexity and new possibilities for failure. Maybe =
-my=20
-attitude will change when I look at it more.
+specific code.
 
-> > Would you take patches?
->
-> Well, the code in question is already in the kernel (in -mm, but this
-> doesn't matter here) and I'm not the maintainer of it, so I can't answer
-> this question directly.  However, if you asked me whether I would _suppor=
-t_
-> any patches, I would say I had never opposed or supported a patch whithout
-> trying to understand it.
->
-> When I think I understand the patch, I try to value it, and I have two
-> rules here:
-> 1) The released code should always be functional.  [So I never submit
-> untested patches without saying explicitly that they are untested and if I
-> replace some code A with alternative code B, I do my best to ensure it
-> won't break any existing setups.]
-> 2) The software with this patch applied must be such that I would like to
-> run it on my computer. [If I wouldn't, there's no chance I'll support it.]
-
-No problems there. I only reboot when forced to, and suspend to disk by=20
-default (or to put it another way, I eat my own dog food).
-
-> > - Does the data have to be transferred to userspace? Security and
-> > efficiency wise, it would seem to make a lot more sense just to be
-> > telling the kernel where to write things and let it do bio calls like I=
-'m
-> > doing at the moment.
->
-> First, there's a difference between efficiency and performance.
->
-> For example, the kernel already contains the code for writing data to the
-> disk or partition you are using for suspend.  By using bio directly to
-> write to it you're duplicating the functionality of that code which is
-> _inefficient_, although this need not be related to performance.  Worse
-> yet, if some optimizations go to this code, you won't have them unless you
-> notice and implement them once again.
->
-> Similar observation applies to enryption and compression: There are
-> libraries for encryption and compression that contain lots of different
-> algorithms, so why should we try to duplicate that code?  It is more
-> efficient to _use_ it, which can be done easily in the user space.
-
-That's why I want to use the existing bio calls and crypto api support. I=20
-don't use the swap read/write routines because... well I've forgotten the=20
-reason 3 years later. Let me take a guess though - using swap routines migh=
-t=20
-corrupt LRU? One thing I do know is that the filewriter and swapwriter use=
+But, you might say, if I download a pacakage from suspend2.net, my diffstat=
 =20
-the same code to do the writing. I'd be more accurate in calling them=20
-swap/file allocators now, as they really only calculate where to store the=
+looks quite different. Yes. that's because that packaging also includes=20
+related, noncore improvements such as refrigerator improvements, cryptoapi=
 =20
-image (and associated functions).
-
-> This may hurt performance a bit, but usually not so far that anyone will
-> notice.  [Actually on my box the suspending and resuming userland
-> utilities I use for testing perform the I/O-related operations _faster_
-> than the built-in swsusp code, although they seemingly do the same
-> things.]
-
-Strange.
-
-> Second, as far as the security is concerned, the only problem I see is th=
-at
-> a malicious attacker may be able to read unencrypted suspend image from t=
-he
-> system or submit his own specially crafted image which would require
-> root-equivalent access anyway.  However to prevent this you can set
-> whatever paranoid permissions you desire on /dev/snapshot and implement
-> your suspending utility as a daemon running in a privileged security ring
-> (the resume is run from and initrd anyway).
-
-True, and an unencrypted image on disk is as vulnerable as any other data o=
-n=20
-disk anyway.
-
-> The biggest advantage of the userland-based approach I see is that there
-> may be _many_ implementations of the suspending and resuming tools
-> and they will not conflict.  For example, if Distributor X needs an exotic
-> feature Y wrt suspend (various vendor-specific eye-candies come to mind or
-> transferring the image over a network), he can implement it in his userla=
-nd
-> tools without modifying the kernel.  Similarly, if Vendor V wants to use
-> paranoid encryption algorithm Z to encrypt the image, she can do that
-> _herself_ in the user space.
-
-True, but can you really imagine people doing that? The one instance I can=
+lzf support and driver fixes that aren't upstream yet. The refrigerator=20
+improvements especially cause a blowout in the number of files affected by=
 =20
-think of was the donation of LZF support to Suspend2 a couple of years back.
+the patch.
 
-> We only need to provide reference tools and we won't be asked to implement
-> every feature that people may want in the kernel.
+I'm sure the above will also lead to the question "Why is it so big compare=
+d=20
+to swsusp?" That's because Suspend2 supports the following features the=20
+swsusp currently lacks:
 
-I don't want it to be true, but I think you're being naive in saying that :=
-)=20
-We'll see, won't we?
+=2D Writing to more than one swap file/partition in an image.
+=2D Writing to ordinary files instead of to swap.
+=2D Asynchronous I/O
+=2D Readahead for synchronous I/O
+=2D Optional compression and encryption via cryptoapi
+=2D An optional userspace user interface, controlled via a netlink socket.
+=2D Reconfiguring without rebooting.
+=2D Save a full image of memory (or...)
+=2D Set an arbitrary soft upper limit on the size of the image
+=2D Press escape to cancel suspending to disk at any time during writing th=
+e=20
+image.
+=2D Disable cancelling via a proc entry if want to.
+=2D Configure encryption anyway you want - all settings are simply passed=20
+through.
+=2D Testing settings that can be used to benchmark and issues
+=2D Support for userui storage manager (eg for managing network connections=
+ when=20
+writing the image to the network)
+=2D Documentation. Not perfect, but it adds to the size of the code too.
 
-> > - In your Documentation file, you say say opening /dev/snapshot for
-> > reading is done when suspending. Shouldn't that be open read for resume
-> > and write for suspend?
->
-> No.  During suspend the image is read from the kernel and saved by a
-> userland tool and analogously during resume.
-
-Oh ok.
-
-> > I'm not saying I'm going to get carried away trying to port Suspend2 to
-> > userspace. Just tentatively exploring. But if I did decide to port it, =
-my
-> > default position would be to seek not to drop a single feature. I hope
-> > that's not too unreasonable!
->
-> That's fine.  I think we have the same goal which is a reasonable set of
-> features available to the users.
->
-> [Heh, that looks like a good starter for the userland suspend FAQ.  Perha=
-ps
-> I should save this message. ;-)]
-
-Thanks.
+Regards,
 
 Nigel
 
-> Greetings,
-> Rafael
-
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
-
---nextPart2301397.HnQPEU7XHf
+--nextPart2711574.5FDcIlPa8U
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQBD40LLN0y+n1M3mo0RAh81AJ0TgrfAkNQofy7/olchdEr5FoAm/wCeIkO+
-ioj/ldwkCh82UNV4tbiHZE4=
-=crhw
+iD8DBQBD48ukN0y+n1M3mo0RAodyAKD0v0GEzjNX0sde9YfMpbFrBOY54QCfb4T6
+5jCOrTIPtjatNaqO0nFD8YE=
+=usZz
 -----END PGP SIGNATURE-----
 
---nextPart2301397.HnQPEU7XHf--
+--nextPart2711574.5FDcIlPa8U--

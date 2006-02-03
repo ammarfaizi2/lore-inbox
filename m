@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945908AbWBCTTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945910AbWBCTWu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945908AbWBCTTh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 14:19:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945910AbWBCTTh
+	id S1945910AbWBCTWu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 14:22:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945912AbWBCTWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 14:19:37 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:5258 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1945911AbWBCTTf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 14:19:35 -0500
-Subject: Re: time function behaving strane
-From: john stultz <johnstul@us.ibm.com>
-To: Conio sandiago <coniodiago@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <993d182d0602022015j70bff250x2524c6c5917be2a7@mail.gmail.com>
-References: <993d182d0602022015j70bff250x2524c6c5917be2a7@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 03 Feb 2006 11:19:30 -0800
-Message-Id: <1138994370.10057.129.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 3 Feb 2006 14:22:50 -0500
+Received: from smtp.bulldogdsl.com ([212.158.248.8]:54285 "EHLO
+	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1945910AbWBCTWt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 14:22:49 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: WLAN drivers
+Date: Fri, 3 Feb 2006 19:22:52 +0000
+User-Agent: KMail/1.9.1
+Cc: takis.issaris@uhasselt.be, linux-kernel@vger.kernel.org
+References: <1138969138.8434.26.camel@localhost.localdomain> <mailman.1138977902.23981.linux-kernel2news@redhat.com> <20060203111423.17275a33.zaitcev@redhat.com>
+In-Reply-To: <20060203111423.17275a33.zaitcev@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200602031922.52769.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-02-03 at 09:45 +0530, Conio sandiago wrote:
-> Hi all,
-> i am using time function in my application.
-> When i call the try function in a loop of say 1 lac iterations then i
-> m facing strange behaviour.
-> 
-> What i am doing is that i am making a call twice to time function
-> inside every iteration and i compare the time of both the calls.
-> But sometimes the time obtained from recent call is 1 second less than
-> the previous call.
-> 
-> Has anybody observed such kind of problem??
+On Friday 03 February 2006 19:14, Pete Zaitcev wrote:
+> On Fri, 3 Feb 2006 12:35:30 +0000, Alistair John Strachan 
+<s0348365@sms.ed.ac.uk> wrote:
+> > > And now the reason I'm sending this to this mailing list: Which
+> > > wireless network cards are you all using and which ones would you
+> > > recommend? Is anyone using USB wireless network cards (without using
+> > > ndiswrapper)?
+> >
+> > In my experience, you're simply best going to either http://prism54.org/
+> > (if you can find one still)
+>
+> You can't get a fullmac card anymore, but softmac is still available
+>  http://www.cdw.com/shop/products/default.aspx?EDC=543916
+> It's a gen1, too.
+>
+> > Keywords for _modern_ Linux supported wireless chipsets are still (to my
+> > knowledge) atheros, atmel, prism54, and most recently broadcom, though
+> > that support is currently immature.
+>
+> Intel is the king, dude. Get a 2200. Uses in-tree drivers, too.
 
-Time inconsistencies are possible with some hardware, although full
-second inconsistencies are a bit large.
+I agree, but this:
 
-Please open a bug at  http://bugzilla.kernel.org
+a)	Still uses proprietary firmware.
+b)	Is made only in mini-pci versions (I think?).
 
-Attach a full dmesg log and assign it to me.
+-- 
+Cheers,
+Alistair.
 
-thanks
--john
-
-
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

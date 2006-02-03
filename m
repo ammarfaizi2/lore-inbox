@@ -1,84 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbWBCK2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWBCKfx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750814AbWBCK2d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 05:28:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbWBCK2d
+	id S932155AbWBCKfx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 05:35:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWBCKfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 05:28:33 -0500
-Received: from mailhub.sw.ru ([195.214.233.200]:24745 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750814AbWBCK2c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 05:28:32 -0500
-Message-ID: <43E330AD.3020202@openvz.org>
-Date: Fri, 03 Feb 2006 13:30:05 +0300
-From: Kirill Korotaev <dev@openvz.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
+	Fri, 3 Feb 2006 05:35:53 -0500
+Received: from pproxy.gmail.com ([64.233.166.177]:37062 "EHLO pproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932155AbWBCKfw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 05:35:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GFRtmOTqttM2ZxHWmFgB1tn+NfKHpzx9Fi1W8HOlXP7iMHx13PO2MvFsPDHHIanGAVkxe0PyDG8fvFCQ7llLzQL0tvtLcYgpvwaBHeId+wBdF/tF+c8rdtH+Si5+FsEER7NKylIVk7i/nfyJeGTR9XY2/yRa1Yf8divh9N2MN8M=
+Message-ID: <e3e24c6a0602030235l740609b6k872ebef2a2a8f9c9@mail.gmail.com>
+Date: Fri, 3 Feb 2006 16:05:50 +0530
+From: Vishal Soni <vishal.linux@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: calling bios interrupt
+In-Reply-To: <43E1B93A.5000603@slovanet.net>
 MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>
-CC: Kirill Korotaev <dev@openvz.org>, serue@us.ibm.com, arjan@infradead.org,
-       frankeh@watson.ibm.com, clg@fr.ibm.com, haveblue@us.ibm.com,
-       mrmacman_g4@mac.com, alan@lxorguk.ukuu.org.uk,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, devel@openvz.org
-Subject: Re: [RFC][PATCH] VPIDs: Virtualization of PIDs (OpenVZ approach)
-References: <43E22B2D.1040607@openvz.org> <20060203030143.GC1075@MAIL.13thfloor.at>
-In-Reply-To: <20060203030143.GC1075@MAIL.13thfloor.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43E1B93A.5000603@slovanet.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> well, IMHO this approach lacks a few things which would
-> be very useful in a mainline pid virtualization, which
-> pretty much explains why it is relatively small
-> 
->  - hierarchical structure (it's flat, only one level)
-PID virtualization has nothing to do with containers and its structure. 
-This VPID patch can be used both in environments with hierarchical and 
-flat structure.
-I mean that this VPID patch introduces some kind of abstraction, which 
-means that global unique pid is not always what user sees. Thats it.
-And kernel should not be modified in all places where access checks 
-current->pid == allowed_pid are done. Global unique PIDs are preserved.
+On 2/2/06, Jozef Kutej <jozef.kutej@slovanet.net> wrote:
+> Hello.
+>
+> Can someone help me solve my problem with on board watch dog timer that
+> need to call bios interrupt? Here's how to update watch dog timer.
+>
+> mov ax,6f02h
+> mov bl, 30      ;number of seconds
+> int 15h
+>
+> How can i do this in kernel so that i can write wdt driver?
+>
+> Thank you.
+CMIIW, is it not that for using BIOS interrupt one has to do the same
+by entering in real mode or else real mode interrupt handler, would be
+replaced with an appropriate exception handler by Linux.
+check this : http://www.mega-tokyo.com/forum/index.php?board=1;action=display;threadid=8997;start=0#msg77808
 
->  - a proper administration scheme
-Can't catch what you mean. What kind of administration do you want for 
-VPIDs? Do you have one for usual PIDs? It is assigned by kernel and 
-that's it.
+like when i try to use int 10h in one of my kernel modules and try to
+insert it with insmod i get Floating Point Exception.
 
->  - a 'view' into the child pid spaces
-it has. see proc patch.
-
->  - handling of inter context signalling
-How is it related to inter context signalling???
-virtualization of signaling is a separate task and has nothing to do 
-with pids.
-
-> and, more important, it does not deal with the existing
-> issues and error cases, where references to pids, tasks,
-> task groups and sessions aren't handled properly ...
-1. if kernel has some errors, these errors should be fixed. 
-Virtualization doesn't deal with it, doesn't solve such issues, doesn't 
-make it worse. So what do you mean?
-2. if kernel has some issues and error cases can you point them to me? I 
-will be glad to fix it. Without pointing to the facts your words sound 
-like a pure speculation. What issues? What error cases? Where task 
-groups and sessiona aren't handled properly?
-
-> I think that in real world virtualization scenarios
-> with hundreds of namespaces those 'imprecisions' will 
-> occasionally lead to very strange and random behaviour
-> which in many cases will go completely unnoticed.
-OpenVZ successfully works with >1000 VPSs on a single server.
-What scenarios do you mean?
-I see no arguments from your side except for some guesses.
-
-> so I really prefer to cleanup the existing pid handling
-> first, to avoid big surprises later ...
-I'm not against pid handling cleanups, am I?
-This can be done in parallel/before/after.
-
-Kirill
-
+And one has to use vm86() system call and save the register context as
+given in below url to achieve the results.
+http://x86.ddj.com/articles/pmbasics/tspec_a1_doc.htm
+>
+> Jozef Kutej.
+> -

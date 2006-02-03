@@ -1,98 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWBCAo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWBCAvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750871AbWBCAo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 19:44:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWBCAo5
+	id S1750758AbWBCAvP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 19:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWBCAvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 19:44:57 -0500
-Received: from fw5.argo.co.il ([194.90.79.130]:2060 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S1750871AbWBCAo5 (ORCPT
+	Thu, 2 Feb 2006 19:51:15 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:42184 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750758AbWBCAvO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 19:44:57 -0500
-Message-ID: <43E2A784.2070809@argo.co.il>
-Date: Fri, 03 Feb 2006 02:44:52 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: discriminate single bit error hardware failure from slab corruption.
-References: <20060202192414.GA22074@redhat.com>
-In-Reply-To: <20060202192414.GA22074@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 2 Feb 2006 19:51:14 -0500
+Date: Thu, 2 Feb 2006 16:52:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: ashok.raj@intel.com, davej@redhat.com, linux-kernel@vger.kernel.org,
+       pavel@ucw.cz
+Subject: Re: [patch -mm4] i386 cpu hotplug: don't access freed memory
+Message-Id: <20060202165257.29dcfa20.akpm@osdl.org>
+In-Reply-To: <200602021904_MC3-1-B771-46F7@compuserve.com>
+References: <200602021904_MC3-1-B771-46F7@compuserve.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Feb 2006 00:44:54.0972 (UTC) FILETIME=[0CDF17C0:01C6285B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-
->In the case where we detect a single bit has been flipped, we spew
->the usual slab corruption message, which users instantly think
->is a kernel bug.  In a lot of cases, single bit errors are
->down to bad memory, or other hardware failure.
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
 >
->This patch adds an extra line to the slab debug messages in those
->cases, in the hope that users will try memtest before they report a bug.
->
->000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
->Single bit error detected. Possibly bad RAM. Please run memtest86.
->
->Signed-off-by: Dave Jones <davej@redhat.com>
->
->--- linux-2.6.15/mm/slab.c~	2006-01-09 13:25:17.000000000 -0500
->+++ linux-2.6.15/mm/slab.c	2006-01-09 13:26:01.000000000 -0500
->@@ -1313,8 +1313,11 @@ static void poison_obj(kmem_cache_t *cac
-> static void dump_line(char *data, int offset, int limit)
-> {
-> 	int i;
->+	unsigned char total=0;
-> 	printk(KERN_ERR "%03x:", offset);
-> 	for (i = 0; i < limit; i++) {
->+		if (data[offset+i] != POISON_FREE)
->+			total += data[offset+i];
->  
->
-how about
- 
-         total += hweight8(data[offset+i] ^ POISON_FREE);
+> @@ -160,10 +162,17 @@ static void __cpuinit get_cpu_vendor(str
+>  				c->x86_vendor = i;
+>  				if (!early)
+>  					this_cpu = cpu_devs[i];
+> -				break;
+> +				return;
+>  			}
+>  		}
+>  	}
+> +	if (!printed) {
+> +		printed++;
+> +		printk(KERN_ERR "CPU: Vendor unknown, using generic init.\n");
+> +		printk(KERN_ERR "CPU: Your system may be unstable.\n");
+> +	}
+> +	c->x86_vendor = X86_VENDOR_UNKNOWN;
+> +	this_cpu = &default_cpu;
 
-> 		printk(" %02x", (unsigned char)data[offset + i]);
-> 	}
-> 	printk("\n");
->@@ -1019,6 +1023,18 @@ static void dump_line(char *data, int of
-> 		}
-> 	}
-> 	printk("\n");
->+	switch (total) {
->+		case 0x36:
->+		case 0x6a:
->+		case 0x6f:
->+		case 0x81:
->+		case 0xac:
->+		case 0xd3:
->+		case 0xd5:
->+		case 0xea:
->+			printk (KERN_ERR "Single bit error detected. Possibly bad RAM. Please run memtest86.\n");
->+			return;
->+	}
->  
->
-and a
-
-     if (total == 1)
-           printk(...);
-
-here? it seems more readable and more correct as well.
-
-> }
-> #endif
-> 
->  
->
-
-
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+Well that's a worry.  Under what circumstances (if any) will this final bit
+of code get executed?

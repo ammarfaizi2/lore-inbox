@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWBCECY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932510AbWBCEP0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbWBCECY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 23:02:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbWBCECY
+	id S932510AbWBCEP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 23:15:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbWBCEP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 23:02:24 -0500
-Received: from sitemail2.everyone.net ([216.200.145.36]:12973 "EHLO
-	omta16.mta.everyone.net") by vger.kernel.org with ESMTP
-	id S964781AbWBCECY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 23:02:24 -0500
-X-Eon-Dm: dm18
-X-Eon-Sig: AQHOS7ND4tXLhOJQ5wIAAAAF,956835e07a88ba19eb86599809156abe
-Date: Thu, 2 Feb 2006 23:00:18 -0500
-From: "Kevin O'Connor" <kevin@koconnor.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, sds@epoch.ncsc.mil,
-       jmorris@namei.org
-Subject: Re: Size-128 slab leak
-Message-ID: <20060203040018.GA3757@double.lan>
-References: <20060131024928.GA11395@double.lan> <20060201231001.0ca96bf0.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Feb 2006 23:15:26 -0500
+Received: from uproxy.gmail.com ([66.249.92.196]:23637 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932510AbWBCEPZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 23:15:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=WsRe4tHJFbANzTaWoO1XxbaEkGXxXtWtnYV2OAgZ+J7bqUK2XgQ9PLQQgYMf+fCbdfwc2bpGbcXj51oLT6kg4t5ZI1jdvOEnKvsIWFAx5jvI+Ua6G9pvqcYfiL+NDIYKQ2gwfgiXtMKRHrc17GclOJUMYu4HwETFBW5TvddFwi4=
+Message-ID: <993d182d0602022015j70bff250x2524c6c5917be2a7@mail.gmail.com>
+Date: Fri, 3 Feb 2006 09:45:23 +0530
+From: Conio sandiago <coniodiago@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: time function behaving strane
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060201231001.0ca96bf0.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, 2006 at 11:10:01PM -0800, Andrew Morton wrote:
-> "Kevin O'Connor" <kevin@koconnor.net> wrote:
-> >
-> > I have an annoying slab leak on my kernel.  Every day, I lose about
-> >  50Megs of memory to the leak.  It seems to be related to disk
-> >  accesses, because the count only goes up noticeable around 4:00am when
-> >  the system locate utility runs.
-> > 
-> >  I can tell there is a leak because /proc/slabinfo shows "size-128"
-> >  growing continuously.  For example, it currently reads:
->
-> -mm kernels have a patch (slab-leak-detector.patch) which will help. 
-> Here's a version for 2.6.16-rc1.  It requires CONFIG_DEBUG_SLAB.  Thanks.
+Hi all,
+i am using time function in my application.
+When i call the try function in a loop of say 1 lac iterations then i
+m facing strange behaviour.
 
-Thanks Andrew.
+What i am doing is that i am making a call twice to time function
+inside every iteration and i compare the time of both the calls.
+But sometimes the time obtained from recent call is 1 second less than
+the previous call.
 
-I've applied the patch and found the leak.  It's in kzalloc.  :-)
-
-With kzalloc inlined, however, it appears that selinux is the likely
-culprit.  I would not have expected that.
-
-After running updatedb I got 23530 occurrences of:
-
-kernel: obj ffff81003f04f000/12: ffffffff801ed7b7 <selinux_inode_alloc_security+0x37/0x100>
-
-I'm not sure how to debug selinux issues, but at least I can disable
-it.
-
--Kevin
+Has anybody observed such kind of problem??

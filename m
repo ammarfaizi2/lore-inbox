@@ -1,233 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945935AbWBCT42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422920AbWBCUCc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945935AbWBCT42 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 14:56:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945938AbWBCT41
+	id S1422920AbWBCUCc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 15:02:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422907AbWBCUCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 14:56:27 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:34235 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1945932AbWBCT4G (ORCPT
+	Fri, 3 Feb 2006 15:02:32 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:49683 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1422904AbWBCUCb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 14:56:06 -0500
-Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
-From: Hubertus Franke <frankeh@watson.ibm.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@sw.ru>,
-       Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       clg@fr.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
-       serue@us.ibm.com, arjan@infradead.org, Rik van Riel <riel@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
-       Pavel Emelianov <xemul@sw.ru>
-In-Reply-To: <1138991641.6189.37.camel@localhost.localdomain>
-References: <43E38BD1.4070707@openvz.org>
-	 <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org> <43E3915A.2080000@sw.ru>
-	 <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org>
-	 <1138991641.6189.37.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 03 Feb 2006 14:56:02 -0500
-Message-Id: <1138996562.6363.1.camel@elg11.watson.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-22) 
+	Fri, 3 Feb 2006 15:02:31 -0500
+Message-ID: <43E3B6A5.5040507@cfl.rr.com>
+Date: Fri, 03 Feb 2006 15:01:41 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+CC: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de,
+       James@superbug.co.uk, j@bitron.ch, acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <43DDFBFF.nail16Z3N3C0M@burner> <1138710764.17338.47.camel@juerg-t40p.bitron.ch> <43DF6812.nail3B44TLQOP@burner> <20060202062840.GI5501@mail> <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo> <787b0d920602020917u1e7267c5lbea5f02182e0c952@mai <43E38B51.nail5CAZ1GYRE@burner>
+In-Reply-To: <43E38B51.nail5CAZ1GYRE@burner>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Feb 2006 20:03:06.0316 (UTC) FILETIME=[D8F0B0C0:01C628FC]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14245.000
+X-TM-AS-Result: No--6.000000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-missed the typedef on container ..
-I am still on 2.6.15.2
+Joerg Schilling wrote:
+>> You CAN'T have multiple cdrecord processes burning the same disc at the 
+>> same time; the very idea makes no sense.  The O_EXCL just prevents you 
+>> from trying such foolishness and creating a coaster. 
+>>     
+>
+> It does not prevent you from creatig a coaster in case you connect e.g.
+> two ATAPI writers to the same ATA cable.
 
-> Couple of minor naming nitpick questions, though.  Is vps/container_info
-> really what we want to call it?  It seems to me to be the basis for a
-> real "container", without the _info part.
-> 
-> "tsk->owner_container"  That makes it sound like a pointer to the "task
-> owner's container".  How about "owning_container"?  The "container
-> owning this task".  Or, maybe just "container"?
-> 
-> Any particular reason for the "u32 id" in the vps_info struct as opposed
-> to one of the more generic types?  Do we want to abstract this one in
-> the same way we do pid_t?
-> 
-> The "host" in "host_container_info" doesn't mean much to me.  Though, I
-> guess it has some context in the UML space.  Would "init_container_info"
-> or "root_container_info" be more descriptive?
-> 
-> Lastly, is this a place for krefs?  I don't see a real need for a
-> destructor yet, but the idea is fresh in my mind.
-> 
-> How does the attached patch look?
-
-here is that adapted ....
-
-Index: linux-2.6.15/include/linux/container.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.15/include/linux/container.h	2006-02-03 14:52:12.000000000
--0500
-@@ -0,0 +1,42 @@
-+#ifndef __LINUX_CONTAINER_H_
-+#define __LINUX_CONTAINER_H_
-+
-+#include <asm/types.h>
-+#include <asm/atomic.h>
-+
-+struct task_struct;
-+
-+struct container {
-+	u32 id;
-+	struct task_struct *init_task;
-+	atomic_t refcnt;
-+};
-+
-+extern struct container root_container;
-+
-+static inline struct container*
-+get_container(struct container *container)
-+{
-+	atomic_inc(&container->refcnt);
-+	return container;
-+}
-+
-+static inline void put_container(struct container *container)
-+{
-+	atomic_dec(&container->refcnt);
-+}
-+
-+#include <linux/sched.h>
-+#include <asm/current.h>
-+
-+static inline struct container*
-+set_current_container(struct container *container)
-+{
-+	struct container *ret;
-+
-+	ret = current->container;
-+	current->container = container;
-+	return ret;
-+}
-+
-+#endif
-Index: linux-2.6.15/include/linux/init_task.h
-===================================================================
---- linux-2.6.15.orig/include/linux/init_task.h	2006-02-03
-14:50:39.000000000 -0500
-+++ linux-2.6.15/include/linux/init_task.h	2006-02-03 14:52:12.000000000
--0500
-@@ -3,6 +3,7 @@
- 
- #include <linux/file.h>
- #include <linux/rcupdate.h>
-+#include <linux/container.h>
- 
- #define INIT_FDTABLE \
- {							\
-@@ -121,6 +122,7 @@ extern struct group_info init_groups;
- 	.journal_info	= NULL,						\
- 	.cpu_timers	= INIT_CPU_TIMERS(tsk.cpu_timers),		\
- 	.fs_excl	= ATOMIC_INIT(0),				\
-+	.container = &root_container,				\
- }
- 
- 
-Index: linux-2.6.15/include/linux/sched.h
-===================================================================
---- linux-2.6.15.orig/include/linux/sched.h	2006-02-03
-14:50:39.000000000 -0500
-+++ linux-2.6.15/include/linux/sched.h	2006-02-03 14:52:12.000000000
--0500
-@@ -682,6 +682,7 @@ static inline void prefetch_stack(struct
- 
- struct audit_context;		/* See audit.c */
- struct mempolicy;
-+struct container;
- 
- struct task_struct {
- 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
-@@ -830,6 +831,7 @@ struct task_struct {
- 	struct backing_dev_info *backing_dev_info;
- 
- 	struct io_context *io_context;
-+	struct container *container;
- 
- 	unsigned long ptrace_message;
- 	siginfo_t *last_siginfo; /* For ptrace use.  */
-@@ -859,6 +861,8 @@ struct task_struct {
- 	atomic_t fs_excl;	/* holding fs exclusive resources */
- };
- 
-+#define current_container()	(current->container)
-+
- static inline pid_t process_group(struct task_struct *tsk)
- {
- 	return tsk->signal->pgrp;
-Index: linux-2.6.15/init/main.c
-===================================================================
---- linux-2.6.15.orig/init/main.c	2006-02-03 14:50:39.000000000 -0500
-+++ linux-2.6.15/init/main.c	2006-02-03 14:52:12.000000000 -0500
-@@ -47,8 +47,8 @@
- #include <linux/rmap.h>
- #include <linux/mempolicy.h>
- #include <linux/key.h>
-+#include <linux/container.h>
- #include <net/sock.h>
--
- #include <asm/io.h>
- #include <asm/bugs.h>
- #include <asm/setup.h>
-@@ -438,6 +438,13 @@ void __init parse_early_param(void)
- 	done = 1;
- }
- 
-+struct container root_container = {
-+	.id		= 0,
-+	.init_task	= &init_task,
-+	.refcnt		= ATOMIC_INIT(1),
-+};
-+
-+EXPORT_SYMBOL(root_container);
- /*
-  *	Activate the first processor.
-  */
-Index: linux-2.6.15/kernel/exit.c
-===================================================================
---- linux-2.6.15.orig/kernel/exit.c	2006-02-03 14:50:39.000000000 -0500
-+++ linux-2.6.15/kernel/exit.c	2006-02-03 14:52:12.000000000 -0500
-@@ -29,6 +29,7 @@
- #include <linux/syscalls.h>
- #include <linux/signal.h>
- #include <linux/cn_proc.h>
-+#include <linux/container.h>
- 
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -106,6 +107,7 @@ repeat: 
- 	spin_unlock(&p->proc_lock);
- 	proc_pid_flush(proc_dentry);
- 	release_thread(p);
-+	put_container(p->container);
- 	put_task_struct(p);
- 
- 	p = leader;
-Index: linux-2.6.15/kernel/fork.c
-===================================================================
---- linux-2.6.15.orig/kernel/fork.c	2006-02-03 14:50:39.000000000 -0500
-+++ linux-2.6.15/kernel/fork.c	2006-02-03 14:52:12.000000000 -0500
-@@ -43,6 +43,7 @@
- #include <linux/rmap.h>
- #include <linux/acct.h>
- #include <linux/cn_proc.h>
-+#include <linux/container.h>
- 
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -1121,6 +1122,7 @@ static task_t *copy_process(unsigned lon
- 	p->ioprio = current->ioprio;
- 
- 	SET_LINKS(p);
-+	get_container(p->container);
- 	if (unlikely(p->ptrace & PT_PTRACED))
- 		__ptrace_link(p, current->parent);
- 
+So what?  What does that have to do with my rebutting your statement 
+that O_EXCL prevents multiple cdrecords?  O_EXCL also does not prevent 
+you from kicking the plug out of the wall while burning, but it DOES 
+prevent another process from trying to mess with the drive while 
+cdrecord is and clobbering things up, which is a good thing.  It does 
+not prevent you from using cdrecord at the same time on different drives. 
 
 

@@ -1,57 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964824AbWBCAUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWBCAYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964824AbWBCAUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 19:20:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWBCAUQ
+	id S964826AbWBCAYM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 19:24:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWBCAYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 19:20:16 -0500
-Received: from zproxy.gmail.com ([64.233.162.199]:54683 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964821AbWBCAUO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 19:20:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jqxg4elTOU2qiqquTZu4Rs7cA6GhZXjc+OM425vVFtpHTJE9Pgk9AJ4K86FthTRhVIqnZPw32VsJK34WBpxgJiym/h+6jwIeIIWJXSqcYL4eM6pIrcbM3W7vXGH6UxrXSbns/r9B1x9/sdgPBrnftwzgshJEQd00AKuZFWRhnJ4=
-Message-ID: <6bffcb0e0602021612j29e1f3a4v@mail.gmail.com>
-Date: Fri, 3 Feb 2006 01:12:58 +0100
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.16-rc1-mm3
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-In-Reply-To: <20060202142041.6222e846.akpm@osdl.org>
+	Thu, 2 Feb 2006 19:24:12 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:18903 "EHLO
+	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
+	id S964826AbWBCAYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 19:24:10 -0500
+From: Nigel Cunningham <nigel@suspend2.net>
+Organization: Suspend2.net
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
+Date: Fri, 3 Feb 2006 10:20:42 +1000
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@cs.helsinki.fi>,
+       linux-kernel@vger.kernel.org
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602030727.48855.nigel@suspend2.net> <200602022310.40783.rjw@sisk.pl>
+In-Reply-To: <200602022310.40783.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060124232406.50abccd1.akpm@osdl.org>
-	 <43D7A047.3070004@yahoo.com.au>
-	 <6bffcb0e0601261102j7e0a5d5av@mail.gmail.com>
-	 <43D92754.4090007@yahoo.com.au> <43D927F6.9080807@yahoo.com.au>
-	 <6bffcb0e0601270211v787f91d2r@mail.gmail.com>
-	 <43E0718F.1020604@yahoo.com.au>
-	 <20060201005106.35ca4b8c.akpm@osdl.org>
-	 <6bffcb0e0602021306l6b6c1423r@mail.gmail.com>
-	 <20060202142041.6222e846.akpm@osdl.org>
+Content-Type: multipart/signed;
+  boundary="nextPart2443538.9Pbb8D4Cdm";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200602031020.46641.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/02/06, Andrew Morton <akpm@osdl.org> wrote:
-> I actually meant `l *0xb0161cdd' so we get file-n-line.  But from that, it
-> appears that we won't get very interesting info anyway.
+--nextPart2443538.9Pbb8D4Cdm
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-(gdb) list *0xb0161cdd
-0xb0161cdd is in do_path_lookup (/usr/src/linux-mm/fs/namei.c:1124).
-1119
-1120                    fput_light(file, fput_needed);
-1121            }
-1122            read_unlock(&current->fs->lock);
-1123            current->total_link_count = 0;
-1124            retval = link_path_walk(name, nd);
-1125    out:
-1126            if (nd && nd->dentry && nd->dentry->d_inode)
-1127                    audit_inode(name, nd->dentry->d_inode, flags);
-1128    out_fail:
+Hi.
 
-Regards,
-Michal Piotrowski
+On Friday 03 February 2006 08:10, Rafael J. Wysocki wrote:
+> I was referring to the (not so far) future situation when we have
+> compression in the userland suspend/resume utilities.  The times of
+> writing/reading the image will be similar to yours and IMHO it's usually
+> possible to free 1/2 of RAM in a box with 512+ MB of RAM at a little cost
+> as far as the responsiveness after resume is concerned.  Thus on machines
+> with 512+ MB of RAM
+> both solutions will give similar results performance-wise, but the
+> userland-driven suspend gives you much more flexibility wrt what you can
+> do with the image (eg. you can even send it over the network if need be).
+>
+> On machines with less RAM suspend2 will probably be better
+> preformance-wise, and that may be more important than the flexibility.
+
+Ok. So I bit the bullet and downloaded -mm4 to take a look at this interfac=
+e=20
+you're making, and I have a few questions:
+
+=2D It seems to be hardwired to use swap, but you talk about writing to a=20
+network image above. In Suspend2, I just bmap whatever the storage is, and=
+=20
+then submit bios to read and write the data. Is anything like that possible=
+=20
+with this interface? (Could it be extended if not?)
+=2D Is there any way you could support doing a full image of memory with th=
+is=20
+approach? Would you take patches?
+=2D Does the data have to be transferred to userspace? Security and efficie=
+ncy=20
+wise, it would seem to make a lot more sense just to be telling the kernel=
+=20
+where to write things and let it do bio calls like I'm doing at the moment.
+=2D In your Documentation file, you say say opening /dev/snapshot for readi=
+ng is=20
+done when suspending. Shouldn't that be open read for resume and write for=
+=20
+suspend?
+
+I'm not saying I'm going to get carried away trying to port Suspend2 to=20
+userspace. Just tentatively exploring. But if I did decide to port it, my=20
+default position would be to seek not to drop a single feature. I hope that=
+'s=20
+not too unreasonable!
+
+NIgel
+=2D-=20
+See our web page for Howtos, FAQs, the Wiki and mailing list info.
+http://www.suspend2.net                IRC: #suspend2 on Freenode
+
+--nextPart2443538.9Pbb8D4Cdm
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBD4qHeN0y+n1M3mo0RAh6/AKCufxD2mKEqAefwOLsWwcSiV9AuPACfZ6GA
+G0vwUtnoWFbSK2j+H+O09lY=
+=/b98
+-----END PGP SIGNATURE-----
+
+--nextPart2443538.9Pbb8D4Cdm--

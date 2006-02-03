@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750973AbWBCIfa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWBCIqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750973AbWBCIfa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 03:35:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWBCIfa
+	id S1750897AbWBCIqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 03:46:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWBCIqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 03:35:30 -0500
-Received: from smtp17.wxs.nl ([195.121.247.8]:24316 "EHLO smtp17.wxs.nl")
-	by vger.kernel.org with ESMTP id S1750994AbWBCIf3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 03:35:29 -0500
-Date: Fri, 03 Feb 2006 09:34:48 +0100
-From: Kars de Jong <jongk@linux-m68k.org>
-Subject: Re: [PATCH] Introduce __iowrite32_copy
-In-reply-to: <20060203063047.GX27946@ftp.linux.org.uk>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org,
-       "Bryan O'Sullivan" <bos@pathscale.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>, Olaf Hering <olh@suse.de>,
-       Heiko Carstens <heiko.carstens@de.ibm.com>
-Message-id: <1138955689.5570.6.camel@laptop-lcs.localdomain>
-MIME-version: 1.0
-X-Mailer: Evolution 2.2.3
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <200602011820.k11IKUBo024575@hera.kernel.org>
- <20060202142917.GA10870@suse.de>
- <20060202145720.GE22815@osiris.boeblingen.de.ibm.com>
- <20060203063047.GX27946@ftp.linux.org.uk>
+	Fri, 3 Feb 2006 03:46:16 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:17624 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750831AbWBCIqQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 03:46:16 -0500
+Date: Fri, 3 Feb 2006 09:45:36 +0100 (CET)
+From: Armin Schindler <armin@melware.de>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Adrian Bunk <bunk@stusta.de>, kai.germaschewski@gmx.de,
+       isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org,
+       kkeil@suse.de
+Subject: Re: [2.6 patch] ISDN_CAPI_CAPIFS related cleanups
+In-Reply-To: <1138924621.3788.2.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0602030941580.13271@phoenix.one.melware.de>
+References: <20060131213306.GG3986@stusta.de> <1138743844.3968.14.camel@localhost.localdomain>
+ <20060202214059.GB14097@stusta.de> <1138924621.3788.2.camel@localhost.localdomain>
+Organization: Cytronics & Melware
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:4f0aeee4703bc17a8237042c4702a75a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On vr, 2006-02-03 at 06:30 +0000, Al Viro wrote:
-> On Thu, Feb 02, 2006 at 03:57:20PM +0100, Heiko Carstens wrote:
-> > > lib/iomap_copy.c: In function '__iowrite32_copy':
-> > > lib/iomap_copy.c:40: error: implicit declaration of function '__raw_writel'
-> > > 
-> > > We compile with -Werror-implicit-function-declaration, and s390 does not
-> > > have a __raw_writel.
-> > > Should it just define __raw_writel to writel, like uml does a few
-> > > commits later?
-> > 
-> > I sent a patch which fixes this for s390 earlier today.
-> > http://lkml.org/lkml/2006/2/2/78
+On Fri, 3 Feb 2006, Marcel Holtmann wrote:
+> Hi Adrian,
 > 
-> Which leaves mips, m68k and sh64...  For m68k cross-builds I've added
-> #define __raw_writel raw_outl in raw_io.h, but I'm not sure if m68k
-> folks are OK with that.  Comments?
+> > > > This patch contains the following cleanups:
+> > > > - move the help text to the right option
+> > > > - replace some #ifdef's in capi.c with dummy functions in capifs.h
+> > > > - use CONFIG_ISDN_CAPI_CAPIFS_BOOL in one place in capi.c
+> > > 
+> > > I actually still like to see capifs removed completely. It is not really
+> > > needed if you gonna use udev. The only thing that it is doing, is to set
+> > > the correct permissions and make sure that the device nodes are created.
+> > > And with a 2.6 kernel this can be all done by udev.
+> > 
+> > udev is not mandatory.
+> > 
+> > Static /dev is still 100% supported and working fine.
+> 
+> and if you have static /dev then you can use mknod and chown by
+> yourself. If you use CAPI on any newer distribution with the latest 2.6
+> kernel you will have udev anyway and so no static /dev at all.
 
-That's exactly what I have done in my local tree for the 53c700 driver
-which uses the interfaces of lib/iomap.c, so it's fine with me.
+Sorry for my ignorance, but I think capifs was introduced to have own 
+dynamic 'files' like pts and not to have the restrictions of character 
+devices and the needed major/minor numbers.
 
+So changing this to character device nodes may break applications
+out there.
 
-Kind regards,
-
-Kars.
-
+Armin
 

@@ -1,54 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbWBCPxw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbWBCPyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750907AbWBCPxw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 10:53:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbWBCPxw
+	id S1750923AbWBCPyt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 10:54:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750945AbWBCPyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 10:53:52 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:6859 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750842AbWBCPxv (ORCPT
+	Fri, 3 Feb 2006 10:54:49 -0500
+Received: from hummeroutlaws.com ([12.161.0.3]:5386 "EHLO atpro.com")
+	by vger.kernel.org with ESMTP id S1750842AbWBCPys (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 10:53:51 -0500
-Date: Fri, 3 Feb 2006 10:53:23 -0500
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>, rlrevell@joe-job.com,
-       pavel@ucw.cz, nigel@suspend2.net, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Message-ID: <20060203155323.GB24201@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-	rlrevell@joe-job.com, pavel@ucw.cz, nigel@suspend2.net,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org
-References: <20060202115907.GH1884@elf.ucw.cz> <200602022214.52752.nigel@suspend2.net> <20060202152316.GC8944@ucw.cz> <20060202132708.62881af6.akpm@osdl.org> <1138916079.15691.130.camel@mindpipe> <20060202142323.088a585c.akpm@osdl.org> <20060202142323.088a585c.akpm@osdl.org> <1138919381.15691.162.camel@mindpipe> <E1F4xZN-0001K1-00@chiark.greenend.org.uk> <20060203022305.2e619476.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Feb 2006 10:54:48 -0500
+From: "Jim Crilly" <jim@why.dont.jablowme.net>
+Date: Fri, 3 Feb 2006 10:53:50 -0500
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: acahalan@gmail.com, mrmacman_g4@mac.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de,
+       James@superbug.co.uk, j@bitron.ch
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060203155349.GA9301@voodoo>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	acahalan@gmail.com, mrmacman_g4@mac.com, matthias.andree@gmx.de,
+	linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de,
+	James@superbug.co.uk, j@bitron.ch
+References: <43DF6812.nail3B44TLQOP@burner> <20060202062840.GI5501@mail> <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo> <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com> <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr> <20060202210949.GD10352@voodoo> <43E27792.nail54V1B1B3Z@burner> <787b0d920602021827m4890fbf4j24d110dc656d2d3a@mail.gmail.com> <43E374CF.nail5CAMKAKEV@burner>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20060203022305.2e619476.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43E374CF.nail5CAMKAKEV@burner>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 02:23:05AM -0800, Andrew Morton wrote:
- > Matthew Garrett <mgarrett@chiark.greenend.org.uk> wrote:
- > >
- > > (By and large, the biggest problem is repeated kernel regressions that
- > >  hit suspend in bizarre ways. This doesn't get picked up on quickly
- > >  because almost nobody is using this code, because "everyone knows" it
- > >  doesn't work. Except it /does/. What we need is for distributions to
- > >  actually work together on this, rather than everyone trying to fix the
- > >  same problems independently, each coming up with different solutions and
- > >  the world generally being a miserable place)
- > 
- > Is it still the case that swsusp requries that the disk drivers be
- > statically linked into vmlinux?
- > 
- > If so, I'd have thought that this was quite a problem for distros,
- > although I have a vague feeling that RH worked around it in some manner.
+On 02/03/06 04:20:47PM +0100, Joerg Schilling wrote:
+> Albert Cahalan <acahalan@gmail.com> wrote:
+> 
+> > On 2/2/06, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+> > > "Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+> > >
+> > > > I see the same thing with, the only external kernel patch I have
+> > > > applied is Suspend2. The ATA scanbus code tries to
+> > > > open("/dev/hda", O_RDWR|O_NONBLOCK|O_EXCL) and that fails, and since
+> > >
+> > > This is not cdrecord but a bastardized version......
+> >
+> > True enough, but it would work great if you'd fix that bug
+> > that makes cdrecord give up while scanning. I guess
+> > that's one more patch Debian will be applying.
+> 
+> As including O_EXCL would disallow to use more than one cdrecord
+> program at the same time, there is no chance for the mains stream source.
 
-We do it all in the initrd, before any filesystems are touched.
+Maybe I'm just being thick, but wouldn't that only prevent you from using
+cdrecord on the same device multiple times? The only thing I can see being
+opened with O_EXCL is the target device.
 
-		Dave
+> > Using O_EXCL is kind of broken, because you'll need to
+> > retry any failures, but that's life. You hacked cdrecord to
+> > properly interact with the Solaris volume manager. You
+> > can do the same for HAL.
+> 
+> Well the big difference with Solaris is that several modifications have been 
+> applied by Sun to the vold sub-system on Solaris in order to decently 
+> support cdrecord.
+> 
+> The last change was done with Nevada Build 21 in August 2005.
+> 
+> It makes sense for Linux not to ignore CD/DVD writing. Solaris also did
+> chose not to ignore cdrecord.
+> 
+> Jörg
 
+A bug in HAL is not a bug in Linux. If the HAL people need to make some
+changes to their daemon to make it play nice with cdrecord and the like
+that's fine, but telling people here makes no sense.
+
+Jim.

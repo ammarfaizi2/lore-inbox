@@ -1,73 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWBCOQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750850AbWBCORT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750846AbWBCOQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 09:16:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbWBCOQZ
+	id S1750850AbWBCORT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 09:17:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750849AbWBCORT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 09:16:25 -0500
-Received: from [84.204.75.166] ([84.204.75.166]:9159 "EHLO shelob.oktetlabs.ru")
-	by vger.kernel.org with ESMTP id S1750845AbWBCOQZ (ORCPT
+	Fri, 3 Feb 2006 09:17:19 -0500
+Received: from bender.bawue.de ([193.7.176.20]:41149 "EHLO bender.bawue.de")
+	by vger.kernel.org with ESMTP id S1750842AbWBCORR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 09:16:25 -0500
-Message-ID: <43E365B6.4060005@oktetlabs.ru>
-Date: Fri, 03 Feb 2006 17:16:22 +0300
-From: "Artem B. Bityutskiy" <dedekind@oktetlabs.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
-X-Accept-Language: en, ru, en-us
+	Fri, 3 Feb 2006 09:17:17 -0500
+Date: Fri, 3 Feb 2006 15:16:51 +0100
+From: Joerg Sommrey <jo@sommrey.de>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, tony@atomide.com, erik@slagter.name,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] amd76x_pm: C3 powersaving for AMD K7
+Message-ID: <20060203141651.GA15228@sommrey.de>
+Mail-Followup-To: "Brown, Len" <len.brown@intel.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-acpi@vger.kernel.org, tony@atomide.com, erik@slagter.name,
+	alan@lxorguk.ukuu.org.uk
+References: <F7DC2337C7631D4386A2DF6E8FB22B3005EFE84D@hdsmsx401.amr.corp.intel.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: greg@kroah.com
-Subject: [QUESTION/sysfs] strange refcounting
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F7DC2337C7631D4386A2DF6E8FB22B3005EFE84D@hdsmsx401.amr.corp.intel.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello folks,
+On Fri, Feb 03, 2006 at 03:45:59AM -0500, Brown, Len wrote:
+> >- Enabling C2/C3 in the BIOS would be a very bad thing IMHO.
+> >  From all he testing with amd76x_pm I found that is very tricky
+> >  to go into C2/C3 "the right way".
+> 
+> Who defines the "right way"?  Is it guaranteed to work on all
+> models and all configurations?  Exactly what is the reward
+> for the cost we'd be paying and the risk we'd be taking?
+> 
+I'd be glad to know "the right way".  All I have is something that seems
+to work on a number of boxes :-(
+There are some benefits from using it and there are some known issues.
+Whoever wants to use this must decide for himself if he's willing to
+take the risk.  I'll emphasise this in the documentation.
 
-I'm writing a simple device driver and want to expose some of its 
-attributes to userspace via sysfs.
+> >  Simply reading the PM register without a
+> >  suitable logic around leads to all kinds of instabilities.  You need
+> >  to implement this logic and then enable the hardware.  The BIOS cannot
+> >  do this.
+> 
+> How about if we put it this way...
+> If the ACPI maintainer were an AMD employee,
+> and he accepted a patch like this specific to Intel hardware --
+> a patch that rejects whatever validation Intel, the BIOS
+> vendor and the board vendor have put into the product --
+> I'd call for his expulsion for ineptitude.
 
-As usually, I have main device description structure "struct 
-mydev_info". I've embedded a struct device object there. What I do is:
+Don't get me wrong: I didn't ask for inclusion of this patch into
+something official.  All I want is to tell people: here is something
+that is useful for me and might be useful for you.
 
-struct mydev_info mydev
-{
-	struct device *dev;
-	... bla bla bla ...
-} mydev;
+My point was to say, that *for me* this stuff doesn't look that
+dangerous in exactly the environment it was written for:
+AMD K7 + 762 + 766/768.
 
+You have a well-defined position not to include this into the ACPI
+subsystem, you pointed out your reasons for (not) doing so and I accept
+that.
 
-mydev->dev=kzalloc(sizeof(struct device), GFP_KERNEL);
-mydev->dev->bus_id = "mydev";
-mydev->dev->release = mydev_release;
-err = device_register(&mydev->dev);
+For me there are just a few questions left:
+What is an appropiate way of announcing this patch on linux-kernel in the
+future?  Does anybody feel uncomfortable with the way I did it in the
+past?  Shall I cc: linux-acpi in the future, as suggested by Andrew?
 
-Then, I see /sys/devices/mydev/ in sysfs. I open pre-defined 
-/sys/devices/mydev/power/state in userspace and don't close it.
-
-Then I run lsmod, and see zero refcount to my module. Well, I run rmmod 
-mymod, module is unloaded.
-
-Then I close /sys/devices/mydev/power/state, and enjoy segfault.
-
-I thought sysfs subsystem have to increase module refcount when one 
-opens its sysfs files. Well, there is a release function, but it is also 
-unloaded with the module.
-
-May be there is a problem because of I have mydev->dev->parent == NULL, 
-mydev->dev->bus == NULL, mydev->dev->driver == NULL? But I really don't 
-have any bus, any parent and I don't want to introduce struct 
-device_driver ...
-
-Kernel is 2.6.15.1.
-
-Although this is my first meet with sysfs, this looks strange.
-
-Thanks.
+-jo
 
 -- 
-Best regards, Artem B. Bityutskiy
-Oktet Labs (St. Petersburg), Software Engineer.
-+78124286709 (office) +79112449030 (mobile)
-E-mail: dedekind@oktetlabs.ru, web: http://www.oktetlabs.ru
+-rw-r--r--  1 jo users 63 2006-02-03 14:28 /home/jo/.signature

@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945923AbWBCTpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945927AbWBCTrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945923AbWBCTpl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 14:45:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945924AbWBCTpl
+	id S1945927AbWBCTrV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 14:47:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945925AbWBCTrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 14:45:41 -0500
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:18319 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP
-	id S1945923AbWBCTpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 14:45:40 -0500
-Date: Fri, 3 Feb 2006 20:45:30 +0100 (CET)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Phillip Susi <psusi@cfl.rr.com>
-cc: Roger Heflin <rheflin@atipa.com>, "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'Cynbe ru Taren'" <cynbe@muq.org>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       "'Salyzyn, Mark'" <mark_salyzyn@adaptec.com>
-Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
-In-Reply-To: <43E3B1D7.4090308@cfl.rr.com>
-Message-ID: <Pine.LNX.4.60.0602032044060.26896@kepler.fjfi.cvut.cz>
-References: <EXCHG2003KfYDovvQ0P000011f7@EXCHG2003.microtech-ks.com>
- <Pine.LNX.4.60.0602032010430.24081@kepler.fjfi.cvut.cz> <43E3B1D7.4090308@cfl.rr.com>
+	Fri, 3 Feb 2006 14:47:21 -0500
+Received: from mail-gw3.adaptec.com ([216.52.22.36]:39648 "EHLO
+	mail-gw3.adaptec.com") by vger.kernel.org with ESMTP
+	id S1945927AbWBCTrU convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 14:47:20 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: RAID5 unusably unstable through 2.6.14
+Date: Fri, 3 Feb 2006 14:47:19 -0500
+Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F021C99D3@otce2k03.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: RAID5 unusably unstable through 2.6.14
+Thread-Index: AcYo9dmMSZ+ARmJ6SRmlg5HA/vxaJgABFLNQ
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "Martin Drab" <drab@kepler.fjfi.cvut.cz>,
+       "Roger Heflin" <rheflin@atipa.com>
+Cc: "Phillip Susi" <psusi@cfl.rr.com>, "Bill Davidsen" <davidsen@tmr.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Feb 2006, Phillip Susi wrote:
+Martin Drab sez:
+> S.M.A.R.T. should be able to do this. But last time I've 
+> checked it wasn't 
+> working with Linux and SCSI/SATA. Is this working now?
 
-> Martin Drab wrote:
-> > S.M.A.R.T. should be able to do this. But last time I've checked it wasn't
-> > working with Linux and SCSI/SATA. Is this working now?
-> 
-> Yes, it is working now.  The smartutils package returns all kinds of handy
-> information from the drive and can force the drive to perform a low level disk
-> check on request.  It likely won't pass through a hardware raid controller
-> however. 
+Smartctl works with the latest patches to the aacraid driver to SAS and
+SATA products (no_uld_patch submitted originally in December)
 
-Yes, that may be another issue. It depend's on whether AACRAID is ready 
-for that or not. (Adaptec declares that the controller is SMART capable.)
+>> Run the Verify (or Verify with Fix) Task on the controller, the
+report
+>> will indicate the reasons for inconsistencies.
+>How do I run that? Any special tools for that?
 
-Martin
+Can be triggered in the BIOS, or using the Adaptec Management Tools.
+
+-- Mark

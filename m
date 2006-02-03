@@ -1,80 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945903AbWBCTSJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945900AbWBCTTg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945903AbWBCTSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 14:18:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945900AbWBCTSJ
+	id S1945900AbWBCTTg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 14:19:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945910AbWBCTTf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 14:18:09 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:46039 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1945902AbWBCTSH (ORCPT
+	Fri, 3 Feb 2006 14:19:35 -0500
+Received: from twin.uoregon.edu ([128.223.214.27]:13275 "EHLO twin.uoregon.edu")
+	by vger.kernel.org with ESMTP id S1945900AbWBCTTe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 14:18:07 -0500
-Message-ID: <43E3AC6B.7060608@watson.ibm.com>
-Date: Fri, 03 Feb 2006 14:18:03 -0500
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Fri, 3 Feb 2006 14:19:34 -0500
+Date: Fri, 3 Feb 2006 11:19:18 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+cc: Lee Revell <rlrevell@joe-job.com>,
+       Panagiotis Issaris <takis.issaris@uhasselt.be>,
+       linux-kernel@vger.kernel.org, linux-netdev@vger.kernel.org
+Subject: Re: WLAN drivers
+In-Reply-To: <200602031914.01573.s0348365@sms.ed.ac.uk>
+Message-ID: <Pine.LNX.4.64.0602031118230.13688@twin.uoregon.edu>
+References: <1138969138.8434.26.camel@localhost.localdomain>
+ <200602031235.31098.s0348365@sms.ed.ac.uk> <1138990013.15691.272.camel@mindpipe>
+ <200602031914.01573.s0348365@sms.ed.ac.uk>
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@sw.ru>,
-       Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       clg@fr.ibm.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
-       serue@us.ibm.com, arjan@infradead.org, Rik van Riel <riel@redhat.com>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
-       Pavel Emelianov <xemul@sw.ru>
-Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
-References: <43E38BD1.4070707@openvz.org>	 <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org> <43E3915A.2080000@sw.ru>	 <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org> <1138991641.6189.37.camel@localhost.localdomain>
-In-Reply-To: <1138991641.6189.37.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
->  On Fri, 2006-02-03 at 09:49 -0800, Linus Torvalds wrote:
-> 
->>One thing I don't particularly like is some of the naming. To me "vps" 
->>doesn't sound particularly generic or logical. I realize that it probably 
->>makes perfect sense to you (and I assume it just means "virtual private 
->>servers"), but especially if you see patches 1-3 to really be independent 
->>of any "actual" virtualization code that is totally generic, I'd actually 
->>prefer a less specialized name.
-> 
-> 
-> I just did a global s/vps/container/ and it looks pretty reasonable, at
-> least from my point of view.
-> 
-> Couple of minor naming nitpick questions, though.  Is vps/container_info
-> really what we want to call it?  It seems to me to be the basis for a
-> real "container", without the _info part.
-> 
-> "tsk->owner_container"  That makes it sound like a pointer to the "task
-> owner's container".  How about "owning_container"?  The "container
-> owning this task".  Or, maybe just "container"?
-> 
-> Any particular reason for the "u32 id" in the vps_info struct as opposed
-> to one of the more generic types?  Do we want to abstract this one in
-> the same way we do pid_t?
-> 
-> The "host" in "host_container_info" doesn't mean much to me.  Though, I
-> guess it has some context in the UML space.  Would "init_container_info"
-> or "root_container_info" be more descriptive?
-> 
-> Lastly, is this a place for krefs?  I don't see a real need for a
-> destructor yet, but the idea is fresh in my mind.
-> 
-> How does the attached patch look?
-> 
+On Fri, 3 Feb 2006, Alistair John Strachan wrote:
 
-Looks good to me ...
+> On Friday 03 February 2006 18:06, Lee Revell wrote:
+>> On Fri, 2006-02-03 at 12:35 +0000, Alistair John Strachan wrote:
+>>> In my experience, you're simply best going to either
+>>> http://prism54.org/ (if you can find one still) or http://madwifi.org/
+>>> (modern cards, likely to be purchasable), and then buying one of the
+>>> cards on the "known to work" lists. If you buy the wrong revision,
+>>> return it.
+>>
+>> Isn't madwifi a proprietary driver?  Are things really so bad that
+>> people on LKML are recommending users buy this junk?
+>
+> Yes.
 
-Similar to parts of our patch set, so overlap is good that means on
-large parts we agree.
-Let's go with Dave's adaption, since it already addresses some of
-Linus's concerns and I start moving the pid isolation (in contrast to
-pid virtualization) over this.
+intel 2200 or 2915 though they're only available in minicpi flavors as far 
+as I know.
 
--- Hubertus
+>
+
+-- 
+--------------------------------------------------------------------------
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
 

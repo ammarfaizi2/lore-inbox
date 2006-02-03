@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945990AbWBCVgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945992AbWBCVvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945990AbWBCVgb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 16:36:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945992AbWBCVgb
+	id S1945992AbWBCVvE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 16:51:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945996AbWBCVvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 16:36:31 -0500
-Received: from gold.veritas.com ([143.127.12.110]:34853 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1945991AbWBCVga (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 16:36:30 -0500
-Date: Fri, 3 Feb 2006 21:37:09 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] stop ==== emergency
-Message-ID: <Pine.LNX.4.61.0602032131510.15970@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 03 Feb 2006 21:36:29.0995 (UTC) FILETIME=[E4FE3FB0:01C62909]
+	Fri, 3 Feb 2006 16:51:03 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:52663 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1945992AbWBCVvC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 16:51:02 -0500
+Subject: Re: [-mm patch] kernel/time/timeofday.c: make struct ts_interval
+	static
+From: john stultz <johnstul@us.ibm.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060203205716.GI4408@stusta.de>
+References: <20060203000704.3964a39f.akpm@osdl.org>
+	 <20060203205716.GI4408@stusta.de>
+Content-Type: text/plain
+Date: Fri, 03 Feb 2006 13:50:59 -0800
+Message-Id: <1139003459.10057.133.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dump_stack on page allocation failure presently has an irritating habit
-of shouting just "====" at everyone: please stop it.
+On Fri, 2006-02-03 at 21:57 +0100, Adrian Bunk wrote:
+> On Fri, Feb 03, 2006 at 12:07:04AM -0800, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.15-mm4:
+> >...
+> > +time-generic-timekeeping-infrastructure.patch
+> >...
+> >  Bring back John's time-reqork patches.  New, improved, fixed.
+> >...
+> 
+> 
+> This patch makes a needlessly global struct static.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
+Ah! Great catches on all three of these patches!
 
- arch/i386/kernel/traps.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+Acked-by: John Stultz <johnstul@us.ibm.com>
 
---- 2.6.16-rc2/arch/i386/kernel/traps.c	2006-02-03 09:31:53.000000000 +0000
-+++ linux/arch/i386/kernel/traps.c	2006-02-03 09:59:37.000000000 +0000
-@@ -166,7 +166,8 @@ static void show_trace_log_lvl(struct ta
- 		stack = (unsigned long*)context->previous_esp;
- 		if (!stack)
- 			break;
--		printk(KERN_EMERG " =======================\n");
-+		printk(log_lvl);
-+		printk(" =======================\n");
- 	}
- }
- 
+
+Thanks so much!
+-john
+

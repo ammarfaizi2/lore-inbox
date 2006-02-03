@@ -1,86 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWBCCgq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbWBCDAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964856AbWBCCgq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 21:36:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWBCCgq
+	id S964862AbWBCDAm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 22:00:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWBCDAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 21:36:46 -0500
-Received: from mail.tmr.com ([64.65.253.246]:40208 "EHLO firewall2.tmr.com")
-	by vger.kernel.org with ESMTP id S964856AbWBCCgp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 21:36:45 -0500
-Date: Thu, 2 Feb 2006 21:36:41 -0500 (EST)
-From: Bill Davidsen <tmrbill@tmr.com>
-Reply-To: davidsen@tmr.com
-To: Pavel Machek <pavel@ucw.cz>
-cc: Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: CD writing - related question
-In-Reply-To: <20060202201943.GB2264@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0602022134260.12829-100000@firewall2.tmr.com>
+	Thu, 2 Feb 2006 22:00:42 -0500
+Received: from grunt15.ihug.co.nz ([203.109.254.62]:54675 "EHLO
+	grunt15.ihug.co.nz") by vger.kernel.org with ESMTP id S964862AbWBCDAl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 22:00:41 -0500
+From: "Gavin Lambert" <gavinl@compacsort.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Framebuffer mmaping on nommu
+Date: Fri, 3 Feb 2006 16:00:24 +1300
+Organization: Compac Sorting Equipment
+Message-ID: <00ca01c6286d$fa8f27f0$4800a8c0@gavinlpc>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+X-Mimeole: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Feb 2006, Pavel Machek wrote:
+[Please CC me; I'm not subscribed because I couldn't handle the list
+volume!] :)
 
->      
-> X-UID: 40919
-> 
-> On Čt 02-02-06 14:40:28, Bill Davidsen wrote:
-> > Pavel Machek wrote:
-> > >On Mon 30-01-06 18:30:29, Bill Davidsen wrote:
-> > >
-> > >>Please take this as a question to elicit information, not 
-> > >>an invitation for argument.
-> > >>
-> > >>In Linux currently:
-> > >>SCSI - liiks like SCSI
-> > >>USB - looks like SCSI
-> > >>Firewaire - looks like SCSI
-> > >>SATA - looks like SCSI
-> > >>Compact flash and similar - looks like SCSI
-> > >
-> > >
-> > >Your definition of "looks like scsi" is way too broad. CF looks like
-> > >PCMCIA and that in turn is ide chip on isa-like bus.
-> > >
-> > >(unless you plug it to usb reader)
-> > >
-> > I was unaware of any serious use of PCMCIA reader cards therese days, as 
-> > you note the CD shows up as an sd device. I have a laptop which might 
-> > have a card slot, if it takes CD I'll pull one from my camera and try it 
-> > there instead of the USB reader.
-> 
-> CD? Did you want to say CF?
+I'm trying to write a framebuffer driver for an LCD controller on a
+Coldfire-based NOMMU board.  (m68knommu, 5272)
 
-Yes, thanks.
-> 
-> Anyway it is not really PCMCIA reader. It is just PCMCIA-to-CF
-> adapter, plugged into PCMCIA slot. Adapter is pretty much passive. 
-> 
-> > The question is still why not make all devices look like SCSI, and use 
-> > one set of drivers and a bit of glue. Redhat used to use ide-scsi by 
-> > default if my memory serves, and the overhead wasn't an issue even back 
-> > on my 1st Linux laptop running Slackware on a Thinkpad 486-25 (the fat 
-> > one, not the 486-16 -;).
-> 
-> CF card is as much ide as it can get. You can even pug it to IDE cable
-> with passive adapter!
-> 
-> Forcing everything to SCSI makes about as much sense as making
-> everything look like IDE.
+I'm running into some trouble when trying to mmap the framebuffer from
+user space, though.
 
-No, we have the way to make everything look like SCSI now, ide-scsi. We 
-can't make (real) SCSI look like IDE. And if you are using IDE instead of 
-ATAPI (non-SCSI command set?) you would ahve to stay with an older kernel.
+I'm using Linux 2.6.15-1 (with the uClinux uc0 patchset applied).
 
-> 							Pavel
+Problem 1:
+  in Documentation/nommu-mmap.txt, it mentions that the framebuffer
+driver is one of those that handles get_unmapped_area and passes it on
+to the device-specific driver.  I can find no trace of that in
+drivers/video/fbmem.c, however -- the only time it implemented
+get_unmapped_area is on sparc64, and even then it doesn't pass anything
+on to the FB driver itself.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-Doing interesting things with little computers since 1979
+Problem 2:
+  I've created a framebuffer chardev node (/dev/fb0) in my romfs
+filesystem (uClinux standard setup).  I can open and ioctl the node just
+fine.  However, when I try to mmap it I get errors:
+
+  - mmap(NULL, fix.smem_len, PROT_READ | PROT_WRITE, MAP_FILE |
+MAP_SHARED, fb_fd, 0)
+    returns ENODEV; I've traced this to mm/nommu.c
+(validate_mmap_request), where it copies the capabilities out of the
+backing_dev_info.  In this case, the only capability provided is
+BDI_CAP_MAP_COPY.  The code a bit further down that detects that it's a
+chardev won't execute (because it already has nonzero capabilities), and
+so since it never adds BDI_CAP_MAP_DIRECT the shared mapping fails.  If
+I comment out the code that gets the capabilities from the
+backing_dev_info, then the switch executes, it detects that it's a
+chardev, and the mapping succeeds.
+
+    I have no idea where this backing_dev_info stuff is coming from; I
+haven't encountered it before and I'm not sure what it is.
+
+  - mmap(NULL, fix.smem_len, PROT_READ | PROT_WRITE, MAP_FILE |
+MAP_PRIVATE, fb_fd, 0)
+    this triggers a BUG (in do_mmap_private), specifically BUG_ON(ret ==
+0 && !(vma->vm_flags & VM_MAYSHARE));
+    I'm not really expecting this to work (because if the data is copied
+then it won't be picked up by the framebuffer any more), but a BUG seems
+a little excessive.
+
+Am I just doing something really dumb, or is something a bit b0rken?
 

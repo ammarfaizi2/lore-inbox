@@ -1,98 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbWBCEUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbWBCElf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964812AbWBCEUq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 23:20:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbWBCEUq
+	id S964897AbWBCElf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 23:41:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964903AbWBCElf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 23:20:46 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:58541 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750930AbWBCEUp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 23:20:45 -0500
-Date: Thu, 2 Feb 2006 23:20:35 -0500
-From: Dave Jones <davej@redhat.com>
-To: Avi Kivity <avi@argo.co.il>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: discriminate single bit error hardware failure from slab corruption.
-Message-ID: <20060203042035.GF10209@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Avi Kivity <avi@argo.co.il>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060202192414.GA22074@redhat.com> <43E2A784.2070809@argo.co.il> <20060203014645.GD10209@redhat.com> <43E2BA63.5050505@argo.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43E2BA63.5050505@argo.co.il>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 2 Feb 2006 23:41:35 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:54896 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S964897AbWBCElf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 23:41:35 -0500
+To: Dave Jones <davej@redhat.com>
+Cc: Avi Kivity <avi@argo.co.il>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: discriminate single bit error hardware failure from slab
+ corruption.
+X-Message-Flag: Warning: May contain useful information
+References: <20060202192414.GA22074@redhat.com> <43E2A784.2070809@argo.co.il>
+	<20060203014645.GD10209@redhat.com> <43E2BA63.5050505@argo.co.il>
+	<20060203042035.GF10209@redhat.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 02 Feb 2006 20:41:26 -0800
+In-Reply-To: <20060203042035.GF10209@redhat.com> (Dave Jones's message of
+ "Thu, 2 Feb 2006 23:20:35 -0500")
+Message-ID: <ada3bj1xde1.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 03 Feb 2006 04:41:27.0316 (UTC) FILETIME=[182AED40:01C6287C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 04:05:23AM +0200, Avi Kivity wrote:
+    Dave> Hmm, I made a mistake in my maths somewhere, and some of
+    Dave> those values are incorrect, so having the compiler do the
+    Dave> work would have stopped me screwing up, but once the correct
+    Dave> values are used, I doubt there's ever a really compelling
+    Dave> reason to change the slab poison pattern.
 
- >    unsigned char modified_bits = data[offset+i] ^ POSION_FREE;
- >    int modified_bits_count = hweight8(modified_bits);
- >    total += modified_bits_count;
- > 
- > >wrt correctness, what do you see wrong with my approach?
- > Your code will generate a false positive 8 times in 256 runs, or 1 in 
- > 32. A 3% false positive rate seems excessive, It's also sensitive to 
- > changes to POISON_FREE.
+But Avi is still correct about false positives.  For example, if
+something stomps on the slab poison and leaves it as
 
-Hmm, I made a mistake in my maths somewhere, and some of those values
-are incorrect, so having the compiler do the work would have stopped
-me screwing up, but once the correct values are used, I doubt there's
-ever a really compelling reason to change the slab poison pattern.
+    e0 08 03 00
 
-		Dave
+then that will add up to eb and still trigger your message, even
+though it's far from a single bit error.
 
-In case where we detect a single bit has been flipped, we spew
-the usual slab corruption message, which users instantly think
-is a kernel bug.  In a lot of cases, single bit errors are
-down to bad memory, or other hardware failure.
+Maybe making the loop be something like
 
-This patch adds an extra line to the slab debug messages
-in those cases, in the hope that users will try memtest before
-they report a bug.
+	unsigned char total = 0, bad_count = 0;
+	printk(KERN_ERR "%03x:", offset);
+	for (i = 0; i < limit; i++) {
+		if (data[offset+i] != POISON_FREE) {
+			total += data[offset+i];
+			++bad_count;
+		}
+		printk(" %02x", (unsigned char)data[offset + i]);
+	}
 
-000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-Single bit error detected. Possibly bad RAM. Run memtest86.
+and then you can put
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+	if (bad_count == 1)
 
---- linux-2.6.15/mm/slab.c~	2006-01-09 13:25:17.000000000 -0500
-+++ linux-2.6.15/mm/slab.c	2006-01-09 13:26:01.000000000 -0500
-@@ -1313,8 +1313,11 @@ static void poison_obj(kmem_cache_t *cac
- static void dump_line(char *data, int offset, int limit)
- {
- 	int i;
-+	unsigned char total=0;
- 	printk(KERN_ERR "%03x:", offset);
- 	for (i = 0; i < limit; i++) {
-+		if (data[offset+i] != POISON_FREE)
-+			total += data[offset+i];
- 		printk(" %02x", (unsigned char)data[offset + i]);
- 	}
- 	printk("\n");
-@@ -1019,6 +1023,22 @@ static void dump_line(char *data, int of
- 		}
- 	}
- 	printk("\n");
-+	switch (total) {
-+					/* 01101011 (0x6b - SLAB_POISON) */
-+		case 0x6a:	/* 01101010 bit 0 flipped */
-+		case 0x69:	/* 01101001 bit 1 flipped */
-+		case 0x6f:	/* 01101111 bit 2 flipped */
-+		case 0x63:	/* 01100011 bit 3 flipped */
-+		case 0x7b:	/* 01111011 bit 4 flipped */
-+		case 0x4b:	/* 01001011 bit 5 flipped */
-+		case 0x2b:	/* 00101011 bit 6 flipped */
-+		case 0xeb:	/* 11101011 bit 7 flipped */
-+			printk (KERN_ERR "Single bit error detected. Possibly bad RAM\n"
-+#ifdef CONFIG_X86
-+			printk (KERN_ERR "Run memtest86 or other memory test tool.\n");
-+#endif
-+			return;
-+	}
- }
- #endif
- 
+before the switch statement.
+
+I have to admit that Avi's code seems clearer to me too, though.
+
+ - R.

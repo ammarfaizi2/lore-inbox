@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWBCBs6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWBCBvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964834AbWBCBs6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 20:48:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWBCBs6
+	id S964844AbWBCBvN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 20:51:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWBCBvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 20:48:58 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:8196 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S964834AbWBCBs5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 20:48:57 -0500
-Date: Fri, 3 Feb 2006 02:48:46 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andrew Morton <akpm@osdl.org>, pavel@ucw.cz, nigel@suspend2.net,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Message-ID: <20060203014846.GA61221@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-	pavel@ucw.cz, nigel@suspend2.net, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602022131.59928.nigel@suspend2.net> <20060202115907.GH1884@elf.ucw.cz> <200602022214.52752.nigel@suspend2.net> <20060202152316.GC8944@ucw.cz> <20060202132708.62881af6.akpm@osdl.org> <1138916079.15691.130.camel@mindpipe> <20060202142323.088a585c.akpm@osdl.org> <1138919381.15691.162.camel@mindpipe>
+	Thu, 2 Feb 2006 20:51:13 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:31721 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S964844AbWBCBvL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 20:51:11 -0500
+Subject: [RFC][PATCH 000 of 3] MD Acceleration and the ADMA interface:
+	Introduction
+From: Dan Williams <dan.j.williams@intel.com>
+To: linux-kernel@vger.kernel.org
+Cc: Dan Williams <dan.j.williams@intel.com>, linux-raid@vger.kernel.org,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       Chris Leech <christopher.leech@intel.com>,
+       "Grover, Andrew" <andrew.grover@intel.com>,
+       Deepak Saxena <dsaxena@plexity.net>
+Content-Type: text/plain
+Date: Thu, 02 Feb 2006 18:46:08 -0700
+Message-Id: <1138931168.6620.8.camel@dwillia2-linux.ch.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1138919381.15691.162.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 02, 2006 at 05:29:40PM -0500, Lee Revell wrote:
-> Follow up - do we have a rough idea how bad the suspend problem is, like
-> approximately what % of laptops don't DTRT and just suspend when you
-> close the lid?
+This patch set was originally posted to linux-raid, Neil suggested that
+I send to linux-kernel as well:
 
-None of the Dells we use at work (various models) handle suspend (both
-ram and disk) reliably.  Got everything from not resuming when pushing
-the button (PWRF not giving an ACPI event while PWRC does), screen not
-coming back (as usual), system not coming back the second time (go
-figure) or resume eating up / from time to time.  At that point people
-there are buying Macs.
+Per the discussion in this thread (http://marc.theaimsgroup.com/?
+t=112603120100004&r=1&w=2) these patches implement the first phase of MD
+acceleration, pre-emptible xor.  To date these patches only cover raid5
+calls to compute_parity for read/modify and reconstruct writes.  The
+plan is to expand this to cover raid5 check parity, raid5 compute block,
+as well as the raid6 equivalents.
 
-I'm going to get a sacrificial (but modern) dell laptop in a month or
-two.  I'll try to make things actually reliable on that one, including
-video.  I don't have great hopes though.
+The ADMA (Asynchronous / Application Specific DMA) interface is proposed
+as a cross platform mechanism for supporting system CPU offload engines.
+The goal is to provide a unified asynchronous interface to support
+memory copies, block xor, block pattern setting, block compare, CRC
+calculation, cryptography etc.  The ADMA interface should support a PIO
+fallback mode allowing a given ADMA engine implementation to use the
+system CPU for operations without a hardware accelerated backend.  In
+other words a client coded to the ADMA interface transparently receives
+hardware acceleration for its operations depending on the features of
+the underlying platform.
 
-'course the current state of the drm/fb interaction is yet another can
-of worms, one in a good way of being solved though.
+Ideally, with some coordination, the I/OAT DMA, ACRYPTO, and ADMA
+efforts can unify to present a consistent asynchronous off-load engine
+interface.
 
-  OG.
+[RFC][PATCH 001 of 3] MD Acceleration: Base ADMA interface
+[RFC][PATCH 002 of 3] MD Acceleration: md_adma driver for raid5 offload
+[RFC][PATCH 003 of 3] MD Acceleration: raid5 changes to support asynchronous operation
 
-[1] Reverse engineering is one of my hobbies
+NOTE: These patches are against Linus' git tree as of commit_id
+0271fc2db6260dd46f196191e24281af2fddb879 (they should apply to 2.6.16-
+rc1).  They have only passed basic run time sanity checks on ARM, and
+compile testing on i386.
+
+The next phase of this development will target the remainder of raid5,
+raid6, and the outcome of the asynchronous off-load engine unification
+effort.  The known asynchronous interface stakeholders have been CC'd.
+
+Dan Williams
+Linux Development Team
+Storage Group - Intel Corporation
+
+

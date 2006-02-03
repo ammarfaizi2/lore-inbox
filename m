@@ -1,147 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWBCUca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbWBCUew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbWBCUca (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 15:32:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWBCUca
+	id S1751414AbWBCUew (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 15:34:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWBCUew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 15:32:30 -0500
-Received: from uproxy.gmail.com ([66.249.92.203]:58011 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751159AbWBCUc3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 15:32:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:disposition-notification-to:date:from:user-agent:mime-version:to:subject:content-type;
-        b=uetaMSw5BOSRYfVg/KoNRCAhsLxJdDRbj2c2+DUxRvWsZNOn0SjYU1+cy/7WGcFKsObUS3asEhlSbRJkDnDhntmTiRSjneR/koDQlonzS0XdKzZqEAaKYlVtg3vu9vDoQ0rjez+RG9mkOqgURv0LYWZyEVENoYOt/pVQHQgFknY=
-Message-ID: <43E3BDDD.6000402@gmail.com>
-Date: Fri, 03 Feb 2006 22:32:29 +0200
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-User-Agent: Mail/News 1.5 (X11/20060112)
+	Fri, 3 Feb 2006 15:34:52 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:30911 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751414AbWBCUev
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 15:34:51 -0500
+Message-ID: <43E3BE66.6050200@watson.ibm.com>
+Date: Fri, 03 Feb 2006 15:34:46 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] THE LINUX/I386 BOOT PROTOCOL - Breaking the 256 limit - Resubmit
-Content-Type: multipart/mixed;
- boundary="------------060901050604060605090504"
+To: Greg KH <greg@kroah.com>
+CC: Dave Hansen <haveblue@us.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Kirill Korotaev <dev@sw.ru>, Kirill Korotaev <dev@openvz.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       clg@fr.ibm.com, alan@lxorguk.ukuu.org.uk, serue@us.ibm.com,
+       arjan@infradead.org, Rik van Riel <riel@redhat.com>,
+       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
+       Pavel Emelianov <xemul@sw.ru>
+Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
+References: <43E38BD1.4070707@openvz.org> <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org> <43E3915A.2080000@sw.ru> <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org> <1138991641.6189.37.camel@localhost.localdomain> <20060203201945.GA18224@kroah.com>
+In-Reply-To: <20060203201945.GA18224@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060901050604060605090504
-Content-Type: text/plain; charset=ISO-8859-8-I; format=flowed
-Content-Transfer-Encoding: 7bit
+Greg KH wrote:
+> On Fri, Feb 03, 2006 at 10:34:01AM -0800, Dave Hansen wrote:
+> 
+>>Lastly, is this a place for krefs?  I don't see a real need for a
+>>destructor yet, but the idea is fresh in my mind.
+> 
+> 
+> Well, what happens when you drop the last reference to this container?
+> Right now, your patch doesn't cause anything to happen, and if that's
+> acceptable, then fine, you don't need to use a struct kref.
+> 
+> But if not, then why have a reference count at all?  :)
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
+Greg ...
 
-Extending the kernel parameters to a size of 1024 on boot
-protocol >=2.02 for i386 and x86_64 architectures.
+In our pid virtualization patches we removed the object automatically.
+I presume that Kirill does the same .... although the code for that is not released.
 
-Signed-off-by: Alon Bar-Lev <alon.barlev@gmail.com>
+I am working on converting our pid stuff so to follow the recommendation of Linux/Alan
+to just do <container,pid> isolation through pidspaces.
 
----
+I could release an allocation/ before hand. Based on Kirill's 1/5 patch adoption
+(which took Linus's & Dave's naming comments into account)
 
-Hello,
+How do we want to create the container?
+In our patch we did it through a /proc/container filesystem.
+Which created the container object and then on fork/exec switched over.
 
-This patch was submitted a long ago, but did not find its 
-way into the kernel, but was not rejected as well.
+How about an additional sys_exec_container( exec_args + "container_name").
+This does all the work like exec, but creates new container
+with name "..." and attaches task to new container.
+If name exists, an error -EEXIST will be raised !
 
-Current implementation allows the kernel to receive up to 
-255 characters from the bootloader.
+-- Hubertus
 
-In current environment, the command-line is used in order to
-specify many values, including suspend/resume, module
-arguments, splash, initramfs and more.
-
-255 characters are not enough anymore.
-
-Please consider to merge.
-
-If any of you think that this should be applied for other
-architectures, please reply.
-
-Current architectures that have 256 limit are:
-alpha, cris, i386, m64k, mips, sh, sh64, sparc, sparc64,
-x86_64, xtensa
-
-Current architectures that have 512 values are:
-frv(512), h8300(512), ia64(512), m32r(512), m68knommu(512),
-mips(512), powerpc(512), v850(512)
-
-Current architectures that are OK:
-arm(1024), arm26(1024), parisc(1024)
-
-Current strange ones:
-s390(896) - I guess IBM has a good reason for this constant...
-
-Best Regards,
-Alon Bar-Lev
-
-
---------------060901050604060605090504
-Content-Type: text/plain;
- name="linux-2.6.16-rc2-command-line.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.6.16-rc2-command-line.diff"
-
-diff -urNp linux-2.6.16-rc2/Documentation/i386/boot.txt linux-2.6.16-rc2.new/Documentation/i386/boot.txt
---- linux-2.6.16-rc2/Documentation/i386/boot.txt	2006-01-03 05:21:10.000000000 +0200
-+++ linux-2.6.16-rc2.new/Documentation/i386/boot.txt	2006-02-03 21:32:03.000000000 +0200
-@@ -235,11 +235,8 @@ loader to communicate with the kernel.  
- relevant to the boot loader itself, see "special command line options"
- below.
- 
--The kernel command line is a null-terminated string currently up to
--255 characters long, plus the final null.  A string that is too long
--will be automatically truncated by the kernel, a boot loader may allow
--a longer command line to be passed to permit future kernels to extend
--this limit.
-+The kernel command line is a null-terminated string. A string that is too
-+long will be automatically truncated by the kernel.
- 
- If the boot protocol version is 2.02 or later, the address of the
- kernel command line is given by the header field cmd_line_ptr (see
-@@ -260,6 +257,9 @@ command line is entered using the follow
- 	covered by setup_move_size, so you may need to adjust this
- 	field.
- 
-+	The kernel command line *must* be 256 bytes including the
-+	final null.
-+
- 
- **** SAMPLE BOOT CONFIGURATION
- 
-diff -urNp linux-2.6.16-rc2/include/asm-i386/param.h linux-2.6.16-rc2.new/include/asm-i386/param.h
---- linux-2.6.16-rc2/include/asm-i386/param.h	2006-01-03 05:21:10.000000000 +0200
-+++ linux-2.6.16-rc2.new/include/asm-i386/param.h	2006-02-03 21:23:21.000000000 +0200
-@@ -19,6 +19,6 @@
- #endif
- 
- #define MAXHOSTNAMELEN	64	/* max length of hostname */
--#define COMMAND_LINE_SIZE 256
-+#define COMMAND_LINE_SIZE 1024
- 
- #endif
-diff -urNp linux-2.6.16-rc2/include/asm-i386/setup.h linux-2.6.16-rc2.new/include/asm-i386/setup.h
---- linux-2.6.16-rc2/include/asm-i386/setup.h	2006-01-03 05:21:10.000000000 +0200
-+++ linux-2.6.16-rc2.new/include/asm-i386/setup.h	2006-02-03 21:19:44.000000000 +0200
-@@ -17,7 +17,7 @@
- #define MAX_NONPAE_PFN	(1 << 20)
- 
- #define PARAM_SIZE 4096
--#define COMMAND_LINE_SIZE 256
-+#define COMMAND_LINE_SIZE 1024
- 
- #define OLD_CL_MAGIC_ADDR	0x90020
- #define OLD_CL_MAGIC		0xA33F
-diff -urNp linux-2.6.16-rc2/include/asm-x86_64/setup.h linux-2.6.16-rc2.new/include/asm-x86_64/setup.h
---- linux-2.6.16-rc2/include/asm-x86_64/setup.h	2006-01-03 05:21:10.000000000 +0200
-+++ linux-2.6.16-rc2.new/include/asm-x86_64/setup.h	2006-02-03 21:20:40.000000000 +0200
-@@ -1,6 +1,6 @@
- #ifndef _x8664_SETUP_H
- #define _x8664_SETUP_H
- 
--#define COMMAND_LINE_SIZE	256
-+#define COMMAND_LINE_SIZE	1024
- 
- #endif
-
---------------060901050604060605090504--

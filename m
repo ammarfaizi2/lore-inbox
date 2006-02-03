@@ -1,71 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWBCNQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbWBCNPo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750770AbWBCNQY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 08:16:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWBCNQY
+	id S1750763AbWBCNPo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 08:15:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbWBCNPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 08:16:24 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22419 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750770AbWBCNQX (ORCPT
+	Fri, 3 Feb 2006 08:15:44 -0500
+Received: from mummy.ncsc.mil ([144.51.88.129]:13987 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1750763AbWBCNPn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 08:16:23 -0500
-Date: Fri, 3 Feb 2006 14:16:02 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pekka Enberg <penberg@cs.helsinki.fi>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
-Message-ID: <20060203131602.GD2972@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602030727.48855.nigel@suspend2.net> <200602022310.40783.rjw@sisk.pl> <200602031020.46641.nigel@suspend2.net>
+	Fri, 3 Feb 2006 08:15:43 -0500
+Subject: Re: Size-128 slab leak
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: "Kevin O'Connor" <kevin@koconnor.net>
+Cc: Chris Wright <chrisw@sous-sol.org>, Jeff Mahoney <jeffm@suse.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, jmorris@namei.org
+In-Reply-To: <20060203040018.GA3757@double.lan>
+References: <20060131024928.GA11395@double.lan>
+	 <20060201231001.0ca96bf0.akpm@osdl.org>  <20060203040018.GA3757@double.lan>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Fri, 03 Feb 2006 08:21:12 -0500
+Message-Id: <1138972872.18268.327.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200602031020.46641.nigel@suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Pá 03-02-06 10:20:42, Nigel Cunningham wrote:
-> Hi.
+On Thu, 2006-02-02 at 23:00 -0500, Kevin O'Connor wrote:
+> Thanks Andrew.
 > 
-> On Friday 03 February 2006 08:10, Rafael J. Wysocki wrote:
-> > On machines with less RAM suspend2 will probably be better
-> > preformance-wise, and that may be more important than the flexibility.
+> I've applied the patch and found the leak.  It's in kzalloc.  :-)
 > 
-> Ok. So I bit the bullet and downloaded -mm4 to take a look at this interface 
-> you're making, and I have a few questions:
+> With kzalloc inlined, however, it appears that selinux is the likely
+> culprit.  I would not have expected that.
+> 
+> After running updatedb I got 23530 occurrences of:
+> 
+> kernel: obj ffff81003f04f000/12: ffffffff801ed7b7 <selinux_inode_alloc_security+0x37/0x100>
+> 
+> I'm not sure how to debug selinux issues, but at least I can disable
+> it.
 
-Great, thanks.
+Hmm...that allocation call occurs upon alloc_inode() via
+security_inode_alloc, and the associated free call occurs upon
+destroy_inode() via security_inode_free.  However, when Jeff Mahoney
+introduced the support for "private inodes" (S_PRIVATE flag) to support
+reiserfs xattrs-as-files, he added the IS_PRIVATE guards to both
+security_inode_alloc and security_inode_free.  I think that this ends up
+causing SELinux to allocate a security structure for every reiserfs
+inode including private inodes since they are not marked until later by
+reiserfs, while preventing SELinux from ever freeing the security
+structure for the private inodes.  Note that
+selinux_inode_free_security() should be safe even for the private
+inodes, as it doesn't assume any other initialization beyond the
+allocation-time initialization.  Patch below.  
 
-> - It seems to be hardwired to use swap, but you talk about writing to a 
-> network image above. In Suspend2, I just bmap whatever the storage is, and 
-> then submit bios to read and write the data. Is anything like that possible 
-> with this interface? (Could it be extended if not?)
+BTW, Jeff - I assume you know about the unrelated breakage in
+SELinux/reiserfs support that was introduced by the changes for atomic
+security labeling of inodes in 2.6.14.  If you care, you might want to
+use the same workaround upstreamed for xfs for 2.6.16.  But I understand
+that SELinux is not a priority in SuSE presently.
 
-No, it is not hardwired. There's special swap support, but you do not
-need to use it.
+BTW, Chris - are you still serving as LSM maintainer?  MAINTAINERS still
+lists your osdl address.
 
-> - Is there any way you could support doing a full image of memory with this 
-> approach? Would you take patches?
+---
 
-Doing full image is certainly possible; it is not important if kernel
-does the writing or userspace does it. Taking patches definitely
-depends how they'd look like...
+Remove private inode tests from security_inode_alloc and security_inode_free,
+as we otherwise end up leaking inode security structures for private inodes.
 
-> - Does the data have to be transferred to userspace? Security and efficiency 
-> wise, it would seem to make a lot more sense just to be telling the kernel 
-> where to write things and let it do bio calls like I'm doing at the
-> moment.
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-As far as I can see, transfering data to userspace and back does not
-really cost much:
+---
 
-pavel@amd:~$ time head -c $[1024*1024*1024] < /dev/zero > /dev/null
-0.16user 0.27system 0.43 (0m0.439s) elapsed 100.00%CPU
+ include/linux/security.h |    4 ----
+ 1 file changed, 4 deletions(-)
 
-...2000MB/sec is the limit (thinkpad x32).
-								Pavel
+Index: linux-2.6/include/linux/security.h
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/include/linux/security.h,v
+retrieving revision 1.50
+diff -u -p -r1.50 security.h
+--- linux-2.6/include/linux/security.h	3 Jan 2006 16:36:48 -0000	1.50
++++ linux-2.6/include/linux/security.h	3 Feb 2006 12:50:57 -0000
+@@ -1437,15 +1437,11 @@ static inline void security_sb_post_pivo
+ 
+ static inline int security_inode_alloc (struct inode *inode)
+ {
+-	if (unlikely (IS_PRIVATE (inode)))
+-		return 0;
+ 	return security_ops->inode_alloc_security (inode);
+ }
+ 
+ static inline void security_inode_free (struct inode *inode)
+ {
+-	if (unlikely (IS_PRIVATE (inode)))
+-		return;
+ 	security_ops->inode_free_security (inode);
+ }
+ 
+
+
 -- 
-Thanks, Sharp!
+Stephen Smalley
+National Security Agency
+

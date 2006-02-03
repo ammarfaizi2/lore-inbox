@@ -1,48 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWBCNpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWBCNpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750740AbWBCNpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 08:45:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWBCNpQ
+	id S1750780AbWBCNpG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 08:45:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWBCNpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 08:45:16 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:54945 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750740AbWBCNpO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 08:45:14 -0500
-Date: Fri, 3 Feb 2006 14:45:04 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, James@superbug.co.uk, acahalan@gmail.com,
-       "unlisted-recipients:; "@pop3.mail.demon.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-In-Reply-To: <43E33F55.nail5CA4MZAKZ@burner>
-Message-ID: <Pine.LNX.4.61.0602031444010.7991@yvahk01.tjqt.qr>
-References: <43D7A7F4.nailDE92K7TJI@burner> <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
- <43D7B1E7.nailDFJ9MUZ5G@burner> <20060125230850.GA2137@merlin.emma.line.org>
- <43D8C04F.nailE1C2X9KNC@burner> <20060126161028.GA8099@suse.cz>
- <43DA2E79.nailFM911AZXH@burner> <43DA4DDA.7070509@superbug.co.uk>
- <Pine.LNX.4.61.0601271753430.11702@yvahk01.tjqt.qr> <43DDFBFF.nail16Z3N3C0M@burner>
- <20060130120408.GA8436@merlin.emma.line.org> <43DE3AE5.nail16ZL1UH7X@burner>
- <43DE4055.8090501@pobox.com> <43DE42DD.nail2AM41DPRR@burner>
- <Pine.LNX.4.61.0602011601420.22529@yvahk01.tjqt.qr> <43E0E950.nail46349AMDL@burner>
- <Pine.LNX.4.61.0602021715120.13212@yvahk01.tjqt.qr> <43E33F55.nail5CA4MZAKZ@burner>
+	Fri, 3 Feb 2006 08:45:06 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:47648 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750780AbWBCNpE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 08:45:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mQZ43zxmXaP9gP1flqNxbLGaNYTzf34XLQ5ZC0gMCSHDfUff5y4aGhexw3A3S/Cgo1LIB3+KikSMv28ojHh7/xwqU3a3ybZTxsMplNy3YrfhARWDbyYMPy47k9kJ1iZGuq29t9+rvFqyPWG6Yn7/toyniFQ+Vfo4SvKacVa6QVE=
+Message-ID: <b8332cb80602030545v578da09fod5174eb26dff3281@mail.gmail.com>
+Date: Fri, 3 Feb 2006 15:45:03 +0200
+From: Samer Azmy <samer.azmy@gmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: root=LABEL= problem [Was: Re: Linux Issue]
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Jiri Slaby <xslaby@fi.muni.cz>,
+       kavitha s <wellspringkavitha@yahoo.co.in>, linux-kernel@vger.kernel.org
+In-Reply-To: <1138971350.3086.0.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1138863068.3270.6.camel@laptopd505.fenrus.org>
+	 <20060201114845.E41F222AF24@anxur.fi.muni.cz>
+	 <20060202105338.E921D22AF07@anxur.fi.muni.cz>
+	 <Pine.LNX.4.61.0602021750510.13212@yvahk01.tjqt.qr>
+	 <1138971350.3086.0.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>
->> So @ is equal to 0,0,0 or 0,0?
->
->":@" is a shorthand for ":@,0" which is a shorthand for ":@0,0" 
->
->There are cases where you may like to use e.g. ":@,3"
->
+Hello,
 
-So, since Linux currently does not have anything but ":@,0" per device 
-(device file)...
+do you have RAID array or a newly confiured RAID
 
+Kind Regards
+Samer
 
-Jan Engelhardt
--- 
+On 2/3/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Thu, 2006-02-02 at 17:51 +0100, Jan Engelhardt wrote:
+> > >>> > ds: no socket drivers loaded!
+> > >>> > VFS: Cannot open root device "LABEL=/" or 00:00
+> > >>> change root=LABEL=/ to root=/dev/XXX. Vanilla doesn't support this...
+> > >>
+> > >>ehhh??
+> > >>sure it does.
+> > >>
+> > >>this is not a kernel feature, but an initrd feature, independent on
+> > >>which kernel is used (there never was and is not a patch for this in any
+> > >>distro kernel I know about)
+> > >Ok, thank you for pointing that out.
+> > >
+> >
+> > So does someone have a kernel-side patch for enabling LABEL=?
+>
+> I'm not aware of one existing.
+>
+> >  (Is the
+> > kernel even able to tell the label of a filesystem, or is that specific to
+> > mount(8)?)
+>
+> currently the kernel is fully unaware of any labels, other than having
+> the space reserved in the various filesystem on disk metadata.
+>
+>
+>
+> This is one of those things that is better done in userspace really.....
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

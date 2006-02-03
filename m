@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWBCWrd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWBCWwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWBCWrd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 17:47:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWBCWrc
+	id S1750873AbWBCWwz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 17:52:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWBCWwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 17:47:32 -0500
-Received: from pproxy.gmail.com ([64.233.166.178]:39865 "EHLO pproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750873AbWBCWrc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 17:47:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aUCsrFMqI7o9tQDWBZZ9fK89V2JvU2vlyqFtKnTjX7pI5vaUjNGE8z4uStZLB2IdfnNuS/V2J+qwyK6ZKfbyusHzhtoQgqrTAHbwrHnYSRAaAMfXY1y8lkWp7yhxZFoK954FJD/S9emTT+w0cHVHAoxBfOrbuxCBIIWUpQp+/hk=
-Message-ID: <964857280602031447l57df7c1epced4a6f14979ce30@mail.gmail.com>
-Date: Fri, 3 Feb 2006 20:47:31 -0200
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <2@pervalidus.net>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: menuconfig: no colors in 2.6.12-rc2 ?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060203222843.GA11973@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 3 Feb 2006 17:52:55 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30883 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750873AbWBCWwz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 17:52:55 -0500
+Date: Fri, 3 Feb 2006 23:52:37 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pekka Enberg <penberg@cs.helsinki.fi>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
+Message-ID: <20060203225237.GB3251@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602031020.46641.nigel@suspend2.net> <200602030957.48626.rjw@sisk.pl> <200602032147.23782.nigel@suspend2.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0602031957070.4864@dyndns.pervalidus.net>
-	 <20060203222843.GA11973@mars.ravnborg.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200602032147.23782.nigel@suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/3/06, Sam Ravnborg wrote:
-> On Fri, Feb 03, 2006 at 08:15:54PM -0200, Fr?d?ric L. W. Meunier wrote:
-> > 2.6.15's menuconfig has colors, but 2.6.12-rc2 doesn't have. At
-> > least here...
-> ncursesw is now first choice.
-> What does following command print:
->
-> gcc -print-file-name=libncursesw.so
->
-> If it prints just libncursesw.so then this is not the issue.
-> But if it prints a full path similar to:
-> /usr/lib/gcc/x86_64-pc-linux-gnu/3.4.4/../../../../lib64/libncursesw.so
-> then this may be the case.
+Hi!
 
-/usr/lib/gcc/i486-slackware-linux/3.4.5/../../../libncursesw.so
+On Pá 03-02-06 21:47:18, Nigel Cunningham wrote:
+> On Friday 03 February 2006 18:57, Rafael J. Wysocki wrote:
+> > On Friday 03 February 2006 01:20, Nigel Cunningham wrote:
+> > > On Friday 03 February 2006 08:10, Rafael J. Wysocki wrote:
 
-> Try to rename ncursesw to ncurses in
-> scripts/kconfig/lxdialog/check-dialog.sh
-> to test if ncursesw is the culprint.
+> > The biggest advantage of the userland-based approach I see is that there
+> > may be _many_ implementations of the suspending and resuming tools
+> > and they will not conflict.  For example, if Distributor X needs an exotic
+> > feature Y wrt suspend (various vendor-specific eye-candies come to mind or
+> > transferring the image over a network), he can implement it in his userland
+> > tools without modifying the kernel.  Similarly, if Vendor V wants to use
+> > paranoid encryption algorithm Z to encrypt the image, she can do that
+> > _herself_ in the user space.
+> 
+> True, but can you really imagine people doing that? The one instance I can 
+> think of was the donation of LZF support to Suspend2 a couple of
+> years back.
 
-Yes, that worked. Is it a bug in ncursesw ? I'm using a recent one.
+Yes, I expect them to do so. Desktop distros have different needs than
+for example embedded vendors, wanting to use swsusp for fast boot.
+
+> > We only need to provide reference tools and we won't be asked to implement
+> > every feature that people may want in the kernel.
+> 
+> I don't want it to be true, but I think you're being naive in saying that :) 
+> We'll see, won't we?
+
+I think I have a volunteer inside suse doing at least some of userland
+swsusp work.
+								Pavel
+-- 
+Thanks, Sharp!

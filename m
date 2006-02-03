@@ -1,74 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbWBCLd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964776AbWBCLgA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932461AbWBCLd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 06:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbWBCLd5
+	id S964776AbWBCLgA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 06:36:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964807AbWBCLgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 06:33:57 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:15775 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S932461AbWBCLd4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 06:33:56 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Fri, 03 Feb 2006 12:32:37 +0100
-To: schilling@fokus.fraunhofer.de, jengelh@linux01.gwdg.de
-Cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com, James@superbug.co.uk, acahalan@gmail.com,
-       "unlisted-recipients:; "@pop3.mail.demon.net
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43E33F55.nail5CA4MZAKZ@burner>
-References: <43D7A7F4.nailDE92K7TJI@burner>
- <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
- <43D7B1E7.nailDFJ9MUZ5G@burner>
- <20060125230850.GA2137@merlin.emma.line.org>
- <43D8C04F.nailE1C2X9KNC@burner> <20060126161028.GA8099@suse.cz>
- <43DA2E79.nailFM911AZXH@burner> <43DA4DDA.7070509@superbug.co.uk>
- <Pine.LNX.4.61.0601271753430.11702@yvahk01.tjqt.qr>
- <43DDFBFF.nail16Z3N3C0M@burner>
- <20060130120408.GA8436@merlin.emma.line.org>
- <43DE3AE5.nail16ZL1UH7X@burner> <43DE4055.8090501@pobox.com>
- <43DE42DD.nail2AM41DPRR@burner>
- <Pine.LNX.4.61.0602011601420.22529@yvahk01.tjqt.qr>
- <43E0E950.nail46349AMDL@burner>
- <Pine.LNX.4.61.0602021715120.13212@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0602021715120.13212@yvahk01.tjqt.qr>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 3 Feb 2006 06:36:00 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12167 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964776AbWBCLgA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 06:36:00 -0500
+Date: Fri, 3 Feb 2006 12:35:43 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       nigel@suspend2.net, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [ 00/10] [Suspend2] Modules support.
+Message-ID: <20060203113543.GA3056@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602022131.59928.nigel@suspend2.net> <20060202115907.GH1884@elf.ucw.cz> <200602022214.52752.nigel@suspend2.net> <20060202152316.GC8944@ucw.cz> <20060202132708.62881af6.akpm@osdl.org> <1138916079.15691.130.camel@mindpipe> <20060202142323.088a585c.akpm@osdl.org> <20060203105100.GD2830@elf.ucw.cz> <58cb370e0602030322u4c2c9f9bm21a38be6d35d2ea6@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <58cb370e0602030322u4c2c9f9bm21a38be6d35d2ea6@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+Hi!
 
+> > Video problems seem to be broken for suspend2ram, not swsusp.
 > >
-> >> I am not sure if I understood your other mail on the cdrecord ML, but if 
-> >> the proper syntax would be
-> >>   cdrecord -dev=/dev/hdc:@
-> >> then
-> >>   /dev/hdc
-> >> could just be transparently turned into
-> >>   /dev/hdc:@
-> >> somewhere within the getopt part.
+> > Not that we don't have swsusp drivers problems, but they tend to be
+> > randomly, all over the map, mostly over drivers I never heard about.
 > >
-> >See complete description, the :@ is not just for fun....
-> >
->
->        "If  the name of the device node that has been speciâ? 
->        fied on such a system refers to exactly one SCSI device, a shorthand in
->        the form dev= devicename:@ or dev= devicename:@,lun may be used instead
->        of dev= devicename:scsibus,target,lun."
->
-> So @ is equal to 0,0,0 or 0,0?
+> > suspend2ram is different fish, video and ATA are real problems
+> > there. At least there are solutions on ATA being worked on.
+> 
+> What PATA problems are you talking about?
+> 
+> In kernel bugzilla there are 2 bugs related to suspend/resume:
+> 
+> * #5257 for 2.6.13.1 (seem to be fixed in 2.6.15.2)
+> * #5673 for 2.6.14.3 (not enough information to start debugging)
+> 
+> and I don't recall any problems being reported to linux-ide ML
+> or linux-kernel ML recently.
 
-":@" is a shorthand for ":@,0" which is a shorthand for ":@0,0" 
+We were not calling some ACPI methods to awake IDE correctly. It did
+not properly work with disk passwords or something like that. 
 
-There are cases where you may like to use e.g. ":@,3"
+...ahha, have it (should be reachable from outside...):
 
-Jörg
+https://bugzilla.novell.com/show_bug.cgi?id=145591
 
+(and linked:
+
+http://bugzilla.kernel.org/show_bug.cgi?id=2039 and
+http://bugzilla.kernel.org/show_bug.cgi?id=5604
+
+)
+
+> Most bugreports I've seen was caused by:
+> * using ide-generic instead of proper host driver
+>   (no wonder that it fails)
+> * playing with hdparm when not needed (don't do it)
+> 
+> Also IIRC SATA suspend/resume support was merged into
+> mainline (?) so things should work better now.
+
+I think SATA had similar problems with ACPI methods. Patches for SATA
+seem to be in better shape in PATA side, but I don't think they are in. 
+
+But I do not have affected hardware here...
+							Pavel
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Thanks, Sharp!

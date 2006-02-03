@@ -1,90 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWBCSaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbWBCSdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751401AbWBCSaL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 13:30:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWBCSaL
+	id S964771AbWBCSdP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 13:33:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964780AbWBCSdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 13:30:11 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:21522 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1751401AbWBCSaJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 13:30:09 -0500
-Date: Fri, 3 Feb 2006 19:30:07 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@ucw.cz>, Dave Jones <davej@redhat.com>,
-       Nigel Cunningham <nigel@suspend2.net>,
-       Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Message-ID: <20060203183006.GB57965@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>,
-	Dave Jones <davej@redhat.com>,
-	Nigel Cunningham <nigel@suspend2.net>,
-	Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060203104129.GC2830@elf.ucw.cz> <20060203142915.GA44720@dspnet.fr.eu.org> <200602031824.45467.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602031824.45467.rjw@sisk.pl>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 3 Feb 2006 13:33:14 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:45959 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S964771AbWBCSdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 13:33:14 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Fri, 03 Feb 2006 19:31:58 +0100
+To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de
+Cc: linux-kernel@vger.kernel.org, cdwrite@other.debian.org, acahalan@gmail.com
+Subject: Re: [cdrtools PATCH (GPL)] Re: CD writing in future Linux (stirring 
+ up a hornets' nest)
+Message-ID: <43E3A19E.nail6A511N92B@burner>
+References: <43DF6812.nail3B44TLQOP@burner> <20060202062840.GI5501@mail>
+ <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo>
+ <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com>
+ <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr>
+ <20060202210949.GD10352@voodoo> <43E27792.nail54V1B1B3Z@burner>
+ <787b0d920602021827m4890fbf4j24d110dc656d2d3a@mail.gmail.com>
+ <43E374CF.nail5CAMKAKEV@burner>
+ <20060203182049.GB11083@merlin.emma.line.org>
+In-Reply-To: <20060203182049.GB11083@merlin.emma.line.org>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 06:24:44PM +0100, Rafael J. Wysocki wrote:
-> I use it on a daily basis.  It works.
+Matthias Andree <matthias.andree@gmx.de> wrote:
 
-The plural of anecdote is not data.  Nobody except Pavel and you ever
-wrote code to work in the userland part of your suspend.  But the aim
-is to have GUI-type code written by other people running between the
-snapshotting and the system shutdown, right?  Code that is pretty much
-by definition just plain untrustable in the first place.
+> So patches to the rescue -- please review the patch below (for 2.01.01a05).
+> Note that GPL 2a and 2c apply, so you cannot merge a modified version of
+> my patch without adding a tag that you goofed my fixes.
 
-The interactions with a frozen, direct-rendering X are going to be
-quite amusing too.  You'll have to be very careful to switch VTs to a
-suspend-aware framebuffer before snapshotting.  That could help
-reducing your video-card related problems though.
+OK, I did not look at it and I never will!
 
+Jörg
 
-> The suspending helper should not use mounted filesystems after it
-> calls the atomic snapshot ioctl().
-
-You can s/mounted// on that.  It's pretty much impossible to unmount
-filesystems on a running system, it's always kept busy by something.
-Especially system filesystems.
-
-
-> The resuming helper should be run from
-> an initrd and all filesystems should be unmounted at that time (of course
-> it should not attempt to mount them).
-
-Mandatory initrd?  How nice...
-
-
-> > Will the fs be in a coherent state after resume?
-> 
-> Yes, it will, as long as the helpers follow some strict rules (above).
-
-That's exactly what I'm terribly afraid of.  You have no way to
-enforce them, so they won't be respected.  And filesystems will die
-randomly and unpredictably.
-
-
-> > The idea of trying to save a state that can be modified dynamically
-> > while you're saving in unpredictable ways makes me very, very afraid.
-> > At least when you're in the kernel you can have complete control over
-> > the machine when needed.
-> 
-> Not necessarily.  For example, if you suspend the box and then start it with
-> a wrong kernel that is unable to read the image, it will mount the file
-> systems and you loose the saved state.
-
-You can always limit the damage by syncing the disks before
-snapshotting.  This way you'll only lose the running processes if you
-don't actually resume.  While having the in-memory cache of the state
-of the filesystem being different of the real on-disk state eats
-filesystems for breakfast.  The output of fsck is not pretty.
-BTDTGTTS.
-
-  OG.
-
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

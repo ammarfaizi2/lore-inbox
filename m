@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWBCE6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbWBCFDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932329AbWBCE6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 23:58:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWBCE6Y
+	id S932262AbWBCFDq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 00:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWBCFDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 23:58:24 -0500
-Received: from main.gmane.org ([80.91.229.2]:18640 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750944AbWBCE6X (ORCPT
+	Fri, 3 Feb 2006 00:03:46 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56765 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751161AbWBCFDp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 23:58:23 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: yipee <yipeeyipeeyipeeyipee@yahoo.com>
-Subject: Re: changing physical page
-Date: Fri, 3 Feb 2006 04:58:07 +0000 (UTC)
-Message-ID: <loom.20060203T055339-322@post.gmane.org>
-References: A<loom.20060202T160457-366@post.gmane.org> <Pine.LNX.4.61.0602021047350.20707@chaos.analogic.com> <Pine.LNX.4.61.0602021138001.21010@chaos.analogic.com>
+	Fri, 3 Feb 2006 00:03:45 -0500
+Date: Fri, 3 Feb 2006 00:03:30 -0500
+From: Dave Jones <davej@redhat.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: Avi Kivity <avi@argo.co.il>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: discriminate single bit error hardware failure from slab corruption.
+Message-ID: <20060203050330.GA3171@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Roland Dreier <rdreier@cisco.com>, Avi Kivity <avi@argo.co.il>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060202192414.GA22074@redhat.com> <43E2A784.2070809@argo.co.il> <20060203014645.GD10209@redhat.com> <43E2BA63.5050505@argo.co.il> <20060203042035.GF10209@redhat.com> <ada3bj1xde1.fsf@cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 87.69.73.167 (Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.1) Gecko/20060111 Firefox/1.5.0.1)
+Content-Disposition: inline
+In-Reply-To: <ada3bj1xde1.fsf@cisco.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson <linux-os <at> analogic.com> writes:
+On Thu, Feb 02, 2006 at 08:41:26PM -0800, Roland Dreier wrote:
+ >     Dave> Hmm, I made a mistake in my maths somewhere, and some of
+ >     Dave> those values are incorrect, so having the compiler do the
+ >     Dave> work would have stopped me screwing up, but once the correct
+ >     Dave> values are used, I doubt there's ever a really compelling
+ >     Dave> reason to change the slab poison pattern.
+ > 
+ > But Avi is still correct about false positives.  For example, if
+ > something stomps on the slab poison and leaves it as
+ > 
+ >     e0 08 03 00
+ > 
+ > then that will add up to eb and still trigger your message, even
+ > though it's far from a single bit error.
 
-[snip]
- 
-> If your program(s) rely upon being in some physical location,
-> they are broken. Even with mlockall(), you just keep them
-> where they are, not where you'd like them to be. If you
-> are trying to DMA into/out-of user-space, there is only
-> ONE way to do it. Your driver allocates DMA-able pages and
-> your code mmaps() it into user-space. That way, the page(s)
-> are always present and have the right attributes. If you
-> malloc() something, then try to "convert" in the kernel
-> through your driver, the code's broken.
+Ah, now I see the point Avi was making.
 
-And all this page-moving for getting contiguous DMA memory, happens today on
-x86_64 kernels?
-Can you please give me a pointer to the source code?
+ > Maybe making the loop be something like
+ > 
+ > 	unsigned char total = 0, bad_count = 0;
+ > 	printk(KERN_ERR "%03x:", offset);
+ > 	for (i = 0; i < limit; i++) {
+ > 		if (data[offset+i] != POISON_FREE) {
+ > 			total += data[offset+i];
+ > 			++bad_count;
+ > 		}
+ > 		printk(" %02x", (unsigned char)data[offset + i]);
+ > 	}
+ > 
+ > and then you can put
+ > 
+ > 	if (bad_count == 1)
+ > 
+ > before the switch statement.
+ > 
+ > I have to admit that Avi's code seems clearer to me too, though.
 
+I'm easily persuaded either way really, as long as
+we arrive at a desirable end-result ;)
 
-Thanks
-
-
+		Dave

@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWBCLvp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWBCLx0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbWBCLvp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 06:51:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWBCLvp
+	id S1750700AbWBCLx0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 06:53:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbWBCLx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 06:51:45 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:49672 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750710AbWBCLvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 06:51:45 -0500
-Date: Fri, 3 Feb 2006 12:51:43 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, sam@ravnborg.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] Makefile: remove a tab from an empty line
-Message-ID: <20060203115143.GA3912@stusta.de>
-References: <20060203000704.3964a39f.akpm@osdl.org>
+	Fri, 3 Feb 2006 06:53:26 -0500
+Received: from uproxy.gmail.com ([66.249.92.195]:39917 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750700AbWBCLxZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 06:53:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NOEoMDI6Gt/u+1iZIsA05jsEJYTPX1TazbfT5zK8dTBC0Ddi/8unW0p441deC/akOuKtaEQVWTvuJNgnWbbo7Z002nYGdWybiYAfFQs3fpyFL3UXSBPrbhktVD42KTamvZfM5pk5x4fsfOWgkCSXum1i5HZJuX58BK3vhsDB4OE=
+Message-ID: <84144f020602030353j221f8ae5n7fd0d56b9585596b@mail.gmail.com>
+Date: Fri, 3 Feb 2006 13:53:23 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: [PATCH] slab leak detector (Was: Size-128 slab leak)
+Cc: Andrew Morton <akpm@osdl.org>, kevin@koconnor.net,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com
+In-Reply-To: <43E2F98E.6010300@colorfullife.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20060203000704.3964a39f.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+References: <Pine.LNX.4.58.0602021021240.32240@sbz-30.cs.Helsinki.FI>
+	 <20060202004415.28249549.akpm@osdl.org>
+	 <43E2F98E.6010300@colorfullife.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 12:07:04AM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.15-mm4:
->...
->  git-kbuild.patch
->...
->  Git trees
->...
+Andrew Morton wrote:
+> > Which slabs are those?  SLAB_HWCACHE_ALIGN?  If so, that's quite a lot of
+> > them (more than needed, probably).
 
+On 2/3/06, Manfred Spraul <manfred@colorfullife.com> wrote:
+> Slabs with 4 kB or larger objects.
 
-Emacs warns if an otherwise empty line starts with a tab.
+Hmm. The relevant check is:
 
+        if ((size < 4096
+             || fls(size - 1) == fls(size - 1 + 3 * BYTES_PER_WORD)))
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+So for example, when object size is 4097, we _will_ get redzoning.
+Shouldn't that be 5 * BYTES_PER_WORD btw?
 
---- linux-2.6.16-rc1-mm5-full/Makefile.old	2006-02-03 12:46:09.000000000 +0100
-+++ linux-2.6.16-rc1-mm5-full/Makefile	2006-02-03 12:46:31.000000000 +0100
-@@ -1122,7 +1122,7 @@
- 
- .PHONY: modules_install
- modules_install: _emodinst_ _emodinst_post
--	
-+
- install-dir := $(if $(INSTALL_MOD_DIR),$(INSTALL_MOD_DIR),extra)	
- .PHONY: _emodinst_
- _emodinst_:
-
+                  Pekka

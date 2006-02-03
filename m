@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWBCSLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWBCSMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbWBCSLP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 13:11:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWBCSLP
+	id S1751301AbWBCSMF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 13:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWBCSMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 13:11:15 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:63120 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751305AbWBCSLO (ORCPT
+	Fri, 3 Feb 2006 13:12:05 -0500
+Received: from smtp4.netcabo.pt ([212.113.174.31]:64311 "EHLO
+	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S1751309AbWBCSMD convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 13:11:14 -0500
-Date: Fri, 3 Feb 2006 10:11:02 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Larry Finger <Larry.Finger@lwfinger.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.6.16-c2
-In-Reply-To: <43E39932.4000001@lwfinger.net>
-Message-ID: <Pine.LNX.4.64.0602031007420.4630@g5.osdl.org>
-References: <43E39932.4000001@lwfinger.net>
+	Fri, 3 Feb 2006 13:12:03 -0500
+Message-ID: <4119-22006253181122218@prt-carlos>
+From: "" <slogan@slogan.pt>
+To: linux-kernel@vger.kernel.org
+Subject: Tabela para o FIFA WorldCup Germany 2006
+Date: Fri, 3 Feb 2006 18:11:22 -00
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8BIT
+X-OriginalArrivalTime: 03 Feb 2006 18:11:55.0741 (UTC) FILETIME=[50F7B8D0:01C628ED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+SLOGAN DESIGN
+
+Barcarena, 01.02.2006
+
+Depois do grande sucesso que foi o lançamento da tabela electrónica do Euro 2004 em que foram feitos mais de 30.000 downloads e em resposta aos inúmeros pedidos de nova tabela para o WorldCup Germany 2006, temos o grato prazer de o informar que a mesma se encontra pronta.
+
+Já pode fazer o download em www.slogan.pt/cup2006 só terá de preencher os resultados que ela o informará das pontuações e qualificações daí resultantes. 
+
+Como a tabela é de distribuição gratuita, agora é só enviar para os seus amigos, que eles irão agradecer.
+
+Nas próximas versões estarão incluídas as estações de TV que irão transmitir os jogos, pois neste momento ainda não estão definidas.
+
+Com os melhores cumprimentos, teste os resultados e divirta-se!
 
 
-On Fri, 3 Feb 2006, Larry Finger wrote:
->
-> I know you must have a good reason to switch to the 'pack' form in the git
-> tree, but I'm curious. I did a git pull late yesterday, which was "normal",
-> and another this morning when I saw that 2.6.16-rc2 was posted. I was quite
-> surprised to download 110 MB of data to get roughly 150 changed lines.
 
-Don't use rsync (or http) access unless you have to.
 
-Try using "git://git.kernel.org/" instead. 
+Carlos Almeida
 
-Now, it may be that if we have lots of people using it, the CPU usage of 
-the server-side effort will go through the roof, and we'll have to come up 
-with something else (most likely meaning having some mirrors also run 
-git-daemon, so that the CPU overhead can be pushed out too).
+NB.: Até hoje já forão feitos 13.521 download's.
 
-The point being that you shouldn't see the packing as even an issue (it 
-should be a per-repository decision). The fact that it shows up is because 
-of using non-git-aware protocols.
+www.slogan.pt
+SLOGAN Design
+>Alameda Armindo de Carvalho, 5 A
+>Queluz de Baixo
+>2730-211 BARCARENA
+>Telf:  +351 21 434 40 46
+>Fax:  +351 21 434 40 47
+>E-mail: slogan@slogan.pt
 
-		Linus
+

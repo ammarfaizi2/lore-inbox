@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWBCOFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWBCOIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750827AbWBCOFv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 09:05:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbWBCOFv
+	id S1750829AbWBCOIY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 09:08:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750828AbWBCOIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 09:05:51 -0500
-Received: from soundwarez.org ([217.160.171.123]:49801 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S1750827AbWBCOFu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 09:05:50 -0500
-Date: Fri, 3 Feb 2006 15:05:35 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, rlrevell@joe-job.com,
-       jim@why.dont.jablowme.net, mrmacman_g4@mac.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, James@superbug.co.uk, j@bitron.ch,
-       acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060203140535.GA17327@vrfy.org>
-References: <43DF6812.nail3B44TLQOP@burner> <20060202062840.GI5501@mail> <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo> <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com> <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr> <20060202210949.GD10352@voodoo> <1138915551.15691.123.camel@mindpipe> <43E35AC8.nail5CAD55WJ3@burner> <Pine.LNX.4.61.0602031448270.7991@yvahk01.tjqt.qr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Feb 2006 09:08:24 -0500
+Received: from mcr-smtp-001.bulldogdsl.com ([212.158.248.7]:13585 "EHLO
+	mcr-smtp-001.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S1750829AbWBCOIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 09:08:23 -0500
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Panagiotis Issaris <takis.issaris@uhasselt.be>
+Subject: Re: WLAN drivers
+Date: Fri, 3 Feb 2006 12:35:30 +0000
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org, linux-netdev@vger.kernel.org
+References: <1138969138.8434.26.camel@localhost.localdomain>
+In-Reply-To: <1138969138.8434.26.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0602031448270.7991@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200602031235.31098.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 02:51:10PM +0100, Jan Engelhardt wrote:
-> >
-> >The main point is not to poll to frequent (Solaris does once everz 3 seconds)
-> >and to use SCSI commands only that to not interrupt or disturb CD/DVD-writing.
-> >
-> 
-> I do not have any problems with resmgr/hal ATM (SUSE Linux 10.0). Although 
-> hal [seems to] probes more often than once/3sec,
+On Friday 03 February 2006 12:18, Panagiotis Issaris wrote:
+[snip]
+> And, finally, it seems a lot of cards that get recommendations, are
+> based on rather old chipsets, which are unlikely to be still sold today.
 
-It polls every 2 seconds.
+This is especially true of the once ubiquitous prism chipsets.
 
-> it did not interrupt any 
-> of my cd writing processes. Maybe that's already a feature of cdrecord*, I 
-> don't know.
+> And now the reason I'm sending this to this mailing list: Which wireless
+> network cards are you all using and which ones would you recommend? Is
+> anyone using USB wireless network cards (without using ndiswrapper)?
 
-I don't know of any problem in that area and almost every modern Linux
-desktop has HAL running these days, so I'm sure somebody would have
-complained.
+In my experience, you're simply best going to either http://prism54.org/ (if 
+you can find one still) or http://madwifi.org/ (modern cards, likely to be 
+purchasable), and then buying one of the cards on the "known to work" lists. 
+If you buy the wrong revision, return it.
 
-Kay
+There's really nothing Linux can do about vendors who annoyingly change their 
+entire product description (and chipset) between revisions.
+
+Personally I've successfully used a 3Com OfficeConnect 11g 1.0 (probably 
+discontinued) which uses the prism54 driver, Intel's Centrino IPW2200BG and 
+Proxim's new Orinoco Gold cardbus card (with the madwifi.org drivers).
+
+Keywords for _modern_ Linux supported wireless chipsets are still (to my 
+knowledge) atheros, atmel, prism54, and most recently broadcom, though that 
+support is currently immature.
+
+Also possibly the Ralink chipsets are worth considering, they seem to have 
+been pretty open with respect to drivers, and the cards are dirt cheap.
+
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

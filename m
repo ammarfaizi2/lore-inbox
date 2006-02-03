@@ -1,83 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWBCMJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWBCMTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWBCMJk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 07:09:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWBCMJk
+	id S1750729AbWBCMTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 07:19:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWBCMTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 07:09:40 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:46475 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1750707AbWBCMJj (ORCPT
+	Fri, 3 Feb 2006 07:19:09 -0500
+Received: from alpha.uhasselt.be ([193.190.2.30]:7177 "EHLO alpha.uhasselt.be")
+	by vger.kernel.org with ESMTP id S1750729AbWBCMTI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 07:09:39 -0500
-Message-ID: <43E35A13.B83AC4B8@tv-sign.ru>
-Date: Fri, 03 Feb 2006 16:26:43 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: [PATCH] pidhash:  Kill switch_exec_pids
-References: <m1r76lslhi.fsf@ebiederm.dsl.xmission.com>
-		<43E26AB1.8509A175@tv-sign.ru> <m13bj1sevb.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Feb 2006 07:19:08 -0500
+Subject: WLAN drivers
+From: Panagiotis Issaris <takis.issaris@uhasselt.be>
+To: linux-kernel@vger.kernel.org, linux-netdev@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RJcW+G8/YuchqsBc0pa2"
+Date: Fri, 03 Feb 2006 13:18:58 +0100
+Message-Id: <1138969138.8434.26.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
-> 
-> Oleg Nesterov <oleg@tv-sign.ru> writes:
-> 
-> > Eric W. Biederman wrote:
-> >>
-> >> +            detach_pid(current, PIDTYPE_PID);
-> >> +            current->pid = leader->pid;
-> >> +            attach_pid(current, PIDTYPE_PID,  current->pid);
-> >
-> > What happens after de_thread() unlocks tasklist_lock and before
-> > it is taken again in release_task() ?
-> >
-> > In that window find_task_by_pid() will return dead leader, not
-> > the new leader of thread group. This means we can miss tkill()
-> > or ptrace(), for example.
-> 
-> All I have done is enlarged the window where this
-> race is possible.  So for tkill I am not concerned,
-> as it wants a particular thread.  Nor am I concerned
-> about anything else that wants a particular thread.
 
-Yes, you are right, sorry for noise. We have exactly same situation
-before de_thread() locks tasklist after killing the leader.
+--=-RJcW+G8/YuchqsBc0pa2
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> The fact that the group_leader does not point
-> at the actual thread group leader might be a problem,
-> as I have opened a window where that is now the case.
-> 
-> For signals that is not a problem as signals are still shared.
-> This applies to most other resources as well.
+Hi,
 
-Actually, now I think this patch fixes a small theoretical bug.
-Currently we have a tiny window in switch_exec_pids() when it
-detaches ->pid from PIDTYPE_PID namespace. RCU based kill_proc_info()
-does not take tasklist, so we can miss a signal.
+I'm trying to decide which wireless card to purchase, and I find it
+quite difficult to know which cards are support "out-of-the-box" with
+recent Linux kernels. I've found various lists of WLAN cards on
+websites, on which people report success stories, but I still think
+it's rather confusing.
 
-I have added Paul to the CC: list.
+A year ago I bought a card (WG111), which was supposed to be supported
+by an open source driver, but in the end I still had to use ndiswrapper
+as there appeared to be two [*] different versions of that same product.
+One used the chipset which could be used with an open source driver, the
+other -ofcourse the version I bought- is not supported by any open
+source driver.
 
-> So until we spot that case I'm ready to put this down
-> of one of those cases in de_thread that looks wrong
-> but happens to work.  Now if there is a way to make
-> it work more cleanly that may be worth looking at.
+So, basically, getting a product name or number doesn't seem to be
+enough to be sure to buy a card which will work with a unpatched Linux
+kernel.
 
-I think you are right.
+Furthermore, it appears the cards that are supported, are often
+supported by out-of-kernel drivers, which is a tad less convenient, and
+gives me some concerns on whether the driver will always be available
+for recent kernels.
 
-Andrew, please drop this one:
+And, finally, it seems a lot of cards that get recommendations, are
+based on rather old chipsets, which are unlikely to be still sold today.
 
-	dont-touch-current-tasks-in-de_thread.patch
 
-Eric's patch includes this cleanup.
 
-Oleg.
+And now the reason I'm sending this to this mailing list: Which wireless
+network cards are you all using and which ones would you recommend? Is
+anyone using USB wireless network cards (without using ndiswrapper)?
+
+
+With friendly regards,
+Takis
+
+
+[*] At that time, now I think there's even three different versions,
+possibly using different chipsets.
+
+--=-RJcW+G8/YuchqsBc0pa2
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBD40oy9kOxLuzz4CkRAsjmAJ9WQvC4KO/3MO7SzBjJEx/8JliQLQCfQDyz
+7H+Oiwm47mmgB4273Zy70YA=
+=ZtLV
+-----END PGP SIGNATURE-----
+
+--=-RJcW+G8/YuchqsBc0pa2--
+

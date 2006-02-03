@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbWBCIwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWBCIwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbWBCIwt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 03:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWBCIwt
+	id S1751027AbWBCIwU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 03:52:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWBCIwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 03:52:49 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:41573 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751150AbWBCIws (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 03:52:48 -0500
-Date: Fri, 3 Feb 2006 09:54:59 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Jim Crilly <jim@why.dont.jablowme.net>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Albert Cahalan <acahalan@gmail.com>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>, mrmacman_g4@mac.com,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       James@superbug.co.uk, j@bitron.ch
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060203085459.GW4215@suse.de>
-References: <43DF6812.nail3B44TLQOP@burner> <20060202062840.GI5501@mail> <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo> <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com> <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr> <20060202210949.GD10352@voodoo> <1138915551.15691.123.camel@mindpipe> <20060202214938.GF10352@voodoo> <1138917406.15691.141.camel@mindpipe>
+	Fri, 3 Feb 2006 03:52:20 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:38851 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751027AbWBCIwT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 03:52:19 -0500
+Subject: Re: [2.6 patch] ISDN_CAPI_CAPIFS related cleanups
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Armin Schindler <armin@melware.de>
+Cc: Adrian Bunk <bunk@stusta.de>, kai.germaschewski@gmx.de,
+       isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org,
+       kkeil@suse.de
+In-Reply-To: <Pine.LNX.4.61.0602030941580.13271@phoenix.one.melware.de>
+References: <20060131213306.GG3986@stusta.de>
+	 <1138743844.3968.14.camel@localhost.localdomain>
+	 <20060202214059.GB14097@stusta.de>
+	 <1138924621.3788.2.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0602030941580.13271@phoenix.one.melware.de>
+Content-Type: text/plain
+Date: Fri, 03 Feb 2006 09:53:48 +0100
+Message-Id: <1138956828.3731.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1138917406.15691.141.camel@mindpipe>
+X-Mailer: Evolution 2.5.90 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 02 2006, Lee Revell wrote:
-> On Thu, 2006-02-02 at 16:49 -0500, Jim Crilly wrote:
-> > On 02/02/06 04:25:50PM -0500, Lee Revell wrote:
-> > > On Thu, 2006-02-02 at 16:09 -0500, Jim Crilly wrote:
-> > > > Apparently O_EXCL was added by Ubuntu and Debian to stop
-> > > > burns being corrupted by hald polling the device while a disc is
-> > > > being burned. 
+Hi Armin,
+
+> > > > > This patch contains the following cleanups:
+> > > > > - move the help text to the right option
+> > > > > - replace some #ifdef's in capi.c with dummy functions in capifs.h
+> > > > > - use CONFIG_ISDN_CAPI_CAPIFS_BOOL in one place in capi.c
+> > > > 
+> > > > I actually still like to see capifs removed completely. It is not really
+> > > > needed if you gonna use udev. The only thing that it is doing, is to set
+> > > > the correct permissions and make sure that the device nodes are created.
+> > > > And with a 2.6 kernel this can be all done by udev.
 > > > 
-> > > IO priorities are the correct solution...
+> > > udev is not mandatory.
 > > > 
-> > > Lee
+> > > Static /dev is still 100% supported and working fine.
 > > 
-> > Is this something that's available now?
-> > 
+> > and if you have static /dev then you can use mknod and chown by
+> > yourself. If you use CAPI on any newer distribution with the latest 2.6
+> > kernel you will have udev anyway and so no static /dev at all.
 > 
-> Hmm, actually I'm not sure it would make a difference, as I don't think
-> CD writing goes through the regular IO scheduler.
+> Sorry for my ignorance, but I think capifs was introduced to have own 
+> dynamic 'files' like pts and not to have the restrictions of character 
+> devices and the needed major/minor numbers.
 
-Right, you can only prioritize "regular" io, not stuff sent with SG_IO.
-So it'll help burning only for the case of getting the data required to
-the buffer, not in getting that data out to the burner. The latter is
-usually not a problem though, as these requests take a 'short cut'
-directly to the dispatch queue.
+I am under the impression that it was introduced to change the ownership
+of the device node the current process. Nothing more, nothing less.
+Please correct me if I am wrong here.
+ 
+> So changing this to character device nodes may break applications
+> out there.
 
--- 
-Jens Axboe
+Actually I stopped compiling in and using capifs over a year ago and I
+never had any problems with it. However you must ensure that the device
+has been created by udev, nut nowadays this is no problem.
+
+Regards
+
+Marcel
+
 

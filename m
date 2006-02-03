@@ -1,84 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWBCNA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWBCM76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750761AbWBCNA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 08:00:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWBCNA3
+	id S1750734AbWBCM76 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 07:59:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWBCM76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 08:00:29 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:18876 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750763AbWBCNA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 08:00:28 -0500
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Herbert Poetzl <herbert@13thfloor.at>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: [PATCH] pidhash:  Kill switch_exec_pids
-References: <m1r76lslhi.fsf@ebiederm.dsl.xmission.com>
-	<43E26AB1.8509A175@tv-sign.ru>
-	<m13bj1sevb.fsf@ebiederm.dsl.xmission.com>
-	<43E35A13.B83AC4B8@tv-sign.ru>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 03 Feb 2006 05:59:40 -0700
-In-Reply-To: <43E35A13.B83AC4B8@tv-sign.ru> (Oleg Nesterov's message of
- "Fri, 03 Feb 2006 16:26:43 +0300")
-Message-ID: <m1psm4pphf.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Fri, 3 Feb 2006 07:59:58 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:43460 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1750734AbWBCM75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 07:59:57 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Fri, 03 Feb 2006 13:58:19 +0100
+To: jengelh@linux01.gwdg.de, davidsen@tmr.com
+Cc: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, bzolnier@gmail.com, acahalan@gmail.com
+Subject: Re: CD writing in future Linux try #2
+Message-ID: <43E3536B.nail5CA82F9RH@burner>
+References: <200601302043.56615.diablod3@gmail.com>
+ <20060130.174705.15703464.davem@davemloft.net>
+ <Pine.LNX.4.64.0601310609210.2979@innerfire.net>
+ <20060131.031817.85883571.davem@davemloft.net>
+ <43E00091.5030503@tmr.com>
+ <Pine.LNX.4.61.0602021724560.13212@yvahk01.tjqt.qr>
+ <43E25171.7040203@tmr.com>
+In-Reply-To: <43E25171.7040203@tmr.com>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov <oleg@tv-sign.ru> writes:
+Bill Davidsen <davidsen@tmr.com> wrote:
 
-> "Eric W. Biederman" wrote:
->> 
->> 
->> All I have done is enlarged the window where this
->> race is possible.  So for tkill I am not concerned,
->> as it wants a particular thread.  Nor am I concerned
->> about anything else that wants a particular thread.
->
-> Yes, you are right, sorry for noise. We have exactly same situation
-> before de_thread() locks tasklist after killing the leader.
+> Free, but not open source, and that's an issue with a mission critical 
+> application. For home use it doesn't matter, for business use it really 
 
-No problem.  If de_thread was simple and obviously correct
-we wouldn't be fixing it :)
+Since when is mission critical requiring OpenSource?
 
->> The fact that the group_leader does not point
->> at the actual thread group leader might be a problem,
->> as I have opened a window where that is now the case.
->> 
->> For signals that is not a problem as signals are still shared.
->> This applies to most other resources as well.
->
-> Actually, now I think this patch fixes a small theoretical bug.
-> Currently we have a tiny window in switch_exec_pids() when it
-> detaches ->pid from PIDTYPE_PID namespace. RCU based kill_proc_info()
-> does not take tasklist, so we can miss a signal.
+Jörg
 
-Ok.  I thought there was a RCU component to the readers.  I just
-lost track of where it was.
-
-> I have added Paul to the CC: list.
->
->> So until we spot that case I'm ready to put this down
->> of one of those cases in de_thread that looks wrong
->> but happens to work.  Now if there is a way to make
->> it work more cleanly that may be worth looking at.
->
-> I think you are right.
-
-I hope so.
-
-> Andrew, please drop this one:
->
-> 	dont-touch-current-tasks-in-de_thread.patch
->
-> Eric's patch includes this cleanup.
-
-I just tested this path against 2.6.16-rc1-mm5 
-and the patch applies with just a little fuzz.
-
-Eric
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

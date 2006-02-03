@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWBCKkE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWBCKlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751154AbWBCKkE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 05:40:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWBCKkE
+	id S932169AbWBCKlv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 05:41:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWBCKlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 05:40:04 -0500
-Received: from mail.gmx.net ([213.165.64.21]:39384 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751158AbWBCKkC (ORCPT
+	Fri, 3 Feb 2006 05:41:51 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:6793 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932169AbWBCKlv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 05:40:02 -0500
-X-Authenticated: #428038
-Date: Fri, 3 Feb 2006 11:39:57 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060203103957.GA18205@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43DF3C3A.nail2RF112LAB@burner> <5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com> <200601311333.36000.oliver@neukum.org> <1138867142.31458.3.camel@capoeira> <43E1EAD5.nail4R031RZ5A@burner> <1138880048.31458.31.camel@capoeira> <43E20047.nail4TP1PULVQ@burner> <20060202143202.3c2bd4a3.grundig@teleline.es> <43E32B11.nail5CA21ENV6@burner>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Feb 2006 05:41:51 -0500
+Date: Fri, 3 Feb 2006 11:41:29 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Olivier Galibert <galibert@pobox.com>, Dave Jones <davej@redhat.com>,
+       Nigel Cunningham <nigel@suspend2.net>,
+       Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+Subject: Re: [ 00/10] [Suspend2] Modules support.
+Message-ID: <20060203104129.GC2830@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602022131.59928.nigel@suspend2.net> <84144f020602020344p228e20b2x34226f341c296578@mail.gmail.com> <200602022228.20032.nigel@suspend2.net> <20060202154319.GA96923@dspnet.fr.eu.org> <20060202202527.GC2264@elf.ucw.cz> <20060202203155.GE11831@redhat.com> <20060202205148.GE2264@elf.ucw.cz> <20060203011839.GA58691@dspnet.fr.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <43E32B11.nail5CA21ENV6@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060203011839.GA58691@dspnet.fr.eu.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-02-03:
+On Pá 03-02-06 02:18:39, Olivier Galibert wrote:
+> On Thu, Feb 02, 2006 at 09:51:48PM +0100, Pavel Machek wrote:
+> > So he instead
+> > advocates merging 10 000 lines of code (+7500, contains new
+> > compression algorithm and new plugin architecture). I'd like to add
+> > interface to userland (+300) and remove swap writing (long term,
+> > -1000).
+> 
+> I don't actually advocate suspend2.  I indeed have not looked at the
+> patches at that point.  I do find it extremely annoying that instead
+> of trying to make what exists reliable, for instance what are the
 
-> Any new implementation first needs to prove that it is durable and (more 
-> important) that it is actively maintained. I am sure that this kind of software 
-> will never handle all oddities in drive firmware we know from CD/DVD-writers.
+I'm trying to make what exists reliable, but I'm under some pressure
+to allow things like progress bars. And for progress bars (etc) to be
+feasible, it needs to be in userspace.
 
-The suggestion was to use it for device enumeration and then talking
-ioctl(...SG_IO...) to the device so obtained.
+> rules irq grabbing/release at that point, and adding infrastructure
+> for what's missing for having real reliability, f.i. communication
+> with fb/drm to handle the screen power switch, you decide to go and
+> move things into userspace which is going to increase the reliability
+> problems immensely.  I don't even want to think about the interactions
+> between freezing the userspace memory pages and running some processes
+> which may malloc/mmap at the same time.
 
+There are none. userspace helper is mlocked, and rest of userspace is
+stopped.
+
+								Pavel
 -- 
-Matthias Andree
+Thanks, Sharp!

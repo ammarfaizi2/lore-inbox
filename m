@@ -1,66 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWBCQE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWBCQLf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751013AbWBCQE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 11:04:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbWBCQE5
+	id S1751135AbWBCQLf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 11:11:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWBCQLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 11:04:57 -0500
-Received: from ezoffice.mandriva.com ([84.14.106.134]:46341 "EHLO
-	office.mandriva.com") by vger.kernel.org with ESMTP
-	id S1750988AbWBCQE4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 11:04:56 -0500
-From: Thierry Vignaud <tvignaud@mandriva.com>
-To: linux-kernel@vger.kernel.org
-Cc: rudolph@faex.net, B.Zolnierkiewicz@elka.pw.edu.pl, davej@codemonkey.org.uk,
-       mm-commits@vger.kernel.org
-Subject: Re: + sis5513-support-sis-965l.patch added to -mm tree
-Organization: Mandrakesoft
-References: <200602030128.k131SaF5018921@shell0.pdx.osdl.net>
-X-URL: <http://www.linux-mandrake.com/
-Date: Fri, 03 Feb 2006 17:04:00 +0100
-In-Reply-To: <200602030128.k131SaF5018921@shell0.pdx.osdl.net>
-	(akpm@osdl.org's message of "Thu, 2 Feb 2006 17:30:42 -0800")
-Message-ID: <m2y80sh1jj.fsf@vador.mandriva.com>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+	Fri, 3 Feb 2006 11:11:35 -0500
+Received: from iriserv.iradimed.com ([69.44.168.233]:5849 "EHLO iradimed.com")
+	by vger.kernel.org with ESMTP id S1751135AbWBCQLf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 11:11:35 -0500
+Message-ID: <43E38084.9040200@cfl.rr.com>
+Date: Fri, 03 Feb 2006 11:10:44 -0500
+From: Phillip Susi <psusi@cfl.rr.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+CC: acahalan@gmail.com, mrmacman_g4@mac.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       jengelh@linux01.gwdg.de, James@superbug.co.uk, j@bitron.ch
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <43DDFBFF.nail16Z3N3C0M@burner> <1138710764.17338.47.camel@juerg-t40p.bitron.ch> <43DF6812.nail3B44TLQOP@burner> <20060202062840.GI5501@mail> <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo> <787b0d920602020917u1e7267c5lbea5f02182e0c952@mai <43E374CF.nail5CAMKAKEV@burner>
+In-Reply-To: <43E374CF.nail5CAMKAKEV@burner>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Feb 2006 16:12:05.0756 (UTC) FILETIME=[936713C0:01C628DC]
+X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.52.1006-14245.000
+X-TM-AS-Result: No-0.700000-5.000000-31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-akpm@osdl.org writes:
+Joerg Schilling wrote:
+> As including O_EXCL would disallow to use more than one cdrecord
+> program at the same time, there is no chance for the mains stream source.
+>
+>   
 
-> From: Rudolph Pereira <rudolph@faex.net>
-> 
-> Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-> Cc: Dave Jones <davej@codemonkey.org.uk>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-> ---
-> 
->  drivers/ide/pci/sis5513.c |    6 ++++++
->  1 files changed, 6 insertions(+)
-> 
-> diff -puN drivers/ide/pci/sis5513.c~sis5513-support-sis-965l drivers/ide/pci/sis5513.c
-> --- 25/drivers/ide/pci/sis5513.c~sis5513-support-sis-965l	Thu Feb  2 17:29:51 2006
-> +++ 25-akpm/drivers/ide/pci/sis5513.c	Thu Feb  2 17:29:51 2006
-> @@ -780,7 +780,12 @@ static unsigned int __devinit init_chips
->  					pci_write_config_dword(dev, 0x54, idemisc | 0x40000000);
->  					printk(KERN_INFO "SIS5513: Switching to 5513 register mapping\n");
->  				}
-> +			} else if (trueid == 0x180) { /* sis965L */
-> +				chipset_family = ATA_133;
-> +				printk(KERN_INFO "SIS5513: SiS 965 IDE "
-> +						"UDMA133 controller\n");
->  			}
-> +
->  	}
->  
->  	if (!chipset_family) { /* Belongs to pci-quirks */
-> @@ -955,6 +960,7 @@ static int __devinit sis5513_init_one(st
->  static struct pci_device_id sis5513_pci_tbl[] = {
->  	{ PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_5513, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
->  	{ PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_5518, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
-> +	{ PCI_VENDOR_ID_SI, 0x180,                 PCI_ANY_ID,
-> PCI_ANY_ID, 0, 0, 0},
+You CAN'T have multiple cdrecord processes burning the same disc at the 
+same time; the very idea makes no sense.  The O_EXCL just prevents you 
+from trying such foolishness and creating a coaster. 
 
-this is one is already claimed by drivers/scsi/sata_sis.c
 

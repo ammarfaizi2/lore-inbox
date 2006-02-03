@@ -1,82 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbWBCMTJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWBCM2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbWBCMTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 07:19:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbWBCMTJ
+	id S1750733AbWBCM2t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 07:28:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWBCM2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 07:19:09 -0500
-Received: from alpha.uhasselt.be ([193.190.2.30]:7177 "EHLO alpha.uhasselt.be")
-	by vger.kernel.org with ESMTP id S1750729AbWBCMTI (ORCPT
+	Fri, 3 Feb 2006 07:28:49 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:17793 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750733AbWBCM2s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 07:19:08 -0500
-Subject: WLAN drivers
-From: Panagiotis Issaris <takis.issaris@uhasselt.be>
-To: linux-kernel@vger.kernel.org, linux-netdev@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RJcW+G8/YuchqsBc0pa2"
-Date: Fri, 03 Feb 2006 13:18:58 +0100
-Message-Id: <1138969138.8434.26.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Fri, 3 Feb 2006 07:28:48 -0500
+Date: Fri, 3 Feb 2006 13:28:13 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Dave Jones <davej@redhat.com>
+cc: Sam Ravnborg <sam@ravnborg.org>, Michael Loftis <mloftis@wgops.com>,
+       David Weinehall <tao@acc.umu.se>, Doug McNaught <doug@mcnaught.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Valdis.Kletnieks@vt.edu,
+       dtor_core@ameritech.net, James Courtier-Dutton <James@superbug.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Development tree, PLEASE?
+In-Reply-To: <20060202221023.GJ11831@redhat.com>
+Message-ID: <Pine.LNX.4.61.0602031323070.9696@scrub.home>
+References: <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu>
+ <E27F809F04C1C673D283E84F@d216-220-25-20.dynip.modwest.com>
+ <20060120200051.GA12610@flint.arm.linux.org.uk>
+ <5793EB6F192350088E0AC4CE@d216-220-25-20.dynip.modwest.com>
+ <87slrio9wd.fsf@asmodeus.mcnaught.org> <25D702FB62516982999D7084@d216-220-25-20.dynip.modwest.com>
+ <20060202121653.GI20484@vasa.acc.umu.se> <67A0AFFBC77C32B9DEE25EFA@dhcp-2-206.wgops.com>
+ <20060202201008.GD11831@redhat.com> <20060202220519.GA8712@mars.ravnborg.org>
+ <20060202221023.GJ11831@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-RJcW+G8/YuchqsBc0pa2
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
 Hi,
 
-I'm trying to decide which wireless card to purchase, and I find it
-quite difficult to know which cards are support "out-of-the-box" with
-recent Linux kernels. I've found various lists of WLAN cards on
-websites, on which people report success stories, but I still think
-it's rather confusing.
+On Thu, 2 Feb 2006, Dave Jones wrote:
 
-A year ago I bought a card (WG111), which was supposed to be supported
-by an open source driver, but in the end I still had to use ndiswrapper
-as there appeared to be two [*] different versions of that same product.
-One used the chipset which could be used with an open source driver, the
-other -ofcourse the version I bought- is not supported by any open
-source driver.
+> -rw-r--r--    1 davej    davej        4613 Dec 15 23:31 linux-2.6-build-nonintconfig.patch
+> 
+> Adds a 'nonintconfig' target that behaves like oldconfig, but doesn't
+> ask any questions (takes the default answer), and prints out a list
+> at the end of all the options it didn't know about.
+> (Handy when rebasing, as it means I get to add all the new options
+>  in one swoop).
 
-So, basically, getting a product name or number doesn't seem to be
-enough to be sure to buy a card which will work with a unpatched Linux
-kernel.
+You also get the default answers with 'yes "" | make oldconfig', but what 
+exactly are you doing with the list of config options?
+What are the changes to confdata.c for?
 
-Furthermore, it appears the cards that are supported, are often
-supported by out-of-kernel drivers, which is a tad less convenient, and
-gives me some concerns on whether the driver will always be available
-for recent kernels.
-
-And, finally, it seems a lot of cards that get recommendations, are
-based on rather old chipsets, which are unlikely to be still sold today.
-
-
-
-And now the reason I'm sending this to this mailing list: Which wireless
-network cards are you all using and which ones would you recommend? Is
-anyone using USB wireless network cards (without using ndiswrapper)?
-
-
-With friendly regards,
-Takis
-
-
-[*] At that time, now I think there's even three different versions,
-possibly using different chipsets.
-
---=-RJcW+G8/YuchqsBc0pa2
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD40oy9kOxLuzz4CkRAsjmAJ9WQvC4KO/3MO7SzBjJEx/8JliQLQCfQDyz
-7H+Oiwm47mmgB4273Zy70YA=
-=ZtLV
------END PGP SIGNATURE-----
-
---=-RJcW+G8/YuchqsBc0pa2--
-
+bye, Roman

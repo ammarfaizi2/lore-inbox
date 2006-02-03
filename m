@@ -1,90 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWBCQo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWBCQo4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751066AbWBCQo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 11:44:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWBCQo1
+	id S1751220AbWBCQo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 11:44:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWBCQo4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 11:44:27 -0500
-Received: from uproxy.gmail.com ([66.249.92.192]:40975 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751066AbWBCQo0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 11:44:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gM6OznYzN9KWR1tAj3ssjnEsOjT3wRrzNYZ6Qwl0uxKPPKTLuv/+OE5Gpt4a8FBvHFn0XTgLgFBCdLL2uMG/mo3pgAT4timSMKuDw2gEwiqpokvCw3Fq8Cr1V0HfzgEKAEKSj7qsDwk2dFPR8Rs7D8P7KQdHKB43CDGkWClq/Qs=
-Message-ID: <58cb370e0602030844v6af78df8w5716a5beae97ac0f@mail.gmail.com>
-Date: Fri, 3 Feb 2006 17:44:24 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Cc: Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
-       Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       nigel@suspend2.net, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>, Shaohua Li <shaohua.li@intel.com>
-In-Reply-To: <Pine.LNX.4.58.0602030832240.32067@shark.he.net>
+	Fri, 3 Feb 2006 11:44:56 -0500
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:42184 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S1751224AbWBCQo4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 11:44:56 -0500
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Fri, 03 Feb 2006 17:43:50 +0100
+To: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux try #2
+Message-ID: <43E38846.nail5CASXQDG1@burner>
+References: <200601302043.56615.diablod3@gmail.com>
+ <20060130.174705.15703464.davem@davemloft.net>
+ <Pine.LNX.4.64.0601310609210.2979@innerfire.net>
+ <20060131.031817.85883571.davem@davemloft.net>
+ <43E00091.5030503@tmr.com>
+ <Pine.LNX.4.61.0602021724560.13212@yvahk01.tjqt.qr>
+ <43E25171.7040203@tmr.com> <43E3536B.nail5CA82F9RH@burner>
+ <20060203131550.GA14819@merlin.emma.line.org>
+In-Reply-To: <20060203131550.GA14819@merlin.emma.line.org>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20060201113710.6320.68289.stgit@localhost.localdomain>
-	 <1138916079.15691.130.camel@mindpipe>
-	 <20060202142323.088a585c.akpm@osdl.org>
-	 <20060203105100.GD2830@elf.ucw.cz>
-	 <58cb370e0602030322u4c2c9f9bm21a38be6d35d2ea6@mail.gmail.com>
-	 <20060203113543.GA3056@elf.ucw.cz>
-	 <58cb370e0602030546q2ea4b70bq1dc66306d5ef1b12@mail.gmail.com>
-	 <E1F51dd-0005cc-00@chiark.greenend.org.uk>
-	 <58cb370e0602030632p2168fbeaga2a1089b1eea8dfc@mail.gmail.com>
-	 <Pine.LNX.4.58.0602030832240.32067@shark.he.net>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/3/06, Randy.Dunlap <rdunlap@xenotime.net> wrote:
-> On Fri, 3 Feb 2006, Bartlomiej Zolnierkiewicz wrote:
+Matthias Andree <matthias.andree@gmx.de> wrote:
+
+> Joerg Schilling schrieb am 2006-02-03:
 >
-> > On 2/3/06, Matthew Garrett <mgarrett@chiark.greenend.org.uk> wrote:
-> > > Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
-> > >
-> > > > This is untrue as Linux has support for setting IDE controller
-> > > > and drives.  It was added by Benjamin Herrenschmidt in late
-> > > > 2.5.x or early 2.6.x (I don't remember exact kernel version).
-> > >
-> > > In generic_ide_resume, rqpm.pm_step gets set to
-> > > ide_pm_state_start_resume and ide_do_drive_cmd gets called. This ends up
-> > > being passed through to start_request. start_request waits for the BSY
-> > > bit to go away. On the affected hardware I've seen, this never happens
-> > > unless the ACPI calls are made. As far as I can tell, there's nothing in
-> > > the current driver code that does anything to make sure that the bus is
-> > > in a state to accept commands at this point - the pci drivers don't (for
-> > > the most part) seem to have any resume methods. Calling the ACPI _STM
-> > > method before attempting to do this magically makes everything work.
-> >
-> > I don't see anything that prevents addition of ->suspend and ->resume
-> > for IDE PCI host drivers (not IDE core issue) if some special sequence
-> > is needed.
-> >
-> > I see that we may be doing PIO/DMA setup too late (IDE core issue)
-> > for some controllers.
-> >
-> > Could you fill a bug at kernel bugzilla with data as much data about
-> > affected hardware as possible (dmesg, kernel config, lspci -vvv -xxx
-> > before susped and if possible PCI configuration dumped from kernel
-> > after suspend)?
-> >
-> > What is the current state of IDE ACPI patches?
-> > Were the issues raised on linux-ide addressed?
+> > Bill Davidsen <davidsen@tmr.com> wrote:
+> > 
+> > > Free, but not open source, and that's an issue with a mission critical 
+> > > application. For home use it doesn't matter, for business use it really 
+> > 
+> > Since when is mission critical requiring OpenSource?
 >
-> I haven't seen any updates to the drivers/ide/ patch from
-> Shaohua Li <shaohua.li@intel.com>.  I'm beginning to work on
-> PATA ACPI object support that is similar to the current SATA ACPI
-> patches -- all for libata.  Is this the right or wrong thing
-> to do?
+> Now this is really offensive. Bill stated the reason, yet you jump at
+> him before even reading his message through the end.
 
-Working on patches is always right thing to do... 8)
+It would really help it you try to understand first....
 
-Just one remark: please try to make ACPI part
-as libata/SCSI independent as possible.
+Today many companies buy closed source software from small companies that
+may just disappear one day. So where is your point?
 
-Thanks,
-Bartlomiej
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de                (uni)  
+       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

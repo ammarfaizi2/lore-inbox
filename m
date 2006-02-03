@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWBCBBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWBCBGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbWBCBBE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 20:01:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWBCBBE
+	id S1751245AbWBCBGA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 20:06:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbWBCBF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 20:01:04 -0500
-Received: from beauty.rexursive.com ([218.214.6.102]:14729 "EHLO
-	beauty.rexursive.com") by vger.kernel.org with ESMTP
-	id S1751217AbWBCBBC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 20:01:02 -0500
-Message-ID: <20060203120055.0nu3ym4yuck0os84@imp.rexursive.com>
-Date: Fri, 03 Feb 2006 12:00:55 +1100
-From: Bojan Smojver <bojan@rexursive.com>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: Andrew Morton <akpm@osdl.org>, suspend2-devel@lists.suspend2.net,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>
-Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
-References: <20060201113710.6320.68289.stgit@localhost.localdomain>
-	<20060202152316.GC8944@ucw.cz> <20060202132708.62881af6.akpm@osdl.org>
-	<200602030918.07006.nigel@suspend2.net>
-In-Reply-To: <200602030918.07006.nigel@suspend2.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	format="flowed"
-Content-Disposition: inline
+	Thu, 2 Feb 2006 20:05:59 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:32470
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751239AbWBCBF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 20:05:59 -0500
+Date: Thu, 02 Feb 2006 17:01:27 -0800 (PST)
+Message-Id: <20060202.170127.38871682.davem@davemloft.net>
+To: herbert@gondor.apana.org.au
+Cc: mingo@elte.hu, davem@redhat.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: [lock validator] inet6_destroy_sock(): soft-safe ->
+ soft-unsafe lock dependency
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20060201104214.GA9085@gondor.apana.org.au>
+References: <20060131102758.GA31460@gondor.apana.org.au>
+	<20060131212432.GA18812@elte.hu>
+	<20060201104214.GA9085@gondor.apana.org.au>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) H3 (4.0.4)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Nigel Cunningham <nigel@suspend2.net>:
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Date: Wed, 1 Feb 2006 21:42:14 +1100
 
-> It reminds me why I started working on this in the first place. It wasn't
-> because I wanted to be a big shot kernel developer or the like, or have my
-> name in the kernel credits. It was because I wanted to use the code.
+> OK this is definitely broken.  We should never touch the dst lock in
+> softirq context.  Since inet6_destroy_sock may be called from that
+> context due to the asynchronous nature of sockets, we can't take the
+> lock there.
+> 
+> In fact this sk_dst_reset is totally redundant since all IPv6 sockets
+> use inet_sock_destruct as their socket destructor which always cleans
+> up the dst anyway.  So the solution is to simply remove the call.
+> 
+> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-And what a superb job you have done with suspend2! Kudos Nigel!
-
-Here are the facts from my notebook suspend2 actually does work, works 
-reliably, is fast and pretty, none of which is true for swsusp. From my 
-user perspective, the refusal to merge suspend2 into mainline etc. is 
-just contributing to one thing - Linux not having decent suspend/resume 
-in vanilla tree.
-
-I travel on the train every day and I can confidently say that I'm the 
-only person there with a Linux based notebook. Everyone else is having 
-Windows or an occasional Mac. These people *never* have to worry about 
-suspending and resuming - it just works for them. That's because 
-Microsoft and Apple decided this was important many, many years ago.
-
-Unless mainline kernel folks decide to give people something that works 
-and works reliably, this thing will drag on for many more years, I'm 
-afraid. Ah well, as long as you keep the great job releasing suspend2 
-for the up-to-date kernels, at least one more Linux notebook will be 
-able to suspend/resume properly.
-
-Bottom line: With your code, my machine works. Without it, it doesn't.
-
--- 
-Bojan
+Looks good, applied, thanks Herbert.

@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945971AbWBCVR3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945972AbWBCVRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945971AbWBCVR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 16:17:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbWBCVR2
+	id S1945972AbWBCVRa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 16:17:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030245AbWBCVRa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 16:17:28 -0500
-Received: from mail.gmx.de ([213.165.64.21]:19897 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030245AbWBCVR2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 16:17:28 -0500
-X-Authenticated: #428038
-Date: Fri, 3 Feb 2006 22:17:22 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [cdrtools PATCH (GPL)] Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060203211722.GC24745@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com> <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr> <20060202210949.GD10352@voodoo> <43E27792.nail54V1B1B3Z@burner> <787b0d920602021827m4890fbf4j24d110dc656d2d3a@mail.gmail.com> <43E374CF.nail5CAMKAKEV@burner> <20060203182049.GB11083@merlin.emma.line.org> <43E3A19E.nail6A511N92B@burner> <20060203191415.GA18533@merlin.emma.line.org> <43E3B844.nail6C2111521@burner>
+	Fri, 3 Feb 2006 16:17:30 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:1806 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1945972AbWBCVR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 16:17:29 -0500
+Date: Fri, 3 Feb 2006 22:17:28 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: adaplas@pol.net, linux-fbdev-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, Jean-Luc Leger <reiga@dspnet.fr.eu.org>
+Subject: [2.6 patch] from drivers/video/Kconfig: remove unused BUS_I2C option
+Message-ID: <20060203211728.GQ4408@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43E3B844.nail6C2111521@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
 User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-02-03:
+The BUS_I2C option is neither available (since there is no VISWS option 
+in the kernel) nor does it have any effect - so why not remove it?
 
-> Well, the problem with your last mail is that it is full of idioligy.
+Based on a report by Jean-Luc Leger <reiga@dspnet.fr.eu.org>.
 
-It is not my patch's or the discussion's fault if you cannot accept the
-same rules as you are trying to impose on others.
 
-> I am of course willing to discuss useful ideas, but believe me that you
-> will have no luck if you leave a technical based discussion.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Then have a look at the patch, we'll discuss the license later.
-My offer to relicense under MIT license if the integration works out for
-me stands.
+---
 
--- 
-Matthias Andree
+This patch was already sent on:
+- 11 Jan 2006
+
+--- linux-2.6.15-mm2-full/drivers/video/Kconfig.old	2006-01-11 01:23:37.000000000 +0100
++++ linux-2.6.15-mm2-full/drivers/video/Kconfig	2006-01-11 01:23:49.000000000 +0100
+@@ -525,11 +525,6 @@
+ 	  This is the amount of memory reserved for the framebuffer,
+ 	  which can be any value between 1MB and 8MB.
+ 
+-config BUS_I2C
+-	bool
+-	depends on (FB = y) && VISWS
+-	default y
+-
+ config FB_SUN3
+ 	bool "Sun3 framebuffer support"
+ 	depends on (FB = y) && (SUN3 || SUN3X) && BROKEN
+

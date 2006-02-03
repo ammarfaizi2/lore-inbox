@@ -1,86 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbWBCKH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWBCKSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751157AbWBCKH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 05:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWBCKH3
+	id S1751120AbWBCKSk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 05:18:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWBCKSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 05:07:29 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:63987 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1751157AbWBCKH2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 05:07:28 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Fri, 03 Feb 2006 11:06:09 +0100
-To: schilling@fokus.fraunhofer.de, grundig@teleline.es
-Cc: xavier.bestel@free.fr, schilling@fokus.fraunhofer.de, oliver@neukum.org,
-       mrmacman_g4@mac.com, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jerome.lacoste@gmail.com,
-       jengelh@linux01.gwdg.de, James@superbug.co.uk, j@bitron.ch,
-       acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43E32B11.nail5CA21ENV6@burner>
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com>
- <43DF3C3A.nail2RF112LAB@burner>
- <5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com>
- <200601311333.36000.oliver@neukum.org>
- <1138867142.31458.3.camel@capoeira> <43E1EAD5.nail4R031RZ5A@burner>
- <1138880048.31458.31.camel@capoeira> <43E20047.nail4TP1PULVQ@burner>
- <20060202143202.3c2bd4a3.grundig@teleline.es>
-In-Reply-To: <20060202143202.3c2bd4a3.grundig@teleline.es>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 3 Feb 2006 05:18:40 -0500
+Received: from a1819.adsl.pool.eol.hu ([81.0.120.41]:4253 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S1751120AbWBCKSk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 05:18:40 -0500
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org
+Subject: [patch] fuse: fix request_end() fuse_reset_request() race
+Message-Id: <E1F4y16-00044o-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 03 Feb 2006 11:18:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<grundig@teleline.es> wrote:
+The last fix for this function in fact opened up a much more often
+triggering race.
 
-> El Thu, 02 Feb 2006 13:51:19 +0100,
-> Joerg Schilling <schilling@fokus.fraunhofer.de> escribió:
->
-> > Libscg is _the_ HAL for cdrecord. It is availaible the same way as today since
-> > 10 years.
->
->
-> libscg being there for 10 years doesn't means that it's the right or the
-> better way of doing things.
+It was uncommented tricky code, that was buggy.  Add comment, make it
+less tricky and fix bug.
 
-Any new implementation first needs to prove that it is durable and (more 
-important) that it is actively maintained. I am sure that this kind of software 
-will never handle all oddities in drive firmware we know from CD/DVD-writers.
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+---
 
-
-> Hal is _the_ HAL for linux, in fact HAL is targetted to become _the_
-> "standard" (freedesktop standard) HAL for open operative systems. HAL
-> should be already available on solaris, at least there's a @sun.com guy
-> who created a hald/solaris/ directory (gnome is already using HAL and
-> sun is interested in gnome). It doesn't seem to do nothing today but I
-
-I know this person, but Sun is creating reliable software for customers and for 
-this reason, it is most unlikely that an incompatible change like this will 
-be intregrated before Solaris 11 GA is available to the end of 2007.
-It may appear earlier in Solaris 11 beta's, but this is a different thing.
-
-> bet that sun is interested in getting HAL working in solaris (there're
-> at least people in the opensolaris mailing lists interested). I guess
-> the BSD guys will end up implementing BSD support some day aswell - desktop
-> is not as important for them as it is for linux.
->
-> So the fact is that HAL is quickly becoming _the_ HAL for unix systems.
-
-I hope that Sun will not base Sun's implementations on ideas on the Linux 
-implementaion which is known to be an "unfriendly" program as it causes 
-problems with CD/DVD-writing.
-
-Since 1992, Sun has vold and vold is rock solid. Vold nicely coexists with 
-cdrecord in the right way: It does not send inapropriate SCSI commnds to the 
-drives and it does not send too many of them in a certain period of time.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+diff -ru linux/fs/fuse/dev.c ../t/linux-fuse/fs/fuse/dev.c
+--- linux/fs/fuse/dev.c	2006-02-02 17:42:38.000000000 +0100
++++ ../t/linux-fuse/fs/fuse/dev.c	2006-02-02 17:42:28.000000000 +0100
+@@ -120,9 +120,9 @@
+ 	return do_get_request(fc);
+ }
+ 
++/* Must be called with fuse_lock held */
+ static void fuse_putback_request(struct fuse_conn *fc, struct fuse_req *req)
+ {
+-	spin_lock(&fuse_lock);
+ 	if (req->preallocated) {
+ 		atomic_dec(&fc->num_waiting);
+ 		list_add(&req->list, &fc->unused_list);
+@@ -134,11 +134,19 @@
+ 		fc->outstanding_debt--;
+ 	else
+ 		up(&fc->outstanding_sem);
+-	spin_unlock(&fuse_lock);
+ }
+ 
+ void fuse_put_request(struct fuse_conn *fc, struct fuse_req *req)
+ {
++	if (atomic_dec_and_test(&req->count)) {
++		spin_lock(&fuse_lock);
++		fuse_putback_request(fc, req);
++		spin_unlock(&fuse_lock);
++	}
++}
++
++static void fuse_put_request_locked(struct fuse_conn *fc, struct fuse_req *req)
++{
+ 	if (atomic_dec_and_test(&req->count))
+ 		fuse_putback_request(fc, req);
+ }
+@@ -162,27 +170,37 @@
+  * stored objects are released.  The requester thread is woken up (if
+  * still waiting), the 'end' callback is called if given, else the
+  * reference to the request is released
++ * 
++ * Releasing extra reference for foreground requests must be done
++ * within the same locked region as setting state to finished.  This
++ * is because fuse_reset_request() may be called after request is
++ * finished and it must be the sole possessor.  If request is
++ * interrupted and put in the background, it will return with an error
++ * and hence never be reset and reused.
+  *
+  * Called with fuse_lock, unlocks it
+  */
+ static void request_end(struct fuse_conn *fc, struct fuse_req *req)
+ {
+-	void (*end) (struct fuse_conn *, struct fuse_req *) = req->end;
+-	req->end = NULL;
+ 	list_del(&req->list);
+ 	req->state = FUSE_REQ_FINISHED;
+-	spin_unlock(&fuse_lock);
+-	if (req->background) {
++	if (!req->background) {
++		wake_up(&req->waitq);
++		fuse_put_request_locked(fc, req);
++		spin_unlock(&fuse_lock);
++	} else {
++		void (*end) (struct fuse_conn *, struct fuse_req *) = req->end;
++		req->end = NULL;
++		spin_unlock(&fuse_lock);
+ 		down_read(&fc->sbput_sem);
+ 		if (fc->mounted)
+ 			fuse_release_background(req);
+ 		up_read(&fc->sbput_sem);
++		if (end)
++			end(fc, req);
++		else
++			fuse_put_request(fc, req);
+ 	}
+-	wake_up(&req->waitq);
+-	if (end)
+-		end(fc, req);
+-	else
+-		fuse_put_request(fc, req);
+ }
+ 
+ /*

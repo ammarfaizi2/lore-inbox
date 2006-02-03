@@ -1,109 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWBCQNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWBCQYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751059AbWBCQNm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 11:13:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWBCQNm
+	id S1751168AbWBCQYP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 11:24:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWBCQYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 11:13:42 -0500
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:5007 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP
-	id S1751059AbWBCQNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 11:13:41 -0500
-Date: Fri, 3 Feb 2006 17:13:32 +0100 (CET)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: Phillip Susi <psusi@cfl.rr.com>
-cc: Bill Davidsen <davidsen@tmr.com>, Cynbe ru Taren <cynbe@muq.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-Subject: Re: FYI: RAID5 unusably unstable through 2.6.14
-In-Reply-To: <43E379C2.2020607@cfl.rr.com>
-Message-ID: <Pine.LNX.4.60.0602031654520.24081@kepler.fjfi.cvut.cz>
-References: <E1EywcM-0004Oz-IE@laurel.muq.org> <20060117193913.GD3714@kvack.org>
- <Pine.LNX.4.60.0601172047560.25680@kepler.fjfi.cvut.cz> <43E26CB6.7030808@tmr.com>
- <Pine.LNX.4.60.0602030037520.18478@kepler.fjfi.cvut.cz> <43E379C2.2020607@cfl.rr.com>
+	Fri, 3 Feb 2006 11:24:14 -0500
+Received: from mail.avm.de ([194.175.125.228]:25230 "EHLO mail.avm.de")
+	by vger.kernel.org with ESMTP id S1751168AbWBCQYO convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 11:24:14 -0500
+In-Reply-To: <200601200904.00389.dazzle.digital@gmail.com>
+Subject: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL / USB drivers of major
+ vendor excluded
+To: linux-kernel@vger.kernel.org, opensuse-factory@opensuse.org
+Cc: kkeil@suse.de
+X-Mailer: Lotus Notes Release 6.5.2 June 01, 2004
+Message-ID: <OF7A130C3D.76EBAB24-ONC125710A.003AC847-C125710A.005A1B7D@avm.de>
+From: s.schmidt@avm.de
+Date: Fri, 3 Feb 2006 17:24:10 +0100
+X-MIMETrack: Serialize by Router on ANIS1/AVM(Release 6.5.4FP2 | September 15, 2005) at
+ 03.02.2006 17:24:08
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
+X-purgate-ID: 149429::060203172412-039CC00E-64BBA68F 0
+X-purgate-Ad: Checked for SPAM by eleven - eXpurgate www.eXpurgate.net
+X-purgate: clean
+X-purgate: This mail is considered clean
+X-purgate-type: clean
+X-purgate-size: 1831/1750
+X-AntiVirus: checked by AntiVir Milter (version: 1.1.0-4; AVE: 6.33.0.31; VDF: 6.33.0.199; host: mail.avm.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Feb 2006, Phillip Susi wrote:
+on January 15th / major change in USB subsystem and GPL_EXPORT_SYMBOL
+declaration
+Greg Kroah-Hartman added a Patch to kernel 2.6.15-git12, which
+substantially changed the USB system.
+The module "usb.c" is now a module named "driver.c" which exports its
+symbols with EXPORT_SYMBOL_GPL:
+-> usb_match_id; usb_register_driver; usb_deregister
+Novell added the official kernel 2.6.16 incl. this patch to OSS 10.1 beta.
 
-> Martin Drab wrote:
-> > On Thu, 2 Feb 2006, Bill Davidsen wrote:
-> > 
-> > Just to state clearly in the first place. I've allready solved the problem
-> > by low-level formatting the entire disk that this inconsistent array in
-> > question was part of.
-> > 
-> > So now everything is back to normal. So unforunatelly I would not be able to
-> > do any more tests on the device in the non-working state.
-> > 
-> > I mentioned this problem here now just to let you konw that there is such a
-> > problematic Linux behviour (and IMO flawed) in such circumstances, and that
-> > perhaps it may let you think of such situations when doing further
-> > improvements and development in the design of the block device layer (or
-> > wherever the problem may possibly come from).
-> > 
-> >   
-> 
-> It looks like the problem is in that controller card and its driver.  Was this
-> a proprietary closed source driver?
+consequences
+Because of the GPL_EXPORT declaration it is no longer possible to build and
+run non-GPL loadable drivers for USB devices. We´ve put a lot of energy
+into providing the open source community with Linux drivers for nearly all
+of our products within the last six years. Today, the customer has the
+option to choose Windows or Linux drivers for AVM USB products. AVM is the
+market leader in the ISDN controller market with more than 80% market share
+in Germany (close to 50% in Europe). Moreover AVM is one of a handful
+manufacturers who provide a Linux driver for their WLAN USB devices.
+Technically, there are a number of reasons, e.g. service quality and
+reliability, to establish kernel mode drivers for communication devices
+offering services like Fax G3, analog modem etc. by means of software.
 
-No, it was the kernel's AACRAID driver (drivers/scsi/aacraid/*). And I've 
-consulted that with Mark Salyzyn who told me that it is the problem of the 
-upper layers which are only zero fault tollerant and that driver con do 
-nothing about it.
+conclusion
+If it is no longer possible to have non-GPL USB drivers, we shall have to
+drop our Linux support for all AVM USB devices. We would even have to
+discontinue the 802.11g++ WLAN USB device driver Linux developement.
 
-So as I understand it, the RAID controller did signal some error with 
-respect to the inconsistency of that particular array and the upper layers 
-weren't probably able to distinguish the real condition and just 
-interpreted it as an error and so refused to access the device 
-alltogether. But understand that this is just my way of interpreting what 
-I think might have happend without any knowledge of SCSI protocol or 
-functionality of the SCSI or other related layers.
+This mail is not intended to provoke a discussion of open vs closed source.
+The only intention of this mail is to make you aware of the consequences of
+such a decision.
 
-> Linux is perfectly happy to access the
-> rest of the disk when some parts of it have gone bad; people do this all the
-> time.  It looks like your raid controller decided to take the entire virtual
-> disk that it presents to the kernel offline because it detected errors.
 
-No, it wasn't offline. No such messages appeared in the kernel. And if it 
-would have been offlie, the kernel/driver would certainly report that, as 
-I've allready witnessed such a situation in the past (however for totally 
-different reason).
+Kind Regards
+Sven Schmidt
 
-> <snip>
-> > The 0,0,0 is the /dev/sda. And even though this is now, after low-level
-> > formatting of the previously inconsistent disc, the indications back then
-> > were just the same. Which means every indication behaved as usual. Both
-> > arrays were properly identified. But when I was accessing the inconsistent
-> > one, i.e. /dev/sda, in any way (even just bytes, this has nothing to do with
-> > any filesystems) the error messages mentioned above appeared. I'm not sure
-> > what exactly was generating them, but I've CC'd Mark Salyzyn, maybe he can
-> > explain more to it.  
-> 
-> How did you low level format the drive? 
+AVM Audiovisuelles Marketing und Computersysteme GmbH
+Alt-Moabit 95, 10559 Berlin, Germany
+http://www.avm.de
 
-The BIOS of the RAID controller has this option.
-
-> These days disk manufacturers ship
-> drives already low level formatted and end users can not perform a low level
-> format. The last time I remember being able to low level format a drive was
-> with MFM and RLL drives, prior to IDE.  My guess is what you actually did was
-> simply write out zeros to every sector on the disk, which replaced the
-> corrupted data in the effected sector with good data, rendering it repaired.
-
-That may very well be true. I do not know what the Adaptec BIOS does under 
-the "Low-Level Format" option. Maybe someone from Adaptec would know that. 
-Mark?
-
-> Usually drives will fail reads to bad sectors but when you write to that
-> sector, it will write and read that sector to see if it is fine after being
-> written again, or if the media is bad in which case it will remap the sector
-> to a spare. 
-
-No, I don't think this was the case of a physically bad sectors. I think 
-it was just an inconsistency of the RAID controllers metadata (or 
-something simillar) related to that particular array.
-
-Martin

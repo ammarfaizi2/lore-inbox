@@ -1,65 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945977AbWBCVWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945976AbWBCVW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945977AbWBCVWg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 16:22:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945979AbWBCVWg
+	id S1945976AbWBCVW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 16:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945977AbWBCVW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 16:22:36 -0500
-Received: from hera.kernel.org ([140.211.167.34]:3974 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1945977AbWBCVWf (ORCPT
+	Fri, 3 Feb 2006 16:22:28 -0500
+Received: from zombie.ncsc.mil ([144.51.88.131]:15060 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S1945976AbWBCVW1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 16:22:35 -0500
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: small etherdevice.h fix
-Date: Fri, 3 Feb 2006 13:22:31 -0800
-Organization: OSDL
-Message-ID: <20060203132231.48612ff0@dxpl.pdx.osdl.net>
-References: <Pine.LNX.4.62.0602032105180.31368@artax.karlin.mff.cuni.cz>
+	Fri, 3 Feb 2006 16:22:27 -0500
+Subject: [patch 1/1] selinux: simplify sel_read_bool
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: lkml <linux-kernel@vger.kernel.org>, James Morris <jmorris@namei.org>,
+       Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Fri, 03 Feb 2006 16:28:15 -0500
+Message-Id: <1139002095.24638.5.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1139001751 3531 10.8.0.74 (3 Feb 2006 21:22:31 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Fri, 3 Feb 2006 21:22:31 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Feb 2006 21:08:23 +0100 (CET)
-Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz> wrote:
+Simplify sel_read_bool to use the simple_read_from_buffer helper,
+like the other selinuxfs functions.  Please apply.
 
-> Hi
-> 
-> This fixes a small bug in is_valid_ether_addr --- for address in the form 
-> FF:xx:xx:xx:xx:xx it returns true. The comment is about FF:FF:FF:FF:FF:FF 
-> is not true, is_multicast_ether_addr doesn't accept FF:FF:FF:FF:FF:FF as 
-> multicast (as you can see few lines above).
-> 
-> Mikulas
-> 
-> --- include/linux/etherdevice.h_	2006-02-03 21:05:23.000000000 +0100
-> +++ include/linux/etherdevice.h	2006-02-03 21:05:59.000000000 +0100
-> @@ -91,9 +91,7 @@
->    */
->   static inline int is_valid_ether_addr(const u8 *addr)
->   {
-> -	/* FF:FF:FF:FF:FF:FF is a multicast address so we don't need to
-> -	 * explicitly check for it here. */
-> -	return !is_multicast_ether_addr(addr) && !is_zero_ether_addr(addr);
-> +	return !(addr[0] & 1) && !is_zero_ether_addr(addr);
->   }
-> 
->   /**
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Acked-by: James Morris <jmorris@namei.org>
 
-It has already been fixed in 2.6.16 is_multicast_addr is now:
+---
 
-static inline int is_multicast_ether_addr(const u8 *addr)
-{
-	return (0x01 & addr[0]);
-}
+ security/selinux/selinuxfs.c |   20 +-------------------
+ 1 files changed, 1 insertion(+), 19 deletions(-)
 
+Index: linux-2.6/security/selinux/selinuxfs.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/selinuxfs.c,v
+retrieving revision 1.58
+diff -u -p -r1.58 selinuxfs.c
+--- linux-2.6/security/selinux/selinuxfs.c	3 Jan 2006 16:37:00 -0000	1.58
++++ linux-2.6/security/selinux/selinuxfs.c	3 Feb 2006 19:49:10 -0000
+@@ -709,7 +709,6 @@ static ssize_t sel_read_bool(struct file
+ {
+ 	char *page = NULL;
+ 	ssize_t length;
+-	ssize_t end;
+ 	ssize_t ret;
+ 	int cur_enforcing;
+ 	struct inode *inode;
+@@ -740,24 +739,7 @@ static ssize_t sel_read_bool(struct file
+ 
+ 	length = scnprintf(page, PAGE_SIZE, "%d %d", cur_enforcing,
+ 			  bool_pending_values[inode->i_ino - BOOL_INO_OFFSET]);
+-	if (length < 0) {
+-		ret = length;
+-		goto out;
+-	}
+-
+-	if (*ppos >= length) {
+-		ret = 0;
+-		goto out;
+-	}
+-	if (count + *ppos > length)
+-		count = length - *ppos;
+-	end = count + *ppos;
+-	if (copy_to_user(buf, (char *) page + *ppos, count)) {
+-		ret = -EFAULT;
+-		goto out;
+-	}
+-	*ppos = end;
+-	ret = count;
++	ret = simple_read_from_buffer(buf, count, ppos, page, length);
+ out:
+ 	up(&sel_sem);
+ 	if (page)
 
 -- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger
+Stephen Smalley
+National Security Agency
+

@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbWBCEzl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWBCE6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751070AbWBCEzl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 23:55:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbWBCEzl
+	id S932329AbWBCE6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 23:58:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWBCE6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 23:55:41 -0500
-Received: from ozlabs.org ([203.10.76.45]:50079 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750967AbWBCEzk (ORCPT
+	Thu, 2 Feb 2006 23:58:24 -0500
+Received: from main.gmane.org ([80.91.229.2]:18640 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750944AbWBCE6X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 23:55:40 -0500
-MIME-Version: 1.0
+	Thu, 2 Feb 2006 23:58:23 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: yipee <yipeeyipeeyipeeyipee@yahoo.com>
+Subject: Re: changing physical page
+Date: Fri, 3 Feb 2006 04:58:07 +0000 (UTC)
+Message-ID: <loom.20060203T055339-322@post.gmane.org>
+References: A<loom.20060202T160457-366@post.gmane.org> <Pine.LNX.4.61.0602021047350.20707@chaos.analogic.com> <Pine.LNX.4.61.0602021138001.21010@chaos.analogic.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17378.35622.918387.596756@cargo.ozlabs.ibm.com>
-Date: Fri, 3 Feb 2006 09:43:50 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Akinobu Mita'" <mita@miraclelinux.com>,
-       "Grant Grundler" <iod00d@hp.com>,
-       "Linux Kernel Development" <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>
-Subject: RE: [PATCH 1/12] generic *_bit()
-In-Reply-To: <200602011807.k11I7ag15563@unix-os.sc.intel.com>
-References: <20060201180237.GA18464@infradead.org>
-	<200602011807.k11I7ag15563@unix-os.sc.intel.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 87.69.73.167 (Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.1) Gecko/20060111 Firefox/1.5.0.1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen, Kenneth W writes:
+linux-os (Dick Johnson <linux-os <at> analogic.com> writes:
 
-> Christoph Hellwig wrote on Wednesday, February 01, 2006 10:03 AM
-> > Because they are defined to operate on arrays of unsigned long
-> 
-> I think these should be defined to operate on arrays of unsigned int.
-> Bit is a bit, no matter how many byte you load (8/16/32/64), you can
-> only operate on just one bit.
+[snip]
+ 
+> If your program(s) rely upon being in some physical location,
+> they are broken. Even with mlockall(), you just keep them
+> where they are, not where you'd like them to be. If you
+> are trying to DMA into/out-of user-space, there is only
+> ONE way to do it. Your driver allocates DMA-able pages and
+> your code mmaps() it into user-space. That way, the page(s)
+> are always present and have the right attributes. If you
+> malloc() something, then try to "convert" in the kernel
+> through your driver, the code's broken.
 
-Christoph is right.  Changing to unsigned int would change the layout
-on big-endian 64-bit platforms.
+And all this page-moving for getting contiguous DMA memory, happens today on
+x86_64 kernels?
+Can you please give me a pointer to the source code?
 
-Paul.
+
+Thanks
+
+

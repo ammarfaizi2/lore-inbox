@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWBCNvT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWBCNwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbWBCNvT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 08:51:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750787AbWBCNvT
+	id S1750787AbWBCNwe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 08:52:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWBCNwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 08:51:19 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:52116 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750786AbWBCNvS (ORCPT
+	Fri, 3 Feb 2006 08:52:34 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:15390 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750787AbWBCNwd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 08:51:18 -0500
-Date: Fri, 3 Feb 2006 14:51:10 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-cc: rlrevell@joe-job.com, jim@why.dont.jablowme.net, mrmacman_g4@mac.com,
-       matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       James@superbug.co.uk, j@bitron.ch, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-In-Reply-To: <43E35AC8.nail5CAD55WJ3@burner>
-Message-ID: <Pine.LNX.4.61.0602031448270.7991@yvahk01.tjqt.qr>
-References: <43DDFBFF.nail16Z3N3C0M@burner> <1138642683.7404.31.camel@juerg-pd.bitron.ch>
- <43DF3C3A.nail2RF112LAB@burner> <1138710764.17338.47.camel@juerg-t40p.bitron.ch>
- <43DF6812.nail3B44TLQOP@burner> <20060202062840.GI5501@mail>
- <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo>
- <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com>
- <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr> <20060202210949.GD10352@voodoo>
- <1138915551.15691.123.camel@mindpipe> <43E35AC8.nail5CAD55WJ3@burner>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Feb 2006 08:52:33 -0500
+Date: Fri, 3 Feb 2006 14:54:34 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Andrew Morton <akpm@osdl.org>, AChittenden@bluearc.com, davej@redhat.com,
+       linux-kernel@vger.kernel.org, lwoodman@redhat.com
+Subject: Re: adding swap workarounds oom - was: Re: Out of Memory: Killed process 16498 (java).
+Message-ID: <20060203135434.GC4215@suse.de>
+References: <89E85E0168AD994693B574C80EDB9C2703556694@uk-email.terastack.bluearc.com> <20060127142146.GN4311@suse.de> <1138372797.22112.44.camel@imp.csi.cam.ac.uk> <1138958409.3828.9.camel@imp.csi.cam.ac.uk> <20060203012607.0a9d6730.akpm@osdl.org> <1138964504.3828.18.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1138964504.3828.18.camel@imp.csi.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->The main point is not to poll to frequent (Solaris does once everz 3 seconds)
->and to use SCSI commands only that to not interrupt or disturb CD/DVD-writing.
->
+On Fri, Feb 03 2006, Anton Altaparmakov wrote:
+> Yes, I think it is suse.  I just diffed /mm of both the above kernels
+> (.193 and .201) and I think there is a little typo which probably causes
+> the problem.  It is mm/vmscan.c::shrink_zone():
+> 
+> @@ -845,19 +845,38 @@ shrink_zone(struct zone *zone, int max_s
+>         }
+> 
+>         atomic_add(scan_active + 1, &zone->nr_scan_active);
+> -       count = atomic_read(&zone->nr_scan_active);
+> -       if (count >= SWAP_CLUSTER_MAX) {
+> +       nr_active = atomic_read(&zone->nr_scan_active);
+> +       if (nr_active >= SWAP_CLUSTER_MAX)
+>                 atomic_set(&zone->nr_scan_active, 0);
+> -               refill_inactive_zone(zone, count, ps, can_free_mapped);
+> -       }
+> +       else
+> +               nr_active = 0;
+> 
+>         atomic_add(max_scan, &zone->nr_scan_inactive);
+> -       count = atomic_read(&zone->nr_scan_inactive);
+> -       if (count >= SWAP_CLUSTER_MAX) {
+> +       nr_inactive = atomic_read(&zone->nr_scan_inactive);
+> +       if (nr_active >= SWAP_CLUSTER_MAX)
+>             ^^^^^^^^^ Should be nr_inactive I think.
+> 
+> Comparing to code in current linux-2.6.git/mm/vmscan.c confirms that it
+> should be nr_inactive.
+> 
+>                 atomic_set(&zone->nr_scan_inactive, 0);
+> -               return shrink_cache(zone, gfp_mask, count, total_scanned, can_free_mapped);
+> +       else
+> +               nr_inactive = 0;
+> 
+> Jens, given you have an @suse email address, do you want to kick whoever
+> deals with this in novel/suse so it gets fixed in the next sles9 kernel
+> update?
 
-I do not have any problems with resmgr/hal ATM (SUSE Linux 10.0). Although 
-hal [seems to] probes more often than once/3sec, it did not interrupt any 
-of my cd writing processes. Maybe that's already a feature of cdrecord*, I 
-don't know.
-(With an older drive (AOpen CRW1232), the whole IDE bus was even 
-blocked when blanking, leaving no option but to wait.)
+Auch, that looks nasty. I'll forward this, thanks!
 
-
-Jan Engelhardt
 -- 
+Jens Axboe
+

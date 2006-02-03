@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWBCIqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750900AbWBCIrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbWBCIqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 03:46:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbWBCIqQ
+	id S1750900AbWBCIrX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 03:47:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750967AbWBCIrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 03:46:16 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:17624 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750831AbWBCIqQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 03:46:16 -0500
-Date: Fri, 3 Feb 2006 09:45:36 +0100 (CET)
-From: Armin Schindler <armin@melware.de>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Adrian Bunk <bunk@stusta.de>, kai.germaschewski@gmx.de,
-       isdn4linux@listserv.isdn4linux.de, linux-kernel@vger.kernel.org,
-       kkeil@suse.de
-Subject: Re: [2.6 patch] ISDN_CAPI_CAPIFS related cleanups
-In-Reply-To: <1138924621.3788.2.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0602030941580.13271@phoenix.one.melware.de>
-References: <20060131213306.GG3986@stusta.de> <1138743844.3968.14.camel@localhost.localdomain>
- <20060202214059.GB14097@stusta.de> <1138924621.3788.2.camel@localhost.localdomain>
-Organization: Cytronics & Melware
+	Fri, 3 Feb 2006 03:47:23 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:51945 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750893AbWBCIrW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 03:47:22 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:4f0aeee4703bc17a8237042c4702a75a
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] amd76x_pm: C3 powersaving for AMD K7
+Date: Fri, 3 Feb 2006 03:45:59 -0500
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3005EFE84D@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] amd76x_pm: C3 powersaving for AMD K7
+Thread-Index: AcYokAcFOHR3sb/OQjqjJj1PHgntswACx2Pg
+From: "Brown, Len" <len.brown@intel.com>
+To: "Joerg Sommrey" <jo@sommrey.de>, "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <linux-acpi@vger.kernel.org>,
+       <tony@atomide.com>, <erik@slagter.name>, <alan@lxorguk.ukuu.org.uk>
+X-OriginalArrivalTime: 03 Feb 2006 08:46:02.0868 (UTC) FILETIME=[437A7340:01C6289E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Feb 2006, Marcel Holtmann wrote:
-> Hi Adrian,
-> 
-> > > > This patch contains the following cleanups:
-> > > > - move the help text to the right option
-> > > > - replace some #ifdef's in capi.c with dummy functions in capifs.h
-> > > > - use CONFIG_ISDN_CAPI_CAPIFS_BOOL in one place in capi.c
-> > > 
-> > > I actually still like to see capifs removed completely. It is not really
-> > > needed if you gonna use udev. The only thing that it is doing, is to set
-> > > the correct permissions and make sure that the device nodes are created.
-> > > And with a 2.6 kernel this can be all done by udev.
-> > 
-> > udev is not mandatory.
-> > 
-> > Static /dev is still 100% supported and working fine.
-> 
-> and if you have static /dev then you can use mknod and chown by
-> yourself. If you use CAPI on any newer distribution with the latest 2.6
-> kernel you will have udev anyway and so no static /dev at all.
+ 
+>... I disagree with Len in two points:
+>- I cannot see a problem witch cache snooping.
+>  The AMD-768 docs clearly
+>  states that trying to snoop the cache while in C3 is a resume event.
 
-Sorry for my ignorance, but I think capifs was introduced to have own 
-dynamic 'files' like pts and not to have the restrictions of character 
-devices and the needed major/minor numbers.
+Certainly the BIOS writer also had access to that document, plus
+documents we do not see, yet they decided NOT to enable C2/C3.
 
-So changing this to character device nodes may break applications
-out there.
+>- Enabling C2/C3 in the BIOS would be a very bad thing IMHO.
+>  From all he testing with amd76x_pm I found that is very tricky
+>  to go into C2/C3 "the right way".
 
-Armin
+Who defines the "right way"?  Is it guaranteed to work on all
+models and all configurations?  Exactly what is the reward
+for the cost we'd be paying and the risk we'd be taking?
 
+>  Simply reading the PM register without a
+>  suitable logic around leads to all kinds of instabilities.  You need
+>  to implement this logic and then enable the hardware.  The BIOS cannot
+>  do this.
+
+How about if we put it this way...
+If the ACPI maintainer were an AMD employee,
+and he accepted a patch like this specific to Intel hardware --
+a patch that rejects whatever validation Intel, the BIOS
+vendor and the board vendor have put into the product --
+I'd call for his expulsion for ineptitude.
+
+If somebody from AMD steps forth and says that hey, their hardware
+is broken if used in the standard way, but that this "logic around"
+is a valid model-specific workaround -- then we have something
+that MAYBE we can work with.  Otherwise, do whatever works for your
+own system, but it would be reckless of us to put stuff like this
+in the upstream kernel and then ask distros to support it.
+
+-Len

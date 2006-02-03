@@ -1,256 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422927AbWBCUUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWBCUWZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422927AbWBCUUw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 15:20:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422929AbWBCUUv
+	id S1751315AbWBCUWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 15:22:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWBCUWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 15:20:51 -0500
-Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:39069 "EHLO
-	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S1422927AbWBCUUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 15:20:50 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/5] pktcdvd: Don't waste kernel memory
-References: <m3bqxoci5g.fsf@telia.com> <m37j8cci2r.fsf@telia.com>
-	<m33bj0ci0b.fsf_-_@telia.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 03 Feb 2006 21:20:41 +0100
-In-Reply-To: <m33bj0ci0b.fsf_-_@telia.com>
-Message-ID: <m3y80sb3dy.fsf_-_@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Fri, 3 Feb 2006 15:22:24 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36109 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1945947AbWBCUWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 15:22:22 -0500
+Date: Fri, 3 Feb 2006 21:22:20 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: len.brown@intel.com
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [RFC: 2.6 patch] drivers/acpi/utilities/utmisc.c: remove 4 unused global functions
+Message-ID: <20060203202220.GG4408@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allocate memory for read-gathering at open time, when it is known just
-how much memory is needed.  This avoids wasting kernel memory when the
-real packet size is smaller than the maximum packet size supported by
-the driver.  This is always the case when using DVD discs.
+This patch removes the following four unused global functions from 
+drivers/acpi/utilities/utmisc.c:
+- acpi_ut_strupr()
+- acpi_ut_generate_checksum()
+- acpi_ut_report_warning()
+- acpi_ut_report_info()
 
-Signed-off-by: Peter Osterlund <petero2@telia.com>
+Is this patch OK or is future usage planned or are they still used on 
+other operating systems?
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
 ---
 
- drivers/block/Kconfig   |    4 ++--
- drivers/block/pktcdvd.c |   53 +++++++++++++++++++++++++----------------------
- include/linux/pktcdvd.h |    4 ++--
- 3 files changed, 32 insertions(+), 29 deletions(-)
+ drivers/acpi/utilities/utmisc.c |   69 --------------------------------
+ include/acpi/acutils.h          |    8 ---
+ 2 files changed, 77 deletions(-)
 
-diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
-index db6818f..8b13316 100644
---- a/drivers/block/Kconfig
-+++ b/drivers/block/Kconfig
-@@ -433,8 +433,8 @@ config CDROM_PKTCDVD_BUFFERS
- 	  This controls the maximum number of active concurrent packets. More
- 	  concurrent packets can increase write performance, but also require
- 	  more memory. Each concurrent packet will require approximately 64Kb
--	  of non-swappable kernel memory, memory which will be allocated at
--	  pktsetup time.
-+	  of non-swappable kernel memory, memory which will be allocated when
-+	  a disc is opened for writing.
+--- linux-2.6.16-rc1-mm5-full/include/acpi/acutils.h.old	2006-02-03 19:28:37.000000000 +0100
++++ linux-2.6.16-rc1-mm5-full/include/acpi/acutils.h	2006-02-03 19:29:42.000000000 +0100
+@@ -279,10 +279,6 @@
  
- config CDROM_PKTCDVD_WCACHE
- 	bool "Enable write caching (EXPERIMENTAL)"
-diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
-index 01f070a..18d5979 100644
---- a/drivers/block/pktcdvd.c
-+++ b/drivers/block/pktcdvd.c
-@@ -130,7 +130,7 @@ static struct bio *pkt_bio_alloc(int nr_
- /*
-  * Allocate a packet_data struct
-  */
--static struct packet_data *pkt_alloc_packet_data(void)
-+static struct packet_data *pkt_alloc_packet_data(int frames)
- {
- 	int i;
- 	struct packet_data *pkt;
-@@ -139,11 +139,12 @@ static struct packet_data *pkt_alloc_pac
- 	if (!pkt)
- 		goto no_pkt;
+ void acpi_ut_report_error(char *module_name, u32 line_number);
  
--	pkt->w_bio = pkt_bio_alloc(PACKET_MAX_SIZE);
-+	pkt->frames = frames;
-+	pkt->w_bio = pkt_bio_alloc(frames);
- 	if (!pkt->w_bio)
- 		goto no_bio;
+-void acpi_ut_report_info(char *module_name, u32 line_number);
+-
+-void acpi_ut_report_warning(char *module_name, u32 line_number);
+-
+ /* Error and message reporting interfaces */
  
--	for (i = 0; i < PAGES_PER_PACKET; i++) {
-+	for (i = 0; i < frames / FRAMES_PER_PAGE; i++) {
- 		pkt->pages[i] = alloc_page(GFP_KERNEL|__GFP_ZERO);
- 		if (!pkt->pages[i])
- 			goto no_page;
-@@ -151,7 +152,7 @@ static struct packet_data *pkt_alloc_pac
+ void ACPI_INTERNAL_VAR_XFACE
+@@ -454,8 +450,6 @@
+ 			  void *target_object,
+ 			  acpi_pkg_callback walk_callback, void *context);
  
- 	spin_lock_init(&pkt->lock);
+-void acpi_ut_strupr(char *src_string);
+-
+ void acpi_ut_print_string(char *string, u8 max_length);
  
--	for (i = 0; i < PACKET_MAX_SIZE; i++) {
-+	for (i = 0; i < frames; i++) {
- 		struct bio *bio = pkt_bio_alloc(1);
- 		if (!bio)
- 			goto no_rd_bio;
-@@ -161,14 +162,14 @@ static struct packet_data *pkt_alloc_pac
- 	return pkt;
+ u8 acpi_ut_valid_acpi_name(u32 name);
+@@ -483,8 +477,6 @@
+ acpi_ut_get_resource_end_tag(union acpi_operand_object *obj_desc,
+ 			     u8 ** end_tag);
  
- no_rd_bio:
--	for (i = 0; i < PACKET_MAX_SIZE; i++) {
-+	for (i = 0; i < frames; i++) {
- 		struct bio *bio = pkt->r_bios[i];
- 		if (bio)
- 			bio_put(bio);
- 	}
+-u8 acpi_ut_generate_checksum(u8 * buffer, u32 length);
+-
+ u32 acpi_ut_dword_byte_swap(u32 value);
  
- no_page:
--	for (i = 0; i < PAGES_PER_PACKET; i++)
-+	for (i = 0; i < frames / FRAMES_PER_PAGE; i++)
- 		if (pkt->pages[i])
- 			__free_page(pkt->pages[i]);
- 	bio_put(pkt->w_bio);
-@@ -185,12 +186,12 @@ static void pkt_free_packet_data(struct 
- {
- 	int i;
+ void acpi_ut_set_integer_width(u8 revision);
+--- linux-2.6.16-rc1-mm5-full/drivers/acpi/utilities/utmisc.c.old	2006-02-03 19:28:53.000000000 +0100
++++ linux-2.6.16-rc1-mm5-full/drivers/acpi/utilities/utmisc.c	2006-02-03 19:30:04.000000000 +0100
+@@ -217,39 +217,6 @@
  
--	for (i = 0; i < PACKET_MAX_SIZE; i++) {
-+	for (i = 0; i < pkt->frames; i++) {
- 		struct bio *bio = pkt->r_bios[i];
- 		if (bio)
- 			bio_put(bio);
- 	}
--	for (i = 0; i < PAGES_PER_PACKET; i++)
-+	for (i = 0; i < pkt->frames / FRAMES_PER_PAGE; i++)
- 		__free_page(pkt->pages[i]);
- 	bio_put(pkt->w_bio);
- 	kfree(pkt);
-@@ -205,17 +206,17 @@ static void pkt_shrink_pktlist(struct pk
- 	list_for_each_entry_safe(pkt, next, &pd->cdrw.pkt_free_list, list) {
- 		pkt_free_packet_data(pkt);
- 	}
-+	INIT_LIST_HEAD(&pd->cdrw.pkt_free_list);
- }
- 
- static int pkt_grow_pktlist(struct pktcdvd_device *pd, int nr_packets)
- {
- 	struct packet_data *pkt;
- 
--	INIT_LIST_HEAD(&pd->cdrw.pkt_free_list);
--	INIT_LIST_HEAD(&pd->cdrw.pkt_active_list);
--	spin_lock_init(&pd->cdrw.active_list_lock);
-+	BUG_ON(!list_empty(&pd->cdrw.pkt_free_list));
-+
- 	while (nr_packets > 0) {
--		pkt = pkt_alloc_packet_data();
-+		pkt = pkt_alloc_packet_data(pd->settings.size >> 2);
- 		if (!pkt) {
- 			pkt_shrink_pktlist(pd);
- 			return 0;
-@@ -950,7 +951,7 @@ try_next_bio:
- 
- 	pd->current_sector = zone + pd->settings.size;
- 	pkt->sector = zone;
--	pkt->frames = pd->settings.size >> 2;
-+	BUG_ON(pkt->frames != pd->settings.size >> 2);
- 	pkt->write_size = 0;
- 
- 	/*
-@@ -1986,8 +1987,14 @@ static int pkt_open_dev(struct pktcdvd_d
- 	if ((ret = pkt_set_segment_merging(pd, q)))
- 		goto out_unclaim;
- 
--	if (write)
-+	if (write) {
-+		if (!pkt_grow_pktlist(pd, CONFIG_CDROM_PKTCDVD_BUFFERS)) {
-+			printk("pktcdvd: not enough memory for buffers\n");
-+			ret = -ENOMEM;
-+			goto out_unclaim;
-+		}
- 		printk("pktcdvd: %lukB available on disc\n", lba << 1);
-+	}
- 
- 	return 0;
- 
-@@ -2013,6 +2020,8 @@ static void pkt_release_dev(struct pktcd
- 	pkt_set_speed(pd, MAX_SPEED, MAX_SPEED);
- 	bd_release(pd->bdev);
- 	blkdev_put(pd->bdev);
-+
-+	pkt_shrink_pktlist(pd);
- }
- 
- static struct pktcdvd_device *pkt_find_dev_from_minor(int dev_minor)
-@@ -2378,12 +2387,6 @@ static int pkt_new_dev(struct pktcdvd_de
- 	/* This is safe, since we have a reference from open(). */
- 	__module_get(THIS_MODULE);
- 
--	if (!pkt_grow_pktlist(pd, CONFIG_CDROM_PKTCDVD_BUFFERS)) {
--		printk("pktcdvd: not enough memory for buffers\n");
--		ret = -ENOMEM;
--		goto out_mem;
+ /*******************************************************************************
+  *
+- * FUNCTION:    acpi_ut_strupr (strupr)
+- *
+- * PARAMETERS:  src_string      - The source string to convert
+- *
+- * RETURN:      None
+- *
+- * DESCRIPTION: Convert string to uppercase
+- *
+- * NOTE: This is not a POSIX function, so it appears here, not in utclib.c
+- *
+- ******************************************************************************/
+-
+-void acpi_ut_strupr(char *src_string)
+-{
+-	char *string;
+-
+-	ACPI_FUNCTION_ENTRY();
+-
+-	if (!src_string) {
+-		return;
 -	}
 -
- 	pd->bdev = bdev;
- 	set_blocksize(bdev, CD_FRAMESIZE);
- 
-@@ -2394,7 +2397,7 @@ static int pkt_new_dev(struct pktcdvd_de
- 	if (IS_ERR(pd->cdrw.thread)) {
- 		printk("pktcdvd: can't start kernel thread\n");
- 		ret = -ENOMEM;
--		goto out_thread;
-+		goto out_mem;
- 	}
- 
- 	proc = create_proc_entry(pd->name, 0, pkt_proc);
-@@ -2405,8 +2408,6 @@ static int pkt_new_dev(struct pktcdvd_de
- 	DPRINTK("pktcdvd: writer %s mapped to %s\n", pd->name, bdevname(bdev, b));
- 	return 0;
- 
--out_thread:
--	pkt_shrink_pktlist(pd);
- out_mem:
- 	blkdev_put(bdev);
- 	/* This is safe: open() is still holding a reference. */
-@@ -2502,6 +2503,10 @@ static int pkt_setup_dev(struct pkt_ctrl
- 		goto out_mem;
- 	pd->disk = disk;
- 
-+	INIT_LIST_HEAD(&pd->cdrw.pkt_free_list);
-+	INIT_LIST_HEAD(&pd->cdrw.pkt_active_list);
-+	spin_lock_init(&pd->cdrw.active_list_lock);
-+
- 	spin_lock_init(&pd->lock);
- 	spin_lock_init(&pd->iosched.lock);
- 	sprintf(pd->name, "pktcdvd%d", idx);
-@@ -2566,8 +2571,6 @@ static int pkt_remove_dev(struct pkt_ctr
- 
- 	blkdev_put(pd->bdev);
- 
--	pkt_shrink_pktlist(pd);
+-	/* Walk entire string, uppercasing the letters */
 -
- 	remove_proc_entry(pd->name, pkt_proc);
- 	DPRINTK("pktcdvd: writer %s unmapped\n", pd->name);
+-	for (string = src_string; *string; string++) {
+-		*string = (char)ACPI_TOUPPER(*string);
+-	}
+-
+-	return;
+-}
+-
+-/*******************************************************************************
+- *
+  * FUNCTION:    acpi_ut_print_string
+  *
+  * PARAMETERS:  String          - Null terminated ASCII string
+@@ -814,31 +781,6 @@
  
-diff --git a/include/linux/pktcdvd.h b/include/linux/pktcdvd.h
-index d1c9c4a..1623da8 100644
---- a/include/linux/pktcdvd.h
-+++ b/include/linux/pktcdvd.h
-@@ -170,7 +170,7 @@ struct packet_iosched
- #error "PAGE_SIZE must be a multiple of CD_FRAMESIZE"
- #endif
- #define PACKET_MAX_SIZE		32
--#define PAGES_PER_PACKET	(PACKET_MAX_SIZE * CD_FRAMESIZE / PAGE_SIZE)
-+#define FRAMES_PER_PAGE		(PAGE_SIZE / CD_FRAMESIZE)
- #define PACKET_MAX_SECTORS	(PACKET_MAX_SIZE * CD_FRAMESIZE >> 9)
+ /*******************************************************************************
+  *
+- * FUNCTION:    acpi_ut_generate_checksum
+- *
+- * PARAMETERS:  Buffer          - Buffer to be scanned
+- *              Length          - number of bytes to examine
+- *
+- * RETURN:      The generated checksum
+- *
+- * DESCRIPTION: Generate a checksum on a raw buffer
+- *
+- ******************************************************************************/
+-
+-u8 acpi_ut_generate_checksum(u8 * buffer, u32 length)
+-{
+-	u32 i;
+-	signed char sum = 0;
+-
+-	for (i = 0; i < length; i++) {
+-		sum = (signed char)(sum + buffer[i]);
+-	}
+-
+-	return ((u8) (0 - sum));
+-}
+-
+-/*******************************************************************************
+- *
+  * FUNCTION:    acpi_ut_error, acpi_ut_warning, acpi_ut_info
+  *
+  * PARAMETERS:  module_name         - Caller's module name (for error output)
+@@ -922,14 +864,3 @@
+ 	acpi_os_printf("ACPI Error (%s-%04d): ", module_name, line_number);
+ }
  
- enum packet_data_state {
-@@ -219,7 +219,7 @@ struct packet_data
- 	atomic_t		io_errors;	/* Number of read/write errors during IO */
- 
- 	struct bio		*r_bios[PACKET_MAX_SIZE]; /* bios to use during data gathering */
--	struct page		*pages[PAGES_PER_PACKET];
-+	struct page		*pages[PACKET_MAX_SIZE / FRAMES_PER_PAGE];
- 
- 	int			cache_valid;	/* If non-zero, the data for the zone defined */
- 						/* by the sector variable is completely cached */
+-void acpi_ut_report_warning(char *module_name, u32 line_number)
+-{
+-
+-	acpi_os_printf("ACPI Warning (%s-%04d): ", module_name, line_number);
+-}
+-
+-void acpi_ut_report_info(char *module_name, u32 line_number)
+-{
+-
+-	acpi_os_printf("ACPI (%s-%04d): ", module_name, line_number);
+-}
 
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340

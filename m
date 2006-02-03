@@ -1,154 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbWBCVT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbWBCVVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030245AbWBCVT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 16:19:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030247AbWBCVT0
+	id S1030247AbWBCVVg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 16:21:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbWBCVVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 16:19:26 -0500
-Received: from zombie.ncsc.mil ([144.51.88.131]:44498 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1030245AbWBCVTZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 16:19:25 -0500
-Subject: [patch 1/1] selinux:  require SECURITY_NETWORK
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: lkml <linux-kernel@vger.kernel.org>, James Morris <jmorris@namei.org>,
-       Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Fri, 03 Feb 2006 16:25:09 -0500
-Message-Id: <1139001909.24638.2.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 3 Feb 2006 16:21:36 -0500
+Received: from smtp-relay.tamu.edu ([165.91.22.120]:8393 "EHLO
+	smtp-relay.tamu.edu") by vger.kernel.org with ESMTP
+	id S1030247AbWBCVVg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 16:21:36 -0500
+Message-ID: <43E3C950.5060203@tamu.edu>
+Date: Fri, 03 Feb 2006 15:21:20 -0600
+From: Benjamin Chu <benchu@tamu.edu>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Linux TCP/IP Accept Queue
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make SELinux depend on SECURITY_NETWORK (which depends on SECURITY),
-as it requires the socket hooks for proper operation even in the local
-case.  Please apply.
+Hello! I got few questions about the Linux kernel source code for 
+implementing the TCP/IP.
 
-Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
-Acked-by:  James Morris <jmorris@namei.org>
+ I just want to understand how the tcp/ip handle a incoming connection 
+request from a remote client. As far as I know, after a connection 
+request from a remote client completes the TCP 3-way handshake with the 
+local server (in Established state). It would become an open request and 
+this open request will be placed in the accept queue. At this point a 
+new child socket is created and pointed to by the open request. And each 
+time an "userspace application" (http, ftp..etc) process executes the 
+"accept()" system call, the first open request in the accept queue is 
+removed and the socket which is pointed to by this open request is 
+returned.
 
----
+ I tried to track the source code of the Linux kernel. My questions are:
 
- security/selinux/Kconfig  |    2 +-
- security/selinux/Makefile |    4 +---
- security/selinux/hooks.c  |   21 +++------------------
- 3 files changed, 5 insertions(+), 22 deletions(-)
+ 1. After a connection request from a client complete the TCP 3-way 
+handshake(in Established state), does the function "tcp_acceptq_queue" 
+in "tcp.h" must be called? Does this function handle the task which puts 
+a new open request into accept queue ?.
 
-diff -X /home/sds/dontdiff -rup linux-2.6.16-rc2/security/selinux/hooks.c linux-2.6.16-rc2-x/security/selinux/hooks.c
---- linux-2.6.16-rc2/security/selinux/hooks.c	2006-02-03 10:14:34.000000000 -0500
-+++ linux-2.6.16-rc2-x/security/selinux/hooks.c	2006-02-03 10:56:45.000000000 -0500
-@@ -232,7 +232,6 @@ static void superblock_free_security(str
- 	kfree(sbsec);
- }
- 
--#ifdef CONFIG_SECURITY_NETWORK
- static int sk_alloc_security(struct sock *sk, int family, gfp_t priority)
- {
- 	struct sk_security_struct *ssec;
-@@ -261,7 +260,6 @@ static void sk_free_security(struct sock
- 	sk->sk_security = NULL;
- 	kfree(ssec);
- }
--#endif	/* CONFIG_SECURITY_NETWORK */
- 
- /* The security server must be initialized before
-    any labeling or access decisions can be provided. */
-@@ -2736,8 +2734,6 @@ static void selinux_task_to_inode(struct
- 	return;
- }
- 
--#ifdef CONFIG_SECURITY_NETWORK
--
- /* Returns error only if unable to parse addresses */
- static int selinux_parse_skb_ipv4(struct sk_buff *skb, struct avc_audit_data *ad)
- {
-@@ -3556,15 +3552,6 @@ static unsigned int selinux_ipv6_postrou
- 
- #endif	/* CONFIG_NETFILTER */
- 
--#else
--
--static inline int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
--{
--	return 0;
--}
--
--#endif	/* CONFIG_SECURITY_NETWORK */
--
- static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
- {
- 	struct task_security_struct *tsec;
-@@ -4340,7 +4327,6 @@ static struct security_operations selinu
- 	.getprocattr =                  selinux_getprocattr,
- 	.setprocattr =                  selinux_setprocattr,
- 
--#ifdef CONFIG_SECURITY_NETWORK
-         .unix_stream_connect =		selinux_socket_unix_stream_connect,
- 	.unix_may_send =		selinux_socket_unix_may_send,
- 
-@@ -4362,7 +4348,6 @@ static struct security_operations selinu
- 	.sk_alloc_security =		selinux_sk_alloc_security,
- 	.sk_free_security =		selinux_sk_free_security,
- 	.sk_getsid = 			selinux_sk_getsid_security,
--#endif
- 
- #ifdef CONFIG_SECURITY_NETWORK_XFRM
- 	.xfrm_policy_alloc_security =	selinux_xfrm_policy_alloc,
-@@ -4440,7 +4425,7 @@ next_sb:
-    all processes and objects when they are created. */
- security_initcall(selinux_init);
- 
--#if defined(CONFIG_SECURITY_NETWORK) && defined(CONFIG_NETFILTER)
-+#if defined(CONFIG_NETFILTER)
- 
- static struct nf_hook_ops selinux_ipv4_op = {
- 	.hook =		selinux_ipv4_postroute_last,
-@@ -4501,13 +4486,13 @@ static void selinux_nf_ip_exit(void)
- }
- #endif
- 
--#else /* CONFIG_SECURITY_NETWORK && CONFIG_NETFILTER */
-+#else /* CONFIG_NETFILTER */
- 
- #ifdef CONFIG_SECURITY_SELINUX_DISABLE
- #define selinux_nf_ip_exit()
- #endif
- 
--#endif /* CONFIG_SECURITY_NETWORK && CONFIG_NETFILTER */
-+#endif /* CONFIG_NETFILTER */
- 
- #ifdef CONFIG_SECURITY_SELINUX_DISABLE
- int selinux_disable(void)
-diff -X /home/sds/dontdiff -rup linux-2.6.16-rc2/security/selinux/Kconfig linux-2.6.16-rc2-x/security/selinux/Kconfig
---- linux-2.6.16-rc2/security/selinux/Kconfig	2006-02-03 10:57:37.000000000 -0500
-+++ linux-2.6.16-rc2-x/security/selinux/Kconfig	2006-02-03 10:57:31.000000000 -0500
-@@ -1,6 +1,6 @@
- config SECURITY_SELINUX
- 	bool "NSA SELinux Support"
--	depends on SECURITY && NET && INET
-+	depends on SECURITY_NETWORK && NET && INET
- 	default n
- 	help
- 	  This selects NSA Security-Enhanced Linux (SELinux).
-diff -X /home/sds/dontdiff -rup linux-2.6.16-rc2/security/selinux/Makefile linux-2.6.16-rc2-x/security/selinux/Makefile
---- linux-2.6.16-rc2/security/selinux/Makefile	2006-02-03 10:14:34.000000000 -0500
-+++ linux-2.6.16-rc2-x/security/selinux/Makefile	2006-02-03 10:55:35.000000000 -0500
-@@ -4,9 +4,7 @@
- 
- obj-$(CONFIG_SECURITY_SELINUX) := selinux.o ss/
- 
--selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o
--
--selinux-$(CONFIG_SECURITY_NETWORK) += netif.o
-+selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o
- 
- selinux-$(CONFIG_SECURITY_NETWORK_XFRM) += xfrm.o
- 
+ 2. Each time the Web server process executes the accept() system call, 
+ Does the function "tcp_accept" in "tcp.c" must be called. Does this 
+function  handle the task which removes the first open request in the 
+accept queue and return the socket which is pointed to by the open request?
 
--- 
-Stephen Smalley
-National Security Agency
 
+Is there anything  which I describe above correct or not? Or there is 
+any reference regarding this matter? Please tell me! Thank you very much!
+
+p.s. My Linux Kernel Version is 2.4.25

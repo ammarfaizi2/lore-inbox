@@ -1,66 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945946AbWBCU0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWBCU2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945946AbWBCU0H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 15:26:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWBCU0H
+	id S1751291AbWBCU2W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 15:28:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWBCU2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 15:26:07 -0500
-Received: from uproxy.gmail.com ([66.249.92.197]:35513 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751302AbWBCU0F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 15:26:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=EZIWCiIOLvuG9scwAOE1h4fw16HjDQ4EEJNDAr3eMR2hqZXVNBjmR5EHfjsd73L6yiFINWtjE1EYiwY9iGJgDtNxhEp47pwrO5yJmsqboFEJ4pZkP95qMsQeaFMqYkBbvWpgRFf+llvdaoxofPKBJbTinhZXQ4MCi2CkN7ZL3EQ=
-Date: Fri, 3 Feb 2006 23:44:10 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Gregor Jasny <gjasny@web.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: linux-2.6.16-git2: compile error in reiserfs
-Message-ID: <20060203204410.GA8861@mipter.zuzino.mipt.ru>
-References: <200602032043.46148.gjasny@web.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Feb 2006 15:28:22 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:55722 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1751291AbWBCU2V convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 15:28:21 -0500
+From: Ismail Donmez <ismail@uludag.org.tr>
+Organization: TUBITAK/UEKAE
+To: Peter Osterlund <petero2@telia.com>
+Subject: Re: [PATCH 2/5] pktcdvd: Remove version string
+Date: Fri, 3 Feb 2006 22:29:28 +0200
+User-Agent: KMail/1.9.1
+References: <m3bqxoci5g.fsf@telia.com> <m37j8cci2r.fsf@telia.com>
+In-Reply-To: <m37j8cci2r.fsf@telia.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <200602032043.46148.gjasny@web.de>
-User-Agent: Mutt/1.5.11
+Message-Id: <200602032229.28499.ismail@uludag.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 08:43:45PM +0100, Gregor Jasny wrote:
->   CC [M]  fs/reiserfs/xattr.o
-> fs/reiserfs/xattr.c: In function 'reiserfs_check_acl':
-> fs/reiserfs/xattr.c:1330: error: called object '0u' is not a function
-> make[2]: *** [fs/reiserfs/xattr.o] Error 1
-> make[1]: *** [fs/reiserfs] Error 2
-> make: *** [fs] Error 2
-> 
-> Part of my config:
-> CONFIG_REISERFS_FS=m
-> # CONFIG_REISERFS_CHECK is not set
-> # CONFIG_REISERFS_PROC_INFO is not set
-> CONFIG_REISERFS_FS_XATTR=y
-> # CONFIG_REISERFS_FS_POSIX_ACL is not set
-> # CONFIG_REISERFS_FS_SECURITY is not set
-> # CONFIG_JFS_FS is not set
-> CONFIG_FS_POSIX_ACL=y
+Cuma 3 Şubat 2006 22:18 tarihinde şunları yazmıştınız:
+> The version information is not useful for a driver that is maintained
+> in Linus' kernel tree.
+>
+> Signed-off-by: Peter Osterlund <petero2@telia.com>
+> ---
+>
+>  drivers/block/pktcdvd.c |    3 ---
+>  1 files changed, 0 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
+> index f0a0ad4..01f070a 100644
+> --- a/drivers/block/pktcdvd.c
+> +++ b/drivers/block/pktcdvd.c
+> @@ -43,8 +43,6 @@
+>   *
+>  
+> *************************************************************************/
+>
+> -#define VERSION_CODE	"v0.2.0a 2004-07-14 Jens Axboe (axboe@suse.de) and
+> petero2@telia.com" -
+>  #include <linux/pktcdvd.h>
+>  #include <linux/config.h>
+>  #include <linux/module.h>
+> @@ -2679,7 +2677,6 @@ static int __init pkt_init(void)
+>
+>  	pkt_proc = proc_mkdir("pktcdvd", proc_root_driver);
+>
+> -	DPRINTK("pktcdvd: %s\n", VERSION_CODE);
+>  	return 0;
+>
+>  out:
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+Hmm this is useful to do dmesg|grep pktcdvd though when you compile it in the 
+kernel. So I would like to keep it in.
 
- include/linux/reiserfs_acl.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Just my 2 cents.
 
---- a/include/linux/reiserfs_acl.h
-+++ b/include/linux/reiserfs_acl.h
-@@ -58,7 +58,7 @@ extern struct reiserfs_xattr_handler pos
- extern struct reiserfs_xattr_handler posix_acl_access_handler;
- #else
- 
--#define reiserfs_get_acl NULL
-+#define reiserfs_get_acl(inode, type) NULL
- #define reiserfs_cache_default_acl(inode) 0
- 
- static inline int reiserfs_xattr_posix_acl_init(void)
-
+Regards,
+ismail

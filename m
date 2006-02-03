@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWBCF5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWBCGEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbWBCF5p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 00:57:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWBCF5p
+	id S932144AbWBCGEX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 01:04:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWBCGEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 00:57:45 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:60309 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1751174AbWBCF5o
+	Fri, 3 Feb 2006 01:04:23 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:25037
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932144AbWBCGEW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 00:57:44 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: Recursive chmod/chown OOM kills box with 32MB RAM
-Date: Fri, 3 Feb 2006 07:57:29 +0200
-User-Agent: KMail/1.8.2
-Cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
-       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
-References: <200601281613.16199.vda@ilport.com.ua> <200602020925.00863.vda@ilport.com.ua> <43E25E39.4010908@tmr.com>
-In-Reply-To: <43E25E39.4010908@tmr.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 3 Feb 2006 01:04:22 -0500
+Subject: Re: Robust mutexes (-rt)
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: David Singleton <daviado@gmail.com>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <b324b5ad0602021918s45a94b8es5f35618918aa4a7a@mail.gmail.com>
+References: <1138740179.5184.34.camel@localhost.localdomain>
+	 <b324b5ad0602011528g7ef81dc1ua0ecad2d73348d89@mail.gmail.com>
+	 <1138863989.29087.24.camel@localhost.localdomain>
+	 <1138909303.29087.51.camel@localhost.localdomain>
+	 <b324b5ad0602021918s45a94b8es5f35618918aa4a7a@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 03 Feb 2006 07:04:37 +0100
+Message-Id: <1138946677.29087.58.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.5 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602030757.29640.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 February 2006 21:32, Bill Davidsen wrote:
-> >>reiserfstune -s 1024 /dev/xxxx
-> > 
-> > I had reiserfsprogs 3.6.11 and reiserfstune (above command) made my /dev/sdc3
-> > unmountable without -t reiserfs. I upgraded reiserfsprogs to 3.6.19 and now
-> > reiserfsck /dev/sdc3 reports no problems, but mount problem persists:
-> > 
-> > # mount -t reiserfs /dev/sdc3 /.3
-> > # umount /.3
-> > # mount /dev/sdc3 /.3
-> > mount: you must specify the filesystem type
-> > # dmesg | tail -3
-> > br: port 1(ifi) entering forwarding state
-> > FAT: bogus number of reserved sectors
-> > VFS: Can't find a valid FAT filesystem on dev sdc3.
-> > 
-> > "chown -Rc <n>:<m> ." now does not OOM kill the box, so this issue
-> > is resolved, thanks!
-> > 
-> > Can I restore sdc3 somehow that I won't need -t reiserfs in mount command?
-> > You can find result of
-> > 
-> > dd if=/dev/sdc3 of=1m bs=1M count=1
-> > 
-> > at http://195.66.192.167/linux/1m
+On Thu, 2006-02-02 at 19:18 -0800, David Singleton wrote:
+> Thomas,
+>      here is a patch that fixes the -EINTR problem and a fix for Dinakar's
+> simple futex deadlock test program.  When Esben's new deadlock detection
+> is ready I plan to use it for robust futex deadlock detection, both simple and
+> circular deadlock detection.
 > 
-> At the risk of stating the obvious:
-> 1 - is reaser a module, and is it loaded?
-> 2 - did this ever work? I think you said you removed the entry from 
-> fstab, was the filetype there which made it work?
+> 
+>      http://source.mvista.com:~dsingleton/patch-2.6.15-rt16-rf1
+> 
+>  include/linux/futex.h |    3 +++
+>  kernel/futex.c          |    3 +++
+>  kernel/rt.c               |   19 ++++++++++++++++++-
+>  3 files changed, 24 insertions(+), 1 deletion(-)
 
-1 - not a module, 2 - fstab line was "/dev/sdc3 /.3 auto noatime,rw 1 1".
-But anyway. mount problem is solved now, mount from util-linux 2.11p
-tried to "autodetect" fs and thought it's a FAT partition.
+The stats are nice. I'd prefer a patch associated with them :)
 
-mount from busybox 1.0 works.
---
-vda
+	tglx
+
+

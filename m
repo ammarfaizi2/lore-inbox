@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932518AbWBCDsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932520AbWBCD4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932518AbWBCDsm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 22:48:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWBCDsl
+	id S932520AbWBCD4S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 22:56:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932521AbWBCD4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 22:48:41 -0500
-Received: from colo.lackof.org ([198.49.126.79]:44207 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S932355AbWBCDsj (ORCPT
+	Thu, 2 Feb 2006 22:56:18 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:6560 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932520AbWBCD4R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 22:48:39 -0500
-Date: Thu, 2 Feb 2006 20:58:22 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Akinobu Mita <mita@miraclelinux.com>
-Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org,
-       linux-ia64@vger.kernel.org, Ian Molton <spyro@f2s.com>,
-       David Howells <dhowells@redhat.com>, linuxppc-dev@ozlabs.org,
-       Greg Ungerer <gerg@uclinux.org>, sparclinux@vger.kernel.org,
-       Miles Bader <uclinux-v850@lsi.nec.co.jp>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Yoshinori Sato <ysato@users.sourceforge.jp>,
-       Hirokazu Takata <takata@linux-m32r.org>,
-       linuxsh-dev@lists.sourceforge.net, linux-m68k@vger.kernel.org,
-       Chris Zankel <chris@zankel.net>, dev-etrax@axis.com,
-       ultralinux@vger.kernel.org, Andi Kleen <ak@suse.de>,
-       linuxsh-shmedia-dev@lists.sourceforge.net, linux390@de.ibm.com,
-       Russell King <rmk@arm.linux.org.uk>, parisc-linux@parisc-linux.org
-Subject: Re: [parisc-linux] [patch 12/44] generic sched_find_first_bit()
-Message-ID: <20060203035822.GA12539@colo.lackof.org>
-References: <20060201090224.536581000@localhost.localdomain> <20060201090325.497639000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Feb 2006 22:56:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=odgFmUuQTRkBLlaB9yJCnBNHtY58oky2QpnYltpS4O8sh8sub1G70+Dl6+JvTeXHBheNkWRaBFCF5DWkEHhEIsG7rroyzbKDHjbZdXKRbLvXvaUjKSfNOj1dfoC7ZxDz+4COV/7soR6hUULwlCw+7vH6qpoTHsyCLWXZuO81gaE=
+Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+To: davids@webmaster.com
+Subject: Re: GPL V3 and Linux - Dead Copyright Holders
+Date: Thu, 2 Feb 2006 22:56:11 -0500
+User-Agent: KMail/1.8.3
+Cc: mrmacman_g4@mac.com, andrew.j.wade@gmail.com,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <MDEHLPKNGKAHNMBLJOLKKEJEJNAB.davids@webmaster.com>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKEJEJNAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060201090325.497639000@localhost.localdomain>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+Message-Id: <200602022256.12213.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 01, 2006 at 06:02:36PM +0900, Akinobu Mita wrote:
-> This patch introduces the C-language equivalent of the function:
-> int sched_find_first_bit(const unsigned long *b);
+On Thursday 02 February 2006 02:11, David Schwartz wrote:
+> 	The reason you can't modify the GPL, even we assume the GPL is licensed
+> under the GPL, is because the GPL says you can't modify the GPL.
+     So you're saying that the two lines that are the GPL's copyright
+license, are also part of the terms and conditions of the GPL, and act in
+that capacity as a restriction of what you can do under Section 2? That's
+an interesting argument, I might agree.
 
-Akinobu, would you prefer this is a slightly cleaner way?
-(Not compile tested)
+> 	It is logically impossible for the GPL to be GPL-incompatible. To be
+> GPL-incomptabile, a license would have to contain requirements or
+> restrictions not found in the GPL. How could the GPL possibly do that?
+     It's not the GPL doing that, it's the GPL's license. But perhaps the
+restrictions of the license are also restrictions of the GPL, they are part
+of the text of that document after all.
 
-static inline int sched_find_first_bit(const unsigned long *b)
-{
-	if (unlikely(b[0]))
-		return __ffs(b[0]);
-	if (unlikely(b[1]))
-		return __ffs(b[1]) + BITS_PER_LONG;
-#if BITS_PER_LONG == 32
-	if (unlikely(b[2]))
-		return __ffs(b[2]) + 64;
-	if (b[3])
-		return __ffs(b[3]) + 96;
-#endif
-	return __ffs(b[128/BITS_PER_LONG]) + 128;
-}
+Well enough pedantism for me.
 
-If BITS_PER_LONG isn't defined, the link step will fail and point
-at a some unknown .o as the offender. But it's the responsibility
-of the header file to make sure it's including the BITS_PER_LONG
-definition, not the code that calls sched_find_first_bit().
+Andrew Wade
 
-hth,
-grant
+     

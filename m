@@ -1,96 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbWBCCBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWBCCAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964852AbWBCCBo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 21:01:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbWBCCBo
+	id S964843AbWBCCAb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 21:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWBCCAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 21:01:44 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:58298 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964845AbWBCCBn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 21:01:43 -0500
-Message-ID: <43E2B97F.305@pobox.com>
-Date: Thu, 02 Feb 2006 21:01:35 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
+	Thu, 2 Feb 2006 21:00:31 -0500
+Received: from clix.aarnet.edu.au ([192.94.63.10]:19356 "EHLO
+	clix.aarnet.edu.au") by vger.kernel.org with ESMTP id S964843AbWBCCAa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 21:00:30 -0500
+Message-ID: <43E2B8D6.1070707@aarnet.edu.au>
+Date: Fri, 03 Feb 2006 12:28:46 +1030
+From: Glen Turner <glen.turner@aarnet.edu.au>
+Organization: Australia's Academic & Research Network
 User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Dan Williams <dan.j.williams@intel.com>
-CC: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Chris Leech <christopher.leech@intel.com>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       Deepak Saxena <dsaxena@plexity.net>
-Subject: Re: [RFC][PATCH 000 of 3] MD Acceleration and the ADMA interface:
- Introduction
-References: <1138931168.6620.8.camel@dwillia2-linux.ch.intel.com>
-In-Reply-To: <1138931168.6620.8.camel@dwillia2-linux.ch.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Kumar Gala <galak@kernel.crashing.org>, rmk+kernel@arm.linux.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: 8250 serial console fixes -- issue
+References: <Pine.LNX.4.44.0602011911360.22854-100000@gate.crashing.org> <1138844838.5557.17.camel@localhost.localdomain>
+In-Reply-To: <1138844838.5557.17.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Dan Williams wrote: > This patch set was originally
-	posted to linux-raid, Neil suggested that > I send to linux-kernel as
-	well: > > Per the discussion in this thread
-	(http://marc.theaimsgroup.com/? > t=112603120100004&r=1&w=2) these
-	patches implement the first phase of MD > acceleration, pre-emptible
-	xor. To date these patches only cover raid5 > calls to compute_parity
-	for read/modify and reconstruct writes. The > plan is to expand this to
-	cover raid5 check parity, raid5 compute block, > as well as the raid6
-	equivalents. > > The ADMA (Asynchronous / Application Specific DMA)
-	interface is proposed > as a cross platform mechanism for supporting
-	system CPU offload engines. > The goal is to provide a unified
-	asynchronous interface to support > memory copies, block xor, block
-	pattern setting, block compare, CRC > calculation, cryptography etc.
-	The ADMA interface should support a PIO > fallback mode allowing a
-	given ADMA engine implementation to use the > system CPU for operations
-	without a hardware accelerated backend. In > other words a client coded
-	to the ADMA interface transparently receives > hardware acceleration
-	for its operations depending on the features of > the underlying
-	platform. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+X-MDSA: Yes
+X-Spam-Score: -104.901 BAYES_00,USER_IN_WHITELIST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Williams wrote:
-> This patch set was originally posted to linux-raid, Neil suggested that
-> I send to linux-kernel as well:
-> 
-> Per the discussion in this thread (http://marc.theaimsgroup.com/?
-> t=112603120100004&r=1&w=2) these patches implement the first phase of MD
-> acceleration, pre-emptible xor.  To date these patches only cover raid5
-> calls to compute_parity for read/modify and reconstruct writes.  The
-> plan is to expand this to cover raid5 check parity, raid5 compute block,
-> as well as the raid6 equivalents.
-> 
-> The ADMA (Asynchronous / Application Specific DMA) interface is proposed
-> as a cross platform mechanism for supporting system CPU offload engines.
-> The goal is to provide a unified asynchronous interface to support
-> memory copies, block xor, block pattern setting, block compare, CRC
-> calculation, cryptography etc.  The ADMA interface should support a PIO
-> fallback mode allowing a given ADMA engine implementation to use the
-> system CPU for operations without a hardware accelerated backend.  In
-> other words a client coded to the ADMA interface transparently receives
-> hardware acceleration for its operations depending on the features of
-> the underlying platform.
 
-Here are some other things out there worth considering:
+Hi Alan,
 
-* SCSI XOR commands
+The serial console driver has a host of issues
 
-* Figuring out how to support Promise SX4 (e.g. device offload), which 
-is a chip with integrated XOR engine and attached DIMM.  RAID1 and RAID5 
-are best implemented on-card, but the Linux driver is responsible for 
-implementing all on-card actions, not a firmware.
+  - end of line should be CR LF, not LF CR
 
-	Jeff
+  - 'r' option for CTS/RTS flow control assumes CTS is
+    asserted when DSR is not asserted. This is wrong as
+    lots of modems float control lines when off.  No
+    control signals are defined is DSR is unasserted.
 
+  - [SECURITY] 'r' should require DCD to be asserted
+    before outputing characters. Otherwise we talk to
+    Hayes modem command mode.  This allows a non-root
+    user to re-program the modem and is a major security
+    issue is people configure calling line identification
+    or encryption to restrict use of the serial console.
 
+  - 'r' option has insanely slow CTS timeout. So if a
+    terminal server is inactive the kernel can take
+    30 minutes to boot as each character write to the
+    serial console requires a CTS timeout.
+
+All of these have been reported to me multiple times
+(I'm maintainer of the Remote-Serial-Console-HOWTO).
+
+I occassionally clean up and repost a patch I wrote years
+ago which never gets integrated (although it ships in the
+patchset of a number of kernels from supercomputer vendors).
+I'm happy to clean it up again if there's a hope of
+integration.
+
+See
+   <http://www.aarnet.edu.au/~gdt/patch/console/serial-console.patch>
+for the most recent attempt.
+
+Thanks so much,
+Glen
+
+-- 
+  Glen Turner         Tel: (08) 8303 3936 or +61 8 8303 3936
+  Australia's Academic & Research Network  www.aarnet.edu.au

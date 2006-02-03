@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWBCGVL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751260AbWBCG1x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbWBCGVL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 01:21:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWBCGVL
+	id S1751260AbWBCG1x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 01:27:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWBCG1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 01:21:11 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:4753 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751197AbWBCGVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 01:21:10 -0500
-Subject: Re: usb bandwidth allocation issue using 2 pvr devices (em28xx
-	driver) v4l2
-From: Lee Revell <rlrevell@joe-job.com>
-To: Markus Rechberger <mrechberger@gmail.com>
-Cc: Linux and Kernel Video <video4linux-list@redhat.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <d9def9db0602022149o1561e1b7v9c191c873d5add46@mail.gmail.com>
-References: <c967fb330602022139o77fe09d1k7149648b1afdc695@mail.gmail.com>
-	 <d9def9db0602022149o1561e1b7v9c191c873d5add46@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 03 Feb 2006 01:21:01 -0500
-Message-Id: <1138947662.15691.241.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 
+	Fri, 3 Feb 2006 01:27:53 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:23264 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S1751260AbWBCG1w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 01:27:52 -0500
+Message-ID: <43E2F667.8020404@colorfullife.com>
+Date: Fri, 03 Feb 2006 07:21:27 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+CC: Andrew Morton <akpm@osdl.org>, "Kevin O'Connor" <kevin@koconnor.net>,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: Size-128 slab leak
+References: <20060131024928.GA11395@double.lan>	 <20060201231001.0ca96bf0.akpm@osdl.org> <84144f020602012332g57a58f0aw373983fc6bc7368b@mail.gmail.com>
+In-Reply-To: <84144f020602012332g57a58f0aw373983fc6bc7368b@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-02-03 at 06:49 +0100, Markus Rechberger wrote:
-> Hi!
-> 
-> this should be addressed to USB subsystem developers, I also
-> reproduced this issue.
-> The problem is the isochronous transfer in em28xx-core.c I'm quite
-> sure it's correct and the bug is somewhere deeper in the USB
-> subsystem.
+Pekka Enberg wrote:
 
-Is USB bandwidth checking enabled?  It's known to be broken, and should
-be disabled by default...
+>We already have last caller in dbg_userword. Manfred, is there a
+>reason we're not using it?
+>
+>  
+>
+IIRC only due to historical reasons: dbg_userword is newer than this patch.
 
-Lee
-
+--
+    Manfred

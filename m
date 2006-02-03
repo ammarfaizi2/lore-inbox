@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWBCQ6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWBCQ6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751233AbWBCQ6i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 11:58:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWBCQ6i
+	id S1751229AbWBCQ6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 11:58:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWBCQ6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 11:58:38 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:2005 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1751233AbWBCQ60 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 11:58:26 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Fri, 03 Feb 2006 17:56:49 +0100
-To: schilling@fokus.fraunhofer.de, psusi@cfl.rr.com
-Cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jim@why.dont.jablowme.net, jengelh@linux01.gwdg.de,
-       James@superbug.co.uk, j@bitron.ch, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43E38B51.nail5CAZ1GYRE@burner>
-References: <43DDFBFF.nail16Z3N3C0M@burner>
- <1138710764.17338.47.camel@juerg-t40p.bitron.ch>
- <43DF6812.nail3B44TLQOP@burner> <20060202062840.GI5501@mail>
- <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo>
- <787b0d920602020917u1e7267c5lbea5f02182e0c952@mai <43E374CF.nail5CAMKAKEV@burner>
- <43E38084.9040200@cfl.rr.com>
-In-Reply-To: <43E38084.9040200@cfl.rr.com>
-User-Agent: nail 11.2 8/15/04
+	Fri, 3 Feb 2006 11:58:24 -0500
+Received: from uproxy.gmail.com ([66.249.92.201]:27687 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751229AbWBCQ6W convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 11:58:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TS1vKNmLStrQnnMkVmES6KFYjtBleBovcMKAwPtfwL0ReNmndUhDiwd+NzvEGSi9SSBqA3x5o8sEJu8MnbWfYlEtknHX8ke8cTSpECXyaaBSHDi3njeoa796BRZqEoJyXZHtlYhpcoIKeyhnIKlaeRLgG59FvbpsVxGXVnfur20=
+Message-ID: <1e62d1370602030858j3e443e40tc86b72315ed8ab52@mail.gmail.com>
+Date: Fri, 3 Feb 2006 21:58:20 +0500
+From: Fawad Lateef <fawadlateef@gmail.com>
+To: Samer Azmy <samer.azmy@gmail.com>
+Subject: Re: root=LABEL= problem [Was: Re: Linux Issue]
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Jiri Slaby <xslaby@fi.muni.cz>,
+       kavitha s <wellspringkavitha@yahoo.co.in>, linux-kernel@vger.kernel.org
+In-Reply-To: <b8332cb80602030545v578da09fod5174eb26dff3281@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1138863068.3270.6.camel@laptopd505.fenrus.org>
+	 <20060201114845.E41F222AF24@anxur.fi.muni.cz>
+	 <20060202105338.E921D22AF07@anxur.fi.muni.cz>
+	 <Pine.LNX.4.61.0602021750510.13212@yvahk01.tjqt.qr>
+	 <1138971350.3086.0.camel@laptopd505.fenrus.org>
+	 <b8332cb80602030545v578da09fod5174eb26dff3281@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Phillip Susi <psusi@cfl.rr.com> wrote:
+On 2/3/06, Samer Azmy <samer.azmy@gmail.com> wrote:
+> Hello,
+>
+> do you have RAID array or a newly confiured RAID
+>
 
-> You CAN'T have multiple cdrecord processes burning the same disc at the 
-> same time; the very idea makes no sense.  The O_EXCL just prevents you 
-> from trying such foolishness and creating a coaster. 
+What do you want to know ? Ask questions specifically mentioning the
+problem in detail !
 
-It does not prevent you from creatig a coaster in case you connect e.g.
-two ATAPI writers to the same ATA cable.
+Also Please start new threads/topic for questions not related to any
+other previous topic !
 
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+--
+Fawad Lateef

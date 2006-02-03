@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945917AbWBCTbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030230AbWBCTcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945917AbWBCTbF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 14:31:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945916AbWBCTbE
+	id S1030230AbWBCTcM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 14:32:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945915AbWBCTcL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 14:31:04 -0500
-Received: from mail.gmx.de ([213.165.64.21]:39610 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1945915AbWBCTbB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 14:31:01 -0500
-X-Authenticated: #428038
-Date: Fri, 3 Feb 2006 20:30:56 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: mrmacman_g4@mac.com, mj@ucw.cz, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de,
-       James@superbug.co.uk, j@bitron.ch, acahalan@gmail.com, 7eggert@gmx.de
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060203193056.GD18533@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	mrmacman_g4@mac.com, mj@ucw.cz, linux-kernel@vger.kernel.org,
-	jengelh@linux01.gwdg.de, James@superbug.co.uk, j@bitron.ch,
-	acahalan@gmail.com, 7eggert@gmx.de
-References: <5zer2-1BC-29@gated-at.bofh.it> <5AFHY-5jd-23@gated-at.bofh.it> <5ALb5-5kV-43@gated-at.bofh.it> <5B15G-39W-17@gated-at.bofh.it> <5B1Im-4cW-7@gated-at.bofh.it> <5B3TN-7AV-9@gated-at.bofh.it> <5Bs5Z-1BT-17@gated-at.bofh.it> <5BJgx-1fE-13@gated-at.bofh.it> <E1F4nt5-00014L-Ry@be1.lrz> <43E36084.nail5CAJ14LO3@burner>
+	Fri, 3 Feb 2006 14:32:11 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:45812 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1945916AbWBCTcK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 14:32:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZzTfhE6oz+7gkKtMfy1/WyPg8gfZmf6KdRGWJ3aMseWiMf36AQHrYvo+lW8NZqwVkyBb07siXET8kuzFbEKoLHuUsfj6VMaNQr55dkRUZBVW4xbrCOTOMvrSYdeTpNB1PLnl/XWJPllIQ1JpJR+6WhyvxwgoFqTF5IcVF95p7+o=
+Message-ID: <5a4c581d0602031132s6af9373bo9515707d84093c8c@mail.gmail.com>
+Date: Fri, 3 Feb 2006 20:32:09 +0100
+From: Alessandro Suardi <alessandro.suardi@gmail.com>
+To: Panagiotis Issaris <takis.issaris@uhasselt.be>
+Subject: Re: WLAN drivers
+Cc: linux-kernel@vger.kernel.org, linux-netdev@vger.kernel.org
+In-Reply-To: <1138969138.8434.26.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43E36084.nail5CAJ14LO3@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+References: <1138969138.8434.26.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-02-03:
+On 2/3/06, Panagiotis Issaris <takis.issaris@uhasselt.be> wrote:
 
-> This is a limitation of the implementation used on Linux and not true for e.g. 
-> Solaris.
+[snip]
 
-Linux is not Solaris.
+> And now the reason I'm sending this to this mailing list: Which wireless
+> network cards are you all using and which ones would you recommend? Is
+> anyone using USB wireless network cards (without using ndiswrapper)?
 
-Do you want your application to work with Linux,
-because it brings customers?
+I have had no problem with a USR2210 PC Card for my Dell laptop,
+ running the soon-to-be-in-mainline ACX drivers by Andi Mohr and
+ more recently Denis Vlasenko. This driver is at the moment in -mm.
 
-If yes, listen to kernel developers if they say "you don't need that
-feature". Note I do not consider myself kernel developer. I'm a
-bystander who's trying to help out.
+The newer laptop runs an Intel 2200BG with in-kernel drivers fine, apart
+ from not dealing well with being put in monitor mode (firmware restarts
+ every few seconds gobbling 70% CPU even with very low traffic). As a
+ matter of fact, current drivers won't even allow you to put the card in
+ monitor mode - you have to explicitly enable the code by editing the
+ source files; that's intentional as the developers know about the issue.
 
--- 
-Matthias Andree
+--alessandro
+
+ "Somehow all you ever need is, never really quite enough, you know"
+
+   (Bruce Springsteen - "Reno")

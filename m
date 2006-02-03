@@ -1,70 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945897AbWBCTOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945906AbWBCTOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945897AbWBCTOW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 14:14:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945901AbWBCTOW
+	id S1945906AbWBCTOw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 14:14:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945905AbWBCTOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 14:14:22 -0500
-Received: from mail.gmx.net ([213.165.64.21]:48012 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1945897AbWBCTOV (ORCPT
+	Fri, 3 Feb 2006 14:14:52 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:26528 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1945900AbWBCTOm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 14:14:21 -0500
-X-Authenticated: #428038
-Date: Fri, 3 Feb 2006 20:14:15 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: linux-kernel@vger.kernel.org, cdwrite@other.debian.org, acahalan@gmail.com
-Subject: Re: [cdrtools PATCH (GPL)] Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060203191415.GA18533@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	linux-kernel@vger.kernel.org, cdwrite@other.debian.org,
-	acahalan@gmail.com
-References: <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo> <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com> <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr> <20060202210949.GD10352@voodoo> <43E27792.nail54V1B1B3Z@burner> <787b0d920602021827m4890fbf4j24d110dc656d2d3a@mail.gmail.com> <43E374CF.nail5CAMKAKEV@burner> <20060203182049.GB11083@merlin.emma.line.org> <43E3A19E.nail6A511N92B@burner>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43E3A19E.nail6A511N92B@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+	Fri, 3 Feb 2006 14:14:42 -0500
+Date: Fri, 3 Feb 2006 11:14:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Holger Eitzenberger <holger@my-eitzenberger.de>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org, stable@kernel.org,
+       torvalds@osdl.org, netdev@vger.kernel.org
+Subject: Re: Linux 2.6.15.2
+Message-Id: <20060203111414.7026f46f.akpm@osdl.org>
+In-Reply-To: <20060203120925.GA4393@kruemel.my-eitzenberger.de>
+References: <20060131070642.GA25015@kroah.com>
+	<20060130233427.5e7912ae.akpm@osdl.org>
+	<20060203120925.GA4393@kruemel.my-eitzenberger.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-02-03:
-
-> Matthias Andree <matthias.andree@gmx.de> wrote:
+Holger Eitzenberger <holger@my-eitzenberger.de> wrote:
+>
+> On Mon, Jan 30, 2006 at 11:34:27PM -0800, Andrew Morton wrote:
 > 
-> > So patches to the rescue -- please review the patch below (for 2.01.01a05).
-> > Note that GPL 2a and 2c apply, so you cannot merge a modified version of
-> > my patch without adding a tag that you goofed my fixes.
+> > - A skbuff_head_cache leak causes oom-killings.
+> > 
+> > All of these only seem to affect a small minority of machines.
 > 
-> OK, I did not look at it and I never will!
+> Hi,
+> 
+> I have searched for a description for the above mentioned bug report,
+> but havent found any.  Can you tell me?
 
-Perhaps you should -- the patch impairs your changes to get
-needless device enumeration changes into the kernel...
+http://www.mail-archive.com/netdev@vger.kernel.org/msg06355.html
 
-Enforcing your strict interpretation of GPL v2 §§ 2a, 2c to the letter
-was your own idea. I had to touch "modification prohibited" sections to
-remove obsolete (bogus) warnings.
+> The reason why I am asking that I am facing a similar problem on
+> kernel 2.6.10.  During performance tests (Intel XEON, SMP, PCI-X,
+> e1000, 2 - 4 Gig RAM) the machine was out of memory.
+> 
+> Tests showed that LowFree went linearly down to a few megabytes, where
+> most of the memory was used in skb_head_cache and size-1024 slab
+> caches.  These two summed up to ~270 MG, which was the reason for
+> that.
+> 
+> /proc/net/tcp showed that most of the memory was stuck in the RX
+> queues of some processes (two processes with ~1000 sockets each).
+> 
+> A look into /proc/sys/net/ipv4/tcp_mem showed that that the values in
+> there were way to high.  I hope that a reduction of these values will
+> help (not done yet).
+> 
 
-I'll amend the license: Show me your integrated patch. If it works
-properly on my computer and without false warnings, you add a note to
-the changelog and the AN-2.01.01a06 file, I will demote the patch's
-license to the MIT license as in
-<http://opensource.org/licenses/mit-license.php>. Yes, this is a license
-contract offer as per the BGB. Just write you're accepting it, or accept
-implicitly by sending the integration patch against 2.01.01a05.
+Sounds different.  Please test a more recent kernel and if the problem is
+still there, send a report to linux-kernel and cc netdev@vger.kernel.org. 
+Include the contents of /proc/meminfo and /proc/slabinfo.  Thanks.
 
-I just want to make sure that it doesn't bear my name if the integration
-breaks it again.
-
-The code can probably be simplified even more with readdir() on /dev and
-filtering it (avoiding glob() buffer issues), my patch doesn't even
-attempt to do that.
-
-And if you explain the use of LF_ATA, the kernel drivers might even be
-fixes so that /dev/hd* looks confusably similar to /dev/sg*.
-
--- 
-Matthias Andree

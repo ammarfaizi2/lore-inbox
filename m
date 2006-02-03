@@ -1,86 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWBCJ0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWBCJlE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbWBCJ0r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 04:26:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbWBCJ0r
+	id S932234AbWBCJlE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 04:41:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWBCJlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 04:26:47 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:30681 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932195AbWBCJ0r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 04:26:47 -0500
-Date: Fri, 3 Feb 2006 01:26:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: axboe@suse.de, AChittenden@bluearc.com, davej@redhat.com,
-       linux-kernel@vger.kernel.org, lwoodman@redhat.com
-Subject: Re: adding swap workarounds oom - was: Re: Out of Memory: Killed
- process 16498 (java).
-Message-Id: <20060203012607.0a9d6730.akpm@osdl.org>
-In-Reply-To: <1138958409.3828.9.camel@imp.csi.cam.ac.uk>
-References: <89E85E0168AD994693B574C80EDB9C2703556694@uk-email.terastack.bluearc.com>
-	<20060127142146.GN4311@suse.de>
-	<1138372797.22112.44.camel@imp.csi.cam.ac.uk>
-	<1138958409.3828.9.camel@imp.csi.cam.ac.uk>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 3 Feb 2006 04:41:04 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48138 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932234AbWBCJlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 04:41:03 -0500
+Date: Fri, 3 Feb 2006 09:40:42 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Glen Turner <glen.turner@aarnet.edu.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kumar Gala <galak@kernel.crashing.org>, linux-kernel@vger.kernel.org
+Subject: Re: 8250 serial console fixes -- issue
+Message-ID: <20060203094042.GB30738@flint.arm.linux.org.uk>
+Mail-Followup-To: Glen Turner <glen.turner@aarnet.edu.au>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Kumar Gala <galak@kernel.crashing.org>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0602011911360.22854-100000@gate.crashing.org> <1138844838.5557.17.camel@localhost.localdomain> <43E2B8D6.1070707@aarnet.edu.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43E2B8D6.1070707@aarnet.edu.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov <aia21@cam.ac.uk> wrote:
->
-> Hi,
+On Fri, Feb 03, 2006 at 12:28:46PM +1030, Glen Turner wrote:
+> Hi Alan,
 > 
-> On Fri, 2006-01-27 at 14:39 +0000, Anton Altaparmakov wrote:
-> > A colleague has a server (which does backups) that is incapable of doing
-> > a backup due to the backup process being killed due to OOM after
-> > anywhere between 30s and a few minutes of running...  And the backup
-> > process is just a simple program that does the equivalent of "dd with
-> > one source but two destinations" where the source is an lvm/dm snapshot
-> > and the two destinations are two different tape drives attached via
-> > scsi.  That is pretty critical, admittedly only to us and that system...
+> The serial console driver has a host of issues
 > 
-> We found a workaround for the OOM problems on above server yesterday.  
+> [...]
 > 
-> Add a 1MiB swap file:
-> 
-> dd if=/dev/zero of=/var/swapfile bs=1024 count=1024
-> mkswap /var/swapfile
-> swapon /var/swapfile
-> 
-> Run backup script and no problems!
-> 
-> Note: This is a suse SLES9 system and the problem is not present on
-> kernel kernel-smp-2.6.5-7.193.i586.rpm and all earlier kernels and it is
-> present on kernel-smp-2.6.5-7.201.i586.rpm and all later kernels
-> including the latest kernel (2.6.5-7.244).
-> 
-> Seems like a definite VM bug...  Interestingly on the .244 kernel the
-> OOM conditions print out a lot of debug information to dmesg about the
-> memory use in the system and AFAICS none of the memory is exhausted!  So
-> it seems the system goes OOM without it actually being OOM because it
-> detects that "free swap == 0" or something along those lines...
+>  - [SECURITY] 'r' should require DCD to be asserted
+>    before outputing characters. Otherwise we talk to
+>    Hayes modem command mode.  This allows a non-root
+>    user to re-program the modem and is a major security
+>    issue is people configure calling line identification
+>    or encryption to restrict use of the serial console.
 
-It does sound like that.  Does it still happen if there's 1MB of swap
-online and it's all full?
+How is this possible?  A normal user can't produce arbitarily formatted
+kernel messages, and if they have access to /dev/ttyS they can do what
+ever they like with the port anyway.
 
-> Or do we nowadays require swap to be present?
+(If a user can produce arbitarily formatted kernel messages, that in
+itself is a security bug - how do you know if that OOPS was produced
+by a malicious user, or a real oops?)
 
-Shouldn't be the case.
+>  - 'r' option has insanely slow CTS timeout. So if a
+>    terminal server is inactive the kernel can take
+>    30 minutes to boot as each character write to the
+>    serial console requires a CTS timeout.
 
-> The machine has 6GiB RAM so swap was turned off on it.  (In our
-> experience if a machine with a lot of concurrent connections starts
-> swapping the system goes down the drain (it becomes too slow) so swap is
-> not something we want on servers with 40000+ users...)
+You'd rather we threw away these messages?
 
-1MB of swap isn't likely to cause a lot of swapping.   
+> I occassionally clean up and repost a patch I wrote years
+> ago which never gets integrated (although it ships in the
+> patchset of a number of kernels from supercomputer vendors).
+> I'm happy to clean it up again if there's a hope of
+> integration.
 
-> If the above is not enough information to find/fix the problem please
-> let me know what more you would like to know...
+It'd help if you talked to the right person - I've been looking after
+the serial layer since 2.5.something.
 
-It'd be nice to see the oom-killer output.
-
-I don't recall a problem like this.  I wonder if there are any suse changes
-which might have triggered it.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,90 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945901AbWBCTO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945897AbWBCTOW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945901AbWBCTO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 14:14:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945900AbWBCTO1
+	id S1945897AbWBCTOW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 14:14:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945901AbWBCTOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 14:14:27 -0500
-Received: from EXCHG2003.microtech-ks.com ([65.16.27.37]:44567 "EHLO
-	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
-	id S1945904AbWBCTOZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 14:14:25 -0500
-From: "Roger Heflin" <rheflin@atipa.com>
-To: "'Brian D. McGrew'" <brian@visionpro.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Stale NFS File Handle
-Date: Fri, 3 Feb 2006 13:24:56 -0600
+	Fri, 3 Feb 2006 14:14:22 -0500
+Received: from mail.gmx.net ([213.165.64.21]:48012 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1945897AbWBCTOV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 14:14:21 -0500
+X-Authenticated: #428038
+Date: Fri, 3 Feb 2006 20:14:15 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: linux-kernel@vger.kernel.org, cdwrite@other.debian.org, acahalan@gmail.com
+Subject: Re: [cdrtools PATCH (GPL)] Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060203191415.GA18533@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	linux-kernel@vger.kernel.org, cdwrite@other.debian.org,
+	acahalan@gmail.com
+References: <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo> <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com> <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr> <20060202210949.GD10352@voodoo> <43E27792.nail54V1B1B3Z@burner> <787b0d920602021827m4890fbf4j24d110dc656d2d3a@mail.gmail.com> <43E374CF.nail5CAMKAKEV@burner> <20060203182049.GB11083@merlin.emma.line.org> <43E3A19E.nail6A511N92B@burner>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA0970A93@chicken.machinevisionproducts.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcYo7Gs5yqxpa+ehReWCAFGoyFjq2AAClPCg
-Message-ID: <EXCHG2003OxJagXTi8M000011fa@EXCHG2003.microtech-ks.com>
-X-OriginalArrivalTime: 03 Feb 2006 19:07:40.0938 (UTC) FILETIME=[1ADC46A0:01C628F5]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43E3A19E.nail6A511N92B@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+Joerg Schilling schrieb am 2006-02-03:
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> Brian D. McGrew
-> Sent: Friday, February 03, 2006 12:06 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: Stale NFS File Handle
+> Matthias Andree <matthias.andree@gmx.de> wrote:
 > 
-> Good morning all (kind of a long winded mail, please have patience!)
+> > So patches to the rescue -- please review the patch below (for 2.01.01a05).
+> > Note that GPL 2a and 2c apply, so you cannot merge a modified version of
+> > my patch without adding a tag that you goofed my fixes.
 > 
-> I've got an FC3 server running a 2.6.9 kernel and sharing 
-> about 500GB of disk space on a RAID5 array via NFS.  This box 
-> has been running fine for over a year now but in the last 
-> three weeks or so I'm seeing a ton of Stale NFS File Handle 
-> errors; especially in my overnight builds.
-> 
-> Most of my clients are FC3 and a couple of Solaris boxes 
-> running a stock configuration.  All we're doing is serving up 
-> NFS and compiling with GCC.  We're seeing this error more and 
-> more and the harder I try to track it down, the more we're 
-> seeing it (ok, maybe that's my imagination).
-> 
-> I'm guessing that the problem has to be somewhere in the FC3 
-> server because I've still got some Solaris NFS servers that 
-> have been running for years with no problems.
-> 
-> What should I be looking for in tracking this error down?  
-> Should I upgrade my kernel?  Should I throw away FC3 and go 
-> to Enterprise Linux?
-> I'm at the end of my rope here because this is now causing a 
-> major set back to our development team!
-> 
-> Please help!
+> OK, I did not look at it and I never will!
 
+Perhaps you should -- the patch impairs your changes to get
+needless device enumeration changes into the kernel...
 
-Brian,
+Enforcing your strict interpretation of GPL v2 §§ 2a, 2c to the letter
+was your own idea. I had to touch "modification prohibited" sections to
+remove obsolete (bogus) warnings.
 
-That is an ancient kernel well over a year old, I would try a
-later kernel.
+I'll amend the license: Show me your integrated patch. If it works
+properly on my computer and without false warnings, you add a note to
+the changelog and the AN-2.01.01a06 file, I will demote the patch's
+license to the MIT license as in
+<http://opensource.org/licenses/mit-license.php>. Yes, this is a license
+contract offer as per the BGB. Just write you're accepting it, or accept
+implicitly by sending the integration patch against 2.01.01a05.
 
-At a min put on a later kernel, and maybe put on FC4 as there
-as are several different kernels to choose from there, some
-of which may have issues, others of which may work.
+I just want to make sure that it doesn't bear my name if the integration
+breaks it again.
 
-You might also check when and how your are doing "exportfs -r"
-and other exportfs type commands because I have seen this command
-before cause interesting race conditions (ie there is a spot
-where apparently the clients get a failure response).   My setup
-to get those messages required a busy machine, and updating
-/etc/exports in cron and rerunning exportfs often, even with
-all of that the failures were pretty rare, and only affected
-some nodes on a given failure.
+The code can probably be simplified even more with readdir() on /dev and
+filtering it (avoiding glob() buffer issues), my patch doesn't even
+attempt to do that.
 
-I don't know if the bug is still around, but it is something
-to check.
+And if you explain the use of LF_ATA, the kernel drivers might even be
+fixes so that /dev/hd* looks confusably similar to /dev/sg*.
 
-                              Roger
-
-
-
+-- 
+Matthias Andree

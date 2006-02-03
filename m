@@ -1,69 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946083AbWBCXNs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946037AbWBCXVK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946083AbWBCXNs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 18:13:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946082AbWBCXNr
+	id S1946037AbWBCXVK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 18:21:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946080AbWBCXVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 18:13:47 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:53384 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S1946080AbWBCXNq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 18:13:46 -0500
-X-IronPort-AV: i="4.02,86,1139212800"; 
-   d="scan'208"; a="400560572:sNHT32150280"
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ib: don't doublefree pages from scatterlist
-X-Message-Flag: Warning: May contain useful information
-References: <Pine.LNX.4.63.0512271807130.4955@kai.makisara.local>
-	<20060104172727.GA320@tau.solarneutrino.net>
-	<Pine.LNX.4.63.0601042334310.5087@kai.makisara.local>
-	<20060105201249.GB1795@tau.solarneutrino.net>
-	<Pine.LNX.4.64.0601051312380.3169@g5.osdl.org>
-	<20060109033149.GC283@tau.solarneutrino.net>
-	<Pine.LNX.4.64.0601082000450.3169@g5.osdl.org>
-	<Pine.LNX.4.61.0601090933160.7632@goblin.wat.veritas.com>
-	<20060109185350.GG283@tau.solarneutrino.net>
-	<Pine.LNX.4.61.0601091922550.15426@goblin.wat.veritas.com>
-	<20060118001252.GB821@tau.solarneutrino.net>
-	<Pine.LNX.4.61.0601181556050.9110@goblin.wat.veritas.com>
-	<Pine.LNX.4.61.0602031842290.14065@goblin.wat.veritas.com>
-	<Pine.LNX.4.61.0602031948100.14829@goblin.wat.veritas.com>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Fri, 03 Feb 2006 15:13:43 -0800
-In-Reply-To: <Pine.LNX.4.61.0602031948100.14829@goblin.wat.veritas.com> (Hugh
- Dickins's message of "Fri, 3 Feb 2006 19:51:18 +0000 (GMT)")
-Message-ID: <adalkwsujbs.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+	Fri, 3 Feb 2006 18:21:10 -0500
+Received: from zrtps0kp.nortel.com ([47.140.192.56]:8143 "EHLO
+	zrtps0kp.nortel.com") by vger.kernel.org with ESMTP
+	id S1946037AbWBCXVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 18:21:09 -0500
+Message-ID: <43E3E55C.90504@nortel.com>
+Date: Fri, 03 Feb 2006 17:21:00 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 03 Feb 2006 23:13:44.0597 (UTC) FILETIME=[7AAFDC50:01C62917]
+To: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: how to limit memory with 2.6.10 on ppc64 machine?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Feb 2006 23:21:02.0286 (UTC) FILETIME=[7F91E6E0:01C62918]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, Hugh.  This is definitely a real bug caused by an embarassing
-oversight on my part.  I will test and apply to my trees.
 
- > Warning: untested!  And please double-check the adjusted definition of
- > IB_UMEM_MAX_PAGE_CHUNK - the old definition was avoiding "sizeof"s, but
- > I don't understand why.
+I'm running 2.6.10 on a ppc64 machine with 4GB of memory.
 
-The old definition of IB_UMEM_MAX_PAGE_CHUNK came from my paranoia:
+We're debugging an issue and would like to try and see if disabling the 
+U3 DART makes the problem go away.  Unfortunately, this particular blade 
+is unstable if not all the memory banks are populated.
 
- >  #define IB_UMEM_MAX_PAGE_CHUNK						\
- >  	((PAGE_SIZE - offsetof(struct ib_umem_chunk, page_list)) /	\
- > -	 ((void *) &((struct ib_umem_chunk *) 0)->page_list[1] -	\
- > -	  (void *) &((struct ib_umem_chunk *) 0)->page_list[0]))
- > +	 (sizeof(struct scatterlist) + sizeof(struct page *)))
+After some frustration I looked at the code and realized that the "mem=" 
+functionality is not supported for ppc64 on this particular kernel.
 
-I was afraid that some compiler somewhere might add in some padding
-that would cause sizeof (struct scatterlist) to be smaller than the
-entries in the array end up being, but now I've convinced myself that
-this can't happen -- if it could then things like ARRAY_SIZE() would
-be stuffed as well.
+Can anyone give me some advice on the simplest way to limit this thing 
+to under 2GB of memory so that the DART is not allocated/used?
 
-So I think your version is correct and clearer.
+Does anyone know when support for "mem=" was added?  I know it is there 
+in the current git version, but the "powerpc" consolidation means 
+everything is all different now.
 
 Thanks,
-  Roland
+
+Chris

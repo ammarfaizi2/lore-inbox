@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWBCBQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWBCBSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbWBCBQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 20:16:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWBCBQ1
+	id S964830AbWBCBSl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 20:18:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbWBCBSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 20:16:27 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:463 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751257AbWBCBQ0 (ORCPT
+	Thu, 2 Feb 2006 20:18:41 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:23564 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S964830AbWBCBSk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 20:16:26 -0500
-Date: Thu, 2 Feb 2006 17:18:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Bojan Smojver <bojan@rexursive.com>
-Cc: nigel@suspend2.net, suspend2-devel@lists.suspend2.net, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, pavel@ucw.cz
-Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
-Message-Id: <20060202171812.49b86721.akpm@osdl.org>
-In-Reply-To: <20060203120055.0nu3ym4yuck0os84@imp.rexursive.com>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain>
-	<20060202152316.GC8944@ucw.cz>
-	<20060202132708.62881af6.akpm@osdl.org>
-	<200602030918.07006.nigel@suspend2.net>
-	<20060203120055.0nu3ym4yuck0os84@imp.rexursive.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 2 Feb 2006 20:18:40 -0500
+Date: Fri, 3 Feb 2006 02:18:39 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dave Jones <davej@redhat.com>, Nigel Cunningham <nigel@suspend2.net>,
+       Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+Subject: Re: [ 00/10] [Suspend2] Modules support.
+Message-ID: <20060203011839.GA58691@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Pavel Machek <pavel@ucw.cz>, Dave Jones <davej@redhat.com>,
+	Nigel Cunningham <nigel@suspend2.net>,
+	Pekka Enberg <penberg@cs.helsinki.fi>, linux-kernel@vger.kernel.org
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602022131.59928.nigel@suspend2.net> <84144f020602020344p228e20b2x34226f341c296578@mail.gmail.com> <200602022228.20032.nigel@suspend2.net> <20060202154319.GA96923@dspnet.fr.eu.org> <20060202202527.GC2264@elf.ucw.cz> <20060202203155.GE11831@redhat.com> <20060202205148.GE2264@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060202205148.GE2264@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bojan Smojver <bojan@rexursive.com> wrote:
->
-> Bottom line: With your code, my machine works. Without it, it doesn't.
+On Thu, Feb 02, 2006 at 09:51:48PM +0100, Pavel Machek wrote:
+> Well, Olivier said I'm turning kernel into Hurd.
 
-This leaves us in rather awkward position.  You see, there will be other
-people whose machines don't work with suspend2 but which do work with
-swsusp.  And other people who prefer swsusp for other reasons.
+You're far from the only one.  There is currently a real fad into
+putting as many things as possible (or not) in userspace without
+seemingly thinking about things like security, long term
+maintainability, usability or even compatiblity between kernel
+versions and userspace versions.
 
-It'd help if we knew _why_ your machine doesn't work with swsusp so we can
-fix it.  Futhermore it'd help if we knew specifically what you prefer about
-suspend2 so we can understand what more needs to be done, and how we should
-do it.
+
+> So he instead
+> advocates merging 10 000 lines of code (+7500, contains new
+> compression algorithm and new plugin architecture). I'd like to add
+> interface to userland (+300) and remove swap writing (long term,
+> -1000).
+
+I don't actually advocate suspend2.  I indeed have not looked at the
+patches at that point.  I do find it extremely annoying that instead
+of trying to make what exists reliable, for instance what are the
+rules irq grabbing/release at that point, and adding infrastructure
+for what's missing for having real reliability, f.i. communication
+with fb/drm to handle the screen power switch, you decide to go and
+move things into userspace which is going to increase the reliability
+problems immensely.  I don't even want to think about the interactions
+between freezing the userspace memory pages and running some processes
+which may malloc/mmap at the same time.
+
+  OG.

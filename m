@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945933AbWBCUHZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbWBCUI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945933AbWBCUHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 15:07:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945936AbWBCUHZ
+	id S932143AbWBCUI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 15:08:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWBCUI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 15:07:25 -0500
-Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:21903 "EHLO
-	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP
-	id S1945933AbWBCUHY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 15:07:24 -0500
-Date: Fri, 3 Feb 2006 21:04:15 +0100 (CET)
-From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-cc: Roger Heflin <rheflin@atipa.com>, Phillip Susi <psusi@cfl.rr.com>,
-       Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: RAID5 unusably unstable through 2.6.14
-In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189F021C99D3@otce2k03.adaptec.com>
-Message-ID: <Pine.LNX.4.60.0602032102420.26896@kepler.fjfi.cvut.cz>
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F021C99D3@otce2k03.adaptec.com>
+	Fri, 3 Feb 2006 15:08:26 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:38079 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S932143AbWBCUI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 15:08:26 -0500
+Date: Fri, 3 Feb 2006 21:08:23 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: small etherdevice.h fix
+Message-ID: <Pine.LNX.4.62.0602032105180.31368@artax.karlin.mff.cuni.cz>
+X-Personality-Disorder: Schizoid
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Feb 2006, Salyzyn, Mark wrote:
+Hi
 
-> Martin Drab sez:
-> > S.M.A.R.T. should be able to do this. But last time I've 
-> > checked it wasn't 
-> > working with Linux and SCSI/SATA. Is this working now?
-> 
-> Smartctl works with the latest patches to the aacraid driver to SAS and
-> SATA products (no_uld_patch submitted originally in December)
+This fixes a small bug in is_valid_ether_addr --- for address in the form 
+FF:xx:xx:xx:xx:xx it returns true. The comment is about FF:FF:FF:FF:FF:FF 
+is not true, is_multicast_ether_addr doesn't accept FF:FF:FF:FF:FF:FF as 
+multicast (as you can see few lines above).
 
-Is it in mainline allready? Or do I have to get it somewhere else?
+Mikulas
 
-> >> Run the Verify (or Verify with Fix) Task on the controller, the
-> report
-> >> will indicate the reasons for inconsistencies.
-> >How do I run that? Any special tools for that?
-> 
-> Can be triggered in the BIOS, or using the Adaptec Management Tools.
+--- include/linux/etherdevice.h_	2006-02-03 21:05:23.000000000 +0100
++++ include/linux/etherdevice.h	2006-02-03 21:05:59.000000000 +0100
+@@ -91,9 +91,7 @@
+   */
+  static inline int is_valid_ether_addr(const u8 *addr)
+  {
+-	/* FF:FF:FF:FF:FF:FF is a multicast address so we don't need to
+-	 * explicitly check for it here. */
+-	return !is_multicast_ether_addr(addr) && !is_zero_ether_addr(addr);
++	return !(addr[0] & 1) && !is_zero_ether_addr(addr);
+  }
 
-BIOS media verification completes successfully after the low-level format. 
-Otherwise I wouldn't have started to install it on the same disk again of 
-course.
-
-Martin
+  /**

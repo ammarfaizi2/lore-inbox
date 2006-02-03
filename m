@@ -1,64 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWBCIJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWBCILH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbWBCIJE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 03:09:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWBCIJE
+	id S1751204AbWBCILH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 03:11:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWBCILH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 03:09:04 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:28348 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751198AbWBCIJB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 03:09:01 -0500
-Message-ID: <43E310D5.8080607@aitel.hist.no>
-Date: Fri, 03 Feb 2006 09:14:13 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Fri, 3 Feb 2006 03:11:07 -0500
+Received: from CPE-141-168-16-16.nsw.bigpond.net.au ([141.168.16.16]:52905
+	"EHLO sydlxfw01.samad.com.au") by vger.kernel.org with ESMTP
+	id S1751204AbWBCILG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 03:11:06 -0500
+Date: Fri, 3 Feb 2006 19:11:04 +1100
+To: linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060203081104.GB14577@samad.com.au>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43DF3C3A.nail2RF112LAB@burner> <5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com> <200601311333.36000.oliver@neukum.org> <1138867142.31458.3.camel@capoeira> <43E1EAD5.nail4R031RZ5A@burner> <1138880048.31458.31.camel@capoeira> <Pine.LNX.4.61.0602021719380.13212@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-CC: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Karim Yaghmour <karim@opersys.com>,
-       Filip Brcic <brcha@users.sourceforge.net>,
-       Glauber de Oliveira Costa <glommer@gmail.com>,
-       Thomas Horsten <thomas@horsten.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPL V3 and Linux - Dead Copyright Holders
-References: <Pine.LNX.4.40.0601280826160.29965-100000@jehova.dsm.dk>  <43DE57C4.5010707@opersys.com>  <5d6222a80601301143q3b527effq526482837e04ee5a@mail.gmail.com>  <200601302301.04582.brcha@users.sourceforge.net>  <43E0E282.1000908@opersys.com>  <Pine.LNX.4.64.0602011414550.21884@g5.osdl.org>  <43E1C55A.7090801@drzeus.cx>  <Pine.LNX.4.64.0602020044520.21884@g5.osdl.org> <1138891081.9861.4.camel@localhost.localdomain> <Pine.LNX.4.64.0602020814320.21884@g5.osdl.org> <43E23C79.8050606@drzeus.cx> <Pine.LNX.4.64.0602020937360.21884@g5.osdl.org> <43E24767.1090708@drzeus.cx> <Pine.LNX.4.64.0602021021320.21884@g5.osdl.org> <43E25B92.8060602@drzeus.cx>
-In-Reply-To: <43E25B92.8060602@drzeus.cx>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0602021719380.13212@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.11
+From: Alexander Samad <alex@samad.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman wrote:
 
->This whole DRM:d hardware issue is a bit different though since it seems
->to be moving to a point where it cannot be avoided. "Vote with your
->wallet" fails when there are so few of us that care about these things.
->  
->
-I do not share this fear.  Well, off-the-shelf complete pc's might end 
-up like
-that, demanding a signed OS and so on if we take a very pessimistic
-view on the future. 
+--7iMSBzlTiPOCCT2k
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-But "vote with your wallet" still works.  There is a huge parts market .
-You can buy hundreds of brands of motherboards, processors and
-add-on cards.  Strict DRM will never fly in this market!  What if
-_one_ manufacturer comes out with a new improved motherboard that only
-will boot and run a signed version of windows?  No sales! 
+On Thu, Feb 02, 2006 at 05:20:13PM +0100, Jan Engelhardt wrote:
+> >> >
+> >> > As repeated over and over here, there is such a way, it's called HAL=
+ and
+> >> > it is cross-platform. And it's what's used by some GUIs out there (e=
+=2Eg.
+> >> > nautilus-cd-burner).
+> >>=20
+> >> The fact that people here repeat unadquate proposals forces me to repe=
+at my=20
+> >> proposals. Name a list fo OS that implement HAL and then look at the l=
+ist
+> >> of crecord supported platforms=20
+> >
+> >Well ... from your sayings it seems Linux is supported by HAL but not by
+> >libscg.=20
+> >
+> But sounds like freedesktop-hal is not available for all platforms libscg
+> currently works on!
 
-The guy who build is own computer won't take that sort of thing, he'll
-find another manufacturer.  Remember the outrage when Intel implemented
-cpuID?  They were forced to make that optional.
+I presume that the system api are not the same between OS either, so why
+can't there be different methods of interacting with the
+cdburners/cddrives!
 
-And if one country encourages DRM hw, then other countries will
-ramp up non-DRM hw production as the demand rises.
+>=20
+>=20
+> Jan Engelhardt
+> --=20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>=20
 
-I think the worst that could possibly happen is that cheap complete pc's
-found at supermarkets might have some DRM hw in them.  Stuff that
-we might need a few 30-hour debugging sessions to circumvent. And
-so we will be forced to assemble our pc's from parts - the way we
-usually do anyway for other reasons.
+--7iMSBzlTiPOCCT2k
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Helge Hafting
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFD4xAYkZz88chpJ2MRAneDAKCqHF7W/egoEbje9VbHmNG3hiTMwACg0o4Z
+qsVBIWFi2spctgJxPBJOTJY=
+=A4sT
+-----END PGP SIGNATURE-----
+
+--7iMSBzlTiPOCCT2k--

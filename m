@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWBCKFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbWBCKGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750860AbWBCKFm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 05:05:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWBCKFm
+	id S1751172AbWBCKGX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 05:06:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbWBCKGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 05:05:42 -0500
-Received: from mail.gmx.de ([213.165.64.21]:55263 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750860AbWBCKFl (ORCPT
+	Fri, 3 Feb 2006 05:06:22 -0500
+Received: from mailhub.sw.ru ([195.214.233.200]:18038 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1751157AbWBCKGW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 05:05:41 -0500
-X-Authenticated: #428038
-Date: Fri, 3 Feb 2006 11:05:36 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: xavier.bestel@free.fr, linux-kernel@vger.kernel.org, acahalan@gmail.com
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060203100536.GA17144@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	xavier.bestel@free.fr, linux-kernel@vger.kernel.org,
-	acahalan@gmail.com
-References: <787b0d920601241858w375a42efnc780f74b5c05e5d0@mail.gmail.com> <43DF3C3A.nail2RF112LAB@burner> <5a2cf1f60601310424w6a64c865u590652fbda581b06@mail.gmail.com> <200601311333.36000.oliver@neukum.org> <1138867142.31458.3.camel@capoeira> <43E1EAD5.nail4R031RZ5A@burner> <1138880048.31458.31.camel@capoeira> <43E20047.nail4TP1PULVQ@burner> <1138885334.31458.42.camel@capoeira> <43E32884.nail5CA1O92YA@burner>
+	Fri, 3 Feb 2006 05:06:22 -0500
+Message-ID: <43E32B7B.2000408@sw.ru>
+Date: Fri, 03 Feb 2006 13:07:55 +0300
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
+X-Accept-Language: ru-ru, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43E32884.nail5CA1O92YA@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: Cedric Le Goater <clg@fr.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Serge E. Hallyn" <serue@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC [patch 13/34] PID Virtualization Define new task_pid api
+References: <20060117143258.150807000@sergelap>	<20060117143326.283450000@sergelap>	<1137511972.3005.33.camel@laptopd505.fenrus.org>	<20060117155600.GF20632@sergelap.austin.ibm.com>	<1137513818.14135.23.camel@localhost.localdomain>	<1137518714.5526.8.camel@localhost.localdomain>	<20060118045518.GB7292@kroah.com>	<1137601395.7850.9.camel@localhost.localdomain>	<m1fyniomw2.fsf@ebiederm.dsl.xmission.com>	<43D14578.6060801@watson.ibm.com>	<Pine.LNX.4.64.0601311248180.7301@g5.osdl.org>	<43E21BD0.6000606@sw.ru> <m1d5i5vln3.fsf@ebiederm.dsl.xmission.com>	<43E2249D.8060608@sw.ru> <m1vevxu5bh.fsf@ebiederm.dsl.xmission.com>	<43E22DCA.3070004@sw.ru> <m1lkwtu3om.fsf@ebiederm.dsl.xmission.com>	<43E27A68.40003@fr.ibm.com> <m1k6cdqvs7.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m1k6cdqvs7.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2006-02-03:
-
-> libscg & cdrecord have been available long before Linux HAL was there.
-
-Perhaps libscg was too arcane and too badly integrated into Linux?
-
-> And the most important argument here is that it is extremely unlikely that
-> this Linux HAL will handle all oddities of all CD/DVD-writers, do it is 
-> unapropriate to use this interface in case that you like to get more 
-> information than just "the drive is there".
+>>Now, would it be possible to have an 'application' container using a
+>>private PID space and being friendly to the usual unix process semantics ?
+>>We haven't found a solution yet ...
 > 
-> Note that UNIX people usually believe that is is best practice to have this 
-> kind of software intergrated in the kernel (or at leat in the system). This is 
-> what FreeBSD did try for some years, and FreeBSD has failed with this attempt.
+> 
+> Well that is what I implemented.  So I am pretty certain it is solvable.
+Exactly. This is what our patch does also. It is solvable. Tested by LTP 
+and numerous other tests/production systems etc.
 
-So why would Linux want to have it in the kernel if it hasn't worked for
-FreeBSD either? Thanks for proving it doesn't belong there BTW.
+Kirill
 
--- 
-Matthias Andree
+

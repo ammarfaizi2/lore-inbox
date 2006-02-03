@@ -1,91 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422631AbWBCSzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422652AbWBCS4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422631AbWBCSzg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 13:55:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422639AbWBCSzf
+	id S1422652AbWBCS4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 13:56:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422639AbWBCS4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 13:55:35 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:1220 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1422631AbWBCSze (ORCPT
+	Fri, 3 Feb 2006 13:56:25 -0500
+Received: from main.gmane.org ([80.91.229.2]:22726 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1422652AbWBCS4Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 13:55:34 -0500
-Message-ID: <43E3A711.2080806@pobox.com>
-Date: Fri, 03 Feb 2006 13:55:13 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Kirill Korotaev <dev@sw.ru>,
-       Kirill Korotaev <dev@openvz.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       frankeh@watson.ibm.com, clg@fr.ibm.com, greg@kroah.com,
-       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
-       Pavel Emelianov <xemul@sw.ru>
-Subject: Re: [RFC][PATCH 1/5] Virtualization/containers: startup
-References: <43E38BD1.4070707@openvz.org>	 <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org> <43E3915A.2080000@sw.ru>	 <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org> <1138991641.6189.37.camel@localhost.localdomain>
-In-Reply-To: <1138991641.6189.37.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 3 Feb 2006 13:56:24 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Alexander Fieroch <fieroch@web.de>
+Subject: [2.6.16rc2] compile error
+Date: Fri, 03 Feb 2006 19:55:47 +0100
+Message-ID: <ds08vk$hk$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Dave Hansen wrote: > On Fri, 2006-02-03 at 09:49 -0800,
-	Linus Torvalds wrote: > >>One thing I don't particularly like is some
-	of the naming. To me "vps" >>doesn't sound particularly generic or
-	logical. I realize that it probably >>makes perfect sense to you (and I
-	assume it just means "virtual private >>servers"), but especially if
-	you see patches 1-3 to really be independent >>of any "actual"
-	virtualization code that is totally generic, I'd actually >>prefer a
-	less specialized name. > > > I just did a global s/vps/container/ and
-	it looks pretty reasonable, at > least from my point of view. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: osten.wh.uni-dortmund.de
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: de-de, en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
->  On Fri, 2006-02-03 at 09:49 -0800, Linus Torvalds wrote:
-> 
->>One thing I don't particularly like is some of the naming. To me "vps" 
->>doesn't sound particularly generic or logical. I realize that it probably 
->>makes perfect sense to you (and I assume it just means "virtual private 
->>servers"), but especially if you see patches 1-3 to really be independent 
->>of any "actual" virtualization code that is totally generic, I'd actually 
->>prefer a less specialized name.
-> 
-> 
-> I just did a global s/vps/container/ and it looks pretty reasonable, at
-> least from my point of view.
+Hello,
 
-I would have chosen the much shorter "box" or "jar", but that's just me :)
+I can't compile kernel 2.6.16-rc[12] and get the following error:
+
+# make
+/bin/sh: -c: line 0: syntax error near unexpected token `('
+/bin/sh: -c: line 0: `set -e; echo '  CHK     include/linux/version.h';
+mkdir -p include/linux/;        if [ `echo -n "2.6.16-rc2 .file null
+.ident GCC:(GNU)4.0.320060128(prerelease)(Debian4.0.2-8) .section
+.note.GNU-stack,,@progbits" | wc -c ` -gt 64 ]; then echo '"2.6.16-rc2
+.file null .ident GCC:(GNU)4.0.320060128(prerelease)(Debian4.0.2-8)
+.section .note.GNU-stack,,@progbits" exceeds 64 characters' >&2; exit 1;
+fi; (echo \#define UTS_RELEASE \"2.6.16-rc2 .file null .ident
+GCC:(GNU)4.0.320060128(prerelease)(Debian4.0.2-8) .section
+.note.GNU-stack,,@progbits\"; echo \#define LINUX_VERSION_CODE `expr 2
+\\* 65536 + 6 \\* 256 + 16`; echo '#define KERNEL_VERSION(a,b,c) (((a)
+<< 16) + ((b) << 8) + (c))'; ) < /usr/src/linux-2.6.16rc2/Makefile >
+include/linux/version.h.tmp; if [ -r include/linux/version.h ] && cmp -s
+include/linux/version.h include/linux/version.h.tmp; then rm -f
+include/linux/version.h.tmp; else echo '  UPD
+include/linux/version.h'; mv -f include/linux/version.h.tmp
+include/linux/version.h; fi'
+make: *** [include/linux/version.h] Error 2
 
 
-> "tsk->owner_container"  That makes it sound like a pointer to the "task
-> owner's container".  How about "owning_container"?  The "container
-> owning this task".  Or, maybe just "container"?
+Kernel 2.6.15 is compiling without problems. So what have I to do?
 
-slip 'parent' in there...
-
-
-> Any particular reason for the "u32 id" in the vps_info struct as opposed
-> to one of the more generic types?  Do we want to abstract this one in
-> the same way we do pid_t?
-> 
-> The "host" in "host_container_info" doesn't mean much to me.  Though, I
-> guess it has some context in the UML space.  Would "init_container_info"
-> or "root_container_info" be more descriptive?
-
-probably
-
-	Jeff
-
+Redards,
+Alexander
 

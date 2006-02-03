@@ -1,57 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWBCBfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbWBCBm5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751035AbWBCBfS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 20:35:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWBCBfS
+	id S932300AbWBCBm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 20:42:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbWBCBm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 20:35:18 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:12509 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751033AbWBCBfQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 20:35:16 -0500
-Date: Thu, 2 Feb 2006 20:33:57 -0500
-From: Dave Jones <davej@redhat.com>
+	Thu, 2 Feb 2006 20:42:57 -0500
+Received: from beauty.rexursive.com ([218.214.6.102]:3215 "EHLO
+	beauty.rexursive.com") by vger.kernel.org with ESMTP
+	id S932300AbWBCBm4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 20:42:56 -0500
+Message-ID: <20060203124253.m6azcn4wg88gsogc@imp.rexursive.com>
+Date: Fri, 03 Feb 2006 12:42:53 +1100
+From: Bojan Smojver <bojan@rexursive.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Chuck Ebbert <76306.1226@compuserve.com>, ashok.raj@intel.com,
+Cc: nigel@suspend2.net, suspend2-devel@lists.suspend2.net, torvalds@osdl.org,
        linux-kernel@vger.kernel.org, pavel@ucw.cz
-Subject: Re: [patch -mm4] i386 cpu hotplug: don't access freed memory
-Message-ID: <20060203013357.GA10209@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Chuck Ebbert <76306.1226@compuserve.com>, ashok.raj@intel.com,
-	linux-kernel@vger.kernel.org, pavel@ucw.cz
-References: <200602021904_MC3-1-B771-46F7@compuserve.com> <20060202165257.29dcfa20.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
+References: <20060201113710.6320.68289.stgit@localhost.localdomain>
+	<20060202152316.GC8944@ucw.cz> <20060202132708.62881af6.akpm@osdl.org>
+	<200602030918.07006.nigel@suspend2.net>
+	<20060203120055.0nu3ym4yuck0os84@imp.rexursive.com>
+	<20060202171812.49b86721.akpm@osdl.org>
+In-Reply-To: <20060202171812.49b86721.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	format="flowed"
 Content-Disposition: inline
-In-Reply-To: <20060202165257.29dcfa20.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) H3 (4.0.4)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 02, 2006 at 04:52:57PM -0800, Andrew Morton wrote:
- > Chuck Ebbert <76306.1226@compuserve.com> wrote:
- > >
- > > @@ -160,10 +162,17 @@ static void __cpuinit get_cpu_vendor(str
- > >  				c->x86_vendor = i;
- > >  				if (!early)
- > >  					this_cpu = cpu_devs[i];
- > > -				break;
- > > +				return;
- > >  			}
- > >  		}
- > >  	}
- > > +	if (!printed) {
- > > +		printed++;
- > > +		printk(KERN_ERR "CPU: Vendor unknown, using generic init.\n");
- > > +		printk(KERN_ERR "CPU: Your system may be unstable.\n");
- > > +	}
- > > +	c->x86_vendor = X86_VENDOR_UNKNOWN;
- > > +	this_cpu = &default_cpu;
- > 
- > Well that's a worry.  Under what circumstances (if any) will this final bit
- > of code get executed?
+Quoting Andrew Morton <akpm@osdl.org>:
 
-Some new x86 CPU vendor appears that we don't know about.
+> This leaves us in rather awkward position.  You see, there will be other
+> people whose machines don't work with suspend2 but which do work with
+> swsusp.  And other people who prefer swsusp for other reasons.
 
-		Dave
+ From what I can see on suspend2 development list, Nigel regularly 
+addresses people's problems with his code, which then results in 
+working systems. Most times when people see problems with suspend2, it 
+is the drivers that can't do suspend that are the root cause (at least 
+that seems to be the pattern on the suspend2 mailing list).
+
+The only way for a much broader community to experience and test 
+suspend2 is to put it in the mainline kernel. I'm not sure why that is 
+such a problem...
+
+> It'd help if we knew _why_ your machine doesn't work with swsusp so we can
+> fix it.  Futhermore it'd help if we knew specifically what you prefer about
+> suspend2 so we can understand what more needs to be done, and how we should
+> do it.
+
+Here is what I prefer in suspend2:
+
+- it works (i.e. I have compiled it for at least 20 different Rawhide 
+kernels and it always suspended/resumed properly)
+
+- it is reliable (e.g. I have suspended/resumed mid kernel compile  - 
+actually, kernel RPM build, which included compile - many times, 
+without any ill effect)
+
+- it is fast (i.e. even on my crappy old HP ZE4201 
+[http://www.rexursive.com/articles/linuxonhpze4201.html], it writes all 
+of 700+ MB of RAM to disk just as fast or faster than swsusp).
+
+- it looks nice (both text and GUI interface supported)
+
+- it leaves the system responsive on resume (kinda nice to come back to 
+X and "Just Use it")
+
+- it suspends to both swap and file (I personally use swap, but many 
+people on the list use file)
+
+Just today, I tried the most recent Rawhide kernel (based on 
+2.6.16-rc1-git5) with swsusp and for the first time *ever* it actually 
+returned X to its original state (I was so excited, I even notified 
+people on suspend2 development list about it). But, on second 
+suspend/resume, it promptly locked up my system. Before, it would 
+simply lock up. So, if swsusp can be made to actually work, be 
+reliable, look nice and be responsive on resume, I'm all for it. I will 
+miss Nigel's excellent support though, but I'm sure he deserves a break 
+:-)
+
+-- 
+Bojan

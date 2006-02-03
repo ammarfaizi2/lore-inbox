@@ -1,136 +1,219 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWBCSgl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWBCSgL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbWBCSgl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 13:36:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbWBCSgk
+	id S964807AbWBCSgL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 13:36:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbWBCSgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 13:36:40 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:45452 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964815AbWBCSgj (ORCPT
+	Fri, 3 Feb 2006 13:36:11 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:13317 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S964807AbWBCSgJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 13:36:39 -0500
-Message-ID: <43E3A2B3.8030900@watson.ibm.com>
-Date: Fri, 03 Feb 2006 13:36:35 -0500
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Kirill Korotaev <dev@sw.ru>, Kirill Korotaev <dev@openvz.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       clg@fr.ibm.com, haveblue@us.ibm.com, greg@kroah.com,
-       alan@lxorguk.ukuu.org.uk, serue@us.ibm.com, arjan@infradead.org,
-       Rik van Riel <riel@redhat.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Andrey Savochkin <saw@sawoct.com>, devel@openvz.org,
-       Pavel Emelianov <xemul@sw.ru>
-Subject: Summary:  PID virtualization , Containers, Migration
-References: <43E38BD1.4070707@openvz.org> <Pine.LNX.4.64.0602030905380.4630@g5.osdl.org> <43E3915A.2080000@sw.ru> <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0602030939250.4630@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Feb 2006 13:36:09 -0500
+Date: Fri, 3 Feb 2006 19:35:58 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [GIT PATCHES] kbuild updates for -rc3
+Message-ID: <20060203183558.GA9335@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus.
 
-Seems lots of interest is happening in this direction now
-with various ideas and patches having been submitted.
+Please pull following kbuild bug-fixes:
+o kconfig: fix /dev/null breakage
+o cris: asm-offsets related build failure
+o kbuild: fix build with O=..
 
-I think the terms should be clarified a bit, even in our own
-discussion we are using them loosely. Let's keep focusing
-on the PID issues of containers and migration.
+Purely bug-fixes that annoys a number of people. Should been in before
+-rc2 but did not get around to mail a pull request.
 
-- user have come to expect that pids range from [0..PIDMAX]
-- we can only migrate a self contained process tree (with some glue at the top)
-- when we migrate we expect that the pid is preserved to the user
-- we expect that UNIX semantics of pid visibility (e.g. kill etc) do
-     not cross the container boundary (with some glue at the top)
+Available at:
+git://git.kernel.org/pub/scm/linux/kernel/git/sam/kbuild-bugfix.git
 
-Now there are two views to achieve the preservation that go at the heart
-of the implementation only (not at the concept at all).
-Two fundamental concepts are thrown around here:
-(a) PID virtualization
-(b) PID spaces
+All three patches included below for reference.
 
-Let's be clear what I mean by these concepts:
+	Sam
 
-PID virtualization:
-===================
-The kernel continues to use its current internal pid management.
-Each task has a unique internal pid, throughout its life on that
-particular kernel image.
-At the user/kernel boundary these pids are virtualized on a
-per container base. Hence pids coming from user space are converted to
-an internal pid and internal pids handed to the user are converted
-to the virtual pid.
-As a result, all places along the user/kernel boundary that deal with
-pids need to be identified and the conversion function needs to be called.
-Also the vpid needs to be allocated/freed on fork/exit.
+diffstat:
+ Makefile                                   |    2 +-
+ arch/cris/Makefile                         |    2 +-
+ scripts/kconfig/lxdialog/Makefile          |    7 +++++--
+ scripts/kconfig/lxdialog/check-lxdialog.sh |   14 +++++++++-----
+ 4 files changed, 16 insertions(+), 9 deletions(-)
 
-How this virtualization is maintained is an implementation detail.
-One can keep a full "pid->vpid" and "vpi->pid" hash with the container
-or play optimizations such as the OpenVZ folks to keep extra virtual
-numbers in the task->pids[type] structure and or making
-vpid == internal pid for non-containerized processes.
+diff-tree 3835f82183eab8b67ddda6b32c127859a546c82d (from 3ee68c4af3fd7228c1be63254b9f884614f9ebb2)
+Author: Sam Ravnborg <sam@mars.ravnborg.org>
+Date:   Sat Jan 21 12:03:09 2006 +0100
 
-Right now the OpenVZ patch supplies a nice and clean means for this.
-In a sense our patch also followes this approach because we explicitely
-have these conversion functions and we too have similar optimizations
-by masking the container id into the internal pid.
-Other then on the details of the pid virtualization, the patches seem
-to actually be the same ..
+    kconfig: fix /dev/null breakage
+    
+    While running "make menuconfig" and "make mrproper"
+    some people experienced that /dev/null suddenly changed
+    permissions or suddenly became a regular file.
+    The main reason was that /dev/null was used as output
+    to gcc in the check-lxdialog.sh script and gcc did
+    some strange things with the output file; in this
+    case /dev/null when it errorred out.
+    
+    Following patch implements a suggestion
+    from Bryan O'Sullivan <bos@serpentine.com> to
+    use gcc -print-file-name=libxxx.so.
+    
+    Also the Makefile is adjusted to not resolve value of
+    HOST_EXTRACFLAGS and HOST_LOADLIBES until they are actually used.
+    This prevents us from calling gcc when running make *clean/mrproper
+    
+    Thanks to Eyal Lebedinsky <eyal@eyal.emu.id.au> and
+    Jean Delvare <khali@linux-fr.org> for the first error reports.
+    
+    Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+    ---
 
-What has been pointed out is that
-- calling these conversion function is overhead, cumbersome.
-- confusing, hence dangerous, since we are maintaining different logical
-     pid domains here under the same type pid_t
+diff --git a/scripts/kconfig/lxdialog/Makefile b/scripts/kconfig/lxdialog/Makefile
+index fae3e29..bbf4887 100644
+--- a/scripts/kconfig/lxdialog/Makefile
++++ b/scripts/kconfig/lxdialog/Makefile
+@@ -1,11 +1,14 @@
+ # Makefile to build lxdialog package
+ #
+ 
+ check-lxdialog  := $(srctree)/$(src)/check-lxdialog.sh
+-HOST_EXTRACFLAGS:= $(shell $(CONFIG_SHELL) $(check-lxdialog) -ccflags)
+-HOST_LOADLIBES  := $(shell $(CONFIG_SHELL) $(check-lxdialog) -ldflags $(HOSTCC))
++
++# Use reursively expanded variables so we do not call gcc unless
++# we really need to do so. (Do not call gcc as part of make mrproper)
++HOST_EXTRACFLAGS = $(shell $(CONFIG_SHELL) $(check-lxdialog) -ccflags)
++HOST_LOADLIBES   = $(shell $(CONFIG_SHELL) $(check-lxdialog) -ldflags $(HOSTCC))
+  
+ HOST_EXTRACFLAGS += -DLOCALE 
+ 
+ .PHONY: dochecklxdialog
+ $(obj)/dochecklxdialog:
+diff --git a/scripts/kconfig/lxdialog/check-lxdialog.sh b/scripts/kconfig/lxdialog/check-lxdialog.sh
+index 448e353..120d624 100644
+--- a/scripts/kconfig/lxdialog/check-lxdialog.sh
++++ b/scripts/kconfig/lxdialog/check-lxdialog.sh
+@@ -2,21 +2,21 @@
+ # Check ncurses compatibility
+ 
+ # What library to link
+ ldflags()
+ {
+-	echo "main() {}" | $cc -lncursesw -xc - -o /dev/null 2> /dev/null
++	$cc -print-file-name=libncursesw.so | grep -q /
+ 	if [ $? -eq 0 ]; then
+ 		echo '-lncursesw'
+ 		exit
+ 	fi
+-	echo "main() {}" | $cc -lncurses -xc - -o /dev/null 2> /dev/null
++	$cc -print-file-name=libncurses.so | grep -q /
+ 	if [ $? -eq 0 ]; then
+ 		echo '-lncurses'
+ 		exit
+ 	fi
+-	echo "main() {}" | $cc -lcurses -xc - -o /dev/null 2> /dev/null
++	$cc -print-file-name=libcurses.so | grep -q /
+ 	if [ $? -eq 0 ]; then
+ 		echo '-lcurses'
+ 		exit
+ 	fi
+ 	exit 1
+@@ -34,14 +34,17 @@ ccflags()
+ 	else
+ 		echo '-DCURSES_LOC="<curses.h>"'
+ 	fi
+ }
+ 
+-compiler=""
++# Temp file, try to clean up after us
++tmp=.lxdialog.tmp
++trap "rm -f $tmp" 0 1 2 3 15
++
+ # Check if we can link to ncurses
+ check() {
+-	echo "main() {}" | $cc -xc - -o /dev/null 2> /dev/null
++	echo "main() {}" | $cc -xc - -o $tmp 2> /dev/null
+ 	if [ $? != 0 ]; then
+ 		echo " *** Unable to find the ncurses libraries."          1>&2
+ 		echo " *** make menuconfig require the ncurses libraries"  1>&2
+ 		echo " *** "                                               1>&2
+ 		echo " *** Install ncurses (ncurses-devel) and try again"  1>&2
+@@ -57,10 +60,11 @@ usage() {
+ if [ $# == 0 ]; then
+ 	usage
+ 	exit 1
+ fi
+ 
++cc=""
+ case "$1" in
+ 	"-check")
+ 		shift
+ 		cc="$@"
+ 		check
 
-PID spaces:
-===========
+diff-tree aa6ba2faec346a3f59bf4130060108e6433ad907 (from 3835f82183eab8b67ddda6b32c127859a546c82d)
+Author: Al Viro <viro@ftp.linux.org.uk>
+Date:   Thu Jan 19 19:03:15 2006 +0000
 
-Pidspaces drive the isolation based on containers all the way down into the
-current pid management. This at first sounds scary, but it will remove
-lots of problem with the above approach.
+    cris: asm-offsets related build failure
+    
+    fallout from "kbuild: cris use generic asm-offsets.h support" - symlink
+    target was wrong
+    
+    Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+    Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
-Instead of keeping a single internal pid range and
-its associated managment (aka pidspace), we provide one pidspace for each
-container. All lookup functions operate on the container's pidspace,
-hence this approach should remove the conversion functions and the two
-logical domains, which seem to be big problem with the first approach.
+diff --git a/arch/cris/Makefile b/arch/cris/Makefile
+index ea65d58..ee11469 100644
+--- a/arch/cris/Makefile
++++ b/arch/cris/Makefile
+@@ -117,11 +117,11 @@ $(SRC_ARCH)/.links:
+ 	@ln -sfn $(SRC_ARCH)/$(SARCH)/boot $(SRC_ARCH)/boot
+ 	@rm -rf $(SRC_ARCH)/lib
+ 	@ln -sfn $(SRC_ARCH)/$(SARCH)/lib $(SRC_ARCH)/lib
+ 	@ln -sfn $(SRC_ARCH)/$(SARCH) $(SRC_ARCH)/arch
+ 	@ln -sfn $(SRC_ARCH)/$(SARCH)/vmlinux.lds.S $(SRC_ARCH)/kernel/vmlinux.lds.S
+-	@ln -sfn $(SRC_ARCH)/$(SARCH)/asm-offsets.c $(SRC_ARCH)/kernel/asm-offsets.c
++	@ln -sfn $(SRC_ARCH)/$(SARCH)/kernel/asm-offsets.c $(SRC_ARCH)/kernel/asm-offsets.c
+ 	@touch $@
+ 
+ # Create link to sub arch includes
+ $(srctree)/include/asm-$(ARCH)/.arch: $(wildcard include/config/arch/*.h)
+ 	@echo '  Making $(srctree)/include/asm-$(ARCH)/arch -> $(srctree)/include/asm-$(ARCH)/$(SARCH) symlink'
 
-Alan Cox made a very important statement, namely there is no reason that
-we require unique pids in the kernel, even gave some examples where it isn't
-true today. What becomes however a problem is the fact that now rather then
-storing the pid as a reference, we need to now store the <pid,container> pair,
-or more elegantly the pointer to the task. This later part unfortunately
-has the problem of expired references to task structs.
+diff-tree 8c7f75d3257fe466b34abf290c8b177c106c3769 (from aa6ba2faec346a3f59bf4130060108e6433ad907)
+Author: Sam Ravnborg <sam@mars.ravnborg.org>
+Date:   Sat Jan 21 12:07:56 2006 +0100
 
-I think that Eric's patch on weak task references, if I understood it correctly,
-might come in handy. Instead of storing the task pointer, one stores the
-task reference.
+    kbuild: fix build with O=..
+    
+    .kernelrelease was saved in same directory as kernel source also
+    with make O=...
+    Make sure we kick in the normal logic to shift to the output directory
+    when we build .kernelrelease after executing *config.
+    
+    Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+    ---
 
-What needs to be solved is the container spawner transition into a new container
-just like in the pid virtualization case.
-
-----------------
-
-Do people agree on these two characterizations and if so lets agree on what is
-the right approach.  From Linus's and Alan's comments I read they favor exploring
-two, because of the problems listed with the first approach.
-
-----------------
-
-Other issues..
-
-Herbert, brought up the issue of container hierarchy. Again, I think different
-things come to mind here.
-
-If indeed the containers are fully isolated from each other then its seems more
-a lifecycle management. E.g. migration of a container implies migration of all
-its children containers.
- From a kernel perspective, containers form a flat hierarchy.
- From a user's perspective one might allow certain operations (e.g. running the
-process list of another container) and here constraints can be enforced.
-
-e.g.         ps --show-container mycontainer  will show a specific containers
-
+diff --git a/Makefile b/Makefile
+index 252a659..31bbc6a 100644
+--- a/Makefile
++++ b/Makefile
+@@ -440,11 +440,11 @@ include $(srctree)/arch/$(ARCH)/Makefile
+ export KBUILD_DEFCONFIG
+ 
+ config %config: scripts_basic outputmakefile FORCE
+ 	$(Q)mkdir -p include/linux
+ 	$(Q)$(MAKE) $(build)=scripts/kconfig $@
+-	$(Q)$(MAKE) .kernelrelease
++	$(Q)$(MAKE) -C $(srctree) KBUILD_SRC= .kernelrelease
+ 
+ else
+ # ===========================================================================
+ # Build targets only - this includes vmlinux, arch specific targets, clean
+ # targets and others. In general all targets except *config targets.

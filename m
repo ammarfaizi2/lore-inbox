@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751343AbWBCS0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbWBCSZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751343AbWBCS0E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 13:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWBCS0D
+	id S1751328AbWBCSZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 13:25:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWBCSZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 13:26:03 -0500
-Received: from xenotime.net ([66.160.160.81]:32694 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751340AbWBCS0B (ORCPT
+	Fri, 3 Feb 2006 13:25:57 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:32211 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751328AbWBCSZ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 13:26:01 -0500
-Date: Fri, 3 Feb 2006 10:25:58 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-cc: Dan Williams <dan.j.williams@intel.com>, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org, Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Chris Leech <christopher.leech@intel.com>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       Deepak Saxena <dsaxena@plexity.net>
-Subject: Re: [RFC][PATCH 000 of 3] MD Acceleration and the ADMA interface:
- Introduction
-In-Reply-To: <43E39F2B.5080408@drzeus.cx>
-Message-ID: <Pine.LNX.4.58.0602031025140.32067@shark.he.net>
-References: <1138931168.6620.8.camel@dwillia2-linux.ch.intel.com>
- <43E39F2B.5080408@drzeus.cx>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Feb 2006 13:25:56 -0500
+Date: Fri, 3 Feb 2006 10:24:30 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OSS driver removal, a slightly different approach (v3)
+Message-Id: <20060203102430.46ec9b49.zaitcev@redhat.com>
+In-Reply-To: <mailman.1138488794.780.linux-kernel2news@redhat.com>
+References: <mailman.1138488794.780.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Feb 2006, Pierre Ossman wrote:
+On Sat, 28 Jan 2006 23:47:58 +0100, Adrian Bunk <bunk@stusta.de> wrote:
 
-> Dan Williams wrote:
-> >
-> > The ADMA (Asynchronous / Application Specific DMA) interface is proposed
-> > as a cross platform mechanism for supporting system CPU offload engines.
-> > The goal is to provide a unified asynchronous interface to support
-> > memory copies, block xor, block pattern setting, block compare, CRC
-> > calculation, cryptography etc.  The ADMA interface should support a PIO
-> > fallback mode allowing a given ADMA engine implementation to use the
-> > system CPU for operations without a hardware accelerated backend.  In
-> > other words a client coded to the ADMA interface transparently receives
-> > hardware acceleration for its operations depending on the features of
-> > the underlying platform.
-> >
->
-> I'm wondering, how common is this ADMA acronym? I've been writing a MMC
-> driver for some hardware where specifications aren't available. I have
-> found one document which list an "ADMA system address" register, with a
-> width of 64 bits. What are the odds of this being something that
-> conforms to said interface?
+I think it was a grand idea to slice this behemoth into thin slabs.
 
-oh dear, i thought it was either Advanced or Accelerated DMA, fwiw.
+> SOUND_YMFPCI
 
--- 
-~Randy
+Most definitely. In fact, if you run into opposition, I can remove
+it myself. That driver was never even meant to carry forward to 2.6,
+it's a 2.4-only solution.
+
+> SOUND_FUSION
+
+Same as YMFPCI, only belongs to Alan Cox.
+
+-- Pete

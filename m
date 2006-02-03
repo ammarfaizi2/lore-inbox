@@ -1,31 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWBCWQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946008AbWBCWXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751501AbWBCWQA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 17:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751496AbWBCWQA
+	id S1946008AbWBCWXa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 17:23:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWBCWX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 17:16:00 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:667 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750817AbWBCWP7 (ORCPT
+	Fri, 3 Feb 2006 17:23:29 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:6320 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1751503AbWBCWX2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 17:15:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:x-archive:mime-version:content-type:sender;
-        b=SwnPLS6D394DZyF5powUPURC1fmBBkBCSbNHnN2CfpBJe8oKW1KFECojIsBOMoYvjB1N+ShQ1qD7uXTCXaYONZQgSdz7zKYuisjlT4Hx0fywFaMfvsudyBbC+t/QK2LgJmHZ/A92THXu4QWa1q6bcQD5ryvyxWyeNZS5XdGNmgc=
-Date: Fri, 3 Feb 2006 20:15:54 -0200 (BRST)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <2@pervalidus.net>
-To: linux-kernel@vger.kernel.org
-Subject: menuconfig: no colors in 2.6.12-rc2 ?
-Message-ID: <Pine.LNX.4.64.0602031957070.4864@dyndns.pervalidus.net>
-X-Archive: encrypt
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 3 Feb 2006 17:23:28 -0500
+Date: Fri, 3 Feb 2006 17:18:58 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [2.6 patch] schedule eepro100.c for removal
+Message-ID: <20060203221858.GA3670@kvack.org>
+References: <20060203213234.GS4408@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060203213234.GS4408@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.15's menuconfig has colors, but 2.6.12-rc2 doesn't have. At 
-least here...
+Where's the hunk to make the eepro100 driver spew messages about being 
+obsolete out upon loading?
+
+		-ben
+
+On Fri, Feb 03, 2006 at 10:32:34PM +0100, Adrian Bunk wrote:
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> ---
+> 
+> This patch was already sent on:
+> - 18 Jan 2006
+> 
+> --- linux-2.6.15-mm4-full/Documentation/feature-removal-schedule.txt.old	2006-01-18 08:38:57.000000000 +0100
+> +++ linux-2.6.15-mm4-full/Documentation/feature-removal-schedule.txt	2006-01-18 08:39:59.000000000 +0100
+> @@ -164,0 +165,6 @@
+> +---------------------------
+> +
+> +What:   eepro100 network driver
+> +When:   April 2006
+> +Why:    replaced by the e100 driver
+> +Who:    Adrian Bunk <bunk@stusta.de>
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
-How to contact me - http://www.pervalidus.net/contact.html
+"Ladies and gentlemen, I'm sorry to interrupt, but the police are here 
+and they've asked us to stop the party."  Don't Email: <dont@kvack.org>.

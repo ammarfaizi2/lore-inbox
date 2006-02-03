@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWBCM2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWBCMgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbWBCM2t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 07:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWBCM2t
+	id S1750746AbWBCMgn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 07:36:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbWBCMgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 07:28:49 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:17793 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750733AbWBCM2s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 07:28:48 -0500
-Date: Fri, 3 Feb 2006 13:28:13 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Dave Jones <davej@redhat.com>
-cc: Sam Ravnborg <sam@ravnborg.org>, Michael Loftis <mloftis@wgops.com>,
-       David Weinehall <tao@acc.umu.se>, Doug McNaught <doug@mcnaught.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Valdis.Kletnieks@vt.edu,
-       dtor_core@ameritech.net, James Courtier-Dutton <James@superbug.co.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Development tree, PLEASE?
-In-Reply-To: <20060202221023.GJ11831@redhat.com>
-Message-ID: <Pine.LNX.4.61.0602031323070.9696@scrub.home>
-References: <200601201903.k0KJ3qI7006425@turing-police.cc.vt.edu>
- <E27F809F04C1C673D283E84F@d216-220-25-20.dynip.modwest.com>
- <20060120200051.GA12610@flint.arm.linux.org.uk>
- <5793EB6F192350088E0AC4CE@d216-220-25-20.dynip.modwest.com>
- <87slrio9wd.fsf@asmodeus.mcnaught.org> <25D702FB62516982999D7084@d216-220-25-20.dynip.modwest.com>
- <20060202121653.GI20484@vasa.acc.umu.se> <67A0AFFBC77C32B9DEE25EFA@dhcp-2-206.wgops.com>
- <20060202201008.GD11831@redhat.com> <20060202220519.GA8712@mars.ravnborg.org>
- <20060202221023.GJ11831@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Feb 2006 07:36:43 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:21452 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750746AbWBCMgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 07:36:42 -0500
+Date: Fri, 3 Feb 2006 13:09:25 +0100
+From: Holger Eitzenberger <holger@my-eitzenberger.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
+       torvalds@osdl.org
+Subject: Re: Linux 2.6.15.2
+Message-ID: <20060203120925.GA4393@kruemel.my-eitzenberger.de>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
+	linux-kernel@vger.kernel.org, stable@kernel.org, torvalds@osdl.org
+References: <20060131070642.GA25015@kroah.com> <20060130233427.5e7912ae.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060130233427.5e7912ae.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:8548cd0e00552bb75411ff34ad15700a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 30, 2006 at 11:34:27PM -0800, Andrew Morton wrote:
+
+> - A skbuff_head_cache leak causes oom-killings.
+> 
+> All of these only seem to affect a small minority of machines.
+
 Hi,
 
-On Thu, 2 Feb 2006, Dave Jones wrote:
+I have searched for a description for the above mentioned bug report,
+but havent found any.  Can you tell me?
 
-> -rw-r--r--    1 davej    davej        4613 Dec 15 23:31 linux-2.6-build-nonintconfig.patch
-> 
-> Adds a 'nonintconfig' target that behaves like oldconfig, but doesn't
-> ask any questions (takes the default answer), and prints out a list
-> at the end of all the options it didn't know about.
-> (Handy when rebasing, as it means I get to add all the new options
->  in one swoop).
+The reason why I am asking that I am facing a similar problem on
+kernel 2.6.10.  During performance tests (Intel XEON, SMP, PCI-X,
+e1000, 2 - 4 Gig RAM) the machine was out of memory.
 
-You also get the default answers with 'yes "" | make oldconfig', but what 
-exactly are you doing with the list of config options?
-What are the changes to confdata.c for?
+Tests showed that LowFree went linearly down to a few megabytes, where
+most of the memory was used in skb_head_cache and size-1024 slab
+caches.  These two summed up to ~270 MG, which was the reason for
+that.
 
-bye, Roman
+/proc/net/tcp showed that most of the memory was stuck in the RX
+queues of some processes (two processes with ~1000 sockets each).
+
+A look into /proc/sys/net/ipv4/tcp_mem showed that that the values in
+there were way to high.  I hope that a reduction of these values will
+help (not done yet).
+
+/holger
+
+-- 
+ICQ 2882018 ++ Jabber: octavian@amessage.de ++

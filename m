@@ -1,72 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945981AbWBCXpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946004AbWBCXvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945981AbWBCXpX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 18:45:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946004AbWBCXpX
+	id S1946004AbWBCXvT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 18:51:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946005AbWBCXvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 18:45:23 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4313 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1945981AbWBCXpX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 18:45:23 -0500
-Date: Sat, 4 Feb 2006 00:45:04 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pekka Enberg <penberg@cs.helsinki.fi>,
+	Fri, 3 Feb 2006 18:51:19 -0500
+Received: from mail.autoweb.net ([198.172.237.26]:34527 "EHLO
+	mail.internal.autoweb.net") by vger.kernel.org with ESMTP
+	id S1946004AbWBCXvS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 18:51:18 -0500
+Date: Fri, 3 Feb 2006 18:50:03 -0500
+From: Ryan Anderson <ryan@michonline.com>
+To: Larry Finger <Larry.Finger@lwfinger.net>
+Cc: Linus Torvalds <torvalds@osdl.org>, Paolo Ornati <ornati@fastwebnet.it>,
        linux-kernel@vger.kernel.org
-Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
-Message-ID: <20060203234504.GA3291@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602031020.46641.nigel@suspend2.net> <20060203131602.GD2972@elf.ucw.cz> <200602032341.46043.nigel@suspend2.net>
+Subject: Re: Linux v2.6.16-c2
+Message-ID: <20060203235002.GA5580@mythryan2.michonline.com>
+References: <43E39932.4000001@lwfinger.net> <Pine.LNX.4.64.0602031007420.4630@g5.osdl.org> <43E3A001.7080309@lwfinger.net> <20060203205716.7ed38386@localhost> <43E3BF5A.3040305@lwfinger.net> <Pine.LNX.4.64.0602031258300.4630@g5.osdl.org> <43E3C703.20501@lwfinger.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200602032341.46043.nigel@suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <43E3C703.20501@lwfinger.net>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > - Is there any way you could support doing a full image of memory with
-> > > this approach? Would you take patches?
-> >
-> > Doing full image is certainly possible; it is not important if kernel
-> > does the writing or userspace does it. Taking patches definitely
-> > depends how they'd look like...
+On Fri, Feb 03, 2006 at 03:11:31PM -0600, Larry Finger wrote:
 > 
-> Would you actually do some work on generating them? 
+> Thanks. I was almost ready to create aliases so that I would not have to 
+> remember all those paths. My initial copy of git was obviously new enough 
+> that .git/remotes/origin had the info. Now rid of rsync.
 
-Well, I'm afraid that full image of memory is not that high on
-priority list. Rafael's solution seems to work pretty much okay.
+You may want to do a "git repack -a -d" to get everything condensed into
+a single pack file.  It will likely take a while to run, however.
 
-> I'm concerned that I'm 
-> going to end up putting more work into making patches, only to have you nack 
-> them for (what seem to me like) arbitrary reasons. I feel like all you're 
-> doing at the moment is pouring cold water on my work. Seeing you put
-> some 
-
-Well, sorry about that. I thought I gave you fair warning at the end
-of last year, when I posted uswsusp patches to the lists...
-
-> work into making mileage from the work I've put into Suspend2 would encourage 
-> me a lot. Forgive me if I sound pretty negative - between a couple of months 
-> of humid weather, lack of sleep and the event of the last few weeks, I'm not 
-> in the best frame of mind at the moment. Perhaps it would be better
-> for me 
-
-Well, you did some pretty amazing work with suspend2.net community...
-
-> just to say "I give full permission for you and Rafael to rip out of Suspend2 
-> anything you find useful.", leave it at that and go find another hobby for a 
-> while.
-
-We could use some help with userland tools. Helping with userland
-parts is probably the fastest way to get usable/nice/fast suspend to
-the users.
-
-If you think suspend2 can be easily ported to userspace... yes, that
-would be useful/welcome.
-									Pavel
 -- 
-Thanks, Sharp!
+
+Ryan Anderson
+  sometimes Pug Majere

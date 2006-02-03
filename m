@@ -1,100 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWBCAYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWBCAo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964826AbWBCAYM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 19:24:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964827AbWBCAYM
+	id S1750871AbWBCAo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 19:44:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbWBCAo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 19:24:12 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:18903 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S964826AbWBCAYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 19:24:10 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
-Date: Fri, 3 Feb 2006 10:20:42 +1000
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@cs.helsinki.fi>,
-       linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602030727.48855.nigel@suspend2.net> <200602022310.40783.rjw@sisk.pl>
-In-Reply-To: <200602022310.40783.rjw@sisk.pl>
+	Thu, 2 Feb 2006 19:44:57 -0500
+Received: from fw5.argo.co.il ([194.90.79.130]:2060 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1750871AbWBCAo5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 19:44:57 -0500
+Message-ID: <43E2A784.2070809@argo.co.il>
+Date: Fri, 03 Feb 2006 02:44:52 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2443538.9Pbb8D4Cdm";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Dave Jones <davej@redhat.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: discriminate single bit error hardware failure from slab corruption.
+References: <20060202192414.GA22074@redhat.com>
+In-Reply-To: <20060202192414.GA22074@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602031020.46641.nigel@suspend2.net>
+X-OriginalArrivalTime: 03 Feb 2006 00:44:54.0972 (UTC) FILETIME=[0CDF17C0:01C6285B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2443538.9Pbb8D4Cdm
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Dave Jones wrote:
 
-Hi.
-
-On Friday 03 February 2006 08:10, Rafael J. Wysocki wrote:
-> I was referring to the (not so far) future situation when we have
-> compression in the userland suspend/resume utilities.  The times of
-> writing/reading the image will be similar to yours and IMHO it's usually
-> possible to free 1/2 of RAM in a box with 512+ MB of RAM at a little cost
-> as far as the responsiveness after resume is concerned.  Thus on machines
-> with 512+ MB of RAM
-> both solutions will give similar results performance-wise, but the
-> userland-driven suspend gives you much more flexibility wrt what you can
-> do with the image (eg. you can even send it over the network if need be).
+>In the case where we detect a single bit has been flipped, we spew
+>the usual slab corruption message, which users instantly think
+>is a kernel bug.  In a lot of cases, single bit errors are
+>down to bad memory, or other hardware failure.
 >
-> On machines with less RAM suspend2 will probably be better
-> preformance-wise, and that may be more important than the flexibility.
+>This patch adds an extra line to the slab debug messages in those
+>cases, in the hope that users will try memtest before they report a bug.
+>
+>000: 6b 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+>Single bit error detected. Possibly bad RAM. Please run memtest86.
+>
+>Signed-off-by: Dave Jones <davej@redhat.com>
+>
+>--- linux-2.6.15/mm/slab.c~	2006-01-09 13:25:17.000000000 -0500
+>+++ linux-2.6.15/mm/slab.c	2006-01-09 13:26:01.000000000 -0500
+>@@ -1313,8 +1313,11 @@ static void poison_obj(kmem_cache_t *cac
+> static void dump_line(char *data, int offset, int limit)
+> {
+> 	int i;
+>+	unsigned char total=0;
+> 	printk(KERN_ERR "%03x:", offset);
+> 	for (i = 0; i < limit; i++) {
+>+		if (data[offset+i] != POISON_FREE)
+>+			total += data[offset+i];
+>  
+>
+how about
+ 
+         total += hweight8(data[offset+i] ^ POISON_FREE);
 
-Ok. So I bit the bullet and downloaded -mm4 to take a look at this interfac=
-e=20
-you're making, and I have a few questions:
+> 		printk(" %02x", (unsigned char)data[offset + i]);
+> 	}
+> 	printk("\n");
+>@@ -1019,6 +1023,18 @@ static void dump_line(char *data, int of
+> 		}
+> 	}
+> 	printk("\n");
+>+	switch (total) {
+>+		case 0x36:
+>+		case 0x6a:
+>+		case 0x6f:
+>+		case 0x81:
+>+		case 0xac:
+>+		case 0xd3:
+>+		case 0xd5:
+>+		case 0xea:
+>+			printk (KERN_ERR "Single bit error detected. Possibly bad RAM. Please run memtest86.\n");
+>+			return;
+>+	}
+>  
+>
+and a
 
-=2D It seems to be hardwired to use swap, but you talk about writing to a=20
-network image above. In Suspend2, I just bmap whatever the storage is, and=
-=20
-then submit bios to read and write the data. Is anything like that possible=
-=20
-with this interface? (Could it be extended if not?)
-=2D Is there any way you could support doing a full image of memory with th=
-is=20
-approach? Would you take patches?
-=2D Does the data have to be transferred to userspace? Security and efficie=
-ncy=20
-wise, it would seem to make a lot more sense just to be telling the kernel=
-=20
-where to write things and let it do bio calls like I'm doing at the moment.
-=2D In your Documentation file, you say say opening /dev/snapshot for readi=
-ng is=20
-done when suspending. Shouldn't that be open read for resume and write for=
-=20
-suspend?
+     if (total == 1)
+           printk(...);
 
-I'm not saying I'm going to get carried away trying to port Suspend2 to=20
-userspace. Just tentatively exploring. But if I did decide to port it, my=20
-default position would be to seek not to drop a single feature. I hope that=
-'s=20
-not too unreasonable!
+here? it seems more readable and more correct as well.
 
-NIgel
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
+> }
+> #endif
+> 
+>  
+>
 
---nextPart2443538.9Pbb8D4Cdm
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-iD8DBQBD4qHeN0y+n1M3mo0RAh6/AKCufxD2mKEqAefwOLsWwcSiV9AuPACfZ6GA
-G0vwUtnoWFbSK2j+H+O09lY=
-=/b98
------END PGP SIGNATURE-----
-
---nextPart2443538.9Pbb8D4Cdm--

@@ -1,76 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWBCDG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbWBCDRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964876AbWBCDG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 22:06:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbWBCDG7
+	id S964875AbWBCDRP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 22:17:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbWBCDRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 22:06:59 -0500
-Received: from mail.telecorp.net.co ([200.25.0.84]:35508 "EHLO
-	mail.telecorp.net.co") by vger.kernel.org with ESMTP
-	id S964866AbWBCDG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 22:06:58 -0500
-Message-ID: <39112.81.199.108.252.1138935999.squirrel@81.199.108.252>
-Date: Fri, 3 Feb 2006 03:06:39 -0000 (GMT)
-From: "David Smith" <davidsmith@clubteleamigos.com>
-Reply-To: info_thamesgroup@caramail.com
-User-Agent: SquirrelMail/1.4.3a-1
-X-Mailer: SquirrelMail/1.4.3a-1
-MIME-Version: 1.0
+	Thu, 2 Feb 2006 22:17:15 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8678 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964865AbWBCDRO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 22:17:14 -0500
+Date: Thu, 2 Feb 2006 19:16:00 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: dada1@cosmosbay.com, davem@davemloft.net, linux-kernel@vger.kernel.org,
+       shai@scalex86.org, netdev@vger.kernel.org, pravins@calsoftinc.com,
+       bcrl@kvack.org
+Subject: Re: [patch 3/4] net: Percpufy frequently used variables --
+ proto.sockets_allocated
+Message-Id: <20060202191600.3bf3a64a.akpm@osdl.org>
+In-Reply-To: <20060203030547.GB3612@localhost.localdomain>
+References: <20060126185649.GB3651@localhost.localdomain>
+	<20060126190357.GE3651@localhost.localdomain>
+	<43D9DFA1.9070802@cosmosbay.com>
+	<20060127195227.GA3565@localhost.localdomain>
+	<20060127121602.18bc3f25.akpm@osdl.org>
+	<20060127224433.GB3565@localhost.localdomain>
+	<20060127150106.38b9e041.akpm@osdl.org>
+	<20060203030547.GB3612@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-To: undisclosed-recipients:;
-X-Telecorp_Colombia-MailScanner: Found to be clean, Found to be clean
-X-Telecorp_Colombia-MailScanner-SpamCheck: , 
-Subject: Be Our Representative
-X-Telecorp_Colombia-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner-From: davidsmith@clubteleamigos.com
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+>
+> On Fri, Jan 27, 2006 at 03:01:06PM -0800, Andrew Morton wrote:
+> > Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
+> > 
+> > 
+> > > > 
+> > > > If the benchmarks say that we need to.  If we cannot observe any problems
+> > > > in testing of existing code and if we can't demonstrate any benefit from
+> > > > the patched code then one option is to go off and do something else ;)
+> > > 
+> > > We first tried plain per-CPU counters for memory_allocated, found that reads
+> > > on memory_allocated was causing cacheline transfers, and then
+> > > switched over to batching.  So batching reads is useful.  To avoid
+> > > inaccuracy, we can maybe change percpu_counter_init to:
+> > > 
+> > > void percpu_counter_init(struct percpu_counter *fbc, int maxdev)
+> > > 
+> > > the percpu batching limit would then be maxdev/num_possible_cpus.  One would
+> > > use batching counters only when both reads and writes are frequent.  With
+> > > the above scheme, we would go fetch cachelines from other cpus for read
+> > > often only on large cpu counts, which is not any worse than the global
+> > > counter alternative, but it would still be beneficial on smaller machines,
+> > > without sacrificing a pre-set deviation.  
+> > > 
+> > > Comments?
+> > 
+> > Sounds sane.
+> >
+> 
+> Here's an implementation which delegates tuning of batching to the user.  We
+> don't really need local_t at all as percpu_counter_mod is not safe against
+> interrupts and softirqs  as it is.  If we have a counter which could be
+> modified in process context and irq/bh context, we just have to use a
+> wrapper like percpu_counter_mod_bh which will just disable and enable bottom
+> halves.  Reads on the counters are safe as they are atomic_reads, and the
+> cpu local variables are always accessed by that cpu only.
+> 
+> (PS: the maxerr for ext2/ext3 is just guesstimate)
 
+Well that's the problem.  We need to choose production-quality values for
+use in there.
 
+> Comments?
 
-Hello,
-
-I am Mr.David Smith, Marketing Head of Thames Group Limited based in The
-United Kingdom. I am 54 years old, and have been in this position for
-approximately 2 years.
-
-We are a small scale company with staff strength of 10. Our website is
-currently under construction and shall get to you once it has been set up.
-Our company deals on import and export of communication accessories and
-household appliances. We specialise mainly on mechanical equipment,
-hardwares, soft wares, electrical, medical, chemicals, light industrial
-products, Office equipment and other products for world trade.
-We are currently recruiting processing agents in The United States of
-America only, whose function would be primarily assisting us receive and
-disburse payment for sales and purchases in which we are basically
-involved in from our customers in the states only If selected, your role
-will be that of a payment agent. You shall handle cash payments on our
-behalf.
-
-A 7% commission based on all financial transaction you handled for us
-shall be yours. This will be reviewed and updated based on your work
-efficiency.
-
-Kindly send below details for consideration, if you are interested in this
-special offer.
-
-
-(1)Your full names
-(2)Contact address and
-(3)Phone/fax numbers
-(4)Your residential address
-(5)Your present occupation
-(6) Your marital status
-(7) Your Age
-
-Thank you for your time.
-Very Respectfully,
-Mr.David Smith.
-
-Marketing Head.
-Thames Group Limited.
+Using num_possible_cpus() in that header file is just asking for build
+errors.  Probably best to uninline the function rather than adding the
+needed include of cpumask.h.
 

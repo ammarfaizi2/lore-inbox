@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWBCW0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbWBCW0q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030223AbWBCW0q (ORCPT <rfc822;willy@w.ods.org>);
+	id S1030206AbWBCW0q (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 3 Feb 2006 17:26:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030235AbWBCW0q
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbWBCW0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Fri, 3 Feb 2006 17:26:46 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:28820 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030223AbWBCW0p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+Received: from uproxy.gmail.com ([66.249.92.194]:60288 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030206AbWBCW0p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 3 Feb 2006 17:26:45 -0500
-Subject: [PATCH] ibmasm driver: don't use previously freed pointer
-From: Max Asbock <masbock@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1139005598.7521.68.camel@w-amax>
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=TR+Ad6xlfZpSaxGhm4gxIwkxKAMW/n5SkPOp1DB30qxbbeU+S/8Z9gGFBnYDLKDuqUGYtildW75wA324C10CU5hJBKM/FLfjl2s/lzH5opbsPk1vXDlF8hdmm0JIntUM/ikzC7nnuOHyLd3daPYwNR0a9v0zGCmtwke2mmiSFmM=
+Date: Sat, 4 Feb 2006 01:44:57 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Evgeniy Dushistov <dushistov@mail.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: Re [2]: [PATCH] Mark CONFIG_UFS_FS_WRITE as BROKEN
+Message-ID: <20060203224457.GA7784@mipter.zuzino.mipt.ru>
+References: <20060131234634.GA13773@mipter.zuzino.mipt.ru> <20060201200410.GA11747@rain.homenetwork> <20060203174613.GA7823@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 03 Feb 2006 14:26:38 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060203174613.GA7823@mipter.zuzino.mipt.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ibmasm driver:
-Fix the command_put() function which uses a pointer for a spinlock that
-can be freed before dereferencing it.
+On Fri, Feb 03, 2006 at 08:46:13PM +0300, Alexey Dobriyan wrote:
+> 2. Second patch indeed makes hangs disaapear. However, data corruption
+>    is still in place:
+> 
+> Try
+> 
+> 	for i in $(seq 1 10000); do echo $i; done >10000-linux.txt
+> 	cp 10000-linux.txt >/mnt/openbsd/10000-openbsd.txt
 
-Signed-off-by: Max Asbock masbock@us.ibm.com
+Aha! Cutoff is 2048 bytes. This and less is fine. 2049 and more is not.
 
----
-
-diff -burpN linux-2.6.16-rc1/drivers/misc/ibmasm/ibmasm.h linux-2.6.16-rc1.ibmasm/drivers/misc/ibmasm/ibmasm.h
---- linux-2.6.16-rc1/drivers/misc/ibmasm/ibmasm.h	2006-02-01 11:50:01.000000000 -0800
-+++ linux-2.6.16-rc1.ibmasm/drivers/misc/ibmasm/ibmasm.h	2006-02-03 13:57:42.000000000 -0800
-@@ -101,10 +101,11 @@ struct command {
- static inline void command_put(struct command *cmd)
- {
- 	unsigned long flags;
-+	spinlock_t *lock = cmd->lock;
- 
--	spin_lock_irqsave(cmd->lock, flags);
-+	spin_lock_irqsave(lock, flags);
-         kobject_put(&cmd->kobj);
--	spin_unlock_irqrestore(cmd->lock, flags);
-+	spin_unlock_irqrestore(lock, flags);
- }
- 
- static inline void command_get(struct command *cmd)
-
+00000000  0a 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+00000010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+*
+00000800  00                                                |.|
+00000801
 

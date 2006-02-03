@@ -1,47 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWBCM76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWBCNQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbWBCM76 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 07:59:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWBCM76
+	id S1750770AbWBCNQY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 08:16:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWBCNQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 07:59:58 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:43460 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1750734AbWBCM75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 07:59:57 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Fri, 03 Feb 2006 13:58:19 +0100
-To: jengelh@linux01.gwdg.de, davidsen@tmr.com
-Cc: schilling@fokus.fraunhofer.de, matthias.andree@gmx.de,
-       linux-kernel@vger.kernel.org, bzolnier@gmail.com, acahalan@gmail.com
-Subject: Re: CD writing in future Linux try #2
-Message-ID: <43E3536B.nail5CA82F9RH@burner>
-References: <200601302043.56615.diablod3@gmail.com>
- <20060130.174705.15703464.davem@davemloft.net>
- <Pine.LNX.4.64.0601310609210.2979@innerfire.net>
- <20060131.031817.85883571.davem@davemloft.net>
- <43E00091.5030503@tmr.com>
- <Pine.LNX.4.61.0602021724560.13212@yvahk01.tjqt.qr>
- <43E25171.7040203@tmr.com>
-In-Reply-To: <43E25171.7040203@tmr.com>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
+	Fri, 3 Feb 2006 08:16:24 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22419 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750770AbWBCNQX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 08:16:23 -0500
+Date: Fri, 3 Feb 2006 14:16:02 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <nigel@suspend2.net>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pekka Enberg <penberg@cs.helsinki.fi>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
+Message-ID: <20060203131602.GD2972@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602030727.48855.nigel@suspend2.net> <200602022310.40783.rjw@sisk.pl> <200602031020.46641.nigel@suspend2.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <200602031020.46641.nigel@suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen <davidsen@tmr.com> wrote:
+On Pá 03-02-06 10:20:42, Nigel Cunningham wrote:
+> Hi.
+> 
+> On Friday 03 February 2006 08:10, Rafael J. Wysocki wrote:
+> > On machines with less RAM suspend2 will probably be better
+> > preformance-wise, and that may be more important than the flexibility.
+> 
+> Ok. So I bit the bullet and downloaded -mm4 to take a look at this interface 
+> you're making, and I have a few questions:
 
-> Free, but not open source, and that's an issue with a mission critical 
-> application. For home use it doesn't matter, for business use it really 
+Great, thanks.
 
-Since when is mission critical requiring OpenSource?
+> - It seems to be hardwired to use swap, but you talk about writing to a 
+> network image above. In Suspend2, I just bmap whatever the storage is, and 
+> then submit bios to read and write the data. Is anything like that possible 
+> with this interface? (Could it be extended if not?)
 
-Jörg
+No, it is not hardwired. There's special swap support, but you do not
+need to use it.
 
+> - Is there any way you could support doing a full image of memory with this 
+> approach? Would you take patches?
+
+Doing full image is certainly possible; it is not important if kernel
+does the writing or userspace does it. Taking patches definitely
+depends how they'd look like...
+
+> - Does the data have to be transferred to userspace? Security and efficiency 
+> wise, it would seem to make a lot more sense just to be telling the kernel 
+> where to write things and let it do bio calls like I'm doing at the
+> moment.
+
+As far as I can see, transfering data to userspace and back does not
+really cost much:
+
+pavel@amd:~$ time head -c $[1024*1024*1024] < /dev/zero > /dev/null
+0.16user 0.27system 0.43 (0m0.439s) elapsed 100.00%CPU
+
+...2000MB/sec is the limit (thinkpad x32).
+								Pavel
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Thanks, Sharp!

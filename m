@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751229AbWBCQ6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWBCRAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751229AbWBCQ6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 11:58:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751230AbWBCQ6Y
+	id S1751230AbWBCRAH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 12:00:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWBCRAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 11:58:24 -0500
-Received: from uproxy.gmail.com ([66.249.92.201]:27687 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751229AbWBCQ6W convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 11:58:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TS1vKNmLStrQnnMkVmES6KFYjtBleBovcMKAwPtfwL0ReNmndUhDiwd+NzvEGSi9SSBqA3x5o8sEJu8MnbWfYlEtknHX8ke8cTSpECXyaaBSHDi3njeoa796BRZqEoJyXZHtlYhpcoIKeyhnIKlaeRLgG59FvbpsVxGXVnfur20=
-Message-ID: <1e62d1370602030858j3e443e40tc86b72315ed8ab52@mail.gmail.com>
-Date: Fri, 3 Feb 2006 21:58:20 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-To: Samer Azmy <samer.azmy@gmail.com>
-Subject: Re: root=LABEL= problem [Was: Re: Linux Issue]
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Jiri Slaby <xslaby@fi.muni.cz>,
-       kavitha s <wellspringkavitha@yahoo.co.in>, linux-kernel@vger.kernel.org
-In-Reply-To: <b8332cb80602030545v578da09fod5174eb26dff3281@mail.gmail.com>
+	Fri, 3 Feb 2006 12:00:06 -0500
+Received: from mail-gw3.adaptec.com ([216.52.22.36]:4557 "EHLO
+	mail-gw3.adaptec.com") by vger.kernel.org with ESMTP
+	id S1751230AbWBCRAE convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 12:00:04 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1138863068.3270.6.camel@laptopd505.fenrus.org>
-	 <20060201114845.E41F222AF24@anxur.fi.muni.cz>
-	 <20060202105338.E921D22AF07@anxur.fi.muni.cz>
-	 <Pine.LNX.4.61.0602021750510.13212@yvahk01.tjqt.qr>
-	 <1138971350.3086.0.camel@laptopd505.fenrus.org>
-	 <b8332cb80602030545v578da09fod5174eb26dff3281@mail.gmail.com>
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: FYI: RAID5 unusably unstable through 2.6.14
+Date: Fri, 3 Feb 2006 12:00:02 -0500
+Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F0217F765@otce2k03.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: FYI: RAID5 unusably unstable through 2.6.14
+Thread-Index: AcYo3Mq7Yg/yWtRaTs2fqcN0OV+08gAA21TA
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "Martin Drab" <drab@kepler.fjfi.cvut.cz>,
+       "Phillip Susi" <psusi@cfl.rr.com>
+Cc: "Bill Davidsen" <davidsen@tmr.com>, "Cynbe ru Taren" <cynbe@muq.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/3/06, Samer Azmy <samer.azmy@gmail.com> wrote:
-> Hello,
->
-> do you have RAID array or a newly confiured RAID
->
+Martin Drab [mailto:drab@kepler.fjfi.cvut.cz] sez:
+> That may very well be true. I do not know what the Adaptec 
+> BIOS does under the "Low-Level Format" option. Maybe someone from
+Adaptec 
+> would know that.
 
-What do you want to know ? Ask questions specifically mentioning the
-problem in detail !
+The drive is low level formatted. This resolved the problem you were
+having.
 
-Also Please start new threads/topic for questions not related to any
-other previous topic !
+> No, I don't think this was the case of a physically bad 
+> sectors. I think it was just an inconsistency of the RAID controllers
+metadata (or 
+> something simillar) related to that particular array.
 
---
-Fawad Lateef
+It was a case of a set of physically bad sectors in a non-redundant
+formation resulting in a non-recoverable situation, from what I could
+tell. Read failures do not take the array offline, write failures do.
+Instead the adapter responds with a hardware failure to the read
+responses. Writing the data would have re-assigned the bad blocks. (RAID
+controllers do reassign media bad blocks automatically, but sets them as
+inconsistent under some scenarios, requiring a write to mark them
+consistent again. This is no different to how single drive media reacts
+to faulty or corruption issues).
+
+The bad sectors were localized only affecting the Linux partition, the
+accesses were to directory or superblock nodes if memory serves. Another
+system partition was unaffected because the errors were not localized to
+it's area.
+
+Besides low level formatting, there is not much anyone can do about this
+issue except ask for a less catastrophic response from the Linux File
+system drivers. I make no offer or suggestion regarding the changes that
+would be necessary to support the system limping along when file system
+data has been corrupted; UNIX policy in general is to walk away as
+quickly as possible and do the least continuing damage.
+
+Except this question: If a superblock can not be read in, what about the
+backup copies? Could an fsck play games with backup copies to result in
+a write to close inconsistencies?
+
+-- Mark Salyzyn

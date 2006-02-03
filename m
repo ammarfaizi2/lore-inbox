@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422931AbWBCUrV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422932AbWBCUtW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422931AbWBCUrV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 15:47:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422937AbWBCUrV
+	id S1422932AbWBCUtW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 15:49:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422945AbWBCUtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 15:47:21 -0500
-Received: from dspnet.fr.eu.org ([213.186.44.138]:65030 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1422931AbWBCUrU (ORCPT
+	Fri, 3 Feb 2006 15:49:22 -0500
+Received: from mail.gmx.net ([213.165.64.21]:3298 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1422932AbWBCUtW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 15:47:20 -0500
-Date: Fri, 3 Feb 2006 21:47:12 +0100
-From: Olivier Galibert <galibert@pobox.com>
-To: Phillip Susi <psusi@cfl.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <20060203204712.GA84752@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Phillip Susi <psusi@cfl.rr.com>, linux-kernel@vger.kernel.org
-References: <20060202062840.GI5501@mail> <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo> <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com> <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr> <20060202210949.GD10352@voodoo> <20060203180421.GA57965@dspnet.fr.eu.org> <43E3B3F3.8060107@cfl.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43E3B3F3.8060107@cfl.rr.com>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 3 Feb 2006 15:49:22 -0500
+Date: Fri, 3 Feb 2006 21:49:20 +0100 (MET)
+From: "Michael Kerrisk" <mtk-manpages@gmx.net>
+To: matthias.andree@gmx.de
+Cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
+       arjan@infradead.org, Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       michael.kerrisk@gmx.net
+MIME-Version: 1.0
+Subject: Re: Rationale for RLIMIT_MEMLOCK?
+X-Priority: 3 (Normal)
+X-Authenticated: #24879014
+Message-ID: <7554.1138999760@www048.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 02:50:11PM -0500, Phillip Susi wrote:
-> Olivier Galibert wrote:
-> >Actually, since at that point in time HAL is the only way to do device
-> >discovery with the linux kernel, problems in HAL are problems in
-> >linux.  There is *no* other way than HAL to do the mapping between a
-> >point in the sysfs tree and a device node in /dev[1].
+> > Matthias Andree <matthias.andree@gmx.de> wrote:
+
+[...]
+
+> The complete story is, condensed, and with return values, for a
+> setuid-root application:
 > 
-> That information is available in /sys, which is how HAL discovers it.  
+>   geteuid() == 0;
+>   mlockall(MLC_CURRENT|MLC_FUTURE) == (success);
+>   seteuid(500) == (success);
+>   valloc(64512 + pagesize) == NULL (failure);
 
-No, it isn't.  OTOH, udev maintains it, so I guess that's good enough.
-It makes udev the kernel interface though.  I hope they now care about
-compatibility (/dev/.udev.pdb vs. /dev/.udev/db/* anyone?).
+[...]
 
+A late follow-up to this thread. I've added the following text
+to the mlockall() manual pag under BUGS:
 
-> If you wanted to, you could bypass HAL and go directly to /sys to 
-> perform your own discovery.  Also HAL is not a part of the linux kernel, 
-> therefore a problem in HAL is NOT a problem in linux, even if there were 
-> no other way to get the information as you ( wrongly ) asserted. 
+    Since kernel 2.6.9, if a privileged process calls 
+    mlockall(MCL_FUTURE) and later drops privileges
+    (CAP_IPC_LOCK), then subsequent memory allocations
+    (e.g., mmap(2), sbrk(2)) will fail if the 
+    RLIMIT_MEMLOCK resource limit is encountered.
+    
+The change will be in man-pages 2.23.
 
-Bullshit.  If <x> is the only interface available to a kernel service,
-then <x> is part of the kernel whether you like it or not.  Case in
-point, the ALSA library.
+Cheers,
 
-  OG.
+Michael
 
+-- 
+Michael Kerrisk
+maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
+
+Want to help with man page maintenance?  
+Grab the latest tarball at
+ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
+read the HOWTOHELP file and grep the source 
+files for 'FIXME'.

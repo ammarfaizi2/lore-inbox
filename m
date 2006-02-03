@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbWBBXyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbWBCAAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932490AbWBBXyz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 18:54:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbWBBXyy
+	id S964772AbWBCAAX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 19:00:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbWBCAAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 18:54:54 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:8614 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932490AbWBBXyx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 18:54:53 -0500
+	Thu, 2 Feb 2006 19:00:23 -0500
+Received: from uproxy.gmail.com ([66.249.92.202]:10822 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932495AbWBCAAW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 19:00:22 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jnm/b9mf2C/Bs/sO2xSMLhLc2JQ50dA4nsvhRqvLG/7Guc1UM2yGepwo7TMsygFbgt7Gie+cm9lrcWBX6a9TaVqCY5qc3eZFCEx/h80TPwUiUVjnnaN+IVNqHEveGufe5hhisf3JyyvmeDUaQDqHiRd93z2FQk9uxqEmlP7Mufc=
-Message-ID: <7f45d9390602021554gcb602a1i3fd7378942601c65@mail.gmail.com>
-Date: Thu, 2 Feb 2006 16:54:52 -0700
-From: Shaun Jackman <sjackman@gmail.com>
-Reply-To: Shaun Jackman <sjackman@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] liyitec: Liyitec PS/2 touchscreen driver
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <d120d5000602021512x42be2006h31e63cb6d78ac1b3@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=NwzghKKUdF/DdDMtVFxEYfipARqQBtQUMsH3aLpWD3mFwBU2PBPlHAR46K0SjcHFdfVSZUuVZDQwNrPI8ua8LOoTMW/8K0U0fYinDn+/W2rfnZKRkVOYZN3b+SKNM79R5wo8eMjUk9zGp4s63BA6avyq4Krp1Ymg6QT52AwnTdQ=
+Date: Fri, 3 Feb 2006 03:18:38 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] extract-ikconfig: be sure binoffset exists before extracting
+Message-ID: <20060203001838.GA18431@mipter.zuzino.mipt.ru>
+References: <20060201125658.GB8943@mipter.zuzino.mipt.ru> <20060202153241.48b206fb.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <7f45d9390602021502q325752d7oe635569cde7ce2c7@mail.gmail.com>
-	 <d120d5000602021512x42be2006h31e63cb6d78ac1b3@mail.gmail.com>
+In-Reply-To: <20060202153241.48b206fb.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2/2/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On 2/2/06, Shaun Jackman <sjackman@gmail.com> wrote:
-> > [PATCH] liyitec: Liyitec PS/2 touchscreen driver
-> >
-> > Add an input driver for the Liyitec PS/2 touchscreen.
->
-> I don't see any suibstantial differences from the older patch. I think
-> it should be integrated into psmouse. Is there a way to query the
-> device? What kind of boxes use this touchscreen? Maybe using DMI is an
-> option, like lifebook does?
+On Thu, Feb 02, 2006 at 03:32:41PM -0800, Andrew Morton wrote:
+> Alexey Dobriyan <adobriyan@gmail.com> wrote:
+> > --- a/scripts/extract-ikconfig
+> > +++ b/scripts/extract-ikconfig
+> > @@ -4,6 +4,7 @@
+> >  # $arg1 is [b]zImage filename
+> >  
+> >  binoffset="./scripts/binoffset"
+> > +test -e $binoffset || cc -o $binoffset ./scripts/binoffset.c || exit 1
+> >  
+> 
+> OK, but it would be better if we could find a way of doing this within a
+> Makefile.
 
-I supplied some commentary in another email. I wasn't entirely sure
-how to separate some free commentary from the ChangeLog entry in a
-[PATCH] post. Sorry for the confusion.
+AFAICS, it's a standalone script for CONFIG_IKCONFIG=y,
+CONFIG_IKCONFIG_PROC=n users.
 
-The system I have, an Advantech touchscreen computer, has no DMI
-information. So that option is out, at least in my case.
-
-# ./dmidecode
-# dmidecode 2.7
-# No SMBIOS nor DMI entry point found, sorry.
-
-I agree this driver would be best as a psmouse drive, but some
-reliable detection code is necessary first. The serio driver does work
-as is. If the user loads the liyitec.ko module or compiles the driver
-into the kernel, she likely knows what she's doing.
-
-I suspect there exists a detection routine using PS/2 commands that
-will work, but I haven't figured one out yet.
-
-Cheers,
-Shaun

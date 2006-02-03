@@ -1,88 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWBCRJS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWBCRJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750909AbWBCRJS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 12:09:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbWBCRJR
+	id S1751246AbWBCRJr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 12:09:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWBCRJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 12:09:17 -0500
-Received: from mail.kroah.org ([69.55.234.183]:33995 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750909AbWBCRJR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 12:09:17 -0500
-Date: Fri, 3 Feb 2006 09:08:46 -0800
-From: Greg KH <greg@kroah.com>
-To: "Artem B. Bityutskiy" <dedekind@oktetlabs.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [QUESTION/sysfs] strange refcounting
-Message-ID: <20060203170846.GA17009@kroah.com>
-References: <43E365B6.4060005@oktetlabs.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43E365B6.4060005@oktetlabs.ru>
-User-Agent: Mutt/1.5.11
+	Fri, 3 Feb 2006 12:09:47 -0500
+Received: from clix.aarnet.edu.au ([192.94.63.10]:15020 "EHLO
+	clix.aarnet.edu.au") by vger.kernel.org with ESMTP id S1751246AbWBCRJq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 12:09:46 -0500
+Message-ID: <43E38E00.301@aarnet.edu.au>
+Date: Sat, 04 Feb 2006 03:38:16 +1030
+From: Glen Turner <glen.turner@aarnet.edu.au>
+Organization: Australia's Academic & Research Network
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 8250 serial console fixes -- issue
+References: <Pine.LNX.4.44.0602011911360.22854-100000@gate.crashing.org> <1138844838.5557.17.camel@localhost.localdomain> <43E2B8D6.1070707@aarnet.edu.au> <20060203094042.GB30738@flint.arm.linux.org.uk> <43E36850.5030900@aarnet.edu.au> <20060203160218.GA27452@flint.arm.linux.org.uk>
+In-Reply-To: <20060203160218.GA27452@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MDSA: Yes
+X-Spam-Score: -104.901 BAYES_00,USER_IN_WHITELIST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 05:16:22PM +0300, Artem B. Bityutskiy wrote:
-> Hello folks,
+Russell King wrote:
+
+> My point stands - if the user can provide an arbitary string to printk,
+> they can fake any kernel message.  That in itself is a security bug.
+> If there is an instance of that, then that's the real bug which would
+> need fixing.
 > 
-> I'm writing a simple device driver and want to expose some of its 
-> attributes to userspace via sysfs.
-> 
-> As usually, I have main device description structure "struct 
-> mydev_info". I've embedded a struct device object there. What I do is:
-> 
-> struct mydev_info mydev
-> {
-> 	struct device *dev;
+> Once those bugs have been fixed, your claimed bug is also magically
+> fixed.
 
-First off, this should not be a pointer, but rather:
-	struct device dev;
+Hi Russell,
 
-That properly embedds the struct device into your object.
+Thanks for the explanation of where the kernel should handle
+covert channels.
 
-> 	... bla bla bla ...
-> } mydev;
-> 
-> 
-> mydev->dev=kzalloc(sizeof(struct device), GFP_KERNEL);
-> mydev->dev->bus_id = "mydev";
-> mydev->dev->release = mydev_release;
-> err = device_register(&mydev->dev);
+How about the other bugs reported by people who have used
+the Remote-Serial-Console-HOWTO:
 
-What type of bus does this device live on?  You should not be calling
-device_register() on your own directly.  Either use a bus, and be a
-device of it, or use the platform_device() interface.
+   - writing any text to an idle (DCD not asserted) modem still
+     causes incoming calls to be hung up on.  That's not good
+     as sysadmins can't connect to systems with failing hardware.
 
-> Then, I see /sys/devices/mydev/ in sysfs. I open pre-defined 
-> /sys/devices/mydev/power/state in userspace and don't close it.
-> 
-> Then I run lsmod, and see zero refcount to my module. Well, I run rmmod 
-> mymod, module is unloaded.
+     [Note that modems really need the 'r' option, so it's
+      fine to continue to write with DCD unasserted without
+      the 'r' option.]
 
-Yup.
+   - the huge boot times with the 'r' option and an idle/
+     unconnected modem/terminal server.  This is caused by
+     the CTS timing out per character even when CTS is
+     floating (CTS is not defined unless DSR is asserted).
+     This basically makes the 'r' option impossible to
+     use on production systems.  Not using the 'r' option
+     with a terminal server brings other problems (notably
+     character loss problems when people paste a large
+     number of characters into the SSH session through
+     the terminal server to the remote host).
 
-> Then I close /sys/devices/mydev/power/state, and enjoy segfault.
+   - writing LF CR rather than CR LF unfortunately causes
+     issues with some terminals.
 
-What is the backtrace?
+I'm really only the messenger here.  I've collected bug reports
+from readers of the HOWTO and written a patch to address their
+experiences.  I'm sure people with much more familiarity with
+the kernel can do it better.
 
-> I thought sysfs subsystem have to increase module refcount when one 
-> opens its sysfs files. Well, there is a release function, but it is also 
-> unloaded with the module.
+Thanks,
+Glen
 
-Again, register with a bus or use the platform_device() interface, and
-this should work properly.
-
-> May be there is a problem because of I have mydev->dev->parent == NULL, 
-> mydev->dev->bus == NULL, mydev->dev->driver == NULL? But I really don't 
-> have any bus, any parent and I don't want to introduce struct 
-> device_driver ...
-
-Yes, you kind of need all of that :)
-
-Make the above changes and let us know if that helps things.
-
-thanks,
-
-greg k-h
+-- 
+  Glen Turner         Tel: (08) 8303 3936 or +61 8 8303 3936
+  Australia's Academic & Research Network  www.aarnet.edu.au

@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWBCGVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWBCGVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751258AbWBCGVs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 01:21:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbWBCGVs
+	id S1751197AbWBCGVL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 01:21:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751250AbWBCGVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 01:21:48 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:21131 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S1751258AbWBCGVr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 01:21:47 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Bernd Eckenfels <be-news06@lina.inka.de>
-Subject: Re: Recursive chmod/chown OOM kills box with 32MB RAM
-Date: Fri, 3 Feb 2006 08:21:10 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <E1F4JnT-0004pE-00@calista.inka.de>
-In-Reply-To: <E1F4JnT-0004pE-00@calista.inka.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Fri, 3 Feb 2006 01:21:11 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:4753 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751197AbWBCGVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 01:21:10 -0500
+Subject: Re: usb bandwidth allocation issue using 2 pvr devices (em28xx
+	driver) v4l2
+From: Lee Revell <rlrevell@joe-job.com>
+To: Markus Rechberger <mrechberger@gmail.com>
+Cc: Linux and Kernel Video <video4linux-list@redhat.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <d9def9db0602022149o1561e1b7v9c191c873d5add46@mail.gmail.com>
+References: <c967fb330602022139o77fe09d1k7149648b1afdc695@mail.gmail.com>
+	 <d9def9db0602022149o1561e1b7v9c191c873d5add46@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 03 Feb 2006 01:21:01 -0500
+Message-Id: <1138947662.15691.241.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.90 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602030821.10575.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 February 2006 17:21, Bernd Eckenfels wrote:
-> Denis Vlasenko <vda@ilport.com.ua> wrote:
-> > # umount /.3
-> > umount: /.3: device is busy
-> > # lsof -nP | grep -F '/.3'
-> > # lsof -nP | grep -F 'sdc'
+On Fri, 2006-02-03 at 06:49 +0100, Markus Rechberger wrote:
+> Hi!
 > 
-> You can try "lsof +f -- /.3" also
+> this should be addressed to USB subsystem developers, I also
+> reproduced this issue.
+> The problem is the isochronous transfer in em28xx-core.c I'm quite
+> sure it's correct and the bug is somewhere deeper in the USB
+> subsystem.
 
-Didn't help, but later I found it.
-Kernel nfsd daemon was keeping it busy.
-It's not visible in lsof.
---
-vda
+Is USB bandwidth checking enabled?  It's known to be broken, and should
+be disabled by default...
+
+Lee
+

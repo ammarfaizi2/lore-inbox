@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945980AbWBCVZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945984AbWBCVch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945980AbWBCVZL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 16:25:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945983AbWBCVZL
+	id S1945984AbWBCVch (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 16:32:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945985AbWBCVcg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 16:25:11 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9486 "HELO
+	Fri, 3 Feb 2006 16:32:36 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:15886 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1945982AbWBCVZK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 16:25:10 -0500
-Date: Fri, 3 Feb 2006 22:25:07 +0100
+	id S1945983AbWBCVcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 16:32:36 -0500
+Date: Fri, 3 Feb 2006 22:32:34 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, bcollins@debian.org, scjody@modernduck.com
-Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.ne,
-       sam@ravnborg.org
-Subject: 2.6.16-rc1-mm5: drivers/ieee1394/oui O=... builds broken
-Message-ID: <20060203212507.GR4408@stusta.de>
-References: <20060203000704.3964a39f.akpm@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [2.6 patch] schedule eepro100.c for removal
+Message-ID: <20060203213234.GS4408@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060203000704.3964a39f.akpm@osdl.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 12:07:04AM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.15-mm4:
->...
->  git-ieee1394.patch
->...
->  Git trees
->...
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-<--  snip  -->
+---
 
-...
-  OUI2C   drivers/ieee1394/oui.c
-/bin/sh: drivers/ieee1394/oui2c.sh: No such file or directory
-make[3]: *** [drivers/ieee1394/oui.c] Error 127
+This patch was already sent on:
+- 18 Jan 2006
 
-<--  snip  -->
-
-
-The change that broke it is:
-
-
- quiet_cmd_oui2c = OUI2C   $@
--      cmd_oui2c = $(CONFIG_SHELL) $(srctree)/$(src)/oui2c.sh < $< > $@
-+      cmd_oui2c = $(CONFIG_SHELL) $(src)/oui2c.sh < $< > $@
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--- linux-2.6.15-mm4-full/Documentation/feature-removal-schedule.txt.old	2006-01-18 08:38:57.000000000 +0100
++++ linux-2.6.15-mm4-full/Documentation/feature-removal-schedule.txt	2006-01-18 08:39:59.000000000 +0100
+@@ -164,0 +165,6 @@
++---------------------------
++
++What:   eepro100 network driver
++When:   April 2006
++Why:    replaced by the e100 driver
++Who:    Adrian Bunk <bunk@stusta.de>
 

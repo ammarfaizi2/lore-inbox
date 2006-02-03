@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWBCNiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbWBCNpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWBCNiR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 08:38:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWBCNiR
+	id S1750740AbWBCNpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 08:45:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWBCNpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 08:38:17 -0500
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:51665 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S1750772AbWBCNiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 08:38:16 -0500
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Fri, 03 Feb 2006 14:36:39 +0100
-To: schilling@fokus.fraunhofer.de, jim@why.dont.jablowme.net
-Cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
-       jengelh@linux01.gwdg.de, James@superbug.co.uk, j@bitron.ch,
-       acahalan@gmail.com
+	Fri, 3 Feb 2006 08:45:16 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:54945 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750740AbWBCNpO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 08:45:14 -0500
+Date: Fri, 3 Feb 2006 14:45:04 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+cc: mrmacman_g4@mac.com, matthias.andree@gmx.de, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, James@superbug.co.uk, acahalan@gmail.com,
+       "unlisted-recipients:; "@pop3.mail.demon.net
 Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
-Message-ID: <43E35C67.nail5CAF1U9AB@burner>
-References: <43DF3C3A.nail2RF112LAB@burner>
- <1138710764.17338.47.camel@juerg-t40p.bitron.ch>
- <43DF6812.nail3B44TLQOP@burner> <20060202062840.GI5501@mail>
- <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo>
- <787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com>
- <Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr>
- <20060202210949.GD10352@voodoo> <43E27792.nail54V1B1B3Z@burner>
- <20060202214651.GE10352@voodoo>
-In-Reply-To: <20060202214651.GE10352@voodoo>
-User-Agent: nail 11.2 8/15/04
+In-Reply-To: <43E33F55.nail5CA4MZAKZ@burner>
+Message-ID: <Pine.LNX.4.61.0602031444010.7991@yvahk01.tjqt.qr>
+References: <43D7A7F4.nailDE92K7TJI@burner> <8614E822-9ED1-4CB1-B8F0-7571D1A7767E@mac.com>
+ <43D7B1E7.nailDFJ9MUZ5G@burner> <20060125230850.GA2137@merlin.emma.line.org>
+ <43D8C04F.nailE1C2X9KNC@burner> <20060126161028.GA8099@suse.cz>
+ <43DA2E79.nailFM911AZXH@burner> <43DA4DDA.7070509@superbug.co.uk>
+ <Pine.LNX.4.61.0601271753430.11702@yvahk01.tjqt.qr> <43DDFBFF.nail16Z3N3C0M@burner>
+ <20060130120408.GA8436@merlin.emma.line.org> <43DE3AE5.nail16ZL1UH7X@burner>
+ <43DE4055.8090501@pobox.com> <43DE42DD.nail2AM41DPRR@burner>
+ <Pine.LNX.4.61.0602011601420.22529@yvahk01.tjqt.qr> <43E0E950.nail46349AMDL@burner>
+ <Pine.LNX.4.61.0602021715120.13212@yvahk01.tjqt.qr> <43E33F55.nail5CA4MZAKZ@burner>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+>>
+>> So @ is equal to 0,0,0 or 0,0?
+>
+>":@" is a shorthand for ":@,0" which is a shorthand for ":@0,0" 
+>
+>There are cases where you may like to use e.g. ":@,3"
+>
 
-> > > open("/dev/hda", O_RDWR|O_NONBLOCK|O_EXCL) and that fails, and since
-> > 
-> > This is not cdrecord but a bastardized version......
-
-> I know it's not your official version, I was merely pointing out where the
-> 'problem' was coming from.
-
-This was only a short reply.... see also my longer reply from today.
+So, since Linux currently does not have anything but ":@,0" per device 
+(device file)...
 
 
-Jörg
-
+Jan Engelhardt
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de                (uni)  
-       schilling@fokus.fraunhofer.de     (work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

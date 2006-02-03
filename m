@@ -1,170 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030235AbWBCWal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946010AbWBCWbG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030235AbWBCWal (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 17:30:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030249AbWBCWal
+	id S1946010AbWBCWbG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 17:31:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945909AbWBCWbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 17:30:41 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:14257 "EHLO
+	Fri, 3 Feb 2006 17:31:05 -0500
+Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:14001 "EHLO
 	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S1030235AbWBCWak (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 17:30:40 -0500
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Organization: Cyclades Corporation
-To: linux-kernel@vger.kernel.org
-Subject: Time to harpoon the "Suspend2 changes things lots of things" myth.
-Date: Sat, 4 Feb 2006 07:31:12 +1000
+	id S1422690AbWBCWav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 17:30:51 -0500
+From: Nigel Cunningham <nigel@suspend2.net>
+Organization: Suspend2.net
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [ 01/10] [Suspend2] kernel/power/modules.h
+Date: Fri, 3 Feb 2006 23:41:41 +1000
 User-Agent: KMail/1.9.1
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pekka Enberg <penberg@cs.helsinki.fi>,
+       linux-kernel@vger.kernel.org
+References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602031020.46641.nigel@suspend2.net> <20060203131602.GD2972@elf.ucw.cz>
+In-Reply-To: <20060203131602.GD2972@elf.ucw.cz>
 MIME-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart2711574.5FDcIlPa8U";
+  boundary="nextPart1829667.cgRmIxRPRs";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200602040731.16814.ncunningham@cyclades.com>
+Message-Id: <200602032341.46043.nigel@suspend2.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2711574.5FDcIlPa8U
+--nextPart1829667.cgRmIxRPRs
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-Hi all.
+Hi.
 
-Here's a diff stat of the core changes for Suspend2:
+On Friday 03 February 2006 23:16, Pavel Machek wrote:
+> On P=E1 03-02-06 10:20:42, Nigel Cunningham wrote:
+> > Hi.
+> >
+> > On Friday 03 February 2006 08:10, Rafael J. Wysocki wrote:
+> > > On machines with less RAM suspend2 will probably be better
+> > > preformance-wise, and that may be more important than the flexibility.
+> >
+> > Ok. So I bit the bullet and downloaded -mm4 to take a look at this
+> > interface you're making, and I have a few questions:
+>
+> Great, thanks.
+>
+> > - It seems to be hardwired to use swap, but you talk about writing to a
+> > network image above. In Suspend2, I just bmap whatever the storage is,
+> > and then submit bios to read and write the data. Is anything like that
+> > possible with this interface? (Could it be extended if not?)
+>
+> No, it is not hardwired. There's special swap support, but you do not
+> need to use it.
+>
+> > - Is there any way you could support doing a full image of memory with
+> > this approach? Would you take patches?
+>
+> Doing full image is certainly possible; it is not important if kernel
+> does the writing or userspace does it. Taking patches definitely
+> depends how they'd look like...
 
- Documentation/kernel-parameters.txt |    8=20
- Documentation/power/internals.txt   |  360 ++++++++++
- Documentation/power/suspend2.txt    |  631 ++++++++++++++++++
- arch/arm/mm/init.c                  |   15=20
- arch/x86_64/kernel/e820.c           |   17=20
- arch/x86_64/kernel/suspend.c        |    6=20
- arch/x86_64/mm/init.c               |   19=20
- block/ll_rw_blk.c                   |   19=20
- include/asm-arm/hw_irq.h            |    4=20
- include/asm-arm/suspend2.h          |  136 ++++
- include/asm-i386/suspend2.h         |  288 ++++++++
- include/asm-x86_64/page.h           |    2=20
- include/asm-x86_64/suspend.h        |    2=20
- include/linux/bio.h                 |    1=20
- include/linux/dyn_pageflags.h       |   66 +
- include/linux/kernel.h              |    2=20
- include/linux/netlink.h             |    2=20
- include/linux/suspend.h             |    9=20
- include/linux/suspend2.h            |  231 ++++++
- init/do_mounts.c                    |   28=20
- init/do_mounts_initrd.c             |    9=20
- init/main.c                         |    4=20
- kernel/fork.c                       |    9=20
- kernel/power/Kconfig                |   73 ++
- kernel/power/Makefile               |   25=20
- kernel/power/atomic_copy.c          |  473 ++++++++++++++
- kernel/power/atomic_copy.h          |    4=20
- kernel/power/block_io.h             |   76 ++
- kernel/power/checksum.h             |   11=20
- kernel/power/compression.c          |  638 ++++++++++++++++++
- kernel/power/debug_pagealloc.c      |  111 +++
- kernel/power/debug_pagealloc.h      |    3=20
- kernel/power/encryption.c           |  597 +++++++++++++++++
- kernel/power/extent.c               |  247 +++++++
- kernel/power/extent.h               |  105 +++
- kernel/power/io.c                   | 1026 ++++++++++++++++++++++++++++++
- kernel/power/io.h                   |   38 +
- kernel/power/modules.c              |  312 +++++++++
- kernel/power/modules.h              |  180 +++++
- kernel/power/netlink.c              |  365 ++++++++++
- kernel/power/netlink.h              |   43 +
- kernel/power/pagedir.c              |  370 ++++++++++
- kernel/power/pagedir.h              |   37 +
- kernel/power/pageflags.c            |  150 ++++
- kernel/power/pageflags.h            |   86 ++
- kernel/power/power.h                |    4=20
- kernel/power/power_off.c            |   79 ++
- kernel/power/power_off.h            |   13=20
- kernel/power/prepare_image.c        |  753 ++++++++++++++++++++++
- kernel/power/prepare_image.h        |   31=20
- kernel/power/proc.c                 |  305 +++++++++
- kernel/power/proc.h                 |   70 ++
- kernel/power/snapshot.c             |    2=20
- kernel/power/storage.c              |  323 +++++++++
- kernel/power/storage.h              |   21=20
- kernel/power/suspend.c              | 1133 +++++++++++++++++++++++++++++++=
-++
- kernel/power/suspend.h              |   28=20
- kernel/power/suspend2.h             |   31=20
- kernel/power/suspend2_common.h      |   25=20
- kernel/power/suspend_block_io.c     | 1086 ++++++++++++++++++++++++++++++++
- kernel/power/suspend_checksums.c    |  509 +++++++++++++++
- kernel/power/suspend_file.c         | 1077 +++++++++++++++++++++++++++++++
- kernel/power/suspend_swap.c         | 1213 +++++++=3D=3D> (Trunc'd for wor=
-d wrap)
- kernel/power/swsusp.c               |    4=20
- kernel/power/swsusp.h               |   24=20
- kernel/power/ui.c                   |  853 +++++++++++++++++++++++++
- kernel/power/ui.h                   |   44 +
- kernel/power/version.h              |    2=20
- lib/Kconfig                         |    3=20
- lib/Makefile                        |    2=20
- lib/dyn_pageflags.c                 |  330 +++++++++
- lib/vsprintf.c                      |   28=20
- mm/memory.c                         |    9=20
- 73 files changed, 14823 insertions(+), 17 deletions(-)
-
-As you can see, nearly everything is in the new kernel/power files and arch=
+Would you actually do some work on generating them? I'm concerned that I'm=
 =20
-specific code.
-
-But, you might say, if I download a pacakage from suspend2.net, my diffstat=
+going to end up putting more work into making patches, only to have you nac=
+k=20
+them for (what seem to me like) arbitrary reasons. I feel like all you're=20
+doing at the moment is pouring cold water on my work. Seeing you put some=20
+work into making mileage from the work I've put into Suspend2 would encoura=
+ge=20
+me a lot. Forgive me if I sound pretty negative - between a couple of month=
+s=20
+of humid weather, lack of sleep and the event of the last few weeks, I'm no=
+t=20
+in the best frame of mind at the moment. Perhaps it would be better for me=
 =20
-looks quite different. Yes. that's because that packaging also includes=20
-related, noncore improvements such as refrigerator improvements, cryptoapi=
-=20
-lzf support and driver fixes that aren't upstream yet. The refrigerator=20
-improvements especially cause a blowout in the number of files affected by=
-=20
-the patch.
-
-I'm sure the above will also lead to the question "Why is it so big compare=
-d=20
-to swsusp?" That's because Suspend2 supports the following features the=20
-swsusp currently lacks:
-
-=2D Writing to more than one swap file/partition in an image.
-=2D Writing to ordinary files instead of to swap.
-=2D Asynchronous I/O
-=2D Readahead for synchronous I/O
-=2D Optional compression and encryption via cryptoapi
-=2D An optional userspace user interface, controlled via a netlink socket.
-=2D Reconfiguring without rebooting.
-=2D Save a full image of memory (or...)
-=2D Set an arbitrary soft upper limit on the size of the image
-=2D Press escape to cancel suspending to disk at any time during writing th=
-e=20
-image.
-=2D Disable cancelling via a proc entry if want to.
-=2D Configure encryption anyway you want - all settings are simply passed=20
-through.
-=2D Testing settings that can be used to benchmark and issues
-=2D Support for userui storage manager (eg for managing network connections=
- when=20
-writing the image to the network)
-=2D Documentation. Not perfect, but it adds to the size of the code too.
+just to say "I give full permission for you and Rafael to rip out of Suspen=
+d2=20
+anything you find useful.", leave it at that and go find another hobby for =
+a=20
+while.
 
 Regards,
 
 Nigel
 
---nextPart2711574.5FDcIlPa8U
+> > - Does the data have to be transferred to userspace? Security and
+> > efficiency wise, it would seem to make a lot more sense just to be
+> > telling the kernel where to write things and let it do bio calls like I=
+'m
+> > doing at the moment.
+>
+> As far as I can see, transfering data to userspace and back does not
+> really cost much:
+>
+> pavel@amd:~$ time head -c $[1024*1024*1024] < /dev/zero > /dev/null
+> 0.16user 0.27system 0.43 (0m0.439s) elapsed 100.00%CPU
+>
+> ...2000MB/sec is the limit (thinkpad x32).
+> 								Pavel
+
+=2D-=20
+See our web page for Howtos, FAQs, the Wiki and mailing list info.
+http://www.suspend2.net                IRC: #suspend2 on Freenode
+
+--nextPart1829667.cgRmIxRPRs
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
 
-iD8DBQBD48ukN0y+n1M3mo0RAodyAKD0v0GEzjNX0sde9YfMpbFrBOY54QCfb4T6
-5jCOrTIPtjatNaqO0nFD8YE=
-=usZz
+iD8DBQBD412aN0y+n1M3mo0RAuhSAJ9ULqeU5bVx+Bq0q+cUJxWHAB7N5gCbBLVC
+lj4hJtElEtOeNB2dp9ADOhQ=
+=y/ew
 -----END PGP SIGNATURE-----
 
---nextPart2711574.5FDcIlPa8U--
+--nextPart1829667.cgRmIxRPRs--

@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbWBCTaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945917AbWBCTbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbWBCTaT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 14:30:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945916AbWBCTaS
+	id S1945917AbWBCTbF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 14:31:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945916AbWBCTbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 14:30:18 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:26838
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1945915AbWBCTaR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 14:30:17 -0500
-Subject: Re: time function behaving strane
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: john stultz <johnstul@us.ibm.com>
-Cc: Conio sandiago <coniodiago@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1138994370.10057.129.camel@cog.beaverton.ibm.com>
-References: <993d182d0602022015j70bff250x2524c6c5917be2a7@mail.gmail.com>
-	 <1138994370.10057.129.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Fri, 03 Feb 2006 20:30:33 +0100
-Message-Id: <1138995034.29087.130.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.5 
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Feb 2006 14:31:04 -0500
+Received: from mail.gmx.de ([213.165.64.21]:39610 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1945915AbWBCTbB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 14:31:01 -0500
+X-Authenticated: #428038
+Date: Fri, 3 Feb 2006 20:30:56 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: mrmacman_g4@mac.com, mj@ucw.cz, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jengelh@linux01.gwdg.de,
+       James@superbug.co.uk, j@bitron.ch, acahalan@gmail.com, 7eggert@gmx.de
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+Message-ID: <20060203193056.GD18533@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	mrmacman_g4@mac.com, mj@ucw.cz, linux-kernel@vger.kernel.org,
+	jengelh@linux01.gwdg.de, James@superbug.co.uk, j@bitron.ch,
+	acahalan@gmail.com, 7eggert@gmx.de
+References: <5zer2-1BC-29@gated-at.bofh.it> <5AFHY-5jd-23@gated-at.bofh.it> <5ALb5-5kV-43@gated-at.bofh.it> <5B15G-39W-17@gated-at.bofh.it> <5B1Im-4cW-7@gated-at.bofh.it> <5B3TN-7AV-9@gated-at.bofh.it> <5Bs5Z-1BT-17@gated-at.bofh.it> <5BJgx-1fE-13@gated-at.bofh.it> <E1F4nt5-00014L-Ry@be1.lrz> <43E36084.nail5CAJ14LO3@burner>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43E36084.nail5CAJ14LO3@burner>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-02-03 at 11:19 -0800, john stultz wrote:
-> On Fri, 2006-02-03 at 09:45 +0530, Conio sandiago wrote:
-> > Hi all,
-> > i am using time function in my application.
-> > When i call the try function in a loop of say 1 lac iterations then i
-> > m facing strange behaviour.
-> > 
-> > What i am doing is that i am making a call twice to time function
-> > inside every iteration and i compare the time of both the calls.
-> > But sometimes the time obtained from recent call is 1 second less than
-> > the previous call.
-> > 
-> > Has anybody observed such kind of problem??
-> 
-> Time inconsistencies are possible with some hardware, although full
-> second inconsistencies are a bit large.
-> 
-> Please open a bug at  http://bugzilla.kernel.org
-> 
-> Attach a full dmesg log and assign it to me.
+Joerg Schilling schrieb am 2006-02-03:
 
-Please provide also test code which makes that problem visible.
+> This is a limitation of the implementation used on Linux and not true for e.g. 
+> Solaris.
 
-	tglx
+Linux is not Solaris.
 
+Do you want your application to work with Linux,
+because it brings customers?
 
+If yes, listen to kernel developers if they say "you don't need that
+feature". Note I do not consider myself kernel developer. I'm a
+bystander who's trying to help out.
+
+-- 
+Matthias Andree

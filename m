@@ -1,74 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWBCCAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWBCCFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964843AbWBCCAb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Feb 2006 21:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWBCCAb
+	id S964851AbWBCCFa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Feb 2006 21:05:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbWBCCFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Feb 2006 21:00:31 -0500
-Received: from clix.aarnet.edu.au ([192.94.63.10]:19356 "EHLO
-	clix.aarnet.edu.au") by vger.kernel.org with ESMTP id S964843AbWBCCAa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Feb 2006 21:00:30 -0500
-Message-ID: <43E2B8D6.1070707@aarnet.edu.au>
-Date: Fri, 03 Feb 2006 12:28:46 +1030
-From: Glen Turner <glen.turner@aarnet.edu.au>
-Organization: Australia's Academic & Research Network
+	Thu, 2 Feb 2006 21:05:30 -0500
+Received: from fw5.argo.co.il ([194.90.79.130]:34573 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S964851AbWBCCF3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Feb 2006 21:05:29 -0500
+Message-ID: <43E2BA63.5050505@argo.co.il>
+Date: Fri, 03 Feb 2006 04:05:23 +0200
+From: Avi Kivity <avi@argo.co.il>
 User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Kumar Gala <galak@kernel.crashing.org>, rmk+kernel@arm.linux.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: 8250 serial console fixes -- issue
-References: <Pine.LNX.4.44.0602011911360.22854-100000@gate.crashing.org> <1138844838.5557.17.camel@localhost.localdomain>
-In-Reply-To: <1138844838.5557.17.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Dave Jones <davej@redhat.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: discriminate single bit error hardware failure from slab corruption.
+References: <20060202192414.GA22074@redhat.com> <43E2A784.2070809@argo.co.il> <20060203014645.GD10209@redhat.com>
+In-Reply-To: <20060203014645.GD10209@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-MDSA: Yes
-X-Spam-Score: -104.901 BAYES_00,USER_IN_WHITELIST
+X-OriginalArrivalTime: 03 Feb 2006 02:05:28.0300 (UTC) FILETIME=[4DC26AC0:01C62866]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Jones wrote:
 
-Hi Alan,
+>On Fri, Feb 03, 2006 at 02:44:52AM +0200, Avi Kivity wrote:
+>
+> >         total += hweight8(data[offset+i] ^ POISON_FREE);
+> > 
+> > >		printk(" %02x", (unsigned char)data[offset + i]);
+> > >	}
+> > >	printk("\n");
+> > >@@ -1019,6 +1023,18 @@ static void dump_line(char *data, int of
+> > >		}
+> > >	}
+> > >	printk("\n");
+> > >+	switch (total) {
+> > >+		case 0x36:
+> > >+		case 0x6a:
+> > >+		case 0x6f:
+> > >+		case 0x81:
+> > >+		case 0xac:
+> > >+		case 0xd3:
+> > >+		case 0xd5:
+> > >+		case 0xea:
+> > >+			printk (KERN_ERR "Single bit error detected. 
+> > >Possibly bad RAM. Please run memtest86.\n");
+> > >+			return;
+> > >+	}
+> > > 
+> > >
+> > and a
+> > 
+> >     if (total == 1)
+> >           printk(...);
+> > 
+> > here? it seems more readable and more correct as well.
+>
+>More readable ? Are you kidding ?
+>What I wrote is smack-you-in-the-face-obvious what it's doing.
+>With your variant, I have to sit down and think it through.
+>  
+>
+Looks like we have mirror image brains :) - I had to scratch my scalp to 
+figure out where all the magic numbers in the switch came from.  
 
-The serial console driver has a host of issues
+Perhaps well named variables will help:
 
-  - end of line should be CR LF, not LF CR
+    unsigned char modified_bits = data[offset+i] ^ POSION_FREE;
+    int modified_bits_count = hweight8(modified_bits);
+    total += modified_bits_count;
 
-  - 'r' option for CTS/RTS flow control assumes CTS is
-    asserted when DSR is not asserted. This is wrong as
-    lots of modems float control lines when off.  No
-    control signals are defined is DSR is unasserted.
-
-  - [SECURITY] 'r' should require DCD to be asserted
-    before outputing characters. Otherwise we talk to
-    Hayes modem command mode.  This allows a non-root
-    user to re-program the modem and is a major security
-    issue is people configure calling line identification
-    or encryption to restrict use of the serial console.
-
-  - 'r' option has insanely slow CTS timeout. So if a
-    terminal server is inactive the kernel can take
-    30 minutes to boot as each character write to the
-    serial console requires a CTS timeout.
-
-All of these have been reported to me multiple times
-(I'm maintainer of the Remote-Serial-Console-HOWTO).
-
-I occassionally clean up and repost a patch I wrote years
-ago which never gets integrated (although it ships in the
-patchset of a number of kernels from supercomputer vendors).
-I'm happy to clean it up again if there's a hope of
-integration.
-
-See
-   <http://www.aarnet.edu.au/~gdt/patch/console/serial-console.patch>
-for the most recent attempt.
-
-Thanks so much,
-Glen
+>wrt correctness, what do you see wrong with my approach?
+>  
+>
+Your code will generate a false positive 8 times in 256 runs, or 1 in 
+32. A 3% false positive rate seems excessive, It's also sensitive to 
+changes to POISON_FREE.
 
 -- 
-  Glen Turner         Tel: (08) 8303 3936 or +61 8 8303 3936
-  Australia's Academic & Research Network  www.aarnet.edu.au
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+

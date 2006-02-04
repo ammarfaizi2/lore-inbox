@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946268AbWBDCh5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbWBDCuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946268AbWBDCh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 21:37:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946269AbWBDCh5
+	id S1750947AbWBDCuE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 21:50:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946271AbWBDCuD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 21:37:57 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:15786 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1946268AbWBDCh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 21:37:56 -0500
-Date: Fri, 3 Feb 2006 18:36:52 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: hawkes@sgi.com
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Jack Steiner <steiner@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] load_balance: "busiest CPU" -> "busier CPUs"
-Message-ID: <20060203183651.A24554@unix-os.sc.intel.com>
-References: <20060204003807.28210.77735.sendpatchset@tomahawk.engr.sgi.com>
+	Fri, 3 Feb 2006 21:50:03 -0500
+Received: from [205.233.219.253] ([205.233.219.253]:22149 "EHLO
+	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
+	id S1750947AbWBDCuC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 21:50:02 -0500
+Date: Fri, 3 Feb 2006 21:43:54 -0500
+From: Jody McIntyre <scjody@modernduck.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, bcollins@debian.org,
+       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.ne,
+       sam@ravnborg.org
+Subject: Re: 2.6.16-rc1-mm5: drivers/ieee1394/oui O=... builds broken
+Message-ID: <20060204024354.GA22002@conscoop.ottawa.on.ca>
+References: <20060203000704.3964a39f.akpm@osdl.org> <20060203212507.GR4408@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060204003807.28210.77735.sendpatchset@tomahawk.engr.sgi.com>; from hawkes@sgi.com on Fri, Feb 03, 2006 at 04:38:07PM -0800
+In-Reply-To: <20060203212507.GR4408@stusta.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 04:38:07PM -0800, hawkes@sgi.com wrote:
-> In these circumstances, an all-pinned "busiest CPU" will effectively
-> disable load_balance balancing.
+On Fri, Feb 03, 2006 at 10:25:07PM +0100, Adrian Bunk wrote:
+> ...
+>   OUI2C   drivers/ieee1394/oui.c
+> /bin/sh: drivers/ieee1394/oui2c.sh: No such file or directory
+> make[3]: *** [drivers/ieee1394/oui.c] Error 127
 
-Solving all the load balancing issues that occur under all-pinned case is
-tricy... For example, even with this patch, at a particular sched domain,
-load balance might still be disabled for the cpus which belong to the same 
-sched group as the all-pinned "busiest CPU"
+I can't reproduce this.  What steps are you using to build the kernel?
 
-> @@ -243,6 +243,8 @@ struct runqueue {
->  	int active_balance;
->  	int push_cpu;
->  
-> +	int cpuid;			/* of this runqueue */
-> +
->  	task_t *migration_thread;
->  	struct list_head migration_queue;
+Cheers,
+Jody
 
-A simple change to find_busiest_queue() can avoid that addition to the
-runqueue struct.
+> 
+> <--  snip  -->
+> 
+> 
+> The change that broke it is:
+> 
+> 
+>  quiet_cmd_oui2c = OUI2C   $@
+> -      cmd_oui2c = $(CONFIG_SHELL) $(srctree)/$(src)/oui2c.sh < $< > $@
+> +      cmd_oui2c = $(CONFIG_SHELL) $(src)/oui2c.sh < $< > $@
+> 
+> 
+> cu
+> Adrian
+> 
+> -- 
+> 
+>        "Is there not promise of rain?" Ling Tan asked suddenly out
+>         of the darkness. There had been need of rain for many days.
+>        "Only a promise," Lao Er said.
+>                                        Pearl S. Buck - Dragon Seed
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-thanks,
-suresh
+-- 

@@ -1,78 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbWBDUqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932569AbWBDUyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932568AbWBDUqm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 15:46:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWBDUqm
+	id S932569AbWBDUyU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 15:54:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWBDUyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 15:46:42 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:28066 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932568AbWBDUqm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 15:46:42 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: chroot in swsusp userland interface (was: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
-Date: Sat, 4 Feb 2006 21:45:42 +0100
-User-Agent: KMail/1.9.1
-Cc: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
-References: <200602030918.07006.nigel@suspend2.net> <200602042057.45369.rjw@sisk.pl> <20060204201503.GE3909@elf.ucw.cz>
-In-Reply-To: <20060204201503.GE3909@elf.ucw.cz>
+	Sat, 4 Feb 2006 15:54:19 -0500
+Received: from xproxy.gmail.com ([66.249.82.200]:21228 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1946080AbWBDUyQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 15:54:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=VM3Ugb+Genz/W3HqG3Rsk69zymSG8SlQYK6CHKTls4n2j8aq/fTdacNHGadlcXJFUGmbTT2jpYMw1kcOAzdcqDTqefsmsO6o/wQsEaQgjBUQhzOMs9zfPt1qBVsq5mks8XQ/rhysdwtMgp6nagR/w5G2ebzNFb2kHWMGdnhcZPQ=
+Message-ID: <986ed62e0602041254h5ffd3e4eqb11e515ddf939fc6@mail.gmail.com>
+Date: Sat, 4 Feb 2006 12:54:15 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Willy TARREAU <willy@w.ods.org>
+Subject: Re: [ANNOUNCE] Linux Kernel Useful Patches (2.4)
+Cc: Mathias Kretschmer <posting@blx4.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060204181554.GG6026@w.ods.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200602042145.43308.rjw@sisk.pl>
+References: <20060130085233.GA1498@w.ods.org> <43E27895.4010904@blx4.net>
+	 <20060204181554.GG6026@w.ods.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 2/4/06, Willy TARREAU <willy@w.ods.org> wrote:
+> The last O(1) patch I've seen does not apply to kernels more recent than 2.4.19
+> (it's on Ingo's site). Do you have any up to date pointer that I could use ?
+> However, I have a local rediff of the lowlat patch that I will include.
 
-On Saturday 04 February 2006 21:15, Pavel Machek wrote:
-}-- snip --{
-> > > Index: suspend.c
-> > > ===================================================================
-> > > RCS file: /cvsroot/suspend/suspend/suspend.c,v
-> > > retrieving revision 1.5
-> > > diff -u -u -r1.5 suspend.c
-> > > --- suspend.c	3 Feb 2006 22:39:24 -0000	1.5
-> > > +++ suspend.c	4 Feb 2006 19:19:51 -0000
-> > > @@ -360,6 +360,12 @@
-> > >  		goto Close;
-> > >  	}
-> > >  	go_to_console();
-> > > +	/*
-> > > +	 * From now on, system is frozen; any filesystem access may mean data corruption.
-> > > +	 * Prevent accidental filesystem accesses by chrooting somewhere where little
-> > > +	 * damage can be done.
-> > > +	 */
-> > > +	chroot("/sys/power");
-> > 
-> > This won't be enough if /sys/power is on a frozen ext2 and the suspending
-> > utility calls open("file", O_CREAT) "by accident".
-> 
-> ...well, we rely on sysfs files to work... at least for
-> suspend-to-RAM, ok, no argument here. I doubt anyone really does mount
-> anything but sysfs on /sys...
-> 
-> > I think we should do as Olivier said: Mount tmpfs with limited size somewhere
-> > and chroot to it (IMO this won't affect the underlying filesystem).  Then, create
-> > device files for the console and vt on it and open them from there.  This should
-> > be 100% safe.
-> 
-> Looks unneccessarily complex to me. We'd have to umount that tmpfs,
-> and playing with mounts inside system suspend seems wrong to me.
-> 
-> Perhaps we can chroot into /proc...  almost everyone has /proc
-> mounted, right? 
-> 
-> Is it possible to move console/vt open before freeze?
+(This e-mail ended up being a bit longer than I intended. The most
+relevant stuff may be in the last couple of paragraphs, but I've
+included the whole message for the sake of completeness.)
 
-No, because freeze sets the active vt for us.  How about that: mount the
-tmpfs before freeze, put there what we'll need, open device files from
-there instead of /dev, and chroot() after atomic_snapshot?  Then, after
-resume we won't be chrooted and we'll be able to unmount the tmpfs
-safely.
+Red Hat ships it in a 2.4.21-based kernel. Here's their latest source RPM:
+ftp://ftp.redhat.com/pub/redhat/linux/updates/enterprise/3AS/en/os/SRPMS/kernel-2.4.21-37.0.1.EL.src.rpm
 
-Greetings,
-Rafael
+However, I just remembered that the RHEL 3 kernel patch series starts
+with an -ac patch and builds up from there. I think it gets the O(1)
+scheduler from there but it might apply further patches to it (but I'm
+not 100% sure my memory is correct here).
+
+Here's the last -ac patch:
+http://kernel.org/pub/linux/kernel/people/alan/linux-2.4/2.4.22/patch-2.4.22-ac4.bz2
+
+If you want to see what Red Hat/Fedora did against 2.4.22, this is
+what the final Fedora Core 1 kernel shipped:
+http://cvs.fedora.redhat.com/viewcvs/rpms/kernel/FC-1/
+(There are newer kernels for FC1 from Fedora Legacy, but I think those
+just add security fixes.)
+
+There's also 2.4.27-pre2-pac1, which has the O(1) scheduler. I don't
+know if it introduces any bugs into the O(1) scheduler though. (It did
+introduce a bug into the overcommit accounting, because part of it was
+missing.)
+http://kernel.org/pub/linux/kernel/people/bero/2.4/2.4.27/patch-2.4.27-pre2-pac1.bz2
+
+Finally, 2.4.31-lck1 has the O(1) scheduler. This is the "base" patch
+for 2.4.31-lck1, which has O(1) but also has "kernel preemption, low
+latency and CK interactivity":
+http://www.plumlocosoft.com/kernel/patches/2.4/2.4.31/2.4.31-lck1/components/010-lckbase.diff.bz2
+
+It's probably the most recent forward-port of the O(1) patch, and it's
+probably going to be the smallest diff to look through as well, if you
+want to cherry-pick it out and make it work on 2.4.32 or 2.4.33-pre.
+(I don't think I'll be doing this, however. The boxes I manage that
+would greatly benefit from O(1) will probably move to kernel 2.6 soon
+for other reasons anyway.)
+--
+-Barry K. Nathan <barryn@pobox.com>

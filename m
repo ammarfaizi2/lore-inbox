@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945937AbWBDJB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945938AbWBDJNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945937AbWBDJB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 04:01:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945938AbWBDJB0
+	id S1945938AbWBDJNy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 04:13:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945939AbWBDJNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 04:01:26 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46472 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1945937AbWBDJBZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 04:01:25 -0500
-Date: Sat, 4 Feb 2006 10:01:12 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Message-ID: <20060204090112.GJ3291@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602030918.07006.nigel@suspend2.net> <20060203114419.GB2972@elf.ucw.cz> <200602041120.59830.nigel@suspend2.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200602041120.59830.nigel@suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sat, 4 Feb 2006 04:13:54 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:18318 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1945938AbWBDJNx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 04:13:53 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <43E46F1F.9070503@s5r6.in-berlin.de>
+Date: Sat, 04 Feb 2006 10:08:47 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Andrew Morton <akpm@osdl.org>, bcollins@debian.org, scjody@modernduck.com,
+       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.ne,
+       sam@ravnborg.org, Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: 2.6.16-rc1-mm5: drivers/ieee1394/oui O=... builds broken
+References: <20060203000704.3964a39f.akpm@osdl.org> <20060203212507.GR4408@stusta.de>
+In-Reply-To: <20060203212507.GR4408@stusta.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (-0.449) AWL,BAYES_40
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On So 04-02-06 11:20:54, Nigel Cunningham wrote:
-> Hi Pavel.
+Adrian Bunk wrote:
+> ...
+>   OUI2C   drivers/ieee1394/oui.c
+> /bin/sh: drivers/ieee1394/oui2c.sh: No such file or directory
+> make[3]: *** [drivers/ieee1394/oui.c] Error 127
 > 
-> On Friday 03 February 2006 21:44, Pavel Machek wrote:
-> > [Pavel is willing to take patches, as his cooperation with Rafael
-> > shows, but is scared by both big patches and series of 10 small
-> > patches he does not understand. He likes patches removing code.]
+> <--  snip  -->
 > 
-> Assuming you're refering to the patches that started this thread, what don't 
-> you understand? I'm more than happy to explain.
+> 
+> The change that broke it is:
+> 
+> 
+>  quiet_cmd_oui2c = OUI2C   $@
+> -      cmd_oui2c = $(CONFIG_SHELL) $(srctree)/$(src)/oui2c.sh < $< > $@
+> +      cmd_oui2c = $(CONFIG_SHELL) $(src)/oui2c.sh < $< > $@
 
-For "suspend2: modules support", it is pretty clear that I do not need
-or want that complexity. But for "refrigerator improvements", I did
-not understand which parts are neccessary because of suspend2
-vs. swsusp differences, and if there is simpler way towards the same
-goal. (And thanks for a stress hint...)
-								Pavel
-
+How can this be reproduced? IOW which way of building the kernel is broken?
 -- 
-Thanks, Sharp!
+Stefan Richter
+-=====-=-==- --=- --=--
+http://arcgraph.de/sr/

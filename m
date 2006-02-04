@@ -1,85 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946110AbWBDAyq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945969AbWBDBAK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946110AbWBDAyq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 19:54:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946233AbWBDAyq
+	id S1945969AbWBDBAK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 20:00:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946223AbWBDBAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 19:54:46 -0500
-Received: from ozlabs.org ([203.10.76.45]:8916 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1946110AbWBDAyp (ORCPT
+	Fri, 3 Feb 2006 20:00:09 -0500
+Received: from uproxy.gmail.com ([66.249.92.199]:25797 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1946106AbWBDBAH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 19:54:45 -0500
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-To: linuxppc64-dev@ozlabs.org
-Subject: Re: how to limit memory with 2.6.10 on ppc64 machine?
-Date: Sat, 4 Feb 2006 11:54:02 +1100
-User-Agent: KMail/1.8.3
-Cc: "Christopher Friesen" <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
-References: <43E3E55C.90504@nortel.com>
-In-Reply-To: <43E3E55C.90504@nortel.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1835264.jkXDD4jY3A";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602041154.12710.michael@ellerman.id.au>
+	Fri, 3 Feb 2006 20:00:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=TBIfdg7cNO+NyF98+2hUi44TYyXeuGetlW+uH44M0O3ApHUuEvYUDJFa/6GLFmKkkJ4qoQ2MgZ4h/LOy3zsf0ySoMbz5K1ddgBhYyx+58Ez95fGKPkZOioFaztBulz+NqRC9EJuVw+85SFqshNuREWjtbvnGBgpKRggNjJCQMMc=
+Date: Sat, 4 Feb 2006 04:18:15 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Evgeniy Dushistov <dushistov@mail.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: [PATCH] ufs: fill i_size at directory creation
+Message-ID: <20060204011815.GA7837@mipter.zuzino.mipt.ru>
+References: <20060131234634.GA13773@mipter.zuzino.mipt.ru> <20060201200410.GA11747@rain.homenetwork> <20060203174613.GA7823@mipter.zuzino.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060203174613.GA7823@mipter.zuzino.mipt.ru>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1835264.jkXDD4jY3A
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Fri, Feb 03, 2006 at 08:46:13PM +0300, Alexey Dobriyan wrote:
+> Thanks, these two patches makes things better but not much better.
+> 
+> 1.
+> 
+>         inode->i_blocks = sb->s_blocksize / UFS_SECTOR_SIZE;
+> +       inode->i_size = sb->s_blocksize;
+>         de = (struct ufs_dir_entry *) dir_block->b_data;
+> 
+> This creates directories which are 2048 bytes in size. Native ones are
+> 512 bytes.
+> 
+> 	inode->i_size = 512;
+> 
+> makes mkdir and rm reliable for me both on linux and OpenBSD.
 
-On Sat, 4 Feb 2006 10:21, Christopher Friesen wrote:
-> I'm running 2.6.10 on a ppc64 machine with 4GB of memory.
->
-> We're debugging an issue and would like to try and see if disabling the
-> U3 DART makes the problem go away.  Unfortunately, this particular blade
-> is unstable if not all the memory banks are populated.
->
-> After some frustration I looked at the code and realized that the "mem=3D"
-> functionality is not supported for ppc64 on this particular kernel.
->
-> Can anyone give me some advice on the simplest way to limit this thing
-> to under 2GB of memory so that the DART is not allocated/used?
->
-> Does anyone know when support for "mem=3D" was added?  I know it is there
-> in the current git version, but the "powerpc" consolidation means
-> everything is all different now.
+I take "reliably" back.
 
-=46rom memory (harhar) the mem=3D support was merged in 2.6.11, so the orig=
-inal=20
-patch should _probably_ apply on a vanilla 2.6.10 tree, try it:
+	for i in $(seq 1 100); do mkdir $i; done
 
-http://patchwork.ozlabs.org/linuxppc64/patch?id=3D724
+barfs after 42-nd.
 
-cheers
+How about this as a first small step?
 
-=2D-=20
-Michael Ellerman
-IBM OzLabs
+[PATCH] ufs: fill i_size at directory creation
 
-email: michael:ellerman.id.au
-inmsg: mpe:jabber.org
-wwweb: http://michael.ellerman.id.au
-phone: +61 2 6212 1183 (tie line 70 21183)
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 
-We do not inherit the earth from our ancestors,
-we borrow it from our children. - S.M.A.R.T Person
+--- a/fs/ufs/dir.c
++++ b/fs/ufs/dir.c
+@@ -539,6 +539,7 @@ int ufs_make_empty(struct inode * inode,
+ 		return err;
+ 
+ 	inode->i_blocks = sb->s_blocksize / UFS_SECTOR_SIZE;
++	inode->i_size = UFS_SB(sb)->s_uspi->s_fsize;
+ 	de = (struct ufs_dir_entry *) dir_block->b_data;
+ 	de->d_ino = cpu_to_fs32(sb, inode->i_ino);
+ 	ufs_set_de_type(sb, de, inode->i_mode);
 
---nextPart1835264.jkXDD4jY3A
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD4/s0dSjSd0sB4dIRAlJhAJ9MZ27iHlgxfr5VuoCk78gkXIg4lwCbBnbI
-QIW4V8k9EAPXFaCUOTQuc+s=
-=mnDS
------END PGP SIGNATURE-----
-
---nextPart1835264.jkXDD4jY3A--

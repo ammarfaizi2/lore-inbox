@@ -1,97 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbWBDUll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932568AbWBDUqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932567AbWBDUll (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 15:41:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932568AbWBDUll
+	id S932568AbWBDUqm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 15:46:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932569AbWBDUqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 15:41:41 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:15623 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932567AbWBDUll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 15:41:41 -0500
-Date: Sat, 4 Feb 2006 21:41:39 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Marc Koschewski <marc@osknowledge.org>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>, dtor_core@ameritech.net,
-       rlrevell@joe-job.com, 76306.1226@compuserve.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Randy Dunlap <rdunlap@xenotime.net>
-Subject: Re: Wanted: hotfixes for -mm kernels
-Message-ID: <20060204204139.GA4528@stusta.de>
-References: <200602021502_MC3-1-B772-547@compuserve.com> <1138913633.15691.109.camel@mindpipe> <d120d5000602021345i255bb69eydb67bc1b0a448f8d@mail.gmail.com> <20060203100703.GA5691@stiffy.osknowledge.org> <20060204083752.a5c5b058.mbligh@mbligh.org> <20060204185738.GA5689@stiffy.osknowledge.org>
+	Sat, 4 Feb 2006 15:46:42 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:28066 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932568AbWBDUqm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 15:46:42 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: chroot in swsusp userland interface (was: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.)
+Date: Sat, 4 Feb 2006 21:45:42 +0100
+User-Agent: KMail/1.9.1
+Cc: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
+References: <200602030918.07006.nigel@suspend2.net> <200602042057.45369.rjw@sisk.pl> <20060204201503.GE3909@elf.ucw.cz>
+In-Reply-To: <20060204201503.GE3909@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060204185738.GA5689@stiffy.osknowledge.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200602042145.43308.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 04, 2006 at 07:57:39PM +0100, Marc Koschewski wrote:
-> * Martin J. Bligh <mbligh@mbligh.org> [2006-02-04 08:37:52 -0800]:
+Hi,
+
+On Saturday 04 February 2006 21:15, Pavel Machek wrote:
+}-- snip --{
+> > > Index: suspend.c
+> > > ===================================================================
+> > > RCS file: /cvsroot/suspend/suspend/suspend.c,v
+> > > retrieving revision 1.5
+> > > diff -u -u -r1.5 suspend.c
+> > > --- suspend.c	3 Feb 2006 22:39:24 -0000	1.5
+> > > +++ suspend.c	4 Feb 2006 19:19:51 -0000
+> > > @@ -360,6 +360,12 @@
+> > >  		goto Close;
+> > >  	}
+> > >  	go_to_console();
+> > > +	/*
+> > > +	 * From now on, system is frozen; any filesystem access may mean data corruption.
+> > > +	 * Prevent accidental filesystem accesses by chrooting somewhere where little
+> > > +	 * damage can be done.
+> > > +	 */
+> > > +	chroot("/sys/power");
 > > 
-> > > > > I doubt it - mm is an experimental kernel, hotfixes only make sense for
-> > > > > production stuff.  It moves too fast.
-> > > > >
-> > > > > A better question is what does -mm give you that mainline does not, that
-> > > > > causes you to want to "stabilize" a specific -mm version?
-> > > > >
-> > > > 
-> > > > Some people just run -mm so the hotfixes/* would help them to get
-> > > > their boxes running until the next -mm without having to hunt through
-> > > > LKML for bugs already reported/fixed. This will allow better testing
-> > > > coverage because most obvious bugs are caught almost immediately and
-> > > > then people can continue using -mm to find more stuff.
-> > > 
-> > > ... that's just why I so often wish to have a -git tree, Andrew. ;)
-> > 
-> > Why do people always thing a source code control system is magically going
-> > to fix all bugs and wipe their ass for them?
-> > 
-> > You still have to work out which patches are relevant and merge them. If 
-> > he's just merging a new set of changes constantly, it won't help you a damn. 
+> > This won't be enough if /sys/power is on a frozen ext2 and the suspending
+> > utility calls open("file", O_CREAT) "by accident".
 > 
-> We talked about hotfixes for -mm. So why not check these into the -mm-git tree
-> then? This would make sense and would conform fully to my understanding of what
-> the -mm-git tree should be. I don't want to select 23 patches from LKML to make
-> the tree compile or work. I want to checkout. Why make it easy when you may get
-> it difficult.
->...
-> What sense does an -mm tree make when there are people that cannot test it because of
-> known bugs that lead to the -mm tree not being bootable or - even worse - destroying
-> the system?
+> ...well, we rely on sysfs files to work... at least for
+> suspend-to-RAM, ok, no argument here. I doubt anyone really does mount
+> anything but sysfs on /sys...
+> 
+> > I think we should do as Olivier said: Mount tmpfs with limited size somewhere
+> > and chroot to it (IMO this won't affect the underlying filesystem).  Then, create
+> > device files for the console and vt on it and open them from there.  This should
+> > be 100% safe.
+> 
+> Looks unneccessarily complex to me. We'd have to umount that tmpfs,
+> and playing with mounts inside system suspend seems wrong to me.
+> 
+> Perhaps we can chroot into /proc...  almost everyone has /proc
+> mounted, right? 
+> 
+> Is it possible to move console/vt open before freeze?
 
-That's exactly what Andrew does now implement through the hot-fixes
-directory [1].
+No, because freeze sets the active vt for us.  How about that: mount the
+tmpfs before freeze, put there what we'll need, open device files from
+there instead of /dev, and chroot() after atomic_snapshot?  Then, after
+resume we won't be chrooted and we'll be able to unmount the tmpfs
+safely.
 
-Git doesn't help for the problem that it's currently empty - it's more 
-important that people tell Andrew that this or that patch should be made 
-available there.
-
-> git is you friend. Not only for Linus' tree, but as well for Andrew's tree.
-> It would just make debugging and testing -mm more convenient and less time
-> consuming for the testers. Instead of 1000 people seeking patches Andrew would
-> just check in and we all could pull it.
->...
-
-git is the SCM Linus developed to fit his workflow.
-
-Andrew has a completely different workflow, and he has developed the 
-tools he needs for his workflow.
-
-As long as they are able to interact (which seems to work without 
-problems), there's nothing forcing them to use the same tools.
-
-> Marc
-
-cu
-Adrian
-
-[1] ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.16-rc1/2.6.16-rc1-mm5/hot-fixes/
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Greetings,
+Rafael

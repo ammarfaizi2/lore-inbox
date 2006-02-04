@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751573AbWBDTPv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751574AbWBDTQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751573AbWBDTPv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 14:15:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751574AbWBDTPv
+	id S1751574AbWBDTQI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 14:16:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751593AbWBDTQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 14:15:51 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:55017 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751565AbWBDTPu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 14:15:50 -0500
-Message-ID: <43E50F78.7C48737F@tv-sign.ru>
-Date: Sat, 04 Feb 2006 23:32:56 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH rc1-mm] reparent_thread: use remove_parent/add_parent
-Content-Type: text/plain; charset=us-ascii
+	Sat, 4 Feb 2006 14:16:07 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:10221 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751574AbWBDTQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 14:16:05 -0500
+Subject: Re: athlon 64 dual core tsc out of sync
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ed Sweetman <safemode@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43E40D14.7070606@comcast.net>
+References: <43E40D14.7070606@comcast.net>
+Content-Type: text/plain
+Date: Sat, 04 Feb 2006 14:16:02 -0500
+Message-Id: <1139080563.2791.55.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.90 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(depends on remove-add_parents-parent-argument.patch)
+On Fri, 2006-02-03 at 21:10 -0500, Ed Sweetman wrote:
+> I know this has been gone over before, and I am aware of the possible 
+> fix being the use of the pmtmr.
 
-Trivial, use remove_parent/add_parent instead of open coding.
+Ed,
 
-No changes in kernel/exit.o
+Comcast seems to be blocking my ISP's (DCANet) mail server, so I can't
+properly reply to you.
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+<safemode@comcast.net>:
+Connected to 204.127.198.26 but sender was rejected.
+Remote host said: 550-216.158.38.3 blocked by
+ldap:ou=rblmx,dc=comcast,dc=net
+550 Blocked for abuse.  Please send blacklist removal requests to
+blacklist_comcastnet@cable.comcast.com - Be sure to include your mail
+server IP ADDRESS.
 
---- RC-1/kernel/exit.c~	2006-02-04 22:06:27.000000000 +0300
-+++ RC-1/kernel/exit.c	2006-02-04 22:17:54.000000000 +0300
-@@ -548,9 +548,9 @@ static void reparent_thread(task_t *p, t
- 		 * anyway, so let go of it.
- 		 */
- 		p->ptrace = 0;
--		list_del_init(&p->sibling);
-+		remove_parent(p);
- 		p->parent = p->real_parent;
--		list_add_tail(&p->sibling, &p->parent->children);
-+		add_parent(p);
- 
- 		/* If we'd notified the old parent about this child's death,
- 		 * also notify the new parent.
+Lee
+

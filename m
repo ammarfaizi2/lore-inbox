@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946162AbWBDLNZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946165AbWBDLPg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946162AbWBDLNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 06:13:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946163AbWBDLNY
+	id S1946165AbWBDLPg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 06:15:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946167AbWBDLPg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 06:13:24 -0500
-Received: from mail.charite.de ([160.45.207.131]:44714 "EHLO mail.charite.de")
-	by vger.kernel.org with ESMTP id S1946162AbWBDLNY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 06:13:24 -0500
-Date: Sat, 4 Feb 2006 12:13:21 +0100
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.16-rc1-mm5: APIC error on CPU0, was: 2.6.16-rc1-mm4: APIC error on CPU0: 40(40)
-Message-ID: <20060204111321.GZ8140@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20060202092358.GF821@charite.de>
+	Sat, 4 Feb 2006 06:15:36 -0500
+Received: from sorrow.cyrius.com ([65.19.161.204]:39183 "EHLO
+	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S1946165AbWBDLPf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 06:15:35 -0500
+Date: Sat, 4 Feb 2006 11:15:21 +0000
+From: Martin Michlmayr <tbm@cyrius.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: Bad interaction between uhci_hcd and de2104x
+Message-ID: <20060204111521.GB18806@deprecation.cyrius.com>
+References: <20060204005014.GA13351@deprecation.cyrius.com> <Pine.LNX.4.44L0.0602032227200.10200-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060202092358.GF821@charite.de>
+In-Reply-To: <Pine.LNX.4.44L0.0602032227200.10200-100000@netrider.rowland.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>:
+* Alan Stern <stern@rowland.harvard.edu> [2006-02-03 22:30]:
+> > When I unload de2104x and uhci_hcd and load only de2104x again
+> > then Ethernet works.  Similarly, when I completely blacklist the
+> > uhci_hcd module the de2104x driver works without any problems.
+> 
+> And presumably, if you blacklist the de2104x driver then your USB
+> controller works without any problems.
+...
+> For some reason, the de2104x driver isn't listed as a handler for
+> IRQ 10.  That's probably the cause of the problem.  Did you have any
+> full- or low-speed USB devices plugged in at the time this occurred?
+> If you didn't then the UHCI hardware would not have generated any
+> interrupt requests.
 
-> I'm using 2.6.16-rc1-mm4 on a Medion Laptop. lame me for crap hardware.
-> 
-> Recent vanilla kernels were only usable when I gave them the boot options
-> "irqpoll noapic lapic", and even then I had problems with messages like:
-> 
-> Jan 25 20:04:37 knarzkiste kernel: irq 11: nobody cared (try booting with the "irqpoll" option)
-> 
-> With 2.6.16-rc1-mm3 and 2.6.16-rc1-mm4 I was able to boot the box with
-> no additional boot options and things seem to be working smoothly for
-> the first time ever.
-> 
-> Now on the other hand, I'm getting these:
-> 
-> Feb  3 06:54:15 knarzkiste kernel: APIC error on CPU0: 40(40)
-
-With mm5 I'm getting these:
-Feb  7 22:15:03 knarzkiste kernel: APIC error on CPU0: 00(40)
+No, I don't think I ever used USB on this machine.  I did some more
+tests based on what you said and have the following data points:
+ - Having a USB device (USB stick) plugged in when booting doesn't
+   make a difference.
+ - When I load the de2104x driver _before_ uhci_hcd, both USB and
+   Ethernet work fine.
+ - Both modules load fine.  USB also works.  The problem only occurs
+   when I actually try to use the Ethernet device (i.e. run DHCP).
+   Then I get that traceback, and USB also stops working.
 
 -- 
-Ralf Hildebrandt (i.A. des IT-Zentrums)         Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
-IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de
+Martin Michlmayr
+http://www.cyrius.com/

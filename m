@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946295AbWBDDap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946299AbWBDDcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946295AbWBDDap (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 22:30:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946296AbWBDDap
+	id S1946299AbWBDDcn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 22:32:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946300AbWBDDcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 22:30:45 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:30944 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1946295AbWBDDap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 22:30:45 -0500
-Date: Fri, 03 Feb 2006 22:30:43 -0500
+	Fri, 3 Feb 2006 22:32:43 -0500
+Received: from vms042pub.verizon.net ([206.46.252.42]:51683 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1946299AbWBDDcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 22:32:42 -0500
+Date: Fri, 03 Feb 2006 22:32:40 -0500
 From: Gene Heskett <gene.heskett@verizon.net>
 Subject: Re: [2.6.16rc2] compile error
 In-reply-to: <20060203200452.GA29077@mars.ravnborg.org>
 To: linux-kernel@vger.kernel.org
 Reply-to: gene.heskett@verizon.net
-Message-id: <200602032230.43858.gene.heskett@verizon.net>
+Message-id: <200602032232.40929.gene.heskett@verizon.net>
 Organization: Absolutely none - usually detectable by casual observers
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii
@@ -41,12 +41,16 @@ On Friday 03 February 2006 15:04, Sam Ravnborg wrote:
 > theerror. Second, not all /dev/null are affected. On my gentoo box it
 > does not fail.
 
-My buildit26 script does a make oldconfig at the end of the tree build. 
-Then my makeit script is run after I've run a make xconfig to dbl check 
-the config, so menuconfig never gets involved 99.9% of the time.  
-Anyway, its still running, and the log looks 100% normal so far.
+I forgot to add that my makeit script does a make clean as the 2nd step, 
+the first is a version check to make sure I edited it correctly.  My 
+ancient fingers don't always type what I think...
 
 > Sam
+>-
+>To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
 Cheers, Gene

@@ -1,36 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbWBDXut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbWBDXuq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964884AbWBDXut (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 18:50:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWBDXut
+	id S964879AbWBDXuq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 18:50:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWBDXuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 18:50:49 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:4264
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S964884AbWBDXus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 18:50:48 -0500
-Date: Sat, 04 Feb 2006 15:50:42 -0800 (PST)
-Message-Id: <20060204.155042.92905949.davem@davemloft.net>
-To: jesper.juhl@gmail.com
-Cc: mk@linux-ipv6.org, linux-kernel@vger.kernel.org, pekkas@netcore.fi,
-       yoshfuji@linux-ipv6.org, netdev@vger.kernel.org
-Subject: Re: [PATCH][ipcomp6] don't check vfree() argument for NULL.
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200602042049.44151.jesper.juhl@gmail.com>
-References: <200602042049.44151.jesper.juhl@gmail.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sat, 4 Feb 2006 18:50:46 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:19100 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964879AbWBDXup (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 18:50:45 -0500
+Date: Sat, 4 Feb 2006 15:49:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: dgc@sgi.com, steiner@sgi.com, Simon.Derr@bull.net, ak@suse.de,
+       linux-kernel@vger.kernel.org, pj@sgi.com, clameter@sgi.com
+Subject: Re: [PATCH 1/5] cpuset memory spread basic implementation
+Message-Id: <20060204154944.36387a86.akpm@osdl.org>
+In-Reply-To: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
+References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Date: Sat, 4 Feb 2006 20:49:44 +0100
-
-> vfree does it's own NULL checking, so checking a pointer before handing
-> it to vfree is pointless.
+Paul Jackson <pj@sgi.com> wrote:
+>
+> From: Paul Jackson <pj@sgi.com>
 > 
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> This patch provides the implementation and cpuset interface for
+> an alternative memory allocation policy that can be applied to
+> certain kinds of memory allocations, such as the page cache (file
+> system buffers) and some slab caches (such as inode caches).
+> 
+> ...
+>
+> A new per-cpuset file, "memory_spread", is defined.  This is
+> a boolean flag file, containing a "0" (off) or "1" (on).
+> By default it is off, and the kernel allocation placement
+> is unchanged.  If it is turned on for a given cpuset (write a
+> "1" to that cpusets memory_spread file) then the alternative
+> policy applies to all tasks in that cpuset.
 
-Applied to net-2.6.17, thanks.
+I'd have thought it would be saner to split these things apart:
+"slab_spread", "pagecache_spread", etc.
+
+> +static inline int cpuset_mem_spread_check(void)
+> +{
+> +	return current->flags & PF_MEM_SPREAD;
+> +}
+
+That's not a terribly assertive name.  cpuset_mem_spread_needed()?
+
+> +		if (is_mem_spread(cs))
+> +			tsk->flags |= PF_MEM_SPREAD;
+> +		else
+> +			tsk->flags &= ~PF_MEM_SPREAD;
+>  		task_unlock(tsk);
+
+OT: do we ever set PF_foo on a task other than `current'?  I have a feeling
+that we do...
+
+> +	case FILE_MEM_SPREAD:
+> +		retval = update_flag(CS_MEM_SPREAD, cs, buffer);
+> +		atomic_inc(&cpuset_mems_generation);
+> +		cs->mems_generation = atomic_read(&cpuset_mems_generation);
+
+atomic_inc_return()
+
+> +int cpuset_mem_spread_node(void)
+> +{
+> +	int node;
+> +
+> +	node = next_node(current->cpuset_mem_spread_rotor, current->mems_allowed);
+> +	if (node == MAX_NUMNODES)
+> +		node = first_node(current->mems_allowed);
+> +	current->cpuset_mem_spread_rotor = node;
+> +	return node;
+> +}
+
+hm.  What guarantees that a node which is in current->mems_allowed is still
+online?
+

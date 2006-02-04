@@ -1,74 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWBDRUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932532AbWBDRVy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932523AbWBDRUF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 12:20:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbWBDRUF
+	id S932532AbWBDRVy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 12:21:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbWBDRVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 12:20:05 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:43425 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932523AbWBDRUD (ORCPT
+	Sat, 4 Feb 2006 12:21:53 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:1937 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932532AbWBDRVx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 12:20:03 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Date: Sat, 4 Feb 2006 18:18:56 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, suspend2-devel@lists.suspend2.net,
-       linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602041238.06395.rjw@sisk.pl> <200602042141.23685.nigel@suspend2.net>
-In-Reply-To: <200602042141.23685.nigel@suspend2.net>
+	Sat, 4 Feb 2006 12:21:53 -0500
+Message-ID: <43E4E318.1030304@redhat.com>
+Date: Sat, 04 Feb 2006 09:23:36 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5 (X11/20060128)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602041818.57278.rjw@sisk.pl>
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: One more unlock missing in error case
+X-Enigmail-Version: 0.93.1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig0185D4A117D31086E0543D4E"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig0185D4A117D31086E0543D4E
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-On Saturday 04 February 2006 12:41, Nigel Cunningham wrote:
-> On Saturday 04 February 2006 21:38, Rafael J. Wysocki wrote:
-> > > > My personal view is that:
-> > > > 1) turning the freezing of kernel threads upside-down is not
-> > > > necessary and would cause problems in the long run,
-> > >
-> > > Upside down?
-> >
-> > I mean now they should freeze voluntarily and your patches change that
-> > so they would have to be created as non-freezeable if need be, AFAICT.
-> 
-> Ah. Now I'm on the same page. Lost the context.
-> 
-> > > > 2) the todo lists are not necessary and add a lot of complexity,
-> > >
-> > > Sorry. Forgot about this. I liked it for solving the SMP problem, but
-> > > IIRC, we're downing other cpus before this now, so that issue has gone
-> > > away. I should check whether I'm right there.
-> > >
-> > > > 3) trying to treat uninterruptible tasks as non-freezeable should
-> > > > better be avoided (I tried to implement this in swsusp last year but
-> > > > it caused vigorous opposition to appear, and it was not Pavel ;-))
-> > >
-> > > I'm not suggesting treating them as unfreezeable in the fullest sense.
-> > > I still signal them, but don't mind if they don't respond. This way,
-> > > if they do leave that state for some reason (timeout?) at some point,
-> > > they still get frozen.
-> >
-> > Yes, that's exactly what I wanted to do in swsusp. ;-)
-> 
-> Oh. What's Pavel's solution? Fail freezing if uninterruptible threads don't 
-> freeze?
+This patch is needed to in addition to the other unlocking fix which is
+already applied.  It should be obvious that the system will deadlock in
+case this isn't done.
 
-Yes.
+(Andrew, I once again used a goto in the third error case because the
+common code is again larger.)
 
-AFAICT it's to avoid situations in which we would freeze having a
-process in the D state that holds a semaphore or a mutex neded for
-suspending or resuming devices (or later on for saving the image etc.).
+Signed-Off-By: Ulrich Drepper <drepper@redhat.com>
 
-[I didn't answer this question previously, sorry.]
+--- fs/namei.c	2006-02-01 09:29:49.000000000 -0800
++++ fs/namei.c-new	2006-02-04 09:18:02.000000000 -0800
+@@ -1096,6 +1096,7 @@
 
-Greetings,
-Rafael
+ 		file =3D fget_light(dfd, &fput_needed);
+ 		if (!file) {
++			read_unlock(&current->fs->lock);
+ 			retval =3D -EBADF;
+ 			goto out_fail;
+ 		}
+@@ -1104,15 +1105,15 @@
+
+ 		if (!S_ISDIR(dentry->d_inode->i_mode)) {
+ 			retval =3D -ENOTDIR;
++		unlock_fail:
+ 			fput_light(file, fput_needed);
++			read_unlock(&current->fs->lock);
+ 			goto out_fail;
+ 		}
+
+ 		retval =3D file_permission(file, MAY_EXEC);
+-		if (retval) {
+-			fput_light(file, fput_needed);
+-			goto out_fail;
+-		}
++		if (retval)
++			goto unlock_fail;
+
+ 		nd->mnt =3D mntget(file->f_vfsmnt);
+ 		nd->dentry =3D dget(dentry);
+
+
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
+
+
+--------------enig0185D4A117D31086E0543D4E
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFD5OMY2ijCOnn/RHQRAm98AKDE+QR1O4yP2gCGb/vL7iqckZA7nQCdF6U4
+2Yin2eR0avQCzEpwuO51nTg=
+=YRKe
+-----END PGP SIGNATURE-----
+
+--------------enig0185D4A117D31086E0543D4E--

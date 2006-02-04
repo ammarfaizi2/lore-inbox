@@ -1,83 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbWBDXnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964884AbWBDXut@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030203AbWBDXnn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 18:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWBDXnn
+	id S964884AbWBDXut (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 18:50:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030199AbWBDXut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 18:43:43 -0500
-Received: from aeimail.aei.ca ([206.123.6.84]:21203 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S964879AbWBDXnm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 18:43:42 -0500
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       reiserfs-dev@namesys.com, linux-scsi@vger.kernel.org,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.16-rc1-mm2 (mm5 too) panics
-Date: Sat, 4 Feb 2006 18:43:27 -0500
-User-Agent: KMail/1.9.1
-References: <20060120031555.7b6d65b7.akpm@osdl.org> <43DA33D9.5080701@pobox.com> <200601280846.23279.edt@aei.ca>
-In-Reply-To: <200601280846.23279.edt@aei.ca>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 4 Feb 2006 18:50:49 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:4264
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S964884AbWBDXus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 18:50:48 -0500
+Date: Sat, 04 Feb 2006 15:50:42 -0800 (PST)
+Message-Id: <20060204.155042.92905949.davem@davemloft.net>
+To: jesper.juhl@gmail.com
+Cc: mk@linux-ipv6.org, linux-kernel@vger.kernel.org, pekkas@netcore.fi,
+       yoshfuji@linux-ipv6.org, netdev@vger.kernel.org
+Subject: Re: [PATCH][ipcomp6] don't check vfree() argument for NULL.
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <200602042049.44151.jesper.juhl@gmail.com>
+References: <200602042049.44151.jesper.juhl@gmail.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602041843.28214.edt@aei.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Date: Sat, 4 Feb 2006 20:49:44 +0100
 
-I need some help figuring this one out.  I cannot use git bisect and applying the 2.6.15-1 reiserfs4
-patch does not work with newer 2.6.16 levels - looks like the mutex conversion hits it hard.  Looking
-in mm there are about 50 reiser4 patches...  
-
-To reproduce this problem I need reiser4 though the issue maybe in libata or scsi.  Does anyone
-have an idea how I can proceed to find what makes newer kernels get io errors which trigger a reiser4
-panic?   The panic is a zam-597 (fs/reiser4/txnmgr.c) with an rc=-5 
-
-Anyone have a git tree tracking linus with reiser4 patches applied staring before 2.6.15 - if so git 
-bisect could be used to find the change causing the problem.
-
-One datapoint.  In 2.6.15 + reiser4 2.6.15-1 works fine - the resiser4 filesystem is heavily used with
-no errors.  Smart report no problems with the drive being used.  The libata driver used is sata_nv.
-
-Please reply to my email - I am only subscribed to lkml.
-
-Help!
-Ed Tomlinson
-
-ret = reiser4_write_logs(nr_submitted);
-if (ret < 0)
-    reiser4_panic("zam-597", "write log failed (%ld)\n", ret);
-
-On Saturday 28 January 2006 08:46, Ed Tomlinson wrote:
-> On Friday 27 January 2006 09:53, you wrote:
-> > Ed Tomlinson wrote:
-> > > Summarizing all this.  There are two problems here.
-> > > 
-> > > 1. reserifs4 panics when it gets io errors - I remember this was an issue that
-> > > needed to be fixed in the R4 code before it moves to mainline...
-> > > 
-> > > 2. Why does a drive which is fine with 2.6.15-rc5-mm3, return a -5 with 2.6.16-mm3
-> > > and above?  Smart reports no problems with the drive hardware.  What has changed 
-> > > in the libata/scsi stacks?
-> > 
-> > That's a long answer.  Could you assist in narrowing down the versions 
-> > which are affected?
-> > 
-> > It would also be useful if you could try vanilla kernels, and help us 
-> > discover whether problems surfaces in 2.6.15, 2.6.15-git[1234], 
-> > 2.6.16-rc1, etc.
+> vfree does it's own NULL checking, so checking a pointer before handing
+> it to vfree is pointless.
 > 
-> Jeff,
-> 
-> I'll see what I can do with git bisect.  Given that reserifs4 is in the picture this may be
-> fun...   I expect it will be a slow process (kernels take 40min to build here).
-> 
-> Thanks
-> Ed Tomlinson
-> 
-> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+
+Applied to net-2.6.17, thanks.

@@ -1,82 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWBDPaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbWBDPfz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbWBDPaH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 10:30:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWBDPaH
+	id S932318AbWBDPfz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 10:35:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932500AbWBDPfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 10:30:07 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:20124 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S932519AbWBDPaF (ORCPT
+	Sat, 4 Feb 2006 10:35:55 -0500
+Received: from khc.piap.pl ([195.187.100.11]:33804 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932318AbWBDPfy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 10:30:05 -0500
-Subject: Re: [PATCH 10/11] LED: Add IDE disk activity LED trigger
-From: Richard Purdie <rpurdie@rpsys.net>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux-ide <linux-ide@vger.kernel.org>
-In-Reply-To: <58cb370e0601310944l421174f8j1802d94f1ae93a01@mail.gmail.com>
-References: <1138714918.6869.139.camel@localhost.localdomain>
-	 <58cb370e0601310646y263acb96h62c422435e7016e@mail.gmail.com>
-	 <1138724479.6869.201.camel@localhost.localdomain>
-	 <58cb370e0601310944l421174f8j1802d94f1ae93a01@mail.gmail.com>
-Content-Type: text/plain
-Date: Sat, 04 Feb 2006 15:29:54 +0000
-Message-Id: <1139066994.8064.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 4 Feb 2006 10:35:54 -0500
+To: Olivier Galibert <galibert@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+References: <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo>
+	<787b0d920602020917u1e7267c5lbea5f02182e0c952@mail.gmail.com>
+	<Pine.LNX.4.61.0602022138260.30391@yvahk01.tjqt.qr>
+	<20060202210949.GD10352@voodoo> <43E27792.nail54V1B1B3Z@burner>
+	<787b0d920602021827m4890fbf4j24d110dc656d2d3a@mail.gmail.com>
+	<43E374CF.nail5CAMKAKEV@burner> <20060203155349.GA9301@voodoo>
+	<20060203180421.GA57965@dspnet.fr.eu.org>
+	<20060203183719.GB11241@voodoo>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sat, 04 Feb 2006 16:35:47 +0100
+In-Reply-To: <20060203183719.GB11241@voodoo> (Jim Crilly's message of "Fri, 3 Feb 2006 13:37:19 -0500")
+Message-ID: <m3u0bfdtm4.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Jim Crilly" <jim@why.dont.jablowme.net> writes:
 
-On Tue, 2006-01-31 at 18:44 +0100, Bartlomiej Zolnierkiewicz wrote: 
-> > The trigger started out as just being ide-disk.c based but there is no
-> > place where the IDE end request function could be hooked within it due
-> > to its use of generic functions. The trigger therefore had to move into
-> > more generic code. If there was a point in ide-disk where an IDE end
-> > request could be hooked it, it could be confined to that file.
-> 
-> Isn't ->end_request hook in ide_driver_t enough?
-> 
-> I see no reason why the custom ->end_request function cannot
-> be added to ide-disk.  All needed infrastructure is there.
+> It's not about device discovery, hald is polling removable devices every 2s
+> to see if new media was inserted and when it polls a CD drive that's
+> currently burning a disc it causes problems. It's documented in Debian bug
+> #262678.
 
-Not quite as I tried that once and it didn't intercept every
-->end_request call. I've just traced this to an explicit call to
-ide_end_request() rather than drv->end_request() in ide-taskfile.c
+Ok. So what's wrong with cdrecord using O_EXCL (and maybe retrying
+for few seconds) so no other program (hald or, say, a user mistaking
+a device) can interrupt it?
 
-The patch below might or might not be an appropriate fix. With this
-applied, the led trigger simplifies to:
-http://www.rpsys.net/openzaurus/patches/led_ide-r3.patch
-
-Richard
-
-
-Ensure ide-taskfile.c calls any driver specific end_request function
-if present.
-
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
-
-Index: linux-2.6.15/drivers/ide/ide-taskfile.c
-===================================================================
---- linux-2.6.15.orig/drivers/ide/ide-taskfile.c	2006-01-03 03:21:10.000000000 +0000
-+++ linux-2.6.15/drivers/ide/ide-taskfile.c	2006-02-04 14:02:23.000000000 +0000
-@@ -372,7 +372,13 @@
- 		}
- 	}
- 
--	ide_end_request(drive, 1, rq->hard_nr_sectors);
-+	if (rq->rq_disk) {
-+		ide_driver_t *drv;
-+
-+		drv = *(ide_driver_t **)rq->rq_disk->private_data;;
-+		drv->end_request(drive, 1, rq->hard_nr_sectors);
-+	} else
-+		ide_end_request(drive, 1, rq->hard_nr_sectors);
- }
- 
- /*
-
-
+And, if we are here, what's wrong with hald using O_EXCL to not
+interrupt any other program (does hald need to check the media
+if it's in use)? I assume the problem wouldn't exist with hald
+using O_EXCL and cdrecord not (yet) using it, would it?
+-- 
+Krzysztof Halasa

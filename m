@@ -1,23 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945986AbWBDJgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945985AbWBDJtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945986AbWBDJgh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 04:36:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945987AbWBDJgh
+	id S1945985AbWBDJtI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 04:49:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945987AbWBDJtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 04:36:37 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:14042 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1945986AbWBDJgg (ORCPT
+	Sat, 4 Feb 2006 04:49:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:62939 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1945985AbWBDJtG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 04:36:36 -0500
-Date: Sat, 4 Feb 2006 01:36:13 -0800
+	Sat, 4 Feb 2006 04:49:06 -0500
+Date: Sat, 4 Feb 2006 01:48:28 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc1-mm5
-Message-Id: <20060204013613.0567ff5a.akpm@osdl.org>
-In-Reply-To: <20060204092941.GB9275@mars.ravnborg.org>
-References: <20060203000704.3964a39f.akpm@osdl.org>
-	<20060204092941.GB9275@mars.ravnborg.org>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: clameter@engr.sgi.com, linux-kernel@vger.kernel.org,
+       manfred@colorfullife.com, shai@scalex86.org,
+       alok.kataria@calsoftinc.com, sonny@burdell.org
+Subject: Re: [patch 2/3] NUMA slab locking fixes - move irq disabling from
+ cahep->spinlock to l3 lock
+Message-Id: <20060204014828.44792327.akpm@osdl.org>
+In-Reply-To: <20060204012800.GI3653@localhost.localdomain>
+References: <20060203205341.GC3653@localhost.localdomain>
+	<20060203140748.082c11ee.akpm@osdl.org>
+	<Pine.LNX.4.62.0602031504460.2517@schroedinger.engr.sgi.com>
+	<20060204010857.GG3653@localhost.localdomain>
+	<20060204012800.GI3653@localhost.localdomain>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,31 +31,17 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg <sam@ravnborg.org> wrote:
+Ravikiran G Thirumalai <kiran@scalex86.org> wrote:
 >
-> On Fri, Feb 03, 2006 at 12:07:04AM -0800, Andrew Morton wrote:
->  > 
->  > Known problems:
->  > 
->  > - Sam has added a new check in the kbuild tree.  It detects multiple
->  >   instances of EXPORT_SYMBOL(foo) across separate .o files.
->  > 
->  >   It catches a _lot_ of problems.   You'll see something like this:
-> 
->  Sigh. I did a 'make allmodconfig' on x86_64 and found to my suprise only
->  a sinlge symbol being exported more than one time.
-> 
->  This is purely a consistency check introduced by commit:
->  http://www.kernel.org/git/?p=linux/kernel/git/sam/kbuild.git;a=commit;h=cd1f125e5808203d3bf58f1d04a9cbd33f60fdb6
+> Earlier, we had to disable on chip interrupts while taking the cachep->spinlock
+>  because, at cache_grow, on every addition of a slab to a slab cache, we 
+>  incremented colour_next which was protected by the cachep->spinlock, and
+>  cache_grow could occur at interrupt context.  Since, now we protect the 
+>  per-node colour_next with the node's list_lock, we do not need to disable 
+>  on chip interrupts while taking the per-cache spinlock, but we
+>  just need to disable interrupts when taking the per-node kmem_list3 list_lock.
 
-There were several tens on powerpc, sparc64, etc.
+It'd be nice to have some comments describing what cachep->spinlock
+actually protects.
 
->  I can rip it out again if the noise/value ratio is too high.
-
-No, let's keep it.  We're wasting memory on this stuff.
-
-> We should IMO try to keep the exports in generic code.
-
-Yes, I guess so.  It gets tricky when you get onto things like the string
-functions, most of which may be impemented in generic code or may be in
-arch code, depending on __ARCH_HAVE_stuff.
+Does __cache_shrink() need some locking to prevent nodes from going offline?

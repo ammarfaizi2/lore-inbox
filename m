@@ -1,63 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932477AbWBDTXF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbWBDTY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932477AbWBDTXF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 14:23:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbWBDTXE
+	id S932546AbWBDTY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 14:24:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbWBDTY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 14:23:04 -0500
-Received: from dvhart.com ([64.146.134.43]:34454 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S932477AbWBDTXD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 14:23:03 -0500
-Message-ID: <43E4FF13.2050206@mbligh.org>
-Date: Sat, 04 Feb 2006 11:22:59 -0800
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Sat, 4 Feb 2006 14:24:56 -0500
+Received: from uproxy.gmail.com ([66.249.92.193]:13903 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932546AbWBDTYz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 14:24:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=eFkzVYK6e6JKJfe333m4cRfl9AHgkkEwmmmpSFQKVeh4rikTLUoZxys4Y8PhAaXnA6SI3QgHryOFfW+hHNhsWRC95OeA2GePwGCs2E9TcD75wTqgpzqiFtTG6xtYsiKxayv9jH0rmVaaJEXYP2D/I6njldEjL5uZLFe+XJ62aC0=
+Message-ID: <58d0dbf10602041124h72b2ef0fi@mail.gmail.com>
+Date: Sat, 4 Feb 2006 20:24:51 +0100
+From: Jan Kiszka <jan.kiszka@googlemail.com>
+To: s.schmidt@avm.de
+Subject: Re: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL / USB drivers of major vendor excluded
+Cc: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>,
+       linux-kernel@vger.kernel.org, opensuse-factory@opensuse.org,
+       kkeil@suse.de
+In-Reply-To: <200602041627.k14GR6Pa019822@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-To: Marc Koschewski <marc@osknowledge.org>
-Cc: dtor_core@ameritech.net, rlrevell@joe-job.com, 76306.1226@compuserve.com,
-       akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Randy Dunlap <rdunlap@xenotime.net>
-Subject: Re: Wanted: hotfixes for -mm kernels
-References: <200602021502_MC3-1-B772-547@compuserve.com> <1138913633.15691.109.camel@mindpipe> <d120d5000602021345i255bb69eydb67bc1b0a448f8d@mail.gmail.com> <20060203100703.GA5691@stiffy.osknowledge.org> <20060204083752.a5c5b058.mbligh@mbligh.org> <20060204185738.GA5689@stiffy.osknowledge.org>
-In-Reply-To: <20060204185738.GA5689@stiffy.osknowledge.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <OF7A130C3D.76EBAB24-ONC125710A.003AC847-C125710A.005A1B7D@avm.de>
+	 <200602041627.k14GR6Pa019822@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2006/2/4, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu>:
+> On Fri, 03 Feb 2006 17:24:10 +0100, s.schmidt@avm.de said:
+>
+> > If it is no longer possible to have non-GPL USB drivers, we shall have to
+> > drop our Linux support for all AVM USB devices. We would even have to
+> > discontinue the 802.11g++ WLAN USB device driver Linux developement.
+>
+> Why is there a problem releasing a GPL'ed USB driver?  That would solve
 
-> We talked about hotfixes for -mm. So why not check these into the -mm-git tree
-> then? This would make sense and would conform fully to my understanding of what
-> the -mm-git tree should be. I don't want to select 23 patches from LKML to make
-> the tree compile or work. I want to checkout. Why make it easy when you may get
-> it difficult.
-> 
-> Besides testing the stuff we would get more far by being able to test stuff faster
-> (because a patch is applied to -mm and we do a checkout) instead of waiting a
-> week for this mega-patch to be applied.
-> 
-> What sense does an -mm tree make when there are people that cannot test it because of
-> known bugs that lead to the -mm tree not being bootable or - even worse - destroying
-> the system?
-> 
-> git is you friend. Not only for Linus' tree, but as well for Andrew's tree.
-> It would just make debugging and testing -mm more convenient and less time
-> consuming for the testers. Instead of 1000 people seeking patches Andrew would
-> just check in and we all could pull it.
-> 
-> If you agree with me or not - that's what I think.
+...especially compared to other vendors how do have open source WLAN
+USB drivers these days?
 
-SCMs don't fix anything. The real work is in selecting patches and 
-merging them. Frankly,  I test a lot of stuff myself, and the tarballs 
-are  a damned sight easier to work with, and have a simple chronological 
-timeline to work from.
+> your problem just as well.  If you were really ambitious, you could clean
+> up the code and submit it for inclusion in the mainline tree - thus lowering
+> your support costs.
+>
 
-Yes, of course you don't want to pull 23 separate patches from a mailing 
-list. But quilt+tarballs is a crapload simpler than git / bk / cvs / 
-subversion, and works just as well, if not better. It just needs a 
-script to roll up patches into a consolidated one, and it's not like 
-Andrew doesn't have that already.
+...and improve the code quality at the same time.
 
-M.
+I had some trouble with the closed source fritz card dsl 2.0 driver
+e.g. which suffers from a race on recent kernels (I guess Karsten Keil
+informed you meanwhile). This should have been tracked down easier and
+earlier (last worked on 2.6.8) if your drivers were part of the kernel
+or at least taking part in the community.
+
+I really like your hardware, but I dislike such license models.
+
+> > This mail is not intended to provoke a discussion of open vs closed source.
+> > The only intention of this mail is to make you aware of the consequences of
+> > such a decision.
+
+I tell you my opinion but I will not accept any discussion???
+
+Well, I guess it's not your own decision that AVM is still stuck on
+closed Linux drivers, your management may it's own ideas about it as
+well. But who else should try to change this than the "engineer at the
+front"? This is how many success stories of companies in the open
+source domain took off.
+
+I don't know your market, so I may neglect that you have to protect IP
+very strictly from nosy competitors. But what part of this IP really
+has to be inside the kernel driver? Can you explain this to the Linux
+community? This may help a bit to understand your issues with free
+drivers.
+
+Jan

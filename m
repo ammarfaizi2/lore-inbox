@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945944AbWBDQJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945989AbWBDQSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945944AbWBDQJt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 11:09:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946080AbWBDQJt
+	id S1945989AbWBDQSI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 11:18:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945995AbWBDQSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 11:09:49 -0500
-Received: from mx1.rowland.org ([192.131.102.7]:26637 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S1945944AbWBDQJs (ORCPT
+	Sat, 4 Feb 2006 11:18:08 -0500
+Received: from khc.piap.pl ([195.187.100.11]:38663 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1945989AbWBDQSH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 11:09:48 -0500
-Date: Sat, 4 Feb 2006 11:09:47 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Martin Michlmayr <tbm@cyrius.com>
-cc: jgarzik@pobox.com, <linux-kernel@vger.kernel.org>
-Subject: Re: Bad interaction between uhci_hcd and de2104x
-In-Reply-To: <20060204111521.GB18806@deprecation.cyrius.com>
-Message-ID: <Pine.LNX.4.44L0.0602041101130.757-100000@netrider.rowland.org>
+	Sat, 4 Feb 2006 11:18:07 -0500
+To: Glen Turner <glen.turner@aarnet.edu.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 8250 serial console fixes -- issue
+References: <Pine.LNX.4.44.0602011911360.22854-100000@gate.crashing.org>
+	<1138844838.5557.17.camel@localhost.localdomain>
+	<43E2B8D6.1070707@aarnet.edu.au>
+	<20060203094042.GB30738@flint.arm.linux.org.uk>
+	<43E36850.5030900@aarnet.edu.au>
+	<20060203160218.GA27452@flint.arm.linux.org.uk>
+	<43E38E00.301@aarnet.edu.au>
+	<20060203222340.GB10700@flint.arm.linux.org.uk>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sat, 04 Feb 2006 17:18:05 +0100
+In-Reply-To: <20060203222340.GB10700@flint.arm.linux.org.uk> (Russell King's message of "Fri, 3 Feb 2006 22:23:40 +0000")
+Message-ID: <m3irrvdrnm.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Feb 2006, Martin Michlmayr wrote:
+Russell King <rmk+lkml@arm.linux.org.uk> writes:
 
-> > For some reason, the de2104x driver isn't listed as a handler for
-> > IRQ 10.  That's probably the cause of the problem.  Did you have any
-> > full- or low-speed USB devices plugged in at the time this occurred?
-> > If you didn't then the UHCI hardware would not have generated any
-> > interrupt requests.
-> 
-> No, I don't think I ever used USB on this machine.  I did some more
-> tests based on what you said and have the following data points:
->  - Having a USB device (USB stick) plugged in when booting doesn't
->    make a difference.
->  - When I load the de2104x driver _before_ uhci_hcd, both USB and
->    Ethernet work fine.
->  - Both modules load fine.  USB also works.  The problem only occurs
->    when I actually try to use the Ethernet device (i.e. run DHCP).
->    Then I get that traceback, and USB also stops working.
+> What about those who have incomplete null modem cables which might
+> not connect DCD or DSR, but who want to use hardware flow control?
 
-It sure looks as though the ethernet interface is generating an interrupt 
-request before the de2104x driver has registered its interrupt handler.  
-When uhci-hcd isn't already loaded the IRQ is unused, hence disabled, and 
-so nothing bad happens.  If uhci-hcd is already loaded then the IRQ is 
-enabled (because uhci-hcd is using it), so you get the problem -- an 
-interrupt occurs with no registered handler.
-
-Alan Stern
-
+BTW: Obviously CRTSCTS is a different thing than a modem with
+hardware handshaking. Basically CRTSCTS is a fixed, transparent
+line. So if we do Hayes modem console, it would better be another
+option.
+-- 
+Krzysztof Halasa

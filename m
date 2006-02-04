@@ -1,160 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWBDPQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160995AbWBDPT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932512AbWBDPQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 10:16:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWBDPQ2
+	id S1160995AbWBDPT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 10:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1160996AbWBDPT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 10:16:28 -0500
-Received: from fe2.cox-internet.com ([66.76.2.39]:51880 "EHLO fe2.coxmail.com")
-	by vger.kernel.org with ESMTP id S932512AbWBDPQ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 10:16:27 -0500
-Message-ID: <04b801c6299d$f5282150$1e3010ac@bahota>
-From: "Benjamin" <benchu@tamu.edu>
-To: "Frank Ch. Eigler" <fche@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <43E28A07.1040604@tamu.edu> <y0mek2kdlqk.fsf@toenail.toronto.redhat.com>
-Subject: Re: Measure the Accept Queueing Time
-Date: Sat, 4 Feb 2006 09:16:22 -0600
+	Sat, 4 Feb 2006 10:19:27 -0500
+Received: from silver.veritas.com ([143.127.12.111]:50220 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1160995AbWBDPT0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 10:19:26 -0500
+Date: Sat, 4 Feb 2006 15:20:00 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: yipee <yipeeyipeeyipeeyipee@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: changing physical page
+In-Reply-To: <loom.20060204T152816-726@post.gmane.org>
+Message-ID: <Pine.LNX.4.61.0602041518230.8867@goblin.wat.veritas.com>
+References: <loom.20060202T160457-366@post.gmane.org>
+ <Pine.LNX.4.61.0602021711110.8796@goblin.wat.veritas.com>
+ <loom.20060204T152816-726@post.gmane.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1506
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 04 Feb 2006 15:19:24.0095 (UTC) FILETIME=[6151A4F0:01C6299E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Oh! Thank you very much and sorry to take you so much time!
-Now, I am trying to implement what you said. It seems not easy to me!^_^
-Thanks again!
- Benjamin Chu
------ Original Message ----- 
-From: "Frank Ch. Eigler" <fche@redhat.com>
-To: "Benjamin Chu" <benchu@tamu.edu>
-Cc: <linux-kernel@vger.kernel.org>; <systemtap@sources.redhat.com>
-Sent: Friday, February 03, 2006 6:13 PM
-Subject: Re: Measure the Accept Queueing Time
+On Sat, 4 Feb 2006, yipee wrote:
+> Hugh Dickins <hugh <at> veritas.com> writes:
+> > I'll assume that when you say "page owned by a user program", you're
+> > meaning a private page, not a shared file page mapped into the program.
+> > 
+> > If you're asking about what currently happens, the answer is "No".
+> > 
+> > If you're asking about what you can assume, the answer is "Yes".
+> 
+> So you are saying that the current kernel doesn't move these kind of pages?
 
+If you don't have swap (one of the conditions you gave), yes.
 
->
-> Benjamin Chu <benchu@tamu.edu> writes:
->
-> > [...]  All I want is to measure the amount of time when a open
-> > request is in the accept queue. [...]
-> > p.s. My Linux Kernel Version is 2.4.25
->
-> Dude, you made me spend several hours playing with systemtap to solve
-> this simple-sounding problem.  :-)
->
-> At the end, I have a script (attached below) that works on one
-> particular kernel build (a beta RHEL4 kernel, which has the systemtap
-> prerequisite kprobes, but uses the same networking structure).
-> Unfortunately, it also demonstrated some of the work we have to do in
-> systemtap land to make it work better.
->
-> The good news: here is the output of the script running on a vmware
-> instance that has only single socket listener program, being briefly
-> tickled by hand, then hammered by "nc" connections in a loop.  The
-> lines came out every ten seconds (as requested by the script, see
-> below), and report on the number of successful accept()s, plus the
-> number of microseconds that each open_request* was in the
-> accept_queue.
->
-> % socket -l -s NNNN &
-> [1] 25384
-> % stap -g acceptdelay.stp
-> [1139011591] socket(25384) count=1 avg=1487us
-> [1139011601] socket(25384) count=9 avg=560us
-> [1139011611] socket(25384) count=6 avg=915us
-> [1139011621] socket(25384) count=747 avg=604us
-> [1139011631] socket(25384) count=1280 avg=558us
-> [1139011641] socket(25384) count=1147 avg=547us
-> [1139011645] socket(25384) count=25 avg=471us
->
-> Is that the sort of data you were hoping to see?
->
-> The systemtap translator unfortunately has problems identifying the
-> most ideal probe insertion points, based on source code coordinates or
-> function names.  The interception of inline functions is weak.  At the
-> present, we also don't have/use the benefit of hooks inserted into the
-> kernel just for us, which would make probes simple and precise.  But
-> all these problems are being worked on.
->
-> So, as a stop-gap for this warts-and-all demonstration, the script
-> just uses hard-coded PC addresses.  Please look beyond that and use
-> your imagination!
->
-> - FChE
->
->
-> #! stap -g
->
-> # This embedded-C function is needed to extract a tcp_opt field
-> # from a pointer cast to generic struct sock*.  Later, systemtap
-> # will offer first class syntax and protected operation for this.
-> %{
-> #include <net/tcp.h>
-> %}
-> function tcp_aq_head:long (sock:long)
-> %{
->   struct tcp_opt *tp = tcp_sk ((struct sock*) (uintptr_t) THIS->sock);
->   THIS->__retvalue = (int64_t) (uintptr_t) tp->accept_queue;
-> %}
->
->
-> global open_request_arrivals # indexed by open_request pointer
-> global open_request_delays # stats, indexed by pid and execname
->
-> probe # a spot in the open_request creation path
-> # XXX: the following commented-out probe points should also work
-> # kernel.inline("tcp_acceptq_queue")
-> # kernel.function("tcp_v4_conn_request")
-> # kernel.inline("tcp_openreq_init")
->   kernel.statement("*@net/ipv4/tcp_ipv4.c:1472") # after
-tcp_openreq_init()
-> {
->   open_request_arrivals[$req] = gettimeofday_us()
-> }
->
->
-> # One could also probe at entry of tcp_accept itself, to track
-> # whether an accept() syscall was blocked by absence of pending
-> # open_requests.
->
->
-> probe # a spot in tcp_accept, after pending open_request found
-> # kernel.statement("*@net/ipv4/tcp_ipv4.c:1922")
->   kernel.statement (0xc029eec8) # near req = tp->accept_queue
-> {
->   req = tcp_aq_head ($sk) # tcp_sk(sk)->accept_queue; $req should work too
->   then = open_request_arrivals[req]
->   if (then) {
->     delete open_request_arrivals[req] # save memory
->     now = gettimeofday_us()
->     open_request_delays[pid(),execname()] <<< now-then
->   }
-> }
->
->
-> probe timer.ms(10000), end # periodically and at session shutdown
-> {
->   now=gettimeofday_s()
->   foreach ([pid+,execname] in open_request_delays) # sort by pid
->     printf("[%d] %s(%d) count=%d avg=%dus\n", now, execname, pid,
->            @count(open_request_delays[pid,execname]),
->            @avg(open_request_delays[pid,execname]))
->   delete open_request_delays
-> }
->
->
-> # Some preprocessor magic to prevent someone from running this
-> # demonstration script (with its hard-coded probe addresses)
-> # on another kernel build
-> %( kernel_vr == "2.6.9-30.ELsmp" %? %( arch == "i686" %? /* OK */
->                                                       %: BADARCH %)
->                                  %: BADVERSION %)
->
+> but it may in future versions?
 
+Yes.

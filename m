@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946112AbWBDADM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751536AbWBDAGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946112AbWBDADM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 19:03:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030249AbWBDADM
+	id S1751536AbWBDAGE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 19:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWBDAGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 19:03:12 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:29634 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S1751503AbWBDADK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 19:03:10 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 2/2] megaraid_sas: support for 1078 type controlleradded
-Date: Fri, 3 Feb 2006 17:03:00 -0700
-Message-ID: <0631C836DBF79F42B5A60C8C8D4E82292C6937@NAMAIL2.ad.lsil.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2/2] megaraid_sas: support for 1078 type controlleradded
-Thread-Index: AcYpHTxPBjioytaLShaa0c75lJXjXQAAMCOQ
-From: "Patro, Sumant" <Sumant.Patro@lsil.com>
-To: "James Bottomley" <James.Bottomley@SteelEye.com>,
-       "Moore, Eric" <Eric.Moore@lsil.com>
-Cc: <hch@lst.de>, <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
-       "Bagalkote, Sreenivas" <Sreenivas.Bagalkote@engenio.com>,
-       "Kolli, Neela" <Neela.Kolli@engenio.com>,
-       "Yang, Bo" <Bo.Yang@engenio.com>,
-       "Doelfel, Hardy" <Hardy.Doelfel@engenio.com>
-X-OriginalArrivalTime: 04 Feb 2006 00:03:02.0019 (UTC) FILETIME=[5D72A530:01C6291E]
+	Fri, 3 Feb 2006 19:06:04 -0500
+Received: from beauty.rexursive.com ([218.214.6.102]:48569 "EHLO
+	beauty.rexursive.com") by vger.kernel.org with ESMTP
+	id S1946114AbWBDAGC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 19:06:02 -0500
+Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
+From: Bojan Smojver <bojan@rexursive.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, nigel@suspend2.net,
+       suspend2-devel@lists.suspend2.net, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060203235546.GB3291@elf.ucw.cz>
+References: <20060201113710.6320.68289.stgit@localhost.localdomain>
+	 <20060202152316.GC8944@ucw.cz> <20060202132708.62881af6.akpm@osdl.org>
+	 <200602030918.07006.nigel@suspend2.net>
+	 <20060203120055.0nu3ym4yuck0os84@imp.rexursive.com>
+	 <20060202171812.49b86721.akpm@osdl.org>
+	 <20060203124253.m6azcn4wg88gsogc@imp.rexursive.com>
+	 <20060203114948.GC2972@elf.ucw.cz>
+	 <1139010204.2191.14.camel@coyote.rexursive.com>
+	 <20060203235546.GB3291@elf.ucw.cz>
+Content-Type: text/plain
+Date: Sat, 04 Feb 2006 11:05:59 +1100
+Message-Id: <1139011559.2191.29.camel@coyote.rexursive.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.90 (2.5.90-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes the device id issue has been resolved.
+On Sat, 2006-02-04 at 00:55 +0100, Pavel Machek wrote:
 
-The device id has been changed for 1078 controllers for megaraid_sas to
-60 
-from 62.
+> The weird reasons were stated few times already. My favourite weird
+> reason is "can be done in userspace" these days.
 
-Thanks,
+OK, let me give you the user perspective again:
 
-Sumant
+- can I use vanilla kernel suspend support now: NO
+- can I use suspend2 suspend support now: YES
+- would I like things to improve even more: YES
 
+I don't know why we have to wait a year to have decent suspend support.
+By developing uswsusp, you are pretty much agreeing with me - current
+kernel stuff isn't working to your (or mine) satisfaction. Now, I know
+uswsusp is going to be better than sliced bread, but wouldn't it be nice
+if more people could actually use their notebooks properly in the
+meantime?
 
------Original Message-----
-From: James Bottomley [mailto:James.Bottomley@SteelEye.com] 
-Sent: Friday, February 03, 2006 3:55 PM
-To: Moore, Eric; Patro, Sumant
-Cc: hch@lst.de; linux-kernel@vger.kernel.org;
-linux-scsi@vger.kernel.org; Bagalkote, Sreenivas; Kolli, Neela; Yang,
-Bo; Doelfel, Hardy
-Subject: Re: [PATCH 2/2] megaraid_sas: support for 1078 type
-controlleradded
-
-On Fri, 2006-02-03 at 15:34 -0800, Sumant Patro wrote:
->         {
-> +        PCI_VENDOR_ID_LSI_LOGIC,
-> +        PCI_DEVICE_ID_LSI_SAS1078R, // ppc IOP
-> +        PCI_ANY_ID,
-> +        PCI_ANY_ID,
-> +       },
-
-I thought the fusion people objected to this because they also have a
-fusion card with this id; has that now been resolved?
-
-James
-
+-- 
+Bojan
 

@@ -1,224 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946141AbWBDAiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946142AbWBDAjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946141AbWBDAiR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 19:38:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946142AbWBDAiR
+	id S1946142AbWBDAjc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 19:39:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946145AbWBDAjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 19:38:17 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:18657 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1946141AbWBDAiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 19:38:17 -0500
-From: hawkes@sgi.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Cc: Jack Steiner <steiner@sgi.com>, hawkes@sgi.com,
-       linux-kernel@vger.kernel.org
-Date: Fri, 03 Feb 2006 16:38:07 -0800
-Message-Id: <20060204003807.28210.77735.sendpatchset@tomahawk.engr.sgi.com>
-Subject: [PATCH] load_balance: "busiest CPU" -> "busier CPUs"
+	Fri, 3 Feb 2006 19:39:31 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:32205 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1946142AbWBDAjb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 19:39:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=C6LqK9ZbEzDN4tN8T7UOUPqvM1Rhk2MV/axRVCi/xfT0FPCufwd0P9bFYVAsrZ9wcxwF54jmdPaGNAjWpljA00fbgOjoufvsfX0sTZlswwxyvYk5tGTyp6x/ENYxSHBRybhek2gbqMPzAGDeoXBG8lzY9FeqGxvVyGVdOWu9aZU=
+Message-ID: <7f45d9390602031639k3c5ae010gbd52a8fdd8bb863b@mail.gmail.com>
+Date: Fri, 3 Feb 2006 17:39:30 -0700
+From: Shaun Jackman <sjackman@gmail.com>
+Reply-To: Shaun Jackman <sjackman@gmail.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] liyitec: Liyitec PS/2 touchscreen driver
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <d120d5000602021512x42be2006h31e63cb6d78ac1b3@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <7f45d9390602021502q325752d7oe635569cde7ce2c7@mail.gmail.com>
+	 <d120d5000602021512x42be2006h31e63cb6d78ac1b3@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The load_balance algorithm determines a single "busiest CPU" and seeks
-to pull tasks from it.  If no migrateable tasks are found, then
-load_balance simply gives up.  This algorithm is vulnerable to
-workloads where the busiest CPU is filled with non-migratable tasks,
-which is commonly the case when a job manager carves up the CPUs into
-cpusets and runs different multitasking applications in each cpuset.
-In these circumstances, an all-pinned "busiest CPU" will effectively
-disable load_balance balancing.
+On 2/2/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On 2/2/06, Shaun Jackman <sjackman@gmail.com> wrote:
+> > [PATCH] liyitec: Liyitec PS/2 touchscreen driver
+> >
+> > Add an input driver for the Liyitec PS/2 touchscreen.
+>
+> I don't see any suibstantial differences from the older patch. I think
+> it should be integrated into psmouse. Is there a way to query the
+> device? What kind of boxes use this touchscreen? Maybe using DMI is an
+> option, like lifebook does?
 
-This patch changes the load_balance search into a "busier CPUs"
-algorithm.  The find_busiest_group() and find_busiest_queue() are
-iteratively called with a constraining cpumask; if the busiest CPU
-yields no migrateable task, then that CPU is dropped from the
-constraining cpumask and the search repeats until no busier group or
-CPU exists.
+I've ran a number of experiments to attempt to detect the Liyitec
+touch screen. I sent every PS/2 command from 0x00 to 0xff. It responds
+in every way as a normal PS/2 mouse. To commands it doesn't
+understand, it first responds with 0xfe (NAK), then if it also doesn't
+understand the next command it responds with 0xfc (ERR).
 
-This constraining cpumask is passed by-reference for performance
-reasons, and no cpus_add() is used because that operation has a
-higher overhead than using the more simple cpu_isset().
+I've tried setting every resolution (PS/2 command 0xe8) from 0x00 to
+0xff. It responds to 0x00-0x03 with ACK. It responds to 0x04-0xff with
+NAK/ERR.
 
-This patch is simple and effective.  A possible enhancement is to
-cap the number of iterations, in order to limit exposure to a
-denial-of-service attack where a user floods numerous CPUs with
-thousands of pinned tasks, thereby slowing down every load_balance
-search.  (However, the current "busiest CPU" algorithm is also
-vulnerable to a user who pins many thousands of tasks to a single CPU
-and slows down load_balance, as well as effectively disabling systemwide
-load_balance.)
+I've tried setting every rate (PS/2 command 0xf3) from 0x00 to 0xff.
+It responds to (10, 20, 40, 60, 80, 100, 200) with ACK. It responds to
+every other rate with NAK/ERR.
 
-Signed-off-by: John Hawkes <hawkes@sgi.com>
+I've even tried sending every valid rate "knock" sequence of length 3,
+of which there are 7^3=343, and tried a get info (PS/2 command 0xe9)
+and get ID (PS/2 command 0xf2). The get info command never returns
+anything unusual, and the get ID command always returns 0 (standard
+PS/2 mouse).
 
-Index: linux/kernel/sched.c
-===================================================================
---- linux.orig/kernel/sched.c	2006-01-30 13:57:32.000000000 -0800
-+++ linux/kernel/sched.c	2006-02-01 11:17:01.000000000 -0800
-@@ -243,6 +243,8 @@ struct runqueue {
- 	int active_balance;
- 	int push_cpu;
- 
-+	int cpuid;			/* of this runqueue */
-+
- 	task_t *migration_thread;
- 	struct list_head migration_queue;
- #endif
-@@ -425,7 +427,7 @@ static int show_schedstat(struct seq_fil
- 			seq_printf(seq, "domain%d %s", dcnt++, mask_str);
- 			for (itype = SCHED_IDLE; itype < MAX_IDLE_TYPES;
- 					itype++) {
--				seq_printf(seq, " %lu %lu %lu %lu %lu %lu %lu %lu",
-+				seq_printf(seq, " %lu %lu %lu %lu %lu %lu %lu %lu %lu",
- 				    sd->lb_cnt[itype],
- 				    sd->lb_balanced[itype],
- 				    sd->lb_failed[itype],
-@@ -433,7 +435,8 @@ static int show_schedstat(struct seq_fil
- 				    sd->lb_gained[itype],
- 				    sd->lb_hot_gained[itype],
- 				    sd->lb_nobusyq[itype],
--				    sd->lb_nobusyg[itype]);
-+				    sd->lb_nobusyg[itype],
-+				    sd->lb_retries[itype]);
- 			}
- 			seq_printf(seq, " %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu\n",
- 			    sd->alb_cnt, sd->alb_failed, sd->alb_pushed,
-@@ -2025,7 +2028,8 @@ out:
-  */
- static struct sched_group *
- find_busiest_group(struct sched_domain *sd, int this_cpu,
--		   unsigned long *imbalance, enum idle_type idle, int *sd_idle)
-+		   unsigned long *imbalance, enum idle_type idle, int *sd_idle,
-+		   cpumask_t *consider_cpus)
- {
- 	struct sched_group *busiest = NULL, *this = NULL, *group = sd->groups;
- 	unsigned long max_load, avg_load, total_load, this_load, total_pwr;
-@@ -2051,6 +2055,9 @@ find_busiest_group(struct sched_domain *
- 		avg_load = 0;
- 
- 		for_each_cpu_mask(i, group->cpumask) {
-+			if (!cpu_isset(i, *consider_cpus))
-+				continue;
-+
- 			if (*sd_idle && !idle_cpu(i))
- 				*sd_idle = 0;
- 
-@@ -2164,13 +2171,16 @@ out_balanced:
-  * find_busiest_queue - find the busiest runqueue among the cpus in group.
-  */
- static runqueue_t *find_busiest_queue(struct sched_group *group,
--	enum idle_type idle)
-+	enum idle_type idle, cpumask_t *consider_cpus)
- {
- 	unsigned long load, max_load = 0;
- 	runqueue_t *busiest = NULL;
- 	int i;
- 
- 	for_each_cpu_mask(i, group->cpumask) {
-+		if (!cpu_isset(i, *consider_cpus))
-+			continue;
-+
- 		load = __source_load(i, 0, idle);
- 
- 		if (load > max_load) {
-@@ -2203,19 +2213,22 @@ static int load_balance(int this_cpu, ru
- 	int nr_moved, all_pinned = 0;
- 	int active_balance = 0;
- 	int sd_idle = 0;
-+	cpumask_t consider_cpus = CPU_MASK_ALL;
- 
- 	if (idle != NOT_IDLE && sd->flags & SD_SHARE_CPUPOWER)
- 		sd_idle = 1;
- 
- 	schedstat_inc(sd, lb_cnt[idle]);
- 
--	group = find_busiest_group(sd, this_cpu, &imbalance, idle, &sd_idle);
-+try_again:
-+	group = find_busiest_group(sd, this_cpu, &imbalance, idle, &sd_idle,
-+				   &consider_cpus);
- 	if (!group) {
- 		schedstat_inc(sd, lb_nobusyg[idle]);
- 		goto out_balanced;
- 	}
- 
--	busiest = find_busiest_queue(group, idle);
-+	busiest = find_busiest_queue(group, idle, &consider_cpus);
- 	if (!busiest) {
- 		schedstat_inc(sd, lb_nobusyq[idle]);
- 		goto out_balanced;
-@@ -2239,8 +2252,14 @@ static int load_balance(int this_cpu, ru
- 		double_rq_unlock(this_rq, busiest);
- 
- 		/* All tasks on this runqueue were pinned by CPU affinity */
--		if (unlikely(all_pinned))
--			goto out_balanced;
-+		if (unlikely(all_pinned)) {
-+			cpu_clear(busiest->cpuid, consider_cpus);
-+			if (!cpus_empty(consider_cpus)) {
-+				schedstat_inc(sd, lb_retries[idle]);
-+				goto try_again;
-+			} else
-+				goto out_balanced;
-+		}
- 	}
- 
- 	if (!nr_moved) {
-@@ -2327,18 +2346,21 @@ static int load_balance_newidle(int this
- 	unsigned long imbalance;
- 	int nr_moved = 0;
- 	int sd_idle = 0;
-+	cpumask_t consider_cpus = CPU_MASK_ALL;
- 
- 	if (sd->flags & SD_SHARE_CPUPOWER)
- 		sd_idle = 1;
- 
- 	schedstat_inc(sd, lb_cnt[NEWLY_IDLE]);
--	group = find_busiest_group(sd, this_cpu, &imbalance, NEWLY_IDLE, &sd_idle);
-+try_again:
-+	group = find_busiest_group(sd, this_cpu, &imbalance, NEWLY_IDLE,
-+				   &sd_idle, &consider_cpus);
- 	if (!group) {
- 		schedstat_inc(sd, lb_nobusyg[NEWLY_IDLE]);
- 		goto out_balanced;
- 	}
- 
--	busiest = find_busiest_queue(group, NEWLY_IDLE);
-+	busiest = find_busiest_queue(group, NEWLY_IDLE, &consider_cpus);
- 	if (!busiest) {
- 		schedstat_inc(sd, lb_nobusyq[NEWLY_IDLE]);
- 		goto out_balanced;
-@@ -2355,6 +2377,14 @@ static int load_balance_newidle(int this
- 		nr_moved = move_tasks(this_rq, this_cpu, busiest,
- 					imbalance, sd, NEWLY_IDLE, NULL);
- 		spin_unlock(&busiest->lock);
-+
-+		if (!nr_moved) {
-+			cpu_clear(busiest->cpuid, consider_cpus);
-+			if (!cpus_empty(consider_cpus)) {
-+				schedstat_inc(sd, lb_retries[NEWLY_IDLE]);
-+				goto try_again;
-+			}
-+		}
- 	}
- 
- 	if (!nr_moved) {
-@@ -6121,6 +6151,7 @@ void __init sched_init(void)
- 			rq->cpu_load[j] = 0;
- 		rq->active_balance = 0;
- 		rq->push_cpu = 0;
-+		rq->cpuid = i;
- 		rq->migration_thread = NULL;
- 		INIT_LIST_HEAD(&rq->migration_queue);
- #endif
-Index: linux/include/linux/sched.h
-===================================================================
---- linux.orig/include/linux/sched.h	2006-01-30 13:57:30.000000000 -0800
-+++ linux/include/linux/sched.h	2006-01-30 16:54:05.000000000 -0800
-@@ -607,6 +607,7 @@ struct sched_domain {
- 	unsigned long lb_hot_gained[MAX_IDLE_TYPES];
- 	unsigned long lb_nobusyg[MAX_IDLE_TYPES];
- 	unsigned long lb_nobusyq[MAX_IDLE_TYPES];
-+	unsigned long lb_retries[MAX_IDLE_TYPES];
- 
- 	/* Active load balancing */
- 	unsigned long alb_cnt;
+Liyitec provides a binary X11 driver for the touch screen. I set the
+kernel to dump every byte going to and coming from /dev/psaux and ran
+their binary. Their driver sends (enable, scale11, enable, rate, 200,
+resolution, 2, enable) to /dev/psaux and nothing more.
+
+So, after some heavy experimentation, I am now rather confident that
+there is no trivial way to detect the touch panel's existence.
+Although, I would love to hear any suggestions. If anyone's interested
+in seeing the raw data, I'd be happy to send it on. In a previous
+mail, I mentioned my particular hardware does not have any DMI data,
+like the lifebook driver uses.
+
+So, finally, assuming there is no way to detect the touch panel's
+presence, should the driver still be rolled into psmouse? If so, how
+should the user specify she wishes to use the liyitec driver, and
+which serio (PS/2) port the liyitec touch screen is on?
+
+My current patch implements the Liyitec driver as a serio driver that
+grabs every available PS/2 port. Quite unfriendly, but works in the
+typical case where the keyboard driver grabs the first port, and the
+Liyitec driver grabs the psaux port.
+
+Cheers,
+Shaun

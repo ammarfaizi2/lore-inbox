@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932323AbWBDLGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946147AbWBDLIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932323AbWBDLGO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 06:06:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbWBDLGO
+	id S1946147AbWBDLIx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 06:08:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946159AbWBDLIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 06:06:14 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:63158 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932323AbWBDLGN (ORCPT
+	Sat, 4 Feb 2006 06:08:53 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:2231 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1946147AbWBDLIw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 06:06:13 -0500
-Date: Sat, 4 Feb 2006 12:06:04 +0100 (MET)
+	Sat, 4 Feb 2006 06:08:52 -0500
+Date: Sat, 4 Feb 2006 12:08:39 +0100 (MET)
 From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Ulrich Mueller <ulm@kph.uni-mainz.de>
-cc: Mark Lord <lkml@rtr.ca>, Herbert Poetzl <herbert@13thfloor.at>,
-       linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>, Byron Stanoszek <gandalf@winds.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH ]  VMSPLIT config options (with default config fixed)
-In-Reply-To: <17380.32919.359949.861318@a1i15.kph.uni-mainz.de>
-Message-ID: <Pine.LNX.4.61.0602041205080.30014@yvahk01.tjqt.qr>
-References: <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de>
- <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de>
- <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3E9C2.1000309@rtr.ca>
- <20060110173217.GU3389@suse.de> <43C3F0CA.10205@rtr.ca> <43C403BA.1050106@pobox.com>
- <43C40803.2000106@rtr.ca> <20060201222314.GA26081@MAIL.13thfloor.at>
- <uhd7irpi7@a1i15.kph.uni-mainz.de> <Pine.LNX.4.61.0602022144190.30391@yvahk01.tjqt.qr>
- <43E3DB99.9020604@rtr.ca> <17380.32919.359949.861318@a1i15.kph.uni-mainz.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+cc: psusi@cfl.rr.com, mrmacman_g4@mac.com, matthias.andree@gmx.de,
+       linux-kernel@vger.kernel.org, jim@why.dont.jablowme.net,
+       James@superbug.co.uk, j@bitron.ch, acahalan@gmail.com
+Subject: Re: CD writing in future Linux (stirring up a hornets' nest)
+In-Reply-To: <43E3ABBA.nail6AV41818M@burner>
+Message-ID: <Pine.LNX.4.61.0602041208150.30014@yvahk01.tjqt.qr>
+References: <43DDFBFF.nail16Z3N3C0M@burner> <1138710764.17338.47.camel@juerg-t40p.bitron.ch>
+ <43DF6812.nail3B44TLQOP@burner> <20060202062840.GI5501@mail>
+ <43E1EA35.nail4R02QCGIW@burner> <20060202161853.GB8833@voodoo>
+ <787b0d920602020917u1e7267c5lbea5f02182e0c952@mai <43E374CF.nail5CAMKAKEV@burner>
+ <43E38084.9040200@cfl.rr.com> <43E38B51.nail5CAZ1GYRE@burner>
+ <Pine.LNX.4.61.0602032005550.19459@yvahk01.tjqt.qr> <43E3ABBA.nail6AV41818M@burner>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> >It does not prevent you from creatig a coaster in case you connect e.g.
+>> >two ATAPI writers to the same ATA cable.
+>> >
+>> Apart from transfer speed issues and potential buffer underruns coming 
+>> along with that, is there anything technically impossible with writing to 
+>> two ATAPI drives at the same time?
 >
->> Yes, that looks like a good idea.
+>It depends on what type of drive you use.
 >
->Couldn't this still be implemented entirely in Kconfig, without
->modifying page.h? Like in the following example:
+>If you chose a drive that blocks the ATA cable while processing a 
+>START/STOP/UNIT, you are out of luck.
 >
->	[...]
->	config VMSPLIT_1G
->		bool "1G/3G user/kernel split"
->	config VMSPLIT_X
->		bool "Manual split"
->endchoice
->
->config PAGE_OFFSET
->	hex
->	range 0x40000000 0xC0000000    
->	prompt "Memory split address (must be aligned to 4096)" if VMSPLIT_X
->	[...]
->	default 0x40000000 if VMSPLIT_1G
->	default 0xC0000000
->
-
-Well, if kconfig is able to do that, the better.
+That may be what I experienced with that aopen writer.
 
 
 

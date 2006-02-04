@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946248AbWBDBKJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946236AbWBDBKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946248AbWBDBKJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 20:10:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946247AbWBDBKH
+	id S1946236AbWBDBKF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 20:10:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946244AbWBDBKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 20:10:07 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:42767 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1946245AbWBDBKE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 3 Feb 2006 20:10:04 -0500
-Date: Sat, 4 Feb 2006 02:10:02 +0100
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:41231 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1946236AbWBDBKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 20:10:01 -0500
+Date: Sat, 4 Feb 2006 02:09:59 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: per.liden@ericsson.com, jon.maloy@ericsson.com,
-       allan.stephens@windriver.com, tipc-discussion@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: [2.6 patch] net/tipc/: possible cleanups
-Message-ID: <20060204011002.GZ4408@stusta.de>
+Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: [2.6 patch] move some code to net/ipx/af_ipx.c
+Message-ID: <20060204010958.GY4408@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,12 +23,7 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make needlessly global code static
-- #if 0 the following unused global functions:
-  - name_table.c: tipc_nametbl_print()
-  - name_table.c: tipc_nametbl_dump()
-  - net.c: tipc_net_next_node()
+This patch moves some code only used in this file to net/ipx/af_ipx.c .
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
@@ -37,216 +31,378 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 ---
 
 This patch was already sent on:
-- 26 Jan 2006
+- 22 Jan 2006
+- 14 Jan 2006
 
- net/tipc/bcast.c      |    9 +++++----
- net/tipc/cluster.c    |   11 +++++------
- net/tipc/discover.c   |    8 ++++----
- net/tipc/name_table.c |   27 ++++++++++++++++++---------
- net/tipc/net.c        |    3 ++-
- net/tipc/node.c       |    2 +-
- 6 files changed, 35 insertions(+), 25 deletions(-)
+ include/net/p8022.h   |   13 -----
+ net/802/Makefile      |   14 ++---
+ net/802/p8022.c       |   66 ---------------------------
+ net/802/p8023.c       |   61 -------------------------
+ net/8021q/vlan.c      |    1 
+ net/8021q/vlan_dev.c  |    1 
+ net/ethernet/Makefile |    2 
+ net/ethernet/pe2.c    |   39 ----------------
+ net/ipx/af_ipx.c      |  102 ++++++++++++++++++++++++++++++++++++++++--
+ 9 files changed, 106 insertions(+), 193 deletions(-)
 
---- linux-2.6.16-rc1-mm3-full/net/tipc/bcast.c.old	2006-01-26 06:56:41.000000000 +0100
-+++ linux-2.6.16-rc1-mm3-full/net/tipc/bcast.c	2006-01-26 06:57:33.000000000 +0100
-@@ -314,7 +314,8 @@
-  * Only tipc_net_lock set.
-  */
+--- linux-2.6.15-rc1-mm1-full/net/ethernet/Makefile.old	2005-11-18 02:15:17.000000000 +0100
++++ linux-2.6.15-rc1-mm1-full/net/ethernet/Makefile	2005-11-18 02:15:22.000000000 +0100
+@@ -4,5 +4,3 @@
  
--void tipc_bclink_peek_nack(u32 dest, u32 sender_tag, u32 gap_after, u32 gap_to)
-+static void tipc_bclink_peek_nack(u32 dest, u32 sender_tag, u32 gap_after,
-+				  u32 gap_to)
- {
- 	struct node *n_ptr = tipc_node_find(dest);
- 	u32 my_after, my_to;
-@@ -525,9 +526,9 @@
-  * Returns 0 if packet sent successfully, non-zero if not
-  */
+ obj-y					+= eth.o
+ obj-$(CONFIG_SYSCTL)			+= sysctl_net_ether.o
+-obj-$(subst m,y,$(CONFIG_IPX))		+= pe2.o
+-obj-$(subst m,y,$(CONFIG_ATALK))	+= pe2.o
+--- linux-2.6.15-rc1-mm1-full/net/8021q/vlan.c.old	2005-11-18 02:19:40.000000000 +0100
++++ linux-2.6.15-rc1-mm1-full/net/8021q/vlan.c	2005-11-18 02:19:46.000000000 +0100
+@@ -26,7 +26,6 @@
+ #include <linux/mm.h>
+ #include <linux/in.h>
+ #include <linux/init.h>
+-#include <net/p8022.h>
+ #include <net/arp.h>
+ #include <linux/rtnetlink.h>
+ #include <linux/notifier.h>
+--- linux-2.6.15-rc1-mm1-full/net/8021q/vlan_dev.c.old	2005-11-18 02:19:55.000000000 +0100
++++ linux-2.6.15-rc1-mm1-full/net/8021q/vlan_dev.c	2005-11-18 02:19:58.000000000 +0100
+@@ -29,7 +29,6 @@
+ #include <linux/netdevice.h>
+ #include <linux/etherdevice.h>
+ #include <net/datalink.h>
+-#include <net/p8022.h>
+ #include <net/arp.h>
  
--int tipc_bcbearer_send(struct sk_buff *buf,
--		       struct tipc_bearer *unused1,
--		       struct tipc_media_addr *unused2)
-+static int tipc_bcbearer_send(struct sk_buff *buf,
-+			      struct tipc_bearer *unused1,
-+			      struct tipc_media_addr *unused2)
- {
- 	static int send_count = 0;
+ #include "vlan.h"
+--- linux-2.6.15-rc1-mm1-full/net/ipx/af_ipx.c.old	2005-11-18 02:17:00.000000000 +0100
++++ linux-2.6.15-rc1-mm1-full/net/ipx/af_ipx.c	2005-11-18 02:26:01.000000000 +0100
+@@ -48,10 +48,10 @@
+ #include <linux/termios.h>
  
---- linux-2.6.16-rc1-mm3-full/net/tipc/cluster.c.old	2006-01-26 06:57:51.000000000 +0100
-+++ linux-2.6.16-rc1-mm3-full/net/tipc/cluster.c	2006-01-26 06:58:31.000000000 +0100
-@@ -44,9 +44,8 @@
- #include "msg.h"
- #include "bearer.h"
+ #include <net/ipx.h>
+-#include <net/p8022.h>
+ #include <net/psnap.h>
+ #include <net/sock.h>
+ #include <net/tcp_states.h>
++#include <net/llc.h>
  
--void tipc_cltr_multicast(struct cluster *c_ptr, struct sk_buff *buf, 
--			 u32 lower, u32 upper);
--struct sk_buff *tipc_cltr_prepare_routing_msg(u32 data_size, u32 dest);
-+static void tipc_cltr_multicast(struct cluster *c_ptr, struct sk_buff *buf, 
-+				u32 lower, u32 upper);
+ #include <asm/uaccess.h>
  
- struct node **tipc_local_nodes = 0;
- struct node_map tipc_cltr_bcast_nodes = {0,{0,}};
-@@ -229,7 +228,7 @@
-  *    Routing table management: See description in node.c
-  */
+@@ -1939,8 +1939,104 @@
+ 	.notifier_call	= ipxitf_device_event,
+ };
  
--struct sk_buff *tipc_cltr_prepare_routing_msg(u32 data_size, u32 dest)
-+static struct sk_buff *tipc_cltr_prepare_routing_msg(u32 data_size, u32 dest)
- {
- 	u32 size = INT_H_SIZE + data_size;
- 	struct sk_buff *buf = buf_acquire(size);
-@@ -495,8 +494,8 @@
-  * tipc_cltr_multicast - multicast message to local nodes 
-  */
+-extern struct datalink_proto *make_EII_client(void);
+-extern void destroy_EII_client(struct datalink_proto *);
++static int p8022_request(struct datalink_proto *dl, struct sk_buff *skb,
++			 unsigned char *dest)
++{
++	llc_build_and_send_ui_pkt(dl->sap, skb, dest, dl->sap->laddr.lsap);
++	return 0;
++}
++
++static struct datalink_proto *register_8022_client(unsigned char type,
++					    int (*func)(struct sk_buff *skb,
++							struct net_device *dev,
++							struct packet_type *pt,
++							struct net_device *orig_dev))
++{
++	struct datalink_proto *proto;
++
++	proto = kmalloc(sizeof(*proto), GFP_ATOMIC);
++	if (proto) {
++		proto->type[0]		= type;
++		proto->header_length	= 3;
++		proto->request		= p8022_request;
++		proto->sap = llc_sap_open(type, func);
++		if (!proto->sap) {
++			kfree(proto);
++			proto = NULL;
++		}
++	}
++	return proto;
++}
++
++static void unregister_8022_client(struct datalink_proto *proto)
++{
++	llc_sap_put(proto->sap);
++	kfree(proto);
++}
++
++/*
++ *	Place an 802.3 header on a packet. The driver will do the mac
++ *	addresses, we just need to give it the buffer length.
++ */
++static int p8023_request(struct datalink_proto *dl,
++			 struct sk_buff *skb, unsigned char *dest_node)
++{
++	struct net_device *dev = skb->dev;
++
++	dev->hard_header(skb, dev, ETH_P_802_3, dest_node, NULL, skb->len);
++	return dev_queue_xmit(skb);
++}
++
++/*
++ *	Create an 802.3 client. Note there can be only one 802.3 client
++ */
++static struct datalink_proto *make_8023_client(void)
++{
++	struct datalink_proto *proto = kmalloc(sizeof(*proto), GFP_ATOMIC);
++
++	if (proto) {
++		proto->header_length = 0;
++		proto->request	     = p8023_request;
++	}
++	return proto;
++}
++
++/*
++ *	Destroy the 802.3 client.
++ */
++static void destroy_8023_client(struct datalink_proto *dl)
++{
++	kfree(dl);
++}
++
++static int pEII_request(struct datalink_proto *dl,
++			struct sk_buff *skb, unsigned char *dest_node)
++{
++	struct net_device *dev = skb->dev;
++
++	skb->protocol = htons(ETH_P_IPX);
++	if (dev->hard_header)
++		dev->hard_header(skb, dev, ETH_P_IPX,
++				 dest_node, NULL, skb->len);
++	return dev_queue_xmit(skb);
++}
++
++static struct datalink_proto *make_EII_client(void)
++{
++	struct datalink_proto *proto = kmalloc(sizeof(*proto), GFP_ATOMIC);
++
++	if (proto) {
++		proto->header_length = 0;
++		proto->request = pEII_request;
++	}
++
++	return proto;
++}
++
++static void destroy_EII_client(struct datalink_proto *dl)
++{
++	kfree(dl);
++}
  
--void tipc_cltr_multicast(struct cluster *c_ptr, struct sk_buff *buf, 
--			 u32 lower, u32 upper)
-+static void tipc_cltr_multicast(struct cluster *c_ptr, struct sk_buff *buf, 
-+				u32 lower, u32 upper)
- {
- 	struct sk_buff *buf_copy;
- 	struct node *n_ptr;
---- linux-2.6.16-rc1-mm3-full/net/tipc/discover.c.old	2006-01-26 06:59:53.000000000 +0100
-+++ linux-2.6.16-rc1-mm3-full/net/tipc/discover.c	2006-01-26 07:00:05.000000000 +0100
-@@ -110,10 +110,10 @@
-  * @b_ptr: ptr to bearer issuing message
-  */
- 
--struct sk_buff *tipc_disc_init_msg(u32 type,
--				   u32 req_links,
--				   u32 dest_domain,
--				   struct bearer *b_ptr)
-+static struct sk_buff *tipc_disc_init_msg(u32 type,
-+					  u32 req_links,
-+					  u32 dest_domain,
-+					  struct bearer *b_ptr)
- {
- 	struct sk_buff *buf = buf_acquire(DSC_H_SIZE);
- 	struct tipc_msg *msg;
---- linux-2.6.16-rc1-mm3-full/net/tipc/name_table.c.old	2006-01-26 07:00:49.000000000 +0100
-+++ linux-2.6.16-rc1-mm3-full/net/tipc/name_table.c	2006-01-26 07:03:54.000000000 +0100
-@@ -46,7 +46,7 @@
- #include "cluster.h"
- #include "bcast.h"
- 
--int tipc_nametbl_size = 1024;		/* must be a power of 2 */
-+static int tipc_nametbl_size = 1024;	/* must be a power of 2 */
- 
- /**
-  * struct sub_seq - container for all published instances of a name sequence
-@@ -142,7 +142,7 @@
-  * tipc_subseq_alloc - allocate a specified number of sub-sequence structures
-  */
- 
--struct sub_seq *tipc_subseq_alloc(u32 cnt)
-+static struct sub_seq *tipc_subseq_alloc(u32 cnt)
- {
- 	u32 sz = cnt * sizeof(struct sub_seq);
- 	struct sub_seq *sseq = (struct sub_seq *)kmalloc(sz, GFP_ATOMIC);
-@@ -158,7 +158,8 @@
-  * Allocates a single sub-sequence structure and sets it to all 0's.
-  */
- 
--struct name_seq *tipc_nameseq_create(u32 type, struct hlist_head *seq_head)
-+static struct name_seq *tipc_nameseq_create(u32 type,
-+					    struct hlist_head *seq_head)
- {
- 	struct name_seq *nseq = 
- 		(struct name_seq *)kmalloc(sizeof(*nseq), GFP_ATOMIC);
-@@ -243,9 +244,11 @@
-  * tipc_nameseq_insert_publ - 
-  */
- 
--struct publication *tipc_nameseq_insert_publ(struct name_seq *nseq,
--					u32 type, u32 lower, u32 upper,
--					u32 scope, u32 node, u32 port, u32 key)
-+static struct publication *tipc_nameseq_insert_publ(struct name_seq *nseq,
-+						    u32 type, u32 lower,
-+						    u32 upper,
-+						    u32 scope, u32 node,
-+						    u32 port, u32 key)
- {
- 	struct subscription *s;
- 	struct subscription *st;
-@@ -369,8 +372,9 @@
-  * tipc_nameseq_remove_publ -
-  */
- 
--struct publication *tipc_nameseq_remove_publ(struct name_seq *nseq, u32 inst,
--					     u32 node, u32 ref, u32 key)
-+static struct publication *tipc_nameseq_remove_publ(struct name_seq *nseq,
-+						    u32 inst, u32 node,
-+						    u32 ref, u32 key)
- {
- 	struct publication *publ;
- 	struct publication *prev;
-@@ -487,7 +491,8 @@
-  * sequence overlapping with the requested sequence
-  */
- 
--void tipc_nameseq_subscribe(struct name_seq *nseq, struct subscription *s)
-+static void tipc_nameseq_subscribe(struct name_seq *nseq,
-+				   struct subscription *s)
- {
- 	struct sub_seq *sseq = nseq->sseqs;
- 
-@@ -983,6 +988,7 @@
- 	}
- }
- 
-+#if 0
- void tipc_nametbl_print(struct print_buf *buf, const char *str)
- {
- 	tipc_printf(buf, str);
-@@ -990,6 +996,7 @@
- 	nametbl_list(buf, 0, 0, 0, 0);
- 	read_unlock_bh(&tipc_nametbl_lock);
- }
-+#endif  /*  0  */
- 
- #define MAX_NAME_TBL_QUERY 32768
- 
-@@ -1023,10 +1030,12 @@
- 	return buf;
- }
- 
-+#if 0
- void tipc_nametbl_dump(void)
- {
- 	nametbl_list(TIPC_CONS, 0, 0, 0, 0);
- }
-+#endif  /*  0  */
- 
- int tipc_nametbl_init(void)
- {
---- linux-2.6.16-rc1-mm3-full/net/tipc/net.c.old	2006-01-26 07:04:18.000000000 +0100
-+++ linux-2.6.16-rc1-mm3-full/net/tipc/net.c	2006-01-26 07:04:39.000000000 +0100
-@@ -128,13 +128,14 @@
- 	return tipc_zone_select_router(tipc_net.zones[tipc_zone(addr)], addr, ref);
- }
- 
+ static unsigned char ipx_8022_type = 0xE0;
+ static unsigned char ipx_snap_id[5] = { 0x0, 0x0, 0x0, 0x81, 0x37 };
+--- linux-2.6.15-rc1-mm1-full/include/net/p8022.h	2005-10-28 02:02:08.000000000 +0200
++++ /dev/null	2005-11-08 19:07:57.000000000 +0100
+@@ -1,13 +0,0 @@
+-#ifndef _NET_P8022_H
+-#define _NET_P8022_H
+-extern struct datalink_proto *
+-	register_8022_client(unsigned char type,
+-			     int (*func)(struct sk_buff *skb,
+-					 struct net_device *dev,
+-					 struct packet_type *pt,
+-					 struct net_device *orig_dev));
+-extern void unregister_8022_client(struct datalink_proto *proto);
 -
-+#if 0
- u32 tipc_net_next_node(u32 a)
- {
- 	if (tipc_net.zones[tipc_zone(a)])
- 		return tipc_zone_next_node(a);
- 	return 0;
- }
-+#endif  /*  0  */
- 
- void tipc_net_remove_as_router(u32 router)
- {
---- linux-2.6.16-rc1-mm3-full/net/tipc/node.c.old	2006-01-26 07:05:03.000000000 +0100
-+++ linux-2.6.16-rc1-mm3-full/net/tipc/node.c	2006-01-26 07:10:36.000000000 +0100
-@@ -214,7 +214,7 @@
- 		(n_ptr->active_links[0] != n_ptr->active_links[1]));
- }
- 
--int tipc_node_has_active_routes(struct node *n_ptr)
-+static int tipc_node_has_active_routes(struct node *n_ptr)
- {
- 	return (n_ptr && (n_ptr->last_router >= 0));
- }
+-extern struct datalink_proto *make_8023_client(void);
+-extern void destroy_8023_client(struct datalink_proto *dl);
+-#endif
+--- linux-2.6.15-rc1-mm1-full/net/ethernet/pe2.c	2005-11-17 21:30:56.000000000 +0100
++++ /dev/null	2005-11-08 19:07:57.000000000 +0100
+@@ -1,39 +0,0 @@
+-#include <linux/in.h>
+-#include <linux/mm.h>
+-#include <linux/module.h>
+-#include <linux/netdevice.h>
+-#include <linux/skbuff.h>
+-
+-#include <net/datalink.h>
+-
+-static int pEII_request(struct datalink_proto *dl,
+-			struct sk_buff *skb, unsigned char *dest_node)
+-{
+-	struct net_device *dev = skb->dev;
+-
+-	skb->protocol = htons(ETH_P_IPX);
+-	if (dev->hard_header)
+-		dev->hard_header(skb, dev, ETH_P_IPX,
+-				 dest_node, NULL, skb->len);
+-	return dev_queue_xmit(skb);
+-}
+-
+-struct datalink_proto *make_EII_client(void)
+-{
+-	struct datalink_proto *proto = kmalloc(sizeof(*proto), GFP_ATOMIC);
+-
+-	if (proto) {
+-		proto->header_length = 0;
+-		proto->request = pEII_request;
+-	}
+-
+-	return proto;
+-}
+-
+-void destroy_EII_client(struct datalink_proto *dl)
+-{
+-	kfree(dl);
+-}
+-
+-EXPORT_SYMBOL(destroy_EII_client);
+-EXPORT_SYMBOL(make_EII_client);
+--- linux-2.6.15-rc1-mm1-full/net/802/p8022.c	2005-10-28 02:02:08.000000000 +0200
++++ /dev/null	2005-11-08 19:07:57.000000000 +0100
+@@ -1,66 +0,0 @@
+-/*
+- *	NET3:	Support for 802.2 demultiplexing off Ethernet (Token ring
+- *		is kept separate see p8022tr.c)
+- *		This program is free software; you can redistribute it and/or
+- *		modify it under the terms of the GNU General Public License
+- *		as published by the Free Software Foundation; either version
+- *		2 of the License, or (at your option) any later version.
+- *
+- *		Demultiplex 802.2 encoded protocols. We match the entry by the
+- *		SSAP/DSAP pair and then deliver to the registered datalink that
+- *		matches. The control byte is ignored and handling of such items
+- *		is up to the routine passed the frame.
+- *
+- *		Unlike the 802.3 datalink we have a list of 802.2 entries as
+- *		there are multiple protocols to demux. The list is currently
+- *		short (3 or 4 entries at most). The current demux assumes this.
+- */
+-#include <linux/module.h>
+-#include <linux/netdevice.h>
+-#include <linux/skbuff.h>
+-#include <net/datalink.h>
+-#include <linux/mm.h>
+-#include <linux/in.h>
+-#include <linux/init.h>
+-#include <net/llc.h>
+-#include <net/p8022.h>
+-
+-static int p8022_request(struct datalink_proto *dl, struct sk_buff *skb,
+-			 unsigned char *dest)
+-{
+-	llc_build_and_send_ui_pkt(dl->sap, skb, dest, dl->sap->laddr.lsap);
+-	return 0;
+-}
+-
+-struct datalink_proto *register_8022_client(unsigned char type,
+-					    int (*func)(struct sk_buff *skb,
+-							struct net_device *dev,
+-							struct packet_type *pt,
+-							struct net_device *orig_dev))
+-{
+-	struct datalink_proto *proto;
+-
+-	proto = kmalloc(sizeof(*proto), GFP_ATOMIC);
+-	if (proto) {
+-		proto->type[0]		= type;
+-		proto->header_length	= 3;
+-		proto->request		= p8022_request;
+-		proto->sap = llc_sap_open(type, func);
+-		if (!proto->sap) {
+-			kfree(proto);
+-			proto = NULL;
+-		}
+-	}
+-	return proto;
+-}
+-
+-void unregister_8022_client(struct datalink_proto *proto)
+-{
+-	llc_sap_put(proto->sap);
+-	kfree(proto);
+-}
+-
+-EXPORT_SYMBOL(register_8022_client);
+-EXPORT_SYMBOL(unregister_8022_client);
+-
+-MODULE_LICENSE("GPL");
+--- linux-2.6.15-rc1-mm1-full/net/802/p8023.c	2005-11-17 21:30:55.000000000 +0100
++++ /dev/null	2005-11-08 19:07:57.000000000 +0100
+@@ -1,61 +0,0 @@
+-/*
+- *	NET3:	802.3 data link hooks used for IPX 802.3
+- *
+- *	This program is free software; you can redistribute it and/or
+- *	modify it under the terms of the GNU General Public License
+- *	as published by the Free Software Foundation; either version
+- *	2 of the License, or (at your option) any later version.
+- *
+- *	802.3 isn't really a protocol data link layer. Some old IPX stuff
+- *	uses it however. Note that there is only one 802.3 protocol layer
+- *	in the system. We don't currently support different protocols
+- *	running raw 802.3 on different devices. Thankfully nobody else
+- *	has done anything like the old IPX.
+- */
+-
+-#include <linux/in.h>
+-#include <linux/mm.h>
+-#include <linux/module.h>
+-#include <linux/netdevice.h>
+-#include <linux/skbuff.h>
+-
+-#include <net/datalink.h>
+-#include <net/p8022.h>
+-
+-/*
+- *	Place an 802.3 header on a packet. The driver will do the mac
+- *	addresses, we just need to give it the buffer length.
+- */
+-static int p8023_request(struct datalink_proto *dl,
+-			 struct sk_buff *skb, unsigned char *dest_node)
+-{
+-	struct net_device *dev = skb->dev;
+-
+-	dev->hard_header(skb, dev, ETH_P_802_3, dest_node, NULL, skb->len);
+-	return dev_queue_xmit(skb);
+-}
+-
+-/*
+- *	Create an 802.3 client. Note there can be only one 802.3 client
+- */
+-struct datalink_proto *make_8023_client(void)
+-{
+-	struct datalink_proto *proto = kmalloc(sizeof(*proto), GFP_ATOMIC);
+-
+-	if (proto) {
+-		proto->header_length = 0;
+-		proto->request	     = p8023_request;
+-	}
+-	return proto;
+-}
+-
+-/*
+- *	Destroy the 802.3 client.
+- */
+-void destroy_8023_client(struct datalink_proto *dl)
+-{
+-	kfree(dl);
+-}
+-
+-EXPORT_SYMBOL(destroy_8023_client);
+-EXPORT_SYMBOL(make_8023_client);
 
-
+--- linux-2.6.15-mm3-full/net/802/Makefile.old	2006-01-14 02:55:28.000000000 +0100
++++ linux-2.6.15-mm3-full/net/802/Makefile	2006-01-14 02:55:50.000000000 +0100
+@@ -4,10 +4,10 @@
+ 
+ # Check the p8022 selections against net/core/Makefile.
+ obj-$(CONFIG_SYSCTL)	+= sysctl_net_802.o
+-obj-$(CONFIG_LLC)	+= p8022.o psnap.o
+-obj-$(CONFIG_TR)	+= p8022.o psnap.o tr.o sysctl_net_802.o
+-obj-$(CONFIG_NET_FC)	+=                 fc.o
+-obj-$(CONFIG_FDDI)	+=                 fddi.o
+-obj-$(CONFIG_HIPPI)	+=                 hippi.o
+-obj-$(CONFIG_IPX)	+= p8022.o psnap.o p8023.o
+-obj-$(CONFIG_ATALK)	+= p8022.o psnap.o
++obj-$(CONFIG_LLC)	+= psnap.o
++obj-$(CONFIG_TR)	+= psnap.o tr.o sysctl_net_802.o
++obj-$(CONFIG_NET_FC)	+=         fc.o
++obj-$(CONFIG_FDDI)	+=         fddi.o
++obj-$(CONFIG_HIPPI)	+=         hippi.o
++obj-$(CONFIG_IPX)	+= psnap.o
++obj-$(CONFIG_ATALK)	+= psnap.o

@@ -1,122 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946252AbWBDBPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946254AbWBDBSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946252AbWBDBPb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 20:15:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946254AbWBDBPb
+	id S1946254AbWBDBSu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 20:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946257AbWBDBSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 20:15:31 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:56802 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S1946252AbWBDBPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 20:15:30 -0500
-Date: Fri, 3 Feb 2006 17:15:39 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org,
-       manfred@colorfullife.com, shai@scalex86.org,
-       alok.kataria@calsoftinc.com, sonny@burdell.org
-Subject: [patch 1/3] NUMA slab locking fixes -- move color_next to l3
-Message-ID: <20060204011539.GH3653@localhost.localdomain>
-References: <20060203205341.GC3653@localhost.localdomain> <20060203140748.082c11ee.akpm@osdl.org> <Pine.LNX.4.62.0602031504460.2517@schroedinger.engr.sgi.com> <20060204010857.GG3653@localhost.localdomain>
+	Fri, 3 Feb 2006 20:18:50 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:28628 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1946254AbWBDBSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 20:18:49 -0500
+Date: Fri, 3 Feb 2006 17:18:41 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: nickpiggin@yahoo.com.au, mingo@elte.hu, hawkes@sgi.com, steiner@sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [Patch] sched: fix group power for allnodes_domains
+Message-ID: <20060203171841.A19490@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060204010857.GG3653@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-colour_next is used as an index to add a colouring offset to a new slab 
-in the cache (colour_off * colour_next).  Now with the NUMA aware slab 
-allocator, it makes sense to colour slabs added on the same node 
-sequentially with colour_next.
+Current sched groups power calculation for allnodes_domains is wrong. We should
+really be using cumulative power of the physical packages in that group
+(similar to the calculation in node_domains)
 
-This patch moves the colouring index "colour_next" per-node by placing it
-on kmem_list3 rather than kmem_cache.
+Appended patch fixes this issue. This request is for inclusion in -mm and hence
+the patch is against 2.6.16-rc1-mm5(as multi core sched patch in -mm was 
+touching this area)
 
-This also helps sinplify locking for cup up and down paths.
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 
-Signed-off-by: Alok N Kataria <alokk@calsoftinc.com>
-Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
-Signed-off-by: Shai Fultheim <shai@scalex86.org>
+--- linux/kernel/sched.c	2006-02-01 14:27:52.413687032 -0800
++++ linux-core/kernel/sched.c	2006-02-01 14:25:57.734120976 -0800
+@@ -5705,6 +5705,32 @@ static int cpu_to_allnodes_group(int cpu
+ {
+ 	return cpu_to_node(cpu);
+ }
++static void init_numa_sched_groups_power(struct sched_group *group_head)
++{
++	struct sched_group *sg = group_head;
++	int j;
++
++	if (!sg)
++		return;
++next_sg:
++	for_each_cpu_mask(j, sg->cpumask) {
++		struct sched_domain *sd;
++
++		sd = &per_cpu(phys_domains, j);
++		if (j != first_cpu(sd->groups->cpumask)) {
++			/*
++			 * Only add "power" once for each
++			 * physical package.
++			 */
++			continue;
++		}
++
++		sg->cpu_power += sd->groups->cpu_power;
++	}
++	sg = sg->next;
++	if (sg != group_head)
++		goto next_sg;
++}
+ #endif
+ 
+ /*
+@@ -5950,43 +5976,13 @@ void build_sched_domains(const cpumask_t
+ 				(cpus_weight(sd->groups->cpumask)-1) / 10;
+ 		sd->groups->cpu_power = power;
+ #endif
+-
+-#ifdef CONFIG_NUMA
+-		sd = &per_cpu(allnodes_domains, i);
+-		if (sd->groups) {
+-			power = SCHED_LOAD_SCALE + SCHED_LOAD_SCALE *
+-				(cpus_weight(sd->groups->cpumask)-1) / 10;
+-			sd->groups->cpu_power = power;
+-		}
+-#endif
+ 	}
+ 
+ #ifdef CONFIG_NUMA
+-	for (i = 0; i < MAX_NUMNODES; i++) {
+-		struct sched_group *sg = sched_group_nodes[i];
+-		int j;
++	for (i = 0; i < MAX_NUMNODES; i++)
++		init_numa_sched_groups_power(sched_group_nodes[i]);
+ 
+-		if (sg == NULL)
+-			continue;
+-next_sg:
+-		for_each_cpu_mask(j, sg->cpumask) {
+-			struct sched_domain *sd;
+-
+-			sd = &per_cpu(phys_domains, j);
+-			if (j != first_cpu(sd->groups->cpumask)) {
+-				/*
+-				 * Only add "power" once for each
+-				 * physical package.
+-				 */
+-				continue;
+-			}
+-
+-			sg->cpu_power += sd->groups->cpu_power;
+-		}
+-		sg = sg->next;
+-		if (sg != sched_group_nodes[i])
+-			goto next_sg;
+-	}
++	init_numa_sched_groups_power(sched_group_allnodes);
+ #endif
+ 
+ 	/* Attach the domains */
 
-Index: linux-2.6.16-rc2/mm/slab.c
-===================================================================
---- linux-2.6.16-rc2.orig/mm/slab.c	2006-02-03 14:31:01.000000000 -0800
-+++ linux-2.6.16-rc2/mm/slab.c	2006-02-03 14:35:21.000000000 -0800
-@@ -294,6 +294,7 @@ struct kmem_list3 {
- 	unsigned long next_reap;
- 	int free_touched;
- 	unsigned int free_limit;
-+	unsigned int colour_next;	/* Per-node cache coloring */
- 	spinlock_t list_lock;
- 	struct array_cache *shared;	/* shared per node */
- 	struct array_cache **alien;	/* on other nodes */
-@@ -344,6 +345,7 @@ static void kmem_list3_init(struct kmem_
- 	INIT_LIST_HEAD(&parent->slabs_free);
- 	parent->shared = NULL;
- 	parent->alien = NULL;
-+	parent->colour_next = 0;
- 	spin_lock_init(&parent->list_lock);
- 	parent->free_objects = 0;
- 	parent->free_touched = 0;
-@@ -390,7 +392,6 @@ struct kmem_cache {
- 
- 	size_t colour;		/* cache colouring range */
- 	unsigned int colour_off;	/* colour offset */
--	unsigned int colour_next;	/* cache colouring */
- 	struct kmem_cache *slabp_cache;
- 	unsigned int slab_size;
- 	unsigned int dflags;	/* dynamic flags */
-@@ -1119,7 +1120,6 @@ void __init kmem_cache_init(void)
- 		BUG();
- 
- 	cache_cache.colour = left_over / cache_cache.colour_off;
--	cache_cache.colour_next = 0;
- 	cache_cache.slab_size = ALIGN(cache_cache.num * sizeof(kmem_bufctl_t) +
- 				      sizeof(struct slab), cache_line_size());
- 
-@@ -2324,18 +2324,19 @@ static int cache_grow(struct kmem_cache 
- 		 */
- 		ctor_flags |= SLAB_CTOR_ATOMIC;
- 
--	/* About to mess with non-constant members - lock. */
-+	/* Take the l3 list lock to change the colour_next on this node */
- 	check_irq_off();
--	spin_lock(&cachep->spinlock);
-+	l3 = cachep->nodelists[nodeid];
-+	spin_lock(&l3->list_lock);
- 
- 	/* Get colour for the slab, and cal the next value. */
--	offset = cachep->colour_next;
--	cachep->colour_next++;
--	if (cachep->colour_next >= cachep->colour)
--		cachep->colour_next = 0;
--	offset *= cachep->colour_off;
-+	offset = l3->colour_next;
-+	l3->colour_next++;
-+	if (l3->colour_next >= cachep->colour)
-+		l3->colour_next = 0;
-+	spin_unlock(&l3->list_lock);
- 
--	spin_unlock(&cachep->spinlock);
-+	offset *= cachep->colour_off;
- 
- 	check_irq_off();
- 	if (local_flags & __GFP_WAIT)
-@@ -2367,7 +2368,6 @@ static int cache_grow(struct kmem_cache 
- 	if (local_flags & __GFP_WAIT)
- 		local_irq_disable();
- 	check_irq_off();
--	l3 = cachep->nodelists[nodeid];
- 	spin_lock(&l3->list_lock);
- 
- 	/* Make slab active. */

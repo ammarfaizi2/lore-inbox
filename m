@@ -1,124 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbWBDLou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945957AbWBDL4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbWBDLou (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 06:44:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbWBDLou
+	id S1945957AbWBDL4t (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 06:56:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945926AbWBDL4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 06:44:50 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:38380 "EHLO
-	cust8446.nsw01.dataco.com.au") by vger.kernel.org with ESMTP
-	id S932355AbWBDLot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 06:44:49 -0500
-From: Nigel Cunningham <nigel@suspend2.net>
-Organization: Suspend2.net
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Date: Sat, 4 Feb 2006 21:41:19 +1000
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, suspend2-devel@lists.suspend2.net,
-       linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602042108.52112.nigel@suspend2.net> <200602041238.06395.rjw@sisk.pl>
-In-Reply-To: <200602041238.06395.rjw@sisk.pl>
+	Sat, 4 Feb 2006 06:56:49 -0500
+Received: from fep30-0.kolumbus.fi ([193.229.0.32]:62686 "EHLO
+	fep30-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S1945925AbWBDL4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 06:56:48 -0500
+Date: Sat, 4 Feb 2006 13:58:18 +0200 (EET)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Hugh Dickins <hugh@veritas.com>
+cc: Ryan Richter <ryan@tau.solarneutrino.net>,
+       Linus Torvalds <torvalds@osdl.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       Roland Dreier <rdreier@cisco.com>, Brian King <brking@us.ibm.com>,
+       Willem Riede <osst@riede.org>, Doug Gilbert <dougg@torque.net>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Fw: crash on x86_64 - mm related?
+In-Reply-To: <Pine.LNX.4.61.0602031842290.14065@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.63.0602041347320.3923@kai.makisara.local>
+References: <Pine.LNX.4.63.0512271807130.4955@kai.makisara.local>
+ <20060104172727.GA320@tau.solarneutrino.net> <Pine.LNX.4.63.0601042334310.5087@kai.makisara.local>
+ <20060105201249.GB1795@tau.solarneutrino.net> <Pine.LNX.4.64.0601051312380.3169@g5.osdl.org>
+ <20060109033149.GC283@tau.solarneutrino.net> <Pine.LNX.4.64.0601082000450.3169@g5.osdl.org>
+ <Pine.LNX.4.61.0601090933160.7632@goblin.wat.veritas.com>
+ <20060109185350.GG283@tau.solarneutrino.net> <Pine.LNX.4.61.0601091922550.15426@goblin.wat.veritas.com>
+ <20060118001252.GB821@tau.solarneutrino.net> <Pine.LNX.4.61.0601181556050.9110@goblin.wat.veritas.com>
+ <Pine.LNX.4.61.0602031842290.14065@goblin.wat.veritas.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1248051.NdkRLbgVTz";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200602042141.23685.nigel@suspend2.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1248051.NdkRLbgVTz
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Fri, 3 Feb 2006, Hugh Dickins wrote:
 
-Hi.
+> On Wed, 18 Jan 2006, Hugh Dickins wrote:
+> > On Tue, 17 Jan 2006, Ryan Richter wrote:
+> > 
+...
+> > The st problem (Bad page state,
+> > mapcount 2 while count 0, from sgl_unmap_user_pages) ought to be a lot
+> > easier to debug than a random reboot: but I've still no suggestion.
+> 
+> I guessed it last week, Ryan verified that booting with "iommu=nomerge"
+> worked around it, and then that the 2.6.15 patch below fixes it.
+> 
 
-On Saturday 04 February 2006 21:38, Rafael J. Wysocki wrote:
-> > > My personal view is that:
-> > > 1) turning the freezing of kernel threads upside-down is not
-> > > necessary and would cause problems in the long run,
-> >
-> > Upside down?
->
-> I mean now they should freeze voluntarily and your patches change that
-> so they would have to be created as non-freezeable if need be, AFAICT.
+I have tested the patch and did not find any problems. I suppose you will 
+send this to the stable team for inclusion into 2.6.15.x? You can add
 
-Ah. Now I'm on the same page. Lost the context.
+Signed-off-by: Kai Makisara <Kai.Makisara@kolumbus.fi>
 
-> > > 2) the todo lists are not necessary and add a lot of complexity,
-> >
-> > Sorry. Forgot about this. I liked it for solving the SMP problem, but
-> > IIRC, we're downing other cpus before this now, so that issue has gone
-> > away. I should check whether I'm right there.
-> >
-> > > 3) trying to treat uninterruptible tasks as non-freezeable should
-> > > better be avoided (I tried to implement this in swsusp last year but
-> > > it caused vigorous opposition to appear, and it was not Pavel ;-))
-> >
-> > I'm not suggesting treating them as unfreezeable in the fullest sense.
-> > I still signal them, but don't mind if they don't respond. This way,
-> > if they do leave that state for some reason (timeout?) at some point,
-> > they still get frozen.
->
-> Yes, that's exactly what I wanted to do in swsusp. ;-)
+Thanks for fixing this problem.
 
-Oh. What's Pavel's solution? Fail freezing if uninterruptible threads don't=
-=20
-freeze?
-
-> > > > A couple of possible  exceptions might be (1) freezing bdevs,
-> > > > because you don't care so much about making xfs really sync and
-> > > > really stop it's activity
-> > >
-> > > As I have already stated, in my view this one is at least worth
-> > > considering in the long run.
-> > >
-> > > > and (2) the  ability to thaw kernel space without thawing
-> > > > userspace. I want this for eating memory, to avoid deadlocking
-> > > > against kjournald etc. I haven't checked carefully as to why you
-> > > > don't need it in vanilla.
-> > >
-> > > Because it does not deadlock?  I will say we need this if I see a
-> > > testcase showing such a deadlock clearly.
-> >
-> > I've been surprised that you haven't already seen them while eating
-> > memory such that filesystems come into play. Perhaps you guys only use
-> > swap partitions, and something like a swapfile with some memory
-> > pressure might trigger this? Or it could be a side effect of one of
-> > the other changes.
->
-> In fact, we only use swap partitions, so this will be needed if we are
-> going to use files, I guess.  Nice to know in advance, thanks. ;-)
-
-k. Just so you don't confuse me, can I ask you not to refer to swapfiles as=
-=20
-'files'? I support swap partitions, swapfiles and ordinary files, so the=20
-latter will come to mind first for me.
-
-Regards,
-
-Nigel
-
-> Greetings,
-> Rafael
-
-=2D-=20
-See our web page for Howtos, FAQs, the Wiki and mailing list info.
-http://www.suspend2.net                IRC: #suspend2 on Freenode
-
---nextPart1248051.NdkRLbgVTz
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBD5JLjN0y+n1M3mo0RAh/ZAJ9AP+9QB5zK6OFDr4KHlxofV5YJjgCghTe9
-eBw2WRK6aapy9su8WN5IMFI=
-=IHCw
------END PGP SIGNATURE-----
-
---nextPart1248051.NdkRLbgVTz--
+-- 
+Kai

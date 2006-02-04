@@ -1,59 +1,261 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945995AbWBDQ1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWBDQdE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945995AbWBDQ1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 11:27:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946080AbWBDQ1Z
+	id S932513AbWBDQdE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 11:33:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbWBDQdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 11:27:25 -0500
-Received: from h80ad24db.async.vt.edu ([128.173.36.219]:21412 "EHLO
-	h80ad24db.async.vt.edu") by vger.kernel.org with ESMTP
-	id S1945995AbWBDQ1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 11:27:25 -0500
-Message-Id: <200602041627.k14GR6Pa019822@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: s.schmidt@avm.de
-Cc: linux-kernel@vger.kernel.org, opensuse-factory@opensuse.org, kkeil@suse.de
-Subject: Re: 2.6.16 serious consequences / GPL_EXPORT_SYMBOL / USB drivers of major vendor excluded 
-In-Reply-To: Your message of "Fri, 03 Feb 2006 17:24:10 +0100."
-             <OF7A130C3D.76EBAB24-ONC125710A.003AC847-C125710A.005A1B7D@avm.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <OF7A130C3D.76EBAB24-ONC125710A.003AC847-C125710A.005A1B7D@avm.de>
+	Sat, 4 Feb 2006 11:33:04 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:7107 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932513AbWBDQdC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 11:33:02 -0500
+Subject: Re: [RFT/PATCH] slab: consolidate allocation paths
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, manfred@colorfullife.com,
+       pj@sgi.com
+In-Reply-To: <1139070369.21489.3.camel@localhost>
+References: <1139060024.8707.5.camel@localhost>
+	 <Pine.LNX.4.62.0602040709210.31909@graphe.net>
+	 <1139070369.21489.3.camel@localhost>
+Date: Sat, 04 Feb 2006 18:32:59 +0200
+Message-Id: <1139070779.21489.5.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1139070425_3604P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Sat, 04 Feb 2006 11:27:05 -0500
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1139070425_3604P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Sat, 2006-02-04 at 07:11 -0800, Christoph Lameter wrote:
+> > No time to do a full review (off to traffic school... sigh), I did not 
+> > see anything by just glancing over it but the patch will conflict with 
+> > Paul Jacksons patchset to implement memory spreading.
 
-On Fri, 03 Feb 2006 17:24:10 +0100, s.schmidt=40avm.de said:
+On Sat, 2006-02-04 at 18:26 +0200, Pekka Enberg wrote:
+> Here's the same patch rediffed on top of the cpuset changes.
 
-> If it is no longer possible to have non-GPL USB drivers, we shall have =
-to
-> drop our Linux support for all AVM USB devices. We would even have to
-> discontinue the 802.11g++ WLAN USB device driver Linux developement.
+Sorry, strike that. I forgot some bits from the NUMA version of
+__cache_alloc. Here's a proper patch.
 
-Why is there a problem releasing a GPL'ed USB driver?  That would solve
-your problem just as well.  If you were really ambitious, you could clean=
+Subject: slab: consolidate allocation paths
+From: Pekka Enberg <penberg@cs.helsinki.fi>
 
-up the code and submit it for inclusion in the mainline tree - thus lower=
-ing
-your support costs.
+This patch consolidates the UMA and NUMA memory allocation paths in the
+slab allocator. This is accomplished by making the UMA-path look like
+we are on NUMA but always allocating from the current node.
 
---==_Exmh_1139070425_3604P
-Content-Type: application/pgp-signature
+Cc: Manfred Spraul <manfred@colorfullife.com>
+Cc: Christoph Lameter <christoph@lameter.com>
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+ mm/slab.c |  136 ++++++++++++++++++++++++++++++++------------------------------
+ 1 file changed, 71 insertions(+), 65 deletions(-)
 
-iD8DBQFD5NXZcC3lWbTT17ARAgDBAKDF1cqjDkBcN8KO4wHR0QOyKaUfRwCgwSpr
-YizL0DAie6TQu2yx0gs/SCo=
-=9h2V
------END PGP SIGNATURE-----
+Index: 2.6-cpuset/mm/slab.c
+===================================================================
+--- 2.6-cpuset.orig/mm/slab.c
++++ 2.6-cpuset/mm/slab.c
+@@ -829,8 +829,6 @@ static struct array_cache *alloc_arrayca
+ }
+ 
+ #ifdef CONFIG_NUMA
+-static void *__cache_alloc_node(struct kmem_cache *, gfp_t, int);
+-static void *alternate_node_alloc(struct kmem_cache *, gfp_t);
+ 
+ static struct array_cache **alloc_alien_cache(int node, int limit)
+ {
+@@ -2667,17 +2665,12 @@ static void *cache_alloc_debugcheck_afte
+ #define cache_alloc_debugcheck_after(a,b,objp,d) (objp)
+ #endif
+ 
+-static inline void *____cache_alloc(struct kmem_cache *cachep, gfp_t flags)
++static inline void *cache_alloc_cpucache(struct kmem_cache *cachep,
++					 gfp_t flags)
+ {
+ 	void *objp;
+ 	struct array_cache *ac;
+ 
+-#ifdef CONFIG_NUMA
+-	if (unlikely(current->flags & (PF_MEM_SPREAD|PF_MEMPOLICY)))
+-		if ((objp = alternate_node_alloc(cachep, flags)) != NULL)
+-			return objp;
+-#endif
+-
+ 	check_irq_off();
+ 	ac = cpu_cache_get(cachep);
+ 	if (likely(ac->avail)) {
+@@ -2691,44 +2684,8 @@ static inline void *____cache_alloc(stru
+ 	return objp;
+ }
+ 
+-static __always_inline void *
+-__cache_alloc(struct kmem_cache *cachep, gfp_t flags, void *caller)
+-{
+-	unsigned long save_flags;
+-	void *objp;
+-
+-	cache_alloc_debugcheck_before(cachep, flags);
+-
+-	local_irq_save(save_flags);
+-	objp = ____cache_alloc(cachep, flags);
+-	local_irq_restore(save_flags);
+-	objp = cache_alloc_debugcheck_after(cachep, flags, objp,
+-					    caller);
+-	prefetchw(objp);
+-	return objp;
+-}
+-
+ #ifdef CONFIG_NUMA
+ /*
+- * Try allocating on another node if PF_MEM_SPREAD or PF_MEMPOLICY.
+- */
+-static void *alternate_node_alloc(struct kmem_cache *cachep, gfp_t flags)
+-{
+-	int nid_alloc, nid_here;
+-
+-	if (in_interrupt())
+-		return NULL;
+-	nid_alloc = nid_here = numa_node_id();
+-	if (cpuset_mem_spread_check() && (cachep->flags & SLAB_MEM_SPREAD))
+-		nid_alloc = cpuset_mem_spread_node();
+-	else if (current->mempolicy)
+-		nid_alloc = slab_node(current->mempolicy);
+-	if (nid_alloc != nid_here)
+-		return __cache_alloc_node(cachep, flags, nid_alloc);
+-	return NULL;
+-}
+-
+-/*
+  * A interface to enable slab creation on nodeid
+  */
+ static void *__cache_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid)
+@@ -2788,8 +2745,73 @@ static void *__cache_alloc_node(struct k
+       done:
+ 	return obj;
+ }
++
++/*
++ * Try allocating on another node if PF_MEM_SPREAD or PF_MEMPOLICY.
++ */
++static void *alternate_node_alloc(struct kmem_cache *cachep, gfp_t flags)
++{
++	int nid_alloc, nid_here;
++
++	if (in_interrupt())
++		return NULL;
++	nid_alloc = nid_here = numa_node_id();
++	if (cpuset_mem_spread_check() && (cachep->flags & SLAB_MEM_SPREAD))
++		nid_alloc = cpuset_mem_spread_node();
++	else if (current->mempolicy)
++		nid_alloc = slab_node(current->mempolicy);
++	if (nid_alloc != nid_here)
++		return __cache_alloc_node(cachep, flags, nid_alloc);
++	return NULL;
++}
++
++static __always_inline void *__cache_alloc(struct kmem_cache *cachep,
++					   gfp_t flags, int nodeid)
++{
++	if (nodeid != -1 && nodeid != numa_node_id() &&
++	    cachep->nodelists[nodeid])
++		return __cache_alloc_node(cachep, flags, nodeid);
++
++	if (unlikely(current->flags & (PF_MEM_SPREAD|PF_MEMPOLICY))) {
++		void *obj = alternate_node_alloc(cachep, flags);
++		if (obj)
++			return obj;
++	}
++	return cache_alloc_cpucache(cachep, flags);
++}
++
++#else
++
++/*
++ * On UMA, we always allocate directly from the per-CPU cache.
++ */
++
++static __always_inline void *__cache_alloc(struct kmem_cache *cachep,
++					   gfp_t flags, int nodeid)
++{
++	return cache_alloc_cpucache(cachep, flags);
++}
++
+ #endif
+ 
++static __always_inline void * cache_alloc(struct kmem_cache *cachep,
++					  gfp_t flags, int nodeid,
++					  void *caller)
++{
++	unsigned long save_flags;
++	void *objp;
++
++	cache_alloc_debugcheck_before(cachep, flags);
++	local_irq_save(save_flags);
++
++	objp = __cache_alloc(cachep, flags, nodeid);
++
++	local_irq_restore(save_flags);
++	objp = cache_alloc_debugcheck_after(cachep, flags, objp, caller);
++	prefetchw(objp);
++	return objp;
++}
++
+ /*
+  * Caller needs to acquire correct kmem_list's list_lock
+  */
+@@ -2951,7 +2973,7 @@ static inline void __cache_free(struct k
+  */
+ void *kmem_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
+ {
+-	return __cache_alloc(cachep, flags, __builtin_return_address(0));
++	return cache_alloc(cachep, flags, -1, __builtin_return_address(0));
+ }
+ EXPORT_SYMBOL(kmem_cache_alloc);
+ 
+@@ -3012,23 +3034,7 @@ int fastcall kmem_ptr_validate(struct km
+  */
+ void *kmem_cache_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid)
+ {
+-	unsigned long save_flags;
+-	void *ptr;
+-
+-	cache_alloc_debugcheck_before(cachep, flags);
+-	local_irq_save(save_flags);
+-
+-	if (nodeid == -1 || nodeid == numa_node_id() ||
+-	    !cachep->nodelists[nodeid])
+-		ptr = ____cache_alloc(cachep, flags);
+-	else
+-		ptr = __cache_alloc_node(cachep, flags, nodeid);
+-	local_irq_restore(save_flags);
+-
+-	ptr = cache_alloc_debugcheck_after(cachep, flags, ptr,
+-					   __builtin_return_address(0));
+-
+-	return ptr;
++	return cache_alloc(cachep, flags, nodeid, __builtin_return_address(0));
+ }
+ EXPORT_SYMBOL(kmem_cache_alloc_node);
+ 
+@@ -3039,7 +3045,7 @@ void *kmalloc_node(size_t size, gfp_t fl
+ 	cachep = kmem_find_general_cachep(size, flags);
+ 	if (unlikely(cachep == NULL))
+ 		return NULL;
+-	return kmem_cache_alloc_node(cachep, flags, node);
++	return cache_alloc(cachep, flags, node, __builtin_return_address(0));
+ }
+ EXPORT_SYMBOL(kmalloc_node);
+ #endif
+@@ -3078,7 +3084,7 @@ static __always_inline void *__do_kmallo
+ 	cachep = __find_general_cachep(size, flags);
+ 	if (unlikely(cachep == NULL))
+ 		return NULL;
+-	return __cache_alloc(cachep, flags, caller);
++	return cache_alloc(cachep, flags, -1, caller);
+ }
+ 
+ #ifndef CONFIG_DEBUG_SLAB
 
---==_Exmh_1139070425_3604P--
+

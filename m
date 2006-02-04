@@ -1,111 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946126AbWBDAMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946128AbWBDANB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946126AbWBDAMX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 19:12:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946128AbWBDAMX
+	id S1946128AbWBDANB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 19:13:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946127AbWBDANB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 19:12:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:54996 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1946126AbWBDAMW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 19:12:22 -0500
-Date: Fri, 3 Feb 2006 19:12:01 -0500
-From: Dave Jones <davej@redhat.com>
-To: rmk@arm.linux.org.uk
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, a2@adamis.de
-Subject: Re: 8250.c: Fix to make 16c950 UARTs work
-Message-ID: <20060204001201.GA20330@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, rmk@arm.linux.org.uk,
-	Linux Kernel <linux-kernel@vger.kernel.org>, a2@adamis.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 3 Feb 2006 19:13:01 -0500
+Received: from c-24-10-253-213.hsd1.ut.comcast.net ([24.10.253.213]:54148 "EHLO
+	xena.localdomain") by vger.kernel.org with ESMTP id S1946124AbWBDANA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 19:13:00 -0500
+Subject: [patch 1/1] Compilation fix for ES7000 when no ACPI is specified in config (i386)
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, ak@suse.de, snakebyte@gmx.de, hager@cs.umu.se,
+       natalie.protasevich@unisys.com, Natalie.Protasevich@unisys.com
+From: natalie.protasevich@unisys.com
+Date: Fri, 03 Feb 2006 17:20:00 -0700
+Message-Id: <20060204002001.0CBA08A7F2@xena.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell,
- This patch seemed to have got dropped on the floor somewhere.
-http://marc.theaimsgroup.com/?l=linux-kernel&m=112687270832687&w=2
 
-We've had a Fedora user requesting this after patching his kernel
-with it, and using it without problems for some time.
-(https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=126403)
-I just checked, and it still applies (with a few offsets) to .16rc2
-On those grounds, I'm comfortable to add a Signed-off-by:
-Is there any reason not to apply this ?
+ES7000 platfrom code clean up for compilation errors and a warning.
+Ifdef'd the ACPI related parts in the ES7000 platform code. They were causing compile errors in certain configuration (without ACPI defined).
+I think this approach would be best (as opposed to Kconfig changes) since it only touches the subarch...
 
-From: Mathias Adam <a2@adamis.de>
-Signed-off-by: Dave Jones <davej@redhat.com>
+Signed-off-by: <Natalie.Protasevich@unisys.com>
+---
 
---- linux-2.6.13-org/drivers/serial/8250.c	2005-08-29 01:41:01.000000000 +0200
-+++ linux-2.6.13/drivers/serial/8250.c	2005-09-16 12:18:14.000000000 +0200
-@@ -7,6 +7,9 @@
-  *
-  *  Copyright (C) 2001 Russell King.
-  *
-+ *  2005/09/16: Enabled higher baud rates for 16C95x.
-+ *		(Mathias Adam <a2@adamis.de>)
-+ *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-  * the Free Software Foundation; either version 2 of the License, or
-@@ -1652,6 +1655,14 @@
- 	else if ((port->flags & UPF_MAGIC_MULTIPLIER) &&
- 		 baud == (port->uartclk/8))
- 		quot = 0x8002;
-+	/*
-+	 * For 16C950s UART_TCR is used in combination with divisor==1
-+	 * to achieve baud rates up to baud_base*4.
-+	 */
-+	else if ((port->type == PORT_16C950) &&
-+		 baud > (port->uartclk/16))
-+		quot = 1;
-+
- 	else
- 		quot = uart_get_divisor(port, baud);
+
+diff -puN include/asm-i386/mach-es7000/mach_mpparse.h~es7000-compile-fix include/asm-i386/mach-es7000/mach_mpparse.h
+--- linux-2.6.16-rc1-mm4/include/asm-i386/mach-es7000/mach_mpparse.h~es7000-compile-fix	2006-02-02 02:56:05.000000000 -0700
++++ linux-2.6.16-rc1-mm4-root/include/asm-i386/mach-es7000/mach_mpparse.h	2006-02-02 03:35:19.000000000 -0700
+@@ -30,7 +30,8 @@ static inline int mps_oem_check(struct m
+ 	return 0;
+ }
  
-@@ -1665,7 +1676,7 @@
- 	struct uart_8250_port *up = (struct uart_8250_port *)port;
- 	unsigned char cval, fcr = 0;
- 	unsigned long flags;
--	unsigned int baud, quot;
-+	unsigned int baud, quot, max_baud;
- 
- 	switch (termios->c_cflag & CSIZE) {
- 	case CS5:
-@@ -1697,7 +1708,8 @@
- 	/*
- 	 * Ask the core to calculate the divisor for us.
- 	 */
--	baud = uart_get_baud_rate(port, termios, old, 0, port->uartclk/16); 
-+	max_baud = (up->port.type == PORT_16C950 ? port->uartclk/4 : port->uartclk/16);
-+	baud = uart_get_baud_rate(port, termios, old, 0, max_baud); 
- 	quot = serial8250_get_divisor(port, baud);
- 
- 	/*
-@@ -1733,6 +1745,19 @@
- 	 */
- 	spin_lock_irqsave(&up->port.lock, flags);
- 
-+	/* 
-+	 * 16C950 supports additional prescaler ratios between 1:16 and 1:4
-+	 * thus increasing max baud rate to uartclk/4.
-+	 */
-+	if (up->port.type == PORT_16C950) {
-+		if (baud == port->uartclk/4)
-+			serial_icr_write(up, UART_TCR, 0x4);
-+		else if (baud == port->uartclk/8)
-+			serial_icr_write(up, UART_TCR, 0x8);
-+		else
-+			serial_icr_write(up, UART_TCR, 0);
-+	}
-+	
- 	/*
- 	 * Update the per-port timeout.
- 	 */
+-static inline int es7000_check_dsdt()
++#ifdef CONFIG_ACPI
++static inline int es7000_check_dsdt(void)
+ {
+ 	struct acpi_table_header *header = NULL;
+ 	if(!acpi_get_table_header_early(ACPI_DSDT, &header))
+@@ -54,6 +55,11 @@ static inline int acpi_madt_oem_check(ch
+ 	}
+ 	return 0;
+ }
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
++#else
++static inline int acpi_madt_oem_check(char *oem_id, char *oem_table_id)
++{
++	return 0;
++}
++#endif
+ 
+ #endif /* __ASM_MACH_MPPARSE_H */
+diff -puN arch/i386/kernel/mpparse.c~es7000-compile-fix arch/i386/kernel/mpparse.c
+--- linux-2.6.16-rc1-mm4/arch/i386/kernel/mpparse.c~es7000-compile-fix	2006-02-02 02:56:05.000000000 -0700
++++ linux-2.6.16-rc1-mm4-root/arch/i386/kernel/mpparse.c	2006-02-02 02:59:07.000000000 -0700
+@@ -828,6 +828,8 @@ void __init find_smp_config (void)
+ 		smp_scan_config(address, 0x400);
+ }
+ 
++int es7000_plat;
++
+ /* --------------------------------------------------------------------------
+                             ACPI-based MP Configuration
+    -------------------------------------------------------------------------- */
+@@ -1005,8 +1007,6 @@ void __init mp_override_legacy_irq (
+ 	return;
+ }
+ 
+-int es7000_plat;
+-
+ void __init mp_config_acpi_legacy_irqs (void)
+ {
+ 	struct mpc_config_intsrc intsrc;
+diff -puN arch/i386/mach-es7000/es7000plat.c~es7000-compile-fix arch/i386/mach-es7000/es7000plat.c
+--- linux-2.6.16-rc1-mm4/arch/i386/mach-es7000/es7000plat.c~es7000-compile-fix	2006-02-02 02:56:05.000000000 -0700
++++ linux-2.6.16-rc1-mm4-root/arch/i386/mach-es7000/es7000plat.c	2006-02-02 02:59:54.000000000 -0700
+@@ -51,8 +51,6 @@ struct mip_reg		*host_reg;
+ int 			mip_port;
+ unsigned long		mip_addr, host_addr;
+ 
+-#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI)
+-
+ /*
+  * GSI override for ES7000 platforms.
+  */
+@@ -76,8 +74,6 @@ es7000_rename_gsi(int ioapic, int gsi)
+ 	return gsi;
+ }
+ 
+-#endif	/* (CONFIG_X86_IO_APIC) && (CONFIG_ACPI) */
+-
+ void __init
+ setup_unisys(void)
+ {
+@@ -160,6 +156,7 @@ parse_unisys_oem (char *oemptr)
+ 	return es7000_plat;
+ }
+ 
++#ifdef CONFIG_ACPI
+ int __init
+ find_unisys_acpi_oem_table(unsigned long *oem_addr)
+ {
+@@ -212,6 +209,7 @@ find_unisys_acpi_oem_table(unsigned long
+ 	}
+ 	return -1;
+ }
++#endif
+ 
+ static void
+ es7000_spin(int n)
+diff -puN arch/i386/mach-es7000/es7000.h~es7000-compile-fix arch/i386/mach-es7000/es7000.h
+--- linux-2.6.16-rc1-mm4/arch/i386/mach-es7000/es7000.h~es7000-compile-fix	2006-02-02 02:56:05.000000000 -0700
++++ linux-2.6.16-rc1-mm4-root/arch/i386/mach-es7000/es7000.h	2006-02-02 03:04:51.000000000 -0700
+@@ -83,6 +83,7 @@ struct es7000_oem_table {
+ 	struct psai psai;
+ };
+ 
++#ifdef CONFIG_ACPI
+ struct acpi_table_sdt {
+ 	unsigned long pa;
+ 	unsigned long count;
+@@ -99,6 +100,9 @@ struct oem_table {
+ 	u32 OEMTableSize;
+ };
+ 
++extern int find_unisys_acpi_oem_table(unsigned long *oem_addr);
++#endif
++
+ struct mip_reg {
+ 	unsigned long long off_0;
+ 	unsigned long long off_8;
+@@ -114,7 +118,6 @@ struct mip_reg {
+ #define	MIP_FUNC(VALUE) 	(VALUE & 0xff)
+ 
+ extern int parse_unisys_oem (char *oemptr);
+-extern int find_unisys_acpi_oem_table(unsigned long *oem_addr);
+ extern void setup_unisys(void);
+ extern int es7000_start_cpu(int cpu, unsigned long eip);
+ extern void es7000_sw_apic(void);
+_

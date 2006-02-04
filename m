@@ -1,82 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbWBDXwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWBDXyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932592AbWBDXwF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 18:52:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbWBDXvp
+	id S1030199AbWBDXyz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 18:54:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030216AbWBDXyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 18:51:45 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:28572 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1946154AbWBDXvj (ORCPT
+	Sat, 4 Feb 2006 18:54:55 -0500
+Received: from khc.piap.pl ([195.187.100.11]:53765 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1030199AbWBDXyy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 18:51:39 -0500
-Date: Sat, 4 Feb 2006 15:50:38 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: steiner@sgi.com, dgc@sgi.com, Simon.Derr@bull.net, ak@suse.de,
-       linux-kernel@vger.kernel.org, pj@sgi.com, clameter@sgi.com
-Subject: Re: [PATCH 4/5] cpuset memory spread slab cache optimizations
-Message-Id: <20060204155038.3191a8c0.akpm@osdl.org>
-In-Reply-To: <20060204071927.10021.75308.sendpatchset@jackhammer.engr.sgi.com>
-References: <20060204071910.10021.8437.sendpatchset@jackhammer.engr.sgi.com>
-	<20060204071927.10021.75308.sendpatchset@jackhammer.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 4 Feb 2006 18:54:54 -0500
+To: Glen Turner <glen.turner@aarnet.edu.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 8250 serial console fixes -- issue
+References: <Pine.LNX.4.44.0602011911360.22854-100000@gate.crashing.org>
+	<1138844838.5557.17.camel@localhost.localdomain>
+	<43E2B8D6.1070707@aarnet.edu.au>
+	<20060203094042.GB30738@flint.arm.linux.org.uk>
+	<43E36850.5030900@aarnet.edu.au>
+	<20060203160218.GA27452@flint.arm.linux.org.uk>
+	<43E38E00.301@aarnet.edu.au>
+	<20060203222340.GB10700@flint.arm.linux.org.uk>
+	<m3irrvdrnm.fsf@defiant.localdomain>
+	<20060204231637.GB24887@flint.arm.linux.org.uk>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sun, 05 Feb 2006 00:54:51 +0100
+In-Reply-To: <20060204231637.GB24887@flint.arm.linux.org.uk> (Russell King's message of "Sat, 4 Feb 2006 23:16:37 +0000")
+Message-ID: <m3irrud6ic.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
->  @@ -2703,20 +2704,9 @@ static inline void *____cache_alloc(stru
->   	struct array_cache *ac;
->   
->   #ifdef CONFIG_NUMA
->  -	if (unlikely(current->mempolicy && !in_interrupt())) {
->  -		int nid = slab_node(current->mempolicy);
->  -
->  -		if (nid != numa_node_id())
->  -			return __cache_alloc_node(cachep, flags, nid);
->  -	}
->  -	if (unlikely(cpuset_mem_spread_check() &&
->  -					(cachep->flags & SLAB_MEM_SPREAD) &&
->  -					!in_interrupt())) {
->  -		int nid = cpuset_mem_spread_node();
->  -
->  -		if (nid != numa_node_id())
->  -			return __cache_alloc_node(cachep, flags, nid);
->  -	}
->  +	if (unlikely(current->flags & (PF_MEM_SPREAD|PF_MEMPOLICY)))
->  +		if ((objp = alternate_node_alloc(cachep, flags)) != NULL)
->  +			return objp;
->   #endif
->   
->   	check_irq_off();
->  @@ -2751,6 +2741,25 @@ __cache_alloc(struct kmem_cache *cachep,
->   
->   #ifdef CONFIG_NUMA
->   /*
->  + * Try allocating on another node if PF_MEM_SPREAD or PF_MEMPOLICY.
->  + */
->  +static void *alternate_node_alloc(struct kmem_cache *cachep, gfp_t flags)
->  +{
->  +	int nid_alloc, nid_here;
->  +
->  +	if (in_interrupt())
->  +		return NULL;
->  +	nid_alloc = nid_here = numa_node_id();
->  +	if (cpuset_mem_spread_check() && (cachep->flags & SLAB_MEM_SPREAD))
->  +		nid_alloc = cpuset_mem_spread_node();
->  +	else if (current->mempolicy)
->  +		nid_alloc = slab_node(current->mempolicy);
->  +	if (nid_alloc != nid_here)
->  +		return __cache_alloc_node(cachep, flags, nid_alloc);
->  +	return NULL;
->  +}
->  +
+Russell King <rmk+lkml@arm.linux.org.uk> writes:
 
-Why not move the PF_MEM_SPREAD|PF_MEMPOLICY test into
-alternate_node_alloc(), inline the whole thing and nuke the #ifdef in
-__cache_alloc()?
+> CRTSCTS is to enable RTS/CTS hardware handshaking for the tty, which
+> is what the modem wants if it is doing hardware handshaking.
 
-We're adding even more goop into the NUMA __cache_alloc() fastpath.  This bad.
+Yes. But a Hayes modem wants a bit more than just RTS/CTS handshaking.
+
+> Why
+> should we invent a non-standard option to enable RTS/CTS hardware
+> handshaking when CRTSCTS is already defined to do this?
+
+That's not my idea.
+
+If we want to support modems (Hayes-compatible) we need to make sure,
+in addition to CRTSCTS, that we don't send anything when DCD (or DSR)
+is down - and then we probably need another option.
+
+BTW I think you know all of this very well for years.
+-- 
+Krzysztof Halasa

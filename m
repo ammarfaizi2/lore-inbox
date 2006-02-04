@@ -1,261 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWBDQdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946105AbWBDQeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932513AbWBDQdE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 11:33:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbWBDQdE
+	id S1946105AbWBDQeE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 11:34:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946144AbWBDQeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 11:33:04 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:7107 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932513AbWBDQdC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 11:33:02 -0500
-Subject: Re: [RFT/PATCH] slab: consolidate allocation paths
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, manfred@colorfullife.com,
-       pj@sgi.com
-In-Reply-To: <1139070369.21489.3.camel@localhost>
-References: <1139060024.8707.5.camel@localhost>
-	 <Pine.LNX.4.62.0602040709210.31909@graphe.net>
-	 <1139070369.21489.3.camel@localhost>
-Date: Sat, 04 Feb 2006 18:32:59 +0200
-Message-Id: <1139070779.21489.5.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.2.1 
+	Sat, 4 Feb 2006 11:34:04 -0500
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:35900 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S1946124AbWBDQeB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 11:34:01 -0500
+X-IronPort-AV: i="4.02,88,1139212800"; 
+   d="scan'208"; a="253543321:sNHT32267870"
+Subject: [git patch review 2/2] IB: Don't doublefree pages from scatterlist
+From: Roland Dreier <rolandd@cisco.com>
+Date: Sat, 04 Feb 2006 16:33:57 +0000
+To: linux-kernel@vger.kernel.org, openib-general@openib.org
+X-Mailer: IB-patch-reviewer
+Content-Transfer-Encoding: 8bit
+Message-ID: <1139070837112-3fe13a3288c20f5c@cisco.com>
+In-Reply-To: <1139070837111-02eec52639fd6aed@cisco.com>
+X-OriginalArrivalTime: 04 Feb 2006 16:33:58.0240 (UTC) FILETIME=[CC1DFE00:01C629A8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-02-04 at 07:11 -0800, Christoph Lameter wrote:
-> > No time to do a full review (off to traffic school... sigh), I did not 
-> > see anything by just glancing over it but the patch will conflict with 
-> > Paul Jacksons patchset to implement memory spreading.
+On some architectures, mapping the scatterlist may coalesce entries:
+if that coalesced list is then used for freeing the pages afterwards,
+there's a danger that pages may be doubly freed (and others leaked).
 
-On Sat, 2006-02-04 at 18:26 +0200, Pekka Enberg wrote:
-> Here's the same patch rediffed on top of the cpuset changes.
+Fix Infiniband's __ib_umem_release by freeing from a separate array
+beyond the scatterlist: IB_UMEM_MAX_PAGE_CHUNK lowered to fit one page.
 
-Sorry, strike that. I forgot some bits from the NUMA version of
-__cache_alloc. Here's a proper patch.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
-Subject: slab: consolidate allocation paths
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-
-This patch consolidates the UMA and NUMA memory allocation paths in the
-slab allocator. This is accomplished by making the UMA-path look like
-we are on NUMA but always allocating from the current node.
-
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Cc: Christoph Lameter <christoph@lameter.com>
-Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
 ---
 
- mm/slab.c |  136 ++++++++++++++++++++++++++++++++------------------------------
- 1 file changed, 71 insertions(+), 65 deletions(-)
+ drivers/infiniband/core/uverbs_mem.c |   22 ++++++++++++++++------
+ include/rdma/ib_verbs.h              |    3 +--
+ 2 files changed, 17 insertions(+), 8 deletions(-)
 
-Index: 2.6-cpuset/mm/slab.c
-===================================================================
---- 2.6-cpuset.orig/mm/slab.c
-+++ 2.6-cpuset/mm/slab.c
-@@ -829,8 +829,6 @@ static struct array_cache *alloc_arrayca
- }
- 
- #ifdef CONFIG_NUMA
--static void *__cache_alloc_node(struct kmem_cache *, gfp_t, int);
--static void *alternate_node_alloc(struct kmem_cache *, gfp_t);
- 
- static struct array_cache **alloc_alien_cache(int node, int limit)
+46fc99a4a1429f843e3b6df8ed1f571944bef4e2
+diff --git a/drivers/infiniband/core/uverbs_mem.c b/drivers/infiniband/core/uverbs_mem.c
+index 36a32c3..87a363e 100644
+--- a/drivers/infiniband/core/uverbs_mem.c
++++ b/drivers/infiniband/core/uverbs_mem.c
+@@ -49,15 +49,18 @@ struct ib_umem_account_work {
+ static void __ib_umem_release(struct ib_device *dev, struct ib_umem *umem, int dirty)
  {
-@@ -2667,17 +2665,12 @@ static void *cache_alloc_debugcheck_afte
- #define cache_alloc_debugcheck_after(a,b,objp,d) (objp)
- #endif
+ 	struct ib_umem_chunk *chunk, *tmp;
++	struct page **sg_pages;
+ 	int i;
  
--static inline void *____cache_alloc(struct kmem_cache *cachep, gfp_t flags)
-+static inline void *cache_alloc_cpucache(struct kmem_cache *cachep,
-+					 gfp_t flags)
+ 	list_for_each_entry_safe(chunk, tmp, &umem->chunk_list, list) {
+ 		dma_unmap_sg(dev->dma_device, chunk->page_list,
+ 			     chunk->nents, DMA_BIDIRECTIONAL);
++		/* Scatterlist may have been coalesced: free saved pagelist */
++		sg_pages = (struct page **) (chunk->page_list + chunk->nents);
+ 		for (i = 0; i < chunk->nents; ++i) {
+ 			if (umem->writable && dirty)
+-				set_page_dirty_lock(chunk->page_list[i].page);
+-			put_page(chunk->page_list[i].page);
++				set_page_dirty_lock(sg_pages[i]);
++			put_page(sg_pages[i]);
+ 		}
+ 
+ 		kfree(chunk);
+@@ -69,11 +72,13 @@ int ib_umem_get(struct ib_device *dev, s
  {
- 	void *objp;
- 	struct array_cache *ac;
+ 	struct page **page_list;
+ 	struct ib_umem_chunk *chunk;
++	struct page **sg_pages;
+ 	unsigned long locked;
+ 	unsigned long lock_limit;
+ 	unsigned long cur_base;
+ 	unsigned long npages;
+ 	int ret = 0;
++	int nents;
+ 	int off;
+ 	int i;
  
--#ifdef CONFIG_NUMA
--	if (unlikely(current->flags & (PF_MEM_SPREAD|PF_MEMPOLICY)))
--		if ((objp = alternate_node_alloc(cachep, flags)) != NULL)
--			return objp;
--#endif
--
- 	check_irq_off();
- 	ac = cpu_cache_get(cachep);
- 	if (likely(ac->avail)) {
-@@ -2691,44 +2684,8 @@ static inline void *____cache_alloc(stru
- 	return objp;
- }
+@@ -121,16 +126,21 @@ int ib_umem_get(struct ib_device *dev, s
+ 		off = 0;
  
--static __always_inline void *
--__cache_alloc(struct kmem_cache *cachep, gfp_t flags, void *caller)
--{
--	unsigned long save_flags;
--	void *objp;
--
--	cache_alloc_debugcheck_before(cachep, flags);
--
--	local_irq_save(save_flags);
--	objp = ____cache_alloc(cachep, flags);
--	local_irq_restore(save_flags);
--	objp = cache_alloc_debugcheck_after(cachep, flags, objp,
--					    caller);
--	prefetchw(objp);
--	return objp;
--}
--
- #ifdef CONFIG_NUMA
- /*
-- * Try allocating on another node if PF_MEM_SPREAD or PF_MEMPOLICY.
-- */
--static void *alternate_node_alloc(struct kmem_cache *cachep, gfp_t flags)
--{
--	int nid_alloc, nid_here;
--
--	if (in_interrupt())
--		return NULL;
--	nid_alloc = nid_here = numa_node_id();
--	if (cpuset_mem_spread_check() && (cachep->flags & SLAB_MEM_SPREAD))
--		nid_alloc = cpuset_mem_spread_node();
--	else if (current->mempolicy)
--		nid_alloc = slab_node(current->mempolicy);
--	if (nid_alloc != nid_here)
--		return __cache_alloc_node(cachep, flags, nid_alloc);
--	return NULL;
--}
--
--/*
-  * A interface to enable slab creation on nodeid
-  */
- static void *__cache_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid)
-@@ -2788,8 +2745,73 @@ static void *__cache_alloc_node(struct k
-       done:
- 	return obj;
- }
-+
-+/*
-+ * Try allocating on another node if PF_MEM_SPREAD or PF_MEMPOLICY.
-+ */
-+static void *alternate_node_alloc(struct kmem_cache *cachep, gfp_t flags)
-+{
-+	int nid_alloc, nid_here;
-+
-+	if (in_interrupt())
-+		return NULL;
-+	nid_alloc = nid_here = numa_node_id();
-+	if (cpuset_mem_spread_check() && (cachep->flags & SLAB_MEM_SPREAD))
-+		nid_alloc = cpuset_mem_spread_node();
-+	else if (current->mempolicy)
-+		nid_alloc = slab_node(current->mempolicy);
-+	if (nid_alloc != nid_here)
-+		return __cache_alloc_node(cachep, flags, nid_alloc);
-+	return NULL;
-+}
-+
-+static __always_inline void *__cache_alloc(struct kmem_cache *cachep,
-+					   gfp_t flags, int nodeid)
-+{
-+	if (nodeid != -1 && nodeid != numa_node_id() &&
-+	    cachep->nodelists[nodeid])
-+		return __cache_alloc_node(cachep, flags, nodeid);
-+
-+	if (unlikely(current->flags & (PF_MEM_SPREAD|PF_MEMPOLICY))) {
-+		void *obj = alternate_node_alloc(cachep, flags);
-+		if (obj)
-+			return obj;
-+	}
-+	return cache_alloc_cpucache(cachep, flags);
-+}
-+
-+#else
-+
-+/*
-+ * On UMA, we always allocate directly from the per-CPU cache.
-+ */
-+
-+static __always_inline void *__cache_alloc(struct kmem_cache *cachep,
-+					   gfp_t flags, int nodeid)
-+{
-+	return cache_alloc_cpucache(cachep, flags);
-+}
-+
- #endif
+ 		while (ret) {
+-			chunk = kmalloc(sizeof *chunk + sizeof (struct scatterlist) *
+-					min_t(int, ret, IB_UMEM_MAX_PAGE_CHUNK),
++			nents = min_t(int, ret, IB_UMEM_MAX_PAGE_CHUNK);
++			chunk = kmalloc(sizeof *chunk +
++					sizeof (struct scatterlist) * nents +
++					sizeof (struct page *) * nents,
+ 					GFP_KERNEL);
+ 			if (!chunk) {
+ 				ret = -ENOMEM;
+ 				goto out;
+ 			}
++			/* Save pages to be freed in array beyond scatterlist */
++			sg_pages = (struct page **) (chunk->page_list + nents);
  
-+static __always_inline void * cache_alloc(struct kmem_cache *cachep,
-+					  gfp_t flags, int nodeid,
-+					  void *caller)
-+{
-+	unsigned long save_flags;
-+	void *objp;
-+
-+	cache_alloc_debugcheck_before(cachep, flags);
-+	local_irq_save(save_flags);
-+
-+	objp = __cache_alloc(cachep, flags, nodeid);
-+
-+	local_irq_restore(save_flags);
-+	objp = cache_alloc_debugcheck_after(cachep, flags, objp, caller);
-+	prefetchw(objp);
-+	return objp;
-+}
-+
- /*
-  * Caller needs to acquire correct kmem_list's list_lock
-  */
-@@ -2951,7 +2973,7 @@ static inline void __cache_free(struct k
-  */
- void *kmem_cache_alloc(struct kmem_cache *cachep, gfp_t flags)
- {
--	return __cache_alloc(cachep, flags, __builtin_return_address(0));
-+	return cache_alloc(cachep, flags, -1, __builtin_return_address(0));
- }
- EXPORT_SYMBOL(kmem_cache_alloc);
+-			chunk->nents = min_t(int, ret, IB_UMEM_MAX_PAGE_CHUNK);
++			chunk->nents = nents;
+ 			for (i = 0; i < chunk->nents; ++i) {
++				sg_pages[i]                = page_list[i + off];
+ 				chunk->page_list[i].page   = page_list[i + off];
+ 				chunk->page_list[i].offset = 0;
+ 				chunk->page_list[i].length = PAGE_SIZE;
+@@ -142,7 +152,7 @@ int ib_umem_get(struct ib_device *dev, s
+ 						 DMA_BIDIRECTIONAL);
+ 			if (chunk->nmap <= 0) {
+ 				for (i = 0; i < chunk->nents; ++i)
+-					put_page(chunk->page_list[i].page);
++					put_page(sg_pages[i]);
+ 				kfree(chunk);
  
-@@ -3012,23 +3034,7 @@ int fastcall kmem_ptr_validate(struct km
-  */
- void *kmem_cache_alloc_node(struct kmem_cache *cachep, gfp_t flags, int nodeid)
- {
--	unsigned long save_flags;
--	void *ptr;
--
--	cache_alloc_debugcheck_before(cachep, flags);
--	local_irq_save(save_flags);
--
--	if (nodeid == -1 || nodeid == numa_node_id() ||
--	    !cachep->nodelists[nodeid])
--		ptr = ____cache_alloc(cachep, flags);
--	else
--		ptr = __cache_alloc_node(cachep, flags, nodeid);
--	local_irq_restore(save_flags);
--
--	ptr = cache_alloc_debugcheck_after(cachep, flags, ptr,
--					   __builtin_return_address(0));
--
--	return ptr;
-+	return cache_alloc(cachep, flags, nodeid, __builtin_return_address(0));
- }
- EXPORT_SYMBOL(kmem_cache_alloc_node);
+ 				ret = -ENOMEM;
+diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
+index 22fc886..239c11d 100644
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -696,8 +696,7 @@ struct ib_udata {
  
-@@ -3039,7 +3045,7 @@ void *kmalloc_node(size_t size, gfp_t fl
- 	cachep = kmem_find_general_cachep(size, flags);
- 	if (unlikely(cachep == NULL))
- 		return NULL;
--	return kmem_cache_alloc_node(cachep, flags, node);
-+	return cache_alloc(cachep, flags, node, __builtin_return_address(0));
- }
- EXPORT_SYMBOL(kmalloc_node);
- #endif
-@@ -3078,7 +3084,7 @@ static __always_inline void *__do_kmallo
- 	cachep = __find_general_cachep(size, flags);
- 	if (unlikely(cachep == NULL))
- 		return NULL;
--	return __cache_alloc(cachep, flags, caller);
-+	return cache_alloc(cachep, flags, -1, caller);
- }
+ #define IB_UMEM_MAX_PAGE_CHUNK						\
+ 	((PAGE_SIZE - offsetof(struct ib_umem_chunk, page_list)) /	\
+-	 ((void *) &((struct ib_umem_chunk *) 0)->page_list[1] -	\
+-	  (void *) &((struct ib_umem_chunk *) 0)->page_list[0]))
++	 (sizeof (struct scatterlist) + sizeof (struct page *)))
  
- #ifndef CONFIG_DEBUG_SLAB
-
-
+ struct ib_umem_object {
+ 	struct ib_uobject	uobject;
+-- 
+1.1.3

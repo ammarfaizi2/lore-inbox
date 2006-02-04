@@ -1,42 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945892AbWBDIxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945924AbWBDI6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945892AbWBDIxO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 03:53:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945924AbWBDIxO
+	id S1945924AbWBDI6S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 03:58:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945937AbWBDI6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 03:53:14 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22471 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1945892AbWBDIxO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 03:53:14 -0500
-Date: Sat, 4 Feb 2006 09:53:01 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Bojan Smojver <bojan@rexursive.com>
-Cc: Suspend2 Devel List <suspend2-devel@lists.suspend2.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
-Message-ID: <20060204085301.GI3291@elf.ucw.cz>
-References: <200602030918.07006.nigel@suspend2.net> <20060203120055.0nu3ym4yuck0os84@imp.rexursive.com> <20060202171812.49b86721.akpm@osdl.org> <20060203124253.m6azcn4wg88gsogc@imp.rexursive.com> <20060203114948.GC2972@elf.ucw.cz> <1139010204.2191.14.camel@coyote.rexursive.com> <20060203235546.GB3291@elf.ucw.cz> <1139011559.2191.29.camel@coyote.rexursive.com> <20060204005310.GG3291@elf.ucw.cz> <1139015620.2191.39.camel@coyote.rexursive.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1139015620.2191.39.camel@coyote.rexursive.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sat, 4 Feb 2006 03:58:18 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:27277 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1945924AbWBDI6R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 03:58:17 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <43E46BC5.7090301@s5r6.in-berlin.de>
+Date: Sat, 04 Feb 2006 09:54:29 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Ben Collins <bcollins@ubuntu.com>, linux1394-user@lists.sourceforge.net,
+       Jody McIntyre <scjody@modernduck.com>
+Subject: Re: ieee1394/oui.db (was Re: [PATCH] ieee1394: allow building with
+ absolute SUBDIRS path)
+References: <1138234743.10202.3.camel@localhost> <20060131052101.GC9667@conscoop.ottawa.on.ca> <43DFC648.4030404@s5r6.in-berlin.de> <1138739715.4456.302.camel@grayson>
+In-Reply-To: <1138739715.4456.302.camel@grayson>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (0.469) AWL,BAYES_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This was personal email. It is pretty rude to post it to public lists.
+Ben Collins wrote on 2006-01-31:
+> On Tue, 2006-01-31 at 21:19 +0100, Stefan Richter wrote:
+>>Jody McIntyre wrote:
+>>>Does anyone else feel like killing oui.c?
+>>
+>>I have no strong feelings for or against oui.db. It is nice to have the 
+>>vendor names decoded in sysfs, although the footprint is considerable:
+>>
+>>$ du oui.o ieee1394.ko
+>>252K    oui.o
+>>356K    ieee1394.ko
+>>
+>>OTOH, nobody is forced to compile it in. And except for the Makefile 
+>>patch and .gitignore patch which came in this month, oui.db does not 
+>>impose a real maintenance burden. The fact that we are too lazy to 
+>>update the db saves us work too. :-)
+>>
+>>BTW, oui.db has 7048 entries but IEEE lists 8949 today. Either people 
+>>vote oui.db off the island now, or I will submit an update.
+> 
+> I vote update it. I really think something like OUI needs to be part of
+> the kernel lib/ though. Lots of things, like ethernet and bluetooth can
+> use it. No one really does though.
 
-> But hey, you seem to be bent on not having it - and you seem to be the
-> one making that calls, so the rest of us that just want to use the
-> notebooks properly will have to patch until someone decides that having
-> something that works is more important than being right all the
-> time.
-
-In the end, it is important what is right, not what works. If you do
-not understand that -- bad for you.
-
-								Pavel
+Yes, drivers/ieee1394/ is the wrong place for oui.db. In case oui.db was 
+not killed by then, I will submit patches to move oui.db to lib/ later 
+this month.
 -- 
-Thanks, Sharp!
+Stefan Richter
+-=====-=-==- --=- --=--
+http://arcgraph.de/sr/

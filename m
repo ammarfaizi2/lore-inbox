@@ -1,144 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946128AbWBDANB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946003AbWBDANs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946128AbWBDANB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 19:13:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946127AbWBDANB
+	id S1946003AbWBDANs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 19:13:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945969AbWBDANs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 19:13:01 -0500
-Received: from c-24-10-253-213.hsd1.ut.comcast.net ([24.10.253.213]:54148 "EHLO
-	xena.localdomain") by vger.kernel.org with ESMTP id S1946124AbWBDANA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 19:13:00 -0500
-Subject: [patch 1/1] Compilation fix for ES7000 when no ACPI is specified in config (i386)
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, ak@suse.de, snakebyte@gmx.de, hager@cs.umu.se,
-       natalie.protasevich@unisys.com, Natalie.Protasevich@unisys.com
-From: natalie.protasevich@unisys.com
-Date: Fri, 03 Feb 2006 17:20:00 -0700
-Message-Id: <20060204002001.0CBA08A7F2@xena.localdomain>
+	Fri, 3 Feb 2006 19:13:48 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:56533 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1946124AbWBDANr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 19:13:47 -0500
+To: Benjamin Chu <benchu@tamu.edu>
+Cc: linux-kernel@vger.kernel.org, systemtap@sources.redhat.com
+Subject: Re: Measure the Accept Queueing Time
+References: <43E28A07.1040604@tamu.edu>
+From: fche@redhat.com (Frank Ch. Eigler)
+Date: 03 Feb 2006 19:13:39 -0500
+In-Reply-To: <43E28A07.1040604@tamu.edu>
+Message-ID: <y0mek2kdlqk.fsf@toenail.toronto.redhat.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-ES7000 platfrom code clean up for compilation errors and a warning.
-Ifdef'd the ACPI related parts in the ES7000 platform code. They were causing compile errors in certain configuration (without ACPI defined).
-I think this approach would be best (as opposed to Kconfig changes) since it only touches the subarch...
+Benjamin Chu <benchu@tamu.edu> writes:
 
-Signed-off-by: <Natalie.Protasevich@unisys.com>
----
+> [...]  All I want is to measure the amount of time when a open
+> request is in the accept queue. [...]
+> p.s. My Linux Kernel Version is 2.4.25
+
+Dude, you made me spend several hours playing with systemtap to solve
+this simple-sounding problem.  :-) 
+
+At the end, I have a script (attached below) that works on one
+particular kernel build (a beta RHEL4 kernel, which has the systemtap
+prerequisite kprobes, but uses the same networking structure).
+Unfortunately, it also demonstrated some of the work we have to do in
+systemtap land to make it work better.
+
+The good news: here is the output of the script running on a vmware
+instance that has only single socket listener program, being briefly
+tickled by hand, then hammered by "nc" connections in a loop.  The
+lines came out every ten seconds (as requested by the script, see
+below), and report on the number of successful accept()s, plus the
+number of microseconds that each open_request* was in the
+accept_queue.
+
+% socket -l -s NNNN &
+[1] 25384
+% stap -g acceptdelay.stp
+[1139011591] socket(25384) count=1 avg=1487us
+[1139011601] socket(25384) count=9 avg=560us
+[1139011611] socket(25384) count=6 avg=915us
+[1139011621] socket(25384) count=747 avg=604us
+[1139011631] socket(25384) count=1280 avg=558us
+[1139011641] socket(25384) count=1147 avg=547us
+[1139011645] socket(25384) count=25 avg=471us
+
+Is that the sort of data you were hoping to see?
+
+The systemtap translator unfortunately has problems identifying the
+most ideal probe insertion points, based on source code coordinates or
+function names.  The interception of inline functions is weak.  At the
+present, we also don't have/use the benefit of hooks inserted into the
+kernel just for us, which would make probes simple and precise.  But
+all these problems are being worked on.
+
+So, as a stop-gap for this warts-and-all demonstration, the script
+just uses hard-coded PC addresses.  Please look beyond that and use
+your imagination!
+
+- FChE
 
 
-diff -puN include/asm-i386/mach-es7000/mach_mpparse.h~es7000-compile-fix include/asm-i386/mach-es7000/mach_mpparse.h
---- linux-2.6.16-rc1-mm4/include/asm-i386/mach-es7000/mach_mpparse.h~es7000-compile-fix	2006-02-02 02:56:05.000000000 -0700
-+++ linux-2.6.16-rc1-mm4-root/include/asm-i386/mach-es7000/mach_mpparse.h	2006-02-02 03:35:19.000000000 -0700
-@@ -30,7 +30,8 @@ static inline int mps_oem_check(struct m
- 	return 0;
- }
- 
--static inline int es7000_check_dsdt()
-+#ifdef CONFIG_ACPI
-+static inline int es7000_check_dsdt(void)
- {
- 	struct acpi_table_header *header = NULL;
- 	if(!acpi_get_table_header_early(ACPI_DSDT, &header))
-@@ -54,6 +55,11 @@ static inline int acpi_madt_oem_check(ch
- 	}
- 	return 0;
- }
--
-+#else
-+static inline int acpi_madt_oem_check(char *oem_id, char *oem_table_id)
-+{
-+	return 0;
-+}
-+#endif
- 
- #endif /* __ASM_MACH_MPPARSE_H */
-diff -puN arch/i386/kernel/mpparse.c~es7000-compile-fix arch/i386/kernel/mpparse.c
---- linux-2.6.16-rc1-mm4/arch/i386/kernel/mpparse.c~es7000-compile-fix	2006-02-02 02:56:05.000000000 -0700
-+++ linux-2.6.16-rc1-mm4-root/arch/i386/kernel/mpparse.c	2006-02-02 02:59:07.000000000 -0700
-@@ -828,6 +828,8 @@ void __init find_smp_config (void)
- 		smp_scan_config(address, 0x400);
- }
- 
-+int es7000_plat;
-+
- /* --------------------------------------------------------------------------
-                             ACPI-based MP Configuration
-    -------------------------------------------------------------------------- */
-@@ -1005,8 +1007,6 @@ void __init mp_override_legacy_irq (
- 	return;
- }
- 
--int es7000_plat;
--
- void __init mp_config_acpi_legacy_irqs (void)
- {
- 	struct mpc_config_intsrc intsrc;
-diff -puN arch/i386/mach-es7000/es7000plat.c~es7000-compile-fix arch/i386/mach-es7000/es7000plat.c
---- linux-2.6.16-rc1-mm4/arch/i386/mach-es7000/es7000plat.c~es7000-compile-fix	2006-02-02 02:56:05.000000000 -0700
-+++ linux-2.6.16-rc1-mm4-root/arch/i386/mach-es7000/es7000plat.c	2006-02-02 02:59:54.000000000 -0700
-@@ -51,8 +51,6 @@ struct mip_reg		*host_reg;
- int 			mip_port;
- unsigned long		mip_addr, host_addr;
- 
--#if defined(CONFIG_X86_IO_APIC) && defined(CONFIG_ACPI)
--
- /*
-  * GSI override for ES7000 platforms.
-  */
-@@ -76,8 +74,6 @@ es7000_rename_gsi(int ioapic, int gsi)
- 	return gsi;
- }
- 
--#endif	/* (CONFIG_X86_IO_APIC) && (CONFIG_ACPI) */
--
- void __init
- setup_unisys(void)
- {
-@@ -160,6 +156,7 @@ parse_unisys_oem (char *oemptr)
- 	return es7000_plat;
- }
- 
-+#ifdef CONFIG_ACPI
- int __init
- find_unisys_acpi_oem_table(unsigned long *oem_addr)
- {
-@@ -212,6 +209,7 @@ find_unisys_acpi_oem_table(unsigned long
- 	}
- 	return -1;
- }
-+#endif
- 
- static void
- es7000_spin(int n)
-diff -puN arch/i386/mach-es7000/es7000.h~es7000-compile-fix arch/i386/mach-es7000/es7000.h
---- linux-2.6.16-rc1-mm4/arch/i386/mach-es7000/es7000.h~es7000-compile-fix	2006-02-02 02:56:05.000000000 -0700
-+++ linux-2.6.16-rc1-mm4-root/arch/i386/mach-es7000/es7000.h	2006-02-02 03:04:51.000000000 -0700
-@@ -83,6 +83,7 @@ struct es7000_oem_table {
- 	struct psai psai;
- };
- 
-+#ifdef CONFIG_ACPI
- struct acpi_table_sdt {
- 	unsigned long pa;
- 	unsigned long count;
-@@ -99,6 +100,9 @@ struct oem_table {
- 	u32 OEMTableSize;
- };
- 
-+extern int find_unisys_acpi_oem_table(unsigned long *oem_addr);
-+#endif
-+
- struct mip_reg {
- 	unsigned long long off_0;
- 	unsigned long long off_8;
-@@ -114,7 +118,6 @@ struct mip_reg {
- #define	MIP_FUNC(VALUE) 	(VALUE & 0xff)
- 
- extern int parse_unisys_oem (char *oemptr);
--extern int find_unisys_acpi_oem_table(unsigned long *oem_addr);
- extern void setup_unisys(void);
- extern int es7000_start_cpu(int cpu, unsigned long eip);
- extern void es7000_sw_apic(void);
-_
+#! stap -g
+
+# This embedded-C function is needed to extract a tcp_opt field
+# from a pointer cast to generic struct sock*.  Later, systemtap
+# will offer first class syntax and protected operation for this.
+%{
+#include <net/tcp.h>
+%}
+function tcp_aq_head:long (sock:long) 
+%{
+  struct tcp_opt *tp = tcp_sk ((struct sock*) (uintptr_t) THIS->sock);
+  THIS->__retvalue = (int64_t) (uintptr_t) tp->accept_queue;
+%}
+
+
+global open_request_arrivals # indexed by open_request pointer
+global open_request_delays # stats, indexed by pid and execname
+
+probe # a spot in the open_request creation path
+# XXX: the following commented-out probe points should also work
+# kernel.inline("tcp_acceptq_queue")
+# kernel.function("tcp_v4_conn_request")
+# kernel.inline("tcp_openreq_init")
+  kernel.statement("*@net/ipv4/tcp_ipv4.c:1472") # after tcp_openreq_init()
+{
+  open_request_arrivals[$req] = gettimeofday_us()
+}
+
+
+# One could also probe at entry of tcp_accept itself, to track
+# whether an accept() syscall was blocked by absence of pending
+# open_requests.
+
+
+probe # a spot in tcp_accept, after pending open_request found
+# kernel.statement("*@net/ipv4/tcp_ipv4.c:1922")
+  kernel.statement (0xc029eec8) # near req = tp->accept_queue
+{
+  req = tcp_aq_head ($sk) # tcp_sk(sk)->accept_queue; $req should work too
+  then = open_request_arrivals[req]
+  if (then) { 
+    delete open_request_arrivals[req] # save memory
+    now = gettimeofday_us()
+    open_request_delays[pid(),execname()] <<< now-then 
+  }
+}
+
+
+probe timer.ms(10000), end # periodically and at session shutdown
+{
+  now=gettimeofday_s()
+  foreach ([pid+,execname] in open_request_delays) # sort by pid
+    printf("[%d] %s(%d) count=%d avg=%dus\n", now, execname, pid,
+           @count(open_request_delays[pid,execname]),
+           @avg(open_request_delays[pid,execname]))
+  delete open_request_delays
+}
+
+
+# Some preprocessor magic to prevent someone from running this
+# demonstration script (with its hard-coded probe addresses)
+# on another kernel build
+%( kernel_vr == "2.6.9-30.ELsmp" %? %( arch == "i686" %? /* OK */
+                                                      %: BADARCH %)
+                                 %: BADVERSION %)

@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751536AbWBDAGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946113AbWBDAGm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751536AbWBDAGE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 19:06:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751491AbWBDAGE
+	id S1946113AbWBDAGm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 19:06:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946114AbWBDAGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 19:06:04 -0500
-Received: from beauty.rexursive.com ([218.214.6.102]:48569 "EHLO
-	beauty.rexursive.com") by vger.kernel.org with ESMTP
-	id S1946114AbWBDAGC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 19:06:02 -0500
-Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
-From: Bojan Smojver <bojan@rexursive.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, nigel@suspend2.net,
-       suspend2-devel@lists.suspend2.net, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060203235546.GB3291@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain>
-	 <20060202152316.GC8944@ucw.cz> <20060202132708.62881af6.akpm@osdl.org>
-	 <200602030918.07006.nigel@suspend2.net>
-	 <20060203120055.0nu3ym4yuck0os84@imp.rexursive.com>
-	 <20060202171812.49b86721.akpm@osdl.org>
-	 <20060203124253.m6azcn4wg88gsogc@imp.rexursive.com>
-	 <20060203114948.GC2972@elf.ucw.cz>
-	 <1139010204.2191.14.camel@coyote.rexursive.com>
-	 <20060203235546.GB3291@elf.ucw.cz>
-Content-Type: text/plain
-Date: Sat, 04 Feb 2006 11:05:59 +1100
-Message-Id: <1139011559.2191.29.camel@coyote.rexursive.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.90 (2.5.90-1) 
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Feb 2006 19:06:42 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:63724 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1946113AbWBDAGl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 19:06:41 -0500
+Date: Fri, 3 Feb 2006 16:06:35 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: akpm@osdl.org
+cc: Adam Litke <agl@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: [HUGETLB] Add comment explaining reasons for Bus Errors 
+Message-ID: <Pine.LNX.4.62.0602031604030.2779@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-02-04 at 00:55 +0100, Pavel Machek wrote:
+I just spent some time researching a Bus Error. Turns out 
+that the huge page fault handler can return VM_FAULT_SIGBUS for various
+conditions where no huge page is available.
 
-> The weird reasons were stated few times already. My favourite weird
-> reason is "can be done in userspace" these days.
+Add a note explaining the reasoning in the source.
 
-OK, let me give you the user perspective again:
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-- can I use vanilla kernel suspend support now: NO
-- can I use suspend2 suspend support now: YES
-- would I like things to improve even more: YES
-
-I don't know why we have to wait a year to have decent suspend support.
-By developing uswsusp, you are pretty much agreeing with me - current
-kernel stuff isn't working to your (or mine) satisfaction. Now, I know
-uswsusp is going to be better than sliced bread, but wouldn't it be nice
-if more people could actually use their notebooks properly in the
-meantime?
-
--- 
-Bojan
-
+Index: linux-2.6.16-rc2/mm/hugetlb.c
+===================================================================
+--- linux-2.6.16-rc2.orig/mm/hugetlb.c	2006-02-02 22:03:08.000000000 -0800
++++ linux-2.6.16-rc2/mm/hugetlb.c	2006-02-03 16:03:20.000000000 -0800
+@@ -444,6 +444,15 @@ retry:
+ 		page = alloc_huge_page(vma, address);
+ 		if (!page) {
+ 			hugetlb_put_quota(mapping);
++			/*
++		 	 * No huge pages available. So this is an OOM
++			 * condition but we do not want to trigger the OOM
++			 * killer, so we return VM_FAULT_SIGBUS.
++			 *
++			 * A program using hugepages may fault with Bus Error
++			 * because no huge pages are available in the cpuset, per
++			 * memory policy or because all are in use!
++			 */
+ 			goto out;
+ 		}
+ 

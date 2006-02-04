@@ -1,82 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWBDLDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWBDLFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932192AbWBDLDe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 06:03:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWBDLDe
+	id S932245AbWBDLFX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 06:05:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWBDLFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 06:03:34 -0500
-Received: from ogre.sisk.pl ([217.79.144.158]:17568 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932192AbWBDLDd (ORCPT
+	Sat, 4 Feb 2006 06:05:22 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:15755 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932245AbWBDLFV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 06:03:33 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <nigel@suspend2.net>
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Date: Sat, 4 Feb 2006 11:58:59 +0100
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, suspend2-devel@lists.suspend2.net,
-       linux-kernel@vger.kernel.org
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <20060204090112.GJ3291@elf.ucw.cz> <200602041954.22484.nigel@suspend2.net>
-In-Reply-To: <200602041954.22484.nigel@suspend2.net>
+	Sat, 4 Feb 2006 06:05:21 -0500
+Date: Sat, 4 Feb 2006 12:05:04 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Mark Lord <lkml@rtr.ca>
+cc: Ulrich Mueller <ulm@kph.uni-mainz.de>,
+       Herbert Poetzl <herbert@13thfloor.at>, linux-kernel@vger.kernel.org,
+       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Byron Stanoszek <gandalf@winds.org>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH ]  VMSPLIT config options (with default config fixed)
+In-Reply-To: <43E3DB99.9020604@rtr.ca>
+Message-ID: <Pine.LNX.4.61.0602041204490.30014@yvahk01.tjqt.qr>
+References: <20060110132957.GA28666@elte.hu> <20060110133728.GB3389@suse.de>
+ <Pine.LNX.4.63.0601100840400.9511@winds.org> <20060110143931.GM3389@suse.de>
+ <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3E9C2.1000309@rtr.ca>
+ <20060110173217.GU3389@suse.de> <43C3F0CA.10205@rtr.ca> <43C403BA.1050106@pobox.com>
+ <43C40803.2000106@rtr.ca> <20060201222314.GA26081@MAIL.13thfloor.at>
+ <uhd7irpi7@a1i15.kph.uni-mainz.de> <Pine.LNX.4.61.0602022144190.30391@yvahk01.tjqt.qr>
+ <43E3DB99.9020604@rtr.ca>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602041159.00326.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>
+> Mmm.. bad idea.  As much as I'd like the default to be 3GB_OPT, that would
+> be a big impact to userspace, and there's no point in breaking everyone's
+> machines when advanced users can just reconfig/recompile to get what they want.
+>
+What userspace programs do depend on it?
 
-On Saturday 04 February 2006 10:54, Nigel Cunningham wrote:
-> On Saturday 04 February 2006 19:01, Pavel Machek wrote:
-> > On So 04-02-06 11:20:54, Nigel Cunningham wrote:
-> > > Hi Pavel.
-> > >
-> > > On Friday 03 February 2006 21:44, Pavel Machek wrote:
-> > > > [Pavel is willing to take patches, as his cooperation with Rafael
-> > > > shows, but is scared by both big patches and series of 10 small
-> > > > patches he does not understand. He likes patches removing code.]
-> > >
-> > > Assuming you're refering to the patches that started this thread, what
-> > > don't you understand? I'm more than happy to explain.
-> >
-> > For "suspend2: modules support", it is pretty clear that I do not need
-> > or want that complexity. But for "refrigerator improvements", I did
-> 
-> ... and yet you're perfectly happy to add the complexity of sticking half 
-> the code in userspace. I don't think I'll ever dare to try to understand 
-> you, Pavel :)
-> 
-> > not understand which parts are neccessary because of suspend2
-> > vs. swsusp differences, and if there is simpler way towards the same
-> > goal. (And thanks for a stress hint...)
-> 
-> I think virtually everything is relevant to you.
 
-My personal view is that:
-1) turning the freezing of kernel threads upside-down is not necessary and
-would cause problems in the long run,
-2) the todo lists are not necessary and add a lot of complexity,
-3) trying to treat uninterruptible tasks as non-freezeable should better be
-avoided (I tried to implement this in swsusp last year but it caused vigorous
-opposition to appear, and it was not Pavel ;-))
-
-> A couple of possible  exceptions might be (1) freezing bdevs,
-> because you don't care so much about making xfs really sync and really
-> stop it's activity
-
-As I have already stated, in my view this one is at least worth considering
-in the long run.
-
-> and (2) the  ability to thaw kernel space without thawing userspace. I want
-> this for eating memory, to avoid deadlocking against kjournald etc. I haven't 
-> checked carefully as to why you don't need it in vanilla.
-
-Because it does not deadlock?  I will say we need this if I see a testcase
-showing such a deadlock clearly.
-
-Greetings,
-Rafael
-
+Jan Engelhardt
+-- 

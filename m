@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946311AbWBDGDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946319AbWBDGad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946311AbWBDGDA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 01:03:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946312AbWBDGDA
+	id S1946319AbWBDGad (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 01:30:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946318AbWBDGad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 01:03:00 -0500
-Received: from dsl093-040-174.pdx1.dsl.speakeasy.net ([66.93.40.174]:50341
-	"EHLO aria.kroah.org") by vger.kernel.org with ESMTP
-	id S1946311AbWBDGDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 01:03:00 -0500
-Date: Fri, 3 Feb 2006 22:02:54 -0800
-From: Greg KH <greg@kroah.com>
-To: Max Asbock <masbock@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ibmasm driver: don't use previously freed pointer
-Message-ID: <20060204060254.GA4454@kroah.com>
-References: <1139005598.7521.68.camel@w-amax>
+	Sat, 4 Feb 2006 01:30:33 -0500
+Received: from mx1.mail.ru ([194.67.23.121]:25671 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S1946316AbWBDGac (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 01:30:32 -0500
+Date: Sat, 4 Feb 2006 09:18:48 +0300
+From: Evgeniy Dushistov <dushistov@mail.ru>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] ufs: fill i_size at directory creation
+Message-ID: <20060204061848.GA11894@rain.homenetwork>
+Mail-Followup-To: Alexey Dobriyan <adobriyan@gmail.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org
+References: <20060131234634.GA13773@mipter.zuzino.mipt.ru> <20060201200410.GA11747@rain.homenetwork> <20060203174613.GA7823@mipter.zuzino.mipt.ru> <20060204011815.GA7837@mipter.zuzino.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1139005598.7521.68.camel@w-amax>
+In-Reply-To: <20060204011815.GA7837@mipter.zuzino.mipt.ru>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 02:26:38PM -0800, Max Asbock wrote:
-> ibmasm driver:
-> Fix the command_put() function which uses a pointer for a spinlock that
-> can be freed before dereferencing it.
-> 
-> Signed-off-by: Max Asbock masbock@us.ibm.com
-> 
-> ---
-> 
-> diff -burpN linux-2.6.16-rc1/drivers/misc/ibmasm/ibmasm.h linux-2.6.16-rc1.ibmasm/drivers/misc/ibmasm/ibmasm.h
-> --- linux-2.6.16-rc1/drivers/misc/ibmasm/ibmasm.h	2006-02-01 11:50:01.000000000 -0800
-> +++ linux-2.6.16-rc1.ibmasm/drivers/misc/ibmasm/ibmasm.h	2006-02-03 13:57:42.000000000 -0800
-> @@ -101,10 +101,11 @@ struct command {
->  static inline void command_put(struct command *cmd)
->  {
->  	unsigned long flags;
-> +	spinlock_t *lock = cmd->lock;
->  
-> -	spin_lock_irqsave(cmd->lock, flags);
-> +	spin_lock_irqsave(lock, flags);
->          kobject_put(&cmd->kobj);
-> -	spin_unlock_irqrestore(cmd->lock, flags);
-> +	spin_unlock_irqrestore(lock, flags);
->  }
+On Sat, Feb 04, 2006 at 04:18:15AM +0300, Alexey Dobriyan wrote:
+> How about this as a first small step?
+> +	inode->i_size = UFS_SB(sb)->s_uspi->s_fsize;
 
-If this patch is true, doesn't the spinlock the pointer is pointing out
-still get deleted?
+It looks very strange for me.
 
-Yes you save a pointer off, but it looks like the problem is still
-present.
+During "fill super" we set block size of device to fragment size,
+so sb->s_blocksize and UFS_SB(sb)->s_uspi->s_fsize should be the 
+same size on your system: 2048, hence question:
+what difference between your and my patch?
 
-Or am I missing something?
+-- 
+/Evgeniy
 
-thanks,
-
-greg k-h

@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWBDUyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932573AbWBDVLj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964838AbWBDUyA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 15:54:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWBDUyA
+	id S932573AbWBDVLj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 16:11:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbWBDVLj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 15:54:00 -0500
-Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:59059 "EHLO
-	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S964827AbWBDUx7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 15:53:59 -0500
-To: Nigel Cunningham <ncunningham@cyclades.com>
-cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: S3 sleep regression / 2.6.16-rc1+acpi-release-20060113 
-In-Reply-To: Your message of "Sat, 04 Feb 2006 17:12:25 +1000."
-             <200602041712.30428.ncunningham@cyclades.com> 
-Date: Sat, 04 Feb 2006 20:53:55 +0000
-From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
-Message-Id: <E1F5UPr-0008FN-00@skye.ra.phy.cam.ac.uk>
+	Sat, 4 Feb 2006 16:11:39 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33443 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932573AbWBDVLj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 16:11:39 -0500
+Date: Sat, 4 Feb 2006 22:11:26 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Luca <kronos@kronoz.cjb.net>, linux-kernel@vger.kernel.org
+Subject: Re: Suspend to RAM: help with whitelist wanted
+Message-ID: <20060204211126.GG3909@elf.ucw.cz>
+References: <20060126213611.GA1668@elf.ucw.cz> <20060127170406.GA6164@dreamland.darkstar.lan> <20060127232207.GB1617@elf.ucw.cz> <20060128013111.GA30225@srcf.ucam.org> <20060128084225.GC1605@elf.ucw.cz> <20060129071239.GB23736@srcf.ucam.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060129071239.GB23736@srcf.ucam.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> After the first suspend, do you have any processes sucking all
-> available cpu? This sounds like a thread that has been added since
-> 2.6.15, which is being told to enter the freezer, but isn't doing
-> it. They usually end up sucking cpu afterwards.
+Hi!
 
-A good thought.  I just tried it again.  The system woke up from the
-first S3 sleep with nothing chewing CPU.  Just as a check, the second
-S3 sleep still hangs with the repeating exregion-* messages.
+> > Thanks for pointer! Anyway, AFAICT the list is not really adequate. It
+> > lists working machines, but does not really list all the switches
+> > neccessary to get the video working. (Well, it tries in some cases,
+> > *strange*, perhaps less switches are neccessary than I think?)
+> 
+> For machines where nothing is listed, we do POSTing and restore the VBE 
+> state. These may not be necessary in all cases, but they don't seem to 
+> be actively harmful except on the machines where they're explicitly 
+> switched of.f
 
-I also tried vanilla 2.6.16-rc2 (which includes the latest ACPICA
-releases in it), and it has the same problem.
-
--Sanjoy
-
-`Never underestimate the evil of which men of power are capable.'
-         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.
+Ahha, nice. vbetool seems to work on very wide range of machines.
+								Pavel
+-- 
+Thanks, Sharp!

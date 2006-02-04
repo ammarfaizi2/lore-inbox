@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWBDKfY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946143AbWBDK4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbWBDKfY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 05:35:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWBDKfY
+	id S1946143AbWBDK4w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 05:56:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946144AbWBDK4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 05:35:24 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:54376 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751196AbWBDKfX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 05:35:23 -0500
-Date: Sat, 4 Feb 2006 11:36:02 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Ulrich Mueller <ulm@kph.uni-mainz.de>,
-       Herbert Poetzl <herbert@13thfloor.at>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Byron Stanoszek <gandalf@winds.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH ]  VMSPLIT config options (with default config fixed)
-Message-ID: <20060204103601.GA5010@suse.de>
-References: <Pine.LNX.4.64.0601100804380.4939@g5.osdl.org> <43C3E9C2.1000309@rtr.ca> <20060110173217.GU3389@suse.de> <43C3F0CA.10205@rtr.ca> <43C403BA.1050106@pobox.com> <43C40803.2000106@rtr.ca> <20060201222314.GA26081@MAIL.13thfloor.at> <uhd7irpi7@a1i15.kph.uni-mainz.de> <Pine.LNX.4.61.0602022144190.30391@yvahk01.tjqt.qr> <43E3DB99.9020604@rtr.ca>
+	Sat, 4 Feb 2006 05:56:52 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:35306 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1946143AbWBDK4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 05:56:52 -0500
+Date: Sat, 4 Feb 2006 10:56:50 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       hch@infradead.org
+Subject: Re: unexport lookup_hash
+Message-ID: <20060204105649.GA27514@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Adrian Bunk <bunk@stusta.de>, Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20060203212259.GA11066@redhat.com> <20060203223224.GT4408@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43E3DB99.9020604@rtr.ca>
+In-Reply-To: <20060203223224.GT4408@stusta.de>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03 2006, Mark Lord wrote:
-> >Maybe something like:
-> >        config VMSPLIT_1G
-> >                bool "1G/3G user/kernel split"
-> >        config VMSPLIT_X
-> >                bool "Manual split"
-> >endchoice
-> ...
+On Fri, Feb 03, 2006 at 11:32:24PM +0100, Adrian Bunk wrote:
+> On Fri, Feb 03, 2006 at 04:22:59PM -0500, Dave Jones wrote:
+> > I just stumbled across this whilst checking for planned feature removal,
+> > and missed any discussion why this didn't happen, so I assume Christoph forgot.
+> >...
 > 
-> Yes, that looks like a good idea.
+> I did beat you by a few minutes.  :-)
 
-Sounds like a huge mess to me. The manual kernel buffer size
-configuration was bad enough, and this is much trickier. People have
-enough problems even understanding what the option does, lets please
-leave it as is with a few select options.
-
--- 
-Jens Axboe
-
+and your patch also makes it static which is possible now.  Andrew also queued
+up the patch already, so this one won't apply anymore.

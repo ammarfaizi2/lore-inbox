@@ -1,41 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946349AbWBDIGo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946343AbWBDINn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946349AbWBDIGo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 03:06:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946350AbWBDIGo
+	id S1946343AbWBDINn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 03:13:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946350AbWBDINn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 03:06:44 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:268 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S1946349AbWBDIGo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 03:06:44 -0500
-Date: Sat, 4 Feb 2006 09:06:13 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Fr?d?ric L. W. Meunier" <2@pervalidus.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: menuconfig: no colors in 2.6.12-rc2 ?
-Message-ID: <20060204080613.GA8655@mars.ravnborg.org>
-References: <Pine.LNX.4.64.0602031957070.4864@dyndns.pervalidus.net> <20060203222843.GA11973@mars.ravnborg.org> <964857280602031447l57df7c1epced4a6f14979ce30@mail.gmail.com>
+	Sat, 4 Feb 2006 03:13:43 -0500
+Received: from [84.204.75.166] ([84.204.75.166]:42446 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP
+	id S1946346AbWBDINn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 03:13:43 -0500
+Subject: [QUESTION/sysfs] strange refcounting
+From: "Artem B. Bityutskiy" <dedekind@infradead.org>
+Reply-To: dedekind@infradead.org
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: MTD
+Date: Sat, 04 Feb 2006 11:13:41 +0300
+Message-Id: <1139040821.13125.4.camel@sauron.oktetlabs.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <964857280602031447l57df7c1epced4a6f14979ce30@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 08:47:31PM -0200, Fr?d?ric L. W. Meunier wrote:
- 
-> > Try to rename ncursesw to ncurses in
-> > scripts/kconfig/lxdialog/check-dialog.sh
-> > to test if ncursesw is the culprint.
-> 
-> Yes, that worked. Is it a bug in ncursesw ? I'm using a recent one.
+Hello folks, 
 
-Yes, I assume so. Eithet that or something local on your setup.
-I have reports from others where use of ncursesw gives them nice looking
-ASCII symbols in text mode and colours.
-I do not have ncursesw myself so no possibility to test.
+I'm writing a simple device driver and want to expose some of its
+attributes to userspace via sysfs. 
 
-	Sam
+As usually, I have main device description structure "struct
+mydev_info". I've embedded a struct device object there. What I do is: 
+
+struct mydev_info mydev 
+{ 
+    struct device *dev; 
+    ... bla bla bla ... 
+} mydev; 
+
+
+mydev->dev=kzalloc(sizeof(struct device), GFP_KERNEL); 
+mydev->dev->bus_id = "mydev"; 
+mydev->dev->release = mydev_release; 
+err = device_register(&mydev->dev); 
+
+Then, I see /sys/devices/mydev/ in sysfs. I open
+pre-defined /sys/devices/mydev/power/state in userspace and don't close it. 
+
+Then I run lsmod, and see zero refcount to my module. Well, I run rmmod
+mymod, module is unloaded. 
+
+Then I close /sys/devices/mydev/power/state, and enjoy segfault. 
+
+I thought sysfs subsystem have to increase module refcount when one
+opens its sysfs files. Well, there is a release function, but it is also
+unloaded with the module. 
+
+May be there is a problem because of I have mydev->dev->parent == NULL,
+mydev->dev->bus == NULL, mydev->dev->driver == NULL? But I really don't
+have any bus, any parent and I don't want to introduce struct
+device_driver ... 
+
+Kernel is 2.6.15.1. 
+
+Although this is my first meet with sysfs, this looks strange. 
+
+Thanks.
+
+-- 
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.
 

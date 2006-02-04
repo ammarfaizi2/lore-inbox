@@ -1,69 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbWBDWOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWBDWYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932386AbWBDWOc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 17:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbWBDWOc
+	id S964842AbWBDWYg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 17:24:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbWBDWYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 17:14:32 -0500
-Received: from sorrow.cyrius.com ([65.19.161.204]:38930 "EHLO
-	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S932386AbWBDWOb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 17:14:31 -0500
-Date: Sat, 4 Feb 2006 22:14:17 +0000
-From: Martin Michlmayr <tbm@cyrius.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: Bad interaction between uhci_hcd and de2104x
-Message-ID: <20060204221416.GA11491@deprecation.cyrius.com>
-References: <20060204111521.GB18806@deprecation.cyrius.com> <Pine.LNX.4.44L0.0602041101130.757-100000@netrider.rowland.org>
-MIME-Version: 1.0
+	Sat, 4 Feb 2006 17:24:35 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:10257 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S964842AbWBDWYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 17:24:35 -0500
+Date: Sat, 4 Feb 2006 23:24:29 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Mathias Kretschmer <posting@blx4.net>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Linux Kernel Useful Patches (2.4)
+Message-ID: <20060204222429.GA27562@w.ods.org>
+References: <20060130085233.GA1498@w.ods.org> <43E27895.4010904@blx4.net> <20060204181554.GG6026@w.ods.org> <986ed62e0602041254h5ffd3e4eqb11e515ddf939fc6@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0602041101130.757-100000@netrider.rowland.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <986ed62e0602041254h5ffd3e4eqb11e515ddf939fc6@mail.gmail.com>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Stern <stern@rowland.harvard.edu> [2006-02-04 11:09]:
-> It sure looks as though the ethernet interface is generating an
-> interrupt request before the de2104x driver has registered its
-> interrupt handler.  When uhci-hcd isn't already loaded the IRQ is
-> unused, hence disabled, and so nothing bad happens.  If uhci-hcd is
-> already loaded then the IRQ is enabled (because uhci-hcd is using
-> it), so you get the problem -- an interrupt occurs with no
-> registered handler.
+Hi Barry,
 
-Jeff, should I resend my report to the netdev list?
+On Sat, Feb 04, 2006 at 12:54:15PM -0800, Barry K. Nathan wrote:
+> On 2/4/06, Willy TARREAU <willy@w.ods.org> wrote:
+> > The last O(1) patch I've seen does not apply to kernels more recent than 2.4.19
+> > (it's on Ingo's site). Do you have any up to date pointer that I could use ?
+> > However, I have a local rediff of the lowlat patch that I will include.
+> 
+> (This e-mail ended up being a bit longer than I intended. The most
+> relevant stuff may be in the last couple of paragraphs, but I've
+> included the whole message for the sake of completeness.)
+> 
+> Red Hat ships it in a 2.4.21-based kernel. Here's their latest source RPM:
+> ftp://ftp.redhat.com/pub/redhat/linux/updates/enterprise/3AS/en/os/SRPMS/kernel-2.4.21-37.0.1.EL.src.rpm
+> 
+> However, I just remembered that the RHEL 3 kernel patch series starts
+> with an -ac patch and builds up from there. I think it gets the O(1)
+> scheduler from there but it might apply further patches to it (but I'm
+> not 100% sure my memory is correct here).
+> 
+> Here's the last -ac patch:
+> http://kernel.org/pub/linux/kernel/people/alan/linux-2.4/2.4.22/patch-2.4.22-ac4.bz2
 
-By the way, http://bugs.debian.org/288821 looks like a related issue.
-There the traceback indicates interrupts too:
+That's what I found too, but -ac is too much different. I tried applying
+some patches designed for 2.4.21-ac and 2.4.22-ac on their non-ac respective
+equivalents, and they rejected a lot of stuff.
 
-eth0: set link 10baseT auto
-eth0:    mode 0x7ffc0040, sia 0x10c4,0xffffef01,0xffffffff,0xffff0008
-eth0:    set mode 0x7ffc0040, set sia 0xef01,0xffff,0x8
- [__report_bad_irq+42/144] __report_bad_irq+0x2a/0x90
- [note_interrupt+108/160] note_interrupt+0x6c/0xa0
- [do_IRQ+289/304] do_IRQ+0x121/0x130
- [common_interrupt+24/32] common_interrupt+0x18/0x20
- [__do_softirq+48/128] __do_softirq+0x30/0x80
- [acpi_irq+0/22] acpi_irq+0x0/0x16
- [do_softirq+38/48] do_softirq+0x26/0x30
- [do_IRQ+253/304] do_IRQ+0xfd/0x130
- [common_interrupt+24/32] common_interrupt+0x18/0x20
- [__crc_do_softirq+25311/208152] de_set_rx_mode+0x26/0x50 [de2104x]
- [__crc_do_softirq+28277/208152] de_init_hw+0x8c/0x90 [de2104x]
- [__crc_do_softirq+29105/208152] de_open+0x68/0x140 [de2104x]
- [profile_hook+45/75] profile_hook+0x2d/0x4b
- [dev_open+203/256] dev_open+0xcb/0x100
- [dev_mc_upload+36/80] dev_mc_upload+0x24/0x50
- [dev_change_flags+81/288] dev_change_flags+0x51/0x120
- [devinet_ioctl+582/1424] devinet_ioctl+0x246/0x590
- [inet_ioctl+94/160] inet_ioctl+0x5e/0xa0
- [sock_ioctl+249/688] sock_ioctl+0xf9/0x2b0
- [sys_ioctl+269/656] sys_ioctl+0x10d/0x290
- [syscall_call+7/11] syscall_call+0x7/0xb
-eth0: link up, media 10baseT auto
+> If you want to see what Red Hat/Fedora did against 2.4.22, this is
+> what the final Fedora Core 1 kernel shipped:
+> http://cvs.fedora.redhat.com/viewcvs/rpms/kernel/FC-1/
+> (There are newer kernels for FC1 from Fedora Legacy, but I think those
+> just add security fixes.)
+> 
+> There's also 2.4.27-pre2-pac1, which has the O(1) scheduler. I don't
+> know if it introduces any bugs into the O(1) scheduler though. (It did
+> introduce a bug into the overcommit accounting, because part of it was
+> missing.)
+> http://kernel.org/pub/linux/kernel/people/bero/2.4/2.4.27/patch-2.4.27-pre2-pac1.bz2
+> 
+> Finally, 2.4.31-lck1 has the O(1) scheduler. This is the "base" patch
+> for 2.4.31-lck1, which has O(1) but also has "kernel preemption, low
+> latency and CK interactivity":
+> http://www.plumlocosoft.com/kernel/patches/2.4/2.4.31/2.4.31-lck1/components/010-lckbase.diff.bz2
+> 
+> It's probably the most recent forward-port of the O(1) patch, and it's
+> probably going to be the smallest diff to look through as well, if you
+> want to cherry-pick it out and make it work on 2.4.32 or 2.4.33-pre.
 
--- 
-Martin Michlmayr
-http://www.cyrius.com/
+I have not time to spend digging through the diff, but I can link to
+it. It clearly is the most recent version amongst all those we have
+seen.
+
+> (I don't think I'll be doing this, however. The boxes I manage that
+> would greatly benefit from O(1) will probably move to kernel 2.6 soon
+> for other reasons anyway.)
+> --
+> -Barry K. Nathan <barryn@pobox.com>
+
+Thanks for your investigation,
+Willy
+

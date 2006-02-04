@@ -1,44 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160995AbWBDPT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWBDPaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160995AbWBDPT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 10:19:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1160996AbWBDPT1
+	id S932298AbWBDPaH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 10:30:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbWBDPaH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 10:19:27 -0500
-Received: from silver.veritas.com ([143.127.12.111]:50220 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1160995AbWBDPT0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 10:19:26 -0500
-Date: Sat, 4 Feb 2006 15:20:00 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: yipee <yipeeyipeeyipeeyipee@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: changing physical page
-In-Reply-To: <loom.20060204T152816-726@post.gmane.org>
-Message-ID: <Pine.LNX.4.61.0602041518230.8867@goblin.wat.veritas.com>
-References: <loom.20060202T160457-366@post.gmane.org>
- <Pine.LNX.4.61.0602021711110.8796@goblin.wat.veritas.com>
- <loom.20060204T152816-726@post.gmane.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 04 Feb 2006 15:19:24.0095 (UTC) FILETIME=[6151A4F0:01C6299E]
+	Sat, 4 Feb 2006 10:30:07 -0500
+Received: from tim.rpsys.net ([194.106.48.114]:20124 "EHLO tim.rpsys.net")
+	by vger.kernel.org with ESMTP id S932519AbWBDPaF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 10:30:05 -0500
+Subject: Re: [PATCH 10/11] LED: Add IDE disk activity LED trigger
+From: Richard Purdie <rpurdie@rpsys.net>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux-ide <linux-ide@vger.kernel.org>
+In-Reply-To: <58cb370e0601310944l421174f8j1802d94f1ae93a01@mail.gmail.com>
+References: <1138714918.6869.139.camel@localhost.localdomain>
+	 <58cb370e0601310646y263acb96h62c422435e7016e@mail.gmail.com>
+	 <1138724479.6869.201.camel@localhost.localdomain>
+	 <58cb370e0601310944l421174f8j1802d94f1ae93a01@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 04 Feb 2006 15:29:54 +0000
+Message-Id: <1139066994.8064.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Feb 2006, yipee wrote:
-> Hugh Dickins <hugh <at> veritas.com> writes:
-> > I'll assume that when you say "page owned by a user program", you're
-> > meaning a private page, not a shared file page mapped into the program.
-> > 
-> > If you're asking about what currently happens, the answer is "No".
-> > 
-> > If you're asking about what you can assume, the answer is "Yes".
+Hi,
+
+On Tue, 2006-01-31 at 18:44 +0100, Bartlomiej Zolnierkiewicz wrote: 
+> > The trigger started out as just being ide-disk.c based but there is no
+> > place where the IDE end request function could be hooked within it due
+> > to its use of generic functions. The trigger therefore had to move into
+> > more generic code. If there was a point in ide-disk where an IDE end
+> > request could be hooked it, it could be confined to that file.
 > 
-> So you are saying that the current kernel doesn't move these kind of pages?
+> Isn't ->end_request hook in ide_driver_t enough?
+> 
+> I see no reason why the custom ->end_request function cannot
+> be added to ide-disk.  All needed infrastructure is there.
 
-If you don't have swap (one of the conditions you gave), yes.
+Not quite as I tried that once and it didn't intercept every
+->end_request call. I've just traced this to an explicit call to
+ide_end_request() rather than drv->end_request() in ide-taskfile.c
 
-> but it may in future versions?
+The patch below might or might not be an appropriate fix. With this
+applied, the led trigger simplifies to:
+http://www.rpsys.net/openzaurus/patches/led_ide-r3.patch
 
-Yes.
+Richard
+
+
+Ensure ide-taskfile.c calls any driver specific end_request function
+if present.
+
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+
+Index: linux-2.6.15/drivers/ide/ide-taskfile.c
+===================================================================
+--- linux-2.6.15.orig/drivers/ide/ide-taskfile.c	2006-01-03 03:21:10.000000000 +0000
++++ linux-2.6.15/drivers/ide/ide-taskfile.c	2006-02-04 14:02:23.000000000 +0000
+@@ -372,7 +372,13 @@
+ 		}
+ 	}
+ 
+-	ide_end_request(drive, 1, rq->hard_nr_sectors);
++	if (rq->rq_disk) {
++		ide_driver_t *drv;
++
++		drv = *(ide_driver_t **)rq->rq_disk->private_data;;
++		drv->end_request(drive, 1, rq->hard_nr_sectors);
++	} else
++		ide_end_request(drive, 1, rq->hard_nr_sectors);
+ }
+ 
+ /*
+
+

@@ -1,87 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWBDJb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945970AbWBDJeb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbWBDJb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 04:31:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbWBDJb0
+	id S1945970AbWBDJeb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 04:34:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945986AbWBDJeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 04:31:26 -0500
-Received: from sipsolutions.net ([66.160.135.76]:16650 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S932166AbWBDJb0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 04:31:26 -0500
-Subject: Re: 2.6.16-rc1-mm5: drivers/ieee1394/oui O=... builds broken
-From: Johannes Berg <johannes@sipsolutions.net>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+	Sat, 4 Feb 2006 04:34:31 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:39055 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1945970AbWBDJeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 04:34:31 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <43E4742F.7060609@s5r6.in-berlin.de>
+Date: Sat, 04 Feb 2006 10:30:23 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux1394-devel@lists.sourceforge.net
+CC: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
        bcollins@debian.org, scjody@modernduck.com,
-       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.ne,
-       sam@ravnborg.org
+       linux-kernel@vger.kernel.org, sam@ravnborg.org,
+       Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: 2.6.16-rc1-mm5: drivers/ieee1394/oui O=... builds broken
+References: <20060203000704.3964a39f.akpm@osdl.org> <20060203212507.GR4408@stusta.de> <43E46F1F.9070503@s5r6.in-berlin.de>
 In-Reply-To: <43E46F1F.9070503@s5r6.in-berlin.de>
-References: <20060203000704.3964a39f.akpm@osdl.org>
-	 <20060203212507.GR4408@stusta.de>  <43E46F1F.9070503@s5r6.in-berlin.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-y5RnL7ahE45LC1Nf7jhK"
-Date: Sat, 04 Feb 2006 10:31:03 +0100
-Message-Id: <1139045463.3602.1.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (-0.671) AWL,BAYES_20
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(2nd attempt with corrected list of recipients)
 
---=-y5RnL7ahE45LC1Nf7jhK
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Sat, 2006-02-04 at 10:08 +0100, Stefan Richter wrote:
+I wrote:
 > Adrian Bunk wrote:
-> > ...
-> >   OUI2C   drivers/ieee1394/oui.c
-> > /bin/sh: drivers/ieee1394/oui2c.sh: No such file or directory
-> > make[3]: *** [drivers/ieee1394/oui.c] Error 127
-> >=20
-> > <--  snip  -->
-> >=20
-> >=20
-> > The change that broke it is:
-> >=20
-> >=20
-> >  quiet_cmd_oui2c =3D OUI2C   $@
-> > -      cmd_oui2c =3D $(CONFIG_SHELL) $(srctree)/$(src)/oui2c.sh < $< > =
-$@
-> > +      cmd_oui2c =3D $(CONFIG_SHELL) $(src)/oui2c.sh < $< > $@
->=20
-> How can this be reproduced? IOW which way of building the kernel is broke=
-n?
+>> ...
+>>   OUI2C   drivers/ieee1394/oui.c
+>> /bin/sh: drivers/ieee1394/oui2c.sh: No such file or directory
+>> make[3]: *** [drivers/ieee1394/oui.c] Error 127
+>>
+>> <--  snip  -->
+>>
+>>
+>> The change that broke it is:
+>>
+>>
+>>  quiet_cmd_oui2c = OUI2C   $@
+>> -      cmd_oui2c = $(CONFIG_SHELL) $(srctree)/$(src)/oui2c.sh < $< > $@
+>> +      cmd_oui2c = $(CONFIG_SHELL) $(src)/oui2c.sh < $< > $@
+> 
+> 
+> How can this be reproduced? IOW which way of building the kernel is broken?
 
-Looks like my mistake. I was pretty sure I tested the normal in-kernel
-build way, sorry.
 
-I did the change in order to build out of tree (with an absolute path as
-a SUBDIRS value).
-
-johannes
-
---=-y5RnL7ahE45LC1Nf7jhK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (SIP Solutions)
-
-iQIVAwUAQ+R0VKVg1VMiehFYAQLg1hAAq57V6y8H260SiV4/2qQ5Af1Xi8QV2TN4
-b705/ivST8fvMpf+uoH5epPHObEjpIeFEyWspbY0UVZx9a0Dm9YmIK8JU37Ip2TM
-Puxu+OAnu7zwY43YZGs5r4w0Be7riJiu1p356akJENeRXriJWus7aPGmdZXe2W1f
-31kdNo7RKmoNZIMEoX4SWd0LWhMxordRd+rB0p7FKTDyYWh+P9VKjbmRulsabBZ6
-W3tuzLrcKd8w2hu0b1PWukloFKszb9WD9yHIx0UMrjnoLGzEFu7rXfpSmFwnP09D
-STpJHwiAtHKY9YIJeGTu7/VtOqnfyWdp5LdYpMW76T+lyZ7ACSNgNVfJgcoT6fp4
-9wFy6OpVZpnfc4oXAn7YcciauqCg18FwkGzicbAJ7r14uLuZKzSSd4nWvUI9LzyS
-eWBALkvIley45TrQYpxZU+qsmrKm18w84cn3fGwThtKlnQbYJ2YVtis+Q3qk9pas
-Ukxcp6yNH7LNWAUim75l1xBbZv1Ku7X8QreXjrueYVAt4DrsrTp2ygdSdgbKxLR8
-Q6IvVACUAnVwQzI6gSKhyJfWBK62vTRlc3unKMd+9rNmnR4WrfNF1OXzlYqovgJM
-X615iynNWibF1pIc+XJOrrGc1joukFhzarQ0mDK7YLFoTT/DClfgiyz+kQ1lK0A5
-S0eEY9j4UJk=
-=goho
------END PGP SIGNATURE-----
-
---=-y5RnL7ahE45LC1Nf7jhK--
-
+-- 
+Stefan Richter
+-=====-=-==- --=- --=--
+http://arcgraph.de/sr/

@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932558AbWBDURN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932560AbWBDUV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932558AbWBDURN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 15:17:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932561AbWBDURN
+	id S932560AbWBDUV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 15:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbWBDUV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 15:17:13 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:38126 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932558AbWBDURN (ORCPT
+	Sat, 4 Feb 2006 15:21:56 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:22863 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932560AbWBDUVz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 15:17:13 -0500
+	Sat, 4 Feb 2006 15:21:55 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=J3BUcgjo5WsJ/H32FwfU1E6nR/t/qmpi8FZibnbr/lDZAdvLE6FrZ/+bC5iCXt7fNid++//Yqcpn80PJj4EXwEugKEvW93Vd29n+8tf37t+moY8ewuVrwLejZJafRwsNo1mTLhso4R/X+czPCIbtXDQDX6ruQWGaNw93M2DZxWw=
+        b=MO+NMTAI8tDx8XoD50fFSvzFN51dcDVKD5T1ufM1Nva60jeH8OFJDwNpyA34wtAQz28IN7oyAVrZr0ZWpDP5OsYyDV+yEMY/tS4whWhTESx0OJzUYUHUJtDiNPWkjXUu7iNfZ1brvW86IpLLpWv/yuq3PmFiEcZInKRv5XNqUgM=
 From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Linux List <linux-kernel@vger.kernel.org>
-Subject: [PATCH][OSS][Maestro3] vfree() checks for NULL, no need to do it explicitly
-Date: Sat, 4 Feb 2006 21:17:20 +0100
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH]no need to check pointers passed to vfree() for NULL in sound/usb/usbaudio.c
+Date: Sat, 4 Feb 2006 21:22:03 +0100
 User-Agent: KMail/1.9
-Cc: Zach Brown <zab@zabbo.net>, Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Takashi Iwai <tiwai@suse.de>, Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200602042117.20585.jesper.juhl@gmail.com>
+Message-Id: <200602042122.03187.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vfree() checks for NULL, no need to do it explicitly.
+There's no need to check pointers passed to vfree() for NULL.
 
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 ---
 
- sound/oss/maestro3.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ sound/usb/usbaudio.c |    7 +++----
+ 1 files changed, 3 insertions(+), 4 deletions(-)
 
---- linux-2.6.16-rc2-git1-orig/sound/oss/maestro3.c	2006-01-03 04:21:10.000000000 +0100
-+++ linux-2.6.16-rc2-git1/sound/oss/maestro3.c	2006-02-04 21:14:32.000000000 +0100
-@@ -2580,10 +2580,10 @@ static int alloc_dsp_suspendmem(struct m
- 
-     return 0;
- }
-+
- static void free_dsp_suspendmem(struct m3_card *card)
+--- linux-2.6.16-rc2-git1-orig/sound/usb/usbaudio.c	2006-02-04 14:44:23.000000000 +0100
++++ linux-2.6.16-rc2-git1/sound/usb/usbaudio.c	2006-02-04 21:19:03.000000000 +0100
+@@ -725,10 +725,9 @@ static int snd_pcm_alloc_vmalloc_buffer(
+ static int snd_pcm_free_vmalloc_buffer(struct snd_pcm_substream *subs)
  {
--   if(card->suspend_mem)
--       vfree(card->suspend_mem);
-+    vfree(card->suspend_mem);
+ 	struct snd_pcm_runtime *runtime = subs->runtime;
+-	if (runtime->dma_area) {
+-		vfree(runtime->dma_area);
+-		runtime->dma_area = NULL;
+-	}
++
++	vfree(runtime->dma_area);
++	runtime->dma_area = NULL;
+ 	return 0;
  }
  
- #else
-
-

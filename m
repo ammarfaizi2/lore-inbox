@@ -1,58 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932563AbWBDU3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932564AbWBDUb3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932563AbWBDU3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 15:29:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932564AbWBDU3Y
+	id S932564AbWBDUb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 15:31:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932565AbWBDUb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 15:29:24 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:27861 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932563AbWBDU3Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 15:29:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=IEra5swDs99+1eDGlQCrHqqEUe98weLz9ytPFlpRsxHgBJw9d0znkJDkDKGxkqoa6g+IWgb7xu/46bwmIu8gH0C35k8MoZeGu185kQ8YuwY+Q+ihCpZPTeFO7r/eqg8c8TprfomRmXmETjRJ267XArNstHPZAmu14ZNWeaSklng=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Don't check pointers passed to vfree for null in pdaudiocf_pcm.c
-Date: Sat, 4 Feb 2006 21:29:30 +0100
-User-Agent: KMail/1.9
-Cc: Jaroslav Kysela <perex@suse.cz>, Jesper Juhl <jesper.juhl@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 4 Feb 2006 15:31:29 -0500
+Received: from vbn.0050556.lodgenet.net ([216.142.194.234]:59018 "EHLO
+	vbn.0050556.lodgenet.net") by vger.kernel.org with ESMTP
+	id S932564AbWBDUb3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 15:31:29 -0500
+Subject: Re: [RFC PATCH] crc generation fix for EXPORT_SYMBOL_GPL
+From: Arjan van de Ven <arjan@infradead.org>
+To: Ram Pai <linuxram@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060202041543.GA6755@RAM>
+References: <20060202041543.GA6755@RAM>
+Content-Type: text/plain
+Date: Sat, 04 Feb 2006 21:31:26 +0100
+Message-Id: <1139085087.3131.8.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200602042129.30381.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't check pointers passed to vfree for null in pdaudiocf_pcm.c - it's pointless.
+On Wed, 2006-02-01 at 20:15 -0800, Ram Pai wrote:
+> Currently genksym does not take into account the GPLness of the exported
+> symbol while generating the crc for the exported symbol. Any symbol
+> changes from EXPORT_SYMBOL to EXPORT_SYMBOL_GPL would not reflect in the
+> Module.symvers file.  This patch fixes that problem.
 
-
-Signed-off-by: Jesper Juhl <Jesper.Juhl@Gmail.Com>
----
-
- sound/pcmcia/pdaudiocf/pdaudiocf_pcm.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
-
---- linux-2.6.16-rc2-git1-orig/sound/pcmcia/pdaudiocf/pdaudiocf_pcm.c	2006-02-04 14:44:23.000000000 +0100
-+++ linux-2.6.16-rc2-git1/sound/pcmcia/pdaudiocf/pdaudiocf_pcm.c	2006-02-04 21:26:37.000000000 +0100
-@@ -66,10 +66,9 @@ static int snd_pcm_alloc_vmalloc_buffer(
- static int snd_pcm_free_vmalloc_buffer(struct snd_pcm_substream *subs)
- {
- 	struct snd_pcm_runtime *runtime = subs->runtime;
--	if (runtime->dma_area) {
--		vfree(runtime->dma_area);
--		runtime->dma_area = NULL;
--	}
-+
-+	vfree(runtime->dma_area);
-+	runtime->dma_area = NULL;
- 	return 0;
- }
- 
-
+and this is a problem.. why?
 
 

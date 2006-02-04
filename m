@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946240AbWBDBJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946238AbWBDBIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946240AbWBDBJP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 20:09:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946236AbWBDBJP
+	id S1946238AbWBDBIl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Feb 2006 20:08:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946243AbWBDBIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 20:09:15 -0500
-Received: from ns1.siteground.net ([207.218.208.2]:22480 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S1946240AbWBDBJO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 20:09:14 -0500
-Date: Fri, 3 Feb 2006 17:08:57 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       manfred@colorfullife.com, shai@scalex86.org,
-       alok.kataria@calsoftinc.com, sonny@burdell.org
-Subject: Re: [patch 0/3] NUMA slab locking fixes
-Message-ID: <20060204010857.GG3653@localhost.localdomain>
-References: <20060203205341.GC3653@localhost.localdomain> <20060203140748.082c11ee.akpm@osdl.org> <Pine.LNX.4.62.0602031504460.2517@schroedinger.engr.sgi.com>
+	Fri, 3 Feb 2006 20:08:41 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:5124 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S1946238AbWBDBIl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Feb 2006 20:08:41 -0500
+Date: Sat, 4 Feb 2006 02:08:33 +0100
+From: Olivier Galibert <galibert@pobox.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
+Subject: Re: [Suspend2-devel] Re: [ 00/10] [Suspend2] Modules support.
+Message-ID: <20060204010833.GD4845@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Pavel Machek <pavel@ucw.cz>, suspend2-devel@lists.suspend2.net,
+	linux-kernel@vger.kernel.org
+References: <20060202132708.62881af6.akpm@osdl.org> <200602030918.07006.nigel@suspend2.net> <20060203120055.0nu3ym4yuck0os84@imp.rexursive.com> <20060202171812.49b86721.akpm@osdl.org> <20060203124253.m6azcn4wg88gsogc@imp.rexursive.com> <20060203114948.GC2972@elf.ucw.cz> <1139010204.2191.14.camel@coyote.rexursive.com> <20060203235546.GB3291@elf.ucw.cz> <20060204003659.GC4845@dspnet.fr.eu.org> <20060204004944.GE3291@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0602031504460.2517@schroedinger.engr.sgi.com>
+In-Reply-To: <20060204004944.GE3291@elf.ucw.cz>
 User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 03:06:16PM -0800, Christoph Lameter wrote:
-> On Fri, 3 Feb 2006, Andrew Morton wrote:
+On Sat, Feb 04, 2006 at 01:49:44AM +0100, Pavel Machek wrote:
+> > Why don't you try to design the system so that the progress bar can't
+> > fuck up the suspend unless they really, really want to?  Instead of
+> > one where a forgotten open(O_CREAT) in a corner of graphics code can
+> > randomly trash the filesystem through metadata corruption?
 > 
-> > Could you please redo/retest these patches so that they apply on
-> > 2.6.16-rc2.  Also, please arrange for any bugfixes to be staged ahead of
-> > any optimisations - the optimisations we can defer until 2.6.17.
-> 
-> It seems that these two things are tightly connected. By changing the 
-> locking he was able to address the hotplug breakage.
+> Even if I only put chrome code to userspace, open() would still be
+> deadly. I could do something fancy with disallowing syscalls,
 
-Yes,  they are.  The cachep->spinlock goes away at many places due to the 
-colour_next patch and keeping the l3 around. (we should not have called that 
-optimization I guess :)), and the irq disabling had to be moved to the 
-l3 lock anyways.  Maybe I could have done away with patch 2 (merged it with 
-patch3), but I thought keeping them seperate made it readable ....
+Nah, simply chroot to an empty virtual filesystem (a tmpfs with max
+size=0 will do) and they can't do any fs-related fuckup anymore.  Just
+give them a fd through which request some specific resources
+(framebuffer mmap essentially I would say) and exchange messages with
+the suspend system (status, cancel, etc) and maybe log stderr for
+debugging purposes and that's it.  They can't do damage by mistake
+anymore.  They can always send signals to random pids, but that's not
+called a mistake at that point.
 
-Patchset against rc2 follows.
+Even better, you can run _multiple_ processes that way, some for
+compression/encryption, some for chrome, etc.
 
-Thanks,
-Kiran
 
-PS: Many hotplug fixes are yet to be applied upstream I think.  I know
-these slab patches work well with mm4 (with the x86_64 subtree and hotplug 
-fixes in there) but I cannot really test cpu_up after cpu_down on rc2 
-because it is broken as of now (pending merges, I guess).
+> but it
+> is probably easier to just read the chrome code to be used... It
+> should be as simple as memcpy(framebuffer, prepared image).
+
+I guess I just can't trust chrome code.  I've have seen too much of it
+to be able to.  Especially since once you open the gates a simple
+animated-gif equivalent won't be considered enough, and userland code
+does not go through the same kind of filters kernel code does.
+
+Anybody and his dog will be able to take your userland suspend code,
+add their neogeo emulator to play while it's suspending, and then
+point at you when their fs got eaten after the tenth reboot.  And
+distribs will pick it up because it's cool.
+
+  OG.
+

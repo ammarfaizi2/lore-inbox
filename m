@@ -1,73 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946343AbWBDINn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWBDIp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946343AbWBDINn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 03:13:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946350AbWBDINn
+	id S1750858AbWBDIp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 03:45:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWBDIp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 03:13:43 -0500
-Received: from [84.204.75.166] ([84.204.75.166]:42446 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP
-	id S1946346AbWBDINn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 03:13:43 -0500
-Subject: [QUESTION/sysfs] strange refcounting
-From: "Artem B. Bityutskiy" <dedekind@infradead.org>
-Reply-To: dedekind@infradead.org
-To: linux-kernel@vger.kernel.org
+	Sat, 4 Feb 2006 03:45:58 -0500
+Received: from shards.monkeyblade.com ([192.83.249.58]:44479 "EHLO
+	shards.monkeyblade.net") by vger.kernel.org with ESMTP
+	id S1750817AbWBDIp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 03:45:58 -0500
+Subject: [kernel.org users] Reminder - master.kernel.org replacement this
+	Saturday, February 4
+From: "J.H." <warthog9@kernel.org>
+To: users@kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43E03811.3020304@zytor.com>
+References: <43E03811.3020304@zytor.com>
 Content-Type: text/plain
-Organization: MTD
-Date: Sat, 04 Feb 2006 11:13:41 +0300
-Message-Id: <1139040821.13125.4.camel@sauron.oktetlabs.ru>
+Date: Fri, 03 Feb 2006 22:37:40 -0800
+Message-Id: <1139035063.22611.6.camel@strider.middle.earth>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.0 (2.4.0-2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello folks, 
+Hey Everyone,
 
-I'm writing a simple device driver and want to expose some of its
-attributes to userspace via sysfs. 
+This is just a reminder that today (Saturday Feb. 4th) there is
+scheduled downtime for master.kernel.org.  The downtime will begin at
+11:00 PST/19:00 UTC.  As stated before this is to do an upgrade on
+master.kernel.org.
 
-As usually, I have main device description structure "struct
-mydev_info". I've embedded a struct device object there. What I do is: 
+Public services will not be affected.
 
-struct mydev_info mydev 
-{ 
-    struct device *dev; 
-    ... bla bla bla ... 
-} mydev; 
+This is just a reminder.
 
-
-mydev->dev=kzalloc(sizeof(struct device), GFP_KERNEL); 
-mydev->dev->bus_id = "mydev"; 
-mydev->dev->release = mydev_release; 
-err = device_register(&mydev->dev); 
-
-Then, I see /sys/devices/mydev/ in sysfs. I open
-pre-defined /sys/devices/mydev/power/state in userspace and don't close it. 
-
-Then I run lsmod, and see zero refcount to my module. Well, I run rmmod
-mymod, module is unloaded. 
-
-Then I close /sys/devices/mydev/power/state, and enjoy segfault. 
-
-I thought sysfs subsystem have to increase module refcount when one
-opens its sysfs files. Well, there is a release function, but it is also
-unloaded with the module. 
-
-May be there is a problem because of I have mydev->dev->parent == NULL,
-mydev->dev->bus == NULL, mydev->dev->driver == NULL? But I really don't
-have any bus, any parent and I don't want to introduce struct
-device_driver ... 
-
-Kernel is 2.6.15.1. 
-
-Although this is my first meet with sysfs, this looks strange. 
-
-Thanks.
-
--- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.
+- John Hawley
+Kernel.org Admin
 

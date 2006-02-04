@@ -1,93 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1945983AbWBDPOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbWBDPQ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1945983AbWBDPOs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 10:14:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1945989AbWBDPOs
+	id S932512AbWBDPQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 10:16:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbWBDPQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 10:14:48 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:59064 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1945983AbWBDPOr convert rfc822-to-8bit (ORCPT
+	Sat, 4 Feb 2006 10:16:28 -0500
+Received: from fe2.cox-internet.com ([66.76.2.39]:51880 "EHLO fe2.coxmail.com")
+	by vger.kernel.org with ESMTP id S932512AbWBDPQ1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 10:14:47 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Sat, 4 Feb 2006 10:16:27 -0500
+Message-ID: <04b801c6299d$f5282150$1e3010ac@bahota>
+From: "Benjamin" <benchu@tamu.edu>
+To: "Frank Ch. Eigler" <fche@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <43E28A07.1040604@tamu.edu> <y0mek2kdlqk.fsf@toenail.toronto.redhat.com>
+Subject: Re: Measure the Accept Queueing Time
+Date: Sat, 4 Feb 2006 09:16:22 -0600
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: acpi_cpufreq broken after _PDC patch
-Date: Sat, 4 Feb 2006 07:14:40 -0800
-Message-ID: <88056F38E9E48644A0F562A38C64FB6007248198@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: acpi_cpufreq broken after _PDC patch
-Thread-Index: AcYpnFLI+htk4q6+QO+pH1P1J2wwzwAAQaJg
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Gerhard Schrenk" <deb.gschrenk@gmx.de>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 04 Feb 2006 15:14:42.0932 (UTC) FILETIME=[B9BB9340:01C6299D]
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1506
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ Oh! Thank you very much and sorry to take you so much time!
+Now, I am trying to implement what you said. It seems not easy to me!^_^
+Thanks again!
+ Benjamin Chu
+----- Original Message ----- 
+From: "Frank Ch. Eigler" <fche@redhat.com>
+To: "Benjamin Chu" <benchu@tamu.edu>
+Cc: <linux-kernel@vger.kernel.org>; <systemtap@sources.redhat.com>
+Sent: Friday, February 03, 2006 6:13 PM
+Subject: Re: Measure the Accept Queueing Time
 
-Please use Enhanced speedstep config option as well under Ppower
-Management->cpufreq (with ACPI option under it enabled too). That will
-configure speedstep-centrino driver, which should work here.
-Speedstep-centrino driver is a better option than acpi-cpufreq, as it
-will do much faster P-state transition.
 
-Thanks,
-Venki 
+>
+> Benjamin Chu <benchu@tamu.edu> writes:
+>
+> > [...]  All I want is to measure the amount of time when a open
+> > request is in the accept queue. [...]
+> > p.s. My Linux Kernel Version is 2.4.25
+>
+> Dude, you made me spend several hours playing with systemtap to solve
+> this simple-sounding problem.  :-)
+>
+> At the end, I have a script (attached below) that works on one
+> particular kernel build (a beta RHEL4 kernel, which has the systemtap
+> prerequisite kprobes, but uses the same networking structure).
+> Unfortunately, it also demonstrated some of the work we have to do in
+> systemtap land to make it work better.
+>
+> The good news: here is the output of the script running on a vmware
+> instance that has only single socket listener program, being briefly
+> tickled by hand, then hammered by "nc" connections in a loop.  The
+> lines came out every ten seconds (as requested by the script, see
+> below), and report on the number of successful accept()s, plus the
+> number of microseconds that each open_request* was in the
+> accept_queue.
+>
+> % socket -l -s NNNN &
+> [1] 25384
+> % stap -g acceptdelay.stp
+> [1139011591] socket(25384) count=1 avg=1487us
+> [1139011601] socket(25384) count=9 avg=560us
+> [1139011611] socket(25384) count=6 avg=915us
+> [1139011621] socket(25384) count=747 avg=604us
+> [1139011631] socket(25384) count=1280 avg=558us
+> [1139011641] socket(25384) count=1147 avg=547us
+> [1139011645] socket(25384) count=25 avg=471us
+>
+> Is that the sort of data you were hoping to see?
+>
+> The systemtap translator unfortunately has problems identifying the
+> most ideal probe insertion points, based on source code coordinates or
+> function names.  The interception of inline functions is weak.  At the
+> present, we also don't have/use the benefit of hooks inserted into the
+> kernel just for us, which would make probes simple and precise.  But
+> all these problems are being worked on.
+>
+> So, as a stop-gap for this warts-and-all demonstration, the script
+> just uses hard-coded PC addresses.  Please look beyond that and use
+> your imagination!
+>
+> - FChE
+>
+>
+> #! stap -g
+>
+> # This embedded-C function is needed to extract a tcp_opt field
+> # from a pointer cast to generic struct sock*.  Later, systemtap
+> # will offer first class syntax and protected operation for this.
+> %{
+> #include <net/tcp.h>
+> %}
+> function tcp_aq_head:long (sock:long)
+> %{
+>   struct tcp_opt *tp = tcp_sk ((struct sock*) (uintptr_t) THIS->sock);
+>   THIS->__retvalue = (int64_t) (uintptr_t) tp->accept_queue;
+> %}
+>
+>
+> global open_request_arrivals # indexed by open_request pointer
+> global open_request_delays # stats, indexed by pid and execname
+>
+> probe # a spot in the open_request creation path
+> # XXX: the following commented-out probe points should also work
+> # kernel.inline("tcp_acceptq_queue")
+> # kernel.function("tcp_v4_conn_request")
+> # kernel.inline("tcp_openreq_init")
+>   kernel.statement("*@net/ipv4/tcp_ipv4.c:1472") # after
+tcp_openreq_init()
+> {
+>   open_request_arrivals[$req] = gettimeofday_us()
+> }
+>
+>
+> # One could also probe at entry of tcp_accept itself, to track
+> # whether an accept() syscall was blocked by absence of pending
+> # open_requests.
+>
+>
+> probe # a spot in tcp_accept, after pending open_request found
+> # kernel.statement("*@net/ipv4/tcp_ipv4.c:1922")
+>   kernel.statement (0xc029eec8) # near req = tp->accept_queue
+> {
+>   req = tcp_aq_head ($sk) # tcp_sk(sk)->accept_queue; $req should work too
+>   then = open_request_arrivals[req]
+>   if (then) {
+>     delete open_request_arrivals[req] # save memory
+>     now = gettimeofday_us()
+>     open_request_delays[pid(),execname()] <<< now-then
+>   }
+> }
+>
+>
+> probe timer.ms(10000), end # periodically and at session shutdown
+> {
+>   now=gettimeofday_s()
+>   foreach ([pid+,execname] in open_request_delays) # sort by pid
+>     printf("[%d] %s(%d) count=%d avg=%dus\n", now, execname, pid,
+>            @count(open_request_delays[pid,execname]),
+>            @avg(open_request_delays[pid,execname]))
+>   delete open_request_delays
+> }
+>
+>
+> # Some preprocessor magic to prevent someone from running this
+> # demonstration script (with its hard-coded probe addresses)
+> # on another kernel build
+> %( kernel_vr == "2.6.9-30.ELsmp" %? %( arch == "i686" %? /* OK */
+>                                                       %: BADARCH %)
+>                                  %: BADVERSION %)
+>
 
->-----Original Message-----
->From: Gerhard Schrenk [mailto:deb.gschrenk@gmx.de] 
->Sent: Saturday, February 04, 2006 7:03 AM
->To: Pallipadi, Venkatesh
->Cc: linux-kernel@vger.kernel.org
->Subject: acpi_cpufreq broken after _PDC patch
->
->Hi,
->
->commit 05131ecc99ea9da7f45ba3058fe8a2c1d0ceeab8 breaks acpi_cpufreq for
->an Intel Centrino notebook with Pentium M 1.60GHz (it's a Medion MD
->95600 (aka MSI S260) notebook).
->
->|gps@medusa:~/scratch/kernel-tree$ git bisect bad
->|05131ecc99ea9da7f45ba3058fe8a2c1d0ceeab8 is first bad commit
->|diff-tree 05131ecc99ea9da7f45ba3058fe8a2c1d0ceeab8 (from 
->d2149b542382bfc206cb28485108f6470c979566)
->|Author: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
->|Date:   Sun Oct 23 16:31:00 2005 -0400
->|
->|    [ACPI] Avoid BIOS inflicted crashes by evaluating _PDC only once
->|    
->|    Linux invokes the AML _PDC method (Processor Driver Capabilities)
->|    to tell the BIOS what features it can handle.  While the ACPI
->|    spec says nothing about the OS invoking _PDC multiple times,
->|    doing so with changing bits seems to hopelessly confuse the BIOS
->|    on multiple platforms up to and including crashing the system.
->|    
->|    Factor out the _PDC invocation so Linux invokes it only once.
->|    
->|    http://bugzilla.kernel.org/show_bug.cgi?id=5483
->|    
->|    Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
->|    Signed-off-by: Len Brown <len.brown@intel.com>
->
->The error message is
->
->|gps@medusa:~$ sudo modprobe acpi_cpufreq
->|FATAL: Error inserting acpi_cpufreq
->|(/lib/modules/2.6.15-rc3-bisect1/kernel/arch/i386/kernel/cpu/c
-pufreq/acpi-cpufreq.ko):
->|No such device
->
->Unfortunately 
->
->  git revert 05131ecc99ea9da7f45ba3058fe8a2c1d0ceeab8 
->
->does not work without merge conflict on top of Linus' tree.
->
->-- Gerhard
->

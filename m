@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946130AbWBDQeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbWBDQh5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946130AbWBDQeF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 11:34:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946124AbWBDQeF
+	id S932359AbWBDQh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 11:37:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbWBDQh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 11:34:05 -0500
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:4469 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S1946130AbWBDQeC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 11:34:02 -0500
-X-IronPort-AV: i="4.02,88,1139212800"; 
-   d="scan'208"; a="1773422574:sNHT29029000"
-Subject: [git patch review 1/2] IB/mad: Handle DR SMPs with a LID routed part
-From: Roland Dreier <rolandd@cisco.com>
-Date: Sat, 04 Feb 2006 16:33:57 +0000
-To: linux-kernel@vger.kernel.org, openib-general@openib.org
-X-Mailer: IB-patch-reviewer
-Content-Transfer-Encoding: 8bit
-Message-ID: <1139070837111-02eec52639fd6aed@cisco.com>
-X-OriginalArrivalTime: 04 Feb 2006 16:33:57.0643 (UTC) FILETIME=[CBC2E5B0:01C629A8]
+	Sat, 4 Feb 2006 11:37:57 -0500
+Received: from dvhart.com ([64.146.134.43]:20886 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S932359AbWBDQh4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 11:37:56 -0500
+Date: Sat, 4 Feb 2006 08:37:52 -0800
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Marc Koschewski <marc@osknowledge.org>
+Cc: dtor_core@ameritech.net, rlrevell@joe-job.com, 76306.1226@compuserve.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Randy Dunlap <rdunlap@xenotime.net>
+Subject: Re: Wanted: hotfixes for -mm kernels
+Message-Id: <20060204083752.a5c5b058.mbligh@mbligh.org>
+In-Reply-To: <20060203100703.GA5691@stiffy.osknowledge.org>
+References: <200602021502_MC3-1-B772-547@compuserve.com>
+	<1138913633.15691.109.camel@mindpipe>
+	<d120d5000602021345i255bb69eydb67bc1b0a448f8d@mail.gmail.com>
+	<20060203100703.GA5691@stiffy.osknowledge.org>
+X-Mailer: Sylpheed version 2.1.1 (GTK+ 2.8.6; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix handling of directed route SMPs with a beginning or ending LID
-routed part.
 
-Signed-off-by: Ralph Campbell <ralphc@pathscale.com>
-Signed-off-by: Hal Rosenstock <halr@voltaire.com>
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
+> > > I doubt it - mm is an experimental kernel, hotfixes only make sense for
+> > > production stuff.  It moves too fast.
+> > >
+> > > A better question is what does -mm give you that mainline does not, that
+> > > causes you to want to "stabilize" a specific -mm version?
+> > >
+> > 
+> > Some people just run -mm so the hotfixes/* would help them to get
+> > their boxes running until the next -mm without having to hunt through
+> > LKML for bugs already reported/fixed. This will allow better testing
+> > coverage because most obvious bugs are caught almost immediately and
+> > then people can continue using -mm to find more stuff.
+> 
+> ... that's just why I so often wish to have a -git tree, Andrew. ;)
 
----
+Why do people always thing a source code control system is magically going
+to fix all bugs and wipe their ass for them?
 
- drivers/infiniband/core/mad.c |   10 +++++++++-
- 1 files changed, 9 insertions(+), 1 deletions(-)
+You still have to work out which patches are relevant and merge them. If 
+he's just merging a new set of changes constantly, it won't help you a damn. 
 
-8cf3f04f45694db0699f608c0e3fb550c607cc88
-diff --git a/drivers/infiniband/core/mad.c b/drivers/infiniband/core/mad.c
-index d393b50..c82f47a 100644
---- a/drivers/infiniband/core/mad.c
-+++ b/drivers/infiniband/core/mad.c
-@@ -665,7 +665,15 @@ static int handle_outgoing_dr_smp(struct
- 	struct ib_wc mad_wc;
- 	struct ib_send_wr *send_wr = &mad_send_wr->send_wr;
- 
--	if (!smi_handle_dr_smp_send(smp, device->node_type, port_num)) {
-+	/*
-+	 * Directed route handling starts if the initial LID routed part of
-+	 * a request or the ending LID routed part of a response is empty.
-+	 * If we are at the start of the LID routed part, don't update the
-+	 * hop_ptr or hop_cnt.  See section 14.2.2, Vol 1 IB spec.
-+	 */
-+	if ((ib_get_smp_direction(smp) ? smp->dr_dlid : smp->dr_slid) ==
-+	     IB_LID_PERMISSIVE &&
-+	    !smi_handle_dr_smp_send(smp, device->node_type, port_num)) {
- 		ret = -EINVAL;
- 		printk(KERN_ERR PFX "Invalid directed route\n");
- 		goto out;
--- 
-1.1.3
+What is needed is somebody to do the grunt work, not SCM magic. I'll try to
+help with Randy's suggestion of a shared pool of patches in a common dumping 
+ground at least - I've needed pretty much the same thing in the past for the 
+test.kernel.org stuff ... mainly fixups needed to get the tree to boot so
+we can test it.
+
+M.

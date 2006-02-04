@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946308AbWBDEmn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1946307AbWBDFCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1946308AbWBDEmn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Feb 2006 23:42:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946307AbWBDEmn
+	id S1946307AbWBDFCq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 00:02:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1946310AbWBDFCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Feb 2006 23:42:43 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:46283 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1946303AbWBDEmm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Feb 2006 23:42:42 -0500
-Date: Fri, 3 Feb 2006 22:42:34 -0600
-From: Mark Maule <maule@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: pj@sgi.com, linuxppc64-dev@ozlabs.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       tony.luck@intel.com, gregkh@suse.de
-Subject: Re: Altix SN2 2.6.16-rc1-mm5 build breakage (was:  msi support)
-Message-ID: <20060204044234.GA31134@sgi.com>
-References: <20060119194647.12213.44658.14543@lnx-maule.americas.sgi.com> <20060119194702.12213.16524.93275@lnx-maule.americas.sgi.com> <20060203201441.194be500.pj@sgi.com> <20060203202531.27d685fa.akpm@osdl.org> <20060203202742.1e514fcc.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060203202742.1e514fcc.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Sat, 4 Feb 2006 00:02:46 -0500
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:35972 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1946307AbWBDFCp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Feb 2006 00:02:45 -0500
+To: linux-acpi@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Subject: S3 sleep regression / 2.6.16-rc1+acpi-release-20060113
+Date: Sat, 04 Feb 2006 05:02:43 +0000
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Message-Id: <E1F5FZL-0001sP-00@skye.ra.phy.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 03, 2006 at 08:27:42PM -0800, Andrew Morton wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > So it
-> >  looks like you've found a fix for a patch which isn't actually in -mm any
-> >  more.  I sent that fix to Greg the other day.
-> 
-> Actually, gregkh-pci-altix-msi-support-git-ia64-fix.patch fix`es
-> git-ia64.patch when gregkh-pci-altix-msi-support.patch is also applied, so
-> it's not presently useful to either Greg or Tony.  I'll take care of it,
-> somehow..
-> 
+The gory details are at
+<http://bugzilla.kernel.org/show_bug.cgi?id=5989>, but the short
+summary:
 
-I think what happened here is that I submitted a patchset for msi
-abstractions (and others posted a couple of subsequent bugfix incrementals),
-but these were not taken into the 2.6.16 base 'cause of their invasiveness.
-These patches touched the tioce_provider.c file.
+With 2.6.15, S3 sleep and wake were 98% fine (once in a while waking
+would hang, but I haven't managed to reproduce it).  However, with
+2.6.16-rc1 with the acpi-20060113 patch, the first sleep and wake goes
+fine and the second sleep hangs at the 'Stopping tasks'.
 
-Then I submitted another patch which touched the tioce_provider.c file, and
-it looks like I probably based this file on the previous msi versions which
-were being held back, so in order for everything to build, you need all of
-the msi patches applied first.
+With tons of debugging turned on, the second sleep does not hang, but
+the wakeup hangs.  With 0x1F as the acpi debug_level, the second sleep
+still hangs and produces some output across a serial console.  In the
+second sleep (after the second 'Stopping tasks'), it endlessly repeats
+a short sequence of
 
-What's the preferred way to handle this ... fix the current ia64 build and
-then resubmit the msi patches relative to that base?
+exregion-0182 ...
+exregion-0287 ...
+exregion-0182 ...
 
-Mark
+The machine is a TP 600X with the latest (1.11) BIOS and a fixed DSDT
+so that it can S3 sleep at all.
+
+-Sanjoy
+
+`Never underestimate the evil of which men of power are capable.'
+         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

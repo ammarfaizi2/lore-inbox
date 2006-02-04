@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbWBDT3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbWBDTfx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932547AbWBDT3j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Feb 2006 14:29:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbWBDT3j
+	id S932548AbWBDTfx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Feb 2006 14:35:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbWBDTfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Feb 2006 14:29:39 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:50398 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932547AbWBDT3i (ORCPT
+	Sat, 4 Feb 2006 14:35:52 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:38879 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932548AbWBDTfw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Feb 2006 14:29:38 -0500
-Date: Sat, 4 Feb 2006 20:29:24 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <nigel@suspend2.net>
-Cc: suspend2-devel@lists.suspend2.net, linux-kernel@vger.kernel.org
-Subject: Re: [ 00/10] [Suspend2] Modules support.
-Message-ID: <20060204192924.GC3909@elf.ucw.cz>
-References: <20060201113710.6320.68289.stgit@localhost.localdomain> <200602041120.59830.nigel@suspend2.net> <20060204090112.GJ3291@elf.ucw.cz> <200602041954.22484.nigel@suspend2.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 4 Feb 2006 14:35:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=TyUJdCwqPpRqnLy7DZnki4U61NYDDZj5K+TrHB9h2Tkr0sIyIvggqzr3aBauvZXRbNhZZYEAHLV4cGaRZas6ZcHodxQOuy5Zpe6Bv1TWWyNnMwKgfjKuBrQ/RRvQUt9NoO2To03TsUOHRA4nRk1wH7Sv19sTW7OXWh+tySWIi+I=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Don't check pointer for NULL before passing it to kfree   [arch/powerpc/kernel/rtas_flash.c]
+Date: Sat, 4 Feb 2006 20:35:59 +0100
+User-Agent: KMail/1.9
+Cc: Paul Mackerras <paulus@samba.org>, linuxppc-dev@ozlabs.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200602041954.22484.nigel@suspend2.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200602042035.59216.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Checking a pointer for NULL before passing it to kfree is pointless, kfree
+does its own NULL checking of input.
 
-> > > > [Pavel is willing to take patches, as his cooperation with Rafael
-> > > > shows, but is scared by both big patches and series of 10 small
-> > > > patches he does not understand. He likes patches removing code.]
-> > >
-> > > Assuming you're refering to the patches that started this thread, what
-> > > don't you understand? I'm more than happy to explain.
-> >
-> > For "suspend2: modules support", it is pretty clear that I do not need
-> > or want that complexity. But for "refrigerator improvements", I did
-> 
-> ... and yet you're perfectly happy to add the complexity of sticking half 
-> the code in userspace. I don't think I'll ever dare to try to understand 
-> you, Pavel :)
 
-Complexity in userspace: ungood.
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
-Complexity in kernel: doubleplusungood.
+ arch/powerpc/kernel/rtas_flash.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
 
-It is not that hard to understand :-).
-								Pavel
+--- linux-2.6.16-rc2-git1-orig/arch/powerpc/kernel/rtas_flash.c	2006-01-03 04:21:10.000000000 +0100
++++ linux-2.6.16-rc2-git1/arch/powerpc/kernel/rtas_flash.c	2006-02-04 20:30:21.000000000 +0100
+@@ -672,8 +672,7 @@ static void rtas_flash_firmware(int rebo
+ static void remove_flash_pde(struct proc_dir_entry *dp)
+ {
+ 	if (dp) {
+-		if (dp->data != NULL)
+-			kfree(dp->data);
++		kfree(dp->data);
+ 		dp->owner = NULL;
+ 		remove_proc_entry(dp->name, dp->parent);
+ 	}
 
--- 
-Thanks, Sharp!
+
